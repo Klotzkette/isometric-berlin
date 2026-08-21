@@ -61,6 +61,12 @@ import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import { ADLER_BRIDGE_PROFILE } from "../src/AdlerBridge";
 import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
 import { SANDKRUG_OSM_DECK } from "../src/HumboldthafenSources";
+import {
+  WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
+  WEIDENDAMMER_BRIDGE_PROFILE,
+  WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT,
+  WEIDENDAMMER_BRIDGE_SMOOTH_ROOT_NAME,
+} from "../src/WeidendammerBridgeDetails";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import surfacePolygonPayload from "../public/mesh/regierungsviertel/surface-polygons.json";
@@ -762,21 +768,27 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     }
   });
 
-  test("quay walls drop from the banks wherever land meets water", async () => {
-    const voxelPayload =
-      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
-        default: unknown;
-      };
-    const city = createIsometricCity(
-      payload,
-      voxelPayload.default as never,
-      null,
-    );
-    const quays = city.getObjectByName("drawn quay walls") as Mesh;
-    expect(quays).toBeInstanceOf(Mesh);
-    // Thousands of embankment triangles along Spree + Humboldthafen.
-    expect(quays.geometry.getAttribute("position").count).toBeGreaterThan(3000);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+  test(
+    "quay walls drop from the banks wherever land meets water",
+    async () => {
+      const voxelPayload =
+        (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+          default: unknown;
+        };
+      const city = createIsometricCity(
+        payload,
+        voxelPayload.default as never,
+        null,
+      );
+      const quays = city.getObjectByName("drawn quay walls") as Mesh;
+      expect(quays).toBeInstanceOf(Mesh);
+      // Thousands of embankment triangles along Spree + Humboldthafen.
+      expect(quays.geometry.getAttribute("position").count).toBeGreaterThan(
+        3000,
+      );
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
   test("the Reichstag wears its pinned stately window rhythm", async () => {
     const { HERO_WINDOW_FORMATS } = await import("../src/IsometricCityWorld");
@@ -1268,423 +1280,486 @@ describe("real bridge structures", () => {
     expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(0);
   });
 
-  test("retains narrow one-cell park stegs without widening them into roads", async () => {
-    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
-      await import("../src/IsometricCityWorld");
-    const ground = (
-      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
-    ).default as never;
-    expect(BRIDGE_MIN_CLUSTER_CELLS).toBe(1);
-    const city = createIsometricCity(payload, ground, null);
-    const group = city.getObjectByName("drawn bridge structures") as Group;
-    expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(20);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+  test(
+    "retains narrow one-cell park stegs without widening them into roads",
+    async () => {
+      const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
+        await import("../src/IsometricCityWorld");
+      const ground = (
+        await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+      ).default as never;
+      expect(BRIDGE_MIN_CLUSTER_CELLS).toBe(1);
+      const city = createIsometricCity(payload, ground, null);
+      const group = city.getObjectByName("drawn bridge structures") as Group;
+      expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(20);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
-  test("the Gustav-Heinemann-Brücke reaches both banks of the Spree", async () => {
-    const { createIsometricCity, BRIDGE_PROFILES } =
-      await import("../src/IsometricCityWorld");
-    const voxelPayload =
-      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
-        default: { water_top_y_m: number };
-      };
-    const profile = BRIDGE_PROFILES.find(
-      (entry) => entry.name === "Gustav-Heinemann-Brücke",
-    );
-    expect(profile?.surveyedDeck?.halfLengthM).toBeGreaterThan(40);
-    const city = createIsometricCity(
-      payload,
-      voxelPayload.default as never,
-      null,
-    );
-    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    // The 4 m ground grid only caught 52 m of this narrow footbridge, so the
-    // deck used to stop over open water. Measure what is actually drawn in
-    // the crossing's own x band rather than trusting the cluster fit.
-    let minZ = Infinity;
-    let maxZ = -Infinity;
-    for (let index = 0; index < position.count; index += 1) {
-      if (Math.abs(position.getX(index) - (profile?.world[0] ?? 0)) > 12) {
-        continue;
+  test(
+    "the Gustav-Heinemann-Brücke reaches both banks of the Spree",
+    async () => {
+      const { createIsometricCity, BRIDGE_PROFILES } =
+        await import("../src/IsometricCityWorld");
+      const voxelPayload =
+        (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+          default: { water_top_y_m: number };
+        };
+      const profile = BRIDGE_PROFILES.find(
+        (entry) => entry.name === "Gustav-Heinemann-Brücke",
+      );
+      expect(profile?.surveyedDeck?.halfLengthM).toBeGreaterThan(40);
+      const city = createIsometricCity(
+        payload,
+        voxelPayload.default as never,
+        null,
+      );
+      const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+      const position = bodies.geometry.getAttribute("position");
+      // The 4 m ground grid only caught 52 m of this narrow footbridge, so the
+      // deck used to stop over open water. Measure what is actually drawn in
+      // the crossing's own x band rather than trusting the cluster fit.
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+      for (let index = 0; index < position.count; index += 1) {
+        if (Math.abs(position.getX(index) - (profile?.world[0] ?? 0)) > 12) {
+          continue;
+        }
+        const z = position.getZ(index);
+        if (z < -520 || z > -370) continue;
+        minZ = Math.min(minZ, z);
+        maxZ = Math.max(maxZ, z);
       }
-      const z = position.getZ(index);
-      if (z < -520 || z > -370) continue;
-      minZ = Math.min(minZ, z);
-      maxZ = Math.max(maxZ, z);
-    }
-    expect(maxZ - minZ).toBeGreaterThan(88);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+      expect(maxZ - minZ).toBeGreaterThan(88);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
-  test("pins the corrected bridges to published dimensions and identities", async () => {
-    const {
-      createIsometricCity,
-      BRIDGE_PROFILES,
-      GOLDA_PERFORATION_BAYS,
-      KRONPRINZEN_SPAN_LAYOUT_M,
-      MOLTKE_ARCH_COUNT,
-      MOLTKE_BALUSTERS_PER_OPEN_BAY,
-      MOLTKE_BALUSTRADE_BAY_COUNT,
-      MOLTKE_CANDELABRA_COUNT,
-      MOLTKE_CANDELABRA_FIGURE_COUNT,
-      MOLTKE_GRIFFIN_COUNT,
-      MOLTKE_KEYSTONE_HEAD_COUNT,
-      MOLTKE_TROPHY_COUNT,
-      PARLIAMENT_BRIDGE_LEVELS,
-    } = await import("../src/IsometricCityWorld");
-    const ground = (
-      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
-    ).default as never;
-    const profile = (name: string) =>
-      BRIDGE_PROFILES.find((entry) => entry.name === name)!;
+  test(
+    "pins the corrected bridges to published dimensions and identities",
+    async () => {
+      const {
+        createIsometricCity,
+        BRIDGE_PROFILES,
+        GOLDA_PERFORATION_BAYS,
+        KRONPRINZEN_SPAN_LAYOUT_M,
+        MOLTKE_ARCH_COUNT,
+        MOLTKE_BALUSTERS_PER_OPEN_BAY,
+        MOLTKE_BALUSTRADE_BAY_COUNT,
+        MOLTKE_CANDELABRA_COUNT,
+        MOLTKE_CANDELABRA_FIGURE_COUNT,
+        MOLTKE_GRIFFIN_COUNT,
+        MOLTKE_KEYSTONE_HEAD_COUNT,
+        MOLTKE_TROPHY_COUNT,
+        PARLIAMENT_BRIDGE_LEVELS,
+        usesGenericBridgeDeckOrnament,
+      } = await import("../src/IsometricCityWorld");
+      const ground = (
+        await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+      ).default as never;
+      const profile = (name: string) =>
+        BRIDGE_PROFILES.find((entry) => entry.name === name)!;
 
-    expect(profile("Golda-Meir-Steg").surveyedDeck).toEqual({
-      halfLengthM: 38.43,
-      halfWidthM: 2,
-    });
-    expect(profile("Golda-Meir-Steg").kind).toBe("golda");
-    expect(profile("Golda-Meir-Steg").axis).toEqual([0.85749, -0.5145]);
-    expect(profile("Golda-Meir-Steg").palette?.structure).toBe(0xf2b600);
-    expect(GOLDA_PERFORATION_BAYS).toBe(39);
-    expect(profile("Gustav-Heinemann-Brücke").surveyedDeck).toEqual({
-      halfLengthM: 43.88,
-      halfWidthM: 2,
-    });
-    expect(profile("Gustav-Heinemann-Brücke").kind).toBe("vierendeel");
-    expect(profile("Gustav-Heinemann-Brücke").palette).toMatchObject({
-      deck: 0x715b45,
-      metal: 0x315246,
-      structure: 0x547766,
-    });
-    expect(profile("Hugo-Preuß-Brücke").surveyedDeck).toEqual({
-      halfLengthM: 44.205,
-      halfWidthM: 11.78,
-    });
-    expect(profile("Hugo-Preuß-Brücke").kind).toBe("curvedBox");
-    expect(profile("Hugo-Preuß-Brücke").curveSagittaM).toBeCloseTo(-2.98);
-    expect(profile("Hugo-Preuß-Brücke").palette).toMatchObject({
-      metal: 0x444b4e,
-      structure: 0x9ca4a4,
-    });
-    expect(profile("Sandkrugbrücke").surveyedDeck).toEqual({
-      halfLengthM: 16.3,
-      halfWidthM: 14.4,
-    });
-    expect(profile("Sandkrugbrücke")).toMatchObject({
-      axis: SANDKRUG_OSM_DECK.axis,
-      kind: "openFrame",
-      world: SANDKRUG_OSM_DECK.centreWorldM,
-    });
-    expect(profile("Löwenbrücke")).toMatchObject({
-      axis: [0.894279, 0.447511],
-      kind: "suspension",
-      surveyedDeck: { halfLengthM: 9.15, halfWidthM: 0.94 },
-      world: [-1766.908, 680.6395],
-    });
-    expect(profile("Adlerbruecke")).toMatchObject({
-      axis: ADLER_BRIDGE_PROFILE.axis,
-      kind: "adler",
-      surveyedDeck: { halfLengthM: 3.65, halfWidthM: 1.675 },
-      world: [-1197.926, 931.565],
-    });
-    expect(profile("Moltkebrücke").surveyedDeck).toEqual({
-      halfLengthM: 38.79,
-      halfWidthM: 12.85,
-    });
-    expect(profile("Moltkebrücke").axis).toEqual([-0.7174, -0.6967]);
-    expect(profile("Moltkebrücke").palette?.structure).toBe(0xb86c5a);
-    expect(profile("Kronprinzenbrücke")).toMatchObject({
-      axis: [0.87895, -0.47692],
-      kind: "steelArch",
-      surveyedDeck: { halfLengthM: 37.492, halfWidthM: 11.7915 },
-      world: [303.519, -323.32],
-    });
-    expect(KRONPRINZEN_SPAN_LAYOUT_M).toEqual([15.492, 44, 15.492]);
-    expect(MOLTKE_ARCH_COUNT).toBe(3);
-    expect(MOLTKE_BALUSTRADE_BAY_COUNT).toBe(12);
-    expect(MOLTKE_BALUSTERS_PER_OPEN_BAY).toBe(7);
-    expect(MOLTKE_CANDELABRA_COUNT).toBe(8);
-    expect(MOLTKE_CANDELABRA_FIGURE_COUNT).toBe(24);
-    expect(MOLTKE_GRIFFIN_COUNT).toBe(4);
-    expect(MOLTKE_KEYSTONE_HEAD_COUNT).toBe(6);
-    expect(MOLTKE_TROPHY_COUNT).toBe(4);
-    expect(profile("Sprung über die Spree")).toMatchObject({
-      axis: [1, 0],
-      kind: "parliament",
-    });
-    expect(PARLIAMENT_BRIDGE_LEVELS).toBe(2);
-    expect(profile("Weidendammer Brücke")).toMatchObject({
-      axis: [0.0852, 0.9964],
-      kind: "ironArch",
-      surveyedDeck: { halfLengthM: 35.15, halfWidthM: 11.2 },
-      world: [1128.12, -334.72],
-    });
+      expect(profile("Golda-Meir-Steg").surveyedDeck).toEqual({
+        halfLengthM: 38.43,
+        halfWidthM: 2,
+      });
+      expect(profile("Golda-Meir-Steg").kind).toBe("golda");
+      expect(profile("Golda-Meir-Steg").axis).toEqual([0.85749, -0.5145]);
+      expect(profile("Golda-Meir-Steg").palette?.structure).toBe(0xf2b600);
+      expect(GOLDA_PERFORATION_BAYS).toBe(39);
+      expect(profile("Gustav-Heinemann-Brücke").surveyedDeck).toEqual({
+        halfLengthM: 43.88,
+        halfWidthM: 2,
+      });
+      expect(profile("Gustav-Heinemann-Brücke").kind).toBe("vierendeel");
+      expect(profile("Gustav-Heinemann-Brücke").palette).toMatchObject({
+        deck: 0x715b45,
+        metal: 0x315246,
+        structure: 0x547766,
+      });
+      expect(profile("Hugo-Preuß-Brücke").surveyedDeck).toEqual({
+        halfLengthM: 44.205,
+        halfWidthM: 11.78,
+      });
+      expect(profile("Hugo-Preuß-Brücke").kind).toBe("curvedBox");
+      expect(profile("Hugo-Preuß-Brücke").curveSagittaM).toBeCloseTo(-2.98);
+      expect(profile("Hugo-Preuß-Brücke").palette).toMatchObject({
+        metal: 0x444b4e,
+        structure: 0x9ca4a4,
+      });
+      expect(profile("Sandkrugbrücke").surveyedDeck).toEqual({
+        halfLengthM: 16.3,
+        halfWidthM: 14.4,
+      });
+      expect(profile("Sandkrugbrücke")).toMatchObject({
+        axis: SANDKRUG_OSM_DECK.axis,
+        kind: "openFrame",
+        world: SANDKRUG_OSM_DECK.centreWorldM,
+      });
+      expect(profile("Löwenbrücke")).toMatchObject({
+        axis: [0.894279, 0.447511],
+        kind: "suspension",
+        surveyedDeck: { halfLengthM: 9.15, halfWidthM: 0.94 },
+        world: [-1766.908, 680.6395],
+      });
+      expect(profile("Adlerbruecke")).toMatchObject({
+        axis: ADLER_BRIDGE_PROFILE.axis,
+        kind: "adler",
+        surveyedDeck: { halfLengthM: 3.65, halfWidthM: 1.675 },
+        world: [-1197.926, 931.565],
+      });
+      expect(profile("Moltkebrücke").surveyedDeck).toEqual({
+        halfLengthM: 38.79,
+        halfWidthM: 12.85,
+      });
+      expect(profile("Moltkebrücke").axis).toEqual([-0.7174, -0.6967]);
+      expect(profile("Moltkebrücke").palette?.structure).toBe(0xb86c5a);
+      expect(profile("Kronprinzenbrücke")).toMatchObject({
+        axis: [0.87895, -0.47692],
+        kind: "steelArch",
+        surveyedDeck: { halfLengthM: 37.492, halfWidthM: 11.7915 },
+        world: [303.519, -323.32],
+      });
+      expect(KRONPRINZEN_SPAN_LAYOUT_M).toEqual([15.492, 44, 15.492]);
+      expect(MOLTKE_ARCH_COUNT).toBe(3);
+      expect(MOLTKE_BALUSTRADE_BAY_COUNT).toBe(12);
+      expect(MOLTKE_BALUSTERS_PER_OPEN_BAY).toBe(7);
+      expect(MOLTKE_CANDELABRA_COUNT).toBe(8);
+      expect(MOLTKE_CANDELABRA_FIGURE_COUNT).toBe(24);
+      expect(MOLTKE_GRIFFIN_COUNT).toBe(4);
+      expect(MOLTKE_KEYSTONE_HEAD_COUNT).toBe(6);
+      expect(MOLTKE_TROPHY_COUNT).toBe(4);
+      expect(profile("Sprung über die Spree")).toMatchObject({
+        axis: [1, 0],
+        kind: "parliament",
+      });
+      expect(PARLIAMENT_BRIDGE_LEVELS).toBe(2);
+      expect(profile(WEIDENDAMMER_BRIDGE_PROFILE.name)).toMatchObject({
+        axis: [...WEIDENDAMMER_BRIDGE_PROFILE.axis],
+        kind: "ironArch",
+        surveyedDeck: {
+          halfLengthM: WEIDENDAMMER_BRIDGE_PROFILE.inventory.lengthM / 2,
+          halfWidthM: WEIDENDAMMER_BRIDGE_PROFILE.inventory.widthM / 2,
+        },
+        world: [...WEIDENDAMMER_BRIDGE_PROFILE.centreWorldM],
+      });
+      expect(
+        usesGenericBridgeDeckOrnament(
+          profile(WEIDENDAMMER_BRIDGE_PROFILE.name),
+        ),
+      ).toBeFalse();
+      expect(
+        usesGenericBridgeDeckOrnament(profile("Kronprinzenbrücke")),
+      ).toBeTrue();
 
-    const city = createIsometricCity(payload, ground, null);
-    const bridgeGroup = city.getObjectByName(
-      "drawn bridge structures",
-    ) as Group;
-    expect(bridgeGroup.userData.moltkeOrnamentCounts).toEqual({
-      balustradeBays: 12,
-      balusters: 84,
-      candelabra: 8,
-      candelabraFigures: 24,
-      griffins: 4,
-      keystoneHeads: 6,
-      trophies: 4,
-    });
-    const moltkeDetails = city.getObjectByName(
-      "Moltkebrücke ornamental stone bodies",
-    ) as Mesh;
-    const moltkeLamps = city.getObjectByName(
-      "Moltkebrücke ornamental stone lamps",
-    ) as Mesh;
-    const moltkeInk = city.getObjectByName(
-      "Moltkebrücke ornamental stone ink lines",
-    ) as LineSegments;
-    expect(moltkeDetails).toBeInstanceOf(Mesh);
-    expect(moltkeLamps).toBeInstanceOf(Mesh);
-    expect(moltkeInk).toBeInstanceOf(LineSegments);
-    const detailDayMaterial = moltkeDetails.material;
-    const lampDayMaterial = moltkeLamps.material;
-    const inkDayColor = (
-      moltkeInk.material as LineBasicMaterial
-    ).color.getHex();
-    const { setIsoNightPresentation } =
-      await import("../src/IsometricCityWorld");
-    setIsoNightPresentation(city, true, true, "night");
-    expect(moltkeDetails.material).toBe(moltkeDetails.userData.nightMaterial);
-    expect(moltkeLamps.material).toBe(moltkeLamps.userData.nightMaterial);
-    expect(
-      (moltkeLamps.material as MeshStandardMaterial).emissive.getHex(),
-    ).toBe(0xffc75c);
-    expect((moltkeInk.material as LineBasicMaterial).color.getHex()).not.toBe(
-      inkDayColor,
-    );
-    setIsoNightPresentation(city, false, true, "day");
-    expect(moltkeDetails.material).toBe(detailDayMaterial);
-    expect(moltkeLamps.material).toBe(lampDayMaterial);
-    expect((moltkeInk.material as LineBasicMaterial).color.getHex()).toBe(
-      inkDayColor,
-    );
-    const moltkeBounds = new Box3().setFromObject(moltkeDetails);
-    expect(moltkeBounds.max.y - moltkeBounds.min.y).toBeGreaterThan(4.5);
-    expect(
-      moltkeDetails.geometry.getAttribute("position").count,
-    ).toBeGreaterThan(25_000);
-    const lamps = city.getObjectByName("bridge structure lamps") as Mesh;
-    expect(lamps).toBeInstanceOf(Mesh);
-    const lampPositions = lamps.geometry.getAttribute("position");
-    const goldaBounds = new Box3();
-    for (let index = 0; index < lampPositions.count; index += 1) {
-      const vertex = new Vector3().fromBufferAttribute(lampPositions, index);
-      if (vertex.z < -1550) {
-        goldaBounds.expandByPoint(vertex);
+      const city = createIsometricCity(payload, ground, null);
+      const bridgeGroup = city.getObjectByName(
+        "drawn bridge structures",
+      ) as Group;
+      expect(bridgeGroup.userData.moltkeOrnamentCounts).toEqual({
+        balustradeBays: 12,
+        balusters: 84,
+        candelabra: 8,
+        candelabraFigures: 24,
+        griffins: 4,
+        keystoneHeads: 6,
+        trophies: 4,
+      });
+      expect(bridgeGroup.userData.weidendammerDetailOwnership).toEqual({
+        authoredEagleCount: WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
+        authoredRailingSystemCount: WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT,
+        baseArchGirderCount: 10,
+        baseArchSystemCount: 1,
+        genericEagleCount: 0,
+        genericLampStandardCount: 0,
+        genericRailingSystemCount: 0,
+      });
+      const weidendammerRoots: Group[] = [];
+      city.traverse((object) => {
+        if (
+          object instanceof Group &&
+          object.name === WEIDENDAMMER_BRIDGE_SMOOTH_ROOT_NAME
+        ) {
+          weidendammerRoots.push(object);
+        }
+      });
+      expect(weidendammerRoots).toHaveLength(1);
+      expect(weidendammerRoots[0].userData).toMatchObject({
+        eagleCount: 2,
+        lampStandardCount: 8,
+        railingSystemCount: 1,
+      });
+      const moltkeDetails = city.getObjectByName(
+        "Moltkebrücke ornamental stone bodies",
+      ) as Mesh;
+      const moltkeLamps = city.getObjectByName(
+        "Moltkebrücke ornamental stone lamps",
+      ) as Mesh;
+      const moltkeInk = city.getObjectByName(
+        "Moltkebrücke ornamental stone ink lines",
+      ) as LineSegments;
+      expect(moltkeDetails).toBeInstanceOf(Mesh);
+      expect(moltkeLamps).toBeInstanceOf(Mesh);
+      expect(moltkeInk).toBeInstanceOf(LineSegments);
+      const detailDayMaterial = moltkeDetails.material;
+      const lampDayMaterial = moltkeLamps.material;
+      const inkDayColor = (
+        moltkeInk.material as LineBasicMaterial
+      ).color.getHex();
+      const { setIsoNightPresentation } =
+        await import("../src/IsometricCityWorld");
+      setIsoNightPresentation(city, true, true, "night");
+      expect(moltkeDetails.material).toBe(moltkeDetails.userData.nightMaterial);
+      expect(moltkeLamps.material).toBe(moltkeLamps.userData.nightMaterial);
+      expect(
+        (moltkeLamps.material as MeshStandardMaterial).emissive.getHex(),
+      ).toBe(0xffc75c);
+      expect((moltkeInk.material as LineBasicMaterial).color.getHex()).not.toBe(
+        inkDayColor,
+      );
+      setIsoNightPresentation(city, false, true, "day");
+      expect(moltkeDetails.material).toBe(detailDayMaterial);
+      expect(moltkeLamps.material).toBe(lampDayMaterial);
+      expect((moltkeInk.material as LineBasicMaterial).color.getHex()).toBe(
+        inkDayColor,
+      );
+      const moltkeBounds = new Box3().setFromObject(moltkeDetails);
+      expect(moltkeBounds.max.y - moltkeBounds.min.y).toBeGreaterThan(4.5);
+      expect(
+        moltkeDetails.geometry.getAttribute("position").count,
+      ).toBeGreaterThan(25_000);
+      const lamps = city.getObjectByName("bridge structure lamps") as Mesh;
+      expect(lamps).toBeInstanceOf(Mesh);
+      const lampPositions = lamps.geometry.getAttribute("position");
+      const goldaBounds = new Box3();
+      for (let index = 0; index < lampPositions.count; index += 1) {
+        const vertex = new Vector3().fromBufferAttribute(lampPositions, index);
+        if (vertex.z < -1550) {
+          goldaBounds.expandByPoint(vertex);
+        }
       }
-    }
-    expect((goldaBounds.min.x + goldaBounds.max.x) / 2).toBeCloseTo(-170.5, 0);
-    expect((goldaBounds.min.z + goldaBounds.max.z) / 2).toBeCloseTo(-1647.1, 0);
-    expect(
-      Math.hypot(
-        goldaBounds.max.x - goldaBounds.min.x,
-        goldaBounds.max.z - goldaBounds.min.z,
-      ),
-    ).toBeGreaterThan(76);
-
-    // Procedural boxes must expose their upward face. A reversed winding
-    // used to make every bridge deck disappear under back-face culling,
-    // leaving only transverse piers and producing a ladder-like Moltkebrücke.
-    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
-    const positions = bodies.geometry.getAttribute("position");
-    const normals = bodies.geometry.getAttribute("normal");
-    const loewenBridge = city.getObjectByName(
-      "Löwenbrücke recognition model",
-    ) as Group;
-    expect(loewenBridge).toBeInstanceOf(Group);
-    expect(loewenBridge.userData).toMatchObject({
-      hangerCount: 22,
-      lionCount: 4,
-      mainCableCount: 4,
-      modernSafetyHandrailCount: 2,
-      modernSafetyMeshFieldCount: 18,
-      modernSafetyPostCount: 20,
-      osmWayId: "1411957328",
-    });
-    expect(
-      loewenBridge.getObjectByName(
-        "Löwenbrücke modern safety handrails bodies",
-      ),
-    ).toBeInstanceOf(Mesh);
-    expect(
-      loewenBridge.getObjectByName("Löwenbrücke modern safety mesh fields"),
-    ).toBeInstanceOf(LineSegments);
-    const adlerBridge = city.getObjectByName(
-      "Adlerbruecke recognition model",
-    ) as Group;
-    expect(adlerBridge).toBeInstanceOf(Group);
-    expect(adlerBridge.userData).toMatchObject({
-      eagleCount: 2,
-      genericBridgeReplacement: true,
-      osmWayId: "28872983",
-      railBayCount: 14,
-    });
-    // The dedicated timber model replaces, rather than overlays, the old
-    // four-cell grey raster slab at the same coordinate.
-    let genericLoewenVertices = 0;
-    for (let index = 0; index < positions.count; index += 1) {
-      if (
+      expect((goldaBounds.min.x + goldaBounds.max.x) / 2).toBeCloseTo(
+        -170.5,
+        0,
+      );
+      expect((goldaBounds.min.z + goldaBounds.max.z) / 2).toBeCloseTo(
+        -1647.1,
+        0,
+      );
+      expect(
         Math.hypot(
-          positions.getX(index) - profile("Löwenbrücke").world[0],
-          positions.getZ(index) - profile("Löwenbrücke").world[1],
-        ) < 18
-      ) {
-        genericLoewenVertices += 1;
-      }
-    }
-    expect(genericLoewenVertices).toBe(0);
-    let genericAdlerVertices = 0;
-    for (let index = 0; index < positions.count; index += 1) {
-      if (
-        Math.hypot(
-          positions.getX(index) - profile("Adlerbruecke").world[0],
-          positions.getZ(index) - profile("Adlerbruecke").world[1],
-        ) < 12
-      ) {
-        genericAdlerVertices += 1;
-      }
-    }
-    expect(genericAdlerVertices).toBe(0);
-    let upwardMoltkeVertices = 0;
-    for (let index = 0; index < positions.count; index += 1) {
-      if (
-        Math.hypot(
-          positions.getX(index) - profile("Moltkebrücke").world[0],
-          positions.getZ(index) - profile("Moltkebrücke").world[1],
-        ) < 55 &&
-        normals.getY(index) > 0.9
-      ) {
-        upwardMoltkeVertices += 1;
-      }
-    }
-    expect(upwardMoltkeVertices).toBeGreaterThan(100);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+          goldaBounds.max.x - goldaBounds.min.x,
+          goldaBounds.max.z - goldaBounds.min.z,
+        ),
+      ).toBeGreaterThan(76);
 
-  test("leaves the parliament crossing to its open recognition model and keeps the Kronprinzen prow supports", async () => {
-    const {
-      createIsometricCity,
-      BRIDGE_MIN_CLEARANCE_M,
-      BRIDGE_PROFILES,
-      KRONPRINZEN_SPAN_LAYOUT_M,
-    } = await import("../src/IsometricCityWorld");
-    const ground = (
-      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
-    ).default as { water_top_y_m: number };
-    const city = createIsometricCity(payload, ground as never, null);
-    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
-    const positions = bodies.geometry.getAttribute("position");
-    const parliament = BRIDGE_PROFILES.find(
-      (entry) => entry.name === "Sprung über die Spree",
-    )!;
-    const kronprinzen = BRIDGE_PROFILES.find(
-      (entry) => entry.name === "Kronprinzenbrücke",
-    )!;
-    const [ax, az] = kronprinzen.axis!;
-    const [nx, nz] = [-az, ax];
-    const breakU = KRONPRINZEN_SPAN_LAYOUT_M[1] / 2;
-    const pierTargets = [-breakU, breakU].flatMap((u) =>
-      [-1, 1].map((side) => [
-        kronprinzen.world[0] +
-          ax * u +
-          nx * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
-        kronprinzen.world[1] +
-          az * u +
-          nz * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
-      ]),
-    );
-    let upperParliamentVertices = 0;
-    let submergedProwVertices = 0;
-    for (let index = 0; index < positions.count; index += 1) {
-      const x = positions.getX(index);
-      const y = positions.getY(index);
-      const z = positions.getZ(index);
-      if (
-        Math.hypot(x - parliament.world[0], z - parliament.world[1]) < 30 &&
-        y > ground.water_top_y_m + BRIDGE_MIN_CLEARANCE_M + 3.5
-      ) {
-        upperParliamentVertices += 1;
+      // Procedural boxes must expose their upward face. A reversed winding
+      // used to make every bridge deck disappear under back-face culling,
+      // leaving only transverse piers and producing a ladder-like Moltkebrücke.
+      const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+      const positions = bodies.geometry.getAttribute("position");
+      const normals = bodies.geometry.getAttribute("normal");
+      const loewenBridge = city.getObjectByName(
+        "Löwenbrücke recognition model",
+      ) as Group;
+      expect(loewenBridge).toBeInstanceOf(Group);
+      expect(loewenBridge.userData).toMatchObject({
+        hangerCount: 22,
+        lionCount: 4,
+        mainCableCount: 4,
+        modernSafetyHandrailCount: 2,
+        modernSafetyMeshFieldCount: 18,
+        modernSafetyPostCount: 20,
+        osmWayId: "1411957328",
+      });
+      expect(
+        loewenBridge.getObjectByName(
+          "Löwenbrücke modern safety handrails bodies",
+        ),
+      ).toBeInstanceOf(Mesh);
+      expect(
+        loewenBridge.getObjectByName("Löwenbrücke modern safety mesh fields"),
+      ).toBeInstanceOf(LineSegments);
+      const adlerBridge = city.getObjectByName(
+        "Adlerbruecke recognition model",
+      ) as Group;
+      expect(adlerBridge).toBeInstanceOf(Group);
+      expect(adlerBridge.userData).toMatchObject({
+        eagleCount: 2,
+        genericBridgeReplacement: true,
+        osmWayId: "28872983",
+        railBayCount: 14,
+      });
+      // The dedicated timber model replaces, rather than overlays, the old
+      // four-cell grey raster slab at the same coordinate.
+      let genericLoewenVertices = 0;
+      for (let index = 0; index < positions.count; index += 1) {
+        if (
+          Math.hypot(
+            positions.getX(index) - profile("Löwenbrücke").world[0],
+            positions.getZ(index) - profile("Löwenbrücke").world[1],
+          ) < 18
+        ) {
+          genericLoewenVertices += 1;
+        }
       }
-      if (
-        y < ground.water_top_y_m &&
-        pierTargets.some(
-          ([targetX, targetZ]) => Math.hypot(x - targetX, z - targetZ) < 2.2,
-        )
-      ) {
-        submergedProwVertices += 1;
+      expect(genericLoewenVertices).toBe(0);
+      let genericAdlerVertices = 0;
+      for (let index = 0; index < positions.count; index += 1) {
+        if (
+          Math.hypot(
+            positions.getX(index) - profile("Adlerbruecke").world[0],
+            positions.getZ(index) - profile("Adlerbruecke").world[1],
+          ) < 12
+        ) {
+          genericAdlerVertices += 1;
+        }
       }
-    }
-    expect(upperParliamentVertices).toBe(0);
-    expect(submergedProwVertices).toBeGreaterThan(24);
-    // The exact task-13 OSM hull adds mapped road/rail crossings throughout
-    // the additional 500 m ring. Keep the measured expansion bounded without discarding
-    // those structures or relaxing to an unbounded instance count.
-    expect(positions.count).toBeGreaterThan(520_000);
-    expect(positions.count).toBeLessThan(555_000);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+      expect(genericAdlerVertices).toBe(0);
+      let upwardMoltkeVertices = 0;
+      for (let index = 0; index < positions.count; index += 1) {
+        if (
+          Math.hypot(
+            positions.getX(index) - profile("Moltkebrücke").world[0],
+            positions.getZ(index) - profile("Moltkebrücke").world[1],
+          ) < 55 &&
+          normals.getY(index) > 0.9
+        ) {
+          upwardMoltkeVertices += 1;
+        }
+      }
+      expect(upwardMoltkeVertices).toBeGreaterThan(100);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
-  test("Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free", async () => {
-    const { createIsometricCity, BRIDGE_PROFILES } =
-      await import("../src/IsometricCityWorld");
-    const ground = (
-      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
-    ).default as { water_top_y_m: number };
-    const city = createIsometricCity(payload, ground as never, null);
-    const group = city.getObjectByName("drawn bridge structures") as Group;
-    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
-    const positions = bodies.geometry.getAttribute("position");
-    const colors = bodies.geometry.getAttribute("color");
-    expect(group.userData.bridgeProfiles).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          kind: "vierendeel",
-          name: "Gustav-Heinemann-Brücke",
-        }),
-        expect.objectContaining({
-          curveSagittaM: -2.98,
-          kind: "curvedBox",
-          name: "Hugo-Preuß-Brücke",
-        }),
-      ]),
-    );
+  test(
+    "leaves the parliament crossing to its open recognition model and keeps the Kronprinzen prow supports",
+    async () => {
+      const {
+        createIsometricCity,
+        BRIDGE_MIN_CLEARANCE_M,
+        BRIDGE_PROFILES,
+        KRONPRINZEN_SPAN_LAYOUT_M,
+      } = await import("../src/IsometricCityWorld");
+      const ground = (
+        await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+      ).default as { water_top_y_m: number };
+      const city = createIsometricCity(payload, ground as never, null);
+      const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+      const positions = bodies.geometry.getAttribute("position");
+      const parliament = BRIDGE_PROFILES.find(
+        (entry) => entry.name === "Sprung über die Spree",
+      )!;
+      const kronprinzen = BRIDGE_PROFILES.find(
+        (entry) => entry.name === "Kronprinzenbrücke",
+      )!;
+      const [ax, az] = kronprinzen.axis!;
+      const [nx, nz] = [-az, ax];
+      const breakU = KRONPRINZEN_SPAN_LAYOUT_M[1] / 2;
+      const pierTargets = [-breakU, breakU].flatMap((u) =>
+        [-1, 1].map((side) => [
+          kronprinzen.world[0] +
+            ax * u +
+            nx * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
+          kronprinzen.world[1] +
+            az * u +
+            nz * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
+        ]),
+      );
+      let upperParliamentVertices = 0;
+      let submergedProwVertices = 0;
+      for (let index = 0; index < positions.count; index += 1) {
+        const x = positions.getX(index);
+        const y = positions.getY(index);
+        const z = positions.getZ(index);
+        if (
+          Math.hypot(x - parliament.world[0], z - parliament.world[1]) < 30 &&
+          y > ground.water_top_y_m + BRIDGE_MIN_CLEARANCE_M + 3.5
+        ) {
+          upperParliamentVertices += 1;
+        }
+        if (
+          y < ground.water_top_y_m &&
+          pierTargets.some(
+            ([targetX, targetZ]) => Math.hypot(x - targetX, z - targetZ) < 2.2,
+          )
+        ) {
+          submergedProwVertices += 1;
+        }
+      }
+      expect(upperParliamentVertices).toBe(0);
+      expect(submergedProwVertices).toBeGreaterThan(24);
+      // The exact task-13 OSM hull adds mapped road/rail crossings throughout
+      // the additional 500 m ring. Keep the measured expansion bounded without discarding
+      // those structures or relaxing to an unbounded instance count.
+      expect(positions.count).toBeGreaterThan(520_000);
+      expect(positions.count).toBeLessThan(555_000);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
-    const gustavTone = new Color(
-      BRIDGE_PROFILES.find((entry) => entry.name === "Gustav-Heinemann-Brücke")!
-        .palette!.structure,
-    );
-    let greenFrameVertices = 0;
-    let hugoCentralUnderwaterVertices = 0;
-    for (let index = 0; index < positions.count; index += 1) {
-      if (
-        Math.abs(colors.getX(index) - gustavTone.r) < 1e-5 &&
-        Math.abs(colors.getY(index) - gustavTone.g) < 1e-5 &&
-        Math.abs(colors.getZ(index) - gustavTone.b) < 1e-5
-      ) {
-        greenFrameVertices += 1;
+  test(
+    "Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free",
+    async () => {
+      const { createIsometricCity, BRIDGE_PROFILES } =
+        await import("../src/IsometricCityWorld");
+      const ground = (
+        await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+      ).default as { water_top_y_m: number };
+      const city = createIsometricCity(payload, ground as never, null);
+      const group = city.getObjectByName("drawn bridge structures") as Group;
+      const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+      const positions = bodies.geometry.getAttribute("position");
+      const colors = bodies.geometry.getAttribute("color");
+      expect(group.userData.bridgeProfiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: "vierendeel",
+            name: "Gustav-Heinemann-Brücke",
+          }),
+          expect.objectContaining({
+            curveSagittaM: -2.98,
+            kind: "curvedBox",
+            name: "Hugo-Preuß-Brücke",
+          }),
+        ]),
+      );
+
+      const gustavTone = new Color(
+        BRIDGE_PROFILES.find(
+          (entry) => entry.name === "Gustav-Heinemann-Brücke",
+        )!.palette!.structure,
+      );
+      let greenFrameVertices = 0;
+      let hugoCentralUnderwaterVertices = 0;
+      for (let index = 0; index < positions.count; index += 1) {
+        if (
+          Math.abs(colors.getX(index) - gustavTone.r) < 1e-5 &&
+          Math.abs(colors.getY(index) - gustavTone.g) < 1e-5 &&
+          Math.abs(colors.getZ(index) - gustavTone.b) < 1e-5
+        ) {
+          greenFrameVertices += 1;
+        }
+        const x = positions.getX(index);
+        const y = positions.getY(index);
+        const z = positions.getZ(index);
+        if (
+          x > 23 &&
+          x < 91 &&
+          z > -535 &&
+          z < -492 &&
+          y < ground.water_top_y_m + 0.2
+        ) {
+          hugoCentralUnderwaterVertices += 1;
+        }
       }
-      const x = positions.getX(index);
-      const y = positions.getY(index);
-      const z = positions.getZ(index);
-      if (
-        x > 23 &&
-        x < 91 &&
-        z > -535 &&
-        z < -492 &&
-        y < ground.water_top_y_m + 0.2
-      ) {
-        hugoCentralUnderwaterVertices += 1;
-      }
-    }
-    expect(greenFrameVertices).toBeGreaterThan(4_000);
-    expect(hugoCentralUnderwaterVertices).toBe(0);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+      expect(greenFrameVertices).toBeGreaterThan(4_000);
+      expect(hugoCentralUnderwaterVertices).toBe(0);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
   test("the Gymnasium Tiergarten Altbau replaces its flat LoD2 prism", async () => {
     const { createGymnasiumTiergarten, PRISM_SUPPRESSED_IDS } =
@@ -1752,7 +1827,6 @@ describe("real bridge structures", () => {
     // 7 m boxes LoD2 gives them.
     expect(bounds.max.y).toBeGreaterThan(35);
   });
-
 });
 
 describe("smooth OSM water and parkland", () => {
@@ -1790,203 +1864,218 @@ describe("smooth OSM water and parkland", () => {
     expect(curvedWaterRipple([0, 0], 0, 0, -1, 0.2)).toEqual([]);
   });
 
-  test("real polygons replace the rasterised river with a continuous shoreline", async () => {
-    const {
-      BEAVER_EASTER_EGG_COUNT,
-      createSmoothSurfaces,
-      isDedicatedSintiRomaPool,
-      isElevatedParkWater,
-    } = await import("../src/IsometricCityWorld");
-    const surfaces =
-      (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
-        default: { parks: unknown[]; water: unknown[] };
-      };
-    const payloadSurfaces = surfaces.default as never as Parameters<
-      typeof createSmoothSurfaces
-    >[0];
-    expect(payloadSurfaces.water.length).toBeGreaterThan(10);
-    expect(payloadSurfaces.parks.length).toBeGreaterThan(100);
-    const group = createSmoothSurfaces(payloadSurfaces, -1.15, 4.2);
-    // A transparent water plate over a sandy bed, plus smooth quay
-    // walls and one continuous shoreline ink run.
-    const water = group.getObjectByName("smooth water surface") as Mesh;
-    expect(water).toBeInstanceOf(Mesh);
-    expect((water.material as MeshBasicMaterial).transparent).toBe(true);
-    expect(group.getObjectByName("smooth river bed")).toBeInstanceOf(Mesh);
-    expect(group.getObjectByName("smooth parkland lawns")).toBeInstanceOf(Mesh);
-    expect(
-      isElevatedParkWater(
-        payloadSurfaces.water.find(
-          (surface) => surface.name === "Venusbassin",
-        )!,
-      ),
-    ).toBe(true);
-    expect(
-      isElevatedParkWater(
-        payloadSurfaces.water.find(
-          (surface) => surface.name === "Humboldthafen",
-        )!,
-      ),
-    ).toBe(false);
-    expect(
-      isElevatedParkWater(
-        payloadSurfaces.water.find(
-          (surface) => surface.name === "Nordhafen",
-        )!,
-      ),
-    ).toBe(false);
-    const sintiRomaPool = payloadSurfaces.water.find(
-      (surface) => surface.kind === "basin" && surface.area_m2 === 113,
-    )!;
-    expect(isDedicatedSintiRomaPool(sintiRomaPool)).toBe(true);
-    expect(
-      isDedicatedSintiRomaPool(
-        payloadSurfaces.water.find(
-          (surface) => surface.kind === "basin" && surface.name === "Phönix",
-        )!,
-      ),
-    ).toBe(false);
-    expect(group.getObjectByName("basin water")).toBeInstanceOf(Mesh);
-    expect(group.getObjectByName("natural pond water")).toBeInstanceOf(Mesh);
-    expect(group.getObjectByName("natural pond floors")).toBeInstanceOf(Mesh);
-    expect(group.getObjectByName("natural pond bank slopes")).toBeInstanceOf(
-      Mesh,
-    );
-    const depthWalls = group.getObjectByName(
-      "basin display-depth walls",
-    ) as Mesh;
-    expect(depthWalls).toBeInstanceOf(Mesh);
-    expect(depthWalls.userData.depthStatus).toContain("not surveyed");
-    expect(group.getObjectByName("static water ripple ribbons")).toBeInstanceOf(
-      Mesh,
-    );
-    const beavers = group.getObjectByName("three hidden Tiergarten beavers");
-    expect(beavers?.children).toHaveLength(BEAVER_EASTER_EGG_COUNT);
-    const ottoFountain = group.getObjectByName(
-      "Otto-Weidt-Platz fountain water",
-    ) as Mesh;
-    expect(ottoFountain).toBeInstanceOf(Mesh);
-    expect(
-      (ottoFountain.userData.dayMaterial as MeshBasicMaterial).color.getHex(),
-    ).toBe(0x628da1);
-    const walls = group.getObjectByName("smooth quay walls") as Mesh;
-    expect(walls).toBeInstanceOf(Mesh);
-    const shore = group.getObjectByName("smooth shoreline ink") as LineSegments;
-    expect(shore).toBeInstanceOf(LineSegments);
-    // The shoreline follows the polygon rings, so its segments are NOT
-    // axis-aligned staircases: most have both dx and dz non-zero.
-    const position = shore.geometry.getAttribute("position");
-    let diagonal = 0;
-    let segments = 0;
-    for (let index = 0; index < position.count; index += 2) {
-      const dx = Math.abs(position.getX(index) - position.getX(index + 1));
-      const dz = Math.abs(position.getZ(index) - position.getZ(index + 1));
-      segments += 1;
-      if (dx > 0.15 && dz > 0.15) {
-        diagonal += 1;
+  test(
+    "real polygons replace the rasterised river with a continuous shoreline",
+    async () => {
+      const {
+        BEAVER_EASTER_EGG_COUNT,
+        createSmoothSurfaces,
+        isDedicatedSintiRomaPool,
+        isElevatedParkWater,
+      } = await import("../src/IsometricCityWorld");
+      const surfaces =
+        (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
+          default: { parks: unknown[]; water: unknown[] };
+        };
+      const payloadSurfaces = surfaces.default as never as Parameters<
+        typeof createSmoothSurfaces
+      >[0];
+      expect(payloadSurfaces.water.length).toBeGreaterThan(10);
+      expect(payloadSurfaces.parks.length).toBeGreaterThan(100);
+      const group = createSmoothSurfaces(payloadSurfaces, -1.15, 4.2);
+      // A transparent water plate over a sandy bed, plus smooth quay
+      // walls and one continuous shoreline ink run.
+      const water = group.getObjectByName("smooth water surface") as Mesh;
+      expect(water).toBeInstanceOf(Mesh);
+      expect((water.material as MeshBasicMaterial).transparent).toBe(true);
+      expect(group.getObjectByName("smooth river bed")).toBeInstanceOf(Mesh);
+      expect(group.getObjectByName("smooth parkland lawns")).toBeInstanceOf(
+        Mesh,
+      );
+      expect(
+        isElevatedParkWater(
+          payloadSurfaces.water.find(
+            (surface) => surface.name === "Venusbassin",
+          )!,
+        ),
+      ).toBe(true);
+      expect(
+        isElevatedParkWater(
+          payloadSurfaces.water.find(
+            (surface) => surface.name === "Humboldthafen",
+          )!,
+        ),
+      ).toBe(false);
+      expect(
+        isElevatedParkWater(
+          payloadSurfaces.water.find(
+            (surface) => surface.name === "Nordhafen",
+          )!,
+        ),
+      ).toBe(false);
+      const sintiRomaPool = payloadSurfaces.water.find(
+        (surface) => surface.kind === "basin" && surface.area_m2 === 113,
+      )!;
+      expect(isDedicatedSintiRomaPool(sintiRomaPool)).toBe(true);
+      expect(
+        isDedicatedSintiRomaPool(
+          payloadSurfaces.water.find(
+            (surface) => surface.kind === "basin" && surface.name === "Phönix",
+          )!,
+        ),
+      ).toBe(false);
+      expect(group.getObjectByName("basin water")).toBeInstanceOf(Mesh);
+      expect(group.getObjectByName("natural pond water")).toBeInstanceOf(Mesh);
+      expect(group.getObjectByName("natural pond floors")).toBeInstanceOf(Mesh);
+      expect(group.getObjectByName("natural pond bank slopes")).toBeInstanceOf(
+        Mesh,
+      );
+      const depthWalls = group.getObjectByName(
+        "basin display-depth walls",
+      ) as Mesh;
+      expect(depthWalls).toBeInstanceOf(Mesh);
+      expect(depthWalls.userData.depthStatus).toContain("not surveyed");
+      expect(
+        group.getObjectByName("static water ripple ribbons"),
+      ).toBeInstanceOf(Mesh);
+      const beavers = group.getObjectByName("three hidden Tiergarten beavers");
+      expect(beavers?.children).toHaveLength(BEAVER_EASTER_EGG_COUNT);
+      const ottoFountain = group.getObjectByName(
+        "Otto-Weidt-Platz fountain water",
+      ) as Mesh;
+      expect(ottoFountain).toBeInstanceOf(Mesh);
+      expect(
+        (ottoFountain.userData.dayMaterial as MeshBasicMaterial).color.getHex(),
+      ).toBe(0x628da1);
+      const walls = group.getObjectByName("smooth quay walls") as Mesh;
+      expect(walls).toBeInstanceOf(Mesh);
+      const shore = group.getObjectByName(
+        "smooth shoreline ink",
+      ) as LineSegments;
+      expect(shore).toBeInstanceOf(LineSegments);
+      // The shoreline follows the polygon rings, so its segments are NOT
+      // axis-aligned staircases: most have both dx and dz non-zero.
+      const position = shore.geometry.getAttribute("position");
+      let diagonal = 0;
+      let segments = 0;
+      for (let index = 0; index < position.count; index += 2) {
+        const dx = Math.abs(position.getX(index) - position.getX(index + 1));
+        const dz = Math.abs(position.getZ(index) - position.getZ(index + 1));
+        segments += 1;
+        if (dx > 0.15 && dz > 0.15) {
+          diagonal += 1;
+        }
       }
-    }
-    expect(segments).toBeGreaterThan(200);
-    expect(diagonal / segments).toBeGreaterThan(0.3);
-    // The bank plate sits above the water plate: a real recessed river.
-    const waterBounds = new Box3().setFromObject(water);
-    const wallBounds = new Box3().setFromObject(walls);
-    expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
-    expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+      expect(segments).toBeGreaterThan(200);
+      expect(diagonal / segments).toBeGreaterThan(0.3);
+      // The bank plate sits above the water plate: a real recessed river.
+      const waterBounds = new Box3().setFromObject(water);
+      const wallBounds = new Box3().setFromObject(walls);
+      expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
+      expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 
-  test("draws the shipped banks granularly, with no facets left", async () => {
-    const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
-    const { sharpestTurnDeg } = await import("../src/bankCurves");
-    const surfaces =
-      (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
-        default: unknown;
-      };
-    const payload = surfaces.default as never as Parameters<
-      typeof createSmoothSurfaces
-    >[0];
-    const shore = createSmoothSurfaces(payload, -1.15, 4.2).getObjectByName(
-      "smooth shoreline ink",
-    ) as LineSegments;
-    const position = shore.geometry.getAttribute("position");
-    const indexBuffer = shore.geometry.index;
-    const sequenceCount = indexBuffer?.count ?? position.count;
-    const vertexIndex = (sequenceIndex: number): number =>
-      indexBuffer?.getX(sequenceIndex) ?? sequenceIndex;
-    const runs: number[] = [];
-    const bends: number[] = [];
-    for (let index = 0; index + 3 < sequenceCount; index += 2) {
-      const a = vertexIndex(index);
-      const b = vertexIndex(index + 1);
-      const c = vertexIndex(index + 2);
-      const d = vertexIndex(index + 3);
-      const dx = position.getX(b) - position.getX(a);
-      const dz = position.getZ(b) - position.getZ(a);
-      const ex = position.getX(d) - position.getX(c);
-      const ez = position.getZ(d) - position.getZ(c);
-      const run = Math.hypot(dx, dz);
-      const next = Math.hypot(ex, ez);
-      if (run < 1e-6 || next < 1e-6) {
-        continue;
-      }
-      runs.push(run);
-      // Only where this segment ends exactly where the next begins: ring
-      // ends and jumps between water bodies are not visible facets.
-      const joined = Math.hypot(
-        position.getX(c) - position.getX(b),
-        position.getZ(c) - position.getZ(b),
-      );
-      if (joined < 1e-6) {
-        const dot = (dx * ex + dz * ez) / (run * next);
-        bends.push((Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI);
-      }
-    }
-    expect(bends.length).toBeGreaterThan(500);
-    runs.sort((a, b) => a - b);
-    bends.sort((a, b) => a - b);
-    // Roughly a drawn stroke per segment, and the typical bend a small
-    // fraction of the chords the raw OSM rings hand over.
-    expect(runs[runs.length >> 1]).toBeLessThan(6);
-    const rawBends: number[] = [];
-    for (const surface of payload.water) {
-      if (surface.area_m2 < 400) {
-        continue;
-      }
-      const points = surface.ring.map(
-        ([x, z]) => [x / 10, z / 10] as [number, number],
-      );
-      for (let index = 0; index < points.length; index += 1) {
-        const [ax, az] = points[(index + points.length - 1) % points.length];
-        const [bx, bz] = points[index];
-        const [cx, cz] = points[(index + 1) % points.length];
-        const inRun = Math.hypot(bx - ax, bz - az);
-        const outRun = Math.hypot(cx - bx, cz - bz);
-        if (inRun < 1e-6 || outRun < 1e-6) {
+  test(
+    "draws the shipped banks granularly, with no facets left",
+    async () => {
+      const { createSmoothSurfaces } =
+        await import("../src/IsometricCityWorld");
+      const { sharpestTurnDeg } = await import("../src/bankCurves");
+      const surfaces =
+        (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
+          default: unknown;
+        };
+      const payload = surfaces.default as never as Parameters<
+        typeof createSmoothSurfaces
+      >[0];
+      const shore = createSmoothSurfaces(payload, -1.15, 4.2).getObjectByName(
+        "smooth shoreline ink",
+      ) as LineSegments;
+      const position = shore.geometry.getAttribute("position");
+      const indexBuffer = shore.geometry.index;
+      const sequenceCount = indexBuffer?.count ?? position.count;
+      const vertexIndex = (sequenceIndex: number): number =>
+        indexBuffer?.getX(sequenceIndex) ?? sequenceIndex;
+      const runs: number[] = [];
+      const bends: number[] = [];
+      for (let index = 0; index + 3 < sequenceCount; index += 2) {
+        const a = vertexIndex(index);
+        const b = vertexIndex(index + 1);
+        const c = vertexIndex(index + 2);
+        const d = vertexIndex(index + 3);
+        const dx = position.getX(b) - position.getX(a);
+        const dz = position.getZ(b) - position.getZ(a);
+        const ex = position.getX(d) - position.getX(c);
+        const ez = position.getZ(d) - position.getZ(c);
+        const run = Math.hypot(dx, dz);
+        const next = Math.hypot(ex, ez);
+        if (run < 1e-6 || next < 1e-6) {
           continue;
         }
-        const dot =
-          ((bx - ax) * (cx - bx) + (bz - az) * (cz - bz)) / (inRun * outRun);
-        rawBends.push(
-          (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI,
+        runs.push(run);
+        // Only where this segment ends exactly where the next begins: ring
+        // ends and jumps between water bodies are not visible facets.
+        const joined = Math.hypot(
+          position.getX(c) - position.getX(b),
+          position.getZ(c) - position.getZ(b),
         );
+        if (joined < 1e-6) {
+          const dot = (dx * ex + dz * ez) / (run * next);
+          bends.push(
+            (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI,
+          );
+        }
       }
-    }
-    rawBends.sort((a, b) => a - b);
-    expect(bends[bends.length >> 1]).toBeLessThan(
-      rawBends[rawBends.length >> 1] / 2.5,
-    );
-    expect(bends[bends.length >> 1]).toBeLessThan(2);
-    // Built corners survive: the Humboldthafen basin keeps its right angles
-    // even though the bends along the Spree are gone.
-    const basin = payload.water.find(
-      (surface) => surface.name === "Humboldthafen",
-    );
-    expect(basin).toBeDefined();
-    const ring = (basin?.ring ?? []).map(
-      ([x, z]) => [x / 10, z / 10] as [number, number],
-    );
-    expect(sharpestTurnDeg(ring)).toBeGreaterThan(80);
-  }, TASK_13_FULL_CITY_TIMEOUT_MS);
+      expect(bends.length).toBeGreaterThan(500);
+      runs.sort((a, b) => a - b);
+      bends.sort((a, b) => a - b);
+      // Roughly a drawn stroke per segment, and the typical bend a small
+      // fraction of the chords the raw OSM rings hand over.
+      expect(runs[runs.length >> 1]).toBeLessThan(6);
+      const rawBends: number[] = [];
+      for (const surface of payload.water) {
+        if (surface.area_m2 < 400) {
+          continue;
+        }
+        const points = surface.ring.map(
+          ([x, z]) => [x / 10, z / 10] as [number, number],
+        );
+        for (let index = 0; index < points.length; index += 1) {
+          const [ax, az] = points[(index + points.length - 1) % points.length];
+          const [bx, bz] = points[index];
+          const [cx, cz] = points[(index + 1) % points.length];
+          const inRun = Math.hypot(bx - ax, bz - az);
+          const outRun = Math.hypot(cx - bx, cz - bz);
+          if (inRun < 1e-6 || outRun < 1e-6) {
+            continue;
+          }
+          const dot =
+            ((bx - ax) * (cx - bx) + (bz - az) * (cz - bz)) / (inRun * outRun);
+          rawBends.push(
+            (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI,
+          );
+        }
+      }
+      rawBends.sort((a, b) => a - b);
+      expect(bends[bends.length >> 1]).toBeLessThan(
+        rawBends[rawBends.length >> 1] / 2.5,
+      );
+      expect(bends[bends.length >> 1]).toBeLessThan(2);
+      // Built corners survive: the Humboldthafen basin keeps its right angles
+      // even though the bends along the Spree are gone.
+      const basin = payload.water.find(
+        (surface) => surface.name === "Humboldthafen",
+      );
+      expect(basin).toBeDefined();
+      const ring = (basin?.ring ?? []).map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      expect(sharpestTurnDeg(ring)).toBeGreaterThan(80);
+    },
+    TASK_13_FULL_CITY_TIMEOUT_MS,
+  );
 });
 
 describe("isometric face shading", () => {

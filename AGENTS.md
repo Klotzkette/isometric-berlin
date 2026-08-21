@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.15)
+## 3. Hard scope rules (v0.72.16)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -52,6 +52,14 @@ Must be inside the polygon and visible in the final map:
 - Marie-Elisabeth-Lüders-Haus
 - Berlin Hauptbahnhof (incl. the glass roof — hero tile), Hamburger Bahnhof,
   Rieckhallen, Landessozialgericht, Europacity, KPMG and DKB
+- The temporary 2026 FUNBOX at the Wunderland-Festplatz, kept wholly outside
+  the delivered Heidestraße, Minna-Cauer-Straße and Döberitzer Straße surface
+  polygons in both drawn and Minecraft representations
+- The Geschichtspark Ehemaliges Zellengefängnis Moabit at exact OSM park way
+  `498278335`, retaining its mapped red-brick wall traces, exact Panoptikum way
+  `195086492` and Berlin LoD2 cell `DEBE01AL2yz00000`. Present-day interpretive
+  details must remain procedural and must not trace or bundle the protected
+  landscape plan.
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
   Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
@@ -68,9 +76,30 @@ Must be inside the polygon and visible in the final map:
   an occupied building or Minecraft column mass: the source-bound detail model
   keeps the protective canopy open, the front/rear approaches walkable and
   only its authored marble and steel solids collidable.
+- The Weidendammer Brücke as the 91st navigable sight, centred on exact OSM
+  bridge way `6228081` and bound to Landesdenkmalamt object `09030074`. Its
+  current 69.48 x 25.17 m inventory envelope, exactly two forged midspan
+  eagles, eight lamp standards and one neo-Baroque railing system must remain
+  source-separated from procedural, non-surveyed love-lock placement.
+  Minecraft uses one block-native reading without a smooth ornament double.
+- Fritz Cremer's Brecht memorial as the 92nd navigable sight at exact OSM node
+  `988668382`, retaining the
+  published 6 m circular sett platform, the slightly over-life-size seated
+  figure on its asymmetric open metal bench and three cylindrical, horizontally
+  jointed black-stone steles. Credit Peter Flierl for the installation design,
+  Fritz Cremer for the sculpture and Carlo Wloch for stonework/steles; do not
+  reproduce the copyrighted poem or quotations.
+- The Scharnhorst grave monument as the 93rd navigable sight at exact OSM node
+  `273120316`, retaining the
+  Berlin-Lexikon's published 5.60 m overall silhouette, two architectural
+  piers, Carrara-marble sarcophagus, Friedrich Tieck relief frieze, reclining
+  bronze lion and Schinkel iron enclosure. Credit Karl Friedrich Schinkel for
+  the architecture, Christian Daniel Rauch for the lion model and Theodor Kalide for its
+  execution; use the Schinkel portal for form/material and identify the current
+  sarcophagus and frieze as conservation copies.
 - The newly established CSD memorial place near Bellevueallee/Ahornsteig at
   exact OSM node `14076715427`, kept separate from the existing owner-supplied
-  Queer Rainbow Memorial model and from the 90-place tour catalogue
+  Queer Rainbow Memorial model and from the 93-place tour catalogue
 - Luiseninsel playground opposite the Philharmonie, including mapped paths,
   trees and playground equipment
 - Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof, Kochstraße and the
@@ -81,7 +110,7 @@ Must be inside the polygon and visible in the final map:
 - Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
 - Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of Terror
 
-The committed 90-place landmark catalogue is the release inventory. Keep all
+The committed 93-place landmark catalogue is the release inventory. Keep all
 data clipped to the polygon, avoid unbounded whole-city output, and record any
 future owner-approved bounds expansion in the changelog and data manifests.
 
@@ -320,7 +349,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.15)
+## 8. What success looks like (Definition of Done v0.72.16)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -339,7 +368,10 @@ isometric-berlin/
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
-  renders all 90 catalogued sights in the same coordinate frame.
+  renders all 93 catalogued sights in the same coordinate frame.
+- All four shipped landmark payloads remain synchronised at 93 records; the
+  alignment audit passes 41 relative-placement contracts and preserves the
+  three established manual-review anchors.
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
@@ -372,6 +404,55 @@ isometric-berlin/
   / 514 blocks. Front, rear, side and high shelter approaches remain open,
   collision follows only authored granular solids, and no reference photograph
   or photographic texture is loaded by the viewer.
+- FUNBOX remains on its bounded Wunderland-Festplatz display envelope with a
+  measured minimum **2.553 m** clearance from the delivered OSM-derived road
+  surfaces. Drawn presentation stays frozen at 5 renderables / 7,921 rendered
+  vertices and Minecraft at 62 blocks; both full and mobile-like Minecraft
+  profiles use the same structural footprint and remain clear of the northern
+  Tiergartentunnel portal and source voxel buildings.
+- The Moabit prison memorial park uses all 19 exact mapped wall segments: the
+  four segments of OSM way `105495351` retain their explicit 4 m height and the
+  other 15 use Berlin's published general 5 m wall height only as a display
+  value, not as per-segment survey evidence. Full Smooth presentation is frozen
+  at 5 renderables / 7,818 rendered vertices and mobile Smooth at 5 / 5,448;
+  Minecraft is one batch with 3,882 / 2,093 blocks and 93,168 / 50,232 rendered
+  instance vertices for full / mobile. The exact Panoptikum and retained LoD2
+  cell do not replace or duplicate source park, lawn, path, tree or cell
+  geometry. Ordinary collision keeps the three mapped entrance gaps and cell
+  approach open while Schwellenraum retains whole-park protection. No
+  photograph, protected plan or photographic texture is bundled or loaded.
+- Weidendammer Brücke remains independently selectable as catalogue sight 91,
+  after Richard Wagner as sight 90; Brecht and Scharnhorst follow as sights 92
+  and 93. The separate CSD memorial place is not added to the tour catalogue.
+  Weidendammer's official 69.48 x 25.17 m envelope carries
+  exactly two forged eagle reliefs, eight lamp standards and one railing system.
+  Full Smooth is frozen at 5 renderables / 46,568 stored vertices / 90,116
+  rendered vertices / 192 procedural love locks; mobile Smooth at 5 / 32,744 /
+  54,404 / 96. Minecraft is one batch with 344 / 224 blocks and 8,256 / 5,376
+  rendered instance vertices for full / mobile. The roadway and pavements stay
+  walkable while represented rail, lamp and eagle solids remain collidable. The
+  Biermann association is factual cultural context only: no song lyric,
+  photograph, plan or texture is reproduced or loaded.
+- The Brecht installation keeps its traversable 6 m sett platform around the
+  granular seated figure/open bench and three cylindrical steles. Day, Night,
+  Snowstorm and Schwellenraum share one drawn public-art root; Minecraft uses a
+  deterministic block-native replacement with no smooth duplicate. Full and
+  mobile Smooth are identical at 3 renderables / 24,840 stored and rendered
+  vertices; Minecraft is 4 batches / 197 blocks / 4,728 rendered instance
+  vertices over one 24-vertex cube. The close camera uses 14 m and the fine
+  layer 34/105 m hysteresis.
+  Fine incision cues carry no poem or quotation text.
+- Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion
+  blob: two piers and the Carrara sarcophagus carry the Tieck frieze and a real
+  reclining bronze-lion silhouette within the Schinkel railing. The structural
+  lion remains visible when close-only mane/face/claw detail fades. All drawn
+  modes remain static and protected; Minecraft uses its separate block-native
+  signature. Full and mobile Smooth are identical at 8 renderables / 554 stored
+  / 15,539 rendered vertices; its Minecraft contribution is 4 batches / 566
+  blocks / 13,584 rendered instance vertices over one 24-vertex cube. The 18 m
+  focus uses the exact OSM anchor, and collision keeps the centre between the
+  two piers open.
+  Unpublished part proportions remain procedural display geometry.
 
 ## 9. Hosting target: Perplexity
 

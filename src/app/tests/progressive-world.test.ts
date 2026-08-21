@@ -725,8 +725,8 @@ describe("transferable Three geometry", () => {
       material.dispose();
     }
     expect([...disposalCounts.values()]).toEqual([1, 1, 1]);
-    expect(threeViewerSource).toContain(
-      "objectMaterialsIncludingTransferredAlternates(object)",
+    expect(threeViewerSource).toMatch(
+      /objectMaterialsIncludingTransferredAlternates\(\s*object,?\s*\)/,
     );
   });
 });

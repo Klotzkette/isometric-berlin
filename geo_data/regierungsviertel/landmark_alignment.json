@@ -4591,9 +4591,161 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "secondary",
+        "historic": null,
+        "id": "6228081",
+        "leisure": null,
+        "name": "Friedrichstra\u00dfe",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "weidendammer brucke"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DtycP9AW4Za",
+        "nearest_distance_m": 43.84
+      },
+      "name": "Weidendammer Br\u00fccke",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "6306415",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "water",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "id": "988668382",
+        "leisure": null,
+        "name": "Bertolt Brecht",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK00008ri",
+        "nearest_distance_m": 23.35
+      },
+      "name": "Bertolt Brecht",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "164039096",
+        "leisure": "park",
+        "name": "Bertolt-Brecht-Platz",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "tomb",
+        "id": "273120316",
+        "leisure": null,
+        "name": "Gerhard Johann David von Scharnhorst",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0000Bid",
+        "nearest_distance_m": 39.51
+      },
+      "name": "Scharnhorst-Grabmal",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "cemetery",
+        "id": "51804411",
+        "leisure": null,
+        "name": "Invaliden-Friedhof",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
     }
   ],
-  "generated_at": "2026-08-21T17:36:49.499502+00:00",
+  "generated_at": "2026-08-21T20:47:21.336869+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -4699,6 +4851,45 @@
       "note": "Friedrichstra\u00dfe station lies east and south of Berliner Ensemble.",
       "status": "ok",
       "to": "Bahnhof Berlin Friedrichstra\u00dfe"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 163.1,
+      "delta_north_m": -5.9,
+      "distance_m": 163.21,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berliner Ensemble",
+      "note": "Weidendammer Br\u00fccke lies east and south of Berliner Ensemble.",
+      "status": "ok",
+      "to": "Weidendammer Br\u00fccke"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "north",
+      "delta_east_m": 61.36,
+      "delta_north_m": 9.16,
+      "distance_m": 62.04,
+      "expected_east_west": "east",
+      "expected_north_south": "north",
+      "from": "Berliner Ensemble",
+      "note": "The seated Brecht stands east and slightly north of the theatre's legacy site anchor.",
+      "status": "ok",
+      "to": "Bertolt Brecht"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 319.4,
+      "delta_north_m": -274.33,
+      "distance_m": 421.04,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Scharnhorst-Grabmal",
+      "note": "Invalidenpark lies east and south of the Scharnhorst tomb inside Invalidenfriedhof.",
+      "status": "ok",
+      "to": "Invalidenpark / Sinkende Mauer"
     },
     {
       "actual_east_west": "east",
@@ -5094,7 +5285,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "9d99e5a4235ac8b298da3b69b8ce71bd53ecac1104f1b4bf84698a284fd588ef"
+      "sha256": "d94e61a0b7d838ebd5af695276967084e9582bb8b72028c7e2df7ffacade3e59"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
@@ -5107,8 +5298,8 @@
   },
   "summary": {
     "landmark_review_count": 3,
-    "landmarks_checked": 90,
-    "relative_relationships_checked": 38,
+    "landmarks_checked": 93,
+    "relative_relationships_checked": 41,
     "relative_review_count": 0,
     "review_count": 3,
     "status": "review"

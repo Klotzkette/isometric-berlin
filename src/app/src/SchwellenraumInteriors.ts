@@ -15,10 +15,8 @@ import {
   HAUPTBAHNHOF_ANCHOR_WORLD,
   HAUPTBAHNHOF_ROTATION_Y_DEGREES,
 } from "./ArchitecturalLandmarks";
-import {
-  MOABIT_PRISON_PARK_PROFILE,
-  POTSDAMER_DETAIL_PROFILE,
-} from "./expandedCityProfiles";
+import { POTSDAMER_DETAIL_PROFILE } from "./expandedCityProfiles";
+import { MOABIT_PRISON_PARK_SOURCE_PROFILE } from "./MoabitPrisonMemorialPark";
 
 type WorldPoint2 = readonly [number, number];
 type WorldPoint3 = readonly [number, number, number];
@@ -876,7 +874,7 @@ export const SCHWELLENRAUM_PROTECTED_VOLUMES: ReadonlyArray<SchwellenraumProtect
       maxYM: 20,
       minYM: -8,
       name: "Geschichtspark Ehemaliges Zellengefängnis Moabit",
-      ringWorldM: MOABIT_PRISON_PARK_PROFILE.parkRingWorldM,
+      ringWorldM: MOABIT_PRISON_PARK_SOURCE_PROFILE.parkRingWorldM,
       shape: "polygon",
     },
     {

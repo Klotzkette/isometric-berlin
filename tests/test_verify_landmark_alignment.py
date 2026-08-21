@@ -37,9 +37,9 @@ def test_normalize_name_folds_berlin_landmark_names() -> None:
   assert vla.normalize_name("Gustav-Heinemann-Brücke") == "gustav heinemann brucke"
 
 
-def test_wagner_catalog_exports_share_the_exact_osm_anchor() -> None:
+def test_recent_catalog_exports_share_their_exact_osm_anchors() -> None:
   landmarks = vla.load_landmarks(DATA / "landmarks.geojson")
-  assert len(landmarks) == 90
+  assert len(landmarks) == 93
   wagner = landmarks[landmarks["name"] == "Richard Wagner"]
   assert len(wagner) == 1
   row = wagner.iloc[0]
@@ -70,6 +70,82 @@ def test_wagner_catalog_exports_share_the_exact_osm_anchor() -> None:
   assert world[1] == 8.0
   assert abs(world[2] - (5_820_000.0 - row.geometry.y)) < 1e-9
 
+  bridge = landmarks[landmarks["name"] == "Weidendammer Brücke"]
+  assert len(bridge) == 1
+  bridge_row = bridge.iloc[0]
+  assert bridge_row["role"] == "owner_added"
+  assert bridge_row["tour_order"] == 91
+  public_bridge = [entry for entry in public if entry["name"] == "Weidendammer Brücke"]
+  assert public_bridge == [
+    {
+      "name": "Weidendammer Brücke",
+      "role": "owner_added",
+      "tourOrder": 91,
+      "x": 12227,
+      "y": 7917,
+      "nx": 0.746277,
+      "ny": 0.68156,
+    }
+  ]
+  scene_bridge = [entry for entry in scene if entry["name"] == "Weidendammer Brücke"]
+  assert len(scene_bridge) == 1
+  bridge_world = scene_bridge[0]["world"]
+  assert abs(bridge_world[0] - (bridge_row.geometry.x - 389_500.0)) < 1e-9
+  assert bridge_world[1] == 8.0
+  assert abs(bridge_world[2] - (5_820_000.0 - bridge_row.geometry.y)) < 1e-9
+
+  brecht = landmarks[landmarks["name"] == "Bertolt Brecht"]
+  assert len(brecht) == 1
+  brecht_row = brecht.iloc[0]
+  assert brecht_row["role"] == "owner_added"
+  assert brecht_row["tour_order"] == 92
+  public_brecht = [entry for entry in public if entry["name"] == "Bertolt Brecht"]
+  assert public_brecht == [
+    {
+      "name": "Bertolt Brecht",
+      "role": "owner_added",
+      "tourOrder": 92,
+      "x": 12003,
+      "y": 7766,
+      "nx": 0.732605,
+      "ny": 0.668561,
+    }
+  ]
+  scene_brecht = [entry for entry in scene if entry["name"] == "Bertolt Brecht"]
+  assert len(scene_brecht) == 1
+  brecht_world = scene_brecht[0]["world"]
+  assert abs(brecht_world[0] - (brecht_row.geometry.x - 389_500.0)) < 1e-9
+  assert brecht_world[1] == 8.0
+  assert abs(brecht_world[2] - (5_820_000.0 - brecht_row.geometry.y)) < 1e-9
+
+  scharnhorst = landmarks[landmarks["name"] == "Scharnhorst-Grabmal"]
+  assert len(scharnhorst) == 1
+  scharnhorst_row = scharnhorst.iloc[0]
+  assert scharnhorst_row["role"] == "owner_added"
+  assert scharnhorst_row["tour_order"] == 93
+  public_scharnhorst = [
+    entry for entry in public if entry["name"] == "Scharnhorst-Grabmal"
+  ]
+  assert public_scharnhorst == [
+    {
+      "name": "Scharnhorst-Grabmal",
+      "role": "owner_added",
+      "tourOrder": 93,
+      "x": 12229,
+      "y": 5110,
+      "nx": 0.746399,
+      "ny": 0.43991,
+    }
+  ]
+  scene_scharnhorst = [
+    entry for entry in scene if entry["name"] == "Scharnhorst-Grabmal"
+  ]
+  assert len(scene_scharnhorst) == 1
+  scharnhorst_world = scene_scharnhorst[0]["world"]
+  assert abs(scharnhorst_world[0] - (scharnhorst_row.geometry.x - 389_500.0)) < 1e-9
+  assert scharnhorst_world[1] == 8.0
+  assert abs(scharnhorst_world[2] - (5_820_000.0 - scharnhorst_row.geometry.y)) < 1e-9
+
 
 def test_committed_landmarks_align_with_osm_city_map() -> None:
   report = vla.build_alignment_report(
@@ -80,8 +156,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 90,
-    "relative_relationships_checked": 38,
+    "landmarks_checked": 93,
+    "relative_relationships_checked": 41,
     "landmark_review_count": 3,
     "relative_review_count": 0,
     "review_count": 3,
@@ -153,6 +229,18 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Richard Wagner"]["best_osm_match"]["element"] == "node"
   assert checks["Richard Wagner"]["best_osm_match"]["distance_m"] == 0.0
   assert checks["Richard Wagner"]["status"] == "ok"
+  assert checks["Weidendammer Brücke"]["best_osm_match"]["id"] == "6228081"
+  assert checks["Weidendammer Brücke"]["best_osm_match"]["element"] == "way"
+  assert checks["Weidendammer Brücke"]["best_osm_match"]["distance_m"] == 0.0
+  assert checks["Weidendammer Brücke"]["status"] == "ok"
+  assert checks["Bertolt Brecht"]["best_osm_match"]["id"] == "988668382"
+  assert checks["Bertolt Brecht"]["best_osm_match"]["element"] == "node"
+  assert checks["Bertolt Brecht"]["best_osm_match"]["distance_m"] == 0.0
+  assert checks["Bertolt Brecht"]["status"] == "ok"
+  assert checks["Scharnhorst-Grabmal"]["best_osm_match"]["id"] == "273120316"
+  assert checks["Scharnhorst-Grabmal"]["best_osm_match"]["element"] == "node"
+  assert checks["Scharnhorst-Grabmal"]["best_osm_match"]["distance_m"] == 0.0
+  assert checks["Scharnhorst-Grabmal"]["status"] == "ok"
   assert checks["Queer Rainbow Memorial Berlin"]["best_osm_match"] is None
   assert checks["Queer Rainbow Memorial Berlin"]["status"] == "review"
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}

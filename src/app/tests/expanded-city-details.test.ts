@@ -19,13 +19,16 @@ import {
   KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
-  MOABIT_PRISON_PARK_PROFILE,
+  MOABIT_PRISON_MEMORIAL_PROFILE,
+  MOABIT_PRISON_PARK_SOURCE_PROFILE,
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
   TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "../src/ExpandedCityDetails";
+import { moabitPrisonMemorialSolidAt } from "../src/MoabitPrisonMemorialPark";
+import { pedestrianPointIsBlocked } from "../src/pedestrianNavigation";
 
 const landmarks = [
   "Hamburger Bahnhof",
@@ -369,33 +372,50 @@ describe("task-10 expanded city recognition details", () => {
     expect(AMANO_GRAND_CENTRAL_PROFILE.geometryStatus).toContain("LoD2 height");
   });
 
-  test("reconstructs the documented Moabit prison-park reading", () => {
+  test("mounts exactly one dedicated source-bound Moabit memorial model", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.userData.moabitPrisonPark).toEqual(
-      MOABIT_PRISON_PARK_PROFILE,
+      MOABIT_PRISON_MEMORIAL_PROFILE,
     );
-    expect(MOABIT_PRISON_PARK_PROFILE.sourceParkWayId).toBe("498278335");
-    expect(MOABIT_PRISON_PARK_PROFILE.parkRingWorldM).toHaveLength(22);
-    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallPathsWorldM).toHaveLength(
-      4,
-    );
-    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallWayIds).toEqual([
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.sourceParkWayId).toBe("498278335");
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.parkRingWorldM).toHaveLength(22);
+    expect(
+      MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallPathsWorldM,
+    ).toHaveLength(4);
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallWayIds).toEqual([
       "53178124",
       "105495351",
       "498279237",
       "498279239",
     ]);
-    expect(MOABIT_PRISON_PARK_PROFILE.entranceCount).toBe(3);
-    expect(MOABIT_PRISON_PARK_PROFILE.circularYardCount).toBe(3);
-    expect(MOABIT_PRISON_PARK_PROFILE.reconstructedCellCount).toBe(1);
-    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallHeightM).toBe(5);
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.entranceCount).toBe(3);
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.circularYardCount).toBe(3);
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.reconstructedCellCount).toBe(0);
+    expect(MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallHeightM).toBe(5);
+    const dedicatedName =
+      "Geschichtspark Moabit dedicated source-bound memorial park";
+    let dedicatedCount = 0;
+    details.traverse((object) => {
+      if (object.name === dedicatedName) dedicatedCount += 1;
+    });
+    expect(dedicatedCount).toBe(1);
+    expect(details.getObjectByName(dedicatedName)?.userData.detailProfile).toBe(
+      "full",
+    );
     expect(
       details.getObjectByName("Geschichtspark Moabit mapped walls and plan"),
-    ).toBeDefined();
+    ).toBeUndefined();
+
+    const mobile = createExpandedCityDetails(landmarks, {
+      detailProfile: "mobile",
+    });
+    expect(mobile.getObjectByName(dedicatedName)?.userData.detailProfile).toBe(
+      "mobile",
+    );
   });
 
   test("keeps the polygonal Moabit walls safely west of the B96", () => {
-    const profile = MOABIT_PRISON_PARK_PROFILE;
+    const profile = MOABIT_PRISON_PARK_SOURCE_PROFILE;
     const closedParkRing = [
       ...profile.parkRingWorldM,
       profile.parkRingWorldM[0],
@@ -431,13 +451,101 @@ describe("task-10 expanded city recognition details", () => {
         name: "Geschichtspark Ehemaliges Zellengefängnis Moabit",
         world: [0, profile.groundY, 0],
       },
-    ]).getObjectByName("Geschichtspark Moabit mapped walls and plan");
+    ]).getObjectByName(
+      "Geschichtspark Moabit dedicated source-bound memorial park",
+    );
     const renderedBounds = new Box3().setFromObject(rendered!);
-    expect(renderedBounds.max.x).toBeCloseTo(
-      Math.max(...profile.parkRingWorldM.map(([x]) => x)),
-      2,
+    expect(renderedBounds.max.x).toBeLessThanOrEqual(
+      Math.max(...profile.parkRingWorldM.map(([x]) => x)) + 0.1,
     );
     expect(renderedBounds.max.x).toBeLessThan(westernmostRoadX);
+  });
+
+  test("keeps all three mapped Moabit gates and the retained-cell approach capsule-clear", () => {
+    const profile = MOABIT_PRISON_MEMORIAL_PROFILE;
+    const paths = profile.preservedWallPathsWorldM;
+    const gateEndpointPairs = [
+      [paths[0].at(-1)!, paths[1][0]],
+      [paths[0].at(-1)!, paths[2][0]],
+      [paths[2].at(-1)!, paths[3][0]],
+    ] as const;
+    const access = {
+      // pedestrianPointIsBlocked already offsets seven body samples by the
+      // 0.42 m capsule radius; do not inflate the analytical memorial twice.
+      interiorSolidAt: (x: number, y: number, z: number) =>
+        moabitPrisonMemorialSolidAt(x, y, z, 0),
+    };
+
+    for (const [start, end] of gateEndpointPairs) {
+      const midpointX = (start[0] + end[0]) / 2;
+      const midpointZ = (start[1] + end[1]) / 2;
+      const deltaX = end[0] - start[0];
+      const deltaZ = end[1] - start[1];
+      const length = Math.hypot(deltaX, deltaZ);
+      const normalX = -deltaZ / length;
+      const normalZ = deltaX / length;
+      for (let offset = -3; offset <= 3; offset += 0.15) {
+        expect(
+          pedestrianPointIsBlocked(
+            midpointX + normalX * offset,
+            midpointZ + normalZ * offset,
+            profile.groundY,
+            undefined,
+            access,
+          ),
+          `mapped gate ${start.join(",")} -> ${end.join(",")} at ${offset.toFixed(2)} m`,
+        ).toBeFalse();
+      }
+    }
+
+    const panopticon = profile.panopticon.centerWorldM;
+    const cellFootprint = profile.walkInCell.footprintWorldM;
+    const cellCenter: Point2 = [
+      cellFootprint.reduce((sum, point) => sum + point[0], 0) /
+        cellFootprint.length,
+      cellFootprint.reduce((sum, point) => sum + point[1], 0) /
+        cellFootprint.length,
+    ];
+    const approachX = cellCenter[0] - panopticon[0];
+    const approachZ = cellCenter[1] - panopticon[1];
+    const approachLength = Math.hypot(approachX, approachZ);
+    for (let distance = 8; distance <= approachLength - 3; distance += 0.2) {
+      expect(
+        pedestrianPointIsBlocked(
+          panopticon[0] + (approachX / approachLength) * distance,
+          panopticon[1] + (approachZ / approachLength) * distance,
+          profile.groundY,
+          undefined,
+          access,
+        ),
+        `retained-cell approach at ${distance.toFixed(2)} m`,
+      ).toBeFalse();
+    }
+
+    const wall = paths[0];
+    const wallMidpoint: Point2 = [
+      (wall[0][0] + wall[1][0]) / 2,
+      (wall[0][1] + wall[1][1]) / 2,
+    ];
+    expect(
+      pedestrianPointIsBlocked(
+        wallMidpoint[0],
+        wallMidpoint[1],
+        profile.groundY,
+        undefined,
+        access,
+      ),
+    ).toBeTrue();
+    const panopticonPost = profile.panopticon.ringWorldM[0];
+    expect(
+      pedestrianPointIsBlocked(
+        panopticonPost[0],
+        panopticonPost[1],
+        profile.groundY,
+        undefined,
+        access,
+      ),
+    ).toBeTrue();
   });
 
   test("places the temporary FUNBOX on the event lot opposite its address anchor", () => {
@@ -471,8 +579,12 @@ describe("task-10 expanded city recognition details", () => {
     expect(bounds.min.y).toBeCloseTo(profile.groundY, 2);
     expect(bounds.max.y).toBeGreaterThan(profile.groundY + 8.5);
     expect(bounds.max.y).toBeLessThan(profile.groundY + 10);
-    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(60);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(90);
+    const horizontalSpans = [
+      bounds.max.x - bounds.min.x,
+      bounds.max.z - bounds.min.z,
+    ].sort((left, right) => left - right);
+    expect(horizontalSpans[0]).toBeGreaterThan(40);
+    expect(horizontalSpans[1]).toBeGreaterThan(90);
     expect(expandedCityFocusCamera(oggi)).toMatchObject({
       distance_m: 142,
       target_world: [

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.15"
+PACKAGE_VERSION = "0.72.16"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,34 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} hält die temporäre FUNBOX vollständig auf ihrer
+Darstellungsfläche zwischen Heidestraße, Minna-Cauer-Straße und Döberitzer
+Straße. Gezeichnete und Minecraft-Hülle haben mindestens 2,553 m Abstand zu
+den ausgelieferten OSM-basierten Straßenflächen, bleiben vom Nordportal des
+Tiergartentunnels sowie allen Quell-Voxelgebäuden frei und teilen in Voll- und
+Mobilprofil dasselbe tragende Minecraft-Fundament. FUNBOX bleibt bei genau 5
+gezeichneten Renderables mit 7.921 gerenderten Vertices und 62
+Minecraft-Blöcken. Offizielle Lage, Zeitraum, Größenordnung und Programm
+stammen von visitBerlin; die eingepasste Hülle ist nicht vermessene,
+prozedurale Darstellungsgeometrie.
+Version {PACKAGE_VERSION} gibt dem Geschichtspark Zellengefängnis Moabit ein
+quellengebundenes, heutiges Gedenkstättenmodell mit roten Backsteinmauern. Der
+22-Punkt-Parkring, 19 Mauersegmente und das Panoptikum folgen exakten OSM-
+Geometrien. Vier Segmente behalten die expliziten 4 m von OSM-Weg 105495351;
+die übrigen 15 nutzen Berlins allgemeine 5-m-Mauerangabe nur als
+Darstellungswert. Die amtliche LoD2-Zelle DEBE01AL2yz00000 bleibt erhalten und
+wird nicht von einer zweiten Hülle verdeckt; vorhandene Rasen-, Wege- und
+Baumdaten werden nicht dupliziert. Smooth nutzt voll 5 Renderables / 7.818
+Vertices und mobil 5 / 5.448. Minecraft nutzt je ein Batch: voll 3.882 Blöcke
+/ 93.168 Instanz-Vertices, mobil 2.093 / 50.232. Tag, Nacht, Schneesturm und
+Schwellenraum teilen das gezeichnete Modell, Minecraft ersetzt es blockeigen.
+Normale Geh-Kollision lässt die drei kartierten Eingangslücken und den
+Zellenzugang offen; Schwellenraum behält den ganzen Park geschützt.
+Feine Binnenmaße sind prozedural und nicht vermessen. Der geschützte
+Landschaftsplan wird weder nachgezeichnet noch gebündelt; Foto, Canvas-Bild,
+Thumbnail und Fototextur werden nicht geladen. Der Quellenkontext zu den im
+Nationalsozialismus inhaftierten Gegnern, darunter Albrecht Haushofer, bleibt
+dem heutigen Gedenkpark zugeordnet, ohne das abgerissene Gefängnis nachzubauen.
 Version {PACKAGE_VERSION} verankert das Richard-Wagner-Denkmal als 90.
 navigierbare Sehenswürdigkeit am exakten OSM-Knoten 243487615 und bindet seine
 Identität an das Landesdenkmalamt-Teilobjekt 09046318,T,041. Der fehlerhaft
@@ -3444,6 +3472,20 @@ Figurenhöhe. Lokale Figurengliederung, Dachquerschnitt, Bauteilabstände,
 Ausrichtung und Kollisionskörper sind nicht vermessene Darstellungswerte.
 Es werden weder Referenzfoto noch Thumbnail oder Fototextur gebündelt oder
 geladen.
+Version {PACKAGE_VERSION} macht die Weidendammer Brücke als 91.
+Sehenswürdigkeit anwählbar. Exakter OSM-Weg 6228081 bestimmt Mitte und Achse;
+das Berliner Brückeninventar bestimmt die heutige Hülle von 69,48 x 25,17 m,
+das Landesdenkmalamt-Objekt 09030074 das geschützte Dreifeld- und
+Ornamentsystem. Genau ein neobarockes Geländersystem trägt zwei geschmiedete
+Adlerreliefs in Brückenmitte und acht Laternenständer. Die vielen
+Liebesschlösser sind eine deterministische heutige Darstellung, keine
+Einzelinventur: 192 im Voll- und 96 im Mobilprofil. Smooth nutzt voll 5
+Renderables / 46.568 gespeicherte / 90.116 gerenderte Vertices und mobil 5 /
+32.744 / 54.404. Minecraft ersetzt das glatte Ornament durch ein Batch mit 344
+Blöcken / 8.256 Instanz-Vertices beziehungsweise mobil 224 / 5.376. Fahrbahn,
+Gehwege und Zufahrten bleiben begehbar. Die kulturelle Biermann-Verbindung zum
+Brückenadler bleibt Metadatum; weder Liedtext noch Foto, Plan oder Textur wird
+kopiert oder geladen.
 Version {PACKAGE_VERSION} gibt dem Max-Liebermann-Haus, der Französischen und
 der US-Botschaft sowie der Akademie der Künste vier getrennte, quellengebundene
 Fassaden über den erhaltenen LoD2-/OSM-Körpern. Die gezeichneten Varianten
@@ -3480,8 +3522,19 @@ Ensemble auf fotoeingegrenzte 4,8 m und dreht ihn in allen fünf Modi einmal in
 120 Sekunden. Die Bewegung ist auf 12 Hz ohne Touch oder 8 Hz im
 mobilähnlichen Touch-Profil begrenzt und bleibt bei reduzierter Bewegung sowie
 in fernen, ausgeblendeten, unsichtbaren oder unterirdischen Ansichten stehen.
-Das Brecht-Denkmal erhält Figur, Stuhl, sechs Meter große Pflasterplattform und
-drei Stelen; `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026, wird
+Das als 92. Sehenswürdigkeit anwählbare Brecht-Denkmal erhält die komplette
+leicht überlebensgroße Sitzfigur mit
+Mantelfalten, Händen und Füßen auf der asymmetrischen offenen Metallbank, die
+sechs Meter große runde Pflasterplattform und drei zylindrische, horizontal
+gefugte Schwarzsteinstelen. Peter Flierl wird für die Installationsgestaltung,
+Fritz Cremer für die Skulptur und Carlo Wloch für Steinarbeit/Stelen genannt.
+Außerhalb von Figur, Bank und Stelen bleibt die Plattform begehbar; Minecraft
+nutzt eine eigene deterministische 4-Batch-/197-Block-Lesart ohne glatte
+Doppelung. Smooth nutzt voll und mobil 3 Renderables / 24.840 gespeicherte und
+gerenderte Vertices; Minecraft rendert 4.728 Instanz-Vertices. Die 14-m-Kamera
+zielt auf den exakten Anker, Feinanatomie blendet bei 34/105 m. Gedicht und
+Zitate werden nicht wiedergegeben; Einschnittspuren
+bleiben unlesbar. `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026, wird
 als aktuelles begehbares Vitrinenwerk dargestellt. Es wird kein Pressefoto und
 keine Porträttextur gebündelt.
 Minecraft lässt genau drei Creeper, zwei Skelette mit Bogen und drei Zombies
@@ -3494,7 +3547,8 @@ wenige statische Pride-Fahnen, Kränze und Karten sowie die Regenbogenbank bleib
 in Tag, Nacht, Minecraft, Schneesturm und Schwellenraum sichtbar. Nur der
 Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Maße
 und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
-kein Foto oder Screenshot gebündelt.
+kein Foto oder Screenshot gebündelt. Sie bleibt außerhalb des 93-Orte-Katalogs
+und ist keine 94. Tourstation.
 Version {PACKAGE_VERSION} versetzt 1.093 Ampelmasten an deterministische äußere
 Straßenränder: 1.092 Quellpunkte in der modellierten Fahrbahn sowie einen
 Dezimeter-Randfall. 227 bereits sichere Masten bleiben am Quellort. Schema 7
@@ -3530,8 +3584,19 @@ ersetzen die frühere diagonale grüne Blende. Minecraft verwendet dafür eine
 gemeinsame grobe, opake Blocksignatur. Vier frei lizenzierte Referenzen sind im
 öffentlichen Quellenpaket attribuiert; kein Foto wird als Fassadentextur
 gebündelt oder projiziert.
-Version {PACKAGE_VERSION} unterscheidet am Invalidenfriedhof außerdem das
-Scharnhorst-Löwengrab, die charakteristischen Grabmale Witzleben, Winterfeld,
+Version {PACKAGE_VERSION} zeigt das als 93. Sehenswürdigkeit anwählbare
+Scharnhorst-Grab am exakten OSM-Knoten 273120316 mit der im Berlin-Lexikon
+veröffentlichten Gesamthöhe von 5,60 m: Schinkels zwei
+Architekturpfeiler und Eisengitter fassen den hohen Carrara-Marmorsarkophag,
+Tiecks Relieffries und einen wirklich liegenden Bronzelöwen statt eines
+Ellipsoids. Christian Daniel Rauch modellierte den Löwen, Theodor Kalide
+führte ihn aus; das Schinkelportal kennzeichnet den heutigen Sarkophag und Fries
+als konservatorische Kopien. Der tragende Löwenkörper bleibt nach dem Ausblenden naher
+Mähnen-, Gesichts- und Krallendetails lesbar. Smooth nutzt voll und mobil 8
+Renderables / 554 gespeicherte / 15.539 gerenderte Vertices; Minecraft steuert
+4 Batches / 566 Blöcke / 13.584 Instanz-Vertices bei. Die 18-m-Kamera zielt auf
+den exakten Anker, der Raum zwischen den Pfeilern bleibt begehbar. Außerdem unterscheidet der
+Invalidenfriedhof die charakteristischen Grabmale Witzleben, Winterfeld,
 Kessel und Rauch, die Auguste-Viktoria-Glocke im offenen Stahlrahmen sowie
 Kanal- und Hinterlandmauer. Der separate ehemalige DDR-Führungsturm Kieler Eck
 ist als Gedenkstätte Günter Litfin aus amtlichen Denkmal-, OSM- und
@@ -3539,6 +3604,10 @@ LoD2-Ankern rekonstruiert. Alle neuen Details bleiben statisch; Minecraft nutzt
 eigene Blockformen. Wege und offene Glockenturmfelder bleiben begehbar,
 wiederholte Feinteile sind gebündelt, und die gelieferten Fotos bleiben
 ungebündelte Referenzbilder statt Texturen oder Vermessungsdaten.
+Die vier ausgelieferten Landmark-Kataloge enthalten synchron 93 Orte. Alle 41
+Relativlagen-Verträge und die drei etablierten manuellen Prüfanker bleiben
+erhalten; die Nummern 90–93 sind Richard Wagner, Weidendammer Brücke, Bertolt
+Brecht und Scharnhorst.
 Neu ist ein zweisprachiger Deutsch/English-Schalter und ein Tag-/Nachtmodus.
 Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
@@ -3735,8 +3804,11 @@ Pflasterplatten, Setz-/Kopfstein, Feinkies, wassergebundene Decke, Sand, Erde,
 Holz und Metall bleiben unterscheidbar. Am Floraplatz
 stehen genau die acht dokumentierten Tierbronzen auf Granitsockeln. Hotel AMANO
 Grand Central behält OSM-Grundriss und amtliche LoD2-Höhe; der Geschichtspark
-Zellengefängnis Moabit behält seinen OSM-Parkumriss und liest die dokumentierten
-Mauern, Flügel, Höfe, Panoptikum und Zelle als ergänzende Rekonstruktion.
+Zellengefängnis Moabit behält Parkring, rote Backsteinmauern und Panoptikum auf
+ihren exakten OSM-Geometrien sowie die amtliche LoD2-Zelle. Flügel-, Hof-,
+Pflanz- und Informationsdetails lesen den heutigen Gedenkpark prozedural, ohne
+eine historische Gefängnisanlage oder den geschützten Landschaftsplan zu
+rekonstruieren.
 
 2D-Kompatibilitätsansicht ohne Terminal:
 
@@ -3782,6 +3854,33 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} keeps the temporary FUNBOX completely on its display
+lot between Heidestraße, Minna-Cauer-Straße and Döberitzer Straße. Its drawn
+and Minecraft envelopes retain at least 2.553 m clearance from the delivered
+OSM-derived road surfaces, stay clear of the northern Tiergartentunnel portal
+and every source voxel building, and use the same structural Minecraft
+footprint in full and mobile profiles. FUNBOX remains exactly 5 drawn
+renderables / 7,921 rendered vertices and 62 Minecraft blocks. visitBerlin
+supplies the official location, dates, scale and programme; the fitted envelope
+is procedural, non-surveyed display geometry.
+Version {PACKAGE_VERSION} gives the Geschichtspark Zellengefängnis Moabit a
+source-bound present-day memorial model with red-brick walls. Its 22-point park
+ring, 19 wall segments and Panoptikum follow exact OSM geometry. Four segments
+retain the explicit 4 m from OSM way 105495351; the other 15 use Berlin's
+general 5 m wall statement only as a display value. Official LoD2 cell
+DEBE01AL2yz00000 remains visible without a second shell, and existing lawn,
+path and tree data are not duplicated. Smooth uses 5 renderables / 7,818
+vertices in full and 5 / 5,448 on mobile. Minecraft uses one batch in each
+profile: full 3,882 blocks / 93,168 rendered instance vertices, mobile 2,093 /
+50,232. Day, Night, Snowstorm and Schwellenraum share the drawn model;
+Minecraft substitutes its block-native counterpart. Fine internal dimensions
+are procedural and non-surveyed. Normal walking collision keeps all three
+mapped entrance gaps and the cell approach open; Schwellenraum retains
+whole-park protection. The protected landscape plan is neither
+traced nor bundled; no photograph, canvas image, thumbnail or photographic
+texture is loaded. The sourced remembrance context for opponents imprisoned
+during National Socialism, including Albrecht Haushofer, remains attached to
+the present-day park without rebuilding the demolished prison.
 Version {PACKAGE_VERSION} anchors the Richard-Wagner-Denkmal as the 90th
 navigable sight at exact OSM node 243487615 and binds its identity to
 Landesdenkmalamt part object 09046318,T,041. The false closed LoD2 shelter
@@ -3796,6 +3895,19 @@ and figure heights. Local figure segmentation, roof section, component
 spacing, orientation and collision volumes are non-surveyed display values.
 No reference photograph, thumbnail or photographic texture is bundled or
 loaded.
+Version {PACKAGE_VERSION} makes Weidendammer Brücke selectable as sight 91.
+Exact OSM way 6228081 controls its centre and axis; Berlin's bridge inventory
+controls the current 69.48 x 25.17 m envelope, and Landesdenkmalamt object
+09030074 controls the protected three-opening and ornamental system. Exactly
+one neo-Baroque railing system carries two forged central eagle reliefs and
+eight lamp standards. The many love locks are a deterministic present-day
+display, not an individual inventory: 192 in full and 96 on mobile. Smooth
+uses 5 renderables / 46,568 stored / 90,116 rendered vertices in full and 5 /
+32,744 / 54,404 on mobile. Minecraft replaces the smooth ornament with one
+batch using 344 blocks / 8,256 rendered instance vertices, or 224 / 5,376 on
+mobile. Roadway, pavements and approaches stay walkable. Biermann's cultural
+association with the bridge eagle remains metadata; no song lyric, photograph,
+plan or texture is copied or loaded.
 Version {PACKAGE_VERSION} gives the Max-Liebermann-Haus, French Embassy, US
 Embassy and Akademie der Künste four separate source-bounded facades over their
 retained LoD2/OSM bodies. Drawn variants carry their characteristic window,
@@ -3829,8 +3941,18 @@ Version {PACKAGE_VERSION} reduces the Berliner Ensemble open roof ring to a
 photo-bounded 4.8 m and turns it once every 120 seconds in all five modes.
 Motion is capped at 12 Hz without touch or 8 Hz in the mobile-like touch
 profile and freezes for reduced-motion, distant, hidden, off-screen or
-underside views. The Brecht memorial gains the figure, chair, six-metre sett
-platform and three steles; `Eine Skulptur für Helene Weigel`, unveiled on 10
+underside views. The Brecht memorial, selectable as sight 92, gains the complete
+slightly over-life-size seated figure with coat folds, hands and feet on its asymmetric open metal
+bench, the six-metre circular sett platform and three cylindrical,
+horizontally jointed black-stone steles. Peter Flierl is credited for the
+installation design, Fritz Cremer for the sculpture and Carlo Wloch for
+stonework/steles. The platform stays walkable outside the figure, bench and
+steles; Minecraft uses a separate deterministic 4-batch / 197-block reading
+without a smooth double. Full and mobile Smooth use 3 renderables / 24,840
+stored and rendered vertices; Minecraft renders 4,728 instance vertices. The
+14 m camera targets the exact anchor and fine anatomy fades at 34/105 m. The
+poem and quotations are not reproduced;
+incision cues remain non-legible. `Eine Skulptur für Helene Weigel`, unveiled on 10
 May 2026, is represented as the current accessible vitrine work. No press
 photograph or portrait texture is bundled.
 Minecraft lets exactly three Creepers, two bow-carrying Skeletons and three
@@ -3843,7 +3965,7 @@ Pride flags, wreaths and cards, and rainbow bench remain visible in Day, Night,
 Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
 descriptive facts are fixed; all local dimensions and arrangements are
 photo-bounded, non-surveyed display values. No photograph or screenshot is
-bundled.
+bundled. It remains outside the 93-place catalogue and is not a 94th tour stop.
 Version {PACKAGE_VERSION} moves 1,093 traffic-signal poles to deterministic
 exterior verges: 1,092 source points in the modelled carriageway plus one
 decimetre edge case. 227 already-safe poles stay at source. Schema 7 retains
@@ -3876,8 +3998,19 @@ grey facade lettering and freestanding black terrace cues replace the former
 diagonal green fascia. Minecraft uses one shared coarse, opaque block
 signature. Four openly licensed references are attributed in the public source
 package; no photograph is bundled or projected as a facade texture.
-Version {PACKAGE_VERSION} also distinguishes the Invalidenfriedhof's
-Scharnhorst lion tomb, characteristic Witzleben, Winterfeld, Kessel and Rauch
+Version {PACKAGE_VERSION} renders Scharnhorst's grave, selectable as sight 93,
+at exact OSM node 273120316 to the 5.60 m overall height published by the
+Berlin-Lexikon: Schinkel's two architectural piers and iron railing frame the
+high Carrara-marble sarcophagus, Tieck relief
+frieze and a genuinely reclining bronze lion instead of an ellipsoid. Christian
+Daniel Rauch modelled the lion and Theodor Kalide executed it; the Schinkel
+portal identifies the present sarcophagus and frieze as conservation copies.
+The structural lion remains legible after close-only mane, face and claw detail fades. Full
+and mobile Smooth use 8 renderables / 554 stored / 15,539 rendered vertices;
+Minecraft contributes 4 batches / 566 blocks / 13,584 rendered instance
+vertices. The 18 m camera targets the exact anchor and the space between the
+piers stays walkable. The
+Invalidenfriedhof also distinguishes the characteristic Witzleben, Winterfeld, Kessel and Rauch
 monuments, open-framed Auguste-Viktoria bell, and separate canal and Hinterland
 Wall layers. The independent former GDR command tower at Kieler Eck is
 reconstructed as the Günter Litfin memorial from official monument, OSM and
@@ -3885,6 +4018,10 @@ LoD2 anchors. Every new detail remains static; Minecraft uses separate block
 forms. Paths and open bell-frame bays remain walkable, repeated fine members
 are batched, and the supplied photographs remain unbundled references rather
 than textures or survey evidence.
+The four shipped landmark catalogues synchronously contain 93 places. All 41
+relative-placement contracts and the three established manual-review anchors
+remain intact; records 90–93 are Richard Wagner, Weidendammer Brücke, Bertolt
+Brecht and Scharnhorst.
 It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
@@ -4069,8 +4206,10 @@ paving slabs, granite setts, fine gravel, compacted cover, sand, earth, timber
 and metal remain distinct. Floraplatz contains the
 documented eight animal bronzes on granite plinths. Hotel AMANO Grand Central
 retains its OSM plan and official LoD2 height, while the former Moabit prison
-park retains its OSM envelope and uses the published walls, wings, yards,
-panopticon and cell only as an additive interpretive reconstruction.
+park keeps its ring, red-brick walls and Panoptikum on exact OSM geometry and
+retains the official LoD2 cell. Wing, yard, planting and information details
+read the present-day memorial park procedurally without reconstructing the
+historic prison or the protected landscape plan.
 
 2D compatibility view without Terminal:
 

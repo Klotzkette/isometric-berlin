@@ -3445,6 +3445,33 @@
         8.0,
         967.217096994631
       ]
+    },
+    {
+      "name": "Weidendammer Brücke",
+      "role": "owner_added",
+      "world": [
+        1128.1180265166913,
+        8.0,
+        -334.7174344994128
+      ]
+    },
+    {
+      "name": "Bertolt Brecht",
+      "role": "owner_added",
+      "world": [
+        1026.375999999931,
+        8.0,
+        -349.77699999976903
+      ]
+    },
+    {
+      "name": "Scharnhorst-Grabmal",
+      "role": "owner_added",
+      "world": [
+        38.59700000018347,
+        8.0,
+        -1425.0350000010803
+      ]
     }
   ],
   "park_details": {

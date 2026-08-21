@@ -327,6 +327,30 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "osm_ids": ["243487615"],
     "max_distance_m": 0.2,
   },
+  # OSM way 6228081 is the source centreline of the current Weidendammer
+  # Brücke. The official monument object 09030074 independently binds its
+  # identity, construction and preserved ornamental system.
+  "Weidendammer Brücke": {
+    "aliases": ["weidendammer brucke"],
+    "osm_ids": ["6228081"],
+    "max_distance_m": 0.2,
+  },
+  # The dedicated sculpture focus is exact OSM artwork node 988668382. Keep
+  # it independent from the legacy Berliner-Ensemble building/site anchor so
+  # both the theatre and Fritz Cremer's seated Brecht remain selectable.
+  "Bertolt Brecht": {
+    "aliases": [],
+    "osm_ids": ["988668382"],
+    "max_distance_m": 0.2,
+  },
+  # Schinkel's architectural ensemble is independently navigable at the exact
+  # OSM artwork node; Berlin monument object 09010206 supplies the official
+  # cemetery-ensemble identity and attribution context.
+  "Scharnhorst-Grabmal": {
+    "aliases": [],
+    "osm_ids": ["273120316"],
+    "max_distance_m": 0.2,
+  },
   # This recent, informal memorial is not present in the committed OSM
   # snapshot. Keep it in the QA report as a deliberate manual-review point;
   # its exact anchor comes from the owner's supplied Ahornsteig place link.
@@ -392,6 +416,27 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
     "east_west": "east",
     "north_south": "south",
     "note": "Friedrichstraße station lies east and south of Berliner Ensemble.",
+  },
+  {
+    "from": "Berliner Ensemble",
+    "to": "Weidendammer Brücke",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Weidendammer Brücke lies east and south of Berliner Ensemble.",
+  },
+  {
+    "from": "Berliner Ensemble",
+    "to": "Bertolt Brecht",
+    "east_west": "east",
+    "north_south": "north",
+    "note": "The seated Brecht stands east and slightly north of the theatre's legacy site anchor.",
+  },
+  {
+    "from": "Scharnhorst-Grabmal",
+    "to": "Invalidenpark / Sinkende Mauer",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Invalidenpark lies east and south of the Scharnhorst tomb inside Invalidenfriedhof.",
   },
   {
     "from": "Brandenburger Tor",

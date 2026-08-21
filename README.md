@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.15/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.16 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.16/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.15** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.16** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,53 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.15**, built from `main`. Its full viewer
+The current public package is **v0.72.16**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **FUNBOX now stays on the event lot instead of entering Heidestraße.** The
+  complete procedural footprint is fitted between the delivered
+  OSM-derived surface polygons for Heidestraße, Minna-Cauer-Straße and
+  Döberitzer Straße. Drawn and Minecraft forms keep a tested **2.553 m**
+  minimum road-surface clearance, clear the northern Tiergartentunnel portal
+  and intersect no source voxel building. Its official
+  [visitBerlin listing](https://www.visitberlin.de/de/event/funbox)
+  still supplies the Heidestraße/Minna-Cauer location, 2026 dates,
+  4,000-plus-square-metre scale and ten-zone programme; the fitted envelope is
+  code-authored presentation geometry, not a surveyed event boundary. The
+  frozen model uses **5 drawn renderables / 7,921 rendered vertices** and
+  **62 Minecraft blocks**.
+
+- **The Geschichtspark Zellengefängnis Moabit is now a granular present-day
+  memorial park.** OSM park way `498278335` and all **19** wall segments fix
+  its plan; the four segments from brick wall way `105495351` retain their
+  explicit 4 m height while the other 15 use Berlin's published general 5 m
+  height only as a display value. Red brick and mortar courses, exact
+  Panoptikum way `195086492`, four interpretive wing traces, three yard
+  readings, hedges, information points and the Klopfzeichen audio anchor make
+  the site and its remembrance of opponents imprisoned during National
+  Socialism legible without duplicating its mapped lawn, paths or trees. The
+  exact Berlin LoD2 cell `DEBE01AL2yz00000` remains the cell geometry rather
+  than being hidden by a replacement shell.
+
+- **The prison-park detail is stable across every mode and mobile profile.**
+  Day, Night, Snowstorm and Schwellenraum share its drawn root; Minecraft
+  substitutes one block-native batch. Ordinary walking collision follows only
+  represented walls, the retained cell and Panoptikum solids, so the three
+  mapped entrance gaps and cell approach stay open; Schwellenraum preserves
+  its existing whole-park protection. Full Smooth uses **5 renderables / 7,818
+  rendered vertices** and mobile
+  Smooth **5 / 5,448**. Minecraft uses **one batch / 3,882 blocks / 93,168
+  rendered instance vertices** in full and **one / 2,093 / 50,232** on mobile.
+  The official Berlin
+  [park account](https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html)
+  and
+  [monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050274)
+  provide history and present-day programme facts; all fine interpretation
+  geometry remains non-surveyed. No
+  protected plan, photograph, canvas image or photographic texture is traced,
+  bundled or loaded.
 
 - **The Richard-Wagner-Denkmal is now exactly anchored and navigable as sight
   90.** OSM node `243487615` fixes the plan position and Landesdenkmalamt
@@ -74,6 +117,27 @@ local modules.
   spacing and collision volumes are procedural display reconstructions, not a
   survey. No visual-reference photograph, thumbnail or photographic texture
   is bundled or loaded by the viewer.
+
+- **Weidendammer Brücke is now navigable as sight 91 and recognisable at close
+  range.** Exact OSM way `6228081` fixes its centre and bearing, Berlin's
+  current bridge inventory fixes the **69.48 x 25.17 m** envelope, and
+  [Landesdenkmalamt object `09030074`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030074)
+  fixes the protected three-opening and ornament system. One railing system
+  carries exactly **two forged central eagle reliefs and eight lamp standards**;
+  the old duplicate ornament is removed. Deterministic present-day love locks
+  remain explicitly non-surveyed: **192** in full and **96** on mobile. Full
+  Smooth uses **5 renderables / 46,568 stored vertices / 90,116 rendered
+  vertices**; mobile uses **5 / 32,744 / 54,404**. Minecraft substitutes one
+  batch with **344 / 224 blocks** and **8,256 / 5,376 rendered instance
+  vertices** in full / mobile. The deck and approaches remain walkable.
+
+- **The Prussian eagle's Biermann association is documented without copying
+  the song.** The metadata records the cultural connection to Wolf Biermann's
+  *Ballade vom preußischen Ikarus* but contains no lyric. The love-lock field is
+  a current procedural display rather than a lock inventory, and no bridge
+  photograph, plan, portrait or texture is shipped or loaded. Richard Wagner
+  remains sight 90; the CSD memorial place remains a separate uncatalogued
+  model outside the 93-place tour.
 
 - **Goethe and Lessing now read as their real Tiergarten ensembles rather than
   generic monument blocks.** Exact OSM nodes `278738513` and `884700390` keep
@@ -126,16 +190,31 @@ local modules.
   ABEND` line remains legible in the four drawn modes and is not duplicated in
   Minecraft.
 
-- **The Berliner Ensemble sign and public art now follow the current reading.**
+- **The Berliner Ensemble sign and public art now follow the current reading;
+  Brecht is selectable as sight 92.**
   Its open roof ring is a photo-bounded 4.8 m across and turns once per 120
   seconds in all five modes, with a bounded 12/8 Hz cadence and still poses for
   reduced-motion, hidden, distant, off-screen or underside views. Fritz
-  Cremer's seated Brecht now includes chair, six-metre sett platform and three
-  surrounding steles. `Eine Skulptur für Helene Weigel`, unveiled on 10 May
+  [Cremer's slightly over-life-size seated Brecht](https://bildhauerei-in-berlin.de/bildwerk/bertolt-brecht-denkmal-5412/)
+  now has a full upright body,
+  coat folds, hands and a deliberate empty place on the asymmetric open metal
+  bench. The published six-metre circular sett platform and three cylindrical,
+  horizontally jointed black-stone steles complete the installation. Credits
+  distinguish Peter Flierl's installation design, Fritz Cremer's sculpture and
+  Carlo Wloch's stonework/steles. The platform remains traversable outside the
+  actual artwork solids. Full/mobile Smooth is **3 renderables / 24,840 stored
+  and rendered vertices**; Minecraft uses one deterministic **4-batch /
+  197-block / 4,728-rendered-vertex** counterpart over one shared 24-vertex cube
+  and without a smooth double. Its
+  14 m close camera and 34/105 m fine fade keep the granular anatomy bounded.
+  `Eine Skulptur für Helene
+  Weigel`, unveiled on 10 May
   2026, is represented as the current glass-vitrine work with red chair,
   object field, light/audio bars, procedural halftone portrait and grilles.
   Both exact OSM nodes are protected from generic monument doubles; no press
-  photograph or portrait texture ships in the viewer.
+  photograph or portrait texture ships in the viewer. The Brecht steles carry
+  only non-legible incision cues: no copyrighted poem or quotation is
+  reproduced.
 
 - **Minecraft adds only a sparse complement of hostile staffage.** Three
   Creepers, two bow-carrying Skeletons and three Zombies share one instanced
@@ -227,12 +306,28 @@ local modules.
   navigation remain available.
 
 - **Invalidenfriedhof and the Günter Litfin memorial now have individual
-  identities.** Schinkel's Scharnhorst lion tomb, the characteristic Witzleben,
+  identities; Scharnhorst is selectable as sight 93.** Scharnhorst's monument
+  at exact OSM node `273120316` now reaches
+  its [published **5.60 m** overall silhouette](https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm):
+  Schinkel's two-pier architecture
+  and iron railing frame the Carrara-marble sarcophagus, Friedrich Tieck relief
+  frieze and a recognisably reclining bronze lion rather than an ellipsoid.
+  Christian Daniel Rauch modelled the lion and Theodor Kalide executed it; the
+  [Schinkel portal](https://schinkel.smb.museum/image_orte.php?id=28) supplies
+  form/material context and identifies the present sarcophagus and frieze as
+  conservation copies. The
+  characteristic Witzleben,
   Winterfeld, Kessel and Rauch grave monuments, the Auguste-Viktoria bell, the
   distinct canal and Hinterlandmauer layers, and the separate former GDR
   command post at Kieler Eck use official monument, OSM and LoD2 anchors. Open
   frames and paths stay walkable, the fine details are batched and static in
   every mode, and no supplied photograph is shipped as an image or texture.
+  The structural lion remains legible after close-only mane/face/claw detail
+  fades. Full/mobile Smooth is **8 renderables / 554 stored / 15,539 rendered
+  vertices**; its Minecraft contribution is **4 batches / 566 blocks / 13,584
+  rendered instance vertices** over one shared 24-vertex cube. The 18 m focus uses the exact anchor, collision
+  leaves the centre between the two piers open, and Minecraft keeps a separate
+  block-native signature.
 
 - **All five Brandenburg Gate passages are open to pedestrians everywhere.**
   Day, Night, Minecraft, Snowstorm and Schwellenraum now share the same five
@@ -306,9 +401,12 @@ local modules.
   and escalator pairs instead of one generic underground entrance cue.
 
 - **The Moabit prison memorial no longer walls off the B96.** Its 22-point OSM
-  park ring and four mapped polygonal wall traces replace the former enclosing
-  rectangle. Deliberate openings remain passable, and every wall stays west of
-  Heidestraße with at least 17.29 m clearance from the mapped road centreline.
+  park ring and four mapped wall ways / 19 exact segments replace the former
+  enclosing rectangle. The three mapped entrance gaps and cell approach remain
+  passable in normal pedestrian collision, while Schwellenraum keeps its
+  existing whole-park protection. The red-brick walls stay west of Heidestraße;
+  one explicitly tagged way renders at 4 m and the other source-height-free
+  ways use Berlin's general 5 m description only as a display value.
 
 - **The parliamentary Spree crossing is open again.** The false tall LoD2 wall
   and its 16 footprint-matched Minecraft columns are suppressed. The public lower
@@ -459,7 +557,7 @@ local modules.
 
 - **The Berliner Ensemble and Reichstag now carry a stronger architectural
   reading.** The theatre's circular sign sits on its western roof tower and
-  stays deliberately static to preserve zero-motion stability; Bertolt Brecht
+  uses the current bounded 120-second rotation contract; Bertolt Brecht
   occupies his surveyed turntable on the square and the 2026 Helene Weigel
   work stays in the theatre courtyard. The Reichstag's west entrance gains a
   deep recess, opaque limestone order, relief field and higher-contrast bronze
@@ -703,12 +801,14 @@ local modules.
   reference without embedding the photograph. The planned nine-storey
   building is documented but deliberately not shown as already complete.
 
-- **The temporary 2026 FUNBOX now occupies its actual event lot north of
-  Hauptbahnhof.** A procedural model recreates the published 4,000 m²,
-  ten-zone inflatable park with its five-metre slide, entrance arch, ticket
-  kiosk, turrets and obstacle course without copying photo textures. Day,
-  Night and Snowstorm share the detailed isometric form; Minecraft receives a
-  separate block-native version at the same documented position.
+- **The temporary 2026 FUNBOX now stays inside a tested event-lot display
+  envelope north of Hauptbahnhof.** A procedural model recreates the published
+  4,000-plus-square-metre, ten-zone inflatable park with its five-metre slide,
+  entrance arch, ticket kiosk, turrets and obstacle course without copying
+  photo textures. Day, Night and Snowstorm share the drawn form; Minecraft
+  receives a separate block-native version. Both remain fully outside the
+  delivered Heidestraße, Minna-Cauer-Straße and Döberitzer Straße surfaces;
+  visitBerlin publishes the corner and programme, not a surveyed parcel.
 
 - **KPMG/EINZ and Europaplatz Nord now follow the photographed current
   condition.** The 84 m, 22-storey LoD2 tower carries the published 1.35 m
@@ -905,8 +1005,10 @@ local modules.
   coincident plinth. AMANO keeps its OSM footprint and official 27.819 m LoD2
   height while adding the documented clinker, staggered-window, glazed-ground-
   floor and setback-storey reading. The prison park uses the exact 22-point OSM
-  ring and four mapped polygonal wall traces with openings; all remain west of
-  Heidestraße rather than continuing across the B96.
+  ring, four mapped wall ways / 19 segments and exact Panoptikum plan while
+  retaining the existing Berlin LoD2 cell. Present-day wings, yards, hedges and
+  information details are procedural recognition geometry; they add no second
+  lawn or tree inventory and do not trace the protected landscape plan.
 
 - **Central Berlin's civic and rail architecture has a finer recognition
   layer without moving its source geometry.** The Swiss Embassy now separates
@@ -921,7 +1023,9 @@ local modules.
 - **The eastern Spree crossings and Friedrichstraße read as distinct
   structures.** Kronprinzenbrücke uses its measured deck orientation with
   stepped road, cycle and pedestrian bands. Weidendammer Brücke has three iron
-  arch openings, granite piers, historic lamps and eagle silhouettes. Bahnhof
+  arch openings, granite piers, exactly two forged central eagle reliefs, eight
+  lamp standards, one neo-Baroque railing system and a bounded current love-lock
+  field. Bahnhof
   Friedrichstraße uses two steel-and-glass train sheds above its brick base,
   while the separate Tränenpalast retains its exact low glass-pavilion outline;
   the Berliner Ensemble carries its circular red-and-white roof sign.
@@ -1009,7 +1113,7 @@ local modules.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.
-  All 90 source-positioned sights remain available to tours, previous/next
+  All 93 catalogued sights remain available to tours, previous/next
   navigation and stable `#landmark=` links; the smaller rail is a usability
   choice, not a data deletion.
 - Water bodies retain their mapped plan geometry and now read as recessed
@@ -1096,7 +1200,7 @@ local modules.
   no replacement street or river geometry is invented.
 - **The 2D overview and 3D scene share the same task-13 bounds.** The DZI,
   reference image and bundled landmark projection were regenerated together;
-  all 90 checked sights use the same coordinate frame in both viewers. The
+  all 93 checked sights use the same coordinate frame in both viewers. The
   embedded and public landmark payloads are byte-identical and enforced by
   release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
   compact overview fallback is capped at 4800 px, while the downloadable
@@ -1413,9 +1517,10 @@ local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 90 landmarks, 38 relative-placement
-  checks and 112 accepted Wikimedia references remain part of the additive
-  evidence pipeline and attribution chain.
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 93 landmarks, 41 relative-placement
+  checks, three established manual-review anchors and 112 accepted Wikimedia
+  references remain part of the additive evidence pipeline and attribution
+  chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
   bundled. Those services may be inspected for QA, but are not copied.
 
@@ -1453,7 +1558,7 @@ the packaged viewer projection is
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser, Queer Rainbow Memorial Berlin am Ahornsteig |
 | Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, Richard-Wagner-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
-| Northern extension | Hamburger Bahnhof, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
+| Northern extension | Hamburger Bahnhof, Geschichtspark Ehemaliges Zellengefängnis Moabit, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
 | Kulturforum / Potsdamer Platz | Philharmonie, Kammermusiksaal, Staatsbibliothek, Neue Nationalgalerie, berlin modern, Henry-Moore-Plastik, Tilla-Durieux-Park, Kollhoff-Tower |
 | Western and southern extension | Siegessäule, Luiseninsel, Rosengarten, Café am Neuen See, Spanische Botschaft, Charlottenburger Tor, Anhalter Bahnhof, WELT Balloon, Kochstraße |
 

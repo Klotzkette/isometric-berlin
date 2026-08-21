@@ -54,9 +54,7 @@ import {
   createIceOnRails,
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
-import {
-  createArdHauptstadtstudioRoofCollision,
-} from "./ArdHauptstadtstudioCollision";
+import { createArdHauptstadtstudioRoofCollision } from "./ArdHauptstadtstudioCollision";
 import { reichstagspraesidentenpalaisDetailSolidAt } from "./Reichstagspraesidentenpalais";
 import { createHistoricParkBridgeCollision } from "./HistoricParkBridgeCollision";
 import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
@@ -70,6 +68,7 @@ import {
   createCentralCivicDetails,
 } from "./CentralCivicDetails";
 import {
+  BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE,
   berlinerEnsemblePublicArtSolidAt,
   setBerlinerEnsemblePublicArtSnow,
 } from "./BerlinerEnsembleMemorials";
@@ -127,8 +126,25 @@ import {
   expandedCityFocusCamera,
 } from "./ExpandedCityDetails";
 import {
+  MOABIT_PRISON_MEMORIAL_MARKER_Y,
+  MOABIT_PRISON_MEMORIAL_PROFILE,
+  moabitPrisonMemorialFocusForMode,
+  moabitPrisonMemorialFocusTarget,
+  moabitPrisonMemorialSolidAt,
+  setMoabitPrisonMemorialSmoothVisibility,
+  setMoabitPrisonMemorialSnow,
+} from "./MoabitPrisonMemorialPark";
+import {
+  INVALIDENFRIEDHOF_DETAIL_PROFILE,
   setInvalidenfriedhofSnow,
 } from "./InvalidenfriedhofDetails";
+import {
+  WEIDENDAMMER_BRIDGE_FOCUS_CAMERA,
+  WEIDENDAMMER_BRIDGE_MARKER_Y,
+  WEIDENDAMMER_BRIDGE_PROFILE,
+  setWeidendammerBridgePresentation,
+  weidendammerBridgeSolidAt,
+} from "./WeidendammerBridgeDetails";
 import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
 import { createSpreebogenPark } from "./SpreebogenPark";
 import {
@@ -196,14 +212,17 @@ import {
 } from "./resetView";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
+  type DetailFadeRangeM,
   FINE_DETAIL_LAYER_NAMES,
   INK_LINE_REFERENCE_FEATURE_M,
   MICRO_DETAIL_LAYER_NAMES,
   inkLineFadeOpacity,
+  nextDetailFadeVisible,
   nextInkLineFadeState,
   nextFineDetailVisible,
   nextMicroDetailVisible,
   projectedPixelSize,
+  readDetailFadeRangeM,
 } from "./fineDetailFade";
 import {
   applyDrawnFacade,
@@ -369,9 +388,7 @@ import {
   createSchwellenraumStaticPropCollision,
   installSchwellenraumStaticProps,
 } from "./visual-modes/schwellenraum/staticProps";
-import {
-  installUnterDenLindenMedianRefinement,
-} from "./visual-modes/schwellenraum/unterDenLindenMedian";
+import { installUnterDenLindenMedianRefinement } from "./visual-modes/schwellenraum/unterDenLindenMedian";
 import crispFragment from "./crisp.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import {
@@ -574,9 +591,15 @@ type Runtime = {
   // Small accessory layers (lane markings, railings, window-band mullions)
   // that only read as detail up close; hidden past FINE_DETAIL_HIDE_DISTANCE_M
   // with hysteresis so they do not blink at the boundary.
-  fineDetailObjects: Object3D[];
+  fineDetailObjects: Array<{
+    object: Object3D;
+    rangeM: DetailFadeRangeM | null;
+  }>;
   fineDetailVisible: boolean;
-  microDetailObjects: Object3D[];
+  microDetailObjects: Array<{
+    object: Object3D;
+    rangeM: DetailFadeRangeM | null;
+  }>;
   microDetailVisible: boolean;
   /** Explicit lens owned by the active curated landmark close-up. */
   focusedCameraFov: number | null;
@@ -596,6 +619,20 @@ function minecraftVisibilityRoots(runtime: Runtime): MinecraftVisibilityRoots {
     civicDetails: runtime.civicDetails,
     signatures: runtime.signatures,
   };
+}
+
+/**
+ * Minecraft visibility owns whole signature branches; the Weidendammer
+ * presentation owns the smooth-vs-block replacement inside the otherwise
+ * retained bridge branch. Re-apply that leaf policy after every filter or
+ * restore so Day -> Minecraft -> Day/Snow cannot save the wrong baseline.
+ */
+function applyRuntimeMinecraftVisibility(
+  runtime: Runtime,
+  voxelMode: boolean,
+): void {
+  applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
+  setWeidendammerBridgePresentation(runtime.signatures, runtime.lightingMode);
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
@@ -1385,10 +1422,16 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
         inkLines.push(object);
       }
       if (fineDetailNames.has(object.name)) {
-        runtime.fineDetailObjects.push(object);
+        runtime.fineDetailObjects.push({
+          object,
+          rangeM: readDetailFadeRangeM(object.userData.detailFadeM),
+        });
       }
       if (microDetailNames.has(object.name)) {
-        runtime.microDetailObjects.push(object);
+        runtime.microDetailObjects.push({
+          object,
+          rangeM: readDetailFadeRangeM(object.userData.detailFadeM),
+        });
       }
       if (isBerlinerEnsembleRoofSignTarget(object)) {
         runtime.berlinerEnsembleRoofSignTargets.push(object);
@@ -1563,9 +1606,15 @@ function updateFarZoomAntiFlicker(
     runtime.fineDetailVisible = fineDetailVisible;
     changed = true;
   }
-  for (const object of runtime.fineDetailObjects) {
-    if (object.visible !== fineDetailVisible) {
-      object.visible = fineDetailVisible;
+  for (const target of runtime.fineDetailObjects) {
+    const visible = target.rangeM
+      ? nextDetailFadeVisible(
+          { distanceM, visible: target.object.visible },
+          target.rangeM,
+        )
+      : fineDetailVisible;
+    if (target.object.visible !== visible) {
+      target.object.visible = visible;
       changed = true;
     }
   }
@@ -1577,9 +1626,15 @@ function updateFarZoomAntiFlicker(
     runtime.microDetailVisible = microDetailVisible;
     changed = true;
   }
-  for (const object of runtime.microDetailObjects) {
-    if (object.visible !== microDetailVisible) {
-      object.visible = microDetailVisible;
+  for (const target of runtime.microDetailObjects) {
+    const visible = target.rangeM
+      ? nextDetailFadeVisible(
+          { distanceM, visible: target.object.visible },
+          target.rangeM,
+        )
+      : microDetailVisible;
+    if (target.object.visible !== visible) {
+      target.object.visible = visible;
       changed = true;
     }
   }
@@ -1650,6 +1705,21 @@ export function applyLightingToRoot(
       }
     }
   });
+}
+
+/**
+ * Bridge presentation owns the Day/Night material swap, so it must run before
+ * the shared lighting pass captures and updates the selected material. Keeping
+ * both operations behind this helper prevents a first Day -> Night transition
+ * from leaving the newly selected lamp material unlit until the next relight.
+ */
+export function applySignatureLightingPresentation(
+  signatures: Object3D,
+  mode: LightingMode,
+  lightsOn = true,
+): void {
+  setWeidendammerBridgePresentation(signatures, mode);
+  applyLightingToRoot(signatures, mode, lightsOn);
 }
 
 function setSceneLighting(
@@ -1810,7 +1880,7 @@ function setSceneLighting(
   for (const material of runtime.modelMaterials) {
     applyMaterialLighting(material, mode, lightsOn);
   }
-  applyLightingToRoot(runtime.signatures, mode, lightsOn);
+  applySignatureLightingPresentation(runtime.signatures, mode, lightsOn);
   // The Quadriga carries its own three palettes in one geometry (day,
   // night and the winter set the snow mode will use), so it is switched
   // by repainting vertices rather than by relighting a material. Voxel
@@ -1837,6 +1907,7 @@ function setSceneLighting(
   setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
   setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm);
   setStarbucksPariserPlatzSnow(runtime.culturalDetails, isSnowstorm);
+  setMoabitPrisonMemorialSnow(runtime.culturalDetails, isSnowstorm);
   setBerlinerEnsemblePublicArtSnow(runtime.centralDetails, isSnowstorm);
   // Cloth uses one continuous low-frequency clock across mode changes. Do not
   // rewrite it to a start pose here: the next cadence tick must continue from
@@ -1947,19 +2018,17 @@ function setSceneLighting(
     }
   }
   runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
-  applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
+  applyRuntimeMinecraftVisibility(runtime, voxelMode);
   // Visibility restoration must happen first. Otherwise a Minecraft-saved
   // `false` can overwrite the re-enabled winter batch on Minecraft -> Snow.
   setWindFlagWinterPresentation(runtime.signatures, isSnowstorm);
   setWindFlagWinterPresentation(runtime.civicDetails, isSnowstorm);
   runtime.monuments.visible = !runtime.underside;
-  setTiergartenLiteraryMemorialSmoothVisibility(
-    runtime.monuments,
-    !voxelMode,
-  );
+  setTiergartenLiteraryMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
+  setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -2201,7 +2270,10 @@ function restoreWorldPresentationAfterRollback(
     setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
   } catch (error: unknown) {
     if (import.meta.env.DEV) {
-      console.error("Failed to restore world presentation after rollback", error);
+      console.error(
+        "Failed to restore world presentation after rollback",
+        error,
+      );
     }
   }
 }
@@ -2361,9 +2433,8 @@ function stopProgressiveWorld(runtime: Runtime): void {
   runtime.progressiveWorldWorker?.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
-  releaseProgressiveWorldBatches(
-    runtime.progressiveWorldBatches,
-    (batch) => disposeObject3D(runtime, batch),
+  releaseProgressiveWorldBatches(runtime.progressiveWorldBatches, (batch) =>
+    disposeObject3D(runtime, batch),
   );
   collectFarZoomAntiFlickerTargets(runtime);
   runtime.renderInvalidated = true;
@@ -2594,8 +2665,9 @@ function ensureIsoWorld(
       progressiveSnapshot = captureProgressiveWorld(runtime);
       originalIsoWorld = runtime.isoWorld;
       originalTrafficSignals = runtime.trafficSignals;
-      const memorialProtection =
-        createSchwellenraumMemorialProtectionIndex(street?.monuments);
+      const memorialProtection = createSchwellenraumMemorialProtectionIndex(
+        street?.monuments,
+      );
       if (ground && surfaces) {
         const pedestrianEnvironment = createPedestrianEnvironment(
           ground,
@@ -2604,8 +2676,7 @@ function ensureIsoWorld(
           prisms,
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
-        const ardRoofCollision =
-          createArdHauptstadtstudioRoofCollision(prisms);
+        const ardRoofCollision = createArdHauptstadtstudioRoofCollision(prisms);
         const historicParkBridgeCollision =
           createHistoricParkBridgeCollision(ground);
         const staticPropSolidAt = createSchwellenraumStaticPropCollision(
@@ -2627,12 +2698,14 @@ function ensureIsoWorld(
             schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
         pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (
+            weidendammerBridgeSolidAt(x, y, z, radius) ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             // pedestrianPointIsBlocked already supplies seven capsule body
-            // samples; do not expand Wagner a second time by the same radius.
+            // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
+            moabitPrisonMemorialSolidAt(x, y, z, 0) ||
             invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
           ) {
             return true;
@@ -2737,10 +2810,9 @@ function ensureIsoWorld(
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
       // Gustav-Heinemann and Sandkrug retain their real proportions in the
       // block mode as well as in Day/Night/Snow/Schwellenraum.
-      const bridges = isoWorld.getObjectByName(
-        "drawn bridge structures",
-      );
+      const bridges = isoWorld.getObjectByName("drawn bridge structures");
       if (bridges) {
+        setWeidendammerBridgePresentation(bridges, runtime.lightingMode);
         runtime.signatures.add(bridges);
       }
       if (ground && street) {
@@ -2920,10 +2992,7 @@ function ensureIsoWorld(
         restoreProgressiveWorld(runtime, progressiveSnapshot);
         progressiveSnapshot = null;
       }
-      if (
-        provisionalIsoWorld &&
-        runtime.isoWorld === provisionalIsoWorld
-      ) {
+      if (provisionalIsoWorld && runtime.isoWorld === provisionalIsoWorld) {
         runtime.isoWorld = originalIsoWorld;
       }
       if (mutableRootSnapshots) {
@@ -3044,19 +3113,15 @@ function ensureVoxelWorld(
           prisms,
         );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
-          visualModeWalkableInteriorAt(
-            runtime.lightingMode,
-            x,
-            y,
-            z,
-            sourceId,
-          );
+          visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) =>
+          weidendammerBridgeSolidAt(x, y, z, radius) ||
           csdAttackMemorialSolidAt(x, y, z, radius) ||
           berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
           tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
           // The navigation sampler already carries the capsule radius.
           wagnerMemorialSolidAt(x, y, z, 0) ||
+          moabitPrisonMemorialSolidAt(x, y, z, 0) ||
           invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
@@ -3073,10 +3138,7 @@ function ensureVoxelWorld(
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
       runtime.scene.add(provisionalMinecraftMobs.group);
-      registerBerlinerEnsembleRoofSignTargets(
-        runtime,
-        provisionalVoxelWorld,
-      );
+      registerBerlinerEnsembleRoofSignTargets(runtime, provisionalVoxelWorld);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, 3);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
@@ -3657,13 +3719,11 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     voxelMode,
   );
   runtime.civicDetails.visible = civicDetailsVisible(underside);
-  applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
+  applyRuntimeMinecraftVisibility(runtime, voxelMode);
   runtime.monuments.visible = !underside;
-  setTiergartenLiteraryMemorialSmoothVisibility(
-    runtime.monuments,
-    !voxelMode,
-  );
+  setTiergartenLiteraryMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -3714,6 +3774,14 @@ function markerHeightForLandmark(name: string): number {
       return 72;
     case "Queer Rainbow Memorial Berlin":
       return 7.2;
+    case MOABIT_PRISON_MEMORIAL_PROFILE.name:
+      return MOABIT_PRISON_MEMORIAL_MARKER_Y;
+    case WEIDENDAMMER_BRIDGE_PROFILE.name:
+      return WEIDENDAMMER_BRIDGE_MARKER_Y;
+    case BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.name:
+      return BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.focus.markerY;
+    case INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.landmarkName:
+      return INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.focus.markerY;
     case "Goethe-Denkmal":
       return (
         TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.worldM[1] +
@@ -3745,6 +3813,17 @@ function wagnerMemorialFocusCamera(mode: LightingMode): FocusCamera {
     polar_degrees: focus.polarDegrees,
     target_height_m: focus.targetHeightM,
     target_world: [...WAGNER_MEMORIAL_PROFILE.worldM],
+  };
+}
+
+function moabitPrisonMemorialFocusCamera(mode: LightingMode): FocusCamera {
+  const focus = moabitPrisonMemorialFocusForMode(mode);
+  return {
+    azimuth_degrees: focus.azimuthDegrees,
+    distance_m: focus.distanceM,
+    polar_degrees: focus.polarDegrees,
+    target_height_m: focus.targetHeightM,
+    target_world: [...moabitPrisonMemorialFocusTarget()],
   };
 }
 
@@ -3786,7 +3865,9 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
     // Assigned and every serializer-supported alternate (including the dark
     // moonlit water) share one Set, so Minecraft pause/resume cycles dispose
     // each material and its textures exactly once.
-    for (const material of objectMaterialsIncludingTransferredAlternates(object)) {
+    for (const material of objectMaterialsIncludingTransferredAlternates(
+      object,
+    )) {
       materials.add(material);
       for (const value of Object.values(
         material as unknown as Record<string, unknown>,
@@ -4088,12 +4169,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.startDeferredDetails();
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
+      const selectedLandmarkName = selectedRef.current;
       if (
         previousLightingMode !== lightingMode &&
-        selectedRef.current === WAGNER_MEMORIAL_PROFILE.name &&
+        (selectedLandmarkName === WAGNER_MEMORIAL_PROFILE.name ||
+          selectedLandmarkName === MOABIT_PRISON_MEMORIAL_PROFILE.name) &&
         !runtime.pedestrian.enabled
       ) {
-        focusLandmarkRef.current(WAGNER_MEMORIAL_PROFILE.name, true);
+        focusLandmarkRef.current(selectedLandmarkName, true);
       }
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
@@ -4140,7 +4223,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const cameraPreset =
         name === WAGNER_MEMORIAL_PROFILE.name
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
-          : runtime.focusCameraByName.get(name);
+          : name === MOABIT_PRISON_MEMORIAL_PROFILE.name
+            ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
+            : runtime.focusCameraByName.get(name);
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
       );
@@ -4588,11 +4673,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.controls.maxDistance,
           );
           runtime.camera.position.copy(runtime.controls.target).add(offset);
-          reconcileMinecraftCameraRig(
-            runtime,
-            previousCamera,
-            previousTarget,
-          );
+          reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
           runtime.controls.update();
         },
         jumpPedestrian: () => {
@@ -5041,11 +5122,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.minDistance,
           controls.maxDistance,
         );
-        reconcileMinecraftCameraRig(
-          runtime,
-          previousCamera,
-          previousTarget,
-        );
+        reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
       };
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
       let wheelEndTimer: number | null = null;
@@ -6126,10 +6203,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.centralDetails,
             voxelModeActive(runtime),
           );
-          applyMinecraftVisibility(
-            minecraftVisibilityRoots(runtime),
-            voxelModeActive(runtime),
-          );
+          applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));
           setWindFlagWinterPresentation(
             runtime.civicDetails,
             runtime.lightingMode === "snowstorm",
@@ -6214,6 +6288,33 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 0,
             target_world: [57.3, 8, -517.71],
           });
+          runtime.focusCameraByName.set(WEIDENDAMMER_BRIDGE_PROFILE.name, {
+            ...WEIDENDAMMER_BRIDGE_FOCUS_CAMERA,
+            target_world: [...WEIDENDAMMER_BRIDGE_FOCUS_CAMERA.target_world],
+          });
+          const brechtFocus =
+            BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.focus;
+          runtime.focusCameraByName.set(
+            BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.name,
+            {
+              azimuth_degrees: brechtFocus.azimuthDegrees,
+              distance_m: brechtFocus.distanceM,
+              fov_degrees: brechtFocus.fovDegrees,
+              polar_degrees: brechtFocus.polarDegrees,
+              target_height_m: brechtFocus.targetHeightM,
+              target_world: [...brechtFocus.targetWorldM],
+            },
+          );
+          const scharnhorstProfile =
+            INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst;
+          runtime.focusCameraByName.set(scharnhorstProfile.landmarkName, {
+            azimuth_degrees: scharnhorstProfile.focus.azimuthDegrees,
+            distance_m: scharnhorstProfile.focus.distanceM,
+            fov_degrees: scharnhorstProfile.focus.fovDegrees,
+            polar_degrees: scharnhorstProfile.focus.polarDegrees,
+            target_height_m: scharnhorstProfile.focus.targetHeightM,
+            target_world: [...scharnhorstProfile.focus.targetWorldM],
+          });
           // The forecourt wings span roughly 72 m (T-34 hulls at +/-33 m,
           // ML-20 howitzers farther in at +/-24 m); a south approach at 145 m
           // with a steep polar
@@ -6248,6 +6349,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.focusCameraByName.set(
             WAGNER_MEMORIAL_PROFILE.name,
             wagnerMemorialFocusCamera("day"),
+          );
+          runtime.focusCameraByName.set(
+            MOABIT_PRISON_MEMORIAL_PROFILE.name,
+            moabitPrisonMemorialFocusCamera("day"),
           );
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [
@@ -6291,10 +6396,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.centralDetails,
             voxelModeActive(runtime),
           );
-          applyMinecraftVisibility(
-            minecraftVisibilityRoots(runtime),
-            voxelModeActive(runtime),
-          );
+          applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));
           setWindFlagWinterPresentation(
             runtime.signatures,
             runtime.lightingMode === "snowstorm",
@@ -6361,10 +6463,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           collectFarZoomAntiFlickerTargets(runtime);
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
-          const expandedDetails = createExpandedCityDetails(manifest.landmarks);
+          const expandedDetails = createExpandedCityDetails(
+            manifest.landmarks,
+            { detailProfile: runtime.coarsePointer ? "mobile" : "full" },
+          );
           setInvalidenfriedhofSnow(
             expandedDetails,
             runtime.lightingMode === "snowstorm",
+          );
+          setMoabitPrisonMemorialSnow(
+            expandedDetails,
+            runtime.lightingMode === "snowstorm",
+          );
+          setMoabitPrisonMemorialSmoothVisibility(
+            expandedDetails,
+            !voxelModeActive(runtime),
           );
           const tillaDurieux = expandedDetails.getObjectByName(
             "Tilla-Durieux-Park lawn sculpture",
@@ -6403,10 +6516,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
-          applyMinecraftVisibility(
-            minecraftVisibilityRoots(runtime),
-            voxelModeActive(runtime),
-          );
+          applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));
           for (const landmark of manifest.landmarks) {
             const focusCamera = culturalFocusCamera(landmark.name);
             if (focusCamera) {
@@ -6490,10 +6600,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     runtime.lightingMode,
                     runtime.nightLightsOn,
                   );
-                  if (
-                    runtime.lightingMode === "minecraft" &&
-                    !voxelMode
-                  ) {
+                  if (runtime.lightingMode === "minecraft" && !voxelMode) {
                     // Only the smooth fallback needs toon clones. A completed
                     // voxel world keeps this large deferred layer hidden, so
                     // cloning thousands of its materials would waste mobile

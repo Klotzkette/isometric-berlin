@@ -30,8 +30,8 @@ const UNITY_FLAGPOLE_NAME = "Flag of Unity 28.5 m galvanized-steel pole";
 const UNITY_STRIPE_NAMES = new Set(
   [1, 2, 3].map((index) => `Flag of Unity animated German stripe ${index}`),
 );
-const BERLINER_ENSEMBLE_PUBLIC_ART_ROOT_NAME =
-  "Berliner Ensemble public-art details";
+const BERLINER_ENSEMBLE_MINECRAFT_SMOOTH_BRANCH_NAME =
+  "Für Helene Weigel current memorial";
 
 // Minecraft visibility is deliberately reversible. In particular, night-only
 // fixtures may be false before voxel mode and true after a later Night relight;
@@ -57,6 +57,18 @@ function restoreTree(root: Object3D): void {
 
 function setWholeTreeVisible(root: Object3D): void {
   root.traverse((object) => setOwnedVisibility(object, true));
+}
+
+/** Keep an allowed signature tree except authored smooth voxel replacements. */
+function setMinecraftCompatibleTreeVisible(root: Object3D): void {
+  if (root.userData.keepInMinecraft === false) {
+    setOwnedVisibility(root, false);
+    return;
+  }
+  setOwnedVisibility(root, true);
+  for (const child of root.children) {
+    setMinecraftCompatibleTreeVisible(child);
+  }
 }
 
 /**
@@ -100,7 +112,7 @@ function setSelectedBranchVisible(root: Object3D, branchName: string): boolean {
 function applySignaturePolicy(signatures: Object3D): void {
   for (const signature of signatures.children) {
     if (FULL_SIGNATURE_ALLOWLIST.has(signature.name)) {
-      setWholeTreeVisible(signature);
+      setMinecraftCompatibleTreeVisible(signature);
       continue;
     }
     if (signature.name === AMTSSITZ_ROOT_NAME) {
@@ -170,12 +182,13 @@ export function applyMinecraftVisibility(
     return;
   }
   // Root visibility starts with the ordinary underside/surface policy. The
-  // selective branch pass may expose the public art only above ground; the
-  // captured value is released before the next mode establishes its baseline.
+  // selective branch pass may expose only the non-voxel Weigel work above
+  // ground; the captured value is released before the next mode establishes
+  // its baseline.
   const centralBaselineVisible = roots.centralDetails.visible;
   setSelectedBranchVisible(
     roots.centralDetails,
-    BERLINER_ENSEMBLE_PUBLIC_ART_ROOT_NAME,
+    BERLINER_ENSEMBLE_MINECRAFT_SMOOTH_BRANCH_NAME,
   );
   if (!centralBaselineVisible) roots.centralDetails.visible = false;
   roots.cityStaffage.visible = false;

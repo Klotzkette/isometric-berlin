@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   Box3,
+  Color,
   InstancedMesh,
   Matrix4,
   Mesh,
@@ -21,6 +22,10 @@ import {
   setInvalidenfriedhofSnow,
 } from "../src/InvalidenfriedhofDetails";
 import { NORTHERN_CITY_PROFILE } from "../src/expandedCityProfiles";
+
+const viewerSource = await Bun.file(
+  new URL("../src/ThreeViewer.tsx", import.meta.url),
+).text();
 
 function worldFromLocal(
   center: readonly [number, number, number],
@@ -97,6 +102,46 @@ describe("granular Invalidenfriedhof details", () => {
       legacy.graveWorldM[7],
     );
     expect(profile.graves.scharnhorst.osmKey).toBe("node/273120316");
+    expect(profile.graves.scharnhorst.publishedOverallHeightM).toBe(5.6);
+    expect(profile.graves.scharnhorst.conservationState).toContain(
+      "conservation copies",
+    );
+    expect(profile.graves.scharnhorst.rotationY).toBe(-0.08);
+    expect(profile.graves.scharnhorst.landmarkName).toBe(
+      "Scharnhorst-Grabmal",
+    );
+    expect(profile.graves.scharnhorst.focus).toEqual({
+      azimuthDegrees: -28,
+      distanceM: 18,
+      fovDegrees: 39,
+      markerY: 12,
+      polarDegrees: 68,
+      targetHeightM: 2.8,
+      targetWorldM: [38.597, 5.2, -1425.035],
+    });
+    expect(profile.graves.scharnhorst.materials).toEqual([
+      "einheimischer Granit",
+      "Carrara-Marmor",
+      "Bronze",
+      "schwarz gefasstes Eisen",
+    ]);
+    expect(profile.graves.scharnhorst.artists).toMatchObject({
+      architecture: "Karl Friedrich Schinkel",
+      lionExecution: "Theodor Kalide",
+      lionModel: "Christian Daniel Rauch",
+      reliefs: "Friedrich Tieck",
+    });
+    expect(profile.graves.scharnhorst.sourceUrls).toEqual(
+      expect.arrayContaining([
+        "https://www.openstreetmap.org/node/273120316",
+        expect.stringContaining("denkmaldatenbank.berlin.de/"),
+        expect.stringContaining("schinkel.smb.museum/"),
+        expect.stringContaining("digi.ub.uni-heidelberg.de/"),
+      ]),
+    );
+    expect(profile.graves.scharnhorst.sourceUrls.join(" ")).not.toContain(
+      "commons.wikimedia.org",
+    );
     expect(profile.graves.witzleben.sourcePointWorldM).toBe(
       legacy.graveWorldM[10],
     );
@@ -156,6 +201,12 @@ describe("granular Invalidenfriedhof details", () => {
     expect(profile.modeContract).toContain("all five graves");
     expect(profile.visualReferenceStatus).toContain("reference-only");
     expect(profile.visualReferenceStatus).toContain("no photograph");
+    expect(viewerSource).toContain(
+      "runtime.focusCameraByName.set(scharnhorstProfile.landmarkName",
+    );
+    expect(viewerSource).toContain(
+      "case INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.landmarkName:",
+    );
   });
 
   test("renders all characteristic forms in named protected exact-Day roots", () => {
@@ -165,6 +216,8 @@ describe("granular Invalidenfriedhof details", () => {
       "Scharnhorst two-pier marble sarcophagus",
       "Scharnhorst marble relief frieze figures",
       "Scharnhorst reclining bronze lion body head and paws",
+      "Scharnhorst bronze lion mane tufts face and claw detail",
+      "Scharnhorst Schinkel railing circular ornaments",
       "Invalidenfriedhof Witzleben canopy exact Day protected",
       "Witzleben Gothic pointed canopy arches",
       "Invalidenfriedhof Winterfeld pedestal exact Day protected",
@@ -211,6 +264,60 @@ describe("granular Invalidenfriedhof details", () => {
         "Invalidenfriedhof Scharnhorst lion tomb exact Day protected",
       )!.userData.sourceKeys,
     ).toEqual(["node/273120316"]);
+    const scharnhorst = root.getObjectByName(
+      "Invalidenfriedhof Scharnhorst lion tomb exact Day protected",
+    )!;
+    expect(scharnhorst.userData.detailCounts).toEqual({
+      circularFenceOrnaments: 46,
+      lionStructuralVolumes: 13,
+      reliefFigures: 26,
+      totalHeightM: 5.6,
+    });
+    const scharnhorstFine = root.getObjectByName(
+      "Invalidenfriedhof Scharnhorst lion tomb fine detail",
+    )!;
+    const structuralLion = root.getObjectByName(
+      "Scharnhorst reclining bronze lion body head and paws",
+    )!;
+    expect(scharnhorstFine.userData.detailFadeM).toEqual([62, 155]);
+    expect(structuralLion.parent).toBe(scharnhorst);
+    scharnhorstFine.visible = false;
+    expect(structuralLion.visible).toBeTrue();
+    expect(
+      (
+        root.getObjectByName(
+          "Scharnhorst Schinkel railing circular ornaments",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(46);
+    const stone = root.getObjectByName(
+      "Scharnhorst two-pier marble sarcophagus",
+    ) as InstancedMesh;
+    expect(stone.userData.materialSequence).toEqual([
+      "einheimischer Granit",
+      "Carrara-Marmor",
+    ]);
+    expect((stone.material as MeshStandardMaterial).vertexColors).toBeFalse();
+    expect(stone.instanceColor).not.toBeNull();
+    const graniteTone = new Color();
+    const marbleTone = new Color();
+    stone.getColorAt(0, graniteTone);
+    stone.getColorAt(3, marbleTone);
+    expect(graniteTone.r + graniteTone.g + graniteTone.b).toBeGreaterThan(0.5);
+    expect(marbleTone.r + marbleTone.g + marbleTone.b).toBeGreaterThan(
+      graniteTone.r + graniteTone.g + graniteTone.b,
+    );
+    const scharnhorstBounds = new Box3().setFromObject(scharnhorst);
+    expect(scharnhorstBounds.min.y).toBeCloseTo(
+      INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM[1],
+      5,
+    );
+    expect(scharnhorstBounds.max.y).toBeCloseTo(
+      INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM[1] +
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst
+          .publishedOverallHeightM,
+      4,
+    );
     expect(
       root.getObjectByName(
         "Invalidenfriedhof Familie von Rauch grave exact Day protected",
@@ -265,6 +372,66 @@ describe("granular Invalidenfriedhof details", () => {
     const observationCabinBottom = shellPosition.y - shellScale.y / 2;
     expect(shaftTop).toBeCloseTo(7.74, 5);
     expect(observationCabinBottom).toBeCloseTo(shaftTop, 5);
+  });
+
+  test("freezes the Scharnhorst smooth and block-native render budgets", () => {
+    const root = createInvalidenfriedhofDetails();
+    const smooth = root.getObjectByName(
+      "Invalidenfriedhof Scharnhorst lion tomb exact Day protected",
+    )!;
+    let renderables = 0;
+    let storedVertices = 0;
+    let renderedVertices = 0;
+    smooth.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      const vertices = object.geometry.getAttribute("position")?.count ?? 0;
+      renderables += 1;
+      storedVertices += vertices;
+      renderedVertices +=
+        vertices * (object instanceof InstancedMesh ? object.count : 1);
+    });
+    expect({ renderables, renderedVertices, storedVertices }).toEqual({
+      renderables: 8,
+      renderedVertices: 15_539,
+      storedVertices: 554,
+    });
+
+    const voxel = createMinecraftInvalidenfriedhofDetails();
+    const [centerX, , centerZ] =
+      INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM;
+    const scharnhorstBlocksByPalette = Object.fromEntries(
+      (voxel.children as InstancedMesh[])
+        .map((batch) => [
+          batch.userData.blockPalette as string,
+          instancePositions(batch).filter(
+            ({ x, z }) => Math.hypot(x - centerX, z - centerZ) < 3.5,
+          ).length,
+        ])
+        .filter(([, count]) => (count as number) > 0),
+    ) as Record<string, number>;
+    expect(scharnhorstBlocksByPalette).toEqual({
+      concrete: 122,
+      dark: 126,
+      marble: 291,
+      patina: 27,
+    });
+    const blockCount = Object.values(scharnhorstBlocksByPalette).reduce(
+      (total, count) => total + count,
+      0,
+    );
+    const sharedVertices = (voxel.children[0] as InstancedMesh).geometry
+      .getAttribute("position").count;
+    expect({
+      batches: Object.keys(scharnhorstBlocksByPalette).length,
+      blocks: blockCount,
+      renderedVertices: blockCount * sharedVertices,
+      uniqueStoredVertices: sharedVertices,
+    }).toEqual({
+      batches: 4,
+      blocks: 566,
+      renderedVertices: 13_584,
+      uniqueStoredVertices: 24,
+    });
   });
 
   test("keeps field photographs out and batches repeated static detail", () => {
@@ -366,7 +533,9 @@ describe("granular Invalidenfriedhof details", () => {
       "Invalidenfriedhof grave horizontal snow caps",
     ) as InstancedMesh;
     const graveSnowPositions = instancePositions(graveSnow);
-    expect(graveSnowPositions[0].y).toBeCloseTo(7.1675, 4);
+    expect(graveSnowPositions[0].y).toBeCloseTo(9.305, 4);
+    expect(graveSnowPositions[1].y).toBeCloseTo(10.425, 4);
+    expect(graveSnowPositions[2].y).toBeCloseTo(10.8225, 4);
     const rauch = INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.vonRauch;
     const rauchSnow = graveSnowPositions.filter(
       (position) =>
@@ -422,6 +591,16 @@ describe("granular Invalidenfriedhof details", () => {
         ...worldFromLocal(graves.scharnhorst.centerWorldM, -0.08, 2.8, 0.7, 0),
       ),
     ).toBeTrue();
+    expect(
+      invalidenfriedhofSolidAt(
+        ...worldFromLocal(graves.scharnhorst.centerWorldM, -0.08, 0, 5.4, 0),
+      ),
+    ).toBeTrue();
+    expect(
+      invalidenfriedhofSolidAt(
+        ...worldFromLocal(graves.scharnhorst.centerWorldM, -0.08, 0, 5.7, 0),
+      ),
+    ).toBeFalse();
 
     expect(
       invalidenfriedhofSolidAt(
@@ -637,7 +816,7 @@ describe("granular Invalidenfriedhof details", () => {
     ]);
     expect(root.children.length).toBeLessThanOrEqual(10);
     expect(root.userData.drawCallCount).toBe(root.children.length);
-    expect(root.userData.instanceCount).toBeGreaterThan(1_400);
+    expect(root.userData.instanceCount).toBeGreaterThan(1_900);
     const batches = root.children as InstancedMesh[];
     const sharedGeometry = batches[0].geometry;
     for (const batch of batches) {
@@ -661,6 +840,20 @@ describe("granular Invalidenfriedhof details", () => {
         "Minecraft Invalidenfriedhof bellSteel blocks",
       ) as InstancedMesh).count,
     ).toBe(8);
+    const patinaPositions = instancePositions(
+      root.getObjectByName(
+        "Minecraft Invalidenfriedhof patina blocks",
+      ) as InstancedMesh,
+    ).filter(
+      (position) =>
+        Math.hypot(
+          position.x -
+            INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM[0],
+          position.z -
+            INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM[2],
+        ) < 3,
+    );
+    expect(Math.max(...patinaPositions.map(({ y }) => y))).toBeCloseTo(10.6, 4);
 
     const bounds = new Box3().setFromObject(root);
     expect(bounds.min.y).toBeCloseTo(5.2, 5);

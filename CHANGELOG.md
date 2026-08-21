@@ -1,5 +1,111 @@
 # Changelog
 
+## v0.72.16
+
+- **FUNBOX no longer projects into Heidestraße at the north end of the
+  Tiergartentunnel.** The temporary 2026 event model is refitted to the free
+  Wunderland-Festplatz envelope between Heidestraße, Minna-Cauer-Straße and
+  Döberitzer Straße. Its complete drawn and block-native footprints now keep a
+  tested minimum **2.553 m** clearance from the delivered OSM-derived road
+  surface polygons, remain clear of the northern tunnel portal and intersect
+  no source voxel building. The event listing still supplies only the official
+  location, dates, 4,000-plus-square-metre programme and major attractions;
+  the fitted local footprint is a procedural display composition, not a parcel
+  or kerb survey.
+- **The Geschichtspark Ehemaliges Zellengefängnis Moabit now reads as its
+  present-day memorial park rather than a coarse historical reconstruction.**
+  Exact OSM park way `498278335` and all **19** mapped wall segments control the
+  plan. Four segments belonging to brick wall way `105495351` use its explicit
+  4 m tag; the other 15 use Berlin's published general 5 m red-brick wall
+  height only as a presentation value. Exact Panoptikum way `195086492`, the
+  Klopfzeichen audio point, information point, four present-day interpretive
+  wing traces, three yard readings, hedges, masonry coursing and accessible
+  entrances make the memorial legible; the source-scoped interpretation also
+  retains the park's remembrance of opponents imprisoned during National
+  Socialism. It adds no second lawn and replaces no mapped path or tree. The
+  existing Berlin LoD2 cell
+  `DEBE01AL2yz00000` remains the cell geometry instead of receiving a duplicate
+  procedural shell.
+- **Every mode now has one bounded, mobile-aware prison-park representation.**
+  Day, Night, Snowstorm and Schwellenraum share the drawn root; reversible snow
+  affects exposed caps without hiding the red masonry, while Minecraft uses a
+  single block-native batch and suppresses the smooth double. Full Smooth is
+  frozen at **5 renderables / 7,818 rendered vertices**, mobile Smooth at
+  **5 / 5,448**; Minecraft uses **one batch / 3,882 blocks / 93,168 rendered
+  instance vertices** in full and **one / 2,093 / 50,232** on mobile. Collision
+  in the ordinary walking modes follows represented walls, the retained cell
+  and Panoptikum solids while the three mapped entrance gaps and cell approach
+  remain open. Schwellenraum retains its established whole-park protection.
+- **Source and copyright boundaries are explicit.** The official Berlin park
+  account and monument record provide factual history and the present-day
+  interpretive programme; OSM and LoD2 provide the metric anchors. Mortar
+  courses, local trace widths, board dimensions and planting intervals remain
+  non-surveyed code-authored recognition details. The protected landscape plan
+  is neither traced nor bundled, and no photograph, canvas image, thumbnail or
+  photographic texture is loaded at runtime. FUNBOX remains frozen at
+  **5 drawn renderables / 7,921 rendered vertices** and **62 Minecraft blocks**.
+- **Weidendammer Brücke is now the 91st navigable sight and carries its real
+  ornamental identity.** The catalogue centre and bearing come from exact OSM
+  bridge way `6228081`; Berlin's current inventory controls the **69.48 x
+  25.17 m** envelope, while Landesdenkmalamt object `09030074` controls the
+  three-opening system and historic ornament. One source-owned railing system
+  now carries exactly **two forged eagle reliefs and eight lamp standards**, so
+  the former coarse eagle/rail double is suppressed. Richard Wagner remains
+  sight 90, and the separately modelled CSD memorial place remains outside the
+  93-place tour catalogue.
+- **The many love locks are present-day display detail, not a fixture survey.**
+  Their deterministic distribution uses 192 instances in the full profile and
+  96 on mobile, without claiming a current lock-by-lock inventory. Full Smooth
+  is frozen at **5 renderables / 46,568 stored vertices / 90,116 rendered
+  vertices**; mobile at **5 / 32,744 / 54,404**. Minecraft replaces the smooth
+  ornament with one block-native batch: **344 blocks / 8,256 rendered instance
+  vertices** in full and **224 / 5,376** on mobile. Day, Night, Snowstorm and
+  Schwellenraum share one drawn root; the deck and approaches remain open while
+  represented rail, lamp and eagle solids retain granular collision.
+- **The bridge's Biermann connection remains cultural context without copying
+  a song.** The project records the association between the paired Prussian
+  eagle and Wolf Biermann's *Ballade vom preußischen Ikarus*, but reproduces no
+  lyric. No bridge photograph, protected plan, portrait, canvas asset or
+  texture is bundled or loaded.
+- **Fritz Cremer's Brecht memorial is now sight 92 and reads as a complete
+  installation.** Exact OSM node `988668382` retains a six-metre circular sett platform, a
+  slightly over-life-size upright seated figure with coat, hands and folds on
+  the asymmetric open metal bench, and three cylindrical, horizontally jointed
+  black-stone steles. Credits now distinguish Peter Flierl's installation
+  design, Fritz Cremer's sculpture and Carlo Wloch's stonework/steles. The
+  platform stays traversable outside the figure, bench and steles; reversible
+  snow remains additive. Full and mobile Smooth are identical at **3
+  renderables / 24,840 stored and rendered vertices**. Minecraft uses one
+  deterministic **4-batch / 197-block / 4,728-rendered-vertex** replacement
+  over one 24-vertex cube and never leaks the smooth figure. The 14 m camera targets the exact anchor;
+  close anatomy fades at 34/105 m. The copyrighted poem and
+  quotations are not reproduced; close incisions remain deliberately
+  non-legible.
+- **Scharnhorst's Invalidenfriedhof monument is now sight 93 and is no longer
+  an undersized ellipsoid on a block.** Exact OSM node `273120316` now carries
+  the Berlin-Lexikon's published **5.60 m** overall silhouette: two substantial
+  piers, the high Carrara-marble sarcophagus and Friedrich Tieck relief frieze,
+  a recognisably reclining bronze lion and Schinkel's black iron enclosure. Authorship is
+  separated correctly: Karl Friedrich Schinkel designed the architecture,
+  Christian Daniel Rauch modelled the lion and Theodor Kalide executed it. The
+  The Schinkel portal identifies the present sarcophagus and frieze as
+  conservation copies; uncited
+  sculpture, railing and spacing subdivisions remain procedural rather than
+  surveyed. The structural lion survives fine-detail fade, represented solids
+  collide without closing cemetery paths, and the static drawn/all-mode model
+  still receives a separate block-native Minecraft counterpart. Full/mobile
+  Smooth is **8 renderables / 554 stored / 15,539 rendered vertices**; its
+  Minecraft contribution is **4 batches / 566 blocks / 13,584 rendered
+  instance vertices** over one 24-vertex cube. The 18 m camera targets the exact
+  anchor; collision
+  leaves the centre between the two piers open.
+- **The four shipped landmark payloads are synchronised at 93 records.** The
+  release alignment audit passes all **41** relative-placement contracts and
+  preserves the three established manual-review anchors. Richard Wagner,
+  Weidendammer Brücke, Bertolt Brecht and Scharnhorst occupy records 90–93;
+  the separate current CSD memorial place remains an uncatalogued detail rather
+  than becoming record 94.
+
 ## v0.72.15
 
 - **The Richard-Wagner-Denkmal is now the 90th navigable sight at its actual

@@ -17,6 +17,7 @@ import {
   schwellenraumProtectedVolumeAt,
   setSchwellenraumInteriorsPresentation,
 } from "../src/SchwellenraumInteriors";
+import { MOABIT_PRISON_PARK_SOURCE_PROFILE } from "../src/MoabitPrisonMemorialPark";
 
 function descendants(root: Object3D, predicate: (object: Object3D) => boolean) {
   const matches: Object3D[] = [];
@@ -197,6 +198,23 @@ describe("Schwellenraum accessible architecture", () => {
     expect(isSchwellenraumProtectedObjectName("Goethe-Denkmal")).toBeTrue();
     expect(isSchwellenraumProtectedObjectName("Lessing-Denkmal")).toBeTrue();
     expect(isSchwellenraumProtectedObjectName("Knut sculpture")).toBeFalse();
+
+    const moabit = SCHWELLENRAUM_PROTECTED_VOLUMES.find(
+      ({ id }) => id === "protected-moabit-prison-memorial-park",
+    )!;
+    if (moabit.shape !== "polygon") {
+      throw new Error("expected the exact Moabit park polygon");
+    }
+    expect(moabit.ringWorldM).toBe(
+      MOABIT_PRISON_PARK_SOURCE_PROFILE.parkRingWorldM,
+    );
+    expect(
+      schwellenraumProtectedVolumeAt(
+        MOABIT_PRISON_PARK_SOURCE_PROFILE.centerWorldM[0],
+        MOABIT_PRISON_PARK_SOURCE_PROFILE.groundY,
+        MOABIT_PRISON_PARK_SOURCE_PROFILE.centerWorldM[1],
+      )?.id,
+    ).toBe(moabit.id);
 
     const field = SCHWELLENRAUM_PROTECTED_VOLUMES.find(
       ({ id }) => id === "protected-memorial-stele-field",

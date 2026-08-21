@@ -37,12 +37,15 @@ import {
   minecraftArchitecturalVoxelTopAt,
 } from "./MinecraftArchitecturalLandmarks";
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
+import { createMinecraftBrechtMemorial } from "./BerlinerEnsembleMemorials";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
 import { createTiergartenLiteraryMemorialsMinecraft } from "./TiergartenLiteraryMemorials";
 import {
   createWagnerMemorialMinecraft,
   wagnerMemorialVoxelReplacementAt,
 } from "./WagnerMemorial";
+import { createMoabitPrisonMemorialParkMinecraft } from "./MoabitPrisonMemorialPark";
+import { createWeidendammerBridgeMinecraft } from "./WeidendammerBridgeDetails";
 import {
   createMinecraftTipiAmKanzleramt,
   isMinecraftTipiReplacementColumn,
@@ -445,8 +448,7 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     // Only the shallow north facade authored by the seventh architecture
     // batch yields its generic square windows. K00006ot's complete southern
     // hotel block remains measured voxel mass, including all courtyards.
-    center:
-      MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.centerWorldM,
+    center: MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.centerWorldM,
     depthM: 2.4,
     name: "Hotel Adlon authored north facade",
     paddingM: 0.35,
@@ -1169,8 +1171,7 @@ export function createMinecraftExtrapolatedWorld(): Group {
   column.mesh.userData.animated = false;
   column.mesh.userData.groundTopY = 2.1;
   column.mesh.userData.renderedHeightM = SIEGESSAEULE_PROFILE.heightM;
-  column.mesh.userData.renderedTopY =
-    2.1 + SIEGESSAEULE_PROFILE.heightM;
+  column.mesh.userData.renderedTopY = 2.1 + SIEGESSAEULE_PROFILE.heightM;
   group.add(column.mesh);
 
   // The four historic bronze reliefs belong to the lower red-granite base,
@@ -1227,8 +1228,9 @@ export function createMinecraftExtrapolatedWorld(): Group {
       const along = bandOffsets[index];
       const tone =
         SIEGESSAEULE_MOSAIC_TONES[
-          1 + ((face * bandOffsets.length + index) %
-            (SIEGESSAEULE_MOSAIC_TONES.length - 1))
+          1 +
+            ((face * bandOffsets.length + index) %
+              (SIEGESSAEULE_MOSAIC_TONES.length - 1))
         ];
       const xFace = face >= 2;
       const sign = face % 2 === 0 ? -1 : 1;
@@ -2053,11 +2055,13 @@ export function createMinecraftFunboxRecognition(): InstancedMesh {
   ] as const) {
     push(0xf5c83f, localX, profile.groundY + 1.4, localZ, [3, 1.8, 3]);
   }
-  for (const localZ of [-6, 2]) {
-    push(0xe84d42, 22.2, profile.groundY + 2, localZ, [2, 4, 2]);
+  // The block entrance shares the smooth model's east-facing end placement;
+  // it must not rotate back into the B96 when mobile detail is selected.
+  for (const localX of [-4, 4]) {
+    push(0xe84d42, localX, profile.groundY + 2, 47.3, [2, 4, 2]);
   }
-  push(0xe84d42, 22.2, profile.groundY + 5, -2, [2, 2, 10]);
-  push(0x8d62bd, 26.2, profile.groundY + 2, 10, [5, 4, 9]);
+  push(0xe84d42, 0, profile.groundY + 5, 47.3, [10, 2, 2]);
+  push(0x8d62bd, 10, profile.groundY + 2, 53.2, [9, 4, 5]);
 
   const writer = instancedBoxes("Voxel FUNBOX event park", blocks.length);
   for (const block of blocks) {
@@ -2116,8 +2120,18 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
+  group.add(createMinecraftBrechtMemorial());
   group.add(createTiergartenLiteraryMemorialsMinecraft());
   group.add(createWagnerMemorialMinecraft());
+  group.add(
+    createMoabitPrisonMemorialParkMinecraft(options.detailProfile ?? "full"),
+  );
+  group.add(
+    createWeidendammerBridgeMinecraft(
+      options.detailProfile ?? "full",
+      payload.water_top_y_m,
+    ),
+  );
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
@@ -2129,23 +2143,23 @@ export function createMinecraftVoxelWorld(
   const visibleBuildingColumns = buildingColumns
     .filter(
       ([xIdx, zIdx, y0dm, y1dm]) =>
-      !wagnerMemorialVoxelReplacementAt(
-        worldXAbs(xIdx),
-        worldZAbs(zIdx),
-        (y1dm - y0dm) / 10,
-        y0dm / 10,
-      ) &&
-      !isFalseSintiRomaVoxelColumn(
-        worldXAbs(xIdx),
-        worldZAbs(zIdx),
-        (y1dm - y0dm) / 10,
-      ) &&
-      !isFalseBundestagSpreeBridgeVoxelColumn(
-        worldXAbs(xIdx),
-        worldZAbs(zIdx),
-        (y1dm - y0dm) / 10,
-      ) &&
-      !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+        !wagnerMemorialVoxelReplacementAt(
+          worldXAbs(xIdx),
+          worldZAbs(zIdx),
+          (y1dm - y0dm) / 10,
+          y0dm / 10,
+        ) &&
+        !isFalseSintiRomaVoxelColumn(
+          worldXAbs(xIdx),
+          worldZAbs(zIdx),
+          (y1dm - y0dm) / 10,
+        ) &&
+        !isFalseBundestagSpreeBridgeVoxelColumn(
+          worldXAbs(xIdx),
+          worldZAbs(zIdx),
+          (y1dm - y0dm) / 10,
+        ) &&
+        !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
         (!insideTunnelApproach ||
           !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx))),
     )
@@ -2159,13 +2173,7 @@ export function createMinecraftVoxelWorld(
       );
       const clippedTopDm =
         clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;
-      return [
-        xIdx,
-        zIdx,
-        y0dm,
-        Math.max(y0dm, clippedTopDm),
-        classId,
-      ];
+      return [xIdx, zIdx, y0dm, Math.max(y0dm, clippedTopDm), classId];
     })
     .filter(([, , y0dm, y1dm]) => y1dm > y0dm);
 
@@ -2201,7 +2209,10 @@ export function createMinecraftVoxelWorld(
     },
     0,
   );
-  const buildings = instancedBoxes("Voxel building columns", buildingLayerCount);
+  const buildings = instancedBoxes(
+    "Voxel building columns",
+    buildingLayerCount,
+  );
   const tonePaint = new Color();
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
     const className = payload.classes[classId] ?? "concrete";
@@ -2247,10 +2258,7 @@ export function createMinecraftVoxelWorld(
       buildings.write(center, size, tonePaint.setHex(layers.plinth).clone());
     }
     const bodyCourseCount = heroSource
-      ? Math.max(
-          1,
-          Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
-        )
+      ? Math.max(1, Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M))
       : 1;
     const bodyCourseHeight = bodyHeight / bodyCourseCount;
     for (let course = 0; course < bodyCourseCount; course += 1) {
@@ -2334,7 +2342,8 @@ export function createMinecraftVoxelWorld(
           // Two glass tones alternate along the row for gentle block
           // variety; a teal accent every fourth bay keeps it lively.
           const bay = Math.abs(xIdx + zIdx);
-          const color = bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
+          const color =
+            bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
           faces.push({
             color,
             nx: dx,

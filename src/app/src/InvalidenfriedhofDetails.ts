@@ -55,9 +55,35 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
     "Owner-supplied field photographs are reference-only; no photograph, lettering, portrait or texture is redistributed",
   graves: {
     scharnhorst: {
+      artists: {
+        architecture: "Karl Friedrich Schinkel",
+        bronzeCasting: "Königlich Preußische Eisengießerei Berlin",
+        lionExecution: "Theodor Kalide",
+        lionModel: "Christian Daniel Rauch",
+        reliefs: "Friedrich Tieck",
+      },
       centerWorldM: [38.597, 5.2, -1425.035] as const,
+      conservationState:
+        "the Schinkel portal identifies the present sarcophagus and relief frieze as conservation copies protecting the surviving originals",
       displayFootprintM: [5.8, 4.4] as const,
+      focus: {
+        azimuthDegrees: -28,
+        distanceM: 18,
+        fovDegrees: 39,
+        markerY: 12,
+        polarDegrees: 68,
+        targetHeightM: 2.8,
+        targetWorldM: [38.597, 5.2, -1425.035] as const,
+      },
       id: "scharnhorst-lion-tomb",
+      landmarkName: "Scharnhorst-Grabmal",
+      publishedOverallHeightM: 5.6,
+      materials: [
+        "einheimischer Granit",
+        "Carrara-Marmor",
+        "Bronze",
+        "schwarz gefasstes Eisen",
+      ] as const,
       name: "Scharnhorst-Grabmal von Karl Friedrich Schinkel",
       osmKey: "node/273120316",
       recognitionCues: [
@@ -66,7 +92,17 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
         "reclining bronze lion",
         "black spearhead railing",
       ] as const,
+      rotationY: -0.08,
+      sourceUrls: [
+        "https://www.openstreetmap.org/node/273120316",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206",
+        "https://schinkel.smb.museum/image_orte.php?id=28",
+        "https://digi.ub.uni-heidelberg.de/diglit/schinkel1858text/0013/text_ocr",
+        "https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm",
+      ] as const,
       sourcePointWorldM: cemetery.graveWorldM[7],
+      texturePolicy:
+        "linked source pages are reference-only; no image licence is relied on and procedural geometry carries no photograph, plan, lettering or texture",
     },
     witzleben: {
       centerWorldM: [30.23, 5.2, -1429.853] as const,
@@ -196,6 +232,7 @@ const COLORS = {
   glass: 0x33464a,
   green: 0x436f63,
   greenDark: 0x294c45,
+  granite: 0x9b9386,
   ivy: 0x436c3f,
   marble: 0xd7d1c4,
   marbleDark: 0xb2aa9d,
@@ -386,74 +423,297 @@ function addRectangularFence(
   );
 }
 
+function addScharnhorstFence(parent: Group): void {
+  const halfX = 2.8;
+  const halfZ = 2.1;
+  const height = 1.14;
+  const railMaterial = material(COLORS.rail, {
+    metalness: 0.5,
+    roughness: 0.58,
+  });
+  const posts = perimeterPosts(halfX, halfZ, 0.44, height);
+  const bars = addInstances(
+    parent,
+    "Scharnhorst Schinkel railing uprights and horizontal courses",
+    new BoxGeometry(1, 1, 1),
+    railMaterial,
+    [
+      ...posts.map((post) => ({
+        position: post.position,
+        scale: [0.045, height, 0.045] as const,
+      })),
+      ...([0.2, 0.84] as const).flatMap((railY) => [
+        {
+          position: [0, railY, -halfZ] as const,
+          scale: [halfX * 2, 0.045, 0.05] as const,
+        },
+        {
+          position: [0, railY, halfZ] as const,
+          scale: [halfX * 2, 0.045, 0.05] as const,
+        },
+        {
+          position: [-halfX, railY, 0] as const,
+          scale: [0.05, 0.045, halfZ * 2] as const,
+        },
+        {
+          position: [halfX, railY, 0] as const,
+          scale: [0.05, 0.045, halfZ * 2] as const,
+        },
+      ]),
+    ],
+  );
+  bars.userData.uprightCount = posts.length;
+  bars.userData.horizontalCourseCount = 2;
+  addInstances(
+    parent,
+    "Scharnhorst black spearhead finials",
+    new CylinderGeometry(0, 0.066, 0.2, 4),
+    railMaterial,
+    posts.map((post) => ({
+      position: [post.position[0], height + 0.1, post.position[2]],
+    })),
+  );
+
+  // Schinkel's surviving/reconstructed enclosure has the characteristic row
+  // of open iron circles between the rails, not a generic picket-only fence.
+  const circles: Transform[] = [];
+  const xIntervals = Math.round((halfX * 2) / 0.44);
+  for (let index = 0; index < xIntervals; index += 1) {
+    const x = -halfX + ((index + 0.5) / xIntervals) * halfX * 2;
+    circles.push(
+      { position: [x, 0.55, -halfZ] },
+      { position: [x, 0.55, halfZ] },
+    );
+  }
+  const zIntervals = Math.round((halfZ * 2) / 0.44);
+  for (let index = 0; index < zIntervals; index += 1) {
+    const z = -halfZ + ((index + 0.5) / zIntervals) * halfZ * 2;
+    circles.push(
+      { position: [-halfX, 0.55, z], rotation: [0, Math.PI / 2, 0] },
+      { position: [halfX, 0.55, z], rotation: [0, Math.PI / 2, 0] },
+    );
+  }
+  const circleMesh = addInstances(
+    parent,
+    "Scharnhorst Schinkel railing circular ornaments",
+    new TorusGeometry(0.105, 0.018, 4, 10),
+    railMaterial,
+    circles,
+  );
+  circleMesh.userData.circularOrnamentCount = circles.length;
+}
+
 function addScharnhorstTomb(parent: Group): void {
   const profile = INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst;
   const grave = new Group();
   grave.name = "Invalidenfriedhof Scharnhorst lion tomb exact Day protected";
   grave.position.set(...profile.centerWorldM);
-  grave.rotation.y = -0.08;
+  grave.rotation.y = profile.rotationY;
   markProtected(grave, [profile.osmKey]);
 
-  addInstances(
+  const stoneMaterial = material(COLORS.marble);
+  const stone = addInstances(
     grave,
     "Scharnhorst two-pier marble sarcophagus",
     new BoxGeometry(1, 1, 1),
-    material(COLORS.marble),
+    stoneMaterial,
     [
-      { position: [0, 0.09, 0], scale: [4.45, 0.18, 3.15] },
-      { position: [-1.1, 0.82, 0], scale: [0.8, 1.48, 1.72] },
-      { position: [1.1, 0.82, 0], scale: [0.8, 1.48, 1.72] },
-      { position: [0, 1.5, 0], scale: [3.5, 0.28, 2.15] },
-      { position: [0, 1.79, 0], scale: [3.25, 0.3, 1.94] },
+      {
+        color: COLORS.granite,
+        position: [0, 0.1, 0],
+        scale: [4.55, 0.2, 3.25],
+      },
+      {
+        color: COLORS.granite,
+        position: [0, 0.29, 0],
+        scale: [4.18, 0.18, 2.9],
+      },
+      ...([-1.12, 1.12] as const).flatMap((pierX) => [
+        {
+          color: COLORS.granite,
+          position: [pierX, 0.55, 0] as const,
+          scale: [1.08, 0.34, 2.04] as const,
+        },
+        {
+          color: COLORS.marble,
+          position: [pierX, 1.55, 0] as const,
+          scale: [0.9, 2, 1.84] as const,
+        },
+        {
+          color: COLORS.marbleDark,
+          position: [pierX, 2.66, 0] as const,
+          scale: [1.12, 0.22, 2.06] as const,
+        },
+      ]),
+      {
+        color: COLORS.marble,
+        position: [0, 2.88, 0],
+        scale: [3.84, 0.22, 2.26],
+      },
+      {
+        color: COLORS.marbleDark,
+        position: [0, 3.37, 0],
+        scale: [3.48, 0.76, 1.94],
+      },
+      {
+        color: COLORS.marble,
+        position: [0, 3.87, 0],
+        scale: [3.7, 0.24, 2.1],
+      },
+      {
+        color: COLORS.marble,
+        position: [0, 4.02, 0],
+        scale: [3.88, 0.12, 2.22],
+      },
     ],
   );
-  addInstances(
-    grave,
-    "Scharnhorst marble relief frieze figures",
-    new BoxGeometry(1, 1, 1),
-    material(COLORS.marbleDark),
-    Array.from({ length: 18 }, (_, index) => ({
-      position: [
-        -1.42 + (index % 9) * 0.355,
-        1.78,
-        index < 9 ? -0.985 : 0.985,
-      ] as const,
-      rotation: [0, 0, ((index % 3) - 1) * 0.13] as const,
-      scale: [0.12, 0.22 + (index % 2) * 0.07, 0.035] as const,
-    })),
-  );
+  stone.userData.materialSequence = [
+    "einheimischer Granit",
+    "Carrara-Marmor",
+  ];
 
   const fine = new Group();
   fine.name = "Invalidenfriedhof Scharnhorst lion tomb fine detail";
-  fine.userData.detailFadeM = [70, 170];
+  fine.userData.detailFadeM = [62, 155];
+  const reliefTransforms: Transform[] = [];
+  for (const sideZ of [-1, 1] as const) {
+    for (let index = 0; index < 9; index += 1) {
+      const figureX = -1.42 + index * 0.355;
+      const figureY = 3.36 + (index % 2) * 0.035;
+      reliefTransforms.push(
+        {
+          position: [figureX, figureY + 0.23, sideZ * 0.982],
+          scale: [0.075, 0.09, 0.028],
+        },
+        {
+          position: [figureX, figureY, sideZ * 0.984],
+          rotation: [0, 0, ((index % 3) - 1) * 0.12],
+          scale: [0.105, 0.2 + (index % 2) * 0.025, 0.032],
+        },
+        {
+          position: [figureX - 0.065, figureY - 0.2, sideZ * 0.984],
+          rotation: [0, 0, -0.2],
+          scale: [0.04, 0.17, 0.025],
+        },
+        {
+          position: [figureX + 0.065, figureY - 0.2, sideZ * 0.984],
+          rotation: [0, 0, 0.2],
+          scale: [0.04, 0.17, 0.025],
+        },
+      );
+    }
+  }
+  for (const sideX of [-1, 1] as const) {
+    for (let index = 0; index < 4; index += 1) {
+      const figureZ = -0.62 + index * 0.415;
+      reliefTransforms.push(
+        {
+          position: [sideX * 1.752, 3.59, figureZ],
+          scale: [0.028, 0.09, 0.075],
+        },
+        {
+          position: [sideX * 1.754, 3.36, figureZ],
+          rotation: [0.14 * sideX, 0, 0],
+          scale: [0.032, 0.2, 0.105],
+        },
+        {
+          position: [sideX * 1.754, 3.16, figureZ - 0.06],
+          rotation: [-0.2, 0, 0],
+          scale: [0.025, 0.17, 0.04],
+        },
+        {
+          position: [sideX * 1.754, 3.16, figureZ + 0.06],
+          rotation: [0.2, 0, 0],
+          scale: [0.025, 0.17, 0.04],
+        },
+      );
+    }
+  }
+  const reliefs = addInstances(
+    fine,
+    "Scharnhorst marble relief frieze figures",
+    new SphereGeometry(1, 8, 6),
+    material(COLORS.marbleDark),
+    reliefTransforms,
+  );
+  reliefs.userData.reliefFigureCount = 26;
+
   const lionMaterial = material(COLORS.bronze, {
     metalness: 0.48,
     roughness: 0.55,
   });
-  addInstances(
-    fine,
+  const lion = addInstances(
+    grave,
     "Scharnhorst reclining bronze lion body head and paws",
-    new SphereGeometry(1, 12, 8),
+    new SphereGeometry(1, 16, 10),
     lionMaterial,
     [
-      { position: [0.3, 2.28, 0], scale: [1.25, 0.42, 0.48] },
-      { position: [-0.9, 2.43, 0], scale: [0.48, 0.5, 0.48] },
-      { position: [-1.28, 2.22, -0.27], scale: [0.52, 0.13, 0.14] },
-      { position: [-1.28, 2.22, 0.27], scale: [0.52, 0.13, 0.14] },
-      { position: [1.18, 2.18, -0.26], scale: [0.46, 0.14, 0.15] },
-      { position: [1.18, 2.18, 0.26], scale: [0.46, 0.14, 0.15] },
-      { position: [-1.28, 2.45, 0], scale: [0.28, 0.24, 0.3] },
+      { position: [0.25, 4.68, 0], scale: [1.25, 0.43, 0.55] },
+      { position: [1.22, 4.72, 0], scale: [0.56, 0.48, 0.58] },
+      { position: [-0.66, 4.72, 0], scale: [0.52, 0.5, 0.5] },
+      { position: [-1.03, 5.02, 0], scale: [0.45, 0.46, 0.45] },
+      { position: [-1.4, 4.92, 0], scale: [0.34, 0.21, 0.29] },
+      { position: [-1.42, 4.36, -0.34], scale: [0.62, 0.14, 0.16] },
+      { position: [-1.42, 4.36, 0.34], scale: [0.62, 0.14, 0.16] },
+      { position: [1.08, 4.35, -0.34], scale: [0.5, 0.15, 0.17] },
+      { position: [1.08, 4.35, 0.34], scale: [0.5, 0.15, 0.17] },
+      { position: [-1.04, 5.42, -0.27], scale: [0.14, 0.13, 0.11] },
+      { position: [-1.04, 5.42, 0.27], scale: [0.14, 0.13, 0.11] },
+      { position: [1.62, 4.91, 0.18], scale: [0.22, 0.15, 0.18] },
+      { position: [1.72, 5.02, 0.02], scale: [0.12, 0.11, 0.16] },
     ],
   );
-  addMesh(
-    fine,
+  lion.userData.pose =
+    "sleeping lion aligned with the sarcophagus, monumental head at one short end";
+  const mane = addMesh(
+    grave,
     "Scharnhorst bronze lion mane",
     new TorusGeometry(0.43, 0.13, 6, 16),
     material(COLORS.bronzeDark, { metalness: 0.52, roughness: 0.6 }),
-    [-0.86, 2.42, 0],
-  ).rotation.y = Math.PI / 2;
+    [-1.03, 5.04, 0],
+  );
+  mane.rotation.y = Math.PI / 2;
+
+  const lionDetails: Transform[] = [
+    { position: [-1.71, 4.95, 0], scale: [0.09, 0.11, 0.15] },
+    { position: [-1.39, 5.11, -0.18], scale: [0.035, 0.045, 0.035] },
+    { position: [-1.39, 5.11, 0.18], scale: [0.035, 0.045, 0.035] },
+    { position: [-1.37, 4.86, -0.19], scale: [0.055, 0.035, 0.025] },
+    { position: [-1.37, 4.86, 0.19], scale: [0.055, 0.035, 0.025] },
+  ];
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    lionDetails.push({
+      position: [-1.02, 5.04 + Math.sin(angle) * 0.39, Math.cos(angle) * 0.4],
+      rotation: [angle, 0, 0],
+      scale: [0.085, 0.105, 0.12],
+    });
+  }
+  for (const pawZ of [-0.34, 0.34] as const) {
+    for (let claw = -1; claw <= 1; claw += 1) {
+      lionDetails.push({
+        position: [-1.75, 4.36, pawZ + claw * 0.055],
+        scale: [0.075, 0.035, 0.018],
+      });
+    }
+  }
+  const detailMesh = addInstances(
+    fine,
+    "Scharnhorst bronze lion mane tufts face and claw detail",
+    new SphereGeometry(1, 8, 6),
+    material(COLORS.bronzeDark, { metalness: 0.5, roughness: 0.58 }),
+    lionDetails,
+  );
+  detailMesh.userData.detailCount = lionDetails.length;
   grave.add(fine);
-  addRectangularFence(grave, "Scharnhorst black spearhead", 2.8, 2.1, 0.9);
+  addScharnhorstFence(grave);
+  grave.userData.profile = profile;
+  grave.userData.detailCounts = {
+    circularFenceOrnaments: 46,
+    lionStructuralVolumes: 13,
+    reliefFigures: 26,
+    totalHeightM: profile.publishedOverallHeightM,
+  };
   parent.add(grave);
 }
 
@@ -1239,69 +1499,131 @@ function pushLocalVoxel(
 function addMinecraftGraves(batches: VoxelBatches): void {
   const graves = INVALIDENFRIEDHOF_DETAIL_PROFILE.graves;
   const scharnhorst = graves.scharnhorst;
-  for (const x of [-1.5, -0.9, -0.3, 0.3, 0.9, 1.5]) {
-    for (const z of [-0.9, -0.3, 0.3, 0.9]) {
+  const scharnhorstBlock = 0.4;
+  for (let xIndex = -5; xIndex <= 5; xIndex += 1) {
+    for (let zIndex = -3; zIndex <= 3; zIndex += 1) {
       pushLocalVoxel(
         batches,
-        "marble",
+        "concrete",
         scharnhorst.centerWorldM,
-        -0.08,
-        x,
-        0.3,
-        z,
-        0.6,
+        scharnhorst.rotationY,
+        xIndex * scharnhorstBlock,
+        0.2,
+        zIndex * scharnhorstBlock,
+        scharnhorstBlock,
       );
     }
   }
   for (const x of [-1.2, 1.2]) {
-    for (const y of [0.9, 1.5]) {
-      for (const z of [-0.6, 0, 0.6]) {
+    for (const y of [0.6, 1, 1.4, 1.8, 2.2, 2.6]) {
+      for (const z of [-0.8, -0.4, 0, 0.4, 0.8]) {
         pushLocalVoxel(
           batches,
           "marble",
           scharnhorst.centerWorldM,
-          -0.08,
+          scharnhorst.rotationY,
           x,
           y,
           z,
-          0.6,
+          scharnhorstBlock,
         );
       }
     }
   }
-  for (const x of [-1.2, -0.6, 0, 0.6, 1.2]) {
-    for (const z of [-0.6, 0, 0.6]) {
-      pushLocalVoxel(
-        batches,
-        "marble",
-        scharnhorst.centerWorldM,
-        -0.08,
-        x,
-        2.1,
-        z,
-        0.6,
-      );
+  for (const y of [3, 3.4, 3.8, 4]) {
+    const halfX = y === 3.4 ? 4 : 5;
+    const halfZ = y === 3.4 ? 2 : 3;
+    for (let xIndex = -halfX; xIndex <= halfX; xIndex += 1) {
+      for (let zIndex = -halfZ; zIndex <= halfZ; zIndex += 1) {
+        pushLocalVoxel(
+          batches,
+          y === 3.4 ? "concrete" : "marble",
+          scharnhorst.centerWorldM,
+          scharnhorst.rotationY,
+          xIndex * scharnhorstBlock,
+          y,
+          zIndex * scharnhorstBlock,
+          scharnhorstBlock,
+        );
+      }
     }
   }
-  // Six dark cubes preserve the reclining lion's head/body/paw silhouette.
+  // Block-native sleeping lion: long body, low paws, a dominant mane/head at
+  // the short end and a curled tail. Its top block reaches the sourced 5.60 m
+  // total height rather than retaining the former half-height marker.
   for (const [x, y, z] of [
-    [-0.9, 2.7, 0],
-    [-0.3, 2.7, 0],
-    [0.3, 2.7, 0],
-    [0.9, 2.7, 0],
-    [-0.9, 2.4, -0.3],
-    [-0.9, 2.4, 0.3],
+    [-0.4, 4.4, -0.4],
+    [-0.4, 4.4, 0],
+    [-0.4, 4.4, 0.4],
+    [0, 4.4, -0.4],
+    [0, 4.4, 0],
+    [0, 4.4, 0.4],
+    [0.4, 4.4, -0.4],
+    [0.4, 4.4, 0],
+    [0.4, 4.4, 0.4],
+    [0.8, 4.4, -0.4],
+    [0.8, 4.4, 0],
+    [0.8, 4.4, 0.4],
+    [1.2, 4.4, -0.4],
+    [1.2, 4.4, 0],
+    [1.2, 4.4, 0.4],
+    [-1.6, 4.4, -0.4],
+    [-1.6, 4.4, 0.4],
+    [1.2, 4.8, 0],
+    [1.6, 4.8, 0],
+    [-1.2, 4.8, -0.4],
+    [-1.2, 4.8, 0],
+    [-1.2, 4.8, 0.4],
+    [-1.6, 4.8, 0],
+    [-1.2, 5.2, -0.4],
+    [-1.2, 5.2, 0],
+    [-1.2, 5.2, 0.4],
+    [-1.2, 5.4, 0],
   ] as const) {
     pushLocalVoxel(
       batches,
       "patina",
       scharnhorst.centerWorldM,
-      -0.08,
+      scharnhorst.rotationY,
       x,
       y,
       z,
-      0.6,
+      scharnhorstBlock,
     );
+  }
+  for (let index = 0; index <= 12; index += 1) {
+    const x = -2.7 + index * 0.45;
+    for (const z of [-2.02, 2.02]) {
+      for (const y of [0.24, 0.68, 1.12]) {
+        pushLocalVoxel(
+          batches,
+          "dark",
+          scharnhorst.centerWorldM,
+          scharnhorst.rotationY,
+          x,
+          y,
+          z,
+          0.18,
+        );
+      }
+    }
+  }
+  for (let index = 1; index < 9; index += 1) {
+    const z = -2.02 + index * 0.45;
+    for (const x of [-2.7, 2.7]) {
+      for (const y of [0.24, 0.68, 1.12]) {
+        pushLocalVoxel(
+          batches,
+          "dark",
+          scharnhorst.centerWorldM,
+          scharnhorst.rotationY,
+          x,
+          y,
+          z,
+          0.18,
+        );
+      }
+    }
   }
 
   const witzleben = graves.witzleben;
@@ -1787,13 +2109,37 @@ function addSnow(parent: Group): void {
   const graves = INVALIDENFRIEDHOF_DETAIL_PROFILE.graves;
   const graveCaps: Transform[] = [
     {
-      position: [
-        graves.scharnhorst.centerWorldM[0],
-        7.1675,
-        graves.scharnhorst.centerWorldM[2],
-      ],
-      rotation: [0, -0.08, 0],
-      scale: [3.3, 0.055, 1.98],
+      position: localVoxelPosition(
+        graves.scharnhorst.centerWorldM,
+        graves.scharnhorst.rotationY,
+        0,
+        4.105,
+        0,
+      ),
+      rotation: [0, graves.scharnhorst.rotationY, 0],
+      scale: [3.82, 0.05, 2.16],
+    },
+    {
+      position: localVoxelPosition(
+        graves.scharnhorst.centerWorldM,
+        graves.scharnhorst.rotationY,
+        0.35,
+        5.225,
+        0,
+      ),
+      rotation: [0, graves.scharnhorst.rotationY, 0],
+      scale: [1.65, 0.045, 0.72],
+    },
+    {
+      position: localVoxelPosition(
+        graves.scharnhorst.centerWorldM,
+        graves.scharnhorst.rotationY,
+        -1.03,
+        graves.scharnhorst.publishedOverallHeightM + 0.0225,
+        0,
+      ),
+      rotation: [0, graves.scharnhorst.rotationY, 0],
+      scale: [0.62, 0.045, 0.66],
     },
     { position: [30.23, 10.655, -1429.853], rotation: [0, 0.04, 0], scale: [1.7, 0.055, 1.7] },
     { position: [15.239, 8.565, -1423.548], rotation: [0, -0.06, 0], scale: [2.05, 0.05, 1.56] },
@@ -2029,36 +2375,44 @@ export function invalidenfriedhofSolidAt(
     x,
     z,
     graves.scharnhorst.centerWorldM,
-    -0.08,
+    graves.scharnhorst.rotationY,
   );
   const scharnhorstY = y - graves.scharnhorst.centerWorldM[1];
   if (
     scharnhorstY >= -bodyRadius &&
-    scharnhorstY <= 0.2 + bodyRadius &&
-    Math.abs(scharnhorstX) <= 2.23 + bodyRadius &&
-    Math.abs(scharnhorstZ) <= 1.58 + bodyRadius
+    scharnhorstY <= 0.38 + bodyRadius &&
+    Math.abs(scharnhorstX) <= 2.28 + bodyRadius &&
+    Math.abs(scharnhorstZ) <= 1.63 + bodyRadius
   ) {
     return true;
   }
   if (
-    scharnhorstY >= 0.08 - bodyRadius &&
-    scharnhorstY <= 1.58 + bodyRadius &&
-    Math.abs(Math.abs(scharnhorstX) - 1.1) <= 0.42 + bodyRadius &&
-    Math.abs(scharnhorstZ) <= 0.9 + bodyRadius
+    scharnhorstY >= 0.36 - bodyRadius &&
+    scharnhorstY <= 2.78 + bodyRadius &&
+    Math.abs(Math.abs(scharnhorstX) - 1.12) <= 0.58 + bodyRadius &&
+    Math.abs(scharnhorstZ) <= 1.04 + bodyRadius
   ) {
     return true;
   }
   if (
-    scharnhorstY >= 1.34 - bodyRadius &&
-    scharnhorstY <= 2.92 + bodyRadius &&
-    Math.abs(scharnhorstX) <= 1.82 + bodyRadius &&
-    Math.abs(scharnhorstZ) <= 1.12 + bodyRadius
+    scharnhorstY >= 2.76 - bodyRadius &&
+    scharnhorstY <= 4.1 + bodyRadius &&
+    Math.abs(scharnhorstX) <= 1.96 + bodyRadius &&
+    Math.abs(scharnhorstZ) <= 1.14 + bodyRadius
+  ) {
+    return true;
+  }
+  if (
+    scharnhorstY >= 4.02 - bodyRadius &&
+    scharnhorstY <= graves.scharnhorst.publishedOverallHeightM + bodyRadius &&
+    Math.abs(scharnhorstX) <= 1.88 + bodyRadius &&
+    Math.abs(scharnhorstZ) <= 0.76 + bodyRadius
   ) {
     return true;
   }
   if (
     scharnhorstY >= -bodyRadius &&
-    scharnhorstY <= 1.0 + bodyRadius &&
+    scharnhorstY <= 1.36 + bodyRadius &&
     ((Math.abs(Math.abs(scharnhorstX) - 2.8) <= 0.07 + bodyRadius &&
       Math.abs(scharnhorstZ) <= 2.1 + bodyRadius) ||
       (Math.abs(Math.abs(scharnhorstZ) - 2.1) <= 0.07 + bodyRadius &&

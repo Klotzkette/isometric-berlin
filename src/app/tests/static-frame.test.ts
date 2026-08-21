@@ -171,6 +171,30 @@ describe("idle-frame anti-flicker contract", () => {
     );
   });
 
+  test("keeps the Moabit prison memorial mode-aware on warm and cold starts", () => {
+    expect(viewerSource).toContain(
+      "moabitPrisonMemorialFocusCamera(runtime.lightingMode)",
+    );
+    expect(viewerSource).toContain(
+      "target_world: [...moabitPrisonMemorialFocusTarget()]",
+    );
+    expect(viewerSource).toContain(
+      "return MOABIT_PRISON_MEMORIAL_MARKER_Y",
+    );
+    expect(viewerSource).toContain(
+      "setMoabitPrisonMemorialSnow(runtime.culturalDetails, isSnowstorm)",
+    );
+    expect(viewerSource).toContain(
+      "setMoabitPrisonMemorialSmoothVisibility(",
+    );
+    expect(
+      viewerSource.match(/moabitPrisonMemorialSolidAt\(x, y, z, 0\)/g),
+    ).toHaveLength(2);
+    expect(viewerSource).toContain(
+      '{ detailProfile: runtime.coarsePointer ? "mobile" : "full" }',
+    );
+  });
+
   test("runs the same final anti-aliasing pass in motion and at rest", () => {
     expect(viewerSource).toContain(
       'import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js"',
@@ -417,10 +441,13 @@ describe("idle-frame anti-flicker contract", () => {
       "previousLightingMode !== lightingMode &&",
     );
     expect(viewerSource).toContain(
-      "selectedRef.current === WAGNER_MEMORIAL_PROFILE.name &&",
+      "selectedLandmarkName === WAGNER_MEMORIAL_PROFILE.name ||",
     );
     expect(viewerSource).toContain(
-      "focusLandmarkRef.current(WAGNER_MEMORIAL_PROFILE.name, true)",
+      "selectedLandmarkName === MOABIT_PRISON_MEMORIAL_PROFILE.name",
+    );
+    expect(viewerSource).toContain(
+      "focusLandmarkRef.current(selectedLandmarkName, true)",
     );
   });
 });

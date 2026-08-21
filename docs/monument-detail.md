@@ -27,9 +27,11 @@ monument foundation height.
 | Lortzing Monument | Two-step marble platform, apsidal pedestal, five opera putti, standing Lortzing with pen and musical score | Berlin's sculpture inventory documents 6.5 m total height, marble material and the five-putti composition; local part proportions are reference-based. |
 | Tree-donation memorial | Four-part shell-limestone pillar with inscription and incised-relief registers on three faces | Berlin's sculpture inventory documents material, four-part construction and relief/inscription programme; uncited section dimensions are approximate. |
 | Flora/Pomona and *Das deutsche Volkslied* | Flora with fruit, tree support and putto; separate seated embracing pair with lyre | Berlin's sculpture inventory documents each composition and material family. OSM fixes position; uncited dimensions remain reference-based presentation geometry. |
+| Weidendammer Brücke | Three-opening bow-bridge system with two granite-clad piers, one neo-Baroque railing system, exactly two forged central eagle reliefs, eight lamp standards and a deterministic present-day love-lock field | Exact OSM way `6228081` fixes centre/bearing; Berlin's June-2025 inventory fixes the current 69.48 x 25.17 m envelope; Landesdenkmalamt object `09030074` fixes protected structure and ornament identity. Full/mobile love-lock counts of 192/96 are procedural render budgets, not a fixture survey. Biermann's bridge-eagle association is cultural metadata only; no song lyric or visual asset is reproduced. |
+| Bertolt Brecht memorial | Six-metre circular sett platform, slightly over-life-size upright seated bronze with coat/hands/folds on an asymmetric open metal bench, and three cylindrical, horizontally jointed black-stone steles | Exact OSM node `988668382` fixes placement. The sculpture inventory documents the installation and credits Peter Flierl (installation design), Fritz Cremer (sculpture) and Carlo Wloch (stonework/steles). Anatomy, joint and spacing subdivisions are procedural rather than surveyed. The poem/quotations are not reproduced; stele incision cues remain non-legible. |
 | Queer Rainbow Memorial Berlin | Living broadleaf tree, six-colour heart and tied fabric, dense flowers, candles, messages and small Pride flags | The owner-supplied Ahornsteig place point fixes the position. The 4.057 m official-mesh point sample remains recorded; the visible base follows the 4.479 m continuous terrain surface used by the drawn park. The current bounded OSM extract has no corresponding named object. Tree dimensions, species and the changing offering arrangement remain explicitly unverified, field-view-bounded display estimates. |
 | CSD memorial place at Ahornsteig (French maple and rainbow bench) | Already leafed young crown, pale protected trunk, round segmented metal tree guard, sparse static small Pride flags, wreaths and unlettered cards, and rainbow-slatted bench | OSM node `14076715427` fixes the separate ensemble anchor; Bezirksamt Mitte documents the French maple, protective grid and rainbow bench. The displayed tree is 5.30 m high with a 2.60 m crown diameter and 0.12 m trunk diameter; its square planting pit is 1.55 m wide, the guard is 1.50 m in diameter and 2.10 m high, and the bench is 2.05 m wide and 0.82 m high. These local model values, bench offset/orientation and offering placement are current-view-bounded design dimensions only, not survey measurements or official dimensions. |
-| Invalidenfriedhof historic ensemble | Scharnhorst's reliefed pale sarcophagus with resting bronze lion and open iron enclosure; Witzleben's green Gothic Revival tabernacle; Winterfeld's pale pedestal with unlettered laurel portrait, trophy mantle and plumed helmet; Kessel's low dark grave with compact Gothic fence; the von Rauch family's ochre four-support arcade and white cross; the separate open Auguste-Viktoria bell frame; canal brick wall and concrete Hinterlandmauer fragments | Berlin monument object `09010206`, OSM cemetery/path/grave evidence and the official Wall records fix identity and plan context. OSM node `279219439` fixes the Winterfeld monument. OSM node `7430297888` and LoD2 object `DEBE01YYK0001yqp` anchor the bell, with a 10.044 m measured building height; its published 1.60 m diameter and 1.8 t mass are retained. Uncited sculpture, fence, frame, opening and spacing dimensions remain reference-bounded display geometry. |
+| Invalidenfriedhof historic ensemble | Scharnhorst's 5.60 m two-pier architectural monument with Carrara-marble sarcophagus, Tieck relief frieze, reclining bronze lion and Schinkel iron enclosure; Witzleben's green Gothic Revival tabernacle; Winterfeld's pale pedestal with unlettered laurel portrait, trophy mantle and plumed helmet; Kessel's low dark grave with compact Gothic fence; the von Rauch family's ochre four-support arcade and white cross; the separate open Auguste-Viktoria bell frame; canal brick wall and concrete Hinterlandmauer fragments | Berlin monument object `09010206`, OSM cemetery/path/grave evidence and official records fix identity and plan context. The Berlin-Lexikon supplies Scharnhorst's 5.60 m overall height; exact OSM node `273120316` fixes its anchor. The Schinkel portal supplies form/material, authorship and conservation-copy context: Schinkel designed its architecture, Tieck the frieze, Rauch modelled the lion and Kalide executed it. Uncited part subdivisions remain procedural. OSM node `279219439` fixes Winterfeld. OSM node `7430297888` and LoD2 object `DEBE01YYK0001yqp` anchor the 10.044 m bell frame; its published 1.60 m bell diameter and 1.8 t mass are retained. |
 | Gedenkstätte Günter Litfin / Führungsstelle Kieler Eck | Square concrete command tower with small lower openings, entrance, upper window band, projecting slab roof, guard rail, plaques and a separate information board | OSM way `31347999`, Berlin monument object `09040270,T,010` and Stiftung Berliner Mauer documentation fix the independent site and characteristic structure; LoD2 object `DEBE01AL1pC0000R` supplies its 8.946 m measured building height. Unpublished opening, fixture, plaque and board dimensions remain reference-bounded rather than surveyed. |
 
 ## Primary sources
@@ -50,6 +52,14 @@ monument foundation height.
 - Berlin public-sculpture inventory, Rousseau, Lortzing, Baumdank, Flora and
   *Das deutsche Volkslied*:
   <https://bildhauerei-in-berlin.de/>
+- Berlin bridge inventory, Landesdenkmalamt and exact OSM bridge anchor for
+  Weidendammer Brücke:
+  <https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf>
+  <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030074>
+  <https://www.openstreetmap.org/way/6228081>
+- Bildhauerei in Berlin and exact OSM anchor for the Brecht memorial:
+  <https://bildhauerei-in-berlin.de/bildwerk/bertolt-brecht-denkmal-5412/>
+  <https://www.openstreetmap.org/node/988668382>
 - Bezirksamt Mitte, establishment and intended use of the CSD memorial place:
   <https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php>
 - Berlin.de summary and rbb24 report on the French maple, protective grid and
@@ -60,6 +70,11 @@ monument foundation height.
   <https://www.openstreetmap.org/node/14076715427>
 - Berlin monument inventory, Invalidenfriedhof ensemble:
   <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206>
+- Staatliche Museen Schinkel portal and exact OSM anchor for Scharnhorst:
+  <https://schinkel.smb.museum/image_orte.php?id=28>
+  <https://www.openstreetmap.org/node/273120316>
+- Berlin-Lexikon, published 5.60 m overall height of the Scharnhorst monument:
+  <https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm>
 - Berlin Wall records for the Invalidenfriedhof wall remains:
   <https://www.berlin.de/mauer/orte/mauerreste/artikel.151178.php>
   <https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php>
@@ -98,6 +113,23 @@ Supplied screenshots and press photographs are visual evidence only: none is
 bundled, copied,
 projected or converted into a texture, and the small cards carry no reproduced
 personal text.
+
+Weidendammer Brücke likewise uses code-native geometry only. Its smooth detail
+budget is five renderables with 90,116 / 54,404 rendered vertices and 192 / 96
+procedural love locks in full / mobile; Minecraft replaces that layer with one
+344 / 224-block batch. The paired eagles and eight lamp standards remain
+source-owned while the lock distribution is deliberately non-surveyed. The
+Biermann association is recorded without reproducing a lyric or visual asset.
+
+The refined Brecht installation retains 3 smooth renderables / 24,840 stored
+and rendered vertices plus a separate four-batch / 197-block Minecraft
+signature with 4,728 rendered vertices. Its platform remains
+walkable outside the actual sculpture, bench and stele solids, and its
+non-legible incision cues contain no poem or quotation. The Scharnhorst lion's
+structural reclining silhouette likewise remains visible when close-only mane,
+face and claw cues fade. Scharnhorst uses 8 smooth renderables / 554 stored /
+15,539 rendered vertices and contributes 4 Minecraft batches / 566 blocks /
+13,584 rendered instance vertices; no supplied cemetery photograph is loaded.
 
 The Invalidenfriedhof and Kieler-Eck additions follow the same evidence rule.
 Their procedural forms are static in every visual mode; Minecraft uses

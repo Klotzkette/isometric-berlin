@@ -1223,6 +1223,36 @@
         "source": "OpenStreetMap node 243487615 and Landesdenkmalamt Berlin part 09046318,T,041"
       },
       "geometry": { "type": "Point", "coordinates": [13.3618687, 52.5100656] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Weidendammer Brücke",
+        "role": "owner_added",
+        "tour_order": 91,
+        "source": "OpenStreetMap way 6228081 and Landesdenkmalamt Berlin object 09030074"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.387954900426, 52.522129700023] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bertolt Brecht",
+        "role": "owner_added",
+        "tour_order": 92,
+        "source": "OpenStreetMap node 988668382 and Bildhauerei in Berlin sculpture inventory"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.386450998964369, 52.52224460446284] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Scharnhorst-Grabmal",
+        "role": "owner_added",
+        "tour_order": 93,
+        "source": "OpenStreetMap node 273120316 and Landesdenkmalamt Berlin ensemble 09010206"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.37154090274083, 52.531708097275754] }
     }
   ]
 }

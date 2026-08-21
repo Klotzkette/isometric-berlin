@@ -106,6 +106,28 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   Press photographs by Moritz Haase were inspected only on those source pages;
   no press image, portrait crop or derived texture is bundled. All displayed
   sculptural shapes remain procedural recognition geometry, not survey meshes.
+  The Bildhauerei-in-Berlin record supplies the six-metre circular sett stage,
+  seated bronze on the open bench and three black-stone steles, and separates
+  Fritz Cremer's sculpture, Peter Flierl's installation design and Carlo
+  Wloch's stonework/steles. The monument's poem and quotations remain identified
+  only as site facts: no copyrighted poem or quotation is reproduced, and the
+  procedural stele incisions are deliberately non-legible.
+
+- **Weidendammer Brücke (factual, metric and cultural evidence):** exact plan
+  centre and bearing come from OSM bridge way
+  [`6228081`](https://www.openstreetmap.org/way/6228081) under the ODbL
+  attribution above. The official
+  [Masterplan Brücken inventory](https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf)
+  (data status June 2025) controls the current 69.48 x 25.17 m envelope, while
+  [Landesdenkmalamt object `09030074`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030074)
+  controls the protected three-opening system, two granite-clad piers,
+  neo-Baroque railing/lamp ornament and paired forged eagles. Local rail-field,
+  feather and present-day love-lock placement is deterministic procedural
+  recognition geometry, not a fixture or lock-by-lock survey. The cultural
+  association with Wolf Biermann's *Ballade vom preußischen Ikarus* follows a
+  [documented bridge account](https://www.tagesspiegel.de/kultur/die-weidendammer-brucke-ein-konstrukt-aus-liebe-luft-und-eisenguss-2538784.html)
+  and is retained as a factual reference; no song lyric is reproduced. No bridge photograph,
+  plan image, portrait, canvas asset or derived texture is bundled or loaded.
 
 - **CSD memorial place at Ahornsteig (factual and visual evidence):**
   [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php)
@@ -121,6 +143,40 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   explicitly non-surveyed display estimates. No page photograph, press image,
   supplied screenshot or texture derived from one is bundled in the project.
 
+- **FUNBOX at the Wunderland-Festplatz (factual event evidence):** the official
+  [visitBerlin event listing](https://www.visitberlin.de/de/event/funbox)
+  supplies the Heidestraße / Minna-Cauer-Straße location, 23 July–20 September
+  2026 dates, 4,000-plus-square-metre scale, ten-zone programme and five-metre
+  slide. It does not supply a surveyed footprint. The model's fitted envelope,
+  individual attraction layout and 2.553 m delivered-road-surface clearance
+  are procedural viewer contracts rather than copied event-plan geometry. Page
+  photographs and event artwork are not bundled, traced, projected or used as
+  textures; no rights to those page images are claimed.
+
+- **Geschichtspark Ehemaliges Zellengefängnis Moabit (factual and metric
+  evidence):** exact current plan anchors come from OSM park way
+  [`498278335`](https://www.openstreetmap.org/way/498278335), wall ways
+  [`53178124`](https://www.openstreetmap.org/way/53178124),
+  [`105495351`](https://www.openstreetmap.org/way/105495351),
+  [`498279237`](https://www.openstreetmap.org/way/498279237) and
+  [`498279239`](https://www.openstreetmap.org/way/498279239), Panoptikum way
+  [`195086492`](https://www.openstreetmap.org/way/195086492), Klopfzeichen node
+  [`2310445137`](https://www.openstreetmap.org/node/2310445137) and information
+  node [`5772396362`](https://www.openstreetmap.org/node/5772396362), under the
+  ODbL attribution above. Berlin LoD2 object `DEBE01AL2yz00000` remains the
+  measured walk-in-cell shell. The
+  [Landesdenkmalamt record `09050274`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050274)
+  documents the protected prison remains, while the official
+  [Berlin park account](https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html)
+  documents the present-day entrances and interpretive programme. The official
+  [explanatory landscape-plan PDF](https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf)
+  is all-rights-reserved textual evidence only: no plan line, page image,
+  photograph or other protected artwork is copied, traced, bundled or used as
+  a texture. Brick coursing, mortar, local trace widths, board dimensions and
+  planting intervals are code-authored, non-surveyed recognition details.
+  No Wikimedia image was used for this revision, so no new Commons media credit
+  is required.
+
 - **Invalidenfriedhof and Gedenkstätte Günter Litfin (factual and visual
   evidence):** Berlin monument records document the
   [Invalidenfriedhof ensemble](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206),
@@ -133,7 +189,21 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   supplies its documented diameter and mass. Plan anchors remain attributed
   OSM and official LoD2 data. Supplied cemetery and watchtower photographs
   only bound recognition forms; no supplied photograph, crop,
-  tracing or derived texture is bundled.
+  tracing or derived texture is bundled. Within the ensemble, exact
+  [OSM node `273120316`](https://www.openstreetmap.org/node/273120316) anchors
+  the Scharnhorst grave. The
+  [Berlin-Lexikon record](https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm)
+  supplies the published 5.60 m overall height. The
+  [Staatliche Museen Schinkel portal](https://schinkel.smb.museum/image_orte.php?id=28)
+  and monument record document form, native-granite supports,
+  Carrara-marble sarcophagus, bronze lion, iron enclosure, authorship and
+  conservation context. Karl Friedrich Schinkel designed the
+  architecture, Friedrich Tieck the relief frieze, Christian Daniel Rauch
+  modelled the lion and Theodor Kalide executed it; the Royal Prussian Iron
+  Foundry in Berlin cast the bronze. The portal identifies the
+  current sarcophagus and relief frieze as conservation copies. Unpublished
+  part subdivisions remain procedural and no new photograph or page medium is
+  redistributed for this refinement.
 
 - **Goethe- and Lessing-Denkmal in the Großer Tiergarten (factual and visual
   evidence):** the Berlin monument database records both works as parts

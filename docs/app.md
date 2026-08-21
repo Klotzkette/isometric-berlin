@@ -486,7 +486,7 @@ points, while
 
 The newly established CSD memorial place near Bellevueallee and Ahornsteig is
 an additional street/monument-detail root, not a replacement for that
-owner-supplied model and not a 90th tour sight. Its separate source anchor is
+owner-supplied model and not a catalogued tour sight. Its separate source anchor is
 exact OSM node [`14076715427`](https://www.openstreetmap.org/node/14076715427),
 about 165 m west of the older point. Bezirksamt Mitte documents the French
 maple, protective metal grid and rainbow-coloured bench; current reference
@@ -572,12 +572,40 @@ shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
 and `248010193`. Minecraft carries the same harbour, vessel and railing
 identities as one compact block-native instance layer.
 
+Weidendammer Brücke is centred and aligned on exact OSM bridge way `6228081`.
+Berlin's June-2025 bridge inventory controls the current 69.48 x 25.17 m
+envelope; Landesdenkmalamt object `09030074` controls the three openings, two
+granite-clad river piers and protected ornamental system. The close layer owns
+exactly one neo-Baroque railing system, two forged midspan eagle reliefs and
+eight lamp standards instead of stacking another ornament set over the older
+bridge. The railing also carries a deterministic present-day love-lock field:
+192 instances in the full profile and 96 on mobile, explicitly not a current
+lock-by-lock survey.
+
+Day, Night, Snowstorm and Schwellenraum share five smooth renderables; full
+uses 46,568 stored / 90,116 rendered vertices and mobile 32,744 / 54,404.
+Minecraft hides the smooth ornament and substitutes one batch with 344 blocks
+/ 8,256 rendered instance vertices in full or 224 / 5,376 on mobile. The close
+camera uses 82 m. Fine locks fade before overview scale; the deck, pavements
+and approaches stay walkable while represented rails, lamps and eagles remain
+solid. Biermann's cultural association with the bridge eagle is retained only
+as metadata: the viewer reproduces no song lyric, photograph, plan or texture.
+
 Invalidenfriedhof uses a dedicated close-detail layer over the committed
 cemetery, terrain and wall evidence. Berlin's monument inventory object
 `09010206`, OSM cemetery/path/grave features and the existing official-mesh
-ground frame fix the ensemble context. Schinkel's Scharnhorst monument keeps
-its pale reliefed sarcophagus, resting bronze lion and open black enclosure;
-Job von Witzleben's memorial keeps its green Gothic Revival tabernacle;
+ground frame fix the ensemble context. Exact OSM node `273120316` anchors
+Scharnhorst's monument. The Berlin-Lexikon supplies its published 5.60 m
+overall height; the Schinkel portal supplies the form/material, authorship and
+conservation-copy context. The refined composition now separates Schinkel's
+two substantial architectural piers and iron enclosure, the high
+Carrara-marble sarcophagus, Friedrich Tieck's relief frieze and the reclining
+bronze lion modelled by Christian Daniel Rauch and executed by Theodor Kalide.
+The current sarcophagus and relief frieze are identified as conservation
+copies. The lion has a persistent reclining body/head/paw silhouette, while
+close-only mane, face and claw cues fade at 62/155 m instead of reducing the
+whole sculpture to an ellipsoid. Job von Witzleben's memorial keeps its green
+Gothic Revival tabernacle;
 Hans Carl von Winterfeld's monument at OSM node `279219439` keeps a pale
 rectangular pedestal, unlettered laurel portrait medallion, trophy mantle and
 plumed helmet;
@@ -586,6 +614,16 @@ fence; and the von Rauch family grave retains its ochre four-support arcade and
 white cross. These are characteristic procedural recognition forms rather
 than replacement survey meshes. Repeated fence bars, relief cues and grave
 details share batches and the normal close-detail fade.
+
+Scharnhorst's full and mobile smooth profiles are identical: 8 renderables /
+554 stored vertices / 15,539 rendered vertices. Its Minecraft contribution is
+4 palette batches / 566 blocks / 13,584 rendered instance vertices, within the
+complete 10-batch / 1,993-block Invalidenfriedhof voxel root and over one
+shared 24-vertex cube. The 18 m focus
+targets the exact OSM anchor at 2.8 m local height. Collision follows the
+foundation, two piers, sarcophagus, reclining lion and railing: the centre
+between the piers stays open, the lion is solid at 5.4 m and clear again above
+the published 5.60 m silhouette.
 
 The Auguste-Viktoria bell is a separate open structure at OSM node
 `7430297888`, associated with official LoD2 building
@@ -633,9 +671,21 @@ Bertolt-Brecht-Platz.
 
 Dedicated public-art geometry owns OSM nodes `988668382` (Bertolt Brecht) and
 `13841652635` (Helene Weigel), so the generic monument layer cannot duplicate
-either work. Fritz Cremer's seated bronze Brecht is now read as a complete
-body on an open metal chair at the centre of the documented six-metre circular
-sett platform, with three segmented dark steles around it. The current
+either work. Fritz Cremer's slightly over-life-size seated bronze Brecht is now
+read as a complete upright body with coat folds, hands and feet on the
+asymmetric open metal bench, including its deliberate empty place. The
+documented six-metre circular sett platform and three cylindrical,
+horizontally jointed black-stone steles complete the installation. Credits
+distinguish Peter Flierl's installation design, Fritz Cremer's sculpture and
+Carlo Wloch's stonework/steles. The platform remains traversable outside the
+figure/bench and stele solids; Minecraft replaces the smooth memorial with a
+deterministic four-batch, 197-block signature shared by full and mobile. The
+steles use non-legible incision cues only; the copyrighted poem and quotations
+are not reproduced. Full and mobile Smooth are identical at 3 renderables /
+24,840 stored and rendered vertices. Minecraft is 4 palette batches / 197
+blocks / 4,728 rendered instance vertices over one shared 24-vertex cube. The
+14 m close focus targets the exact Brecht anchor at 1.25 m local height, while
+the fine anatomy layer fades at 34/105 m. The current
 `Eine Skulptur für Helene Weigel`, unveiled on 10 May 2026 in the
 Helene-Weigel-Hof, is represented as a non-classical accessible glass vitrine:
 red director's chair and object field, white light/audio bars, a procedural
@@ -745,17 +795,58 @@ recognition geometry rather than a claimed fixture survey.
 Three smaller places carry the same evidence boundary. Hotel AMANO Grand
 Central retains OSM way `237687062` and Berlin LoD2 building part
 `DEBE3DLXM9FjJbtp` (27.819 m), with a thin source-described clinker, glazing
-and setback-storey overlay. The Geschichtspark Ehemaliges Zellengefaengnis
-Moabit retains OSM park way `498278335`; its brick walls, three entrances, four
-wing traces, panopticon frame, three circular yards, blood-beech planting and
-one walk-in cell follow the published Berlin interpretive plan and are not
-labelled as surviving prison survey geometry. The visible boundary itself uses
-the exact 22-point OSM ring and four mapped polygonal wall traces with openings;
-it stays entirely west of Heidestraße, at least 17.29 m from the mapped B96
-centreline. At Floraplatz, exactly eight
-OSM-positioned granite plinths carry differentiated bronze deer, bison, elk,
-bear and bull silhouettes. The duplicate generic Bison node at the same
-eastern plinth as `Liegender Bison II` is the only suppressed record.
+and setback-storey overlay. At Floraplatz, exactly eight OSM-positioned granite
+plinths carry differentiated bronze deer, bison, elk, bear and bull silhouettes.
+The duplicate generic Bison node at the same eastern plinth as `Liegender Bison
+II` is the only suppressed record.
+
+The Geschichtspark Ehemaliges Zellengefängnis Moabit now has its own
+source-scoped detail root. OSM park way `498278335` retains the exact 22-point
+ring. Wall ways `53178124`, `105495351`, `498279237` and `498279239` yield 19
+exact plan segments: the four segments of way `105495351` keep its explicit
+brick / 4 m tags, while the remaining 15 use the official Berlin account's
+general 5 m red-brick wall height only as a display value. That source conflict
+is intentional and does not turn the 5 m general description into a
+per-segment survey.
+
+Exact Panoptikum way `195086492`, Klopfzeichen node `2310445137`, information
+node `5772396362`, three entrances, four present-day interpretive wing traces,
+three yard readings and hedges make the memorial programme legible. The
+existing Berlin LoD2 cell `DEBE01AL2yz00000` / prism `2yz00000` remains the
+walk-in cell; the procedural layer does not cover it with another shell. It
+retains the sourced remembrance context for opponents of National Socialism
+imprisoned at the site, including Albrecht Haushofer, without rebuilding the
+demolished historic prison. It
+also creates no park plate and does not replace the existing mapped lawn,
+paths, playground detail or 175 source trees inside the park. Generic copies
+of the exact Panoptikum and Klopfzeichen records are suppressed, while the
+outside plaque at OSM node `3841135547` remains an independent street detail.
+
+Day, Night, Snowstorm and Schwellenraum share the texture-free drawn root;
+Minecraft hides it and uses one block-native batch. Full Smooth is fixed at 5
+renderables / 7,818 rendered vertices and mobile Smooth at 5 / 5,448.
+Minecraft uses one batch with 3,882 blocks / 93,168 rendered instance vertices
+in full and 2,093 / 50,232 on mobile. Snow changes only exposed caps. Ordinary
+walking collision uses seven ±0.42 m body samples with the analytical memorial
+test at zero added radius; it follows the represented wall, retained-cell and
+Panoptikum solids while leaving the three mapped entrance gaps and cell
+approach open. Schwellenraum retains its existing whole-park protection. The
+close cameras use 128 m in the drawn modes and 142 m
+in Minecraft. Mortar courses, local interpretive trace widths, information
+board dimensions and planting intervals are procedural, non-surveyed
+recognition geometry. The protected landscape plan is not traced or bundled;
+no photograph, canvas image, thumbnail or photographic texture is loaded.
+
+The temporary 2026 FUNBOX remains a procedural event reading rather than a
+surveyed parcel. Its complete drawn and Minecraft envelopes are now fitted
+between the delivered OSM-derived Heidestraße, Minna-Cauer-Straße and
+Döberitzer Straße surface polygons, with a measured 2.553 m minimum clearance
+from those surfaces. It stays clear of the northern Tiergartentunnel portal and
+all source voxel buildings; full and mobile Minecraft use the same structural
+footprint. The frozen event budget is 5 drawn renderables / 7,921 rendered
+vertices and 62 Minecraft blocks. visitBerlin supplies the official corner,
+2026 dates, 4,000-plus-square-metre scale, ten-zone programme and five-metre
+slide; no event photograph or external texture is bundled or copied.
 
 The Adlerbrücke and Löwenbrücke are dedicated metre-scale recognition models,
 replacing their former generic park-bridge marks rather than overdrawing them.
@@ -887,6 +978,12 @@ The viewer sorts `landmarks.json` into a north-to-south Regierungsviertel
 walk before rendering the rail and tour. The source coordinates are not
 moved; only the user-facing order changes. See
 [`correctness-crosscheck.md`](correctness-crosscheck.md).
+
+The committed payload contains 93 records. Richard Wagner remains record 90;
+Weidendammer Brücke, Bertolt Brecht and Scharnhorst follow as records 91, 92
+and 93 at exact OSM way/node anchors `6228081`, `988668382` and `273120316`.
+The separately modelled CSD memorial place at OSM node `14076715427` is
+intentionally not a 94th tour entry.
 
 For local download reliability, the same landmark payload is also bundled
 into the React app at `src/app/src/data/regierungsviertel-landmarks.json`.

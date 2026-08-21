@@ -26,9 +26,12 @@ function miniScene(): MinecraftVisibilityRoots & {
   amtssitzBody: Object3D;
   amtssitzFlag: Object3D;
   bridgeDetail: Object3D;
+  bridgeSmoothVoxelReplacement: Group;
+  centralBrecht: Group;
   centralPublicArt: Group;
   centralPublicArtSnow: Object3D;
   centralSmooth: Object3D;
+  centralWeigel: Group;
   civicBody: Object3D;
   refinementOther: Group;
   refinementTiergarten: Group;
@@ -41,7 +44,16 @@ function miniScene(): MinecraftVisibilityRoots & {
   unityStripes: Object3D[];
 } {
   const bridgeDetail = object("drawn bridge railing", false);
-  const bridges = branch("drawn bridge structures", bridgeDetail);
+  const bridgeSmoothVoxelReplacement = branch(
+    "Weidendammer bridge smooth close detail",
+    object("Weidendammer smooth eagle and love locks"),
+  );
+  bridgeSmoothVoxelReplacement.userData.keepInMinecraft = false;
+  const bridges = branch(
+    "drawn bridge structures",
+    bridgeDetail,
+    bridgeSmoothVoxelReplacement,
+  );
   const spreebogen = branch(
     "Spreebogenpark landscape window",
     object("Spreebogenpark lawn"),
@@ -126,9 +138,19 @@ function miniScene(): MinecraftVisibilityRoots & {
     false,
   );
   centralPublicArtSnow.userData.snowOnly = true;
+  const centralBrecht = branch(
+    "Bertolt Brecht memorial installation",
+    object("Bertolt Brecht memorial installation bodies"),
+  );
+  const centralWeigel = branch(
+    "Für Helene Weigel current memorial",
+    object("Helene Weigel vitrine contents and plinth"),
+    object("Helene Weigel halftone glass portrait", false),
+  );
   const centralPublicArt = branch(
     "Berliner Ensemble public-art details",
-    object("Bertolt Brecht memorial installation bodies"),
+    centralBrecht,
+    centralWeigel,
     centralPublicArtSnow,
   );
 
@@ -137,10 +159,13 @@ function miniScene(): MinecraftVisibilityRoots & {
     amtssitzBody,
     amtssitzFlag,
     bridgeDetail,
+    bridgeSmoothVoxelReplacement,
+    centralBrecht,
     centralDetails: branch("central details", centralSmooth, centralPublicArt),
     centralPublicArt,
     centralPublicArtSnow,
     centralSmooth,
+    centralWeigel,
     cityStaffage: branch("city staffage", object("static car")),
     civicBody,
     civicDetails,
@@ -177,11 +202,14 @@ describe("Minecraft smooth-scene visibility", () => {
 
     expect(roots.centralDetails.visible).toBeTrue();
     expect(roots.centralPublicArt.visible).toBeTrue();
+    expect(roots.centralBrecht.visible).toBeFalse();
+    expect(roots.centralWeigel.visible).toBeTrue();
     expect(roots.centralPublicArtSnow.visible).toBeFalse();
     expect(roots.centralSmooth.visible).toBeFalse();
     expect(roots.cityStaffage.visible).toBeFalse();
     expect(roots.signatures.visible).toBeTrue();
     expect(roots.bridgeDetail.visible).toBeTrue();
+    expect(roots.bridgeSmoothVoxelReplacement.visible).toBeFalse();
     expect(roots.amtssitz.visible).toBeTrue();
     expect(roots.amtssitzBody.visible).toBeFalse();
     expect(roots.amtssitzFlag.visible).toBeTrue();
@@ -241,6 +269,8 @@ describe("Minecraft smooth-scene visibility", () => {
     applyMinecraftVisibility(roots, true);
     expect(roots.centralDetails.visible).toBeTrue();
     expect(roots.centralPublicArt.visible).toBeTrue();
+    expect(roots.centralBrecht.visible).toBeFalse();
+    expect(roots.centralWeigel.visible).toBeTrue();
     expect(roots.centralPublicArtSnow.visible).toBeFalse();
     expect(roots.centralSmooth.visible).toBeFalse();
     expect(roots.cityStaffage.visible).toBeFalse();
@@ -254,6 +284,44 @@ describe("Minecraft smooth-scene visibility", () => {
     expect(roots.cityStaffage.visible).toBeTrue();
     expect(roots.smoothSignature.visible).toBeTrue();
     expect(roots.civicBody.visible).toBeTrue();
+  });
+
+  test("orders Minecraft, Snow and Day ownership without leaving a smooth/voxel double", () => {
+    const roots = miniScene();
+
+    // Warm Minecraft: only the current Weigel work remains smooth; Brecht and
+    // the authored Weidendammer close-detail are owned by their voxel roots.
+    applyMinecraftVisibility(roots, true);
+    expect(roots.centralBrecht.visible).toBeFalse();
+    expect(roots.centralWeigel.visible).toBeTrue();
+    expect(roots.bridgeSmoothVoxelReplacement.visible).toBeFalse();
+
+    // Mode exit restores Minecraft-owned state before Snow turns its authored
+    // cap on. This mirrors the viewer's restore-then-relight ordering.
+    restoreMinecraftVisibility(roots);
+    roots.centralDetails.visible = true;
+    roots.cityStaffage.visible = true;
+    roots.centralPublicArtSnow.visible = true;
+    applyMinecraftVisibility(roots, false);
+    expect(roots.centralBrecht.visible).toBeTrue();
+    expect(roots.centralWeigel.visible).toBeTrue();
+    expect(roots.centralPublicArtSnow.visible).toBeTrue();
+    expect(roots.bridgeSmoothVoxelReplacement.visible).toBeTrue();
+
+    // Cold/re-entered Minecraft suppresses both smooth replacements again and
+    // never carries the snow-only layer into ordinary voxel presentation.
+    applyMinecraftVisibility(roots, true);
+    expect(roots.centralBrecht.visible).toBeFalse();
+    expect(roots.centralWeigel.visible).toBeTrue();
+    expect(roots.centralPublicArtSnow.visible).toBeFalse();
+    expect(roots.bridgeSmoothVoxelReplacement.visible).toBeFalse();
+
+    restoreMinecraftVisibility(roots);
+    roots.centralPublicArtSnow.visible = false;
+    applyMinecraftVisibility(roots, false);
+    expect(roots.centralBrecht.visible).toBeTrue();
+    expect(roots.centralPublicArtSnow.visible).toBeFalse();
+    expect(roots.bridgeSmoothVoxelReplacement.visible).toBeTrue();
   });
 
   test("filters and later restores details added after a cold voxel frame", () => {
@@ -293,9 +361,12 @@ describe("Minecraft visibility source wiring", () => {
     ).toBeLessThan(viewerSource.indexOf("runtime.lightingMode = mode"));
     expect(
       viewerSource.match(
-        /applyMinecraftVisibility\(minecraftVisibilityRoots\(runtime\), voxelMode\);/g,
+        /applyRuntimeMinecraftVisibility\(runtime, voxelMode\);/g,
       ),
     ).toHaveLength(2);
+    expect(viewerSource).toContain(
+      "applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);",
+    );
     expect(
       viewerSource.match(/runtime\.cityStaffage\.visible = !runtime\.underside/g),
     ).toHaveLength(1);
@@ -307,7 +378,7 @@ describe("Minecraft visibility source wiring", () => {
   test("reapplies after manifest replacements and lazy signature additions", () => {
     expect(
       viewerSource.match(
-        /applyMinecraftVisibility\(\s*minecraftVisibilityRoots\(runtime\),\s*voxelModeActive\(runtime\),\s*\);/g,
+        /applyRuntimeMinecraftVisibility\(runtime, voxelModeActive\(runtime\)\);/g,
       ),
     ).toHaveLength(3);
     for (const sourceAnchor of [
@@ -318,7 +389,7 @@ describe("Minecraft visibility source wiring", () => {
       const anchorIndex = viewerSource.indexOf(sourceAnchor);
       expect(anchorIndex, sourceAnchor).toBeGreaterThan(-1);
       expect(
-        viewerSource.indexOf("applyMinecraftVisibility(", anchorIndex),
+        viewerSource.indexOf("applyRuntimeMinecraftVisibility(", anchorIndex),
         sourceAnchor,
       ).toBeGreaterThan(anchorIndex);
     }
@@ -348,7 +419,7 @@ describe("Minecraft visibility source wiring", () => {
     );
     const lighting = viewerSource.slice(lightingStart, lightingEnd);
     expect(lighting).toContain(
-      "setTiergartenLiteraryMemorialSmoothVisibility(\n    runtime.monuments,\n    !voxelMode",
+      "setTiergartenLiteraryMemorialSmoothVisibility(runtime.monuments, !voxelMode)",
     );
     expect(lighting.indexOf("setTiergartenLiteraryMemorialSmoothVisibility("))
       .toBeLessThan(

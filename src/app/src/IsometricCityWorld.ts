@@ -138,6 +138,14 @@ import {
   createTunnelPortalApproachTester,
   type TunnelPortalCourseInput,
 } from "./TunnelPortals";
+import {
+  WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
+  WEIDENDAMMER_BRIDGE_PROFILE,
+  WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT,
+  WEIDENDAMMER_BRIDGE_SUPPORT_LAYOUT,
+  createWeidendammerBridgeDetails,
+  type WeidendammerBridgeDetailProfile,
+} from "./WeidendammerBridgeDetails";
 
 export {
   DATA_EAST_M,
@@ -299,9 +307,7 @@ export type SmoothSurfaceBuildOptions = {
    * runtime, so the committed elevation samples remain the sole height
    * authority; only Earcut's deterministic triangulation is moved offline.
    */
-  pretriangulated?: Partial<
-    Record<PretriangulatedSurfaceKind, BufferGeometry>
-  >;
+  pretriangulated?: Partial<Record<PretriangulatedSurfaceKind, BufferGeometry>>;
 };
 
 function surfaceCentroidM(surface: SurfacePolygon): [number, number] {
@@ -3150,22 +3156,26 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [303.519, -323.32],
   },
   {
-    // Otto Stahn, 1895–96: three-opening iron arch bridge with two narrow
+    // Otto Stahn, 1895–97: three-opening iron arch bridge with two narrow
     // granite-clad piers and its characteristic forged Prussian eagles.
-    // The OSM centreline fixes the nearly north-south deck orientation.
-    axis: [0.0852, 0.9964],
-    halfWidthM: 11.2,
+    // Berlin's current 06/2025 inventory controls the 69.48 x 25.17 m deck;
+    // exact OSM way 6228081 controls the centre and north-south bearing.
+    axis: [...WEIDENDAMMER_BRIDGE_PROFILE.axis],
+    halfWidthM: WEIDENDAMMER_BRIDGE_PROFILE.inventory.widthM / 2,
     kind: "ironArch",
     matchRadiusM: 82,
-    name: "Weidendammer Brücke",
+    name: WEIDENDAMMER_BRIDGE_PROFILE.name,
     palette: {
       abutment: 0x817c73,
       deck: 0xa7a49d,
       metal: 0x2f3637,
       structure: 0xb8b4aa,
     },
-    surveyedDeck: { halfLengthM: 35.15, halfWidthM: 11.2 },
-    world: [1128.12, -334.72],
+    surveyedDeck: {
+      halfLengthM: WEIDENDAMMER_BRIDGE_PROFILE.inventory.lengthM / 2,
+      halfWidthM: WEIDENDAMMER_BRIDGE_PROFILE.inventory.widthM / 2,
+    },
+    world: [...WEIDENDAMMER_BRIDGE_PROFILE.centreWorldM],
   },
   {
     // Deutscher Bundestag: the "Sprung über die Spree" is a two-storey
@@ -3283,7 +3293,22 @@ function usesDedicatedBridgeRecognitionModel(kind: BridgeKind): boolean {
   return kind === "adler" || kind === "suspension" || kind === "parliament";
 }
 
-function createBridgeStructures(ground: VoxelPayload): Group | null {
+/**
+ * The current Weidendammer detail root exclusively owns its railing, eight
+ * lamp standards and paired centre eagles. The raster bridge builder retains
+ * only the measured deck, three arches and two piers there. Future iron-arch
+ * profiles keep the established generic ornament unless they opt out by name.
+ */
+export function usesGenericBridgeDeckOrnament(
+  profile: BridgeProfile | null,
+): boolean {
+  return profile?.name !== WEIDENDAMMER_BRIDGE_PROFILE.name;
+}
+
+function createBridgeStructures(
+  ground: VoxelPayload,
+  detailProfile: WeidendammerBridgeDetailProfile,
+): Group | null {
   const clusters = bridgeClusters(ground).filter(
     (cluster) => cluster.length >= BRIDGE_MIN_CLUSTER_CELLS,
   );
@@ -3301,6 +3326,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const moltkeDetailParts: BufferGeometry[] = [];
   const moltkeDetailEdges: BufferGeometry[] = [];
   const moltkeDetailLampParts: BufferGeometry[] = [];
+  let weidendammerBaseRendered = false;
   const DEFAULT_PALETTE: BridgePalette = {
     abutment: 0xcdc7b7,
     deck: 0xc4c5bd,
@@ -3427,6 +3453,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
+    if (profile?.name === WEIDENDAMMER_BRIDGE_PROFILE.name) {
+      weidendammerBaseRendered = true;
+    }
     // Dedicated recognition models replace these coarse raster clusters.
     // Drawing a generic bridge as well would leave a grey slab under the
     // timber Löwenbrücke or duplicate the open Bundestag connection.
@@ -4342,7 +4371,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           );
         }
       }
-    } else if (kind === "steelArch" || kind === "ironArch") {
+    } else if (
+      kind === "steelArch" ||
+      (kind === "ironArch" && usesGenericBridgeDeckOrnament(profile))
+    ) {
       const picketCount = kind === "ironArch" ? 52 : 38;
       const railLength = (halfLength * 2) / picketCount;
       for (let index = 0; index <= picketCount; index += 1) {
@@ -5102,8 +5134,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       }
     } else if (kind === "ironArch") {
       // Weidendammer Brücke has two narrow granite-clad piers and three
-      // iron arch openings. Their asymmetric historic span widths are kept.
-      for (const u of [-19.25, 19.25]) {
+      // iron arch openings. The historic 16.3 / 38.5 / 15.5 m support rhythm
+      // is scaled uniformly into the current official 69.48 m envelope.
+      const pierCentres = WEIDENDAMMER_BRIDGE_SUPPORT_LAYOUT.pierCentresLocalM;
+      for (const u of pierCentres) {
         const [px, pz] = at(u, 0);
         const height = deckY + riseAt(u) - deckThickness - bedY;
         addPart(
@@ -5127,11 +5161,20 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           );
         }
       }
+      const pierHalfLength = 1.3;
       const spans = [
-        [-halfLength + 0.7, -20.65],
-        [-17.85, 17.85],
-        [20.65, halfLength - 0.7],
+        [-halfLength + 0.7, pierCentres[0] - pierHalfLength],
+        [pierCentres[0] + pierHalfLength, pierCentres[1] - pierHalfLength],
+        [pierCentres[1] + pierHalfLength, halfLength - 0.7],
       ] as const;
+      // LDA records ten three-part arch girders. Full fidelity renders all
+      // ten across the deck; the bounded phone profile retains four evenly
+      // distributed silhouette girders without changing piers or span rhythm.
+      const girderCount = detailProfile === "mobile" ? 4 : 10;
+      const girderFractions = Array.from(
+        { length: girderCount },
+        (_, index) => -1 + (index / (girderCount - 1)) * 2,
+      );
       for (const [start, end] of spans) {
         const steps = end - start > 25 ? 24 : 12;
         for (let step = 0; step < steps; step += 1) {
@@ -5140,8 +5183,8 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           const springY = waterTop + 1.1;
           const crownY = deckY + riseAt(u) - 1.05;
           const archY = springY + Math.sin(t * Math.PI) * (crownY - springY);
-          for (const side of [-1, 1]) {
-            const [rx, rz] = at(u, side * (halfWidth - 0.34));
+          for (const girderFraction of girderFractions) {
+            const [rx, rz] = at(u, girderFraction * (halfWidth - 0.34));
             addPart(
               boxTriangles(
                 rx,
@@ -5424,6 +5467,17 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     trophies: MOLTKE_TROPHY_COUNT,
   };
   group.userData.keepInMinecraft = true;
+  if (weidendammerBaseRendered) {
+    group.userData.weidendammerDetailOwnership = {
+      authoredEagleCount: WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
+      authoredRailingSystemCount: WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT,
+      baseArchGirderCount: detailProfile === "mobile" ? 4 : 10,
+      baseArchSystemCount: 1,
+      genericEagleCount: 0,
+      genericLampStandardCount: 0,
+      genericRailingSystemCount: 0,
+    };
+  }
 
   const merged = mergeGeometries(parts, false);
   if (merged) {
@@ -5537,6 +5591,11 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   group.add(createAdlerBridge(ground));
   group.add(createLoewenBridge(ground));
+  if (weidendammerBaseRendered) {
+    group.add(
+      createWeidendammerBridgeDetails(detailProfile, ground.water_top_y_m),
+    );
+  }
   return group;
 }
 
@@ -5915,8 +5974,7 @@ export function createSiegessaeule(): Group {
     (radius, index) =>
       [
         radius,
-        (DRUM_BODY_HEIGHT_M * DRUM_PROPORTIONS[index]) /
-          drumProportionTotal,
+        (DRUM_BODY_HEIGHT_M * DRUM_PROPORTIONS[index]) / drumProportionTotal,
       ] as const,
   );
   let columnBase = HALL_ROOF_TOP_Y;
@@ -6054,9 +6112,7 @@ export function createSiegessaeule(): Group {
       ),
       SIEGESSAEULE_BRONZE_TONES.field,
     );
-    edgeGeometries.push(
-      new EdgesGeometry(field, ISO_EDGE_THRESHOLD_DEGREES),
-    );
+    edgeGeometries.push(new EdgesGeometry(field, ISO_EDGE_THRESHOLD_DEGREES));
     // A shallow procession of alternating bodies and standards reads as
     // relief without reproducing, texturing or celebrating the battle scenes.
     for (let figure = 0; figure < 9; figure += 1) {
@@ -6628,7 +6684,11 @@ function adlonMansardGeometry(): BufferGeometry {
     ],
   ];
   const positions: number[] = [];
-  const addTriangle = (a: AdlonPoint3, b: AdlonPoint3, c: AdlonPoint3): void => {
+  const addTriangle = (
+    a: AdlonPoint3,
+    b: AdlonPoint3,
+    c: AdlonPoint3,
+  ): void => {
     positions.push(...a, ...b, ...c);
   };
   const addQuad = (
@@ -6980,17 +7040,7 @@ export function createHotelAdlon(): Group {
     "parts",
     true,
   );
-  addAdlonFrameBox(
-    builder,
-    front,
-    0x7d302f,
-    0,
-    8.72,
-    -4.66,
-    11.8,
-    0.72,
-    0.18,
-  );
+  addAdlonFrameBox(builder, front, 0x7d302f, 0, 8.72, -4.66, 11.8, 0.72, 0.18);
   for (const alongM of [-25.2, -12.6, 12.6, 25.2]) {
     addAdlonFrameBox(
       builder,
@@ -7028,17 +7078,7 @@ export function createHotelAdlon(): Group {
       0.12,
     );
   }
-  addAdlonFrameBox(
-    builder,
-    front,
-    0x556146,
-    0,
-    5.55,
-    -7.25,
-    55,
-    0.75,
-    0.65,
-  );
+  addAdlonFrameBox(builder, front, 0x556146, 0, 5.55, -7.25, 55, 0.75, 0.65);
 
   // The retained LoD2 shell ends below the eaves. Three 28 cm skins close
   // only that missing upper head (both real OSM return bearings plus its rear
@@ -7375,7 +7415,11 @@ export function createHotelAdlon(): Group {
         },
         {
           end: [ridgeEast[0], profile.heights.ridgeWorldY + 0.12, ridgeEast[1]],
-          start: [ridgeWest[0], profile.heights.ridgeWorldY + 0.12, ridgeWest[1]],
+          start: [
+            ridgeWest[0],
+            profile.heights.ridgeWorldY + 0.12,
+            ridgeWest[1],
+          ],
           widthM: 0.2,
         },
       ],
@@ -10979,8 +11023,8 @@ export function createIsometricCity(
         HISTORIC_CHARITE_IDS.has(building.id) ||
         BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id)
-        ? capTone.clone()
-        : color.clone().multiplyScalar(0.9);
+          ? capTone.clone()
+          : color.clone().multiplyScalar(0.9);
       bakeColor(roofGeometry, pitchedRoofTone);
       // Pitched roof slopes step by facing too, so gables read plastic.
       const roofNormals = roofGeometry.getAttribute("normal");
@@ -11415,9 +11459,7 @@ export function createIsometricCity(
         // drawn modes. Minecraft calls createGroundSlabs without this filter
         // and deliberately keeps its block-native road staircase.
         skipClasses:
-          surfaces && !options.retainRasterAsphalt
-            ? ["asphalt"]
-            : undefined,
+          surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
         skipAtWorld:
           insideTunnelApproach || insideTillaDurieux
@@ -11446,10 +11488,7 @@ export function createIsometricCity(
     const waterClass = ground.classes.indexOf("water");
     // With the true OSM polygons available the smooth layers own the
     // river; the rasterised plates below stay as the fallback only.
-    if (
-      waterClass >= 0 &&
-      (!surfaces || options.retainRasterWater === true)
-    ) {
+    if (waterClass >= 0 && (!surfaces || options.retainRasterWater === true)) {
       const cell = ground.cell_m;
       const { min_x_idx, min_z_idx } = ground.grid;
       const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
@@ -11515,9 +11554,7 @@ export function createIsometricCity(
       group.add(kerbs);
     }
     const surfacesToBuild =
-      options.smoothSurfaces === undefined
-        ? surfaces
-        : options.smoothSurfaces;
+      options.smoothSurfaces === undefined ? surfaces : options.smoothSurfaces;
     if (surfacesToBuild) {
       // Smooth shoreline, bed, water plate and quay walls from the real
       // OSM rings ("weiche Flussufer", no more 4 m staircases), plus
@@ -11555,7 +11592,10 @@ export function createIsometricCity(
         group.add(quays);
       }
     }
-    const bridges = createBridgeStructures(ground);
+    const bridges = createBridgeStructures(
+      ground,
+      options.retainRasterAsphalt ? "mobile" : "full",
+    );
     if (bridges) {
       group.add(bridges);
     }

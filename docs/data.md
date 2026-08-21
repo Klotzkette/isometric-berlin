@@ -355,10 +355,68 @@ restoration record: two deer, two bison, two elk, one bear and one bull. A
 generic Bison node coincident with the more specific `Liegender Bison II` is
 treated as one duplicate plinth; no other monument is discarded. Hotel AMANO
 Grand Central uses OSM way `237687062` for plan/axis and LoD2 part
-`DEBE3DLXM9FjJbtp` for the 27.819 m shell. The former Moabit prison park uses
-OSM way `498278335` for its current envelope and Berlin's published landscape-
-architecture description for its interpretive interior. These recognition
-details remain additive and do not override their source geometry.
+`DEBE3DLXM9FjJbtp` for the 27.819 m shell. FUNBOX uses visitBerlin only for
+the temporary event's official corner, dates, scale and programme; its local
+playfield is a fitted display envelope. The former Moabit prison park uses OSM
+way `498278335` for its current envelope, exact mapped walls and Panoptikum for
+plan geometry, the retained LoD2 cell for its measured cell shell, and official
+Berlin pages for historical and present-day interpretation facts. These
+recognition details remain additive and do not override their source geometry.
+
+## FUNBOX and Moabit prison-park evidence contracts
+
+The 2026 FUNBOX event contract separates the published event from its display
+fit:
+
+- [visitBerlin's event listing](https://www.visitberlin.de/de/event/funbox)
+  publishes the Wunderland-Festplatz at Heidestraße / Minna-Cauer-Straße,
+  23 July–20 September 2026 dates, more than 4,000 m², ten connected areas and
+  the five-metre slide. It does not provide a surveyed event polygon.
+- The viewer therefore treats the local outline and object placement as a
+  procedural composition. Its complete drawn and Minecraft envelopes are
+  tested against the same delivered OSM-derived Heidestraße,
+  Minna-Cauer-Straße and Döberitzer Straße surface polygons used by the viewer.
+  The frozen minimum clearance is 2.553 m. This is a payload-to-payload
+  contract, not a claim about a surveyed kerb or parcel boundary.
+- No event photograph, page image or external texture is bundled, traced or
+  projected into the model.
+
+The Geschichtspark Ehemaliges Zellengefängnis Moabit keeps four source roles
+separate:
+
+- OSM park way [`498278335`](https://www.openstreetmap.org/way/498278335)
+  fixes the current 22-point envelope. Wall ways
+  [`53178124`](https://www.openstreetmap.org/way/53178124),
+  [`105495351`](https://www.openstreetmap.org/way/105495351),
+  [`498279237`](https://www.openstreetmap.org/way/498279237) and
+  [`498279239`](https://www.openstreetmap.org/way/498279239) provide 19 exact
+  wall plan segments. Exact Panoptikum way
+  [`195086492`](https://www.openstreetmap.org/way/195086492), Klopfzeichen node
+  [`2310445137`](https://www.openstreetmap.org/node/2310445137) and information
+  node [`5772396362`](https://www.openstreetmap.org/node/5772396362) remain
+  distinct current-park anchors.
+- OSM way `105495351` explicitly records `wall=brick` and `height=4`, so its
+  four polyline segments render at 4 m. The official
+  [Berlin park account](https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html)
+  describes the surviving red-brick walls generally as 5 m high; the remaining
+  15 mapped segments use 5 m only as a presentation value. The conflict is
+  preserved instead of falsely relabelling every segment as measured.
+- Berlin LoD2 object `DEBE01AL2yz00000` / viewer prism `2yz00000` remains the
+  present walk-in cell geometry and the existing source voxel remains its
+  Minecraft base. The procedural layer does not add a competing cell shell,
+  lawn, path network or tree inventory.
+- The
+  [Landesdenkmalamt record `09050274`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050274)
+  documents the protected prison remains, dates and surviving wall/building
+  context. Berlin's park account documents the three entrances, four-wing
+  interpretive reading, three yards, hedges, Panoptikum marker and walk-in cell.
+  It also records the remembrance of opponents imprisoned during National
+  Socialism; this is preserved as source context rather than a reconstructed
+  Gestapo or prison building.
+  The protected explanatory landscape plan is a textual fact source only: it
+  is not copied, traced, bundled or used as an image texture. Mortar courses,
+  local trace widths, board dimensions and planting intervals are procedural,
+  non-surveyed recognition details, not a historical prison reconstruction.
 
 `street-details.json` schema 7 keeps two parallel traffic-signal records. The
 raw `traffic_signals_dm` array preserves all 1,328 bounded OSM control nodes;
@@ -386,6 +444,50 @@ benches and pavement plaques. Stolpersteine use the documented 0.10 m brass
 top without an ink halo; a missing subtype yields only a conservative low
 marker, never a falsely asserted landmark-sized block.
 
+## Weidendammer Brücke and Brecht evidence contracts
+
+Weidendammer Brücke separates four source roles:
+
+- Exact OSM way [`6228081`](https://www.openstreetmap.org/way/6228081) controls
+  the bridge centre and bearing in the committed coordinate frame.
+- Berlin's
+  [Masterplan Brücken inventory](https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf)
+  (data status June 2025, bridge 3446013) controls the current 69.48 x 25.17 m
+  envelope, 1,749 m² area, steel/light-metal material class and bow-bridge
+  construction. It does not provide ornamental part dimensions.
+- [Landesdenkmalamt object `09030074`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030074)
+  controls the protected three-opening system, two granite-clad piers, ten
+  tripartite arch girders and paired forged eagles in the neo-Baroque railing.
+  Its historic 22.4 m width remains recorded as a source conflict rather than
+  silently replacing the current 25.17 m inventory width.
+- Eagle feather segmentation, rail-field rhythm and deterministic love-lock
+  placement are procedural, texture-free recognition geometry. The 192/96
+  full/mobile lock counts are render budgets, not a current fixture inventory.
+  Wolf Biermann's bridge-eagle association is factual cultural context only;
+  no lyric, photograph, protected plan, portrait or texture is copied or
+  bundled.
+
+The Bertolt Brecht memorial keeps the same separation. Exact OSM node
+[`988668382`](https://www.openstreetmap.org/node/988668382) controls placement.
+The
+[Bildhauerei in Berlin inventory](https://bildhauerei-in-berlin.de/bildwerk/bertolt-brecht-denkmal-5412/),
+[Deutsche Digitale Bibliothek record](https://www.deutsche-digitale-bibliothek.de/item/5ALSSIMTMT2PKBR7UXTZZASRRBP7K366)
+and [DEFA record](https://www.defa-stiftung.de/en/films/film-search/bertolt-brecht-platz/)
+control its identity, 1988 installation and characteristic
+six-metre sett platform, open asymmetric bench/seated bronze and three
+cylindrical black-stone steles. Credits remain role-specific: installation
+design Peter Flierl, sculpture Fritz Cremer, stonework/steles Carlo Wloch.
+An attributed CC BY-SA 3.0 Commons image remains visual-reference evidence only;
+no image or portrait texture is loaded. The copyrighted poem and quotations
+are not reproduced; code-authored incision cues remain non-legible and all
+uncited anatomy, joint and spacing values remain non-surveyed.
+
+The release catalogue assigns Richard Wagner, Weidendammer Brücke, Bertolt
+Brecht and Scharnhorst to records 90–93. All four shipped landmark payloads are
+identical at 93 records; the alignment audit covers 41 relative-placement
+contracts and retains three established manual-review anchors. The separately
+modelled CSD memorial place remains outside that catalogue.
+
 ## Invalidenfriedhof and Kieler Eck evidence contract
 
 The Invalidenfriedhof recognition layer keeps source roles separate:
@@ -394,8 +496,20 @@ The Invalidenfriedhof recognition layer keeps source roles separate:
   and named historic grave monuments.
 - OSM way `51804411`, the committed paths and individual grave anchors control
   plan placement and semantics; they do not supply facade or sculpture survey
-  geometry. OSM node `279219439` independently anchors the Hans Carl von
-  Winterfeld monument.
+  geometry. Exact OSM node `273120316` anchors Scharnhorst; OSM node `279219439`
+  independently anchors the Hans Carl von Winterfeld monument.
+- The
+  [Berlin-Lexikon record](https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm)
+  supplies Scharnhorst's published 5.60 m overall height. The
+  [Staatliche Museen Schinkel portal](https://schinkel.smb.museum/image_orte.php?id=28)
+  and monument record control its form, native-granite supports, high
+  Carrara-marble sarcophagus, bronze lion, iron enclosure, authorship and
+  conservation context. Karl Friedrich Schinkel designed the
+  architecture, Friedrich Tieck the relief frieze, Christian Daniel Rauch
+  modelled the lion and Theodor Kalide executed it; the Royal Prussian Iron
+  Foundry in Berlin cast the bronze. The current sarcophagus and
+  relief frieze are conservation copies; their presence does not license a
+  claim that uncited local part dimensions are surveyed.
 - OSM node `7430297888` identifies the Auguste-Viktoria bell, while Berlin
   LoD2 object `DEBE01YYK0001yqp` supplies its official building anchor and
   10.044 m measured building height. The published 1.60 m bell diameter and
@@ -432,6 +546,9 @@ Primary public records:
 - [OpenStreetMap watchtower footprint](https://www.openstreetmap.org/way/31347999)
 - [OpenStreetMap bell anchor](https://www.openstreetmap.org/node/7430297888)
 - [OpenStreetMap Hans Carl von Winterfeld anchor](https://www.openstreetmap.org/node/279219439)
+- [OpenStreetMap Scharnhorst anchor](https://www.openstreetmap.org/node/273120316)
+- [Schinkel portal: Scharnhorst grave monument](https://schinkel.smb.museum/image_orte.php?id=28)
+- [Berlin-Lexikon Invalidenfriedhof record: published Scharnhorst height](https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm)
 
 ## Berlin official support layers
 

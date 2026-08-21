@@ -280,7 +280,7 @@ describe("shared flag wind field", () => {
 
   test("wires warm transitions and cold async attaches to one continuous clock", () => {
     const warmVisibility = viewerSource.indexOf(
-      "applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);",
+      "applyRuntimeMinecraftVisibility(runtime, voxelMode);",
     );
     const warmWinter = viewerSource.indexOf(
       "setWindFlagWinterPresentation(runtime.signatures, isSnowstorm);",
@@ -301,7 +301,7 @@ describe("shared flag wind field", () => {
     expect(viewerSource).toContain('document.visibilityState !== "hidden"');
 
     const coldCivicVisibility = viewerSource.indexOf(
-      "applyMinecraftVisibility(\n            minecraftVisibilityRoots(runtime),",
+      "applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));",
       warmWinter,
     );
     const coldCivicWinter = viewerSource.indexOf(
@@ -309,7 +309,7 @@ describe("shared flag wind field", () => {
       coldCivicVisibility,
     );
     const coldSignatureVisibility = viewerSource.indexOf(
-      "applyMinecraftVisibility(\n            minecraftVisibilityRoots(runtime),",
+      "applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));",
       coldCivicWinter + 1,
     );
     const coldSignatureWinter = viewerSource.indexOf(

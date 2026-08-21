@@ -12,10 +12,24 @@ import {
   MICRO_DETAIL_SHOW_DISTANCE_M,
   inkLineFadeOpacity,
   nextInkLineFadeState,
+  nextDetailFadeVisible,
   nextFineDetailVisible,
   nextMicroDetailVisible,
   projectedPixelSize,
+  readDetailFadeRangeM,
 } from "../src/fineDetailFade";
+import {
+  MOABIT_PRISON_MEMORIAL_FINE_LAYER_NAME,
+  MOABIT_PRISON_MEMORIAL_MICRO_LAYER_NAME,
+  MOABIT_PRISON_MEMORIAL_SNOW_LAYER_NAME,
+  MOABIT_PRISON_MEMORIAL_STRUCTURAL_LAYER_NAME,
+} from "../src/MoabitPrisonMemorialPark";
+import {
+  WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
+  WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
+  WEIDENDAMMER_BRIDGE_SNOW_LAYER_NAME,
+  WEIDENDAMMER_BRIDGE_STRUCTURAL_LAYER_NAME,
+} from "../src/WeidendammerBridgeDetails";
 
 // App.tsx's default framing and camera FOV, kept in sync manually rather
 // than imported so a future default-view change is a visible test edit,
@@ -111,6 +125,38 @@ describe("micro-detail visibility", () => {
     expect(MICRO_DETAIL_LAYER_NAMES).toContain(
       "Kollhoff clinker mortar joints",
     );
+  });
+
+  test("fades Moabit interpretation and mortar without hiding walls or snow state", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      MOABIT_PRISON_MEMORIAL_FINE_LAYER_NAME,
+    );
+    expect(MICRO_DETAIL_LAYER_NAMES).toContain(
+      MOABIT_PRISON_MEMORIAL_MICRO_LAYER_NAME,
+    );
+    for (const persistentLayer of [
+      MOABIT_PRISON_MEMORIAL_STRUCTURAL_LAYER_NAME,
+      MOABIT_PRISON_MEMORIAL_SNOW_LAYER_NAME,
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentLayer);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentLayer);
+    }
+  });
+
+  test("fades only Weidendammer ink and love locks, never structure or snow state", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
+        WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
+      ]),
+    );
+    for (const persistentLayer of [
+      WEIDENDAMMER_BRIDGE_STRUCTURAL_LAYER_NAME,
+      WEIDENDAMMER_BRIDGE_SNOW_LAYER_NAME,
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentLayer);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentLayer);
+    }
   });
 
   test("fades only smooth Starbucks furniture, never its Minecraft batch", () => {
@@ -221,6 +267,50 @@ describe("nextInkLineFadeState", () => {
       lastAppliedOpacity: first.appliedOpacity,
     });
     expect(second).toEqual(first);
+  });
+});
+
+describe("authored per-object detail fade ranges", () => {
+  test("reads the established tuple shape and rejects unsafe ranges", () => {
+    expect(readDetailFadeRangeM([34, 105])).toEqual([34, 105]);
+    expect(readDetailFadeRangeM({ show: 62, hide: 155 })).toEqual([62, 155]);
+    expect(readDetailFadeRangeM([105, 34])).toBeNull();
+    expect(readDetailFadeRangeM([-1, 105])).toBeNull();
+    expect(readDetailFadeRangeM([34, Number.NaN])).toBeNull();
+    expect(readDetailFadeRangeM("34,105")).toBeNull();
+  });
+
+  test("uses Brecht's 34/105 m and Scharnhorst's 62/155 m hysteresis exactly", () => {
+    const brecht = readDetailFadeRangeM([34, 105])!;
+    expect(
+      nextDetailFadeVisible({ distanceM: 104.99, visible: true }, brecht),
+    ).toBeTrue();
+    expect(
+      nextDetailFadeVisible({ distanceM: 105, visible: true }, brecht),
+    ).toBeFalse();
+    expect(
+      nextDetailFadeVisible({ distanceM: 34.01, visible: false }, brecht),
+    ).toBeFalse();
+    expect(
+      nextDetailFadeVisible({ distanceM: 34, visible: false }, brecht),
+    ).toBeTrue();
+
+    const scharnhorst = readDetailFadeRangeM([62, 155])!;
+    expect(
+      nextDetailFadeVisible(
+        { distanceM: 154.99, visible: true },
+        scharnhorst,
+      ),
+    ).toBeTrue();
+    expect(
+      nextDetailFadeVisible({ distanceM: 155, visible: true }, scharnhorst),
+    ).toBeFalse();
+    expect(
+      nextDetailFadeVisible({ distanceM: 62.01, visible: false }, scharnhorst),
+    ).toBeFalse();
+    expect(
+      nextDetailFadeVisible({ distanceM: 62, visible: false }, scharnhorst),
+    ).toBeTrue();
   });
 });
 
@@ -378,6 +468,22 @@ describe("nextFineDetailVisible", () => {
       "Richard Wagner open plexiglass barrel vault",
       "Richard Wagner reversible snow caps",
       "Richard Wagner Minecraft block batch",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
+  });
+
+  test("fades only Brecht's close articulation while retaining the seated silhouette and mode layers", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Bertolt Brecht seated figure and installation fine detail",
+    );
+    for (const persistentName of [
+      "Bertolt Brecht memorial installation",
+      "Bertolt Brecht memorial installation bodies",
+      "Berliner Ensemble public-art snow accents",
+      "Minecraft Bertolt Brecht monument block-native detail",
+      "Für Helene Weigel current memorial",
     ]) {
       expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
       expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);

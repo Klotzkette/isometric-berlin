@@ -2,10 +2,10 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-21T17:36:49.499502+00:00`
+- Generated: `2026-08-21T20:47:21.336869+00:00`
 - Status: `review`
-- Landmarks checked: `90`
-- Relative relationships checked: `38`
+- Landmarks checked: `93`
+- Relative relationships checked: `41`
 - Landmark review count: `3`
 - Relative review count: `0`
 - Review count: `3`
@@ -102,6 +102,9 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Denkzeichen Georg Elser | `ok` | Denkzeichen Georg Elser (pois) | 0.00 m | nearest DEBE3DGM02OGdTwB at 16.28 m |
 | Queer Rainbow Memorial Berlin | `review` | no expected-name hit; nearest: Großer Tiergarten | 0.00 m | nearest DEBE00YYT600005H at 150.23 m |
 | Richard Wagner | `ok` | Richard Wagner (pois) | 0.00 m | inside DEBE00YYSR00009n |
+| Weidendammer Brücke | `ok` | Friedrichstraße (roads) | 0.00 m | nearest DEBE3DtycP9AW4Za at 43.84 m |
+| Bertolt Brecht | `ok` | Bertolt Brecht (pois) | 0.00 m | nearest DEBE01YYK00008ri at 23.35 m |
+| Scharnhorst-Grabmal | `ok` | Gerhard Johann David von Scharnhorst (pois) | 0.00 m | nearest DEBE01YYK0000Bid at 39.51 m |
 
 ## Relative Placement
 
@@ -117,6 +120,9 @@ These checks compare landmark-to-landmark relationships in EPSG:25833 metres. Th
 | Marie-Elisabeth-Lüders-Haus | Parlament der Bäume gegen Krieg und Gewalt | `ok` | west / west | north / north | -3.61 m | 48.32 m |
 | Reichstagsgebäude | Berliner Ensemble | `ok` | east / east | north / north | 649.99 m | 380.45 m |
 | Berliner Ensemble | Bahnhof Berlin Friedrichstraße | `ok` | east / east | south / south | 92.67 m | -221.91 m |
+| Berliner Ensemble | Weidendammer Brücke | `ok` | east / east | south / south | 163.10 m | -5.90 m |
+| Berliner Ensemble | Bertolt Brecht | `ok` | east / east | north / north | 61.36 m | 9.16 m |
+| Scharnhorst-Grabmal | Invalidenpark / Sinkende Mauer | `ok` | east / east | south / south | 319.40 m | -274.33 m |
 | Brandenburger Tor | Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | `ok` | east / east | south / south | 378.01 m | -858.76 m |
 | Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | Gropius Bau | `ok` | west / west | south / south | -113.99 m | -222.44 m |
 | Gropius Bau | Topographie des Terrors | `ok` | east / east | south / south | 147.94 m | -45.28 m |

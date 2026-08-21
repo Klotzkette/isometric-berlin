@@ -31,6 +31,15 @@
  * only a material's opacity uniform.
  */
 
+import {
+  MOABIT_PRISON_MEMORIAL_FINE_LAYER_NAME,
+  MOABIT_PRISON_MEMORIAL_MICRO_LAYER_NAME,
+} from "./MoabitPrisonMemorialPark";
+import {
+  WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
+  WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
+} from "./WeidendammerBridgeDetails";
+
 /**
  * The world-space feature size an ink line's fade is keyed to: not the
  * line's own (undefined) physical thickness, but the closest spacing
@@ -167,6 +176,41 @@ export type FineDetailVisibilityInput = {
   visible: boolean;
 };
 
+export type DetailFadeRangeM = readonly [showM: number, hideM: number];
+
+/** Validate authored per-object hysteresis metadata once during collection. */
+export function readDetailFadeRangeM(value: unknown): DetailFadeRangeM | null {
+  let showM: unknown;
+  let hideM: unknown;
+  if (Array.isArray(value)) {
+    [showM, hideM] = value;
+  } else if (value !== null && typeof value === "object") {
+    ({ show: showM, hide: hideM } = value as {
+      hide?: unknown;
+      show?: unknown;
+    });
+  }
+  if (
+    typeof showM !== "number" ||
+    !Number.isFinite(showM) ||
+    showM < 0 ||
+    typeof hideM !== "number" ||
+    !Number.isFinite(hideM) ||
+    hideM <= showM
+  ) {
+    return null;
+  }
+  return [showM, hideM];
+}
+
+export function nextDetailFadeVisible(
+  { distanceM, visible }: FineDetailVisibilityInput,
+  rangeM: DetailFadeRangeM,
+): boolean {
+  if (!Number.isFinite(distanceM)) return visible;
+  return visible ? distanceM < rangeM[1] : distanceM <= rangeM[0];
+}
+
 /**
  * Hysteretic visibility decision for a fine-detail layer, given only the
  * current camera standoff and the layer's own last-applied state. Unlike
@@ -180,13 +224,10 @@ export function nextFineDetailVisible({
   distanceM,
   visible,
 }: FineDetailVisibilityInput): boolean {
-  if (!Number.isFinite(distanceM)) {
-    return visible;
-  }
-  if (visible) {
-    return distanceM < FINE_DETAIL_HIDE_DISTANCE_M;
-  }
-  return distanceM <= FINE_DETAIL_SHOW_DISTANCE_M;
+  return nextDetailFadeVisible(
+    { distanceM, visible },
+    [FINE_DETAIL_SHOW_DISTANCE_M, FINE_DETAIL_HIDE_DISTANCE_M],
+  );
 }
 
 /** Sub-decimetre/brick-bond drawing only resolves in a real close-up. */
@@ -233,6 +274,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Löwenbrücke modern safety posts bodies",
   "Löwenbrücke modern safety posts ink lines",
   "Löwenbrücke modern safety mesh fields",
+  WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
+  WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
   "static water ripple ribbons",
   "three hidden Tiergarten beavers",
   "vessel wake ribbons",
@@ -285,6 +328,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Lessing memorial relief allegory and fence cues",
   "Richard Wagner six-metre marble ensemble ink lines",
   "Richard Wagner open steel canopy ink lines",
+  "Bertolt Brecht seated figure and installation fine detail",
   "Helene Weigel halftone glass portrait",
   "Invalidenfriedhof Scharnhorst lion tomb fine detail",
   "Invalidenfriedhof Witzleben canopy fine detail",
@@ -296,6 +340,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Invalidenfriedhof historic wall fine detail",
   "Starbucks west direct STARBUCKS wordmark",
   "Starbucks south direct STARBUCKS wordmark",
+  MOABIT_PRISON_MEMORIAL_FINE_LAYER_NAME,
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */
@@ -307,4 +352,5 @@ export const MICRO_DETAIL_LAYER_NAMES: readonly string[] = [
   "Starbucks compact table stems",
   "Starbucks compact dark pavement chairs",
   "Starbucks compact stone planters",
+  MOABIT_PRISON_MEMORIAL_MICRO_LAYER_NAME,
 ];

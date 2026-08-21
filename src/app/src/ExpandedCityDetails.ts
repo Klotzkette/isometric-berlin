@@ -37,7 +37,6 @@ import {
   KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
-  MOABIT_PRISON_PARK_PROFILE,
   NEUE_NATIONALGALERIE_PROFILE,
   NORTHERN_CITY_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
@@ -63,11 +62,20 @@ import {
   createInvalidenfriedhofDetails,
   INVALIDENFRIEDHOF_DETAIL_PROFILE,
 } from "./InvalidenfriedhofDetails";
+import {
+  MOABIT_PRISON_MEMORIAL_PROFILE,
+  createMoabitPrisonMemorialPark,
+  type MoabitPrisonMemorialDetailProfile,
+} from "./MoabitPrisonMemorialPark";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 export type ExpandedLandmark = {
   name: string;
   world: [number, number, number];
+};
+
+export type ExpandedCityDetailsOptions = {
+  detailProfile?: MoabitPrisonMemorialDetailProfile;
 };
 
 export {
@@ -78,7 +86,6 @@ export {
   KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
-  MOABIT_PRISON_PARK_PROFILE,
   NEUE_NATIONALGALERIE_PROFILE,
   NORTHERN_CITY_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
@@ -97,6 +104,11 @@ export {
   createInvalidenfriedhofDetails,
   INVALIDENFRIEDHOF_DETAIL_PROFILE,
 } from "./InvalidenfriedhofDetails";
+export {
+  MOABIT_PRISON_MEMORIAL_PROFILE,
+  MOABIT_PRISON_PARK_SOURCE_PROFILE,
+  createMoabitPrisonMemorialPark,
+} from "./MoabitPrisonMemorialPark";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -274,9 +286,6 @@ const BERLIN_MODERN_PV_SEAM = 0x6d8587;
 const AMANO_CLINKER = 0xd2cabd;
 const AMANO_CLINKER_DARK = 0xaaa196;
 const AMANO_GLASS = 0x86a9ab;
-const PRISON_BRICK = 0x9d634f;
-const PRISON_MORTAR = 0xd8b7a1;
-const BLOOD_BEECH = 0x665d49;
 const EURO_GLASS = 0x789da4;
 const EURO_GLASS_LIGHT = 0x94b6b8;
 const EINZ_GLASS = 0x6f8991;
@@ -5219,214 +5228,6 @@ function addAmanoGrandCentral(
   }
 }
 
-function addMoabitPrisonPark(
-  builder: Builder,
-  byName: Map<string, ExpandedLandmark>,
-): void {
-  if (!byName.has("Geschichtspark Ehemaliges Zellengefängnis Moabit")) return;
-  const profile = MOABIT_PRISON_PARK_PROFILE;
-  const origin = new Vector3(
-    profile.centerWorldM[0],
-    profile.groundY,
-    profile.centerWorldM[1],
-  );
-  const rotation = profile.rotationY;
-
-  // Way 498278335 is deliberately retained vertex-for-vertex. The low park
-  // plate makes its irregular plan legible and, unlike the removed rotated
-  // rectangle, never reaches the B96/Tiergartentunnel carriageway.
-  addPolygonPrism(
-    builder,
-    PARK_GREEN,
-    profile.parkRingWorldM,
-    profile.groundY + 0.015,
-    0.055,
-    false,
-  );
-
-  // The surviving perimeter is mapped as four separate OSM barrier ways.
-  // Drawing every source segment preserves the real bends and the entrance
-  // breaks instead of completing a fictitious box across Heidestrasse.
-  for (const wallPath of profile.preservedWallPathsWorldM) {
-    for (let index = 0; index < wallPath.length - 1; index += 1) {
-      const start = wallPath[index];
-      const end = wallPath[index + 1];
-      addFacadeSegment(
-        builder,
-        PRISON_BRICK,
-        start,
-        end,
-        profile.groundY + profile.preservedWallHeightM / 2,
-        profile.preservedWallHeightM,
-        0.82,
-        false,
-        true,
-      );
-      for (let course = 1; course < 10; course += 1) {
-        addFacadeSegment(
-          builder,
-          PRISON_MORTAR,
-          start,
-          end,
-          profile.groundY + course * 0.5,
-          0.035,
-          0.87,
-        );
-      }
-    }
-  }
-
-  // Central observation area: open concrete cube inside the circular place.
-  const panopticon = new RingGeometry(10.4, 10.95, 42);
-  panopticon.rotateX(-Math.PI / 2);
-  const [panX, panZ] = rotatedLocalOffset(-6, 1, rotation);
-  panopticon.translate(
-    origin.x + panX,
-    profile.groundY + 0.11,
-    origin.z + panZ,
-  );
-  addCustomGeometry(builder, panopticon, 0xc6c2b8, false);
-  for (const [x, z] of [
-    [-10, -3],
-    [-2, -3],
-    [-10, 5],
-    [-2, 5],
-  ] as const) {
-    addLocalBox(
-      builder,
-      0xaba9a2,
-      origin,
-      x,
-      profile.groundY + 1.8,
-      z,
-      0.65,
-      3.6,
-      0.65,
-      rotation,
-    );
-  }
-  addLocalBox(
-    builder,
-    0xaba9a2,
-    origin,
-    -6,
-    profile.groundY + 3.35,
-    1,
-    8.7,
-    0.55,
-    8.7,
-    rotation,
-  );
-
-  // Four former wings: three depressed/rising lawns and wing A as two clipped
-  // blood-beech hedges with a single walk-in cell at original scale.
-  for (const angle of [-0.78, 0.2, 1.18]) {
-    const localX = -6 + Math.cos(angle) * 38;
-    const localZ = 1 + Math.sin(angle) * 38;
-    addLocalBox(
-      builder,
-      0x86ad72,
-      origin,
-      localX,
-      profile.groundY + 0.14,
-      localZ,
-      68,
-      0.28,
-      11,
-      rotation + angle,
-      false,
-    );
-  }
-  for (const side of [-1, 1]) {
-    addLocalBox(
-      builder,
-      BLOOD_BEECH,
-      origin,
-      31,
-      profile.groundY + 1.15,
-      1 + side * 3.4,
-      67,
-      2.3,
-      1.25,
-      rotation,
-    );
-  }
-  // One cell: 2.4 x 4.5 m interior, open at the path end.
-  addLocalBox(
-    builder,
-    0xbbb8af,
-    origin,
-    59,
-    profile.groundY + 1.45,
-    -1.4,
-    4.5,
-    2.9,
-    0.28,
-    rotation,
-  );
-  addLocalBox(
-    builder,
-    0xbbb8af,
-    origin,
-    59,
-    profile.groundY + 1.45,
-    3.4,
-    4.5,
-    2.9,
-    0.28,
-    rotation,
-  );
-  addLocalBox(
-    builder,
-    0xbbb8af,
-    origin,
-    61.1,
-    profile.groundY + 1.45,
-    1,
-    0.28,
-    2.9,
-    5.1,
-    rotation,
-  );
-
-  // Three circular exercise yards, each a separate concrete trace.
-  for (const [localX, localZ, radius] of [
-    [-48, 34, 12],
-    [-17, 49, 10],
-    [18, 51, 8],
-  ] as const) {
-    const ring = new RingGeometry(radius - 0.32, radius + 0.32, 36);
-    ring.rotateX(-Math.PI / 2);
-    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
-    ring.translate(
-      origin.x + offsetX,
-      profile.groundY + 0.13,
-      origin.z + offsetZ,
-    );
-    addCustomGeometry(builder, ring, 0xb8b4aa, false);
-  }
-  // The clipped blood-beech rectangle marks the former administration block.
-  for (const [localX, localZ, width, depth] of [
-    [-48, -35, 42, 1.4],
-    [-48, -55, 42, 1.4],
-    [-69, -45, 1.4, 20],
-    [-27, -45, 1.4, 20],
-  ] as const) {
-    addLocalBox(
-      builder,
-      BLOOD_BEECH,
-      origin,
-      localX,
-      profile.groundY + 1.0,
-      localZ,
-      width,
-      2,
-      depth,
-      rotation,
-    );
-  }
-}
-
 function addEuropacityCompanyBuildings(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
@@ -5699,56 +5500,56 @@ function addFunboxPark(
     );
   }
 
-  // East-facing entrance from Heidestrasse and the adjacent ticket kiosk
-  // visible in the supplied street photograph.
+  // Keep the entrance on the park's east end, facing Heidestrasse, after the
+  // long event footprint is fitted between the three surrounding carriageways.
   for (const side of [-1, 1]) {
     localCylinder(
       FUNBOX_RED,
-      22.2,
+      side * 4,
       profile.groundY + 1.8,
-      -2 + side * 4,
+      47.3,
       0.82,
       3.2,
       12,
     );
     localInflatedShape(
       side < 0 ? FUNBOX_YELLOW : FUNBOX_GREEN,
-      22.2,
+      side * 4,
       profile.groundY + 3.6,
-      -2 + side * 4,
+      47.3,
       1.1,
       1.1,
       1.1,
       true,
     );
   }
-  const [archX, archZ] = at(22.2, -2);
+  const [archX, archZ] = at(0, 47.3);
   const arch = new TorusGeometry(4, 0.82, 8, 28, Math.PI);
-  arch.rotateY(rotation + Math.PI / 2);
+  arch.rotateY(rotation);
   arch.translate(archX, profile.groundY + 3.9, archZ);
   addCustomGeometry(builder, arch, FUNBOX_RED, false);
   addLocalBox(
     builder,
     FUNBOX_PURPLE,
     origin,
-    26.2,
-    profile.groundY + 1.8,
     10,
-    4.8,
-    3.6,
+    profile.groundY + 1.8,
+    53.2,
     8.4,
+    3.6,
+    4.8,
     rotation,
   );
   addLocalBox(
     builder,
     IVORY,
     origin,
-    26.2,
-    profile.groundY + 3.8,
     10,
-    5.2,
-    0.42,
+    profile.groundY + 3.8,
+    53.2,
     9.0,
+    0.42,
+    5.2,
     rotation,
   );
   for (const side of [-1, 1]) {
@@ -5890,7 +5691,7 @@ function addRooftopSigns(
       profile.groundY,
       profile.centerWorldM[1],
     );
-    const entranceOffset = rotatedLocalOffset(22.2, -2, profile.rotationY);
+    const entranceOffset = rotatedLocalOffset(0, 47.38, profile.rotationY);
     const welcome = createLetterSign(
       "WELCOME",
       8.2,
@@ -5898,9 +5699,9 @@ function addRooftopSigns(
       new Vector3(
         origin.x + entranceOffset[0],
         profile.groundY + 3.9,
-        origin.z + entranceOffset[1] + 0.08,
+        origin.z + entranceOffset[1],
       ),
-      profile.rotationY + Math.PI / 2,
+      profile.rotationY,
       "#e84d42",
       "#fff3d4",
     );
@@ -5908,7 +5709,7 @@ function addRooftopSigns(
       welcome.name = "FUNBOX entrance WELCOME lettering";
       group.add(welcome);
     }
-    const kioskOffset = rotatedLocalOffset(28.65, 10, profile.rotationY);
+    const kioskOffset = rotatedLocalOffset(10, 55.85, profile.rotationY);
     const funbox = createLetterSign(
       "FUNBOX",
       7.2,
@@ -5918,7 +5719,7 @@ function addRooftopSigns(
         profile.groundY + 2.35,
         origin.z + kioskOffset[1],
       ),
-      profile.rotationY + Math.PI / 2,
+      profile.rotationY,
       "#8d62bd",
       "#fff4d8",
     );
@@ -5949,6 +5750,7 @@ function addRooftopSigns(
 
 export function createExpandedCityDetails(
   landmarks: ExpandedLandmark[],
+  options: ExpandedCityDetailsOptions = {},
 ): Group {
   const group = new Group();
   group.name = "Task-10 expanded city recognition details";
@@ -5964,7 +5766,7 @@ export function createExpandedCityDetails(
   group.userData.kulturforum = KULTURFORUM_PROFILE;
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
   group.userData.konradAdenauerHaus = KONRAD_ADENAUER_HAUS_PROFILE;
-  group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
+  group.userData.moabitPrisonPark = MOABIT_PRISON_MEMORIAL_PROFILE;
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
   group.userData.northernCity = NORTHERN_CITY_PROFILE;
   group.userData.invalidenfriedhofDetails =
@@ -5992,7 +5794,7 @@ export function createExpandedCityDetails(
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte.sources,
-    ...MOABIT_PRISON_PARK_PROFILE.sources,
+    ...MOABIT_PRISON_MEMORIAL_PROFILE.sources,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.sourceUrls,
     ...INVALIDENFRIEDHOF_DETAIL_PROFILE.augusteViktoriaBell.sourceUrls,
@@ -6036,14 +5838,10 @@ export function createExpandedCityDetails(
   }
   addPotsdamerEntranceHallLettering(group, byName);
 
-  const moabitBuilder = createBuilder();
-  addMoabitPrisonPark(moabitBuilder, byName);
-  const moabitPark = finishDrawnGroup(moabitBuilder, {
-    name: "Geschichtspark Moabit mapped walls and plan",
-  });
-  if (moabitPark) {
-    moabitPark.userData = MOABIT_PRISON_PARK_PROFILE;
-    group.add(moabitPark);
+  if (byName.has(MOABIT_PRISON_MEMORIAL_PROFILE.name)) {
+    group.add(
+      createMoabitPrisonMemorialPark(options.detailProfile ?? "full"),
+    );
   }
 
   // Keep the terrain sculpture independently inspectable. It still costs one

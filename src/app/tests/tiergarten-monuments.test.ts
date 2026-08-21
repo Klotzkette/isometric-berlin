@@ -13,6 +13,7 @@ import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
 import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
+import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
@@ -129,6 +130,16 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(monuments.userData.externallyModelledSourceKeys).toContain(
       WAGNER_MEMORIAL_PROFILE.osmKey,
     );
+    for (const osmKey of MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
+      .genericArtworkSuppressionKeys) {
+      expect(monuments.userData.externallyModelledSourceKeys).toContain(osmKey);
+      expect(
+        monuments.userData.protectedExternallyModelledSourceKeys,
+      ).toContain(osmKey);
+      expect(monuments.userData.protectedRenderedSourceKeys).not.toContain(
+        osmKey,
+      );
+    }
   });
 
   test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {
@@ -206,6 +217,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(externallyModelledKeys.length).toBeGreaterThan(0);
     expect(externallyModelledKeys).toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);
     expect(renderedKeys).not.toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);
+    expect(
+      externallyModelledKeys,
+    ).toEqual(
+      expect.arrayContaining([
+        ...MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
+          .genericArtworkSuppressionKeys,
+      ]),
+    );
   });
 
   test("the Verkehrsturm rises at the surveyed Potsdamer Platz corner", () => {
@@ -248,6 +267,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
       (candidate) =>
         candidate.kind === "artwork" &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
+        !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
+          .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
     )) {
       expect(resolveArtworkBuilder(entry.name)).toBeFunction();

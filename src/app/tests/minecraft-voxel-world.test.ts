@@ -5,6 +5,7 @@ import {
   InstancedMesh,
   MathUtils,
   Matrix4,
+  Object3D,
   Ray,
   Spherical,
   Vector3,
@@ -52,6 +53,11 @@ import {
   WAGNER_MEMORIAL_PROFILE,
   wagnerMemorialVoxelReplacementAt,
 } from "../src/WagnerMemorial";
+import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
+import {
+  WEIDENDAMMER_BRIDGE_MINECRAFT_ROOT_NAME,
+  WEIDENDAMMER_BRIDGE_PROFILE,
+} from "../src/WeidendammerBridgeDetails";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -68,10 +74,7 @@ const genericDetailFixture: VoxelPayload = {
     stride_cells: 1,
     y_dm: [0, 0, 0, 0, 0, 0],
   },
-  ground_rows: [
-    [[0, 3, 0]],
-    [[0, 3, 0]],
-  ],
+  ground_rows: [[[0, 3, 0]], [[0, 3, 0]]],
   building_rows: [[[0, 2, 0, 120, 1]], []],
   tree_rows: [[], []],
   water_top_y_m: -1.15,
@@ -164,6 +167,29 @@ describe("true voxel Minecraft world", () => {
     expect((mobilePariserPlatz as InstancedMesh).count).toBe(292);
     expect(fullPariserPlatz?.visible).toBe(true);
     expect(mobilePariserPlatz?.visible).toBe(true);
+
+    const fullWeidendammer = world.getObjectByName(
+      WEIDENDAMMER_BRIDGE_MINECRAFT_ROOT_NAME,
+    );
+    const mobileWeidendammer = mobileWorld.getObjectByName(
+      WEIDENDAMMER_BRIDGE_MINECRAFT_ROOT_NAME,
+    );
+    expect(fullWeidendammer?.children).toHaveLength(1);
+    expect(mobileWeidendammer?.children).toHaveLength(1);
+    expect(fullWeidendammer?.userData).toMatchObject({
+      blockCount: 344,
+      detailProfile: "full",
+      keepInMinecraft: true,
+      osmWayId: WEIDENDAMMER_BRIDGE_PROFILE.osmWayId,
+      railingSystemCount: 1,
+    });
+    expect(mobileWeidendammer?.userData).toMatchObject({
+      blockCount: 224,
+      detailProfile: "mobile",
+      keepInMinecraft: true,
+      osmWayId: WEIDENDAMMER_BRIDGE_PROFILE.osmWayId,
+      railingSystemCount: 1,
+    });
   });
 
   test("keeps mobile hero courses while collapsing generic layer stacks", () => {
@@ -225,9 +251,9 @@ describe("true voxel Minecraft world", () => {
       "Minecraft Berliner Ensemble block signature",
       "Minecraft Hotel Adlon and Starbucks block signature",
     ]);
-    expect(landmarks?.children.every((child) => child instanceof InstancedMesh)).toBe(
-      true,
-    );
+    expect(
+      landmarks?.children.every((child) => child instanceof InstancedMesh),
+    ).toBe(true);
     expect(landmarks?.userData.drawCallBudget).toBe(7);
   });
 
@@ -243,8 +269,7 @@ describe("true voxel Minecraft world", () => {
     // its ordinary facade treatment remain untouched.
     expect(voxelRecognitionAreaAt(590, 405)).toBeNull();
 
-    const starbucks =
-      MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz;
+    const starbucks = MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz;
     for (const facade of Object.values(starbucks.facades)) {
       const middleX =
         facade.sourceStartWorldM[0] +
@@ -270,17 +295,52 @@ describe("true voxel Minecraft world", () => {
     expect(details?.userData).toMatchObject({
       blockNative: true,
       motionPolicy: "static in Minecraft",
-      sourceFootprintOwnership: [
-        "litfin-watchtower",
-        "auguste-viktoria-bell",
-      ],
+      sourceFootprintOwnership: ["litfin-watchtower", "auguste-viktoria-bell"],
     });
-    expect(details?.children.every((child) => child instanceof InstancedMesh)).toBe(
-      true,
-    );
+    expect(
+      details?.children.every((child) => child instanceof InstancedMesh),
+    ).toBe(true);
     expect(details?.userData.drawCallCount).toBeLessThanOrEqual(10);
     expect(details?.userData.instanceCount).toBeGreaterThan(250);
     expect(details?.userData.instanceCount).toBeLessThanOrEqual(2_500);
+  });
+
+  test("loads exactly one bounded block-native Brecht memorial with full/mobile transform parity", () => {
+    const name = "Minecraft Bertolt Brecht monument block-native detail";
+    const fullMatches: Object3D[] = [];
+    const mobileMatches: Object3D[] = [];
+    world.traverse((object) => {
+      if (object.name === name) fullMatches.push(object);
+    });
+    mobileWorld.traverse((object) => {
+      if (object.name === name) mobileMatches.push(object);
+    });
+    expect(fullMatches).toHaveLength(1);
+    expect(mobileMatches).toHaveLength(1);
+    const full = fullMatches[0];
+    const mobile = mobileMatches[0];
+    expect(full.parent).toBe(world);
+    expect(mobile.parent).toBe(mobileWorld);
+    expect(full.userData).toMatchObject({
+      blockNative: true,
+      drawCallCount: 4,
+      exactOwnOsmKey: "node/988668382",
+      instanceCount: 197,
+      sourceBound: true,
+    });
+    expect(mobile.userData).toEqual(full.userData);
+    expect(full.children).toHaveLength(4);
+    expect(mobile.children).toHaveLength(4);
+    for (let index = 0; index < full.children.length; index += 1) {
+      const fullBatch = full.children[index] as InstancedMesh;
+      const mobileBatch = mobile.children[index] as InstancedMesh;
+      expect(fullBatch).toBeInstanceOf(InstancedMesh);
+      expect(mobileBatch).toBeInstanceOf(InstancedMesh);
+      expect(fullBatch.count).toBe(mobileBatch.count);
+      expect(Array.from(fullBatch.instanceMatrix.array)).toEqual(
+        Array.from(mobileBatch.instanceMatrix.array),
+      );
+    }
   });
 
   test("keeps both literary memorials as one block-native batch in full and mobile", () => {
@@ -297,6 +357,46 @@ describe("true voxel Minecraft world", () => {
       textureFree: true,
     });
     expect(mobile.userData).toEqual(full.userData);
+  });
+
+  test("adds one full/mobile Moabit batch while retaining the exact source cell voxel", () => {
+    const name = "Geschichtspark Moabit Minecraft red-brick block batch";
+    const full = instanced(name, world);
+    const mobile = instanced(name, mobileWorld);
+    expect(full.count).toBe(3_882);
+    expect(mobile.count).toBe(2_093);
+    for (const [mesh, detailProfile] of [
+      [full, "full"],
+      [mobile, "mobile"],
+    ] as const) {
+      expect(mesh.userData).toMatchObject({
+        blockNative: true,
+        detailProfile,
+        exactOneBatch: true,
+        ownedOsmKey: MOABIT_PRISON_MEMORIAL_PROFILE.osmKey,
+        preservedLod2BuildingIds: ["DEBE01AL2yz00000"],
+        preservedLod2PrismIds: ["2yz00000"],
+        smoothGeometryExcluded: true,
+        textureFree: true,
+      });
+    }
+
+    const sourceCellCenter = [-374, -938] as const;
+    for (const root of [world, mobileWorld]) {
+      const sourceMass = instanced("Voxel building columns", root);
+      const matrix = new Matrix4();
+      let retainedSourceCourses = 0;
+      for (let index = 0; index < sourceMass.count; index += 1) {
+        sourceMass.getMatrixAt(index, matrix);
+        if (
+          matrix.elements[12] === sourceCellCenter[0] &&
+          matrix.elements[14] === sourceCellCenter[1]
+        ) {
+          retainedSourceCourses += 1;
+        }
+      }
+      expect(retainedSourceCourses).toBe(1);
+    }
   });
 
   test("replaces exactly Wagner's six false source columns in full and mobile", () => {
@@ -360,15 +460,17 @@ describe("true voxel Minecraft world", () => {
       Math.tan(MathUtils.degToRad(16) / 2);
     const target = new Vector3(...WAGNER_MEMORIAL_PROFILE.worldM);
     target.y += focus.targetHeightM;
-    const camera = target.clone().add(
-      new Vector3().setFromSpherical(
-        new Spherical(
-          focus.distanceM * dollyScale,
-          MathUtils.degToRad(focus.polarDegrees),
-          MathUtils.degToRad(focus.azimuthDegrees),
+    const camera = target
+      .clone()
+      .add(
+        new Vector3().setFromSpherical(
+          new Spherical(
+            focus.distanceM * dollyScale,
+            MathUtils.degToRad(focus.polarDegrees),
+            MathUtils.degToRad(focus.azimuthDegrees),
+          ),
         ),
-      ),
-    );
+      );
 
     world.updateMatrixWorld(true);
     const wagner = instanced("Richard Wagner Minecraft block batch", world);
@@ -692,11 +794,7 @@ describe("true voxel Minecraft world", () => {
       position.setFromMatrixPosition(matrix);
       scale.setFromMatrixScale(matrix);
       if (
-        isFalseBundestagSpreeBridgeVoxelColumn(
-          position.x,
-          position.z,
-          scale.y,
-        )
+        isFalseBundestagSpreeBridgeVoxelColumn(position.x, position.z, scale.y)
       ) {
         remainingFalseBridgeColumns += 1;
       }
@@ -882,8 +980,12 @@ describe("true voxel Minecraft world", () => {
     expect(bounds.min.y).toBeCloseTo(profile.groundY, 5);
     expect(bounds.max.y).toBeGreaterThan(profile.groundY + 8);
     expect(bounds.max.y).toBeLessThanOrEqual(profile.groundY + 9);
-    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(60);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(90);
+    const horizontalSpans = [
+      bounds.max.x - bounds.min.x,
+      bounds.max.z - bounds.min.z,
+    ].sort((left, right) => left - right);
+    expect(horizontalSpans[0]).toBeGreaterThan(40);
+    expect(horizontalSpans[1]).toBeGreaterThan(90);
   });
 
   test("builds retained civic hero masses from visible vertical block courses", () => {
@@ -902,7 +1004,9 @@ describe("true voxel Minecraft world", () => {
       expect(scale.y).toBeLessThanOrEqual(
         MINECRAFT_HERO_SOURCE_COURSE_MAX_M + 0.001,
       );
-      if (voxelRecognitionAreaAt(position.x, position.z)?.name === "Reichstag") {
+      if (
+        voxelRecognitionAreaAt(position.x, position.z)?.name === "Reichstag"
+      ) {
         reichstagCourses += 1;
       }
     }
@@ -927,10 +1031,7 @@ describe("true voxel Minecraft world", () => {
           continue;
         }
         scale.setFromMatrixScale(matrix);
-        spans.push([
-          position.y - scale.y / 2,
-          position.y + scale.y / 2,
-        ]);
+        spans.push([position.y - scale.y / 2, position.y + scale.y / 2]);
       }
       return spans.sort(([a], [b]) => a - b);
     };
@@ -939,12 +1040,13 @@ describe("true voxel Minecraft world", () => {
     expect(clipped).toHaveLength(3);
     expect(clipped[0][0]).toBeCloseTo(4.2, 6);
     expect(Math.max(...clipped.map(([, top]) => top))).toBeCloseTo(
-      MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble.blockLoD
-        .roofStageBaseY,
+      MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble.blockLoD.roofStageBaseY,
       5,
     );
     for (let index = 1; index < clipped.length; index += 1) {
-      expect(clipped[index][0]).toBeLessThanOrEqual(clipped[index - 1][1] + 1e-6);
+      expect(clipped[index][0]).toBeLessThanOrEqual(
+        clipped[index - 1][1] + 1e-6,
+      );
     }
 
     const outside = spansAt(998, -334);

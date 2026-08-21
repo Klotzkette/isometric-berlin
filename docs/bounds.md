@@ -6,7 +6,7 @@ The MVP polygon is stored at
 ## Landmarks (must be inside the polygon)
 
 The machine-readable catalogue in `landmarks.geojson` is canonical and
-currently contains 90 checked places. It includes the government core and
+currently contains 93 checked places. It includes the government core and
 Pariser Platz; Hauptbahnhof, Hamburger Bahnhof and Europacity; the full
 Tiergarten to Charlottenburger Tor; Kulturforum and Potsdamer/Leipziger Platz;
 and the southern extension to Anhalter Bahnhof, Kochstraße and the WELT
@@ -24,6 +24,25 @@ Its position must not be confused with surveyed tree or memorial geometry.
 The 90th record is the `Richard Wagner` memorial at exact OSM node
 `243487615`. Its catalogue anchor is independently checked against the local
 OSM extract and the official LoD2 footprint of its protective shelter.
+
+The 91st record is the `Weidendammer Brücke` at the centre of exact OSM bridge
+way `6228081`. Its catalogue anchor is independently checked against the local
+OSM extract, while Landesdenkmalamt object `09030074` supplies the protected
+bridge identity and ornamental-system evidence.
+
+The 92nd record is `Bertolt Brecht` at exact OSM node `988668382`; the 93rd is
+the `Scharnhorst-Grabmal` at exact OSM node `273120316`. Their catalogue
+anchors remain separate from the surrounding Berliner-Ensemble and
+Invalidenfriedhof ensemble focuses.
+
+The separately modelled CSD memorial place at OSM node `14076715427` is not a
+94th catalogue record. It remains an uncatalogued current detail distinct from
+both the owner-supplied Queer Rainbow Memorial at record 89 and the 93-place
+tour inventory.
+
+All four shipped landmark payloads are synchronised at 93 records. The
+alignment audit passes 41 relative-placement contracts and retains three
+established manual-review anchors.
 
 The current WGS84 extent is approximately `13.314761,52.493209` to
 `13.407233,52.550987` (EPSG:25833 `385602.60,5817089.12` to

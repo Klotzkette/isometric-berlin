@@ -387,17 +387,34 @@ export const NORTHERN_CITY_PROFILE = {
   },
   funbox: {
     addressAnchorWorldM: [-102.823, -1189.993] as const,
-    centerWorldM: [-165, -1128] as const,
+    centerWorldM: [-218, -1120] as const,
+    detailEnvelopeLocalM: {
+      maxX: 23,
+      maxZ: 57,
+      minX: -23,
+      minZ: -49,
+    } as const,
+    deliveredRoadSurfaceClearanceM: 2.55,
+    drivableRoadOsmWayIds: [
+      "25359021",
+      "431664605",
+      "37995742",
+      "4389561",
+      "37995740",
+      "431664589",
+      "431664590",
+      "1412995432",
+    ] as const,
     eventDates: ["2026-07-23", "2026-09-20"] as const,
     eventListingWorldM: [-140.167, -1134.842] as const,
     footprintLengthM: 96,
     footprintWidthM: 44,
     geometryStatus:
-      "temporary 2026 presentation object; address and event-listing anchors with footprint placed southwest on the free Wunderland lot shown by the user-supplied location plan",
+      "temporary 2026 presentation object; address and event-listing anchors locate the venue, while the 4,000 m2 footprint is fitted inside the free Wunderland lot between the delivered OSM-derived Heidestrasse, Minna-Cauer-Strasse and Doeberitzer-Strasse asphalt surfaces rather than treating a road geocode as the park centre",
     groundY: 4.2,
     maxFeatureHeightM: 9,
     osmAddressNodeId: "7029312961",
-    rotationY: 0.59,
+    rotationY: 1.57,
     sourceAreaM2: 4_000,
     sourceZoneCount: 10,
     sources: [
@@ -835,119 +852,6 @@ export const AMANO_GRAND_CENTRAL_PROFILE = {
   sourceBuildingPartId: "DEBE3DLXM9FjJbtp",
   storeysBelowSetback: 6,
   windowBaysLongFacade: 11,
-} as const;
-
-/**
- * Present-day Geschichtspark envelope and the official interpretive plan.
- *
- * The 22-vertex park extent is OSM way 498278335; the four wall polylines are
- * the separately mapped surviving brick barriers. Internal traces are a
- * documented landscape-architecture reconstruction (not surviving prison
- * geometry): Berlin's official description identifies five-metre walls,
- * three entrances, four star wings, the central panopticon cube, three
- * circular exercise yards, blood-beech hedges and one walk-in cell.
- */
-export const MOABIT_PRISON_PARK_PROFILE = {
-  b96CenterlineWorldM: [
-    [-225.706, -1013.291],
-    [-225.869, -1003.947],
-    [-227.779, -997.848],
-    [-232.704, -980.811],
-    [-237.138, -951.022],
-    [-239.14, -925.818],
-    [-243.487, -863.267],
-    [-244.767, -845.369],
-    [-245.973, -829.55],
-    [-246.454, -818.2],
-    [-246.31, -790.077],
-  ] as const,
-  centerWorldM: [-329.097233, -906.302474] as const,
-  circularYardCount: 3,
-  entranceCount: 3,
-  geometryStatus:
-    "exact OSM park/wall plan with official interpretive-plan reconstruction; internal display heights beyond the published five-metre wall are not survey claims",
-  groundY: 5.9,
-  minimumB96CenterlineClearanceM: 17.29,
-  parkRingWorldM: [
-    [-422.988, -933.418],
-    [-365.535, -813.884],
-    [-360.813, -815.936],
-    [-346.507, -786.491],
-    [-347.566, -783.165],
-    [-318.209, -797.412],
-    [-314.456, -799.185],
-    [-312.816, -799.961],
-    [-310.539, -801.033],
-    [-279.353, -815.684],
-    [-269.063, -820.525],
-    [-263.375, -828.375],
-    [-258.947, -899.893],
-    [-259.972, -907.094],
-    [-255.039, -964.625],
-    [-313.275, -1032.798],
-    [-341.453, -995.635],
-    [-342.043, -988.148],
-    [-351.047, -988.853],
-    [-400.444, -963.888],
-    [-430.476, -950.079],
-    [-428.091, -945.118],
-  ] as const,
-  preservedWallHeightM: 5,
-  preservedWallPathsWorldM: [
-    [
-      [-346.607, -783.555],
-      [-318.209, -797.412],
-      [-314.456, -799.185],
-      [-312.816, -799.961],
-      [-310.539, -801.033],
-      [-279.353, -815.684],
-      [-269.063, -820.525],
-      [-263.375, -828.375],
-      [-259.293, -899.912],
-      [-270.422, -922.475],
-      [-271.402, -924.456],
-      [-272.057, -925.784],
-      [-283.87, -949.342],
-      [-342.043, -988.148],
-    ],
-    [
-      [-351.047, -988.853],
-      [-400.444, -963.888],
-      [-430.476, -950.079],
-      [-428.091, -945.118],
-      [-422.988, -933.418],
-    ],
-    [
-      [-341.653, -993.102],
-      [-333.679, -1005.975],
-    ],
-    [
-      [-330.996, -1009.352],
-      [-314.424, -1030.91],
-    ],
-  ] as const,
-  preservedWallWayIds: [
-    "53178124",
-    "105495351",
-    "498279237",
-    "498279239",
-  ] as const,
-  reconstructedCellCount: 1,
-  rotationY: 2.019,
-  sourceB96WayIds: ["4389552", "168934832", "4411242"] as const,
-  sourceParkWayId: "498278335",
-  sources: [
-    "https://www.openstreetmap.org/way/498278335",
-    "https://www.openstreetmap.org/way/53178124",
-    "https://www.openstreetmap.org/way/105495351",
-    "https://www.openstreetmap.org/way/498279237",
-    "https://www.openstreetmap.org/way/498279239",
-    "https://www.openstreetmap.org/way/4389552",
-    "https://www.openstreetmap.org/way/168934832",
-    "https://www.openstreetmap.org/way/4411242",
-    "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
-    "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
-  ] as const,
 } as const;
 
 /**
