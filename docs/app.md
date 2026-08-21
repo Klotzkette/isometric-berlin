@@ -685,14 +685,17 @@ are not reproduced. Full and mobile Smooth are identical at 3 renderables /
 24,840 stored and rendered vertices. Minecraft is 4 palette batches / 197
 blocks / 4,728 rendered instance vertices over one shared 24-vertex cube. The
 14 m close focus targets the exact Brecht anchor at 1.25 m local height, while
-the fine anatomy layer fades at 34/105 m. The current
-`Eine Skulptur für Helene Weigel`, unveiled on 10 May 2026 in the
-Helene-Weigel-Hof, is represented as a non-classical accessible glass vitrine:
-red director's chair and object field, white light/audio bars, a procedural
-black halftone-glass portrait and plinth grilles. These are code-native,
-source-bounded recognition forms rather than surveyed sculpture meshes; the
-Berliner Ensemble press photographs are reference-only and no photograph or
-portrait texture is bundled. Snow is limited to separate upper accents.
+the fine anatomy layer fades at 34/105 m. The current `Eine Skulptur für Helene
+Weigel`, unveiled on 10 May 2026 in the Helene-Weigel-Hof, is represented as
+its recognisable installation rather than a generic vitrine: a transparent
+glass cube stands on a white plinth. The central red folding director's chair
+retains two clearly visible crossed scissor frames, surrounded by a folded red
+chair/object landscape, light/audio elements and visible cable runs. A large
+black procedural raster portrait is carried by the glazing. These are
+code-native, source-bounded recognition forms rather than surveyed sculpture
+meshes; the Berliner Ensemble press photographs are reference-only and no
+photograph, portrait crop or portrait texture is bundled or loaded. Snow is
+limited to separate upper accents.
 Minecraft adds one instanced draw-call building signature bound to the same
 four LoD2 parts: a block-native taupe tower, stepped hipped roof and the same
 smaller rotating open red ring with restrained two-line lettering cues. The

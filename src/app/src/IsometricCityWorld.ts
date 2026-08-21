@@ -1446,6 +1446,8 @@ export function setIsoNightPresentation(
     "ARD Hauptstadtstudio facade subtitle",
     "Berliner Ensemble architectural details bodies",
     "Berliner Ensemble architectural details lamps",
+    "Helene Weigel vitrine contents and plinth bodies",
+    "Helene Weigel vitrine contents and plinth lamps",
   ]);
   city.traverse((accessory) => {
     if (

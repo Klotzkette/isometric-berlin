@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.16)
+## 3. Hard scope rules (v0.72.17)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -108,6 +108,14 @@ Must be inside the polygon and visible in the final map:
   underground route
 - Hauptbahnhof tram/S15 public realm, Futurium and the federal research campus
 - Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
+- The current Helene Weigel installation in the Helene-Weigel-Hof at exact OSM
+  node `13841652635`, kept separate from Brecht and from the 93-place tour
+  catalogue. Its recognition model must read as a transparent glass cube on a
+  white plinth, with the central red folding director's chair and its visible
+  crossed scissor frames, the folded red chair/object landscape, light/audio
+  elements, cable runs and a large black raster portrait on the glazing. The
+  portrait remains procedural geometry; no photograph or portrait texture is
+  bundled or loaded.
 - Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of Terror
 
 The committed 93-place landmark catalogue is the release inventory. Keep all
@@ -349,7 +357,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.16)
+## 8. What success looks like (Definition of Done v0.72.17)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -442,6 +450,14 @@ isometric-berlin/
   vertices over one 24-vertex cube. The close camera uses 14 m and the fine
   layer 34/105 m hysteresis.
   Fine incision cues carry no poem or quotation text.
+- The current Helene Weigel work remains independently anchored at exact OSM
+  node `13841652635` in the Helene-Weigel-Hof. Its white plinth supports a
+  transparent glass cube containing a central red folding director's chair
+  with two visible crossed scissor frames, a folded red chair/object landscape,
+  light/audio elements and visible cable runs. A large black procedural raster
+  portrait reads on the glass without loading a photograph, portrait crop or
+  portrait texture. The installation remains visible in Day, Night, Snowstorm,
+  Minecraft and Schwellenraum without becoming a 94th tour stop.
 - Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion
   blob: two piers and the Carrara sarcophagus carry the Tieck frieze and a real
   reclining bronze-lion silhouette within the Schinkel railing. The structural

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.16"
+PACKAGE_VERSION = "0.72.17"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3534,9 +3534,13 @@ Doppelung. Smooth nutzt voll und mobil 3 Renderables / 24.840 gespeicherte und
 gerenderte Vertices; Minecraft rendert 4.728 Instanz-Vertices. Die 14-m-Kamera
 zielt auf den exakten Anker, Feinanatomie blendet bei 34/105 m. Gedicht und
 Zitate werden nicht wiedergegeben; Einschnittspuren
-bleiben unlesbar. `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026, wird
-als aktuelles begehbares Vitrinenwerk dargestellt. Es wird kein Pressefoto und
-keine Porträttextur gebündelt.
+bleiben unlesbar. `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026,
+erscheint als transparenter Glaskubus auf weißem Sockel. Im Zentrum steht der
+rote klappbare Regiestuhl mit zwei deutlich sichtbaren gekreuzten
+Scherenrahmen; ihn umgeben die gefaltete rote Stuhl-/Objektlandschaft,
+Licht-/Audioelemente und sichtbare Kabel. Ein großes schwarzes prozedurales
+Rasterporträt liegt auf dem Glas. Es werden weder Pressefoto noch
+Porträtausschnitt oder Porträttextur gebündelt oder geladen.
 Minecraft lässt genau drei Creeper, zwei Skelette mit Bogen und drei Zombies
 auf deterministischen, baumfreien Grasrouten laufen. Alle acht Figuren teilen
 einen Renderdurchlauf und verschwinden außerhalb des Minecraft-Modus.
@@ -3952,9 +3956,13 @@ without a smooth double. Full and mobile Smooth use 3 renderables / 24,840
 stored and rendered vertices; Minecraft renders 4,728 instance vertices. The
 14 m camera targets the exact anchor and fine anatomy fades at 34/105 m. The
 poem and quotations are not reproduced;
-incision cues remain non-legible. `Eine Skulptur für Helene Weigel`, unveiled on 10
-May 2026, is represented as the current accessible vitrine work. No press
-photograph or portrait texture is bundled.
+incision cues remain non-legible. `Eine Skulptur für Helene Weigel`, unveiled
+on 10 May 2026, appears as a transparent glass cube on a white plinth. Its
+central red folding director's chair retains two clearly visible crossed
+scissor frames, surrounded by the folded red chair/object landscape,
+light/audio elements and visible cable runs. A large black procedural raster
+portrait sits on the glass. No press photograph, portrait crop or portrait
+texture is bundled or loaded.
 Minecraft lets exactly three Creepers, two bow-carrying Skeletons and three
 Zombies roam deterministic, tree-cleared grass routes. All eight figures share
 one draw call and disappear outside Minecraft.

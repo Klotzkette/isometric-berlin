@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.16 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.16/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.17 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.17/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.16** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.17** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.16**, built from `main`. Its full viewer
+The current public package is **v0.72.17**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -207,10 +207,12 @@ local modules.
   197-block / 4,728-rendered-vertex** counterpart over one shared 24-vertex cube
   and without a smooth double. Its
   14 m close camera and 34/105 m fine fade keep the granular anatomy bounded.
-  `Eine Skulptur für Helene
-  Weigel`, unveiled on 10 May
-  2026, is represented as the current glass-vitrine work with red chair,
-  object field, light/audio bars, procedural halftone portrait and grilles.
+  `Eine Skulptur für Helene Weigel`, unveiled on 10 May 2026, now reads as the
+  actual installation in the Helene-Weigel-Hof: a transparent glass cube on a
+  white plinth contains the central red folding director's chair with both
+  crossed scissor frames clearly visible, a folded red chair/object landscape,
+  light/audio elements and cable runs. A large black procedural raster portrait
+  sits on the glazing rather than being painted onto the objects.
   Both exact OSM nodes are protected from generic monument doubles; no press
   photograph or portrait texture ships in the viewer. The Brecht steles carry
   only non-legible incision cues: no copyrighted poem or quotation is

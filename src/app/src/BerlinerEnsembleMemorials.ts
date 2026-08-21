@@ -15,12 +15,10 @@ import {
   Object3D,
   Quaternion,
   SphereGeometry,
-  TetrahedronGeometry,
   TorusGeometry,
   Vector3,
 } from "three";
 
-import { markArchitecturalInk } from "./architecturalInk";
 import {
   BERLINER_ENSEMBLE_PROFILE,
   BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS,
@@ -46,6 +44,20 @@ const WEIGEL_RED = 0xa8322f;
 const WEIGEL_RED_DARK = 0x6f2828;
 const WEIGEL_WHITE = 0xeeeae1;
 const WEIGEL_BLACK = 0x242626;
+
+/**
+ * Photo-bounded proportions of the 2026 courtyard installation. Published
+ * sources do not provide survey dimensions, so these values intentionally
+ * describe a conservative human-scale approximation rather than a measurement.
+ */
+const WEIGEL_DIMENSIONS = {
+  caseDepthM: 1.72,
+  caseHeightM: 2.18,
+  caseWidthM: 1.76,
+  plinthDepthM: 2.04,
+  plinthHeightM: 0.38,
+  plinthWidthM: 2.24,
+} as const;
 
 const BRECHT_STELE_SPECS = [
   { angle: -2.2, courseCount: 3, height: 2.08, radius: 3.34, radiusM: 0.32 },
@@ -75,8 +87,7 @@ export const BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE = {
     name: "Bertolt Brecht",
     osmKey: BERLINER_ENSEMBLE_PROFILE.brechtOsmKey,
     site: "Bertolt-Brecht-Platz",
-    turntableDiameterM:
-      BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM,
+    turntableDiameterM: BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM,
     worldM: BERLINER_ENSEMBLE_PROFILE.brechtMonumentWorld,
     focus: {
       azimuthDegrees: 144,
@@ -120,15 +131,25 @@ export const BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE = {
     site: "Helene-Weigel-Hof",
     worldM: BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld,
     geometryStatus:
-      "current accessible non-classical glass-vitrine work: red director's chair and object landscape, white light/audio bars, black halftone glass portrait and plinth grilles; procedural and texture-free",
+      "current non-classical courtyard installation: a nearly frameless glass cube on a low pale plinth, one central red folding director's chair above folded red chair/object layers, two floor light cues, cables and a large black halftone profile on the right glass plane; photo-bounded, procedural and texture-free",
+    material: "Glas/Plexiglas, Gummi, Siebdruck und Audio",
     officialSources: [
       "https://www.berliner-ensemble.de/eine-skulptur-fuer-helene-weigel",
       "https://www.berliner-ensemble.de/magazin/helene-weigel-hat-einen-neuen-platz",
     ],
+    visualReferences: [
+      "https://www.berliner-ensemble.de/sites/default/files/2026-05/_H0A3435.jpg",
+      "https://www.berliner-ensemble.de/sites/default/files/2026-05/_H0A3475.jpg",
+    ],
+    proceduralDimensions: {
+      ...WEIGEL_DIMENSIONS,
+      status:
+        "inferred from official courtyard photography; not published survey dimensions",
+    },
     corroboratingSource:
       "https://www.arte.tv/de/videos/133101-000-A/eine-skulptur-fuer-helene-weigel/",
     photoReferencePolicy:
-      "BE photographs © Moritz Haase inspected as reference only; no photograph is bundled or used as a texture",
+      "BE photographs © Moritz Haase inspected as reference only; no photograph, portrait or archive audio is bundled or loaded",
   },
   renderPolicy: {
     fineLayer: "Helene Weigel halftone glass portrait",
@@ -167,9 +188,7 @@ function addPainted(
   lamp = false,
 ): void {
   const edgeGeometry = inked ? new EdgesGeometry(geometry, 28) : null;
-  const renderedGeometry = geometry.index
-    ? geometry.toNonIndexed()
-    : geometry;
+  const renderedGeometry = geometry.index ? geometry.toNonIndexed() : geometry;
   if (renderedGeometry !== geometry) geometry.dispose();
   paintGeometry(renderedGeometry, color);
   (lamp ? builder.lamps : builder.parts).push(renderedGeometry);
@@ -197,6 +216,54 @@ function addLocalBox(
   const point = rotatedPoint(anchorX, anchorZ, yaw, x, y, z);
   geometry.translate(point.x, point.y, point.z);
   addPainted(builder, geometry, color, inked, lamp);
+}
+
+function addLocalOrientedBox(
+  builder: Builder,
+  anchorX: number,
+  anchorZ: number,
+  yaw: number,
+  color: number,
+  x: number,
+  y: number,
+  z: number,
+  width: number,
+  height: number,
+  depth: number,
+  pitch = 0,
+  roll = 0,
+  localYaw = 0,
+  inked = true,
+): void {
+  const geometry = new BoxGeometry(width, height, depth);
+  geometry.rotateX(pitch);
+  geometry.rotateZ(roll);
+  geometry.rotateY(yaw + localYaw);
+  const point = rotatedPoint(anchorX, anchorZ, yaw, x, y, z);
+  geometry.translate(point.x, point.y, point.z);
+  addPainted(builder, geometry, color, inked);
+}
+
+function addLocalCableLoop(
+  builder: Builder,
+  anchorX: number,
+  anchorZ: number,
+  yaw: number,
+  x: number,
+  y: number,
+  z: number,
+  radius: number,
+  scaleX: number,
+  scaleZ: number,
+  localYaw = 0,
+): void {
+  const geometry = new TorusGeometry(radius, 0.012, 4, 24);
+  geometry.scale(scaleX, scaleZ, 1);
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateY(yaw + localYaw);
+  const point = rotatedPoint(anchorX, anchorZ, yaw, x, y, z);
+  geometry.translate(point.x, point.y, point.z);
+  addPainted(builder, geometry, WEIGEL_BLACK, false);
 }
 
 function addLocalEllipsoid(
@@ -687,8 +754,7 @@ function createBrechtMemorial(): Group {
     chairLegs: 4,
     emptyBenchPlaces: 1,
     fingerCues: 8,
-    platformDiameterM:
-      BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM,
+    platformDiameterM: BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM,
     seatedFullBodyFigure: 1,
     cylindricalSteles: BRECHT_STELE_SPECS.length,
     steleCourses: BRECHT_STELE_SPECS.reduce(
@@ -696,8 +762,7 @@ function createBrechtMemorial(): Group {
       0,
     ),
   };
-  memorial.userData.exactOwnOsmKey =
-    BERLINER_ENSEMBLE_PROFILE.brechtOsmKey;
+  memorial.userData.exactOwnOsmKey = BERLINER_ENSEMBLE_PROFILE.brechtOsmKey;
   return memorial;
 }
 
@@ -872,28 +937,39 @@ export function createMinecraftBrechtMemorial(): Group {
   return root;
 }
 
-function createWeigelHalftone(
-  anchorX: number,
-  anchorZ: number,
-): InstancedMesh {
+function createWeigelHalftone(anchorX: number, anchorZ: number): InstancedMesh {
   const dots: Array<{ x: number; y: number; radius: number }> = [];
-  for (let row = 0; row < 19; row += 1) {
-    for (let column = 0; column < 15; column += 1) {
-      const u = -1 + (column / 14) * 2;
-      const v = -1 + (row / 18) * 2;
-      const head = ((u - 0.12) / 0.58) ** 2 + ((v - 0.33) / 0.73) ** 2 <= 1;
+  const portraitTilt = -0.2;
+  const tiltCosine = Math.cos(portraitTilt);
+  const tiltSine = Math.sin(portraitTilt);
+  for (let row = 0; row < 25; row += 1) {
+    for (let column = 0; column < 19; column += 1) {
+      const u = -1 + (column / 18) * 2;
+      const v = -1 + (row / 24) * 2;
+      const cranium = ((u - 0.12) / 0.54) ** 2 + ((v - 0.35) / 0.66) ** 2 <= 1;
+      const nose =
+        u >= -0.69 &&
+        u <= -0.28 &&
+        v >= 0.2 &&
+        v <= 0.58 &&
+        u >= -0.69 + Math.abs(v - 0.39) * 1.05;
+      const chin = ((u + 0.17) / 0.32) ** 2 + ((v + 0.03) / 0.3) ** 2 <= 1;
+      const neck = u >= 0.02 && u <= 0.5 && v >= -0.46 && v <= -0.02;
       const shoulders =
-        v < -0.18 &&
-        ((u + 0.02) / 0.98) ** 2 + ((v + 0.92) / 0.75) ** 2 <= 1;
-      const bun = ((u + 0.48) / 0.28) ** 2 + ((v - 0.39) / 0.3) ** 2 <= 1;
-      if (!head && !shoulders && !bun) continue;
+        v < -0.3 && ((u - 0.02) / 0.98) ** 2 + ((v + 0.94) / 0.67) ** 2 <= 1;
+      const hair = ((u - 0.48) / 0.27) ** 2 + ((v - 0.5) / 0.3) ** 2 <= 1;
+      if (!cranium && !nose && !chin && !neck && !shoulders && !hair) {
+        continue;
+      }
       const pattern =
-        Math.sin((column + 2) * 5.173 + (row + 1) * 8.349) * 0.5 + 0.5;
-      if (pattern < (head ? 0.2 : 0.34)) continue;
+        Math.sin((column + 3) * 5.173 + (row + 2) * 8.349) * 0.5 + 0.5;
+      if (pattern < (cranium || nose ? 0.16 : 0.3)) continue;
+      const rawX = u * 0.62;
+      const rawY = v * 0.82;
       dots.push({
-        radius: 0.022 + pattern * 0.025,
-        x: u * 0.74,
-        y: v * 0.89,
+        radius: 0.017 + pattern * 0.024,
+        x: rawX * tiltCosine - rawY * tiltSine,
+        y: rawX * tiltSine + rawY * tiltCosine,
       });
     }
   }
@@ -924,18 +1000,21 @@ function createWeigelHalftone(
   portrait.userData.nightMaterial = nightMaterial;
   portrait.userData.textureFree = true;
   portrait.userData.dotCount = dots.length;
+  portrait.userData.form = "abstracted side-profile halftone";
+  portrait.userData.glassPlane = "right";
+  portrait.renderOrder = 3;
   const dummy = new Object3D();
   dots.forEach((dot, index) => {
     const point = rotatedPoint(
       anchorX,
       anchorZ,
       WEIGEL_YAW_RAD,
+      WEIGEL_DIMENSIONS.caseWidthM / 2 + 0.006,
+      GROUND_Y_M + WEIGEL_DIMENSIONS.plinthHeightM + 1.03 + dot.y,
       dot.x,
-      GROUND_Y_M + 1.82 + dot.y,
-      -1.285,
     );
     dummy.position.copy(point);
-    dummy.rotation.set(0, WEIGEL_YAW_RAD, 0);
+    dummy.rotation.set(0, WEIGEL_YAW_RAD + Math.PI / 2, 0);
     dummy.scale.setScalar(dot.radius);
     dummy.updateMatrix();
     portrait.setMatrixAt(index, dummy.matrix);
@@ -951,6 +1030,7 @@ function createWeigelMemorial(): Group {
   group.name = "Für Helene Weigel current memorial";
   const [x, z] = BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
   const builder = createBuilder();
+  const plinthTopY = GROUND_Y_M + WEIGEL_DIMENSIONS.plinthHeightM;
 
   addLocalBox(
     builder,
@@ -959,74 +1039,224 @@ function createWeigelMemorial(): Group {
     WEIGEL_YAW_RAD,
     PALE_PLINTH,
     0,
-    GROUND_Y_M + 0.25,
+    GROUND_Y_M + WEIGEL_DIMENSIONS.plinthHeightM / 2,
     0,
-    3.25,
-    0.5,
-    2.6,
+    WEIGEL_DIMENSIONS.plinthWidthM,
+    WEIGEL_DIMENSIONS.plinthHeightM,
+    WEIGEL_DIMENSIONS.plinthDepthM,
   );
-  for (let index = 0; index < 8; index += 1) {
+  // One restrained panel joint replaces the unsupported row of black
+  // "vent" slots formerly drawn across the otherwise plain stone front.
+  addLocalBox(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    0xaaa9a5,
+    0,
+    GROUND_Y_M + WEIGEL_DIMENSIONS.plinthHeightM / 2,
+    -WEIGEL_DIMENSIONS.plinthDepthM / 2 - 0.003,
+    0.012,
+    WEIGEL_DIMENSIONS.plinthHeightM - 0.035,
+    0.012,
+    0,
+    false,
+  );
+
+  // A shallow red tray and three folded chair signatures establish the
+  // collective field around the main chair without claiming a survey count.
+  addLocalBox(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_RED,
+    0,
+    plinthTopY + 0.08,
+    -0.28,
+    1.46,
+    0.11,
+    0.74,
+    0.02,
+  );
+  addLocalBox(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_RED_DARK,
+    0,
+    plinthTopY + 0.15,
+    -0.66,
+    1.42,
+    0.07,
+    0.055,
+    0.02,
+  );
+  for (const side of [-1, 1]) {
     addLocalBox(
       builder,
       x,
       z,
       WEIGEL_YAW_RAD,
-      WEIGEL_BLACK,
-      -0.48 + index * 0.135,
-      GROUND_Y_M + 0.23,
-      -1.315,
-      0.065,
-      0.14,
-      0.025,
-      0,
-      false,
+      WEIGEL_RED_DARK,
+      side * 0.7,
+      plinthTopY + 0.15,
+      -0.3,
+      0.055,
+      0.07,
+      0.66,
+      0.02,
     );
   }
-  for (const [localX, localY, localZ, scale, localYaw, color] of [
-    [-0.48, 0.74, 0.16, 0.72, 0.18, WEIGEL_RED],
-    [0.22, 0.67, -0.08, 0.64, -0.32, WEIGEL_RED_DARK],
-    [0.61, 0.84, 0.25, 0.58, 0.44, WEIGEL_RED],
-    [-0.02, 0.93, 0.37, 0.5, 0.02, WEIGEL_RED],
+  for (const [chairX, chairZ, chairYaw] of [
+    [-0.4, 0.12, -0.18],
+    [0.34, 0.2, 0.16],
+    [-0.03, 0.42, -0.04],
   ] as const) {
-    const geometry = new TetrahedronGeometry(scale, 0);
-    geometry.rotateY(WEIGEL_YAW_RAD + localYaw);
-    const point = rotatedPoint(
+    localBeam(
+      builder,
       x,
       z,
       WEIGEL_YAW_RAD,
-      localX,
-      GROUND_Y_M + localY,
-      localZ,
+      WEIGEL_RED_DARK,
+      [chairX - 0.3, plinthTopY + 0.1, chairZ - 0.04],
+      [chairX + 0.27, plinthTopY + 0.48, chairZ + 0.04],
+      0.027,
     );
-    geometry.translate(point.x, point.y, point.z);
-    addPainted(builder, geometry, color, true);
+    localBeam(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      WEIGEL_RED_DARK,
+      [chairX + 0.3, plinthTopY + 0.1, chairZ - 0.04],
+      [chairX - 0.27, plinthTopY + 0.48, chairZ + 0.04],
+      0.027,
+    );
+    addLocalBox(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      WEIGEL_RED,
+      chairX,
+      plinthTopY + 0.43,
+      chairZ,
+      0.58,
+      0.055,
+      0.28,
+      chairYaw,
+    );
   }
-  addLocalBox(
+
+  // Thin pitched solids read as the folded red rubber/textile and object
+  // layers seen in the gallery, instead of generic tetrahedron boulders.
+  for (const [
+    foldX,
+    foldY,
+    foldZ,
+    width,
+    depth,
+    pitch,
+    roll,
+    foldYaw,
+    color,
+  ] of [
+    [-0.2, 0.39, 0.04, 1.08, 0.72, -0.12, 0.12, -0.05, WEIGEL_RED],
+    [0.25, 0.46, 0.11, 0.76, 0.64, 0.18, -0.3, 0.08, WEIGEL_RED],
+    [-0.46, 0.42, 0.11, 0.52, 0.7, -0.18, 0.46, -0.05, WEIGEL_RED_DARK],
+    [0.47, 0.36, -0.02, 0.42, 0.78, 0.08, -0.62, 0.12, WEIGEL_RED],
+    [-0.04, 0.58, 0.15, 0.82, 0.48, -0.2, 0.06, 0.05, 0xc64a42],
+    [-0.1, 0.31, -0.34, 0.72, 0.52, 0.72, -0.05, 0.02, WEIGEL_RED],
+  ] as const) {
+    addLocalOrientedBox(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      color,
+      foldX,
+      plinthTopY + foldY,
+      foldZ,
+      width,
+      0.065,
+      depth,
+      pitch,
+      roll,
+      foldYaw,
+    );
+  }
+  addLocalVerticalCylinder(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_RED_DARK,
+    -0.18,
+    plinthTopY + 0.65,
+    -0.02,
+    0.23,
+    0.07,
+    20,
+  );
+  addLocalVerticalCylinder(
     builder,
     x,
     z,
     WEIGEL_YAW_RAD,
     0xc64a42,
-    -0.25,
-    GROUND_Y_M + 0.84,
-    -0.22,
-    1.65,
-    0.12,
-    1.05,
-    0.12,
+    -0.18,
+    plinthTopY + 0.69,
+    -0.02,
+    0.16,
+    0.025,
+    20,
+    false,
+  );
+  for (const [paperX, paperY, paperZ, paperWidth, paperYaw] of [
+    [0.27, 0.6, -0.06, 0.4, -0.16],
+    [0.31, 0.65, -0.03, 0.34, 0.08],
+    [0.22, 0.7, -0.01, 0.3, -0.06],
+  ] as const) {
+    addLocalBox(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      paperY === 0.65 ? WEIGEL_RED_DARK : WEIGEL_RED,
+      paperX,
+      plinthTopY + paperY,
+      paperZ,
+      paperWidth,
+      0.045,
+      0.28,
+      paperYaw,
+    );
+  }
+  localBeam(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_RED,
+    [-0.62, plinthTopY + 0.18, -0.08],
+    [-0.86, plinthTopY + 0.2, -0.1],
+    0.1,
   );
 
-  // Red director's chair raised above the object landscape.
-  for (const side of [-1, 1]) {
+  // Central director's chair after Weigel's design: two complete scissor
+  // frames, cloth seat/back, arm rails, posts and visible pivot caps.
+  for (const chairZ of [-0.22, 0.22]) {
     localBeam(
       builder,
       x,
       z,
       WEIGEL_YAW_RAD,
       WEIGEL_RED_DARK,
-      [0.32 + side * 0.42, GROUND_Y_M + 0.95, -0.1],
-      [0.32 - side * 0.35, GROUND_Y_M + 2.02, -0.1],
-      0.045,
+      [-0.38, plinthTopY + 0.46, chairZ],
+      [0.35, plinthTopY + 1, chairZ],
+      0.032,
     );
     localBeam(
       builder,
@@ -1034,9 +1264,23 @@ function createWeigelMemorial(): Group {
       z,
       WEIGEL_YAW_RAD,
       WEIGEL_RED_DARK,
-      [0.32 + side * 0.42, GROUND_Y_M + 0.95, 0.42],
-      [0.32 - side * 0.35, GROUND_Y_M + 2.02, 0.42],
-      0.045,
+      [0.38, plinthTopY + 0.46, chairZ],
+      [-0.35, plinthTopY + 1, chairZ],
+      0.032,
+    );
+    addLocalEllipsoid(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      WEIGEL_RED_DARK,
+      0,
+      plinthTopY + 0.73,
+      chairZ,
+      0.052,
+      0.052,
+      0.03,
+      false,
     );
   }
   addLocalBox(
@@ -1045,12 +1289,12 @@ function createWeigelMemorial(): Group {
     z,
     WEIGEL_YAW_RAD,
     WEIGEL_RED,
-    0.32,
-    GROUND_Y_M + 1.58,
-    0.16,
-    0.9,
-    0.11,
-    0.55,
+    0,
+    plinthTopY + 0.91,
+    0,
+    0.84,
+    0.075,
+    0.5,
   );
   addLocalBox(
     builder,
@@ -1058,33 +1302,59 @@ function createWeigelMemorial(): Group {
     z,
     WEIGEL_YAW_RAD,
     WEIGEL_RED,
+    0,
+    plinthTopY + 1.3,
+    0.23,
+    0.84,
     0.32,
-    GROUND_Y_M + 2.08,
-    0.42,
-    0.92,
-    0.55,
-    0.08,
+    0.055,
   );
   for (const side of [-1, 1]) {
+    localBeam(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      WEIGEL_RED_DARK,
+      [side * 0.4, plinthTopY + 0.86, 0.22],
+      [side * 0.4, plinthTopY + 1.47, 0.23],
+      0.028,
+    );
     addLocalBox(
       builder,
       x,
       z,
       WEIGEL_YAW_RAD,
       WEIGEL_RED_DARK,
-      0.32 + side * 0.51,
-      GROUND_Y_M + 1.83,
-      0.16,
+      side * 0.48,
+      plinthTopY + 1.07,
+      -0.01,
+      0.055,
+      0.055,
+      0.55,
+    );
+    addLocalBox(
+      builder,
+      x,
+      z,
+      WEIGEL_YAW_RAD,
+      WEIGEL_RED_DARK,
+      side * 0.4,
+      plinthTopY + 1.46,
+      0.2,
+      0.06,
       0.07,
-      0.07,
-      0.63,
+      0.06,
+      0,
+      false,
     );
   }
 
-  for (const [tubeX, tubeY, tubeZ, tubeWidth] of [
-    [-0.37, 0.7, -0.72, 1.55],
-    [0.28, 1.12, 0.68, 1.2],
-    [-0.62, 1.42, 0.28, 0.82],
+  // Two dominant floor tubes and restrained equipment/cable cues visible in
+  // the official gallery. Historical audio itself remains unbundled.
+  for (const [tubeX, tubeZ, tubeWidth, tubeYaw] of [
+    [-0.35, -0.57, 0.48, 0.08],
+    [0.29, -0.48, 0.42, -0.12],
   ] as const) {
     addLocalBox(
       builder,
@@ -1093,12 +1363,12 @@ function createWeigelMemorial(): Group {
       WEIGEL_YAW_RAD,
       WEIGEL_WHITE,
       tubeX,
-      GROUND_Y_M + tubeY,
+      plinthTopY + 0.17,
       tubeZ,
       tubeWidth,
-      0.055,
-      0.055,
-      0.08,
+      0.045,
+      0.045,
+      tubeYaw,
       false,
       true,
     );
@@ -1109,26 +1379,76 @@ function createWeigelMemorial(): Group {
     z,
     WEIGEL_YAW_RAD,
     WEIGEL_BLACK,
-    -0.92,
-    GROUND_Y_M + 0.9,
-    0.42,
-    0.34,
-    0.25,
-    0.38,
+    0.67,
+    plinthTopY + 0.15,
+    0.45,
+    0.15,
+    0.13,
+    0.18,
+    -0.08,
   );
   addLocalBox(
     builder,
     x,
     z,
     WEIGEL_YAW_RAD,
-    0xd6c3a1,
-    -0.86,
-    GROUND_Y_M + 1.09,
-    0.35,
-    0.43,
+    0x55595a,
+    -0.7,
+    plinthTopY + 0.11,
+    0.45,
+    0.16,
+    0.055,
+    0.2,
     0.1,
-    0.32,
+    false,
+  );
+  addLocalCableLoop(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    -0.55,
+    plinthTopY + 0.035,
+    -0.55,
+    0.19,
+    1.45,
+    0.72,
+    0.14,
+  );
+  addLocalCableLoop(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    0.64,
+    plinthTopY + 0.035,
+    -0.6,
+    0.13,
+    1.25,
+    0.72,
     -0.12,
+  );
+  localBeam(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_BLACK,
+    [-0.36, plinthTopY + 0.035, -0.54],
+    [0.12, plinthTopY + 0.04, -0.48],
+    0.011,
+    false,
+  );
+  localBeam(
+    builder,
+    x,
+    z,
+    WEIGEL_YAW_RAD,
+    WEIGEL_BLACK,
+    [0.12, plinthTopY + 0.04, -0.48],
+    [0.59, plinthTopY + 0.055, 0.38],
+    0.011,
+    false,
   );
 
   const solids = finishDrawnGroup(builder, {
@@ -1136,23 +1456,35 @@ function createWeigelMemorial(): Group {
     lampEmissiveIntensity: 0.72,
     name: "Helene Weigel vitrine contents and plinth",
   });
-  if (solids) group.add(solids);
+  if (solids) {
+    solids.userData.formContract = {
+      centralDirectorChair: true,
+      foldedSurroundingChairs: true,
+      historicalAudioBundled: false,
+      photoTextureBundled: false,
+    };
+    group.add(solids);
+  }
 
-  const caseGeometry = new BoxGeometry(2.92, 2.72, 2.36);
+  const caseGeometry = new BoxGeometry(
+    WEIGEL_DIMENSIONS.caseWidthM,
+    WEIGEL_DIMENSIONS.caseHeightM,
+    WEIGEL_DIMENSIONS.caseDepthM,
+  );
   caseGeometry.rotateY(WEIGEL_YAW_RAD);
   const caseCentre = rotatedPoint(
     x,
     z,
     WEIGEL_YAW_RAD,
     0,
-    GROUND_Y_M + 1.86,
+    plinthTopY + WEIGEL_DIMENSIONS.caseHeightM / 2,
     0,
   );
   caseGeometry.translate(caseCentre.x, caseCentre.y, caseCentre.z);
   const glassDay = new MeshBasicMaterial({
     color: 0xbad6d5,
     depthWrite: false,
-    opacity: 0.14,
+    opacity: 0.095,
     side: DoubleSide,
     transparent: true,
   });
@@ -1161,7 +1493,7 @@ function createWeigelMemorial(): Group {
     depthWrite: false,
     emissive: 0x17373b,
     emissiveIntensity: 0.16,
-    opacity: 0.17,
+    opacity: 0.135,
     roughness: 0.28,
     side: DoubleSide,
     transparent: true,
@@ -1174,25 +1506,37 @@ function createWeigelMemorial(): Group {
   glass.userData.textureFree = true;
   group.add(glass);
 
-  const caseInk = new LineSegments(
+  const caseSeams = new LineSegments(
     new EdgesGeometry(caseGeometry, 25),
-    markArchitecturalInk(new LineBasicMaterial(), "detail"),
+    new LineBasicMaterial({
+      color: 0x587978,
+      depthWrite: false,
+      opacity: 0.58,
+      transparent: true,
+    }),
   );
-  caseInk.name = "Helene Weigel glass vitrine edge frame";
-  caseInk.renderOrder = 2;
-  group.add(caseInk);
+  caseSeams.name = "Helene Weigel bonded glass edge seams";
+  caseSeams.renderOrder = 2;
+  caseSeams.userData.loadBearingFrame = false;
+  group.add(caseSeams);
   const portrait = createWeigelHalftone(x, z);
   group.add(portrait);
-  group.userData.profile =
-    BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.heleneWeigel;
-  group.userData.exactOwnOsmKey =
-    BERLINER_ENSEMBLE_PROFILE.heleneWeigelOsmKey;
+  group.userData.profile = BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.heleneWeigel;
+  group.userData.exactOwnOsmKey = BERLINER_ENSEMBLE_PROFILE.heleneWeigelOsmKey;
+  group.userData.dimensions = WEIGEL_DIMENSIONS;
+  group.userData.sourceBound = true;
   group.userData.detailCounts = {
+    audioObjectCues: 2,
+    cableLoops: 2,
+    cableRuns: 2,
     directorChairs: 1,
+    foldedObjectForms: 11,
+    foldingFrameCrosses: 2,
     glassVitrines: 1,
-    lightAndAudioBars: 3,
-    plinthVentSlots: 8,
+    lightTubes: 2,
+    plinthPanelJoints: 1,
     portraitDots: portrait.count,
+    secondaryChairCues: 3,
   };
   return group;
 }
@@ -1215,10 +1559,7 @@ function createSnowAccents(): Group {
   turntable.name = "Brecht turntable thin snow cover";
   turntable.position.set(brechtX, GROUND_Y_M + 0.225, brechtZ);
   snow.add(turntable);
-  const figureHead = new Mesh(
-    new SphereGeometry(1, 12, 6),
-    material,
-  );
+  const figureHead = new Mesh(new SphereGeometry(1, 12, 6), material);
   figureHead.name = "Brecht seated figure head snow cap";
   figureHead.scale.set(0.22, 0.035, 0.2);
   figureHead.position.copy(
@@ -1250,14 +1591,7 @@ function createSnowAccents(): Group {
   emptyBenchSnow.name = "Brecht open bench empty-place snow cap";
   emptyBenchSnow.rotation.y = BRECHT_YAW_RAD;
   emptyBenchSnow.position.copy(
-    rotatedPoint(
-      brechtX,
-      brechtZ,
-      BRECHT_YAW_RAD,
-      0.47,
-      GROUND_Y_M + 0.89,
-      0,
-    ),
+    rotatedPoint(brechtX, brechtZ, BRECHT_YAW_RAD, 0.47, GROUND_Y_M + 0.89, 0),
   );
   snow.add(emptyBenchSnow);
   for (const [index, stele] of BRECHT_STELE_SPECS.entries()) {
@@ -1287,10 +1621,24 @@ function createSnowAccents(): Group {
   }
   const [weigelX, weigelZ] =
     BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
-  const vitrineCap = new Mesh(new BoxGeometry(3, 0.06, 2.44), material);
+  const vitrineCap = new Mesh(
+    new BoxGeometry(
+      WEIGEL_DIMENSIONS.caseWidthM + 0.06,
+      0.045,
+      WEIGEL_DIMENSIONS.caseDepthM + 0.06,
+    ),
+    material,
+  );
   vitrineCap.name = "Helene Weigel vitrine snow cap";
   vitrineCap.rotation.y = WEIGEL_YAW_RAD;
-  vitrineCap.position.set(weigelX, GROUND_Y_M + 3.25, weigelZ);
+  vitrineCap.position.set(
+    weigelX,
+    GROUND_Y_M +
+      WEIGEL_DIMENSIONS.plinthHeightM +
+      WEIGEL_DIMENSIONS.caseHeightM +
+      0.0225,
+    weigelZ,
+  );
   snow.add(vitrineCap);
   return snow;
 }
@@ -1351,13 +1699,7 @@ export function berlinerEnsemblePublicArtSolidAt(
   if (![x, y, z, radiusM].every(Number.isFinite)) return false;
   const padding = Math.max(0, radiusM);
   const [brechtX, brechtZ] = BERLINER_ENSEMBLE_PROFILE.brechtMonumentWorld;
-  const [localX, localZ] = worldToLocal(
-    x,
-    z,
-    brechtX,
-    brechtZ,
-    BRECHT_YAW_RAD,
-  );
+  const [localX, localZ] = worldToLocal(x, z, brechtX, brechtZ, BRECHT_YAW_RAD);
   if (
     y >= GROUND_Y_M - padding &&
     y <= GROUND_Y_M + 2.55 + padding &&
@@ -1367,10 +1709,7 @@ export function berlinerEnsemblePublicArtSolidAt(
     return true;
   }
   for (const stele of BRECHT_STELE_SPECS) {
-    if (
-      y < GROUND_Y_M - padding ||
-      y > GROUND_Y_M + stele.height + padding
-    ) {
+    if (y < GROUND_Y_M - padding || y > GROUND_Y_M + stele.height + padding) {
       continue;
     }
     const steleX = Math.cos(stele.angle) * stele.radius;
@@ -1394,8 +1733,12 @@ export function berlinerEnsemblePublicArtSolidAt(
   );
   return (
     y >= GROUND_Y_M - padding &&
-    y <= GROUND_Y_M + 3.28 + padding &&
-    Math.abs(weigelLocalX) <= 1.63 + padding &&
-    Math.abs(weigelLocalZ) <= 1.31 + padding
+    y <=
+      GROUND_Y_M +
+        WEIGEL_DIMENSIONS.plinthHeightM +
+        WEIGEL_DIMENSIONS.caseHeightM +
+        padding &&
+    Math.abs(weigelLocalX) <= WEIGEL_DIMENSIONS.plinthWidthM / 2 + padding &&
+    Math.abs(weigelLocalZ) <= WEIGEL_DIMENSIONS.plinthDepthM / 2 + padding
   );
 }

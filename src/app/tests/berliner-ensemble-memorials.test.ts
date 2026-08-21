@@ -21,6 +21,10 @@ import { BERLINER_ENSEMBLE_PROFILE } from "../src/BerlinerEnsemble";
 import { FINE_DETAIL_LAYER_NAMES } from "../src/fineDetailFade";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 
+const memorialSource = await Bun.file(
+  new URL("../src/BerlinerEnsembleMemorials.ts", import.meta.url),
+).text();
+
 describe("current Berliner Ensemble public art", () => {
   test("pins both exact OSM works to official/current and freely licensed sources", () => {
     const profile = BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE;
@@ -58,7 +62,9 @@ describe("current Berliner Ensemble public art", () => {
         expect.stringContaining("bildhauerei-in-berlin.de/bildwerk/"),
         expect.stringContaining("deutsche-digitale-bibliothek.de/item/"),
         expect.stringContaining("defa-stiftung.de/"),
-        expect.stringContaining("gedenktafeln-in-berlin.de/gedenktafeln/detail/"),
+        expect.stringContaining(
+          "gedenktafeln-in-berlin.de/gedenktafeln/detail/",
+        ),
         expect.stringContaining("commons.wikimedia.org/wiki/File:"),
       ]),
     );
@@ -74,8 +80,23 @@ describe("current Berliner Ensemble public art", () => {
       "https://www.berliner-ensemble.de/eine-skulptur-fuer-helene-weigel",
       "https://www.berliner-ensemble.de/magazin/helene-weigel-hat-einen-neuen-platz",
     ]);
+    expect(profile.heleneWeigel.visualReferences).toEqual([
+      "https://www.berliner-ensemble.de/sites/default/files/2026-05/_H0A3435.jpg",
+      "https://www.berliner-ensemble.de/sites/default/files/2026-05/_H0A3475.jpg",
+    ]);
+    expect(profile.heleneWeigel.proceduralDimensions).toEqual({
+      caseDepthM: 1.72,
+      caseHeightM: 2.18,
+      caseWidthM: 1.76,
+      plinthDepthM: 2.04,
+      plinthHeightM: 0.38,
+      plinthWidthM: 2.24,
+      status:
+        "inferred from official courtyard photography; not published survey dimensions",
+    });
+    expect(profile.heleneWeigel.geometryStatus).toContain("right glass plane");
     expect(profile.heleneWeigel.photoReferencePolicy).toContain(
-      "no photograph is bundled",
+      "no photograph, portrait or archive audio is bundled or loaded",
     );
     expect(profile.renderPolicy.modes).toEqual([
       "day",
@@ -131,16 +152,28 @@ describe("current Berliner Ensemble public art", () => {
 
   test("renders the unveiled 2026 glass work with chair, objects, light/audio and halftone portrait", () => {
     const root = createBerlinerEnsemblePublicArt();
-    const weigel = root.getObjectByName(
-      "Für Helene Weigel current memorial",
-    )!;
+    const weigel = root.getObjectByName("Für Helene Weigel current memorial")!;
     expect(weigel.userData.exactOwnOsmKey).toBe("node/13841652635");
+    expect(weigel.userData.dimensions).toEqual({
+      caseDepthM: 1.72,
+      caseHeightM: 2.18,
+      caseWidthM: 1.76,
+      plinthDepthM: 2.04,
+      plinthHeightM: 0.38,
+      plinthWidthM: 2.24,
+    });
     expect(weigel.userData.detailCounts).toEqual({
+      audioObjectCues: 2,
+      cableLoops: 2,
+      cableRuns: 2,
       directorChairs: 1,
+      foldedObjectForms: 11,
+      foldingFrameCrosses: 2,
       glassVitrines: 1,
-      lightAndAudioBars: 3,
-      plinthVentSlots: 8,
-      portraitDots: 110,
+      lightTubes: 2,
+      plinthPanelJoints: 1,
+      portraitDots: 190,
+      secondaryChairCues: 3,
     });
     const glass = weigel.getObjectByName(
       "Helene Weigel clear glass vitrine",
@@ -152,17 +185,56 @@ describe("current Berliner Ensemble public art", () => {
       "Helene Weigel halftone glass portrait",
     ) as InstancedMesh;
     expect(portrait).toBeInstanceOf(InstancedMesh);
-    expect(portrait.count).toBe(110);
+    expect(portrait.count).toBe(190);
     expect(portrait.userData.textureFree).toBeTrue();
+    expect(portrait.userData).toMatchObject({
+      form: "abstracted side-profile halftone",
+      glassPlane: "right",
+    });
+    const portraitSize = new Box3()
+      .setFromObject(portrait)
+      .getSize(new Vector3());
+    expect(portraitSize.y).toBeGreaterThan(1.4);
     expect(FINE_DETAIL_LAYER_NAMES).toContain(portrait.name);
-    expect(
-      weigel.getObjectByName("Helene Weigel vitrine contents and plinth lamps"),
-    ).toBeInstanceOf(Mesh);
+    const contents = weigel.getObjectByName(
+      "Helene Weigel vitrine contents and plinth",
+    )!;
+    expect(contents.userData.formContract).toEqual({
+      centralDirectorChair: true,
+      foldedSurroundingChairs: true,
+      historicalAudioBundled: false,
+      photoTextureBundled: false,
+    });
+    const lamps = contents.getObjectByName(
+      "Helene Weigel vitrine contents and plinth lamps",
+    ) as Mesh;
+    expect(lamps).toBeInstanceOf(Mesh);
+    const seams = weigel.getObjectByName(
+      "Helene Weigel bonded glass edge seams",
+    ) as LineSegments;
+    expect(seams).toBeInstanceOf(LineSegments);
+    expect(seams.userData.loadBearingFrame).toBeFalse();
+
+    const bounds = new Box3().setFromObject(weigel).getSize(new Vector3());
+    expect(bounds.x).toBeLessThan(2.7);
+    expect(bounds.y).toBeLessThan(2.65);
+    expect(bounds.z).toBeLessThan(2.55);
 
     const dayGlass = glass.material;
     setIsoNightPresentation(root, true, true, "night");
     expect(glass.material).toBeInstanceOf(MeshStandardMaterial);
     expect(glass.material).not.toBe(dayGlass);
+    expect(lamps.material).toBeInstanceOf(MeshStandardMaterial);
+    expect((lamps.material as MeshStandardMaterial).emissive.getHex()).toBe(
+      0xfff4d4,
+    );
+    expect((lamps.material as MeshStandardMaterial).emissiveIntensity).toBe(
+      0.72,
+    );
+    setIsoNightPresentation(root, true, false, "night");
+    expect((lamps.material as MeshStandardMaterial).emissiveIntensity).toBe(
+      0.12,
+    );
     setIsoNightPresentation(root, false, true, "schwellenraum");
     expect(glass.material).toBe(dayGlass);
   });
@@ -189,10 +261,39 @@ describe("current Berliner Ensemble public art", () => {
       }
     });
     for (const material of materials) {
-      if (material instanceof MeshBasicMaterial || material instanceof MeshStandardMaterial) {
+      if (
+        material instanceof MeshBasicMaterial ||
+        material instanceof MeshStandardMaterial
+      ) {
         expect(material.map).toBeNull();
       }
     }
+    expect(memorialSource).not.toContain("TetrahedronGeometry");
+    expect(memorialSource).not.toContain("TextureLoader");
+    expect(memorialSource).not.toContain("AudioLoader");
+  });
+
+  test("keeps the richer Weigel work within a mobile-safe smooth budget", () => {
+    const weigel = createBerlinerEnsemblePublicArt().getObjectByName(
+      "Für Helene Weigel current memorial",
+    )!;
+    let renderables = 0;
+    let storedVertices = 0;
+    let renderedVertices = 0;
+    weigel.traverse((object) => {
+      if (!(object instanceof Mesh) && !(object instanceof LineSegments))
+        return;
+      const vertices = object.geometry.getAttribute("position")?.count ?? 0;
+      renderables += 1;
+      storedVertices += vertices;
+      renderedVertices +=
+        vertices * (object instanceof InstancedMesh ? object.count : 1);
+    });
+    expect({ renderables, renderedVertices, storedVertices }).toEqual({
+      renderables: 6,
+      renderedVertices: 8_268,
+      storedVertices: 6_378,
+    });
   });
 
   test("switches reversible snow accents without changing the memorial bodies", () => {
@@ -207,6 +308,14 @@ describe("current Berliner Ensemble public art", () => {
     expect(
       snow.getObjectByName("Brecht seated figure head snow cap"),
     ).not.toBeNull();
+    const weigelSnow = snow.getObjectByName(
+      "Helene Weigel vitrine snow cap",
+    ) as Mesh;
+    expect(weigelSnow).toBeInstanceOf(Mesh);
+    const weigelSnowSize = new Box3()
+      .setFromObject(weigelSnow)
+      .getSize(new Vector3());
+    expect(weigelSnowSize.y).toBeLessThan(0.05);
     expect(
       snow.children.filter((child) =>
         child.name.startsWith("Brecht cylindrical stele"),
@@ -225,10 +334,14 @@ describe("current Berliner Ensemble public art", () => {
     const [brechtX, brechtZ] = BERLINER_ENSEMBLE_PROFILE.brechtMonumentWorld;
     const [weigelX, weigelZ] =
       BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
-    expect(berlinerEnsemblePublicArtSolidAt(brechtX, 5.3, brechtZ, 0.25)).toBeTrue();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(brechtX, 5.3, brechtZ, 0.25),
+    ).toBeTrue();
     // The six-metre display platform itself remains traversable outside the
     // actual artwork solids; it is not replaced by a six-metre collision disk.
-    expect(berlinerEnsemblePublicArtSolidAt(brechtX, 5.3, brechtZ + 2.85, 0.1)).toBeFalse();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(brechtX, 5.3, brechtZ + 2.85, 0.1),
+    ).toBeFalse();
     const firstSteleLocalX = Math.cos(-2.2) * 3.34;
     const firstSteleLocalZ = Math.sin(-2.2) * 3.34;
     const cosine = Math.cos(-0.62);
@@ -251,9 +364,28 @@ describe("current Berliner Ensemble public art", () => {
         firstSteleWorldZ,
       ),
     ).toBeFalse();
-    expect(berlinerEnsemblePublicArtSolidAt(weigelX, 5.3, weigelZ, 0.25)).toBeTrue();
-    expect(berlinerEnsemblePublicArtSolidAt(weigelX + 4, 5.3, weigelZ, 0.25)).toBeFalse();
-    expect(berlinerEnsemblePublicArtSolidAt(Number.NaN, 5, weigelZ, 0)).toBeFalse();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(weigelX, 5.3, weigelZ, 0.25),
+    ).toBeTrue();
+    const weigelEdgeX = weigelX + Math.cos(0.2) * 1.11;
+    const weigelEdgeZ = weigelZ - Math.sin(0.2) * 1.11;
+    expect(
+      berlinerEnsemblePublicArtSolidAt(weigelEdgeX, 5.3, weigelEdgeZ, 0),
+    ).toBeTrue();
+    const weigelFreeX = weigelX + Math.cos(0.2) * 1.23;
+    const weigelFreeZ = weigelZ - Math.sin(0.2) * 1.23;
+    expect(
+      berlinerEnsemblePublicArtSolidAt(weigelFreeX, 5.3, weigelFreeZ, 0),
+    ).toBeFalse();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(weigelX, 6.7, weigelZ, 0),
+    ).toBeFalse();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(weigelX + 4, 5.3, weigelZ, 0.25),
+    ).toBeFalse();
+    expect(
+      berlinerEnsemblePublicArtSolidAt(Number.NaN, 5, weigelZ, 0),
+    ).toBeFalse();
   });
 
   test("builds a deterministic bounded block-native Brecht signature for full and mobile", () => {
@@ -277,7 +409,9 @@ describe("current Berliner Ensemble public art", () => {
       expect(fullBatch.geometry).toBe(sharedGeometry);
       expect(fullBatch.geometry.getAttribute("uv")).toBeUndefined();
       expect((fullBatch.material as MeshStandardMaterial).map).toBeNull();
-      expect((fullBatch.material as MeshStandardMaterial).transparent).toBeFalse();
+      expect(
+        (fullBatch.material as MeshStandardMaterial).transparent,
+      ).toBeFalse();
       expect(Array.from(fullBatch.instanceMatrix.array)).toEqual(
         Array.from(mobileBatch.instanceMatrix.array),
       );
@@ -297,7 +431,8 @@ describe("current Berliner Ensemble public art", () => {
     let smoothStoredVertices = 0;
     let smoothRenderedVertices = 0;
     smooth.traverse((object) => {
-      if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
+      if (!(object instanceof Mesh) && !(object instanceof LineSegments))
+        return;
       const vertices = object.geometry.getAttribute("position")?.count ?? 0;
       smoothRenderables += 1;
       smoothStoredVertices += vertices;
@@ -329,8 +464,7 @@ describe("current Berliner Ensemble public art", () => {
       blocks: voxel.userData.instanceCount,
       renderedVertices,
       uniqueStoredVertices: [...geometries].reduce(
-        (total, geometry) =>
-          total + geometry.getAttribute("position").count,
+        (total, geometry) => total + geometry.getAttribute("position").count,
         0,
       ),
     }).toEqual({

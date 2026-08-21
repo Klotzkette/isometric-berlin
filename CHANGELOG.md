@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.72.17
+
+- **The current Helene Weigel installation in the Berliner Ensemble courtyard
+  now follows its actual composition instead of reading as a generic glass
+  display case.** Exact OSM node `13841652635` still owns the work in the
+  Helene-Weigel-Hof. A transparent glass cube now stands on its white plinth;
+  the central red folding director's chair has both crossed scissor frames
+  clearly visible. The surrounding folded red chair/object landscape,
+  light/audio elements and visible cable runs retain the deliberately layered
+  interior composition.
+- **The portrait belongs to the glass, not to the furniture.** A large black
+  procedural raster portrait now reads across the glazing while the red
+  installation remains legible behind it. No press photograph, supplied image,
+  portrait crop or portrait texture is bundled, projected or loaded. The work
+  remains separate from Brecht, visible in Day, Night, Snowstorm, Minecraft and
+  Schwellenraum, and outside the unchanged 93-place tour catalogue.
+
 ## v0.72.16
 
 - **FUNBOX no longer projects into Heidestraße at the north end of the
