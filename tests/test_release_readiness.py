@@ -166,6 +166,85 @@ def minimal_surface_assets() -> dict[str, bytes]:
   }
 
 
+VALID_TRAFFIC_SIGNAL_ISLAND_KEYS = {
+  "node/2089708636",
+  "node/4558372625",
+  "node/8881562153",
+  "node/10966083541",
+  "node/11842476822",
+  "node/11842507431",
+  "node/12873153765",
+  "node/13235279484",
+}
+LANE_OVERLAPPED_TRAFFIC_SIGNAL_ISLAND_KEYS = {
+  "node/2089708636",
+  "node/4558372625",
+}
+
+
+def valid_traffic_signal_payload() -> dict[str, object]:
+  """Complete synthetic schema-7 payload matching the fixed source audit."""
+  placements: list[dict[str, object]] = []
+  for index in range(1_092):
+    placements.append(
+      {
+        "osm_key": f"node/{index}",
+        "placement": "relocated_verge",
+        "position_dm": [index, 10],
+        "road_clearance_dm": 5,
+        "source_dm": [index, 0],
+        "source_on_carriageway": True,
+        "source_requires_relocation": True,
+      }
+    )
+  placements.append(
+    {
+      "osm_key": "node/3098737953",
+      "placement": "relocated_verge",
+      "position_dm": [19_999, 10],
+      "road_clearance_dm": 7,
+      "source_dm": [19_999, 0],
+      "source_on_carriageway": False,
+      "source_requires_relocation": True,
+    }
+  )
+  for index in range(227):
+    placements.append(
+      {
+        "osm_key": f"node/{20_000 + index}",
+        "placement": "surveyed_verge",
+        "position_dm": [index, 20],
+        "road_clearance_dm": 8,
+        "source_dm": [index, 20],
+        "source_on_carriageway": False,
+        "source_requires_relocation": False,
+      }
+    )
+  for index, key in enumerate(sorted(VALID_TRAFFIC_SIGNAL_ISLAND_KEYS)):
+    placements.append(
+      {
+        "osm_key": key,
+        "placement": "verified_island",
+        "position_dm": [index, 30],
+        "road_clearance_dm": 0,
+        "source_dm": [index, 30],
+        "source_on_carriageway": (key in LANE_OVERLAPPED_TRAFFIC_SIGNAL_ISLAND_KEYS),
+        "source_requires_relocation": (
+          key in LANE_OVERLAPPED_TRAFFIC_SIGNAL_ISLAND_KEYS
+        ),
+      }
+    )
+  return {
+    "schema_version": 7,
+    "traffic_signal_placements": placements,
+    "traffic_signals_dm": [entry["source_dm"] for entry in placements],
+  }
+
+
+def valid_traffic_signal_payload_bytes() -> bytes:
+  return json.dumps(valid_traffic_signal_payload()).encode()
+
+
 def webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | str]:
   return {
     "file": filename,
@@ -333,6 +412,85 @@ def test_package_source_hygiene_ignores_only_generated_finder_metadata(
   assert any(str(duplicate) in failure for failure in failures)
 
 
+def test_traffic_signal_readiness_requires_safe_schema_7_roles(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_traffic_signals",
+    "scripts/check_release_readiness.py",
+  )
+  path = tmp_path / "street-details.json"
+  assert release_readiness.VERIFIED_TRAFFIC_SIGNAL_ISLAND_KEYS == (
+    VALID_TRAFFIC_SIGNAL_ISLAND_KEYS
+  )
+  assert release_readiness.TRAFFIC_SIGNAL_PRECISION_GUARD_KEYS == {"node/3098737953"}
+  payload = valid_traffic_signal_payload()
+  path.write_text(json.dumps(payload), encoding="utf-8")
+  assert release_readiness.traffic_signal_payload_failures(path) == []
+  placements = payload["traffic_signal_placements"]
+  assert isinstance(placements, list)
+  placements[0]["road_clearance_dm"] = 4
+  path.write_text(json.dumps(payload), encoding="utf-8")
+  assert any(
+    "lacks safe road clearance" in failure
+    for failure in release_readiness.traffic_signal_payload_failures(path)
+  )
+  placements[0]["road_clearance_dm"] = 5
+  placements[0]["source_requires_relocation"] = False
+  path.write_text(json.dumps(payload), encoding="utf-8")
+  assert any(
+    "lacks safe road clearance" in failure
+    for failure in release_readiness.traffic_signal_payload_failures(path)
+  )
+
+
+def test_traffic_signal_readiness_rejects_missing_or_non_object_payload(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_missing_traffic_signals",
+    "scripts/check_release_readiness.py",
+  )
+  path = tmp_path / "street-details.json"
+
+  assert release_readiness.traffic_signal_payload_failures(path) == [
+    f"Missing schema-7 traffic-signal payload: {path}"
+  ]
+
+  path.write_text("[]", encoding="utf-8")
+  assert release_readiness.traffic_signal_payload_failures(path) == [
+    f"Traffic-signal payload is not an object: {path}"
+  ]
+
+
+def test_offline_package_requires_schema_7_street_details_entry() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_traffic_signal_package_entry",
+    "scripts/check_release_readiness.py",
+  )
+
+  assert (
+    "mesh/regierungsviertel/street-details.json"
+    in release_readiness.REQUIRED_PACKAGE_ENTRIES
+  )
+
+
+def test_release_readiness_rejects_stale_built_street_details(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_public_parity",
+    "scripts/check_release_readiness.py",
+  )
+  public = tmp_path / "src/app/public/mesh/regierungsviertel/street-details.json"
+  dist = tmp_path / "src/app/dist/mesh/regierungsviertel/street-details.json"
+  public.parent.mkdir(parents=True)
+  dist.parent.mkdir(parents=True)
+  public.write_bytes(b"current")
+  dist.write_bytes(b"stale")
+  assert release_readiness.generated_public_asset_parity_failures(tmp_path) == [
+    f"Built viewer has stale generated public asset: {dist}"
+  ]
+  dist.write_bytes(public.read_bytes())
+  assert release_readiness.generated_public_asset_parity_failures(tmp_path) == []
+
+
 def write_tiny_dzi(public_dzi: Path) -> None:
   public_dzi.mkdir(parents=True, exist_ok=True)
   (public_dzi / "regierungsviertel.dzi").write_text(TINY_DZI_XML, encoding="utf-8")
@@ -441,10 +599,13 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   )
   for relative, data in minimal_surface_assets().items():
     (public_mesh / relative).write_bytes(data)
+  traffic_signals = valid_traffic_signal_payload_bytes()
+  (public_mesh / "street-details.json").write_bytes(traffic_signals)
   dist_mesh = root / "src/app/dist/mesh/regierungsviertel"
   dist_mesh.mkdir(parents=True)
   for relative, data in minimal_surface_assets().items():
     (dist_mesh / relative).write_bytes(data)
+  (dist_mesh / "street-details.json").write_bytes(traffic_signals)
   return public_dzi
 
 
@@ -493,6 +654,9 @@ def write_minimal_package_zip(
     "mesh/regierungsviertel/ground-context.json": (
       b'{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
       b'"ground_height":{"y_dm":[0]}}'
+    ),
+    "mesh/regierungsviertel/street-details.json": (
+      valid_traffic_signal_payload_bytes()
     ),
     mesh_relative: mesh_data,
   }
@@ -971,6 +1135,21 @@ def test_zip_package_failures_accepts_complete_zip(tmp_path: Path) -> None:
   write_minimal_package_zip(tmp_path, release_readiness)
 
   assert release_readiness.zip_package_failures(tmp_path) == []
+
+
+def test_zip_package_failures_require_street_details(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_street_details",
+    "scripts/check_release_readiness.py",
+  )
+  relative = "mesh/regierungsviertel/street-details.json"
+  write_minimal_package_zip(tmp_path, release_readiness, {relative: None})
+
+  zip_path = tmp_path / "releases" / release_readiness.PACKAGE_ZIP
+  missing = release_readiness.package_arcname(relative)
+  assert f"Missing package ZIP entry: {zip_path}!{missing}" in (
+    release_readiness.zip_package_failures(tmp_path)
+  )
 
 
 def test_zip_package_requires_referenced_surface_plate_and_manifest_inventory(

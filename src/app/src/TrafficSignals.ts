@@ -1,6 +1,7 @@
 import {
   BoxGeometry,
   Color,
+  CylinderGeometry,
   Group,
   InstancedMesh,
   Matrix4,
@@ -20,7 +21,18 @@ import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
  * lamps are unlit (MeshBasic), so the active one reads emissive at
  * night exactly like the street fixtures.
  */
-export const STREET_DETAILS_FILE = "street-details.json";
+export const STREET_DETAILS_FILE = "street-details.json?schema=7";
+
+export type TrafficSignalPlacement = {
+  offset_dm: number;
+  osm_key: string;
+  placement: "relocated_verge" | "surveyed_verge" | "verified_island";
+  position_dm: [number, number];
+  road_clearance_dm: number | null;
+  source_dm: [number, number];
+  source_on_carriageway?: boolean;
+  source_requires_relocation?: boolean;
+};
 
 export type StreetDetailsPayload = {
   /** `amenity=biergarten` areas, with the outline the tables stand in. */
@@ -85,6 +97,8 @@ export type StreetDetailsPayload = {
   }>;
   schema_version: number;
   source: string;
+  /** Physical display anchors; raw source coordinates remain below for audit. */
+  traffic_signal_placements?: TrafficSignalPlacement[];
   /** [x_dm, z_dm] viewer world decimetres. */
   traffic_signals_dm: [number, number][];
 };
@@ -141,19 +155,59 @@ export function createTrafficSignals(
   ground: VoxelPayload,
 ): Group | null {
   const sample = worldGroundSampler(ground);
-  const placed: Array<{ phase: number; x: number; y: number; z: number }> = [];
-  for (const [xDm, zDm] of street.traffic_signals_dm) {
+  const placements =
+    street.traffic_signal_placements?.length === street.traffic_signals_dm.length
+      ? street.traffic_signal_placements
+      : street.traffic_signals_dm.map(
+          (sourceDm): TrafficSignalPlacement => ({
+            offset_dm: 0,
+            osm_key: `legacy/${sourceDm[0]}:${sourceDm[1]}`,
+            placement: "surveyed_verge",
+            position_dm: sourceDm,
+            road_clearance_dm: null,
+            source_dm: sourceDm,
+          }),
+        );
+  const placed: Array<{
+    island: boolean;
+    phase: number;
+    sourceDm: [number, number];
+    x: number;
+    y: number;
+    yaw: number;
+    z: number;
+  }> = [];
+  for (const placement of placements) {
+    const [xDm, zDm] = placement.position_dm;
+    const [sourceXDm, sourceZDm] = placement.source_dm;
     const x = xDm / 10;
     const z = zDm / 10;
-    const y = sample(x, z);
+    const sourceX = sourceXDm / 10;
+    const sourceZ = sourceZDm / 10;
+    const sampledTarget = sample(x, z);
+    const y = sampledTarget ?? sample(sourceX, sourceZ);
     if (y === null) {
       continue;
     }
-    // Deterministic per-instance phase offset from the position.
+    // Phase stays tied to the surveyed OSM source, not the display offset.
     const phase =
-      (Math.abs(Math.imul(xDm, 2654435761) ^ Math.imul(zDm, 40503)) %
+      (Math.abs(Math.imul(sourceXDm, 2654435761) ^ Math.imul(sourceZDm, 40503)) %
         (SIGNAL_CYCLE_SECONDS * 10)) / 10;
-    placed.push({ phase, x, y, z });
+    const towardRoadX = sourceX - x;
+    const towardRoadZ = sourceZ - z;
+    const yaw =
+      Math.hypot(towardRoadX, towardRoadZ) > 0.05
+        ? Math.atan2(towardRoadX, towardRoadZ)
+        : 0;
+    placed.push({
+      island: placement.placement === "verified_island",
+      phase,
+      sourceDm: placement.source_dm,
+      x,
+      y,
+      yaw,
+      z,
+    });
   }
   if (placed.length === 0) {
     return null;
@@ -180,21 +234,42 @@ export function createTrafficSignals(
     placed.length * 3,
   );
   lamps.name = "traffic signal lamps";
+  const islandCount = placed.filter((signal) => signal.island).length;
+  const islandBases = new InstancedMesh(
+    new CylinderGeometry(0.72, 0.72, 0.12, 8),
+    new MeshStandardMaterial({ color: 0xb8b7ae, roughness: 1 }),
+    islandCount,
+  );
+  islandBases.name = "traffic signal verified island bases";
   const color = new Color();
+  let islandIndex = 0;
   placed.forEach((signal, index) => {
+    const lift = signal.island ? 0.12 : 0;
     matrix.identity();
-    matrix.setPosition(signal.x, signal.y + POLE_HEIGHT_M / 2, signal.z);
+    matrix.setPosition(signal.x, signal.y + lift + POLE_HEIGHT_M / 2, signal.z);
     poles.setMatrixAt(index, matrix);
-    matrix.setPosition(signal.x, signal.y + LAMP_TOP_M - LAMP_SPACING_M, signal.z);
+    matrix.makeRotationY(signal.yaw);
+    matrix.setPosition(
+      signal.x,
+      signal.y + lift + LAMP_TOP_M - LAMP_SPACING_M,
+      signal.z,
+    );
     heads.setMatrixAt(index, matrix);
     for (let lamp = 0; lamp < 3; lamp += 1) {
+      matrix.makeRotationY(signal.yaw);
       matrix.setPosition(
         signal.x,
-        signal.y + LAMP_TOP_M - lamp * LAMP_SPACING_M,
+        signal.y + lift + LAMP_TOP_M - lamp * LAMP_SPACING_M,
         signal.z,
       );
       lamps.setMatrixAt(index * 3 + lamp, matrix);
       lamps.setColorAt(index * 3 + lamp, color.setHex(LAMP_OFF[lamp]));
+    }
+    if (signal.island) {
+      matrix.identity();
+      matrix.setPosition(signal.x, signal.y + 0.06, signal.z);
+      islandBases.setMatrixAt(islandIndex, matrix);
+      islandIndex += 1;
     }
   });
   for (const mesh of [poles, heads, lamps]) {
@@ -202,11 +277,20 @@ export function createTrafficSignals(
     mesh.frustumCulled = false;
     group.add(mesh);
   }
+  if (islandCount > 0) {
+    islandBases.instanceMatrix.needsUpdate = true;
+    islandBases.frustumCulled = false;
+    group.add(islandBases);
+  } else {
+    islandBases.geometry.dispose();
+    islandBases.material.dispose();
+  }
   if (lamps.instanceColor) {
     lamps.instanceColor.needsUpdate = true;
   }
   group.userData.phases = new Float32Array(placed.map((s) => s.phase));
   group.userData.lastBuckets = new Int8Array(placed.length).fill(-1);
+  group.userData.sourceDm = placed.map((signal) => signal.sourceDm);
   return group;
 }
 

@@ -94,6 +94,7 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  "mesh/regierungsviertel/street-details.json",
   f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}",
   f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
   "mesh/regierungsviertel/tile-3894_58196.glb",
@@ -118,6 +119,18 @@ REQUIRED_HERO_MESHES = {
   "hauptbahnhof",
   "brandenburger-tor",
 }
+TRAFFIC_SIGNAL_RELATIVE_PATH = Path("mesh/regierungsviertel/street-details.json")
+VERIFIED_TRAFFIC_SIGNAL_ISLAND_KEYS = {
+  "node/2089708636",
+  "node/4558372625",
+  "node/8881562153",
+  "node/10966083541",
+  "node/11842476822",
+  "node/11842507431",
+  "node/12873153765",
+  "node/13235279484",
+}
+TRAFFIC_SIGNAL_PRECISION_GUARD_KEYS = {"node/3098737953"}
 
 
 class DziInfo(NamedTuple):
@@ -175,6 +188,92 @@ def package_source_hygiene_failures(root: Path) -> list[str]:
       if has_forbidden_duplicate_name(relative):
         failures.append(f"Unwanted duplicate/hidden package path: {path}")
   return failures
+
+
+def traffic_signal_payload_failures(path: Path) -> list[str]:
+  """Validate the complete source/physical placement contract in schema 7."""
+  if not path.is_file():
+    return [f"Missing schema-7 traffic-signal payload: {path}"]
+  try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError) as exc:
+    return [f"Invalid traffic-signal payload: {path}: {exc}"]
+  if not isinstance(payload, dict):
+    return [f"Traffic-signal payload is not an object: {path}"]
+  raw = payload.get("traffic_signals_dm")
+  placements = payload.get("traffic_signal_placements")
+  if payload.get("schema_version") != 7:
+    return [f"Traffic-signal payload is not schema 7: {path}"]
+  if not isinstance(raw, list) or len(raw) != 1_328:
+    return [f"Traffic-signal payload does not retain 1,328 raw sources: {path}"]
+  if not isinstance(placements, list) or len(placements) != len(raw):
+    return [f"Traffic-signal placement/source counts differ: {path}"]
+
+  failures: list[str] = []
+  if not all(isinstance(entry, dict) for entry in placements):
+    return [f"Traffic-signal placement entries are not objects: {path}"]
+  keys = [entry.get("osm_key") for entry in placements]
+  if any(not isinstance(key, str) or not key for key in keys) or len(set(keys)) != len(
+    keys
+  ):
+    failures.append(f"Traffic-signal OSM keys are missing or duplicated: {path}")
+  roles = Counter(
+    entry.get("placement")
+    for entry in placements
+    if isinstance(entry.get("placement"), str)
+  )
+  expected_roles = Counter(
+    {"relocated_verge": 1_093, "surveyed_verge": 227, "verified_island": 8}
+  )
+  if roles != expected_roles:
+    failures.append(f"Traffic-signal placement roles differ from source audit: {path}")
+
+  islands = {
+    entry.get("osm_key"): entry
+    for entry in placements
+    if entry.get("placement") == "verified_island"
+    and isinstance(entry.get("osm_key"), str)
+  }
+  if set(islands) != VERIFIED_TRAFFIC_SIGNAL_ISLAND_KEYS:
+    failures.append(f"Traffic-signal verified-island source set differs: {path}")
+  elif any(
+    entry.get("position_dm") != entry.get("source_dm") for entry in islands.values()
+  ):
+    failures.append(f"A verified-island signal moved away from its source: {path}")
+
+  relocated = [
+    entry for entry in placements if entry.get("placement") == "relocated_verge"
+  ]
+  if any(
+    entry.get("source_requires_relocation") is not True
+    or entry.get("position_dm") == entry.get("source_dm")
+    or type(entry.get("road_clearance_dm")) is not int
+    or entry["road_clearance_dm"] < 5
+    for entry in relocated
+  ):
+    failures.append(f"A relocated traffic signal lacks safe road clearance: {path}")
+  precision_guards = {
+    entry.get("osm_key")
+    for entry in relocated
+    if entry.get("source_on_carriageway") is not True
+  }
+  if precision_guards != TRAFFIC_SIGNAL_PRECISION_GUARD_KEYS:
+    failures.append(f"Traffic-signal boundary precision guard differs: {path}")
+  return failures
+
+
+def generated_public_asset_parity_failures(root: Path) -> list[str]:
+  """Reject a stale dist copy of mutable public payloads before packaging."""
+  public = root / "src" / "app" / "public" / TRAFFIC_SIGNAL_RELATIVE_PATH
+  dist_root = root / "src" / "app" / "dist"
+  dist = dist_root / TRAFFIC_SIGNAL_RELATIVE_PATH
+  if not public.exists() or not dist_root.exists():
+    return []
+  if not dist.exists():
+    return [f"Built viewer lacks generated public asset: {dist}"]
+  if public.read_bytes() != dist.read_bytes():
+    return [f"Built viewer has stale generated public asset: {dist}"]
+  return []
 
 
 def package_arcname(relative: str) -> str:
@@ -2253,9 +2352,15 @@ def collect_failures(
       )
     )
   public_mesh = root / "src" / "app" / "public" / "mesh" / "regierungsviertel"
+  failures.extend(
+    traffic_signal_payload_failures(
+      root / "src" / "app" / "public" / TRAFFIC_SIGNAL_RELATIVE_PATH
+    )
+  )
   failures.extend(webgl_scene_failures(public_mesh))
   failures.extend(surface_pretriangulation_failures(public_mesh))
   dist_mesh = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel"
+  failures.extend(generated_public_asset_parity_failures(root))
   failures.extend(surface_pretriangulation_failures(dist_mesh))
   failures.extend(webgl_viewer_source_failures(root))
   tunnel_payload = public_dzi / "tiergartentunnel.json"

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.10 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.10/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.11 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.11/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.10** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.11** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,22 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.10**, built from `main`. Its full viewer
+The current public package is **v0.72.11**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Traffic-signal poles now stand at the roadside instead of in the modelled
+  carriageway.** Schema 7 retains all **1,328** source OSM signal nodes and the
+  backwards-compatible raw coordinates. Exactly **1,093** physical poles move
+  to deterministic exterior verges: **1,092** carriageway nodes plus one
+  decimetre-edge case; **227** already-safe poles stay put.
+  Eight directly sourced refuge-island signals remain at their mapped
+  positions on a small visible island base, while unverified road-union holes
+  are never accepted as islands. Every moved pole is at least 0.5 m clear of
+  the road after decimetre quantisation, and no signal is removed. A
+  schema-specific cache-busting request prevents stale schema-6 data from
+  masking the correction.
 
 - **Hotel Adlon and Starbucks now read from their real Pariser-Platz
   frontages.** Adlon follows OSM relation `4582978`, outer way `26041943` and

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import json
 import math
+from collections import Counter
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import Polygon
+from shapely.geometry import LineString, Point, Polygon, box
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_street_details import (
@@ -16,9 +17,24 @@ from isometric_berlin.generation.build_street_details import (
   ORIGIN_EASTING,
   ORIGIN_NORTHING,
   SCHWELLENRAUM_PROTECTED_OSM_KEYS,
+  _eligible_verge_boundaries,
+  _exterior_boundaries,
+  _small_unverified_road_holes,
+  build_traffic_signal_data,
   deduplicate_floraplatz_animals,
   rectangle_axis,
 )
+
+VERIFIED_ISLAND_SIGNAL_KEYS = {
+  "node/2089708636",
+  "node/4558372625",
+  "node/8881562153",
+  "node/10966083541",
+  "node/11842476822",
+  "node/11842507431",
+  "node/12873153765",
+  "node/13235279484",
+}
 
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/street-details.json")
 
@@ -49,11 +65,125 @@ def test_every_in_bounds_osm_traffic_signal_is_exported() -> None:
     if bounds.contains(point)
   )
   assert payload["traffic_signals_dm"] == expected
+  assert payload["schema_version"] == 7
+
+  placements = payload["traffic_signal_placements"]
+  assert len(placements) == len(expected) == 1_328
+  assert len({entry["osm_key"] for entry in placements}) == len(placements)
+  assert sorted(entry["source_dm"] for entry in placements) == expected
+  assert Counter(entry["placement"] for entry in placements) == {
+    "relocated_verge": 1_093,
+    "surveyed_verge": 227,
+    "verified_island": 8,
+  }
+
+  islands = {
+    entry["osm_key"]: entry
+    for entry in placements
+    if entry["placement"] == "verified_island"
+  }
+  assert set(islands) == VERIFIED_ISLAND_SIGNAL_KEYS
+  assert all(entry["position_dm"] == entry["source_dm"] for entry in islands.values())
+  assert {key for key, entry in islands.items() if entry["source_on_carriageway"]} == {
+    "node/2089708636",
+    "node/4558372625",
+  }
+
+  relocated = [entry for entry in placements if entry["placement"] == "relocated_verge"]
+  assert all(entry["source_requires_relocation"] for entry in relocated)
+  assert {
+    entry["osm_key"] for entry in relocated if not entry["source_on_carriageway"]
+  } == {"node/3098737953"}
+  assert all(entry["position_dm"] != entry["source_dm"] for entry in relocated)
+  assert all(entry["offset_dm"] > 0 for entry in relocated)
+  assert min(entry["road_clearance_dm"] for entry in relocated) >= 5
+
+  surveyed = [entry for entry in placements if entry["placement"] == "surveyed_verge"]
+  assert all(not entry["source_on_carriageway"] for entry in surveyed)
+  assert all(not entry["source_requires_relocation"] for entry in surveyed)
+  assert all(entry["position_dm"] == entry["source_dm"] for entry in surveyed)
+
+
+def test_signal_placement_moves_only_live_lane_nodes_and_keeps_sourced_islands() -> (
+  None
+):
+  crs = "EPSG:25833"
+  roads = gpd.GeoDataFrame(
+    {
+      "element": ["way", "node", "node", "node"],
+      "id": ["10", "11", "12", "13"],
+      "highway": ["primary", "traffic_signals", "traffic_signals", "traffic_signals"],
+      "crossing:island": [None, None, None, "yes"],
+      "tunnel": [None, None, None, None],
+      "covered": [None, None, None, None],
+      "layer": [None, None, None, None],
+      "width": ["10", None, None, None],
+    },
+    geometry=[
+      LineString([(0, 0), (100, 0)]),
+      Point(25, 0),
+      Point(25, 10),
+      Point(50, 0),
+    ],
+    crs=crs,
+  )
+  _, placements = build_traffic_signal_data(roads, box(-20, -20, 120, 20))
+  by_key = {entry["osm_key"]: entry for entry in placements}
+  assert by_key["node/11"]["placement"] == "relocated_verge"
+  assert by_key["node/11"]["position_dm"] != by_key["node/11"]["source_dm"]
+  assert by_key["node/11"]["road_clearance_dm"] >= 5
+  assert by_key["node/12"]["placement"] == "surveyed_verge"
+  assert by_key["node/12"]["position_dm"] == by_key["node/12"]["source_dm"]
+  assert by_key["node/13"]["placement"] == "verified_island"
+  assert by_key["node/13"]["position_dm"] == by_key["node/13"]["source_dm"]
+
+
+def test_signal_verge_projection_never_uses_unverified_union_holes() -> None:
+  polygon = Polygon(
+    [(0, 0), (20, 0), (20, 20), (0, 20)],
+    holes=[[(8, 8), (12, 8), (12, 12), (8, 12)]],
+  )
+  exteriors = _exterior_boundaries(polygon)
+  assert math.isclose(exteriors.length, 80.0)
+  assert exteriors.distance(Point(10, 10)) == 10.0
+  eligible = _eligible_verge_boundaries(polygon)
+  forbidden = _small_unverified_road_holes(polygon)
+  assert eligible.distance(Point(10, 10)) == 10.0
+  assert forbidden.covers(Point(10, 10))
+
+
+def test_signal_verge_projection_escapes_a_connected_dual_carriageway_median() -> None:
+  crs = "EPSG:25833"
+  road_lines = [
+    LineString([(-15, -4), (15, -4)]),
+    LineString([(-15, 4), (15, 4)]),
+    LineString([(-15, -4), (-15, 4)]),
+    LineString([(15, -4), (15, 4)]),
+  ]
+  roads = gpd.GeoDataFrame(
+    {
+      "element": ["way", "way", "way", "way", "node"],
+      "id": ["1", "2", "3", "4", "99"],
+      "highway": ["primary"] * 4 + ["traffic_signals"],
+      "crossing:island": [None] * 5,
+      "tunnel": [None] * 5,
+      "covered": [None] * 5,
+      "layer": [None] * 5,
+      "width": ["4"] * 4 + [None],
+    },
+    geometry=[*road_lines, Point(0, -4)],
+    crs=crs,
+  )
+  _, placements = build_traffic_signal_data(roads, box(-30, -20, 30, 20))
+  placement = placements[0]
+  target_northing = ORIGIN_NORTHING - placement["position_dm"][1] / 10
+  assert placement["placement"] == "relocated_verge"
+  assert target_northing < -6.5
 
 
 def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
   payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
-  assert payload["schema_version"] == 6
+  assert payload["schema_version"] == 7
   stations = payload["fuel_stations"]
   assert sorted(entry["name"] for entry in stations) == [
     "Agip",

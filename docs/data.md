@@ -360,7 +360,22 @@ OSM way `498278335` for its current envelope and Berlin's published landscape-
 architecture description for its interpretive interior. These recognition
 details remain additive and do not override their source geometry.
 
-`street-details.json` schema 6 also preserves `memorial=*` (and the deprecated
+`street-details.json` schema 7 keeps two parallel traffic-signal records. The
+raw `traffic_signals_dm` array preserves all 1,328 bounded OSM control nodes;
+`traffic_signal_placements` gives each physical viewer mast a deterministic
+display anchor. Exactly 1,092 source nodes covered by the same smoothed,
+width-resolved, above-ground carriageway polygons as the viewer move to a true
+polygon exterior. One additional boundary-noise case moves because its
+decimetre-rounded mast would otherwise overlap the delivered road edge. All
+1,093 moved poles retain at least 0.5 m clearance after quantisation; the 227
+already-safe nodes stay exact. Eight nodes with direct
+`crossing:island=yes` node/way evidence remain source-exact as verified refuge
+islands and receive a small visible island base; an unverified road-union hole
+is never interpreted as an island. Stable OSM keys and source coordinates make
+every relocation auditable, and the raw list remains compatible with older
+viewers.
+
+Schema 7 also preserves `memorial=*` (and the deprecated
 `memorial:type=*` fallback) instead of flattening every `historic=memorial`
 point into one object. Every entry retains its stable `osm_element`, `osm_id`
 and combined `osm_key`; `schwellenraum_protected` is the reviewed source-side

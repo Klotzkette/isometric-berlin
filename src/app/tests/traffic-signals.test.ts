@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-import { Group, InstancedMesh } from "three";
+import { Group, InstancedMesh, Matrix4 } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
   SIGNAL_CYCLE,
   SIGNAL_CYCLE_SECONDS,
+  STREET_DETAILS_FILE,
   type StreetDetailsPayload,
   createTrafficSignals,
   lampsLit,
@@ -20,13 +21,29 @@ const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
-    // Schema 6 adds stable OSM identities and the reviewed protection flag
-    // while preserving the typed memorial presentation introduced in v5.
-    expect(street.schema_version).toBe(6);
-    expect(street.traffic_signals_dm.length).toBeGreaterThan(350);
+    expect(street.schema_version).toBe(7);
+    expect(street.traffic_signals_dm.length).toBe(1_328);
     expect(
       new Set(street.traffic_signals_dm.map(([x, z]) => `${x}:${z}`)).size,
     ).toBe(street.traffic_signals_dm.length);
+    expect(street.traffic_signal_placements).toHaveLength(1_328);
+    const roles = new Map<string, number>();
+    for (const placement of street.traffic_signal_placements!) {
+      roles.set(placement.placement, (roles.get(placement.placement) ?? 0) + 1);
+    }
+    expect(Object.fromEntries(roles)).toEqual({
+      relocated_verge: 1_093,
+      surveyed_verge: 227,
+      verified_island: 8,
+    });
+    expect(
+      street.traffic_signal_placements!.filter(
+        (entry) =>
+          entry.placement === "relocated_verge" &&
+          entry.source_on_carriageway === false,
+      ).map((entry) => entry.osm_key),
+    ).toEqual(["node/3098737953"]);
+    expect(STREET_DETAILS_FILE).toBe("street-details.json?schema=7");
     expect(street.source.toLowerCase()).toContain("openstreetmap");
     // Schema v2 also carries the monuments ("alle Denkmäler").
     expect(street.monuments!.length).toBeGreaterThan(40);
@@ -49,13 +66,62 @@ describe("task 07: animated OSM traffic signals", () => {
     expect(group).toBeInstanceOf(Group);
     const poles = group!.getObjectByName("traffic signal poles") as InstancedMesh;
     const lamps = group!.getObjectByName("traffic signal lamps") as InstancedMesh;
-    expect(poles.count).toBeGreaterThan(200);
-    expect(poles.count).toBeLessThanOrEqual(street.traffic_signals_dm.length);
+    const islands = group!.getObjectByName(
+      "traffic signal verified island bases",
+    ) as InstancedMesh;
+    expect(poles.count).toBe(1_328);
     expect(lamps.count).toBe(poles.count * 3);
+    expect(islands.count).toBe(8);
+    expect(group!.children).toHaveLength(4);
     // Phase offsets differ across junctions (no unison blinking).
     const phases = group!.userData.phases as Float32Array;
     expect(new Set(Array.from(phases, (p) => Math.round(p * 10))).size)
       .toBeGreaterThan(10);
+  });
+
+  test("schema-7 matrices use the physical verge anchors while phases remain source-bound", () => {
+    const group = createTrafficSignals(street, ground)!;
+    const poles = group.getObjectByName("traffic signal poles") as InstancedMesh;
+    const renderedSources = group.userData.sourceDm as Array<[number, number]>;
+    const moved = street.traffic_signal_placements!.find(
+      (entry) => entry.placement === "relocated_verge",
+    )!;
+    const index = renderedSources.findIndex(
+      ([x, z]) => x === moved.source_dm[0] && z === moved.source_dm[1],
+    );
+    expect(index).toBeGreaterThanOrEqual(0);
+    const matrix = new Matrix4();
+    poles.getMatrixAt(index, matrix);
+    expect(Math.round(matrix.elements[12] * 10)).toBe(moved.position_dm[0]);
+    expect(Math.round(matrix.elements[14] * 10)).toBe(moved.position_dm[1]);
+    expect(moved.position_dm).not.toEqual(moved.source_dm);
+
+    const phases = group.userData.phases as Float32Array;
+    const expectedPhase =
+      (Math.abs(
+        Math.imul(moved.source_dm[0], 2654435761) ^
+          Math.imul(moved.source_dm[1], 40503),
+      ) %
+        (SIGNAL_CYCLE_SECONDS * 10)) /
+      10;
+    expect(phases[index]).toBeCloseTo(expectedPhase, 4);
+  });
+
+  test("an old cached payload still falls back to its raw source coordinates", () => {
+    const legacy = {
+      ...street,
+      traffic_signal_placements: undefined,
+    } satisfies StreetDetailsPayload;
+    const group = createTrafficSignals(legacy, ground)!;
+    const poles = group.getObjectByName("traffic signal poles") as InstancedMesh;
+    const renderedSources = group.userData.sourceDm as Array<[number, number]>;
+    const matrix = new Matrix4();
+    poles.getMatrixAt(0, matrix);
+    expect(Math.round(matrix.elements[12] * 10)).toBe(renderedSources[0][0]);
+    expect(Math.round(matrix.elements[14] * 10)).toBe(renderedSources[0][1]);
+    expect(
+      group.getObjectByName("traffic signal verified island bases"),
+    ).toBeUndefined();
   });
 
   test("animation lights exactly one configuration per signal; reduced motion pins green", () => {

@@ -79,6 +79,8 @@ def test_canonical_output_retains_mapped_informal_path_evidence(tmp_path: Path) 
         "id": ["101"],
         "highway": ["path"],
         "informal": ["yes"],
+        "crossing": ["traffic_signals"],
+        "crossing:island": ["yes"],
         "surface": [None],
       },
       [LineString([(1, 1), (19, 19)])],
@@ -113,6 +115,8 @@ def test_canonical_output_retains_mapped_informal_path_evidence(tmp_path: Path) 
   assert counts["roads"] == 1
   exported = gpd.read_file(output, layer="roads")
   assert list(exported["informal"]) == ["yes"]
+  assert list(exported["crossing"]) == ["traffic_signals"]
+  assert list(exported["crossing:island"]) == ["yes"]
   assert path_material_code(exported.iloc[0], "path", True) == "e"
 
 
@@ -154,6 +158,8 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
 
   roads = gpd.read_file(OSM, layer="roads")
   for column in [
+    "crossing",
+    "crossing:island",
     "informal",
     "width",
     "lanes",
@@ -164,3 +170,9 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert roads["informal"].eq("yes").sum() >= 100
   assert roads["width"].notna().sum() > 1_000
   assert roads["lanes"].notna().sum() > 1_000
+  signals = roads[
+    (roads["highway"] == "traffic_signals") & (roads.geometry.geom_type == "Point")
+  ]
+  assert len(signals) == 1_328
+  assert signals["crossing:island"].eq("yes").sum() == 2
+  assert roads["crossing:island"].eq("yes").sum() >= 200

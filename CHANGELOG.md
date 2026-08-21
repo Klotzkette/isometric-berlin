@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.72.11
+
+- **Traffic-signal poles no longer stand in the middle of a modelled
+  carriageway.** Schema 7 retains all **1,328** source OSM
+  `highway=traffic_signals` nodes and their backwards-compatible raw
+  coordinates. Exactly **1,093** physical poles move to deterministic exterior
+  verges: **1,092** source points intersect the modelled surface carriageway,
+  plus one decimetre-edge case whose rendered mast would otherwise overlap it.
+  The other **227** already-safe poles remain at their source positions. Eight
+  signals with direct `crossing:island=yes` node/way evidence stay source-exact
+  on a small visible refuge base; unverified union holes are never treated as
+  islands.
+  Every moved pole retains at least 0.5 m road clearance after decimetre
+  quantisation. No source signal is filtered or removed.
+- **The schema transition is safe for live and already-open viewers.** The
+  street-details request carries a schema-specific cache-busting query, while
+  the viewer continues to understand the raw coordinate list. This prevents a
+  cached schema-6 payload from being mistaken for the new placements without
+  giving up the complete OSM source inventory.
+
 ## v0.72.10
 
 - **Hotel Adlon now follows its real Pariser-Platz frontage instead of an

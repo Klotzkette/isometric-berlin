@@ -1,10 +1,11 @@
 """Build the street-details payload (task 07: animated traffic lights).
 
 Exports every OSM ``highway=traffic_signals`` node inside the
-Regierungsviertel bounds as viewer world coordinates. The viewer snaps
-each signal to the surveyed ground grid it already loads and animates
-the German phase sequence itself, so the payload stays a tiny list of
-positions.
+Regierungsviertel bounds as viewer world coordinates. OSM commonly maps a
+signal-control node on a carriageway centreline rather than the physical mast.
+Those source nodes remain byte-for-byte inspectable while a separate display
+position is projected to the nearest safe carriageway verge. Nodes already
+outside the modelled carriageway stay at their mapped position.
 
 Scene mapping (verified against ``scene.json`` ``origin_epsg25833``):
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``.
@@ -19,6 +20,9 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+from shapely.geometry import LineString, Point, Polygon, box
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import nearest_points, unary_union
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_minecraft_voxels import (
@@ -31,10 +35,56 @@ from isometric_berlin.generation.build_minecraft_voxels import (
   REPO_ROOT,
   verify_scene_origin,
 )
+from isometric_berlin.generation.build_surface_polygons import (
+  ROAD_BUFFER_QUAD_SEGS,
+  line_parts,
+  open_tunnel_ramp_corridors,
+  polygon_parts,
+  runs_underground,
+  smooth_road_line,
+)
+from isometric_berlin.generation.road_geometry import (
+  VEHICULAR_HIGHWAYS,
+  road_width_m,
+)
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
+
+# OSM traffic-signal nodes are frequently semantic control points on the road
+# centreline. The displayed pole centre must clear both the resolved
+# carriageway edge and its own 0.14 m square footprint. A 0.70 m source-space
+# offset leaves at least 0.50 m after both road-ring and pole decimetre
+# quantisation.
+TRAFFIC_SIGNAL_VERGE_CLEARANCE_M = 0.70
+# Keep generated positions away from the clipped dataset edge so the viewer's
+# ground sampler cannot lose a pole after the decimetre round-trip.
+TRAFFIC_SIGNAL_BOUNDS_INSET_M = 1.0
+# Shapely can classify a point only a few nanometres outside a buffered curve
+# after intersect/union operations. Treat one centimetre as numeric boundary
+# noise, while leaving genuinely surveyed verge points untouched.
+TRAFFIC_SIGNAL_CARRIAGEWAY_EPSILON_M = 0.01
+# Tiny sub-decimetre differences are only buffer/curve numerical noise; retain
+# the mapped node instead of claiming a meaningful relocation.
+TRAFFIC_SIGNAL_MOVE_THRESHOLD_M = 0.075
+# A signal node that is directly tagged as an island, or lies on a directly
+# tagged island crossing way, is physical evidence for a real refuge. The
+# canonical geometry keeps intersecting island ways within centimetres, so a
+# 5 cm tolerance catches their quantisation noise without accepting a merely
+# nearby median.
+TRAFFIC_SIGNAL_ISLAND_SOURCE_TOLERANCE_M = 0.05
+# A candidate in an unverified median exits one carriageway and reaches another
+# along the same outward ray. Test far enough to cover Berlin's widest divided
+# streets and choose a boundary from which the ray stays outside the complete
+# global road envelope.
+TRAFFIC_SIGNAL_VERGE_ESCAPE_M = 45.0
+TRAFFIC_SIGNAL_CANDIDATE_RAY_M = 45.0
+TRAFFIC_SIGNAL_CANDIDATE_DIRECTIONS = 32
+# The global road union encloses both real city blocks and small median/refuge
+# gaps. Only sizeable block perimeters are eligible unsourced sidewalk verges;
+# small holes need explicit crossing:island evidence and stay excluded.
+TRAFFIC_SIGNAL_MIN_BLOCK_HOLE_AREA_M2 = 500.0
 
 # Roads a filling station can front. Service ways and footpaths run behind
 # and beside forecourts, so matching those would rotate the canopy at random.
@@ -167,10 +217,302 @@ def osm_identity(row: Any) -> tuple[str, str, str]:
   element = row.get("element")
   osm_id = row.get("id")
   if not isinstance(element, str) or element not in {"node", "way", "relation"}:
-    raise ValueError(f"Monument row has no stable OSM element: {element!r}")
+    raise ValueError(f"Source row has no stable OSM element: {element!r}")
   if not isinstance(osm_id, str) or not osm_id:
-    raise ValueError(f"Monument row has no stable OSM id: {osm_id!r}")
+    raise ValueError(f"Source row has no stable OSM id: {osm_id!r}")
   return element, osm_id, f"{element}/{osm_id}"
+
+
+def _surface_vehicular_road(row: Any) -> bool:
+  """Whether one OSM line contributes to the visible surface carriageway."""
+  if row.get("highway") not in VEHICULAR_HIGHWAYS:
+    return False
+  if runs_underground(row):
+    return False
+  return row.geometry is not None and not row.geometry.is_empty
+
+
+def _traffic_signal_road_bands(
+  roads: gpd.GeoDataFrame,
+  bounds: BaseGeometry,
+  ramp_corridors: BaseGeometry | None,
+) -> gpd.GeoSeries:
+  """Resolve exactly the same visible motor carriageways as the viewer.
+
+  Signal placement must not use a cheaper second approximation. The road
+  surface builder clips, removes open tunnel ramps, smooths mapped nodes and
+  uses a 16-segment round join before the browser ever sees the polygon; the
+  physical-pole placement repeats that contract byte-semantically here.
+  """
+  bands = []
+  for _, row in roads.iterrows():
+    if not _surface_vehicular_road(row):
+      continue
+    width = road_width_m(row)
+    if width is None:
+      continue
+    clipped = row.geometry.intersection(bounds)
+    if ramp_corridors is not None:
+      clipped = clipped.difference(ramp_corridors)
+    for line in line_parts(clipped):
+      if line.length < 2.0:
+        continue
+      band = smooth_road_line(line).buffer(
+        width / 2,
+        cap_style=2,
+        join_style=1,
+        quad_segs=ROAD_BUFFER_QUAD_SEGS,
+      )
+      if ramp_corridors is not None:
+        band = band.difference(ramp_corridors)
+      if not band.is_empty:
+        bands.append(band)
+  return gpd.GeoSeries(bands, crs=roads.crs)
+
+
+def _verified_island_signal_keys(
+  signals: gpd.GeoDataFrame, roads: gpd.GeoDataFrame
+) -> set[str]:
+  """Return signals with direct node/way evidence for a refuge island."""
+  keys = {
+    osm_identity(row)[2]
+    for _, row in signals.iterrows()
+    if str(row.get("crossing:island") or "").casefold() == "yes"
+  }
+  island_lines = roads[
+    (roads["crossing:island"] == "yes")
+    & (roads.geometry.geom_type.isin(["LineString", "MultiLineString"]))
+  ]
+  if island_lines.empty:
+    return keys
+  island_index = island_lines.sindex
+  for _, row in signals.iterrows():
+    source = row.geometry
+    matches = list(
+      island_index.query(
+        source.buffer(TRAFFIC_SIGNAL_ISLAND_SOURCE_TOLERANCE_M),
+        predicate="intersects",
+      )
+    )
+    if any(
+      island_lines.geometry.iloc[index].distance(source)
+      <= TRAFFIC_SIGNAL_ISLAND_SOURCE_TOLERANCE_M
+      for index in matches
+    ):
+      keys.add(osm_identity(row)[2])
+  return keys
+
+
+def _exterior_boundaries(geometry: BaseGeometry) -> BaseGeometry:
+  """Return only true polygon exteriors, never unverified union-hole rims."""
+  exteriors = [LineString(part.exterior.coords) for part in polygon_parts(geometry)]
+  return unary_union(exteriors)
+
+
+def _eligible_verge_boundaries(geometry: BaseGeometry) -> BaseGeometry:
+  """Return true outside edges plus sizeable city-block sidewalk perimeters."""
+  boundaries: list[LineString] = []
+  for part in polygon_parts(geometry):
+    boundaries.append(LineString(part.exterior.coords))
+    for interior in part.interiors:
+      if Polygon(interior).area >= TRAFFIC_SIGNAL_MIN_BLOCK_HOLE_AREA_M2:
+        boundaries.append(LineString(interior.coords))
+  return unary_union(boundaries)
+
+
+def _small_unverified_road_holes(geometry: BaseGeometry) -> BaseGeometry:
+  """Return median/refuge gaps that have no direct island provenance."""
+  holes = [
+    Polygon(interior)
+    for part in polygon_parts(geometry)
+    for interior in part.interiors
+    if Polygon(interior).area < TRAFFIC_SIGNAL_MIN_BLOCK_HOLE_AREA_M2
+  ]
+  return unary_union(holes)
+
+
+def _point_parts(geometry: BaseGeometry) -> list[Point]:
+  """Flatten boundary/ray intersections into deterministic point candidates."""
+  if isinstance(geometry, Point):
+    return [geometry]
+  if isinstance(geometry, LineString):
+    coordinates = list(geometry.coords)
+    return [Point(coordinates[0]), Point(coordinates[-1])] if coordinates else []
+  if hasattr(geometry, "geoms"):
+    return [point for part in geometry.geoms for point in _point_parts(part)]
+  return []
+
+
+def _safe_exterior_candidate(
+  source: Point,
+  safe_envelope: BaseGeometry,
+  eligible_boundary: BaseGeometry,
+  forbidden_holes: BaseGeometry,
+) -> Point | None:
+  """Choose a true outside verge, rejecting unverified median-facing sides."""
+  radius = TRAFFIC_SIGNAL_CANDIDATE_RAY_M
+  boundary = eligible_boundary.intersection(
+    box(source.x - radius, source.y - radius, source.x + radius, source.y + radius)
+  )
+  if boundary.is_empty:
+    return None
+  nearest = nearest_points(source, boundary)[1]
+  base_angle = math.atan2(nearest.y - source.y, nearest.x - source.x)
+  candidates = [nearest]
+  for index in range(TRAFFIC_SIGNAL_CANDIDATE_DIRECTIONS):
+    angle = base_angle + index * math.tau / TRAFFIC_SIGNAL_CANDIDATE_DIRECTIONS
+    direction_x = math.cos(angle)
+    direction_y = math.sin(angle)
+    ray = LineString(
+      [
+        source,
+        Point(
+          source.x + direction_x * TRAFFIC_SIGNAL_CANDIDATE_RAY_M,
+          source.y + direction_y * TRAFFIC_SIGNAL_CANDIDATE_RAY_M,
+        ),
+      ]
+    )
+    candidates.extend(_point_parts(ray.intersection(boundary)))
+
+  unique: dict[tuple[int, int], Point] = {}
+  for candidate in candidates:
+    distance = source.distance(candidate)
+    if distance <= TRAFFIC_SIGNAL_MOVE_THRESHOLD_M:
+      continue
+    unique[(round(candidate.x * 1_000), round(candidate.y * 1_000))] = candidate
+
+  accepted: list[tuple[float, Point]] = []
+  for candidate in unique.values():
+    if not forbidden_holes.is_empty and forbidden_holes.covers(candidate):
+      continue
+    distance = source.distance(candidate)
+    direction_x = (candidate.x - source.x) / distance
+    direction_y = (candidate.y - source.y) / distance
+    # Begin clearly beyond the buffered boundary so numeric boundary contact
+    # itself does not count as a second road. A median-facing candidate reaches
+    # the opposite carriageway envelope and is rejected.
+    probe = LineString(
+      [
+        Point(candidate.x + direction_x * 0.05, candidate.y + direction_y * 0.05),
+        Point(
+          candidate.x + direction_x * TRAFFIC_SIGNAL_VERGE_ESCAPE_M,
+          candidate.y + direction_y * TRAFFIC_SIGNAL_VERGE_ESCAPE_M,
+        ),
+      ]
+    )
+    if probe.intersects(safe_envelope):
+      continue
+    accepted.append((distance, candidate))
+  if not accepted:
+    return None
+  accepted.sort(key=lambda item: (item[0], item[1].x, item[1].y))
+  return accepted[0][1]
+
+
+def _world_dm(point: Any) -> list[int]:
+  """Convert one EPSG:25833 point to viewer decimetres."""
+  return [
+    round((point.x - ORIGIN_EASTING) * 10),
+    round((ORIGIN_NORTHING - point.y) * 10),
+  ]
+
+
+def build_traffic_signal_data(
+  roads: gpd.GeoDataFrame,
+  bounds: Any,
+  ramp_corridors: BaseGeometry | None = None,
+) -> tuple[list[list[int]], list[dict[str, Any]]]:
+  """Return all source nodes plus safe physical display positions.
+
+  OSM's common centreline signal mapping is valid traffic-control semantics,
+  but drawing a mast there puts it in a live lane. Nodes covered by the same
+  resolved surface-road bands used by the viewer, plus one centimetre of
+  boundary-noise tolerance, move to a 0.70 m expanded global exterior verge.
+  Small unsourced union holes are forbidden, and an outward ray must remain
+  clear of every other carriageway. Already-safe mapped poles and directly
+  sourced refuge islands stay exact.
+  """
+  signals = roads[
+    (roads["highway"] == "traffic_signals") & (roads.geometry.geom_type == "Point")
+  ]
+  raw_positions: list[list[int]] = []
+  placements: list[dict[str, Any]] = []
+  road_bands = _traffic_signal_road_bands(roads, bounds, ramp_corridors)
+  road_union = unary_union(road_bands.tolist())
+  safe_road_envelope = road_union.buffer(
+    TRAFFIC_SIGNAL_VERGE_CLEARANCE_M,
+    join_style=1,
+    quad_segs=4,
+  )
+  verified_islands = _verified_island_signal_keys(signals, roads)
+  inset_bounds = bounds.buffer(-TRAFFIC_SIGNAL_BOUNDS_INSET_M)
+  if inset_bounds.is_empty:
+    inset_bounds = bounds
+  eligible_boundary = _eligible_verge_boundaries(safe_road_envelope).intersection(
+    inset_bounds
+  )
+  forbidden_holes = _small_unverified_road_holes(road_union)
+
+  for _, row in signals.iterrows():
+    source = row.geometry
+    if not bounds.contains(source):
+      continue
+    source_dm = _world_dm(source)
+    raw_positions.append(source_dm)
+    _, _, osm_key = osm_identity(row)
+    target = source
+    source_on_carriageway = road_union.covers(source)
+    source_requires_relocation = (
+      source_on_carriageway
+      or road_union.distance(source) <= TRAFFIC_SIGNAL_CARRIAGEWAY_EPSILON_M
+    )
+    if source_requires_relocation and osm_key not in verified_islands:
+      candidate = _safe_exterior_candidate(
+        source, safe_road_envelope, eligible_boundary, forbidden_holes
+      )
+      if candidate is None:
+        raise ValueError(f"No safe exterior verge found for {osm_key}")
+      target = candidate
+
+    target_dm = _world_dm(target)
+    # Measure after the exact decimetre round-trip shipped to the viewer.
+    quantised_target = Point(
+      ORIGIN_EASTING + target_dm[0] / 10,
+      ORIGIN_NORTHING - target_dm[1] / 10,
+    )
+    road_clearance_dm = (
+      round(quantised_target.distance(road_union) * 10)
+      if not road_union.is_empty
+      else None
+    )
+    if osm_key in verified_islands:
+      placement = "verified_island"
+    elif target_dm != source_dm:
+      placement = "relocated_verge"
+    else:
+      placement = "surveyed_verge"
+    placements.append(
+      {
+        "offset_dm": round(source.distance(quantised_target) * 10),
+        "osm_key": osm_key,
+        "placement": placement,
+        "position_dm": target_dm,
+        "road_clearance_dm": road_clearance_dm,
+        "source_dm": source_dm,
+        "source_on_carriageway": source_on_carriageway,
+        "source_requires_relocation": source_requires_relocation,
+      }
+    )
+
+  raw_positions.sort()
+  placements.sort(
+    key=lambda entry: (
+      entry["source_dm"][0],
+      entry["source_dm"][1],
+      entry["osm_key"],
+    )
+  )
+  return raw_positions, placements
 
 
 def schwellenraum_protected(
@@ -432,21 +774,9 @@ def build_payload(
   bounds = project_geometry(load_bounds_polygon(bounds_path))
   roads = gpd.read_file(osm_path, layer="roads")
   roads = roads.to_crs(epsg=25833)
-  signals = roads[
-    (roads["highway"] == "traffic_signals") & (roads.geometry.geom_type == "Point")
-  ]
-  positions: list[list[int]] = []
-  for point in signals.geometry:
-    if not bounds.contains(point):
-      continue
-    # Decimetre integers, matching the other payloads.
-    positions.append(
-      [
-        round((point.x - ORIGIN_EASTING) * 10),
-        round((ORIGIN_NORTHING - point.y) * 10),
-      ]
-    )
-  positions.sort()
+  positions, signal_placements = build_traffic_signal_data(
+    roads, bounds, open_tunnel_ramp_corridors(scene_path)
+  )
 
   # Monuments and memorials ("alle Denkmäler im Tiergarten"): points and
   # polygon footprints from the OSM POI layer. Polygons keep their bbox
@@ -510,6 +840,7 @@ def build_payload(
     "riverside_bars": build_riverside_bars(pois, water, parks, bounds),
     "schema_version": SCHEMA_VERSION,
     "source": ATTRIBUTION,
+    "traffic_signal_placements": signal_placements,
     "traffic_signals_dm": positions,
   }
 

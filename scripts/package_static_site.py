@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.10"
+PACKAGE_VERSION = "0.72.11"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -54,6 +54,7 @@ REQUIRED_PACKAGE_FILES = (
   "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  "mesh/regierungsviertel/street-details.json",
   "mesh/regierungsviertel/surface-polygons.json",
   "mesh/regierungsviertel/surface-pretriangulation.json",
 )
@@ -3436,6 +3437,16 @@ in Tag, Nacht, Minecraft, Schneesturm und Schwellenraum sichtbar. Nur der
 Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Maße
 und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
 kein Foto oder Screenshot gebündelt.
+Version {PACKAGE_VERSION} versetzt 1.093 Ampelmasten an deterministische äußere
+Straßenränder: 1.092 Quellpunkte in der modellierten Fahrbahn sowie einen
+Dezimeter-Randfall. 227 bereits sichere Masten bleiben am Quellort. Schema 7
+behält alle 1.328 OSM-Quellknoten samt
+abwärtskompatiblen Rohkoordinaten. Acht direkt mit crossing:island=yes belegte
+Inselampeln bleiben quellengetreu auf einem sichtbaren kleinen Inselsockel;
+unbelegte Lücken im Straßennetz gelten nie als Insel. Nach
+Dezimeterquantisierung halten versetzte Masten mindestens 0,5 m Abstand zur
+Fahrbahn. Keine Ampel wird entfernt. Eine schemaspezifische Cache-Abfrage
+verhindert, dass alte Schema-6-Daten die Korrektur verdecken.
 Version {PACKAGE_VERSION} richtet Hotel Adlon und Starbucks an ihren echten
 Pariser-Platz-Fassaden aus. Adlon folgt OSM-Relation 4582978, Außenweg 26041943
 und LoD2-Körper K00006ot; Rundbögen, Rustika, rotes Eingangsvordach,
@@ -3707,6 +3718,16 @@ Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
 descriptive facts are fixed; all local dimensions and arrangements are
 photo-bounded, non-surveyed display values. No photograph or screenshot is
 bundled.
+Version {PACKAGE_VERSION} moves 1,093 traffic-signal poles to deterministic
+exterior verges: 1,092 source points in the modelled carriageway plus one
+decimetre edge case. 227 already-safe poles stay at source. Schema 7 retains
+all 1,328 source OSM nodes and their
+backwards-compatible raw coordinates. Eight directly sourced
+crossing:island=yes signals remain source-exact on a visible small refuge base;
+unverified road-network gaps never count as islands. After decimetre
+quantisation, every moved pole stays at least 0.5 m clear of the road. No
+signal is removed. A schema-specific cache query prevents stale schema-6 data
+from masking the correction.
 Version {PACKAGE_VERSION} aligns Hotel Adlon and Starbucks to their real
 Pariser-Platz frontages. Adlon follows OSM relation 4582978, outer way
 26041943 and LoD2 body K00006ot; arches, rustication, wine-red entrance canopy,
