@@ -88,11 +88,11 @@ describe("Minecraft blocks stay glued under zoom", () => {
 });
 
 describe("Minecraft stability policy keeps a still view calm and complete", () => {
-  test("freezes wind, settles rendering, and pins the surface tier", () => {
+  test("admits only the separately cadenced civic wind while keeping the voxel pass settled", () => {
     const policy = minecraftStabilityPolicy("minecraft");
-    // No animated source ⇒ the voxel screen-pass has nothing to re-quantise
-    // while the camera is still (kills the residual "Flirren").
-    expect(policy.animateWind).toBe(false);
+    // The official flags tick independently at low frequency; this policy
+    // never drives the voxel screen pass continuously.
+    expect(policy.animateWind).toBe(true);
     // A still camera must settle to one stable frame, not render forever.
     expect(policy.forceContinuousRender).toBe(false);
     // The chunky interaction surface stays put, so nothing "assembles" when
@@ -100,10 +100,15 @@ describe("Minecraft stability policy keeps a still view calm and complete", () =
     expect(policy.pinInteractionSurface).toBe(true);
   });
 
-  test("freezes incidental flag animation in every visual mode", () => {
-    for (const mode of ["day", "night", "snowstorm"] as const) {
+  test("keeps the same civic-flag permission in every visual mode", () => {
+    for (const mode of [
+      "day",
+      "night",
+      "snowstorm",
+      "schwellenraum",
+    ] as const) {
       const policy = minecraftStabilityPolicy(mode);
-      expect(policy.animateWind).toBe(false);
+      expect(policy.animateWind).toBe(true);
       expect(policy.forceContinuousRender).toBe(false);
       expect(policy.pinInteractionSurface).toBe(false);
     }

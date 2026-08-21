@@ -2,9 +2,9 @@ import type { VisualMode } from "../../visualMode";
 
 export type MinecraftStabilityPolicy = {
   /**
-   * Whether incidental flag motion may alter geometry while navigating.
-   * Frozen in every mode: the flags keep one authored wind pose, so moving the
-   * camera is the only changing transform and thin edges cannot flash.
+   * Whether the four official civic flags may use their shared low-frequency
+   * cloth cadence. This does not opt incidental banners or scenery into
+   * motion, and the cadence remains independent of the voxel screen pass.
    */
   animateWind: boolean;
   /**
@@ -28,7 +28,7 @@ export function minecraftStabilityPolicy(
 ): MinecraftStabilityPolicy {
   const minecraft = mode === "minecraft";
   return {
-    animateWind: false,
+    animateWind: true,
     forceContinuousRender: false,
     pinInteractionSurface: minecraft,
   };

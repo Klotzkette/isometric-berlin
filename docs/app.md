@@ -119,18 +119,32 @@ screen layer. Precipitation is hidden automatically in underwater and underside
 views. Schwellenraum preserves the visitor's rain preference but disables the
 weather control and precipitation so its geometry remains still.
 
+Across Day, Night, Minecraft, Snowstorm and Schwellenraum, exactly nine
+official civic flags use one deterministic, low-amplitude wind field: three
+German and one European flag on the Reichstag, German and European protocol
+flags at the Chancellery, the Flag of Unity, the Swiss Embassy flag and the
+Federal President's standard. Their 30 coordinated cloth/emblem layers move no
+more than 0.28 m at the free edge. The renderer requests flag frames at a
+bounded 12 Hz on non-touch devices and 8 Hz in the mobile-like touch profile;
+reduced-motion, distant, underside and hidden-page views retain one authored
+pose. Decorative hotel flags and the small static Pride memorial offerings are
+outside this allowlist.
+
 Schwellenraum reuses the complete Day city and crossfades the two normal audio
 layers into a dedicated, very quiet procedural soundscape. Its two existing
 audio controls independently fade a soft room-rustle bus and a sparse harmonic
 bus; leaving the mode restores the standard layers without losing either user
 choice. Its warm pearlescent sky, pastel light thresholds, fixed sparse
 furnishings and elongated repeated frames are additive; buildings are never
-globally warped or recoloured. The only changing elements are the explicitly
-identified German, EU, Swiss and Federal President flags, updated on a quiet
-15 Hz cadence, and a texture-free light veil over the source water. Its fixed
+globally warped or recoloured. It shares the all-mode official-civic flag
+field: the explicitly identified German, EU, Swiss and Federal President
+flags advance at no more than 12 Hz on non-touch devices or 8 Hz in the
+mobile-like touch profile. The only additional changing element is a
+texture-free light veil over the source water. Its fixed
 mist fields breathe at 3.75 Hz and a sparse deterministic subset may show a
 slow, faint glint; water vertices, ripples, vessels and wakes never move.
-Reduced-motion preference freezes this veil at one dim sample. The mode opens
+Reduced-motion preference freezes both cloth and veil; distant, underside and
+hidden-page views likewise hold the cloth at one authored pose. The mode opens
 in true 3D and adds
 explicit entrances, ramps, stairs and bounded presentation interiors for the
 Reichstag plenary chamber, Hauptbahnhof concourse and deep platforms,
@@ -165,6 +179,11 @@ Snowstorm reuses the same measured geometry under a broad white mantle and
 adds a bounded camera-following field (2,400 flakes on desktop, 1,100 on touch
 devices), 168 deterministic drifts and three snowploughs. It never moves a
 building anchor and does not cover the tunnel interior or underside cutaway.
+The nine official civic flags keep the same gentle wind field while a
+reversible cool frost tint covers their 30 cloth/emblem layers. Two shared
+instanced batches add exactly 27 lower-edge icicles, three per physical flag;
+the icicles follow the same deformation and disappear completely outside
+Snowstorm.
 
 A fresh session and the Reset command both focus the Reichstag from an elevated
 camera over the Platz der Republik lawn in Day mode. Explicit landmark deep
@@ -291,7 +310,13 @@ are divided vertically into block courses no taller than 8 m. Their stepped
 dome, portals, glass halls, rotundas and open Spree bridges replace the smooth
 hero meshes atomically once the block payload is ready, and every other smooth
 architectural overlay with a block replacement stays hidden in Minecraft. The
-light limestone/quartz palette remains inside the fixed 32-colour world
+official cloth is the narrow exception: Reichstag and Chancellery keep their
+coarse block masts, but no longer carry duplicate static block cloth. Their
+German/EU cloth layers remain visible and share the same bounded wind field as
+the Flag of Unity, Swiss flag and Federal President's standard over the voxel
+city. The older generic Tiergarten-monument rendering of the Flag of Unity is
+suppressed while its OSM source key remains retained by the dedicated model.
+The light limestone/quartz palette remains inside the fixed 32-colour world
 palette; silver, lapis and gold are sparse architectural cues rather than
 random decoration. The batches share one cube geometry and material, add no
 network asset and contain no transparent or coplanar faces. Existing entrance

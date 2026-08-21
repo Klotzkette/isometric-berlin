@@ -109,7 +109,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(totalBlocks).toBeGreaterThan(3_500);
     expect(totalBlocks).toBeLessThan(5_000);
     expect(meshes.map(({ count }) => count)).toEqual([
-      338, 376, 2_699, 134, 776, 60, 292,
+      327, 371, 2_699, 134, 776, 60, 292,
     ]);
   });
 
@@ -198,6 +198,18 @@ describe("block-native Berlin architectural signatures", () => {
     });
     expect(byName.get(EXPECTED_MODELS[0])).not.toHaveProperty(
       "40 m stepped glass dome",
+    );
+    expect(byName.get(EXPECTED_MODELS[0])).not.toHaveProperty(
+      "Reichstag roof flag stripe",
+    );
+    expect(byName.get(EXPECTED_MODELS[0])).not.toHaveProperty(
+      "Reichstag roof flag blue field",
+    );
+    expect(byName.get(EXPECTED_MODELS[1])).not.toHaveProperty(
+      "Kanzleramt German protocol flag stripe",
+    );
+    expect(byName.get(EXPECTED_MODELS[1])).not.toHaveProperty(
+      "Kanzleramt EU protocol flag blue field",
     );
     expect(byName.get(EXPECTED_MODELS[1])).not.toHaveProperty(
       "three-row office wing glazing",

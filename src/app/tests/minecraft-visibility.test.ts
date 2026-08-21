@@ -30,6 +30,9 @@ function miniScene(): MinecraftVisibilityRoots & {
   refinementOther: Group;
   refinementTiergarten: Group;
   smoothSignature: Group;
+  smoothSignatureBody: Object3D;
+  smoothSignatureFlag: Object3D;
+  smoothSignatureIce: Object3D;
   spotlight: Object3D;
   swissFlag: Object3D;
   unityStripes: Object3D[];
@@ -65,9 +68,16 @@ function miniScene(): MinecraftVisibilityRoots & {
     refinementTiergarten,
     refinementOther,
   );
+  const smoothSignatureBody = object("smooth Reichstag dome");
+  const smoothSignatureFlag = object("Reichstag tower 1:1 German flag stripe 1");
+  smoothSignatureFlag.userData.windFlag = { kind: "germany" };
+  const smoothSignatureIce = object("Civic flags shared winter icicles", false);
+  smoothSignatureIce.userData.windFlagWinterAccents = true;
   const smoothSignature = branch(
     "Metre-scale Reichstag recognition model",
-    object("smooth Reichstag dome"),
+    smoothSignatureBody,
+    smoothSignatureFlag,
+    smoothSignatureIce,
   );
   const signatures = branch(
     "Dimensioned architectural signatures",
@@ -124,6 +134,9 @@ function miniScene(): MinecraftVisibilityRoots & {
     refinementTiergarten,
     signatures,
     smoothSignature,
+    smoothSignatureBody,
+    smoothSignatureFlag,
+    smoothSignatureIce,
     spotlight,
     swissFlag,
     unityStripes,
@@ -158,7 +171,12 @@ describe("Minecraft smooth-scene visibility", () => {
     expect(roots.refinementTiergarten.visible).toBeTrue();
     expect(roots.refinementTiergarten.children[0].visible).toBeTrue();
     expect(roots.refinementOther.visible).toBeFalse();
-    expect(roots.smoothSignature.visible).toBeFalse();
+    expect(roots.smoothSignature.visible).toBeTrue();
+    expect(roots.smoothSignatureBody.visible).toBeFalse();
+    expect(roots.smoothSignatureFlag.visible).toBeTrue();
+    // Snowstorm is its own drawn mode. The Minecraft leaf filter must not
+    // reactivate a hidden winter-only batch in ordinary voxel presentation.
+    expect(roots.smoothSignatureIce.visible).toBeFalse();
 
     expect(roots.civicDetails.visible).toBeTrue();
     expect(roots.civicBody.visible).toBeFalse();

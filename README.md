@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.11 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.11/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.12 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.12/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.11** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.12** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.11**, built from `main`. Its full viewer
+The current public package is **v0.72.12**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -66,6 +66,19 @@ local modules.
   the road after decimetre quantisation, and no signal is removed. A
   schema-specific cache-busting request prevents stale schema-6 data from
   masking the correction.
+
+- **Nine official civic flags now flutter gently in all five visual modes.**
+  The three German and one European Reichstag flags, the German and European
+  Chancellery protocol flags, the Flag of Unity, the Swiss Embassy flag and the
+  Federal President's standard share one deterministic wind field across 30
+  cloth and emblem layers. Free-edge movement stays at or below 0.28 m and is
+  limited to 12 Hz on non-touch devices or 8 Hz in the mobile-like touch
+  profile. Reduced-motion, distant, underside and hidden-page presentations
+  hold an authored pose. Snowstorm adds a reversible frost tint and exactly 27
+  instanced icicles, which move with the same light wave. Minecraft retains
+  coarse block masts but replaces their static block-cloth doubles with this
+  narrow animated-cloth exception; the redundant older Flag-of-Unity monument
+  copy is removed without dropping its OSM source identity.
 
 - **Hotel Adlon and Starbucks now read from their real Pariser-Platz
   frontages.** Adlon follows OSM relation `4582978`, outer way `26041943` and
@@ -184,12 +197,13 @@ local modules.
   Drawn and Minecraft versions share the exact 67 m total height.
 
 - **The Reichstag west front now has a more faithful classical hierarchy.**
-  The measured shell, glass dome and four flags stay fixed, while the six-column
-  portico gains 24-flute shafts, Corinthian leaves and volutes, profiled plinths,
-  a central tympanum group, alternating triangular and segmental window crowns,
-  keystones, sills, attic relief panels, rosettes and a neutral light-limestone
-  palette. `DEM DEUTSCHEN VOLKE` remains physically separated from the stone
-  band to prevent coplanar shimmer.
+  The measured shell, glass dome, flag masts and cloth dimensions stay fixed,
+  while the four cloth fields use only their bounded wind deformation and the
+  six-column portico gains 24-flute shafts, Corinthian leaves and volutes,
+  profiled plinths, a central tympanum group, alternating triangular and
+  segmental window crowns, keystones, sills, attic relief panels, rosettes and a
+  neutral light-limestone palette. `DEM DEUTSCHEN VOLKE` remains physically
+  separated from the stone band to prevent coplanar shimmer.
 
 - **The Terrassenhaus at Hafenplatz now follows its official stepped massing.**
   All 26 Berlin LoD2 bodies retain their measured footprints and heights. A
@@ -539,10 +553,10 @@ local modules.
   use the photographed silver-grey panel and window cadence, followed by the
   documented free-form top floor, parapet and four slim roof antennae. A small
   unfolded roof standard uses the official square gold field, 1:12 red border
-  and mast-facing federal eagle. Its cloth is held in one authored wind pose
-  to prevent shimmer. The supplied photographs are neither bundled nor used
-  as textures; exact module spacing, mast position and flag size remain
-  documented visual estimates.
+  and mast-facing federal eagle. Its cloth shares the bounded official-civic
+  wind field and freezes outside the visible motion budget. The supplied
+  photographs are neither bundled nor used as textures; exact module spacing,
+  mast position and flag size remain documented visual estimates.
 
 - **Moltkebrücke now carries its documented historic sandstone ornament.**
   Its published 77.58 x 25.70 m envelope and OSM axis stay fixed while twelve
@@ -1089,8 +1103,8 @@ local modules.
   Quadriga; the Chancellery has floor plates, facade mullions and its arched
   leadership-window grid; the Reichstag adds roof cornices, portico bases and
   capitals, entrances, three German flags and one EU flag around the official
-  dome. All four flags share one authored wind pose; their thin silhouettes do
-  not mutate while the camera moves.
+  dome. Their thin cloth layers share the same low-amplitude, cadence-bounded
+  wind field as the other official civic flags.
 - The civic layer adds the LoD2-aligned Swiss Embassy with its historic palace,
   modern extension and Swiss flag, plus the Bundestag's official 28.5 m Unity
   Flag pole and 60 m² German flag. The TIPI uses its published 32 x 26 m
@@ -1124,7 +1138,9 @@ local modules.
   restrained night treatment.
 - Snowstorm adds a shared white ground mantle, 2,400 bounded desktop flakes
   (1,100 on touch devices), 168 wind-shaped drifts and three snowploughs while
-  preserving the same buildings and metric anchors. One contextual weather
+  preserving the same buildings and metric anchors. The nine official civic
+  flags receive reversible frost and 27 instanced icicles while their cloth
+  continues its restrained motion. One contextual weather
   control toggles moderate rain in Day, Night and Minecraft, and toggles the
   falling flakes in Snowstorm without removing its settled snow.
   Schwellenraum keeps the stored rain preference but disables precipitation so
@@ -1196,17 +1212,20 @@ local modules.
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons
   instead of drawing a second tower over them.
-- A settled Day, Night, Minecraft or Schwellenraum scene holds its final
-  framebuffer rather
-  than repainting at an idle cadence. v0.66.1 also removes input-dependent DPR
+- A settled Day, Night, Minecraft or Schwellenraum scene holds its framebuffer
+  between genuine visual mutations rather than repainting at full rate.
+  v0.66.1 also removes input-dependent DPR
   and surface-detail hysteresis: a viewport keeps one stable sampling grid and
   surface tier while moving and after release. Six-frame browser sequences in
   Day and Night record 0 changed pixels across every adjacent still-frame
-  comparison. The selected-sight marker is static rather than pulsing. In
+  comparison before the bounded official-flag animation was introduced. The
+  selected-sight marker is static rather than pulsing. In
   Minecraft, only the deliberately walking figures change pixels. In
-  Schwellenraum the allowlisted flags request sparse 15 Hz redraws and the
-  light-only water veil requests at most 3.75 Hz; the rest of the world remains
-  bit-still. The committed measurement tool
+  every above-ground mode the nine official flags request at most 12 Hz redraws
+  on non-touch devices or 8 Hz in the mobile-like touch profile; Schwellenraum's
+  light-only water veil separately requests at most 3.75 Hz. Reduced-motion,
+  distant, underside and hidden-page views freeze the cloth, and the rest of
+  the world remains bit-still. The committed measurement tool
   independently enforces a bounded perceptual-delta threshold for the rest of
   the frame.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,

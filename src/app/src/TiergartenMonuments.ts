@@ -42,7 +42,7 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * Goethe, the composers, Zeugen Jehovas) are skipped here; this layer
  * adds everything else — the Potsdamer Platz Verkehrsturm replica,
  * the Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
- * Weiße Kreuze, the Fahne der Einheit, the Grundgesetz-49 glass
+ * Weiße Kreuze, the Grundgesetz-49 glass
  * panels, statues on plinths for Lessing/Grimm/Bruno/Der Rufer, and
  * subtype-aware quiet markers. Positions, footprints and memorial types
  * are OSM (ODbL); the drawing is ours.
@@ -2592,14 +2592,6 @@ function buildWhiteCrosses(
   }
 }
 
-function buildUnityFlag(builder: Builder, x: number, y: number, z: number): void {
-  box(builder, STONE, x, y + 0.3, z, 2.2, 0.6, 2.2);
-  box(builder, 0x8e9a9e, x, y + 7.1, z, 0.18, 13, 0.18);
-  box(builder, 0x1c1c1c, x + 1.3, y + 12.5, z, 2.4, 0.55, 0.1);
-  box(builder, 0xb03434, x + 1.3, y + 11.95, z, 2.4, 0.55, 0.1);
-  box(builder, 0xd9a92e, x + 1.3, y + 11.4, z, 2.4, 0.55, 0.1);
-}
-
 /** Grundgesetz 49: the row of glass panels along the Spree. */
 function buildGlassPanels(builder: Builder, x: number, y: number, z: number): void {
   for (let index = -2; index <= 2; index += 1) {
@@ -2846,7 +2838,7 @@ const STATUE_NAMES =
 // intersection. Skipping it here removes the duplicate; the detailed
 // figure now lives solely in createSiegessaeule().
 export const MONUMENTS_ALREADY_MODELLED =
-  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$/i;
+  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
 
 function addMergedMonumentBatch(parent: Group, builder: Builder): void {
   const merged = builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
@@ -2942,8 +2934,6 @@ export function createTiergartenMonuments(
       buildBlueWall(builder, x, y, z);
     } else if (/Weiße Kreuze/i.test(name)) {
       buildWhiteCrosses(builder, x, y, z);
-    } else if (/Fahne der Einheit/i.test(name)) {
-      buildUnityFlag(builder, x, y, z);
     } else if (/Grundgesetz/i.test(name)) {
       buildGlassPanels(builder, x, y, z);
     } else if (/^Robert Koch$/i.test(name)) {

@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.72.12
+
+- **All nine official civic flags now flutter gently in every visual mode.**
+  One shared deterministic wind field keeps the three German and one European
+  Reichstag flags, the German and European Chancellery protocol flags, the
+  Flag of Unity, the Swiss Embassy flag and the Federal President's standard
+  in phase across their **30** cloth and emblem layers. Free-edge movement is
+  capped at **0.28 m** and advances at a bounded **12 Hz** on non-touch devices
+  or **8 Hz** in the mobile-like touch profile. Reduced-motion, distant,
+  underside and hidden-page presentations keep a fixed authored pose, so the
+  new motion does not turn the complete city into a permanent full-rate render.
+- **Snowstorm gives those same flags a restrained ice treatment without
+  freezing the cloth.** Their national colours remain readable beneath a cool
+  frost tint, while two shared instanced batches carry exactly **27** icicles
+  along the nine lower flag edges. Cloth, emblems and icicles follow the same
+  low-amplitude wave; leaving Snowstorm restores the original materials and
+  removes every icicle from view.
+- **Minecraft keeps the buildings block-native while letting their flags move.**
+  The Reichstag and Chancellery retain coarse block masts, but their static
+  block-cloth doubles are removed and the nine official cloth fields remain as
+  the narrow smooth exception over the voxel architecture. The older merged
+  Tiergarten-monument copy of the Flag of Unity is also suppressed; its OSM
+  source identity remains retained by the dedicated official-dimension model.
+
 ## v0.72.11
 
 - **Traffic-signal poles no longer stand in the middle of a modelled

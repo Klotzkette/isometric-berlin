@@ -93,8 +93,7 @@ function pointInWaterRing(
     const crosses =
       currentZ > z !== previousZ > z &&
       x <
-        ((previousX - currentX) * (z - currentZ)) /
-          (previousZ - currentZ) +
+        ((previousX - currentX) * (z - currentZ)) / (previousZ - currentZ) +
           currentX;
     if (crosses) inside = !inside;
   }
@@ -176,9 +175,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
       expect(material.fragmentShader).toContain(
         "if (isProtectedWaterPoint(point)) discard",
       );
-      expect(material.fragmentShader).toContain(
-        "if (vWaterUp < 0.55) discard",
-      );
+      expect(material.fragmentShader).toContain("if (vWaterUp < 0.55) discard");
       expect(material.fragmentShader).toContain("selected = step(0.91, seed)");
       expect(material.vertexShader).toContain("USE_INSTANCING");
       expect(material.vertexShader).toContain(
@@ -231,7 +228,8 @@ describe("Schwellenraum ethereal water atmosphere", () => {
   test("never adds atmosphere inside a protected memorial subtree", () => {
     const root = new Group();
     const memorial = new Group();
-    memorial.name = "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas";
+    memorial.name =
+      "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas";
     memorial.add(water("Sinti and Roma memorial black reflecting water"));
     const soviet = new Group();
     soviet.name = "Soviet memorial exact model";
@@ -250,7 +248,9 @@ describe("Schwellenraum ethereal water atmosphere", () => {
     );
     expect(
       new Set(SCHWELLENRAUM_WATER_PROTECTED_MASKS.map((mask) => mask.sourceId)),
-    ).toEqual(new Set(SCHWELLENRAUM_PROTECTED_VOLUMES.map((volume) => volume.id)));
+    ).toEqual(
+      new Set(SCHWELLENRAUM_PROTECTED_VOLUMES.map((volume) => volume.id)),
+    );
 
     const moabit = SCHWELLENRAUM_WATER_PROTECTED_MASKS.find(
       (mask) => mask.sourceId === "protected-moabit-prison-memorial-park",
@@ -352,11 +352,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
 
     const root = new Group();
     root.add(water("basin water"));
-    setSchwellenraumWaterAtmospherePresentation(
-      [root],
-      "schwellenraum",
-      false,
-    );
+    setSchwellenraumWaterAtmospherePresentation([root], "schwellenraum", false);
     const before = matrices(root);
     expect(updateSchwellenraumWaterAtmosphere([root], 11.5)).toBe(1);
     const material = overlays(root)[0].material as ShaderMaterial;
@@ -443,8 +439,9 @@ describe("Schwellenraum ethereal water atmosphere", () => {
       "if (schwellenraumMotion.animateWaterLight)",
     );
     expect(viewerSource).toContain("updateSchwellenraumWaterAtmosphere(");
+    expect(viewerSource).toContain("if (enteringSchwellenraum)");
     expect(viewerSource).toContain(
-      "if (!isSchwellenraum || enteringSchwellenraum)",
+      "runtime.schwellenraumWaterElapsedSeconds =",
     );
     expect(viewerSource).not.toContain("setInterval(");
   });

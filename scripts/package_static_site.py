@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.11"
+PACKAGE_VERSION = "0.72.12"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3447,6 +3447,20 @@ unbelegte Lücken im Straßennetz gelten nie als Insel. Nach
 Dezimeterquantisierung halten versetzte Masten mindestens 0,5 m Abstand zur
 Fahrbahn. Keine Ampel wird entfernt. Eine schemaspezifische Cache-Abfrage
 verhindert, dass alte Schema-6-Daten die Korrektur verdecken.
+Version {PACKAGE_VERSION} lässt genau neun amtliche Staatsfahnen in Tag, Nacht,
+Minecraft, Schneesturm und Schwellenraum leicht flattern: drei deutsche und
+eine europäische Fahne auf dem Reichstag, die deutsche und europäische
+Protokollfahne am Kanzleramt, die Fahne der Einheit, die Schweizer Fahne und
+die Standarte des Bundespräsidenten. Ihre 30 Tuch- und Emblem-Ebenen bewegen
+sich am freien Rand höchstens 0,28 m, mit maximal 12 Hz ohne Touch und 8 Hz im
+mobilähnlichen Touch-Profil. Bei reduzierter Bewegung sowie in fernen,
+unterirdischen oder ausgeblendeten Ansichten bleibt die Pose fest. Im
+Schneesturm erhalten die Farben einen reversiblen Frostüberzug; genau 27
+gebündelte Eiszapfen bewegen sich mit demselben sanften Wind. Minecraft behält
+blockige Masten, zeigt darüber aber das bewegte Tuch ohne statische
+Block-Doppelung. Die frühere zusätzliche Denkmal-Kopie der Fahne der Einheit
+ist entfernt, ihr OSM-Quellbezug bleibt im eigenen maßstäblichen Modell
+erhalten.
 Version {PACKAGE_VERSION} richtet Hotel Adlon und Starbucks an ihren echten
 Pariser-Platz-Fassaden aus. Adlon folgt OSM-Relation 4582978, Außenweg 26041943
 und LoD2-Körper K00006ot; Rundbögen, Rustika, rotes Eingangsvordach,
@@ -3728,6 +3742,18 @@ unverified road-network gaps never count as islands. After decimetre
 quantisation, every moved pole stays at least 0.5 m clear of the road. No
 signal is removed. A schema-specific cache query prevents stale schema-6 data
 from masking the correction.
+Version {PACKAGE_VERSION} gives exactly nine official state flags a gentle
+flutter in Day, Night, Minecraft, Snowstorm and Schwellenraum: three German
+and one European flag on the Reichstag, the German and European protocol flags
+at the Chancellery, the Flag of Unity, the Swiss flag and the Federal
+President's standard. Their 30 cloth and emblem layers move no more than 0.28 m
+at the free edge, at most 12 Hz without touch or 8 Hz in the mobile-like touch
+profile. Reduced-motion, distant, underside and hidden-page views hold one
+authored pose. Snowstorm applies reversible frost while exactly 27 batched
+icicles follow the same gentle wind. Minecraft retains blocky masts but shows
+the moving cloth without static block duplicates. The former extra monument
+copy of the Flag of Unity is removed while its OSM source identity remains in
+the dedicated metric model.
 Version {PACKAGE_VERSION} aligns Hotel Adlon and Starbucks to their real
 Pariser-Platz frontages. Adlon follows OSM relation 4582978, outer way
 26041943 and LoD2 body K00006ot; arches, rustication, wine-red entrance canopy,

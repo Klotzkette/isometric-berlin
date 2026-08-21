@@ -289,7 +289,11 @@ import {
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { fetchJsonWithRetry } from "./resilientFetch";
-import { updateWindFlags } from "./WindFlags";
+import {
+  civicFlagFrameIntervalMs,
+  setWindFlagWinterPresentation,
+  updateWindFlags,
+} from "./WindFlags";
 import {
   type ModerateRain,
   createModerateRain,
@@ -328,7 +332,6 @@ import {
   setSchwellenraumPraesentation,
 } from "./visual-modes/schwellenraum/presentation";
 import {
-  SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
   countSchwellenraumMovingFlags,
   schwellenraumMotionDecision,
   updateSchwellenraumMovingFlags,
@@ -1784,17 +1787,10 @@ function setSceneLighting(
   setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
   setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm);
   setStarbucksPariserPlatzSnow(runtime.culturalDetails, isSnowstorm);
-  // Every true mode entry starts from one authored cloth pose. A same-mode
-  // Schwellenraum relight (for example after resurfacing) must keep both the
-  // current pose and elapsed clock; resetting only the geometry would make
-  // the next allowlisted 15 Hz tick jump discontinuously.
-  if (!isSchwellenraum || enteringSchwellenraum) {
-    updateWindFlags(runtime.signatures, 0.9);
-    updateWindFlags(runtime.civicDetails, 0.9);
-  }
+  // Cloth uses one continuous low-frequency clock across mode changes. Do not
+  // rewrite it to a start pose here: the next cadence tick must continue from
+  // the visible pose rather than jumping Day -> Night/Snow/Minecraft.
   if (enteringSchwellenraum) {
-    runtime.schwellenraumFlagElapsedSeconds = 0.9;
-    runtime.schwellenraumLastFlagFrameAt = 0;
     runtime.schwellenraumWaterElapsedSeconds =
       SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS;
     runtime.schwellenraumLastWaterFrameAt = 0;
@@ -1901,6 +1897,10 @@ function setSceneLighting(
   }
   runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
   applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
+  // Visibility restoration must happen first. Otherwise a Minecraft-saved
+  // `false` can overwrite the re-enabled winter batch on Minecraft -> Snow.
+  setWindFlagWinterPresentation(runtime.signatures, isSnowstorm);
+  setWindFlagWinterPresentation(runtime.civicDetails, isSnowstorm);
   runtime.monuments.visible = !runtime.underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -5710,12 +5710,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
+        const flagFrameIntervalMs = civicFlagFrameIntervalMs(
+          runtime.coarsePointer,
+        );
+        const movingFlagCount =
+          stability.animateWind &&
+          !runtime.underside &&
+          runtime.fineDetailVisible &&
+          document.visibilityState !== "hidden"
+            ? runtime.schwellenraumMovingFlagCount
+            : 0;
         const schwellenraumMotion = schwellenraumMotionDecision({
+          flagFrameIntervalMs,
           lastFlagFrameAt: runtime.schwellenraumLastFlagFrameAt,
           lastWaterFrameAt: runtime.schwellenraumLastWaterFrameAt,
           minecraftMobsVisible: runtime.minecraftMobs?.group.visible === true,
           mode: runtime.lightingMode,
-          movingFlagCount: runtime.schwellenraumMovingFlagCount,
+          movingFlagCount,
           rainVisible: runtime.rain.group.visible,
           reducedMotion,
           snowVisible: snowfallAnimationActive(runtime.snowstorm),
@@ -5833,15 +5844,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
           }
         } else {
-          if (schwellenraumMotion.animateFlags) {
-            runtime.schwellenraumFlagElapsedSeconds +=
-              SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS / 1000;
-            updateSchwellenraumMovingFlags(
-              [runtime.signatures, runtime.civicDetails],
-              runtime.schwellenraumFlagElapsedSeconds,
-            );
-            runtime.schwellenraumLastFlagFrameAt = timestamp;
-          }
           if (schwellenraumMotion.animateWaterLight) {
             runtime.schwellenraumWaterElapsedSeconds +=
               SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS / 1_000;
@@ -5852,6 +5854,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.schwellenraumLastWaterFrameAt = timestamp;
           }
+        }
+        if (schwellenraumMotion.animateFlags) {
+          runtime.schwellenraumFlagElapsedSeconds += flagFrameIntervalMs / 1000;
+          updateSchwellenraumMovingFlags(
+            [runtime.signatures, runtime.civicDetails],
+            runtime.schwellenraumFlagElapsedSeconds,
+          );
+          runtime.schwellenraumLastFlagFrameAt = timestamp;
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
@@ -5907,7 +5917,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
-          updateWindFlags(runtime.civicDetails, 0.9);
+          updateWindFlags(
+            runtime.civicDetails,
+            runtime.schwellenraumFlagElapsedSeconds,
+          );
           refreshSchwellenraumMovingFlagCount(runtime);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
@@ -5944,6 +5957,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           applyMinecraftVisibility(
             minecraftVisibilityRoots(runtime),
             voxelModeActive(runtime),
+          );
+          setWindFlagWinterPresentation(
+            runtime.civicDetails,
+            runtime.lightingMode === "snowstorm",
           );
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
@@ -6090,7 +6107,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
-          updateWindFlags(runtime.signatures, 0.9);
+          updateWindFlags(
+            runtime.signatures,
+            runtime.schwellenraumFlagElapsedSeconds,
+          );
           refreshSchwellenraumMovingFlagCount(runtime);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
@@ -6107,6 +6127,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           applyMinecraftVisibility(
             minecraftVisibilityRoots(runtime),
             voxelModeActive(runtime),
+          );
+          setWindFlagWinterPresentation(
+            runtime.signatures,
+            runtime.lightingMode === "snowstorm",
           );
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);

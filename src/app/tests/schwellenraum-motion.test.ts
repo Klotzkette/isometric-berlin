@@ -111,13 +111,14 @@ describe("Schwellenraum closed world-motion contract", () => {
     const civic = createCivicLandmarks([
       { name: "Fahne der Einheit", world: [0, 0, 0] },
     ]);
-    const unity = civic.getObjectByName("Official-dimension Flag of Unity model");
+    const unity = civic.getObjectByName(
+      "Official-dimension Flag of Unity model",
+    );
     expect(unity).toBeDefined();
     const authoredKinds: WindFlagKind[] = [];
     unity?.traverse((object) => {
       const data = object.userData.windFlag as
-        | { kind?: WindFlagKind }
-        | undefined;
+        { kind?: WindFlagKind } | undefined;
       if (data?.kind) authoredKinds.push(data.kind);
     });
     expect(authoredKinds).toEqual(["germany", "germany", "germany"]);
@@ -166,22 +167,45 @@ describe("Schwellenraum closed world-motion contract", () => {
       /\.app-shell--schwellenraum \.map-rain,\s*\.app-shell--schwellenraum \.map-snowstorm\s*\{\s*display: none;/,
     );
     expect(stylesSource).toContain(
-      ".mobile-overflow-grid button:disabled[aria-pressed=\"true\"]",
+      '.mobile-overflow-grid button:disabled[aria-pressed="true"]',
     );
   });
 
-  test("retains ordinary environmental animation policy outside Schwellenraum", () => {
+  test("cadences the four civic flags in every ordinary visual mode", () => {
+    for (const mode of ["day", "night", "snowstorm", "minecraft"] as const) {
+      const decision = schwellenraumMotionDecision({
+        lastFlagFrameAt: 0,
+        lastWaterFrameAt: 0,
+        minecraftMobsVisible: false,
+        mode,
+        movingFlagCount: 4,
+        rainVisible: false,
+        reducedMotion: false,
+        snowVisible: false,
+        timestamp: 10_000,
+        waterLightCount: 3,
+      });
+      expect(decision, mode).toEqual({
+        animateFlags: true,
+        animateOrdinaryEnvironment: true,
+        animateWaterLight: false,
+        environmentalMotion: true,
+      });
+    }
+  });
+
+  test("freezes cloth for reduced motion without suppressing ordinary weather", () => {
     const decision = schwellenraumMotionDecision({
       lastFlagFrameAt: 0,
       lastWaterFrameAt: 0,
       minecraftMobsVisible: false,
-      mode: "day",
+      mode: "snowstorm",
       movingFlagCount: 4,
-      rainVisible: true,
-      reducedMotion: false,
-      snowVisible: false,
+      rainVisible: false,
+      reducedMotion: true,
+      snowVisible: true,
       timestamp: 10_000,
-      waterLightCount: 3,
+      waterLightCount: 0,
     });
     expect(decision).toEqual({
       animateFlags: false,

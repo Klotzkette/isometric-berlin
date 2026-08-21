@@ -14,6 +14,11 @@ const FULL_SIGNATURE_ALLOWLIST = new Set([
   "Tilla-Durieux-Park lawn sculpture",
 ]);
 
+const ANIMATED_STATE_FLAG_SIGNATURES = new Set([
+  "Metre-scale Federal Chancellery recognition model",
+  "Metre-scale Reichstag recognition model",
+]);
+
 const AMTSSITZ_ROOT_NAME = "Amtssitz am Spreebogen";
 const AMTSSITZ_FLAG_PREFIX = "Amtssitz presidential standard";
 const REFINEMENT_ROOT_NAME = "Open-data city recognition refinements";
@@ -81,6 +86,15 @@ function applySignaturePolicy(signatures: Object3D): void {
     if (signature.name === AMTSSITZ_ROOT_NAME) {
       setSelectedLeavesVisible(signature, (object) =>
         object.name.startsWith(AMTSSITZ_FLAG_PREFIX),
+      );
+      continue;
+    }
+    if (ANIMATED_STATE_FLAG_SIGNATURES.has(signature.name)) {
+      setSelectedLeavesVisible(signature, (object) =>
+        Boolean(
+          object.userData.windFlag ||
+            object.userData.windFlagInstances,
+        ),
       );
       continue;
     }

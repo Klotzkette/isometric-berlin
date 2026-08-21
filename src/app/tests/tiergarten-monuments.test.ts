@@ -93,6 +93,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
   test("landmarks the recognition layer already models are skipped here", () => {
     expect(MONUMENTS_ALREADY_MODELLED.test("Denkmal für die ermordeten Juden Europas")).toBe(true);
     expect(MONUMENTS_ALREADY_MODELLED.test("Sowjetisches Ehrenmal Tiergarten")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Fahne der Einheit")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Fahne der Einheiten")).toBe(false);
     expect(MONUMENTS_ALREADY_MODELLED.test("Verkehrsturm")).toBe(false);
     expect(MONUMENTS_ALREADY_MODELLED.test("Gotthold Ephraim Lessing")).toBe(false);
     // No drawn-monument geometry near the Soviet memorial's colonnade
@@ -111,6 +113,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
     );
     expect(tallAtEhrenmal).toBe(0);
+
+    const unitySource = street.monuments!.find(
+      ({ name }) => name === "Fahne der Einheit",
+    );
+    expect(unitySource?.osm_key).toBe("node/437140233");
+    expect(
+      monuments.userData.protectedExternallyModelledSourceKeys,
+    ).toContain("node/437140233");
   });
 
   test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {

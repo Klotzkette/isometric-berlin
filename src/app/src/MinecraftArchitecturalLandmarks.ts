@@ -536,14 +536,13 @@ function pushWorldBlock(
   pushBlock(plan, cue, position, size, color, rotationY);
 }
 
-function pushFlag(
+function pushFlagPole(
   plan: BlockPlan,
   frame: LocalFrame,
   cue: string,
   localX: number,
   localZ: number,
   baseY: number,
-  european = false,
 ): void {
   pushLocalBlock(
     plan,
@@ -553,35 +552,6 @@ function pushFlag(
     [0.8, 11, 0.8],
     BLOCK.iron,
   );
-  if (european) {
-    pushLocalBlock(
-      plan,
-      frame,
-      `${cue} blue field`,
-      [localX, baseY + 8.5, localZ + 2.4],
-      [0.9, 3.6, 4],
-      BLOCK.lapis,
-    );
-    pushLocalBlock(
-      plan,
-      frame,
-      `${cue} gold mark`,
-      [localX - 0.5, baseY + 8.5, localZ + 2.5],
-      [1, 1, 1],
-      BLOCK.gold,
-    );
-    return;
-  }
-  for (const [index, color] of [0x111815, BLOCK.red, BLOCK.gold].entries()) {
-    pushLocalBlock(
-      plan,
-      frame,
-      `${cue} stripe`,
-      [localX, baseY + 9.7 - index * 1.15, localZ + 2.4],
-      [0.9, 1.1, 4],
-      color,
-    );
-  }
 }
 
 function finishPlan(
@@ -892,14 +862,13 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
           tier === 1 ? BLOCK.limestone : BLOCK.marbleLight,
         );
       }
-      pushFlag(
+      pushFlagPole(
         plan,
         frame,
         "Reichstag roof flag",
         towerX,
         towerZ,
         profile.bodyHeightM + 1.8,
-        xSide === 1 && zSide === 1,
       );
     }
   }
@@ -1181,7 +1150,7 @@ function createChancelleryBlocks(
   }
 
   const [courtX, courtZ] = profile.forecourtOffsetLocal;
-  pushFlag(
+  pushFlagPole(
     plan,
     frame,
     "Kanzleramt German protocol flag",
@@ -1189,14 +1158,13 @@ function createChancelleryBlocks(
     courtZ - 7.2,
     0,
   );
-  pushFlag(
+  pushFlagPole(
     plan,
     frame,
     "Kanzleramt EU protocol flag",
     courtX,
     courtZ + 7.2,
     0,
-    true,
   );
 
   return finishPlan(
