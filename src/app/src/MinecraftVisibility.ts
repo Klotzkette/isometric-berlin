@@ -30,6 +30,8 @@ const UNITY_FLAGPOLE_NAME = "Flag of Unity 28.5 m galvanized-steel pole";
 const UNITY_STRIPE_NAMES = new Set(
   [1, 2, 3].map((index) => `Flag of Unity animated German stripe ${index}`),
 );
+const BERLINER_ENSEMBLE_PUBLIC_ART_ROOT_NAME =
+  "Berliner Ensemble public-art details";
 
 // Minecraft visibility is deliberately reversible. In particular, night-only
 // fixtures may be false before voxel mode and true after a later Night relight;
@@ -75,6 +77,24 @@ function setSelectedLeavesVisible(
   }
   setOwnedVisibility(root, hasVisibleLeaf);
   return hasVisibleLeaf;
+}
+
+/**
+ * Keep one authored public-art branch without forcing its mode-owned children
+ * (snow-only caps and distance-faded portrait dots) back on.
+ */
+function setSelectedBranchVisible(root: Object3D, branchName: string): boolean {
+  if (root.name === branchName) {
+    setOwnedVisibility(root, true);
+    return true;
+  }
+  let hasVisibleBranch = false;
+  for (const child of root.children) {
+    hasVisibleBranch =
+      setSelectedBranchVisible(child, branchName) || hasVisibleBranch;
+  }
+  setOwnedVisibility(root, hasVisibleBranch);
+  return hasVisibleBranch;
 }
 
 function applySignaturePolicy(signatures: Object3D): void {
@@ -131,6 +151,7 @@ function applyCivicPolicy(civicDetails: Object3D): void {
 export function restoreMinecraftVisibility(
   roots: MinecraftVisibilityRoots,
 ): void {
+  restoreTree(roots.centralDetails);
   restoreTree(roots.signatures);
   restoreTree(roots.civicDetails);
 }
@@ -148,10 +169,15 @@ export function applyMinecraftVisibility(
     restoreMinecraftVisibility(roots);
     return;
   }
-  // Root visibility belongs to the ordinary underside/surface policy. Do not
-  // snapshot it: Minecraft may be entered below ground, where the saved value
-  // would be false even though a later above-ground Day frame must be true.
-  roots.centralDetails.visible = false;
+  // Root visibility starts with the ordinary underside/surface policy. The
+  // selective branch pass may expose the public art only above ground; the
+  // captured value is released before the next mode establishes its baseline.
+  const centralBaselineVisible = roots.centralDetails.visible;
+  setSelectedBranchVisible(
+    roots.centralDetails,
+    BERLINER_ENSEMBLE_PUBLIC_ART_ROOT_NAME,
+  );
+  if (!centralBaselineVisible) roots.centralDetails.visible = false;
   roots.cityStaffage.visible = false;
   applySignaturePolicy(roots.signatures);
   applyCivicPolicy(roots.civicDetails);

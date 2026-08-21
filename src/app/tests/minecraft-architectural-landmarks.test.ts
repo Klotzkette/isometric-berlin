@@ -88,14 +88,26 @@ describe("block-native Berlin architectural signatures", () => {
       expect(material.transparent).toBe(false);
       expect(material.opacity).toBe(1);
       expect(material.map).toBeNull();
+      const isBerlinerEnsemble =
+        mesh.userData.landmarkId === "berliner-ensemble";
       expect(mesh.userData).toMatchObject({
         blockCount: mesh.count,
         blockNative: true,
         blockGrammar: "coarse eight-metre civic voxel",
         coarseBlockSpanM: 8,
-        staticAntiFlicker: true,
+        staticAntiFlicker: !isBerlinerEnsemble,
         transparentGeometry: false,
       });
+      if (isBerlinerEnsemble) {
+        expect(mesh.userData).toMatchObject({
+          berlinerEnsembleRoofSignInstances: true,
+          boundedAnimatedInstances: 34,
+        });
+        expect(mesh.userData.rotatingInstances).toHaveLength(34);
+      } else {
+        expect(mesh.userData.boundedAnimatedInstances).toBeUndefined();
+        expect(mesh.userData.rotatingInstances).toBeUndefined();
+      }
       expect(mesh.userData.maxNonStructuralVerticalSpanM).toBeLessThanOrEqual(
         8.001,
       );
@@ -109,7 +121,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(totalBlocks).toBeGreaterThan(3_500);
     expect(totalBlocks).toBeLessThan(5_000);
     expect(meshes.map(({ count }) => count)).toEqual([
-      327, 371, 2_699, 134, 776, 60, 292,
+      327, 371, 2_699, 134, 776, 56, 292,
     ]);
   });
 

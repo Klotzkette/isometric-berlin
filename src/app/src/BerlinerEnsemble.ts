@@ -1,18 +1,23 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  Camera,
   CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
   Float32BufferAttribute,
   Group,
+  InstancedMesh,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Object3D,
   PlaneGeometry,
   Shape,
   ShapeGeometry,
   TorusGeometry,
+  Vector3,
 } from "three";
 
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
@@ -66,8 +71,16 @@ export const BERLINER_ENSEMBLE_PUBLIC_FACADE_AZIMUTH_DEGREES = 128.274;
 export const BERLINER_ENSEMBLE_FOCUS_AZIMUTH_DEGREES = 121;
 export const BERLINER_ENSEMBLE_FACADE_SURFACE_PROJECTION_M = 0.22;
 export const BERLINER_ENSEMBLE_MAX_FACADE_DETAIL_PROJECTION_M = 0.79;
-export const BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M = 7;
+/** Photo-bounded against the 3.91 m roof-stage crown in the 2019/2023 views. */
+export const BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M = 4.8;
 export const BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M = 34.58;
+export const BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS = 120;
+export const BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_RADIANS_PER_SECOND =
+  (Math.PI * 2) / BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS;
+export const BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER =
+  "berlinerEnsembleRoofSignPivot";
+export const BERLINER_ENSEMBLE_ROOF_SIGN_INSTANCES_MARKER =
+  "berlinerEnsembleRoofSignInstances";
 export const BERLINER_ENSEMBLE_ROOF_CAP_TOP_Y_M = 29.58;
 export const BERLINER_ENSEMBLE_ROOF_TOWER_ANCHOR_WORLD_M = [
   1006.916, -323.789,
@@ -138,9 +151,18 @@ export const BERLINER_ENSEMBLE_PROFILE = {
   roofSign: {
     centreY: BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
     diameterM: BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
-    presentationAnimated: false,
+    presentationAnimated: true,
     realWorldRotates: true,
-    schwellenraumAnimated: false,
+    rotationPeriodSeconds:
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+    schwellenraumAnimated: true,
+    visualModes: [
+      "day",
+      "night",
+      "snowstorm",
+      "minecraft",
+      "schwellenraum",
+    ],
   },
   roofTower: {
     anchorStatus:
@@ -174,6 +196,7 @@ export const BERLINER_ENSEMBLE_PROFILE = {
     "https://d-4.de/en/theater-am-schiffbauerdamm/",
     "https://www.berliner-ensemble.de/index.php/das-theater-am-schiffbauerdamm",
     "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
+    "https://www.tagesspiegel.de/berlin/berliner-wirtschaft/leuchtreklame-1899-das-manoli-rad-liess-berlin-durchdrehen-11247823.html",
     "https://www.openstreetmap.org/way/422928025",
     "https://www.openstreetmap.org/way/43017010",
     "https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin",
@@ -1011,15 +1034,32 @@ function createRoofSign(
   group.name = "Berliner Ensemble open roof sign";
   group.userData = {
     antiFlickerDecision:
-      "real sign rotates; presentation is static in every mode so Schwellenraum remains motionless and mode round-trips cannot accumulate transforms",
+      "one fixed-step 12 Hz desktop / 8 Hz touch phase drives the real slow rotation in all five modes; reduced-motion, hidden, underside, far and off-screen views freeze without transform accumulation",
     geometryStatus:
-      "open metal/neon ring and two-line lettering, photo-bounded and deliberately smaller than the removed generic sign",
-    presentationAnimated: false,
+      "open metal/neon ring and two-line lettering, photo-bounded to 4.8 m and deliberately smaller than the removed seven-metre sign",
+    presentationAnimated: true,
     realWorldRotates: true,
-    schwellenraumAnimated: false,
+    rotationPeriodSeconds:
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+    schwellenraumAnimated: true,
     sourceUrl: "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
   };
   const radius = BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M / 2;
+  const pivot = new Group();
+  pivot.name = "Berliner Ensemble rotating roof-sign pivot";
+  pivot.position.set(centreX, 0, centreZ);
+  pivot.rotation.y = rotationY;
+  pivot.userData = {
+    [BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER]: true,
+    baseRotationY: rotationY,
+    centreWorld: [
+      centreX,
+      BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+      centreZ,
+    ],
+    rotationPeriodSeconds:
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+  };
   const dayMaterial = new MeshBasicMaterial({
     color: BERLINER_ENSEMBLE_TONES.signMetal,
     side: DoubleSide,
@@ -1032,11 +1072,10 @@ function createRoofSign(
   });
   const ring = new Mesh(new TorusGeometry(radius, 0.13, 8, 64), dayMaterial);
   ring.name = "Berliner Ensemble open circular roof-sign ring";
-  ring.position.set(centreX, BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M, centreZ);
-  ring.rotation.y = rotationY;
+  ring.position.set(0, BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M, 0);
   ring.userData.dayMaterial = dayMaterial;
   ring.userData.nightMaterial = nightMaterial;
-  group.add(ring);
+  pivot.add(ring);
 
   const supportHeight =
     BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M - stageTopY - radius * 0.68;
@@ -1062,13 +1101,13 @@ function createRoofSign(
   }
 
   for (const [text, y] of [
-    ["BERLINER", BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M + 0.82],
-    ["ENSEMBLE", BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M - 0.62],
+    ["BERLINER", BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M + 0.58],
+    ["ENSEMBLE", BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M - 0.48],
   ] as const) {
     const texture = createLetteringTexture({
-      bandHeightM: 1.02,
-      bandWidthM: 5.8,
-      capHeightM: 0.7,
+      bandHeightM: 0.72,
+      bandWidthM: 3.9,
+      capHeightM: 0.5,
       fieldColor: "rgba(0,0,0,0)",
       letterColor: "#dedbd2",
       text,
@@ -1092,19 +1131,167 @@ function createRoofSign(
       side: DoubleSide,
       transparent: true,
     });
-    const lettering = new Mesh(new PlaneGeometry(5.8, 1.02), textDay);
+    const lettering = new Mesh(new PlaneGeometry(3.9, 0.72), textDay);
     lettering.name = `Berliner Ensemble roof-sign ${text} lettering`;
-    lettering.position.set(
-      centreX + Math.sin(rotationY) * 0.075,
-      y,
-      centreZ + Math.cos(rotationY) * 0.075,
-    );
-    lettering.rotation.y = rotationY;
+    lettering.position.set(0, y, 0.075);
     lettering.userData.dayMaterial = textDay;
     lettering.userData.nightMaterial = textNight;
-    group.add(lettering);
+    pivot.add(lettering);
   }
+  group.add(pivot);
   return group;
+}
+
+export type BerlinerEnsembleRoofSignMotionDecision = {
+  animate: boolean;
+  environmentalMotion: boolean;
+};
+
+/**
+ * Cadence gate shared by the smooth and block-native sign. It deliberately
+ * carries no mode check: the owner asked for the real rotation in all five
+ * modes, while visibility/accessibility remain the bounded stop conditions.
+ */
+export function berlinerEnsembleRoofSignMotionDecision({
+  enabled,
+  fineDetailVisible,
+  frameIntervalMs,
+  hidden,
+  lastFrameAt,
+  onScreen,
+  reducedMotion,
+  timestamp,
+  underside,
+}: {
+  enabled: boolean;
+  fineDetailVisible: boolean;
+  frameIntervalMs: number;
+  hidden: boolean;
+  lastFrameAt: number;
+  onScreen: boolean;
+  reducedMotion: boolean;
+  timestamp: number;
+  underside: boolean;
+}): BerlinerEnsembleRoofSignMotionDecision {
+  const animate =
+    enabled &&
+    fineDetailVisible &&
+    !hidden &&
+    onScreen &&
+    !reducedMotion &&
+    !underside &&
+    timestamp - lastFrameAt + Number.EPSILON * 1_000 >= frameIntervalMs;
+  return { animate, environmentalMotion: animate };
+}
+
+export function isBerlinerEnsembleRoofSignTarget(object: Object3D): boolean {
+  return (
+    object.userData[BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER] === true ||
+    object.userData[BERLINER_ENSEMBLE_ROOF_SIGN_INSTANCES_MARKER] === true
+  );
+}
+
+/** Collect once at attachment time; the render loop never traverses the city. */
+export function collectBerlinerEnsembleRoofSignTargets(
+  root: Object3D,
+): Object3D[] {
+  const targets: Object3D[] = [];
+  root.traverse((object) => {
+    if (isBerlinerEnsembleRoofSignTarget(object)) targets.push(object);
+  });
+  return targets;
+}
+
+function effectivelyVisible(object: Object3D): boolean {
+  let current: Object3D | null = object;
+  while (current) {
+    if (!current.visible) return false;
+    current = current.parent;
+  }
+  return true;
+}
+
+/** Cheap point-frustum test for the two cached sign targets. */
+export function isBerlinerEnsembleRoofSignOnScreen(
+  targets: readonly Object3D[],
+  camera: Camera,
+  scratch = new Vector3(),
+): boolean {
+  camera.updateMatrixWorld();
+  for (const target of targets) {
+    if (!effectivelyVisible(target)) continue;
+    const centre = target.userData.centreWorld as
+      | readonly [number, number, number]
+      | undefined;
+    if (!centre) continue;
+    scratch.fromArray(centre).project(camera);
+    if (
+      scratch.z >= -1 &&
+      scratch.z <= 1 &&
+      Math.abs(scratch.x) <= 1.08 &&
+      Math.abs(scratch.y) <= 1.08
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+type RoofSignInstanceSpec = {
+  index: number;
+  position: readonly [number, number, number];
+  rotationY: number;
+  size: readonly [number, number, number];
+};
+
+/** Advance both presentations from one absolute phase; mode switches do not jump. */
+export function updateBerlinerEnsembleRoofSign(
+  targets: readonly Object3D[],
+  elapsedSeconds: number,
+): void {
+  const phase =
+    Math.max(0, elapsedSeconds) *
+    BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_RADIANS_PER_SECOND;
+  const matrix = new Matrix4();
+  const scale = new Vector3();
+  for (const target of targets) {
+    if (target.userData[BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER] === true) {
+      const baseRotationY = Number(target.userData.baseRotationY);
+      if (Number.isFinite(baseRotationY)) {
+        target.rotation.y = baseRotationY + phase;
+      }
+      continue;
+    }
+    if (
+      !(target instanceof InstancedMesh) ||
+      target.userData[BERLINER_ENSEMBLE_ROOF_SIGN_INSTANCES_MARKER] !== true
+    ) {
+      continue;
+    }
+    const centre = target.userData.rotationCentreWorld as
+      | readonly [number, number]
+      | undefined;
+    const instances = target.userData.rotatingInstances as
+      | readonly RoofSignInstanceSpec[]
+      | undefined;
+    if (!centre || !instances) continue;
+    const cosine = Math.cos(phase);
+    const sine = Math.sin(phase);
+    for (const instance of instances) {
+      const dx = instance.position[0] - centre[0];
+      const dz = instance.position[2] - centre[1];
+      matrix.makeRotationY(instance.rotationY + phase);
+      scale.fromArray(instance.size);
+      matrix.scale(scale);
+      matrix.setPosition(
+        centre[0] + cosine * dx + sine * dz,
+        instance.position[1],
+        centre[1] - sine * dx + cosine * dz,
+      );
+      target.setMatrixAt(instance.index, matrix);
+    }
+    target.instanceMatrix.needsUpdate = true;
+  }
 }
 
 /**

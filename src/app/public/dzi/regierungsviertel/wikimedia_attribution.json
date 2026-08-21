@@ -1,6 +1,6 @@
 {
   "source": "wikimedia",
-  "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM.",
+  "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM. Records marked attribution-only have no bundled photograph.",
   "records": [
     {
       "landmark_id": "reichstag",
@@ -1216,6 +1216,39 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "artist": "Raimond Spekking",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "french_embassy",
+      "title": "File:Französische Botschaft Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AFranz%C3%B6sische_Botschaft_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Geoprofi Lars",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "akademie_der_kuenste",
+      "title": "File:Akademie der Kuenste Berlin 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AAkademie_der_Kuenste_Berlin_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "brecht_memorial",
+      "title": "File:Bertolt Brecht, Skulptur von Fritz Cremer am BE in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABertolt_Brecht%2C_Skulptur_von_Fritz_Cremer_am_BE_in_Berlin.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

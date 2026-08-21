@@ -11,6 +11,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   Quaternion,
+  SphereGeometry,
   Vector3,
 } from "three";
 
@@ -57,11 +58,9 @@ function openingPoint(index: number, heightOffset = 0): Vector3 {
   const angle = (index / PROFILE.segmentCount) * Math.PI * 2;
   const peakY = PROFILE.groundY + PROFILE.peakHeightAboveGroundM;
   return new Vector3(
-    PROFILE.openingCenterWorldM[0] +
-      Math.cos(angle) * PROFILE.openingRadiusM,
+    PROFILE.openingCenterWorldM[0] + Math.cos(angle) * PROFILE.openingRadiusM,
     peakY - 10.8 + Math.sin(angle - 0.38) * 0.85 + heightOffset,
-    PROFILE.openingCenterWorldM[1] +
-      Math.sin(angle) * PROFILE.openingRadiusM,
+    PROFILE.openingCenterWorldM[1] + Math.sin(angle) * PROFILE.openingRadiusM,
   );
 }
 
@@ -76,11 +75,9 @@ function fitOsmPointToPublishedRing(
   const dx = x - PROFILE.outerRingCenterWorldM[0];
   const dz = z - PROFILE.outerRingCenterWorldM[1];
   const localX =
-    (dx * cos + dz * sin) *
-    (PROFILE.outerRingSizeM[0] / OSM_RING_SIZE_M[0]);
+    (dx * cos + dz * sin) * (PROFILE.outerRingSizeM[0] / OSM_RING_SIZE_M[0]);
   const localZ =
-    (-dx * sin + dz * cos) *
-    (PROFILE.outerRingSizeM[1] / OSM_RING_SIZE_M[1]);
+    (-dx * sin + dz * cos) * (PROFILE.outerRingSizeM[1] / OSM_RING_SIZE_M[1]);
   const fittedX =
     PROFILE.outerRingCenterWorldM[0] + localX * cos - localZ * sin;
   const fittedZ =
@@ -308,6 +305,9 @@ function makeInstancedBoxes(
 function addForumFacades(group: Group): void {
   const glassPanels: BoxInstance[] = [];
   const horizontalRails: BoxInstance[] = [];
+  const verticalMullions: BoxInstance[] = [];
+  const entranceGlazing: BoxInstance[] = [];
+  const parapetCaps: BoxInstance[] = [];
   const redFins: BoxInstance[] = [];
   const radiusX = PROFILE.outerRingSizeM[0] * 0.435;
   const radiusZ = PROFILE.outerRingSizeM[1] * 0.435;
@@ -332,22 +332,60 @@ function addForumFacades(group: Group): void {
     const tangentZ =
       -radiusX * sin * Math.sin(axis) + radiusZ * cos * Math.cos(axis);
     const rotationY = -Math.atan2(tangentZ, tangentX);
-    glassPanels.push({
-      position: new Vector3(x, PROFILE.groundY + 20.2, z),
-      rotationY,
-      size: new Vector3(8.25, 27.2, 0.34),
-    });
+    const tangentLength = Math.hypot(tangentX, tangentZ);
+    const unitTangentX = tangentX / tangentLength;
+    const unitTangentZ = tangentZ / tangentLength;
+    for (let floor = 0; floor < 6; floor += 1) {
+      glassPanels.push({
+        position: new Vector3(x, PROFILE.groundY + 8.85 + floor * 4.3, z),
+        rotationY,
+        size: new Vector3(8.05, 3.86, 0.34),
+      });
+    }
     redFins.push({
-      position: new Vector3(x, PROFILE.groundY + 20.2, z),
+      position: new Vector3(
+        x - unitTangentX * 4.08,
+        PROFILE.groundY + 20.2,
+        z - unitTangentZ * 4.08,
+      ),
       rotationY,
       size: new Vector3(0.32, 28.1, 0.56),
     });
-    for (let floor = 0; floor < 6; floor += 1) {
+    for (const offset of [-2.65, 0, 2.65]) {
+      verticalMullions.push({
+        position: new Vector3(
+          x + unitTangentX * offset,
+          PROFILE.groundY + 20.2,
+          z + unitTangentZ * offset,
+        ),
+        rotationY,
+        size: new Vector3(0.13, 27.4, 0.46),
+      });
+    }
+    for (let floor = 0; floor <= 6; floor += 1) {
       horizontalRails.push({
-        position: new Vector3(x, PROFILE.groundY + 7.1 + floor * 4.65, z),
+        position: new Vector3(x, PROFILE.groundY + 6.7 + floor * 4.3, z),
         rotationY,
         size: new Vector3(8.2, 0.16, 0.5),
       });
+    }
+    parapetCaps.push({
+      position: new Vector3(x, PROFILE.groundY + 34.6, z),
+      rotationY,
+      size: new Vector3(8.25, 0.34, 0.92),
+    });
+    if (index % 2 === 0) {
+      for (const offset of [-2.0, 2.0]) {
+        entranceGlazing.push({
+          position: new Vector3(
+            x + unitTangentX * offset,
+            PROFILE.groundY + 3.05,
+            z + unitTangentZ * offset,
+          ),
+          rotationY,
+          size: new Vector3(3.55, 5.5, 0.32),
+        });
+      }
     }
   }
   group.add(
@@ -382,6 +420,45 @@ function addForumFacades(group: Group): void {
       }),
     ),
     makeInstancedBoxes(
+      "Sony Center stainless vertical mullions",
+      verticalMullions,
+      new MeshBasicMaterial({ color: 0xc9d3d5 }),
+      new MeshStandardMaterial({
+        color: 0x829094,
+        metalness: 0.48,
+        roughness: 0.32,
+      }),
+    ),
+    makeInstancedBoxes(
+      "Sony Center alternating full-height Forum entrances",
+      entranceGlazing,
+      new MeshBasicMaterial({
+        color: 0x527f8b,
+        depthWrite: false,
+        opacity: 0.5,
+        transparent: true,
+      }),
+      new MeshStandardMaterial({
+        color: 0x1f4450,
+        depthWrite: false,
+        emissive: 0x79aab4,
+        emissiveIntensity: 0.22,
+        opacity: 0.54,
+        roughness: 0.24,
+        transparent: true,
+      }),
+    ),
+    makeInstancedBoxes(
+      "Sony Center continuous Forum parapet caps",
+      parapetCaps,
+      new MeshBasicMaterial({ color: 0xdce2e2 }),
+      new MeshStandardMaterial({
+        color: 0x8a9698,
+        metalness: 0.42,
+        roughness: 0.38,
+      }),
+    ),
+    makeInstancedBoxes(
       "Sony Center warm red facade fins",
       redFins,
       new MeshBasicMaterial({ color: 0xa94d43 }),
@@ -395,17 +472,127 @@ function addForumFacades(group: Group): void {
   );
   group.userData.forumFacadePanelCount = panelCount;
   group.userData.forumFacadeFloorCount = 6;
+  group.userData.forumFacadeGlassFieldCount = glassPanels.length;
+  group.userData.forumFacadeMullionCount = verticalMullions.length;
+  group.userData.forumEntranceFieldCount = entranceGlazing.length;
+}
+
+function makeInstancedNodes(
+  name: string,
+  points: Vector3[],
+  radius: number,
+): InstancedMesh {
+  const nodes = new InstancedMesh(
+    new SphereGeometry(radius, 7, 5),
+    STRUCTURE_DAY,
+    points.length,
+  );
+  nodes.name = name;
+  nodes.userData.dayMaterial = STRUCTURE_DAY;
+  nodes.userData.nightMaterial = STRUCTURE_NIGHT;
+  const matrix = new Matrix4();
+  points.forEach((point, index) => {
+    matrix.makeTranslation(point.x, point.y, point.z);
+    nodes.setMatrixAt(index, matrix);
+  });
+  nodes.instanceMatrix.needsUpdate = true;
+  nodes.computeBoundingBox();
+  nodes.computeBoundingSphere();
+  nodes.castShadow = false;
+  return nodes;
+}
+
+/**
+ * The OSM membrane fields and Arup structure stay the metric anchor. These
+ * five shared batches supply the fine clamping, alternating ridge/valley and
+ * night-service details visible in the official engineering photographs.
+ */
+function addRoofGranularity(group: Group): void {
+  const panelClamps: Array<[Vector3, Vector3]> = [];
+  for (const panel of SONY_CENTER_OSM_PANEL_PLAN) {
+    const vertices = panel.vertices.map(([x, z], index) =>
+      fitOsmPointToPublishedRing(x, z, index === 0 ? "inner" : "outer"),
+    );
+    for (let index = 0; index < vertices.length; index += 1) {
+      panelClamps.push([
+        vertices[index],
+        vertices[(index + 1) % vertices.length],
+      ]);
+    }
+  }
+
+  const ridgeCables: Array<[Vector3, Vector3]> = [];
+  const valleyCables: Array<[Vector3, Vector3]> = [];
+  const junctions: Vector3[] = [];
+  const soffitLights: BoxInstance[] = [];
+  for (let index = 0; index < PROFILE.segmentCount; index += 1) {
+    const foldOffset = index % 2 === 0 ? 0.42 : -0.34;
+    const outer = ringPoint(index, foldOffset);
+    const inner = openingPoint(index, foldOffset * 0.58);
+    (index % 2 === 0 ? ridgeCables : valleyCables).push([outer, inner]);
+    junctions.push(outer, inner);
+    const next = ringPoint(index + 1, foldOffset);
+    const midpoint = outer.clone().add(next).multiplyScalar(0.5);
+    soffitLights.push({
+      position: midpoint.add(new Vector3(0, -0.55, 0)),
+      rotationY: (PROFILE.axisDegrees * Math.PI) / 180,
+      size: new Vector3(0.58, 0.18, 0.42),
+    });
+  }
+  const nightLightMaterial = new MeshStandardMaterial({
+    color: 0x625b43,
+    emissive: 0xffbf65,
+    emissiveIntensity: 1.2,
+    roughness: 0.42,
+  });
+  group.add(
+    makeInstancedTubes(
+      "Sony Center membrane field clamp rails",
+      panelClamps,
+      0.035,
+      5,
+    ),
+    makeInstancedTubes(
+      "Sony Center twelve upper ridge cables",
+      ridgeCables,
+      0.075,
+      6,
+    ),
+    makeInstancedTubes(
+      "Sony Center twelve upper valley cables",
+      valleyCables,
+      0.062,
+      6,
+    ),
+    makeInstancedNodes(
+      "Sony Center forty-eight cable junction nodes",
+      junctions,
+      0.18,
+    ),
+    makeInstancedBoxes(
+      "Sony Center twenty-four restrained ring soffit lights",
+      soffitLights,
+      new MeshBasicMaterial({ color: 0x81785f }),
+      nightLightMaterial,
+    ),
+  );
+  group.userData.membraneClampCount = panelClamps.length;
+  group.userData.upperRidgeCableCount = ridgeCables.length;
+  group.userData.upperValleyCableCount = valleyCables.length;
+  group.userData.cableJunctionCount = junctions.length;
 }
 
 function makeReflectingPool(): Mesh {
   const geometry = new CylinderGeometry(8.2, 8.2, 0.08, 48);
   const dayMaterial = new MeshBasicMaterial({
     color: 0x72b7c5,
+    depthWrite: false,
     opacity: 0.74,
     transparent: true,
   });
   const nightMaterial = new MeshStandardMaterial({
     color: 0x315c72,
+    depthWrite: false,
     emissive: 0x6ba4b8,
     emissiveIntensity: 0.18,
     metalness: 0.15,
@@ -426,6 +613,80 @@ function makeReflectingPool(): Mesh {
   return pool;
 }
 
+function addForumFountainDetails(group: Group): void {
+  const rimPairs: Array<[Vector3, Vector3]> = [];
+  const jetPairs: Array<[Vector3, Vector3]> = [];
+  const centre = new Vector3(
+    PROFILE.openingCenterWorldM[0],
+    PROFILE.groundY + 0.23,
+    PROFILE.openingCenterWorldM[1],
+  );
+  const segmentCount = 48;
+  for (let index = 0; index < segmentCount; index += 1) {
+    const angle = (index / segmentCount) * Math.PI * 2;
+    const nextAngle = ((index + 1) / segmentCount) * Math.PI * 2;
+    rimPairs.push([
+      centre
+        .clone()
+        .add(new Vector3(Math.cos(angle) * 8.35, 0, Math.sin(angle) * 8.35)),
+      centre
+        .clone()
+        .add(
+          new Vector3(
+            Math.cos(nextAngle) * 8.35,
+            0,
+            Math.sin(nextAngle) * 8.35,
+          ),
+        ),
+    ]);
+  }
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    const start = centre
+      .clone()
+      .add(new Vector3(Math.cos(angle) * 3.9, 0.03, Math.sin(angle) * 3.9));
+    jetPairs.push([
+      start,
+      start.clone().add(new Vector3(0, 0.78 + (index % 3) * 0.18, 0)),
+    ]);
+  }
+  group.add(
+    makeInstancedTubes(
+      "Sony Center Forum forty-eight-piece fountain rim",
+      rimPairs,
+      0.13,
+      7,
+    ),
+  );
+  const jets = makeInstancedTubes(
+    "Sony Center Forum twelve restrained fountain jets",
+    jetPairs,
+    0.035,
+    5,
+  );
+  const jetDayMaterial = new MeshBasicMaterial({
+    color: 0xa6e3ed,
+    depthWrite: false,
+    opacity: 0.7,
+    transparent: true,
+  });
+  const jetNightMaterial = new MeshStandardMaterial({
+    color: 0x62b8cc,
+    depthWrite: false,
+    emissive: 0x5cabbc,
+    emissiveIntensity: 0.3,
+    opacity: 0.72,
+    roughness: 0.2,
+    transparent: true,
+  });
+  jets.material = jetDayMaterial;
+  jets.userData.dayMaterial = jetDayMaterial;
+  jets.userData.nightMaterial = jetNightMaterial;
+  group.add(jets);
+  group.userData.forumFountainRimSegments = rimPairs.length;
+  group.userData.forumFountainJetCount = jetPairs.length;
+}
+
 /**
  * OSM-plan and Arup-dimensioned reconstruction of the Sony Center Forum roof.
  * The fabric and glass occupy disjoint radial sectors, so transparent depth
@@ -438,6 +699,10 @@ export function createSonyCenterForumRoof(): Group {
   group.userData.presentationRole = "architectural-signature";
   group.userData.geometryStatus = PROFILE.geometryStatus;
   group.userData.sourceUrls = [...PROFILE.sources];
+  group.userData.primaryArchitectureSource =
+    "https://jahn.studio/work/sony-center/";
+  group.userData.visualReferencePolicy =
+    "Free Wikimedia references were inspected for QA only; no image or texture is bundled";
 
   const membraneDayMaterial = new MeshBasicMaterial({
     color: 0xf5f2e8,
@@ -526,7 +791,12 @@ export function createSonyCenterForumRoof(): Group {
       8,
     ),
     makeInstancedTubes("Sony Center radial roof cables", radialPairs, 0.07, 6),
-    makeInstancedTubes("Sony Center lower stay cables", lowerStayPairs, 0.055, 6),
+    makeInstancedTubes(
+      "Sony Center lower stay cables",
+      lowerStayPairs,
+      0.055,
+      6,
+    ),
   );
 
   const peak = kingpostPeak();
@@ -542,7 +812,9 @@ export function createSonyCenterForumRoof(): Group {
 
   const supports: Array<[Vector3, Vector3]> = [];
   for (let index = 0; index < PROFILE.supportCount; index += 1) {
-    const ringIndex = Math.round((index * PROFILE.segmentCount) / PROFILE.supportCount);
+    const ringIndex = Math.round(
+      (index * PROFILE.segmentCount) / PROFILE.supportCount,
+    );
     const top = ringPoint(ringIndex);
     supports.push([
       new Vector3(top.x, PROFILE.groundY + 35.5, top.z),
@@ -553,6 +825,8 @@ export function createSonyCenterForumRoof(): Group {
     makeInstancedTubes("Sony Center seven ring supports", supports, 0.23, 8),
     makeReflectingPool(),
   );
+  addRoofGranularity(group);
+  addForumFountainDetails(group);
   addForumFacades(group);
   return group;
 }

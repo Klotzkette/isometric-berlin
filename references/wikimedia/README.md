@@ -1,12 +1,14 @@
 # Wikimedia visual references
 
-Small Wikimedia Commons thumbnails used as additive visual references
-for the Regierungsviertel hero landmarks. The authoritative geometry
-remains Berlin LoD2; OSM remains the semantic/context source.
+Small Wikimedia Commons thumbnails and attribution-only records for externally
+inspected, freely licensed files used as additive visual references for the
+Regierungsviertel hero landmarks. The authoritative geometry remains Berlin
+LoD2; OSM remains the semantic/context source.
 
 See `geo_data/regierungsviertel/wikimedia_references.json` for per-image URL, author, license, and dominant
-colour metadata. Keep attribution when using any thumbnail or derivative
-texture work based on these references.
+colour metadata where a local thumbnail exists. Records marked
+`external_visual_QA_reference_attribution_only` have no bundled photograph.
+Keep attribution when using any listed reference.
 
 ## Attribution
 
@@ -147,3 +149,6 @@ texture work based on these references.
 | hotel_adlon | [Hotel Adlon Kempinski, 2024 (02).jpg](https://commons.wikimedia.org/wiki/File%3AHotel_Adlon_Kempinski%2C_2024_%2802%29.jpg) | Bahnfrend | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | starbucks_pariser_platz | [Pariser Platz 4A - exterior view 2025.jpg](https://commons.wikimedia.org/wiki/File%3APariser_Platz_4A_-_exterior_view_2025.jpg) | Karmelki90 | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 | starbucks_pariser_platz | [Bürogebäude Pariser Platz 4a, Berlin-Mitte-3877.jpg](https://commons.wikimedia.org/wiki/File%3AB%C3%BCrogeb%C3%A4ude_Pariser_Platz_4a%2C_Berlin-Mitte-3877.jpg) | Raimond Spekking | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| french_embassy | [Französische Botschaft Berlin.jpg](https://commons.wikimedia.org/wiki/File%3AFranz%C3%B6sische_Botschaft_Berlin.jpg) | Geoprofi Lars | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| akademie_der_kuenste | [Akademie der Kuenste Berlin 2.jpg](https://commons.wikimedia.org/wiki/File%3AAkademie_der_Kuenste_Berlin_2.jpg) | Manfred Brückels | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| brecht_memorial | [Bertolt Brecht, Skulptur von Fritz Cremer am BE in Berlin.jpg](https://commons.wikimedia.org/wiki/File%3ABertolt_Brecht%2C_Skulptur_von_Fritz_Cremer_am_BE_in_Berlin.jpg) | Manfred Brückels | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |

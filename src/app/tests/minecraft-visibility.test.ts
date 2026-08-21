@@ -26,6 +26,9 @@ function miniScene(): MinecraftVisibilityRoots & {
   amtssitzBody: Object3D;
   amtssitzFlag: Object3D;
   bridgeDetail: Object3D;
+  centralPublicArt: Group;
+  centralPublicArtSnow: Object3D;
+  centralSmooth: Object3D;
   civicBody: Object3D;
   refinementOther: Group;
   refinementTiergarten: Group;
@@ -117,16 +120,27 @@ function miniScene(): MinecraftVisibilityRoots & {
     unity,
     branch("unknown smooth civic model", object("unknown civic body")),
   );
+  const centralSmooth = object("smooth Hauptbahnhof recognition");
+  const centralPublicArtSnow = object(
+    "Berliner Ensemble public-art snow accents",
+    false,
+  );
+  centralPublicArtSnow.userData.snowOnly = true;
+  const centralPublicArt = branch(
+    "Berliner Ensemble public-art details",
+    object("Bertolt Brecht memorial installation bodies"),
+    centralPublicArtSnow,
+  );
 
   return {
     amtssitz,
     amtssitzBody,
     amtssitzFlag,
     bridgeDetail,
-    centralDetails: branch(
-      "central details",
-      object("smooth Hauptbahnhof recognition"),
-    ),
+    centralDetails: branch("central details", centralSmooth, centralPublicArt),
+    centralPublicArt,
+    centralPublicArtSnow,
+    centralSmooth,
     cityStaffage: branch("city staffage", object("static car")),
     civicBody,
     civicDetails,
@@ -161,7 +175,10 @@ describe("Minecraft smooth-scene visibility", () => {
     const roots = miniScene();
     applyMinecraftVisibility(roots, true);
 
-    expect(roots.centralDetails.visible).toBeFalse();
+    expect(roots.centralDetails.visible).toBeTrue();
+    expect(roots.centralPublicArt.visible).toBeTrue();
+    expect(roots.centralPublicArtSnow.visible).toBeFalse();
+    expect(roots.centralSmooth.visible).toBeFalse();
     expect(roots.cityStaffage.visible).toBeFalse();
     expect(roots.signatures.visible).toBeTrue();
     expect(roots.bridgeDetail.visible).toBeTrue();
@@ -215,13 +232,17 @@ describe("Minecraft smooth-scene visibility", () => {
     roots.centralDetails.visible = false;
     roots.cityStaffage.visible = false;
     applyMinecraftVisibility(roots, true);
+    expect(roots.centralDetails.visible).toBeFalse();
 
     // Surface in the same mode: caller establishes the surface baseline and
-    // the voxel filter hides it again for the Minecraft frame.
+    // the voxel filter keeps only the BE public-art branch for the frame.
     roots.centralDetails.visible = true;
     roots.cityStaffage.visible = true;
     applyMinecraftVisibility(roots, true);
-    expect(roots.centralDetails.visible).toBeFalse();
+    expect(roots.centralDetails.visible).toBeTrue();
+    expect(roots.centralPublicArt.visible).toBeTrue();
+    expect(roots.centralPublicArtSnow.visible).toBeFalse();
+    expect(roots.centralSmooth.visible).toBeFalse();
     expect(roots.cityStaffage.visible).toBeFalse();
 
     // Mode exit restores owned children first; Day then owns both roots.

@@ -42,7 +42,9 @@ const landmarks = [
 describe("cultural and Spree recognition details", () => {
   test("builds the colourful TIPI with the requested bulb marquee", () => {
     const details = createCulturalLandmarks(landmarks);
-    const tipi = details.getObjectByName("Granular TIPI am Kanzleramt show tent");
+    const tipi = details.getObjectByName(
+      "Granular TIPI am Kanzleramt show tent",
+    );
     const marquee = details.getObjectByName(
       "TIPI PIGOR & EICHHORN golden marquee bulbs",
     );
@@ -56,28 +58,42 @@ describe("cultural and Spree recognition details", () => {
     expect(tipi?.userData.ellipseLengthM).toBe(32);
     expect(tipi?.userData.ellipseWidthM).toBe(26);
     expect(tipi?.userData.marquee).toBe("PIGOR & EICHHORN");
+    expect(tipi?.userData.marqueeAlwaysVisible).toBe(true);
+    expect(tipi?.userData.marqueeIsOwnerAuthored).toBe(true);
+    expect(tipi?.userData.mainRoofPeakCount).toBe(8);
     expect(tipi?.userData.todayMarquee).toBe("NUR HEUTE ABEND");
     expect(marquee).toBeInstanceOf(InstancedMesh);
     expect((marquee as InstancedMesh).count).toBeGreaterThan(200);
     expect(todayMarquee).toBeInstanceOf(InstancedMesh);
     expect((todayMarquee as InstancedMesh).count).toBeGreaterThan(150);
-    expect(
-      (marquee as InstancedMesh).material.userData.nightEmissive,
-    ).toBe(0xffbd3d);
+    expect((marquee as InstancedMesh).material.userData.nightEmissive).toBe(
+      0xffbd3d,
+    );
     expect(stringBulbs).toBeInstanceOf(InstancedMesh);
-    expect((stringBulbs as InstancedMesh).count).toBe(220);
+    expect((stringBulbs as InstancedMesh).count).toBe(144);
+    const ribs = tipi?.getObjectByName(
+      "TIPI forty-eight batched canvas seam ribs",
+    ) as InstancedMesh;
+    expect(ribs).toBeInstanceOf(InstancedMesh);
+    expect(ribs.count).toBe(48);
     expect(
-      tipi?.children.filter((child) =>
-        child.name.startsWith("TIPI structural radial rib"),
+      tipi?.getObjectByName("TIPI alternating cool compound roof facets"),
+    ).toBeDefined();
+    const sidePavilions = tipi?.getObjectByName(
+      "TIPI two large side pavilions",
+    ) as InstancedMesh;
+    const rearPavilions = tipi?.getObjectByName(
+      "TIPI two smaller rear pavilions",
+    ) as InstancedMesh;
+    expect(sidePavilions).toBeInstanceOf(InstancedMesh);
+    expect(sidePavilions.count).toBe(2);
+    expect(rearPavilions).toBeInstanceOf(InstancedMesh);
+    expect(rearPavilions.count).toBe(2);
+    expect(
+      tipi?.children.some((child) =>
+        child.name.includes("colourful night uplight"),
       ),
-    ).toHaveLength(20);
-    const uplights = tipi?.children.filter((child) =>
-      child.name.includes("colourful night uplight"),
-    );
-    expect(uplights).toHaveLength(4);
-    expect(uplights?.every((light) => light.userData.nightOnly && !light.visible)).toBe(
-      true,
-    );
+    ).toBe(false);
     expect(
       tipi?.children.filter(
         (child) => child instanceof PointLight && child.userData.nightOnly,
@@ -87,23 +103,28 @@ describe("cultural and Spree recognition details", () => {
 
   test("keeps the TIPI night character in the bulbs, not the canvas", () => {
     const details = createCulturalLandmarks(landmarks);
-    const tipi = details.getObjectByName("Granular TIPI am Kanzleramt show tent");
-    const skirt = tipi?.getObjectByName(
-      "TIPI elliptical canvas skirt",
-    ) as Mesh;
-    const roof = tipi?.getObjectByName(
-      "TIPI main peaked canvas roof",
-    ) as Mesh;
+    const tipi = details.getObjectByName(
+      "Granular TIPI am Kanzleramt show tent",
+    );
+    const skirt = tipi?.getObjectByName("TIPI elliptical canvas skirt") as Mesh;
+    const roof = tipi?.getObjectByName("TIPI main peaked canvas roof") as Mesh;
     const marquee = details.getObjectByName(
       "TIPI PIGOR & EICHHORN golden marquee bulbs",
+    ) as InstancedMesh;
+    const letterCells = details.getObjectByName(
+      "TIPI PIGOR & EICHHORN high-contrast letter cells",
     ) as InstancedMesh;
     const stringBulbs = details.getObjectByName(
       "TIPI warm canvas-rib string bulbs",
     ) as InstancedMesh;
     // Canvas surfaces must not glow like a lampshade at night.
     for (const canvasMesh of [skirt, roof]) {
-      const material = canvasMesh.material as { userData: Record<string, number> };
-      expect(material.userData.nightEmissiveIntensity).toBeLessThanOrEqual(0.15);
+      const material = canvasMesh.material as {
+        userData: Record<string, number>;
+      };
+      expect(material.userData.nightEmissiveIntensity).toBeLessThanOrEqual(
+        0.15,
+      );
     }
     // The bulb chains and golden marquee remain the bright night character.
     expect(
@@ -114,22 +135,61 @@ describe("cultural and Spree recognition details", () => {
       (marquee.material as { userData: Record<string, number> }).userData
         .nightEmissiveIntensity,
     ).toBe(5.4);
+    expect(letterCells).toBeInstanceOf(InstancedMesh);
+    expect(letterCells.count).toBe(marquee.count);
+    expect((letterCells.material as MeshStandardMaterial).transparent).toBe(
+      false,
+    );
+    expect((letterCells.material as MeshStandardMaterial).map).toBeNull();
     const concertLights = tipi?.children.filter(
       (child): child is PointLight =>
         child instanceof PointLight && child.userData.nightOnly === true,
     );
     expect(concertLights?.every((light) => light.intensity <= 8)).toBe(true);
-    expect(tipi?.getObjectByName("TIPI projecting entrance canopy")).toBeDefined();
-    expect(tipi?.getObjectByName("TIPI Kasse ticket booth")).toBeDefined();
-    expect(tipi?.getObjectByName("TIPI Kasse warm service window")).toBeDefined();
     expect(
-      tipi?.children.filter((child) => child.name === "TIPI entrance planter"),
-    ).toHaveLength(4);
+      tipi?.getObjectByName("TIPI projecting entrance canopy"),
+    ).toBeDefined();
+    expect(tipi?.getObjectByName("TIPI Kasse ticket booth")).toBeDefined();
+    expect(
+      tipi?.getObjectByName("TIPI Kasse warm service window"),
+    ).toBeDefined();
+    const planters = tipi?.getObjectByName(
+      "TIPI four entrance planters",
+    ) as InstancedMesh;
+    expect(planters).toBeInstanceOf(InstancedMesh);
+    expect(planters.count).toBe(4);
+  });
+
+  test("keeps the granular TIPI mobile-safe without photo textures", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const tipi = details.getObjectByName(
+      "Granular TIPI am Kanzleramt show tent",
+    ) as Group;
+    let drawables = 0;
+    let instances = 0;
+    tipi.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      drawables += 1;
+      if (object instanceof InstancedMesh) instances += object.count;
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      for (const meshMaterial of materials) {
+        const mapped = meshMaterial as MeshStandardMaterial;
+        expect(mapped.map).toBeNull();
+        if (mapped.transparent) expect(mapped.depthWrite).toBe(false);
+      }
+    });
+
+    expect(drawables).toBeLessThanOrEqual(22);
+    expect(instances).toBeGreaterThan(900);
   });
 
   test("preserves the Carillon height and all 68 visible bells", () => {
     const details = createCulturalLandmarks(landmarks);
-    const carillon = details.getObjectByName("Granular 42 m Carillon im Tiergarten");
+    const carillon = details.getObjectByName(
+      "Granular 42 m Carillon im Tiergarten",
+    );
     const bells = details.getObjectByName("Carillon 68 bronze bells");
     const clappers = details.getObjectByName("Carillon 68 bell clappers");
     expect(carillon).toBeDefined();
@@ -139,7 +199,9 @@ describe("cultural and Spree recognition details", () => {
     // the recognition detail must sit on the official-mesh tower footprint
     // so it does not read as a second Carillon.
     expect(carillon?.position.toArray()).toEqual([-307.06, 4.51, 118.51]);
-    expect(carillon?.userData.payloadAnchorWorld).toEqual([-326.839, 8, 140.633]);
+    expect(carillon?.userData.payloadAnchorWorld).toEqual([
+      -326.839, 8, 140.633,
+    ]);
     expect(
       carillon?.getObjectByName("Carillon black-granite tower shaft"),
     ).toBeUndefined();
@@ -172,7 +234,8 @@ describe("cultural and Spree recognition details", () => {
     }
     const legacyObjects: string[] = [];
     details.traverse((object) => {
-      if (object.name.includes("Spree steamer")) legacyObjects.push(object.name);
+      if (object.name.includes("Spree steamer"))
+        legacyObjects.push(object.name);
     });
     expect(legacyObjects).toEqual([]);
   });
@@ -186,9 +249,8 @@ describe("cultural and Spree recognition details", () => {
       "Spree metrically aligned undulating water surface",
     ) as Mesh;
     const positions = surface.geometry.getAttribute("position");
-    const heights = Array.from(
-      { length: positions.count },
-      (_, index) => positions.getY(index),
+    const heights = Array.from({ length: positions.count }, (_, index) =>
+      positions.getY(index),
     );
 
     expect(waves).toBeDefined();
@@ -232,7 +294,9 @@ describe("cultural and Spree recognition details", () => {
     expect(hkwCamera?.distance_m).toBeGreaterThanOrEqual(380);
     expect(hkwCamera?.target_world).toEqual([-505.17, 3.89, -12.073]);
     expect(culturalFocusCamera("TIPI am Kanzleramt")?.distance_m).toBe(74);
-    expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(20);
+    expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(
+      20,
+    );
     expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);
     expect(culturalFocusCamera("Spreebogen")?.azimuth_degrees).toBe(130);
     const vessel = REAL_SPREE_VESSEL_PROFILES.find(
@@ -275,13 +339,10 @@ describe("cultural and Spree recognition details", () => {
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.osmNodeId).toBe("66917229");
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.lod2BuildingId).toBe("K00005Hq");
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.poiWorldM).toEqual([
-      559.5734097249806,
-      4.95,
-      253.47099111787975,
+      559.5734097249806, 4.95, 253.47099111787975,
     ]);
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM).toEqual([
-      551.552,
-      259.24,
+      551.552, 259.24,
     ]);
     expect(
       STARBUCKS_PARISER_PLATZ_PROFILE.facades.west.sourceEndWorldM,
@@ -360,10 +421,9 @@ describe("cultural and Spree recognition details", () => {
       }
     });
     expect(wordmarks).toHaveLength(2);
-    expect(wordmarks.map((wordmark) => wordmark.userData.facade).sort()).toEqual([
-      "south",
-      "west",
-    ]);
+    expect(
+      wordmarks.map((wordmark) => wordmark.userData.facade).sort(),
+    ).toEqual(["south", "west"]);
     expect(wordmarks[0].material).toBe(wordmarks[1].material);
     expect(
       (wordmarks[0].material as Material).userData.sharedCodeGeneratedTexture,

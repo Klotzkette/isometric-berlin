@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.12 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.12/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.13/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.12** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.13** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,49 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.12**, built from `main`. Its full viewer
+The current public package is **v0.72.13**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Pariser Platz now distinguishes four major civic buildings at close
+  range.** The Max-Liebermann-Haus, French Embassy, US Embassy and Akademie der
+  Künste each receive a source-bounded, texture-free facade layer over their
+  retained Berlin LoD2/OSM bodies: reconstructed Stüler cadence and cornices;
+  roughened base, Bel Etage and Rue de France; limestone grid, cylindrical
+  entrance and State Room lantern; and transparent circulation facade with its
+  suspended historic trace. The drawn layer serves Day, Night, Snowstorm and
+  Schwellenraum; one coarse opaque block batch gives all four a distinct
+  Minecraft reading without copying the smooth geometry.
+
+- **The Center / former Sony Center and TIPI am Kanzleramt have more complete
+  silhouettes.** The Forum combines its 24-part plan with ring lattice,
+  radial/stay cables, kingpost, seven supports, clamps, ridge/valley runs,
+  soffit lights, six-register curved facades and a detailed pool/fountain. The
+  TIPI keeps the published 32 x 26 m envelope but gains an eight-peak compound
+  canvas, 48 seam ribs, entrance/foyer, side and rear pavilions, ticket booth,
+  planters and restrained night light. Its fictional `PIGOR & EICHHORN`
+  headline is explicitly viewer display text authored by the user/project
+  owner—not by the venue—and stays legible in all five modes, including its
+  separate block-native Minecraft version. The presentation-only `NUR HEUTE
+  ABEND` line remains legible in the four drawn modes and is not duplicated in
+  Minecraft.
+
+- **The Berliner Ensemble sign and public art now follow the current reading.**
+  Its open roof ring is a photo-bounded 4.8 m across and turns once per 120
+  seconds in all five modes, with a bounded 12/8 Hz cadence and still poses for
+  reduced-motion, hidden, distant, off-screen or underside views. Fritz
+  Cremer's seated Brecht now includes chair, six-metre sett platform and three
+  surrounding steles. `Eine Skulptur für Helene Weigel`, unveiled on 10 May
+  2026, is represented as the current glass-vitrine work with red chair,
+  object field, light/audio bars, procedural halftone portrait and grilles.
+  Both exact OSM nodes are protected from generic monument doubles; no press
+  photograph or portrait texture ships in the viewer.
+
+- **Minecraft adds only a sparse complement of hostile staffage.** Three
+  Creepers, two bow-carrying Skeletons and three Zombies share one instanced
+  draw call, follow deterministic tree-cleared grass routes and disappear
+  outside Minecraft, water and underside presentations.
 
 - **Traffic-signal poles now stand at the roadside instead of in the modelled
   carriageway.** Schema 7 retains all **1,328** source OSM signal nodes and the

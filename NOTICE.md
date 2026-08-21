@@ -48,6 +48,65 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
 
+- **Pariser-Platz civic architecture (factual and architectural evidence):**
+  the [Stiftung Brandenburger Tor](https://stiftungbrandenburgertor.de/max-liebermann-haus/)
+  documents the Max-Liebermann-Haus critical reconstruction;
+  [2Portzamparc](https://www.2portzamparc.com/en/projects/french-embassy-berlin/)
+  and [Borgert Architekten](https://www.borgert-architekten.de/projekte/franzosische-botschaft)
+  document the French Embassy facade system;
+  [Moore Ruble Yudell](https://www.moorerubleyudell.com/project/united-states-embassy-berlin/)
+  documents the US Embassy; and the
+  [Akademie der Künste](https://adk.de/besuch/veranstaltungsorte/pariser-platz),
+  its [institutional history](https://adk.de/ueber-uns/akademie-geschichte)
+  and [Baunetz Wissen](https://www.baunetzwissen.de/fassade/objekte/kultur-bildung/akademie-der-kuenste-in-berlin-70588)
+  document the Akademie facade and visible circulation. Berlin LoD2 and OSM
+  remain the metric and identity anchors. Four free Wikimedia files were used
+  only for visual QA: Roy Zuo,
+  [*Max-Liebermann-Haus und Palais am Pariser Platz, 24-05-2025.jpg*](https://commons.wikimedia.org/wiki/File%3AMax-Liebermann-Haus_und_Palais_am_Pariser_Platz%2C_24-05-2025.jpg)
+  (CC BY-SA 4.0); Geoprofi Lars,
+  [*Französische Botschaft Berlin.jpg*](https://commons.wikimedia.org/wiki/File%3AFranz%C3%B6sische_Botschaft_Berlin.jpg)
+  (CC BY-SA 4.0); Schlaier,
+  [*US Amerikanische Botschaft Berlin Embassy of the United States in Berlin.JPG*](https://commons.wikimedia.org/wiki/File%3AUS_Amerikanische_Botschaft_Berlin_Embassy_of_the_United_States_in_Berlin.JPG)
+  (public domain); and Manfred Brückels,
+  [*Akademie der Kuenste Berlin 2.jpg*](https://commons.wikimedia.org/wiki/File%3AAkademie_der_Kuenste_Berlin_2.jpg)
+  (CC BY-SA 3.0). No photograph is bundled, projected, traced or used as a
+  facade texture.
+
+- **Center / former Sony Center and TIPI am Kanzleramt (architectural
+  evidence):** the
+  [Arup Journal engineering report](https://www.arup.com/globalassets/downloads/arup-journal/the-arup-journal-2000-issue-2.pdf),
+  [JAHN project page](https://jahn.studio/work/sony-center/) and the 24-part
+  attributed OSM plan bound the Forum roof; local membrane curvature and
+  uncited component spacing remain display reconstruction. The
+  [TIPI venue page](https://www.tipi-am-kanzleramt.de/de/theater/tipi-am-kanzleramt.html)
+  and its
+  [July 2024 technical information](https://www.tipi-am-kanzleramt.de/_Resources/Persistent/0/1/3/9/0139b75bd22d148179852011cf066a1968138877/TIPI_Technikinfo_07_2024.pdf)
+  supply the published auditorium envelope. The TIPI visual QA files and
+  credits are recorded in the Wikimedia manifest; no source photograph is
+  bundled or projected. `PIGOR & EICHHORN` is fictional viewer display text
+  authored by the user/project owner, not by the venue; the accompanying
+  `NUR HEUTE ABEND` line is also presentation text. Neither is attributed to
+  the venue or presented as a current programme.
+
+- **Berliner Ensemble roof sign and current public art (factual and visual
+  evidence):** the
+  [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011192),
+  [theatre history](https://www.berliner-ensemble.de/index.php/das-theater-am-schiffbauerdamm)
+  and [roof-sign account](https://www.berliner-ensemble.de/magazin/berlin-leuchtet)
+  supplement the LoD2/OSM building anchors. The Brecht monument uses the
+  [Deutsche Digitale Bibliothek record](https://www.deutsche-digitale-bibliothek.de/item/5ALSSIMTMT2PKBR7UXTZZASRRBP7K366),
+  [DEFA Stiftung film record](https://www.defa-stiftung.de/en/films/film-search/bertolt-brecht-platz/)
+  and [Bildhauerei in Berlin inventory](https://bildhauerei-in-berlin.de/bildwerk/bertolt-brecht-denkmal-5412/).
+  Manfred Brückels' Commons photograph
+  [*Bertolt Brecht, Skulptur von Fritz Cremer am BE in Berlin.jpg*](https://commons.wikimedia.org/wiki/File%3ABertolt_Brecht%2C_Skulptur_von_Fritz_Cremer_am_BE_in_Berlin.jpg)
+  (CC BY-SA 3.0) was used only as a visual reference. The current Helene Weigel
+  work follows the Berliner Ensemble's
+  [project page](https://www.berliner-ensemble.de/eine-skulptur-fuer-helene-weigel)
+  and [unveiling account](https://www.berliner-ensemble.de/magazin/helene-weigel-hat-einen-neuen-platz).
+  Press photographs by Moritz Haase were inspected only on those source pages;
+  no press image, portrait crop or derived texture is bundled. All displayed
+  sculptural shapes remain procedural recognition geometry, not survey meshes.
+
 - **CSD memorial place at Ahornsteig (factual and visual evidence):**
   [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php)
   and the

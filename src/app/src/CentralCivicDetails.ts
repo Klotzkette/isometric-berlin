@@ -29,6 +29,7 @@ import {
   BERLINER_ENSEMBLE_FOCUS_AZIMUTH_DEGREES,
   BERLINER_ENSEMBLE_PROFILE,
 } from "./BerlinerEnsemble";
+import { createBerlinerEnsemblePublicArt } from "./BerlinerEnsembleMemorials";
 import { createLetteringTexture } from "./drawnLettering";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
@@ -40,6 +41,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
+import { createPariserPlatzArchitecture } from "./PariserPlatzArchitecture";
 
 export { BERLINER_ENSEMBLE_PROFILE } from "./BerlinerEnsemble";
 
@@ -2533,144 +2535,7 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
   }
 }
 
-function addPariserPlatzEmbassies(builder: Builder): void {
-  // US Embassy, Moore Ruble Yudell (OSM way 195257482): the north facade
-  // facing the square is a restrained limestone screen with deep windows.
-  const us = new Vector3(459.5, 4.9, 409.8);
-  const usRotation = 0.087;
-  for (let bay = 0; bay < 11; bay += 1) {
-    const x = -27.5 + bay * 5.5;
-    localBox(
-      builder,
-      LIMESTONE,
-      us,
-      x,
-      11,
-      -52.95,
-      0.52,
-      20.5,
-      0.55,
-      usRotation,
-    );
-    for (let floor = 0; floor < 4; floor += 1) {
-      localLampBox(
-        builder,
-        DARK_GLASS,
-        us,
-        x + 2.4,
-        4.1 + floor * 4.55,
-        -52.82,
-        3.65,
-        2.35,
-        0.3,
-        usRotation,
-      );
-    }
-  }
-  localBox(builder, 0x4b5556, us, 0, 4.2, -53.15, 7.2, 7.2, 0.48, usRotation);
-
-  // French Embassy, Christian de Portzamparc: a pale, horizontally layered
-  // Pariser-Platz facade with a deeper central entrance bay.
-  const france = new Vector3(...EMBASSY_DETAIL_PROFILES.france.anchorWorld);
-  const franceRotation = 0.087;
-  for (let floor = 0; floor < 4; floor += 1) {
-    for (let bay = 0; bay < 13; bay += 1) {
-      localLampBox(
-        builder,
-        floor === 0 ? DARK_GLASS : 0x6f8588,
-        france,
-        -29.4 + bay * 4.9,
-        4.1 + floor * 4.45,
-        29.95,
-        2.85,
-        2.35,
-        0.3,
-        franceRotation,
-      );
-    }
-  }
-  for (let bay = 0; bay <= 13; bay += 1) {
-    localBox(
-      builder,
-      SANDSTONE,
-      france,
-      -31.85 + bay * 4.9,
-      11,
-      30.2,
-      0.34,
-      21,
-      0.42,
-      franceRotation,
-      false,
-    );
-  }
-  localBox(
-    builder,
-    DARK_GLASS,
-    france,
-    0,
-    4.3,
-    30.25,
-    8.6,
-    7.6,
-    0.44,
-    franceRotation,
-  );
-
-  // The square frontage is not a generic office grid: a roughened pale base
-  // supports taller Bel-Etage openings, while the Rue de France remains a
-  // visibly deeper covered passage through the L-shaped complex.
-  localBox(
-    builder,
-    0xe3ded3,
-    france,
-    0,
-    2.25,
-    30.02,
-    66,
-    4.25,
-    0.5,
-    franceRotation,
-  );
-  for (const x of [-26.2, -19.3, -12.4, 8.9, 15.8, 22.7, 29.6]) {
-    localLampBox(
-      builder,
-      0x68868a,
-      france,
-      x,
-      12.3,
-      30.36,
-      4.25,
-      8.1,
-      0.22,
-      franceRotation,
-    );
-  }
-  localBox(
-    builder,
-    0x26383d,
-    france,
-    -2.2,
-    5.2,
-    30.52,
-    11.2,
-    10.1,
-    1.1,
-    franceRotation,
-  );
-  localBox(
-    builder,
-    0xd3c7ae,
-    france,
-    -2.2,
-    10.55,
-    31.05,
-    12.5,
-    0.48,
-    2.15,
-    franceRotation,
-  );
-
+function addWilhelmstrasseEmbassies(builder: Builder): void {
   // British Embassy, Michael Wilford: measured LoD2 body retained. Only the
   // unmistakable Wilhelmstrasse screen and its projecting collage are added.
   const british = new Vector3(
@@ -3047,180 +2912,6 @@ function addEconomicsMinistry(builder: Builder): void {
       false,
     );
   }
-}
-
-function createBerlinerEnsemblePublicArt(): Group | null {
-  const builder = createBuilder();
-  const groundY = 4.08;
-  const bronze = 0x5b716c;
-  const stone = 0xa9a49a;
-  const blackStone = 0x343738;
-  const [brechtX, brechtZ] = BERLINER_ENSEMBLE_PROFILE.brechtMonumentWorld;
-
-  addCylinder(
-    builder,
-    stone,
-    brechtX,
-    groundY + 0.1,
-    brechtZ,
-    BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM / 2,
-    0.2,
-    48,
-  );
-  addBox(
-    builder,
-    blackStone,
-    brechtX,
-    groundY + 0.58,
-    brechtZ,
-    2.25,
-    0.28,
-    0.78,
-  );
-  addBox(
-    builder,
-    blackStone,
-    brechtX + 0.9,
-    groundY + 1.04,
-    brechtZ,
-    0.16,
-    0.92,
-    0.78,
-  );
-  addBox(
-    builder,
-    blackStone,
-    brechtX - 0.9,
-    groundY + 1.04,
-    brechtZ,
-    0.16,
-    0.92,
-    0.78,
-  );
-  addBox(
-    builder,
-    bronze,
-    brechtX - 0.22,
-    groundY + 1.45,
-    brechtZ,
-    0.7,
-    1.15,
-    0.52,
-  );
-  addCylinder(
-    builder,
-    bronze,
-    brechtX - 0.22,
-    groundY + 2.25,
-    brechtZ,
-    0.25,
-    0.42,
-    12,
-  );
-  addBeamBetween(
-    builder,
-    bronze,
-    new Vector3(brechtX - 0.42, groundY + 1.55, brechtZ),
-    new Vector3(brechtX - 0.75, groundY + 0.74, brechtZ - 0.08),
-    0.22,
-  );
-  addBeamBetween(
-    builder,
-    bronze,
-    new Vector3(brechtX, groundY + 1.42, brechtZ),
-    new Vector3(brechtX + 0.55, groundY + 0.78, brechtZ + 0.1),
-    0.2,
-  );
-  for (const angle of [-1.15, 0, 1.15]) {
-    addBox(
-      builder,
-      blackStone,
-      brechtX + Math.cos(angle) * 2.25,
-      groundY + 0.88,
-      brechtZ + Math.sin(angle) * 2.25,
-      0.45,
-      1.65,
-      0.24,
-      -angle,
-    );
-  }
-
-  const [weigelX, weigelZ] =
-    BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
-  const cubeSize = 2.25;
-  for (const x of [-cubeSize / 2, cubeSize / 2]) {
-    for (const z of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(
-        builder,
-        STEEL,
-        weigelX + x,
-        groundY + 1.18,
-        weigelZ + z,
-        0.08,
-        2.3,
-        0.08,
-        0,
-        false,
-      );
-    }
-  }
-  for (const y of [groundY + 0.06, groundY + 2.31]) {
-    for (const z of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(
-        builder,
-        STEEL,
-        weigelX,
-        y,
-        weigelZ + z,
-        cubeSize,
-        0.08,
-        0.08,
-        0,
-        false,
-      );
-    }
-    for (const x of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(
-        builder,
-        STEEL,
-        weigelX + x,
-        y,
-        weigelZ,
-        0.08,
-        0.08,
-        cubeSize,
-        0,
-        false,
-      );
-    }
-  }
-  addBox(builder, 0x68625b, weigelX, groundY + 0.48, weigelZ, 0.62, 0.72, 0.62);
-  addBox(
-    builder,
-    0x68625b,
-    weigelX,
-    groundY + 0.98,
-    weigelZ + 0.25,
-    0.62,
-    0.62,
-    0.1,
-  );
-  const portrait = new SphereGeometry(0.22, 12, 8);
-  portrait.scale(1, 1.28, 0.18);
-  portrait.translate(weigelX, groundY + 1.65, weigelZ - cubeSize / 2 - 0.05);
-  addInkedGeometry(builder, portrait, 0x4f5350, false);
-
-  const details = finishDrawnGroup(builder, {
-    name: "Berliner Ensemble public-art details",
-  });
-  if (details) {
-    details.userData = {
-      ...BERLINER_ENSEMBLE_PROFILE,
-      brechtSite: "Bertolt-Brecht-Platz",
-      heleneWeigelSite: "Helene-Weigel-Hof",
-    };
-  }
-  return details;
 }
 
 type StationPoint3 = readonly [number, number, number];
@@ -4474,7 +4165,7 @@ export function createCentralCivicDetails(
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
   addPariserPlatzDetails(builder, pariserPlatzWaterBuilder);
-  addPariserPlatzEmbassies(builder);
+  addWilhelmstrasseEmbassies(builder);
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);
@@ -4488,6 +4179,7 @@ export function createCentralCivicDetails(
     name: "Central transit and civic details",
   });
   if (drawn) group.add(drawn);
+  group.add(createPariserPlatzArchitecture());
   const pariserPlatzWater = finishDrawnGroup(pariserPlatzWaterBuilder, {
     name: "Pariser Platz authored fountain water detail",
   });

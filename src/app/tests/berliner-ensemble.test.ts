@@ -4,10 +4,12 @@ import {
   BoxGeometry,
   Color,
   InstancedMesh,
+  Matrix4,
   Material,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  PerspectiveCamera,
   Vector3,
 } from "three";
 
@@ -28,10 +30,15 @@ import {
   BERLINER_ENSEMBLE_RETURN_ID,
   BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
   BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
+  BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
   BERLINER_ENSEMBLE_SHOW_FACADE_ID,
   BERLINER_ENSEMBLE_TONES,
   BERLINER_ENSEMBLE_TOWER_FRONT_WALL_INDEX,
+  berlinerEnsembleRoofSignMotionDecision,
+  collectBerlinerEnsembleRoofSignTargets,
   createBerlinerEnsemble,
+  isBerlinerEnsembleRoofSignOnScreen,
+  updateBerlinerEnsembleRoofSign,
 } from "../src/BerlinerEnsemble";
 import {
   centralCivicFocusCamera,
@@ -282,14 +289,16 @@ describe("source-bound Berliner Ensemble exterior", () => {
     expect(ring).toBeInstanceOf(Mesh);
     expect(ring.geometry.type).toBe("TorusGeometry");
     expect(ring.position.y).toBe(BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M);
-    expect(ring.position.x).toBeCloseTo(
+    const ringWorld = ring.getWorldPosition(new Vector3());
+    expect(ringWorld.x).toBeCloseTo(
       BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[0],
       6,
     );
-    expect(ring.position.z).toBeCloseTo(
+    expect(ringWorld.z).toBeCloseTo(
       BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[1],
       6,
     );
+    const pivot = ring.parent!;
     const main = ensemblePrisms.buildings.find(
       ({ id }) => id === BERLINER_ENSEMBLE_MAIN_ID,
     )!;
@@ -298,8 +307,8 @@ describe("source-bound Berliner Ensemble exterior", () => {
       BERLINER_ENSEMBLE_MAIN_SHOW_WALL_INDEX,
     );
     const signNormal: [number, number] = [
-      Math.sin(ring.rotation.y),
-      Math.cos(ring.rotation.y),
+      Math.sin(pivot.rotation.y),
+      Math.cos(pivot.rotation.y),
     ];
     expect(
       signNormal[0] * showFacadeNormal[0] +
@@ -309,10 +318,11 @@ describe("source-bound Berliner Ensemble exterior", () => {
       const lettering = details.getObjectByName(
         `Berliner Ensemble roof-sign ${line} lettering`,
       );
-      expect(lettering?.rotation.y).toBeCloseTo(ring.rotation.y, 10);
+      expect(lettering?.parent).toBe(pivot);
+      expect(lettering?.rotation.y).toBe(0);
     }
     expect(details.userData.roofSignBinding).toMatchObject({
-      rotationY: ring.rotation.y,
+      rotationY: pivot.rotation.y,
       sourcePrismId: BERLINER_ENSEMBLE_MAIN_ID,
       wallIndex: BERLINER_ENSEMBLE_MAIN_SHOW_WALL_INDEX,
     });
@@ -362,16 +372,16 @@ describe("source-bound Berliner Ensemble exterior", () => {
     expect(containedSamples / (sampleSteps + 1) ** 2).toBeGreaterThan(0.99);
     const ringBounds = new Box3().setFromObject(ring);
     const ringSize = ringBounds.getSize(new Vector3());
-    expect(ringSize.y).toBeCloseTo(7.26, 2);
-    expect(Math.hypot(ringSize.x, ringSize.z)).toBeLessThan(7.52);
+    expect(ringSize.y).toBeCloseTo(5.06, 2);
+    expect(Math.hypot(ringSize.x, ringSize.z)).toBeLessThan(5.32);
 
     const bounds = new Box3().setFromObject(details);
     expect(bounds.min.x).toBeGreaterThanOrEqual(984.4);
     expect(bounds.max.x).toBeLessThanOrEqual(1013.4);
     expect(bounds.min.z).toBeGreaterThanOrEqual(-350.7);
     expect(bounds.max.z).toBeLessThanOrEqual(-317.4);
-    expect(bounds.max.y).toBeLessThanOrEqual(38.22);
-    expect(bounds.max.y).toBeGreaterThan(38.19);
+    expect(bounds.max.y).toBeLessThanOrEqual(37.13);
+    expect(bounds.max.y).toBeGreaterThan(37.09);
     expect(
       details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
     ).toBeUndefined();
@@ -380,7 +390,7 @@ describe("source-bound Berliner Ensemble exterior", () => {
     ).toBeUndefined();
   });
 
-  test("round-trips day, night and Schwellenraum without motion or transform drift", () => {
+  test("round-trips materials while one absolute phase rotates the sign without drift", () => {
     const details = model();
     const presentationMeshes: Mesh[] = [];
     details.traverse((object) => {
@@ -400,7 +410,8 @@ describe("source-bound Berliner Ensemble exterior", () => {
     const ring = details.getObjectByName(
       "Berliner Ensemble open circular roof-sign ring",
     ) as Mesh;
-    const initialRotation = ring.rotation.clone();
+    const pivot = ring.parent!;
+    const initialRotationY = pivot.rotation.y;
 
     setIsoNightPresentation(details, true, true, "night");
     presentationMeshes.forEach((mesh, index) => {
@@ -411,11 +422,90 @@ describe("source-bound Berliner Ensemble exterior", () => {
       expect(mesh.material).toBe(dayMaterials[index]);
     });
     setIsoNightPresentation(details, false, true, "day");
-    expect(ring.rotation.equals(initialRotation)).toBeTrue();
-    expect(ring.parent?.userData).toMatchObject({
-      presentationAnimated: false,
-      schwellenraumAnimated: false,
+    expect(pivot.rotation.y).toBe(initialRotationY);
+    expect(pivot.userData).toMatchObject({
+      berlinerEnsembleRoofSignPivot: true,
+      rotationPeriodSeconds: 120,
     });
+    const targets = collectBerlinerEnsembleRoofSignTargets(details);
+    expect(targets).toEqual([pivot]);
+    updateBerlinerEnsembleRoofSign(
+      targets,
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS / 4,
+    );
+    expect(pivot.rotation.y).toBeCloseTo(initialRotationY + Math.PI / 2, 10);
+    const absolutePhaseRotation = pivot.rotation.y;
+    updateBerlinerEnsembleRoofSign(
+      targets,
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS / 4,
+    );
+    expect(pivot.rotation.y).toBe(absolutePhaseRotation);
+    setIsoNightPresentation(details, true, true, "night");
+    setIsoNightPresentation(details, false, true, "schwellenraum");
+    expect(pivot.rotation.y).toBe(absolutePhaseRotation);
+  });
+
+  test("gates slow rotation for mobile, accessibility and hidden/off-screen views", () => {
+    const ready = {
+      enabled: true,
+      fineDetailVisible: true,
+      frameIntervalMs: 125,
+      hidden: false,
+      lastFrameAt: 1_000,
+      onScreen: true,
+      reducedMotion: false,
+      timestamp: 1_125,
+      underside: false,
+    };
+    expect(berlinerEnsembleRoofSignMotionDecision(ready)).toEqual({
+      animate: true,
+      environmentalMotion: true,
+    });
+    for (const blocked of [
+      { hidden: true },
+      { onScreen: false },
+      { reducedMotion: true },
+      { underside: true },
+      { fineDetailVisible: false },
+      { timestamp: 1_124 },
+    ]) {
+      expect(
+        berlinerEnsembleRoofSignMotionDecision({ ...ready, ...blocked }),
+      ).toEqual({ animate: false, environmentalMotion: false });
+    }
+    expect(BERLINER_ENSEMBLE_PROFILE.roofSign.visualModes).toEqual([
+      "day",
+      "night",
+      "snowstorm",
+      "minecraft",
+      "schwellenraum",
+    ]);
+
+    const details = model();
+    const targets = collectBerlinerEnsembleRoofSignTargets(details);
+    const [centreX, centreZ] =
+      BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM;
+    const camera = new PerspectiveCamera(50, 1, 0.1, 1_000);
+    camera.position.set(
+      centreX,
+      BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+      centreZ + 20,
+    );
+    camera.lookAt(
+      centreX,
+      BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+      centreZ,
+    );
+    expect(isBerlinerEnsembleRoofSignOnScreen(targets, camera)).toBeTrue();
+    details.visible = false;
+    expect(isBerlinerEnsembleRoofSignOnScreen(targets, camera)).toBeFalse();
+    details.visible = true;
+    camera.lookAt(
+      centreX + 200,
+      BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+      centreZ,
+    );
+    expect(isBerlinerEnsembleRoofSignOnScreen(targets, camera)).toBeFalse();
   });
 
   test("uses one opaque, source-bound block-native draw in Minecraft", () => {
@@ -431,7 +521,8 @@ describe("source-bound Berliner Ensemble exterior", () => {
       blockCount: mesh.count,
       blockNative: true,
       landmarkId: "berliner-ensemble",
-      staticAntiFlicker: true,
+      boundedAnimatedInstances: 34,
+      staticAntiFlicker: false,
       transparentGeometry: false,
     });
     expect(mesh.userData.profile).toEqual(
@@ -462,7 +553,7 @@ describe("source-bound Berliner Ensemble exterior", () => {
     ).toBeGreaterThan(0.99);
     expect(mesh.userData.cueCounts).toMatchObject({
       "Berliner Ensemble lower lettering cue": 7,
-      "Berliner Ensemble open circular sign": 24,
+      "Berliner Ensemble open circular sign": 20,
       "Berliner Ensemble roof-sign support": 2,
       "Berliner Ensemble stepped hipped roof": 8,
       "Berliner Ensemble taupe roof tower": 9,
@@ -470,6 +561,7 @@ describe("source-bound Berliner Ensemble exterior", () => {
       "Berliner Ensemble upper lettering cue": 7,
     });
     type BoundBlock = {
+      cue: string;
       position: readonly [number, number, number];
       rotationY: number;
       size: readonly [number, number, number];
@@ -505,8 +597,28 @@ describe("source-bound Berliner Ensemble exterior", () => {
     }
     const bounds = new Box3().setFromObject(mesh);
     expect(bounds.min.y).toBeGreaterThanOrEqual(22.14);
-    expect(bounds.max.y).toBeLessThanOrEqual(38.43);
-    expect(BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M).toBe(7);
+    expect(bounds.max.y).toBeLessThanOrEqual(37.3);
+    expect(BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M).toBe(4.8);
+    const rotatingTargets = collectBerlinerEnsembleRoofSignTargets(group);
+    expect(rotatingTargets).toEqual([mesh]);
+    const rotatingIndex = mesh.userData.rotatingInstances[0].index as number;
+    const fixedIndex = sourceBoundBlocks.findIndex(
+      ({ cue }) => cue === "Berliner Ensemble roof-sign support",
+    );
+    const beforeRotating = new Matrix4();
+    const beforeFixed = new Matrix4();
+    mesh.getMatrixAt(rotatingIndex, beforeRotating);
+    mesh.getMatrixAt(fixedIndex, beforeFixed);
+    updateBerlinerEnsembleRoofSign(
+      rotatingTargets,
+      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS / 4,
+    );
+    const afterRotating = new Matrix4();
+    const afterFixed = new Matrix4();
+    mesh.getMatrixAt(rotatingIndex, afterRotating);
+    mesh.getMatrixAt(fixedIndex, afterFixed);
+    expect(afterRotating.elements).not.toEqual(beforeRotating.elements);
+    expect(afterFixed.elements).toEqual(beforeFixed.elements);
   });
 
   test("focuses the real show facade and degrades atomically when a source part is missing", () => {

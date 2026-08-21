@@ -17,7 +17,6 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
-  PointLight,
   SphereGeometry,
   Vector2,
   Vector3,
@@ -29,6 +28,7 @@ import {
   createStarbucksPariserPlatz,
   STARBUCKS_PARISER_PLATZ_PROFILE,
 } from "./StarbucksPariserPlatz";
+import { createTipiAmKanzleramt, TIPI_GROUND_Y } from "./TipiAmKanzleramt";
 
 export type CulturalLandmark = {
   name: string;
@@ -54,7 +54,6 @@ const CARILLON_NAME = "Carillon im Tiergarten";
 const SPREEBOGEN_NAME = "Spreebogen";
 const HKW_NAME = "Haus der Kulturen der Welt (Schwangere Auster)";
 const STARBUCKS_NAME = STARBUCKS_PARISER_PLATZ_PROFILE.name;
-const TIPI_GROUND_Y = 3.98;
 // The committed "Carillon im Tiergarten" landmark anchor derives from
 // Wikimedia photo geotags (photographer standpoints, see
 // geo_data/regierungsviertel/landmarks.geojson) and lands about 29 m
@@ -227,273 +226,6 @@ function addSegment(
     delta.normalize(),
   );
   return mesh;
-}
-
-const DOT_GLYPHS: Record<string, string[]> = {
-  "&": ["01100", "10010", "10100", "01000", "10101", "10010", "01101"],
-  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
-  B: ["11110", "10001", "10001", "11110", "10001", "10001", "11110"],
-  C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
-  D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
-  E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
-  G: ["01110", "10001", "10000", "10111", "10001", "10001", "01110"],
-  H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
-  I: ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
-  N: ["10001", "11001", "11001", "10101", "10011", "10011", "10001"],
-  O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
-  P: ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
-  R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
-  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
-  U: ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
-};
-
-function marqueeTransforms(
-  text: string,
-  options: { centerY: number; spacing: number },
-): InstanceTransform[] {
-  const { centerY, spacing } = options;
-  const glyphAdvance = spacing * 6;
-  const width = text.length * glyphAdvance - spacing;
-  const transforms: InstanceTransform[] = [];
-  for (let characterIndex = 0; characterIndex < text.length; characterIndex += 1) {
-    const glyph = DOT_GLYPHS[text[characterIndex]];
-    if (!glyph) {
-      continue;
-    }
-    for (let row = 0; row < glyph.length; row += 1) {
-      for (let column = 0; column < glyph[row].length; column += 1) {
-        if (glyph[row][column] !== "1") {
-          continue;
-        }
-        transforms.push({
-          position: [
-            -width / 2 + characterIndex * glyphAdvance + column * spacing,
-            centerY + (3 - row) * spacing,
-            14.86,
-          ],
-        });
-      }
-    }
-  }
-  return transforms;
-}
-
-function createTipi(anchor: CulturalLandmark): Group {
-  const group = new Group();
-  group.name = "Granular TIPI am Kanzleramt show tent";
-  group.position.set(anchor.world[0], TIPI_GROUND_Y, anchor.world[2]);
-  group.rotation.y = MathUtils.degToRad(8);
-  group.userData = {
-    ellipseLengthM: 32,
-    ellipseWidthM: 26,
-    geometryStatus:
-      "Official 32 x 26 m venue footprint with a recognition model over the official mesh",
-    marquee: "PIGOR & EICHHORN",
-    todayMarquee: "NUR HEUTE ABEND",
-    sourceUrls: [
-      "https://www.tipi-am-kanzleramt.de/de/theater/tipi-am-kanzleramt.html",
-      "https://www.tipi-am-kanzleramt.de/_Resources/Persistent/0/1/3/9/0139b75bd22d148179852011cf066a1968138877/TIPI_Technikinfo_07_2024.pdf",
-    ],
-  };
-
-  // Night glare policy (owner feedback): the tent canvas must read as fabric
-  // faintly lit by the bulb chains, not as a glowing lampshade. Canvas and
-  // facade emissive intensities stay low; the character comes from the
-  // string bulbs and the untouched golden marquee lights.
-  const canvas = nightEmitter(
-    modelMaterial(0xe8e4d8, { roughness: 0.9 }),
-    0xffb56f,
-    0.12,
-  );
-  const canvasShade = nightEmitter(
-    modelMaterial(0xc7c1b6, { roughness: 0.92 }),
-    0xd94f8c,
-    0.09,
-  );
-  const redFront = nightEmitter(
-    modelMaterial(0x7f2f35, { roughness: 0.74 }),
-    0xd84555,
-    0.3,
-  );
-  const timber = modelMaterial(0x76533b, { roughness: 0.86 });
-  const darkBoard = modelMaterial(0x271b1b, { roughness: 0.66 });
-
-  const skirt = addMesh(
-    group,
-    "TIPI elliptical canvas skirt",
-    new CylinderGeometry(15.6, 15.6, 3.2, 32, 1, true),
-    canvas,
-    [0, 1.6, 0],
-  );
-  skirt.scale.set(16 / 15.6, 1, 13 / 15.6);
-  const roof = addMesh(
-    group,
-    "TIPI main peaked canvas roof",
-    new CylinderGeometry(0.72, 15.6, 15.2, 32, 1, true),
-    canvas,
-    [0, 10.8, 0],
-  );
-  roof.scale.set(16 / 15.6, 1, 13 / 15.6);
-
-  const ribMaterial = modelMaterial(0x67594a, { roughness: 0.68 });
-  for (let index = 0; index < 20; index += 1) {
-    const angle = (index / 20) * Math.PI * 2;
-    addSegment(
-      group,
-      `TIPI structural radial rib ${index + 1}`,
-      new Vector3(0, 18.32, 0),
-      new Vector3(Math.cos(angle) * 16, 3.18, Math.sin(angle) * 13),
-      0.055,
-      ribMaterial,
-    );
-  }
-
-  for (const side of [-1, 1]) {
-    const sideTent = addMesh(
-      group,
-      `TIPI side peaked foyer ${side}`,
-      new ConeGeometry(7.2, 9.8, 20, 1, true),
-      side < 0 ? canvasShade : canvas,
-      [side * 12.8, 4.9, 7.8],
-    );
-    sideTent.scale.z = 0.78;
-  }
-
-  addBox(
-    group,
-    "TIPI red entrance facade",
-    [23.5, 5.8, 1.1],
-    [0, 2.9, 13.7],
-    redFront,
-  );
-  addBox(
-    group,
-    "TIPI projecting entrance canopy",
-    [18.8, 0.32, 3.8],
-    [0, 5.6, 15.5],
-    timber,
-  );
-  for (const x of [-7.8, -2.6, 2.6, 7.8]) {
-    addBox(
-      group,
-      "TIPI timber entrance door",
-      [3.5, 4.5, 0.36],
-      [x, 2.25, 14.34],
-      timber,
-    );
-  }
-  addBox(
-    group,
-    "TIPI Kasse ticket booth",
-    [3.7, 3.6, 2.8],
-    [12.4, 1.8, 15.2],
-    timber,
-  );
-  addBox(
-    group,
-    "TIPI Kasse warm service window",
-    [2.1, 1.35, 0.12],
-    [12.4, 2.35, 16.66],
-    nightEmitter(modelMaterial(0x635344), 0xffcf7d, 1.1),
-  );
-  for (const x of [-10.8, -8.8, 8.8, 10.8]) {
-    addMesh(
-      group,
-      "TIPI entrance planter",
-      new CylinderGeometry(0.48, 0.62, 0.78, 12),
-      modelMaterial(0x596956, { roughness: 0.9 }),
-      [x, 0.39, 15.45],
-    );
-  }
-  addBox(
-    group,
-    "TIPI two-line golden marquee board",
-    [25.4, 5.5, 0.44],
-    [0, 8.05, 14.62],
-    darkBoard,
-  );
-  addInstances(
-    group,
-    "TIPI PIGOR & EICHHORN golden marquee bulbs",
-    new SphereGeometry(0.078, 8, 6),
-    nightEmitter(
-      modelMaterial(0x8a681d, { metalness: 0.42, roughness: 0.28 }),
-      0xffbd3d,
-      5.4,
-    ),
-    marqueeTransforms("PIGOR & EICHHORN", {
-      centerY: 9.18,
-      spacing: 0.225,
-    }),
-  );
-  addInstances(
-    group,
-    "TIPI NUR HEUTE ABEND golden marquee bulbs",
-    new SphereGeometry(0.067, 8, 6),
-    nightEmitter(
-      modelMaterial(0x8a681d, { metalness: 0.42, roughness: 0.28 }),
-      0xffc957,
-      5.1,
-    ),
-    marqueeTransforms("NUR HEUTE ABEND", {
-      centerY: 6.67,
-      spacing: 0.165,
-    }),
-  );
-
-  const stringBulbs: InstanceTransform[] = [];
-  for (let rib = 0; rib < 20; rib += 1) {
-    const angle = (rib / 20) * Math.PI * 2;
-    for (let step = 0; step <= 10; step += 1) {
-      const t = step / 10;
-      const radius = 12.95 * (1 - t) + 0.72 * t;
-      stringBulbs.push({
-        position: [
-          Math.cos(angle) * radius * (16 / 13),
-          3.25 + t * 15.1,
-          Math.sin(angle) * radius,
-        ],
-      });
-    }
-  }
-  addInstances(
-    group,
-    "TIPI warm canvas-rib string bulbs",
-    new SphereGeometry(0.085, 7, 5),
-    nightEmitter(modelMaterial(0x8d7443), 0xffd27a, 4.1),
-    stringBulbs,
-  );
-
-  const washColors = [0xff477e, 0x47d7ff, 0xa967ff, 0xffb13b];
-  washColors.forEach((color, index) => {
-    const angle = MathUtils.degToRad(-42 + index * 28);
-    const wash = addMesh(
-      group,
-      `TIPI colourful night uplight ${index + 1}`,
-      new ConeGeometry(2.25, 7.5, 16, 1, true),
-      nightEmitter(
-        modelMaterial(0x343434, { opacity: 0.08, roughness: 0.5 }),
-        color,
-        1.3,
-      ),
-      [Math.sin(angle) * 11.8, 3.75, Math.cos(angle) * 11.8],
-    );
-    wash.rotation.z = Math.sin(angle) * 0.13;
-    wash.userData.nightOnly = true;
-    wash.visible = false;
-    const light = new PointLight(color, 8, 34, 1.45);
-    light.name = `TIPI colourful concert light ${index + 1}`;
-    light.position.set(
-      Math.sin(angle) * 9.8,
-      4.2,
-      Math.cos(angle) * 9.8,
-    );
-    light.visible = false;
-    light.userData.nightOnly = true;
-    group.add(light);
-  });
-
-  return group;
 }
 
 function bellGeometry(): LatheGeometry {
@@ -914,7 +646,7 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   const tipi = byName.get(TIPI_NAME);
   const carillon = byName.get(CARILLON_NAME);
   if (tipi) {
-    group.add(createTipi(tipi));
+    group.add(createTipiAmKanzleramt(tipi.world));
   }
   if (carillon) {
     group.add(createCarillon(carillon));

@@ -1,6 +1,7 @@
 import {
   BoxGeometry,
   Color,
+  DynamicDrawUsage,
   Group,
   InstancedMesh,
   Matrix4,
@@ -20,6 +21,7 @@ import {
   BERLINER_ENSEMBLE_ROOF_CAP_TOP_Y_M,
   BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
   BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
+  BERLINER_ENSEMBLE_ROOF_SIGN_INSTANCES_MARKER,
   BERLINER_ENSEMBLE_ROOF_TOWER_ROTATION_DEGREES,
 } from "./BerlinerEnsemble";
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
@@ -2199,7 +2201,7 @@ function createBerlinerEnsembleBlocks(
   const radius = profile.blockLoD.signDiameterM / 2;
   const roofTop = profile.blockLoD.roofStageTopY - signFrame.anchorWorld[1];
   const supportHeight = Math.max(1, centreY - radius - roofTop + 0.55);
-  for (const localX of [-2.55, 2.55]) {
+  for (const localX of [-radius * 0.48, radius * 0.48]) {
     pushLocalBlock(
       plan,
       signFrame,
@@ -2209,28 +2211,28 @@ function createBerlinerEnsembleBlocks(
       BLOCK.iron,
     );
   }
-  for (let segment = 0; segment < 24; segment += 1) {
-    const angle = (segment / 24) * Math.PI * 2;
+  for (let segment = 0; segment < 20; segment += 1) {
+    const angle = (segment / 20) * Math.PI * 2;
     pushLocalBlock(
       plan,
       signFrame,
       "Berliner Ensemble open circular sign",
       [Math.cos(angle) * radius, centreY + Math.sin(angle) * radius, 0],
-      [0.68, 0.68, 0.68],
+      [0.54, 0.54, 0.54],
       BLOCK.red,
     );
   }
   for (const [line, localY] of [
-    ["upper", centreY + 0.72],
-    ["lower", centreY - 0.72],
+    ["upper", centreY + 0.54],
+    ["lower", centreY - 0.48],
   ] as const) {
-    for (const localX of [-2.35, -1.55, -0.75, 0.05, 0.85, 1.65, 2.45]) {
+    for (const localX of [-1.65, -1.1, -0.55, 0, 0.55, 1.1, 1.65]) {
       pushLocalBlock(
         plan,
         signFrame,
         `Berliner Ensemble ${line} lettering cue`,
         [localX, localY, 0.18],
-        [0.52, 0.58, 0.5],
+        [0.42, 0.46, 0.36],
         BLOCK.quartzIvory,
       );
     }
@@ -2243,6 +2245,31 @@ function createBerlinerEnsembleBlocks(
     profile,
     resources,
   );
+  const rotatingCues = new Set([
+    "Berliner Ensemble open circular sign",
+    "Berliner Ensemble upper lettering cue",
+    "Berliner Ensemble lower lettering cue",
+  ]);
+  mesh.instanceMatrix.setUsage(DynamicDrawUsage);
+  mesh.userData[BERLINER_ENSEMBLE_ROOF_SIGN_INSTANCES_MARKER] = true;
+  mesh.userData.centreWorld = [
+    signFrame.anchorWorld[0],
+    profile.blockLoD.signCentreY,
+    signFrame.anchorWorld[2],
+  ];
+  mesh.userData.rotationCentreWorld = [
+    signFrame.anchorWorld[0],
+    signFrame.anchorWorld[2],
+  ];
+  mesh.userData.rotatingInstances = plan.blocks.flatMap(
+    ({ cue, position, rotationY, size }, index) =>
+      rotatingCues.has(cue)
+        ? [{ index, position: [...position], rotationY, size: [...size] }]
+        : [],
+  );
+  mesh.userData.boundedAnimatedInstances =
+    mesh.userData.rotatingInstances.length;
+  mesh.userData.staticAntiFlicker = false;
   mesh.userData.sourceBoundBlocks = plan.blocks.map(
     ({ cue, position, rotationY, size }) => ({
       cue,

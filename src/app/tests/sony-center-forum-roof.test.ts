@@ -40,7 +40,9 @@ describe("Sony Center Forum roof", () => {
     ) as Mesh;
     expect(membrane).toBeInstanceOf(Mesh);
     expect(SONY_CENTER_OSM_PANEL_PLAN).toHaveLength(24);
-    expect(new Set(SONY_CENTER_OSM_PANEL_PLAN.map((panel) => panel.wayId))).toEqual(
+    expect(
+      new Set(SONY_CENTER_OSM_PANEL_PLAN.map((panel) => panel.wayId)),
+    ).toEqual(
       new Set(POTSDAMER_DETAIL_PROFILE.sonyCenterForumRoof.sourceOsmWayIds),
     );
     expect(membrane.geometry.getAttribute("position").count).toBe(147);
@@ -48,17 +50,19 @@ describe("Sony Center Forum roof", () => {
     expect(membrane.userData.nightMaterial).toBeInstanceOf(
       MeshStandardMaterial,
     );
-    expect((membrane.userData.dayMaterial as MeshBasicMaterial).transparent).toBe(
-      true,
-    );
-    expect((membrane.userData.dayMaterial as MeshBasicMaterial).depthWrite).toBe(
-      false,
-    );
-    const glass = roof.getObjectByName("Sony Center glass roof sectors") as Mesh;
+    expect(
+      (membrane.userData.dayMaterial as MeshBasicMaterial).transparent,
+    ).toBe(true);
+    expect(
+      (membrane.userData.dayMaterial as MeshBasicMaterial).depthWrite,
+    ).toBe(false);
+    const glass = roof.getObjectByName(
+      "Sony Center glass roof sectors",
+    ) as Mesh;
     expect(glass.geometry.getAttribute("position").count).toBe(144);
-    expect((glass.userData.dayMaterial as MeshBasicMaterial).opacity).toBeLessThan(
-      0.25,
-    );
+    expect(
+      (glass.userData.dayMaterial as MeshBasicMaterial).opacity,
+    ).toBeLessThan(0.25);
     expect((glass.userData.dayMaterial as MeshBasicMaterial).depthWrite).toBe(
       false,
     );
@@ -70,7 +74,9 @@ describe("Sony Center Forum roof", () => {
     expect(membraneBounds.max.z - membraneBounds.min.z).toBeLessThanOrEqual(
       profile.outerRingSizeM[0] + 1,
     );
-    expect(roof.getObjectByName("Sony Center Forum reflecting pool")).toBeDefined();
+    expect(
+      roof.getObjectByName("Sony Center Forum reflecting pool"),
+    ).toBeDefined();
     expect(roof.userData.sourceUrls).toEqual([
       ...POTSDAMER_DETAIL_PROFILE.sonyCenterForumRoof.sources,
     ]);
@@ -119,19 +125,36 @@ describe("Sony Center Forum roof", () => {
     const fins = roof.getObjectByName(
       "Sony Center warm red facade fins",
     ) as InstancedMesh;
+    const mullions = roof.getObjectByName(
+      "Sony Center stainless vertical mullions",
+    ) as InstancedMesh;
+    const entrances = roof.getObjectByName(
+      "Sony Center alternating full-height Forum entrances",
+    ) as InstancedMesh;
+    const parapets = roof.getObjectByName(
+      "Sony Center continuous Forum parapet caps",
+    ) as InstancedMesh;
 
     expect(glass).toBeInstanceOf(InstancedMesh);
     expect(rails).toBeInstanceOf(InstancedMesh);
     expect(fins).toBeInstanceOf(InstancedMesh);
-    expect(glass.count).toBe(28);
-    expect(rails.count).toBe(28 * 6);
+    expect(mullions).toBeInstanceOf(InstancedMesh);
+    expect(entrances).toBeInstanceOf(InstancedMesh);
+    expect(parapets).toBeInstanceOf(InstancedMesh);
+    expect(glass.count).toBe(28 * 6);
+    expect(rails.count).toBe(28 * 7);
     expect(fins.count).toBe(28);
+    expect(mullions.count).toBe(28 * 3);
+    expect(entrances.count).toBe(28);
+    expect(parapets.count).toBe(28);
     expect(glass.userData.dayMaterial).toBeInstanceOf(MeshBasicMaterial);
     expect(glass.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
-    expect(
-      (glass.userData.dayMaterial as MeshBasicMaterial).transparent,
-    ).toBe(true);
-    expect((glass.userData.dayMaterial as MeshBasicMaterial).opacity).toBe(0.28);
+    expect((glass.userData.dayMaterial as MeshBasicMaterial).transparent).toBe(
+      true,
+    );
+    expect((glass.userData.dayMaterial as MeshBasicMaterial).opacity).toBe(
+      0.28,
+    );
     expect((glass.userData.dayMaterial as MeshBasicMaterial).depthWrite).toBe(
       false,
     );
@@ -146,6 +169,73 @@ describe("Sony Center Forum roof", () => {
     ).toBe(false);
     expect(roof.userData.forumFacadePanelCount).toBe(28);
     expect(roof.userData.forumFacadeFloorCount).toBe(6);
+    expect(roof.userData.forumFacadeGlassFieldCount).toBe(168);
+    expect(roof.userData.forumFacadeMullionCount).toBe(84);
+    expect(roof.userData.forumEntranceFieldCount).toBe(28);
+  });
+
+  test("adds batched roof fasteners, folded cables and restrained Forum water detail", () => {
+    const roof = createSonyCenterForumRoof();
+    const clamps = roof.getObjectByName(
+      "Sony Center membrane field clamp rails",
+    ) as InstancedMesh;
+    const ridges = roof.getObjectByName(
+      "Sony Center twelve upper ridge cables",
+    ) as InstancedMesh;
+    const valleys = roof.getObjectByName(
+      "Sony Center twelve upper valley cables",
+    ) as InstancedMesh;
+    const junctions = roof.getObjectByName(
+      "Sony Center forty-eight cable junction nodes",
+    ) as InstancedMesh;
+    const lights = roof.getObjectByName(
+      "Sony Center twenty-four restrained ring soffit lights",
+    ) as InstancedMesh;
+    const rim = roof.getObjectByName(
+      "Sony Center Forum forty-eight-piece fountain rim",
+    ) as InstancedMesh;
+    const jets = roof.getObjectByName(
+      "Sony Center Forum twelve restrained fountain jets",
+    ) as InstancedMesh;
+
+    expect(clamps.count).toBe(97);
+    expect(ridges.count).toBe(12);
+    expect(valleys.count).toBe(12);
+    expect(junctions.count).toBe(48);
+    expect(lights.count).toBe(24);
+    expect(rim.count).toBe(48);
+    expect(jets.count).toBe(12);
+    expect((jets.material as MeshBasicMaterial).transparent).toBe(true);
+    expect((jets.material as MeshBasicMaterial).depthWrite).toBe(false);
+    expect(roof.userData.primaryArchitectureSource).toContain("jahn.studio");
+    expect(roof.userData.visualReferencePolicy).toContain("no image");
+  });
+
+  test("keeps the added detail mobile-safe and texture-free", () => {
+    const roof = createSonyCenterForumRoof();
+    let drawables = 0;
+    let instances = 0;
+    roof.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      drawables += 1;
+      if (object instanceof InstancedMesh) instances += object.count;
+      const activeMaterials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      const modeMaterials = [
+        object.userData.dayMaterial,
+        object.userData.nightMaterial,
+      ].filter(Boolean);
+      for (const material of [...activeMaterials, ...modeMaterials]) {
+        const mapped = material as MeshBasicMaterial | MeshStandardMaterial;
+        expect(mapped.map).toBeNull();
+        if (mapped.transparent) expect(mapped.depthWrite).toBe(false);
+      }
+    });
+
+    expect(drawables).toBeLessThanOrEqual(24);
+    expect(instances).toBeGreaterThan(900);
+    expect(instances).toBeLessThan(1_100);
   });
 
   test("stays within the metric Forum envelope and published peak height", () => {
@@ -155,8 +245,7 @@ describe("Sony Center Forum roof", () => {
     expect(bounds.max.x - bounds.min.x).toBeLessThan(110);
     expect(bounds.max.z - bounds.min.z).toBeLessThan(90);
     expect(bounds.min.y).toBeGreaterThanOrEqual(profile.groundY);
-    const publishedPeakY =
-      profile.groundY + profile.peakHeightAboveGroundM;
+    const publishedPeakY = profile.groundY + profile.peakHeightAboveGroundM;
     expect(bounds.max.y).toBeGreaterThanOrEqual(publishedPeakY);
     expect(bounds.max.y).toBeLessThanOrEqual(publishedPeakY + 0.4);
   });

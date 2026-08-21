@@ -15,9 +15,10 @@ import {
 } from "./MinecraftVoxelWorld";
 
 export const CREEPER_COUNT = 3;
-export const ZOMBIE_COUNT = 4;
+export const SKELETON_COUNT = 2;
+export const ZOMBIE_COUNT = 3;
 
-type MobKind = "creeper" | "zombie";
+type MobKind = "creeper" | "skeleton" | "zombie";
 type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
 
 type MobPart = {
@@ -47,6 +48,7 @@ export type MinecraftMobField = {
   mesh: InstancedMesh;
   mobs: MobState[];
   parts: MobPart[];
+  skeletonCount: number;
   zombieCount: number;
 };
 
@@ -57,6 +59,10 @@ const ZOMBIE_GREEN = 0x74a85c;
 const ZOMBIE_SHIRT = 0x4b92a3;
 const ZOMBIE_SHIRT_LIGHT = 0x72c5d2;
 const ZOMBIE_TROUSERS = 0x334b72;
+const SKELETON_BONE = 0xd9d8c8;
+const SKELETON_LIGHT = 0xf0eee0;
+const SKELETON_SHADOW = 0xa7a797;
+const SKELETON_BOW = 0x76502f;
 const FACE_DARK = 0x18251b;
 // The voxel world uses 4 m blocks; a strict 1.8 m person disappears below
 // one half-cell and behind every crown. One-block-high staffage stays legible
@@ -75,7 +81,8 @@ const DESIRED_SPAWNS: ReadonlyArray<{
   { heading: 1.2, kind: "zombie", x: 245, z: 230 },
   { heading: 3.5, kind: "zombie", x: 360, z: 180 },
   { heading: 5.1, kind: "zombie", x: -260, z: 100 },
-  { heading: 2.7, kind: "zombie", x: -40, z: 670 },
+  { heading: 2.7, kind: "skeleton", x: -40, z: 670 },
+  { heading: 5.6, kind: "skeleton", x: 510, z: 460 },
 ];
 
 function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {
@@ -278,6 +285,51 @@ function zombieParts(mobIndex: number): MobPart[] {
   ];
 }
 
+function skeletonParts(mobIndex: number): MobPart[] {
+  return [
+    mobPart(mobIndex, SKELETON_LIGHT, [0, 1.75, 0], [0.64, 0.64, 0.64]),
+    mobPart(mobIndex, SKELETON_BONE, [0, 1.08, 0], [0.18, 0.72, 0.18]),
+    mobPart(mobIndex, SKELETON_BONE, [0, 1.36, 0], [0.7, 0.12, 0.2]),
+    mobPart(mobIndex, SKELETON_BONE, [0, 1.15, 0], [0.62, 0.1, 0.18]),
+    mobPart(mobIndex, SKELETON_BONE, [0, 0.94, 0], [0.54, 0.1, 0.16]),
+    mobPart(mobIndex, SKELETON_SHADOW, [0, 0.7, 0], [0.48, 0.18, 0.22]),
+    mobPart(
+      mobIndex,
+      SKELETON_BONE,
+      [-0.43, 1.05, 0.04],
+      [0.16, 0.82, 0.16],
+      "arm-left",
+    ),
+    mobPart(
+      mobIndex,
+      SKELETON_BONE,
+      [0.43, 1.05, 0.04],
+      [0.16, 0.82, 0.16],
+      "arm-right",
+    ),
+    mobPart(
+      mobIndex,
+      SKELETON_BONE,
+      [-0.17, 0.34, 0],
+      [0.16, 0.7, 0.16],
+      "leg-left",
+    ),
+    mobPart(
+      mobIndex,
+      SKELETON_BONE,
+      [0.17, 0.34, 0],
+      [0.16, 0.7, 0.16],
+      "leg-right",
+    ),
+    mobPart(mobIndex, FACE_DARK, [-0.15, 1.84, 0.33], [0.12, 0.12, 0.04]),
+    mobPart(mobIndex, FACE_DARK, [0.15, 1.84, 0.33], [0.12, 0.12, 0.04]),
+    mobPart(mobIndex, FACE_DARK, [0, 1.66, 0.33], [0.1, 0.08, 0.04]),
+    mobPart(mobIndex, SKELETON_BOW, [0.68, 1.06, 0], [0.09, 0.92, 0.09]),
+    mobPart(mobIndex, SKELETON_BOW, [0.57, 1.49, 0], [0.28, 0.08, 0.08]),
+    mobPart(mobIndex, SKELETON_BOW, [0.57, 0.63, 0], [0.28, 0.08, 0.08]),
+  ];
+}
+
 export function createMinecraftMobs(
   payload: VoxelPayload,
   castShadows: boolean,
@@ -317,15 +369,26 @@ export function createMinecraftMobs(
       heading: spawn.heading,
       kind: spawn.kind,
       phase: index * 0.83,
-      speedMps: spawn.kind === "creeper" ? 0.72 : 0.58,
+      speedMps:
+        spawn.kind === "creeper"
+          ? 0.72
+          : spawn.kind === "skeleton"
+            ? 0.64
+            : 0.58,
       turnClock: 1.4 + index * 0.31,
       x,
       z,
     };
   });
-  const parts = mobs.flatMap((mob, index) =>
-    mob.kind === "creeper" ? creeperParts(index) : zombieParts(index),
-  );
+  const parts = mobs.flatMap((mob, index) => {
+    if (mob.kind === "creeper") {
+      return creeperParts(index);
+    }
+    if (mob.kind === "skeleton") {
+      return skeletonParts(index);
+    }
+    return zombieParts(index);
+  });
   const material = new MeshStandardMaterial({
     color: 0xffffff,
     emissive: 0x202820,
@@ -340,7 +403,7 @@ export function createMinecraftMobs(
     material,
     parts.length,
   );
-  mesh.name = "Minecraft roaming creepers and zombies";
+  mesh.name = "Minecraft roaming creepers, skeletons and zombies";
   mesh.castShadow = castShadows;
   mesh.receiveShadow = true;
   mesh.frustumCulled = false;
@@ -356,6 +419,7 @@ export function createMinecraftMobs(
   group.name = "Minecraft roaming mobs";
   group.visible = true;
   group.userData.creeperCount = CREEPER_COUNT;
+  group.userData.skeletonCount = SKELETON_COUNT;
   group.userData.zombieCount = ZOMBIE_COUNT;
   group.add(mesh);
   const field = {
@@ -367,6 +431,7 @@ export function createMinecraftMobs(
     mesh,
     mobs,
     parts,
+    skeletonCount: SKELETON_COUNT,
     zombieCount: ZOMBIE_COUNT,
   };
   updateMinecraftMobs(field, 0);

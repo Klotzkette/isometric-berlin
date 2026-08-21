@@ -37,6 +37,11 @@ import {
   minecraftArchitecturalVoxelTopAt,
 } from "./MinecraftArchitecturalLandmarks";
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
+import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
+import {
+  createMinecraftTipiAmKanzleramt,
+  isMinecraftTipiReplacementColumn,
+} from "./MinecraftTipiAmKanzleramt";
 import { isNorthernHumboldthafenReplacementCell } from "./HumboldthafenSources";
 import {
   AXIS_FROM,
@@ -544,7 +549,10 @@ export function isCompleteRecognitionVoxelColumn(
   x: number,
   z: number,
 ): boolean {
-  return isMinecraftArchitecturalReplacementColumn(x, z);
+  return (
+    isMinecraftArchitecturalReplacementColumn(x, z) ||
+    isMinecraftTipiReplacementColumn(x, z)
+  );
 }
 
 function shadeFor(
@@ -2100,6 +2108,8 @@ export function createMinecraftVoxelWorld(
   );
   group.add(createMinecraftHumboldthafenDetails(payload));
   group.add(createMinecraftArchitecturalLandmarks());
+  group.add(createMinecraftPariserPlatzArchitecture());
+  group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());

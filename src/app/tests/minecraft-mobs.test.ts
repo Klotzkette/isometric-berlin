@@ -4,6 +4,7 @@ import { InstancedMesh } from "three";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   CREEPER_COUNT,
+  SKELETON_COUNT,
   ZOMBIE_COUNT,
   createMinecraftMobs,
   setMinecraftMobsVisible,
@@ -39,16 +40,29 @@ const compactWalkabilityFixture: VoxelPayload = {
 };
 
 describe("Minecraft roaming mobs", () => {
-  test("builds three creepers and four zombies in one draw call", () => {
+  test("builds a sparse mix of creepers, skeletons and zombies in one draw call", () => {
     const field = createMinecraftMobs(payload, false);
 
     expect(field.creeperCount).toBe(CREEPER_COUNT);
+    expect(field.skeletonCount).toBe(SKELETON_COUNT);
     expect(field.zombieCount).toBe(ZOMBIE_COUNT);
-    expect(field.mobs).toHaveLength(CREEPER_COUNT + ZOMBIE_COUNT);
+    expect(field.creeperCount).toBe(3);
+    expect(field.skeletonCount).toBe(2);
+    expect(field.zombieCount).toBe(3);
+    expect(field.mobs).toHaveLength(
+      CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT,
+    );
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
     expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBeLessThan(90);
+    expect(field.mesh.count).toBeLessThan(110);
+    expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(2);
+    expect(
+      field.parts.filter((part) => part.color === 0xd9d8c8).length,
+    ).toBeGreaterThanOrEqual(16);
+    expect(
+      field.parts.filter((part) => part.color === 0x76502f).length,
+    ).toBe(6);
     expect(
       field.parts.filter((part) => part.color === 0x18251b).length,
     ).toBeGreaterThanOrEqual(20);

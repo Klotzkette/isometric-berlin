@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.72.13
+
+- **Four Pariser-Platz civic facades now have distinct, source-bounded
+  identities.** The Max-Liebermann-Haus keeps its calm three-storey critical
+  reconstruction, narrow punched-window cadence, cornices, balcony and attic
+  register; the French Embassy gains its roughened base, double-height Bel
+  Etage and 6.15 m covered Rue de France; the US Embassy gains its deep
+  limestone grid, cylindrical entrance niche, glass canopy and rooftop State
+  Room lantern; and the Akademie der Künste gains its transparent curtain
+  wall, visible circulation, suspended facade-trace frame and leaf-toned roof
+  glazing. Exact Berlin LoD2 bodies and OSM identities remain the massing and
+  navigation authority. The four code-native overlays share a twelve-draw
+  close-detail budget and use no photographic texture.
+- **Minecraft reads those same four buildings as architecture made from
+  blocks.** A single opaque, texture-free cube batch adds deliberately coarse
+  stone, glass, steel and roof-line cues over the retained source voxel masses;
+  the smooth facade layer stays outside Minecraft. Day, Night, Snowstorm and
+  Schwellenraum retain the drawn facades, so every mode has one appropriate
+  representation without duplicate shells.
+- **The Center / former Sony Center and TIPI am Kanzleramt have deeper,
+  source-separated recognition models.** The Forum roof now combines its 24
+  OSM-plan sectors with an oval lattice truss, radial and lower stay cables,
+  tilted kingpost, seven supports, field clamps, ridge/valley cables, junctions
+  and restrained soffit light, plus the 28-bay curved Forum facade and a
+  detailed reflecting pool/fountain. TIPI retains the published 32 x 26 m
+  envelope while replacing the old simple cap with an eight-peak compound
+  canvas, 48 seam ribs, entrance hall, gables, foyer, side/rear pavilions,
+  ticket booth, planters and restrained night lighting. The fictional
+  `PIGOR & EICHHORN` headline is explicitly labelled as viewer display text
+  authored by the user/project owner—not by the venue—and remains high-contrast
+  in all five modes; Minecraft uses a separate block-native tent and block-letter
+  display for that owner-authored line. The presentation-only `NUR HEUTE ABEND`
+  line remains in the four drawn modes and is not duplicated in Minecraft.
+- **The Berliner Ensemble roof sign and public art now follow the current
+  reading.** The open roof ring is reduced to a photo-bounded 4.8 m diameter
+  and completes one slow turn every 120 seconds in all five modes, including
+  its block-native Minecraft counterpart. Its shared cadence is capped at 12
+  Hz on non-touch devices and 8 Hz in the mobile-like touch profile; reduced
+  motion, hidden, distant, off-screen and underside presentations freeze it
+  without phase accumulation. Fritz Cremer's seated Brecht now occupies a
+  six-metre sett platform with chair and three surrounding steles. The current
+  `Eine Skulptur für Helene Weigel`, unveiled on 10 May 2026, is represented
+  as an accessible glass-vitrine work with red chair, object field,
+  light/audio bars, halftone-glass portrait and grilles. Both exact OSM nodes
+  are owned by this procedural layer, preventing generic monument doubles; no
+  press photograph or portrait texture is bundled.
+- **Minecraft staffage stays sparse despite the new Skeletons.** Exactly three
+  Creepers, two bow-carrying Skeletons and three Zombies roam deterministic,
+  tree-cleared grass routes only while Minecraft is active. Every block part
+  remains in one instanced draw call and disappears from the four drawn modes,
+  water and underside presentations.
+
 ## v0.72.12
 
 - **All nine official civic flags now flutter gently in every visual mode.**

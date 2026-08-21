@@ -70,6 +70,17 @@ import {
   createCentralCivicDetails,
 } from "./CentralCivicDetails";
 import {
+  berlinerEnsemblePublicArtSolidAt,
+  setBerlinerEnsemblePublicArtSnow,
+} from "./BerlinerEnsembleMemorials";
+import {
+  berlinerEnsembleRoofSignMotionDecision,
+  collectBerlinerEnsembleRoofSignTargets,
+  isBerlinerEnsembleRoofSignOnScreen,
+  isBerlinerEnsembleRoofSignTarget,
+  updateBerlinerEnsembleRoofSign,
+} from "./BerlinerEnsemble";
+import {
   createTunnelInteriorTester,
   createTunnelPortals,
   setTunnelPortalPresentation,
@@ -487,6 +498,9 @@ type Runtime = {
   monuments: Group;
   schwellenraumInteriors: Group;
   schwellenraumPraesentation: Group;
+  berlinerEnsembleRoofSignElapsedSeconds: number;
+  berlinerEnsembleRoofSignLastFrameAt: number;
+  berlinerEnsembleRoofSignTargets: Object3D[];
   schwellenraumFlagElapsedSeconds: number;
   schwellenraumLastFlagFrameAt: number;
   schwellenraumLastWaterFrameAt: number;
@@ -1328,10 +1342,12 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
   runtime.microDetailObjects = [];
+  runtime.berlinerEnsembleRoofSignTargets = [];
   const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
   const microDetailNames = new Set(MICRO_DETAIL_LAYER_NAMES);
   const roots: Array<Object3D | null> = [
     runtime.isoWorld,
+    runtime.voxelWorld,
     runtime.signatures,
     runtime.civicDetails,
     runtime.centralDetails,
@@ -1362,9 +1378,31 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
       if (microDetailNames.has(object.name)) {
         runtime.microDetailObjects.push(object);
       }
+      if (isBerlinerEnsembleRoofSignTarget(object)) {
+        runtime.berlinerEnsembleRoofSignTargets.push(object);
+      }
     });
   }
+  updateBerlinerEnsembleRoofSign(
+    runtime.berlinerEnsembleRoofSignTargets,
+    runtime.berlinerEnsembleRoofSignElapsedSeconds,
+  );
   assignStableInkRenderOrder(inkLines);
+}
+
+function registerBerlinerEnsembleRoofSignTargets(
+  runtime: Runtime,
+  root: Object3D,
+): void {
+  for (const target of collectBerlinerEnsembleRoofSignTargets(root)) {
+    if (!runtime.berlinerEnsembleRoofSignTargets.includes(target)) {
+      runtime.berlinerEnsembleRoofSignTargets.push(target);
+    }
+  }
+  updateBerlinerEnsembleRoofSign(
+    runtime.berlinerEnsembleRoofSignTargets,
+    runtime.berlinerEnsembleRoofSignElapsedSeconds,
+  );
 }
 
 /**
@@ -1787,6 +1825,7 @@ function setSceneLighting(
   setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
   setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm);
   setStarbucksPariserPlatzSnow(runtime.culturalDetails, isSnowstorm);
+  setBerlinerEnsemblePublicArtSnow(runtime.centralDetails, isSnowstorm);
   // Cloth uses one continuous low-frequency clock across mode changes. Do not
   // rewrite it to a start pose here: the next cadence tick must continue from
   // the visible pose rather than jumping Day -> Night/Snow/Minecraft.
@@ -2356,6 +2395,7 @@ function startProgressiveWorld(
       object.userData.progressiveWorldBatch = true;
       runtime.progressiveWorldBatches.push(object);
       runtime.isoWorld.add(object);
+      registerBerlinerEnsembleRoofSignTargets(runtime, object);
       // Water is commonly the first exact progressive surface batch. Install
       // the light-only Schwellenraum veil in the same task, before any frame
       // can expose an uninitialised or day-bright overlay.
@@ -2553,6 +2593,7 @@ function ensureIsoWorld(
         pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (
             csdAttackMemorialSolidAt(x, y, z, radius) ||
+            berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
           ) {
             return true;
@@ -2973,6 +3014,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) =>
           csdAttackMemorialSolidAt(x, y, z, radius) ||
+          berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
           invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
@@ -2989,6 +3031,10 @@ function ensureVoxelWorld(
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
       runtime.scene.add(provisionalMinecraftMobs.group);
+      registerBerlinerEnsembleRoofSignTargets(
+        runtime,
+        provisionalVoxelWorld,
+      );
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, 3);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
@@ -4682,6 +4728,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         monuments,
         schwellenraumInteriors,
         schwellenraumPraesentation,
+        berlinerEnsembleRoofSignElapsedSeconds: 0.9,
+        berlinerEnsembleRoofSignLastFrameAt: 0,
+        berlinerEnsembleRoofSignTargets: [],
         schwellenraumFlagElapsedSeconds: 0.9,
         schwellenraumLastFlagFrameAt: 0,
         schwellenraumLastWaterFrameAt: 0,
@@ -5387,6 +5436,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             stopProgressiveWorld(runtime);
           }
         } else {
+          runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
           runtime.schwellenraumLastWaterFrameAt = performance.now();
           runtime.renderInvalidated = true;
           if (
@@ -5651,6 +5701,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         markSurfaceInteraction(runtime, 220);
         return true;
       };
+      const roofSignScreenScratch = new Vector3();
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -5733,7 +5784,24 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp,
           waterLightCount: runtime.schwellenraumWaterLightCount,
         });
-        const environmentalMotion = schwellenraumMotion.environmentalMotion;
+        const roofSignMotion = berlinerEnsembleRoofSignMotionDecision({
+          enabled: runtime.berlinerEnsembleRoofSignTargets.length > 0,
+          fineDetailVisible: runtime.fineDetailVisible,
+          frameIntervalMs: flagFrameIntervalMs,
+          hidden: document.visibilityState === "hidden",
+          lastFrameAt: runtime.berlinerEnsembleRoofSignLastFrameAt,
+          onScreen: isBerlinerEnsembleRoofSignOnScreen(
+            runtime.berlinerEnsembleRoofSignTargets,
+            camera,
+            roofSignScreenScratch,
+          ),
+          reducedMotion,
+          timestamp,
+          underside: runtime.underside,
+        });
+        const environmentalMotion =
+          schwellenraumMotion.environmentalMotion ||
+          roofSignMotion.environmentalMotion;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
@@ -5863,6 +5931,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.schwellenraumLastFlagFrameAt = timestamp;
         }
+        if (roofSignMotion.animate) {
+          runtime.berlinerEnsembleRoofSignElapsedSeconds +=
+            flagFrameIntervalMs / 1_000;
+          updateBerlinerEnsembleRoofSign(
+            runtime.berlinerEnsembleRoofSignTargets,
+            runtime.berlinerEnsembleRoofSignElapsedSeconds,
+          );
+          runtime.berlinerEnsembleRoofSignLastFrameAt = timestamp;
+        }
         // Momentum glide: the released pan eases out smoothly.
         if (
           !runtime.pedestrian.enabled &&
@@ -5941,6 +6018,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.centralDetails,
             runtime.lightingMode,
             runtime.nightLightsOn,
+          );
+          setBerlinerEnsemblePublicArtSnow(
+            runtime.centralDetails,
+            runtime.lightingMode === "snowstorm",
           );
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(

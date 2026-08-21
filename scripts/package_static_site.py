@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.12"
+PACKAGE_VERSION = "0.72.13"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,35 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} gibt dem Max-Liebermann-Haus, der Französischen und
+der US-Botschaft sowie der Akademie der Künste vier getrennte, quellengebundene
+Fassaden über den erhaltenen LoD2-/OSM-Körpern. Die gezeichneten Varianten
+zeigen ihre charakteristischen Fenster-, Stein-, Eingangs-, Glas- und
+Erschließungsrhythmen in Tag, Nacht, Schneesturm und Schwellenraum; Minecraft
+nutzt dafür eine einzige grobe, opake Blocksignatur. Alle Details sind
+codebasiert, nicht vermessen und enthalten keine Fototextur.
+Version {PACKAGE_VERSION} verfeinert außerdem das Forum des ehemaligen Sony
+Center mit dem 24-teiligen Dachplan, Ringfachwerk, Seilen, geneigter Mittelstütze,
+sieben Auflagern, Klemmen, Licht, gegliederten Glasfassaden und Brunnen. Das
+TIPI am Kanzleramt behält die veröffentlichte 32 x 26 m Hülle, erhält aber ein
+achtgipfliges Zeltdach, 48 Rippen, Eingang, Foyer und Seitenbauten. Die
+vom Nutzer und Projekt-Eigentümer für den Viewer erfundene Zeile `PIGOR &
+EICHHORN` bleibt in allen fünf Modi gut lesbar, in Minecraft als eigene
+Blockschrift. Die reine Anzeigezeile `NUR HEUTE ABEND` bleibt nur in den vier
+gezeichneten Modi sichtbar und wird in Minecraft nicht dupliziert. Beide Zeilen
+stammen nicht vom TIPI-Betreiber und behaupten kein aktuelles Programm.
+Version {PACKAGE_VERSION} verkleinert den offenen Dachring des Berliner
+Ensemble auf fotoeingegrenzte 4,8 m und dreht ihn in allen fünf Modi einmal in
+120 Sekunden. Die Bewegung ist auf 12 Hz ohne Touch oder 8 Hz im
+mobilähnlichen Touch-Profil begrenzt und bleibt bei reduzierter Bewegung sowie
+in fernen, ausgeblendeten, unsichtbaren oder unterirdischen Ansichten stehen.
+Das Brecht-Denkmal erhält Figur, Stuhl, sechs Meter große Pflasterplattform und
+drei Stelen; `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026, wird
+als aktuelles begehbares Vitrinenwerk dargestellt. Es wird kein Pressefoto und
+keine Porträttextur gebündelt.
+Minecraft lässt genau drei Creeper, zwei Skelette mit Bogen und drei Zombies
+auf deterministischen, baumfreien Grasrouten laufen. Alle acht Figuren teilen
+einen Renderdurchlauf und verschwinden außerhalb des Minecraft-Modus.
 Version {PACKAGE_VERSION} ergänzt außerdem die neue, vom vorhandenen
 Queer-Rainbow-Gedenkmodell getrennte CSD-Gedenkstelle am exakten OSM-Knoten
 14076715427. Französischer Ahorn, belaubte junge Krone, rundes Metallschutzgitter,
@@ -3724,6 +3753,32 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} gives the Max-Liebermann-Haus, French Embassy, US
+Embassy and Akademie der Künste four separate source-bounded facades over their
+retained LoD2/OSM bodies. Drawn variants carry their characteristic window,
+stone, entrance, glass and circulation rhythms in Day, Night, Snowstorm and
+Schwellenraum; Minecraft uses one coarse opaque block signature. Every detail
+is code-native, non-surveyed and free of photographic facade textures.
+Version {PACKAGE_VERSION} also deepens the former Sony Center Forum with its
+24-part roof plan, ring lattice, cables, tilted kingpost, seven supports,
+clamps, light, articulated glass facades and fountain. TIPI am Kanzleramt keeps
+the published 32 x 26 m envelope but gains an eight-peak roof, 48 ribs,
+entrance, foyer and side pavilions. The fictional `PIGOR & EICHHORN` viewer
+headline was authored by the user/project owner, not by the venue, and stays
+legible in all five modes, including separate Minecraft block lettering. The
+presentation-only `NUR HEUTE ABEND` line remains in the four drawn modes and is
+not duplicated in Minecraft.
+Version {PACKAGE_VERSION} reduces the Berliner Ensemble open roof ring to a
+photo-bounded 4.8 m and turns it once every 120 seconds in all five modes.
+Motion is capped at 12 Hz without touch or 8 Hz in the mobile-like touch
+profile and freezes for reduced-motion, distant, hidden, off-screen or
+underside views. The Brecht memorial gains the figure, chair, six-metre sett
+platform and three steles; `Eine Skulptur für Helene Weigel`, unveiled on 10
+May 2026, is represented as the current accessible vitrine work. No press
+photograph or portrait texture is bundled.
+Minecraft lets exactly three Creepers, two bow-carrying Skeletons and three
+Zombies roam deterministic, tree-cleared grass routes. All eight figures share
+one draw call and disappear outside Minecraft.
 Version {PACKAGE_VERSION} also adds the new CSD memorial place at exact OSM
 node 14076715427, separately from the existing Queer Rainbow memorial model.
 Its French maple, already leafed young crown, round metal guard, sparse static

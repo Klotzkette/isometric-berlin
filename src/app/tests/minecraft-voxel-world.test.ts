@@ -117,11 +117,11 @@ describe("true voxel Minecraft world", () => {
     expect(world.getObjectByName("Voxel meadow flowers")).toBeDefined();
     expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
     expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
-    expect(instanced("Voxel facade windows", world).count).toBe(1_595_025);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_594_973);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
-    expect(instanced("Voxel building columns", world).count).toBe(1_481_857);
+    expect(instanced("Voxel building columns", world).count).toBe(1_481_674);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      542_721,
+      542_640,
     );
 
     const landmarks = world.getObjectByName(

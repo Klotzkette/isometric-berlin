@@ -326,10 +326,12 @@ records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
 hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
 courts and neighbours; the new batches therefore include their own rear walls,
-floors, facade shells, roofs, glazing and open block railings. Three Creepers and four Zombies roam deterministic, tree-cleared
-park routes while Minecraft is active. All of their block parts share one
-instanced draw call, and the group is removed from Day, Night, underwater and
-underside presentations. A persistent DE/EN control translates all viewer
+floors, facade shells, roofs, glazing and open block railings. Three Creepers,
+two bow-carrying Skeletons and three Zombies roam deterministic, tree-cleared
+grass routes while Minecraft is active. All eight figures share one instanced
+draw call, and the group is removed from Day, Night, Snowstorm,
+Schwellenraum, water and underside presentations. A persistent DE/EN control
+translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
 `Sehenswürdigkeiten` rather than the English false friend.
 
@@ -487,9 +489,19 @@ positions. Trees and street lamps from older source snapshots are suppressed
 only inside the current construction polygon.
 
 The cultural recognition layer keeps similarly small features readable without
-altering the official base mesh. The 32 x 26 m TIPI has twenty structural ribs,
-220 warm rib bulbs, a night-only four-colour show wash and the requested golden
-`PIGOR & EICHHORN` and `NUR HEUTE ABEND` marquee lines. The 42 m Carillon lets
+altering the official base mesh. The TIPI am Kanzleramt retains the published
+32 x 26 m auditorium envelope but now uses a photo-bounded eight-peak compound
+canvas, 48 batched seam ribs, low dark-timber entrance hall, paired entrance
+gables, raised foyer, projecting canopy, ticket booth, planters and distinct
+side and rear pavilions. Its 144 warm rib bulbs and restrained night-only
+four-colour show wash remain code-native. The fictional golden
+`PIGOR & EICHHORN` headline is viewer display text authored by the user/project
+owner, not by the venue; its accompanying `NUR HEUTE ABEND` line is likewise
+display text, not a claimed current programme. Both lines stay legible in Day,
+Night, Snowstorm and Schwellenraum. Minecraft replaces the smooth tent with a
+separate coarse block tent and block-letter display for the owner-authored
+`PIGOR & EICHHORN` line only, so that line remains present in all five modes
+without duplicating `NUR HEUTE ABEND` or the smooth shell. The 42 m Carillon lets
 the official photogrammetric mesh carry its four granite pylons and adds 68
 individually placed bells beneath a shallow roof cap. Two compact
 uniformed figures mark the Chancellery entrance. Selecting `Spreebogen` opens
@@ -553,16 +565,32 @@ The Berliner Ensemble retains the complete four-part Berlin LoD2 parent
 dedicated drawn layer is limited to thin overlays on the exact exposed wall
 runs: current stripped warm-grey plaster, lower and upper arched opening
 rhythms, the shallow corner entrance with polished-granite columns, the
-truncated dark roof cap and the smaller open two-line sign. It neither adds a
-replacement envelope nor reconstructs the exterior ornament removed in
-1953–54. The focus preset now faces the public elevation from
-Bertolt-Brecht-Platz. Dedicated public-art geometry owns OSM nodes
-`988668382` (Bertolt Brecht) and `13841652635` (Helene Weigel), so the generic
-monument layer cannot duplicate either work. Minecraft adds a single instanced
-draw-call signature bound to the same four LoD2 parts: a block-native taupe
-tower, stepped hipped roof, smaller open red ring and restrained two-line
-lettering cues. The smooth facade, torus and texture-backed text remain outside
-that mode.
+truncated dark roof cap and a photo-bounded open two-line roof ring reduced
+from 7 m to 4.8 m diameter. It neither adds a replacement envelope nor
+reconstructs the exterior ornament removed in 1953–54. The sign completes one
+slow rotation every 120 seconds in Day, Night, Snowstorm, Minecraft and
+Schwellenraum. One shared bounded update gate caps motion at 12 Hz without
+touch or 8 Hz in the mobile-like touch profile; reduced-motion, hidden,
+distant, off-screen and underside views hold it still without accumulating a
+different transform. The focus preset faces the public elevation from
+Bertolt-Brecht-Platz.
+
+Dedicated public-art geometry owns OSM nodes `988668382` (Bertolt Brecht) and
+`13841652635` (Helene Weigel), so the generic monument layer cannot duplicate
+either work. Fritz Cremer's seated bronze Brecht is now read as a complete
+body on an open metal chair at the centre of the documented six-metre circular
+sett platform, with three segmented dark steles around it. The current
+`Eine Skulptur für Helene Weigel`, unveiled on 10 May 2026 in the
+Helene-Weigel-Hof, is represented as a non-classical accessible glass vitrine:
+red director's chair and object field, white light/audio bars, a procedural
+black halftone-glass portrait and plinth grilles. These are code-native,
+source-bounded recognition forms rather than surveyed sculpture meshes; the
+Berliner Ensemble press photographs are reference-only and no photograph or
+portrait texture is bundled. Snow is limited to separate upper accents.
+Minecraft adds one instanced draw-call building signature bound to the same
+four LoD2 parts: a block-native taupe tower, stepped hipped roof and the same
+smaller rotating open red ring with restrained two-line lettering cues. The
+smooth facade, torus and texture-backed text remain outside that mode.
 
 The task-10 recognition layer covers the expanded edges without pretending to
 be survey geometry: Hamburger Bahnhof/Rieckhallen and the historic
@@ -574,10 +602,39 @@ committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
 
 The Pariser-Platz and Potsdamer-Platz architecture keeps the same boundary.
-The Center / former Sony Center retains its LoD2 glass-and-steel envelopes;
-the Forum now carries 24 translucent membrane fields, seven supports, cable
-geometry, 28 curved glass bays, 168 horizontal stainless rails and 28 red
-vertical fins instead of an opaque dark roof plate. Hotel Adlon remains bound
+Four civic frontages now receive separate code-native recognition facades
+without replacing the measured LoD2 bodies or their navigation collision. The
+Max-Liebermann-Haus follows LoD2 parent `DEBE01YYK0000765` and OSM way
+`131487807`: its calm three-storey critical reconstruction adds narrow punched
+windows, restrained ashlar/cornice courses, one small balcony and an attic
+register. The French Embassy follows LoD2 parent `DEBE01YYK00009wl` and OSM
+relation `3203772`, with a roughened base, double-height Bel Etage, layered
+upper register and 6.15 m covered Rue de France. The US Embassy follows LoD2
+parent `DEBE01YYK00000k5` and OSM way `195257482`, distinguishing the deep-set
+limestone grid, cylindrical entrance niche, shallow glass canopy and softly
+lit rooftop State Room lantern. The Akademie der Künste follows LoD2 parent
+`DEBE01YYK00007H6` and OSM way `237816189`, using a transparent glass curtain
+wall, visible circulation, suspended 0.4 m facade-trace frame and leaf-toned
+roof glazing. These four static close overlays share twelve batched body,
+lamp and ink drawables, fade before overview shimmer and carry no photographic
+maps. Day, Night, Snowstorm and Schwellenraum use the drawn layer; Minecraft
+uses one opaque, texture-free block batch over the retained source voxel
+masses.
+
+The Center / former Sony Center retains its LoD2 glass-and-steel envelopes.
+The Forum roof follows the 24-part OSM plan and Arup's published ring/support
+dimensions: translucent membrane/glass fields meet an oval lattice truss,
+central opening ring, radial cables, lower stays, tilted kingpost and seven
+supports. Close granularity adds 97 field clamps, twelve upper ridge and
+twelve upper valley cable runs, 48 junction nodes and 24 restrained soffit
+lights. Around it, 28 curved facade bays carry six glazing registers, 196
+horizontal stainless rails, 84 vertical mullions, 28 full-height entrance
+fields, 28 parapet caps and 28 warm-red fins. A separate reflecting pool adds
+a 48-piece fountain rim and twelve restrained jets. Membrane curvature and
+uncited local spacing remain bounded presentation reconstruction rather than
+a survey, and no reference photograph is bundled.
+
+Hotel Adlon remains bound
 to Berlin LoD2 building `K00006ot`, while OSM relation `4582978` and outer way
 `26041943` fix its real 68.78 m, 5.07-degree Pariser-Platz frontage. Its
 source-bounded recognition layer distinguishes five high ground-floor arches,
