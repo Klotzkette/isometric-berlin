@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.72.15
+
+- **The Richard-Wagner-Denkmal is now the 90th navigable sight at its actual
+  source anchor.** OSM node `243487615` supplies the exact plan position and
+  Landesdenkmalamt Berlin part object `09046318,T,041` supplies the official
+  monument identity. Selection, marker, close camera, drawn model and
+  Minecraft counterpart now share that one anchor instead of leaving Wagner
+  as an unreachable street-art point outside the tour catalogue.
+- **The protective shelter is open again instead of reading as a misplaced
+  closed building.** The LoD2 envelope `SR00009n` is retained as source
+  evidence for the shelter footprint but removed from both the drawn prism
+  shell and its six-column voxel mass. A dedicated, source-bound recognition
+  layer represents the six-metre marble ensemble under an open steel frame and
+  translucent barrel vault in Day, Night, Snowstorm and Schwellenraum;
+  Minecraft substitutes its own block-native version. Granular authored
+  collision follows the represented marble and canopy posts while the front,
+  rear, side and high under-roof approaches remain walkable.
+- **The new model has a frozen, texture-free mobile budget.** The smooth root
+  uses exactly **6 renderables / 12,167 rendered vertices** and the Minecraft
+  root uses exactly **one batch / 514 blocks**. The OSM position, official
+  monument identity and published overall/figure dimensions remain source
+  facts; local sculptural segmentation, canopy section, component spacing and
+  collision volumes are explicitly procedural display reconstructions. No
+  visual-reference photograph, thumbnail or photographic texture is bundled
+  or loaded at runtime.
+
 ## v0.72.14
 
 - **The Goethe-Denkmal is now a source-bound sculptural ensemble instead of a

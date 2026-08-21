@@ -100,6 +100,13 @@ import {
   tiergartenLiteraryMemorialSolidAt,
 } from "./TiergartenLiteraryMemorials";
 import {
+  WAGNER_MEMORIAL_PROFILE,
+  setWagnerMemorialSmoothVisibility,
+  setWagnerMemorialSnow,
+  wagnerMemorialFocusForMode,
+  wagnerMemorialSolidAt,
+} from "./WagnerMemorial";
+import {
   QUEER_RAINBOW_MEMORIAL_PROFILE,
   createQueerRainbowMemorial,
   setQueerRainbowMemorialSnow,
@@ -1951,6 +1958,8 @@ function setSceneLighting(
     !voxelMode,
   );
   setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
+  setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -2621,6 +2630,9 @@ function ensureIsoWorld(
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+            // pedestrianPointIsBlocked already supplies seven capsule body
+            // samples; do not expand Wagner a second time by the same radius.
+            wagnerMemorialSolidAt(x, y, z, 0) ||
             invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
           ) {
             return true;
@@ -3043,6 +3055,8 @@ function ensureVoxelWorld(
           csdAttackMemorialSolidAt(x, y, z, radius) ||
           berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
           tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+          // The navigation sampler already carries the capsule radius.
+          wagnerMemorialSolidAt(x, y, z, 0) ||
           invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
@@ -3649,6 +3663,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     runtime.monuments,
     !voxelMode,
   );
+  setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -3711,9 +3726,26 @@ function markerHeightForLandmark(name: string): number {
         TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.totalHeightM +
         1.2
       );
+    case WAGNER_MEMORIAL_PROFILE.name:
+      return (
+        WAGNER_MEMORIAL_PROFILE.worldM[1] +
+        WAGNER_MEMORIAL_PROFILE.canopy.ridgeHeightM +
+        1.2
+      );
     default:
       return 18;
   }
+}
+
+function wagnerMemorialFocusCamera(mode: LightingMode): FocusCamera {
+  const focus = wagnerMemorialFocusForMode(mode);
+  return {
+    azimuth_degrees: focus.azimuthDegrees,
+    distance_m: focus.distanceM,
+    polar_degrees: focus.polarDegrees,
+    target_height_m: focus.targetHeightM,
+    target_world: [...WAGNER_MEMORIAL_PROFILE.worldM],
+  };
 }
 
 function setOrbitAngles(
@@ -3960,6 +3992,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const hostRef = useRef<HTMLDivElement | null>(null);
     const runtimeRef = useRef<Runtime | null>(null);
     const selectedRef = useRef(selectedLandmark);
+    const focusLandmarkRef = useRef<
+      (name: string, immediate?: boolean) => void
+    >(() => undefined);
     const activeRef = useRef(active);
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
@@ -4026,6 +4061,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
+      const previousLightingMode = runtime.lightingMode;
       if (
         (lightingMode === "day" ||
           lightingMode === "night" ||
@@ -4052,6 +4088,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.startDeferredDetails();
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
+      if (
+        previousLightingMode !== lightingMode &&
+        selectedRef.current === WAGNER_MEMORIAL_PROFILE.name &&
+        !runtime.pedestrian.enabled
+      ) {
+        focusLandmarkRef.current(WAGNER_MEMORIAL_PROFILE.name, true);
+      }
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
 
@@ -4094,7 +4137,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // A leftover glide would drift the camera off the fresh focus.
       runtime.cancelPanGlide?.();
       setParkDetailsFocus(runtime.parkDetails, name);
-      const cameraPreset = runtime.focusCameraByName.get(name);
+      const cameraPreset =
+        name === WAGNER_MEMORIAL_PROFILE.name
+          ? wagnerMemorialFocusCamera(runtime.lightingMode)
+          : runtime.focusCameraByName.get(name);
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
       );
@@ -4260,6 +4306,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       evictHeroDetails(runtime, name);
     };
+    focusLandmarkRef.current = focusLandmark;
 
     useImperativeHandle(
       ref,
@@ -6196,17 +6243,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3.5,
             target_world: [-488.2, 5.2, 889.2],
           });
-          // Richard Wagner is an OSM artwork point with no dedicated sight
-          // entry, so it never had a focus preset at all and only ever
-          // showed at the generic ~190 m overview distance -- far too
-          // far to tell the canopy roof from the marble group under it.
-          runtime.focusCameraByName.set("Richard Wagner", {
-            azimuth_degrees: 20,
-            distance_m: 34,
-            polar_degrees: 66,
-            target_height_m: 4,
-            target_world: [-672.1, 5.2, 967.2],
-          });
+          // Keep selection and focus on the same source-bound OSM anchor as
+          // the authored model; this avoids the former generic overview.
+          runtime.focusCameraByName.set(
+            WAGNER_MEMORIAL_PROFILE.name,
+            wagnerMemorialFocusCamera("day"),
+          );
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [
               detail.landmark_name,
@@ -6295,6 +6337,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             !voxelModeActive(runtime),
           );
           setTiergartenLiteraryMemorialsSnow(
+            runtime.monuments,
+            runtime.lightingMode === "snowstorm",
+          );
+          setWagnerMemorialSmoothVisibility(
+            runtime.monuments,
+            !voxelModeActive(runtime),
+          );
+          setWagnerMemorialSnow(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",
           );

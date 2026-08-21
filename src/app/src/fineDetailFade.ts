@@ -283,6 +283,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "CSD attack memorial fine detail",
   "Goethe memorial fine allegory and fence cues",
   "Lessing memorial relief allegory and fence cues",
+  "Richard Wagner six-metre marble ensemble ink lines",
+  "Richard Wagner open steel canopy ink lines",
   "Helene Weigel halftone glass portrait",
   "Invalidenfriedhof Scharnhorst lion tomb fine detail",
   "Invalidenfriedhof Witzleben canopy fine detail",

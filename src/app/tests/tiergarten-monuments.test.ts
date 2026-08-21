@@ -12,6 +12,7 @@ import {
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
+import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
@@ -99,6 +100,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(MONUMENTS_ALREADY_MODELLED.test("Gotthold Ephraim Lessing")).toBe(true);
     expect(MONUMENTS_ALREADY_MODELLED.test("Lessing-Denkmal")).toBe(true);
     expect(MONUMENTS_ALREADY_MODELLED.test("Johann Wolfgang von Goethe")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Richard Wagner")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Richard-Wagner-Denkmal")).toBe(true);
     // No drawn-monument geometry near the Soviet memorial's colonnade
     // (its recognition model owns that ground; only the two howitzers
     // between the tanks are ours).
@@ -123,6 +126,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(
       monuments.userData.protectedExternallyModelledSourceKeys,
     ).toContain("node/437140233");
+    expect(monuments.userData.externallyModelledSourceKeys).toContain(
+      WAGNER_MEMORIAL_PROFILE.osmKey,
+    );
   });
 
   test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {
@@ -331,10 +337,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(height).toBeLessThan(5);
   });
 
-  test("Wagner stands under his protective roof", () => {
-    // The canopy over Eberlein's marble reaches about 7.4 m.
-    expect(tallestNear("Richard Wagner")).toBeGreaterThan(6.5);
-    expect(tallestNear("Richard Wagner")).toBeLessThan(9);
+  test("Wagner is owned exclusively by the source-bound memorial model", () => {
+    const entry = street.monuments!.find(
+      (candidate) => candidate.osm_key === WAGNER_MEMORIAL_PROFILE.osmKey,
+    )!;
+    expect(entry.name).toBe(WAGNER_MEMORIAL_PROFILE.name);
+    expect(
+      createTiergartenMonuments({ ...street, monuments: [entry] }, ground),
+    ).toBeNull();
     // Moltke and Roon are generals on pedestals, not 15 m chancellors.
     expect(tallestNear("Moltke")).toBeGreaterThan(10);
     expect(tallestNear("Moltke")).toBeLessThan(13);
@@ -484,40 +494,4 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     );
   });
 
-  test("Wagner's canopy is a stepped vault above four posts, not a flat lid", () => {
-    // v0.58.0: the real 1987/88 Schutzdach is a barrel vault, so the
-    // highest vertices near the monument must come from a stack of at
-    // least four shrinking slabs (the vault steps) sitting above the
-    // four canopy posts, not a single flat roof plate.
-    const entry = street.monuments!.find(
-      (candidate) => candidate.name === "Richard Wagner"
-    )!;
-    const vaultTopYValues = new Set<number>();
-    let postTop = -Infinity;
-    let marbleGroupTop = -Infinity;
-    forEachMonumentVertex(monuments, (vertex) => {
-      if (
-        Math.abs(vertex.x - entry.x_dm / 10) < 6 &&
-        Math.abs(vertex.z - entry.z_dm / 10) < 6
-      ) {
-        if (vertex.y > 6) {
-          vaultTopYValues.add(Math.round(vertex.y * 100) / 100);
-        }
-        if (Math.abs(vertex.x - entry.x_dm / 10) < 0.3) {
-          marbleGroupTop = Math.max(marbleGroupTop, Math.min(vertex.y, 6));
-        }
-      }
-      if (
-        Math.abs(vertex.x - (entry.x_dm / 10 + 3.6)) < 0.3 &&
-        Math.abs(vertex.z - (entry.z_dm / 10 + 2.8)) < 0.3
-      ) {
-        postTop = Math.max(postTop, vertex.y);
-      }
-    }
-    );
-    // At least four distinct vault-step top elevations above y=6.
-    expect(vaultTopYValues.size).toBeGreaterThanOrEqual(4);
-    // The posts must reach up into the vault's height range.
-    expect(postTop).toBeGreaterThan(6);
-  });
 });

@@ -12,6 +12,8 @@ from isometric_berlin.data import verify_landmark_alignment as vla
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
 VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
+BUNDLED_LANDMARKS = ROOT / "src/app/src/data/regierungsviertel-landmarks.json"
+VIEWER_SCENE = ROOT / "src/app/public/mesh/regierungsviertel/scene.json"
 
 # Landmarks the committed extract cannot confirm. Since v0.45.0 osm.gpkg covers
 # the whole surveyed hull, so these are not coverage gaps any more: OSM carries
@@ -35,6 +37,40 @@ def test_normalize_name_folds_berlin_landmark_names() -> None:
   assert vla.normalize_name("Gustav-Heinemann-Brücke") == "gustav heinemann brucke"
 
 
+def test_wagner_catalog_exports_share_the_exact_osm_anchor() -> None:
+  landmarks = vla.load_landmarks(DATA / "landmarks.geojson")
+  assert len(landmarks) == 90
+  wagner = landmarks[landmarks["name"] == "Richard Wagner"]
+  assert len(wagner) == 1
+  row = wagner.iloc[0]
+  assert row["role"] == "owner_added"
+  assert row["tour_order"] == 90
+
+  public_bytes = VIEWER_LANDMARKS.read_bytes()
+  assert BUNDLED_LANDMARKS.read_bytes() == public_bytes
+  public = json.loads(public_bytes)["landmarks"]
+  public_wagner = [entry for entry in public if entry["name"] == "Richard Wagner"]
+  assert public_wagner == [
+    {
+      "name": "Richard Wagner",
+      "role": "owner_added",
+      "tourOrder": 90,
+      "x": 4238,
+      "y": 7275,
+      "nx": 0.258667,
+      "ny": 0.626291,
+    }
+  ]
+
+  scene = json.loads(VIEWER_SCENE.read_text(encoding="utf-8"))["landmarks"]
+  scene_wagner = [entry for entry in scene if entry["name"] == "Richard Wagner"]
+  assert len(scene_wagner) == 1
+  world = scene_wagner[0]["world"]
+  assert abs(world[0] - (row.geometry.x - 389_500.0)) < 1e-9
+  assert world[1] == 8.0
+  assert abs(world[2] - (5_820_000.0 - row.geometry.y)) < 1e-9
+
+
 def test_committed_landmarks_align_with_osm_city_map() -> None:
   report = vla.build_alignment_report(
     landmarks_path=DATA / "landmarks.geojson",
@@ -44,7 +80,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 89,
+    "landmarks_checked": 90,
     "relative_relationships_checked": 38,
     "landmark_review_count": 3,
     "relative_review_count": 0,
@@ -113,6 +149,10 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     == "Bundesministerium der Finanzen"
   )
   assert checks["Denkzeichen Georg Elser"]["best_osm_match"]["id"] == "1986458966"
+  assert checks["Richard Wagner"]["best_osm_match"]["id"] == "243487615"
+  assert checks["Richard Wagner"]["best_osm_match"]["element"] == "node"
+  assert checks["Richard Wagner"]["best_osm_match"]["distance_m"] == 0.0
+  assert checks["Richard Wagner"]["status"] == "ok"
   assert checks["Queer Rainbow Memorial Berlin"]["best_osm_match"] is None
   assert checks["Queer Rainbow Memorial Berlin"]["status"] == "review"
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
@@ -120,6 +160,26 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert all(
     relation["status"] == "ok" for relation in report["relative_relationships"]
   )
+
+
+def test_markdown_report_preserves_precise_berliner_ensemble_ownership(
+  tmp_path: Path,
+) -> None:
+  report = vla.build_alignment_report(
+    landmarks_path=DATA / "landmarks.geojson",
+    osm_path=DATA / "osm.gpkg",
+    buildings_path=DATA / "buildings.gpkg",
+  )
+  output = tmp_path / "alignment.md"
+  vla.write_markdown_report(report, output)
+  row = next(
+    line
+    for line in output.read_text(encoding="utf-8").splitlines()
+    if line.startswith("| Berliner Ensemble |")
+  )
+  assert "legacy tour-point/site way 422928025" in row
+  assert "LoD2 parent DEBE01YYK00004vY" in row
+  assert "protected building way 43017010" in row
 
 
 def test_relative_relationship_reviews_affect_summary_status(
@@ -230,3 +290,14 @@ def test_exported_viewer_landmarks_preserve_isometric_relative_order() -> None:
   dx, dy = delta("Brandenburger Tor", "Botschaft der Vereinigten Staaten von Amerika")
   assert dx < 0
   assert dy > 0
+
+  wagner = landmarks["Richard Wagner"]
+  assert wagner == {
+    "name": "Richard Wagner",
+    "role": "owner_added",
+    "tourOrder": 90,
+    "x": 4238,
+    "y": 7275,
+    "nx": 0.258667,
+    "ny": 0.626291,
+  }

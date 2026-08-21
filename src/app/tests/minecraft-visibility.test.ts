@@ -324,7 +324,7 @@ describe("Minecraft visibility source wiring", () => {
     }
   });
 
-  test("replaces only the two smooth literary roots after voxel commit and preserves fallback", () => {
+  test("replaces smooth literary and Wagner roots after voxel commit and preserves fallback", () => {
     const helperStart = viewerSource.indexOf(
       "function setTiergartenLiteraryMemorialSmoothVisibility(",
     );
@@ -362,5 +362,17 @@ describe("Minecraft visibility source wiring", () => {
         /tiergartenLiteraryMemorialSolidAt\(x, y, z, radius\)/g,
       ),
     ).toHaveLength(2);
+    expect(viewerSource).toContain(
+      "setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode)",
+    );
+    expect(viewerSource).toContain(
+      "setWagnerMemorialSmoothVisibility(\n            runtime.monuments,\n            !voxelModeActive(runtime)",
+    );
+    expect(
+      viewerSource.match(/wagnerMemorialSolidAt\(x, y, z, 0\)/g),
+    ).toHaveLength(2);
+    expect(viewerSource).toContain(
+      "setWagnerMemorialSnow(runtime.monuments, isSnowstorm)",
+    );
   });
 });

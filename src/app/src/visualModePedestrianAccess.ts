@@ -8,6 +8,7 @@ import {
   invalidenfriedhofSolidAt,
   invalidenfriedhofWalkableInteriorAt,
 } from "./InvalidenfriedhofDetails";
+import { wagnerMemorialWalkableInteriorAt } from "./WagnerMemorial";
 import type { VisualMode } from "./visualMode";
 
 /** Capsule-aware solids without double-closing the authored bell opening. */
@@ -32,6 +33,9 @@ export function visualModeWalkableInteriorAt(
   z: number,
   sourceBuildingId?: string,
 ): boolean {
+  if (wagnerMemorialWalkableInteriorAt(x, y, z, sourceBuildingId)) {
+    return true;
+  }
   if (invalidenfriedhofWalkableInteriorAt(x, y, z, sourceBuildingId)) {
     return true;
   }

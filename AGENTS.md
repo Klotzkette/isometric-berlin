@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.14)
+## 3. Hard scope rules (v0.72.15)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -62,9 +62,15 @@ Must be inside the polygon and visible in the final map:
   collision must preserve their surrounding mapped paths and approaches. The
   Lessing fence must use the same 28-field, eight-segment chamfered-octagon
   outline for drawn geometry, Minecraft blocks and physical collision.
+- The Richard-Wagner-Denkmal at exact OSM node `243487615`, bound to
+  Landesdenkmalamt Berlin part object `09046318,T,041`, as the 90th navigable
+  sight. The false closed LoD2 shelter envelope `SR00009n` must not survive as
+  an occupied building or Minecraft column mass: the source-bound detail model
+  keeps the protective canopy open, the front/rear approaches walkable and
+  only its authored marble and steel solids collidable.
 - The newly established CSD memorial place near Bellevueallee/Ahornsteig at
   exact OSM node `14076715427`, kept separate from the existing owner-supplied
-  Queer Rainbow Memorial model and from the 89-place tour catalogue
+  Queer Rainbow Memorial model and from the 90-place tour catalogue
 - Luiseninsel playground opposite the Philharmonie, including mapped paths,
   trees and playground equipment
 - Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof, Kochstraße and the
@@ -75,7 +81,7 @@ Must be inside the polygon and visible in the final map:
 - Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
 - Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of Terror
 
-The committed 89-place landmark catalogue is the release inventory. Keep all
+The committed 90-place landmark catalogue is the release inventory. Keep all
 data clipped to the polygon, avoid unbounded whole-city output, and record any
 future owner-approved bounds expansion in the changelog and data manifests.
 
@@ -314,7 +320,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.14)
+## 8. What success looks like (Definition of Done v0.72.15)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -333,7 +339,7 @@ isometric-berlin/
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
-  renders all 89 catalogued sights in the same coordinate frame.
+  renders all 90 catalogued sights in the same coordinate frame.
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
@@ -358,6 +364,14 @@ isometric-berlin/
   representations. Protection
   radii are 4.3 m and 2.95 m; physical collision remains core-plus-fence-side
   only, and all eight sampled approach directions remain free.
+- Wagner remains independently selectable at OSM node `243487615` and official
+  monument part `09046318,T,041`. Day, Night, Snowstorm and Schwellenraum share
+  its source-bound drawn root; Minecraft substitutes a block-native reading.
+  The former closed LoD2 shelter `SR00009n` stays removed. Smooth presentation
+  is frozen at 6 renderables / 12,167 rendered vertices; Minecraft is one batch
+  / 514 blocks. Front, rear, side and high shelter approaches remain open,
+  collision follows only authored granular solids, and no reference photograph
+  or photographic texture is loaded by the viewer.
 
 ## 9. Hosting target: Perplexity
 

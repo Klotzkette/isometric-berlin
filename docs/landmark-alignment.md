@@ -2,9 +2,9 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-14T16:10:41.221814+00:00`
+- Generated: `2026-08-21T17:36:49.499502+00:00`
 - Status: `review`
-- Landmarks checked: `89`
+- Landmarks checked: `90`
 - Relative relationships checked: `38`
 - Landmark review count: `3`
 - Relative review count: `0`
@@ -25,7 +25,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Berlin Hauptbahnhof | `ok` | Berlin Hauptbahnhof (rail) | 1.66 m | inside DEBE01YYK0002KiE |
 | Humboldthafen | `ok` | Humboldthafen (water) | 0.00 m | nearest DEBE3Dbzrg8J0PRu at 46.94 m |
 | Hugo-Preuß-Brücke | `ok` | Hugo-Preuß-Brücke (roads) | 0.00 m | nearest DEBE3DM6eGZXjFeA at 39.42 m |
-| Rahel-Hirsch-Straße | `ok` | Rahel-Hirsch-Straße (roads) | 0.00 m | nearest DEBE3DVLFD4M9wox at 34.08 m |
+| Rahel-Hirsch-Straße | `ok` | Rahel-Hirsch-Straße (roads) | 0.03 m | nearest DEBE3DVLFD4M9wox at 34.08 m |
 | Moltkebrücke | `ok` | Moltkebrücke (roads) | 0.00 m | nearest DEBE3DMwj8PWhvKV at 41.2 m |
 | Haus der Kulturen der Welt (Schwangere Auster) | `ok` | Haus der Kulturen der Welt (pois) | 2.92 m | nearest DEBE01YYK0003VNJ at 9.61 m |
 | Großer Tiergarten | `ok` | Großer Tiergarten (parks) | 0.00 m | nearest DEBE00YYT600005H at 73.3 m |
@@ -42,10 +42,10 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Spreebogen | `ok` | Spreebogenpark (parks) | 55.36 m | nearest DEBE01YYK0002N6A at 0.92 m |
 | TIPI am Kanzleramt | `ok` | Tipi am Kanzleramt (pois) | 0.00 m | nearest DEBE01YYK0002MQ0 at 61.74 m |
 | Eduardo-Chillida-Skulptur Berlin | `ok` | Bundeskanzleramt (pois) | 20.73 m | nearest DEBE01YYK0003VUK at 20.03 m |
-| Reichstagsvorfeld / Berlin-Pavillon | `ok` | Reichstag/Bundestag (roads) | 33.71 m | inside DEBE3DDgAhATwErH |
-| Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.12 m | nearest DEBE3DdXH5BzPXTO at 25.46 m |
+| Reichstagsvorfeld / Berlin-Pavillon | `ok` | Reichstag/Bundestag (roads) | 39.11 m | inside DEBE3DDgAhATwErH |
+| Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.10 m | nearest DEBE3DdXH5BzPXTO at 25.46 m |
 | Kanzlergarten / Non-Violence-Skulptur | `ok` | Bettina-von-Arnim-Ufer (roads) | 4.88 m | nearest DEBE3DhkSa8wckKv at 9.0 m |
-| Carillon im Tiergarten | `ok` | Große Querallee (roads) | 18.01 m | inside DEBE01YYK0002MQ0 |
+| Carillon im Tiergarten | `ok` | Große Querallee (roads) | 18.09 m | inside DEBE01YYK0002MQ0 |
 | Mahnmal für verfolgte Zeugen Jehovas | `ok` | Mahnmal für die im Nationalsozialismus verfolgten und ermordeten Zeugen Jehovas (pois) | 0.00 m | nearest DEBE00YYT600005H at 130.41 m |
 | Gedenkort für Polen 1939-1945 | `ok` | Paul-Löbe-Allee (roads) | 75.92 m | nearest DEBE00YYWA00004m at 104.08 m |
 | Schweizerische Botschaft | `ok` | Schweizerische Botschaft (pois) | 0.00 m | inside DEBE3DNvokAngVCn |
@@ -69,7 +69,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Hamburger Bahnhof | `ok` | Hamburger Bahnhof - Nationalgalerie der Gegenwart (pois) | 12.82 m | inside DEBE3DLmFvNUQ5iG |
 | Geschichtspark Ehemaliges Zellengefängnis Moabit | `ok` | Geschichtspark Ehemaliges Zellengefängnis Moabit (parks) | 0.00 m | nearest DEBE01AL2yz00000 at 50.09 m |
 | Invalidenpark / Sinkende Mauer | `ok` | Sinkende Mauer (pois) | 0.00 m | nearest DEBE01AL3qn0000s at 66.37 m |
-| Rieckhallen | `ok` | no expected-name hit; nearest: Am Hamburger Bahnhof | 17.37 m | inside DEBE01YYK0002SQl |
+| Rieckhallen | `ok` | no expected-name hit; nearest: Am Hamburger Bahnhof | 17.48 m | inside DEBE01YYK0002SQl |
 | Sozialgericht Berlin | `ok` | Sozialgericht Berlin (pois) | 0.00 m | nearest DEBE01YYK0002Qys at 7.65 m |
 | KPMG Europacity | `ok` | KPMG (pois) | 0.00 m | inside DEBE3De9JUgwVTiy |
 | DKB Campus Upbeat | `review` | no expected-name hit; nearest: None | 20.35 m | nearest DEBE01YYK0002PFv at 164.14 m |
@@ -93,14 +93,15 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Bundesministerium für Forschung, Technologie und Raumfahrt | `ok` | Bundesministerium für Forschung, Technologie und Raumfahrt (pois) | 0.00 m | inside DEBE3DBlrT1zM4av |
 | Parlament der Bäume gegen Krieg und Gewalt | `ok` | Parlament der Bäume (pois) | 0.00 m | inside DEBE01YYK00007aT |
 | Berliner Ensemble | `ok` | Berliner Ensemble (pois; legacy tour-point/site way 422928025) | 0.00 m | legacy POI result: nearest DEBE01YYK00008HD at 8.76 m; exact model uses LoD2 parent DEBE01YYK00004vY and protected building way 43017010 |
-| Bahnhof Berlin Friedrichstraße | `ok` | Berlin Friedrichstraße (rail) | 0.00 m | inside DEBE00YYpY0000Jk |
+| Bahnhof Berlin Friedrichstraße | `ok` | Berlin Friedrichstraße (rail) | 2.80 m | inside DEBE00YYpY0000Jk |
 | Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | `ok` | Bundesministerium der Finanzen (pois) | 0.00 m | inside DEBE3DSOWJjXsCQe |
 | Gropius Bau | `ok` | Gropius-Bau (pois) | 0.00 m | inside DEBE3DUNRQLhhnrF |
 | Abgeordnetenhaus von Berlin | `ok` | Abgeordnetenhaus von Berlin (pois) | 0.00 m | inside DEBE3DEXeaCxS2u2 |
 | Topographie des Terrors | `ok` | Topographie des Terrors (pois) | 0.00 m | inside DEBE3DB8G4JuQSIz |
 | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend | `ok` | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend (pois) | 0.00 m | inside DEBE3DaRKFOzDWtk |
 | Denkzeichen Georg Elser | `ok` | Denkzeichen Georg Elser (pois) | 0.00 m | nearest DEBE3DGM02OGdTwB at 16.28 m |
-| Queer Rainbow Memorial Berlin | `review` | no expected-name hit; nearest: None | 0.00 m | nearest DEBE00YYT600005H at 150.23 m |
+| Queer Rainbow Memorial Berlin | `review` | no expected-name hit; nearest: Großer Tiergarten | 0.00 m | nearest DEBE00YYT600005H at 150.23 m |
+| Richard Wagner | `ok` | Richard Wagner (pois) | 0.00 m | inside DEBE00YYSR00009n |
 
 ## Relative Placement
 

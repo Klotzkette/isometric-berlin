@@ -17,6 +17,20 @@ from isometric_berlin.data.common import BERLIN_PROJECTED, sha256_file, write_js
 
 OSM_LAYERS = ("pois", "roads", "parks", "playgrounds", "water", "rail")
 
+# A few catalogue points intentionally remain legacy navigation anchors while
+# their authored model uses a more precise protected building/source parent.
+# Keep that distinction in regenerated human-readable reports instead of
+# silently collapsing the row back to the nearest generic OSM/LoD2 result.
+LANDMARK_REPORT_PRESENTATION: dict[str, dict[str, str]] = {
+  "Berliner Ensemble": {
+    "osm_evidence": ("Berliner Ensemble (pois; legacy tour-point/site way 422928025)"),
+    "lod2_evidence": (
+      "legacy POI result: nearest DEBE01YYK00008HD at 8.76 m; exact model "
+      "uses LoD2 parent DEBE01YYK00004vY and protected building way 43017010"
+    ),
+  }
+}
+
 LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
   "Brandenburger Tor": {
     "aliases": ["brandenburger tor"],
@@ -303,6 +317,15 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["denkzeichen georg elser"],
     "osm_ids": ["1986458966"],
     "max_distance_m": 1.0,
+  },
+  # The owner-added tour anchor is the current OSM artwork node. The Berlin
+  # monument database identifies the same work as Großer Tiergarten part
+  # 09046318,T,041; the official LoD2 canopy footprint independently covers
+  # this position.
+  "Richard Wagner": {
+    "aliases": ["richard wagner", "richard wagner denkmal", "wagner denkmal"],
+    "osm_ids": ["243487615"],
+    "max_distance_m": 0.2,
   },
   # This recent, informal memorial is not present in the committed OSM
   # snapshot. Keep it in the QA report as a deliberate manual-review point;
@@ -859,6 +882,7 @@ def write_markdown_report(report: dict[str, Any], path: Path) -> None:
     "|---|---:|---|---:|---|",
   ]
   for check in report["checks"]:
+    presentation = LANDMARK_REPORT_PRESENTATION.get(str(check["name"]), {})
     best = check["best_osm_match"]
     if best:
       osm_label = best["name"] or f"OSM {best['element']} {best['id']}"
@@ -874,6 +898,8 @@ def write_markdown_report(report: dict[str, Any], path: Path) -> None:
       if lod2["contains_landmark"]
       else f"nearest {lod2['nearest_building_id']} at {lod2['nearest_distance_m']} m"
     )
+    osm_evidence = presentation.get("osm_evidence", osm_evidence)
+    lod2_text = presentation.get("lod2_evidence", lod2_text)
     lines.append(
       "| "
       + " | ".join(

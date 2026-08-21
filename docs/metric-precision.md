@@ -22,38 +22,38 @@ surface, and which additions remain display approximations.
 ## Committed LoD2 geometry statistics
 
 - Official source building features audited: 17091
-- Current source features after documented corrections: 17072
-- Documented historical/demolished features excluded: 19
-- Polygon parts: 17089
-- Total footprint area: 2537112.21 m²
-- Current source footprint vertices audited: 151410
-- Median vertices per polygon: 5
-- Interior rings / courtyards: 166
-- Median segment length: 2.43 m
-- Measured LoD2 heights: 17072 (100.0%)
+- Current source features after documented corrections: 29928
+- Documented historical/demolished features excluded: 0
+- Polygon parts: 29969
+- Total footprint area: 8535780.71 m²
+- Current source footprint vertices audited: 323472
+- Median vertices per polygon: 7
+- Interior rings / courtyards: 676
+- Median segment length: 3.24 m
+- Measured LoD2 heights: 29928 (100.0%)
 - Explicit CityGML BuildingParts: 10607
 - Segmented parent ensembles: 2011
 - Latest source creation date: 2026-03-08
 - Invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Full source invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Drawn-prism coverage status: ok
-- Drawn LoD2 prisms: 16958 parts from 16951 current source rows
-- Non-extruded source rows / parts: 121 / 131
+- Drawn LoD2 prisms: 29818 parts from 29797 current source rows
+- Non-extruded source rows / parts: 131 / 151
   - Sub-5 cm flat rows: 4
-  - Degenerate non-flat parts: 127 (maximum footprint 1.132 m²)
+  - Degenerate non-flat parts: 147 (maximum footprint 1.132 m²)
 
 ## Complete street and bridge geometry audit
 
 - Status: ok
-- OSM road features audited: 21068
-- Supported road centrelines rendered: 14417
-- Resolved full widths: 14417
-- Width evidence: {'width': 1576, 'est_width': 8, 'lanes': 1417, 'class_fallback': 11416}
-- OSM bridge centrelines audited: 402
-  - Road/path bridges: 183
-  - Rail bridges/viaduct lines: 219
-- Named bridge centrelines: 219
-- Rendered water-crossing groups: 64 (36 narrow groups retained)
+- OSM road features audited: 41886
+- Supported road centrelines rendered: 39581
+- Resolved full widths: 39581
+- Width evidence: {'width': 4603, 'est_width': 13, 'lanes': 4151, 'class_fallback': 30814}
+- OSM bridge centrelines audited: 785
+  - Road/path bridges: 431
+  - Rail bridges/viaduct lines: 354
+- Named bridge centrelines: 374
+- Rendered water-crossing groups: 123 (64 narrow groups retained)
 - Road invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Bridge invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Width policy: width > est_width > mapped lanes > highway-class fallback
@@ -71,7 +71,7 @@ surface, and which additions remain display approximations.
 ## Landmark placement QA
 
 - Status: review
-- Landmarks checked: 89
+- Landmarks checked: 90
 - Relative relationships checked: 38
 - Review count: 3
 

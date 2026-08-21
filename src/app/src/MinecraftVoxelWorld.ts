@@ -40,6 +40,10 @@ import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDeta
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
 import { createTiergartenLiteraryMemorialsMinecraft } from "./TiergartenLiteraryMemorials";
 import {
+  createWagnerMemorialMinecraft,
+  wagnerMemorialVoxelReplacementAt,
+} from "./WagnerMemorial";
+import {
   createMinecraftTipiAmKanzleramt,
   isMinecraftTipiReplacementColumn,
 } from "./MinecraftTipiAmKanzleramt";
@@ -2113,6 +2117,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createTiergartenLiteraryMemorialsMinecraft());
+  group.add(createWagnerMemorialMinecraft());
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
@@ -2124,6 +2129,12 @@ export function createMinecraftVoxelWorld(
   const visibleBuildingColumns = buildingColumns
     .filter(
       ([xIdx, zIdx, y0dm, y1dm]) =>
+      !wagnerMemorialVoxelReplacementAt(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
+        y0dm / 10,
+      ) &&
       !isFalseSintiRomaVoxelColumn(
         worldXAbs(xIdx),
         worldZAbs(zIdx),

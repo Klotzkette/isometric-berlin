@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
-import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
+import {
+  Box3,
+  InstancedMesh,
+  MathUtils,
+  Matrix4,
+  Ray,
+  Spherical,
+  Vector3,
+} from "three";
 
 import {
   BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING,
@@ -40,6 +48,10 @@ import {
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/expandedCityProfiles";
+import {
+  WAGNER_MEMORIAL_PROFILE,
+  wagnerMemorialVoxelReplacementAt,
+} from "../src/WagnerMemorial";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -117,11 +129,11 @@ describe("true voxel Minecraft world", () => {
     expect(world.getObjectByName("Voxel meadow flowers")).toBeDefined();
     expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
     expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
-    expect(instanced("Voxel facade windows", world).count).toBe(1_594_973);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_594_943);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
-    expect(instanced("Voxel building columns", world).count).toBe(1_481_674);
+    expect(instanced("Voxel building columns", world).count).toBe(1_481_656);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      542_640,
+      542_634,
     );
 
     const landmarks = world.getObjectByName(
@@ -285,6 +297,148 @@ describe("true voxel Minecraft world", () => {
       textureFree: true,
     });
     expect(mobile.userData).toEqual(full.userData);
+  });
+
+  test("replaces exactly Wagner's six false source columns in full and mobile", () => {
+    const cell = payload.cell_m;
+    const sourceColumns = buildingColumns.filter(
+      ([xIndex, zIndex, bottomDm, topDm]) =>
+        wagnerMemorialVoxelReplacementAt(
+          (xIndex + 0.5) * cell,
+          (zIndex + 0.5) * cell,
+          (topDm - bottomDm) / 10,
+          bottomDm / 10,
+        ),
+    );
+    expect(sourceColumns).toHaveLength(
+      WAGNER_MEMORIAL_PROFILE.voxelSource.expectedColumnCount,
+    );
+
+    const targetXZ = new Set(
+      WAGNER_MEMORIAL_PROFILE.voxelSource.columnCentersWorldM.map(
+        ([x, z]) => `${x.toFixed(1)},${z.toFixed(1)}`,
+      ),
+    );
+    for (const root of [world, mobileWorld]) {
+      const replacement = instanced(
+        "Richard Wagner Minecraft block batch",
+        root,
+      );
+      expect(replacement.count).toBe(514);
+      expect(replacement.userData).toMatchObject({
+        blockNative: true,
+        exactOneBatch: true,
+        ownedOsmKey: WAGNER_MEMORIAL_PROFILE.osmKey,
+        smoothGeometryExcluded: true,
+      });
+
+      const sourceMass = instanced("Voxel building columns", root);
+      const matrix = new Matrix4();
+      const survivingTargetCourses: number[] = [];
+      for (let index = 0; index < sourceMass.count; index += 1) {
+        sourceMass.getMatrixAt(index, matrix);
+        const key = `${matrix.elements[12].toFixed(1)},${matrix.elements[14].toFixed(1)}`;
+        if (targetXZ.has(key)) survivingTargetCourses.push(index);
+      }
+      expect(survivingTargetCourses).toEqual([]);
+    }
+  });
+
+  test("keeps every Wagner block sample clear of real voxel trunks and crowns at its Minecraft focus", () => {
+    const focus = WAGNER_MEMORIAL_PROFILE.minecraftFocus;
+    expect(focus).toEqual({
+      azimuthDegrees: -6,
+      distanceM: 21.25,
+      polarDegrees: 82,
+      targetHeightM: 4,
+    });
+
+    // Focus distances are authored for the 39-degree photographic lens. The
+    // viewer applies this same dolly factor when Minecraft switches to 16°.
+    const dollyScale =
+      Math.tan(MathUtils.degToRad(39) / 2) /
+      Math.tan(MathUtils.degToRad(16) / 2);
+    const target = new Vector3(...WAGNER_MEMORIAL_PROFILE.worldM);
+    target.y += focus.targetHeightM;
+    const camera = target.clone().add(
+      new Vector3().setFromSpherical(
+        new Spherical(
+          focus.distanceM * dollyScale,
+          MathUtils.degToRad(focus.polarDegrees),
+          MathUtils.degToRad(focus.azimuthDegrees),
+        ),
+      ),
+    );
+
+    world.updateMatrixWorld(true);
+    const wagner = instanced("Richard Wagner Minecraft block batch", world);
+    expect(wagner.count).toBe(514);
+    const instanceMatrix = new Matrix4();
+    const localSamples = [new Vector3(0, 0, 0)];
+    for (const x of [-0.5, 0.5]) {
+      for (const y of [-0.5, 0.5]) {
+        for (const z of [-0.5, 0.5]) {
+          localSamples.push(new Vector3(x, y, z));
+        }
+      }
+    }
+    const blockSamples: Vector3[] = [];
+    for (let index = 0; index < wagner.count; index += 1) {
+      wagner.getMatrixAt(index, instanceMatrix);
+      instanceMatrix.premultiply(wagner.matrixWorld);
+      for (const local of localSamples) {
+        blockSamples.push(local.clone().applyMatrix4(instanceMatrix));
+      }
+    }
+    expect(blockSamples).toHaveLength(514 * 9);
+
+    // Every camera-to-block segment lies inside this envelope. Rejecting tree
+    // instances outside it keeps the exact AABB sweep small and deterministic.
+    const visibilityEnvelope = new Box3().setFromPoints(blockSamples);
+    visibilityEnvelope.expandByPoint(camera);
+    const unitBox = new Box3(
+      new Vector3(-0.5, -0.5, -0.5),
+      new Vector3(0.5, 0.5, 0.5),
+    );
+    const vegetationBoxes: Array<{ box: Box3; kind: "crown" | "trunk" }> = [];
+    for (const [name, kind] of [
+      ["Voxel tree trunks", "trunk"],
+      ["Voxel tree crowns", "crown"],
+    ] as const) {
+      const vegetation = instanced(name, world);
+      for (let index = 0; index < vegetation.count; index += 1) {
+        vegetation.getMatrixAt(index, instanceMatrix);
+        instanceMatrix.premultiply(vegetation.matrixWorld);
+        const box = unitBox.clone().applyMatrix4(instanceMatrix);
+        if (box.intersectsBox(visibilityEnvelope)) {
+          vegetationBoxes.push({ box, kind });
+        }
+      }
+    }
+    expect(vegetationBoxes.some(({ kind }) => kind === "trunk")).toBe(true);
+    expect(vegetationBoxes.some(({ kind }) => kind === "crown")).toBe(true);
+
+    const ray = new Ray();
+    const hit = new Vector3();
+    let occludedSamples = 0;
+    for (const sample of blockSamples) {
+      const direction = sample.clone().sub(camera);
+      const segmentLengthSq = direction.lengthSq();
+      ray.set(camera, direction.normalize());
+      for (const { box } of vegetationBoxes) {
+        const intersection = ray.intersectBox(box, hit);
+        if (
+          box.containsPoint(camera) ||
+          box.containsPoint(sample) ||
+          (intersection &&
+            intersection.distanceToSquared(camera) <= segmentLengthSq + 1e-6)
+        ) {
+          occludedSamples += 1;
+          break;
+        }
+      }
+    }
+    expect(occludedSamples).toBe(0);
   });
 
   test("uses only palette-native plinth and cap blocks", () => {

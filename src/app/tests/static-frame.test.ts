@@ -408,4 +408,19 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("runtime.settledSurface");
     expect(viewerSource).toContain("metallic shards");
   });
+
+  test("keeps Richard Wagner readable when switching between smooth and Minecraft worlds", () => {
+    expect(viewerSource).toContain(
+      "wagnerMemorialFocusCamera(runtime.lightingMode)",
+    );
+    expect(viewerSource).toContain(
+      "previousLightingMode !== lightingMode &&",
+    );
+    expect(viewerSource).toContain(
+      "selectedRef.current === WAGNER_MEMORIAL_PROFILE.name &&",
+    );
+    expect(viewerSource).toContain(
+      "focusLandmarkRef.current(WAGNER_MEMORIAL_PROFILE.name, true)",
+    );
+  });
 });

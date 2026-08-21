@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.14"
+PACKAGE_VERSION = "0.72.15"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,21 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} verankert das Richard-Wagner-Denkmal als 90.
+navigierbare Sehenswürdigkeit am exakten OSM-Knoten 243487615 und bindet seine
+Identität an das Landesdenkmalamt-Teilobjekt 09046318,T,041. Der fehlerhaft
+geschlossene LoD2-Schutzdachkörper SR00009n und seine sechs massiven
+Minecraft-Säulen sind entfernt. Tag, Nacht, Schneesturm und Schwellenraum
+nutzen stattdessen ein eigenes offenes, texturfreies Denkmalmodell; Minecraft
+ersetzt es durch eine blockeigene Variante. Smooth sind es genau 6 Renderables
+mit 12.167 gerenderten Vertices, Minecraft ist genau ein Batch mit 514
+Blöcken. Front-, Rück-, Seiten- und hohe Unterdachzugänge bleiben offen;
+granulare Kollision folgt nur den dargestellten Marmor- und Stahlkörpern.
+Quellfakten sind Lage, amtliche Identität und veröffentlichte Gesamt- und
+Figurenhöhe. Lokale Figurengliederung, Dachquerschnitt, Bauteilabstände,
+Ausrichtung und Kollisionskörper sind nicht vermessene Darstellungswerte.
+Es werden weder Referenzfoto noch Thumbnail oder Fototextur gebündelt oder
+geladen.
 Version {PACKAGE_VERSION} gibt dem Max-Liebermann-Haus, der Französischen und
 der US-Botschaft sowie der Akademie der Künste vier getrennte, quellengebundene
 Fassaden über den erhaltenen LoD2-/OSM-Körpern. Die gezeichneten Varianten
@@ -3767,6 +3782,20 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} anchors the Richard-Wagner-Denkmal as the 90th
+navigable sight at exact OSM node 243487615 and binds its identity to
+Landesdenkmalamt part object 09046318,T,041. The false closed LoD2 shelter
+SR00009n and its six solid Minecraft columns are removed. Day, Night,
+Snowstorm and Schwellenraum instead use a dedicated open, texture-free
+memorial model; Minecraft substitutes a block-native counterpart. Smooth uses
+exactly 6 renderables and 12,167 rendered vertices, while Minecraft is exactly
+one batch with 514 blocks. Front, rear, side and high under-roof approaches
+remain open; granular collision follows only the represented marble and steel
+solids. Source facts are the position, official identity and published overall
+and figure heights. Local figure segmentation, roof section, component
+spacing, orientation and collision volumes are non-surveyed display values.
+No reference photograph, thumbnail or photographic texture is bundled or
+loaded.
 Version {PACKAGE_VERSION} gives the Max-Liebermann-Haus, French Embassy, US
 Embassy and Akademie der Künste four separate source-bounded facades over their
 retained LoD2/OSM bodies. Drawn variants carry their characteristic window,

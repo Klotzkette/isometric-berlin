@@ -48,6 +48,7 @@ import {
 } from "./expandedCityProfiles";
 import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
+import { WAGNER_MEMORIAL_PRISM_IDS } from "./WagnerMemorial";
 import {
   SIEGESSAEULE_BRONZE_TONES,
   SIEGESSAEULE_MOSAIC_TONES,
@@ -685,6 +686,10 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Richard-Wagner-Denkmal: SR00009n is the closed LoD2 envelope of the
+  // later protective barrel-vault canopy. The source-bound model preserves
+  // its open steel frame and the complete marble ensemble underneath.
+  ...WAGNER_MEMORIAL_PRISM_IDS,
   // Bremen and Saxony have no matching official LoD2 object in the committed
   // source set. Their 9 m OSM context prisms are display fallbacks, not height
   // surveys; FederalStateRepresentations keeps the exact OSM outlines and

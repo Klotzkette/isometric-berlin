@@ -6,7 +6,7 @@ The MVP polygon is stored at
 ## Landmarks (must be inside the polygon)
 
 The machine-readable catalogue in `landmarks.geojson` is canonical and
-currently contains 89 checked places. It includes the government core and
+currently contains 90 checked places. It includes the government core and
 Pariser Platz; Hauptbahnhof, Hamburger Bahnhof and Europacity; the full
 Tiergarten to Charlottenburger Tor; Kulturforum and Potsdamer/Leipziger Platz;
 and the southern extension to Anhalter Bahnhof, Kochstraße and the WELT
@@ -20,6 +20,10 @@ The 89th record is the owner-supplied `Queer Rainbow Memorial Berlin` point at
 Ahornsteig. It is retained as an explicit manual-review anchor because the
 current bounded OSM extract does not yet contain a corresponding named feature.
 Its position must not be confused with surveyed tree or memorial geometry.
+
+The 90th record is the `Richard Wagner` memorial at exact OSM node
+`243487615`. Its catalogue anchor is independently checked against the local
+OSM extract and the official LoD2 footprint of its protective shelter.
 
 The current WGS84 extent is approximately `13.314761,52.493209` to
 `13.407233,52.550987` (EPSG:25833 `385602.60,5817089.12` to

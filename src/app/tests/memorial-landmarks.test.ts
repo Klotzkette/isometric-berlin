@@ -19,6 +19,7 @@ import {
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
 import { TIERGARTEN_LITERARY_MEMORIALS_PROFILE } from "../src/TiergartenLiteraryMemorials";
+import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
 
 const names = [
   "Denkmal für die ermordeten Juden Europas",
@@ -99,6 +100,28 @@ describe("granular memorial recognition models", () => {
     expect(lessingOnly.getObjectByName("Goethe-Denkmal")).toBeUndefined();
     expect(lessingOnly.getObjectByName("Lessing-Denkmal")?.position.toArray())
       .toEqual([...TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.worldM]);
+  });
+
+  test("attaches Wagner once at the exact source-owned OSM anchor", () => {
+    const root = createMemorialLandmarks([
+      {
+        name: WAGNER_MEMORIAL_PROFILE.name,
+        world: [9_999, 99, 9_999],
+      },
+    ]);
+    expect(root.children).toHaveLength(1);
+    expect(root.userData.modelCount).toBe(1);
+    const wagner = root.getObjectByName(
+      "Richard Wagner source-bound memorial",
+    )!;
+    expect(wagner.position.toArray()).toEqual([
+      ...WAGNER_MEMORIAL_PROFILE.worldM,
+    ]);
+    expect(wagner.userData).toMatchObject({
+      ownedOsmKey: WAGNER_MEMORIAL_PROFILE.osmKey,
+      sourceBounded: true,
+      wagnerMemorialSmooth: true,
+    });
   });
 
   test("grounds every model on the sampled official mesh instead of the camera anchor", () => {

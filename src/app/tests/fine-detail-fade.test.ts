@@ -365,6 +365,25 @@ describe("nextFineDetailVisible", () => {
     }
   });
 
+  test("fades Wagner's thin outlines without dropping either main silhouette", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Richard Wagner six-metre marble ensemble ink lines",
+        "Richard Wagner open steel canopy ink lines",
+      ]),
+    );
+    for (const persistentName of [
+      "Richard Wagner six-metre marble ensemble bodies",
+      "Richard Wagner open steel canopy bodies",
+      "Richard Wagner open plexiglass barrel vault",
+      "Richard Wagner reversible snow caps",
+      "Richard Wagner Minecraft block batch",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
+  });
+
   test("fades the Invalidenfriedhof ornament without dropping its silhouettes", () => {
     expect(FINE_DETAIL_LAYER_NAMES).toEqual(
       expect.arrayContaining([

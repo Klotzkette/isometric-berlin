@@ -39,6 +39,10 @@ import {
   TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
   createTiergartenLiteraryMemorials,
 } from "./TiergartenLiteraryMemorials";
+import {
+  WAGNER_MEMORIAL_PROFILE,
+  createWagnerMemorial,
+} from "./WagnerMemorial";
 
 export type MemorialLandmark = {
   name: string;
@@ -2112,6 +2116,9 @@ export function createMemorialLandmarks(landmarks: MemorialLandmark[]): Group {
       memorial.userData.tiergartenLiteraryMemorialSmooth = true;
       root.add(memorial);
     }
+  }
+  if (requestedNames.has(WAGNER_MEMORIAL_PROFILE.name)) {
+    root.add(createWagnerMemorial());
   }
   root.userData.modelCount = root.children.length;
   return root;

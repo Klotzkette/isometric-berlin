@@ -157,7 +157,12 @@ def test_overview_projection_matches_committed_landmarks() -> None:
     for record in json.loads(LANDMARKS_JSON.read_text(encoding="utf-8"))["landmarks"]
   }
   landmarks = gpd.read_file(LANDMARKS_GEOJSON).to_crs("EPSG:25833")
-  for name in ("Reichstagsgebäude", "Bundeskanzleramt", "Berlin Hauptbahnhof"):
+  for name in (
+    "Reichstagsgebäude",
+    "Bundeskanzleramt",
+    "Berlin Hauptbahnhof",
+    "Richard Wagner",
+  ):
     row = landmarks[landmarks["name"] == name].iloc[0]
     px, py = overview_canvas_px(
       row.geometry.x - 389500.0,

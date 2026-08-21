@@ -158,6 +158,24 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   only; no source photograph, thumbnail, crop, tracing or derived texture is
   bundled or loaded by the viewer.
 
+- **Richard-Wagner-Denkmal in the Großer Tiergarten (factual and visual
+  evidence):** exact plan placement comes from
+  [OSM node `243487615`](https://www.openstreetmap.org/node/243487615) under
+  the ODbL attribution above. The Berlin monument database records the work as
+  part object
+  [`09046318,T,041`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318),
+  and the
+  [Bildhauerei in Berlin inventory](https://bildhauerei-in-berlin.de/bildwerk/wagnerdenkmal-5372/)
+  supplies the published dimensions, materials, sculptural programme and
+  protective-shelter history. Berlin LoD2 object `DEBE00YYSR00009n` /
+  `SR00009n` remains attributed footprint evidence for that shelter but is not
+  presented as a closed occupied building. Local figure segmentation, canopy
+  section, member spacing, presentation orientation and collision volumes are
+  procedural, non-surveyed display reconstructions. The
+  [Wikimedia Commons category](https://commons.wikimedia.org/wiki/Category:Richard-Wagner-Denkmal_(Berlin))
+  is reference-only visual QA; no source photograph, thumbnail, crop or
+  photographic texture is bundled or loaded by the viewer.
+
 - **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
   pages are used only to validate the displayed U5 and shared North-South
   S-Bahn station sequence. Track, platform and entrance plan geometry remains

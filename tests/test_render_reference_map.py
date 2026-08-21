@@ -77,3 +77,4 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
   )
   assert names.index("Denkzeichen Georg Elser") + 1 == 88
   assert names.index("Queer Rainbow Memorial Berlin") + 1 == 89
+  assert names.index("Richard Wagner") + 1 == 90

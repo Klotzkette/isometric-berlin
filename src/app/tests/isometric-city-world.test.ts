@@ -152,6 +152,9 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     // but must not become opaque full-height prism extrusions.
     expect(PRISM_SUPPRESSED_IDS.has("K0001yqp")).toBe(true);
     expect(PRISM_SUPPRESSED_IDS.has("1pC0000R")).toBe(true);
+    // The Wagner LoD2 object is a closed canopy envelope; the authored
+    // source-bound model keeps the public approaches open.
+    expect(PRISM_SUPPRESSED_IDS.has("SR00009n")).toBe(true);
 
     const mainBody = payload.buildings.find(
       (building) => building.id === "K0002MCN",

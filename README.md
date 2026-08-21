@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.14/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.15/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.14** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.15** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,30 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.14**, built from `main`. Its full viewer
+The current public package is **v0.72.15**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Richard-Wagner-Denkmal is now exactly anchored and navigable as sight
+  90.** OSM node `243487615` fixes the plan position and Landesdenkmalamt
+  Berlin part object `09046318,T,041` fixes the official monument identity.
+  The former closed LoD2 protective-shelter envelope `SR00009n` is removed
+  from both the drawn building shell and its six-column voxel mass. Day,
+  Night, Snowstorm and Schwellenraum instead share a dedicated open steel and
+  translucent barrel-vault shelter around the six-metre marble ensemble;
+  Minecraft substitutes one block-native counterpart. The smooth root is
+  frozen at **6 renderables / 12,167 rendered vertices** and Minecraft at
+  **one batch / 514 blocks**. Front, rear, side and high under-roof approaches
+  remain open while authored granular collision follows only represented
+  marble and canopy posts.
+
+- **Sources and reconstruction remain deliberately separate.** The OSM point,
+  monument-register identity and published overall/figure dimensions are
+  source facts. Local sculptural segmentation, canopy section, component
+  spacing and collision volumes are procedural display reconstructions, not a
+  survey. No visual-reference photograph, thumbnail or photographic texture
+  is bundled or loaded by the viewer.
 
 - **Goethe and Lessing now read as their real Tiergarten ensembles rather than
   generic monument blocks.** Exact OSM nodes `278738513` and `884700390` keep
@@ -989,7 +1009,7 @@ local modules.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.
-  All 89 source-positioned sights remain available to tours, previous/next
+  All 90 source-positioned sights remain available to tours, previous/next
   navigation and stable `#landmark=` links; the smaller rail is a usability
   choice, not a data deletion.
 - Water bodies retain their mapped plan geometry and now read as recessed
@@ -1076,7 +1096,7 @@ local modules.
   no replacement street or river geometry is invented.
 - **The 2D overview and 3D scene share the same task-13 bounds.** The DZI,
   reference image and bundled landmark projection were regenerated together;
-  all 89 checked sights use the same coordinate frame in both viewers. The
+  all 90 checked sights use the same coordinate frame in both viewers. The
   embedded and public landmark payloads are byte-identical and enforced by
   release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
   compact overview fallback is capped at 4800 px, while the downloadable
@@ -1393,7 +1413,7 @@ local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 89 landmarks, 38 relative-placement
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 90 landmarks, 38 relative-placement
   checks and 112 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
@@ -1431,7 +1451,7 @@ the packaged viewer projection is
 | Pariser Platz and diplomatic edge | Brandenburger Tor, Quadriga mit Victoria, Pariser Platz, Starbucks Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
 | Spreebogen diplomacy / civic symbols | Schweizerische Botschaft, Fahne der Einheit |
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser, Queer Rainbow Memorial Berlin am Ahornsteig |
-| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
+| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, Richard-Wagner-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
 | Northern extension | Hamburger Bahnhof, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
 | Kulturforum / Potsdamer Platz | Philharmonie, Kammermusiksaal, Staatsbibliothek, Neue Nationalgalerie, berlin modern, Henry-Moore-Plastik, Tilla-Durieux-Park, Kollhoff-Tower |

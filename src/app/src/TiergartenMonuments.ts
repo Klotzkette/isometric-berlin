@@ -61,8 +61,6 @@ const GLASS_BLUE = 0x5f9fc4;
 const TOWER_GREEN = 0x4a6b52;
 const MARBLE = 0xe8e5dc;
 const GRANITE_RED = 0x9d7a6e;
-const CANOPY_ROOF = 0xa8543f;
-const CANOPY_POST = 0x7d7a72;
 const FLOWER_RED = 0xc95564;
 const FLOWER_GOLD = 0xe8bf4c;
 const FLOWER_PINK = 0xc77da4;
@@ -1848,11 +1846,6 @@ function buildDieGlucklicheHeimkehrDesKriegers(builder: Builder, x: number, y: n
   buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
-/** Richard Wagner: reference-based presentation silhouette, not surveyed geometry. */
-function buildRichardWagner(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.0);
-}
-
 /** Der verwundete Krieger: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerVerwundeteKrieger(builder: Builder, x: number, y: number, z: number): void {
   buildFigureGroupArtwork(builder, x, y, z, 1.1);
@@ -2353,7 +2346,6 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Abschied des Kriegers von seiner Familie": buildAbschiedDesKriegersVonSeinerFamilie,
   "Der Kampf": buildDerKampf,
   "Die glückliche Heimkehr des Kriegers": buildDieGlucklicheHeimkehrDesKriegers,
-  "Richard Wagner": buildRichardWagner,
   "Der verwundete Krieger": buildDerVerwundeteKrieger,
   "Wegzeichen 3a": buildWegzeichen3A,
   Zusammenhalt: buildZusammenhalt,
@@ -2570,53 +2562,6 @@ function buildGlassPanels(builder: Builder, x: number, y: number, z: number): vo
 }
 
 /**
- * Eberlein's 1903 Carrara marble group under the flat reddish roof that
- * was put over it to keep the weather off the marble. The roof is the
- * thing you recognise the monument by from any distance, so it is drawn
- * as its own element: four slim posts and a low overhanging canopy.
- */
-function buildWagnerMemorial(
-  builder: Builder,
-  x: number,
-  y: number,
-  z: number
-): void {
-  box(builder, STONE_LIGHT, x, y + 0.35, z, 8, 0.7, 6.4);
-  box(builder, MARBLE, x, y + 1.5, z, 4.6, 1.6, 3.4);
-  // Wagner sits; the allegorical figures crouch around the base.
-  box(builder, MARBLE, x, y + 3.1, z - 0.3, 1.7, 1.8, 1.5);
-  box(builder, MARBLE, x, y + 4.3, z - 0.3, 1.1, 0.7, 1.1);
-  for (const [dx, dz] of [
-    [-1.7, 1.2],
-    [1.7, 1.2],
-  ]) {
-    box(builder, MARBLE, x + dx, y + 2.9, z + dz, 1, 1.2, 1);
-  }
-  for (const dx of [-3.6, 3.6]) {
-    for (const dz of [-2.8, 2.8]) {
-      box(builder, CANOPY_POST, x + dx, y + 3.4, z + dz, 0.24, 6.1, 0.24);
-    }
-  }
-  // The real 1987/88 Schutzdach (Marianne Wagner, architect) is a steel
-  // barrel vault under plexiglass, not a flat gable -- five stepped
-  // slabs of shrinking width approximate the half-round cross-section
-  // running east-west over the monument, per
-  // https://bildhauerei-in-berlin.de/bildwerk/wagnerdenkmal-5372/ and
-  // https://de.wikipedia.org/wiki/Richard-Wagner-Denkmal_(Berlin) .
-  box(builder, CANOPY_ROOF, x, y + 6.55, z, 9.6, 0.4, 7.8);
-  const vaultSteps = [
-    { dy: 6.95, sx: 8.6, sy: 0.42, sz: 6.9 },
-    { dy: 7.35, sx: 7.2, sy: 0.42, sz: 5.7 },
-    { dy: 7.72, sx: 5.6, sy: 0.4, sz: 4.4 },
-    { dy: 8.06, sx: 3.8, sy: 0.36, sz: 2.9 },
-  ];
-  for (const step of vaultSteps) {
-    box(builder, CANOPY_ROOF, x, y + step.dy, z, step.sx, step.sy, step.sz);
-  }
-  box(builder, CANOPY_ROOF, x, y + 8.32, z, 1.6, 0.3, 1.2); // vault ridge cap
-}
-
-/**
  * The Luiseninsel figures — Encke's Königin Luise (1880, cylindrical
  * pedestal with a Befreiungskriege relief band, downcast standing
  * queen), Drake's Friedrich Wilhelm III (1849, tall square pedestal,
@@ -2808,7 +2753,7 @@ const STATUE_NAMES =
 // intersection. Skipping it here removes the duplicate; the detailed
 // figure now lives solely in createSiegessaeule().
 export const MONUMENTS_ALREADY_MODELLED =
-  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Johann Wolfgang von Goethe|Lessing-Denkmal|Gotthold Ephraim Lessing|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
+  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Johann Wolfgang von Goethe|Lessing-Denkmal|Gotthold Ephraim Lessing|Richard Wagner|Wagner-Denkmal|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
 
 function addMergedMonumentBatch(parent: Group, builder: Builder): void {
   const merged = builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
@@ -2859,6 +2804,7 @@ export function createTiergartenMonuments(
   const protectedSourceKeys: string[] = [];
   const protectedRenderedSourceKeys: string[] = [];
   const protectedExternallyModelledSourceKeys: string[] = [];
+  const externallyModelledSourceKeys: string[] = [];
   for (const entry of street.monuments) {
     const x = entry.x_dm / 10;
     const z = entry.z_dm / 10;
@@ -2895,6 +2841,7 @@ export function createTiergartenMonuments(
       entry.kind === "tank"
     ) {
       // The verified recognition layer carries these (incl. both T-34s).
+      externallyModelledSourceKeys.push(entry.osm_key);
       if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
@@ -2917,8 +2864,6 @@ export function createTiergartenMonuments(
       buildRousseauColumn(builder, x, y, z);
     } else if (/^Baumdank-Denkmal$/i.test(name)) {
       buildTreeDonationStele(builder, x, y, z);
-    } else if (/Richard Wagner|Wagner-Denkmal/i.test(name)) {
-      buildWagnerMemorial(builder, x, y, z);
     } else if (/Moltke|Roon/i.test(name)) {
       buildGeneralColumn(builder, x, y, z);
     } else if (LUISENINSEL_NAMES.test(name)) {
@@ -2980,6 +2925,7 @@ export function createTiergartenMonuments(
   group.userData.protectedSourceKeys = protectedSourceKeys;
   group.userData.protectedRenderedSourceKeys = protectedRenderedSourceKeys;
   group.userData.protectedExternallyModelledSourceKeys = protectedExternallyModelledSourceKeys;
+  group.userData.externallyModelledSourceKeys = externallyModelledSourceKeys;
   group.userData.quietMemorialGeometry =
     "OSM memorial subtypes preserved; Stolpersteine use Berlin's documented 0.10 m brass top, while unclassified points stay conservative low markers";
   group.userData.tiergartenHeritageModels = {

@@ -434,6 +434,29 @@ for Lessing, while normal pedestrian collision follows each represented core
 and its fence-side solids rather than blocking the mapped park paths or any of
 the eight sampled approach directions.
 
+The Richard-Wagner-Denkmal is a third independent Tiergarten detail root and
+the 90th navigable sight. OSM node `243487615` is the exact plan anchor;
+Landesdenkmalamt Berlin part object `09046318,T,041` binds the official
+monument identity. The corresponding LoD2 object `DEBE00YYSR00009n` /
+`SR00009n` is interpreted as evidence for the protective-shelter footprint,
+not as a closed occupied building. Its prism is therefore excluded from the
+drawn city and its six false solid voxel columns are excluded from Minecraft.
+The dedicated recognition layer instead keeps the front, rear and side
+approaches and the space below the shelter open while granular collision is
+limited to its authored marble masses and steel canopy posts.
+
+Day, Night, Snowstorm and Schwellenraum share the texture-free smooth Wagner
+root; Minecraft hides it and substitutes one block-native root. Reversible
+snow affects only the smooth exposed surfaces. The frozen smooth budget is
+exactly 6 renderables and 12,167 rendered vertices; Minecraft is exactly one
+batch containing 514 blocks. The OSM position, official register identity and
+published six-metre overall / 2.7-metre seated-figure dimensions are source
+facts. The local sculptural segmentation, canopy section, component spacing,
+presentation orientation and collision volumes are code-authored display
+reconstructions rather than surveyed geometry. The Commons category remains
+visual QA evidence only: no photograph, thumbnail, crop, tracing or
+photographic texture is bundled or loaded by the viewer.
+
 The Georg Elser memorial at Wilhelmstrasse is an additional independent
 recognition model at OSM sculpture node `1986458966`. Its published 17 m height,
 steel material and exact point anchor are source facts; the continuous profile,
