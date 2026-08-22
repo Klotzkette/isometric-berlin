@@ -627,13 +627,15 @@ describe("Minecraft hero navigation", () => {
         "runtime.pedestrian.environment = provisionalEnvironment",
       ),
     ).toBeLessThan(
-      voxelBuilder.indexOf("void fetchSurfacePayload(runtime)"),
+      voxelBuilder.indexOf(
+        "const surfacePayloadPromise = fetchSurfacePayload(runtime)",
+      ),
     );
     const waterLoader = voxelBuilder.indexOf(
       "runtime.ensurePedestrianWater = () =>",
     );
     const waterFetch = voxelBuilder.indexOf(
-      "void fetchSurfacePayload(runtime)",
+      "const surfacePayloadPromise = fetchSurfacePayload(runtime)",
     );
     const requestedWater = voxelBuilder.indexOf(
       "runtime.ensurePedestrianWater();",

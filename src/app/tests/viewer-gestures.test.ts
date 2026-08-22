@@ -15,10 +15,79 @@ import {
   rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
   snapRotationToCardinals,
+  touchInteractionAfterPanGlideCancel,
+  viewerGestureResetRequired,
   wheelNavigationIntent,
 } from "../src/viewerGestures";
 
 describe("touch viewer gestures", () => {
+  test("drops cancelled glide activity unless a real touch gesture remains", () => {
+    expect(
+      touchInteractionAfterPanGlideCancel({
+        customTouchGestureActive: false,
+        pedestrianTouchLookActive: false,
+        touchInteracting: false,
+        touchPointCount: 0,
+      }),
+    ).toBe(false);
+    expect(
+      touchInteractionAfterPanGlideCancel({
+        customTouchGestureActive: true,
+        pedestrianTouchLookActive: false,
+        touchInteracting: false,
+        touchPointCount: 0,
+      }),
+    ).toBe(true);
+    expect(
+      touchInteractionAfterPanGlideCancel({
+        customTouchGestureActive: false,
+        pedestrianTouchLookActive: true,
+        touchInteracting: false,
+        touchPointCount: 0,
+      }),
+    ).toBe(true);
+    expect(
+      touchInteractionAfterPanGlideCancel({
+        customTouchGestureActive: false,
+        pedestrianTouchLookActive: false,
+        touchInteracting: false,
+        touchPointCount: 1,
+      }),
+    ).toBe(false);
+    expect(
+      touchInteractionAfterPanGlideCancel({
+        customTouchGestureActive: false,
+        pedestrianTouchLookActive: false,
+        touchInteracting: true,
+        touchPointCount: 1,
+      }),
+    ).toBe(true);
+  });
+
+  test("resets blur state for mouse controls and pedestrian look too", () => {
+    const idle = {
+      controlsInteracting: false,
+      customTouchGestureActive: false,
+      panMomentumActive: false,
+      pedestrianLookPointerActive: false,
+      touchInteracting: false,
+      touchPointCount: 0,
+    };
+    expect(viewerGestureResetRequired(idle)).toBe(false);
+    expect(
+      viewerGestureResetRequired({ ...idle, controlsInteracting: true }),
+    ).toBe(true);
+    expect(
+      viewerGestureResetRequired({
+        ...idle,
+        pedestrianLookPointerActive: true,
+      }),
+    ).toBe(true);
+    expect(
+      viewerGestureResetRequired({ ...idle, panMomentumActive: true }),
+    ).toBe(true);
+  });
+
   test("primary drag pans while secondary drag deliberately orbits", () => {
     expect(THREE_MOUSE_GESTURE_SETTINGS.LEFT).toBe(MOUSE.PAN);
     expect(THREE_MOUSE_GESTURE_SETTINGS.MIDDLE).toBe(MOUSE.DOLLY);

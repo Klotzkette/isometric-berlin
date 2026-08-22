@@ -40,6 +40,16 @@ describe("progressive viewer startup", () => {
     expect(engineLoaderSource).toContain("return openSeadragonPromise");
   });
 
+  test("bounds decoded DZI tiles and parallel image work", () => {
+    expect(appSource).toContain(
+      "imageLoaderLimit: boundedMapProfile ? 4 : 8",
+    );
+    expect(appSource).toContain(
+      "maxImageCacheCount: boundedMapProfile ? 48 : 96",
+    );
+    expect(appSource).toContain("showNavigator: !boundedMapProfile");
+  });
+
   test("keeps a visible recovery boundary around the lazy 3D viewer", () => {
     const boundaryStart = appSource.indexOf("<ThreeViewerErrorBoundary");
     const suspenseStart = appSource.indexOf("<Suspense", boundaryStart);

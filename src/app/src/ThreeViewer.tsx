@@ -10,7 +10,6 @@ import {
   Fog,
   FrontSide,
   Group,
-  HalfFloatType,
   HemisphereLight,
   InstancedMesh,
   LineBasicMaterial,
@@ -323,6 +322,7 @@ import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
+  environmentFrameIntervalMs,
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
@@ -356,6 +356,8 @@ import {
   isPedestrianTouchTap,
   pedestrianWheelForwardInput,
   THREE_MOUSE_GESTURE_SETTINGS,
+  touchInteractionAfterPanGlideCancel,
+  viewerGestureResetRequired,
   wheelNavigationIntent,
 } from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
@@ -363,6 +365,7 @@ import {
   createMinecraftMaterialState,
   disposeMinecraftMaterialState,
   releaseMinecraftMaterialBindings,
+  restoreMinecraftMaterialPresentation,
   setMinecraftMaterialPresentation,
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
@@ -804,15 +807,14 @@ export function startupCurtainMayOpen(
 /** Heavy photogrammetry is demand-only, never part of the normal first load. */
 export function photographicSurfaceNeeded(
   status: StartupPresentationStatus,
-  underside: boolean,
+  _underside: boolean,
   coarsePointer = false,
 ): boolean {
-  // Phones use the authored tunnel/network cutaway without allocating the
-  // legacy 31 MiB photographic shell.  It is especially harmful after a
-  // WebGL memory failure, where loading another large scene is the opposite
-  // of recovery.  Desktop retains the richer underside/failure fallback.
+  // The authored tunnel/network cutaway is complete on every profile, so an
+  // underside visit must not wake the legacy photo shell. Keep it exclusively
+  // for desktop recovery after the requested world has genuinely failed.
   if (coarsePointer) return false;
-  return underside || status === "fallback";
+  return status === "fallback";
 }
 
 export function presentationFogRange(
@@ -1176,15 +1178,10 @@ function setSurfacePresentation(
   // surfaces. While
   // either requested world is still pending, the old photo surface remains
   // hidden as well: it is a failure fallback, not a startup placeholder.
-  // Once a drawn world is ready, the sole exception is
-  // from the underside, where the faded photo shell is the designed
-  // cutaway context around the Tiergartentunnel (both drawn worlds hide
-  // below the horizon, which otherwise left the tunnel floating in a
-  // void).
+  // The authored underground network is the cutaway context. A ready world
+  // therefore never wakes or reveals the legacy photographic fallback.
   const startupStatus = currentStartupPresentationStatus(runtime);
-  const replaced =
-    startupStatus === "pending" ||
-    (startupStatus === "ready" && !runtime.underside);
+  const replaced = startupStatus !== "fallback";
   const interactionVisible = !settled && !replaced;
   const settledVisible = settled && !replaced;
   const changed =
@@ -1337,7 +1334,6 @@ export function applyMaterialLighting(
     material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
     material.emissiveIntensity = material.userData.dayEmissiveIntensity ?? 1;
   }
-  material.needsUpdate = true;
 }
 
 /**
@@ -1508,8 +1504,8 @@ export function assignStableInkRenderOrder(
  * Transparent LineBasicMaterial objects are depth-sorted every frame. Leaving
  * depthWrite enabled made overlapping facade/roof strokes alternately occlude
  * one another as the camera moved. They still depth-test against opaque city
- * geometry, but no longer rewrite depth among themselves. Alpha-to-coverage
- * lets the composer's four MSAA samples soften a one-pixel line edge.
+ * geometry, but no longer rewrite depth among themselves. The final SMAA pass
+ * owns edge smoothing, so these materials need no extra multisample variant.
  */
 export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   if (typeof material.userData.stableInkAuthoredOpacity !== "number") {
@@ -1525,7 +1521,7 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   material.transparent = true;
   material.depthTest = true;
   material.depthWrite = false;
-  material.alphaToCoverage = true;
+  material.alphaToCoverage = false;
   material.onBeforeCompile = (shader, renderer) => {
     previousOnBeforeCompile(shader, renderer);
     shader.vertexShader = stabilizeInkVertexShader(shader.vertexShader);
@@ -1742,11 +1738,7 @@ function setSceneLighting(
   const isSnowstorm = mode === "snowstorm";
   const isSchwellenraum = mode === "schwellenraum";
   if (!isMinecraft) {
-    setMinecraftMaterialPresentation(
-      runtime.scene,
-      runtime.minecraftMaterialState,
-      false,
-    );
+    restoreMinecraftMaterialPresentation(runtime.minecraftMaterialState);
   }
   // Moonlight keeps the same dark register as ordinary night — the request
   // was for the artificial lights to disappear, not for a different sky.
@@ -1929,33 +1921,37 @@ function setSceneLighting(
   }
   if (isMinecraft) {
     const completedVoxelMode = voxelModeActive(runtime);
+    // The smooth city and legacy surface roots are hidden as soon as
+    // Minecraft is requested. Never walk them merely to allocate toon clones.
+    // Once voxels are complete, the park and cultural roots are hidden too.
+    const hiddenHeavyRoots = new Set<Object3D>();
+    const photoFallbackVisible =
+      currentStartupPresentationStatus(runtime) === "fallback" &&
+      !runtime.underside;
+    if (!photoFallbackVisible || completedVoxelMode) {
+      hiddenHeavyRoots.add(runtime.interactionSurface);
+      hiddenHeavyRoots.add(runtime.settledSurface);
+    }
+    if (runtime.isoWorld) hiddenHeavyRoots.add(runtime.isoWorld);
     if (completedVoxelMode) {
-      // Park details can finish before the voxel payload. Release any toon
-      // fallback bindings they acquired while Minecraft was pending, then
-      // skip that hidden, high-cardinality root during the scene traversal.
-      releaseMinecraftMaterialBindings(
-        runtime.parkDetails,
-        runtime.minecraftMaterialState,
-      );
-      for (const child of runtime.scene.children) {
-        if (child !== runtime.parkDetails) {
-          setMinecraftMaterialPresentation(
-            child,
-            runtime.minecraftMaterialState,
-            true,
-          );
-        }
+      hiddenHeavyRoots.add(runtime.parkDetails);
+      hiddenHeavyRoots.add(runtime.culturalDetails);
+    }
+    for (const root of hiddenHeavyRoots) {
+      releaseMinecraftMaterialBindings(root, runtime.minecraftMaterialState);
+    }
+    for (const child of runtime.scene.children) {
+      if (!hiddenHeavyRoots.has(child)) {
+        setMinecraftMaterialPresentation(
+          child,
+          runtime.minecraftMaterialState,
+          true,
+        );
       }
-    } else {
-      setMinecraftMaterialPresentation(
-        runtime.scene,
-        runtime.minecraftMaterialState,
-        true,
-      );
     }
     if (runtime.underside) {
-      // Keep the contextual underside shell photographic and quiet. Toon
-      // shading on its double-sided 13% surfaces reads as metallic shards.
+      // Keep every surface fallback out of the authored underground network.
+      // Toon shading on double-sided translucent surfaces reads as shards.
       setMinecraftMaterialPresentation(
         runtime.interactionSurface,
         runtime.minecraftMaterialState,
@@ -2368,6 +2364,76 @@ function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
 }
 
 /**
+ * Drop fulfilled JSON promises once their constructors own compact geometry.
+ * A fulfilled promise retains the complete parsed object graph, otherwise
+ * doubling the lifetime of payloads that are already represented on the GPU.
+ */
+export type WorldPayloadLifetimeState = {
+  coarsePointer: boolean;
+  groundPayloadPromise?: Promise<unknown>;
+  isoWorld: Object3D | null;
+  prismPayloadPromise?: Promise<unknown>;
+  railPayloadPromise?: Promise<unknown>;
+  streetPayloadPromise?: Promise<unknown>;
+  surfacePayloadPromise?: Promise<unknown>;
+  voxelPayloadPromise?: Promise<unknown>;
+  voxelWorld: Object3D | null;
+};
+
+export function releaseBuiltWorldPayloads(
+  runtime: WorldPayloadLifetimeState,
+): void {
+  if (runtime.isoWorld) {
+    delete runtime.groundPayloadPromise;
+    delete runtime.streetPayloadPromise;
+    delete runtime.surfacePayloadPromise;
+    delete runtime.railPayloadPromise;
+  }
+  if (runtime.voxelWorld) {
+    delete runtime.voxelPayloadPromise;
+  }
+  // A persistent desktop runtime still needs prism colours until its second
+  // world is built. A family-keyed touch runtime never builds both families.
+  if (
+    runtime.coarsePointer ||
+    (runtime.isoWorld !== null && runtime.voxelWorld !== null)
+  ) {
+    delete runtime.prismPayloadPromise;
+  }
+}
+
+/** A failed constructor cannot reuse parsed payloads, so release its family. */
+export function releaseFailedWorldPayloads(
+  runtime: WorldPayloadLifetimeState,
+  family: "iso" | "voxel",
+): void {
+  if (family === "iso") {
+    delete runtime.groundPayloadPromise;
+    delete runtime.streetPayloadPromise;
+    delete runtime.surfacePayloadPromise;
+    delete runtime.railPayloadPromise;
+  } else {
+    delete runtime.voxelPayloadPromise;
+  }
+  // Prism data is shared, but after either constructor fails its fulfilled
+  // promise is no longer part of an automatic retry. Browser HTTP caching can
+  // serve a later family switch without pinning the parsed graph meanwhile.
+  delete runtime.prismPayloadPromise;
+}
+
+/** Release only the exact surface request whose parsed data was consumed. */
+export function releaseCompiledSurfacePayload(
+  runtime: Pick<WorldPayloadLifetimeState, "surfacePayloadPromise">,
+  compiledRequest: Promise<unknown>,
+): boolean {
+  if (runtime.surfacePayloadPromise !== compiledRequest) {
+    return false;
+  }
+  delete runtime.surfacePayloadPromise;
+  return true;
+}
+
+/**
  * Start the immutable payload transfers while the small scene manifest and
  * authored recognition geometry are being prepared. Construction still waits
  * for the manifest's tunnel course; only network and JSON parsing move
@@ -2405,6 +2471,8 @@ function failProgressiveWorld(
   worker.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
+  delete runtime.progressiveWorldInput;
+  releaseBuiltWorldPayloads(runtime);
   // Successfully attached exact batches stay visible. They are now owned by
   // isoWorld and will be disposed with it; only the restart bookkeeping ends.
   runtime.progressiveWorldBatches = [];
@@ -2419,6 +2487,8 @@ function markProgressiveWorldUnavailable(
 ): void {
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
+  delete runtime.progressiveWorldInput;
+  releaseBuiltWorldPayloads(runtime);
   runtime.renderInvalidated = true;
   if (runtime.coarsePointer) runtime.startDeferredDetails();
   warn(PROGRESSIVE_WORLD_WARNING);
@@ -2518,6 +2588,8 @@ function startProgressiveWorld(
     runtime.progressiveWorldWorker = undefined;
     runtime.progressiveWorldState =
       progressiveWorldStopPolicy("complete").nextState;
+    delete runtime.progressiveWorldInput;
+    releaseBuiltWorldPayloads(runtime);
     collectFarZoomAntiFlickerTargets(runtime);
     runtime.renderInvalidated = true;
     performance.mark("isometric-city-exact-ready");
@@ -2969,6 +3041,7 @@ function ensureIsoWorld(
       if (runtime.coarsePointer && !progressiveInput) {
         runtime.startDeferredDetails();
       }
+      releaseBuiltWorldPayloads(runtime);
       provisionalIsoWorld = null;
       provisionalPedestrianEnvironment = null;
       mutableRootSnapshots = null;
@@ -3030,6 +3103,7 @@ function ensureIsoWorld(
       }
       runtime.isoWorldState = "failed";
       restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+      releaseFailedWorldPayloads(runtime, "iso");
       runtime.ensurePhotoSurface();
       notifyPresentationReadyWhenPossible(runtime);
       warn(
@@ -3156,7 +3230,8 @@ function ensureVoxelWorld(
             return;
           }
           waterRequestStarted = true;
-          void fetchSurfacePayload(runtime)
+          const surfacePayloadPromise = fetchSurfacePayload(runtime);
+          void surfacePayloadPromise
             .then((surfaces) => {
               if (
                 !runtime.disposed &&
@@ -3167,7 +3242,10 @@ function ensureVoxelWorld(
             })
             // Building, portal and terrain collision are already live; only
             // water respawn waits for a later drawn-world retry after failure.
-            .catch(() => undefined);
+            .catch(() => undefined)
+            .finally(() => {
+              releaseCompiledSurfacePayload(runtime, surfacePayloadPromise);
+            });
         };
         if (runtime.pedestrian.requested) {
           runtime.ensurePedestrianWater();
@@ -3175,6 +3253,7 @@ function ensureVoxelWorld(
         }
       }
       markSurfaceInteraction(runtime, 400, true);
+      releaseBuiltWorldPayloads(runtime);
       // A Minecraft-only visit never renders the smooth park layer. Day's
       // successful loader calls the same idempotent hook later, so cold voxel
       // starts must not download/build a large group merely to hide it.
@@ -3230,6 +3309,7 @@ function ensureVoxelWorld(
       }
       runtime.voxelWorldState = "failed";
       restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+      releaseFailedWorldPayloads(runtime, "voxel");
       runtime.ensurePhotoSurface();
       notifyPresentationReadyWhenPossible(runtime);
       warn(
@@ -4797,24 +4877,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         fragmentShader: crispFragment,
       });
       crispPass.enabled = false;
-      // Desktop retains the established 4x half-float composer. On coarse
-      // pointers the final SMAA pass below owns edge smoothing, avoiding both
-      // renderer MSAA and two full-size multisampled half-float targets. At a
-      // tablet viewport those persistent targets alone can otherwise consume
-      // hundreds of MiB and trigger Safari WebGL context loss.
+      // One compact byte target is enough for the authored flat palette. The
+      // final SMAA pass below owns edge smoothing on every device, avoiding
+      // renderer MSAA and two multisampled half-float targets that could
+      // otherwise consume hundreds of MiB and trigger WebGL context loss.
       const composerTarget = new WebGLRenderTarget(1, 1, {
         samples: webglMemoryProfile.composerSamples,
-        type: webglMemoryProfile.halfFloatComposer
-          ? HalfFloatType
-          : UnsignedByteType,
+        type: UnsignedByteType,
       });
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
       composer.addPass(crispPass);
-      // Keep SMAA permanently last and enabled in every visual mode: on
-      // desktop it removes remaining stair steps after the MSAA resolve; on
-      // mobile it is the single bounded anti-aliasing stage. In both cases,
-      // motion and rest must use the exact same pixel pipeline, otherwise the
+      // Keep SMAA permanently last and enabled in every visual mode. It is the
+      // single bounded anti-aliasing stage on every device, and motion and
+      // rest must use the exact same pixel pipeline, otherwise the
       // anti-aliasing transition itself becomes a visible flash.
       const smaaPass = new SMAAPass();
       smaaPass.enabled = true;
@@ -5081,7 +5157,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           height === appliedHeight &&
           pixelRatio === appliedPixelRatio
         ) {
-          // Re-applying the same size still reallocates the composer's MSAA
+          // Re-applying the same size still reallocates the composer's render
           // targets, which costs a frame. Nothing changed, so do nothing.
           return;
         }
@@ -5570,6 +5646,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         if (touchPoints.size < 3) {
+          if (touchPoints.size === 0) {
+            touchInteracting = false;
+          }
           controls.enabled = !runtime.pedestrian.enabled;
           notifyView(runtime, onViewChangeRef.current);
         }
@@ -5579,17 +5658,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.y = 0;
         panVelocity.x = 0;
         panVelocity.y = 0;
+        touchInteracting = touchInteractionAfterPanGlideCancel({
+          customTouchGestureActive,
+          pedestrianTouchLookActive:
+            pedestrianLookPointer?.pointerType === "touch",
+          touchInteracting,
+          touchPointCount: touchPoints.size,
+        });
       };
       const resetTouchGesture = () => {
         // Never retain the first half of a pedestrian double-tap across a
         // hidden tab, mode transition or cancelled browser gesture.
         lastPedestrianTap = null;
         if (
-          touchPoints.size === 0 &&
-          !customTouchGestureActive &&
-          !touchInteracting &&
-          panMomentum.x === 0 &&
-          panMomentum.y === 0
+          !viewerGestureResetRequired({
+            controlsInteracting,
+            customTouchGestureActive,
+            panMomentumActive: panMomentum.x !== 0 || panMomentum.y !== 0,
+            pedestrianLookPointerActive: pedestrianLookPointer !== null,
+            touchInteracting,
+            touchPointCount: touchPoints.size,
+          })
         ) {
           return;
         }
@@ -5602,6 +5691,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchInteracting = false;
         panMomentum.x = 0;
         panMomentum.y = 0;
+        panVelocity.x = 0;
+        panVelocity.y = 0;
         pedestrianLookPointer = null;
         controls.enabled = !runtime.pedestrian.enabled;
         notifyView(runtime, onViewChangeRef.current);
@@ -5756,6 +5847,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
+      let lastEvaluationAt = Number.NEGATIVE_INFINITY;
+      let lastOrdinaryEnvironmentFrameAt = Number.NEGATIVE_INFINITY;
       let wasFlying = false;
       let wasPanning = false;
       let wasOrbiting = false;
@@ -5899,6 +5992,72 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           0.1,
         );
         lastAnimateAt = timestamp;
+        const stability = minecraftStabilityPolicy(runtime.lightingMode);
+        const flagFrameIntervalMs = civicFlagFrameIntervalMs(
+          runtime.coarsePointer,
+        );
+        const ordinaryEnvironmentVisible =
+          runtime.lightingMode !== "schwellenraum" &&
+          (runtime.rain.group.visible ||
+            snowfallAnimationActive(runtime.snowstorm) ||
+            runtime.minecraftMobs?.group.visible === true);
+        const pedestrianInput = pedestrianInputRef.current;
+        const continuousInputActive =
+          runtime.renderInvalidated ||
+          controlsInteracting ||
+          touchInteracting ||
+          wasFlying ||
+          wasPanning ||
+          wasOrbiting ||
+          wasWalking ||
+          flightInputRef.current.lengthSq() > 1e-6 ||
+          panInputRef.current.lengthSq() > 1e-6 ||
+          orbitInputRef.current.lengthSq() > 1e-6 ||
+          panMomentum.x !== 0 ||
+          panMomentum.y !== 0 ||
+          (runtime.pedestrian.enabled &&
+            (Math.abs(pedestrianInput.forward) > 1e-6 ||
+              Math.abs(pedestrianInput.strafe) > 1e-6 ||
+              Math.abs(pedestrianInput.turn) > 1e-6 ||
+              Math.abs(pedestrianInput.look) > 1e-6 ||
+              runtime.pedestrian.state?.grounded === false));
+        let passiveFrameIntervalMs = Number.POSITIVE_INFINITY;
+        if (ordinaryEnvironmentVisible) {
+          passiveFrameIntervalMs = Math.min(
+            passiveFrameIntervalMs,
+            environmentFrameIntervalMs(runtime.coarsePointer),
+          );
+        }
+        if (
+          !reducedMotion &&
+          !runtime.underside &&
+          runtime.fineDetailVisible &&
+          document.visibilityState !== "hidden" &&
+          (runtime.schwellenraumMovingFlagCount > 0 ||
+            runtime.berlinerEnsembleRoofSignTargets.length > 0)
+        ) {
+          passiveFrameIntervalMs = Math.min(
+            passiveFrameIntervalMs,
+            flagFrameIntervalMs,
+          );
+        }
+        if (
+          !reducedMotion &&
+          runtime.lightingMode === "schwellenraum" &&
+          runtime.schwellenraumWaterLightCount > 0
+        ) {
+          passiveFrameIntervalMs = Math.min(
+            passiveFrameIntervalMs,
+            SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS,
+          );
+        }
+        if (
+          !continuousInputActive &&
+          timestamp - lastEvaluationAt < passiveFrameIntervalMs
+        ) {
+          return;
+        }
+        lastEvaluationAt = timestamp;
         if (
           !runtime.pedestrian.enabled &&
           !controls.enabled &&
@@ -5943,10 +6102,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (stabilized.recovered) {
           resetTouchGesture();
         }
-        const stability = minecraftStabilityPolicy(runtime.lightingMode);
-        const flagFrameIntervalMs = civicFlagFrameIntervalMs(
-          runtime.coarsePointer,
-        );
         const movingFlagCount =
           stability.animateWind &&
           !runtime.underside &&
@@ -5982,8 +6137,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp,
           underside: runtime.underside,
         });
+        const ordinaryEnvironmentMotion =
+          ordinaryEnvironmentVisible &&
+          timestamp - lastOrdinaryEnvironmentFrameAt >=
+            environmentFrameIntervalMs(runtime.coarsePointer);
         const environmentalMotion =
-          schwellenraumMotion.environmentalMotion ||
+          schwellenraumMotion.animateFlags ||
+          schwellenraumMotion.animateWaterLight ||
+          ordinaryEnvironmentMotion ||
           roofSignMotion.environmentalMotion;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
@@ -6003,16 +6164,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // Resolution and official-surface tiers are fixed for a viewport and
         // mode. Input must never resize the canvas or replace the complete
         // city/tree surface underneath a moving camera.
-        setSurfacePresentation(runtime, stability.pinInteractionSurface);
+        if (runtime.renderInvalidated) {
+          setSurfacePresentation(runtime, stability.pinInteractionSurface);
+        }
         // Far-zoom anti-flicker (v0.53.0): ink lines and small accessory
         // layers are dampened by a pure function of distance, so the picture
         // is identical for a given standoff no matter how the camera got
         // there, and never re-pops when motion stops.
-        const farDetailChanged = updateFarZoomAntiFlicker(
-          runtime,
-          camera.position.distanceTo(controls.target),
-          renderer.domElement.clientHeight || window.innerHeight,
-        );
+        const farDetailChanged =
+          cameraMoving || runtime.renderInvalidated
+            ? updateFarZoomAntiFlicker(
+                runtime,
+                camera.position.distanceTo(controls.target),
+                renderer.domElement.clientHeight || window.innerHeight,
+              )
+            : false;
         // Day/Night used to repaint at 12 fps while the view was still.
         // That kept animated flags and signal buffers changing beneath a
         // nominally fixed far camera, making fine ink edges shimmer. A static
@@ -6076,24 +6242,34 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             underside,
           }),
         );
-        if (schwellenraumMotion.animateOrdinaryEnvironment) {
+        if (ordinaryEnvironmentMotion) {
+          const ordinaryDtSeconds = Number.isFinite(
+            lastOrdinaryEnvironmentFrameAt,
+          )
+            ? MathUtils.clamp(
+                (timestamp - lastOrdinaryEnvironmentFrameAt) / 1_000,
+                0,
+                0.1,
+              )
+            : 0;
           updateModerateRain(
             runtime.rain,
-            reducedMotion ? dtSeconds * 0.45 : dtSeconds,
+            reducedMotion ? ordinaryDtSeconds * 0.45 : ordinaryDtSeconds,
             controls.target,
             runtime.lightingMode,
           );
           updateSnowstorm(
             runtime.snowstorm,
-            reducedMotion ? dtSeconds * 0.38 : dtSeconds,
+            reducedMotion ? ordinaryDtSeconds * 0.38 : ordinaryDtSeconds,
             controls.target,
           );
           if (runtime.minecraftMobs?.group.visible) {
             updateMinecraftMobs(
               runtime.minecraftMobs,
-              reducedMotion ? dtSeconds * 0.35 : dtSeconds,
+              reducedMotion ? ordinaryDtSeconds * 0.35 : ordinaryDtSeconds,
             );
           }
+          lastOrdinaryEnvironmentFrameAt = timestamp;
         } else {
           if (schwellenraumMotion.animateWaterLight) {
             runtime.schwellenraumWaterElapsedSeconds +=
@@ -6145,7 +6321,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // Every profile is deliberately neutral: world-space ink carries the
         // drawing, and screen-neighbour sharpening is forbidden because it
         // amplifies sub-pixel motion. Keep this no-op pass disabled instead of
-        // spending one full-screen half-float read/write on every frame. Day,
+        // spending one full-screen read/write on every frame. Day,
         // Night and Minecraft all use the same RenderPass -> SMAA chain during
         // movement and at rest, so this performance win cannot create a
         // quality-switch flash.
@@ -6513,6 +6689,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.lightingMode,
               runtime.nightLightsOn,
             );
+            if (runtime.lightingMode === "minecraft") {
+              setMinecraftMaterialPresentation(
+                tillaDurieux,
+                runtime.minecraftMaterialState,
+                true,
+              );
+            }
           }
           runtime.culturalDetails.add(expandedDetails);
           scene.add(runtime.culturalDetails);
@@ -6529,9 +6712,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // the thin storefront mullions, lettering and Adlon facade accents
           // immediately so late-loaded close detail remains stable at range.
           collectFarZoomAntiFlickerTargets(runtime);
-          if (runtime.lightingMode === "minecraft") {
+          if (
+            runtime.lightingMode === "minecraft" &&
+            !voxelModeActive(runtime)
+          ) {
             setMinecraftMaterialPresentation(
-              scene,
+              runtime.culturalDetails,
               runtime.minecraftMaterialState,
               true,
             );
@@ -6818,7 +7004,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // Build exactly the world requested for the first visible frame.
           // Switching mode later triggers the other lazy builder through the
           // lighting effect. The 31 MiB photographic shell remains a true
-          // failure/underside fallback and is never downloaded invisibly.
+          // failure fallback and is never downloaded invisibly.
           if (lightingModeRef.current === "minecraft") {
             ensureVoxelWorld(runtime, onWarningRef.current);
           } else {
@@ -6899,11 +7085,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panInputRef.current.set(0, 0);
         orbitInputRef.current.set(0, 0);
         pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
-        setMinecraftMaterialPresentation(
-          scene,
-          runtime.minecraftMaterialState,
-          false,
-        );
         disposeObject3D(runtime, scene);
         crispPass.dispose();
         smaaPass.dispose();

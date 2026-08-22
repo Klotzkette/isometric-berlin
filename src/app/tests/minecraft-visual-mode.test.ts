@@ -14,6 +14,8 @@ import { createOfficialReichstagDome } from "../src/ReichstagDome";
 import {
   createMinecraftMaterialState,
   disposeMinecraftMaterialState,
+  releaseMinecraftMaterialBindings,
+  restoreMinecraftMaterialPresentation,
   setMinecraftMaterialPresentation,
 } from "../src/visual-modes/minecraft/materialMode";
 import { CRISPNESS_PROFILES } from "../src/crispnessProfile";
@@ -155,6 +157,52 @@ describe("premium Minecraft visual mode", () => {
 
     setMinecraftMaterialPresentation(scene, state, false);
     expect(mesh.material).toBeInstanceOf(MeshStandardMaterial);
+    disposeMinecraftMaterialState(state);
+  });
+
+  test("restores only converted meshes without traversing the city again", () => {
+    const scene = new Scene();
+    const original = new MeshStandardMaterial({ color: 0xd4d4b7 });
+    const mesh = new Mesh(new BoxGeometry(1, 1, 1), original);
+    scene.add(mesh);
+    const state = createMinecraftMaterialState();
+
+    setMinecraftMaterialPresentation(scene, state, true);
+    expect(mesh.material).toBeInstanceOf(MeshToonMaterial);
+
+    scene.traverse = () => {
+      throw new Error("restore must not traverse the complete city");
+    };
+    restoreMinecraftMaterialPresentation(state);
+
+    expect(mesh.material).toBe(original);
+    disposeMinecraftMaterialState(state);
+  });
+
+  test("releases shared toon materials only after their last root", () => {
+    const shared = new MeshStandardMaterial({ color: 0xd4d4b7 });
+    const firstRoot = new Scene();
+    const secondRoot = new Scene();
+    const firstMesh = new Mesh(new BoxGeometry(1, 1, 1), shared);
+    const secondMesh = new Mesh(new BoxGeometry(1, 1, 1), shared);
+    firstRoot.add(firstMesh);
+    secondRoot.add(secondMesh);
+    const state = createMinecraftMaterialState();
+
+    setMinecraftMaterialPresentation(firstRoot, state, true);
+    setMinecraftMaterialPresentation(secondRoot, state, true);
+    expect(firstMesh.material).toBe(secondMesh.material);
+
+    releaseMinecraftMaterialBindings(firstRoot, state);
+    expect(firstMesh.material).toBe(shared);
+    expect(state.originals.has(firstMesh)).toBeFalse();
+    expect(state.originals.has(secondMesh)).toBeTrue();
+    expect(state.toonBySource.has(shared)).toBeTrue();
+
+    releaseMinecraftMaterialBindings(secondRoot, state);
+    expect(secondMesh.material).toBe(shared);
+    expect(state.originals.size).toBe(0);
+    expect(state.toonBySource.has(shared)).toBeFalse();
     disposeMinecraftMaterialState(state);
   });
 

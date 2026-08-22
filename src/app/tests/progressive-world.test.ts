@@ -14,6 +14,12 @@ import {
 
 import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import {
+  releaseCompiledSurfacePayload,
+  releaseBuiltWorldPayloads,
+  releaseFailedWorldPayloads,
+  type WorldPayloadLifetimeState,
+} from "../src/ThreeViewer";
+import {
   createIsometricCity,
   createPretriangulatedSurfacePlate,
   setIsoNightPresentation,
@@ -239,6 +245,109 @@ describe("progressive exact-world scheduling", () => {
       'window.addEventListener("pageshow", onPageShow)',
     );
     expect(threeViewerSource).toContain("resize(true)");
+  });
+
+  test("releases decoded world payloads after their consumers finish", () => {
+    expect(threeViewerSource).toContain(
+      "export function releaseBuiltWorldPayloads(",
+    );
+    expect(threeViewerSource).toContain(
+      "delete runtime.groundPayloadPromise",
+    );
+    expect(threeViewerSource).toContain(
+      "delete runtime.streetPayloadPromise",
+    );
+    expect(threeViewerSource).toContain(
+      "delete runtime.surfacePayloadPromise",
+    );
+    expect(threeViewerSource).toContain(
+      "delete runtime.railPayloadPromise",
+    );
+    expect(threeViewerSource).toContain(
+      "delete runtime.voxelPayloadPromise",
+    );
+    expect(threeViewerSource).toContain("delete runtime.progressiveWorldInput");
+    expect(threeViewerSource).toContain("releaseBuiltWorldPayloads(runtime)");
+    expect(threeViewerSource).toContain(
+      'releaseFailedWorldPayloads(runtime, "iso")',
+    );
+    expect(threeViewerSource).toContain(
+      'releaseFailedWorldPayloads(runtime, "voxel")',
+    );
+    expect(threeViewerSource).toContain(
+      "releaseCompiledSurfacePayload(runtime, surfacePayloadPromise)",
+    );
+  });
+
+  test("releases fulfilled payload promises by completed or failed family", () => {
+    const payload = Promise.resolve({});
+    const built: WorldPayloadLifetimeState = {
+      coarsePointer: false,
+      groundPayloadPromise: payload,
+      isoWorld: new Group(),
+      prismPayloadPromise: payload,
+      railPayloadPromise: payload,
+      streetPayloadPromise: payload,
+      surfacePayloadPromise: payload,
+      voxelPayloadPromise: payload,
+      voxelWorld: null,
+    };
+
+    releaseBuiltWorldPayloads(built);
+    expect(built.groundPayloadPromise).toBeUndefined();
+    expect(built.streetPayloadPromise).toBeUndefined();
+    expect(built.surfacePayloadPromise).toBeUndefined();
+    expect(built.railPayloadPromise).toBeUndefined();
+    expect(built.voxelPayloadPromise).toBe(payload);
+    expect(built.prismPayloadPromise).toBe(payload);
+
+    built.voxelWorld = new Group();
+    releaseBuiltWorldPayloads(built);
+    expect(built.voxelPayloadPromise).toBeUndefined();
+    expect(built.prismPayloadPromise).toBeUndefined();
+
+    const failedIso: WorldPayloadLifetimeState = {
+      ...built,
+      groundPayloadPromise: payload,
+      isoWorld: null,
+      prismPayloadPromise: payload,
+      railPayloadPromise: payload,
+      streetPayloadPromise: payload,
+      surfacePayloadPromise: payload,
+      voxelPayloadPromise: payload,
+      voxelWorld: null,
+    };
+    releaseFailedWorldPayloads(failedIso, "iso");
+    expect(failedIso.groundPayloadPromise).toBeUndefined();
+    expect(failedIso.streetPayloadPromise).toBeUndefined();
+    expect(failedIso.surfacePayloadPromise).toBeUndefined();
+    expect(failedIso.railPayloadPromise).toBeUndefined();
+    expect(failedIso.prismPayloadPromise).toBeUndefined();
+    expect(failedIso.voxelPayloadPromise).toBe(payload);
+
+    const failedVoxel: WorldPayloadLifetimeState = {
+      ...failedIso,
+      groundPayloadPromise: payload,
+      prismPayloadPromise: payload,
+      voxelPayloadPromise: payload,
+    };
+    releaseFailedWorldPayloads(failedVoxel, "voxel");
+    expect(failedVoxel.voxelPayloadPromise).toBeUndefined();
+    expect(failedVoxel.prismPayloadPromise).toBeUndefined();
+    expect(failedVoxel.groundPayloadPromise).toBe(payload);
+  });
+
+  test("releases only the pedestrian surface request that was compiled", () => {
+    const compiled = Promise.resolve({});
+    const newer = Promise.resolve({ newer: true });
+    const state: Pick<WorldPayloadLifetimeState, "surfacePayloadPromise"> = {
+      surfacePayloadPromise: newer,
+    };
+
+    expect(releaseCompiledSurfacePayload(state, compiled)).toBe(false);
+    expect(state.surfacePayloadPromise).toBe(newer);
+    expect(releaseCompiledSurfacePayload(state, newer)).toBe(true);
+    expect(state.surfacePayloadPromise).toBeUndefined();
   });
 
   test("starts mobile ParkDetails only after exact refinement settles", () => {

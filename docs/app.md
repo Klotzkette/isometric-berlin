@@ -290,10 +290,10 @@ one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
 5.44 GiB to 3.55 GiB, while steady geometry remains 576.5 MiB and the complete
 scene uses 188 estimated draw calls versus 150 in the monolithic reference.
 
-Non-touch desktop photo geometry remains available for the designed underside
-cutaway and for failure recovery. Mobile-like touch sessions keep the authored
-tunnel/network view and never allocate the legacy photogrammetric shell for
-underside or failure presentation. Optional park details wait until the first
+Non-touch desktop photo geometry remains available only for failure recovery.
+Every underside view keeps the authored tunnel/network geometry and never
+allocates the legacy photogrammetric shell; mobile-like touch sessions also
+stay photo-free on failure. Optional park details wait until the first
 usable city frame in a drawn presentation. Core JSON transfers have a finite
 timeout, one retry and unmount cancellation.
 
@@ -392,9 +392,9 @@ In mobile-like touch sessions, the bounded Minecraft profile produces
 benchmark, versus the unchanged full profile's **3,419,412 / 249.815 MiB**.
 Only that touch profile omits generic facade panes and meadow flowers and
 collapses non-Hero source columns to one body block; all Hero courses no taller
-than 8 m, block-native signatures and navigation contracts remain. Its WebGL
-renderer has no MSAA and its composer uses zero samples plus `UnsignedByte`
-targets and SMAA. Non-touch desktop retains the 4x `HalfFloat` composer. A mode
+than 8 m, block-native signatures and navigation contracts remain. Every WebGL
+profile has no renderer MSAA and uses zero-sample `UnsignedByte` targets plus
+one final SMAA pass. A mode
 change before voxel construction cancels the inactive build; any failed attach rolls
 back partial roots. Smooth park details stay hidden in voxel mode and therefore
 do not receive Minecraft toon-material clones. These are benchmark and
@@ -1047,11 +1047,11 @@ needed by the drawn city. The terrain-only `ground-context.json` replaces the
 full Minecraft instances during Day/Night/Snow/Schwellenraum startup. Neither the 2.6M-face
 interaction GLBs, the 6.6M-face archival surface nor hero crops are requested
 for normal drawn navigation. On non-touch desktop, the interaction shell is
-ordered by distance and loaded with bounded concurrency only when an underside
-cutaway needs context or the requested drawn world has failed. Mobile-like touch
-sessions never load that legacy photogrammetric shell for underside or failure;
-they keep the authored cutaway/network presentation and explicit recovery UI
-instead.
+ordered by distance and loaded with bounded concurrency only when the requested
+drawn world has failed. Every underside view stays on the authored
+cutaway/network presentation. Mobile-like touch sessions never load that
+legacy photogrammetric shell, including on failure, and keep the explicit
+recovery UI instead.
 Model requests retry once, while JSON requests additionally have a finite
 timeout. The settled tier and all hero assets remain in the reproducible local
 archive but do not consume normal live bandwidth or GPU memory.

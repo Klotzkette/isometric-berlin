@@ -2794,12 +2794,15 @@ export function App() {
       }
       openSeadragonRef.current = openSeadragon;
       installOpenSeadragonConsoleFilter(openSeadragon);
+      const boundedMapProfile = browserUsesMobileViewerProfile();
       const viewer = openSeadragon({
         id: "openseadragon-viewer",
         element: container,
         tileSources: tileSource,
+        imageLoaderLimit: boundedMapProfile ? 4 : 8,
+        maxImageCacheCount: boundedMapProfile ? 48 : 96,
         showNavigationControl: false,
-        showNavigator: true,
+        showNavigator: !boundedMapProfile,
         navigatorPosition: "BOTTOM_RIGHT",
         navigatorHeight: "128px",
         navigatorWidth: "214px",

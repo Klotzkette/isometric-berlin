@@ -56,7 +56,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(material.transparent).toBeTrue();
     expect(material.depthTest).toBeTrue();
     expect(material.depthWrite).toBeFalse();
-    expect(material.alphaToCoverage).toBeTrue();
+    expect(material.alphaToCoverage).toBeFalse();
     expect(material.userData.temporallyStableInk).toBeTrue();
     expect(material.userData.stableInkAuthoredOpacity).toBe(1);
     expect(material.customProgramCacheKey()).toContain(
@@ -209,7 +209,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("smaaPass.dispose()");
   });
 
-  test("uses the bounded mobile WebGL profile without changing desktop", () => {
+  test("uses the bounded WebGL profile in every mode and device class", () => {
     expect(viewerSource).toContain(
       "const webglMemoryProfile = stableWebglMemoryProfile(coarsePointer)",
     );
@@ -219,8 +219,16 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain(
       "samples: webglMemoryProfile.composerSamples",
     );
-    expect(viewerSource).toContain("? HalfFloatType");
-    expect(viewerSource).toContain(": UnsignedByteType");
+    expect(viewerSource).toContain("type: UnsignedByteType");
+    expect(viewerSource).toContain(
+      "environmentFrameIntervalMs(runtime.coarsePointer)",
+    );
+    expect(viewerSource).toContain(
+      "cameraMoving || runtime.renderInvalidated",
+    );
+    expect(viewerSource).toContain(
+      "if (runtime.renderInvalidated) {\n          setSurfacePresentation",
+    );
   });
 
   test("cancels inactive world construction after payload races", () => {
@@ -398,10 +406,23 @@ describe("idle-frame anti-flicker contract", () => {
     expect(deferredPark).toContain(
       'detailProfile: runtime.coarsePointer ? "mobile" : "full"',
     );
+    expect(viewerSource).toContain("releaseMinecraftMaterialBindings(");
+    expect(viewerSource).toContain("const hiddenHeavyRoots");
+    expect(viewerSource).toContain("!hiddenHeavyRoots.has(child)");
+    expect(viewerSource).toContain("const photoFallbackVisible");
     expect(viewerSource).toContain(
-      "releaseMinecraftMaterialBindings(\n        runtime.parkDetails",
+      'currentStartupPresentationStatus(runtime) === "fallback"',
     );
-    expect(viewerSource).toContain("child !== runtime.parkDetails");
+    expect(viewerSource).not.toContain(
+      "setMinecraftMaterialPresentation(\n        runtime.scene",
+    );
+    expect(viewerSource).toContain(
+      "setMinecraftMaterialPresentation(\n              runtime.culturalDetails",
+    );
+    expect(viewerSource).toContain(
+      "restoreMinecraftMaterialPresentation(runtime.minecraftMaterialState)",
+    );
+    expect(viewerSource).not.toContain("const passiveIntervals: number[]");
   });
 
   test("never allocates the legacy photo shell on coarse-pointer recovery", () => {
@@ -417,6 +438,9 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain(
       "photographicSurfaceNeeded(\n      currentStartupPresentationStatus(runtime),\n      underside,\n      runtime.coarsePointer",
     );
+    expect(viewerSource).toContain(
+      'const replaced = startupStatus !== "fallback"',
+    );
   });
 
   test("keeps authored civic flags in every above-ground visual mode", () => {
@@ -430,7 +454,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("if (voxelMode && underside)");
     expect(viewerSource).toContain("runtime.interactionSurface");
     expect(viewerSource).toContain("runtime.settledSurface");
-    expect(viewerSource).toContain("metallic shards");
+    expect(viewerSource).toContain("double-sided translucent surfaces");
   });
 
   test("keeps Richard Wagner readable when switching between smooth and Minecraft worlds", () => {

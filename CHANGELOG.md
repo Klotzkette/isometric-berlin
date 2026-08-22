@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.72.20
+
+- **Alle fünf 3D-Modi verwenden nun ein deutlich kompakteres und ruhigeres
+  Renderprofil.** Renderer-MSAA und die doppelt gepufferten 4x-Half-Float-Ziele
+  entfallen zugunsten eines nullfachen `UnsignedByte`-Composers mit einem
+  einzigen abschließenden SMAA-Durchlauf. Statische Szenen prüfen nicht länger
+  sechzigmal pro Sekunde jedes Detail; Wetter und Minecraft-Figuren aktualisieren
+  ihre Puffer begrenzt mit 30 Hz auf Desktop bzw. 20 Hz auf Touch-Geräten,
+  während echte Kameraeingaben weiterhin jedem Display-Frame folgen.
+- **Moduswechsel halten keine unsichtbaren Weltkopien und dekodierten JSON-Bäume
+  mehr fest.** Erfüllte Terrain-, Straßen-, Oberflächen-, Schienen-, Prism- und
+  Voxel-Promises werden nach erfolgreichem Aufbau oder aktivem Fehlerpfad
+  freigegeben. Minecraft überspringt die unsichtbare gezeichnete Stadt und
+  restauriert nur tatsächlich umgefärbte Meshes; späte Kulturdetails lösen
+  keine erneute Traversierung der gesamten Szene aus. Die alte rund 30 MiB
+  große Foto-Geometrie ist nur noch ein expliziter Desktop-Fehlerfallback und
+  wird weder beim normalen Start noch für die Unterseitenansicht geladen.
+- **Auch die 2D-Karte besitzt jetzt feste Speichergrenzen.** OpenSeadragon lädt
+  höchstens vier Bilder parallel und hält 48 dekodierte Kacheln im
+  Mobile-Profil; Desktop ist auf acht parallele Bilder und 96 Kacheln begrenzt.
+  Der zusätzliche Navigator bleibt auf kleinen Geräten aus. Funktionale Tests
+  sichern Payload-Freigabe, geteilte Minecraft-Materialien, Foto-Laziness und
+  die einheitliche Renderkette ab.
+
 ## v0.72.19
 
 - **Das Sozialgericht Berlin folgt nun den sechs bereitgestellten

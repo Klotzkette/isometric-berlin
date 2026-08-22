@@ -1098,7 +1098,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "flat-unlit architectural signatures": "markAuthoredFlatUnlit(model)",
     "flat-unlit memorials": "markAuthoredFlatUnlit(runtime.monuments)",
     # v0.70.10: every crisp profile is neutral, so running the pass only burns
-    # a full-screen half-float read/write. The disabled pass plus permanent
+    # a full-screen read/write. The disabled pass plus permanent
     # SMAA final resolve keeps motion/rest pixels on one stable pipeline.
     "disabled neutral crisp pass": "crispPass.enabled = false",
     "permanent final SMAA resolve": "smaaPass.enabled = true",

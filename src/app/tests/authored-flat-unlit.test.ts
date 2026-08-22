@@ -74,4 +74,20 @@ describe("flat-unlit authored landmark contract", () => {
     expect(material.emissive.getHex()).toBe(0x000000);
     expect(material.emissiveIntensity).toBe(1);
   });
+
+  test("changes lighting uniforms without recompiling every material", () => {
+    const material = new MeshStandardMaterial({ color: 0xd9d5cb });
+    material.userData.drawnFacadeApplied = true;
+    material.userData.drawnKind = "vertex";
+    material.userData.sourceMaterial = true;
+    const version = material.version;
+
+    applyMaterialLighting(material, "day");
+    applyMaterialLighting(material, "night");
+    applyMaterialLighting(material, "snowstorm");
+    applyMaterialLighting(material, "day");
+
+    expect(material.version).toBe(version);
+    expect(material.userData.flatUnlit).toBe(1);
+  });
 });

@@ -24,37 +24,27 @@ export type StableViewportSize = {
 };
 
 export type StableWebglMemoryProfile = {
-  /** Let the final SMAA pass own edge smoothing on memory-constrained GPUs. */
+  /** Let the final SMAA pass own edge smoothing on every GPU. */
   antialias: boolean;
   /** Multisample count for the EffectComposer's two render targets. */
-  composerSamples: 0 | 4;
-  /** Desktop keeps the existing HDR target; touch uses compact byte colour. */
-  halfFloatComposer: boolean;
+  composerSamples: 0;
 };
 
 /**
- * Bound persistent WebGL render-target memory on coarse-pointer devices.
+ * Bound persistent WebGL render-target memory on every device.
  *
- * A 4x multisampled half-float composer can reserve hundreds of MiB at tablet
- * resolutions because EffectComposer owns two full-size targets. Mobile keeps
- * the same final SMAA pass but avoids both the duplicate renderer MSAA buffer
- * and the half-float multisample targets. Desktop output stays byte-for-byte
- * on the established high-quality profile.
+ * A 4x multisampled half-float composer can reserve hundreds of MiB because
+ * EffectComposer owns two full-size targets. It also duplicated both renderer
+ * MSAA and the final SMAA pass. The flat authored palette fits losslessly in
+ * an unsigned-byte target, so one SMAA stage is the stable all-mode contract.
  */
 export function stableWebglMemoryProfile(
-  coarsePointer: boolean,
+  _coarsePointer: boolean,
 ): StableWebglMemoryProfile {
-  return coarsePointer
-    ? {
-        antialias: false,
-        composerSamples: 0,
-        halfFloatComposer: false,
-      }
-    : {
-        antialias: true,
-        composerSamples: 4,
-        halfFloatComposer: true,
-      };
+  return {
+    antialias: false,
+    composerSamples: 0,
+  };
 }
 
 /**
@@ -110,6 +100,15 @@ export const STABLE_TOUCH_PIXEL_BUDGET = 4_400_000;
  * looked like flashing even when the GPU had ample headroom for 60 Hz.
  */
 export const ACTIVE_MOTION_FRAME_INTERVAL_MS = 0;
+export const DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS = 1_000 / 30;
+export const TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS = 1_000 / 20;
+
+/** Weather and roaming figures do not need camera-rate buffer uploads. */
+export function environmentFrameIntervalMs(coarsePointer: boolean): number {
+  return coarsePointer
+    ? TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS
+    : DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS;
+}
 
 export function renderPixelRatio({
   coarsePointer,

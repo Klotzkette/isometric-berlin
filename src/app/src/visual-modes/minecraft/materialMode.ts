@@ -94,25 +94,34 @@ export function setMinecraftMaterialPresentation(
   });
 }
 
+/** Restore only meshes that were actually converted, without walking the city. */
+export function restoreMinecraftMaterialPresentation(
+  state: MinecraftMaterialState,
+): void {
+  for (const [mesh, original] of state.originals) {
+    mesh.material = original;
+  }
+}
+
 export function releaseMinecraftMaterialBindings(
   root: Object3D,
   state: MinecraftMaterialState,
 ): void {
   const releasedSources = new Set<Material>();
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) {
-      return;
+  const belongsToRoot = (object: Object3D): boolean => {
+    for (let current: Object3D | null = object; current; current = current.parent) {
+      if (current === root) return true;
     }
-    const original = state.originals.get(object);
-    if (!original) {
-      return;
-    }
+    return false;
+  };
+  for (const [object, original] of state.originals) {
+    if (!belongsToRoot(object)) continue;
     object.material = original;
     for (const material of Array.isArray(original) ? original : [original]) {
       releasedSources.add(material);
     }
     state.originals.delete(object);
-  });
+  }
   const retainedSources = new Set<Material>();
   for (const original of state.originals.values()) {
     for (const material of Array.isArray(original) ? original : [original]) {

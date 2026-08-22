@@ -2,10 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
+  DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS,
   STABLE_DESKTOP_PIXEL_BUDGET,
   STABLE_DESKTOP_PIXEL_RATIO_CAP,
   STABLE_TOUCH_PIXEL_BUDGET,
   STABLE_TOUCH_PIXEL_RATIO_CAP,
+  TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS,
+  environmentFrameIntervalMs,
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
@@ -18,20 +21,29 @@ describe("stable 3D render quality", () => {
     expect(stableWebglMemoryProfile(true)).toEqual({
       antialias: false,
       composerSamples: 0,
-      halfFloatComposer: false,
     });
   });
 
-  test("preserves the established desktop WebGL quality profile", () => {
+  test("uses one compact SMAA-owned WebGL profile on desktop too", () => {
     expect(stableWebglMemoryProfile(false)).toEqual({
-      antialias: true,
-      composerSamples: 4,
-      halfFloatComposer: true,
+      antialias: false,
+      composerSamples: 0,
     });
   });
 
   test("does not discard alternate touch frames during camera motion", () => {
     expect(ACTIVE_MOTION_FRAME_INTERVAL_MS).toBe(0);
+  });
+
+  test("bounds environmental buffer uploads independently of camera motion", () => {
+    expect(environmentFrameIntervalMs(false)).toBe(
+      DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS,
+    );
+    expect(environmentFrameIntervalMs(true)).toBe(
+      TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS,
+    );
+    expect(DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS).toBeCloseTo(1_000 / 30);
+    expect(TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS).toBe(50);
   });
 
   test("recognises every direct interaction source", () => {

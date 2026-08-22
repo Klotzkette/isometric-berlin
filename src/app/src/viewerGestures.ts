@@ -38,6 +38,55 @@ export type PedestrianTouchTap = {
   y: number;
 };
 
+export type ViewerGestureResetState = {
+  controlsInteracting: boolean;
+  customTouchGestureActive: boolean;
+  panMomentumActive: boolean;
+  pedestrianLookPointerActive: boolean;
+  touchInteracting: boolean;
+  touchPointCount: number;
+};
+
+export type PanGlideCancelState = {
+  customTouchGestureActive: boolean;
+  pedestrianTouchLookActive: boolean;
+  touchInteracting: boolean;
+  touchPointCount: number;
+};
+
+/** Keep the RAF touch flag only while a real touch gesture still exists. */
+export function touchInteractionAfterPanGlideCancel({
+  customTouchGestureActive,
+  pedestrianTouchLookActive,
+  touchInteracting,
+  touchPointCount,
+}: PanGlideCancelState): boolean {
+  return (
+    customTouchGestureActive ||
+    pedestrianTouchLookActive ||
+    (touchInteracting && touchPointCount > 0)
+  );
+}
+
+/** Detect every interaction state cleared by a blur/visibility reset. */
+export function viewerGestureResetRequired({
+  controlsInteracting,
+  customTouchGestureActive,
+  panMomentumActive,
+  pedestrianLookPointerActive,
+  touchInteracting,
+  touchPointCount,
+}: ViewerGestureResetState): boolean {
+  return (
+    touchPointCount > 0 ||
+    customTouchGestureActive ||
+    touchInteracting ||
+    controlsInteracting ||
+    pedestrianLookPointerActive ||
+    panMomentumActive
+  );
+}
+
 // Phone taps are less precise than mouse clicks, especially one-handed. These
 // thresholds deliberately allow a relaxed double tap while staying below a
 // short look-drag: every participating pointer must still complete alone and

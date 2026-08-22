@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.19 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.19/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.20 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.20/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.19** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.20** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,19 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.19**, built from `main`. Its full viewer
+The current public package is **v0.72.20**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **All visual modes now keep a smaller, steadier browser footprint.** Desktop
+  and touch use one zero-sample `UnsignedByte` composer followed by SMAA,
+  avoiding duplicate renderer/MSAA and half-float buffers. Idle scenes skip
+  full-scene work; weather and Minecraft mobs update at bounded 30/20 Hz while
+  camera input remains display-rate. Completed and failed world constructors
+  release decoded JSON graphs, hidden smooth worlds receive no Minecraft toon
+  clones, and the legacy photo shell is failure-only. OpenSeadragon also caps
+  parallel image work and retained decoded tiles.
 
 - **The Sozialgericht Berlin now follows the supplied facade photographs down
   to its architectural hierarchy.** OSM's 58.038 m street-side site boundary
@@ -336,23 +345,25 @@ local modules.
   refinement and restart it cleanly
   when visible. A cold Minecraft start builds no ParkDetails in either profile
   and delays `surface-polygons.json` until an actual switch to a drawn mode or
-  pedestrian water collision needs it. Touch-profile underside and failure
-  paths do not allocate the legacy photogrammetric shell. Switching between
+  pedestrian water collision needs it. No underside path allocates the legacy
+  photogrammetric shell; touch-profile failures also remain photo-free.
+  Switching between
   drawn and voxel families remounts a single clean WebGL world on the touch
   profile. Independently of profile, a runtime failure gets one automatic clean
   remount, then visible Recovery and 2D-map choices. Non-touch desktop keeps the
-  complete building, surface, park and photogrammetry behavior unchanged. These
+  complete building, surface and park geometry; only an active world failure
+  can request its archived photo fallback. These
   are frozen production-profile budgets and automated contracts, not
   physical-device or iOS claims.
 
-- **Touch-profile Minecraft and WebGL stay inside a substantially smaller memory
-  budget.** The mobile-like touch world benchmark is **845,561 instances / 63.265
+- **Minecraft and WebGL stay inside substantially smaller memory budgets.**
+  The mobile-like touch world benchmark is **845,561 instances / 63.265
   MiB of instance buffers**, compared with the unchanged full profile's
   **3,419,412 / 249.815 MiB**. Only the touch profile omits generic facade panes
   and meadow flowers and collapses non-Hero source columns; all Hero courses up
-  to 8 m, block signatures and navigation stay intact. Touch-profile WebGL disables
-  renderer MSAA and uses a 0x `UnsignedByte` composer with SMAA, while non-touch
-  desktop remains 4x `HalfFloat`. Inactive world builds are canceled, failed
+  to 8 m, block signatures and navigation stay intact. Every WebGL profile
+  disables renderer MSAA and uses a 0x `UnsignedByte` composer with one final
+  SMAA pass. Inactive world builds are canceled, failed
   voxel attachment rolls back, and the smooth park stays hidden without toon clones in voxel
   mode. This is benchmark- and browser-tested, not a claim of physical iOS
   device validation.
@@ -607,9 +618,9 @@ local modules.
   ground-only context for the expanded terrain; the losslessly row-compressed
   5.30 MiB Minecraft instance payload stays lazy, and
   the 29.9 MiB photo shell plus hero crops are requested on non-touch desktop
-  only for an underside cutaway or genuine drawn-world failure. Mobile-like
-  touch sessions
-  retain the authored cutaway/recovery presentation without that shell. The
+  only after a genuine drawn-world failure. Every underside view uses the
+  authored tunnel/network cutaway without that shell. Mobile-like touch
+  sessions retain the authored recovery presentation without it. The
   normal Reichstag start drops
   from about 151.8 MiB to 6.6 MiB of uncompressed scene requests, a 95.7%
   reduction. JSON requests time out and retry rather than hanging forever,
@@ -1166,10 +1177,10 @@ local modules.
   opaque, mode-coloured loading curtain. Day, Night, Minecraft, Snowstorm and
   Schwellenraum reveal
   their first city frame only after the requested drawn world is ready; the old
-  photo surface remains an explicit load-failure fallback and designed
-  underground cutaway context for non-touch desktop only. Mobile-like touch
-  sessions do not allocate
-  it for either case.
+  photo surface remains an explicit load-failure fallback for non-touch
+  desktop only. Every device uses the authored tunnel/network geometry as its
+  underground cutaway; mobile-like touch sessions never allocate the photo
+  shell.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.
@@ -1192,8 +1203,8 @@ local modules.
   no screen-space sharpen or edge detector changes line brightness while the
   view moves. Transparent ink cannot overwrite other ink in the depth buffer,
   and all civic, cultural, park, monument and tunnel detail roots share the
-  same four-sample MSAA plus final SMAA antialiasing policy in motion and at
-  rest.
+  same compact `UnsignedByte` render target plus final SMAA antialiasing policy
+  in motion and at rest.
 
 - Beside the Marie-Elisabeth-Lüders-Haus, four landward canopy supports replace
   the former invented line of pillars through the Spree. A geometry test now
@@ -1313,10 +1324,10 @@ local modules.
   second retained tier contains 6,623,585 faces. A 58° normal crease keeps
   severe roof and facade folds crisp while preserving terrain and vegetation.
   These photo tiers are now demand-only source/detail fallbacks: the normal
-  drawn viewer loads neither, while the lighter interaction shell remains
-  available on non-touch desktop for the underside cutaway or failure recovery.
-  Touch-profile sessions keep the authored cutaway/recovery view without that
-  shell. The old
+  drawn viewer and every underside view load neither, while the lighter
+  interaction shell remains available on non-touch desktop only for failure
+  recovery. Touch-profile sessions keep the authored recovery view without
+  that shell. The old
   10,672,385 face-equivalent desktop presentation remains documented as an
   archived capacity figure, including instanced microcrowns rather than unique
   surveyed polygons. Source-texture vertex
@@ -1540,8 +1551,8 @@ local modules.
 - The complete offline archive still contains 26 interaction GLBs, 26
   settled-detail GLBs and 22 hero parts, each below 5 MiB. Normal drawn modes
   no longer request those photographic tiers in the background; the base shell
-  remains a demand-only underside/failure fallback for non-touch desktop, while
-  the touch profile never loads it. JSON core data loads with bounded retries
+  remains a demand-only failure fallback for non-touch desktop, while the touch
+  profile and every underside view stay photo-free. JSON core data loads with bounded retries
   and a 45-second
   ceiling, optional park detail waits until the first usable drawn city frame,
   and existing GLB normals avoid recalculating roughly
