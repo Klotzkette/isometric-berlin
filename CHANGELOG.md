@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.72.19
+
+- **Das Sozialgericht Berlin folgt nun den sechs bereitgestellten
+  Fassadenfotos statt einer groben, versetzten Ersatzform.** Die öffentliche,
+  58,038 m lange Arealgrenze des OSM-Wegs `423490503` bleibt von der dahinter
+  liegenden Gebäudewand getrennt. Das Berliner LoD2-Objekt
+  `DEBE01YYK0002Qys` liefert deren wirkliche 48,905 m lange Front, den 15,392 m
+  breiten Risalit, 5,5 m Geländehöhe und 16,956 m Baukörperhöhe. Darauf sitzt
+  die warme ockerfarbene 4 + 3 + 4-Gliederung mit rustiziertem Erdgeschoss,
+  Rundbogenfenstern, Fensterbänken, acht richtig zugeordneten Dreiecksgiebeln,
+  Biforien, drei Okuli, Säulenordnung, Gesimsen und Zahnschnitt. Portal `52`
+  erhält die zurückgesetzte dunkle Doppeltür, das bernsteinfarbene nummerierte
+  Oberlicht, kannelierte Säulen, florale Reliefplatten, sechs Granitstufen und
+  Handläufe. Der breite helle Mittelgiebel, drei getrennte dunkle
+  Dachfigurengruppen und der leere Mast ersetzen den früheren schmalen dunklen
+  Dachkörper. Die Fokuskamera zielt jetzt auf die wirkliche Fassade statt auf
+  den versetzten POI.
+- **Detail und Stabilität bleiben auf Smartphones begrenzt.** Die neue
+  Sozialgericht-Fassade ist eine eigene lokal begrenzte, vollständig
+  prozedurale Gruppe mit **3 Renderables / 30.005 Vertices** in Full und **3 /
+  19.338** im Mobile-Profil; keine der sechs Referenzfotografien und keine
+  Textur wird zur Laufzeit geladen. Minecraft behält den amtlichen
+  Quellbaukörper samt Höfen und Rückflügeln, unterdrückt generische Fenster nur
+  in einem flachen Streifen vor der Straßenfassade und ergänzt eine einzige
+  block-native Instanzgruppe mit elf Achsen, einem echten 3 x 5-Pixel-Schriftzug
+  `52`, Giebel und Dachfiguren: **244 Blöcke** in Full und **196** auf
+  Mobilgeräten.
+
 ## v0.72.18
 
 - **Das Beethoven-Haydn-Mozart-Denkmal liest sich nun als der zehn Meter hohe

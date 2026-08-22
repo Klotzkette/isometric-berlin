@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.18 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.18/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.19 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.19/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.18** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.19** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,25 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.18**, built from `main`. Its full viewer
+The current public package is **v0.72.19**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Sozialgericht Berlin now follows the supplied facade photographs down
+  to its architectural hierarchy.** OSM's 58.038 m street-side site boundary
+  remains distinct from the actual 48.905 m LoD2 facade wall and its 15.392 m
+  risalit. The latter carries the warm ochre 4 + 3 + 4 elevation: rusticated
+  ground floor, arched and paired upper windows, correctly placed sills and
+  pediments, three oculi, giant columns, layered cornices, dentils and the broad
+  central gable. Portal 52 has its recessed dark doors, amber numbered transom,
+  floral relief fields, fluted columns, six granite steps and handrails; three
+  separate dark roof-sculpture groups and the bare mast complete the
+  silhouette. The six photographs remain reference-only and are neither
+  bundled nor loaded. A dedicated locally culled batch uses **3 renderables /
+  30,005 vertices** in full quality and **3 / 19,338** on mobile. Minecraft
+  retains the source building and adds a single block-native 11-axis front with
+  a true 3 x 5-pixel `52`: **244 blocks** in full and **196** on mobile.
 
 - **The Beethoven–Haydn–Mozart monument now reads as Siemering's ten-metre
   “Musikerofen”.** Its exact Tiergarten anchor carries a rounded granite

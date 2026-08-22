@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.18)
+## 3. Hard scope rules (v0.72.19)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -51,7 +51,13 @@ Must be inside the polygon and visible in the final map:
 - Paul-Löbe-Haus
 - Marie-Elisabeth-Lüders-Haus
 - Berlin Hauptbahnhof (incl. the glass roof — hero tile), Hamburger Bahnhof,
-  Rieckhallen, Landessozialgericht, Europacity, KPMG and DKB
+  Rieckhallen, Sozialgericht Berlin, Europacity, KPMG and DKB
+- The Sozialgericht's 58.038 m street-side site boundary from OSM way
+  `423490503`, kept distinct from the actual 48.905 m facade and 15.392 m
+  risalit of Berlin LoD2 body `DEBE01YYK0002Qys`; retain its 4 + 3 + 4 facade
+  hierarchy, Portal 52 and broad three-group roof silhouette. Supplied
+  photographs remain reference-only and must never become bundled or runtime
+  textures; the touch and Minecraft readings keep explicit bounded budgets.
 - The temporary 2026 FUNBOX at the Wunderland-Festplatz, kept wholly outside
   the delivered Heidestraße, Minna-Cauer-Straße and Döberitzer Straße surface
   polygons in both drawn and Minecraft representations
@@ -378,7 +384,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.18)
+## 8. What success looks like (Definition of Done v0.72.19)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

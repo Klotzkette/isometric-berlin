@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.18"
+PACKAGE_VERSION = "0.72.19"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,18 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} rekonstruiert das Sozialgericht Berlin anhand der
+sechs bereitgestellten Fassadenfotos als warme ockerfarbene 4 + 3 + 4-Front.
+Die 58,038 m lange OSM-Arealgrenze bleibt ausdrücklich getrennt von der
+48,905 m langen LoD2-Gebäudewand und ihrem 15,392 m breiten Mittelrisalit.
+Rundbogenfenster, Biforien, Fensterbänke, Dreiecksgiebel, Okuli, Säulen,
+Gesimse, Zahnschnitt, florale Reliefs und Portal 52 mit sechs Granitstufen
+folgen der fotografierten Hierarchie. Drei getrennte Dachfigurengruppen und
+der leere Mast bilden die Silhouette. Die Fotos bleiben reine Referenzen und
+werden weder gebündelt noch geladen. Smooth nutzt 3 Renderables / 30.005
+Vertices in Full und 3 / 19.338 mobil; Minecraft ergänzt ein einziges
+Instanz-Batch mit 244 beziehungsweise 196 Blöcken und vollständiger
+3-x-5-Pixel-Hausnummer 52.
 Version {PACKAGE_VERSION} baut das Beethoven-Haydn-Mozart-Denkmal als zehn
 Meter hohen, dreiseitigen und an den Ecken abgestumpften „Musikerofen“ mit
 Granitunterbau, getöntem Marmor, drei Rundbogennischen und weißen Halbfiguren,
@@ -3885,6 +3897,17 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} reconstructs Sozialgericht Berlin from the six
+supplied facade photographs as a warm ochre 4 + 3 + 4 elevation. The 58.038 m
+OSM site boundary remains explicitly separate from the actual 48.905 m LoD2
+building wall and its 15.392 m central risalit. Arched windows, biforia, sills,
+triangular pediments, oculi, columns, cornices, dentils, floral reliefs and
+Portal 52 with six granite steps follow the photographed hierarchy. Three
+separate roof-sculpture groups and the bare mast complete the silhouette. The
+photographs remain reference-only and are neither bundled nor loaded. Smooth
+uses 3 renderables / 30,005 vertices in full and 3 / 19,338 on mobile;
+Minecraft adds one instanced batch with 244 or 196 blocks and a complete
+3-by-5-pixel address 52.
 Version {PACKAGE_VERSION} rebuilds the Beethoven-Haydn-Mozart memorial as its
 ten-metre, three-sided, corner-chamfered “Musikerofen”, with granite base,
 tinted marble, three round-arched niches and white half figures, pilasters,

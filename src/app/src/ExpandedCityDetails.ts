@@ -73,6 +73,11 @@ import {
   CITY_WEST_SOURCE_URLS,
   createCityWestDetails,
 } from "./CityWestDetails";
+import {
+  createSocialCourtDetails,
+  SOCIAL_COURT_PROFILE,
+  SOCIAL_COURT_RENDER_BUDGET,
+} from "./SocialCourtDetails";
 
 export type ExpandedLandmark = {
   name: string;
@@ -120,6 +125,11 @@ export {
   CITY_WEST_SOURCE_URLS,
   createCityWestDetails,
 } from "./CityWestDetails";
+export {
+  createSocialCourtDetails,
+  SOCIAL_COURT_PROFILE,
+  SOCIAL_COURT_RENDER_BUDGET,
+} from "./SocialCourtDetails";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -205,10 +215,11 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 8,
   },
   "Sozialgericht Berlin": {
-    azimuth_degrees: 115,
-    distance_m: 168,
-    polar_degrees: 67,
-    target_height_m: 9,
+    azimuth_degrees: 25.4,
+    distance_m: 142,
+    fov_degrees: 36,
+    polar_degrees: 63,
+    target_height_m: 9.2,
   },
   "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)": {
     azimuth_degrees: 24,
@@ -250,10 +261,17 @@ export function expandedCityFocusCamera(
       KULTURFORUM_PROFILE.staatsbibliothek.centerWorldM,
     "KPMG Europacity": EUROPACITY_PROFILE.einz.centerWorldM,
     "Oggi's Gemüsekebab": NORTHERN_CITY_PROFILE.funbox.centerWorldM,
+    "Sozialgericht Berlin": SOCIAL_COURT_PROFILE.frontCenterWorldM,
   };
   const metricTarget = metricTargetByName[landmark.name];
   const target_world: [number, number, number] = metricTarget
-    ? [metricTarget[0], landmark.world[1], metricTarget[1]]
+    ? [
+        metricTarget[0],
+        landmark.name === "Sozialgericht Berlin"
+          ? SOCIAL_COURT_PROFILE.groundY
+          : landmark.world[1],
+        metricTarget[1],
+      ]
     : landmark.name === "Mall of Berlin"
       ? [landmark.world[0], landmark.world[1], landmark.world[2] - 48]
       : landmark.name === "Hamburger Bahnhof"
@@ -2633,159 +2651,6 @@ function addRieckhallen(
       false,
     );
   }
-}
-
-function addSocialCourt(
-  builder: Builder,
-  byName: Map<string, ExpandedLandmark>,
-): void {
-  const point = anchor(byName, "Sozialgericht Berlin");
-  if (!point) return;
-
-  // The listed 1874 Berlin-Hamburg railway administration building survives
-  // as the court's three-storey street wing. Keep the official LoD2 body and
-  // place only shallow recognition detail on the mapped OSM street edge.
-  // This avoids the former oversized free-standing gable that obscured it.
-  const streetStart = new Vector3(5.049, point.y, -1016.234);
-  const streetEnd = new Vector3(42.769, point.y, -937.377);
-  const streetVector = streetEnd.clone().sub(streetStart);
-  const facadeLength = Math.hypot(streetVector.x, streetVector.z);
-  const directionX = streetVector.x / facadeLength;
-  const directionZ = streetVector.z / facadeLength;
-  const rotation = -Math.atan2(directionZ, directionX);
-  const facadeCenter = streetStart.clone().add(streetEnd).multiplyScalar(0.5);
-  const facadeOrigin = new Vector3(
-    facadeCenter.x + directionZ * 0.58,
-    point.y,
-    facadeCenter.z - directionX * 0.58,
-  );
-
-  // Negative local Z faces Invalidenstrasse. Every layer is offset by at
-  // least 0.34 m so no surface is coplanar with the LoD2 shell.
-  for (const [width, y, height, color] of [
-    [facadeLength - 1.8, point.y + 4.55, 0.36, SANDSTONE],
-    [facadeLength, point.y + 8.2, 0.42, IVORY],
-    [facadeLength + 0.8, point.y + 14.35, 0.5, SANDSTONE],
-  ] as const) {
-    addLocalBox(
-      builder,
-      color,
-      facadeOrigin,
-      0,
-      y,
-      0,
-      width,
-      height,
-      0.36,
-      rotation,
-    );
-  }
-
-  // Eleven evenly spaced bays reproduce the restrained Neo-Renaissance
-  // rhythm. The middle bay becomes the tall entrance risalit.
-  const baySpacing = 6.95;
-  for (let bay = -5; bay <= 5; bay += 1) {
-    const localX = bay * baySpacing;
-    for (const [floorY, windowHeight] of [
-      [point.y + 5.1, 2.35],
-      [point.y + 8.75, 2.55],
-      [point.y + 12.2, 2.25],
-    ] as const) {
-      if (bay === 0 && floorY < point.y + 7) continue;
-      addLocalBox(
-        builder,
-        0x607985,
-        facadeOrigin,
-        localX,
-        floorY,
-        -0.34,
-        2.05,
-        windowHeight,
-        0.2,
-        rotation,
-        false,
-      );
-      addLocalBox(
-        builder,
-        IVORY,
-        facadeOrigin,
-        localX,
-        floorY + windowHeight / 2 + 0.18,
-        -0.4,
-        2.45,
-        0.16,
-        0.18,
-        rotation,
-        false,
-      );
-    }
-  }
-
-  for (let course = 0; course < 5; course += 1) {
-    addLocalBox(
-      builder,
-      course % 2 === 0 ? IVORY : SANDSTONE,
-      facadeOrigin,
-      0,
-      point.y + 2.05 + course * 0.67,
-      -0.3,
-      facadeLength - 2.4,
-      0.16,
-      0.2,
-      rotation,
-      false,
-    );
-  }
-
-  addLocalBox(
-    builder,
-    IVORY,
-    facadeOrigin,
-    0,
-    point.y + 9.3,
-    -0.18,
-    9.2,
-    12.8,
-    1.15,
-    rotation,
-  );
-  addLocalBox(
-    builder,
-    0x46575e,
-    facadeOrigin,
-    0,
-    point.y + 3.45,
-    -0.86,
-    3.8,
-    5.9,
-    0.3,
-    rotation,
-  );
-  for (const side of [-1, 1]) {
-    addLocalBox(
-      builder,
-      SANDSTONE,
-      facadeOrigin,
-      side * 2.45,
-      point.y + 3.75,
-      -0.78,
-      0.72,
-      6.8,
-      0.48,
-      rotation,
-    );
-  }
-  addGabledRoof(
-    builder,
-    DARK_BRICK,
-    facadeOrigin.x,
-    point.y + 15.9,
-    facadeOrigin.z,
-    11.5,
-    2.1,
-    2.4,
-    rotation,
-  );
 }
 
 function addBerlinModern(
@@ -5787,12 +5652,12 @@ export function createExpandedCityDetails(
     LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
+  group.userData.socialCourt = SOCIAL_COURT_PROFILE;
   group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
   group.userData.weltBalloon = WELT_BALLOON_PROFILE;
   group.userData.cityWest = CITY_WEST_PROFILE;
   group.userData.sourceUrls = [
-    "https://www.berlin.de/gerichte/sozialgericht/ueber-uns/allgemeines/",
-    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050269",
+    ...SOCIAL_COURT_PROFILE.sourceUrls,
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
@@ -5821,7 +5686,6 @@ export function createExpandedCityDetails(
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);
-  addSocialCourt(builder, byName);
   addKulturforum(builder, byName);
   addPotsdamerWilhelmDetails(builder, byName);
   addAnhalterBahnhof(builder, byName);
@@ -5836,6 +5700,9 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+  if (byName.has(SOCIAL_COURT_PROFILE.name)) {
+    group.add(createSocialCourtDetails(options.detailProfile ?? "full"));
+  }
   if (byName.has("Mall of Berlin")) {
     group.add(createLeipzigerPlatzDetails());
   }

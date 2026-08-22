@@ -213,6 +213,18 @@ Night and Snow relight the same drawn city; Minecraft uses its separate voxel
 world. If the requested world fails, the viewer loads the photographic base
 shell as a bounded fallback rather than leaving the curtain open forever.
 
+The Sozialgericht Berlin is a dedicated source-bound recognition group rather
+than part of the kilometre-wide expanded-city batch. OSM way `423490503`
+anchors its 58.038 m public street-side site boundary; the parallel 48.905 m
+facade wall, 15.392 m risalit, body and collision authority come from LoD2
+object `DEBE01YYK0002Qys`. Six supplied facade photographs guide only
+procedural proportions and ornament: no photo, canvas, derived crop or texture
+is bundled or requested at runtime. Its full and touch profiles retain the
+same footprint, 11-axis order, roof silhouette and focus target while reducing
+repeated masonry detail. Minecraft keeps the complete source mass and applies
+its block-native front only inside a shallow wall-edge recognition strip,
+preserving the courtyards and rear wings.
+
 The ordinary Day/Night/Snow/Schwellenraum cold start does not request the
 photographic GLBs
 or the complete Minecraft instances. It reads `ground-context.json`, a

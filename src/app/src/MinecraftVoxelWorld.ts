@@ -49,6 +49,10 @@ import {
 import { createMoabitPrisonMemorialParkMinecraft } from "./MoabitPrisonMemorialPark";
 import { createWeidendammerBridgeMinecraft } from "./WeidendammerBridgeDetails";
 import {
+  SOCIAL_COURT_PROFILE,
+  socialCourtFacadeWorldAt,
+} from "./SocialCourtDetails";
+import {
   createMinecraftTipiAmKanzleramt,
   isMinecraftTipiReplacementColumn,
 } from "./MinecraftTipiAmKanzleramt";
@@ -408,6 +412,18 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     widthM: 64,
   },
   {
+    // Only the public Invalidenstrasse edge yields its generic office-window
+    // grid. The deep LoD2 footprint, all three courtyards and every rear wing
+    // remain source voxels behind the block-native 11-axis facade.
+    center: SOCIAL_COURT_PROFILE.frontCenterWorldM,
+    depthM: 12,
+    name: "Sozialgericht Berlin",
+    paddingM: 1.2,
+    rotationDegrees: (SOCIAL_COURT_PROFILE.facade.rotationY * 180) / Math.PI,
+    tone: 0xe8d1ae,
+    widthM: SOCIAL_COURT_PROFILE.facade.facadeLengthM,
+  },
+  {
     center: EUROPACITY_PROFILE.einz.centerWorldM,
     depthM: EUROPACITY_PROFILE.einz.footprintDepthM,
     name: "KPMG Europacity",
@@ -532,6 +548,7 @@ const MINECRAFT_HERO_COURSE_AREAS = new Set([
   "Paul-Löbe-Haus south rotundas",
   "Marie-Elisabeth-Lüders-Haus",
   "Brandenburger Tor",
+  "Sozialgericht Berlin",
 ]);
 
 export const MINECRAFT_HERO_SOURCE_COURSE_MAX_M = 8;
@@ -1400,6 +1417,242 @@ export function createMinecraftHamburgerBahnhofRecognition(): InstancedMesh {
 }
 
 /**
+ * One deliberately block-native reading of the Sozialgericht's public front.
+ *
+ * The complete LoD2 prism remains the building and collision authority. This
+ * thin overlay replaces only the generic square-office fenestration at the
+ * exact LoD2 facade edge with its 4 + 3 + 4 rhythm, broad central risalit,
+ * Portal 52, stepped pediment and three compact roof-sculpture silhouettes.
+ */
+export function createMinecraftSocialCourtRecognition(
+  detailProfile: MinecraftVoxelDetailProfile = "full",
+): InstancedMesh {
+  const profile = SOCIAL_COURT_PROFILE;
+  const blocks: ExtrapolatedBlock[] = [];
+  const push = (
+    color: number,
+    localX: number,
+    y: number,
+    outward: number,
+    size: readonly [number, number, number],
+  ): void => {
+    const [x, z] = socialCourtFacadeWorldAt(localX, -outward);
+    blocks.push({ color, position: [x, y, z], size: [...size] });
+  };
+
+  const groundY = profile.groundY;
+  const pitch = profile.facade.bayPitchM;
+  const bayCentres = profile.facade.bayCentresM;
+  const risalitCenterX = profile.facade.risalitCenterLocalXM;
+  const portalCenterX = profile.portal.centerLocalXM;
+  const sandstone = 0xe8d1ae;
+  const sandstoneLight = 0xf3efd0;
+  const sandstoneShadow = 0xd4b98d;
+  const granite = 0x8e9a9e;
+  const glass = VOXEL_WINDOW_TEAL;
+  const frame = 0x40515c;
+  const wood = 0x715b4a;
+  const amber = 0xe6bd4c;
+  const metal = 0x34443a;
+
+  // Three continuous source-height courses and a granite plinth keep the
+  // facade visibly made of blocks even on mobile, where generic city columns
+  // would otherwise be one smooth 20 m cuboid.
+  const bandStep = detailProfile === "full" ? 2 : 4;
+  for (
+    let localX = -profile.facade.facadeLengthM / 2 + bandStep / 2;
+    localX < profile.facade.facadeLengthM / 2;
+    localX += bandStep
+  ) {
+    const width = Math.min(
+      bandStep - 0.12,
+      profile.facade.facadeLengthM / 2 - localX + bandStep / 2,
+    );
+    push(granite, localX, groundY + 0.5, 0.68, [width, 0.9, 1.05]);
+    for (const [y, height, depth, color] of [
+      [groundY + 7.42, 0.68, 1.18, sandstoneLight],
+      [groundY + 12.34, 0.52, 1.05, sandstoneShadow],
+      [groundY + 16.5, 0.82, 1.35, sandstoneLight],
+    ] as const) {
+      push(color, localX, y, 0.72, [width, height, depth]);
+    }
+  }
+
+  // Ten lower arches, eight tall wing windows and eight paired upper
+  // openings. Each opening uses a tiny number of coarse panes on purpose.
+  for (const [index, localX] of bayCentres.entries()) {
+    const central = index >= 4 && index <= 6;
+    const authoredLocalX = central ? localX + risalitCenterX : localX;
+    if (index !== 5) {
+      push(frame, authoredLocalX, groundY + 4.7, 0.97, [2.7, 4.2, 0.52]);
+      push(glass, authoredLocalX, groundY + 4.45, 1.06, [2.1, 3.45, 0.38]);
+      push(sandstoneLight, authoredLocalX, groundY + 2.25, 1.02, [
+        3.3, 0.42, 0.74,
+      ]);
+    }
+    if (!central) {
+      push(frame, localX, groundY + 9.92, 0.96, [2.65, 4.0, 0.5]);
+      push(glass, localX, groundY + 9.75, 1.05, [2.05, 3.36, 0.36]);
+      push(sandstoneLight, localX, groundY + 12.12, 1.01, [3.65, 0.48, 0.78]);
+      for (const side of [-1, 1]) {
+        push(
+          glass,
+          localX + side * 0.72,
+          groundY + 14.03,
+          1.03,
+          [1.05, 2.25, 0.36],
+        );
+      }
+    }
+  }
+
+  // Broad three-axis risalit and coupled tall windows with three oculi.
+  for (
+    let localX = risalitCenterX - profile.facade.risalitWidthM / 2 + 1;
+    localX < risalitCenterX + profile.facade.risalitWidthM / 2;
+    localX += 2
+  ) {
+    push(sandstone, localX, groundY + 8.4, 0.76, [1.88, 15.9, 1.05]);
+  }
+  for (const localX of [
+    risalitCenterX - pitch,
+    risalitCenterX,
+    risalitCenterX + pitch,
+  ]) {
+    for (const side of [-1, 1]) {
+      push(
+        glass,
+        localX + side * 1.25,
+        groundY + 10.02,
+        1.42,
+        [1.55, 4.7, 0.42],
+      );
+    }
+    // Square-pixel ring around a dark centre: unmistakably an oculus while
+    // remaining faithful to Minecraft's orthogonal vocabulary.
+    push(sandstoneLight, localX, groundY + 14.05, 1.36, [3.3, 3.3, 0.5]);
+    push(glass, localX, groundY + 14.05, 1.47, [2.15, 2.15, 0.36]);
+    push(frame, localX, groundY + 14.05, 1.58, [2.2, 0.22, 0.24]);
+    push(frame, localX, groundY + 14.05, 1.58, [0.22, 2.2, 0.24]);
+  }
+  for (const localX of [
+    risalitCenterX - 1.55 * pitch,
+    risalitCenterX - 0.5 * pitch,
+    risalitCenterX + 0.5 * pitch,
+    risalitCenterX + 1.55 * pitch,
+  ]) {
+    push(sandstoneLight, localX, groundY + 11.05, 1.48, [0.74, 7.35, 0.72]);
+  }
+
+  // Portal 52, six block steps and two handrail posts. Amber blocks preserve
+  // the numbered transom without importing a font or a photograph.
+  push(wood, portalCenterX, groundY + 3.35, 1.86, [4.3, 4.45, 0.62]);
+  push(frame, portalCenterX, groundY + 3.35, 1.98, [0.22, 4.2, 0.3]);
+  push(amber, portalCenterX, groundY + 6.0, 1.9, [3.45, 1.05, 0.54]);
+  const addressGlyphs = {
+    "2": ["111", "001", "111", "100", "111"],
+    "5": ["111", "100", "111", "001", "111"],
+  } as const;
+  let addressPixelCount = 0;
+  for (const [digitX, digit] of [
+    [-0.42, "5"],
+    [0.42, "2"],
+  ] as const) {
+    for (const [row, pixels] of addressGlyphs[digit].entries()) {
+      for (let column = 0; column < pixels.length; column += 1) {
+        if (pixels[column] !== "1") continue;
+        push(
+          metal,
+          portalCenterX + digitX + (column - 1) * 0.13,
+          groundY + 6.25 - row * 0.13,
+          2.22,
+          [0.1, 0.1, 0.18],
+        );
+        addressPixelCount += 1;
+      }
+    }
+  }
+  for (const side of [-1, 1]) {
+    push(sandstoneLight, portalCenterX + side * 3.15, groundY + 4.05, 1.45, [
+      1.08, 6.25, 1.05,
+    ]);
+    push(metal, portalCenterX + side * 2.45, groundY + 1.15, 2.85, [
+      0.18, 1.6, 0.18,
+    ]);
+  }
+  for (let step = 0; step < profile.portal.stepCount; step += 1) {
+    const t = step / (profile.portal.stepCount - 1);
+    push(
+      granite,
+      portalCenterX,
+      groundY + 0.12 + step * 0.2,
+      3.15 - step * 0.4,
+      [7.5 - t * 1.7, 0.22, 0.72],
+    );
+  }
+
+  // The photo-backed front gable is a stepped triangle, never the former
+  // detached dark roof block. Three separated graphite sculpture clusters
+  // and the bare mast finish the silhouette.
+  for (let row = 0; row < 4; row += 1) {
+    push(
+      row === 3 ? sandstoneLight : sandstone,
+      risalitCenterX,
+      groundY + 17.35 + row * 0.72,
+      0.92,
+      [profile.facade.risalitWidthM - row * 4.0, 0.78, 1.25],
+    );
+  }
+  for (const side of [-1, 1]) {
+    const shoulderX =
+      risalitCenterX + side * profile.facade.risalitWidthM * 0.414;
+    push(metal, shoulderX, groundY + 18.38, 0.88, [3.0, 1.1, 1.45]);
+    push(
+      metal,
+      shoulderX - side * 0.62,
+      groundY + 19.02,
+      0.9,
+      [0.9, 1.15, 1.0],
+    );
+  }
+  push(metal, risalitCenterX, groundY + 20.22, 0.88, [6.2, 0.62, 1.45]);
+  push(metal, risalitCenterX, groundY + 21.45, 0.9, [1.1, 2.4, 1.0]);
+  push(metal, risalitCenterX - 1.65, groundY + 20.92, 0.9, [
+    1.25, 1.35, 1.0,
+  ]);
+  push(metal, risalitCenterX + 1.65, groundY + 20.92, 0.9, [
+    1.25, 1.35, 1.0,
+  ]);
+  push(metal, risalitCenterX, groundY + 25.0, 0.35, [0.18, 6.3, 0.18]);
+
+  const writer = instancedBoxes(
+    "Voxel Sozialgericht Berlin 11-axis recognition facade",
+    blocks.length,
+  );
+  for (const block of blocks) {
+    writer.write(
+      new Vector3(...block.position),
+      new Vector3(...block.size),
+      new Color(block.color),
+      profile.facade.rotationY,
+    );
+  }
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData = {
+    addressPixelCount,
+    architecturalProfile: profile,
+    blockCount: blocks.length,
+    detailProfile,
+    keepInMinecraft: true,
+    sourceBound: true,
+    textureFree: true,
+  };
+  return writer.mesh;
+}
+
+/**
  * Block-native planning envelope for berlin modern.
  *
  * The completed museum is absent from the surveyed LoD2 payload while it is
@@ -2135,6 +2388,9 @@ export function createMinecraftVoxelWorld(
     ),
   );
   group.add(createMinecraftHamburgerBahnhofRecognition());
+  group.add(
+    createMinecraftSocialCourtRecognition(options.detailProfile ?? "full"),
+  );
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
   group.add(createMinecraftUpbeatRecognition());

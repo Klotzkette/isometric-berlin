@@ -471,6 +471,9 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 export const HERO_PRISM_TONES: Record<string, number> = {
   K0002MCN: 0xe0e3df,
   MLwG4KW9: 0xeeeeea,
+  // Sozialgericht Berlin: warm ochre sandstone body matching the restored
+  // Invalidenstrasse facade beneath its dedicated Neo-Renaissance detail.
+  K0002Qys: 0xcbb18a,
   // Hotel Adlon: pale reconstructed stone body below its patinated roof.
   K00006ot: 0xeee5d4,
   // The Center / former Sony Center: cool glass-and-steel towers around the
