@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.20"
+PACKAGE_VERSION = "0.72.21"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,14 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Bei jedem frischen Browserladen wechselt der Start deterministisch zwischen
+Reichstag, Bundeskanzleramt, Hauptbahnhof und Siegessäule; ein Sehenswürdigkeits-
+Link hat Vorrang, und auch der einmalige saubere WebGL-Neustart nimmt den
+nächsten Punkt. Im Fußgängermodus ist kartiertes Wasser eine feste Ufergrenze:
+Man kann nicht hindurchgehen, stirbt aber nie und wird nicht zurückgesetzt.
+OpenSeadragon hält mobil höchstens 32 Kacheln bei drei Ladern und am Desktop 64
+bei sechs. Beim Wechsel zur 2D-Karte wird WebGL überall freigegeben; die
+Renderziele bleiben mobil bei 1,35x / 3,2 MP und am Desktop bei 1,75x / 8,5 MP.
 Version {PACKAGE_VERSION} rekonstruiert das Sozialgericht Berlin anhand der
 sechs bereitgestellten Fassadenfotos als warme ockerfarbene 4 + 3 + 4-Front.
 Die 58,038 m lange OSM-Arealgrenze bleibt ausdrücklich getrennt von der
@@ -3452,10 +3460,14 @@ Vertices. Eine erhöhte Südansicht hält Nischen, Halbfiguren und Kuppel beim
 Fokussieren frei vom dichten Kronendach.
 Im Minecraft-Modus schützt eine gemeinsame gedrehte Ausschlussfläche das
 Holocaust-Mahnmal vollständig vor Voxelbäumen und vor Spawn, Wegfindung und
-Bewegung von Creepern, Zombies und Skeletten. Außerhalb davon laufen weiterhin
-sparsam vier Creeper, vier Zombies und drei Skelette in einem Instanz-Batch;
-drei zusätzliche erlaubte Routen liegen im Tiergarten. 116 Quellbäume werden
-im Schutzfeld unterdrückt; die elf Figuren bleiben 136 Instanzteile.
+Bewegung von Creepern, Zombies und Skeletten. Außerhalb davon behält die
+gestreamte deterministische Auswahl im Vollprofil zwei Drittel und mobil ein
+Drittel der zulässigen Voxelbäume, ohne eine große Zwischenliste aufzubauen.
+Ein einziges Mob-Batch enthält voll vier Creeper, sechs Zombies und drei
+Skelette, mobil drei, fünf und zwei. Vier beziehungsweise zwei Lootboxen
+benötigen zwei zusätzliche Instanz-Batches, öffnen einmalig bei Kontakt im
+Fußgängermodus und zeigen 1,35 Sekunden lang begrenztes Feuerwerk. Das
+geschützte Mahnmal bleibt in jedem Profil frei von Bäumen, Mobs und Loot.
 Version {PACKAGE_VERSION} gibt Europa-Center, Allianz-Haus, altem Café Kranzler
 und Neuem Kranzler Eck, Bahnhof Zoo, Gedächtniskirche/Breitscheidplatz und
 Urania eigene quellengebundene Silhouetten und Fassadenrhythmen. Der
@@ -3580,9 +3592,11 @@ Scherenrahmen; ihn umgeben die gefaltete rote Stuhl-/Objektlandschaft,
 Licht-/Audioelemente und sichtbare Kabel. Ein großes schwarzes prozedurales
 Rasterporträt liegt auf dem Glas. Es werden weder Pressefoto noch
 Porträtausschnitt oder Porträttextur gebündelt oder geladen.
-Minecraft lässt genau vier Creeper, drei Skelette mit Bogen und vier Zombies
-auf deterministischen, baumfreien und gedenkstättengeschützten Grasrouten laufen. Alle elf Figuren teilen
-einen Renderdurchlauf und verschwinden außerhalb des Minecraft-Modus.
+Minecraft lässt im Vollprofil genau vier Creeper, sechs Zombies und drei
+Skelette mit Bogen auf deterministischen, von behaltenen Bäumen freien und
+gedenkstättengeschützten Grasrouten laufen; mobil sind es drei, fünf und zwei.
+Das Mob-Feld bleibt in jedem Profil ein Renderdurchlauf und verschwindet
+außerhalb des Minecraft-Modus.
 Version {PACKAGE_VERSION} ergänzt außerdem die neue, vom vorhandenen
 Queer-Rainbow-Gedenkmodell getrennte CSD-Gedenkstelle am exakten OSM-Knoten
 14076715427. Französischer Ahorn, belaubte junge Krone, rundes Metallschutzgitter,
@@ -3729,12 +3743,14 @@ bleiben erhalten.
 
 Im mobilen Touch-Profil begrenzt Version {PACKAGE_VERSION} den Minecraft-
 Speicher. Es gilt bei primärem oder beliebigem groben Zeiger sowie bei
-navigator.maxTouchPoints > 0 und misst 845,561 Instanzen / 63.265 MiB
-Instanzpuffer statt 3,419,412 / 249.815 MiB im unveränderten Vollprofil. Nur in
-diesem Profil entfallen generische Fassadenscheiben und Wiesenblumen; Nicht-Hero-
+navigator.maxTouchPoints > 0. Der frühere Benchmark vor der Baum-Auswahl maß
+845,561 Instanzen / 63.265 MiB Instanzpuffer mobil und 3,419,412 / 249.815 MiB
+voll; die aktuelle 1/3- beziehungsweise 2/3-Retention macht diese Werte zu
+konservativen Obergrenzen. Nur im mobilen Profil entfallen generische
+Fassadenscheiben und Wiesenblumen; Nicht-Hero-
 Quellspalten werden zusammengefasst, während Hero-Kurse bis 8 m, Signaturen und
-Navigation erhalten bleiben. Touch-Profil-WebGL nutzt kein Renderer-MSAA, einen
-0x-UnsignedByte-Composer und SMAA; Nicht-Touch-Desktop bleibt bei 4x HalfFloat.
+Navigation erhalten bleiben. Jedes WebGL-Profil nutzt kein Renderer-MSAA,
+einen 0x-UnsignedByte-Composer und einen abschließenden SMAA-Durchlauf.
 Inaktive
 Weltaufbauten werden abgebrochen, fehlgeschlagene Voxel-Anbindungen
 zurückgerollt und glatte Parkdetails bleiben im Voxelmodus ohne Toon-Klone
@@ -3764,19 +3780,21 @@ jeweils nur die aktive
 gezeichnete oder Minecraft-Weltfamilie im Speicher. Profilunabhängig erhält ein
 WebGL-Laufzeitfehler genau einen sauberen Neustart; beim zweiten Fehler
 erscheinen Wiederherstellung und 2D-Karte als ausdrückliche Auswahl.
-Nicht-Touch-Desktop behält das vollständige Profil unverändert.
+Nicht-Touch-Desktop behält die vollständige Architektur, reduziert aber seine
+Minecraft-Bäume ebenfalls deterministisch auf zwei Drittel.
 
 Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
 Geländekontext statt mit den fotografischen GLBs. Auf Nicht-Touch-Desktop lädt
 die amtliche
-{base_faces_de}-Flächen-Stufe nur noch für die Untersicht oder als echte
-Fehlerreserve; mobileähnliche Touch-Sitzungen laden diese alte Foto-Hülle auch
-dort nicht. Die archivierte {settled_faces_de}-Flächen-Stufe wird bei der normalen
+{base_faces_de}-Flächen-Stufe nur noch als echte Fehlerreserve; jede Untersicht
+und jede mobileähnliche Touch-Sitzung bleibt vollständig foto-frei. Die
+archivierte {settled_faces_de}-Flächen-Stufe wird bei der normalen
 Navigation nicht im Hintergrund angefordert. Minecraft-Gebäude und -Bäume
 bleiben bis zum Wechsel in diesen Modus ebenfalls ungeladen.
 Fehlgeschlagene JSON-Dateien werden einmal wiederholt und nach 45 Sekunden
-sauber abgebrochen. Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive
-3D-Szene vollständig frei. Verlorene Pointer-Captures, Fensterwechsel, globale
+sauber abgebrochen. Beim Wechsel zur 2D-Karte gibt jedes Gerät die inaktive
+3D-Szene vollständig frei; Desktop hält sie nur beim Wechsel zwischen Live-
+3D-Modi warm. Verlorene Pointer-Captures, Fensterwechsel, globale
 Pointer-Releases und ein zehnsekündiger Watchdog verhindern ein Festhängen.
 Die interne Renderauflösung bleibt vom Beginn einer Geste bis nach dem
 Ausrollen unverändert.
@@ -3897,6 +3915,14 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Every fresh browser load deterministically advances among the Reichstag,
+Federal Chancellery, Hauptbahnhof and Victory Column; an explicit landmark link
+wins, and the single clean WebGL restart advances again. In pedestrian mode,
+mapped water is a solid shoreline: it cannot be crossed, but it never kills or
+resets the walker. OpenSeadragon keeps at most 32 tiles with three loaders on
+mobile and 64 with six on desktop. Switching to the 2D map releases WebGL
+everywhere; render targets stay within 1.35x / 3.2 MP on touch and 1.75x /
+8.5 MP on desktop.
 Version {PACKAGE_VERSION} reconstructs Sozialgericht Berlin from the six
 supplied facade photographs as a warm ochre 4 + 3 + 4 elevation. The 58.038 m
 OSM site boundary remains explicitly separate from the actual 48.905 m LoD2
@@ -3918,10 +3944,14 @@ renderables / 2,847 stored / 7,137 rendered vertices. A dedicated elevated
 southern focus keeps the niches, figures and cupola clear of the dense canopy.
 In Minecraft, one shared rotated exclusion protects the entire Holocaust
 Memorial from voxel trees and from hostile-mob spawn, walkability and motion.
-Outside it, the deliberately sparse single instance batch now contains four
-Creepers, four Zombies and three bow-carrying Skeletons, including three new
-allowed Tiergarten routes. The protected field removes 116 source trees; all
-eleven figures remain 136 instanced parts.
+Outside it, streamed deterministic retention keeps two thirds of eligible
+voxel trees in the full profile and one third on mobile without expanding a
+large intermediate tree list. The single mob instance batch contains four
+Creepers, six Zombies and three bow-carrying Skeletons in full, or three, five
+and two respectively on mobile. Four full-profile or two mobile loot boxes use
+two additional instance batches, open once on pedestrian contact and show a
+bounded 1.35-second firework. The protected memorial stays free of trees,
+hostile mobs and loot in every profile.
 Version {PACKAGE_VERSION} gives Europa-Center, Allianz-Haus, the historic Café
 Kranzler and New Kranzler Eck, Bahnhof Zoo, Memorial Church/Breitscheidplatz
 and Urania their own source-anchored silhouettes and facade rhythms.
@@ -4039,9 +4069,10 @@ scissor frames, surrounded by the folded red chair/object landscape,
 light/audio elements and visible cable runs. A large black procedural raster
 portrait sits on the glass. No press photograph, portrait crop or portrait
 texture is bundled or loaded.
-Minecraft lets exactly four Creepers, three bow-carrying Skeletons and four
-Zombies roam deterministic, tree-cleared and memorial-protected grass routes. All eleven figures share
-one draw call and disappear outside Minecraft.
+Minecraft lets exactly four Creepers, six Zombies and three bow-carrying
+Skeletons roam deterministic, retained-tree-cleared and memorial-protected
+grass routes in the full profile; mobile uses three, five and two. Every
+profile keeps the mob field to one draw call and hides it outside Minecraft.
 Version {PACKAGE_VERSION} also adds the new CSD memorial place at exact OSM
 node 14076715427, separately from the existing Queer Rainbow memorial model.
 Its French maple, already leafed young crown, round metal guard, sparse static
@@ -4181,12 +4212,13 @@ navigation remain available.
 
 Version {PACKAGE_VERSION} bounds Minecraft in the mobile-like touch profile,
 which applies when the primary or any pointer is coarse or
-navigator.maxTouchPoints > 0. It measures 845,561 instances / 63.265 MiB of instance buffers
-versus 3,419,412 / 249.815 MiB for the unchanged full profile. Only this profile
-omits generic facade panes and meadow flowers and collapses non-Hero source
-columns; Hero courses up to 8 m, signatures and navigation remain. Touch-profile
-WebGL uses no renderer MSAA, a 0x UnsignedByte composer and SMAA, while non-touch
-desktop stays at 4x HalfFloat. Inactive world builds are canceled, failed
+navigator.maxTouchPoints > 0. The earlier pre-retention benchmark measured
+845,561 instances / 63.265 MiB of instance buffers on mobile and 3,419,412 /
+249.815 MiB in full; current 1/3 and 2/3 tree retention makes these conservative
+upper bounds. Only the mobile profile omits generic facade panes and meadow
+flowers and collapses non-Hero source columns; Hero courses up to 8 m,
+signatures and navigation remain. Every WebGL profile uses no renderer MSAA, a
+0x UnsignedByte composer and one final SMAA pass. Inactive world builds are canceled, failed
 voxel attachment rolls back, and smooth park details remain hidden without
 toon clones in voxel mode. This is benchmark/browser QA, not validation on a
 physical iOS device.
@@ -4210,18 +4242,20 @@ first actual switch to any drawn mode starts the idempotent park-detail
 construction. The touch profile retains only the active drawn or Minecraft
 world family.
 In every profile, a WebGL runtime failure receives exactly one clean restart; a
-second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop's
-full profile is unchanged.
+second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop
+keeps complete architecture while deterministically retaining two thirds of
+its Minecraft trees as well.
 
 Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
 context instead of photographic GLBs. On non-touch desktop, the official
-{base_faces_en}-face shell loads only for the underside or real failure
-recovery; mobile-like touch sessions do not load that legacy photo shell there
-either. The archived {settled_faces_en}-face tier is not requested during
+{base_faces_en}-face shell loads only for real failure recovery; every
+underside view and every mobile-like touch session remains photo-free. The
+archived {settled_faces_en}-face tier is not requested during
 normal navigation. Minecraft buildings and trees remain lazy until that mode
 is selected. Failed
-JSON transfers retry once and stop cleanly after 45 seconds. Touch devices
-release inactive 3D when switching to the 2D map. Lost pointer capture, window
+JSON transfers retry once and stop cleanly after 45 seconds. Every device
+releases inactive 3D when switching to the 2D map; desktop keeps it warm only
+while moving between live 3D modes. Lost pointer capture, window
 focus, global pointer release and a ten-second watchdog prevent stuck input.
 The backing-store resolution likewise stays unchanged throughout input and
 momentum. Before opening the browser,
@@ -4238,9 +4272,9 @@ recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
-photographic shell remains bundled as an underside/failure fallback for
-non-touch desktop only rather than loading underneath the ordinary drawn city;
-mobile-like touch sessions never allocate it for either presentation.
+photographic shell remains bundled as a failure-only fallback for non-touch
+desktop rather than loading underneath the ordinary drawn city; every
+underside view and every mobile-like touch session stays photo-free.
 
 The central Chancellery building now reveals its externally visible spatial
 sequence behind cool transparent glass: split gallery plates around a 14.4 m

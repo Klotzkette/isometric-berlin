@@ -9,7 +9,8 @@ import {
 } from "three";
 
 import {
-  decodeVoxelTreeBlocks,
+  forEachVoxelTreeBlock,
+  minecraftVoxelTreeRetained,
   type VoxelPayload,
   worldGroundSampler,
 } from "./MinecraftVoxelWorld";
@@ -17,7 +18,18 @@ import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
 
 export const CREEPER_COUNT = 4;
 export const SKELETON_COUNT = 3;
-export const ZOMBIE_COUNT = 4;
+export const ZOMBIE_COUNT = 6;
+
+export type MinecraftMobDetailProfile = "full" | "mobile";
+
+/**
+ * The desktop cast gains two zombies while the touch profile remains smaller
+ * than the old desktop field. Both profiles stay in one instanced draw call.
+ */
+export const MINECRAFT_MOB_BUDGETS = Object.freeze({
+  full: Object.freeze({ creeper: 4, skeleton: 3, zombie: ZOMBIE_COUNT }),
+  mobile: Object.freeze({ creeper: 3, skeleton: 2, zombie: 5 }),
+});
 
 type MobKind = "creeper" | "skeleton" | "zombie";
 type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
@@ -84,6 +96,8 @@ const DESIRED_SPAWNS: ReadonlyArray<{
   { heading: 3.5, kind: "zombie", x: 360, z: 180 },
   { heading: 5.1, kind: "zombie", x: -260, z: 100 },
   { heading: 0.8, kind: "zombie", x: -500, z: 340 },
+  { heading: 2.2, kind: "zombie", x: -120, z: 410 },
+  { heading: 4.7, kind: "zombie", x: 470, z: 300 },
   { heading: 2.7, kind: "skeleton", x: -40, z: 670 },
   { heading: 5.6, kind: "skeleton", x: 510, z: 460 },
   { heading: 4.1, kind: "skeleton", x: -330, z: 620 },
@@ -103,7 +117,10 @@ function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {
   return zOffset * payload.grid.cols + xOffset;
 }
 
-function buildWalkableGrid(payload: VoxelPayload): {
+function buildWalkableGrid(
+  payload: VoxelPayload,
+  detailProfile: MinecraftMobDetailProfile,
+): {
   ground: Uint8Array;
   trees: Uint8Array;
 } {
@@ -149,7 +166,8 @@ function buildWalkableGrid(payload: VoxelPayload): {
     }
   }
   const treeCells = new Uint8Array(payload.grid.cols * payload.grid.rows);
-  for (const [xIndex, zIndex] of decodeVoxelTreeBlocks(payload)) {
+  forEachVoxelTreeBlock(payload, (xIndex, zIndex) => {
+    if (!minecraftVoxelTreeRetained(xIndex, zIndex, detailProfile)) return;
     const xOffset = xIndex - payload.grid.min_x_idx;
     const zOffset = zIndex - payload.grid.min_z_idx;
     if (
@@ -160,11 +178,11 @@ function buildWalkableGrid(payload: VoxelPayload): {
     ) {
       treeCells[zOffset * payload.grid.cols + xOffset] = 1;
     }
-  }
+  });
   return { ground: walkable, trees: treeCells };
 }
 
-function nearestWalkable(
+export function nearestMinecraftWalkable(
   payload: VoxelPayload,
   isWalkable: (x: number, z: number) => boolean,
   targetX: number,
@@ -340,8 +358,9 @@ function skeletonParts(mobIndex: number): MobPart[] {
 export function createMinecraftMobs(
   payload: VoxelPayload,
   castShadows: boolean,
+  detailProfile: MinecraftMobDetailProfile = "full",
 ): MinecraftMobField {
-  const walkability = buildWalkableGrid(payload);
+  const walkability = buildWalkableGrid(payload, detailProfile);
   const isWalkable = (x: number, z: number): boolean => {
     if (isHolocaustMinecraftProtectedAt(x, z)) {
       return false;
@@ -373,8 +392,26 @@ export function createMinecraftMobs(
     }
     return true;
   };
-  const mobs = DESIRED_SPAWNS.flatMap((spawn, index): MobState[] => {
-    const position = nearestWalkable(payload, isWalkable, spawn.x, spawn.z);
+  const budget = MINECRAFT_MOB_BUDGETS[detailProfile];
+  const acceptedByKind: Record<MobKind, number> = {
+    creeper: 0,
+    skeleton: 0,
+    zombie: 0,
+  };
+  const requestedSpawns = DESIRED_SPAWNS.filter((spawn) => {
+    if (acceptedByKind[spawn.kind] >= budget[spawn.kind]) {
+      return false;
+    }
+    acceptedByKind[spawn.kind] += 1;
+    return true;
+  });
+  const mobs = requestedSpawns.flatMap((spawn, index): MobState[] => {
+    const position = nearestMinecraftWalkable(
+      payload,
+      isWalkable,
+      spawn.x,
+      spawn.z,
+    );
     if (!position) {
       return [];
     }
@@ -436,6 +473,9 @@ export function createMinecraftMobs(
   const skeletonCount = mobs.filter(({ kind }) => kind === "skeleton").length;
   const zombieCount = mobs.filter(({ kind }) => kind === "zombie").length;
   group.userData.creeperCount = creeperCount;
+  group.userData.detailProfile = detailProfile;
+  group.userData.maxMobCount =
+    budget.creeper + budget.skeleton + budget.zombie;
   group.userData.skeletonCount = skeletonCount;
   group.userData.zombieCount = zombieCount;
   group.add(mesh);

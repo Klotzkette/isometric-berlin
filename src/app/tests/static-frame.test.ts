@@ -22,7 +22,10 @@ const stylesSource = await Bun.file(
 
 describe("idle-frame anti-flicker contract", () => {
   test("preserves the last settled WebGL frame for Safari compositing", () => {
-    expect(viewerSource).toContain("preserveDrawingBuffer: true");
+    expect(viewerSource).toContain(
+      "preserveDrawingBuffer: preservedBackbufferRequired(",
+    );
+    expect(viewerSource).toContain("navigator.userAgent");
     expect(viewerSource).toContain("if (!renderRequired)");
     expect(viewerSource).toContain("controls.enableDamping = false");
     expect(viewerSource).not.toContain("timestamp < settleUntil");

@@ -4,6 +4,7 @@ import { InstancedMesh } from "three";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   CREEPER_COUNT,
+  MINECRAFT_MOB_BUDGETS,
   SKELETON_COUNT,
   ZOMBIE_COUNT,
   createMinecraftMobs,
@@ -53,14 +54,14 @@ describe("Minecraft roaming mobs", () => {
     expect(field.zombieCount).toBe(ZOMBIE_COUNT);
     expect(field.creeperCount).toBe(4);
     expect(field.skeletonCount).toBe(3);
-    expect(field.zombieCount).toBe(4);
+    expect(field.zombieCount).toBe(6);
     expect(field.mobs).toHaveLength(
       CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT,
     );
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
     expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBeLessThan(150);
+    expect(field.mesh.count).toBeLessThan(170);
     expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(3);
     expect(
       field.parts.filter((part) => part.color === 0xd9d8c8).length,
@@ -71,6 +72,21 @@ describe("Minecraft roaming mobs", () => {
     expect(
       field.parts.filter((part) => part.color === 0x18251b).length,
     ).toBeGreaterThanOrEqual(30);
+  });
+
+  test("uses a smaller but still zombie-richer one-draw-call mobile cast", () => {
+    const field = createMinecraftMobs(payload, false, "mobile");
+    const budget = MINECRAFT_MOB_BUDGETS.mobile;
+
+    expect(field.creeperCount).toBe(budget.creeper);
+    expect(field.skeletonCount).toBe(budget.skeleton);
+    expect(field.zombieCount).toBe(budget.zombie);
+    expect(field.zombieCount).toBeGreaterThan(4);
+    expect(field.mobs).toHaveLength(
+      budget.creeper + budget.skeleton + budget.zombie,
+    );
+    expect(field.group.children).toHaveLength(1);
+    expect(field.mesh.count).toBeLessThan(140);
   });
 
   test("spawns and keeps every walker on open park grass", () => {

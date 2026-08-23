@@ -112,7 +112,8 @@ export type MinecraftVoxelWorldOptions = {
   /**
    * `mobile` keeps the surveyed envelopes and authored landmarks while
    * dropping city-wide decorative micro-detail and redundant generic layers.
-   * Omitted means `full`, preserving the existing desktop output exactly.
+   * Omitted means `full`; both profiles deterministically thin only the
+   * block-native copy of dense neighbouring source-tree anchors.
    */
   detailProfile?: MinecraftVoxelDetailProfile;
 };
@@ -144,19 +145,56 @@ export function decodeVoxelBuildingColumns(
 
 /** Losslessly expand compact schema-2 trees, while accepting schema 1. */
 export function decodeVoxelTreeBlocks(payload: VoxelPayload): VoxelTreeBlock[] {
-  if (!payload.tree_rows) return payload.trees ?? [];
   const trees: VoxelTreeBlock[] = [];
+  forEachVoxelTreeBlock(payload, (xIndex, zIndex, y0dm, heightDm) =>
+    trees.push([xIndex, zIndex, y0dm, heightDm]),
+  );
+  return trees;
+}
+
+/** Visit compact tree rows without allocating the expanded 25k-entry array. */
+export function forEachVoxelTreeBlock(
+  payload: VoxelPayload,
+  visit: (
+    xIndex: number,
+    zIndex: number,
+    y0dm: number,
+    heightDm: number,
+  ) => void,
+): void {
+  if (!payload.tree_rows) {
+    for (const [xIndex, zIndex, y0dm, heightDm] of payload.trees ?? []) {
+      visit(xIndex, zIndex, y0dm, heightDm);
+    }
+    return;
+  }
   payload.tree_rows.forEach((row, zOffset) => {
     for (const [xOffset, y0dm, heightDm] of row) {
-      trees.push([
+      visit(
         payload.grid.min_x_idx + xOffset,
         payload.grid.min_z_idx + zOffset,
         y0dm,
         heightDm,
-      ]);
+      );
     }
   });
-  return trees;
+}
+
+export const MINECRAFT_TREE_RETENTION = Object.freeze({
+  full: Object.freeze({ keptBuckets: 2, modulo: 3 }),
+  mobile: Object.freeze({ keptBuckets: 1, modulo: 3 }),
+});
+
+/** Deterministically thin only the block-native copy of nearby trees. */
+export function minecraftVoxelTreeRetained(
+  xIndex: number,
+  zIndex: number,
+  detailProfile: MinecraftVoxelDetailProfile,
+): boolean {
+  const policy = MINECRAFT_TREE_RETENTION[detailProfile];
+  const hash =
+    (Math.imul(xIndex, 73_856_093) ^ Math.imul(zIndex, 19_349_663)) >>> 0;
+  return hash % policy.modulo < policy.keptBuckets;
 }
 
 export const VOXEL_WORLD_FILE = "minecraft-voxels.json";
@@ -2655,8 +2693,11 @@ export function createMinecraftVoxelWorld(
     }
   }
 
-  const visibleTrees = decodeVoxelTreeBlocks(payload).filter(
-    ([xIdx, zIdx]) =>
+  const visibleTrees: VoxelTreeBlock[] = [];
+  let sourceTreeCount = 0;
+  forEachVoxelTreeBlock(payload, (xIdx, zIdx, y0dm, heightDm) => {
+    sourceTreeCount += 1;
+    if (
       !isChancelleryExtensionConstructionPoint(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
@@ -2667,8 +2708,24 @@ export function createMinecraftVoxelWorld(
         cell * 1.1,
       ) &&
       (!insideTunnelApproach ||
-        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)),
-  );
+        !insideTunnelApproach(
+          worldXAbs(xIdx),
+          worldZAbs(zIdx),
+          cell * 1.1,
+        )) &&
+      minecraftVoxelTreeRetained(
+        xIdx,
+        zIdx,
+        options.detailProfile ?? "full",
+      )
+    ) {
+      visibleTrees.push([xIdx, zIdx, y0dm, heightDm]);
+    }
+  });
+  group.userData.sourceVoxelTreeCount = sourceTreeCount;
+  group.userData.visibleVoxelTreeCount = visibleTrees.length;
+  group.userData.voxelTreeRetentionProfile =
+    options.detailProfile ?? "full";
   const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
   const crowns = instancedBoxes("Voxel tree crowns", visibleTrees.length * 2);
   for (const [xIdx, zIdx, y0dm, hdm] of visibleTrees) {

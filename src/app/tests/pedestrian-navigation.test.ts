@@ -151,7 +151,7 @@ describe("pedestrian navigation", () => {
     expect(down.pitch).toBe(-PEDESTRIAN_MAX_PITCH_RAD);
   });
 
-  test("water holes remain dry while the surrounding water respawns", () => {
+  test("water holes remain dry while shorelines block without respawning", () => {
     const water = compilePedestrianWater({
       water: [
         {
@@ -184,19 +184,36 @@ describe("pedestrian navigation", () => {
       ...environment,
       water,
     };
-    const result = stepPedestrian(
-      {
-        ...createPedestrianState(environment),
-        x: 1,
-        z: 1,
-      },
+    const wetState = {
+      ...createPedestrianState(environment),
+      x: 1,
+      z: 1,
+    };
+    const stranded = stepPedestrian(
+      wetState,
       { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
       0.016,
       wetEnvironment,
     );
-    expect(result.respawned).toBe(true);
-    expect(result.state.x).toBe(PEDESTRIAN_RESPAWN.x);
-    expect(result.state.z).toBe(PEDESTRIAN_RESPAWN.z);
+    expect(stranded.respawned).toBe(false);
+    expect(stranded.state).toEqual(wetState);
+
+    const shoreline = stepPedestrian(
+      {
+        ...createPedestrianState(environment),
+        x: -0.25,
+        yaw: Math.PI / 2,
+        z: 1,
+      },
+      { forward: 1, look: 0, sprint: false, strafe: 0, turn: 0 },
+      0.5,
+      wetEnvironment,
+    );
+    expect(shoreline.respawned).toBe(false);
+    expect(shoreline.state.x).toBeLessThan(0);
+    expect(pedestrianPointIsWater(shoreline.state.x, shoreline.state.z, water)).toBe(
+      false,
+    );
   });
 
   test("held keyboard input separates walking, strafing and turning", () => {

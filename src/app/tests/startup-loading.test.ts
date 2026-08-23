@@ -41,11 +41,10 @@ describe("progressive viewer startup", () => {
   });
 
   test("bounds decoded DZI tiles and parallel image work", () => {
+    expect(appSource).toContain("mapMemoryProfile(boundedMapProfile)");
+    expect(appSource).toContain("imageLoaderLimit: memoryProfile.imageLoaderLimit");
     expect(appSource).toContain(
-      "imageLoaderLimit: boundedMapProfile ? 4 : 8",
-    );
-    expect(appSource).toContain(
-      "maxImageCacheCount: boundedMapProfile ? 48 : 96",
+      "maxImageCacheCount: memoryProfile.maxImageCacheCount",
     );
     expect(appSource).toContain("showNavigator: !boundedMapProfile");
   });

@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.72.21
+
+- **Der Viewer hält auf Telefonen und Computern weniger Bild- und
+  Grafikspeicher fest.** Beim Wechsel zur 2D-Karte wird die WebGL-Stadt nun auf
+  allen Geräten vollständig freigegeben. OpenSeadragon behält nur noch 32
+  dekodierte Kacheln bei drei parallelen Ladevorgängen auf Touch-Geräten bzw.
+  64 bei sechs auf Desktop. Feste Rendergrenzen von 1,35× / 3,2 MP auf Touch
+  und 1,75× / 8,5 MP auf Desktop sparen weitere Puffer; nur Safari/iOS behält
+  den stabilisierenden WebGL-Rückpuffer.
+- **Wasser ist im Fußgängermodus jetzt eine feste Ufergrenze statt eines
+  Todes-/Respawn-Bereichs.** Schritte können am Rand entlanggleiten, aber nicht
+  auf die Wasserfläche gelangen; ein nachträglich geladener Wasserpolygon setzt
+  die Figur nie wieder an den Ausgangspunkt zurück. Neue Browserladungen
+  wechseln reihum zwischen Reichstag, Bundeskanzleramt, Hauptbahnhof und
+  Siegessäule, während ausdrückliche Landmark-Links und der Reset-Vertrag
+  erhalten bleiben.
+- **Minecraft wird luftiger und erhält seltene, begrenzte Überraschungen.** Von
+  den block-nativen Quellbäumen bleiben deterministisch zwei Drittel auf
+  Desktop und ein Drittel auf Mobilgeräten; die 25.000 Baumdatensätze werden
+  ohne großes Zwischenarray gestreamt. Außerhalb der weiterhin vollständig
+  baum-, mob- und lootfreien Holocaust-Schutzzone laufen sechs Zombies im
+  Desktop- bzw. fünf im Mobilprofil. Vier bzw. zwei Lootboxen öffnen einmalig
+  bei Berührung mit einem 1,35 Sekunden langen, fest begrenzten Feuerwerk;
+  Kisten und Partikel benötigen zusammen nur zwei Draw Calls und keinen eigenen
+  Animationsloop.
+
 ## v0.72.20
 
 - **Alle fünf 3D-Modi verwenden nun ein deutlich kompakteres und ruhigeres

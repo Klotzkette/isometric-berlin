@@ -16,6 +16,47 @@ export const FEATURED_SIGHT_NAMES = [
   "Siegessäule",
 ] as const;
 
+export const SIMULATION_START_SIGHT_NAMES = [
+  "Reichstagsgebäude",
+  "Bundeskanzleramt",
+  "Berlin Hauptbahnhof",
+  "Siegessäule",
+] as const;
+
+export const SIMULATION_START_STORAGE_KEY =
+  "isometric-berlin.lastSimulationStart";
+
+type StartStorage = Pick<Storage, "getItem" | "setItem">;
+
+/**
+ * Advance through the four civic start points without keeping a large session
+ * object alive. The one tiny persisted name prevents consecutive reloads from
+ * opening at the same place; private-storage failures degrade harmlessly.
+ */
+export function nextSimulationStartSight(
+  storage: StartStorage | null = null,
+): (typeof SIMULATION_START_SIGHT_NAMES)[number] {
+  let previous: string | null = null;
+  try {
+    previous = storage?.getItem(SIMULATION_START_STORAGE_KEY) ?? null;
+  } catch {
+    // Storage can be unavailable in hardened/private browser contexts.
+  }
+  const previousIndex = SIMULATION_START_SIGHT_NAMES.findIndex(
+    (name) => name === previous,
+  );
+  const next =
+    SIMULATION_START_SIGHT_NAMES[
+      (previousIndex + 1) % SIMULATION_START_SIGHT_NAMES.length
+    ];
+  try {
+    storage?.setItem(SIMULATION_START_STORAGE_KEY, next);
+  } catch {
+    // The selected start remains valid for this load even without persistence.
+  }
+  return next;
+}
+
 export function featuredSights<T extends NamedSight>(sights: T[]): T[] {
   const byName = new Map(sights.map((sight) => [sight.name, sight]));
   return FEATURED_SIGHT_NAMES.flatMap((name) => {

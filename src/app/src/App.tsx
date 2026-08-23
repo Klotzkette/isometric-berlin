@@ -90,6 +90,7 @@ import {
 import { registerAudioLifecycle } from "./audioLifecycle";
 import {
   browserUsesMobileViewerProfile,
+  mapMemoryProfile,
   mobileWorldFamilyChanges,
   threeViewerWorldFamily,
   viewerRuntimeFailureDecision,
@@ -154,6 +155,7 @@ import {
   FEATURED_SIGHT_NAMES,
   featuredSights,
   findSightBySlug,
+  nextSimulationStartSight,
   parseViewHash,
   sightSlug,
 } from "./viewNavigation";
@@ -177,6 +179,28 @@ type LandmarkPayload = {
   image: { width: number; height: number };
   landmarks: Landmark[];
 };
+
+function browserStartStorage(): Pick<Storage, "getItem" | "setItem"> | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function initialSimulationStart(): string {
+  if (typeof window === "undefined") {
+    return DEFAULT_FOCUS_LANDMARK;
+  }
+  const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
+  const explicit = findSightBySlug(
+    landmarks,
+    parseViewHash(window.location.hash).landmarkSlug,
+  );
+  return explicit?.name ?? nextSimulationStartSight(browserStartStorage());
+}
+
+const INITIAL_SIMULATION_START = initialSimulationStart();
 
 type ViewerMode = "map" | "three";
 type MobileSheet = "compass" | "overflow" | null;
@@ -694,7 +718,7 @@ export function App() {
   const threeViewerGenerationRef = useRef(0);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
+  const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START);
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const copy = UI_COPY[language];
   const [status, setStatus] = useState(copy.loadingMesh);
@@ -764,12 +788,15 @@ export function App() {
   const [isLandmarkRailOpen, setIsLandmarkRailOpen] = useState(
     () => !window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches,
   );
-  const [keepThreeWarm] = useState(
+  const [persistentThreeWorld] = useState(
     () => !browserUsesMobileViewerProfile(),
   );
+  // Never retain the WebGL city behind the decoded DZI map. Desktop still
+  // keeps one persistent world while it remains inside the live 3D viewer.
+  const keepThreeWarm = false;
   const threeViewerFamily = threeViewerWorldFamily(
     lightingMode,
-    keepThreeWarm,
+    persistentThreeWorld,
   );
   const threeViewerInstanceKey = `${threeViewerFamily}-${threeViewerGeneration}`;
   activeThreeViewerKeyRef.current = threeViewerInstanceKey;
@@ -1860,7 +1887,7 @@ export function App() {
       const changesMobileWorldFamily = mobileWorldFamilyChanges(
         previous,
         next,
-        keepThreeWarm,
+        persistentThreeWorld,
       );
       if (changesMobileWorldFamily) {
         // React unmounts the previous ThreeViewer before constructing the new
@@ -1918,7 +1945,7 @@ export function App() {
     },
     [
       copy,
-      keepThreeWarm,
+      persistentThreeWorld,
       resumeStandardAudio,
       startSchwellenraumAudio,
     ],
@@ -2088,6 +2115,10 @@ export function App() {
         ) === "restart-clean"
       ) {
         threeViewerAutoRecoveryUsedRef.current = true;
+        const nextStart = nextSimulationStartSight(browserStartStorage());
+        selectedRef.current = nextStart;
+        initialFocusModeRef.current = null;
+        setSelected(nextStart);
         threeViewerGenerationRef.current += 1;
         setThreeViewerGeneration(threeViewerGenerationRef.current);
         setThreeRuntimeError(null);
@@ -2795,12 +2826,13 @@ export function App() {
       openSeadragonRef.current = openSeadragon;
       installOpenSeadragonConsoleFilter(openSeadragon);
       const boundedMapProfile = browserUsesMobileViewerProfile();
+      const memoryProfile = mapMemoryProfile(boundedMapProfile);
       const viewer = openSeadragon({
         id: "openseadragon-viewer",
         element: container,
         tileSources: tileSource,
-        imageLoaderLimit: boundedMapProfile ? 4 : 8,
-        maxImageCacheCount: boundedMapProfile ? 48 : 96,
+        imageLoaderLimit: memoryProfile.imageLoaderLimit,
+        maxImageCacheCount: memoryProfile.maxImageCacheCount,
         showNavigationControl: false,
         showNavigator: !boundedMapProfile,
         navigatorPosition: "BOTTOM_RIGHT",
@@ -3196,8 +3228,8 @@ export function App() {
                 onPedestrianRespawn={() => {
                   setStatus(
                     language === "de"
-                      ? "Wasser betreten · zurück am Pariser Platz"
-                      : "Entered water · back at Pariser Platz",
+                      ? "Wasser ist nicht begehbar · am Ufer geblieben"
+                      : "Water is not walkable · remained at the shoreline",
                   );
                 }}
                 onPedestrianSprintToggle={togglePedestrianSprint}
@@ -4913,8 +4945,8 @@ export function App() {
               {viewerMode === "three"
                 ? isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen; das Mausrad läuft vor und zurück. Leertaste, Sprungknopf oder Doppeltipp auf die freie 3D-Fläche springen. Der Geh-Joystick bewegt; Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser setzt dich am Pariser Platz wieder ab."
-                    : "Walk: drag with the mouse or one finger to move your head; the mouse wheel walks forward and back. Space, the jump button, or a double-tap on the open 3D view jumps. The walking pad moves; buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water returns you to Pariser Platz."
+                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen; das Mausrad läuft vor und zurück. Leertaste, Sprungknopf oder Doppeltipp auf die freie 3D-Fläche springen. Der Geh-Joystick bewegt; Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
+                    : "Walk: drag with the mouse or one finger to move your head; the mouse wheel walks forward and back. Space, the jump button, or a double-tap on the open 3D view jumps. The walking pad moves; buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
                     ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
                     : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."

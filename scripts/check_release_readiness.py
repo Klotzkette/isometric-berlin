@@ -164,6 +164,27 @@ def app_version(root: Path = ROOT) -> str:
   return str(package["version"])
 
 
+def built_app_version_failures(root: Path, expected_version: str) -> list[str]:
+  """Reject a hashed main bundle built before the current version bump."""
+  assets = root / "src" / "app" / "dist" / "assets"
+  bundles = sorted(assets.glob("index-*.js")) if assets.exists() else []
+  if not bundles:
+    return [f"Built viewer lacks a hashed main bundle: {assets}"]
+  expected_literals = (
+    f'version:"{expected_version}"',
+    f"version:'{expected_version}'",
+    f"version:`{expected_version}`",
+  )
+  for bundle in bundles:
+    source = bundle.read_text(encoding="utf-8", errors="replace")
+    if any(literal in source for literal in expected_literals):
+      return []
+  return [
+    "Built viewer main bundle does not embed the current app version "
+    f"{expected_version!r}: {assets}"
+  ]
+
+
 def has_forbidden_duplicate_name(path: Path) -> bool:
   return any(
     part == "__MACOSX" or part.startswith(".") or DUPLICATE_COPY_RE.match(part)
@@ -1111,10 +1132,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ]
   required_render_quality_snippets = {
     "uncapped interaction cadence": "ACTIVE_MOTION_FRAME_INTERVAL_MS = 0",
-    "stable 2x desktop quality": "STABLE_DESKTOP_PIXEL_RATIO_CAP = 2",
-    "stable 1.5x touch quality": "STABLE_TOUCH_PIXEL_RATIO_CAP = 1.5",
-    "fixed desktop GPU budget": "STABLE_DESKTOP_PIXEL_BUDGET = 10_000_000",
-    "fixed touch GPU budget": "STABLE_TOUCH_PIXEL_BUDGET = 4_400_000",
+    "stable 1.75x desktop quality": "STABLE_DESKTOP_PIXEL_RATIO_CAP = 1.75",
+    "stable 1.35x touch quality": "STABLE_TOUCH_PIXEL_RATIO_CAP = 1.35",
+    "fixed desktop GPU budget": "STABLE_DESKTOP_PIXEL_BUDGET = 8_500_000",
+    "fixed touch GPU budget": "STABLE_TOUCH_PIXEL_BUDGET = 3_200_000",
     "integer-stable WebGL viewport": "export function stableViewportSize(",
   }
   failures.extend(
@@ -1185,8 +1206,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     )
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
-  if "isThreeReady && keepThreeWarm" not in app:
-    failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
+  if "const keepThreeWarm = false" not in app:
+    failures.append(f"2D-map transitions do not release inactive 3D memory: {app_path}")
   if "toggleLightingMode" not in app or "lightingMode={lightingMode}" not in app:
     failures.append(f"Viewer lacks persistent day/night controls: {app_path}")
   if "openRepository" not in app or "REPOSITORY_URL" not in app:
@@ -2310,6 +2331,7 @@ def collect_failures(
   for source, actual in version_sources.items():
     if actual != version:
       failures.append(f"{source} has version {actual!r}, expected {version!r}")
+  failures.extend(built_app_version_failures(root, version))
 
   readme = (root / "README.md").read_text(encoding="utf-8")
   if f"Local v{version}" not in readme:

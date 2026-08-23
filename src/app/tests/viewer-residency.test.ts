@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   mobileLikeInputProfile,
+  mapMemoryProfile,
   mobileWorldFamilyChanges,
   threeViewerWorldFamily,
   viewerRuntimeFailureDecision,
@@ -33,6 +34,19 @@ describe("mobile ThreeViewer residency", () => {
     expect(threeViewerSource).toContain(
       "const coarsePointer = browserUsesMobileViewerProfile()",
     );
+  });
+
+  test("bounds decoded map tiles and concurrent loaders on every device", () => {
+    expect(mapMemoryProfile(true)).toEqual({
+      imageLoaderLimit: 3,
+      maxImageCacheCount: 32,
+    });
+    expect(mapMemoryProfile(false)).toEqual({
+      imageLoaderLimit: 6,
+      maxImageCacheCount: 64,
+    });
+    expect(appSource).toContain("const keepThreeWarm = false");
+    expect(appSource).toContain("mapMemoryProfile(boundedMapProfile)");
   });
 
   test("keeps all drawn modes in one mobile family and Minecraft separate", () => {

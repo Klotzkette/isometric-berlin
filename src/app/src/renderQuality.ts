@@ -88,10 +88,19 @@ export function renderFrameRequired({
   );
 }
 
-export const STABLE_DESKTOP_PIXEL_RATIO_CAP = 2;
-export const STABLE_TOUCH_PIXEL_RATIO_CAP = 1.5;
-export const STABLE_DESKTOP_PIXEL_BUDGET = 10_000_000;
-export const STABLE_TOUCH_PIXEL_BUDGET = 4_400_000;
+/** Safari/iOS need the settled frame retained; other browsers can free it. */
+export function preservedBackbufferRequired(userAgent: string): boolean {
+  const ios = /(?:iPad|iPhone|iPod)/i.test(userAgent);
+  const desktopSafari =
+    /Safari/i.test(userAgent) &&
+    !/(?:Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS)/i.test(userAgent);
+  return ios || desktopSafari;
+}
+
+export const STABLE_DESKTOP_PIXEL_RATIO_CAP = 1.75;
+export const STABLE_TOUCH_PIXEL_RATIO_CAP = 1.35;
+export const STABLE_DESKTOP_PIXEL_BUDGET = 8_500_000;
+export const STABLE_TOUCH_PIXEL_BUDGET = 3_200_000;
 /**
  * Camera motion follows requestAnimationFrame on every device.
  *

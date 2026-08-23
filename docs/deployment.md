@@ -73,8 +73,10 @@ not start another renderer, retain a second world or select the DZI map
 automatically. Separately, a mobile-like touch session—primary or any coarse
 pointer, or `navigator.maxTouchPoints > 0`—keeps only one heavy world family
 resident across family changes. Non-touch desktop's complete warm-scene
-behavior is unchanged. These are source, production-profile and automated-browser
-release contracts, not a claim of physical iOS-device validation.
+behavior remains available only while switching among live 3D modes; moving
+to the DZI map releases WebGL on every device. These are source,
+production-profile and automated-browser release contracts, not a claim of
+physical iOS-device validation.
 
 If a future deployment separates heavy assets, the DZI pyramid and mesh can be
 placed on an object store such as Cloudflare R2. Attribution and relative-path

@@ -387,6 +387,23 @@ def test_current_tree_is_release_ready() -> None:
   assert release_readiness.collect_failures(ROOT) == []
 
 
+def test_built_app_version_guard_rejects_a_stale_hashed_bundle(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_built_app_version",
+    "scripts/check_release_readiness.py",
+  )
+  assets = tmp_path / "src" / "app" / "dist" / "assets"
+  assets.mkdir(parents=True)
+  bundle = assets / "index-example.js"
+  bundle.write_text("const packageMetadata={version:`1.2.2`};", encoding="utf-8")
+
+  assert release_readiness.built_app_version_failures(tmp_path, "1.2.3")
+  bundle.write_text("const packageMetadata={version:`1.2.3`};", encoding="utf-8")
+  assert release_readiness.built_app_version_failures(tmp_path, "1.2.3") == []
+
+
 def test_package_source_hygiene_ignores_only_generated_finder_metadata(
   tmp_path: Path,
 ) -> None:

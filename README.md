@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.20 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.20/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.21/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.20** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.21** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.20**, built from `main`. Its full viewer
+The current public package is **v0.72.21**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -62,7 +62,16 @@ local modules.
   camera input remains display-rate. Completed and failed world constructors
   release decoded JSON graphs, hidden smooth worlds receive no Minecraft toon
   clones, and the legacy photo shell is failure-only. OpenSeadragon also caps
-  parallel image work and retained decoded tiles.
+  parallel image work at **3 / 6** loaders and retained decoded tiles at
+  **32 / 64** on touch / desktop. Moving to the 2D map releases WebGL on every
+  device; render targets stay within **1.35× / 3.2 MP** on touch and **1.75× /
+  8.5 MP** on desktop, and only Safari/iOS retains the settled backbuffer.
+
+- **Walking water is now a shoreline instead of a death/reset volume.** The
+  pedestrian slides along mapped water but cannot cross it and is never sent
+  back to the original spawn. Fresh browser loads rotate between Reichstag,
+  Bundeskanzleramt, Hauptbahnhof and Siegessäule; explicit landmark links and
+  the deterministic Reichstag Reset remain intact.
 
 - **The Sozialgericht Berlin now follows the supplied facade photographs down
   to its architectural hierarchy.** OSM's 58.038 m street-side site boundary
@@ -91,15 +100,15 @@ local modules.
   a dedicated elevated southern focus keeps the niches and cupola clear of the
   surrounding canopy.
 
-- **Minecraft keeps the Holocaust Memorial absolutely free of trees and
-  hostile mobs.** One shared, rotated protection envelope with conservative
-  edge clearance filters voxel trees and rejects mob spawn, walking and
-  movement throughout the stele field. Elsewhere the sparse one-draw-call cast
-  rises only from eight to eleven—four Creepers, four Zombies and three
-  bow-carrying Skeletons—with the three additional allowed routes distributed
-  across Tiergarten grass. The filter removes **116** source trees from the
-  protection field; all eleven figures remain **136 instanced parts in one
-  draw call**.
+- **Minecraft is lighter but a little livelier outside the Holocaust
+  Memorial.** The protected field remains completely free of trees, Creepers,
+  Zombies, Skeletons and loot. Elsewhere deterministic thinning keeps **2/3**
+  of block trees on desktop and **1/3** on mobile without allocating the old
+  25,000-tree expansion. The single-draw mob field uses **4 Creepers / 6
+  Zombies / 3 Skeletons** on desktop (**158 parts**) and **3 / 5 / 2** on
+  mobile (**120 parts**). Four or two rare loot boxes open once on pedestrian
+  contact with a bounded 1.35-second instanced firework; chest and particles
+  stay at two draw calls and use no independent animation loop.
 
 - **City West now has a source-anchored architectural identity.** A batched,
   mobile-aware layer distinguishes Europa-Center, Allianz-Haus, the historic
@@ -286,9 +295,10 @@ local modules.
   reproduced.
 
 - **Minecraft adds only a sparse complement of hostile staffage.** Four
-  Creepers, three bow-carrying Skeletons and four Zombies share one instanced
-  draw call, follow deterministic tree-cleared, memorial-protected grass routes
-  and disappear outside Minecraft, water and underside presentations.
+  Creepers, three bow-carrying Skeletons and six Zombies share one instanced
+  desktop draw call; mobile uses three, two and five. They follow deterministic
+  tree-cleared, memorial-protected grass routes and disappear outside
+  Minecraft, water and underside presentations.
 
 - **Traffic-signal poles now stand at the roadside instead of in the modelled
   carriageway.** Schema 7 retains all **1,328** source OSM signal nodes and the
@@ -357,11 +367,13 @@ local modules.
   physical-device or iOS claims.
 
 - **Minecraft and WebGL stay inside substantially smaller memory budgets.**
-  The mobile-like touch world benchmark is **845,561 instances / 63.265
-  MiB of instance buffers**, compared with the unchanged full profile's
-  **3,419,412 / 249.815 MiB**. Only the touch profile omits generic facade panes
-  and meadow flowers and collapses non-Hero source columns; all Hero courses up
-  to 8 m, block signatures and navigation stay intact. Every WebGL profile
+  The earlier pre-retention benchmark measured **845,561 instances / 63.265
+  MiB of instance buffers** on touch and **3,419,412 / 249.815 MiB** in full.
+  Current streamed 1/3 and 2/3 tree retention makes those figures conservative
+  upper bounds; small mob and loot batches are separately fixed. Only the touch
+  profile omits generic facade panes and meadow flowers and collapses non-Hero
+  source columns; all Hero courses up to 8 m, block signatures and navigation
+  stay intact. Every WebGL profile
   disables renderer MSAA and uses a 0x `UnsignedByte` composer with one final
   SMAA pass. Inactive world builds are canceled, failed
   voxel attachment rolls back, and the smooth park stays hidden without toon clones in voxel
@@ -528,8 +540,9 @@ local modules.
   footprints, including real courtyard holes, stop the walker at building
   facades. Official and OSM tree trunks, shrubs, lamp posts, wall traces and
   fixed playground equipment share the same collision index. Thin objects
-  remain solid even at 4x sprint speed, while wall sliding, tunnels, water
-  respawn and the current-location start continue to work.
+  remain solid even at 4x sprint speed, while wall sliding, tunnels, solid
+  shorelines and the rotating civic start continue to work. Entering mapped
+  water is rejected in place and never resets the walker.
 
 - **The Berlin Pavillon now reads as the real glazed visitor and souvenir
   venue at the Reichstag forecourt.** Its landmark anchor is corrected to the
@@ -581,9 +594,10 @@ local modules.
 
 - **Minecraft is more deliberately built from blocks.** Its palette gains
   stable clinker, terracotta and timber families, tall buildings receive
-  coherent plinth/body/cap layers, and the current eleven roaming Creepers,
-  Zombies and bow-carrying Skeletons have clear faces and clothing without
-  adding draw calls or flickering random roof patterns.
+  coherent plinth/body/cap layers, and the bounded full/mobile mob fields of
+  thirteen/ten roaming Creepers, Zombies and bow-carrying Skeletons have clear
+  faces and clothing without adding draw calls or flickering random roof
+  patterns.
 
 - **The civic skyline is now genuinely block-native in Minecraft.** Reichstag,
   Bundeskanzleramt, Hauptbahnhof, Brandenburger Tor, Paul-Löbe-Haus and
@@ -905,8 +919,9 @@ local modules.
   on the 3D view does the same. `Space`, the jump control or a touch double-tap
   on the free 3D view jumps; drags, pinches and long presses cannot trigger it.
   Flight, camera zoom and underside controls
-  stay locked in this mode; entering mapped water returns the walker to Pariser
-  Platz. A dedicated 52 px jump control keeps the complete workflow usable on
+  stay locked in this mode; mapped water acts as a solid shoreline, so the
+  walker stays in place instead of dying or being reset. A dedicated 52 px
+  jump control keeps the complete workflow usable on
   phones and tablets. All five historic passages through the Brandenburg Gate
   are walkable from either side in Day, Night, Minecraft, Snowstorm and
   Schwellenraum, while its twelve columns, upper masonry and side pavilions
@@ -1020,11 +1035,11 @@ local modules.
   dedicated underside control frames this network together with the
   Tiergartentunnel instead of forcing an extreme portal close-up.
 
-- **Fresh sessions and Reset now open at Brandenburger Tor, not the
-  Chancellery.** The React/Three.js viewer and the double-click offline fallback
-  share that same bilingual default. Exterior Minecraft and snow haze is
-  disabled below ground, and Minecraft's faded context shell keeps its quiet
-  source material instead of turning into bright toon fragments.
+- **Fresh browser sessions rotate their civic starting view.** Reichstag,
+  Bundeskanzleramt, Hauptbahnhof and Siegessäule alternate without a large
+  retained session object; Reset still returns to its deterministic Reichstag
+  view and explicit shared links still win. Exterior Minecraft and snow haze
+  is disabled below ground, and Minecraft's faded context shell stays quiet.
 
 - **Transit and scale cues stay sparse and stable.** Tram contact wires follow
   all 49 mapped surface-tram parts while their height/mast rhythm is documented
@@ -1419,11 +1434,14 @@ local modules.
   distance instead of fading the outer ring. Its official metric voxel payload
   grows with the expanded bounds; the matching 6,450 m block surround is
   explicitly tagged as extrapolated presentation geometry.
-- Four Creepers, four Zombies and three bow-carrying Skeletons walk
-  deterministic, tree-cleared and memorial-protected park routes only in
-  Minecraft mode. They share one instanced rendering batch and disappear
-  completely in Day, Night, Snowstorm, Schwellenraum, underwater and underside
-  views.
+- Four Creepers, six Zombies and three bow-carrying Skeletons walk on desktop;
+  mobile uses three, five and two. Each profile shares one instanced rendering
+  batch and disappears completely in Day, Night, Snowstorm, Schwellenraum,
+  underwater and underside views.
+- Eligible Minecraft trees are retained deterministically at two thirds on
+  desktop and one third on mobile. Four desktop or two mobile loot boxes open
+  once on pedestrian contact with a bounded instanced firework; trees, hostile
+  mobs and loot remain excluded from the complete Holocaust Memorial field.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
@@ -1560,17 +1578,19 @@ local modules.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are
   explicitly released from GPU memory. A failed detail file is retried once
-  and no longer disables an otherwise usable base scene. Touch devices release
-  inactive 3D when switching to the 2D map, cancel a stale hero queue after a
-  new selection and cap moving rendering at 30 fps; desktop retains the warm
-  mode switch and 60 fps interaction.
+  and no longer disables an otherwise usable base scene. Every device releases
+  inactive 3D when switching to the 2D map; touch devices additionally cancel
+  a stale hero queue after a new selection and cap environmental updates at
+  20 Hz, while desktop retains warm visual-mode switches and 30 Hz environment
+  updates inside display-rate camera interaction.
 - Disposing the viewer now cancels the remaining 100-item-capable worker queue
   before it can start another GLB. Pointer capture loss and window blur also
   reset three-finger state; global pointer release, hidden-tab recovery and a
   ten-second watchdog prevent a permanently disabled orbit control. Invalid or
   out-of-bounds camera poses recover to the last finite, bounded view.
-- 3D uses one ratio per viewport: up to 2x desktop device pixels under a fixed
-  10.0-megapixel budget, or 1.5x touch device pixels under 4.4 megapixels. It
+- 3D uses one ratio per viewport: up to 1.75x desktop device pixels under a
+  fixed 8.5-megapixel budget, or 1.35x touch device pixels under 3.2
+  megapixels. It
   never changes that ratio because a gesture starts or ends. Damping remains at
   the active frame rate until it has actually stopped; a static scene then
   holds its final framebuffer until a real mutation invalidates it.

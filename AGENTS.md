@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.20)
+## 3. Hard scope rules (v0.72.21)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -78,8 +78,11 @@ Must be inside the polygon and visible in the final map:
 - The Holocaust Memorial remains completely free of trees, Creepers, Zombies
   and Skeletons in Minecraft. Voxel-tree filtering and all hostile-mob spawn,
   walkability and movement must use the same rotated protected field plus
-  conservative edge clearance. The sparse allowed complement remains four
-  Creepers, four Zombies and three Skeletons in one instanced draw call.
+  conservative edge clearance. The sparse allowed complement is four
+  Creepers, six Zombies and three Skeletons on desktop, or three Creepers,
+  five Zombies and two Skeletons in the mobile profile; each profile remains
+  one instanced draw call. Loot boxes use the same protected walkability and
+  may never appear inside the memorial field.
 - The Goethe-Denkmal at exact OSM node `278738513` and the Lessing-Denkmal at
   exact OSM node `884700390`, each as a source-bound close-detail model in the
   four drawn modes plus a separate block-native Minecraft reading; reversible
@@ -384,7 +387,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.20)
+## 8. What success looks like (Definition of Done v0.72.21)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

@@ -31,6 +31,18 @@ export function browserUsesMobileViewerProfile(): boolean {
   );
 }
 
+export type MapMemoryProfile = {
+  imageLoaderLimit: number;
+  maxImageCacheCount: number;
+};
+
+/** Keep decoded DZI tiles bounded on phones and desktop browsers alike. */
+export function mapMemoryProfile(mobileLike: boolean): MapMemoryProfile {
+  return mobileLike
+    ? { imageLoaderLimit: 3, maxImageCacheCount: 32 }
+    : { imageLoaderLimit: 6, maxImageCacheCount: 64 };
+}
+
 /** Desktop keeps one warm renderer; phones keep exactly one heavy world. */
 export function threeViewerWorldFamily(
   mode: VisualMode,

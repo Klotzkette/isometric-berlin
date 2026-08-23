@@ -299,6 +299,12 @@ import {
   updateMinecraftMobs,
 } from "./MinecraftMobs";
 import {
+  type MinecraftLootBoxField,
+  createMinecraftLootBoxes,
+  setMinecraftLootBoxesVisible,
+  updateMinecraftLootBoxes,
+} from "./MinecraftLootBoxes";
+import {
   RAIL_LINES_FILE,
   type RailPayload,
   createRailNetwork,
@@ -323,6 +329,7 @@ import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
   environmentFrameIntervalMs,
+  preservedBackbufferRequired,
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
@@ -526,6 +533,7 @@ type Runtime = {
   marker: Group;
   markerTimer: number | null;
   minecraftMaterialState: MinecraftMaterialState;
+  minecraftLootBoxes: MinecraftLootBoxField | null;
   minecraftMobs: MinecraftMobField | null;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
@@ -1052,6 +1060,10 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.minecraftMobs,
     runtime.lightingMode === "minecraft" && !obstructed,
   );
+  const lootBoxesChanged = setMinecraftLootBoxesVisible(
+    runtime.minecraftLootBoxes,
+    runtime.lightingMode === "minecraft" && !obstructed,
+  );
   const snowChanged = setSnowstormPresentation(runtime.snowstorm, {
     enabled: runtime.precipitationEnabled,
     mode: runtime.lightingMode,
@@ -1092,6 +1104,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
   if (
     rainChanged ||
     mobsChanged ||
+    lootBoxesChanged ||
     snowChanged ||
     schwellenraumChanged ||
     waterAtmosphere.changed ||
@@ -3143,6 +3156,7 @@ function ensureVoxelWorld(
     }
   };
   let provisionalVoxelWorld: Group | null = null;
+  let provisionalLootBoxes: MinecraftLootBoxField | null = null;
   let provisionalMinecraftMobs: MinecraftMobField | null = null;
   let provisionalEnvironment: PedestrianEnvironment | null = null;
   let pedestrianSnapshot: PedestrianAttachmentSnapshot | null = null;
@@ -3175,6 +3189,15 @@ function ensureVoxelWorld(
       provisionalMinecraftMobs = createMinecraftMobs(
         payload,
         !runtime.coarsePointer,
+        runtime.coarsePointer ? "mobile" : "full",
+      );
+      provisionalLootBoxes = createMinecraftLootBoxes(
+        payload,
+        provisionalMinecraftMobs,
+        {
+          castShadows: !runtime.coarsePointer,
+          detailProfile: runtime.coarsePointer ? "mobile" : "full",
+        },
       );
       // Minecraft can be the cold-start mode, in which case the drawn-world
       // builder has not yet created the shared navigation environment. Load
@@ -3210,8 +3233,10 @@ function ensureVoxelWorld(
       // below that can still throw is guarded by the chain's rollback, so a
       // partial group can never masquerade as a ready voxel world.
       runtime.voxelWorld = provisionalVoxelWorld;
+      runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
+      runtime.scene.add(provisionalLootBoxes.group);
       runtime.scene.add(provisionalMinecraftMobs.group);
       registerBerlinerEnsembleRoofSignTargets(runtime, provisionalVoxelWorld);
       loadedParts += 1;
@@ -3241,7 +3266,7 @@ function ensureVoxelWorld(
               }
             })
             // Building, portal and terrain collision are already live; only
-            // water respawn waits for a later drawn-world retry after failure.
+            // the solid shoreline waits for a later drawn-world retry.
             .catch(() => undefined)
             .finally(() => {
               releaseCompiledSurfacePayload(runtime, surfacePayloadPromise);
@@ -3258,6 +3283,7 @@ function ensureVoxelWorld(
       // successful loader calls the same idempotent hook later, so cold voxel
       // starts must not download/build a large group merely to hide it.
       provisionalVoxelWorld = null;
+      provisionalLootBoxes = null;
       provisionalMinecraftMobs = null;
       provisionalEnvironment = null;
       pedestrianSnapshot = null;
@@ -3273,6 +3299,13 @@ function ensureVoxelWorld(
     .catch((error: unknown) => {
       const rollbackUnderside =
         pedestrianSnapshot?.underside ?? runtime.underside;
+      if (provisionalLootBoxes) {
+        if (runtime.minecraftLootBoxes === provisionalLootBoxes) {
+          runtime.minecraftLootBoxes = null;
+        }
+        disposeObject3D(runtime, provisionalLootBoxes.group);
+        provisionalLootBoxes = null;
+      }
       if (provisionalMinecraftMobs) {
         if (runtime.minecraftMobs === provisionalMinecraftMobs) {
           runtime.minecraftMobs = null;
@@ -4805,10 +4838,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           antialias: webglMemoryProfile.antialias,
           powerPreference: "high-performance",
           // The viewer intentionally stops drawing once a still scene is
-          // settled. Safari/iOS may discard an unpreserved WebGL backbuffer
-          // between compositor passes, producing a blank/old-frame flash even
-          // though no scene state changed. Preserve the last complete frame.
-          preserveDrawingBuffer: true,
+          // settled. Safari/iOS may discard an unpreserved WebGL backbuffer;
+          // preserve it there, while other browsers can release that buffer.
+          preserveDrawingBuffer: preservedBackbufferRequired(
+            navigator.userAgent,
+          ),
         });
       } catch (error: unknown) {
         loadController.abort();
@@ -4986,6 +5020,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         marker,
         markerTimer: null,
         minecraftMaterialState: createMinecraftMaterialState(),
+        minecraftLootBoxes: null,
         minecraftMobs: null,
         modelMaterials: new Set(),
         monuments,
@@ -6000,7 +6035,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.lightingMode !== "schwellenraum" &&
           (runtime.rain.group.visible ||
             snowfallAnimationActive(runtime.snowstorm) ||
-            runtime.minecraftMobs?.group.visible === true);
+            runtime.minecraftMobs?.group.visible === true ||
+            runtime.minecraftLootBoxes?.group.visible === true);
         const pedestrianInput = pedestrianInputRef.current;
         const continuousInputActive =
           runtime.renderInvalidated ||
@@ -6113,7 +6149,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           flagFrameIntervalMs,
           lastFlagFrameAt: runtime.schwellenraumLastFlagFrameAt,
           lastWaterFrameAt: runtime.schwellenraumLastWaterFrameAt,
-          minecraftMobsVisible: runtime.minecraftMobs?.group.visible === true,
+          minecraftMobsVisible:
+            runtime.minecraftMobs?.group.visible === true ||
+            runtime.minecraftLootBoxes?.group.visible === true,
           mode: runtime.lightingMode,
           movingFlagCount,
           rainVisible: runtime.rain.group.visible,
@@ -6267,6 +6305,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             updateMinecraftMobs(
               runtime.minecraftMobs,
               reducedMotion ? ordinaryDtSeconds * 0.35 : ordinaryDtSeconds,
+            );
+          }
+          if (runtime.minecraftLootBoxes?.group.visible) {
+            updateMinecraftLootBoxes(
+              runtime.minecraftLootBoxes,
+              runtime.pedestrian.enabled ? camera.position : null,
+              ordinaryDtSeconds,
             );
           }
           lastOrdinaryEnvironmentFrameAt = timestamp;

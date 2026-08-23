@@ -32,6 +32,7 @@ import {
   decodeVoxelBuildingColumns,
   decodeVoxelTreeBlocks,
   minecraftBuildingLayerTones,
+  minecraftVoxelTreeRetained,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
@@ -643,7 +644,7 @@ describe("true voxel Minecraft world", () => {
     expect(recognitionWindows).toBe(0);
   });
 
-  test("builds one instanced box set per layer with full counts", () => {
+  test("builds one instanced box set per layer with bounded tree counts", () => {
     const groundRuns = payload.ground_rows.reduce(
       (sum, row) => sum + row.length,
       0,
@@ -666,14 +667,34 @@ describe("true voxel Minecraft world", () => {
           (xIdx + 0.5) * payload.cell_m,
           (zIdx + 0.5) * payload.cell_m,
           payload.cell_m * 1.1,
-        ),
+        ) && minecraftVoxelTreeRetained(xIdx, zIdx, "full"),
     ).length;
     expect(instanced("Voxel tree trunks", world).count).toBe(visibleTreeCount);
+    expect(world.userData.sourceVoxelTreeCount).toBe(treeBlocks.length);
+    expect(world.userData.visibleVoxelTreeCount).toBe(visibleTreeCount);
     expect(treeBlocks.length - visibleTreeCount).toBeGreaterThan(100);
     // Crowns: one per tree plus a stacked spruce top on some species.
     const crowns = instanced("Voxel tree crowns", world).count;
     expect(crowns).toBeGreaterThanOrEqual(visibleTreeCount);
     expect(crowns).toBeLessThanOrEqual(visibleTreeCount * 2);
+    const mobileTreeCount = treeBlocks.filter(
+      ([xIdx, zIdx]) =>
+        !isChancelleryExtensionConstructionPoint(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+        ) &&
+        !isHolocaustMinecraftProtectedAt(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+          payload.cell_m * 1.1,
+        ) &&
+        minecraftVoxelTreeRetained(xIdx, zIdx, "mobile"),
+    ).length;
+    expect(instanced("Voxel tree trunks", mobileWorld).count).toBe(
+      mobileTreeCount,
+    );
+    expect(mobileWorld.userData.voxelTreeRetentionProfile).toBe("mobile");
+    expect(mobileTreeCount).toBeLessThan(visibleTreeCount * 0.6);
     // Blocky by construction: thousands of surveyed building columns.
     expect(buildingColumns.length).toBeGreaterThan(10_000);
   });

@@ -2,8 +2,11 @@ import { describe, expect, test } from "bun:test";
 
 import {
   FEATURED_SIGHT_NAMES,
+  SIMULATION_START_SIGHT_NAMES,
+  SIMULATION_START_STORAGE_KEY,
   featuredSights,
   findSightBySlug,
+  nextSimulationStartSight,
   parseViewHash,
   sightSlug,
 } from "../src/viewNavigation";
@@ -58,5 +61,22 @@ describe("view navigation", () => {
       landmarkSlug: "bundeskanzleramt",
       rotationValue: null,
     });
+  });
+
+  test("uses a different civic start on every reload and wraps safely", () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    };
+
+    expect(nextSimulationStartSight(storage)).toBe("Reichstagsgebäude");
+    expect(nextSimulationStartSight(storage)).toBe("Bundeskanzleramt");
+    expect(nextSimulationStartSight(storage)).toBe("Berlin Hauptbahnhof");
+    expect(nextSimulationStartSight(storage)).toBe("Siegessäule");
+    expect(nextSimulationStartSight(storage)).toBe("Reichstagsgebäude");
+    expect(values.get(SIMULATION_START_STORAGE_KEY)).toBe(
+      SIMULATION_START_SIGHT_NAMES[0],
+    );
   });
 });

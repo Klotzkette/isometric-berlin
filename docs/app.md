@@ -77,9 +77,10 @@ the 3D view does the same. The normal
 through the same terrain, tunnel and water checks. `Space`, the touch-safe jump
 button and a double-tap on the free 3D view produce a single ground-only jump
 with a 6.2 m apex; the relaxed mobile double-tap still rejects drags, pinches
-and long presses, and there is no double jump. Entering a mapped OSM water
-polygon after landing respawns at Pariser Platz. Islands encoded as water
-holes remain walkable. The mode does not move source geometry. The five
+and long presses, and there is no double jump. A mapped OSM water polygon is a
+solid shoreline: movement slides along it and never teleports or resets the
+pedestrian. Islands encoded as water holes remain walkable. The mode does not
+move source geometry. The five
 historic Brandenburg Gate passages are explicit, source-scoped voids in Day,
 Night, Minecraft, Snowstorm and Schwellenraum; all twelve columns, the lintel
 and both side pavilions remain solid. Schwellenraum adds only its further
@@ -185,10 +186,11 @@ instanced batches add exactly 27 lower-edge icicles, three per physical flag;
 the icicles follow the same deformation and disappear completely outside
 Snowstorm.
 
-A fresh session and the Reset command both focus the Reichstag from an elevated
-camera over the Platz der Republik lawn in Day mode. Explicit landmark deep
-links still override that default. The zero-server fallback uses the same
-start landmark.
+A fresh browser load advances between Reichstag, Bundeskanzleramt,
+Hauptbahnhof and Siegessäule. The Reset command still focuses the Reichstag
+from an elevated camera over the Platz der Republik lawn in Day mode. Explicit
+landmark deep links override the rotating startup choice. The zero-server
+fallback keeps its static default.
 
 **Day is a drawn isometric city**: the lumpy photogrammetry buildings are
 replaced by prisms extruded from authoritative LoD2 footprint polygons plus a
@@ -339,11 +341,15 @@ hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
 courts and neighbours; the new batches therefore include their own rear walls,
 floors, facade shells, roofs, glazing and open block railings. Four Creepers,
-three bow-carrying Skeletons and four Zombies roam deterministic, tree-cleared
-grass routes while Minecraft is active. A shared rotated protection envelope
+three bow-carrying Skeletons and six Zombies roam deterministic, tree-cleared
+grass routes on desktop while Minecraft is active; the mobile profile uses
+three, two and five respectively. A shared rotated protection envelope
 rejects voxel trees and every mob spawn or movement cell throughout the
-Holocaust Memorial, including a conservative edge clearance. All eleven
-figures share one instanced draw call, and the group is removed from Day, Night, Snowstorm,
+Holocaust Memorial, including a conservative edge clearance. The same
+walkability keeps four desktop or two mobile loot boxes out of the protected
+field. Each box opens once on pedestrian contact with a fixed 1.35-second,
+instanced firework and no private animation loop. Each mob profile remains one
+instanced draw call, and both groups are removed from Day, Night, Snowstorm,
 Schwellenraum, water and underside presentations. A persistent DE/EN control
 translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
@@ -384,12 +390,16 @@ subdivision is labelled procedural recognition geometry.
 The complete monument is exactly 10.00 m high and stays at 30 renderables /
 2,847 stored / 7,137 rendered vertices. Its dedicated elevated southern focus
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
-Minecraft protection removes 116 source tree instances from the field; all
-eleven mobs use 136 parts in their single draw call.
+shared protection excludes every tree, mob and loot spawn from the field.
+Outside it, deterministic retention keeps two thirds of eligible voxel trees
+in full and one third on mobile; the single mob draw call uses 158 parts for
+the 4/6/3 full field or 120 parts for the 3/5/2 mobile field.
 
-In mobile-like touch sessions, the bounded Minecraft profile produces
-**845,561 instances / 63.265 MiB of instance buffers** in the committed
-benchmark, versus the unchanged full profile's **3,419,412 / 249.815 MiB**.
+The earlier pre-retention Minecraft benchmark measured **845,561 instances /
+63.265 MiB of instance buffers** on mobile and **3,419,412 / 249.815 MiB** in
+full. The current streamed 1/3 and 2/3 tree retention makes those figures
+conservative upper bounds; the small mob and loot batches remain separately
+fixed.
 Only that touch profile omits generic facade panes and meadow flowers and
 collapses non-Hero source columns to one body block; all Hero courses no taller
 than 8 m, block-native signatures and navigation contracts remain. Every WebGL
@@ -414,7 +424,8 @@ source anchor.
 Mobile-like touch sessions use family-keyed single-world residency: drawn modes
 share one family and Minecraft uses another, so a family transition unmounts
 the previous scene, parsed payload ownership and WebGL context before mounting
-the next. Non-touch desktop retains its warm complete scene. Runtime recovery is
+the next. Non-touch desktop retains its warm complete scene while it remains
+inside live 3D; switching to the DZI map releases WebGL on every device. Runtime recovery is
 not touch-gated: every profile gets exactly one clean automatic WebGL remount;
 a repeated failure exposes the Recovery and 2D-map actions instead of creating
 another hidden renderer.
@@ -1060,8 +1071,9 @@ A WebGL runtime failure in any profile releases the canvas and active world,
 then performs exactly one clean automatic remount for that world family. A
 repeated failure exposes the Recovery and 2D-map actions instead of allocating
 another hidden renderer or selecting 2D implicitly. In mobile-like touch
-sessions, both a drawn/Minecraft family transition and an explicit move to the 2D map unmount the
-inactive WebGL world; non-touch desktop keeps its complete scene warm. Static
+sessions, a drawn/Minecraft family transition unmounts the inactive WebGL
+world. Moving to the 2D map unmounts WebGL on every device; non-touch desktop
+keeps its complete scene warm only across visual modes inside the live viewer. Static
 scenes hold the final framebuffer without a periodic redraw. Existing GLB normals are
 reused, repeated tunnel fixtures are instanced, and a stale mobile hero queue is
 stopped and disposed after a new landmark selection. Disposal also stops

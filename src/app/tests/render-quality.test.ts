@@ -9,6 +9,7 @@ import {
   STABLE_TOUCH_PIXEL_RATIO_CAP,
   TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS,
   environmentFrameIntervalMs,
+  preservedBackbufferRequired,
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
@@ -72,6 +73,29 @@ describe("stable 3D render quality", () => {
     ).toBe(false);
   });
 
+  test("retains the settled backbuffer only where WebKit needs it", () => {
+    expect(
+      preservedBackbufferRequired(
+        "Mozilla/5.0 (Macintosh) AppleWebKit/605.1.15 Version/18 Safari/605.1.15",
+      ),
+    ).toBe(true);
+    expect(
+      preservedBackbufferRequired(
+        "Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 CriOS/140 Mobile/15E148 Safari/604.1",
+      ),
+    ).toBe(true);
+    expect(
+      preservedBackbufferRequired(
+        "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36",
+      ),
+    ).toBe(false);
+    expect(
+      preservedBackbufferRequired(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gecko/20100101 Firefox/142.0",
+      ),
+    ).toBe(false);
+  });
+
   test("renders each genuine visual mutation source", () => {
     const idle = {
       cameraMoving: false,
@@ -96,8 +120,8 @@ describe("stable 3D render quality", () => {
     const ratios = Array.from({ length: 120 }, () =>
       renderPixelRatio(settings),
     );
-    expect(new Set(ratios)).toEqual(new Set([2]));
-    expect(STABLE_DESKTOP_PIXEL_RATIO_CAP).toBe(2);
+    expect(new Set(ratios)).toEqual(new Set([1.75]));
+    expect(STABLE_DESKTOP_PIXEL_RATIO_CAP).toBe(1.75);
   });
 
   test("raises touch movement detail without a post-gesture resize", () => {
@@ -108,7 +132,7 @@ describe("stable 3D render quality", () => {
       width: 390,
     });
     expect(ratio).toBe(STABLE_TOUCH_PIXEL_RATIO_CAP);
-    expect(ratio).toBe(1.5);
+    expect(ratio).toBe(1.35);
   });
 
   test("bounds desktop 4K and large touch canvases by fixed budgets", () => {

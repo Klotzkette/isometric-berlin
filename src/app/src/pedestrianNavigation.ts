@@ -970,6 +970,10 @@ function nearestClearPedestrianSpawn(
       requestedGround.y,
       environment.obstacles,
       environment,
+    ) &&
+    !(
+      requestedGround.layer === "surface" &&
+      pedestrianPointIsWater(spawn.x, spawn.z, environment.water)
     )
   ) {
     return { ground: requestedGround, spawn };
@@ -1226,9 +1230,23 @@ export function stepPedestrian(
       environment.obstacles,
       environment,
     );
+    const currentInWater =
+      currentGround.layer === "surface" &&
+      pedestrianPointIsWater(x, z, environment.water);
+    const candidateInWater =
+      ground.layer === "surface" &&
+      pedestrianPointIsWater(candidateX, candidateZ, environment.water);
     // If a deferred obstacle arrives around the current position, permit the
     // next movement to escape it. A normal clear position may never enter one.
-    return candidateBlocked && !currentBlocked ? null : ground;
+    if (candidateBlocked && !currentBlocked) {
+      return null;
+    }
+    // Water is a shoreline collision, not a lethal volume. A dry pedestrian
+    // can slide along its edge without ever being teleported to a spawn point.
+    if (candidateInWater && !currentInWater) {
+      return null;
+    }
+    return ground;
   };
 
   const accept = (
@@ -1277,10 +1295,12 @@ export function stepPedestrian(
     groundLayer === "surface" &&
     pedestrianPointIsWater(x, z, environment.water)
   ) {
+    // Late-loaded water geometry may surround an existing position. Keep it
+    // stable instead of treating the streamed shoreline as a death volume.
     return {
-      changed: true,
-      respawned: true,
-      state: createPedestrianState(environment),
+      changed: false,
+      respawned: false,
+      state,
     };
   }
 
