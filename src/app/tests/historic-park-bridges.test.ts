@@ -139,7 +139,7 @@ describe("historic Tiergarten park bridges", () => {
     expect(worldBounds.max.y).toBeLessThan(7.3);
   });
 
-  test("round-trips the shared day/night/snow/Schwellenraum material contract", () => {
+  test("round-trips the shared day/night/snow/Schwellenraum grade contract", () => {
     const bridge = createAdlerBridge(groundPayload as never);
     const bodies = bridge.getObjectByName("Adlerbruecke bodies") as Mesh;
     const ink = bridge.getObjectByName(
@@ -155,8 +155,10 @@ describe("historic Tiergarten park bridges", () => {
     setIsoNightPresentation(bridge, false, true, "snowstorm");
     expect(bodies.material).toBe(dayMaterial);
     setIsoNightPresentation(bridge, false, true, "schwellenraum");
-    expect(bodies.material).toBe(dayMaterial);
+    expect(bodies.material).toBe(bodies.userData.schwellenraumMaterial);
+    expect(bodies.material).not.toBe(dayMaterial);
     setIsoNightPresentation(bridge, false, true, "day");
+    expect(bodies.material).toBe(dayMaterial);
     expect((ink.material as LineBasicMaterial).color.getHex()).toBe(dayInk);
   });
 

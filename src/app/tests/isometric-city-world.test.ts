@@ -6,6 +6,7 @@ import {
   Group,
   InstancedMesh,
   LineBasicMaterial,
+  LineDashedMaterial,
   LineSegments,
   Matrix4,
   Mesh,
@@ -30,6 +31,9 @@ import {
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
   ISO_FACADE_AXIS_OPACITY,
+  ISO_FACADE_DETAIL_FADE_M,
+  ISO_FACADE_WINDOW_DASH_M,
+  ISO_FACADE_WINDOW_GAP_M,
   ISO_GLASS_DAY_OPACITY,
   ISO_GLASS_MULLION_OPACITY,
   ISO_GROUND_SHADES,
@@ -78,9 +82,10 @@ const city = createIsometricCity(payload, null);
 // Task 13 adds another exact 500 m source ring on every side. A small set
 // of regressions deliberately rebuilds the complete city; keep their timeout
 // bounded while allowing for parallel runner load on the larger payload.
-// The bridge pass reaches roughly 19 s in the full parallel suite on the
-// committed payload, so 30 s retains a finite guard with measured headroom.
-const TASK_13_FULL_CITY_TIMEOUT_MS = 30_000;
+// Repeated full-world builds reach roughly 35 s after a long Windows suite
+// while isolated runs remain around 17-20 s. Keep a finite 45 s guard without
+// making the regression suite load-order dependent.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 45_000;
 
 describe("drawn isometric city (LoD2 prisms)", () => {
   const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
@@ -203,32 +208,65 @@ describe("ligne-claire fenestration", () => {
   });
 
   test("facades are articulated by glazing axes and storey bands", () => {
-    // The facade grid is drawn: slender vertical bay axes crossed by one
-    // horizontal hairline per storey, so walls stay legible when the
-    // panes themselves fall below a pixel.
+    // The facade grid is drawn: slender vertical bay axes crossed by a
+    // dashed sill rhythm per storey, so openings stay legible when exact
+    // panes are unavailable without duplicating almost a million vertices.
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect(axes).toBeInstanceOf(LineSegments);
+    expect(axes.material).toBeInstanceOf(LineDashedMaterial);
     const position = axes.geometry.getAttribute("position");
+    const lineDistance = axes.geometry.getAttribute("lineDistance");
+    expect(lineDistance.count).toBe(position.count);
     expect(position.count).toBeGreaterThan(20_000);
     let verticals = 0;
     let bands = 0;
+    let dashedBands = 0;
+    let invalidSegments = 0;
     for (let index = 0; index < position.count; index += 2) {
       const sameXZ =
         Math.abs(position.getX(index) - position.getX(index + 1)) < 1e-3 &&
         Math.abs(position.getZ(index) - position.getZ(index + 1)) < 1e-3;
       if (sameXZ) {
-        expect(position.getY(index + 1)).toBeGreaterThan(position.getY(index));
+        if (
+          position.getY(index + 1) <= position.getY(index) ||
+          lineDistance.getX(index) !== 0 ||
+          lineDistance.getX(index + 1) !== 0
+        ) {
+          invalidSegments += 1;
+        }
         verticals += 1;
       } else {
         // Storey bands run level along the wall.
-        expect(
-          Math.abs(position.getY(index) - position.getY(index + 1)),
-        ).toBeLessThan(1e-3);
+        if (
+          Math.abs(position.getY(index) - position.getY(index + 1)) >= 1e-3 ||
+          lineDistance.getX(index) !== 0
+        ) {
+          invalidSegments += 1;
+        }
+        if (lineDistance.getX(index + 1) > 0) dashedBands += 1;
         bands += 1;
       }
     }
+    expect(invalidSegments).toBe(0);
     expect(verticals).toBeGreaterThan(5_000);
     expect(bands).toBeGreaterThan(5_000);
+    // Source-authored Charite bands remain solid; the generic LoD2 bands
+    // carry the lightweight inferred window rhythm.
+    expect(dashedBands).toBeGreaterThan(5_000);
+    expect(dashedBands).toBeLessThan(bands);
+    const material = axes.material as LineDashedMaterial;
+    expect(material.scale).toBe(0.01);
+    expect(material.dashSize).toBe(ISO_FACADE_WINDOW_DASH_M);
+    expect(material.gapSize).toBe(ISO_FACADE_WINDOW_GAP_M);
+    expect(material.dashSize + material.gapSize).toBe(
+      ISO_WINDOW_BAY_PITCH_M,
+    );
+    expect(axes.userData.facadeRhythm).toEqual({
+      basis: "measured LoD2 wall length and building height",
+      lineKinds: ["bay-axis", "storey-sill", "window-dash"],
+      openingCoordinates: "inferred rhythm; not surveyed individual panes",
+    });
+    expect(axes.userData.detailFadeM).toBe(ISO_FACADE_DETAIL_FADE_M);
   });
 
   test("night lights only a warm minority of facade axes, hidden by day", () => {

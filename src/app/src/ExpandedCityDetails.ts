@@ -179,10 +179,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 11,
   },
   "KPMG Europacity": {
-    azimuth_degrees: 222,
-    distance_m: 214,
-    polar_degrees: 59,
-    target_height_m: 42,
+    azimuth_degrees: 212,
+    distance_m: 182,
+    polar_degrees: 60,
+    target_height_m: 35,
   },
   Kammermusiksaal: {
     azimuth_degrees: 32,
@@ -197,10 +197,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 48,
   },
   "Oggi's Gemüsekebab": {
-    azimuth_degrees: 198,
-    distance_m: 142,
-    polar_degrees: 55,
-    target_height_m: 5,
+    azimuth_degrees: 156,
+    distance_m: 60,
+    polar_degrees: 75,
+    target_height_m: 2.5,
   },
   "Mall of Berlin": {
     azimuth_degrees: 180,
@@ -260,7 +260,6 @@ export function expandedCityFocusCamera(
     "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)":
       KULTURFORUM_PROFILE.staatsbibliothek.centerWorldM,
     "KPMG Europacity": EUROPACITY_PROFILE.einz.centerWorldM,
-    "Oggi's Gemüsekebab": NORTHERN_CITY_PROFILE.funbox.centerWorldM,
     "Sozialgericht Berlin": SOCIAL_COURT_PROFILE.frontCenterWorldM,
   };
   const metricTarget = metricTargetByName[landmark.name];
@@ -272,6 +271,8 @@ export function expandedCityFocusCamera(
           : landmark.world[1],
         metricTarget[1],
       ]
+    : landmark.name === "Oggi's Gemüsekebab"
+      ? [landmark.world[0] + 4, landmark.world[1], landmark.world[2] + 2]
     : landmark.name === "Mall of Berlin"
       ? [landmark.world[0], landmark.world[1], landmark.world[2] - 48]
       : landmark.name === "Hamburger Bahnhof"
@@ -284,6 +285,22 @@ export function expandedCityFocusCamera(
           ]
         : landmark.world;
   return { ...preset, target_world };
+}
+
+export function funboxEntranceFocusCamera(): FocusCamera {
+  const profile = NORTHERN_CITY_PROFILE.funbox;
+  const entranceOffset = rotatedLocalOffset(0, 52, profile.rotationY);
+  return {
+    azimuth_degrees: 90,
+    distance_m: 90,
+    polar_degrees: 62,
+    target_height_m: 3.5,
+    target_world: [
+      profile.centerWorldM[0] + entranceOffset[0],
+      profile.groundY,
+      profile.centerWorldM[1] + entranceOffset[1],
+    ],
+  };
 }
 
 const IVORY = 0xeee9dc;
@@ -811,16 +828,17 @@ function addEinzFacadeScreen(builder: Builder): void {
       const localX =
         -profile.footprintLengthM / 2 +
         (profile.footprintLengthM * bay) / longBayCount;
+      const primaryFin = bay % profile.primaryFinEveryBays === 0;
       addLocalBox(
         builder,
-        EURO_ALUMINIUM,
+        primaryFin ? EURO_ALUMINIUM_SHADOW : EURO_ALUMINIUM,
         origin,
         localX,
         profile.groundY + profile.measuredHeightM / 2,
         side * (profile.footprintDepthM / 2 + 0.18),
-        0.12,
+        primaryFin ? 0.24 : 0.12,
         profile.measuredHeightM - 0.14,
-        0.18,
+        primaryFin ? 0.36 : 0.18,
         profile.rotationY,
         false,
       );
@@ -829,16 +847,17 @@ function addEinzFacadeScreen(builder: Builder): void {
       const localZ =
         -profile.footprintDepthM / 2 +
         (profile.footprintDepthM * bay) / shortBayCount;
+      const primaryFin = bay % profile.primaryFinEveryBays === 0;
       addLocalBox(
         builder,
-        EURO_ALUMINIUM,
+        primaryFin ? EURO_ALUMINIUM_SHADOW : EURO_ALUMINIUM,
         origin,
         side * (profile.footprintLengthM / 2 + 0.18),
         profile.groundY + profile.measuredHeightM / 2,
         localZ,
-        0.18,
+        primaryFin ? 0.36 : 0.18,
         profile.measuredHeightM - 0.2,
-        0.16,
+        primaryFin ? 0.24 : 0.16,
         profile.rotationY,
         false,
       );
@@ -878,18 +897,49 @@ function addEinzFacadeScreen(builder: Builder): void {
     profile.rotationY,
   );
 
-  // The double-height entrance faces north towards Hauptbahnhof/Europaplatz.
-  for (const localX of [-5.3, 5.3]) {
+  // The street photograph resolves the double-height north entrance as a dark
+  // glazed recess between a regular row of pale pilotis and a projecting lid.
+  addLocalBox(
+    builder,
+    DARK_FRAME,
+    origin,
+    0,
+    profile.groundY + floorPitch,
+    -(profile.footprintDepthM / 2 + 0.22),
+    profile.entranceCanopyWidthM - 0.9,
+    floorPitch * 1.84,
+    0.22,
+    profile.rotationY,
+    false,
+  );
+  for (let pier = 0; pier < 6; pier += 1) {
+    const localX =
+      -profile.entranceCanopyWidthM / 2 +
+      (profile.entranceCanopyWidthM * pier) / 5;
     addLocalBox(
       builder,
-      DARK_FRAME,
+      EURO_ALUMINIUM,
       origin,
       localX,
       profile.groundY + floorPitch,
       -(profile.footprintDepthM / 2 + 0.38),
-      0.32,
+      0.38,
       floorPitch * 2,
-      0.32,
+      0.46,
+      profile.rotationY,
+    );
+  }
+  for (const localX of [-2.05, 0, 2.05]) {
+    addLocalBox(
+      builder,
+      EURO_ALUMINIUM_SHADOW,
+      origin,
+      localX,
+      profile.groundY + floorPitch * 0.76,
+      -(profile.footprintDepthM / 2 + 0.43),
+      0.12,
+      floorPitch * 1.42,
+      0.16,
       profile.rotationY,
       false,
     );
@@ -900,10 +950,10 @@ function addEinzFacadeScreen(builder: Builder): void {
     origin,
     0,
     profile.groundY + floorPitch * 2,
-    -(profile.footprintDepthM / 2 + 0.5),
-    11,
-    0.28,
-    1.2,
+    -(profile.footprintDepthM / 2 + 1.22),
+    profile.entranceCanopyWidthM,
+    0.34,
+    2.45,
     profile.rotationY,
   );
 
@@ -5240,9 +5290,29 @@ function addFunboxPark(
     );
   }
   for (const side of [-1, 1]) {
+    if (side > 0) {
+      for (const [localX, width, color] of [
+        [-15.5, 13, FUNBOX_YELLOW],
+        [15.5, 13, FUNBOX_RED],
+      ] as const) {
+        addLocalBox(
+          builder,
+          color,
+          origin,
+          localX,
+          profile.groundY + 1.05,
+          profile.footprintLengthM / 2 - 0.7,
+          width,
+          1.65,
+          1.4,
+          rotation,
+        );
+      }
+      continue;
+    }
     addLocalBox(
       builder,
-      side < 0 ? FUNBOX_YELLOW : FUNBOX_RED,
+      FUNBOX_YELLOW,
       origin,
       0,
       profile.groundY + 1.05,
@@ -5376,56 +5446,152 @@ function addFunboxPark(
     );
   }
 
-  // Keep the entrance on the park's east end, facing Heidestrasse, after the
-  // long event footprint is fitted between the three surrounding carriageways.
-  for (const side of [-1, 1]) {
-    localCylinder(
-      FUNBOX_RED,
-      side * 4,
-      profile.groundY + 1.8,
-      47.3,
-      0.82,
-      3.2,
-      12,
-    );
-    localInflatedShape(
-      side < 0 ? FUNBOX_YELLOW : FUNBOX_GREEN,
-      side * 4,
-      profile.groundY + 3.6,
-      47.3,
-      1.1,
-      1.1,
-      1.1,
-      true,
+  // The Heidestrasse street view shows a low green inflated reception dome,
+  // illustrated hoarding, a narrow gate and a separate pale ticket container.
+  // These untextured primitives reproduce that hierarchy without copying the
+  // supplied photograph or moving the source-constrained event footprint.
+  localInflatedShape(
+    FUNBOX_GREEN,
+    -5.6,
+    profile.groundY + profile.entranceDomeHeightM / 2,
+    43.1,
+    profile.entranceDomeWidthM / 2,
+    profile.entranceDomeHeightM / 2,
+    7.1,
+  );
+  for (const localX of [-9.4, -2.1]) {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      localX,
+      profile.groundY + 4.75,
+      49.72,
+      3.65,
+      1.8,
+      0.16,
+      rotation,
+      false,
     );
   }
-  const [archX, archZ] = at(0, 47.3);
-  const arch = new TorusGeometry(4, 0.82, 8, 28, Math.PI);
-  arch.rotateY(rotation);
-  arch.translate(archX, profile.groundY + 3.9, archZ);
-  addCustomGeometry(builder, arch, FUNBOX_RED, false);
+  const hoardingColors = [
+    IVORY,
+    FUNBOX_PINK,
+    FUNBOX_PURPLE,
+    IVORY,
+    FUNBOX_PINK,
+    FUNBOX_BLUE,
+  ] as const;
+  for (let panel = 0; panel < profile.entranceHoardingPanelCount; panel += 1) {
+    const localX = -19.05 + panel * 3.35;
+    addLocalBox(
+      builder,
+      hoardingColors[panel],
+      origin,
+      localX,
+      profile.groundY + 1.45,
+      52.25,
+      3.18,
+      2.9,
+      0.3,
+      rotation,
+    );
+    localInflatedShape(
+      zoneColors[(panel + 4) % zoneColors.length],
+      localX,
+      profile.groundY + 1.55,
+      52.43,
+      0.42,
+      0.58,
+      0.12,
+    );
+  }
+  for (const localX of [2.2, 6.5]) {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      localX,
+      profile.groundY + 1.75,
+      52.4,
+      0.3,
+      3.5,
+      0.3,
+      rotation,
+    );
+  }
   addLocalBox(
     builder,
-    FUNBOX_PURPLE,
+    FUNBOX_PINK,
     origin,
-    10,
-    profile.groundY + 1.8,
-    53.2,
-    8.4,
-    3.6,
-    4.8,
+    4.35,
+    profile.groundY + 3.44,
+    52.4,
+    4.75,
+    0.36,
+    0.72,
     rotation,
   );
   addLocalBox(
     builder,
     IVORY,
     origin,
-    10,
-    profile.groundY + 3.8,
-    53.2,
-    9.0,
-    0.42,
+    13,
+    profile.groundY + 1.72,
+    53.25,
+    8.2,
+    3.44,
+    4.6,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    FUNBOX_PURPLE,
+    origin,
+    13,
+    profile.groundY + 2.2,
+    55.62,
     5.2,
+    1.45,
+    0.18,
+    rotation,
+    false,
+  );
+  addLocalBox(
+    builder,
+    DARK_FRAME,
+    origin,
+    13,
+    profile.groundY + 2.14,
+    55.74,
+    3.9,
+    1.12,
+    0.12,
+    rotation,
+    false,
+  );
+  addLocalBox(
+    builder,
+    IVORY,
+    origin,
+    13,
+    profile.groundY + 3.64,
+    53.25,
+    8.7,
+    0.4,
+    5.05,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    FUNBOX_PINK,
+    origin,
+    13,
+    profile.groundY + 1.34,
+    56.02,
+    5.4,
+    0.22,
+    0.72,
     rotation,
   );
   for (const side of [-1, 1]) {
@@ -5567,41 +5733,59 @@ function addRooftopSigns(
       profile.groundY,
       profile.centerWorldM[1],
     );
-    const entranceOffset = rotatedLocalOffset(0, 47.38, profile.rotationY);
-    const welcome = createLetterSign(
-      "WELCOME",
-      8.2,
-      1.35,
+    const funOffset = rotatedLocalOffset(-8.15, 50.28, profile.rotationY);
+    const fun = createLetterSign(
+      "FUN",
+      4.1,
+      1.3,
       new Vector3(
-        origin.x + entranceOffset[0],
-        profile.groundY + 3.9,
-        origin.z + entranceOffset[1],
+        origin.x + funOffset[0],
+        profile.groundY + 5.4,
+        origin.z + funOffset[1],
       ),
       profile.rotationY,
-      "#e84d42",
-      "#fff3d4",
+      "#6f9a72",
+      "#d68ca6",
     );
-    if (welcome) {
-      welcome.name = "FUNBOX entrance WELCOME lettering";
-      group.add(welcome);
+    if (fun) {
+      fun.name = "FUNBOX.COM entrance dome FUN lettering";
+      group.add(fun);
     }
-    const kioskOffset = rotatedLocalOffset(10, 55.85, profile.rotationY);
-    const funbox = createLetterSign(
-      "FUNBOX",
-      7.2,
+    const boxOffset = rotatedLocalOffset(-2.75, 50.28, profile.rotationY);
+    const box = createLetterSign(
+      "BOX.COM",
+      6.4,
       1.25,
       new Vector3(
+        origin.x + boxOffset[0],
+        profile.groundY + 5.35,
+        origin.z + boxOffset[1],
+      ),
+      profile.rotationY,
+      "#6f9a72",
+      "#ead878",
+    );
+    if (box) {
+      box.name = "FUNBOX.COM entrance dome BOX.COM lettering";
+      group.add(box);
+    }
+    const kioskOffset = rotatedLocalOffset(13, 55.83, profile.rotationY);
+    const tickets = createLetterSign(
+      "TICKETS",
+      4.8,
+      0.74,
+      new Vector3(
         origin.x + kioskOffset[0],
-        profile.groundY + 2.35,
+        profile.groundY + 2.15,
         origin.z + kioskOffset[1],
       ),
       profile.rotationY,
-      "#8d62bd",
-      "#fff4d8",
+      "#2b3535",
+      "#f3eadb",
     );
-    if (funbox) {
-      funbox.name = "FUNBOX ticket kiosk lettering";
-      group.add(funbox);
+    if (tickets) {
+      tickets.name = "FUNBOX ticket kiosk lettering";
+      group.add(tickets);
     }
   }
   if (!byName.has("Mall of Berlin")) return;

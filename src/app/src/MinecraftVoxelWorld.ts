@@ -1870,36 +1870,38 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     }
   }
   for (
-    let localX = -profile.footprintLengthM / 2;
+    let localX = -profile.footprintLengthM / 2, fin = 0;
     localX <= profile.footprintLengthM / 2;
-    localX += profile.facadeGridM * 2
+    localX += profile.facadeGridM * 2, fin += 1
   ) {
+    const primaryFin = (fin * 2) % profile.primaryFinEveryBays === 0;
     for (const side of [-1, 1]) {
       tower(
         localX,
         profile.groundY + profile.measuredHeightM / 2,
         side * (profile.footprintDepthM / 2 + 0.5),
-        0.32,
+        primaryFin ? 0.56 : 0.32,
         profile.measuredHeightM,
-        0.42,
-        0xf3efd0,
+        primaryFin ? 0.68 : 0.42,
+        primaryFin ? 0xb8b4a8 : 0xf3efd0,
       );
     }
   }
   for (
-    let localZ = -profile.footprintDepthM / 2;
+    let localZ = -profile.footprintDepthM / 2, fin = 0;
     localZ <= profile.footprintDepthM / 2;
-    localZ += profile.facadeGridM * 2
+    localZ += profile.facadeGridM * 2, fin += 1
   ) {
+    const primaryFin = (fin * 2) % profile.primaryFinEveryBays === 0;
     for (const side of [-1, 1]) {
       tower(
         side * (profile.footprintLengthM / 2 + 0.5),
         profile.groundY + profile.measuredHeightM / 2,
         localZ,
-        0.42,
+        primaryFin ? 0.68 : 0.42,
         profile.measuredHeightM,
-        0.32,
-        0xf3efd0,
+        primaryFin ? 0.56 : 0.32,
+        primaryFin ? 0xb8b4a8 : 0xf3efd0,
       );
     }
   }
@@ -1911,6 +1913,39 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     1.1,
     profile.footprintDepthM + 0.8,
     0xb8b4a8,
+  );
+
+  // Street-level KPMG recognition: recessed glazing, six pale pilotis and a
+  // deep canopy follow the same north-facing hierarchy as the smooth model.
+  tower(
+    0,
+    profile.groundY + floorPitch,
+    -(profile.footprintDepthM / 2 + 0.3),
+    profile.entranceCanopyWidthM - 0.9,
+    floorPitch * 1.84,
+    0.5,
+    0x40515c,
+  );
+  for (let pier = 0; pier < 6; pier += 1) {
+    tower(
+      -profile.entranceCanopyWidthM / 2 +
+        (profile.entranceCanopyWidthM * pier) / 5,
+      profile.groundY + floorPitch,
+      -(profile.footprintDepthM / 2 + 0.64),
+      0.55,
+      floorPitch * 2,
+      0.62,
+      0xf3efd0,
+    );
+  }
+  tower(
+    0,
+    profile.groundY + floorPitch * 2,
+    -(profile.footprintDepthM / 2 + 1.25),
+    profile.entranceCanopyWidthM,
+    0.5,
+    2.5,
+    0xd4d4b7,
   );
 
   // Small upper-corner lettering cue instead of an oversized billboard.
@@ -2275,11 +2310,16 @@ export function createMinecraftFunboxRecognition(): InstancedMesh {
       3,
       profile.footprintLengthM,
     ]);
-    push(side < 0 ? 0xf5c83f : 0xe84d42, 0, profile.groundY + 1.5, side * 47, [
-      profile.footprintWidthM,
-      3,
-      2,
-    ]);
+    if (side < 0) {
+      push(0xf5c83f, 0, profile.groundY + 1.5, side * 47, [
+        profile.footprintWidthM,
+        3,
+        2,
+      ]);
+    } else {
+      push(0xf5c83f, -15.5, profile.groundY + 1.5, 47, [13, 3, 2]);
+      push(0xe84d42, 15.5, profile.groundY + 1.5, 47, [13, 3, 2]);
+    }
   }
 
   // Five stepped turrets and the published five-metre slide stay unmistakably
@@ -2348,13 +2388,48 @@ export function createMinecraftFunboxRecognition(): InstancedMesh {
   ] as const) {
     push(0xf5c83f, localX, profile.groundY + 1.4, localZ, [3, 1.8, 3]);
   }
-  // The block entrance shares the smooth model's east-facing end placement;
-  // it must not rotate back into the B96 when mobile detail is selected.
-  for (const localX of [-4, 4]) {
-    push(0xe84d42, localX, profile.groundY + 2, 47.3, [2, 4, 2]);
+  // Stepped blocks keep the photographed reception dome legible in Minecraft
+  // without changing the full/mobile deterministic payload.
+  for (const [level, width, depth] of [
+    [0, profile.entranceDomeWidthM, 12],
+    [1, 17, 10],
+    [2, 15, 8.5],
+    [3, 12, 7],
+    [4, 9, 5.5],
+    [5, 6, 4],
+    [6, 3, 2.2],
+  ] as const) {
+    push(
+      level === 4 ? 0x55b56d : 0x45a85f,
+      -5.6,
+      profile.groundY + 1.5 + level,
+      43.1,
+      [width, level === 0 ? 3 : 1, depth],
+    );
   }
-  push(0xe84d42, 0, profile.groundY + 5, 47.3, [10, 2, 2]);
-  push(0x8d62bd, 10, profile.groundY + 2, 53.2, [9, 4, 5]);
+  for (const localX of [-9.4, -2.1]) {
+    push(0x40515c, localX, profile.groundY + 4.75, 49.4, [3.6, 2, 0.5]);
+  }
+  const hoardingColors = [
+    0xf3efd0, 0xd595ad, 0x8d62bd, 0xf3efd0, 0xd595ad, 0x367fc8,
+  ] as const;
+  for (let panel = 0; panel < profile.entranceHoardingPanelCount; panel += 1) {
+    push(
+      hoardingColors[panel],
+      -19.05 + panel * 3.35,
+      profile.groundY + 1.5,
+      52.25,
+      [3.18, 3, 0.7],
+    );
+  }
+  for (const localX of [2.2, 6.5]) {
+    push(0x40515c, localX, profile.groundY + 1.75, 52.4, [0.5, 3.5, 0.5]);
+  }
+  push(0xd595ad, 4.35, profile.groundY + 3.5, 52.4, [4.8, 0.5, 1]);
+  push(0xf3efd0, 13, profile.groundY + 1.7, 53.25, [8.2, 3.4, 4.6]);
+  push(0x40515c, 13, profile.groundY + 2.15, 55.75, [4, 1.2, 0.5]);
+  push(0x8d62bd, 13, profile.groundY + 3.7, 53.25, [8.8, 0.5, 5.1]);
+  push(0xd595ad, 13, profile.groundY + 1.35, 56, [5.4, 0.3, 0.8]);
 
   const writer = instancedBoxes("Voxel FUNBOX event park", blocks.length);
   for (const block of blocks) {

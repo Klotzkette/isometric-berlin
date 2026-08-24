@@ -38,11 +38,12 @@ export const ARCHITECTURAL_INK_PALETTE: Record<
     detail: 0x7b8183,
     micro: 0x969a9b,
   },
-  // Exact Day ink: the atmospheric mode never repaints architecture.
+  // Muted plum-grey linework separates the threshold world from ordinary
+  // daylight without moving or restyling a single source geometry.
   schwellenraum: {
-    silhouette: 0x68645e,
-    detail: 0x7b766e,
-    micro: 0x918a80,
+    silhouette: 0x74717d,
+    detail: 0x86818f,
+    micro: 0x9b95a0,
   },
 };
 
@@ -58,7 +59,7 @@ const ACCENT_BLEND: Record<VisualMode, number> = {
   night: 0.72,
   minecraft: 0.8,
   snowstorm: 0.58,
-  schwellenraum: 0,
+  schwellenraum: 0.38,
 };
 
 /** Mark a line once and initialise it in the daylight drawing register. */

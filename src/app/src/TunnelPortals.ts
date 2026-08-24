@@ -669,7 +669,9 @@ export function setTunnelPortalPresentation(
       object.visible = interiorVisible;
     }
     if (object.userData[PORTAL_SHADOW_FLAG] === true) {
-      object.visible = !underside;
+      // The shallow exterior shadow gives the mouth depth, but would read as
+      // an opaque wall when viewed from inside the pedestrian bore.
+      object.visible = !underside && !interiorVisible;
     }
   });
 }

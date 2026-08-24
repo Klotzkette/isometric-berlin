@@ -14,6 +14,7 @@ import {
   createExpandedCityDetails,
   EUROPACITY_PROFILE,
   expandedCityFocusCamera,
+  funboxEntranceFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
   INVALIDENFRIEDHOF_DETAIL_PROFILE,
   KONRAD_ADENAUER_HAUS_PROFILE,
@@ -559,6 +560,10 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.osmAddressNodeId).toBe("7029312961");
     expect(profile.sourceAreaM2).toBe(4_000);
     expect(profile.sourceZoneCount).toBe(10);
+    expect(profile.entranceDomeWidthM).toBeCloseTo(19.2, 1);
+    expect(profile.entranceDomeHeightM).toBeCloseTo(8.3, 1);
+    expect(profile.entranceHoardingPanelCount).toBe(6);
+    expect(profile.ownerReferenceCount).toBe(2);
     expect(profile.footprintWidthM * profile.footprintLengthM).toBeGreaterThan(
       profile.sourceAreaM2,
     );
@@ -566,11 +571,26 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.geometryStatus).toContain("free Wunderland lot");
     expect(profile.sources).toHaveLength(3);
     expect(
-      details.getObjectByName("FUNBOX entrance WELCOME lettering"),
+      details.getObjectByName("FUNBOX.COM entrance dome FUN lettering"),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName("FUNBOX.COM entrance dome BOX.COM lettering"),
     ).toBeDefined();
     expect(
       details.getObjectByName("FUNBOX ticket kiosk lettering"),
     ).toBeDefined();
+    const entranceFocus = funboxEntranceFocusCamera();
+    expect(entranceFocus).toMatchObject({
+      azimuth_degrees: 90,
+      distance_m: 90,
+      polar_degrees: 62,
+      target_height_m: 3.5,
+    });
+    expect(entranceFocus.target_world).toEqual([
+      profile.centerWorldM[0] + Math.sin(profile.rotationY) * 52,
+      profile.groundY,
+      profile.centerWorldM[1] + Math.cos(profile.rotationY) * 52,
+    ]);
 
     const bodies = details.getObjectByName(
       "Expanded architecture and public-realm details bodies",
@@ -586,12 +606,11 @@ describe("task-10 expanded city recognition details", () => {
     expect(horizontalSpans[0]).toBeGreaterThan(40);
     expect(horizontalSpans[1]).toBeGreaterThan(90);
     expect(expandedCityFocusCamera(oggi)).toMatchObject({
-      distance_m: 142,
-      target_world: [
-        profile.centerWorldM[0],
-        oggi.world[1],
-        profile.centerWorldM[1],
-      ],
+      azimuth_degrees: 156,
+      distance_m: 60,
+      polar_degrees: 75,
+      target_height_m: 2.5,
+      target_world: [oggi.world[0] + 4, oggi.world[1], oggi.world[2] + 2],
     });
   });
 
@@ -626,6 +645,9 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.einz.floorCount).toBe(22);
     expect(profile.einz.facadeGridM).toBe(1.35);
     expect(profile.einz.facadeBayCounts).toEqual([32, 18]);
+    expect(profile.einz.primaryFinEveryBays).toBe(4);
+    expect(profile.einz.entranceCanopyWidthM).toBeCloseTo(13.2, 1);
+    expect(profile.einz.ownerReferenceCount).toBe(1);
     expect(profile.einz.dgmSceneGroundY).toBeCloseTo(5.51, 2);
     expect(profile.einz.podium.sourcePartId).toBe("DEBE3DMnbuS0Za6I");
     expect(profile.einz.podium.floorCount).toBe(6);
@@ -779,8 +801,8 @@ describe("task-10 expanded city recognition details", () => {
       (landmark) => landmark.name === "KPMG Europacity",
     );
     expect(expandedCityFocusCamera(kpmg!)).toMatchObject({
-      distance_m: 214,
-      target_height_m: 42,
+      distance_m: 182,
+      target_height_m: 35,
       target_world: [
         EUROPACITY_PROFILE.einz.centerWorldM[0],
         kpmg!.world[1],

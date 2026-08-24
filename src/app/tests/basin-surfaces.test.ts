@@ -18,7 +18,9 @@ const terrainAt = () => TERRAIN_M;
 // timeout while allowing for parallel test-runner load on the larger scene.
 // Full-payload surface construction reaches about 14 s under parallel load;
 // keep a finite guard with enough headroom for the task-13 outer ring.
-const TASK_13_FULL_CITY_TIMEOUT_MS = 30_000;
+// Full source-city rebuilds can reach 38 s late in the Windows suite even
+// though isolated and benchmarked runs remain substantially faster.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 45_000;
 
 describe("constructed basins", () => {
   test("water is split into rivers, natural park water and basins", () => {

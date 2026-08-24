@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.72.22
+
+- **Die Goldelse folgt ihrer hellen Blattgold-Silhouette aus der Nahansicht.**
+  Die weiterhin exakt 8,32 m hohe Viktoria besitzt nun getrennte Schwung-,
+  Sekundär- und Deckfedern, Gesicht, Haar und preußischen Adlerhelm, einen
+  seitlich erhobenen Arm mit zwanzig plastischen Lorbeerblättern, den gefalteten
+  Standartenarm sowie Ring, Eisernes Kreuz, Spitze und drei wehende Bänder des
+  Feldzeichens. Sichtbare 0,92-m-Schuhe und sieben tiefe Falten gliedern das
+  asymmetrisch windgefüllte Gewand. Vier hellere Goldwerte ersetzen das frühere
+  dunkle Ocker; 45 Quellteile, 7.758 Vertices und 86 gesetzte Linien gehen in
+  einen gemeinsamen Goldmaterial-Draw ein, der auch nachts warm leuchtet. Der
+  Siegessäulen-Fokus steht näher und lässt Kopf, Hände, Kranz und Standarte
+  getrennt erkennen.
+- **Die Heidestraße/B96-Kurve liest sich jetzt wie der fotografierte Ort.** Der
+  83,794 m hohe KPMG/EINZ-Turm behält seine amtliche LoD2-Hülle, erhält aber
+  kräftigere Fassadenraster, den zweigeschossigen dunklen Eingang, sechs
+  Pilotis und das Vordach. Oggi's Gemüsekebap und Mubis City Imbiss sind als
+  getrennte niedrige Stände unter dem begrünten Dach erkennbar. Der weiterhin
+  straßenfreie FUNBOX-Grundriss besitzt nun den grünen Eingangsdome, sechs
+  Zaunfelder, Tor und Ticketcontainer in Smooth und Minecraft; die unveränderte
+  Mindestdistanz zur gelieferten Straße bleibt 2,553 m.
+- **City West erhält seine beiden entscheidenden Wahrzeichen.** Die Ruine der
+  Kaiser-Wilhelm-Gedächtniskirche hat eine wirklich offene Torhalle, goldene
+  Uhr, Belfriedarkaden, Ecktürme und den asymmetrisch gebrochenen 71-m-Turm;
+  daneben bleibt der sechseckige blaue Glockenturm eigenständig. Das
+  Europa-Center trägt auf allen vier Seiten sein dichtes Vorhangfassadenraster,
+  den gestuften Breitscheidplatz-Sockel, das separate gläserne Vorderhaus, die
+  code-gezeichneten Dachzeichen und einen dreispeichigen Mercedes-Stern bis zur
+  dokumentierten Gesamthöhe von 103 m. Das komplette Ensemble bleibt innerhalb
+  fester Full-/Mobile-Budgets von 25.816 / 16.739 Vertices.
+- **Scharnhorsts Grabmal und der Tiergartentunnel sind physisch lesbar.** Der
+  grün patinierte liegende Löwe besitzt erhobenen Kopf, vollständige Mähne,
+  Ohren, geteilte Schnauze, Vorderpfoten und Schweif auf der Bronzetopplatte.
+  Beide vollständigen Tunnelröhren bleiben mit allen acht Portalkursen in Day,
+  Night, Minecraft, Snowstorm und Schwellenraum vom einen Ausgang bis zum
+  anderen begehbar; weder Röhrensegment noch Mündungswand kann den Weg quer
+  schließen.
+- **Mehr Architektur bleibt schneller und ruhiger.** Generische LoD2-Häuser
+  kombinieren in allen gezeichneten Modi solide Fensterachsen mit einem
+  kompakten, shadergestrichelten Geschossrhythmus, der zwischen 500 und 780 m
+  ausblendet und weder zusätzliche Draw Calls noch erfundene Scheiben erzeugt.
+  Schwellenraum wird erst beim ersten Eintritt gebaut, bündelt seine früher 128
+  Schwellenelemente auf 24 Renderables und erhält eine reversible mauve-
+  lavendelfarbene Materialstimmung sowie tiefere, melancholisch schwebende
+  Harmonien ohne Vollbildpass. Harte Desktop-/Mobil-Budgets, freigegebene
+  Transferpuffer und zeitlich begrenzte Vollstadt-Tests sichern den schnelleren
+  Start und Moduswechsel ab. Der Produktionsbenchmark endet trotz der neuen
+  Goldelse bei 202 Draw Calls und 19.593.753 Vertices; der erste exakte Batch
+  erscheint nach 1,99 s und die komplette Verfeinerung nach 15,62 s. Alle 1.238
+  App-Tests und 45 Release-Tests bestehen.
+
 ## v0.72.21
 
 - **Der Viewer hält auf Telefonen und Computern weniger Bild- und

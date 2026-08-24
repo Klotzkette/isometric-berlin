@@ -44,7 +44,13 @@ type MaterialJson = ReturnType<Material["toJSON"]>;
 
 export type TransferObject3D = {
   alternateMaterials: Partial<
-    Record<"dayMaterial" | "moonlitMaterial" | "nightMaterial", MaterialJson>
+    Record<
+      | "dayMaterial"
+      | "moonlitMaterial"
+      | "nightMaterial"
+      | "schwellenraumMaterial",
+      MaterialJson
+    >
   >;
   castShadow: boolean;
   children: TransferObject3D[];
@@ -69,6 +75,7 @@ export const TRANSFERRED_ALTERNATE_MATERIAL_KEYS = [
   "dayMaterial",
   "nightMaterial",
   "moonlitMaterial",
+  "schwellenraumMaterial",
 ] as const;
 
 /** Assigned + transferred alternates, de-duplicated for exact-once disposal. */

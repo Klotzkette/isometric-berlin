@@ -25,7 +25,12 @@ function expectModeAwareAccent(lines: LineSegments): void {
   applyArchitecturalInkMode(material, "snowstorm");
   expect(material.color.getHex()).not.toBe(day);
   applyArchitecturalInkMode(material, "schwellenraum");
+  const schwellenraum = material.color.getHex();
+  expect(schwellenraum).not.toBe(day);
+  applyArchitecturalInkMode(material, "day");
   expect(material.color.getHex()).toBe(day);
+  applyArchitecturalInkMode(material, "schwellenraum");
+  expect(material.color.getHex()).toBe(schwellenraum);
   applyArchitecturalInkMode(material, "day");
   expect(material.color.getHex()).toBe(day);
 }

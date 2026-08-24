@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.21/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.22 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.22/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.21** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.22** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.21**, built from `main`. Its full viewer
+The current public package is **v0.72.22**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -927,11 +927,13 @@ local modules.
   Schwellenraum, while its twelve columns, upper masonry and side pavilions
   remain solid.
 
-- **Schwellenraum is a fifth, deliberately gentle spatial mode.** It keeps the
-  full Day city, adds a warm pearlescent sky, quiet pastel light thresholds,
-  elongated repeated frames and a few fixed pieces of everyday furniture
-  without globally stretching or repainting the source architecture. The
-  world geometry is completely still in this mode. Only the explicitly
+- **Schwellenraum is a fifth, eerie and melancholic spatial mode.** It keeps
+  the full Day geometry, but a dusty mauve sky and a reversible
+  material-integrated lavender split tone mute ordinary city surfaces without
+  a post-process pass or extra draw call. Pastel light thresholds, elongated
+  repeated frames and a few fixed pieces of everyday furniture remain sparse;
+  the world geometry is completely still. Lower descending roots alternate
+  minor and unresolved suspended harmonies. Only the explicitly
   identified German, EU, Swiss and Federal President flags and an extremely
   faint material-only veil over mapped water may change: fixed mist fields
   breathe slowly and rare deterministic glints fade softly, without moving a
@@ -946,6 +948,9 @@ local modules.
   the Tiergartentunnel remains walkable. Seventeen persecution-, war- and
   violence-related memorial zones retain their exact Day transforms and
   materials, receive no added portal or light geometry and remain inaccessible.
+  The complete mode is lazy: normal startup holds two empty roots, while first
+  entry creates 24 batched threshold renderables instead of the former 128;
+  fixed desktop/mobile geometry budgets keep it bounded.
 
 - **Small memorials now keep their mapped identity.** The OSM extraction
   preserves `memorial` subtypes instead of turning every quiet memorial into
@@ -1173,6 +1178,11 @@ local modules.
   gain finer Reichstag dome/tower work, Kanzleramt hall structure,
   Hauptbahnhof end grids, Brandenburg Gate capitals and a corrected flat,
   balustraded Swiss Embassy roof.
+- Generic LoD2 facades now combine solid bay axes with a 3.6 m dashed storey
+  rhythm in every drawn mode. The dash is shader-driven from a compact `Uint16`
+  distance attribute, so it clarifies window proportions without fabricated
+  pane coordinates, extra head vertices or another draw call; the layer fades
+  from 500 to 780 m to keep overview and mobile raster load quiet.
 - The Soviet Memorial now faces its documented main entrance on Strasse des
   17. Juni. Its two T-34/76 tanks stand left and right on the road side,
   parallel to the street, with the two ML-20 guns diagonally behind them; the
@@ -1250,6 +1260,14 @@ local modules.
   "Non-Violence" sculpture. Ordinary LoD2 blocks receive no invented window
   positions. Named recognition models may carry a source-informed bay rhythm;
   those thin presentation details are explicitly not claimed as a facade survey.
+- The Siegessäule's 8.32 m Goldelse now preserves the bright leaf-gold reading
+  and the photographed silhouette at close range: separate primary, secondary
+  and covert feathers; visible face, hair and eagle helmet; a leafed raised
+  laurel wreath; the ring-framed Iron Cross, pointed field-standard finial and
+  three ribbons; 0.92 m shoes; and the asymmetrically wind-filled folded robe.
+  The 45 authored parts and 7,758 vertices merge into one dedicated material
+  draw, so the added detail does not add one draw call per feather or leaf and
+  can retain warm leaf gold at night.
 - The Reichstag carries the documented 16 m `DEM DEUTSCHEN VOLKE` inscription
   field, three German flags and one European flag at the Bundestag's published
   5 x 7 m size. The Swiss flag stands on the Embassy roof. At Charite, the

@@ -34,6 +34,7 @@ import {
   HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD,
   HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID,
   MELH_SPREE_FRONT_PROFILE,
+  OGGIS_MUBIS_PROFILE,
   PARISER_PLATZ_CENTRAL_PAVING,
   PARISER_PLATZ_GARDENS,
   TEAR_PALACE_FOOTPRINT_WORLD,
@@ -156,6 +157,10 @@ describe("task-11 central transit and civic details", () => {
     expect(bodies.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
     expect(details.userData.keepInMinecraft).toBe(true);
     expect(details.userData.geometryStatus).toContain("LoD2");
+    expect(details.userData.oggisMubis).toMatchObject({
+      ownerReferenceCount: 1,
+      photographsBundled: false,
+    });
   });
 
   test("replaces the false Spree wall with both open Bundestag bridges and the mapped MELH front", () => {
@@ -293,6 +298,29 @@ describe("task-11 central transit and civic details", () => {
         "yellow five-section Flexity presentation model with articulated joints, doors, bogies and pantograph",
     });
     expect(details.getObjectByName("OGGI civic lettering")).toBeDefined();
+    expect(
+      details.getObjectByName("GEMUESEKEBAB civic lettering"),
+    ).toBeDefined();
+    expect(details.getObjectByName("MUBIS civic lettering")).toBeDefined();
+    expect(details.getObjectByName("CITY IMBISS civic lettering")).toBeDefined();
+    const oggiAnchor = landmarks.find(
+      ({ name }) => name === "Oggi's Gemüsekebab",
+    )!;
+    const mubisSign = details.getObjectByName("MUBIS civic lettering")!;
+    const rotation = OGGIS_MUBIS_PROFILE.rotationY;
+    const localX = OGGIS_MUBIS_PROFILE.mubis.centerLocalX;
+    const localZ = -2.56;
+    expect(mubisSign.position.x).toBeCloseTo(
+      oggiAnchor.world[0] + localX * Math.cos(rotation) + localZ * Math.sin(rotation),
+      5,
+    );
+    expect(mubisSign.position.z).toBeCloseTo(
+      oggiAnchor.world[2] - localX * Math.sin(rotation) + localZ * Math.cos(rotation),
+      5,
+    );
+    expect(mubisSign.rotation.y).toBeCloseTo(rotation + Math.PI, 5);
+    expect(OGGIS_MUBIS_PROFILE.oggi.widthM).toBeCloseTo(8.8, 1);
+    expect(OGGIS_MUBIS_PROFILE.mubis.centerLocalX).toBeCloseTo(9.2, 1);
     expect(details.getObjectByName("S15 civic lettering")).toBeDefined();
     expect(
       details.getObjectByName("Berliner Ensemble circular rooftop sign"),
@@ -539,6 +567,9 @@ describe("task-11 central transit and civic details", () => {
     const pavilion = landmarks.find(
       ({ name }) => name === "Reichstagsvorfeld / Berlin-Pavillon",
     )!;
+    const oggi = landmarks.find(
+      ({ name }) => name === "Oggi's Gemüsekebab",
+    )!;
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
       distance_m: 168,
       target_world: futurium.world,
@@ -560,6 +591,17 @@ describe("task-11 central transit and civic details", () => {
     expect(centralCivicFocusCamera(tram)).toMatchObject({
       distance_m: 176,
       target_world: tram.world,
+    });
+    expect(centralCivicFocusCamera(oggi)).toMatchObject({
+      azimuth_degrees: 156,
+      distance_m: 60,
+      polar_degrees: 75,
+      target_height_m: 2.5,
+      target_world: [
+        oggi.world[0] + OGGIS_MUBIS_PROFILE.focusTargetOffsetWorldM[0],
+        oggi.world[1],
+        oggi.world[2] + OGGIS_MUBIS_PROFILE.focusTargetOffsetWorldM[1],
+      ],
     });
     expect(centralCivicFocusCamera(friedrichstrasse)).toMatchObject({
       azimuth_degrees: -138,

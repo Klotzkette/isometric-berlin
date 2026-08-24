@@ -26,7 +26,9 @@ import { createCivicLandmarks } from "../src/CivicLandmarks";
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 
 function officialFlag(
   kind: (typeof CIVIC_WIND_FLAG_KINDS)[number],

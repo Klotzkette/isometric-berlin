@@ -59,6 +59,11 @@ Arrow keys translate camera and target together in the visible screen plane.
 heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 lit Tiergartentunnel is entered manually through either connected road portal;
 there is no scripted tunnel ride competing with direct camera control.
+Pedestrian mode keeps both complete tunnel tubes and all eight mapped portal
+courses continuously open in Day, Night, Minecraft, Snowstorm and Schwellenraum.
+The rendered tube shells have open longitudinal ends, and the exterior mouth
+shadow is removed as soon as the pedestrian enters, so neither a segment joint
+nor a portal can become a transverse wall on the route.
 
 Pedestrian mode is an independent navigation layer over all five visual modes.
 It starts directly below the current camera at a 1.80 m eye height above the
@@ -131,13 +136,17 @@ reduced-motion, distant, underside and hidden-page views retain one authored
 pose. Decorative hotel flags and the small static Pride memorial offerings are
 outside this allowlist.
 
-Schwellenraum reuses the complete Day city and crossfades the two normal audio
-layers into a dedicated, very quiet procedural soundscape. Its two existing
-audio controls independently fade a soft room-rustle bus and a sparse harmonic
-bus; leaving the mode restores the standard layers without losing either user
-choice. Its warm pearlescent sky, pastel light thresholds, fixed sparse
-furnishings and elongated repeated frames are additive; buildings are never
-globally warped or recoloured. It shares the all-mode official-civic flag
+Schwellenraum reuses the complete Day geometry and crossfades the two normal
+audio layers into a dedicated, very quiet procedural soundscape. Its two
+existing audio controls independently fade a soft room-rustle bus and a sparse
+harmonic bus; leaving the mode restores the standard layers without losing
+either user choice. Lower descending roots alternate minor and unresolved
+suspended intervals. A dusty mauve sky and a material-integrated lavender
+split tone desaturate ordinary city surfaces without a render target,
+full-screen pass or extra draw call. The grade is a lazily cached material
+variant: leaving the mode restores the exact Day material and protected
+memorial subtrees never receive it. Buildings are never warped. It shares the
+all-mode official-civic flag
 field: the explicitly identified German, EU, Swiss and Federal President
 flags advance at no more than 12 Hz on non-touch devices or 8 Hz in the
 mobile-like touch profile. The only additional changing element is a
@@ -155,6 +164,14 @@ mode, while the Tiergartentunnel remains walkable through its mapped portals.
 Seventeen persecution-, war- and violence-related memorial volumes override
 all access rules; those models keep their exact Day materials and transforms,
 receive no threshold geometry and cannot be entered.
+
+Ordinary startup now installs only two empty Schwellenraum roots. The mode's
+interiors, furnishings and eight light thresholds are constructed on first
+entry; the former 128 threshold renderables are consolidated into 24 using
+three shared materials. The full layer stays below 3,000 source vertices and
+the coarse-pointer profile below 1,800. Static motes use one instanced mesh per
+site, while frames and veils are each batched, so richer atmosphere does not
+turn into hidden startup residency or hundreds of draw calls.
 
 ## Underground passenger cutaway
 
@@ -368,8 +385,30 @@ Allianz-Haus, the historic Café Kranzler and New Kranzler Eck, Bahnhof
 Zoologischer Garten, Kaiser-Wilhelm-Gedächtniskirche/Breitscheidplatz and
 Urania retain their OSM/LoD2 footprints while procedural, texture-free batches
 add the characteristic facade, tower, roof, rotunda, hall and podium cues.
-The four merged groups use 11 renderables / 14,634 vertices in full and 11 /
-8,427 in the coarse-pointer mobile profile.
+The Europa-Center's 86 m office slab now carries all four dark curtain-wall
+faces with equal grey spandrel courses, dense aluminium mullions, a recessed
+entrance base and the adjacent mast. Its ten-metre Mercedes star has one hub
+and exactly three radial spokes and reaches the documented 103 m overall
+height. OSM part `26408381` anchors the separate 69.41 x 18.30 m
+Breitscheidplatz frontage: two opaque base storeys support three turquoise
+glass office storeys, cantilevered edges and code-built red `RBB` / `94.3`
+roof signs. The two supplied photographs bound colour, facade hierarchy,
+sign position and the static star pose only; no photograph, logo file, font or
+texture is bundled or loaded.
+The Gedächtniskirche ruin now reads as weathered masonry rather than a generic
+tower block: a genuinely empty lower arch crosses the complete footprint, the
+gold clock has twelve marks and two hands, three tall belfry arches sit between
+corner turrets, and the 71 m silhouette ends in an asymmetric green-grey broken
+crown. The supplied portrait photograph bounds those recognition proportions
+only; the official ensemble description supplies the surviving 71 m height
+from the original 113 m tower, and no photograph, crop or texture is bundled.
+The neighbouring 53.3 m, six-sided bell tower keeps its 12 m diameter, dense
+blue concrete-glass grid, broad bell-chamber band and gold 5.3 m pole / 1.8 m
+cross hierarchy from the official building description. The four merged City
+West groups use 11 renderables / 25,816 vertices in full and 11 / 16,739 in the
+coarse-pointer mobile profile, within fixed 26,100 / 16,900-vertex caps. Mobile
+retains 17 rows on the principal Europa-Center facades while coarsening
+secondary faces and mullions.
 Friedrichstadt-Palast likewise receives its documented main body, taller stage
 tower, projecting foyer, broad stairs, concrete fins and two-storey coloured
 concrete-glass fields. The exact Tränenpalast outline remains separate from the
@@ -659,9 +698,11 @@ Carrara-marble sarcophagus, Friedrich Tieck's relief frieze and the reclining
 bronze lion modelled by Christian Daniel Rauch and executed by Theodor Kalide.
 The current sarcophagus and relief frieze are identified as conservation
 copies. The lion has a persistent reclining body/head/paw silhouette, while
-close-only mane, face and claw cues fade at 62/155 m instead of reducing the
-whole sculpture to an ellipsoid. Job von Witzleben's memorial keeps its green
-Gothic Revival tabernacle;
+its raised head, full faceted mane, pointed ears, split muzzle, paired
+forepaws, curled tail and green-patinated bronze top plate remain legible at
+the landmark focus. Close-only mane tufts, face and claw cues fade at 62/155 m
+instead of reducing the whole sculpture to an ellipsoid. Job von Witzleben's
+memorial keeps its green Gothic Revival tabernacle;
 Hans Carl von Winterfeld's monument at OSM node `279219439` keeps a pale
 rectangular pedestal, unlettered laurel portrait medallion, trophy mantle and
 plumed helmet;
@@ -671,10 +712,10 @@ white cross. These are characteristic procedural recognition forms rather
 than replacement survey meshes. Repeated fence bars, relief cues and grave
 details share batches and the normal close-detail fade.
 
-Scharnhorst's full and mobile smooth profiles are identical: 8 renderables /
-554 stored vertices / 15,539 rendered vertices. Its Minecraft contribution is
-4 palette batches / 566 blocks / 13,584 rendered instance vertices, within the
-complete 10-batch / 1,993-block Invalidenfriedhof voxel root and over one
+Scharnhorst's full and mobile smooth profiles are identical: 9 renderables /
+698 stored vertices / 16,978 rendered vertices. Its Minecraft contribution is
+4 palette batches / 572 blocks / 13,728 rendered instance vertices, within the
+complete 10-batch / 1,999-block Invalidenfriedhof voxel root and over one
 shared 24-vertex cube. The 18 m focus
 targets the exact OSM anchor at 2.8 m local height. Collision follows the
 foundation, two piers, sarcophagus, reclining lion and railing: the centre
@@ -896,16 +937,29 @@ board dimensions and planting intervals are procedural, non-surveyed
 recognition geometry. The protected landscape plan is not traced or bundled;
 no photograph, canvas image, thumbnail or photographic texture is loaded.
 
+The Heidestraße / B96 corner keeps its committed metric anchors while three
+owner-supplied August 2026 street views sharpen only its recognition layer. The
+KPMG/EINZ tower retains its 42.59 x 24.77 m LoD2 shell, 83.794 m measured
+height and 22-storey / 32-by-18-bay facade contract; stronger four-bay fins, a
+dark double-height recess, six pilotis and a projecting canopy now resolve the
+street-level entrance. Oggi's retains its existing OSM-positioned landmark
+anchor but reads as a separate timber-and-ivory kebab counter beside the red,
+white and blue Mubis City Imbiss, under one planted low roof edge. A shared
+focus target keeps both stalls and the nearby FUNBOX entrance legible. These
+subdivisions and signs are local display estimates, not surveyed additions.
+
 The temporary 2026 FUNBOX remains a procedural event reading rather than a
-surveyed parcel. Its complete drawn and Minecraft envelopes are now fitted
+surveyed parcel. Its unchanged drawn and Minecraft envelopes stay fitted
 between the delivered OSM-derived Heidestraße, Minna-Cauer-Straße and
 Döberitzer Straße surface polygons, with a measured 2.553 m minimum clearance
-from those surfaces. It stays clear of the northern Tiergartentunnel portal and
-all source voxel buildings; full and mobile Minecraft use the same structural
-footprint. The frozen event budget is 5 drawn renderables / 7,921 rendered
-vertices and 62 Minecraft blocks. visitBerlin supplies the official corner,
-2026 dates, 4,000-plus-square-metre scale, ten-zone programme and five-metre
-slide; no event photograph or external texture is bundled or copied.
+from those surfaces. The street entrance now uses the observed low green
+inflated dome, dark windows, six pale/coloured hoarding fields, narrow gate and
+separate ticket container in both Smooth and Minecraft. It stays clear of the
+northern Tiergartentunnel portal and all source voxel buildings; full and
+mobile Minecraft remain byte-identical. visitBerlin supplies the official
+corner, 2026 dates, 4,000-plus-square-metre scale, ten-zone programme and
+five-metre slide. The supplied photographs remain reference-only: no photo,
+crop, artwork, tracing or external texture is bundled or copied.
 
 The Adlerbrücke and Löwenbrücke are dedicated metre-scale recognition models,
 replacing their former generic park-bridge marks rather than overdrawing them.
@@ -1005,6 +1059,16 @@ train fittings, and Brandenburg Gate fluting, triglyphs and masonry joints use
 instanced meshes or consolidated vector segments. This keeps the published
 metric envelopes unchanged and avoids turning hundreds of small visual cues
 into hundreds of draw calls on phones and tablets.
+
+Generic LoD2 buildings retain the same consolidated facade line object in all
+drawn modes. Solid bay axes cross one storey-sill segment per height-derived
+floor; a 2.35 m / 1.25 m shader dash rhythm makes those sills read as window
+bays without adding pane or head vertices unsupported by the source. A compact
+centimetre `Uint16` distance attribute costs about 3.1 MiB for the complete
+desktop city, preserves the v0.72.22 202-draw-call / 19,593,753-vertex steady
+state, and fades the micro-detail between 500 and 780 m. The one-draw increase
+over v0.72.21 is the dedicated merged Goldelse material, not one draw per new
+feather, fold or laurel leaf.
 
 Selecting one of these four heroes applies a documented presentation angle and
 building-specific camera distance and targets the recognition-model anchor.

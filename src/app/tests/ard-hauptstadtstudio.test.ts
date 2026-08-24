@@ -348,7 +348,7 @@ describe("the source-bounded ARD Hauptstadtstudio recognition layer", () => {
     );
   });
 
-  test("uses day materials in day, snow and Schwellenraum, and lit materials only at night", () => {
+  test("uses reversible day, night and Schwellenraum material variants", () => {
     const details = model();
     const meshes = meshesWithPresentationMaterials(details);
     expect(meshes.map((mesh) => mesh.name).sort()).toEqual(
@@ -373,13 +373,18 @@ describe("the source-bounded ARD Hauptstadtstudio recognition layer", () => {
         mesh.userData.nightMaterial as MeshStandardMaterial,
       );
     }
-    for (const mode of ["snowstorm", "schwellenraum"] as const) {
-      setIsoNightPresentation(details, false, true, mode);
-      for (const mesh of meshes) {
-        expect(mesh.material).toBe(
-          mesh.userData.dayMaterial as MeshBasicMaterial,
-        );
-      }
+    setIsoNightPresentation(details, false, true, "snowstorm");
+    for (const mesh of meshes) {
+      expect(mesh.material).toBe(mesh.userData.dayMaterial as MeshBasicMaterial);
+    }
+    setIsoNightPresentation(details, false, true, "schwellenraum");
+    for (const mesh of meshes) {
+      expect(mesh.material).toBe(mesh.userData.schwellenraumMaterial);
+      expect(mesh.material).not.toBe(mesh.userData.dayMaterial);
+    }
+    setIsoNightPresentation(details, false, true, "day");
+    for (const mesh of meshes) {
+      expect(mesh.material).toBe(mesh.userData.dayMaterial as MeshBasicMaterial);
     }
   });
 

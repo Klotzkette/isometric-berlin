@@ -763,7 +763,7 @@ describe("transferable Three geometry", () => {
     }
 
     const expectMode = (
-      expectedMaterial: "day" | "night",
+      expectedMaterial: "day" | "night" | "schwellenraum",
       inkMode: "day" | "night" | "snowstorm" | "schwellenraum",
       lightsVisible: boolean,
       moonlitActive = false,
@@ -772,7 +772,9 @@ describe("transferable Three geometry", () => {
         surfaces.every(
           ({ day, mesh, moonlit, night }) =>
             mesh.material ===
-            (expectedMaterial === "night"
+            (expectedMaterial === "schwellenraum"
+              ? mesh.userData.schwellenraumMaterial
+              : expectedMaterial === "night"
               ? moonlitActive && moonlit
                 ? moonlit
                 : night
@@ -794,7 +796,7 @@ describe("transferable Three geometry", () => {
     setIsoNightPresentation(city, false, true, "snowstorm");
     expectMode("day", "snowstorm", false);
     setIsoNightPresentation(city, false, true, "schwellenraum");
-    expectMode("day", "schwellenraum", false);
+    expectMode("schwellenraum", "schwellenraum", false);
     setIsoNightPresentation(city, false, true, "day");
     expectMode("day", "day", false);
     setIsoNightPresentation(city, true, false, "night");
@@ -811,17 +813,20 @@ describe("transferable Three geometry", () => {
       "dayMaterial",
       "nightMaterial",
       "moonlitMaterial",
+      "schwellenraumMaterial",
     ]);
     const assigned = new MeshBasicMaterial();
     const night = new MeshStandardMaterial();
     const moonlit = new MeshBasicMaterial();
+    const schwellenraum = new MeshBasicMaterial();
     const mesh = new Mesh(new BoxGeometry(), assigned);
     mesh.userData.dayMaterial = assigned;
     mesh.userData.nightMaterial = night;
     mesh.userData.moonlitMaterial = moonlit;
+    mesh.userData.schwellenraumMaterial = schwellenraum;
 
     const materials = objectMaterialsIncludingTransferredAlternates(mesh);
-    expect(materials).toEqual([assigned, night, moonlit]);
+    expect(materials).toEqual([assigned, night, moonlit, schwellenraum]);
     const disposalCounts = new Map(
       materials.map((material) => [material, 0]),
     );
@@ -833,7 +838,7 @@ describe("transferable Three geometry", () => {
     for (const material of objectMaterialsIncludingTransferredAlternates(mesh)) {
       material.dispose();
     }
-    expect([...disposalCounts.values()]).toEqual([1, 1, 1]);
+    expect([...disposalCounts.values()]).toEqual([1, 1, 1, 1]);
     expect(threeViewerSource).toMatch(
       /objectMaterialsIncludingTransferredAlternates\(\s*object,?\s*\)/,
     );

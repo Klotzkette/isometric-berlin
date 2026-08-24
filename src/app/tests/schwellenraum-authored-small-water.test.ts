@@ -159,16 +159,16 @@ describe("authored small-water Schwellenraum surface batches", () => {
     expect(water.geometry.getAttribute("position").count).toBe(488);
     expect(water.geometry.index?.count).toBe(960);
     // The old generic US/French embassy grids and the former coarse
-    // Tränenpalast no longer live in this shared batch; their source-bound
-    // replacement facades are tested separately.
-    expect(main.geometry.getAttribute("position").count).toBe(92_870);
-    expect(main.geometry.index?.count).toBe(150_948);
+    // Tränenpalast no longer live in this shared batch; the current count also
+    // includes the bounded Oggi's/Mubis street-front recognition geometry.
+    expect(main.geometry.getAttribute("position").count).toBe(94_083);
+    expect(main.geometry.index?.count).toBe(153_960);
     expect(
       main.geometry.getAttribute("position").count +
         water.geometry.getAttribute("position").count,
-    ).toBe(93_358);
+    ).toBe(94_571);
     expect((main.geometry.index?.count ?? 0) + (water.geometry.index?.count ?? 0)).toBe(
-      151_908,
+      154_920,
     );
     expect(countColourVertices(root, 0x77b7c8)).toBe(488);
     expect(water.parent?.children).toHaveLength(1);

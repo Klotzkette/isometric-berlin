@@ -44,7 +44,10 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
 
   serve_script = tmp_path / "serve-local.py"
   assert serve_script.exists()
-  assert serve_script.stat().st_mode & stat.S_IXUSR
+  if os.name == "nt":
+    assert serve_script.stat().st_mode & stat.S_IWRITE
+  else:
+    assert serve_script.stat().st_mode & stat.S_IXUSR
   serve_text = serve_script.read_text(encoding="utf-8")
   assert "first_available_port(args.host, args.port)" in serve_text
   assert "--host" in serve_text
@@ -390,6 +393,14 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
   assert manifest["assets"]["surface_source"]["bytes"] > 0
   assert manifest["assets"]["surface_pretriangulation"]["bytes"] > 0
   assert manifest["assets"]["surface_plate_asphalt"]["bytes"] == len(b"plate")
+  assert {
+    entry["path"] for entry in manifest["assets"].values()
+  } >= {
+    "mesh/regierungsviertel/surface-polygons.json",
+    "mesh/regierungsviertel/surface-pretriangulation.json",
+    "mesh/regierungsviertel/surface-asphalt-fixture.plate.gz",
+  }
+  assert all("\\" not in entry["path"] for entry in manifest["assets"].values())
 
 
 def test_bundled_landmarks_match_public_viewer_landmarks() -> None:

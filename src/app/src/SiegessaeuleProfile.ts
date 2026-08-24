@@ -52,6 +52,21 @@ export const SIEGESSAEULE_PROFILE = {
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-1084_geschichte-der-siegessaeule.pdf",
     "https://bildhauerei-in-berlin.de/bildwerk/siegessaeule-4706/",
   ],
+  viktoria: {
+    castPartCount: 17,
+    facing: "west towards Ernst-Reuter-Platz",
+    gilding: "gold leaf on oil ground",
+    heightM: 8.32,
+    recognitionCues: [
+      "raised laurel wreath in the right hand",
+      "field standard with Iron Cross in the left hand",
+      "Prussian eagle helmet",
+      "two layered feathered wings",
+      "wind-filled draped robe",
+    ],
+    shoeLengthM: 0.92,
+    weightT: 35,
+  },
   visualReferences: [
     {
       artist: "BugWarp",

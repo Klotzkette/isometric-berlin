@@ -1,6 +1,7 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  CylinderGeometry,
   EdgesGeometry,
   Group,
   SphereGeometry,
@@ -23,12 +24,24 @@ export type CityWestDetailProfile = "full" | "mobile";
 const GROUND_Y = 5.2;
 const GLASS_BLUE = 0x29475b;
 const GLASS_DARK = 0x213744;
+const EUROPA_GLASS = 0x34474a;
+const EUROPA_SPANDREL = 0x666d6b;
+const EUROPA_MULLION = 0xb8c0bd;
+const EUROPA_PODIUM_GLASS = 0x477b80;
+const EUROPA_PODIUM_PANEL = 0xb9c1bd;
+const EUROPA_SIGN_RED = 0xc83d39;
 const ALUMINIUM = 0xcbd0cb;
 const TRAVERTINE = 0xd8c6a5;
 const SANDSTONE = 0xb99a72;
+const RUIN_STONE = 0x716a62;
+const RUIN_LIGHT = 0x92877a;
+const RUIN_ACCENT = 0x5b5751;
 const STONE_SHADOW = 0x3d3832;
 const CONCRETE = 0x777b7d;
 const KWG_BLUE = 0x24425a;
+const KWG_GRID = 0x8a8d89;
+const CLOCK_GOLD = 0xd1ad4a;
+const PATINA_GREEN = 0x63847e;
 const BRONZE = 0x66503b;
 const GRANITE_RED = 0x9d4c3f;
 const WATER = 0x5cacc1;
@@ -53,6 +66,7 @@ export const CITY_WEST_PROFILE = {
   europaCenter: {
     centerWorldM: [-2308.337, 1585.347] as const,
     facadeBayCount: 22,
+    officeFloorCount: 21,
     overallHeightM: 103,
     rotationY: (80.417 * Math.PI) / 180,
     sourceBuildingId: "OSM-way-1054276972",
@@ -60,11 +74,46 @@ export const CITY_WEST_PROFILE = {
     starDiameterM: 10,
     towerFootprintM: [45.25, 16.81] as const,
     towerHeightM: 86,
+    curtainWall: {
+      baseHeightM: 8,
+      longFaceMullionBays: 18,
+      mobileLongFaceStoreyRows: 17,
+      mobileShortFaceStoreyRows: 9,
+      shortFaceMullionBays: 6,
+      storeyRows: 21,
+      geometryStatus:
+        "four code-built dark-glass faces with equal grey spandrel rows, aluminium mullions and a recessed concrete entrance base; no facade photograph or texture",
+    },
+    breitscheidplatzFrontage: {
+      baseStoreys: 2,
+      centerOffsetM: [66.25, -10.16] as const,
+      footprintM: [18.3, 69.41] as const,
+      heightM: 18,
+      officeStoreys: 3,
+      sourcePartId: "OSM-way-26408381",
+      footprintStatus:
+        "rotated recognition envelope bounded from the current OSM part ring; local facade subdivisions are not a component survey",
+      roofSigns: {
+        geometryStatus:
+          "procedural red RBB and 94.3 stroke signs; no font, logo image or texture asset",
+        texts: ["RBB", "94.3"] as const,
+      },
+    },
+    roofStar: {
+      antennaOffsetM: [-9.5, -1.8] as const,
+      centerOffsetM: [7.5, 0] as const,
+      rotationsPerMinute: 2,
+      geometryStatus:
+        "ten-metre outer diameter with one central hub, three radial spokes, dark roof cradle and adjacent mast; static recognition pose in the viewer",
+    },
     sources: [
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096462",
       "https://europa-center-berlin.de/timeline/der-punkt-auf-dem-i/",
+      "https://europa-center-berlin.de/timeline/eroeffnung/",
+      "https://europa-center-berlin.de/information/historie/",
       "https://www.openstreetmap.org/way/1054276972",
       "https://www.openstreetmap.org/way/26408382",
+      "https://www.openstreetmap.org/way/26408381",
     ] as const,
   },
   allianzHaus: {
@@ -149,9 +198,19 @@ export const CITY_WEST_PROFILE = {
   },
   gedaechtniskirche: {
     bellTower: {
+      bellChamberBandCenterHeightM: 30.5,
+      bellChamberBandHeightM: 2.2,
       centerWorldM: [-2472.803, 1523.451] as const,
       diameterM: 12,
+      facadeSides: 6,
+      finial: {
+        crossHeightM: 1.8,
+        poleLengthM: 5.3,
+      },
       heightM: 53.3,
+      honeycombWindowCount: 5152,
+      recognitionGeometry:
+        "six blue glazed faces with dense concrete mullions, horizontal honeycomb courses, the broad bell-chamber steel band, and gold finial",
       sourceBuildingId: "OSM-way-15218372",
     },
     chapelCenterWorldM: [-2457.214, 1504.452] as const,
@@ -165,8 +224,30 @@ export const CITY_WEST_PROFILE = {
     foyerCenterWorldM: [-2565.322, 1490.536] as const,
     foyerSourceBuildingId: "OSM-way-15218374",
     oldTower: {
+      belfryArchesPerLongFace: 3,
+      brokenCrown: {
+        maxHeightM: 71,
+        patinaColor: "green-grey",
+        status:
+          "asymmetric procedural silhouette cross-checked against the supplied street photograph; no photograph or texture is bundled",
+      },
       centerWorldM: [-2495.572, 1507.709] as const,
+      clock: {
+        centerHeightM: 36.4,
+        diameterM: 7.2,
+        hourMarkers: 12,
+      },
+      footprintM: [31, 18] as const,
       heightM: 71,
+      originalHeightM: 113,
+      portal: {
+        archRadiusM: 5.25,
+        clearWidthM: 10.5,
+        openThrough: true,
+        springHeightM: 11,
+      },
+      recognitionGeometry:
+        "open lower arch, gold clock, triple belfry arches, corner buttresses and turrets, and a green-grey jagged crown",
       rotationY: (79.93 * Math.PI) / 180,
       sourceBuildingId: "OSM-way-15218373",
     },
@@ -222,8 +303,8 @@ export const CITY_WEST_SOURCE_URLS = [
 ] as const;
 
 export const CITY_WEST_RENDER_BUDGET = {
-  full: { maxRenderables: 12, maxVertices: 15_000 },
-  mobile: { maxRenderables: 12, maxVertices: 8_500 },
+  full: { maxRenderables: 12, maxVertices: 26_100 },
+  mobile: { maxRenderables: 12, maxVertices: 16_900 },
 } as const;
 
 function pushGeometry(
@@ -277,6 +358,113 @@ function localPoint(
     center[0] + cosine * localX + sine * localZ,
     center[1] - sine * localX + cosine * localZ,
   ];
+}
+
+function addLocalBox(
+  builder: Builder,
+  color: number,
+  center: readonly [number, number],
+  rotationY: number,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  sizeX: number,
+  sizeY: number,
+  sizeZ: number,
+  rotationZ = 0,
+  inked = true,
+  lamp = false,
+): void {
+  const [x, z] = localPoint(center, rotationY, localX, localZ);
+  addRotatedBox(
+    builder,
+    color,
+    x,
+    centerY,
+    z,
+    sizeX,
+    sizeY,
+    sizeZ,
+    0,
+    rotationY,
+    rotationZ,
+    inked,
+    lamp,
+  );
+}
+
+function addLocalFacadeDisc(
+  builder: Builder,
+  color: number,
+  center: readonly [number, number],
+  rotationY: number,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  radius: number,
+  depth: number,
+  segments: number,
+  inked = true,
+): void {
+  const [x, z] = localPoint(center, rotationY, localX, localZ);
+  const geometry = new CylinderGeometry(radius, radius, depth, segments);
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateY(rotationY);
+  geometry.translate(x, centerY, z);
+  pushGeometry(builder, geometry, color, inked);
+}
+
+function addLocalFacadeArch(
+  builder: Builder,
+  color: number,
+  center: readonly [number, number],
+  rotationY: number,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  radius: number,
+  tube: number,
+  segments: number,
+  inked = true,
+): void {
+  const [x, z] = localPoint(center, rotationY, localX, localZ);
+  const geometry = new TorusGeometry(radius, tube, 4, segments, Math.PI);
+  geometry.rotateY(rotationY);
+  geometry.translate(x, centerY, z);
+  pushGeometry(builder, geometry, color, inked);
+}
+
+function addLocalBrokenBox(
+  builder: Builder,
+  color: number,
+  center: readonly [number, number],
+  rotationY: number,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  sizeX: number,
+  sizeY: number,
+  sizeZ: number,
+  topSlopeM: number,
+  rotationZ: number,
+): void {
+  const [x, z] = localPoint(center, rotationY, localX, localZ);
+  const geometry = new BoxGeometry(sizeX, sizeY, sizeZ);
+  const positions = geometry.getAttribute("position");
+  for (let index = 0; index < positions.count; index += 1) {
+    if (positions.getY(index) <= 0) continue;
+    const normalizedX = positions.getX(index) / (sizeX / 2);
+    positions.setY(
+      index,
+      positions.getY(index) + normalizedX * topSlopeM,
+    );
+  }
+  positions.needsUpdate = true;
+  geometry.computeVertexNormals();
+  if (rotationZ !== 0) geometry.rotateZ(rotationZ);
+  geometry.rotateY(rotationY);
+  geometry.translate(x, centerY, z);
+  pushGeometry(builder, geometry, color);
 }
 
 function addAllianzRoofWordmark(builder: Builder): void {
@@ -454,104 +642,651 @@ function addLongFacadeFrames(
   }
 }
 
-function addEuropaCenter(
+function addEuropaCurtainWall(
   builder: Builder,
   detailProfile: CityWestDetailProfile,
 ): void {
   const profile = CITY_WEST_PROFILE.europaCenter;
+  const wall = profile.curtainWall;
   const [lengthM, depthM] = profile.towerFootprintM;
-  addBox(
-    builder,
-    GLASS_DARK,
-    profile.centerWorldM[0],
-    GROUND_Y + profile.towerHeightM / 2,
-    profile.centerWorldM[1],
-    lengthM,
-    profile.towerHeightM,
-    depthM,
-    profile.rotationY,
-  );
-  addLongFacadeFrames(builder, {
-    center: profile.centerWorldM,
-    color: ALUMINIUM,
-    depthM,
-    groundY: GROUND_Y,
-    heightM: profile.towerHeightM,
-    horizontalCount: detailProfile === "mobile" ? 8 : profile.facadeBayCount,
-    lengthM,
-    rotationY: profile.rotationY,
-    verticalCount: detailProfile === "mobile" ? 4 : 7,
-  });
+  const wallHeightM = profile.towerHeightM - wall.baseHeightM;
+  const wallCenterY = GROUND_Y + wall.baseHeightM + wallHeightM / 2;
 
-  // A shallow Breitscheidplatz podium/entrance reads separately from the
-  // tall Lever-House-like slab while leaving the mapped mall body intact.
-  const [podiumX, podiumZ] = localPoint(
+  // The recessed core and perimeter pilotis keep the curtain-wall slab from
+  // reading as an 86 m glass box planted directly on the pavement.
+  addLocalBox(
+    builder,
+    STONE_SHADOW,
     profile.centerWorldM,
     profile.rotationY,
-    -lengthM / 2 - 10,
-    7,
+    0,
+    GROUND_Y + wall.baseHeightM / 2,
+    0,
+    lengthM - 10,
+    wall.baseHeightM,
+    depthM - 6,
   );
-  addBox(
+  for (const side of [-1, 1]) {
+    const pilotisCount = detailProfile === "mobile" ? 6 : 8;
+    for (let index = 0; index < pilotisCount; index += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        -lengthM / 2 + 2.2 + (index * (lengthM - 4.4)) / (pilotisCount - 1),
+        GROUND_Y + wall.baseHeightM / 2,
+        side * (depthM / 2 - 0.65),
+        0.62,
+        wall.baseHeightM,
+        0.62,
+        0,
+        false,
+      );
+    }
+  }
+
+  addLocalBox(
     builder,
-    0xd4d0c5,
-    podiumX,
-    GROUND_Y + 5.5,
-    podiumZ,
-    25,
-    11,
-    24,
+    EUROPA_GLASS,
+    profile.centerWorldM,
     profile.rotationY,
+    0,
+    wallCenterY,
+    0,
+    lengthM,
+    wallHeightM,
+    depthM,
   );
-  addBox(
+
+  const longStoreyRows =
+    detailProfile === "mobile"
+      ? wall.mobileLongFaceStoreyRows
+      : wall.storeyRows;
+  const shortStoreyRows =
+    detailProfile === "mobile"
+      ? wall.mobileShortFaceStoreyRows
+      : wall.storeyRows;
+  const longBays =
+    detailProfile === "mobile" ? 9 : wall.longFaceMullionBays;
+  const shortBays =
+    detailProfile === "mobile" ? 3 : wall.shortFaceMullionBays;
+  const spandrelHeightM = detailProfile === "mobile" ? 0.72 : 0.58;
+
+  for (const side of [-1, 1]) {
+    const localZ = side * (depthM / 2 + 0.14);
+    for (let bay = 1; bay < longBays; bay += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        -lengthM / 2 + (bay * lengthM) / longBays,
+        wallCenterY,
+        localZ,
+        0.2,
+        wallHeightM,
+        0.3,
+        0,
+        false,
+      );
+    }
+    for (let storey = 1; storey < longStoreyRows; storey += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_SPANDREL,
+        profile.centerWorldM,
+        profile.rotationY,
+        0,
+        GROUND_Y +
+          wall.baseHeightM +
+          (storey * wallHeightM) / longStoreyRows,
+        localZ,
+        lengthM + 0.18,
+        spandrelHeightM,
+        0.32,
+        0,
+        false,
+      );
+    }
+  }
+
+  for (const side of [-1, 1]) {
+    const localX = side * (lengthM / 2 + 0.14);
+    for (let bay = 1; bay < shortBays; bay += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        localX,
+        wallCenterY,
+        -depthM / 2 + (bay * depthM) / shortBays,
+        0.3,
+        wallHeightM,
+        0.2,
+        0,
+        false,
+      );
+    }
+    for (let storey = 1; storey < shortStoreyRows; storey += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_SPANDREL,
+        profile.centerWorldM,
+        profile.rotationY,
+        localX,
+        GROUND_Y +
+          wall.baseHeightM +
+          (storey * wallHeightM) / shortStoreyRows,
+        0,
+        0.32,
+        spandrelHeightM,
+        depthM + 0.18,
+        0,
+        false,
+      );
+    }
+  }
+
+  for (const localX of [-lengthM / 2, lengthM / 2]) {
+    for (const localZ of [-depthM / 2, depthM / 2]) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        localX,
+        wallCenterY,
+        localZ,
+        0.38,
+        wallHeightM,
+        0.38,
+        0,
+        false,
+      );
+    }
+  }
+  addLocalBox(
     builder,
-    GLASS_BLUE,
-    podiumX,
-    GROUND_Y + 5.2,
-    podiumZ - 0.3,
-    22,
-    5.5,
-    24.5,
+    EUROPA_SPANDREL,
+    profile.centerWorldM,
     profile.rotationY,
+    0,
+    GROUND_Y + profile.towerHeightM - 0.28,
+    0,
+    lengthM + 0.7,
+    0.56,
+    depthM + 0.7,
+  );
+}
+
+function addEuropaRoofSigns(builder: Builder): void {
+  const profile = CITY_WEST_PROFILE.europaCenter;
+  const frontage = profile.breitscheidplatzFrontage;
+  const [frontageWidthM] = frontage.footprintM;
+  const facadeLocalX =
+    frontage.centerOffsetM[0] + frontageWidthM / 2 + 1.28;
+  const baselineY = GROUND_Y + frontage.heightM + 0.48;
+  const strokeDepthM = 0.32;
+  const strokeWidthM = 0.26;
+
+  const addLine = (
+    signCenterZ: number,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ): void => {
+    // Seen from Breitscheidplatz, screen-right is negative local Z.
+    const startZ = signCenterZ - startX;
+    const endZ = signCenterZ - endX;
+    const deltaZ = endZ - startZ;
+    const deltaY = endY - startY;
+    const [x, z] = localPoint(
+      profile.centerWorldM,
+      profile.rotationY,
+      facadeLocalX,
+      (startZ + endZ) / 2,
+    );
+    addRotatedBox(
+      builder,
+      EUROPA_SIGN_RED,
+      x,
+      baselineY + (startY + endY) / 2,
+      z,
+      strokeDepthM,
+      strokeWidthM,
+      Math.hypot(deltaZ, deltaY),
+      -Math.atan2(deltaY, deltaZ),
+      profile.rotationY,
+      0,
+      false,
+    );
+  };
+
+  const addRbbLetter = (
+    letter: string,
+    signCenterZ: number,
+    centerX: number,
+  ): void => {
+    const widthM = 1.75;
+    const heightM = 2.8;
+    const left = centerX - widthM / 2;
+    const right = centerX + widthM / 2;
+    const horizontal = (height: number): void =>
+      addLine(signCenterZ, left, height, right, height);
+    const vertical = (
+      x: number,
+      startHeight: number,
+      endHeight: number,
+    ): void => addLine(signCenterZ, x, startHeight, x, endHeight);
+
+    vertical(left, 0, heightM);
+    horizontal(heightM);
+    horizontal(heightM / 2);
+    vertical(right, heightM / 2, heightM);
+    if (letter === "B") {
+      horizontal(0);
+      vertical(right, 0, heightM / 2);
+    } else {
+      addLine(signCenterZ, centerX, heightM / 2, right, 0);
+    }
+  };
+
+  const rbbCenterZ = frontage.centerOffsetM[1] - 16;
+  const rbbWidthM = 1.75;
+  const rbbAdvanceM = 2.3;
+  const rbbTextWidthM = rbbWidthM + 2 * rbbAdvanceM;
+  [...frontage.roofSigns.texts[0]].forEach((letter, index) => {
+    addRbbLetter(
+      letter,
+      rbbCenterZ,
+      -rbbTextWidthM / 2 + rbbWidthM / 2 + index * rbbAdvanceM,
+    );
+  });
+
+  const segmentLines = {
+    a: [-0.7, 2.6, 0.7, 2.6],
+    b: [0.7, 1.3, 0.7, 2.6],
+    c: [0.7, 0, 0.7, 1.3],
+    d: [-0.7, 0, 0.7, 0],
+    e: [-0.7, 0, -0.7, 1.3],
+    f: [-0.7, 1.3, -0.7, 2.6],
+    g: [-0.7, 1.3, 0.7, 1.3],
+  } as const;
+  type SegmentName = keyof typeof segmentLines;
+  const digitSegments: Record<string, readonly SegmentName[]> = {
+    "3": ["a", "b", "c", "d", "g"],
+    "4": ["b", "c", "f", "g"],
+    "9": ["a", "b", "c", "d", "f", "g"],
+  };
+  const numberText = frontage.roofSigns.texts[1];
+  const numberCenterZ = frontage.centerOffsetM[1] + 17;
+  const glyphWidths = [...numberText].map((glyph) =>
+    glyph === "." ? 0.45 : 1.4,
+  );
+  const glyphGapM = 0.38;
+  const numberWidthM =
+    glyphWidths.reduce((sum, width) => sum + width, 0) +
+    glyphGapM * (glyphWidths.length - 1);
+  let cursorX = -numberWidthM / 2;
+  [...numberText].forEach((glyph, glyphIndex) => {
+    const glyphWidthM = glyphWidths[glyphIndex];
+    const glyphCenterX = cursorX + glyphWidthM / 2;
+    if (glyph === ".") {
+      addLocalBox(
+        builder,
+        EUROPA_SIGN_RED,
+        profile.centerWorldM,
+        profile.rotationY,
+        facadeLocalX,
+        baselineY + 0.3,
+        numberCenterZ - glyphCenterX,
+        strokeDepthM,
+        0.5,
+        0.5,
+        0,
+        false,
+      );
+    } else {
+      for (const segment of digitSegments[glyph] ?? []) {
+        const [startX, startY, endX, endY] = segmentLines[segment];
+        addLine(
+          numberCenterZ,
+          glyphCenterX + startX,
+          startY,
+          glyphCenterX + endX,
+          endY,
+        );
+      }
+    }
+    cursorX += glyphWidthM + glyphGapM;
+  });
+
+  for (const localZ of [rbbCenterZ - 2.1, rbbCenterZ + 2.1, numberCenterZ]) {
+    addLocalBox(
+      builder,
+      EUROPA_SPANDREL,
+      profile.centerWorldM,
+      profile.rotationY,
+      facadeLocalX - 0.16,
+      GROUND_Y + frontage.heightM + 1.7,
+      localZ,
+      0.2,
+      3.4,
+      0.2,
+      0,
+      false,
+    );
+  }
+}
+
+function addEuropaFrontage(
+  builder: Builder,
+  detailProfile: CityWestDetailProfile,
+): void {
+  const profile = CITY_WEST_PROFILE.europaCenter;
+  const frontage = profile.breitscheidplatzFrontage;
+  const [baseWidthM, lengthM] = frontage.footprintM;
+  const [centerX, centerZ] = frontage.centerOffsetM;
+  const baseHeightM = 7.2;
+  const officeHeightM = frontage.heightM - baseHeightM;
+  const officeWidthM = baseWidthM + 2.1;
+
+  addLocalBox(
+    builder,
+    EUROPA_PODIUM_PANEL,
+    profile.centerWorldM,
+    profile.rotationY,
+    centerX,
+    GROUND_Y + baseHeightM / 2,
+    centerZ,
+    baseWidthM,
+    baseHeightM,
+    lengthM,
+  );
+  for (const side of [-1, 1]) {
+    const facadeX = centerX + side * (baseWidthM / 2 + 0.14);
+    addLocalBox(
+      builder,
+      GLASS_DARK,
+      profile.centerWorldM,
+      profile.rotationY,
+      facadeX,
+      GROUND_Y + 2.05,
+      centerZ,
+      0.3,
+      4.1,
+      lengthM - 1.2,
+      0,
+      false,
+    );
+    addLocalBox(
+      builder,
+      EUROPA_SPANDREL,
+      profile.centerWorldM,
+      profile.rotationY,
+      facadeX,
+      GROUND_Y + 4.15,
+      centerZ,
+      0.32,
+      0.45,
+      lengthM - 0.8,
+      0,
+      false,
+    );
+    const panelBays = detailProfile === "mobile" ? 7 : 13;
+    for (let bay = 1; bay < panelBays; bay += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        facadeX,
+        GROUND_Y + 5.65,
+        centerZ - lengthM / 2 + (bay * lengthM) / panelBays,
+        0.32,
+        2.35,
+        0.14,
+        0,
+        false,
+      );
+    }
+  }
+
+  addLocalBox(
+    builder,
+    EUROPA_PODIUM_GLASS,
+    profile.centerWorldM,
+    profile.rotationY,
+    centerX,
+    GROUND_Y + baseHeightM + officeHeightM / 2,
+    centerZ,
+    officeWidthM,
+    officeHeightM,
+    lengthM,
+  );
+  const officeBays = detailProfile === "mobile" ? 10 : 20;
+  for (const side of [-1, 1]) {
+    const facadeX = centerX + side * (officeWidthM / 2 + 0.14);
+    for (let floor = 1; floor < frontage.officeStoreys; floor += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_SPANDREL,
+        profile.centerWorldM,
+        profile.rotationY,
+        facadeX,
+        GROUND_Y +
+          baseHeightM +
+          (floor * officeHeightM) / frontage.officeStoreys,
+        centerZ,
+        0.32,
+        0.5,
+        lengthM + 0.15,
+        0,
+        false,
+      );
+    }
+    for (let bay = 1; bay < officeBays; bay += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        facadeX,
+        GROUND_Y + baseHeightM + officeHeightM / 2,
+        centerZ - lengthM / 2 + (bay * lengthM) / officeBays,
+        0.32,
+        officeHeightM,
+        0.18,
+        0,
+        false,
+      );
+    }
+  }
+  for (const side of [-1, 1]) {
+    const facadeZ = centerZ + side * (lengthM / 2 + 0.14);
+    for (let floor = 1; floor < frontage.officeStoreys; floor += 1) {
+      addLocalBox(
+        builder,
+        EUROPA_SPANDREL,
+        profile.centerWorldM,
+        profile.rotationY,
+        centerX,
+        GROUND_Y +
+          baseHeightM +
+          (floor * officeHeightM) / frontage.officeStoreys,
+        facadeZ,
+        officeWidthM + 0.15,
+        0.5,
+        0.32,
+        0,
+        false,
+      );
+    }
+    for (const localX of [-officeWidthM / 4, 0, officeWidthM / 4]) {
+      addLocalBox(
+        builder,
+        EUROPA_MULLION,
+        profile.centerWorldM,
+        profile.rotationY,
+        centerX + localX,
+        GROUND_Y + baseHeightM + officeHeightM / 2,
+        facadeZ,
+        0.18,
+        officeHeightM,
+        0.32,
+        0,
+        false,
+      );
+    }
+  }
+  addLocalBox(
+    builder,
+    EUROPA_SPANDREL,
+    profile.centerWorldM,
+    profile.rotationY,
+    centerX,
+    GROUND_Y + frontage.heightM + 0.28,
+    centerZ,
+    officeWidthM + 0.5,
+    0.56,
+    lengthM + 0.5,
+  );
+  addEuropaRoofSigns(builder);
+}
+
+function addEuropaRoofStar(
+  builder: Builder,
+  detailProfile: CityWestDetailProfile,
+): void {
+  const profile = CITY_WEST_PROFILE.europaCenter;
+  const [starLocalX, starLocalZ] = profile.roofStar.centerOffsetM;
+  const [starX, starZ] = localPoint(
+    profile.centerWorldM,
+    profile.rotationY,
+    starLocalX,
+    starLocalZ,
+  );
+  const roofY = GROUND_Y + profile.towerHeightM;
+  const starCenterY =
+    GROUND_Y + profile.overallHeightM - profile.starDiameterM / 2;
+  const tubeRadiusM = 0.34;
+  const ringRadiusM = profile.starDiameterM / 2 - tubeRadiusM;
+  const supportTopY = starCenterY - profile.starDiameterM / 2 + 1.1;
+
+  addLocalBox(
+    builder,
+    STONE_SHADOW,
+    profile.centerWorldM,
+    profile.rotationY,
+    starLocalX,
+    roofY + 0.34,
+    starLocalZ,
+    4.2,
+    0.68,
+    2.5,
+  );
+  for (const supportOffsetX of [-1.35, 1.35]) {
+    const [x, z] = localPoint(
+      profile.centerWorldM,
+      profile.rotationY,
+      starLocalX + supportOffsetX,
+      starLocalZ,
+    );
+    addCylinder(
+      builder,
+      EUROPA_SPANDREL,
+      x,
+      (roofY + supportTopY) / 2,
+      z,
+      0.29,
+      supportTopY - roofY,
+      8,
+      false,
+    );
+  }
+  addLocalBox(
+    builder,
+    EUROPA_SPANDREL,
+    profile.centerWorldM,
+    profile.rotationY,
+    starLocalX,
+    supportTopY,
+    starLocalZ,
+    3.3,
+    0.4,
+    0.42,
+    0,
     false,
   );
 
-  const roofY = GROUND_Y + profile.towerHeightM;
-  const starCenterY = GROUND_Y + profile.overallHeightM - 5;
-  addCylinder(
-    builder,
-    ALUMINIUM,
-    profile.centerWorldM[0],
-    (roofY + starCenterY) / 2,
-    profile.centerWorldM[1],
-    0.42,
-    starCenterY - roofY,
-    8,
+  const ring = new TorusGeometry(
+    ringRadiusM,
+    tubeRadiusM,
+    4,
+    detailProfile === "mobile" ? 20 : 32,
   );
-  const ring = new TorusGeometry(profile.starDiameterM / 2, 0.3, 4, 24);
   ring.rotateY(profile.rotationY);
-  ring.translate(
-    profile.centerWorldM[0],
-    starCenterY,
-    profile.centerWorldM[1],
-  );
+  ring.translate(starX, starCenterY, starZ);
   pushGeometry(builder, ring, 0xf2eee0, false, true);
+
+  const spokeLengthM = ringRadiusM - tubeRadiusM;
   for (let spoke = 0; spoke < 3; spoke += 1) {
+    const angle = Math.PI / 2 + (spoke * Math.PI * 2) / 3;
+    const [x, z] = localPoint(
+      profile.centerWorldM,
+      profile.rotationY,
+      starLocalX + (Math.cos(angle) * spokeLengthM) / 2,
+      starLocalZ,
+    );
     addRotatedBox(
       builder,
       0xf2eee0,
-      profile.centerWorldM[0],
-      starCenterY,
-      profile.centerWorldM[1],
-      profile.starDiameterM * 0.46,
-      0.36,
-      0.36,
+      x,
+      starCenterY + (Math.sin(angle) * spokeLengthM) / 2,
+      z,
+      spokeLengthM,
+      0.38,
+      0.4,
       0,
       profile.rotationY,
-      (spoke * Math.PI * 2) / 3,
+      angle,
       false,
       true,
     );
   }
+  const hub = new SphereGeometry(0.58, detailProfile === "mobile" ? 6 : 8, 5);
+  hub.translate(starX, starCenterY, starZ);
+  pushGeometry(builder, hub, 0xf2eee0, false, true);
+
+  const [antennaX, antennaZ] = localPoint(
+    profile.centerWorldM,
+    profile.rotationY,
+    ...profile.roofStar.antennaOffsetM,
+  );
+  const antennaTopY = GROUND_Y + profile.overallHeightM - 4.2;
+  addCylinder(
+    builder,
+    EUROPA_SPANDREL,
+    antennaX,
+    (roofY + antennaTopY) / 2,
+    antennaZ,
+    0.15,
+    antennaTopY - roofY,
+    6,
+    false,
+  );
+}
+
+function addEuropaCenter(
+  builder: Builder,
+  detailProfile: CityWestDetailProfile,
+): void {
+  addEuropaCurtainWall(builder, detailProfile);
+  addEuropaFrontage(builder, detailProfile);
+  addEuropaRoofStar(builder, detailProfile);
 }
 
 function addAllianzHaus(
@@ -921,96 +1656,366 @@ function addOldChurchTower(
 ): void {
   const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
   const center = profile.centerWorldM;
-  addBox(
+  const [widthM, depthM] = profile.footprintM;
+  const portal = profile.portal;
+  const portalSideMassM = (widthM - portal.clearWidthM) / 2;
+  const portalSideCenterM = portal.clearWidthM / 2 + portalSideMassM / 2;
+  const facadeZ = depthM / 2 + 0.2;
+
+  // The lower ruin is assembled around the opening, leaving a continuous
+  // empty volume through the tower instead of painting an arch on a solid box.
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      RUIN_STONE,
+      center,
+      profile.rotationY,
+      side * portalSideCenterM,
+      GROUND_Y + 10,
+      0,
+      portalSideMassM,
+      20,
+      depthM,
+    );
+  }
+  addLocalBox(
     builder,
-    SANDSTONE,
-    center[0],
-    GROUND_Y + 10,
-    center[1],
-    31,
-    20,
-    18,
+    RUIN_STONE,
+    center,
     profile.rotationY,
+    0,
+    GROUND_Y + 18.1,
+    0,
+    widthM,
+    3.8,
+    depthM,
   );
-  addBox(
+  for (const face of [-1, 1]) {
+    addLocalFacadeArch(
+      builder,
+      RUIN_LIGHT,
+      center,
+      profile.rotationY,
+      0,
+      GROUND_Y + portal.springHeightM,
+      face * facadeZ,
+      portal.archRadiusM,
+      0.68,
+      detailProfile === "mobile" ? 10 : 16,
+    );
+    for (const side of [-1, 1]) {
+      addLocalBox(
+        builder,
+        RUIN_LIGHT,
+        center,
+        profile.rotationY,
+        side * (portal.clearWidthM / 2 + 0.32),
+        GROUND_Y + portal.springHeightM / 2,
+        face * (facadeZ + 0.02),
+        0.64,
+        portal.springHeightM,
+        0.34,
+        0,
+        false,
+      );
+    }
+  }
+
+  // Layered cornices, the clock shaft and corner buttresses restore the
+  // heavy Romanesque mass visible below the shattered belfry.
+  for (const [heightM, sizeX, sizeZ] of [
+    [20.4, 32.6, 19.5],
+    [23.1, 23.2, 17.7],
+    [42.9, 24.4, 18.2],
+    [58.2, 24.8, 18.4],
+  ] as const) {
+    addLocalBox(
+      builder,
+      heightM === 58.2 ? RUIN_ACCENT : RUIN_LIGHT,
+      center,
+      profile.rotationY,
+      0,
+      GROUND_Y + heightM,
+      0,
+      sizeX,
+      0.9,
+      sizeZ,
+    );
+  }
+  addLocalBox(
     builder,
-    SANDSTONE,
-    center[0],
+    RUIN_STONE,
+    center,
+    profile.rotationY,
+    0,
     GROUND_Y + 31.5,
-    center[1],
-    19,
-    43,
-    18,
-    profile.rotationY,
+    0,
+    21,
+    22,
+    16.4,
   );
-  addCylinder(
+  for (const [localX, localZ] of [
+    [-11.2, -7.3],
+    [11.2, -7.3],
+    [-11.2, 7.3],
+    [11.2, 7.3],
+  ] as const) {
+    addLocalBox(
+      builder,
+      RUIN_ACCENT,
+      center,
+      profile.rotationY,
+      localX,
+      GROUND_Y + 32.2,
+      localZ,
+      2.3,
+      23.5,
+      2.4,
+    );
+  }
+
+  const clock = profile.clock;
+  const clockRadiusM = clock.diameterM / 2;
+  const clockFaceZ = depthM / 2 - 0.52;
+  for (const face of [-1, 1]) {
+    addLocalFacadeDisc(
+      builder,
+      STONE_SHADOW,
+      center,
+      profile.rotationY,
+      0,
+      GROUND_Y + clock.centerHeightM,
+      face * (clockFaceZ + 0.22),
+      clockRadiusM - 0.28,
+      0.34,
+      detailProfile === "mobile" ? 16 : 24,
+      false,
+    );
+    addLocalFacadeArch(
+      builder,
+      CLOCK_GOLD,
+      center,
+      profile.rotationY,
+      0,
+      GROUND_Y + clock.centerHeightM,
+      face * (clockFaceZ + 0.5),
+      clockRadiusM - 0.32,
+      0.32,
+      detailProfile === "mobile" ? 16 : 24,
+      false,
+    );
+    const lowerClockRing = new TorusGeometry(
+      clockRadiusM - 0.32,
+      0.32,
+      4,
+      detailProfile === "mobile" ? 16 : 24,
+      Math.PI,
+    );
+    lowerClockRing.rotateZ(Math.PI);
+    lowerClockRing.rotateY(profile.rotationY);
+    const [ringX, ringZ] = localPoint(
+      center,
+      profile.rotationY,
+      0,
+      face * (clockFaceZ + 0.5),
+    );
+    lowerClockRing.translate(
+      ringX,
+      GROUND_Y + clock.centerHeightM,
+      ringZ,
+    );
+    pushGeometry(builder, lowerClockRing, CLOCK_GOLD, false);
+
+    const markerRadiusM = clockRadiusM - 0.85;
+    for (let marker = 0; marker < clock.hourMarkers; marker += 1) {
+      const angle = (marker * Math.PI * 2) / clock.hourMarkers;
+      const markerLengthM = marker % 3 === 0 ? 0.76 : 0.52;
+      addLocalBox(
+        builder,
+        CLOCK_GOLD,
+        center,
+        profile.rotationY,
+        Math.sin(angle) * markerRadiusM,
+        GROUND_Y +
+          clock.centerHeightM +
+          Math.cos(angle) * markerRadiusM,
+        face * (clockFaceZ + 0.66),
+        0.2,
+        markerLengthM,
+        0.18,
+        -angle,
+        false,
+      );
+    }
+    for (const [angle, lengthM, widthM] of [
+      [-0.92, 2.15, 0.26],
+      [0.3, 2.72, 0.18],
+    ] as const) {
+      addLocalBox(
+        builder,
+        CLOCK_GOLD,
+        center,
+        profile.rotationY,
+        (Math.sin(angle) * lengthM) / 2,
+        GROUND_Y +
+          clock.centerHeightM +
+          (Math.cos(angle) * lengthM) / 2,
+        face * (clockFaceZ + 0.69),
+        widthM,
+        lengthM,
+        0.2,
+        -angle,
+        false,
+      );
+    }
+    addLocalFacadeDisc(
+      builder,
+      CLOCK_GOLD,
+      center,
+      profile.rotationY,
+      0,
+      GROUND_Y + clock.centerHeightM,
+      face * (clockFaceZ + 0.72),
+      0.34,
+      0.2,
+      10,
+      false,
+    );
+  }
+
+  addLocalBox(
     builder,
-    0xa48763,
-    center[0],
-    GROUND_Y + 52,
-    center[1],
-    9.3,
-    18,
-    8,
+    RUIN_STONE,
+    center,
+    profile.rotationY,
+    0,
+    GROUND_Y + 50.7,
+    0,
+    22.8,
+    15.2,
+    16.6,
   );
-  const cornerCount = detailProfile === "mobile" ? 2 : 4;
-  for (let index = 0; index < cornerCount; index += 1) {
-    const angle = (index * Math.PI * 2) / cornerCount + Math.PI / 4;
+  for (const face of [-1, 1]) {
+    for (const localX of [-5.4, 0, 5.4]) {
+      addLocalBox(
+        builder,
+        STONE_SHADOW,
+        center,
+        profile.rotationY,
+        localX,
+        GROUND_Y + 49.7,
+        face * 8.42,
+        2.75,
+        6.2,
+        0.28,
+        0,
+        false,
+      );
+      addLocalFacadeDisc(
+        builder,
+        STONE_SHADOW,
+        center,
+        profile.rotationY,
+        localX,
+        GROUND_Y + 52.75,
+        face * 8.43,
+        1.38,
+        0.3,
+        12,
+        false,
+      );
+      addLocalFacadeArch(
+        builder,
+        RUIN_LIGHT,
+        center,
+        profile.rotationY,
+        localX,
+        GROUND_Y + 52.75,
+        face * 8.63,
+        1.58,
+        0.24,
+        10,
+        false,
+      );
+    }
+  }
+
+  for (const [localX, localZ] of [
+    [-11.4, -7.5],
+    [11.4, -7.5],
+    [-11.4, 7.5],
+    [11.4, 7.5],
+  ] as const) {
+    const [x, z] = localPoint(center, profile.rotationY, localX, localZ);
     addCylinder(
       builder,
-      SANDSTONE,
-      center[0] + Math.cos(angle) * 10.2,
-      GROUND_Y + 38,
-      center[1] + Math.sin(angle) * 10.2,
-      1.7,
+      RUIN_STONE,
+      x,
+      GROUND_Y + 50.5,
+      z,
+      1.45,
       11,
-      8,
+      detailProfile === "mobile" ? 6 : 8,
     );
     addCone(
       builder,
-      0x806c55,
-      center[0] + Math.cos(angle) * 10.2,
-      GROUND_Y + 46,
-      center[1] + Math.sin(angle) * 10.2,
-      2.1,
-      5,
-      8,
-    );
-  }
-  for (const [offsetX, offsetZ, crownHeight] of [
-    [-5.4, -2.8, 9.2],
-    [0.2, -4.4, 5.8],
-    [5.1, -1.4, 7.5],
-    [-2.2, 4.1, 4.6],
-    [4.4, 3.7, 2.9],
-  ] as const) {
-    const [x, z] = localPoint(center, profile.rotationY, offsetX, offsetZ);
-    addBox(
-      builder,
-      SANDSTONE,
+      PATINA_GREEN,
       x,
-      GROUND_Y + 61.8 + crownHeight / 2,
+      GROUND_Y + 57.1,
       z,
-      4.2,
-      crownHeight,
-      4.2,
-      profile.rotationY,
-    );
-  }
-  // Dark square insets make the clock/opening tier legible at isometric scale.
-  for (const side of [-1, 1]) {
-    const [x, z] = localPoint(center, profile.rotationY, 0, side * 9.12);
-    addBox(
-      builder,
-      STONE_SHADOW,
-      x,
-      GROUND_Y + 43,
-      z,
-      6.4,
-      7.2,
-      0.28,
-      profile.rotationY,
+      1.75,
+      2.3,
+      detailProfile === "mobile" ? 6 : 8,
       false,
+    );
+  }
+
+  const crownShards = [
+    [-5.3, -2.6, 4.6, 12.48, 4.7, -0.015],
+    [-0.2, -3.5, 4.5, 9.8, 4.1, 0.08],
+    [5.1, -1.7, 4.2, 7.8, 4.3, -0.11],
+    [-3.2, 3.1, 4.1, 8.2, 3.8, 0.09],
+    [3.6, 3.2, 4.4, 5.2, 3.7, -0.08],
+  ] as const;
+  const shardCount = detailProfile === "mobile" ? 4 : crownShards.length;
+  for (const [
+    shardIndex,
+    [localX, localZ, sizeX, heightM, sizeZ, rotationZ],
+  ] of crownShards.slice(0, shardCount).entries()) {
+    const stoneHeightM = heightM * 0.56;
+    const patinaHeightM = heightM - stoneHeightM;
+    addLocalBox(
+      builder,
+      RUIN_STONE,
+      center,
+      profile.rotationY,
+      localX,
+      GROUND_Y + 58.55 + stoneHeightM / 2,
+      localZ,
+      sizeX,
+      stoneHeightM,
+      sizeZ,
+      rotationZ,
+    );
+    const topSlopeM =
+      (shardIndex % 2 === 0 ? 1 : -1) * (0.42 + shardIndex * 0.08);
+    addLocalBrokenBox(
+      builder,
+      PATINA_GREEN,
+      center,
+      profile.rotationY,
+      localX,
+      GROUND_Y +
+        58.55 +
+        stoneHeightM +
+        patinaHeightM / 2 -
+        Math.abs(topSlopeM),
+      localZ,
+      sizeX * 0.88,
+      patinaHeightM,
+      sizeZ * 0.9,
+      topSlopeM,
+      rotationZ,
     );
   }
 }
@@ -1075,45 +2080,132 @@ function addGedaechtniskirche(
   }
 
   const bell = profile.bellTower;
+  const bellRadiusM = bell.diameterM / 2;
   addCylinder(
     builder,
     KWG_BLUE,
     bell.centerWorldM[0],
     churchGround + bell.heightM / 2,
     bell.centerWorldM[1],
-    bell.diameterM / 2,
+    bellRadiusM,
     bell.heightM,
-    6,
+    bell.facadeSides,
   );
-  const bellBands = detailProfile === "mobile" ? 6 : 14;
+  const bellBands = detailProfile === "mobile" ? 18 : 38;
   for (let level = 1; level < bellBands; level += 1) {
     addCylinder(
       builder,
-      CONCRETE,
+      KWG_GRID,
       bell.centerWorldM[0],
       churchGround + (level * bell.heightM) / bellBands,
       bell.centerWorldM[1],
-      bell.diameterM / 2 + 0.12,
-      0.28,
-      6,
+      bellRadiusM + 0.12,
+      0.22,
+      bell.facadeSides,
     );
+  }
+  const bellApothemM = bellRadiusM * Math.cos(Math.PI / bell.facadeSides);
+  const bellColumnsPerFace = detailProfile === "mobile" ? 4 : 7;
+  for (let face = 0; face < bell.facadeSides; face += 1) {
+    const normalAngle =
+      Math.PI / bell.facadeSides +
+      (face * Math.PI * 2) / bell.facadeSides;
+    const normalX = Math.cos(normalAngle);
+    const normalZ = Math.sin(normalAngle);
+    const tangentX = -normalZ;
+    const tangentZ = normalX;
+    for (let column = 0; column < bellColumnsPerFace; column += 1) {
+      const acrossM =
+        -bellRadiusM * 0.44 +
+        (column * bellRadiusM * 0.88) /
+          Math.max(1, bellColumnsPerFace - 1);
+      addRotatedBox(
+        builder,
+        KWG_GRID,
+        bell.centerWorldM[0] +
+          normalX * (bellApothemM + 0.11) +
+          tangentX * acrossM,
+        churchGround + bell.heightM / 2,
+        bell.centerWorldM[1] +
+          normalZ * (bellApothemM + 0.11) +
+          tangentZ * acrossM,
+        0.2,
+        bell.heightM - 1.1,
+        0.24,
+        0,
+        -normalAngle - Math.PI / 2,
+        0,
+        false,
+      );
+    }
+  }
+  addCylinder(
+    builder,
+    0x5f6262,
+    bell.centerWorldM[0],
+    churchGround + bell.bellChamberBandCenterHeightM,
+    bell.centerWorldM[1],
+    bellRadiusM + 0.2,
+    bell.bellChamberBandHeightM,
+    bell.facadeSides,
+  );
+  addCylinder(
+    builder,
+    KWG_GRID,
+    bell.centerWorldM[0],
+    churchGround + bell.heightM - 0.24,
+    bell.centerWorldM[1],
+    bellRadiusM + 0.16,
+    0.48,
+    bell.facadeSides,
+  );
+  if (detailProfile === "full") {
+    const glassFlecks = [
+      [0, 11, 0x90454d],
+      [1, 18, 0x56795c],
+      [2, 25, 0xc0a64e],
+      [3, 39, 0x8f3f4c],
+      [4, 45, 0x4f745c],
+      [5, 49, 0xbca44c],
+    ] as const;
+    for (const [face, heightM, color] of glassFlecks) {
+      const normalAngle =
+        Math.PI / bell.facadeSides +
+        (face * Math.PI * 2) / bell.facadeSides;
+      addRotatedBox(
+        builder,
+        color,
+        bell.centerWorldM[0] +
+          Math.cos(normalAngle) * (bellApothemM + 0.24),
+        churchGround + heightM,
+        bell.centerWorldM[1] +
+          Math.sin(normalAngle) * (bellApothemM + 0.24),
+        0.65,
+        0.9,
+        0.18,
+        0,
+        -normalAngle - Math.PI / 2,
+        0,
+        false,
+      );
+    }
   }
   const crossBaseY = churchGround + bell.heightM;
   addCylinder(
     builder,
     0xc8a24b,
     bell.centerWorldM[0],
-    crossBaseY + 2.7,
+    crossBaseY + bell.finial.poleLengthM / 2,
     bell.centerWorldM[1],
     0.18,
-    5.4,
+    bell.finial.poleLengthM,
     6,
   );
   addCylinder(
     builder,
     0xc8a24b,
     bell.centerWorldM[0],
-    crossBaseY + 5.2,
+    crossBaseY + bell.finial.poleLengthM,
     bell.centerWorldM[1],
     0.55,
     0.8,
@@ -1123,7 +2215,7 @@ function addGedaechtniskirche(
     builder,
     0xc8a24b,
     bell.centerWorldM[0],
-    crossBaseY + 6.2,
+    crossBaseY + bell.finial.poleLengthM + bell.finial.crossHeightM / 2,
     bell.centerWorldM[1],
     2.1,
     0.22,
@@ -1136,10 +2228,10 @@ function addGedaechtniskirche(
     builder,
     0xc8a24b,
     bell.centerWorldM[0],
-    crossBaseY + 6.25,
+    crossBaseY + bell.finial.poleLengthM + bell.finial.crossHeightM / 2,
     bell.centerWorldM[1],
     0.22,
-    1.8,
+    bell.finial.crossHeightM,
     0.22,
   );
 

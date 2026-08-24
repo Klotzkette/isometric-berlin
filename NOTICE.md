@@ -143,6 +143,46 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   explicitly non-surveyed display estimates. No page photograph, press image,
   supplied screenshot or texture derived from one is bundled in the project.
 
+- **Heidestrasse / B96 street-edge owner references (visual evidence only):**
+  three owner-supplied August 2026 street views bound the visible facade
+  hierarchy of the KPMG/EINZ tower, the green FUNBOX reception dome and ticket
+  entrance, and the low Oggi's/Mubis food-stall frontage. Berlin LoD2 and the
+  existing OSM/landmark anchors remain the metric authority for buildings,
+  roads and placement. Local fins, pilotis, awnings, signs, hoarding panels and
+  planted-roof subdivisions are procedural display estimates rather than
+  surveyed geometry. No supplied photograph, crop, event artwork, tracing or
+  photographic texture is bundled or loaded by the viewer.
+
+- **Kaiser-Wilhelm-Gedächtniskirche owner reference (visual evidence only):**
+  one owner-supplied portrait street photograph bounds the recognisable gold
+  clock, triple belfry opening, open lower arch, weathered ruin colour and
+  green-grey broken crown. The official church descriptions and existing OSM
+  building-part anchors remain the authority for ensemble layout, heights and
+  diameters; unmeasured arch, clock, buttress, crown and grid subdivisions are
+  procedural display estimates. No supplied photograph, crop, tracing or
+  photographic texture is bundled or loaded by the viewer.
+
+- **Europa-Center owner references (visual evidence only):** two
+  owner-supplied street photographs bound the current dark curtain-wall
+  reading, aluminium grid, turquoise Breitscheidplatz office band, red rooftop
+  signs, mast and three-spoke star pose. The
+  [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096462)
+  supplies the protected ensemble, steel-frame/curtain-wall construction,
+  equal horizontal facade rows, aluminium profiles, two-storey base,
+  elevated three-storey office band, 103 m overall height and ten-metre star.
+  The Europa-Center owner's
+  [opening record](https://europa-center-berlin.de/timeline/eroeffnung/),
+  [history](https://europa-center-berlin.de/information/historie/) and
+  [star account](https://europa-center-berlin.de/timeline/der-punkt-auf-dem-i/)
+  document the 86 m office tower, 21 office floors and two rotations per
+  minute. OSM ways
+  [`1054276972`](https://www.openstreetmap.org/way/1054276972),
+  [`26408382`](https://www.openstreetmap.org/way/26408382) and
+  [`26408381`](https://www.openstreetmap.org/way/26408381) remain the plan
+  anchors. Local facade bays, supports and code-built sign strokes are
+  procedural recognition geometry. No supplied photograph, crop, logo art,
+  font, tracing or derived texture is bundled or loaded by the viewer.
+
 - **FUNBOX at the Wunderland-Festplatz (factual event evidence):** the official
   [visitBerlin event listing](https://www.visitberlin.de/de/event/funbox)
   supplies the Heidestraße / Minna-Cauer-Straße location, 23 July–20 September
@@ -150,8 +190,8 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   slide. It does not supply a surveyed footprint. The model's fitted envelope,
   individual attraction layout and 2.553 m delivered-road-surface clearance
   are procedural viewer contracts rather than copied event-plan geometry. Page
-  photographs and event artwork are not bundled, traced, projected or used as
-  textures; no rights to those page images are claimed.
+  photographs, supplied street views and event artwork are not bundled,
+  traced, projected or used as textures; no rights to those images are claimed.
 
 - **Geschichtspark Ehemaliges Zellengefängnis Moabit (factual and metric
   evidence):** exact current plan anchors come from OSM park way
@@ -202,8 +242,9 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   modelled the lion and Theodor Kalide executed it; the Royal Prussian Iron
   Foundry in Berlin cast the bronze. The portal identifies the
   current sarcophagus and relief frieze as conservation copies. Unpublished
-  part subdivisions remain procedural and no new photograph or page medium is
-  redistributed for this refinement.
+  part subdivisions remain procedural. The supplied close field view only
+  bounds the lion's raised-head silhouette, green patina and bronze top plate;
+  no new photograph or page medium is redistributed for this refinement.
 
 - **Goethe- and Lessing-Denkmal in the Großer Tiergarten (factual and visual
   evidence):** the Berlin monument database records both works as parts

@@ -15,6 +15,7 @@ import {
   makeSoftNoiseLoopSafe,
   planSchwellenraumSchedule,
   schwellenraumFrequency,
+  schwellenraumPadIntervals,
   schwellenraumStepPlan,
 } from "../src/SchwellenraumSoundscape";
 
@@ -214,6 +215,12 @@ describe("Schwellenraum procedural texture", () => {
     expect(plans).toEqual(
       Array.from({ length: 104 }, (_, step) => schwellenraumStepPlan(step)),
     );
+  });
+
+  test("alternates unresolved minor and suspended harmonic fields", () => {
+    expect(schwellenraumPadIntervals(0)).toEqual([0, 3, 10]);
+    expect(schwellenraumPadIntervals(8)).toEqual([0, 5, 11]);
+    expect(schwellenraumPadIntervals(16)).toEqual([0, 3, 10]);
   });
 
   test("reports absent Web Audio support without throwing", () => {

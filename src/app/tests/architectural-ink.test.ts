@@ -70,7 +70,8 @@ describe("shared architectural ink register", () => {
     applyArchitecturalInkMode(material, "snowstorm");
     expect(material.color.getHex()).not.toBe(night);
     applyArchitecturalInkMode(material, "schwellenraum");
-    expect(material.color.getHex()).toBe(bronze);
+    expect(material.color.getHex()).not.toBe(bronze);
+    expect(material.color.getHex()).not.toBe(night);
     applyArchitecturalInkMode(material, "day");
     expect(material.color.getHex()).toBe(bronze);
   });

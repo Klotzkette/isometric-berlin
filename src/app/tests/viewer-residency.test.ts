@@ -74,6 +74,20 @@ describe("mobile ThreeViewer residency", () => {
     expect(viewerRuntimeFailureDecision(true)).toBe("show-recovery");
   });
 
+  test("does not allocate hidden Schwellenraum scene graphs on an ordinary cold start", () => {
+    expect(threeViewerSource).toContain("createDeferredSchwellenraumRoot(");
+    expect(threeViewerSource).toContain("ensureSchwellenraumContent(runtime)");
+    expect(threeViewerSource).toContain(
+      'if (lightingModeRef.current === "schwellenraum")',
+    );
+    expect(threeViewerSource).not.toContain(
+      "const schwellenraumPraesentation = createSchwellenraumPraesentation()",
+    );
+    expect(threeViewerSource).not.toContain(
+      "const schwellenraumInteriors = createSchwellenraumInteriors()",
+    );
+  });
+
   test("keys the live viewer by mobile family and never opens DZI from onError", () => {
     expect(appSource).toContain("key={threeViewerInstanceKey}");
     expect(appSource).toContain("threeViewerAutoRecoveryUsedRef.current = false");

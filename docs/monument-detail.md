@@ -16,6 +16,7 @@ monument foundation height.
 
 | Memorial | Retained recognition cues | Metric status |
 |---|---|---|
+| Siegessäule / Viktoria (Goldelse) | Bright leaf-gold figure with two layered feather fans, visible head and Prussian eagle helmet, bent raised arm with a leafed laurel wreath, folded standard arm, ring-framed Iron Cross, pointed finial, three wind-blown ribbons, visible shoes and an asymmetrically wind-filled robe with deep folds | Berlin's monument inventory and Bildhauerei in Berlin fix the complete monument at 67 m, the Viktoria at 8.32 m and 35 t, her 0.92 m shoe length, 17 cast parts and gold leaf on oil ground. The model retains those measured values and the documented west-facing attributes; local anatomy, feather and drapery subdivisions are reference-bounded procedural geometry rather than a scan. Its 45 source parts, 7,758 vertices and 86 explicit ink segments merge into one texture-free gold material draw. |
 | Memorial to the Murdered Jews of Europe | Complete field, depressed terrain cue, individually varied and slightly tilted stelae | The current model contract retains 2,711 concrete stelae, each 0.95 x 2.38 m, with 0.95 m single-file alleys and a 0.2–4.7 m published height range. Count, cross-section, alley width and range are exact contracts; individual height, tilt, terrain roll and scene orientation remain deterministic presentation geometry. |
 | Memorial to the Sinti and Roma murdered under National Socialism | Black reflecting pool in a dark-coated steel pan, retractable triangular granite stone with daily flower, German/English rim poem, broken-granite apron, 69 crime-site stones, segmented glass/Corten chronology and nine-biography 2022 exhibition cues | The responsible foundation publishes the approximately 12 m pool diameter and 69 named places; Dani Karavan's catalogue publishes a 2.5 x 60 x 60 m overall artwork extent. Those figures are exact model contracts; uncited stone, panel and local-spacing dimensions remain visual-reference approximations. |
 | Memorial to Homosexuals Persecuted under Nazism | Tall concrete cuboid and inset viewing window | Characteristic form follows the responsible foundation and licensed reference images; uncited dimensions are approximate. |
@@ -36,6 +37,10 @@ monument foundation height.
 
 ## Primary sources
 
+- Berlin monument database and Bildhauerei in Berlin, Siegessäule and Viktoria
+  dimensions, materials and iconography:
+  <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050419>
+  <https://bildhauerei-in-berlin.de/bildwerk/siegessaeule-4706/>
 - Foundation Memorial to the Murdered Jews of Europe, Holocaust memorial facts:
   <https://www.stiftung-denkmal.de/denkmaeler/denkmal-fuer-die-ermordeten-juden-europas-mit-ausstellung-im-ort-der-information/>
 - Foundation pages for the Sinti/Roma, homosexual-victims and Jehovah's
@@ -129,10 +134,12 @@ and rendered vertices plus a separate four-batch / 197-block Minecraft
 signature with 4,728 rendered vertices. Its platform remains
 walkable outside the actual sculpture, bench and stele solids, and its
 non-legible incision cues contain no poem or quotation. The Scharnhorst lion's
-structural reclining silhouette likewise remains visible when close-only mane,
-face and claw cues fade. Scharnhorst uses 8 smooth renderables / 554 stored /
-15,539 rendered vertices and contributes 4 Minecraft batches / 566 blocks /
-13,584 rendered instance vertices; no supplied cemetery photograph is loaded.
+green-patinated reclining silhouette, full mane, pointed ears, raised head,
+paired forepaws and bronze top plate likewise remain visible when close-only
+mane-tuft, face and claw cues fade. Scharnhorst uses 9 smooth renderables / 698
+stored / 16,978 rendered vertices and contributes 4 Minecraft batches / 572
+blocks / 13,728 rendered instance vertices; no supplied cemetery photograph is
+loaded.
 
 The Invalidenfriedhof and Kieler-Eck additions follow the same evidence rule.
 Their procedural forms are static in every visual mode; Minecraft uses

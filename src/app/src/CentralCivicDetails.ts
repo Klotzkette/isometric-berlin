@@ -63,6 +63,24 @@ export type CentralCivicLandmark = {
   world: [number, number, number];
 };
 
+export const OGGIS_MUBIS_PROFILE = {
+  geometryStatus:
+    "bounded owner-photo recognition detail on the existing OSM-positioned Oggi landmark anchor",
+  focusTargetOffsetWorldM: [4, 2] as const,
+  mubis: {
+    centerLocalX: 9.2,
+    depthM: 4.8,
+    widthM: 8.2,
+  },
+  oggi: {
+    centerLocalX: 0,
+    depthM: 5,
+    widthM: 8.8,
+  },
+  ownerReferenceCount: 1,
+  rotationY: -0.42,
+} as const;
+
 const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
   "Abgeordnetenhaus von Berlin": {
     azimuth_degrees: 28,
@@ -99,6 +117,12 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     distance_m: 178,
     polar_degrees: 59,
     target_height_m: 14,
+  },
+  "Oggi's Gemüsekebab": {
+    azimuth_degrees: 156,
+    distance_m: 60,
+    polar_degrees: 75,
+    target_height_m: 2.5,
   },
   "Parlament der Bäume gegen Krieg und Gewalt": {
     azimuth_degrees: 20,
@@ -146,6 +170,12 @@ export function centralCivicFocusCamera(
   const targetWorld: [number, number, number] =
     landmark.name === "Berliner Ensemble"
       ? [...BERLINER_ENSEMBLE_PROFILE.focus.targetWorldM]
+      : landmark.name === "Oggi's Gemüsekebab"
+        ? [
+            landmark.world[0] + OGGIS_MUBIS_PROFILE.focusTargetOffsetWorldM[0],
+            landmark.world[1],
+            landmark.world[2] + OGGIS_MUBIS_PROFILE.focusTargetOffsetWorldM[1],
+          ]
       : landmark.name === "Bahnhof Berlin Friedrichstraße"
         ? [landmark.world[0] + 2.4, landmark.world[1], landmark.world[2] - 12.2]
         : landmark.name === "Reichstagsvorfeld / Berlin-Pavillon"
@@ -177,6 +207,10 @@ const TRANSIT_BLUE = 0x2878b9;
 const GARDEN_GREEN = 0x5e9b66;
 const FOLIAGE = 0x4f8a58;
 const LIGHT_GREEN = 0x95bd75;
+const OGGI_TIMBER = 0x6f503c;
+const OGGI_AWNING = 0x3f4441;
+const MUBIS_RED = 0x8f3f3e;
+const MUBIS_BLUE = 0x37658f;
 const PARISER_LAWN = 0x8db978;
 const PARISER_FLOWER_SOIL = 0x765d48;
 const PARISER_RAIL = 0x38413d;
@@ -1490,19 +1524,208 @@ function addOggiAndTaxis(
 ): void {
   const oggi = anchor(byName, "Oggi's Gemüsekebab");
   if (oggi) {
-    localBox(builder, IVORY, oggi, 0, 1.65, 0, 8.5, 3.1, 4.2, -0.42);
-    localBox(builder, GARDEN_GREEN, oggi, 0, 3.42, 0, 9.1, 0.42, 4.6, -0.42);
+    const profile = OGGIS_MUBIS_PROFILE;
+    const rotation = profile.rotationY;
+
+    // Oggi's is the low timber-and-ivory unit from the street photograph: a
+    // dark open counter, deep awning, paired round logos and planted roofline.
+    localBox(
+      builder,
+      OGGI_TIMBER,
+      oggi,
+      profile.oggi.centerLocalX,
+      1.55,
+      0,
+      profile.oggi.widthM,
+      3.1,
+      profile.oggi.depthM,
+      rotation,
+    );
+    localBox(builder, IVORY, oggi, 0, 2.75, -2.57, 8.25, 0.82, 0.22, rotation);
+    localBox(
+      builder,
+      DARK_GLASS,
+      oggi,
+      0,
+      1.63,
+      -2.63,
+      6.75,
+      1.35,
+      0.2,
+      rotation,
+      false,
+    );
+    for (const localX of [-3.55, 3.55]) {
+      localBox(
+        builder,
+        OGGI_TIMBER,
+        oggi,
+        localX,
+        1.55,
+        -2.72,
+        0.35,
+        2.55,
+        0.35,
+        rotation,
+      );
+    }
+    localBox(
+      builder,
+      OGGI_AWNING,
+      oggi,
+      0,
+      2.43,
+      -3.18,
+      7.6,
+      0.2,
+      1.55,
+      rotation,
+    );
+    localBox(
+      builder,
+      OGGI_TIMBER,
+      oggi,
+      0,
+      0.84,
+      -2.82,
+      7.25,
+      0.32,
+      0.72,
+      rotation,
+    );
+
+    // Mubis reads as a separate red-and-ivory kiosk under the same green roof
+    // edge, rather than as part of the former generic Oggi box.
+    localBox(
+      builder,
+      MUBIS_RED,
+      oggi,
+      profile.mubis.centerLocalX,
+      1.62,
+      0.05,
+      profile.mubis.widthM,
+      3.24,
+      profile.mubis.depthM,
+      rotation,
+    );
+    localBox(
+      builder,
+      IVORY,
+      oggi,
+      profile.mubis.centerLocalX,
+      2.35,
+      -2.46,
+      7.7,
+      1.28,
+      0.22,
+      rotation,
+    );
+    localBox(
+      builder,
+      DARK_GLASS,
+      oggi,
+      profile.mubis.centerLocalX,
+      1.45,
+      -2.58,
+      6.3,
+      1.15,
+      0.18,
+      rotation,
+      false,
+    );
+    localBox(
+      builder,
+      MUBIS_RED,
+      oggi,
+      profile.mubis.centerLocalX,
+      0.72,
+      -2.72,
+      7.15,
+      0.48,
+      0.42,
+      rotation,
+    );
+    localBox(
+      builder,
+      OGGI_AWNING,
+      oggi,
+      profile.mubis.centerLocalX,
+      2.55,
+      -3.02,
+      7.1,
+      0.2,
+      1.2,
+      rotation,
+    );
+
+    localBox(
+      builder,
+      GARDEN_GREEN,
+      oggi,
+      4.55,
+      3.42,
+      0,
+      18.6,
+      0.42,
+      5.35,
+      rotation,
+    );
+    for (const localX of [7.05, 11.35]) {
+      localBox(
+        builder,
+        STEEL,
+        oggi,
+        localX,
+        3.96,
+        -2.42,
+        0.18,
+        1.1,
+        0.18,
+        rotation,
+        false,
+      );
+    }
+    for (let shrub = 0; shrub < 7; shrub += 1) {
+      const local = localPoint(oggi, -3.5 + shrub * 2.7, 0.25, rotation);
+      const crown = new SphereGeometry(1, 8, 6);
+      crown.scale(1.45, 0.62 + (shrub % 2) * 0.16, 1.15);
+      crown.translate(local.x, oggi.y + 3.9, local.z);
+      addInkedGeometry(builder, crown, shrub % 2 ? FOLIAGE : LIGHT_GREEN, false);
+    }
+
+    for (const localX of [-4.15, 4.15]) {
+      const local = localPoint(oggi, localX, -2.79, rotation);
+      const logo = new CylinderGeometry(0.72, 0.72, 0.18, 16);
+      logo.rotateX(Math.PI / 2);
+      logo.rotateY(rotation);
+      logo.translate(local.x, oggi.y + 3.22, local.z);
+      addInkedGeometry(builder, logo, IVORY);
+    }
+
+    for (const localX of [-3.8, 1.1, 6, 10.9, 15.2]) {
+      const local = localPoint(oggi, localX, -4.25, rotation);
+      addCylinder(
+        builder,
+        STEEL,
+        local.x,
+        oggi.y + 0.58,
+        local.z,
+        0.13,
+        1.16,
+        8,
+      );
+    }
     localLampBox(
       builder,
       0xf1eee4,
       oggi,
       0,
-      2.25,
-      -2.15,
+      2.76,
+      -2.72,
       6.9,
-      0.9,
+      0.76,
       0.18,
-      -0.42,
+      rotation,
     );
   }
   const taxis = anchor(byName, "Taxistand Washingtonplatz");
@@ -3906,6 +4129,7 @@ function createSign(
   fieldColor: string,
   letterColor: string,
   transparentField = false,
+  presentationRotationY = rotationY,
 ): Mesh {
   const resolvedFieldColor = transparentField ? "rgba(0,0,0,0)" : fieldColor;
   const texture = createLetteringTexture({
@@ -3950,7 +4174,7 @@ function createSign(
   const sign = new Mesh(new PlaneGeometry(width, height), dayMaterial);
   const position = localPoint(point, offset[0], offset[2], rotationY);
   sign.position.set(position.x, point.y + offset[1], position.z);
-  sign.rotation.y = rotationY;
+  sign.rotation.y = presentationRotationY;
   sign.name = `${text} civic lettering`;
   sign.userData.dayMaterial = dayMaterial;
   sign.userData.nightMaterial = nightMaterial;
@@ -3963,16 +4187,64 @@ function addSigns(
 ): void {
   const oggi = anchor(byName, "Oggi's Gemüsekebab");
   if (oggi) {
+    const rotation = OGGIS_MUBIS_PROFILE.rotationY;
+    const facadeLetteringRotation = rotation + Math.PI;
+    const oggiSign = createSign(
+      "OGGI'S",
+      6.4,
+      0.96,
+      oggi,
+      [0, 3.16, -2.77],
+      rotation,
+      "#315244",
+      "#f4f1e8",
+      false,
+      facadeLetteringRotation,
+    );
+    // Keep the stable object name used by viewer diagnostics while improving
+    // the actual drawn word to match the photographed fascia.
+    oggiSign.name = "OGGI civic lettering";
+    group.add(oggiSign);
     group.add(
       createSign(
-        "OGGI",
-        6.8,
+        "GEMUESEKEBAB",
+        6.7,
+        0.58,
+        oggi,
+        [0, 2.68, -2.86],
+        rotation,
+        "#315244",
+        "#f4f1e8",
+        false,
+        facadeLetteringRotation,
+      ),
+    );
+    group.add(
+      createSign(
+        "MUBIS",
+        5.9,
         1.05,
         oggi,
-        [0, 2.3, -2.23],
-        -0.42,
-        "#f1eee4",
-        "#377553",
+        [OGGIS_MUBIS_PROFILE.mubis.centerLocalX, 4.36, -2.56],
+        rotation,
+        "#f0ede4",
+        "#3768a0",
+        false,
+        facadeLetteringRotation,
+      ),
+    );
+    group.add(
+      createSign(
+        "CITY IMBISS",
+        5.8,
+        0.72,
+        oggi,
+        [OGGIS_MUBIS_PROFILE.mubis.centerLocalX, 3.56, -2.58],
+        rotation,
+        "#f0ede4",
+        "#29434a",
+        false,
+        facadeLetteringRotation,
       ),
     );
   }
@@ -4104,6 +4376,12 @@ export function createCentralCivicDetails(
   };
   group.userData.berlinerEnsemble = BERLINER_ENSEMBLE_PROFILE;
   group.userData.berlinPavillon = BERLIN_PAVILLON_PROFILE;
+  group.userData.oggisMubis = {
+    ...OGGIS_MUBIS_PROFILE,
+    photographsBundled: false,
+    source:
+      "existing OSM-positioned Oggi landmark anchor + one owner-supplied August 2026 street view",
+  };
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );

@@ -257,6 +257,7 @@ export function nextMicroDetailVisible({
  * testable without a scene graph.
  */
 export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
+  "LoD2 facade axes",
   "carriageway lane markings",
   "LoD2 glass mullions",
   "LoD2 prism window bars",

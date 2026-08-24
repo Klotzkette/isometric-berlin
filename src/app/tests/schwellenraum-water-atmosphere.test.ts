@@ -32,7 +32,9 @@ import { SCHWELLENRAUM_PROTECTED_VOLUMES } from "../src/SchwellenraumInteriors";
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 const productionSurfaces = surfacePayload as unknown as SurfacePayload;
 
 const ELIGIBLE_WATER_NAMES = [

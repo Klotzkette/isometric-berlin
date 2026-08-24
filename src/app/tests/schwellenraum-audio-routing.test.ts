@@ -4,7 +4,9 @@ import { UI_COPY } from "../src/localization";
 
 const appSource = await Bun.file(
   new URL("../src/App.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 
 describe("Schwellenraum audio routing", () => {
   test("uses the dedicated procedural layer instead of either standard engine", () => {

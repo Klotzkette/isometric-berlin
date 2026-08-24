@@ -37,20 +37,29 @@ export const SCHWELLENRAUM_SCORE_GAIN = 0.44;
 export const SCHWELLENRAUM_ENTER_FADE_SECONDS = 2.8;
 export const SCHWELLENRAUM_LEAVE_FADE_SECONDS = 2.4;
 export const SCHWELLENRAUM_MIX_FADE_SECONDS = 1.6;
-export const SCHWELLENRAUM_STEP_SECONDS = 2.4;
+export const SCHWELLENRAUM_STEP_SECONDS = 2.7;
 export const SCHWELLENRAUM_LOOKAHEAD_SECONDS = 0.52;
 export const SCHWELLENRAUM_MAX_STEPS_PER_TICK = 3;
 
 const START_DELAY_SECONDS = 0.045;
 const RESUME_FADE_SECONDS = 1.4;
 const RUSTLE_BUFFER_SECONDS = 6.2;
-const REVERB_SECONDS = 3.4;
+const REVERB_SECONDS = 4.2;
 const PAD_EVERY_STEPS = 8;
 const RUSTLE_EVERY_STEPS = 2;
 const GLINT_EVERY_STEPS = 13;
 
-const PAD_ROOTS = [41, 48, 43, 46, 38, 45, 40] as const;
-const GLINT_NOTES = [72, 67, 74, 69, 76, 71, 65, 73, 68] as const;
+const PAD_ROOTS = [45, 43, 40, 41, 38, 36, 43] as const;
+const GLINT_NOTES = [67, 70, 65, 72, 68, 63, 71, 66, 69] as const;
+
+/** Alternating minor and suspended fields avoid a repeating major resolution. */
+export function schwellenraumPadIntervals(
+  step: number,
+): readonly [number, number, number] {
+  return Math.max(0, Math.floor(step)) % 16 === 0
+    ? [0, 3, 10]
+    : [0, 5, 11];
+}
 
 type AudioWindow = typeof window & {
   webkitAudioContext?: typeof AudioContext;
@@ -721,16 +730,16 @@ export class SchwellenraumSoundscape {
     const gain = context.createGain();
     const filter = context.createBiquadFilter();
     const pan = context.createStereoPanner();
-    const endAt = applyEnvelope(gain.gain, at, 0.09, 4.4, 7.1, 6.2);
+    const endAt = applyEnvelope(gain.gain, at, 0.082, 5.8, 8.4, 8.6);
     filter.type = "lowpass";
-    filter.frequency.setValueAtTime(720, at);
-    filter.frequency.linearRampToValueAtTime(1320, at + 6.8);
-    filter.frequency.linearRampToValueAtTime(580, endAt);
+    filter.frequency.setValueAtTime(610, at);
+    filter.frequency.linearRampToValueAtTime(1080, at + 8.2);
+    filter.frequency.linearRampToValueAtTime(510, endAt);
     filter.Q.value = 0.5;
     pan.pan.setValueAtTime(((step / PAD_EVERY_STEPS) % 5 - 2) * 0.08, at);
     filter.connect(gain).connect(pan).connect(this.scoreBus);
 
-    const intervals = step % 16 === 0 ? [0, 7, 14] : [0, 5, 12];
+    const intervals = schwellenraumPadIntervals(step);
     const detunes = [-4.5, 1.5, 5.8] as const;
     intervals.forEach((interval, voiceIndex) => {
       const oscillator = context.createOscillator();

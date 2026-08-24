@@ -124,6 +124,7 @@ import { setStarbucksPariserPlatzSnow } from "./StarbucksPariserPlatz";
 import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
+  funboxEntranceFocusCamera,
 } from "./ExpandedCityDetails";
 import {
   MOABIT_PRISON_MEMORIAL_MARKER_Y,
@@ -385,6 +386,10 @@ import {
   setSchwellenraumPraesentation,
 } from "./visual-modes/schwellenraum/presentation";
 import {
+  schwellenraumMaterialFor,
+  setSchwellenraumStandardMaterialTone,
+} from "./visual-modes/schwellenraum/materialGrade";
+import {
   countSchwellenraumMovingFlags,
   schwellenraumMotionDecision,
   updateSchwellenraumMovingFlags,
@@ -537,8 +542,10 @@ type Runtime = {
   minecraftMobs: MinecraftMobField | null;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
+  schwellenraumContentReady: boolean;
   schwellenraumInteriors: Group;
   schwellenraumPraesentation: Group;
+  schwellenraumWorldDetailsInstaller: (() => void) | null;
   berlinerEnsembleRoofSignElapsedSeconds: number;
   berlinerEnsembleRoofSignLastFrameAt: number;
   berlinerEnsembleRoofSignTargets: Object3D[];
@@ -623,6 +630,62 @@ type Runtime = {
   undergroundNetwork: Group;
   underwater: boolean;
 };
+
+function createDeferredSchwellenraumRoot(name: string): Group {
+  const root = new Group();
+  root.name = name;
+  root.visible = false;
+  root.userData.schwellenraumDeferred = true;
+  return root;
+}
+
+function adoptSchwellenraumRoot(target: Group, source: Group): void {
+  target.name = source.name;
+  target.visible = source.visible;
+  target.userData = {
+    ...target.userData,
+    ...source.userData,
+    schwellenraumDeferred: false,
+  };
+  while (source.children.length > 0) target.add(source.children[0]);
+}
+
+function runSchwellenraumWorldDetailsInstaller(runtime: Runtime): void {
+  const install = runtime.schwellenraumWorldDetailsInstaller;
+  if (!install || !runtime.schwellenraumContentReady) return;
+  runtime.schwellenraumWorldDetailsInstaller = null;
+  install();
+  applyLightingToRoot(
+    runtime.schwellenraumPraesentation,
+    runtime.lightingMode,
+    runtime.nightLightsOn,
+  );
+  runtime.renderInvalidated = true;
+}
+
+/** Allocate hidden mode-only geometry only when the mode is actually used. */
+function ensureSchwellenraumContent(runtime: Runtime): boolean {
+  if (runtime.schwellenraumContentReady) return false;
+  adoptSchwellenraumRoot(
+    runtime.schwellenraumPraesentation,
+    createSchwellenraumPraesentation(
+      runtime.coarsePointer ? "mobile" : "full",
+    ),
+  );
+  adoptSchwellenraumRoot(
+    runtime.schwellenraumInteriors,
+    createSchwellenraumInteriors(),
+  );
+  runtime.schwellenraumContentReady = true;
+  runSchwellenraumWorldDetailsInstaller(runtime);
+  applyLightingToRoot(
+    runtime.schwellenraumInteriors,
+    runtime.lightingMode,
+    runtime.nightLightsOn,
+  );
+  runtime.renderInvalidated = true;
+  return true;
+}
 
 function minecraftVisibilityRoots(runtime: Runtime): MinecraftVisibilityRoots {
   return {
@@ -1347,6 +1410,7 @@ export function applyMaterialLighting(
     material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
     material.emissiveIntensity = material.userData.dayEmissiveIntensity ?? 1;
   }
+  setSchwellenraumStandardMaterialTone(material, mode);
 }
 
 /**
@@ -1690,7 +1754,12 @@ export function applyLightingToRoot(
     const nightMaterial = object.userData.nightMaterial as
       MeshBasicMaterial | MeshStandardMaterial | undefined;
     if (dayMaterial && nightMaterial) {
-      object.material = objectMode === "night" ? nightMaterial : dayMaterial;
+      object.material =
+        objectMode === "night"
+          ? nightMaterial
+          : objectMode === "schwellenraum"
+            ? schwellenraumMaterialFor(object, dayMaterial)
+            : dayMaterial;
     }
     // Swap flattened building geometry between its flat day colours and the
     // original per-vertex photogrammetry colours: day = piecewise-constant flat
@@ -1793,6 +1862,8 @@ function setSceneLighting(
           ? 0xeef9ff
           : isSnowstorm
             ? 0xe7eef1
+            : isSchwellenraum
+              ? 0xd9cedf
             : 0xffffff,
   );
   // Day's hemisphere ground half is nearly as bright as its sky half. A
@@ -1809,6 +1880,8 @@ function setSceneLighting(
           ? 0x8ea084
           : isSnowstorm
             ? 0xc8d1d4
+            : isSchwellenraum
+              ? 0x758378
             : 0xe4e6e0,
   );
   // Without a film curve the drawn modes need light levels that land BELOW
@@ -1829,6 +1902,8 @@ function setSceneLighting(
         ? 2.05
         : isSnowstorm
           ? 2.45
+          : isSchwellenraum
+            ? 2.38
           : 2.75;
   // A near-white key: the old amber 0xffdda3 crushed the blue channel of
   // every cream facade and turned the Chancellery lemon-yellow. Moonlight
@@ -1843,6 +1918,8 @@ function setSceneLighting(
           ? 0xfffaf0
           : isSnowstorm
             ? 0xdce8ed
+            : isSchwellenraum
+              ? 0xf0cfb6
             : 0xfff8ea,
   );
   // Day's key is deliberately gentle. With the ambient half carrying the
@@ -1857,6 +1934,8 @@ function setSceneLighting(
         ? 2.2
         : isSnowstorm
           ? 0.24
+          : isSchwellenraum
+            ? 0.46
           : 0.62;
   runtime.skyFill.color.setHex(
     isMoonlit
@@ -1867,6 +1946,8 @@ function setSceneLighting(
           ? 0x9fd8f2
           : isSnowstorm
             ? 0xb9ced8
+            : isSchwellenraum
+              ? 0xa9b8c7
             : 0xb6dcff,
   );
   runtime.skyFill.intensity = isMoonlit
@@ -1877,6 +1958,8 @@ function setSceneLighting(
         ? 0.5
         : isSnowstorm
           ? 0.28
+          : isSchwellenraum
+            ? 0.18
           : 0.12;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
@@ -2770,6 +2853,9 @@ function ensureIsoWorld(
           memorialProtection,
         );
         pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+            return true;
+          }
           return visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
@@ -2779,10 +2865,14 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
+          runtime.tunnelInteriorAt?.(x, y, z) !== true &&
           runtime.lightingMode === "schwellenraum" &&
           (schwellenraumProtectedAt(x, y, z) ||
             schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
         pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+            return false;
+          }
           if (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
@@ -2823,20 +2913,31 @@ function ensureIsoWorld(
             : (pedestrianEnvironment.groundAt(x, z) ?? 0);
           return schwellenraumInteriorGroundAt(x, z, hint);
         };
-        installSchwellenraumStaticProps(
-          runtime.schwellenraumPraesentation,
-          pedestrianEnvironment.groundAt,
-        );
         const terrainSample = smoothGroundTopSampler(ground);
-        installUnterDenLindenMedianRefinement(
-          runtime.schwellenraumPraesentation,
-          surfaces,
-          (x, z) =>
-            terrainSample(
-              x / ground.cell_m - ground.grid.min_x_idx,
-              z / ground.cell_m - ground.grid.min_z_idx,
-            ),
-        );
+        runtime.schwellenraumWorldDetailsInstaller = () => {
+          installSchwellenraumStaticProps(
+            runtime.schwellenraumPraesentation,
+            pedestrianEnvironment.groundAt,
+          );
+          installUnterDenLindenMedianRefinement(
+            runtime.schwellenraumPraesentation,
+            surfaces,
+            (x, z) =>
+              terrainSample(
+                x / ground.cell_m - ground.grid.min_x_idx,
+                z / ground.cell_m - ground.grid.min_z_idx,
+              ),
+          );
+          if (
+            setSchwellenraumDatenSchutz(
+              runtime.schwellenraumPraesentation,
+              memorialProtection,
+            )
+          ) {
+            runtime.renderInvalidated = true;
+          }
+        };
+        runSchwellenraumWorldDetailsInstaller(runtime);
       }
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -3036,14 +3137,6 @@ function ensureIsoWorld(
           activatePedestrianMode(runtime);
         }
       }
-      if (
-        setSchwellenraumDatenSchutz(
-          runtime.schwellenraumPraesentation,
-          memorialProtection,
-        )
-      ) {
-        runtime.renderInvalidated = true;
-      }
       markSurfaceInteraction(runtime, 400, true);
       if (!runtime.coarsePointer) {
         runtime.startDeferredDetails();
@@ -3211,18 +3304,25 @@ function ensureVoxelWorld(
           prisms,
         );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
+          runtime.tunnelInteriorAt?.(x, y, z) === true ||
           visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
-        provisionalEnvironment.interiorSolidAt = (x, y, z, radius) =>
-          weidendammerBridgeSolidAt(x, y, z, radius) ||
-          csdAttackMemorialSolidAt(x, y, z, radius) ||
-          berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
-          tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
-          // The navigation sampler already carries the capsule radius.
-          wagnerMemorialSolidAt(x, y, z, 0) ||
-          moabitPrisonMemorialSolidAt(x, y, z, 0) ||
-          invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
-          (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-            minecraftHeroSolidAt(x, y, z, radius));
+        provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
+          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+            return false;
+          }
+          return (
+            weidendammerBridgeSolidAt(x, y, z, radius) ||
+            csdAttackMemorialSolidAt(x, y, z, radius) ||
+            berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
+            tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+            // The navigation sampler already carries the capsule radius.
+            wagnerMemorialSolidAt(x, y, z, 0) ||
+            moabitPrisonMemorialSolidAt(x, y, z, 0) ||
+            invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
+            (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+              minecraftHeroSolidAt(x, y, z, radius))
+          );
+        };
         provisionalEnvironment.interiorGroundAt = (x, z) =>
           minecraftHeroCollisionEnabled(runtime.lightingMode)
             ? minecraftHeroGroundAt(x, z)
@@ -3368,7 +3468,7 @@ function fovDollyScale(fromDegrees: number, toDegrees: number): number {
 }
 
 function segmentMesh(
-  geometry: BoxGeometry,
+  geometry: BufferGeometry,
   material: MeshPhysicalMaterial | MeshBasicMaterial,
   start: Vector3,
   end: Vector3,
@@ -3386,6 +3486,20 @@ function segmentMesh(
     .addScaledVector(normal, offset);
   mesh.rotation.y = Math.atan2(delta.x, delta.z);
   return mesh;
+}
+
+/** Longitudinal shell with no front/back face that could close the bore. */
+function openEndedBoxGeometry(width: number, height: number): BoxGeometry {
+  const geometry = new BoxGeometry(width, height, 1);
+  const index = geometry.index;
+  if (index) {
+    // BoxGeometry orders +/-Z after the four longitudinal faces.
+    geometry.setIndex(Array.from(index.array).slice(0, 24));
+  }
+  geometry.clearGroups();
+  geometry.addGroup(0, 24, 0);
+  geometry.userData.openEndedAlongLocalZ = true;
+  return geometry;
 }
 
 function addInstancedMeshes(
@@ -3445,8 +3559,8 @@ export function createTunnel(payload: TunnelPayload): Group {
     0.3,
     0.82,
   );
-  const casingGeometry = new BoxGeometry(width, height, 1);
-  const roadGeometry = new BoxGeometry(width - 0.7, 0.28, 1);
+  const casingGeometry = openEndedBoxGeometry(width, height);
+  const roadGeometry = openEndedBoxGeometry(width - 0.7, 0.28);
   const lightStripGeometry = new BoxGeometry(0.12, 0.1, 1);
   const lampGeometry = new BoxGeometry(1.55, 0.12, 0.36);
   const laneMarkGeometry = new BoxGeometry(0.16, 0.06, 1);
@@ -3539,8 +3653,10 @@ export function createTunnel(payload: TunnelPayload): Group {
         end,
         offset,
       );
+      casing.name = "Tiergartentunnel open-ended casing segment";
       group.add(casing);
       const road = segmentMesh(roadGeometry, roadMaterial, start, end, offset);
+      road.name = "Tiergartentunnel open-ended road segment";
       road.position.y -= height / 2 - 0.26;
       group.add(road);
       for (const wallSide of [-1, 1]) {
@@ -4269,6 +4385,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return;
       }
       const previousLightingMode = runtime.lightingMode;
+      if (lightingMode === "schwellenraum") {
+        ensureSchwellenraumContent(runtime);
+      }
       if (
         (lightingMode === "day" ||
           lightingMode === "night" ||
@@ -4353,6 +4472,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ? composerMemorialFocusCamera()
           : name === MOABIT_PRISON_MEMORIAL_PROFILE.name
             ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
+            : name === "Oggi's Gemüsekebab" && voxelModeActive(runtime)
+              ? funboxEntranceFocusCamera()
             : runtime.focusCameraByName.get(name);
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
@@ -4992,9 +5113,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(rain.group);
       const snowstorm = createSnowstorm(coarsePointer);
       scene.add(snowstorm.group);
-      const schwellenraumPraesentation = createSchwellenraumPraesentation();
+      const schwellenraumPraesentation = createDeferredSchwellenraumRoot(
+        "Deferred Schwellenraum light presentation",
+      );
       scene.add(schwellenraumPraesentation);
-      const schwellenraumInteriors = createSchwellenraumInteriors();
+      const schwellenraumInteriors = createDeferredSchwellenraumRoot(
+        "Deferred Schwellenraum accessible architecture",
+      );
       scene.add(schwellenraumInteriors);
       const runtime: Runtime = {
         baseSurfaceReady: false,
@@ -5024,8 +5149,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         minecraftMobs: null,
         modelMaterials: new Set(),
         monuments,
+        schwellenraumContentReady: false,
         schwellenraumInteriors,
         schwellenraumPraesentation,
+        schwellenraumWorldDetailsInstaller: null,
         berlinerEnsembleRoofSignElapsedSeconds: 0.9,
         berlinerEnsembleRoofSignLastFrameAt: 0,
         berlinerEnsembleRoofSignTargets: [],
@@ -5106,6 +5233,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underwater: false,
       };
       runtimeRef.current = runtime;
+      if (lightingModeRef.current === "schwellenraum") {
+        ensureSchwellenraumContent(runtime);
+      }
       setSceneLighting(
         runtime,
         lightingModeRef.current,
@@ -6471,7 +6601,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // near her own height; the default overhead framing shows her back.
           runtime.focusCameraByName.set("Siegessäule", {
             azimuth_degrees: -70,
-            distance_m: 66,
+            distance_m: 54,
+            fov_degrees: 31,
             polar_degrees: 80,
             target_height_m: 63,
             target_world: [-1459, 2.1, 456],

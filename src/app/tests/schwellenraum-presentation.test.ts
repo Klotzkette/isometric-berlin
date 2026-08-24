@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry,
   Group,
+  LineSegments,
   Mesh,
   MeshStandardMaterial,
   NoToneMapping,
@@ -11,6 +12,7 @@ import {
 import {
   SCHWELLENRAUM_LICHTORTE,
   SCHWELLENRAUM_LIGHT_TONES,
+  SCHWELLENRAUM_PRESENTATION_BUDGET,
   SCHWELLENRAUM_SCHUTZRAEUME,
   abstandZumNaechstenSchutzraum,
   createSchwellenraumPraesentation,
@@ -172,6 +174,45 @@ describe("Schwellenraum presentation", () => {
     expect(setSchwellenraumPraesentation(root, "schwellenraum", true)).toBeTrue();
     expect(root.visible).toBeFalse();
     expect(setSchwellenraumPraesentation(root, "day", false)).toBeFalse();
+  });
+
+  test("keeps the richer threshold atmosphere inside fixed desktop and mobile budgets", () => {
+    let fullVertices = 0;
+    let mobileVertices = 0;
+    for (const detailProfile of ["full", "mobile"] as const) {
+      const root = createSchwellenraumPraesentation(detailProfile);
+      const geometries = new Set();
+      const materials = new Set();
+      let objects = 0;
+      let renderables = 0;
+      let vertices = 0;
+      root.traverse((object) => {
+        objects += 1;
+        if (!(object instanceof Mesh) && !(object instanceof LineSegments)) {
+          return;
+        }
+        renderables += 1;
+        geometries.add(object.geometry);
+        vertices += object.geometry.getAttribute("position").count;
+        const assigned = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+        for (const material of assigned) materials.add(material);
+      });
+      const budget = SCHWELLENRAUM_PRESENTATION_BUDGET[detailProfile];
+      expect(root.userData.renderBudget).toBe(budget);
+      expect(objects).toBeLessThanOrEqual(budget.objects);
+      expect(renderables).toBeLessThanOrEqual(budget.renderables);
+      expect(geometries.size).toBeLessThanOrEqual(budget.geometries);
+      expect(materials.size).toBeLessThanOrEqual(budget.materials);
+      expect(vertices).toBeLessThanOrEqual(budget.vertices);
+      expect(root.children.every((place) => place.children.length === 3)).toBe(
+        true,
+      );
+      if (detailProfile === "full") fullVertices = vertices;
+      else mobileVertices = vertices;
+    }
+    expect(mobileVertices).toBeLessThan(fullVertices);
   });
 
   test("opens the spatial mode in 3D and never repaints the source map", () => {

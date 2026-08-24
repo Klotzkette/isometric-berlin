@@ -10,16 +10,19 @@ import {
   IcosahedronGeometry,
   InstancedMesh,
   LineBasicMaterial,
+  LineDashedMaterial,
   LineSegments,
   Material,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  type Object3D,
   Path,
   PlaneGeometry,
   Shape,
   ShapeGeometry,
+  Uint16BufferAttribute,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
@@ -134,6 +137,7 @@ import {
   type Builder,
 } from "./drawnKit";
 import { schwellenraumObjektmodus } from "./visual-modes/schwellenraum/presentation";
+import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
 import {
   createTunnelPortalApproachTester,
   type TunnelPortalCourseInput,
@@ -214,6 +218,66 @@ export type IsometricCityBuildOptions = {
    */
   smoothSurfaces?: SurfacePayload | null;
 };
+
+/** Typed growth buffer for the city's largest transient line accumulator. */
+class Float32Accumulator {
+  private values: Float32Array;
+  length = 0;
+
+  constructor(initialCapacity: number) {
+    this.values = new Float32Array(Math.max(1_024, initialCapacity));
+  }
+
+  push(...next: number[]): number {
+    const required = this.length + next.length;
+    if (required > this.values.length) {
+      const grown = new Float32Array(
+        Math.max(required, Math.ceil(this.values.length * 1.5)),
+      );
+      grown.set(this.values);
+      this.values = grown;
+    }
+    this.values.set(next, this.length);
+    this.length = required;
+    return this.length;
+  }
+
+  toArray(): Float32Array {
+    return this.values.length === this.length
+      ? this.values
+      : this.values.slice(0, this.length);
+  }
+}
+
+/** Compact centimetre buffer for dashed facade-line distances. */
+class Uint16Accumulator {
+  private values: Uint16Array;
+  length = 0;
+
+  constructor(initialCapacity: number) {
+    this.values = new Uint16Array(Math.max(1_024, initialCapacity));
+  }
+
+  push(...next: number[]): number {
+    const required = this.length + next.length;
+    if (required > this.values.length) {
+      const grown = new Uint16Array(
+        Math.max(required, Math.ceil(this.values.length * 1.5)),
+      );
+      grown.set(this.values);
+      this.values = grown;
+    }
+    this.values.set(next, this.length);
+    this.length = required;
+    return this.length;
+  }
+
+  toArray(): Uint16Array {
+    return this.values.length === this.length
+      ? this.values
+      : this.values.slice(0, this.length);
+  }
+}
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
 export const SURFACE_WORLD_FILE = "surface-polygons.json";
@@ -1206,7 +1270,8 @@ const IVORY = new Color(0xfbf5e4);
 export const SOURCE_FACADE_IVORY_BLEND = 0.38;
 export const ISO_GLASS_DAY_OPACITY = 0.62;
 export const ISO_GLASS_MULLION_OPACITY = 0.44;
-export const ISO_FACADE_AXIS_OPACITY = 0.26;
+export const ISO_FACADE_AXIS_OPACITY = 0.34;
+export const ISO_FACADE_DETAIL_FADE_M = [500, 780] as const;
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   // Keep every official part inside the Reichstag footprint in the same
@@ -1279,6 +1344,16 @@ const MOONLIT_WATER = 0x131f2c;
  * night-lights-on ↔ night-lights-off ↔ minecraft ↔ snowstorm ↔
  * schwellenraum).
  */
+function isometricDayMaterialForMode(
+  object: Object3D,
+  dayMaterial: Material,
+  mode: VisualMode,
+): Material {
+  return schwellenraumObjektmodus(mode, object) === "schwellenraum"
+    ? schwellenraumMaterialFor(object, dayMaterial)
+    : dayMaterial;
+}
+
 export function setIsoNightPresentation(
   city: Group,
   night: boolean,
@@ -1321,7 +1396,7 @@ export function setIsoNightPresentation(
         ? !lightsOn && moonlitMaterial instanceof Material
           ? moonlitMaterial
           : nightMaterial
-        : dayMaterial;
+        : isometricDayMaterialForMode(object, dayMaterial, objectMode);
   });
   // Three.js Object3D.clone() JSON-clones userData, so these two authored
   // facade layers can carry material JSON in legacy clones instead of live
@@ -1341,10 +1416,14 @@ export function setIsoNightPresentation(
     ) {
       return;
     }
+    const objectMode = schwellenraumObjektmodus(mode, windows);
+    const dayMaterial = windows.userData.dayMaterial;
     windows.material =
-      schwellenraumObjektmodus(mode, windows) === "night"
+      objectMode === "night"
         ? (windows.userData.nightMaterial as Material)
-        : (windows.userData.dayMaterial as Material);
+        : dayMaterial instanceof Material
+          ? isometricDayMaterialForMode(windows, dayMaterial, objectMode)
+          : (dayMaterial as Material);
   });
   city.traverse((object) => {
     if (
@@ -1362,7 +1441,11 @@ export function setIsoNightPresentation(
   if (backdrop instanceof Mesh) {
     backdrop.material = night
       ? (backdrop.userData.nightMaterial as MeshBasicMaterial)
-      : (backdrop.userData.dayMaterial as MeshBasicMaterial);
+      : isometricDayMaterialForMode(
+          backdrop,
+          backdrop.userData.dayMaterial as MeshBasicMaterial,
+          mode,
+        );
   }
   city.traverse((ink) => {
     if (ink.name !== "LoD2 prism ink lines" || !(ink instanceof LineSegments)) {
@@ -1381,7 +1464,11 @@ export function setIsoNightPresentation(
     // Day = unlit exact paint; night = the lit moonlight material.
     bodies.material = night
       ? (bodies.userData.nightMaterial as MeshStandardMaterial)
-      : (bodies.userData.dayMaterial as MeshBasicMaterial);
+      : isometricDayMaterialForMode(
+          bodies,
+          bodies.userData.dayMaterial as MeshBasicMaterial,
+          mode,
+        );
     const nightMaterial = bodies.userData.nightMaterial as MeshStandardMaterial;
     // A cool moonlight floor keeps pale masonry readable without making
     // the whole building self-luminous or warming it into muddy brown.
@@ -1398,7 +1485,11 @@ export function setIsoNightPresentation(
     }
     glass.material = night
       ? (glass.userData.nightMaterial as MeshStandardMaterial)
-      : (glass.userData.dayMaterial as MeshBasicMaterial);
+      : isometricDayMaterialForMode(
+          glass,
+          glass.userData.dayMaterial as MeshBasicMaterial,
+          mode,
+        );
     const nightMaterial = glass.userData.nightMaterial as MeshStandardMaterial;
     nightMaterial.emissive.setHex(night ? 0x0e1a24 : 0x000000);
     nightMaterial.emissiveIntensity = night ? 0.7 : 0;
@@ -1410,7 +1501,11 @@ export function setIsoNightPresentation(
   if (surround instanceof Mesh) {
     surround.material = night
       ? (surround.userData.nightMaterial as MeshStandardMaterial)
-      : (surround.userData.dayMaterial as MeshBasicMaterial);
+      : isometricDayMaterialForMode(
+          surround,
+          surround.userData.dayMaterial as MeshBasicMaterial,
+          mode,
+        );
   }
   // Accessory meshes share the prism convention: exact flat paint by
   // day (unlit), the lit material only under the night rig. Any mesh
@@ -1461,11 +1556,15 @@ export function setIsoNightPresentation(
       return;
     }
     if (accessory instanceof Mesh && accessory.userData.dayMaterial) {
-      const accessoryNight =
-        schwellenraumObjektmodus(mode, accessory) === "night";
+      const accessoryMode = schwellenraumObjektmodus(mode, accessory);
+      const accessoryNight = accessoryMode === "night";
       accessory.material = accessoryNight
         ? (accessory.userData.nightMaterial as MeshStandardMaterial)
-        : (accessory.userData.dayMaterial as MeshBasicMaterial);
+        : isometricDayMaterialForMode(
+            accessory,
+            accessory.userData.dayMaterial as MeshBasicMaterial,
+            accessoryMode,
+          );
       const nightMaterial = accessory.userData
         .nightMaterial as MeshStandardMaterial;
       const lampEmissive = nightMaterial.userData.nightEmissive as
@@ -1534,7 +1633,11 @@ export function setIsoNightPresentation(
     }
     const material = axes.material as LineBasicMaterial;
     applyArchitecturalInkMode(material, mode, "micro");
-    material.opacity = night ? 0.12 : ISO_FACADE_AXIS_OPACITY;
+    material.opacity = night
+      ? 0.12
+      : mode === "schwellenraum"
+        ? 0.25
+        : ISO_FACADE_AXIS_OPACITY;
     // The camera-distance fade multiplies this authored mode opacity. Record
     // the new base explicitly so an unlucky zoom level cannot make a Night
     // value look identical to the previous faded Day value and later restore
@@ -1626,7 +1729,7 @@ export function setIsoNightPresentation(
   if (monumentInk instanceof LineSegments) {
     applyArchitecturalInkMode(
       monumentInk.material as LineBasicMaterial,
-      mode,
+      schwellenraumObjektmodus(mode, monumentInk),
       "detail",
     );
   }
@@ -1912,6 +2015,8 @@ export const ISO_WINDOW_BAY_PITCH_M = 3.6;
 // Slim, elongated panes ("schlanker, länglicher"): tall portrait glass.
 export const ISO_WINDOW_WIDTH_M = 1.05;
 export const ISO_WINDOW_HEIGHT_M = 1.9;
+export const ISO_FACADE_WINDOW_DASH_M = 2.35;
+export const ISO_FACADE_WINDOW_GAP_M = 1.25;
 const WINDOW_EAVE_CLEARANCE_M = 0.55;
 const WINDOW_MIN_WALL_M = 2.6;
 const WINDOW_MIN_BUILDING_M = 4;
@@ -5869,6 +5974,7 @@ export function createSiegessaeule(): Group {
   group.userData.recognitionModel = true;
   group.userData.sourceProfile = SIEGESSAEULE_PROFILE;
   const bodyGeometries: BufferGeometry[] = [];
+  const goldelseGeometries: BufferGeometry[] = [];
   const bronzeReliefGeometries: BufferGeometry[] = [];
   const mosaicGeometries: BufferGeometry[] = [];
   const edgeGeometries: BufferGeometry[] = [];
@@ -5897,6 +6003,19 @@ export function createSiegessaeule(): Group {
   ): void => {
     const geometry = colouredGeometry(triangles, tone);
     bodyGeometries.push(geometry);
+    if (inked) {
+      edgeGeometries.push(
+        new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
+    }
+  };
+  const addGoldelsePart = (
+    triangles: Float32Array,
+    tone: number,
+    inked = true,
+  ): void => {
+    const geometry = colouredGeometry(triangles, tone);
+    goldelseGeometries.push(geometry);
     if (inked) {
       edgeGeometries.push(
         new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
@@ -6022,7 +6141,7 @@ export function createSiegessaeule(): Group {
     facing: axis,
   });
   for (const part of goldelse.parts) {
-    addPart(part.triangles, part.tone);
+    addGoldelsePart(part.triangles, part.tone, part.inked !== false);
   }
   // Strack's documented apparatus: the gilded cannon barrels set into the
   // flutes, the four bronze reliefs inset into the lower square granite base,
@@ -6432,6 +6551,22 @@ export function createSiegessaeule(): Group {
     0.08,
     0.48,
   );
+  const mergedGoldelse = mergeGeometries(goldelseGeometries, false);
+  if (mergedGoldelse) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0xffefc2,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(mergedGoldelse, dayMaterial);
+    mesh.name = "Goldelse gilded Viktoria bodies";
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.schwellenraumGeschuetzt = true;
+    mesh.userData.textureFree = true;
+    group.add(mesh);
+    for (const geometry of goldelseGeometries) geometry.dispose();
+  }
   const merged = mergeGeometries(bodyGeometries, false);
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
@@ -10355,7 +10490,27 @@ export function createIsometricCity(
   const edgeGeometries = [];
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
-  const facadeAxisPositions: number[] = [];
+  const buildings = options.buildings ?? prisms.buildings;
+  const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
+  const facadeAxisDistances = new Uint16Accumulator(buildings.length * 60);
+  const pushFacadeAxis = (
+    x1: number,
+    y1: number,
+    z1: number,
+    x2: number,
+    y2: number,
+    z2: number,
+    dashLength = 0,
+  ): void => {
+    facadeAxisPositions.push(x1, y1, z1, x2, y2, z2);
+    // A constant zero keeps bay axes solid in LineDashedMaterial. Measured
+    // wall length on storey strokes adds a window-like dash rhythm without
+    // duplicating geometry for fabricated pane heads.
+    facadeAxisDistances.push(
+      0,
+      Math.min(65_535, Math.max(0, Math.round(dashLength * 100))),
+    );
+  };
   const kollhoffClinkerJointPositions: number[] = [];
   const kollhoffWindows: Array<{
     dirX: number;
@@ -10404,7 +10559,7 @@ export function createIsometricCity(
     }
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   };
-  for (const building of options.buildings ?? prisms.buildings) {
+  for (const building of buildings) {
     if (
       building.ring.length < 3 ||
       PRISM_SUPPRESSED_IDS.has(building.id) ||
@@ -10719,7 +10874,7 @@ export function createIsometricCity(
                 format.sillStart +
                 floor * profile.floorPitchM +
                 paneHeight / 2;
-              facadeAxisPositions.push(
+              pushFacadeAxis(
                 wall.x1 + paneOx,
                 paneY - paneHeight / 2 - 0.28,
                 wall.z1 + paneOz,
@@ -10764,7 +10919,7 @@ export function createIsometricCity(
               const first = (wall.length - axes * pitch) / 2;
               for (let axis = 0; axis <= axes; axis += 1) {
                 const along = first + axis * pitch;
-                facadeAxisPositions.push(
+                pushFacadeAxis(
                   wall.x1 + wall.dirX * along + paneOx,
                   bottom,
                   wall.z1 + wall.dirZ * along + paneOz,
@@ -10786,19 +10941,22 @@ export function createIsometricCity(
           const grid = windowGrid(wall.length, bodyHeight, format);
           const sillOf = (floor: number): number =>
             y0 + format.sillStart + floor * format.floorPitch;
-          // Storey bands: one hairline per floor across the whole wall,
-          // so the facade keeps a legible horizontal rhythm at the zoom
-          // levels where individual panes fall below a pixel.
+          // One dashed sill rhythm crosses the measured wall at every
+          // derived storey. Together with the solid bay axes it reads as
+          // repeated openings, but stays honest about LoD2: individual pane
+          // coordinates are not surveyed and no duplicate head geometry is
+          // fabricated.
           if (grid) {
             for (let floor = 0; floor < grid.floors; floor += 1) {
               const bandY = sillOf(floor) - 0.28;
-              facadeAxisPositions.push(
+              pushFacadeAxis(
                 wall.x1 + ox,
                 bandY,
                 wall.z1 + oz,
                 wall.x1 + wall.dirX * wall.length + ox,
                 bandY,
                 wall.z1 + wall.dirZ * wall.length + oz,
+                wall.length,
               );
             }
             if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
@@ -10833,7 +10991,7 @@ export function createIsometricCity(
             const x = wall.x1 + wall.dirX * along + ox;
             const z = wall.z1 + wall.dirZ * along + oz;
             // Slender glazing line as ink (the facade axis).
-            facadeAxisPositions.push(x, axisBottom, z, x, axisTop, z);
+            pushFacadeAxis(x, axisBottom, z, x, axisTop, z);
             // NO invented panes: LoD2 carries no real window positions,
             // so a pane per bay/floor was fabrication ("keine
             // schwachsinnigen nichtexistierenden Quadratfenster"). The
@@ -11169,13 +11327,20 @@ export function createIsometricCity(
     const geometry = new BufferGeometry();
     geometry.setAttribute(
       "position",
-      new Float32BufferAttribute(facadeAxisPositions, 3),
+      new Float32BufferAttribute(facadeAxisPositions.toArray(), 3),
+    );
+    geometry.setAttribute(
+      "lineDistance",
+      new Uint16BufferAttribute(facadeAxisDistances.toArray(), 1),
     );
     const axes = new LineSegments(
       geometry,
       markArchitecturalInk(
-        new LineBasicMaterial({
+        new LineDashedMaterial({
+          dashSize: ISO_FACADE_WINDOW_DASH_M,
+          gapSize: ISO_FACADE_WINDOW_GAP_M,
           opacity: ISO_FACADE_AXIS_OPACITY,
+          scale: 0.01,
           transparent: true,
         }),
         "micro",
@@ -11183,6 +11348,12 @@ export function createIsometricCity(
     );
     axes.name = "LoD2 facade axes";
     axes.renderOrder = 2;
+    axes.userData.detailFadeM = ISO_FACADE_DETAIL_FADE_M;
+    axes.userData.facadeRhythm = {
+      basis: "measured LoD2 wall length and building height",
+      lineKinds: ["bay-axis", "storey-sill", "window-dash"],
+      openingCoordinates: "inferred rhythm; not surveyed individual panes",
+    };
     group.add(axes);
   }
   if (kollhoffClinkerJointPositions.length > 0) {

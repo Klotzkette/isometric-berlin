@@ -21,9 +21,10 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.21"
+PACKAGE_VERSION = "0.72.22"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
+EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
 ARCHIVE_MTIME = 1_767_225_600
@@ -4500,7 +4501,7 @@ def write_package_manifest(package_dir: Path) -> None:
     ),
     "assets": {
       label: {
-        "path": str(path.relative_to(package_dir)),
+        "path": path.relative_to(package_dir).as_posix(),
         **file_digest(path),
       }
       for label, path in asset_paths.items()
@@ -4516,7 +4517,10 @@ def zip_info_for(path: Path, arcname: Path) -> zipfile.ZipInfo:
   info = zipfile.ZipInfo(str(arcname), ZIP_TIMESTAMP)
   info.compress_type = zipfile.ZIP_DEFLATED
   info.create_system = 3
-  info.external_attr = stat.S_IMODE(path.stat().st_mode) << 16
+  # Windows cannot retain Unix execute bits on the staging filesystem. Encode
+  # canonical portable modes explicitly so Linux launchers work after unzip.
+  mode = 0o755 if arcname.name in EXECUTABLE_PACKAGE_FILES else 0o644
+  info.external_attr = mode << 16
   return info
 
 

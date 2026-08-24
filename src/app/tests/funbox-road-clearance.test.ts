@@ -313,7 +313,8 @@ function smoothFunboxPoints(): Point2[] {
   ]);
   const targets = [
     root.getObjectByName("Expanded architecture and public-realm details"),
-    root.getObjectByName("FUNBOX entrance WELCOME lettering"),
+    root.getObjectByName("FUNBOX.COM entrance dome FUN lettering"),
+    root.getObjectByName("FUNBOX.COM entrance dome BOX.COM lettering"),
     root.getObjectByName("FUNBOX ticket kiosk lettering"),
   ];
   expect(targets.every(Boolean)).toBe(true);
@@ -419,7 +420,8 @@ describe("FUNBOX road and portal clearance", () => {
     expect(bounds[0]).toBeCloseTo(-22.811, 2);
     expect(bounds[1]).toBeCloseTo(-48.811, 2);
     expect(bounds[2]).toBeCloseTo(22.811, 2);
-    expect(bounds[3]).toBeCloseTo(55.85, 2);
+    expect(bounds[3]).toBeGreaterThan(56);
+    expect(bounds[3]).toBeLessThanOrEqual(envelope.maxZ);
   });
 
   test("keeps the full and mobile Minecraft park byte-identical and road-safe", () => {
@@ -430,7 +432,8 @@ describe("FUNBOX road and portal clearance", () => {
     expect(bounds[0]).toBeCloseTo(-22, 2);
     expect(bounds[1]).toBeCloseTo(-48, 2);
     expect(bounds[2]).toBeCloseTo(22, 2);
-    expect(bounds[3]).toBeCloseTo(55.7, 2);
+    expect(bounds[3]).toBeGreaterThan(56);
+    expect(bounds[3]).toBeLessThanOrEqual(envelope.maxZ);
 
     const full = createMinecraftVoxelWorld(tinyVoxelFixture, null, null, {
       detailProfile: "full",

@@ -478,7 +478,9 @@ describe("current Berliner Ensemble public art", () => {
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 
 describe("Berliner Ensemble runtime wiring", () => {
   test("shares the bounded mobile cadence between smooth and block-native signs", () => {

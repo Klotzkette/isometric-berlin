@@ -18,20 +18,36 @@
  *   +y  up, 0 at the soles of her feet
  *   +z  the figure's own left — so the standard is at +z, the wreath at -z
  *
- * The wings are deliberately flat plates rather than solids. That is the
- * house drawing style (flat authored elements, thin ink outlines), and it is
- * also the only honest choice: feather-level relief would be far below one
- * screen pixel at the 67 m the figure actually sits at.
+ * The wings are deliberately built from thin overlapping plates rather than
+ * invented volumetric carving. That follows the house drawing style while
+ * preserving the primary, secondary and covert feather layers which remain
+ * visible from the dedicated landmark camera.
  */
 
-/** Published height of the bronze figure, soles to the raised laurel wreath. */
+/** Published full height of the bronze figure and its field standard. */
 export const GOLDELSE_HEIGHT_M = 8.32;
 
-/** Gilded bronze in full light, and the shaded tone for undersides. */
-export const GOLDELSE_GOLD = 0xd4af37;
-export const GOLDELSE_GOLD_SHADED = 0xb08a2b;
+/**
+ * Blattgold in four restrained values. The previous ochre pair was too dark
+ * for an unlit Day material and made the figure read as orange bronze. These
+ * values preserve shaded folds while letting the sun-facing feathers and
+ * jewellery carry the pale, freshly gilded reading visible after the 2011
+ * restoration.
+ */
+export const GOLDELSE_GOLD = 0xffd75a;
+export const GOLDELSE_GOLD_HIGHLIGHT = 0xfff0a3;
+export const GOLDELSE_GOLD_SHADED = 0xe3ab26;
+export const GOLDELSE_GOLD_DEEP = 0xa87412;
+export const GOLDELSE_GOLD_TONES = [
+  GOLDELSE_GOLD,
+  GOLDELSE_GOLD_HIGHLIGHT,
+  GOLDELSE_GOLD_SHADED,
+  GOLDELSE_GOLD_DEEP,
+] as const;
 
 export type GoldelsePart = {
+  /** False for tiny layered gilding whose automatic edges would turn black. */
+  inked?: boolean;
   name: string;
   tone: number;
   triangles: Float32Array;
@@ -44,6 +60,14 @@ export type GoldelseFigure = {
   inkSegments: number[];
   /** Height actually occupied, for the assertion that we match 8.32 m. */
   heightM: number;
+  /** Stable recognition counts used by visual and performance QA. */
+  metrics: {
+    laurelLeafCount: number;
+    primaryFeathersPerWing: number;
+    robeFoldCount: number;
+    secondaryFeathersPerWing: number;
+    standardRibbonCount: number;
+  };
 };
 
 export type GoldelseOptions = {
@@ -140,6 +164,79 @@ function strut(from: Local, to: Local, thickness: number): Local[] {
   return triangles;
 }
 
+/** A low-poly round limb or rod between two arbitrary points. */
+function roundStrut(
+  from: Local,
+  to: Local,
+  radius: number,
+  segments = 8,
+): Local[] {
+  const dx = to[0] - from[0];
+  const dy = to[1] - from[1];
+  const dz = to[2] - from[2];
+  const length = Math.hypot(dx, dy, dz) || 1;
+  const axis: Local = [dx / length, dy / length, dz / length];
+  const seed: Local = Math.abs(axis[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
+  const cross = (a: Local, b: Local): Local => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+  const normalise = (value: Local): Local => {
+    const magnitude = Math.hypot(...value) || 1;
+    return value.map((component) => component / magnitude) as Local;
+  };
+  const u = normalise(cross(axis, seed));
+  const v = normalise(cross(axis, u));
+  const ring = (centre: Local, angle: number): Local => [
+    centre[0] + radius * (u[0] * Math.cos(angle) + v[0] * Math.sin(angle)),
+    centre[1] + radius * (u[1] * Math.cos(angle) + v[1] * Math.sin(angle)),
+    centre[2] + radius * (u[2] * Math.cos(angle) + v[2] * Math.sin(angle)),
+  ];
+  const triangles: Local[] = [];
+  for (let index = 0; index < segments; index += 1) {
+    const angle0 = (index / segments) * Math.PI * 2;
+    const angle1 = ((index + 1) / segments) * Math.PI * 2;
+    const from0 = ring(from, angle0);
+    const from1 = ring(from, angle1);
+    const to0 = ring(to, angle0);
+    const to1 = ring(to, angle1);
+    triangles.push(from0, to0, to1, from0, to1, from1);
+    triangles.push(from, from1, from0, to, to0, to1);
+  }
+  return triangles;
+}
+
+/** A compact faceted ellipsoid for heads, hands, knees and helmet details. */
+function ellipsoid(
+  centre: Local,
+  radii: Local,
+  widthSegments = 10,
+  heightSegments = 5,
+): Local[] {
+  const triangles: Local[] = [];
+  const point = (ring: number, segment: number): Local => {
+    const phi = (ring / heightSegments) * Math.PI;
+    const theta = (segment / widthSegments) * Math.PI * 2;
+    return [
+      centre[0] + Math.sin(phi) * Math.cos(theta) * radii[0],
+      centre[1] + Math.cos(phi) * radii[1],
+      centre[2] + Math.sin(phi) * Math.sin(theta) * radii[2],
+    ];
+  };
+  for (let ring = 0; ring < heightSegments; ring += 1) {
+    for (let segment = 0; segment < widthSegments; segment += 1) {
+      const a = point(ring, segment);
+      const b = point(ring + 1, segment);
+      const c = point(ring + 1, segment + 1);
+      const d = point(ring, segment + 1);
+      if (ring > 0) triangles.push(a, b, d);
+      if (ring < heightSegments - 1) triangles.push(d, b, c);
+    }
+  }
+  return triangles;
+}
+
 /**
  * A flat drawn element: an outline given as (across, up) points, given
  * thickness along the facing axis and placed at `atX`. This is what the
@@ -221,9 +318,63 @@ function bladePlate(
 }
 
 /**
- * A flat ring standing in the (across, up) plane — the laurel wreath. Built
- * from exact radii so the crown of the wreath lands on a height we can state,
- * which a tube of boxes swept round a circle cannot.
+ * A tapered, slightly bowed feather in the figure's frontal plane. The
+ * separate leading and trailing strips let every long flight feather keep a
+ * clean silhouette and its own ink edge after geometry merging.
+ */
+function featherPlate(
+  root: [number, number],
+  tip: [number, number],
+  width: number,
+  atX: number,
+  thickness: number,
+  bowY = 0,
+): Local[] {
+  const dz = tip[0] - root[0];
+  const dy = tip[1] - root[1];
+  const length = Math.hypot(dz, dy) || 1;
+  const normalZ = -dy / length;
+  const normalY = dz / length;
+  const middle: [number, number] = [
+    (root[0] + tip[0]) / 2,
+    (root[1] + tip[1]) / 2 + bowY,
+  ];
+  const leading: Outline = [
+    [root[0] + normalZ * width * 0.46, root[1] + normalY * width * 0.46],
+    [middle[0] + normalZ * width * 0.32, middle[1] + normalY * width * 0.32],
+    [tip[0] + normalZ * width * 0.04, tip[1] + normalY * width * 0.04],
+  ];
+  const trailing: Outline = [
+    [root[0] - normalZ * width * 0.46, root[1] - normalY * width * 0.46],
+    [middle[0] - normalZ * width * 0.32, middle[1] - normalY * width * 0.32],
+    [tip[0] - normalZ * width * 0.04, tip[1] - normalY * width * 0.04],
+  ];
+  return bladePlate(leading, trailing, atX, thickness);
+}
+
+/** A convex laurel leaf, rotated tangent to its wreath. */
+function leafOutline(
+  centreZ: number,
+  centreY: number,
+  angle: number,
+  length: number,
+  width: number,
+): Outline {
+  const alongZ = Math.cos(angle);
+  const alongY = Math.sin(angle);
+  const acrossZ = -alongY;
+  const acrossY = alongZ;
+  return [
+    [centreZ - alongZ * length / 2, centreY - alongY * length / 2],
+    [centreZ + acrossZ * width / 2, centreY + acrossY * width / 2],
+    [centreZ + alongZ * length / 2, centreY + alongY * length / 2],
+    [centreZ - acrossZ * width / 2, centreY - acrossY * width / 2],
+  ];
+}
+
+/**
+ * A flat ring standing in the (across, up) plane. Exact radii keep both the
+ * hand-held laurel wreath and the field-standard frame measurable.
  */
 function ringPlate(
   centreZ: number,
@@ -301,31 +452,67 @@ function mirrored(triangles: Local[]): Local[] {
  * the strip and the drawn feather lines share the same parameterisation.
  */
 const WING_LEADING: Outline = [
-  [0.5, 5.62],
-  [1.3, 6.42],
-  [2.12, 7.22],
-  [2.76, 7.9],
-  [3.15, 8.02],
+  [0.46, 4.72],
+  [0.96, 5.42],
+  [1.52, 5.96],
+  [2.18, 6.34],
+  [3.38, 6.5],
 ];
 const WING_TRAILING: Outline = [
-  [0.62, 4.86],
-  [1.34, 5.42],
-  [1.98, 6.1],
-  [2.5, 6.82],
-  [2.9, 7.26],
+  [0.5, 4.3],
+  [0.98, 4.5],
+  [1.52, 4.72],
+  [2.08, 4.88],
+  [2.74, 4.84],
+];
+
+const PRIMARY_FEATHERS: Array<{
+  bowY: number;
+  root: [number, number];
+  tip: [number, number];
+  width: number;
+}> = [
+  { bowY: 0.08, root: [0.9, 5.55], tip: [3.48, 6.5], width: 0.32 },
+  { bowY: 0.08, root: [0.94, 5.44], tip: [3.43, 6.28], width: 0.31 },
+  { bowY: 0.06, root: [0.98, 5.32], tip: [3.36, 6.05], width: 0.3 },
+  { bowY: 0.05, root: [1.02, 5.2], tip: [3.27, 5.81], width: 0.29 },
+  { bowY: 0.03, root: [1.05, 5.08], tip: [3.17, 5.58], width: 0.28 },
+  { bowY: 0.01, root: [1.08, 4.98], tip: [3.04, 5.34], width: 0.27 },
+  { bowY: -0.01, root: [1.08, 4.9], tip: [2.88, 5.1], width: 0.26 },
+  { bowY: -0.03, root: [1.06, 4.82], tip: [2.69, 4.88], width: 0.25 },
+  { bowY: -0.05, root: [1.02, 4.74], tip: [2.48, 4.68], width: 0.24 },
+  { bowY: -0.07, root: [0.96, 4.66], tip: [2.25, 4.5], width: 0.23 },
+];
+
+const SECONDARY_FEATHERS: Array<{
+  root: [number, number];
+  tip: [number, number];
+  width: number;
+}> = [
+  { root: [0.56, 5.34], tip: [2.4, 6.28], width: 0.34 },
+  { root: [0.54, 5.2], tip: [2.22, 6.08], width: 0.34 },
+  { root: [0.53, 5.08], tip: [2.03, 5.88], width: 0.33 },
+  { root: [0.52, 4.97], tip: [1.83, 5.67], width: 0.32 },
+  { root: [0.51, 4.86], tip: [1.63, 5.45], width: 0.31 },
+  { root: [0.5, 4.76], tip: [1.43, 5.23], width: 0.29 },
+  { root: [0.5, 4.66], tip: [1.23, 5.01], width: 0.27 },
+  { root: [0.5, 4.58], tip: [1.05, 4.82], width: 0.25 },
 ];
 
 /** Robe hem panel, widening towards the feet the way the cast bronze does. */
 const ROBE_OUTLINE: Outline = [
-  [-1.02, 0],
-  [1.02, 0],
-  [0.86, 1.5],
-  [0.7, 3.1],
-  [0.58, 4.3],
-  [-0.58, 4.3],
-  [-0.7, 3.1],
-  [-0.86, 1.5],
+  [-0.63, 0.13],
+  [0.24, 0.08],
+  [1.28, 0.5],
+  [1.08, 1.42],
+  [0.86, 2.48],
+  [0.62, 3.64],
+  [-0.56, 3.64],
+  [-0.72, 1.72],
 ];
+
+const ROBE_FOLD_ACROSS = [-0.5, -0.28, -0.05, 0.2, 0.43, 0.68, 0.91] as const;
+const STANDARD_RIBBON_COUNT = 3;
 
 /**
  * The four arms of the Iron Cross, each a convex trapezoid running from the
@@ -360,57 +547,139 @@ function ironCrossArms(
 }
 
 /**
- * Build the figure. Heights are laid out so the wreath she raises tops out at
- * exactly the published 8.32 m.
+ * Build the figure. The photographed field-standard finial is the crown of
+ * the exact published 8.32 m stack; the hand-held wreath remains below it.
  */
 export function createGoldelseFigure({
   base,
   facing,
 }: GoldelseOptions): GoldelseFigure {
-  const parts: Array<{ name: string; tone: number; local: Local[] }> = [];
+  const parts: Array<{
+    inked?: boolean;
+    name: string;
+    tone: number;
+    local: Local[];
+  }> = [];
   const inkLocal: Local[] = [];
 
-  const SHOULDER_Y = 5.85;
-  const HEAD_Y = 6.18;
-  const HELMET_Y = 6.95;
+  const SHOULDER_Y = 4.64;
+  const HEAD_CENTRE_Y = 5.28;
+  const HELMET_TOP_Y = 6.08;
 
-  // Robe and body. The gown is a flat drawn panel in front of a tapered
-  // solid, which is what gives the silhouette its skirt without making the
-  // figure read as a cone from the side.
+  // Drake's 0.92 m shoes remain visible below the wind-lifted hem. The legs
+  // are modelled even where the outer robe hides them, so the stance does not
+  // collapse into the old single cone when seen from the side.
+  for (const [z, back] of [
+    [-0.22, false],
+    [0.24, true],
+  ] as const) {
+    parts.push({
+      local: strut(
+        [back ? -0.26 : -0.2, 0.135, z],
+        [back ? 0.66 : 0.72, 0.135, z],
+        0.27,
+      ),
+      name: "Goldelse 0.92 m shoe",
+      tone: back ? GOLDELSE_GOLD_SHADED : GOLDELSE_GOLD_HIGHLIGHT,
+    });
+    parts.push({
+      local: roundStrut([0, 0.24, z], [0.04, 2.55, z * 0.7], 0.17, 7),
+      name: "Goldelse standing leg",
+      tone: back ? GOLDELSE_GOLD_DEEP : GOLDELSE_GOLD,
+    });
+  }
+
   parts.push({
-    local: taperedPrism(0, 0, 4.35, 0.94, 0.62, 10),
+    local: taperedPrism(0.08, 0.16, 3.68, 0.72, 0.52, 12),
     name: "Goldelse robe",
     tone: GOLDELSE_GOLD_SHADED,
   });
   parts.push({
-    local: plate(ROBE_OUTLINE, 0.5, 0.26),
-    name: "Goldelse robe front",
+    local: plate(ROBE_OUTLINE, 0.48, 0.22),
+    name: "Goldelse wind-filled robe front",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    local: plate(
+      [
+        [0.38, 0.48],
+        [1.42, 0.68],
+        [1.36, 1.3],
+        [0.78, 2.25],
+        [0.43, 1.72],
+      ],
+      0.18,
+      0.18,
+    ),
+    name: "Goldelse wind-filled robe train",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: taperedPrism(0, 4.35, SHOULDER_Y, 0.62, 0.72, 10),
+    local: taperedPrism(0, 3.5, SHOULDER_Y, 0.5, 0.66, 12),
     name: "Goldelse torso",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: taperedPrism(0, SHOULDER_Y, HEAD_Y, 0.72, 0.24, 8),
+    local: plate(
+      [
+        [-0.57, 3.63],
+        [0.58, 3.63],
+        [0.66, 4.34],
+        [0.38, 4.6],
+        [-0.38, 4.6],
+        [-0.66, 4.34],
+      ],
+      0.51,
+      0.18,
+    ),
+    name: "Goldelse gathered bodice",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    local: roundStrut(
+      [0, SHOULDER_Y, -0.7],
+      [0, SHOULDER_Y, 0.7],
+      0.2,
+      8,
+    ),
     name: "Goldelse shoulders",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: taperedPrism(0, HEAD_Y, HEAD_Y + 0.52, 0.3, 0.32, 8),
+    local: taperedPrism(0, 4.72, 4.98, 0.2, 0.19, 8),
+    name: "Goldelse neck",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    local: ellipsoid([0.03, HEAD_CENTRE_Y, 0], [0.31, 0.43, 0.3], 10, 6),
     name: "Goldelse head",
     tone: GOLDELSE_GOLD,
   });
-
-  // Helmet with the eagle on top, both documented attributes.
   parts.push({
-    local: taperedPrism(0, HEAD_Y + 0.44, HELMET_Y, 0.38, 0.2, 8),
+    local: ellipsoid([0.3, HEAD_CENTRE_Y + 0.02, 0], [0.15, 0.11, 0.1], 8, 4),
+    name: "Goldelse face and nose",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    local: ellipsoid([-0.18, HEAD_CENTRE_Y + 0.02, 0], [0.2, 0.4, 0.33], 8, 5),
+    name: "Goldelse hair mass",
+    tone: GOLDELSE_GOLD_DEEP,
+  });
+
+  // The Borussia helmet is a brim, a domed crown and a separately readable
+  // eagle, instead of the previous narrow spike.
+  parts.push({
+    local: taperedPrism(0, 5.61, 5.73, 0.39, 0.37, 12),
+    name: "Goldelse helmet brim",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    local: taperedPrism(0, 5.7, HELMET_TOP_Y, 0.34, 0.13, 10),
     name: "Goldelse helmet",
     tone: GOLDELSE_GOLD_SHADED,
   });
   parts.push({
-    local: taperedPrism(0, HELMET_Y, HELMET_Y + 0.34, 0.16, 0.1, 6),
+    local: ellipsoid([0, 6.2, 0], [0.13, 0.23, 0.12], 7, 4),
     name: "Goldelse helmet eagle body",
     tone: GOLDELSE_GOLD,
   });
@@ -418,100 +687,325 @@ export function createGoldelseFigure({
     parts.push({
       local: plate(
         [
-          [side * 0.08, HELMET_Y + 0.06],
-          [side * 0.46, HELMET_Y + 0.3],
-          [side * 0.5, HELMET_Y + 0.42],
-          [side * 0.12, HELMET_Y + 0.3],
+          [side * 0.04, 6.17],
+          [side * 0.43, 6.34],
+          [side * 0.48, 6.43],
+          [side * 0.12, 6.34],
         ],
         0,
-        0.09,
+        0.08,
       ),
       name: "Goldelse helmet eagle wing",
-      tone: GOLDELSE_GOLD,
+      tone: GOLDELSE_GOLD_HIGHLIGHT,
     });
   }
 
-  // Spread wings, plus the drawn feather lines across each blade.
-  // Shaded gold on the blades: at the same tone as the torso the wings and
-  // the body fuse into one gold lump from the presentation camera.
-  const leftWing = bladePlate(WING_LEADING, WING_TRAILING, 0, 0.34);
-  parts.push({
-    local: leftWing,
-    name: "Goldelse wing",
-    tone: GOLDELSE_GOLD_SHADED,
-  });
+  // Two broad wing fans. A shaded structural blade preserves the silhouette;
+  // individually edged primary, secondary and covert feathers supply the
+  // layered anatomy that is unmistakable in the close reference view.
+  const leftWing = bladePlate(WING_LEADING, WING_TRAILING, -0.1, 0.28);
+  parts.push({ local: leftWing, name: "Goldelse wing", tone: GOLDELSE_GOLD });
   parts.push({
     local: mirrored(leftWing),
     name: "Goldelse wing",
-    tone: GOLDELSE_GOLD_SHADED,
-  });
-  WING_LEADING.forEach(([leadZ, leadY], index) => {
-    const [trailZ, trailY] = WING_TRAILING[index];
-    for (const side of [1, -1]) {
-      inkLocal.push([0.19, leadY, side * leadZ], [0.19, trailY, side * trailZ]);
-    }
-  });
-
-  // Right arm raised with the laurel wreath; the wreath crown is the top of
-  // the published 8.32 m.
-  const rightShoulder: Local = [0.1, SHOULDER_Y - 0.1, -0.62];
-  const rightHand: Local = [0.62, 7.42, -0.95];
-  parts.push({
-    local: strut(rightShoulder, rightHand, 0.3),
-    name: "Goldelse raised arm",
     tone: GOLDELSE_GOLD,
   });
-  // The crown of the wreath is the top of the figure, so its outer radius is
-  // set from the published total height rather than chosen.
-  const wreathCentreY = 7.82;
-  const wreathOuter = GOLDELSE_HEIGHT_M - wreathCentreY;
+  const primaryLight: Local[] = [];
+  const primaryGold: Local[] = [];
+  PRIMARY_FEATHERS.forEach((feather, index) => {
+    const target = index % 2 === 0 ? primaryLight : primaryGold;
+    target.push(
+      ...featherPlate(
+        feather.root,
+        feather.tip,
+        feather.width,
+        -0.02 + index * 0.004,
+        0.1,
+        feather.bowY,
+      ),
+    );
+    inkLocal.push(
+      [0.055, feather.root[1], feather.root[0]],
+      [0.055, feather.tip[1], feather.tip[0]],
+      [0.055, feather.root[1], -feather.root[0]],
+      [0.055, feather.tip[1], -feather.tip[0]],
+    );
+  });
+  for (const [geometry, tone] of [
+    [primaryLight, GOLDELSE_GOLD_HIGHLIGHT],
+    [primaryGold, GOLDELSE_GOLD],
+  ] as const) {
+    parts.push({
+      inked: false,
+      local: geometry,
+      name: "Goldelse primary wing feathers",
+      tone,
+    });
+    parts.push({
+      inked: false,
+      local: mirrored(geometry),
+      name: "Goldelse primary wing feathers",
+      tone,
+    });
+  }
+  const secondary: Local[] = [];
+  SECONDARY_FEATHERS.forEach((feather, index) => {
+    secondary.push(
+      ...featherPlate(
+        feather.root,
+        feather.tip,
+        feather.width,
+        0.035 + index * 0.003,
+        0.11,
+        0.04,
+      ),
+    );
+    inkLocal.push(
+      [0.1, feather.root[1], feather.root[0]],
+      [0.1, feather.tip[1], feather.tip[0]],
+      [0.1, feather.root[1], -feather.root[0]],
+      [0.1, feather.tip[1], -feather.tip[0]],
+    );
+  });
   parts.push({
-    local: ringPlate(-0.95, wreathCentreY, wreathOuter, wreathOuter - 0.15, 0.66, 0.16, 16),
+    inked: false,
+    local: secondary,
+    name: "Goldelse secondary wing feathers",
+    tone: GOLDELSE_GOLD,
+  });
+  parts.push({
+    inked: false,
+    local: mirrored(secondary),
+    name: "Goldelse secondary wing feathers",
+    tone: GOLDELSE_GOLD,
+  });
+  const coverts: Local[] = [];
+  for (let feather = 0; feather < 9; feather += 1) {
+    const angle = -0.48 + feather * 0.12;
+    const root: [number, number] = [0.48 + feather * 0.055, 4.67 + feather * 0.07];
+    const length = 0.72 + feather * 0.045;
+    coverts.push(
+      ...featherPlate(
+        root,
+        [root[0] + Math.cos(angle) * length, root[1] + Math.sin(angle) * length + 0.4],
+        0.25,
+        0.12,
+        0.12,
+        0.03,
+      ),
+    );
+  }
+  parts.push({
+    inked: false,
+    local: coverts,
+    name: "Goldelse layered wing coverts",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    inked: false,
+    local: mirrored(coverts),
+    name: "Goldelse layered wing coverts",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+
+  // Her right arm rises in two anatomically legible segments to the laurel
+  // wreath. The hand meets the lower edge of an annulus carrying real leaf
+  // plates rather than relying on a few drawn ticks.
+  const rightShoulder: Local = [0.08, SHOULDER_Y - 0.02, -0.62];
+  const rightElbow: Local = [0.2, 5.34, -1.32];
+  const rightHand: Local = [0.28, 6.68, -1.88];
+  for (const [from, to, radius] of [
+    [rightShoulder, rightElbow, 0.17],
+    [rightElbow, rightHand, 0.145],
+  ] as const) {
+    parts.push({
+      local: roundStrut(from, to, radius, 8),
+      name: "Goldelse raised arm",
+      tone: GOLDELSE_GOLD_HIGHLIGHT,
+    });
+  }
+  parts.push({
+    local: ellipsoid(rightHand, [0.15, 0.18, 0.13], 8, 4),
+    name: "Goldelse wreath hand",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  const wreathCentreZ = -1.9;
+  const wreathCentreY = 7.16;
+  const wreathOuter = 0.5;
+  parts.push({
+    local: ringPlate(
+      wreathCentreZ,
+      wreathCentreY,
+      wreathOuter,
+      wreathOuter - 0.12,
+      0.3,
+      0.13,
+      24,
+    ),
     name: "Goldelse laurel wreath",
     tone: GOLDELSE_GOLD,
   });
-  // Laurel leaves, drawn as short ticks around the ring.
-  for (let leaf = 0; leaf < 16; leaf += 1) {
-    const angle = (leaf / 16) * Math.PI * 2;
+  const LAUREL_LEAF_COUNT = 20;
+  const laurelLeaves: Local[] = [];
+  for (let leaf = 0; leaf < LAUREL_LEAF_COUNT; leaf += 1) {
+    const angle = (leaf / LAUREL_LEAF_COUNT) * Math.PI * 2;
+    const radius = wreathOuter - 0.035;
+    const centreZ = wreathCentreZ + Math.cos(angle) * radius;
+    const centreY = wreathCentreY + Math.sin(angle) * radius;
+    laurelLeaves.push(
+      ...plate(
+        leafOutline(
+          centreZ,
+          centreY,
+          angle + Math.PI / 2 + (leaf % 2 === 0 ? 0.22 : -0.22),
+          0.24,
+          0.1,
+        ),
+        0.37,
+        0.07,
+      ),
+    );
+    const leafAxis = angle + Math.PI / 2 + (leaf % 2 === 0 ? 0.22 : -0.22);
     inkLocal.push(
       [
-        0.75,
-        wreathCentreY + Math.sin(angle) * (wreathOuter - 0.14),
-        -0.95 + Math.cos(angle) * (wreathOuter - 0.14),
+        0.42,
+        centreY - Math.sin(leafAxis) * 0.075,
+        centreZ - Math.cos(leafAxis) * 0.075,
       ],
       [
-        0.75,
-        wreathCentreY + Math.sin(angle + 0.24) * wreathOuter,
-        -0.95 + Math.cos(angle + 0.24) * wreathOuter,
+        0.42,
+        centreY + Math.sin(leafAxis) * 0.075,
+        centreZ + Math.cos(leafAxis) * 0.075,
       ],
     );
   }
+  parts.push({
+    inked: false,
+    local: laurelLeaves,
+    name: "Goldelse individual laurel leaves",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
 
-  // Left arm holding the Feldzeichen: a staff carrying the Iron Cross.
-  const leftShoulder: Local = [0.08, SHOULDER_Y - 0.15, 0.62];
-  const leftHand: Local = [0.42, 4.55, 1.02];
-  parts.push({
-    local: strut(leftShoulder, leftHand, 0.3),
-    name: "Goldelse standard arm",
-    tone: GOLDELSE_GOLD,
-  });
-  parts.push({
-    local: strut([0.42, 3.3, 1.06], [0.42, 7.5, 1.06], 0.19),
-    name: "Goldelse field standard",
-    tone: GOLDELSE_GOLD_SHADED,
-  });
-  for (const armOutline of ironCrossArms(0.78, 1.06, 7.52)) {
+  // Her left arm folds back across the chest to a tall field standard. The
+  // photographs clearly show a circular frame around the Iron Cross, a leaf-
+  // shaped finial above it and three long wind-blown ribbons.
+  const leftShoulder: Local = [0.06, SHOULDER_Y - 0.02, 0.62];
+  const leftElbow: Local = [0.22, 4.18, 1.12];
+  const leftHand: Local = [0.3, 4.48, 0.82];
+  for (const [from, to] of [
+    [leftShoulder, leftElbow],
+    [leftElbow, leftHand],
+  ] as const) {
     parts.push({
-      local: plate(armOutline, 0.42, 0.14),
-      name: "Goldelse iron cross",
+      local: roundStrut(from, to, 0.16, 8),
+      name: "Goldelse standard arm",
       tone: GOLDELSE_GOLD,
     });
   }
-
-  // Robe folds, drawn straight down the gown the way the cast is chased.
-  for (const across of [-0.62, -0.24, 0.14, 0.52]) {
-    inkLocal.push([0.64, 0.16, across], [0.62, 4.1, across * 0.7]);
+  parts.push({
+    local: ellipsoid(leftHand, [0.14, 0.18, 0.13], 8, 4),
+    name: "Goldelse standard hand",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  const standardZ = 0.82;
+  const standardX = 0.29;
+  parts.push({
+    local: roundStrut(
+      [standardX, 0.88, standardZ],
+      [standardX, 7.92, standardZ],
+      0.075,
+      8,
+    ),
+    name: "Goldelse field standard",
+    tone: GOLDELSE_GOLD_SHADED,
+  });
+  const standardRingY = 7.5;
+  parts.push({
+    local: ringPlate(standardZ, standardRingY, 0.43, 0.32, standardX, 0.12, 24),
+    name: "Goldelse standard ring",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  for (const armOutline of ironCrossArms(0.27, standardZ, standardRingY)) {
+    parts.push({
+      inked: false,
+      local: plate(armOutline, standardX + 0.07, 0.11),
+      name: "Goldelse iron cross",
+      tone: GOLDELSE_GOLD_SHADED,
+    });
   }
+  parts.push({
+    local: plate(
+      [
+        [standardZ, 7.86],
+        [standardZ + 0.16, 8.12],
+        [standardZ, GOLDELSE_HEIGHT_M],
+        [standardZ - 0.16, 8.12],
+      ],
+      standardX,
+      0.12,
+    ),
+    name: "Goldelse field standard finial",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  const ribbons: Array<[Outline, Outline]> = [
+    [
+      [[0.76, 7.2], [1.06, 6.38], [1.14, 5.28]],
+      [[0.87, 7.18], [1.19, 6.36], [1.29, 5.3]],
+    ],
+    [
+      [[0.73, 7.18], [0.48, 6.3], [0.22, 5.3]],
+      [[0.83, 7.16], [0.6, 6.28], [0.36, 5.28]],
+    ],
+    [
+      [[0.81, 7.14], [0.86, 6.22], [0.61, 5.18]],
+      [[0.91, 7.12], [0.98, 6.2], [0.75, 5.16]],
+    ],
+  ];
+  const ribbonGeometry: Local[] = [];
+  for (const [leading, trailing] of ribbons) {
+    ribbonGeometry.push(...bladePlate(leading, trailing, standardX - 0.03, 0.07));
+    for (let point = 0; point < leading.length - 1; point += 1) {
+      const centre0: Local = [
+        standardX + 0.04,
+        (leading[point][1] + trailing[point][1]) / 2,
+        (leading[point][0] + trailing[point][0]) / 2,
+      ];
+      const centre1: Local = [
+        standardX + 0.04,
+        (leading[point + 1][1] + trailing[point + 1][1]) / 2,
+        (leading[point + 1][0] + trailing[point + 1][0]) / 2,
+      ];
+      inkLocal.push(centre0, centre1);
+    }
+  }
+  parts.push({
+    inked: false,
+    local: ribbonGeometry,
+    name: "Goldelse field standard ribbons",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+
+  // Curved fold paths and the gathered waist retain fine legibility without
+  // adding separate draw calls; the caller merges every part and line batch.
+  for (const across of ROBE_FOLD_ACROSS) {
+    const fold: Local[] = [
+      [0.61, 3.54, across * 0.55],
+      [0.64, 2.62, across * 0.66 + 0.08],
+      [0.65, 1.55, across * 0.82 + 0.16],
+      [0.63, 0.28, across],
+    ];
+    for (let point = 0; point < fold.length - 1; point += 1) {
+      inkLocal.push(fold[point], fold[point + 1]);
+    }
+  }
+  inkLocal.push(
+    [0.64, 3.64, -0.55],
+    [0.64, 3.64, 0.57],
+    [0.36, 5.56, -0.28],
+    [0.36, 5.56, 0.28],
+    [0.38, 5.31, -0.12],
+    [0.38, 5.31, 0.12],
+  );
 
   const [ax, az] = facing;
   const [ox, oy, oz] = base;
@@ -545,7 +1039,15 @@ export function createGoldelseFigure({
   return {
     heightM,
     inkSegments,
-    parts: parts.map(({ local, name, tone }) => ({
+    metrics: {
+      laurelLeafCount: LAUREL_LEAF_COUNT,
+      primaryFeathersPerWing: PRIMARY_FEATHERS.length,
+      robeFoldCount: ROBE_FOLD_ACROSS.length,
+      secondaryFeathersPerWing: SECONDARY_FEATHERS.length,
+      standardRibbonCount: STANDARD_RIBBON_COUNT,
+    },
+    parts: parts.map(({ inked, local, name, tone }) => ({
+      inked,
       name,
       tone,
       triangles: flatten(local),

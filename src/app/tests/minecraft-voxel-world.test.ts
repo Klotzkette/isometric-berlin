@@ -764,6 +764,8 @@ describe("true voxel Minecraft world", () => {
     };
     expect(recognition.count).toBeGreaterThan(200);
     expect(profile.tower.facadeGridM).toBe(1.35);
+    expect(profile.tower.primaryFinEveryBays).toBe(4);
+    expect(profile.tower.entranceCanopyWidthM).toBeCloseTo(13.2, 1);
     expect(profile.plaza.currentState).toContain("temporary 2026");
     expect(profile.campus.currentState).toContain(
       "ground-floor concrete frame",
@@ -1029,6 +1031,8 @@ describe("true voxel Minecraft world", () => {
     expect(funbox.count).toBeGreaterThan(50);
     expect(funbox.userData.architecturalProfile).toEqual(profile);
     expect(funbox.userData.sourceRole).toBe("temporary-event-presentation");
+    expect(profile.entranceDomeWidthM).toBeCloseTo(19.2, 1);
+    expect(profile.entranceHoardingPanelCount).toBe(6);
     expect(world.getObjectByName("Voxel FUNBOX event park")).toBeDefined();
     const bounds = new Box3().setFromObject(funbox);
     expect(bounds.min.y).toBeCloseTo(profile.groundY, 5);

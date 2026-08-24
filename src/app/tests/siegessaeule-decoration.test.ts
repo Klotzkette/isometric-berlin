@@ -79,6 +79,17 @@ describe("the source-bounded lower Siegessäule registers", () => {
     expect(SIEGESSAEULE_PROFILE.colonnade.columnCount).toBe(16);
     expect(SIEGESSAEULE_PROFILE.colonnade.columnHeightM).toBe(4.7);
     expect(SIEGESSAEULE_PROFILE.reliefs.count).toBe(4);
+    expect(SIEGESSAEULE_PROFILE.viktoria).toMatchObject({
+      castPartCount: 17,
+      gilding: "gold leaf on oil ground",
+      heightM: 8.32,
+      shoeLengthM: 0.92,
+      weightT: 35,
+    });
+    expect(SIEGESSAEULE_PROFILE.viktoria.recognitionCues).toHaveLength(5);
+    expect(SIEGESSAEULE_PROFILE.viktoria.recognitionCues).toContain(
+      "two layered feathered wings",
+    );
     expect(SIEGESSAEULE_PROFILE.reliefs.architecturalLevel).toContain(
       "lower square red-granite base",
     );
@@ -134,8 +145,7 @@ describe("the source-bounded lower Siegessäule registers", () => {
 
   test("derives an exact 67 m rendered stack with a 4.7 m colonnade", () => {
     const monument = createSiegessaeule();
-    const bodies = namedMesh(monument, "Siegessäule and Bismarck bodies");
-    const bounds = new Box3().setFromObject(bodies);
+    const bounds = new Box3().setFromObject(monument);
     const metrics = monument.userData.lowerRegisterMetrics as {
       colonnadeColumnHeightM: number;
       groundTopY: number;
@@ -152,12 +162,11 @@ describe("the source-bounded lower Siegessäule registers", () => {
 
   test("keeps actual Day and Minecraft top bounds on the same 67 m profile", () => {
     const monument = createSiegessaeule();
-    const dayBodies = namedMesh(monument, "Siegessäule and Bismarck bodies");
     const dayMetrics = monument.userData.lowerRegisterMetrics as {
       groundTopY: number;
     };
     const dayHeight =
-      new Box3().setFromObject(dayBodies).max.y - dayMetrics.groundTopY;
+      new Box3().setFromObject(monument).max.y - dayMetrics.groundTopY;
 
     const world = createMinecraftExtrapolatedWorld();
     const voxelColumn = namedInstances(world, "Voxel extrapolated Siegessäule");
@@ -262,6 +271,7 @@ describe("the source-bounded lower Siegessäule registers", () => {
   test("uses two merged static detail draws and never rebuilds them on relight", () => {
     const monument = createSiegessaeule();
     const bodies = namedMesh(monument, "Siegessäule and Bismarck bodies");
+    const goldelse = namedMesh(monument, "Goldelse gilded Viktoria bodies");
     const reliefs = namedMesh(
       monument,
       "Siegessäule lower bronze relief bodies",
@@ -282,6 +292,10 @@ describe("the source-bounded lower Siegessäule registers", () => {
     const matrix = mosaic.matrix.clone();
     const dayMaterial = mosaic.material;
     const bodyGeometry = bodies.geometry;
+    const goldelseGeometry = goldelse.geometry;
+    const goldelseDayMaterial = goldelse.material;
+    const goldelseNightMaterial = goldelse.userData
+      .nightMaterial as MeshBasicMaterial;
     const metrics = monument.userData.lowerRegisterMetrics as {
       renderedTopY: number;
     };
@@ -298,12 +312,37 @@ describe("the source-bounded lower Siegessäule registers", () => {
       expect(mosaic.visible).toBe(true);
       expect(mosaic.userData.animated).toBe(false);
       expect(bodies.geometry).toBe(bodyGeometry);
-      expect(new Box3().setFromObject(bodies).max.y).toBeCloseTo(
+      expect(goldelse.geometry).toBe(goldelseGeometry);
+      expect(goldelse.material).toBe(
+        mode === "night" ? goldelseNightMaterial : goldelseDayMaterial,
+      );
+      expect(new Box3().setFromObject(monument).max.y).toBeCloseTo(
         metrics.renderedTopY,
         5,
       );
     }
     expect(mosaic.material).toBe(dayMaterial);
+  });
+
+  test("keeps the complete Goldelse in one bright texture-free material draw", () => {
+    const monument = createSiegessaeule();
+    const goldelse = namedMesh(monument, "Goldelse gilded Viktoria bodies");
+    const day = goldelse.userData.dayMaterial as MeshBasicMaterial;
+    const night = goldelse.userData.nightMaterial as MeshBasicMaterial;
+
+    expect(goldelse.material).toBe(day);
+    expect(day.vertexColors).toBe(true);
+    expect(day.map).toBeNull();
+    expect(night.vertexColors).toBe(true);
+    expect(night.map).toBeNull();
+    expect(night.color.getHex()).toBe(0xffefc2);
+    expect(goldelse.userData.schwellenraumGeschuetzt).toBe(true);
+    expect(goldelse.geometry.getAttribute("position").count).toBe(7_758);
+    expect(
+      monument.children.filter(
+        (child) => child.name === "Goldelse gilded Viktoria bodies",
+      ),
+    ).toHaveLength(1);
   });
 
   test("adds four lower bronze panels and an upper mosaic behind the voxel colonnade", () => {

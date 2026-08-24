@@ -425,7 +425,7 @@ describe("the source-bounded Reichstagspräsidentenpalais recognition layer", ()
     expect(bounds.max.y).toBeLessThanOrEqual(31.6);
   });
 
-  test("switches every tagged detail mesh Day → Night → Schwellenraum Day", () => {
+  test("switches every tagged detail mesh Day → Night → Schwellenraum grade → Day", () => {
     const details = model();
     const taggedMeshes: Mesh[] = [];
     details.traverse((object) => {
@@ -447,6 +447,11 @@ describe("the source-bounded Reichstagspräsidentenpalais recognition layer", ()
       expect(mesh.material).toBe(mesh.userData.nightMaterial);
     }
     setIsoNightPresentation(details, false, true, "schwellenraum");
+    for (const mesh of taggedMeshes) {
+      expect(mesh.material).toBe(mesh.userData.schwellenraumMaterial);
+      expect(mesh.material).not.toBe(mesh.userData.dayMaterial);
+    }
+    setIsoNightPresentation(details, false, true, "day");
     for (const mesh of taggedMeshes) {
       expect(mesh.material).toBe(mesh.userData.dayMaterial);
     }

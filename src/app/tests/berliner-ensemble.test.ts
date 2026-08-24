@@ -419,9 +419,13 @@ describe("source-bound Berliner Ensemble exterior", () => {
     });
     setIsoNightPresentation(details, false, true, "schwellenraum");
     presentationMeshes.forEach((mesh, index) => {
-      expect(mesh.material).toBe(dayMaterials[index]);
+      expect(mesh.material).toBe(mesh.userData.schwellenraumMaterial);
+      expect(mesh.material).not.toBe(dayMaterials[index]);
     });
     setIsoNightPresentation(details, false, true, "day");
+    presentationMeshes.forEach((mesh, index) => {
+      expect(mesh.material).toBe(dayMaterials[index]);
+    });
     expect(pivot.rotation.y).toBe(initialRotationY);
     expect(pivot.userData).toMatchObject({
       berlinerEnsembleRoofSignPivot: true,

@@ -347,7 +347,9 @@ describe("Minecraft smooth-scene visibility", () => {
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 
 describe("Minecraft visibility source wiring", () => {
   test("restores before relighting and applies after both live visibility paths", () => {

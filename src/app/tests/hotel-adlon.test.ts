@@ -165,7 +165,7 @@ describe("Hotel Adlon smooth recognition layer", () => {
     expect(drawables).toHaveLength(adlon.userData.drawCallBudget as number);
   });
 
-  test("uses texture-free day/night materials and only mode-gates snow", () => {
+  test("uses texture-free reversible day/night/Schwellenraum materials", () => {
     const adlon = createHotelAdlon();
     const bodies = adlon.getObjectByName("Adlon bodies") as Mesh;
     const lamps = adlon.getObjectByName("Adlon lamps") as Mesh;
@@ -208,10 +208,14 @@ describe("Hotel Adlon smooth recognition layer", () => {
     setModeOnlyDetails(adlon, "snowstorm");
     expect(snow.visible).toBe(true);
     setIsoNightPresentation(adlon, false, true, "schwellenraum");
-    expect(bodies.material).toBe(bodies.userData.dayMaterial);
-    expect(lamps.material).toBe(lamps.userData.dayMaterial);
+    expect(bodies.material).toBe(bodies.userData.schwellenraumMaterial);
+    expect(lamps.material).toBe(lamps.userData.schwellenraumMaterial);
+    expect(bodies.material).not.toBe(bodies.userData.dayMaterial);
     expect(bodies.visible).toBe(true);
     expect(snow.visible).toBe(false);
+    setIsoNightPresentation(adlon, false, true, "day");
+    expect(bodies.material).toBe(bodies.userData.dayMaterial);
+    expect(lamps.material).toBe(lamps.userData.dayMaterial);
   });
 
   test("builds deterministic code-native geometry", () => {

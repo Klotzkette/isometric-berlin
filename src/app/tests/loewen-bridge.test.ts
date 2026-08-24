@@ -207,15 +207,22 @@ describe("Löwenbrücke recognition model", () => {
     );
 
     setIsoNightPresentation(bridge, false, true, "schwellenraum");
-    expect(bodies.material).toBe(dayMaterial);
-    expect(safetyHandrails.material).toBe(safetyDayMaterial);
-    expect((safetyMesh.material as LineBasicMaterial).color.getHex()).toBe(
+    expect(bodies.material).toBe(bodies.userData.schwellenraumMaterial);
+    expect(safetyHandrails.material).toBe(
+      safetyHandrails.userData.schwellenraumMaterial,
+    );
+    expect(bodies.material).not.toBe(dayMaterial);
+    expect((safetyMesh.material as LineBasicMaterial).color.getHex()).not.toBe(
       safetyDayInk,
     );
 
     setIsoNightPresentation(bridge, false, true, "day");
     expect(bodies.material).toBe(dayMaterial);
+    expect(safetyHandrails.material).toBe(safetyDayMaterial);
     expect((ink.material as LineBasicMaterial).color.getHex()).toBe(dayInk);
+    expect((safetyMesh.material as LineBasicMaterial).color.getHex()).toBe(
+      safetyDayInk,
+    );
   });
 
   test("keeps its silhouette while dense ink fades at overview distance", () => {

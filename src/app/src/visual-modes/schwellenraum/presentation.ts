@@ -1,18 +1,21 @@
 import {
   AdditiveBlending,
-  BoxGeometry,
+  BufferGeometry,
   Color,
-  EdgesGeometry,
+  DoubleSide,
+  Euler,
+  Float32BufferAttribute,
   Group,
+  InstancedMesh,
   LineBasicMaterial,
   LineSegments,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   OctahedronGeometry,
   type Object3D,
-  PlaneGeometry,
-  SphereGeometry,
-  TorusGeometry,
+  Quaternion,
+  Vector3,
 } from "three";
 
 import type { VisualMode } from "../../visualMode";
@@ -31,14 +34,22 @@ import {
  * is therefore made from a different sky and a few additive light objects,
  * never from displaced, stretched or post-processed architecture.
  */
-export const SCHWELLENRAUM_SKY_COLOR = 0xe7e0cc;
+export const SCHWELLENRAUM_SKY_COLOR = 0x9b939f;
 
 export const SCHWELLENRAUM_LIGHT_TONES = [
-  0xffdfa0,
-  0xfff0c9,
-  0xd8caff,
-  0xc9eadf,
+  0xe9c49d,
+  0xc4d7cf,
+  0xcab8d5,
+  0x8eb8b3,
 ] as const;
+
+export type SchwellenraumDetailProfile = "full" | "mobile";
+
+/** Hard geometry budgets for the additive layer, including all eight sites. */
+export const SCHWELLENRAUM_PRESENTATION_BUDGET = {
+  full: { geometries: 17, materials: 3, objects: 33, renderables: 24, vertices: 3_000 },
+  mobile: { geometries: 17, materials: 3, objects: 33, renderables: 24, vertices: 1_800 },
+} as const;
 
 /**
  * The presentation and navigation layers deliberately share this one source
@@ -247,31 +258,136 @@ export function abstandZumNaechstenSchutzraum(x: number, z: number): number {
   );
 }
 
-function lightMaterial(color: number, opacity: number): MeshBasicMaterial {
+function lightMaterial(opacity: number): MeshBasicMaterial {
   return new MeshBasicMaterial({
     blending: AdditiveBlending,
-    color,
+    color: 0xffffff,
     depthWrite: false,
     opacity,
+    side: DoubleSide,
     toneMapped: false,
     transparent: true,
+    vertexColors: true,
   });
 }
 
-function lineMaterial(color: number, opacity: number): LineBasicMaterial {
+function lineMaterial(opacity: number): LineBasicMaterial {
   return new LineBasicMaterial({
     blending: AdditiveBlending,
-    color,
+    color: 0xffffff,
     depthWrite: false,
     opacity,
     toneMapped: false,
     transparent: true,
+    vertexColors: true,
   });
+}
+
+type LichtschwelleAssets = {
+  line: LineBasicMaterial;
+  mote: MeshBasicMaterial;
+  moteGeometry: OctahedronGeometry;
+  veil: MeshBasicMaterial;
+};
+
+function pushSegment(
+  positions: number[],
+  colors: number[],
+  from: readonly [number, number, number],
+  to: readonly [number, number, number],
+  tone: number,
+  strength: number,
+): void {
+  positions.push(...from, ...to);
+  const color = new Color(tone).multiplyScalar(strength);
+  colors.push(color.r, color.g, color.b, color.r, color.g, color.b);
+}
+
+function pushFrame(
+  positions: number[],
+  colors: number[],
+  width: number,
+  height: number,
+  centerY: number,
+  centerZ: number,
+  tone: number,
+  strength: number,
+): void {
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const halfDepth = 0.04;
+  const corners = (z: number) =>
+    [
+      [-halfWidth, centerY - halfHeight, z],
+      [halfWidth, centerY - halfHeight, z],
+      [halfWidth, centerY + halfHeight, z],
+      [-halfWidth, centerY + halfHeight, z],
+    ] as const;
+  const front = corners(centerZ + halfDepth);
+  const back = corners(centerZ - halfDepth);
+  for (let side = 0; side < 4; side += 1) {
+    const next = (side + 1) % 4;
+    pushSegment(positions, colors, front[side], front[next], tone, strength);
+    pushSegment(positions, colors, back[side], back[next], tone, strength * 0.72);
+    pushSegment(positions, colors, front[side], back[side], tone, strength * 0.58);
+  }
+}
+
+function pushRing(
+  positions: number[],
+  colors: number[],
+  radius: number,
+  y: number,
+  segments: number,
+  tone: number,
+  strength: number,
+): void {
+  for (let segment = 0; segment < segments; segment += 1) {
+    const from = (segment / segments) * Math.PI * 2;
+    const to = ((segment + 1) / segments) * Math.PI * 2;
+    pushSegment(
+      positions,
+      colors,
+      [Math.cos(from) * radius, y, Math.sin(from) * radius],
+      [Math.cos(to) * radius, y, Math.sin(to) * radius],
+      tone,
+      strength,
+    );
+  }
+}
+
+function pushVeil(
+  positions: number[],
+  colors: number[],
+  width: number,
+  height: number,
+  z: number,
+  tone: number,
+  strength: number,
+): void {
+  const halfWidth = width / 2;
+  const bottom = height * 0.03;
+  const top = height * 0.97;
+  const vertices = [
+    [-halfWidth, bottom, z],
+    [halfWidth, bottom, z],
+    [halfWidth, top, z],
+    [-halfWidth, bottom, z],
+    [halfWidth, top, z],
+    [-halfWidth, top, z],
+  ] as const;
+  const color = new Color(tone).multiplyScalar(strength);
+  for (const vertex of vertices) {
+    positions.push(...vertex);
+    colors.push(color.r, color.g, color.b);
+  }
 }
 
 function createLichtschwelle(
   profile: SchwellenraumLichtort,
   index: number,
+  detailProfile: SchwellenraumDetailProfile,
+  assets: LichtschwelleAssets,
 ): Group {
   const group = new Group();
   group.name = `Schwellenraum Lichtschwelle ${profile.name}`;
@@ -283,67 +399,102 @@ function createLichtschwelle(
   const mainTone = SCHWELLENRAUM_LIGHT_TONES[index % 4];
   const echoTone = SCHWELLENRAUM_LIGHT_TONES[(index + 1) % 4];
 
-  // Three almost-identical frames create the measured, gently prolonged
-  // vertical rhythm without ever stretching a building or collision body.
-  for (let echo = 0; echo < 3; echo += 1) {
-    const frameBox = new BoxGeometry(
+  // Frames and floor echoes share one line batch per place. The elongated
+  // afterimages keep the threshold uncanny while replacing six draw calls
+  // and six materials with one source-neutral geometry.
+  const linePositions: number[] = [];
+  const lineColors: number[] = [];
+  const echoCount = detailProfile === "mobile" ? 2 : 3;
+  for (let echo = 0; echo < echoCount; echo += 1) {
+    pushFrame(
+      linePositions,
+      lineColors,
       width + echo * 0.62,
       height + echo * 0.72,
-      0.08,
+      height / 2 + echo * 0.18,
+      -echo * 0.68,
+      echo === 0 ? mainTone : echoTone,
+      1 - echo * 0.22,
     );
-    const frameGeometry = new EdgesGeometry(frameBox);
-    frameBox.dispose();
-    const frame = new LineSegments(
-      frameGeometry,
-      lineMaterial(echo === 0 ? mainTone : echoTone, 0.2 - echo * 0.045),
-    );
-    frame.name = `${profile.name} Lichtkontur ${echo + 1}`;
-    frame.position.set(0, height / 2 + echo * 0.18, -echo * 0.68);
-    group.add(frame);
   }
-
-  const veil = new Mesh(
-    new PlaneGeometry(width * 0.94, height * 0.94),
-    lightMaterial(mainTone, 0.027),
+  const ringCount = detailProfile === "mobile" ? 2 : 3;
+  const ringSegments = detailProfile === "mobile" ? 24 : 36;
+  for (let ringIndex = 0; ringIndex < ringCount; ringIndex += 1) {
+    pushRing(
+      linePositions,
+      lineColors,
+      width * (0.62 + ringIndex * 0.24),
+      0.08 + ringIndex * 0.05,
+      ringSegments,
+      SCHWELLENRAUM_LIGHT_TONES[(index + ringIndex + 2) % 4],
+      0.92 - ringIndex * 0.18,
+    );
+  }
+  const lineGeometry = new BufferGeometry();
+  lineGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(linePositions, 3),
   );
-  veil.name = `${profile.name} zarter Lichtschleier`;
-  veil.position.y = height / 2;
+  lineGeometry.setAttribute("color", new Float32BufferAttribute(lineColors, 3));
+  const contours = new LineSegments(lineGeometry, assets.line);
+  contours.name = `${profile.name} gebuendelte Lichtkonturen`;
+  contours.userData.schwellenraumStatic = true;
+  group.add(contours);
+
+  // Two close translucent planes make a quiet spatial afterimage instead of
+  // a bright portal card. Both planes remain in one draw call.
+  const veilPositions: number[] = [];
+  const veilColors: number[] = [];
+  pushVeil(veilPositions, veilColors, width * 0.94, height, 0, mainTone, 0.8);
+  pushVeil(
+    veilPositions,
+    veilColors,
+    width * 1.04,
+    height * 0.96,
+    -0.62,
+    echoTone,
+    0.48,
+  );
+  const veilGeometry = new BufferGeometry();
+  veilGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(veilPositions, 3),
+  );
+  veilGeometry.setAttribute("color", new Float32BufferAttribute(veilColors, 3));
+  const veil = new Mesh(veilGeometry, assets.veil);
+  veil.name = `${profile.name} doppelter Lichtschleier`;
+  veil.userData.schwellenraumStatic = true;
   group.add(veil);
 
-  for (let ringIndex = 0; ringIndex < 3; ringIndex += 1) {
-    const ring = new Mesh(
-      new TorusGeometry(width * (0.62 + ringIndex * 0.24), 0.035, 5, 64),
-      lightMaterial(
-        SCHWELLENRAUM_LIGHT_TONES[(index + ringIndex + 2) % 4],
-        0.2 - ringIndex * 0.035,
-      ),
-    );
-    ring.name = `${profile.name} Bodenlicht ${ringIndex + 1}`;
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = 0.08 + ringIndex * 0.05;
-    group.add(ring);
-  }
-
-  const moteGeometry = new SphereGeometry(0.09, 8, 6);
-  const glintGeometry = new OctahedronGeometry(0.13, 0);
-  for (let mote = 0; mote < 9; mote += 1) {
+  const moteCount = detailProfile === "mobile" ? 6 : 9;
+  const motes = new InstancedMesh(assets.moteGeometry, assets.mote, moteCount);
+  motes.name = `${profile.name} ruhende Lichtpunkte`;
+  const matrix = new Matrix4();
+  const position = new Vector3();
+  const rotation = new Quaternion();
+  const euler = new Euler();
+  const scale = new Vector3();
+  const moteTone = new Color();
+  for (let mote = 0; mote < moteCount; mote += 1) {
     const color = SCHWELLENRAUM_LIGHT_TONES[(index + mote) % 4];
-    const point = new Mesh(
-      mote % 3 === 0 ? glintGeometry : moteGeometry,
-      lightMaterial(color, mote % 3 === 0 ? 0.48 : 0.31),
-    );
-    point.name = `${profile.name} ruhender Lichtpunkt ${mote + 1}`;
-    const t = (mote + 1) / 10;
-    point.position.set(
+    const t = (mote + 1) / (moteCount + 1);
+    position.set(
       Math.sin((mote + 1) * 2.17) * width * 0.38,
       1.4 + t * (height - 2.2),
       -0.5 - Math.cos((mote + 1) * 1.71) * 1.25,
     );
-    point.scale.setScalar(0.7 + (mote % 3) * 0.16);
-    point.rotation.set(mote * 0.13, mote * 0.29, mote * 0.07);
-    point.userData.schwellenraumStatic = true;
-    group.add(point);
+    euler.set(mote * 0.13, mote * 0.29, mote * 0.07);
+    rotation.setFromEuler(euler);
+    scale.setScalar(0.7 + (mote % 3) * 0.16);
+    matrix.compose(position, rotation, scale);
+    motes.setMatrixAt(mote, matrix);
+    motes.setColorAt(mote, moteTone.setHex(color));
   }
+  motes.instanceMatrix.needsUpdate = true;
+  if (motes.instanceColor) motes.instanceColor.needsUpdate = true;
+  motes.computeBoundingSphere();
+  motes.userData.schwellenraumStatic = true;
+  group.add(motes);
 
   group.userData.schwellenraumPraesentation = true;
   group.userData.schwellenraumStatic = true;
@@ -360,7 +511,9 @@ function createLichtschwelle(
 }
 
 /** Create the complete deterministic, static atmospheric accent layer. */
-export function createSchwellenraumPraesentation(): Group {
+export function createSchwellenraumPraesentation(
+  detailProfile: SchwellenraumDetailProfile = "full",
+): Group {
   const root = new Group();
   root.name = "Schwellenraum additive Lichtpraesentation";
   root.visible = false;
@@ -368,8 +521,16 @@ export function createSchwellenraumPraesentation(): Group {
   root.userData.tonfolge = SCHWELLENRAUM_LIGHT_TONES.map((tone) =>
     new Color(tone).getHexString(),
   );
+  root.userData.detailProfile = detailProfile;
+  root.userData.renderBudget = SCHWELLENRAUM_PRESENTATION_BUDGET[detailProfile];
+  const assets: LichtschwelleAssets = {
+    line: lineMaterial(0.22),
+    mote: lightMaterial(0.42),
+    moteGeometry: new OctahedronGeometry(0.13, 0),
+    veil: lightMaterial(0.052),
+  };
   for (const [index, profile] of SCHWELLENRAUM_LICHTORTE.entries()) {
-    root.add(createLichtschwelle(profile, index));
+    root.add(createLichtschwelle(profile, index, detailProfile, assets));
   }
   return root;
 }

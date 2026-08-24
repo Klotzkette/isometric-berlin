@@ -71,6 +71,38 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(tunnel.children.length).toBeLessThan(30);
   });
 
+  test("keeps every rendered tube segment open at both longitudinal ends", () => {
+    const tunnel = createTunnel(payload);
+    const expectedCount = (payload.points.length - 1) * 2;
+    const casingSegments: Mesh[] = [];
+    const roadSegments: Mesh[] = [];
+    tunnel.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      if (object.name === "Tiergartentunnel open-ended casing segment") {
+        casingSegments.push(object);
+      }
+      if (object.name === "Tiergartentunnel open-ended road segment") {
+        roadSegments.push(object);
+      }
+    });
+
+    expect(casingSegments).toHaveLength(expectedCount);
+    expect(roadSegments).toHaveLength(expectedCount);
+    for (const segment of [casingSegments[0], roadSegments[0]]) {
+      const geometry = segment.geometry;
+      const index = geometry.index;
+      const positions = geometry.getAttribute("position");
+      expect(geometry.userData.openEndedAlongLocalZ).toBe(true);
+      expect(index?.count).toBe(24);
+      for (let triangle = 0; triangle < index!.count; triangle += 3) {
+        const zValues = [0, 1, 2].map((offset) =>
+          positions.getZ(index!.getX(triangle + offset)),
+        );
+        expect(new Set(zValues).size).toBeGreaterThan(1);
+      }
+    }
+  });
+
   test("hides above ground and reveals its cutaway below ground", () => {
     const tunnel = createTunnel(payload);
     const casing = tunnel.children[0] as Mesh;
@@ -273,6 +305,9 @@ describe("measured Tiergartentunnel entrances", () => {
     const boreMaterial = (bore as Mesh).material as Material;
     const ramp = portals.getObjectByName(`${label} carriageway deck`) as Mesh;
     const rampMaterial = ramp.material as Material;
+    const openingShadow = portals.getObjectByName(
+      "Tiergartentunnel reichpietschufer shared portal east opening shadow",
+    )!;
 
     setTunnelPortalPresentation(portals, false, false);
     expect(portals.visible).toBe(true);
@@ -282,6 +317,7 @@ describe("measured Tiergartentunnel entrances", () => {
     expect(boreMaterial.depthWrite).toBe(true);
     expect(rampMaterial.depthTest).toBe(true);
     expect(rampMaterial.depthWrite).toBe(true);
+    expect(openingShadow.visible).toBe(true);
 
     setTunnelPortalPresentation(portals, false, false, true);
     expect(bore.visible).toBe(true);
@@ -289,20 +325,12 @@ describe("measured Tiergartentunnel entrances", () => {
     expect(boreMaterial.depthWrite).toBe(true);
     expect(rampMaterial.depthTest).toBe(true);
     expect(rampMaterial.depthWrite).toBe(true);
-    expect(
-      portals.getObjectByName(
-        "Tiergartentunnel reichpietschufer shared portal east opening shadow",
-      )!.visible,
-    ).toBe(true);
+    expect(openingShadow.visible).toBe(false);
 
     setTunnelPortalPresentation(portals, false, true, true);
     expect(portals.visible).toBe(true);
     expect(bore.visible).toBe(true);
-    expect(
-      portals.getObjectByName(
-        "Tiergartentunnel reichpietschufer shared portal east opening shadow",
-      )!.visible,
-    ).toBe(true);
+    expect(openingShadow.visible).toBe(false);
     expect(boreMaterial.depthTest).toBe(true);
     expect(boreMaterial.depthWrite).toBe(true);
 

@@ -125,6 +125,9 @@ describe("granular Invalidenfriedhof details", () => {
       "Bronze",
       "schwarz gefasstes Eisen",
     ]);
+    expect(profile.graves.scharnhorst.recognitionCues).toContain(
+      "green-patinated reclining bronze lion with raised head and forepaws",
+    );
     expect(profile.graves.scharnhorst.artists).toMatchObject({
       architecture: "Karl Friedrich Schinkel",
       lionExecution: "Theodor Kalide",
@@ -216,6 +219,8 @@ describe("granular Invalidenfriedhof details", () => {
       "Scharnhorst two-pier marble sarcophagus",
       "Scharnhorst marble relief frieze figures",
       "Scharnhorst reclining bronze lion body head and paws",
+      "Scharnhorst bronze lion mane",
+      "Scharnhorst green-patina lion pointed ears",
       "Scharnhorst bronze lion mane tufts face and claw detail",
       "Scharnhorst Schinkel railing circular ornaments",
       "Invalidenfriedhof Witzleben canopy exact Day protected",
@@ -269,7 +274,9 @@ describe("granular Invalidenfriedhof details", () => {
     )!;
     expect(scharnhorst.userData.detailCounts).toEqual({
       circularFenceOrnaments: 46,
-      lionStructuralVolumes: 13,
+      lionEarVolumes: 2,
+      lionFineDetailVolumes: 25,
+      lionStructuralVolumes: 19,
       reliefFigures: 26,
       totalHeightM: 5.6,
     });
@@ -281,6 +288,18 @@ describe("granular Invalidenfriedhof details", () => {
     )!;
     expect(scharnhorstFine.userData.detailFadeM).toEqual([62, 155]);
     expect(structuralLion.parent).toBe(scharnhorst);
+    expect(structuralLion.userData.pose).toContain("raised monumental head");
+    expect(structuralLion.userData.finish).toContain("green");
+    const lionTone = (
+      (structuralLion as InstancedMesh).material as MeshStandardMaterial
+    ).color;
+    expect(lionTone.g).toBeGreaterThan(lionTone.r);
+    expect(lionTone.g).toBeGreaterThan(lionTone.b);
+    const lionEars = root.getObjectByName(
+      "Scharnhorst green-patina lion pointed ears",
+    ) as InstancedMesh;
+    expect(lionEars.count).toBe(2);
+    expect(lionEars.parent).toBe(scharnhorst);
     scharnhorstFine.visible = false;
     expect(structuralLion.visible).toBeTrue();
     expect(
@@ -297,6 +316,7 @@ describe("granular Invalidenfriedhof details", () => {
       "einheimischer Granit",
       "Carrara-Marmor",
     ]);
+    expect(stone.userData.lionPlinthFinish).toContain("green bronze");
     expect((stone.material as MeshStandardMaterial).vertexColors).toBeFalse();
     expect(stone.instanceColor).not.toBeNull();
     const graniteTone = new Color();
@@ -307,6 +327,10 @@ describe("granular Invalidenfriedhof details", () => {
     expect(marbleTone.r + marbleTone.g + marbleTone.b).toBeGreaterThan(
       graniteTone.r + graniteTone.g + graniteTone.b,
     );
+    const lionPlinthTone = new Color();
+    stone.getColorAt(stone.count - 1, lionPlinthTone);
+    expect(lionPlinthTone.g).toBeGreaterThan(lionPlinthTone.r);
+    expect(lionPlinthTone.g).toBeGreaterThan(lionPlinthTone.b);
     const scharnhorstBounds = new Box3().setFromObject(scharnhorst);
     expect(scharnhorstBounds.min.y).toBeCloseTo(
       INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM[1],
@@ -391,9 +415,9 @@ describe("granular Invalidenfriedhof details", () => {
         vertices * (object instanceof InstancedMesh ? object.count : 1);
     });
     expect({ renderables, renderedVertices, storedVertices }).toEqual({
-      renderables: 8,
-      renderedVertices: 15_539,
-      storedVertices: 554,
+      renderables: 9,
+      renderedVertices: 16_978,
+      storedVertices: 698,
     });
 
     const voxel = createMinecraftInvalidenfriedhofDetails();
@@ -411,9 +435,9 @@ describe("granular Invalidenfriedhof details", () => {
     ) as Record<string, number>;
     expect(scharnhorstBlocksByPalette).toEqual({
       concrete: 122,
-      dark: 126,
+      dark: 129,
       marble: 291,
-      patina: 27,
+      patina: 30,
     });
     const blockCount = Object.values(scharnhorstBlocksByPalette).reduce(
       (total, count) => total + count,
@@ -428,10 +452,17 @@ describe("granular Invalidenfriedhof details", () => {
       uniqueStoredVertices: sharedVertices,
     }).toEqual({
       batches: 4,
-      blocks: 566,
-      renderedVertices: 13_584,
+      blocks: 572,
+      renderedVertices: 13_728,
       uniqueStoredVertices: 24,
     });
+    const patinaBatch = (voxel.children as InstancedMesh[]).find(
+      (batch) => batch.userData.blockPalette === "patina",
+    )!;
+    const voxelPatinaTone = (patinaBatch.material as MeshStandardMaterial)
+      .color;
+    expect(voxelPatinaTone.g).toBeGreaterThan(voxelPatinaTone.r);
+    expect(voxelPatinaTone.g).toBeGreaterThan(voxelPatinaTone.b);
   });
 
   test("keeps field photographs out and batches repeated static detail", () => {

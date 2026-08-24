@@ -12,10 +12,14 @@ import {
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 const appSource = await Bun.file(
   new URL("../src/App.tsx", import.meta.url),
-).text();
+)
+  .text()
+  .then((source) => source.replaceAll("\r\n", "\n"));
 const stylesSource = await Bun.file(
   new URL("../src/styles.css", import.meta.url),
 ).text();
