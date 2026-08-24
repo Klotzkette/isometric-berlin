@@ -139,6 +139,12 @@ describe("Hauptbahnhof current concourse", () => {
       "no dynamic point lights",
     );
     expect(liftHoops).toBeInstanceOf(InstancedMesh);
-    expect(liftHoops.count).toBe(40);
+    const liftProfile = HAUPTBAHNHOF_INTERIOR_PROFILE.panoramicLifts;
+    const hoopCountPerShaft =
+      Math.floor(
+        (liftProfile.topM - liftProfile.bottomM) /
+          liftProfile.ringSpacingM,
+      ) + 1;
+    expect(liftHoops.count).toBe(liftProfile.count * hoopCountPerShaft);
   });
 });

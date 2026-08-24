@@ -451,12 +451,12 @@ automated-browser contracts, not physical iOS-device validation.
 
 With the tunnel in the production scene, the mobile-like touch ParkDetails
 profile keeps every mapped path, official tree and playground anchor in
-**107,201 instances and 11,422,846 bytes of geometry plus instance buffers**.
-The non-touch settled production profile uses **499,963 instances and
-42,937,418 bytes**. The frozen comparison contract excludes both tunnel and
-settled detail: its touch fixture is **107,239 instances, 66 drawables and
-11,425,374 bytes**, versus the full fixture's **450,038 instances, 1,471
-drawables and 39,096,522 bytes**. The touch profile drops texture maps, derived
+**107,199 instances and 11,639,110 bytes of geometry plus instance buffers**.
+The non-touch settled production profile uses **499,952 instances and
+44,062,710 bytes**. The frozen comparison contract excludes both tunnel and
+settled detail: its touch fixture is **107,237 instances, 72 drawables and
+11,641,638 bytes**, versus the full fixture's **450,029 instances, 1,478
+drawables and 40,221,966 bytes**. The touch profile drops texture maps, derived
 micro-vegetation and other non-source micro-detail; it does not drop a path or
 source anchor.
 
@@ -621,8 +621,16 @@ security-relevant floor plan. Its 5.5 m Chillida sculpture is fixed by OSM
 artwork node `4329873408` in the eastern Ehrenhof; the entrance glazing, ivy
 wings, protocol flags, lamps, gate, fence and landscaped
 approach are bounded recognition details derived from supplied visual
-references rather than surveyed fixture measurements. Hauptbahnhof exposes the 321 m glass roof, 180 x 42 m
-crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
+references rather than surveyed fixture measurements. Hauptbahnhof exposes the
+321 m glass roof, 180 x 42 m crossing hall and 46 m office bridges. Inside the
+crossing hall, one shared five-level contract ties the upper Stadtbahn deck,
+upper gallery, main concourse, lower gallery and deep north-south platforms to
+their visible elevations around the daylight slot. Six cross bridges, panelled
+glass rails and Y-shaped supports clarify the section. Four cylindrical glass
+lift shafts span every level and carry repeated ring frames, five landing-door
+sets and transparent cabins at different floors. These repeated details are
+instanced, and the supplied interior photographs remain non-bundled visual
+references rather than textures or surveyed plans. The Brandenburg Gate keeps its published
 62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
 Quadriga. These models sharpen silhouettes without replacing the aligned
 Berlin Mesh texture beneath them.
@@ -1022,7 +1030,28 @@ where present, including the measured 35 m height, 12.5 m crown-radius and
 willows, pines/larches, firs/spruces, poplars, birches/robinias, limes/elms,
 maples/planes, beeches/chestnuts, orchard trees and shrubs receive distinct
 profiles, branching habits and bounded species-informed colour registers while
-their published positions and dimensions remain unchanged. In addition, 83
+their published positions and dimensions remain unchanged. One exact source
+fingerprint is promoted from those shared instances: official Trauben-Eiche
+`tree-21650` at `[-274.82, 3.787, 154.97]` is the Lenné-Eiche near Carillon.
+Its published 23 m height, 9.5 m crown radius and 0.5 m trunk radius anchor a
+dedicated seven-renderable full model and six-renderable mobile model. Supplied
+photographs inform the root flare, deep bark fissures, high twin leaders, long
+horizontal limb, airy asymmetric crown, exposed dead tips, lobed olive leaves
+and botanical plaque only; no photograph is bundled or loaded. Minecraft
+replaces the matching generic source cell with one opaque instanced block
+model: 138 full-profile blocks or 85 mobile blocks preserve the 23 m silhouette,
+high fork, lateral reach and open crown in one draw call. The adjoining former
+Krolloper grounds use a dedicated 20-work recognition layer for the
+**Skulpturen gegen Krieg und Gewalt**. All 20 current OSM node anchors remain
+exact and each node receives a distinct procedural form rather than a shared
+placeholder. Contact, Himmelsschlüssel, Große Knospe III/63 and Todes Mauer
+Bruch preserve the supplied close-view evidence for true openings, diagonal
+bindings, rough cubist lobes, paired jagged steel walls and four inscribed
+ground plates. The exact source keys are excluded from the generic OSM
+monument builder to prevent duplicates. No supplied photograph is bundled or
+fetched at runtime. Full and mobile profiles both preserve all 20 works;
+mobile reduces only bounded edge, groove and lettering subdivisions (114
+versus 91 renderables in the current implementation). In addition, 83
 mapped Tiergarten scrub polygons carry 3,535 deterministic bush clusters and
 23 mapped hedge objects preserve 1,099.2 m of line courses plus 526.8 m² of
 area hedges. These exact OSM outlines remain source geometry; the individual

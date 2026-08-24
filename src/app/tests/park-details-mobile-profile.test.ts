@@ -33,16 +33,16 @@ type ParkGeometryBudget = {
 };
 
 const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
-  geometryBytes: 5_302_702,
-  instanceBytes: 33_793_820,
-  instances: 450_038,
+  geometryBytes: 6_428_830,
+  instanceBytes: 33_793_136,
+  instances: 450_029,
   instancedMeshes: 66,
   mappedMaterials: 9,
-  meshes: 1_441,
-  objects: 1_832,
+  meshes: 1_446,
+  objects: 1_841,
   transparentMaterials: 1,
-  triangles: 113_225,
-  vertices: 146_083,
+  triangles: 125_921,
+  vertices: 172_864,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
@@ -133,18 +133,18 @@ describe("coarse-pointer ParkDetails profile", () => {
     const mobile = createParkDetails(payload, { detailProfile: "mobile" });
     const budget = geometryBudget(mobile);
     expect(budget).toEqual({
-      geometryBytes: 3_423_890,
-      instanceBytes: 8_001_484,
-      instances: 107_239,
+      geometryBytes: 3_640_306,
+      instanceBytes: 8_001_332,
+      instances: 107_237,
       instancedMeshes: 8,
       mappedMaterials: 0,
-      meshes: 64,
-      objects: 68,
+      meshes: 68,
+      objects: 76,
       transparentMaterials: 0,
-      triangles: 83_555,
-      vertices: 92_307,
+      triangles: 86_535,
+      vertices: 97_585,
     });
-    expect(drawableCount(mobile)).toBe(66);
+    expect(drawableCount(mobile)).toBe(72);
     expect(drawableCount(mobile)).toBeLessThanOrEqual(150);
     expect(budget.instances).toBeLessThan(FROZEN_FULL_BUDGET.instances * 0.25);
     expect(budget.instanceBytes).toBeLessThan(
@@ -202,8 +202,12 @@ describe("coarse-pointer ParkDetails profile", () => {
     const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
     expect(trunks).toBeInstanceOf(InstancedMesh);
     expect(crowns).toBeInstanceOf(InstancedMesh);
-    expect(trunks.count).toBe(mobile.userData.treeCount);
-    expect(crowns.count).toBe(mobile.userData.treeCount);
+    expect(trunks.count + mobile.userData.signatureTreeCount).toBe(
+      mobile.userData.treeCount,
+    );
+    expect(crowns.count + mobile.userData.signatureTreeCount).toBe(
+      mobile.userData.treeCount,
+    );
     expect(
       mobile.userData.treeCount +
         mobile.userData.suppressedConstructionTreeCount +

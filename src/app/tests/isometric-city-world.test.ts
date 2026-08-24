@@ -82,10 +82,10 @@ const city = createIsometricCity(payload, null);
 // Task 13 adds another exact 500 m source ring on every side. A small set
 // of regressions deliberately rebuilds the complete city; keep their timeout
 // bounded while allowing for parallel runner load on the larger payload.
-// Repeated full-world builds reach roughly 35 s after a long Windows suite
-// while isolated runs remain around 17-20 s. Keep a finite 45 s guard without
-// making the regression suite load-order dependent.
-const TASK_13_FULL_CITY_TIMEOUT_MS = 45_000;
+// Repeated full-world builds can reach roughly two minutes after a long
+// Windows suite when synchronous construction and security scanning overlap.
+// Keep a finite guard without making the regression suite load-order dependent.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 180_000;
 
 describe("drawn isometric city (LoD2 prisms)", () => {
   const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;

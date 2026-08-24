@@ -30,6 +30,7 @@ import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "./BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "./CsdAttackMemorial";
 import { createLetteringTexture } from "./drawnLettering";
 import { createKindertransportMemorial, KINDERTRANSPORT_MEMORIAL_OSM_KEY } from "./KindertransportMemorial";
+import { KROLLOPER_SCULPTURE_OSM_KEYS } from "./KrolloperSculptures";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "./MoabitPrisonMemorialPark";
 import type { StreetDetailsPayload } from "./TrafficSignals";
@@ -2843,6 +2844,7 @@ export function createTiergartenMonuments(
     } else if (
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
       BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
+      KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||
       MOABIT_PRISON_GENERIC_ARTWORK_SUPPRESSION_KEYS.has(entry.osm_key) ||
       MONUMENTS_ALREADY_MODELLED.test(name) ||
       entry.kind === "tank"

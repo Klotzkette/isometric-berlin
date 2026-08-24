@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.22)
+## 3. Hard scope rules (v0.72.23)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -50,8 +50,14 @@ Must be inside the polygon and visible in the final map:
 - Bundeskanzleramt
 - Paul-Löbe-Haus
 - Marie-Elisabeth-Lüders-Haus
-- Berlin Hauptbahnhof (incl. the glass roof — hero tile), Hamburger Bahnhof,
-  Rieckhallen, Sozialgericht Berlin, Europacity, KPMG and DKB
+- Berlin Hauptbahnhof (incl. the glass roof and the complete five-level
+  interior hall — hero tile), Hamburger Bahnhof, Rieckhallen, Sozialgericht
+  Berlin, Europacity, KPMG and DKB. Keep the upper rail deck, upper gallery,
+  main concourse, lower gallery and deep platforms visibly distinct around the
+  daylight slot. Preserve all four cylindrical panoramic lift shafts through
+  every level, including their ring frames, landing doors and visible cabins;
+  repeated interior detail stays instanced and supplied photographs remain
+  non-bundled visual references.
 - The Sozialgericht's 58.038 m street-side site boundary from OSM way
   `423490503`, kept distinct from the actual 48.905 m facade and 15.392 m
   risalit of Berlin LoD2 body `DEBE01YYK0002Qys`; retain its 4 + 3 + 4 facade
@@ -69,6 +75,24 @@ Must be inside the polygon and visible in the final map:
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
   Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
+- The Lenné-Eiche (`Quercus petraea Liebl.`) near Carillon at the exact
+  Geoportal Berlin tree fingerprint `[-274.82, 3.787, 154.97]`, retaining its
+  published 23 m height, 9.5 m crown radius and 0.5 m trunk radius. Its
+  dedicated drawn model keeps the photographed root flare, deeply fissured
+  trunk, high twin leaders, long horizontal limb, airy asymmetric crown,
+  exposed dead tips and small botanical plaque. Owner photographs remain
+  reference-only and must never become bundled or runtime textures. Minecraft
+  replaces the matching official voxel tree with one draw-call, block-native
+  full/mobile variants that preserve the same high fork, reach and open crown.
+- The complete 20-work "Skulpturen gegen Krieg und Gewalt" ensemble on the
+  former Krolloper grounds between TIPI and the Bundeskanzleramt. Every work
+  keeps its current OSM node anchor and an individual procedural silhouette;
+  the key Contact, Himmelsschlüssel, Große Knospe III/63 and Todes Mauer Bruch
+  models retain their photographed openings, cuts, proportions and ground
+  plates. The generic OSM monument pass must not duplicate these 20 works.
+  Owner photographs remain reference-only and must never become bundled or
+  runtime textures. Full and mobile profiles both retain the entire ensemble;
+  mobile may reduce only bounded edge and inscription microdetail.
 - The ten-metre Beethoven-Haydn-Mozart monument at its committed Tiergarten
   anchor, retaining the rounded granite understructure, chamfered three-sided
   tinted-marble pavilion, three round-arched white-marble half figures,
@@ -387,7 +411,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.22)
+## 8. What success looks like (Definition of Done v0.72.23)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

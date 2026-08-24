@@ -4086,6 +4086,42 @@ export const HAUPTBAHNHOF_RAIL_CURVE_B = 0.223_3;
 export const HAUPTBAHNHOF_GLASS_DAY_OPACITY = 0.5;
 export const HAUPTBAHNHOF_GLASS_GRID_OPACITY = 0.28;
 
+export const HAUPTBAHNHOF_INTERIOR_LEVELS = [
+  {
+    elevationM: 10.75,
+    id: "upper-rail",
+    label: "Stadtbahn platforms",
+    role: "east-west rail deck",
+  },
+  {
+    elevationM: 4.6,
+    id: "upper-gallery",
+    label: "Upper gallery",
+    openHalfM: 7.5,
+    role: "retail and interchange gallery",
+  },
+  {
+    elevationM: 0,
+    id: "ground-concourse",
+    label: "Main concourse",
+    openHalfM: 9.5,
+    role: "entrance and distribution level",
+  },
+  {
+    elevationM: -5.4,
+    id: "lower-gallery",
+    label: "Lower gallery",
+    openHalfM: 12,
+    role: "retail and interchange gallery",
+  },
+  {
+    elevationM: -14.53,
+    id: "deep-rail",
+    label: "North-south platforms",
+    role: "north-south rail level",
+  },
+] as const;
+
 /**
  * Current concourse recognition details. The official station plan fixes the
  * five public levels and places Einstein Kaffee on the ground floor at the
@@ -4094,6 +4130,7 @@ export const HAUPTBAHNHOF_GLASS_GRID_OPACITY = 0.28;
  * dimensions are presentation estimates, not a building survey.
  */
 export const HAUPTBAHNHOF_INTERIOR_PROFILE = {
+  crossBridgeCount: 6,
   departureBoard: {
     heightM: 4.9,
     rowCount: 12,
@@ -4101,7 +4138,18 @@ export const HAUPTBAHNHOF_INTERIOR_PROFILE = {
   },
   geometryStatus:
     "official five-level station plan with current owner-photo recognition details; interior fixture dimensions are bounded presentation estimates, not surveyed geometry",
-  levelCount: 5,
+  levelCount: HAUPTBAHNHOF_INTERIOR_LEVELS.length,
+  panoramicLifts: {
+    bottomM: -15.15,
+    count: 4,
+    landingElevationsM: HAUPTBAHNHOF_INTERIOR_LEVELS.map(
+      (level) => level.elevationM,
+    ),
+    radiusM: 1.82,
+    ringSpacingM: 1.55,
+    topM: 14.5,
+    verticalMullionsPerShaft: 8,
+  },
   servicePavilion: {
     depthM: 13,
     heightM: 3.55,
@@ -4960,6 +5008,240 @@ function addStationCurrentConcourseDetails(
     "emissive geometry only; no dynamic point lights or temporal flicker";
 }
 
+function addStationPanoramicLifts(
+  group: Group,
+  frameMaterial: MeshStandardMaterial,
+): void {
+  const profile = HAUPTBAHNHOF_INTERIOR_PROFILE.panoramicLifts;
+  const shaftHeight = profile.topM - profile.bottomM;
+  const shaftCentreY = (profile.topM + profile.bottomM) / 2;
+  const shaftGlass = nightEmitter(
+    modelMaterial(0x9fc5cc, {
+      metalness: 0.08,
+      opacity: 0.34,
+      roughness: 0.16,
+    }),
+    0xbfefff,
+    0.2,
+  );
+  const cabinGlass = nightEmitter(
+    modelMaterial(0xb8d5da, {
+      metalness: 0.12,
+      opacity: 0.48,
+      roughness: 0.12,
+    }),
+    0xffd8a0,
+    0.3,
+  );
+  const doorGlass = modelMaterial(0xb7d8de, {
+    metalness: 0.08,
+    opacity: 0.4,
+    roughness: 0.14,
+  });
+  const liftPositions: Array<[number, number]> = [];
+  for (const x of [-9.5, 9.5]) {
+    for (const z of [-33, 33]) {
+      liftPositions.push([x, z]);
+    }
+  }
+
+  const verticalMullions: InstanceTransform[] = [];
+  const guideRails: InstanceTransform[] = [];
+  const hoops: InstanceTransform[] = [];
+  const landingCollars: InstanceTransform[] = [];
+  const landingDoorPanels: InstanceTransform[] = [];
+  const landingDoorPosts: InstanceTransform[] = [];
+  const landingDoorTransoms: InstanceTransform[] = [];
+  const cabinCaps: InstanceTransform[] = [];
+  const cabinBacks: InstanceTransform[] = [];
+  const hoopCount = Math.floor(shaftHeight / profile.ringSpacingM) + 1;
+
+  liftPositions.forEach(([x, z], shaftIndex) => {
+    const shaft = new Mesh(
+      new CylinderGeometry(
+        profile.radiusM,
+        profile.radiusM,
+        shaftHeight,
+        28,
+        1,
+        true,
+      ),
+      shaftGlass,
+    );
+    shaft.name = "Hauptbahnhof cylindrical glass lift shaft";
+    shaft.position.set(x, shaftCentreY, z);
+    shaft.castShadow = false;
+    shaft.receiveShadow = true;
+    shaft.renderOrder = 7;
+    shaft.userData.bottomM = profile.bottomM;
+    shaft.userData.topM = profile.topM;
+    shaft.userData.servedLevelIds = HAUPTBAHNHOF_INTERIOR_LEVELS.map(
+      (level) => level.id,
+    );
+    shaft.userData.sourceUrl =
+      "https://www.deutschebahn.com/de/architektur_bahnhof-6878040";
+    shaft.userData.visualReference =
+      "owner-supplied Hauptbahnhof interior photographs";
+    group.add(shaft);
+
+    for (
+      let mullion = 0;
+      mullion < profile.verticalMullionsPerShaft;
+      mullion += 1
+    ) {
+      const angle =
+        (mullion / profile.verticalMullionsPerShaft) * Math.PI * 2;
+      verticalMullions.push({
+        position: [
+          x + Math.cos(angle) * profile.radiusM,
+          shaftCentreY,
+          z + Math.sin(angle) * profile.radiusM,
+        ],
+        rotation: [0, -angle, 0],
+      });
+    }
+    for (const zOffset of [-0.72, 0.72]) {
+      guideRails.push({
+        position: [x, shaftCentreY, z + zOffset],
+      });
+    }
+    for (let hoop = 0; hoop < hoopCount; hoop += 1) {
+      const y =
+        hoopCount === 1
+          ? shaftCentreY
+          : profile.bottomM + (hoop / (hoopCount - 1)) * shaftHeight;
+      hoops.push({
+        position: [x, y, z],
+        rotation: [Math.PI / 2, 0, 0],
+      });
+    }
+
+    const doorDirection = Math.sign(x) || 1;
+    for (const levelY of profile.landingElevationsM) {
+      landingCollars.push({
+        position: [x, levelY + 0.08, z],
+        rotation: [Math.PI / 2, 0, 0],
+      });
+      for (const zOffset of [-0.47, 0.47]) {
+        landingDoorPanels.push({
+          position: [
+            x + doorDirection * (profile.radiusM + 0.045),
+            levelY + 1.38,
+            z + zOffset,
+          ],
+        });
+      }
+      for (const zOffset of [-0.94, 0, 0.94]) {
+        landingDoorPosts.push({
+          position: [
+            x + doorDirection * (profile.radiusM + 0.1),
+            levelY + 1.42,
+            z + zOffset,
+          ],
+        });
+      }
+      landingDoorTransoms.push({
+        position: [
+          x + doorDirection * (profile.radiusM + 0.1),
+          levelY + 2.78,
+          z,
+        ],
+      });
+    }
+
+    const cabinLevel = HAUPTBAHNHOF_INTERIOR_LEVELS[shaftIndex].elevationM;
+    const cabinHeight = 3.05;
+    const cabinCentreY = cabinLevel + cabinHeight / 2 + 0.08;
+    const cabin = new Mesh(
+      new CylinderGeometry(1.28, 1.28, cabinHeight, 20, 1, true),
+      cabinGlass,
+    );
+    cabin.name = "Hauptbahnhof lift car";
+    cabin.position.set(x, cabinCentreY, z);
+    cabin.castShadow = false;
+    cabin.receiveShadow = true;
+    cabin.renderOrder = 8;
+    cabin.userData.levelId = HAUPTBAHNHOF_INTERIOR_LEVELS[shaftIndex].id;
+    cabin.userData.presentation =
+      "four cabins are parked on different levels so the vertical system remains legible in a still scene";
+    group.add(cabin);
+    for (const y of [cabinLevel + 0.08, cabinLevel + cabinHeight + 0.08]) {
+      cabinCaps.push({ position: [x, y, z] });
+    }
+    cabinBacks.push({
+      position: [
+        x - doorDirection * 0.95,
+        cabinCentreY,
+        z,
+      ],
+    });
+  });
+
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced cylindrical lift frames",
+    [0.11, shaftHeight, 0.11],
+    frameMaterial,
+    verticalMullions,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced panoramic lift guide rails",
+    [0.12, shaftHeight - 0.8, 0.12],
+    frameMaterial,
+    guideRails,
+  );
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced panoramic lift hoops",
+    new TorusGeometry(profile.radiusM, 0.055, 5, 28),
+    frameMaterial,
+    hoops,
+  );
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced panoramic lift landing collars",
+    new TorusGeometry(profile.radiusM + 0.015, 0.11, 6, 28),
+    frameMaterial,
+    landingCollars,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced panoramic lift landing doors",
+    [0.07, 2.55, 0.82],
+    doorGlass,
+    landingDoorPanels,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced panoramic lift door posts",
+    [0.12, 2.8, 0.12],
+    frameMaterial,
+    landingDoorPosts,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced panoramic lift door transoms",
+    [0.12, 0.12, 2],
+    frameMaterial,
+    landingDoorTransoms,
+  );
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced panoramic lift cabin caps",
+    new CylinderGeometry(1.28, 1.28, 0.16, 20),
+    frameMaterial,
+    cabinCaps,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced panoramic lift cabin backs",
+    [0.16, 2.42, 1.7],
+    frameMaterial,
+    cabinBacks,
+  );
+}
+
 /**
  * What you see when you look down through the north–south hall's glass
  * barrel: not one enormous empty room, but four stacked levels.
@@ -4996,24 +5278,63 @@ function addStationInterior(
     0xffd49a,
     0.62,
   );
+  const balustradeGlass = nightEmitter(
+    modelMaterial(0xa7c5ca, {
+      metalness: 0.08,
+      opacity: 0.42,
+      roughness: 0.18,
+    }),
+    0xbfe8ef,
+    0.16,
+  );
+  const wayfinding = nightEmitter(
+    modelMaterial(0x253f83, { metalness: 0.08, roughness: 0.46 }),
+    0x3158b5,
+    0.55,
+  );
+  const wayfindingAccent = nightEmitter(
+    modelMaterial(0xf2ae2d, { roughness: 0.52 }),
+    0xffc13c,
+    0.75,
+  );
 
   const halfWidth = signature.north_south_hall_width_m / 2 - 1;
   const halfLength = signature.north_south_hall_length_m / 2 - 2;
   // The upper track deck covers the crossing, so the arms start beyond it.
   const armNear = signature.east_west_roof_width_m / 2;
-  // Real levels: gallery +1, concourse, gallery −1, deep platforms at −15.
-  const levels = [
-    { openHalf: 7.5, y: 4.6 },
-    { openHalf: 9.5, y: 0 },
-    { openHalf: 12, y: -5.4 },
-  ];
+  const levels = HAUPTBAHNHOF_INTERIOR_LEVELS.flatMap((level) =>
+    "openHalfM" in level
+      ? [
+          {
+            id: level.id,
+            openHalf: level.openHalfM,
+            y: level.elevationM,
+          },
+        ]
+      : [],
+  );
+  group.userData.interiorLevels = HAUPTBAHNHOF_INTERIOR_LEVELS.map(
+    (level) => ({ ...level }),
+  );
   const storefronts: InstanceTransform[] = [];
   const galleryRailSegments: VectorSegment[] = [];
+  const galleryGlassPanels: InstanceTransform[] = [];
+  const galleryTopRails: InstanceTransform[] = [];
+  const galleryPosts: InstanceTransform[] = [];
+  const galleryFascias: InstanceTransform[] = [];
+  const crossBridgeDecks: InstanceTransform[] = [];
+  const crossBridgeGlassPanels: InstanceTransform[] = [];
+  const crossBridgeTopRails: InstanceTransform[] = [];
+  const wayfindingPanels: InstanceTransform[] = [];
+  const wayfindingAccents: InstanceTransform[] = [];
+  const atriumColumns: InstanceTransform[] = [];
+  const atriumYBranches: InstanceTransform[] = [];
 
   for (const side of [-1, 1]) {
     const near = side * armNear;
     const far = side * halfLength;
-    for (const level of levels) {
+    const armLength = Math.abs(far - near);
+    for (const [levelIndex, level] of levels.entries()) {
       for (const edge of [-1, 1]) {
         const inner = edge * level.openHalf;
         const outer = edge * halfWidth;
@@ -5041,16 +5362,76 @@ function addStationInterior(
       }
       for (const edge of [-1, 1]) {
         galleryRailSegments.push([
-          [edge * level.openHalf, level.y + 0.9, near],
-          [edge * level.openHalf, level.y + 0.9, far],
+          [edge * level.openHalf, level.y + 1.5, near],
+          [edge * level.openHalf, level.y + 1.5, far],
         ]);
+        galleryGlassPanels.push({
+          position: [
+            edge * level.openHalf,
+            level.y + 0.85,
+            (near + far) / 2,
+          ],
+          scale: [1, 1, Math.max(1, armLength - 0.8)],
+        });
+        galleryTopRails.push({
+          position: [
+            edge * level.openHalf,
+            level.y + 1.5,
+            (near + far) / 2,
+          ],
+          scale: [1, 1, armLength],
+        });
+        galleryFascias.push({
+          position: [
+            edge * level.openHalf,
+            level.y - 0.32,
+            (near + far) / 2,
+          ],
+          scale: [1, 1, armLength],
+        });
+        const postCount = Math.max(2, Math.ceil(armLength / 5.5));
+        for (let post = 0; post <= postCount; post += 1) {
+          galleryPosts.push({
+            position: [
+              edge * level.openHalf,
+              level.y + 0.84,
+              near + (post / postCount) * (far - near),
+            ],
+          });
+        }
       }
+
+      const bridgeZ = side * (armNear + 8 + levelIndex * 21.5);
+      const bridgeSpan = level.openHalf * 2 + 0.8;
+      crossBridgeDecks.push({
+        position: [0, level.y, bridgeZ],
+        scale: [bridgeSpan, 1, 1],
+      });
+      for (const bridgeEdge of [-1, 1]) {
+        crossBridgeGlassPanels.push({
+          position: [0, level.y + 0.85, bridgeZ + bridgeEdge * 2.55],
+          scale: [bridgeSpan - 0.5, 1, 1],
+        });
+        crossBridgeTopRails.push({
+          position: [0, level.y + 1.5, bridgeZ + bridgeEdge * 2.55],
+          scale: [bridgeSpan, 1, 1],
+        });
+      }
+      wayfindingPanels.push({
+        position: [0, level.y + 2.25, bridgeZ],
+      });
+      wayfindingAccents.push({
+        position: [-1.75, level.y + 2.25, bridgeZ - side * 0.07],
+      });
     }
     // Two escalator runs per gap, flanking the slot the way the real ones do.
     const gaps: Array<[number, number]> = [
-      [4.6, 0],
-      [0, -5.4],
-      [-5.4, -15],
+      [levels[0].y, levels[1].y],
+      [levels[1].y, levels[2].y],
+      [
+        levels[2].y,
+        HAUPTBAHNHOF_INTERIOR_LEVELS[4].elevationM,
+      ],
     ];
     gaps.forEach(([top, bottom], index) => {
       const zTop = side * (armNear + 14 + index * 21);
@@ -5070,6 +5451,20 @@ function addStationInterior(
         );
       }
     });
+
+    for (const zOffset of [11, 35, 59]) {
+      const z = side * (armNear + zOffset);
+      for (const x of [-17.2, 17.2]) {
+        atriumColumns.push({ position: [x, 0.6, z], scale: [1, 11.8, 1] });
+        for (const branchSide of [-1, 1]) {
+          atriumYBranches.push({
+            position: [x + branchSide * 1.05, 8.08, z],
+            rotation: [0, 0, branchSide * 0.5],
+            scale: [1, 4.4, 1],
+          });
+        }
+      }
+    }
   }
   addInstancedBoxes(
     group,
@@ -5085,65 +5480,86 @@ function addStationInterior(
     0x7c999f,
     0.54,
   );
-
-  addStationCurrentConcourseDetails(group, signature, retailGlass, escalator);
-
-  // The station's four panoramic lifts are cylindrical glazed shafts, not
-  // opaque square towers. A light four-post frame keeps each cylinder legible
-  // through the hall without creating another dense transparent layer.
-  const liftFrames: InstanceTransform[] = [];
-  const liftHoops: InstanceTransform[] = [];
-  for (const x of [-14.8, 14.8]) {
-    for (const z of [-33, 33]) {
-      const shaft = new Mesh(
-        new CylinderGeometry(1.72, 1.72, 23.5, 20, 1, true),
-        retailGlass,
-      );
-      shaft.name = "Hauptbahnhof cylindrical glass lift shaft";
-      shaft.position.set(x, -2.25, z);
-      shaft.castShadow = false;
-      shaft.receiveShadow = true;
-      shaft.userData.sourceUrl =
-        "https://www.deutschebahn.com/de/architektur_bahnhof-6878040";
-      group.add(shaft);
-      for (const [dx, dz] of [
-        [-1.48, 0],
-        [1.48, 0],
-        [0, -1.48],
-        [0, 1.48],
-      ] as Array<[number, number]>) {
-        liftFrames.push({ position: [x + dx, -2.25, z + dz] });
-      }
-      for (let y = -12.8; y <= 8.8; y += 2.4) {
-        liftHoops.push({
-          position: [x, y, z],
-          rotation: [Math.PI / 2, 0, 0],
-        });
-      }
-      addBox(
-        group,
-        "Hauptbahnhof lift car",
-        [2.35, 3.15, 2.35],
-        [x, z > 0 ? 1.4 : -8.6, z],
-        escalator,
-        0.2,
-      );
-    }
-  }
   addInstancedBoxes(
     group,
-    "Hauptbahnhof instanced cylindrical lift frames",
-    [0.12, 23.5, 0.12],
+    "Hauptbahnhof instanced gallery glass balustrade panels",
+    [0.08, 1.3, 1],
+    balustradeGlass,
+    galleryGlassPanels,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced gallery balustrade top rails",
+    [0.14, 0.1, 1],
     escalator,
-    liftFrames,
+    galleryTopRails,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced gallery balustrade posts",
+    [0.12, 1.42, 0.12],
+    escalator,
+    galleryPosts,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced gallery inner-edge fascias",
+    [0.24, 0.62, 1],
+    escalator,
+    galleryFascias,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced concourse cross bridges",
+    [1, 0.5, 5.2],
+    slab,
+    crossBridgeDecks,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced cross-bridge glass balustrades",
+    [1, 1.3, 0.08],
+    balustradeGlass,
+    crossBridgeGlassPanels,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced cross-bridge top rails",
+    [1, 0.1, 0.14],
+    escalator,
+    crossBridgeTopRails,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced blue wayfinding panels",
+    [4.8, 0.72, 0.12],
+    wayfinding,
+    wayfindingPanels,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced yellow wayfinding fields",
+    [1.05, 0.52, 0.14],
+    wayfindingAccent,
+    wayfindingAccents,
   );
   addInstancedGeometry(
     group,
-    "Hauptbahnhof instanced panoramic lift hoops",
-    new TorusGeometry(1.72, 0.055, 5, 20),
+    "Hauptbahnhof instanced atrium support columns",
+    new CylinderGeometry(0.38, 0.44, 1, 10),
     escalator,
-    liftHoops,
+    atriumColumns,
   );
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced atrium Y support branches",
+    new CylinderGeometry(0.32, 0.4, 1, 10),
+    escalator,
+    atriumYBranches,
+  );
+
+  addStationCurrentConcourseDetails(group, signature, retailGlass, escalator);
+  addStationPanoramicLifts(group, escalator);
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.
   //

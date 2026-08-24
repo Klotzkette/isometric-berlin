@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.22"
+PACKAGE_VERSION = "0.72.23"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -4230,11 +4230,11 @@ only the remaining 4,680 building records, no duplicate ground or surface
 payload, and creates no exact `surface-*` Worker families. Raster ground,
 water and asphalt plus the complete authored park-path network preserve the map
 context. ParkDetails starts afterwards. With the tunnel in production, the touch
-profile measures 107,201 instances and 11,422,846 bytes of geometry plus
-instance buffers; the non-touch settled production profile measures 499,963
-instances and 42,937,418 bytes. The frozen comparison contract excludes tunnel
-and settled detail and remains 107,239 instances / 66 drawables / 11,425,374
-bytes touch versus 450,038 / 1,471 / 39,096,522 bytes full.
+profile measures 107,199 instances and 11,639,110 bytes of geometry plus
+instance buffers; the non-touch settled production profile measures 499,952
+instances and 44,062,710 bytes. The frozen comparison contract excludes tunnel
+and settled detail and remains 107,237 instances / 72 drawables / 11,641,638
+bytes touch versus 450,029 / 1,478 / 40,221,966 bytes full.
 Hidden tabs stop partial refinement and restart it cleanly when visible. A cold
 Minecraft start neither builds nor loads ParkDetails in either profile and does not request
 surface-polygons.json. That file remains deferred until a transition to a drawn

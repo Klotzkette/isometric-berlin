@@ -23,9 +23,10 @@ const ground = groundPayload as unknown as VoxelPayload;
 // when the full-city suites triangulate in parallel.
 // Full-payload surface construction reaches about 14 s under parallel load;
 // keep a finite guard with enough headroom for the task-13 outer ring.
-// Full source-city rebuilds can reach 35 s late in the Windows suite even
-// though isolated and benchmarked runs remain substantially faster.
-const TASK_13_FULL_CITY_TIMEOUT_MS = 45_000;
+// Full source-city rebuilds can reach roughly two minutes late in the Windows
+// suite when synchronous triangulation and security scanning overlap, even
+// though isolated and production-profile runs remain substantially faster.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 180_000;
 
 describe("drawn carriageways and park paths", () => {
   test("bilinearly interpolates the measured terrain samples for drawn grades", () => {

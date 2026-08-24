@@ -20,6 +20,7 @@ import {
   SOVIET_WAR_MEMORIAL_PROFILE,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
+import { letteringLayout } from "../src/drawnLettering";
 import { TIERGARTEN_LITERARY_MEMORIALS_PROFILE } from "../src/TiergartenLiteraryMemorials";
 import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
 
@@ -42,23 +43,103 @@ const landmarks: MemorialLandmark[] = names.map((name, index) => ({
 }));
 
 describe("granular memorial recognition models", () => {
-  test("places all four Krolloper anti-war sculptures at their OSM nodes", () => {
+  test("places all twenty Krolloper anti-war sculptures at their current OSM nodes", () => {
     const ensemble = createKrolloperSculptureEnsemble();
-    expect(ensemble.children).toHaveLength(4);
-    expect(ensemble.userData.modelCount).toBe(4);
+    expect(ensemble.children).toHaveLength(20);
+    expect(ensemble.userData.modelCount).toBe(20);
+    expect(KROLLOPER_SCULPTURE_PROFILE.modelCount).toBe(20);
+    expect(
+      new Set(
+        KROLLOPER_SCULPTURE_PROFILE.works.map((work) => work.osmNodeId),
+      ).size,
+    ).toBe(20);
+    expect(
+      new Set(KROLLOPER_SCULPTURE_PROFILE.works.map((work) => work.form)).size,
+    ).toBe(20);
     for (const work of KROLLOPER_SCULPTURE_PROFILE.works) {
       const model = ensemble.getObjectByName(`Krolloper sculpture ${work.name}`);
       expect(model).not.toBeNull();
       expect(model!.position.x).toBeCloseTo(work.worldM[0], 3);
       expect(model!.position.z).toBeCloseTo(work.worldM[1], 3);
       expect(model!.position.y).toBe(KROLLOPER_SCULPTURE_PROFILE.groundY);
+      expect(model!.userData.exactOsmPosition).toBeTrue();
+      expect(model!.userData.referenceImagesBundled).toBeFalse();
+      expect(model!.children.length).toBeGreaterThan(0);
     }
     expect(
-      ensemble.getObjectByName("Himmelschlüssel crown aperture"),
+      ensemble.getObjectByName("Himmelsschluessel four metre pierced stele"),
     ).not.toBeNull();
     expect(
-      ensemble.getObjectByName("Todes Mauer Bruch split weathered steel plates"),
+      ensemble.getObjectByName("Walter Steiner interlocked red sandstone cross blocks"),
     ).toBeInstanceOf(InstancedMesh);
+    expect(ensemble.userData.referenceImagesBundled).toBeFalse();
+  });
+
+  test("cuts the photographed openings through stone and preserves every work on mobile", () => {
+    const full = createKrolloperSculptureEnsemble("full");
+    const mobile = createKrolloperSculptureEnsemble("mobile");
+
+    const holeCount = (name: string): number => {
+      const mesh = full.getObjectByName(name) as Mesh;
+      const shapes = (mesh.geometry as any).parameters.shapes;
+      const shape = Array.isArray(shapes) ? shapes[0] : shapes;
+      return shape.holes.length;
+    };
+    expect(holeCount("Contact pierced omega body")).toBe(2);
+    expect(holeCount("Himmelsschluessel four metre pierced stele")).toBe(1);
+    expect(holeCount("Schwarz-Buky tall three-hole tuff stele")).toBe(3);
+    expect(holeCount("Gross-Mario square aperture limestone frame")).toBe(1);
+
+    expect(mobile.children).toHaveLength(20);
+    expect(mobile.userData.modelCount).toBe(20);
+    expect(mobile.userData.renderableCount).toBeLessThan(
+      full.userData.renderableCount,
+    );
+    expect(mobile.userData.renderableCount).toBeLessThanOrEqual(91);
+    expect(full.userData.renderableCount).toBeLessThanOrEqual(114);
+    for (const work of KROLLOPER_SCULPTURE_PROFILE.works) {
+      expect(
+        mobile.getObjectByName(`Krolloper sculpture ${work.name}`),
+      ).not.toBeNull();
+    }
+  });
+
+  test("pins the documented signature dimensions and Wagin ground inscriptions", () => {
+    const ensemble = createKrolloperSculptureEnsemble();
+    const contactBody = ensemble.getObjectByName("Contact pierced omega body")!;
+    const contactHeight = new Box3()
+      .setFromObject(contactBody)
+      .getSize(new Vector3()).y;
+    expect(contactHeight).toBeGreaterThan(2.45);
+    expect(contactHeight).toBeLessThan(2.6);
+
+    const key = ensemble.getObjectByName(
+      "Himmelsschluessel four metre pierced stele",
+    )!;
+    const keyHeight = new Box3().setFromObject(key).getSize(new Vector3()).y;
+    expect(keyHeight).toBeGreaterThan(3.95);
+    expect(keyHeight).toBeLessThan(4.1);
+
+    const bud = ensemble.getObjectByName(
+      "Krolloper sculpture Grosse Knospe III/63",
+    )!;
+    expect(bud.userData.documentedBodyHeightM).toBe(1.7);
+    expect(bud.userData.documentedPlinthHeightM).toBe(0.5);
+
+    const wall = ensemble.getObjectByName(
+      "Krolloper sculpture Todes Mauer Bruch",
+    )!;
+    expect(wall.userData.groundInscriptionCount).toBe(4);
+    for (const name of [
+      "Todes Mauer Bruch death words",
+      "Todes Mauer Bruch multilingual memorial",
+      "Todes Mauer Bruch war words",
+      "Todes Mauer Bruch Krolloper chronology",
+    ]) {
+      const lettering = ensemble.getObjectByName(name)?.userData.lettering;
+      expect(lettering).toBeString();
+      expect(() => letteringLayout(lettering, 0.065)).not.toThrow();
+    }
   });
 
   test("creates all ten documented monument models", () => {

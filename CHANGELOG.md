@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.72.23
+
+- **Die Halle des Berliner Hauptbahnhofs ist jetzt als durchgehender
+  fünfgeschossiger Raum lesbar.** Obere Stadtbahntrasse, obere Galerie,
+  Hauptverteilerebene, untere Galerie und tiefe Nord-Süd-Bahnsteige behalten
+  getrennte Höhen um den offenen Lichtschacht. Sechs schmale Querbrücken,
+  echte Glasbrüstungsfelder, Y-förmige Deckstützen, Rolltreppen und die
+  blau-gelbe Wegeleitung verdeutlichen die vertikale Verbindung. Vier
+  zylindrische Panoramaaufzüge führen mit acht Längssprossen, eng gesetzten
+  Metallringen, Türen an allen fünf Ebenen und transparenten Kabinen vollständig
+  von den Tiefbahnsteigen bis über die Stadtbahn. Wiederholte Bauteile bleiben
+  instanziert; keines der Referenzfotos wird gebündelt oder zur Laufzeit geladen.
+- **Die Lenné-Eiche besitzt ihren eigenen quellgebundenen Veteranenbaum.** Der
+  amtliche Punkt `tree-21650` behält 23 m Höhe, 9,5 m Kronenradius und 0,5 m
+  Stammradius. Wurzelanlauf, tief gefurchte Rinde, hohe Doppelgabel, waagerechter
+  Starkast, luftige asymmetrische Krone, Totholzspitzen und die kleine
+  botanische Plakette folgen den gelieferten Ansichten. Minecraft ersetzt nur
+  den passenden generischen Quellbaum durch eine opake Ein-Draw-Blockform mit
+  138 Blöcken im Voll- und 85 Blöcken im Mobilprofil.
+- **Die ehemaligen Krolloperwiesen tragen alle 20 "Skulpturen gegen Krieg und
+  Gewalt" an ihren einzelnen OSM-Ankern.** Jede Arbeit besitzt eine eigene
+  prozedurale Silhouette. Contact, Himmelsschlüssel, Große Knospe III/63 und
+  Todes Mauer Bruch erhalten ihre charakteristischen Öffnungen, Schnitte,
+  Proportionen, Stahlwände und Bodenplatten. Die generische Denkmalschicht
+  unterdrückt genau dieselben Quellknoten, sodass kein Werk doppelt erscheint;
+  Voll- und Mobilprofil behalten das komplette Ensemble.
+- **Die Veröffentlichung bleibt reproduzierbar und begrenzt.** Die vollständige
+  App-Abdeckung besteht mit 1.257 Tests; zusätzlich bestehen alle 66
+  Release-Tests. Die drei absichtlich synchronen
+  Vollstadtdateien besitzen einen endlichen, an gemessene Windows-Laufzeiten
+  angepassten Wächter; Geometrie-, Instanz- und Speicherbudgets bleiben
+  unverändert. Das Offline-Paket enthält nur die aktuelle Generation, während
+  GitHub Pages die aktuelle und zwei vorherige Hash-Generationen behält.
+
 ## v0.72.22
 
 - **Die Goldelse folgt ihrer hellen Blattgold-Silhouette aus der Nahansicht.**

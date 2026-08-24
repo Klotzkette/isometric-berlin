@@ -28,6 +28,10 @@ import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionP
 import { createMinecraftHistoricParkBridges } from "./MinecraftHistoricParkBridges";
 import { createMinecraftHumboldthafenDetails } from "./MinecraftHumboldthafen";
 import {
+  createMinecraftLenneOak,
+  isLenneOakVoxelTree,
+} from "./MinecraftLenneOak";
+import {
   SIEGESSAEULE_BRONZE_TONES,
   SIEGESSAEULE_MOSAIC_TONES,
   SIEGESSAEULE_PROFILE,
@@ -2769,6 +2773,7 @@ export function createMinecraftVoxelWorld(
   }
 
   const visibleTrees: VoxelTreeBlock[] = [];
+  let lenneOakVoxel: VoxelTreeBlock | null = null;
   let sourceTreeCount = 0;
   forEachVoxelTreeBlock(payload, (xIdx, zIdx, y0dm, heightDm) => {
     sourceTreeCount += 1;
@@ -2794,11 +2799,18 @@ export function createMinecraftVoxelWorld(
         options.detailProfile ?? "full",
       )
     ) {
-      visibleTrees.push([xIdx, zIdx, y0dm, heightDm]);
+      const tree: VoxelTreeBlock = [xIdx, zIdx, y0dm, heightDm];
+      if (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, cell)) {
+        lenneOakVoxel = tree;
+      } else {
+        visibleTrees.push(tree);
+      }
     }
   });
   group.userData.sourceVoxelTreeCount = sourceTreeCount;
-  group.userData.visibleVoxelTreeCount = visibleTrees.length;
+  group.userData.visibleVoxelTreeCount =
+    visibleTrees.length + (lenneOakVoxel ? 1 : 0);
+  group.userData.lenneOakVoxelReplacementCount = lenneOakVoxel ? 1 : 0;
   group.userData.voxelTreeRetentionProfile =
     options.detailProfile ?? "full";
   const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
@@ -2839,6 +2851,14 @@ export function createMinecraftVoxelWorld(
   }
   group.add(trunks.mesh);
   group.add(crowns.mesh);
+  if (lenneOakVoxel) {
+    group.add(
+      createMinecraftLenneOak(
+        lenneOakVoxel[2] / 10,
+        options.detailProfile ?? "full",
+      ),
+    );
+  }
 
   // Meadow flowers: sparse deterministic colour dots on grass runs —
   // the small-scale life real Minecraft plains have.

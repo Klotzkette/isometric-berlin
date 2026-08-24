@@ -12,6 +12,7 @@ import {
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
+import { KROLLOPER_SCULPTURE_OSM_KEYS } from "../src/KrolloperSculptures";
 import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
@@ -130,6 +131,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(monuments.userData.externallyModelledSourceKeys).toContain(
       WAGNER_MEMORIAL_PROFILE.osmKey,
     );
+    expect(KROLLOPER_SCULPTURE_OSM_KEYS.size).toBe(20);
+    const mappedKrolloperKeys = street.monuments!
+      .map((entry) => entry.osm_key)
+      .filter((osmKey) => KROLLOPER_SCULPTURE_OSM_KEYS.has(osmKey));
+    expect(mappedKrolloperKeys).toHaveLength(4);
+    for (const osmKey of mappedKrolloperKeys) {
+      expect(monuments.userData.externallyModelledSourceKeys).toContain(osmKey);
+    }
     for (const osmKey of MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
       .genericArtworkSuppressionKeys) {
       expect(monuments.userData.externallyModelledSourceKeys).toContain(osmKey);
@@ -267,6 +276,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
       (candidate) =>
         candidate.kind === "artwork" &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
+        !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
         !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
           .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),

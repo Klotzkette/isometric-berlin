@@ -6775,7 +6775,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
-          runtime.monuments.add(createKrolloperSculptureEnsemble());
+          runtime.monuments.add(
+            createKrolloperSculptureEnsemble(
+              runtime.coarsePointer ? "mobile" : "full",
+            ),
+          );
           runtime.monuments.add(createQueerRainbowMemorial());
           runtime.monuments.add(createCsdAttackMemorial());
           runtime.monuments.add(createSonyCenterForumRoof());

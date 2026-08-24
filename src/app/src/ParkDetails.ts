@@ -32,6 +32,7 @@ import {
 } from "three";
 import { markArchitecturalAccentInk } from "./architecturalInk";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
+import { createLenneOak, isLenneOakTree } from "./LenneOak";
 import {
   createTunnelPortalApproachTester,
   type TunnelPortalPayload,
@@ -2621,6 +2622,10 @@ export function createParkDetails(
         tree.crown_radius_m + 1.5,
       ),
   );
+  const lenneOak = trees.find(isLenneOakTree);
+  const genericTrees = lenneOak
+    ? trees.filter((tree) => tree !== lenneOak)
+    : trees;
   const sourceStreetLights = payload.street_lights ?? [];
   const constructionFilteredStreetLights = sourceStreetLights.filter(
     (light) =>
@@ -2649,6 +2654,9 @@ export function createParkDetails(
       constructionFilteredStreetLights.length - streetLights.length,
     suppressedTunnelApproachTreeCount:
       constructionFilteredTrees.length - trees.length,
+    genericTreeCount: genericTrees.length,
+    lenneOakSourceTreeId: lenneOak?.id ?? null,
+    signatureTreeCount: lenneOak ? 1 : 0,
     treeCount: trees.length,
   };
   addPaths(
@@ -2658,16 +2666,25 @@ export function createParkDetails(
     detailProfile === "full",
   );
   if (detailProfile === "mobile") {
-    addMobileTrees(group, trees);
+    addMobileTrees(group, genericTrees);
     group.userData.detailProfile = "mobile";
     group.userData.settledOfficialTreeDetailFaces = 0;
   } else {
     group.userData.settledOfficialTreeDetailFaces = addTrees(
       group,
-      trees,
+      genericTrees,
       treeCrownCutaway(payload.playgrounds),
       options.settledDetail ?? true,
     );
+  }
+  if (lenneOak) {
+    group.add(createLenneOak(lenneOak, detailProfile));
+    const formCounts = group.userData.treePresentationForms as
+      | Record<string, number>
+      | undefined;
+    if (formCounts) {
+      formCounts.oak = (formCounts.oak ?? 0) + 1;
+    }
   }
   addTiergartenVegetation(
     group,

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.22 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.22/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.23 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.23/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.22** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.23** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.22**, built from `main`. Its full viewer
+The current public package is **v0.72.23**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -347,11 +347,11 @@ local modules.
   ground or surface payload—and creates no exact `surface-*` Worker batches.
   Raster ground, water and asphalt plus the complete authored park-path network
   retain the map reading. With the tunnel in production, park detail measures
-  **107,201 instances and 11,422,846 bytes of geometry plus instance buffers**
-  in the touch profile; non-touch settled production measures **499,963
-  instances and 42,937,418 bytes**. The frozen no-tunnel/no-settled-detail
-  comparison remains **107,239 / 66 drawables / 11,425,374 bytes** touch versus
-  **450,038 / 1,471 / 39,096,522 bytes** full. Hidden tabs stop partial
+  **107,199 instances and 11,639,110 bytes of geometry plus instance buffers**
+  in the touch profile; non-touch settled production measures **499,952
+  instances and 44,062,710 bytes**. The frozen no-tunnel/no-settled-detail
+  comparison remains **107,237 / 72 drawables / 11,641,638 bytes** touch versus
+  **450,029 / 1,478 / 40,221,966 bytes** full. Hidden tabs stop partial
   refinement and restart it cleanly
   when visible. A cold Minecraft start builds no ParkDetails in either profile
   and delays `surface-polygons.json` until an actual switch to a drawn mode or
@@ -872,12 +872,19 @@ local modules.
   references; no photograph or external texture is copied into the model.
 
 - **Berlin Hauptbahnhof now carries its recognisable current concourse.** The
-  official five-level station structure gains a stable blue departure board
-  with a fine timetable grid, the Einstein Kaffee frontage at the Europaplatz
-  end, a framed glass service pavilion, denser multi-storey steel and retail
-  rhythms, warm static ceiling lights and ring-framed panoramic lifts. The
-  owner's photographs are visual references only and are not bundled; exact
-  fixture dimensions remain explicitly documented presentation estimates.
+  official five-level station structure is now one continuous vertical hall:
+  the upper east-west rail deck, upper gallery, main concourse, lower gallery
+  and deep north-south platforms retain separate elevations around the open
+  daylight slot. Six narrow cross bridges, real glass balustrade panels,
+  Y-branched deck supports, detailed escalator flights and blue/yellow
+  wayfinding make those layers legible. Four cylindrical panoramic lifts run
+  from the deep platforms past all five door stations to above the Stadtbahn
+  level, with transparent cabins parked at different floors, eight vertical
+  mullions and close metal ring frames per shaft. The stable blue departure
+  board, Einstein Kaffee frontage, framed glass service pavilion, warm static
+  ceiling lights and retail rhythm remain. Repeated details are instanced; the
+  owner's photographs are visual references only and are not bundled, and
+  exact fixture dimensions remain documented presentation estimates.
 
 - **The Lehrter Campus construction site now matches the current scene west
   of Hauptbahnhof.** Its position is bounded by the surveyed EDGE Grand
@@ -1561,7 +1568,26 @@ local modules.
   measured height, crown and trunk dimensions where published. Species evidence changes only the drawn
   silhouette: spreading oak lobes, drooping willow crowns, high pine canopies,
   tiered firs, columnar poplars, airy birches and denser beech groups retain
-  their official point, height, crown and trunk measurements. Eighty-three
+  their official point, height, crown and trunk measurements. The official
+  `tree-21650` Trauben-Eiche near Carillon is the dedicated Lenné-Eiche model:
+  its 23 m height, 9.5 m crown radius and 0.5 m trunk radius stay source-bound,
+  while supplied photographs inform only its fissured root-flared trunk, high
+  twin leaders, long horizontal limb, airy crown, exposed dead tips, lobed
+  olive foliage and small green-rimmed tree plaque. No supplied photograph is
+  bundled or loaded. Minecraft suppresses only the matching generic voxel tree
+  and substitutes an opaque one-draw block model: 138 blocks in the full
+  profile and 85 on mobile retain the same 23 m height, broad reach, twin
+  leaders and open veteran crown. The nearby former Krolloper grounds now hold
+  the complete 20-work **Skulpturen gegen Krieg und Gewalt** ensemble at its
+  current individual OSM node anchors. Each work has a distinct code-native
+  silhouette; Contact, Himmelsschlüssel, Große Knospe III/63 and Todes Mauer
+  Bruch additionally preserve the photographed through-openings, cuts,
+  proportions, paired steel walls and inscribed ground plates. Generic OSM
+  monument placeholders are suppressed for the same source nodes, so no work
+  is duplicated. Full and mobile rendering both keep all 20 works, while the
+  mobile profile trims only bounded edge, groove and inscription detail. The
+  supplied photographs are reference-only and are neither bundled nor loaded
+  at runtime. Eighty-three
   exact OSM scrub polygons now carry 3,535 deterministic varied bush clusters;
   21 mapped hedge lines total 1,099.2 m and two mapped hedge areas total
   526.8 m². Their source courses remain exact, while unmapped plant placement
@@ -1666,7 +1692,7 @@ the packaged viewer projection is
 | Pariser Platz and diplomatic edge | Brandenburger Tor, Quadriga mit Victoria, Pariser Platz, Starbucks Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
 | Spreebogen diplomacy / civic symbols | Schweizerische Botschaft, Fahne der Einheit |
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser, Queer Rainbow Memorial Berlin am Ahornsteig |
-| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, Richard-Wagner-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
+| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, Richard-Wagner-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten, 20 Skulpturen gegen Krieg und Gewalt am ehemaligen Krolloperplatz |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
 | Northern extension | Hamburger Bahnhof, Geschichtspark Ehemaliges Zellengefängnis Moabit, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
 | Kulturforum / Potsdamer Platz | Philharmonie, Kammermusiksaal, Staatsbibliothek, Neue Nationalgalerie, berlin modern, Henry-Moore-Plastik, Tilla-Durieux-Park, Kollhoff-Tower |

@@ -60,6 +60,7 @@ import {
   WEIDENDAMMER_BRIDGE_PROFILE,
 } from "../src/WeidendammerBridgeDetails";
 import { isHolocaustMinecraftProtectedAt } from "../src/holocaustField";
+import { isLenneOakVoxelTree } from "../src/MinecraftLenneOak";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -669,14 +670,28 @@ describe("true voxel Minecraft world", () => {
           payload.cell_m * 1.1,
         ) && minecraftVoxelTreeRetained(xIdx, zIdx, "full"),
     ).length;
-    expect(instanced("Voxel tree trunks", world).count).toBe(visibleTreeCount);
+    const signatureTreeCount = treeBlocks.filter(([xIdx, zIdx, y0dm, heightDm]) =>
+      isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m),
+    ).length;
+    expect(signatureTreeCount).toBe(1);
+    expect(instanced("Voxel tree trunks", world).count).toBe(
+      visibleTreeCount - signatureTreeCount,
+    );
     expect(world.userData.sourceVoxelTreeCount).toBe(treeBlocks.length);
     expect(world.userData.visibleVoxelTreeCount).toBe(visibleTreeCount);
+    expect(world.userData.lenneOakVoxelReplacementCount).toBe(1);
+    expect(
+      world.getObjectByName("Minecraft Lenné-Eiche block-native veteran oak"),
+    ).toBeDefined();
     expect(treeBlocks.length - visibleTreeCount).toBeGreaterThan(100);
     // Crowns: one per tree plus a stacked spruce top on some species.
     const crowns = instanced("Voxel tree crowns", world).count;
-    expect(crowns).toBeGreaterThanOrEqual(visibleTreeCount);
-    expect(crowns).toBeLessThanOrEqual(visibleTreeCount * 2);
+    expect(crowns).toBeGreaterThanOrEqual(
+      visibleTreeCount - signatureTreeCount,
+    );
+    expect(crowns).toBeLessThanOrEqual(
+      (visibleTreeCount - signatureTreeCount) * 2,
+    );
     const mobileTreeCount = treeBlocks.filter(
       ([xIdx, zIdx]) =>
         !isChancelleryExtensionConstructionPoint(
@@ -691,8 +706,10 @@ describe("true voxel Minecraft world", () => {
         minecraftVoxelTreeRetained(xIdx, zIdx, "mobile"),
     ).length;
     expect(instanced("Voxel tree trunks", mobileWorld).count).toBe(
-      mobileTreeCount,
+      mobileTreeCount - signatureTreeCount,
     );
+    expect(mobileWorld.userData.visibleVoxelTreeCount).toBe(mobileTreeCount);
+    expect(mobileWorld.userData.lenneOakVoxelReplacementCount).toBe(1);
     expect(mobileWorld.userData.voxelTreeRetentionProfile).toBe("mobile");
     expect(mobileTreeCount).toBeLessThan(visibleTreeCount * 0.6);
     // Blocky by construction: thousands of surveyed building columns.
