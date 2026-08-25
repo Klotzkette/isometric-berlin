@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.26 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.26/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.27 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.27/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.26** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.27** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,23 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.26**, built from `main`. Its full viewer
+The current public package is **v0.72.27**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Three quick presses add an explicit 8× pedestrian pace.** The same arrow
+  or WASD key must be pressed three times inside the bounded activation window;
+  repeating the gesture switches the fast run off. The established 4× sprint,
+  Shift control, jumps and collision substeps remain intact, including at the
+  higher speed.
+
+- **Every source building becomes visible during the first progressive
+  paint.** Six tiny instanced preview batches cover all 29,818 source
+  buildings after about 1.9 seconds in the production benchmark. Each preview
+  is disposed exactly when its corresponding exact LoD2 batch arrives. The
+  final scene remains unchanged at 202 draw calls and 19,610,549 vertices;
+  mobile starts this off-thread refinement after at most 600 ms of idle wait.
 
 - **The Spreebogen now connects its landscape architecture to the river.**
   Exact OSM axes carry the Ludwig-Erhard-Ufer edge bands and the 2.4 m raised

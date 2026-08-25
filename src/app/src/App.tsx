@@ -106,6 +106,7 @@ import {
   heldPedestrianInput,
   isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
+  pedestrianMovementActivation,
 } from "./navigationInput";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
@@ -705,9 +706,14 @@ export function App() {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   // Held-key state for continuous pan, flight and orbit.
   const heldFlightKeysRef = useRef(new Set<string>());
-  const lastPedestrianForwardActivationAtRef = useRef(0);
+  const pedestrianMovementActivationRef = useRef({
+    count: 0,
+    key: "",
+    lastActivationAt: 0,
+  });
   const lastPedestrianJumpActivationAtRef = useRef(0);
   const pedestrianSprintLockedRef = useRef(false);
+  const pedestrianFastRunLockedRef = useRef(false);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
@@ -752,6 +758,7 @@ export function App() {
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
   const [isPedestrianMode, setIsPedestrianMode] = useState(false);
   const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
+  const [isPedestrianFastRunning, setIsPedestrianFastRunning] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -844,9 +851,16 @@ export function App() {
 
   const disablePedestrianMode = useCallback(() => {
     pedestrianSprintLockedRef.current = false;
-    lastPedestrianForwardActivationAtRef.current = 0;
+    pedestrianFastRunLockedRef.current = false;
+    pedestrianMovementActivationRef.current = {
+      count: 0,
+      key: "",
+      lastActivationAt: 0,
+    };
     setIsPedestrianSprinting(false);
+    setIsPedestrianFastRunning(false);
     threeViewerRef.current?.setPedestrianSprint(false);
+    threeViewerRef.current?.setPedestrianFastRun(false);
     setIsPedestrianMode(false);
     threeViewerRef.current?.setPedestrianMode(false);
   }, []);
@@ -1785,8 +1799,13 @@ export function App() {
 
   const applyPedestrianSprint = useCallback(
     (enabled: boolean, announce = false) => {
+      if (enabled) {
+        pedestrianFastRunLockedRef.current = false;
+      }
       setIsPedestrianSprinting(enabled);
+      setIsPedestrianFastRunning(false);
       threeViewerRef.current?.setPedestrianSprint(enabled);
+      threeViewerRef.current?.setPedestrianFastRun(false);
       if (announce) {
         setStatus(enabled ? copy.pedestrianSprintOn : copy.pedestrianSprintOff);
       }
@@ -1797,9 +1816,24 @@ export function App() {
   const togglePedestrianSprint = useCallback(() => {
     const nextLocked = !pedestrianSprintLockedRef.current;
     pedestrianSprintLockedRef.current = nextLocked;
+    pedestrianFastRunLockedRef.current = false;
     const heldSprint = heldFlightKeysRef.current.has("Shift");
     applyPedestrianSprint(nextLocked || heldSprint, true);
   }, [applyPedestrianSprint]);
+
+  const togglePedestrianFastRun = useCallback(() => {
+    const nextLocked = !pedestrianFastRunLockedRef.current;
+    pedestrianFastRunLockedRef.current = nextLocked;
+    pedestrianSprintLockedRef.current = false;
+    const heldSprint = heldFlightKeysRef.current.has("Shift");
+    setIsPedestrianFastRunning(nextLocked);
+    setIsPedestrianSprinting(!nextLocked && heldSprint);
+    threeViewerRef.current?.setPedestrianFastRun(nextLocked);
+    threeViewerRef.current?.setPedestrianSprint(!nextLocked && heldSprint);
+    setStatus(
+      nextLocked ? copy.pedestrianFastRunOn : copy.pedestrianFastRunOff,
+    );
+  }, [copy.pedestrianFastRunOff, copy.pedestrianFastRunOn]);
 
   const triggerPedestrianJump = useCallback((higher = false) => {
     const jumped = threeViewerRef.current?.jumpPedestrian(higher) ?? false;
@@ -2000,7 +2034,12 @@ export function App() {
   const togglePedestrianMode = useCallback(() => {
     const next = !isPedestrianMode;
     pedestrianSprintLockedRef.current = false;
-    lastPedestrianForwardActivationAtRef.current = 0;
+    pedestrianFastRunLockedRef.current = false;
+    pedestrianMovementActivationRef.current = {
+      count: 0,
+      key: "",
+      lastActivationAt: 0,
+    };
     lastPedestrianJumpActivationAtRef.current = 0;
     applyPedestrianSprint(false);
     heldFlightKeysRef.current.clear();
@@ -2405,11 +2444,15 @@ export function App() {
     const updateHeldNavigation = () => {
       if (isPedestrianMode) {
         const input = heldPedestrianInput(heldFlightKeysRef.current);
-        const sprint = input.sprint || pedestrianSprintLockedRef.current;
+        const fastRun = pedestrianFastRunLockedRef.current;
+        const sprint =
+          !fastRun && (input.sprint || pedestrianSprintLockedRef.current);
         setPanInput(0, 0);
         setFlightInput(input.strafe, input.forward, 0);
         setOrbitInput(input.turn, input.look);
+        threeViewerRef.current?.setPedestrianFastRun(fastRun);
         threeViewerRef.current?.setPedestrianSprint(sprint);
+        setIsPedestrianFastRunning(fastRun);
         setIsPedestrianSprinting(sprint);
         return;
       }
@@ -2517,24 +2560,46 @@ export function App() {
           ].includes(key)
         ) {
           event.preventDefault();
-          let sprintToggled = false;
-          if (!event.repeat && (key === "ArrowUp" || key === "w")) {
+          let paceToggled = false;
+          if (
+            !event.repeat &&
+            [
+              "ArrowUp",
+              "ArrowDown",
+              "ArrowLeft",
+              "ArrowRight",
+              "w",
+              "a",
+              "s",
+              "d",
+            ].includes(key)
+          ) {
             const now = performance.now();
-            if (
-              isPedestrianSprintDoubleActivation(
-                lastPedestrianForwardActivationAtRef.current,
-                now,
-              )
+            const activation = pedestrianMovementActivation(
+              pedestrianMovementActivationRef.current,
+              key,
+              now,
+            );
+            pedestrianMovementActivationRef.current = activation;
+            if (activation.count === 3) {
+              pedestrianMovementActivationRef.current = {
+                count: 0,
+                key: "",
+                lastActivationAt: 0,
+              };
+              togglePedestrianFastRun();
+              paceToggled = true;
+            } else if (
+              activation.count === 2 &&
+              (key === "ArrowUp" || key === "w") &&
+              !pedestrianFastRunLockedRef.current
             ) {
-              lastPedestrianForwardActivationAtRef.current = 0;
               togglePedestrianSprint();
-              sprintToggled = true;
-            } else {
-              lastPedestrianForwardActivationAtRef.current = now;
+              paceToggled = true;
             }
           }
           heldFlightKeysRef.current.add(key);
-          if (!event.repeat && !sprintToggled) {
+          if (!event.repeat && !paceToggled) {
             setStatus(
               language === "de"
                 ? "Zu Fuß · bewegen und umschauen"
@@ -2732,10 +2797,12 @@ export function App() {
     };
     const handleWindowBlur = () => {
       stopHeldNavigation();
-      setIsPedestrianSprinting(pedestrianSprintLockedRef.current);
-      threeViewerRef.current?.setPedestrianSprint(
-        pedestrianSprintLockedRef.current,
-      );
+      const fastRun = pedestrianFastRunLockedRef.current;
+      const sprint = !fastRun && pedestrianSprintLockedRef.current;
+      setIsPedestrianFastRunning(fastRun);
+      setIsPedestrianSprinting(sprint);
+      threeViewerRef.current?.setPedestrianFastRun(fastRun);
+      threeViewerRef.current?.setPedestrianSprint(sprint);
     };
     // Capture phase + preventDefault below beat OpenSeadragon's own
     // canvas key handling, so arrows/+/- act exactly once.
@@ -2774,6 +2841,7 @@ export function App() {
     toggleMusic,
     toggleNightLights,
     togglePedestrianMode,
+    togglePedestrianFastRun,
     togglePedestrianSprint,
     toggleSoundtrack,
     triggerPedestrianJump,
@@ -3763,8 +3831,10 @@ export function App() {
         <span>
           {viewerMode === "three"
             ? isPedestrianMode
-              ? isPedestrianSprinting
-                ? "4×"
+              ? isPedestrianFastRunning
+                ? "8×"
+                : isPedestrianSprinting
+                  ? "4×"
                 : language === "de"
                   ? "1,80 m"
                   : "1.80 m"
@@ -3775,8 +3845,10 @@ export function App() {
           {viewerMode === "three"
             ? isPedestrianMode
               ? `${copy.pedestrian} · ${
-                  isPedestrianSprinting
-                    ? copy.pedestrianSprint
+                  isPedestrianFastRunning
+                    ? copy.pedestrianFastRun
+                    : isPedestrianSprinting
+                      ? copy.pedestrianSprint
                     : language === "de"
                       ? "1,80 m"
                       : "1.80 m"
@@ -4837,6 +4909,18 @@ export function App() {
                     {language === "de"
                       ? "Shift halten oder Vorwärts beziehungsweise Geh-Joystick doppeltippen; mit der Maus geht auch ein Doppelklick auf die 3D-Fläche: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
                       : "Hold Shift or double-tap forward or the walking pad; a mouse double-click on the 3D view also toggles four-times sprint speed"}
+                  </dd>
+                </div>
+              ) : null}
+              {isPedestrianMode ? (
+                <div>
+                  <dt>
+                    <kbd>W</kbd> <kbd>W</kbd> <kbd>W</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Dieselbe Pfeil- oder WASD-Taste dreimal schnell drücken: Schnelllauf mit achtfacher Geschwindigkeit ein- / ausschalten"
+                      : "Press the same arrow or WASD key three times quickly: toggle fast run at eight-times speed"}
                   </dd>
                 </div>
               ) : null}

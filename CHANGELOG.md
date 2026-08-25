@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.72.27
+
+- **Dreifachdruck schaltet im Spaziergang einen eigenen 8×-Schnelllauf.**
+  Dieselbe Pfeil- oder WASD-Taste muss dreimal innerhalb des begrenzten
+  340-ms-Fensters angeschlagen werden; derselbe Dreifachdruck schaltet den
+  Modus wieder aus. Der vorhandene 4×-Sprint per Shift beziehungsweise
+  Doppeldruck, der normale und hohe Sprung sowie die normierte
+  Richtungssteuerung bleiben erhalten. Auch bei 8× zerlegt die bestehende
+  Kollisionslogik jeden Schritt in höchstens 22-cm-Abschnitte, sodass dünne
+  Baumstämme und Gebäudewände nicht übersprungen werden.
+- **Alle 29.818 Quellgebäude sind schon in der ersten progressiven Ansicht
+  sichtbar.** Der Worker sendet sechs sehr kleine, ausgerichtete
+  Instanzvorschauen, bevor die teuren Detailfamilien entstehen. Jede Vorschau
+  trägt eine feste ID und wird unmittelbar beim Eintreffen genau ihres echten
+  LoD2-Batches freigegeben; Pausen, Moduswechsel und Teilfehler behalten damit
+  die bisherige deterministische Besitzlogik. Auf Mobilgeräten beginnt der
+  Worker nach höchstens 600 ms Leerlauf statt nach 1.500 ms.
+- **Der Produktionsbenchmark misst rund 1,9 s bis zur vollständigen
+  Gebäudedeckung.** Zuvor war der gesamte Bestand erst mit der nach rund
+  15,8 s abgeschlossenen exakten Staffelung sichtbar. Die endgültige Szene
+  bleibt unverändert bei 202 Draw Calls und 19.610.549 Vertices; das Anhängen
+  eines Batches bleibt mit gemessenen 2,9 ms unter dem 16-ms-Framebudget.
+- **Der Release-Stand ist vollständig geprüft.** 1.265 App-Tests mit
+  6.203.770 Assertions, 336 Python-Tests und 45 gezielte Release-Tests
+  bestehen. Ruff, Release-Readiness und der HTTP-Smoke-Test des neu erzeugten
+  Offline-Pakets sind sauber. Browser-QA bei 1280 x 720 und 390 x 844 zeigt
+  Tag, Nacht, Minecraft, Schneesturm und Schwellenraum jeweils mit nichtleerem
+  Canvas, passendem Bildpuffer, begrenztem Mobilmenü und leerer Konsole.
+
 ## v0.72.26
 
 - **Der Spreebogen zwischen Schweizerischer Botschaft und Hauptbahnhof ist

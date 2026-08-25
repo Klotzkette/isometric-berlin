@@ -22,6 +22,7 @@ export {
   heldPedestrianInput,
   isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
+  pedestrianMovementActivation,
   PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS,
   PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS,
   type PedestrianInput,
@@ -35,6 +36,7 @@ export const PEDESTRIAN_JUMP_APEX_M = 6.2;
 export const PEDESTRIAN_HIGH_JUMP_APEX_M = 10.5;
 export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
 export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
+export const PEDESTRIAN_FAST_RUN_MULTIPLIER = 8;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
 export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.48;
 export const PEDESTRIAN_GRAVITY_MPS2 = 26;
@@ -1195,7 +1197,11 @@ export function stepPedestrian(
 
   const speed =
     PEDESTRIAN_WALK_SPEED_MPS *
-    (input.sprint ? PEDESTRIAN_SPRINT_MULTIPLIER : 1);
+    (input.fastRun
+      ? PEDESTRIAN_FAST_RUN_MULTIPLIER
+      : input.sprint
+        ? PEDESTRIAN_SPRINT_MULTIPLIER
+        : 1);
   const distance = speed * dt;
   const requestedDx =
     (Math.sin(nextYaw) * forward + Math.cos(nextYaw) * strafe) * distance;

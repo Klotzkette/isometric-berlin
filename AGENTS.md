@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.26)
+## 3. Hard scope rules (v0.72.27)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -411,7 +411,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.26)
+## 8. What success looks like (Definition of Done v0.72.27)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

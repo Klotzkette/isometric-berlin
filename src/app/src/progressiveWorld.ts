@@ -28,6 +28,8 @@ export const MOBILE_TOTAL_BUILDING_LIMIT = 5_000;
 export const PROGRESSIVE_BUILDING_BATCH_SIZE = 5_000;
 export const MAX_PROGRESSIVE_BUILDING_BATCHES = 6;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
+export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 600;
+export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 60;
 
 type ProgressiveWorldWorkerInputBase = {
   initialBuildingCount: number;
@@ -71,6 +73,7 @@ export type ProgressiveWorldWorkerOutput =
       id: string;
       kind: ProgressiveWorldBatchKind;
       object: TransferObject3D;
+      replaces?: string;
       type: "batch";
     }
   | {

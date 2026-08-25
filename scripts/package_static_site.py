@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.26"
+PACKAGE_VERSION = "0.72.27"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3726,7 +3726,9 @@ Finger steuern Drehung und Neigung bis in die echte Untersicht. Pfeiltasten
 verschieben in der sichtbaren Ebene; WASD fliegt relativ zur Blickrichtung,
 Leertaste steigt und Shift sinkt. Alt/Option plus Pfeiltasten dreht oder neigt.
 Im Spaziergang bewegt WASD; einmal Leertaste springt bis 6,2 m, zweimal binnen
-320 ms hebt denselben Sprung einmalig bis 10,5 m an.
+320 ms hebt denselben Sprung einmalig bis 10,5 m an. Drei schnelle Anschläge
+derselben Pfeil- oder WASD-Taste schalten den eigenen 8×-Schnelllauf ein und
+wieder aus; Shift beziehungsweise zweimal Vorwärts bleiben der 4×-Sprint.
 In der Untersicht wird die Oberfläche transparent und der technische
 Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
 Nur die ausgewählte Sehenswürdigkeit erhält kurz einen Leuchtring; permanente
@@ -3764,9 +3766,11 @@ Dasselbe mobile Touch-Profil behält für die nächsten 5.000 LoD2-Gebäude exak
 Geometrie. Nach dem ersten Bild aus 320 Gebäuden erhält der verzögert gestartete
 Worker nur Quell-URL und Startanzahl, lädt die Quelle selbst, überträgt zuerst
 alle geeigneten ferneren Gebäude als vermessene, ausgerichtete und quellfarbene
-Instanzhüllen in einem Draw Call und baut danach die übrigen 4.680 exakten
-Nahfeldkörper progressiv. Die Hauptschleife klont weder Stadt-, Gelände- noch
-Flächendaten; der Worker erzeugt keine exakten `surface-*`-Flächenfamilien.
+Instanzhüllen in einem Draw Call und deckt danach auch die übrigen 4.680
+Nahfeldkörper sofort durch kleine ausgerichtete Instanzvorschauen ab. Jeder
+exakte Gebäudebatch ersetzt nur seine eigene Vorschau. Die Hauptschleife klont
+weder Stadt-, Gelände- noch Flächendaten; der Worker erzeugt keine exakten
+`surface-*`-Flächenfamilien.
 Rastergelände, -wasser und -asphalt sowie das
 vollständige modellierte Parkwegenetz erhalten den Kartenkontext. ParkDetails
 startet erst danach. Mit Tunnel in der Produktionsszene misst das Touch-Profil
@@ -4207,7 +4211,9 @@ control azimuth and polar tilt into a real below-ground view. Arrows pan in the
 visible screen plane; WASD flies relative to the view heading, Space rises and
 Shift descends, while Alt/Option plus arrows orbits and tilts. Walking also uses
 WASD; one Space jumps to 6.2 m and a second press within 320 ms raises that same
-jump once to 10.5 m. In underside mode the
+jump once to 10.5 m. Three quick presses of the same arrow or WASD key toggle
+the dedicated 8x fast run; Shift or two forward presses retain the 4x sprint.
+In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
 with lighting and ventilation. Only the selected landmark gets a brief focus
 ring; permanent coloured dots no longer cover the buildings. The Advanced
@@ -4243,9 +4249,11 @@ The same mobile-like touch drawn profile keeps exact geometry for the nearest
 5,000 LoD2 buildings. After the first 320-building frame, its delayed Worker
 receives only the source URL and initial count, fetches the source itself,
 transfers all eligible farther buildings first as measured, oriented,
-source-coloured instance shells in one draw call, and then progressively builds
-the remaining 4,680 exact near-field records. The main thread clones no city,
-ground or surface payload, and the Worker creates no exact `surface-*` families.
+source-coloured instance shells in one draw call, and then immediately covers
+the remaining 4,680 near-field records with small oriented instance previews.
+Each exact building batch replaces only its own preview. The main thread clones
+no city, ground or surface payload, and the Worker creates no exact
+`surface-*` families.
 Raster ground,
 water and asphalt plus the complete authored park-path network preserve the map
 context. ParkDetails starts afterwards. With the tunnel in production, the touch

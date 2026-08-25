@@ -5,6 +5,7 @@ export type HeldNavigationInput = {
 };
 
 export type PedestrianInput = {
+  fastRun?: boolean;
   forward: number;
   look: number;
   sprint: boolean;
@@ -14,6 +15,12 @@ export type PedestrianInput = {
 
 export const PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS = 340;
 export const PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS = 320;
+
+export type PedestrianMovementActivation = {
+  count: number;
+  key: string;
+  lastActivationAt: number;
+};
 
 /** Route held desktop controls to camera-relative flight, pan, or orbit. */
 export function heldNavigationInput(
@@ -75,6 +82,25 @@ export function isPedestrianHighJumpDoubleActivation(
     activationAt,
     PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS,
   );
+}
+
+/** Count bounded repeated presses of one movement key without mixing chords. */
+export function pedestrianMovementActivation(
+  previous: Readonly<PedestrianMovementActivation>,
+  key: string,
+  activationAt: number,
+): PedestrianMovementActivation {
+  const elapsed = activationAt - previous.lastActivationAt;
+  const continuesSequence =
+    previous.key === key &&
+    previous.count > 0 &&
+    elapsed >= 0 &&
+    elapsed <= PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS;
+  return {
+    count: continuesSequence ? Math.min(3, previous.count + 1) : 1,
+    key,
+    lastActivationAt: activationAt,
+  };
 }
 
 export function heldPedestrianInput(

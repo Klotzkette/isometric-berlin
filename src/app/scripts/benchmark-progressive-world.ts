@@ -7,7 +7,7 @@
  * so RSS and steady-state scene counts represent the browser ownership model
  * instead of a build-and-discard microbenchmark.
  */
-import { Group, LineSegments, Mesh } from "three";
+import { Group, InstancedMesh, LineSegments, Mesh } from "three";
 
 import {
   createIsometricCity,
@@ -50,10 +50,11 @@ const worker = new Worker(
   new URL("../src/progressiveWorld.worker.ts", import.meta.url).href,
   { name: "progressive-world-benchmark", type: "module" },
 );
-const initialBuildings = splitProgressiveBuildings(
+const buildingPartition = splitProgressiveBuildings(
   prismPayload.buildings,
   DESKTOP_INITIAL_BUILDING_COUNT,
-).initial;
+);
+const initialBuildings = buildingPartition.initial;
 const input = {
   ground,
   initialBuildingCount: DESKTOP_INITIAL_BUILDING_COUNT,
@@ -80,11 +81,15 @@ let batchCount = 0;
 let buildingBatchCount = 0;
 let firstBatchArrivalMs: number | null = null;
 let firstBuildingArrivalMs: number | null = null;
+let firstExactBuildingArrivalMs: number | null = null;
+let allBuildingsVisibleMs: number | null = null;
 let firstSurfaceBuildMs: number | null = null;
 let maxAttachMs = 0;
 let maxBatchBytes = 0;
 let surfaceBatchCount = 0;
 const attachTimes: number[] = [];
+const attachedBatches = new Map<string, Group>();
+const buildingPreviews = new Set<string>();
 const batchTimeline: Array<{
   arrival_ms: number;
   id: string;
@@ -106,6 +111,16 @@ function descriptorBytes(value: unknown, seen = new Set<ArrayBuffer>()): number 
     total += descriptorBytes(child, seen);
   }
   return total;
+}
+
+function releaseBatch(batch: Group): void {
+  batch.removeFromParent();
+  batch.traverse((object) => {
+    if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
+    object.geometry.dispose();
+    if (object instanceof InstancedMesh) object.dispose();
+  });
+  batch.clear();
 }
 
 const complete = await new Promise<
@@ -130,8 +145,13 @@ const complete = await new Promise<
     const arrivalMs = performance.now() - startedAt;
     firstBatchArrivalMs ??= arrivalMs;
     if (message.kind === "buildings") {
-      buildingBatchCount += 1;
       firstBuildingArrivalMs ??= arrivalMs;
+      if (message.id.startsWith("buildings-preview-")) {
+        buildingPreviews.add(message.id);
+      } else {
+        buildingBatchCount += 1;
+        firstExactBuildingArrivalMs ??= arrivalMs;
+      }
     } else {
       surfaceBatchCount += 1;
       firstSurfaceBuildMs ??= message.build_ms;
@@ -146,7 +166,22 @@ const complete = await new Promise<
     const attachStartedAt = performance.now();
     const object = deserializeTransferredObject3D(message.object);
     setIsoNightPresentation(object as Group, false, true, "day");
+    if (message.replaces) {
+      const replaced = attachedBatches.get(message.replaces);
+      if (replaced) {
+        attachedBatches.delete(message.replaces);
+        releaseBatch(replaced);
+      }
+    }
     root.add(object);
+    attachedBatches.set(message.id, object as Group);
+    if (
+      message.id.startsWith("buildings-preview-") &&
+      buildingPreviews.size === buildingPartition.remaining.length &&
+      allBuildingsVisibleMs === null
+    ) {
+      allBuildingsVisibleMs = performance.now() - startedAt;
+    }
     const attachMs = performance.now() - attachStartedAt;
     attachTimes.push(attachMs);
     maxAttachMs = Math.max(maxAttachMs, attachMs);
@@ -206,10 +241,14 @@ console.log(
     {
       batches: batchCount,
       batch_timeline: batchTimeline,
+      all_buildings_visible_ms: Number(allBuildingsVisibleMs?.toFixed(1)),
       building_batches: buildingBatchCount,
       exact_ready_ms: Number((performance.now() - startedAt).toFixed(1)),
       first_batch_arrival_ms: Number(firstBatchArrivalMs?.toFixed(1)),
       first_building_arrival_ms: Number(firstBuildingArrivalMs?.toFixed(1)),
+      first_exact_building_arrival_ms: Number(
+        firstExactBuildingArrivalMs?.toFixed(1),
+      ),
       first_surface_build_ms: Number(firstSurfaceBuildMs?.toFixed(1)),
       main_attach_max_ms: Number(maxAttachMs.toFixed(1)),
       main_attach_p95_ms: Number(attachP95.toFixed(1)),
@@ -228,6 +267,7 @@ console.log(
         vertices,
       },
       surface_batches: surfaceBatchCount,
+      temporary_building_preview_batches: buildingPreviews.size,
       worker_build_ms: Number(complete.build_ms.toFixed(1)),
       worker_reported_batches: complete.batches,
     },

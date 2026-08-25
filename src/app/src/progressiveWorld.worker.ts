@@ -56,6 +56,7 @@ function postBatch(
   kind: "buildings" | "surfaces",
   id: string,
   startedAt: number,
+  replaces?: string,
 ): void {
   removeEmptyGroups(root);
   const { object, transfers } = serializeObject3DForTransfer(root);
@@ -65,6 +66,7 @@ function postBatch(
       id,
       kind,
       object,
+      replaces,
       type: "batch",
     },
     transfers,
@@ -153,21 +155,31 @@ function runtimeHeavyPlate(
   );
 }
 
-async function postBuildingBatches(
-  input: Pick<
-    ProgressiveWorldWorkerInput,
-    "detailProfile" | "initialBuildingCount"
-  >,
+function postBuildingPreviews(
   prismPayload: PrismPayload,
+  buildingBatches: readonly PrismPayload["buildings"][],
+): number {
+  for (let index = 0; index < buildingBatches.length; index += 1) {
+    const startedAt = performance.now();
+    const root = createDistantBuildingShells(
+      prismPayload,
+      buildingBatches[index],
+    );
+    root.userData.representation = "temporary complete-city preview";
+    postBatch(
+      root,
+      "buildings",
+      `buildings-preview-${index + 1}`,
+      startedAt,
+    );
+  }
+  return buildingBatches.length;
+}
+
+async function postBuildingBatches(
+  prismPayload: PrismPayload,
+  buildingBatches: readonly PrismPayload["buildings"][],
 ): Promise<number> {
-  const buildingBatches = splitProgressiveBuildings(
-    prismPayload.buildings,
-    input.initialBuildingCount,
-    undefined,
-    input.detailProfile === "mobile"
-      ? MOBILE_TOTAL_BUILDING_LIMIT
-      : Number.POSITIVE_INFINITY,
-  ).remaining;
   for (let index = 0; index < buildingBatches.length; index += 1) {
     const startedAt = performance.now();
     const root = createIsometricCity(
@@ -181,7 +193,13 @@ async function postBuildingBatches(
         smoothSurfaces: null,
       },
     );
-    postBatch(root, "buildings", `buildings-${index + 1}`, startedAt);
+    postBatch(
+      root,
+      "buildings",
+      `buildings-${index + 1}`,
+      startedAt,
+      `buildings-preview-${index + 1}`,
+    );
     await yieldWorker();
   }
   return buildingBatches.length;
@@ -229,7 +247,9 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       batchCount += 1;
       await yieldWorker();
     }
-    batchCount += await postBuildingBatches(input, prisms);
+    batchCount += postBuildingPreviews(prisms, partition.remaining);
+    await yieldWorker();
+    batchCount += await postBuildingBatches(prisms, partition.remaining);
     workerScope.postMessage({
       batches: batchCount,
       build_ms: performance.now() - overallStart,
@@ -275,6 +295,13 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     postBatch(root, "surfaces", `surface-${family}`, startedAt);
     batchCount += 1;
   };
+
+  const buildingBatches = splitProgressiveBuildings(
+    input.prismPayload.buildings,
+    input.initialBuildingCount,
+  ).remaining;
+  batchCount += postBuildingPreviews(input.prismPayload, buildingBatches);
+  await yieldWorker();
 
   // Water and lawns establish the map reading first and are both bounded
   // (<0.5 s on the production payload). Finish the two transient-heavy road
@@ -354,7 +381,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
 
   // Geometry is already merged by material inside each bounded batch. Desktop
   // stays source-complete and retains the established six follow-up groups.
-  batchCount += await postBuildingBatches(input, input.prismPayload);
+  batchCount += await postBuildingBatches(input.prismPayload, buildingBatches);
   workerScope.postMessage({
     batches: batchCount,
     build_ms: performance.now() - overallStart,

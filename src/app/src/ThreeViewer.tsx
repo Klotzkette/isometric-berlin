@@ -253,6 +253,8 @@ import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   MOBILE_INITIAL_BUILDING_COUNT,
   MOBILE_TOTAL_BUILDING_LIMIT,
+  PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
+  PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
@@ -495,6 +497,7 @@ export type ThreeViewerHandle = {
   setOrbitInput: (horizontal: number, vertical: number) => void;
   setPanInput: (horizontal: number, vertical: number) => void;
   setPedestrianMode: (enabled: boolean) => boolean;
+  setPedestrianFastRun: (enabled: boolean) => void;
   setPedestrianSprint: (enabled: boolean) => void;
   setUnderside: (enabled: boolean) => void;
   tiltBy: (degrees: number) => void;
@@ -2665,7 +2668,21 @@ function startProgressiveWorld(
         runtime.nightLightsOn,
         runtime.lightingMode,
       );
+      if (message.replaces) {
+        const replacedIndex = runtime.progressiveWorldBatches.findIndex(
+          (batch) =>
+            batch.userData.progressiveWorldBatchId === message.replaces,
+        );
+        if (replacedIndex >= 0) {
+          const [replaced] = runtime.progressiveWorldBatches.splice(
+            replacedIndex,
+            1,
+          );
+          disposeObject3D(runtime, replaced);
+        }
+      }
       object.userData.progressiveWorldBatch = true;
+      object.userData.progressiveWorldBatchId = message.id;
       runtime.progressiveWorldBatches.push(object);
       runtime.isoWorld.add(object);
       registerBerlinerEnsembleRoofSignTargets(runtime, object);
@@ -2736,7 +2753,9 @@ function scheduleProgressiveWorld(
     }
   ).requestIdleCallback;
   if (typeof requestIdle === "function") {
-    const handle = requestIdle(start, { timeout: 1_500 });
+    const handle = requestIdle(start, {
+      timeout: PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
+    });
     cancelScheduled = () => {
       cancelled = true;
       (
@@ -2746,7 +2765,10 @@ function scheduleProgressiveWorld(
       ).cancelIdleCallback?.(handle);
     };
   } else {
-    const handle = window.setTimeout(start, 120);
+    const handle = window.setTimeout(
+      start,
+      PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
+    );
     cancelScheduled = () => {
       cancelled = true;
       window.clearTimeout(handle);
@@ -4834,6 +4856,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             notifyView(runtime, onViewChangeRef.current);
           }
           return changed;
+        },
+        setPedestrianFastRun: (enabled) => {
+          pedestrianInputRef.current = {
+            ...pedestrianInputRef.current,
+            fastRun: enabled,
+          };
         },
         setPedestrianSprint: (enabled) => {
           pedestrianInputRef.current = {

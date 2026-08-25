@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   PEDESTRIAN_BODY_RADIUS_M,
   PEDESTRIAN_EYE_HEIGHT_M,
+  PEDESTRIAN_FAST_RUN_MULTIPLIER,
   PEDESTRIAN_HIGH_JUMP_APEX_M,
   PEDESTRIAN_JUMP_APEX_M,
   PEDESTRIAN_MAX_PITCH_RAD,
@@ -15,6 +16,7 @@ import {
   heldPedestrianInput,
   isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
+  pedestrianMovementActivation,
   jumpPedestrian,
   lookPedestrian,
   pedestrianPointIsBlocked,
@@ -101,11 +103,46 @@ describe("pedestrian navigation", () => {
     ).toBeCloseTo(0.32 * PEDESTRIAN_SPRINT_MULTIPLIER);
   });
 
+  test("triple activation adds a distinct eight-times fast-run layer", () => {
+    const start = createPedestrianState(environment);
+    const result = stepPedestrian(
+      start,
+      {
+        fastRun: true,
+        forward: 1,
+        look: 0,
+        sprint: true,
+        strafe: 0,
+        turn: 0,
+      },
+      0.05,
+      environment,
+    );
+    expect(
+      Math.hypot(result.state.x - start.x, result.state.z - start.z),
+    ).toBeCloseTo(0.32 * PEDESTRIAN_FAST_RUN_MULTIPLIER);
+  });
+
   test("double activation has a bounded, deterministic sprint window", () => {
     expect(isPedestrianSprintDoubleActivation(1_000, 1_339)).toBe(true);
     expect(isPedestrianSprintDoubleActivation(1_000, 1_341)).toBe(false);
     expect(isPedestrianSprintDoubleActivation(0, 100)).toBe(false);
     expect(isPedestrianSprintDoubleActivation(1_000, 999)).toBe(false);
+  });
+
+  test("counts three quick presses only for the same movement key", () => {
+    const first = pedestrianMovementActivation(
+      { count: 0, key: "", lastActivationAt: 0 },
+      "ArrowUp",
+      1_000,
+    );
+    const second = pedestrianMovementActivation(first, "ArrowUp", 1_339);
+    const third = pedestrianMovementActivation(second, "ArrowUp", 1_678);
+    expect([first.count, second.count, third.count]).toEqual([1, 2, 3]);
+    expect(pedestrianMovementActivation(second, "w", 1_500).count).toBe(1);
+    expect(
+      pedestrianMovementActivation(second, "ArrowUp", 1_680).count,
+    ).toBe(1);
   });
 
   test("double Space has its own bounded high-jump window", () => {
@@ -299,7 +336,7 @@ describe("pedestrian navigation", () => {
     expect(slid.state.z).toBeGreaterThan(5);
   });
 
-  test("sprint substeps cannot tunnel through a thin official tree trunk", () => {
+  test("fast-run substeps cannot tunnel through a thin official tree trunk", () => {
     const treeEnvironment: PedestrianEnvironment = {
       ...environment,
       obstacles: compilePedestrianObstacles({ buildings: [] }),
@@ -337,7 +374,14 @@ describe("pedestrian navigation", () => {
         yaw: Math.PI / 2,
         z: 0,
       }),
-      { forward: 1, look: 0, sprint: true, strafe: 0, turn: 0 },
+      {
+        fastRun: true,
+        forward: 1,
+        look: 0,
+        sprint: false,
+        strafe: 0,
+        turn: 0,
+      },
       0.05,
       treeEnvironment,
     );

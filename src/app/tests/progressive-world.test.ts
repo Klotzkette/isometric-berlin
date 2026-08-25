@@ -35,6 +35,8 @@ import {
   MOBILE_TOTAL_BUILDING_LIMIT,
   PAVING_POLYGON_BATCH_SIZE,
   PROGRESSIVE_BUILDING_BATCH_SIZE,
+  PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
+  PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
@@ -244,7 +246,12 @@ describe("progressive exact-world scheduling", () => {
     );
     expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
     expect(workerMobileBranch).toContain("buildings-distant");
-    expect(workerMobileBranch).toContain("postBuildingBatches(input, prisms)");
+    expect(workerMobileBranch).toContain(
+      "postBuildingPreviews(prisms, partition.remaining)",
+    );
+    expect(workerMobileBranch).toContain(
+      "postBuildingBatches(prisms, partition.remaining)",
+    );
     expect(workerMobileBranch).not.toContain("postSurface(");
     expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
     expect(workerMobileBranch).toContain("pretriangulated: false");
@@ -299,6 +306,32 @@ describe("progressive exact-world scheduling", () => {
       'window.addEventListener("pageshow", onPageShow)',
     );
     expect(threeViewerSource).toContain("resize(true)");
+  });
+
+  test("shows every building through replaceable previews before exact refinement", () => {
+    const desktopPreview = progressiveWorkerSource.lastIndexOf(
+      "postBuildingPreviews(input.prismPayload, buildingBatches)",
+    );
+    const firstSurface = progressiveWorkerSource.indexOf(
+      'postSurface("water")',
+      desktopPreview,
+    );
+    const exactBuildings = progressiveWorkerSource.indexOf(
+      "postBuildingBatches(input.prismPayload, buildingBatches)",
+      desktopPreview,
+    );
+    expect(desktopPreview).toBeGreaterThan(0);
+    expect(firstSurface).toBeGreaterThan(desktopPreview);
+    expect(exactBuildings).toBeGreaterThan(firstSurface);
+    expect(progressiveWorkerSource).toContain(
+      "`buildings-preview-${index + 1}`",
+    );
+    expect(threeViewerSource).toContain(
+      "batch.userData.progressiveWorldBatchId === message.replaces",
+    );
+    expect(threeViewerSource).toContain("disposeObject3D(runtime, replaced)");
+    expect(PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS).toBeLessThanOrEqual(600);
+    expect(PROGRESSIVE_WORLD_FALLBACK_DELAY_MS).toBeLessThanOrEqual(60);
   });
 
   test("releases decoded world payloads after their consumers finish", () => {
