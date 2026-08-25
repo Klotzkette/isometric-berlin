@@ -1,5 +1,5 @@
 export type HeldNavigationInput = {
-  flight: { forward: number; strafe: number };
+  flight: { forward: number; strafe: number; vertical: number };
   orbit: { horizontal: number; vertical: number };
   pan: { horizontal: number; vertical: number };
 };
@@ -13,8 +13,9 @@ export type PedestrianInput = {
 };
 
 export const PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS = 340;
+export const PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS = 320;
 
-/** Route held desktop arrows to exactly one camera channel. */
+/** Route held desktop controls to camera-relative flight, pan, or orbit. */
 export function heldNavigationInput(
   keys: ReadonlySet<string>,
 ): HeldNavigationInput {
@@ -26,29 +27,53 @@ export function heldNavigationInput(
     (keys.has("ArrowUp") ? 1 : 0) - (keys.has("ArrowDown") ? 1 : 0);
   return {
     flight: {
-      forward: shift && !alt ? vertical : 0,
-      strafe: shift && !alt ? horizontal : 0,
+      forward: (keys.has("w") ? 1 : 0) - (keys.has("s") ? 1 : 0),
+      strafe: (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0),
+      vertical: alt
+        ? 0
+        : (keys.has("Space") ? 1 : 0) - (shift ? 1 : 0),
     },
     orbit: {
       horizontal: alt ? horizontal : 0,
       vertical: alt ? vertical : 0,
     },
     pan: {
-      horizontal: alt || shift ? 0 : horizontal,
-      vertical: alt || shift ? 0 : vertical,
+      horizontal: alt ? 0 : horizontal,
+      vertical: alt ? 0 : vertical,
     },
   };
+}
+
+function isDoubleActivation(
+  previousActivationAt: number,
+  activationAt: number,
+  windowMs: number,
+): boolean {
+  const elapsed = activationAt - previousActivationAt;
+  return (
+    previousActivationAt > 0 && elapsed >= 0 && elapsed <= windowMs
+  );
 }
 
 export function isPedestrianSprintDoubleActivation(
   previousActivationAt: number,
   activationAt: number,
 ): boolean {
-  const elapsed = activationAt - previousActivationAt;
-  return (
-    previousActivationAt > 0 &&
-    elapsed >= 0 &&
-    elapsed <= PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS
+  return isDoubleActivation(
+    previousActivationAt,
+    activationAt,
+    PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS,
+  );
+}
+
+export function isPedestrianHighJumpDoubleActivation(
+  previousActivationAt: number,
+  activationAt: number,
+): boolean {
+  return isDoubleActivation(
+    previousActivationAt,
+    activationAt,
+    PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS,
   );
 }
 

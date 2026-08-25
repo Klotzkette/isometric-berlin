@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.24/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.25/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.24** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.25** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,29 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.24**, built from `main`. Its full viewer
+The current public package is **v0.72.25**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Desktop movement now follows the familiar WASD convention.** In free-camera
+  3D, `W`/`A`/`S`/`D` fly relative to the current heading, `Space` rises,
+  `Shift` descends and the wheel continues to zoom at the pointer. Walking uses
+  the same WASD layout; one `Space` reaches the bounded 6.2 m presentation apex
+  and a second press within 320 ms raises the same jump once to 10.5 m. Further
+  airborne presses cannot stack height. The old `D` and `S` visual shortcuts
+  remain available in the 2D detail map, where they do not conflict with
+  movement.
+
+- **Phones keep the complete building inventory visible without loading every
+  distant facade.** The nearest 5,000 source buildings retain their exact
+  progressive LoD2 geometry; every farther eligible building is represented by
+  one measured, oriented, source-coloured instanced shell in a single draw call.
+  The existing Web Worker fetches and constructs that layer off the main thread,
+  so neither its measured 578 ms build nor the decoded 29k-building graph can
+  stall input. Desktop retains the complete exact progression, Minecraft already
+  keeps every source building through its bounded block representation, and
+  named hero architecture remains unchanged in every mode.
 
 - **Six important Berlin squares now read as coherent street rooms instead of
   isolated landmark islands.** Front-facing LoD2 walls around Pariser Platz,
@@ -368,10 +387,13 @@ local modules.
 
 - **Mobile-like touch sessions retain one bounded world family at a time.** This
   profile applies when the primary or any pointer is coarse, or the browser
-  reports `navigator.maxTouchPoints > 0`. Its drawn city stops after the nearest
-  **5,000 LoD2 buildings**. The delayed Worker receives
-  only the 4,680 records beyond the first 320-building frame—no duplicate
-  ground or surface payload—and creates no exact `surface-*` Worker batches.
+  reports `navigator.maxTouchPoints > 0`. Its nearest **5,000 LoD2 buildings**
+  retain exact geometry. After the first 320-building frame, the delayed Worker
+  fetches the source once from its URL, adds all eligible buildings beyond that
+  near field as measured, oriented, source-coloured instance shells in one draw
+  call, and then progressively builds the remaining 4,680 exact near-field
+  records. The main thread sends no cloned city, ground or surface payload, and
+  the Worker creates no exact `surface-*` batches.
   Raster ground, water and asphalt plus the complete authored park-path network
   retain the map reading. With the tunnel in production, park detail measures
   **107,199 instances and 11,639,110 bytes of geometry plus instance buffers**
@@ -945,7 +967,8 @@ local modules.
   height, and follows the existing smooth metric terrain without changing its
   source geometry. `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
   left/right arrows or `Q`/`E` turn, mouse or touch drag looks around, and
-  `Space` jumps to a bounded 6.2 m apex. The mouse wheel also walks along the
+  one `Space` jumps to a bounded 6.2 m apex; a second press within 320 ms raises
+  that same jump once to 10.5 m. The mouse wheel also walks along the
   current view direction (up forward, down backward) without changing camera
   zoom. Holding `Shift` gives a four-times
   sprint; double-tapping forward, the forward control or the walking joystick
@@ -1057,8 +1080,9 @@ local modules.
   camera response.
 
 - **Desktop navigation is continuous rather than stepwise.** Held arrows pan,
-  `Shift`+arrows fly and `Alt`/`Option`+arrows orbit/tilt; the matching mouse
-  buttons keep moving while held. A collision-free analogue orbit pad sits
+  WASD flies relative to the view heading, `Space` rises, `Shift` descends and
+  `Alt`/`Option`+arrows orbit/tilt; the matching mouse buttons keep moving while
+  held. A collision-free analogue orbit pad sits
   beside the desktop controls, while the existing compact touch controls stay
   unchanged on phones and tablets.
 
@@ -1514,10 +1538,10 @@ local modules.
   and one device/mode surface tier throughout the complete gesture and momentum
   glide, so releasing an input cannot trigger a whole-frame resample or geometry
   replacement.
-  Plain arrows
-  translate in the visible screen plane,
-  `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
-  orbit and tilt. All three chords are continuous while held; the desktop
+  Plain arrows translate in the visible screen plane. WASD flies
+  forward/backward or strafes relative to the view heading, `Space` rises,
+  `Shift` descends, and `Alt`/`Option` + arrows orbit and tilt. Every channel is
+  continuous while held; the desktop
   arrow buttons behave the same way, and a separate mouse orbit pad provides
   analogue rotation and tilt. Camera and target move together, so flight never
   changes the orbit distance accidentally.

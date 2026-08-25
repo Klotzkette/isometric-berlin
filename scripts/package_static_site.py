@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.24"
+PACKAGE_VERSION = "0.72.25"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3722,9 +3722,11 @@ amtlichen Berlin 3D Mesh 2025. Die linke Maustaste verschiebt direkt, ein
 gerastertes Mausrad zoomt am Zeiger und die rechte Maustaste dreht. Auf dem
 Trackpad verschiebt Zwei-Finger-Scroll, Pinch zoomt am Fingermittelpunkt. Auf
 Touch-Geräten verschieben zwei Finger per Swipe und zoomen per Pinch; drei
-Finger steuern Drehung und Neigung bis in die echte Untersicht. Shift plus
-Pfeiltasten fliegt entlang der Blickrichtung, Alt/Option plus Pfeiltasten
-dreht oder neigt.
+Finger steuern Drehung und Neigung bis in die echte Untersicht. Pfeiltasten
+verschieben in der sichtbaren Ebene; WASD fliegt relativ zur Blickrichtung,
+Leertaste steigt und Shift sinkt. Alt/Option plus Pfeiltasten dreht oder neigt.
+Im Spaziergang bewegt WASD; einmal Leertaste springt bis 6,2 m, zweimal binnen
+320 ms hebt denselben Sprung einmalig bis 10,5 m an.
 In der Untersicht wird die Oberfläche transparent und der technische
 Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
 Nur die ausgewählte Sehenswürdigkeit erhält kurz einen Leuchtring; permanente
@@ -3758,11 +3760,14 @@ zurückgerollt und glatte Parkdetails bleiben im Voxelmodus ohne Toon-Klone
 verborgen. Dies ist Benchmark-/Browser-QA, keine Prüfung auf einem physischen
 iOS-Gerät.
 
-Dasselbe mobile Touch-Profil begrenzt die aktive Welt auf die nächsten 5.000
-LoD2-Gebäude. Nach dem ersten Bild aus 320 Gebäuden erhält der verzögert
-gestartete Worker nur die übrigen 4.680 Gebäudedatensätze, keine zweite Kopie
-von Gelände- oder Flächendaten, und erzeugt keine exakten `surface-*`-
-Worker-Flächenfamilien. Rastergelände, -wasser und -asphalt sowie das
+Dasselbe mobile Touch-Profil behält für die nächsten 5.000 LoD2-Gebäude exakte
+Geometrie. Nach dem ersten Bild aus 320 Gebäuden erhält der verzögert gestartete
+Worker nur Quell-URL und Startanzahl, lädt die Quelle selbst, überträgt zuerst
+alle geeigneten ferneren Gebäude als vermessene, ausgerichtete und quellfarbene
+Instanzhüllen in einem Draw Call und baut danach die übrigen 4.680 exakten
+Nahfeldkörper progressiv. Die Hauptschleife klont weder Stadt-, Gelände- noch
+Flächendaten; der Worker erzeugt keine exakten `surface-*`-Flächenfamilien.
+Rastergelände, -wasser und -asphalt sowie das
 vollständige modellierte Parkwegenetz erhalten den Kartenkontext. ParkDetails
 startet erst danach. Mit Tunnel in der Produktionsszene misst das Touch-Profil
 107.201 Instanzen und 11.422.846 Byte Geometrie- plus Instanzpuffer; das
@@ -4190,9 +4195,11 @@ official Berlin 3D Mesh 2025. Left-drag pans directly, a stepped mouse wheel
 zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll
 pans while pinch zooms around its midpoint. On touch devices, a two-finger
 centre swipe pans while pinch zooms around that midpoint; three fingers
-control azimuth and polar tilt into a real below-ground view. Shift plus
-arrows flies forward/back or strafes, while Alt/Option plus arrows orbits and
-tilts. In underside mode the
+control azimuth and polar tilt into a real below-ground view. Arrows pan in the
+visible screen plane; WASD flies relative to the view heading, Space rises and
+Shift descends, while Alt/Option plus arrows orbits and tilts. Walking also uses
+WASD; one Space jumps to 6.2 m and a second press within 320 ms raises that same
+jump once to 10.5 m. In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
 with lighting and ventilation. Only the selected landmark gets a brief focus
 ring; permanent coloured dots no longer cover the buildings. The Advanced
@@ -4224,10 +4231,14 @@ voxel attachment rolls back, and smooth park details remain hidden without
 toon clones in voxel mode. This is benchmark/browser QA, not validation on a
 physical iOS device.
 
-The same mobile-like touch drawn profile bounds the active world to the nearest
-5,000 LoD2 buildings. After the first 320-building frame, its delayed Worker receives
-only the remaining 4,680 building records, no duplicate ground or surface
-payload, and creates no exact `surface-*` Worker families. Raster ground,
+The same mobile-like touch drawn profile keeps exact geometry for the nearest
+5,000 LoD2 buildings. After the first 320-building frame, its delayed Worker
+receives only the source URL and initial count, fetches the source itself,
+transfers all eligible farther buildings first as measured, oriented,
+source-coloured instance shells in one draw call, and then progressively builds
+the remaining 4,680 exact near-field records. The main thread clones no city,
+ground or surface payload, and the Worker creates no exact `surface-*` families.
+Raster ground,
 water and asphalt plus the complete authored park-path network preserve the map
 context. ParkDetails starts afterwards. With the tunnel in production, the touch
 profile measures 107,199 instances and 11,639,110 bytes of geometry plus
@@ -4451,7 +4462,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "demand-only-photogrammetry-fallback",
       "mobile-like-touch-no-photogrammetry-fallback",
       "touch-capability-mobile-profile",
-      "mobile-building-only-progressive-worker",
+      "mobile-complete-building-progressive-worker",
       "hidden-tab-progressive-pause-and-restart",
       "sequential-mobile-progressive-and-park-build",
       "mobile-family-keyed-single-world-residency",
@@ -4460,8 +4471,10 @@ def write_package_manifest(package_dir: Path) -> None:
       "minecraft-defers-surface-polygons-until-drawn-or-pedestrian",
       "timeout-and-retry-json-loading",
       "http11-immutable-heavy-asset-cache",
-      "keyboard-arrow-screen-plane-flight",
-      "shift-arrow-heading-flight",
+      "keyboard-arrow-screen-plane-pan",
+      "keyboard-wasd-heading-flight",
+      "keyboard-space-rise-shift-descend",
+      "pedestrian-space-jump-double-space-high-jump",
       "alt-arrow-orbit-tilt",
       "fallback-shift-drag-rotate-swivel",
       "top-north-east-south-west-presets",

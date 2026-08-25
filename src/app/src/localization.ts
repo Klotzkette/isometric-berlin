@@ -79,8 +79,9 @@ const DE = {
   orientation: "Kartenorientierung",
   pedestrian: "Spaziergang",
   pedestrianCanvas:
-    "Spaziergänger-Ansicht auf 1,80 Meter Augenhöhe; Leertaste oder Doppeltipp springt, Mausrad läuft vor und zurück, feste Objekte stoppen dich",
+    "Spaziergänger-Ansicht auf 1,80 Meter Augenhöhe; Leertaste springt, zweimal Leertaste springt höher, Doppeltipp springt ebenfalls, Mausrad läuft vor und zurück, feste Objekte stoppen dich",
   pedestrianJump: "Springen",
+  pedestrianHighJump: "Hoher Doppelsprung",
   pedestrianOff: "Spaziergänger-Modus beendet",
   pedestrianOn: "Spaziergänger-Modus · Start am aktuellen Standort",
   pedestrianSprint: "Sprint 4×",
@@ -217,8 +218,9 @@ const EN: Record<CopyKey, string> = {
   orientation: "Map orientation",
   pedestrian: "Walk",
   pedestrianCanvas:
-    "Pedestrian view at 1.80 metre eye height; Space or double-tap jumps, the mouse wheel walks forward and back, solid objects stop you",
+    "Pedestrian view at 1.80 metre eye height; Space jumps, double Space jumps higher, double-tap also jumps, the mouse wheel walks forward and back, solid objects stop you",
   pedestrianJump: "Jump",
+  pedestrianHighJump: "High double jump",
   pedestrianOff: "Pedestrian mode off",
   pedestrianOn: "Pedestrian mode · start at current location",
   pedestrianSprint: "Sprint 4×",

@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.72.25
+
+- **Freie Kamera und Spaziergang besitzen jetzt die vertraute WASD-Steuerung.**
+  `W`, `A`, `S` und `D` bewegen relativ zur Blickrichtung. In der freien Kamera
+  steigt die Leertaste, `Shift` sinkt und das Mausrad zoomt weiterhin am
+  Zeiger. Im Spaziergang löst die Leertaste den begrenzten 6,2-m-Sprung aus;
+  ein zweiter Druck innerhalb von 320 ms hebt denselben Sprung einmalig auf
+  10,5 m an. Wiederholte Tastendrücke können die Höhe nicht stapeln.
+- **Auch auf Mobilgeräten bleibt der vollständige Gebäudebestand sichtbar.**
+  Die nächsten 5.000 Gebäude behalten ihre exakte progressive LoD2-Geometrie.
+  Alle weiter entfernten geeigneten Quellgebäude werden als vermessene,
+  ausgerichtete und quellfarbene Instanzhüllen in genau einem Draw Call
+  ergänzt. Der vorhandene Web Worker lädt und baut diese Schicht außerhalb des
+  Hauptthreads, sodass ihre gemessenen 578 ms keine Eingabe blockieren. Desktop
+  lädt weiterhin die vollständige exakte Staffelung;
+  Minecraft behält seine vollständige, begrenzte Blockdarstellung und
+  Wahrzeichen bleiben in allen Modi unverändert detailliert.
+- **Tastaturhilfe und Moduskonflikte sind bereinigt.** `D` und `S` steuern in
+  3D ausschließlich Rechts- und Rückwärtsbewegung; die alten Darstellungs-
+  kürzel gelten nur noch in der 2D-Detailkarte. Pfeil-Pan, Alt/Option-Orbit,
+  Touch-Joysticks und sichtbare Modusknöpfe bleiben vollständig erhalten.
+- **Der veröffentlichte Stand ist vollständig geprüft.** Alle 1.259 App-Tests
+  und 336 Python-Tests bestehen; Ruff, Release-Readiness und der Smoke-Test des
+  Offline-Pakets sind sauber. Die Browser-QA zeigt auf 1280 x 720 sowie
+  390 x 844 eine vollständige, responsive 3D-Leinwand ohne Konsolenwarnung;
+  WASD-Flug, normaler Sprung und hoher Doppelsprung wurden dabei direkt
+  ausgeführt.
+
 ## v0.72.24
 
 - **Pariser Platz, Leipziger Platz, Breitscheidplatz, Platz der Republik,

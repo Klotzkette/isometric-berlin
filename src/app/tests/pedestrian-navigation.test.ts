@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   PEDESTRIAN_BODY_RADIUS_M,
   PEDESTRIAN_EYE_HEIGHT_M,
+  PEDESTRIAN_HIGH_JUMP_APEX_M,
   PEDESTRIAN_JUMP_APEX_M,
   PEDESTRIAN_MAX_PITCH_RAD,
   PEDESTRIAN_RESPAWN,
@@ -12,6 +13,7 @@ import {
   compilePedestrianWater,
   createPedestrianState,
   heldPedestrianInput,
+  isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
   jumpPedestrian,
   lookPedestrian,
@@ -106,6 +108,12 @@ describe("pedestrian navigation", () => {
     expect(isPedestrianSprintDoubleActivation(1_000, 999)).toBe(false);
   });
 
+  test("double Space has its own bounded high-jump window", () => {
+    expect(isPedestrianHighJumpDoubleActivation(1_000, 1_319)).toBe(true);
+    expect(isPedestrianHighJumpDoubleActivation(1_000, 1_321)).toBe(false);
+    expect(isPedestrianHighJumpDoubleActivation(0, 100)).toBe(false);
+  });
+
   test("starts on the ground below the current view instead of teleporting", () => {
     const state = createPedestrianState(environment, {
       pitch: 0.25,
@@ -120,7 +128,7 @@ describe("pedestrian navigation", () => {
     expect(state.pitch).toBeCloseTo(0.25);
   });
 
-  test("jump comfortably clears three person heights and cannot double jump", () => {
+  test("normal jump clears three person heights and rejects an ordinary airborne jump", () => {
     let state = jumpPedestrian(createPedestrianState(environment));
     expect(jumpPedestrian(state)).toBe(state);
     let apex = 0;
@@ -141,6 +149,33 @@ describe("pedestrian navigation", () => {
     expect(flightTime).toBeLessThan(1.5);
     expect(state.grounded).toBe(true);
     expect(state.jumpOffset).toBe(0);
+  });
+
+  test("double Space boosts once to the bounded high apex", () => {
+    let state = jumpPedestrian(createPedestrianState(environment));
+    state = stepPedestrian(
+      state,
+      { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
+      0.08,
+      environment,
+    ).state;
+    const boosted = jumpPedestrian(state, true);
+    expect(boosted).not.toBe(state);
+    expect(jumpPedestrian(boosted, true)).toBe(boosted);
+    state = boosted;
+    let apex = 0;
+    for (let step = 0; step < 500 && !state.grounded; step += 1) {
+      state = stepPedestrian(
+        state,
+        { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
+        0.01,
+        environment,
+      ).state;
+      apex = Math.max(apex, state.jumpOffset);
+    }
+    expect(apex).toBeCloseTo(PEDESTRIAN_HIGH_JUMP_APEX_M, 1);
+    expect(apex).toBeGreaterThan(PEDESTRIAN_JUMP_APEX_M + 4);
+    expect(state.grounded).toBe(true);
   });
 
   test("head look is clamped before it can flip upside down", () => {

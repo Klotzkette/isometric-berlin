@@ -1219,7 +1219,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   held_navigation_contract = (
     "heldNavigationInput(",
     "setPanInput(pan.horizontal, pan.vertical)",
-    "setFlightInput(flight.strafe, flight.forward, 0)",
+    "setFlightInput(flight.strafe, flight.forward, flight.vertical)",
     "setOrbitInput(orbit.horizontal, orbit.vertical)",
     "event.shiftKey",
     "event.altKey",

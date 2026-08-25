@@ -36,11 +36,13 @@ show the Google attribution required by the Google Maps Platform Terms.
 
 The viewer has a built-in help panel (the keyboard button in the top
 toolbar, or press `?`) listing the shortcuts: `PageUp`/`PageDown`
-previous/next sight, `Space` start/pause the tour, `+`/`=`/`−` zoom,
-`Home`/`0` overview, `D` switch Day/Night, `M` toggle Minecraft, `S` toggle
-Snowstorm, `P` toggle pedestrian mode, `N` toggle night lights, `F` fullscreen, `R` reset, `B` ambient
+previous/next sight, `+`/`=`/`−` zoom, `Home`/`0` overview, `M` toggle
+Minecraft, `P` toggle pedestrian mode, `N` toggle night lights, `F` fullscreen,
+`R` reset, `B` ambient
 music, `T` Dusk Republic, `L` copy
-a view link, and `Esc` close overlays. `Alt`/`Option` plus arrows remains a
+a view link, and `Esc` close overlays. In the 2D detail map, `Space` controls
+the tour and `D`/`S` switch Day/Night and Snowstorm; those keys become movement
+controls in 3D. `Alt`/`Option` plus arrows remains a
 viewer chord and is deliberately exempt from the browser-shortcut guard.
 
 In true 3D, left-drag pans with direct manipulation, the wheel zooms at the
@@ -55,8 +57,9 @@ the tunnel tube itself** — approaching a portal at street level and diving in
 switches to the lit interior (safety-light strips, ceiling lights, ventilation
 shafts and fans) and out the other end.
 Arrow keys translate camera and target together in the visible screen plane.
-`Shift` plus arrows flies forward/backward or strafes relative to the current
-heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
+`W`/`A`/`S`/`D` flies forward/left/back/right relative to the current heading,
+`Space` rises and `Shift` descends. The mouse wheel zooms at the pointer.
+`Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 lit Tiergartentunnel is entered manually through either connected road portal;
 there is no scripted tunnel ride competing with direct camera control.
 Pedestrian mode keeps both complete tunnel tubes and all eight mapped portal
@@ -79,10 +82,12 @@ or double-tap `W`/up, the forward button or the walking joystick to latch and
 unlatch the same sprint on keyboard, mouse and touch; a mouse double-click on
 the 3D view does the same. The normal
 6.4 m/s rate remains available for precise inspection, and both speeds pass
-through the same terrain, tunnel and water checks. `Space`, the touch-safe jump
-button and a double-tap on the free 3D view produce a single ground-only jump
-with a 6.2 m apex; the relaxed mobile double-tap still rejects drags, pinches
-and long presses, and there is no double jump. A mapped OSM water polygon is a
+through the same terrain, tunnel and water checks. One `Space`, the touch-safe
+jump button or a double-tap on the free 3D view produces the normal ground jump
+with a 6.2 m apex. A second `Space` within 320 ms raises that same jump once to
+a bounded 10.5 m apex; further airborne presses cannot stack height. The relaxed
+mobile double-tap still rejects drags, pinches and long presses. A mapped OSM
+water polygon is a
 solid shoreline: movement slides along it and never teleports or resets the
 pedestrian. Islands encoded as water holes remain walkable. The mode does not
 move source geometry. The five
@@ -92,11 +97,12 @@ and both side pavilions remain solid. Schwellenraum adds only its further
 bounded doorway, interior-wall and floor collision contracts; every other
 building remains the same closed solid.
 
-**Continuous navigation:** held plain arrows pan in screen space; held
-`Shift`+arrows fly along the current heading; held `Alt`/`Option`+arrows orbit
-and tilt. The matching on-screen arrow controls also move continuously while
+**Continuous navigation:** held plain arrows pan in screen space; held WASD
+flies along the current heading, `Space` rises, `Shift` descends, and held
+`Alt`/`Option`+arrows orbit and tilt. The matching on-screen arrow controls also move continuously while
 the primary mouse button stays down, and desktop layouts expose an analogue
-orbit pad beside the control panel. A plain `Space` tap toggles the sight tour.
+orbit pad beside the control panel. In the 2D detail map, a plain `Space` tap
+still toggles the sight tour.
 On coarse-pointer devices a bottom-left thumb joystick provides continuous
 flight (drag up = forward, sideways = strafe); the existing two-finger swipe
 remains. Flying below the Spree surface (scene water level 1.31 m) switches to
@@ -270,13 +276,16 @@ exact 700 LoD2/OSM buildings on the main thread, then completes the source
 inventory in near-to-far, material-merged Worker groups. The mobile-like touch
 profile applies when the primary or any pointer is coarse, or the browser
 reports `navigator.maxTouchPoints > 0`; it constructs an initial 320-building frame and stops
-after the nearest **5,000 LoD2 buildings**. This is the complete bounded touch
-near-field profile, not a reduction of the non-touch desktop inventory. Both
-profiles retain the complete ground and every one-off recognition model.
+after exact geometry for the nearest **5,000 LoD2 buildings**. Every eligible
+source building beyond that near field remains visible as a measured, oriented,
+source-coloured instance shell. Both profiles retain the complete ground, the
+complete building inventory and every one-off recognition model.
 Non-touch desktop's Worker supplies all eight exact surface families. The touch
-profile's delayed Worker receives only the 4,680 remaining building records,
-without a second copy of the ground/surface payload, and creates no exact
-`surface-*` batches; the preview's raster ground, water and
+profile's delayed Worker receives only the source URL and initial count. It
+fetches the source directly, transfers the single-draw-call distant shell first,
+then the 4,680 remaining exact near-field records, without a second copy of the
+city/ground/surface payload, and creates no exact `surface-*` batches; the
+preview's raster ground, water and
 asphalt plus the complete ParkDetails path network retain the context. Park
 construction starts only after that Worker completes or fails. Hiding the page
 stops the Worker, disposes partial follow-up groups and restarts deterministically

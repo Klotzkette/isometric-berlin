@@ -20,6 +20,7 @@ import {
   type WorldPayloadLifetimeState,
 } from "../src/ThreeViewer";
 import {
+  createDistantBuildingShells,
   createIsometricCity,
   createPretriangulatedSurfacePlate,
   setIsoNightPresentation,
@@ -88,8 +89,12 @@ describe("progressive exact-world scheduling", () => {
     const buildings = Array.from({ length: 29_818 }, (_, index) =>
       building(String(index), 3_177 + index * 20, 405),
     );
-    const { initial, remaining } = splitProgressiveBuildings(buildings, 700);
+    const { initial, omitted, remaining } = splitProgressiveBuildings(
+      buildings,
+      700,
+    );
     expect(initial).toHaveLength(700);
+    expect(omitted).toHaveLength(0);
     expect(remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(
       remaining.every(
@@ -120,10 +125,56 @@ describe("progressive exact-world scheduling", () => {
     expect([...mobile.initial, ...mobile.remaining.flat()]).toHaveLength(
       MOBILE_TOTAL_BUILDING_LIMIT,
     );
+    expect(mobile.omitted).toHaveLength(
+      buildings.length - MOBILE_TOTAL_BUILDING_LIMIT,
+    );
+    expect(
+      new Set([
+        ...mobile.initial,
+        ...mobile.remaining.flat(),
+        ...mobile.omitted,
+      ]).size,
+    ).toBe(buildings.length);
     expect(mobile.initial).toHaveLength(MOBILE_INITIAL_BUILDING_COUNT);
     expect(mobile.remaining).toHaveLength(1);
+    expect(desktop.omitted).toHaveLength(0);
     expect([...desktop.initial, ...desktop.remaining.flat()]).toHaveLength(
       buildings.length,
+    );
+  });
+
+  test("represents every omitted mobile building in one bounded instanced shell", () => {
+    const buildings = Array.from({ length: 1_000 }, (_, index) =>
+      building(String(index), 3_177 + index * 20, 405 + (index % 11) * 20),
+    );
+    const payload = {
+      buildings,
+      classes: ["concrete"],
+      schema_version: 1,
+    };
+    const partition = splitProgressiveBuildings(buildings, 100, 100, 200);
+    const coverage = createDistantBuildingShells(payload, partition.omitted);
+    const shells = coverage.getObjectByName(
+      "LoD2 distant building shells",
+    ) as InstancedMesh;
+    expect(shells).toBeInstanceOf(InstancedMesh);
+    expect(shells.count).toBe(800);
+    expect(coverage.userData.sourceBuildingCount).toBe(800);
+    const retainedBytes =
+      shells.instanceMatrix.array.byteLength +
+      (shells.instanceColor?.array.byteLength ?? 0) +
+      Object.values(shells.geometry.attributes).reduce(
+        (sum, attribute) => sum + attribute.array.byteLength,
+        0,
+      ) +
+      (shells.geometry.index?.array.byteLength ?? 0);
+    expect(retainedBytes).toBeLessThan(80 * 1024);
+    setIsoNightPresentation(coverage, true, true, "night");
+    expect(shells.material).toBe(shells.userData.nightMaterial);
+    setIsoNightPresentation(coverage, false, true, "schwellenraum");
+    expect(shells.material).toBe(shells.userData.schwellenraumMaterial);
+    expect(progressiveWorkerSource).toContain(
+      "createDistantBuildingShells(prisms, partition.omitted)",
     );
   });
 
@@ -160,7 +211,7 @@ describe("progressive exact-world scheduling", () => {
     expect(mobileSlabs.count).toBeGreaterThan(deferredSlabs.count);
   });
 
-  test("posts a slim building-only payload to the mobile Worker", () => {
+  test("posts only a source URL to the mobile Worker", () => {
     const inputStart = threeViewerSource.indexOf(
       "const progressiveInput: ProgressiveWorldWorkerInput",
     );
@@ -172,8 +223,9 @@ describe("progressive exact-world scheduling", () => {
     expect(inputStart).toBeGreaterThan(0);
     expect(desktopBranch).toBeGreaterThan(inputStart);
     expect(mobileBranch).toContain('detailProfile: "mobile"');
-    expect(mobileBranch).toContain("initialBuildingCount: 0");
-    expect(mobileBranch).toContain("buildings: mobileWorkerBuildings");
+    expect(mobileBranch).toContain("initialBuildingCount,");
+    expect(mobileBranch).toContain("prismUrl: new URL(");
+    expect(mobileBranch).not.toContain("prismPayload:");
     expect(mobileBranch).not.toContain("ground,");
     expect(mobileBranch).not.toContain("sceneRootUrl:");
     expect(mobileBranch).not.toContain("surfaces,");
@@ -190,7 +242,9 @@ describe("progressive exact-world scheduling", () => {
       workerMobileStart,
       workerDesktopStart,
     );
-    expect(workerMobileBranch).toContain("postBuildingBatches(input)");
+    expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
+    expect(workerMobileBranch).toContain("buildings-distant");
+    expect(workerMobileBranch).toContain("postBuildingBatches(input, prisms)");
     expect(workerMobileBranch).not.toContain("postSurface(");
     expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
     expect(workerMobileBranch).toContain("pretriangulated: false");

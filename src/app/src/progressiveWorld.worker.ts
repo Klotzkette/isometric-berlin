@@ -5,10 +5,12 @@ import {
 } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import {
+  createDistantBuildingShells,
   createIsometricCity,
   createSmoothSurfaces,
   createPretriangulatedSurfacePlate,
   type PretriangulatedSurfaceKind,
+  type PrismPayload,
   type SurfacePayload,
 } from "./IsometricCityWorld";
 import { smoothGroundTopSampler, WATER_TOP_Y } from "./MinecraftVoxelWorld";
@@ -152,10 +154,14 @@ function runtimeHeavyPlate(
 }
 
 async function postBuildingBatches(
-  input: ProgressiveWorldWorkerInput,
+  input: Pick<
+    ProgressiveWorldWorkerInput,
+    "detailProfile" | "initialBuildingCount"
+  >,
+  prismPayload: PrismPayload,
 ): Promise<number> {
   const buildingBatches = splitProgressiveBuildings(
-    input.prismPayload.buildings,
+    prismPayload.buildings,
     input.initialBuildingCount,
     undefined,
     input.detailProfile === "mobile"
@@ -165,7 +171,7 @@ async function postBuildingBatches(
   for (let index = 0; index < buildingBatches.length; index += 1) {
     const startedAt = performance.now();
     const root = createIsometricCity(
-      input.prismPayload,
+      prismPayload,
       null,
       null,
       null,
@@ -181,16 +187,49 @@ async function postBuildingBatches(
   return buildingBatches.length;
 }
 
+async function loadPrismPayload(url: string): Promise<PrismPayload> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`LoD2 prism payload failed with HTTP ${response.status}`);
+  }
+  const payload = (await response.json()) as PrismPayload;
+  if (
+    !payload ||
+    !Array.isArray(payload.buildings) ||
+    !Array.isArray(payload.classes)
+  ) {
+    throw new Error("LoD2 prism payload is incomplete");
+  }
+  return payload;
+}
+
 async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const overallStart = performance.now();
   let batchCount = 0;
   if (input.detailProfile === "mobile") {
     // The main-thread preview already owns the coarse raster water, parks and
     // asphalt. Rebuilding those exact surface families in another realm drove
-    // phone peaks by hundreds of MiB and copied the ground/surface payloads for
-    // no additional mobile pixel. Mobile transfers only its bounded remaining
-    // LoD2 building groups; ParkDetails follows after this Worker completes.
-    batchCount += await postBuildingBatches(input);
+    // phone peaks by hundreds of MiB. Fetching LoD2 directly in this Worker
+    // also avoids cloning the 29k-building decoded graph through postMessage.
+    const prisms = await loadPrismPayload(input.prismUrl);
+    const partition = splitProgressiveBuildings(
+      prisms.buildings,
+      input.initialBuildingCount,
+      undefined,
+      MOBILE_TOTAL_BUILDING_LIMIT,
+    );
+    if (partition.omitted.length > 0) {
+      const startedAt = performance.now();
+      postBatch(
+        createDistantBuildingShells(prisms, partition.omitted),
+        "buildings",
+        "buildings-distant",
+        startedAt,
+      );
+      batchCount += 1;
+      await yieldWorker();
+    }
+    batchCount += await postBuildingBatches(input, prisms);
     workerScope.postMessage({
       batches: batchCount,
       build_ms: performance.now() - overallStart,
@@ -315,7 +354,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
 
   // Geometry is already merged by material inside each bounded batch. Desktop
   // stays source-complete and retains the established six follow-up groups.
-  batchCount += await postBuildingBatches(input);
+  batchCount += await postBuildingBatches(input, input.prismPayload);
   workerScope.postMessage({
     batches: batchCount,
     build_ms: performance.now() - overallStart,

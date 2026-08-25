@@ -70,8 +70,8 @@ describe("progressive viewer startup", () => {
   test("keeps app-shell navigation helpers free of rendering engines", () => {
     expect(navigationInputSource).not.toContain('from "three"');
     expect(navigationInputSource).not.toContain('from "./ThreeViewer"');
-    expect(heldNavigationInput(new Set(["Shift", "ArrowUp"]))).toEqual({
-      flight: { forward: 1, strafe: 0 },
+    expect(heldNavigationInput(new Set(["w", "Space"]))).toEqual({
+      flight: { forward: 1, strafe: 0, vertical: 1 },
       orbit: { horizontal: 0, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });

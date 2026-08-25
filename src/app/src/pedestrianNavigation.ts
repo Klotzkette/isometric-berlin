@@ -20,16 +20,19 @@ import type { PedestrianInput } from "./navigationInput";
 
 export {
   heldPedestrianInput,
+  isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
+  PEDESTRIAN_HIGH_JUMP_DOUBLE_ACTIVATION_MS,
   PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS,
   type PedestrianInput,
 } from "./navigationInput";
 
 export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
 // A slightly taller, softer presentation jump makes stairs and low urban
-// obstacles easy to clear without changing the ground-only/no-double-jump
-// contract. This is intentionally playful navigation, not human biomechanics.
+// obstacles easy to clear. A bounded double-Space boost reaches the higher
+// apex below without allowing repeated airborne stacking.
 export const PEDESTRIAN_JUMP_APEX_M = 6.2;
+export const PEDESTRIAN_HIGH_JUMP_APEX_M = 10.5;
 export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
 export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
@@ -1110,16 +1113,38 @@ export function setPedestrianYaw(
   return { ...state, yaw: wrapRadians(yaw) };
 }
 
-export function jumpPedestrian(state: PedestrianState): PedestrianState {
-  if (!state.grounded) {
+export function jumpPedestrian(
+  state: PedestrianState,
+  higher = false,
+): PedestrianState {
+  if (state.grounded) {
+    const apex = higher
+      ? PEDESTRIAN_HIGH_JUMP_APEX_M
+      : PEDESTRIAN_JUMP_APEX_M;
+    return {
+      ...state,
+      grounded: false,
+      verticalVelocity: Math.sqrt(2 * PEDESTRIAN_GRAVITY_MPS2 * apex),
+    };
+  }
+  if (
+    !higher ||
+    state.verticalVelocity <= 0 ||
+    state.jumpOffset >= PEDESTRIAN_HIGH_JUMP_APEX_M
+  ) {
+    return state;
+  }
+  const boostedVelocity = Math.sqrt(
+    2 *
+      PEDESTRIAN_GRAVITY_MPS2 *
+      (PEDESTRIAN_HIGH_JUMP_APEX_M - state.jumpOffset),
+  );
+  if (boostedVelocity <= state.verticalVelocity) {
     return state;
   }
   return {
     ...state,
-    grounded: false,
-    verticalVelocity: Math.sqrt(
-      2 * PEDESTRIAN_GRAVITY_MPS2 * PEDESTRIAN_JUMP_APEX_M,
-    ),
+    verticalVelocity: boostedVelocity,
   };
 }
 

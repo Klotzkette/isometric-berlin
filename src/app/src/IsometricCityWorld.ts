@@ -1326,6 +1326,123 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   return new Color(shades[hash % shades.length]);
 }
 
+function isRenderablePrismBuilding(building: PrismBuilding): boolean {
+  return !(
+    building.ring.length < 3 ||
+    PRISM_SUPPRESSED_IDS.has(building.id) ||
+    isInterimOfficeFootprintSuppressed(building) ||
+    isFriedrichstrasseStationFootprintSuppressed(building) ||
+    (!PRISM_GLASSED_IDS.has(building.id) &&
+      isHauptbahnhofFootprintSuppressed(building))
+  );
+}
+
+/**
+ * One instanced oriented box per far building keeps the complete source city
+ * visible on memory-bounded phones. Exact near-field LoD2 batches replace this
+ * representation; omitted far buildings cost one draw call and no facade mesh.
+ */
+export function createDistantBuildingShells(
+  prisms: PrismPayload,
+  buildings: readonly PrismBuilding[],
+): Group {
+  const group = new Group();
+  group.name = "Complete distant building coverage";
+  const visible = buildings.filter(isRenderablePrismBuilding);
+  group.userData.sourceBuildingCount = buildings.length;
+  group.userData.visibleBuildingCount = visible.length;
+  group.userData.representation = "one oriented instanced box per far building";
+  if (visible.length === 0) return group;
+
+  const geometry = new BoxGeometry(1, 1, 1);
+  const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+  const nightMaterial = new MeshStandardMaterial({
+    flatShading: true,
+    metalness: 0,
+    roughness: 0.95,
+    vertexColors: true,
+  });
+  const shells = new InstancedMesh(
+    geometry,
+    dayMaterial,
+    visible.length,
+  );
+  shells.name = "LoD2 distant building shells";
+  shells.userData.dayMaterial = dayMaterial;
+  shells.userData.nightMaterial = nightMaterial;
+  shells.userData.detailProfile = "mobile-far";
+  const matrix = new Matrix4();
+
+  visible.forEach((building, index) => {
+    let axisX = 1;
+    let axisZ = 0;
+    let longestEdgeSq = 0;
+    for (let point = 0; point < building.ring.length; point += 1) {
+      const current = building.ring[point];
+      const next = building.ring[(point + 1) % building.ring.length];
+      const dx = (next[0] - current[0]) / 10;
+      const dz = (next[1] - current[1]) / 10;
+      const edgeSq = dx * dx + dz * dz;
+      if (edgeSq > longestEdgeSq) {
+        const length = Math.sqrt(edgeSq);
+        axisX = dx / length;
+        axisZ = dz / length;
+        longestEdgeSq = edgeSq;
+      }
+    }
+    const sideX = -axisZ;
+    const sideZ = axisX;
+    let minAlong = Number.POSITIVE_INFINITY;
+    let maxAlong = Number.NEGATIVE_INFINITY;
+    let minAcross = Number.POSITIVE_INFINITY;
+    let maxAcross = Number.NEGATIVE_INFINITY;
+    for (const [xDm, zDm] of building.ring) {
+      const x = xDm / 10;
+      const z = zDm / 10;
+      const along = x * axisX + z * axisZ;
+      const across = x * sideX + z * sideZ;
+      minAlong = Math.min(minAlong, along);
+      maxAlong = Math.max(maxAlong, along);
+      minAcross = Math.min(minAcross, across);
+      maxAcross = Math.max(maxAcross, across);
+    }
+    const alongCenter = (minAlong + maxAlong) / 2;
+    const acrossCenter = (minAcross + maxAcross) / 2;
+    const width = Math.max(0.8, maxAlong - minAlong);
+    const depth = Math.max(0.8, maxAcross - minAcross);
+    const height = Math.max(2.5, building.h_dm / 10);
+    const centerX = axisX * alongCenter + sideX * acrossCenter;
+    const centerZ = axisZ * alongCenter + sideZ * acrossCenter;
+    const centerY = building.y0_dm / 10 + height / 2;
+    matrix.set(
+      axisX * width,
+      0,
+      sideX * depth,
+      centerX,
+      0,
+      height,
+      0,
+      centerY,
+      axisZ * width,
+      0,
+      sideZ * depth,
+      centerZ,
+      0,
+      0,
+      0,
+      1,
+    );
+    shells.setMatrixAt(index, matrix);
+    shells.setColorAt(index, facadeColorFor(building, prisms.classes));
+  });
+  shells.instanceMatrix.needsUpdate = true;
+  if (shells.instanceColor) shells.instanceColor.needsUpdate = true;
+  shells.computeBoundingBox();
+  shells.computeBoundingSphere();
+  group.add(shells);
+  return group;
+}
+
 // The drawn city's own "lights off" floor: replaces every warm
 // artificial-light emissive/tint with a cool, dim, bluish-silver flat tone
 // so the moonlit look stays authored colour (no film curve) while every
@@ -10797,14 +10914,7 @@ export function createIsometricCity(
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   };
   for (const building of buildings) {
-    if (
-      building.ring.length < 3 ||
-      PRISM_SUPPRESSED_IDS.has(building.id) ||
-      isInterimOfficeFootprintSuppressed(building) ||
-      isFriedrichstrasseStationFootprintSuppressed(building) ||
-      (!PRISM_GLASSED_IDS.has(building.id) &&
-        isHauptbahnhofFootprintSuppressed(building))
-    ) {
+    if (!isRenderablePrismBuilding(building)) {
       continue;
     }
     const y0 = building.y0_dm / 10;

@@ -499,7 +499,7 @@ export type ThreeViewerHandle = {
   setUnderside: (enabled: boolean) => void;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
-  jumpPedestrian: () => boolean;
+  jumpPedestrian: (higher?: boolean) => boolean;
 };
 
 type PedestrianRuntime = {
@@ -1075,12 +1075,12 @@ function nudgePedestrian(
   return changed;
 }
 
-function triggerPedestrianJump(runtime: Runtime): boolean {
+function triggerPedestrianJump(runtime: Runtime, higher = false): boolean {
   const state = runtime.pedestrian.state;
   if (!runtime.pedestrian.enabled || !state) {
     return false;
   }
-  const next = jumpPedestrian(state);
+  const next = jumpPedestrian(state, higher);
   if (next === state) {
     return false;
   }
@@ -2700,8 +2700,8 @@ function startProgressiveWorld(
 
 /**
  * Let the committed mobile preview paint and release constructor temporaries
- * before another realm starts building exact batches. The input stays owned
- * by Runtime; this scheduler never clones the multi-megabyte payloads.
+ * before another realm starts building exact batches. Mobile carries only a
+ * source URL, so this scheduler never clones the decoded building graph.
  */
 function scheduleProgressiveWorld(
   runtime: Runtime,
@@ -2951,19 +2951,17 @@ function ensureIsoWorld(
           : Number.POSITIVE_INFINITY,
       );
       const initialBuildings = buildingPartition.initial;
-      const mobileWorkerBuildings = runtime.coarsePointer
-        ? buildingPartition.remaining.flat()
-        : [];
       const progressiveInput: ProgressiveWorldWorkerInput | null =
         runtime.coarsePointer
-          ? mobileWorkerBuildings.length > 0
+          ? buildingPartition.remaining.length > 0 ||
+            buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
-                initialBuildingCount: 0,
-                prismPayload: {
-                  ...prisms,
-                  buildings: mobileWorkerBuildings,
-                },
+                initialBuildingCount,
+                prismUrl: new URL(
+                  PRISM_WORLD_FILE,
+                  runtime.sceneRootUrl,
+                ).toString(),
                 type: "build",
               }
             : null
@@ -4925,9 +4923,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
           runtime.controls.update();
         },
-        jumpPedestrian: () => {
+        jumpPedestrian: (higher = false) => {
           const runtime = runtimeRef.current;
-          return runtime ? triggerPedestrianJump(runtime) : false;
+          return runtime ? triggerPedestrianJump(runtime, higher) : false;
         },
       }),
       [progress.total],

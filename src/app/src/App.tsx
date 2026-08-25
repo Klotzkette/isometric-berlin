@@ -104,6 +104,7 @@ import {
 import {
   heldNavigationInput,
   heldPedestrianInput,
+  isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
 } from "./navigationInput";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
@@ -705,6 +706,7 @@ export function App() {
   // Held-key state for continuous pan, flight and orbit.
   const heldFlightKeysRef = useRef(new Set<string>());
   const lastPedestrianForwardActivationAtRef = useRef(0);
+  const lastPedestrianJumpActivationAtRef = useRef(0);
   const pedestrianSprintLockedRef = useRef(false);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
@@ -1799,13 +1801,13 @@ export function App() {
     applyPedestrianSprint(nextLocked || heldSprint, true);
   }, [applyPedestrianSprint]);
 
-  const triggerPedestrianJump = useCallback(() => {
-    const jumped = threeViewerRef.current?.jumpPedestrian() ?? false;
+  const triggerPedestrianJump = useCallback((higher = false) => {
+    const jumped = threeViewerRef.current?.jumpPedestrian(higher) ?? false;
     if (jumped) {
-      setStatus(copy.pedestrianJump);
+      setStatus(higher ? copy.pedestrianHighJump : copy.pedestrianJump);
     }
     return jumped;
-  }, [copy.pedestrianJump]);
+  }, [copy.pedestrianHighJump, copy.pedestrianJump]);
 
   const zoomBy = useCallback(
     (factor: number) => {
@@ -1999,6 +2001,7 @@ export function App() {
     const next = !isPedestrianMode;
     pedestrianSprintLockedRef.current = false;
     lastPedestrianForwardActivationAtRef.current = 0;
+    lastPedestrianJumpActivationAtRef.current = 0;
     applyPedestrianSprint(false);
     heldFlightKeysRef.current.clear();
     setFlightInput(0, 0, 0);
@@ -2385,6 +2388,7 @@ export function App() {
       "ArrowRight",
       "Shift",
       "Alt",
+      "Space",
       "w",
       "a",
       "s",
@@ -2392,8 +2396,12 @@ export function App() {
       "q",
       "e",
     ];
-    const navigationKey = (key: string): string =>
-      key.length === 1 ? key.toLowerCase() : key;
+    const navigationKey = (event: KeyboardEvent): string =>
+      isPedestrianJumpKey(event)
+        ? "Space"
+        : event.key.length === 1
+          ? event.key.toLowerCase()
+          : event.key;
     const updateHeldNavigation = () => {
       if (isPedestrianMode) {
         const input = heldPedestrianInput(heldFlightKeysRef.current);
@@ -2409,7 +2417,7 @@ export function App() {
         heldFlightKeysRef.current,
       );
       setPanInput(pan.horizontal, pan.vertical);
-      setFlightInput(flight.strafe, flight.forward, 0);
+      setFlightInput(flight.strafe, flight.forward, flight.vertical);
       setOrbitInput(orbit.horizontal, orbit.vertical);
     };
     const stopHeldNavigation = () => {
@@ -2474,11 +2482,17 @@ export function App() {
         if (isPedestrianJumpKey(event)) {
           event.preventDefault();
           if (!event.repeat) {
-            triggerPedestrianJump();
+            const now = performance.now();
+            const higher = isPedestrianHighJumpDoubleActivation(
+              lastPedestrianJumpActivationAtRef.current,
+              now,
+            );
+            lastPedestrianJumpActivationAtRef.current = higher ? 0 : now;
+            triggerPedestrianJump(higher);
           }
           return;
         }
-        const key = navigationKey(event.key);
+        const key = navigationKey(event);
         if (key === "Shift") {
           event.preventDefault();
           heldFlightKeysRef.current.add(key);
@@ -2525,6 +2539,28 @@ export function App() {
               language === "de"
                 ? "Zu Fuß · bewegen und umschauen"
                 : "On foot · move and look around",
+            );
+          }
+          updateHeldNavigation();
+          return;
+        }
+      }
+      if (
+        viewerMode === "three" &&
+        !isReferenceOpen &&
+        !isHelpOpen &&
+        !isRepositoryOpen &&
+        isReady
+      ) {
+        const key = navigationKey(event);
+        if (["w", "a", "s", "d", "Shift", "Space"].includes(key)) {
+          event.preventDefault();
+          heldFlightKeysRef.current.add(key);
+          if (!event.repeat) {
+            setStatus(
+              language === "de"
+                ? "Freie Kamera · WASD fliegt, Leertaste hoch, Shift runter"
+                : "Free camera · WASD flies, Space rises, Shift descends",
             );
           }
           updateHeldNavigation();
@@ -2610,8 +2646,8 @@ export function App() {
                 : "Smooth orbit and tilt"
               : event.shiftKey
                 ? language === "de"
-                  ? "Stufenlos entlang der Blickrichtung fliegen"
-                  : "Smooth flight along the view heading"
+                  ? "Stufenlos verschieben und sinken"
+                  : "Smooth screen movement and descent"
                 : language === "de"
                   ? "Stufenlos in der Ansicht verschieben"
                   : "Smooth screen-relative movement",
@@ -2687,7 +2723,7 @@ export function App() {
       }
     };
     const handleKeyUp = (event: KeyboardEvent) => {
-      const key = navigationKey(event.key);
+      const key = navigationKey(event);
       if (NAVIGATION_KEYS.includes(key)) {
         if (heldFlightKeysRef.current.delete(key)) {
           updateHeldNavigation();
@@ -3716,7 +3752,7 @@ export function App() {
           title={`${copy.pedestrianJump} (Space · ${
             language === "de" ? "Doppeltipp" : "double-tap"
           })`}
-          onClick={triggerPedestrianJump}
+          onClick={() => triggerPedestrianJump()}
         >
           <ArrowUpFromLine size={22} aria-hidden="true" />
         </button>
@@ -3817,7 +3853,7 @@ export function App() {
                   ? language === "de"
                     ? "Vorwärts gehen (W / ↑), doppelklicken für Sprint"
                     : "Walk forward (W / ↑), double-click for sprint"
-                  : `${copy.flyForward} (Shift + ↑)`
+                  : `${copy.flyForward} (W)`
               }
               onActivate={() => flyForwardBy(0, 1)}
               onDoubleActivate={
@@ -3842,7 +3878,7 @@ export function App() {
                   ? language === "de"
                     ? "Nach links gehen (A)"
                     : "Walk left (A)"
-                  : `${copy.flyLeft} (Shift + ←)`
+                  : `${copy.flyLeft} (A)`
               }
               onActivate={() => flyForwardBy(-1, 0)}
               onHoldStart={() => setFlightInput(-1, 0, 0)}
@@ -3864,7 +3900,7 @@ export function App() {
                   ? language === "de"
                     ? "Rückwärts gehen (S / ↓)"
                     : "Walk backward (S / ↓)"
-                  : `${copy.flyBack} (Shift + ↓)`
+                  : `${copy.flyBack} (S)`
               }
               onActivate={() => flyForwardBy(0, -1)}
               onHoldStart={() => setFlightInput(0, -1, 0)}
@@ -3886,7 +3922,7 @@ export function App() {
                   ? language === "de"
                     ? "Nach rechts gehen (D)"
                     : "Walk right (D)"
-                  : `${copy.flyRight} (Shift + →)`
+                  : `${copy.flyRight} (D)`
               }
               onActivate={() => flyForwardBy(1, 0)}
               onHoldStart={() => setFlightInput(1, 0, 0)}
@@ -4723,14 +4759,22 @@ export function App() {
               {!isPedestrianMode ? (
                 <div>
                   <dt>
-                    <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
-                    <kbd>↑</kbd> <kbd>↓</kbd>
+                    {viewerMode === "three" ? (
+                      <>
+                        <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>
+                      </>
+                    ) : (
+                      <>
+                        <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
+                        <kbd>↑</kbd> <kbd>↓</kbd>
+                      </>
+                    )}
                   </dt>
                   <dd>
                     {viewerMode === "three"
                       ? language === "de"
-                        ? "Gedrückt halten: entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
-                        : "Hold: fly forward / backward along the view heading and strafe sideways"
+                        ? "Gedrückt halten: relativ zur Blickrichtung vorwärts, links, rückwärts und rechts fliegen"
+                        : "Hold: fly forward, left, backward, and right relative to the view heading"
                       : language === "de"
                         ? "Ansicht drehen oder zoomen"
                         : "Rotate or zoom the view"}
@@ -4773,11 +4817,15 @@ export function App() {
                 <dd>
                   {language === "de"
                     ? isPedestrianMode
-                      ? "Springen (maximal etwa 6,2 m über dem Boden)"
-                      : "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
+                      ? "Einmal: springen (6,2 m); zweimal schnell: höher springen (10,5 m)"
+                      : viewerMode === "three"
+                        ? "Freie Kamera: steigen; Shift: sinken"
+                        : "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
                     : isPedestrianMode
-                      ? "Jump (up to about 6.2 m above the ground)"
-                      : "Tap: start / pause the sights tour"}
+                      ? "Once: jump (6.2 m); twice quickly: jump higher (10.5 m)"
+                      : viewerMode === "three"
+                        ? "Free camera: rise; Shift: descend"
+                        : "Tap: start / pause the sights tour"}
                 </dd>
               </div>
               {isPedestrianMode ? (
@@ -4852,16 +4900,18 @@ export function App() {
                     : "Toggle this help"}
                 </dd>
               </div>
-              <div>
-                <dt>
-                  <kbd>D</kbd>
-                </dt>
-                <dd>
-                  {language === "de"
-                    ? "Tag- / Nachtbeleuchtung umschalten"
-                    : "Toggle day / night lighting"}
-                </dd>
-              </div>
+              {viewerMode !== "three" ? (
+                <div>
+                  <dt>
+                    <kbd>D</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Tag- / Nachtbeleuchtung umschalten"
+                      : "Toggle day / night lighting"}
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt>
                   <kbd>M</kbd>
@@ -4872,16 +4922,18 @@ export function App() {
                     : "Toggle Minecraft mode"}
                 </dd>
               </div>
-              <div>
-                <dt>
-                  <kbd>S</kbd>
-                </dt>
-                <dd>
-                  {language === "de"
-                    ? "Schneesturm ein- / ausschalten"
-                    : "Toggle the snowstorm"}
-                </dd>
-              </div>
+              {viewerMode !== "three" ? (
+                <div>
+                  <dt>
+                    <kbd>S</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Schneesturm ein- / ausschalten"
+                      : "Toggle the snowstorm"}
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt>
                   <kbd>F</kbd>
@@ -4945,11 +4997,11 @@ export function App() {
               {viewerMode === "three"
                 ? isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen; das Mausrad läuft vor und zurück. Leertaste, Sprungknopf oder Doppeltipp auf die freie 3D-Fläche springen. Der Geh-Joystick bewegt; Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
-                    : "Walk: drag with the mouse or one finger to move your head; the mouse wheel walks forward and back. Space, the jump button, or a double-tap on the open 3D view jumps. The walking pad moves; buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
+                    ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf und Doppeltipp springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
+                    : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Space jumps; double Space jumps higher, while the jump button and double-tap perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
-                    ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                    : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
+                    ? "3D: WASD fliegt relativ zur Blickrichtung, Leertaste steigt, Shift sinkt und das Mausrad zoomt am Zeiger. Linke Maustaste verschiebt direkt, rechte dreht. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                    : "3D: WASD flies relative to the view heading, Space rises, Shift descends, and the mouse wheel zooms at the pointer. Left-drag pans directly and right-drag orbits. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."
                 : language === "de"
                   ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger verschieben die Karte oder fliegen per Pinch hinein; drehen über die Pfeiltasten-Knöpfe."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}

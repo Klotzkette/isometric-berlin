@@ -31,7 +31,6 @@ export const PAVING_POLYGON_BATCH_SIZE = 100;
 
 type ProgressiveWorldWorkerInputBase = {
   initialBuildingCount: number;
-  prismPayload: PrismPayload;
   type: "build";
 };
 
@@ -39,13 +38,15 @@ export type ProgressiveWorldWorkerInput =
   | (ProgressiveWorldWorkerInputBase & {
       detailProfile: "full";
       ground: VoxelPayload;
+      prismPayload: PrismPayload;
       sceneRootUrl: string;
       surfaces: SurfacePayload;
       tunnel: TunnelPortalCourseInput | null;
     })
   | (ProgressiveWorldWorkerInputBase & {
-      /** Mobile refines buildings only; ground/surface payloads stay main-thread. */
+      /** Mobile fetches source in-worker; no large decoded graph is cloned. */
       detailProfile: "mobile";
+      prismUrl: string;
     });
 
 export type ProgressiveWorldBatchKind = "buildings" | "surfaces";
@@ -179,12 +180,17 @@ export function splitProgressiveBuildings(
   initialCount: number,
   batchSize = PROGRESSIVE_BUILDING_BATCH_SIZE,
   totalLimit = Number.POSITIVE_INFINITY,
-): { initial: PrismBuilding[]; remaining: PrismBuilding[][] } {
+): {
+  initial: PrismBuilding[];
+  omitted: PrismBuilding[];
+  remaining: PrismBuilding[][];
+} {
   const boundedTotal = Math.max(
     0,
     Math.min(buildings.length, Math.floor(totalLimit)),
   );
-  const ordered = prioritizeBuildings(buildings).slice(0, boundedTotal);
+  const sourceCompleteOrder = prioritizeBuildings(buildings);
+  const ordered = sourceCompleteOrder.slice(0, boundedTotal);
   const boundedInitial = Math.max(0, Math.min(ordered.length, initialCount));
   const boundedBatch = Math.max(1, Math.floor(batchSize));
   const remaining: PrismBuilding[][] = [];
@@ -195,7 +201,11 @@ export function splitProgressiveBuildings(
   ) {
     remaining.push(ordered.slice(offset, offset + boundedBatch));
   }
-  return { initial: ordered.slice(0, boundedInitial), remaining };
+  return {
+    initial: ordered.slice(0, boundedInitial),
+    omitted: sourceCompleteOrder.slice(boundedTotal),
+    remaining,
+  };
 }
 
 export function surfaceFamilyPayload(
