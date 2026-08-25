@@ -48,6 +48,24 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
 
+- **Spreebogenpark, Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke and Potsdamer
+  Platz public realm (factual and metric evidence):** exact plan axes come
+  from attributed OSM ways `34834265`, `1128036906`, `4395332`, `15405394`
+  and `26109166`. The
+  [Berlin Spreeweg flyer](https://www.berlin.de/sen/uvk/_assets/natur-gruen/landschaftsplanung/20-gruene-hauptwege/weg-1/flyer_flanieren_entlang_der_stadtspree.pdf)
+  describes the Spreebogenpark landscape; the
+  [Max Dudler project record](https://www.maxdudler.de/en/projects/0102-gustay-heinemann-bruecke/?cid=4&orderby=location)
+  supplies the Gustav-Heinemann structural dimensions; and Berlin's
+  [bridge inventory](https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf)
+  supplies both bridge envelopes. Berlin Mitte's
+  [Potsdamer Platz renewal page](https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/planung-entwurf-neubau/quartier-am-potsdamer-platz-1135231.php)
+  and the official
+  [public-lighting WFS](https://gdi.berlin.de/services/wfs/beleuchtung)
+  anchor the current pedestrian corridor. Local support spacing, Gartenspur
+  rhythm, paving subdivisions and furniture are procedural display
+  reconstructions, not fixture surveys. No source photograph or texture is
+  bundled.
+
 - **Pariser-Platz civic architecture (factual and architectural evidence):**
   the [Stiftung Brandenburger Tor](https://stiftungbrandenburgertor.de/max-liebermann-haus/)
   documents the Max-Liebermann-Haus critical reconstruction;

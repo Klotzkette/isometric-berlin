@@ -680,7 +680,14 @@ waterway axes. These are display placements, not live vessel observations.
 Their wakes are static outside Schwellenraum and hidden inside its still scene.
 At Humboldthafen the northern OSM bank and DGM crest form a separate sloped
 shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
-`26109166`, while the two Sandkrugbrücke carriageways preserve ways `36260393`
+`26109166` and the official 88.41 x 23.56 m inventory envelope. Its curved,
+single-span steel box now carries 32 recessed pale fascia fields, a 3.3-4.1 m
+dark structural depth, limestone-clad end walls, 60 railing pickets and four
+`Hugo-Preuß-Brücke 2004` end plates while remaining free of any river pier.
+Gustav-Heinemann-Brücke follows OSM way `15405394` and its official 87.76 m
+length. Max Dudler's published 5 m overall width and 2.25 m height control two
+pale-sage Vierendeel frames around the 4 m timber path and two rectangular
+bank supports. The two Sandkrugbrücke carriageways preserve ways `36260393`
 and `248010193`. Berlin's June-2025 bridge inventory fixes its current 32.6 x
 28.8 m envelope and identifier `BW 3446035`; the engineer's published design
 dimensions fix the recognisable five-stem steel frame, 21 m clear span, 18.7 m
@@ -913,7 +920,13 @@ At Potsdamer Platz, the two station entrance halls remain separate structures
 on their exact LoD2 footprints and official heights. Each is a semi-open
 steel/glass hall with a 10 × 6 roof grid, cross braces, open fronts and its own
 stair/escalator pair; only the subterranean distribution geometry remains
-explicitly schematic.
+explicitly schematic. The current pedestrian corridor along Alte Potsdamer
+Straße is independently anchored by 28 records from Berlin's public-lighting
+WFS, paired into 14 cross-street positions and 13 centreline segments. Its
+paving bands, movable seating, planters, bicycle racks and bollards are bounded
+public-realm recognition details rather than a fixture survey. Existing
+official lamp geometry is deliberately not duplicated, and the mobile profile
+reduces furniture while keeping the complete corridor.
 
 Between Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus, LoD2 part
 `DEBE01YYK0001zDa` no longer renders as a closed river wall. The lower public
@@ -929,7 +942,11 @@ Spreebogenpark keeps OSM park way `737280675` and the committed terrain grid as
 its plan and height anchors. Two rising circle-segment lawns frame the surviving
 Alsenstrasse axis with a 17 m landscape window and dark Corten walls; the
 exact mapped Ludwig-Erhard-Ufer paths remain OSM ways `34834265` and
-`1128036906`. The lawn rise and wall treatment follow the published Berlin and
+`1128036906` and now carry continuous stone edge bands. Panoramaweg way
+`4395332` is reconstructed as a 2.4 m raised route with 16 connected spans,
+nine rectangular supports and fine edge rails; 18 staggered Gartenspur slabs
+retain the landscape design's long concrete rhythm. The lawn rise and wall
+treatment follow the published Berlin and
 landscape-architect descriptions and remain explicitly source-described
 recognition geometry rather than a claimed fixture survey.
 

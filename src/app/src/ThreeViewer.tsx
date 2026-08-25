@@ -1091,8 +1091,8 @@ function triggerPedestrianJump(runtime: Runtime, higher = false): boolean {
   return true;
 }
 
-function isTunnelPortalFocus(name: string): boolean {
-  return name.includes("Tiergartentunnel") || name === "Spreebogen";
+export function isTunnelPortalFocus(name: string): boolean {
+  return name.includes("Tiergartentunnel");
 }
 
 function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
@@ -7051,10 +7051,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.focusCameraByName.set(
               "Kemperplatz / Tiergartentunnel",
               mouthViews.kemperplatz ?? mouthViews.south,
-            );
-            runtime.focusCameraByName.set(
-              "Spreebogen",
-              mouthViews.invalidenstrasse ?? mouthViews.north,
             );
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);

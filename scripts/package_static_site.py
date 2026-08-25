@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.25"
+PACKAGE_VERSION = "0.72.26"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3838,6 +3838,14 @@ Halbkreis westlich des Brandenburger Tors lesbar. Gebogene, vollständig in den
 kartierten Wasserflächen liegende Linien ersetzen zugleich die früheren geraden
 Wasserstriche; beide Details sind statisch und erzeugen kein Flackern.
 
+Am Spreebogen führen die exakten OSM-Achsen nun steinerne Uferkanten, den
+angehobenen Panoramaweg auf rechteckigen Stützen und die versetzten Platten der
+Gartenspur. Gustav-Heinemann-Brücke zeigt ihren hell salbeigrünen, 2,25 m hohen
+Vierendeelrahmen um den Holzweg; Hugo-Preuß-Brücke ihren tiefen, gekrümmten und
+mittig pfeilerfreien Stahlkasten. Am Potsdamer Platz verankern 28 amtliche
+Leuchtenpositionen eine heutige Fußgängerachse mit gebündelten Belags- und
+Möblierungsdetails, ohne die vorhandene Leuchtenschicht zu duplizieren.
+
 Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 6.450 m und
 ergänzt den rundum nochmals um 500 m erweiterten Datenring mit
 {scene_counts["base_files"]} amtlichen
@@ -4303,6 +4311,14 @@ plaza plates. This makes the documented semicircle west of Brandenburg Gate
 legible. Curved strokes that remain wholly inside mapped water polygons also
 replace the former straight water dashes; both details are static and cannot
 introduce shimmer.
+
+At Spreebogen, exact OSM axes now carry stone river edges, the raised
+Panoramaweg on rectangular supports and the staggered Gartenspur slabs.
+Gustav-Heinemann-Brücke shows its pale-sage 2.25 m Vierendeel frame around the
+timber path; Hugo-Preuß-Brücke its deep, curved and centre-pier-free steel box.
+At Potsdamer Platz, 28 official light positions anchor a present-day pedestrian
+axis with batched paving and furniture details without duplicating the existing
+lamp layer.
 
 Version {PACKAGE_VERSION} extends the visible radius to 6,450 m and carries the
 additional 500 m data ring on every side in {scene_counts["base_files"]} official interaction

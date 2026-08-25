@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.72.26
+
+- **Der Spreebogen zwischen Schweizerischer Botschaft und Hauptbahnhof ist
+  räumlich vollständiger lesbar.** Die beiden exakten OSM-Achsen des
+  Ludwig-Erhard-Ufers erhalten durchgehende steinerne Randbänder. OSM-Weg
+  `4395332` führt den 2,4 m breiten, angehobenen Panoramaweg über 16
+  zusammenhängende Abschnitte und neun rechteckige Stützen; 18 versetzte
+  Gartenspur-Platten ergänzen den dokumentierten Landschaftsentwurf. Alles
+  bleibt texturfrei, statisch und als quellbegrenzte Rekonstruktion markiert.
+- **Gustav-Heinemann-Brücke und Hugo-Preuß-Brücke besitzen nun ihre
+  charakteristischen Konstruktionen.** Die 87,76 m lange Gustav-Heinemann-
+  Brücke trägt den hell salbeigrünen, 2,25 m hohen Vierendeelrahmen um den 4 m
+  breiten Holzweg, feine Nieten, Geländer und die beiden Betonblattstützen.
+  Hugo-Preuß folgt seiner 88,41 x 23,56 m großen, gekrümmten Einfeldform mit
+  32 vertieften Fassadenfeldern, tiefem Stahlkasten, Kalksteinwiderlagern,
+  dichtem Stabgeländer und den Endschildern `Hugo-Preuß-Brücke 2004`; der
+  Flussraum bleibt ohne erfundenen Mittelpfeiler frei.
+- **Potsdamer Platz erhält einen heutigen, quellgebundenen Stadtraum.** 28
+  amtliche Berliner Leuchtenpositionen bilden 14 gegenüberliegende Paare und
+  verankern die 13 Abschnitte der Fußgängerachse Alte Potsdamer Straße.
+  Wechselnde Pflasterbänder, Bänke, Pflanzkübel, Fahrradbügel, Poller und
+  radiale Steinlinien am Verkehrsturm werden in einem gemeinsamen Körper- und
+  Konturpaket gezeichnet; die bereits vorhandenen amtlichen Leuchten werden
+  nicht dupliziert. Das Mobilprofil reduziert nur wiederholte Möblierung.
+- **Die zusätzlichen Details bleiben eng begrenzt.** Spreebogen und Potsdamer
+  Stadtraum besitzen feste Draw- und Vertex-Budgets; wiederholte Brücken- und
+  Platzteile landen in vorhandenen oder zusammengeführten Geometrien. Alle
+  fünf Darstellungsmodi behalten dieselben Gebäude und Quellanker.
+- **Der veröffentlichte Stand ist vollständig geprüft.** Alle 1.262 App-Tests
+  mit 6.203.757 Assertions und alle 336 Python-Tests bestehen; Ruff,
+  Release-Readiness und der Smoke-Test des Offline-Pakets sind sauber. Die
+  Browser-QA zeigt auf 1280 x 720 und 390 x 844 alle fünf Modi ohne
+  Überlauf, leere Leinwand, Konsolenwarnung oder Konsolenfehler.
+
 ## v0.72.25
 
 - **Freie Kamera und Spaziergang besitzen jetzt die vertraute WASD-Steuerung.**

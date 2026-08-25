@@ -13,6 +13,7 @@ import {
 } from "../src/TunnelPortals";
 import {
   createTunnel,
+  isTunnelPortalFocus,
   setTunnelPresentation,
   shouldUseUnderwaterPresentation,
   type TunnelPayload,
@@ -488,5 +489,15 @@ describe("measured Tiergartentunnel entrances", () => {
       expect(view.polar_degrees).toBeGreaterThan(80);
       expect(view.polar_degrees).toBeLessThan(100);
     }
+  });
+
+  test("reserves low bore framing for named tunnel sights", () => {
+    expect(
+      isTunnelPortalFocus(
+        "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+      ),
+    ).toBe(true);
+    expect(isTunnelPortalFocus("Kemperplatz / Tiergartentunnel")).toBe(true);
+    expect(isTunnelPortalFocus("Spreebogen")).toBe(false);
   });
 });

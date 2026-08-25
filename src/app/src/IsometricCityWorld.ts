@@ -1362,11 +1362,7 @@ export function createDistantBuildingShells(
     roughness: 0.95,
     vertexColors: true,
   });
-  const shells = new InstancedMesh(
-    geometry,
-    dayMaterial,
-    visible.length,
-  );
+  const shells = new InstancedMesh(geometry, dayMaterial, visible.length);
   shells.name = "LoD2 distant building shells";
   shells.userData.dayMaterial = dayMaterial;
   shells.userData.nightMaterial = nightMaterial;
@@ -3403,6 +3399,33 @@ export type BridgeProfile = {
   world: [number, number];
 };
 
+export const GUSTAV_HEINEMANN_STRUCTURE_PROFILE = {
+  bayCount: 20,
+  clearPathWidthM: 4,
+  inventoryLengthM: 87.76,
+  overallWidthM: 5,
+  supportOffsetM: 33,
+  trussHeightM: 2.25,
+  sourceUrls: [
+    "https://www.maxdudler.de/en/projects/0102-gustay-heinemann-bruecke/?cid=4&orderby=location",
+    "https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf",
+    "https://www.openstreetmap.org/way/15405394",
+  ],
+} as const;
+
+export const HUGO_PREUSS_STRUCTURE_PROFILE = {
+  fasciaBayCount: 32,
+  inventoryLengthM: 88.41,
+  inventoryWidthM: 23.56,
+  namePlateText: "Hugo-Preuß-Brücke 2004",
+  picketCount: 60,
+  structuralDepthRangeM: [3.3, 4.1] as const,
+  sourceUrls: [
+    "https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf",
+    "https://www.openstreetmap.org/way/26109166",
+  ],
+} as const;
+
 /**
  * The Spree crossings are not interchangeable. OSM and the landmark
  * anchors put each one at a known place, so each surveyed bridge cluster
@@ -3437,7 +3460,7 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [-174.5, -336.5],
   },
   {
-    // Max Dudler / Grassl, 2005: an olive-green Vierendeel steel girder
+    // Max Dudler / Grassl, 2005: a pale sage Vierendeel steel girder
     // around a riveted timber deck. The 66 m clear central span rests on
     // two rectangular concrete blades near the banks. Berlin's bridge
     // inventory gives 87.76 x 4.00 m; the old model was a generic ivory
@@ -3450,8 +3473,8 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     palette: {
       abutment: 0xb8b6ae,
       deck: 0x715b45,
-      metal: 0x315246,
-      structure: 0x547766,
+      metal: 0x58776e,
+      structure: 0x91aaa1,
     },
     surveyedDeck: { halfLengthM: 43.88, halfWidthM: 2 },
     world: [-36.9, -445.17],
@@ -3918,7 +3941,7 @@ function createBridgeStructures(
           : kind === "ironArch"
             ? 30
             : kind === "curvedBox"
-              ? 32
+              ? HUGO_PREUSS_STRUCTURE_PROFILE.fasciaBayCount
               : kind === "golda"
                 ? 28
                 : kind === "openFrame"
@@ -4059,7 +4082,11 @@ function createBridgeStructures(
             false,
           );
         }
-        const boxDepth = 3.3 + 0.8 * Math.abs(u / halfLength) ** 1.35;
+        const [minimumDepth, maximumDepth] =
+          HUGO_PREUSS_STRUCTURE_PROFILE.structuralDepthRangeM;
+        const boxDepth =
+          minimumDepth +
+          (maximumDepth - minimumDepth) * Math.abs(u / halfLength) ** 1.35;
         addPart(
           boxTriangles(
             sx,
@@ -4082,7 +4109,7 @@ function createBridgeStructures(
               fasciaZ,
               localAxis,
               segmentLength - 0.18,
-              0.88,
+              2.42,
               0.14,
             ),
             HUGO_RECESS,
@@ -4090,7 +4117,7 @@ function createBridgeStructures(
           );
           for (const [level, height] of [
             [-0.08, 0.2],
-            [-1.08, 0.18],
+            [-2.64, 0.2],
           ] as const) {
             addPart(
               boxTriangles(
@@ -4567,21 +4594,36 @@ function createBridgeStructures(
         }
       }
     } else if (kind === "vierendeel") {
-      const bayCount = 20;
+      const bayCount = GUSTAV_HEINEMANN_STRUCTURE_PROFILE.bayCount;
       const bayLength = (halfLength * 2) / bayCount;
       for (let index = 0; index <= bayCount; index += 1) {
         const u = -halfLength + (index / bayCount) * halfLength * 2;
         const y = deckY + riseAt(u);
         const localAxis = tangentAt(u);
         for (const side of [-1, 1]) {
-          const [px, pz] = at(u, side * halfWidth);
+          const [px, pz] = at(
+            u,
+            side * (GUSTAV_HEINEMANN_STRUCTURE_PROFILE.overallWidthM / 2),
+          );
           addPart(
-            boxTriangles(px, y + 0.72, pz, localAxis, 0.26, 1.44, 0.24),
+            boxTriangles(
+              px,
+              y + GUSTAV_HEINEMANN_STRUCTURE_PROFILE.trussHeightM / 2,
+              pz,
+              localAxis,
+              0.26,
+              GUSTAV_HEINEMANN_STRUCTURE_PROFILE.trussHeightM,
+              0.24,
+            ),
             STONE,
             false,
           );
-          const [rivetX, rivetZ] = at(u, side * (halfWidth + 0.13));
-          for (const level of [0.22, 0.72, 1.22]) {
+          const [rivetX, rivetZ] = at(
+            u,
+            side *
+              (GUSTAV_HEINEMANN_STRUCTURE_PROFILE.overallWidthM / 2 + 0.13),
+          );
+          for (const level of [0.24, 0.75, 1.26, 1.77, 2.18]) {
             addPart(
               boxTriangles(
                 rivetX,
@@ -4603,13 +4645,16 @@ function createBridgeStructures(
         const y = deckY + riseAt(u);
         const localAxis = tangentAt(u);
         for (const side of [-1, 1]) {
-          const [px, pz] = at(u, side * halfWidth);
+          const [px, pz] = at(
+            u,
+            side * (GUSTAV_HEINEMANN_STRUCTURE_PROFILE.overallWidthM / 2),
+          );
           for (const [level, height, width] of [
             [0.12, 0.24, 0.26],
-            [0.48, 0.07, 0.09],
-            [0.76, 0.07, 0.09],
-            [1.04, 0.07, 0.09],
-            [1.4, 0.24, 0.28],
+            [0.62, 0.07, 0.09],
+            [1.12, 0.07, 0.09],
+            [1.62, 0.07, 0.09],
+            [2.13, 0.24, 0.28],
           ] as const) {
             addPart(
               boxTriangles(
@@ -4626,9 +4671,13 @@ function createBridgeStructures(
             );
           }
           if (index % 2 === 0) {
-            const [lampX, lampZ] = at(u, side * (halfWidth - 0.13));
+            const [lampX, lampZ] = at(
+              u,
+              side *
+                (GUSTAV_HEINEMANN_STRUCTURE_PROFILE.overallWidthM / 2 - 0.13),
+            );
             addLamp(
-              boxTriangles(lampX, y + 1.22, lampZ, localAxis, 0.42, 0.11, 0.1),
+              boxTriangles(lampX, y + 1.91, lampZ, localAxis, 0.42, 0.11, 0.1),
               WARM_LIGHT,
             );
           }
@@ -4735,7 +4784,7 @@ function createBridgeStructures(
         }
       }
     } else if (kind === "curvedBox") {
-      const picketCount = 60;
+      const picketCount = HUGO_PREUSS_STRUCTURE_PROFILE.picketCount;
       const railLength = (halfLength * 2) / picketCount;
       for (let index = 0; index <= picketCount; index += 1) {
         const u = -halfLength + (index / picketCount) * halfLength * 2;
@@ -4775,8 +4824,44 @@ function createBridgeStructures(
         for (const side of [-1, 1]) {
           const [ribX, ribZ] = at(u, side * (halfWidth - 0.24));
           addPart(
-            boxTriangles(ribX, y - 0.58, ribZ, localAxis, 0.2, 1.2, 0.36),
+            boxTriangles(ribX, y - 1.36, ribZ, localAxis, 0.2, 2.58, 0.36),
             STONE,
+            false,
+          );
+        }
+      }
+      // Ungers' pale frame terminates in small bridge-name plates above the
+      // limestone abutments. The lettering itself stays metadata so the
+      // batched bridge mesh does not need a texture atlas.
+      for (const end of [-1, 1]) {
+        const u = end * (halfLength - 7.2);
+        const y = deckY + riseAt(u);
+        for (const side of [-1, 1]) {
+          const [plateX, plateZ] = at(u, side * (halfWidth + 0.03));
+          addPart(
+            boxTriangles(
+              plateX,
+              y - 0.78,
+              plateZ,
+              tangentAt(u),
+              2.8,
+              0.62,
+              0.08,
+            ),
+            STONE,
+            false,
+          );
+          addPart(
+            boxTriangles(
+              plateX,
+              y - 0.78,
+              plateZ,
+              tangentAt(u),
+              2.28,
+              0.24,
+              0.095,
+            ),
+            STEEL,
             false,
           );
         }
@@ -5739,7 +5824,7 @@ function createBridgeStructures(
       // real supports are rectangular concrete blades close to the banks,
       // not round columns distributed through the river.
       for (const end of [-1, 1]) {
-        const u = end * 33;
+        const u = end * GUSTAV_HEINEMANN_STRUCTURE_PROFILE.supportOffsetM;
         const [px, pz] = at(u, 0);
         const height = deckY + riseAt(u) - deckThickness - bedY;
         addPart(
@@ -5775,6 +5860,32 @@ function createBridgeStructures(
       // Hugo-Preuß is an 88 m one-field box girder. Its load reaches the
       // two massive abutments above; no invented pier may stand in the
       // mouth of the Humboldthafen.
+      for (const end of [-1, 1]) {
+        const u = end * (halfLength - 2.25);
+        const y = deckY + riseAt(u);
+        for (const side of [-1, 1]) {
+          const [wingX, wingZ] = at(u, side * (halfWidth - 0.72));
+          addPart(
+            boxTriangles(wingX, y - 1.75, wingZ, tangentAt(u), 4.4, 3.8, 1.05),
+            STONE_DARK,
+          );
+          for (const level of [-0.72, -1.58, -2.44, -3.3]) {
+            addPart(
+              boxTriangles(
+                wingX,
+                y + level,
+                wingZ,
+                tangentAt(u),
+                4.48,
+                0.055,
+                1.1,
+              ),
+              STEEL,
+              false,
+            );
+          }
+        }
+      }
     } else if (kind === "openFrame") {
       // Five parallel steel frame stems carry the orthotropic slab. Their
       // haunches stop at the stone-clad bank abutments, preserving the
@@ -5913,6 +6024,8 @@ function createBridgeStructures(
     }),
   );
   group.userData.sandkrugStructure = SANDKRUG_STRUCTURE_PROFILE;
+  group.userData.gustavHeinemannStructure = GUSTAV_HEINEMANN_STRUCTURE_PROFILE;
+  group.userData.hugoPreussStructure = HUGO_PREUSS_STRUCTURE_PROFILE;
   group.userData.bridgeClusterCount = clusters.length;
   group.userData.smallBridgeClusterCount = clusters.filter(
     (cluster) => cluster.length < 12,

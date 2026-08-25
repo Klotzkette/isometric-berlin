@@ -78,6 +78,11 @@ import {
   SOCIAL_COURT_PROFILE,
   SOCIAL_COURT_RENDER_BUDGET,
 } from "./SocialCourtDetails";
+import {
+  createPotsdamerPlatzPublicRealm,
+  POTSDAMER_PUBLIC_REALM_PROFILE,
+  POTSDAMER_PUBLIC_REALM_RENDER_BUDGET,
+} from "./PotsdamerPlatzPublicRealm";
 
 export type ExpandedLandmark = {
   name: string;
@@ -130,6 +135,11 @@ export {
   SOCIAL_COURT_PROFILE,
   SOCIAL_COURT_RENDER_BUDGET,
 } from "./SocialCourtDetails";
+export {
+  createPotsdamerPlatzPublicRealm,
+  POTSDAMER_PUBLIC_REALM_PROFILE,
+  POTSDAMER_PUBLIC_REALM_RENDER_BUDGET,
+} from "./PotsdamerPlatzPublicRealm";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -273,17 +283,17 @@ export function expandedCityFocusCamera(
       ]
     : landmark.name === "Oggi's Gemüsekebab"
       ? [landmark.world[0] + 4, landmark.world[1], landmark.world[2] + 2]
-    : landmark.name === "Mall of Berlin"
-      ? [landmark.world[0], landmark.world[1], landmark.world[2] - 48]
-      : landmark.name === "Hamburger Bahnhof"
-        ? [
-            landmark.world[0] +
-              HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
-            landmark.world[1],
-            landmark.world[2] +
-              HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
-          ]
-        : landmark.world;
+      : landmark.name === "Mall of Berlin"
+        ? [landmark.world[0], landmark.world[1], landmark.world[2] - 48]
+        : landmark.name === "Hamburger Bahnhof"
+          ? [
+              landmark.world[0] +
+                HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
+              landmark.world[1],
+              landmark.world[2] +
+                HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
+            ]
+          : landmark.world;
   return { ...preset, target_world };
 }
 
@@ -1998,12 +2008,7 @@ function addKonradAdenauerHaus(builder: Builder): void {
   // The elliptical timber-clad inner body is the principal spatial motif. It
   // is deliberately inset from the exact hull, leaving the winter garden
   // visibly open instead of filling it with the former LoD2 concrete prism.
-  const inner = new CylinderGeometry(
-    1,
-    1,
-    profile.innerBodyLowerHeightM,
-    48,
-  );
+  const inner = new CylinderGeometry(1, 1, profile.innerBodyLowerHeightM, 48);
   inner.scale(profile.innerBodyLengthM / 2, 1, profile.innerBodyDepthM / 2);
   inner.rotateY(profile.innerBodyRotationY);
   inner.translate(
@@ -4114,11 +4119,7 @@ function addPotsdamerEntranceHalls(
         );
       }
     }
-    const localPoint = (
-      localX: number,
-      y: number,
-      localZ: number,
-    ): Vector3 => {
+    const localPoint = (localX: number, y: number, localZ: number): Vector3 => {
       const [offsetX, offsetZ] = rotatedLocalOffset(
         localX,
         localZ,
@@ -4136,11 +4137,7 @@ function addPotsdamerEntranceHalls(
         addBeamBetween(
           builder,
           DARK_FRAME,
-          localPoint(
-            side * (halfWidth - 0.17),
-            hall.groundY + 0.3,
-            z0 + 0.2,
-          ),
+          localPoint(side * (halfWidth - 0.17), hall.groundY + 0.3, z0 + 0.2),
           localPoint(
             side * (halfWidth - 0.17),
             topY - fasciaHeight - 0.2,
@@ -4156,11 +4153,7 @@ function addPotsdamerEntranceHalls(
             topY - fasciaHeight - 0.2,
             z0 + 0.2,
           ),
-          localPoint(
-            side * (halfWidth - 0.17),
-            hall.groundY + 0.3,
-            z1 - 0.2,
-          ),
+          localPoint(side * (halfWidth - 0.17), hall.groundY + 0.3, z1 - 0.2),
           0.12,
         );
       }
@@ -5872,9 +5865,9 @@ export function createExpandedCityDetails(
   group.userData.moabitPrisonPark = MOABIT_PRISON_MEMORIAL_PROFILE;
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
   group.userData.northernCity = NORTHERN_CITY_PROFILE;
-  group.userData.invalidenfriedhofDetails =
-    INVALIDENFRIEDHOF_DETAIL_PROFILE;
+  group.userData.invalidenfriedhofDetails = INVALIDENFRIEDHOF_DETAIL_PROFILE;
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
+  group.userData.potsdamerPublicRealm = POTSDAMER_PUBLIC_REALM_PROFILE;
   group.userData.leipzigerPlatzArchitecture =
     LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
@@ -5894,6 +5887,7 @@ export function createExpandedCityDetails(
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
     ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
     ...POTSDAMER_DETAIL_PROFILE.stationEntranceHalls.sources,
+    ...POTSDAMER_PUBLIC_REALM_PROFILE.sourceUrls,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing.sources,
@@ -5932,6 +5926,7 @@ export function createExpandedCityDetails(
   }
   if (byName.has("Mall of Berlin")) {
     group.add(createLeipzigerPlatzDetails());
+    group.add(createPotsdamerPlatzPublicRealm(options.detailProfile ?? "full"));
   }
 
   const potsdamerHallBuilder = createBuilder();
@@ -5946,9 +5941,7 @@ export function createExpandedCityDetails(
   addPotsdamerEntranceHallLettering(group, byName);
 
   if (byName.has(MOABIT_PRISON_MEMORIAL_PROFILE.name)) {
-    group.add(
-      createMoabitPrisonMemorialPark(options.detailProfile ?? "full"),
-    );
+    group.add(createMoabitPrisonMemorialPark(options.detailProfile ?? "full"));
   }
 
   // Keep the terrain sculpture independently inspectable. It still costs one

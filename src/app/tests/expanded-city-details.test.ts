@@ -25,6 +25,7 @@ import {
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
+  POTSDAMER_PUBLIC_REALM_PROFILE,
   TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "../src/ExpandedCityDetails";
@@ -77,8 +78,7 @@ function pointToSegmentDistance(
           0,
           Math.min(
             1,
-            ((point[0] - start[0]) * deltaX +
-              (point[1] - start[1]) * deltaZ) /
+            ((point[0] - start[0]) * deltaX + (point[1] - start[1]) * deltaZ) /
               lengthSquared,
           ),
         );
@@ -95,8 +95,7 @@ function segmentDistance(
   b1: Point2,
 ): number {
   const cross = (p0: Point2, p1: Point2, p2: Point2): number =>
-    (p1[0] - p0[0]) * (p2[1] - p0[1]) -
-    (p1[1] - p0[1]) * (p2[0] - p0[0]);
+    (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]);
   const aSide0 = cross(a0, a1, b0);
   const aSide1 = cross(a0, a1, b1);
   const bSide0 = cross(b0, b1, a0);
@@ -161,6 +160,9 @@ describe("task-10 expanded city recognition details", () => {
   test("documents the source boundary of Potsdamer details", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.userData.potsdamerDetails).toEqual(POTSDAMER_DETAIL_PROFILE);
+    expect(details.userData.potsdamerPublicRealm).toEqual(
+      POTSDAMER_PUBLIC_REALM_PROFILE,
+    );
     expect(POTSDAMER_DETAIL_PROFILE.geometryStatus).toContain("schematic");
     expect(POTSDAMER_DETAIL_PROFILE.mallSouthFacadeOffsetM).toBeCloseTo(
       -59.5,
@@ -171,6 +173,9 @@ describe("task-10 expanded city recognition details", () => {
     ).toBeDefined();
     expect(
       details.getObjectByName("Taylor Wessing facade lettering"),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName(POTSDAMER_PUBLIC_REALM_PROFILE.name),
     ).toBeDefined();
     const mall = landmarks.find(
       (landmark) => landmark.name === "Mall of Berlin",
@@ -194,9 +199,9 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.roofBayCountAcross).toBe(10);
     expect(profile.roofBayCountDepth).toBe(6);
 
-    expect(profile.halls.map((hall) => hall.footprintRingWorldM.length)).toEqual(
-      [6, 10],
-    );
+    expect(
+      profile.halls.map((hall) => hall.footprintRingWorldM.length),
+    ).toEqual([6, 10]);
     for (const hall of profile.halls) {
       const doubledArea = hall.footprintRingWorldM.reduce(
         (sum, [x, z], index, ring) => {
@@ -211,10 +216,8 @@ describe("task-10 expanded city recognition details", () => {
     }
     expect(
       Math.hypot(
-        profile.halls[1].centerWorldM[0] -
-          profile.halls[0].centerWorldM[0],
-        profile.halls[1].centerWorldM[1] -
-          profile.halls[0].centerWorldM[1],
+        profile.halls[1].centerWorldM[0] - profile.halls[0].centerWorldM[0],
+        profile.halls[1].centerWorldM[1] - profile.halls[0].centerWorldM[1],
       ),
     ).toBeCloseTo(124.84, 1);
 
@@ -229,14 +232,10 @@ describe("task-10 expanded city recognition details", () => {
     expect(bounds.max.z).toBeCloseTo(1152.8, 1);
     expect(bounds.max.y).toBeCloseTo(20.1, 1);
     expect(
-      details.getObjectByName(
-        "Potsdamer Platz north hall fascia lettering",
-      ),
+      details.getObjectByName("Potsdamer Platz north hall fascia lettering"),
     ).toBeDefined();
     expect(
-      details.getObjectByName(
-        "Potsdamer Platz south hall fascia lettering",
-      ),
+      details.getObjectByName("Potsdamer Platz south hall fascia lettering"),
     ).toBeDefined();
   });
 

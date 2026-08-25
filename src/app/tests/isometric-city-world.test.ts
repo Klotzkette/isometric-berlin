@@ -265,9 +265,7 @@ describe("ligne-claire fenestration", () => {
     expect(material.scale).toBe(0.01);
     expect(material.dashSize).toBe(ISO_FACADE_WINDOW_DASH_M);
     expect(material.gapSize).toBe(ISO_FACADE_WINDOW_GAP_M);
-    expect(material.dashSize + material.gapSize).toBe(
-      ISO_WINDOW_BAY_PITCH_M,
-    );
+    expect(material.dashSize + material.gapSize).toBe(ISO_WINDOW_BAY_PITCH_M);
     expect(axes.userData.facadeRhythm).toEqual({
       basis: "measured LoD2 wall length and building height",
       lineKinds: [
@@ -658,9 +656,7 @@ describe("ligne-claire fenestration", () => {
         z1: zone.centreWorldM[1] + distance,
       };
       expect(plazaFacadeDetailZoneForWall(facingWall)?.name).toBe(zone.name);
-      expect(
-        plazaFacadeDetailZoneForWall({ ...facingWall, nz: 1 }),
-      ).toBeNull();
+      expect(plazaFacadeDetailZoneForWall({ ...facingWall, nz: 1 })).toBeNull();
       expect(
         plazaFacadeDetailZoneForWall({ ...facingWall, isCourtyard: true }),
       ).toBeNull();
@@ -1436,7 +1432,9 @@ describe("real bridge structures", () => {
       const {
         createIsometricCity,
         BRIDGE_PROFILES,
+        GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
         GOLDA_PERFORATION_BAYS,
+        HUGO_PREUSS_STRUCTURE_PROFILE,
         KRONPRINZEN_SPAN_LAYOUT_M,
         MOLTKE_ARCH_COUNT,
         MOLTKE_BALUSTERS_PER_OPEN_BAY,
@@ -1470,9 +1468,18 @@ describe("real bridge structures", () => {
       expect(profile("Gustav-Heinemann-Brücke").kind).toBe("vierendeel");
       expect(profile("Gustav-Heinemann-Brücke").palette).toMatchObject({
         deck: 0x715b45,
-        metal: 0x315246,
-        structure: 0x547766,
+        metal: 0x58776e,
+        structure: 0x91aaa1,
       });
+      expect(GUSTAV_HEINEMANN_STRUCTURE_PROFILE).toMatchObject({
+        bayCount: 20,
+        clearPathWidthM: 4,
+        inventoryLengthM: 87.76,
+        overallWidthM: 5,
+        supportOffsetM: 33,
+        trussHeightM: 2.25,
+      });
+      expect(GUSTAV_HEINEMANN_STRUCTURE_PROFILE.sourceUrls).toHaveLength(3);
       expect(profile("Hugo-Preuß-Brücke").surveyedDeck).toEqual({
         halfLengthM: 44.205,
         halfWidthM: 11.78,
@@ -1482,6 +1489,14 @@ describe("real bridge structures", () => {
       expect(profile("Hugo-Preuß-Brücke").palette).toMatchObject({
         metal: 0x444b4e,
         structure: 0x9ca4a4,
+      });
+      expect(HUGO_PREUSS_STRUCTURE_PROFILE).toMatchObject({
+        fasciaBayCount: 32,
+        inventoryLengthM: 88.41,
+        inventoryWidthM: 23.56,
+        namePlateText: "Hugo-Preuß-Brücke 2004",
+        picketCount: 60,
+        structuralDepthRangeM: [3.3, 4.1],
       });
       expect(profile("Sandkrugbrücke").surveyedDeck).toEqual({
         halfLengthM: 16.3,
@@ -1561,6 +1576,12 @@ describe("real bridge structures", () => {
         keystoneHeads: 6,
         trophies: 4,
       });
+      expect(bridgeGroup.userData.gustavHeinemannStructure).toEqual(
+        GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
+      );
+      expect(bridgeGroup.userData.hugoPreussStructure).toEqual(
+        HUGO_PREUSS_STRUCTURE_PROFILE,
+      );
       expect(bridgeGroup.userData.weidendammerDetailOwnership).toEqual({
         authoredEagleCount: WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
         authoredRailingSystemCount: WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT,
@@ -1798,8 +1819,12 @@ describe("real bridge structures", () => {
   test(
     "Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free",
     async () => {
-      const { createIsometricCity, BRIDGE_PROFILES } =
-        await import("../src/IsometricCityWorld");
+      const {
+        createIsometricCity,
+        BRIDGE_PROFILES,
+        GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
+        HUGO_PREUSS_STRUCTURE_PROFILE,
+      } = await import("../src/IsometricCityWorld");
       const ground = (
         await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
       ).default as { water_top_y_m: number };
@@ -1828,6 +1853,8 @@ describe("real bridge structures", () => {
         )!.palette!.structure,
       );
       let greenFrameVertices = 0;
+      let greenFrameMinY = Number.POSITIVE_INFINITY;
+      let greenFrameMaxY = Number.NEGATIVE_INFINITY;
       let hugoCentralUnderwaterVertices = 0;
       for (let index = 0; index < positions.count; index += 1) {
         if (
@@ -1836,6 +1863,8 @@ describe("real bridge structures", () => {
           Math.abs(colors.getZ(index) - gustavTone.b) < 1e-5
         ) {
           greenFrameVertices += 1;
+          greenFrameMinY = Math.min(greenFrameMinY, positions.getY(index));
+          greenFrameMaxY = Math.max(greenFrameMaxY, positions.getY(index));
         }
         const x = positions.getX(index);
         const y = positions.getY(index);
@@ -1851,6 +1880,15 @@ describe("real bridge structures", () => {
         }
       }
       expect(greenFrameVertices).toBeGreaterThan(4_000);
+      expect(greenFrameMaxY - greenFrameMinY).toBeGreaterThanOrEqual(
+        GUSTAV_HEINEMANN_STRUCTURE_PROFILE.trussHeightM,
+      );
+      expect(group.userData.gustavHeinemannStructure).toBe(
+        GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
+      );
+      expect(group.userData.hugoPreussStructure).toBe(
+        HUGO_PREUSS_STRUCTURE_PROFILE,
+      );
       expect(hugoCentralUnderwaterVertices).toBe(0);
     },
     TASK_13_FULL_CITY_TIMEOUT_MS,

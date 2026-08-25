@@ -13,7 +13,7 @@ import {
   culturalFocusCamera,
 } from "../src/CulturalLandmarks";
 import { WATER_TOP_Y } from "../src/MinecraftVoxelWorld";
-import { REAL_SPREE_VESSEL_PROFILES } from "../src/SpreeVesselProfiles";
+import { SPREEBOGEN_PARK_PROFILE } from "../src/SpreebogenPark";
 import {
   setStarbucksPariserPlatzSnow,
   STARBUCKS_PARISER_PLATZ_PROFILE,
@@ -297,16 +297,12 @@ describe("cultural and Spree recognition details", () => {
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(
       20,
     );
-    expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);
+    expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(120);
     expect(culturalFocusCamera("Spreebogen")?.azimuth_degrees).toBe(130);
-    const vessel = REAL_SPREE_VESSEL_PROFILES.find(
-      (profile) => profile.name === "FMS Spree-Blick III",
-    )!;
-    // The focus follows the source-bound profile, not the removed alt boat.
     expect(culturalFocusCamera("Spreebogen")?.target_world).toEqual([
-      vessel.displayPositionWorldM[0],
-      WATER_TOP_Y,
-      vessel.displayPositionWorldM[1],
+      SPREEBOGEN_PARK_PROFILE.centreX,
+      4.8,
+      (SPREEBOGEN_PARK_PROFILE.southZ + SPREEBOGEN_PARK_PROFILE.northZ) / 2,
     ]);
     expect(culturalFocusCamera("Starbucks Pariser Platz")).toEqual({
       azimuth_degrees: -40,

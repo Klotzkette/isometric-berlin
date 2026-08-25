@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.25/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.26 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.26/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.25** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.26** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,29 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.25**, built from `main`. Its full viewer
+The current public package is **v0.72.26**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Spreebogen now connects its landscape architecture to the river.**
+  Exact OSM axes carry the Ludwig-Erhard-Ufer edge bands and the 2.4 m raised
+  Panoramaweg, including its nine rectangular supports. Eighteen staggered
+  Gartenspur slabs complete the documented park reading between the Swiss
+  Embassy and Hauptbahnhof without loading a texture or animated asset.
+
+- **Gustav-Heinemann-Brücke and Hugo-Preuß-Brücke keep their individual
+  structures.** Gustav-Heinemann uses its published 87.76 m length, 4 m clear
+  timber path and pale-sage 2.25 m Vierendeel frames. The curved 88.41 x
+  23.56 m Hugo-Preuß bridge gains its deep pier-free box, 32 recessed fascia
+  bays, limestone abutments, dense railing and `Hugo-Preuß-Brücke 2004` end
+  plates.
+
+- **Potsdamer Platz gains a present-day, source-anchored pedestrian room.**
+  Twenty-eight official Berlin light positions define 14 paired anchors along
+  Alte Potsdamer Straße. Bounded paving bands, benches, planters, bicycle
+  racks, bollards and radial stone cues share one body and one ink batch; the
+  official lamp layer is not duplicated and mobile reduces repeated furniture.
 
 - **Desktop movement now follows the familiar WASD convention.** In free-camera
   3D, `W`/`A`/`S`/`D` fly relative to the current heading, `Space` rises,
@@ -1335,7 +1354,7 @@ local modules.
   Louis Tuaillon's seated marble monument at its official Berlin anchor.
 - The corrected central crossings now keep distinct surveyed dimensions and
   construction character: the 4 m-wide yellow Golda-Meir-Steg; the 87.76 x
-  4.00 m dark olive-green, timber-decked Vierendeel Gustav-Heinemann footbridge;
+  4.00 m pale sage-green, timber-decked Vierendeel Gustav-Heinemann footbridge;
   the curved, single-span 88.41 x 23.56 m steel-box Hugo-Preuss road bridge;
   the broad Sandkrug road bridge; and the 25.7 m-wide red-sandstone
   Moltkebruecke; and the 17.3 x 2.0 m timber suspension Loewenbruecke with its

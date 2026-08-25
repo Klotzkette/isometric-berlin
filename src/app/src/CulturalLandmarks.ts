@@ -23,7 +23,7 @@ import {
 } from "three";
 import { markArchitecturalAccentInk } from "./architecturalInk";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
-import { REAL_SPREE_VESSEL_PROFILES } from "./SpreeVesselProfiles";
+import { SPREEBOGEN_PARK_PROFILE } from "./SpreebogenPark";
 import {
   createStarbucksPariserPlatz,
   STARBUCKS_PARISER_PLATZ_PROFILE,
@@ -70,14 +70,6 @@ const CARILLON_MESH_TOWER_WORLD: [number, number] = [-307.06, 118.51];
 // offset photo-geotag anchor).
 const CARILLON_GROUND_Y = 4.51;
 const SPREE_WATER_Y = WATER_TOP_Y;
-const SPREEBOGEN_VESSEL_PROFILE = REAL_SPREE_VESSEL_PROFILES.find(
-  (profile) => profile.name === "FMS Spree-Blick III",
-)!;
-const SPREEBOGEN_VESSEL_WORLD: [number, number, number] = [
-  SPREEBOGEN_VESSEL_PROFILE.displayPositionWorldM[0],
-  SPREE_WATER_Y,
-  SPREEBOGEN_VESSEL_PROFILE.displayPositionWorldM[1],
-];
 const LEGO_GIRAFFE_WORLD: [number, number, number] = [17.884, 4.12, 1023.63];
 const SPREE_CENTERLINE_WORLD: Array<[number, number]> = [
   [513.9, -25.1],
@@ -695,10 +687,14 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
   if (name === SPREEBOGEN_NAME) {
     return {
       azimuth_degrees: 130,
-      distance_m: 90,
+      distance_m: 120,
       polar_degrees: 58,
       target_height_m: 4,
-      target_world: SPREEBOGEN_VESSEL_WORLD,
+      target_world: [
+        SPREEBOGEN_PARK_PROFILE.centreX,
+        4.8,
+        (SPREEBOGEN_PARK_PROFILE.southZ + SPREEBOGEN_PARK_PROFILE.northZ) / 2,
+      ],
     };
   }
   if (name === STARBUCKS_NAME) {
