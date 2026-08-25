@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.72.24
+
+- **Pariser Platz, Leipziger Platz, Breitscheidplatz, Platz der Republik,
+  Europaplatz und Washingtonplatz besitzen jetzt dichtere, nachvollziehbare
+  Platzfassaden.** Exakte LoD2-Wandmitten, Wandhöhen und Außennormalen steuern
+  764 zusätzliche Fensterkopfrhythmen. Rückseiten und Innenhöfe bleiben durch
+  Distanz- und Blickrichtungsfilter ausgeschlossen. Sämtliche Linien liegen in
+  der bestehenden Fassadencharge und erzeugen keinen zusätzlichen Draw Call.
+- **Die Sandkrugbrücke folgt ihrem veröffentlichten Stahlrahmen.** Beide
+  OSM-Fahrbahnachsen und das amtliche 32,6 x 28,8-m-Inventar bleiben erhalten;
+  fünf Rahmenstiele überspannen 21 m ohne erfundenen Flusspfeiler. 18,7 m
+  Fahrbahn, 1,28 m Konstruktionshöhe, Querträger, feine dreistufige Geländer
+  und vier schlanke Leuchten schärfen die Brücke in allen gezeichneten Modi.
+- **Die CDU-Zentrale am Tiergarten ist als Konrad-Adenauer-Haus erkennbar.**
+  Der verdeckende generische Körper wird nur für OSM-Weg `25999445`
+  unterdrückt. Der exakte rhomboide Glasplan umschließt nun den transparenten
+  viergeschossigen Wintergarten, den sechsgeschossigen elliptischen Holzkörper,
+  zwei zurückgestaffelte Oberdecks und den Travertinsockel. Politische
+  Beschriftung bleibt bewusst aus.
+- **Die Detailsteigerung bleibt kompakt und veröffentlichbar.** Der
+  Produktionsbenchmark hält 202 Draw Calls bei 19.607.093 Vertices; gegenüber
+  dem vorherigen Stand sind das nur 13.340 Vertices bzw. rund 0,07 Prozent.
+  Der größte gemessene progressive Hauptthread-Anhang dauert 12,6 ms. Desktop-
+  und 390-x-844-Mobil-QA zeigen eine vollständige, responsive Leinwand und eine
+  saubere Browserkonsole. Offline-Paket und Pages behalten ihre getrennten,
+  begrenzten Asset-Regeln.
+
 ## v0.72.23
 
 - **Die Halle des Berliner Hauptbahnhofs ist jetzt als durchgehender

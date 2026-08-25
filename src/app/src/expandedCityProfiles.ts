@@ -531,14 +531,15 @@ export const NORTHERN_CITY_PROFILE = {
 /**
  * Surveyed glass envelope of the Konrad-Adenauer-Haus.
  *
- * OSM way 25999445 supplies the exact plan and five-storey glass material.
- * Published competition/building descriptions establish the 18 m eaves and
- * the characteristic elliptical, ship-like inner volume. The latter remains
- * a bounded recognition form rather than a surveyed interior model.
+ * OSM way 25999445 supplies the exact plan and glass material. Published
+ * building descriptions establish six storeys, the four-storey transparent
+ * winter garden, 18 m glass eaves and the elliptical ship-like inner volume.
+ * The latter remains a bounded recognition form rather than a surveyed
+ * interior model.
  */
 export const KONRAD_ADENAUER_HAUS_PROFILE = {
   atticStoreys: 2,
-  buildingStoreys: 5,
+  buildingStoreys: 6,
   eavesHeightM: 18,
   footprintWorldM: [
     [-1424.516, 1299.21],
@@ -549,18 +550,25 @@ export const KONRAD_ADENAUER_HAUS_PROFILE = {
     [-1436.888, 1337.274],
   ] as const,
   geometryStatus:
-    "exact OSM plan and five-storey glass envelope with source-described elliptical inner body",
+    "exact OSM rhomboid plan; source-described four-storey transparent climate-buffer envelope and six-storey elliptical ship body",
   glassEnvelopeStoreys: 4,
   groundY: 5.35,
   innerBodyCenterWorldM: [-1405.0, 1338.0] as const,
   innerBodyDepthM: 30,
   innerBodyLengthM: 54,
+  innerBodyLowerHeightM: 15.6,
   innerBodyRotationY: (-53.84 * Math.PI) / 180,
   osmWayId: "25999445",
+  publishedUsableAreaM2: 6_300,
   signageRendered: false,
+  travertinePlinthHeightM: 0.65,
+  upperDeckStoreys: 2,
+  winterGardenRole: "transparent climate buffer",
   sources: [
     "https://www.openstreetmap.org/way/25999445",
     "https://www.konrad-adenauer.de/seite/gebaeude/",
+    "https://www.cdu.de/aktuelles/cdu-deutschlands/das-konrad-adenauer-haus-feiert-den-25-geburtstag/",
+    "https://archiv.cdu.de/node/1151",
     "https://www.bauhaus.de/files/01_BHA_Auslobung.pdf",
   ] as const,
 } as const;

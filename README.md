@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.23 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.23/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.24/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.23** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.24** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,37 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.23**, built from `main`. Its full viewer
+The current public package is **v0.72.24**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Six important Berlin squares now read as coherent street rooms instead of
+  isolated landmark islands.** Front-facing LoD2 walls around Pariser Platz,
+  Leipziger Platz, Breitscheidplatz, Platz der Republik, Europaplatz and
+  Washingtonplatz receive source-height-aware paired window-head rhythms.
+  Courtyard and rear walls are rejected by orientation and distance, and all
+  764 qualifying facade fields join the existing line batch, so the refinement
+  adds no draw call and remains present in Day, Night, Snowstorm and
+  Schwellenraum.
+
+- **Sandkrugbrücke and the Konrad-Adenauer-Haus have their characteristic
+  structures back.** The bridge retains both mapped carriageway axes and the
+  current 32.6 x 28.8 m inventory envelope, while its five-stem steel frame,
+  21 m clear span, 18.7 m roadway, 1.28 m structural depth, fine three-level
+  rail and four slender lamps follow published engineering data. There is no
+  invented river-centre pier. At Tiergarten the generic opaque CDU shell is
+  removed only for OSM way `25999445`; an exact rhomboid glass envelope now
+  reveals the four-storey winter garden, six-storey elliptical timber body,
+  paired upper decks and travertine plinth without political lettering.
+
+- **The added city detail stays inside the established runtime envelope.** A
+  production-profile benchmark remains at **202 draw calls** and measures
+  **19,607,093 vertices**; the new plaza, bridge and CDU work adds only 13,340
+  vertices (about 0.07 percent) and reuses merged or instanced materials. The
+  largest progressive main-thread attachment measured 12.6 ms. Desktop and
+  390 x 844 mobile browser checks keep a full canvas, responsive controls and
+  a clean console.
 
 - **All visual modes now keep a smaller, steadier browser footprint.** Desktop
   and touch use one zero-sample `UnsignedByte` composer followed by SMAA,

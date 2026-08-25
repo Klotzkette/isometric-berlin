@@ -31,6 +31,7 @@ export {
   LEGACY_WRONG_SANDKRUG_AXIS,
   SANDKRUG_OSM_CARRIAGEWAYS,
   SANDKRUG_OSM_DECK,
+  SANDKRUG_STRUCTURE_PROFILE,
   isNorthernHumboldthafenQuayEdge,
 } from "./HumboldthafenSources";
 

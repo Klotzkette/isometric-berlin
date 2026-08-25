@@ -22,6 +22,9 @@ import {
   CHARITE_BETTENHOCHHAUS_IDS,
   CHARITE_BETTENHOCHHAUS_PROFILE,
   CHARITE_CAMPUS_BRIDGE_ID,
+  PLAZA_FACADE_DETAIL_ZONES,
+  PRISM_SUPPRESSED_IDS,
+  type PrismWall,
   type PrismPayload,
   VISIBLE_RADIUS_M,
   buildRoofGeometry,
@@ -45,6 +48,7 @@ import {
   KOLLHOFF_TOWER_PRISM_IDS,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
+  plazaFacadeDetailZoneForWall,
   createLandmarkRefinements,
   createHotelAdlon,
   createTillaDurieuxGroundTester,
@@ -64,7 +68,10 @@ import {
 import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import { ADLER_BRIDGE_PROFILE } from "../src/AdlerBridge";
 import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
-import { SANDKRUG_OSM_DECK } from "../src/HumboldthafenSources";
+import {
+  SANDKRUG_OSM_DECK,
+  SANDKRUG_STRUCTURE_PROFILE,
+} from "../src/HumboldthafenSources";
 import {
   WEIDENDAMMER_BRIDGE_EAGLE_COUNT,
   WEIDENDAMMER_BRIDGE_PROFILE,
@@ -263,7 +270,12 @@ describe("ligne-claire fenestration", () => {
     );
     expect(axes.userData.facadeRhythm).toEqual({
       basis: "measured LoD2 wall length and building height",
-      lineKinds: ["bay-axis", "storey-sill", "window-dash"],
+      lineKinds: [
+        "bay-axis",
+        "storey-sill",
+        "plaza-front-window-head",
+        "window-dash",
+      ],
       openingCoordinates: "inferred rhythm; not surveyed individual panes",
     });
     expect(axes.userData.detailFadeM).toBe(ISO_FACADE_DETAIL_FADE_M);
@@ -621,6 +633,48 @@ describe("ligne-claire fenestration", () => {
     expect(axes.geometry.getAttribute("position").count).toBeGreaterThan(
       20_000,
     );
+  });
+
+  test("adds paired facade detail only to source-facing fronts at six squares", () => {
+    expect(PLAZA_FACADE_DETAIL_ZONES.map(({ name }) => name)).toEqual([
+      "Pariser Platz",
+      "Leipziger Platz",
+      "Breitscheidplatz",
+      "Platz der Republik",
+      "Europaplatz",
+      "Washingtonplatz",
+    ]);
+    for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
+      const distance = (zone.minimumDistanceM + zone.radiusM) / 2;
+      const facingWall: PrismWall = {
+        dirX: 1,
+        dirZ: 0,
+        index: 0,
+        isCourtyard: false,
+        length: 20,
+        nx: 0,
+        nz: -1,
+        x1: zone.centreWorldM[0] - 10,
+        z1: zone.centreWorldM[1] + distance,
+      };
+      expect(plazaFacadeDetailZoneForWall(facingWall)?.name).toBe(zone.name);
+      expect(
+        plazaFacadeDetailZoneForWall({ ...facingWall, nz: 1 }),
+      ).toBeNull();
+      expect(
+        plazaFacadeDetailZoneForWall({ ...facingWall, isCourtyard: true }),
+      ).toBeNull();
+    }
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    expect(axes.userData.plazaFacadeDetails.zones).toEqual(
+      PLAZA_FACADE_DETAIL_ZONES,
+    );
+    for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
+      expect(
+        axes.userData.plazaFacadeDetails.detailedWallCounts[zone.name],
+      ).toBeGreaterThan(0);
+    }
+    expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {
@@ -1316,6 +1370,9 @@ describe("real bridge structures", () => {
     const group = city.getObjectByName("drawn bridge structures") as Group;
     expect(group.userData.bridgeClusterCount).toBeGreaterThan(50);
     expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(0);
+    expect(group.userData.sandkrugStructure).toEqual(
+      SANDKRUG_STRUCTURE_PROFILE,
+    );
   });
 
   test(

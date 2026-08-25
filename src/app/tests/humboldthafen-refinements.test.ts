@@ -12,6 +12,7 @@ import {
   LEGACY_WRONG_SANDKRUG_AXIS,
   SANDKRUG_OSM_CARRIAGEWAYS,
   SANDKRUG_OSM_DECK,
+  SANDKRUG_STRUCTURE_PROFILE,
   createNorthernHumboldthafenRefinements,
   isNorthernHumboldthafenQuayEdge,
 } from "../src/HumboldthafenRefinements";
@@ -75,6 +76,22 @@ describe("source-bound northern Humboldthafen", () => {
     );
     expect(legacyDot).toBeLessThan(0.2);
     expect(SANDKRUG_OSM_DECK.centreWorldM).toEqual([185.31925, -990.08025]);
+  });
+
+  test("pins the Sandkrug steel-frame section to the engineer profile", () => {
+    expect(SANDKRUG_STRUCTURE_PROFILE).toMatchObject({
+      bridgeInventoryId: "BW 3446035",
+      clearanceM: 4.93,
+      clearSpanM: 21,
+      frameStemCount: 5,
+      lampMastCount: 4,
+      roadwayWidthM: 18.7,
+      structuralDepthM: 1.28,
+    });
+    expect(SANDKRUG_STRUCTURE_PROFILE.construction).toContain("steel frame");
+    expect(SANDKRUG_STRUCTURE_PROFILE.engineerSourceUrl).toContain(
+      "grassl-ing.de",
+    );
   });
 
   test("replaces only the northern horizontal quay run", () => {

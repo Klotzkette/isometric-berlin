@@ -104,6 +104,7 @@ import {
 import { createFederalStateRepresentations } from "./FederalStateRepresentations";
 import {
   SANDKRUG_OSM_DECK,
+  SANDKRUG_STRUCTURE_PROFILE,
   createNorthernHumboldthafenRefinements,
   isNorthernHumboldthafenQuayEdge,
 } from "./HumboldthafenRefinements";
@@ -819,6 +820,11 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "FD4M9wox",
   "VoiEX357",
   "lXwHgFCt",
+  // Konrad-Adenauer-Haus. ExpandedCityDetails reconstructs the exact OSM
+  // rhomboid as an open four-storey winter-garden envelope around the
+  // source-described oval, six-storey inner building. The generic concrete
+  // extrusion closed that climate buffer and hid the ship-like upper decks.
+  "25999445",
   "MwfoOvua",
   // Tränenpalast. Its low 1962 glass-and-steel pavilion is drawn from the
   // complete OSM outline; the three source prisms would make it opaque.
@@ -2305,6 +2311,114 @@ export type PrismWall = {
   z1: number;
 };
 
+export type PlazaFacadeDetailZone = {
+  centreWorldM: readonly [number, number];
+  geometryStatus: string;
+  minimumDistanceM: number;
+  minimumFacingCosine: number;
+  name: string;
+  radiusM: number;
+  sourceAnchor: string;
+};
+
+/**
+ * Bounded public-realm anchors for the six requested square fronts.
+ *
+ * They do not invent facade positions: a wall qualifies only when its exact
+ * LoD2 midpoint lies in the local radius and its source-derived outward
+ * normal faces the square. The extra line rhythm is therefore restricted to
+ * the actual building fronts that define each space.
+ */
+export const PLAZA_FACADE_DETAIL_ZONES: readonly PlazaFacadeDetailZone[] = [
+  {
+    centreWorldM: [497.0499028667109, 292.8503072652966],
+    geometryStatus:
+      "committed landmark centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 28,
+    minimumFacingCosine: 0.35,
+    name: "Pariser Platz",
+    radiusM: 150,
+    sourceAnchor: "committed Pariser Platz landmark",
+  },
+  {
+    centreWorldM: [427.73070566693787, 1066.1161428587511],
+    geometryStatus:
+      "committed landmark centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 50,
+    minimumFacingCosine: 0.32,
+    name: "Leipziger Platz",
+    radiusM: 230,
+    sourceAnchor: "committed Leipziger Platz landmark",
+  },
+  {
+    centreWorldM: [-2406.297, 1531.147],
+    geometryStatus:
+      "committed Breitscheidplatz public-realm centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 24,
+    minimumFacingCosine: 0.3,
+    name: "Breitscheidplatz",
+    radiusM: 220,
+    sourceAnchor: "committed Breitscheidplatz fountain profile",
+  },
+  {
+    centreWorldM: [193.4126034657238, 165.0631400225684],
+    geometryStatus:
+      "committed public-realm centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 70,
+    minimumFacingCosine: 0.28,
+    name: "Platz der Republik",
+    radiusM: 280,
+    sourceAnchor: "committed Platz der Republik hedge landmark",
+  },
+  {
+    centreWorldM: [-116, -1002],
+    geometryStatus:
+      "committed Europaplatz profile centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 45,
+    minimumFacingCosine: 0.3,
+    name: "Europaplatz",
+    radiusM: 245,
+    sourceAnchor: "committed Europaplatz north profile",
+  },
+  {
+    centreWorldM: [-35.76899601815967, -532.2079668212682],
+    geometryStatus:
+      "committed public-realm centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 18,
+    minimumFacingCosine: 0.32,
+    name: "Washingtonplatz",
+    radiusM: 195,
+    sourceAnchor: "committed Washingtonplatz taxi landmark",
+  },
+] as const;
+
+export function plazaFacadeDetailZoneForWall(
+  wall: PrismWall,
+): PlazaFacadeDetailZone | null {
+  if (wall.isCourtyard) return null;
+  const midpointX = wall.x1 + (wall.dirX * wall.length) / 2;
+  const midpointZ = wall.z1 + (wall.dirZ * wall.length) / 2;
+  let closest: PlazaFacadeDetailZone | null = null;
+  let closestDistance = Number.POSITIVE_INFINITY;
+  for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
+    const dx = zone.centreWorldM[0] - midpointX;
+    const dz = zone.centreWorldM[1] - midpointZ;
+    const distance = Math.hypot(dx, dz);
+    if (
+      distance < zone.minimumDistanceM ||
+      distance > zone.radiusM ||
+      distance >= closestDistance
+    ) {
+      continue;
+    }
+    const facingCosine = (wall.nx * dx + wall.nz * dz) / distance;
+    if (facingCosine < zone.minimumFacingCosine) continue;
+    closest = zone;
+    closestDistance = distance;
+  }
+  return closest;
+}
+
 function wallsFromRing(
   ring: number[][],
   isCourtyard: boolean,
@@ -3319,20 +3433,20 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [-170.5, -1647.1],
   },
   {
-    // Berlin bridge inventory BW 3446035: open frame, built 1994,
-    // 32.60 x 28.80 m. OSM ways 36260393 and 248010193 independently pin
-    // the two carriageways; their averaged eastbound bearings replace the
-    // old nearly perpendicular hand-tuned axis.
+    // Berlin bridge inventory BW 3446035: 32.60 x 28.80 m, built 1994.
+    // Grassl identifies the bridge as a five-stem steel frame with an
+    // orthotropic deck, not the former concrete approximation. OSM ways
+    // 36260393 and 248010193 independently pin both carriageways and axis.
     axis: [...SANDKRUG_OSM_DECK.axis],
     halfWidthM: 14.4,
     kind: "openFrame",
     matchRadiusM: 60,
     name: "Sandkrugbrücke",
     palette: {
-      abutment: 0xa6a8a5,
-      deck: 0xd0d1cb,
-      metal: 0xb9bfbd,
-      structure: 0xb3b6b3,
+      abutment: 0xb4afa5,
+      deck: 0xb8bcb9,
+      metal: 0x667477,
+      structure: 0x879497,
     },
     surveyedDeck: { halfLengthM: 16.3, halfWidthM: 14.4 },
     world: [...SANDKRUG_OSM_DECK.centreWorldM],
@@ -4005,8 +4119,13 @@ function createBridgeStructures(
         }
       } else if (kind === "openFrame") {
         // Sandkrugbrücke: a broad Invalidenstraße road plate carried by an
-        // open concrete frame. Keep the asphalt, pale footways and outer
-        // fascia distinct instead of drawing one 28.8 m grey slab.
+        // open five-stem steel frame. The current inventory keeps the outer
+        // 28.8 m envelope; Grassl's published section fixes the 18.7 m
+        // carriageway and the remaining paired footways.
+        const roadwayWidth = SANDKRUG_STRUCTURE_PROFILE.roadwayWidthM;
+        const footwayWidth =
+          (SANDKRUG_OSM_DECK.inventoryWidthM - roadwayWidth) / 2;
+        const footwayOffset = roadwayWidth / 2 + footwayWidth / 2;
         addPart(
           boxTriangles(
             sx,
@@ -4015,13 +4134,13 @@ function createBridgeStructures(
             localAxis,
             segmentLength + 0.05,
             0.07,
-            16.4,
+            roadwayWidth,
           ),
           ROAD_SURFACE,
           false,
         );
         for (const side of [-1, 1]) {
-          const [walkX, walkZ] = at(u, side * 10.85);
+          const [walkX, walkZ] = at(u, side * footwayOffset);
           addPart(
             boxTriangles(
               walkX,
@@ -4030,7 +4149,7 @@ function createBridgeStructures(
               localAxis,
               segmentLength + 0.05,
               0.12,
-              5.0,
+              footwayWidth,
             ),
             HUGO_PAVING,
             false,
@@ -4039,14 +4158,14 @@ function createBridgeStructures(
           addPart(
             boxTriangles(
               fasciaX,
-              y - 0.45,
+              y - SANDKRUG_STRUCTURE_PROFILE.structuralDepthM / 2,
               fasciaZ,
               localAxis,
               segmentLength + 0.05,
-              0.9,
+              SANDKRUG_STRUCTURE_PROFILE.structuralDepthM,
               0.42,
             ),
-            STONE,
+            STEEL,
             false,
           );
         }
@@ -4431,6 +4550,70 @@ function createBridgeStructures(
             beamBetweenTriangles([x1, midY + 0.2, z1], [x0, upperY, z0], 0.12),
             index % 2 === 0 ? PARLIAMENT_GLASS : STEEL,
             false,
+          );
+        }
+      }
+    } else if (kind === "openFrame") {
+      const bayCount = Math.max(12, Math.round((halfLength * 2) / 2));
+      const bayLength = (halfLength * 2) / bayCount;
+      for (let index = 0; index <= bayCount; index += 1) {
+        const u = -halfLength + (index / bayCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [postX, postZ] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(postX, y + 0.59, postZ, localAxis, 0.11, 1.18, 0.1),
+            STEEL,
+            false,
+          );
+          if (index < bayCount) {
+            const railU = u + bayLength / 2;
+            const [railX, railZ] = at(railU, side * halfWidth);
+            const railY = deckY + riseAt(railU);
+            for (const level of [0.38, 0.78, 1.18]) {
+              addPart(
+                boxTriangles(
+                  railX,
+                  railY + level,
+                  railZ,
+                  tangentAt(railU),
+                  bayLength + 0.04,
+                  level > 1 ? 0.1 : 0.055,
+                  0.085,
+                ),
+                STEEL,
+                false,
+              );
+            }
+          }
+        }
+      }
+      // Four slender lighting standards are part of the published bridge
+      // composition. Keeping them in the merged lamp/body batches costs no
+      // extra draw call and makes the broad road bridge identifiable at dusk.
+      for (const fraction of [-0.58, 0.58]) {
+        const u = halfLength * fraction;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [mastX, mastZ] = at(u, side * (halfWidth - 0.22));
+          addPart(
+            boxTriangles(mastX, y + 2.65, mastZ, localAxis, 0.17, 5.3, 0.17),
+            STEEL,
+            false,
+          );
+          addLamp(
+            boxTriangles(
+              mastX + ax * 0.24,
+              y + 5.32,
+              mastZ + az * 0.24,
+              localAxis,
+              0.54,
+              0.16,
+              0.24,
+            ),
+            WARM_LIGHT,
           );
         }
       }
@@ -5476,37 +5659,87 @@ function createBridgeStructures(
       // two massive abutments above; no invented pier may stand in the
       // mouth of the Humboldthafen.
     } else if (kind === "openFrame") {
-      // Sandkrugbrücke: the open frame keeps the navigation opening clear.
-      // Four inclined haunches transfer its wide deck into the bank frames.
-      for (const end of [-1, 1]) {
-        const deckU = end * (halfLength - 2.1);
-        const baseU = end * (halfLength - 5.4);
-        for (const side of [-1, 1]) {
-          const [deckX, deckZ] = at(deckU, side * (halfWidth - 1.1));
-          const [baseX, baseZ] = at(baseU, side * (halfWidth - 1.1));
+      // Five parallel steel frame stems carry the orthotropic slab. Their
+      // haunches stop at the stone-clad bank abutments, preserving the
+      // published 21 m clear navigation opening with no invented river pier.
+      const clearHalfSpan = SANDKRUG_STRUCTURE_PROFILE.clearSpanM / 2;
+      const frameWidth = halfWidth * 2 - 1.8;
+      for (
+        let stemIndex = 0;
+        stemIndex < SANDKRUG_STRUCTURE_PROFILE.frameStemCount;
+        stemIndex += 1
+      ) {
+        const v =
+          -frameWidth / 2 +
+          (stemIndex / (SANDKRUG_STRUCTURE_PROFILE.frameStemCount - 1)) *
+            frameWidth;
+        const [beamX, beamZ] = at(0, v);
+        addPart(
+          boxTriangles(
+            beamX,
+            deckY - SANDKRUG_STRUCTURE_PROFILE.structuralDepthM + 0.24,
+            beamZ,
+            tangentAt(0),
+            SANDKRUG_STRUCTURE_PROFILE.clearSpanM,
+            0.48,
+            0.46,
+          ),
+          STEEL,
+        );
+        for (const end of [-1, 1]) {
+          const innerU = end * clearHalfSpan;
+          const outerU = end * (halfLength - 0.85);
+          const [innerX, innerZ] = at(innerU, v);
+          const [outerX, outerZ] = at(outerU, v);
           addPart(
             beamBetweenTriangles(
-              [baseX, bedY + 0.25, baseZ],
-              [deckX, deckY + riseAt(deckU) - deckThickness - 0.2, deckZ],
-              0.9,
-              1.15,
+              [
+                innerX,
+                deckY - SANDKRUG_STRUCTURE_PROFILE.structuralDepthM + 0.22,
+                innerZ,
+              ],
+              [outerX, deckY - 0.42, outerZ],
+              0.34,
+              0.46,
             ),
-            STONE_DARK,
+            STEEL,
           );
         }
-        const frameU = end * (halfLength - 3.1);
-        const [frameX, frameZ] = at(frameU, 0);
+      }
+      for (const u of [-clearHalfSpan, 0, clearHalfSpan]) {
+        const [crossX, crossZ] = at(u, 0);
+        addPart(
+          boxTriangles(
+            crossX,
+            deckY - SANDKRUG_STRUCTURE_PROFILE.structuralDepthM + 0.18,
+            crossZ,
+            [nx, nz],
+            frameWidth,
+            0.36,
+            0.42,
+          ),
+          STEEL,
+          false,
+        );
+      }
+      for (const end of [-1, 1]) {
+        const abutmentU = end * (halfLength - 1.35);
+        const [frameX, frameZ] = at(abutmentU, 0);
+        const abutmentHeight = Math.max(
+          1.6,
+          deckY - SANDKRUG_STRUCTURE_PROFILE.structuralDepthM - bedY,
+        );
         addPart(
           boxTriangles(
             frameX,
-            deckY + riseAt(frameU) - 1.05,
+            bedY + abutmentHeight / 2,
             frameZ,
-            tangentAt(frameU),
-            1.0,
-            1.1,
-            halfWidth * 2 - 1.2,
+            tangentAt(abutmentU),
+            2.1,
+            abutmentHeight,
+            halfWidth * 2 - 0.8,
           ),
-          STONE,
+          STONE_DARK,
         );
       }
     } else if (kind === "parliament") {
@@ -5562,6 +5795,7 @@ function createBridgeStructures(
       world,
     }),
   );
+  group.userData.sandkrugStructure = SANDKRUG_STRUCTURE_PROFILE;
   group.userData.bridgeClusterCount = clusters.length;
   group.userData.smallBridgeClusterCount = clusters.filter(
     (cluster) => cluster.length < 12,
@@ -10493,6 +10727,9 @@ export function createIsometricCity(
   const buildings = options.buildings ?? prisms.buildings;
   const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
   const facadeAxisDistances = new Uint16Accumulator(buildings.length * 60);
+  const plazaFacadeDetailWallCounts = new Map(
+    PLAZA_FACADE_DETAIL_ZONES.map((zone) => [zone.name, 0]),
+  );
   const pushFacadeAxis = (
     x1: number,
     y1: number,
@@ -10941,11 +11178,20 @@ export function createIsometricCity(
           const grid = windowGrid(wall.length, bodyHeight, format);
           const sillOf = (floor: number): number =>
             y0 + format.sillStart + floor * format.floorPitch;
-          // One dashed sill rhythm crosses the measured wall at every
-          // derived storey. Together with the solid bay axes it reads as
-          // repeated openings, but stays honest about LoD2: individual pane
-          // coordinates are not surveyed and no duplicate head geometry is
-          // fabricated.
+          const plazaDetailZone = grid
+            ? plazaFacadeDetailZoneForWall(wall)
+            : null;
+          if (plazaDetailZone) {
+            plazaFacadeDetailWallCounts.set(
+              plazaDetailZone.name,
+              (plazaFacadeDetailWallCounts.get(plazaDetailZone.name) ?? 0) + 1,
+            );
+          }
+          // One dashed sill rhythm crosses every measured wall at each
+          // derived storey. On the six requested square fronts, the same
+          // source-bounded rhythm receives a paired head line. This adds a
+          // legible elongated-window outline without claiming surveyed pane
+          // coordinates or adding another draw call.
           if (grid) {
             for (let floor = 0; floor < grid.floors; floor += 1) {
               const bandY = sillOf(floor) - 0.28;
@@ -10958,6 +11204,23 @@ export function createIsometricCity(
                 wall.z1 + wall.dirZ * wall.length + oz,
                 wall.length,
               );
+              if (plazaDetailZone) {
+                const headY = Math.min(
+                  axisTop,
+                  sillOf(floor) + format.height + 0.28,
+                );
+                if (headY > bandY + 0.4) {
+                  pushFacadeAxis(
+                    wall.x1 + ox,
+                    headY,
+                    wall.z1 + oz,
+                    wall.x1 + wall.dirX * wall.length + ox,
+                    headY,
+                    wall.z1 + wall.dirZ * wall.length + oz,
+                    wall.length,
+                  );
+                }
+              }
             }
             if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
               const paneOx = wall.nx * KOLLHOFF_WINDOW_FACE_OFFSET_M;
@@ -11321,6 +11584,14 @@ export function createIsometricCity(
     group.add(mullions);
   }
 
+  const plazaFacadeDetails = {
+    detailedWallCounts: Object.fromEntries(plazaFacadeDetailWallCounts),
+    rendering:
+      "paired inferred sill/head rhythm on exact plaza-facing LoD2 walls in the existing facade-axis batch",
+    zones: PLAZA_FACADE_DETAIL_ZONES,
+  };
+  group.userData.plazaFacadeDetails = plazaFacadeDetails;
+
   // Facade glazing axes: fine ink lines (day). A subtle grey so they
   // articulate without weighing the pale panels down.
   if (facadeAxisPositions.length > 0) {
@@ -11351,9 +11622,15 @@ export function createIsometricCity(
     axes.userData.detailFadeM = ISO_FACADE_DETAIL_FADE_M;
     axes.userData.facadeRhythm = {
       basis: "measured LoD2 wall length and building height",
-      lineKinds: ["bay-axis", "storey-sill", "window-dash"],
+      lineKinds: [
+        "bay-axis",
+        "storey-sill",
+        "plaza-front-window-head",
+        "window-dash",
+      ],
       openingCoordinates: "inferred rhythm; not surveyed individual panes",
     };
+    axes.userData.plazaFacadeDetails = plazaFacadeDetails;
     group.add(axes);
   }
   if (kollhoffClinkerJointPositions.length > 0) {

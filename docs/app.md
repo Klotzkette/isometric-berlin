@@ -672,8 +672,32 @@ Their wakes are static outside Schwellenraum and hidden inside its still scene.
 At Humboldthafen the northern OSM bank and DGM crest form a separate sloped
 shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
 `26109166`, while the two Sandkrugbrücke carriageways preserve ways `36260393`
-and `248010193`. Minecraft carries the same harbour, vessel and railing
-identities as one compact block-native instance layer.
+and `248010193`. Berlin's June-2025 bridge inventory fixes its current 32.6 x
+28.8 m envelope and identifier `BW 3446035`; the engineer's published design
+dimensions fix the recognisable five-stem steel frame, 21 m clear span, 18.7 m
+roadway, 1.28 m structural depth and four lamp masts. The authored frame spans
+the water without a centre pier and adds cross girders, abutments and a fine
+three-level rail inside the existing merged bridge layer. Minecraft carries
+the same harbour, vessel and railing identities as one compact block-native
+instance layer.
+
+Six bounded facade-detail zones strengthen the street walls at Pariser Platz,
+Leipziger Platz, Breitscheidplatz, Platz der Republik, Europaplatz and
+Washingtonplatz. Exact LoD2 wall midpoints, heights and outward normals select
+only nearby front-facing walls; distance and orientation reject courtyard and
+rear elevations. The current source data yields 128, 292, 156, 74, 107 and 7
+qualifying wall fields respectively. Their paired window-head lines share the
+existing facade line batch, add no renderable and inherit every drawn visual
+mode rather than spawning six new landmark systems.
+
+At Tiergarten, OSM way `25999445` remains the exact rhomboid plan of the
+Konrad-Adenauer-Haus. Its former opaque generic prism is suppressed only for
+that source key. A transparent four-storey climate-buffer envelope now reveals
+the source-described six-storey elliptical ship-like timber body, 18 m glass
+eaves, two stepped upper decks and a 0.65 m travertine plinth. The published
+6,300 m² usable area remains metadata; inner subdivisions are bounded
+recognition geometry, not a surveyed interior, and no political lettering is
+rendered.
 
 Weidendammer Brücke is centred and aligned on exact OSM bridge way `6228081`.
 Berlin's June-2025 bridge inventory controls the current 69.48 x 25.17 m

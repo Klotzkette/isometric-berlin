@@ -83,6 +83,24 @@ export const SANDKRUG_OSM_DECK = {
   osmWays: [36260393, 248010193] as const,
 } as const;
 
+/** Published recognition dimensions for the 1994 Sandkrugbruecke. */
+export const SANDKRUG_STRUCTURE_PROFILE = {
+  bridgeInventoryId: "BW 3446035",
+  clearanceM: 4.93,
+  clearSpanM: 21,
+  construction: "five-stem steel frame with orthotropic deck",
+  engineerSourceUrl:
+    "https://www.grassl-ing.de/project/sandkrugbruecke_42.html",
+  frameStemCount: 5,
+  geometryStatus:
+    "current Berlin inventory controls the 32.6 x 28.8 m deck envelope; the engineer's published 34.1 x 29 m design dimensions control the recognisable five-stem steel frame, 18.7 m roadway, structural depth and four lamp masts",
+  lampMastCount: 4,
+  publishedOverallLengthM: 34.1,
+  publishedOverallWidthM: 29,
+  roadwayWidthM: 18.7,
+  structuralDepthM: 1.28,
+} as const;
+
 /** The erroneous pre-correction bearing, retained only as a regression pin. */
 export const LEGACY_WRONG_SANDKRUG_AXIS = [0.31623, 0.94868] as const;
 

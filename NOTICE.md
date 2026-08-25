@@ -129,6 +129,30 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   and is retained as a factual reference; no song lyric is reproduced. No bridge photograph,
   plan image, portrait, canvas asset or derived texture is bundled or loaded.
 
+- **Sandkrugbrücke (metric and structural evidence):** exact deck axes come
+  from OSM ways [`36260393`](https://www.openstreetmap.org/way/36260393) and
+  [`248010193`](https://www.openstreetmap.org/way/248010193) under the ODbL
+  attribution above. The official
+  [Masterplan Brücken inventory](https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf)
+  fixes structure `BW 3446035` and its current 32.6 x 28.8 m envelope. The
+  [Grassl project record](https://www.grassl-ing.de/project/sandkrugbruecke_42.html)
+  supplies the published five-stem steel-frame system, design dimensions,
+  clear span, roadway width, structural depth and lamp count. Member sections,
+  cross-girder spacing and rail subdivisions are procedural recognition
+  geometry; no source photograph, drawing or texture is bundled or loaded.
+
+- **Konrad-Adenauer-Haus (factual and architectural evidence):** exact plan
+  geometry and glass material come from
+  [OSM way `25999445`](https://www.openstreetmap.org/way/25999445) under the
+  ODbL attribution above. The
+  [building archive](https://www.konrad-adenauer.de/seite/gebaeude/), the
+  [current CDU account](https://www.cdu.de/aktuelles/cdu-deutschlands/das-konrad-adenauer-haus-feiert-den-25-geburtstag/)
+  and the [CDU archive](https://archiv.cdu.de/node/1151) document the six-storey
+  elliptical inner body, transparent winter garden and ship-like composition.
+  Local floor bands, deck taper and frame spacing are deterministic,
+  non-surveyed recognition geometry. No page image, political logo, lettering
+  or photographic texture is bundled or loaded.
+
 - **CSD memorial place at Ahornsteig (factual and visual evidence):**
   [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php)
   and the
