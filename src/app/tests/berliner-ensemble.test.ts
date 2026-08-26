@@ -201,13 +201,16 @@ describe("source-bound Berliner Ensemble exterior", () => {
       const positions = bodies.geometry.getAttribute("position");
       const colors = bodies.geometry.getAttribute("color");
       const roofTopY = building.y0_dm / 10 + building.h_dm / 10;
+      const colorQuantizationTolerance = 2 / 255;
       let matchingTopVertices = 0;
       for (let index = 0; index < positions.count; index += 1) {
         if (positions.getY(index) < roofTopY - 0.01) continue;
         const shade = colors.getX(index) / expected.r;
         if (
-          Math.abs(colors.getY(index) - expected.g * shade) <= 1e-5 &&
-          Math.abs(colors.getZ(index) - expected.b * shade) <= 1e-5
+          Math.abs(colors.getY(index) - expected.g * shade) <=
+            colorQuantizationTolerance &&
+          Math.abs(colors.getZ(index) - expected.b * shade) <=
+            colorQuantizationTolerance
         ) {
           matchingTopVertices += 1;
         }

@@ -22,6 +22,10 @@ import {
   REAL_SPREE_VESSEL_PROFILES,
   REEDEREI_RIEDEL_FLEET_SOURCE,
 } from "./SpreeVesselProfiles";
+import {
+  ECONOMIC_MINISTRY_MINECRAFT_FACADES,
+  ECONOMIC_MINISTRY_PROFILE,
+} from "./EconomicMinistryDetails";
 
 type HumboldthafenVoxelPayload = {
   cell_m: number;
@@ -40,7 +44,12 @@ type Block = {
   position: [number, number, number];
   rotationY?: number;
   size: [number, number, number];
-  sourceRole: "bank" | "bridge-rail" | "path" | "vessel";
+  sourceRole:
+    | "bank"
+    | "bridge-rail"
+    | "building-detail"
+    | "path"
+    | "vessel";
 };
 
 const BANK_STONE = [0xa8a18c, 0xb9b19a] as const;
@@ -49,6 +58,9 @@ const PATH = 0xc8bea8;
 const WHITE = 0xece9dd;
 const WINDOW = 0x315c6a;
 const BOOT = 0x30383e;
+const MINISTRY_STONE = 0xe4e5dc;
+const MINISTRY_HISTORIC_STONE = 0xece3d2;
+const MINISTRY_GLASS = 0x496b72;
 
 function worldGroundSampler(payload: HumboldthafenVoxelPayload) {
   const { cell_m: cell, grid, ground_height: heights } = payload;
@@ -259,6 +271,49 @@ function addVessels(blocks: Block[], water: number): void {
   }
 }
 
+function addEconomicMinistryFacadeBlocks(blocks: Block[]): void {
+  for (const [key, profile] of Object.entries(
+    ECONOMIC_MINISTRY_MINECRAFT_FACADES,
+  )) {
+    const dx = profile.to[0] - profile.from[0];
+    const dz = profile.to[1] - profile.from[1];
+    const run = Math.hypot(dx, dz);
+    const ux = dx / run;
+    const uz = dz / run;
+    const rotationY = -Math.atan2(uz, ux);
+    const historic = key.includes("Historic");
+    const floorPitch = historic ? 3.75 : 3.55;
+    const facadeHeight = (profile.levels - 1) * floorPitch + 2.45;
+    for (let level = 0; level < profile.levels; level += 1) {
+      blocks.push({
+        color: MINISTRY_GLASS,
+        position: [
+          (profile.from[0] + profile.to[0]) / 2,
+          profile.y0 + 2.35 + level * floorPitch,
+          (profile.from[1] + profile.to[1]) / 2,
+        ],
+        rotationY,
+        size: [run - 1.2, 2.05, 0.42],
+        sourceRole: "building-detail",
+      });
+    }
+    for (let index = 0; index <= profile.mullions; index += 1) {
+      const along = 0.6 + ((run - 1.2) * index) / profile.mullions;
+      blocks.push({
+        color: historic ? MINISTRY_HISTORIC_STONE : MINISTRY_STONE,
+        position: [
+          profile.from[0] + ux * along,
+          profile.y0 + 2.35 + ((profile.levels - 1) * floorPitch) / 2,
+          profile.from[1] + uz * along,
+        ],
+        rotationY,
+        size: [historic ? 0.42 : 0.3, facadeHeight, 0.48],
+        sourceRole: "building-detail",
+      });
+    }
+  }
+}
+
 /**
  * One instanced draw call for the replacement bank, bridge furniture,
  * source paths and the two real-profile passenger vessels.
@@ -276,6 +331,7 @@ export function createMinecraftHumboldthafenDetails(
     sampleGround,
     HUMBOLDTHAFEN_ROAD_AXES.rahelHirschStrasse.points,
   );
+  addEconomicMinistryFacadeBlocks(blocks);
   addVessels(blocks, payload.water_top_y_m);
 
   const material = new MeshBasicMaterial({ vertexColors: true });
@@ -324,6 +380,7 @@ export function createMinecraftHumboldthafenDetails(
       sandkrug: SANDKRUG_OSM_DECK,
     },
     roads: HUMBOLDTHAFEN_ROAD_AXES,
+    wirtschaftsministerium: ECONOMIC_MINISTRY_PROFILE,
     vessels: REEDEREI_RIEDEL_FLEET_SOURCE,
   };
   group.userData.collisionSource =

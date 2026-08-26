@@ -23,6 +23,7 @@ import {
   Shape,
   ShapeGeometry,
   Uint16BufferAttribute,
+  Uint8BufferAttribute,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
@@ -108,6 +109,14 @@ import {
   createNorthernHumboldthafenRefinements,
   isNorthernHumboldthafenQuayEdge,
 } from "./HumboldthafenRefinements";
+import {
+  ECONOMIC_MINISTRY_DETAIL_FACADE_IDS,
+  ECONOMIC_MINISTRY_MODERN_CANAL_ID,
+  ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
+  ECONOMIC_MINISTRY_PRISM_TONES,
+  createEconomicMinistryDetails,
+  economicMinistryRoofCode,
+} from "./EconomicMinistryDetails";
 import {
   type VoxelPayload,
   WATER_TOP_Y,
@@ -541,6 +550,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   K0002Qys: 0xcbb18a,
   // Hotel Adlon: pale reconstructed stone body below its patinated roof.
   K00006ot: 0xeee5d4,
+  ...ECONOMIC_MINISTRY_PRISM_TONES,
   // The Center / former Sony Center: cool glass-and-steel towers around the
   // authored Forum facades, instead of unrelated sampled beige prisms.
   ...Object.fromEntries(
@@ -704,6 +714,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   K0003VDk: 0xe1e3dc,
   MLwG4KW9: 0xeff1ec,
   K00006ot: 0x668574,
+  ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
   ORqiW8aK: 0x729083,
   yrDOCds1: 0x729083,
   Vkos5eqV: 0x729083,
@@ -2260,6 +2271,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ARD_HAUPTSTADTSTUDIO_IDS,
   ...BERLINER_ENSEMBLE_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
+  ...ECONOMIC_MINISTRY_DETAIL_FACADE_IDS,
 ]);
 
 // Dedicated overlays already carry the documented base/cornice rhythm for
@@ -2269,6 +2281,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ARD_HAUPTSTADTSTUDIO_IDS,
   ...BERLINER_ENSEMBLE_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
+  ...ECONOMIC_MINISTRY_DETAIL_FACADE_IDS,
 ]);
 
 // The generic pitched-roof pass invents ridge stacks for ordinary gables.
@@ -2276,6 +2289,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
+  ECONOMIC_MINISTRY_MODERN_CANAL_ID,
 ]);
 
 /**
@@ -11018,13 +11032,60 @@ export function createIsometricCity(
   const color = new Color();
   const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
     const positions = geometry.getAttribute("position");
-    const colors = new Float32Array(positions.count * 3);
+    const colors = new Uint8Array(positions.count * 3);
+    const red = Math.round(tone.r * 255);
+    const green = Math.round(tone.g * 255);
+    const blue = Math.round(tone.b * 255);
     for (let index = 0; index < positions.count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
+      colors[index * 3] = red;
+      colors[index * 3 + 1] = green;
+      colors[index * 3 + 2] = blue;
     }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
+  };
+  const bakeFacadeColor = (
+    geometry: BufferGeometry,
+    facadeTone: Color,
+    capTone: Color,
+    capY: number,
+  ): void => {
+    const positions = geometry.getAttribute("position").array as Float32Array;
+    const normals = geometry.getAttribute("normal").array as Float32Array;
+    const colors = new Uint8Array(positions.length);
+    const shadeRgb = (tone: Color, shade: number): readonly [number, number, number] => [
+      Math.round(Math.min(1, tone.r * shade) * 255),
+      Math.round(Math.min(1, tone.g * shade) * 255),
+      Math.round(Math.min(1, tone.b * shade) * 255),
+    ];
+    const top = shadeRgb(facadeTone, ISO_FACE_SHADE.top);
+    const east = shadeRgb(facadeTone, ISO_FACE_SHADE.east);
+    const south = shadeRgb(facadeTone, ISO_FACE_SHADE.south);
+    const north = shadeRgb(facadeTone, ISO_FACE_SHADE.north);
+    const west = shadeRgb(facadeTone, ISO_FACE_SHADE.west);
+    const capTop = shadeRgb(capTone, ISO_FACE_SHADE.top);
+    for (let offset = 0; offset < positions.length; offset += 3) {
+      const nx = normals[offset];
+      const ny = normals[offset + 1];
+      const nz = normals[offset + 2];
+      const rgb =
+        ny > 0.55
+          ? ny > 0.7 && positions[offset + 1] > capY
+            ? capTop
+            : top
+          : ny < -0.55
+            ? west
+            : Math.abs(nx) >= Math.abs(nz)
+              ? nx > 0
+                ? east
+                : west
+              : nz > 0
+                ? south
+                : north;
+      colors[offset] = rgb[0];
+      colors[offset + 1] = rgb[1];
+      colors[offset + 2] = rgb[2];
+    }
+    geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const building of buildings) {
     if (!isRenderablePrismBuilding(building)) {
@@ -11041,7 +11102,10 @@ export function createIsometricCity(
     let bodyHeight = totalHeight;
     let roofTriangles: Float32Array | null = null;
     let roofRect: ReturnType<typeof fitRectangle> = null;
-    const roofCode = historicChariteRoofCode(building.id, building.roof ?? 0);
+    const roofCode = economicMinistryRoofCode(
+      building.id,
+      historicChariteRoofCode(building.id, building.roof ?? 0),
+    );
     if (building.id === CHARITE_ALTHOFF_TOWER_ID) {
       bodyHeight = Math.max(
         2.5,
@@ -11156,7 +11220,6 @@ export function createIsometricCity(
       continue;
     }
     color.copy(facadeColorFor(building, prisms.classes));
-    bakeColor(geometry, color);
     // Flat caps read as drawn roof plates, not sun-baked facade paint:
     // recolour up-facing cap vertices cooler and slightly darker (the
     // Reichstag's huge roof was one warm brown slab).
@@ -11174,29 +11237,8 @@ export function createIsometricCity(
             .clone()
             .multiplyScalar(0.97)
             .lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
-    const bodyNormals = geometry.getAttribute("normal");
-    const bodyPositions = geometry.getAttribute("position");
-    const bodyColors = geometry.getAttribute("color");
     const capY = y0 + bodyHeight - 0.05;
-    for (let index = 0; index < bodyPositions.count; index += 1) {
-      if (bodyNormals.getY(index) > 0.7 && bodyPositions.getY(index) > capY) {
-        bodyColors.setXYZ(index, capTone.r, capTone.g, capTone.b);
-      }
-      // Constant per-face brightness from the facing direction.
-      const shade = isoFaceShade(
-        bodyNormals.getX(index),
-        bodyNormals.getY(index),
-        bodyNormals.getZ(index),
-      );
-      if (shade !== 1) {
-        bodyColors.setXYZ(
-          index,
-          bodyColors.getX(index) * shade,
-          bodyColors.getY(index) * shade,
-          bodyColors.getZ(index) * shade,
-        );
-      }
-    }
+    bakeFacadeColor(geometry, color, capTone, capY);
     bodyGeometries.push(geometry);
     if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
       const baseHeight = Math.min(
@@ -11734,7 +11776,13 @@ export function createIsometricCity(
     }
   }
 
-  const bodies = mergeGeometries(bodyGeometries, false);
+  // Body normals have already done their job for face shading and edge
+  // extraction. Day/Schwellenraum use MeshBasicMaterial and the night
+  // material is flat-shaded, so retaining one Float32 normal per duplicated
+  // triangle vertex only inflates Worker transfer and GPU upload.
+  for (const geometry of bodyGeometries) geometry.deleteAttribute("normal");
+  const bodies =
+    bodyGeometries.length > 0 ? mergeGeometries(bodyGeometries, false) : null;
   if (bodies) {
     // Day is TRUE ligne claire: facades render their exact baked paint,
     // unlit (MeshBasic) — no sun-browning, no murky shadow sides;
@@ -11757,6 +11805,7 @@ export function createIsometricCity(
     }
   }
 
+  for (const geometry of glassGeometries) geometry.deleteAttribute("normal");
   const glass =
     glassGeometries.length > 0 ? mergeGeometries(glassGeometries, false) : null;
   if (glass) {
@@ -12103,7 +12152,8 @@ export function createIsometricCity(
     }
   }
 
-  const edges = mergeGeometries(edgeGeometries, false);
+  const edges =
+    edgeGeometries.length > 0 ? mergeGeometries(edgeGeometries, false) : null;
   if (edges) {
     const ink = new LineSegments(
       edges,
@@ -12293,6 +12343,7 @@ export function createIsometricCity(
     group.add(createArdHauptstadtstudio(prisms));
     group.add(createBerlinerEnsemble(prisms));
     group.add(createReichstagspraesidentenpalais(prisms));
+    group.add(createEconomicMinistryDetails(prisms));
     group.add(createFederalStateRepresentations());
   }
   return group;

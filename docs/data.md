@@ -550,6 +550,28 @@ Primary public records:
 - [Schinkel portal: Scharnhorst grave monument](https://schinkel.smb.museum/image_orte.php?id=28)
 - [Berlin-Lexikon Invalidenfriedhof record: published Scharnhorst height](https://berlingeschichte.de/lexikon/mitte/i/invalidenfriedhof.htm)
 
+## Federal Ministry for Economic Affairs evidence contract
+
+The canal-side ministry is an additive recognition layer over Berlin LoD2.
+LoD2 prisms `yAAWS2KQ`, `-3202585`, `K0000EU2`, `K0000B4S` and `K0000A7g`
+remain the geometry and height authority. OSM office way `24911034` fixes the
+site identity; OSM building ways `28880802` and `28880803` identify the two
+historic Invalidenhaus wings. The official ministry architecture page, Berlin
+monument object `09011190` and the federal building documentation establish the
+U-shaped historic complex, retained side wings and long replacement building
+parallel to the Berlin-Spandauer Schifffahrtskanal. Window bay counts, local
+trim projection and entrance subdivision are bounded procedural recognition
+geometry, not survey claims. No reference photograph is bundled or projected.
+
+Primary public records:
+
+- [Federal Ministry architecture](https://www.bundeswirtschaftsministerium.de/Navigation/DE/Ministerium/Architektur/architektur.html)
+- [Federal building record for Buildings E, F and G](https://www.museum-der-1000-orte.de/bauwerke/bauwerk/gebaude-e-f-und-g-ehem-invalidenhaus)
+- [Berlin monument record 09011190](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011190)
+- [OpenStreetMap ministry site](https://www.openstreetmap.org/way/24911034)
+- [OpenStreetMap south Invalidenhaus wing](https://www.openstreetmap.org/way/28880802)
+- [OpenStreetMap north Invalidenhaus wing](https://www.openstreetmap.org/way/28880803)
+
 ## Berlin official support layers
 
 Pipeline step 4 keeps official support data additive and scoped to the

@@ -71,6 +71,17 @@ describe("block-native Humboldthafen parity", () => {
     expect(details.userData.sources.settPaths).toContain("1087036421");
   });
 
+  test("keeps the ministry facade grid block-native and inside the same draw call", () => {
+    expect(blocks.userData.sourceRoles["building-detail"]).toBe(78);
+    expect(details.userData.sources.wirtschaftsministerium.osmOfficeWay).toBe(
+      24911034,
+    );
+    expect(
+      details.userData.sources.wirtschaftsministerium
+        .osmHistoricBuildingWays,
+    ).toEqual([28880802, 28880803]);
+  });
+
   test("keeps both real-profile vessels static and recognisable as blocks", () => {
     expect(blocks.userData.sourceRoles.vessel).toBeGreaterThan(150);
     expect(details.userData.vessels).toEqual(

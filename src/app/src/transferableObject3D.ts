@@ -10,6 +10,8 @@ import {
   MaterialLoader,
   Mesh,
   Object3D,
+  Sphere,
+  Vector3,
 } from "three";
 
 type TypedArray =
@@ -31,8 +33,14 @@ type TransferAttribute = {
   usage: BufferAttribute["usage"];
 };
 
+type TransferBoundingSphere = {
+  center: [number, number, number];
+  radius: number;
+};
+
 type TransferGeometry = {
   attributes: Record<string, TransferAttribute>;
+  boundingSphere: TransferBoundingSphere | null;
   drawRange: { count: number; start: number };
   groups: Array<{ count: number; materialIndex: number; start: number }>;
   index: TransferAttribute | null;
@@ -41,6 +49,17 @@ type TransferGeometry = {
 };
 
 type MaterialJson = ReturnType<Material["toJSON"]>;
+
+function serializeBoundingSphere(
+  sphere: Sphere | null,
+): TransferBoundingSphere | null {
+  return sphere
+    ? {
+        center: [sphere.center.x, sphere.center.y, sphere.center.z],
+        radius: sphere.radius,
+      }
+    : null;
+}
 
 export type TransferObject3D = {
   alternateMaterials: Partial<
@@ -52,6 +71,7 @@ export type TransferObject3D = {
       MaterialJson
     >
   >;
+  boundingSphere?: TransferBoundingSphere | null;
   castShadow: boolean;
   children: TransferObject3D[];
   count?: number;
@@ -125,8 +145,11 @@ function serializeGeometry(geometry: BufferGeometry): TransferGeometry {
     }
     attributes[name] = serializeAttribute(attribute);
   }
+  geometry.computeBoundingSphere();
+  const boundingSphere = geometry.boundingSphere;
   return {
     attributes,
+    boundingSphere: serializeBoundingSphere(boundingSphere),
     drawRange: { ...geometry.drawRange },
     groups: geometry.groups.map((group) => ({
       ...group,
@@ -197,6 +220,8 @@ function serializeObject(object: Object3D): TransferObject3D {
     descriptor.instanceColor = object.instanceColor
       ? serializeAttribute(object.instanceColor)
       : null;
+    object.computeBoundingSphere();
+    descriptor.boundingSphere = serializeBoundingSphere(object.boundingSphere);
   }
   return descriptor;
 }
@@ -266,6 +291,12 @@ function deserializeGeometry(descriptor: TransferGeometry): BufferGeometry {
     geometry.addGroup(group.start, group.count, group.materialIndex);
   }
   geometry.setDrawRange(descriptor.drawRange.start, descriptor.drawRange.count);
+  if (descriptor.boundingSphere) {
+    geometry.boundingSphere = new Sphere(
+      new Vector3(...descriptor.boundingSphere.center),
+      descriptor.boundingSphere.radius,
+    );
+  }
   return geometry;
 }
 
@@ -302,6 +333,12 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
             true,
           ) as InstancedBufferAttribute)
         : null;
+      if (descriptor.boundingSphere) {
+        mesh.boundingSphere = new Sphere(
+          new Vector3(...descriptor.boundingSphere.center),
+          descriptor.boundingSphere.radius,
+        );
+      }
       object = mesh;
       break;
     }

@@ -21,6 +21,7 @@ import {
   lookPedestrian,
   pedestrianPointIsBlocked,
   pedestrianPointIsWater,
+  pedestrianSpawnFromView,
   pedestrianViewDirection,
   stepPedestrian,
   type PedestrianEnvironment,
@@ -65,6 +66,48 @@ const collisionEnvironment: PedestrianEnvironment = {
 };
 
 describe("pedestrian navigation", () => {
+  test("enters walking mode at the current camera focus instead of its orbiting eye", () => {
+    const spawn = pedestrianSpawnFromView(
+      environment,
+      { x: 123.45, y: 4.25, z: -345.67 },
+      { x: 181.2, y: 96, z: -281.4 },
+      { x: -0.6, y: -0.2, z: -0.7745966692 },
+    );
+    expect(spawn?.x).toBe(123.45);
+    expect(spawn?.z).toBe(-345.67);
+    expect(spawn?.groundYHint).toBe(4.25);
+    expect(spawn?.yaw).toBeCloseTo(
+      Math.atan2(-0.6, 0.7745966692),
+    );
+  });
+
+  test("falls back to the camera ground point only when the focus is outside the world", () => {
+    const spawn = pedestrianSpawnFromView(
+      environment,
+      { x: 1_001, y: 4.25, z: 0 },
+      { x: 33.5, y: 8.05, z: -22.25 },
+      { x: 0, y: 0, z: -1 },
+    );
+    expect(spawn).toEqual({
+      groundYHint: 8.05 - PEDESTRIAN_EYE_HEIGHT_M,
+      pitch: 0,
+      x: 33.5,
+      yaw: 0,
+      z: -22.25,
+    });
+  });
+
+  test("returns no authored spawn when neither live camera point is walkable", () => {
+    expect(
+      pedestrianSpawnFromView(
+        { ...environment, groundAt: () => null },
+        { x: 10, y: 0, z: 10 },
+        { x: 20, y: 10, z: 20 },
+        { x: 0, y: -1, z: 0 },
+      ),
+    ).toBeUndefined();
+  });
+
   test("spawns at eye height on Pariser Platz facing the Brandenburg Gate", () => {
     const state = createPedestrianState(environment);
     const direction = pedestrianViewDirection(state);

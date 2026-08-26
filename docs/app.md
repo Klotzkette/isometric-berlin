@@ -69,8 +69,12 @@ shadow is removed as soon as the pedestrian enters, so neither a segment joint
 nor a portal can become a transverse wall on the route.
 
 Pedestrian mode is an independent navigation layer over all five visual modes.
-It starts directly below the current camera at a 1.80 m eye height above the
-existing smooth metric terrain, and disables
+It starts at a 1.80 m eye height above the exact walkable point currently under
+the orbit/free-camera focus and keeps the live heading and pitch. If that focus
+is outside the world, the camera ground point is tried; the established default
+spawn is used only when neither live point is valid. The focus height is kept
+as a tunnel-aware ground hint, so switching modes inside a tunnel does not lift
+the walker to the road above. Pedestrian mode disables
 flight, camera zoom and underside controls. `W`/`S` or up/down walk,
 `A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
 the head with an 80-degree vertical limit. Scrolling the mouse wheel up walks
@@ -273,7 +277,14 @@ autoplay attempt run only after the first app-shell paint.
 
 The drawn city itself is progressive. Non-touch desktop constructs the nearest
 exact 700 LoD2/OSM buildings on the main thread, then completes the source
-inventory in near-to-far, material-merged Worker groups. The mobile-like touch
+inventory in near-to-far, material-merged Worker groups. The desktop Worker
+receives immutable URLs for the prism, ground and surface assets instead of a
+second structured clone of three decoded world graphs. It fetches and parses
+those assets off the main thread, sends six compact all-building preview
+groups, and then replaces them with six spatially partitioned exact districts.
+Their transferred bounding spheres avoid a fresh main-thread geometry scan and
+allow Three.js to cull off-camera districts as units. The nearest deferred exact
+district is posted before the expensive paving/asphalt stages. The mobile-like touch
 profile applies when the primary or any pointer is coarse, or the browser
 reports `navigator.maxTouchPoints > 0`; it constructs an initial 320-building frame and stops
 after exact geometry for the nearest **5,000 LoD2 buildings**. Every eligible
@@ -696,6 +707,18 @@ the water without a centre pier and adds cross girders, abutments and a fine
 three-level rail inside the existing merged bridge layer. Minecraft carries
 the same harbour, vessel and railing identities as one compact block-native
 instance layer.
+
+Immediately north of Sandkrugbrücke, the Federal Ministry for Economic Affairs
+keeps five exact LoD2 source parts. Prism `yAAWS2KQ` is the long replacement
+wing parallel to the Berlin-Spandauer Schifffahrtskanal; prisms `K0000EU2` and
+`K0000B4S` are the two retained Invalidenhaus side wings. The dedicated layer
+does not replace those envelopes. It adds a five-storey canal grid with 44 bays
+and 220 panes, court-side ribbon grids, two framed east-end entrances, warmer
+historic stone bands, cornices and 114 historic windows. Only the two retained
+wings change from the undifferentiated LoD2 roof code to the OSM-supported red
+hipped-roof reading. Bodies, emissive panes and ink are merged into three
+renderables. Minecraft adds 78 pale-mullion/glass cues to the existing single
+Humboldthafen instance mesh rather than opening a new draw call.
 
 Six bounded facade-detail zones strengthen the street walls at Pariser Platz,
 Leipziger Platz, Breitscheidplatz, Platz der Republik, Europaplatz and

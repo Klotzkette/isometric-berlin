@@ -213,7 +213,7 @@ describe("progressive exact-world scheduling", () => {
     expect(mobileSlabs.count).toBeGreaterThan(deferredSlabs.count);
   });
 
-  test("posts only a source URL to the mobile Worker", () => {
+  test("posts source URLs instead of decoded world graphs to both Workers", () => {
     const inputStart = threeViewerSource.indexOf(
       "const progressiveInput: ProgressiveWorldWorkerInput",
     );
@@ -232,6 +232,16 @@ describe("progressive exact-world scheduling", () => {
     expect(mobileBranch).not.toContain("sceneRootUrl:");
     expect(mobileBranch).not.toContain("surfaces,");
     expect(mobileBranch).not.toContain("tunnel:");
+    const desktopEnd = threeViewerSource.indexOf(
+      "const isoWorld = createIsometricCity",
+      desktopBranch,
+    );
+    const desktopInput = threeViewerSource.slice(desktopBranch, desktopEnd);
+    expect(desktopInput).toContain('detailProfile: "full"');
+    expect(desktopInput).toContain("groundUrl: new URL(");
+    expect(desktopInput).toContain("prismUrl: new URL(");
+    expect(desktopInput).toContain("surfacesUrl: new URL(");
+    expect(desktopInput).not.toContain("prismPayload:");
 
     const workerMobileStart = progressiveWorkerSource.indexOf(
       'if (input.detailProfile === "mobile")',
@@ -310,19 +320,24 @@ describe("progressive exact-world scheduling", () => {
 
   test("shows every building through replaceable previews before exact refinement", () => {
     const desktopPreview = progressiveWorkerSource.lastIndexOf(
-      "postBuildingPreviews(input.prismPayload, buildingBatches)",
+      "postBuildingPreviews(prismPayload, buildingBatches)",
     );
     const firstSurface = progressiveWorkerSource.indexOf(
       'postSurface("water")',
       desktopPreview,
     );
     const exactBuildings = progressiveWorkerSource.indexOf(
-      "postBuildingBatches(input.prismPayload, buildingBatches)",
+      "[nearestBuildingBatch]",
       desktopPreview,
+    );
+    const paving = progressiveWorkerSource.indexOf(
+      'mergeBuiltSurfaceRoots(pavingRoots, "smooth paved paths")',
+      exactBuildings,
     );
     expect(desktopPreview).toBeGreaterThan(0);
     expect(firstSurface).toBeGreaterThan(desktopPreview);
     expect(exactBuildings).toBeGreaterThan(firstSurface);
+    expect(paving).toBeGreaterThan(exactBuildings);
     expect(progressiveWorkerSource).toContain(
       "`buildings-preview-${index + 1}`",
     );
@@ -692,7 +707,24 @@ describe("progressive exact-world scheduling", () => {
     );
     let renderables = 0;
     let vertices = 0;
+    let largestBatchArea = 0;
     for (const buildings of [batches.initial, ...batches.remaining]) {
+      let minX = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let minZ = Number.POSITIVE_INFINITY;
+      let maxZ = Number.NEGATIVE_INFINITY;
+      for (const entry of buildings) {
+        for (const [xDm, zDm] of entry.ring) {
+          minX = Math.min(minX, xDm / 10);
+          maxX = Math.max(maxX, xDm / 10);
+          minZ = Math.min(minZ, zDm / 10);
+          maxZ = Math.max(maxZ, zDm / 10);
+        }
+      }
+      largestBatchArea = Math.max(
+        largestBatchArea,
+        (maxX - minX) * (maxZ - minZ),
+      );
       const group = createIsometricCity(payload, null, null, null, {
         buildings,
         includeContext: false,
@@ -704,19 +736,26 @@ describe("progressive exact-world scheduling", () => {
         }
         renderables += 1;
         vertices += object.geometry.getAttribute("position")?.count ?? 0;
+        if (object.name === "LoD2 prism buildings") {
+          const color = object.geometry.getAttribute("color");
+          expect(object.geometry.getAttribute("normal")).toBeUndefined();
+          expect(color.array).toBeInstanceOf(Uint8Array);
+          expect(color.normalized).toBeTrue();
+        }
         object.geometry.dispose();
       });
       group.clear();
     }
-    // The monolithic production building core is 11 renderables / 17,637,378
-    // vertices after the source prisms for the open bell frame, authored
-    // Litfin tower and Wagner canopy are suppressed and the six plaza-facing
-    // facade rhythms join the existing line batch. Progressive ownership adds
-    // only six bounded groups and 32 shared primitive vertices, never the
-    // former 42-batch explosion.
+    // The production building core totals 17,636,020 vertices after the source
+    // prisms for the open bell frame, authored Litfin tower and Wagner canopy
+    // are suppressed, and the dedicated ministry model replaces its generic
+    // facade axes. Progressive ownership adds only six spatially bounded
+    // groups; shared four-vertex instance primitives are not repeated across
+    // former distance-ring batches.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
-    expect(renderables).toBe(49);
-    expect(vertices).toBe(17_637_410);
+    expect(renderables).toBeLessThanOrEqual(49);
+    expect(vertices).toBe(17_636_020);
+    expect(largestBatchArea).toBeLessThan(11 * 1_000_000);
   });
 });
 
@@ -754,7 +793,14 @@ describe("transferable Three geometry", () => {
     expect(
       (restoredMesh as Mesh).geometry.getAttribute("position").array,
     ).toEqual(mesh.geometry.getAttribute("position").array);
-    expect(restored.getObjectByName("instances")).toBeInstanceOf(InstancedMesh);
+    expect((restoredMesh as Mesh).geometry.boundingSphere?.radius).toBe(
+      mesh.geometry.boundingSphere?.radius,
+    );
+    const restoredInstances = restored.getObjectByName("instances");
+    expect(restoredInstances).toBeInstanceOf(InstancedMesh);
+    expect((restoredInstances as InstancedMesh).boundingSphere?.radius).toBe(
+      instances.boundingSphere?.radius,
+    );
     setIsoNightPresentation(restored, true, true, "night");
     expect((restoredMesh as Mesh).material).toBe(restoredMesh?.userData.nightMaterial);
   });

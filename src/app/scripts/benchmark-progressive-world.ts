@@ -11,11 +11,16 @@ import { Group, InstancedMesh, LineSegments, Mesh } from "three";
 
 import {
   createIsometricCity,
+  PRISM_WORLD_FILE,
   setIsoNightPresentation,
+  SURFACE_WORLD_FILE,
   type PrismPayload,
   type SurfacePayload,
 } from "../src/IsometricCityWorld";
-import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
+import {
+  GROUND_CONTEXT_FILE,
+  type VoxelPayload,
+} from "../src/MinecraftVoxelWorld";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   splitProgressiveBuildings,
@@ -56,11 +61,12 @@ const buildingPartition = splitProgressiveBuildings(
 );
 const initialBuildings = buildingPartition.initial;
 const input = {
-  ground,
+  detailProfile: "full" as const,
+  groundUrl: new URL(GROUND_CONTEXT_FILE, sceneRootUrl).toString(),
   initialBuildingCount: DESKTOP_INITIAL_BUILDING_COUNT,
-  prismPayload,
+  prismUrl: new URL(PRISM_WORLD_FILE, sceneRootUrl).toString(),
   sceneRootUrl,
-  surfaces,
+  surfacesUrl: new URL(SURFACE_WORLD_FILE, sceneRootUrl).toString(),
   tunnel: null,
   type: "build" as const,
 };
@@ -202,6 +208,11 @@ let renderableCount = 0;
 let vertices = 0;
 let geometryBytes = 0;
 const geometries = new Set<object>();
+const renderableStats: Array<{
+  bytes: number;
+  name: string;
+  vertices: number;
+}> = [];
 root.traverse((object) => {
   object3DCount += 1;
   if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
@@ -214,11 +225,23 @@ root.traverse((object) => {
   geometries.add(geometry);
   const position = geometry.getAttribute("position");
   vertices += position?.count ?? 0;
+  let renderableBytes = 0;
   for (const attribute of Object.values(geometry.attributes)) {
     geometryBytes += attribute.array.byteLength;
+    renderableBytes += attribute.array.byteLength;
   }
-  if (geometry.index) geometryBytes += geometry.index.array.byteLength;
+  if (geometry.index) {
+    geometryBytes += geometry.index.array.byteLength;
+    renderableBytes += geometry.index.array.byteLength;
+  }
+  renderableStats.push({
+    bytes: renderableBytes,
+    name: object.name || object.type,
+    vertices: position?.count ?? 0,
+  });
 });
+
+renderableStats.sort((left, right) => right.bytes - left.bytes);
 
 function geometryHash(name: string): string | null {
   const object = root.getObjectByName(name);
@@ -264,6 +287,11 @@ console.log(
         geometry_mib: Number((geometryBytes / 1024 / 1024).toFixed(1)),
         object3d: object3DCount,
         renderables: renderableCount,
+        top_renderables: renderableStats.slice(0, 12).map((entry) => ({
+          geometry_mib: Number((entry.bytes / 1024 / 1024).toFixed(1)),
+          name: entry.name,
+          vertices: entry.vertices,
+        })),
         vertices,
       },
       surface_batches: surfaceBatchCount,

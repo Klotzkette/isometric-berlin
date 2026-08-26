@@ -3,7 +3,6 @@ import type {
   PrismPayload,
   SurfacePayload,
 } from "./IsometricCityWorld";
-import type { VoxelPayload } from "./MinecraftVoxelWorld";
 import type { TunnelPortalCourseInput } from "./TunnelPortals";
 import type { TransferObject3D } from "./transferableObject3D";
 import type { VisualMode } from "./visualMode";
@@ -39,10 +38,10 @@ type ProgressiveWorldWorkerInputBase = {
 export type ProgressiveWorldWorkerInput =
   | (ProgressiveWorldWorkerInputBase & {
       detailProfile: "full";
-      ground: VoxelPayload;
-      prismPayload: PrismPayload;
+      groundUrl: string;
+      prismUrl: string;
       sceneRootUrl: string;
-      surfaces: SurfacePayload;
+      surfacesUrl: string;
       tunnel: TunnelPortalCourseInput | null;
     })
   | (ProgressiveWorldWorkerInputBase & {
@@ -178,6 +177,95 @@ export function prioritizeBuildings(
     .map(({ building }) => building);
 }
 
+type SpatialBuilding = {
+  building: PrismBuilding;
+  index: number;
+  x: number;
+  z: number;
+};
+
+function spatialBuilding(building: PrismBuilding, index: number): SpatialBuilding {
+  if (building.ring.length === 0) {
+    return { building, index, x: 0, z: 0 };
+  }
+  let x = 0;
+  let z = 0;
+  for (const point of building.ring) {
+    x += point[0] / 10;
+    z += point[1] / 10;
+  }
+  return {
+    building,
+    index,
+    x: x / building.ring.length,
+    z: z / building.ring.length,
+  };
+}
+
+function splitSpatialEntries(
+  entries: SpatialBuilding[],
+  batchCount: number,
+): SpatialBuilding[][] {
+  if (batchCount <= 1 || entries.length <= 1) return [entries];
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minZ = Number.POSITIVE_INFINITY;
+  let maxZ = Number.NEGATIVE_INFINITY;
+  for (const entry of entries) {
+    minX = Math.min(minX, entry.x);
+    maxX = Math.max(maxX, entry.x);
+    minZ = Math.min(minZ, entry.z);
+    maxZ = Math.max(maxZ, entry.z);
+  }
+  const axis: "x" | "z" = maxX - minX >= maxZ - minZ ? "x" : "z";
+  entries.sort(
+    (left, right) =>
+      left[axis] - right[axis] ||
+      left[axis === "x" ? "z" : "x"] -
+        right[axis === "x" ? "z" : "x"] ||
+      left.index - right.index,
+  );
+  const leftBatchCount = Math.floor(batchCount / 2);
+  const leftSize = Math.round(
+    (entries.length * leftBatchCount) / batchCount,
+  );
+  return [
+    ...splitSpatialEntries(entries.slice(0, leftSize), leftBatchCount),
+    ...splitSpatialEntries(
+      entries.slice(leftSize),
+      batchCount - leftBatchCount,
+    ),
+  ];
+}
+
+/** Compact exact batches let Three.js cull off-camera districts as a unit. */
+export function spatialBuildingBatches(
+  buildings: readonly PrismBuilding[],
+  batchSize: number,
+  center: readonly [number, number] = [317.729, 40.477],
+): PrismBuilding[][] {
+  if (buildings.length === 0) return [];
+  const boundedBatch = Math.max(1, Math.floor(batchSize));
+  const batchCount = Math.ceil(buildings.length / boundedBatch);
+  return splitSpatialEntries(
+    buildings.map(spatialBuilding),
+    batchCount,
+  )
+    .sort((left, right) => {
+      const nearest = (batch: SpatialBuilding[]): number =>
+        batch.reduce(
+          (distance, entry) =>
+            Math.min(
+              distance,
+              (entry.x - center[0]) ** 2 + (entry.z - center[1]) ** 2,
+            ),
+          Number.POSITIVE_INFINITY,
+        );
+      return nearest(left) - nearest(right) || left[0].index - right[0].index;
+    })
+    .map((batch) => batch.map(({ building }) => building));
+}
+
 export function splitProgressiveBuildings(
   buildings: readonly PrismBuilding[],
   initialCount: number,
@@ -196,14 +284,10 @@ export function splitProgressiveBuildings(
   const ordered = sourceCompleteOrder.slice(0, boundedTotal);
   const boundedInitial = Math.max(0, Math.min(ordered.length, initialCount));
   const boundedBatch = Math.max(1, Math.floor(batchSize));
-  const remaining: PrismBuilding[][] = [];
-  for (
-    let offset = boundedInitial;
-    offset < ordered.length;
-    offset += boundedBatch
-  ) {
-    remaining.push(ordered.slice(offset, offset + boundedBatch));
-  }
+  const remaining = spatialBuildingBatches(
+    ordered.slice(boundedInitial),
+    boundedBatch,
+  );
   return {
     initial: ordered.slice(0, boundedInitial),
     omitted: sourceCompleteOrder.slice(boundedTotal),

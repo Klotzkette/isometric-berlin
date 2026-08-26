@@ -76,6 +76,12 @@ export type PedestrianSpawn = {
   z: number;
 };
 
+export type PedestrianViewPoint = {
+  x: number;
+  y: number;
+  z: number;
+};
+
 export type PedestrianBounds = {
   maxX: number;
   maxZ: number;
@@ -197,6 +203,52 @@ export type PedestrianStep = {
   respawned: boolean;
   state: PedestrianState;
 };
+
+/**
+ * Convert the live camera rig into a walking spawn without changing place.
+ * Orbit/free-camera navigation owns its current map location in the controls
+ * target; the camera itself is only the elevated eye orbit around that point.
+ */
+export function pedestrianSpawnFromView(
+  environment: PedestrianEnvironment,
+  focusPoint: PedestrianViewPoint,
+  cameraPosition: PedestrianViewPoint,
+  viewDirection: PedestrianViewPoint,
+): PedestrianSpawn | undefined {
+  const candidates = [
+    { groundYHint: focusPoint.y, point: focusPoint },
+    {
+      groundYHint: cameraPosition.y - PEDESTRIAN_EYE_HEIGHT_M,
+      point: cameraPosition,
+    },
+  ];
+  const selected = candidates.find(({ point }) => {
+    return (
+      Number.isFinite(point.x) &&
+      Number.isFinite(point.z) &&
+      point.x >= environment.bounds.minX &&
+      point.x <= environment.bounds.maxX &&
+      point.z >= environment.bounds.minZ &&
+      point.z <= environment.bounds.maxZ &&
+      environment.groundAt(point.x, point.z) !== null
+    );
+  });
+  if (!selected) return undefined;
+
+  const horizontalLength = Math.hypot(viewDirection.x, viewDirection.z);
+  return {
+    groundYHint: Number.isFinite(selected.groundYHint)
+      ? selected.groundYHint
+      : undefined,
+    pitch: Math.asin(clamp(viewDirection.y, -1, 1)),
+    x: selected.point.x,
+    yaw:
+      horizontalLength > 1e-6
+        ? Math.atan2(viewDirection.x, -viewDirection.z)
+        : 0,
+    z: selected.point.z,
+  };
+}
 
 export const PEDESTRIAN_IDLE_INPUT: Readonly<PedestrianInput> = {
   forward: 0,

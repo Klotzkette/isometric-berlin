@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.72.28
+
+- **Der Spaziergang beginnt jetzt exakt am aktuellen 3D-Standort.** Beim
+  Umschalten wird zuerst der sichtbare Kamera-Fokus als Bodenpunkt übernommen;
+  nur wenn dieser außerhalb der begehbaren Welt liegt, dient die aktuelle
+  Kameraposition als Rückfall. Blickrichtung, Neigung und tunnelbewusste
+  Bodenhöhe bleiben erhalten. Der bisherige sichere Standard-Spawn greift nur,
+  wenn beide Live-Punkte ungültig sind.
+- **Das Bundeswirtschaftsministerium an Sandkrugbrücke und
+  Berlin-Spandauer Schifffahrtskanal ist als Ensemble lesbar.** Fünf exakte
+  LoD2-Teile behalten ihre vermessenen Hüllen. Der lange Kanalbau erhält 44
+  Fassadenachsen mit 220 Fenstern und fünf Geschossen; zwei erhaltene
+  Invalidenhaus-Flügel bekommen warmen Stein, rote Walmdächer, 114 historische
+  Fenster, Hofraster, Gesimse und gerahmte Eingänge. Minecraft ergänzt 78
+  blocknative Fassadenelemente innerhalb seines bestehenden einzigen
+  Humboldthafen-Drawcalls.
+- **Die progressive Vollstadt belastet den Hauptthread noch weniger.** Desktop
+  übergibt dem Worker nur unveränderliche Asset-URLs statt drei bereits
+  dekodierter Weltgraphen. Sechs räumlich kompakte LoD2-Gruppen verbessern
+  Frustum-Culling; vorberechnete Bounding-Spheres reisen mit den
+  Transfer-Puffern, und der nächstgelegene exakte Gebäudebatch kommt vor der
+  schweren Straßenstaffel. Im reproduzierbaren kalten Benchmark sind alle
+  29.818 Gebäude nach 4,44 s sichtbar, während das Anhängen mit maximal 10,1 ms
+  unter einem 16-ms-Frame bleibt.
+- **Der Release-Stand ist vollständig geprüft.** Die fokussierten
+  Fußgänger-, Ministeriums- und Minecraft-Verträge bestehen mit 34 Tests und
+  2.567 Assertions; vollständig liefen 1.274 App-Tests mit 6.204.250
+  Assertions, 336 Python-Tests und 45 Release-Tests. Die Browser-QA bestand
+  auf Desktop und Mobil in Tag, Nacht, Minecraft, Schneesturm und
+  Schwellenraum; beide Viewports zeigten genau einen nichtleeren Canvas ohne
+  Fehlerzustand.
+
 ## v0.72.27
 
 - **Dreifachdruck schaltet im Spaziergang einen eigenen 8×-Schnelllauf.**

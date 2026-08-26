@@ -186,12 +186,12 @@ import {
   createPedestrianState,
   jumpPedestrian,
   lookPedestrian,
+  pedestrianSpawnFromView,
   pedestrianViewDirection,
   setPedestrianYaw,
   stepPedestrian,
   type PedestrianEnvironment,
   type PedestrianInput,
-  type PedestrianSpawn,
   type PedestrianState,
 } from "./pedestrianNavigation";
 import { resolveSchwellenraumFlightTranslation } from "./schwellenraumNavigation";
@@ -968,27 +968,12 @@ function activatePedestrianMode(runtime: Runtime): boolean {
   runtime.pedestrian.enabled = true;
   const viewDirection = new Vector3();
   runtime.camera.getWorldDirection(viewDirection);
-  const currentGroundPoint = [
-    runtime.camera.position,
+  const spawn = pedestrianSpawnFromView(
+    environment,
     runtime.controls.target,
-  ].find((point) => {
-    return (
-      point.x >= environment.bounds.minX &&
-      point.x <= environment.bounds.maxX &&
-      point.z >= environment.bounds.minZ &&
-      point.z <= environment.bounds.maxZ &&
-      environment.groundAt(point.x, point.z) !== null
-    );
-  });
-  const spawn: PedestrianSpawn | undefined = currentGroundPoint
-    ? {
-        groundYHint: runtime.camera.position.y - PEDESTRIAN_EYE_HEIGHT_M,
-        pitch: Math.asin(MathUtils.clamp(viewDirection.y, -1, 1)),
-        x: currentGroundPoint.x,
-        yaw: Math.atan2(viewDirection.x, -viewDirection.z),
-        z: currentGroundPoint.z,
-      }
-    : undefined;
+    runtime.camera.position,
+    viewDirection,
+  );
   runtime.pedestrian.state = createPedestrianState(environment, spawn);
   runtime.pedestrian.cameraDirty = true;
   runtime.controls.enabled = false;
@@ -2989,12 +2974,21 @@ function ensureIsoWorld(
             : null
           : ground && surfaces
             ? {
-                ground,
                 detailProfile: "full",
+                groundUrl: new URL(
+                  GROUND_CONTEXT_FILE,
+                  runtime.sceneRootUrl,
+                ).toString(),
                 initialBuildingCount,
-                prismPayload: prisms,
+                prismUrl: new URL(
+                  PRISM_WORLD_FILE,
+                  runtime.sceneRootUrl,
+                ).toString(),
                 sceneRootUrl: runtime.sceneRootUrl.toString(),
-                surfaces,
+                surfacesUrl: new URL(
+                  SURFACE_WORLD_FILE,
+                  runtime.sceneRootUrl,
+                ).toString(),
                 tunnel: runtime.tunnelPortalCourse,
                 type: "build",
               }

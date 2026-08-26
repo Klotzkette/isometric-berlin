@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.27"
+PACKAGE_VERSION = "0.72.28"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3438,6 +3438,14 @@ Man kann nicht hindurchgehen, stirbt aber nie und wird nicht zurückgesetzt.
 OpenSeadragon hält mobil höchstens 32 Kacheln bei drei Ladern und am Desktop 64
 bei sechs. Beim Wechsel zur 2D-Karte wird WebGL überall freigegeben; die
 Renderziele bleiben mobil bei 1,35x / 3,2 MP und am Desktop bei 1,75x / 8,5 MP.
+Version {PACKAGE_VERSION} setzt den Fußgängermodus exakt auf den aktuellen
+Kamera-Fokus; nur bei einem ungültigen Fokus dient die Kameraposition als
+Rückfall. Das Bundeswirtschaftsministerium an Sandkrugbrücke und
+Berlin-Spandauer Schifffahrtskanal erhält auf seinen amtlichen LoD2-Hüllen
+Kanalraster, historische Invalidenhaus-Fenster, Gesimse und Eingänge. Auf dem
+Desktop lädt der Progressive-Worker seine unveränderten Welt-URLs selbst,
+liefert den nächstgelegenen Detailblock zuerst und überträgt Bounding-Spheres
+direkt mit den Geometrien.
 Version {PACKAGE_VERSION} rekonstruiert das Sozialgericht Berlin anhand der
 sechs bereitgestellten Fassadenfotos als warme ockerfarbene 4 + 3 + 4-Front.
 Die 58,038 m lange OSM-Arealgrenze bleibt ausdrücklich getrennt von der
@@ -3941,6 +3949,13 @@ resets the walker. OpenSeadragon keeps at most 32 tiles with three loaders on
 mobile and 64 with six on desktop. Switching to the 2D map releases WebGL
 everywhere; render targets stay within 1.35x / 3.2 MP on touch and 1.75x /
 8.5 MP on desktop.
+Version {PACKAGE_VERSION} enters pedestrian mode at the exact current camera
+focus; the camera position is only a fallback for an invalid focus. The Federal
+Ministry for Economic Affairs at Sandkrugbrücke and the Berlin-Spandauer
+Schifffahrtskanal gains canal grids, historic Invalidenhaus windows, cornices
+and entrances on its official LoD2 shells. On desktop, the progressive Worker
+fetches immutable world URLs itself, returns the nearest detail batch first
+and transfers bounding spheres together with geometry.
 Version {PACKAGE_VERSION} reconstructs Sozialgericht Berlin from the six
 supplied facade photographs as a warm ochre 4 + 3 + 4 elevation. The 58.038 m
 OSM site boundary remains explicitly separate from the actual 48.905 m LoD2
@@ -4482,17 +4497,20 @@ def write_package_manifest(package_dir: Path) -> None:
       "touch-three-finger-underside-orbit",
       "touch-two-finger-direct-pan-midpoint-pinch-zoom",
       "true-threejs-3d-orbit",
+      "exact-current-view-pedestrian-spawn",
       "cancelable-progressive-model-loading",
       "demand-only-photogrammetry-fallback",
       "mobile-like-touch-no-photogrammetry-fallback",
       "touch-capability-mobile-profile",
       "mobile-complete-building-progressive-worker",
+      "desktop-worker-url-payloads-spatial-batches",
       "hidden-tab-progressive-pause-and-restart",
       "sequential-mobile-progressive-and-park-build",
       "mobile-family-keyed-single-world-residency",
       "single-clean-webgl-runtime-recovery",
       "explicit-recovery-or-2d-after-repeat-failure",
       "minecraft-defers-surface-polygons-until-drawn-or-pedestrian",
+      "economic-ministry-canal-invalidenhaus-details",
       "timeout-and-retry-json-loading",
       "http11-immutable-heavy-asset-cache",
       "keyboard-arrow-screen-plane-pan",
