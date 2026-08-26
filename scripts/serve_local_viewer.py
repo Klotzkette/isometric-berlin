@@ -19,8 +19,8 @@ from urllib.parse import urlsplit
 
 CACHEABLE_SUFFIXES = {
   ".css",
-  ".glb",
   ".jpg",
+  ".json",
   ".js",
   ".png",
   ".svg",
@@ -44,7 +44,6 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
   extensions_map = {
     **http.server.SimpleHTTPRequestHandler.extensions_map,
     ".dzi": "application/xml",
-    ".glb": "model/gltf-binary",
   }
   protocol_version = "HTTP/1.1"
 

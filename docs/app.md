@@ -3,14 +3,15 @@
 React + TypeScript + Vite with two complementary static engines, managed with
 `bun`:
 
-- **Three.js true 3D:** official Berlin 3D Mesh 2025, progressively loaded,
-  freely orbitable from above and below.
+- **Three.js true 3D:** procedural Berlin LoD2/OSM geometry, progressively
+  loaded and freely orbitable from above and below.
 - **OpenSeadragon detail map:** the 16384×11616 DZI remains the fast,
   high-resolution cartographic fallback.
 
 The hosted build keeps that full pyramid. Release archives intentionally omit
 only its redundant top level and ship an 8192×5808 DZI fallback alongside the
-6144×4356 double-click overview; their complete 74-file 3D scene is unchanged.
+6144×4356 double-click overview. Both forms carry the same compact procedural
+JSON scene and no retired GLB or road-plate assets.
 
 Required attribution overlay in the viewer chrome. The viewer ships the
 required minimum (OSM + Geoportal Berlin) **plus** the Wikimedia visual-
@@ -21,12 +22,6 @@ OSM + Geoportal Berlin minimum:
 
 ```
 © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
-```
-
-The true 3D mode appends:
-
-```
-3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
 ```
 
 When Google Photorealistic 3D Tiles are enabled (opt-in), additionally
@@ -219,8 +214,8 @@ from an elevated camera over the Platz der Republik lawn in Day mode. Explicit
 landmark deep links override the rotating startup choice. The zero-server
 fallback keeps its static default.
 
-**Day is a drawn isometric city**: the lumpy photogrammetry buildings are
-replaced by prisms extruded from authoritative LoD2 footprint polygons plus a
+**Day is a drawn isometric city**: prisms are extruded from authoritative LoD2
+footprint polygons plus a
 non-overlapping OSM context-building sidecar where LoD2 is absent
 (`lod2-prisms.json`, built by
 `isometric_berlin.generation.build_isometric_prisms`) — exact corners,
@@ -235,12 +230,12 @@ through long polygons; quay coping follows the local landward grade. These are
 presentation interpolations, not new survey observations. The OSM/official
 tree layer stays soft ("Natur darf weich bleiben"). The recognition models
 (Reichstag dome, Brandenburg
-Gate, memorials, TIPI, Carillon…) remain visible on top of the prisms;
-the photographic hero crops are hidden. The camera FOV narrows from 39°
+Gate, memorials, TIPI, Carillon…) remain visible on top of the prisms. The
+camera FOV narrows from 39°
 to 30° in this mode to flatten the view toward a true isometric look.
 Night and Snow relight the same drawn city; Minecraft uses its separate voxel
-world. If the requested world fails, the viewer loads the photographic base
-shell as a bounded fallback rather than leaving the curtain open forever.
+world. If the requested world fails, the viewer performs one clean procedural
+remount and then exposes Recovery and 2D-map actions.
 
 The Sozialgericht Berlin is a dedicated source-bound recognition group rather
 than part of the kilometre-wide expanded-city batch. OSM way `423490503`
@@ -254,11 +249,10 @@ repeated masonry detail. Minecraft keeps the complete source mass and applies
 its block-native front only inside a shallow wall-edge recognition strip,
 preserving the courtyards and rear wings.
 
-The ordinary Day/Night/Snow/Schwellenraum cold start does not request the
-photographic GLBs
-or the complete Minecraft instances. It reads `ground-context.json`, a
-2.33 MB terrain-only sibling for the expanded bounds, while the losslessly
-row-compressed full voxel payload stays lazy.
+The ordinary Day/Night/Snow/Schwellenraum cold start reads only the procedural
+LoD2, terrain and bounded surface JSON needed by that world; the complete
+Minecraft instances remain lazy. Retired GLBs and the pretriangulated road
+plate are absent from the repository, build and offline package.
 The first HTML response contains a small attributed startup plate. React then
 loads the requested Three.js viewer as a separate chunk, while OpenSeadragon
 stays entirely dormant until the visitor chooses the 2D map. A
@@ -276,15 +270,17 @@ recognition-detail construction. Procedural audio graph preparation and its
 autoplay attempt run only after the first app-shell paint.
 
 The drawn city itself is progressive. Non-touch desktop constructs the nearest
-exact 700 LoD2/OSM buildings on the main thread, then completes the source
-inventory in near-to-far, material-merged Worker groups. The desktop Worker
+exact 700 LoD2/OSM buildings on the main thread. Its Worker retains exact
+geometry for the nearest 12,000 source buildings and represents every farther
+building as one measured, oriented, source-coloured instance shell. The desktop Worker
 receives immutable URLs for the prism, ground and surface assets instead of a
 second structured clone of three decoded world graphs. It fetches and parses
-those assets off the main thread, sends six compact all-building preview
-groups, and then replaces them with six spatially partitioned exact districts.
+those assets off the main thread, sends the permanent distant shell followed
+by three compact near-field previews, and then replaces those previews with
+three spatially partitioned exact districts.
 Their transferred bounding spheres avoid a fresh main-thread geometry scan and
 allow Three.js to cull off-camera districts as units. The nearest deferred exact
-district is posted before the expensive paving/asphalt stages. The mobile-like touch
+district is posted before terrain and surface decoding. The mobile-like touch
 profile applies when the primary or any pointer is coarse, or the browser
 reports `navigator.maxTouchPoints > 0`; it constructs an initial 320-building frame and stops
 after exact geometry for the nearest **5,000 LoD2 buildings**. Every eligible
@@ -306,33 +302,19 @@ or Schwellenraum materials before attachment. Entering Minecraft likewise stops
 the hidden Worker and disposes its completed follow-up groups. A Worker or asset
 failure never invokes the old synchronous full-city build.
 
-On non-touch desktop, the pathological 2,566-hole asphalt union uses the
-lossless, source-hash-bound
-`surface-pretriangulation.json` / `surface-asphalt-*.plate.gz` Earcut result.
-Terrain tessellation still uses the committed ground samples; paving polygons
-and asphalt triangles are processed in bounded Worker partitions and merged
-back to the historical single material meshes before transfer. Thus the final
-asphalt buffer hash, vertex count and steady surface draw calls match the
-one-shot path. The touch profile deliberately does not allocate either heavy
-road plate;
-its raster asphalt and full ParkDetails path ribbons preserve road context and
-every authored park route. Regenerate the non-touch desktop plate after any
-`surface-polygons.json` change with `bun run build:surface-plates` from
-`src/app`. The touch profile deliberately creates none of the eight exact
-Worker surface families; its raster surfaces and full ParkDetails path ribbons preserve the
-bounded context without duplicating the surface payload into a second realm.
-On the v0.72.2 benchmark
-payload retained for v0.72.3, the reproducible Bun benchmark records a 0.76 s
-preview build and a 1.9 ms maximum main-thread batch attachment, versus a
-17.08 s synchronous
-one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
-5.44 GiB to 3.55 GiB, while steady geometry remains 576.5 MiB and the complete
-scene uses 188 estimated draw calls versus 150 in the monolithic reference.
+Both profiles retain raster asphalt rather than duplicating the OSM road union
+as paving, asphalt and kerb meshes. The Worker transfers water, park, sand,
+earth, wood, metal and source lane-marking families; ParkDetails supplies the
+complete authored path network. On the v0.72.29 production benchmark, every
+source-building silhouette is present after about 1.81 seconds, exact
+refinement settles after about 7.0 seconds, the largest repeated main-thread
+attachment is 4.1 ms, conservative peak RSS is 1,293.4 MiB and steady geometry
+is 133.8 MiB across 187
+estimated draw calls and 7,304,079 vertices. The previous baseline measured
+1,891.5 MiB peak RSS, 376.4 MiB geometry, 208 draw calls and 22,075,977
+vertices.
 
-Non-touch desktop photo geometry remains available only for failure recovery.
-Every underside view keeps the authored tunnel/network geometry and never
-allocates the legacy photogrammetric shell; mobile-like touch sessions also
-stay photo-free on failure. Optional park details wait until the first
+Every underside view keeps the authored tunnel/network geometry. Optional park details wait until the first
 usable city frame in a drawn presentation. Core JSON transfers have a finite
 timeout, one retry and unmount cancellation.
 
@@ -343,15 +325,13 @@ footprints plus the non-overlapping OSM context sidecar (533,329 logical
 building columns on a 4 m grid, stepped roofs for gabled/hipped roof forms),
 OSM water/roads/plazas as
 run-length ground slabs, and the official tree points as trunk+crown cubes.
-The block world replaces the photogrammetry surfaces and hero crops while
-active. Outside the official payload grid, an explicitly marked extrapolated
+The block world replaces the drawn LoD2/OSM city while active. Outside the
+official payload grid, an explicitly marked extrapolated
 block surround carries the same versioned 6,450 m envelope, park bands, tree
 and lamp positions as Day and Night; it does not claim new surveyed geometry.
 GPU instancing keeps the complete world to a handful of draw calls. An opaque
-mode-coloured curtain stays in place until the block world is usable. On
-non-touch desktop, only an actual payload failure starts the photographic
-fallback; touch-profile failure remains on the authored recovery presentation.
-Leaving
+mode-coloured curtain stays in place until the block world is usable. A failed
+payload uses the same single-remount recovery contract as the drawn world. Leaving
 Minecraft restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
 Hauptbahnhof, Brandenburger Tor and the parliamentary band receive shared,
 opaque `InstancedMesh<BoxGeometry>` recognition batches over the same metric
@@ -504,8 +484,7 @@ after camera movement settles; direct rendering resumes during motion. The
 settled pass now includes an "isometric edge" outline (Roberts-cross on
 luminance, strengths in `crispnessProfile.ts`) that darkens strong gradients so
 buildings read graphic and edge-defined, while green-dominant vegetation is
-suppressed and stays soft. Known photogrammetry sky artefacts are removed at
-tile load via `meshArtefacts.ts` (evidence notes inline). Minecraft
+suppressed and stays soft. Minecraft
 uses its separate palette pass with reduced bloom and sparse shimmer. This keeps
 controls responsive while improving stationary facade and roof definition.
 
@@ -625,8 +604,8 @@ windows, station glass, street/tunnel fixtures and monument lighting become
 emissive at night. The selected lighting mode is restored locally and can be
 overridden with `?theme=day` or `?theme=night` for deterministic QA.
 
-The four hero landmarks carry metre-scale recognition models over the official
-photogrammetry. The Reichstag combines its four corner towers and west portico
+The four hero landmarks carry metre-scale recognition models over their exact
+LoD2/OSM anchors. The Reichstag combines its four corner towers and west portico
 with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
 datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
 mirror cone. The Chancellery keeps the published 36 m by 55 m leadership
@@ -652,8 +631,8 @@ sets and transparent cabins at different floors. These repeated details are
 instanced, and the supplied interior photographs remain non-bundled visual
 references rather than textures or surveyed plans. The Brandenburg Gate keeps its published
 62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
-Quadriga. These models sharpen silhouettes without replacing the aligned
-Berlin Mesh texture beneath them.
+Quadriga. These models sharpen silhouettes without replacing or moving the
+aligned metric building bodies beneath them.
 
 Across the Spree, the Chancellery extension is a separate present-day
 construction layer. OSM construction ways `1434663371`, `1315319770` and
@@ -668,7 +647,7 @@ positions. Trees and street lamps from older source snapshots are suppressed
 only inside the current construction polygon.
 
 The cultural recognition layer keeps similarly small features readable without
-altering the official base mesh. The TIPI am Kanzleramt retains the published
+altering the metric base city. The TIPI am Kanzleramt retains the published
 32 x 26 m auditorium envelope but now uses a photo-bounded eight-peak compound
 canvas, 48 batched seam ribs, low dark-timber entrance hall, paired entrance
 gables, raised foyer, projecting canopy, ticket booth, planters and distinct
@@ -680,9 +659,9 @@ display text, not a claimed current programme. Both lines stay legible in Day,
 Night, Snowstorm and Schwellenraum. Minecraft replaces the smooth tent with a
 separate coarse block tent and block-letter display for the owner-authored
 `PIGOR & EICHHORN` line only, so that line remains present in all five modes
-without duplicating `NUR HEUTE ABEND` or the smooth shell. The 42 m Carillon lets
-the official photogrammetric mesh carry its four granite pylons and adds 68
-individually placed bells beneath a shallow roof cap. Two compact
+without duplicating `NUR HEUTE ABEND` or the smooth shell. The 42 m Carillon
+keeps four granite pylons and adds 68 individually placed bells beneath a
+shallow roof cap. Two compact
 uniformed figures mark the Chancellery entrance. Selecting `Spreebogen` opens
 an unobstructed view of two static, source-bound Berlin passenger-vessel types.
 Their 43.10 x 7.00 x 1.29 m and 29.55 x 6.98 x 1.20 m envelopes come from the
@@ -839,9 +818,12 @@ Bertolt-Brecht-Platz.
 
 Dedicated public-art geometry owns OSM nodes `988668382` (Bertolt Brecht) and
 `13841652635` (Helene Weigel), so the generic monument layer cannot duplicate
-either work. Fritz Cremer's slightly over-life-size seated bronze Brecht is now
-read as a complete upright body with coat folds, hands and feet on the
-asymmetric open metal bench, including its deliberate empty place. The
+either work. Fritz Cremer's slightly over-life-size seated bronze Brecht now
+has a distinctly bald articulated head with brow ridges, eyes, inner ears,
+long angular nose, mouth and chin; a loose shirt collar, placket, buttons and
+folds; overlapping hands with ten fingers and thumbs; straight trouser creases,
+cuffs and shoes on the asymmetric open metal bench, including its deliberate
+empty place. The warm dark-brown bronze remains separate from the
 documented six-metre circular sett platform and three cylindrical,
 horizontally jointed black-stone steles complete the installation. Credits
 distinguish Peter Flierl's installation design, Fritz Cremer's sculpture and
@@ -850,7 +832,7 @@ figure/bench and stele solids; Minecraft replaces the smooth memorial with a
 deterministic four-batch, 197-block signature shared by full and mobile. The
 steles use non-legible incision cues only; the copyrighted poem and quotations
 are not reproduced. Full and mobile Smooth are identical at 3 renderables /
-24,840 stored and rendered vertices. Minecraft is 4 palette batches / 197
+38,400 stored and rendered vertices. Minecraft is 4 palette batches / 197
 blocks / 4,728 rendered instance vertices over one shared 24-vertex cube. The
 14 m close focus targets the exact Brecht anchor at 1.25 m local height, while
 the fine anatomy layer fades at 34/105 m. The current `Eine Skulptur für Helene
@@ -1218,20 +1200,14 @@ enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
 
 ## Remote DZI hosting
 
-By default the viewer loads the mesh scene from
-`public/mesh/regierungsviertel/scene.json` and the five compact JSON layers
-needed by the drawn city. The terrain-only `ground-context.json` replaces the
-full Minecraft instances during Day/Night/Snow/Schwellenraum startup. Neither the 2.6M-face
-interaction GLBs, the 6.6M-face archival surface nor hero crops are requested
-for normal drawn navigation. On non-touch desktop, the interaction shell is
-ordered by distance and loaded with bounded concurrency only when the requested
-drawn world has failed. Every underside view stays on the authored
-cutaway/network presentation. Mobile-like touch sessions never load that
-legacy photogrammetric shell, including on failure, and keep the explicit
-recovery UI instead.
-Model requests retry once, while JSON requests additionally have a finite
-timeout. The settled tier and all hero assets remain in the reproducible local
-archive but do not consume normal live bandwidth or GPU memory.
+By default the viewer loads the world manifest from
+`public/mesh/regierungsviertel/scene.json` and the compact procedural JSON
+layers needed by the selected world. `ground-context.json` supplies terrain
+during Day/Night/Snow/Schwellenraum startup, while Minecraft stays lazy. No
+GLB, hero-crop or pretriangulated road-plate inventory remains to request.
+Every underside view stays on the authored cutaway/network presentation and
+every profile keeps the explicit recovery UI. JSON requests use a finite
+timeout, one retry and cancellation on unmount.
 
 A WebGL runtime failure in any profile releases the canvas and active world,
 then performs exactly one clean automatic remount for that world family. A
@@ -1239,15 +1215,14 @@ repeated failure exposes the Recovery and 2D-map actions instead of allocating
 another hidden renderer or selecting 2D implicitly. In mobile-like touch
 sessions, a drawn/Minecraft family transition unmounts the inactive WebGL
 world. Moving to the 2D map unmounts WebGL on every device; non-touch desktop
-keeps its complete scene warm only across visual modes inside the live viewer. Static
-scenes hold the final framebuffer without a periodic redraw. Existing GLB normals are
-reused, repeated tunnel fixtures are instanced, and a stale mobile hero queue is
-stopped and disposed after a new landmark selection. Disposal also stops
-workers before they start another queued GLB, closes decoded image resources
-where the browser exposes them and resets custom touch state on lost pointer
-capture, global pointer release, window blur or tab hiding. A watchdog restores
-controls after a stale three-finger sequence, while finite camera bounds recover
-a lost pose.
+keeps its complete scene warm only across visual modes inside the live viewer.
+Static scenes hold the final framebuffer without a periodic redraw. Repeated
+tunnel fixtures are instanced, and only three compact progressive world batches
+can be pending. Disposal stops workers before another batch can attach, closes
+decoded image resources where the browser exposes them and resets custom touch
+state on lost pointer capture, global pointer release, window blur or tab
+hiding. A watchdog restores controls after a stale three-finger sequence, while
+finite camera bounds recover a lost pose.
 
 The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is
@@ -1262,8 +1237,7 @@ When opened over `file://`, its full-3D link now displays the platform-specific
 server command instead of navigating to a module page that browsers cannot load
 reliably from local files.
 
-The packaged HTTP server uses HTTP/1.1 and serves GLBs as
-`model/gltf-binary`. Heavy immutable assets (`.glb`, DZI images, JavaScript and
-CSS) receive a one-year immutable cache policy, while HTML and scene metadata
-revalidate. The repository development server uses revalidation rather than an
-immutable policy so a rebuilt file with the same name is not hidden by cache.
+The packaged HTTP server uses HTTP/1.1. Immutable procedural JSON, DZI images,
+JavaScript and CSS receive a one-year cache policy, while HTML and the small
+scene manifest revalidate. The repository development server uses revalidation
+so a rebuilt file with the same name is not hidden by cache.

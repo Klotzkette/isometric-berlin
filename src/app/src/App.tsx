@@ -215,8 +215,6 @@ const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)";
-const MESH_ATTRIBUTION =
-  "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH";
 
 const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Berlin Hauptbahnhof": "Hauptbahnhof",
@@ -5111,7 +5109,6 @@ export function App() {
         <span className="attribution-copy">
           <span>
             {ATTRIBUTION}
-            {viewerMode === "three" ? ` · ${MESH_ATTRIBUTION}` : ""}
           </span>
           <span>{status}</span>
         </span>

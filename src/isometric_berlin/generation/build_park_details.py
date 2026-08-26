@@ -87,20 +87,52 @@ class SceneOrigin:
 
 
 class MeshGroundSampler:
-  """Estimate display-ground height from the already packaged official mesh."""
+  """Estimate display-ground height from retained terrain evidence."""
 
-  def __init__(self, vertices: np.ndarray) -> None:
+  def __init__(
+    self,
+    vertices: np.ndarray,
+    ground_grid: tuple[np.ndarray, float, float, float] | None = None,
+  ) -> None:
     if vertices.ndim != 2 or vertices.shape[1] != 3 or len(vertices) == 0:
       raise ValueError("Mesh ground sampling requires XYZ vertices")
     self._vertices = vertices
     self._tree = cKDTree(vertices[:, [0, 2]])
     plausible_ground = vertices[(vertices[:, 1] >= -2.5) & (vertices[:, 1] <= 9.5), 1]
-    if len(plausible_ground) < 32:
+    if len(plausible_ground) < 32 and ground_grid is None:
       raise ValueError("Mesh ground sampling requires plausible terrain vertices")
-    bins = np.arange(-2.5, 9.75, 0.25)
-    counts, edges = np.histogram(plausible_ground, bins=bins)
-    mode_index = int(np.argmax(counts))
-    self._fallback_ground = float((edges[mode_index] + edges[mode_index + 1]) / 2)
+    if len(plausible_ground) >= 32:
+      bins = np.arange(-2.5, 9.75, 0.25)
+      counts, edges = np.histogram(plausible_ground, bins=bins)
+      mode_index = int(np.argmax(counts))
+      self._fallback_ground = float((edges[mode_index] + edges[mode_index + 1]) / 2)
+    else:
+      self._fallback_ground = float(np.median(plausible_ground))
+    self._ground_grid = ground_grid
+
+  @classmethod
+  def from_ground_context(cls, path: Path) -> MeshGroundSampler:
+    """Load the compact terrain grid retained by every current release."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    grid = payload["grid"]
+    heights = payload["ground_height"]
+    rows = int(heights["rows"])
+    cols = int(heights["cols"])
+    y_dm = np.asarray(heights["y_dm"], dtype=float)
+    if y_dm.size != rows * cols:
+      raise ValueError("Ground-context height grid has an invalid size")
+
+    cell_m = float(payload["cell_m"])
+    stride = int(heights["stride_cells"])
+    spacing = cell_m * stride
+    x0 = (float(grid["min_x_idx"]) + 0.5 * stride) * cell_m
+    z0 = (float(grid["min_z_idx"]) + 0.5 * stride) * cell_m
+    y = (y_dm / 10).reshape(rows, cols)
+    x = x0 + np.arange(cols) * spacing
+    z = z0 + np.arange(rows) * spacing
+    mesh_x, mesh_z = np.meshgrid(x, z)
+    vertices = np.column_stack((mesh_x.ravel(), y.ravel(), mesh_z.ravel()))
+    return cls(vertices, (y, x0, z0, spacing))
 
   @classmethod
   def from_directory(cls, mesh_dir: Path) -> MeshGroundSampler:
@@ -131,10 +163,29 @@ class MeshGroundSampler:
               trimesh.transform_points(np.asarray(geometry.vertices), transform)
             )
     if not vertices:
-      raise FileNotFoundError(f"No packaged base-tile geometry found in {mesh_dir}")
+      ground_context = mesh_dir / "ground-context.json"
+      if ground_context.is_file():
+        return cls.from_ground_context(ground_context)
+      raise FileNotFoundError(
+        f"No retained terrain context or legacy base-tile geometry found in {mesh_dir}"
+      )
     return cls(np.vstack(vertices))
 
   def height(self, x: float, z: float) -> float:
+    if self._ground_grid is not None:
+      values, x0, z0, spacing = self._ground_grid
+      x_index = np.clip((x - x0) / spacing, 0, values.shape[1] - 1)
+      z_index = np.clip((z - z0) / spacing, 0, values.shape[0] - 1)
+      x_low = int(np.floor(x_index))
+      z_low = int(np.floor(z_index))
+      x_high = min(x_low + 1, values.shape[1] - 1)
+      z_high = min(z_low + 1, values.shape[0] - 1)
+      x_mix = float(x_index - x_low)
+      z_mix = float(z_index - z_low)
+      top = values[z_low, x_low] * (1 - x_mix) + values[z_low, x_high] * x_mix
+      bottom = values[z_high, x_low] * (1 - x_mix) + values[z_high, x_high] * x_mix
+      return round(float(top * (1 - z_mix) + bottom * z_mix) + 0.12, 3)
+
     local_indices = self._tree.query_ball_point([x, z], r=25.0)
     local = self._vertices[np.asarray(local_indices, dtype=int), 1]
     local_ground = local[(local >= -2.5) & (local <= 9.5)]

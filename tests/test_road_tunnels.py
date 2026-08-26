@@ -139,7 +139,7 @@ def test_open_portal_corridors_include_every_measured_carriageway() -> None:
       assert corridors.covers(world_to_utm(carriageway["points"][-1]))
 
 
-def test_all_portal_approaches_are_reproducible_from_osm_and_official_mesh() -> None:
+def test_all_portal_approaches_are_reproducible_from_retained_source_data() -> None:
   scene = json.loads(SCENE.read_text(encoding="utf-8"))
   committed = scene["tiergartentunnel"]["portal_approaches"]
   generated = tunnel_portal_approaches()

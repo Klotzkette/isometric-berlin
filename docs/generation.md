@@ -67,46 +67,16 @@ schematic in depth. The same run reprojects the zero-server overlay's complete
 including the southern Reichpietschufer portal; stale pixels from an older
 bounds projection cannot survive regeneration.
 
-## Step 8a: official photogrammetric WebGL mesh
+## Step 8a: retired archival photogrammetry path
 
-The true 3D viewer uses the free Berlin 3D Mesh Model 2025 from the June 2025
-aerial survey. The fetcher intersects the official index with the committed
-bounds and selects 26 source tiles. Raw OBJ/MTL/JPEG ZIPs remain gitignored.
-
-```bash
-uv run python -m isometric_berlin.data.fetch_berlin_mesh \
-  --accept-terms --download-content
-uv run python -m isometric_berlin.generation.prepare_webgl_mesh
-```
-
-The converter includes every OBJ material segment. For the full scene it
-samples source textures into enhanced-but-bounded vertex colours, merges
-duplicate OBJ vertices and emits two scale-identical tiers: a 100,000-face-per-
-tile interaction/touch surface and a 289,797-face-per-tile archival detail
-surface, both with quadric aggression 5. A 58° smoothing crease splits normals
-only at severe folds, sharpening roof and facade edges without introducing
-invented metric geometry. The 26 interaction tiles contain 2,599,985 faces and
-1,377,751 vertices in 29.9 MiB; the 26 settled tiles contain 6,623,585 faces and
-3,464,527 vertices in 79.1 MiB. Meshopt uses 16-bit positions and 8-bit normals;
-the release retains both tiers for documented photo recovery. Normal
-Day/Night/Snow/Schwellenraum and Minecraft presentation does not request either
-photo tier;
-the interaction shell loads only for the designed underside cutaway or a
-drawn-world failure. The settled tier remains an archival source-detail asset
-and is not streamed during ordinary navigation. At rest, the frontend adds two
-80-triangle crown microclusters for each of the 25,305 official tree-catalogue points. Together
-with the 6,623,585-face surface this yields 10,672,385 official-source rendered
-face equivalents without tessellating unchanged triangles or describing the
-procedural crowns as surveyed shapes. Reichstag, Bundeskanzleramt, Hauptbahnhof and
-Brandenburger Tor receive
-separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
-real dome geometry while excluding surrounding tree noise. Hero material
-segments try 1600, 1536, 1280 and 1024 px textures before lower bounded
-fallbacks. Every GLB includes offline-generated vertex normals, so the browser
-does not recompute the 26 base tiles at startup.
-Every output GLB stays below 5 MiB; the complete 74-file scene is 174.3 MiB.
-The scene manifest records quality tier, face counts, quantization profile,
-source bounds, byte sizes and SHA-256 hashes.
+The v0.72.29 viewer no longer packages or renders Berlin 3D Mesh Model GLBs,
+source photographs or texture crops. The former 74-file interaction, settled
+and hero family duplicated the LoD2/procedural city while adding substantial
+startup, memory and GPU cost. Fetch and conversion modules remain available
+only for optional local archival QA under the Berlin 3D Downloadportal terms;
+raw OBJ/MTL/JPEG archives and any derived meshes stay gitignored and outside the
+release. `scene.json` records this retirement explicitly, and package/release
+gates reject GLB or `.plate.gz` files in the public world directory.
 
 The manifest anchors a procedural Reichstag glass/steel signature at the
 LoD2-aligned building centre and the Bundestag's published 24 m roof-terrace
@@ -118,7 +88,7 @@ adds alternating braces, an open crown ring, 360 mirror-cone panels and two
 guarded visitor ramps. Two night-only interior lights, a warm emissive mirror
 cone and a thin front-facing glow over only the 13 glazed rows improve the
 after-dark reading. This dimensioned overlay makes the dome legible without
-replacing the underlying official measured mesh.
+replacing the underlying metric LoD2 shell.
 
 Small cultural objects are procedural recognition layers rather than source
 geometry replacements. The TIPI uses its published 32 x 26 m ellipse and owner
@@ -156,9 +126,10 @@ surface builder records 20,782 bounded above-ground walking/cycling line parts:
 18,848 have an explicit OSM `surface`, 2,574 have `width` or `est_width`, and
 every remaining width/material is marked as a class/context fallback. The
 close-view export now retains one additional short valid section because the
-former second-stage 1 m path simplification has been removed. Heights
-are sampled locally from the packaged official mesh; a scene-ground fallback
-is used only outside mesh coverage. The resulting schema-7
+former second-stage 1 m path simplification has been removed. Heights are
+sampled from retained Geoportal tree/light terrain evidence; future
+regeneration reuses the compact bilinear `ground-context.json` grid without a
+legacy GLB dependency. The resulting schema-7
 `park-details.json` is 6.11 MB decimal (bounded by a 6 MiB binary test gate); raw WFS,
 OSM and mesh intermediates remain excluded.
 
@@ -336,13 +307,10 @@ Kanzleramt tones.
 `export_dzi` writes 256-pixel JPEG tiles with quality 85 and a real one-pixel
 overlap on every internal tile edge. The current descriptor has levels 0–14
 and 3,945 tiles. A clean `bun run build` contains both the full DZI and
-progressive WebGL assets. The release packager keeps every WebGL asset but
-reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
-highest fallback level so both extracted archives remain below their hard
-240 MiB ceiling (task-13 measures 238,895,458 extracted bytes); the compressed
-download remains below 200 MB. Hero crops load
-only when a photographic failure fallback is active and its landmark is
-selected; normal drawn navigation never requests them.
+the eight progressive procedural world payloads. The release packager keeps
+every current world JSON but reuses levels 0–13 as an 8192×5808 offline DZI,
+removing only the redundant highest fallback level. Both archives reject the
+retired GLB/hero family and remain comfortably below their hard size ceilings.
 
 Do not commit PNG quadrant intermediates. Commit only the DZI pyramid and the
 derived overview files under `src/app/public/dzi/regierungsviertel/`.

@@ -601,16 +601,33 @@ def architectural_signature_payload(
   buildings: gpd.GeoDataFrame | None = None,
 ) -> list[dict[str, Any]]:
   """Build dimensioned architectural overlays from primary-source evidence."""
+  ground_sampler: Any | None = None
+
+  def base_elevation(identifier: str, x: float, y: float) -> float:
+    entries = hero_details.get(identifier, [])
+    if entries:
+      return min(float(entry["source_bounds_epsg25833"][0][2]) for entry in entries)
+
+    # Current releases no longer ship the retired photogrammetry GLBs. Their
+    # lightweight Geoportal tree/light ground samples remain the common terrain
+    # datum for the procedural city, so rebuilt signatures use that same datum.
+    nonlocal ground_sampler
+    if ground_sampler is None:
+      from isometric_berlin.generation.build_minecraft_voxels import (
+        DEFAULT_PARK_DETAILS,
+        GroundSampler,
+      )
+
+      ground_sampler = GroundSampler.from_park_details(DEFAULT_PARK_DETAILS)
+    world_x = np.asarray([x - ORIGIN[0]], dtype=float)
+    world_z = np.asarray([ORIGIN[1] - y], dtype=float)
+    return float(ORIGIN[2] + ground_sampler.sample(world_x, world_z)[0])
+
   matches = landmarks[landmarks["name"] == "Reichstagsgebäude"]
   if len(matches) != 1:
     raise ValueError("Missing unique Reichstagsgebäude landmark")
-  details = hero_details.get("reichstag", [])
-  if not details:
-    raise ValueError("Missing Reichstag hero geometry for dome alignment")
-  source_ground_m = min(
-    float(detail["source_bounds_epsg25833"][0][2]) for detail in details
-  )
   point = matches.geometry.iloc[0]
+  source_ground_m = base_elevation("reichstag", point.x, point.y)
   base_world_y = source_ground_m - ORIGIN[2] + REICHSTAG_DOME_BASE_HEIGHT_M
   signatures = [
     {
@@ -618,8 +635,8 @@ def architectural_signature_payload(
       "kind": "reichstag_dome",
       "landmark_name": "Reichstagsgebäude",
       "geometry_status": (
-        "Procedural architectural signature aligned to the official Berlin 3D "
-        "mesh ground and the Bundestag's 24 m roof-terrace datum"
+        "Procedural architectural signature aligned to retained Geoportal "
+        "Berlin ground samples and the Bundestag's 24 m roof-terrace datum"
       ),
       "anchor_world": [
         round(float(point.x - ORIGIN[0]), 3),
@@ -646,12 +663,6 @@ def architectural_signature_payload(
       raise ValueError(f"Missing unique landmark for architecture model: {name}")
     return rows.geometry.iloc[0]
 
-  def base_elevation(identifier: str) -> float:
-    entries = hero_details.get(identifier, [])
-    if not entries:
-      raise ValueError(f"Missing hero geometry for architecture model: {identifier}")
-    return min(float(entry["source_bounds_epsg25833"][0][2]) for entry in entries)
-
   def anchor_world(x: float, y: float, elevation: float) -> list[float]:
     return [
       round(float(x - ORIGIN[0]), 3),
@@ -671,7 +682,8 @@ def architectural_signature_payload(
   signatures[0]["anchor_world"] = anchor_world(
     reichstag_frame.center_x,
     reichstag_frame.center_y,
-    base_elevation("reichstag") + REICHSTAG_DOME_BASE_HEIGHT_M,
+    base_elevation("reichstag", reichstag_frame.center_x, reichstag_frame.center_y)
+    + REICHSTAG_DOME_BASE_HEIGHT_M,
   )
   signatures.append(
     {
@@ -685,7 +697,7 @@ def architectural_signature_payload(
       "anchor_world": anchor_world(
         reichstag_frame.center_x,
         reichstag_frame.center_y,
-        base_elevation("reichstag"),
+        base_elevation("reichstag", reichstag_frame.center_x, reichstag_frame.center_y),
       ),
       "rotation_y_degrees": round(reichstag_frame.rotation_degrees, 3),
       "width_m": 100.0,
@@ -756,7 +768,11 @@ def architectural_signature_payload(
       "anchor_world": anchor_world(
         chancellery_frame.center_x,
         chancellery_frame.center_y,
-        base_elevation("bundeskanzleramt"),
+        base_elevation(
+          "bundeskanzleramt",
+          chancellery_frame.center_x,
+          chancellery_frame.center_y,
+        ),
       ),
       "rotation_y_degrees": round(chancellery_frame.rotation_degrees, 3),
       "overall_width_m": round(float(all_bounds[2] - all_bounds[0]), 3),
@@ -796,7 +812,7 @@ def architectural_signature_payload(
       "anchor_world": anchor_world(
         station_frame.center_x,
         station_frame.center_y,
-        base_elevation("hauptbahnhof"),
+        base_elevation("hauptbahnhof", station_frame.center_x, station_frame.center_y),
       ),
       "rotation_y_degrees": round(station_frame.rotation_degrees, 3),
       "east_west_roof_length_m": 321.0,
@@ -829,7 +845,7 @@ def architectural_signature_payload(
       "anchor_world": anchor_world(
         gate_point.x,
         gate_point.y,
-        base_elevation("brandenburger-tor"),
+        base_elevation("brandenburger-tor", gate_point.x, gate_point.y),
       ),
       "rotation_y_degrees": round(gate_frame.rotation_degrees, 3),
       "width_m": 62.5,
@@ -913,7 +929,10 @@ def _portal_carriageway_line(
 
 def tunnel_portal_approaches() -> dict[str, Any]:
   """Build four access sites from their separate mapped carriageways."""
-  from isometric_berlin.generation.build_park_details import MeshGroundSampler
+  from isometric_berlin.generation.build_minecraft_voxels import (
+    DEFAULT_PARK_DETAILS,
+    GroundSampler,
+  )
 
   roads = gpd.read_file(OSM_PATH, layer="roads").to_crs(SOURCE_CRS)
   tunnel = roads["tunnel"].fillna("").astype(str).str.lower()
@@ -925,7 +944,13 @@ def tunnel_portal_approaches() -> dict[str, Any]:
       ].geometry
     )
   )
-  sampler = MeshGroundSampler.from_directory(OUTPUT_DIR)
+  sampler = GroundSampler.from_park_details(DEFAULT_PARK_DETAILS)
+
+  def ground_height(easting: float, northing: float) -> float:
+    world_x = np.asarray([easting - ORIGIN[0]], dtype=float)
+    world_z = np.asarray([ORIGIN[1] - northing], dtype=float)
+    return float(sampler.sample(world_x, world_z)[0])
+
   result: dict[str, Any] = {}
   for portal_id, portal_spec in PORTAL_APPROACH_WAYS.items():
     courses: list[tuple[str, list[str], LineString, gpd.GeoDataFrame]] = []
@@ -933,18 +958,14 @@ def tunnel_portal_approaches() -> dict[str, Any]:
       line, selected = _portal_carriageway_line(roads, buried, way_ids)
       courses.append((carriageway_id, way_ids, line, selected))
 
-    # Adjacent portal mouths share one deck level. Taking the lower official
-    # mesh sample avoids canopy, bridge-deck and railing returns (notably at
-    # Kemperplatz) lifting one carriageway several metres above its neighbour.
-    portal_y = min(
-      sampler.height(line.coords[-1][0] - ORIGIN[0], ORIGIN[1] - line.coords[-1][1])
-      for _, _, line, _ in courses
-    )
+    # Adjacent portal mouths share one deck level. Taking the lower retained
+    # terrain sample keeps both carriageways aligned at one open mouth.
+    portal_y = min(ground_height(*line.coords[-1]) for _, _, line, _ in courses)
     carriageways: list[dict[str, Any]] = []
     for carriageway_id, way_ids, line, selected in courses:
       sample_count = max(3, math.ceil(line.length / 6) + 1)
       surface_x, surface_northing = line.coords[0]
-      surface_y = sampler.height(surface_x - ORIGIN[0], ORIGIN[1] - surface_northing)
+      surface_y = ground_height(surface_x, surface_northing)
       points: list[list[float]] = []
       widths: list[float] = []
       for index in range(sample_count):
@@ -973,8 +994,8 @@ def tunnel_portal_approaches() -> dict[str, Any]:
       "structure": portal_spec["structure"],
       "geometry_status": (
         "Separate OSM carriageway centrelines and lane-derived widths; endpoint "
-        "heights sampled from the packaged official Berlin 3D mesh; smooth "
-        "vertical grade between endpoints is a documented approximation"
+        "heights interpolated from retained Geoportal Berlin ground samples; "
+        "smooth vertical grade between endpoints is a documented approximation"
       ),
       "carriageways": carriageways,
     }
@@ -1004,7 +1025,7 @@ def tunnel_payload(_landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
 
 
 def refresh_tunnel_payload(output_dir: Path = OUTPUT_DIR) -> dict[str, Any]:
-  """Refresh only tunnel metadata without rebuilding the committed GLBs."""
+  """Refresh tunnel metadata without rebuilding the procedural world payloads."""
   scene_path = output_dir / "scene.json"
   manifest = json.loads(scene_path.read_text(encoding="utf-8"))
   manifest["tiergartentunnel"] = tunnel_payload(projected_landmarks())
@@ -1152,7 +1173,7 @@ def main() -> None:
   parser.add_argument(
     "--tunnel-only",
     action="store_true",
-    help="Refresh OSM/official-mesh tunnel metadata without rebuilding GLBs.",
+    help="Refresh OSM/Geoportal-sample tunnel metadata without rebuilding the world.",
   )
   args = parser.parse_args()
   if args.tunnel_only:

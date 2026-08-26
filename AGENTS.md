@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.28)
+## 3. Hard scope rules (v0.72.29)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -206,11 +206,12 @@ record the conflict and choose evidence according to
    Vorderlandmauer WFS additionally anchor individual trees, lamp positions
    and the double-row Wall trace; unknown object dimensions remain labelled
    display approximations.
-4. **Berlin 3D Mesh Model 2025** — official photogrammetric surface
-   geometry and aerial texture from the June 2025 survey, downloaded
-   tile-by-tile from the Berlin 3D Downloadportal after explicit terms
-   acceptance. LoD2 remains the metric building anchor. Public output
-   must credit Berlin Partner für Wirtschaft und Technologie GmbH.
+4. **Berlin 3D Mesh Model 2025** — optional archival alignment/QA evidence
+   from the June 2025 survey, downloaded only after explicit terms acceptance.
+   It is not a production viewer asset: do not commit derived photo GLBs,
+   texture crops or hidden fallback shells. LoD2 remains the metric building
+   anchor. Any separate public output that actually displays the mesh must
+   credit Berlin Partner für Wirtschaft und Technologie GmbH.
 5. **Google Maps Platform / Photorealistic 3D Tiles** — *opt-in*
    additive source for photorealistic geometry, texture, alignment,
    and visual reference where permitted by Google's terms. **Not** a
@@ -294,11 +295,11 @@ commit messages and PR titles (e.g. `step-4: …`).
 4. **ALKIS / DOP / DGM support (optional).**
    `isometric_berlin.data.fetch_official_support` pulls Berlin parcel
    / orthophoto / terrain data for alignment, QA, and terrain.
-4a. **Berlin 3D Mesh 2025 (official, additive).**
+4a. **Berlin 3D Mesh 2025 (optional archival QA only).**
    `isometric_berlin.data.fetch_berlin_mesh` selects only the source
    tiles intersecting the bounds. Raw OBJ/texture ZIPs remain
-   gitignored. `isometric_berlin.generation.prepare_webgl_mesh` writes
-   bounded, derived GLBs below 5 MiB each for the static Three.js viewer.
+   gitignored. Do not publish its derived GLBs or textures in the static
+   Three.js viewer; the production scene is procedural LoD2/OSM geometry.
 4b. **Official public-space details (official, additive).**
    `isometric_berlin.data.fetch_official_details` clips Berlin's tree,
    public-lighting and Vorderlandmauer WFS layers into
@@ -411,7 +412,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.28)
+## 8. What success looks like (Definition of Done v0.72.29)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -434,9 +435,11 @@ isometric-berlin/
 - All four shipped landmark payloads remain synchronised at 93 records; the
   alignment audit passes 41 relative-placement contracts and preserves the
   three established manual-review anchors.
-- A true Three.js mode using the official Berlin 3D Mesh, with progressive
-  loading, mouse/touch orbit, a real below-ground camera and a schematic
-  Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
+- A true Three.js mode using procedural Berlin LoD2/OSM geometry, with
+  progressive loading, complete instanced building coverage, mouse/touch
+  orbit, a real below-ground camera and a schematic Tiergartentunnel cutaway.
+  Retired GLBs and heavy road plates stay absent; the DZI remains the fast
+  detail-map fallback.
 - All landmarks and required context details from §3 are navigable. Hero
   recognition geometry may supplement, but never displace, the measured
   LoD2/OSM anchors.
@@ -499,7 +502,7 @@ isometric-berlin/
   granular seated figure/open bench and three cylindrical steles. Day, Night,
   Snowstorm and Schwellenraum share one drawn public-art root; Minecraft uses a
   deterministic block-native replacement with no smooth duplicate. Full and
-  mobile Smooth are identical at 3 renderables / 24,840 stored and rendered
+  mobile Smooth are identical at 3 renderables / 38,400 stored and rendered
   vertices; Minecraft is 4 batches / 197 blocks / 4,728 rendered instance
   vertices over one 24-vertex cube. The close camera uses 14 m and the fine
   layer 34/105 m hysteresis.

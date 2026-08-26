@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.72.29
+
+- **Der Live-Viewer und das Offline-Paket sind von ungenutztem Altbestand
+  befreit.** 74 nicht mehr dargestellte Fotomesh-/Hero-GLBs sowie die doppelte
+  vortriangulierte Asphaltplatte entfallen vollständig; zusammen verschwinden
+  rund 187 MB Quellballast. Kein Modus und kein Fehlerpfad lädt noch eine
+  versteckte Fotowelt. Nach einem Fehler erfolgt genau ein sauberer
+  prozeduraler Neuaufbau, danach bleiben Recovery und 2D-Karte explizit
+  erreichbar.
+- **Alle 29.818 Gebäude bleiben bei deutlich kleinerem Speicherbedarf
+  sichtbar.** Desktop hält die nächsten 12.000 und Mobil die nächsten 5.000
+  LoD2-Gebäude exakt; alle übrigen Quellgebäude stehen dauerhaft in einem
+  ausgerichteten Instanzbatch. Drei statt sechs kompakte Vorschau-/Exaktgruppen
+  sowie Rasterstraßen ohne doppelte Asphalt-, Pflaster- und Bordsteingeometrie
+  senken den kalten Produktionsbenchmark von 1.891,5 auf 1.293,4 MiB Spitzen-
+  RSS, von 376,4 auf 133,8 MiB Geometrie, von 208 auf 187 Draw Calls und von
+  22.075.977 auf 7.304.079 Vertices. Die vollständige Silhouette erscheint
+  nach rund 1,81 s; der langsamste wiederholte Batch-Anhang benötigt 4,1 ms am
+  Hauptthread.
+- **Fritz Cremers Brecht-Denkmal ist aus der Nähe wesentlich genauer.** Der
+  warme dunkelbraune Bronzeguss erhält den charakteristischen kahlen Kopf mit
+  Brauen, Augen, Ohren, langer kantiger Nase, Mund und Kinn, dazu Hemdkragen,
+  Knopfleiste, Falten, überlappende Hände mit lesbaren Fingern, gerade
+  Hosenfalten, Manschetten und Schuhe. Der asymmetrische offene Sitz mit leerem
+  Platz, die sechs Meter große Setzsteinplatte und drei schwarzpolierte,
+  horizontal gegliederte Natursteinstelen bleiben vollständig. Full und Mobile
+  Smooth teilen den festen Vertrag von 3 Renderables und 38.400 Vertices.
+- **Der Release-Stand ist vollständig geprüft.** Alle 1.269 App-Tests mit
+  6.204.141 Assertions, 338 Python-Tests und 70 gezielte Release-Tests bestehen;
+  Ruff, TypeScript/Vite-Build, Readiness und Offline-Smoke sind grün. Die
+  Browser-QA bestand auf 1280×720 und 390×844 in Tag, Nacht, Minecraft,
+  Schneesturm und Schwellenraum: jeder Zustand zeigte genau einen nichtleeren
+  Canvas ohne Konsolenwarnung, Recovery, Seitenüberlauf oder ungewollte
+  Überlappung.
+
 ## v0.72.28
 
 - **Der Spaziergang beginnt jetzt exakt am aktuellen 3D-Standort.** Beim

@@ -1338,19 +1338,28 @@ describe("prism suppression for full recognition models", () => {
 });
 
 describe("real bridge structures", () => {
+  const createBridgeTestCity = (
+    ground: Parameters<typeof createIsometricCity>[1],
+  ) => {
+    // Each bridge assertion owns a fresh procedural scene; release the prior
+    // fixture before allocating the next large BufferGeometry collection.
+    Bun.gc(true);
+    return createIsometricCity(payload, ground, null, null, {
+      buildings: [],
+      includeContext: false,
+    });
+  };
+
   test("bridges carry an elevated deck on piers that reach the riverbed", async () => {
-    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
-      await import("../src/IsometricCityWorld");
+    const { BRIDGE_MIN_CLUSTER_CELLS } = await import(
+      "../src/IsometricCityWorld"
+    );
     const voxelPayload =
       (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
         default: { water_top_y_m: number };
       };
     expect(BRIDGE_MIN_CLUSTER_CELLS).toBeGreaterThan(0);
-    const city = createIsometricCity(
-      payload,
-      voxelPayload.default as never,
-      null,
-    );
+    const city = createBridgeTestCity(voxelPayload.default as never);
     const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
     expect(bodies).toBeInstanceOf(Mesh);
     const bounds = new Box3().setFromObject(bodies);
@@ -1374,13 +1383,14 @@ describe("real bridge structures", () => {
   test(
     "retains narrow one-cell park stegs without widening them into roads",
     async () => {
-      const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
-        await import("../src/IsometricCityWorld");
+      const { BRIDGE_MIN_CLUSTER_CELLS } = await import(
+        "../src/IsometricCityWorld"
+      );
       const ground = (
         await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
       ).default as never;
       expect(BRIDGE_MIN_CLUSTER_CELLS).toBe(1);
-      const city = createIsometricCity(payload, ground, null);
+      const city = createBridgeTestCity(ground);
       const group = city.getObjectByName("drawn bridge structures") as Group;
       expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(20);
     },
@@ -1390,8 +1400,7 @@ describe("real bridge structures", () => {
   test(
     "the Gustav-Heinemann-Brücke reaches both banks of the Spree",
     async () => {
-      const { createIsometricCity, BRIDGE_PROFILES } =
-        await import("../src/IsometricCityWorld");
+      const { BRIDGE_PROFILES } = await import("../src/IsometricCityWorld");
       const voxelPayload =
         (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
           default: { water_top_y_m: number };
@@ -1400,11 +1409,7 @@ describe("real bridge structures", () => {
         (entry) => entry.name === "Gustav-Heinemann-Brücke",
       );
       expect(profile?.surveyedDeck?.halfLengthM).toBeGreaterThan(40);
-      const city = createIsometricCity(
-        payload,
-        voxelPayload.default as never,
-        null,
-      );
+      const city = createBridgeTestCity(voxelPayload.default as never);
       const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
       const position = bodies.geometry.getAttribute("position");
       // The 4 m ground grid only caught 52 m of this narrow footbridge, so the
@@ -1430,7 +1435,6 @@ describe("real bridge structures", () => {
     "pins the corrected bridges to published dimensions and identities",
     async () => {
       const {
-        createIsometricCity,
         BRIDGE_PROFILES,
         GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
         GOLDA_PERFORATION_BAYS,
@@ -1563,7 +1567,7 @@ describe("real bridge structures", () => {
         usesGenericBridgeDeckOrnament(profile("Kronprinzenbrücke")),
       ).toBeTrue();
 
-      const city = createIsometricCity(payload, ground, null);
+      const city = createBridgeTestCity(ground);
       const bridgeGroup = city.getObjectByName(
         "drawn bridge structures",
       ) as Group;
@@ -1754,7 +1758,6 @@ describe("real bridge structures", () => {
     "leaves the parliament crossing to its open recognition model and keeps the Kronprinzen prow supports",
     async () => {
       const {
-        createIsometricCity,
         BRIDGE_MIN_CLEARANCE_M,
         BRIDGE_PROFILES,
         KRONPRINZEN_SPAN_LAYOUT_M,
@@ -1762,7 +1765,7 @@ describe("real bridge structures", () => {
       const ground = (
         await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
       ).default as { water_top_y_m: number };
-      const city = createIsometricCity(payload, ground as never, null);
+      const city = createBridgeTestCity(ground as never);
       const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
       const positions = bodies.geometry.getAttribute("position");
       const parliament = BRIDGE_PROFILES.find(
@@ -1820,7 +1823,6 @@ describe("real bridge structures", () => {
     "Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free",
     async () => {
       const {
-        createIsometricCity,
         BRIDGE_PROFILES,
         GUSTAV_HEINEMANN_STRUCTURE_PROFILE,
         HUGO_PREUSS_STRUCTURE_PROFILE,
@@ -1828,7 +1830,7 @@ describe("real bridge structures", () => {
       const ground = (
         await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
       ).default as { water_top_y_m: number };
-      const city = createIsometricCity(payload, ground as never, null);
+      const city = createBridgeTestCity(ground as never);
       const group = city.getObjectByName("drawn bridge structures") as Group;
       const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
       const positions = bodies.geometry.getAttribute("position");

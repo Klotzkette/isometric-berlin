@@ -51,14 +51,10 @@ SURFACE_PLATE_MAGIC = b"ISOPLT01"
 SURFACE_PLATE_HEADER_BYTES = 32
 SURFACE_PLATE_SCHEMA_VERSION = 1
 SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
-# The compressed download must remain below AGENTS.md's 200 MB ceiling. The
-# extracted offline copy has a separate 240 MiB integrity ceiling: the task-13
-# 500 m ring measures 238,895,458 extracted bytes (227.8 MiB), while both
-# compressed archives remain below the 200 MiB download ceiling. The compact
-# 2.22 MiB ground-only startup context covers the owner-approved task-13 hull
-# without thinning and saves roughly 146 MiB of normal cold-start requests, so
-# retaining it is materially more useful than the former 1 MiB micro-budget.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 240 * 1024 * 1024
+# The retired photographic scene was the dominant package cost. Keep enough
+# room for the compact DZI pyramid and procedural source JSON while preventing
+# that legacy payload from silently returning.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 120 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -94,10 +90,12 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  "mesh/regierungsviertel/lod2-prisms.json",
+  "mesh/regierungsviertel/minecraft-voxels.json",
+  "mesh/regierungsviertel/park-details.json",
+  "mesh/regierungsviertel/rail-lines.json",
   "mesh/regierungsviertel/street-details.json",
-  f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}",
   f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
-  "mesh/regierungsviertel/tile-3894_58196.glb",
 )
 REQUIRED_ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
@@ -641,141 +639,32 @@ def webgl_manifest_failures(
   asset_reader: Callable[[str], bytes],
   actual_asset_names: set[str] | None = None,
 ) -> list[str]:
-  """Validate scene structure and the bytes of every referenced GLB."""
+  """Validate the procedural scene contract and reject retired GLB assets."""
   failures: list[str] = []
-  base_tiles = scene.get("base_tiles")
-  if not isinstance(base_tiles, list) or len(base_tiles) < MIN_BOUNDED_MESH_TILES:
-    failures.append(
-      "WebGL scene needs the complete bounded Berlin interaction-tile set "
-      f"(at least {MIN_BOUNDED_MESH_TILES}): {label}"
-    )
-    base_tiles = []
-  if base_tiles:
-    base_face_count = sum(
-      entry.get("faces", 0)
-      for entry in base_tiles
-      if isinstance(entry, dict) and type(entry.get("faces")) is int
-    )
-    if base_face_count < MIN_BASE_MESH_FACES:
-      failures.append(
-        f"WebGL base surface is below the {MIN_BASE_MESH_FACES:,}-face quality "
-        f"floor: {label} ({base_face_count:,} faces)"
-      )
-    invalid_quality_entries = [
-      str(entry.get("file", "<unknown>"))
-      for entry in base_tiles
-      if not isinstance(entry, dict)
-      or entry.get("target_faces") != REQUIRED_BASE_TARGET_FACES
-      or entry.get("normal_crease_degrees") != REQUIRED_BASE_NORMAL_CREASE_DEGREES
-      or entry.get("simplification_aggression")
-      != REQUIRED_BASE_SIMPLIFICATION_AGGRESSION
-    ]
-    if invalid_quality_entries:
-      failures.append(
-        "WebGL base tiles do not use the required 100k/58-degree/aggression-5 "
-        f"surface profile: {label} ({invalid_quality_entries[:3]})"
-      )
-    invalid_meshopt_entries = [
-      str(entry.get("file", "<unknown>"))
-      for entry in base_tiles
-      if not isinstance(entry, dict)
-      or entry.get("meshopt_compressed") is not True
-      or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
-      or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
-    ]
-    if invalid_meshopt_entries:
-      failures.append(
-        "WebGL base tiles lack the required Meshopt 16-bit-position/8-bit-normal "
-        f"profile: {label} ({invalid_meshopt_entries[:3]})"
-      )
-  surface_tiles = scene.get("surface_detail_tiles")
-  if not isinstance(surface_tiles, list) or len(surface_tiles) < len(base_tiles):
-    failures.append(
-      "WebGL scene needs one settled surface-detail tile for every bounded "
-      f"interaction tile: {label}"
-    )
-    surface_tiles = []
-  elif base_tiles:
-    base_tile_ids = {
-      str(entry["tile_id"])
-      for entry in base_tiles
-      if isinstance(entry, dict) and entry.get("tile_id")
-    }
-    surface_tile_ids = {
-      str(entry["tile_id"])
-      for entry in surface_tiles
-      if isinstance(entry, dict) and entry.get("tile_id")
-    }
-    missing_tile_ids = sorted(base_tile_ids - surface_tile_ids)
-    if missing_tile_ids:
-      failures.append(
-        "WebGL settled surface misses bounded tile IDs: "
-        f"{label} ({missing_tile_ids[:3]})"
-      )
-  if surface_tiles:
-    surface_face_count = sum(
-      entry.get("faces", 0)
-      for entry in surface_tiles
-      if isinstance(entry, dict) and type(entry.get("faces")) is int
-    )
-    if surface_face_count < MIN_SETTLED_SURFACE_FACES:
-      failures.append(
-        f"WebGL settled surface is below the {MIN_SETTLED_SURFACE_FACES:,}-face "
-        f"quality floor: {label} ({surface_face_count:,} faces)"
-      )
-    invalid_surface_entries = [
-      str(entry.get("file", "<unknown>"))
-      for entry in surface_tiles
-      if not isinstance(entry, dict)
-      or entry.get("target_faces") != REQUIRED_SETTLED_TARGET_FACES
-      or entry.get("normal_crease_degrees") != REQUIRED_BASE_NORMAL_CREASE_DEGREES
-      or entry.get("simplification_aggression")
-      != REQUIRED_BASE_SIMPLIFICATION_AGGRESSION
-      or entry.get("meshopt_compressed") is not True
-      or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
-      or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
-    ]
-    if invalid_surface_entries:
-      failures.append(
-        "WebGL settled tiles do not use the required "
-        "289797-face/58-degree/aggression-5/Meshopt profile: "
-        f"{label} ({invalid_surface_entries[:3]})"
-      )
-  hero_details = scene.get("hero_details")
-  if not isinstance(hero_details, list):
-    failures.append(f"WebGL scene lacks hero details: {label}")
-    hero_details = []
-  hero_ids = {
-    str(hero.get("id"))
-    for hero in hero_details
-    if isinstance(hero, dict) and hero.get("files")
-  }
-  if not REQUIRED_HERO_MESHES.issubset(hero_ids):
-    failures.append(
-      f"WebGL scene lacks required hero mesh groups: {label} "
-      f"({sorted(REQUIRED_HERO_MESHES - hero_ids)})"
-    )
-  hero_files = [
-    file
-    for hero in hero_details
-    if isinstance(hero, dict)
-    for file in hero.get("files", [])
-    if isinstance(file, dict)
-  ]
-  invalid_hero_entries = [
-    str(entry.get("file", "<unknown>"))
-    for entry in hero_files
-    if entry.get("meshopt_compressed") is not True
-    or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
-    or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
-    or not isinstance(entry.get("texture_max_edge"), int)
-    or int(entry["texture_max_edge"]) > 1600
-  ]
-  if invalid_hero_entries:
-    failures.append(
-      "WebGL hero crops lack the required Meshopt/1600px texture profile: "
-      f"{label} ({invalid_hero_entries[:3]})"
-    )
+  if scene.get("schema_version") != 3:
+    failures.append(f"WebGL scene must use procedural schema 3: {label}")
+  strategy = scene.get("render_strategy")
+  if not isinstance(strategy, dict):
+    failures.append(f"WebGL scene lacks a procedural render strategy: {label}")
+    strategy = {}
+  if strategy.get("kind") != "procedural-drawn":
+    failures.append(f"WebGL scene has the wrong render strategy: {label}")
+  if strategy.get("exact_building_limits") != {"desktop": 12000, "mobile": 5000}:
+    failures.append(f"WebGL scene has the wrong exact-building budgets: {label}")
+  if strategy.get("complete_building_coverage") != "instanced distant shells":
+    failures.append(f"WebGL scene lacks complete instanced building coverage: {label}")
+  if strategy.get("source_building_count") != 29_818:
+    failures.append(f"WebGL scene has the wrong source-building count: {label}")
+  if strategy.get("legacy_photogrammetry_removed") is not True:
+    failures.append(f"WebGL scene still enables retired photogrammetry: {label}")
+  if (
+    strategy.get("heavy_road_geometry")
+    != "raster streets plus authored paths and source lane markings"
+  ):
+    failures.append(f"WebGL scene lacks the low-memory road strategy: {label}")
+  for inventory in ("base_tiles", "surface_detail_tiles", "hero_details"):
+    if scene.get(inventory) != []:
+      failures.append(f"WebGL scene still inventories retired {inventory}: {label}")
   tunnel = scene.get("tiergartentunnel")
   if not isinstance(tunnel, dict) or len(tunnel.get("points", [])) < 8:
     failures.append(f"WebGL scene lacks 3D Tiergartentunnel route: {label}")
@@ -866,82 +755,20 @@ def webgl_manifest_failures(
       f"WebGL scene lacks LoD2-aligned Chancellery office segments: {label}"
     )
 
-  files = [*base_tiles, *surface_tiles]
-  files.extend(
-    file
-    for hero in hero_details
-    if isinstance(hero, dict)
-    for file in hero.get("files", [])
-  )
-  asset_cache: dict[str, bytes] = {}
-  expected_asset_names: set[str] = set()
-  for entry in files:
-    if not isinstance(entry, dict) or not entry.get("file"):
-      failures.append(f"Invalid WebGL asset entry: {label}")
-      continue
-    relative = str(entry["file"])
-    relative_path = Path(relative)
-    if (
-      relative_path.is_absolute()
-      or relative_path.suffix.lower() != ".glb"
-      or relative_path.as_posix() != relative
-      or ".." in relative_path.parts
-      or "\\" in relative
-    ):
-      failures.append(f"Unsafe WebGL asset path {relative!r}: {label}")
-      continue
-    expected_asset_names.add(relative)
-    expected_size = entry.get("bytes")
-    expected_hash = entry.get("sha256")
-    if entry.get("includes_normals") is not True:
-      failures.append(f"WebGL asset lacks bundled normals flag for {relative}: {label}")
-    if type(expected_size) is not int or expected_size <= 0:
-      failures.append(f"WebGL asset has invalid byte count for {relative}: {label}")
-    if not isinstance(expected_hash, str) or not SHA256_RE.fullmatch(expected_hash):
-      failures.append(f"WebGL asset has invalid SHA-256 for {relative}: {label}")
-
-    if relative in asset_cache:
-      data = asset_cache[relative]
-    else:
-      try:
-        data = asset_reader(relative)
-      except (FileNotFoundError, KeyError, OSError):
-        failures.append(f"Missing referenced WebGL asset {relative}: {label}")
-        continue
-      asset_cache[relative] = data
-    actual_size = len(data)
-    if actual_size > MAX_REPOSITORY_BINARY_BYTES:
-      failures.append(
-        f"WebGL asset exceeds 5 MiB repository limit ({relative}): {label}"
-      )
-    if type(expected_size) is int and actual_size != expected_size:
-      failures.append(f"WebGL asset size mismatch for {relative}: {label}")
-    if (
-      isinstance(expected_hash, str)
-      and SHA256_RE.fullmatch(expected_hash)
-      and hashlib.sha256(data).hexdigest() != expected_hash
-    ):
-      failures.append(f"WebGL asset hash mismatch for {relative}: {label}")
-
-  total_bytes = sum(len(data) for data in asset_cache.values())
-  if total_bytes > MAX_WEBGL_SCENE_BYTES:
+  if actual_asset_names:
     failures.append(
-      "WebGL scene exceeds "
-      f"{MAX_WEBGL_SCENE_BYTES // 1024 // 1024} MiB progressive offline budget: "
-      f"{total_bytes} bytes"
+      f"Retired binary assets remain in the procedural scene: {label} "
+      f"({sorted(actual_asset_names)[:3]})"
     )
-  if actual_asset_names is not None:
-    for relative in sorted(actual_asset_names - expected_asset_names):
-      failures.append(f"Unreferenced WebGL asset {relative}: {label}")
   source = scene.get("source")
   attribution = str(source.get("attribution", "")) if isinstance(source, dict) else ""
-  if "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution:
-    failures.append(f"WebGL scene lacks Berlin Partner attribution: {label}")
+  if attribution != REQUIRED_ATTRIBUTION:
+    failures.append(f"WebGL scene lacks the required open-data attribution: {label}")
   return failures
 
 
 def webgl_scene_failures(public_mesh: Path) -> list[str]:
-  """Validate the bounded official-mesh scene and every referenced GLB."""
+  """Validate the procedural scene and reject retired GLB files."""
   scene_path = public_mesh / "scene.json"
   ground_context = public_mesh / "ground-context.json"
   if not scene_path.exists():
@@ -980,7 +807,10 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
     return [f"WebGL scene manifest is not an object: {scene_path}"]
 
   actual_asset_names = {
-    path.relative_to(public_mesh).as_posix() for path in public_mesh.rglob("*.glb")
+    path.relative_to(public_mesh).as_posix()
+    for path in public_mesh.rglob("*")
+    if path.is_file()
+    and (path.suffix.lower() == ".glb" or path.name.endswith(".plate.gz"))
   }
   return webgl_manifest_failures(
     scene,
@@ -1054,22 +884,13 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "three-finger gesture": "touchPoints.size >= 3",
     "three-finger underside": "setModelMaterialState(runtime, polar > Math.PI / 2)",
     "full underside orbit": "controls.maxPolarAngle = Math.PI - 0.06",
-    "late-loaded underside materials": (
-      "material.side = runtime.underside ? DoubleSide : FrontSide"
-    ),
-    "drawn building facades (no photo textures)": "applyDrawnFacade(material, { anchor: facadeAnchor })",
     "hidden default marker": "marker.visible = false",
-    "bounded hero-detail cache": "heroDetailEvictions",
     "GPU texture disposal": "texture.dispose()",
-    "retryable model loading": "loadModelWithRetry",
     "nonfatal detail warnings": "onWarningRef.current",
     "WebGL context-loss fallback": 'addEventListener("webglcontextlost"',
     "full-rate camera movement": "ACTIVE_MOTION_FRAME_INTERVAL_MS",
     "motion-stable transparent ink": "material.depthWrite = false",
     "resting framebuffer hold": "const renderRequired =",
-    "reuse bundled mesh normals": (
-      '!detail && !object.geometry.getAttribute("normal")'
-    ),
     "instanced tunnel fixtures": ('"Tiergartentunnel instanced ceiling lights"'),
     "state-aware tunnel presentation": (
       "runtime.pedestrian.state?.insideTunnel === true ||"
@@ -1079,10 +900,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "Ahornsteig rainbow memorial layer": "createQueerRainbowMemorial()",
     "separate CSD attack memorial layer": "createCsdAttackMemorial()",
-    "stale mobile hero cancellation": (
-      "runtime.coarsePointer && selectedRef.current !== name"
-    ),
-    "disposed queue cancellation": "shouldStop: () => runtime.disposed",
     "lost pointer-capture recovery": '"lostpointercapture"',
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
@@ -1092,12 +909,14 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
     "static selected marker": "marker.visible = false",
-    "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
     "compact fast-start terrain": "GROUND_CONTEXT_FILE",
-    "demand-only photographic shell": "photographicSurfaceNeeded(",
-    "seven-million-plus official-source presentation": '"settled-7m-plus"',
+    "retired photographic surface hard-disable": "photographicSurfaceNeeded(",
+    "desktop exact-building cap": "DESKTOP_TOTAL_BUILDING_LIMIT",
+    "raster asphalt retention": "retainRasterAsphalt: true",
+    "startup work yielding": "await yieldStartupWork();",
+    "procedural failure reporting": "runtime.reportWorldFailure = () => {",
     "settled-only official-tree detail gate": (
-      "setParkSettledDetail(runtime.parkDetails, settled)"
+      "setParkSettledDetail(runtime.parkDetails, false)"
     ),
     "mode-locked surface tier": (
       "setSurfacePresentation(runtime, stability.pinInteractionSurface)"
@@ -1670,8 +1489,9 @@ def package_server_failures(serve_text: str, label: str) -> list[str]:
   if (
     'START_PAGE = "index.html"' not in serve_text
     or "require_package_files(root)" not in serve_text
-    or "verify_webgl_scene(root)" not in serve_text
-    or "file_sha256(path)" not in serve_text
+    or "verify_procedural_scene(root)" not in serve_text
+    or 'scene.get("schema_version") != 3' not in serve_text
+    or "scene_path.parent.iterdir()" not in serve_text
     or "cache_control_for_path(self.path)" not in serve_text
     or 'protocol_version = "HTTP/1.1"' not in serve_text
     or "daemon_threads = True" not in serve_text
@@ -1713,7 +1533,6 @@ def package_manifest_failures(
     REQUIRED_ATTRIBUTION not in attribution
     or "Wikimedia Commons/Wikipedia" not in attribution
     or REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION not in attribution
-    or "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution
   ):
     failures.append(f"Package manifest lacks required attribution: {label}")
 
@@ -1732,8 +1551,12 @@ def package_manifest_failures(
     "wikimedia_attribution",
     "webgl_scene",
     "ground_context",
+    "lod2_prisms",
+    "minecraft_voxels",
+    "park_details",
+    "rail_lines",
+    "street_details",
     "surface_source",
-    "surface_pretriangulation",
     "start_page",
   ]
   for required in required_asset_labels:
@@ -1768,34 +1591,21 @@ def package_manifest_failures(
     if actual_hash != expected_hash:
       failures.append(f"Package manifest asset hash mismatch for {relative}: {label}")
 
-  surface_manifest_relative = f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}"
-  surface_source_relative = f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}"
-  required_surface_paths = {surface_manifest_relative, surface_source_relative}
-  try:
-    surface_manifest = json.loads(
-      asset_reader(surface_manifest_relative).decode("utf-8")
-    )
-  except (
-    FileNotFoundError,
-    KeyError,
-    OSError,
-    UnicodeDecodeError,
-    json.JSONDecodeError,
-  ):
-    surface_manifest = None
-  if isinstance(surface_manifest, dict):
-    plates = surface_manifest.get("plates")
-    if isinstance(plates, list):
-      required_surface_paths.update(
-        f"mesh/regierungsviertel/{entry['file']}"
-        for entry in plates
-        if isinstance(entry, dict) and isinstance(entry.get("file"), str)
-      )
-  missing_surface_inventory = sorted(required_surface_paths - asset_paths)
-  if missing_surface_inventory:
+  required_procedural_paths = {
+    "mesh/regierungsviertel/ground-context.json",
+    "mesh/regierungsviertel/lod2-prisms.json",
+    "mesh/regierungsviertel/minecraft-voxels.json",
+    "mesh/regierungsviertel/park-details.json",
+    "mesh/regierungsviertel/rail-lines.json",
+    "mesh/regierungsviertel/scene.json",
+    "mesh/regierungsviertel/street-details.json",
+    "mesh/regierungsviertel/surface-polygons.json",
+  }
+  missing_procedural_inventory = sorted(required_procedural_paths - asset_paths)
+  if missing_procedural_inventory:
     failures.append(
-      "Package manifest does not cover progressive surface assets: "
-      f"{label} ({missing_surface_inventory[:3]})"
+      "Package manifest does not cover procedural scene assets: "
+      f"{label} ({missing_procedural_inventory[:3]})"
     )
   return failures
 
@@ -1944,7 +1754,7 @@ def zip_dzi_tile_failures(
 def zip_webgl_scene_failures(
   archive: zipfile.ZipFile, names: set[str], zip_path: Path
 ) -> list[str]:
-  """Validate every GLB declared by the packaged scene manifest."""
+  """Validate the packaged procedural scene and reject retired GLBs."""
   scene_relative = "mesh/regierungsviertel/scene.json"
   scene_name = package_arcname(scene_relative)
   if scene_name not in names:
@@ -1960,7 +1770,8 @@ def zip_webgl_scene_failures(
   actual_asset_names = {
     name.removeprefix(f"{prefix}/")
     for name in names
-    if name.startswith(f"{prefix}/") and name.lower().endswith(".glb")
+    if name.startswith(f"{prefix}/")
+    and (name.lower().endswith(".glb") or name.lower().endswith(".plate.gz"))
   }
   return webgl_manifest_failures(
     scene,
@@ -2055,7 +1866,6 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
           )
         )
       failures.extend(zip_webgl_scene_failures(archive, names, zip_path))
-      failures.extend(zip_surface_pretriangulation_failures(archive, names, zip_path))
 
       for name in names:
         if name.endswith("/"):
@@ -2163,9 +1973,12 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         "index.html",
         "mesh/regierungsviertel/scene.json",
         "mesh/regierungsviertel/ground-context.json",
-        f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}",
+        "mesh/regierungsviertel/lod2-prisms.json",
+        "mesh/regierungsviertel/minecraft-voxels.json",
+        "mesh/regierungsviertel/park-details.json",
+        "mesh/regierungsviertel/rail-lines.json",
+        "mesh/regierungsviertel/street-details.json",
         f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
-        "mesh/regierungsviertel/tile-3894_58196.glb",
         "dzi/regierungsviertel/regierungsviertel.dzi",
         "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
       }
@@ -2206,7 +2019,8 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
             actual_assets = {
               name.removeprefix(mesh_prefix)
               for name in files
-              if name.startswith(mesh_prefix) and name.endswith(".glb")
+              if name.startswith(mesh_prefix)
+              and (name.endswith(".glb") or name.endswith(".plate.gz"))
             }
             failures.extend(
               webgl_manifest_failures(
@@ -2214,36 +2028,6 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
                 label=f"{tar_path}!{scene_name}",
                 asset_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
                 actual_asset_names=actual_assets,
-              )
-            )
-
-      surface_manifest_name = f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}"
-      if surface_manifest_name in files:
-        try:
-          surface_manifest = json.loads(
-            read_member(surface_manifest_name).decode("utf-8")
-          )
-        except (KeyError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-          failures.append(f"Invalid static surface plate manifest: {tar_path}: {exc}")
-        else:
-          if not isinstance(surface_manifest, dict):
-            failures.append(
-              f"Static surface plate manifest is not an object: {tar_path}"
-            )
-          else:
-            mesh_prefix = "mesh/regierungsviertel/"
-            actual_plates = {
-              name.removeprefix(mesh_prefix)
-              for name in files
-              if name.startswith(mesh_prefix) and name.endswith(".plate.gz")
-            }
-            failures.extend(
-              surface_pretriangulation_manifest_failures(
-                surface_manifest,
-                label=f"{tar_path}!{surface_manifest_name}",
-                source_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
-                asset_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
-                actual_plate_names=actual_plates,
               )
             )
 
@@ -2380,10 +2164,7 @@ def collect_failures(
     )
   )
   failures.extend(webgl_scene_failures(public_mesh))
-  failures.extend(surface_pretriangulation_failures(public_mesh))
-  dist_mesh = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel"
   failures.extend(generated_public_asset_parity_failures(root))
-  failures.extend(surface_pretriangulation_failures(dist_mesh))
   failures.extend(webgl_viewer_source_failures(root))
   tunnel_payload = public_dzi / "tiergartentunnel.json"
   if tunnel_payload.exists():
@@ -2477,7 +2258,6 @@ def collect_failures(
       )
     packaged_mesh = package_dir / "mesh" / "regierungsviertel"
     failures.extend(webgl_scene_failures(packaged_mesh))
-    failures.extend(surface_pretriangulation_failures(packaged_mesh))
   elif require_package_zip or require_static_tarball:
     failures.append(f"Missing extracted package directory: {package_dir}")
 

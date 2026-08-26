@@ -29,6 +29,7 @@ import {
 } from "../src/IsometricCityWorld";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
+  DESKTOP_TOTAL_BUILDING_LIMIT,
   DESKTOP_INITIAL_BUILDING_COUNT,
   MAX_PROGRESSIVE_BUILDING_BATCHES,
   MOBILE_INITIAL_BUILDING_COUNT,
@@ -51,7 +52,6 @@ import {
   decodeSurfacePlate,
   encodeSurfacePlate,
   splitIndexedSurfacePlate,
-  type SurfacePlateManifest,
 } from "../src/surfacePlate";
 import {
   deserializeTransferredObject3D,
@@ -84,7 +84,7 @@ function building(id: string, xDm: number, zDm: number): PrismBuilding {
 }
 
 describe("progressive exact-world scheduling", () => {
-  test("keeps the initial main-thread batch bounded and covers every building once", () => {
+  test("bounds desktop exact geometry while covering every source building once", () => {
     expect(MOBILE_INITIAL_BUILDING_COUNT).toBeLessThanOrEqual(320);
     expect(DESKTOP_INITIAL_BUILDING_COUNT).toBeLessThanOrEqual(700);
     expect(PROGRESSIVE_BUILDING_BATCH_SIZE).toBeLessThanOrEqual(5_000);
@@ -94,21 +94,27 @@ describe("progressive exact-world scheduling", () => {
     const { initial, omitted, remaining } = splitProgressiveBuildings(
       buildings,
       700,
+      PROGRESSIVE_BUILDING_BATCH_SIZE,
+      DESKTOP_TOTAL_BUILDING_LIMIT,
     );
     expect(initial).toHaveLength(700);
-    expect(omitted).toHaveLength(0);
+    expect(omitted).toHaveLength(
+      buildings.length - DESKTOP_TOTAL_BUILDING_LIMIT,
+    );
     expect(remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(
       remaining.every(
         (batch) => batch.length <= PROGRESSIVE_BUILDING_BATCH_SIZE,
       ),
     ).toBeTrue();
-    const ids = [...initial, ...remaining.flat()].map((entry) => entry.id);
+    const ids = [...initial, ...remaining.flat(), ...omitted].map(
+      (entry) => entry.id,
+    );
     expect(ids).toHaveLength(buildings.length);
     expect(new Set(ids).size).toBe(buildings.length);
   });
 
-  test("bounds the coarse-pointer LoD2 city while desktop stays source-complete", () => {
+  test("bounds exact LoD2 geometry on both profiles without hiding buildings", () => {
     const buildings = Array.from({ length: 29_818 }, (_, index) =>
       building(String(index), 3_177 + index * 20, 405),
     );
@@ -121,6 +127,8 @@ describe("progressive exact-world scheduling", () => {
     const desktop = splitProgressiveBuildings(
       buildings,
       DESKTOP_INITIAL_BUILDING_COUNT,
+      PROGRESSIVE_BUILDING_BATCH_SIZE,
+      DESKTOP_TOTAL_BUILDING_LIMIT,
     );
 
     expect(MOBILE_TOTAL_BUILDING_LIMIT).toBeLessThanOrEqual(5_000);
@@ -139,10 +147,20 @@ describe("progressive exact-world scheduling", () => {
     ).toBe(buildings.length);
     expect(mobile.initial).toHaveLength(MOBILE_INITIAL_BUILDING_COUNT);
     expect(mobile.remaining).toHaveLength(1);
-    expect(desktop.omitted).toHaveLength(0);
-    expect([...desktop.initial, ...desktop.remaining.flat()]).toHaveLength(
-      buildings.length,
+    expect(DESKTOP_TOTAL_BUILDING_LIMIT).toBeLessThanOrEqual(12_000);
+    expect(desktop.omitted).toHaveLength(
+      buildings.length - DESKTOP_TOTAL_BUILDING_LIMIT,
     );
+    expect([...desktop.initial, ...desktop.remaining.flat()]).toHaveLength(
+      DESKTOP_TOTAL_BUILDING_LIMIT,
+    );
+    expect(
+      new Set([
+        ...desktop.initial,
+        ...desktop.remaining.flat(),
+        ...desktop.omitted,
+      ]).size,
+    ).toBe(buildings.length);
   });
 
   test("represents every omitted mobile building in one bounded instanced shell", () => {
@@ -176,12 +194,12 @@ describe("progressive exact-world scheduling", () => {
     setIsoNightPresentation(coverage, false, true, "schwellenraum");
     expect(shells.material).toBe(shells.userData.schwellenraumMaterial);
     expect(progressiveWorkerSource).toContain(
-      "createDistantBuildingShells(prisms, partition.omitted)",
+      "createDistantBuildingShells(prismPayload, partition.omitted)",
     );
   });
 
-  test("keeps exact heavy road plates on desktop and raster asphalt on phones", async () => {
-    expect(progressiveHeavyRoadPlatesEnabled("full")).toBeTrue();
+  test("uses compact raster asphalt on desktop and phones", async () => {
+    expect(progressiveHeavyRoadPlatesEnabled("full")).toBeFalse();
     expect(progressiveHeavyRoadPlatesEnabled("mobile")).toBeFalse();
     const [ground, surfaces] = await Promise.all([
       Bun.file(`${meshRoot}/ground-context.json`).json() as Promise<VoxelPayload>,
@@ -193,24 +211,27 @@ describe("progressive exact-world scheduling", () => {
       classes: ["concrete"],
       schema_version: 1,
     };
-    const deferred = createIsometricCity(payload, ground, null, surfaces, {
+    const withoutRaster = createIsometricCity(payload, ground, null, surfaces, {
       buildings: [source],
       includeContext: false,
       smoothSurfaces: null,
     });
-    const mobile = createIsometricCity(payload, ground, null, surfaces, {
+    const withRaster = createIsometricCity(payload, ground, null, surfaces, {
       buildings: [source],
       includeContext: false,
       retainRasterAsphalt: true,
       smoothSurfaces: null,
     });
-    const deferredSlabs = deferred.getObjectByName(
+    const deferredSlabs = withoutRaster.getObjectByName(
       "Drawn ground slabs",
     ) as InstancedMesh;
-    const mobileSlabs = mobile.getObjectByName(
+    const mobileSlabs = withRaster.getObjectByName(
       "Drawn ground slabs",
     ) as InstancedMesh;
     expect(mobileSlabs.count).toBeGreaterThan(deferredSlabs.count);
+    expect(
+      threeViewerSource.match(/retainRasterAsphalt: true/g)?.length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   test("posts source URLs instead of decoded world graphs to both Workers", () => {
@@ -247,7 +268,7 @@ describe("progressive exact-world scheduling", () => {
       'if (input.detailProfile === "mobile")',
     );
     const workerDesktopStart = progressiveWorkerSource.indexOf(
-      "const heavyRoadPlates",
+      "const groundPromise",
       workerMobileStart,
     );
     const workerMobileBranch = progressiveWorkerSource.slice(
@@ -265,6 +286,14 @@ describe("progressive exact-world scheduling", () => {
     expect(workerMobileBranch).not.toContain("postSurface(");
     expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
     expect(workerMobileBranch).toContain("pretriangulated: false");
+    const workerDesktopBranch = progressiveWorkerSource.slice(
+      workerDesktopStart,
+    );
+    expect(workerDesktopBranch).toContain("DESKTOP_TOTAL_BUILDING_LIMIT");
+    expect(workerDesktopBranch).toContain("buildings-distant");
+    expect(workerDesktopBranch).toContain("surface-lane-markings");
+    expect(workerDesktopBranch).not.toContain("loadHeavyPlates");
+    expect(workerDesktopBranch).not.toContain("splitIndexedSurfacePlate");
   });
 
   test("pauses only for Minecraft and retains partial exact batches on errors", () => {
@@ -319,25 +348,32 @@ describe("progressive exact-world scheduling", () => {
   });
 
   test("shows every building through replaceable previews before exact refinement", () => {
+    const distantBuildings = progressiveWorkerSource.lastIndexOf(
+      '"buildings-distant"',
+    );
     const desktopPreview = progressiveWorkerSource.lastIndexOf(
       "postBuildingPreviews(prismPayload, buildingBatches)",
-    );
-    const firstSurface = progressiveWorkerSource.indexOf(
-      'postSurface("water")',
-      desktopPreview,
     );
     const exactBuildings = progressiveWorkerSource.indexOf(
       "[nearestBuildingBatch]",
       desktopPreview,
     );
-    const paving = progressiveWorkerSource.indexOf(
-      'mergeBuiltSurfaceRoots(pavingRoots, "smooth paved paths")',
+    const firstSurface = progressiveWorkerSource.indexOf(
+      'postSurface("water")',
       exactBuildings,
     );
+    const laneMarkings = progressiveWorkerSource.indexOf(
+      '"surface-lane-markings"',
+      firstSurface,
+    );
+    expect(distantBuildings).toBeGreaterThan(0);
+    expect(desktopPreview).toBeGreaterThan(distantBuildings);
     expect(desktopPreview).toBeGreaterThan(0);
-    expect(firstSurface).toBeGreaterThan(desktopPreview);
-    expect(exactBuildings).toBeGreaterThan(firstSurface);
-    expect(paving).toBeGreaterThan(exactBuildings);
+    expect(exactBuildings).toBeGreaterThan(desktopPreview);
+    expect(firstSurface).toBeGreaterThan(exactBuildings);
+    expect(laneMarkings).toBeGreaterThan(firstSurface);
+    expect(progressiveWorkerSource).not.toContain("surface-paving");
+    expect(progressiveWorkerSource).not.toContain("surface-asphalt");
     expect(progressiveWorkerSource).toContain(
       "`buildings-preview-${index + 1}`",
     );
@@ -704,6 +740,8 @@ describe("progressive exact-world scheduling", () => {
     const batches = splitProgressiveBuildings(
       payload.buildings,
       DESKTOP_INITIAL_BUILDING_COUNT,
+      PROGRESSIVE_BUILDING_BATCH_SIZE,
+      DESKTOP_TOTAL_BUILDING_LIMIT,
     );
     let renderables = 0;
     let vertices = 0;
@@ -746,15 +784,11 @@ describe("progressive exact-world scheduling", () => {
       });
       group.clear();
     }
-    // The production building core totals 17,636,020 vertices after the source
-    // prisms for the open bell frame, authored Litfin tower and Wagner canopy
-    // are suppressed, and the dedicated ministry model replaces its generic
-    // facade axes. Progressive ownership adds only six spatially bounded
-    // groups; shared four-vertex instance primitives are not repeated across
-    // former distance-ring batches.
+    // Exact production geometry is retained in three spatial batches; all
+    // remaining buildings are represented by one shared instanced shell.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(17_636_020);
+    expect(vertices).toBe(5_278_474);
     expect(largestBatchArea).toBeLessThan(11 * 1_000_000);
   });
 });
@@ -1049,34 +1083,15 @@ describe("lossless pretriangulated road plates", () => {
     expect(chunkTriangles).toEqual(sourceTriangles);
   });
 
-  test("production plates are source-hash-bound, under 5 MiB each and structurally valid", async () => {
-    const source = JSON.parse(
-      await Bun.file(`${meshRoot}/surface-polygons.json`).text(),
-    ) as SurfacePayload;
-    const canonicalHash = new Bun.CryptoHasher("sha256")
-      .update(JSON.stringify(source))
-      .digest("hex");
-    const manifest = (await Bun.file(
-      `${meshRoot}/surface-pretriangulation.json`,
-    ).json()) as SurfacePlateManifest;
-    expect(manifest.source_sha256).toBe(canonicalHash);
-    expect(manifest.plates.map((plate) => plate.kind)).toEqual(["asphalt"]);
-    for (const entry of manifest.plates) {
-      expect(entry.file).toContain(canonicalHash.slice(0, 12));
-      expect(entry.compressed_bytes).toBeLessThan(5 * 1024 * 1024);
-      const compressed = new Uint8Array(
-        await Bun.file(`${meshRoot}/${entry.file}`).arrayBuffer(),
-      );
-      expect(compressed.byteLength).toBe(entry.compressed_bytes);
-      const raw = Bun.gunzipSync(compressed);
-      const bytes = raw.buffer.slice(
-        raw.byteOffset,
-        raw.byteOffset + raw.byteLength,
-      ) as ArrayBuffer;
-      const geometry = decodeSurfacePlate(bytes, entry.kind);
-      expect(geometry.getAttribute("position").count).toBe(entry.vertex_count);
-      expect(geometry.getIndex()?.count).toBe(entry.index_count);
-      expect(geometry.getAttribute("normal").getZ(0)).toBe(1);
-    }
+  test("production no longer ships the retired road-plate cache", async () => {
+    expect(
+      await Bun.file(`${meshRoot}/surface-pretriangulation.json`).exists(),
+    ).toBeFalse();
+    const plateFiles = Array.from(
+      new Bun.Glob("surface-*.plate.gz").scanSync(meshRoot),
+    );
+    expect(plateFiles).toEqual([]);
+    expect(progressiveWorkerSource).not.toContain("SURFACE_PLATE_MANIFEST_FILE");
+    expect(progressiveWorkerSource).not.toContain("fetchSurfacePlate");
   });
 });

@@ -69,6 +69,8 @@ describe("current Berliner Ensemble public art", () => {
       ]),
     );
     expect(profile.brecht.geometryStatus).toContain("cylindrical");
+    expect(profile.brecht.geometryStatus).toContain("bald articulated head");
+    expect(profile.brecht.geometryStatus).toContain("overlapping hands");
     expect(profile.brecht.inscriptionPolicy).toContain("never reproduced");
     expect(profile.heleneWeigel).toMatchObject({
       osmKey: "node/13841652635",
@@ -120,10 +122,15 @@ describe("current Berliner Ensemble public art", () => {
       chairLegs: 4,
       cylindricalSteles: 3,
       emptyBenchPlaces: 1,
-      fingerCues: 8,
+      facialCues: 15,
+      fingerCues: 10,
+      garmentSeams: 15,
+      knuckleCues: 8,
       platformDiameterM: 6,
       seatedFullBodyFigure: 1,
+      steleIncisionBands: 12,
       steleCourses: 9,
+      thumbCues: 2,
     });
     expect(brecht.userData.exactOwnOsmKey).toBe("node/988668382");
     expect(
@@ -445,8 +452,8 @@ describe("current Berliner Ensemble public art", () => {
       storedVertices: smoothStoredVertices,
     }).toEqual({
       renderables: 3,
-      renderedVertices: 24_840,
-      storedVertices: 24_840,
+      renderedVertices: 38_400,
+      storedVertices: 38_400,
     });
 
     const voxel = createMinecraftBrechtMemorial();

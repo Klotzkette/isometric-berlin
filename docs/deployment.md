@@ -1,9 +1,11 @@
 # Deployment and release package
 
-The complete viewer is static after `bun run build`: React/Three.js assets, 74
-bounded official-mesh GLBs and the OpenSeadragon DZI pyramid live below
-`src/app/dist/`. Runtime needs no AI service, API key or backend. Vite uses
-relative paths, so the directory can be served from a subpath or static host.
+The complete viewer is static after `bun run build`: React/Three.js assets,
+eight compact source-derived world JSON files and the OpenSeadragon DZI pyramid
+live below `src/app/dist/`. No GLB, source photograph or pretriangulated road
+plate ships in the current release. Runtime needs no AI service, API key or
+backend. Vite uses relative paths, so the directory can be served from a
+subpath or static host.
 
 The same build is public at
 [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/).
@@ -35,12 +37,12 @@ The package contains two entries:
   Windows users double-click `start-windows.bat`; macOS/Linux users run
   `python3 serve-local.py` from the extracted folder.
 
-The generated server verifies the declared size and SHA-256 of every GLB before
-opening the browser. Release readiness performs the same check against the
-source tree, extracted package and final ZIP, verifies every DZI tile, and
-rejects hidden, duplicate or stale 3D assets. The same gate parses the static
-tarball, rejects links/special files/path traversal and verifies all scene and
-DZI payloads before tagging.
+The generated server verifies the declared inventory, size and SHA-256 of every
+world JSON file before opening the browser and rejects retired GLB/plate assets.
+Release readiness performs the same check against the source tree, extracted
+package and final ZIP, verifies every DZI tile, and rejects hidden, duplicate or
+stale 3D assets. The same gate parses the static tarball, rejects links/special
+files/path traversal and verifies all scene and DZI payloads before tagging.
 
 ## Hashed lazy assets and already-open tabs
 
@@ -78,6 +80,6 @@ to the DZI map releases WebGL on every device. These are source,
 production-profile and automated-browser release contracts, not a claim of
 physical iOS-device validation.
 
-If a future deployment separates heavy assets, the DZI pyramid and mesh can be
-placed on an object store such as Cloudflare R2. Attribution and relative-path
-requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.
+If a future deployment separates heavy assets, the DZI pyramid and world JSON
+can be placed on an object store such as Cloudflare R2. Attribution and
+relative-path requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.

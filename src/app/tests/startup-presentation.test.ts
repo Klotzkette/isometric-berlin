@@ -20,7 +20,7 @@ const stylesSource = await Bun.file(
 
 describe("startup presentation gate", () => {
   test.each(drawnModes)(
-    "%s hides photogrammetry until the drawn city exists",
+    "%s keeps the curtain closed until the drawn city exists",
     (lightingMode) => {
       expect(
         startupPresentationStatus({
@@ -52,7 +52,7 @@ describe("startup presentation gate", () => {
     },
   );
 
-  test("Minecraft waits for voxels instead of exposing the photo mesh", () => {
+  test("Minecraft waits for voxels before exposing the canvas", () => {
     expect(
       startupPresentationStatus({
         isoWorldReady: true,
@@ -73,7 +73,7 @@ describe("startup presentation gate", () => {
     ).toBe("ready");
   });
 
-  test("the old surface is permitted only as a completed failure fallback", () => {
+  test("a failed procedural world keeps the curtain closed for recovery", () => {
     const fallback = startupPresentationStatus({
       isoWorldReady: false,
       isoWorldState: "failed",
@@ -83,16 +83,15 @@ describe("startup presentation gate", () => {
     });
 
     expect(fallback).toBe("fallback");
-    expect(startupCurtainMayOpen(fallback, false)).toBeFalse();
-    expect(startupCurtainMayOpen(fallback, true)).toBeTrue();
-    expect(startupCurtainMayOpen("pending", true)).toBeFalse();
-    expect(startupCurtainMayOpen("ready", false)).toBeTrue();
+    expect(startupCurtainMayOpen(fallback)).toBeFalse();
+    expect(startupCurtainMayOpen("pending")).toBeFalse();
+    expect(startupCurtainMayOpen("ready")).toBeTrue();
   });
 
-  test("downloads photogrammetry only for an actual desktop recovery", () => {
+  test("never requests the retired photographic surface", () => {
     expect(photographicSurfaceNeeded("pending", false)).toBeFalse();
     expect(photographicSurfaceNeeded("ready", false)).toBeFalse();
-    expect(photographicSurfaceNeeded("fallback", false)).toBeTrue();
+    expect(photographicSurfaceNeeded("fallback", false)).toBeFalse();
     expect(photographicSurfaceNeeded("ready", true)).toBeFalse();
     expect(photographicSurfaceNeeded("fallback", false, true)).toBeFalse();
     expect(photographicSurfaceNeeded("ready", true, true)).toBeFalse();

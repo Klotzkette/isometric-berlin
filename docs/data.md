@@ -15,7 +15,7 @@ for another. If sources disagree, the conflict is recorded; it is
 | `alkis` | ALKIS parcels (Geoportal Berlin) | Official alignment, parcel context | dl-de/zero-2-0 |
 | `dop` | DOP digital orthophotos (Geoportal Berlin) | Orthophoto QA, texture reference | dl-de/zero-2-0 |
 | `dgm` | DGM digital terrain model (Geoportal Berlin) | Terrain where useful (Spree bank, station forecourt) | dl-de/zero-2-0 |
-| `berlinmesh` | [Berlin 3D Mesh Model 2025](https://www.businesslocationcenter.de/berlin3d-downloadportal/) | Official photogrammetric surface geometry and aerial textures for the true 3D viewer | Berlin 3D Downloadportal terms; Berlin Partner attribution required |
+| `berlinmesh` | [Berlin 3D Mesh Model 2025](https://www.businesslocationcenter.de/berlin3d-downloadportal/) | Optional archival surface QA; not packaged or rendered by the current viewer | Berlin 3D Downloadportal terms apply whenever fetched locally |
 | `berlindetails` | [Berlin tree catalogues](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23), public lighting and [1989 Wall route](https://daten.berlin.de/datensaetze/verlauf-der-berliner-mauer-1989-wfs-3dcda64c) | Individual tree positions/dimensions, lamp positions/types and the Vorderlandmauer trace | dl-de/zero-2-0 |
 | `google3d` | Google Maps Platform Photorealistic 3D Tiles | **Opt-in.** Photorealistic geometry, texture, alignment, visual reference | Google Maps Platform Terms |
 | `wikimedia` | Wikimedia Commons / Wikipedia media | Freely licensed landmark facade, roof, glass, stone, vegetation and colour references for visual QA / material cues | Per file: CC0, public domain, CC BY, CC BY-SA, etc.; see manifest |
@@ -55,12 +55,12 @@ but no API key or payment. Run either with
 flag. Raw OBJ/MTL/JPEG ZIP archives stay under
 `geo_data/regierungsviertel/raw/berlin_3d_mesh_2025/` and are gitignored.
 
-Only bounded, derived GLBs are committed under
-`src/app/public/mesh/regierungsviertel/`. Each GLB is below 5 MiB. Full-area
-tiles merge every source material segment, sample its aerial texture to
-vertex colours and simplify geometry for progressive mobile loading. Hero
-footprints retain higher-density textured geometry. LoD2 remains the metric
-building anchor; the mesh is additive visual/surface evidence.
+The current release commits no derived Berlin-mesh GLB, photograph or texture.
+The former 74-file interaction/detail/hero family was removed because no normal
+mode displayed it and its transfer, decoding and GPU residency duplicated the
+LoD2/procedural world. The fetch/conversion utilities remain available for
+optional local archival QA, but their raw and derived outputs stay outside the
+release package. LoD2 remains the metric building anchor.
 
 ## Wikimedia visual-reference rules
 

@@ -258,7 +258,7 @@ describe("idle-frame anti-flicker contract", () => {
       "!isoWorldIntentActive(runtime)",
     );
     const activeIsoFallback = isoLoader.indexOf(
-      "runtime.ensurePhotoSurface()",
+      "runtime.reportWorldFailure()",
       inactiveIsoFailure,
     );
     expect(activeIsoFallback).toBeGreaterThan(inactiveIsoFailure);
@@ -268,7 +268,7 @@ describe("idle-frame anti-flicker contract", () => {
 
     const voxelLoader = viewerSource.slice(
       viewerSource.indexOf("function ensureVoxelWorld("),
-      viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
+      viewerSource.indexOf("const DEFAULT_FOV_DEGREES"),
     );
     expect(voxelLoader).toContain("!voxelWorldIntentActive(runtime)");
     expect(voxelLoader).toContain('runtime.voxelWorldState = "idle"');
@@ -283,7 +283,7 @@ describe("idle-frame anti-flicker contract", () => {
   test("rolls back a partially attached voxel world before fallback", () => {
     const voxelLoader = viewerSource.slice(
       viewerSource.indexOf("function ensureVoxelWorld("),
-      viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
+      viewerSource.indexOf("const DEFAULT_FOV_DEGREES"),
     );
     expect(voxelLoader).toContain(
       "let provisionalVoxelWorld: Group | null = null",
@@ -307,7 +307,7 @@ describe("idle-frame anti-flicker contract", () => {
     );
     expect(inactiveFailure).toBeGreaterThan(-1);
     const activeFallback = voxelLoader.indexOf(
-      "runtime.ensurePhotoSurface()",
+      "runtime.reportWorldFailure()",
       inactiveFailure,
     );
     expect(activeFallback).toBeGreaterThan(inactiveFailure);
@@ -416,10 +416,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("releaseMinecraftMaterialBindings(");
     expect(viewerSource).toContain("const hiddenHeavyRoots");
     expect(viewerSource).toContain("!hiddenHeavyRoots.has(child)");
-    expect(viewerSource).toContain("const photoFallbackVisible");
-    expect(viewerSource).toContain(
-      'currentStartupPresentationStatus(runtime) === "fallback"',
-    );
+    expect(viewerSource).not.toContain("photoFallbackVisible");
     expect(viewerSource).not.toContain(
       "setMinecraftMaterialPresentation(\n        runtime.scene",
     );
@@ -432,22 +429,21 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).not.toContain("const passiveIntervals: number[]");
   });
 
-  test("never allocates the legacy photo shell on coarse-pointer recovery", () => {
-    const photoLoader = viewerSource.slice(
-      viewerSource.indexOf("runtime.ensurePhotoSurface = () =>"),
-      viewerSource.indexOf("runtime.ensurePhotoSurface = () =>") + 1_600,
+  test("never allocates the retired photographic shell during recovery", () => {
+    const recovery = viewerSource.slice(
+      viewerSource.indexOf("runtime.reportWorldFailure = () =>"),
+      viewerSource.indexOf("runtime.reportWorldFailure = () =>") + 900,
     );
-    expect(photoLoader).toContain("if (runtime.coarsePointer)");
-    expect(photoLoader).toContain('runtime.photoSurfaceState = "failed"');
-    expect(photoLoader.indexOf("if (runtime.coarsePointer)")).toBeLessThan(
-      photoLoader.indexOf("const sortedTiles"),
-    );
+    expect(recovery).toContain("runtime.worldFailureReported");
+    expect(recovery).toContain("prozedurale 3D-Welt");
+    expect(viewerSource).not.toContain("GLTFLoader");
+    expect(viewerSource).not.toContain("MeshoptDecoder");
+    expect(viewerSource).not.toContain("loadModelWithRetry");
+    expect(viewerSource).not.toContain("const sortedTiles");
     expect(viewerSource).toContain(
-      "photographicSurfaceNeeded(\n      currentStartupPresentationStatus(runtime),\n      underside,\n      runtime.coarsePointer",
+      "export function photographicSurfaceNeeded(",
     );
-    expect(viewerSource).toContain(
-      'const replaced = startupStatus !== "fallback"',
-    );
+    expect(viewerSource).toContain("return false;");
   });
 
   test("keeps authored civic flags in every above-ground visual mode", () => {
@@ -457,11 +453,10 @@ describe("idle-frame anti-flicker contract", () => {
     expect(civicDetailsVisible(true)).toBe(false);
   });
 
-  test("keeps the Minecraft underground shell out of the toon-material pass", () => {
-    expect(viewerSource).toContain("if (voxelMode && underside)");
-    expect(viewerSource).toContain("runtime.interactionSurface");
-    expect(viewerSource).toContain("runtime.settledSurface");
-    expect(viewerSource).toContain("double-sided translucent surfaces");
+  test("does not retain duplicate interaction or settled surface roots", () => {
+    expect(viewerSource).not.toContain("runtime.interactionSurface");
+    expect(viewerSource).not.toContain("runtime.settledSurface");
+    expect(viewerSource).toContain('"recovery-required"');
   });
 
   test("keeps Richard Wagner readable when switching between smooth and Minecraft worlds", () => {

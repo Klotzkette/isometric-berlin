@@ -1,12 +1,15 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "source": {
-    "name": "Berlin 3D Mesh Model 2025",
-    "provider": "Berlin Partner für Wirtschaft und Technologie GmbH",
-    "portal_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/",
-    "terms_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/resources/terms/terms.de.html",
-    "survey": "June 2025 aerial survey",
-    "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
+    "name": "Berlin LoD2 and OpenStreetMap procedural city",
+    "provider": "Geoportal Berlin and OpenStreetMap contributors",
+    "portal_url": "https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin",
+    "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+    "attribution": "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)",
+    "licenses": {
+      "lod2_buildings": "dl-de/zero-2-0 (Geoportal Berlin)",
+      "osm_context": "ODbL-1.0 (© OpenStreetMap contributors)"
+    }
   },
   "coordinate_system": "EPSG:25833",
   "world_axes": {
@@ -15,9 +18,9 @@
     "z": "south"
   },
   "origin_epsg25833": [
-    389500.0,
-    5820000.0,
-    30.0
+    389500,
+    5820000,
+    30
   ],
   "bounds_epsg25833": [
     386626.581,
@@ -25,2456 +28,9 @@
     390908.901,
     5822592.066
   ],
-  "base_tiles": [
-    {
-      "file": "tile-3887_58193.glb",
-      "bytes": 1213712,
-      "includes_normals": true,
-      "sha256": "8177429f4972fc4a011da123f0ddceb7f3dbbf5f8ceff3925ece986df06d2eff",
-      "vertices": 52911,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          388732.305,
-          5819309.243,
-          31.425
-        ],
-        [
-          389102.349,
-          5819672.837,
-          66.493
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3887_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 423421,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3887_58196.glb",
-      "bytes": 1201412,
-      "includes_normals": true,
-      "sha256": "c4103e276cf9310018526eacd24b79632634a7f3935473f3ea9f48844b9f9d59",
-      "vertices": 52201,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          388726.788,
-          5819667.34,
-          29.184
-        ],
-        [
-          389103.119,
-          5820045.159,
-          62.99
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3887_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 354654,
-      "source_material_segments": 7,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3887_58200.glb",
-      "bytes": 1211908,
-      "includes_normals": true,
-      "sha256": "9f5903f42e26dea9a75a413d9a8d4bf16fd7a8183194a5dbb436778cce5a69f7",
-      "vertices": 53543,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          388731.917,
-          5820017.74,
-          26.817
-        ],
-        [
-          389106.029,
-          5820394.883,
-          100.498
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3887_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 289286,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3887_58203.glb",
-      "bytes": 1223872,
-      "includes_normals": true,
-      "sha256": "04b845deca80601c0d77ca3864aeee41e70c106d40216364484414eddca98bcd",
-      "vertices": 54061,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          388731.753,
-          5820383.968,
-          32.193
-        ],
-        [
-          389110.641,
-          5820751.0,
-          88.861
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3887_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 373150,
-      "source_material_segments": 8,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58189.glb",
-      "bytes": 1211484,
-      "includes_normals": true,
-      "sha256": "68f0c1a1cdbf7a584f50cb18768520e64847afeb6d9501854496b04494b7695d",
-      "vertices": 52995,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389093.016,
-          5818945.233,
-          27.953
-        ],
-        [
-          389457.733,
-          5819310.94,
-          70.332
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 358354,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58193.glb",
-      "bytes": 1217152,
-      "includes_normals": true,
-      "sha256": "e21cc1cfc1c6c22c5220e58b1c700749da4ece3ff31a0ba341ae42f4cff453dd",
-      "vertices": 53315,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389095.011,
-          5819309.063,
-          30.385
-        ],
-        [
-          389457.661,
-          5819673.334,
-          63.76
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 407693,
-      "source_material_segments": 4,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58196.glb",
-      "bytes": 1210016,
-      "includes_normals": true,
-      "sha256": "d19a39c5bd1ae874842723859d8cc9006fa000621cdff07261fab0d1878b426d",
-      "vertices": 52674,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389090.152,
-          5819666.398,
-          32.14
-        ],
-        [
-          389457.921,
-          5820035.647,
-          78.422
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 384419,
-      "source_material_segments": 4,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58200.glb",
-      "bytes": 1204184,
-      "includes_normals": true,
-      "sha256": "4b9e21c8efa0fad45527d48c9da4f3129c45824420853010acf7b9ee1e5029f9",
-      "vertices": 52806,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389089.97,
-          5820025.371,
-          28.883
-        ],
-        [
-          389457.385,
-          5820396.943,
-          91.55
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 247359,
-      "source_material_segments": 2,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58203.glb",
-      "bytes": 1201920,
-      "includes_normals": true,
-      "sha256": "58c67fca6ce354bb83c065c067178c100e0c5aca403173bb36e8023f83ec6f43",
-      "vertices": 52807,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389087.831,
-          5820381.46,
-          30.476
-        ],
-        [
-          389458.044,
-          5820751.388,
-          97.56
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 204627,
-      "source_material_segments": 4,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3890_58207.glb",
-      "bytes": 1206536,
-      "includes_normals": true,
-      "sha256": "06a0a11a2ad650baa5a74e5a5cdf1bf65b8aae71a3170dc4b22bfa9ee15fbd90",
-      "vertices": 53289,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389091.828,
-          5820749.101,
-          28.489
-        ],
-        [
-          389457.971,
-          5821120.037,
-          119.512
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3890_58207",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 229352,
-      "source_material_segments": 5,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58182.glb",
-      "bytes": 1213316,
-      "includes_normals": true,
-      "sha256": "98366cdbdb368f476232666dbd13b0f6b4c92921d2d6ac959a9cc436166d71da",
-      "vertices": 53425,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389455.352,
-          5818223.992,
-          28.992
-        ],
-        [
-          389820.78,
-          5818595.467,
-          142.68
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58182",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 312139,
-      "source_material_segments": 3,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58185.glb",
-      "bytes": 1205452,
-      "includes_normals": true,
-      "sha256": "51f7092a6f56e4289d3358ad7d761d24dacf2d5e184cfcf03240cc0897bceae8",
-      "vertices": 52731,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389456.064,
-          5818582.246,
-          26.769
-        ],
-        [
-          389827.334,
-          5818957.405,
-          136.972
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 266659,
-      "source_material_segments": 5,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58189.glb",
-      "bytes": 1229084,
-      "includes_normals": true,
-      "sha256": "3259facd01ed3a28cfe94e1d73029fd46bfa54f01f018f892cc06990efc2f888",
-      "vertices": 54576,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389455.791,
-          5818945.62,
-          26.801
-        ],
-        [
-          389821.413,
-          5819311.023,
-          141.823
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 382205,
-      "source_material_segments": 2,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58193.glb",
-      "bytes": 1202892,
-      "includes_normals": true,
-      "sha256": "8b21ce50ce08bdf61ad936f1c68f72ccd0563800b4c656eeaea3f35c49b71bdb",
-      "vertices": 52235,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389448.835,
-          5819308.055,
-          31.852
-        ],
-        [
-          389820.391,
-          5819679.419,
-          62.625
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 370127,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58196.glb",
-      "bytes": 1197880,
-      "includes_normals": true,
-      "sha256": "1773016699c5dd6ae7be362b953d8f394cf1f3c33431dd6883deb22b849da069",
-      "vertices": 52153,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389452.579,
-          5819662.498,
-          32.65
-        ],
-        [
-          389822.268,
-          5820041.831,
-          89.939
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 292494,
-      "source_material_segments": 5,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58200.glb",
-      "bytes": 1195364,
-      "includes_normals": true,
-      "sha256": "a03984a758af1cda13537bcd46151b7df01ea828a2fadb82b5fc09fe2cb2a13a",
-      "vertices": 52558,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389446.103,
-          5820019.042,
-          30.004
-        ],
-        [
-          389827.826,
-          5820399.509,
-          62.96
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 173715,
-      "source_material_segments": 1,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58203.glb",
-      "bytes": 1196104,
-      "includes_normals": true,
-      "sha256": "1ae5cbf79d0cb6c5e3789f73a4d30694d2f517f4f488ded9fc4eca3597e44830",
-      "vertices": 52905,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389449.799,
-          5820373.036,
-          29.211
-        ],
-        [
-          389825.216,
-          5820758.796,
-          80.168
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 136640,
-      "source_material_segments": 1,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3894_58207.glb",
-      "bytes": 1203816,
-      "includes_normals": true,
-      "sha256": "bac8208c7b6fa37154b07bf37f8526102daf9e064f2f898f71d673795931eade",
-      "vertices": 52767,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389456.085,
-          5820749.215,
-          29.108
-        ],
-        [
-          389821.005,
-          5821119.541,
-          90.319
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3894_58207",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 229559,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3898_58185.glb",
-      "bytes": 1207756,
-      "includes_normals": true,
-      "sha256": "f23643630e7f41d15553e334ff6272cd078b53883ca0539757bb5d59c8e47413",
-      "vertices": 52841,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389811.328,
-          5818582.137,
-          28.778
-        ],
-        [
-          390188.833,
-          5818959.499,
-          82.448
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3898_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 267698,
-      "source_material_segments": 4,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3898_58189.glb",
-      "bytes": 1208516,
-      "includes_normals": true,
-      "sha256": "650f787784bef08042624f42c4e45c59c96fe80a7337693654b564a65f4409b7",
-      "vertices": 53118,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389810.753,
-          5818943.184,
-          31.625
-        ],
-        [
-          390183.645,
-          5819310.789,
-          76.664
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3898_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 268484,
-      "source_material_segments": 5,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3898_58193.glb",
-      "bytes": 1199220,
-      "includes_normals": true,
-      "sha256": "70013d788bb97c0fd1c99f323d2db076adde775dca192bc055d5f41356e36b5a",
-      "vertices": 53611,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389812.145,
-          5819304.151,
-          28.976
-        ],
-        [
-          390179.948,
-          5819675.138,
-          69.318
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3898_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 313468,
-      "source_material_segments": 3,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3898_58196.glb",
-      "bytes": 1213032,
-      "includes_normals": true,
-      "sha256": "3209c275c83af5d384084aa6596caae813a4c0c64f999e24bee204290c283efa",
-      "vertices": 53977,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          389806.467,
-          5819663.946,
-          26.933
-        ],
-        [
-          390185.838,
-          5820037.39,
-          89.933
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3898_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 286665,
-      "source_material_segments": 7,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3898_58200.glb",
-      "bytes": 1199240,
-      "includes_normals": true,
-      "sha256": "148bb4ed1cea0725e4df283ade53d54191186f87b4fe26db00ac5ba9bde3b5b8",
-      "vertices": 52430,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          389808.66,
-          5820013.262,
-          27.812
-        ],
-        [
-          390188.335,
-          5820395.169,
-          74.02
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3898_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 212199,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3901_58185.glb",
-      "bytes": 1192992,
-      "includes_normals": true,
-      "sha256": "6da3268ebb44ccc20aea11707cc5447d15afffdefe4fd616d62d3df25c3f887b",
-      "vertices": 52094,
-      "faces": 100000,
-      "source_bounds_epsg25833": [
-        [
-          390168.763,
-          5818579.286,
-          30.718
-        ],
-        [
-          390554.117,
-          5818958.616,
-          74.573
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3901_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 190568,
-      "source_material_segments": 1,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3901_58200.glb",
-      "bytes": 1201436,
-      "includes_normals": true,
-      "sha256": "4da97323cb01d6c7d36e5eb26cdbfaef827421edab6829dec1a12a3ba729a862",
-      "vertices": 52638,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          390165.135,
-          5820017.443,
-          30.274
-        ],
-        [
-          390550.117,
-          5820398.384,
-          68.973
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3901_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 224154,
-      "source_material_segments": 5,
-      "target_faces": 100000
-    },
-    {
-      "file": "tile-3905_58200.glb",
-      "bytes": 1204740,
-      "includes_normals": true,
-      "sha256": "e74ef9a8146a4813ca837bb76f4670af1dd3b35c8c2aca673c4e895f0bc89b83",
-      "vertices": 53090,
-      "faces": 99999,
-      "source_bounds_epsg25833": [
-        [
-          390524.895,
-          5820021.32,
-          29.947
-        ],
-        [
-          390904.085,
-          5820395.889,
-          129.708
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "interaction",
-      "tile_id": "3905_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 208861,
-      "source_material_segments": 6,
-      "target_faces": 100000
-    }
-  ],
-  "surface_detail_tiles": [
-    {
-      "file": "surface-detail-3887_58193.glb",
-      "bytes": 3625500,
-      "includes_normals": true,
-      "sha256": "d458fef7edf459d66fcf2f3f30e6b3c07a272338e95593adbd639c834819d6c4",
-      "vertices": 149499,
-      "faces": 289797,
-      "source_bounds_epsg25833": [
-        [
-          388729.703,
-          5819308.991,
-          31.305
-        ],
-        [
-          389107.264,
-          5819673.947,
-          66.518
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3887_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 423421,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3887_58196.glb",
-      "bytes": 3619296,
-      "includes_normals": true,
-      "sha256": "c3ccd0e4feff2cfebf46acbe41cebf1b9f7e1c4b06d946ec6cee40049696226d",
-      "vertices": 149446,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          388726.65,
-          5819666.519,
-          29.124
-        ],
-        [
-          389103.657,
-          5820045.159,
-          62.947
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3887_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 354654,
-      "source_material_segments": 7,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3887_58200.glb",
-      "bytes": 3640392,
-      "includes_normals": true,
-      "sha256": "72e012d4cba595c73203eeda649293d82ffe6b5dd2c8eddd4189b5b1f60e0143",
-      "vertices": 151654,
-      "faces": 289286,
-      "source_bounds_epsg25833": [
-        [
-          388725.985,
-          5820016.592,
-          26.793
-        ],
-        [
-          389110.869,
-          5820395.155,
-          100.477
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3887_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 289286,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3887_58203.glb",
-      "bytes": 3636544,
-      "includes_normals": true,
-      "sha256": "9c05fd934627e25f40e94affb09953ea84a98449729829bedd7fa4a2e46da7e6",
-      "vertices": 150012,
-      "faces": 289797,
-      "source_bounds_epsg25833": [
-        [
-          388731.207,
-          5820381.92,
-          32.146
-        ],
-        [
-          389110.641,
-          5820751.357,
-          88.837
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3887_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 373150,
-      "source_material_segments": 8,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58189.glb",
-      "bytes": 3632112,
-      "includes_normals": true,
-      "sha256": "242344b658ea3aee99c4b2fc1b5971ddf23f4af9f29d35b41d86ba403c6364b0",
-      "vertices": 150052,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389090.115,
-          5818942.244,
-          27.893
-        ],
-        [
-          389457.85,
-          5819311.205,
-          70.416
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 358354,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58193.glb",
-      "bytes": 3631548,
-      "includes_normals": true,
-      "sha256": "5b171adfe3d2ecd1fb37ddbe8006cea39b25936183bc769ace4844602f13705e",
-      "vertices": 150237,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389083.769,
-          5819309.063,
-          30.363
-        ],
-        [
-          389457.836,
-          5819674.444,
-          63.758
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 407693,
-      "source_material_segments": 4,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58196.glb",
-      "bytes": 3626120,
-      "includes_normals": true,
-      "sha256": "6c9bcd3bf9d6e2d6bf095c3994a8966d46ed504862d7d9ef5a6e7234126c3ded",
-      "vertices": 149398,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389090.132,
-          5819660.905,
-          31.645
-        ],
-        [
-          389457.921,
-          5820035.892,
-          78.533
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 384419,
-      "source_material_segments": 4,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58200.glb",
-      "bytes": 3094792,
-      "includes_normals": true,
-      "sha256": "01af25fe7851b55611c66a28927d6cef3097240f8df273b407f2e9345fec664d",
-      "vertices": 129383,
-      "faces": 247359,
-      "source_bounds_epsg25833": [
-        [
-          389086.078,
-          5820021.182,
-          28.898
-        ],
-        [
-          389457.647,
-          5820402.421,
-          91.436
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 247359,
-      "source_material_segments": 2,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58203.glb",
-      "bytes": 2551576,
-      "includes_normals": true,
-      "sha256": "cac7bf3aeb54da85acc679b0ce07c69acc25842368a714ff1b967bfacb486b2a",
-      "vertices": 108057,
-      "faces": 204627,
-      "source_bounds_epsg25833": [
-        [
-          389080.415,
-          5820378.655,
-          30.431
-        ],
-        [
-          389458.256,
-          5820751.388,
-          97.581
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 204627,
-      "source_material_segments": 4,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3890_58207.glb",
-      "bytes": 2866328,
-      "includes_normals": true,
-      "sha256": "69c9d9359de04dd777fa56e7085e5ef6d0dfd726da5e79c44f80fc2453bcecdc",
-      "vertices": 120406,
-      "faces": 229352,
-      "source_bounds_epsg25833": [
-        [
-          389088.914,
-          5820748.693,
-          28.458
-        ],
-        [
-          389458.393,
-          5821122.905,
-          119.57
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3890_58207",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 229352,
-      "source_material_segments": 5,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58182.glb",
-      "bytes": 3646716,
-      "includes_normals": true,
-      "sha256": "9c6310aa4e8742ee6c728209c52718cf60956bc2451bd95a3b0b37b97997d166",
-      "vertices": 152125,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389455.352,
-          5818219.21,
-          28.928
-        ],
-        [
-          389828.406,
-          5818598.877,
-          142.666
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58182",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 312139,
-      "source_material_segments": 3,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58185.glb",
-      "bytes": 3343536,
-      "includes_normals": true,
-      "sha256": "88c9fbd661f3072c14f4718e336ec400e12339e0032e59549c9ac37f2be8e649",
-      "vertices": 139230,
-      "faces": 266659,
-      "source_bounds_epsg25833": [
-        [
-          389455.385,
-          5818582.137,
-          26.735
-        ],
-        [
-          389832.585,
-          5818965.155,
-          136.968
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 266659,
-      "source_material_segments": 5,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58189.glb",
-      "bytes": 3639392,
-      "includes_normals": true,
-      "sha256": "745ca85a63cca96afe51e776b0acd590ddd757b012efe4bed3b82aa9e582b6d2",
-      "vertices": 150653,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389455.791,
-          5818942.33,
-          26.687
-        ],
-        [
-          389829.809,
-          5819311.023,
-          141.766
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 382205,
-      "source_material_segments": 2,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58193.glb",
-      "bytes": 3620544,
-      "includes_normals": true,
-      "sha256": "05c463a1de5522d4407d9af849e856f4cb54ff1184b235a48d8197f58377a511",
-      "vertices": 149505,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389448.835,
-          5819307.28,
-          31.884
-        ],
-        [
-          389821.232,
-          5819683.769,
-          62.612
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 370127,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58196.glb",
-      "bytes": 3636800,
-      "includes_normals": true,
-      "sha256": "af5526cb430696b3d916884f8e700dcd82da422fd70f54977f79163e9151e373",
-      "vertices": 151159,
-      "faces": 289797,
-      "source_bounds_epsg25833": [
-        [
-          389447.857,
-          5819656.656,
-          32.627
-        ],
-        [
-          389829.702,
-          5820042.691,
-          89.939
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 292494,
-      "source_material_segments": 5,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58200.glb",
-      "bytes": 2150312,
-      "includes_normals": true,
-      "sha256": "311ecdb05e77457d0714729cae2ae865d97085b5a53961e4a68b1664a60f9fd7",
-      "vertices": 91941,
-      "faces": 173715,
-      "source_bounds_epsg25833": [
-        [
-          389441.015,
-          5820013.602,
-          30.004
-        ],
-        [
-          389834.748,
-          5820407.567,
-          62.96
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 173715,
-      "source_material_segments": 1,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58203.glb",
-      "bytes": 1673464,
-      "includes_normals": true,
-      "sha256": "9afc0fe8f80c44dd27e303d73bd4a2ac2761790e3adee473ad1212397b62d7b0",
-      "vertices": 72961,
-      "faces": 136640,
-      "source_bounds_epsg25833": [
-        [
-          389448.863,
-          5820372.996,
-          29.211
-        ],
-        [
-          389830.411,
-          5820765.971,
-          80.529
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58203",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 136640,
-      "source_material_segments": 1,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3894_58207.glb",
-      "bytes": 2866760,
-      "includes_normals": true,
-      "sha256": "577a4f92743ca8d732a09ca58f8261f2019c4fc44d7e0c7736b7dd8420569174",
-      "vertices": 120149,
-      "faces": 229559,
-      "source_bounds_epsg25833": [
-        [
-          389455.724,
-          5820749.087,
-          29.018
-        ],
-        [
-          389823.137,
-          5821120.012,
-          90.373
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3894_58207",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 229559,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3898_58185.glb",
-      "bytes": 3362080,
-      "includes_normals": true,
-      "sha256": "c68d41ea9f5a3de202d045d2d9b4b2361bf64c64cd1c1e67617558f5faf9ed90",
-      "vertices": 139718,
-      "faces": 267698,
-      "source_bounds_epsg25833": [
-        [
-          389809.06,
-          5818579.379,
-          28.693
-        ],
-        [
-          390188.833,
-          5818960.157,
-          82.477
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3898_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 267698,
-      "source_material_segments": 4,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3898_58189.glb",
-      "bytes": 3363052,
-      "includes_normals": true,
-      "sha256": "71bf907ada783497420dc1358355e6c362dc5e52a58bc4bbc4bf3ee58bbdb076",
-      "vertices": 139712,
-      "faces": 268484,
-      "source_bounds_epsg25833": [
-        [
-          389807.715,
-          5818935.604,
-          31.513
-        ],
-        [
-          390188.65,
-          5819310.972,
-          76.591
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3898_58189",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 268484,
-      "source_material_segments": 5,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3898_58193.glb",
-      "bytes": 3629976,
-      "includes_normals": true,
-      "sha256": "f358f804c1e19d7a0223f01892d3811cd89d7980a61b79fef11fbc5803bbe725",
-      "vertices": 151749,
-      "faces": 289796,
-      "source_bounds_epsg25833": [
-        [
-          389807.426,
-          5819299.706,
-          29.041
-        ],
-        [
-          390187.933,
-          5819681.957,
-          69.405
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3898_58193",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 313468,
-      "source_material_segments": 3,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3898_58196.glb",
-      "bytes": 3605284,
-      "includes_normals": true,
-      "sha256": "db369416140e21a897e88427872c0b91b1d0d8f42c68d3d0343f596862935cc6",
-      "vertices": 154827,
-      "faces": 286665,
-      "source_bounds_epsg25833": [
-        [
-          389802.863,
-          5819655.096,
-          26.884
-        ],
-        [
-          390190.427,
-          5820044.696,
-          89.939
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3898_58196",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 286665,
-      "source_material_segments": 7,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3898_58200.glb",
-      "bytes": 2654268,
-      "includes_normals": true,
-      "sha256": "73ee1b4d2199e51bf6ebf4dd2af6317406187b9102c60359186fc1ac0d5c9c52",
-      "vertices": 112419,
-      "faces": 212199,
-      "source_bounds_epsg25833": [
-        [
-          389801.745,
-          5820013.262,
-          27.844
-        ],
-        [
-          390190.427,
-          5820403.194,
-          74.02
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3898_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 212199,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3901_58185.glb",
-      "bytes": 2359192,
-      "includes_normals": true,
-      "sha256": "619eddbffd384a1e164553d52aa503d53c05b7bbbb35e4b5484b8db87c39467b",
-      "vertices": 99373,
-      "faces": 190568,
-      "source_bounds_epsg25833": [
-        [
-          390168.48,
-          5818577.734,
-          30.656
-        ],
-        [
-          390555.395,
-          5818960.412,
-          74.573
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3901_58185",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 190568,
-      "source_material_segments": 1,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3901_58200.glb",
-      "bytes": 2813660,
-      "includes_normals": true,
-      "sha256": "d8e07155fe9669a96e4455a4602d1941a54d488f666396c98e0cf911f7ab981e",
-      "vertices": 119130,
-      "faces": 224154,
-      "source_bounds_epsg25833": [
-        [
-          390163.849,
-          5820017.135,
-          30.297
-        ],
-        [
-          390554.128,
-          5820398.563,
-          68.927
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3901_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 224154,
-      "source_material_segments": 5,
-      "target_faces": 289797
-    },
-    {
-      "file": "surface-detail-3905_58200.glb",
-      "bytes": 2619576,
-      "includes_normals": true,
-      "sha256": "a4ada1c1ea0bba2626dc0671fbd5f047a615217eec3031abddcb7ef41bbfc712",
-      "vertices": 111732,
-      "faces": 208861,
-      "source_bounds_epsg25833": [
-        [
-          390521.358,
-          5820016.394,
-          29.93
-        ],
-        [
-          390907.593,
-          5820400.696,
-          129.75
-        ]
-      ],
-      "meshopt_compressed": true,
-      "quantize_normal_bits": 8,
-      "quantize_position_bits": 16,
-      "quality_tier": "settled",
-      "tile_id": "3905_58200",
-      "normal_crease_degrees": 58.0,
-      "color_saturation": 1.24,
-      "color_contrast": 1.08,
-      "color_gamma": 0.92,
-      "simplification_aggression": 5,
-      "source_faces": 208861,
-      "source_material_segments": 6,
-      "target_faces": 289797
-    }
-  ],
-  "hero_details": [
-    {
-      "id": "reichstag",
-      "landmark_name": "Reichstagsgebäude",
-      "files": [
-        {
-          "file": "hero-reichstag-3894_58196-material-0.glb",
-          "bytes": 421020,
-          "includes_normals": true,
-          "sha256": "a4e064ce2b925929c6da0d58b89b1b6f4afd9c808cfda72266780ad335bbafb5",
-          "vertices": 117,
-          "faces": 39,
-          "source_bounds_epsg25833": [
-            [
-              389765.725,
-              5819891.888,
-              34.934
-            ],
-            [
-              389774.357,
-              5819962.664,
-              68.044
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389765.725,
-            5819891.888,
-            389774.357,
-            5819962.664
-          ],
-          "tile_id": "3894_58196",
-          "source_material_segment": "Mesh_3894_58196_-002-4"
-        },
-        {
-          "file": "hero-reichstag-3894_58196-material-1.glb",
-          "bytes": 898184,
-          "includes_normals": true,
-          "sha256": "7a79b26ceedbc7f36e25a9016a9e2629d54f384a0374f819871c2f80bd43105b",
-          "vertices": 303,
-          "faces": 101,
-          "source_bounds_epsg25833": [
-            [
-              389766.654,
-              5819892.948,
-              34.951
-            ],
-            [
-              389821.862,
-              5819985.17,
-              77.068
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389766.654,
-            5819892.948,
-            389821.862,
-            5819985.17
-          ],
-          "tile_id": "3894_58196",
-          "source_material_segment": "Mesh_3894_58196_-002-3"
-        },
-        {
-          "file": "hero-reichstag-3894_58196-material-2.glb",
-          "bytes": 2273404,
-          "includes_normals": true,
-          "sha256": "843ab6768c9f43144490fce9a391f93605b4560da95eb7005f5141a6ccaf7acc",
-          "vertices": 1413,
-          "faces": 471,
-          "source_bounds_epsg25833": [
-            [
-              389757.141,
-              5819890.359,
-              34.317
-            ],
-            [
-              389820.926,
-              5820031.533,
-              85.357
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389757.141,
-            5819890.359,
-            389820.926,
-            5820031.533
-          ],
-          "tile_id": "3894_58196",
-          "source_material_segment": "Mesh_3894_58196_-002-2"
-        },
-        {
-          "file": "hero-reichstag-3894_58196-material-3.glb",
-          "bytes": 4583696,
-          "includes_normals": true,
-          "sha256": "f0293731bc288993c73e29f51bb04fc0a7d8fdc975698bf70325b8e649539ea4",
-          "vertices": 3120,
-          "faces": 1040,
-          "source_bounds_epsg25833": [
-            [
-              389760.758,
-              5819891.661,
-              34.031
-            ],
-            [
-              389823.402,
-              5820033.148,
-              89.939
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389760.758,
-            5819891.661,
-            389823.402,
-            5820033.148
-          ],
-          "tile_id": "3894_58196",
-          "source_material_segment": "Mesh_3894_58196_-002-1"
-        },
-        {
-          "file": "hero-reichstag-3894_58196-material-4.glb",
-          "bytes": 4475268,
-          "includes_normals": true,
-          "sha256": "ca33d54d3f7e03223bd60547b4ad68d8d227f77ce072df2eef34ba4933a729c5",
-          "vertices": 68751,
-          "faces": 22917,
-          "source_bounds_epsg25833": [
-            [
-              389755.091,
-              5819879.92,
-              33.595
-            ],
-            [
-              389825.047,
-              5820034.006,
-              89.939
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389755.091,
-            5819879.92,
-            389825.047,
-            5820034.006
-          ],
-          "tile_id": "3894_58196",
-          "source_material_segment": "Mesh_3894_58196_-002-0"
-        },
-        {
-          "file": "hero-reichstag-3894_58200-material-0.glb",
-          "bytes": 3779400,
-          "includes_normals": true,
-          "sha256": "917f9f4b6eb36991e5a789c1529ee81a3eb81646a834bedf934c1f227a1e06f3",
-          "vertices": 1572,
-          "faces": 524,
-          "source_bounds_epsg25833": [
-            [
-              389759.296,
-              5820020.312,
-              34.833
-            ],
-            [
-              389818.774,
-              5820040.751,
-              62.485
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389759.296,
-            5820020.312,
-            389818.774,
-            5820040.751
-          ],
-          "tile_id": "3894_58200",
-          "source_material_segment": "Mesh_3894_58200_-002.obj"
-        },
-        {
-          "file": "hero-reichstag-3898_58196-material-3.glb",
-          "bytes": 436756,
-          "includes_normals": true,
-          "sha256": "9f89e79c35069038f0564ef2b907d71a375130aeb821d11c57fe1c9df9cafd48",
-          "vertices": 162,
-          "faces": 54,
-          "source_bounds_epsg25833": [
-            [
-              389813.712,
-              5819907.94,
-              35.39
-            ],
-            [
-              389855.033,
-              5820031.492,
-              76.898
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389813.712,
-            5819907.94,
-            389855.033,
-            5820031.492
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-3"
-        },
-        {
-          "file": "hero-reichstag-3898_58196-material-4.glb",
-          "bytes": 2271288,
-          "includes_normals": true,
-          "sha256": "b5e279baaa0195834236a1545169e5a3a3a4d132e41c5bfe3caa5aa3fde17b7a",
-          "vertices": 1167,
-          "faces": 389,
-          "source_bounds_epsg25833": [
-            [
-              389810.667,
-              5819888.742,
-              35.125
-            ],
-            [
-              389866.558,
-              5820031.274,
-              86.791
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389810.667,
-            5819888.742,
-            389866.558,
-            5820031.274
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-2"
-        },
-        {
-          "file": "hero-reichstag-3898_58196-material-5.glb",
-          "bytes": 2714660,
-          "includes_normals": true,
-          "sha256": "590b6d689e5cd5458db00655a505e076f93cd20c4704996f76cd1ae4c0012959",
-          "vertices": 5769,
-          "faces": 1923,
-          "source_bounds_epsg25833": [
-            [
-              389804.391,
-              5819888.911,
-              35.035
-            ],
-            [
-              389876.132,
-              5820033.198,
-              89.939
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389804.391,
-            5819888.911,
-            389876.132,
-            5820033.198
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-1"
-        },
-        {
-          "file": "hero-reichstag-3898_58196-material-6.glb",
-          "bytes": 4446808,
-          "includes_normals": true,
-          "sha256": "a70726f192e1cb470c0cfff4e542287610a43f9f601c6dfcebb3298e3a1ef4d5",
-          "vertices": 57552,
-          "faces": 19184,
-          "source_bounds_epsg25833": [
-            [
-              389802.863,
-              5819879.694,
-              34.685
-            ],
-            [
-              389876.162,
-              5820034.006,
-              89.915
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389802.863,
-            5819879.694,
-            389876.162,
-            5820034.006
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-0"
-        },
-        {
-          "file": "hero-reichstag-3898_58200-material-5.glb",
-          "bytes": 3915960,
-          "includes_normals": true,
-          "sha256": "339f25d136804433dac5de5ae57788bb5d3df4b121cc29fcd99e3147e7068a09",
-          "vertices": 645,
-          "faces": 215,
-          "source_bounds_epsg25833": [
-            [
-              389814.703,
-              5820025.083,
-              35.061
-            ],
-            [
-              389868.425,
-              5820035.736,
-              37.945
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389814.703,
-            5820025.083,
-            389868.425,
-            5820035.736
-          ],
-          "tile_id": "3898_58200",
-          "source_material_segment": "Mesh_3898_58200_-002-0"
-        }
-      ]
-    },
-    {
-      "id": "bundeskanzleramt",
-      "landmark_name": "Bundeskanzleramt",
-      "files": [
-        {
-          "file": "hero-bundeskanzleramt-3890_58200-material-0.glb",
-          "bytes": 4567836,
-          "includes_normals": true,
-          "sha256": "cc7c475feb2aef8f228f25e195a9cbe7177050a7755e2d9e15d7317567dce6d0",
-          "vertices": 4641,
-          "faces": 1547,
-          "source_bounds_epsg25833": [
-            [
-              389107.292,
-              5820086.147,
-              31.84
-            ],
-            [
-              389451.217,
-              5820204.09,
-              72.372
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389107.292,
-            5820086.147,
-            389451.217,
-            5820204.09
-          ],
-          "tile_id": "3890_58200",
-          "source_material_segment": "Mesh_3890_58200_-002-1"
-        },
-        {
-          "file": "hero-bundeskanzleramt-3890_58200-material-1.glb",
-          "bytes": 4980516,
-          "includes_normals": true,
-          "sha256": "448007688ddc261544108adf913e03272dd2385c8cc66d3601a9914fe7a7c129",
-          "vertices": 131808,
-          "faces": 43936,
-          "source_bounds_epsg25833": [
-            [
-              389099.985,
-              5820082.779,
-              31.554
-            ],
-            [
-              389456.958,
-              5820205.738,
-              74.485
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389099.985,
-            5820082.779,
-            389456.958,
-            5820205.738
-          ],
-          "tile_id": "3890_58200",
-          "source_material_segment": "Mesh_3890_58200_-002-0"
-        }
-      ]
-    },
-    {
-      "id": "hauptbahnhof",
-      "landmark_name": "Berlin Hauptbahnhof",
-      "files": [
-        {
-          "file": "hero-hauptbahnhof-3890_58203-material-2.glb",
-          "bytes": 2338844,
-          "includes_normals": true,
-          "sha256": "6caa457a03b275efda715a5676b595e14d9902f8c7480619742570bcd0d01d67",
-          "vertices": 2553,
-          "faces": 851,
-          "source_bounds_epsg25833": [
-            [
-              389317.409,
-              5820594.587,
-              34.918
-            ],
-            [
-              389443.611,
-              5820750.963,
-              84.772
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389317.409,
-            5820594.587,
-            389443.611,
-            5820750.963
-          ],
-          "tile_id": "3890_58203",
-          "source_material_segment": "Mesh_3890_58203_-002-1"
-        },
-        {
-          "file": "hero-hauptbahnhof-3890_58203-material-3.glb",
-          "bytes": 4638920,
-          "includes_normals": true,
-          "sha256": "a367568b5638dca6506aac5b4bc6458051bf9262279c796d6e91721d6c75ca4c",
-          "vertices": 77133,
-          "faces": 25711,
-          "source_bounds_epsg25833": [
-            [
-              389312.926,
-              5820591.444,
-              34.575
-            ],
-            [
-              389449.061,
-              5820751.339,
-              87.416
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389312.926,
-            5820591.444,
-            389449.061,
-            5820751.339
-          ],
-          "tile_id": "3890_58203",
-          "source_material_segment": "Mesh_3890_58203_-002-0"
-        },
-        {
-          "file": "hero-hauptbahnhof-3890_58207-material-2.glb",
-          "bytes": 1719496,
-          "includes_normals": true,
-          "sha256": "76a7cc50ef4a3c5461d5d48e52e21cf3f131f2252b180272500ce44b58d4afcc",
-          "vertices": 138,
-          "faces": 46,
-          "source_bounds_epsg25833": [
-            [
-              389327.385,
-              5820749.375,
-              58.551
-            ],
-            [
-              389374.547,
-              5820762.636,
-              73.87
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389327.385,
-            5820749.375,
-            389374.547,
-            5820762.636
-          ],
-          "tile_id": "3890_58207",
-          "source_material_segment": "Mesh_3890_58207_-002-2"
-        },
-        {
-          "file": "hero-hauptbahnhof-3890_58207-material-3.glb",
-          "bytes": 2317316,
-          "includes_normals": true,
-          "sha256": "12ff252faf255d85260154a619a7278e6d73c0425ff40a9b0de57e34eb47d223",
-          "vertices": 954,
-          "faces": 318,
-          "source_bounds_epsg25833": [
-            [
-              389315.049,
-              5820749.469,
-              34.796
-            ],
-            [
-              389391.493,
-              5820768.182,
-              81.532
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389315.049,
-            5820749.469,
-            389391.493,
-            5820768.182
-          ],
-          "tile_id": "3890_58207",
-          "source_material_segment": "Mesh_3890_58207_-002-1"
-        },
-        {
-          "file": "hero-hauptbahnhof-3890_58207-material-4.glb",
-          "bytes": 4139856,
-          "includes_normals": true,
-          "sha256": "52a2901245fe03926bb68e109f432d93907056e2aeb9a47696c65a2ee96406ee",
-          "vertices": 19665,
-          "faces": 6555,
-          "source_bounds_epsg25833": [
-            [
-              389311.895,
-              5820748.693,
-              34.583
-            ],
-            [
-              389393.323,
-              5820778.84,
-              84.795
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389311.895,
-            5820748.693,
-            389393.323,
-            5820778.84
-          ],
-          "tile_id": "3890_58207",
-          "source_material_segment": "Mesh_3890_58207_-002-0"
-        }
-      ]
-    },
-    {
-      "id": "brandenburger-tor",
-      "landmark_name": "Brandenburger Tor",
-      "files": [
-        {
-          "file": "hero-brandenburger-tor-3898_58193-material-2.glb",
-          "bytes": 3991044,
-          "includes_normals": true,
-          "sha256": "a494b905ad05d6e92d95db17bdcade6985c0ca963466090837168f3e13f86b11",
-          "vertices": 78,
-          "faces": 26,
-          "source_bounds_epsg25833": [
-            [
-              389903.647,
-              5819666.702,
-              34.933
-            ],
-            [
-              389924.894,
-              5819681.957,
-              45.886
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389903.647,
-            5819666.702,
-            389924.894,
-            5819681.957
-          ],
-          "tile_id": "3898_58193",
-          "source_material_segment": "Mesh_3898_58193_-002-0"
-        },
-        {
-          "file": "hero-brandenburger-tor-3898_58196-material-4.glb",
-          "bytes": 2263792,
-          "includes_normals": true,
-          "sha256": "f12f4514f84feaa51b7dfcf2600e4d8e4a9d31f9e7d1a39ad20bc60e0bf16535",
-          "vertices": 354,
-          "faces": 118,
-          "source_bounds_epsg25833": [
-            [
-              389911.547,
-              5819676.274,
-              35.045
-            ],
-            [
-              389922.886,
-              5819713.011,
-              55.018
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389911.547,
-            5819676.274,
-            389922.886,
-            5819713.011
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-2"
-        },
-        {
-          "file": "hero-brandenburger-tor-3898_58196-material-5.glb",
-          "bytes": 2680052,
-          "includes_normals": true,
-          "sha256": "774f9c4d0cc869c2c1f9d42c426e35b3fc7d5134c8d2a7a36073e24e5742a756",
-          "vertices": 1809,
-          "faces": 603,
-          "source_bounds_epsg25833": [
-            [
-              389909.852,
-              5819669.819,
-              34.958
-            ],
-            [
-              389925.767,
-              5819726.729,
-              56.622
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1600,
-          "crop_bounds_epsg25833": [
-            389909.852,
-            5819669.819,
-            389925.767,
-            5819726.729
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-1"
-        },
-        {
-          "file": "hero-brandenburger-tor-3898_58196-material-6.glb",
-          "bytes": 4675336,
-          "includes_normals": true,
-          "sha256": "f00c68fbd301a5318693fd2d8d24aadba87d43820d30be8e74a49a420643b644",
-          "vertices": 111492,
-          "faces": 37164,
-          "source_bounds_epsg25833": [
-            [
-              389894.324,
-              5819666.702,
-              34.734
-            ],
-            [
-              389939.335,
-              5819731.04,
-              62.834
-            ]
-          ],
-          "meshopt_compressed": true,
-          "quantize_normal_bits": 8,
-          "quantize_position_bits": 16,
-          "texture_max_edge": 1280,
-          "crop_bounds_epsg25833": [
-            389894.324,
-            5819666.702,
-            389939.335,
-            5819731.04
-          ],
-          "tile_id": "3898_58196",
-          "source_material_segment": "Mesh_3898_58196_-002-0"
-        }
-      ]
-    }
-  ],
+  "base_tiles": [],
+  "surface_detail_tiles": [],
+  "hero_details": [],
   "architectural_signatures": [
     {
       "id": "reichstag-dome",
@@ -2487,8 +43,8 @@
         40.477
       ],
       "height_m": 23.5,
-      "base_height_above_ground_m": 24.0,
-      "diameter_m": 40.0,
+      "base_height_above_ground_m": 24,
+      "diameter_m": 40,
       "vertical_ribs": 24,
       "horizontal_rings": 17,
       "source_url": "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
@@ -2504,15 +60,15 @@
         40.477
       ],
       "rotation_y_degrees": -1.676,
-      "width_m": 100.0,
-      "depth_m": 138.0,
+      "width_m": 100,
+      "depth_m": 138,
       "body_height_m": 28.055,
       "focus_camera": {
-        "distance_m": 183.0,
-        "polar_degrees": 78.0,
-        "azimuth_degrees": -68.0,
-        "target_height_m": 18.0,
-        "fov_degrees": 39.0
+        "distance_m": 183,
+        "polar_degrees": 78,
+        "azimuth_degrees": -68,
+        "target_height_m": 18,
+        "fov_degrees": 39
       },
       "source_url": "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518"
     },
@@ -2529,18 +85,18 @@
       "rotation_y_degrees": -1.337,
       "overall_width_m": 342.676,
       "overall_depth_m": 102.074,
-      "office_height_m": 18.0,
+      "office_height_m": 18,
       "cube_width_m": 55.211,
       "cube_depth_m": 55.103,
-      "cube_height_m": 36.0,
+      "cube_height_m": 36,
       "cube_offset_world": [
         66.373,
-        0.0,
+        0,
         0.042
       ],
       "forecourt_offset_world": [
         158.413,
-        0.0,
+        0,
         -7.51
       ],
       "forecourt_sculpture_height_m": 5.5,
@@ -2548,38 +104,38 @@
         {
           "width_m": 219.532,
           "depth_m": 23.463,
-          "height_m": 18.0,
+          "height_m": 18,
           "offset_world": [
             61.563,
-            0.0,
+            0,
             39.306
           ]
         },
         {
           "width_m": 203.2,
           "depth_m": 23.536,
-          "height_m": 18.0,
+          "height_m": 18,
           "offset_world": [
             69.738,
-            0.0,
+            0,
             -39.269
           ]
         },
         {
           "width_m": 135.151,
           "depth_m": 21.027,
-          "height_m": 18.0,
+          "height_m": 18,
           "offset_world": [
             -103.762,
-            0.0,
+            0,
             40.523
           ]
         }
       ],
       "focus_camera": {
-        "distance_m": 190.0,
-        "polar_degrees": 77.0,
-        "azimuth_degrees": 88.0,
+        "distance_m": 190,
+        "polar_degrees": 77,
+        "azimuth_degrees": 88,
         "target_height_m": 15.5
       },
       "source_url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040"
@@ -2595,16 +151,16 @@
         -683.307
       ],
       "rotation_y_degrees": 21.82,
-      "east_west_roof_length_m": 321.0,
-      "east_west_roof_width_m": 40.0,
-      "north_south_hall_length_m": 180.0,
-      "north_south_hall_width_m": 42.0,
-      "office_bridge_height_m": 46.0,
+      "east_west_roof_length_m": 321,
+      "east_west_roof_width_m": 40,
+      "north_south_hall_length_m": 180,
+      "north_south_hall_width_m": 42,
+      "office_bridge_height_m": 46,
       "focus_camera": {
-        "distance_m": 340.0,
-        "polar_degrees": 58.0,
-        "azimuth_degrees": 220.0,
-        "target_height_m": 21.0
+        "distance_m": 340,
+        "polar_degrees": 58,
+        "azimuth_degrees": 220,
+        "target_height_m": 21
       },
       "source_url": "https://www.deutschebahn.com/de/architektur_bahnhof-6878040"
     },
@@ -2620,17 +176,17 @@
       ],
       "rotation_y_degrees": 5.083,
       "width_m": 62.5,
-      "depth_m": 11.0,
+      "depth_m": 11,
       "gate_height_m": 20.3,
-      "total_height_m": 26.0,
+      "total_height_m": 26,
       "column_height_m": 13.5,
       "column_rows": 2,
       "columns_per_row": 6,
       "focus_camera": {
-        "distance_m": 94.0,
-        "polar_degrees": 78.0,
-        "azimuth_degrees": 73.0,
-        "target_height_m": 13.0
+        "distance_m": 94,
+        "polar_degrees": 78,
+        "azimuth_degrees": 73,
+        "target_height_m": 13
       },
       "source_url": "https://www.visitberlin.de/de/brandenburger-tor"
     }
@@ -2641,7 +197,7 @@
       "role": "hero_tile",
       "world": [
         -123.21922137145884,
-        8.0,
+        8,
         -693.353310582228
       ]
     },
@@ -2650,7 +206,7 @@
       "role": "owner_added",
       "world": [
         52.44776696251938,
-        8.0,
+        8,
         -688.2861424600706
       ]
     },
@@ -2659,7 +215,7 @@
       "role": "owner_added",
       "world": [
         57.31531941657886,
-        8.0,
+        8,
         -517.7099883183837
       ]
     },
@@ -2668,7 +224,7 @@
       "role": "owner_added",
       "world": [
         -114.1443327361485,
-        8.0,
+        8,
         -472.5287918141112
       ]
     },
@@ -2677,7 +233,7 @@
       "role": "owner_added",
       "world": [
         -38.05304210947361,
-        8.0,
+        8,
         -400.51641723513603
       ]
     },
@@ -2686,7 +242,7 @@
       "role": "owner_added",
       "world": [
         -207.29659404588165,
-        8.0,
+        8,
         -367.7180304117501
       ]
     },
@@ -2695,7 +251,7 @@
       "role": "owner_added",
       "world": [
         -305.79196038277587,
-        8.0,
+        8,
         -272.6330947522074
       ]
     },
@@ -2704,7 +260,7 @@
       "role": "owner_added",
       "world": [
         -5.654743424442131,
-        8.0,
+        8,
         -246.49457178730518
       ]
     },
@@ -2713,7 +269,7 @@
       "role": "must_be_visible",
       "world": [
         -153.99746311508352,
-        8.0,
+        8,
         -144.25260100793093
       ]
     },
@@ -2722,7 +278,7 @@
       "role": "owner_added",
       "world": [
         -133.7719432861195,
-        8.0,
+        8,
         -75.99966348707676
       ]
     },
@@ -2731,7 +287,7 @@
       "role": "owner_added",
       "world": [
         -377.2615278236917,
-        8.0,
+        8,
         -114.88946119509637
       ]
     },
@@ -2740,7 +296,7 @@
       "role": "owner_added",
       "world": [
         -106.88599031011108,
-        8.0,
+        8,
         -214.4896215684712
       ]
     },
@@ -2749,7 +305,7 @@
       "role": "must_be_visible",
       "world": [
         416.3747181443032,
-        8.0,
+        8,
         -205.89888461958617
       ]
     },
@@ -2758,7 +314,7 @@
       "role": "must_be_visible",
       "world": [
         230.68629906733986,
-        8.0,
+        8,
         -132.10176163353026
       ]
     },
@@ -2767,7 +323,7 @@
       "role": "owner_added",
       "world": [
         50.72236387064913,
-        8.0,
+        8,
         20.5249551711604
       ]
     },
@@ -2776,7 +332,7 @@
       "role": "hero_tile",
       "world": [
         315.0260471937945,
-        8.0,
+        8,
         39.83149326406419
       ]
     },
@@ -2785,7 +341,7 @@
       "role": "owner_added",
       "world": [
         226.03977264190326,
-        8.0,
+        8,
         57.92545644566417
       ]
     },
@@ -2794,7 +350,7 @@
       "role": "owner_added",
       "world": [
         157.11971173324855,
-        8.0,
+        8,
         160.52018948458135
       ]
     },
@@ -2803,7 +359,7 @@
       "role": "owner_added",
       "world": [
         193.4126034657238,
-        8.0,
+        8,
         165.0631400225684
       ]
     },
@@ -2812,7 +368,7 @@
       "role": "must_be_visible",
       "world": [
         -505.17020793346455,
-        8.0,
+        8,
         -12.072751920670271
       ]
     },
@@ -2821,7 +377,7 @@
       "role": "owner_added",
       "world": [
         -297.2842786665424,
-        8.0,
+        8,
         52.50207979977131
       ]
     },
@@ -2830,7 +386,7 @@
       "role": "owner_added",
       "world": [
         -307.21215887228027,
-        8.0,
+        8,
         119.26677734684199
       ]
     },
@@ -2839,7 +395,7 @@
       "role": "owner_added",
       "world": [
         307.700225593755,
-        8.0,
+        8,
         186.2301389835775
       ]
     },
@@ -2848,7 +404,7 @@
       "role": "owner_added",
       "world": [
         26.57719945925055,
-        8.0,
+        8,
         245.32870413176715
       ]
     },
@@ -2857,7 +413,7 @@
       "role": "must_be_visible",
       "world": [
         417.8984721060842,
-        8.0,
+        8,
         300.45274467766285
       ]
     },
@@ -2866,7 +422,7 @@
       "role": "owner_added",
       "world": [
         417.90013405069476,
-        8.0,
+        8,
         301.42089431360364
       ]
     },
@@ -2875,7 +431,7 @@
       "role": "owner_added",
       "world": [
         497.0499028667109,
-        8.0,
+        8,
         292.8503072652966
       ]
     },
@@ -2884,7 +440,7 @@
       "role": "owner_added",
       "world": [
         559.5734097249806,
-        8.0,
+        8,
         253.47099111787975
       ]
     },
@@ -2893,7 +449,7 @@
       "role": "owner_added",
       "world": [
         427.1056310250424,
-        8.0,
+        8,
         253.5449749538675
       ]
     },
@@ -2902,7 +458,7 @@
       "role": "owner_added",
       "world": [
         447.00693236640655,
-        8.0,
+        8,
         410.90410274639726
       ]
     },
@@ -2911,7 +467,7 @@
       "role": "owner_added",
       "world": [
         462.88128157681786,
-        8.0,
+        8,
         557.3677023872733
       ]
     },
@@ -2920,7 +476,7 @@
       "role": "owner_added",
       "world": [
         304.16310529829934,
-        8.0,
+        8,
         634.0641316818073
       ]
     },
@@ -2929,7 +485,7 @@
       "role": "owner_added",
       "world": [
         321.5834092578152,
-        8.0,
+        8,
         574.3105936488137
       ]
     },
@@ -2938,7 +494,7 @@
       "role": "owner_added",
       "world": [
         -88.23575241171056,
-        8.0,
+        8,
         570.9512711009011
       ]
     },
@@ -2947,7 +503,7 @@
       "role": "owner_added",
       "world": [
         -62.42698272125563,
-        8.0,
+        8,
         487.2546307714656
       ]
     },
@@ -2956,7 +512,7 @@
       "role": "owner_added",
       "world": [
         -112.55317433911841,
-        8.0,
+        8,
         648.4968814877793
       ]
     },
@@ -2965,7 +521,7 @@
       "role": "owner_added",
       "world": [
         3.770585844409652,
-        8.0,
+        8,
         592.2006285823882
       ]
     },
@@ -2974,7 +530,7 @@
       "role": "owner_added",
       "world": [
         -331.4490041086101,
-        8.0,
+        8,
         890.9276426956058
       ]
     },
@@ -2983,7 +539,7 @@
       "role": "owner_added",
       "world": [
         -32.911855473183095,
-        8.0,
+        8,
         862.1781236995012
       ]
     },
@@ -2992,7 +548,7 @@
       "role": "must_be_visible",
       "world": [
         170.3577520904946,
-        8.0,
+        8,
         1038.0715934131294
       ]
     },
@@ -3001,7 +557,7 @@
       "role": "owner_added",
       "world": [
         474.92053292656783,
-        8.0,
+        8,
         106.6055075051263
       ]
     },
@@ -3010,7 +566,7 @@
       "role": "owner_added",
       "world": [
         220.8739978952799,
-        8.0,
+        8,
         766.8354332130402
       ]
     },
@@ -3019,7 +575,7 @@
       "role": "owner_added",
       "world": [
         -454.7412640110706,
-        8.0,
+        8,
         893.2830181689933
       ]
     },
@@ -3028,7 +584,7 @@
       "role": "owner_added",
       "world": [
         -1461.9665003244882,
-        8.0,
+        8,
         457.11010951176286
       ]
     },
@@ -3037,7 +593,7 @@
       "role": "owner_added",
       "world": [
         -1461.9665003244882,
-        8.0,
+        8,
         457.11010951176286
       ]
     },
@@ -3046,7 +602,7 @@
       "role": "owner_added",
       "world": [
         -1479.688343576796,
-        8.0,
+        8,
         300.7366400724277
       ]
     },
@@ -3055,7 +611,7 @@
       "role": "owner_added",
       "world": [
         -137.40605979016982,
-        8.0,
+        8,
         986.6202232837677
       ]
     },
@@ -3064,7 +620,7 @@
       "role": "owner_added",
       "world": [
         -297.78488503419794,
-        8.0,
+        8,
         1211.6659429445863
       ]
     },
@@ -3073,7 +629,7 @@
       "role": "owner_added",
       "world": [
         -348.1552436321508,
-        8.0,
+        8,
         1148.7730491105467
       ]
     },
@@ -3082,7 +638,7 @@
       "role": "owner_added",
       "world": [
         -305.13579248450696,
-        8.0,
+        8,
         1322.372333274223
       ]
     },
@@ -3091,7 +647,7 @@
       "role": "owner_added",
       "world": [
         -69.96339433221146,
-        8.0,
+        8,
         1280.7803899990395
       ]
     },
@@ -3100,7 +656,7 @@
       "role": "owner_added",
       "world": [
         427.73070566693787,
-        8.0,
+        8,
         1066.1161428587511
       ]
     },
@@ -3109,7 +665,7 @@
       "role": "owner_added",
       "world": [
         565.9495522306534,
-        8.0,
+        8,
         957.9424914550036
       ]
     },
@@ -3118,7 +674,7 @@
       "role": "owner_added",
       "world": [
         240.09525723132538,
-        8.0,
+        8,
         1082.4644896388054
       ]
     },
@@ -3127,7 +683,7 @@
       "role": "owner_added",
       "world": [
         75.2539564796025,
-        8.0,
+        8,
         -1067.2178547978401
       ]
     },
@@ -3136,7 +692,7 @@
       "role": "owner_added",
       "world": [
         -334.8525026703719,
-        8.0,
+        8,
         -905.1998181017116
       ]
     },
@@ -3145,7 +701,7 @@
       "role": "owner_added",
       "world": [
         357.99754346814007,
-        8.0,
+        8,
         -1150.7056127786636
       ]
     },
@@ -3154,7 +710,7 @@
       "role": "owner_added",
       "world": [
         -70.15710494911764,
-        8.0,
+        8,
         -1217.1476179100573
       ]
     },
@@ -3163,7 +719,7 @@
       "role": "owner_added",
       "world": [
         -1.0383746132720262,
-        8.0,
+        8,
         -964.977599828504
       ]
     },
@@ -3172,7 +728,7 @@
       "role": "owner_added",
       "world": [
         -114.75442707189359,
-        8.0,
+        8,
         -952.072409953922
       ]
     },
@@ -3181,7 +737,7 @@
       "role": "owner_added",
       "world": [
         -676.6322293399135,
-        8.0,
+        8,
         -1973.5433991597965
       ]
     },
@@ -3190,7 +746,7 @@
       "role": "owner_added",
       "world": [
         -190.28947770851664,
-        8.0,
+        8,
         1057.730447428301
       ]
     },
@@ -3199,7 +755,7 @@
       "role": "owner_added",
       "world": [
         208.87388209230267,
-        8.0,
+        8,
         1417.9867905499414
       ]
     },
@@ -3208,7 +764,7 @@
       "role": "owner_added",
       "world": [
         -228.4992078357609,
-        8.0,
+        8,
         1197.4917025165632
       ]
     },
@@ -3217,7 +773,7 @@
       "role": "owner_added",
       "world": [
         -241.7248615444405,
-        8.0,
+        8,
         1290.5216721436009
       ]
     },
@@ -3226,7 +782,7 @@
       "role": "owner_added",
       "world": [
         -1851.38745916076,
-        8.0,
+        8,
         906.8525662589818
       ]
     },
@@ -3235,7 +791,7 @@
       "role": "owner_added",
       "world": [
         -1783.1355788711226,
-        8.0,
+        8,
         914.2798178438097
       ]
     },
@@ -3244,7 +800,7 @@
       "role": "owner_added",
       "world": [
         -2731.1356797510525,
-        8.0,
+        8,
         568.2113939598203
       ]
     },
@@ -3253,7 +809,7 @@
       "role": "owner_added",
       "world": [
         -995.3753303476842,
-        8.0,
+        8,
         543.4174076914787
       ]
     },
@@ -3262,7 +818,7 @@
       "role": "owner_added",
       "world": [
         -495.6588648802717,
-        8.0,
+        8,
         879.8054425437003
       ]
     },
@@ -3271,7 +827,7 @@
       "role": "owner_added",
       "world": [
         626.535023778677,
-        8.0,
+        8,
         1725.067353588529
       ]
     },
@@ -3280,7 +836,7 @@
       "role": "owner_added",
       "world": [
         968.1457638457068,
-        8.0,
+        8,
         1241.5250578913838
       ]
     },
@@ -3289,7 +845,7 @@
       "role": "owner_added",
       "world": [
         1257.9096563470666,
-        8.0,
+        8,
         1388.2814755709842
       ]
     },
@@ -3298,7 +854,7 @@
       "role": "owner_added",
       "world": [
         -97.14700178155908,
-        8.0,
+        8,
         -855.2640199782327
       ]
     },
@@ -3307,7 +863,7 @@
       "role": "owner_added",
       "world": [
         -106.8400170202367,
-        8.0,
+        8,
         -862.2820549681783
       ]
     },
@@ -3316,7 +872,7 @@
       "role": "owner_added",
       "world": [
         -150.86099801847013,
-        8.0,
+        8,
         -1179.349999458529
       ]
     },
@@ -3325,7 +881,7 @@
       "role": "owner_added",
       "world": [
         -35.76899601815967,
-        8.0,
+        8,
         -532.2079668212682
       ]
     },
@@ -3334,7 +890,7 @@
       "role": "owner_added",
       "world": [
         208.04799936816562,
-        8.0,
+        8,
         -553.5120200132951
       ]
     },
@@ -3343,7 +899,7 @@
       "role": "owner_added",
       "world": [
         288.3920042566024,
-        8.0,
+        8,
         -472.01099110301584
       ]
     },
@@ -3352,7 +908,7 @@
       "role": "owner_added",
       "world": [
         412.76297902391525,
-        8.0,
+        8,
         -254.22104062885046
       ]
     },
@@ -3361,7 +917,7 @@
       "role": "owner_added",
       "world": [
         965.0152279052418,
-        8.0,
+        8,
         -340.62179546803236
       ]
     },
@@ -3370,7 +926,7 @@
       "role": "owner_added",
       "world": [
         1057.6888517069747,
-        8.0,
+        8,
         -118.71125632151961
       ]
     },
@@ -3379,7 +935,7 @@
       "role": "owner_added",
       "world": [
         795.9129793500178,
-        8.0,
+        8,
         1159.212027146481
       ]
     },
@@ -3388,7 +944,7 @@
       "role": "owner_added",
       "world": [
         681.9200243872474,
-        8.0,
+        8,
         1381.652024061419
       ]
     },
@@ -3397,7 +953,7 @@
       "role": "owner_added",
       "world": [
         654.9400216324138,
-        8.0,
+        8,
         1241.9869748372585
       ]
     },
@@ -3406,7 +962,7 @@
       "role": "owner_added",
       "world": [
         829.8579813517281,
-        8.0,
+        8,
         1426.930023255758
       ]
     },
@@ -3415,7 +971,7 @@
       "role": "owner_added",
       "world": [
         1067.922015547054,
-        8.0,
+        8,
         646.4319527000189
       ]
     },
@@ -3424,7 +980,7 @@
       "role": "owner_added",
       "world": [
         749.614475,
-        8.0,
+        8,
         749.844173
       ]
     },
@@ -3433,7 +989,7 @@
       "role": "owner_added",
       "world": [
         40.64670310379006,
-        8.0,
+        8,
         660.0102302879095
       ]
     },
@@ -3442,7 +998,7 @@
       "role": "owner_added",
       "world": [
         -672.0697082573897,
-        8.0,
+        8,
         967.217096994631
       ]
     },
@@ -3451,7 +1007,7 @@
       "role": "owner_added",
       "world": [
         1128.1180265166913,
-        8.0,
+        8,
         -334.7174344994128
       ]
     },
@@ -3460,7 +1016,7 @@
       "role": "owner_added",
       "world": [
         1026.375999999931,
-        8.0,
+        8,
         -349.77699999976903
       ]
     },
@@ -3469,7 +1025,7 @@
       "role": "owner_added",
       "world": [
         38.59700000018347,
-        8.0,
+        8,
         -1425.0350000010803
       ]
     }
@@ -3490,7 +1046,7 @@
       "minna_cauer": {
         "label": "Minna-Cauer-Straße / Heidestraße",
         "structure": "open_cut",
-        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights sampled from the packaged official Berlin 3D mesh; smooth vertical grade between endpoints is a documented approximation",
+        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights interpolated from retained Geoportal Berlin ground samples; smooth vertical grade between endpoints is a documented approximation",
         "carriageways": [
           {
             "id": "east",
@@ -3501,62 +1057,62 @@
             "points": [
               [
                 -231.56529550248524,
-                3.165999999999997,
+                3.3665060460540914,
                 -908.4434110941365
               ],
               [
                 -231.97746083058883,
-                3.0931465063861694,
+                3.306595312553661,
                 -902.6591940484941
               ],
               [
                 -232.3896261586924,
-                2.8933869271224637,
+                3.142323946504092,
                 -896.8749770028517
               ],
               [
                 -232.8017914868542,
-                2.594922614575502,
+                2.896883199582973,
                 -891.0907599572092
               ],
               [
                 -233.21395681495778,
-                2.225954921111942,
+                2.5934643234678916,
                 -885.3065429115668
               ],
               [
                 -233.62612214306137,
-                1.8146851990984203,
+                2.2552585698364283,
                 -879.5223258659244
               ],
               [
                 -234.03828747116495,
-                1.3893148009015732,
+                1.905457190366171,
                 -873.7381088212132
               ],
               [
                 -234.45045279926853,
-                0.9780450788880515,
+                1.5672514367347077,
                 -867.9538917755708
               ],
               [
                 -234.86261812737212,
-                0.6090773854244915,
+                1.2638325606196261,
                 -862.1696747299284
               ],
               [
                 -235.2747834555339,
-                0.31061307287753337,
+                1.0183918136985035,
                 -856.3854576842859
               ],
               [
                 -235.6869487836375,
-                0.11085349361382058,
+                0.8541204476489384,
                 -850.6012406386435
               ],
               [
                 -236.09911411174107,
-                0.0379999999999967,
+                0.7942097141485078,
                 -844.8170235930011
               ]
             ],
@@ -3584,77 +1140,77 @@
             "points": [
               [
                 -239.14014481793856,
-                3.7689999999999984,
+                4.0025035019734005,
                 -925.8183118952438
               ],
               [
                 -239.5420764509472,
-                3.714612244897957,
+                3.9557353709555443,
                 -920.0719438763335
               ],
               [
                 -239.94400808395585,
-                3.5623265306122462,
+                3.8247846041055524,
                 -914.3255758574232
               ],
               [
                 -240.3459397169645,
-                3.3284591836734663,
+                3.623681640728769,
                 -908.5792078375816
               ],
               [
                 -240.74787134997314,
-                3.029326530612245,
+                3.3664569201305667,
                 -902.8328398186713
               ],
               [
                 -241.14980298298178,
-                2.681244897959182,
+                3.0671408816162895,
                 -897.0864717997611
               ],
               [
                 -241.55173461599043,
-                2.3005306122448985,
+                2.7397639644913028,
                 -891.3401037808508
               ],
               [
                 -241.95366624899907,
-                1.9034999999999975,
+                2.3983566080609506,
                 -885.5937357619405
               ],
               [
                 -242.35559788200771,
-                1.5064693877551,
+                2.0569492516306056,
                 -879.8473677420989
               ],
               [
                 -242.75752951501636,
-                1.125755102040813,
+                1.7295723345056189,
                 -874.1009997231886
               ],
               [
                 -243.159461148025,
-                0.7776734693877536,
+                1.4302562959913416,
                 -868.3546317042783
               ],
               [
                 -243.56139278103365,
-                0.4785408163265288,
+                1.1730315753931357,
                 -862.608263685368
               ],
               [
                 -243.9633244140423,
-                0.24467346938775236,
+                0.9719286120163595,
                 -856.8618956655264
               ],
               [
                 -244.36525604705093,
-                0.09238775510203823,
+                0.8409778451663641,
                 -851.1155276466161
               ],
               [
                 -244.76718768005958,
-                0.0379999999999967,
+                0.7942097141485078,
                 -845.3691596277058
               ]
             ],
@@ -3681,7 +1237,7 @@
       "invalidenstrasse": {
         "label": "Invalidenstraße / Hauptbahnhof",
         "structure": "rail_deck",
-        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights sampled from the packaged official Berlin 3D mesh; smooth vertical grade between endpoints is a documented approximation",
+        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights interpolated from retained Geoportal Berlin ground samples; smooth vertical grade between endpoints is a documented approximation",
         "carriageways": [
           {
             "id": "west",
@@ -3693,77 +1249,77 @@
             "points": [
               [
                 -236.5552190571325,
-                3.9750000000000014,
+                4.582310247358066,
                 -774.5330180451274
               ],
               [
                 -234.49878111178987,
-                3.9474927113702662,
+                4.549247255901179,
                 -769.2596494369209
               ],
               [
                 -232.44234316644724,
-                3.870472303206995,
+                4.456670879821893,
                 -763.9862808287144
               ],
               [
                 -230.74738931359025,
-                3.752190962099128,
+                4.314500016557282,
                 -758.6469823811203
               ],
               [
                 -230.80976220179582,
-                3.6009008746355704,
+                4.132653563544402,
                 -752.9871711535379
               ],
               [
                 -230.87213508994319,
-                3.4248542274052483,
+                3.921050418220325,
                 -747.3273599268869
               ],
               [
                 -230.93450797814876,
-                3.232303206997088,
+                3.6896094780221134,
                 -741.6675487002358
               ],
               [
                 -230.99688086635433,
-                3.031500000000001,
+                3.448249640386841,
                 -736.0077374735847
               ],
               [
                 -231.0592537545599,
-                2.8306967930029145,
+                3.2068898027515687,
                 -730.3479262469336
               ],
               [
                 -231.12162664270727,
-                2.638145772594754,
+                2.975448862553357,
                 -724.6881150202826
               ],
               [
                 -231.18399953091284,
-                2.462099125364432,
+                2.7638457172292803,
                 -719.0283037936315
               ],
               [
                 -231.24637241911842,
-                2.3108090379008743,
+                2.5819992642163996,
                 -713.3684925660491
               ],
               [
                 -231.308745307324,
-                2.1925276967930074,
+                2.4398284009517894,
                 -707.708681339398
               ],
               [
                 -231.37111819547135,
-                2.115507288629736,
+                2.3472520248725033,
                 -702.048870112747
               ],
               [
                 -231.43349108367693,
-                2.088000000000001,
+                2.314189033415616,
                 -696.3890588860959
               ]
             ],
@@ -3795,82 +1351,82 @@
             "points": [
               [
                 -219.46056143112946,
-                5.021000000000001,
+                4.920362933915698,
                 -782.5479278545827
               ],
               [
                 -218.42444794334006,
-                4.983631407407408,
+                4.887158347924142,
                 -776.9882512567565
               ],
               [
                 -217.48196215211647,
-                4.878477925925928,
+                4.793722187343249,
                 -771.4230422154069
               ],
               [
                 -217.8561110601877,
-                4.715968000000004,
+                4.649320848263692,
                 -765.7800334766507
               ],
               [
                 -218.02334126125788,
-                4.506530074074078,
+                4.463220726776129,
                 -760.1292887656018
               ],
               [
                 -218.07159286894603,
-                4.2605925925925945,
+                4.244688218971234,
                 -754.4740958586335
               ],
               [
                 -218.11984447663417,
-                3.988584000000003,
+                4.0029897209396665,
                 -748.8189029516652
               ],
               [
                 -218.16809608432231,
-                3.7009327407407397,
+                3.7473916287721067,
                 -743.1637100437656
               ],
               [
                 -218.21634769201046,
-                3.408067259259262,
+                3.4871603385592067,
                 -737.5085171367973
               ],
               [
                 -218.2645992996986,
-                3.1204159999999987,
+                3.231562246391647,
                 -731.853324229829
               ],
               [
                 -218.54288491618354,
-                2.8484074074074073,
+                2.9898637483600794,
                 -726.2051634499803
               ],
               [
                 -218.84015847026603,
-                2.6024699259259307,
+                2.7713312405551846,
                 -720.5575831299648
               ],
               [
                 -219.13743202434853,
-                2.393031999999998,
+                2.585231119067622,
                 -714.9100028099492
               ],
               [
                 -219.43470557848923,
-                2.2305220740740737,
+                2.4408297799880643,
                 -709.262422490865
               ],
               [
                 -219.73197913257172,
-                2.1253685925925936,
+                2.347393619407171,
                 -703.6148421708494
               ],
               [
                 -220.02925268665422,
-                2.088000000000001,
+                2.314189033415616,
                 -697.9672618508339
               ]
             ],
@@ -3898,7 +1454,7 @@
       "kemperplatz": {
         "label": "Kemperplatz / Tiergarten",
         "structure": "open_cut",
-        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights sampled from the packaged official Berlin 3D mesh; smooth vertical grade between endpoints is a documented approximation",
+        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights interpolated from retained Geoportal Berlin ground samples; smooth vertical grade between endpoints is a documented approximation",
         "carriageways": [
           {
             "id": "west",
@@ -3911,112 +1467,112 @@
             "points": [
               [
                 -43.857394699472934,
-                3.8220000000000027,
+                3.9140847382715123,
                 864.6352004371583
               ],
               [
                 -45.003370581544004,
-                3.7968978512039797,
+                3.8954728050143643,
                 858.7995968246832
               ],
               [
                 -46.149346463615075,
-                3.7248834899039025,
+                3.842077914522555,
                 852.9639932122082
               ],
               [
                 -47.295322345686145,
-                3.61089504373178,
+                3.757561430715519,
                 847.128389599733
               ],
               [
                 -48.615848003770225,
-                3.4598706403196218,
+                3.6455847175126905,
                 841.3301261290908
               ],
               [
                 -49.9576457326184,
-                3.2767484072994293,
+                3.5098091388335106,
                 835.5364132346585
               ],
               [
                 -51.29944346146658,
-                3.066466472303212,
+                3.353896058597421,
                 829.7427003402263
               ],
               [
                 -52.64124119031476,
-                2.833962962962964,
+                3.1815068407238627,
                 823.948987445794
               ],
               [
                 -53.98303891916294,
-                2.5841760069107025,
+                2.996302849132263,
                 818.1552745522931
               ],
               [
                 -55.32483664795291,
-                2.322043731778429,
+                2.801945447742071,
                 812.3615616578609
               ],
               [
                 -56.666634376801085,
-                2.052504265198145,
+                2.60209600047272,
                 806.5678487634286
               ],
               [
                 -58.00843210564926,
-                1.7804957348018604,
+                2.400415871243652,
                 800.7741358699277
               ],
               [
                 -59.35022983449744,
-                1.5109562682215767,
+                2.2005664239743012,
                 794.9804229754955
               ],
               [
                 -60.69202756334562,
-                1.248823993089303,
+                2.006209022584102,
                 789.1867100810632
               ],
               [
                 -61.95480777003104,
-                0.9990370370370414,
+                1.8210050309925094,
                 783.3753629541025
               ],
               [
                 -63.2035925219534,
-                0.7665335276967973,
+                1.6486158131189441,
                 777.5608924804255
               ],
               [
                 -64.45237727393396,
-                0.5562515927005762,
+                1.492702732882858,
                 771.7464220067486
               ],
               [
                 -65.7283041937626,
-                0.37312935968038374,
+                1.356927154203678,
                 765.9380044257268
               ],
               [
                 -67.06831734412117,
-                0.22210495626822535,
+                1.244950441000853,
                 760.1438785213977
               ],
               [
                 -68.40833049453795,
-                0.10811651009610301,
+                1.1604339571938134,
                 754.3497526161373
               ],
               [
                 -69.74834364489652,
-                0.036102148796029354,
+                1.1070390667020007,
                 748.5556267118081
               ],
               [
                 -71.0883567952551,
-                0.011000000000002785,
+                1.0884271334448563,
                 742.7615008065477
               ]
             ],
@@ -4055,112 +1611,112 @@
             "points": [
               [
                 -32.911855473183095,
-                3.8830000000000027,
+                3.975833523314634,
                 862.1781236995012
               ],
               [
                 -34.28731351561146,
-                3.8574960587409564,
+                3.9568148655258355,
                 856.3908179914579
               ],
               [
                 -35.662771557981614,
-                3.7843290141453423,
+                3.9022531423612534,
                 850.6035122834146
               ],
               [
                 -37.03822960040998,
-                3.668516034985423,
+                3.8158897291235974,
                 844.8162065753713
               ],
               [
                 -38.41368764283834,
-                3.515074290033475,
+                3.701466001115584,
                 839.028900867328
               ],
               [
                 -39.789145685208496,
-                3.3290209480617676,
+                3.56272333363993,
                 833.2415951592848
               ],
               [
                 -41.16460372763686,
-                3.115373177842571,
+                3.403403101999345,
                 827.4542894512415
               ],
               [
                 -42.54006177006522,
-                2.879148148148154,
+                3.2272466814965455,
                 821.6669837431982
               ],
               [
                 -43.91551981243538,
-                2.6253630277507867,
+                3.0379954474342483,
                 815.8796780351549
               ],
               [
                 -45.29097785486374,
-                2.3590349854227455,
+                2.839390775115163,
                 810.092372328043
               ],
               [
                 -46.666435897233896,
-                2.085181189936293,
+                2.6351740398420063,
                 804.3050666199997
               ],
               [
                 -48.04189393966226,
-                1.8088188100637126,
+                2.4290866169174876,
                 798.5177609119564
               ],
               [
                 -49.41735198209062,
-                1.5349650145772635,
+                2.224869881644338,
                 792.7304552039132
               ],
               [
                 -50.79281002446078,
-                1.2686369722492188,
+                2.0262652093252527,
                 786.9431494958699
               ],
               [
                 -52.11724173481343,
-                1.014851851851855,
+                1.8370139752629484,
                 781.1439698673785
               ],
               [
                 -53.43816966569284,
-                0.7786268221574382,
+                1.6608575547601525,
                 775.3439749032259
               ],
               [
                 -54.75909759651404,
-                0.5649790519382378,
+                1.5015373231195674,
                 769.5439799390733
               ],
               [
                 -56.080025527393445,
-                0.37892570996653063,
+                1.36279465564391,
                 763.7439849749207
               ],
               [
                 -57.40095345827285,
-                0.225483965014579,
+                1.2483709276358965,
                 757.9439900098369
               ],
               [
                 -58.72188138915226,
-                0.10967098585466317,
+                1.1620075143982405,
                 752.1439950456843
               ],
               [
                 -60.04280931997346,
-                0.03650394125904555,
+                1.1074457912336584,
                 746.3440000815317
               ],
               [
                 -61.363737250852864,
-                0.011000000000002785,
+                1.0884271334448599,
                 740.5440051173791
               ]
             ],
@@ -4194,7 +1750,7 @@
       "reichpietschufer": {
         "label": "Reichpietschufer / Landwehrkanal",
         "structure": "open_cut",
-        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights sampled from the packaged official Berlin 3D mesh; smooth vertical grade between endpoints is a documented approximation",
+        "geometry_status": "Separate OSM carriageway centrelines and lane-derived widths; endpoint heights interpolated from retained Geoportal Berlin ground samples; smooth vertical grade between endpoints is a documented approximation",
         "carriageways": [
           {
             "id": "east",
@@ -4205,92 +1761,92 @@
             "points": [
               [
                 13.806609560386278,
-                5.158000000000001,
+                4.848469327008935,
                 1519.4238674081862
               ],
               [
                 14.790322942251805,
-                5.11636047221657,
+                4.847093438833511,
                 1513.5273995492607
               ],
               [
                 15.774036324117333,
-                4.998240179116628,
+                4.843190409111386,
                 1507.6309316903353
               ],
               [
                 16.75774970598286,
-                4.813836556075721,
+                4.8370971900487945,
                 1501.7344638304785
               ],
               [
                 17.741463087848388,
-                4.573347038469365,
+                4.829150733851954,
                 1495.837995971553
               ],
               [
                 18.725176469772123,
-                4.286969061673112,
+                4.819687992727097,
                 1489.9415281126276
               ],
               [
                 19.70888985163765,
-                3.9649000610624867,
+                4.80904591888045,
                 1484.045060253702
               ],
               [
                 20.692603233503178,
-                3.617337472013027,
+                4.797561464518232,
                 1478.1485923938453
               ],
               [
                 21.676316615368705,
-                3.2544787299002635,
+                4.785571581846682,
                 1472.2521245349199
               ],
               [
                 22.660029997234233,
-                2.8865212700997347,
+                4.773413223072012,
                 1466.3556566759944
               ],
               [
                 23.64374337909976,
-                2.5236625279869713,
+                4.761423340400455,
                 1460.459188817069
               ],
               [
                 24.627456760965288,
-                2.1760999389375115,
+                4.749938886038244,
                 1454.5627209572122
               ],
               [
                 25.611170142830815,
-                1.8540309383268863,
+                4.73929681219159,
                 1448.6662530982867
               ],
               [
                 26.59488352475455,
-                1.5676529615306336,
+                4.729834071066733,
                 1442.7697852393612
               ],
               [
                 27.578596906620078,
-                1.3271634439242845,
+                4.7218876148698925,
                 1436.8733173804358
               ],
               [
                 28.562310288485605,
-                1.14275982088337,
+                4.7157943958073005,
                 1430.976849520579
               ],
               [
                 29.546023670351133,
-                1.0246395277834317,
+                4.711891366085183,
                 1425.0803816616535
               ],
               [
                 30.52973705221666,
-                0.9830000000000005,
+                4.710515477909752,
                 1419.183913802728
               ]
             ],
@@ -4324,92 +1880,92 @@
             "points": [
               [
                 4.4815655123093165,
-                5.204999999999998,
+                4.182916650187067,
                 1514.3952883696184
               ],
               [
                 5.447080606303643,
-                5.162891715855892,
+                4.1881786779823855,
                 1508.6332536553964
               ],
               [
                 6.41259570029797,
-                5.043441685324645,
+                4.203105654789525,
                 1502.8712189411744
               ],
               [
                 7.378110794292297,
-                4.856962141257888,
+                4.2264089207402336,
                 1497.1091842260212
               ],
               [
                 8.343625888286624,
-                4.6137653165072265,
+                4.256799815966268,
                 1491.3471495117992
               ],
               [
                 9.309140982280951,
-                4.324163443924277,
+                4.292989680599391,
                 1485.5851147975773
               ],
               [
                 10.274656076275278,
-                3.9984687563606727,
+                4.3336898547713645,
                 1479.8230800833553
               ],
               [
                 11.240171170269605,
-                3.6469934866680234,
+                4.377611678613938,
                 1474.0610453691334
               ],
               [
                 12.205686264263932,
-                3.28004986769794,
+                4.423466492258882,
                 1468.2990106549114
               ],
               [
                 13.171201358200051,
-                2.907950132302055,
+                4.469965635837944,
                 1462.5369759397581
               ],
               [
                 14.136716452194378,
-                2.541006513331972,
+                4.515820449482881,
                 1456.7749412255362
               ],
               [
                 15.102231546188705,
-                2.1895312436393226,
+                4.559742273325455,
                 1451.0129065113142
               ],
               [
                 16.06774664018303,
-                1.8638365560757144,
+                4.600442447497429,
                 1445.2508717970923
               ],
               [
                 17.03326173417736,
-                1.5742346834927723,
+                4.636632312130551,
                 1439.4888370828703
               ],
               [
                 17.998776828171685,
-                1.3310378587421106,
+                4.667023207356593,
                 1433.7268023686484
               ],
               [
                 18.964291922166012,
-                1.1445583146753506,
+                4.690326473307302,
                 1427.964767653495
               ],
               [
                 19.92980701616034,
-                1.0251082841441033,
+                4.705253450114434,
                 1422.2027329392731
               ],
               [
                 20.895322110154666,
-                0.982999999999997,
+                4.710515477909752,
                 1416.4406982250512
               ]
             ],
@@ -4461,10 +2017,10 @@
       [
         -115.82663744164165,
         -8.5,
-        -281.4582413993776
+        -281.45824139844626
       ],
       [
-        -111.1360525454511,
+        -111.1360525455093,
         -8.5,
         -14.285607086494565
       ],
@@ -4479,9 +2035,9 @@
         592.7611825242639
       ],
       [
-        -66.229313190619,
+        -66.2293131906772,
         -8.5,
-        741.6471177376807
+        741.647117738612
       ],
       [
         -17.217340201721527,
@@ -4491,8 +2047,19 @@
       [
         25.712653688213322,
         -8.5,
-        1417.8067473564297
+        1417.806747357361
       ]
     ]
+  },
+  "render_strategy": {
+    "kind": "procedural-drawn",
+    "exact_building_limits": {
+      "desktop": 12000,
+      "mobile": 5000
+    },
+    "complete_building_coverage": "instanced distant shells",
+    "source_building_count": 29818,
+    "legacy_photogrammetry_removed": true,
+    "heavy_road_geometry": "raster streets plus authored paths and source lane markings"
   }
 }

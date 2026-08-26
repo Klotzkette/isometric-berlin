@@ -194,6 +194,14 @@ def require_package_files(package_dir: Path) -> None:
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
     "dzi/regierungsviertel/tiergartentunnel.json",
     "dzi/regierungsviertel/landmarks.json",
+    "mesh/regierungsviertel/scene.json",
+    "mesh/regierungsviertel/ground-context.json",
+    "mesh/regierungsviertel/lod2-prisms.json",
+    "mesh/regierungsviertel/minecraft-voxels.json",
+    "mesh/regierungsviertel/park-details.json",
+    "mesh/regierungsviertel/rail-lines.json",
+    "mesh/regierungsviertel/street-details.json",
+    "mesh/regierungsviertel/surface-polygons.json",
   ]
   missing = [relative for relative in required if not (package_dir / relative).exists()]
   if missing:
@@ -235,8 +243,19 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   if manifest.get("full_3d_start_page") != "index.html":
     raise RuntimeError("Package manifest lacks the true 3D entry point")
   assets = manifest.get("assets")
-  if not isinstance(assets, dict) or "tiergartentunnel_overlay" not in assets:
-    raise RuntimeError("Package manifest lacks tiergartentunnel_overlay asset")
+  required_assets = {
+    "tiergartentunnel_overlay",
+    "webgl_scene",
+    "ground_context",
+    "lod2_prisms",
+    "minecraft_voxels",
+    "park_details",
+    "rail_lines",
+    "street_details",
+    "surface_source",
+  }
+  if not isinstance(assets, dict) or not required_assets.issubset(assets):
+    raise RuntimeError("Package manifest lacks procedural scene assets")
 
   dzi = read_url(f"{base_url}/dzi/regierungsviertel/regierungsviertel.dzi")
   if b"<Image" not in dzi or b"<Size" not in dzi:
@@ -278,32 +297,34 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
     raise RuntimeError("Landmark payload is unexpectedly small")
 
   scene = read_json_url(f"{base_url}/mesh/regierungsviertel/scene.json")
-  base_tiles = scene.get("base_tiles")
-  if not isinstance(base_tiles, list) or not base_tiles:
-    raise RuntimeError("WebGL scene has no base tiles")
-  surface_tiles = scene.get("surface_detail_tiles")
-  if not isinstance(surface_tiles, list) or len(surface_tiles) < 23:
-    raise RuntimeError("WebGL scene has no complete settled surface tier")
-  model_name = str(base_tiles[0].get("file", ""))
-  model, model_cache, content_type, _ = read_url_metadata(
-    f"{base_url}/mesh/regierungsviertel/{model_name}"
+  strategy = scene.get("render_strategy")
+  if scene.get("schema_version") != 3 or not isinstance(strategy, dict):
+    raise RuntimeError("WebGL scene lacks the procedural schema")
+  if strategy.get("kind") != "procedural-drawn":
+    raise RuntimeError("WebGL scene has the wrong render strategy")
+  if strategy.get("exact_building_limits") != {"desktop": 12000, "mobile": 5000}:
+    raise RuntimeError("WebGL scene has the wrong exact-building budgets")
+  if strategy.get("legacy_photogrammetry_removed") is not True:
+    raise RuntimeError("WebGL scene still enables retired photogrammetry")
+  if any(
+    scene.get(key) != []
+    for key in ("base_tiles", "surface_detail_tiles", "hero_details")
+  ):
+    raise RuntimeError("WebGL scene still inventories retired GLBs")
+
+  lod2_data, lod2_cache, content_type, _ = read_url_metadata(
+    f"{base_url}/mesh/regierungsviertel/lod2-prisms.json"
   )
-  if len(model) != base_tiles[0].get("bytes"):
-    raise RuntimeError(f"Served GLB byte count is wrong: {model_name}")
-  if model_cache != "public, max-age=31536000, immutable":
-    raise RuntimeError(f"GLB cache policy is ineffective: {model_cache}")
-  if content_type.split(";", maxsplit=1)[0] != "model/gltf-binary":
-    raise RuntimeError(f"GLB content type is wrong: {content_type}")
-  surface_name = str(surface_tiles[0].get("file", ""))
-  surface_model, surface_cache, surface_type, _ = read_url_metadata(
-    f"{base_url}/mesh/regierungsviertel/{surface_name}"
-  )
-  if len(surface_model) != surface_tiles[0].get("bytes"):
-    raise RuntimeError(f"Served settled GLB byte count is wrong: {surface_name}")
-  if surface_cache != "public, max-age=31536000, immutable":
-    raise RuntimeError(f"Settled GLB cache policy is ineffective: {surface_cache}")
-  if surface_type.split(";", maxsplit=1)[0] != "model/gltf-binary":
-    raise RuntimeError(f"Settled GLB content type is wrong: {surface_type}")
+  if lod2_cache != "public, max-age=31536000, immutable":
+    raise RuntimeError(f"LoD2 JSON cache policy is ineffective: {lod2_cache}")
+  if content_type.split(";", maxsplit=1)[0] != "application/json":
+    raise RuntimeError(f"LoD2 JSON content type is wrong: {content_type}")
+  try:
+    lod2 = json.loads(lod2_data.decode("utf-8"))
+  except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    raise RuntimeError(f"LoD2 JSON is invalid: {exc}") from exc
+  if len(lod2.get("buildings", [])) != 29_818:
+    raise RuntimeError("LoD2 JSON does not contain all source buildings")
 
 
 def main() -> int:

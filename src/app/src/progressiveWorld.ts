@@ -10,12 +10,12 @@ import type { VisualMode } from "./visualMode";
 export const DESKTOP_INITIAL_BUILDING_COUNT = 700;
 export const MOBILE_INITIAL_BUILDING_COUNT = 320;
 /**
- * Coarse-pointer devices keep the complete authored near field, but stop the
- * exact LoD2 refinement before a phone has to retain the full 29k-building
- * desktop city.  Five thousand nearest buildings still cover the government
- * quarter and its recognisable approaches while bounding both CPU and GPU
- * memory.  Desktop remains source-complete.
+ * Every profile keeps all source buildings visible. The nearest buildings use
+ * exact LoD2 geometry while the remainder stays present as a compact,
+ * mode-aware instanced shell. This caps retained CPU/GPU buffers without
+ * opening holes in the city at overview distance.
  */
+export const DESKTOP_TOTAL_BUILDING_LIMIT = 12_000;
 export const MOBILE_TOTAL_BUILDING_LIMIT = 5_000;
 /**
  * The initial near field stays deliberately small, but retaining forty-two
@@ -25,7 +25,7 @@ export const MOBILE_TOTAL_BUILDING_LIMIT = 5_000;
  * single very large GPU upload.
  */
 export const PROGRESSIVE_BUILDING_BATCH_SIZE = 5_000;
-export const MAX_PROGRESSIVE_BUILDING_BATCHES = 6;
+export const MAX_PROGRESSIVE_BUILDING_BATCHES = 3;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
 export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 600;
 export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 60;
@@ -40,7 +40,6 @@ export type ProgressiveWorldWorkerInput =
       detailProfile: "full";
       groundUrl: string;
       prismUrl: string;
-      sceneRootUrl: string;
       surfacesUrl: string;
       tunnel: TunnelPortalCourseInput | null;
     })
@@ -56,14 +55,15 @@ export type ProgressiveWorldTransition = "none" | "pause" | "resume";
 export type ProgressiveWorldStopReason = "complete" | "error" | "pause";
 
 /**
- * Exact asphalt/paving plates are the worker's dominant transient allocation.
- * Phones retain the preview's raster asphalt and every authored park path
- * from ParkDetails instead; desktop keeps both exact road families.
+ * Exact asphalt/paving plates were the worker's dominant transient allocation
+ * and duplicated the already visible raster streets plus authored ParkDetails
+ * paths. Every profile now retains that compact representation and builds only
+ * inexpensive lane-marking lines from the road payload.
  */
 export function progressiveHeavyRoadPlatesEnabled(
-  detailProfile: ProgressiveWorldWorkerInput["detailProfile"],
+  _detailProfile: ProgressiveWorldWorkerInput["detailProfile"],
 ): boolean {
-  return detailProfile === "full";
+  return false;
 }
 
 export type ProgressiveWorldWorkerOutput =

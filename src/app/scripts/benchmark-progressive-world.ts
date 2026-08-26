@@ -2,7 +2,7 @@
  * Production-payload benchmark for the progressive drawn city.
  *
  * Run a production preview on port 4175 first. The benchmark uses the real
- * Worker, the committed lossless surface plate and the same bounded main-thread
+ * Worker, the committed procedural JSON sources and the same bounded main-thread
  * preview build as ThreeViewer. It deliberately retains every received batch,
  * so RSS and steady-state scene counts represent the browser ownership model
  * instead of a build-and-discard microbenchmark.
@@ -23,6 +23,7 @@ import {
 } from "../src/MinecraftVoxelWorld";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
+  DESKTOP_TOTAL_BUILDING_LIMIT,
   splitProgressiveBuildings,
   type ProgressiveWorldWorkerOutput,
 } from "../src/progressiveWorld";
@@ -58,6 +59,8 @@ const worker = new Worker(
 const buildingPartition = splitProgressiveBuildings(
   prismPayload.buildings,
   DESKTOP_INITIAL_BUILDING_COUNT,
+  undefined,
+  DESKTOP_TOTAL_BUILDING_LIMIT,
 );
 const initialBuildings = buildingPartition.initial;
 const input = {
@@ -65,7 +68,6 @@ const input = {
   groundUrl: new URL(GROUND_CONTEXT_FILE, sceneRootUrl).toString(),
   initialBuildingCount: DESKTOP_INITIAL_BUILDING_COUNT,
   prismUrl: new URL(PRISM_WORLD_FILE, sceneRootUrl).toString(),
-  sceneRootUrl,
   surfacesUrl: new URL(SURFACE_WORLD_FILE, sceneRootUrl).toString(),
   tunnel: null,
   type: "build" as const,
@@ -96,6 +98,7 @@ let surfaceBatchCount = 0;
 const attachTimes: number[] = [];
 const attachedBatches = new Map<string, Group>();
 const buildingPreviews = new Set<string>();
+let distantBuildingsVisible = buildingPartition.omitted.length === 0;
 const batchTimeline: Array<{
   arrival_ms: number;
   id: string;
@@ -152,7 +155,10 @@ const complete = await new Promise<
     firstBatchArrivalMs ??= arrivalMs;
     if (message.kind === "buildings") {
       firstBuildingArrivalMs ??= arrivalMs;
-      if (message.id.startsWith("buildings-preview-")) {
+      if (message.id === "buildings-distant") {
+        distantBuildingsVisible = true;
+        buildingBatchCount += 1;
+      } else if (message.id.startsWith("buildings-preview-")) {
         buildingPreviews.add(message.id);
       } else {
         buildingBatchCount += 1;
@@ -182,7 +188,7 @@ const complete = await new Promise<
     root.add(object);
     attachedBatches.set(message.id, object as Group);
     if (
-      message.id.startsWith("buildings-preview-") &&
+      distantBuildingsVisible &&
       buildingPreviews.size === buildingPartition.remaining.length &&
       allBuildingsVisibleMs === null
     ) {

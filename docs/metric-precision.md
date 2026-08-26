@@ -1,8 +1,8 @@
 # Metric precision and surface-detail QA
 
 This report documents what the current deterministic viewer can claim
-from committed public/open data, including the official photogrammetric
-surface, and which additions remain display approximations.
+from committed public/open data and which additions remain display
+approximations.
 
 ## Source hierarchy
 
@@ -14,9 +14,8 @@ surface, and which additions remain display approximations.
   - Official DOP 2025 metadata gives 0.20 m ground resolution and
     approximately +/- 0.4 m positional accuracy.
 - ALKIS parcel context: https://daten.berlin.de/datensaetze/alkis-berlin-flurstucke-wfs-1bc014d7
-- Official textured surface: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
-  - The committed scene uses bounded geometry and aerial texture colour
-    from the June 2025 Berlin survey.
+- Optional archival textured-surface QA: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
+  - The current release does not bundle or render this legacy surface.
 - Official public-space details: https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23
 
 ## Committed LoD2 geometry statistics
@@ -75,21 +74,22 @@ surface, and which additions remain display approximations.
 - Relative relationships checked: 41
 - Review count: 3
 
-## Committed photogrammetric surface statistics
+## Retired photogrammetric surface inventory
 
-- Status: available
-- Official source tiles: 26
-- Interaction faces: 2599985
-- Interaction vertices: 1377751
-- Interaction GLB size: 29.9 MiB
-- Settled desktop faces: 6623585
-- Settled desktop vertices: 3464527
-- Settled desktop GLB size: 79.1 MiB
-- Settled per-tile target: 289797 faces
-- Normal crease: 58.0°
-- Simplification aggression: 5
-- Separate high-detail hero groups: 4
-- Complete scene: 74 GLBs / 174.3 MiB
+- Status: unavailable
+- Reason: retired_from_release
+- Official source tiles: n/a
+- Interaction faces: n/a
+- Interaction vertices: n/a
+- Interaction GLB size: 0.0 MiB
+- Settled desktop faces: n/a
+- Settled desktop vertices: n/a
+- Settled desktop GLB size: 0.0 MiB
+- Settled per-tile target: n/a faces
+- Normal crease: n/a°
+- Simplification aggression: n/a
+- Separate high-detail hero groups: n/a
+- Complete scene: 0 GLBs / 0.0 MiB
 
 ## Current rendering claim
 
@@ -101,13 +101,13 @@ degenerate source slivers that are retained in the GeoPackage but not
 extruded. It preserves LoD2 interior rings as visible
 courtyards/cut-outs and uses denser
 facade bays, roof ribs, and roof equipment marks from footprint size,
-height, roof type, and landmark material cues. The official Berlin 3D
-Mesh adds genuine photogrammetric roof, facade, ground and canopy relief
-at unchanged EPSG:25833 scale, with a six-million-face settled tier.
+height, roof type, and landmark material cues. The lightweight current
+scene is derived from retained LoD2, OSM and Geoportal source payloads;
+the former Berlin 3D Mesh files are not shipped or decoded at runtime.
 
 Procedural monument, window, train, tunnel and architectural-signature
 layers remain labelled display geometry. They are not surveyed facade,
-interior or as-built detail and do not replace LoD2/official-mesh anchors.
+interior or as-built detail and do not replace the LoD2 geometry anchor.
 
 ## Tiergartentunnel precision claim
 

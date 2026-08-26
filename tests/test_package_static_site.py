@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import errno
-import hashlib
 import importlib.util
 import json
 import os
@@ -56,8 +55,9 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "if not args.no_open" in serve_text
   assert 'START_PAGE = "index.html"' in serve_text
   assert "require_package_files(root)" in serve_text
-  assert "verify_webgl_scene(root)" in serve_text
-  assert "file_sha256(path)" in serve_text
+  assert "verify_procedural_scene(root)" in serve_text
+  assert 'scene.get("schema_version") != 3' in serve_text
+  assert "scene_path.parent.iterdir()" in serve_text
   assert "cache_control_for_path(self.path)" in serve_text
   assert 'protocol_version = "HTTP/1.1"' in serve_text
   assert "daemon_threads = True" in serve_text
@@ -223,37 +223,36 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
-def test_generated_server_rejects_corrupt_webgl_asset(tmp_path: Path) -> None:
+def test_generated_server_rejects_retired_webgl_asset(tmp_path: Path) -> None:
   package_static_site = load_script_module(
     "package_static_site_server_integrity", "scripts/package_static_site.py"
   )
   package_static_site.write_launchers(tmp_path)
   mesh_root = tmp_path / "mesh" / "regierungsviertel"
   mesh_root.mkdir(parents=True)
-  model = b"valid-glb"
-  (mesh_root / "tile.glb").write_bytes(model)
-  entry = {
-    "file": "tile.glb",
-    "bytes": len(model),
-    "sha256": hashlib.sha256(model).hexdigest(),
-  }
   (mesh_root / "scene.json").write_text(
     json.dumps(
       {
-        "base_tiles": [entry],
-        "surface_detail_tiles": [entry],
+        "schema_version": 3,
+        "base_tiles": [],
+        "surface_detail_tiles": [],
         "hero_details": [],
+        "render_strategy": {
+          "kind": "procedural-drawn",
+          "exact_building_limits": {"desktop": 12000, "mobile": 5000},
+          "legacy_photogrammetry_removed": True,
+        },
       }
     ),
     encoding="utf-8",
   )
   server = load_module_path("generated_local_server", tmp_path / "serve-local.py")
 
-  server.verify_webgl_scene(tmp_path)
-  (mesh_root / "tile.glb").write_bytes(b"corrupt")
+  server.verify_procedural_scene(tmp_path)
+  (mesh_root / "retired.glb").write_bytes(b"retired")
 
-  with pytest.raises(SystemExit, match="3D model size mismatch"):
-    server.verify_webgl_scene(tmp_path)
+  with pytest.raises(SystemExit, match="Retired binary assets remain"):
+    server.verify_procedural_scene(tmp_path)
 
 
 def test_generated_server_cache_policy_covers_100_requests(tmp_path: Path) -> None:
@@ -264,11 +263,13 @@ def test_generated_server_cache_policy_covers_100_requests(tmp_path: Path) -> No
   server = load_module_path("generated_cache_server", tmp_path / "serve-local.py")
 
   for index in range(100):
-    suffix = ".glb" if index % 2 == 0 else ".html"
+    suffix = ".json" if index % 2 == 0 else ".html"
     policy = server.cache_control_for_path(f"/asset-{index}{suffix}?v=1")
-    expected = "public, max-age=31536000, immutable" if suffix == ".glb" else "no-cache"
+    expected = (
+      "public, max-age=31536000, immutable" if suffix == ".json" else "no-cache"
+    )
     assert policy == expected
-  assert server.QuietHandler.extensions_map[".glb"] == "model/gltf-binary"
+  assert ".glb" not in server.QuietHandler.extensions_map
   assert server.QuietHandler.protocol_version == "HTTP/1.1"
   assert server.ReusableTCPServer.daemon_threads is True
 
@@ -279,12 +280,14 @@ def test_repo_server_uses_static_asset_cache_without_stale_html() -> None:
   )
 
   assert (
-    serve_local_viewer.cache_control_for_path("/mesh/tile.glb?hash=abc")
+    serve_local_viewer.cache_control_for_path("/mesh/lod2-prisms.json?hash=abc")
     == "public, max-age=0, must-revalidate"
   )
   assert serve_local_viewer.cache_control_for_path("/index.html") == "no-cache"
-  assert serve_local_viewer.cache_control_for_path("/scene.json") == "no-cache"
-  assert serve_local_viewer.QuietHandler.extensions_map[".glb"] == ("model/gltf-binary")
+  assert serve_local_viewer.cache_control_for_path("/scene.json") == (
+    "public, max-age=0, must-revalidate"
+  )
+  assert ".glb" not in serve_local_viewer.QuietHandler.extensions_map
   assert serve_local_viewer.ReusableTCPServer.daemon_threads is True
 
 
@@ -297,9 +300,10 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   (mesh_dir / "scene.json").write_text(
     json.dumps(
       {
-        "base_tiles": [{"faces": 123_456}, {"faces": 10}],
-        "surface_detail_tiles": [{"faces": 654_321}, {"faces": 20}],
-        "hero_details": [{"files": [{"file": "hero.glb"}]}],
+        "render_strategy": {
+          "exact_building_limits": {"desktop": 12000, "mobile": 5000},
+          "source_building_count": 29818,
+        },
       }
     ),
     encoding="utf-8",
@@ -326,9 +330,10 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "Touchscreen" in readme
   assert "two fingers pinch-zoom" in readme
   assert "--no-open --port 8770" in readme
-  assert "123.466-Flächen-Stufe" in readme
-  assert "654,341-face tier" in readme
-  assert "5 GLB-Dateien" in readme
+  assert "29.818" in readme
+  assert "12.000" in readme
+  assert "5,000" in readme
+  assert "74 nie mehr dargestellten Foto-GLBs" in readme
   assert "Kindertransport visual references: © Pauline Ahrens, 2021" in readme
   assert "visual_reference_attribution.json" in readme
 
@@ -351,21 +356,14 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/visual_reference_attribution.json": b"{}",
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
-    "mesh/regierungsviertel/scene.json": b'{"schema_version":1}',
+    "mesh/regierungsviertel/scene.json": b'{"schema_version":3}',
     "mesh/regierungsviertel/ground-context.json": b'{"buildings":[],"trees":[]}',
+    "mesh/regierungsviertel/lod2-prisms.json": b'{"buildings":[]}',
+    "mesh/regierungsviertel/minecraft-voxels.json": b'{"buildings":[]}',
+    "mesh/regierungsviertel/park-details.json": b"{}",
+    "mesh/regierungsviertel/rail-lines.json": b"{}",
+    "mesh/regierungsviertel/street-details.json": b"{}",
     "mesh/regierungsviertel/surface-polygons.json": b'{"roads":[]}',
-    "mesh/regierungsviertel/surface-pretriangulation.json": json.dumps(
-      {
-        "source_file": "surface-polygons.json",
-        "plates": [
-          {
-            "kind": "asphalt",
-            "file": "surface-asphalt-fixture.plate.gz",
-          }
-        ],
-      }
-    ).encode(),
-    "mesh/regierungsviertel/surface-asphalt-fixture.plate.gz": b"plate",
   }
   for relative, data in files.items():
     path = tmp_path / relative
@@ -391,14 +389,13 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
   assert manifest["assets"]["ground_context"]["bytes"] > 0
   assert manifest["assets"]["visual_reference_attribution"]["bytes"] > 0
   assert manifest["assets"]["surface_source"]["bytes"] > 0
-  assert manifest["assets"]["surface_pretriangulation"]["bytes"] > 0
-  assert manifest["assets"]["surface_plate_asphalt"]["bytes"] == len(b"plate")
-  assert {
-    entry["path"] for entry in manifest["assets"].values()
-  } >= {
+  assert manifest["assets"]["lod2_prisms"]["bytes"] > 0
+  assert manifest["assets"]["minecraft_voxels"]["bytes"] > 0
+  assert {entry["path"] for entry in manifest["assets"].values()} >= {
     "mesh/regierungsviertel/surface-polygons.json",
-    "mesh/regierungsviertel/surface-pretriangulation.json",
-    "mesh/regierungsviertel/surface-asphalt-fixture.plate.gz",
+    "mesh/regierungsviertel/lod2-prisms.json",
+    "mesh/regierungsviertel/park-details.json",
+    "mesh/regierungsviertel/rail-lines.json",
   }
   assert all("\\" not in entry["path"] for entry in manifest["assets"].values())
 
@@ -562,7 +559,7 @@ def test_compact_packaged_dzi_reuses_lower_levels_and_keeps_3d_untouched(
     ),
     encoding="utf-8",
   )
-  mesh = package / "mesh" / "regierungsviertel" / "tile.glb"
+  mesh = package / "mesh" / "regierungsviertel" / "lod2-prisms.json"
   mesh.parent.mkdir(parents=True)
   mesh.write_bytes(b"unchanged-3d")
 
@@ -616,28 +613,21 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   )
   scene = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel" / "scene.json"
   scene.parent.mkdir(parents=True)
-  scene.write_text('{"schema_version":1}', encoding="utf-8")
+  scene.write_text('{"schema_version":3}', encoding="utf-8")
   (scene.parent / "ground-context.json").write_text(
     '{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
     '"ground_height":{"y_dm":[0]}}',
     encoding="utf-8",
   )
   (scene.parent / "surface-polygons.json").write_text('{"roads":[]}', encoding="utf-8")
-  (scene.parent / "surface-asphalt-fixture.plate.gz").write_bytes(b"plate")
-  (scene.parent / "surface-pretriangulation.json").write_text(
-    json.dumps(
-      {
-        "source_file": "surface-polygons.json",
-        "plates": [
-          {
-            "kind": "asphalt",
-            "file": "surface-asphalt-fixture.plate.gz",
-          }
-        ],
-      }
-    ),
-    encoding="utf-8",
-  )
+  for filename in (
+    "lod2-prisms.json",
+    "minecraft-voxels.json",
+    "park-details.json",
+    "rail-lines.json",
+    "street-details.json",
+  ):
+    (scene.parent / filename).write_text("{}", encoding="utf-8")
   missing_from_dist = public_dzi / "regierungsviertel_files" / "0" / "0_0.jpg"
   missing_from_dist.parent.mkdir(parents=True)
   missing_from_dist.write_bytes(b"low-level-tile")

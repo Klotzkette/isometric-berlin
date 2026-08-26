@@ -34,9 +34,10 @@ const GROUND_Y_M = 4.08;
 const BRECHT_YAW_RAD = -0.62;
 const WEIGEL_YAW_RAD = 0.2;
 
-const BRONZE = 0x526c65;
-const BRONZE_LIGHT = 0x68877e;
-const DARK_STONE = 0x313636;
+const BRONZE = 0x5a4638;
+const BRONZE_LIGHT = 0x806451;
+const BRONZE_DARK = 0x352a24;
+const DARK_STONE = 0x25292a;
 const SETT_LIGHT = 0xaaa59a;
 const SETT_DARK = 0x89877f;
 const PALE_PLINTH = 0xd2cec4;
@@ -103,7 +104,7 @@ export const BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE = {
       ] as const,
     },
     geometryStatus:
-      "six-metre circular sett stage, a slightly over-life-size upright seated Brecht on the asymmetric open metal bench and three surrounding cylindrical, horizontally jointed black-stone steles; procedural, source-bounded and not a portrait texture",
+      "six-metre circular sett stage, a slightly over-life-size upright seated Brecht with bald articulated head, angular face, overlapping hands, straight trouser legs and shoes on the asymmetric open metal bench, plus three surrounding cylindrical, horizontally jointed black-stone steles with non-legible incision bands; procedural, source-bounded and not a portrait texture",
     sources: [
       "https://www.deutsche-digitale-bibliothek.de/item/5ALSSIMTMT2PKBR7UXTZZASRRBP7K366",
       "https://www.defa-stiftung.de/en/films/film-search/bertolt-brecht-platz/",
@@ -500,7 +501,7 @@ function createBrechtMemorial(): Group {
     x,
     z,
     BRECHT_YAW_RAD,
-    BRONZE_LIGHT,
+    BRONZE,
     -0.28,
     GROUND_Y_M + 2.22,
     -0.03,
@@ -558,11 +559,54 @@ function createBrechtMemorial(): Group {
       0.09,
       0.3,
     );
+    addLocalBox(
+      builder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_DARK,
+      kneeX + side * 0.025,
+      GROUND_Y_M + 0.145,
+      -0.84,
+      0.27,
+      0.035,
+      0.52,
+      0,
+      false,
+    );
+    addLocalBox(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_LIGHT,
+      kneeX + side * 0.025,
+      GROUND_Y_M + 0.36,
+      -0.665,
+      0.285,
+      0.032,
+      0.24,
+      0,
+      false,
+    );
+    localBeam(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_DARK,
+      [kneeX, GROUND_Y_M + 0.78, -0.71],
+      [kneeX + side * 0.025, GROUND_Y_M + 0.39, -0.75],
+      0.01,
+      false,
+    );
   }
-  for (const side of [-1, 1]) {
+  for (const side of [-1, 1] as const) {
     const shoulderX = -0.28 + side * 0.36;
     const elbowX = -0.28 + side * 0.34;
-    const handX = -0.28 + side * 0.15;
+    const handX = side < 0 ? -0.35 : -0.21;
+    const handY = GROUND_Y_M + (side < 0 ? 1.09 : 1.13);
+    const handZ = side < 0 ? -0.41 : -0.435;
     localBeam(
       builder,
       x,
@@ -580,7 +624,7 @@ function createBrechtMemorial(): Group {
       BRECHT_YAW_RAD,
       BRONZE,
       [elbowX, GROUND_Y_M + 1.34, -0.16],
-      [handX, GROUND_Y_M + 1.11, -0.38],
+      [handX, handY, handZ],
       0.085,
     );
     addLocalEllipsoid(
@@ -590,25 +634,57 @@ function createBrechtMemorial(): Group {
       BRECHT_YAW_RAD,
       BRONZE_LIGHT,
       handX,
-      GROUND_Y_M + 1.09,
-      -0.4,
-      0.14,
-      0.075,
-      0.13,
+      handY,
+      handZ,
+      0.15,
+      0.068,
+      0.125,
     );
-    for (let finger = 0; finger < 4; finger += 1) {
+    for (let finger = 0; finger < 5; finger += 1) {
+      const fingerOffset = (finger - 2) * 0.024;
       localBeam(
         fineBuilder,
         x,
         z,
         BRECHT_YAW_RAD,
         BRONZE_LIGHT,
-        [handX + side * (finger - 1.5) * 0.018, GROUND_Y_M + 1.08, -0.43],
-        [handX + side * (finger - 1.5) * 0.018, GROUND_Y_M + 1.045, -0.54],
-        0.012,
+        [handX + fingerOffset, handY - 0.01, handZ - 0.025],
+        [
+          handX + fingerOffset + side * 0.012,
+          handY - 0.042,
+          handZ - 0.135 + Math.abs(fingerOffset) * 0.15,
+        ],
+        0.011,
         false,
       );
+      if (finger > 0) {
+        addLocalEllipsoid(
+          fineBuilder,
+          x,
+          z,
+          BRECHT_YAW_RAD,
+          BRONZE_DARK,
+          handX + fingerOffset,
+          handY + 0.025,
+          handZ - 0.06,
+          0.013,
+          0.009,
+          0.012,
+          false,
+        );
+      }
     }
+    localBeam(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_LIGHT,
+      [handX + side * 0.1, handY + 0.015, handZ - 0.015],
+      [handX + side * 0.045, handY - 0.01, handZ - 0.105],
+      0.018,
+      false,
+    );
   }
 
   // Non-portrait facial and garment cues, all procedural and deliberately
@@ -628,8 +704,33 @@ function createBrechtMemorial(): Group {
       0.035,
       false,
     );
+    addLocalEllipsoid(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_DARK,
+      -0.28 + earSide * 0.25,
+      GROUND_Y_M + 2.23,
+      -0.042,
+      0.016,
+      0.048,
+      0.012,
+      false,
+    );
   }
   for (const eyeSide of [-1, 1]) {
+    localBeam(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_DARK,
+      [-0.28 + eyeSide * 0.14, GROUND_Y_M + 2.35, -0.247],
+      [-0.28 + eyeSide * 0.035, GROUND_Y_M + 2.34, -0.265],
+      0.015,
+      false,
+    );
     addLocalEllipsoid(
       fineBuilder,
       x,
@@ -644,7 +745,22 @@ function createBrechtMemorial(): Group {
       0.012,
       false,
     );
+    addLocalEllipsoid(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_LIGHT,
+      -0.28 + eyeSide * 0.105,
+      GROUND_Y_M + 2.22,
+      -0.235,
+      0.07,
+      0.075,
+      0.045,
+      false,
+    );
   }
+  // Long angular bridge and compact tip match Cremer's recognisable profile.
   addLocalEllipsoid(
     fineBuilder,
     x,
@@ -652,11 +768,11 @@ function createBrechtMemorial(): Group {
     BRECHT_YAW_RAD,
     BRONZE_LIGHT,
     -0.28,
-    GROUND_Y_M + 2.25,
+    GROUND_Y_M + 2.285,
     -0.285,
-    0.055,
-    0.08,
+    0.045,
     0.105,
+    0.075,
     false,
   );
   addLocalEllipsoid(
@@ -664,13 +780,52 @@ function createBrechtMemorial(): Group {
     x,
     z,
     BRECHT_YAW_RAD,
-    BRONZE,
+    BRONZE_LIGHT,
     -0.28,
-    GROUND_Y_M + 2.42,
-    0.02,
-    0.245,
-    0.09,
-    0.21,
+    GROUND_Y_M + 2.205,
+    -0.325,
+    0.07,
+    0.052,
+    0.07,
+    false,
+  );
+  localBeam(
+    fineBuilder,
+    x,
+    z,
+    BRECHT_YAW_RAD,
+    BRONZE_DARK,
+    [-0.365, GROUND_Y_M + 2.145, -0.282],
+    [-0.195, GROUND_Y_M + 2.145, -0.282],
+    0.009,
+    false,
+  );
+  addLocalEllipsoid(
+    fineBuilder,
+    x,
+    z,
+    BRECHT_YAW_RAD,
+    BRONZE_LIGHT,
+    -0.28,
+    GROUND_Y_M + 2.105,
+    -0.245,
+    0.095,
+    0.06,
+    0.05,
+    false,
+  );
+  addLocalEllipsoid(
+    fineBuilder,
+    x,
+    z,
+    BRECHT_YAW_RAD,
+    BRONZE_LIGHT,
+    -0.28,
+    GROUND_Y_M + 2.45,
+    0.005,
+    0.23,
+    0.085,
+    0.205,
     false,
   );
   for (const side of [-1, 1]) {
@@ -683,6 +838,33 @@ function createBrechtMemorial(): Group {
       [-0.28, GROUND_Y_M + 1.93, -0.25],
       [-0.28 + side * 0.2, GROUND_Y_M + 1.8, -0.27],
       0.025,
+      false,
+    );
+  }
+  localBeam(
+    fineBuilder,
+    x,
+    z,
+    BRECHT_YAW_RAD,
+    BRONZE_DARK,
+    [-0.28, GROUND_Y_M + 1.82, -0.292],
+    [-0.28, GROUND_Y_M + 1.43, -0.35],
+    0.012,
+    false,
+  );
+  for (const buttonY of [1.7, 1.57, 1.44]) {
+    addLocalEllipsoid(
+      fineBuilder,
+      x,
+      z,
+      BRECHT_YAW_RAD,
+      BRONZE_DARK,
+      -0.28,
+      GROUND_Y_M + buttonY,
+      -0.365,
+      0.013,
+      0.013,
+      0.01,
       false,
     );
   }
@@ -734,6 +916,27 @@ function createBrechtMemorial(): Group {
       joint.translate(point.x, point.y, point.z);
       addPainted(fineBuilder, joint, 0x1f2424, false);
     }
+    // Short, unlettered rings register the engraved text zones without
+    // reproducing Brecht's protected poem or quotations.
+    for (const fraction of [0.24, 0.32, 0.41, 0.49]) {
+      const incision = new TorusGeometry(
+        stele.radiusM + 0.004,
+        0.005,
+        3,
+        18,
+      );
+      incision.rotateX(Math.PI / 2);
+      const point = rotatedPoint(
+        x,
+        z,
+        BRECHT_YAW_RAD,
+        localX,
+        GROUND_Y_M + stele.height * fraction,
+        localZ,
+      );
+      incision.translate(point.x, point.y, point.z);
+      addPainted(fineBuilder, incision, 0x15191a, false);
+    }
   }
 
   const memorial = finishDrawnGroup(builder, {
@@ -753,14 +956,19 @@ function createBrechtMemorial(): Group {
   memorial.userData.detailCounts = {
     chairLegs: 4,
     emptyBenchPlaces: 1,
-    fingerCues: 8,
+    facialCues: 15,
+    fingerCues: 10,
+    garmentSeams: 15,
+    knuckleCues: 8,
     platformDiameterM: BERLINER_ENSEMBLE_PROFILE.brechtTurntableDiameterM,
     seatedFullBodyFigure: 1,
     cylindricalSteles: BRECHT_STELE_SPECS.length,
+    steleIncisionBands: BRECHT_STELE_SPECS.length * 4,
     steleCourses: BRECHT_STELE_SPECS.reduce(
       (total, stele) => total + stele.courseCount,
       0,
     ),
+    thumbCues: 2,
   };
   memorial.userData.exactOwnOsmKey = BERLINER_ENSEMBLE_PROFILE.brechtOsmKey;
   return memorial;
@@ -774,8 +982,8 @@ type BrechtVoxelBlock = {
 };
 
 const BRECHT_VOXEL_COLORS: Readonly<Record<BrechtVoxelPalette, number>> = {
-  bronze: 0x48675f,
-  darkStone: 0x292e2e,
+  bronze: 0x6a4f3d,
+  darkStone: 0x242829,
   settDark: 0x87857e,
   settLight: 0xb1aca1,
 };

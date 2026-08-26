@@ -9,6 +9,7 @@ import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString
 
 from isometric_berlin.generation.build_park_details import (
+  MeshGroundSampler,
   compact_trees,
   expand_trees,
   light_band_runs,
@@ -19,6 +20,28 @@ from isometric_berlin.generation.road_geometry import road_width_m
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/park-details.json")
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
 SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
+
+
+def test_ground_sampler_uses_retained_context_without_legacy_glbs(
+  tmp_path: Path,
+) -> None:
+  context = {
+    "cell_m": 4,
+    "grid": {"min_x_idx": 0, "min_z_idx": 0},
+    "ground_height": {
+      "stride_cells": 2,
+      "cols": 2,
+      "rows": 2,
+      "y_dm": [10, 20, 30, 50],
+    },
+  }
+  (tmp_path / "ground-context.json").write_text(json.dumps(context), encoding="utf-8")
+
+  sampler = MeshGroundSampler.from_directory(tmp_path)
+
+  assert sampler.height(4, 4) == 1.12
+  assert sampler.height(8, 8) == 2.87
+  assert sampler.height(-100, -100) == 1.12
 
 
 def payload_trees(payload: dict) -> list[dict]:

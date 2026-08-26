@@ -411,10 +411,19 @@ def load_alignment_summary(path: Path) -> dict[str, Any]:
 
 
 def scene_surface_stats(path: Path | None) -> dict[str, Any]:
-  """Summarise committed official-mesh tiers from the browser manifest."""
+  """Summarise legacy official-mesh tiers or their explicit retirement."""
   if path is None or not path.exists():
     return {"available": False, "reason": "missing_scene_manifest"}
   scene = json.loads(path.read_text(encoding="utf-8"))
+  if scene.get("render_strategy", {}).get("legacy_photogrammetry_removed") is True:
+    return {
+      "available": False,
+      "reason": "retired_from_release",
+      "path": str(path),
+      "sha256": sha256_file(path),
+      "scene_glb_files": 0,
+      "scene_glb_bytes": 0,
+    }
   base = scene.get("base_tiles", [])
   settled = scene.get("surface_detail_tiles", [])
   heroes = [
@@ -520,8 +529,9 @@ def build_precision_report(
         "path": str(scene_path) if scene_path is not None else None,
         "metadata_url": BERLIN_3D_MESH_URL,
         "claim": (
-          "The committed viewer renders bounded official photogrammetric OBJ "
-          "geometry and aerial textures from the June 2025 survey."
+          "The Berlin 3D mesh remains an optional archival QA source. Its "
+          "photogrammetric geometry and aerial textures are not packaged or "
+          "rendered by the current viewer."
         ),
       },
       "berlindetails": {
@@ -550,8 +560,9 @@ def build_precision_report(
       "semantic_context": "osm",
       "visual_material_cues": "wikimedia",
       "limitations": (
-        "The official mesh provides photogrammetric surface relief and aerial "
-        "colour. Procedural landmark, window, train, tunnel and monument "
+        "The current release deliberately omits the former photogrammetric "
+        "surface to reduce startup transfer, CPU, GPU and memory cost. "
+        "Procedural landmark, window, train, tunnel and monument "
         "recognition layers remain labelled display approximations and are not "
         "surveyed as-built facade or interior geometry."
       ),
@@ -577,8 +588,8 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "# Metric precision and surface-detail QA",
         "",
         "This report documents what the current deterministic viewer can claim",
-        "from committed public/open data, including the official photogrammetric",
-        "surface, and which additions remain display approximations.",
+        "from committed public/open data and which additions remain display",
+        "approximations.",
         "",
         "## Source hierarchy",
         "",
@@ -590,9 +601,8 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "  - Official DOP 2025 metadata gives 0.20 m ground resolution and",
         "    approximately +/- 0.4 m positional accuracy.",
         f"- ALKIS parcel context: {report['sources']['alkis']['metadata_url']}",
-        f"- Official textured surface: {report['sources']['berlin3d_mesh']['metadata_url']}",
-        "  - The committed scene uses bounded geometry and aerial texture colour",
-        "    from the June 2025 Berlin survey.",
+        f"- Optional archival textured-surface QA: {report['sources']['berlin3d_mesh']['metadata_url']}",
+        "  - The current release does not bundle or render this legacy surface.",
         f"- Official public-space details: {report['sources']['berlindetails']['metadata_url']}",
         "",
         "## Committed LoD2 geometry statistics",
@@ -651,9 +661,10 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         f"- Relative relationships checked: {alignment.get('relative_relationships_checked', 'n/a')}",
         f"- Review count: {alignment.get('review_count', 'n/a')}",
         "",
-        "## Committed photogrammetric surface statistics",
+        "## Retired photogrammetric surface inventory",
         "",
         f"- Status: {'available' if surface.get('available') else 'unavailable'}",
+        f"- Reason: {surface.get('reason', 'legacy_manifest')}",
         f"- Official source tiles: {surface.get('source_tiles', 'n/a')}",
         f"- Interaction faces: {surface.get('base_faces', 'n/a')}",
         f"- Interaction vertices: {surface.get('base_vertices', 'n/a')}",
@@ -677,13 +688,13 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "extruded. It preserves LoD2 interior rings as visible",
         "courtyards/cut-outs and uses denser",
         "facade bays, roof ribs, and roof equipment marks from footprint size,",
-        "height, roof type, and landmark material cues. The official Berlin 3D",
-        "Mesh adds genuine photogrammetric roof, facade, ground and canopy relief",
-        "at unchanged EPSG:25833 scale, with a six-million-face settled tier.",
+        "height, roof type, and landmark material cues. The lightweight current",
+        "scene is derived from retained LoD2, OSM and Geoportal source payloads;",
+        "the former Berlin 3D Mesh files are not shipped or decoded at runtime.",
         "",
         "Procedural monument, window, train, tunnel and architectural-signature",
         "layers remain labelled display geometry. They are not surveyed facade,",
-        "interior or as-built detail and do not replace LoD2/official-mesh anchors.",
+        "interior or as-built detail and do not replace the LoD2 geometry anchor.",
         "",
         "## Tiergartentunnel precision claim",
         "",

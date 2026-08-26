@@ -1,32 +1,22 @@
-import { BufferGeometry, Group, Mesh } from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { Group } from "three";
 
 import {
   createDistantBuildingShells,
   createIsometricCity,
   createSmoothSurfaces,
-  createPretriangulatedSurfacePlate,
-  type PretriangulatedSurfaceKind,
   type PrismPayload,
   type SurfacePayload,
 } from "./IsometricCityWorld";
 import { smoothGroundTopSampler, WATER_TOP_Y } from "./MinecraftVoxelWorld";
 import type { VoxelPayload } from "./MinecraftVoxelWorld";
 import {
-  splitProgressiveBuildings,
-  splitRoadSurfaceFamily,
-  surfaceFamilyPayload,
+  DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_TOTAL_BUILDING_LIMIT,
-  progressiveHeavyRoadPlatesEnabled,
+  splitProgressiveBuildings,
+  surfaceFamilyPayload,
   type ProgressiveWorldWorkerInput,
   type ProgressiveWorldWorkerOutput,
 } from "./progressiveWorld";
-import {
-  fetchSurfacePlate,
-  splitIndexedSurfacePlate,
-  SURFACE_PLATE_MANIFEST_FILE,
-  type SurfacePlateManifest,
-} from "./surfacePlate";
 import { serializeObject3DForTransfer } from "./transferableObject3D";
 
 type WorkerScope = {
@@ -35,10 +25,6 @@ type WorkerScope = {
 };
 
 const workerScope = self as unknown as WorkerScope;
-type FullProgressiveWorldWorkerInput = Extract<
-  ProgressiveWorldWorkerInput,
-  { detailProfile: "full" }
->;
 
 function removeEmptyGroups(root: Group): void {
   for (const child of [...root.children]) {
@@ -78,76 +64,6 @@ function postBatch(
 /** Give message delivery and garbage collection a turn between large batches. */
 function yieldWorker(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
-}
-
-function mergeBuiltSurfaceRoots(
-  roots: Group[],
-  meshName: string,
-): Group {
-  const outputRoot = roots[0];
-  const outputMesh = outputRoot?.getObjectByName(meshName);
-  if (!outputRoot || !(outputMesh instanceof Mesh)) {
-    throw new Error(`Progressive surface chunks lack ${meshName}`);
-  }
-  const geometries: BufferGeometry[] = [];
-  for (const root of roots) {
-    const mesh = root.getObjectByName(meshName);
-    if (!(mesh instanceof Mesh)) {
-      throw new Error(`Progressive surface chunk lacks ${meshName}`);
-    }
-    geometries.push(mesh.geometry);
-    if (root !== outputRoot) root.clear();
-  }
-  if (geometries.length > 1) {
-    const joined = mergeGeometries(geometries, false);
-    if (!joined) throw new Error(`Could not merge progressive ${meshName}`);
-    outputMesh.geometry = joined;
-    for (const geometry of geometries) geometry.dispose();
-  }
-  return outputRoot;
-}
-
-async function sha256(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(text),
-  );
-  return [...new Uint8Array(digest)]
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function loadHeavyPlates(
-  input: FullProgressiveWorldWorkerInput,
-  surfaces: SurfacePayload,
-): Promise<Partial<Record<PretriangulatedSurfaceKind, ReturnType<typeof createPretriangulatedSurfacePlate>>>> {
-  const rootUrl = new URL(input.sceneRootUrl);
-  const response = await fetch(new URL(SURFACE_PLATE_MANIFEST_FILE, rootUrl));
-  if (!response.ok) {
-    throw new Error(`Surface plate manifest failed with HTTP ${response.status}`);
-  }
-  const manifest = (await response.json()) as SurfacePlateManifest;
-  if (
-    manifest.format !== "isometric-berlin-surface-plate" ||
-    manifest.schema_version !== 1 ||
-    manifest.stage !== "post-earcut-pre-terrain-drape" ||
-    manifest.source_sha256 !== (await sha256(JSON.stringify(surfaces)))
-  ) {
-    throw new Error("Surface plate manifest does not match surface-polygons.json");
-  }
-  const entries = new Map(manifest.plates.map((entry) => [entry.kind, entry]));
-  const entry = entries.get("asphalt");
-  if (!entry) throw new Error("Surface plate manifest lacks asphalt");
-  return { asphalt: await fetchSurfacePlate(rootUrl, entry) };
-}
-
-function runtimeHeavyPlate(
-  surfaces: SurfacePayload,
-  kind: PretriangulatedSurfaceKind,
-) {
-  return createPretriangulatedSurfacePlate(
-    (surfaces.roads ?? []).filter((road) => road.kind === kind),
-  );
 }
 
 function postBuildingPreviews(
@@ -262,23 +178,50 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     });
     return;
   }
-  const [prismPayload, ground, surfaces] = await Promise.all([
-    loadPrismPayload(input.prismUrl),
-    loadJsonPayload<VoxelPayload>(input.groundUrl, "Ground context"),
-    loadJsonPayload<SurfacePayload>(input.surfacesUrl, "Surface polygon"),
-  ]);
-  const heavyRoadPlates = progressiveHeavyRoadPlatesEnabled(
-    input.detailProfile,
+  const groundPromise = loadJsonPayload<VoxelPayload>(
+    input.groundUrl,
+    "Ground context",
   );
-  let pretriangulated = heavyRoadPlates;
-  const heavyPromise = heavyRoadPlates
-    ? loadHeavyPlates(input, surfaces).catch(() => {
-        pretriangulated = false;
-        return {
-          asphalt: runtimeHeavyPlate(surfaces, "asphalt"),
-        };
-      })
-    : null;
+  const surfacesPromise = loadJsonPayload<SurfacePayload>(
+    input.surfacesUrl,
+    "Surface polygon",
+  );
+  const prismPayload = await loadPrismPayload(input.prismUrl);
+  const partition = splitProgressiveBuildings(
+    prismPayload.buildings,
+    input.initialBuildingCount,
+    undefined,
+    DESKTOP_TOTAL_BUILDING_LIMIT,
+  );
+  if (partition.omitted.length > 0) {
+    const startedAt = performance.now();
+    postBatch(
+      createDistantBuildingShells(prismPayload, partition.omitted),
+      "buildings",
+      "buildings-distant",
+      startedAt,
+    );
+    batchCount += 1;
+  }
+  const buildingBatches = partition.remaining;
+  batchCount += postBuildingPreviews(prismPayload, buildingBatches);
+  await yieldWorker();
+
+  // The nearest exact batch does not depend on terrain or roads. Publish it
+  // while those payloads are still decoding instead of serialising all work
+  // behind the former road-plate allocation.
+  const [nearestBuildingBatch, ...deferredBuildingBatches] = buildingBatches;
+  if (nearestBuildingBatch) {
+    batchCount += await postBuildingBatches(
+      prismPayload,
+      [nearestBuildingBatch],
+    );
+  }
+
+  const [ground, surfaces] = await Promise.all([
+    groundPromise,
+    surfacesPromise,
+  ]);
   const terrainSample = smoothGroundTopSampler(ground);
   const terrainAt = (x: number, z: number): number =>
     terrainSample(
@@ -289,7 +232,6 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const bankY = waterTop + 5.35;
   const postSurface = (
     family: Parameters<typeof surfaceFamilyPayload>[1],
-    pretriangulatedPlate?: ReturnType<typeof createPretriangulatedSurfacePlate>,
   ): void => {
     const startedAt = performance.now();
     const root = createSmoothSurfaces(
@@ -297,110 +239,33 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       waterTop,
       bankY,
       terrainAt,
-      family === "asphalt" || family === "paving"
-        ? { pretriangulated: { [family]: pretriangulatedPlate ?? undefined } }
-        : undefined,
     );
     postBatch(root, "surfaces", `surface-${family}`, startedAt);
     batchCount += 1;
   };
 
-  const buildingBatches = splitProgressiveBuildings(
-    prismPayload.buildings,
-    input.initialBuildingCount,
-  ).remaining;
-  batchCount += postBuildingPreviews(prismPayload, buildingBatches);
-  await yieldWorker();
-
-  // Water and lawns establish the map reading first and are both bounded
-  // (<0.5 s on the production payload). Finish the two transient-heavy road
-  // plates before retaining hundreds of MiB of building buffers in the main
-  // scene. This ordering lowers whole-process peak memory without delaying the
-  // already visible exact near-field buildings.
+  // Water, lawns and the small special-surface families establish the map
+  // reading without duplicating the raster streets and authored park paths.
   postSurface("water");
   postSurface("parks");
   postSurface("sand");
   postSurface("earth");
   postSurface("wood");
   postSurface("metal");
+  const markingPayload = surfaceFamilyPayload(surfaces, "asphalt");
+  markingPayload.roads = [];
+  const markingStartedAt = performance.now();
+  postBatch(
+    createSmoothSurfaces(markingPayload, waterTop, bankY, terrainAt),
+    "surfaces",
+    "surface-lane-markings",
+    markingStartedAt,
+  );
+  batchCount += 1;
+  await yieldWorker();
 
-  // Refine the spatial batch nearest the startup view before the expensive
-  // citywide road drape. Its compressed buffers stay below the old peak while
-  // Reichstag/Hauptbahnhof surroundings gain full facade detail much sooner.
-  const [nearestBuildingBatch, ...deferredBuildingBatches] = buildingBatches;
-  if (nearestBuildingBatch) {
-    batchCount += await postBuildingBatches(
-      prismPayload,
-      [nearestBuildingBatch],
-    );
-  }
-
-  if (heavyRoadPlates && heavyPromise) {
-    // Paving is already partitioned in the source generator. Processing 100
-    // exact source polygons at a time preserves every triangle/count while
-    // avoiding the one-shot tessellator's multi-GiB transient. It also keeps
-    // the package 4.70 MiB smaller than committing a second plate.
-    const pavingBatches = splitRoadSurfaceFamily(surfaces, "paving");
-    const pavingRoots: Group[] = [];
-    for (let index = 0; index < pavingBatches.length; index += 1) {
-      pavingRoots.push(
-        createSmoothSurfaces(
-          pavingBatches[index],
-          waterTop,
-          bankY,
-          terrainAt,
-        ),
-      );
-      await yieldWorker();
-    }
-    const pavingStartedAt = performance.now();
-    postBatch(
-      mergeBuiltSurfaceRoots(pavingRoots, "smooth paved paths"),
-      "surfaces",
-      "surface-paving",
-      pavingStartedAt,
-    );
-    batchCount += 1;
-
-    const heavy = await heavyPromise;
-    if (!heavy.asphalt) throw new Error("No asphalt plate was prepared");
-    const asphaltChunks = splitIndexedSurfacePlate(heavy.asphalt);
-    heavy.asphalt.dispose();
-    heavy.asphalt = undefined;
-    const asphaltFamily = surfaceFamilyPayload(surfaces, "asphalt");
-    const emptyAsphaltFamily: SurfacePayload = {
-      ...asphaltFamily,
-      lane_markings: [],
-      roads: [],
-    };
-    const asphaltRoots: Group[] = [];
-    while (asphaltChunks.length > 0) {
-      const chunk = asphaltChunks.shift()!;
-      const first = asphaltRoots.length === 0;
-      asphaltRoots.push(
-        createSmoothSurfaces(
-          first ? asphaltFamily : emptyAsphaltFamily,
-          waterTop,
-          bankY,
-          terrainAt,
-          { pretriangulated: { asphalt: chunk } },
-        ),
-      );
-      await yieldWorker();
-    }
-    const asphaltStartedAt = performance.now();
-    postBatch(
-      mergeBuiltSurfaceRoots(asphaltRoots, "smooth carriageways"),
-      "surfaces",
-      "surface-asphalt",
-      asphaltStartedAt,
-    );
-    batchCount += 1;
-    await yieldWorker();
-  }
-
-  // Geometry is already merged by material inside each bounded batch. Desktop
-  // stays source-complete and retains the established six follow-up groups.
+  // Exact batches are already merged by material. The permanent distant shell
+  // keeps every remaining source building visible in all visual modes.
   batchCount += await postBuildingBatches(
     prismPayload,
     deferredBuildingBatches,
@@ -409,7 +274,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   workerScope.postMessage({
     batches: batchCount,
     build_ms: performance.now() - overallStart,
-    pretriangulated,
+    pretriangulated: false,
     type: "complete",
   });
 }

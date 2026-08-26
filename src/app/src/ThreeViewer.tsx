@@ -8,7 +8,6 @@ import {
   DoubleSide,
   ExtrudeGeometry,
   Fog,
-  FrontSide,
   Group,
   HemisphereLight,
   InstancedMesh,
@@ -39,12 +38,10 @@ import {
   WebGLRenderTarget,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { applyArchitecturalInkMode } from "./architecturalInk";
 import {
   type ArchitecturalSignature,
@@ -156,7 +153,6 @@ import {
   setParkSnowPresentation,
   setParkSettledDetail,
 } from "./ParkDetails";
-import { runBoundedTasks } from "./boundedTaskPool";
 import {
   CAMERA_TARGET_CROSSING_MIN_M,
   PINCH_TARGET_CROSSING_ZONE_M,
@@ -226,18 +222,10 @@ import {
   readDetailFadeRangeM,
 } from "./fineDetailFade";
 import {
-  applyDrawnFacade,
-  flattenBuildingVertexColors,
-  HERO_FACADE_ANCHORS,
   installFlatUnlitShader,
-  isDrawnFacadeCandidate,
   setBuildingColorMode,
   setFlatUnlit,
-  type Rgb,
 } from "./drawnBuildings";
-import { heroDetailEvictions } from "./heroDetailCache";
-import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
-import { meshReplacementsFor, stripReplacedGeometry } from "./meshReplacements";
 import { minecraftFogRange } from "./minecraftFog";
 import { setQuadrigaMode } from "./Quadriga";
 import { PRESENTATION_TONE } from "./presentationTone";
@@ -251,6 +239,7 @@ import {
 } from "./IsometricCityWorld";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
+  DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_INITIAL_BUILDING_COUNT,
   MOBILE_TOTAL_BUILDING_LIMIT,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
@@ -340,7 +329,6 @@ import {
   stableViewportSize,
 } from "./renderQuality";
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
-import { shouldUseSettledSurface } from "./surfaceQuality";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import {
   civicFlagFrameIntervalMs,
@@ -417,21 +405,10 @@ import {
   useState,
 } from "react";
 
-type MeshFile = {
-  file: string;
-  source_bounds_epsg25833: [[number, number, number], [number, number, number]];
-};
-
 type SceneLandmark = {
   name: string;
   role: string;
   world: [number, number, number];
-};
-
-type HeroDetail = {
-  id: string;
-  landmark_name: string;
-  files: MeshFile[];
 };
 
 export type TunnelPayload = {
@@ -445,8 +422,6 @@ export type TunnelPayload = {
 
 type SceneManifest = {
   architectural_signatures?: ArchitecturalSignature[];
-  base_tiles: MeshFile[];
-  hero_details: HeroDetail[];
   landmarks: SceneLandmark[];
   park_details?: {
     file: string;
@@ -454,7 +429,6 @@ type SceneManifest = {
     source: string;
   };
   source: { attribution: string };
-  surface_detail_tiles?: MeshFile[];
   tiergartentunnel: TunnelPayload;
 };
 
@@ -518,7 +492,6 @@ type PedestrianRuntime = {
 };
 
 type Runtime = {
-  baseSurfaceReady: boolean;
   camera: PerspectiveCamera;
   centralDetails: Group;
   cityStaffage: Group;
@@ -528,22 +501,16 @@ type Runtime = {
   composer: EffectComposer;
   crispPass: ShaderPass;
   culturalDetails: Group;
-  detailClock: number;
-  detailGroups: Map<string, HeroDetailGroup>;
   disposed: boolean;
   focusCameraByName: Map<string, FocusCamera>;
   hemisphere: HemisphereLight;
-  heroByName: Map<string, HeroDetail>;
-  interactionSurface: Group;
   interactionUntil: number;
   landmarkByName: Map<string, SceneLandmark>;
-  loader: GLTFLoader;
   marker: Group;
   markerTimer: number | null;
   minecraftMaterialState: MinecraftMaterialState;
   minecraftLootBoxes: MinecraftLootBoxField | null;
   minecraftMobs: MinecraftMobField | null;
-  modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   schwellenraumContentReady: boolean;
   schwellenraumInteriors: Group;
@@ -573,8 +540,6 @@ type Runtime = {
   sceneRootUrl: URL;
   signatures: Group;
   skyFill: DirectionalLight;
-  settledSurface: Group;
-  settledSurfaceReady: boolean;
   sun: DirectionalLight;
   tunnel: Group;
   cameraInsideTunnel: boolean;
@@ -595,9 +560,9 @@ type Runtime = {
   progressiveWorldStartCancel?: () => void;
   progressiveWorldWorker?: Worker;
   loadSignal: AbortSignal;
-  ensurePhotoSurface: () => void;
+  reportWorldFailure: () => void;
   ensurePedestrianWater: () => void;
-  photoSurfaceState: "failed" | "idle" | "loading" | "ready";
+  worldFailureReported: boolean;
   reportCoreProgress: (loaded: number, total: number) => void;
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
@@ -840,11 +805,8 @@ export type StartupPresentationStatus = "fallback" | "pending" | "ready";
 /**
  * Resolve what may be shown while the requested drawn world is loading.
  *
- * The photogrammetric Berlin mesh is an explicit failure fallback, never a
- * startup placeholder. Returning ``pending`` keeps it behind the opaque
- * startup curtain from the first WebGL frame; this prevents the old photo
- * surface from flashing before Day/Night/Snow/Schwellenraum or Minecraft is
- * ready.
+ * Returning ``pending`` keeps the canvas behind the opaque startup curtain
+ * until the requested procedural world has published its first usable batch.
  */
 export function startupPresentationStatus({
   isoWorldReady,
@@ -873,22 +835,17 @@ export function startupPresentationStatus({
 
 export function startupCurtainMayOpen(
   status: StartupPresentationStatus,
-  baseSurfaceReady: boolean,
 ): boolean {
-  return status === "ready" || (status === "fallback" && baseSurfaceReady);
+  return status === "ready";
 }
 
-/** Heavy photogrammetry is demand-only, never part of the normal first load. */
+/** The retired photographic surface must never be requested by the viewer. */
 export function photographicSurfaceNeeded(
-  status: StartupPresentationStatus,
+  _status: StartupPresentationStatus,
   _underside: boolean,
-  coarsePointer = false,
+  _coarsePointer = false,
 ): boolean {
-  // The authored tunnel/network cutaway is complete on every profile, so an
-  // underside visit must not wake the legacy photo shell. Keep it exclusively
-  // for desktop recovery after the requested world has genuinely failed.
-  if (coarsePointer) return false;
-  return status === "fallback";
+  return false;
 }
 
 export function presentationFogRange(
@@ -905,20 +862,12 @@ export function presentationFogRange(
   return null;
 }
 
-type HeroDetailGroup = {
-  group: Group;
-  lastUsed: number;
-  loadedFiles: number;
-  loading: boolean;
-};
-
 // Match the pre-manifest camera to the public default focus. The regular
 // landmark-focus path replaces this with the Reichstag's authored camera as
 // soon as scene.json is available; both poses stand over the Platz der
 // Republik lawn, so the startup curtain cannot reveal a framing jump.
 const DEFAULT_TARGET = new Vector3(...DEFAULT_THREE_TARGET_WORLD);
 const DEFAULT_CAMERA_OFFSET = new Vector3(...DEFAULT_THREE_CAMERA_OFFSET);
-const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
 
@@ -1217,10 +1166,7 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
   if (
     runtime.disposed ||
     runtime.presentationReady ||
-    !startupCurtainMayOpen(
-      currentStartupPresentationStatus(runtime),
-      runtime.baseSurfaceReady,
-    )
+    !startupCurtainMayOpen(currentStartupPresentationStatus(runtime))
   ) {
     return;
   }
@@ -1230,33 +1176,13 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
 
 function setSurfacePresentation(
   runtime: Runtime,
-  interactionTierLocked: boolean,
+  _interactionTierLocked: boolean,
 ): void {
-  const settled = shouldUseSettledSurface({
-    coarsePointer: runtime.coarsePointer,
-    detailReady: runtime.settledSurfaceReady,
-    interactionTierLocked,
-  });
-  // The voxel block world (Minecraft) and the drawn isometric city
-  // (Day/Night/Snow/Schwellenraum) each fully replace the photogrammetry
-  // surfaces. While
-  // either requested world is still pending, the old photo surface remains
-  // hidden as well: it is a failure fallback, not a startup placeholder.
-  // The authored underground network is the cutaway context. A ready world
-  // therefore never wakes or reveals the legacy photographic fallback.
+  // The procedural drawn and voxel worlds are the only 3D surfaces. Keeping
+  // the presentation switch metadata-only avoids retaining duplicate meshes
+  // during interaction or after an idle timeout.
   const startupStatus = currentStartupPresentationStatus(runtime);
-  const replaced = startupStatus !== "fallback";
-  const interactionVisible = !settled && !replaced;
-  const settledVisible = settled && !replaced;
-  const changed =
-    runtime.interactionSurface.visible !== interactionVisible ||
-    runtime.settledSurface.visible !== settledVisible;
-  runtime.interactionSurface.visible = interactionVisible;
-  runtime.settledSurface.visible = settledVisible;
-  if (changed) {
-    runtime.renderInvalidated = true;
-  }
-  setParkSettledDetail(runtime.parkDetails, settled);
+  setParkSettledDetail(runtime.parkDetails, false);
   const surfaceQuality =
     startupStatus === "pending"
       ? "startup-hidden"
@@ -1264,9 +1190,7 @@ function setSurfacePresentation(
         ? runtime.lightingMode === "minecraft"
           ? "voxel-world"
           : "drawn-isometric"
-        : settled
-          ? "settled-7m-plus"
-          : "interaction-2_3m";
+        : "recovery-required";
   if (surfaceQuality !== lastSurfaceQualityDataset) {
     lastSurfaceQualityDataset = surfaceQuality;
     runtime.renderer.domElement.dataset.surfaceQuality = surfaceQuality;
@@ -1470,7 +1394,6 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.undergroundNetwork,
     runtime.tunnel,
     runtime.tunnelPortals,
-    ...[...runtime.detailGroups.values()].map((entry) => entry.group),
   ];
   const inkLines: Array<LineSegments<BufferGeometry, LineBasicMaterial>> = [];
   for (const root of roots) {
@@ -1954,9 +1877,6 @@ function setSceneLighting(
     980,
     isMinecraft ? -720 : 720,
   );
-  for (const material of runtime.modelMaterials) {
-    applyMaterialLighting(material, mode, lightsOn);
-  }
   applySignatureLightingPresentation(runtime.signatures, mode, lightsOn);
   // The Quadriga carries its own three palettes in one geometry (day,
   // night and the winter set the snow mode will use), so it is switched
@@ -2005,17 +1925,10 @@ function setSceneLighting(
   }
   if (isMinecraft) {
     const completedVoxelMode = voxelModeActive(runtime);
-    // The smooth city and legacy surface roots are hidden as soon as
-    // Minecraft is requested. Never walk them merely to allocate toon clones.
-    // Once voxels are complete, the park and cultural roots are hidden too.
+    // The smooth city is hidden as soon as Minecraft is requested. Never walk
+    // it merely to allocate toon clones. Once voxels are complete, the park
+    // and cultural roots are hidden too.
     const hiddenHeavyRoots = new Set<Object3D>();
-    const photoFallbackVisible =
-      currentStartupPresentationStatus(runtime) === "fallback" &&
-      !runtime.underside;
-    if (!photoFallbackVisible || completedVoxelMode) {
-      hiddenHeavyRoots.add(runtime.interactionSurface);
-      hiddenHeavyRoots.add(runtime.settledSurface);
-    }
     if (runtime.isoWorld) hiddenHeavyRoots.add(runtime.isoWorld);
     if (completedVoxelMode) {
       hiddenHeavyRoots.add(runtime.parkDetails);
@@ -2033,20 +1946,6 @@ function setSceneLighting(
         );
       }
     }
-    if (runtime.underside) {
-      // Keep every surface fallback out of the authored underground network.
-      // Toon shading on double-sided translucent surfaces reads as shards.
-      setMinecraftMaterialPresentation(
-        runtime.interactionSurface,
-        runtime.minecraftMaterialState,
-        false,
-      );
-      setMinecraftMaterialPresentation(
-        runtime.settledSurface,
-        runtime.minecraftMaterialState,
-        false,
-      );
-    }
   }
   runtime.crispPass.enabled = false;
   const crispness = CRISPNESS_PROFILES[isNight ? "night" : "day"];
@@ -2054,10 +1953,8 @@ function setSceneLighting(
   runtime.crispPass.uniforms.saturation.value = crispness.saturation;
   runtime.crispPass.uniforms.contrast.value = crispness.contrast;
   runtime.crispPass.uniforms.edgeStrength.value = crispness.edgeStrength;
-  // True voxel Minecraft: once the LoD2 block world is loaded, it fully
-  // REPLACES the photogrammetry surfaces and the recognition layers —
-  // the city is cubes, nothing else. Until the payload arrives (or if it
-  // fails) the toon-material presentation stays as the fallback.
+  // True voxel Minecraft fully replaces the smooth recognition layers: the
+  // city is cubes, nothing else.
   const voxelMode = voxelModeActive(runtime);
   const isoMode = isoModeActive(runtime);
   if (runtime.voxelWorld) {
@@ -2112,15 +2009,11 @@ function setSceneLighting(
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
-  for (const detail of runtime.detailGroups.values()) {
-    detail.group.visible = recognitionVisible && !isoMode;
-  }
-  // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
-  // only the photographic fallback keeps the 39° perspective.
+  // Both drawn worlds (prisms and voxels) use the flat isometric FOV.
   const targetFov = runtime.pedestrian.enabled
     ? PEDESTRIAN_FOV_DEGREES
     : (runtime.focusedCameraFov ??
-      (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES));
+      (isoMode || voxelMode ? ISO_FOV_DEGREES : DEFAULT_FOV_DEGREES));
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -2130,7 +2023,7 @@ function setSceneLighting(
       .sub(runtime.controls.target)
       .multiplyScalar(scale);
     runtime.controls.maxDistance =
-      2600 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+      2600 * fovDollyScale(DEFAULT_FOV_DEGREES, targetFov);
     runtime.controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
     runtime.camera.position.copy(runtime.controls.target).add(offset);
     runtime.camera.far = 16_000;
@@ -2360,10 +2253,9 @@ function restoreWorldPresentationAfterRollback(
 }
 
 /**
- * The drawn isometric city replaces the photogrammetry in DAY and NIGHT
- * mode once its LoD2-prism payload has loaded (night simply relights the
- * same drawn prisms and brightens the ink). Minecraft owns the voxel
- * world.
+ * DAY, NIGHT, SNOW and SCHWELLENRAUM share the LoD2-prism city; night simply
+ * relights those same drawn prisms and brightens the ink. Minecraft owns the
+ * voxel world.
  */
 function isoModeActive(runtime: Runtime): boolean {
   return (
@@ -2377,7 +2269,7 @@ function isoModeActive(runtime: Runtime): boolean {
 
 /**
  * Load and attach the drawn isometric city (LoD2 prisms + shared ground
- * slabs). Idempotent; on failure the photographic day pipeline stays.
+ * slabs). Idempotent; failures use the clean recovery/2D path.
  */
 // Payloads are fetched and parsed exactly once per session. Drawn modes use a
 // compact ground-only sibling; Minecraft's building/tree instances stay lazy.
@@ -2955,7 +2847,7 @@ function ensureIsoWorld(
         undefined,
         runtime.coarsePointer
           ? MOBILE_TOTAL_BUILDING_LIMIT
-          : Number.POSITIVE_INFINITY,
+          : DESKTOP_TOTAL_BUILDING_LIMIT,
       );
       const initialBuildings = buildingPartition.initial;
       const progressiveInput: ProgressiveWorldWorkerInput | null =
@@ -2984,7 +2876,6 @@ function ensureIsoWorld(
                   PRISM_WORLD_FILE,
                   runtime.sceneRootUrl,
                 ).toString(),
-                sceneRootUrl: runtime.sceneRootUrl.toString(),
                 surfacesUrl: new URL(
                   SURFACE_WORLD_FILE,
                   runtime.sceneRootUrl,
@@ -3000,7 +2891,7 @@ function ensureIsoWorld(
         surfaces,
         {
           buildings: initialBuildings,
-          retainRasterAsphalt: runtime.coarsePointer,
+          retainRasterAsphalt: true,
           retainRasterWater: runtime.coarsePointer,
           smoothSurfaces:
             runtime.coarsePointer || progressiveInput ? null : undefined,
@@ -3224,19 +3115,18 @@ function ensureIsoWorld(
       runtime.isoWorldState = "failed";
       restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
       releaseFailedWorldPayloads(runtime, "iso");
-      runtime.ensurePhotoSurface();
+      runtime.reportWorldFailure();
       notifyPresentationReadyWhenPossible(runtime);
       warn(
-        "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
+        "Die gezeichnete Isometrie konnte nicht geladen werden; Wiederherstellung oder 2D-Karte ist verfügbar.",
       );
     });
 }
 
 /**
  * Lazy-load and attach the LoD2 block world for Minecraft mode.
- * Idempotent; until it arrives (or on failure) the toon presentation on
- * the photographic mesh is the fallback. Called both on mode switches
- * and at scene init, so a fresh `?theme=minecraft` load gets blocks too.
+ * Idempotent and called both on mode switches and at scene init, so a fresh
+ * `?theme=minecraft` load gets blocks too.
  */
 function ensureVoxelWorld(
   runtime: Runtime,
@@ -3447,8 +3337,7 @@ function ensureVoxelWorld(
       }
       runtime.renderInvalidated = true;
       if (!voxelWorldIntentActive(runtime)) {
-        // An inactive world's optional loader must not wake the heavyweight
-        // photographic fallback. Keep the cached request and retry next time.
+        // Keep the cached request and retry when this optional world is active.
         runtime.voxelWorldState = "idle";
         restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
         notifyPresentationReadyWhenPossible(runtime);
@@ -3457,17 +3346,17 @@ function ensureVoxelWorld(
       runtime.voxelWorldState = "failed";
       restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
       releaseFailedWorldPayloads(runtime, "voxel");
-      runtime.ensurePhotoSurface();
+      runtime.reportWorldFailure();
       notifyPresentationReadyWhenPossible(runtime);
       warn(
-        "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
+        "Die Voxel-Welt konnte nicht geladen werden; Wiederherstellung oder 2D-Karte ist verfügbar.",
       );
     });
 }
 
 // Narrower FOV flattens the perspective toward a true isometric look
-// while the drawn city is active; the photographic modes keep 39°.
-const PHOTO_FOV_DEGREES = 39;
+// while the drawn city is active; the default camera keeps 39°.
+const DEFAULT_FOV_DEGREES = 39;
 // 16° with dolly compensation: the drawn city reads near-axonometric —
 // verticals stay vertical-ish, blocks stop looking "gedrückt" — while
 // the perspective camera machinery (controls, fly, focus) stays.
@@ -3888,15 +3777,6 @@ export function setTunnelPresentation(
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
-  if (
-    photographicSurfaceNeeded(
-      currentStartupPresentationStatus(runtime),
-      underside,
-      runtime.coarsePointer,
-    )
-  ) {
-    runtime.ensurePhotoSurface();
-  }
   runtime.renderInvalidated = true;
   const fogRange = presentationFogRange(runtime.lightingMode, underside);
   const fogColor =
@@ -3908,13 +3788,6 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     : null;
   if (underside) {
     runtime.marker.visible = false;
-  }
-  for (const material of runtime.modelMaterials) {
-    material.side = underside ? DoubleSide : FrontSide;
-    material.transparent = underside;
-    material.opacity = underside ? 0.13 : 1;
-    material.depthWrite = !underside;
-    material.needsUpdate = true;
   }
   setTunnelPresentation(
     runtime.tunnel,
@@ -3933,20 +3806,6 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.undergroundNetwork.visible = underside;
   runtime.cityStaffage.visible = !underside;
   runtime.tramCatenary.visible = !underside;
-  if (voxelMode && underside) {
-    // Entering the underside without changing mode must apply the same shell
-    // exception as setSceneLighting above.
-    setMinecraftMaterialPresentation(
-      runtime.interactionSurface,
-      runtime.minecraftMaterialState,
-      false,
-    );
-    setMinecraftMaterialPresentation(
-      runtime.settledSurface,
-      runtime.minecraftMaterialState,
-      false,
-    );
-  }
   setTunnelPortalPresentation(
     runtime.tunnelPortals,
     underside,
@@ -3970,9 +3829,6 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
-  for (const detail of runtime.detailGroups.values()) {
-    detail.group.visible = recognitionVisible && !isoMode;
-  }
   setEnvironmentalPresentation(runtime);
 }
 
@@ -4150,159 +4006,18 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
     image.close();
   }
   for (const material of materials) {
-    if (material instanceof MeshStandardMaterial) {
-      runtime.modelMaterials.delete(material);
-    }
     material.dispose();
   }
 }
 
-function evictHeroDetails(runtime: Runtime, activeName: string): void {
-  const limit = runtime.coarsePointer ? 1 : 2;
-  const evictions = heroDetailEvictions(
-    [...runtime.detailGroups].map(([name, entry]) => ({
-      lastUsed: entry.lastUsed,
-      loading: entry.loading,
-      name,
-    })),
-    activeName,
-    limit,
-  );
-  for (const name of evictions) {
-    const entry = runtime.detailGroups.get(name);
-    if (!entry) {
-      continue;
-    }
-    runtime.detailGroups.delete(name);
-    disposeObject3D(runtime, entry.group);
+function yieldStartupWork(): Promise<void> {
+  const scheduler = (
+    window as unknown as { scheduler?: { yield?: () => Promise<void> } }
+  ).scheduler;
+  if (typeof scheduler?.yield === "function") {
+    return scheduler.yield();
   }
-}
-
-async function loadModel(
-  runtime: Runtime,
-  file: MeshFile,
-  parent: Group | Scene,
-  { detail, facadeAnchor }: { detail: boolean; facadeAnchor?: Rgb },
-): Promise<boolean> {
-  if (runtime.disposed) {
-    return false;
-  }
-  const url = new URL(file.file, runtime.sceneRootUrl).toString();
-  const gltf = await runtime.loader.loadAsync(url);
-  if (runtime.disposed) {
-    disposeObject3D(runtime, gltf.scene);
-    return false;
-  }
-  gltf.scene.traverse((object: Object3D) => {
-    if (!(object instanceof Mesh)) {
-      return;
-    }
-    object.receiveShadow = true;
-    object.castShadow = detail && !runtime.coarsePointer;
-    if (!detail && !object.geometry.getAttribute("normal")) {
-      object.geometry.computeVertexNormals();
-    }
-    const materials = Array.isArray(object.material)
-      ? object.material
-      : [object.material];
-    let flattenGeometry = false;
-    for (const sourceMaterial of materials) {
-      const material = sourceMaterial as MeshStandardMaterial;
-      material.side = FrontSide;
-      // Buildings are drawn, never photographic. applyDrawnFacade turns the
-      // baked aerial photo into a rendered architectural drawing — posterised
-      // gouache tones plus inked window/cornice lines — so the facade keeps its
-      // articulation without any photo look; the crisp edge pass adds the clean
-      // silhouette outline. Geometry is untouched (≤ 1 px hero-centre contract).
-      // Vegetation/cut-out cards are exempt (post-v0.5.6 fix): stripping their
-      // alpha texture turned trees into solid light-blue quads, so they keep
-      // their maps and stay recognisable.
-      if (isDrawnFacadeCandidate(material)) {
-        applyDrawnFacade(material, { anchor: facadeAnchor });
-        if (material.userData.drawnKind === "vertex") {
-          flattenGeometry = true;
-        }
-      }
-      material.emissive.set(0x2b3130);
-      material.emissiveIntensity = 0.07;
-      material.userData.sourceMaterial = true;
-      applyMaterialLighting(
-        material,
-        runtime.lightingMode,
-        runtime.nightLightsOn,
-      );
-      if (detail) {
-        // Hero-detail tiles are a higher-resolution copy of the same building
-        // that already exists in the base/surface tile beneath them. Two
-        // near-coplanar textured copies z-fight — this was the flicker on the
-        // Brandenburger Tor and other landmark facades. A weak -1/-1 offset
-        // left near-vertical facades (viewed edge-on, where the depth slope is
-        // largest) still fighting, so bias the detail copy decisively toward
-        // the camera. This is a depth-only bias: it never displaces the mesh,
-        // so the <= 1 px hero-centre contract is untouched.
-        material.polygonOffset = true;
-        material.polygonOffsetFactor = -4;
-        material.polygonOffsetUnits = -8;
-      }
-      material.side = runtime.underside ? DoubleSide : FrontSide;
-      material.transparent = runtime.underside;
-      material.opacity = runtime.underside ? 0.13 : 1;
-      material.depthWrite = !runtime.underside;
-      material.needsUpdate = true;
-      runtime.modelMaterials.add(material);
-    }
-    // Flatten the baked per-vertex photogrammetry colours into piecewise-
-    // constant flat faces (zero gradient within a face) for the drawn day look,
-    // keeping the originals for the lossless night/minecraft restore. Applied
-    // once per mesh geometry; vegetation/water vertices are left soft inside.
-    if (flattenGeometry && object.geometry.getAttribute("color")) {
-      flattenBuildingVertexColors(object.geometry);
-      setBuildingColorMode(
-        object.geometry,
-        runtime.lightingMode === "day" ||
-          runtime.lightingMode === "snowstorm" ||
-          runtime.lightingMode === "schwellenraum",
-      );
-    }
-  });
-  if (detail) {
-    gltf.scene.position.y += DETAIL_RAISE_M;
-  }
-  stripSkyArtefacts(gltf.scene, skyArtefactsFor(file.file));
-  stripReplacedGeometry(gltf.scene, meshReplacementsFor(file.file));
-  parent.add(gltf.scene);
-  // Render-on-demand must also cover streaming geometry: after an otherwise
-  // quiet frame a completed loader is the event that makes the new tile visible.
-  runtime.renderInvalidated = true;
-  if (runtime.lightingMode === "minecraft") {
-    setMinecraftMaterialPresentation(
-      gltf.scene,
-      runtime.minecraftMaterialState,
-      true,
-    );
-  }
-  return true;
-}
-
-async function loadModelWithRetry(
-  runtime: Runtime,
-  file: MeshFile,
-  parent: Group | Scene,
-  options: { detail: boolean; facadeAnchor?: Rgb },
-): Promise<boolean> {
-  try {
-    return await loadModel(runtime, file, parent, options);
-  } catch (firstError: unknown) {
-    if (runtime.disposed) {
-      return false;
-    }
-    await new Promise((resolve) => window.setTimeout(resolve, 180));
-    try {
-      return await loadModel(runtime, file, parent, options);
-    } catch {
-      throw firstError;
-    }
-  }
+  return new Promise((resolve) => window.setTimeout(resolve, 0));
 }
 
 export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
@@ -4496,7 +4211,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         cameraPreset?.fov_degrees ??
         (isoModeActive(runtime) || voxelModeActive(runtime)
           ? ISO_FOV_DEGREES
-          : PHOTO_FOV_DEGREES);
+          : DEFAULT_FOV_DEGREES);
       runtime.focusedCameraFov = cameraPreset?.fov_degrees ?? null;
       if (runtime.camera.fov !== desiredFov) {
         runtime.camera.fov = desiredFov;
@@ -4524,13 +4239,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             190);
         cameraOffset = currentDirection.multiplyScalar(distance);
       }
-      // Focus distances are authored for the 39° photo lens. The narrow
-      // axonometric lens needs the same dolly compensation as the mode
-      // switch, except for an explicitly photographic close-up such as a
-      // tunnel mouth: scaling that stand would move it out over the canal.
+      // Focus distances are authored for the 39° default lens. The narrow
+      // axonometric lens needs the same dolly compensation as the mode switch,
+      // except for an explicit close-up such as a tunnel mouth.
       if (cameraPreset?.fov_degrees === undefined) {
         cameraOffset.multiplyScalar(
-          fovDollyScale(PHOTO_FOV_DEGREES, runtime.camera.fov),
+          fovDollyScale(DEFAULT_FOV_DEGREES, runtime.camera.fov),
         );
       }
       runtime.controls.target.copy(target);
@@ -4561,98 +4275,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }, 2400);
       runtime.controls.update(immediate ? 1 : undefined);
       notifyView(runtime, onViewChangeRef.current);
-
-      runtime.detailClock += 1;
-      // Hero photo crops never show in the voxel block world, in the
-      // drawn isometric city, or from the underside.
-      const heroVisibleAllowed =
-        currentStartupPresentationStatus(runtime) === "fallback" &&
-        !runtime.underside;
-      for (const [heroName, entry] of runtime.detailGroups) {
-        entry.group.visible = heroVisibleAllowed && heroName === name;
-        if (heroName === name) {
-          entry.lastUsed = runtime.detailClock;
-        }
-      }
-      const detail = runtime.heroByName.get(name);
-      if (heroVisibleAllowed && detail && !runtime.detailGroups.has(name)) {
-        const facadeAnchor = HERO_FACADE_ANCHORS[detail.id];
-        const group = new Group();
-        group.name = `${name} high detail`;
-        const entry: HeroDetailGroup = {
-          group,
-          lastUsed: runtime.detailClock,
-          loadedFiles: 0,
-          loading: true,
-        };
-        runtime.detailGroups.set(name, entry);
-        runtime.scene.add(group);
-        evictHeroDetails(runtime, name);
-        setProgress((current) => ({
-          loaded: current.loaded,
-          total: current.total + detail.files.length,
-        }));
-        void runBoundedTasks(
-          detail.files,
-          2,
-          async (file) => {
-            if (
-              (await loadModelWithRetry(runtime, file, group, {
-                detail: true,
-                facadeAnchor,
-              })) &&
-              !runtime.disposed
-            ) {
-              entry.loadedFiles += 1;
-              setProgress((current) => ({
-                ...current,
-                loaded: current.loaded + 1,
-              }));
-            }
-          },
-          {
-            shouldStop: () =>
-              runtime.disposed ||
-              (runtime.coarsePointer && selectedRef.current !== name),
-          },
-        ).then((failures) => {
-          if (runtime.disposed) {
-            return;
-          }
-          entry.loading = false;
-          const interruptedOnMobile =
-            runtime.coarsePointer &&
-            failures.length === 0 &&
-            entry.loadedFiles < detail.files.length;
-          if (interruptedOnMobile) {
-            const shouldRestart = selectedRef.current === name;
-            runtime.detailGroups.delete(name);
-            disposeObject3D(runtime, group);
-            setProgress((current) => ({
-              loaded: Math.max(0, current.loaded - entry.loadedFiles),
-              total: Math.max(0, current.total - detail.files.length),
-            }));
-            if (shouldRestart) {
-              focusLandmark(name);
-            }
-            return;
-          }
-          if (failures.length > 0) {
-            runtime.detailGroups.delete(name);
-            disposeObject3D(runtime, group);
-            setProgress((current) => ({
-              loaded: Math.max(0, current.loaded - entry.loadedFiles),
-              total: Math.max(0, current.total - detail.files.length),
-            }));
-            onWarningRef.current(
-              `${name}: ${failures.length} Detaildatei(en) konnten nicht geladen werden; Basis-3D bleibt aktiv.`,
-            );
-            return;
-          }
-          evictHeroDetails(runtime, selectedRef.current);
-        });
-      }
-      evictHeroDetails(runtime, name);
     };
     focusLandmarkRef.current = focusLandmark;
 
@@ -5091,13 +4713,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE };
       controls.update();
 
-      const interactionSurface = new Group();
-      interactionSurface.name = "Official interaction surface (2.3M faces)";
-      scene.add(interactionSurface);
-      const settledSurface = new Group();
-      settledSurface.name = "Official settled surface (6.0M faces)";
-      settledSurface.visible = false;
-      scene.add(settledSurface);
       const marker = createSelectionMarker();
       marker.visible = false;
       scene.add(marker);
@@ -5142,7 +4757,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       );
       scene.add(schwellenraumInteriors);
       const runtime: Runtime = {
-        baseSurfaceReady: false,
         camera,
         centralDetails,
         cityStaffage,
@@ -5152,22 +4766,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls,
         crispPass,
         culturalDetails,
-        detailClock: 0,
-        detailGroups: new Map(),
         disposed: false,
         focusCameraByName: new Map(),
         hemisphere,
-        heroByName: new Map(),
-        interactionSurface,
         interactionUntil: 0,
         landmarkByName: new Map(),
-        loader: new GLTFLoader().setMeshoptDecoder(MeshoptDecoder),
         marker,
         markerTimer: null,
         minecraftMaterialState: createMinecraftMaterialState(),
         minecraftLootBoxes: null,
         minecraftMobs: null,
-        modelMaterials: new Set(),
         monuments,
         schwellenraumContentReady: false,
         schwellenraumInteriors,
@@ -5207,9 +4815,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         reducedMotion,
         precipitationEnabled: precipitationEnabledRef.current,
         loadSignal: loadController.signal,
-        ensurePhotoSurface: () => undefined,
+        reportWorldFailure: () => undefined,
         ensurePedestrianWater: () => undefined,
-        photoSurfaceState: "idle",
+        worldFailureReported: false,
         progressiveWorldBatches: [],
         progressiveWorldState: "idle",
         reportCoreProgress: (loaded, total) => {
@@ -5225,8 +4833,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
         signatures,
         skyFill,
-        settledSurface,
-        settledSurfaceReady: false,
         sun,
         tunnel: new Group(),
         cameraInsideTunnel: false,
@@ -6538,6 +6144,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.landmarkByName = new Map(
             manifest.landmarks.map((landmark) => [landmark.name, landmark]),
           );
+          // World payloads are the first visible content. Start them as soon
+          // as the tunnel course is known, then construct secondary civic and
+          // cultural detail in yielded slices instead of serialising both
+          // network and geometry work behind one long main-thread task.
+          runtime.tunnelPoints = manifest.tiergartentunnel.points;
+          runtime.tunnelPortalCourse = manifest.tiergartentunnel;
+          runtime.tunnelInteriorAt = createTunnelInteriorTester(
+            manifest.tiergartentunnel,
+          );
+          if (lightingModeRef.current === "minecraft") {
+            ensureVoxelWorld(runtime, onWarningRef.current);
+          } else {
+            ensureIsoWorld(runtime, onWarningRef.current);
+          }
+          await yieldStartupWork();
+          if (runtime.disposed) return;
           runtime.civicDetails.removeFromParent();
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
           runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
@@ -6595,6 +6217,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.civicDetails,
             runtime.lightingMode === "snowstorm",
           );
+          await yieldStartupWork();
+          if (runtime.disposed) return;
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
             distance_m: 88,
@@ -6746,12 +6370,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             MOABIT_PRISON_MEMORIAL_PROFILE.name,
             moabitPrisonMemorialFocusCamera("day"),
           );
-          runtime.heroByName = new Map(
-            manifest.hero_details.map((detail) => [
-              detail.landmark_name,
-              detail,
-            ]),
-          );
           for (const signature of manifest.architectural_signatures ?? []) {
             const model = createArchitecturalSignature(signature);
             if (model) {
@@ -6793,6 +6411,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.signatures,
             runtime.lightingMode === "snowstorm",
           );
+          await yieldStartupWork();
+          if (runtime.disposed) return;
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           runtime.monuments.add(
@@ -6857,6 +6477,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // immediately so a cold Minecraft start receives the same stable
           // far-distance fade as Day without waiting for a later park load.
           collectFarZoomAntiFlickerTargets(runtime);
+          await yieldStartupWork();
+          if (runtime.disposed) return;
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           const expandedDetails = createExpandedCityDetails(
@@ -6923,6 +6545,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
           }
           applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));
+          await yieldStartupWork();
+          if (runtime.disposed) return;
           for (const landmark of manifest.landmarks) {
             const focusCamera = culturalFocusCamera(landmark.name);
             if (focusCamera) {
@@ -7052,11 +6676,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           };
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
-          runtime.tunnelPoints = manifest.tiergartentunnel.points;
-          runtime.tunnelPortalCourse = manifest.tiergartentunnel;
-          runtime.tunnelInteriorAt = createTunnelInteriorTester(
-            manifest.tiergartentunnel,
-          );
           scene.add(runtime.tunnel);
           runtime.tunnelPortals.removeFromParent();
           runtime.tunnelPortals = createTunnelPortals(
@@ -7091,116 +6710,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
-          runtime.ensurePhotoSurface = () => {
-            if (
-              runtime.disposed ||
-              runtime.photoSurfaceState === "loading" ||
-              runtime.photoSurfaceState === "ready" ||
-              runtime.photoSurfaceState === "failed"
-            ) {
+          runtime.reportWorldFailure = () => {
+            if (runtime.disposed || runtime.worldFailureReported) {
               return;
             }
-            if (runtime.coarsePointer) {
-              // Never answer a mobile OOM/context-loss path by allocating the
-              // old photogrammetry.  Report once so App can remount the lean
-              // renderer and, if that also fails, offer an explicit 2D action.
-              runtime.photoSurfaceState = "failed";
-              onErrorRef.current(
-                "Die mobile 3D-Welt konnte nicht stabil geladen werden.",
-              );
-              return;
-            }
-            runtime.photoSurfaceState = "loading";
-            const selected = runtime.landmarkByName.get(selectedRef.current);
-            const distanceFromSelection = (file: MeshFile): number => {
-              if (!selected) {
-                return 0;
-              }
-              const bounds = file.source_bounds_epsg25833;
-              const centerX = (bounds[0][0] + bounds[1][0]) / 2 - 389_500;
-              const centerZ = 5_820_000 - (bounds[0][1] + bounds[1][1]) / 2;
-              return Math.hypot(
-                centerX - selected.world[0],
-                centerZ - selected.world[2],
-              );
-            };
-            const sortedTiles = [...manifest.base_tiles].sort(
-              (left, right) =>
-                distanceFromSelection(left) - distanceFromSelection(right),
+            // One clean renderer remount and the explicit 2D view are safer
+            // recovery paths than allocating the retired 174 MiB GLB scene.
+            runtime.worldFailureReported = true;
+            onErrorRef.current(
+              "Die prozedurale 3D-Welt konnte nicht stabil geladen werden.",
             );
-            let loadedBaseTiles = 0;
-            setProgress({ loaded: 0, total: sortedTiles.length });
-            void runBoundedTasks(
-              sortedTiles,
-              coarsePointer ? 1 : 2,
-              async (file) => {
-                const loaded = await loadModelWithRetry(
-                  runtime,
-                  file,
-                  runtime.interactionSurface,
-                  { detail: false },
-                );
-                if (!loaded || runtime.disposed) {
-                  return;
-                }
-                loadedBaseTiles += 1;
-                runtime.baseSurfaceReady = true;
-                setProgress((current) => ({
-                  ...current,
-                  loaded: current.loaded + 1,
-                }));
-                setSurfacePresentation(runtime, true);
-                notifyPresentationReadyWhenPossible(runtime);
-              },
-              { shouldStop: () => runtime.disposed },
-            )
-              .then((failures) => {
-                if (runtime.disposed) {
-                  return;
-                }
-                if (loadedBaseTiles === 0) {
-                  throw new Error(
-                    "Keine 3D-Ersatzkachel konnte geladen werden",
-                  );
-                }
-                runtime.photoSurfaceState = "ready";
-                if (failures.length > 0) {
-                  setProgress((current) => ({
-                    ...current,
-                    total: Math.max(
-                      current.loaded,
-                      current.total - failures.length,
-                    ),
-                  }));
-                  onWarningRef.current(
-                    `${failures.length} optionale 3D-Ersatzkachel(n) konnten nicht geladen werden.`,
-                  );
-                }
-                setSurfacePresentation(runtime, true);
-                notifyPresentationReadyWhenPossible(runtime);
-              })
-              .catch((error: unknown) => {
-                if (runtime.disposed) {
-                  return;
-                }
-                runtime.photoSurfaceState = "failed";
-                const message =
-                  error instanceof Error
-                    ? error.message
-                    : "Die 3D-Ersatzansicht konnte nicht geladen werden.";
-                if (currentStartupPresentationStatus(runtime) === "fallback") {
-                  onErrorRef.current(message);
-                } else {
-                  onWarningRef.current(message);
-                }
-              });
           };
 
           focusLandmark(selectedRef.current, true);
-          // Build exactly the world requested for the first visible frame.
-          // Switching mode later triggers the other lazy builder through the
-          // lighting effect. The 31 MiB photographic shell remains a true
-          // failure fallback and is never downloaded invisibly.
+          // The requested world was started immediately after manifest
+          // metadata arrived. These calls are idempotent and cover a mode
+          // switch that happened while secondary details were being built.
           if (lightingModeRef.current === "minecraft") {
             ensureVoxelWorld(runtime, onWarningRef.current);
           } else {

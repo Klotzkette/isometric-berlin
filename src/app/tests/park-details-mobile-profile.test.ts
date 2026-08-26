@@ -130,6 +130,9 @@ describe("coarse-pointer ParkDetails profile", () => {
   });
 
   test("retains every path, tree and playground anchor in a small static budget", () => {
+    // The preceding desktop fixture is intentionally exhaustive and no longer
+    // needs to occupy the heap while the independent mobile budget is checked.
+    Bun.gc(true);
     const mobile = createParkDetails(payload, { detailProfile: "mobile" });
     const budget = geometryBudget(mobile);
     expect(budget).toEqual({

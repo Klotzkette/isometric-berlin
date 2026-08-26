@@ -74,12 +74,14 @@ VALID_SERVE_LOCAL = (
   "    cache_control_for_path(self.path)\n"
   "class ReusableTCPServer:\n"
   "  daemon_threads = True\n"
-  "def file_sha256(path):\n"
-  "  return 'hash'\n"
-  "def verify_webgl_scene(root):\n"
-  "  file_sha256(root)\n"
+  "def verify_procedural_scene(root):\n"
+  '  scene_path = root / "mesh/regierungsviertel/scene.json"\n'
+  '  scene = {"schema_version": 3}\n'
+  '  if scene.get("schema_version") != 3:\n'
+  '    raise SystemExit("invalid")\n'
+  "  scene_path.parent.iterdir()\n"
   "def require_package_files(root):\n"
-  "  verify_webgl_scene(root)\n"
+  "  verify_procedural_scene(root)\n"
   "  return None\n"
   "print('open', flush=True)\n"
 )
@@ -278,23 +280,28 @@ def hero_webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int
   return entry
 
 
-def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
-  entry = webgl_entry(filename, data)
+def minimal_webgl_scene(_filename: str = "", _data: bytes = b"") -> dict[str, object]:
   return {
+    "schema_version": 3,
     "source": {
-      "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
-    },
-    "base_tiles": [dict(entry) for _ in range(23)],
-    "surface_detail_tiles": [surface_webgl_entry(filename, data) for _ in range(23)],
-    "hero_details": [
-      {"id": identifier, "files": [hero_webgl_entry(filename, data)]}
-      for identifier in (
-        "reichstag",
-        "bundeskanzleramt",
-        "hauptbahnhof",
-        "brandenburger-tor",
+      "attribution": (
+        "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
+        "(dl-de/zero-2-0)"
       )
-    ],
+    },
+    "base_tiles": [],
+    "surface_detail_tiles": [],
+    "hero_details": [],
+    "render_strategy": {
+      "kind": "procedural-drawn",
+      "exact_building_limits": {"desktop": 12000, "mobile": 5000},
+      "complete_building_coverage": "instanced distant shells",
+      "source_building_count": 29_818,
+      "legacy_photogrammetry_removed": True,
+      "heavy_road_geometry": (
+        "raster streets plus authored paths and source lane markings"
+      ),
+    },
     "tiergartentunnel": {"points": [[index, 0, index] for index in range(8)]},
     "architectural_signatures": [
       {
@@ -596,11 +603,8 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   (bundled / "regierungsviertel-landmarks.json").write_bytes(b"shared")
   public_mesh = root / "src/app/public/mesh/regierungsviertel"
   public_mesh.mkdir(parents=True)
-  mesh_file = public_mesh / "tile.glb"
-  mesh_data = b"glb"
-  mesh_file.write_bytes(mesh_data)
   (public_mesh / "scene.json").write_text(
-    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    json.dumps(minimal_webgl_scene()),
     encoding="utf-8",
   )
   (public_mesh / "ground-context.json").write_text(
@@ -614,14 +618,18 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
     ),
     encoding="utf-8",
   )
-  for relative, data in minimal_surface_assets().items():
-    (public_mesh / relative).write_bytes(data)
+  for relative in (
+    "lod2-prisms.json",
+    "minecraft-voxels.json",
+    "park-details.json",
+    "rail-lines.json",
+    "surface-polygons.json",
+  ):
+    (public_mesh / relative).write_text("{}", encoding="utf-8")
   traffic_signals = valid_traffic_signal_payload_bytes()
   (public_mesh / "street-details.json").write_bytes(traffic_signals)
   dist_mesh = root / "src/app/dist/mesh/regierungsviertel"
   dist_mesh.mkdir(parents=True)
-  for relative, data in minimal_surface_assets().items():
-    (dist_mesh / relative).write_bytes(data)
   (dist_mesh / "street-details.json").write_bytes(traffic_signals)
   return public_dzi
 
@@ -636,8 +644,6 @@ def write_minimal_package_zip(
     '[project]\nname = "fixture"\nversion = "9.9.9"\n',
     encoding="utf-8",
   )
-  mesh_relative = "mesh/regierungsviertel/tile-3894_58196.glb"
-  mesh_data = b"glb"
   files: dict[str, bytes | str] = {
     "START-HERE.html": VALID_START_HERE_HTML,
     "README.txt": "readme\n",
@@ -665,9 +671,7 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
-    "mesh/regierungsviertel/scene.json": json.dumps(
-      minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
-    ),
+    "mesh/regierungsviertel/scene.json": json.dumps(minimal_webgl_scene()),
     "mesh/regierungsviertel/ground-context.json": (
       b'{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
       b'"ground_height":{"y_dm":[0]}}'
@@ -675,10 +679,12 @@ def write_minimal_package_zip(
     "mesh/regierungsviertel/street-details.json": (
       valid_traffic_signal_payload_bytes()
     ),
-    mesh_relative: mesh_data,
+    "mesh/regierungsviertel/lod2-prisms.json": b"{}",
+    "mesh/regierungsviertel/minecraft-voxels.json": b"{}",
+    "mesh/regierungsviertel/park-details.json": b"{}",
+    "mesh/regierungsviertel/rail-lines.json": b"{}",
+    "mesh/regierungsviertel/surface-polygons.json": b"{}",
   }
-  for relative, body in minimal_surface_assets().items():
-    files[f"mesh/regierungsviertel/{relative}"] = body
   for relative, body in overrides.items():
     if body is None:
       files.pop(relative, None)
@@ -698,21 +704,14 @@ def write_minimal_package_zip(
       "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
       "webgl_scene": "mesh/regierungsviertel/scene.json",
       "ground_context": "mesh/regierungsviertel/ground-context.json",
+      "lod2_prisms": "mesh/regierungsviertel/lod2-prisms.json",
+      "minecraft_voxels": "mesh/regierungsviertel/minecraft-voxels.json",
+      "park_details": "mesh/regierungsviertel/park-details.json",
+      "rail_lines": "mesh/regierungsviertel/rail-lines.json",
+      "street_details": "mesh/regierungsviertel/street-details.json",
       "surface_source": "mesh/regierungsviertel/surface-polygons.json",
-      "surface_pretriangulation": (
-        "mesh/regierungsviertel/surface-pretriangulation.json"
-      ),
       "start_page": "START-HERE.html",
     }
-    surface_manifest_data = files.get(
-      "mesh/regierungsviertel/surface-pretriangulation.json"
-    )
-    if surface_manifest_data is not None:
-      surface_manifest = json.loads(surface_manifest_data)
-      for plate in surface_manifest["plates"]:
-        asset_paths[f"surface_plate_{plate['kind']}"] = (
-          f"mesh/regierungsviertel/{plate['file']}"
-        )
 
     def file_meta(relative: str) -> dict[str, int | str]:
       body = files[relative]
@@ -732,8 +731,7 @@ def write_minimal_package_zip(
           "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
           "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
           "Kindertransport visual references: © Pauline Ahrens, 2021 / "
-          "Bildhauerei in Berlin (CC BY 4.0) · "
-          "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
+          "Bildhauerei in Berlin (CC BY 4.0)"
         ),
         "assets": {
           label: {"path": relative, **file_meta(relative)}
@@ -757,8 +755,6 @@ def write_minimal_static_tarball(
   extra_members: list[tarfile.TarInfo] | None = None,
 ) -> Path:
   overrides = overrides or {}
-  mesh_data = b"glb"
-  mesh_relative = "mesh/regierungsviertel/tile-3894_58196.glb"
   files: dict[str, bytes | str] = {
     "favicon.svg": "<svg></svg>\n",
     "index.html": "<!doctype html>\n",
@@ -767,17 +763,18 @@ def write_minimal_static_tarball(
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
-    "mesh/regierungsviertel/scene.json": json.dumps(
-      minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
-    ),
+    "mesh/regierungsviertel/scene.json": json.dumps(minimal_webgl_scene()),
     "mesh/regierungsviertel/ground-context.json": (
       b'{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
       b'"ground_height":{"y_dm":[0]}}'
     ),
-    mesh_relative: mesh_data,
+    "mesh/regierungsviertel/lod2-prisms.json": b"{}",
+    "mesh/regierungsviertel/minecraft-voxels.json": b"{}",
+    "mesh/regierungsviertel/park-details.json": b"{}",
+    "mesh/regierungsviertel/rail-lines.json": b"{}",
+    "mesh/regierungsviertel/street-details.json": b"{}",
+    "mesh/regierungsviertel/surface-polygons.json": b"{}",
   }
-  for relative, body in minimal_surface_assets().items():
-    files[f"mesh/regierungsviertel/{relative}"] = body
   for relative, body in overrides.items():
     if body is None:
       files.pop(relative, None)
@@ -912,48 +909,20 @@ def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
   assets = {
     f"asset-{index:03d}.glb": f"model-{index:03d}".encode() for index in range(100)
   }
-  names = list(assets)
-  scene = minimal_webgl_scene(names[0], assets[names[0]])
-  scene["base_tiles"] = [webgl_entry(name, assets[name]) for name in names[:96]]
-  scene["surface_detail_tiles"] = [
-    surface_webgl_entry(name, assets[name]) for name in names[:96]
-  ]
-  scene["hero_details"] = [
-    {"id": identifier, "files": [hero_webgl_entry(name, assets[name])]}
-    for identifier, name in zip(
-      ("reichstag", "bundeskanzleramt", "hauptbahnhof", "brandenburger-tor"),
-      names[96:],
-      strict=True,
-    )
-  ]
-
-  assert (
-    release_readiness.webgl_manifest_failures(
-      scene,
-      label="100-asset fixture",
-      asset_reader=assets.__getitem__,
-      actual_asset_names=set(assets),
-    )
-    == []
+  failures = release_readiness.webgl_manifest_failures(
+    minimal_webgl_scene(),
+    label="100 retired assets",
+    asset_reader=assets.__getitem__,
+    actual_asset_names=set(assets),
   )
-  for name in names:
-    corrupted = dict(assets)
-    corrupted[name] += b"-corrupt"
-    failures = release_readiness.webgl_manifest_failures(
-      scene,
-      label=f"corrupt {name}",
-      asset_reader=corrupted.__getitem__,
-      actual_asset_names=set(corrupted),
-    )
-    assert any(name in failure and "mismatch" in failure for failure in failures)
+  assert any("Retired binary assets remain" in failure for failure in failures)
 
 
 def test_webgl_manifest_rejects_axis_aligned_hauptbahnhof_model() -> None:
   release_readiness = load_script_module(
     "check_release_readiness_station_rotation", "scripts/check_release_readiness.py"
   )
-  mesh_data = b"model"
-  scene = minimal_webgl_scene("tile.glb", mesh_data)
+  scene = minimal_webgl_scene()
   station = next(
     signature
     for signature in scene["architectural_signatures"]
@@ -964,82 +933,75 @@ def test_webgl_manifest_rejects_axis_aligned_hauptbahnhof_model() -> None:
   failures = release_readiness.webgl_manifest_failures(
     scene,
     label="axis-aligned station",
-    asset_reader={"tile.glb": mesh_data}.__getitem__,
-    actual_asset_names={"tile.glb"},
+    asset_reader=lambda _relative: b"",
+    actual_asset_names=set(),
   )
 
   assert any("not aligned to its rotated LoD2 hall" in failure for failure in failures)
 
 
-def test_webgl_manifest_rejects_missing_bundled_normals() -> None:
+def test_webgl_manifest_rejects_wrong_exact_building_budgets() -> None:
   release_readiness = load_script_module(
     "check_release_readiness_mesh_normals", "scripts/check_release_readiness.py"
   )
-  mesh_data = b"model"
-  scene = minimal_webgl_scene("tile.glb", mesh_data)
-  scene["base_tiles"][0].pop("includes_normals")
+  scene = minimal_webgl_scene()
+  scene["render_strategy"]["exact_building_limits"] = {
+    "desktop": 29818,
+    "mobile": 29818,
+  }
 
   failures = release_readiness.webgl_manifest_failures(
     scene,
-    label="missing normals",
-    asset_reader={"tile.glb": mesh_data}.__getitem__,
-    actual_asset_names={"tile.glb"},
+    label="unbounded exact geometry",
+    asset_reader=lambda _relative: b"",
+    actual_asset_names=set(),
   )
 
-  assert any("lacks bundled normals flag" in failure for failure in failures)
+  assert any("wrong exact-building budgets" in failure for failure in failures)
 
 
-def test_webgl_manifest_rejects_coarse_base_surface() -> None:
+def test_webgl_manifest_rejects_incomplete_building_coverage() -> None:
   release_readiness = load_script_module(
     "check_release_readiness_mesh_density", "scripts/check_release_readiness.py"
   )
-  mesh_data = b"model"
-  scene = minimal_webgl_scene("tile.glb", mesh_data)
-  for entry in scene["base_tiles"]:
-    entry["faces"] = 70_000
-    entry["target_faces"] = 70_000
+  scene = minimal_webgl_scene()
+  scene["render_strategy"]["complete_building_coverage"] = "near-only"
 
   failures = release_readiness.webgl_manifest_failures(
     scene,
-    label="coarse surface",
-    asset_reader={"tile.glb": mesh_data}.__getitem__,
-    actual_asset_names={"tile.glb"},
+    label="incomplete building coverage",
+    asset_reader=lambda _relative: b"",
+    actual_asset_names=set(),
   )
 
-  assert any("face quality floor" in failure for failure in failures)
-  assert any("100k/58-degree/aggression-5" in failure for failure in failures)
+  assert any("complete instanced building coverage" in failure for failure in failures)
 
 
-def test_webgl_manifest_rejects_missing_settled_surface_tier() -> None:
+def test_webgl_manifest_rejects_retired_surface_inventory() -> None:
   release_readiness = load_script_module(
     "check_release_readiness_settled_surface",
     "scripts/check_release_readiness.py",
   )
-  mesh_data = b"model"
-  scene = minimal_webgl_scene("tile.glb", mesh_data)
-  scene["surface_detail_tiles"] = []
+  scene = minimal_webgl_scene()
+  scene["surface_detail_tiles"] = [{"file": "retired.glb"}]
 
   failures = release_readiness.webgl_manifest_failures(
     scene,
-    label="missing settled surface",
-    asset_reader={"tile.glb": mesh_data}.__getitem__,
-    actual_asset_names={"tile.glb"},
+    label="retired settled surface",
+    asset_reader=lambda _relative: b"",
+    actual_asset_names=set(),
   )
 
-  assert any(
-    "one settled surface-detail tile for every bounded interaction tile" in failure
-    for failure in failures
-  )
+  assert any("retired surface_detail_tiles" in failure for failure in failures)
 
 
-def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:
+def test_webgl_scene_failures_rejects_retired_glb(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_webgl_hash", "scripts/check_release_readiness.py"
   )
-  mesh_data = b"original"
-  (tmp_path / "tile.glb").write_bytes(b"corrupted")
+  (tmp_path / "retired.glb").write_bytes(b"retired")
   (tmp_path / "scene.json").write_text(
-    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    json.dumps(minimal_webgl_scene()),
     encoding="utf-8",
   )
   (tmp_path / "ground-context.json").write_text(
@@ -1050,8 +1012,7 @@ def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> 
 
   failures = release_readiness.webgl_scene_failures(tmp_path)
 
-  assert any("size mismatch" in failure for failure in failures)
-  assert any("hash mismatch" in failure for failure in failures)
+  assert any("Retired binary assets remain" in failure for failure in failures)
 
 
 def test_webgl_scene_allows_two_mib_ground_context_but_rejects_larger(
@@ -1061,10 +1022,8 @@ def test_webgl_scene_allows_two_mib_ground_context_but_rejects_larger(
     "check_release_readiness_ground_budget", "scripts/check_release_readiness.py"
   )
   assert release_readiness.MAX_GROUND_CONTEXT_BYTES == 3 * 1024 * 1024
-  mesh_data = b"model"
-  (tmp_path / "tile.glb").write_bytes(mesh_data)
   (tmp_path / "scene.json").write_text(
-    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    json.dumps(minimal_webgl_scene()),
     encoding="utf-8",
   )
   ground_context = tmp_path / "ground-context.json"
@@ -1093,11 +1052,9 @@ def test_webgl_scene_failures_rejects_unreferenced_glb(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_webgl_orphan", "scripts/check_release_readiness.py"
   )
-  mesh_data = b"model"
-  (tmp_path / "tile.glb").write_bytes(mesh_data)
   (tmp_path / "stale.glb").write_bytes(b"stale")
   (tmp_path / "scene.json").write_text(
-    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    json.dumps(minimal_webgl_scene()),
     encoding="utf-8",
   )
   (tmp_path / "ground-context.json").write_text(
@@ -1107,7 +1064,7 @@ def test_webgl_scene_failures_rejects_unreferenced_glb(tmp_path: Path) -> None:
   )
 
   assert any(
-    "Unreferenced WebGL asset stale.glb" in failure
+    "Retired binary assets remain" in failure
     for failure in release_readiness.webgl_scene_failures(tmp_path)
   )
 
@@ -1169,32 +1126,33 @@ def test_zip_package_failures_require_street_details(tmp_path: Path) -> None:
   )
 
 
-def test_zip_package_requires_referenced_surface_plate_and_manifest_inventory(
+def test_zip_package_requires_procedural_asset_and_manifest_inventory(
   tmp_path: Path,
 ) -> None:
   release_readiness = load_script_module(
-    "check_release_readiness_zip_surface", "scripts/check_release_readiness.py"
+    "check_release_readiness_zip_procedural", "scripts/check_release_readiness.py"
   )
-  plate_name = next(
-    name for name in minimal_surface_assets() if name.endswith(".plate.gz")
-  )
-  relative_plate = f"mesh/regierungsviertel/{plate_name}"
+  relative_asset = "mesh/regierungsviertel/lod2-prisms.json"
   write_minimal_package_zip(
     tmp_path,
     release_readiness,
-    {relative_plate: None},
+    {relative_asset: None},
   )
 
   failures = release_readiness.zip_package_failures(tmp_path)
 
-  assert any("Missing referenced surface plate" in failure for failure in failures)
+  missing = release_readiness.package_arcname(relative_asset)
+  assert any(
+    "Missing package ZIP entry" in failure and missing in failure
+    for failure in failures
+  )
 
   zip_path = write_minimal_package_zip(tmp_path, release_readiness)
   with zipfile.ZipFile(zip_path) as archive:
     files = {info.filename: archive.read(info) for info in archive.infolist()}
   manifest_name = release_readiness.package_arcname("package-manifest.json")
   package_manifest = json.loads(files[manifest_name])
-  package_manifest["assets"].pop("surface_plate_asphalt")
+  package_manifest["assets"].pop("lod2_prisms")
   files[manifest_name] = json.dumps(package_manifest).encode()
   with zipfile.ZipFile(zip_path, "w") as archive:
     for name, data in files.items():
@@ -1202,7 +1160,7 @@ def test_zip_package_requires_referenced_surface_plate_and_manifest_inventory(
 
   failures = release_readiness.zip_package_failures(tmp_path)
   assert any(
-    "does not cover progressive surface assets" in failure for failure in failures
+    "does not cover procedural scene assets" in failure for failure in failures
   )
 
 
@@ -1276,35 +1234,35 @@ def test_zip_package_failures_require_full_dzi_pyramid(tmp_path: Path) -> None:
   )
 
 
-def test_zip_package_failures_require_every_scene_glb(tmp_path: Path) -> None:
+def test_zip_package_failures_reject_retired_binary_asset(tmp_path: Path) -> None:
   release_readiness = load_script_module(
-    "check_release_readiness_zip_missing_glb", "scripts/check_release_readiness.py"
+    "check_release_readiness_zip_retired_binary", "scripts/check_release_readiness.py"
   )
-  relative = "mesh/regierungsviertel/tile-3894_58196.glb"
-  write_minimal_package_zip(tmp_path, release_readiness, {relative: None})
+  relative = "mesh/regierungsviertel/retired.glb"
+  write_minimal_package_zip(tmp_path, release_readiness, {relative: b"retired"})
 
   failures = release_readiness.zip_package_failures(tmp_path)
 
   assert any(
-    "Missing referenced WebGL asset tile-3894_58196.glb" in failure
+    "Retired binary assets remain" in failure and "retired.glb" in failure
     for failure in failures
   )
 
 
-def test_zip_package_failures_rejects_corrupt_scene_glb(tmp_path: Path) -> None:
+def test_zip_package_failures_rejects_invalid_procedural_scene(tmp_path: Path) -> None:
   release_readiness = load_script_module(
-    "check_release_readiness_zip_corrupt_glb", "scripts/check_release_readiness.py"
+    "check_release_readiness_zip_invalid_scene", "scripts/check_release_readiness.py"
   )
-  relative = "mesh/regierungsviertel/tile-3894_58196.glb"
+  relative = "mesh/regierungsviertel/scene.json"
   write_minimal_package_zip(
     tmp_path,
     release_readiness,
-    {relative: b"a different model payload"},
+    {relative: "{}"},
   )
 
   failures = release_readiness.zip_package_failures(tmp_path)
 
-  assert any("WebGL asset hash mismatch" in failure for failure in failures)
+  assert any("procedural schema 3" in failure for failure in failures)
 
 
 def test_zip_package_failures_rejects_duplicate_member(tmp_path: Path) -> None:
@@ -1354,9 +1312,12 @@ def test_static_tarball_failures_accepts_complete_archive(tmp_path: Path) -> Non
   assert release_readiness.static_tarball_failures(tmp_path) == []
 
 
-def test_static_tarball_failures_rejects_missing_scene_glb(tmp_path: Path) -> None:
+def test_static_tarball_failures_rejects_missing_procedural_asset(
+  tmp_path: Path,
+) -> None:
   release_readiness = load_script_module(
-    "check_release_readiness_tar_missing_glb", "scripts/check_release_readiness.py"
+    "check_release_readiness_tar_missing_procedural",
+    "scripts/check_release_readiness.py",
   )
   (tmp_path / "pyproject.toml").write_text(
     '[project]\nname = "fixture"\nversion = "9.9.9"\n',
@@ -1365,33 +1326,37 @@ def test_static_tarball_failures_rejects_missing_scene_glb(tmp_path: Path) -> No
   write_minimal_static_tarball(
     tmp_path,
     release_readiness,
-    {"mesh/regierungsviertel/tile-3894_58196.glb": None},
+    {"mesh/regierungsviertel/lod2-prisms.json": None},
   )
 
   failures = release_readiness.static_tarball_failures(tmp_path)
-  assert any("Missing referenced WebGL asset" in failure for failure in failures)
+  assert any(
+    "Missing static archive entry" in failure and "lod2-prisms.json" in failure
+    for failure in failures
+  )
 
 
-def test_static_tarball_failures_rejects_missing_surface_plate(tmp_path: Path) -> None:
+def test_static_tarball_failures_rejects_retired_binary_asset(tmp_path: Path) -> None:
   release_readiness = load_script_module(
-    "check_release_readiness_tar_surface", "scripts/check_release_readiness.py"
+    "check_release_readiness_tar_retired_binary",
+    "scripts/check_release_readiness.py",
   )
   (tmp_path / "pyproject.toml").write_text(
     '[project]\nname = "fixture"\nversion = "9.9.9"\n',
     encoding="utf-8",
   )
-  plate_name = next(
-    name for name in minimal_surface_assets() if name.endswith(".plate.gz")
-  )
   write_minimal_static_tarball(
     tmp_path,
     release_readiness,
-    {f"mesh/regierungsviertel/{plate_name}": None},
+    {"mesh/regierungsviertel/retired.plate.gz": b"retired"},
   )
 
   failures = release_readiness.static_tarball_failures(tmp_path)
 
-  assert any("Missing referenced surface plate" in failure for failure in failures)
+  assert any(
+    "Retired binary assets remain" in failure and "retired.plate.gz" in failure
+    for failure in failures
+  )
 
 
 def test_static_tarball_failures_rejects_links_and_duplicates(

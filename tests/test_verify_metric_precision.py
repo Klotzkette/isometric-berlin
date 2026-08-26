@@ -193,3 +193,18 @@ def test_scene_surface_stats_reports_current_mesh_tiers(tmp_path: Path) -> None:
   assert stats["hero_faces"] == 50
   assert stats["scene_glb_files"] == 3
   assert stats["scene_glb_bytes"] == 3_500
+
+
+def test_scene_surface_stats_reports_retired_photogrammetry(tmp_path: Path) -> None:
+  scene_path = tmp_path / "scene.json"
+  scene_path.write_text(
+    json.dumps({"render_strategy": {"legacy_photogrammetry_removed": True}}),
+    encoding="utf-8",
+  )
+
+  stats = scene_surface_stats(scene_path)
+
+  assert stats["available"] is False
+  assert stats["reason"] == "retired_from_release"
+  assert stats["scene_glb_files"] == 0
+  assert stats["scene_glb_bytes"] == 0

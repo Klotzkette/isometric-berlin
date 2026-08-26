@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.28"
+PACKAGE_VERSION = "0.72.29"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import argparse
 import functools
-import hashlib
 import http.server
 import json
 import socket
@@ -55,14 +54,16 @@ REQUIRED_PACKAGE_FILES = (
   "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  "mesh/regierungsviertel/lod2-prisms.json",
+  "mesh/regierungsviertel/minecraft-voxels.json",
+  "mesh/regierungsviertel/park-details.json",
   "mesh/regierungsviertel/street-details.json",
   "mesh/regierungsviertel/surface-polygons.json",
-  "mesh/regierungsviertel/surface-pretriangulation.json",
 )
 CACHEABLE_SUFFIXES = {
   ".css",
-  ".glb",
   ".jpg",
+  ".json",
   ".js",
   ".png",
   ".svg",
@@ -83,7 +84,6 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
   extensions_map = {
     **http.server.SimpleHTTPRequestHandler.extensions_map,
     ".dzi": "application/xml",
-    ".glb": "model/gltf-binary",
   }
   protocol_version = "HTTP/1.1"
 
@@ -127,15 +127,7 @@ def parse_args() -> argparse.Namespace:
   return parser.parse_args()
 
 
-def file_sha256(path: Path) -> str:
-  digest = hashlib.sha256()
-  with path.open("rb") as handle:
-    while chunk := handle.read(1024 * 1024):
-      digest.update(chunk)
-  return digest.hexdigest()
-
-
-def verify_webgl_scene(root: Path) -> None:
+def verify_procedural_scene(root: Path) -> None:
   scene_path = root / "mesh/regierungsviertel/scene.json"
   try:
     scene = json.loads(scene_path.read_text(encoding="utf-8"))
@@ -143,44 +135,26 @@ def verify_webgl_scene(root: Path) -> None:
     raise SystemExit(f"Invalid 3D scene manifest: {exc}") from exc
   if not isinstance(scene, dict):
     raise SystemExit("Invalid 3D scene manifest: root must be an object.")
-  base_tiles = scene.get("base_tiles")
-  surface_tiles = scene.get("surface_detail_tiles")
-  hero_details = scene.get("hero_details")
-  if (
-    not isinstance(base_tiles, list)
-    or not isinstance(surface_tiles, list)
-    or not isinstance(hero_details, list)
-  ):
-    raise SystemExit("Invalid 3D scene manifest: model inventories are missing.")
-  if not base_tiles or not surface_tiles:
-    raise SystemExit("The local 3D scene lacks a required surface quality tier.")
-  entries = [*base_tiles, *surface_tiles]
-  entries.extend(
-    entry
-    for detail in hero_details
-    if isinstance(detail, dict)
-    for entry in detail.get("files", [])
+  strategy = scene.get("render_strategy")
+  if scene.get("schema_version") != 3 or not isinstance(strategy, dict):
+    raise SystemExit("Invalid 3D scene manifest: procedural strategy is missing.")
+  if strategy.get("kind") != "procedural-drawn":
+    raise SystemExit("Invalid 3D scene manifest: unexpected render strategy.")
+  if strategy.get("legacy_photogrammetry_removed") is not True:
+    raise SystemExit("Invalid 3D scene manifest: retired photo assets are enabled.")
+  limits = strategy.get("exact_building_limits")
+  if limits != {"desktop": 12000, "mobile": 5000}:
+    raise SystemExit("Invalid 3D scene manifest: exact-building limits differ.")
+  for inventory in ("base_tiles", "surface_detail_tiles", "hero_details"):
+    if scene.get(inventory) != []:
+      raise SystemExit(f"Invalid 3D scene manifest: {inventory} must be empty.")
+  retired = sorted(
+    path.name
+    for path in scene_path.parent.iterdir()
+    if path.is_file() and (path.suffix.lower() == ".glb" or path.name.endswith(".plate.gz"))
   )
-  verified: set[str] = set()
-  mesh_root = scene_path.parent.resolve()
-  for entry in entries:
-    if not isinstance(entry, dict):
-      raise SystemExit("Invalid 3D model entry in scene manifest.")
-    relative = str(entry.get("file", ""))
-    path = (mesh_root / relative).resolve()
-    if not relative or path.parent != mesh_root or path.suffix.lower() != ".glb":
-      raise SystemExit(f"Unsafe 3D model path in package: {relative!r}")
-    if relative in verified:
-      continue
-    verified.add(relative)
-    if not path.is_file():
-      raise SystemExit(f"Missing 3D model file: {relative}")
-    expected_size = entry.get("bytes")
-    if type(expected_size) is not int or path.stat().st_size != expected_size:
-      raise SystemExit(f"3D model size mismatch: {relative}")
-    expected_hash = str(entry.get("sha256", ""))
-    if len(expected_hash) != 64 or file_sha256(path) != expected_hash:
-      raise SystemExit(f"3D model hash mismatch: {relative}")
+  if retired:
+    raise SystemExit(f"Retired binary assets remain in package: {', '.join(retired)}")
 
 
 def require_package_files(root: Path) -> None:
@@ -189,7 +163,7 @@ def require_package_files(root: Path) -> None:
     for relative in missing:
       print(f"Missing package file: {relative}", flush=True)
     raise SystemExit("This local viewer package is incomplete. Download the ZIP again.")
-  verify_webgl_scene(root)
+  verify_procedural_scene(root)
 
 
 def main() -> None:
@@ -1288,8 +1262,7 @@ START_HERE_HTML = """<!doctype html>
       <p class="source-credit">
         © OpenStreetMap contributors · 3D building models: Geoportal Berlin
         (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia ·
-        Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0) · 3D mesh: Berlin Partner für Wirtschaft und
-        Technologie GmbH
+        Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
       </p>
     </aside>
   </main>
@@ -3083,11 +3056,17 @@ def repo_root() -> Path:
   return Path(__file__).resolve().parents[1]
 
 
-def should_package_file(path: Path) -> bool:
+def should_package_file(path: Path, root: Path | None = None) -> bool:
   """Return whether ``path`` belongs in the downloadable package."""
   if path.is_symlink():
     return False
-  for part in path.parts:
+  inspected_path = path
+  if root is not None:
+    try:
+      inspected_path = path.relative_to(root)
+    except ValueError:
+      return False
+  for part in inspected_path.parts:
     if part == "__MACOSX":
       return False
     if part.startswith("."):
@@ -3136,7 +3115,7 @@ def copy_static_site(source: Path, target: Path) -> None:
     remove_generated_tree(target)
   target.mkdir(parents=True)
   for path in source.rglob("*"):
-    if not should_package_file(path):
+    if not should_package_file(path, source):
       continue
     relative = path.relative_to(source)
     if "regierungsviertel_files" in relative.parts:
@@ -3158,7 +3137,7 @@ def ensure_dzi_tiles_copied(source: Path, target: Path) -> None:
     return
 
   for path in source_tiles.rglob("*"):
-    if not path.is_file() or not should_package_file(path):
+    if not path.is_file() or not should_package_file(path, source):
       continue
     relative = path.relative_to(source)
     destination = target / relative
@@ -3175,7 +3154,7 @@ def ensure_public_dzi_metadata_copied(source: Path, target: Path) -> None:
     return
 
   for path in source_root.rglob("*"):
-    if not path.is_file() or not should_package_file(path):
+    if not path.is_file() or not should_package_file(path, source):
       continue
     relative = path.relative_to(source)
     if "regierungsviertel_files" in relative.parts:
@@ -3191,7 +3170,7 @@ def compact_packaged_dzi(package_dir: Path) -> None:
   The full hosted pyramid remains in ``src/app/dist``.  A power-of-two
   descriptor reduction lets the package reuse the already generated lower
   levels byte-for-byte, while retaining more fallback detail than the 6144 px
-  double-click overview and leaving the 3D mesh completely untouched.
+  double-click overview and leaving the procedural 3D assets untouched.
   """
   root = package_dir / "dzi" / "regierungsviertel"
   descriptor = root / "regierungsviertel.dzi"
@@ -3266,7 +3245,7 @@ def remove_unwanted_package_paths(package_dir: Path) -> None:
   for path in sorted(
     package_dir.rglob("*"), key=lambda item: len(item.parts), reverse=True
   ):
-    if should_package_file(path):
+    if should_package_file(path, package_dir):
       continue
     if path.is_dir():
       shutil.rmtree(path)
@@ -3387,32 +3366,26 @@ pause
 
 
 def packaged_scene_counts(package_dir: Path) -> dict[str, int]:
-  """Read release-copy mesh counts so README claims cannot go stale."""
+  """Read the release-copy procedural limits so README claims cannot go stale."""
   scene_path = package_dir / "mesh" / "regierungsviertel" / "scene.json"
   scene = json.loads(scene_path.read_text(encoding="utf-8"))
-  base_tiles = scene.get("base_tiles", [])
-  settled_tiles = scene.get("surface_detail_tiles", [])
-  hero_files = [
-    file
-    for hero in scene.get("hero_details", [])
-    if isinstance(hero, dict)
-    for file in hero.get("files", [])
-    if isinstance(file, dict)
-  ]
+  strategy = scene.get("render_strategy", {})
+  limits = strategy.get("exact_building_limits", {})
   return {
-    "base_faces": sum(int(tile.get("faces", 0)) for tile in base_tiles),
-    "base_files": len(base_tiles),
-    "glb_files": len(base_tiles) + len(settled_tiles) + len(hero_files),
-    "settled_faces": sum(int(tile.get("faces", 0)) for tile in settled_tiles),
+    "desktop_exact": int(limits.get("desktop", 0)),
+    "mobile_exact": int(limits.get("mobile", 0)),
+    "source_buildings": int(strategy.get("source_building_count", 0)),
   }
 
 
 def write_readme(package_dir: Path) -> None:
   scene_counts = packaged_scene_counts(package_dir)
-  base_faces_de = f"{scene_counts['base_faces']:,}".replace(",", ".")
-  settled_faces_de = f"{scene_counts['settled_faces']:,}".replace(",", ".")
-  base_faces_en = f"{scene_counts['base_faces']:,}"
-  settled_faces_en = f"{scene_counts['settled_faces']:,}"
+  desktop_exact_de = f"{scene_counts['desktop_exact']:,}".replace(",", ".")
+  mobile_exact_de = f"{scene_counts['mobile_exact']:,}".replace(",", ".")
+  source_buildings_de = f"{scene_counts['source_buildings']:,}".replace(",", ".")
+  desktop_exact_en = f"{scene_counts['desktop_exact']:,}"
+  mobile_exact_en = f"{scene_counts['mobile_exact']:,}"
+  source_buildings_en = f"{scene_counts['source_buildings']:,}"
   (package_dir / "README.txt").write_text(
     f"""Isometric Berlin - Regierungsviertel {PACKAGE_VERSION}
 ==============================================
@@ -3590,10 +3563,13 @@ gefugte Schwarzsteinstelen. Peter Flierl wird für die Installationsgestaltung,
 Fritz Cremer für die Skulptur und Carlo Wloch für Steinarbeit/Stelen genannt.
 Außerhalb von Figur, Bank und Stelen bleibt die Plattform begehbar; Minecraft
 nutzt eine eigene deterministische 4-Batch-/197-Block-Lesart ohne glatte
-Doppelung. Smooth nutzt voll und mobil 3 Renderables / 24.840 gespeicherte und
-gerenderte Vertices; Minecraft rendert 4.728 Instanz-Vertices. Die 14-m-Kamera
-zielt auf den exakten Anker, Feinanatomie blendet bei 34/105 m. Gedicht und
-Zitate werden nicht wiedergegeben; Einschnittspuren
+Doppelung. Die bronzebraune Figur besitzt nun einen klar gegliederten kahlen
+Kopf, Brauen, Augen, lange Nase, Mund und Kinn, überlappende Hände mit Fingern,
+Kragen, Knopfleiste, Falten, gerade Hosen und Schuhe. Die drei Schwarzsteinstelen
+tragen zwölf unlesbare horizontale Einschnittbänder. Smooth nutzt voll und mobil
+3 Renderables / 38.400 gespeicherte und gerenderte Vertices; Minecraft rendert
+4.728 Instanz-Vertices. Die 14-m-Kamera zielt auf den exakten Anker, Feinanatomie
+blendet bei 34/105 m. Gedicht und Zitate werden nicht wiedergegeben; Einschnittspuren
 bleiben unlesbar. `Eine Skulptur für Helene Weigel`, enthüllt am 10. Mai 2026,
 erscheint als transparenter Glaskubus auf weißem Sockel. Im Zentrum steht der
 rote klappbare Regiestuhl mit zwei deutlich sichtbaren gekreuzten
@@ -3725,8 +3701,8 @@ Ansicht ein. Auf iPhone, iPad, Android-Tablets und
 anderen Touch-Geräten nutzt der Viewer größere Buttons, sichere
 Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
-Der Advanced Viewer startet mit einem echten Three.js-3D-Modell aus dem
-amtlichen Berlin 3D Mesh 2025. Die linke Maustaste verschiebt direkt, ein
+Der Advanced Viewer startet mit einer prozeduralen Three.js-3D-Stadt aus
+Berlin LoD2 und OpenStreetMap. Die linke Maustaste verschiebt direkt, ein
 gerastertes Mausrad zoomt am Zeiger und die rechte Maustaste dreht. Auf dem
 Trackpad verschiebt Zwei-Finger-Scroll, Pinch zoomt am Fingermittelpunkt. Auf
 Touch-Geräten verschieben zwei Finger per Swipe und zoomen per Pinch; drei
@@ -3801,14 +3777,14 @@ erscheinen Wiederherstellung und 2D-Karte als ausdrückliche Auswahl.
 Nicht-Touch-Desktop behält die vollständige Architektur, reduziert aber seine
 Minecraft-Bäume ebenfalls deterministisch auf zwei Drittel.
 
-Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
-Geländekontext statt mit den fotografischen GLBs. Auf Nicht-Touch-Desktop lädt
-die amtliche
-{base_faces_de}-Flächen-Stufe nur noch als echte Fehlerreserve; jede Untersicht
-und jede mobileähnliche Touch-Sitzung bleibt vollständig foto-frei. Die
-archivierte {settled_faces_de}-Flächen-Stufe wird bei der normalen
-Navigation nicht im Hintergrund angefordert. Minecraft-Gebäude und -Bäume
-bleiben bis zum Wechsel in diesen Modus ebenfalls ungeladen.
+Version {PACKAGE_VERSION} entfernt die 74 nie mehr dargestellten Foto-GLBs und
+den duplizierten Asphaltplatten-Cache vollständig. Alle {source_buildings_de}
+Quellgebäude bleiben sichtbar: Desktop hält die nächsten {desktop_exact_de},
+Mobil die nächsten {mobile_exact_de} als exakte LoD2-Geometrie; der Rest wird
+in einer ausgerichteten, quellfarbigen Instanz-Silhouette gezeigt. Rasterstraßen,
+modellierte Parkwege und Linienmarkierungen ersetzen doppelte schwere
+Straßenflächen. Minecraft-Gebäude und -Bäume bleiben bis zum Wechsel in diesen
+Modus ebenfalls ungeladen.
 Fehlgeschlagene JSON-Dateien werden einmal wiederholt und nach 45 Sekunden
 sauber abgebrochen. Beim Wechsel zur 2D-Karte gibt jedes Gerät die inaktive
 3D-Szene vollständig frei; Desktop hält sie nur beim Wechsel zwischen Live-
@@ -3816,22 +3792,18 @@ sauber abgebrochen. Beim Wechsel zur 2D-Karte gibt jedes Gerät die inaktive
 Pointer-Releases und ein zehnsekündiger Watchdog verhindern ein Festhängen.
 Die interne Renderauflösung bleibt vom Beginn einer Geste bis nach dem
 Ausrollen unverändert.
-Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
-{scene_counts["glb_files"]} GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
-Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
-Programmdateien, sodass ein erneuter 3D-Start nicht wieder alle Modelldaten
-übertragen muss.
+Vor dem Browserstart prüft serve-local.py den prozeduralen Szenenvertrag, alle
+Kern-JSON-Dateien und dass keine pensionierten GLBs zurückgekehrt sind. Der
+lokale HTTP/1.1-Server cached unveränderliche Kartenkacheln und Programmdateien,
+sodass ein erneuter Start nichts Unnötiges überträgt.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
-LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
-Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
-Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
-haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1600 px pro
-Materialsegment. Maßhaltige Erkennungsmodelle ergänzen das Fotomesh: Reichstag
+LoD2-Grundrisse bleiben der Metermaßstab. Prozedurale, texturfreie
+Erkennungsmodelle ergänzen die gemessenen Hüllen: Reichstag
 mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
 LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 180 x 42 m
 Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
-und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
+und grün patinierter Quadriga.
 
 Das zentrale Kanzleramtsgebäude zeigt jetzt hinter seinen kühlen, transparenten
 Glasflächen die von außen erkennbare Raumfolge: geteilte Galerieplatten um ein
@@ -3859,9 +3831,8 @@ Leuchtenpositionen eine heutige Fußgängerachse mit gebündelten Belags- und
 Möblierungsdetails, ohne die vorhandene Leuchtenschicht zu duplizieren.
 
 Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 6.450 m und
-ergänzt den rundum nochmals um 500 m erweiterten Datenring mit
-{scene_counts["base_files"]} amtlichen
-Interaktionskacheln. Tram und Haltestelle am Hauptbahnhof, S15-Zugang,
+ergänzt den rundum nochmals um 500 m erweiterten LoD2-/OSM-Datenring. Tram und
+Haltestelle am Hauptbahnhof, S15-Zugang,
 Washingtonplatz-Taxis, Futurium, die Bundesministerien, Parlament der Bäume,
 Berliner Ensemble, Bahnhof Friedrichstraße, Detlev-Rohwedder-Haus, Gropius
 Bau, Abgeordnetenhaus und Topographie des Terrors bleiben in allen
@@ -3924,7 +3895,6 @@ aus dem Internet geladene .command-Dateien oft mit "Not Opened", bevor sie
 Erweitert: `python3 serve-local.py --no-open --port 8770`
 
 Die Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2,
-Berlin 3D Mesh 2025 (Berlin Partner für Wirtschaft und Technologie GmbH),
 OpenStreetMap, ALKIS, DOP-Preview, DGM-Preview und Wikimedia
 Commons/Wikipedia. Google/Apple-Kartenprodukte dienen nur als visuelle
 QA-Referenz; daraus wird nichts kopiert.
@@ -4091,8 +4061,12 @@ horizontally jointed black-stone steles. Peter Flierl is credited for the
 installation design, Fritz Cremer for the sculpture and Carlo Wloch for
 stonework/steles. The platform stays walkable outside the figure, bench and
 steles; Minecraft uses a separate deterministic 4-batch / 197-block reading
-without a smooth double. Full and mobile Smooth use 3 renderables / 24,840
-stored and rendered vertices; Minecraft renders 4,728 instance vertices. The
+without a smooth double. The warm-brown bronze figure now has a clearly
+articulated bald head, brows, eyes, long nose, mouth and chin, overlapping
+hands with fingers, collar, button placket, folds, straight trousers and shoes.
+The black-stone steles carry twelve non-legible horizontal incision bands.
+Full and mobile Smooth use 3 renderables / 38,400 stored and rendered vertices;
+Minecraft renders 4,728 instance vertices. The
 14 m camera targets the exact anchor and fine anatomy fades at 34/105 m. The
 poem and quotations are not reproduced;
 incision cues remain non-legible. `Eine Skulptur für Helene Weigel`, unveiled
@@ -4217,8 +4191,8 @@ to the exact cardinal. On iPhone, iPad, Android tablets and other touch devices
 the viewer uses larger controls, safe viewport heights and a compact lower
 control sheet.
 
-The Advanced Viewer starts with a true Three.js scene derived from the
-official Berlin 3D Mesh 2025. Left-drag pans directly, a stepped mouse wheel
+The Advanced Viewer starts with a procedural Three.js city derived from Berlin
+LoD2 and OpenStreetMap. Left-drag pans directly, a stepped mouse wheel
 zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll
 pans while pinch zooms around its midpoint. On touch devices, a two-finger
 centre swipe pans while pinch zooms around that midpoint; three fingers
@@ -4289,35 +4263,30 @@ second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop
 keeps complete architecture while deterministically retaining two thirds of
 its Minecraft trees as well.
 
-Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
-context instead of photographic GLBs. On non-touch desktop, the official
-{base_faces_en}-face shell loads only for real failure recovery; every
-underside view and every mobile-like touch session remains photo-free. The
-archived {settled_faces_en}-face tier is not requested during
-normal navigation. Minecraft buildings and trees remain lazy until that mode
-is selected. Failed
+Version {PACKAGE_VERSION} removes all 74 retired photographic GLBs and the
+duplicated asphalt-plate cache. All {source_buildings_en} source buildings
+remain visible: desktop keeps the nearest {desktop_exact_en} and mobile the
+nearest {mobile_exact_en} as exact LoD2 geometry, while an oriented,
+source-coloured instance shell covers the remainder. Raster streets, authored
+park paths and source lane markings replace duplicated heavy road plates.
+Minecraft buildings and trees remain lazy until that mode is selected. Failed
 JSON transfers retry once and stop cleanly after 45 seconds. Every device
 releases inactive 3D when switching to the 2D map; desktop keeps it warm only
 while moving between live 3D modes. Lost pointer capture, window
 focus, global pointer release and a ten-second watchdog prevent stuck input.
 The backing-store resolution likewise stays unchanged throughout input and
 momentum. Before opening the browser,
-serve-local.py checks all {scene_counts["glb_files"]} GLB hashes. Its HTTP/1.1 cache reuses immutable
-models, map tiles and app assets
+serve-local.py checks the procedural scene contract, every core JSON asset and
+that no retired GLB has returned. Its HTTP/1.1 cache reuses immutable map tiles
+and app assets
 instead of transferring the complete scene again.
 
 This version also refines the metric architectural rendering pass: LoD2
-footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
-now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
-Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
-LoD2-masked texture models up to 1600 px per material segment. Metre-scale
-recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
+footprints remain the metre-scale anchor. Procedural, texture-free recognition
+models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
-Brandenburg Gate with twelve columns and a patinated Quadriga. The official
-photographic shell remains bundled as a failure-only fallback for non-touch
-desktop rather than loading underneath the ordinary drawn city; every
-underside view and every mobile-like touch session stays photo-free.
+Brandenburg Gate with twelve columns and a patinated Quadriga.
 
 The central Chancellery building now reveals its externally visible spatial
 sequence behind cool transparent glass: split gallery plates around a 14.4 m
@@ -4343,9 +4312,9 @@ At Potsdamer Platz, 28 official light positions anchor a present-day pedestrian
 axis with batched paving and furniture details without duplicating the existing
 lamp layer.
 
-Version {PACKAGE_VERSION} extends the visible radius to 6,450 m and carries the
-additional 500 m data ring on every side in {scene_counts["base_files"]} official interaction
-tiles. Futurium now follows its exact Berlin LoD2 footprint and height, while
+Version {PACKAGE_VERSION} extends the visible radius to 6,450 m and carries an
+additional 500 m LoD2/OSM data ring on every side. Futurium now follows its
+exact Berlin LoD2 footprint and height, while
 its cassette skin, panoramic end windows, roof basin, solar field, Skywalk and
 Drehmoment are source-bounded recognition details. Moltkebrücke follows its
 OSM centreline and published 77.58 x 25.70 m dimensions. Detailed OSM path
@@ -4404,13 +4373,12 @@ START-HERE.html avoids that trap.
 
 Advanced: `python3 serve-local.py --no-open --port 8770`
 
-Data sources are free and open: Berlin LoD2, Berlin 3D Mesh 2025 (Berlin
-Partner für Wirtschaft und Technologie GmbH), OpenStreetMap, ALKIS, DOP
+Data sources are free and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP
 preview, DGM preview, and Wikimedia Commons/Wikipedia. Google/Apple map
 products are used only as visual QA references; nothing from them is copied.
 
 Attribution:
-© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0) · 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
+© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
 
 Per-file Wikimedia credits are bundled at
 dzi/regierungsviertel/wikimedia_attribution.json.
@@ -4425,36 +4393,6 @@ def write_package_manifest(package_dir: Path) -> None:
   """Write machine-readable release metadata for local package QA."""
   dzi_root = package_dir / "dzi" / "regierungsviertel"
   mesh_root = package_dir / "mesh" / "regierungsviertel"
-  surface_manifest_path = mesh_root / "surface-pretriangulation.json"
-  try:
-    surface_manifest = json.loads(surface_manifest_path.read_text(encoding="utf-8"))
-  except (OSError, json.JSONDecodeError) as exc:
-    raise SystemExit(f"Cannot inventory progressive surface assets: {exc}") from exc
-  if not isinstance(surface_manifest, dict):
-    raise SystemExit("Cannot inventory progressive surface assets: invalid manifest")
-  source_file = surface_manifest.get("source_file")
-  plates = surface_manifest.get("plates")
-  if (
-    source_file != "surface-polygons.json" or not isinstance(plates, list) or not plates
-  ):
-    raise SystemExit("Cannot inventory progressive surface assets: incomplete manifest")
-  surface_asset_paths: dict[str, Path] = {}
-  seen_surface_kinds: set[str] = set()
-  for entry in plates:
-    if not isinstance(entry, dict):
-      raise SystemExit("Cannot inventory progressive surface assets: invalid plate")
-    kind = entry.get("kind")
-    relative = entry.get("file")
-    if (
-      not isinstance(kind, str)
-      or kind in seen_surface_kinds
-      or not isinstance(relative, str)
-      or Path(relative).name != relative
-      or not relative.endswith(".plate.gz")
-    ):
-      raise SystemExit("Cannot inventory progressive surface assets: unsafe plate")
-    seen_surface_kinds.add(kind)
-    surface_asset_paths[f"surface_plate_{kind}"] = mesh_root / relative
   asset_paths = {
     "detail_image": dzi_root / "overview_source.png",
     "pixel_image": dzi_root / "overview.png",
@@ -4466,9 +4404,12 @@ def write_package_manifest(package_dir: Path) -> None:
     "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
     "webgl_scene": mesh_root / "scene.json",
     "ground_context": mesh_root / "ground-context.json",
-    "surface_source": mesh_root / str(source_file),
-    "surface_pretriangulation": surface_manifest_path,
-    **surface_asset_paths,
+    "lod2_prisms": mesh_root / "lod2-prisms.json",
+    "minecraft_voxels": mesh_root / "minecraft-voxels.json",
+    "park_details": mesh_root / "park-details.json",
+    "rail_lines": mesh_root / "rail-lines.json",
+    "street_details": mesh_root / "street-details.json",
+    "surface_source": mesh_root / "surface-polygons.json",
     "start_page": package_dir / "START-HERE.html",
   }
   missing = [label for label, path in asset_paths.items() if not path.exists()]
@@ -4488,7 +4429,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "uses_google_content": False,
     "scope": "Berlin Regierungsviertel bounds only",
     "render_mode": (
-      "drawn LoD2 city with demand-only official WebGL and source-detail DZI fallback"
+      "procedural LoD2/OpenStreetMap city with DZI 2D compatibility fallback"
     ),
     "controls": [
       "mouse-pan",
@@ -4499,8 +4440,11 @@ def write_package_manifest(package_dir: Path) -> None:
       "true-threejs-3d-orbit",
       "exact-current-view-pedestrian-spawn",
       "cancelable-progressive-model-loading",
-      "demand-only-photogrammetry-fallback",
-      "mobile-like-touch-no-photogrammetry-fallback",
+      "photogrammetry-assets-removed",
+      "procedural-recovery-to-clean-remount-or-2d",
+      "desktop-and-mobile-exact-building-budgets",
+      "instanced-complete-building-coverage",
+      "raster-road-and-authored-path-memory-profile",
       "touch-capability-mobile-profile",
       "mobile-complete-building-progressive-worker",
       "desktop-worker-url-payloads-spatial-batches",
@@ -4551,8 +4495,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
       "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
       "Kindertransport visual references: © Pauline Ahrens, 2021 / "
-      "Bildhauerei in Berlin (CC BY 4.0) · "
-      "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
+      "Bildhauerei in Berlin (CC BY 4.0)"
     ),
     "assets": {
       label: {
@@ -4584,7 +4527,7 @@ def zip_package(package_dir: Path, zip_path: Path) -> None:
     zip_path.unlink()
   with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
     for path in sorted(package_dir.rglob("*")):
-      if path.is_file() and should_package_file(path):
+      if path.is_file() and should_package_file(path, package_dir):
         archive.writestr(
           zip_info_for(path, path.relative_to(package_dir.parent)),
           path.read_bytes(),
@@ -4603,7 +4546,7 @@ def tar_static_site(source: Path, tar_path: Path) -> None:
         fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT
       ) as archive:
         for path in sorted(source.rglob("*")):
-          if not path.is_file() or not should_package_file(path):
+          if not path.is_file() or not should_package_file(path, source):
             continue
           if path.suffix == ".map":
             continue
