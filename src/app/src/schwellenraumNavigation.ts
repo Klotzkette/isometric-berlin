@@ -3,7 +3,10 @@ import type {
   PedestrianObstacle,
   PedestrianPolygonObstacle,
 } from "./pedestrianNavigation";
-import { pointInPedestrianRing } from "./pedestrianNavigation";
+import {
+  pedestrianObstacleCellKey,
+  pointInPedestrianRing,
+} from "./pedestrianNavigation";
 
 /** A compact camera body: large enough to keep the lens out of thin walls. */
 export const SCHWELLENRAUM_FLIGHT_RADIUS_M = 0.62;
@@ -25,8 +28,8 @@ export type SchwellenraumFlightResult = {
 function squaredDistanceToSegment(
   x: number,
   z: number,
-  from: readonly [number, number],
-  to: readonly [number, number],
+  from: readonly number[],
+  to: readonly number[],
 ): number {
   const dx = to[0] - from[0];
   const dz = to[1] - from[1];
@@ -50,7 +53,7 @@ function squaredDistanceToSegment(
 function squaredDistanceToRing(
   x: number,
   z: number,
-  ring: ReadonlyArray<readonly [number, number]>,
+  ring: ReadonlyArray<readonly number[]>,
 ): number {
   let nearest = Number.POSITIVE_INFINITY;
   for (let index = 0; index < ring.length; index += 1) {
@@ -72,18 +75,20 @@ function sphereTouchesPolygon(
   obstacle: PedestrianPolygonObstacle,
   radius: number,
 ): boolean {
-  const radiusSquared = radius * radius;
-  const insideOuter = pointInPedestrianRing(point.x, point.z, obstacle.ring);
+  const x = point.x / obstacle.coordinateScale;
+  const z = point.z / obstacle.coordinateScale;
+  const radiusSquared = (radius / obstacle.coordinateScale) ** 2;
+  const insideOuter = pointInPedestrianRing(x, z, obstacle.ring);
   if (
     !insideOuter &&
-    squaredDistanceToRing(point.x, point.z, obstacle.ring) > radiusSquared
+    squaredDistanceToRing(x, z, obstacle.ring) > radiusSquared
   ) {
     return false;
   }
   for (const hole of obstacle.holes) {
     if (
-      pointInPedestrianRing(point.x, point.z, hole) &&
-      squaredDistanceToRing(point.x, point.z, hole) > radiusSquared
+      pointInPedestrianRing(x, z, hole) &&
+      squaredDistanceToRing(x, z, hole) > radiusSquared
     ) {
       return false;
     }
@@ -152,7 +157,8 @@ function nearbyObstacles(
   const maxZIndex = Math.floor((point.z + radius) / obstacles.cellSizeM);
   for (let zIndex = minZIndex; zIndex <= maxZIndex; zIndex += 1) {
     for (let xIndex = minXIndex; xIndex <= maxXIndex; xIndex += 1) {
-      for (const obstacle of obstacles.cells.get(`${xIndex}:${zIndex}`) ?? []) {
+      const key = pedestrianObstacleCellKey(xIndex, zIndex);
+      for (const obstacle of obstacles.cells.get(key) ?? []) {
         nearby.add(obstacle);
       }
     }

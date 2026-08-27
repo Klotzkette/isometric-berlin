@@ -18,7 +18,7 @@ type CorridorSegment = {
   widthM: number;
 };
 
-type MedianSample = {
+export type UnterDenLindenMedianSample = {
   highInnerZ: number;
   lowInnerZ: number;
   x: number;
@@ -122,7 +122,7 @@ function corridorValueAt(
  */
 export function deriveUnterDenLindenMedianSamples(
   surfaces: Pick<SurfacePayload, "lane_markings">,
-): MedianSample[] {
+): UnterDenLindenMedianSample[] {
   const segments = sourceSegments(surfaces.lane_markings);
   if (segments.length < 2) return [];
   const axis = corridorAxis(segments);
@@ -141,7 +141,7 @@ export function deriveUnterDenLindenMedianSamples(
       Math.max(...low.flatMap((segment) => segment.points.map(([x]) => x))),
     ) / SAMPLE_STEP_M,
   ) * SAMPLE_STEP_M;
-  const samples: MedianSample[] = [];
+  const samples: UnterDenLindenMedianSample[] = [];
   for (let x = minX; x <= maxX; x += SAMPLE_STEP_M) {
     const highValue = corridorValueAt(high, x);
     const lowValue = corridorValueAt(low, x);
@@ -156,8 +156,10 @@ export function deriveUnterDenLindenMedianSamples(
   return samples;
 }
 
-function contiguousRuns(samples: readonly MedianSample[]): MedianSample[][] {
-  const runs: MedianSample[][] = [];
+function contiguousRuns(
+  samples: readonly UnterDenLindenMedianSample[],
+): UnterDenLindenMedianSample[][] {
+  const runs: UnterDenLindenMedianSample[][] = [];
   for (const sample of samples) {
     const current = runs.at(-1);
     const previous = current?.at(-1);
@@ -171,7 +173,7 @@ function contiguousRuns(samples: readonly MedianSample[]): MedianSample[][] {
 }
 
 function createMedianChunk(
-  samples: readonly MedianSample[],
+  samples: readonly UnterDenLindenMedianSample[],
   terrainAt: TerrainAt,
   chunkIndex: number,
 ): Group {
@@ -230,7 +232,6 @@ function createMedianChunk(
     "position",
     new Float32BufferAttribute(plateVertices, 3),
   );
-  plateGeometry.computeVertexNormals();
   const plate = new Mesh(
     plateGeometry,
     new MeshBasicMaterial({
@@ -301,8 +302,19 @@ export function installUnterDenLindenMedianRefinement(
   surfaces: Pick<SurfacePayload, "lane_markings">,
   terrainAt: TerrainAt,
 ): number {
+  return installUnterDenLindenMedianSamples(
+    root,
+    deriveUnterDenLindenMedianSamples(surfaces),
+    terrainAt,
+  );
+}
+
+export function installUnterDenLindenMedianSamples(
+  root: Group,
+  samples: readonly UnterDenLindenMedianSample[],
+  terrainAt: TerrainAt,
+): number {
   if (root.userData.unterDenLindenMedianInstalled === true) return 0;
-  const samples = deriveUnterDenLindenMedianSamples(surfaces);
   let chunkIndex = 0;
   for (const run of contiguousRuns(samples)) {
     for (

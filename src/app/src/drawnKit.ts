@@ -4,13 +4,13 @@ import {
   Color,
   CylinderGeometry,
   EdgesGeometry,
-  Float32BufferAttribute,
   Group,
   LineBasicMaterial,
   LineSegments,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Uint8BufferAttribute,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
@@ -42,15 +42,27 @@ export function createBuilder(): Builder {
 
 export function paintGeometry(geometry: BufferGeometry, color: number): void {
   geometry.deleteAttribute("uv");
+  // Every finished kit uses MeshBasicMaterial by day and a flat-shaded
+  // MeshStandardMaterial at night. Neither shader reads vertex normals: the
+  // latter derives the face normal from screen-space derivatives. Dropping
+  // this dormant Float32 attribute preserves the pixels and removes three
+  // floats per vertex from merge, transfer and GPU storage.
+  geometry.deleteAttribute("normal");
   const shade = new Color(color);
   const positions = geometry.getAttribute("position");
-  const colors = new Float32Array(positions.count * 3);
+  const colors = new Uint8Array(positions.count * 3);
+  const red = Math.round(shade.r * 255);
+  const green = Math.round(shade.g * 255);
+  const blue = Math.round(shade.b * 255);
   for (let index = 0; index < positions.count; index += 1) {
-    colors[index * 3] = shade.r;
-    colors[index * 3 + 1] = shade.g;
-    colors[index * 3 + 2] = shade.b;
+    colors[index * 3] = red;
+    colors[index * 3 + 1] = green;
+    colors[index * 3 + 2] = blue;
   }
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  // The display target is 8-bit sRGB. A normalized byte attribute therefore
+  // preserves the final palette while cutting its GPU/transfer footprint by
+  // 75 percent compared with three Float32 values per vertex.
+  geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
 }
 
 export function addBox(

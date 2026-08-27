@@ -200,12 +200,15 @@ describe("granular smooth Goethe and Lessing models", () => {
     ) as Mesh;
     const colors = fineBodies.geometry.getAttribute("color");
     const gold = new Color(GOETHE_INSCRIPTION_GOLD);
+    const compactPaletteTolerance = 1 / 255 + Number.EPSILON;
+    expect(colors.array).toBeInstanceOf(Uint8Array);
+    expect(colors.normalized).toBe(true);
     let containsGold = false;
     for (let index = 0; index < colors.count; index += 1) {
       if (
-        Math.abs(colors.getX(index) - gold.r) < 1e-5 &&
-        Math.abs(colors.getY(index) - gold.g) < 1e-5 &&
-        Math.abs(colors.getZ(index) - gold.b) < 1e-5
+        Math.abs(colors.getX(index) - gold.r) <= compactPaletteTolerance &&
+        Math.abs(colors.getY(index) - gold.g) <= compactPaletteTolerance &&
+        Math.abs(colors.getZ(index) - gold.b) <= compactPaletteTolerance
       ) {
         containsGold = true;
         break;

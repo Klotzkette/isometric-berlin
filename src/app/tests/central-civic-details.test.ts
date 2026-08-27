@@ -395,12 +395,13 @@ describe("task-11 central transit and civic details", () => {
     const civicColours = civicBodies.geometry.getAttribute("color");
     const civicPositions = civicBodies.geometry.getAttribute("position");
     const lawnColour = new Color(0x8db978);
+    const paletteTolerance = 1 / 255 + Number.EPSILON;
     const hasFormalLawn = Array.from(
       { length: civicColours.count },
       (_, index) =>
-        Math.abs(civicColours.getX(index) - lawnColour.r) < 0.00001 &&
-        Math.abs(civicColours.getY(index) - lawnColour.g) < 0.00001 &&
-        Math.abs(civicColours.getZ(index) - lawnColour.b) < 0.00001,
+        Math.abs(civicColours.getX(index) - lawnColour.r) <= paletteTolerance &&
+        Math.abs(civicColours.getY(index) - lawnColour.g) <= paletteTolerance &&
+        Math.abs(civicColours.getZ(index) - lawnColour.b) <= paletteTolerance,
     ).some(Boolean);
     expect(hasFormalLawn).toBe(true);
     const pavingColour = new Color(0xc3c3bd);
@@ -409,9 +410,9 @@ describe("task-11 central transit and civic details", () => {
       (_, index) => index,
     ).filter(
       (index) =>
-        Math.abs(civicColours.getX(index) - pavingColour.r) < 0.00001 &&
-        Math.abs(civicColours.getY(index) - pavingColour.g) < 0.00001 &&
-        Math.abs(civicColours.getZ(index) - pavingColour.b) < 0.00001,
+        Math.abs(civicColours.getX(index) - pavingColour.r) <= paletteTolerance &&
+        Math.abs(civicColours.getY(index) - pavingColour.g) <= paletteTolerance &&
+        Math.abs(civicColours.getZ(index) - pavingColour.b) <= paletteTolerance,
     );
     expect(pavingVertices).toHaveLength(24);
     expect(

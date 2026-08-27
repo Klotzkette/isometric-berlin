@@ -109,6 +109,8 @@ type PedestrianObstacleBase = {
   sourceId?: string;
 };
 
+type PedestrianRing = ReadonlyArray<readonly number[]>;
+
 export type PedestrianCircleObstacle = PedestrianObstacleBase & {
   kind: "circle";
   radius: number;
@@ -117,9 +119,11 @@ export type PedestrianCircleObstacle = PedestrianObstacleBase & {
 };
 
 export type PedestrianPolygonObstacle = PedestrianObstacleBase & {
-  holes: Array<Array<readonly [number, number]>>;
+  /** Source-coordinate metres per stored ring unit (LoD2 rings use 0.1). */
+  coordinateScale: number;
+  holes: ReadonlyArray<PedestrianRing>;
   kind: "polygon";
-  ring: Array<readonly [number, number]>;
+  ring: PedestrianRing;
 };
 
 export type PedestrianSegmentObstacle = PedestrianObstacleBase & {
@@ -137,7 +141,7 @@ export type PedestrianObstacle =
 export type PedestrianObstacleIndex = {
   buildingCount: number;
   cellSizeM: number;
-  cells: Map<string, PedestrianObstacle[]>;
+  cells: Map<number | string, PedestrianObstacle[]>;
   hedgeAreaCount: number;
   hedgeSegmentCount: number;
   obstacleCount: number;
@@ -270,8 +274,8 @@ function wrapRadians(value: number): number {
 function pointOnSegment(
   x: number,
   z: number,
-  left: readonly [number, number],
-  right: readonly [number, number],
+  left: readonly number[],
+  right: readonly number[],
 ): boolean {
   const lengthSquared = (right[0] - left[0]) ** 2 + (right[1] - left[1]) ** 2;
   if (lengthSquared < 1e-12) {
@@ -293,7 +297,7 @@ function pointOnSegment(
 export function pointInPedestrianRing(
   x: number,
   z: number,
-  ring: ReadonlyArray<readonly [number, number]>,
+  ring: PedestrianRing,
 ): boolean {
   if (ring.length < 3) {
     return false;
@@ -328,7 +332,21 @@ function metricRing(ring: number[][]): Array<readonly [number, number]> {
     .map((point) => [point[0] / 10, point[1] / 10] as const);
 }
 
-function obstacleCellKey(xIndex: number, zIndex: number): string {
+export function pedestrianObstacleCellKey(
+  xIndex: number,
+  zIndex: number,
+): number | string {
+  // The production map stays well inside signed 16-bit cell coordinates.
+  // Packing the pair avoids tens of thousands of short-lived template
+  // strings during compilation and on every walking collision query.
+  if (
+    xIndex >= -32_768 &&
+    xIndex <= 32_767 &&
+    zIndex >= -32_768 &&
+    zIndex <= 32_767
+  ) {
+    return (xIndex + 32_768) * 65_536 + zIndex + 32_768;
+  }
   return `${xIndex}:${zIndex}`;
 }
 
@@ -360,7 +378,7 @@ function addObstacle(
   const maxZIndex = Math.floor((obstacle.maxZ + padding) / index.cellSizeM);
   for (let zIndex = minZIndex; zIndex <= maxZIndex; zIndex += 1) {
     for (let xIndex = minXIndex; xIndex <= maxXIndex; xIndex += 1) {
-      const key = obstacleCellKey(xIndex, zIndex);
+      const key = pedestrianObstacleCellKey(xIndex, zIndex);
       const cell = index.cells.get(key);
       if (cell) {
         cell.push(obstacle);
@@ -407,26 +425,45 @@ function addCircleObstacle(
 
 function addPolygonObstacle(
   index: PedestrianObstacleIndex,
-  ring: Array<readonly [number, number]>,
-  holes: Array<Array<readonly [number, number]>>,
+  ring: PedestrianRing,
+  holes: ReadonlyArray<PedestrianRing>,
   minY: number,
   maxY: number,
   sourceId?: string,
+  coordinateScale = 1,
 ): void {
-  if (ring.length < 3 || maxY <= minY) {
+  if (
+    ring.length < 3 ||
+    maxY <= minY ||
+    !Number.isFinite(coordinateScale) ||
+    coordinateScale <= 0
+  ) {
     return;
   }
-  const xs = ring.map(([x]) => x);
-  const zs = ring.map(([, z]) => z);
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minZ = Number.POSITIVE_INFINITY;
+  let maxZ = Number.NEGATIVE_INFINITY;
+  for (const point of ring) {
+    if (point.length < 2) continue;
+    const x = point[0] * coordinateScale;
+    const z = point[1] * coordinateScale;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minZ = Math.min(minZ, z);
+    maxZ = Math.max(maxZ, z);
+  }
+  if (![minX, maxX, minZ, maxZ].every(Number.isFinite)) return;
   addObstacle(index, {
+    coordinateScale,
     holes,
     kind: "polygon",
-    maxX: Math.max(...xs),
+    maxX,
     maxY,
-    maxZ: Math.max(...zs),
-    minX: Math.min(...xs),
+    maxZ,
+    minX,
     minY,
-    minZ: Math.min(...zs),
+    minZ,
     ring,
     sourceId,
   });
@@ -474,11 +511,12 @@ export function compilePedestrianObstacles(
     const before = index.obstacleCount;
     addPolygonObstacle(
       index,
-      metricRing(building.ring),
-      (building.holes ?? []).map(metricRing),
+      building.ring,
+      building.holes ?? [],
       building.y0_dm / 10,
       (building.y0_dm + building.h_dm) / 10,
       building.id,
+      0.1,
     );
     if (index.obstacleCount > before) {
       index.buildingCount += 1;
@@ -654,8 +692,8 @@ export function addPedestrianParkObstacles(
 function squaredDistanceToSegment(
   x: number,
   z: number,
-  from: readonly [number, number],
-  to: readonly [number, number],
+  from: readonly number[],
+  to: readonly number[],
 ): number {
   const dx = to[0] - from[0];
   const dz = to[1] - from[1];
@@ -672,7 +710,7 @@ function squaredDistanceToSegment(
 function squaredDistanceToRing(
   x: number,
   z: number,
-  ring: ReadonlyArray<readonly [number, number]>,
+  ring: PedestrianRing,
 ): number {
   let nearest = Number.POSITIVE_INFINITY;
   for (let index = 0; index < ring.length; index += 1) {
@@ -694,18 +732,25 @@ function pointTouchesPolygonObstacle(
   z: number,
   obstacle: PedestrianPolygonObstacle,
 ): boolean {
-  const paddingSquared = PEDESTRIAN_BODY_RADIUS_M ** 2;
-  const insideOuter = pointInPedestrianRing(x, z, obstacle.ring);
+  const sourceX = x / obstacle.coordinateScale;
+  const sourceZ = z / obstacle.coordinateScale;
+  const paddingSquared =
+    (PEDESTRIAN_BODY_RADIUS_M / obstacle.coordinateScale) ** 2;
+  const insideOuter = pointInPedestrianRing(
+    sourceX,
+    sourceZ,
+    obstacle.ring,
+  );
   if (
     !insideOuter &&
-    squaredDistanceToRing(x, z, obstacle.ring) > paddingSquared
+    squaredDistanceToRing(sourceX, sourceZ, obstacle.ring) > paddingSquared
   ) {
     return false;
   }
   for (const hole of obstacle.holes) {
     if (
-      pointInPedestrianRing(x, z, hole) &&
-      squaredDistanceToRing(x, z, hole) > paddingSquared
+      pointInPedestrianRing(sourceX, sourceZ, hole) &&
+      squaredDistanceToRing(sourceX, sourceZ, hole) > paddingSquared
     ) {
       return false;
     }
@@ -768,7 +813,7 @@ export function pedestrianPointIsBlocked(
   if (!obstacles) {
     return false;
   }
-  const key = obstacleCellKey(
+  const key = pedestrianObstacleCellKey(
     Math.floor(x / obstacles.cellSizeM),
     Math.floor(z / obstacles.cellSizeM),
   );

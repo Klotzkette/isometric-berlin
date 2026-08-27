@@ -69,7 +69,7 @@ bounds projection cannot survive regeneration.
 
 ## Step 8a: retired archival photogrammetry path
 
-The v0.72.29 viewer no longer packages or renders Berlin 3D Mesh Model GLBs,
+The v0.72.30 viewer no longer packages or renders Berlin 3D Mesh Model GLBs,
 source photographs or texture crops. The former 74-file interaction, settled
 and hero family duplicated the LoD2/procedural city while adding substantial
 startup, memory and GPU cost. Fetch and conversion modules remain available

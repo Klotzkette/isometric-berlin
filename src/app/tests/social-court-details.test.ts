@@ -160,15 +160,19 @@ describe("Sozialgericht Berlin source-bound facade", () => {
       `${SOCIAL_COURT_BATCH_NAME} lamps`,
     ) as Mesh;
     const positions = lamps.geometry.getAttribute("position");
-    const normals = lamps.geometry.getAttribute("normal");
+    expect(lamps.geometry.getAttribute("normal")).toBeUndefined();
     const colors = lamps.geometry.getAttribute("color");
     const glass = new Color(profile.palette.glass);
     const amber = new Color(profile.palette.transom);
+    const compactPaletteTolerance = 1 / 255 + Number.EPSILON;
+    expect(colors.array).toBeInstanceOf(Uint8Array);
+    expect(colors.normalized).toBe(true);
     const [centerX, centerZ] = profile.frontCenterWorldM;
     const cosine = Math.cos(profile.facade.rotationY);
     const sine = Math.sin(profile.facade.rotationY);
     const oculusLocalXs: number[] = [];
     const transomLocalXs: number[] = [];
+    const outwardFeatureVertices = new Set<number>();
 
     for (let index = 0; index < positions.count; index += 1) {
       const dx = positions.getX(index) - centerX;
@@ -176,25 +180,55 @@ describe("Sozialgericht Berlin source-bound facade", () => {
       const localX = dx * cosine - dz * sine;
       const localZ = dx * sine + dz * cosine;
       const matchesColor = (target: Color): boolean =>
-        Math.abs(colors.getX(index) - target.r) < 1e-5 &&
-        Math.abs(colors.getY(index) - target.g) < 1e-5 &&
-        Math.abs(colors.getZ(index) - target.b) < 1e-5;
-      const outwardDot =
-        normals.getX(index) * profile.outwardNormalWorld[0] +
-        normals.getZ(index) * profile.outwardNormalWorld[1];
+        Math.abs(colors.getX(index) - target.r) <= compactPaletteTolerance &&
+        Math.abs(colors.getY(index) - target.g) <= compactPaletteTolerance &&
+        Math.abs(colors.getZ(index) - target.b) <= compactPaletteTolerance;
 
       if (matchesColor(amber)) {
-        expect(outwardDot).toBeGreaterThan(0.999);
         transomLocalXs.push(localX);
+        outwardFeatureVertices.add(index);
       }
       if (matchesColor(glass) && Math.abs(localZ + 1.18) < 1e-4) {
-        expect(outwardDot).toBeGreaterThan(0.999);
         oculusLocalXs.push(localX);
+        outwardFeatureVertices.add(index);
       }
+    }
+
+    const indices = lamps.geometry.index;
+    expect(indices).not.toBeNull();
+    let outwardFeatureFaces = 0;
+    for (let offset = 0; offset + 2 < indices!.count; offset += 3) {
+      const a = indices!.getX(offset);
+      const b = indices!.getX(offset + 1);
+      const c = indices!.getX(offset + 2);
+      if (
+        !outwardFeatureVertices.has(a) ||
+        !outwardFeatureVertices.has(b) ||
+        !outwardFeatureVertices.has(c)
+      ) {
+        continue;
+      }
+      const abX = positions.getX(b) - positions.getX(a);
+      const abY = positions.getY(b) - positions.getY(a);
+      const abZ = positions.getZ(b) - positions.getZ(a);
+      const acX = positions.getX(c) - positions.getX(a);
+      const acY = positions.getY(c) - positions.getY(a);
+      const acZ = positions.getZ(c) - positions.getZ(a);
+      const normalX = abY * acZ - abZ * acY;
+      const normalY = abZ * acX - abX * acZ;
+      const normalZ = abX * acY - abY * acX;
+      const normalLength = Math.hypot(normalX, normalY, normalZ);
+      const outwardDot =
+        (normalX * profile.outwardNormalWorld[0] +
+          normalZ * profile.outwardNormalWorld[1]) /
+        Math.max(1e-12, normalLength);
+      expect(outwardDot).toBeGreaterThan(0.999);
+      outwardFeatureFaces += 1;
     }
 
     expect(transomLocalXs).toHaveLength(26);
     expect(oculusLocalXs).toHaveLength(78);
+    expect(outwardFeatureFaces).toBeGreaterThan(60);
     expect(
       (Math.min(...transomLocalXs) + Math.max(...transomLocalXs)) / 2,
     ).toBeCloseTo(profile.portal.centerLocalXM, 4);

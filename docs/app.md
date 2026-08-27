@@ -305,14 +305,13 @@ failure never invokes the old synchronous full-city build.
 Both profiles retain raster asphalt rather than duplicating the OSM road union
 as paving, asphalt and kerb meshes. The Worker transfers water, park, sand,
 earth, wood, metal and source lane-marking families; ParkDetails supplies the
-complete authored path network. On the v0.72.29 production benchmark, every
-source-building silhouette is present after about 1.81 seconds, exact
-refinement settles after about 7.0 seconds, the largest repeated main-thread
-attachment is 4.1 ms, conservative peak RSS is 1,293.4 MiB and steady geometry
-is 133.8 MiB across 187
-estimated draw calls and 7,304,079 vertices. The previous baseline measured
-1,891.5 MiB peak RSS, 376.4 MiB geometry, 208 draw calls and 22,075,977
-vertices.
+complete authored path network. On the warm v0.72.30 production benchmark,
+every source-building silhouette is present after about 1.6 seconds, exact
+refinement settles after about 6.14 seconds, the largest repeated main-thread
+attachment is 5.7 ms, conservative peak RSS is 1,134.1 MiB and steady geometry
+is 106.8 MiB across 187 estimated draw calls and 7,304,079 vertices. The
+v0.72.29 baseline measured 1,293.4 MiB peak RSS and 133.8 MiB geometry with the
+same complete building inventory.
 
 Every underside view keeps the authored tunnel/network geometry. Optional park details wait until the first
 usable city frame in a drawn presentation. Core JSON transfers have a finite

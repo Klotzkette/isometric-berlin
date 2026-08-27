@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.72.30
+
+- **Kulturforum und Potsdamer Platz erhalten präzisere, quellgebundene
+  Fassadenlesarten.** Philharmonie und Kammermusiksaal behalten ihre exakten
+  Berliner LoD2-Hauptkörper und ergänzen goldene Geschossregister,
+  Fassadenachsen und gestaffelte Hinweise auf die charakteristischen
+  Dachfacetten. Der 103,192 m hohe BahnTower folgt seinem dreiteiligen
+  LoD2-Körper und der gekrümmten amtlichen Fassadenlinie mit zwölf gebündelten
+  Geschossbändern und schlanken Pfosten, ohne einen zweiten Turmkörper zu
+  erzeugen.
+- **Der Bendlerblock ist als historischer Verwaltungs- und Erinnerungsort
+  erkennbar.** Der östliche Flügel folgt dem exakten LoD2-Ring
+  `DEBE3DThmdWef52O` mit fünf steinernen Fassadengeschossen, Fensterachsen und
+  dem OSM-verankerten Eingang der Gedenkstätte Deutscher Widerstand. Im Hof
+  markieren der gebundene Standort der Bronzeplastik, zwei niedrige
+  Bodenelemente und die OSM-Gedenktafel den Erinnerungsraum. Das Modell bleibt
+  bild- und texturfrei, wird kein 94. Tourziel und benötigt höchstens zwei
+  Renderables, 9.000 gespeicherte und 18.000 gerenderte Vertices.
+- **Die vollständige Stadt braucht nochmals weniger Laufzeitspeicher.** Flache
+  prozedurale Körper verwenden normalisierte Byte-Farben statt Float-Farben;
+  für unbeleuchtete oder flach schattierte Geometrie entfallen ungenutzte
+  Normalen. Der progressive Worker dekodiert Boden und Flächen erst nach dem
+  ersten exakten Gebäudebatch und gibt bereits übertragene Quellgraphen je
+  Familie frei. Fußgängerkollisionen behalten LoD2-Ringe in kompakten
+  Dezimetern und nutzen gepackte Zellschlüssel; Schwellenraum-Proben werden nur
+  einmal abgeleitet. Im warmen Produktionsbenchmark bleiben alle 29.818
+  Gebäude bei 187 Draw Calls und 7.304.079 Vertices sichtbar, erscheinen nach
+  etwa 1,6 s vollständig und sind nach etwa 6,14 s exakt; die Geometrie sinkt
+  von 133,8 auf 106,8 MiB.
+- **Der Veröffentlichungsstand ist vollständig geprüft.** Alle 1.274 App-Tests
+  mit 6.204.269 Assertions, 338 Python-Tests und 70 gezielten Release-Tests
+  bestehen; Ruff, TypeScript/Vite-Build, Readiness und Offline-Smoke sind
+  grün. Die Browser-QA bestand auf 1280 x 720 und 390 x 844 in Tag, Nacht,
+  Minecraft, Schneesturm, Schwellenraum und Spaziergang ohne Seitenüberlauf
+  oder doppelte Canvas-Flächen.
+
 ## v0.72.29
 
 - **Der Live-Viewer und das Offline-Paket sind von ungenutztem Altbestand

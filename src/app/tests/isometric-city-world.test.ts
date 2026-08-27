@@ -1679,7 +1679,8 @@ describe("real bridge structures", () => {
       // leaving only transverse piers and producing a ladder-like Moltkebrücke.
       const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
       const positions = bodies.geometry.getAttribute("position");
-      const normals = bodies.geometry.getAttribute("normal");
+      expect(bodies.geometry.getAttribute("normal")).toBeUndefined();
+      expect(bodies.geometry.index).toBeNull();
       const loewenBridge = city.getObjectByName(
         "Löwenbrücke recognition model",
       ) as Group;
@@ -1738,15 +1739,39 @@ describe("real bridge structures", () => {
       }
       expect(genericAdlerVertices).toBe(0);
       let upwardMoltkeVertices = 0;
-      for (let index = 0; index < positions.count; index += 1) {
+      for (let index = 0; index + 2 < positions.count; index += 3) {
+        const centerX =
+          (positions.getX(index) +
+            positions.getX(index + 1) +
+            positions.getX(index + 2)) /
+          3;
+        const centerZ =
+          (positions.getZ(index) +
+            positions.getZ(index + 1) +
+            positions.getZ(index + 2)) /
+          3;
         if (
           Math.hypot(
-            positions.getX(index) - profile("Moltkebrücke").world[0],
-            positions.getZ(index) - profile("Moltkebrücke").world[1],
-          ) < 55 &&
-          normals.getY(index) > 0.9
+            centerX - profile("Moltkebrücke").world[0],
+            centerZ - profile("Moltkebrücke").world[1],
+          ) < 55
         ) {
-          upwardMoltkeVertices += 1;
+          const abX = positions.getX(index + 1) - positions.getX(index);
+          const abY = positions.getY(index + 1) - positions.getY(index);
+          const abZ = positions.getZ(index + 1) - positions.getZ(index);
+          const acX = positions.getX(index + 2) - positions.getX(index);
+          const acY = positions.getY(index + 2) - positions.getY(index);
+          const acZ = positions.getZ(index + 2) - positions.getZ(index);
+          const normalX = abY * acZ - abZ * acY;
+          const normalY = abZ * acX - abX * acZ;
+          const normalZ = abX * acY - abY * acX;
+          if (
+            normalY /
+              Math.max(1e-12, Math.hypot(normalX, normalY, normalZ)) >
+            0.9
+          ) {
+            upwardMoltkeVertices += 3;
+          }
         }
       }
       expect(upwardMoltkeVertices).toBeGreaterThan(100);
@@ -1854,15 +1879,20 @@ describe("real bridge structures", () => {
           (entry) => entry.name === "Gustav-Heinemann-Brücke",
         )!.palette!.structure,
       );
+      const compactPaletteTolerance = 1 / 255 + Number.EPSILON;
+      expect(colors.array).toBeInstanceOf(Uint8Array);
+      expect(colors.normalized).toBe(true);
       let greenFrameVertices = 0;
       let greenFrameMinY = Number.POSITIVE_INFINITY;
       let greenFrameMaxY = Number.NEGATIVE_INFINITY;
       let hugoCentralUnderwaterVertices = 0;
       for (let index = 0; index < positions.count; index += 1) {
         if (
-          Math.abs(colors.getX(index) - gustavTone.r) < 1e-5 &&
-          Math.abs(colors.getY(index) - gustavTone.g) < 1e-5 &&
-          Math.abs(colors.getZ(index) - gustavTone.b) < 1e-5
+          Math.abs(colors.getX(index) - gustavTone.r) <=
+            compactPaletteTolerance &&
+          Math.abs(colors.getY(index) - gustavTone.g) <=
+            compactPaletteTolerance &&
+          Math.abs(colors.getZ(index) - gustavTone.b) <= compactPaletteTolerance
         ) {
           greenFrameVertices += 1;
           greenFrameMinY = Math.min(greenFrameMinY, positions.getY(index));

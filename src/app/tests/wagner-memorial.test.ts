@@ -232,9 +232,20 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
       for (let index = 0; index < attribute.count; index += 1) {
         actual.add(colour.fromBufferAttribute(attribute, index).getHex());
       }
-      expect([...actual].sort((a, b) => a - b)).toEqual(
-        [...expected].sort((a, b) => a - b),
-      );
+      expect(actual.size).toBe(expected.length);
+      for (const expectedHex of expected) {
+        expect(
+          [...actual].some((actualHex) =>
+            [16, 8, 0].every(
+              (shift) =>
+                Math.abs(
+                  ((actualHex >> shift) & 0xff) -
+                    ((expectedHex >> shift) & 0xff),
+                ) <= 1,
+            ),
+          ),
+        ).toBe(true);
+      }
     }
   });
 

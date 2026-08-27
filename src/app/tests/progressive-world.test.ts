@@ -283,6 +283,8 @@ describe("progressive exact-world scheduling", () => {
     expect(workerMobileBranch).toContain(
       "postBuildingBatches(prisms, partition.remaining)",
     );
+    expect(workerMobileBranch).toContain("prisms.buildings = []");
+    expect(workerMobileBranch).toContain("partition.omitted.length = 0");
     expect(workerMobileBranch).not.toContain("postSurface(");
     expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
     expect(workerMobileBranch).toContain("pretriangulated: false");
@@ -291,7 +293,16 @@ describe("progressive exact-world scheduling", () => {
     );
     expect(workerDesktopBranch).toContain("DESKTOP_TOTAL_BUILDING_LIMIT");
     expect(workerDesktopBranch).toContain("buildings-distant");
+    expect(workerDesktopBranch).toContain("prismPayload.buildings = []");
+    expect(progressiveWorkerSource).toContain("buildingBatches[index].length = 0");
+    expect(workerDesktopBranch).toContain("surfaces.roads = []");
+    expect(workerDesktopBranch).toContain("surfaces.water = []");
+    expect(workerDesktopBranch).toContain("surfaces.parks = []");
+    expect(workerDesktopBranch).toContain("surfaces.lane_markings = []");
     expect(workerDesktopBranch).toContain("surface-lane-markings");
+    expect(workerDesktopBranch.indexOf("groundResponse.json()")).toBeGreaterThan(
+      workerDesktopBranch.indexOf("[nearestBuildingBatch]"),
+    );
     expect(workerDesktopBranch).not.toContain("loadHeavyPlates");
     expect(workerDesktopBranch).not.toContain("splitIndexedSurfacePlate");
   });

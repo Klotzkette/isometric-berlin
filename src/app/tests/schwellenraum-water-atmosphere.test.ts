@@ -177,11 +177,16 @@ describe("Schwellenraum ethereal water atmosphere", () => {
       expect(material.fragmentShader).toContain(
         "if (isProtectedWaterPoint(point)) discard",
       );
-      expect(material.fragmentShader).toContain("if (vWaterUp < 0.55) discard");
+      expect(material.fragmentShader).toContain(
+        "if (waterNormal.y < 0.55) discard",
+      );
+      expect(material.fragmentShader).toContain(
+        "dFdx(vWaterWorldPosition)",
+      );
       expect(material.fragmentShader).toContain("selected = step(0.91, seed)");
       expect(material.vertexShader).toContain("USE_INSTANCING");
       expect(material.vertexShader).toContain(
-        "vWaterUp = normalize(mat3(modelMatrix) * localNormal).y",
+        "vWaterWorldPosition = worldPosition.xyz",
       );
       expect((material as unknown as { map?: unknown }).map).toBeUndefined();
       expect(layer.userData.geometryMotion).toBe("none");

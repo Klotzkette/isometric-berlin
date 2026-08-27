@@ -120,9 +120,13 @@ export const KULTURFORUM_PROFILE = {
   },
   kammermusiksaal: {
     centerWorldM: [-190.028, 1056.839] as const,
+    facadeBayCount: 9,
+    facadeBandCount: 4,
     heightM: 26.347,
     lengthM: 79.81,
+    mainSourcePartId: "DEBE3DbyaJ0e8oAr",
     rotationY: (-17.17 * Math.PI) / 180,
+    roofFacetCueCount: 7,
     sourcePartCount: 18,
     widthM: 73.23,
   },
@@ -144,9 +148,13 @@ export const KULTURFORUM_PROFILE = {
   },
   philharmonie: {
     centerWorldM: [-139.863, 988.177] as const,
+    facadeBayCount: 11,
+    facadeBandCount: 4,
     heightM: 35.665,
     lengthM: 106.21,
+    mainSourcePartId: "DEBE3DTtXzEkeXsu",
     rotationY: (-13.45 * Math.PI) / 180,
+    roofFacetCueCount: 9,
     sourcePartCount: 7,
     widthM: 84.48,
   },
@@ -229,6 +237,38 @@ export const TILLA_DURIEUX_PROFILE = {
 
 /** Open-data anchors for the requested Potsdamer/Wilhelmstrasse details. */
 export const POTSDAMER_DETAIL_PROFILE = {
+  bahnTower: {
+    facadeArcWorldM: [
+      [247.417, 1031.771],
+      [243.481, 1036.071],
+      [238.89, 1039.665],
+      [231.987, 1043.178],
+      [224.537, 1045.074],
+      [217.331, 1045.354],
+      [210.039, 1044.07],
+      [203.752, 1041.604],
+      [198.078, 1037.959],
+      [193.775, 1033.935],
+      [190.353, 1029.484],
+      [187.68, 1024.546],
+    ] as const,
+    facadeBandCount: 12,
+    geometryStatus:
+      "Berlin LoD2 curved facade ring and measured height with coarsened procedural mullion/belt recognition detail; not a component survey",
+    groundY: 5.4,
+    measuredHeightM: 103.192,
+    parentBuildingId: "DEBE01YYK0002KhX",
+    sourcePartIds: [
+      "DEBE3DalNKE26iHe",
+      "DEBE3DSUVHDXBTJj",
+      "DEBE3DlYxpXBjoqL",
+    ] as const,
+    sources: [
+      "https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin",
+      "https://www.berlin.de/sen/uvk/_assets/natur-gruen/stadtgruen/peter-joseph-lenne-preis/2026/lenne-preis-aufgabe-a-2026-de.pdf",
+      "https://www.berlin.de/sen/stadtentwicklung/_assets/planung/hochhausleitbild/hochhausleitbild-fuer-berlin_sensw.pdf",
+    ] as const,
+  },
   czechEmbassyWorldM: [854.635, 848.762] as const,
   georgElser: {
     artist: "Ulrich Klages",

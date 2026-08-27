@@ -150,6 +150,14 @@ describe("task-10 expanded city recognition details", () => {
       "DEBE01YYK0002Sq5",
     ]);
     expect(KULTURFORUM_PROFILE.philharmonie.heightM).toBeCloseTo(35.665, 3);
+    expect(KULTURFORUM_PROFILE.philharmonie.mainSourcePartId).toBe(
+      "DEBE3DTtXzEkeXsu",
+    );
+    expect(KULTURFORUM_PROFILE.philharmonie.facadeBayCount).toBe(11);
+    expect(KULTURFORUM_PROFILE.kammermusiksaal.mainSourcePartId).toBe(
+      "DEBE3DbyaJ0e8oAr",
+    );
+    expect(KULTURFORUM_PROFILE.kammermusiksaal.facadeBayCount).toBe(9);
     expect(KULTURFORUM_PROFILE.staatsbibliothek.sourcePartCount).toBe(56);
     expect(KULTURFORUM_PROFILE.piazzetta.geometryStatus).toContain(
       "not surveyed paving",
@@ -164,6 +172,15 @@ describe("task-10 expanded city recognition details", () => {
       POTSDAMER_PUBLIC_REALM_PROFILE,
     );
     expect(POTSDAMER_DETAIL_PROFILE.geometryStatus).toContain("schematic");
+    expect(POTSDAMER_DETAIL_PROFILE.bahnTower.parentBuildingId).toBe(
+      "DEBE01YYK0002KhX",
+    );
+    expect(POTSDAMER_DETAIL_PROFILE.bahnTower.measuredHeightM).toBeCloseTo(
+      103.192,
+      3,
+    );
+    expect(POTSDAMER_DETAIL_PROFILE.bahnTower.sourcePartIds).toHaveLength(3);
+    expect(POTSDAMER_DETAIL_PROFILE.bahnTower.facadeArcWorldM).toHaveLength(12);
     expect(POTSDAMER_DETAIL_PROFILE.mallSouthFacadeOffsetM).toBeCloseTo(
       -59.5,
       3,
@@ -284,10 +301,10 @@ describe("task-10 expanded city recognition details", () => {
       details.getObjectByName("Tilla-Durieux-Park lawn sculpture ink lines"),
     ).toBeDefined();
 
-    const normals = lawn.geometry.getAttribute("normal");
-    for (let index = 0; index < 12; index += 1) {
-      expect(normals.getY(index)).toBeGreaterThan(0);
-    }
+    // The drawn body is unlit by day and flat-shaded at night, so retaining a
+    // per-vertex normal buffer would only duplicate data. The downward raycasts
+    // below still verify the visible top-face winding.
+    expect(lawn.geometry.getAttribute("normal")).toBeUndefined();
 
     const raycaster = new Raycaster();
     for (const [x, z] of [

@@ -7,6 +7,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   ShaderMaterial,
+  Vector3,
 } from "three";
 
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -72,6 +73,7 @@ function expectBounds(
 
 function countColourVertices(root: Group, hex: number): number {
   const target = new Color(hex);
+  const paletteTolerance = 1 / 255 + Number.EPSILON;
   let count = 0;
   root.traverse((object) => {
     if (!(object instanceof Mesh)) return;
@@ -79,9 +81,9 @@ function countColourVertices(root: Group, hex: number): number {
     if (!colours) return;
     for (let index = 0; index < colours.count; index += 1) {
       if (
-        Math.abs(colours.getX(index) - target.r) < 0.00001 &&
-        Math.abs(colours.getY(index) - target.g) < 0.00001 &&
-        Math.abs(colours.getZ(index) - target.b) < 0.00001
+        Math.abs(colours.getX(index) - target.r) <= paletteTolerance &&
+        Math.abs(colours.getY(index) - target.g) <= paletteTolerance &&
+        Math.abs(colours.getZ(index) - target.b) <= paletteTolerance
       ) {
         count += 1;
       }
@@ -114,11 +116,28 @@ function expectMaterialRoundtrip(root: Group, mesh: Mesh): void {
 }
 
 function expectAtmosphereUsesTopFacesOnly(root: Group, mesh: Mesh): void {
-  const normals = mesh.geometry.getAttribute("normal");
+  expect(mesh.geometry.getAttribute("normal")).toBeUndefined();
+  const positions = mesh.geometry.getAttribute("position");
+  const indices = mesh.geometry.index;
+  const a = new Vector3();
+  const b = new Vector3();
+  const c = new Vector3();
+  const edgeA = new Vector3();
+  const edgeB = new Vector3();
   let topCount = 0;
   let nonTopCount = 0;
-  for (let index = 0; index < normals.count; index += 1) {
-    if (normals.getY(index) >= 0.55) topCount += 1;
+  const indexCount = indices?.count ?? positions.count;
+  for (let offset = 0; offset < indexCount; offset += 3) {
+    const vertexIndex = (localIndex: number) =>
+      indices?.getX(offset + localIndex) ?? offset + localIndex;
+    a.fromBufferAttribute(positions, vertexIndex(0));
+    b.fromBufferAttribute(positions, vertexIndex(1));
+    c.fromBufferAttribute(positions, vertexIndex(2));
+    const normalY = edgeA
+      .subVectors(b, a)
+      .cross(edgeB.subVectors(c, a))
+      .normalize().y;
+    if (normalY >= 0.55) topCount += 1;
     else nonTopCount += 1;
   }
   expect(topCount).toBeGreaterThan(0);
@@ -133,9 +152,14 @@ function expectAtmosphereUsesTopFacesOnly(root: Group, mesh: Mesh): void {
   expect(overlay.geometry).toBe(mesh.geometry);
   expect(overlay.material).toBeInstanceOf(ShaderMaterial);
   const material = overlay.material as ShaderMaterial;
-  expect(material.fragmentShader).toContain("if (vWaterUp < 0.55) discard");
+  expect(material.fragmentShader).toContain(
+    "cross(\n      dFdx(vWaterWorldPosition),",
+  );
+  expect(material.fragmentShader).toContain(
+    "if (waterNormal.y < 0.55) discard",
+  );
   expect(material.vertexShader).toContain(
-    "vWaterUp = normalize(mat3(modelMatrix) * localNormal).y",
+    "vWaterWorldPosition = worldPosition.xyz",
   );
 }
 

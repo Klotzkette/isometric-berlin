@@ -34,6 +34,7 @@ function geometryBudget(root: Object3D): {
 
 function hasGeometryColor(root: Object3D, color: number): boolean {
   const target = new Color(color);
+  const compactPaletteTolerance = 1 / 255 + Number.EPSILON;
   let found = false;
   root.traverse((object) => {
     if (found) return;
@@ -43,9 +44,9 @@ function hasGeometryColor(root: Object3D, color: number): boolean {
     if (!colors) return;
     for (let index = 0; index < colors.count; index += 1) {
       if (
-        Math.abs(colors.getX(index) - target.r) < 0.001 &&
-        Math.abs(colors.getY(index) - target.g) < 0.001 &&
-        Math.abs(colors.getZ(index) - target.b) < 0.001
+        Math.abs(colors.getX(index) - target.r) <= compactPaletteTolerance &&
+        Math.abs(colors.getY(index) - target.g) <= compactPaletteTolerance &&
+        Math.abs(colors.getZ(index) - target.b) <= compactPaletteTolerance
       ) {
         found = true;
         return;

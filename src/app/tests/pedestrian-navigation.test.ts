@@ -351,6 +351,41 @@ describe("pedestrian navigation", () => {
     expect(pedestrianPointIsBlocked(2, 2, -8, buildingObstacles)).toBe(false);
   });
 
+  test("indexes LoD2 source rings without cloning the city footprint graph", () => {
+    const sourceRing = [
+      [0, 0],
+      [100, 0],
+      [100, 100],
+      [0, 100],
+      [0, 0],
+    ];
+    const obstacles = compilePedestrianObstacles({
+      buildings: [
+        {
+          class: 0,
+          h_dm: 120,
+          holes: [],
+          id: "retained-source-ring",
+          ring: sourceRing,
+          y0_dm: 40,
+        },
+      ],
+    });
+    const polygon = [...obstacles.cells.values()]
+      .flat()
+      .find(
+        (obstacle) =>
+          obstacle.kind === "polygon" &&
+          obstacle.sourceId === "retained-source-ring",
+      );
+    expect(polygon?.kind).toBe("polygon");
+    if (!polygon || polygon.kind !== "polygon") {
+      throw new Error("source-backed building obstacle missing");
+    }
+    expect(polygon.ring).toBe(sourceRing);
+    expect(polygon.coordinateScale).toBe(0.1);
+  });
+
   test("walk mode stops at a facade and slides along it", () => {
     const stopped = stepPedestrian(
       createPedestrianState(collisionEnvironment, {

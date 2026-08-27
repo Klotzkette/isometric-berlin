@@ -55,6 +55,11 @@ import {
   paintGeometry,
 } from "./drawnKit";
 import {
+  BENDLERBLOCK_PROFILE,
+  BENDLERBLOCK_RENDER_BUDGET,
+  createBendlerblockDetails,
+} from "./BendlerblockDetails";
+import {
   createLeipzigerPlatzDetails,
   LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE,
 } from "./LeipzigerPlatzDetails";
@@ -140,6 +145,11 @@ export {
   POTSDAMER_PUBLIC_REALM_PROFILE,
   POTSDAMER_PUBLIC_REALM_RENDER_BUDGET,
 } from "./PotsdamerPlatzPublicRealm";
+export {
+  BENDLERBLOCK_PROFILE,
+  BENDLERBLOCK_RENDER_BUDGET,
+  createBendlerblockDetails,
+} from "./BendlerblockDetails";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -3765,6 +3775,58 @@ function addKulturforumConcertBuildings(builder: Builder): void {
       philProfile.rotationY,
     );
   }
+  for (let bay = 0; bay <= philProfile.facadeBayCount; bay += 1) {
+    addLocalBox(
+      builder,
+      0xb99142,
+      phil,
+      -39.6 + (79.2 * bay) / philProfile.facadeBayCount,
+      phil.y + 8.2,
+      -35.35,
+      0.22,
+      11.8,
+      0.24,
+      philProfile.rotationY,
+      false,
+    );
+  }
+  for (let band = 0; band < philProfile.facadeBandCount; band += 1) {
+    addLocalBox(
+      builder,
+      band === philProfile.facadeBandCount - 1 ? 0xe0bd61 : 0xc79b43,
+      phil,
+      0,
+      phil.y + 3.2 + band * 3.35,
+      -35.42,
+      82.8,
+      band === philProfile.facadeBandCount - 1 ? 0.34 : 0.17,
+      0.26,
+      philProfile.rotationY,
+      false,
+    );
+  }
+  // A short, rising gold register follows the faceted lower crown without
+  // replacing the seven-part LoD2 roof or its existing radial seam pass.
+  for (
+    let cue = 0;
+    cue < philProfile.roofFacetCueCount;
+    cue += 1
+  ) {
+    const localX = -34 + (68 * cue) / (philProfile.roofFacetCueCount - 1);
+    addLocalBox(
+      builder,
+      cue % 2 === 0 ? 0xd7ab4d : 0xb78c3e,
+      phil,
+      localX,
+      phil.y + 19.1 + (cue % 3) * 0.75,
+      -31.5 + Math.abs(cue - 4) * 0.42,
+      5.8,
+      0.22,
+      0.36,
+      philProfile.rotationY,
+      false,
+    );
+  }
 
   const chamberProfile = KULTURFORUM_PROFILE.kammermusiksaal;
   const chamber = fixedWorldPoint(chamberProfile.centerWorldM);
@@ -3780,6 +3842,56 @@ function addKulturforumConcertBuildings(builder: Builder): void {
       5,
       0.18,
       chamberProfile.rotationY,
+    );
+  }
+  for (let bay = 0; bay <= chamberProfile.facadeBayCount; bay += 1) {
+    addLocalBox(
+      builder,
+      0xb58d3e,
+      chamber,
+      -28 + (56 * bay) / chamberProfile.facadeBayCount,
+      chamber.y + 8.1,
+      30.82,
+      0.21,
+      11.2,
+      0.24,
+      chamberProfile.rotationY,
+      false,
+    );
+  }
+  for (let band = 0; band < chamberProfile.facadeBandCount; band += 1) {
+    addLocalBox(
+      builder,
+      band === chamberProfile.facadeBandCount - 1 ? 0xdfbd67 : 0xc49a49,
+      chamber,
+      0,
+      chamber.y + 3.25 + band * 3.2,
+      30.9,
+      60.8,
+      band === chamberProfile.facadeBandCount - 1 ? 0.34 : 0.17,
+      0.25,
+      chamberProfile.rotationY,
+      false,
+    );
+  }
+  for (
+    let cue = 0;
+    cue < chamberProfile.roofFacetCueCount;
+    cue += 1
+  ) {
+    const localX = -24 + (48 * cue) / (chamberProfile.roofFacetCueCount - 1);
+    addLocalBox(
+      builder,
+      cue % 2 === 0 ? 0xd6ae59 : 0xb88e43,
+      chamber,
+      localX,
+      chamber.y + 18.1 + (cue % 2) * 0.8,
+      27.8 - Math.abs(cue - 3) * 0.32,
+      5.4,
+      0.22,
+      0.34,
+      chamberProfile.rotationY,
+      false,
     );
   }
 }
@@ -4245,12 +4357,56 @@ function addPotsdamerEntranceHallLettering(
   }
 }
 
+function addBahnTowerFacade(builder: Builder): void {
+  const profile = POTSDAMER_DETAIL_PROFILE.bahnTower;
+  const arc = profile.facadeArcWorldM;
+  const facadeBottomY = profile.groundY + 4.8;
+  const facadeTopY = profile.groundY + 90.5;
+
+  // The tower shell is already the three exact LoD2 parts. These belts and
+  // mullions follow a coarsened subset of the measured curved outer ring, so
+  // the 103 m glass blade reads at distance without adding a second tower.
+  for (let band = 0; band < profile.facadeBandCount; band += 1) {
+    const amount = band / (profile.facadeBandCount - 1);
+    const y = facadeBottomY + amount * (facadeTopY - facadeBottomY);
+    for (let index = 0; index < arc.length - 1; index += 1) {
+      addFacadeSegment(
+        builder,
+        band === profile.facadeBandCount - 1 ? 0x9bb1b3 : 0x52676c,
+        arc[index],
+        arc[index + 1],
+        y,
+        band === profile.facadeBandCount - 1 ? 0.36 : 0.16,
+        0.2,
+      );
+    }
+  }
+  for (let index = 0; index < arc.length; index += 1) {
+    const previous = arc[Math.max(0, index - 1)];
+    const next = arc[Math.min(arc.length - 1, index + 1)];
+    const rotationY = -Math.atan2(next[1] - previous[1], next[0] - previous[0]);
+    addBox(
+      builder,
+      index % 2 === 0 ? 0x42575c : 0x637b7f,
+      arc[index][0],
+      (facadeBottomY + facadeTopY) / 2,
+      arc[index][1],
+      0.18,
+      facadeTopY - facadeBottomY,
+      0.2,
+      rotationY,
+      false,
+    );
+  }
+}
+
 function addPotsdamerWilhelmDetails(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
 ): void {
   if (!byName.has("Mall of Berlin")) return;
   addPotsdamerUndergroundStation(builder);
+  addBahnTowerFacade(builder);
   const profile = POTSDAMER_DETAIL_PROFILE;
 
   const spielbank = fixedWorldPoint(profile.spielbankWorldM);
@@ -5857,6 +6013,8 @@ export function createExpandedCityDetails(
   );
   group.userData.berlinModern = BERLIN_MODERN_PROFILE;
   group.userData.amanoGrandCentral = AMANO_GRAND_CENTRAL_PROFILE;
+  group.userData.bendlerblock = BENDLERBLOCK_PROFILE;
+  group.userData.bendlerblockRenderBudget = BENDLERBLOCK_RENDER_BUDGET;
   group.userData.europacity = EUROPACITY_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.kulturforum = KULTURFORUM_PROFILE;
@@ -5878,6 +6036,7 @@ export function createExpandedCityDetails(
   group.userData.cityWest = CITY_WEST_PROFILE;
   group.userData.sourceUrls = [
     ...SOCIAL_COURT_PROFILE.sourceUrls,
+    ...BENDLERBLOCK_PROFILE.sources,
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
@@ -5887,6 +6046,7 @@ export function createExpandedCityDetails(
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
     ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
     ...POTSDAMER_DETAIL_PROFILE.stationEntranceHalls.sources,
+    ...POTSDAMER_DETAIL_PROFILE.bahnTower.sources,
     ...POTSDAMER_PUBLIC_REALM_PROFILE.sourceUrls,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada.sources,
@@ -5921,6 +6081,7 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+  group.add(createBendlerblockDetails(options.detailProfile ?? "full"));
   if (byName.has(SOCIAL_COURT_PROFILE.name)) {
     group.add(createSocialCourtDetails(options.detailProfile ?? "full"));
   }

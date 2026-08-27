@@ -112,6 +112,10 @@ async function postBuildingBatches(
       startedAt,
       `buildings-preview-${batchOffset + index + 1}`,
     );
+    // The exact geometry owns compact typed buffers now. Release the decoded
+    // source objects before yielding so completed batches cannot accumulate
+    // behind the Worker's garbage collector.
+    buildingBatches[index].length = 0;
     await yieldWorker();
   }
   return buildingBatches.length;
@@ -133,12 +137,12 @@ async function loadPrismPayload(url: string): Promise<PrismPayload> {
   return payload;
 }
 
-async function loadJsonPayload<T>(url: string, label: string): Promise<T> {
+async function loadJsonResponse(url: string, label: string): Promise<Response> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`${label} payload failed with HTTP ${response.status}`);
   }
-  return (await response.json()) as T;
+  return response;
 }
 
 async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
@@ -156,6 +160,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       undefined,
       MOBILE_TOTAL_BUILDING_LIMIT,
     );
+    prisms.buildings = [];
+    partition.initial.length = 0;
     if (partition.omitted.length > 0) {
       const startedAt = performance.now();
       postBatch(
@@ -164,6 +170,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         "buildings-distant",
         startedAt,
       );
+      partition.omitted.length = 0;
       batchCount += 1;
       await yieldWorker();
     }
@@ -178,11 +185,13 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     });
     return;
   }
-  const groundPromise = loadJsonPayload<VoxelPayload>(
+  // Start both transfers now, but leave their multi-megabyte JSON graphs
+  // undecoded until the first exact building batch has been published.
+  const groundPromise = loadJsonResponse(
     input.groundUrl,
     "Ground context",
   );
-  const surfacesPromise = loadJsonPayload<SurfacePayload>(
+  const surfacesPromise = loadJsonResponse(
     input.surfacesUrl,
     "Surface polygon",
   );
@@ -193,6 +202,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     undefined,
     DESKTOP_TOTAL_BUILDING_LIMIT,
   );
+  prismPayload.buildings = [];
+  partition.initial.length = 0;
   if (partition.omitted.length > 0) {
     const startedAt = performance.now();
     postBatch(
@@ -201,6 +212,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       "buildings-distant",
       startedAt,
     );
+    partition.omitted.length = 0;
     batchCount += 1;
   }
   const buildingBatches = partition.remaining;
@@ -218,10 +230,12 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     );
   }
 
-  const [ground, surfaces] = await Promise.all([
+  const [groundResponse, surfacesResponse] = await Promise.all([
     groundPromise,
     surfacesPromise,
   ]);
+  const ground = (await groundResponse.json()) as VoxelPayload;
+  const surfaces = (await surfacesResponse.json()) as SurfacePayload;
   const terrainSample = smoothGroundTopSampler(ground);
   const terrainAt = (x: number, z: number): number =>
     terrainSample(
@@ -230,17 +244,41 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     );
   const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
   const bankY = waterTop + 5.35;
+  const streamedRoadKinds = new Set(["sand", "earth", "wood", "metal"]);
+  const roadsByKind = new Map<
+    string,
+    NonNullable<SurfacePayload["roads"]>
+  >();
+  for (const road of surfaces.roads ?? []) {
+    const kind = road.kind;
+    if (!kind || !streamedRoadKinds.has(kind)) continue;
+    const family = roadsByKind.get(kind);
+    if (family) family.push(road);
+    else roadsByKind.set(kind, [road]);
+  }
+  surfaces.roads = [];
   const postSurface = (
     family: Parameters<typeof surfaceFamilyPayload>[1],
   ): void => {
     const startedAt = performance.now();
+    const payload = surfaceFamilyPayload(surfaces, family);
+    const roadBatch = roadsByKind.get(family);
+    if (roadBatch) payload.roads = roadBatch;
     const root = createSmoothSurfaces(
-      surfaceFamilyPayload(surfaces, family),
+      payload,
       waterTop,
       bankY,
       terrainAt,
     );
     postBatch(root, "surfaces", `surface-${family}`, startedAt);
+    if (roadBatch) roadBatch.length = 0;
+    if (family === "water") {
+      surfaces.water = [];
+      surfaces.sunken_walls = [];
+    } else if (family === "parks") {
+      surfaces.parks = [];
+      surfaces.scrub_points = [];
+    }
     batchCount += 1;
   };
 
@@ -261,6 +299,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     "surface-lane-markings",
     markingStartedAt,
   );
+  surfaces.lane_markings = [];
   batchCount += 1;
   await yieldWorker();
 

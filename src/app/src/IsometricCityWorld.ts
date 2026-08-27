@@ -3711,6 +3711,19 @@ function createBridgeStructures(
     metal: 0xb9bcbb,
     structure: 0xdedacd,
   };
+  const bakeBridgeColor = (geometry: BufferGeometry, tone: Color): void => {
+    const count = geometry.getAttribute("position").count;
+    const colors = new Uint8Array(count * 3);
+    const red = Math.round(tone.r * 255);
+    const green = Math.round(tone.g * 255);
+    const blue = Math.round(tone.b * 255);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = red;
+      colors[index * 3 + 1] = green;
+      colors[index * 3 + 2] = blue;
+    }
+    geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
+  };
   const addPart = (
     triangles: Float32Array,
     tone: Color,
@@ -3718,15 +3731,7 @@ function createBridgeStructures(
   ): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bakeBridgeColor(geometry, tone);
     parts.push(geometry);
     if (inked) {
       edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
@@ -3735,15 +3740,7 @@ function createBridgeStructures(
   const addLamp = (triangles: Float32Array, tone: Color): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bakeBridgeColor(geometry, tone);
     lampParts.push(geometry);
   };
   const addMoltkeDetail = (
@@ -3753,15 +3750,7 @@ function createBridgeStructures(
   ): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bakeBridgeColor(geometry, tone);
     moltkeDetailParts.push(geometry);
     if (inked) {
       moltkeDetailEdges.push(
@@ -3779,15 +3768,8 @@ function createBridgeStructures(
     // as the griffin's faceted body bring UVs by default; stripping them keeps
     // their attribute contract compatible with the hand-built bridge meshes.
     geometry.deleteAttribute("uv");
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    geometry.deleteAttribute("normal");
+    bakeBridgeColor(geometry, tone);
     moltkeDetailParts.push(geometry);
     if (inked) {
       moltkeDetailEdges.push(
@@ -3799,15 +3781,7 @@ function createBridgeStructures(
   const addMoltkeDetailLamp = (triangles: Float32Array, tone: Color): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bakeBridgeColor(geometry, tone);
     moltkeDetailLampParts.push(geometry);
   };
   for (const cluster of clusters) {
@@ -9379,6 +9353,10 @@ export function createSmoothSurfaces(
         }
         position.needsUpdate = true;
       }
+      // Every plate created here uses MeshBasicMaterial in both day and night
+      // modes. Normals are therefore dead transfer/GPU data once draping is
+      // complete, and deleting them does not alter any rendered pixel.
+      geometry.deleteAttribute("normal");
       return geometry;
     };
     if (pretriangulated) {
@@ -9661,7 +9639,6 @@ export function createSmoothSurfaces(
       );
       const kerbGeometry = mergeVertices(rawKerbGeometry, 1e-4);
       rawKerbGeometry.dispose();
-      kerbGeometry.computeVertexNormals();
       const dayMaterial = new MeshBasicMaterial({
         color: 0xd7d4c8,
         side: DoubleSide,
@@ -9967,7 +9944,6 @@ export function createSmoothSurfaces(
     );
     const geometry = mergeVertices(rawGeometry, 1e-4);
     rawGeometry.dispose();
-    geometry.computeVertexNormals();
     const dayMaterial = new MeshBasicMaterial({
       side: DoubleSide,
       vertexColors: true,
@@ -10719,7 +10695,6 @@ function addBasinsAndSunkenWalls(
       "position",
       new Float32BufferAttribute(depthWallPositions, 3),
     );
-    geometry.computeVertexNormals();
     const dayMaterial = new MeshBasicMaterial({
       color: 0x9baaa1,
       side: DoubleSide,

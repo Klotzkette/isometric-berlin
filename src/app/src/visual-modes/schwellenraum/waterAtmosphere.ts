@@ -157,18 +157,16 @@ const PROTECTED_WATER_MASK_UNIFORMS = SCHWELLENRAUM_WATER_PROTECTED_MASKS.map(
 );
 
 const WATER_VERTEX_SHADER = /* glsl */ `
-  varying highp float vWaterUp;
+  varying highp vec3 vWaterWorldPosition;
   varying highp vec2 vWaterWorld;
 
   void main() {
     vec4 localPosition = vec4(position, 1.0);
-    vec3 localNormal = normal;
     #ifdef USE_INSTANCING
       localPosition = instanceMatrix * localPosition;
-      localNormal = mat3(instanceMatrix) * localNormal;
     #endif
     vec4 worldPosition = modelMatrix * localPosition;
-    vWaterUp = normalize(mat3(modelMatrix) * localNormal).y;
+    vWaterWorldPosition = worldPosition.xyz;
     vWaterWorld = worldPosition.xz;
     gl_Position = projectionMatrix * viewMatrix * worldPosition;
   }
@@ -181,7 +179,7 @@ const WATER_FRAGMENT_SHADER = /* glsl */ `
   uniform int uProtectedWaterMaskCount;
   uniform highp float uStrength;
   uniform highp float uTime;
-  varying highp float vWaterUp;
+  varying highp vec3 vWaterWorldPosition;
   varying highp vec2 vWaterWorld;
 
   highp float hash21(highp vec2 point) {
@@ -208,7 +206,16 @@ const WATER_FRAGMENT_SHADER = /* glsl */ `
     // Cylinder- and box-backed pools share their source geometry with the
     // overlay. Only the actual upward water top may glow; sides and undersides
     // stay untouched and therefore cannot create luminous rims below grade.
-    if (vWaterUp < 0.55) discard;
+    highp vec3 waterNormal = normalize(cross(
+      dFdx(vWaterWorldPosition),
+      dFdy(vWaterWorldPosition)
+    ));
+    waterNormal = faceforward(
+      waterNormal,
+      normalize(vWaterWorldPosition - cameraPosition),
+      waterNormal
+    );
+    if (waterNormal.y < 0.55) discard;
     highp vec2 point = vWaterWorld;
     if (isProtectedWaterPoint(point)) discard;
 

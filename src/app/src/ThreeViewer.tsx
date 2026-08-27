@@ -394,7 +394,10 @@ import {
   createSchwellenraumStaticPropCollision,
   installSchwellenraumStaticProps,
 } from "./visual-modes/schwellenraum/staticProps";
-import { installUnterDenLindenMedianRefinement } from "./visual-modes/schwellenraum/unterDenLindenMedian";
+import {
+  deriveUnterDenLindenMedianSamples,
+  installUnterDenLindenMedianSamples,
+} from "./visual-modes/schwellenraum/unterDenLindenMedian";
 import crispFragment from "./crisp.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import {
@@ -2813,14 +2816,16 @@ function ensureIsoWorld(
           return schwellenraumInteriorGroundAt(x, z, hint);
         };
         const terrainSample = smoothGroundTopSampler(ground);
+        const unterDenLindenMedianSamples =
+          deriveUnterDenLindenMedianSamples(surfaces);
         runtime.schwellenraumWorldDetailsInstaller = () => {
           installSchwellenraumStaticProps(
             runtime.schwellenraumPraesentation,
             pedestrianEnvironment.groundAt,
           );
-          installUnterDenLindenMedianRefinement(
+          installUnterDenLindenMedianSamples(
             runtime.schwellenraumPraesentation,
-            surfaces,
+            unterDenLindenMedianSamples,
             (x, z) =>
               terrainSample(
                 x / ground.cell_m - ground.grid.min_x_idx,
