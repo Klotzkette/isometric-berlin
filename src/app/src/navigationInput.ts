@@ -90,15 +90,25 @@ export function pedestrianMovementActivation(
   key: string,
   activationAt: number,
 ): PedestrianMovementActivation {
+  const activationKey =
+    key === "ArrowUp" || key === "w"
+      ? "forward"
+      : key === "ArrowDown" || key === "s"
+        ? "backward"
+        : key === "ArrowLeft" || key === "a"
+          ? "left"
+          : key === "ArrowRight" || key === "d"
+            ? "right"
+            : key;
   const elapsed = activationAt - previous.lastActivationAt;
   const continuesSequence =
-    previous.key === key &&
+    previous.key === activationKey &&
     previous.count > 0 &&
     elapsed >= 0 &&
     elapsed <= PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS;
   return {
     count: continuesSequence ? Math.min(3, previous.count + 1) : 1,
-    key,
+    key: activationKey,
     lastActivationAt: activationAt,
   };
 }

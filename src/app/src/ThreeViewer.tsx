@@ -23,6 +23,7 @@ import {
   Object3D,
   PerspectiveCamera,
   PCFShadowMap,
+  Raycaster,
   RingGeometry,
   Scene,
   Shape,
@@ -182,6 +183,8 @@ import {
   createPedestrianState,
   jumpPedestrian,
   lookPedestrian,
+  pedestrianPointIsBlocked,
+  pedestrianPointIsWater,
   pedestrianSpawnFromView,
   pedestrianViewDirection,
   setPedestrianYaw,
@@ -443,6 +446,13 @@ type ViewAngles = {
 
 export type LightingMode = VisualMode;
 
+export type PedestrianPose = {
+  headingDegrees: number;
+  insideTunnel: boolean;
+  x: number;
+  z: number;
+};
+
 type ThreeViewerProps = {
   active: boolean;
   canvasAriaLabel: string;
@@ -456,8 +466,8 @@ type ThreeViewerProps = {
   sceneUrl: string;
   selectedLandmark: string;
   onError: (message: string) => void;
+  onPedestrianPoseChange: (pose: PedestrianPose | null) => void;
   onPedestrianRespawn: () => void;
-  onPedestrianSprintToggle: () => void;
   onReady: () => void;
   onWarning: (message: string) => void;
   onViewChange: (angles: ViewAngles) => void;
@@ -873,6 +883,54 @@ const DEFAULT_TARGET = new Vector3(...DEFAULT_THREE_TARGET_WORLD);
 const DEFAULT_CAMERA_OFFSET = new Vector3(...DEFAULT_THREE_CAMERA_OFFSET);
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
+const PEDESTRIAN_CLICK_TELEPORT_FAR_M = 4_800;
+const PEDESTRIAN_CLICK_TELEPORT_IGNORED_NAME_PARTS = [
+  "Moderate rain",
+  "Snowstorm",
+  "selection marker",
+] as const;
+
+function objectAndAncestorsVisible(object: Object3D): boolean {
+  for (
+    let current: Object3D | null = object;
+    current;
+    current = current.parent
+  ) {
+    if (!current.visible) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function objectHasAncestor(object: Object3D, ancestor: Object3D): boolean {
+  for (
+    let current: Object3D | null = object;
+    current;
+    current = current.parent
+  ) {
+    if (current === ancestor) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function objectNameMatchesAnyAncestor(
+  object: Object3D,
+  nameParts: readonly string[],
+): boolean {
+  for (
+    let current: Object3D | null = object;
+    current;
+    current = current.parent
+  ) {
+    if (nameParts.some((part) => current.name.includes(part))) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function applyPedestrianCamera(runtime: Runtime): boolean {
   const state = runtime.pedestrian.state;
@@ -1140,6 +1198,7 @@ function setUnderwaterPresentation(
   if (underwater) {
     const deep = new Color(UNDERWATER_COLOR);
     runtime.scene.background = deep;
+    runtime.renderer.setClearColor(deep, 1);
     runtime.scene.fog = new Fog(deep.getHex(), 4, 240);
     // Underwater dims the whole plate a little; with no film curve this is
     // a straight linear scale, not a curve shift.
@@ -1231,6 +1290,7 @@ export function civicDetailsVisible(underside: boolean): boolean {
 
 function createSelectionMarker(): Group {
   const group = new Group();
+  group.name = "selection marker";
   const ring = new Mesh(
     new RingGeometry(1.5, 2.25, 48),
     new MeshBasicMaterial({
@@ -1748,6 +1808,7 @@ function setSceneLighting(
           ? SCHWELLENRAUM_SKY_COLOR
           : 0xdcf3f9;
   runtime.scene.background = new Color(sky);
+  runtime.renderer.setClearColor(sky, 1);
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
   // horizon. Only Minecraft keeps its genre haze.
@@ -3855,6 +3916,22 @@ function notifyView(
   });
 }
 
+function pedestrianPose(runtime: Runtime): PedestrianPose | null {
+  const state = runtime.pedestrian.state;
+  if (!runtime.pedestrian.enabled || !state) {
+    return null;
+  }
+  return {
+    headingDegrees: MathUtils.euclideanModulo(
+      MathUtils.radToDeg(state.yaw),
+      360,
+    ),
+    insideTunnel: state.insideTunnel,
+    x: state.x,
+    z: state.z,
+  };
+}
+
 function markerHeightForLandmark(name: string): number {
   switch (name) {
     case "Reichstagsgebäude":
@@ -4038,8 +4115,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sceneUrl,
       selectedLandmark,
       onError,
+      onPedestrianPoseChange,
       onPedestrianRespawn,
-      onPedestrianSprintToggle,
       onReady,
       onWarning,
       onViewChange,
@@ -4069,13 +4146,51 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const nightLightsOnRef = useRef(nightLightsOn);
     const precipitationEnabledRef = useRef(precipitationEnabled);
     const onErrorRef = useRef(onError);
+    const onPedestrianPoseChangeRef = useRef(onPedestrianPoseChange);
     const onPedestrianRespawnRef = useRef(onPedestrianRespawn);
-    const onPedestrianSprintToggleRef = useRef(onPedestrianSprintToggle);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
     const [progress, setProgress] = useState({ loaded: 0, total: 1 });
     const [presentationReady, setPresentationReady] = useState(false);
+    const pedestrianPoseEmissionRef = useRef({
+      key: "off",
+      lastAt: Number.NEGATIVE_INFINITY,
+    });
+
+    const emitPedestrianPose = (
+      runtime: Runtime,
+      force = false,
+      timestamp = performance.now(),
+    ): void => {
+      const pose = pedestrianPose(runtime);
+      if (!pose) {
+        if (pedestrianPoseEmissionRef.current.key !== "off" || force) {
+          pedestrianPoseEmissionRef.current = { key: "off", lastAt: timestamp };
+          onPedestrianPoseChangeRef.current(null);
+        }
+        return;
+      }
+      const key = `${Math.round(pose.x * 2)}:${Math.round(
+        pose.z * 2,
+      )}:${Math.round(pose.headingDegrees)}:${pose.insideTunnel ? 1 : 0}`;
+      if (
+        !force &&
+        key === pedestrianPoseEmissionRef.current.key &&
+        timestamp - pedestrianPoseEmissionRef.current.lastAt < 700
+      ) {
+        return;
+      }
+      if (
+        !force &&
+        key !== pedestrianPoseEmissionRef.current.key &&
+        timestamp - pedestrianPoseEmissionRef.current.lastAt < 140
+      ) {
+        return;
+      }
+      pedestrianPoseEmissionRef.current = { key, lastAt: timestamp };
+      onPedestrianPoseChangeRef.current(pose);
+    };
 
     useEffect(() => {
       activeRef.current = active;
@@ -4102,6 +4217,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       } else {
         deactivatePedestrianMode(runtime);
       }
+      emitPedestrianPose(runtime, true);
     }, [pedestrianMode]);
 
     useEffect(() => {
@@ -4172,15 +4288,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
     useEffect(() => {
       onErrorRef.current = onError;
+      onPedestrianPoseChangeRef.current = onPedestrianPoseChange;
       onPedestrianRespawnRef.current = onPedestrianRespawn;
-      onPedestrianSprintToggleRef.current = onPedestrianSprintToggle;
       onReadyRef.current = onReady;
       onWarningRef.current = onWarning;
       onViewChangeRef.current = onViewChange;
     }, [
       onError,
+      onPedestrianPoseChange,
       onPedestrianRespawn,
-      onPedestrianSprintToggle,
       onReady,
       onWarning,
       onViewChange,
@@ -4312,6 +4428,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           if (runtime.pedestrian.enabled) {
             nudgePedestrian(runtime, strafe, forward);
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
             return;
           }
@@ -4332,6 +4449,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.pedestrian.cameraDirty = true;
             applyPedestrianCamera(runtime);
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
             return;
           }
@@ -4357,6 +4475,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.pedestrian.cameraDirty = true;
             applyPedestrianCamera(runtime);
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
             return;
           }
@@ -4450,6 +4569,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.pedestrian.cameraDirty = true;
             applyPedestrianCamera(runtime);
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
             return;
           }
@@ -4474,7 +4594,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ? activatePedestrianMode(runtime)
             : deactivatePedestrianMode(runtime);
           if (changed) {
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
+          }
+          if (!changed) {
+            emitPedestrianPose(runtime, true);
           }
           return changed;
         },
@@ -4538,6 +4662,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.pedestrian.cameraDirty = true;
             applyPedestrianCamera(runtime);
+            emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);
             return;
           }
@@ -4624,11 +4749,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
       renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
-      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.enabled = !coarsePointer;
       // PCF filtering removes the hard one-texel shadow crawl that otherwise
       // reads as a second outline while the camera moves across detailed roofs.
       renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(1);
+      renderer.setClearColor(0xdcf3f9, 1);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("aria-label", canvasAriaLabel);
@@ -4645,7 +4771,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const sun = new DirectionalLight(0xfff8ea, 0.62);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
-      sun.shadow.mapSize.set(2048, 2048);
+      sun.shadow.mapSize.set(1536, 1536);
       sun.shadow.camera.left = -1100;
       sun.shadow.camera.right = 1100;
       sun.shadow.camera.top = 1300;
@@ -4902,15 +5028,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastViewerTapX = 0;
       let lastViewerTapY = 0;
       let lastPedestrianTap: PedestrianTouchTap | null = null;
-      let lastPedestrianSprintToggleAt = Number.NEGATIVE_INFINITY;
-      const requestPedestrianSprintToggle = () => {
-        const now = performance.now();
-        if (now - lastPedestrianSprintToggleAt < 400) {
-          return;
-        }
-        lastPedestrianSprintToggleAt = now;
-        onPedestrianSprintToggleRef.current();
-      };
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       const lastDirectControlCamera = camera.position.clone();
@@ -5010,6 +5127,104 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.maxDistance,
         );
         reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
+      };
+      const clickTeleportRaycaster = new Raycaster();
+      clickTeleportRaycaster.far = PEDESTRIAN_CLICK_TELEPORT_FAR_M;
+      const clickTeleportNdc = new Vector2();
+      const teleportPedestrianToClientPoint = (point: {
+        x: number;
+        y: number;
+      }): boolean => {
+        const environment = runtime.pedestrian.environment;
+        const currentState = runtime.pedestrian.state;
+        if (!runtime.pedestrian.enabled || !environment || !currentState) {
+          return false;
+        }
+        const rect = renderer.domElement.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) {
+          return false;
+        }
+        clickTeleportNdc.set(
+          ((point.x - rect.left) / rect.width) * 2 - 1,
+          -((point.y - rect.top) / rect.height) * 2 + 1,
+        );
+        clickTeleportRaycaster.setFromCamera(clickTeleportNdc, camera);
+        const intersections = clickTeleportRaycaster.intersectObjects(
+          runtime.scene.children,
+          true,
+        );
+        for (const intersection of intersections) {
+          if (
+            !objectAndAncestorsVisible(intersection.object) ||
+            objectHasAncestor(intersection.object, runtime.marker) ||
+            objectNameMatchesAnyAncestor(
+              intersection.object,
+              PEDESTRIAN_CLICK_TELEPORT_IGNORED_NAME_PARTS,
+            )
+          ) {
+            continue;
+          }
+          const { x, y, z } = intersection.point;
+          if (
+            !Number.isFinite(x) ||
+            !Number.isFinite(y) ||
+            !Number.isFinite(z) ||
+            x < environment.bounds.minX ||
+            x > environment.bounds.maxX ||
+            z < environment.bounds.minZ ||
+            z > environment.bounds.maxZ
+          ) {
+            continue;
+          }
+          const targetGround =
+            environment.resolveGround?.(x, z, currentState.groundLayer, y) ??
+            (() => {
+              const groundY = environment.groundAt(x, z);
+              return groundY === null
+                ? null
+                : ({
+                    insideTunnel: false,
+                    layer: "surface",
+                    y: groundY,
+                  } as const);
+            })();
+          if (targetGround === null) {
+            continue;
+          }
+          const nextState = createPedestrianState(environment, {
+            groundYHint: y,
+            pitch: currentState.pitch,
+            x,
+            yaw: currentState.yaw,
+            z,
+          });
+          if (
+            pedestrianPointIsBlocked(
+              nextState.x,
+              nextState.z,
+              nextState.groundY,
+              environment.obstacles,
+              environment,
+            ) ||
+            (nextState.groundLayer === "surface" &&
+              pedestrianPointIsWater(
+                nextState.x,
+                nextState.z,
+                environment.water,
+              ))
+          ) {
+            continue;
+          }
+          const wasInsideTunnel = currentState.insideTunnel;
+          runtime.pedestrian.state = nextState;
+          runtime.pedestrian.cameraDirty = true;
+          if (nextState.insideTunnel !== wasInsideTunnel) {
+            syncPedestrianTunnelPresentation(runtime, nextState.insideTunnel);
+          }
+          applyPedestrianCamera(runtime);
+          return true;
+        }
+        return false;
       };
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
       let wheelEndTimer: number | null = null;
@@ -5553,12 +5768,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.pedestrian.enabled) {
           // A touch double-tap is the jump gesture. Ignore the synthetic
           // mouse dblclick that some mobile browsers dispatch afterwards so
-          // the same gesture never toggles sprint as a side effect.
+          // the same gesture stays a jump.
           if (performance.now() - lastTouchActivityAt < 700) {
             return;
           }
-          requestPedestrianSprintToggle();
-          markSurfaceInteraction(runtime);
+          if (
+            teleportPedestrianToClientPoint({
+              x: event.clientX,
+              y: event.clientY,
+            })
+          ) {
+            pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+            markSurfaceInteraction(runtime, 260);
+            emitPedestrianPose(runtime, true);
+            notifyView(runtime, onViewChangeRef.current);
+          }
           return;
         }
         zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
@@ -5865,6 +6089,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const pedestrianMoving = applyContinuousPedestrian(dtSeconds);
+        if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+          emitPedestrianPose(runtime, false, timestamp);
+        }
         const panning = runtime.pedestrian.enabled
           ? false
           : applyContinuousPan(dtSeconds);

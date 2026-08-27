@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.72.31
+
+- **Der Viewer bleibt beim Laden und Wechseln sichtbar statt schwarz.** Eine
+  leichte, source-derived Regierungsviertel-Referenzkarte liegt nun unter 2D-
+  und 3D-Startflächen, die Startkurve nutzt denselben statischen Hintergrund
+  und WebGL leert direkt in die jeweilige Modusfarbe. Tag, Nacht, Minecraft,
+  Schneesturm, Schwellenraum und Unterwasser erhalten damit keine
+  browser-schwarze Zwischenfläche; der fotografische Alt-Fallback bleibt
+  weiterhin vollständig entfernt.
+- **Die progressive Stadt läuft auf Desktop und Mobil flüssiger.** Kleinere
+  erste Exaktfenster, qualitätsstabile DPR-Kappen, abgeschaltete
+  Touch-Schatten und in 320er-Gruppen gestreamte Parkflächen senken
+  Hauptthreadspitzen und Speicher, ohne die vollständige Gebäudeabdeckung
+  zurückzunehmen. Im warmen Produktionsbenchmark bleiben alle 29.818
+  Quellgebäude sichtbar; die exakte Verfeinerung liegt bei etwa 4,87 s, der
+  wiederholte Batch-Anhang bei rund 2,5 ms p95 und die stetige Geometrie bei
+  etwa 85,9 MiB.
+- **Der Spaziergang behält die neuen direkten Bewegungsformen.** WASD und
+  Pfeiltasten teilen dieselbe Richtungslogik, Dreifachtippen löst den
+  Super-Runner-Modus aus, Doppelklick springt im Fußgängermodus an den
+  angeklickten Bodenpunkt und die neue Mini-Karte bleibt als Orientierung in
+  der rechten unteren Ecke sichtbar.
+
 ## v0.72.30
 
 - **Kulturforum und Potsdamer Platz erhalten präzisere, quellgebundene

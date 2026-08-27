@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.30 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.30/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.31 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.31/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.30** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.31** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,26 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.30**, built from `main`. Its full viewer
+The current public package is **v0.72.31**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Startup and mode switches keep a visible city plate instead of ever
+  flashing black.** The viewer now keeps a tiny static Regierungsviertel
+  reference map under both OpenSeadragon and Three.js, paints the loading
+  curtain with the same source-derived backdrop, and clears WebGL directly to
+  the active mode colour. This is a procedural/static fallback only; no retired
+  photo world or texture surface is bundled or requested.
+
+- **The progressive city is more liquid on desktop and touch devices.** The
+  first exact building frame is smaller, park surface families stream in
+  bounded chunks, and coarse-pointer shadow work is reduced while the stable
+  1.75x desktop and 1.35x touch pixel-quality caps remain intact. All source
+  buildings remain visible through the measured distant shell. In the warm
+  production benchmark, exact refinement settles in about 4.87 seconds,
+  repeated batch attachment stays around 2.5 ms p95, and steady geometry falls
+  to about 85.9 MiB.
 
 - **Walking starts at the exact place currently under the camera.** Activating
   pedestrian mode transfers the live orbit/free-camera focus, current heading,

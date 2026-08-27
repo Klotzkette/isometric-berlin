@@ -55,6 +55,7 @@ import {
 import type OpenSeadragon from "openseadragon";
 import {
   Suspense,
+  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -66,11 +67,13 @@ import {
   useState,
 } from "react";
 
-import type { ThreeViewerHandle } from "./ThreeViewer";
+import type { PedestrianPose, ThreeViewerHandle } from "./ThreeViewer";
+import type { PedestrianMiniMapHandle } from "./PedestrianMiniMap";
 import {
   ThreeViewerErrorBoundary,
   ThreeViewerLoadErrorFallback,
 } from "./ThreeViewerErrorBoundary";
+import { PedestrianMiniMap } from "./PedestrianMiniMap";
 import {
   AmbientSoundscape,
   isAmbientAudioSupported,
@@ -300,6 +303,10 @@ function assetPath(path: string): string {
   }
   const base = import.meta.env.BASE_URL || "./";
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
+}
+
+function cssUrl(path: string): string {
+  return `url(${JSON.stringify(path)})`;
 }
 
 function regierungsviertelTileSource(): string {
@@ -720,6 +727,8 @@ export function App() {
   const brandRevealTimerRef = useRef<number | null>(null);
   const minecraftSparkTimerRef = useRef<number | null>(null);
   const activeThreeViewerKeyRef = useRef("");
+  const latestPedestrianPoseRef = useRef<PedestrianPose | null>(null);
+  const pedestrianMiniMapRef = useRef<PedestrianMiniMapHandle | null>(null);
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
@@ -818,6 +827,13 @@ export function App() {
     () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
   );
+  const viewerStaticBackdropStyle = useMemo(
+    () =>
+      ({
+        "--viewer-static-backdrop-image": cssUrl(referenceMapUrl),
+      }) as CSSProperties,
+    [referenceMapUrl],
+  );
   const selectedLandmark = useMemo(
     () =>
       landmarks.find((landmark) => landmark.name === selected) ??
@@ -862,6 +878,14 @@ export function App() {
     setIsPedestrianMode(false);
     threeViewerRef.current?.setPedestrianMode(false);
   }, []);
+
+  const handlePedestrianPoseChange = useCallback(
+    (pose: PedestrianPose | null) => {
+      latestPedestrianPoseRef.current = pose;
+      pedestrianMiniMapRef.current?.setPose(pose);
+    },
+    [],
+  );
 
   const focusLandmark = useCallback(
     (landmark: Landmark, immediate = false) => {
@@ -1625,6 +1649,13 @@ export function App() {
     setIsLandmarkRailOpen(false);
     setMobileSheet(null);
   }, [isCompactLayout]);
+
+  useEffect(() => {
+    if (viewerMode !== "three" || !isPedestrianMode) {
+      latestPedestrianPoseRef.current = null;
+      pedestrianMiniMapRef.current?.setPose(null);
+    }
+  }, [isPedestrianMode, viewerMode]);
 
   const applyRotation = useCallback(
     (degrees: number) => {
@@ -2585,7 +2616,11 @@ export function App() {
                 key: "",
                 lastActivationAt: 0,
               };
-              togglePedestrianFastRun();
+              if (!pedestrianFastRunLockedRef.current) {
+                togglePedestrianFastRun();
+              } else {
+                setStatus(copy.pedestrianFastRunOn);
+              }
               paceToggled = true;
             } else if (
               activation.count === 2 &&
@@ -3236,12 +3271,14 @@ export function App() {
       <section
         className="map-stage"
         data-viewer-mode={viewerMode}
+        style={viewerStaticBackdropStyle}
         aria-label={
           language === "de"
             ? "Isometrische Berlin-Karte"
             : "Isometric Berlin map"
         }
       >
+        <div className="viewer-static-backdrop" aria-hidden="true" />
         <div
           id="openseadragon-viewer"
           ref={containerRef}
@@ -3327,6 +3364,7 @@ export function App() {
                     threeViewerInstanceKey,
                   );
                 }}
+                onPedestrianPoseChange={handlePedestrianPoseChange}
                 onPedestrianRespawn={() => {
                   setStatus(
                     language === "de"
@@ -3334,7 +3372,6 @@ export function App() {
                       : "Water is not walkable · remained at the shoreline",
                   );
                 }}
-                onPedestrianSprintToggle={togglePedestrianSprint}
                 onWarning={(message) => {
                   setStatus(
                     `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
@@ -3808,6 +3845,23 @@ export function App() {
             onInput={setOrbitInput}
           />
         </div>
+      ) : null}
+
+      {viewerMode === "three" && isPedestrianMode && !isChromeHidden ? (
+        <PedestrianMiniMap
+          ref={pedestrianMiniMapRef}
+          imageUrl={referenceMapUrl}
+          initialPose={latestPedestrianPoseRef.current}
+          language={language}
+          northUpRotation={NORTH_UP_ROTATION}
+          onOrientationChange={applyRotation}
+          orientationDegrees={rotation}
+          orientations={ORIENTATIONS.map((candidate) => ({
+            degrees: candidate.degrees,
+            label: orientationLabel(candidate.short, language),
+            short: candidate.short,
+          }))}
+        />
       ) : null}
 
       {viewerMode === "three" && isPedestrianMode && !isChromeHidden ? (

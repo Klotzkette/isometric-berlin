@@ -270,20 +270,20 @@ recognition-detail construction. Procedural audio graph preparation and its
 autoplay attempt run only after the first app-shell paint.
 
 The drawn city itself is progressive. Non-touch desktop constructs the nearest
-exact 700 LoD2/OSM buildings on the main thread. Its Worker retains exact
-geometry for the nearest 12,000 source buildings and represents every farther
+exact 420 LoD2/OSM buildings on the main thread. Its Worker retains exact
+geometry for the nearest 9,000 source buildings and represents every farther
 building as one measured, oriented, source-coloured instance shell. The desktop Worker
 receives immutable URLs for the prism, ground and surface assets instead of a
 second structured clone of three decoded world graphs. It fetches and parses
 those assets off the main thread, sends the permanent distant shell followed
-by three compact near-field previews, and then replaces those previews with
-three spatially partitioned exact districts.
+by two compact near-field previews, and then replaces those previews with
+bounded spatially partitioned exact districts.
 Their transferred bounding spheres avoid a fresh main-thread geometry scan and
 allow Three.js to cull off-camera districts as units. The nearest deferred exact
 district is posted before terrain and surface decoding. The mobile-like touch
 profile applies when the primary or any pointer is coarse, or the browser
-reports `navigator.maxTouchPoints > 0`; it constructs an initial 320-building frame and stops
-after exact geometry for the nearest **5,000 LoD2 buildings**. Every eligible
+reports `navigator.maxTouchPoints > 0`; it constructs an initial 160-building frame and stops
+after exact geometry for the nearest **3,600 LoD2 buildings**. Every eligible
 source building beyond that near field remains visible as a measured, oriented,
 source-coloured instance shell. Both profiles retain the complete ground, the
 complete building inventory and every one-off recognition model.
@@ -304,14 +304,15 @@ failure never invokes the old synchronous full-city build.
 
 Both profiles retain raster asphalt rather than duplicating the OSM road union
 as paving, asphalt and kerb meshes. The Worker transfers water, park, sand,
-earth, wood, metal and source lane-marking families; ParkDetails supplies the
-complete authored path network. On the warm v0.72.30 production benchmark,
-every source-building silhouette is present after about 1.6 seconds, exact
-refinement settles after about 6.14 seconds, the largest repeated main-thread
-attachment is 5.7 ms, conservative peak RSS is 1,134.1 MiB and steady geometry
-is 106.8 MiB across 187 estimated draw calls and 7,304,079 vertices. The
-v0.72.29 baseline measured 1,293.4 MiB peak RSS and 133.8 MiB geometry with the
-same complete building inventory.
+earth, wood, metal and source lane-marking families, splitting large park
+families into bounded chunks; ParkDetails supplies the complete authored path
+network. On the warm v0.72.31 production benchmark, every source-building
+silhouette is present after about 1.6 seconds, exact refinement settles after
+about 4.87 seconds, repeated main-thread attachment is about 2.5 ms p95,
+conservative peak RSS is 971.3 MiB and steady geometry is 85.9 MiB across 199
+estimated draw calls and 5,778,033 vertices. The v0.72.30 baseline measured
+1,134.1 MiB peak RSS and 106.8 MiB geometry with the same complete building
+inventory.
 
 Every underside view keeps the authored tunnel/network geometry. Optional park details wait until the first
 usable city frame in a drawn presentation. Core JSON transfers have a finite

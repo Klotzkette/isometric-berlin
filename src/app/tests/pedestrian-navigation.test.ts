@@ -173,7 +173,7 @@ describe("pedestrian navigation", () => {
     expect(isPedestrianSprintDoubleActivation(1_000, 999)).toBe(false);
   });
 
-  test("counts three quick presses only for the same movement key", () => {
+  test("counts three quick presses only for the same movement direction", () => {
     const first = pedestrianMovementActivation(
       { count: 0, key: "", lastActivationAt: 0 },
       "ArrowUp",
@@ -182,7 +182,8 @@ describe("pedestrian navigation", () => {
     const second = pedestrianMovementActivation(first, "ArrowUp", 1_339);
     const third = pedestrianMovementActivation(second, "ArrowUp", 1_678);
     expect([first.count, second.count, third.count]).toEqual([1, 2, 3]);
-    expect(pedestrianMovementActivation(second, "w", 1_500).count).toBe(1);
+    expect(pedestrianMovementActivation(second, "w", 1_500).count).toBe(3);
+    expect(pedestrianMovementActivation(second, "s", 1_500).count).toBe(1);
     expect(
       pedestrianMovementActivation(second, "ArrowUp", 1_680).count,
     ).toBe(1);

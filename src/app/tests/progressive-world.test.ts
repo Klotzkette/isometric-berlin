@@ -44,6 +44,7 @@ import {
   progressiveHeavyRoadPlatesEnabled,
   releaseProgressiveWorldBatches,
   splitProgressiveBuildings,
+  splitParkSurfaceFamily,
   splitRoadSurfaceFamily,
   surfaceFamilyPayload,
   tryProgressiveWorkerOperation,
@@ -299,6 +300,8 @@ describe("progressive exact-world scheduling", () => {
     expect(workerDesktopBranch).toContain("surfaces.water = []");
     expect(workerDesktopBranch).toContain("surfaces.parks = []");
     expect(workerDesktopBranch).toContain("surfaces.lane_markings = []");
+    expect(workerDesktopBranch).toContain("splitParkSurfaceFamily(");
+    expect(workerDesktopBranch).toContain("surface-parks-${index + 1}");
     expect(workerDesktopBranch).toContain("surface-lane-markings");
     expect(workerDesktopBranch.indexOf("groundResponse.json()")).toBeGreaterThan(
       workerDesktopBranch.indexOf("[nearestBuildingBatch]"),
@@ -607,6 +610,42 @@ describe("progressive exact-world scheduling", () => {
     expect(water.water).toBe(source.water);
   });
 
+  test("streams park surfaces without duplicating scrub samples", () => {
+    const park = (kind: "garden" | "lawn") => ({
+      area_m2: 10,
+      holes: [],
+      kind,
+      name: kind,
+      ring: [
+        [0, 0],
+        [10, 0],
+        [10, 10],
+        [0, 10],
+      ],
+    });
+    const source: SurfacePayload = {
+      lane_markings: [],
+      parks: Array.from({ length: 5 }, (_, index) =>
+        park(index === 4 ? "garden" : "lawn"),
+      ),
+      roads: [],
+      schema_version: 1,
+      scrub_points: [
+        [1, 2, 3, 4, 0],
+        [5, 6, 7, 8, 1],
+      ],
+      sunken_walls: [],
+      water: [],
+    };
+    const batches = splitParkSurfaceFamily(source, 2);
+    expect(batches.map((batch) => batch.parks.length)).toEqual([2, 2, 1]);
+    expect(batches[0].scrub_points).toBe(source.scrub_points);
+    expect(batches.slice(1).every((batch) => batch.scrub_points?.length === 0))
+      .toBeTrue();
+    expect(batches.every((batch) => batch.roads?.length === 0)).toBeTrue();
+    expect(batches.every((batch) => batch.water.length === 0)).toBeTrue();
+  });
+
   test("bounds paving tessellation while covering every source polygon once", () => {
     const roads = Array.from({ length: 251 }, (_, index) => ({
       area_m2: 10,
@@ -795,11 +834,11 @@ describe("progressive exact-world scheduling", () => {
       });
       group.clear();
     }
-    // Exact production geometry is retained in three spatial batches; all
+    // Exact production geometry is retained in two spatial batches; all
     // remaining buildings are represented by one shared instanced shell.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(5_278_474);
+    expect(vertices).toBe(3_748_066);
     expect(largestBatchArea).toBeLessThan(11 * 1_000_000);
   });
 });

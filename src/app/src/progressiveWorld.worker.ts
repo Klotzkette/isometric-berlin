@@ -13,6 +13,7 @@ import {
   DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_TOTAL_BUILDING_LIMIT,
   splitProgressiveBuildings,
+  splitParkSurfaceFamily,
   surfaceFamilyPayload,
   type ProgressiveWorldWorkerInput,
   type ProgressiveWorldWorkerOutput,
@@ -257,35 +258,42 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     else roadsByKind.set(kind, [road]);
   }
   surfaces.roads = [];
-  const postSurface = (
-    family: Parameters<typeof surfaceFamilyPayload>[1],
-  ): void => {
+  const postSurfacePayload = (payload: SurfacePayload, id: string): void => {
     const startedAt = performance.now();
-    const payload = surfaceFamilyPayload(surfaces, family);
-    const roadBatch = roadsByKind.get(family);
-    if (roadBatch) payload.roads = roadBatch;
     const root = createSmoothSurfaces(
       payload,
       waterTop,
       bankY,
       terrainAt,
     );
-    postBatch(root, "surfaces", `surface-${family}`, startedAt);
+    postBatch(root, "surfaces", id, startedAt);
+    batchCount += 1;
+  };
+  const postSurface = (
+    family: Parameters<typeof surfaceFamilyPayload>[1],
+  ): void => {
+    const payload = surfaceFamilyPayload(surfaces, family);
+    const roadBatch = roadsByKind.get(family);
+    if (roadBatch) payload.roads = roadBatch;
+    postSurfacePayload(payload, `surface-${family}`);
     if (roadBatch) roadBatch.length = 0;
     if (family === "water") {
       surfaces.water = [];
       surfaces.sunken_walls = [];
-    } else if (family === "parks") {
-      surfaces.parks = [];
-      surfaces.scrub_points = [];
     }
-    batchCount += 1;
   };
 
   // Water, lawns and the small special-surface families establish the map
   // reading without duplicating the raster streets and authored park paths.
   postSurface("water");
-  postSurface("parks");
+  for (const [index, payload] of splitParkSurfaceFamily(
+    surfaces,
+  ).entries()) {
+    postSurfacePayload(payload, `surface-parks-${index + 1}`);
+    await yieldWorker();
+  }
+  surfaces.parks = [];
+  surfaces.scrub_points = [];
   postSurface("sand");
   postSurface("earth");
   postSurface("wood");

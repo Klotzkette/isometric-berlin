@@ -461,9 +461,12 @@ def test_adlon_and_starbucks_references_are_pinned_and_publicly_packaged() -> No
   public_records = {record["title"]: record for record in public["records"]}
   readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
 
-  for title, (landmark_id, artist, license_name, license_url) in (
-    ADLON_AND_STARBUCKS_REFERENCES.items()
-  ):
+  for title, (
+    landmark_id,
+    artist,
+    license_name,
+    license_url,
+  ) in ADLON_AND_STARBUCKS_REFERENCES.items():
     assert fw.PINNED_FILE_REFERENCES[title] == landmark_id
     record = records[title]
     assert record["landmark_id"] == landmark_id

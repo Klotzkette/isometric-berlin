@@ -7,28 +7,29 @@ import type { TunnelPortalCourseInput } from "./TunnelPortals";
 import type { TransferObject3D } from "./transferableObject3D";
 import type { VisualMode } from "./visualMode";
 
-export const DESKTOP_INITIAL_BUILDING_COUNT = 700;
-export const MOBILE_INITIAL_BUILDING_COUNT = 320;
+export const DESKTOP_INITIAL_BUILDING_COUNT = 420;
+export const MOBILE_INITIAL_BUILDING_COUNT = 160;
 /**
  * Every profile keeps all source buildings visible. The nearest buildings use
  * exact LoD2 geometry while the remainder stays present as a compact,
  * mode-aware instanced shell. This caps retained CPU/GPU buffers without
  * opening holes in the city at overview distance.
  */
-export const DESKTOP_TOTAL_BUILDING_LIMIT = 12_000;
-export const MOBILE_TOTAL_BUILDING_LIMIT = 5_000;
+export const DESKTOP_TOTAL_BUILDING_LIMIT = 9_000;
+export const MOBILE_TOTAL_BUILDING_LIMIT = 3_600;
 /**
  * The initial near field stays deliberately small, but retaining forty-two
  * 700-building meshes forever multiplied the LoD2 core from 11 draw calls to
  * more than 250. Five-thousand-building Worker batches remain cheap to
- * deserialize, cap the current payload at six follow-up groups and avoid a
+ * deserialize, cap the current payload at two follow-up groups and avoid a
  * single very large GPU upload.
  */
 export const PROGRESSIVE_BUILDING_BATCH_SIZE = 5_000;
-export const MAX_PROGRESSIVE_BUILDING_BATCHES = 3;
+export const MAX_PROGRESSIVE_BUILDING_BATCHES = 2;
+export const PARK_POLYGON_BATCH_SIZE = 320;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
-export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 600;
-export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 60;
+export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 360;
+export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 30;
 
 type ProgressiveWorldWorkerInputBase = {
   initialBuildingCount: number;
@@ -319,6 +320,36 @@ export function surfaceFamilyPayload(
     sunken_walls: family === "water" ? source.sunken_walls : [],
     water: family === "water" ? source.water : [],
   };
+}
+
+/**
+ * Large park unions are the Worker's remaining transient-memory spike. Keep
+ * the exact same source polygons and scrub samples, but stream the draped lawn
+ * plates in smaller chunks so Earcut/Tessellate never own the whole Tiergarten
+ * surface family at once. Scrub samples are independent of polygon batches and
+ * are emitted exactly once with the first park batch.
+ */
+export function splitParkSurfaceFamily(
+  source: SurfacePayload,
+  batchSize = PARK_POLYGON_BATCH_SIZE,
+): SurfacePayload[] {
+  const isolated = surfaceFamilyPayload(source, "parks");
+  const parks = isolated.parks ?? [];
+  const boundedBatch = Math.max(1, Math.floor(batchSize));
+  if (parks.length === 0) {
+    return (isolated.scrub_points ?? []).length > 0
+      ? [{ ...isolated, parks: [], scrub_points: isolated.scrub_points }]
+      : [];
+  }
+  const batches: SurfacePayload[] = [];
+  for (let offset = 0; offset < parks.length; offset += boundedBatch) {
+    batches.push({
+      ...isolated,
+      parks: parks.slice(offset, offset + boundedBatch),
+      scrub_points: offset === 0 ? isolated.scrub_points : [],
+    });
+  }
+  return batches;
 }
 
 /**
