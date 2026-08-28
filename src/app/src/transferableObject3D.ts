@@ -304,6 +304,26 @@ function deserializeMaterial(descriptor: MaterialJson): Material {
   return new MaterialLoader().parse(descriptor);
 }
 
+function repairTransferredInstanceColorMaterials(object: Object3D): void {
+  if (
+    !(object instanceof InstancedMesh) ||
+    !object.instanceColor ||
+    object.geometry.getAttribute("color")
+  ) {
+    return;
+  }
+  for (const material of objectMaterialsIncludingTransferredAlternates(object)) {
+    if (!("vertexColors" in material) || material.vertexColors !== true) {
+      continue;
+    }
+    // Legacy progressive workers enabled both instanceColor and vertexColors
+    // on plain BoxGeometry. Three.js then multiplied the valid instance tint by
+    // a missing vertex colour and rendered entire building batches black.
+    material.vertexColors = false;
+    material.needsUpdate = true;
+  }
+}
+
 function deserializeObject(descriptor: TransferObject3D): Object3D {
   const geometry = descriptor.geometry
     ? deserializeGeometry(descriptor.geometry)
@@ -364,6 +384,7 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
       object.userData[key] = deserializeMaterial(alternate);
     }
   }
+  repairTransferredInstanceColorMaterials(object);
   object.matrix.fromArray(descriptor.matrix);
   object.matrix.decompose(object.position, object.quaternion, object.scale);
   object.matrixAutoUpdate = descriptor.matrixAutoUpdate;

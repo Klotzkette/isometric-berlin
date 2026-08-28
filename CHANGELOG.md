@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.72.33
+
+- **Gebäudekörper bleiben auch bei alten oder gemischten Worker-Payloads
+  farbig.** Die Three.js-Transfergrenze erkennt instanzgefärbte Geometrie ohne
+  gewöhnliches Vertex-Farbattribut und entfernt dort den fehlerhaften zweiten
+  Farbmultiplikator aus Tag-, Nacht- und Schwellenraum-Materialien. Damit kann
+  ein noch zwischengespeicherter progressiver Payload keine ganzen LoD2-
+  Gebäudebatches mehr schwarz darstellen.
+- **Der Schutz ist gezielt und kostenneutral.** Tatsächliche Vertex-Farben
+  bleiben unangetastet; es entstehen keine Texturen, Geometrien, Draw Calls
+  oder zusätzlichen Netzwerkanfragen. Ein Transfer-Regressionstest bildet den
+  fehlerhaften Altstand ausdrücklich nach und sichert alle Materialvarianten.
+- **Der korrigierte Stand ist auf Desktop und Mobil geprüft.** Alle 1.286
+  App-Tests mit 6.204.373 Assertions, 338 Python-Tests, 45 gezielten
+  Readiness-Tests und 21 Pakettests bestehen. Der Produktionsbenchmark bleibt
+  bei 199 Draw Calls und 85,9 MiB Geometrie; Build, Offline-Paket-Smoke und die
+  Browser-QA an der Gemäldegalerie zeigen keine schwarzen Gebäudeflächen.
+
 ## v0.72.32
 
 - **Die bisher generischen Gebäude an den fünf verlangten Stadträumen

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry,
   BufferGeometry,
+  Color,
   Group,
   InstancedMesh,
   LineBasicMaterial,
@@ -215,6 +216,35 @@ describe("progressive exact-world scheduling", () => {
     expect(
       Math.min(...Array.from(restoredShells.instanceColor!.array.slice(0, 3))),
     ).toBeGreaterThan(0);
+  });
+
+  test("repairs black legacy building shells after worker transfer", () => {
+    const legacyShell = new InstancedMesh(
+      new BoxGeometry(1, 1, 1),
+      new MeshBasicMaterial({ vertexColors: true }),
+      1,
+    );
+    legacyShell.setMatrixAt(0, new Matrix4());
+    legacyShell.setColorAt(
+      0,
+      new Color(ARCHITECTURAL_INK_PALETTE.facadeConcrete),
+    );
+    legacyShell.userData.dayMaterial = legacyShell.material;
+    legacyShell.userData.nightMaterial = new MeshStandardMaterial({
+      vertexColors: true,
+    });
+
+    const wire = serializeObject3DForTransfer(legacyShell);
+    const restored = deserializeTransferredObject3D(
+      structuredClone(wire.object, { transfer: wire.transfers }),
+    ) as InstancedMesh;
+
+    expect(restored.instanceColor).not.toBeNull();
+    expect(restored.geometry.getAttribute("color")).toBeUndefined();
+    expect((restored.material as MeshBasicMaterial).vertexColors).toBeFalse();
+    expect(
+      (restored.userData.nightMaterial as MeshStandardMaterial).vertexColors,
+    ).toBeFalse();
   });
 
   test("keeps startup first while filling the same desktop cap with all five requested quarters", () => {
