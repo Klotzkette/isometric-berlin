@@ -326,6 +326,7 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
           descriptor.instanceMatrix,
           true,
         ) as InstancedBufferAttribute;
+        mesh.instanceMatrix.needsUpdate = true;
       }
       mesh.instanceColor = descriptor.instanceColor
         ? (deserializeAttribute(
@@ -333,6 +334,7 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
             true,
           ) as InstancedBufferAttribute)
         : null;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       if (descriptor.boundingSphere) {
         mesh.boundingSphere = new Sphere(
           new Vector3(...descriptor.boundingSphere.center),

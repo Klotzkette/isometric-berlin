@@ -699,14 +699,29 @@ hipped-roof reading. Bodies, emissive panes and ink are merged into three
 renderables. Minecraft adds 78 pale-mullion/glass cues to the existing single
 Humboldthafen instance mesh rather than opening a new draw call.
 
-Six bounded facade-detail zones strengthen the street walls at Pariser Platz,
-Leipziger Platz, Breitscheidplatz, Platz der Republik, Europaplatz and
-Washingtonplatz. Exact LoD2 wall midpoints, heights and outward normals select
-only nearby front-facing walls; distance and orientation reject courtyard and
-rear elevations. The current source data yields 128, 292, 156, 74, 107 and 7
-qualifying wall fields respectively. Their paired window-head lines share the
-existing facade line batch, add no renderable and inherit every drawn visual
-mode rather than spawning six new landmark systems.
+Nine bounded facade-detail zones strengthen the source-derived street walls at
+Pariser Platz, Leipziger Platz, Potsdamer Platz, Tilla-Durieux-Park,
+Breitscheidplatz, Platz der Republik, Europaplatz, Washingtonplatz and in the
+Hauptbahnhof quarter. The long Tilla-Durieux and station-quarter spaces use
+bounded source axes instead of oversized circular catchments. Exact LoD2 wall
+midpoints, heights and outward normals select only nearby front-facing walls;
+distance and orientation reject courtyard and rear elevations. Dedicated hero
+facades retain their own pinned formats and are excluded from this contextual
+pass. The current source data yields 128, 230, 323, 227, 156, 75, 107, 7 and 5
+qualifying wall fields respectively. Place-specific floor registers and paired
+window-head lines remain in the existing facade-axis batch, add no renderable,
+texture or runtime request and inherit every drawn visual mode. Against the
+`v0.72.31` facade-axis baseline, the complete expansion adds only 83,020 bytes
+(0.36 percent) of GPU attribute data; a fixed 96 KiB regression budget guards
+that bound. Desktop also schedules every LoD2 building whose centroid lies in
+the five owner-prioritised Pariser, Leipziger, Potsdamer, Tilla-Durieux and
+Hauptbahnhof zones into the unchanged 9,000-building exact-geometry budget.
+The Reichstag startup set remains first and the total batch, draw-call and
+buffer caps do not grow. Mobile keeps its 3,600-building cap and represents all
+remaining source buildings as one oriented, class-coloured instanced shell.
+That shell relies only on `instanceColor` (not a nonexistent box-vertex colour),
+so it stays visible instead of producing black gaps without adding a texture,
+request, geometry buffer or draw call.
 
 At Tiergarten, OSM way `25999445` remains the exact rhomboid plan of the
 Konrad-Adenauer-Haus. Its former opaque generic prism is suppressed only for

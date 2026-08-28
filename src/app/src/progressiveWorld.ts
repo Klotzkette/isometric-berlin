@@ -1,7 +1,9 @@
-import type {
-  PrismBuilding,
-  PrismPayload,
-  SurfacePayload,
+import {
+  PLAZA_FACADE_DETAIL_ZONES,
+  type PlazaFacadeDetailZone,
+  type PrismBuilding,
+  type PrismPayload,
+  type SurfacePayload,
 } from "./IsometricCityWorld";
 import type { TunnelPortalCourseInput } from "./TunnelPortals";
 import type { TransferObject3D } from "./transferableObject3D";
@@ -30,6 +32,25 @@ export const PARK_POLYGON_BATCH_SIZE = 320;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
 export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 360;
 export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 30;
+
+/**
+ * The five owner-requested quarters receive exact desktop LoD2 geometry
+ * before equally distant context. The 9,000-building cap is unchanged.
+ */
+export const DESKTOP_PLACE_DETAIL_ZONE_NAMES = [
+  "Pariser Platz",
+  "Leipziger Platz",
+  "Potsdamer Platz",
+  "Tilla-Durieux-Park",
+  "Hauptbahnhof-Umfeld",
+] as const;
+
+const DESKTOP_PLACE_DETAIL_ZONE_NAME_SET = new Set<string>(
+  DESKTOP_PLACE_DETAIL_ZONE_NAMES,
+);
+const DESKTOP_PLACE_DETAIL_ZONES = PLAZA_FACADE_DETAIL_ZONES.filter((zone) =>
+  DESKTOP_PLACE_DETAIL_ZONE_NAME_SET.has(zone.name),
+);
 
 type ProgressiveWorldWorkerInputBase = {
   initialBuildingCount: number;
@@ -178,6 +199,48 @@ export function prioritizeBuildings(
     .map(({ building }) => building);
 }
 
+function distanceSquaredToZoneAnchor(
+  x: number,
+  z: number,
+  zone: PlazaFacadeDetailZone,
+): number {
+  const line = zone.anchorLineWorldM;
+  if (!line) {
+    return (x - zone.centreWorldM[0]) ** 2 + (z - zone.centreWorldM[1]) ** 2;
+  }
+  const [[startX, startZ], [endX, endZ]] = line;
+  const axisX = endX - startX;
+  const axisZ = endZ - startZ;
+  const lengthSquared = axisX * axisX + axisZ * axisZ;
+  if (lengthSquared <= 1e-6) {
+    return (x - zone.centreWorldM[0]) ** 2 + (z - zone.centreWorldM[1]) ** 2;
+  }
+  const amount = Math.min(
+    1,
+    Math.max(0, ((x - startX) * axisX + (z - startZ) * axisZ) / lengthSquared),
+  );
+  const anchorX = startX + axisX * amount;
+  const anchorZ = startZ + axisZ * amount;
+  return (x - anchorX) ** 2 + (z - anchorZ) ** 2;
+}
+
+export function isDesktopPlaceDetailBuilding(
+  building: PrismBuilding,
+): boolean {
+  if (building.ring.length === 0) return false;
+  let x = 0;
+  let z = 0;
+  for (const point of building.ring) {
+    x += point[0] / 10;
+    z += point[1] / 10;
+  }
+  x /= building.ring.length;
+  z /= building.ring.length;
+  return DESKTOP_PLACE_DETAIL_ZONES.some(
+    (zone) => distanceSquaredToZoneAnchor(x, z, zone) <= zone.radiusM ** 2,
+  );
+}
+
 type SpatialBuilding = {
   building: PrismBuilding;
   index: number;
@@ -272,6 +335,7 @@ export function splitProgressiveBuildings(
   initialCount: number,
   batchSize = PROGRESSIVE_BUILDING_BATCH_SIZE,
   totalLimit = Number.POSITIVE_INFINITY,
+  prioritizePlaceDetail = false,
 ): {
   initial: PrismBuilding[];
   omitted: PrismBuilding[];
@@ -282,16 +346,36 @@ export function splitProgressiveBuildings(
     Math.min(buildings.length, Math.floor(totalLimit)),
   );
   const sourceCompleteOrder = prioritizeBuildings(buildings);
-  const ordered = sourceCompleteOrder.slice(0, boundedTotal);
-  const boundedInitial = Math.max(0, Math.min(ordered.length, initialCount));
+  const boundedInitial = Math.max(
+    0,
+    Math.min(boundedTotal, Math.floor(initialCount)),
+  );
+  const initial = sourceCompleteOrder.slice(0, boundedInitial);
+  const candidates = sourceCompleteOrder.slice(boundedInitial);
+  const requestedPlaceBuildings: PrismBuilding[] = [];
+  const contextBuildings: PrismBuilding[] = [];
+  if (prioritizePlaceDetail) {
+    for (const building of candidates) {
+      (isDesktopPlaceDetailBuilding(building)
+        ? requestedPlaceBuildings
+        : contextBuildings
+      ).push(building);
+    }
+  }
+  const detailFirst = prioritizePlaceDetail
+    ? [...requestedPlaceBuildings, ...contextBuildings]
+    : candidates;
+  const selectedCount = boundedTotal - boundedInitial;
+  const selected = detailFirst.slice(0, selectedCount);
+  const omitted = detailFirst.slice(selectedCount);
   const boundedBatch = Math.max(1, Math.floor(batchSize));
   const remaining = spatialBuildingBatches(
-    ordered.slice(boundedInitial),
+    selected,
     boundedBatch,
   );
   return {
-    initial: ordered.slice(0, boundedInitial),
-    omitted: sourceCompleteOrder.slice(boundedTotal),
+    initial,
+    omitted,
     remaining,
   };
 }

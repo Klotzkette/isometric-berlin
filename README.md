@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.31 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.31/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.32 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.32/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.31** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.32** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,30 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.31**, built from `main`. Its full viewer
+The current public package is **v0.72.32**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Five central public spaces now give every ordinary source building a more
+  specific facade reading.** Pariser Platz, Leipziger Platz, Potsdamer Platz,
+  Tilla-Durieux-Park and the Hauptbahnhof surroundings use place-bound floor,
+  head-band and bay rhythms on their measured LoD2 shells. All 967 affected
+  buildings receive exact desktop refinement inside the unchanged cap; hero
+  models and non-public courtyard sides remain source-separated.
+
+- **The added architecture does not add a texture, request or draw call.** Its
+  lines join the existing `LoD2 facade axes` batch. The progressive benchmark
+  remains at 199 draw calls and about 85.9 MiB of geometry, while the retained
+  building allocation is 91,488 bytes smaller than the previous distance-only
+  selection. Touch devices keep their compact exact limit and one instanced
+  shell for every remaining source building.
+
+- **Distant source buildings retain their colours during Worker transfer.**
+  The compact instanced shell no longer multiplies its per-building colours by
+  an absent vertex-colour attribute, and transferred matrix/colour buffers are
+  explicitly uploaded. Progressive loading therefore keeps a continuous city
+  instead of black remote blocks or empty-looking quarters.
 
 - **Startup and mode switches keep a visible city plate instead of ever
   flashing black.** The viewer now keeps a tiny static Regierungsviertel

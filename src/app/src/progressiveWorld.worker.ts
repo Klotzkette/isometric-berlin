@@ -202,6 +202,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     input.initialBuildingCount,
     undefined,
     DESKTOP_TOTAL_BUILDING_LIMIT,
+    true,
   );
   prismPayload.buildings = [];
   partition.initial.length = 0;

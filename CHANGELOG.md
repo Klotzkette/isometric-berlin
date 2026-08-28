@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.72.32
+
+- **Die bisher generischen Gebäude an den fünf verlangten Stadträumen
+  erhalten eine nachvollziehbare Berliner Fassadenlesart.** Pariser Platz,
+  Leipziger Platz, Potsdamer Platz, Tilla-Durieux-Park und das Umfeld des
+  Hauptbahnhofs verwenden ihre jeweiligen Geschossregister, Kopfbaender und
+  quellseitigen Fassadenachsen auf den vorhandenen LoD2-Körpern. Alle 967
+  betroffenen Quellgebäude werden im unveränderten Desktop-Exaktbudget
+  priorisiert; Hero-Modelle, rückwärtige Hofwände und nicht belegte
+  Fensterflächen bleiben unberührt.
+- **Mehr Detail erzeugt weder neue Texturen noch neue Draw Calls.** Die
+  zusätzlichen Linien liegen im bestehenden gebündelten
+  `LoD2 facade axes`-Layer und benötigen nur 83.020 zusätzliche Attributbytes.
+  Die vollständige progressive Szene bleibt bei 199 Draw Calls und rund
+  85,9 MiB Geometrie; die vergleichbare gehaltene Gebäudegeometrie sinkt
+  gegenüber der bisherigen entfernungsbasierten Auswahl sogar um 91.488
+  Bytes und 6.418 Exakt-Vertices. Mobil behaelt seinen kleineren Exaktpfad und
+  den einen kompakten Instanz-Layer für alle übrigen Gebäude.
+- **Entfernte Gebäude bleiben auch während der Verfeinerung sichtbar.** Der
+  Instanz-Layer verwendet seine übertragenen Gebäudefarben jetzt ohne ein
+  nicht vorhandenes Vertex-Farbattribut zu multiplizieren; Matrix und Farbe
+  werden nach dem Worker-Transfer explizit fuer den GPU-Upload markiert. Damit
+  entstehen an den neuen Detailgebieten keine schwarzen Fernkoerper oder
+  Leerflächen.
+- **Der Release-Stand ist vollständig geprüft.** Alle 1.285 App-Tests mit
+  6.204.369 Assertions, 338 Python-Tests und 45 gezielten Release-Tests
+  bestehen; Ruff, TypeScript/Vite-Build, Progressive-World-Benchmark,
+  Readiness, Offline-Paket-Smoke und Browser-QA sind grün.
+
 ## v0.72.31
 
 - **Der Viewer bleibt beim Laden und Wechseln sichtbar statt schwarz.** Eine

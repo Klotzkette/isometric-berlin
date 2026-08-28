@@ -20,6 +20,7 @@ import {
   type WorldPayloadLifetimeState,
 } from "../src/ThreeViewer";
 import {
+  PLAZA_FACADE_DETAIL_ZONES,
   createDistantBuildingShells,
   createIsometricCity,
   createPretriangulatedSurfacePlate,
@@ -29,6 +30,7 @@ import {
 } from "../src/IsometricCityWorld";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
+  DESKTOP_PLACE_DETAIL_ZONE_NAMES,
   DESKTOP_TOTAL_BUILDING_LIMIT,
   DESKTOP_INITIAL_BUILDING_COUNT,
   MAX_PROGRESSIVE_BUILDING_BATCHES,
@@ -42,6 +44,7 @@ import {
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
   progressiveHeavyRoadPlatesEnabled,
+  isDesktopPlaceDetailBuilding,
   releaseProgressiveWorldBatches,
   splitProgressiveBuildings,
   splitParkSurfaceFamily,
@@ -181,6 +184,8 @@ describe("progressive exact-world scheduling", () => {
     expect(shells).toBeInstanceOf(InstancedMesh);
     expect(shells.count).toBe(800);
     expect(coverage.userData.sourceBuildingCount).toBe(800);
+    expect((shells.material as MeshBasicMaterial).vertexColors).toBeFalse();
+    expect(shells.instanceColor).not.toBeNull();
     const retainedBytes =
       shells.instanceMatrix.array.byteLength +
       (shells.instanceColor?.array.byteLength ?? 0) +
@@ -197,6 +202,64 @@ describe("progressive exact-world scheduling", () => {
     expect(progressiveWorkerSource).toContain(
       "createDistantBuildingShells(prismPayload, partition.omitted)",
     );
+    const wire = serializeObject3DForTransfer(coverage);
+    const restored = deserializeTransferredObject3D(
+      structuredClone(wire.object, { transfer: wire.transfers }),
+    ) as Group;
+    const restoredShells = restored.getObjectByName(
+      "LoD2 distant building shells",
+    ) as InstancedMesh;
+    expect((restoredShells.material as MeshBasicMaterial).vertexColors).toBeFalse();
+    expect(restoredShells.instanceMatrix.version).toBeGreaterThan(0);
+    expect(restoredShells.instanceColor?.version).toBeGreaterThan(0);
+    expect(
+      Math.min(...Array.from(restoredShells.instanceColor!.array.slice(0, 3))),
+    ).toBeGreaterThan(0);
+  });
+
+  test("keeps startup first while filling the same desktop cap with all five requested quarters", () => {
+    const requested = DESKTOP_PLACE_DETAIL_ZONE_NAMES.map((name) => {
+      const zone = PLAZA_FACADE_DETAIL_ZONES.find((entry) => entry.name === name);
+      expect(zone).toBeDefined();
+      return building(
+        `requested-${name}`,
+        Math.round(zone!.centreWorldM[0] * 10),
+        Math.round(zone!.centreWorldM[1] * 10),
+      );
+    });
+    const startup = building("startup", 3_177, 405);
+    const ordinary = Array.from({ length: 8 }, (_, index) =>
+      building(`ordinary-${index}`, 3_180 + index * 3, 405 + index * 2),
+    );
+    const buildings = [startup, ...ordinary, ...requested];
+    const exactLimit = 1 + requested.length;
+    const prioritized = splitProgressiveBuildings(
+      buildings,
+      1,
+      100,
+      exactLimit,
+      true,
+    );
+    const exactIds = new Set(
+      [...prioritized.initial, ...prioritized.remaining.flat()].map(
+        (entry) => entry.id,
+      ),
+    );
+    expect(prioritized.initial.map((entry) => entry.id)).toEqual(["startup"]);
+    expect(exactIds.size).toBe(exactLimit);
+    expect(
+      requested.every(
+        (entry) => exactIds.has(entry.id) && isDesktopPlaceDetailBuilding(entry),
+      ),
+    ).toBeTrue();
+    expect(prioritized.omitted).toHaveLength(buildings.length - exactLimit);
+
+    const distanceOnly = splitProgressiveBuildings(buildings, 1, 100, 2);
+    expect(
+      [...distanceOnly.initial, ...distanceOnly.remaining.flat()].some((entry) =>
+        entry.id.startsWith("requested-"),
+      ),
+    ).toBeFalse();
   });
 
   test("uses compact raster asphalt on desktop and phones", async () => {
@@ -792,10 +855,23 @@ describe("progressive exact-world scheduling", () => {
       DESKTOP_INITIAL_BUILDING_COUNT,
       PROGRESSIVE_BUILDING_BATCH_SIZE,
       DESKTOP_TOTAL_BUILDING_LIMIT,
+      true,
     );
+    const exactIds = new Set(
+      [...batches.initial, ...batches.remaining.flat()].map((entry) => entry.id),
+    );
+    const requestedPlaceBuildings = payload.buildings.filter(
+      isDesktopPlaceDetailBuilding,
+    );
+    expect(requestedPlaceBuildings).toHaveLength(967);
+    expect(
+      requestedPlaceBuildings.every((entry) => exactIds.has(entry.id)),
+    ).toBeTrue();
     let renderables = 0;
+    let retainedBytes = 0;
     let vertices = 0;
     let largestBatchArea = 0;
+    const seenGeometries = new Set<BufferGeometry>();
     for (const buildings of [batches.initial, ...batches.remaining]) {
       let minX = Number.POSITIVE_INFINITY;
       let maxX = Number.NEGATIVE_INFINITY;
@@ -824,6 +900,17 @@ describe("progressive exact-world scheduling", () => {
         }
         renderables += 1;
         vertices += object.geometry.getAttribute("position")?.count ?? 0;
+        if (!seenGeometries.has(object.geometry)) {
+          seenGeometries.add(object.geometry);
+          for (const attribute of Object.values(object.geometry.attributes)) {
+            retainedBytes += attribute.array.byteLength;
+          }
+          retainedBytes += object.geometry.index?.array.byteLength ?? 0;
+        }
+        if (object instanceof InstancedMesh) {
+          retainedBytes += object.instanceMatrix.array.byteLength;
+          retainedBytes += object.instanceColor?.array.byteLength ?? 0;
+        }
         if (object.name === "LoD2 prism buildings") {
           const color = object.geometry.getAttribute("color");
           expect(object.geometry.getAttribute("normal")).toBeUndefined();
@@ -835,10 +922,16 @@ describe("progressive exact-world scheduling", () => {
       group.clear();
     }
     // Exact production geometry is retained in two spatial batches; all
-    // remaining buildings are represented by one shared instanced shell.
+    // remaining buildings are represented by one shared instanced shell. The
+    // v0.72.32 place-front expansion adds only line vertices inside the same
+    // facade-axis renderables; its byte delta is pinned separately.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(3_748_066);
+    expect(vertices).toBe(3_745_576);
+    expect(retainedBytes).toBe(54_043_670);
+    // The identical all-attribute/index/instance accounting for the previous
+    // distance-only selection was 54,135,158 bytes.
+    expect(retainedBytes).toBeLessThanOrEqual(54_135_158);
     expect(largestBatchArea).toBeLessThan(11 * 1_000_000);
   });
 });

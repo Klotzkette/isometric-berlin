@@ -2914,6 +2914,7 @@ function ensureIsoWorld(
         runtime.coarsePointer
           ? MOBILE_TOTAL_BUILDING_LIMIT
           : DESKTOP_TOTAL_BUILDING_LIMIT,
+        !runtime.coarsePointer,
       );
       const initialBuildings = buildingPartition.initial;
       const progressiveInput: ProgressiveWorldWorkerInput | null =

@@ -22,7 +22,9 @@ import {
   CHARITE_BETTENHOCHHAUS_IDS,
   CHARITE_BETTENHOCHHAUS_PROFILE,
   CHARITE_CAMPUS_BRIDGE_ID,
+  FACADE_AXIS_V07231_ATTRIBUTE_BYTES,
   PLAZA_FACADE_DETAIL_ZONES,
+  PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
   PRISM_SUPPRESSED_IDS,
   type PrismWall,
   type PrismPayload,
@@ -633,33 +635,57 @@ describe("ligne-claire fenestration", () => {
     );
   });
 
-  test("adds paired facade detail only to source-facing fronts at six squares", () => {
+  test("adds place-specific facade detail only to source-facing public fronts", () => {
     expect(PLAZA_FACADE_DETAIL_ZONES.map(({ name }) => name)).toEqual([
       "Pariser Platz",
       "Leipziger Platz",
+      "Potsdamer Platz",
+      "Tilla-Durieux-Park",
       "Breitscheidplatz",
       "Platz der Republik",
       "Europaplatz",
       "Washingtonplatz",
+      "Hauptbahnhof-Umfeld",
     ]);
     for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
       const distance = (zone.minimumDistanceM + zone.radiusM) / 2;
+      let offsetX = 0;
+      let offsetZ = 1;
+      if (zone.anchorLineWorldM) {
+        const [[startX, startZ], [endX, endZ]] = zone.anchorLineWorldM;
+        const axisLength = Math.hypot(endX - startX, endZ - startZ);
+        offsetX = -(endZ - startZ) / axisLength;
+        offsetZ = (endX - startX) / axisLength;
+      }
+      const midpointX = zone.centreWorldM[0] + offsetX * distance;
+      const midpointZ = zone.centreWorldM[1] + offsetZ * distance;
+      const dirX = offsetZ;
+      const dirZ = -offsetX;
       const facingWall: PrismWall = {
-        dirX: 1,
-        dirZ: 0,
+        dirX,
+        dirZ,
         index: 0,
         isCourtyard: false,
         length: 20,
-        nx: 0,
-        nz: -1,
-        x1: zone.centreWorldM[0] - 10,
-        z1: zone.centreWorldM[1] + distance,
+        nx: -offsetX,
+        nz: -offsetZ,
+        x1: midpointX - dirX * 10,
+        z1: midpointZ - dirZ * 10,
       };
       expect(plazaFacadeDetailZoneForWall(facingWall)?.name).toBe(zone.name);
-      expect(plazaFacadeDetailZoneForWall({ ...facingWall, nz: 1 })).toBeNull();
+      expect(
+        plazaFacadeDetailZoneForWall({
+          ...facingWall,
+          nx: -facingWall.nx,
+          nz: -facingWall.nz,
+        }),
+      ).toBeNull();
       expect(
         plazaFacadeDetailZoneForWall({ ...facingWall, isCourtyard: true }),
       ).toBeNull();
+      expect(zone.facadeRhythm.bayPitch).toBe(ISO_WINDOW_BAY_PITCH_M);
+      expect(zone.facadeRhythm.floorPitch).toBeGreaterThanOrEqual(3.2);
+      expect(zone.facadeRhythm.maximumDetailedStoreys).toBeLessThanOrEqual(18);
     }
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect(axes.userData.plazaFacadeDetails.zones).toEqual(
@@ -670,7 +696,34 @@ describe("ligne-claire fenestration", () => {
         axes.userData.plazaFacadeDetails.detailedWallCounts[zone.name],
       ).toBeGreaterThan(0);
     }
+    const detailedWallCounts =
+      axes.userData.plazaFacadeDetails.detailedWallCounts;
+    expect(detailedWallCounts["Pariser Platz"]).toBeGreaterThan(100);
+    expect(detailedWallCounts["Leipziger Platz"]).toBeGreaterThan(200);
+    expect(detailedWallCounts["Potsdamer Platz"]).toBeGreaterThan(300);
+    expect(detailedWallCounts["Tilla-Durieux-Park"]).toBeGreaterThan(200);
+    expect(
+      detailedWallCounts.Europaplatz +
+        detailedWallCounts.Washingtonplatz +
+        detailedWallCounts["Hauptbahnhof-Umfeld"],
+    ).toBeGreaterThan(110);
+    expect(axes.userData.plazaFacadeDetails.heroFacadesExcluded).toBe(true);
+    expect(axes.userData.plazaFacadeDetails.extraRenderables).toBe(0);
     expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);
+  });
+
+  test("keeps the richer place facades inside a sub-96 KiB buffer delta", () => {
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    const position = axes.geometry.getAttribute("position");
+    const lineDistance = axes.geometry.getAttribute("lineDistance");
+    const attributeBytes =
+      position.array.byteLength + lineDistance.array.byteLength;
+    expect(axes.userData.plazaFacadeDetails.attributeBytes).toBe(
+      attributeBytes,
+    );
+    expect(attributeBytes - FACADE_AXIS_V07231_ATTRIBUTE_BYTES).toBeLessThanOrEqual(
+      PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
+    );
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {

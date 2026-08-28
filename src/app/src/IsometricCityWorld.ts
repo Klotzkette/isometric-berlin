@@ -48,6 +48,7 @@ import { pointInWorldRing } from "./chancelleryExtensionProfile";
 import {
   KOLLHOFF_TOWER_PROFILE,
   KULTURFORUM_PROFILE,
+  POTSDAMER_DETAIL_PROFILE,
   TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
 import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
@@ -1289,6 +1290,8 @@ export const ISO_GLASS_DAY_OPACITY = 0.62;
 export const ISO_GLASS_MULLION_OPACITY = 0.44;
 export const ISO_FACADE_AXIS_OPACITY = 0.34;
 export const ISO_FACADE_DETAIL_FADE_M = [500, 780] as const;
+export const FACADE_AXIS_V07231_ATTRIBUTE_BYTES = 23_221_352;
+export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 96 * 1024;
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   // Keep every official part inside the Reichstag footprint in the same
@@ -1366,12 +1369,15 @@ export function createDistantBuildingShells(
   if (visible.length === 0) return group;
 
   const geometry = new BoxGeometry(1, 1, 1);
-  const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+  // Instanced colours are enabled by `instanceColor` itself. Enabling ordinary
+  // vertex colours as well would make Three.js expect a missing per-vertex
+  // `color` attribute on BoxGeometry and multiply every valid instance colour
+  // by black.
+  const dayMaterial = new MeshBasicMaterial();
   const nightMaterial = new MeshStandardMaterial({
     flatShading: true,
     metalness: 0,
     roughness: 0.95,
-    vertexColors: true,
   });
   const shells = new InstancedMesh(geometry, dayMaterial, visible.length);
   shells.name = "LoD2 distant building shells";
@@ -2174,7 +2180,7 @@ const HOUSING_WINDOW = {
   sillStart: 1.05,
   width: ISO_WINDOW_WIDTH_M,
 };
-type WindowFormat = typeof HOUSING_WINDOW;
+export type WindowFormat = typeof HOUSING_WINDOW;
 
 // Hand-pinned facade formats where the generic grid would be wrong
 // ("der Reichstag darf nicht falsche Fenster haben"): the Reichstag
@@ -2439,85 +2445,267 @@ export type PrismWall = {
 };
 
 export type PlazaFacadeDetailZone = {
+  anchorLineWorldM?: readonly [
+    readonly [number, number],
+    readonly [number, number],
+  ];
   centreWorldM: readonly [number, number];
+  facadeRhythm: WindowFormat & {
+    character: string;
+    maximumDetailedStoreys: number;
+  };
   geometryStatus: string;
   minimumDistanceM: number;
   minimumFacingCosine: number;
   name: string;
+  priority: number;
   radiusM: number;
   sourceAnchor: string;
 };
 
+const PARISER_PLATZ_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "calm punched-stone frontage with a taller floor register",
+  floorPitch: 3.45,
+  height: 2.2,
+  maximumDetailedStoreys: 9,
+  sillStart: 1.1,
+  width: 1.15,
+} as const;
+
+const LEIPZIGER_PLATZ_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "mixed stone and office frontage with regular horizontal belts",
+  floorPitch: 3.35,
+  height: 2.25,
+  maximumDetailedStoreys: 14,
+  sillStart: 1.05,
+  width: 1.3,
+} as const;
+
+const POTSDAMER_PLATZ_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "post-reunification office frontage with a tall glazed register",
+  floorPitch: 3.4,
+  height: 2.4,
+  maximumDetailedStoreys: 18,
+  sillStart: 1.05,
+  width: 1.35,
+} as const;
+
+const TILLA_DURIEUX_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "park-facing residential and office frontage",
+  floorPitch: 3.2,
+  height: 2.05,
+  maximumDetailedStoreys: 12,
+  sillStart: 1.05,
+  width: 1.15,
+} as const;
+
+const HAUPTBAHNHOF_QUARTER_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "contemporary station-quarter office and hotel frontage",
+  floorPitch: 3.45,
+  height: 2.35,
+  maximumDetailedStoreys: 16,
+  sillStart: 1.05,
+  width: 1.3,
+} as const;
+
+const CIVIC_PLAZA_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "restrained civic square frontage",
+  floorPitch: 3.6,
+  height: 2.35,
+  maximumDetailedStoreys: 12,
+  sillStart: 1.1,
+  width: 1.25,
+} as const;
+
+const BREITSCHEIDPLATZ_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character: "mixed City West retail, hotel and office frontage",
+  floorPitch: 3.3,
+  height: 2.2,
+  maximumDetailedStoreys: 16,
+  sillStart: 1.05,
+  width: 1.25,
+} as const;
+
+const EUROPAPLATZ_CENTRE_WORLD_M = [-116, -1002] as const;
+const WASHINGTONPLATZ_CENTRE_WORLD_M = [
+  -35.76899601815967, -532.2079668212682,
+] as const;
+const HAUPTBAHNHOF_QUARTER_CENTRE_WORLD_M = [
+  (EUROPAPLATZ_CENTRE_WORLD_M[0] + WASHINGTONPLATZ_CENTRE_WORLD_M[0]) /
+    2,
+  (EUROPAPLATZ_CENTRE_WORLD_M[1] + WASHINGTONPLATZ_CENTRE_WORLD_M[1]) /
+    2,
+] as const;
+const TILLA_DURIEUX_NORTH_END_WORLD_M = [
+  (TILLA_DURIEUX_PROFILE.northLawn.endEastWorldM[0] +
+    TILLA_DURIEUX_PROFILE.northLawn.endWestWorldM[0]) /
+    2,
+  (TILLA_DURIEUX_PROFILE.northLawn.endEastWorldM[1] +
+    TILLA_DURIEUX_PROFILE.northLawn.endWestWorldM[1]) /
+    2,
+] as const;
+const TILLA_DURIEUX_SOUTH_END_WORLD_M = [
+  (TILLA_DURIEUX_PROFILE.southLawn.endEastWorldM[0] +
+    TILLA_DURIEUX_PROFILE.southLawn.endWestWorldM[0]) /
+    2,
+  (TILLA_DURIEUX_PROFILE.southLawn.endEastWorldM[1] +
+    TILLA_DURIEUX_PROFILE.southLawn.endWestWorldM[1]) /
+    2,
+] as const;
+
 /**
- * Bounded public-realm anchors for the six requested square fronts.
+ * Bounded public-realm anchors for the requested square and park fronts.
  *
  * They do not invent facade positions: a wall qualifies only when its exact
  * LoD2 midpoint lies in the local radius and its source-derived outward
- * normal faces the square. The extra line rhythm is therefore restricted to
- * the actual building fronts that define each space.
+ * normal faces the public space. Long urban spaces use their committed source
+ * axis instead of an oversized circular catchment. The extra line rhythm is
+ * therefore restricted to the actual building fronts that define each place.
  */
 export const PLAZA_FACADE_DETAIL_ZONES: readonly PlazaFacadeDetailZone[] = [
   {
     centreWorldM: [497.0499028667109, 292.8503072652966],
+    facadeRhythm: PARISER_PLATZ_RHYTHM,
     geometryStatus:
       "committed landmark centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 28,
     minimumFacingCosine: 0.35,
     name: "Pariser Platz",
+    priority: 2,
     radiusM: 150,
     sourceAnchor: "committed Pariser Platz landmark",
   },
   {
     centreWorldM: [427.73070566693787, 1066.1161428587511],
+    facadeRhythm: LEIPZIGER_PLATZ_RHYTHM,
     geometryStatus:
       "committed landmark centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 50,
     minimumFacingCosine: 0.32,
     name: "Leipziger Platz",
+    priority: 2,
     radiusM: 230,
     sourceAnchor: "committed Leipziger Platz landmark",
   },
   {
+    centreWorldM: POTSDAMER_DETAIL_PROFILE.potsdamerStationWorldM,
+    facadeRhythm: POTSDAMER_PLATZ_RHYTHM,
+    geometryStatus:
+      "committed station centre; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 36,
+    minimumFacingCosine: 0.28,
+    name: "Potsdamer Platz",
+    priority: 2,
+    radiusM: 235,
+    sourceAnchor: "committed Potsdamer Platz station profile",
+  },
+  {
+    anchorLineWorldM: [
+      TILLA_DURIEUX_NORTH_END_WORLD_M,
+      TILLA_DURIEUX_SOUTH_END_WORLD_M,
+    ],
+    centreWorldM: TILLA_DURIEUX_PROFILE.centralCourtWorldM,
+    facadeRhythm: TILLA_DURIEUX_RHYTHM,
+    geometryStatus:
+      "exact OSM park-lobe axis; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 18,
+    minimumFacingCosine: 0.24,
+    name: "Tilla-Durieux-Park",
+    priority: 1,
+    radiusM: 155,
+    sourceAnchor: "OSM ways 840814492 and 840814493",
+  },
+  {
     centreWorldM: [-2406.297, 1531.147],
+    facadeRhythm: BREITSCHEIDPLATZ_RHYTHM,
     geometryStatus:
       "committed Breitscheidplatz public-realm centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 24,
     minimumFacingCosine: 0.3,
     name: "Breitscheidplatz",
+    priority: 2,
     radiusM: 220,
     sourceAnchor: "committed Breitscheidplatz fountain profile",
   },
   {
     centreWorldM: [193.4126034657238, 165.0631400225684],
+    facadeRhythm: CIVIC_PLAZA_RHYTHM,
     geometryStatus:
       "committed public-realm centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 70,
     minimumFacingCosine: 0.28,
     name: "Platz der Republik",
+    priority: 2,
     radiusM: 280,
     sourceAnchor: "committed Platz der Republik hedge landmark",
   },
   {
-    centreWorldM: [-116, -1002],
+    centreWorldM: EUROPAPLATZ_CENTRE_WORLD_M,
+    facadeRhythm: HAUPTBAHNHOF_QUARTER_RHYTHM,
     geometryStatus:
       "committed Europaplatz profile centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 45,
     minimumFacingCosine: 0.3,
     name: "Europaplatz",
+    priority: 2,
     radiusM: 245,
     sourceAnchor: "committed Europaplatz north profile",
   },
   {
-    centreWorldM: [-35.76899601815967, -532.2079668212682],
+    centreWorldM: WASHINGTONPLATZ_CENTRE_WORLD_M,
+    facadeRhythm: HAUPTBAHNHOF_QUARTER_RHYTHM,
     geometryStatus:
       "committed public-realm centre; exact LoD2 walls and normals control every detailed facade",
     minimumDistanceM: 18,
     minimumFacingCosine: 0.32,
     name: "Washingtonplatz",
+    priority: 2,
     radiusM: 195,
     sourceAnchor: "committed Washingtonplatz taxi landmark",
   },
+  {
+    anchorLineWorldM: [
+      EUROPAPLATZ_CENTRE_WORLD_M,
+      WASHINGTONPLATZ_CENTRE_WORLD_M,
+    ],
+    centreWorldM: HAUPTBAHNHOF_QUARTER_CENTRE_WORLD_M,
+    facadeRhythm: HAUPTBAHNHOF_QUARTER_RHYTHM,
+    geometryStatus:
+      "bounded station-quarter axis; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 62,
+    minimumFacingCosine: 0.26,
+    name: "Hauptbahnhof-Umfeld",
+    priority: 1,
+    radiusM: 215,
+    sourceAnchor: "committed Europaplatz and Washingtonplatz centres",
+  },
 ] as const;
+
+function nearestZoneAnchor(
+  zone: PlazaFacadeDetailZone,
+  x: number,
+  z: number,
+): readonly [number, number] {
+  const line = zone.anchorLineWorldM;
+  if (!line) return zone.centreWorldM;
+  const [[startX, startZ], [endX, endZ]] = line;
+  const axisX = endX - startX;
+  const axisZ = endZ - startZ;
+  const lengthSquared = axisX * axisX + axisZ * axisZ;
+  if (lengthSquared <= 1e-6) return zone.centreWorldM;
+  const amount = Math.min(
+    1,
+    Math.max(0, ((x - startX) * axisX + (z - startZ) * axisZ) / lengthSquared),
+  );
+  return [startX + axisX * amount, startZ + axisZ * amount];
+}
 
 export function plazaFacadeDetailZoneForWall(
   wall: PrismWall,
@@ -2527,14 +2715,17 @@ export function plazaFacadeDetailZoneForWall(
   const midpointZ = wall.z1 + (wall.dirZ * wall.length) / 2;
   let closest: PlazaFacadeDetailZone | null = null;
   let closestDistance = Number.POSITIVE_INFINITY;
+  let closestPriority = Number.NEGATIVE_INFINITY;
   for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
-    const dx = zone.centreWorldM[0] - midpointX;
-    const dz = zone.centreWorldM[1] - midpointZ;
+    const anchor = nearestZoneAnchor(zone, midpointX, midpointZ);
+    const dx = anchor[0] - midpointX;
+    const dz = anchor[1] - midpointZ;
     const distance = Math.hypot(dx, dz);
     if (
       distance < zone.minimumDistanceM ||
       distance > zone.radiusM ||
-      distance >= closestDistance
+      zone.priority < closestPriority ||
+      (zone.priority === closestPriority && distance >= closestDistance)
     ) {
       continue;
     }
@@ -2542,6 +2733,7 @@ export function plazaFacadeDetailZoneForWall(
     if (facingCosine < zone.minimumFacingCosine) continue;
     closest = zone;
     closestDistance = distance;
+    closestPriority = zone.priority;
   }
   return closest;
 }
@@ -11306,8 +11498,9 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const format = windowFormatForBuilding(building.id, isCivic);
-      const bayPitch = format.bayPitch;
+      const buildingFormat = windowFormatForBuilding(building.id, isCivic);
+      const hasPinnedFacadeFormat =
+        HERO_WINDOW_FORMATS[building.id] !== undefined;
       const axisTop = y0 + bodyHeight - 0.9;
       const axisBottom = y0 + 1.2;
       const nightStrip = isCivic
@@ -11320,6 +11513,13 @@ export function createIsometricCity(
           if (wall.length < WINDOW_MIN_WALL_M) {
             continue;
           }
+          const plazaDetailZone = hasPinnedFacadeFormat
+            ? null
+            : plazaFacadeDetailZoneForWall(wall);
+          const format =
+            plazaDetailZone && !isCivic
+              ? plazaDetailZone.facadeRhythm
+              : buildingFormat;
           if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
             const profile = CHARITE_BETTENHOCHHAUS_PROFILE;
             const floorCount = Math.min(
@@ -11408,6 +11608,7 @@ export function createIsometricCity(
             }
             continue;
           }
+          const bayPitch = format.bayPitch;
           const axes = Math.floor((wall.length - 1.2) / bayPitch);
           if (axes < 1) {
             continue;
@@ -11418,20 +11619,18 @@ export function createIsometricCity(
           const grid = windowGrid(wall.length, bodyHeight, format);
           const sillOf = (floor: number): number =>
             y0 + format.sillStart + floor * format.floorPitch;
-          const plazaDetailZone = grid
-            ? plazaFacadeDetailZoneForWall(wall)
-            : null;
-          if (plazaDetailZone) {
+          if (plazaDetailZone && grid) {
             plazaFacadeDetailWallCounts.set(
               plazaDetailZone.name,
               (plazaFacadeDetailWallCounts.get(plazaDetailZone.name) ?? 0) + 1,
             );
           }
           // One dashed sill rhythm crosses every measured wall at each
-          // derived storey. On the six requested square fronts, the same
-          // source-bounded rhythm receives a paired head line. This adds a
-          // legible elongated-window outline without claiming surveyed pane
-          // coordinates or adding another draw call.
+          // derived storey. On the requested square, park and station-quarter
+          // fronts, the same source-bounded rhythm receives a paired head line
+          // and a place-appropriate floor register. This adds a legible
+          // elongated-window outline without claiming surveyed pane
+          // coordinates, duplicating hero facades or adding another draw call.
           if (grid) {
             for (let floor = 0; floor < grid.floors; floor += 1) {
               const bandY = sillOf(floor) - 0.28;
@@ -11444,7 +11643,10 @@ export function createIsometricCity(
                 wall.z1 + wall.dirZ * wall.length + oz,
                 wall.length,
               );
-              if (plazaDetailZone) {
+              if (
+                plazaDetailZone &&
+                floor < plazaDetailZone.facadeRhythm.maximumDetailedStoreys
+              ) {
                 const headY = Math.min(
                   axisTop,
                   sillOf(floor) + format.height + 0.28,
@@ -11832,9 +12034,12 @@ export function createIsometricCity(
   }
 
   const plazaFacadeDetails = {
+    attributeBytes: 0,
     detailedWallCounts: Object.fromEntries(plazaFacadeDetailWallCounts),
+    extraRenderables: 0,
+    heroFacadesExcluded: true,
     rendering:
-      "paired inferred sill/head rhythm on exact plaza-facing LoD2 walls in the existing facade-axis batch",
+      "place-specific inferred sill/head rhythm on exact public-space-facing LoD2 walls in the existing facade-axis batch",
     zones: PLAZA_FACADE_DETAIL_ZONES,
   };
   group.userData.plazaFacadeDetails = plazaFacadeDetails;
@@ -11842,14 +12047,18 @@ export function createIsometricCity(
   // Facade glazing axes: fine ink lines (day). A subtle grey so they
   // articulate without weighing the pale panels down.
   if (facadeAxisPositions.length > 0) {
+    const positionArray = facadeAxisPositions.toArray();
+    const lineDistanceArray = facadeAxisDistances.toArray();
+    plazaFacadeDetails.attributeBytes =
+      positionArray.byteLength + lineDistanceArray.byteLength;
     const geometry = new BufferGeometry();
     geometry.setAttribute(
       "position",
-      new Float32BufferAttribute(facadeAxisPositions.toArray(), 3),
+      new Float32BufferAttribute(positionArray, 3),
     );
     geometry.setAttribute(
       "lineDistance",
-      new Uint16BufferAttribute(facadeAxisDistances.toArray(), 1),
+      new Uint16BufferAttribute(lineDistanceArray, 1),
     );
     const axes = new LineSegments(
       geometry,
