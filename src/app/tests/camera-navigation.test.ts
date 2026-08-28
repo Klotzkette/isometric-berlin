@@ -26,8 +26,16 @@ import {
   viewHeadingFlightDelta,
   zoomCameraAtScreenPoint,
 } from "../src/cameraNavigation";
+import { holdNavigationKey } from "../src/navigationInput";
 
 describe("held desktop navigation routing", () => {
+  test("ignores key-repeat updates for an already held movement key", () => {
+    const keys = new Set<string>();
+    expect(holdNavigationKey(keys, "w")).toBe(true);
+    expect(holdNavigationKey(keys, "w")).toBe(false);
+    expect(keys).toEqual(new Set(["w"]));
+  });
+
   test("routes plain arrows only to smooth screen-space pan", () => {
     expect(heldNavigationInput(new Set(["ArrowLeft", "ArrowUp"]))).toEqual({
       flight: { forward: 0, strafe: 0, vertical: 0 },

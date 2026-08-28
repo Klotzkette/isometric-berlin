@@ -16,16 +16,20 @@ import {
   splitParkSurfaceFamily,
   surfaceFamilyPayload,
   type ProgressiveWorldWorkerInput,
+  type ProgressiveWorldWorkerMessage,
   type ProgressiveWorldWorkerOutput,
 } from "./progressiveWorld";
 import { serializeObject3DForTransfer } from "./transferableObject3D";
 
 type WorkerScope = {
-  onmessage: ((event: MessageEvent<ProgressiveWorldWorkerInput>) => void) | null;
+  onmessage: ((event: MessageEvent<ProgressiveWorldWorkerMessage>) => void) | null;
   postMessage: (message: ProgressiveWorldWorkerOutput, transfer?: Transferable[]) => void;
 };
 
 const workerScope = self as unknown as WorkerScope;
+const attachedBatchResolvers = new Map<string, () => void>();
+const attachedBatchPromises = new Map<string, Promise<void>>();
+const MAX_TRANSFERRED_BATCHES_IN_FLIGHT = 4;
 
 function removeEmptyGroups(root: Group): void {
   for (const child of [...root.children]) {
@@ -36,15 +40,22 @@ function removeEmptyGroups(root: Group): void {
   }
 }
 
-function postBatch(
+async function postBatch(
   root: Group,
   kind: "buildings" | "surfaces",
   id: string,
   startedAt: number,
   replaces?: string,
-): void {
+): Promise<void> {
   removeEmptyGroups(root);
   const { object, transfers } = serializeObject3DForTransfer(root);
+  const attached = new Promise<void>((resolve) => {
+    attachedBatchResolvers.set(id, () => {
+      attachedBatchPromises.delete(id);
+      resolve();
+    });
+  });
+  attachedBatchPromises.set(id, attached);
   workerScope.postMessage(
     {
       build_ms: performance.now() - startedAt,
@@ -60,6 +71,13 @@ function postBatch(
   // graph immediately instead of retaining thousands of empty BufferAttribute
   // wrappers until a later pressure-triggered GC cycle.
   root.clear();
+  if (attachedBatchPromises.size >= MAX_TRANSFERRED_BATCHES_IN_FLIGHT) {
+    await Promise.race(attachedBatchPromises.values());
+  }
+}
+
+async function waitForAttachedBatches(): Promise<void> {
+  await Promise.all(attachedBatchPromises.values());
 }
 
 /** Give message delivery and garbage collection a turn between large batches. */
@@ -67,10 +85,10 @@ function yieldWorker(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-function postBuildingPreviews(
+async function postBuildingPreviews(
   prismPayload: PrismPayload,
   buildingBatches: readonly PrismPayload["buildings"][],
-): number {
+): Promise<number> {
   for (let index = 0; index < buildingBatches.length; index += 1) {
     const startedAt = performance.now();
     const root = createDistantBuildingShells(
@@ -78,7 +96,7 @@ function postBuildingPreviews(
       buildingBatches[index],
     );
     root.userData.representation = "temporary complete-city preview";
-    postBatch(
+    await postBatch(
       root,
       "buildings",
       `buildings-preview-${index + 1}`,
@@ -106,7 +124,7 @@ async function postBuildingBatches(
         smoothSurfaces: null,
       },
     );
-    postBatch(
+    await postBatch(
       root,
       "buildings",
       `buildings-${batchOffset + index + 1}`,
@@ -165,7 +183,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     partition.initial.length = 0;
     if (partition.omitted.length > 0) {
       const startedAt = performance.now();
-      postBatch(
+      await postBatch(
         createDistantBuildingShells(prisms, partition.omitted),
         "buildings",
         "buildings-distant",
@@ -175,9 +193,10 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       batchCount += 1;
       await yieldWorker();
     }
-    batchCount += postBuildingPreviews(prisms, partition.remaining);
+    batchCount += await postBuildingPreviews(prisms, partition.remaining);
     await yieldWorker();
     batchCount += await postBuildingBatches(prisms, partition.remaining);
+    await waitForAttachedBatches();
     workerScope.postMessage({
       batches: batchCount,
       build_ms: performance.now() - overallStart,
@@ -208,7 +227,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   partition.initial.length = 0;
   if (partition.omitted.length > 0) {
     const startedAt = performance.now();
-    postBatch(
+    await postBatch(
       createDistantBuildingShells(prismPayload, partition.omitted),
       "buildings",
       "buildings-distant",
@@ -218,7 +237,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     batchCount += 1;
   }
   const buildingBatches = partition.remaining;
-  batchCount += postBuildingPreviews(prismPayload, buildingBatches);
+  batchCount += await postBuildingPreviews(prismPayload, buildingBatches);
   await yieldWorker();
 
   // The nearest exact batch does not depend on terrain or roads. Publish it
@@ -259,7 +278,10 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     else roadsByKind.set(kind, [road]);
   }
   surfaces.roads = [];
-  const postSurfacePayload = (payload: SurfacePayload, id: string): void => {
+  const postSurfacePayload = async (
+    payload: SurfacePayload,
+    id: string,
+  ): Promise<void> => {
     const startedAt = performance.now();
     const root = createSmoothSurfaces(
       payload,
@@ -267,16 +289,16 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       bankY,
       terrainAt,
     );
-    postBatch(root, "surfaces", id, startedAt);
+    await postBatch(root, "surfaces", id, startedAt);
     batchCount += 1;
   };
-  const postSurface = (
+  const postSurface = async (
     family: Parameters<typeof surfaceFamilyPayload>[1],
-  ): void => {
+  ): Promise<void> => {
     const payload = surfaceFamilyPayload(surfaces, family);
     const roadBatch = roadsByKind.get(family);
     if (roadBatch) payload.roads = roadBatch;
-    postSurfacePayload(payload, `surface-${family}`);
+    await postSurfacePayload(payload, `surface-${family}`);
     if (roadBatch) roadBatch.length = 0;
     if (family === "water") {
       surfaces.water = [];
@@ -286,23 +308,23 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
 
   // Water, lawns and the small special-surface families establish the map
   // reading without duplicating the raster streets and authored park paths.
-  postSurface("water");
+  await postSurface("water");
   for (const [index, payload] of splitParkSurfaceFamily(
     surfaces,
   ).entries()) {
-    postSurfacePayload(payload, `surface-parks-${index + 1}`);
+    await postSurfacePayload(payload, `surface-parks-${index + 1}`);
     await yieldWorker();
   }
   surfaces.parks = [];
   surfaces.scrub_points = [];
-  postSurface("sand");
-  postSurface("earth");
-  postSurface("wood");
-  postSurface("metal");
+  await postSurface("sand");
+  await postSurface("earth");
+  await postSurface("wood");
+  await postSurface("metal");
   const markingPayload = surfaceFamilyPayload(surfaces, "asphalt");
   markingPayload.roads = [];
   const markingStartedAt = performance.now();
-  postBatch(
+  await postBatch(
     createSmoothSurfaces(markingPayload, waterTop, bankY, terrainAt),
     "surfaces",
     "surface-lane-markings",
@@ -319,6 +341,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     deferredBuildingBatches,
     nearestBuildingBatch ? 1 : 0,
   );
+  await waitForAttachedBatches();
   workerScope.postMessage({
     batches: batchCount,
     build_ms: performance.now() - overallStart,
@@ -328,6 +351,14 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
 }
 
 workerScope.onmessage = (event): void => {
+  if (event.data.type === "batch-attached") {
+    const resolve = attachedBatchResolvers.get(event.data.id);
+    if (resolve) {
+      attachedBatchResolvers.delete(event.data.id);
+      resolve();
+    }
+    return;
+  }
   if (event.data.type !== "build") return;
   void build(event.data).catch((error: unknown) => {
     workerScope.postMessage({

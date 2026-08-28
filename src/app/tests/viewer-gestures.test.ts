@@ -9,6 +9,7 @@ import {
   PEN_GESTURE_SETTINGS,
   THREE_MOUSE_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
+  accumulateBoundedFrameDelta,
   isPedestrianJumpDoubleTap,
   isPedestrianTouchTap,
   pedestrianWheelForwardInput,
@@ -21,6 +22,13 @@ import {
 } from "../src/viewerGestures";
 
 describe("touch viewer gestures", () => {
+  test("coalesces high-frequency samples without a runaway frame jump", () => {
+    expect(accumulateBoundedFrameDelta(18, 7, 24)).toBe(24);
+    expect(accumulateBoundedFrameDelta(-18, -7, 24)).toBe(-24);
+    expect(accumulateBoundedFrameDelta(3, -5, 24)).toBe(-2);
+    expect(accumulateBoundedFrameDelta(3, Number.NaN, 24)).toBe(0);
+  });
+
   test("drops cancelled glide activity unless a real touch gesture remains", () => {
     expect(
       touchInteractionAfterPanGlideCancel({

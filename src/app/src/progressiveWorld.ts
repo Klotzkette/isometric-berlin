@@ -32,6 +32,37 @@ export const PARK_POLYGON_BATCH_SIZE = 320;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
 export const PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS = 360;
 export const PROGRESSIVE_WORLD_FALLBACK_DELAY_MS = 30;
+export const PROGRESSIVE_ATTACHMENT_MIN_IDLE_BUDGET_MS = 4;
+export const PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS = 900;
+
+export type ProgressiveAttachmentReadiness = {
+  critical: boolean;
+  idleBudgetMs: number;
+  inputPending: boolean;
+  interactionActive: boolean;
+  queuedForMs: number;
+};
+
+/**
+ * Visibility previews attach immediately; exact refinement yields to current
+ * input unless it has waited long enough to guarantee forward progress.
+ */
+export function progressiveAttachmentReady({
+  critical,
+  idleBudgetMs,
+  inputPending,
+  interactionActive,
+  queuedForMs,
+}: ProgressiveAttachmentReadiness): boolean {
+  if (critical || queuedForMs >= PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS) {
+    return true;
+  }
+  return (
+    !interactionActive &&
+    !inputPending &&
+    idleBudgetMs >= PROGRESSIVE_ATTACHMENT_MIN_IDLE_BUDGET_MS
+  );
+}
 
 /**
  * The five owner-requested quarters receive exact desktop LoD2 geometry
@@ -70,6 +101,15 @@ export type ProgressiveWorldWorkerInput =
       detailProfile: "mobile";
       prismUrl: string;
     });
+
+export type ProgressiveWorldWorkerControl = {
+  id: string;
+  type: "batch-attached";
+};
+
+export type ProgressiveWorldWorkerMessage =
+  | ProgressiveWorldWorkerInput
+  | ProgressiveWorldWorkerControl;
 
 export type ProgressiveWorldBatchKind = "buildings" | "surfaces";
 export type ProgressiveWorldState = "complete" | "failed" | "idle" | "loading";

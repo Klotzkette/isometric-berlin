@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.72.34
+
+- **Bewegungseingaben bleiben auch bei hoher Ereignisrate direkt und
+  kontrolliert.** Maus-, Trackpad-, Mausrad-, Touch- und Fußgängerblick-
+  Impulse werden pro Animationsbild gebündelt und mit festen Obergrenzen
+  verarbeitet; gehaltene Tasten lösen nur bei einer tatsächlichen
+  Zustandsänderung React-Arbeit aus. Nach einem verdeckten Tab oder einer
+  Hauptthread-Pause wird höchstens ein 50-ms-Bewegungsschritt nachgeholt,
+  sodass Kamera und Kollision weder springen noch einfrieren.
+- **Progressive Stadtgeometrie konkurriert nicht mehr mit laufender
+  Bedienung.** Sichtbarkeits-Shells werden sofort angehängt, während exakte
+  Gebäude und Oberflächen auf ein freies Browser-Zeitfenster warten und nach
+  spätestens 900 ms garantiert fortfahren. Ein gemessenes Vier-Paket-Fenster
+  hält Worker und Hauptthread parallel, ohne die frühere unbeschränkte
+  Transferwarteschlange; jeder Batch wird nach der Einfügung bestätigt und
+  vor dem Fertigsignal vollständig übernommen.
+- **Das Sichtbild bleibt durchgehend gefüllt.** Der statische Berliner
+  Kartenhintergrund wird über `document.baseURI` als absolute Asset-URL
+  aufgelöst und funktioniert damit auch aus Vites versionierten CSS-Dateien
+  sowie unter Unterpfaden. Schattenkarten werden während Kamerabewegung
+  wiederverwendet und erst im ersten ruhenden Bild aktualisiert; dadurch
+  entfallen teure Schatten-Neuberechnungen mitten im Schwenken, ohne die
+  Bildqualität am Zielstand zu reduzieren.
+- **Der Fußgängermodus beginnt am tatsächlich sichtbaren Ort.** Beim Wechsel
+  wird die aktuelle Kameraposition auf den Boden projiziert, statt den oft
+  weit entfernten Blickpunkt zu verwenden. Liegt sie in einem Baukörper,
+  sucht die Kollisionslogik den nächsten freien Stand mit offenem Sichtkorridor
+  und richtet den Blick nach außen; damit landet man weder in Höfen noch in
+  Fassaden und kann sofort mit WASD, Pfeiltasten, Mausrad, Sprung und
+  Dreifach-Tipp-Schnelllauf weitergehen.
+- **Der vollständige Release-Stand ist gemessen und geprüft.** Alle 29.818
+  Quellgebäude werden nach rund 4,44 s sichtbar; die exakte Verfeinerung endet
+  nach rund 12,06 s. Die fertige Szene bleibt bei 199 Draw Calls und 85,9 MiB
+  Geometrie, der gemessene Speicherhöchststand bei rund 795 MiB. Alle 1.290
+  App-Tests mit 6.204.396 Assertions, 338 Python-Tests und 45 gezielten
+  Release-Tests bestehen; Produktionsbuild, Offline-Paket-Smoke sowie
+  fehlerfreie Desktop- und Mobil-Browser-QA in Tag, Minecraft,
+  Schwellenraum und Fußgängermodus sind grün.
+
 ## v0.72.33
 
 - **Gebäudekörper bleiben auch bei alten oder gemischten Worker-Payloads

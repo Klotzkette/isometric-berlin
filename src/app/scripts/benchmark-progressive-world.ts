@@ -197,6 +197,7 @@ const complete = await new Promise<
     const attachMs = performance.now() - attachStartedAt;
     attachTimes.push(attachMs);
     maxAttachMs = Math.max(maxAttachMs, attachMs);
+    worker.postMessage({ id: message.id, type: "batch-attached" });
   };
   worker.onerror = (event) => {
     clearTimeout(timeout);

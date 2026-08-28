@@ -210,8 +210,8 @@ export type PedestrianStep = {
 
 /**
  * Convert the live camera rig into a walking spawn without changing place.
- * Orbit/free-camera navigation owns its current map location in the controls
- * target; the camera itself is only the elevated eye orbit around that point.
+ * The camera's projected ground point is the visible viewer location; the
+ * orbit target is only a fallback when that eye lies outside the map.
  */
 export function pedestrianSpawnFromView(
   environment: PedestrianEnvironment,
@@ -220,11 +220,11 @@ export function pedestrianSpawnFromView(
   viewDirection: PedestrianViewPoint,
 ): PedestrianSpawn | undefined {
   const candidates = [
-    { groundYHint: focusPoint.y, point: focusPoint },
     {
       groundYHint: cameraPosition.y - PEDESTRIAN_EYE_HEIGHT_M,
       point: cameraPosition,
     },
+    { groundYHint: focusPoint.y, point: focusPoint },
   ];
   const selected = candidates.find(({ point }) => {
     return (
@@ -1060,6 +1060,45 @@ function resolvePedestrianGround(
   );
 }
 
+const PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M = 10;
+const PEDESTRIAN_SPAWN_VIEW_SAMPLE_M = 0.5;
+
+function pedestrianSpawnViewClearance(
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  ground: PedestrianGround,
+  yaw: number,
+): number {
+  const directionX = Math.sin(yaw);
+  const directionZ = -Math.cos(yaw);
+  let clearance = 0;
+  for (
+    let distance = PEDESTRIAN_SPAWN_VIEW_SAMPLE_M;
+    distance <= PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M;
+    distance += PEDESTRIAN_SPAWN_VIEW_SAMPLE_M
+  ) {
+    const sampleX = x + directionX * distance;
+    const sampleZ = z + directionZ * distance;
+    if (
+      !inBounds(sampleX, sampleZ, environment.bounds) ||
+      pedestrianPointIsBlocked(
+        sampleX,
+        sampleZ,
+        ground.y,
+        environment.obstacles,
+        environment,
+      ) ||
+      (ground.layer === "surface" &&
+        pedestrianPointIsWater(sampleX, sampleZ, environment.water))
+    ) {
+      break;
+    }
+    clearance = distance;
+  }
+  return clearance;
+}
+
 function nearestClearPedestrianSpawn(
   environment: PedestrianEnvironment,
   spawn: PedestrianSpawn,
@@ -1082,6 +1121,9 @@ function nearestClearPedestrianSpawn(
   }
   // Entering walk mode over a roof must place the person beside that building,
   // not inside its walls. A bounded radial search runs only on activation.
+  let bestCandidate:
+    | { clearance: number; ground: PedestrianGround; spawn: PedestrianSpawn }
+    | undefined;
   for (let radius = 1; radius <= 160; radius += 1) {
     for (let direction = 0; direction < 16; direction += 1) {
       const angle = (direction / 16) * Math.PI * 2;
@@ -1111,10 +1153,37 @@ function nearestClearPedestrianSpawn(
       ) {
         continue;
       }
-      return { ground, spawn: { ...spawn, x, z } };
+      const outwardX = x - spawn.x;
+      const outwardZ = z - spawn.z;
+      const yaw =
+        Math.hypot(outwardX, outwardZ) > 1e-6
+          ? Math.atan2(outwardX, -outwardZ)
+          : spawn.yaw;
+      const candidate = {
+        clearance: pedestrianSpawnViewClearance(
+          environment,
+          x,
+          z,
+          ground,
+          yaw,
+        ),
+        ground,
+        spawn: {
+          ...spawn,
+          x,
+          yaw,
+          z,
+        },
+      };
+      if (candidate.clearance >= PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M) {
+        return candidate;
+      }
+      if (!bestCandidate || candidate.clearance > bestCandidate.clearance) {
+        bestCandidate = candidate;
+      }
     }
   }
-  return null;
+  return bestCandidate ?? null;
 }
 
 export function createPedestrianState(

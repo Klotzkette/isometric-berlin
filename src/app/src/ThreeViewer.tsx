@@ -245,8 +245,10 @@ import {
   DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_INITIAL_BUILDING_COUNT,
   MOBILE_TOTAL_BUILDING_LIMIT,
+  PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
   PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
+  progressiveAttachmentReady,
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
@@ -323,6 +325,7 @@ import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
+  boundedMotionFrameDeltaSeconds,
   environmentFrameIntervalMs,
   preservedBackbufferRequired,
   renderFrameRequired,
@@ -353,6 +356,7 @@ import {
 } from "./SnowstormEffects";
 import {
   type PedestrianTouchTap,
+  accumulateBoundedFrameDelta,
   isPedestrianJumpDoubleTap,
   isPedestrianTouchTap,
   pedestrianWheelForwardInput,
@@ -504,6 +508,16 @@ type PedestrianRuntime = {
   state: PedestrianState | null;
 };
 
+type ProgressiveWorldAttachMessage = Exclude<
+  ProgressiveWorldWorkerOutput,
+  { type: "error" }
+>;
+
+type ProgressiveWorldQueuedMessage = {
+  enqueuedAt: number;
+  message: ProgressiveWorldAttachMessage;
+};
+
 type Runtime = {
   camera: PerspectiveCamera;
   centralDetails: Group;
@@ -549,6 +563,8 @@ type Runtime = {
   renderer: WebGLRenderer;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
+  /** Static desktop shadows refresh once after mutation, never per move. */
+  shadowInvalidated: boolean;
   scene: Scene;
   sceneRootUrl: URL;
   signatures: Group;
@@ -568,7 +584,9 @@ type Runtime = {
   surfacePayloadPromise?: Promise<SurfacePayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
   progressiveWorldBatches: Group[];
+  progressiveWorldAttachCancel?: () => void;
   progressiveWorldInput?: ProgressiveWorldWorkerInput;
+  progressiveWorldMessages: ProgressiveWorldQueuedMessage[];
   progressiveWorldState: ProgressiveWorldState;
   progressiveWorldStartCancel?: () => void;
   progressiveWorldWorker?: Worker;
@@ -2502,12 +2520,49 @@ function primeRequestedWorldPayloads(
 const PROGRESSIVE_WORLD_WARNING =
   "Die verfeinerte Stadtgeometrie konnte nicht vollständig ergänzt werden; der bereits geladene exakte Nahbereich bleibt bedienbar.";
 
+function cancelScheduledProgressiveAttachment(runtime: Runtime): void {
+  runtime.progressiveWorldAttachCancel?.();
+  runtime.progressiveWorldAttachCancel = undefined;
+}
+
+function clearProgressiveAttachmentQueue(runtime: Runtime): void {
+  cancelScheduledProgressiveAttachment(runtime);
+  runtime.progressiveWorldMessages.length = 0;
+}
+
+function browserInputPending(): boolean {
+  try {
+    return (
+      (
+        navigator as unknown as {
+          scheduling?: {
+            isInputPending?: () => boolean;
+          };
+        }
+      ).scheduling?.isInputPending?.() ?? false
+    );
+  } catch {
+    return false;
+  }
+}
+
+function progressiveVisibilityBatch(
+  message: ProgressiveWorldAttachMessage,
+): boolean {
+  return (
+    message.type === "batch" &&
+    (message.id === "buildings-distant" ||
+      message.id.startsWith("buildings-preview-"))
+  );
+}
+
 function failProgressiveWorld(
   runtime: Runtime,
   worker: Worker,
   warn: (message: string) => void,
 ): void {
   if (worker !== runtime.progressiveWorldWorker) return;
+  clearProgressiveAttachmentQueue(runtime);
   worker.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
@@ -2525,6 +2580,7 @@ function markProgressiveWorldUnavailable(
   runtime: Runtime,
   warn: (message: string) => void,
 ): void {
+  clearProgressiveAttachmentQueue(runtime);
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
   delete runtime.progressiveWorldInput;
@@ -2541,6 +2597,7 @@ function cancelScheduledProgressiveWorld(runtime: Runtime): void {
 
 function stopProgressiveWorld(runtime: Runtime): void {
   cancelScheduledProgressiveWorld(runtime);
+  clearProgressiveAttachmentQueue(runtime);
   runtime.progressiveWorldWorker?.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
@@ -2549,6 +2606,165 @@ function stopProgressiveWorld(runtime: Runtime): void {
   );
   collectFarZoomAntiFlickerTargets(runtime);
   runtime.renderInvalidated = true;
+}
+
+function attachProgressiveWorldMessage(
+  runtime: Runtime,
+  worker: Worker,
+  message: ProgressiveWorldAttachMessage,
+  warn: (message: string) => void,
+): void {
+  if (message.type === "complete") {
+    worker.terminate();
+    runtime.progressiveWorldWorker = undefined;
+    runtime.progressiveWorldState =
+      progressiveWorldStopPolicy("complete").nextState;
+    delete runtime.progressiveWorldInput;
+    releaseBuiltWorldPayloads(runtime);
+    collectFarZoomAntiFlickerTargets(runtime);
+    runtime.renderInvalidated = true;
+    performance.mark("isometric-city-exact-ready");
+    if (runtime.coarsePointer) runtime.startDeferredDetails();
+    return;
+  }
+
+  let object: Object3D;
+  try {
+    object = deserializeTransferredObject3D(message.object);
+  } catch {
+    failProgressiveWorld(runtime, worker, warn);
+    return;
+  }
+  if (!(object instanceof Group) || !runtime.isoWorld) {
+    disposeObject3D(runtime, object);
+    failProgressiveWorld(runtime, worker, warn);
+    return;
+  }
+  // Materialise against the mode active at ATTACH time. Day ↔ Night ↔ Snow
+  // ↔ Schwellenraum changes therefore never flash a stale batch.
+  setIsoNightPresentation(
+    object,
+    runtime.lightingMode === "night",
+    runtime.nightLightsOn,
+    runtime.lightingMode,
+  );
+  if (message.replaces) {
+    const replacedIndex = runtime.progressiveWorldBatches.findIndex(
+      (batch) => batch.userData.progressiveWorldBatchId === message.replaces,
+    );
+    if (replacedIndex >= 0) {
+      const [replaced] = runtime.progressiveWorldBatches.splice(
+        replacedIndex,
+        1,
+      );
+      disposeObject3D(runtime, replaced);
+    }
+  }
+  object.userData.progressiveWorldBatch = true;
+  object.userData.progressiveWorldBatchId = message.id;
+  runtime.progressiveWorldBatches.push(object);
+  runtime.isoWorld.add(object);
+  registerBerlinerEnsembleRoofSignTargets(runtime, object);
+  // Water is commonly the first exact progressive surface batch. Install the
+  // light-only Schwellenraum veil in this task, before a frame exposes an
+  // uninitialised or day-bright overlay.
+  if (message.id === "surface-water") {
+    setEnvironmentalPresentation(runtime);
+  }
+  runtime.renderInvalidated = true;
+  const acknowledged = tryProgressiveWorkerOperation(() =>
+    worker.postMessage({ id: message.id, type: "batch-attached" }),
+  );
+  if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
+}
+
+function scheduleProgressiveAttachment(
+  runtime: Runtime,
+  worker: Worker,
+  warn: (message: string) => void,
+): void {
+  if (
+    runtime.progressiveWorldAttachCancel ||
+    runtime.progressiveWorldMessages.length === 0 ||
+    runtime.disposed ||
+    worker !== runtime.progressiveWorldWorker
+  ) {
+    return;
+  }
+  const entry = runtime.progressiveWorldMessages[0];
+  const critical = progressiveVisibilityBatch(entry.message);
+  let cancelled = false;
+  let cancel = (): void => undefined;
+  const run = (idleBudgetMs: number): void => {
+    if (cancelled) return;
+    if (runtime.progressiveWorldAttachCancel === cancel) {
+      runtime.progressiveWorldAttachCancel = undefined;
+    }
+    if (
+      runtime.disposed ||
+      worker !== runtime.progressiveWorldWorker ||
+      document.hidden
+    ) {
+      return;
+    }
+    const now = performance.now();
+    if (
+      !progressiveAttachmentReady({
+        critical,
+        idleBudgetMs,
+        inputPending: browserInputPending(),
+        interactionActive: now < runtime.interactionUntil,
+        queuedForMs: now - entry.enqueuedAt,
+      })
+    ) {
+      scheduleProgressiveAttachment(runtime, worker, warn);
+      return;
+    }
+    if (runtime.progressiveWorldMessages.shift() !== entry) {
+      scheduleProgressiveAttachment(runtime, worker, warn);
+      return;
+    }
+    attachProgressiveWorldMessage(runtime, worker, entry.message, warn);
+    scheduleProgressiveAttachment(runtime, worker, warn);
+  };
+
+  const interactionActiveNow =
+    performance.now() < runtime.interactionUntil || browserInputPending();
+  if (critical || !interactionActiveNow) {
+    const handle = window.setTimeout(
+      () => run(Number.POSITIVE_INFINITY),
+      critical ? 0 : 16,
+    );
+    cancel = () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  } else {
+    const idleWindow = window as unknown as {
+      cancelIdleCallback?: (handle: number) => void;
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number;
+    };
+    if (typeof idleWindow.requestIdleCallback === "function") {
+      const handle = idleWindow.requestIdleCallback(
+        (deadline) => run(deadline.timeRemaining()),
+        { timeout: PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS },
+      );
+      cancel = () => {
+        cancelled = true;
+        idleWindow.cancelIdleCallback?.(handle);
+      };
+    } else {
+      const handle = window.setTimeout(() => run(5), 32);
+      cancel = () => {
+        cancelled = true;
+        window.clearTimeout(handle);
+      };
+    }
+  }
+  runtime.progressiveWorldAttachCancel = cancel;
 }
 
 function startProgressiveWorld(
@@ -2588,66 +2804,15 @@ function startProgressiveWorld(
       return;
     }
     const message = event.data;
-    if (message.type === "batch") {
-      let object: Object3D;
-      try {
-        object = deserializeTransferredObject3D(message.object);
-      } catch {
-        failProgressiveWorld(runtime, worker, warn);
-        return;
-      }
-      if (!(object instanceof Group) || !runtime.isoWorld) {
-        disposeObject3D(runtime, object);
-        failProgressiveWorld(runtime, worker, warn);
-        return;
-      }
-      // Materialise against the mode active at ATTACH time. Day ↔ Night ↔
-      // Snow ↔ Schwellenraum changes therefore never flash a stale batch.
-      setIsoNightPresentation(
-        object,
-        runtime.lightingMode === "night",
-        runtime.nightLightsOn,
-        runtime.lightingMode,
-      );
-      if (message.replaces) {
-        const replacedIndex = runtime.progressiveWorldBatches.findIndex(
-          (batch) =>
-            batch.userData.progressiveWorldBatchId === message.replaces,
-        );
-        if (replacedIndex >= 0) {
-          const [replaced] = runtime.progressiveWorldBatches.splice(
-            replacedIndex,
-            1,
-          );
-          disposeObject3D(runtime, replaced);
-        }
-      }
-      object.userData.progressiveWorldBatch = true;
-      object.userData.progressiveWorldBatchId = message.id;
-      runtime.progressiveWorldBatches.push(object);
-      runtime.isoWorld.add(object);
-      registerBerlinerEnsembleRoofSignTargets(runtime, object);
-      // Water is commonly the first exact progressive surface batch. Install
-      // the light-only Schwellenraum veil in the same task, before any frame
-      // can expose an uninitialised or day-bright overlay.
-      setEnvironmentalPresentation(runtime);
-      runtime.renderInvalidated = true;
-      return;
-    }
     if (message.type === "error") {
       failProgressiveWorld(runtime, worker, warn);
       return;
     }
-    worker.terminate();
-    runtime.progressiveWorldWorker = undefined;
-    runtime.progressiveWorldState =
-      progressiveWorldStopPolicy("complete").nextState;
-    delete runtime.progressiveWorldInput;
-    releaseBuiltWorldPayloads(runtime);
-    collectFarZoomAntiFlickerTargets(runtime);
-    runtime.renderInvalidated = true;
-    performance.mark("isometric-city-exact-ready");
-    if (runtime.coarsePointer) runtime.startDeferredDetails();
+    runtime.progressiveWorldMessages.push({
+      enqueuedAt: performance.now(),
+      message,
+    });
+    scheduleProgressiveAttachment(runtime, worker, warn);
   };
   worker.onerror = (): void => {
     failProgressiveWorld(runtime, worker, warn);
@@ -4751,6 +4916,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
       renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
       renderer.shadowMap.enabled = !coarsePointer;
+      // The light and scene are static between authored mutations. Rebuilding
+      // the same 1536px shadow atlas on every camera frame wasted the largest
+      // desktop GPU pass and could stall integrated graphics.
+      renderer.shadowMap.autoUpdate = false;
+      renderer.shadowMap.needsUpdate = !coarsePointer;
       // PCF filtering removes the hard one-texel shadow crawl that otherwise
       // reads as a second outline while the camera moves across detailed roofs.
       renderer.shadowMap.type = PCFShadowMap;
@@ -4951,6 +5121,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ensurePedestrianWater: () => undefined,
         worldFailureReported: false,
         progressiveWorldBatches: [],
+        progressiveWorldMessages: [],
         progressiveWorldState: "idle",
         reportCoreProgress: (loaded, total) => {
           if (!disposed) {
@@ -4961,6 +5132,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         snowstorm,
         renderer,
         renderInvalidated: true,
+        shadowInvalidated: true,
         scene,
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
         signatures,
@@ -5034,6 +5206,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const lastDirectControlCamera = camera.position.clone();
       const lastDirectControlTarget = controls.target.clone();
       let touchInteracting = false;
+      let touchGesturePending = false;
       let lastTouchActivityAt = Number.NEGATIVE_INFINITY;
       let pedestrianLookPointer: {
         cancelled: boolean;
@@ -5046,6 +5219,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         x: number;
         y: number;
       } | null = null;
+      const pendingFrameNavigation = {
+        lookX: 0,
+        lookY: 0,
+        pedestrianForward: 0,
+        trackpadX: 0,
+        trackpadY: 0,
+        zoomLog: 0,
+        zoomX: 0,
+        zoomY: 0,
+      };
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
       let appliedWidth = 0;
       let appliedHeight = 0;
@@ -5227,20 +5410,93 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         return false;
       };
+      const resetPendingFrameNavigation = (): void => {
+        pendingFrameNavigation.lookX = 0;
+        pendingFrameNavigation.lookY = 0;
+        pendingFrameNavigation.pedestrianForward = 0;
+        pendingFrameNavigation.trackpadX = 0;
+        pendingFrameNavigation.trackpadY = 0;
+        pendingFrameNavigation.zoomLog = 0;
+      };
+      const frameNavigationPending = (): boolean =>
+        Math.abs(pendingFrameNavigation.lookX) > 1e-6 ||
+        Math.abs(pendingFrameNavigation.lookY) > 1e-6 ||
+        Math.abs(pendingFrameNavigation.pedestrianForward) > 1e-6 ||
+        Math.abs(pendingFrameNavigation.trackpadX) > 1e-6 ||
+        Math.abs(pendingFrameNavigation.trackpadY) > 1e-6 ||
+        Math.abs(pendingFrameNavigation.zoomLog) > 1e-6;
+      const applyPendingFrameNavigation = (): boolean => {
+        if (!frameNavigationPending()) return false;
+        let moved = false;
+        if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+          let lookMoved = false;
+          if (
+            Math.abs(pendingFrameNavigation.lookX) > 1e-6 ||
+            Math.abs(pendingFrameNavigation.lookY) > 1e-6
+          ) {
+            runtime.pedestrian.state = lookPedestrian(
+              runtime.pedestrian.state,
+              pendingFrameNavigation.lookX * 0.0034,
+              -pendingFrameNavigation.lookY * 0.0031,
+            );
+            runtime.pedestrian.cameraDirty = true;
+            moved = true;
+            lookMoved = true;
+          }
+          let wheelMoved = false;
+          if (Math.abs(pendingFrameNavigation.pedestrianForward) > 1e-6) {
+            wheelMoved = nudgePedestrian(
+              runtime,
+              0,
+              pendingFrameNavigation.pedestrianForward,
+            );
+            moved = wheelMoved || moved;
+          }
+          if (lookMoved && !wheelMoved) applyPedestrianCamera(runtime);
+        } else {
+          if (
+            Math.abs(pendingFrameNavigation.trackpadX) > 1e-6 ||
+            Math.abs(pendingFrameNavigation.trackpadY) > 1e-6
+          ) {
+            const { strafe, forward } = twoFingerPanFlight(
+              pendingFrameNavigation.trackpadX,
+              pendingFrameNavigation.trackpadY,
+            );
+            flyCameraRigAlongViewHeading(runtime, strafe, forward);
+            moved = true;
+          }
+          if (Math.abs(pendingFrameNavigation.zoomLog) > 1e-6) {
+            zoomAtClientPoint(
+              {
+                x: pendingFrameNavigation.zoomX,
+                y: pendingFrameNavigation.zoomY,
+              },
+              Math.exp(pendingFrameNavigation.zoomLog),
+            );
+            moved = true;
+          }
+          if (moved) controls.update();
+        }
+        resetPendingFrameNavigation();
+        if (moved) markSurfaceInteraction(runtime, 220);
+        return moved;
+      };
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
       let wheelEndTimer: number | null = null;
       const onWheelNavigation = (event: WheelEvent): void => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        renderer.domElement.focus({ preventScroll: true });
         if (runtime.pedestrian.enabled) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          renderer.domElement.focus({ preventScroll: true });
           const forward = pedestrianWheelForwardInput(event);
-          if (
-            Math.abs(forward) > 1e-6 &&
-            nudgePedestrian(runtime, 0, forward)
-          ) {
+          if (Math.abs(forward) > 1e-6) {
+            pendingFrameNavigation.pedestrianForward =
+              accumulateBoundedFrameDelta(
+                pendingFrameNavigation.pedestrianForward,
+                forward,
+                1,
+              );
             markSurfaceInteraction(runtime, 220);
-            notifyView(runtime, onViewChangeRef.current);
           }
           return;
         }
@@ -5249,33 +5505,52 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           event,
           now < trackpadPanSequenceUntil,
         );
-        if (intent === "mouse-wheel-zoom") {
-          return;
-        }
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        renderer.domElement.focus({ preventScroll: true });
         panMomentum.x = 0;
         panMomentum.y = 0;
-        if (intent === "trackpad-pinch") {
+        if (intent === "mouse-wheel-zoom") {
+          if (event.deltaY !== 0) {
+            const scale = Math.pow(
+              0.95,
+              controls.zoomSpeed * Math.abs(event.deltaY * 0.01),
+            );
+            const factor = event.deltaY < 0 ? 1 / scale : scale;
+            pendingFrameNavigation.zoomLog = accumulateBoundedFrameDelta(
+              pendingFrameNavigation.zoomLog,
+              Math.log(factor),
+              Math.log(2.2),
+            );
+          }
+          pendingFrameNavigation.zoomX = event.clientX;
+          pendingFrameNavigation.zoomY = event.clientY;
+        } else if (intent === "trackpad-pinch") {
           const factor = MathUtils.clamp(
             Math.exp(-event.deltaY * 0.016),
             0.78,
             1.28,
           );
-          zoomAtClientPoint({ x: event.clientX, y: event.clientY }, factor);
+          pendingFrameNavigation.zoomLog = accumulateBoundedFrameDelta(
+            pendingFrameNavigation.zoomLog,
+            Math.log(factor),
+            Math.log(2.2),
+          );
+          pendingFrameNavigation.zoomX = event.clientX;
+          pendingFrameNavigation.zoomY = event.clientY;
         } else {
           trackpadPanSequenceUntil = now + 180;
           // Pixel wheel deltas run opposite to physical finger travel under
           // natural scrolling. Invert them before applying the same direct-
           // manipulation contract as a two-finger touch pan.
-          const { strafe, forward } = twoFingerPanFlight(
+          pendingFrameNavigation.trackpadX = accumulateBoundedFrameDelta(
+            pendingFrameNavigation.trackpadX,
             -event.deltaX,
-            -event.deltaY,
+            480,
           );
-          flyCameraRigAlongViewHeading(runtime, strafe, forward);
+          pendingFrameNavigation.trackpadY = accumulateBoundedFrameDelta(
+            pendingFrameNavigation.trackpadY,
+            -event.deltaY,
+            480,
+          );
         }
-        controls.update();
         markSurfaceInteraction(runtime);
         if (wheelEndTimer !== null) {
           window.clearTimeout(wheelEndTimer);
@@ -5363,6 +5638,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           y: event.clientY,
         });
         if (touchPoints.size === 2) {
+          touchGesturePending = false;
           customTouchGestureActive = true;
           controlsInteracting = false;
           touchInteracting = true;
@@ -5379,6 +5655,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         if (touchPoints.size >= 3) {
+          touchGesturePending = false;
           customTouchGestureActive = true;
           controlsInteracting = false;
           touchInteracting = true;
@@ -5395,57 +5672,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           };
         }
       };
-      const onPointerMove = (event: PointerEvent) => {
-        if (
-          runtime.pedestrian.enabled &&
-          pedestrianLookPointer?.id === event.pointerId &&
-          runtime.pedestrian.state
-        ) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const deltaX = event.clientX - pedestrianLookPointer.x;
-          const deltaY = event.clientY - pedestrianLookPointer.y;
-          pedestrianLookPointer.maxTravelPx = Math.max(
-            pedestrianLookPointer.maxTravelPx,
-            Math.hypot(
-              event.clientX - pedestrianLookPointer.startX,
-              event.clientY - pedestrianLookPointer.startY,
-            ),
-          );
-          pedestrianLookPointer.x = event.clientX;
-          pedestrianLookPointer.y = event.clientY;
-          if (deltaX !== 0 || deltaY !== 0) {
-            runtime.pedestrian.state = lookPedestrian(
-              runtime.pedestrian.state,
-              deltaX * 0.0034,
-              -deltaY * 0.0031,
-            );
-            runtime.pedestrian.cameraDirty = true;
-            markSurfaceInteraction(runtime, 220);
-          }
-          return;
-        }
-        if (!touchPoints.has(event.pointerId)) {
-          return;
-        }
-        lastTouchActivityAt = performance.now();
-        touchPoints.set(event.pointerId, {
-          x: event.clientX,
-          y: event.clientY,
-        });
+      const applyPendingTouchGesture = (): boolean => {
+        if (!touchGesturePending) return false;
+        touchGesturePending = false;
         if (touchPoints.size === 2 && previousTwoFingerGesture) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
           const current = twoFingerGesture();
-          if (!current) {
-            return;
-          }
-          // A two-finger swipe pans with direct manipulation: the content
-          // under the fingers follows them (finger right → content right,
-          // finger down → content down), never rotating or tilting. The rig
-          // travels opposite the finger delta — see twoFingerPanFlight.
-          // Rotation stays on the on-screen buttons, the keyboard and the
-          // mouse-drag; a three-finger gesture still tilts deliberately.
+          if (!current) return false;
           if (twoFingerStart && twoFingerMode === "undecided") {
             twoFingerMode = classifyTwoFingerGesture({
               panTravel: Math.hypot(
@@ -5454,36 +5686,29 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               ),
               pinchTravel: Math.abs(current.distance - twoFingerStart.distance),
             });
-            // An unclassified gesture moves NOTHING. Applying the pan branch
-            // while still undecided dollied the rig forward at the start of
-            // every pinch ("geht nach vorne statt näher ran"), and the drift
-            // stayed even once the pinch was recognised. On decision the
-            // baseline restarts here, so the dead-zone travel that identified
-            // the gesture is not replayed as a jump.
+            // Restart the baseline after the decision dead zone; otherwise
+            // its travel reappears as a visible pan/zoom jump.
             previousTwoFingerGesture = current;
             panVelocity.x = 0;
             panVelocity.y = 0;
             panVelocitySampleAt = performance.now();
-            markSurfaceInteraction(runtime);
-            return;
+            return false;
           }
+          let moved = false;
           if (twoFingerMode === "pan") {
-            // Direct-manipulation pan: content follows the fingers.
             const deltaX = current.center.x - previousTwoFingerGesture.center.x;
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
-            const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
-            flyCameraRigAlongViewHeading(runtime, strafe, forward);
-            // Remember the finger velocity so release can glide out.
-            const now = performance.now();
-            const dt = Math.max(1, now - panVelocitySampleAt) / 1000;
-            panVelocity.x = deltaX / dt;
-            panVelocity.y = deltaY / dt;
-            panVelocitySampleAt = now;
-          } else {
-            // Far from the focal plane, preserve the world point below the
-            // midpoint. Close to it, switch to a signed dolly so a continued
-            // spread can pass through the ground and emerge on the underside
-            // instead of becoming stuck at OrbitControls' positive radius.
+            if (deltaX !== 0 || deltaY !== 0) {
+              const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
+              flyCameraRigAlongViewHeading(runtime, strafe, forward);
+              const now = performance.now();
+              const dt = Math.max(1, now - panVelocitySampleAt) / 1_000;
+              panVelocity.x = deltaX / dt;
+              panVelocity.y = deltaY / dt;
+              panVelocitySampleAt = now;
+              moved = true;
+            }
+          } else if (twoFingerMode === "zoom") {
             const pinchRatio = MathUtils.clamp(
               current.distance / previousTwoFingerGesture.distance,
               0.86,
@@ -5531,18 +5756,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               } else {
                 zoomAtClientPoint(current.center, pinchRatio);
               }
+              moved = true;
             }
           }
-          controls.update();
+          if (moved) controls.update();
           previousTwoFingerGesture = current;
-          markSurfaceInteraction(runtime);
-          return;
+          if (moved) markSurfaceInteraction(runtime);
+          return moved;
         }
-        if (touchPoints.size < 3 || !previousThreeFingerCenter) {
-          return;
-        }
-        event.preventDefault();
-        event.stopImmediatePropagation();
+        if (touchPoints.size < 3 || !previousThreeFingerCenter) return false;
         const points = [...touchPoints.values()];
         const center = {
           x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
@@ -5560,10 +5782,60 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
         });
-        if (polar > Math.PI / 2 !== runtime.underside) {
+        if ((polar > Math.PI / 2) !== runtime.underside) {
           setModelMaterialState(runtime, polar > Math.PI / 2);
         }
         previousThreeFingerCenter = center;
+        markSurfaceInteraction(runtime);
+        return true;
+      };
+      const onPointerMove = (event: PointerEvent) => {
+        if (
+          runtime.pedestrian.enabled &&
+          pedestrianLookPointer?.id === event.pointerId &&
+          runtime.pedestrian.state
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const deltaX = event.clientX - pedestrianLookPointer.x;
+          const deltaY = event.clientY - pedestrianLookPointer.y;
+          pedestrianLookPointer.maxTravelPx = Math.max(
+            pedestrianLookPointer.maxTravelPx,
+            Math.hypot(
+              event.clientX - pedestrianLookPointer.startX,
+              event.clientY - pedestrianLookPointer.startY,
+            ),
+          );
+          pedestrianLookPointer.x = event.clientX;
+          pedestrianLookPointer.y = event.clientY;
+          if (deltaX !== 0 || deltaY !== 0) {
+            pendingFrameNavigation.lookX = accumulateBoundedFrameDelta(
+              pendingFrameNavigation.lookX,
+              deltaX,
+              320,
+            );
+            pendingFrameNavigation.lookY = accumulateBoundedFrameDelta(
+              pendingFrameNavigation.lookY,
+              deltaY,
+              320,
+            );
+            markSurfaceInteraction(runtime, 220);
+          }
+          return;
+        }
+        if (!touchPoints.has(event.pointerId)) {
+          return;
+        }
+        lastTouchActivityAt = performance.now();
+        touchPoints.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        });
+        if (!customTouchGestureActive || touchPoints.size < 2) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        touchGesturePending = true;
+        markSurfaceInteraction(runtime);
       };
       const onPointerUp = (event: PointerEvent) => {
         if (pedestrianLookPointer?.id === event.pointerId) {
@@ -5612,6 +5884,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastTouchActivityAt = performance.now();
+        applyPendingTouchGesture();
         // A finished two-finger pan hands its velocity to the glide.
         if (
           touchPoints.size === 2 &&
@@ -5682,6 +5955,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // Never retain the first half of a pedestrian double-tap across a
         // hidden tab, mode transition or cancelled browser gesture.
         lastPedestrianTap = null;
+        resetPendingFrameNavigation();
         if (
           !viewerGestureResetRequired({
             controlsInteracting,
@@ -5695,6 +5969,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         touchPoints.clear();
+        touchGesturePending = false;
         previousTwoFingerGesture = null;
         signedPinchDolly = null;
         previousThreeFingerCenter = null;
@@ -6005,14 +6280,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         frame = window.requestAnimationFrame(animate);
         if (!activeRef.current) {
+          // Do not replay time spent behind the 2D viewer as one large camera
+          // or collision step when 3D becomes active again.
+          lastAnimateAt = timestamp;
           return;
         }
-        const dtSeconds = MathUtils.clamp(
-          (timestamp - lastAnimateAt) / 1000,
-          0,
-          0.1,
+        const dtSeconds = boundedMotionFrameDeltaSeconds(
+          timestamp,
+          lastAnimateAt,
         );
         lastAnimateAt = timestamp;
+        const frameNavigationMoved = applyPendingFrameNavigation();
+        const touchGestureMoved = applyPendingTouchGesture();
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
         const flagFrameIntervalMs = civicFlagFrameIntervalMs(
           runtime.coarsePointer,
@@ -6026,6 +6305,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const pedestrianInput = pedestrianInputRef.current;
         const continuousInputActive =
           runtime.renderInvalidated ||
+          runtime.shadowInvalidated ||
           controlsInteracting ||
           touchInteracting ||
           wasFlying ||
@@ -6177,6 +6457,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
         const cameraMoving =
+          frameNavigationMoved ||
+          touchGestureMoved ||
           flying ||
           panning ||
           orbiting ||
@@ -6188,6 +6470,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           cameraMoving ||
           stability.forceContinuousRender ||
           environmentalMotion;
+        if (runtime.renderInvalidated && renderer.shadowMap.enabled) {
+          runtime.shadowInvalidated = true;
+        }
         // Resolution and official-surface tiers are fixed for a viewport and
         // mode. Input must never resize the canvas or replace the complete
         // city/tree surface underneath a moving camera.
@@ -6206,6 +6491,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 renderer.domElement.clientHeight || window.innerHeight,
               )
             : false;
+        const shadowRefresh =
+          renderer.shadowMap.enabled &&
+          runtime.shadowInvalidated &&
+          !cameraMoving;
         // Day/Night used to repaint at 12 fps while the view was still.
         // That kept animated flags and signal buffers changing beneath a
         // nominally fixed far camera, making fine ink edges shimmer. A static
@@ -6214,7 +6503,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const renderRequired = renderFrameRequired({
           cameraMoving,
           environmentalMotion,
-          presentationChanged: farDetailChanged,
+          presentationChanged: farDetailChanged || shadowRefresh,
           renderInvalidated: runtime.renderInvalidated,
         });
         if (!renderRequired) {
@@ -6360,7 +6649,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // movement and at rest, so this performance win cannot create a
         // quality-switch flash.
         crispPass.enabled = false;
+        if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();
+        if (shadowRefresh) runtime.shadowInvalidated = false;
         runtime.renderInvalidated = false;
       };
       animate();
@@ -6982,6 +7273,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         loadController.abort();
         cancelScheduledProgressiveWorld(runtime);
+        clearProgressiveAttachmentQueue(runtime);
         runtime.progressiveWorldWorker?.terminate();
         runtime.progressiveWorldWorker = undefined;
         runtime.progressiveWorldState = "idle";
@@ -7039,6 +7331,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panInputRef.current.set(0, 0);
         orbitInputRef.current.set(0, 0);
         pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+        resetPendingFrameNavigation();
         disposeObject3D(runtime, scene);
         crispPass.dispose();
         smaaPass.dispose();

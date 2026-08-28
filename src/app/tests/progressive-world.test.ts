@@ -39,9 +39,11 @@ import {
   MOBILE_TOTAL_BUILDING_LIMIT,
   PAVING_POLYGON_BATCH_SIZE,
   PROGRESSIVE_BUILDING_BATCH_SIZE,
+  PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
   PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
   progressiveWorldStopPolicy,
+  progressiveAttachmentReady,
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
   progressiveHeavyRoadPlatesEnabled,
@@ -401,6 +403,17 @@ describe("progressive exact-world scheduling", () => {
     );
     expect(workerDesktopBranch).not.toContain("loadHeavyPlates");
     expect(workerDesktopBranch).not.toContain("splitIndexedSurfacePlate");
+    expect(progressiveWorkerSource).toContain(
+      "MAX_TRANSFERRED_BATCHES_IN_FLIGHT = 4",
+    );
+    expect(progressiveWorkerSource).toContain(
+      "Promise.race(attachedBatchPromises.values())",
+    );
+    expect(progressiveWorkerSource).toContain(
+      "await waitForAttachedBatches()",
+    );
+    expect(progressiveWorkerSource).toContain('type === "batch-attached"');
+    expect(threeViewerSource).toContain('type: "batch-attached"');
   });
 
   test("pauses only for Minecraft and retains partial exact batches on errors", () => {
@@ -452,6 +465,32 @@ describe("progressive exact-world scheduling", () => {
       'window.addEventListener("pageshow", onPageShow)',
     );
     expect(threeViewerSource).toContain("resize(true)");
+  });
+
+  test("lets visibility previews through but yields exact attachment to input", () => {
+    const busy = {
+      critical: false,
+      idleBudgetMs: 10,
+      inputPending: true,
+      interactionActive: true,
+      queuedForMs: 20,
+    };
+    expect(progressiveAttachmentReady(busy)).toBe(false);
+    expect(progressiveAttachmentReady({ ...busy, critical: true })).toBe(true);
+    expect(
+      progressiveAttachmentReady({
+        ...busy,
+        queuedForMs: PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
+      }),
+    ).toBe(true);
+    expect(
+      progressiveAttachmentReady({
+        ...busy,
+        idleBudgetMs: 5,
+        inputPending: false,
+        interactionActive: false,
+      }),
+    ).toBe(true);
   });
 
   test("shows every building through replaceable previews before exact refinement", () => {

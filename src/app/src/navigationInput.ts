@@ -22,6 +22,13 @@ export type PedestrianMovementActivation = {
   lastActivationAt: number;
 };
 
+/** Return true only when a held-key set actually changed. */
+export function holdNavigationKey(keys: Set<string>, key: string): boolean {
+  const previousSize = keys.size;
+  keys.add(key);
+  return keys.size !== previousSize;
+}
+
 /** Route held desktop controls to camera-relative flight, pan, or orbit. */
 export function heldNavigationInput(
   keys: ReadonlySet<string>,

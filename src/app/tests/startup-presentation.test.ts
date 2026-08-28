@@ -121,7 +121,8 @@ describe("startup presentation gate", () => {
   });
 
   test("keeps a visible static city backdrop below 2D and 3D startup", () => {
-    expect(appSource).toContain("cssUrl(referenceMapUrl)");
+    expect(appSource).toContain("resolveCssAssetUrl(referenceMapUrl)");
+    expect(appSource).toContain("new URL(path, document.baseURI).href");
     expect(appSource).toContain("style={viewerStaticBackdropStyle}");
     expect(appSource).toContain('className="viewer-static-backdrop"');
     expect(stylesSource).toContain(".viewer-static-backdrop");

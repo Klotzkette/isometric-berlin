@@ -66,30 +66,30 @@ const collisionEnvironment: PedestrianEnvironment = {
 };
 
 describe("pedestrian navigation", () => {
-  test("enters walking mode at the current camera focus instead of its orbiting eye", () => {
+  test("enters walking mode below the visible camera instead of its look-at focus", () => {
     const spawn = pedestrianSpawnFromView(
       environment,
       { x: 123.45, y: 4.25, z: -345.67 },
       { x: 181.2, y: 96, z: -281.4 },
       { x: -0.6, y: -0.2, z: -0.7745966692 },
     );
-    expect(spawn?.x).toBe(123.45);
-    expect(spawn?.z).toBe(-345.67);
-    expect(spawn?.groundYHint).toBe(4.25);
+    expect(spawn?.x).toBe(181.2);
+    expect(spawn?.z).toBe(-281.4);
+    expect(spawn?.groundYHint).toBeCloseTo(96 - PEDESTRIAN_EYE_HEIGHT_M);
     expect(spawn?.yaw).toBeCloseTo(
       Math.atan2(-0.6, 0.7745966692),
     );
   });
 
-  test("falls back to the camera ground point only when the focus is outside the world", () => {
+  test("falls back to the look-at focus only when the camera is outside the world", () => {
     const spawn = pedestrianSpawnFromView(
       environment,
-      { x: 1_001, y: 4.25, z: 0 },
-      { x: 33.5, y: 8.05, z: -22.25 },
+      { x: 33.5, y: 4.25, z: -22.25 },
+      { x: 1_001, y: 8.05, z: 0 },
       { x: 0, y: 0, z: -1 },
     );
     expect(spawn).toEqual({
-      groundYHint: 8.05 - PEDESTRIAN_EYE_HEIGHT_M,
+      groundYHint: 4.25,
       pitch: 0,
       x: 33.5,
       yaw: 0,
@@ -613,10 +613,9 @@ describe("pedestrian navigation", () => {
   });
 
   test("activation over a solid footprint relocates to nearby open ground", () => {
+    const requested = { x: 2, yaw: 0, z: 2 };
     const state = createPedestrianState(collisionEnvironment, {
-      x: 2,
-      yaw: 0,
-      z: 2,
+      ...requested,
     });
     expect(
       pedestrianPointIsBlocked(
@@ -626,5 +625,13 @@ describe("pedestrian navigation", () => {
         buildingObstacles,
       ),
     ).toBe(false);
+    const view = pedestrianViewDirection(state);
+    expect(
+      view.x * (state.x - requested.x) +
+        view.z * (state.z - requested.z),
+    ).toBeGreaterThan(0);
+    expect(
+      state.x < 0 || state.x > 10 || state.z < 0 || state.z > 10,
+    ).toBe(true);
   });
 });

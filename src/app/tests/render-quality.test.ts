@@ -3,11 +3,13 @@ import { describe, expect, test } from "bun:test";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
   DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS,
+  MAX_MOTION_FRAME_DELTA_SECONDS,
   STABLE_DESKTOP_PIXEL_BUDGET,
   STABLE_DESKTOP_PIXEL_RATIO_CAP,
   STABLE_TOUCH_PIXEL_BUDGET,
   STABLE_TOUCH_PIXEL_RATIO_CAP,
   TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS,
+  boundedMotionFrameDeltaSeconds,
   environmentFrameIntervalMs,
   preservedBackbufferRequired,
   renderFrameRequired,
@@ -34,6 +36,20 @@ describe("stable 3D render quality", () => {
 
   test("does not discard alternate touch frames during camera motion", () => {
     expect(ACTIVE_MOTION_FRAME_INTERVAL_MS).toBe(0);
+  });
+
+  test("bounds movement catch-up after stalls and hidden-tab resumes", () => {
+    expect(boundedMotionFrameDeltaSeconds(1_016.7, 1_000)).toBeCloseTo(
+      0.0167,
+      4,
+    );
+    expect(boundedMotionFrameDeltaSeconds(2_000, 1_000)).toBe(
+      MAX_MOTION_FRAME_DELTA_SECONDS,
+    );
+    expect(boundedMotionFrameDeltaSeconds(2_000, Number.NEGATIVE_INFINITY)).toBe(
+      0,
+    );
+    expect(boundedMotionFrameDeltaSeconds(900, 1_000)).toBe(0);
   });
 
   test("bounds environmental buffer uploads independently of camera motion", () => {

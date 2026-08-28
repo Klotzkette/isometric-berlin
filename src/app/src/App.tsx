@@ -107,6 +107,7 @@ import {
 import {
   heldNavigationInput,
   heldPedestrianInput,
+  holdNavigationKey,
   isPedestrianHighJumpDoubleActivation,
   isPedestrianSprintDoubleActivation,
   pedestrianMovementActivation,
@@ -307,6 +308,15 @@ function assetPath(path: string): string {
 
 function cssUrl(path: string): string {
   return `url(${JSON.stringify(path)})`;
+}
+
+function resolveCssAssetUrl(path: string): string {
+  if (typeof document === "undefined") return path;
+  try {
+    return new URL(path, document.baseURI).href;
+  } catch {
+    return path;
+  }
 }
 
 function regierungsviertelTileSource(): string {
@@ -830,7 +840,9 @@ export function App() {
   const viewerStaticBackdropStyle = useMemo(
     () =>
       ({
-        "--viewer-static-backdrop-image": cssUrl(referenceMapUrl),
+        "--viewer-static-backdrop-image": cssUrl(
+          resolveCssAssetUrl(referenceMapUrl),
+        ),
       }) as CSSProperties,
     [referenceMapUrl],
   );
@@ -2567,11 +2579,11 @@ export function App() {
         const key = navigationKey(event);
         if (key === "Shift") {
           event.preventDefault();
-          heldFlightKeysRef.current.add(key);
+          const changed = holdNavigationKey(heldFlightKeysRef.current, key);
           if (!event.repeat) {
             setStatus(copy.pedestrianSprintOn);
           }
-          updateHeldNavigation();
+          if (changed) updateHeldNavigation();
           return;
         }
         if (
@@ -2631,7 +2643,7 @@ export function App() {
               paceToggled = true;
             }
           }
-          heldFlightKeysRef.current.add(key);
+          const changed = holdNavigationKey(heldFlightKeysRef.current, key);
           if (!event.repeat && !paceToggled) {
             setStatus(
               language === "de"
@@ -2639,7 +2651,7 @@ export function App() {
                 : "On foot · move and look around",
             );
           }
-          updateHeldNavigation();
+          if (changed) updateHeldNavigation();
           return;
         }
       }
@@ -2653,7 +2665,7 @@ export function App() {
         const key = navigationKey(event);
         if (["w", "a", "s", "d", "Shift", "Space"].includes(key)) {
           event.preventDefault();
-          heldFlightKeysRef.current.add(key);
+          const changed = holdNavigationKey(heldFlightKeysRef.current, key);
           if (!event.repeat) {
             setStatus(
               language === "de"
@@ -2661,7 +2673,7 @@ export function App() {
                 : "Free camera · WASD flies, Space rises, Shift descends",
             );
           }
-          updateHeldNavigation();
+          if (changed) updateHeldNavigation();
           return;
         }
       }
@@ -2716,8 +2728,9 @@ export function App() {
         )
       ) {
         event.preventDefault();
-        heldFlightKeysRef.current.add(event.key);
-        updateHeldNavigation();
+        if (holdNavigationKey(heldFlightKeysRef.current, event.key)) {
+          updateHeldNavigation();
+        }
         return;
       }
       if (
@@ -2725,17 +2738,20 @@ export function App() {
         ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
       ) {
         event.preventDefault();
+        let changed = false;
         if (event.shiftKey) {
-          heldFlightKeysRef.current.add("Shift");
+          changed = holdNavigationKey(heldFlightKeysRef.current, "Shift");
         } else {
-          heldFlightKeysRef.current.delete("Shift");
+          changed = heldFlightKeysRef.current.delete("Shift");
         }
         if (event.altKey) {
-          heldFlightKeysRef.current.add("Alt");
+          changed =
+            holdNavigationKey(heldFlightKeysRef.current, "Alt") || changed;
         } else {
-          heldFlightKeysRef.current.delete("Alt");
+          changed = heldFlightKeysRef.current.delete("Alt") || changed;
         }
-        heldFlightKeysRef.current.add(event.key);
+        changed =
+          holdNavigationKey(heldFlightKeysRef.current, event.key) || changed;
         if (!event.repeat) {
           setStatus(
             event.altKey
@@ -2751,7 +2767,7 @@ export function App() {
                   : "Smooth screen-relative movement",
           );
         }
-        updateHeldNavigation();
+        if (changed) updateHeldNavigation();
         return;
       }
       if (event.key === "Home" || event.key === "0") {

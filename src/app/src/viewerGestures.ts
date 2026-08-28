@@ -54,6 +54,17 @@ export type PanGlideCancelState = {
   touchPointCount: number;
 };
 
+/** Combine high-frequency pointer/wheel samples without an unbounded jump. */
+export function accumulateBoundedFrameDelta(
+  current: number,
+  delta: number,
+  limit: number,
+): number {
+  if (!Number.isFinite(current) || !Number.isFinite(delta)) return 0;
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, limit) : 0;
+  return Math.max(-safeLimit, Math.min(safeLimit, current + delta));
+}
+
 /** Keep the RAF touch flag only while a real touch gesture still exists. */
 export function touchInteractionAfterPanGlideCancel({
   customTouchGestureActive,
