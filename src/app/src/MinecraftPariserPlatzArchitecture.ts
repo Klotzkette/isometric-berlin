@@ -16,7 +16,7 @@ import {
 import { MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK } from "./visual-modes/minecraft/palette";
 
 /**
- * Block-native recognition layer for the four civic buildings on Pariser
+ * Block-native recognition layer for the five civic buildings on Pariser
  * Platz. The surveyed voxel masses remain in place; this single instanced
  * batch gives them readable Minecraft signatures without leaking the smooth
  * Day/Night facade overlay into Minecraft mode.
@@ -27,8 +27,11 @@ export const MINECRAFT_PARISER_PLATZ_GROUP_NAME =
 export const MINECRAFT_PARISER_PLATZ_MESH_NAME =
   "Voxel Pariser Platz civic architecture signatures";
 
-type BuildingProfile =
-  (typeof PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings)[keyof typeof PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings];
+type BuildingProfile = {
+  facadeCenterWorldM: readonly [number, number, number];
+  rotationYRad: number;
+  outwardSign: number;
+};
 
 type Block = {
   color: number;
@@ -152,6 +155,22 @@ function addFrenchEmbassySignature(blocks: Block[]): void {
       [3.7, 0.72, 0.82],
     );
   }
+  for (const u of [-7, 2]) {
+    pushBlock(blocks, profile, STEEL, u, 6.1, 1.8, [0.35, 3.2, 0.35]);
+  }
+  [BLOCK.lapis, PALE, BLOCK.red].forEach((color, stripe) => {
+    pushBlock(
+      blocks,
+      profile,
+      color,
+      -6.7 + stripe * 0.5,
+      6.6,
+      1.8,
+      [0.5, 1.15, 0.35],
+    );
+  });
+  pushBlock(blocks, profile, BLOCK.lapis, 2.85, 6.6, 1.8, [1.5, 1.15, 0.35]);
+  pushBlock(blocks, profile, BLOCK.gold, 2.85, 6.6, 2.05, [0.35, 0.35, 0.35]);
 }
 
 function addUsEmbassySignature(blocks: Block[]): void {
@@ -295,6 +314,87 @@ function addAkademieSignature(blocks: Block[]): void {
       [3.7, 0.6, 4.2],
     );
   }
+  for (const u of [-4.6, -2.3, 0, 2.3, 4.6]) {
+    pushBlock(blocks, profile, GLASS, u, 1.85, 1.8, [2.1, 3.25, 0.4]);
+  }
+  for (const u of [-4.6, 0, 4.6]) {
+    pushBlock(blocks, profile, STEEL, u, 3.85, 1.85, [4.5, 0.4, 1.2]);
+  }
+}
+
+function addEuropeanHouseSignature(blocks: Block[]): void {
+  const profile = PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.europeanHouse;
+  const frontages = [
+    { frame: profile, bays: 7, pitch: 2.95, width: profile.facadeWidthM },
+    {
+      frame: {
+        facadeCenterWorldM: profile.westReturn.centerWorldM,
+        rotationYRad: profile.westReturn.rotationYRad,
+        outwardSign: 1,
+      },
+      bays: 4,
+      pitch: 3.2,
+      width: profile.westReturn.widthM,
+    },
+  ];
+  for (const { frame, bays, pitch, width } of frontages) {
+    for (let floor = 0; floor < 7; floor += 1) {
+      const y = floor === 0 ? 2.3 : 6.4 + (floor - 1) * 3.35;
+      for (let bay = 0; bay < bays; bay += 1) {
+        const u = (bay - (bays - 1) / 2) * pitch;
+        pushBlock(blocks, frame, floor === 0 ? GLASS : DARK, u, y, 0.95, [
+          1.8,
+          floor === 0 ? 3.9 : 2.55,
+          0.5,
+        ]);
+        if (floor > 0 && floor < 5 && (bay + floor) % 3 === 0) {
+          pushBlock(
+            blocks,
+            frame,
+            BLOCK.lapis,
+            u,
+            y + 1.22,
+            1.15,
+            [2, 0.4, 0.9],
+          );
+        }
+      }
+    }
+    const segments = Math.ceil(width / 5.5);
+    for (const y of [4.8, 11.5, 18.2, 26.2]) {
+      for (let segment = 0; segment < segments; segment += 1) {
+        pushBlock(
+          blocks,
+          frame,
+          PALE,
+          ((segment + 0.5) * width) / segments - width / 2,
+          y,
+          0.75,
+          [width / segments, 0.4, 0.55],
+        );
+      }
+    }
+  }
+  for (let course = 0; course < 3; course += 1) {
+    for (const u of [-8.4, -4.2, 0, 4.2, 8.4]) {
+      pushBlock(
+        blocks,
+        profile,
+        COPPER,
+        u,
+        27.5 + course * 2.5,
+        -course * 1.1,
+        [4.15, 2.3, 0.65],
+      );
+    }
+  }
+  for (const u of [-7.5, -3.75, 0, 3.75, 7.5]) {
+    pushBlock(blocks, profile, PALE, u, 28.8, 0.1, [1.7, 2, 0.6]);
+    pushBlock(blocks, profile, DARK, u, 28.8, 0.55, [1.05, 1.4, 0.35]);
+  }
+  pushBlock(blocks, profile, STEEL, 4.6, 6, 1.6, [0.35, 3.2, 0.35]);
+  pushBlock(blocks, profile, BLOCK.lapis, 5.45, 6.5, 1.6, [1.5, 1.1, 0.35]);
+  pushBlock(blocks, profile, BLOCK.gold, 5.45, 6.5, 1.85, [0.35, 0.35, 0.35]);
 }
 
 export function createMinecraftPariserPlatzArchitecture(): Group {
@@ -303,6 +403,7 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
   addFrenchEmbassySignature(blocks);
   addUsEmbassySignature(blocks);
   addAkademieSignature(blocks);
+  addEuropeanHouseSignature(blocks);
 
   const geometry = new BoxGeometry(1, 1, 1);
   const material = new MeshStandardMaterial({
@@ -343,12 +444,12 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
   const group = new Group();
   group.name = MINECRAFT_PARISER_PLATZ_GROUP_NAME;
   group.userData = {
-    buildingCount: 4,
+    buildingCount: 5,
     drawCallBudget: 1,
     geometryStatus:
       "block signatures aligned to the same LoD2 front edges as the surface facades",
     genericSourceMassRetained: true,
-    instanceBudget: 600,
+    instanceBudget: 760,
     sourceProfile: PARISER_PLATZ_ARCHITECTURE_PROFILE,
   };
   group.add(mesh);

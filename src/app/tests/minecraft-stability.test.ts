@@ -113,6 +113,15 @@ describe("Minecraft stability policy keeps a still view calm and complete", () =
       expect(policy.pinInteractionSurface).toBe(false);
     }
   });
+
+  test("reuses immutable policies instead of allocating once per frame", () => {
+    expect(minecraftStabilityPolicy("day")).toBe(
+      minecraftStabilityPolicy("night"),
+    );
+    expect(minecraftStabilityPolicy("minecraft")).toBe(
+      minecraftStabilityPolicy("minecraft"),
+    );
+  });
 });
 
 describe("Minecraft rendering is temporally stable", () => {

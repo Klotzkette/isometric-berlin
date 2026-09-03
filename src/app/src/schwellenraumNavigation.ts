@@ -25,6 +25,30 @@ export type SchwellenraumFlightResult = {
   position: SchwellenraumPoint;
 };
 
+export type SchwellenraumFlightScratch = {
+  applied: SchwellenraumPoint;
+  axisOrder: [number, number, number];
+  candidate: SchwellenraumPoint;
+  increment: SchwellenraumPoint;
+  nearbyObstacles: Set<PedestrianObstacle>;
+  position: SchwellenraumPoint;
+  result: SchwellenraumFlightResult;
+};
+
+export function createSchwellenraumFlightScratch(): SchwellenraumFlightScratch {
+  const applied = { x: 0, y: 0, z: 0 };
+  const position = { x: 0, y: 0, z: 0 };
+  return {
+    applied,
+    axisOrder: [0, 1, 2],
+    candidate: { x: 0, y: 0, z: 0 },
+    increment: { x: 0, y: 0, z: 0 },
+    nearbyObstacles: new Set(),
+    position,
+    result: { applied, blocked: false, position },
+  };
+}
+
 function squaredDistanceToSegment(
   x: number,
   z: number,
@@ -45,8 +69,7 @@ function squaredDistanceToSegment(
         )
       : 0;
   return (
-    (x - (from[0] + dx * progress)) ** 2 +
-    (z - (from[1] + dz * progress)) ** 2
+    (x - (from[0] + dx * progress)) ** 2 + (z - (from[1] + dz * progress)) ** 2
   );
 }
 
@@ -96,19 +119,20 @@ function sphereTouchesPolygon(
   return true;
 }
 
-function sampledSpherePoints(
+function sphereSampleSome(
   point: SchwellenraumPoint,
   radius: number,
-): SchwellenraumPoint[] {
-  return [
-    point,
-    { x: point.x - radius, y: point.y, z: point.z },
-    { x: point.x + radius, y: point.y, z: point.z },
-    { x: point.x, y: point.y - radius, z: point.z },
-    { x: point.x, y: point.y + radius, z: point.z },
-    { x: point.x, y: point.y, z: point.z - radius },
-    { x: point.x, y: point.y, z: point.z + radius },
-  ];
+  tester: (x: number, y: number, z: number) => boolean,
+): boolean {
+  return (
+    tester(point.x, point.y, point.z) ||
+    tester(point.x - radius, point.y, point.z) ||
+    tester(point.x + radius, point.y, point.z) ||
+    tester(point.x, point.y - radius, point.z) ||
+    tester(point.x, point.y + radius, point.z) ||
+    tester(point.x, point.y, point.z - radius) ||
+    tester(point.x, point.y, point.z + radius)
+  );
 }
 
 function sphereHasInteriorAccess(
@@ -118,12 +142,16 @@ function sphereHasInteriorAccess(
   obstacle: PedestrianObstacle,
 ): boolean {
   const tester = environment.walkableInteriorAt;
+  if (obstacle.kind !== "polygon" || tester === undefined) return false;
+  const sourceId = obstacle.sourceId;
   return (
-    obstacle.kind === "polygon" &&
-    tester !== undefined &&
-    sampledSpherePoints(point, radius).every((sample) =>
-      tester(sample.x, sample.y, sample.z, obstacle.sourceId),
-    )
+    tester(point.x, point.y, point.z, sourceId) &&
+    tester(point.x - radius, point.y, point.z, sourceId) &&
+    tester(point.x + radius, point.y, point.z, sourceId) &&
+    tester(point.x, point.y - radius, point.z, sourceId) &&
+    tester(point.x, point.y + radius, point.z, sourceId) &&
+    tester(point.x, point.y, point.z - radius, sourceId) &&
+    tester(point.x, point.y, point.z + radius, sourceId)
   );
 }
 
@@ -133,21 +161,18 @@ function sphereTouchesProtectedVolume(
   environment: PedestrianEnvironment,
 ): boolean {
   const tester = environment.protectedVolumeAt;
-  return (
-    tester !== undefined &&
-    sampledSpherePoints(point, radius).some((sample) =>
-      tester(sample.x, sample.y, sample.z),
-    )
-  );
+  return tester !== undefined && sphereSampleSome(point, radius, tester);
 }
 
 function nearbyObstacles(
   point: SchwellenraumPoint,
   radius: number,
   environment: PedestrianEnvironment,
+  output?: Set<PedestrianObstacle>,
 ): Set<PedestrianObstacle> {
   const obstacles = environment.obstacles;
-  const nearby = new Set<PedestrianObstacle>();
+  const nearby = output ?? new Set<PedestrianObstacle>();
+  nearby.clear();
   if (!obstacles) {
     return nearby;
   }
@@ -158,7 +183,9 @@ function nearbyObstacles(
   for (let zIndex = minZIndex; zIndex <= maxZIndex; zIndex += 1) {
     for (let xIndex = minXIndex; xIndex <= maxXIndex; xIndex += 1) {
       const key = pedestrianObstacleCellKey(xIndex, zIndex);
-      for (const obstacle of obstacles.cells.get(key) ?? []) {
+      const cellObstacles = obstacles.cells.get(key);
+      if (!cellObstacles) continue;
+      for (const obstacle of cellObstacles) {
         nearby.add(obstacle);
       }
     }
@@ -174,9 +201,13 @@ export function schwellenraumFlightPointIsBlocked(
   point: SchwellenraumPoint,
   environment: PedestrianEnvironment,
   radius = SCHWELLENRAUM_FLIGHT_RADIUS_M,
+  nearbyObstacleScratch?: Set<PedestrianObstacle>,
 ): boolean {
   if (
-    ![point.x, point.y, point.z, radius].every(Number.isFinite) ||
+    !Number.isFinite(point.x) ||
+    !Number.isFinite(point.y) ||
+    !Number.isFinite(point.z) ||
+    !Number.isFinite(radius) ||
     radius <= 0 ||
     point.x - radius < environment.bounds.minX ||
     point.x + radius > environment.bounds.maxX ||
@@ -210,7 +241,12 @@ export function schwellenraumFlightPointIsBlocked(
   ) {
     return true;
   }
-  for (const obstacle of nearbyObstacles(point, radius, environment)) {
+  for (const obstacle of nearbyObstacles(
+    point,
+    radius,
+    environment,
+    nearbyObstacleScratch,
+  )) {
     if (
       point.y + radius <= obstacle.minY + 0.02 ||
       point.y - radius >= obstacle.maxY - 0.02 ||
@@ -250,15 +286,8 @@ export function schwellenraumFlightPointIsBlocked(
   return false;
 }
 
-function add(
-  point: SchwellenraumPoint,
-  delta: SchwellenraumPoint,
-): SchwellenraumPoint {
-  return {
-    x: point.x + delta.x,
-    y: point.y + delta.y,
-    z: point.z + delta.z,
-  };
+function flightAxisAmount(point: SchwellenraumPoint, axis: number): number {
+  return axis === 0 ? point.x : axis === 1 ? point.y : point.z;
 }
 
 /**
@@ -271,57 +300,94 @@ export function resolveSchwellenraumFlightTranslation(
   requested: SchwellenraumPoint,
   environment: PedestrianEnvironment,
   radius = SCHWELLENRAUM_FLIGHT_RADIUS_M,
+  scratch?: SchwellenraumFlightScratch,
 ): SchwellenraumFlightResult {
+  const state = scratch ?? createSchwellenraumFlightScratch();
+  const { applied, axisOrder, candidate, increment, position, result } = state;
+  position.x = start.x;
+  position.y = start.y;
+  position.z = start.z;
   if (
-    ![start.x, start.y, start.z, requested.x, requested.y, requested.z].every(
-      Number.isFinite,
-    )
+    !Number.isFinite(start.x) ||
+    !Number.isFinite(start.y) ||
+    !Number.isFinite(start.z) ||
+    !Number.isFinite(requested.x) ||
+    !Number.isFinite(requested.y) ||
+    !Number.isFinite(requested.z)
   ) {
-    return {
-      applied: { x: 0, y: 0, z: 0 },
-      blocked: true,
-      position: { ...start },
-    };
+    applied.x = 0;
+    applied.y = 0;
+    applied.z = 0;
+    result.blocked = true;
+    return result;
   }
   const length = Math.hypot(requested.x, requested.y, requested.z);
   if (length <= 1e-9) {
-    return {
-      applied: { x: 0, y: 0, z: 0 },
-      blocked: false,
-      position: { ...start },
-    };
+    applied.x = 0;
+    applied.y = 0;
+    applied.z = 0;
+    result.blocked = false;
+    return result;
   }
   const steps = Math.max(1, Math.ceil(length / SCHWELLENRAUM_FLIGHT_STEP_M));
-  const increment = {
-    x: requested.x / steps,
-    y: requested.y / steps,
-    z: requested.z / steps,
-  };
-  let position = { ...start };
+  increment.x = requested.x / steps;
+  increment.y = requested.y / steps;
+  increment.z = requested.z / steps;
   let blocked = false;
   for (let step = 0; step < steps; step += 1) {
-    const full = add(position, increment);
-    if (!schwellenraumFlightPointIsBlocked(full, environment, radius)) {
-      position = full;
+    candidate.x = position.x + increment.x;
+    candidate.y = position.y + increment.y;
+    candidate.z = position.z + increment.z;
+    if (
+      !schwellenraumFlightPointIsBlocked(
+        candidate,
+        environment,
+        radius,
+        state.nearbyObstacles,
+      )
+    ) {
+      position.x = candidate.x;
+      position.y = candidate.y;
+      position.z = candidate.z;
       continue;
     }
     blocked = true;
-    const axes: Array<readonly ["x" | "y" | "z", number]> = [
-      ["x", increment.x],
-      ["y", increment.y],
-      ["z", increment.z],
-    ];
-    axes.sort((left, right) => Math.abs(right[1]) - Math.abs(left[1]));
+    axisOrder[0] = 0;
+    axisOrder[1] = 1;
+    axisOrder[2] = 2;
+    for (let index = 1; index < axisOrder.length; index += 1) {
+      const axis = axisOrder[index];
+      let positionIndex = index;
+      while (
+        positionIndex > 0 &&
+        Math.abs(flightAxisAmount(increment, axisOrder[positionIndex - 1])) <
+          Math.abs(flightAxisAmount(increment, axis))
+      ) {
+        axisOrder[positionIndex] = axisOrder[positionIndex - 1];
+        positionIndex -= 1;
+      }
+      axisOrder[positionIndex] = axis;
+    }
     let advanced = false;
-    for (const [axis, amount] of axes) {
+    for (const axis of axisOrder) {
+      const amount = flightAxisAmount(increment, axis);
       if (Math.abs(amount) <= 1e-12) {
         continue;
       }
-      const axisDelta = { x: 0, y: 0, z: 0 };
-      axisDelta[axis] = amount;
-      const candidate = add(position, axisDelta);
-      if (!schwellenraumFlightPointIsBlocked(candidate, environment, radius)) {
-        position = candidate;
+      candidate.x = position.x + (axis === 0 ? amount : 0);
+      candidate.y = position.y + (axis === 1 ? amount : 0);
+      candidate.z = position.z + (axis === 2 ? amount : 0);
+      if (
+        !schwellenraumFlightPointIsBlocked(
+          candidate,
+          environment,
+          radius,
+          state.nearbyObstacles,
+        )
+      ) {
+        position.x = candidate.x;
+        position.y = candidate.y;
+        position.z = candidate.z;
         advanced = true;
       }
     }
@@ -329,10 +395,9 @@ export function resolveSchwellenraumFlightTranslation(
       break;
     }
   }
-  const applied = {
-    x: position.x - start.x,
-    y: position.y - start.y,
-    z: position.z - start.z,
-  };
-  return { applied, blocked, position };
+  applied.x = position.x - start.x;
+  applied.y = position.y - start.y;
+  applied.z = position.z - start.z;
+  result.blocked = blocked;
+  return result;
 }

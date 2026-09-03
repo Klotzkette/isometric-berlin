@@ -171,6 +171,32 @@ describe("Schwellenraum closed world-motion contract", () => {
     );
   });
 
+  test("reuses one decision object during continuous rendering", () => {
+    const output = {
+      animateFlags: false,
+      animateOrdinaryEnvironment: false,
+      animateWaterLight: false,
+      environmentalMotion: false,
+    };
+    const result = schwellenraumMotionDecision(
+      {
+        lastFlagFrameAt: 0,
+        lastWaterFrameAt: 0,
+        minecraftMobsVisible: false,
+        mode: "schwellenraum",
+        movingFlagCount: 4,
+        rainVisible: false,
+        reducedMotion: false,
+        snowVisible: false,
+        timestamp: SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
+        waterLightCount: 1,
+      },
+      output,
+    );
+    expect(result).toBe(output);
+    expect(result.animateFlags).toBe(true);
+  });
+
   test("cadences the four civic flags in every ordinary visual mode", () => {
     for (const mode of ["day", "night", "snowstorm", "minecraft"] as const) {
       const decision = schwellenraumMotionDecision({

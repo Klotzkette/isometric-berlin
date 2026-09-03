@@ -9,7 +9,7 @@ import {
 } from "./drawnKit";
 
 /**
- * Source-bounded recognition facades for the four civic buildings on Pariser
+ * Source-bounded recognition facades for the five civic buildings on Pariser
  * Platz. The official LoD2 bodies remain the massing authority: this module
  * only supplies the facade depth, cadence and roof-line cues that a plain
  * LoD2 extrusion cannot express. No photograph or downloaded texture ships
@@ -19,9 +19,9 @@ import {
 export const PARISER_PLATZ_ARCHITECTURE_PROFILE = {
   geometryStatus:
     "Berlin LoD2 front edges and heights; current OSM identities; primary-source facade systems; code-native recognition detail",
-  sourceCheckedOn: "2026-08-21",
+  sourceCheckedOn: "2026-09-03",
   performance: {
-    drawCallBudget: 12,
+    drawCallBudget: 15,
     mobileCompatible: true,
     photoTexturesBundled: false,
     staticGeometry: true,
@@ -119,6 +119,41 @@ export const PARISER_PLATZ_ARCHITECTURE_PROFILE = {
           "https://commons.wikimedia.org/wiki/File:Akademie_der_Kuenste_Berlin_2.jpg",
       },
     },
+    europeanHouse: {
+      address: "Unter den Linden 78",
+      architect: "Hans Kollhoff",
+      facadeCenterWorldM: [597.746, 4.85, 255.313] as const,
+      facadeSourceEdgeWorldM: [
+        [587.024, 256.22],
+        [608.468, 254.406],
+      ] as const,
+      facadeHeightM: 26.385,
+      roofHeightM: 34.46,
+      facadeWidthM: 21.520588560724782,
+      outwardSign: 1,
+      rotationYRad: 0.08439151100635693,
+      westReturn: {
+        centerWorldM: [586.4055, 4.85, 249.262] as const,
+        widthM: 13.970870588478038,
+        rotationYRad: -1.4821388605632353,
+      },
+      lod2ParentId: "DEBE01YYK00005TM",
+      lod2PrismIds: [
+        "DEBE3DmVyyFpdPDu",
+        "DEBE3Dubti8G9AB9",
+        "DEBE3DvzY85jDxuR",
+      ] as const,
+      osmNodeIds: [514881066, 11816495166] as const,
+      sourceUrls: [
+        "https://germany.representation.ec.europa.eu/uber-uns/europaisches-haus_de",
+      ] as const,
+      visualQa: {
+        license: "CC BY-SA 4.0",
+        photoBundled: false,
+        referenceUrl:
+          "https://commons.wikimedia.org/wiki/File:Europ%C3%A4isches_Haus,_Unter_den_Linden_78,_24-05-2025.jpg",
+      },
+    },
   },
 } as const;
 
@@ -130,6 +165,7 @@ export const PARISER_PLATZ_FACADE_NAMES = {
   france: "French Embassy source-bounded facade",
   maxLiebermann: "Max-Liebermann-Haus source-bounded facade",
   usa: "US Embassy source-bounded facade",
+  europeanHouse: "Europäisches Haus source-bounded facade",
 } as const;
 
 type FacadeFrame = {
@@ -177,6 +213,14 @@ const ADK_FRAME: FacadeFrame = {
     PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.akademieDerKuenste
       .rotationYRad,
 };
+const EUROPE_FRAME: FacadeFrame = {
+  center:
+    PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.europeanHouse
+      .facadeCenterWorldM,
+  outwardSign: 1,
+  rotationY:
+    PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.europeanHouse.rotationYRad,
+};
 
 const PALE_STONE = 0xe5e0d5;
 const LIGHT_STONE = 0xd7d1c4;
@@ -188,6 +232,30 @@ const NIGHT_GLASS = 0xcaa976;
 const STEEL = 0x56666b;
 const DARK_STEEL = 0x39474c;
 const LEAF_GLASS = 0x91ae92;
+const EU_BLUE = 0x2855a3;
+const GILT = 0xd8bc68;
+const PATINATED_COPPER = 0x6e8579;
+
+const FACADE_GLYPHS: Readonly<Record<string, readonly string[]>> = {
+  A: ["010", "101", "111", "101", "101"],
+  B: ["110", "101", "110", "101", "110"],
+  C: ["011", "100", "100", "100", "011"],
+  D: ["110", "101", "101", "101", "110"],
+  E: ["111", "100", "110", "100", "111"],
+  F: ["111", "100", "110", "100", "100"],
+  H: ["101", "101", "111", "101", "101"],
+  I: ["111", "010", "010", "010", "111"],
+  K: ["101", "101", "110", "101", "101"],
+  L: ["100", "100", "100", "100", "111"],
+  M: ["101", "111", "111", "101", "101"],
+  N: ["101", "111", "111", "111", "101"],
+  O: ["010", "101", "101", "101", "010"],
+  P: ["110", "101", "110", "100", "100"],
+  R: ["110", "101", "110", "101", "101"],
+  S: ["011", "100", "010", "001", "110"],
+  T: ["111", "010", "010", "010", "010"],
+  U: ["101", "101", "101", "101", "111"],
+};
 
 function worldPoint(
   frame: FacadeFrame,
@@ -254,6 +322,84 @@ function addSlopedFacadeBar(
   geometry.rotateY(frame.rotationY);
   geometry.translate(x, frame.center[1] + centerAboveGround, z);
   addFacadeGeometry(builder, geometry, color, { inked: false });
+}
+
+// Small relief lettering is merged into the existing facade, with no canvas,
+// texture, extra material or per-frame work.
+function addFacadeWordmark(
+  builder: Builder,
+  frame: FacadeFrame,
+  text: string,
+  color: number,
+  centerU: number,
+  centerY: number,
+  depth: number,
+  pixelM: number,
+): void {
+  const columns = [...text].reduce(
+    (sum, letter) => sum + (letter === " " ? 3 : 4),
+    -1,
+  );
+  let cursor = (-columns * pixelM) / 2;
+  for (const letter of text) {
+    const glyph = FACADE_GLYPHS[letter];
+    glyph?.forEach((row, y) => {
+      [...row].forEach((pixel, x) => {
+        if (pixel !== "1") return;
+        addFacadeBox(
+          builder,
+          frame,
+          color,
+          centerU + cursor + (x + 0.5) * pixelM,
+          centerY + (2 - y) * pixelM,
+          depth,
+          pixelM * 0.86,
+          pixelM * 0.86,
+          0.055,
+          { inked: false },
+        );
+      });
+    });
+    cursor += (letter === " " ? 3 : 4) * pixelM;
+  }
+}
+
+function addEuropeanFlag(
+  builder: Builder,
+  frame: FacadeFrame,
+  u: number,
+  y: number,
+): void {
+  addFacadeBox(builder, frame, STEEL, u, y, 1.4, 0.07, 3.2, 0.07, {
+    inked: false,
+  });
+  addFacadeBox(
+    builder,
+    frame,
+    EU_BLUE,
+    u + 0.78,
+    y + 0.55,
+    1.42,
+    1.5,
+    1.05,
+    0.06,
+    { inked: false },
+  );
+  for (let star = 0; star < 12; star += 1) {
+    const angle = (star * Math.PI) / 6;
+    addFacadeBox(
+      builder,
+      frame,
+      GILT,
+      u + 0.78 + Math.sin(angle) * 0.33,
+      y + 0.55 + Math.cos(angle) * 0.33,
+      1.47,
+      0.085,
+      0.085,
+      0.04,
+      { inked: false },
+    );
+  }
 }
 
 function finaliseFacade(
@@ -636,6 +782,125 @@ function createFrenchEmbassyFacade(): Group {
     );
   }
 
+  for (let joint = -25; joint <= 25; joint += 2.8) {
+    if (Math.abs(joint - passageU) < 3.5) continue;
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      LIGHT_STONE,
+      joint,
+      2.12,
+      1.025,
+      0.055,
+      4.1,
+      0.045,
+      { inked: false },
+    );
+  }
+  for (const u of [-3.72, -0.78]) {
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      GLASS,
+      u,
+      2.25,
+      1.11,
+      2.72,
+      4.05,
+      0.06,
+      { inked: false },
+    );
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      LIGHT_STONE,
+      u + 0.55,
+      1.55,
+      1.17,
+      0.045,
+      0.68,
+      0.05,
+      { inked: false },
+    );
+  }
+  for (const u of tallBays) {
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      LIGHT_STONE,
+      u,
+      5.43,
+      0.97,
+      3.72,
+      0.2,
+      0.82,
+      { inked: false },
+    );
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      DARK_STEEL,
+      u,
+      6.14,
+      1.18,
+      3.48,
+      0.065,
+      0.065,
+      { inked: false },
+    );
+    for (const offset of [-1.5, 0, 1.5]) {
+      addFacadeBox(
+        builder,
+        FRANCE_FRAME,
+        DARK_STEEL,
+        u + offset,
+        5.81,
+        1.18,
+        0.045,
+        0.7,
+        0.065,
+        { inked: false },
+      );
+    }
+  }
+  addFacadeWordmark(
+    builder,
+    FRANCE_FRAME,
+    "AMBASSADE DE FRANCE",
+    GILT,
+    passageU,
+    8.35,
+    1.12,
+    0.12,
+  );
+  addEuropeanFlag(builder, FRANCE_FRAME, 2.0, 5.65);
+  addFacadeBox(
+    builder,
+    FRANCE_FRAME,
+    STEEL,
+    -7.05,
+    5.65,
+    1.4,
+    0.07,
+    3.2,
+    0.07,
+    { inked: false },
+  );
+  [EU_BLUE, 0xf4f1e9, 0xc34948].forEach((color, stripe) => {
+    addFacadeBox(
+      builder,
+      FRANCE_FRAME,
+      color,
+      -6.8 + stripe * 0.5,
+      6.2,
+      1.42,
+      0.5,
+      1.05,
+      0.06,
+      { inked: false },
+    );
+  });
+
   return finaliseFacade(builder, PARISER_PLATZ_FACADE_NAMES.france, {
     composition:
       "roughened base, double-height Bel Etage and covered Rue de France",
@@ -643,6 +908,13 @@ function createFrenchEmbassyFacade(): Group {
     geometryAnchor: `${profile.lod2ParentId} / OSM relation ${profile.osmRelationId}`,
     primarySources: profile.sourceUrls,
     rueDeFranceWidthM: 6.15,
+    recognitionCues: [
+      "jointed rough base",
+      "recessed paired entrance doors",
+      "Bel Etage balcony rails",
+      "French tricolour and European flag",
+      "relief embassy lettering",
+    ],
   });
 }
 
@@ -886,6 +1158,17 @@ function createAkademieFacade(): Group {
         0.25,
         (flight % 2 === 0 ? 1 : -1) * 0.43,
       );
+      addSlopedFacadeBar(
+        builder,
+        ADK_FRAME,
+        STEEL,
+        u,
+        y + 0.52,
+        0.82,
+        8.0,
+        0.07,
+        (flight % 2 === 0 ? 1 : -1) * 0.43,
+      );
       addFacadeBox(
         builder,
         ADK_FRAME,
@@ -957,6 +1240,93 @@ function createAkademieFacade(): Group {
     });
   }
 
+  addFacadeBox(builder, ADK_FRAME, DARK_REVEAL, 0, 1.9, 1.12, 11.9, 3.6, 0.12, {
+    inked: false,
+  });
+  for (const u of [-4.6, -2.3, 0, 2.3, 4.6]) {
+    addFacadeBox(builder, ADK_FRAME, GLASS, u, 1.85, 1.21, 2.14, 3.3, 0.08, {
+      inked: false,
+      lamp: u === 0,
+    });
+    addFacadeBox(
+      builder,
+      ADK_FRAME,
+      LIGHT_STONE,
+      u + 0.99,
+      1.85,
+      1.28,
+      0.075,
+      3.42,
+      0.075,
+      { inked: false },
+    );
+    addFacadeBox(
+      builder,
+      ADK_FRAME,
+      LIGHT_STONE,
+      u + 0.5,
+      1.42,
+      1.31,
+      0.045,
+      0.65,
+      0.055,
+      { inked: false },
+    );
+  }
+  addFacadeBox(builder, ADK_FRAME, STEEL, 0, 3.72, 1.24, 13.7, 0.18, 1.45, {
+    inked: false,
+  });
+  addFacadeWordmark(
+    builder,
+    ADK_FRAME,
+    "AKADEMIE DER KUENSTE",
+    PALE_STONE,
+    0,
+    4.28,
+    1.38,
+    0.15,
+  );
+  for (const y of [8.2, 12.0, 15.75]) {
+    addFacadeBox(
+      builder,
+      ADK_FRAME,
+      LIGHT_STONE,
+      -0.8,
+      y,
+      0.9,
+      25.0,
+      0.24,
+      0.2,
+      { inked: false },
+    );
+    addFacadeBox(
+      builder,
+      ADK_FRAME,
+      STEEL,
+      -0.8,
+      y + 0.85,
+      0.94,
+      25.0,
+      0.06,
+      0.06,
+      { inked: false },
+    );
+    for (let u = -12.5; u < 12; u += 2.8) {
+      addFacadeBox(
+        builder,
+        ADK_FRAME,
+        STEEL,
+        u,
+        y + 0.45,
+        0.94,
+        0.045,
+        0.84,
+        0.065,
+        { inked: false },
+      );
+    }
+  }
+
   return finaliseFacade(builder, PARISER_PLATZ_FACADE_NAMES.akademie, {
     facadeWidthM: profile.facadeWidthM,
     geometryAnchor: `${profile.lod2ParentId} / OSM way ${profile.osmWayId}`,
@@ -966,7 +1336,281 @@ function createAkademieFacade(): Group {
       "publicly visible circulation",
       "suspended 0.4 m pipe-frame trace",
       "leaf-toned glass roof",
+      "five glazed entrance doors and thin canopy",
+      "relief academy lettering and open gallery balustrades",
     ],
+  });
+}
+
+function createEuropeanHouseFacade(): Group {
+  const builder = createBuilder();
+  const profile = PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.europeanHouse;
+  addFacadeBox(
+    builder,
+    EUROPE_FRAME,
+    PALE_STONE,
+    0,
+    13.16,
+    0.16,
+    21.42,
+    26.25,
+    0.38,
+  );
+  for (const y of [0.38, 4.8, 8.15, 11.5, 14.85, 18.2, 21.55, 25.6, 26.25]) {
+    addFacadeBox(
+      builder,
+      EUROPE_FRAME,
+      LIGHT_STONE,
+      0,
+      y,
+      0.48,
+      21.58,
+      y > 25 ? 0.3 : 0.18,
+      0.48,
+      { inked: false },
+    );
+  }
+  for (let floor = 0; floor < 6; floor += 1) {
+    for (let bay = 0; bay < 7; bay += 1) {
+      const u = -8.85 + bay * 2.95;
+      const y = 6.43 + floor * 3.35;
+      const lit = (floor + bay * 3) % 11 === 2;
+      addFacadeBox(
+        builder,
+        EUROPE_FRAME,
+        DARK_REVEAL,
+        u,
+        y,
+        0.41,
+        1.96,
+        2.76,
+        0.16,
+        { inked: false },
+      );
+      addFacadeBox(
+        builder,
+        EUROPE_FRAME,
+        lit ? NIGHT_GLASS : GLASS,
+        u,
+        y,
+        0.52,
+        1.67,
+        2.53,
+        0.08,
+        { inked: false, lamp: lit },
+      );
+      addFacadeBox(
+        builder,
+        EUROPE_FRAME,
+        LIGHT_STONE,
+        u,
+        y,
+        0.59,
+        0.065,
+        2.58,
+        0.065,
+        { inked: false },
+      );
+      addFacadeBox(
+        builder,
+        EUROPE_FRAME,
+        DARK_STEEL,
+        u,
+        y - 0.8,
+        0.64,
+        1.72,
+        0.055,
+        0.08,
+        { inked: false },
+      );
+      if (floor < 4 && (bay + floor * 2) % 3 === 0) {
+        addFacadeBox(
+          builder,
+          EUROPE_FRAME,
+          EU_BLUE,
+          u,
+          y + 1.22,
+          0.87,
+          1.92,
+          0.2,
+          0.85,
+          { inked: false },
+        );
+      }
+    }
+  }
+  for (let bay = 0; bay < 7; bay += 1) {
+    const u = -8.85 + bay * 2.95;
+    addFacadeBox(
+      builder,
+      EUROPE_FRAME,
+      GLASS,
+      u,
+      2.25,
+      0.54,
+      2.28,
+      3.95,
+      0.12,
+      { inked: false, lamp: bay === 5 },
+    );
+    addFacadeBox(
+      builder,
+      EUROPE_FRAME,
+      DARK_STEEL,
+      u,
+      2.25,
+      0.66,
+      0.08,
+      4.02,
+      0.08,
+      { inked: false },
+    );
+  }
+  addFacadeWordmark(
+    builder,
+    EUROPE_FRAME,
+    "EUROPAEISCHES HAUS",
+    GILT,
+    0,
+    4.67,
+    0.83,
+    0.13,
+  );
+  addEuropeanFlag(builder, EUROPE_FRAME, 4.6, 5.9);
+  addFacadeBox(
+    builder,
+    EUROPE_FRAME,
+    EU_BLUE,
+    5.9,
+    4.23,
+    0.95,
+    5.1,
+    0.18,
+    1.35,
+    { inked: false },
+  );
+
+  const westFrame: FacadeFrame = {
+    center: profile.westReturn.centerWorldM,
+    outwardSign: 1,
+    rotationY: profile.westReturn.rotationYRad,
+  };
+  addFacadeBox(
+    builder,
+    westFrame,
+    PALE_STONE,
+    0,
+    13.16,
+    0.16,
+    profile.westReturn.widthM,
+    26.25,
+    0.38,
+  );
+  for (const y of [0.38, 4.8, 8.15, 11.5, 14.85, 18.2, 21.55, 25.6, 26.25]) {
+    addFacadeBox(
+      builder,
+      westFrame,
+      LIGHT_STONE,
+      0,
+      y,
+      0.48,
+      profile.westReturn.widthM,
+      0.2,
+      0.48,
+      { inked: false },
+    );
+  }
+  for (let floor = 0; floor < 7; floor += 1) {
+    for (let bay = 0; bay < 4; bay += 1) {
+      const u = -4.8 + bay * 3.2;
+      const y = floor === 0 ? 2.25 : 6.43 + (floor - 1) * 3.35;
+      addFacadeBox(
+        builder,
+        westFrame,
+        GLASS,
+        u,
+        y,
+        0.52,
+        floor === 0 ? 2.3 : 1.67,
+        floor === 0 ? 3.95 : 2.53,
+        0.12,
+        { inked: false, lamp: floor === 2 && bay === 1 },
+      );
+      addFacadeBox(
+        builder,
+        westFrame,
+        LIGHT_STONE,
+        u,
+        y,
+        0.63,
+        0.07,
+        floor === 0 ? 3.95 : 2.53,
+        0.06,
+        { inked: false },
+      );
+      if (floor > 0 && floor < 5 && (bay + floor) % 3 === 0) {
+        addFacadeBox(
+          builder,
+          westFrame,
+          EU_BLUE,
+          u,
+          y + 1.22,
+          0.87,
+          1.92,
+          0.2,
+          0.85,
+          { inked: false },
+        );
+      }
+    }
+  }
+
+  // A shallow roof skin follows the eaves and the highest retained LoD2
+  // part; it does not fill the courtyard or replace the surveyed roof mass.
+  const [roofX, roofZ] = worldPoint(EUROPE_FRAME, 0, -1.9);
+  const roof = new BoxGeometry(21.2, 8.6, 0.24);
+  roof.rotateX(-0.46);
+  roof.rotateY(EUROPE_FRAME.rotationY);
+  roof.translate(roofX, EUROPE_FRAME.center[1] + 30.25, roofZ);
+  addFacadeGeometry(builder, roof, PATINATED_COPPER);
+  for (const u of [-7.5, -3.75, 0, 3.75, 7.5]) {
+    addFacadeBox(
+      builder,
+      EUROPE_FRAME,
+      LIGHT_STONE,
+      u,
+      28.76,
+      -0.55,
+      1.66,
+      2.0,
+      0.55,
+    );
+    addFacadeBox(
+      builder,
+      EUROPE_FRAME,
+      DARK_REVEAL,
+      u,
+      28.7,
+      -0.22,
+      1.15,
+      1.45,
+      0.09,
+      { inked: false },
+    );
+  }
+  return finaliseFacade(builder, PARISER_PLATZ_FACADE_NAMES.europeanHouse, {
+    facadeWidthM: profile.facadeWidthM,
+    geometryAnchor: `${profile.lod2ParentId} / OSM nodes ${profile.osmNodeIds.join(", ")}`,
+    primarySources: profile.sourceUrls,
+    recognitionCues: [
+      "pale natural-stone window grid",
+      "blue sunshades",
+      "European flag and gilt house lettering",
+      "green pitched roof and dormers",
+      "short Wilhelmstrasse return with the courtyard left open",
+    ],
+    dimensionPolicy:
+      "surveyed frontage and heights; local window, awning and roof subdivisions are display approximations",
   });
 }
 
@@ -982,5 +1626,6 @@ export function createPariserPlatzArchitecture(): Group {
   group.add(createFrenchEmbassyFacade());
   group.add(createUsEmbassyFacade());
   group.add(createAkademieFacade());
+  group.add(createEuropeanHouseFacade());
   return group;
 }

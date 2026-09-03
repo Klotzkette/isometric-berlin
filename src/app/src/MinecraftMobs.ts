@@ -36,10 +36,14 @@ type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
 
 type MobPart = {
   color: number;
+  legLift: boolean;
   local: readonly [number, number, number];
+  localScaled: readonly [number, number, number];
   mobIndex: number;
   motion: PartMotion;
   size: readonly [number, number, number];
+  sizeScaled: readonly [number, number, number];
+  swingDirection: -1 | 0 | 1;
 };
 
 type MobState = {
@@ -59,7 +63,11 @@ export type MinecraftMobField = {
   isWalkable: (x: number, z: number) => boolean;
   matrixHelper: Object3D;
   mesh: InstancedMesh;
+  mobCosHeading: Float64Array;
+  mobGround: Float64Array;
   mobs: MobState[];
+  mobSinHeading: Float64Array;
+  mobSinPhase: Float64Array;
   parts: MobPart[];
   skeletonCount: number;
   zombieCount: number;
@@ -227,7 +235,31 @@ function mobPart(
   size: readonly [number, number, number],
   motion: PartMotion = "still",
 ): MobPart {
-  return { color, local, mobIndex, motion, size };
+  const swingDirection =
+    motion === "leg-left" || motion === "arm-right"
+      ? 1
+      : motion === "leg-right" || motion === "arm-left"
+        ? -1
+        : 0;
+  return {
+    color,
+    legLift: motion === "leg-left" || motion === "leg-right",
+    local,
+    localScaled: [
+      local[0] * MOB_DISPLAY_SCALE,
+      local[1] * MOB_DISPLAY_SCALE,
+      local[2] * MOB_DISPLAY_SCALE,
+    ],
+    mobIndex,
+    motion,
+    size,
+    sizeScaled: [
+      size[0] * MOB_DISPLAY_SCALE,
+      size[1] * MOB_DISPLAY_SCALE,
+      size[2] * MOB_DISPLAY_SCALE,
+    ],
+    swingDirection,
+  };
 }
 
 function creeperParts(mobIndex: number): MobPart[] {
@@ -486,7 +518,11 @@ export function createMinecraftMobs(
     isWalkable,
     matrixHelper: new Object3D(),
     mesh,
+    mobCosHeading: new Float64Array(mobs.length),
+    mobGround: new Float64Array(mobs.length),
     mobs,
+    mobSinHeading: new Float64Array(mobs.length),
+    mobSinPhase: new Float64Array(mobs.length),
     parts,
     skeletonCount,
     zombieCount,
@@ -532,46 +568,37 @@ export function updateMinecraftMobs(
       mob.turnClock = 0.8 + (index % 4) * 0.17;
     }
     mob.phase += elapsed * mob.speedMps * 7.2;
+    field.mobSinPhase[index] = Math.sin(mob.phase);
+    field.mobSinHeading[index] = Math.sin(mob.heading);
+    field.mobCosHeading[index] = Math.cos(mob.heading);
+    field.mobGround[index] = field.groundAt(mob.x, mob.z) ?? 4;
   }
 
   const dummy = field.matrixHelper;
   for (let index = 0; index < field.parts.length; index += 1) {
     const part = field.parts[index];
     const mob = field.mobs[part.mobIndex];
-    const sine = Math.sin(mob.phase);
-    const alternating =
-      part.motion === "leg-left" || part.motion === "arm-right"
-        ? sine
-        : part.motion === "leg-right" || part.motion === "arm-left"
-          ? -sine
-          : 0;
+    const sine = field.mobSinPhase[part.mobIndex];
+    const alternating = sine * part.swingDirection;
     const bob = Math.abs(sine) * 0.035;
-    const localX = part.local[0] * MOB_DISPLAY_SCALE;
-    const localY = part.local[1] * MOB_DISPLAY_SCALE;
-    const localZ = part.local[2] * MOB_DISPLAY_SCALE;
-    const sinHeading = Math.sin(mob.heading);
-    const cosHeading = Math.cos(mob.heading);
-    const ground = field.groundAt(mob.x, mob.z) ?? 4;
+    const [localX, localY, localZ] = part.localScaled;
+    const sinHeading = field.mobSinHeading[part.mobIndex];
+    const cosHeading = field.mobCosHeading[part.mobIndex];
+    const ground = field.mobGround[part.mobIndex];
     dummy.position.set(
       mob.x + localX * cosHeading + localZ * sinHeading,
       ground +
         localY +
         bob +
-        (part.motion.startsWith("leg") ? Math.max(0, alternating) * 0.035 : 0),
+        (part.legLift ? Math.max(0, alternating) * 0.035 : 0),
       mob.z - localX * sinHeading + localZ * cosHeading,
     );
     dummy.rotation.set(
-      part.motion.startsWith("arm") || part.motion.startsWith("leg")
-        ? alternating * 0.42
-        : 0,
+      part.swingDirection === 0 ? 0 : alternating * 0.42,
       mob.heading,
       0,
     );
-    dummy.scale.set(
-      part.size[0] * MOB_DISPLAY_SCALE,
-      part.size[1] * MOB_DISPLAY_SCALE,
-      part.size[2] * MOB_DISPLAY_SCALE,
-    );
+    dummy.scale.set(...part.sizeScaled);
     dummy.updateMatrix();
     field.mesh.setMatrixAt(index, dummy.matrix);
   }

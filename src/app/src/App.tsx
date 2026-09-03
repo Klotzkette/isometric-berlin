@@ -746,7 +746,7 @@ export function App() {
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START);
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const copy = UI_COPY[language];
-  const [status, setStatus] = useState(copy.loadingMesh);
+  const [status, setStatus] = useState(copy.loadingCity);
   const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialLightingMode);
@@ -837,14 +837,21 @@ export function App() {
     () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
   );
+  const startupBackdropUrl = useMemo(
+    () =>
+      assetPath(
+        "dzi/regierungsviertel/regierungsviertel_files/8/0_0.jpg",
+      ),
+    [],
+  );
   const viewerStaticBackdropStyle = useMemo(
     () =>
       ({
         "--viewer-static-backdrop-image": cssUrl(
-          resolveCssAssetUrl(referenceMapUrl),
+          resolveCssAssetUrl(startupBackdropUrl),
         ),
       }) as CSSProperties,
-    [referenceMapUrl],
+    [startupBackdropUrl],
   );
   const selectedLandmark = useMemo(
     () =>
@@ -2156,10 +2163,10 @@ export function App() {
       setIsThreeReady(false);
     }
     setViewerMode(next);
-    setStatus(next === "three" ? copy.loadingMesh : copy.loadingMap);
+    setStatus(next === "three" ? copy.loadingCity : copy.loadingMap);
   }, [
     copy.loadingMap,
-    copy.loadingMesh,
+    copy.loadingCity,
     disablePedestrianMode,
     keepThreeWarm,
     viewerMode,
@@ -2601,9 +2608,16 @@ export function App() {
           ].includes(key)
         ) {
           event.preventDefault();
+          let changed = false;
+          if (event.shiftKey) {
+            changed = holdNavigationKey(heldFlightKeysRef.current, "Shift");
+          } else {
+            changed = heldFlightKeysRef.current.delete("Shift");
+          }
           let paceToggled = false;
           if (
             !event.repeat &&
+            !event.shiftKey &&
             [
               "ArrowUp",
               "ArrowDown",
@@ -2643,12 +2657,17 @@ export function App() {
               paceToggled = true;
             }
           }
-          const changed = holdNavigationKey(heldFlightKeysRef.current, key);
+          changed = holdNavigationKey(heldFlightKeysRef.current, key) || changed;
           if (!event.repeat && !paceToggled) {
             setStatus(
-              language === "de"
-                ? "Zu Fuß · bewegen und umschauen"
-                : "On foot · move and look around",
+              event.shiftKey &&
+                ["ArrowLeft", "ArrowRight", "a", "d"].includes(key)
+                ? language === "de"
+                  ? "Zu Fuß · Blickrichtung drehen"
+                  : "On foot · turn the view"
+                : language === "de"
+                  ? "Zu Fuß · bewegen und umschauen"
+                  : "On foot · move and look around",
             );
           }
           if (changed) updateHeldNavigation();
@@ -2665,12 +2684,22 @@ export function App() {
         const key = navigationKey(event);
         if (["w", "a", "s", "d", "Shift", "Space"].includes(key)) {
           event.preventDefault();
-          const changed = holdNavigationKey(heldFlightKeysRef.current, key);
+          let changed = false;
+          if (event.shiftKey) {
+            changed = holdNavigationKey(heldFlightKeysRef.current, "Shift");
+          } else if (key !== "Shift") {
+            changed = heldFlightKeysRef.current.delete("Shift");
+          }
+          changed = holdNavigationKey(heldFlightKeysRef.current, key) || changed;
           if (!event.repeat) {
             setStatus(
-              language === "de"
-                ? "Freie Kamera · WASD fliegt, Leertaste hoch, Shift runter"
-                : "Free camera · WASD flies, Space rises, Shift descends",
+              event.shiftKey && ["a", "d"].includes(key)
+                ? language === "de"
+                  ? "Freie Kamera · Blickrichtung drehen"
+                  : "Free camera · rotate the view"
+                : language === "de"
+                  ? "Freie Kamera · WASD fliegt, Leertaste hoch, Shift allein runter"
+                  : "Free camera · WASD flies, Space rises, Shift alone descends",
             );
           }
           if (changed) updateHeldNavigation();
@@ -2759,9 +2788,13 @@ export function App() {
                 ? "Stufenlos drehen und neigen"
                 : "Smooth orbit and tilt"
               : event.shiftKey
-                ? language === "de"
-                  ? "Stufenlos verschieben und sinken"
-                  : "Smooth screen movement and descent"
+                ? ["ArrowLeft", "ArrowRight"].includes(event.key)
+                  ? language === "de"
+                    ? "Stufenlos nach links / rechts drehen"
+                    : "Rotate smoothly left / right"
+                  : language === "de"
+                    ? "Stufenlos verschieben und sinken"
+                    : "Smooth screen movement and descent"
                 : language === "de"
                   ? "Stufenlos in der Ansicht verschieben"
                   : "Smooth screen-relative movement",
@@ -3334,7 +3367,7 @@ export function App() {
                 >
                   <div className="three-startup-curtain" aria-hidden="true" />
                   <div className="three-progress" role="status">
-                    <span>{copy.loadingMesh}</span>
+                    <span>{copy.loadingCity}</span>
                     <strong>0%</strong>
                     <div aria-hidden="true">
                       <span style={{ width: "0%" }} />
@@ -3356,7 +3389,7 @@ export function App() {
                 )}
                 pedestrianMode={isPedestrianMode}
                 precipitationEnabled={precipitationEnabled}
-                progressLabel={copy.loadingMesh}
+                progressLabel={copy.loadingCity}
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 onReady={() => {
@@ -4104,7 +4137,7 @@ export function App() {
           <HoldControlButton
             ariaLabel={copy.rotateLeft}
             disabled={!isReady}
-            title={`${copy.rotateLeft} (Alt/Option + ←)`}
+            title={`${copy.rotateLeft} (Shift + A/← · Alt/Option + ←)`}
             onActivate={() => rotateBy(-15)}
             onHoldStart={() => setOrbitInput(-1, 0)}
             onHoldEnd={() => setOrbitInput(0, 0)}
@@ -4114,7 +4147,7 @@ export function App() {
           <HoldControlButton
             ariaLabel={copy.rotateRight}
             disabled={!isReady}
-            title={`${copy.rotateRight} (Alt/Option + →)`}
+            title={`${copy.rotateRight} (Shift + D/→ · Alt/Option + →)`}
             onActivate={() => rotateBy(15)}
             onHoldStart={() => setOrbitInput(1, 0)}
             onHoldEnd={() => setOrbitInput(0, 0)}
@@ -4940,6 +4973,19 @@ export function App() {
                       : "Rotate and tilt the view"}
                 </dd>
               </div>
+              {viewerMode === "three" ? (
+                <div>
+                  <dt>
+                    <kbd>Shift</kbd> + <kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd>{" "}
+                    <kbd>→</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Ansicht in freier Kamera und Spaziergang stufenlos nach links / rechts drehen"
+                      : "Rotate the view smoothly left / right in free camera and walking mode"}
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt>
                   <kbd>PageUp</kbd> <kbd>PageDown</kbd>
@@ -4959,12 +5005,12 @@ export function App() {
                     ? isPedestrianMode
                       ? "Einmal: springen (6,2 m); zweimal schnell: höher springen (10,5 m)"
                       : viewerMode === "three"
-                        ? "Freie Kamera: steigen; Shift: sinken"
+                        ? "Freie Kamera: steigen; Shift allein: sinken"
                         : "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
                     : isPedestrianMode
                       ? "Once: jump (6.2 m); twice quickly: jump higher (10.5 m)"
                       : viewerMode === "three"
-                        ? "Free camera: rise; Shift: descend"
+                        ? "Free camera: rise; Shift alone: descend"
                         : "Tap: start / pause the sights tour"}
                 </dd>
               </div>
@@ -5152,8 +5198,8 @@ export function App() {
                     ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf und Doppeltipp springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
                     : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Space jumps; double Space jumps higher, while the jump button and double-tap perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
-                    ? "3D: WASD fliegt relativ zur Blickrichtung, Leertaste steigt, Shift sinkt und das Mausrad zoomt am Zeiger. Linke Maustaste verschiebt direkt, rechte dreht. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                    : "3D: WASD flies relative to the view heading, Space rises, Shift descends, and the mouse wheel zooms at the pointer. Left-drag pans directly and right-drag orbits. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."
+                    ? "3D: WASD fliegt relativ zur Blickrichtung, Leertaste steigt, Shift allein sinkt, und Shift+A/D oder Shift+Links/Rechts dreht die Ansicht. Das Mausrad zoomt am Zeiger. Linke Maustaste verschiebt direkt, rechte dreht. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                    : "3D: WASD flies relative to the view heading, Space rises, Shift alone descends, and Shift+A/D or Shift+Left/Right rotates the view. The mouse wheel zooms at the pointer. Left-drag pans directly and right-drag orbits. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."
                 : language === "de"
                   ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger verschieben die Karte oder fliegen per Pinch hinein; drehen über die Pfeiltasten-Knöpfe."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.34 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.34/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.35 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.35/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.34** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.35** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.34**, built from `main`. Its full viewer
+The current public package is **v0.72.35**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -390,14 +390,20 @@ local modules.
   follows only the represented core and fence-side solids, so the surrounding
   mapped park paths and all eight sampled approach directions remain usable.
 
-- **Pariser Platz now distinguishes four major civic buildings at close
+- **Pariser Platz now distinguishes five major civic buildings at close
   range.** The Max-Liebermann-Haus, French Embassy, US Embassy and Akademie der
   Künste each receive a source-bounded, texture-free facade layer over their
   retained Berlin LoD2/OSM bodies: reconstructed Stüler cadence and cornices;
   roughened base, Bel Etage and Rue de France; limestone grid, cylindrical
   entrance and State Room lantern; and transparent circulation facade with its
-  suspended historic trace. The drawn layer serves Day, Night, Snowstorm and
-  Schwellenraum; one coarse opaque block batch gives all four a distinct
+  suspended historic trace. The European House at Unter den Linden 78 adds
+  its own stone window grid, blue awnings, EU flag and gilt lettering, separate
+  from the Starbucks corner at number 80 with its upper window registers,
+  guard rails and patinated roof-band/dormer cues. French Embassy entrances,
+  flags and balcony rails and the academy's glazed doors/gallery rails are
+  also articulated. No additional photographic payload is loaded.
+  The drawn layer serves Day, Night, Snowstorm and
+  Schwellenraum; one coarse opaque block batch gives all five civic facades a distinct
   Minecraft reading without copying the smooth geometry.
 
 - **The Center / former Sony Center and TIPI am Kanzleramt have more complete
@@ -1178,7 +1184,8 @@ local modules.
   camera response.
 
 - **Desktop navigation is continuous rather than stepwise.** Held arrows pan,
-  WASD flies relative to the view heading, `Space` rises, `Shift` descends and
+  WASD flies relative to the view heading, `Space` rises, `Shift` alone descends,
+  `Shift+A/D` or `Shift+Left/Right` rotates in both free-camera and pedestrian mode, and
   `Alt`/`Option`+arrows orbit/tilt; the matching mouse buttons keep moving while
   held. A collision-free analogue orbit pad sits
   beside the desktop controls, while the existing compact touch controls stay
@@ -1622,7 +1629,8 @@ local modules.
   replacement.
   Plain arrows translate in the visible screen plane. WASD flies
   forward/backward or strafes relative to the view heading, `Space` rises,
-  `Shift` descends, and `Alt`/`Option` + arrows orbit and tilt. Every channel is
+  `Shift` alone descends, `Shift+A/D` or `Shift+Left/Right` rotates the view,
+  and `Alt`/`Option` + arrows orbit and tilt. Every channel is
   continuous while held; the desktop
   arrow buttons behave the same way, and a separate mouse orbit pad provides
   analogue rotation and tilt. Camera and target move together, so flight never

@@ -73,9 +73,7 @@ export function updateSchwellenraumMovingFlags(
   roots: readonly Object3D[],
   elapsedSeconds: number,
 ): void {
-  for (const root of roots) {
-    updateCivicWindFlags([root], elapsedSeconds);
-  }
+  updateCivicWindFlags(roots, elapsedSeconds);
 }
 
 export type SchwellenraumMotionDecision = {
@@ -89,19 +87,7 @@ export type SchwellenraumMotionDecision = {
   environmentalMotion: boolean;
 };
 
-export function schwellenraumMotionDecision({
-  lastFlagFrameAt,
-  lastWaterFrameAt,
-  flagFrameIntervalMs = SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
-  minecraftMobsVisible,
-  mode,
-  movingFlagCount,
-  rainVisible,
-  reducedMotion,
-  snowVisible,
-  timestamp,
-  waterLightCount,
-}: {
+export type SchwellenraumMotionOptions = {
   flagFrameIntervalMs?: number;
   lastFlagFrameAt: number;
   lastWaterFrameAt: number;
@@ -113,28 +99,55 @@ export function schwellenraumMotionDecision({
   snowVisible: boolean;
   timestamp: number;
   waterLightCount: number;
-}): SchwellenraumMotionDecision {
+};
+
+export function schwellenraumMotionDecision(
+  {
+    lastFlagFrameAt,
+    lastWaterFrameAt,
+    flagFrameIntervalMs = SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
+    minecraftMobsVisible,
+    mode,
+    movingFlagCount,
+    rainVisible,
+    reducedMotion,
+    snowVisible,
+    timestamp,
+    waterLightCount,
+  }: SchwellenraumMotionOptions,
+  output?: SchwellenraumMotionDecision,
+): SchwellenraumMotionDecision {
   const animateFlags =
     !reducedMotion &&
     movingFlagCount > 0 &&
     timestamp - lastFlagFrameAt + Number.EPSILON * 1_000 >= flagFrameIntervalMs;
   if (mode !== "schwellenraum") {
-    return {
-      animateFlags,
+    const decision = output ?? {
+      animateFlags: false,
       animateOrdinaryEnvironment: true,
       animateWaterLight: false,
-      environmentalMotion:
-        animateFlags || rainVisible || snowVisible || minecraftMobsVisible,
+      environmentalMotion: false,
     };
+    decision.animateFlags = animateFlags;
+    decision.animateOrdinaryEnvironment = true;
+    decision.animateWaterLight = false;
+    decision.environmentalMotion =
+      animateFlags || rainVisible || snowVisible || minecraftMobsVisible;
+    return decision;
   }
   const animateWaterLight =
     !reducedMotion &&
     waterLightCount > 0 &&
     timestamp - lastWaterFrameAt >= SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS;
-  return {
-    animateFlags,
+  const decision = output ?? {
+    animateFlags: false,
     animateOrdinaryEnvironment: false,
-    animateWaterLight,
-    environmentalMotion: animateFlags || animateWaterLight,
+    animateWaterLight: false,
+    environmentalMotion: false,
   };
+  decision.animateFlags = animateFlags;
+  decision.animateOrdinaryEnvironment = false;
+  decision.animateWaterLight = animateWaterLight;
+  decision.environmentalMotion = animateFlags || animateWaterLight;
+  return decision;
 }

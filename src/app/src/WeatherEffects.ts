@@ -29,6 +29,7 @@ export type ModerateRain = {
   group: Group;
   material: MeshBasicMaterial;
   matrixHelper: Object3D;
+  matrixMode: VisualMode;
   mesh: InstancedMesh;
 };
 
@@ -96,7 +97,14 @@ export function createModerateRain(coarsePointer: boolean): ModerateRain {
   group.name = "Moderate rain field";
   group.visible = false;
   group.add(mesh);
-  return { drops, group, material, matrixHelper: dummy, mesh };
+  return {
+    drops,
+    group,
+    material,
+    matrixHelper: dummy,
+    matrixMode: "day",
+    mesh,
+  };
 }
 
 export function setRainPresentation(
@@ -139,7 +147,11 @@ export function updateModerateRain(
   );
   const modeWidthScale = mode === "minecraft" ? 2.25 : 1;
   const dummy = rain.matrixHelper;
-  dummy.rotation.z = mode === "minecraft" ? -0.04 : -0.075;
+  const rebuildTransforms = rain.matrixMode !== mode;
+  const matrixElements = rain.mesh.instanceMatrix.array as Float32Array;
+  if (rebuildTransforms) {
+    dummy.rotation.z = mode === "minecraft" ? -0.04 : -0.075;
+  }
   const elapsed = Math.min(Math.max(deltaSeconds, 0), 0.1);
   for (let index = 0; index < rain.drops.length; index += 1) {
     const drop = rain.drops[index];
@@ -147,14 +159,20 @@ export function updateModerateRain(
     while (drop.y < 0) {
       drop.y += RAIN_HEIGHT_M;
     }
-    dummy.position.set(drop.x, drop.y, drop.z);
-    dummy.scale.set(
-      drop.widthScale * modeWidthScale,
-      drop.lengthScale,
-      drop.widthScale * modeWidthScale,
-    );
-    dummy.updateMatrix();
-    rain.mesh.setMatrixAt(index, dummy.matrix);
+    if (rebuildTransforms) {
+      dummy.position.set(drop.x, drop.y, drop.z);
+      dummy.scale.set(
+        drop.widthScale * modeWidthScale,
+        drop.lengthScale,
+        drop.widthScale * modeWidthScale,
+      );
+      dummy.updateMatrix();
+      rain.mesh.setMatrixAt(index, dummy.matrix);
+    } else {
+      // Position Y is the sole changing matrix component between mode changes.
+      matrixElements[index * 16 + 13] = drop.y;
+    }
   }
+  rain.matrixMode = mode;
   rain.mesh.instanceMatrix.needsUpdate = true;
 }

@@ -224,10 +224,10 @@ export function nextFineDetailVisible({
   distanceM,
   visible,
 }: FineDetailVisibilityInput): boolean {
-  return nextDetailFadeVisible(
-    { distanceM, visible },
-    [FINE_DETAIL_SHOW_DISTANCE_M, FINE_DETAIL_HIDE_DISTANCE_M],
-  );
+  return nextDetailFadeVisible({ distanceM, visible }, [
+    FINE_DETAIL_SHOW_DISTANCE_M,
+    FINE_DETAIL_HIDE_DISTANCE_M,
+  ]);
 }
 
 /** Sub-decimetre/brick-bond drawing only resolves in a real close-up. */
@@ -311,6 +311,9 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Akademie der Künste source-bounded facade bodies",
   "Akademie der Künste source-bounded facade lamps",
   "Akademie der Künste source-bounded facade ink lines",
+  "Europäisches Haus source-bounded facade bodies",
+  "Europäisches Haus source-bounded facade lamps",
+  "Europäisches Haus source-bounded facade ink lines",
   "ARD Hauptstadtstudio architectural details bodies",
   "ARD Hauptstadtstudio architectural details lamps",
   "ARD Hauptstadtstudio architectural details ink lines",

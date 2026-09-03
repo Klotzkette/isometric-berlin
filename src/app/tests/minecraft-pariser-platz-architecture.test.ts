@@ -54,10 +54,10 @@ describe("Minecraft Pariser Platz architecture", () => {
     expect(group.name).toBe(MINECRAFT_PARISER_PLATZ_GROUP_NAME);
     expect(group.children).toHaveLength(1);
     expect(group.userData).toMatchObject({
-      buildingCount: 4,
+      buildingCount: 5,
       drawCallBudget: 1,
       genericSourceMassRetained: true,
-      instanceBudget: 600,
+      instanceBudget: 760,
     });
 
     const mesh = group.children[0] as InstancedMesh;
@@ -66,7 +66,7 @@ describe("Minecraft Pariser Platz architecture", () => {
     expect(mesh.geometry).toBeInstanceOf(BoxGeometry);
     expect(mesh.material).toBeInstanceOf(MeshStandardMaterial);
     expect(mesh.count).toBeGreaterThan(300);
-    expect(mesh.count).toBeLessThan(600);
+    expect(mesh.count).toBeLessThan(760);
     expect(mesh.userData).toMatchObject({
       blockNative: true,
       drawCallBudget: 1,
@@ -94,7 +94,7 @@ describe("Minecraft Pariser Platz architecture", () => {
     ).toBeInstanceOf(InstancedMesh);
   });
 
-  test("keeps every cue block-sized, coloured and aligned to all four facades", () => {
+  test("keeps every cue block-sized, coloured and aligned to all five facades", () => {
     const mesh = createMinecraftPariserPlatzArchitecture()
       .children[0] as InstancedMesh;
     const matrix = new Matrix4();

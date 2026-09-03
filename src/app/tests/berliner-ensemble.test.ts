@@ -468,6 +468,9 @@ describe("source-bound Berliner Ensemble exterior", () => {
       animate: true,
       environmentalMotion: true,
     });
+    const output = { animate: false, environmentalMotion: false };
+    expect(berlinerEnsembleRoofSignMotionDecision(ready, output)).toBe(output);
+    expect(output).toEqual({ animate: true, environmentalMotion: true });
     for (const blocked of [
       { hidden: true },
       { onScreen: false },

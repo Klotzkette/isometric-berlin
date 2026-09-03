@@ -22,6 +22,18 @@ export type ContinuousFlightSpeeds = {
   vertical: number;
 };
 
+export type CameraRigStabilization = {
+  changed: boolean;
+  pose: CameraPose;
+  recovered: boolean;
+};
+
+export type CameraRigStabilizationScratch = {
+  boundedTarget: Vector3;
+  offset: Vector3;
+  result: CameraRigStabilization;
+};
+
 const presentationEnvelope = extrapolatedEnvelopeBounds();
 
 export const NAVIGATION_STEP_DISTANCE_RATIO = 0.075;
@@ -39,6 +51,20 @@ export const PINCH_TARGET_CROSSING_ZONE_M = 24;
 export type SignedPinchDolly = {
   axis: Vector3;
   signedDistance: number;
+};
+
+export type ScreenAnchoredZoomResult = {
+  anchored: boolean;
+  distance: number;
+};
+
+export type ScreenAnchoredZoomScratch = {
+  anchorAfter: Vector3;
+  anchorBefore: Vector3;
+  boundedTarget: Vector3;
+  direction: Vector3;
+  offset: Vector3;
+  result: ScreenAnchoredZoomResult;
 };
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
@@ -71,7 +97,34 @@ export function cameraPoseDeltaM(
 }
 
 function vectorIsFinite(vector: Vector3): boolean {
-  return [vector.x, vector.y, vector.z].every(Number.isFinite);
+  return (
+    Number.isFinite(vector.x) &&
+    Number.isFinite(vector.y) &&
+    Number.isFinite(vector.z)
+  );
+}
+
+export function createCameraRigStabilizationScratch(): CameraRigStabilizationScratch {
+  const pose = {
+    position: new Vector3(),
+    target: new Vector3(),
+  };
+  return {
+    boundedTarget: new Vector3(),
+    offset: new Vector3(),
+    result: { changed: false, pose, recovered: false },
+  };
+}
+
+export function createScreenAnchoredZoomScratch(): ScreenAnchoredZoomScratch {
+  return {
+    anchorAfter: new Vector3(),
+    anchorBefore: new Vector3(),
+    boundedTarget: new Vector3(),
+    direction: new Vector3(),
+    offset: new Vector3(),
+    result: { anchored: false, distance: 0 },
+  };
 }
 
 export function stabilizeCameraRig(
@@ -81,7 +134,8 @@ export function stabilizeCameraRig(
   minDistance: number,
   maxDistance: number,
   bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
-): { changed: boolean; pose: CameraPose; recovered: boolean } {
+  scratch?: CameraRigStabilizationScratch,
+): CameraRigStabilization {
   const distance = camera.position.distanceTo(target);
   if (
     !vectorIsFinite(camera.position) ||
@@ -92,15 +146,22 @@ export function stabilizeCameraRig(
     camera.position.copy(lastSafePose.position);
     target.copy(lastSafePose.target);
     camera.updateMatrixWorld();
-    return {
+    const result = scratch?.result ?? {
       changed: true,
       pose: captureCameraPose(camera, target),
       recovered: true,
     };
+    result.changed = true;
+    result.recovered = true;
+    result.pose.position.copy(camera.position);
+    result.pose.target.copy(target);
+    return result;
   }
 
   let changed = false;
-  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  const boundedTarget = (scratch?.boundedTarget ?? target.clone())
+    .copy(target)
+    .clamp(bounds.min, bounds.max);
   if (!boundedTarget.equals(target)) {
     const correction = boundedTarget.sub(target);
     target.add(correction);
@@ -108,7 +169,9 @@ export function stabilizeCameraRig(
     changed = true;
   }
 
-  const offset = camera.position.clone().sub(target);
+  const offset = (scratch?.offset ?? camera.position.clone())
+    .copy(camera.position)
+    .sub(target);
   const distanceBeforeClamp = offset.length();
   const boundedDistance = MathUtils.clamp(
     distanceBeforeClamp,
@@ -120,11 +183,16 @@ export function stabilizeCameraRig(
     changed = true;
   }
   camera.updateMatrixWorld();
-  return {
+  const result = scratch?.result ?? {
     changed,
     pose: captureCameraPose(camera, target),
     recovered: false,
   };
+  result.changed = changed;
+  result.recovered = false;
+  result.pose.position.copy(camera.position);
+  result.pose.target.copy(target);
+  return result;
 }
 
 /**
@@ -157,6 +225,7 @@ export function advanceSignedPinchDolly(
   minAbsoluteDistance = CAMERA_TARGET_CROSSING_MIN_M,
   maxAbsoluteDistance = 2_600,
   bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+  boundedTargetScratch?: Vector3,
 ): number {
   if (
     !Number.isFinite(factor) ||
@@ -183,7 +252,9 @@ export function advanceSignedPinchDolly(
   state.signedDistance = nextDistance;
   camera.position.copy(target).addScaledVector(state.axis, nextDistance);
 
-  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  const boundedTarget = (boundedTargetScratch ?? target.clone())
+    .copy(target)
+    .clamp(bounds.min, bounds.max);
   const correction = boundedTarget.sub(target);
   target.add(correction);
   camera.position.add(correction);
@@ -196,6 +267,9 @@ export function screenRelativeFlightDelta(
   target: Vector3,
   horizontal: number,
   vertical: number,
+  result = new Vector3(),
+  right = new Vector3(),
+  up = new Vector3(),
 ): Vector3 {
   camera.updateMatrixWorld();
   const distance = camera.position.distanceTo(target);
@@ -204,15 +278,12 @@ export function screenRelativeFlightDelta(
     NAVIGATION_STEP_MIN_M,
     NAVIGATION_STEP_MAX_M,
   );
-  const right = new Vector3()
-    .setFromMatrixColumn(camera.matrixWorld, 0)
-    .normalize();
-  const up = new Vector3()
-    .setFromMatrixColumn(camera.matrixWorld, 1)
-    .normalize();
-  return right
+  right.setFromMatrixColumn(camera.matrixWorld, 0).normalize();
+  up.setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+  return result
+    .copy(right)
     .multiplyScalar(horizontal * step)
-    .add(up.multiplyScalar(vertical * step));
+    .addScaledVector(up, vertical * step);
 }
 
 export function flyCameraInViewPlane(
@@ -242,6 +313,9 @@ export function viewHeadingFlightDelta(
   target: Vector3,
   strafe: number,
   forward: number,
+  result = new Vector3(),
+  heading = new Vector3(),
+  right = new Vector3(),
 ): Vector3 {
   camera.updateMatrixWorld();
   const distance = camera.position.distanceTo(target);
@@ -250,17 +324,18 @@ export function viewHeadingFlightDelta(
     NAVIGATION_STEP_MIN_M,
     NAVIGATION_STEP_MAX_M,
   );
-  const heading = target.clone().sub(camera.position);
+  heading.copy(target).sub(camera.position);
   heading.y = 0;
   if (heading.lengthSq() < 1e-6) {
     camera.getWorldDirection(heading);
     heading.y = 0;
   }
   heading.normalize();
-  const right = new Vector3().crossVectors(heading, camera.up).normalize();
-  return heading
+  right.crossVectors(heading, camera.up).normalize();
+  return result
+    .copy(heading)
     .multiplyScalar(forward * step)
-    .add(right.multiplyScalar(strafe * step));
+    .addScaledVector(right, strafe * step);
 }
 
 export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 56;
@@ -277,11 +352,11 @@ export function twoFingerPanFlight(
   deltaX: number,
   deltaY: number,
   pixelsPerUnit = TWO_FINGER_PAN_PIXELS_PER_UNIT,
+  result = { forward: 0, strafe: 0 },
 ): { forward: number; strafe: number } {
-  return {
-    forward: deltaY / pixelsPerUnit,
-    strafe: -deltaX / pixelsPerUnit,
-  };
+  result.forward = deltaY / pixelsPerUnit;
+  result.strafe = -deltaX / pixelsPerUnit;
+  return result;
 }
 
 export type TwoFingerGestureMode = "pan" | "undecided" | "zoom";
@@ -338,14 +413,19 @@ export const PAN_MOMENTUM_REST_PX_PER_S = 24;
 export function decayPanMomentum(
   velocity: { x: number; y: number },
   dtSeconds: number,
+  result = { x: 0, y: 0 },
 ): { x: number; y: number } {
   const factor = Math.pow(0.5, dtSeconds / PAN_MOMENTUM_HALF_LIFE_S);
   const x = velocity.x * factor;
   const y = velocity.y * factor;
   if (Math.hypot(x, y) < PAN_MOMENTUM_REST_PX_PER_S) {
-    return { x: 0, y: 0 };
+    result.x = 0;
+    result.y = 0;
+    return result;
   }
-  return { x, y };
+  result.x = x;
+  result.y = y;
+  return result;
 }
 
 export function flyCameraAlongViewHeading(
@@ -370,20 +450,20 @@ export function flyCameraAlongViewHeading(
 /** Immediate, distance-aware flight speed with no acceleration ramp. */
 export function continuousFlightSpeeds(
   distance: number,
+  result: ContinuousFlightSpeeds = { horizontal: 0, vertical: 0 },
 ): ContinuousFlightSpeeds {
   const safeDistance = Number.isFinite(distance) ? Math.max(0, distance) : 0;
-  return {
-    horizontal: MathUtils.clamp(
-      safeDistance * CONTINUOUS_FLIGHT_SPEED_RATIO,
-      CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
-      CONTINUOUS_FLIGHT_SPEED_MAX_MPS,
-    ),
-    vertical: MathUtils.clamp(
-      safeDistance * CONTINUOUS_VERTICAL_SPEED_RATIO,
-      CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
-      CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
-    ),
-  };
+  result.horizontal = MathUtils.clamp(
+    safeDistance * CONTINUOUS_FLIGHT_SPEED_RATIO,
+    CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
+    CONTINUOUS_FLIGHT_SPEED_MAX_MPS,
+  );
+  result.vertical = MathUtils.clamp(
+    safeDistance * CONTINUOUS_VERTICAL_SPEED_RATIO,
+    CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+    CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
+  );
+  return result;
 }
 
 function screenPointOnHorizontalPlane(
@@ -391,11 +471,11 @@ function screenPointOnHorizontalPlane(
   ndcX: number,
   ndcY: number,
   planeY: number,
+  output = new Vector3(),
+  direction = new Vector3(),
 ): Vector3 | null {
   camera.updateMatrixWorld();
-  const direction = new Vector3(ndcX, ndcY, 0.5)
-    .unproject(camera)
-    .sub(camera.position);
+  direction.set(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position);
   if (Math.abs(direction.y) < 1e-8) {
     return null;
   }
@@ -403,7 +483,7 @@ function screenPointOnHorizontalPlane(
   if (!Number.isFinite(rayScale) || rayScale <= 0) {
     return null;
   }
-  return camera.position.clone().add(direction.multiplyScalar(rayScale));
+  return output.copy(camera.position).add(direction.multiplyScalar(rayScale));
 }
 
 /**
@@ -421,7 +501,9 @@ export function zoomCameraAtScreenPoint(
   minDistance: number,
   maxDistance: number,
   bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
-): { anchored: boolean; distance: number } {
+  scratch?: ScreenAnchoredZoomScratch,
+): ScreenAnchoredZoomResult {
+  const result = scratch?.result ?? { anchored: false, distance: 0 };
   const currentDistance = camera.position.distanceTo(target);
   if (
     !Number.isFinite(currentDistance) ||
@@ -429,20 +511,39 @@ export function zoomCameraAtScreenPoint(
     !Number.isFinite(factor) ||
     factor <= 0
   ) {
-    return { anchored: false, distance: currentDistance };
+    result.anchored = false;
+    result.distance = currentDistance;
+    return result;
   }
   const planeY = target.y;
-  const anchorBefore = screenPointOnHorizontalPlane(camera, ndcX, ndcY, planeY);
+  const anchorBefore = screenPointOnHorizontalPlane(
+    camera,
+    ndcX,
+    ndcY,
+    planeY,
+    scratch?.anchorBefore,
+    scratch?.direction,
+  );
   const distance = MathUtils.clamp(
     currentDistance / MathUtils.clamp(factor, 0.2, 5),
     minDistance,
     maxDistance,
   );
-  const offset = camera.position.clone().sub(target).setLength(distance);
+  const offset = (scratch?.offset ?? camera.position.clone())
+    .copy(camera.position)
+    .sub(target)
+    .setLength(distance);
   camera.position.copy(target).add(offset);
   camera.updateMatrixWorld();
 
-  const anchorAfter = screenPointOnHorizontalPlane(camera, ndcX, ndcY, planeY);
+  const anchorAfter = screenPointOnHorizontalPlane(
+    camera,
+    ndcX,
+    ndcY,
+    planeY,
+    scratch?.anchorAfter,
+    scratch?.direction,
+  );
   const anchored = anchorBefore !== null && anchorAfter !== null;
   if (anchorBefore && anchorAfter) {
     const correction = anchorBefore.sub(anchorAfter);
@@ -450,10 +551,14 @@ export function zoomCameraAtScreenPoint(
     camera.position.add(correction);
     target.add(correction);
   }
-  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  const boundedTarget = (scratch?.boundedTarget ?? target.clone())
+    .copy(target)
+    .clamp(bounds.min, bounds.max);
   const boundsCorrection = boundedTarget.sub(target);
   target.add(boundsCorrection);
   camera.position.add(boundsCorrection);
   camera.updateMatrixWorld();
-  return { anchored, distance };
+  result.anchored = anchored;
+  result.distance = distance;
+  return result;
 }

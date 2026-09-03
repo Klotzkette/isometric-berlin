@@ -10,6 +10,7 @@ import {
 } from "../src/pedestrianNavigation";
 import {
   SCHWELLENRAUM_FLIGHT_RADIUS_M,
+  createSchwellenraumFlightScratch,
   resolveSchwellenraumFlightTranslation,
   schwellenraumFlightPointIsBlocked,
 } from "../src/schwellenraumNavigation";
@@ -49,6 +50,29 @@ const environment: PedestrianEnvironment = {
 };
 
 describe("Schwellenraum solid movement", () => {
+  test("reuses the complete swept-flight result during held movement", () => {
+    const scratch = createSchwellenraumFlightScratch();
+    const first = resolveSchwellenraumFlightTranslation(
+      { x: -4, y: 3, z: -4 },
+      { x: 0.5, y: 0, z: 0.25 },
+      environment,
+      undefined,
+      scratch,
+    );
+    const second = resolveSchwellenraumFlightTranslation(
+      first.position,
+      { x: -0.2, y: 0.1, z: 0.4 },
+      environment,
+      undefined,
+      scratch,
+    );
+
+    expect(second).toBe(first);
+    expect(second.position).toBe(scratch.position);
+    expect(second.applied).toBe(scratch.applied);
+    expect(Object.values(second.position).every(Number.isFinite)).toBeTrue();
+  });
+
   test("swept flight cannot skip a facade even with a twenty-metre input", () => {
     const result = resolveSchwellenraumFlightTranslation(
       { x: -2, y: 2, z: 2 },
@@ -60,9 +84,9 @@ describe("Schwellenraum solid movement", () => {
       -SCHWELLENRAUM_FLIGHT_RADIUS_M,
     );
     expect(result.position.x).toBeGreaterThan(-2);
-    expect(schwellenraumFlightPointIsBlocked(result.position, environment)).toBe(
-      false,
-    );
+    expect(
+      schwellenraumFlightPointIsBlocked(result.position, environment),
+    ).toBe(false);
   });
 
   test("a glancing flight slides along a facade instead of sticking", () => {
@@ -209,13 +233,7 @@ describe("Schwellenraum solid movement", () => {
       2 - SCHWELLENRAUM_FLIGHT_RADIUS_M + 0.02,
     );
     expect(
-      pedestrianPointIsBlocked(
-        2,
-        2,
-        0,
-        buildingObstacles,
-        furnishedInterior,
-      ),
+      pedestrianPointIsBlocked(2, 2, 0, buildingObstacles, furnishedInterior),
     ).toBe(true);
   });
 
@@ -287,10 +305,7 @@ describe("Schwellenraum solid movement", () => {
       ).blocked,
     ).toBe(true);
     expect(
-      schwellenraumFlightPointIsBlocked(
-        { x: 4, y: 1, z: 0 },
-        parkEnvironment,
-      ),
+      schwellenraumFlightPointIsBlocked({ x: 4, y: 1, z: 0 }, parkEnvironment),
     ).toBe(true);
   });
 

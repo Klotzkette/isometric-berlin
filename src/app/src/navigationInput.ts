@@ -35,25 +35,32 @@ export function heldNavigationInput(
 ): HeldNavigationInput {
   const shift = keys.has("Shift");
   const alt = keys.has("Alt");
-  const horizontal =
+  const arrowHorizontal =
     (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
-  const vertical =
+  const arrowVertical =
     (keys.has("ArrowUp") ? 1 : 0) - (keys.has("ArrowDown") ? 1 : 0);
+  const wasdHorizontal =
+    (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0);
+  const shiftTurnActive =
+    shift && !alt && (arrowHorizontal !== 0 || wasdHorizontal !== 0);
+  const shiftTurn = shiftTurnActive
+    ? Math.sign(arrowHorizontal + wasdHorizontal)
+    : 0;
   return {
     flight: {
       forward: (keys.has("w") ? 1 : 0) - (keys.has("s") ? 1 : 0),
-      strafe: (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0),
-      vertical: alt
+      strafe: shiftTurnActive ? 0 : wasdHorizontal,
+      vertical: alt || shiftTurnActive
         ? 0
         : (keys.has("Space") ? 1 : 0) - (shift ? 1 : 0),
     },
     orbit: {
-      horizontal: alt ? horizontal : 0,
-      vertical: alt ? vertical : 0,
+      horizontal: alt ? arrowHorizontal : shiftTurn,
+      vertical: alt ? arrowVertical : 0,
     },
     pan: {
-      horizontal: alt ? 0 : horizontal,
-      vertical: alt ? 0 : vertical,
+      horizontal: alt || shiftTurnActive ? 0 : arrowHorizontal,
+      vertical: alt ? 0 : arrowVertical,
     },
   };
 }
@@ -123,15 +130,19 @@ export function pedestrianMovementActivation(
 export function heldPedestrianInput(
   keys: ReadonlySet<string>,
 ): PedestrianInput {
+  const shift = keys.has("Shift");
+  const wasdHorizontal =
+    (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0);
+  const explicitTurn =
+    (keys.has("ArrowRight") || keys.has("e") ? 1 : 0) -
+    (keys.has("ArrowLeft") || keys.has("q") ? 1 : 0);
   return {
     forward:
       (keys.has("ArrowUp") || keys.has("w") ? 1 : 0) -
       (keys.has("ArrowDown") || keys.has("s") ? 1 : 0),
     look: 0,
-    sprint: keys.has("Shift"),
-    strafe: (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0),
-    turn:
-      (keys.has("ArrowRight") || keys.has("e") ? 1 : 0) -
-      (keys.has("ArrowLeft") || keys.has("q") ? 1 : 0),
+    sprint: shift,
+    strafe: shift ? 0 : wasdHorizontal,
+    turn: Math.sign(explicitTurn + (shift ? wasdHorizontal : 0)),
   };
 }

@@ -24,6 +24,7 @@ const EXPECTED_FACADES = [
   PARISER_PLATZ_FACADE_NAMES.france,
   PARISER_PLATZ_FACADE_NAMES.usa,
   PARISER_PLATZ_FACADE_NAMES.akademie,
+  PARISER_PLATZ_FACADE_NAMES.europeanHouse,
 ] as const;
 
 function materialsOf(mesh: Mesh): Material[] {
@@ -31,7 +32,7 @@ function materialsOf(mesh: Mesh): Material[] {
 }
 
 describe("Pariser Platz source-bounded civic architecture", () => {
-  test("uses the four exact LoD2/OSM frontages and current primary sources", () => {
+  test("uses the five exact LoD2/OSM frontages and current primary sources", () => {
     const { buildings } = PARISER_PLATZ_ARCHITECTURE_PROFILE;
     expect(buildings.maxLiebermannHaus).toMatchObject({
       facadeHeightM: 19.791,
@@ -63,6 +64,26 @@ describe("Pariser Platz source-bounded civic architecture", () => {
       osmWayId: 237816189,
       sourceUrls: expect.arrayContaining([expect.stringContaining("adk.de")]),
     });
+    expect(buildings.europeanHouse).toMatchObject({
+      address: "Unter den Linden 78",
+      facadeHeightM: 26.385,
+      roofHeightM: 34.46,
+      lod2ParentId: "DEBE01YYK00005TM",
+      osmNodeIds: [514881066, 11816495166],
+    });
+    const [start, end] = buildings.europeanHouse.facadeSourceEdgeWorldM;
+    expect(buildings.europeanHouse.facadeCenterWorldM[0]).toBeCloseTo(
+      (start[0] + end[0]) / 2,
+      8,
+    );
+    expect(buildings.europeanHouse.facadeCenterWorldM[2]).toBeCloseTo(
+      (start[1] + end[1]) / 2,
+      8,
+    );
+    expect(buildings.europeanHouse.facadeWidthM).toBeCloseTo(
+      Math.hypot(end[0] - start[0], end[1] - start[1]),
+      8,
+    );
     for (const building of Object.values(buildings)) {
       expect(building.visualQa.photoBundled).toBe(false);
       expect(building.visualQa.referenceUrl).toContain(
@@ -72,7 +93,7 @@ describe("Pariser Platz source-bounded civic architecture", () => {
     }
   });
 
-  test("builds four batched facades at the surveyed edges without photo maps", () => {
+  test("builds five batched facades at the surveyed edges without photo maps", () => {
     const architecture = createPariserPlatzArchitecture();
     expect(architecture).toBeInstanceOf(Group);
     expect(architecture.name).toBe(PARISER_PLATZ_ARCHITECTURE_GROUP_NAME);
@@ -106,7 +127,7 @@ describe("Pariser Platz source-bounded civic architecture", () => {
         }
       }
     });
-    expect(drawCalls).toBe(12);
+    expect(drawCalls).toBe(15);
     expect(vertexCount).toBeGreaterThan(8_000);
     expect(drawCalls).toBeLessThanOrEqual(
       PARISER_PLATZ_ARCHITECTURE_PROFILE.performance.drawCallBudget,
@@ -121,7 +142,9 @@ describe("Pariser Platz source-bounded civic architecture", () => {
       const bounds = new Box3().setFromObject(facade);
       const size = bounds.getSize(new Vector3());
       expect(size.y).toBeGreaterThan(19);
-      expect(size.y).toBeLessThan(27);
+      expect(size.y).toBeLessThan(
+        facade.name === PARISER_PLATZ_FACADE_NAMES.europeanHouse ? 35 : 27,
+      );
       const lamps = facade.getObjectByName(`${facade.name} lamps`) as Mesh;
       const night = lamps.userData.nightMaterial as MeshStandardMaterial;
       expect(night.userData.nightEmissive).toBe(0xffd29a);

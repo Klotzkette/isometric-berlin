@@ -4,6 +4,7 @@ import {
   Group,
   InstancedMesh,
   Material,
+  Matrix4,
   Mesh,
   MeshStandardMaterial,
   PointLight,
@@ -334,6 +335,7 @@ describe("cultural and Spree recognition details", () => {
   test("binds the Starbucks profile to the OSM POI and both exact LoD2 axes", () => {
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.osmNodeId).toBe("66917229");
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.lod2BuildingId).toBe("K00005Hq");
+    expect(STARBUCKS_PARISER_PLATZ_PROFILE.lod2HeightM).toBe(28.748);
     expect(STARBUCKS_PARISER_PLATZ_PROFILE.poiWorldM).toEqual([
       559.5734097249806, 4.95, 253.47099111787975,
     ]);
@@ -403,12 +405,37 @@ describe("cultural and Spree recognition details", () => {
 
     const westBounds = new Box3().setFromObject(west);
     const southBounds = new Box3().setFromObject(south);
-    expect(westBounds.max.x - westBounds.min.x).toBeLessThan(1.5);
-    expect(westBounds.max.z - westBounds.min.z).toBeLessThan(13.2);
-    expect(southBounds.max.x - southBounds.min.x).toBeLessThan(12.2);
-    expect(southBounds.max.z - southBounds.min.z).toBeLessThan(1.4);
-    expect(westBounds.max.y - westBounds.min.y).toBeLessThan(4.7);
-    expect(southBounds.max.y - southBounds.min.y).toBeLessThan(4.7);
+    expect(westBounds.max.x - westBounds.min.x).toBeLessThan(4.2);
+    expect(westBounds.max.z - westBounds.min.z).toBeLessThan(16.9);
+    expect(southBounds.max.x - southBounds.min.x).toBeLessThan(25);
+    expect(southBounds.max.z - southBounds.min.z).toBeLessThan(4.7);
+    expect(westBounds.max.y - westBounds.min.y).toBeLessThan(
+      profile.lod2HeightM,
+    );
+    expect(southBounds.max.y - southBounds.min.y).toBeLessThan(
+      profile.lod2HeightM,
+    );
+    for (const facade of [west, south]) {
+      expect(facade.userData.upperWindowRows).toBe(5);
+      expect(
+        facade.children.filter((child) => child instanceof Mesh),
+      ).toHaveLength(5);
+      const roof = facade.getObjectByName(
+        `Pariser Platz 4a ${facade.userData.facade} patinated mansard`,
+      ) as InstancedMesh;
+      const transform = new Matrix4();
+      roof.getMatrixAt(0, transform);
+      roof.geometry.computeBoundingBox();
+      const localBounds = roof.geometry
+        .boundingBox!.clone()
+        .applyMatrix4(transform);
+      // The retained opaque LoD2 wall is 0.13 m behind this overlay's origin.
+      expect(localBounds.min.z + 0.13).toBeGreaterThan(0.02);
+      expect(localBounds.max.y).toBeLessThan(profile.lod2HeightM);
+      expect(roof.userData.geometryStatus).toContain("retained LoD2 envelope");
+    }
+    expect(west.userData.dormerCount).toBe(4);
+    expect(south.userData.dormerCount).toBe(6);
 
     const wordmarks: Mesh[] = [];
     shop.traverse((object) => {

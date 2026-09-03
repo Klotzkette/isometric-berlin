@@ -341,6 +341,20 @@ describe("pedestrian navigation", () => {
       turn: -1,
     });
     expect(heldPedestrianInput(new Set(["w", "Shift"])).sprint).toBe(true);
+    expect(heldPedestrianInput(new Set(["Shift", "a"]))).toEqual({
+      forward: 0,
+      look: 0,
+      sprint: true,
+      strafe: 0,
+      turn: -1,
+    });
+    expect(heldPedestrianInput(new Set(["Shift", "ArrowRight"]))).toEqual({
+      forward: 0,
+      look: 0,
+      sprint: true,
+      strafe: 0,
+      turn: 1,
+    });
   });
 
   test("LoD2 walls are solid while a real courtyard hole remains walkable", () => {

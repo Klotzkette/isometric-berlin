@@ -22,6 +22,9 @@ export type StarbucksFacadeProfile = Readonly<{
   rotationYRadians: number;
   localAlongSign: -1 | 1;
   storefrontLengthM: number;
+  buildingFacadeLengthM: number;
+  upperBayCount: number;
+  dormerCount: number;
 }>;
 
 export type StarbucksPariserPlatzProfile = Readonly<{
@@ -29,6 +32,7 @@ export type StarbucksPariserPlatzProfile = Readonly<{
   osmNodeId: "66917229";
   lod2BuildingId: "K00005Hq";
   fullLod2BuildingId: "DEBE01YYK00005Hq";
+  lod2HeightM: number;
   wgs84: Readonly<{ longitude: number; latitude: number }>;
   poiEpsg25833M: WorldXZ;
   poiWorldM: readonly [number, number, number];
@@ -54,6 +58,7 @@ export const STARBUCKS_PARISER_PLATZ_PROFILE: StarbucksPariserPlatzProfile = {
   osmNodeId: "66917229",
   lod2BuildingId: "K00005Hq",
   fullLod2BuildingId: "DEBE01YYK00005Hq",
+  lod2HeightM: 28.748,
   wgs84: {
     longitude: 13.3797732,
     latitude: 52.5167295,
@@ -73,6 +78,9 @@ export const STARBUCKS_PARISER_PLATZ_PROFILE: StarbucksPariserPlatzProfile = {
       rotationYRadians: -1.4840501098435204,
       localAlongSign: -1,
       storefrontLengthM: 13,
+      buildingFacadeLengthM: Math.hypot(1.429, 16.432),
+      upperBayCount: 5,
+      dormerCount: 4,
     },
     south: {
       key: "south",
@@ -83,6 +91,9 @@ export const STARBUCKS_PARISER_PLATZ_PROFILE: StarbucksPariserPlatzProfile = {
       rotationYRadians: 0.0849319244334032,
       localAlongSign: 1,
       storefrontLengthM: 12,
+      buildingFacadeLengthM: Math.hypot(24.537, 2.089),
+      upperBayCount: 8,
+      dormerCount: 6,
     },
   },
 };
@@ -90,6 +101,7 @@ export const STARBUCKS_PARISER_PLATZ_PROFILE: StarbucksPariserPlatzProfile = {
 type InstanceTransform = Readonly<{
   position: readonly [number, number, number];
   rotationY?: number;
+  rotationX?: number;
   scale: readonly [number, number, number];
 }>;
 
@@ -111,7 +123,7 @@ function addInstances(
   const transform = new Object3D();
   transforms.forEach((instance, index) => {
     transform.position.set(...instance.position);
-    transform.rotation.set(0, instance.rotationY ?? 0, 0);
+    transform.rotation.set(instance.rotationX ?? 0, instance.rotationY ?? 0, 0);
     transform.scale.set(...instance.scale);
     transform.updateMatrix();
     mesh.setMatrixAt(index, transform.matrix);
@@ -144,6 +156,8 @@ function createFacadeOverlay(
   frameMaterial: MeshStandardMaterial,
   glassMaterial: MeshPhysicalMaterial,
   letteringMaterial: MeshStandardMaterial,
+  stoneMaterial: MeshStandardMaterial,
+  roofMaterial: MeshStandardMaterial,
 ): Group {
   const group = new Group();
   group.name = `Starbucks ${facade.key} source-bound facade overlay`;
@@ -160,6 +174,10 @@ function createFacadeOverlay(
     sourceAxisStartWorldM: [...facade.sourceStartWorldM],
     sourceAxisEndWorldM: [...facade.sourceEndWorldM],
     storefrontLengthM: facade.storefrontLengthM,
+    buildingFacadeLengthM: facade.buildingFacadeLengthM,
+    upperWindowRows: 5,
+    upperBayCount: facade.upperBayCount,
+    dormerCount: facade.dormerCount,
     overlayDepthM: 0.14,
     sourceBound: true,
   };
@@ -170,22 +188,71 @@ function createFacadeOverlay(
     (facade.storefrontLengthM - marginM * 2 - centreMullionM) / 2;
   const localX = (distanceM: number) => facade.localAlongSign * distanceM;
   const firstBayCentreM = marginM + bayWidthM / 2;
-  const secondBayCentreM =
-    marginM + bayWidthM + centreMullionM + bayWidthM / 2;
+  const secondBayCentreM = marginM + bayWidthM + centreMullionM + bayWidthM / 2;
+
+  const glazingTransforms: InstanceTransform[] = [
+    firstBayCentreM,
+    secondBayCentreM,
+  ].map((distanceM) => ({
+    position: [localX(distanceM), GLASS_BOTTOM_M + GLASS_HEIGHT_M / 2, 0],
+    scale: [bayWidthM, GLASS_HEIGHT_M, 0.11],
+  }));
+  const stoneTransforms: InstanceTransform[] = [];
+  const upperRails: InstanceTransform[] = [];
+  const pitchM = facade.buildingFacadeLengthM / facade.upperBayCount;
+  for (let floor = 0; floor < 5; floor += 1) {
+    const y = 6.72 + floor * 3.35;
+    for (let bay = 0; bay < facade.upperBayCount; bay += 1) {
+      const x = localX((bay + 0.5) * pitchM);
+      glazingTransforms.push({
+        position: [x, y, 0.025],
+        scale: [pitchM * 0.56, 2.65, 0.1],
+      });
+      upperRails.push(
+        { position: [x, y - 0.78, 0.2], scale: [pitchM * 0.6, 0.06, 0.08] },
+        { position: [x, y, 0.12], scale: [0.06, 2.65, 0.07] },
+      );
+      for (const side of [-1, 1]) {
+        upperRails.push({
+          position: [x + side * pitchM * 0.26, y - 1.02, 0.2],
+          scale: [0.045, 0.5, 0.065],
+        });
+      }
+    }
+  }
+  for (let pier = 0; pier <= facade.upperBayCount; pier += 1) {
+    stoneTransforms.push({
+      position: [localX(pier * pitchM), 13.72, 0.08],
+      scale: [0.32, 17.2, 0.28],
+    });
+  }
+  for (const y of [5.08, 8.43, 11.78, 15.13, 18.48, 21.83, 22.42]) {
+    stoneTransforms.push({
+      position: [localX(facade.buildingFacadeLengthM / 2), y, 0.11],
+      scale: [facade.buildingFacadeLengthM, y === 22.42 ? 0.38 : 0.2, 0.34],
+    });
+  }
+  for (let dormer = 0; dormer < facade.dormerCount; dormer += 1) {
+    const x = localX(
+      ((dormer + 0.5) * facade.buildingFacadeLengthM) / facade.dormerCount,
+    );
+    stoneTransforms.push({
+      position: [x, 25.18, 0.2],
+      scale: [1.72, 2.42, 0.6],
+    });
+    glazingTransforms.push({
+      position: [x, 25.1, 0.56],
+      scale: [1.08, 1.75, 0.09],
+    });
+    upperRails.push({ position: [x, 25.1, 0.62], scale: [0.065, 1.78, 0.06] });
+  }
 
   const glass = addInstances(
     group,
     `Starbucks ${facade.key} large dark glass fields`,
     new BoxGeometry(1, 1, 1),
     glassMaterial,
-    [firstBayCentreM, secondBayCentreM].map((distanceM) => ({
-      position: [
-        localX(distanceM),
-        GLASS_BOTTOM_M + GLASS_HEIGHT_M / 2,
-        0,
-      ],
-      scale: [bayWidthM, GLASS_HEIGHT_M, 0.11],
-    })),
+    glazingTransforms,
   );
   glass.userData.facade = facade.key;
   glass.userData.overlayDepthM = 0.11;
@@ -198,21 +265,13 @@ function createFacadeOverlay(
   ];
   const frameTransforms: InstanceTransform[] = verticalDistancesM.map(
     (distanceM) => ({
-      position: [
-        localX(distanceM),
-        GLASS_BOTTOM_M + GLASS_HEIGHT_M / 2,
-        0.075,
-      ],
+      position: [localX(distanceM), GLASS_BOTTOM_M + GLASS_HEIGHT_M / 2, 0.075],
       scale: [0.14, GLASS_HEIGHT_M + 0.12, 0.12],
     }),
   );
   frameTransforms.push(
     {
-      position: [
-        localX(facade.storefrontLengthM / 2),
-        GLASS_BOTTOM_M,
-        0.075,
-      ],
+      position: [localX(facade.storefrontLengthM / 2), GLASS_BOTTOM_M, 0.075],
       scale: [openingWidthM, 0.14, 0.12],
     },
     {
@@ -224,6 +283,7 @@ function createFacadeOverlay(
       scale: [openingWidthM, 0.16, 0.12],
     },
   );
+  frameTransforms.push(...upperRails);
   const frames = addInstances(
     group,
     `Starbucks ${facade.key} slim dark mullions and rails`,
@@ -232,6 +292,32 @@ function createFacadeOverlay(
     frameTransforms,
   );
   frames.userData.facade = facade.key;
+
+  const stone = addInstances(
+    group,
+    `Pariser Platz 4a ${facade.key} upper limestone grid`,
+    new BoxGeometry(1, 1, 1),
+    stoneMaterial,
+    stoneTransforms,
+  );
+  stone.userData.sourceFacadeLengthM = facade.buildingFacadeLengthM;
+  // Roof code 9999 leaves an opaque source envelope. Keep the colour cue
+  // outside that wall; a deep inset slope would be completely hidden by it.
+  const roofBand = addInstances(
+    group,
+    `Pariser Platz 4a ${facade.key} patinated mansard`,
+    new BoxGeometry(1, 1, 1),
+    roofMaterial,
+    [
+      {
+        position: [localX(facade.buildingFacadeLengthM / 2), 25.55, 0.07],
+        rotationX: -0.02,
+        scale: [facade.buildingFacadeLengthM - 0.24, 6.24, 0.22],
+      },
+    ],
+  );
+  roofBand.userData.geometryStatus =
+    "shallow patinated roof-band cue outside the retained LoD2 envelope; not a surveyed roof pitch";
 
   const wordmark = new Mesh(
     new BoxGeometry(SIGN_WIDTH_M, SIGN_HEIGHT_M, 0.045),
@@ -402,6 +488,23 @@ export function createStarbucksPariserPlatz(): Group {
     ],
     modelPolicy:
       "thin facade overlays only; no green fascia, attached awning or duplicate building wall",
+    upperArchitecture: {
+      identity:
+        "Pariser Platz 4a / Unter den Linden 80; separate from the European House at number 78",
+      measuredHeightM: STARBUCKS_PARISER_PLATZ_PROFILE.lod2HeightM,
+      recognitionCues: [
+        "five narrow-window registers",
+        "limestone grid",
+        "window guard rails",
+        "patinated mansard and dormers",
+      ],
+      referenceUrl:
+        "https://commons.wikimedia.org/wiki/File:Pariser_Platz_4A_-_exterior_view_2025.jpg",
+      referenceLicense: "CC0",
+      photoBundled: false,
+      localSubdivisions:
+        "reference-bounded display geometry, not surveyed window measurements",
+    },
   };
 
   const frameMaterial = new MeshStandardMaterial({
@@ -442,6 +545,15 @@ export function createStarbucksPariserPlatz(): Group {
   letteringMaterial.userData.sharedCodeGeneratedTexture = true;
   letteringMaterial.userData.nightEmissive = 0x9a9c96;
   letteringMaterial.userData.nightEmissiveIntensity = 0.12;
+  const stoneMaterial = new MeshStandardMaterial({
+    color: 0xc8c8bc,
+    roughness: 0.9,
+  });
+  const roofMaterial = new MeshStandardMaterial({
+    color: 0x718078,
+    roughness: 0.72,
+    metalness: 0.2,
+  });
 
   group.add(
     createFacadeOverlay(
@@ -449,12 +561,16 @@ export function createStarbucksPariserPlatz(): Group {
       frameMaterial,
       glassMaterial,
       letteringMaterial,
+      stoneMaterial,
+      roofMaterial,
     ),
     createFacadeOverlay(
       STARBUCKS_PARISER_PLATZ_PROFILE.facades.south,
       frameMaterial,
       glassMaterial,
       letteringMaterial,
+      stoneMaterial,
+      roofMaterial,
     ),
   );
 

@@ -16,6 +16,8 @@ import {
   captureCameraPose,
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
+  createCameraRigStabilizationScratch,
+  createScreenAnchoredZoomScratch,
   createSignedPinchDolly,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
@@ -45,22 +47,39 @@ describe("held desktop navigation routing", () => {
   });
 
   test("routes WASD and Space to camera-relative flight", () => {
-    expect(
-      heldNavigationInput(new Set(["w", "d", "Space"])),
-    ).toEqual({
+    expect(heldNavigationInput(new Set(["w", "d", "Space"]))).toEqual({
       flight: { forward: 1, strafe: 1, vertical: 1 },
       orbit: { horizontal: 0, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });
   });
 
-  test("lets Shift descend while arrows retain screen-relative pan", () => {
-    expect(
-      heldNavigationInput(new Set(["Shift", "ArrowRight", "ArrowDown"])),
-    ).toEqual({
+  test("routes Shift plus horizontal arrows to orbit without descending", () => {
+    expect(heldNavigationInput(new Set(["Shift", "ArrowRight"]))).toEqual({
+      flight: { forward: 0, strafe: 0, vertical: 0 },
+      orbit: { horizontal: 1, vertical: 0 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+  });
+
+  test("routes Shift plus A or D to orbit while plain A and D still strafe", () => {
+    expect(heldNavigationInput(new Set(["Shift", "a"]))).toEqual({
+      flight: { forward: 0, strafe: 0, vertical: 0 },
+      orbit: { horizontal: -1, vertical: 0 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+    expect(heldNavigationInput(new Set(["d"]))).toEqual({
+      flight: { forward: 0, strafe: 1, vertical: 0 },
+      orbit: { horizontal: 0, vertical: 0 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+  });
+
+  test("keeps Shift alone as the free-camera descent control", () => {
+    expect(heldNavigationInput(new Set(["Shift"]))).toEqual({
       flight: { forward: 0, strafe: 0, vertical: -1 },
       orbit: { horizontal: 0, vertical: 0 },
-      pan: { horizontal: 1, vertical: -1 },
+      pan: { horizontal: 0, vertical: 0 },
     });
   });
 
@@ -196,6 +215,29 @@ describe("view-heading 3D flight", () => {
     expect(Math.abs(forward.dot(strafe))).toBeLessThan(1e-8);
     expect(strafe.y).toBe(0);
   });
+
+  test("reuses caller-owned buffers throughout held-key movement", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(80, 60, 140);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+    const result = new Vector3();
+    const heading = new Vector3();
+    const right = new Vector3();
+    const up = new Vector3();
+    const speeds = { horizontal: 0, vertical: 0 };
+
+    expect(
+      viewHeadingFlightDelta(camera, target, 1, 1, result, heading, right),
+    ).toBe(result);
+    expect(
+      screenRelativeFlightDelta(camera, target, 1, 1, result, right, up),
+    ).toBe(result);
+    expect(continuousFlightSpeeds(200, speeds)).toBe(speeds);
+    expect(speeds.horizontal).toBeCloseTo(330, 8);
+    expect(speeds.vertical).toBeCloseTo(220, 8);
+  });
 });
 
 describe("two-finger swipe pans with direct manipulation", () => {
@@ -302,9 +344,9 @@ describe("signed pinch target crossing", () => {
     const dolly = createSignedPinchDolly(camera, target)!;
     const before = camera.position.clone();
 
-    expect(
-      advanceSignedPinchDolly(camera, target, dolly, Number.NaN),
-    ).toBe(dolly.signedDistance);
+    expect(advanceSignedPinchDolly(camera, target, dolly, Number.NaN)).toBe(
+      dolly.signedDistance,
+    );
     expect(camera.position.toArray()).toEqual(before.toArray());
   });
 });
@@ -342,6 +384,38 @@ describe("forgiving 3D camera bounds", () => {
     expect(camera.position.clone().sub(target).toArray()).toEqual(
       offset.toArray(),
     );
+  });
+
+  test("reuses one stabilization result and pose during continuous input", () => {
+    const camera = new PerspectiveCamera();
+    const target = new Vector3(1, 2, 3);
+    camera.position.set(30, 40, 50);
+    const safe = captureCameraPose(camera, target);
+    const scratch = createCameraRigStabilizationScratch();
+
+    const first = stabilizeCameraRig(
+      camera,
+      target,
+      safe,
+      20,
+      2000,
+      undefined,
+      scratch,
+    );
+    camera.position.x += 1;
+    const second = stabilizeCameraRig(
+      camera,
+      target,
+      first.pose,
+      20,
+      2000,
+      undefined,
+      scratch,
+    );
+
+    expect(second).toBe(first);
+    expect(second.pose).toBe(first.pose);
+    expect(second.pose.position.x).toBe(31);
   });
 });
 
@@ -447,6 +521,44 @@ describe("cursor-anchored zoom", () => {
         .normalize()
         .distanceTo(directionBefore),
     ).toBeLessThan(1e-6);
+  });
+
+  test("reuses one cursor-zoom result and every vector during wheel input", () => {
+    const camera = new PerspectiveCamera(39, 16 / 9, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(160, 140, 260);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    const scratch = createScreenAnchoredZoomScratch();
+
+    const first = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      0.2,
+      -0.1,
+      1.08,
+      30,
+      2_600,
+      undefined,
+      scratch,
+    );
+    const second = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      0.2,
+      -0.1,
+      0.96,
+      30,
+      2_600,
+      undefined,
+      scratch,
+    );
+
+    expect(second).toBe(first);
+    expect(second).toBe(scratch.result);
+    expect(camera.position.toArray().every(Number.isFinite)).toBeTrue();
+    expect(target.toArray().every(Number.isFinite)).toBeTrue();
   });
 });
 

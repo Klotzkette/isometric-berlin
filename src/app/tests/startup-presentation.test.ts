@@ -7,6 +7,7 @@ import {
   startupPresentationStatus,
 } from "../src/ThreeViewer";
 import type { VisualMode } from "../src/visualMode";
+import { UI_COPY } from "../src/localization";
 
 const drawnModes: VisualMode[] = [
   "day",
@@ -120,8 +121,19 @@ describe("startup presentation gate", () => {
     expect(curtainRule).not.toContain("transition");
   });
 
-  test("keeps a visible static city backdrop below 2D and 3D startup", () => {
-    expect(appSource).toContain("resolveCssAssetUrl(referenceMapUrl)");
+  test("keeps a marker-free lightweight city backdrop below startup", async () => {
+    const backdrop = Bun.file(
+      new URL(
+        "../public/dzi/regierungsviertel/regierungsviertel_files/8/0_0.jpg",
+        import.meta.url,
+      ),
+    );
+
+    expect(appSource).toContain("resolveCssAssetUrl(startupBackdropUrl)");
+    expect(appSource).not.toContain("resolveCssAssetUrl(referenceMapUrl)");
+    expect(appSource).toContain("regierungsviertel_files/8/0_0.jpg");
+    expect(await backdrop.exists()).toBeTrue();
+    expect(backdrop.size).toBeLessThan(32_000);
     expect(appSource).toContain("new URL(path, document.baseURI).href");
     expect(appSource).toContain("style={viewerStaticBackdropStyle}");
     expect(appSource).toContain('className="viewer-static-backdrop"');
@@ -129,6 +141,13 @@ describe("startup presentation gate", () => {
     expect(stylesSource).toContain("--viewer-static-backdrop-image");
     expect(stylesSource).toContain("background: transparent");
     expect(stylesSource).toContain(".openseadragon-canvas canvas");
+  });
+
+  test("describes the procedural source-fused city instead of a photo mesh", () => {
+    expect(UI_COPY.de.loadingCity).toBe("Baue Berliner 3D-Stadtmodell auf");
+    expect(UI_COPY.en.loadingCity).toBe("Building Berlin 3D city model");
+    expect(UI_COPY.de.loadingCity.toLowerCase()).not.toContain("mesh");
+    expect(UI_COPY.en.loadingCity.toLowerCase()).not.toContain("mesh");
   });
 
   test("forces WebGL clears to visible mode colours instead of browser black", () => {

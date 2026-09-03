@@ -53,7 +53,9 @@ switches to the lit interior (safety-light strips, ceiling lights, ventilation
 shafts and fans) and out the other end.
 Arrow keys translate camera and target together in the visible screen plane.
 `W`/`A`/`S`/`D` flies forward/left/back/right relative to the current heading,
-`Space` rises and `Shift` descends. The mouse wheel zooms at the pointer.
+`Space` rises and `Shift` alone descends. `Shift+A/D` and
+`Shift+Left/Right` rotate the view continuously in free-camera and pedestrian
+mode; unmodified `A`/`D` keep their lateral movement. The mouse wheel zooms at the pointer.
 `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 lit Tiergartentunnel is entered manually through either connected road portal;
 there is no scripted tunnel ride competing with direct camera control.
@@ -596,7 +598,9 @@ or press photograph is bundled, projected or converted into a texture.
 Only the selected landmark receives a small focus ring, and that ring fades
 again after 2.4 seconds. Permanently visible coloured map dots
 were removed from the Three.js, DZI and zero-server fallbacks because they
-obscured roofs and facades.
+obscured roofs and facades. The opaque startup curtain uses the marker-free
+21 KiB low-resolution DZI overview tile; the numbered top-down reference plate
+is loaded only when the user explicitly opens it.
 
 Day/Night is a real scene-lighting mode rather than a CSS tint. It changes the
 sun, hemisphere and fill lighting, fog, background and tone mapping; tagged
@@ -876,7 +880,7 @@ committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
 
 The Pariser-Platz and Potsdamer-Platz architecture keeps the same boundary.
-Four civic frontages now receive separate code-native recognition facades
+Five civic frontages now receive separate code-native recognition facades
 without replacing the measured LoD2 bodies or their navigation collision. The
 Max-Liebermann-Haus follows LoD2 parent `DEBE01YYK0000765` and OSM way
 `131487807`: its calm three-storey critical reconstruction adds narrow punched
@@ -889,11 +893,21 @@ limestone grid, cylindrical entrance niche, shallow glass canopy and softly
 lit rooftop State Room lantern. The Akademie der Künste follows LoD2 parent
 `DEBE01YYK00007H6` and OSM way `237816189`, using a transparent glass curtain
 wall, visible circulation, suspended 0.4 m facade-trace frame and leaf-toned
-roof glazing. These four static close overlays share twelve batched body,
+roof glazing. The European House at Unter den Linden 78 is a separate
+LoD2 parent `DEBE01YYK00005TM`, not the Starbucks corner at number 80. Its
+21.520589 m front edge carries narrow window registers, blue awning cues,
+gilt lettering, an EU flag and a short courtyard-preserving west return.
+The French Embassy adds entrance doors, balcony rails and French/EU flags;
+the academy adds glazed entrance doors, a canopy and open gallery rails.
+These five static close overlays share fifteen batched body,
 lamp and ink drawables, fade before overview shimmer and carry no photographic
 maps. Day, Night, Snowstorm and Schwellenraum use the drawn layer; Minecraft
 uses one opaque, texture-free block batch over the retained source voxel
-masses.
+masses. The current five-facade budget is 31,152 stored vertices / 555,120
+geometry bytes and 695 Minecraft blocks in one draw call. Window subdivisions,
+awning placement and roof cues are reference-bounded display approximations,
+not additional survey measurements; the 2025 European House Commons image is
+credited as CC BY-SA 4.0 (Roy Zuo) and is not bundled.
 
 The Center / former Sony Center retains its LoD2 glass-and-steel envelopes.
 The Forum roof follows the 24-part OSM plan and Arup's published ring/support
@@ -919,7 +933,14 @@ detail rather than a second building shell: OSM node `66917229` binds two
 shallow dark-glass storefront overlays to the south-west corner of LoD2 body
 `K00005Hq`, each with a restrained grey facade wordmark. Freestanding black
 umbrellas, furniture and planters replace the former invented green fascia and
-attached awning. Day, Night, Snowstorm and Schwellenraum share static geometry;
+attached awning. The same two facades now include five upper window registers,
+limestone courses, guard rails and four/six dormer cues. A shallow patinated
+roof band stays outside the opaque roof-code-9999 source envelope instead of
+burying an invisible pitched overlay inside it; its pitch is not surveyed.
+The measured source cap stays intact and receives the referenced green tone.
+Repeated upper detail reuses the glazing/frame batches, with only two added
+stone/roof draws per side and no new image payload. Day, Night, Snowstorm and
+Schwellenraum share static geometry;
 Minecraft uses one additional coarse, opaque block batch for both identities.
 Four openly licensed Wikimedia reference files are pinned and publicly
 attributed, but no photograph is bundled or projected as a facade texture. The

@@ -300,7 +300,10 @@ describe("shared flag wind field", () => {
     );
     expect(viewerSource).toContain("runtime.schwellenraumFlagElapsedSeconds,");
     expect(viewerSource).toContain("runtime.fineDetailVisible");
-    expect(viewerSource).toContain('document.visibilityState !== "hidden"');
+    expect(viewerSource).toContain(
+      'const documentHidden = document.visibilityState === "hidden";',
+    );
+    expect(viewerSource).toContain("!documentHidden");
 
     const coldCivicVisibility = viewerSource.indexOf(
       "applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));",

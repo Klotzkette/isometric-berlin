@@ -828,7 +828,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   cultural_path = root / "src/app/src/CulturalLandmarks.ts"
   localization_path = root / "src/app/src/localization.ts"
   ambient_path = root / "src/app/src/AmbientSoundscape.ts"
-  crisp_path = root / "src/app/src/crisp.frag"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   queer_memorial_path = root / "src/app/src/QueerRainbowMemorial.ts"
   csd_attack_memorial_path = root / "src/app/src/CsdAttackMemorial.ts"
@@ -847,7 +846,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not cultural_path.exists()
     or not localization_path.exists()
     or not ambient_path.exists()
-    or not crisp_path.exists()
     or not memorial_path.exists()
     or not queer_memorial_path.exists()
     or not csd_attack_memorial_path.exists()
@@ -867,7 +865,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   cultural = cultural_path.read_text(encoding="utf-8")
   localization = localization_path.read_text(encoding="utf-8")
   ambient = ambient_path.read_text(encoding="utf-8")
-  crisp = crisp_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
   queer_memorial = queer_memorial_path.read_text(encoding="utf-8")
   csd_attack_memorial = csd_attack_memorial_path.read_text(encoding="utf-8")
@@ -924,7 +921,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
     "exact pointer-up camera rest": "controls.enableDamping = false",
-    "immediate continuous keyboard flight": "continuousFlightSpeeds(distance)",
+    "allocation-free continuous keyboard flight": (
+      "continuousFlightSpeeds(distance, flightSpeedScratch)"
+    ),
     "faster direct orbit response": "controls.rotateSpeed = 1.08",
     "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
     "global pointer release recovery": 'window.addEventListener("pointerup"',
@@ -937,10 +936,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "flat-unlit architectural signatures": "markAuthoredFlatUnlit(model)",
     "flat-unlit memorials": "markAuthoredFlatUnlit(runtime.monuments)",
-    # v0.70.10: every crisp profile is neutral, so running the pass only burns
-    # a full-screen read/write. The disabled pass plus permanent
-    # SMAA final resolve keeps motion/rest pixels on one stable pipeline.
-    "disabled neutral crisp pass": "crispPass.enabled = false",
+    # Every crisp profile is neutral, so the retired full-screen crisp pass
+    # must stay absent. The permanent SMAA resolve keeps motion/rest pixels on
+    # one stable pipeline without the extra full-screen read/write.
     "permanent final SMAA resolve": "smaaPass.enabled = true",
     "co-planar ink depth stabilization": "stableInkViewBias",
   }
@@ -994,6 +992,14 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
         "3D viewer contains a time/input-driven visual switch: "
         f"{forbidden_runtime_switch}"
       )
+  for retired_fullscreen_pass in ("ShaderPass", "crispPass"):
+    if retired_fullscreen_pass in viewer:
+      failures.append(
+        f"3D viewer still contains retired full-screen pass: {retired_fullscreen_pass}"
+      )
+  retired_crisp_path = root / "src/app/src/crisp.frag"
+  if retired_crisp_path.exists():
+    failures.append(f"Viewer still bundles retired crisp shader: {retired_crisp_path}")
   required_tunnel_portal_snippets = {
     "tagged construction-only tunnel bore interiors": (
       "tiergartentunnelPortalInterior"
@@ -1067,8 +1073,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     discovery_path.exists() or "discoveryNoteFor" in app or ".discovery-note" in styles
   ):
     failures.append(f"Viewer still contains unsolicited location quips: {app_path}")
-  if "neighbours * 0.25" not in crisp or "uniform float strength" not in crisp:
-    failures.append(f"Viewer lacks the bounded settled-image crisp pass: {crisp_path}")
   required_memorial_snippets = {
     # v0.69.0: the field is generated from the documented figures in
     # holocaustField.ts (2711 stelae, 0.95 m alleys in both directions),

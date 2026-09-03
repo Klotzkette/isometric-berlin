@@ -736,11 +736,7 @@ function pointTouchesPolygonObstacle(
   const sourceZ = z / obstacle.coordinateScale;
   const paddingSquared =
     (PEDESTRIAN_BODY_RADIUS_M / obstacle.coordinateScale) ** 2;
-  const insideOuter = pointInPedestrianRing(
-    sourceX,
-    sourceZ,
-    obstacle.ring,
-  );
+  const insideOuter = pointInPedestrianRing(sourceX, sourceZ, obstacle.ring);
   if (
     !insideOuter &&
     squaredDistanceToRing(sourceX, sourceZ, obstacle.ring) > paddingSquared
@@ -758,22 +754,64 @@ function pointTouchesPolygonObstacle(
   return true;
 }
 
-function pedestrianBodySamples(
+function pedestrianBodyTouchesProtectedVolume(
   x: number,
   z: number,
   bodyBottomY: number,
-): Array<readonly [number, number, number]> {
+  tester: NonNullable<PedestrianEnvironment["protectedVolumeAt"]>,
+): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
   const bodyMiddleY = (bodyBottomY + bodyTopY) / 2;
-  return [
-    [x, bodyBottomY, z],
-    [x, bodyMiddleY, z],
-    [x, bodyTopY, z],
-    [x - PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z],
-    [x + PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z],
-    [x, bodyMiddleY, z - PEDESTRIAN_BODY_RADIUS_M],
-    [x, bodyMiddleY, z + PEDESTRIAN_BODY_RADIUS_M],
-  ];
+  return (
+    tester(x, bodyBottomY, z) ||
+    tester(x, bodyMiddleY, z) ||
+    tester(x, bodyTopY, z) ||
+    tester(x - PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z) ||
+    tester(x + PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z) ||
+    tester(x, bodyMiddleY, z - PEDESTRIAN_BODY_RADIUS_M) ||
+    tester(x, bodyMiddleY, z + PEDESTRIAN_BODY_RADIUS_M)
+  );
+}
+
+function pedestrianBodyTouchesInteriorSolid(
+  x: number,
+  z: number,
+  bodyBottomY: number,
+  tester: NonNullable<PedestrianEnvironment["interiorSolidAt"]>,
+): boolean {
+  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  const bodyMiddleY = (bodyBottomY + bodyTopY) / 2;
+  const radius = PEDESTRIAN_BODY_RADIUS_M;
+  return (
+    tester(x, bodyBottomY, z, radius) ||
+    tester(x, bodyMiddleY, z, radius) ||
+    tester(x, bodyTopY, z, radius) ||
+    tester(x - radius, bodyMiddleY, z, radius) ||
+    tester(x + radius, bodyMiddleY, z, radius) ||
+    tester(x, bodyMiddleY, z - radius, radius) ||
+    tester(x, bodyMiddleY, z + radius, radius)
+  );
+}
+
+function pedestrianBodyHasWalkableInterior(
+  x: number,
+  z: number,
+  bodyBottomY: number,
+  tester: NonNullable<PedestrianEnvironment["walkableInteriorAt"]>,
+  sourceId?: string,
+): boolean {
+  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  const bodyMiddleY = (bodyBottomY + bodyTopY) / 2;
+  const radius = PEDESTRIAN_BODY_RADIUS_M;
+  return (
+    tester(x, bodyBottomY, z, sourceId) &&
+    tester(x, bodyMiddleY, z, sourceId) &&
+    tester(x, bodyTopY, z, sourceId) &&
+    tester(x - radius, bodyMiddleY, z, sourceId) &&
+    tester(x + radius, bodyMiddleY, z, sourceId) &&
+    tester(x, bodyMiddleY, z - radius, sourceId) &&
+    tester(x, bodyMiddleY, z + radius, sourceId)
+  );
 }
 
 /** True when a standing pedestrian capsule overlaps a compiled solid. */
@@ -788,24 +826,24 @@ export function pedestrianPointIsBlocked(
   >,
 ): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
-  const bodySamples = pedestrianBodySamples(x, z, bodyBottomY);
   if (
     access?.protectedVolumeAt &&
-    bodySamples.some(([sampleX, sampleY, sampleZ]) =>
-      access.protectedVolumeAt!(sampleX, sampleY, sampleZ),
+    pedestrianBodyTouchesProtectedVolume(
+      x,
+      z,
+      bodyBottomY,
+      access.protectedVolumeAt,
     )
   ) {
     return true;
   }
   if (
     access?.interiorSolidAt &&
-    bodySamples.some(([sampleX, sampleY, sampleZ]) =>
-      access.interiorSolidAt!(
-        sampleX,
-        sampleY,
-        sampleZ,
-        PEDESTRIAN_BODY_RADIUS_M,
-      ),
+    pedestrianBodyTouchesInteriorSolid(
+      x,
+      z,
+      bodyBottomY,
+      access.interiorSolidAt,
     )
   ) {
     return true;
@@ -817,7 +855,9 @@ export function pedestrianPointIsBlocked(
     Math.floor(x / obstacles.cellSizeM),
     Math.floor(z / obstacles.cellSizeM),
   );
-  for (const obstacle of obstacles.cells.get(key) ?? []) {
+  const nearbyObstacles = obstacles.cells.get(key);
+  if (!nearbyObstacles) return false;
+  for (const obstacle of nearbyObstacles) {
     if (
       bodyTopY <= obstacle.minY + 0.02 ||
       bodyBottomY >= obstacle.maxY - 0.02 ||
@@ -844,13 +884,12 @@ export function pedestrianPointIsBlocked(
     } else if (pointTouchesPolygonObstacle(x, z, obstacle)) {
       if (
         !access?.walkableInteriorAt ||
-        !bodySamples.every(([sampleX, sampleY, sampleZ]) =>
-          access.walkableInteriorAt!(
-            sampleX,
-            sampleY,
-            sampleZ,
-            obstacle.sourceId,
-          ),
+        !pedestrianBodyHasWalkableInterior(
+          x,
+          z,
+          bodyBottomY,
+          access.walkableInteriorAt,
+          obstacle.sourceId,
         )
       ) {
         return true;
@@ -898,7 +937,14 @@ export function pedestrianPointIsWater(
     ) {
       continue;
     }
-    if (!region.holes.some((hole) => pointInPedestrianRing(x, z, hole))) {
+    let insideHole = false;
+    for (const hole of region.holes) {
+      if (pointInPedestrianRing(x, z, hole)) {
+        insideHole = true;
+        break;
+      }
+    }
+    if (!insideHole) {
       return true;
     }
   }
@@ -951,8 +997,17 @@ export function createPedestrianEnvironment(
         }),
       )
     : [];
-  const tunnelGroundsAt = (x: number, z: number) =>
-    tunnelSegments.flatMap((segment) => {
+  const resolveGround: NonNullable<PedestrianEnvironment["resolveGround"]> = (
+    x,
+    z,
+    currentLayer,
+    groundYHint,
+  ) => {
+    const surfaceY = surfaceGroundAt(x, z);
+    let nearestTunnelKind: "portal" | "tube" | null = null;
+    let nearestTunnelScore = Number.POSITIVE_INFINITY;
+    let nearestTunnelY = 0;
+    for (const segment of tunnelSegments) {
       const progress =
         segment.lengthSquared > 1e-8
           ? clamp(
@@ -967,59 +1022,36 @@ export function createPedestrianEnvironment(
       const closestZ = segment.from[2] + segment.dz * progress;
       const distanceSquared = (x - closestX) ** 2 + (z - closestZ) ** 2;
       if (distanceSquared > (segment.halfWidthM + 0.35) ** 2) {
-        return [];
+        continue;
       }
-      return [
-        {
-          distanceSquared,
-          kind: segment.kind,
-          y: segment.from[1] + (segment.to[1] - segment.from[1]) * progress,
-        },
-      ];
-    });
-  const resolveGround: NonNullable<PedestrianEnvironment["resolveGround"]> = (
-    x,
-    z,
-    currentLayer,
-    groundYHint,
-  ) => {
-    const surfaceY = surfaceGroundAt(x, z);
-    const tunnelGrounds = tunnelGroundsAt(x, z);
-    const portalGrounds = tunnelGrounds.filter(
-      (candidate) => candidate.kind === "portal",
-    );
-    const selectable =
-      currentLayer === "tunnel" ? tunnelGrounds : portalGrounds;
-    const nearestTunnel = selectable.reduce<(typeof selectable)[number] | null>(
-      (nearest, candidate) => {
-        if (!nearest) return candidate;
-        if (Number.isFinite(groundYHint)) {
-          return Math.abs(candidate.y - groundYHint!) <
-            Math.abs(nearest.y - groundYHint!)
-            ? candidate
-            : nearest;
-        }
-        return candidate.distanceSquared < nearest.distanceSquared
-          ? candidate
-          : nearest;
-      },
-      null,
-    );
-    if (nearestTunnel) {
+      if (currentLayer !== "tunnel" && segment.kind !== "portal") {
+        continue;
+      }
+      const y = segment.from[1] + (segment.to[1] - segment.from[1]) * progress;
+      const score = Number.isFinite(groundYHint)
+        ? Math.abs(y - groundYHint!)
+        : distanceSquared;
+      if (score < nearestTunnelScore) {
+        nearestTunnelKind = segment.kind;
+        nearestTunnelScore = score;
+        nearestTunnelY = y;
+      }
+    }
+    if (nearestTunnelKind) {
       const useTunnel =
         currentLayer === "tunnel" ||
         surfaceY === null ||
         !Number.isFinite(groundYHint) ||
-        Math.abs(nearestTunnel.y - groundYHint!) <=
+        Math.abs(nearestTunnelY - groundYHint!) <=
           Math.abs(surfaceY - groundYHint!) + 0.35;
       if (useTunnel) {
         return {
           insideTunnel:
-            nearestTunnel.kind === "tube" ||
+            nearestTunnelKind === "tube" ||
             surfaceY === null ||
-            nearestTunnel.y < surfaceY - 0.75,
+            nearestTunnelY < surfaceY - 0.75,
           layer: "tunnel",
-          y: nearestTunnel.y,
+          y: nearestTunnelY,
         };
       }
     }
@@ -1049,15 +1081,13 @@ function resolvePedestrianGround(
       return { insideTunnel: false, layer: "surface", y: interiorY };
     }
   }
-  return (
-    environment.resolveGround?.(x, z, currentLayer, groundYHint) ??
-    (() => {
-      const y = environment.groundAt(x, z);
-      return y === null
-        ? null
-        : ({ insideTunnel: false, layer: "surface", y } as const);
-    })()
-  );
+  if (environment.resolveGround) {
+    return environment.resolveGround(x, z, currentLayer, groundYHint);
+  }
+  const y = environment.groundAt(x, z);
+  return y === null
+    ? null
+    : ({ insideTunnel: false, layer: "surface", y } as const);
 }
 
 const PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M = 10;
@@ -1160,13 +1190,7 @@ function nearestClearPedestrianSpawn(
           ? Math.atan2(outwardX, -outwardZ)
           : spawn.yaw;
       const candidate = {
-        clearance: pedestrianSpawnViewClearance(
-          environment,
-          x,
-          z,
-          ground,
-          yaw,
-        ),
+        clearance: pedestrianSpawnViewClearance(environment, x, z, ground, yaw),
         ground,
         spawn: {
           ...spawn,
@@ -1286,9 +1310,7 @@ export function jumpPedestrian(
   higher = false,
 ): PedestrianState {
   if (state.grounded) {
-    const apex = higher
-      ? PEDESTRIAN_HIGH_JUMP_APEX_M
-      : PEDESTRIAN_JUMP_APEX_M;
+    const apex = higher ? PEDESTRIAN_HIGH_JUMP_APEX_M : PEDESTRIAN_JUMP_APEX_M;
     return {
       ...state,
       grounded: false,
@@ -1462,23 +1484,23 @@ export function stepPedestrian(
       accept(x + stepX, z + stepZ, fullGround);
       continue;
     }
-    const axes: Array<readonly [number, number]> =
-      Math.abs(stepX) >= Math.abs(stepZ)
-        ? [
-            [stepX, 0],
-            [0, stepZ],
-          ]
-        : [
-            [0, stepZ],
-            [stepX, 0],
-          ];
-    for (const [dx, dz] of axes) {
-      if (dx === 0 && dz === 0) {
-        continue;
+    if (Math.abs(stepX) >= Math.abs(stepZ)) {
+      if (stepX !== 0) {
+        const xGround = acceptedGround(x + stepX, z);
+        if (xGround) accept(x + stepX, z, xGround);
       }
-      const axisGround = acceptedGround(x + dx, z + dz);
-      if (axisGround) {
-        accept(x + dx, z + dz, axisGround);
+      if (stepZ !== 0) {
+        const zGround = acceptedGround(x, z + stepZ);
+        if (zGround) accept(x, z + stepZ, zGround);
+      }
+    } else {
+      if (stepZ !== 0) {
+        const zGround = acceptedGround(x, z + stepZ);
+        if (zGround) accept(x, z + stepZ, zGround);
+      }
+      if (stepX !== 0) {
+        const xGround = acceptedGround(x + stepX, z);
+        if (xGround) accept(x + stepX, z, xGround);
       }
     }
   }

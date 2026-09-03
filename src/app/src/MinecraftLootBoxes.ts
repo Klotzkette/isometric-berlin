@@ -136,7 +136,8 @@ function fireworkParticles(
 
 function writeLootBoxMatrices(field: MinecraftLootBoxField): void {
   const helper = field.helper;
-  field.parts.forEach((part, index) => {
+  for (let index = 0; index < field.parts.length; index += 1) {
+    const part = field.parts[index];
     const box = field.boxes[part.boxIndex];
     const open = box.triggered ? Math.min(1, box.effectSeconds / 0.28) : 0;
     helper.position.set(
@@ -145,13 +146,14 @@ function writeLootBoxMatrices(field: MinecraftLootBoxField): void {
       box.z + part.local[2] - (part.role === "lid" ? open * 0.16 : 0),
     );
     helper.rotation.set(part.role === "lid" ? -open * 0.42 : 0, 0, 0);
-    helper.scale.set(...part.size);
+    helper.scale.set(part.size[0], part.size[1], part.size[2]);
     helper.updateMatrix();
     field.boxMesh.setMatrixAt(index, helper.matrix);
-  });
+  }
   field.boxMesh.instanceMatrix.needsUpdate = true;
 
-  field.particles.forEach((particle, index) => {
+  for (let index = 0; index < field.particles.length; index += 1) {
+    const particle = field.particles[index];
     const box = field.boxes[particle.boxIndex];
     const progress = Math.min(
       1,
@@ -181,7 +183,7 @@ function writeLootBoxMatrices(field: MinecraftLootBoxField): void {
     }
     helper.updateMatrix();
     field.fireworkMesh.setMatrixAt(index, helper.matrix);
-  });
+  }
   field.fireworkMesh.instanceMatrix.needsUpdate = true;
 }
 

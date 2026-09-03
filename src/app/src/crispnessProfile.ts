@@ -2,9 +2,9 @@
  * Central post-process profile next to the day/night/minecraft lighting
  * palettes. Both screen-space gains are pinned to zero for the interactive
  * 3D viewer: authored world-space ink and block materials carry every edge
- * without sampling neighbouring pixels while the camera moves. The shader
- * remains a neutral colour/composer pass and a compatibility surface for the
- * static DZI tooling.
+ * without sampling neighbouring pixels while the camera moves. The profile
+ * remains a compatibility surface for the static DZI tooling; the interactive
+ * viewer no longer allocates a no-op full-screen shader for it.
  */
 export type CrispnessProfile = {
   contrast: number;

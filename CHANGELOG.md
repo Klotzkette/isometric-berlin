@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.72.35
+
+- **Pariser Platz erhält präzisere, weiterhin quellgebundene Fassaden.**
+  Französische Botschaft und Akademie der Künste ergänzen Eingänge,
+  Beschriftung, Brüstungen und Flaggen. Das Europäische Haus an Unter den
+  Linden 78 bleibt ein eigenes Gebäude mit Steinraster, blauen Markisen,
+  EU-Flagge und Dachdetails. Das benachbarte Starbucks-Eckhaus erhält obere
+  Fensterregister, Geländer und patinierte Dachband-/Gaubenhinweise über
+  seinem unveränderten LoD2-Körper. Die fünf zivilen Fassaden bleiben bei
+  15 gebündelten Drawables beziehungsweise einem Minecraft-Batch mit
+  695 Blöcken. Nicht vermessene Unterteilungen sind Darstellungsnäherungen;
+  keine zusätzliche Fotodatei oder fotografische Textur wird geladen.
+- **Bewegung und laufende Animationen erzeugen weniger temporären Speicher.**
+  Kamera, Zoom, Kollisionsschritte, Fahnen und Wetter verwenden wiederverwendete
+  Rechenpuffer; Gebäudefarben und Minecraft-Transformationen vermeiden
+  wiederholte Objektkopien. Unveränderte Detailzustände werden nicht erneut
+  berechnet. Der bereits neutrale Vollbild-Crisp-Pass und seine Shaderdateien
+  entfallen vollständig; die gemeinsame SMAA-Kantenglättung bleibt aktiv.
+- **Startansicht und Tastatur passen zum aktuellen 3D-Viewer.** Der Start nutzt
+  die kleine, markerfreie DZI-Übersicht statt der nummerierten Referenzkarte
+  und meldet den Aufbau des Berliner 3D-Stadtmodells statt eines Foto-Meshs.
+  Shift+A/D beziehungsweise Shift+Links/Rechts dreht die Ansicht in freier
+  Kamera und Fußgängermodus; unmodifiziertes A/D bleibt seitliche Bewegung,
+  Shift allein senkt weiterhin die freie Kamera.
+
 ## v0.72.34
 
 - **Bewegungseingaben bleiben auch bei hoher Ereignisrate direkt und

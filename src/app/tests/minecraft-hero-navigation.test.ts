@@ -7,6 +7,7 @@ import {
 } from "../src/MinecraftArchitecturalLandmarks";
 import {
   MINECRAFT_HERO_PORTALS,
+  createMinecraftHeroCameraRigScratch,
   minecraftHeroCollisionEnabled,
   minecraftHeroGroundAt,
   minecraftHeroLocalToWorld,
@@ -26,10 +27,7 @@ const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
 ).text();
 const prismPayload = (await Bun.file(
-  new URL(
-    "../public/mesh/regierungsviertel/lod2-prisms.json",
-    import.meta.url,
-  ),
+  new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url),
 ).json()) as Parameters<typeof compilePedestrianObstacles>[0];
 
 function localRingDm(
@@ -108,10 +106,7 @@ describe("Minecraft hero navigation", () => {
     const gateBuildings = prismPayload.buildings.filter((building) =>
       building.ring.some(
         ([xDm, zDm]) =>
-          xDm / 10 > 380 &&
-          xDm / 10 < 460 &&
-          zDm / 10 > 250 &&
-          zDm / 10 < 350,
+          xDm / 10 > 380 && xDm / 10 < 460 && zDm / 10 > 250 && zDm / 10 < 350,
       ),
     );
     const gateObstacles = compilePedestrianObstacles({
@@ -169,12 +164,7 @@ describe("Minecraft hero navigation", () => {
       ]);
       expect(minecraftHeroWalkableAt(...world, sourceId)).toBeTrue();
     }
-    for (const localX of [
-      -eastWest.endLocalX,
-      -80,
-      80,
-      eastWest.endLocalX,
-    ]) {
+    for (const localX of [-eastWest.endLocalX, -80, 80, eastWest.endLocalX]) {
       const world = minecraftHeroLocalToWorld(entries[0].frame, [
         localX,
         walkingY,
@@ -201,14 +191,19 @@ describe("Minecraft hero navigation", () => {
     ]);
     expect(minecraftHeroWalkableAt(...outsideDoor, sourceId)).toBeFalse();
     expect(minecraftHeroWalkableAt(...aboveDoor, sourceId)).toBeFalse();
-    expect(minecraftHeroWalkableAt(...entries[0].frame.anchorWorld, "other")).toBeFalse();
+    expect(
+      minecraftHeroWalkableAt(...entries[0].frame.anchorWorld, "other"),
+    ).toBeFalse();
 
     const floorWorld = minecraftHeroLocalToWorld(entries[0].frame, [0, 0, 0]);
     expect(minecraftHeroGroundAt(floorWorld[0], floorWorld[2])).toBeCloseTo(
       MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof.anchorWorld[1] +
         MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof.publicFloorTopLocalY,
     );
-    const outsideHall = minecraftHeroLocalToWorld(entries[0].frame, [80, 0, 80]);
+    const outsideHall = minecraftHeroLocalToWorld(
+      entries[0].frame,
+      [80, 0, 80],
+    );
     expect(minecraftHeroGroundAt(outsideHall[0], outsideHall[2])).toBeNull();
 
     const stationEnvironment: PedestrianEnvironment = {
@@ -313,22 +308,17 @@ describe("Minecraft hero navigation", () => {
     const obstacles = compilePedestrianObstacles({
       buildings: stationBuildings,
     });
-    const bodyBottomY =
-      profile.anchorWorld[1] + profile.publicFloorTopLocalY;
+    const bodyBottomY = profile.anchorWorld[1] + profile.publicFloorTopLocalY;
     const localPoints = [
       [0, -profile.entrances.northSouth.endLocalZ + 3],
       [0, profile.entrances.northSouth.endLocalZ - 3],
       [
         -profile.entrances.eastWest.endLocalX + 3,
-        hauptbahnhofEastWestCurveAt(
-          -profile.entrances.eastWest.endLocalX + 3,
-        ),
+        hauptbahnhofEastWestCurveAt(-profile.entrances.eastWest.endLocalX + 3),
       ],
       [
         profile.entrances.eastWest.endLocalX - 3,
-        hauptbahnhofEastWestCurveAt(
-          profile.entrances.eastWest.endLocalX - 3,
-        ),
+        hauptbahnhofEastWestCurveAt(profile.entrances.eastWest.endLocalX - 3),
       ],
       ...profile.officeEntrances.bridgeCentresLocalX.flatMap((centerX) => [
         [centerX, -profile.officeEntrances.endLocalZ + 3] as const,
@@ -336,11 +326,7 @@ describe("Minecraft hero navigation", () => {
       ]),
     ] as const;
     const worlds = localPoints.map(([x, z]) =>
-      minecraftHeroLocalToWorld(profile, [
-        x,
-        profile.publicFloorTopLocalY,
-        z,
-      ]),
+      minecraftHeroLocalToWorld(profile, [x, profile.publicFloorTopLocalY, z]),
     );
     expect(
       pedestrianPointIsBlocked(
@@ -433,11 +419,7 @@ describe("Minecraft hero navigation", () => {
       ),
     ).toBeTrue();
     expect(
-      minecraftHeroSolidAt(
-        upperMidpoint[0],
-        upper.roofY,
-        upperMidpoint[1],
-      ),
+      minecraftHeroSolidAt(upperMidpoint[0], upper.roofY, upperMidpoint[1]),
     ).toBeTrue();
 
     const lowerMidpointX =
@@ -446,13 +428,11 @@ describe("Minecraft hero navigation", () => {
       (lower.centrelineWorld[0][1] + lower.centrelineWorld[1][1]) / 2 +
       lower.curveSagittaM;
     expect(
-      minecraftHeroSolidAt(
-        lowerMidpointX,
-        lower.deckY - 0.35,
-        lowerMidpointZ,
-      ),
+      minecraftHeroSolidAt(lowerMidpointX, lower.deckY - 0.35, lowerMidpointZ),
     ).toBeTrue();
-    expect(minecraftHeroSolidAt(upperMidpoint[0], 10, upperMidpoint[1])).toBeFalse();
+    expect(
+      minecraftHeroSolidAt(upperMidpoint[0], 10, upperMidpoint[1]),
+    ).toBeFalse();
   });
 
   test("walking and fast flight cross a passage but cannot cross its column bay", () => {
@@ -605,6 +585,44 @@ describe("Minecraft hero navigation", () => {
     expect(zoomed.target).toEqual({ x: -1, y: 5, z: -8 });
   });
 
+  test("reuses the Minecraft camera-rig result during direct controls", () => {
+    const environment: PedestrianEnvironment = {
+      bounds: { maxX: 100, maxZ: 100, minX: -100, minZ: -100 },
+      groundAt: () => 0,
+      water: [],
+    };
+    const scratch = createMinecraftHeroCameraRigScratch();
+    const previous = {
+      camera: { x: -10, y: 8, z: 10 },
+      target: { x: -10, y: 4, z: 0 },
+    };
+    const first = reconcileMinecraftHeroCameraRig(
+      previous,
+      {
+        camera: { x: -9, y: 8, z: 10 },
+        target: { x: -9, y: 4, z: 0 },
+      },
+      environment,
+      undefined,
+      scratch,
+    );
+    const second = reconcileMinecraftHeroCameraRig(
+      { camera: first.camera, target: first.target },
+      {
+        camera: { x: -8, y: 8, z: 10 },
+        target: { x: -8, y: 4, z: 0 },
+      },
+      environment,
+      undefined,
+      scratch,
+    );
+
+    expect(second).toBe(first);
+    expect(second).toBe(scratch.result);
+    expect(second.camera).toBe(scratch.result.camera);
+    expect(second.target).toBe(scratch.result.target);
+  });
+
   test("ThreeViewer keeps universal walking access separate from Minecraft flight", () => {
     expect(viewerSource).toContain("visualModeWalkableInteriorAt(");
     expect(viewerSource).toContain("minecraftHeroSolidAt(x, y, z, radius)");
@@ -613,7 +631,9 @@ describe("Minecraft hero navigation", () => {
     expect(viewerSource).toContain(
       'controls.addEventListener("change", onControlsChange)',
     );
-    expect(viewerSource).toContain("minecraftHeroCollisionEnabled(runtime.lightingMode)");
+    expect(viewerSource).toContain(
+      "minecraftHeroCollisionEnabled(runtime.lightingMode)",
+    );
     const voxelBuilder = viewerSource.slice(
       viewerSource.indexOf("function ensureVoxelWorld"),
       viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
@@ -646,7 +666,9 @@ describe("Minecraft hero navigation", () => {
     expect(requestedWater).toBeGreaterThan(waterFetch);
     expect(
       voxelBuilder.slice(
-        voxelBuilder.indexOf("runtime.scene.add(provisionalMinecraftMobs.group)"),
+        voxelBuilder.indexOf(
+          "runtime.scene.add(provisionalMinecraftMobs.group)",
+        ),
         waterLoader,
       ),
     ).not.toContain("fetchSurfacePayload(runtime)");

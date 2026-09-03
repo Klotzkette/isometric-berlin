@@ -899,12 +899,8 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     [10, 3.5, 4],
     [7, 3, 3],
   ] as const;
-  for (const [
-    row,
-    [halfExtent, edgeThickness, bevel],
-  ] of domeTiers.entries()) {
-    const y =
-      dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + row * 3.35;
+  for (const [row, [halfExtent, edgeThickness, bevel]] of domeTiers.entries()) {
+    const y = dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + row * 3.35;
     const edgeOffset = halfExtent - edgeThickness / 2;
     const straightLength = 2 * (halfExtent - bevel);
     for (const side of [-1, 1]) {
@@ -946,11 +942,7 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     plan,
     frame,
     "seven-step octagonal glass dome",
-    [
-      0,
-      dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + 6 * 3.35,
-      0,
-    ],
+    [0, dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + 6 * 3.35, 0],
     [8, 3, 8],
     BLOCK.iron,
   );
@@ -1144,9 +1136,7 @@ function createChancelleryBlocks(
         "coarse stepped saddle roof",
         [cubeX + 2.4 + forward, y, cubeZ + lateral],
         [7.6, 1.3, 7.6],
-        (forward + lateral) % 16 === 0
-          ? BLOCK.marbleLight
-          : BLOCK.marbleShadow,
+        (forward + lateral) % 16 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
       );
     }
   }
@@ -1755,11 +1745,7 @@ function pushParliamentBridges(plan: BlockPlan): void {
         plan,
         cue,
         [(a[0] + b[0]) / 2, y, (a[1] + b[1]) / 2],
-        [
-          Math.max(0.1, segmentLength - (sagitta === 0 ? 0 : 0.04)),
-          0.8,
-          width,
-        ],
+        [Math.max(0.1, segmentLength - (sagitta === 0 ? 0 : 0.04)), 0.8, width],
         color,
         Math.atan2(-(b[1] - a[1]), b[0] - a[0]),
       );
@@ -2136,8 +2122,7 @@ function createBerlinerEnsembleBlocks(
   const towerFrame: LocalFrame = profile.towerFrame;
   const signFrame: LocalFrame = profile.signFrame;
   const plan = newPlan();
-  const baseY =
-    profile.blockLoD.roofStageBaseY - towerFrame.anchorWorld[1];
+  const baseY = profile.blockLoD.roofStageBaseY - towerFrame.anchorWorld[1];
 
   // The measured LoD2 voxel body ends at this source-bound roof stage. Only
   // the characteristic truncated tower cap and sign rise above it here, so
@@ -2173,9 +2158,21 @@ function createBerlinerEnsembleBlocks(
 
   const roofCourses = [
     [profile.blockLoD.towerWidthM, profile.blockLoD.towerDepthM, 0.76],
-    [profile.blockLoD.towerWidthM * 0.8, profile.blockLoD.towerDepthM * 0.8, 0.76],
-    [profile.blockLoD.towerWidthM * 0.6, profile.blockLoD.towerDepthM * 0.6, 0.76],
-    [profile.blockLoD.towerWidthM * 0.4, profile.blockLoD.towerDepthM * 0.4, 0.76],
+    [
+      profile.blockLoD.towerWidthM * 0.8,
+      profile.blockLoD.towerDepthM * 0.8,
+      0.76,
+    ],
+    [
+      profile.blockLoD.towerWidthM * 0.6,
+      profile.blockLoD.towerDepthM * 0.6,
+      0.76,
+    ],
+    [
+      profile.blockLoD.towerWidthM * 0.4,
+      profile.blockLoD.towerDepthM * 0.4,
+      0.76,
+    ],
   ] as const;
   for (const [index, [width, depth, height]] of roofCourses.entries()) {
     const segments = [3, 2, 2, 1][index];
@@ -2196,8 +2193,7 @@ function createBerlinerEnsembleBlocks(
     }
   }
 
-  const centreY =
-    profile.blockLoD.signCentreY - signFrame.anchorWorld[1];
+  const centreY = profile.blockLoD.signCentreY - signFrame.anchorWorld[1];
   const radius = profile.blockLoD.signDiameterM / 2;
   const roofTop = profile.blockLoD.roofStageTopY - signFrame.anchorWorld[1];
   const supportHeight = Math.max(1, centreY - radius - roofTop + 0.55);
@@ -2296,7 +2292,7 @@ function createBerlinerEnsembleBlocks(
 
 /**
  * One deliberately coarse Pariser-Platz batch: Hotel Adlon's source-bound
- * north frontage plus the two short Starbucks tenant fronts around the
+ * north frontage plus the Starbucks tenant fronts and office registers around the
  * south-west corner of LoD2 body K00005Hq. The measured voxel masses stay in
  * place behind these shallow overlays; this batch only supplies recognition
  * cues which those unusually plain source columns cannot carry.
@@ -2318,10 +2314,8 @@ function createPariserPlatzBlocks(
     rotationDegrees: (adlon.front.rotationY * 180) / Math.PI,
   };
   const facadeLength = adlon.front.lengthM;
-  const eavesLocalY =
-    adlon.heights.eavesWorldY - adlon.heights.groundWorldY;
-  const ridgeLocalY =
-    adlon.heights.ridgeWorldY - adlon.heights.groundWorldY;
+  const eavesLocalY = adlon.heights.eavesWorldY - adlon.heights.groundWorldY;
+  const ridgeLocalY = adlon.heights.ridgeWorldY - adlon.heights.groundWorldY;
 
   // Five broad stone courses retain a visible brick grammar even before a
   // window row resolves. Every box is at most eight metres high and every
@@ -2380,9 +2374,7 @@ function createPariserPlatzBlocks(
         : "five high ground-floor dark recesses",
       [x, 2.8, -0.58],
       [7.2, 5.2, 0.42],
-      bay === Math.floor(archCount / 2)
-        ? BLOCK.tealGlass
-        : BLOCK.deepRecess,
+      bay === Math.floor(archCount / 2) ? BLOCK.tealGlass : BLOCK.deepRecess,
     );
     for (const side of [-1, 1]) {
       pushLocalBlock(
@@ -2456,7 +2448,10 @@ function createPariserPlatzBlocks(
     [eavesLocalY + 4.7, 1.8, facadeLength - 8.0, 4.4, 5.2],
     [ridgeLocalY - 0.6, 1.2, facadeLength - 12.0, 2.8, 6.0],
   ] as const;
-  for (const [index, [centreY, height, width, depth, localZ]] of roofCourses.entries()) {
+  for (const [
+    index,
+    [centreY, height, width, depth, localZ],
+  ] of roofCourses.entries()) {
     pushLocalBlock(
       plan,
       adlonFrame,
@@ -2466,7 +2461,11 @@ function createPariserPlatzBlocks(
       index % 2 === 0 ? BLOCK.oxidisedCopper : MINECRAFT_PALETTE[3],
     );
   }
-  for (let dormer = 0; dormer < adlon.publicFacade.frontDormerCount; dormer += 1) {
+  for (
+    let dormer = 0;
+    dormer < adlon.publicFacade.frontDormerCount;
+    dormer += 1
+  ) {
     const x =
       -facadeLength * 0.39 +
       (dormer / (adlon.publicFacade.frontDormerCount - 1)) *
@@ -2598,6 +2597,67 @@ function createPariserPlatzBlocks(
         [along * distance, 4.95, 1.05],
         [0.5, 0.68, 0.32],
         BLOCK.iron,
+      );
+    }
+
+    const upperPitch = facade.buildingFacadeLengthM / facade.upperBayCount;
+    for (const y of [6.72, 10.07, 13.42, 16.77, 20.12]) {
+      for (let bay = 0; bay < facade.upperBayCount; bay += 1) {
+        pushLocalBlock(
+          plan,
+          frame,
+          `Pariser Platz 4a ${facade.key} upper window registers`,
+          [along * (bay + 0.5) * upperPitch, y, 0.8],
+          [upperPitch * 0.56, 2.65, 0.4],
+          BLOCK.deepRecess,
+        );
+      }
+    }
+    for (const y of [5.1, 8.45, 11.8, 15.15, 18.5, 21.85, 22.4]) {
+      pushLocalBlock(
+        plan,
+        frame,
+        `Pariser Platz 4a ${facade.key} limestone courses`,
+        [(along * facade.buildingFacadeLengthM) / 2, y, 0.65],
+        [facade.buildingFacadeLengthM, 0.4, 0.6],
+        BLOCK.limestone,
+      );
+    }
+    for (let course = 0; course < 3; course += 1) {
+      const roofStart = facade.key === "west" ? 0.6 + course * 0.55 : 0.15;
+      const roofSpan = facade.buildingFacadeLengthM - 0.15 - roofStart;
+      pushLocalBlock(
+        plan,
+        frame,
+        `Pariser Platz 4a ${facade.key} stepped green mansard`,
+        [
+          along * (roofStart + roofSpan / 2),
+          23.4 + course * 1.8,
+          1.05 - course * 0.16,
+        ],
+        [roofSpan, 1.8, 0.65],
+        BLOCK.oxidisedCopper,
+      );
+    }
+    for (let dormer = 0; dormer < facade.dormerCount; dormer += 1) {
+      const x =
+        (along * (dormer + 0.5) * facade.buildingFacadeLengthM) /
+        facade.dormerCount;
+      pushLocalBlock(
+        plan,
+        frame,
+        `Pariser Platz 4a ${facade.key} block dormers`,
+        [x, 25.2, 1.35],
+        [1.75, 2.4, 0.8],
+        BLOCK.limestone,
+      );
+      pushLocalBlock(
+        plan,
+        frame,
+        `Pariser Platz 4a ${facade.key} dormer glazing`,
+        [x, 25.15, 1.92],
+        [1.08, 1.75, 0.35],
+        BLOCK.deepRecess,
       );
     }
 
@@ -2751,8 +2811,7 @@ function voxelCellIntersectsLocalRectangle(
       cellHalf + widthHalf * absoluteSine + depthHalf * absoluteCosine &&
     Math.abs(localX) <=
       widthHalf + cellHalf * (absoluteCosine + absoluteSine) &&
-    Math.abs(localZ) <=
-      depthHalf + cellHalf * (absoluteCosine + absoluteSine)
+    Math.abs(localZ) <= depthHalf + cellHalf * (absoluteCosine + absoluteSine)
   );
 }
 

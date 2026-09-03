@@ -166,8 +166,10 @@ describe("true voxel Minecraft world", () => {
       mobileLandmarks?.getObjectByName(pariserPlatzName);
     expect(fullPariserPlatz).toBeInstanceOf(InstancedMesh);
     expect(mobilePariserPlatz).toBeInstanceOf(InstancedMesh);
-    expect((fullPariserPlatz as InstancedMesh).count).toBe(292);
-    expect((mobilePariserPlatz as InstancedMesh).count).toBe(292);
+    expect((fullPariserPlatz as InstancedMesh).count).toBe(444);
+    expect((mobilePariserPlatz as InstancedMesh).count).toBe(
+      (fullPariserPlatz as InstancedMesh).count,
+    );
     expect(fullPariserPlatz?.visible).toBe(true);
     expect(mobilePariserPlatz?.visible).toBe(true);
 

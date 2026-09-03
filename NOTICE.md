@@ -77,8 +77,11 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Akademie der Künste](https://adk.de/besuch/veranstaltungsorte/pariser-platz),
   its [institutional history](https://adk.de/ueber-uns/akademie-geschichte)
   and [Baunetz Wissen](https://www.baunetzwissen.de/fassade/objekte/kultur-bildung/akademie-der-kuenste-in-berlin-70588)
-  document the Akademie facade and visible circulation. Berlin LoD2 and OSM
-  remain the metric and identity anchors. Four free Wikimedia files were used
+  document the Akademie facade and visible circulation. The
+  [European Commission representation](https://germany.representation.ec.europa.eu/uber-uns/europaisches-haus_de)
+  identifies the European House at Unter den Linden 78, separately from the
+  Starbucks corner at number 80. Berlin LoD2 and OSM
+  remain the metric and identity anchors. Five free Wikimedia files were used
   only for visual QA: Roy Zuo,
   [*Max-Liebermann-Haus und Palais am Pariser Platz, 24-05-2025.jpg*](https://commons.wikimedia.org/wiki/File%3AMax-Liebermann-Haus_und_Palais_am_Pariser_Platz%2C_24-05-2025.jpg)
   (CC BY-SA 4.0); Geoprofi Lars,
@@ -87,7 +90,9 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [*US Amerikanische Botschaft Berlin Embassy of the United States in Berlin.JPG*](https://commons.wikimedia.org/wiki/File%3AUS_Amerikanische_Botschaft_Berlin_Embassy_of_the_United_States_in_Berlin.JPG)
   (public domain); and Manfred Brückels,
   [*Akademie der Kuenste Berlin 2.jpg*](https://commons.wikimedia.org/wiki/File%3AAkademie_der_Kuenste_Berlin_2.jpg)
-  (CC BY-SA 3.0). No photograph is bundled, projected, traced or used as a
+  (CC BY-SA 3.0); and Roy Zuo,
+  [*Europäisches Haus, Unter den Linden 78, 24-05-2025.jpg*](https://commons.wikimedia.org/wiki/File:Europ%C3%A4isches_Haus,_Unter_den_Linden_78,_24-05-2025.jpg)
+  (CC BY-SA 4.0). No photograph is bundled, projected, traced or used as a
   facade texture.
 
 - **Center / former Sony Center and TIPI am Kanzleramt (architectural

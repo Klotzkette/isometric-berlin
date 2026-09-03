@@ -1273,6 +1273,17 @@
       "photo_bundled": false
     },
     {
+      "landmark_id": "european_house",
+      "title": "File:Europäisches Haus, Unter den Linden 78, 24-05-2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Europ%C3%A4isches_Haus,_Unter_den_Linden_78,_24-05-2025.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Roy Zuo",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "brecht_memorial",
       "title": "File:Bertolt Brecht, Skulptur von Fritz Cremer am BE in Berlin.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABertolt_Brecht%2C_Skulptur_von_Fritz_Cremer_am_BE_in_Berlin.jpg",

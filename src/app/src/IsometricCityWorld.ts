@@ -715,6 +715,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   K0003VDk: 0xe1e3dc,
   MLwG4KW9: 0xeff1ec,
   K00006ot: 0x668574,
+  // Pariser Platz 4a: reference-supported patina, with the source cap intact.
+  K00005Hq: 0x54796a,
   ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
   ORqiW8aK: 0x729083,
   yrDOCds1: 0x729083,
@@ -1162,8 +1164,7 @@ export const PRISM_GLASSED_IDS: ReadonlySet<string> = new Set([
  * is grey — but never black) and quantised onto six shared paint levels
  * so neighbouring buildings cohere as one drawing.
  */
-export function cleanedTone(tone: [number, number, number]): Color {
-  const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+function cleanedToneInto(tone: [number, number, number], target: Color): Color {
   let r = tone[0] / 255;
   let g = tone[1] / 255;
   let b = tone[2] / 255;
@@ -1189,7 +1190,15 @@ export function cleanedTone(tone: [number, number, number]): Color {
   const bands = 16;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
-  return new Color(clamp01(r * scale), clamp01(g * scale), clamp01(b * scale));
+  return target.setRGB(
+    Math.min(1, Math.max(0, r * scale)),
+    Math.min(1, Math.max(0, g * scale)),
+    Math.min(1, Math.max(0, b * scale)),
+  );
+}
+
+export function cleanedTone(tone: [number, number, number]): Color {
+  return cleanedToneInto(tone, new Color());
 }
 
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
@@ -1241,7 +1250,8 @@ function prismCentroidM(
 }
 
 function centroidInsideProfile(
-  building: Pick<PrismBuilding, "ring">,
+  x: number,
+  z: number,
   profile: {
     centerWorldM: readonly [number, number];
     lengthM: number;
@@ -1249,7 +1259,6 @@ function centroidInsideProfile(
     widthM: number;
   },
 ): boolean {
-  const [x, z] = prismCentroidM(building);
   const dx = x - profile.centerWorldM[0];
   const dz = z - profile.centerWorldM[1];
   const cosine = Math.cos(profile.rotationY);
@@ -1266,11 +1275,12 @@ function centroidInsideProfile(
 export function isScharounGoldPrism(
   building: Pick<PrismBuilding, "ring">,
 ): boolean {
-  return [
-    KULTURFORUM_PROFILE.philharmonie,
-    KULTURFORUM_PROFILE.kammermusiksaal,
-    KULTURFORUM_PROFILE.staatsbibliothek,
-  ].some((profile) => centroidInsideProfile(building, profile));
+  const [x, z] = prismCentroidM(building);
+  return (
+    centroidInsideProfile(x, z, KULTURFORUM_PROFILE.philharmonie) ||
+    centroidInsideProfile(x, z, KULTURFORUM_PROFILE.kammermusiksaal) ||
+    centroidInsideProfile(x, z, KULTURFORUM_PROFILE.staatsbibliothek)
+  );
 }
 
 export const SCHAROUN_ROOF_SEAM_IDS: ReadonlySet<string> = new Set([
@@ -1293,43 +1303,50 @@ export const ISO_FACADE_DETAIL_FADE_M = [500, 780] as const;
 export const FACADE_AXIS_V07231_ATTRIBUTE_BYTES = 23_221_352;
 export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 96 * 1024;
 
-function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
+function facadeColorFor(
+  building: PrismBuilding,
+  classes: string[],
+  target: Color,
+): Color {
   // Keep every official part inside the Reichstag footprint in the same
   // bright, cool limestone register. Checking the region before individual
   // pins prevents the large main prism from reverting to the older beige.
   if (inReichstagRegion(building)) {
-    return new Color(0xdfe2df).lerp(IVORY, 0.1);
+    return target.setHex(0xdfe2df).lerp(IVORY, 0.1);
   }
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
     if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
       // The clinker is the building's identity. Keep the shared ivory lift
       // restrained here so the red ceramic does not wash back to beige.
-      return new Color(pinned).lerp(IVORY, 0.1);
+      return target.setHex(pinned).lerp(IVORY, 0.1);
     }
     if (TERRASSENHAUS_HAFENPLATZ_IDS.has(building.id)) {
       // The cool washed-concrete and ochre window register are this listed
       // ensemble's identity; a strong shared ivory wash erased both.
-      return new Color(pinned).lerp(IVORY, 0.12);
+      return target.setHex(pinned).lerp(IVORY, 0.12);
     }
     if (REICHSTAGSPRAESIDENTENPALAIS_IDS.has(building.id)) {
       // Wallot's yellow sandstone is the Palais' identifying material. Keep
       // the shared paper lift subtle so the LoD2 envelope and the dedicated
       // stone articulation stay in one colour register.
-      return new Color(pinned).lerp(IVORY, 0.08);
+      return target.setHex(pinned).lerp(IVORY, 0.08);
     }
     // The pins stay neutral light stone (the owner's earlier direction for the
     // Chancellery); the ivory blend is what stops them reading as grey paint.
-    return new Color(pinned).lerp(IVORY, 0.34);
+    return target.setHex(pinned).lerp(IVORY, 0.34);
   }
   if (isScharounGoldPrism(building)) {
-    return new Color(0xf0cf7d).lerp(IVORY, 0.08);
+    return target.setHex(0xf0cf7d).lerp(IVORY, 0.08);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(IVORY, SOURCE_FACADE_IVORY_BLEND);
+    return cleanedToneInto(building.tone, target).lerp(
+      IVORY,
+      SOURCE_FACADE_IVORY_BLEND,
+    );
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -1337,7 +1354,7 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   for (const char of building.id) {
     hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   }
-  return new Color(shades[hash % shades.length]);
+  return target.setHex(shades[hash % shades.length]);
 }
 
 function isRenderablePrismBuilding(building: PrismBuilding): boolean {
@@ -1385,6 +1402,7 @@ export function createDistantBuildingShells(
   shells.userData.nightMaterial = nightMaterial;
   shells.userData.detailProfile = "mobile-far";
   const matrix = new Matrix4();
+  const color = new Color();
 
   visible.forEach((building, index) => {
     let axisX = 1;
@@ -1446,7 +1464,7 @@ export function createDistantBuildingShells(
       1,
     );
     shells.setMatrixAt(index, matrix);
-    shells.setColorAt(index, facadeColorFor(building, prisms.classes));
+    shells.setColorAt(index, facadeColorFor(building, prisms.classes, color));
   });
   shells.instanceMatrix.needsUpdate = true;
   if (shells.instanceColor) shells.instanceColor.needsUpdate = true;
@@ -2538,10 +2556,8 @@ const WASHINGTONPLATZ_CENTRE_WORLD_M = [
   -35.76899601815967, -532.2079668212682,
 ] as const;
 const HAUPTBAHNHOF_QUARTER_CENTRE_WORLD_M = [
-  (EUROPAPLATZ_CENTRE_WORLD_M[0] + WASHINGTONPLATZ_CENTRE_WORLD_M[0]) /
-    2,
-  (EUROPAPLATZ_CENTRE_WORLD_M[1] + WASHINGTONPLATZ_CENTRE_WORLD_M[1]) /
-    2,
+  (EUROPAPLATZ_CENTRE_WORLD_M[0] + WASHINGTONPLATZ_CENTRE_WORLD_M[0]) / 2,
+  (EUROPAPLATZ_CENTRE_WORLD_M[1] + WASHINGTONPLATZ_CENTRE_WORLD_M[1]) / 2,
 ] as const;
 const TILLA_DURIEUX_NORTH_END_WORLD_M = [
   (TILLA_DURIEUX_PROFILE.northLawn.endEastWorldM[0] +
@@ -11197,6 +11213,21 @@ export function createIsometricCity(
     z: number;
   }> = [];
   const color = new Color();
+  const capColor = new Color();
+  const facadeShadeBytes = new Uint8Array(18);
+  const writeShadeBytes = (
+    offset: number,
+    tone: Color,
+    shade: number,
+  ): void => {
+    facadeShadeBytes[offset] = Math.round(Math.min(1, tone.r * shade) * 255);
+    facadeShadeBytes[offset + 1] = Math.round(
+      Math.min(1, tone.g * shade) * 255,
+    );
+    facadeShadeBytes[offset + 2] = Math.round(
+      Math.min(1, tone.b * shade) * 255,
+    );
+  };
   const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
     const positions = geometry.getAttribute("position");
     const colors = new Uint8Array(positions.count * 3);
@@ -11219,38 +11250,33 @@ export function createIsometricCity(
     const positions = geometry.getAttribute("position").array as Float32Array;
     const normals = geometry.getAttribute("normal").array as Float32Array;
     const colors = new Uint8Array(positions.length);
-    const shadeRgb = (tone: Color, shade: number): readonly [number, number, number] => [
-      Math.round(Math.min(1, tone.r * shade) * 255),
-      Math.round(Math.min(1, tone.g * shade) * 255),
-      Math.round(Math.min(1, tone.b * shade) * 255),
-    ];
-    const top = shadeRgb(facadeTone, ISO_FACE_SHADE.top);
-    const east = shadeRgb(facadeTone, ISO_FACE_SHADE.east);
-    const south = shadeRgb(facadeTone, ISO_FACE_SHADE.south);
-    const north = shadeRgb(facadeTone, ISO_FACE_SHADE.north);
-    const west = shadeRgb(facadeTone, ISO_FACE_SHADE.west);
-    const capTop = shadeRgb(capTone, ISO_FACE_SHADE.top);
+    writeShadeBytes(0, facadeTone, ISO_FACE_SHADE.top);
+    writeShadeBytes(3, facadeTone, ISO_FACE_SHADE.east);
+    writeShadeBytes(6, facadeTone, ISO_FACE_SHADE.south);
+    writeShadeBytes(9, facadeTone, ISO_FACE_SHADE.north);
+    writeShadeBytes(12, facadeTone, ISO_FACE_SHADE.west);
+    writeShadeBytes(15, capTone, ISO_FACE_SHADE.top);
     for (let offset = 0; offset < positions.length; offset += 3) {
       const nx = normals[offset];
       const ny = normals[offset + 1];
       const nz = normals[offset + 2];
-      const rgb =
+      const shadeOffset =
         ny > 0.55
           ? ny > 0.7 && positions[offset + 1] > capY
-            ? capTop
-            : top
+            ? 15
+            : 0
           : ny < -0.55
-            ? west
+            ? 12
             : Math.abs(nx) >= Math.abs(nz)
               ? nx > 0
-                ? east
-                : west
+                ? 3
+                : 12
               : nz > 0
-                ? south
-                : north;
-      colors[offset] = rgb[0];
-      colors[offset + 1] = rgb[1];
-      colors[offset + 2] = rgb[2];
+                ? 6
+                : 9;
+      colors[offset] = facadeShadeBytes[shadeOffset];
+      colors[offset + 1] = facadeShadeBytes[shadeOffset + 1];
+      colors[offset + 2] = facadeShadeBytes[shadeOffset + 2];
     }
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
@@ -11386,7 +11412,7 @@ export function createIsometricCity(
       }
       continue;
     }
-    color.copy(facadeColorFor(building, prisms.classes));
+    facadeColorFor(building, prisms.classes, color);
     // Flat caps read as drawn roof plates, not sun-baked facade paint:
     // recolour up-facing cap vertices cooler and slightly darker (the
     // Reichstag's huge roof was one warm brown slab).
@@ -11399,9 +11425,9 @@ export function createIsometricCity(
           : undefined);
     const capTone =
       pinnedRoof !== undefined
-        ? new Color(pinnedRoof)
-        : color
-            .clone()
+        ? capColor.setHex(pinnedRoof)
+        : capColor
+            .copy(color)
             .multiplyScalar(0.97)
             .lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
     const capY = y0 + bodyHeight - 0.05;

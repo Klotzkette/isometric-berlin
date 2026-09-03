@@ -121,7 +121,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(totalBlocks).toBeGreaterThan(3_500);
     expect(totalBlocks).toBeLessThan(5_000);
     expect(meshes.map(({ count }) => count)).toEqual([
-      327, 371, 2_699, 134, 776, 56, 292,
+      327, 371, 2_699, 134, 776, 56, 444,
     ]);
   });
 
@@ -337,10 +337,8 @@ describe("block-native Berlin architectural signatures", () => {
           halfX,
           halfZ,
           top: position.y + scale.y / 2,
-          worldHalfX:
-            halfX * Math.abs(cosine) + halfZ * Math.abs(sine),
-          worldHalfZ:
-            halfX * Math.abs(sine) + halfZ * Math.abs(cosine),
+          worldHalfX: halfX * Math.abs(cosine) + halfZ * Math.abs(sine),
+          worldHalfZ: halfX * Math.abs(sine) + halfZ * Math.abs(cosine),
           x: position.x,
           yaw,
           z: position.z,
@@ -376,15 +374,11 @@ describe("block-native Berlin architectural signatures", () => {
           const positiveArea = [...aAxes, ...bAxes].every(([axisX, axisZ]) => {
             const centreDistance = Math.abs(dx * axisX + dz * axisZ);
             const aRadius =
-              a.halfX *
-                Math.abs(axisX * aAxes[0][0] + axisZ * aAxes[0][1]) +
-              a.halfZ *
-                Math.abs(axisX * aAxes[1][0] + axisZ * aAxes[1][1]);
+              a.halfX * Math.abs(axisX * aAxes[0][0] + axisZ * aAxes[0][1]) +
+              a.halfZ * Math.abs(axisX * aAxes[1][0] + axisZ * aAxes[1][1]);
             const bRadius =
-              b.halfX *
-                Math.abs(axisX * bAxes[0][0] + axisZ * bAxes[0][1]) +
-              b.halfZ *
-                Math.abs(axisX * bAxes[1][0] + axisZ * bAxes[1][1]);
+              b.halfX * Math.abs(axisX * bAxes[0][0] + axisZ * bAxes[0][1]) +
+              b.halfZ * Math.abs(axisX * bAxes[1][0] + axisZ * bAxes[1][1]);
             return aRadius + bRadius - centreDistance > 0.001;
           });
           if (!positiveArea) continue;

@@ -492,17 +492,20 @@ const viewerSource = await Bun.file(
 describe("Berliner Ensemble runtime wiring", () => {
   test("shares the bounded mobile cadence between smooth and block-native signs", () => {
     expect(viewerSource).toContain(
-      "const roofSignMotion = berlinerEnsembleRoofSignMotionDecision({",
+      "const roofSignMotion = berlinerEnsembleRoofSignMotionDecision(",
     );
     for (const gate of [
-      "fineDetailVisible: runtime.fineDetailVisible",
-      'hidden: document.visibilityState === "hidden"',
-      "onScreen: isBerlinerEnsembleRoofSignOnScreen(",
-      "reducedMotion,",
-      "underside: runtime.underside",
+      "roofSignMotionOptions.fineDetailVisible = runtime.fineDetailVisible",
+      "roofSignMotionOptions.hidden = documentHidden",
+      "roofSignMotionOptions.reducedMotion = reducedMotion",
+      "roofSignMotionOptions.underside = runtime.underside",
     ]) {
       expect(viewerSource).toContain(gate);
     }
+    expect(viewerSource).toContain("const roofSignFrameDue =");
+    expect(viewerSource).toContain(
+      "roofSignFrameDue &&\n          isBerlinerEnsembleRoofSignOnScreen(",
+    );
     expect(viewerSource).toContain(
       "runtime.berlinerEnsembleRoofSignElapsedSeconds +=\n            flagFrameIntervalMs / 1_000",
     );

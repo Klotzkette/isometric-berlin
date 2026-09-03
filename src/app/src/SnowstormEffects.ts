@@ -37,6 +37,8 @@ const PEAK_FLAKE_OPACITY = 1;
 type Snowflake = {
   drift: number;
   phase: number;
+  phaseCos: number;
+  phaseSin: number;
   speed: number;
   x: number;
   y: number;
@@ -130,10 +132,13 @@ function createFlakes(coarsePointer: boolean): {
   const flakes: Snowflake[] = [];
   for (let index = 0; index < count; index += 1) {
     const angle = deterministicUnit(index, 1) * Math.PI * 2;
+    const phase = deterministicUnit(index, 6) * Math.PI * 2;
     const radius = Math.sqrt(deterministicUnit(index, 2)) * SNOW_RADIUS_M;
     const flake = {
       drift: 0.45 + deterministicUnit(index, 7) * 1.15,
-      phase: deterministicUnit(index, 6) * Math.PI * 2,
+      phase,
+      phaseCos: Math.cos(phase),
+      phaseSin: Math.sin(phase),
       speed: FLAKE_FALL_MPS * (0.55 + deterministicUnit(index, 5) * 0.9),
       x: Math.cos(angle) * radius,
       y: deterministicUnit(index, 3) * SNOW_HEIGHT_M,
@@ -433,9 +438,16 @@ export function updateSnowstorm(
   snow.flakeMaterial.opacity =
     CALM_FLAKE_OPACITY + (PEAK_FLAKE_OPACITY - CALM_FLAKE_OPACITY) * flurry;
   const values = snow.flakePositions.array as Float32Array;
-  snow.flakes.forEach((flake, index) => {
+  const windPhase = snow.ageSeconds * 0.48;
+  const windPhaseCos = Math.cos(windPhase);
+  const windPhaseSin = Math.sin(windPhase);
+  for (let index = 0; index < snow.flakes.length; index += 1) {
+    const flake = snow.flakes[index];
     flake.y -= flake.speed * (0.88 + flurry * 0.34) * elapsed;
-    const gust = 0.55 + 0.45 * Math.sin(snow.ageSeconds * 0.48 + flake.phase);
+    const gust =
+      0.55 +
+      0.45 *
+        (windPhaseSin * flake.phaseCos + windPhaseCos * flake.phaseSin);
     flake.x += (4.4 + gust * 4.8) * flake.drift * windScale * elapsed;
     flake.z += (1.2 + gust * 2.7) * flake.drift * windScale * elapsed;
     if (flake.y < 0) flake.y += SNOW_HEIGHT_M;
@@ -444,6 +456,6 @@ export function updateSnowstorm(
     values[index * 3] = flake.x;
     values[index * 3 + 1] = flake.y;
     values[index * 3 + 2] = flake.z;
-  });
+  }
   snow.flakePositions.needsUpdate = true;
 }

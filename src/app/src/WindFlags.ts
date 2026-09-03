@@ -94,6 +94,11 @@ type WindFlagInstanceData = {
   widthM: number;
 };
 
+type WindWaveSample = {
+  lift: number;
+  offset: number;
+};
+
 export type WindFlagUpdateOptions = {
   /**
    * Stable cache namespace for a filtered update contract. The historical
@@ -111,7 +116,8 @@ function waveAt(
   elapsedSeconds: number,
   phase: number,
   amplitudeM: number,
-): { lift: number; offset: number } {
+  target: WindWaveSample,
+): WindWaveSample {
   const gentleAmplitude = Math.min(
     amplitudeM,
     CIVIC_FLAG_WIND_PROFILE.maxAmplitudeM,
@@ -130,18 +136,17 @@ function waveAt(
       phase * 0.7,
   );
   const normalizedAmplitude = gentleAmplitude / CIVIC_FLAG_WAVE_VECTOR_BOUND;
-  const offset = normalizedAmplitude * envelope * (primary + flutter * 0.18);
-  return {
-    lift:
-      normalizedAmplitude *
-      0.12 *
-      envelope *
-      Math.cos(
-        elapsedSeconds * CIVIC_FLAG_WIND_PROFILE.primaryRadiansPerSecond -
-          xFromPoleM,
-      ),
-    offset,
-  };
+  target.offset =
+    normalizedAmplitude * envelope * (primary + flutter * 0.18);
+  target.lift =
+    normalizedAmplitude *
+    0.12 *
+    envelope *
+    Math.cos(
+      elapsedSeconds * CIVIC_FLAG_WIND_PROFILE.primaryRadiansPerSecond -
+        xFromPoleM,
+    );
+  return target;
 }
 
 function civicAmplitudeM(widthM: number): number {
@@ -209,6 +214,7 @@ function updateFlagMesh(
   if (!(positions instanceof BufferAttribute)) {
     return;
   }
+  const values = positions.array as Float32Array;
   for (let index = 0; index < positions.count; index += 1) {
     const offset = index * positions.itemSize;
     const baseX = data.basePositions[offset];
@@ -220,8 +226,11 @@ function updateFlagMesh(
       elapsedSeconds,
       data.phase,
       data.amplitudeM,
+      flagWave,
     );
-    positions.setXYZ(index, baseX, baseY + wave.lift, baseZ + wave.offset);
+    values[offset] = baseX;
+    values[offset + 1] = baseY + wave.lift;
+    values[offset + 2] = baseZ + wave.offset;
   }
   positions.needsUpdate = true;
 }
@@ -229,12 +238,12 @@ function updateFlagMesh(
 // Scratch objects for the per-frame flag update: allocating them per
 // instance per frame caused steady GC churn on mobile.
 const flagDummy = new Object3D();
-const flagOffset = new Vector3();
 const flagRootInverse = new Matrix4();
 const flagLocalToRoot = new Matrix4();
 const flagPoint = new Vector3();
 const flagWaveDirection = new Vector3();
 const flagLiftDirection = new Vector3();
+const flagWave: WindWaveSample = { lift: 0, offset: 0 };
 
 const WINTER_BATCH_NAME = "Civic flags shared winter icicles";
 const WINTER_ICE_COLOR = new Color(0xdff3f6);
@@ -439,13 +448,15 @@ function updateWinterIcicles(
   data: WindFlagWinterData,
   elapsedSeconds: number,
 ): void {
-  data.icicles.forEach((icicle, index) => {
+  for (let index = 0; index < data.icicles.length; index += 1) {
+    const icicle = data.icicles[index];
     const wave = waveAt(
       icicle.xFromPoleM,
       icicle.widthM,
       elapsedSeconds,
       icicle.phase,
       icicle.amplitudeM,
+      flagWave,
     );
     flagDummy.position
       .copy(icicle.basePosition)
@@ -457,7 +468,7 @@ function updateWinterIcicles(
     flagDummy.scale.set(radius, icicle.lengthM, radius);
     flagDummy.updateMatrix();
     data.mesh.setMatrixAt(index, flagDummy.matrix);
-  });
+  }
   data.mesh.instanceMatrix.needsUpdate = true;
 }
 
@@ -467,22 +478,33 @@ function updateFlagInstances(
   elapsedSeconds: number,
 ): void {
   const dummy = flagDummy;
-  data.instances.forEach((instance, index) => {
+  for (let index = 0; index < data.instances.length; index += 1) {
+    const instance = data.instances[index];
     const wave = waveAt(
       instance.xFromPoleM,
       data.widthM,
       elapsedSeconds,
       data.phase,
       data.amplitudeM,
+      flagWave,
     );
-    dummy.position
-      .fromArray(instance.position)
-      .add(flagOffset.set(0, wave.lift, wave.offset));
-    dummy.rotation.set(...(instance.rotation ?? [0, 0, 0]));
-    dummy.scale.set(...(instance.scale ?? [1, 1, 1]));
+    const position = instance.position;
+    const rotation = instance.rotation;
+    const scale = instance.scale;
+    dummy.position.set(
+      position[0],
+      position[1] + wave.lift,
+      position[2] + wave.offset,
+    );
+    dummy.rotation.set(
+      rotation?.[0] ?? 0,
+      rotation?.[1] ?? 0,
+      rotation?.[2] ?? 0,
+    );
+    dummy.scale.set(scale?.[0] ?? 1, scale?.[1] ?? 1, scale?.[2] ?? 1);
     dummy.updateMatrix();
     mesh.setMatrixAt(index, dummy.matrix);
-  });
+  }
   mesh.instanceMatrix.needsUpdate = true;
 }
 

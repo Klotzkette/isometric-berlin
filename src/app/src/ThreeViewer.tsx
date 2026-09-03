@@ -42,7 +42,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { applyArchitecturalInkMode } from "./architecturalInk";
 import {
   type ArchitecturalSignature,
@@ -70,6 +69,8 @@ import {
   setBerlinerEnsemblePublicArtSnow,
 } from "./BerlinerEnsembleMemorials";
 import {
+  type BerlinerEnsembleRoofSignMotionDecision,
+  type BerlinerEnsembleRoofSignMotionOptions,
   berlinerEnsembleRoofSignMotionDecision,
   collectBerlinerEnsembleRoofSignTargets,
   isBerlinerEnsembleRoofSignOnScreen,
@@ -164,6 +165,8 @@ import {
   captureCameraPose,
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
+  createCameraRigStabilizationScratch,
+  createScreenAnchoredZoomScratch,
   createSignedPinchDolly,
   screenRelativeFlightDelta,
   stabilizeCameraRig,
@@ -186,14 +189,17 @@ import {
   pedestrianPointIsBlocked,
   pedestrianPointIsWater,
   pedestrianSpawnFromView,
-  pedestrianViewDirection,
   setPedestrianYaw,
   stepPedestrian,
   type PedestrianEnvironment,
   type PedestrianInput,
   type PedestrianState,
 } from "./pedestrianNavigation";
-import { resolveSchwellenraumFlightTranslation } from "./schwellenraumNavigation";
+import {
+  createSchwellenraumFlightScratch,
+  resolveSchwellenraumFlightTranslation,
+  type SchwellenraumFlightScratch,
+} from "./schwellenraumNavigation";
 import {
   createSchwellenraumInteriors,
   schwellenraumInteriorGroundAt,
@@ -210,7 +216,6 @@ import {
   DEFAULT_THREE_CAMERA_OFFSET,
   DEFAULT_THREE_TARGET_WORLD,
 } from "./resetView";
-import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   type DetailFadeRangeM,
   FINE_DETAIL_LAYER_NAMES,
@@ -279,11 +284,14 @@ import {
   type MinecraftVisibilityRoots,
 } from "./MinecraftVisibility";
 import {
+  createMinecraftHeroCameraRigScratch,
   minecraftHeroCollisionEnabled,
   minecraftHeroGroundAt,
   minecraftHeroSolidAt,
   reconcileMinecraftHeroCameraRig,
   resolveMinecraftHeroFlightTranslation,
+  type MinecraftHeroCameraRig,
+  type MinecraftHeroCameraRigScratch,
 } from "./MinecraftHeroNavigation";
 import {
   invalidenfriedhofPedestrianSolidAt,
@@ -387,6 +395,8 @@ import {
   setSchwellenraumStandardMaterialTone,
 } from "./visual-modes/schwellenraum/materialGrade";
 import {
+  type SchwellenraumMotionDecision,
+  type SchwellenraumMotionOptions,
   countSchwellenraumMovingFlags,
   schwellenraumMotionDecision,
   updateSchwellenraumMovingFlags,
@@ -405,8 +415,6 @@ import {
   deriveUnterDenLindenMedianSamples,
   installUnterDenLindenMedianSamples,
 } from "./visual-modes/schwellenraum/unterDenLindenMedian";
-import crispFragment from "./crisp.frag?raw";
-import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import {
   forwardRef,
   useEffect,
@@ -526,7 +534,6 @@ type Runtime = {
   coarsePointer: boolean;
   controls: OrbitControls;
   composer: EffectComposer;
-  crispPass: ShaderPass;
   culturalDetails: Group;
   disposed: boolean;
   focusCameraByName: Map<string, FocusCamera>;
@@ -535,6 +542,24 @@ type Runtime = {
   landmarkByName: Map<string, SceneLandmark>;
   marker: Group;
   markerTimer: number | null;
+  navigationScratch: {
+    applied: Vector3;
+    boundedRequest: Vector3;
+    boundedTarget: Vector3;
+    delta: Vector3;
+    flightCollision: SchwellenraumFlightScratch;
+    heading: Vector3;
+    minecraftPreviousRig: MinecraftHeroCameraRig;
+    minecraftProposedRig: MinecraftHeroCameraRig;
+    minecraftRigCollision: MinecraftHeroCameraRigScratch;
+    orbitOffset: Vector3;
+    orbitSpherical: Spherical;
+    previousCamera: Vector3;
+    previousTarget: Vector3;
+    right: Vector3;
+    up: Vector3;
+    zoom: ReturnType<typeof createScreenAnchoredZoomScratch>;
+  };
   minecraftMaterialState: MinecraftMaterialState;
   minecraftLootBoxes: MinecraftLootBoxField | null;
   minecraftMobs: MinecraftMobField | null;
@@ -552,6 +577,8 @@ type Runtime = {
   schwellenraumMovingFlagCount: number;
   schwellenraumWaterElapsedSeconds: number;
   schwellenraumWaterLightCount: number;
+  schwellenraumMovingRootsScratch: Object3D[];
+  schwellenraumWaterRootsScratch: Object3D[];
   parkDetails: Group;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
@@ -619,6 +646,9 @@ type Runtime = {
     rangeM: DetailFadeRangeM | null;
   }>;
   microDetailVisible: boolean;
+  farZoomAntiFlickerDistanceM: number;
+  farZoomAntiFlickerFovDegrees: number;
+  farZoomAntiFlickerViewportHeightPx: number;
   /** Explicit lens owned by the active curated landmark close-up. */
   focusedCameraFov: number | null;
   voxelWorld: Group | null;
@@ -667,9 +697,7 @@ function ensureSchwellenraumContent(runtime: Runtime): boolean {
   if (runtime.schwellenraumContentReady) return false;
   adoptSchwellenraumRoot(
     runtime.schwellenraumPraesentation,
-    createSchwellenraumPraesentation(
-      runtime.coarsePointer ? "mobile" : "full",
-    ),
+    createSchwellenraumPraesentation(runtime.coarsePointer ? "mobile" : "full"),
   );
   adoptSchwellenraumRoot(
     runtime.schwellenraumInteriors,
@@ -710,10 +738,17 @@ function applyRuntimeMinecraftVisibility(
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
-  runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags([
-    runtime.signatures,
-    runtime.civicDetails,
-  ]);
+  runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags(
+    schwellenraumMovingRoots(runtime),
+  );
+}
+
+function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
+  const roots = runtime.schwellenraumMovingRootsScratch;
+  roots.length = 2;
+  roots[0] = runtime.signatures;
+  roots[1] = runtime.civicDetails;
+  return roots;
 }
 
 /**
@@ -725,29 +760,39 @@ function applyBoundedCameraRigTranslation(
   runtime: Runtime,
   requested: Vector3,
 ): Vector3 {
-  const boundedTarget = runtime.controls.target
-    .clone()
+  const scratch = runtime.navigationScratch;
+  const boundedTarget = scratch.boundedTarget
+    .copy(runtime.controls.target)
     .add(requested)
     .clamp(
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
     );
-  const boundedRequest = boundedTarget.sub(runtime.controls.target);
+  const boundedRequest = scratch.boundedRequest
+    .copy(boundedTarget)
+    .sub(runtime.controls.target);
   let applied = boundedRequest;
   if (
     (runtime.lightingMode === "schwellenraum" ||
       minecraftHeroCollisionEnabled(runtime.lightingMode)) &&
     runtime.pedestrian.environment
   ) {
-    const resolver = minecraftHeroCollisionEnabled(runtime.lightingMode)
-      ? resolveMinecraftHeroFlightTranslation
-      : resolveSchwellenraumFlightTranslation;
-    const resolved = resolver(
-      runtime.camera.position,
-      boundedRequest,
-      runtime.pedestrian.environment,
-    );
-    applied = new Vector3(
+    const resolved = minecraftHeroCollisionEnabled(runtime.lightingMode)
+      ? resolveMinecraftHeroFlightTranslation(
+          runtime.camera.position,
+          boundedRequest,
+          runtime.pedestrian.environment,
+          undefined,
+          scratch.flightCollision,
+        )
+      : resolveSchwellenraumFlightTranslation(
+          runtime.camera.position,
+          boundedRequest,
+          runtime.pedestrian.environment,
+          undefined,
+          scratch.flightCollision,
+        );
+    applied = scratch.applied.set(
       resolved.applied.x,
       resolved.applied.y,
       resolved.applied.z,
@@ -772,16 +817,20 @@ function reconcileMinecraftCameraRig(
   ) {
     return false;
   }
+  const scratch = runtime.navigationScratch;
+  const previousRig = scratch.minecraftPreviousRig;
+  previousRig.camera.x = previousCamera.x;
+  previousRig.camera.y = previousCamera.y;
+  previousRig.camera.z = previousCamera.z;
+  previousRig.target.x = previousTarget.x;
+  previousRig.target.y = previousTarget.y;
+  previousRig.target.z = previousTarget.z;
   const reconciled = reconcileMinecraftHeroCameraRig(
-    {
-      camera: previousCamera,
-      target: previousTarget,
-    },
-    {
-      camera: runtime.camera.position,
-      target: runtime.controls.target,
-    },
+    previousRig,
+    scratch.minecraftProposedRig,
     runtime.pedestrian.environment,
+    undefined,
+    scratch.minecraftRigCollision,
   );
   runtime.camera.position.set(
     reconciled.camera.x,
@@ -810,6 +859,9 @@ function flyCameraRigInViewPlane(
       runtime.controls.target,
       horizontal,
       vertical,
+      runtime.navigationScratch.delta,
+      runtime.navigationScratch.right,
+      runtime.navigationScratch.up,
     ),
   );
 }
@@ -826,6 +878,9 @@ function flyCameraRigAlongViewHeading(
       runtime.controls.target,
       strafe,
       forward,
+      runtime.navigationScratch.delta,
+      runtime.navigationScratch.heading,
+      runtime.navigationScratch.right,
     ),
   );
 }
@@ -955,19 +1010,20 @@ function applyPedestrianCamera(runtime: Runtime): boolean {
   if (!runtime.pedestrian.enabled || !state) {
     return false;
   }
-  const direction = pedestrianViewDirection(state);
+  const horizontal = Math.cos(state.pitch);
+  const directionX = Math.sin(state.yaw) * horizontal;
+  const directionY = Math.sin(state.pitch);
+  const directionZ = -Math.cos(state.yaw) * horizontal;
   runtime.camera.position.set(
     state.x,
     state.groundY + PEDESTRIAN_EYE_HEIGHT_M + state.jumpOffset,
     state.z,
   );
-  runtime.controls.target
-    .copy(runtime.camera.position)
-    .add(
-      new Vector3(direction.x, direction.y, direction.z).multiplyScalar(
-        PEDESTRIAN_VIEW_DISTANCE_M,
-      ),
-    );
+  runtime.controls.target.set(
+    runtime.camera.position.x + directionX * PEDESTRIAN_VIEW_DISTANCE_M,
+    runtime.camera.position.y + directionY * PEDESTRIAN_VIEW_DISTANCE_M,
+    runtime.camera.position.z + directionZ * PEDESTRIAN_VIEW_DISTANCE_M,
+  );
   runtime.camera.lookAt(runtime.controls.target);
   runtime.camera.updateMatrixWorld();
   runtime.renderInvalidated = true;
@@ -1112,14 +1168,14 @@ export function isTunnelPortalFocus(name: string): boolean {
 }
 
 function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
-  const roots: Object3D[] = [
-    runtime.signatures,
-    runtime.centralDetails,
-    runtime.civicDetails,
-    runtime.monuments,
-    runtime.culturalDetails,
-    runtime.parkDetails,
-  ];
+  const roots = runtime.schwellenraumWaterRootsScratch;
+  roots.length = 6;
+  roots[0] = runtime.signatures;
+  roots[1] = runtime.centralDetails;
+  roots[2] = runtime.civicDetails;
+  roots[3] = runtime.monuments;
+  roots[4] = runtime.culturalDetails;
+  roots[5] = runtime.parkDetails;
   if (runtime.isoWorld) roots.push(runtime.isoWorld);
   return roots;
 }
@@ -1455,6 +1511,7 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
  * resizing or LOD swapping.
  */
 function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
+  invalidateFarZoomAntiFlickerCache(runtime);
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
   runtime.microDetailObjects = [];
@@ -1509,6 +1566,12 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.berlinerEnsembleRoofSignElapsedSeconds,
   );
   assignStableInkRenderOrder(inkLines);
+}
+
+function invalidateFarZoomAntiFlickerCache(runtime: Runtime): void {
+  runtime.farZoomAntiFlickerDistanceM = Number.NaN;
+  runtime.farZoomAntiFlickerFovDegrees = Number.NaN;
+  runtime.farZoomAntiFlickerViewportHeightPx = Number.NaN;
 }
 
 function registerBerlinerEnsembleRoofSignTargets(
@@ -1639,6 +1702,16 @@ function updateFarZoomAntiFlicker(
   viewportHeightPx: number,
 ): boolean {
   const fovDegrees = runtime.camera.fov;
+  if (
+    Math.abs(runtime.farZoomAntiFlickerDistanceM - distanceM) <= 1e-5 &&
+    runtime.farZoomAntiFlickerViewportHeightPx === viewportHeightPx &&
+    runtime.farZoomAntiFlickerFovDegrees === fovDegrees
+  ) {
+    return false;
+  }
+  runtime.farZoomAntiFlickerDistanceM = distanceM;
+  runtime.farZoomAntiFlickerViewportHeightPx = viewportHeightPx;
+  runtime.farZoomAntiFlickerFovDegrees = fovDegrees;
   const px = projectedPixelSize(
     INK_LINE_REFERENCE_FEATURE_M,
     distanceM,
@@ -1798,6 +1871,7 @@ function setSceneLighting(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  invalidateFarZoomAntiFlickerCache(runtime);
   const enteringSchwellenraum =
     mode === "schwellenraum" && runtime.lightingMode !== "schwellenraum";
   // Release only the visibility values owned by the previous voxel filter
@@ -1857,7 +1931,7 @@ function setSceneLighting(
             ? 0xe7eef1
             : isSchwellenraum
               ? 0xd9cedf
-            : 0xffffff,
+              : 0xffffff,
   );
   // Day's hemisphere ground half is nearly as bright as its sky half. A
   // HemisphereLight weights a VERTICAL face at the midpoint of the two, so
@@ -1875,7 +1949,7 @@ function setSceneLighting(
             ? 0xc8d1d4
             : isSchwellenraum
               ? 0x758378
-            : 0xe4e6e0,
+              : 0xe4e6e0,
   );
   // Without a film curve the drawn modes need light levels that land BELOW
   // clipping on their own: the previous 2.52/2.72 rig relied on the ACES
@@ -1897,7 +1971,7 @@ function setSceneLighting(
           ? 2.45
           : isSchwellenraum
             ? 2.38
-          : 2.75;
+            : 2.75;
   // A near-white key: the old amber 0xffdda3 crushed the blue channel of
   // every cream facade and turned the Chancellery lemon-yellow. Moonlight
   // pushes the key further into cool silver-blue — authored colour, not a
@@ -1913,7 +1987,7 @@ function setSceneLighting(
             ? 0xdce8ed
             : isSchwellenraum
               ? 0xf0cfb6
-            : 0xfff8ea,
+              : 0xfff8ea,
   );
   // Day's key is deliberately gentle. With the ambient half carrying the
   // brightness, the sun only has to supply the direction of the light —
@@ -1929,7 +2003,7 @@ function setSceneLighting(
           ? 0.24
           : isSchwellenraum
             ? 0.46
-          : 0.62;
+            : 0.62;
   runtime.skyFill.color.setHex(
     isMoonlit
       ? 0x53699a
@@ -1941,7 +2015,7 @@ function setSceneLighting(
             ? 0xb9ced8
             : isSchwellenraum
               ? 0xa9b8c7
-            : 0xb6dcff,
+              : 0xb6dcff,
   );
   runtime.skyFill.intensity = isMoonlit
     ? 0.16
@@ -1953,7 +2027,7 @@ function setSceneLighting(
           ? 0.28
           : isSchwellenraum
             ? 0.18
-          : 0.12;
+            : 0.12;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -2029,12 +2103,6 @@ function setSceneLighting(
       }
     }
   }
-  runtime.crispPass.enabled = false;
-  const crispness = CRISPNESS_PROFILES[isNight ? "night" : "day"];
-  runtime.crispPass.uniforms.strength.value = crispness.strength;
-  runtime.crispPass.uniforms.saturation.value = crispness.saturation;
-  runtime.crispPass.uniforms.contrast.value = crispness.contrast;
-  runtime.crispPass.uniforms.edgeStrength.value = crispness.edgeStrength;
   // True voxel Minecraft fully replaces the smooth recognition layers: the
   // city is cubes, nothing else.
   const voxelMode = voxelModeActive(runtime);
@@ -2100,8 +2168,8 @@ function setSceneLighting(
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
     const scale = fovDollyScale(runtime.camera.fov, targetFov);
-    const offset = runtime.camera.position
-      .clone()
+    const offset = runtime.navigationScratch.orbitOffset
+      .copy(runtime.camera.position)
       .sub(runtime.controls.target)
       .multiplyScalar(scale);
     runtime.controls.maxDistance =
@@ -4082,22 +4150,6 @@ function notifyView(
   });
 }
 
-function pedestrianPose(runtime: Runtime): PedestrianPose | null {
-  const state = runtime.pedestrian.state;
-  if (!runtime.pedestrian.enabled || !state) {
-    return null;
-  }
-  return {
-    headingDegrees: MathUtils.euclideanModulo(
-      MathUtils.radToDeg(state.yaw),
-      360,
-    ),
-    insideTunnel: state.insideTunnel,
-    x: state.x,
-    z: state.z,
-  };
-}
-
 function markerHeightForLandmark(name: string): number {
   switch (name) {
     case "Reichstagsgebäude":
@@ -4189,17 +4241,21 @@ function moabitPrisonMemorialFocusCamera(mode: LightingMode): FocusCamera {
 
 function setOrbitAngles(
   runtime: Runtime,
-  angles: { azimuth?: number; polar?: number },
+  azimuth?: number,
+  polar?: number,
 ): void {
-  const previousCamera = runtime.camera.position.clone();
-  const previousTarget = runtime.controls.target.clone();
-  const offset = runtime.camera.position.clone().sub(runtime.controls.target);
-  const spherical = new Spherical().setFromVector3(offset);
-  if (angles.azimuth !== undefined) {
-    spherical.theta = angles.azimuth;
+  const scratch = runtime.navigationScratch;
+  const previousCamera = scratch.previousCamera.copy(runtime.camera.position);
+  const previousTarget = scratch.previousTarget.copy(runtime.controls.target);
+  const offset = scratch.orbitOffset
+    .copy(runtime.camera.position)
+    .sub(runtime.controls.target);
+  const spherical = scratch.orbitSpherical.setFromVector3(offset);
+  if (azimuth !== undefined) {
+    spherical.theta = azimuth;
   }
-  if (angles.polar !== undefined) {
-    spherical.phi = MathUtils.clamp(angles.polar, 0.06, Math.PI - 0.06);
+  if (polar !== undefined) {
+    spherical.phi = MathUtils.clamp(polar, 0.06, Math.PI - 0.06);
   }
   offset.setFromSpherical(spherical);
   runtime.camera.position.copy(runtime.controls.target).add(offset);
@@ -4320,8 +4376,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const [progress, setProgress] = useState({ loaded: 0, total: 1 });
     const [presentationReady, setPresentationReady] = useState(false);
     const pedestrianPoseEmissionRef = useRef({
-      key: "off",
+      active: false,
+      heading: 0,
+      insideTunnel: false,
       lastAt: Number.NEGATIVE_INFINITY,
+      x: 0,
+      z: 0,
     });
 
     const emitPedestrianPose = (
@@ -4329,33 +4389,55 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       force = false,
       timestamp = performance.now(),
     ): void => {
-      const pose = pedestrianPose(runtime);
-      if (!pose) {
-        if (pedestrianPoseEmissionRef.current.key !== "off" || force) {
-          pedestrianPoseEmissionRef.current = { key: "off", lastAt: timestamp };
+      const state = runtime.pedestrian.state;
+      const emission = pedestrianPoseEmissionRef.current;
+      if (!runtime.pedestrian.enabled || !state) {
+        if (emission.active || force) {
+          emission.active = false;
+          emission.lastAt = timestamp;
           onPedestrianPoseChangeRef.current(null);
         }
         return;
       }
-      const key = `${Math.round(pose.x * 2)}:${Math.round(
-        pose.z * 2,
-      )}:${Math.round(pose.headingDegrees)}:${pose.insideTunnel ? 1 : 0}`;
+      const headingDegrees = MathUtils.euclideanModulo(
+        MathUtils.radToDeg(state.yaw),
+        360,
+      );
+      const x = Math.round(state.x * 2);
+      const z = Math.round(state.z * 2);
+      const heading = Math.round(headingDegrees);
+      const samePose =
+        emission.active &&
+        emission.x === x &&
+        emission.z === z &&
+        emission.heading === heading &&
+        emission.insideTunnel === state.insideTunnel;
       if (
         !force &&
-        key === pedestrianPoseEmissionRef.current.key &&
-        timestamp - pedestrianPoseEmissionRef.current.lastAt < 700
+        samePose &&
+        timestamp - emission.lastAt < 700
       ) {
         return;
       }
       if (
         !force &&
-        key !== pedestrianPoseEmissionRef.current.key &&
-        timestamp - pedestrianPoseEmissionRef.current.lastAt < 140
+        !samePose &&
+        timestamp - emission.lastAt < 140
       ) {
         return;
       }
-      pedestrianPoseEmissionRef.current = { key, lastAt: timestamp };
-      onPedestrianPoseChangeRef.current(pose);
+      emission.active = true;
+      emission.heading = heading;
+      emission.insideTunnel = state.insideTunnel;
+      emission.lastAt = timestamp;
+      emission.x = x;
+      emission.z = z;
+      onPedestrianPoseChangeRef.current({
+        headingDegrees,
+        insideTunnel: state.insideTunnel,
+        x: state.x,
+        z: state.z,
+      });
     };
 
     useEffect(() => {
@@ -4486,11 +4568,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
           : name === "Beethoven-Haydn-Mozart-Denkmal"
             ? composerMemorialFocusCamera()
-          : name === MOABIT_PRISON_MEMORIAL_PROFILE.name
-            ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
-            : name === "Oggi's Gemüsekebab" && voxelModeActive(runtime)
-              ? funboxEntranceFocusCamera()
-            : runtime.focusCameraByName.get(name);
+            : name === MOABIT_PRISON_MEMORIAL_PROFILE.name
+              ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
+              : name === "Oggi's Gemüsekebab" && voxelModeActive(runtime)
+                ? funboxEntranceFocusCamera()
+                : runtime.focusCameraByName.get(name);
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
       );
@@ -4646,11 +4728,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          setOrbitAngles(runtime, {
-            azimuth:
-              runtime.controls.getAzimuthalAngle() +
-              MathUtils.degToRad(degrees),
-          });
+          setOrbitAngles(
+            runtime,
+            runtime.controls.getAzimuthalAngle() + MathUtils.degToRad(degrees),
+          );
           notifyView(runtime, onViewChangeRef.current);
         },
         setFlightInput: (strafe, forward, vertical) => {
@@ -4740,7 +4821,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          setOrbitAngles(runtime, { azimuth: MathUtils.degToRad(degrees) });
+          setOrbitAngles(runtime, MathUtils.degToRad(degrees));
           notifyView(runtime, onViewChangeRef.current);
         },
         setPedestrianMode: (enabled) => {
@@ -4838,7 +4919,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             0.08,
             Math.PI - 0.08,
           );
-          setOrbitAngles(runtime, { polar });
+          setOrbitAngles(runtime, undefined, polar);
           const underside = polar > Math.PI / 2;
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
@@ -4849,10 +4930,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          const previousCamera = runtime.camera.position.clone();
-          const previousTarget = runtime.controls.target.clone();
-          const offset = runtime.camera.position
-            .clone()
+          const scratch = runtime.navigationScratch;
+          const previousCamera = scratch.previousCamera.copy(
+            runtime.camera.position,
+          );
+          const previousTarget = scratch.previousTarget.copy(
+            runtime.controls.target,
+          );
+          const offset = scratch.orbitOffset
+            .copy(runtime.camera.position)
             .sub(runtime.controls.target);
           offset.multiplyScalar(1 / factor);
           offset.clampLength(
@@ -4956,26 +5042,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       const camera = new PerspectiveCamera(39, 1, 0.25, 6000);
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
-      // The Minecraft look is now built entirely in world space from the toon
-      // block materials + palette (setMinecraftMaterialPresentation). The old
-      // screen-space NEAREST voxel post-process was removed: when the camera
-      // zoomed out it re-sampled the scene into coarse screen pixels every
-      // frame, which flimmered/aliased badly in the distance. Minecraft now
-      // renders through the same composer path as Day, so it stays as calm as
-      // Day mode while zooming, panning and orbiting.
-      const crispPass = new ShaderPass({
-        uniforms: {
-          contrast: { value: CRISPNESS_PROFILES.day.contrast },
-          edgeStrength: { value: CRISPNESS_PROFILES.day.edgeStrength },
-          resolution: { value: new Vector2(1, 1) },
-          saturation: { value: CRISPNESS_PROFILES.day.saturation },
-          strength: { value: CRISPNESS_PROFILES.day.strength },
-          tDiffuse: { value: null },
-        },
-        vertexShader: postprocessVertex,
-        fragmentShader: crispFragment,
-      });
-      crispPass.enabled = false;
       // One compact byte target is enough for the authored flat palette. The
       // final SMAA pass below owns edge smoothing on every device, avoiding
       // renderer MSAA and two multisampled half-float targets that could
@@ -4986,7 +5052,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       });
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
-      composer.addPass(crispPass);
       // Keep SMAA permanently last and enabled in every visual mode. It is the
       // single bounded anti-aliasing stage on every device, and motion and
       // rest must use the exact same pixel pipeline, otherwise the
@@ -5066,7 +5131,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         coarsePointer,
         composer,
         controls,
-        crispPass,
         culturalDetails,
         disposed: false,
         focusCameraByName: new Map(),
@@ -5075,6 +5139,30 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         landmarkByName: new Map(),
         marker,
         markerTimer: null,
+        navigationScratch: {
+          applied: new Vector3(),
+          boundedRequest: new Vector3(),
+          boundedTarget: new Vector3(),
+          delta: new Vector3(),
+          flightCollision: createSchwellenraumFlightScratch(),
+          heading: new Vector3(),
+          minecraftPreviousRig: {
+            camera: new Vector3(),
+            target: new Vector3(),
+          },
+          minecraftProposedRig: {
+            camera: camera.position,
+            target: controls.target,
+          },
+          minecraftRigCollision: createMinecraftHeroCameraRigScratch(),
+          orbitOffset: new Vector3(),
+          orbitSpherical: new Spherical(),
+          previousCamera: new Vector3(),
+          previousTarget: new Vector3(),
+          right: new Vector3(),
+          up: new Vector3(),
+          zoom: createScreenAnchoredZoomScratch(),
+        },
         minecraftMaterialState: createMinecraftMaterialState(),
         minecraftLootBoxes: null,
         minecraftMobs: null,
@@ -5093,6 +5181,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumWaterElapsedSeconds:
           SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS,
         schwellenraumWaterLightCount: 0,
+        schwellenraumMovingRootsScratch: [],
+        schwellenraumWaterRootsScratch: [],
         parkDetails,
         pedestrian: {
           cameraDirty: false,
@@ -5153,6 +5243,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         fineDetailVisible: true,
         microDetailObjects: [],
         microDetailVisible: false,
+        farZoomAntiFlickerDistanceM: Number.NaN,
+        farZoomAntiFlickerFovDegrees: Number.NaN,
+        farZoomAntiFlickerViewportHeightPx: Number.NaN,
         focusedCameraFov: null,
         voxelWorld: null,
         voxelWorldState: "idle",
@@ -5172,28 +5265,40 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         nightLightsOnRef.current,
       );
 
-      const touchPoints = new Map<number, { x: number; y: number }>();
-      let customTouchGestureActive = false;
-      let previousTwoFingerGesture: {
-        angle: number;
-        center: { x: number; y: number };
+      type TouchPoint = { x: number; y: number };
+      type TwoFingerGesture = {
+        center: TouchPoint;
         distance: number;
-      } | null = null;
+      };
+      const touchPoints = new Map<number, TouchPoint>();
+      let customTouchGestureActive = false;
+      const currentTwoFingerGesture: TwoFingerGesture = {
+        center: { x: 0, y: 0 },
+        distance: 1,
+      };
+      const previousTwoFingerGestureStorage: TwoFingerGesture = {
+        center: { x: 0, y: 0 },
+        distance: 1,
+      };
+      let previousTwoFingerGesture: TwoFingerGesture | null = null;
       // Gesture lock ("jeder Blödmann sofort bedienen"): a two-finger
       // gesture is EITHER a pan OR a zoom, decided once with hysteresis
       // and held until the fingers lift. Mixing the two on every move
       // made panning zoom whenever the finger distance jittered.
       let twoFingerMode: "undecided" | "pan" | "zoom" = "undecided";
-      let twoFingerStart: {
-        center: { x: number; y: number };
-        distance: number;
-      } | null = null;
+      const twoFingerStartStorage: TwoFingerGesture = {
+        center: { x: 0, y: 0 },
+        distance: 1,
+      };
+      let twoFingerStart: TwoFingerGesture | null = null;
+      const twoFingerTravel = { panTravel: 0, pinchTravel: 0 };
       let signedPinchDolly: SignedPinchDolly | null = null;
       // Pan momentum: finger velocity at release keeps the map gliding
       // with an exponential ease-out (decayPanMomentum).
       const panVelocity = { x: 0, y: 0 };
       let panVelocitySampleAt = performance.now();
       const panMomentum = { x: 0, y: 0 };
+      const panFlightScratch = { forward: 0, strafe: 0 };
       // Browsers do not reliably synthesise dblclick on a touch-action:none
       // canvas. Completed taps are tracked separately for orbit zoom and the
       // pedestrian jump so switching modes cannot replay a stale gesture.
@@ -5201,7 +5306,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastViewerTapX = 0;
       let lastViewerTapY = 0;
       let lastPedestrianTap: PedestrianTouchTap | null = null;
-      let previousThreeFingerCenter: { x: number; y: number } | null = null;
+      const currentThreeFingerCenter: TouchPoint = { x: 0, y: 0 };
+      const previousThreeFingerCenterStorage: TouchPoint = { x: 0, y: 0 };
+      let previousThreeFingerCenter: TouchPoint | null = null;
       let controlsInteracting = false;
       const lastDirectControlCamera = camera.position.clone();
       const lastDirectControlTarget = controls.target.clone();
@@ -5268,39 +5375,64 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         composer.setPixelRatio(pixelRatio);
         composer.setSize(width, height);
         runtime.renderInvalidated = true;
-        const crispResolution = crispPass.uniforms.resolution.value;
-        if (crispResolution instanceof Vector2) {
-          crispResolution.set(width * pixelRatio, height * pixelRatio);
-        }
       };
-      const twoFingerGesture = () => {
-        const points = [...touchPoints.values()].slice(0, 2);
-        if (points.length !== 2) {
+      const copyTwoFingerGesture = (
+        target: TwoFingerGesture,
+        source: TwoFingerGesture,
+      ): TwoFingerGesture => {
+        target.center.x = source.center.x;
+        target.center.y = source.center.y;
+        target.distance = source.distance;
+        return target;
+      };
+      const twoFingerGesture = (): TwoFingerGesture | null => {
+        const points = touchPoints.values();
+        const first = points.next().value as TouchPoint | undefined;
+        const second = points.next().value as TouchPoint | undefined;
+        if (!first || !second) {
           return null;
         }
-        const dx = points[1].x - points[0].x;
-        const dy = points[1].y - points[0].y;
-        return {
-          angle: Math.atan2(dy, dx),
-          center: {
-            x: (points[0].x + points[1].x) / 2,
-            y: (points[0].y + points[1].y) / 2,
-          },
-          distance: Math.max(1, Math.hypot(dx, dy)),
-        };
+        const dx = second.x - first.x;
+        const dy = second.y - first.y;
+        currentTwoFingerGesture.center.x = (first.x + second.x) / 2;
+        currentTwoFingerGesture.center.y = (first.y + second.y) / 2;
+        currentTwoFingerGesture.distance = Math.max(1, Math.hypot(dx, dy));
+        return currentTwoFingerGesture;
+      };
+      const threeFingerCenter = (): TouchPoint | null => {
+        if (touchPoints.size < 3) return null;
+        let x = 0;
+        let y = 0;
+        for (const point of touchPoints.values()) {
+          x += point.x;
+          y += point.y;
+        }
+        currentThreeFingerCenter.x = x / touchPoints.size;
+        currentThreeFingerCenter.y = y / touchPoints.size;
+        return currentThreeFingerCenter;
+      };
+      const storeThreeFingerCenter = (source: TouchPoint): TouchPoint => {
+        previousThreeFingerCenterStorage.x = source.x;
+        previousThreeFingerCenterStorage.y = source.y;
+        return previousThreeFingerCenterStorage;
       };
       const zoomAtClientPoint = (
-        point: { x: number; y: number },
+        x: number,
+        y: number,
         factor: number,
       ): void => {
         const rect = renderer.domElement.getBoundingClientRect();
         if (rect.width < 1 || rect.height < 1) {
           return;
         }
-        const ndcX = ((point.x - rect.left) / rect.width) * 2 - 1;
-        const ndcY = -((point.y - rect.top) / rect.height) * 2 + 1;
-        const previousCamera = camera.position.clone();
-        const previousTarget = controls.target.clone();
+        const ndcX = ((x - rect.left) / rect.width) * 2 - 1;
+        const ndcY = -((y - rect.top) / rect.height) * 2 + 1;
+        const previousCamera = runtime.navigationScratch.previousCamera.copy(
+          camera.position,
+        );
+        const previousTarget = runtime.navigationScratch.previousTarget.copy(
+          controls.target,
+        );
         zoomCameraAtScreenPoint(
           camera,
           controls.target,
@@ -5309,6 +5441,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           factor,
           controls.minDistance,
           controls.maxDistance,
+          undefined,
+          runtime.navigationScratch.zoom,
         );
         reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
       };
@@ -5461,16 +5595,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const { strafe, forward } = twoFingerPanFlight(
               pendingFrameNavigation.trackpadX,
               pendingFrameNavigation.trackpadY,
+              undefined,
+              panFlightScratch,
             );
             flyCameraRigAlongViewHeading(runtime, strafe, forward);
             moved = true;
           }
           if (Math.abs(pendingFrameNavigation.zoomLog) > 1e-6) {
             zoomAtClientPoint(
-              {
-                x: pendingFrameNavigation.zoomX,
-                y: pendingFrameNavigation.zoomY,
-              },
+              pendingFrameNavigation.zoomX,
+              pendingFrameNavigation.zoomY,
               Math.exp(pendingFrameNavigation.zoomLog),
             );
             moved = true;
@@ -5618,7 +5752,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ) < 32
           ) {
             lastViewerTapAt = 0;
-            zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
+            zoomAtClientPoint(event.clientX, event.clientY, 1.5);
             controls.update();
             markSurfaceInteraction(runtime);
             notifyView(runtime, onViewChangeRef.current);
@@ -5644,8 +5778,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
-          previousTwoFingerGesture = twoFingerGesture();
-          twoFingerStart = previousTwoFingerGesture;
+          const gesture = twoFingerGesture();
+          previousTwoFingerGesture = gesture
+            ? copyTwoFingerGesture(previousTwoFingerGestureStorage, gesture)
+            : null;
+          twoFingerStart = gesture
+            ? copyTwoFingerGesture(twoFingerStartStorage, gesture)
+            : null;
           twoFingerMode = "undecided";
           signedPinchDolly = null;
           panVelocity.x = 0;
@@ -5665,11 +5804,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           twoFingerStart = null;
           twoFingerMode = "undecided";
           signedPinchDolly = null;
-          const points = [...touchPoints.values()];
-          previousThreeFingerCenter = {
-            x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
-            y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
-          };
+          const center = threeFingerCenter();
+          previousThreeFingerCenter = center
+            ? storeThreeFingerCenter(center)
+            : null;
         }
       };
       const applyPendingTouchGesture = (): boolean => {
@@ -5679,16 +5817,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const current = twoFingerGesture();
           if (!current) return false;
           if (twoFingerStart && twoFingerMode === "undecided") {
-            twoFingerMode = classifyTwoFingerGesture({
-              panTravel: Math.hypot(
-                current.center.x - twoFingerStart.center.x,
-                current.center.y - twoFingerStart.center.y,
-              ),
-              pinchTravel: Math.abs(current.distance - twoFingerStart.distance),
-            });
+            twoFingerTravel.panTravel = Math.hypot(
+              current.center.x - twoFingerStart.center.x,
+              current.center.y - twoFingerStart.center.y,
+            );
+            twoFingerTravel.pinchTravel = Math.abs(
+              current.distance - twoFingerStart.distance,
+            );
+            twoFingerMode = classifyTwoFingerGesture(twoFingerTravel);
             // Restart the baseline after the decision dead zone; otherwise
             // its travel reappears as a visible pan/zoom jump.
-            previousTwoFingerGesture = current;
+            previousTwoFingerGesture = copyTwoFingerGesture(
+              previousTwoFingerGestureStorage,
+              current,
+            );
             panVelocity.x = 0;
             panVelocity.y = 0;
             panVelocitySampleAt = performance.now();
@@ -5699,7 +5841,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const deltaX = current.center.x - previousTwoFingerGesture.center.x;
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
             if (deltaX !== 0 || deltaY !== 0) {
-              const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
+              const { strafe, forward } = twoFingerPanFlight(
+                deltaX,
+                deltaY,
+                undefined,
+                panFlightScratch,
+              );
               flyCameraRigAlongViewHeading(runtime, strafe, forward);
               const now = performance.now();
               const dt = Math.max(1, now - panVelocitySampleAt) / 1_000;
@@ -5727,8 +5874,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 );
               }
               if (signedPinchDolly) {
-                const previousCamera = camera.position.clone();
-                const previousTarget = controls.target.clone();
+                const previousCamera =
+                  runtime.navigationScratch.previousCamera.copy(
+                    camera.position,
+                  );
+                const previousTarget =
+                  runtime.navigationScratch.previousTarget.copy(
+                    controls.target,
+                  );
                 const signedDistance = advanceSignedPinchDolly(
                   camera,
                   controls.target,
@@ -5736,6 +5889,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   pinchRatio,
                   controls.minDistance,
                   controls.maxDistance,
+                  undefined,
+                  runtime.navigationScratch.boundedTarget,
                 );
                 const blocked = reconcileMinecraftCameraRig(
                   runtime,
@@ -5754,38 +5909,42 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   }
                 }
               } else {
-                zoomAtClientPoint(current.center, pinchRatio);
+                zoomAtClientPoint(
+                  current.center.x,
+                  current.center.y,
+                  pinchRatio,
+                );
               }
               moved = true;
             }
           }
           if (moved) controls.update();
-          previousTwoFingerGesture = current;
+          previousTwoFingerGesture = copyTwoFingerGesture(
+            previousTwoFingerGestureStorage,
+            current,
+          );
           if (moved) markSurfaceInteraction(runtime);
           return moved;
         }
         if (touchPoints.size < 3 || !previousThreeFingerCenter) return false;
-        const points = [...touchPoints.values()];
-        const center = {
-          x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
-          y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
-        };
+        const center = threeFingerCenter();
+        if (!center) return false;
         const polar = MathUtils.clamp(
           controls.getPolarAngle() +
             (center.y - previousThreeFingerCenter.y) * 0.006,
           0.08,
           Math.PI - 0.08,
         );
-        setOrbitAngles(runtime, {
-          azimuth:
-            controls.getAzimuthalAngle() +
+        setOrbitAngles(
+          runtime,
+          controls.getAzimuthalAngle() +
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
-        });
-        if ((polar > Math.PI / 2) !== runtime.underside) {
+        );
+        if (polar > Math.PI / 2 !== runtime.underside) {
           setModelMaterialState(runtime, polar > Math.PI / 2);
         }
-        previousThreeFingerCenter = center;
+        previousThreeFingerCenter = storeThreeFingerCenter(center);
         markSurfaceInteraction(runtime);
         return true;
       };
@@ -5827,10 +5986,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastTouchActivityAt = performance.now();
-        touchPoints.set(event.pointerId, {
-          x: event.clientX,
-          y: event.clientY,
-        });
+        const point = touchPoints.get(event.pointerId);
+        if (!point) return;
+        point.x = event.clientX;
+        point.y = event.clientY;
         if (!customTouchGestureActive || touchPoints.size < 2) return;
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -5898,8 +6057,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (customTouchGestureActive) {
           if (touchPoints.size >= 2) {
             previousThreeFingerCenter = null;
-            previousTwoFingerGesture = twoFingerGesture();
-            twoFingerStart = previousTwoFingerGesture;
+            const gesture = twoFingerGesture();
+            previousTwoFingerGesture = gesture
+              ? copyTwoFingerGesture(previousTwoFingerGestureStorage, gesture)
+              : null;
+            twoFingerStart = gesture
+              ? copyTwoFingerGesture(twoFingerStartStorage, gesture)
+              : null;
             twoFingerMode = "undecided";
             signedPinchDolly = null;
             panVelocity.x = 0;
@@ -6061,7 +6225,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           return;
         }
-        zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
+        zoomAtClientPoint(event.clientX, event.clientY, 1.5);
         controls.update();
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
@@ -6149,6 +6313,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let wasPanning = false;
       let wasOrbiting = false;
       let wasWalking = false;
+      const flightSpeedScratch = { horizontal: 0, vertical: 0 };
+      const stabilizationScratch = createCameraRigStabilizationScratch();
       const applyContinuousPedestrian = (dtSeconds: number): boolean => {
         const pedestrian = runtime.pedestrian;
         const environment = pedestrian.environment;
@@ -6199,20 +6365,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wasFlying = true;
         const distance = camera.position.distanceTo(controls.target);
         const { horizontal: speed, vertical: verticalSpeed } =
-          continuousFlightSpeeds(distance);
-        const heading = controls.target.clone().sub(camera.position);
+          continuousFlightSpeeds(distance, flightSpeedScratch);
+        const { delta: move, heading, right } = runtime.navigationScratch;
+        heading.copy(controls.target).sub(camera.position);
         heading.y = 0;
         if (heading.lengthSq() < 1e-6) {
           camera.getWorldDirection(heading);
           heading.y = 0;
         }
         heading.normalize();
-        const right = new Vector3()
-          .crossVectors(heading, camera.up)
-          .normalize();
-        const move = heading
+        right.crossVectors(heading, camera.up).normalize();
+        move
+          .copy(heading)
           .multiplyScalar(input.z * speed * dtSeconds)
-          .add(right.multiplyScalar(input.x * speed * dtSeconds));
+          .addScaledVector(right, input.x * speed * dtSeconds);
         move.y += input.y * verticalSpeed * dtSeconds;
         applyBoundedCameraRigTranslation(runtime, move);
         markSurfaceInteraction(runtime, 220);
@@ -6230,16 +6396,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wasPanning = true;
         camera.updateMatrixWorld();
         const distance = camera.position.distanceTo(controls.target);
-        const { horizontal: speed } = continuousFlightSpeeds(distance);
-        const right = new Vector3()
-          .setFromMatrixColumn(camera.matrixWorld, 0)
-          .normalize();
-        const up = new Vector3()
-          .setFromMatrixColumn(camera.matrixWorld, 1)
-          .normalize();
-        const move = right
+        const { horizontal: speed } = continuousFlightSpeeds(
+          distance,
+          flightSpeedScratch,
+        );
+        const { delta: move, right, up } = runtime.navigationScratch;
+        right.setFromMatrixColumn(camera.matrixWorld, 0).normalize();
+        up.setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+        move
+          .copy(right)
           .multiplyScalar(input.x * speed * dtSeconds)
-          .add(up.multiplyScalar(input.y * speed * dtSeconds));
+          .addScaledVector(up, input.y * speed * dtSeconds);
         applyBoundedCameraRigTranslation(runtime, move);
         markSurfaceInteraction(runtime, 220);
         return true;
@@ -6260,12 +6427,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           0.08,
           Math.PI - 0.08,
         );
-        setOrbitAngles(runtime, {
-          azimuth:
-            controls.getAzimuthalAngle() +
+        setOrbitAngles(
+          runtime,
+          controls.getAzimuthalAngle() +
             MathUtils.degToRad(input.x * 52 * dtSeconds),
-          polar: nextPolar,
-        });
+          nextPolar,
+        );
         const underside = nextPolar > Math.PI / 2;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
@@ -6274,6 +6441,58 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return true;
       };
       const roofSignScreenScratch = new Vector3();
+      const renderInteractionSources = {
+        controls: false,
+        touch: false,
+        wheel: false,
+      };
+      const renderFrameSources = {
+        cameraMoving: false,
+        environmentalMotion: false,
+        presentationChanged: false,
+        renderInvalidated: false,
+      };
+      const schwellenraumMotionOptions: SchwellenraumMotionOptions = {
+        flagFrameIntervalMs: 0,
+        lastFlagFrameAt: 0,
+        lastWaterFrameAt: 0,
+        minecraftMobsVisible: false,
+        mode: runtime.lightingMode,
+        movingFlagCount: 0,
+        rainVisible: false,
+        reducedMotion,
+        snowVisible: false,
+        timestamp: 0,
+        waterLightCount: 0,
+      };
+      const schwellenraumMotionScratch: SchwellenraumMotionDecision = {
+        animateFlags: false,
+        animateOrdinaryEnvironment: false,
+        animateWaterLight: false,
+        environmentalMotion: false,
+      };
+      const roofSignMotionOptions: BerlinerEnsembleRoofSignMotionOptions = {
+        enabled: false,
+        fineDetailVisible: false,
+        frameIntervalMs: 0,
+        hidden: false,
+        lastFrameAt: 0,
+        onScreen: false,
+        reducedMotion,
+        timestamp: 0,
+        underside: false,
+      };
+      const roofSignMotionScratch: BerlinerEnsembleRoofSignMotionDecision = {
+        animate: false,
+        environmentalMotion: false,
+      };
+      const underwaterPresentationOptions = {
+        cameraY: 0,
+        insideTunnel: false,
+        underside: false,
+      };
+      const ordinaryEnvironmentFrameIntervalMs =
+        environmentFrameIntervalMs(runtime.coarsePointer);
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -6296,12 +6515,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const flagFrameIntervalMs = civicFlagFrameIntervalMs(
           runtime.coarsePointer,
         );
+        const documentHidden = document.visibilityState === "hidden";
+        const rainVisible = runtime.rain.group.visible;
+        const snowVisible = snowfallAnimationActive(runtime.snowstorm);
+        const minecraftEnvironmentVisible =
+          runtime.minecraftMobs?.group.visible === true ||
+          runtime.minecraftLootBoxes?.group.visible === true;
         const ordinaryEnvironmentVisible =
           runtime.lightingMode !== "schwellenraum" &&
-          (runtime.rain.group.visible ||
-            snowfallAnimationActive(runtime.snowstorm) ||
-            runtime.minecraftMobs?.group.visible === true ||
-            runtime.minecraftLootBoxes?.group.visible === true);
+          (rainVisible || snowVisible || minecraftEnvironmentVisible);
         const pedestrianInput = pedestrianInputRef.current;
         const continuousInputActive =
           runtime.renderInvalidated ||
@@ -6327,14 +6549,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (ordinaryEnvironmentVisible) {
           passiveFrameIntervalMs = Math.min(
             passiveFrameIntervalMs,
-            environmentFrameIntervalMs(runtime.coarsePointer),
+            ordinaryEnvironmentFrameIntervalMs,
           );
         }
         if (
           !reducedMotion &&
           !runtime.underside &&
           runtime.fineDetailVisible &&
-          document.visibilityState !== "hidden" &&
+          !documentHidden &&
           (runtime.schwellenraumMovingFlagCount > 0 ||
             runtime.berlinerEnsembleRoofSignTargets.length > 0)
         ) {
@@ -6384,70 +6606,89 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const controlsChanged = runtime.pedestrian.enabled
           ? false
           : controls.update();
-        const directInputActive = renderInteractionActive({
-          controls: controlsInteracting,
-          touch: touchInteracting,
-          // Every wheel event invalidates one frame itself. Keeping a virtual
-          // wheel interaction alive for 180 ms only redrew identical frames
-          // after the trackpad had stopped and reopened the shimmer window.
-          wheel: false,
-        });
-        const stabilized = runtime.pedestrian.enabled
-          ? { changed: false, pose: lastSafeCameraPose, recovered: false }
-          : stabilizeCameraRig(
-              camera,
-              controls.target,
-              lastSafeCameraPose,
-              controls.minDistance,
-              controls.maxDistance,
-            );
+        renderInteractionSources.controls = controlsInteracting;
+        renderInteractionSources.touch = touchInteracting;
+        const directInputActive = renderInteractionActive(
+          renderInteractionSources,
+        );
+        let stabilizedChanged = false;
+        let stabilizedRecovered = false;
         if (!runtime.pedestrian.enabled) {
+          const stabilized = stabilizeCameraRig(
+            camera,
+            controls.target,
+            lastSafeCameraPose,
+            controls.minDistance,
+            controls.maxDistance,
+            undefined,
+            stabilizationScratch,
+          );
           lastSafeCameraPose = stabilized.pose;
-        }
-        if (stabilized.recovered) {
-          resetTouchGesture();
+          stabilizedChanged = stabilized.changed;
+          stabilizedRecovered = stabilized.recovered;
+          if (stabilizedRecovered) resetTouchGesture();
         }
         const movingFlagCount =
           stability.animateWind &&
           !runtime.underside &&
           runtime.fineDetailVisible &&
-          document.visibilityState !== "hidden"
+          !documentHidden
             ? runtime.schwellenraumMovingFlagCount
             : 0;
-        const schwellenraumMotion = schwellenraumMotionDecision({
-          flagFrameIntervalMs,
-          lastFlagFrameAt: runtime.schwellenraumLastFlagFrameAt,
-          lastWaterFrameAt: runtime.schwellenraumLastWaterFrameAt,
-          minecraftMobsVisible:
-            runtime.minecraftMobs?.group.visible === true ||
-            runtime.minecraftLootBoxes?.group.visible === true,
-          mode: runtime.lightingMode,
-          movingFlagCount,
-          rainVisible: runtime.rain.group.visible,
-          reducedMotion,
-          snowVisible: snowfallAnimationActive(runtime.snowstorm),
-          timestamp,
-          waterLightCount: runtime.schwellenraumWaterLightCount,
-        });
-        const roofSignMotion = berlinerEnsembleRoofSignMotionDecision({
-          enabled: runtime.berlinerEnsembleRoofSignTargets.length > 0,
-          fineDetailVisible: runtime.fineDetailVisible,
-          frameIntervalMs: flagFrameIntervalMs,
-          hidden: document.visibilityState === "hidden",
-          lastFrameAt: runtime.berlinerEnsembleRoofSignLastFrameAt,
-          onScreen: isBerlinerEnsembleRoofSignOnScreen(
+        schwellenraumMotionOptions.flagFrameIntervalMs = flagFrameIntervalMs;
+        schwellenraumMotionOptions.lastFlagFrameAt =
+          runtime.schwellenraumLastFlagFrameAt;
+        schwellenraumMotionOptions.lastWaterFrameAt =
+          runtime.schwellenraumLastWaterFrameAt;
+        schwellenraumMotionOptions.minecraftMobsVisible =
+          minecraftEnvironmentVisible;
+        schwellenraumMotionOptions.mode = runtime.lightingMode;
+        schwellenraumMotionOptions.movingFlagCount = movingFlagCount;
+        schwellenraumMotionOptions.rainVisible = rainVisible;
+        schwellenraumMotionOptions.reducedMotion = reducedMotion;
+        schwellenraumMotionOptions.snowVisible = snowVisible;
+        schwellenraumMotionOptions.timestamp = timestamp;
+        schwellenraumMotionOptions.waterLightCount =
+          runtime.schwellenraumWaterLightCount;
+        const schwellenraumMotion = schwellenraumMotionDecision(
+          schwellenraumMotionOptions,
+          schwellenraumMotionScratch,
+        );
+        roofSignMotionOptions.enabled =
+          runtime.berlinerEnsembleRoofSignTargets.length > 0;
+        roofSignMotionOptions.fineDetailVisible = runtime.fineDetailVisible;
+        roofSignMotionOptions.frameIntervalMs = flagFrameIntervalMs;
+        roofSignMotionOptions.hidden = documentHidden;
+        roofSignMotionOptions.lastFrameAt =
+          runtime.berlinerEnsembleRoofSignLastFrameAt;
+        roofSignMotionOptions.reducedMotion = reducedMotion;
+        roofSignMotionOptions.timestamp = timestamp;
+        roofSignMotionOptions.underside = runtime.underside;
+        const roofSignFrameDue =
+          roofSignMotionOptions.enabled &&
+          roofSignMotionOptions.fineDetailVisible &&
+          !roofSignMotionOptions.hidden &&
+          !roofSignMotionOptions.reducedMotion &&
+          !roofSignMotionOptions.underside &&
+          timestamp -
+            roofSignMotionOptions.lastFrameAt +
+            Number.EPSILON * 1_000 >=
+            flagFrameIntervalMs;
+        roofSignMotionOptions.onScreen =
+          roofSignFrameDue &&
+          isBerlinerEnsembleRoofSignOnScreen(
             runtime.berlinerEnsembleRoofSignTargets,
             camera,
             roofSignScreenScratch,
-          ),
-          reducedMotion,
-          timestamp,
-          underside: runtime.underside,
-        });
+          );
+        const roofSignMotion = berlinerEnsembleRoofSignMotionDecision(
+          roofSignMotionOptions,
+          roofSignMotionScratch,
+        );
         const ordinaryEnvironmentMotion =
           ordinaryEnvironmentVisible &&
           timestamp - lastOrdinaryEnvironmentFrameAt >=
-            environmentFrameIntervalMs(runtime.coarsePointer);
+            ordinaryEnvironmentFrameIntervalMs;
         const environmentalMotion =
           schwellenraumMotion.animateFlags ||
           schwellenraumMotion.animateWaterLight ||
@@ -6465,7 +6706,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           pedestrianMoving ||
           directInputActive ||
           controlsChanged ||
-          stabilized.changed;
+          stabilizedChanged;
         const isMoving =
           cameraMoving ||
           stability.forceContinuousRender ||
@@ -6500,12 +6741,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // nominally fixed far camera, making fine ink edges shimmer. A static
         // scene now receives one render for a real mutation and then holds its
         // framebuffer exactly; RAF remains alive for input and loaders.
-        const renderRequired = renderFrameRequired({
-          cameraMoving,
-          environmentalMotion,
-          presentationChanged: farDetailChanged || shadowRefresh,
-          renderInvalidated: runtime.renderInvalidated,
-        });
+        renderFrameSources.cameraMoving = cameraMoving;
+        renderFrameSources.environmentalMotion = environmentalMotion;
+        renderFrameSources.presentationChanged =
+          farDetailChanged || shadowRefresh;
+        renderFrameSources.renderInvalidated = runtime.renderInvalidated;
+        const renderRequired = renderFrameRequired(renderFrameSources);
         if (!renderRequired) {
           return;
         }
@@ -6550,13 +6791,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         }
+        underwaterPresentationOptions.cameraY = camera.position.y;
+        underwaterPresentationOptions.insideTunnel =
+          physicallyInsideTunnel || framedPortal;
+        underwaterPresentationOptions.underside = underside;
         setUnderwaterPresentation(
           runtime,
-          shouldUseUnderwaterPresentation({
-            cameraY: camera.position.y,
-            insideTunnel: physicallyInsideTunnel || framedPortal,
-            underside,
-          }),
+          shouldUseUnderwaterPresentation(underwaterPresentationOptions),
         );
         if (ordinaryEnvironmentMotion) {
           const ordinaryDtSeconds = Number.isFinite(
@@ -6608,7 +6849,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (schwellenraumMotion.animateFlags) {
           runtime.schwellenraumFlagElapsedSeconds += flagFrameIntervalMs / 1000;
           updateSchwellenraumMovingFlags(
-            [runtime.signatures, runtime.civicDetails],
+            schwellenraumMovingRoots(runtime),
             runtime.schwellenraumFlagElapsedSeconds,
           );
           runtime.schwellenraumLastFlagFrameAt = timestamp;
@@ -6631,24 +6872,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const { strafe, forward } = twoFingerPanFlight(
             panMomentum.x * dtSeconds,
             panMomentum.y * dtSeconds,
+            undefined,
+            panFlightScratch,
           );
           flyCameraRigAlongViewHeading(runtime, strafe, forward);
-          const decayed = decayPanMomentum(panMomentum, dtSeconds);
-          panMomentum.x = decayed.x;
-          panMomentum.y = decayed.y;
+          decayPanMomentum(panMomentum, dtSeconds, panMomentum);
           if (panMomentum.x === 0 && panMomentum.y === 0 && touchInteracting) {
             touchInteracting = false;
           }
           markSurfaceInteraction(runtime, 220);
         }
-        // Every profile is deliberately neutral: world-space ink carries the
-        // drawing, and screen-neighbour sharpening is forbidden because it
-        // amplifies sub-pixel motion. Keep this no-op pass disabled instead of
-        // spending one full-screen read/write on every frame. Day,
-        // Night and Minecraft all use the same RenderPass -> SMAA chain during
-        // movement and at rest, so this performance win cannot create a
-        // quality-switch flash.
-        crispPass.enabled = false;
         if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();
         if (shadowRefresh) runtime.shadowInvalidated = false;
@@ -6828,8 +7061,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ...WEIDENDAMMER_BRIDGE_FOCUS_CAMERA,
             target_world: [...WEIDENDAMMER_BRIDGE_FOCUS_CAMERA.target_world],
           });
-          const brechtFocus =
-            BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.focus;
+          const brechtFocus = BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.focus;
           runtime.focusCameraByName.set(
             BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE.brecht.name,
             {
@@ -7333,7 +7565,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
         resetPendingFrameNavigation();
         disposeObject3D(runtime, scene);
-        crispPass.dispose();
         smaaPass.dispose();
         composer.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);

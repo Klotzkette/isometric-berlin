@@ -6,8 +6,10 @@ import {
 import type { PedestrianEnvironment } from "./pedestrianNavigation";
 import { domeRadius } from "./ReichstagDome";
 import {
+  createSchwellenraumFlightScratch,
   resolveSchwellenraumFlightTranslation,
   type SchwellenraumFlightResult,
+  type SchwellenraumFlightScratch,
   type SchwellenraumPoint,
 } from "./schwellenraumNavigation";
 import type { VisualMode } from "./visualMode";
@@ -52,6 +54,8 @@ function gatePassageCentres(): number[] {
 
 const gate = MINECRAFT_ARCHITECTURAL_PROFILES.brandenburgGate;
 const station = MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof;
+const GATE_QUADRIGA_CENTER_LOCAL_M = [0, 23.5, 0] as const;
+const GATE_QUADRIGA_SIZE_M = [8, 6.2, 14] as const;
 const stationEastWestEntrance = station.entrances.eastWest;
 const stationNorthSouthEntrance = station.entrances.northSouth;
 const stationOfficeEntrance = station.officeEntrances;
@@ -76,18 +80,16 @@ const HAUPTBAHNHOF_NAVIGATION_SOURCE_ID_SET = new Set<string>(
  * visual mode's pedestrian access policy.
  */
 export const BRANDENBURG_GATE_PUBLIC_PASSAGES: ReadonlyArray<MinecraftHeroPortal> =
-  gatePassageCentres().map(
-    (centerZ, index): MinecraftHeroPortal => ({
-      centerLocalM: [0, 6.15, centerZ],
-      frame: gate,
-      id: `brandenburg-gate-passage-${index + 1}`,
-      landmark: "Brandenburger Tor",
-      sizeM: [gate.depthM + 7, 12.8, GATE_PASSAGE_WIDTHS_M[index]],
-      // The two pavilion parts stay closed; only the central gate mass may be
-      // replaced by the five real passage voids.
-      sourceBuildingIds: [gate.sourcePrismIds[0]],
-    }),
-  );
+  gatePassageCentres().map((centerZ, index): MinecraftHeroPortal => ({
+    centerLocalM: [0, 6.15, centerZ],
+    frame: gate,
+    id: `brandenburg-gate-passage-${index + 1}`,
+    landmark: "Brandenburger Tor",
+    sizeM: [gate.depthM + 7, 12.8, GATE_PASSAGE_WIDTHS_M[index]],
+    // The two pavilion parts stay closed; only the central gate mass may be
+    // replaced by the five real passage voids.
+    sourceBuildingIds: [gate.sourcePrismIds[0]],
+  }));
 
 export const MINECRAFT_HERO_PORTALS: ReadonlyArray<MinecraftHeroPortal> = [
   ...BRANDENBURG_GATE_PUBLIC_PASSAGES,
@@ -156,54 +158,73 @@ export const MINECRAFT_HERO_PORTALS: ReadonlyArray<MinecraftHeroPortal> = [
     sourceBuildingIds: HAUPTBAHNHOF_NAVIGATION_SOURCE_IDS,
   },
   ...stationOfficeEntrance.bridgeCentresLocalX.flatMap((centerX) =>
-    ([-1, 1] as const).map(
-      (endSide): MinecraftHeroPortal => ({
-        centerLocalM: [
-          centerX,
-          stationOfficeEntrance.clearHeightM / 2,
-          endSide * stationOfficeEntrance.endLocalZ,
-        ],
-        frame: station,
-        id: `hauptbahnhof-office-${centerX < 0 ? "west" : "east"}-${
-          endSide < 0 ? "north" : "south"
-        }-portal`,
-        landmark: "Berlin Hauptbahnhof office bridge",
-        sizeM: [
-          stationOfficeEntrance.clearHalfWidthM * 2,
-          stationOfficeEntrance.clearHeightM,
-          18,
-        ],
-        sourceBuildingIds: HAUPTBAHNHOF_NAVIGATION_SOURCE_IDS,
-      }),
-    ),
+    ([-1, 1] as const).map((endSide): MinecraftHeroPortal => ({
+      centerLocalM: [
+        centerX,
+        stationOfficeEntrance.clearHeightM / 2,
+        endSide * stationOfficeEntrance.endLocalZ,
+      ],
+      frame: station,
+      id: `hauptbahnhof-office-${centerX < 0 ? "west" : "east"}-${
+        endSide < 0 ? "north" : "south"
+      }-portal`,
+      landmark: "Berlin Hauptbahnhof office bridge",
+      sizeM: [
+        stationOfficeEntrance.clearHalfWidthM * 2,
+        stationOfficeEntrance.clearHeightM,
+        18,
+      ],
+      sourceBuildingIds: HAUPTBAHNHOF_NAVIGATION_SOURCE_IDS,
+    })),
   ),
 ];
+
+type MutablePoint3 = { x: number; y: number; z: number };
+
+const localPointScratch: MutablePoint3 = { x: 0, y: 0, z: 0 };
+const gateRotationRadians = (gate.rotationDegrees * Math.PI) / 180;
+const gateRotation = [
+  Math.cos(gateRotationRadians),
+  Math.sin(gateRotationRadians),
+] as const;
+const stationRotationRadians = (station.rotationDegrees * Math.PI) / 180;
+const stationRotation = [
+  Math.cos(stationRotationRadians),
+  Math.sin(stationRotationRadians),
+] as const;
+
+function frameRotation(frame: LocalFrame): readonly [number, number] {
+  if (frame === gate) return gateRotation;
+  if (frame === station) return stationRotation;
+  const radians = (frame.rotationDegrees * Math.PI) / 180;
+  return [Math.cos(radians), Math.sin(radians)];
+}
 
 function worldToLocal(
   frame: LocalFrame,
   x: number,
   y: number,
   z: number,
-): [number, number, number] {
-  const radians = (frame.rotationDegrees * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
+  output: MutablePoint3,
+): MutablePoint3 {
+  const rotation = frameRotation(frame);
+  const cosine = rotation[0];
+  const sine = rotation[1];
   const dx = x - frame.anchorWorld[0];
   const dz = z - frame.anchorWorld[2];
-  return [
-    dx * cosine - dz * sine,
-    y - frame.anchorWorld[1],
-    dx * sine + dz * cosine,
-  ];
+  output.x = dx * cosine - dz * sine;
+  output.y = y - frame.anchorWorld[1];
+  output.z = dx * sine + dz * cosine;
+  return output;
 }
 
 export function minecraftHeroLocalToWorld(
   frame: LocalFrame,
   local: Point3,
 ): [number, number, number] {
-  const radians = (frame.rotationDegrees * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
+  const rotation = frameRotation(frame);
+  const cosine = rotation[0];
+  const sine = rotation[1];
   return [
     frame.anchorWorld[0] + cosine * local[0] + sine * local[2],
     frame.anchorWorld[1] + local[1],
@@ -217,11 +238,14 @@ function pointInsidePortal(
   y: number,
   z: number,
 ): boolean {
-  const local = worldToLocal(portal.frame, x, y, z);
-  return local.every(
-    (coordinate, axis) =>
-      Math.abs(coordinate - portal.centerLocalM[axis]) <=
-      portal.sizeM[axis] / 2 + NAVIGATION_EPSILON_M,
+  const local = worldToLocal(portal.frame, x, y, z, localPointScratch);
+  return (
+    Math.abs(local.x - portal.centerLocalM[0]) <=
+      portal.sizeM[0] / 2 + NAVIGATION_EPSILON_M &&
+    Math.abs(local.y - portal.centerLocalM[1]) <=
+      portal.sizeM[1] / 2 + NAVIGATION_EPSILON_M &&
+    Math.abs(local.z - portal.centerLocalM[2]) <=
+      portal.sizeM[2] / 2 + NAVIGATION_EPSILON_M
   );
 }
 
@@ -239,13 +263,21 @@ function pointInsideHauptbahnhofHallPlan(
       stationEastWestEntrance.endLocalX + NAVIGATION_EPSILON_M &&
     Math.abs(localZ - hauptbahnhofEastWestCurveAt(localX)) <=
       stationEastWestEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M;
-  const officeBridge = stationOfficeEntrance.bridgeCentresLocalX.some(
-    (centerX) =>
-      Math.abs(localX - centerX) <=
-        stationOfficeEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M &&
-      Math.abs(localZ) <=
-        stationOfficeEntrance.endLocalZ + NAVIGATION_EPSILON_M,
-  );
+  let officeBridge = false;
+  if (
+    Math.abs(localZ) <=
+    stationOfficeEntrance.endLocalZ + NAVIGATION_EPSILON_M
+  ) {
+    for (const centerX of stationOfficeEntrance.bridgeCentresLocalX) {
+      if (
+        Math.abs(localX - centerX) <=
+        stationOfficeEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M
+      ) {
+        officeBridge = true;
+        break;
+      }
+    }
+  }
   return northSouthHall || eastWestHall || officeBridge;
 }
 
@@ -254,11 +286,13 @@ function pointInsideHauptbahnhofPublicHall(
   y: number,
   z: number,
 ): boolean {
-  const [localX, localY, localZ] = worldToLocal(station, x, y, z);
+  const local = worldToLocal(station, x, y, z, localPointScratch);
+  const localX = local.x;
+  const localY = local.y;
+  const localZ = local.z;
   const northSouthHall =
     localY >= station.publicFloorTopLocalY - NAVIGATION_EPSILON_M &&
-    localY <=
-      stationNorthSouthEntrance.clearHeightM + NAVIGATION_EPSILON_M &&
+    localY <= stationNorthSouthEntrance.clearHeightM + NAVIGATION_EPSILON_M &&
     Math.abs(localX) <=
       stationNorthSouthEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M &&
     Math.abs(localZ) <=
@@ -270,29 +304,36 @@ function pointInsideHauptbahnhofPublicHall(
       stationEastWestEntrance.endLocalX + NAVIGATION_EPSILON_M &&
     Math.abs(localZ - hauptbahnhofEastWestCurveAt(localX)) <=
       stationEastWestEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M;
-  const officeBridge =
+  let officeBridge = false;
+  if (
     localY >= station.publicFloorTopLocalY - NAVIGATION_EPSILON_M &&
     localY <= stationOfficeEntrance.clearHeightM + NAVIGATION_EPSILON_M &&
-    Math.abs(localZ) <=
-      stationOfficeEntrance.endLocalZ + NAVIGATION_EPSILON_M &&
-    stationOfficeEntrance.bridgeCentresLocalX.some(
-      (centerX) =>
+    Math.abs(localZ) <= stationOfficeEntrance.endLocalZ + NAVIGATION_EPSILON_M
+  ) {
+    for (const centerX of stationOfficeEntrance.bridgeCentresLocalX) {
+      if (
         Math.abs(localX - centerX) <=
-        stationOfficeEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M,
-    );
+        stationOfficeEntrance.clearHalfWidthM + NAVIGATION_EPSILON_M
+      ) {
+        officeBridge = true;
+        break;
+      }
+    }
+  }
   return northSouthHall || eastWestHall || officeBridge;
 }
 
 /** Public Minecraft station floor used by walking and as a flight plane. */
 export function minecraftHeroGroundAt(x: number, z: number): number | null {
-  if (![x, z].every(Number.isFinite)) return null;
-  const [localX, , localZ] = worldToLocal(
+  if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
+  const local = worldToLocal(
     station,
     x,
     station.anchorWorld[1],
     z,
+    localPointScratch,
   );
-  return pointInsideHauptbahnhofHallPlan(localX, localZ)
+  return pointInsideHauptbahnhofHallPlan(local.x, local.z)
     ? station.anchorWorld[1] + station.publicFloorTopLocalY
     : null;
 }
@@ -306,11 +347,11 @@ function pointTouchesLocalBox(
   z: number,
   radiusM: number,
 ): boolean {
-  const local = worldToLocal(frame, x, y, z);
-  return local.every(
-    (coordinate, axis) =>
-      Math.abs(coordinate - centerLocalM[axis]) <=
-      sizeM[axis] / 2 + radiusM,
+  const local = worldToLocal(frame, x, y, z, localPointScratch);
+  return (
+    Math.abs(local.x - centerLocalM[0]) <= sizeM[0] / 2 + radiusM &&
+    Math.abs(local.y - centerLocalM[1]) <= sizeM[1] / 2 + radiusM &&
+    Math.abs(local.z - centerLocalM[2]) <= sizeM[2] / 2 + radiusM
   );
 }
 
@@ -334,7 +375,8 @@ function pointTouchesReichstagDome(
 }
 
 function squaredDistanceToSegment(
-  point: Point2,
+  x: number,
+  z: number,
   from: Point2,
   to: Point2,
 ): number {
@@ -348,33 +390,12 @@ function squaredDistanceToSegment(
           0,
           Math.min(
             1,
-            ((point[0] - from[0]) * dx + (point[1] - from[1]) * dz) /
-              lengthSquared,
+            ((x - from[0]) * dx + (z - from[1]) * dz) / lengthSquared,
           ),
         );
   return (
-    (point[0] - (from[0] + dx * progress)) ** 2 +
-    (point[1] - (from[1] + dz * progress)) ** 2
+    (x - (from[0] + dx * progress)) ** 2 + (z - (from[1] + dz * progress)) ** 2
   );
-}
-
-function bridgePointAt(
-  start: Point2,
-  end: Point2,
-  progress: number,
-  sagittaM = 0,
-  lateralM = 0,
-): Point2 {
-  const dx = end[0] - start[0];
-  const dz = end[1] - start[1];
-  const length = Math.hypot(dx, dz);
-  const normalX = length <= 1e-9 ? 0 : -dz / length;
-  const normalZ = length <= 1e-9 ? 0 : dx / length;
-  const bow = sagittaM * 4 * progress * (1 - progress) + lateralM;
-  return [
-    start[0] + dx * progress + normalX * bow,
-    start[1] + dz * progress + normalZ * bow,
-  ];
 }
 
 function pointTouchesBridgeCourse(
@@ -393,22 +414,37 @@ function pointTouchesBridgeCourse(
 ): boolean {
   if (Math.abs(y - centerY) > heightM / 2 + radiusM) return false;
   const thresholdSquared = (widthM / 2 + radiusM) ** 2;
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const length = Math.hypot(dx, dz);
+  const normalX = length <= 1e-9 ? 0 : -dz / length;
+  const normalZ = length <= 1e-9 ? 0 : dx / length;
   for (let index = 0; index < segments; index += 1) {
-    const from = bridgePointAt(
-      start,
-      end,
-      index / segments,
-      sagittaM,
-      lateralM,
-    );
-    const to = bridgePointAt(
-      start,
-      end,
-      (index + 1) / segments,
-      sagittaM,
-      lateralM,
-    );
-    if (squaredDistanceToSegment([x, z], from, to) <= thresholdSquared) {
+    const fromProgress = index / segments;
+    const toProgress = (index + 1) / segments;
+    const fromBow = sagittaM * 4 * fromProgress * (1 - fromProgress) + lateralM;
+    const toBow = sagittaM * 4 * toProgress * (1 - toProgress) + lateralM;
+    const fromX = start[0] + dx * fromProgress + normalX * fromBow;
+    const fromZ = start[1] + dz * fromProgress + normalZ * fromBow;
+    const toX = start[0] + dx * toProgress + normalX * toBow;
+    const toZ = start[1] + dz * toProgress + normalZ * toBow;
+    const segmentDx = toX - fromX;
+    const segmentDz = toZ - fromZ;
+    const segmentLengthSquared = segmentDx * segmentDx + segmentDz * segmentDz;
+    const progress =
+      segmentLengthSquared <= 1e-9
+        ? 0
+        : Math.max(
+            0,
+            Math.min(
+              1,
+              ((x - fromX) * segmentDx + (z - fromZ) * segmentDz) /
+                segmentLengthSquared,
+            ),
+          );
+    const closestX = fromX + segmentDx * progress;
+    const closestZ = fromZ + segmentDz * progress;
+    if ((x - closestX) ** 2 + (z - closestZ) ** 2 <= thresholdSquared) {
       return true;
     }
   }
@@ -425,7 +461,8 @@ function pointInsideFalseBundestagWall(
     y >= 1.5 &&
     y <= upper.envelopeTopY + 0.5 &&
     squaredDistanceToSegment(
-      [x, z],
+      x,
+      z,
       upper.centrelineWorld[0],
       upper.centrelineWorld[1],
     ) <=
@@ -450,14 +487,23 @@ export function brandenburgGateWalkableAt(
   z: number,
   sourceBuildingId?: string,
 ): boolean {
-  if (![x, y, z].every(Number.isFinite) || sourceBuildingId === undefined) {
+  if (
+    !Number.isFinite(x) ||
+    !Number.isFinite(y) ||
+    !Number.isFinite(z) ||
+    sourceBuildingId === undefined
+  ) {
     return false;
   }
-  return BRANDENBURG_GATE_PUBLIC_PASSAGES.some(
-    (portal) =>
+  for (const portal of BRANDENBURG_GATE_PUBLIC_PASSAGES) {
+    if (
       portal.sourceBuildingIds.includes(sourceBuildingId) &&
-      pointInsidePortal(portal, x, y, z),
-  );
+      pointInsidePortal(portal, x, y, z)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -471,7 +517,9 @@ export function minecraftHeroWalkableAt(
   z: number,
   sourceBuildingId?: string,
 ): boolean {
-  if (![x, y, z].every(Number.isFinite)) return false;
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+    return false;
+  }
   if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
   for (const portal of MINECRAFT_HERO_PORTALS) {
     if (portal.landmark === "Brandenburger Tor") continue;
@@ -507,7 +555,13 @@ export function minecraftHeroSolidAt(
   z: number,
   radiusM = 0,
 ): boolean {
-  if (![x, y, z, radiusM].every(Number.isFinite) || radiusM < 0) {
+  if (
+    !Number.isFinite(x) ||
+    !Number.isFinite(y) ||
+    !Number.isFinite(z) ||
+    !Number.isFinite(radiusM) ||
+    radiusM < 0
+  ) {
     return true;
   }
   if (pointTouchesReichstagDome(x, y, z, radiusM)) return true;
@@ -518,8 +572,8 @@ export function minecraftHeroSolidAt(
   if (
     pointTouchesLocalBox(
       gate,
-      [0, 23.5, 0],
-      [8, 6.2, 14],
+      GATE_QUADRIGA_CENTER_LOCAL_M,
+      GATE_QUADRIGA_SIZE_M,
       x,
       y,
       z,
@@ -548,7 +602,7 @@ export function minecraftHeroSolidAt(
   ) {
     return true;
   }
-  for (const side of [-1, 1]) {
+  for (let side = -1; side <= 1; side += 2) {
     if (
       pointTouchesBridgeCourse(
         x,
@@ -568,26 +622,33 @@ export function minecraftHeroSolidAt(
       return true;
     }
   }
-  for (const [centerY, heightM] of [
-    [upper.deckY - 0.35, 0.8],
-    [upper.roofY, 0.8],
-  ] as const) {
-    if (
-      pointTouchesBridgeCourse(
-        x,
-        y,
-        z,
-        centerY,
-        heightM,
-        upper.centrelineWorld[0],
-        upper.centrelineWorld[1],
-        upper.widthM,
-        radiusM,
-        upper.frameBayCount,
-      )
-    ) {
-      return true;
-    }
+  if (
+    pointTouchesBridgeCourse(
+      x,
+      y,
+      z,
+      upper.deckY - 0.35,
+      0.8,
+      upper.centrelineWorld[0],
+      upper.centrelineWorld[1],
+      upper.widthM,
+      radiusM,
+      upper.frameBayCount,
+    ) ||
+    pointTouchesBridgeCourse(
+      x,
+      y,
+      z,
+      upper.roofY,
+      0.8,
+      upper.centrelineWorld[0],
+      upper.centrelineWorld[1],
+      upper.widthM,
+      radiusM,
+      upper.frameBayCount,
+    )
+  ) {
+    return true;
   }
   const [start, end] = upper.centrelineWorld;
   const dx = end[0] - start[0];
@@ -595,16 +656,13 @@ export function minecraftHeroSolidAt(
   const length = Math.hypot(dx, dz);
   const normalX = length <= 1e-9 ? 0 : -dz / length;
   const normalZ = length <= 1e-9 ? 0 : dx / length;
-  if (
-    y >= upper.deckY - radiusM &&
-    y <= upper.roofY + radiusM
-  ) {
+  if (y >= upper.deckY - radiusM && y <= upper.roofY + radiusM) {
     const postRadius = 0.325 + radiusM;
     for (let index = 0; index <= upper.frameBayCount; index += 1) {
       const progress = index / upper.frameBayCount;
       const centerX = start[0] + dx * progress;
       const centerZ = start[1] + dz * progress;
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         const postX = centerX + normalX * side * 1.25;
         const postZ = centerZ + normalZ * side * 1.25;
         if ((x - postX) ** 2 + (z - postZ) ** 2 <= postRadius ** 2) {
@@ -622,12 +680,14 @@ export function resolveMinecraftHeroFlightTranslation(
   requested: SchwellenraumPoint,
   environment: PedestrianEnvironment,
   radiusM = MINECRAFT_FLIGHT_RADIUS_M,
+  scratch?: SchwellenraumFlightScratch,
 ): SchwellenraumFlightResult {
   return resolveSchwellenraumFlightTranslation(
     start,
     requested,
     environment,
     radiusM,
+    scratch,
   );
 }
 
@@ -640,11 +700,24 @@ export type MinecraftHeroCameraRigResult = MinecraftHeroCameraRig & {
   blocked: boolean;
 };
 
-function pointDelta(
-  from: SchwellenraumPoint,
-  to: SchwellenraumPoint,
-): SchwellenraumPoint {
-  return { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
+export type MinecraftHeroCameraRigScratch = {
+  cameraDelta: SchwellenraumPoint;
+  flight: SchwellenraumFlightScratch;
+  result: MinecraftHeroCameraRigResult;
+  targetDelta: SchwellenraumPoint;
+};
+
+export function createMinecraftHeroCameraRigScratch(): MinecraftHeroCameraRigScratch {
+  return {
+    cameraDelta: { x: 0, y: 0, z: 0 },
+    flight: createSchwellenraumFlightScratch(),
+    result: {
+      blocked: false,
+      camera: { x: 0, y: 0, z: 0 },
+      target: { x: 0, y: 0, z: 0 },
+    },
+    targetDelta: { x: 0, y: 0, z: 0 },
+  };
 }
 
 /**
@@ -658,29 +731,39 @@ export function reconcileMinecraftHeroCameraRig(
   proposed: MinecraftHeroCameraRig,
   environment: PedestrianEnvironment,
   radiusM = MINECRAFT_FLIGHT_RADIUS_M,
+  scratch?: MinecraftHeroCameraRigScratch,
 ): MinecraftHeroCameraRigResult {
-  const targetValues = [
-    previous.target.x,
-    previous.target.y,
-    previous.target.z,
-    proposed.target.x,
-    proposed.target.y,
-    proposed.target.z,
-  ];
-  if (!targetValues.every(Number.isFinite)) {
-    return {
-      blocked: true,
-      camera: { ...previous.camera },
-      target: { ...previous.target },
-    };
+  const state = scratch ?? createMinecraftHeroCameraRigScratch();
+  const { cameraDelta, result, targetDelta } = state;
+  if (
+    !Number.isFinite(previous.target.x) ||
+    !Number.isFinite(previous.target.y) ||
+    !Number.isFinite(previous.target.z) ||
+    !Number.isFinite(proposed.target.x) ||
+    !Number.isFinite(proposed.target.y) ||
+    !Number.isFinite(proposed.target.z)
+  ) {
+    result.blocked = true;
+    result.camera.x = previous.camera.x;
+    result.camera.y = previous.camera.y;
+    result.camera.z = previous.camera.z;
+    result.target.x = previous.target.x;
+    result.target.y = previous.target.y;
+    result.target.z = previous.target.z;
+    return result;
   }
-  const cameraDelta = pointDelta(previous.camera, proposed.camera);
-  const targetDelta = pointDelta(previous.target, proposed.target);
+  cameraDelta.x = proposed.camera.x - previous.camera.x;
+  cameraDelta.y = proposed.camera.y - previous.camera.y;
+  cameraDelta.z = proposed.camera.z - previous.camera.z;
+  targetDelta.x = proposed.target.x - previous.target.x;
+  targetDelta.y = proposed.target.y - previous.target.y;
+  targetDelta.z = proposed.target.z - previous.target.z;
   const resolved = resolveMinecraftHeroFlightTranslation(
     previous.camera,
     cameraDelta,
     environment,
     radiusM,
+    state.flight,
   );
   const rigidTranslation =
     Math.hypot(
@@ -688,15 +771,18 @@ export function reconcileMinecraftHeroCameraRig(
       cameraDelta.y - targetDelta.y,
       cameraDelta.z - targetDelta.z,
     ) <= 1e-7;
-  return {
-    blocked: resolved.blocked,
-    camera: resolved.position,
-    target: rigidTranslation
-      ? {
-          x: previous.target.x + resolved.applied.x,
-          y: previous.target.y + resolved.applied.y,
-          z: previous.target.z + resolved.applied.z,
-        }
-      : { ...proposed.target },
-  };
+  result.blocked = resolved.blocked;
+  result.camera.x = resolved.position.x;
+  result.camera.y = resolved.position.y;
+  result.camera.z = resolved.position.z;
+  result.target.x = rigidTranslation
+    ? previous.target.x + resolved.applied.x
+    : proposed.target.x;
+  result.target.y = rigidTranslation
+    ? previous.target.y + resolved.applied.y
+    : proposed.target.y;
+  result.target.z = rigidTranslation
+    ? previous.target.z + resolved.applied.z
+    : proposed.target.z;
+  return result;
 }

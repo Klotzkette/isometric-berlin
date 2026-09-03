@@ -37,7 +37,12 @@ describe("idle-frame anti-flicker contract", () => {
   });
 
   test("responds at full speed without reintroducing idle damping", () => {
-    expect(viewerSource).toContain("continuousFlightSpeeds(distance)");
+    expect(viewerSource).toContain(
+      "continuousFlightSpeeds(distance, flightSpeedScratch)",
+    );
+    expect(viewerSource).toContain(
+      "createCameraRigStabilizationScratch()",
+    );
     expect(viewerSource).not.toContain("flightVelocity.lerp");
     expect(viewerSource).toContain("controls.rotateSpeed = 1.08");
     expect(appSource).toContain("animationTime: 0.12");
@@ -209,10 +214,10 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("const smaaPass = new SMAAPass()");
     expect(viewerSource).toContain("smaaPass.enabled = true");
     expect(viewerSource.indexOf("composer.addPass(smaaPass)")).toBeGreaterThan(
-      viewerSource.indexOf("composer.addPass(crispPass)"),
+      viewerSource.indexOf("composer.addPass(new RenderPass(scene, camera))"),
     );
-    expect(viewerSource).toContain("crispPass.enabled = false");
-    expect(viewerSource).not.toContain("crispPass.enabled = true");
+    expect(viewerSource).not.toContain("ShaderPass");
+    expect(viewerSource).not.toContain("crispPass");
     expect(viewerSource).toContain("smaaPass.dispose()");
   });
 

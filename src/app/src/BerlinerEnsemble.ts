@@ -123,8 +123,7 @@ export const BERLINER_ENSEMBLE_PROFILE = {
     projectingReturnWallIndices:
       BERLINER_ENSEMBLE_PROJECTING_RETURN_WALL_INDICES,
     projectingWallIndices: BERLINER_ENSEMBLE_PROJECTING_SHOW_WALL_INDICES,
-    publicNormalAzimuthDegrees:
-      BERLINER_ENSEMBLE_PUBLIC_FACADE_AZIMUTH_DEGREES,
+    publicNormalAzimuthDegrees: BERLINER_ENSEMBLE_PUBLIC_FACADE_AZIMUTH_DEGREES,
     rhythm:
       "3 round arches + entrance + 3 round arches; 2 upper arches + neutral poster + 2 upper arches",
     sourceMainPrismId: BERLINER_ENSEMBLE_MAIN_ID,
@@ -153,16 +152,9 @@ export const BERLINER_ENSEMBLE_PROFILE = {
     diameterM: BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
     presentationAnimated: true,
     realWorldRotates: true,
-    rotationPeriodSeconds:
-      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+    rotationPeriodSeconds: BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
     schwellenraumAnimated: true,
-    visualModes: [
-      "day",
-      "night",
-      "snowstorm",
-      "minecraft",
-      "schwellenraum",
-    ],
+    visualModes: ["day", "night", "snowstorm", "minecraft", "schwellenraum"],
   },
   roofTower: {
     anchorStatus:
@@ -1039,8 +1031,7 @@ function createRoofSign(
       "open metal/neon ring and two-line lettering, photo-bounded to 4.8 m and deliberately smaller than the removed seven-metre sign",
     presentationAnimated: true,
     realWorldRotates: true,
-    rotationPeriodSeconds:
-      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+    rotationPeriodSeconds: BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
     schwellenraumAnimated: true,
     sourceUrl: "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
   };
@@ -1052,13 +1043,8 @@ function createRoofSign(
   pivot.userData = {
     [BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER]: true,
     baseRotationY: rotationY,
-    centreWorld: [
-      centreX,
-      BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
-      centreZ,
-    ],
-    rotationPeriodSeconds:
-      BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
+    centreWorld: [centreX, BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M, centreZ],
+    rotationPeriodSeconds: BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_PERIOD_SECONDS,
   };
   const dayMaterial = new MeshBasicMaterial({
     color: BERLINER_ENSEMBLE_TONES.signMetal,
@@ -1147,22 +1133,7 @@ export type BerlinerEnsembleRoofSignMotionDecision = {
   environmentalMotion: boolean;
 };
 
-/**
- * Cadence gate shared by the smooth and block-native sign. It deliberately
- * carries no mode check: the owner asked for the real rotation in all five
- * modes, while visibility/accessibility remain the bounded stop conditions.
- */
-export function berlinerEnsembleRoofSignMotionDecision({
-  enabled,
-  fineDetailVisible,
-  frameIntervalMs,
-  hidden,
-  lastFrameAt,
-  onScreen,
-  reducedMotion,
-  timestamp,
-  underside,
-}: {
+export type BerlinerEnsembleRoofSignMotionOptions = {
   enabled: boolean;
   fineDetailVisible: boolean;
   frameIntervalMs: number;
@@ -1172,7 +1143,27 @@ export function berlinerEnsembleRoofSignMotionDecision({
   reducedMotion: boolean;
   timestamp: number;
   underside: boolean;
-}): BerlinerEnsembleRoofSignMotionDecision {
+};
+
+/**
+ * Cadence gate shared by the smooth and block-native sign. It deliberately
+ * carries no mode check: the owner asked for the real rotation in all five
+ * modes, while visibility/accessibility remain the bounded stop conditions.
+ */
+export function berlinerEnsembleRoofSignMotionDecision(
+  {
+    enabled,
+    fineDetailVisible,
+    frameIntervalMs,
+    hidden,
+    lastFrameAt,
+    onScreen,
+    reducedMotion,
+    timestamp,
+    underside,
+  }: BerlinerEnsembleRoofSignMotionOptions,
+  output?: BerlinerEnsembleRoofSignMotionDecision,
+): BerlinerEnsembleRoofSignMotionDecision {
   const animate =
     enabled &&
     fineDetailVisible &&
@@ -1181,7 +1172,10 @@ export function berlinerEnsembleRoofSignMotionDecision({
     !reducedMotion &&
     !underside &&
     timestamp - lastFrameAt + Number.EPSILON * 1_000 >= frameIntervalMs;
-  return { animate, environmentalMotion: animate };
+  const decision = output ?? { animate: false, environmentalMotion: false };
+  decision.animate = animate;
+  decision.environmentalMotion = animate;
+  return decision;
 }
 
 export function isBerlinerEnsembleRoofSignTarget(object: Object3D): boolean {
@@ -1221,8 +1215,7 @@ export function isBerlinerEnsembleRoofSignOnScreen(
   for (const target of targets) {
     if (!effectivelyVisible(target)) continue;
     const centre = target.userData.centreWorld as
-      | readonly [number, number, number]
-      | undefined;
+      readonly [number, number, number] | undefined;
     if (!centre) continue;
     scratch.fromArray(centre).project(camera);
     if (
@@ -1244,6 +1237,9 @@ type RoofSignInstanceSpec = {
   size: readonly [number, number, number];
 };
 
+const roofSignUpdateMatrix = new Matrix4();
+const roofSignUpdateScale = new Vector3();
+
 /** Advance both presentations from one absolute phase; mode switches do not jump. */
 export function updateBerlinerEnsembleRoofSign(
   targets: readonly Object3D[],
@@ -1252,8 +1248,8 @@ export function updateBerlinerEnsembleRoofSign(
   const phase =
     Math.max(0, elapsedSeconds) *
     BERLINER_ENSEMBLE_ROOF_SIGN_ROTATION_RADIANS_PER_SECOND;
-  const matrix = new Matrix4();
-  const scale = new Vector3();
+  const matrix = roofSignUpdateMatrix;
+  const scale = roofSignUpdateScale;
   for (const target of targets) {
     if (target.userData[BERLINER_ENSEMBLE_ROOF_SIGN_PIVOT_MARKER] === true) {
       const baseRotationY = Number(target.userData.baseRotationY);
@@ -1269,11 +1265,9 @@ export function updateBerlinerEnsembleRoofSign(
       continue;
     }
     const centre = target.userData.rotationCentreWorld as
-      | readonly [number, number]
-      | undefined;
+      readonly [number, number] | undefined;
     const instances = target.userData.rotatingInstances as
-      | readonly RoofSignInstanceSpec[]
-      | undefined;
+      readonly RoofSignInstanceSpec[] | undefined;
     if (!centre || !instances) continue;
     const cosine = Math.cos(phase);
     const sine = Math.sin(phase);

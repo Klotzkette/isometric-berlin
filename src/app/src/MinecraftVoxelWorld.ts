@@ -628,9 +628,10 @@ function shadeFor(
   xIdx: number,
   zIdx: number,
   salt: number,
+  output = new Color(),
 ): Color {
   const pick = Math.abs(xIdx * 31 + zIdx * 17 + salt * 7) % shades.length;
-  return new Color(shades[pick]);
+  return output.setHex(shades[pick]);
 }
 
 export function minecraftBuildingLayerTones(materialClass: string): {
@@ -1028,6 +1029,7 @@ export function createGroundSlabs(
   ground.mesh.userData.skippedBridgeCells = skippedBridgeCells;
   const center = new Vector3();
   const size = new Vector3();
+  const shade = new Color();
   for (const { classId, run, xStart, zOffset } of visibleRuns) {
     const className = payload.classes[classId] ?? "grass";
     const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
@@ -1046,7 +1048,7 @@ export function createGroundSlabs(
       worldZAbs(min_z_idx + zOffset),
     );
     size.set(run * cell, slabHeight, cell);
-    ground.write(center, size, shadeFor(shades, xStart, zOffset, run));
+    ground.write(center, size, shadeFor(shades, xStart, zOffset, run, shade));
   }
   return ground.mesh;
 }
@@ -2588,7 +2590,8 @@ export function createMinecraftVoxelWorld(
     "Voxel building columns",
     buildingLayerCount,
   );
-  const tonePaint = new Color();
+  const facadePaint = new Color();
+  const layerPaint = new Color();
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
     const className = payload.classes[classId] ?? "concrete";
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
@@ -2608,8 +2611,14 @@ export function createMinecraftVoxelWorld(
     const tone = toneLookup?.(worldX, worldZ) ?? recognitionArea?.tone ?? null;
     const facade =
       tone !== null
-        ? tonePaint.setHex(tone).clone()
-        : shadeFor(shades, xIdx, zIdx, Math.round(height / cell));
+        ? facadePaint.setHex(tone)
+        : shadeFor(
+            shades,
+            xIdx,
+            zIdx,
+            Math.round(height / cell),
+            facadePaint,
+          );
     if (mobileDetail && !heroSource) {
       center.set(worldX, y0 + height / 2, worldZ);
       size.set(cell, height, cell);
@@ -2630,7 +2639,7 @@ export function createMinecraftVoxelWorld(
     if (plinthHeight > 0) {
       center.set(worldX, y0 + plinthHeight / 2, worldZ);
       size.set(cell, plinthHeight, cell);
-      buildings.write(center, size, tonePaint.setHex(layers.plinth).clone());
+      buildings.write(center, size, layerPaint.setHex(layers.plinth));
     }
     const bodyCourseCount = heroSource
       ? Math.max(1, Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M))
@@ -2657,7 +2666,7 @@ export function createMinecraftVoxelWorld(
     if (capHeight > 0) {
       center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);
-      buildings.write(center, size, tonePaint.setHex(layers.cap).clone());
+      buildings.write(center, size, layerPaint.setHex(layers.cap));
     }
   }
   group.add(buildings.mesh);
@@ -2815,6 +2824,9 @@ export function createMinecraftVoxelWorld(
     options.detailProfile ?? "full";
   const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
   const crowns = instancedBoxes("Voxel tree crowns", visibleTrees.length * 2);
+  const birchPaint = new Color(0xd6dfe0);
+  const trunkPaint = new Color();
+  const leafPaint = new Color();
   for (const [xIdx, zIdx, y0dm, hdm] of visibleTrees) {
     const y0 = y0dm / 10;
     const height = Math.max(cell, hdm / 10);
@@ -2827,8 +2839,8 @@ export function createMinecraftVoxelWorld(
       center,
       size,
       species === 0
-        ? new Color(0xd6dfe0)
-        : shadeFor(TRUNK_SHADES, xIdx, zIdx, 1),
+        ? birchPaint
+        : shadeFor(TRUNK_SHADES, xIdx, zIdx, 1, trunkPaint),
     );
     const crownHeight = cell * 1.9;
     center.set(
@@ -2837,7 +2849,7 @@ export function createMinecraftVoxelWorld(
       worldZAbs(zIdx),
     );
     size.set(cell * 2.2, crownHeight, cell * 2.2);
-    crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 2));
+    crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 2, leafPaint));
     // Every third tree stacks a smaller crown — the spruce silhouette.
     if (species === 1 || species === 3) {
       center.set(
@@ -2846,7 +2858,11 @@ export function createMinecraftVoxelWorld(
         worldZAbs(zIdx),
       );
       size.set(cell * 1.3, cell * 1.1, cell * 1.3);
-      crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 3));
+      crowns.write(
+        center,
+        size,
+        shadeFor(LEAF_SHADES, xIdx, zIdx, 3, leafPaint),
+      );
     }
   }
   group.add(trunks.mesh);

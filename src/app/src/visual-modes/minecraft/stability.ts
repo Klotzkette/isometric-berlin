@@ -23,13 +23,22 @@ export type MinecraftStabilityPolicy = {
   pinInteractionSurface: boolean;
 };
 
+const STANDARD_STABILITY_POLICY = Object.freeze<MinecraftStabilityPolicy>({
+  animateWind: true,
+  forceContinuousRender: false,
+  pinInteractionSurface: false,
+});
+
+const MINECRAFT_STABILITY_POLICY = Object.freeze<MinecraftStabilityPolicy>({
+  animateWind: true,
+  forceContinuousRender: false,
+  pinInteractionSurface: true,
+});
+
 export function minecraftStabilityPolicy(
   mode: VisualMode,
 ): MinecraftStabilityPolicy {
-  const minecraft = mode === "minecraft";
-  return {
-    animateWind: true,
-    forceContinuousRender: false,
-    pinInteractionSurface: minecraft,
-  };
+  return mode === "minecraft"
+    ? MINECRAFT_STABILITY_POLICY
+    : STANDARD_STABILITY_POLICY;
 }
