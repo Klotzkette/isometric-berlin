@@ -3,6 +3,50 @@
   "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM. Records marked attribution-only have no bundled photograph.",
   "records": [
     {
+      "landmark_id": "sony_center_surroundings",
+      "title": "File:Beisheim Center, Berlin-1776.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Beisheim_Center,_Berlin-1776.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "© Raimond Spekking / CC BY-SA 4.0 (via Wikimedia Commons)",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sony_center_surroundings",
+      "title": "File:Bellevuestraße 2 9596.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bellevuestra%C3%9Fe_2_9596.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dosseman",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sony_center_surroundings",
+      "title": "File:Berlin Kemperplatz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Kemperplatz.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Bukk",
+      "credit": "Own work; public-domain dedication",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sony_center_surroundings",
+      "title": "File:Berlin Potsdamer Platz lub 2021-12-18 img10 Potsdamer Straße.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Potsdamer_Platz_lub_2021-12-18_img10_Potsdamer_Stra%C3%9Fe.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Lukas Beck",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "reichstag",
       "title": "File:Reichstagsgebäude November 2013.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_November_2013.jpg",
