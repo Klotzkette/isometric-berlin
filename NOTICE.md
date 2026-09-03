@@ -111,6 +111,26 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   `NUR HEUTE ABEND` line is also presentation text. Neither is attributed to
   the venue or presented as a current programme.
 
+- **Bode-Museum and Grill Royal / Riverside:** the official Berlin LoD2
+  tiles `391_5820` and `390_5820` (source creation 2026-03-02,
+  dl-de/zero-2-0) anchor all twelve building parts, both museum dome envelopes
+  and five open courts. OSM relation `4211594`, way `105733634` and node
+  `2884321484` retain their semantic roles. The
+  [Landesdenkmalamt museum description](https://www.berlin.de/landesdenkmalamt/welterbe/museumsinsel-berlin/bode-museum-654566.php),
+  [Museumsinsel building account](https://www.museumsinsel-berlin.de/gebaeude/bode-museum/)
+  and [Grill Royal](https://www.grillroyal.com/) support recognition and
+  address context. Facade subdivisions, dome curvature, furnishings and
+  carvings are procedural, non-surveyed display details.
+  External visual QA: Gunnar Klack,
+  [Grill Royal / Riverside, April 2017](https://commons.wikimedia.org/wiki/File:Grill-Royal-Riverside-Hotel-Friedrichstr-Berlin-Mitte-04-2017.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/));
+  C.Mezzo-1, [Bode-Museum](https://commons.wikimedia.org/wiki/File:Bode-Museum.jpg)
+  (public domain); Till Niermann,
+  [Bode-Museum front detail](https://commons.wikimedia.org/wiki/File:Bode-Museum_front_detail.jpg)
+  ([CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)).
+  Per-file credits accompany the viewer. No photograph, crop or texture is
+  bundled or loaded; even the two signs use the project's drawn stroke alphabet.
+
 - **Sony Center surroundings and Beisheim ensemble:** thin facade details
   retain the attributed Berlin LoD2 bodies and exterior edges. The
   [JAHN project description](https://jahn.studio/work/sony-center/) supports

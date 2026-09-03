@@ -5,6 +5,39 @@
   "policy": "Small freely licensed Wikimedia Commons thumbnails and attribution-only external visual-QA references; attribution metadata retained per image.",
   "records": [
     {
+      "landmark_id": "grill_royal",
+      "title": "File:Grill-Royal-Riverside-Hotel-Friedrichstr-Berlin-Mitte-04-2017.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Grill-Royal-Riverside-Hotel-Friedrichstr-Berlin-Mitte-04-2017.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bode_museum",
+      "title": "File:Bode-Museum.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bode-Museum.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "C.Mezzo-1",
+      "credit": "Own work; public-domain dedication",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bode_museum",
+      "title": "File:Bode-Museum front detail.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bode-Museum_front_detail.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Till Niermann",
+      "credit": "Till Niermann / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "sony_center_surroundings",
       "title": "File:Beisheim Center, Berlin-1776.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File:Beisheim_Center,_Berlin-1776.jpg",

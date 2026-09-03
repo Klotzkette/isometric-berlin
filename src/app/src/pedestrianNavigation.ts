@@ -18,6 +18,7 @@ import {
 } from "./TunnelPortals";
 import type { PedestrianInput } from "./navigationInput";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
+import { BODE_SOURCE, GRILL_SOURCE, SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionProfile";
 
 export {
   heldPedestrianInput,
@@ -508,8 +509,21 @@ export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
+  const replacedParents = new Set<string>();
   for (const building of prisms.buildings) {
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
+    if (SPREE_RECOGNITION_PRISM_IDS.has(building.id)) {
+      const source = building.id === "-4211594" ? BODE_SOURCE : GRILL_SOURCE;
+      if (!replacedParents.has(source.parent_id)) {
+        replacedParents.add(source.parent_id);
+        for (const part of source.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m, part.top_y_m, part.id);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     const before = index.obstacleCount;
     addPolygonObstacle(
       index,

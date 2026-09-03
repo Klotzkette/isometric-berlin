@@ -43,6 +43,7 @@ import {
   SONY_SURROUNDINGS_GROUP_NAME,
   MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
 } from "./sonyCenterSurroundingsProfile";
+import { SPREE_RECOGNITION_FINE_LAYER_NAME } from "./spreeRecognitionProfile";
 
 /**
  * The world-space feature size an ink line's fade is keyed to: not the
@@ -261,6 +262,7 @@ export function nextMicroDetailVisible({
  * testable without a scene graph.
  */
 export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
+  SPREE_RECOGNITION_FINE_LAYER_NAME,
   SONY_SURROUNDINGS_GROUP_NAME,
   MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
   "LoD2 facade axes",

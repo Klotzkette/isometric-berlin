@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.72.37
+
+- **Bode-Museum und Grill Royal / Riverside erhalten vollständige,
+  quellgebundene Gebäude.** Zwölf Teile aus den amtlichen LoD2-Kacheln vom
+  2. März 2026 ersetzen nur die bisherigen groben Laufzeitkörper. Das Museum
+  behält fünf offene Höfe, beide vermessenen Kuppelhüllen, Fassadenordnungen,
+  Balustraden, Kuppelrippen, Rundfenster und Dachfiguren. Am Grill Royal kommen
+  die vollständige Dachstaffel, Erker, Balkonbrüstungen, rote Dachrahmen,
+  Markisen, Schriftzug und eine begrenzte Spree-Terrasse hinzu. OSM-Identitäten
+  bleiben erhalten; Fotografien dienen ausschließlich als externe Referenzen.
+- **Laden und Bewegung erzeugen weniger kurzlebigen Speicher.** Gemeinsame
+  Worker-Geometrien und Materialien werden nach dem Transfer tatsächlich nur
+  einmal erzeugt, Instanzpuffer ohne vorgefüllte Wegwerfmatrizen übernommen
+  und statische Stadt-/Parktransformationen nicht in jedem Bild neu berechnet.
+  Der häufige Bauteil-Erzeuger überspringt Normalen- und UV-Puffer, die sofort
+  gelöscht würden. Ein 40-facher, alternierender Vergleich mit je 1.400 Teilen
+  war im Mittel 11 % und im langsamen P95-Lauf 14 % schneller; ein Bytevergleich
+  sichert identische Positionen, Farben, Indizes und Kanten. Der glatte
+  Spree-Detailblock lädt als eigenes 9,19-kB-Modul; dadurch sinkt der zentrale
+  Viewer-Chunk im Produktionsbuild von 1.350,45 auf 1.276,65 kB
+  (gzip: 467,99 auf 449,64 kB).
+- **Die Ergänzungen bleiben klein und in allen Modi vollständig.** Die
+  gezeichneten Gebäude benötigen 14 Draw Calls und weniger als 600 KiB. Die
+  Minecraft-Fassung ist ein eigener, oberflächenbasierter Block-Batch unter
+  360 KiB und enthält keine verdeckte massive Innenfüllung. Die Kollisionsform
+  folgt den neuen Höhen, lässt aber Museumshöfe und Spreeufer frei.
+
 ## v0.72.36
 
 - **Das Forumdach wird nicht länger von falschen Vollkörpern verdeckt.**

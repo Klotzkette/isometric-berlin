@@ -3001,14 +3001,18 @@ function ensureIsoWorld(
   let progressiveSnapshot: ProgressiveWorldSnapshot | null = null;
   let originalIsoWorld: Group | null = null;
   let originalTrafficSignals: Group | null | undefined;
+  // Keep the source profile and its 6,000 close-detail instances out of the
+  // core viewer parse; this small module downloads alongside the five data files.
+  const spreeDetails = import("./SpreeMuseumDetails");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
     tracked(fetchStreetPayload(runtime)).catch(() => null),
     tracked(fetchSurfacePayload(runtime)).catch(() => null),
     tracked(fetchRailPayload(runtime)).catch(() => null),
+    spreeDetails,
   ])
-    .then(([prisms, ground, street, surfaces, rail]) => {
+    .then(([prisms, ground, street, surfaces, rail, spree]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3197,6 +3201,7 @@ function ensureIsoWorld(
             runtime.coarsePointer || progressiveInput ? null : undefined,
         },
       );
+      isoWorld.add(spree.createSpreeMuseumDetails());
       provisionalIsoWorld = isoWorld;
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
@@ -5021,6 +5026,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
+      // The world origin is fixed. Re-composing it on every render forces a
+      // full matrixWorld update even for the immutable city and park layers.
+      scene.matrixAutoUpdate = false;
       scene.background = new Color(0xdcf3f9);
       scene.fog = new Fog(0xdcf3f9, 1100, 2550);
       // Day levels; setSceneLighting re-applies the per-mode rig on the

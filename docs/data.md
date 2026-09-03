@@ -47,6 +47,24 @@ Strict hygiene rules:
   appropriate Google attribution per their terms, in addition to the
   OSM/Geoportal Berlin attribution.
 
+## Bode-Museum and Grill Royal source supplement
+
+`scripts/build_spree_recognition_source.py` extracts only LoD2 parents
+`DEBE01YYK00002jp` and `DEBE01YYK0000Ahf` from official tiles `391_5820` and
+`390_5820`. Raw ZIPs stay ignored. The compact, 55 KB
+`src/app/src/spreeRecognitionSource.json` retains the 2026-03-02 source dates,
+download URLs, archive SHA-256 values, twelve parts, original planar surfaces,
+five museum courts and both measured dome envelopes. Every footprint is checked
+against the existing release polygon. No catalogue or bounds revision is needed.
+
+The older Bode OSM context prism had a generic 9 m height, not a measured dome;
+the Grill block combined an OSM prism with clipped LoD2 fragments. The fusion
+manifest records those conflicts and selects the complete official parts for
+runtime geometry, while keeping all older source records and OSM identities.
+Curved dome subdivisions, facade orders, balcony rails, signs and terrace
+furniture are labelled procedural approximations. Wikimedia references stay
+external and their per-file notices are mirrored in the public manifest.
+
 ## Berlin 3D Mesh terms and derived assets
 
 The official Berlin mesh requires explicit acceptance of the portal terms,

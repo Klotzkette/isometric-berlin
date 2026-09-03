@@ -46,6 +46,8 @@ import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDeta
 import { createMinecraftBrechtMemorial } from "./BerlinerEnsembleMemorials";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
 import { createMinecraftSonyCenterSurroundings } from "./SonyCenterSurroundings";
+import { createMinecraftSpreeMuseumDetails } from "./MinecraftSpreeMuseumDetails";
+import { isSpreeRecognitionReplacementColumn } from "./spreeRecognitionProfile";
 import {
   createSonyRoofColumnTopAt,
   type SonyRoofSourcePrism,
@@ -625,7 +627,8 @@ export function isCompleteRecognitionVoxelColumn(
 ): boolean {
   return (
     isMinecraftArchitecturalReplacementColumn(x, z) ||
-    isMinecraftTipiReplacementColumn(x, z)
+    isMinecraftTipiReplacementColumn(x, z) ||
+    isSpreeRecognitionReplacementColumn(x, z)
   );
 }
 
@@ -2499,6 +2502,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftArchitecturalLandmarks());
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftSonyCenterSurroundings());
+  group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftBrechtMemorial());

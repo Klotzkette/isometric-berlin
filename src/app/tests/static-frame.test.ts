@@ -278,8 +278,9 @@ describe("idle-frame anti-flicker contract", () => {
     expect(voxelLoader).toContain("!voxelWorldIntentActive(runtime)");
     expect(voxelLoader).toContain('runtime.voxelWorldState = "idle"');
     expect(voxelLoader).toContain(
-      '{ detailProfile: runtime.coarsePointer ? "mobile" : "full" }',
+      'detailProfile: runtime.coarsePointer ? "mobile" : "full"',
     );
+    expect(voxelLoader).toContain("sourcePrisms: prisms?.buildings");
     expect(
       voxelLoader.indexOf("!voxelWorldIntentActive(runtime)"),
     ).toBeLessThan(voxelLoader.indexOf("createMinecraftVoxelWorld("));

@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.36)
+## 3. Hard scope rules (v0.72.37)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -157,6 +157,12 @@ Must be inside the polygon and visible in the final map:
   coloured concrete-glass fields; and the Tränenpalast as its separate low
   steel-and-glass pavilion, never swallowed by the Friedrichstraße station
   shell. Full/mobile profiles remain bounded and image-free.
+- Bode-Museum and Grill Royal / Riverside remain source-bound recognition
+  buildings without becoming additional tour stops. Their complete 2026 LoD2
+  supplement retains twelve parts, the museum's five open courts and two dome
+  envelopes, and the restaurant building's complete height/roof profile. Both
+  drawn and block-native forms stay texture-free; Wikimedia photographs remain
+  non-bundled visual references only.
 - The bounded City West recognition ensemble: Europa-Center, Allianz-Haus,
   historic Café Kranzler and New Kranzler Eck, Bahnhof Zoologischer Garten,
   Kaiser-Wilhelm-Gedächtniskirche with Breitscheidplatz, and Urania. Each keeps
@@ -412,7 +418,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.36)
+## 8. What success looks like (Definition of Done v0.72.37)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -515,6 +521,11 @@ isometric-berlin/
   portrait reads on the glass without loading a photograph, portrait crop or
   portrait texture. The installation remains visible in Day, Night, Snowstorm,
   Minecraft and Schwellenraum without becoming a 94th tour stop.
+- Bode-Museum retains four official parts, five unroofed courts, 25.480 m main
+  envelope and dome tops at 49.512 m and 38.639 m in the viewer frame. Grill
+  Royal / Riverside retains all eight official parts and its OSM restaurant
+  anchor. Drawn recognition remains below 600 KiB at 14 draw calls; Minecraft
+  is one surface-only block batch below 360 KiB, without hidden solid fill.
 - Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion
   blob: two piers and the Carrara sarcophagus carry the Tieck frieze and a real
   reclining bronze-lion silhouette within the Schinkel railing. The structural

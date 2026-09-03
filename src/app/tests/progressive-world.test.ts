@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -992,12 +992,12 @@ describe("progressive exact-world scheduling", () => {
     }
     // Exact production geometry is retained in two spatial batches; all
     // remaining buildings are represented by one shared instanced shell. The
-    // v0.72.32 place-front expansion adds only line vertices inside the same
-    // facade-axis renderables; its byte delta is pinned separately.
+    // Source-bound Bode/Grill models now replace the two coarse envelopes;
+    // their separate shared-instance budget is pinned in spree-museum-details.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(3_745_576);
-    expect(retainedBytes).toBe(54_043_670);
+    expect(vertices).toBe(3_698_760);
+    expect(retainedBytes).toBe(53_361_056);
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.
     expect(retainedBytes).toBeLessThanOrEqual(54_135_158);
@@ -1006,6 +1006,55 @@ describe("progressive exact-world scheduling", () => {
 });
 
 describe("transferable Three geometry", () => {
+  test("keeps shared geometry, material arrays and mode materials shared", () => {
+    const root = new Group();
+    const geometry = new BoxGeometry();
+    const day = new MeshBasicMaterial({ color: 0xffffff });
+    const night = new MeshStandardMaterial({ color: 0xabcdef });
+    for (let index = 0; index < 12; index += 1) {
+      const mesh = new Mesh(geometry, [day, night]);
+      mesh.userData.dayMaterial = day;
+      mesh.userData.nightMaterial = night;
+      root.add(mesh);
+    }
+    const wire = serializeObject3DForTransfer(root);
+    expect(wire.object.children[0].geometry).toBe(wire.object.children[11].geometry);
+    const clone = structuredClone(wire.object, { transfer: wire.transfers });
+    const restored = deserializeTransferredObject3D(clone);
+    const meshes = restored.children as Mesh[];
+    expect(new Set(meshes.map((mesh) => mesh.geometry)).size).toBe(1);
+    for (const mesh of meshes) {
+      expect((mesh.material as unknown[])[0]).toBe(mesh.userData.dayMaterial);
+      expect((mesh.material as unknown[])[1]).toBe(mesh.userData.nightMaterial);
+      expect(mesh.userData.dayMaterial).toBe(meshes[0].userData.dayMaterial);
+    }
+    // No global cache: separately disposed batches keep independent ownership.
+    const other = deserializeTransferredObject3D(structuredClone(clone));
+    expect((other.children[0] as Mesh).geometry).not.toBe(meshes[0].geometry);
+    expect(other.children[0].userData.dayMaterial).not.toBe(meshes[0].userData.dayMaterial);
+  });
+
+  test("adopts instance buffers without filling a throwaway identity buffer", () => {
+    const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 256);
+    mesh.count = 123;
+    mesh.setMatrixAt(122, new Matrix4().makeTranslation(15, 6, 9));
+    const wire = serializeObject3DForTransfer(mesh);
+    const clone = structuredClone(wire.object, { transfer: wire.transfers });
+    const initializeMatrix = spyOn(InstancedMesh.prototype, "setMatrixAt");
+    try {
+      const restored = deserializeTransferredObject3D(clone) as InstancedMesh;
+      expect(initializeMatrix).not.toHaveBeenCalled();
+      expect(restored.count).toBe(123);
+      expect(restored.instanceMatrix.count).toBe(256);
+      expect(restored.instanceMatrix.array).toBe(clone.instanceMatrix!.array);
+      const last = new Matrix4();
+      restored.getMatrixAt(122, last);
+      expect(last.elements).toEqual(new Matrix4().makeTranslation(15, 6, 9).elements);
+    } finally {
+      initializeMatrix.mockRestore();
+    }
+  });
+
   test("round-trips hierarchy, exact typed buffers, instances and mode materials", () => {
     const root = new Group();
     root.name = "batch";

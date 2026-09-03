@@ -1,5 +1,6 @@
 import {
   BoxGeometry,
+  BufferAttribute,
   BufferGeometry,
   Color,
   CylinderGeometry,
@@ -65,6 +66,26 @@ export function paintGeometry(geometry: BufferGeometry, color: number): void {
   geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
 }
 
+const UNIT_BOX = new BoxGeometry(1, 1, 1);
+const BOX_POSITIONS = UNIT_BOX.getAttribute("position").array;
+const BOX_INDICES = UNIT_BOX.index!.array;
+
+/** Same 24 indexed vertices, without allocating normals/UVs the kit discards. */
+function unlitBoxGeometry(sx: number, sy: number, sz: number): BufferGeometry {
+  if (![sx, sy, sz].every((size) => Number.isFinite(size) && size > 0))
+    return new BoxGeometry(sx, sy, sz);
+  const positions = new Float32Array(BOX_POSITIONS.length);
+  for (let i = 0; i < positions.length; i += 3) {
+    positions[i] = BOX_POSITIONS[i] * sx;
+    positions[i + 1] = BOX_POSITIONS[i + 1] * sy;
+    positions[i + 2] = BOX_POSITIONS[i + 2] * sz;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  geometry.setIndex(new BufferAttribute(new Uint16Array(BOX_INDICES), 1));
+  return geometry;
+}
+
 export function addBox(
   builder: Builder,
   color: number,
@@ -77,7 +98,7 @@ export function addBox(
   rotationY = 0,
   inked = true,
 ): void {
-  const geometry = new BoxGeometry(sx, sy, sz);
+  const geometry = unlitBoxGeometry(sx, sy, sz);
   if (rotationY !== 0) {
     geometry.rotateY(rotationY);
   }

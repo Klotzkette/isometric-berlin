@@ -923,6 +923,22 @@ export function letteringLayout(
   };
 }
 
+/** Reuse the drawn alphabet for small, texture-free architectural inscriptions. */
+export function letteringStrokePaths(
+  text: string,
+  capHeightM: number,
+): [number, number][][] {
+  const layout = letteringLayout(text, capHeightM);
+  return layout.glyphs.flatMap((glyph) =>
+    GLYPHS[glyph.character].strokes.map((stroke) =>
+      stroke.map(([x, y]): [number, number] => [
+        glyph.leftM + x * capHeightM - layout.totalWidthM / 2,
+        y * capHeightM,
+      ]),
+    ),
+  );
+}
+
 export type LetteringTextureOptions = {
   bandHeightM: number;
   bandWidthM: number;

@@ -50,6 +50,17 @@ type TransferGeometry = {
 
 type MaterialJson = ReturnType<Material["toJSON"]>;
 
+type SerializationContext = {
+  geometries: Map<BufferGeometry, TransferGeometry>;
+  materials: Map<Material, MaterialJson>;
+};
+
+type DeserializationContext = {
+  geometries: Map<TransferGeometry, BufferGeometry>;
+  materials: Map<MaterialJson, Material>;
+  materialLoader: MaterialLoader;
+};
+
 function serializeBoundingSphere(
   sphere: Sphere | null,
 ): TransferBoundingSphere | null {
@@ -137,7 +148,12 @@ function serializeAttribute(attribute: BufferAttribute): TransferAttribute {
   };
 }
 
-function serializeGeometry(geometry: BufferGeometry): TransferGeometry {
+function serializeGeometry(
+  geometry: BufferGeometry,
+  context: SerializationContext,
+): TransferGeometry {
+  const existing = context.geometries.get(geometry);
+  if (existing) return existing;
   const attributes: Record<string, TransferAttribute> = {};
   for (const [name, attribute] of Object.entries(geometry.attributes)) {
     if (attribute instanceof InterleavedBufferAttribute) {
@@ -147,7 +163,7 @@ function serializeGeometry(geometry: BufferGeometry): TransferGeometry {
   }
   geometry.computeBoundingSphere();
   const boundingSphere = geometry.boundingSphere;
-  return {
+  const descriptor: TransferGeometry = {
     attributes,
     boundingSphere: serializeBoundingSphere(boundingSphere),
     drawRange: { ...geometry.drawRange },
@@ -159,9 +175,16 @@ function serializeGeometry(geometry: BufferGeometry): TransferGeometry {
     name: geometry.name,
     userData: structuredClone(geometry.userData),
   };
+  context.geometries.set(geometry, descriptor);
+  return descriptor;
 }
 
-function serializeMaterial(material: Material): MaterialJson {
+function serializeMaterial(
+  material: Material,
+  context: SerializationContext,
+): MaterialJson {
+  const existing = context.materials.get(material);
+  if (existing) return existing;
   for (const value of Object.values(
     material as unknown as Record<string, unknown>,
   )) {
@@ -171,7 +194,9 @@ function serializeMaterial(material: Material): MaterialJson {
       );
     }
   }
-  return material.toJSON();
+  const descriptor = material.toJSON();
+  context.materials.set(material, descriptor);
+  return descriptor;
 }
 
 function transferableType(object: Object3D): TransferObject3D["type"] {
@@ -182,7 +207,10 @@ function transferableType(object: Object3D): TransferObject3D["type"] {
   return "Object3D";
 }
 
-function serializeObject(object: Object3D): TransferObject3D {
+function serializeObject(
+  object: Object3D,
+  context: SerializationContext,
+): TransferObject3D {
   if (object.matrixAutoUpdate) {
     object.updateMatrix();
   }
@@ -190,13 +218,13 @@ function serializeObject(object: Object3D): TransferObject3D {
   for (const key of TRANSFERRED_ALTERNATE_MATERIAL_KEYS) {
     const material = object.userData[key];
     if (material instanceof Material) {
-      alternateMaterials[key] = serializeMaterial(material);
+      alternateMaterials[key] = serializeMaterial(material, context);
     }
   }
   const descriptor: TransferObject3D = {
     alternateMaterials,
     castShadow: object.castShadow,
-    children: object.children.map(serializeObject),
+    children: object.children.map((child) => serializeObject(child, context)),
     frustumCulled: object.frustumCulled,
     layersMask: object.layers.mask,
     matrix: object.matrix.toArray(),
@@ -209,10 +237,10 @@ function serializeObject(object: Object3D): TransferObject3D {
     visible: object.visible,
   };
   if (object instanceof Mesh || object instanceof LineSegments) {
-    descriptor.geometry = serializeGeometry(object.geometry);
+    descriptor.geometry = serializeGeometry(object.geometry, context);
     descriptor.material = Array.isArray(object.material)
-      ? object.material.map(serializeMaterial)
-      : serializeMaterial(object.material);
+      ? object.material.map((material) => serializeMaterial(material, context))
+      : serializeMaterial(object.material, context);
   }
   if (object instanceof InstancedMesh) {
     descriptor.count = object.count;
@@ -250,7 +278,12 @@ export function serializeObject3DForTransfer(root: Object3D): {
   object: TransferObject3D;
   transfers: Transferable[];
 } {
-  const object = serializeObject(root);
+  // Structured clone preserves repeated descriptor references, so shared unit
+  // shapes and day/night materials remain shared on the receiving GPU too.
+  const object = serializeObject(root, {
+    geometries: new Map(),
+    materials: new Map(),
+  });
   const buffers = new Set<ArrayBuffer>();
   collectTransfers(object, buffers);
   return { object, transfers: [...buffers] };
@@ -276,7 +309,12 @@ function deserializeAttribute(
   return attribute;
 }
 
-function deserializeGeometry(descriptor: TransferGeometry): BufferGeometry {
+function deserializeGeometry(
+  descriptor: TransferGeometry,
+  context: DeserializationContext,
+): BufferGeometry {
+  const existing = context.geometries.get(descriptor);
+  if (existing) return existing;
   const geometry = new BufferGeometry();
   geometry.name = descriptor.name;
   geometry.userData = descriptor.userData;
@@ -297,11 +335,19 @@ function deserializeGeometry(descriptor: TransferGeometry): BufferGeometry {
       descriptor.boundingSphere.radius,
     );
   }
+  context.geometries.set(descriptor, geometry);
   return geometry;
 }
 
-function deserializeMaterial(descriptor: MaterialJson): Material {
-  return new MaterialLoader().parse(descriptor);
+function deserializeMaterial(
+  descriptor: MaterialJson,
+  context: DeserializationContext,
+): Material {
+  const existing = context.materials.get(descriptor);
+  if (existing) return existing;
+  const material = context.materialLoader.parse(descriptor);
+  context.materials.set(descriptor, material);
+  return material;
 }
 
 function repairTransferredInstanceColorMaterials(object: Object3D): void {
@@ -324,14 +370,17 @@ function repairTransferredInstanceColorMaterials(object: Object3D): void {
   }
 }
 
-function deserializeObject(descriptor: TransferObject3D): Object3D {
+function deserializeObject(
+  descriptor: TransferObject3D,
+  context: DeserializationContext,
+): Object3D {
   const geometry = descriptor.geometry
-    ? deserializeGeometry(descriptor.geometry)
+    ? deserializeGeometry(descriptor.geometry, context)
     : undefined;
   const material = Array.isArray(descriptor.material)
-    ? descriptor.material.map(deserializeMaterial)
+    ? descriptor.material.map((entry) => deserializeMaterial(entry, context))
     : descriptor.material
-      ? deserializeMaterial(descriptor.material)
+      ? deserializeMaterial(descriptor.material, context)
       : undefined;
   let object: Object3D;
   switch (descriptor.type) {
@@ -339,13 +388,16 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
       const mesh = new InstancedMesh(
         geometry,
         material,
-        descriptor.count ?? 0,
+        // The transferred matrix is already complete. Do not allocate and fill
+        // a second count * 64-byte identity buffer just to discard it below.
+        descriptor.instanceMatrix ? 0 : descriptor.count ?? 0,
       );
       if (descriptor.instanceMatrix) {
         mesh.instanceMatrix = deserializeAttribute(
           descriptor.instanceMatrix,
           true,
         ) as InstancedBufferAttribute;
+        mesh.count = descriptor.count ?? mesh.instanceMatrix.count;
         mesh.instanceMatrix.needsUpdate = true;
       }
       mesh.instanceColor = descriptor.instanceColor
@@ -381,13 +433,14 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
   for (const key of TRANSFERRED_ALTERNATE_MATERIAL_KEYS) {
     const alternate = descriptor.alternateMaterials[key];
     if (alternate) {
-      object.userData[key] = deserializeMaterial(alternate);
+      object.userData[key] = deserializeMaterial(alternate, context);
     }
   }
   repairTransferredInstanceColorMaterials(object);
   object.matrix.fromArray(descriptor.matrix);
   object.matrix.decompose(object.position, object.quaternion, object.scale);
   object.matrixAutoUpdate = descriptor.matrixAutoUpdate;
+  object.matrixWorldNeedsUpdate = true;
   object.castShadow = descriptor.castShadow;
   object.receiveShadow = descriptor.receiveShadow;
   object.frustumCulled = descriptor.frustumCulled;
@@ -395,7 +448,7 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
   object.renderOrder = descriptor.renderOrder;
   object.visible = descriptor.visible;
   for (const child of descriptor.children) {
-    object.add(deserializeObject(child));
+    object.add(deserializeObject(child, context));
   }
   return object;
 }
@@ -403,5 +456,9 @@ function deserializeObject(descriptor: TransferObject3D): Object3D {
 export function deserializeTransferredObject3D(
   descriptor: TransferObject3D,
 ): Object3D {
-  return deserializeObject(descriptor);
+  return deserializeObject(descriptor, {
+    geometries: new Map(),
+    materials: new Map(),
+    materialLoader: new MaterialLoader(),
+  });
 }

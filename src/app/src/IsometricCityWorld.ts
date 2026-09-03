@@ -106,6 +106,8 @@ import {
 import { createFederalStateRepresentations } from "./FederalStateRepresentations";
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
+import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionIds";
 import {
   SANDKRUG_OSM_DECK,
   SANDKRUG_STRUCTURE_PROFILE,
@@ -778,6 +780,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SONY_CENTER_ROOF_PRISM_IDS,
+  ...SPREE_RECOGNITION_PRISM_IDS,
   // Richard-Wagner-Denkmal: SR00009n is the closed LoD2 envelope of the
   // later protective barrel-vault canopy. The source-bound model preserves
   // its open steel frame and the complete marble ensemble underneath.
@@ -1475,7 +1478,7 @@ export function createDistantBuildingShells(
   shells.computeBoundingBox();
   shells.computeBoundingSphere();
   group.add(shells);
-  return group;
+  return freezeStaticSceneTransforms(group);
 }
 
 // The drawn city's own "lights off" floor: replaces every warm
@@ -10204,7 +10207,7 @@ export function createSmoothSurfaces(
     waterTopY,
   );
   addBeaverEasterEggs(group, ponds, pondLevels);
-  return group;
+  return freezeStaticSceneTransforms(group);
 }
 
 /** Highest surveyed ground touched by a ring, in metres. */
@@ -12543,6 +12546,9 @@ export function createIsometricCity(
       group.add(createNorthernHumboldthafenRefinements(ground));
     }
   }
+  // Core terrain and building batches never change local poses. Append the
+  // authored context afterwards: it also contains the rotating Ensemble sign.
+  freezeStaticSceneTransforms(group);
   if (options.includeContext !== false) {
     group.add(createPresentationBackdrop());
     group.add(createExtrapolatedMargin());

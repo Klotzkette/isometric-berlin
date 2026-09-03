@@ -33,6 +33,7 @@ import {
 import { markArchitecturalAccentInk } from "./architecturalInk";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import { createLenneOak, isLenneOakTree } from "./LenneOak";
+import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import {
   createTunnelPortalApproachTester,
   type TunnelPortalPayload,
@@ -2705,7 +2706,7 @@ export function createParkDetails(
   } else {
     addPlaygrounds(group, payload.playgrounds);
   }
-  return group;
+  return freezeStaticSceneTransforms(group);
 }
 
 export function setParkDetailsFocus(group: Group, name: string): void {

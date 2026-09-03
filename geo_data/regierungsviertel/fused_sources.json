@@ -48,6 +48,34 @@
       "license": "Various Wikimedia Commons free licenses; see manifest per image"
     }
   },
+  "viewer_recognition_supplements": [
+    {
+      "feature_id": "DEBE01YYK00002jp",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/spreeRecognitionSource.json#bode",
+      "semantic_evidence": ["OSM relation/4211594"],
+      "conflicts": [
+        {
+          "field": "display_height_and_envelope",
+          "previous": "9 m OSM context fallback; metric LoD2 coverage absent from the older clipped extract",
+          "resolution": "2026-03-02 official LoD2 supplies four parts, 48.700/37.827 m domes and five courts. Preserve OSM identity; replace only the coarse runtime prism, not the original source record."
+        }
+      ]
+    },
+    {
+      "feature_id": "DEBE01YYK0000Ahf",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/spreeRecognitionSource.json#grill",
+      "semantic_evidence": ["OSM way/105733634", "OSM node/2884321484"],
+      "conflicts": [
+        {
+          "field": "clipped_geometry_completeness",
+          "previous": "OSM display prism plus partial LoD2 fragments",
+          "resolution": "Retain source records and OSM restaurant semantics; draw all eight complete official LoD2 parts instead of duplicate overlapping runtime shells. No bounds expansion."
+        }
+      ]
+    }
+  ],
   "features": [
     {
       "feature_id": "DEBE3DyzVgHXepl2",
