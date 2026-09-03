@@ -27,6 +27,7 @@ import {
 } from "three";
 
 import { createLetteringTexture } from "./drawnLettering";
+import { createSonyCenterSurroundings } from "./SonyCenterSurroundings";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
@@ -6088,6 +6089,7 @@ export function createExpandedCityDetails(
   if (byName.has("Mall of Berlin")) {
     group.add(createLeipzigerPlatzDetails());
     group.add(createPotsdamerPlatzPublicRealm(options.detailProfile ?? "full"));
+    group.add(createSonyCenterSurroundings());
   }
 
   const potsdamerHallBuilder = createBuilder();

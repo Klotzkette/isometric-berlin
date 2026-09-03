@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.72.36
+
+- **Das Forumdach wird nicht länger von falschen Vollkörpern verdeckt.**
+  71 hochliegende LoD2-Dachteile und die zentrale OSM-Dachscheibe wurden
+  zuvor bis zum Boden extrudiert.
+  Das vorhandene quellgebundene Membran-/Glasdach ersetzt diese falsche
+  Volumeninterpretation; Originaldaten, echte Nachbarbauten und niedrige
+  Bauteile bleiben erhalten. Minecraft korrigiert die betroffenen Säulen
+  anhand derselben bereits geladenen Gebäudekanten und Höhen; im
+  Fußgängermodus blockiert das schwebende Dach nicht mehr den Bodenraum.
+- **Die Umgebung des Sony Centers erhält individuelle Fassadendetails.**
+  Filmhaus, Bellevue- und Kemperplatz-Bauten, westliche Büros, Esplanade,
+  Forum Apartments und vier Beisheim-Bauten folgen ihren bestehenden
+  LoD2-Kanten. Glasatrium, Balkonbänder, Glaserker, Steinpfeiler,
+  Fensterpaare und Gesimse unterscheiden die Gebäude stärker. Historische
+  Esplanade-Teile, Höfe, das Forumdach und Wege bleiben unverändert.
+- **Die Verfeinerung bleibt speicherschonend und fotofrei.** Zehn Draw Calls
+  teilen sich eine Würfelgeometrie und rund 483 KiB Instanzpuffer; Minecraft
+  ergänzt einen separaten Batch mit 3.444 Blöcken. Desktop und Mobil erhalten
+  dieselbe Fassadengeometrie. Keine neue Fotodatei, Textur oder laufende
+  Berechnung wird benötigt; nicht vermessene Unterteilungen bleiben klar als
+  Darstellungsnäherung dokumentiert.
+
 ## v0.72.35
 
 - **Pariser Platz erhält präzisere, weiterhin quellgebundene Fassaden.**

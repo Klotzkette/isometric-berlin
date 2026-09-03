@@ -922,6 +922,36 @@ a 48-piece fountain rim and twelve restrained jets. Membrane curvature and
 uncited local spacing remain bounded presentation reconstruction rather than
 a survey, and no reference photograph is bundled.
 
+`SonyCenterSurroundings.ts` supplements ten surrounding buildings with thin,
+source-bound exterior detail: Filmhaus, the west and Kemperplatz offices,
+the Bellevue curve, Esplanade Residence, Forum Apartments, Ritz-Carlton/Tower
+Apartments, Potsdamer Platz 3, Marriott and Parkside Apartments. The pure
+profile stores consecutive vertices and heights from committed LoD2 prisms;
+eight distinct facade recipes retain the atrium, curtain-wall rails, balcony
+and glazed-bay rhythm, stone piers, paired windows and cornices. Window spacing
+is explicitly non-surveyed. Historic Esplanade low parts, inner courtyards,
+the Forum roof and collision envelopes remain unchanged.
+
+Both desktop and mobile use the same 6,508 coloured instances, ten draw calls,
+one shared 24-vertex cube and 494,608 bytes of instance buffers. Minecraft has
+a separate 3,444-block batch with 261,744 instance-buffer bytes and no smooth
+double; every block dimension is bounded by 5.5 m. The fine layers use
+1,350/1,750 m hysteresis while the measured, colour-pinned source masses remain
+visible. No per-frame update, image download, photo texture or new world JSON
+is introduced. Four external Commons photographs are attribution-only entries
+in the existing source and public manifests.
+
+The close-view audit also resolves the documented canopy interpretation
+conflict in `fused_sources.json`: 71 high LoD2 roof parts and OSM roof way
+`13648222` (an elevated central disc) were extruded from
+ground level and hid the actual suspended roof. `sonyCenterRoofSource.ts`
+excludes those specific parts from solid rendering and ground collision.
+The original source records and the two low parts remain. Minecraft resolves
+overlapping columns once against the already-loaded neighbouring LoD2
+footprints/heights, preserving real buildings below the canopy instead of
+clearing an approximate oval. The existing 24-panel OSM/Arup roof remains the
+visible canopy; this correction adds no geometry or asset request.
+
 Hotel Adlon remains bound
 to Berlin LoD2 building `K00006ot`, while OSM relation `4582978` and outer way
 `26041943` fix its real 68.78 m, 5.07-degree Pariser-Platz frontage. Its

@@ -39,6 +39,10 @@ import {
   WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
   WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
 } from "./WeidendammerBridgeDetails";
+import {
+  SONY_SURROUNDINGS_GROUP_NAME,
+  MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
+} from "./sonyCenterSurroundingsProfile";
 
 /**
  * The world-space feature size an ink line's fade is keyed to: not the
@@ -257,6 +261,8 @@ export function nextMicroDetailVisible({
  * testable without a scene graph.
  */
 export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
+  SONY_SURROUNDINGS_GROUP_NAME,
+  MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
   "LoD2 facade axes",
   "carriageway lane markings",
   "LoD2 glass mullions",

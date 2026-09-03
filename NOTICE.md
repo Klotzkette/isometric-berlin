@@ -111,6 +111,24 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   `NUR HEUTE ABEND` line is also presentation text. Neither is attributed to
   the venue or presented as a current programme.
 
+- **Sony Center surroundings and Beisheim ensemble:** thin facade details
+  retain the attributed Berlin LoD2 bodies and exterior edges. The
+  [JAHN project description](https://jahn.studio/work/sony-center/) supports
+  the Filmhaus atrium, office curtain walls and Esplanade balcony/glass-bay
+  reading. The [Beisheim architecture account](https://www.beisheim-center.de/de/background)
+  supports the distinct Ritz-Carlton, office, Marriott and Parkside facades.
+  Window spacing and local projections are procedural display approximations.
+  External visual QA credits: Raimond Spekking,
+  [Beisheim Center, Berlin-1776.jpg](https://commons.wikimedia.org/wiki/File:Beisheim_Center,_Berlin-1776.jpg)
+  (CC BY-SA 4.0); Dosseman,
+  [Bellevuestraße 2 9596.jpg](https://commons.wikimedia.org/wiki/File:Bellevuestra%C3%9Fe_2_9596.jpg)
+  (CC BY-SA 4.0); Bukk,
+  [Berlin Kemperplatz.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Kemperplatz.jpg)
+  (public domain); Lukas Beck,
+  [Potsdamer Straße, 2021-12-18](https://commons.wikimedia.org/wiki/File:Berlin_Potsdamer_Platz_lub_2021-12-18_img10_Potsdamer_Stra%C3%9Fe.jpg)
+  (CC BY 4.0). Per-file notices are mirrored in the public attribution manifest;
+  no photograph, crop or photo texture is bundled or fetched by the viewer.
+
 - **Berliner Ensemble roof sign and current public art (factual and visual
   evidence):** the
   [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011192),

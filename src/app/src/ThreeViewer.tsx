@@ -3481,7 +3481,10 @@ function ensureVoxelWorld(
         payload,
         prisms ? buildColumnToneLookup(prisms) : null,
         runtime.tunnelPortalCourse,
-        { detailProfile: runtime.coarsePointer ? "mobile" : "full" },
+        {
+          detailProfile: runtime.coarsePointer ? "mobile" : "full",
+          sourcePrisms: prisms?.buildings,
+        },
       );
       provisionalMinecraftMobs = createMinecraftMobs(
         payload,

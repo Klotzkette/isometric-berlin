@@ -447568,5 +447568,16 @@
       "conflicts": []
     }
   ],
-  "conflict_log": []
+  "conflict_log": [
+    {
+      "feature_id": "sony_center_forum_roof",
+      "kind": "presentation_interpretation",
+      "sources": ["lod2", "osm", "JAHN project description", "Arup Journal 2000 issue 2"],
+      "conflict": "Ground-to-top prism simplification turns 71 high LoD2 roof parts and OSM roof way 13648222 (building=roof, layer=1, height=67) into occupied buildings below the suspended Forum canopy.",
+      "resolution": "Retain all source records and the existing OSM/Arup-bound canopy. Exclude only the 72 explicitly listed roof records from solid prism rendering and ground collision. Correct overlapping voxel columns against the retained neighbouring LoD2 footprints and heights.",
+      "part_inventory": "src/app/src/sonyCenterRoofSource.ts#SONY_CENTER_ROOF_PRISM_IDS",
+      "source_records_retained": true,
+      "neighbouring_building_envelopes_retained": true
+    }
+  ]
 }

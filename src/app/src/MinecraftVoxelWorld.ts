@@ -45,6 +45,11 @@ import {
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
 import { createMinecraftBrechtMemorial } from "./BerlinerEnsembleMemorials";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
+import { createMinecraftSonyCenterSurroundings } from "./SonyCenterSurroundings";
+import {
+  createSonyRoofColumnTopAt,
+  type SonyRoofSourcePrism,
+} from "./sonyCenterRoofSource";
 import { createTiergartenLiteraryMemorialsMinecraft } from "./TiergartenLiteraryMemorials";
 import {
   createWagnerMemorialMinecraft,
@@ -113,6 +118,7 @@ export type VoxelPayload = {
 export type MinecraftVoxelDetailProfile = "full" | "mobile";
 
 export type MinecraftVoxelWorldOptions = {
+  sourcePrisms?: readonly SonyRoofSourcePrism[];
   /**
    * `mobile` keeps the surveyed envelopes and authored landmarks while
    * dropping city-wide decorative micro-detail and redundant generic layers.
@@ -2492,6 +2498,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftHumboldthafenDetails(payload));
   group.add(createMinecraftArchitecturalLandmarks());
   group.add(createMinecraftPariserPlatzArchitecture());
+  group.add(createMinecraftSonyCenterSurroundings());
   group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftBrechtMemorial());
@@ -2517,6 +2524,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
 
   const buildingColumns = decodeVoxelBuildingColumns(payload);
+  const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
   const visibleBuildingColumns = buildingColumns
     .filter(
       ([xIdx, zIdx, y0dm, y1dm]) =>
@@ -2542,11 +2550,16 @@ export function createMinecraftVoxelWorld(
     )
     .map(([xIdx, zIdx, y0dm, y1dm, classId]): VoxelBuildingColumn => {
       const sourceTopY = y1dm / 10;
-      const clippedTopY = minecraftArchitecturalVoxelTopAt(
+      const clippedTopY = sonyRoofColumnTopAt(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
-        sourceTopY,
-        cell,
+        y0dm / 10,
+        minecraftArchitecturalVoxelTopAt(
+          worldXAbs(xIdx),
+          worldZAbs(zIdx),
+          sourceTopY,
+          cell,
+        ),
       );
       const clippedTopDm =
         clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;

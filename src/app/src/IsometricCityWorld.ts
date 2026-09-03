@@ -104,6 +104,8 @@ import {
   createReichstagspraesidentenpalais,
 } from "./Reichstagspraesidentenpalais";
 import { createFederalStateRepresentations } from "./FederalStateRepresentations";
+import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
+import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import {
   SANDKRUG_OSM_DECK,
   SANDKRUG_STRUCTURE_PROFILE,
@@ -552,6 +554,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   // Hotel Adlon: pale reconstructed stone body below its patinated roof.
   K00006ot: 0xeee5d4,
   ...ECONOMIC_MINISTRY_PRISM_TONES,
+  ...SONY_SURROUNDINGS_PRISM_TONES,
   // The Center / former Sony Center: cool glass-and-steel towers around the
   // authored Forum facades, instead of unrelated sampled beige prisms.
   ...Object.fromEntries(
@@ -774,6 +777,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...SONY_CENTER_ROOF_PRISM_IDS,
   // Richard-Wagner-Denkmal: SR00009n is the closed LoD2 envelope of the
   // later protective barrel-vault canopy. The source-bound model preserves
   // its open steel frame and the complete marble ensemble underneath.

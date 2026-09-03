@@ -17,6 +17,7 @@ import {
   tunnelWalkCourses,
 } from "./TunnelPortals";
 import type { PedestrianInput } from "./navigationInput";
+import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 
 export {
   heldPedestrianInput,
@@ -508,6 +509,7 @@ export function compilePedestrianObstacles(
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   for (const building of prisms.buildings) {
+    if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     const before = index.obstacleCount;
     addPolygonObstacle(
       index,
