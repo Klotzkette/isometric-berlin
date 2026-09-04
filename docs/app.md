@@ -66,12 +66,14 @@ shadow is removed as soon as the pedestrian enters, so neither a segment joint
 nor a portal can become a transverse wall on the route.
 
 Pedestrian mode is an independent navigation layer over all five visual modes.
-It starts at a 1.80 m eye height above the exact walkable point currently under
-the orbit/free-camera focus and keeps the live heading and pitch. If that focus
-is outside the world, the camera ground point is tried; the established default
-spawn is used only when neither live point is valid. The focus height is kept
-as a tunnel-aware ground hint, so switching modes inside a tunnel does not lift
-the walker to the road above. Pedestrian mode disables
+It preserves the free camera's exact X/Z coordinate and live heading and pitch,
+then drops strictly vertically to the highest LoD2 roof, authored interior
+floor, tunnel course or terrain below before applying the 1.80 m eye height.
+No spawn-clearance search moves this direct flight-to-walk transition sideways
+unless the exact body column intersects a protected memorial volume. The orbit
+focus remains only an out-of-bounds fallback, while the established default
+spawn is used only when neither live point is valid.
+Pedestrian mode disables
 flight, camera zoom and underside controls. `W`/`S` or up/down walk,
 `A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
 the head with an 80-degree vertical limit. Scrolling the mouse wheel up walks
@@ -148,8 +150,8 @@ audio layers into a dedicated, very quiet procedural soundscape. Its two
 existing audio controls independently fade a soft room-rustle bus and a sparse
 harmonic bus; leaving the mode restores the standard layers without losing
 either user choice. Lower descending roots alternate minor and unresolved
-suspended intervals. A dusty mauve sky and a material-integrated lavender
-split tone desaturate ordinary city surfaces without a render target,
+suspended intervals. A colder mauve-grey sky and a material-integrated
+cyan-lavender split tone desaturate ordinary city surfaces without a render target,
 full-screen pass or extra draw call. The grade is a lazily cached material
 variant: leaving the mode restores the exact Day material and protected
 memorial subtrees never receive it. Buildings are never warped. It shares the
@@ -173,9 +175,13 @@ all access rules; those models keep their exact Day materials and transforms,
 receive no threshold geometry and cannot be entered.
 
 Ordinary startup now installs only two empty Schwellenraum roots. The mode's
-interiors, furnishings and eight light thresholds are constructed on first
-entry; the former 128 threshold renderables are consolidated into 24 using
-three shared materials. The full layer stays below 3,000 source vertices and
+interiors, twelve everyday props in six restrained outdoor vignettes and eight
+light thresholds are constructed on first entry. Empty bed, ajar wardrobe and
+silent phosphor television cues join the existing seats and appliances without
+photographic textures. The frames gain deterministic lateral shear and each
+threshold uses three faintly misregistered veil planes, while the former 128
+threshold renderables remain consolidated into 24 using three shared materials.
+The full layer stays below 3,000 source vertices and
 the coarse-pointer profile below 1,800. Static motes use one instanced mesh per
 site, while frames and veils are each batched, so richer atmosphere does not
 turn into hidden startup residency or hundreds of draw calls.
@@ -359,10 +365,10 @@ records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
 hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
 courts and neighbours; the new batches therefore include their own rear walls,
-floors, facade shells, roofs, glazing and open block railings. Four Creepers,
-three bow-carrying Skeletons and six Zombies roam deterministic, tree-cleared
+floors, facade shells, roofs, glazing and open block railings. Six Creepers,
+five bow-carrying Skeletons and nine Zombies roam deterministic, tree-cleared
 grass routes on desktop while Minecraft is active; the mobile profile uses
-three, two and five respectively. A shared rotated protection envelope
+four, three and seven respectively. A shared rotated protection envelope
 rejects voxel trees and every mob spawn or movement cell throughout the
 Holocaust Memorial, including a conservative edge clearance. The same
 walkability keeps four desktop or two mobile loot boxes out of the protected
@@ -433,8 +439,8 @@ The complete monument is exactly 10.00 m high and stays at 30 renderables /
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
 shared protection excludes every tree, mob and loot spawn from the field.
 Outside it, deterministic retention keeps two thirds of eligible voxel trees
-in full and one third on mobile; the single mob draw call uses 158 parts for
-the 4/6/3 full field or 120 parts for the 3/5/2 mobile field.
+in full and one third on mobile; the single mob draw call uses 245 parts for
+the 6/9/5 full field or 169 parts for the 4/7/3 mobile field.
 
 The earlier pre-retention Minecraft benchmark measured **845,561 instances /
 63.265 MiB of instance buffers** on mobile and **3,419,412 / 249.815 MiB** in
@@ -878,6 +884,10 @@ Tilla-Durieux-Park; Anhalter Bahnhof, Charlottenburger Tor, the Spanish Embassy,
 Café am Neuen See and the WELT balloon. All placement anchors come from the
 committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
+The balloon's single mipmapped procedural envelope texture now keeps two
+deep-blue circumference stripes immediately above and below its white `WELT`
+wordmark field. The stripes add no mesh, draw call or photographic texture and
+remain part of the same Day/Night material pair.
 
 The Pariser-Platz and Potsdamer-Platz architecture keeps the same boundary.
 Five civic frontages now receive separate code-native recognition facades

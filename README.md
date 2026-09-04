@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.38 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.38/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.39 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.39/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.38** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.39** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.38**, built from `main`. Its full viewer
+The current public package is **v0.72.39**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -109,10 +109,11 @@ local modules.
   to about 85.9 MiB.
 
 - **Walking starts at the exact place currently under the camera.** Activating
-  pedestrian mode transfers the live orbit/free-camera focus, current heading,
-  pitch and local ground height instead of returning to a fixed landmark. The
-  camera ground point and then the established safe spawn remain bounded
-  fallbacks only when the visible focus cannot be walked.
+  pedestrian mode transfers the live orbit/free-camera position, current
+  heading and pitch instead of returning to a fixed landmark. It drops straight
+  down at the same X/Z coordinate to the highest valid roof, interior floor,
+  tunnel course or terrain. Only a protected memorial volume or an invalid
+  out-of-bounds camera point may invoke the established safe fallback.
 
 - **The Federal Ministry for Economic Affairs reads as the real canal-side
   Invalidenhaus ensemble.** Its five exact LoD2 parts remain authoritative.
@@ -266,9 +267,9 @@ local modules.
   Memorial.** The protected field remains completely free of trees, Creepers,
   Zombies, Skeletons and loot. Elsewhere deterministic thinning keeps **2/3**
   of block trees on desktop and **1/3** on mobile without allocating the old
-  25,000-tree expansion. The single-draw mob field uses **4 Creepers / 6
-  Zombies / 3 Skeletons** on desktop (**158 parts**) and **3 / 5 / 2** on
-  mobile (**120 parts**). Four or two rare loot boxes open once on pedestrian
+  25,000-tree expansion. The single-draw mob field uses **6 Creepers / 9
+  Zombies / 5 Skeletons** on desktop (**245 parts**) and **4 / 7 / 3** on
+  mobile (**169 parts**). Four or two rare loot boxes open once on pedestrian
   contact with a bounded 1.35-second instanced firework; chest and particles
   stay at two draw calls and use no independent animation loop.
 
@@ -465,9 +466,9 @@ local modules.
   only non-legible incision cues: no copyrighted poem or quotation is
   reproduced.
 
-- **Minecraft adds only a sparse complement of hostile staffage.** Four
-  Creepers, three bow-carrying Skeletons and six Zombies share one instanced
-  desktop draw call; mobile uses three, two and five. They follow deterministic
+- **Minecraft adds a bounded, livelier complement of hostile staffage.** Six
+  Creepers, five bow-carrying Skeletons and nine Zombies share one instanced
+  desktop draw call; mobile uses four, three and seven. They follow deterministic
   tree-cleared, memorial-protected grass routes and disappear outside
   Minecraft, water and underside presentations.
 
@@ -768,7 +769,7 @@ local modules.
 - **Minecraft is more deliberately built from blocks.** Its palette gains
   stable clinker, terracotta and timber families, tall buildings receive
   coherent plinth/body/cap layers, and the bounded full/mobile mob fields of
-  thirteen/ten roaming Creepers, Zombies and bow-carrying Skeletons have clear
+  twenty/fourteen roaming Creepers, Zombies and bow-carrying Skeletons have clear
   faces and clothing without adding draw calls or flickering random roof
   patterns.
 
@@ -849,12 +850,14 @@ local modules.
   transparent sectors keep the reconstruction crisp while orbiting; the old
   generic city shell is suppressed only within this measured roof envelope.
 
-- **The WELT balloon is now white with a crisp black wordmark, as requested.**
+- **The WELT balloon is white with two blue stripes and a crisp black
+  wordmark, as requested.**
   The former beige ellipsoid, red panel, box gondola and single heavy cable are
   replaced by a 22.67 m spherical technical-fabric envelope, four curved
   mipmapped `WELT` inscriptions, a 5.90 m ring gondola, 24 suspension lines,
-  tether, ground winch and boarding pad. The same white/black livery stays
-  readable at night; no photograph is copied into its procedural texture.
+  tether, ground winch and boarding pad. Two deep-blue circumference bands
+  frame the white wordmark field and remain readable at night; no photograph
+  is copied into its procedural texture.
 
 - **The Tiergartentunnel now meets the surface through four real access
   sites.** Minna-Cauer-Straße, Invalidenstraße/Hauptbahnhof, Kemperplatz and
@@ -1081,10 +1084,11 @@ local modules.
 
 - **A ground-bound pedestrian mode adds a human-scale view.** The independent
   `Walk` / `Spaziergang` control works in Day, Night, Minecraft, Snowstorm and
-  Schwellenraum, starts on the terrain directly below the current camera at a
-  1.80 m eye
-  height, and follows the existing smooth metric terrain without changing its
-  source geometry. `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
+  Schwellenraum and preserves the current camera's exact X/Z coordinate. It
+  drops only vertically to the highest LoD2 roof, authored interior floor or
+  terrain directly below, then starts at a 1.80 m eye height without changing
+  source geometry; protected memorial volumes remain the sole safety exception.
+  `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
   left/right arrows or `Q`/`E` turn, mouse or touch drag looks around, and
   one `Space` jumps to a bounded 6.2 m apex; a second press within 320 ms raises
   that same jump once to 10.5 m. The mouse wheel also walks along the
@@ -1104,11 +1108,14 @@ local modules.
   remain solid.
 
 - **Schwellenraum is a fifth, eerie and melancholic spatial mode.** It keeps
-  the full Day geometry, but a dusty mauve sky and a reversible
-  material-integrated lavender split tone mute ordinary city surfaces without
-  a post-process pass or extra draw call. Pastel light thresholds, elongated
-  repeated frames and a few fixed pieces of everyday furniture remain sparse;
-  the world geometry is completely still. Lower descending roots alternate
+  the full Day geometry, but a colder mauve-grey sky and a reversible
+  material-integrated split tone mute ordinary city surfaces without a
+  post-process pass or extra draw call. Twelve fixed everyday objects form six
+  restrained vignettes, including an empty bed, an ajar wardrobe and a silent
+  phosphor television in implausible public places. Pastel light thresholds
+  retain their low draw-call count while their frame echoes now shear sideways
+  and three faint veil planes fail to register with one another; the world
+  geometry is completely still. Lower descending roots alternate
   minor and unresolved suspended harmonies. Only the explicitly
   identified German, EU, Swiss and Federal President flags and an extremely
   faint material-only veil over mapped water may change: fixed mist fields
@@ -1614,8 +1621,8 @@ local modules.
   distance instead of fading the outer ring. Its official metric voxel payload
   grows with the expanded bounds; the matching 6,450 m block surround is
   explicitly tagged as extrapolated presentation geometry.
-- Four Creepers, six Zombies and three bow-carrying Skeletons walk on desktop;
-  mobile uses three, five and two. Each profile shares one instanced rendering
+- Six Creepers, nine Zombies and five bow-carrying Skeletons walk on desktop;
+  mobile uses four, seven and three. Each profile shares one instanced rendering
   batch and disappears completely in Day, Night, Snowstorm, Schwellenraum,
   underwater and underside views.
 - Eligible Minecraft trees are retained deterministically at two thirds on

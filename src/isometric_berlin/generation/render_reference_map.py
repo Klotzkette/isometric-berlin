@@ -384,6 +384,7 @@ def render_reference_map(
   height: int,
   legend_width: int,
   pad: int,
+  mini_map_out_path: Path | None = None,
 ) -> None:
   bounds = project_geometry(load_bounds_polygon(bounds_path))
   minx, miny, maxx, maxy = bounds.bounds
@@ -423,6 +424,15 @@ def render_reference_map(
   draw_line_layer(draw, osm_layers["rail"], transform, fill=RAIL, width=2)
   draw_bounds_outline(draw, bounds, transform)
   draw_map_furniture(draw, transform)
+  if mini_map_out_path is not None:
+    # The walking HUD needs only the local street/building crop. Save it
+    # before landmark circles and the numbered reference legend are drawn,
+    # and omit the unused legend-width pixels to reduce decoded image memory.
+    mini_map_out_path.parent.mkdir(parents=True, exist_ok=True)
+    image.crop((0, 0, transform.map_width, height)).save(
+      mini_map_out_path,
+      optimize=True,
+    )
   draw_landmarks(draw, landmarks, transform)
   draw_legend(draw, landmarks, width=width, height=height, legend_width=legend_width)
 
@@ -455,6 +465,11 @@ def main() -> None:
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel/reference_map.png"),
   )
+  parser.add_argument(
+    "--mini-map-out",
+    type=Path,
+    default=Path("src/app/public/dzi/regierungsviertel/pedestrian_map.png"),
+  )
   parser.add_argument("--width", type=int, default=2200)
   parser.add_argument("--height", type=int, default=1300)
   parser.add_argument("--legend-width", type=int, default=800)
@@ -470,6 +485,7 @@ def main() -> None:
     height=args.height,
     legend_width=args.legend_width,
     pad=args.pad,
+    mini_map_out_path=args.mini_map_out,
   )
   print(f"Wrote top-down reference map to {args.out}")
 

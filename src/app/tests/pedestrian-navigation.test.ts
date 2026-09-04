@@ -76,6 +76,7 @@ describe("pedestrian navigation", () => {
     expect(spawn?.x).toBe(181.2);
     expect(spawn?.z).toBe(-281.4);
     expect(spawn?.groundYHint).toBeCloseTo(96 - PEDESTRIAN_EYE_HEIGHT_M);
+    expect(spawn?.preserveHorizontalPosition).toBe(true);
     expect(spawn?.yaw).toBeCloseTo(
       Math.atan2(-0.6, 0.7745966692),
     );
@@ -95,6 +96,56 @@ describe("pedestrian navigation", () => {
       yaw: 0,
       z: -22.25,
     });
+  });
+
+  test("drops vertically onto a roof without changing the flight X/Z", () => {
+    const spawn = pedestrianSpawnFromView(
+      collisionEnvironment,
+      { x: 40, y: 4.25, z: 40 },
+      { x: 2, y: 30, z: 2 },
+      { x: 0.4, y: -0.6, z: -0.692820323 },
+    );
+    expect(spawn?.preserveHorizontalPosition).toBe(true);
+    const state = createPedestrianState(collisionEnvironment, spawn);
+    expect(state.x).toBe(2);
+    expect(state.z).toBe(2);
+    expect(state.groundY).toBe(16);
+    expect(
+      pedestrianPointIsBlocked(
+        state.x,
+        state.z,
+        state.groundY,
+        buildingObstacles,
+      ),
+    ).toBe(false);
+  });
+
+  test("keeps the radial safety search for non-flight respawns", () => {
+    const state = createPedestrianState(collisionEnvironment, {
+      x: 2,
+      yaw: 0,
+      z: 2,
+    });
+    expect(state.x === 2 && state.z === 2).toBe(false);
+    expect(state.groundY).toBe(4.25);
+  });
+
+  test("never uses an exact vertical drop to enter a protected memorial", () => {
+    const state = createPedestrianState(
+      {
+        ...environment,
+        protectedVolumeAt: (x, _y, z) => Math.hypot(x, z) < 2,
+      },
+      {
+        groundYHint: 20,
+        preserveHorizontalPosition: true,
+        x: 0,
+        yaw: 0,
+        z: 0,
+      },
+    );
+    expect(state.x === 0 && state.z === 0).toBe(false);
+    expect(Math.hypot(state.x, state.z)).toBeGreaterThanOrEqual(2);
   });
 
   test("returns no authored spawn when neither live camera point is walkable", () => {

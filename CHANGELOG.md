@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.72.39
+
+- **Der Wechsel vom Flug zum Spaziergang ist jetzt ein echtes Lot.** Die
+  aktuelle Kamera behält X und Z sowie Blickrichtung und Neigung exakt bei und
+  sinkt ausschließlich auf das höchste LoD2-Dach, den passenden Innenboden,
+  Tunnelkurs oder das Gelände darunter. Die bisher mögliche radiale
+  Sicherheitsverschiebung um bis zu 160 m bleibt regulären Respawns und dem
+  zwingenden Schutz nicht betretbarer Denkmalvolumen vorbehalten.
+- **Der WELT-Ballon trägt wieder seine beiden blauen Ringstreifen.** Das weiße
+  Schriftfeld mit schwarzem `WELT` wird nun oben und unten von tiefblauen,
+  umlaufenden Bändern eingefasst. Sie liegen in derselben prozeduralen,
+  mipmapped Hüllentextur und benötigen weder zusätzliche Geometrie noch einen
+  weiteren Draw Call oder ein Foto.
+- **Der Schwellenraum wird vertrauter und zugleich falscher.** Zwölf
+  Alltagsobjekte stehen nun in sechs zurückhaltenden Außenszenen; neu sind ein
+  leeres Bett, ein angelehnter Kleiderschrank und ein stumm phosphoreszierender
+  Fernseher. Schief versetzte Rahmen-Nachbilder, drei gegeneinander verrutschte
+  Lichtschleier und eine kältere Cyan-Lavendel-Tönung steigern die unheimliche
+  Wirkung ohne Vollbildpass, Texturen oder bewegte Weltgeometrie.
+- **Minecraft ist sichtbar belebter, ohne zusätzliche Draw Calls.** Desktop
+  erhält sechs Creeper, neun Zombies und fünf bogentragende Skelette; Mobil
+  bleibt mit vier, sieben und drei bewusst kleiner. Alle 20 beziehungsweise 14
+  Figuren teilen weiterhin je einen instanzierten Batch und dieselbe
+  baum-, gebäude- und denkmalgeschützte Gras-Wegfindung.
+
 ## v0.72.38
 
 - **Shift+A/D dreht jetzt in die sichtbare, erwartete Richtung.** In freier

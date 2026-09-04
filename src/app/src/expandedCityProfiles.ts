@@ -919,11 +919,13 @@ export const AMANO_GRAND_CENTRAL_PROFILE = {
  */
 export const WELT_BALLOON_PROFILE = {
   displayCableStrokeM: 0.06,
+  envelopeBlueStripeColor: 0x0b63a1,
+  envelopeBlueStripeCount: 2,
   envelopeCenterAboveGroundM: 91,
   envelopeDiameterM: 22.67,
   envelopeVolumeM3: 6_100,
   geometryStatus:
-    "OSM-ground-anchored FK-5500/STU dimensions with owner-specified white-and-black livery; cable net and ground station are bounded presentation detail",
+    "OSM-ground-anchored FK-5500/STU dimensions with owner-specified white, blue-striped and black-lettered livery; cable net and ground station are bounded presentation detail",
   gondolaDiameterM: 5.9,
   gondolaPassengerCapacity: 30,
   maxAscentM: 150,

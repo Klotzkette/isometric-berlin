@@ -8,6 +8,7 @@ import geopandas as gpd
 from PIL import Image
 
 from isometric_berlin.generation.render_reference_map import (
+  REFERENCE_RED,
   MapTransform,
   legend_grid,
   sort_landmarks_for_reference,
@@ -16,6 +17,7 @@ from isometric_berlin.generation.render_reference_map import (
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
 REFERENCE_MAP = ROOT / "src/app/public/dzi/regierungsviertel/reference_map.png"
+PEDESTRIAN_MAP = ROOT / "src/app/public/dzi/regierungsviertel/pedestrian_map.png"
 
 
 def test_map_transform_keeps_north_up() -> None:
@@ -45,6 +47,18 @@ def test_committed_reference_map_is_packaged_asset() -> None:
   with Image.open(REFERENCE_MAP) as image:
     assert image.size == (2200, 1300)
     assert image.mode == "RGB"
+
+
+def test_pedestrian_map_omits_numbered_landmark_markers_and_legend() -> None:
+  assert PEDESTRIAN_MAP.exists()
+  assert PEDESTRIAN_MAP.stat().st_size > 100_000
+  with Image.open(PEDESTRIAN_MAP) as image:
+    assert image.size == (1400, 1300)
+    assert image.mode == "RGB"
+    assert all(pixel != REFERENCE_RED for pixel in image.get_flattened_data())
+
+  with Image.open(REFERENCE_MAP) as reference:
+    assert any(pixel == REFERENCE_RED for pixel in reference.get_flattened_data())
 
 
 def test_legend_grid_uses_two_columns_for_full_landmark_inventory() -> None:

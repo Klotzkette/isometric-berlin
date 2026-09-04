@@ -243,7 +243,7 @@ describe("Schwellenraum closed world-motion contract", () => {
 
   test("keeps static light thresholds and fixed props on identical matrices over time", () => {
     const presentation = createSchwellenraumPraesentation();
-    expect(installSchwellenraumStaticProps(presentation, () => 4.2)).toBe(9);
+    expect(installSchwellenraumStaticProps(presentation, () => 4.2)).toBe(12);
     const before = matrixSnapshot(presentation);
 
     for (const elapsed of [0.25, 1.7, 8.4, 42]) {

@@ -34,13 +34,13 @@ import {
  * is therefore made from a different sky and a few additive light objects,
  * never from displaced, stretched or post-processed architecture.
  */
-export const SCHWELLENRAUM_SKY_COLOR = 0x9b939f;
+export const SCHWELLENRAUM_SKY_COLOR = 0x837e8b;
 
 export const SCHWELLENRAUM_LIGHT_TONES = [
-  0xe9c49d,
-  0xc4d7cf,
-  0xcab8d5,
-  0x8eb8b3,
+  0xe0b07f,
+  0xa8cbb7,
+  0xc1a4ca,
+  0x78a5aa,
 ] as const;
 
 export type SchwellenraumDetailProfile = "full" | "mobile";
@@ -312,16 +312,18 @@ function pushFrame(
   centerZ: number,
   tone: number,
   strength: number,
+  centerX = 0,
+  topShiftX = 0,
 ): void {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
   const halfDepth = 0.04;
   const corners = (z: number) =>
     [
-      [-halfWidth, centerY - halfHeight, z],
-      [halfWidth, centerY - halfHeight, z],
-      [halfWidth, centerY + halfHeight, z],
-      [-halfWidth, centerY + halfHeight, z],
+      [centerX - halfWidth, centerY - halfHeight, z],
+      [centerX + halfWidth, centerY - halfHeight, z],
+      [centerX + halfWidth + topShiftX, centerY + halfHeight, z],
+      [centerX - halfWidth + topShiftX, centerY + halfHeight, z],
     ] as const;
   const front = corners(centerZ + halfDepth);
   const back = corners(centerZ - halfDepth);
@@ -406,6 +408,12 @@ function createLichtschwelle(
   const lineColors: number[] = [];
   const echoCount = detailProfile === "mobile" ? 2 : 3;
   for (let echo = 0; echo < echoCount; echo += 1) {
+    const echoOffsetX =
+      echo === 0
+        ? 0
+        : Math.sin((index + 1) * 1.37 + echo * 0.91) * echo * 0.16;
+    const echoShearX =
+      echo === 0 ? 0 : (index % 2 === 0 ? 1 : -1) * echo * 0.22;
     pushFrame(
       linePositions,
       lineColors,
@@ -415,6 +423,8 @@ function createLichtschwelle(
       -echo * 0.68,
       echo === 0 ? mainTone : echoTone,
       1 - echo * 0.22,
+      echoOffsetX,
+      echoShearX,
     );
   }
   const ringCount = detailProfile === "mobile" ? 2 : 3;
@@ -454,6 +464,15 @@ function createLichtschwelle(
     -0.62,
     echoTone,
     0.48,
+  );
+  pushVeil(
+    veilPositions,
+    veilColors,
+    width * 0.72,
+    height * 1.04,
+    -1.52,
+    SCHWELLENRAUM_LIGHT_TONES[(index + 3) % 4],
+    0.26,
   );
   const veilGeometry = new BufferGeometry();
   veilGeometry.setAttribute(
@@ -498,6 +517,8 @@ function createLichtschwelle(
 
   group.userData.schwellenraumPraesentation = true;
   group.userData.schwellenraumStatic = true;
+  group.userData.uncannyFrameShearM = (echoCount - 1) * 0.22;
+  group.userData.veilLayerCount = 3;
   group.userData.kollision = "nur Licht; keine begehbare oder durchfliegbare Masse";
   // The outer floor-light torus is the widest accent. This radius lets the
   // source-data guard disable the complete threshold before a future mapped
@@ -522,6 +543,8 @@ export function createSchwellenraumPraesentation(
     new Color(tone).getHexString(),
   );
   root.userData.detailProfile = detailProfile;
+  root.userData.atmosphere =
+    "cold dissonant light with static misregistered frame echoes";
   root.userData.renderBudget = SCHWELLENRAUM_PRESENTATION_BUDGET[detailProfile];
   const assets: LichtschwelleAssets = {
     line: lineMaterial(0.22),

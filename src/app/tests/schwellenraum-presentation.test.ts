@@ -166,6 +166,8 @@ describe("Schwellenraum presentation", () => {
       expect(child.position).toEqual(new Vector3(profile.x, 0.12, profile.z));
       expect(child.userData.schwellenraumPraesentation).toBeTrue();
       expect(child.userData.schutzabstandM).toBeGreaterThan(35);
+      expect(child.userData.uncannyFrameShearM).toBeGreaterThan(0);
+      expect(child.userData.veilLayerCount).toBe(3);
     }
 
     expect(setSchwellenraumPraesentation(root, "schwellenraum", false)).toBeTrue();

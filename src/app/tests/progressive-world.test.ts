@@ -994,10 +994,12 @@ describe("progressive exact-world scheduling", () => {
     // remaining buildings are represented by one shared instanced shell. The
     // Source-bound Bode/Grill models now replace the two coarse envelopes;
     // their separate shared-instance budget is pinned in spree-museum-details.
+    // The Tiergarten edge adds inferred head strokes only to exact outward
+    // LoD2 walls in the existing facade-axis renderables.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(3_698_760);
-    expect(retainedBytes).toBe(53_361_056);
+    expect(vertices).toBe(3_701_348);
+    expect(retainedBytes).toBe(53_397_288);
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.
     expect(retainedBytes).toBeLessThanOrEqual(54_135_158);

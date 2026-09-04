@@ -16,19 +16,23 @@ import {
 } from "./MinecraftVoxelWorld";
 import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
 
-export const CREEPER_COUNT = 4;
-export const SKELETON_COUNT = 3;
-export const ZOMBIE_COUNT = 6;
+export const CREEPER_COUNT = 6;
+export const SKELETON_COUNT = 5;
+export const ZOMBIE_COUNT = 9;
 
 export type MinecraftMobDetailProfile = "full" | "mobile";
 
 /**
- * The desktop cast gains two zombies while the touch profile remains smaller
- * than the old desktop field. Both profiles stay in one instanced draw call.
+ * The fuller desktop cast and the still-reduced touch cast share one instanced
+ * draw call, so the added population does not add render-state changes.
  */
 export const MINECRAFT_MOB_BUDGETS = Object.freeze({
-  full: Object.freeze({ creeper: 4, skeleton: 3, zombie: ZOMBIE_COUNT }),
-  mobile: Object.freeze({ creeper: 3, skeleton: 2, zombie: 5 }),
+  full: Object.freeze({
+    creeper: CREEPER_COUNT,
+    skeleton: SKELETON_COUNT,
+    zombie: ZOMBIE_COUNT,
+  }),
+  mobile: Object.freeze({ creeper: 4, skeleton: 3, zombie: 7 }),
 });
 
 type MobKind = "creeper" | "skeleton" | "zombie";
@@ -100,15 +104,22 @@ const DESIRED_SPAWNS: ReadonlyArray<{
   { heading: 2.1, kind: "creeper", x: 80, z: 220 },
   { heading: 4.4, kind: "creeper", x: -130, z: 520 },
   { heading: 5.3, kind: "creeper", x: -420, z: 550 },
+  { heading: 1.8, kind: "creeper", x: 520, z: 600 },
+  { heading: 3.7, kind: "creeper", x: -620, z: 260 },
   { heading: 1.2, kind: "zombie", x: 245, z: 230 },
   { heading: 3.5, kind: "zombie", x: 360, z: 180 },
   { heading: 5.1, kind: "zombie", x: -260, z: 100 },
   { heading: 0.8, kind: "zombie", x: -500, z: 340 },
   { heading: 2.2, kind: "zombie", x: -120, z: 410 },
   { heading: 4.7, kind: "zombie", x: 470, z: 300 },
+  { heading: 0.5, kind: "zombie", x: 610, z: 210 },
+  { heading: 2.9, kind: "zombie", x: 220, z: 590 },
+  { heading: 5.8, kind: "zombie", x: -610, z: 460 },
   { heading: 2.7, kind: "skeleton", x: -40, z: 670 },
   { heading: 5.6, kind: "skeleton", x: 510, z: 460 },
   { heading: 4.1, kind: "skeleton", x: -330, z: 620 },
+  { heading: 1.4, kind: "skeleton", x: 340, z: 640 },
+  { heading: 3.3, kind: "skeleton", x: -580, z: 180 },
 ];
 
 function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {

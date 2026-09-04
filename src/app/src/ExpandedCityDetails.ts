@@ -4884,10 +4884,18 @@ function createWeltBalloonEnvelopeTexture(): Texture | null {
   // White technical fabric, with the restrained diamond seam net visible in
   // the reference photographs. Keeping the net inside a mipmapped texture
   // avoids thousands of sub-pixel cable meshes shimmering at skyline scale.
-  // The owner explicitly selected the white presentation livery; the current
-  // globe photography is therefore recorded as a reference, not copied.
+  // The owner explicitly selected the white presentation livery with two blue
+  // circumference stripes; the reference photography is not copied.
   context.fillStyle = "#f7f7f2";
   context.fillRect(0, 0, canvas.width, canvas.height);
+  const bandTop = 426;
+  const bandHeight = 172;
+  const stripeHeight = 82;
+  context.fillStyle = `#${WELT_BALLOON_PROFILE.envelopeBlueStripeColor
+    .toString(16)
+    .padStart(6, "0")}`;
+  context.fillRect(0, bandTop - stripeHeight, canvas.width, stripeHeight);
+  context.fillRect(0, bandTop + bandHeight, canvas.width, stripeHeight);
   context.strokeStyle = "rgba(151, 158, 158, 0.28)";
   context.lineWidth = 1.2;
   for (let x = -canvas.height; x < canvas.width + canvas.height; x += 42) {
@@ -4908,8 +4916,6 @@ function createWeltBalloonEnvelopeTexture(): Texture | null {
     context.stroke();
   }
 
-  const bandTop = 426;
-  const bandHeight = 172;
   context.fillStyle = "#fbfbf7";
   context.fillRect(0, bandTop, canvas.width, bandHeight);
   context.strokeStyle = "#222628";
@@ -4978,13 +4984,17 @@ function createWeltBalloon(
   nightMaterial.userData.nightEmissive = 0xf4f1e8;
   nightMaterial.userData.nightEmissiveIntensity = 0.52;
   const envelope = new Mesh(envelopeGeometry, dayMaterial);
-  envelope.name = "WELT Balloon white envelope with curved black lettering";
+  envelope.name =
+    "WELT Balloon white envelope with blue stripes and curved black lettering";
   envelope.position.set(point.x, envelopeCenterY, point.z);
   envelope.userData.dayMaterial = dayMaterial;
   envelope.userData.nightMaterial = nightMaterial;
   envelope.userData.lettering = "WELT";
   envelope.userData.letteringColor = 0x111416;
-  envelope.userData.livery = "white technical fabric with black lettering";
+  envelope.userData.stripeColor = profile.envelopeBlueStripeColor;
+  envelope.userData.stripeCount = profile.envelopeBlueStripeCount;
+  envelope.userData.livery =
+    "white technical fabric with two blue circumference stripes and black lettering";
   envelope.userData.fallbackWithoutCanvas = texture === null;
   group.add(envelope);
 

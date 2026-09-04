@@ -62,6 +62,7 @@ import {
   ROOF_SHED,
   ROOF_TENT,
   SOURCE_FACADE_IVORY_BLEND,
+  TIERGARTEN_PARK_EDGE_WORLD_M,
   roofRise,
   setIsoNightPresentation,
   windowGrid,
@@ -646,8 +647,11 @@ describe("ligne-claire fenestration", () => {
       "Europaplatz",
       "Washingtonplatz",
       "Hauptbahnhof-Umfeld",
+      "Großer Tiergarten-Parkrand",
     ]);
-    for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
+    for (const zone of PLAZA_FACADE_DETAIL_ZONES.filter(
+      ({ anchorPolygonWorldM }) => !anchorPolygonWorldM,
+    )) {
       const distance = (zone.minimumDistanceM + zone.radiusM) / 2;
       let offsetX = 0;
       let offsetZ = 1;
@@ -687,6 +691,44 @@ describe("ligne-claire fenestration", () => {
       expect(zone.facadeRhythm.floorPitch).toBeGreaterThanOrEqual(3.2);
       expect(zone.facadeRhythm.maximumDetailedStoreys).toBeLessThanOrEqual(18);
     }
+    const tiergartenZone = PLAZA_FACADE_DETAIL_ZONES.find(
+      ({ name }) => name === "Großer Tiergarten-Parkrand",
+    );
+    expect(tiergartenZone).toMatchObject({
+      anchorBoundsWorldM: [-2715.5, -126.4, 374.8, 1033.6],
+      anchorPolygonWorldM: TIERGARTEN_PARK_EDGE_WORLD_M,
+      exteriorOnly: true,
+      priority: 0,
+      sourceAnchor: "OSM relation 7643526",
+    });
+    expect(TIERGARTEN_PARK_EDGE_WORLD_M.length).toBeGreaterThan(40);
+    const southParkFacingWall: PrismWall = {
+      dirX: 1,
+      dirZ: 0,
+      index: 0,
+      isCourtyard: false,
+      length: 20,
+      nx: 0,
+      nz: -1,
+      x1: -910,
+      z1: 1060,
+    };
+    expect(
+      plazaFacadeDetailZoneForWall(southParkFacingWall)?.name,
+    ).toBe("Großer Tiergarten-Parkrand");
+    expect(
+      plazaFacadeDetailZoneForWall({
+        ...southParkFacingWall,
+        nz: 1,
+      }),
+    ).toBeNull();
+    expect(
+      plazaFacadeDetailZoneForWall({
+        ...southParkFacingWall,
+        x1: -910,
+        z1: 600,
+      }),
+    ).toBeNull();
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect(axes.userData.plazaFacadeDetails.zones).toEqual(
       PLAZA_FACADE_DETAIL_ZONES,
@@ -704,6 +746,9 @@ describe("ligne-claire fenestration", () => {
     // recognition-model shells are deliberately excluded from this generic pass.
     expect(detailedWallCounts["Potsdamer Platz"]).toBeGreaterThan(240);
     expect(detailedWallCounts["Tilla-Durieux-Park"]).toBeGreaterThan(200);
+    expect(
+      detailedWallCounts["Großer Tiergarten-Parkrand"],
+    ).toBeGreaterThan(250);
     expect(
       detailedWallCounts.Europaplatz +
         detailedWallCounts.Washingtonplatz +

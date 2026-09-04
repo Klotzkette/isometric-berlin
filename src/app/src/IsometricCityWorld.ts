@@ -2470,11 +2470,14 @@ export type PrismWall = {
 };
 
 export type PlazaFacadeDetailZone = {
+  anchorBoundsWorldM?: readonly [number, number, number, number];
   anchorLineWorldM?: readonly [
     readonly [number, number],
     readonly [number, number],
   ];
+  anchorPolygonWorldM?: readonly (readonly [number, number])[];
   centreWorldM: readonly [number, number];
+  exteriorOnly?: boolean;
   facadeRhythm: WindowFormat & {
     character: string;
     maximumDetailedStoreys: number;
@@ -2557,6 +2560,78 @@ const BREITSCHEIDPLATZ_RHYTHM = {
   sillStart: 1.05,
   width: 1.25,
 } as const;
+
+const TIERGARTEN_PARK_EDGE_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character:
+    "mixed diplomatic, civic, cultural and residential park-edge frontage",
+  floorPitch: 3.4,
+  height: 2.2,
+  maximumDetailedStoreys: 12,
+  sillStart: 1.08,
+  width: 1.2,
+} as const;
+
+/**
+ * Display-scale outer envelope of OSM relation 7643526 (Großer Tiergarten).
+ *
+ * The six road-separated source polygons were closed by 30 m and their outer
+ * boundary simplified by 20 m before conversion from EPSG:25833 into viewer
+ * metres. This small ring is only a facade-facing classifier: the committed
+ * exact OSM park surfaces remain the visible geometry and source of truth.
+ */
+export const TIERGARTEN_PARK_EDGE_WORLD_M = [
+  [-2715.5, 614.7],
+  [-2707.4, 592.3],
+  [-2285.3, 550.2],
+  [-2279, 417.8],
+  [-2221, 327.7],
+  [-1962.8, 346.9],
+  [-1866.9, 280.7],
+  [-1781.8, 281.6],
+  [-1749.4, 223.4],
+  [-1856.6, 140.1],
+  [-1827.2, 113.7],
+  [-1838.1, 3.9],
+  [-1810.4, 36.1],
+  [-1739.6, 29.2],
+  [-1727.5, 87.7],
+  [-1659.6, 83],
+  [-1637.2, -46],
+  [-1673.6, -91.1],
+  [-1616.1, -74.8],
+  [-1569.1, -126.4],
+  [-1448.8, -118.9],
+  [-1371.9, -47.8],
+  [-1540.8, -84.8],
+  [-1600.8, 81],
+  [-1428.3, 166.3],
+  [-1455.6, 255.8],
+  [-1341.7, 337.4],
+  [-1132.3, 185.2],
+  [-930.6, 199.1],
+  [-662.9, 127.3],
+  [-166.7, 175.4],
+  [-99.3, 132],
+  [352.4, 145.9],
+  [370.5, 214.5],
+  [301.1, 303],
+  [374.8, 393.4],
+  [327.2, 704.9],
+  [275, 757.7],
+  [13.8, 831.7],
+  [-53.9, 805],
+  [-73.6, 861.6],
+  [-593.5, 989.5],
+  [-1384, 974.6],
+  [-1491.3, 1024.7],
+  [-1720.9, 958],
+  [-1787.8, 863.1],
+  [-1946.5, 1033.6],
+  [-2246.7, 860.2],
+  [-2462.1, 624.2],
+  [-2715.5, 614.7],
+] as const;
 
 const EUROPAPLATZ_CENTRE_WORLD_M = [-116, -1002] as const;
 const WASHINGTONPLATZ_CENTRE_WORLD_M = [
@@ -2709,25 +2784,96 @@ export const PLAZA_FACADE_DETAIL_ZONES: readonly PlazaFacadeDetailZone[] = [
     radiusM: 215,
     sourceAnchor: "committed Europaplatz and Washingtonplatz centres",
   },
+  {
+    anchorBoundsWorldM: [-2715.5, -126.4, 374.8, 1033.6],
+    anchorPolygonWorldM: TIERGARTEN_PARK_EDGE_WORLD_M,
+    centreWorldM: [-989.418, 562.213],
+    exteriorOnly: true,
+    facadeRhythm: TIERGARTEN_PARK_EDGE_RHYTHM,
+    geometryStatus:
+      "display-scale outer envelope of exact OSM relation 7643526; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 8,
+    minimumFacingCosine: 0.22,
+    name: "Großer Tiergarten-Parkrand",
+    priority: 0,
+    radiusM: 135,
+    sourceAnchor: "OSM relation 7643526",
+  },
 ] as const;
+
+function nearestPointOnPolyline(
+  points: readonly (readonly [number, number])[],
+  x: number,
+  z: number,
+): readonly [number, number] {
+  if (points.length < 2) return points[0] ?? [x, z];
+  let closestX = points[0][0];
+  let closestZ = points[0][1];
+  let closestDistanceSquared = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const [startX, startZ] = points[index];
+    const [endX, endZ] = points[index + 1];
+    const axisX = endX - startX;
+    const axisZ = endZ - startZ;
+    const lengthSquared = axisX * axisX + axisZ * axisZ;
+    const amount =
+      lengthSquared <= 1e-6
+        ? 0
+        : Math.min(
+            1,
+            Math.max(
+              0,
+              ((x - startX) * axisX + (z - startZ) * axisZ) / lengthSquared,
+            ),
+          );
+    const candidateX = startX + axisX * amount;
+    const candidateZ = startZ + axisZ * amount;
+    const dx = candidateX - x;
+    const dz = candidateZ - z;
+    const distanceSquared = dx * dx + dz * dz;
+    if (distanceSquared < closestDistanceSquared) {
+      closestX = candidateX;
+      closestZ = candidateZ;
+      closestDistanceSquared = distanceSquared;
+    }
+  }
+  return [closestX, closestZ];
+}
+
+function pointInsidePolygon(
+  polygon: readonly (readonly [number, number])[],
+  x: number,
+  z: number,
+): boolean {
+  let inside = false;
+  for (
+    let index = 0, previous = polygon.length - 1;
+    index < polygon.length;
+    previous = index, index += 1
+  ) {
+    const [x1, z1] = polygon[index];
+    const [x2, z2] = polygon[previous];
+    if (
+      z1 > z !== z2 > z &&
+      x < ((x2 - x1) * (z - z1)) / (z2 - z1) + x1
+    ) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
 
 function nearestZoneAnchor(
   zone: PlazaFacadeDetailZone,
   x: number,
   z: number,
 ): readonly [number, number] {
+  if (zone.anchorPolygonWorldM) {
+    return nearestPointOnPolyline(zone.anchorPolygonWorldM, x, z);
+  }
   const line = zone.anchorLineWorldM;
   if (!line) return zone.centreWorldM;
-  const [[startX, startZ], [endX, endZ]] = line;
-  const axisX = endX - startX;
-  const axisZ = endZ - startZ;
-  const lengthSquared = axisX * axisX + axisZ * axisZ;
-  if (lengthSquared <= 1e-6) return zone.centreWorldM;
-  const amount = Math.min(
-    1,
-    Math.max(0, ((x - startX) * axisX + (z - startZ) * axisZ) / lengthSquared),
-  );
-  return [startX + axisX * amount, startZ + axisZ * amount];
+  return nearestPointOnPolyline(line, x, z);
 }
 
 export function plazaFacadeDetailZoneForWall(
@@ -2740,6 +2886,23 @@ export function plazaFacadeDetailZoneForWall(
   let closestDistance = Number.POSITIVE_INFINITY;
   let closestPriority = Number.NEGATIVE_INFINITY;
   for (const zone of PLAZA_FACADE_DETAIL_ZONES) {
+    const bounds = zone.anchorBoundsWorldM;
+    if (
+      bounds &&
+      (midpointX < bounds[0] - zone.radiusM ||
+        midpointZ < bounds[1] - zone.radiusM ||
+        midpointX > bounds[2] + zone.radiusM ||
+        midpointZ > bounds[3] + zone.radiusM)
+    ) {
+      continue;
+    }
+    if (
+      zone.exteriorOnly &&
+      zone.anchorPolygonWorldM &&
+      pointInsidePolygon(zone.anchorPolygonWorldM, midpointX, midpointZ)
+    ) {
+      continue;
+    }
     const anchor = nearestZoneAnchor(zone, midpointX, midpointZ);
     const dx = anchor[0] - midpointX;
     const dz = anchor[1] - midpointZ;

@@ -837,6 +837,10 @@ export function App() {
     () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
   );
+  const pedestrianMapUrl = useMemo(
+    () => assetPath("dzi/regierungsviertel/pedestrian_map.png"),
+    [],
+  );
   const startupBackdropUrl = useMemo(
     () =>
       assetPath(
@@ -3899,7 +3903,7 @@ export function App() {
       {viewerMode === "three" && isPedestrianMode && !isChromeHidden ? (
         <PedestrianMiniMap
           ref={pedestrianMiniMapRef}
-          imageUrl={referenceMapUrl}
+          imageUrl={pedestrianMapUrl}
           initialPose={latestPedestrianPoseRef.current}
           language={language}
           northUpRotation={NORTH_UP_ROTATION}

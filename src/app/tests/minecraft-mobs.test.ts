@@ -46,32 +46,35 @@ const compactWalkabilityFixture: VoxelPayload = {
 };
 
 describe("Minecraft roaming mobs", () => {
-  test("builds a sparse mix of creepers, skeletons and zombies in one draw call", () => {
+  test("builds a richer mix of creepers, skeletons and zombies in one draw call", () => {
     const field = createMinecraftMobs(payload, false);
 
     expect(field.creeperCount).toBe(CREEPER_COUNT);
     expect(field.skeletonCount).toBe(SKELETON_COUNT);
     expect(field.zombieCount).toBe(ZOMBIE_COUNT);
-    expect(field.creeperCount).toBe(4);
-    expect(field.skeletonCount).toBe(3);
-    expect(field.zombieCount).toBe(6);
+    expect(field.creeperCount).toBe(6);
+    expect(field.skeletonCount).toBe(5);
+    expect(field.zombieCount).toBe(9);
     expect(field.mobs).toHaveLength(
       CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT,
     );
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
     expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBeLessThan(170);
-    expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(3);
+    expect(field.mesh.count).toBe(245);
+    expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(5);
     expect(
       field.parts.filter((part) => part.color === 0xd9d8c8).length,
-    ).toBeGreaterThanOrEqual(24);
+    ).toBeGreaterThanOrEqual(40);
     expect(
       field.parts.filter((part) => part.color === 0x76502f).length,
-    ).toBe(9);
+    ).toBe(15);
     expect(
       field.parts.filter((part) => part.color === 0x18251b).length,
-    ).toBeGreaterThanOrEqual(30);
+    ).toBeGreaterThanOrEqual(55);
+    expect(
+      new Set(field.mobs.map(({ x, z }) => `${x}:${z}`)).size,
+    ).toBe(field.mobs.length);
   });
 
   test("uses a smaller but still zombie-richer one-draw-call mobile cast", () => {
@@ -81,12 +84,14 @@ describe("Minecraft roaming mobs", () => {
     expect(field.creeperCount).toBe(budget.creeper);
     expect(field.skeletonCount).toBe(budget.skeleton);
     expect(field.zombieCount).toBe(budget.zombie);
-    expect(field.zombieCount).toBeGreaterThan(4);
+    expect(field.creeperCount).toBeGreaterThan(3);
+    expect(field.skeletonCount).toBeGreaterThan(2);
+    expect(field.zombieCount).toBeGreaterThan(5);
     expect(field.mobs).toHaveLength(
       budget.creeper + budget.skeleton + budget.zombie,
     );
     expect(field.group.children).toHaveLength(1);
-    expect(field.mesh.count).toBeLessThan(140);
+    expect(field.mesh.count).toBe(169);
   });
 
   test("spawns and keeps every walker on open park grass", () => {

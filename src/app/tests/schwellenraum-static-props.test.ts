@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Group } from "three";
+import { Group, Mesh } from "three";
 
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
@@ -16,13 +16,13 @@ const street = streetDetails as unknown as StreetDetailsPayload;
 const groundAt = () => 4.2;
 
 describe("Schwellenraum fixed solid props", () => {
-  test("installs a sparse deterministic furniture and appliance inventory", () => {
+  test("installs a restrained but stranger furniture and appliance inventory", () => {
     const root = new Group();
-    expect(SCHWELLENRAUM_STATIC_VIGNETTES).toHaveLength(4);
-    expect(installSchwellenraumStaticProps(root, groundAt)).toBe(9);
+    expect(SCHWELLENRAUM_STATIC_VIGNETTES).toHaveLength(6);
+    expect(installSchwellenraumStaticProps(root, groundAt)).toBe(12);
     expect(installSchwellenraumStaticProps(root, groundAt)).toBe(0);
-    expect(root.children).toHaveLength(4);
-    expect(root.userData.schwellenraumStaticPropCount).toBe(9);
+    expect(root.children).toHaveLength(6);
+    expect(root.userData.schwellenraumStaticPropCount).toBe(12);
 
     const kinds = new Set(
       SCHWELLENRAUM_STATIC_VIGNETTES.flatMap((vignette) =>
@@ -33,6 +33,19 @@ describe("Schwellenraum fixed solid props", () => {
     expect(kinds).toContain("chair");
     expect(kinds).toContain("refrigerator");
     expect(kinds).toContain("washing-machine");
+    expect(kinds).toContain("bed");
+    expect(kinds).toContain("television");
+    expect(kinds).toContain("wardrobe");
+    let renderables = 0;
+    root.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      renderables += 1;
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      expect(materials.every((entry) => entry.map === null)).toBeTrue();
+    });
+    expect(renderables).toBe(38);
     for (const vignette of root.children) {
       expect(vignette.userData.schwellenraumPraesentation).toBeTrue();
       expect(vignette.userData.schwellenraumStatic).toBeTrue();

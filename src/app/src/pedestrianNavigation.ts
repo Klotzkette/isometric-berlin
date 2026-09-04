@@ -73,6 +73,8 @@ export type PedestrianState = {
 export type PedestrianSpawn = {
   groundYHint?: number;
   pitch?: number;
+  /** Direct flight-to-walk transitions retain X/Z and only descend. */
+  preserveHorizontalPosition?: boolean;
   x: number;
   yaw: number;
   z: number;
@@ -225,8 +227,13 @@ export function pedestrianSpawnFromView(
     {
       groundYHint: cameraPosition.y - PEDESTRIAN_EYE_HEIGHT_M,
       point: cameraPosition,
+      preserveHorizontalPosition: true,
     },
-    { groundYHint: focusPoint.y, point: focusPoint },
+    {
+      groundYHint: focusPoint.y,
+      point: focusPoint,
+      preserveHorizontalPosition: false,
+    },
   ];
   const selected = candidates.find(({ point }) => {
     return (
@@ -247,6 +254,9 @@ export function pedestrianSpawnFromView(
       ? selected.groundYHint
       : undefined,
     pitch: Math.asin(clamp(viewDirection.y, -1, 1)),
+    ...(selected.preserveHorizontalPosition
+      ? { preserveHorizontalPosition: true }
+      : {}),
     x: selected.point.x,
     yaw:
       horizontalLength > 1e-6
@@ -743,6 +753,21 @@ function squaredDistanceToRing(
   return nearest;
 }
 
+function pointIsInsidePolygonObstacle(
+  x: number,
+  z: number,
+  obstacle: PedestrianPolygonObstacle,
+): boolean {
+  const sourceX = x / obstacle.coordinateScale;
+  const sourceZ = z / obstacle.coordinateScale;
+  if (!pointInPedestrianRing(sourceX, sourceZ, obstacle.ring)) {
+    return false;
+  }
+  return !obstacle.holes.some((hole) =>
+    pointInPedestrianRing(sourceX, sourceZ, hole),
+  );
+}
+
 function pointTouchesPolygonObstacle(
   x: number,
   z: number,
@@ -768,6 +793,36 @@ function pointTouchesPolygonObstacle(
     }
   }
   return true;
+}
+
+/** Highest LoD2 roof directly below an eye-height hint at one exact X/Z. */
+function pedestrianRoofGroundAt(
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  ceilingY: number | undefined,
+): number | null {
+  const obstacles = environment.obstacles;
+  if (!obstacles || !Number.isFinite(ceilingY)) return null;
+  const key = pedestrianObstacleCellKey(
+    Math.floor(x / obstacles.cellSizeM),
+    Math.floor(z / obstacles.cellSizeM),
+  );
+  const nearbyObstacles = obstacles.cells.get(key);
+  if (!nearbyObstacles) return null;
+  let highest = Number.NEGATIVE_INFINITY;
+  for (const obstacle of nearbyObstacles) {
+    if (
+      obstacle.kind !== "polygon" ||
+      !obstacle.sourceId ||
+      obstacle.maxY > ceilingY! + 0.05 ||
+      !pointIsInsidePolygonObstacle(x, z, obstacle)
+    ) {
+      continue;
+    }
+    highest = Math.max(highest, obstacle.maxY);
+  }
+  return Number.isFinite(highest) ? highest : null;
 }
 
 function pedestrianBodyTouchesProtectedVolume(
@@ -1092,6 +1147,10 @@ function resolvePedestrianGround(
   groundYHint?: number,
 ): PedestrianGround | null {
   if (currentLayer !== "tunnel") {
+    const roofY = pedestrianRoofGroundAt(environment, x, z, groundYHint);
+    if (roofY !== null) {
+      return { insideTunnel: false, layer: "surface", y: roofY };
+    }
     const interiorY = environment.interiorGroundAt?.(x, z, groundYHint);
     if (typeof interiorY === "number" && Number.isFinite(interiorY)) {
       return { insideTunnel: false, layer: "surface", y: interiorY };
@@ -1259,8 +1318,23 @@ export function createPedestrianState(
   const initialSpawn =
     requestedGround === null ? PEDESTRIAN_RESPAWN : requestedSpawn;
   const initialGround = requestedGround ?? fallbackGround;
+  const verticalDropTouchesProtectedVolume =
+    requestedGround !== null &&
+    environment.protectedVolumeAt !== undefined &&
+    pedestrianBodyTouchesProtectedVolume(
+      requestedSpawn.x,
+      requestedSpawn.z,
+      requestedGround.y,
+      environment.protectedVolumeAt,
+    );
+  const keepVerticalDrop =
+    requestedGround !== null &&
+    requestedSpawn.preserveHorizontalPosition === true &&
+    !verticalDropTouchesProtectedVolume;
   const clear = initialGround
-    ? nearestClearPedestrianSpawn(environment, initialSpawn, initialGround)
+    ? keepVerticalDrop
+      ? { ground: initialGround, spawn: initialSpawn }
+      : nearestClearPedestrianSpawn(environment, initialSpawn, initialGround)
     : null;
   const spawn = clear?.spawn ?? initialSpawn;
   const resolvedGround = clear?.ground ?? initialGround;

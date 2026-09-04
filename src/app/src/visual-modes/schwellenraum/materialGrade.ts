@@ -9,10 +9,10 @@ import {
 import type { VisualMode } from "../../visualMode";
 
 export const SCHWELLENRAUM_MATERIAL_GRADE = {
-  saturation: 0.32,
-  shadowLift: [0.04, 0.018, 0.055] as const,
-  strength: 0.82,
-  tint: [0.96, 0.89, 1.02] as const,
+  saturation: 0.28,
+  shadowLift: [0.026, 0.038, 0.052] as const,
+  strength: 0.85,
+  tint: [0.93, 0.97, 1.04] as const,
 } as const;
 
 type PatchableShader = {
@@ -59,7 +59,7 @@ export function schwellenraumMaterialFor(
     patchable.fragmentShader = gradeFragmentShader(patchable.fragmentShader);
   };
   material.customProgramCacheKey = () =>
-    `${previousProgramCacheKey}|schwellenraum-material-grade-v1`;
+    `${previousProgramCacheKey}|schwellenraum-material-grade-v2`;
   material.needsUpdate = true;
   object.userData.schwellenraumMaterial = material;
   return material;

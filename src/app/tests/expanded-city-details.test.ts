@@ -359,18 +359,21 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.sources).toHaveLength(5);
   });
 
-  test("adds company signs and curved black WELT balloon lettering", () => {
+  test("adds company signs and the blue-striped WELT balloon livery", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("KPMG side lettering")).toBeDefined();
     expect(details.getObjectByName("DKB rooftop lettering")).toBeDefined();
     const envelope = details.getObjectByName(
-      "WELT Balloon white envelope with curved black lettering",
+      "WELT Balloon white envelope with blue stripes and curved black lettering",
     ) as Mesh;
     expect(envelope).toBeInstanceOf(Mesh);
     expect(envelope.userData.lettering).toBe("WELT");
     expect(envelope.userData.letteringColor).toBe(0x111416);
     expect(envelope.userData.livery).toContain("white");
+    expect(envelope.userData.livery).toContain("blue");
+    expect(envelope.userData.stripeColor).toBe(0x0b63a1);
+    expect(envelope.userData.stripeCount).toBe(2);
     expect(details.getObjectByName("WELT rooftop lettering")).toBeUndefined();
     expect(
       details.getObjectByName("AMANO Grand Central facade lettering"),
@@ -781,6 +784,8 @@ describe("task-10 expanded city recognition details", () => {
     expect(WELT_BALLOON_PROFILE.gondolaDiameterM).toBeCloseTo(5.9, 2);
     expect(WELT_BALLOON_PROFILE.tetherDiameterM).toBeCloseTo(0.022, 3);
     expect(WELT_BALLOON_PROFILE.repeatedWordCount).toBe(4);
+    expect(WELT_BALLOON_PROFILE.envelopeBlueStripeColor).toBe(0x0b63a1);
+    expect(WELT_BALLOON_PROFILE.envelopeBlueStripeCount).toBe(2);
     expect(WELT_BALLOON_PROFILE.visualReferences).toHaveLength(2);
     expect(
       WELT_BALLOON_PROFILE.visualReferences.every(

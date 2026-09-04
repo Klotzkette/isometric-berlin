@@ -1,11 +1,15 @@
 import {
   BoxGeometry,
+  BufferGeometry,
+  Color,
   CylinderGeometry,
   Group,
   Mesh,
   MeshStandardMaterial,
   type Object3D,
+  Uint8BufferAttribute,
 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { schwellenraumProtectedMemorialClearanceM } from "../../schwellenraumMemorialProtection";
 import type { SchwellenraumMemorialProtectionIndex } from "../../schwellenraumMemorialProtection";
@@ -13,11 +17,14 @@ import type { SchwellenraumMemorialProtectionIndex } from "../../schwellenraumMe
 type GroundAt = (x: number, z: number) => number | null;
 
 export type SchwellenraumPropKind =
+  | "bed"
   | "chair"
   | "floor-lamp"
   | "refrigerator"
   | "side-table"
   | "sofa"
+  | "television"
+  | "wardrobe"
   | "washing-machine";
 
 export type SchwellenraumStaticProp = {
@@ -40,7 +47,7 @@ export type SchwellenraumStaticVignette = {
 };
 
 /**
- * Four deliberately sparse, fixed vignettes at already-audited non-memorial
+ * Six deliberately sparse, fixed vignettes at already-audited non-memorial
  * threshold sites. Coordinates share the exact world frame used by the
  * source-derived city; terrain elevation is sampled at runtime.
  */
@@ -162,10 +169,100 @@ export const SCHWELLENRAUM_STATIC_VIGNETTES: readonly SchwellenraumStaticVignett
       },
     ],
   },
+  {
+    id: "futurium-vorfeld",
+    name: "Futurium Vorfeld verlassenes Bett",
+    rotationY: -0.12,
+    x: 170,
+    z: -580,
+    props: [
+      {
+        color: 0xc2c7b4,
+        id: "empty-single-bed",
+        kind: "bed",
+        localX: 0,
+        localZ: 0,
+        rotationY: 0.16,
+        sizeM: [2.18, 0.84, 1.02],
+      },
+    ],
+  },
+  {
+    id: "hkw-vorfeld",
+    name: "Haus der Kulturen Vorfeld stumme Medienwand",
+    rotationY: -0.42,
+    x: -540,
+    z: 20,
+    props: [
+      {
+        color: 0x81776f,
+        id: "ajar-wardrobe",
+        kind: "wardrobe",
+        localX: -0.9,
+        localZ: 0,
+        rotationY: -0.08,
+        sizeM: [1.35, 2.05, 0.62],
+      },
+      {
+        color: 0x4f5352,
+        id: "silent-television",
+        kind: "television",
+        localX: 1.02,
+        localZ: 0.16,
+        rotationY: 0.22,
+        sizeM: [1.12, 1.22, 0.58],
+      },
+    ],
+  },
 ] as const;
 
 function material(color: number, roughness = 0.74): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, metalness: 0.04, roughness });
+}
+
+type ColoredBoxPart = {
+  color: number;
+  position: readonly [number, number, number];
+  rotationY?: number;
+  size: readonly [number, number, number];
+};
+
+/** Merge a multi-part prop into one colour-aware mesh and one draw call. */
+function mergedBoxProp(name: string, parts: readonly ColoredBoxPart[]): Mesh {
+  const geometries = parts.map((part) => {
+    const geometry = new BoxGeometry(...part.size);
+    if (part.rotationY) geometry.rotateY(part.rotationY);
+    geometry.translate(...part.position);
+    geometry.deleteAttribute("uv");
+    const color = new Color(part.color);
+    const position = geometry.getAttribute("position");
+    const colors = new Uint8Array(position.count * 3);
+    for (let index = 0; index < position.count; index += 1) {
+      colors[index * 3] = Math.round(color.r * 255);
+      colors[index * 3 + 1] = Math.round(color.g * 255);
+      colors[index * 3 + 2] = Math.round(color.b * 255);
+    }
+    geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
+    return geometry;
+  });
+  const geometry = mergeGeometries(geometries, false) ?? new BufferGeometry();
+  for (const part of geometries) part.dispose();
+  const mesh = new Mesh(
+    geometry,
+    new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0.02,
+      roughness: 0.82,
+      vertexColors: true,
+    }),
+  );
+  mesh.name = name;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData.schwellenraumSolid = true;
+  mesh.userData.schwellenraumStatic = true;
+  mesh.userData.textureFree = true;
+  return mesh;
 }
 
 function box(
@@ -323,17 +420,147 @@ function createAppliance(profile: SchwellenraumStaticProp): Group {
   return group;
 }
 
+function createBed(profile: SchwellenraumStaticProp): Group {
+  const [width, height, depth] = profile.sizeM;
+  const group = new Group();
+  group.add(
+    mergedBoxProp(`${profile.id} batched empty bed`, [
+      {
+        color: 0x665f59,
+        position: [0, 0.13, 0],
+        size: [width, 0.26, depth],
+      },
+      {
+        color: profile.color,
+        position: [0.05, height * 0.46, 0],
+        size: [width * 0.9, height * 0.42, depth * 0.88],
+      },
+      {
+        color: 0x756d66,
+        position: [-width * 0.47, height * 0.5, 0],
+        size: [0.12, height, depth],
+      },
+      {
+        color: 0xd6d1c4,
+        position: [-width * 0.28, height * 0.72, 0],
+        rotationY: -0.08,
+        size: [width * 0.28, 0.13, depth * 0.58],
+      },
+      {
+        color: 0x8f8299,
+        position: [width * 0.3, height * 0.69, 0],
+        size: [width * 0.32, 0.07, depth * 0.91],
+      },
+    ]),
+  );
+  return group;
+}
+
+function createWardrobe(profile: SchwellenraumStaticProp): Group {
+  const [width, height, depth] = profile.sizeM;
+  const group = new Group();
+  group.add(
+    mergedBoxProp(`${profile.id} batched ajar wardrobe`, [
+      {
+        color: profile.color,
+        position: [0, height / 2, -depth * 0.07],
+        size: [width, height, depth * 0.78],
+      },
+      {
+        color: 0x5f5751,
+        position: [0, 0.06, 0],
+        size: [width * 1.04, 0.12, depth * 0.92],
+      },
+      {
+        color: 0x968b80,
+        position: [-width * 0.245, height * 0.52, depth * 0.38],
+        size: [width * 0.47, height * 0.88, 0.06],
+      },
+      {
+        color: 0x8b8077,
+        position: [width * 0.28, height * 0.52, depth * 0.42],
+        rotationY: 0.24,
+        size: [width * 0.47, height * 0.88, 0.06],
+      },
+      {
+        color: 0x3f3a36,
+        position: [-0.035, height * 0.53, depth * 0.43],
+        size: [0.035, 0.18, 0.035],
+      },
+    ]),
+  );
+  return group;
+}
+
+function createTelevision(profile: SchwellenraumStaticProp): Group {
+  const [width, height, depth] = profile.sizeM;
+  const group = new Group();
+  group.add(
+    mergedBoxProp(`${profile.id} batched television cabinet`, [
+      {
+        color: profile.color,
+        position: [0, height * 0.65, 0],
+        size: [width, height * 0.66, depth],
+      },
+      {
+        color: 0x403d3b,
+        position: [0, height * 0.08, 0],
+        size: [width * 0.48, 0.11, depth * 0.62],
+      },
+      {
+        color: 0x403d3b,
+        position: [0, height * 0.3, 0],
+        size: [0.12, height * 0.4, 0.12],
+      },
+      {
+        color: 0x202526,
+        position: [width * 0.11, height * 0.68, depth * 0.53],
+        size: [0.025, height * 0.48, 0.025],
+      },
+    ]),
+  );
+  const screenMaterial = material(0x9fb5ac, 0.38);
+  screenMaterial.emissive.setHex(0x91c4b3);
+  screenMaterial.emissiveIntensity = 0.48;
+  const screen = new Mesh(
+    new BoxGeometry(width * 0.78, height * 0.46, 0.035),
+    screenMaterial,
+  );
+  screen.name = `${profile.id} fixed blank phosphor screen`;
+  screen.position.set(0, height * 0.68, depth / 2 + 0.025);
+  screen.userData.schwellenraumStatic = true;
+  screen.userData.textureFree = true;
+  group.add(screen);
+  return group;
+}
+
 function createProp(profile: SchwellenraumStaticProp): Group {
-  const group =
-    profile.kind === "sofa"
-      ? createSofa(profile)
-      : profile.kind === "chair"
-        ? createChair(profile)
-        : profile.kind === "side-table"
-          ? createSideTable(profile)
-          : profile.kind === "floor-lamp"
-            ? createFloorLamp(profile)
-            : createAppliance(profile);
+  let group: Group;
+  switch (profile.kind) {
+    case "bed":
+      group = createBed(profile);
+      break;
+    case "chair":
+      group = createChair(profile);
+      break;
+    case "floor-lamp":
+      group = createFloorLamp(profile);
+      break;
+    case "side-table":
+      group = createSideTable(profile);
+      break;
+    case "sofa":
+      group = createSofa(profile);
+      break;
+    case "television":
+      group = createTelevision(profile);
+      break;
+    case "wardrobe":
+      group = createWardrobe(profile);
+      break;
+    default:
+      group = createAppliance(profile);
+  }
   group.name = `Schwellenraum fixed ${profile.kind} ${profile.id}`;
   group.position.set(profile.localX, 0, profile.localZ);
   group.rotation.y = profile.rotationY;

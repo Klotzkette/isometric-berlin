@@ -13,6 +13,9 @@ describe("Schwellenraum material-integrated colour grade", () => {
     expect(SCHWELLENRAUM_MATERIAL_GRADE.saturation).toBeGreaterThan(0.25);
     expect(SCHWELLENRAUM_MATERIAL_GRADE.saturation).toBeLessThan(0.4);
     expect(SCHWELLENRAUM_MATERIAL_GRADE.strength).toBeLessThanOrEqual(0.85);
+    expect(SCHWELLENRAUM_MATERIAL_GRADE.tint[2]).toBeGreaterThan(
+      SCHWELLENRAUM_MATERIAL_GRADE.tint[0],
+    );
     const source = "vec3 outgoingLight = diffuseColor.rgb;\n#include <opaque_fragment>";
     const patched = schwellenraumGradeFragmentShaderForTest(source);
     expect(patched).toContain("schwellenraumLuma");

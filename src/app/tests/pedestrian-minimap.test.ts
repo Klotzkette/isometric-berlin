@@ -6,7 +6,19 @@ import {
   worldToReferenceMapPoint,
 } from "../src/pedestrianMiniMapProjection";
 
+const appSource = await Bun.file(
+  new URL("../src/App.tsx", import.meta.url),
+).text();
+
 describe("pedestrian minimap projection", () => {
+  test("uses its marker-free map instead of the numbered reference plate", () => {
+    expect(appSource).toContain(
+      'assetPath("dzi/regierungsviertel/pedestrian_map.png")',
+    );
+    expect(appSource).toContain("imageUrl={pedestrianMapUrl}");
+    expect(appSource).toContain("src={referenceMapUrl}");
+  });
+
   test("keeps the top-down reference map north-up", () => {
     const center = worldToReferenceMapPoint(0, 0);
     const east = worldToReferenceMapPoint(100, 0);
