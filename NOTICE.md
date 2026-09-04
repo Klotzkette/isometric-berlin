@@ -95,6 +95,25 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   (CC BY-SA 4.0). No photograph is bundled, projected, traced or used as a
   facade texture.
 
+- **Unter den Linden and Wilhelmstraße recognition facades:** Berlin LoD2
+  parents `DEBE01YYK00001KP`, `DEBE01YYK00003En`, `DEBE01YYK00001vY`,
+  `DEBE01YYK0000A6r` and `DEBE01YYK00002Es` remain the metric building
+  anchors. OSM relation `24516`, node `514864739`, way `195071820` and nodes
+  `1412218896` and `1665158255` retain the identities of the British Embassy,
+  Russian Embassy, Aeroflot / Russian Trade Mission, Cafe Einstein and
+  Dussmann. The [Einstein Unter den Linden site](https://www.einstein-udl.com/)
+  and [Dussmann imprint](https://www.kulturkaufhaus.de/de/service/impressum)
+  support address context. Bay spacing, masonry courses, signs and colour
+  fields are bounded procedural display details.
+  External visual QA: Jörg Zägel,
+  [British Embassy](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Wilhelmstrasse,_Botschaft_Grossbritannien.jpg),
+  [Russian Embassy](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_55-65,_Russische_Botschaft.jpg) and
+  [Russian Trade Mission](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_51-53,_Handelvertretung_der_Russischen_Foederation.jpg)
+  (each CC BY-SA 3.0); JoachimKohler-HB,
+  [Dussmann KulturKaufhaus 2026](https://commons.wikimedia.org/wiki/File:Dussmann_Das_Kulturkaufhaus_in_Berlin_(2026).jpg)
+  (CC BY-SA 4.0). Per-file credits accompany the viewer. No photograph, crop
+  or image texture is bundled or loaded.
+
 - **Center / former Sony Center and TIPI am Kanzleramt (architectural
   evidence):** the
   [Arup Journal engineering report](https://www.arup.com/globalassets/downloads/arup-journal/the-arup-journal-2000-issue-2.pdf),

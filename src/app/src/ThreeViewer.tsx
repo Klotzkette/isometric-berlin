@@ -3001,9 +3001,10 @@ function ensureIsoWorld(
   let progressiveSnapshot: ProgressiveWorldSnapshot | null = null;
   let originalIsoWorld: Group | null = null;
   let originalTrafficSignals: Group | null | undefined;
-  // Keep the source profile and its 6,000 close-detail instances out of the
-  // core viewer parse; this small module downloads alongside the five data files.
+  // Keep the source profiles and their repeated facade instances out of the
+  // core viewer parse; these small modules download beside the five data files.
   const spreeDetails = import("./SpreeMuseumDetails");
+  const unterDenLindenDetails = import("./UnterDenLindenDetails");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3011,8 +3012,9 @@ function ensureIsoWorld(
     tracked(fetchSurfacePayload(runtime)).catch(() => null),
     tracked(fetchRailPayload(runtime)).catch(() => null),
     spreeDetails,
+    unterDenLindenDetails,
   ])
-    .then(([prisms, ground, street, surfaces, rail, spree]) => {
+    .then(([prisms, ground, street, surfaces, rail, spree, unterDenLinden]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3202,6 +3204,7 @@ function ensureIsoWorld(
         },
       );
       isoWorld.add(spree.createSpreeMuseumDetails());
+      isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
       provisionalIsoWorld = isoWorld;
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,

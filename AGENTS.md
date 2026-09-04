@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.37)
+## 3. Hard scope rules (v0.72.38)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -157,6 +157,13 @@ Must be inside the polygon and visible in the final map:
   coloured concrete-glass fields; and the Tränenpalast as its separate low
   steel-and-glass pavilion, never swallowed by the Friedrichstraße station
   shell. Full/mobile profiles remain bounded and image-free.
+- The Unter den Linden recognition sequence keeps the British Embassy,
+  Russian Embassy, Aeroflot / Russian Trade Mission, Haus Pietzsch / Cafe
+  Einstein and Dussmann KulturKaufhaus on their committed OSM identities and
+  Berlin LoD2 envelopes. Street-facing porticoes, bay rhythms, signs and
+  colour fields remain bounded procedural subdivisions. Smooth presentation
+  is lazy, instanced and texture-free; Minecraft uses one facade-only batch.
+  External photographs remain non-bundled visual references only.
 - Bode-Museum and Grill Royal / Riverside remain source-bound recognition
   buildings without becoming additional tour stops. Their complete 2026 LoD2
   supplement retains twelve parts, the museum's five open courts and two dome
@@ -418,7 +425,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.37)
+## 8. What success looks like (Definition of Done v0.72.38)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -526,6 +533,11 @@ isometric-berlin/
   Royal / Riverside retains all eight official parts and its OSM restaurant
   anchor. Drawn recognition remains below 600 KiB at 14 draw calls; Minecraft
   is one surface-only block batch below 360 KiB, without hidden solid fill.
+- The five-building Unter den Linden recognition sequence stays source-bound
+  and outside the tour count. Its Smooth overlay remains at 10 draw calls,
+  600-1,200 instances and below 180 KiB; its Minecraft reading remains one
+  facade-only batch, 280-500 instances and below 50 KiB. Both are texture-free
+  and retain exterior-facing details without hidden solid infill.
 - Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion
   blob: two piers and the Carrara sarcophagus carry the Tieck frieze and a real
   reclining bronze-lion silhouette within the Schinkel railing. The structural

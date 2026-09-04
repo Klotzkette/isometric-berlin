@@ -481,6 +481,9 @@ describe("task-11 central transit and civic details", () => {
     expect(EMBASSY_DETAIL_PROFILES.unitedKingdom).toMatchObject({
       anchorWorld: [619.47, 4.6, 368.73],
       buildingId: "DEBE3DzLVkos5eqV",
+      lod2Parent: "DEBE01YYK00001KP",
+      osmKey: "relation/24516",
+      photographsBundled: false,
     });
     expect(EMBASSY_DETAIL_PROFILES.unitedKingdom.description).toContain(
       "purple cylindrical",

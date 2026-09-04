@@ -65,6 +65,25 @@ Curved dome subdivisions, facade orders, balcony rails, signs and terrace
 furniture are labelled procedural approximations. Wikimedia references stay
 external and their per-file notices are mirrored in the public manifest.
 
+## Unter den Linden facade supplement
+
+`src/app/src/unterDenLindenProfiles.ts` records the committed source contract
+for five requested street fronts without introducing a parallel building
+dataset. Berlin LoD2 parents `DEBE01YYK00001KP`, `DEBE01YYK00003En`,
+`DEBE01YYK00001vY`, `DEBE01YYK0000A6r` and `DEBE01YYK00002Es` remain the
+metric envelopes. OSM relation `24516`, node `514864739`, way `195071820` and
+nodes `1412218896` and `1665158255` retain embassy, office, cafe and shop
+identity. The source-fusion manifest records these runtime supplements; no
+bounds or tour-catalogue change is involved.
+
+Only exterior facade axes extracted from the committed LoD2/OSM data receive
+procedural bay rhythms, porticoes, cornices, signs and colour fields. These
+subdivisions are recognition geometry, not survey evidence. Smooth and
+Minecraft presentations are instanced, texture-free and facade-only, so they
+add neither photographic runtime assets nor hidden solid infill. Four freely
+licensed Wikimedia files and the official Einstein/Dussmann pages are external
+visual-QA references; no photograph, crop or texture is bundled or fetched.
+
 ## Berlin 3D Mesh terms and derived assets
 
 The official Berlin mesh requires explicit acceptance of the portal terms,

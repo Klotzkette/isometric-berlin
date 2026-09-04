@@ -57,13 +57,18 @@ describe("held desktop navigation routing", () => {
   test("routes Shift plus horizontal arrows to orbit without descending", () => {
     expect(heldNavigationInput(new Set(["Shift", "ArrowRight"]))).toEqual({
       flight: { forward: 0, strafe: 0, vertical: 0 },
-      orbit: { horizontal: 1, vertical: 0 },
+      orbit: { horizontal: -1, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });
   });
 
-  test("routes Shift plus A or D to orbit while plain A and D still strafe", () => {
+  test("turns Shift+A left and Shift+D right while plain A and D still strafe", () => {
     expect(heldNavigationInput(new Set(["Shift", "a"]))).toEqual({
+      flight: { forward: 0, strafe: 0, vertical: 0 },
+      orbit: { horizontal: 1, vertical: 0 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+    expect(heldNavigationInput(new Set(["Shift", "d"]))).toEqual({
       flight: { forward: 0, strafe: 0, vertical: 0 },
       orbit: { horizontal: -1, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },

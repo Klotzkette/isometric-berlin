@@ -74,6 +74,41 @@
           "resolution": "Retain source records and OSM restaurant semantics; draw all eight complete official LoD2 parts instead of duplicate overlapping runtime shells. No bounds expansion."
         }
       ]
+    },
+    {
+      "feature_id": "DEBE01YYK00001KP",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#britishEmbassy",
+      "semantic_evidence": ["OSM relation/24516"],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK00003En",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#russianEmbassy",
+      "semantic_evidence": ["OSM node/514864739"],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK00001vY",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#aeroflot",
+      "semantic_evidence": ["OSM way/195071820"],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK0000A6r",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#einstein",
+      "semantic_evidence": ["OSM node/1412218896"],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK00002Es",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#dussmann",
+      "semantic_evidence": ["OSM node/1665158255"],
+      "conflicts": []
     }
   ],
   "features": [

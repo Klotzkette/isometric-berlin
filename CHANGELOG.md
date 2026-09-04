@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.72.38
+
+- **Shift+A/D dreht jetzt in die sichtbare, erwartete Richtung.** In freier
+  Kamera und Fußgängermodus dreht `Shift+D` nach rechts und `Shift+A` nach
+  links. Unmodifiziertes A/D bleibt seitliche Bewegung; Shift allein senkt die
+  freie Kamera. Der Navigationsvertrag ist mit getrennten Links-/Rechts- und
+  Strafing-Tests abgesichert.
+- **Unter den Linden erhält fünf quellgebundene Erkennungsfassaden.** Britische
+  und Russische Botschaft, Aeroflot / Russische Handelsvertretung, Haus
+  Pietzsch / Cafe Einstein und Dussmann KulturKaufhaus behalten ihre
+  vorhandenen OSM-Identitäten und amtlichen LoD2-Hüllen. Portikus, Fenster- und
+  Pfeilerraster, Gesimse, Eingänge, Farbfelder und gezeichnete Schriftzüge
+  verfeinern ausschließlich die sichtbaren Straßenseiten. Nicht vermessene
+  Unterteilungen bleiben ausdrücklich prozedurale Darstellungsnäherungen.
+- **Die Ergänzung bleibt klein, progressiv und fotofrei.** Der glatte Layer
+  lädt separat mit 10 instanzierten Draw Calls, 600-1.200 Instanzen und unter
+  180 KiB GPU-Puffern; Nahdetails blenden mit Hysterese aus. Minecraft erhält
+  alle fünf Gebäude in einem fassadenbasierten Batch unter 50 KiB. Es werden
+  weder Fotos noch Bildtexturen oder verdeckte massive Innenfüllungen geladen.
+
 ## v0.72.37
 
 - **Bode-Museum und Grill Royal / Riverside erhalten vollständige,

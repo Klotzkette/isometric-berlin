@@ -331,8 +331,11 @@ export const EMBASSY_DETAIL_PROFILES = {
   unitedKingdom: {
     anchorWorld: [619.47, 4.6, 368.73] as const,
     buildingId: "DEBE3DzLVkos5eqV",
+    lod2Parent: "DEBE01YYK00001KP",
+    osmKey: "relation/24516",
+    photographsBundled: false,
     description:
-      "sandstone screen with a two-storey void, blue trapezoid and purple cylindrical conference room",
+      "staggered sandstone screen with a two-storey void, security wall, blue trapezoid and purple cylindrical conference room",
   },
   hungary: {
     anchorWorld: [646.74, 4.7, 235.81] as const,
@@ -2759,21 +2762,39 @@ function addWilhelmstrasseEmbassies(builder: Builder): void {
     ...EMBASSY_DETAIL_PROFILES.unitedKingdom.anchorWorld,
   );
   addBox(builder, 0xd9cfbd, 598.18, british.y + 10.8, 374.0, 0.52, 20.8, 31.8);
-  for (const z of [360.2, 365.0, 383.0, 387.8]) {
+  const britishWindowZ = [359.8, 363.25, 366.7, 381.3, 384.75, 388.2];
+  for (let bay = 0; bay < britishWindowZ.length; bay += 1) {
+    const z = britishWindowZ[bay];
     for (let floor = 0; floor < 4; floor += 1) {
       addBox(
         builder,
-        0x506067,
-        597.86,
+        floor % 2 === 0 ? 0x506067 : 0x60747a,
+        597.82 - ((bay + floor) % 2) * 0.09,
         british.y + 4.0 + floor * 4.25,
         z,
         0.22,
-        2.25,
-        2.8,
-        floor % 2 === 0 ? -0.08 : 0.08,
+        2.35,
+        2.15,
+      );
+      addBox(
+        builder,
+        0xb9b1a2,
+        597.68,
+        british.y + 2.66 + floor * 4.25,
+        z,
+        0.24,
+        0.22,
+        2.65,
+        0,
+        false,
       );
     }
   }
+  for (const z of [367.9, 380.1]) {
+    addBox(builder, 0xe0d6c5, 597.67, british.y + 11.2, z, 0.68, 20.0, 0.64);
+  }
+  addBox(builder, 0xe0d6c5, 597.65, british.y + 21.45, 374.0, 0.72, 0.7, 31.8);
+  addBox(builder, 0xc5bbaa, 597.52, british.y + 1.55, 374.0, 0.86, 3.1, 32.4);
   addBox(builder, 0x26383e, 597.65, british.y + 12.5, 374.0, 0.42, 13.8, 13.4);
   const purpleRoom = new CylinderGeometry(3.15, 3.15, 5.2, 24);
   purpleRoom.rotateZ(Math.PI / 2);
@@ -2783,6 +2804,22 @@ function addWilhelmstrasseEmbassies(builder: Builder): void {
   blueRoom.rotateZ(-0.19);
   blueRoom.translate(595.1, british.y + 10.0, 378.2);
   addInkedGeometry(builder, blueRoom, 0x5aa8bd);
+  addBox(builder, 0xd2dde0, 591.95, british.y + 10.0, 378.2, 0.18, 6.55, 7.65, 0, false);
+  addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 0.18, 7.15, 0, false);
+  addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 5.75, 0.18, 0, false);
+  addBox(builder, 0x353c3d, 597.24, british.y + 23.0, 374.0, 0.64, 1.2, 30.2);
+  addBox(builder, 0x283034, 596.95, british.y + 3.0, 359.5, 0.24, 1.45, 7.8);
+  addBox(builder, 0xd7cdbd, 596.8, british.y + 4.45, 359.5, 0.3, 1.05, 1.25);
+  addBox(builder, 0x87633a, 596.6, british.y + 4.45, 359.5, 0.18, 0.18, 1.75, 0, false);
+  addBox(builder, 0x87633a, 596.6, british.y + 4.45, 359.5, 0.18, 1.55, 0.18, 0, false);
+  addCylinder(builder, 0x4c5554, 604.2, british.y + 27.1, 363.2, 0.09, 8.2, 8, false);
+  for (const [y, color] of [
+    [british.y + 29.4, 0x274d83],
+    [british.y + 28.95, 0xe5e2da],
+    [british.y + 28.5, 0xb33c3a],
+  ] as const) {
+    addBox(builder, color, 605.0, y, 363.2, 1.6, 0.42, 0.08, 0, false);
+  }
   addBox(
     builder,
     0x729083,

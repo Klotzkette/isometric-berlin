@@ -44,7 +44,10 @@ export function heldNavigationInput(
   const shiftTurnActive =
     shift && !alt && (arrowHorizontal !== 0 || wasdHorizontal !== 0);
   const shiftTurn = shiftTurnActive
-    ? Math.sign(arrowHorizontal + wasdHorizontal)
+    // OrbitControls' positive azimuth moves the visible heading to the left.
+    // Invert only this chord so Shift+D/Right turns the view right while
+    // plain A/D strafing, Alt+arrows and pedestrian yaw keep their semantics.
+    ? -Math.sign(arrowHorizontal + wasdHorizontal)
     : 0;
   return {
     flight: {

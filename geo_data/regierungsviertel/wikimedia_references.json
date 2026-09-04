@@ -2989,6 +2989,54 @@
       "photo_bundled": false
     },
     {
+      "landmark_id": "british_embassy",
+      "title": "File:Berlin, Mitte, Wilhelmstrasse, Botschaft Grossbritannien.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Wilhelmstrasse,_Botschaft_Grossbritannien.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "description": "British Embassy sandstone screen and coloured conference-room volumes; reference-only facade QA.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "russian_embassy",
+      "title": "File:Berlin, Mitte, Unter den Linden 55-65, Russische Botschaft.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_55-65,_Russische_Botschaft.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "description": "Russian Embassy street facade, portico and tower; reference-only facade QA.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "aeroflot_trade_mission",
+      "title": "File:Berlin, Mitte, Unter den Linden 51-53, Handelvertretung der Russischen Foederation.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_51-53,_Handelvertretung_der_Russischen_Foederation.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "description": "Aeroflot and Russian Trade Mission facade grid and signs; reference-only facade QA.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "dussmann_kulturkaufhaus",
+      "title": "File:Dussmann Das Kulturkaufhaus in Berlin (2026).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Dussmann_Das_Kulturkaufhaus_in_Berlin_(2026).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "JoachimKohler-HB",
+      "credit": "JoachimKohler-HB / CC BY-SA 4.0",
+      "description": "Current Dussmann facade grid, red fields and corner entrance; reference-only facade QA.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "brecht_memorial",
       "title": "File:Bertolt Brecht, Skulptur von Fritz Cremer am BE in Berlin.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABertolt_Brecht%2C_Skulptur_von_Fritz_Cremer_am_BE_in_Berlin.jpg",
