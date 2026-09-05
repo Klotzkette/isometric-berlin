@@ -1,26 +1,28 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// Baselines captured from v0.72.41 with the complete committed payloads,
+// Appearance baselines updated for the v0.72.43 Potsdamer panorama refinement,
+// intentionally superseding the byte-identical v0.72.41/v0.72.42 output.
+// Complete committed payloads remain unchanged,
 // including sampled colours and the tunnel. Hashes include every geometry,
 // index, colour and instance buffer, even spare allocated capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
   [
     "full",
-    "7d78410a4dfcbcf6b0f7eba285f082d3ac8a021d4a0d403b0fbff4834ca2a85f",
-    3397733,
+    "157605b35505742f44e246becfcfc1379e49b181c95bdd083024a660c3bd7305",
+    3397805,
     50,
-    259651196,
+    259656668,
   ],
   [
     "mobile",
-    "adc817fae08a55ccc0118619551b04f431691989f206b1ee45a94c7399adc675",
-    788864,
+    "68472a5b72e8ce101a6f268c93f4355aa931eeaf9578a52b8e58f34be7323430",
+    788936,
     48,
-    60696656,
+    60702128,
   ],
 ] as const) {
-  test(`${profile}: interruptible construction preserves every legacy output buffer`, () => {
+  test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
       new URL("../scripts/benchmark-minecraft-world.ts", import.meta.url),
     );

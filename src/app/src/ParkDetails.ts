@@ -35,6 +35,10 @@ import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionP
 import { createLenneOak, isLenneOakTree } from "./LenneOak";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import {
+  inPotsdamerPanoramaLandscape,
+  POTSDAMER_PANORAMA_LANDSCAPE,
+} from "./potsdamerPanoramaPalette";
+import {
   createTunnelPortalApproachTester,
   type TunnelPortalPayload,
 } from "./TunnelPortals";
@@ -324,6 +328,9 @@ export function treeFoliageTone(tree: ParkTree): number {
     )
   ) {
     return [0xa8bea0, 0xb7c9ad, 0x96ad90][variant];
+  }
+  if (inPotsdamerPanoramaLandscape(tree.position[0], tree.position[2])) {
+    return POTSDAMER_PANORAMA_LANDSCAPE.foliage[variant];
   }
   return TREE_FORM_FOLIAGE_TONES[treePresentationForm(tree)][variant];
 }

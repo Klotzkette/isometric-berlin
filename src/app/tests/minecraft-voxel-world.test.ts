@@ -139,9 +139,10 @@ describe("true voxel Minecraft world", () => {
     // their block-native detail is covered by spree-museum-details.test.ts.
     expect(instanced("Voxel facade windows", world).count).toBe(1_594_101);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
-    expect(instanced("Voxel building columns", world).count).toBe(1_480_077);
+    // The two photo-guided roof lights add 72 surfaces to this existing batch.
+    expect(instanced("Voxel building columns", world).count).toBe(1_480_149);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      542_177,
+      542_249,
     );
 
     const landmarks = world.getObjectByName(

@@ -1,3 +1,5 @@
+import { inPotsdamerPanoramaLandscape, POTSDAMER_PANORAMA_LANDSCAPE, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
+import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
   BoxGeometry,
   Color,
@@ -907,7 +909,8 @@ export function buildColumnToneLookup(prisms: {
   const BUCKET = 32;
   const buckets = new Map<string, TonedPrism[]>();
   for (const building of prisms.buildings) {
-    if (!building.tone || building.ring.length < 3) {
+    const panorama = building.id ? potsdamerPanoramaMaterialFor(building.id) : undefined;
+    if ((!building.tone && !panorama) || building.ring.length < 3) {
       continue;
     }
     const ring = building.ring.map(
@@ -916,10 +919,11 @@ export function buildColumnToneLookup(prisms: {
     const xs = ring.map(([x]) => x);
     const zs = ring.map(([, z]) => z);
     const toned: TonedPrism = {
-      hex:
+      hex: panorama?.facade ?? (
         building.id && KOLLHOFF_TOWER_PAYLOAD_IDS.has(building.id)
           ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
-          : snap(building.tone),
+          : snap(building.tone!)
+      ),
       maxX: Math.max(...xs),
       maxZ: Math.max(...zs),
       minX: Math.min(...xs),
@@ -2704,9 +2708,15 @@ export function* buildMinecraftVoxelWorldSteps(
     buildingLayerCount +=
       bodyCourseCount + (plinthHeight > 0 ? 1 : 0) + (capHeight > 0 ? 1 : 0);
   }
+  const panoramaRoofs = potsdamerPanoramaRoofBoxes(true).filter(({ position: [x, , z] }) =>
+    x >= payload.grid.min_x_idx * cell &&
+    x < (payload.grid.min_x_idx + payload.grid.cols) * cell &&
+    z >= payload.grid.min_z_idx * cell &&
+    z < (payload.grid.min_z_idx + payload.grid.rows) * cell,
+  );
   const buildings = instancedBoxes(
     "Voxel building columns",
-    buildingLayerCount,
+    buildingLayerCount + panoramaRoofs.length,
     undefined,
     true,
   );
@@ -2785,6 +2795,11 @@ export function* buildMinecraftVoxelWorldSteps(
       size.set(cell, capHeight, cell);
       buildings.write(center, size, layerPaint.setHex(layers.cap));
     }
+  }
+  for (const box of panoramaRoofs) {
+    center.set(...box.position);
+    size.set(...box.size);
+    buildings.write(center, size, facadePaint.setHex(box.color), box.rotationY);
   }
   // Window cells on exterior faces: every ~4 m storey of a column face
   // that no neighbouring column covers gets a pale portrait pane. Hero
@@ -2948,13 +2963,15 @@ export function* buildMinecraftVoxelWorldSteps(
         : shadeFor(TRUNK_SHADES, xIdx, zIdx, 1, trunkPaint),
     );
     const crownHeight = cell * 1.9;
+    const leafShades = inPotsdamerPanoramaLandscape(worldXAbs(xIdx), worldZAbs(zIdx))
+      ? POTSDAMER_PANORAMA_LANDSCAPE.foliage : LEAF_SHADES;
     center.set(
       worldXAbs(xIdx),
       y0 + trunkHeight + crownHeight / 2,
       worldZAbs(zIdx),
     );
     size.set(cell * 2.2, crownHeight, cell * 2.2);
-    crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 2, leafPaint));
+    crowns.write(center, size, shadeFor(leafShades, xIdx, zIdx, 2, leafPaint));
     // Every third tree stacks a smaller crown — the spruce silhouette.
     if (species === 1 || species === 3) {
       center.set(
@@ -2966,7 +2983,7 @@ export function* buildMinecraftVoxelWorldSteps(
       crowns.write(
         center,
         size,
-        shadeFor(LEAF_SHADES, xIdx, zIdx, 3, leafPaint),
+        shadeFor(leafShades, xIdx, zIdx, 3, leafPaint),
       );
     }
   }

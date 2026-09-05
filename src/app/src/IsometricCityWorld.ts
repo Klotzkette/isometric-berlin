@@ -1,3 +1,4 @@
+import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -1331,6 +1332,8 @@ function facadeColorFor(
   classes: string[],
   target: Color,
 ): Color {
+  const panorama = potsdamerPanoramaMaterialFor(building.id);
+  if (panorama) return target.setHex(panorama.facade);
   // Keep every official part inside the Reichstag footprint in the same
   // bright, cool limestone register. Checking the region before individual
   // pins prevents the large main prism from reverting to the older beige.
@@ -11545,7 +11548,8 @@ export function createIsometricCity(
   }> = [];
   const color = new Color();
   const capColor = new Color();
-  const facadeShadeBytes = new Uint8Array(18);
+  const upperStoreyColor = new Color(POTSDAMER_UPPER_STOREYS.color);
+  const facadeShadeBytes = new Uint8Array(36);
   const writeShadeBytes = (
     offset: number,
     tone: Color,
@@ -11577,6 +11581,7 @@ export function createIsometricCity(
     facadeTone: Color,
     capTone: Color,
     capY: number,
+    upperY?: number,
   ): void => {
     const positions = geometry.getAttribute("position").array as Float32Array;
     const normals = geometry.getAttribute("normal").array as Float32Array;
@@ -11587,11 +11592,18 @@ export function createIsometricCity(
     writeShadeBytes(9, facadeTone, ISO_FACE_SHADE.north);
     writeShadeBytes(12, facadeTone, ISO_FACE_SHADE.west);
     writeShadeBytes(15, capTone, ISO_FACE_SHADE.top);
+    if (upperY !== undefined) {
+      writeShadeBytes(18, upperStoreyColor, ISO_FACE_SHADE.top);
+      writeShadeBytes(21, upperStoreyColor, ISO_FACE_SHADE.east);
+      writeShadeBytes(24, upperStoreyColor, ISO_FACE_SHADE.south);
+      writeShadeBytes(27, upperStoreyColor, ISO_FACE_SHADE.north);
+      writeShadeBytes(30, upperStoreyColor, ISO_FACE_SHADE.west);
+    }
     for (let offset = 0; offset < positions.length; offset += 3) {
       const nx = normals[offset];
       const ny = normals[offset + 1];
       const nz = normals[offset + 2];
-      const shadeOffset =
+      let shadeOffset =
         ny > 0.55
           ? ny > 0.7 && positions[offset + 1] > capY
             ? 15
@@ -11605,6 +11617,14 @@ export function createIsometricCity(
               : nz > 0
                 ? 6
                 : 9;
+      if (upperY !== undefined && Math.abs(ny) < 0.55) {
+        const triangle = offset - offset % 9;
+        // Extrusion duplicates vertices across the storey boundary, so the
+        // two wall courses can have crisp colours without overlapping skins.
+        if (Math.min(positions[triangle + 1], positions[triangle + 4], positions[triangle + 7]) >= upperY - 0.001) {
+          shadeOffset += 18;
+        }
+      }
       colors[offset] = facadeShadeBytes[shadeOffset];
       colors[offset + 1] = facadeShadeBytes[shadeOffset + 1];
       colors[offset + 2] = facadeShadeBytes[shadeOffset + 2];
@@ -11663,13 +11683,23 @@ export function createIsometricCity(
         }
       }
     }
+    const hasUpperStoreys = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight);
     let geometry: BufferGeometry = new ExtrudeGeometry(
       shapeFromRings(building),
       {
         bevelEnabled: false,
         depth: bodyHeight,
+        steps: hasUpperStoreys ? 2 : 1,
       },
     );
+    if (hasUpperStoreys) {
+      const positions = geometry.getAttribute("position");
+      for (let vertex = 0; vertex < positions.count; vertex += 1) {
+        if (Math.abs(positions.getZ(vertex) - bodyHeight / 2) < 0.001) {
+          positions.setZ(vertex, POTSDAMER_UPPER_STOREYS.startM);
+        }
+      }
+    }
     geometry.rotateX(-Math.PI / 2);
     geometry.translate(0, y0, 0);
     geometry.deleteAttribute("uv");
@@ -11748,6 +11778,7 @@ export function createIsometricCity(
     // recolour up-facing cap vertices cooler and slightly darker (the
     // Reichstag's huge roof was one warm brown slab).
     const pinnedRoof =
+      potsdamerPanoramaMaterialFor(building.id)?.roof ??
       HERO_PRISM_ROOF_TONES[building.id] ??
       (inReichstagRegion(building)
         ? 0xe1e3dc
@@ -11762,7 +11793,8 @@ export function createIsometricCity(
             .multiplyScalar(0.97)
             .lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
     const capY = y0 + bodyHeight - 0.05;
-    bakeFacadeColor(geometry, color, capTone, capY);
+    bakeFacadeColor(geometry, color, capTone, capY,
+      hasUpperStoreys ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined);
     bodyGeometries.push(geometry);
     if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
       const baseHeight = Math.min(

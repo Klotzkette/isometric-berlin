@@ -66,6 +66,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   reconstructions, not fixture surveys. No source photograph or texture is
   bundled.
 
+- **Potsdamer Platz / Tilla-Durieux-Park owner panoramas:** three
+  owner-supplied Kollhoff observation-deck views bound the local Stabi gold,
+  terracotta and grey upper facades, planted roofs, glass roof lights and
+  lawn/tree colours. All 20 building groups retain their 276 committed
+  Geoportal Berlin LoD2 parts and their original envelopes. Upper-storey
+  subdivision, roof-light elevation/camber and service details are procedural
+  display estimates, not survey data. No supplied photograph, crop or image
+  texture is bundled or loaded. See `docs/potsdamer-panorama.md`.
+
 - **Pariser-Platz civic architecture (factual and architectural evidence):**
   the [Stiftung Brandenburger Tor](https://stiftungbrandenburgertor.de/max-liebermann-haus/)
   documents the Max-Liebermann-Haus critical reconstruction;

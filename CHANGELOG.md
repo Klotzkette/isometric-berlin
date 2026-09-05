@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.72.43
+
+- **Potsdamer Platz nach den Kollhoff-Panoramen.** 20 Gebaeudegruppen mit
+  276 amtlichen LoD2-Bauteilen erhalten gezielte Gold-, Terrakotta-, Glas-,
+  Rotbraun- und helle Wohntoene. Begruente Daecher und graue obere Geschosse
+  unterscheiden die westlichen Bauten; Grundrisse, Hoehen und Hoefe bleiben.
+- **Tilla-Durieux-Park und Glasdaecher.** Ruhigere olivgruene Rasen- und
+  Baumfarben bewahren offene Parkflaechen und vorhandene Baumstandorte.
+  Zwei kleinteilig unterteilte Glasdaecher ergaenzen den westlichen Parkrand.
+- **Ohne Fotoballast und weitere Draw Calls.** Dachdetails nutzen vorhandene
+  Batches; Minecraft erhaelt 72 Oberflaecheninstanzen mit zusammen 5.3 KiB
+  Zusatzpuffer. Graue Dachgeschosse unterteilen vorhandene Waende ohne
+  versteckte Doppelhuellen. Alle Fotos bleiben ausschliesslich Referenzen;
+  nicht vermessene Bauteildetails sind als Darstellungsschaetzungen dokumentiert.
+
 ## v0.72.42
 
 - **Minecraft baut schneller und unterbrechbar auf.** Vorberechnete lokale

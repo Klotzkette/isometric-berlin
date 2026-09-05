@@ -1,3 +1,5 @@
+import { POTSDAMER_PANORAMA_LANDSCAPE } from "./potsdamerPanoramaPalette";
+import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -339,8 +341,8 @@ const BRICK = 0xa65d45;
 const DARK_BRICK = 0x79463a;
 const GLASS = 0xa7d1d8;
 const DARK_FRAME = 0x29373a;
-const PARK_GREEN = 0x9bc686;
-const PARK_GREEN_BANK = 0x729d68;
+const PARK_GREEN = POTSDAMER_PANORAMA_LANDSCAPE.lawn;
+const PARK_GREEN_BANK = POTSDAMER_PANORAMA_LANDSCAPE.bank;
 const PARK_CUT_STEEL = 0x606764;
 const SNOW_WHITE = 0xf2f1eb;
 const BRONZE = 0x557e6d;
@@ -6039,6 +6041,11 @@ export function createExpandedCityDetails(
   addRieckhallen(builder, byName);
   addKulturforum(builder, byName);
   addPotsdamerWilhelmDetails(builder, byName);
+  if (byName.has("Tilla-Durieux-Park")) {
+    for (const box of potsdamerPanoramaRoofBoxes()) {
+      addBox(builder, box.color, ...box.position, ...box.size, box.rotationY, false);
+    }
+  }
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
   addCivicAccents(builder, byName);

@@ -1,5 +1,10 @@
 # Minecraft construction, v0.72.42
 
+This is the historical lossless v0.72.41-to-v0.72.42 comparison. The later
+[Potsdamer panorama refinement](potsdamer-panorama.md) intentionally changes
+local colours and adds 72 roof instances; its updated appearance hashes live
+in `src/app/tests/minecraft-construction.test.ts`.
+
 Step 10 only. No source data, architecture, resolution, visibility distance,
 shader or GPU geometry budget changes.
 
