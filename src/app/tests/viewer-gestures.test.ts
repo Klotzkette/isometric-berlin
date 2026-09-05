@@ -19,7 +19,12 @@ import {
   touchInteractionAfterPanGlideCancel,
   viewerGestureResetRequired,
   wheelNavigationIntent,
+  wheelZoomFactor,
 } from "../src/viewerGestures";
+
+const viewerSource = await Bun.file(
+  new URL("../src/ThreeViewer.tsx", import.meta.url),
+).text();
 
 describe("touch viewer gestures", () => {
   test("coalesces high-frequency samples without a runaway frame jump", () => {
@@ -27,6 +32,14 @@ describe("touch viewer gestures", () => {
     expect(accumulateBoundedFrameDelta(-18, -7, 24)).toBe(-24);
     expect(accumulateBoundedFrameDelta(3, -5, 24)).toBe(-2);
     expect(accumulateBoundedFrameDelta(3, Number.NaN, 24)).toBe(0);
+  });
+
+  test("settles wheel input from one RAF deadline without per-event timers", () => {
+    expect(viewerSource).toContain("wheelEndNotifyAt = now + 180");
+    expect(viewerSource).toContain("timestamp >= wheelEndNotifyAt");
+    expect(viewerSource).not.toContain("wheelEndNotifyAt = Number.NEGATIVE_INFINITY");
+    expect(viewerSource).toContain("wheelEndNotifyAt = Number.POSITIVE_INFINITY");
+    expect(viewerSource).not.toContain("wheelEndTimer");
   });
 
   test("drops cancelled glide activity unless a real touch gesture remains", () => {
@@ -147,8 +160,43 @@ describe("touch viewer gestures", () => {
   });
 
   test("turns a deliberate shift-drag into a controlled free rotation", () => {
-    expect(rotationDeltaFromMouseDrag(100)).toBeCloseTo(28);
-    expect(rotationDeltaFromMouseDrag(-50)).toBeCloseTo(-14);
+    expect(rotationDeltaFromMouseDrag(100)).toBeCloseTo(38);
+    expect(rotationDeltaFromMouseDrag(-50)).toBeCloseTo(-19);
+  });
+
+  test("normalizes mouse-wheel zoom across browser delta modes", () => {
+    expect(
+      wheelZoomFactor({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: -100,
+      }),
+    ).toBeCloseTo(Math.exp(0.22));
+    expect(
+      wheelZoomFactor({
+        ctrlKey: false,
+        deltaMode: 1,
+        deltaX: 0,
+        deltaY: 3,
+      }),
+    ).toBeCloseTo(Math.exp(-96 * 0.0022));
+    expect(
+      wheelZoomFactor({
+        ctrlKey: true,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: -10,
+      }),
+    ).toBe(1);
+    expect(
+      wheelZoomFactor({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 20,
+        deltaY: 10,
+      }),
+    ).toBe(1);
   });
 
   test("separates trackpad pan and pinch from a stepped mouse wheel", () => {
@@ -221,7 +269,7 @@ describe("touch viewer gestures", () => {
         deltaX: 0,
         deltaY: -3,
       }),
-    ).toBeCloseTo(0.96);
+    ).toBe(1);
     expect(
       pedestrianWheelForwardInput({
         ctrlKey: false,
@@ -229,7 +277,7 @@ describe("touch viewer gestures", () => {
         deltaX: 0,
         deltaY: 12.5,
       }),
-    ).toBeCloseTo(-0.125);
+    ).toBeCloseTo(-0.15625);
     expect(
       pedestrianWheelForwardInput({
         ctrlKey: true,

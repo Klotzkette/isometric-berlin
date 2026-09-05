@@ -249,7 +249,7 @@ describe("progressive exact-world scheduling", () => {
     ).toBeFalse();
   });
 
-  test("keeps startup first while filling the same desktop cap with all five requested quarters", () => {
+  test("keeps startup first while filling the same desktop cap with all requested places", () => {
     const requested = DESKTOP_PLACE_DETAIL_ZONE_NAMES.map((name) => {
       const zone = PLAZA_FACADE_DETAIL_ZONES.find((entry) => entry.name === name);
       expect(zone).toBeDefined();
@@ -932,7 +932,7 @@ describe("progressive exact-world scheduling", () => {
     const requestedPlaceBuildings = payload.buildings.filter(
       isDesktopPlaceDetailBuilding,
     );
-    expect(requestedPlaceBuildings).toHaveLength(967);
+    expect(requestedPlaceBuildings).toHaveLength(1582);
     expect(
       requestedPlaceBuildings.every((entry) => exactIds.has(entry.id)),
     ).toBeTrue();
@@ -998,8 +998,8 @@ describe("progressive exact-world scheduling", () => {
     // LoD2 walls in the existing facade-axis renderables.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    expect(vertices).toBe(3_701_348);
-    expect(retainedBytes).toBe(53_397_288);
+    expect(vertices).toBe(3_675_440);
+    expect(retainedBytes).toBe(52_971_850);
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.
     expect(retainedBytes).toBeLessThanOrEqual(54_135_158);

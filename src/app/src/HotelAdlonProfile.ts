@@ -127,10 +127,15 @@ export const HOTEL_ADLON_PROFILE = {
   publicFacade: {
     archBayCount: 5,
     eastDormerCount: 3,
+    eastDormerPedimentCount: 3,
     eastUpperWindowAxisCount: 4,
     frontDormerCount: 8,
+    frontDormerPedimentCount: 8,
     frontHeadDepthM: 22,
+    frontHorizontalCourseCount: 6,
+    frontWindowMuntinCount: 47,
     frontWindowAxesM: [-28.2, -21.1, -14.0, -7.0, 0, 7.0, 14.0, 21.1, 28.2] as const,
+    germanFlagStripeCount: 3,
     roofLetteringGroupCount: 2,
     roofFlagpoleCount: 3,
   },
@@ -141,6 +146,12 @@ export const HOTEL_ADLON_PROFILE = {
       "Geoportal Berlin 3D building models LoD2, dl-de/zero-2-0; payload K00006ot",
     osm:
       "OpenStreetMap relation 4582978 and ways 26041943/420445400/420449359/420449360, ODbL 1.0",
+    ownerVisualReference: {
+      bundled: false,
+      runtimeTexture: false,
+      role: "current front-facade, mansard, flag and forecourt appearance QA only",
+      view: "Hotel Adlon seen from the Starbucks side of Pariser Platz, supplied 2026-09-04",
+    },
     visualReferences: [
       "https://commons.wikimedia.org/wiki/File:Hotel_Adlon_Berlin-Mitte.jpg (Lukas Beck, CC BY-SA 4.0)",
       "https://commons.wikimedia.org/wiki/File:Hotel_Adlon_Kempinski,_2024_(02).jpg (Bahnfrend, CC BY-SA 4.0)",

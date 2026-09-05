@@ -44,7 +44,7 @@ describe("idle-frame anti-flicker contract", () => {
       "createCameraRigStabilizationScratch()",
     );
     expect(viewerSource).not.toContain("flightVelocity.lerp");
-    expect(viewerSource).toContain("controls.rotateSpeed = 1.08");
+    expect(viewerSource).toContain("controls.rotateSpeed = 1.45");
     expect(appSource).toContain("animationTime: 0.12");
     expect(appSource).toContain("immediateRender: true");
     expect(appSource).toContain("springStiffness: 18");
@@ -207,12 +207,13 @@ describe("idle-frame anti-flicker contract", () => {
     );
   });
 
-  test("runs the same final anti-aliasing pass in motion and at rest", () => {
+  test("keeps the final anti-aliasing pass identical during motion and at rest", () => {
     expect(viewerSource).toContain(
       'import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js"',
     );
     expect(viewerSource).toContain("const smaaPass = new SMAAPass()");
     expect(viewerSource).toContain("smaaPass.enabled = true");
+    expect(viewerSource.match(/smaaPass\.enabled\s*=/g)).toHaveLength(1);
     expect(viewerSource.indexOf("composer.addPass(smaaPass)")).toBeGreaterThan(
       viewerSource.indexOf("composer.addPass(new RenderPass(scene, camera))"),
     );

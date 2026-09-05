@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.39)
+## 3. Hard scope rules (v0.72.40)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -103,9 +103,12 @@ Must be inside the polygon and visible in the final map:
   and Skeletons in Minecraft. Voxel-tree filtering and all hostile-mob spawn,
   walkability and movement must use the same rotated protected field plus
   conservative edge clearance. The bounded allowed complement is six
-  Creepers, nine Zombies and five Skeletons on desktop, or four Creepers,
-  seven Zombies and three Skeletons in the mobile profile; each profile remains
-  one instanced draw call. Loot boxes use the same protected walkability and
+  Creepers, sixteen Zombies, five Skeletons and four foxes on desktop, or four
+  Creepers, ten Zombies, three Skeletons and three foxes on mobile, as requested
+  on 2026-09-05. Each profile remains one fixed-capacity instanced draw call.
+  Mobs spawn only near the camera/player in Minecraft and despawn beyond
+  95 m / 72 m (desktop/mobile), or immediately when leaving that mode.
+  Foxes and loot boxes use the same protected walkability and
   may never appear inside the memorial field.
 - The Goethe-Denkmal at exact OSM node `278738513` and the Lessing-Denkmal at
   exact OSM node `884700390`, each as a source-bound close-detail model in the
@@ -425,7 +428,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.39)
+## 8. What success looks like (Definition of Done v0.72.40)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -535,7 +538,7 @@ isometric-berlin/
   is one surface-only block batch below 360 KiB, without hidden solid fill.
 - The five-building Unter den Linden recognition sequence stays source-bound
   and outside the tour count. Its Smooth overlay remains at 10 draw calls,
-  600-1,200 instances and below 180 KiB; its Minecraft reading remains one
+  1,649 instances and below 180 KiB; its Minecraft reading remains one
   facade-only batch, 280-500 instances and below 50 KiB. Both are texture-free
   and retain exterior-facing details without hidden solid infill.
 - Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion

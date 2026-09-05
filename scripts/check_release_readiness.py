@@ -924,7 +924,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "allocation-free continuous keyboard flight": (
       "continuousFlightSpeeds(distance, flightSpeedScratch)"
     ),
-    "faster direct orbit response": "controls.rotateSpeed = 1.08",
+    "faster direct orbit response": "controls.rotateSpeed = 1.45",
     "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
@@ -1218,9 +1218,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "cursor-anchored zoom": "zoomCameraAtScreenPoint",
     "last-safe camera capture": "captureCameraPose",
     "invalid camera recovery": "stabilizeCameraRig",
-    "faster distance-scaled navigation": ("NAVIGATION_STEP_DISTANCE_RATIO = 0.075"),
+    "faster distance-scaled navigation": ("NAVIGATION_STEP_DISTANCE_RATIO = 0.11"),
     "low-latency two-finger gesture decision": ("TWO_FINGER_DECISION_TRAVEL_PX = 6"),
-    "faster direct two-finger pan": "TWO_FINGER_PAN_PIXELS_PER_UNIT = 56",
+    "faster direct two-finger pan": "TWO_FINGER_PAN_PIXELS_PER_UNIT = 44",
     "ramp-free continuous flight": "export function continuousFlightSpeeds(",
   }
   failures.extend(

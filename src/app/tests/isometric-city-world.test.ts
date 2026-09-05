@@ -642,6 +642,8 @@ describe("ligne-claire fenestration", () => {
       "Leipziger Platz",
       "Potsdamer Platz",
       "Tilla-Durieux-Park",
+      "Stresemannstraße",
+      "Wilhelmstraße",
       "Breitscheidplatz",
       "Platz der Republik",
       "Europaplatz",
@@ -682,8 +684,8 @@ describe("ligne-claire fenestration", () => {
           ...facingWall,
           nx: -facingWall.nx,
           nz: -facingWall.nz,
-        }),
-      ).toBeNull();
+        })?.name,
+      ).not.toBe(zone.name);
       expect(
         plazaFacadeDetailZoneForWall({ ...facingWall, isCourtyard: true }),
       ).toBeNull();
@@ -746,6 +748,8 @@ describe("ligne-claire fenestration", () => {
     // recognition-model shells are deliberately excluded from this generic pass.
     expect(detailedWallCounts["Potsdamer Platz"]).toBeGreaterThan(240);
     expect(detailedWallCounts["Tilla-Durieux-Park"]).toBeGreaterThan(200);
+    expect(detailedWallCounts["Stresemannstraße"]).toBeGreaterThan(150);
+    expect(detailedWallCounts["Wilhelmstraße"]).toBeGreaterThan(300);
     expect(
       detailedWallCounts["Großer Tiergarten-Parkrand"],
     ).toBeGreaterThan(250);
@@ -759,7 +763,7 @@ describe("ligne-claire fenestration", () => {
     expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);
   });
 
-  test("keeps the richer place facades inside a sub-96 KiB buffer delta", () => {
+  test("keeps the richer place facades inside a sub-104 KiB buffer delta", () => {
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     const position = axes.geometry.getAttribute("position");
     const lineDistance = axes.geometry.getAttribute("lineDistance");

@@ -36,6 +36,12 @@ const viewerSource = await Bun.file(
   .text()
   .then((source) => source.replaceAll("\r\n", "\n"));
 const productionSurfaces = surfacePayload as unknown as SurfacePayload;
+const pariserPlatzIdle = {
+  lastPariserPlatzFrameAt: 0,
+  pariserPlatzEntitiesOnScreen: false,
+  pariserPlatzEntityCount: 0,
+  pariserPlatzFrameIntervalMs: 1_000 / 30,
+} as const;
 
 const ELIGIBLE_WATER_NAMES = [
   "smooth water surface",
@@ -374,6 +380,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
 
   test("schedules water light independently from flags and never animates it for reduced motion", () => {
     const before = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 100,
       lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
@@ -389,6 +396,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
     expect(before.environmentalMotion).toBeFalse();
 
     const tick = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 100,
       lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
@@ -403,11 +411,13 @@ describe("Schwellenraum ethereal water atmosphere", () => {
     expect(tick).toEqual({
       animateFlags: false,
       animateOrdinaryEnvironment: false,
+      animatePariserPlatzEntities: false,
       animateWaterLight: true,
       environmentalMotion: true,
     });
 
     const sharedTick = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 100,
       lastWaterFrameAt: 100,
       minecraftMobsVisible: false,
@@ -423,6 +433,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
     expect(sharedTick.animateWaterLight).toBeTrue();
 
     const reduced = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 0,
       lastWaterFrameAt: 0,
       minecraftMobsVisible: false,

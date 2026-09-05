@@ -4,6 +4,7 @@ import { InstancedMesh } from "three";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   CREEPER_COUNT,
+  FOX_COUNT,
   MINECRAFT_MOB_BUDGETS,
   SKELETON_COUNT,
   ZOMBIE_COUNT,
@@ -54,14 +55,16 @@ describe("Minecraft roaming mobs", () => {
     expect(field.zombieCount).toBe(ZOMBIE_COUNT);
     expect(field.creeperCount).toBe(6);
     expect(field.skeletonCount).toBe(5);
-    expect(field.zombieCount).toBe(9);
+    expect(field.zombieCount).toBe(16);
+    expect(field.foxCount).toBe(FOX_COUNT);
     expect(field.mobs).toHaveLength(
-      CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT,
+      CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT + FOX_COUNT,
     );
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
-    expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBe(245);
+    expect(field.mesh.count).toBe(0);
+    expect(field.parts.length).toBe(386);
+    expect(field.mobs.every((mob) => !mob.active)).toBeTrue();
     expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(5);
     expect(
       field.parts.filter((part) => part.color === 0xd9d8c8).length,
@@ -72,9 +75,6 @@ describe("Minecraft roaming mobs", () => {
     expect(
       field.parts.filter((part) => part.color === 0x18251b).length,
     ).toBeGreaterThanOrEqual(55);
-    expect(
-      new Set(field.mobs.map(({ x, z }) => `${x}:${z}`)).size,
-    ).toBe(field.mobs.length);
   });
 
   test("uses a smaller but still zombie-richer one-draw-call mobile cast", () => {
@@ -88,29 +88,33 @@ describe("Minecraft roaming mobs", () => {
     expect(field.skeletonCount).toBeGreaterThan(2);
     expect(field.zombieCount).toBeGreaterThan(5);
     expect(field.mobs).toHaveLength(
-      budget.creeper + budget.skeleton + budget.zombie,
+      budget.creeper + budget.skeleton + budget.zombie + budget.fox,
     );
     expect(field.group.children).toHaveLength(1);
-    expect(field.mesh.count).toBe(169);
+    expect(field.mesh.count).toBe(0);
+    expect(field.parts.length).toBe(250);
   });
 
   test("spawns and keeps every walker on open park grass", () => {
     const field = createMinecraftMobs(payload, false);
     setMinecraftMobsVisible(field, true);
+    updateMinecraftMobs(field, 0, { x: 180, z: 130 });
     const starts = field.mobs.map(({ x, z }) => [x, z] as const);
 
     for (let step = 0; step < 240; step += 1) {
-      updateMinecraftMobs(field, 0.1);
+      updateMinecraftMobs(field, 0.1, { x: 180, z: 130 });
     }
 
     field.mobs.forEach((mob, index) => {
+      if (!mob.active) return;
       expect(field.isWalkable(mob.x, mob.z)).toBe(true);
       expect(isHolocaustMinecraftProtectedAt(mob.x, mob.z)).toBe(false);
       expect(
         Math.hypot(mob.x - starts[index][0], mob.z - starts[index][1]),
       ).toBeGreaterThan(0.1);
     });
-    expect(field.mesh.count).toBe(field.parts.length);
+    expect(field.activeMobCount).toBeGreaterThan(15);
+    expect(field.mesh.count).toBeLessThanOrEqual(field.parts.length);
   });
 
   test("keeps the rotated Holocaust field and its safety edge mob-free", () => {
@@ -141,11 +145,11 @@ describe("Minecraft roaming mobs", () => {
 
     setMinecraftMobsVisible(field, true);
     for (let step = 0; step < 1_200; step += 1) {
-      updateMinecraftMobs(field, 0.1);
+      updateMinecraftMobs(field, 0.1, { x: 180, z: 130 });
     }
     expect(
       field.mobs.every(
-        ({ x, z }) => !isHolocaustMinecraftProtectedAt(x, z),
+        ({ active, x, z }) => !active || !isHolocaustMinecraftProtectedAt(x, z),
       ),
     ).toBe(true);
   });
@@ -153,14 +157,16 @@ describe("Minecraft roaming mobs", () => {
   test("omits decorative mobs when a reduced payload has no safe grass", () => {
     const noGrass: VoxelPayload = {
       ...compactWalkabilityFixture,
+      classes: ["grass", "water"],
       ground_rows: compactWalkabilityFixture.ground_rows.map((row) =>
         row.map(([start, run]) => [start, run, 1]),
       ),
     };
     const field = createMinecraftMobs(noGrass, false);
-    expect(field.mobs).toHaveLength(0);
+    setMinecraftMobsVisible(field, true);
+    updateMinecraftMobs(field, 0.1, { x: 8, z: 6 });
+    expect(field.activeMobCount).toBe(0);
     expect(field.mesh.count).toBe(0);
-    expect(field.creeperCount + field.skeletonCount + field.zombieCount).toBe(0);
   });
 
   test("only exposes the field when Minecraft presentation requests it", () => {
@@ -169,9 +175,48 @@ describe("Minecraft roaming mobs", () => {
     expect(field.group.visible).toBe(false);
     expect(setMinecraftMobsVisible(field, true)).toBe(true);
     expect(field.group.visible).toBe(true);
+    updateMinecraftMobs(field, 0.1, { x: 180, z: 130 });
+    expect(field.activeMobCount).toBeGreaterThan(0);
     expect(setMinecraftMobsVisible(field, true)).toBe(false);
     expect(setMinecraftMobsVisible(field, false)).toBe(true);
     expect(field.group.visible).toBe(false);
+    expect(field.mesh.count).toBe(0);
+    expect(field.activeMobCount).toBe(0);
+    updateMinecraftMobs(field, 0.1, { x: 180, z: 130 });
+    expect(field.activeMobCount).toBe(0);
+  });
+
+  test("recycles the same GPU buffers around a moving player and removes distant mobs", () => {
+    const field = createMinecraftMobs(payload, false);
+    const matrix = field.mesh.instanceMatrix.array;
+    const color = field.mesh.instanceColor!.array;
+    setMinecraftMobsVisible(field, true);
+    for (const anchor of [{ x: 180, z: 130 }, { x: -500, z: 340 }, { x: 950, z: 230 }]) {
+      for (let frame = 0; frame < 20; frame += 1) updateMinecraftMobs(field, 0.1, anchor);
+      for (const mob of field.mobs) {
+        if (!mob.active) continue;
+        expect(Math.hypot(mob.x - anchor.x, mob.z - anchor.z)).toBeLessThanOrEqual(field.range.despawnM);
+        expect(field.isWalkable(mob.x, mob.z)).toBeTrue();
+      }
+    }
+    updateMinecraftMobs(field, 0, { x: 100_000, z: 100_000 });
+    expect(field.activeMobCount).toBe(0);
+    expect(field.mesh.count).toBe(0);
+    expect(field.mesh.instanceMatrix.array).toBe(matrix);
+    expect(field.mesh.instanceColor!.array).toBe(color);
+    expect(matrix.byteLength + color.byteLength + field.partColors.byteLength).toBeLessThan(35_000);
+  });
+
+  test("spawns foxes with four walking legs, ears and a pale tail tip", () => {
+    const field = createMinecraftMobs(payload, false);
+    setMinecraftMobsVisible(field, true);
+    for (let frame = 0; frame < 40; frame += 1) updateMinecraftMobs(field, 0.1, { x: 180, z: 130 });
+    expect(field.mobs.filter((mob) => mob.active && mob.kind === "fox").length).toBeGreaterThan(0);
+    const foxIndex = field.mobs.findIndex((mob) => mob.kind === "fox");
+    const parts = field.parts.filter((part) => part.mobIndex === foxIndex);
+    expect(parts.filter((part) => part.legLift)).toHaveLength(4);
+    expect(parts.filter((part) => part.local[1] > 1)).toHaveLength(4);
+    expect(parts.some((part) => part.local[2] < -0.9 && part.color === 0xf1e5d0)).toBeTrue();
   });
 
   test("reads compact building runs directly with legacy-identical walkability", async () => {

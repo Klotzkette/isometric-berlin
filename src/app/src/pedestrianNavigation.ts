@@ -17,6 +17,7 @@ import {
   tunnelWalkCourses,
 } from "./TunnelPortals";
 import type { PedestrianInput } from "./navigationInput";
+import { MAX_MOTION_FRAME_DELTA_SECONDS } from "./renderQuality";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { BODE_SOURCE, GRILL_SOURCE, SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionProfile";
 
@@ -36,11 +37,11 @@ export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
 // apex below without allowing repeated airborne stacking.
 export const PEDESTRIAN_JUMP_APEX_M = 6.2;
 export const PEDESTRIAN_HIGH_JUMP_APEX_M = 10.5;
-export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
+export const PEDESTRIAN_WALK_SPEED_MPS = 8.5;
 export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
 export const PEDESTRIAN_FAST_RUN_MULTIPLIER = 8;
-export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
-export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.48;
+export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.9;
+export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.7;
 export const PEDESTRIAN_GRAVITY_MPS2 = 26;
 export const PEDESTRIAN_MAX_PITCH_RAD = (Math.PI * 80) / 180;
 export const PEDESTRIAN_FOV_DEGREES = 66;
@@ -1440,7 +1441,7 @@ export function stepPedestrian(
   deltaSeconds: number,
   environment: PedestrianEnvironment,
 ): PedestrianStep {
-  const dt = clamp(deltaSeconds, 0, 0.05);
+  const dt = clamp(deltaSeconds, 0, MAX_MOTION_FRAME_DELTA_SECONDS);
   if (dt === 0) {
     return { changed: false, respawned: false, state };
   }
@@ -1507,6 +1508,21 @@ export function stepPedestrian(
       layer: state.groundLayer,
       y: state.groundY,
     } as const);
+  let currentBlocked =
+    movementLength > 0 &&
+    pedestrianPointIsBlocked(
+      x,
+      z,
+      currentGround.y + jumpOffset,
+      environment.obstacles,
+      environment,
+    );
+  let currentInWater =
+    movementLength > 0 &&
+    currentGround.layer === "surface" &&
+    pedestrianPointIsWater(x, z, environment.water);
+  let acceptedCandidateBlocked = currentBlocked;
+  let acceptedCandidateInWater = currentInWater;
 
   const acceptedGround = (
     candidateX: number,
@@ -1525,13 +1541,6 @@ export function stepPedestrian(
     if (ground === null) {
       return null;
     }
-    const currentBlocked = pedestrianPointIsBlocked(
-      x,
-      z,
-      currentGround.y + jumpOffset,
-      environment.obstacles,
-      environment,
-    );
     const candidateBlocked = pedestrianPointIsBlocked(
       candidateX,
       candidateZ,
@@ -1539,9 +1548,6 @@ export function stepPedestrian(
       environment.obstacles,
       environment,
     );
-    const currentInWater =
-      currentGround.layer === "surface" &&
-      pedestrianPointIsWater(x, z, environment.water);
     const candidateInWater =
       ground.layer === "surface" &&
       pedestrianPointIsWater(candidateX, candidateZ, environment.water);
@@ -1555,6 +1561,8 @@ export function stepPedestrian(
     if (candidateInWater && !currentInWater) {
       return null;
     }
+    acceptedCandidateBlocked = candidateBlocked;
+    acceptedCandidateInWater = candidateInWater;
     return ground;
   };
 
@@ -1566,6 +1574,8 @@ export function stepPedestrian(
     x = candidateX;
     z = candidateZ;
     currentGround = ground;
+    currentBlocked = acceptedCandidateBlocked;
+    currentInWater = acceptedCandidateInWater;
   };
 
   for (let step = 0; step < movementSteps && movementLength > 0; step += 1) {

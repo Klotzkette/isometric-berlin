@@ -43,6 +43,9 @@ import {
   SONY_SURROUNDINGS_GROUP_NAME,
   MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
 } from "./sonyCenterSurroundingsProfile";
+import {
+  WILHELM_STRESEMANN_DETAILS_GROUP_NAME,
+} from "./WilhelmStresemannDetails";
 import { SPREE_RECOGNITION_FINE_LAYER_NAME } from "./spreeRecognitionProfile";
 import { UNTER_DEN_LINDEN_FINE_LAYER_NAME } from "./unterDenLindenProfiles";
 
@@ -267,6 +270,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   UNTER_DEN_LINDEN_FINE_LAYER_NAME,
   SONY_SURROUNDINGS_GROUP_NAME,
   MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
+  WILHELM_STRESEMANN_DETAILS_GROUP_NAME,
   "LoD2 facade axes",
   "carriageway lane markings",
   "LoD2 glass mullions",

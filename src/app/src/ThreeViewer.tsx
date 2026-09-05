@@ -337,7 +337,6 @@ import {
   environmentFrameIntervalMs,
   preservedBackbufferRequired,
   renderFrameRequired,
-  renderInteractionActive,
   renderPixelRatio,
   stableWebglMemoryProfile,
   stableViewportSize,
@@ -372,6 +371,7 @@ import {
   touchInteractionAfterPanGlideCancel,
   viewerGestureResetRequired,
   wheelNavigationIntent,
+  wheelZoomFactor,
 } from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
 import {
@@ -401,6 +401,15 @@ import {
   schwellenraumMotionDecision,
   updateSchwellenraumMovingFlags,
 } from "./visual-modes/schwellenraum/motion";
+import {
+  PARISER_PLATZ_ENTITY_FRAME_INTERVAL_MS,
+  PARISER_PLATZ_ENTITY_INITIAL_TIME_SECONDS,
+  type PariserPlatzEntityLoop,
+  createPariserPlatzLoopScreenScratch,
+  isPariserPlatzEntityLoopOnScreen,
+  pariserPlatzEntityLoopFromRoot,
+  updatePariserPlatzEntityLoop,
+} from "./visual-modes/schwellenraum/pariserPlatzEntityLoop";
 import {
   SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS,
   SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS,
@@ -573,8 +582,11 @@ type Runtime = {
   berlinerEnsembleRoofSignTargets: Object3D[];
   schwellenraumFlagElapsedSeconds: number;
   schwellenraumLastFlagFrameAt: number;
+  schwellenraumLastPariserPlatzFrameAt: number;
   schwellenraumLastWaterFrameAt: number;
   schwellenraumMovingFlagCount: number;
+  schwellenraumPariserPlatzElapsedSeconds: number;
+  schwellenraumPariserPlatzLoop: PariserPlatzEntityLoop | null;
   schwellenraumWaterElapsedSeconds: number;
   schwellenraumWaterLightCount: number;
   schwellenraumMovingRootsScratch: Object3D[];
@@ -698,6 +710,9 @@ function ensureSchwellenraumContent(runtime: Runtime): boolean {
   adoptSchwellenraumRoot(
     runtime.schwellenraumPraesentation,
     createSchwellenraumPraesentation(runtime.coarsePointer ? "mobile" : "full"),
+  );
+  runtime.schwellenraumPariserPlatzLoop = pariserPlatzEntityLoopFromRoot(
+    runtime.schwellenraumPraesentation,
   );
   adoptSchwellenraumRoot(
     runtime.schwellenraumInteriors,
@@ -2069,6 +2084,9 @@ function setSceneLighting(
     runtime.schwellenraumWaterElapsedSeconds =
       SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS;
     runtime.schwellenraumLastWaterFrameAt = 0;
+    runtime.schwellenraumPariserPlatzElapsedSeconds =
+      PARISER_PLATZ_ENTITY_INITIAL_TIME_SECONDS;
+    runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
   }
   refreshSchwellenraumMovingFlagCount(runtime);
   if (runtime.trafficSignals) {
@@ -4455,6 +4473,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       activeRef.current = active;
       const runtime = runtimeRef.current;
       if (active && runtime) {
+        runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
         runtime.schwellenraumLastWaterFrameAt = performance.now();
         runtime.renderInvalidated = true;
       }
@@ -5066,10 +5085,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       });
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
-      // Keep SMAA permanently last and enabled in every visual mode. It is the
-      // single bounded anti-aliasing stage on every device, and motion and
-      // rest must use the exact same pixel pipeline, otherwise the
-      // anti-aliasing transition itself becomes a visible flash.
+      // Keep one identical edge-smoothing pass during movement and at rest.
+      // Navigation must not trade authored detail for a faster blurry frame.
       const smaaPass = new SMAAPass();
       smaaPass.enabled = true;
       composer.addPass(smaaPass);
@@ -5082,9 +5099,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // custom momentum below; mouse/pen rotation remains strictly 1:1.
       controls.enableDamping = false;
       controls.zoomToCursor = true;
-      controls.rotateSpeed = 1.08;
-      controls.zoomSpeed = 1.12;
-      controls.panSpeed = 1.16;
+      controls.rotateSpeed = 1.45;
+      controls.zoomSpeed = 1.38;
+      controls.panSpeed = 1.5;
       controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
@@ -5190,8 +5207,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         berlinerEnsembleRoofSignTargets: [],
         schwellenraumFlagElapsedSeconds: 0.9,
         schwellenraumLastFlagFrameAt: 0,
+        schwellenraumLastPariserPlatzFrameAt: 0,
         schwellenraumLastWaterFrameAt: 0,
         schwellenraumMovingFlagCount: 0,
+        schwellenraumPariserPlatzElapsedSeconds:
+          PARISER_PLATZ_ENTITY_INITIAL_TIME_SECONDS,
+        schwellenraumPariserPlatzLoop: null,
         schwellenraumWaterElapsedSeconds:
           SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS,
         schwellenraumWaterLightCount: 0,
@@ -5324,6 +5345,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const previousThreeFingerCenterStorage: TouchPoint = { x: 0, y: 0 };
       let previousThreeFingerCenter: TouchPoint | null = null;
       let controlsInteracting = false;
+      let directControlChanged = false;
       const lastDirectControlCamera = camera.position.clone();
       const lastDirectControlTarget = controls.target.clone();
       let touchInteracting = false;
@@ -5584,8 +5606,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           ) {
             runtime.pedestrian.state = lookPedestrian(
               runtime.pedestrian.state,
-              pendingFrameNavigation.lookX * 0.0034,
-              -pendingFrameNavigation.lookY * 0.0031,
+              pendingFrameNavigation.lookX * 0.0048,
+              -pendingFrameNavigation.lookY * 0.0044,
             );
             runtime.pedestrian.cameraDirty = true;
             moved = true;
@@ -5630,7 +5652,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return moved;
       };
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
-      let wheelEndTimer: number | null = null;
+      let wheelEndNotifyAt = Number.POSITIVE_INFINITY;
       const onWheelNavigation = (event: WheelEvent): void => {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -5656,12 +5678,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (intent === "mouse-wheel-zoom") {
-          if (event.deltaY !== 0) {
-            const scale = Math.pow(
-              0.95,
-              controls.zoomSpeed * Math.abs(event.deltaY * 0.01),
-            );
-            const factor = event.deltaY < 0 ? 1 / scale : scale;
+          const factor = wheelZoomFactor(event);
+          if (factor !== 1) {
             pendingFrameNavigation.zoomLog = accumulateBoundedFrameDelta(
               pendingFrameNavigation.zoomLog,
               Math.log(factor),
@@ -5672,9 +5690,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           pendingFrameNavigation.zoomY = event.clientY;
         } else if (intent === "trackpad-pinch") {
           const factor = MathUtils.clamp(
-            Math.exp(-event.deltaY * 0.016),
-            0.78,
-            1.28,
+            Math.exp(-event.deltaY * 0.021),
+            0.74,
+            1.34,
           );
           pendingFrameNavigation.zoomLog = accumulateBoundedFrameDelta(
             pendingFrameNavigation.zoomLog,
@@ -5700,15 +5718,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
         }
         markSurfaceInteraction(runtime);
-        if (wheelEndTimer !== null) {
-          window.clearTimeout(wheelEndTimer);
-        }
-        wheelEndTimer = window.setTimeout(() => {
-          wheelEndTimer = null;
-          if (!runtime.disposed) {
-            notifyView(runtime, onViewChangeRef.current);
-          }
-        }, 180);
+        // High-resolution trackpads may emit hundreds of wheel events per
+        // second. One RAF-owned deadline avoids allocating and cancelling a
+        // browser timer for every event while preserving the settled view.
+        wheelEndNotifyAt = now + 180;
       };
       const onPointerDown = (event: PointerEvent) => {
         panMomentum.x = 0;
@@ -6176,6 +6189,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
         } else {
           runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
+          runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
           runtime.schwellenraumLastWaterFrameAt = performance.now();
           runtime.renderInvalidated = true;
           if (
@@ -6285,6 +6299,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         markSurfaceInteraction(runtime);
       };
       const onControlsChange = () => {
+        directControlChanged = true;
         if (controlsInteracting) {
           reconcileMinecraftCameraRig(
             runtime,
@@ -6437,14 +6452,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wasOrbiting = true;
         const nextPolar = MathUtils.clamp(
           controls.getPolarAngle() -
-            MathUtils.degToRad(input.y * 38 * dtSeconds),
+            MathUtils.degToRad(input.y * 58 * dtSeconds),
           0.08,
           Math.PI - 0.08,
         );
         setOrbitAngles(
           runtime,
           controls.getAzimuthalAngle() +
-            MathUtils.degToRad(input.x * 52 * dtSeconds),
+            MathUtils.degToRad(input.x * 84 * dtSeconds),
           nextPolar,
         );
         const underside = nextPolar > Math.PI / 2;
@@ -6455,11 +6470,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return true;
       };
       const roofSignScreenScratch = new Vector3();
-      const renderInteractionSources = {
-        controls: false,
-        touch: false,
-        wheel: false,
-      };
+      const pariserPlatzLoopScreenScratch =
+        createPariserPlatzLoopScreenScratch();
       const renderFrameSources = {
         cameraMoving: false,
         environmentalMotion: false,
@@ -6469,10 +6481,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const schwellenraumMotionOptions: SchwellenraumMotionOptions = {
         flagFrameIntervalMs: 0,
         lastFlagFrameAt: 0,
+        lastPariserPlatzFrameAt: 0,
         lastWaterFrameAt: 0,
         minecraftMobsVisible: false,
         mode: runtime.lightingMode,
         movingFlagCount: 0,
+        pariserPlatzEntitiesOnScreen: false,
+        pariserPlatzEntityCount: 0,
+        pariserPlatzFrameIntervalMs: 0,
         rainVisible: false,
         reducedMotion,
         snowVisible: false,
@@ -6482,6 +6498,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const schwellenraumMotionScratch: SchwellenraumMotionDecision = {
         animateFlags: false,
         animateOrdinaryEnvironment: false,
+        animatePariserPlatzEntities: false,
         animateWaterLight: false,
         environmentalMotion: false,
       };
@@ -6518,6 +6535,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           lastAnimateAt = timestamp;
           return;
         }
+        if (timestamp >= wheelEndNotifyAt) {
+          wheelEndNotifyAt = Number.POSITIVE_INFINITY;
+          notifyView(runtime, onViewChangeRef.current);
+        }
         const dtSeconds = boundedMotionFrameDeltaSeconds(
           timestamp,
           lastAnimateAt,
@@ -6530,6 +6551,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.coarsePointer,
         );
         const documentHidden = document.visibilityState === "hidden";
+        const pariserPlatzFrameIntervalMs = runtime.coarsePointer
+          ? PARISER_PLATZ_ENTITY_FRAME_INTERVAL_MS.mobile
+          : PARISER_PLATZ_ENTITY_FRAME_INTERVAL_MS.full;
+        const pariserPlatzEntitiesOnScreen =
+          !reducedMotion &&
+          !documentHidden &&
+          runtime.lightingMode === "schwellenraum" &&
+          isPariserPlatzEntityLoopOnScreen(
+            runtime.schwellenraumPariserPlatzLoop,
+            camera,
+            pariserPlatzLoopScreenScratch,
+          );
         const rainVisible = runtime.rain.group.visible;
         const snowVisible = snowfallAnimationActive(runtime.snowstorm);
         const minecraftEnvironmentVisible =
@@ -6542,6 +6575,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const continuousInputActive =
           runtime.renderInvalidated ||
           runtime.shadowInvalidated ||
+          frameNavigationMoved ||
+          touchGestureMoved ||
+          directControlChanged ||
           controlsInteracting ||
           touchInteracting ||
           wasFlying ||
@@ -6589,6 +6625,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS,
           );
         }
+        if (pariserPlatzEntitiesOnScreen) {
+          passiveFrameIntervalMs = Math.min(
+            passiveFrameIntervalMs,
+            pariserPlatzFrameIntervalMs,
+          );
+        }
         if (
           !continuousInputActive &&
           timestamp - lastEvaluationAt < passiveFrameIntervalMs
@@ -6620,11 +6662,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const controlsChanged = runtime.pedestrian.enabled
           ? false
           : controls.update();
-        renderInteractionSources.controls = controlsInteracting;
-        renderInteractionSources.touch = touchInteracting;
-        const directInputActive = renderInteractionActive(
-          renderInteractionSources,
-        );
+        const directControlMoved = directControlChanged;
+        directControlChanged = false;
         let stabilizedChanged = false;
         let stabilizedRecovered = false;
         if (!runtime.pedestrian.enabled) {
@@ -6652,12 +6691,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumMotionOptions.flagFrameIntervalMs = flagFrameIntervalMs;
         schwellenraumMotionOptions.lastFlagFrameAt =
           runtime.schwellenraumLastFlagFrameAt;
+        schwellenraumMotionOptions.lastPariserPlatzFrameAt =
+          runtime.schwellenraumLastPariserPlatzFrameAt;
         schwellenraumMotionOptions.lastWaterFrameAt =
           runtime.schwellenraumLastWaterFrameAt;
         schwellenraumMotionOptions.minecraftMobsVisible =
           minecraftEnvironmentVisible;
         schwellenraumMotionOptions.mode = runtime.lightingMode;
         schwellenraumMotionOptions.movingFlagCount = movingFlagCount;
+        schwellenraumMotionOptions.pariserPlatzEntitiesOnScreen =
+          pariserPlatzEntitiesOnScreen;
+        schwellenraumMotionOptions.pariserPlatzEntityCount =
+          runtime.schwellenraumPariserPlatzLoop?.movingInstanceCount ?? 0;
+        schwellenraumMotionOptions.pariserPlatzFrameIntervalMs =
+          pariserPlatzFrameIntervalMs;
         schwellenraumMotionOptions.rainVisible = rainVisible;
         schwellenraumMotionOptions.reducedMotion = reducedMotion;
         schwellenraumMotionOptions.snowVisible = snowVisible;
@@ -6705,9 +6752,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ordinaryEnvironmentFrameIntervalMs;
         const environmentalMotion =
           schwellenraumMotion.animateFlags ||
+          schwellenraumMotion.animatePariserPlatzEntities ||
           schwellenraumMotion.animateWaterLight ||
           ordinaryEnvironmentMotion ||
           roofSignMotion.environmentalMotion;
+        const panMomentumActive =
+          !runtime.pedestrian.enabled &&
+          (panMomentum.x !== 0 || panMomentum.y !== 0) &&
+          touchPoints.size === 0;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
@@ -6718,7 +6770,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           panning ||
           orbiting ||
           pedestrianMoving ||
-          directInputActive ||
+          panMomentumActive ||
+          directControlMoved ||
           controlsChanged ||
           stabilizedChanged;
         const isMoving =
@@ -6838,6 +6891,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             updateMinecraftMobs(
               runtime.minecraftMobs,
               reducedMotion ? ordinaryDtSeconds * 0.35 : ordinaryDtSeconds,
+              camera.position,
             );
           }
           if (runtime.minecraftLootBoxes?.group.visible) {
@@ -6868,6 +6922,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.schwellenraumLastFlagFrameAt = timestamp;
         }
+        if (
+          schwellenraumMotion.animatePariserPlatzEntities &&
+          runtime.schwellenraumPariserPlatzLoop
+        ) {
+          runtime.schwellenraumPariserPlatzElapsedSeconds +=
+            pariserPlatzFrameIntervalMs / 1_000;
+          updatePariserPlatzEntityLoop(
+            runtime.schwellenraumPariserPlatzLoop,
+            runtime.schwellenraumPariserPlatzElapsedSeconds,
+          );
+          runtime.schwellenraumLastPariserPlatzFrameAt = timestamp;
+        }
         if (roofSignMotion.animate) {
           runtime.berlinerEnsembleRoofSignElapsedSeconds +=
             flagFrameIntervalMs / 1_000;
@@ -6878,11 +6944,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.berlinerEnsembleRoofSignLastFrameAt = timestamp;
         }
         // Momentum glide: the released pan eases out smoothly.
-        if (
-          !runtime.pedestrian.enabled &&
-          (panMomentum.x !== 0 || panMomentum.y !== 0) &&
-          touchPoints.size === 0
-        ) {
+        if (panMomentumActive) {
           const { strafe, forward } = twoFingerPanFlight(
             panMomentum.x * dtSeconds,
             panMomentum.y * dtSeconds,
@@ -7566,9 +7628,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("change", onControlsChange);
         controls.removeEventListener("end", onControlsEnd);
-        if (wheelEndTimer !== null) {
-          window.clearTimeout(wheelEndTimer);
-        }
+        wheelEndNotifyAt = Number.POSITIVE_INFINITY;
         if (runtime.markerTimer !== null) {
           window.clearTimeout(runtime.markerTimer);
         }

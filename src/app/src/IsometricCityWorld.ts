@@ -1308,7 +1308,7 @@ export const ISO_GLASS_MULLION_OPACITY = 0.44;
 export const ISO_FACADE_AXIS_OPACITY = 0.34;
 export const ISO_FACADE_DETAIL_FADE_M = [500, 780] as const;
 export const FACADE_AXIS_V07231_ATTRIBUTE_BYTES = 23_221_352;
-export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 96 * 1024;
+export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 104 * 1024;
 
 function facadeColorFor(
   building: PrismBuilding,
@@ -2531,6 +2531,28 @@ const TILLA_DURIEUX_RHYTHM = {
   width: 1.15,
 } as const;
 
+const STRESEMANNSTRASSE_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character:
+    "mixed Wilhelminian, post-war residential and contemporary office frontage",
+  floorPitch: 3.25,
+  height: 2.12,
+  maximumDetailedStoreys: 10,
+  sillStart: 1.02,
+  width: 1.18,
+} as const;
+
+const WILHELMSTRASSE_RHYTHM = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  character:
+    "mixed civic, diplomatic, retail and post-war residential frontage",
+  floorPitch: 3.3,
+  height: 2.18,
+  maximumDetailedStoreys: 10,
+  sillStart: 1.04,
+  width: 1.2,
+} as const;
+
 const HAUPTBAHNHOF_QUARTER_RHYTHM = {
   bayPitch: ISO_WINDOW_BAY_PITCH_M,
   character: "contemporary station-quarter office and hotel frontage",
@@ -2658,6 +2680,16 @@ const TILLA_DURIEUX_SOUTH_END_WORLD_M = [
     2,
 ] as const;
 
+export const STRESEMANNSTRASSE_DETAIL_AXIS_WORLD_M = [
+  [356.9, 1157.2],
+  [1124.4, 2202],
+] as const;
+
+export const WILHELMSTRASSE_DETAIL_AXIS_WORLD_M = [
+  [600.4, 12.2],
+  [1146.1, 2345.1],
+] as const;
+
 /**
  * Bounded public-realm anchors for the requested square and park fronts.
  *
@@ -2719,6 +2751,32 @@ export const PLAZA_FACADE_DETAIL_ZONES: readonly PlazaFacadeDetailZone[] = [
     priority: 1,
     radiusM: 155,
     sourceAnchor: "OSM ways 840814492 and 840814493",
+  },
+  {
+    anchorLineWorldM: STRESEMANNSTRASSE_DETAIL_AXIS_WORLD_M,
+    centreWorldM: [740.65, 1679.6],
+    facadeRhythm: STRESEMANNSTRASSE_RHYTHM,
+    geometryStatus:
+      "OSM street centreline axis; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 5,
+    minimumFacingCosine: 0.2,
+    name: "Stresemannstraße",
+    priority: 1,
+    radiusM: 68,
+    sourceAnchor: "OSM Stresemannstraße carriageway centreline",
+  },
+  {
+    anchorLineWorldM: WILHELMSTRASSE_DETAIL_AXIS_WORLD_M,
+    centreWorldM: [873.25, 1178.65],
+    facadeRhythm: WILHELMSTRASSE_RHYTHM,
+    geometryStatus:
+      "OSM street centreline axis; exact LoD2 walls and normals control every detailed facade",
+    minimumDistanceM: 5,
+    minimumFacingCosine: 0.2,
+    name: "Wilhelmstraße",
+    priority: 1,
+    radiusM: 66,
+    sourceAnchor: "OSM Wilhelmstraße carriageway centreline",
   },
   {
     centreWorldM: [-2406.297, 1531.147],
@@ -7589,6 +7647,31 @@ function addAdlonArch(
   addAdlonGeometry(builder, geometry, 0x314248, "lamps", true);
 }
 
+function addAdlonDormerPediment(
+  builder: Builder,
+  frame: AdlonFrame,
+  color: number,
+  alongM: number,
+  baseY: number,
+  inwardM: number,
+  widthM: number,
+): void {
+  const shape = new Shape();
+  shape.moveTo(alongM - widthM / 2, baseY);
+  shape.lineTo(alongM, baseY + 0.95);
+  shape.lineTo(alongM + widthM / 2, baseY);
+  shape.lineTo(alongM - widthM / 2, baseY);
+  const depthM = 0.46;
+  const geometry = new ExtrudeGeometry(shape, {
+    bevelEnabled: false,
+    depth: depthM,
+  });
+  geometry.translate(0, 0, inwardM - depthM / 2);
+  geometry.rotateY(frame.rotationY);
+  geometry.translate(frame.center[0], 0, frame.center[1]);
+  addAdlonGeometry(builder, geometry, color, "parts", true);
+}
+
 function adlonMansardGeometry(): BufferGeometry {
   const { eavesWorldY, ridgeWorldY } = HOTEL_ADLON_PROFILE.heights;
   const depthM = HOTEL_ADLON_PROFILE.publicFacade.frontHeadDepthM;
@@ -7850,6 +7933,8 @@ export function createHotelAdlon(): Group {
     [groundY + 6.55, 0.32, 0.38],
     [groundY + 9.55, 0.26, 0.32],
     [groundY + 12.55, 0.22, 0.3],
+    [groundY + 15.55, 0.2, 0.28],
+    [groundY + 18.75, 0.2, 0.28],
     [eavesY - 0.22, 0.5, 0.5],
   ] as const) {
     addAdlonFrameBox(
@@ -7922,6 +8007,17 @@ export function createHotelAdlon(): Group {
       -0.64,
       0.08,
       heightM,
+      0.08,
+    );
+    addAdlonFrameBox(
+      builder,
+      windowPlane,
+      0xc9c6b7,
+      alongM,
+      y,
+      -0.64,
+      widthM,
+      0.07,
       0.08,
     );
   };
@@ -8191,6 +8287,15 @@ export function createHotelAdlon(): Group {
       0.12,
       "lamps",
     );
+    addAdlonDormerPediment(
+      builder,
+      front,
+      roofDark,
+      alongM,
+      31.2,
+      0.18,
+      3.35,
+    );
   }
   const eastDormerAxesM = [-6.8, 0, 6.8] as const;
   for (const alongM of eastDormerAxesM) {
@@ -8218,6 +8323,15 @@ export function createHotelAdlon(): Group {
       1.55,
       0.12,
       "lamps",
+    );
+    addAdlonDormerPediment(
+      builder,
+      eastReturnFrame,
+      roofDark,
+      alongM,
+      31.2,
+      0.12,
+      3.35,
     );
   }
   for (let alongM = -32; alongM <= 32; alongM += 4) {
@@ -8273,17 +8387,33 @@ export function createHotelAdlon(): Group {
       5.6,
       0.12,
     );
-    addAdlonFrameBox(
-      builder,
-      front,
-      flagColors[index],
-      alongM + 1.05,
-      38.55,
-      11,
-      2,
-      1.05,
-      0.08,
-    );
+    if (index === 1) {
+      [0x242424, 0xad3335, 0xd4a943].forEach((color, stripe) => {
+        addAdlonFrameBox(
+          builder,
+          front,
+          color,
+          alongM + 1.05,
+          38.9 - stripe * 0.35,
+          11,
+          2,
+          0.35,
+          0.08,
+        );
+      });
+    } else {
+      addAdlonFrameBox(
+        builder,
+        front,
+        flagColors[index],
+        alongM + 1.05,
+        38.55,
+        11,
+        2,
+        1.05,
+        0.08,
+      );
+    }
   });
   addAdlonOpenLettering(builder, front, 0, 34.45, 10.8);
   addAdlonOpenLettering(builder, eastReturnFrame, 0, 33.7, -3.2);
@@ -8312,6 +8442,14 @@ export function createHotelAdlon(): Group {
     startWorldM: profile.returns.east.startWorldM,
   };
   group.userData.sourcePrismSuppressed = false;
+  group.userData.ownerPhotoEnhancements = {
+    dormerPediments:
+      profile.publicFacade.frontDormerPedimentCount +
+      profile.publicFacade.eastDormerPedimentCount,
+    germanFlagStripes: profile.publicFacade.germanFlagStripeCount,
+    horizontalCourses: profile.publicFacade.frontHorizontalCourseCount,
+    windowMuntins: profile.publicFacade.frontWindowMuntinCount,
+  };
 
   const body = group.getObjectByName("Adlon bodies");
   if (body instanceof Mesh) {
@@ -8343,16 +8481,23 @@ export function createHotelAdlon(): Group {
     facade: "east return",
     startWorldM: profile.returns.east.startWorldM,
   });
+  addAdlonMarker(group, "Adlon German roof flag", {
+    codeNative: true,
+    stripeCount: profile.publicFacade.germanFlagStripeCount,
+  });
   dormerAxesM.forEach((alongM, index) => {
     addAdlonMarker(group, `Adlon front dormer ${index + 1}`, {
       alongM,
       codeNative: true,
+      pediment: true,
+      source: profile.sources.ownerVisualReference.view,
     });
   });
   eastDormerAxesM.forEach((alongM, index) => {
     addAdlonMarker(group, `Adlon east dormer ${index + 1}`, {
       alongM,
       codeNative: true,
+      pediment: true,
       source: profile.sources.visualReferences[1],
     });
   });

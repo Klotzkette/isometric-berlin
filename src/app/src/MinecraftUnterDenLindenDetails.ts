@@ -111,6 +111,13 @@ function voxelGrid(
 ): void {
   const length = axisLength(axis);
   const pitch = length / bays;
+  for (let floor = 0; floor < floors; floor += 1) {
+    facadeBlock(
+      builder, axis, length / 2,
+      baseY + firstFloorY + floor * floorPitch - 1.35,
+      0.98, length, 0.3, 0.8, STONE_LIGHT,
+    );
+  }
   for (let bay = 0; bay < bays; bay += 1) {
     for (let floor = 0; floor < floors; floor += 1) {
       const color = accent?.(bay, floor) ??

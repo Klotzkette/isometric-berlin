@@ -244,6 +244,27 @@ function addSegment(
       add(length / 2, crown, length, 0.3, 0xeeeae0, 0.64, 0.25);
     }
     add(length / 2, base - 0.5, length, 0.5, building.tone, 0.65, 0.32);
+    if (
+      building.id === "ritz-carlton" &&
+      run.prismId === "e1PTH7PY" &&
+      length > 35
+    ) {
+      const lobbyWidth = Math.min(12, length * 0.28);
+      add(length / 2, 2.65, lobbyWidth, 4.9, GLASS_LIGHT, 0.7, 0.28);
+      add(length / 2, 5.05, lobbyWidth + 1.2, 0.32, 0xd8d2c6, 1.08, 0.58);
+      for (const side of [-1, 1]) {
+        add(
+          length / 2 + side * lobbyWidth * 0.49,
+          2.75,
+          voxel ? 0.5 : 0.28,
+          5.3,
+          0xeee9df,
+          0.92,
+          0.28,
+        );
+      }
+      add(length / 2, 5.65, lobbyWidth * 0.72, 0.34, 0xb49b72, 0.98, 0.18);
+    }
   } else {
     add(length / 2, top, length, 0.35, SILVER, 0.54, 0.22);
     if (style === "curtain-wall") {

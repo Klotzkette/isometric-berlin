@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.72.40
+
+- **Direktere Bewegung ohne wechselnde Bildqualitaet.** WASD, Pfeiltasten,
+  Maus und Mausrad reagieren schneller; Walking und Drehen erhalten hoehere,
+  begrenzte Geschwindigkeiten. Mausrad-Delta-Modi werden vereinheitlicht.
+  Ein abgelaufener Mausrad-Termin loest nicht mehr in jedem Frame React-Updates
+  aus. Echte Pointer-Aenderungen loesen zuverlaessig ein neues Bild aus;
+  ein nur festgehaltener, unbewegter Pointer erzwingt keines. SMAA bleibt auch
+  waehrend der Bewegung aktiv. Die Kollisionspruefung nutzt akzeptierte
+  Zwischenschritte weiter, ohne den Schutz gegen Durchlaufen zu reduzieren.
+- **Minecraft folgt dem Spieler.** Bis zu 16 Zombies und vier blocknative
+  Fuechse ergaenzen sechs Creeper und fuenf Skelette. Mobil sind es
+  10/3/4/3. Alle teilen einen festen Instanzpool; entfernte Mobs despawnen,
+  und ausserhalb von Minecraft bleibt kein aktiver Mob uebrig. Schutzfelder,
+  Gebaeude, Wasser und Baumabstand bleiben fuer jeden Spawn verbindlich.
+- **Mehr Fassadentiefe Unter den Linden.** 666 zusaetzliche Laibungen und
+  Querrahmen verfeinern die bestehenden quellgebundenen Strassenfronten.
+  Zehn Draw Calls und das bisherige 180-KiB-Limit bleiben erhalten. Minecraft
+  erhaelt Geschosskanten im vorhandenen Fassadenbatch, ohne massive Innenfuellung.
+- **Pariser Platz nach den Eigentuemer-Referenzen.** Adlon, Vorplatzkiosk,
+  Aufzug, Platzgaerten und Sichtbeziehungen erhalten prozedurale Details.
+  Ein begrenzter, nahtloser Figuren- und Verkehrsloop mit Fontaenen erscheint
+  nur im Schwellenraum am Pariser Platz; das Referenzvideo wird nicht geladen
+  oder mitgeliefert. Sony-Center-Umfeld, Wilhelm- und Stresemannstrasse erhalten
+  weitere quellgebundene Erkennungsdetails und bevorzugte LoD2-Verfeinerung.
+- **Kein neuer Fotoballast.** Alle Ergaenzungen bleiben prozedural und
+  instanziert. Die gelieferten Fotos und das Video bleiben ausschliesslich
+  Arbeitsreferenzen ausserhalb des Viewer-Pakets.
+
 ## v0.72.39
 
 - **Der Wechsel vom Flug zum Spaziergang ist jetzt ein echtes Lot.** Die

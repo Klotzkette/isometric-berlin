@@ -19,11 +19,13 @@ type GroundAt = (x: number, z: number) => number | null;
 export type SchwellenraumPropKind =
   | "bed"
   | "chair"
+  | "doorframe"
   | "floor-lamp"
   | "refrigerator"
   | "side-table"
   | "sofa"
   | "television"
+  | "waiting-bench"
   | "wardrobe"
   | "washing-machine";
 
@@ -76,6 +78,15 @@ export const SCHWELLENRAUM_STATIC_VIGNETTES: readonly SchwellenraumStaticVignett
         localZ: -0.12,
         rotationY: 0,
         sizeM: [0.52, 1.82, 0.52],
+      },
+      {
+        color: 0x9bb7aa,
+        id: "empty-waiting-bench",
+        kind: "waiting-bench",
+        localX: 0.2,
+        localZ: -1.42,
+        rotationY: Math.PI,
+        sizeM: [2.45, 1.05, 0.62],
       },
     ],
   },
@@ -211,6 +222,15 @@ export const SCHWELLENRAUM_STATIC_VIGNETTES: readonly SchwellenraumStaticVignett
         localZ: 0.16,
         rotationY: 0.22,
         sizeM: [1.12, 1.22, 0.58],
+      },
+      {
+        color: 0xb8a6c8,
+        id: "door-to-nowhere",
+        kind: "doorframe",
+        localX: 0.25,
+        localZ: -1.48,
+        rotationY: -0.2,
+        sizeM: [1.55, 2.55, 0.46],
       },
     ],
   },
@@ -534,6 +554,78 @@ function createTelevision(profile: SchwellenraumStaticProp): Group {
   return group;
 }
 
+function createWaitingBench(profile: SchwellenraumStaticProp): Group {
+  const [width, height, depth] = profile.sizeM;
+  const group = new Group();
+  group.add(
+    mergedBoxProp(`${profile.id} batched empty waiting bench`, [
+      {
+        color: profile.color,
+        position: [0, height * 0.54, 0.04],
+        size: [width, 0.14, depth * 0.72],
+      },
+      {
+        color: profile.color,
+        position: [0, height * 0.78, -depth * 0.29],
+        size: [width, height * 0.42, 0.11],
+      },
+      {
+        color: 0x696f6b,
+        position: [-width * 0.39, height * 0.24, 0],
+        size: [0.11, height * 0.48, 0.11],
+      },
+      {
+        color: 0x696f6b,
+        position: [width * 0.39, height * 0.24, 0],
+        size: [0.11, height * 0.48, 0.11],
+      },
+      {
+        color: 0xd6be8b,
+        position: [width * 0.18, height * 0.66, depth * 0.4],
+        rotationY: 0.08,
+        size: [width * 0.2, 0.035, 0.035],
+      },
+    ]),
+  );
+  return group;
+}
+
+function createDoorframe(profile: SchwellenraumStaticProp): Group {
+  const [width, height, depth] = profile.sizeM;
+  const group = new Group();
+  group.add(
+    mergedBoxProp(`${profile.id} batched impossible doorway`, [
+      {
+        color: profile.color,
+        position: [-width * 0.45, height / 2, 0],
+        size: [width * 0.1, height, depth],
+      },
+      {
+        color: profile.color,
+        position: [width * 0.45, height / 2, 0],
+        size: [width * 0.1, height, depth],
+      },
+      {
+        color: profile.color,
+        position: [0, height * 0.95, 0],
+        size: [width, height * 0.1, depth],
+      },
+      {
+        color: 0x817399,
+        position: [width * 0.18, height * 0.48, depth * 0.22],
+        rotationY: 0.42,
+        size: [width * 0.72, height * 0.84, 0.08],
+      },
+      {
+        color: 0xd3b071,
+        position: [width * 0.29, height * 0.5, depth * 0.39],
+        size: [0.07, 0.07, 0.07],
+      },
+    ]),
+  );
+  return group;
+}
+
 function createProp(profile: SchwellenraumStaticProp): Group {
   let group: Group;
   switch (profile.kind) {
@@ -542,6 +634,9 @@ function createProp(profile: SchwellenraumStaticProp): Group {
       break;
     case "chair":
       group = createChair(profile);
+      break;
+    case "doorframe":
+      group = createDoorframe(profile);
       break;
     case "floor-lamp":
       group = createFloorLamp(profile);
@@ -554,6 +649,9 @@ function createProp(profile: SchwellenraumStaticProp): Group {
       break;
     case "television":
       group = createTelevision(profile);
+      break;
+    case "waiting-bench":
+      group = createWaitingBench(profile);
       break;
     case "wardrobe":
       group = createWardrobe(profile);

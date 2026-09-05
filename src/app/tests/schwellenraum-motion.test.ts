@@ -23,6 +23,13 @@ const stylesSource = await Bun.file(
   new URL("../src/styles.css", import.meta.url),
 ).text();
 
+const pariserPlatzIdle = {
+  lastPariserPlatzFrameAt: 0,
+  pariserPlatzEntitiesOnScreen: false,
+  pariserPlatzEntityCount: 0,
+  pariserPlatzFrameIntervalMs: 1_000 / 30,
+} as const;
+
 function flag(kind: WindFlagKind): Mesh {
   const geometry = new PlaneGeometry(4, 1.5, 8, 2);
   geometry.translate(2, 0, 0);
@@ -83,6 +90,11 @@ describe("Schwellenraum closed world-motion contract", () => {
     expect(
       isSchwellenraumWorldMotionAllowed({ kind: "water-light" }),
     ).toBeTrue();
+    expect(
+      isSchwellenraumWorldMotionAllowed({
+        kind: "pariser-platz-entity-loop",
+      }),
+    ).toBeTrue();
   });
 
   test("updates all four allowed classes and leaves every other wind flag frozen", () => {
@@ -126,6 +138,7 @@ describe("Schwellenraum closed world-motion contract", () => {
 
   test("suppresses Rain, Snow and Mob updates even when their visibility flags are true", () => {
     const beforeTick = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 100,
       lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
@@ -140,11 +153,13 @@ describe("Schwellenraum closed world-motion contract", () => {
     expect(beforeTick).toEqual({
       animateFlags: false,
       animateOrdinaryEnvironment: false,
+      animatePariserPlatzEntities: false,
       animateWaterLight: false,
       environmentalMotion: false,
     });
 
     const tick = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 100,
       lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
@@ -159,6 +174,7 @@ describe("Schwellenraum closed world-motion contract", () => {
     expect(tick).toEqual({
       animateFlags: true,
       animateOrdinaryEnvironment: false,
+      animatePariserPlatzEntities: false,
       animateWaterLight: false,
       environmentalMotion: true,
     });
@@ -175,11 +191,13 @@ describe("Schwellenraum closed world-motion contract", () => {
     const output = {
       animateFlags: false,
       animateOrdinaryEnvironment: false,
+      animatePariserPlatzEntities: false,
       animateWaterLight: false,
       environmentalMotion: false,
     };
     const result = schwellenraumMotionDecision(
       {
+        ...pariserPlatzIdle,
         lastFlagFrameAt: 0,
         lastWaterFrameAt: 0,
         minecraftMobsVisible: false,
@@ -200,6 +218,7 @@ describe("Schwellenraum closed world-motion contract", () => {
   test("cadences the four civic flags in every ordinary visual mode", () => {
     for (const mode of ["day", "night", "snowstorm", "minecraft"] as const) {
       const decision = schwellenraumMotionDecision({
+        ...pariserPlatzIdle,
         lastFlagFrameAt: 0,
         lastWaterFrameAt: 0,
         minecraftMobsVisible: false,
@@ -214,6 +233,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       expect(decision, mode).toEqual({
         animateFlags: true,
         animateOrdinaryEnvironment: true,
+        animatePariserPlatzEntities: false,
         animateWaterLight: false,
         environmentalMotion: true,
       });
@@ -222,6 +242,7 @@ describe("Schwellenraum closed world-motion contract", () => {
 
   test("freezes cloth for reduced motion without suppressing ordinary weather", () => {
     const decision = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
       lastFlagFrameAt: 0,
       lastWaterFrameAt: 0,
       minecraftMobsVisible: false,
@@ -236,14 +257,78 @@ describe("Schwellenraum closed world-motion contract", () => {
     expect(decision).toEqual({
       animateFlags: false,
       animateOrdinaryEnvironment: true,
+      animatePariserPlatzEntities: false,
       animateWaterLight: false,
       environmentalMotion: true,
     });
   });
 
+  test("cadences the local Pariser Platz loop only on-screen in Schwellenraum", () => {
+    const before = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
+      lastFlagFrameAt: 100,
+      lastPariserPlatzFrameAt: 100,
+      lastWaterFrameAt: 100,
+      minecraftMobsVisible: false,
+      mode: "schwellenraum",
+      movingFlagCount: 0,
+      pariserPlatzEntitiesOnScreen: true,
+      pariserPlatzEntityCount: 50,
+      rainVisible: false,
+      reducedMotion: false,
+      snowVisible: false,
+      timestamp: 100 + 1_000 / 30 - 0.01,
+      waterLightCount: 0,
+    });
+    expect(before.animatePariserPlatzEntities).toBeFalse();
+
+    const tick = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
+      lastFlagFrameAt: 100,
+      lastPariserPlatzFrameAt: 100,
+      lastWaterFrameAt: 100,
+      minecraftMobsVisible: false,
+      mode: "schwellenraum",
+      movingFlagCount: 0,
+      pariserPlatzEntitiesOnScreen: true,
+      pariserPlatzEntityCount: 50,
+      rainVisible: false,
+      reducedMotion: false,
+      snowVisible: false,
+      timestamp: 100 + 1_000 / 30,
+      waterLightCount: 0,
+    });
+    expect(tick).toEqual({
+      animateFlags: false,
+      animateOrdinaryEnvironment: false,
+      animatePariserPlatzEntities: true,
+      animateWaterLight: false,
+      environmentalMotion: true,
+    });
+
+    const reduced = schwellenraumMotionDecision({
+      ...pariserPlatzIdle,
+      lastFlagFrameAt: 0,
+      lastPariserPlatzFrameAt: 0,
+      lastWaterFrameAt: 0,
+      minecraftMobsVisible: false,
+      mode: "schwellenraum",
+      movingFlagCount: 0,
+      pariserPlatzEntitiesOnScreen: true,
+      pariserPlatzEntityCount: 50,
+      rainVisible: false,
+      reducedMotion: true,
+      snowVisible: false,
+      timestamp: 10_000,
+      waterLightCount: 0,
+    });
+    expect(reduced.animatePariserPlatzEntities).toBeFalse();
+    expect(reduced.environmentalMotion).toBeFalse();
+  });
+
   test("keeps static light thresholds and fixed props on identical matrices over time", () => {
     const presentation = createSchwellenraumPraesentation();
-    expect(installSchwellenraumStaticProps(presentation, () => 4.2)).toBe(12);
+    expect(installSchwellenraumStaticProps(presentation, () => 4.2)).toBe(14);
     const before = matrixSnapshot(presentation);
 
     for (const elapsed of [0.25, 1.7, 8.4, 42]) {

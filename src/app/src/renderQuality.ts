@@ -113,10 +113,10 @@ export const DESKTOP_ENVIRONMENT_FRAME_INTERVAL_MS = 1_000 / 30;
 export const TOUCH_ENVIRONMENT_FRAME_INTERVAL_MS = 1_000 / 20;
 /**
  * Never replay a long hidden-tab pause or a main-thread stall as one giant
- * movement step. Fifty milliseconds still catches up gracefully at 20 fps,
- * while collision and camera interpolation remain bounded.
+ * movement step. A tenth of a second preserves wall-clock navigation speed
+ * down to 10 fps while collision and camera interpolation remain bounded.
  */
-export const MAX_MOTION_FRAME_DELTA_SECONDS = 0.05;
+export const MAX_MOTION_FRAME_DELTA_SECONDS = 0.1;
 
 export function boundedMotionFrameDeltaSeconds(
   timestamp: number,

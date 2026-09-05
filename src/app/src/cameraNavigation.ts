@@ -36,15 +36,15 @@ export type CameraRigStabilizationScratch = {
 
 const presentationEnvelope = extrapolatedEnvelopeBounds();
 
-export const NAVIGATION_STEP_DISTANCE_RATIO = 0.075;
-export const NAVIGATION_STEP_MIN_M = 5;
-export const NAVIGATION_STEP_MAX_M = 78;
-export const CONTINUOUS_FLIGHT_SPEED_RATIO = 1.65;
-export const CONTINUOUS_FLIGHT_SPEED_MIN_MPS = 48;
-export const CONTINUOUS_FLIGHT_SPEED_MAX_MPS = 780;
-export const CONTINUOUS_VERTICAL_SPEED_RATIO = 1.1;
-export const CONTINUOUS_VERTICAL_SPEED_MIN_MPS = 24;
-export const CONTINUOUS_VERTICAL_SPEED_MAX_MPS = 320;
+export const NAVIGATION_STEP_DISTANCE_RATIO = 0.11;
+export const NAVIGATION_STEP_MIN_M = 7;
+export const NAVIGATION_STEP_MAX_M = 110;
+export const CONTINUOUS_FLIGHT_SPEED_RATIO = 2.35;
+export const CONTINUOUS_FLIGHT_SPEED_MIN_MPS = 64;
+export const CONTINUOUS_FLIGHT_SPEED_MAX_MPS = 1_080;
+export const CONTINUOUS_VERTICAL_SPEED_RATIO = 1.55;
+export const CONTINUOUS_VERTICAL_SPEED_MIN_MPS = 36;
+export const CONTINUOUS_VERTICAL_SPEED_MAX_MPS = 520;
 export const CAMERA_TARGET_CROSSING_MIN_M = 0.35;
 export const PINCH_TARGET_CROSSING_ZONE_M = 24;
 
@@ -338,7 +338,7 @@ export function viewHeadingFlightDelta(
     .addScaledVector(right, strafe * step);
 }
 
-export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 56;
+export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 44;
 
 // Direct-manipulation two-finger pan: the content under the fingers must
 // follow them (finger right → content right, finger down → content down),

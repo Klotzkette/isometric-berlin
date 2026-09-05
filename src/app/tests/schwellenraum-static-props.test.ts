@@ -19,10 +19,10 @@ describe("Schwellenraum fixed solid props", () => {
   test("installs a restrained but stranger furniture and appliance inventory", () => {
     const root = new Group();
     expect(SCHWELLENRAUM_STATIC_VIGNETTES).toHaveLength(6);
-    expect(installSchwellenraumStaticProps(root, groundAt)).toBe(12);
+    expect(installSchwellenraumStaticProps(root, groundAt)).toBe(14);
     expect(installSchwellenraumStaticProps(root, groundAt)).toBe(0);
     expect(root.children).toHaveLength(6);
-    expect(root.userData.schwellenraumStaticPropCount).toBe(12);
+    expect(root.userData.schwellenraumStaticPropCount).toBe(14);
 
     const kinds = new Set(
       SCHWELLENRAUM_STATIC_VIGNETTES.flatMap((vignette) =>
@@ -36,6 +36,8 @@ describe("Schwellenraum fixed solid props", () => {
     expect(kinds).toContain("bed");
     expect(kinds).toContain("television");
     expect(kinds).toContain("wardrobe");
+    expect(kinds).toContain("waiting-bench");
+    expect(kinds).toContain("doorframe");
     let renderables = 0;
     root.traverse((object) => {
       if (!(object instanceof Mesh)) return;
@@ -45,7 +47,7 @@ describe("Schwellenraum fixed solid props", () => {
         : [object.material];
       expect(materials.every((entry) => entry.map === null)).toBeTrue();
     });
-    expect(renderables).toBe(38);
+    expect(renderables).toBe(40);
     for (const vignette of root.children) {
       expect(vignette.userData.schwellenraumPraesentation).toBeTrue();
       expect(vignette.userData.schwellenraumStatic).toBeTrue();

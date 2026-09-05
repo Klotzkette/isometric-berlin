@@ -14,6 +14,8 @@ import {
   MINECRAFT_PARISER_PLATZ_MESH_NAME,
   createMinecraftPariserPlatzArchitecture,
 } from "../src/MinecraftPariserPlatzArchitecture";
+import { ADLON_FORECOURT_PROFILE } from "../src/AdlonForecourtProfile";
+import { PARISER_PLATZ_ACADEMY_VIEW_PROFILE } from "../src/PariserPlatzAcademyViewProfile";
 import { PARISER_PLATZ_ARCHITECTURE_PROFILE } from "../src/PariserPlatzArchitecture";
 import {
   type VoxelPayload,
@@ -54,6 +56,10 @@ describe("Minecraft Pariser Platz architecture", () => {
     expect(group.name).toBe(MINECRAFT_PARISER_PLATZ_GROUP_NAME);
     expect(group.children).toHaveLength(1);
     expect(group.userData).toMatchObject({
+      adlonForecourtObjectCount: 2,
+      adlonForecourtProfile: ADLON_FORECOURT_PROFILE,
+      academyViewProfile: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
+      bicycleClusterCount: 12,
       buildingCount: 5,
       drawCallBudget: 1,
       genericSourceMassRetained: true,
@@ -68,6 +74,9 @@ describe("Minecraft Pariser Platz architecture", () => {
     expect(mesh.count).toBeGreaterThan(300);
     expect(mesh.count).toBeLessThan(760);
     expect(mesh.userData).toMatchObject({
+      adlonForecourtObjectCount: 2,
+      academyViewBicycleClusterCount: 12,
+      academyViewRepresentedBicycleCount: 48,
       blockNative: true,
       drawCallBudget: 1,
       genericSourceMassRetained: true,
@@ -126,6 +135,29 @@ describe("Minecraft Pariser Platz architecture", () => {
             Math.hypot(candidate.x - anchor.x, candidate.z - anchor.z) < 7,
         ),
       ).toBe(true);
+    }
+    for (const [x, , z] of [
+      ADLON_FORECOURT_PROFILE.kiosk.osmWorldM,
+      ADLON_FORECOURT_PROFILE.elevator.osmWorldM,
+    ]) {
+      expect(
+        positions.some(
+          (candidate) => Math.hypot(candidate.x - x, candidate.z - z) < 7,
+        ),
+      ).toBe(true);
+    }
+    for (const [x, z] of [
+      [500.7, 334.1],
+      [494.2, 254.9],
+    ] as const) {
+      expect(
+        positions.filter(
+          (candidate) =>
+            candidate.y < 6 &&
+            Math.abs(candidate.x - x) < 36 &&
+            Math.abs(candidate.z - z) < 16,
+        ).length,
+      ).toBeGreaterThanOrEqual(6);
     }
   });
 

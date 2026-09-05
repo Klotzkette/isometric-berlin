@@ -28,6 +28,10 @@ import {
 
 import { createLetteringTexture } from "./drawnLettering";
 import { createSonyCenterSurroundings } from "./SonyCenterSurroundings";
+import {
+  createWilhelmStresemannDetails,
+  WILHELM_STRESEMANN_DETAIL_PROFILE,
+} from "./WilhelmStresemannDetails";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
@@ -146,6 +150,10 @@ export {
   POTSDAMER_PUBLIC_REALM_PROFILE,
   POTSDAMER_PUBLIC_REALM_RENDER_BUDGET,
 } from "./PotsdamerPlatzPublicRealm";
+export {
+  createWilhelmStresemannDetails,
+  WILHELM_STRESEMANN_DETAIL_PROFILE,
+} from "./WilhelmStresemannDetails";
 export {
   BENDLERBLOCK_PROFILE,
   BENDLERBLOCK_RENDER_BUDGET,
@@ -4435,58 +4443,6 @@ function addPotsdamerWilhelmDetails(
     -0.03,
   );
 
-  const czech = fixedWorldPoint(profile.czechEmbassyWorldM);
-  addLocalBox(
-    builder,
-    0xb28d61,
-    czech,
-    0,
-    czech.y + 11.8,
-    0,
-    48,
-    23.6,
-    45,
-    0.29,
-  );
-  addLocalBox(
-    builder,
-    0x4f6668,
-    czech,
-    0,
-    czech.y + 13,
-    -22.8,
-    42,
-    9.4,
-    0.22,
-    0.29,
-  );
-  for (let bay = -4; bay <= 4; bay += 1) {
-    addLocalLampBox(
-      builder,
-      0x8eb3b4,
-      czech,
-      bay * 4.5,
-      czech.y + 13,
-      -23,
-      2.8,
-      6.8,
-      0.16,
-      0.29,
-    );
-  }
-  addLocalBox(
-    builder,
-    0xd4b77e,
-    czech,
-    0,
-    czech.y + 24.2,
-    0,
-    50.5,
-    0.8,
-    47.5,
-    0.29,
-  );
-
   const northKorea = fixedWorldPoint(profile.northKoreanEmbassyWorldM);
   addLocalBox(
     builder,
@@ -6039,6 +5995,8 @@ export function createExpandedCityDetails(
   group.userData.potsdamerPublicRealm = POTSDAMER_PUBLIC_REALM_PROFILE;
   group.userData.leipzigerPlatzArchitecture =
     LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE;
+  group.userData.wilhelmStresemannArchitecture =
+    WILHELM_STRESEMANN_DETAIL_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
   group.userData.socialCourt = SOCIAL_COURT_PROFILE;
@@ -6063,6 +6021,7 @@ export function createExpandedCityDetails(
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing.sources,
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte.sources,
+    ...WILHELM_STRESEMANN_DETAIL_PROFILE.sourceUrls,
     ...MOABIT_PRISON_MEMORIAL_PROFILE.sources,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.sourceUrls,
@@ -6100,6 +6059,7 @@ export function createExpandedCityDetails(
     group.add(createLeipzigerPlatzDetails());
     group.add(createPotsdamerPlatzPublicRealm(options.detailProfile ?? "full"));
     group.add(createSonyCenterSurroundings());
+    group.add(createWilhelmStresemannDetails(options.detailProfile ?? "full"));
   }
 
   const potsdamerHallBuilder = createBuilder();

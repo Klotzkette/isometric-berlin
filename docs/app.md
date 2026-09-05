@@ -365,10 +365,15 @@ records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
 hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
 courts and neighbours; the new batches therefore include their own rear walls,
-floors, facade shells, roofs, glazing and open block railings. Six Creepers,
-five bow-carrying Skeletons and nine Zombies roam deterministic, tree-cleared
-grass routes on desktop while Minecraft is active; the mobile profile uses
-four, three and seven respectively. A shared rotated protection envelope
+floors, facade shells, roofs, glazing and open block railings. A fixed pool of
+six Creepers, five bow-carrying Skeletons, sixteen Zombies and four foxes follows
+the camera/player only while Minecraft is active; mobile uses four, three, ten
+and three respectively. Local probes activate safe grass, concrete or plaza
+cells 12-65 m away (12-48 m on mobile). Slots beyond 95/72 m deactivate immediately,
+are omitted from the rendered instance count and stop simulating. Leaving
+Minecraft clears all active slots. Matrix and colour buffers are reused;
+failed spawn probes retry at most twice per second, without a global search.
+A shared rotated protection envelope
 rejects voxel trees and every mob spawn or movement cell throughout the
 Holocaust Memorial, including a conservative edge clearance. The same
 walkability keeps four desktop or two mobile loot boxes out of the protected
@@ -439,8 +444,9 @@ The complete monument is exactly 10.00 m high and stays at 30 renderables /
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
 shared protection excludes every tree, mob and loot spawn from the field.
 Outside it, deterministic retention keeps two thirds of eligible voxel trees
-in full and one third on mobile; the single mob draw call uses 245 parts for
-the 6/9/5 full field or 169 parts for the 4/7/3 mobile field.
+in full and one third on mobile; the single mob draw call has a capacity of
+386 parts for the 6/16/5/4 full field or 250 parts for the 4/10/3/3 mobile field
+(Creepers/Zombies/Skeletons/foxes). Only active nearby slots are submitted.
 
 The earlier pre-retention Minecraft benchmark measured **845,561 instances /
 63.265 MiB of instance buffers** on mobile and **3,419,412 / 249.815 MiB** in

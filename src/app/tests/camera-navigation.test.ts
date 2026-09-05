@@ -174,8 +174,8 @@ describe("screen-relative 3D flight", () => {
 describe("view-heading 3D flight", () => {
   test("reaches full continuous-flight speed immediately", () => {
     const cruising = continuousFlightSpeeds(200);
-    expect(cruising.horizontal).toBeCloseTo(330, 8);
-    expect(cruising.vertical).toBeCloseTo(220, 8);
+    expect(cruising.horizontal).toBeCloseTo(470, 8);
+    expect(cruising.vertical).toBeCloseTo(310, 8);
     expect(continuousFlightSpeeds(0)).toEqual({
       horizontal: CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
       vertical: CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
@@ -240,15 +240,15 @@ describe("view-heading 3D flight", () => {
       screenRelativeFlightDelta(camera, target, 1, 1, result, right, up),
     ).toBe(result);
     expect(continuousFlightSpeeds(200, speeds)).toBe(speeds);
-    expect(speeds.horizontal).toBeCloseTo(330, 8);
-    expect(speeds.vertical).toBeCloseTo(220, 8);
+    expect(speeds.horizontal).toBeCloseTo(470, 8);
+    expect(speeds.vertical).toBeCloseTo(310, 8);
   });
 });
 
 describe("two-finger swipe pans with direct manipulation", () => {
   test("starts after a tiny travel and moves farther per finger pixel", () => {
     expect(TWO_FINGER_DECISION_TRAVEL_PX).toBe(6);
-    expect(TWO_FINGER_PAN_PIXELS_PER_UNIT).toBe(56);
+    expect(TWO_FINGER_PAN_PIXELS_PER_UNIT).toBe(44);
   });
 
   // Post-v0.5.6 fix: a two-finger swipe must make the content follow the

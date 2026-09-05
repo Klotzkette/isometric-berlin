@@ -65,7 +65,8 @@ export function progressiveAttachmentReady({
 }
 
 /**
- * The five owner-requested quarters receive exact desktop LoD2 geometry
+ * The owner-requested quarters and two long street corridors receive exact
+ * desktop LoD2 geometry
  * before equally distant context. The 9,000-building cap is unchanged.
  */
 export const DESKTOP_PLACE_DETAIL_ZONE_NAMES = [
@@ -73,6 +74,8 @@ export const DESKTOP_PLACE_DETAIL_ZONE_NAMES = [
   "Leipziger Platz",
   "Potsdamer Platz",
   "Tilla-Durieux-Park",
+  "Stresemannstraße",
+  "Wilhelmstraße",
   "Hauptbahnhof-Umfeld",
 ] as const;
 

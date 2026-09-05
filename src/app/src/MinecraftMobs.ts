@@ -18,7 +18,8 @@ import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
 
 export const CREEPER_COUNT = 6;
 export const SKELETON_COUNT = 5;
-export const ZOMBIE_COUNT = 9;
+export const ZOMBIE_COUNT = 16;
+export const FOX_COUNT = 4;
 
 export type MinecraftMobDetailProfile = "full" | "mobile";
 
@@ -31,11 +32,16 @@ export const MINECRAFT_MOB_BUDGETS = Object.freeze({
     creeper: CREEPER_COUNT,
     skeleton: SKELETON_COUNT,
     zombie: ZOMBIE_COUNT,
+    fox: FOX_COUNT,
   }),
-  mobile: Object.freeze({ creeper: 4, skeleton: 3, zombie: 7 }),
+  mobile: Object.freeze({ creeper: 4, skeleton: 3, zombie: 10, fox: 3 }),
 });
 
-type MobKind = "creeper" | "skeleton" | "zombie";
+export const MINECRAFT_MOB_RANGE = Object.freeze({
+  full: Object.freeze({ spawnM: 65, despawnM: 95 }),
+  mobile: Object.freeze({ spawnM: 48, despawnM: 72 }),
+});
+type MobKind = "creeper" | "skeleton" | "zombie" | "fox";
 type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
 
 type MobPart = {
@@ -51,6 +57,7 @@ type MobPart = {
 };
 
 type MobState = {
+  active: boolean;
   heading: number;
   kind: MobKind;
   phase: number;
@@ -61,7 +68,16 @@ type MobState = {
 };
 
 export type MinecraftMobField = {
+  activeMobCount: number;
   creeperCount: number;
+  foxCount: number;
+  range: { spawnM: number; despawnM: number };
+  spawnClock: number;
+  spawnSequence: number;
+  anchorX: number;
+  anchorZ: number;
+  layoutDirty: boolean;
+  partColors: Float32Array;
   groundAt: (x: number, z: number) => number | null;
   group: Group;
   isWalkable: (x: number, z: number) => boolean;
@@ -94,33 +110,7 @@ const FACE_DARK = 0x18251b;
 // while remaining far below buildings and monuments.
 const MOB_DISPLAY_SCALE = 2.2;
 
-const DESIRED_SPAWNS: ReadonlyArray<{
-  heading: number;
-  kind: MobKind;
-  x: number;
-  z: number;
-}> = [
-  { heading: 0.3, kind: "creeper", x: 180, z: 130 },
-  { heading: 2.1, kind: "creeper", x: 80, z: 220 },
-  { heading: 4.4, kind: "creeper", x: -130, z: 520 },
-  { heading: 5.3, kind: "creeper", x: -420, z: 550 },
-  { heading: 1.8, kind: "creeper", x: 520, z: 600 },
-  { heading: 3.7, kind: "creeper", x: -620, z: 260 },
-  { heading: 1.2, kind: "zombie", x: 245, z: 230 },
-  { heading: 3.5, kind: "zombie", x: 360, z: 180 },
-  { heading: 5.1, kind: "zombie", x: -260, z: 100 },
-  { heading: 0.8, kind: "zombie", x: -500, z: 340 },
-  { heading: 2.2, kind: "zombie", x: -120, z: 410 },
-  { heading: 4.7, kind: "zombie", x: 470, z: 300 },
-  { heading: 0.5, kind: "zombie", x: 610, z: 210 },
-  { heading: 2.9, kind: "zombie", x: 220, z: 590 },
-  { heading: 5.8, kind: "zombie", x: -610, z: 460 },
-  { heading: 2.7, kind: "skeleton", x: -40, z: 670 },
-  { heading: 5.6, kind: "skeleton", x: 510, z: 460 },
-  { heading: 4.1, kind: "skeleton", x: -330, z: 620 },
-  { heading: 1.4, kind: "skeleton", x: 340, z: 640 },
-  { heading: 3.3, kind: "skeleton", x: -580, z: 180 },
-];
+const WALKABLE_GROUND = new Set(["grass", "concrete", "plazaBrick"]);
 
 function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {
   const xOffset = Math.floor(x / payload.cell_m) - payload.grid.min_x_idx;
@@ -146,7 +136,7 @@ function buildWalkableGrid(
   const walkable = new Uint8Array(payload.grid.cols * payload.grid.rows);
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
-      if (payload.classes[classId] !== "grass") {
+      if (!WALKABLE_GROUND.has(payload.classes[classId])) {
         continue;
       }
       walkable.fill(
@@ -398,6 +388,29 @@ function skeletonParts(mobIndex: number): MobPart[] {
   ];
 }
 
+function foxParts(index: number): MobPart[] {
+  const fur = 0xd57430;
+  const cream = 0xf1e5d0;
+  return [
+    mobPart(index, fur, [0, 0.55, 0], [0.45, 0.42, 0.85]),
+    mobPart(index, fur, [0, 0.78, 0.48], [0.48, 0.44, 0.46]),
+    mobPart(index, cream, [0, 0.65, 0.76], [0.29, 0.18, 0.23]),
+    mobPart(index, FACE_DARK, [0, 0.71, 0.89], [0.14, 0.1, 0.07]),
+    mobPart(index, fur, [-0.16, 1.08, 0.4], [0.14, 0.24, 0.15]),
+    mobPart(index, fur, [0.16, 1.08, 0.4], [0.14, 0.24, 0.15]),
+    mobPart(index, FACE_DARK, [-0.16, 1.15, 0.48], [0.08, 0.09, 0.02]),
+    mobPart(index, FACE_DARK, [0.16, 1.15, 0.48], [0.08, 0.09, 0.02]),
+    mobPart(index, FACE_DARK, [-0.15, 0.85, 0.72], [0.08, 0.08, 0.03]),
+    mobPart(index, FACE_DARK, [0.15, 0.85, 0.72], [0.08, 0.08, 0.03]),
+    mobPart(index, fur, [0, 0.55, -0.63], [0.3, 0.3, 0.56]),
+    mobPart(index, cream, [0, 0.55, -0.97], [0.27, 0.27, 0.2]),
+    mobPart(index, FACE_DARK, [-0.15, 0.2, 0.28], [0.13, 0.4, 0.14], "leg-left"),
+    mobPart(index, FACE_DARK, [0.15, 0.2, 0.28], [0.13, 0.4, 0.14], "leg-right"),
+    mobPart(index, FACE_DARK, [-0.15, 0.2, -0.28], [0.13, 0.4, 0.14], "leg-right"),
+    mobPart(index, FACE_DARK, [0.15, 0.2, -0.28], [0.13, 0.4, 0.14], "leg-left"),
+  ];
+}
+
 export function createMinecraftMobs(
   payload: VoxelPayload,
   castShadows: boolean,
@@ -436,44 +449,22 @@ export function createMinecraftMobs(
     return true;
   };
   const budget = MINECRAFT_MOB_BUDGETS[detailProfile];
-  const acceptedByKind: Record<MobKind, number> = {
-    creeper: 0,
-    skeleton: 0,
-    zombie: 0,
-  };
-  const requestedSpawns = DESIRED_SPAWNS.filter((spawn) => {
-    if (acceptedByKind[spawn.kind] >= budget[spawn.kind]) {
-      return false;
+  // Allocate once; spawning only activates slots, never new geometry or agents.
+  const mobs: MobState[] = [];
+  for (const kind of ["creeper", "zombie", "skeleton", "fox"] as const) {
+    for (let index = 0; index < budget[kind]; index += 1) {
+      mobs.push({
+        active: false,
+        heading: mobs.length * 2.39996,
+        kind,
+        phase: index * 0.83,
+        speedMps: kind === "fox" ? 1.9 : kind === "zombie" ? 0.85 : 0.72,
+        turnClock: 1.4 + index * 0.31,
+        x: 0,
+        z: 0,
+      });
     }
-    acceptedByKind[spawn.kind] += 1;
-    return true;
-  });
-  const mobs = requestedSpawns.flatMap((spawn, index): MobState[] => {
-    const position = nearestMinecraftWalkable(
-      payload,
-      isWalkable,
-      spawn.x,
-      spawn.z,
-    );
-    if (!position) {
-      return [];
-    }
-    const [x, z] = position;
-    return [{
-      heading: spawn.heading,
-      kind: spawn.kind,
-      phase: index * 0.83,
-      speedMps:
-        spawn.kind === "creeper"
-          ? 0.72
-          : spawn.kind === "skeleton"
-            ? 0.64
-            : 0.58,
-      turnClock: 1.4 + index * 0.31,
-      x,
-      z,
-    }];
-  });
+  }
   const parts = mobs.flatMap((mob, index) => {
     if (mob.kind === "creeper") {
       return creeperParts(index);
@@ -481,6 +472,7 @@ export function createMinecraftMobs(
     if (mob.kind === "skeleton") {
       return skeletonParts(index);
     }
+    if (mob.kind === "fox") return foxParts(index);
     return zombieParts(index);
   });
   const material = new MeshStandardMaterial({
@@ -497,7 +489,7 @@ export function createMinecraftMobs(
     material,
     parts.length,
   );
-  mesh.name = "Minecraft roaming creepers, skeletons and zombies";
+  mesh.name = "Minecraft nearby creepers, skeletons, zombies and foxes";
   mesh.castShadow = castShadows;
   mesh.receiveShadow = true;
   mesh.frustumCulled = false;
@@ -511,18 +503,29 @@ export function createMinecraftMobs(
 
   const group = new Group();
   group.name = "Minecraft roaming mobs";
-  group.visible = true;
+  group.visible = false;
   const creeperCount = mobs.filter(({ kind }) => kind === "creeper").length;
   const skeletonCount = mobs.filter(({ kind }) => kind === "skeleton").length;
   const zombieCount = mobs.filter(({ kind }) => kind === "zombie").length;
+  const foxCount = budget.fox;
+  group.userData.foxCount = foxCount;
   group.userData.creeperCount = creeperCount;
   group.userData.detailProfile = detailProfile;
   group.userData.maxMobCount =
-    budget.creeper + budget.skeleton + budget.zombie;
+    mobs.length;
   group.userData.skeletonCount = skeletonCount;
   group.userData.zombieCount = zombieCount;
   group.add(mesh);
   const field = {
+    activeMobCount: 0,
+    foxCount,
+    range: MINECRAFT_MOB_RANGE[detailProfile],
+    spawnClock: 0,
+    spawnSequence: 0,
+    anchorX: Number.POSITIVE_INFINITY,
+    anchorZ: Number.POSITIVE_INFINITY,
+    layoutDirty: true,
+    partColors: new Float32Array(mesh.instanceColor!.array),
     creeperCount,
     groundAt: worldGroundSampler(payload),
     group,
@@ -538,8 +541,7 @@ export function createMinecraftMobs(
     skeletonCount,
     zombieCount,
   };
-  updateMinecraftMobs(field, 0);
-  group.visible = false;
+  mesh.count = 0;
   return field;
 }
 
@@ -551,19 +553,69 @@ export function setMinecraftMobsVisible(
     return false;
   }
   field.group.visible = visible;
+  if (!visible) {
+    for (const mob of field.mobs) mob.active = false;
+    field.activeMobCount = 0;
+    field.mesh.count = 0;
+    field.layoutDirty = true;
+  }
+  field.spawnClock = 0;
   return true;
+}
+
+function refreshNearbyMobs(
+  field: MinecraftMobField,
+  elapsed: number,
+  anchor: { x: number; z: number },
+): void {
+  const movedFar = Math.hypot(anchor.x - field.anchorX, anchor.z - field.anchorZ) > 12;
+  field.spawnClock -= elapsed;
+  const spawn = field.spawnClock <= 0 || movedFar;
+  if (spawn) {
+    field.spawnClock = 0.5;
+    field.anchorX = anchor.x;
+    field.anchorZ = anchor.z;
+  }
+  const limitSquared = field.range.despawnM ** 2;
+  for (const mob of field.mobs) {
+    if (mob.active && (mob.x - anchor.x) ** 2 + (mob.z - anchor.z) ** 2 > limitSquared) {
+      mob.active = false;
+      field.layoutDirty = true;
+    }
+    if (mob.active || !spawn) continue;
+    // Bounded local probes, never a whole-city search. Failed slots stay empty.
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const sample = ++field.spawnSequence;
+      const angle = sample * 2.399963229728653;
+      const radius = 12 + (field.range.spawnM - 12) * ((sample * 0.61803398875) % 1);
+      const x = anchor.x + Math.sin(angle) * radius;
+      const z = anchor.z + Math.cos(angle) * radius;
+      if (!field.isWalkable(x, z)) continue;
+      if (field.mobs.some((other) => other.active && (x - other.x) ** 2 + (z - other.z) ** 2 < 16)) continue;
+      mob.x = x;
+      mob.z = z;
+      mob.active = true;
+      field.layoutDirty = true;
+      break;
+    }
+  }
 }
 
 export function updateMinecraftMobs(
   field: MinecraftMobField,
   deltaSeconds: number,
+  anchor: { x: number; z: number },
 ): void {
-  if (!field.group.visible) {
+  if (!field.group.visible || !Number.isFinite(anchor.x) || !Number.isFinite(anchor.z)) {
     return;
   }
   const elapsed = Math.min(Math.max(deltaSeconds, 0), 0.1);
+  refreshNearbyMobs(field, elapsed, anchor);
+  field.activeMobCount = 0;
   for (let index = 0; index < field.mobs.length; index += 1) {
     const mob = field.mobs[index];
+    if (!mob.active) continue;
+    field.activeMobCount += 1;
     mob.turnClock -= elapsed;
     if (mob.turnClock <= 0) {
       mob.heading += (index % 2 === 0 ? 1 : -1) * (0.24 + (index % 3) * 0.08);
@@ -571,7 +623,8 @@ export function updateMinecraftMobs(
     }
     const nextX = mob.x + Math.sin(mob.heading) * mob.speedMps * elapsed;
     const nextZ = mob.z + Math.cos(mob.heading) * mob.speedMps * elapsed;
-    if (field.isWalkable(nextX, nextZ)) {
+    if (field.isWalkable(nextX, nextZ) &&
+        (nextX - anchor.x) ** 2 + (nextZ - anchor.z) ** 2 <= field.range.despawnM ** 2) {
       mob.x = nextX;
       mob.z = nextZ;
     } else {
@@ -586,9 +639,12 @@ export function updateMinecraftMobs(
   }
 
   const dummy = field.matrixHelper;
+  let visibleParts = 0;
+  const colors = field.mesh.instanceColor!.array;
   for (let index = 0; index < field.parts.length; index += 1) {
     const part = field.parts[index];
     const mob = field.mobs[part.mobIndex];
+    if (!mob.active) continue;
     const sine = field.mobSinPhase[part.mobIndex];
     const alternating = sine * part.swingDirection;
     const bob = Math.abs(sine) * 0.035;
@@ -611,7 +667,20 @@ export function updateMinecraftMobs(
     );
     dummy.scale.set(...part.sizeScaled);
     dummy.updateMatrix();
-    field.mesh.setMatrixAt(index, dummy.matrix);
+    field.mesh.setMatrixAt(visibleParts, dummy.matrix);
+    if (field.layoutDirty) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        colors[visibleParts * 3 + channel] = field.partColors[index * 3 + channel];
+      }
+    }
+    visibleParts += 1;
   }
-  field.mesh.instanceMatrix.needsUpdate = true;
+  field.mesh.count = visibleParts;
+  if (visibleParts > 0) {
+    field.mesh.instanceMatrix.clearUpdateRanges();
+    field.mesh.instanceMatrix.addUpdateRange(0, visibleParts * 16);
+    field.mesh.instanceMatrix.needsUpdate = true;
+    if (field.layoutDirty) field.mesh.instanceColor!.needsUpdate = true;
+  }
+  field.layoutDirty = false;
 }

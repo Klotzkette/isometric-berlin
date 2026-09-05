@@ -21,6 +21,7 @@ import {
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import type { FocusCamera } from "./ArchitecturalLandmarks";
+import { ADLON_FORECOURT_PROFILE } from "./AdlonForecourtProfile";
 import {
   BERLIN_PAVILLON_PROFILE,
   createBerlinPavillon,
@@ -48,6 +49,7 @@ import {
   paintGeometry,
 } from "./drawnKit";
 import { createPariserPlatzArchitecture } from "./PariserPlatzArchitecture";
+import { PARISER_PLATZ_ACADEMY_VIEW_PROFILE } from "./PariserPlatzAcademyViewProfile";
 
 export { BERLINER_ENSEMBLE_PROFILE } from "./BerlinerEnsemble";
 export {
@@ -137,10 +139,7 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     target_height_m: 3,
   },
   "Pariser Platz": {
-    azimuth_degrees: 88,
-    distance_m: 128,
-    polar_degrees: 72,
-    target_height_m: 7,
+    ...PARISER_PLATZ_ACADEMY_VIEW_PROFILE.isometricCamera,
   },
   "S15-Station Berlin Hauptbahnhof": {
     azimuth_degrees: -25,
@@ -170,6 +169,8 @@ export function centralCivicFocusCamera(
   const targetWorld: [number, number, number] =
     landmark.name === "Berliner Ensemble"
       ? [...BERLINER_ENSEMBLE_PROFILE.focus.targetWorldM]
+      : landmark.name === "Pariser Platz"
+        ? [...PARISER_PLATZ_ACADEMY_VIEW_PROFILE.targetWorldM]
       : landmark.name === "Oggi's Gemüsekebab"
         ? [
             landmark.world[0] + OGGIS_MUBIS_PROFILE.focusTargetOffsetWorldM[0],
@@ -413,7 +414,15 @@ export const BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD = [
   576.06, 4.8, 286.37,
 ] as const;
 export const PARISER_PLATZ_PHOTO_DETAIL_PROFILE = {
+  adlonForecourtObjectCount: 2,
   benchCount: 8,
+  bicycleRackGroupCount:
+    PARISER_PLATZ_ACADEMY_VIEW_PROFILE.publicSpaceCues.bicycleRackGroupCount,
+  bicycleSilhouetteCount:
+    PARISER_PLATZ_ACADEMY_VIEW_PROFILE.publicSpaceCues.bicycleSilhouetteCount,
+  circulationBoundaryCount:
+    PARISER_PLATZ_ACADEMY_VIEW_PROFILE.publicSpaceCues
+      .circulationBoundaryCount,
   continuousFlowerBedCount: 8,
   drainageStripCount: 6,
   formalLawnCount: 2,
@@ -423,7 +432,8 @@ export const PARISER_PLATZ_PHOTO_DETAIL_PROFILE = {
   gardenRailPostCount: 96,
   historicalTwinLampCount: 8,
   permanentBollardCount: 192,
-  sourceViewCount: 6,
+  sourceViewCount:
+    7 + PARISER_PLATZ_ACADEMY_VIEW_PROFILE.ownerVisualReferences.count,
   temporaryBarrierCount: 0,
   treeGrateCount: 16,
 } as const;
@@ -574,6 +584,27 @@ function addInkedGeometry(
       new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
     );
   }
+}
+
+function addLocalEllipticalCylinder(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  x: number,
+  y: number,
+  z: number,
+  radiusX: number,
+  height: number,
+  radiusZ: number,
+  rotationY: number,
+  inked = false,
+): void {
+  const local = localPoint(point, x, z, rotationY);
+  const geometry = new CylinderGeometry(1, 1, height, 16);
+  geometry.scale(radiusX, 1, radiusZ);
+  geometry.rotateY(rotationY);
+  geometry.translate(local.x, point.y + y, local.z);
+  addInkedGeometry(builder, geometry, color, inked);
 }
 
 function addLocalArchedOpening(
@@ -2523,6 +2554,468 @@ function addPariserPlatzDetails(
   addBox(builder, TRANSIT_BLUE, pylon.x, 8.7, pylon.z, 1.55, 1.55, 0.18);
 }
 
+function addAdlonForecourtPhotoDetails(builder: Builder): void {
+  const rotation = 0.087;
+  const kiosk = new Vector3(...ADLON_FORECOURT_PROFILE.kiosk.osmWorldM);
+  const kioskSize = ADLON_FORECOURT_PROFILE.kiosk.displayDimensionsM;
+  const kioskMetal = 0x4a4d4b;
+  const kioskDark = 0x303433;
+  const kioskRed = 0x913c3d;
+  const kioskCream = 0xe6ddca;
+
+  addLocalEllipticalCylinder(
+    builder,
+    kioskDark,
+    kiosk,
+    0,
+    kioskSize.wallHeight / 2,
+    0,
+    kioskSize.width / 2,
+    kioskSize.wallHeight,
+    kioskSize.depth / 2,
+    rotation,
+    true,
+  );
+  addLocalEllipticalCylinder(
+    builder,
+    kioskMetal,
+    kiosk,
+    0,
+    0.34,
+    0,
+    kioskSize.width / 2 + 0.12,
+    0.68,
+    kioskSize.depth / 2 + 0.12,
+    rotation,
+  );
+  addLocalEllipticalCylinder(
+    builder,
+    kioskRed,
+    kiosk,
+    0,
+    2.35,
+    0,
+    kioskSize.width / 2 + 0.16,
+    0.48,
+    kioskSize.depth / 2 + 0.16,
+    rotation,
+  );
+  addLocalEllipticalCylinder(
+    builder,
+    kioskMetal,
+    kiosk,
+    0,
+    2.76,
+    0,
+    kioskSize.canopyWidth / 2,
+    0.2,
+    kioskSize.canopyDepth / 2,
+    rotation,
+    true,
+  );
+
+  const kioskFrontZ = -kioskSize.depth / 2 - 0.08;
+  for (const x of [-3.15, 0, 3.15]) {
+    localLampBox(
+      builder,
+      0x879a98,
+      kiosk,
+      x,
+      1.45,
+      kioskFrontZ,
+      2.55,
+      1.12,
+      0.1,
+      rotation,
+    );
+    localBox(
+      builder,
+      kioskMetal,
+      kiosk,
+      x,
+      0.92,
+      kioskFrontZ - 0.18,
+      2.82,
+      0.16,
+      0.48,
+      rotation,
+      false,
+    );
+  }
+  for (const x of [-4.35, -2.18, 0, 2.18, 4.35]) {
+    localBox(
+      builder,
+      kioskCream,
+      kiosk,
+      x,
+      2.36,
+      kioskFrontZ - 0.18,
+      1.72,
+      0.24,
+      0.09,
+      rotation,
+      false,
+    );
+  }
+  localBox(
+    builder,
+    kioskRed,
+    kiosk,
+    0,
+    2.05,
+    kioskFrontZ - 0.2,
+    9.45,
+    0.22,
+    0.1,
+    rotation,
+    false,
+  );
+  for (const x of [-5.15, 5.15]) {
+    const parasol = localPoint(kiosk, x, -0.95, rotation);
+    addCylinder(
+      builder,
+      kioskMetal,
+      parasol.x,
+      kiosk.y + 1.62,
+      parasol.z,
+      0.07,
+      3.24,
+      8,
+    );
+    addCone(
+      builder,
+      kioskRed,
+      parasol.x,
+      kiosk.y + 3.16,
+      parasol.z,
+      2.05,
+      0.46,
+      10,
+    );
+  }
+  localBox(
+    builder,
+    kioskDark,
+    kiosk,
+    5.7,
+    0.72,
+    0.65,
+    0.82,
+    1.44,
+    0.82,
+    rotation,
+  );
+  for (const [x, color] of [
+    [4.75, 0xe0e1dc],
+    [3.95, 0xcdd2d0],
+  ] as const) {
+    localBox(builder, color, kiosk, x, 0.8, 1.3, 0.72, 1.6, 0.72, rotation);
+  }
+
+  const elevator = new Vector3(...ADLON_FORECOURT_PROFILE.elevator.osmWorldM);
+  const elevatorSize = ADLON_FORECOURT_PROFILE.elevator.displayDimensionsM;
+  const frame = 0x333a3d;
+  const glass = 0x759197;
+  const cabin = 0xb6c3bf;
+  localBox(
+    builder,
+    frame,
+    elevator,
+    0,
+    0.13,
+    0,
+    elevatorSize.width + 0.2,
+    0.26,
+    elevatorSize.depth + 0.2,
+    rotation,
+  );
+  for (const x of [-2.18, 2.18]) {
+    for (const z of [-1.58, 1.58]) {
+      localBox(
+        builder,
+        frame,
+        elevator,
+        x,
+        2.55,
+        z,
+        0.2,
+        4.85,
+        0.2,
+        rotation,
+        false,
+      );
+    }
+  }
+  for (const y of [1.05, 2.52, 4.02]) {
+    localBox(
+      builder,
+      frame,
+      elevator,
+      0,
+      y,
+      -1.64,
+      4.55,
+      0.16,
+      0.16,
+      rotation,
+      false,
+    );
+    localBox(
+      builder,
+      frame,
+      elevator,
+      0,
+      y,
+      1.64,
+      4.55,
+      0.16,
+      0.16,
+      rotation,
+      false,
+    );
+  }
+  for (const x of [-1.08, 1.08]) {
+    for (const z of [-1.69, 1.69]) {
+      localLampBox(
+        builder,
+        glass,
+        elevator,
+        x,
+        2.58,
+        z,
+        1.9,
+        4.28,
+        0.08,
+        rotation,
+      );
+    }
+  }
+  for (const x of [-2.24, 2.24]) {
+    localLampBox(
+      builder,
+      glass,
+      elevator,
+      x,
+      2.58,
+      0,
+      0.08,
+      4.28,
+      2.92,
+      rotation,
+    );
+  }
+  localBox(
+    builder,
+    cabin,
+    elevator,
+    0,
+    1.42,
+    0.05,
+    3.38,
+    0.16,
+    2.42,
+    rotation,
+    false,
+  );
+  localBox(
+    builder,
+    frame,
+    elevator,
+    0,
+    2.48,
+    0.82,
+    0.18,
+    4.3,
+    0.18,
+    rotation,
+    false,
+  );
+  for (const x of [-0.9, 0.9]) {
+    localLampBox(
+      builder,
+      0x9fb0ad,
+      elevator,
+      x,
+      2.45,
+      -1.78,
+      1.62,
+      3.35,
+      0.08,
+      rotation,
+    );
+  }
+  localBox(
+    builder,
+    frame,
+    elevator,
+    0,
+    elevatorSize.height - 0.12,
+    0,
+    elevatorSize.roofWidth,
+    0.3,
+    elevatorSize.roofDepth,
+    rotation,
+    true,
+  );
+  localBox(
+    builder,
+    TRANSIT_BLUE,
+    elevator,
+    1.84,
+    4.52,
+    -1.84,
+    0.58,
+    0.58,
+    0.08,
+    rotation,
+    false,
+  );
+}
+
+function addLocalEllipseBoundary(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  radiusX: number,
+  radiusZ: number,
+  width: number,
+  rotationY: number,
+): void {
+  const segmentCount = 72;
+  for (let index = 0; index < segmentCount; index += 1) {
+    const angleA = (index / segmentCount) * Math.PI * 2;
+    const angleB = ((index + 1) / segmentCount) * Math.PI * 2;
+    const startX = Math.cos(angleA) * radiusX;
+    const startZ = Math.sin(angleA) * radiusZ;
+    const endX = Math.cos(angleB) * radiusX;
+    const endZ = Math.sin(angleB) * radiusZ;
+    const deltaX = endX - startX;
+    const deltaZ = endZ - startZ;
+    const centre = localPoint(
+      point,
+      (startX + endX) / 2,
+      (startZ + endZ) / 2,
+      rotationY,
+    );
+    const geometry = new BoxGeometry(
+      Math.hypot(deltaX, deltaZ) + 0.035,
+      0.045,
+      width,
+    );
+    geometry.rotateY(rotationY + Math.atan2(-deltaZ, deltaX));
+    geometry.translate(centre.x, point.y + 0.08, centre.z);
+    paintGeometry(geometry, color);
+    builder.parts.push(geometry);
+  }
+}
+
+function addBicycleBar(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  rotationY: number,
+  start: readonly [number, number],
+  end: readonly [number, number],
+): void {
+  const deltaX = end[0] - start[0];
+  const deltaY = end[1] - start[1];
+  const centre = localPoint(
+    point,
+    (start[0] + end[0]) / 2,
+    0,
+    rotationY,
+  );
+  const geometry = new BoxGeometry(
+    Math.hypot(deltaX, deltaY),
+    0.045,
+    0.045,
+  );
+  geometry.rotateZ(Math.atan2(deltaY, deltaX));
+  geometry.rotateY(rotationY);
+  geometry.translate(
+    centre.x,
+    point.y + (start[1] + end[1]) / 2,
+    centre.z,
+  );
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+}
+
+function addPariserPlatzBicycle(
+  builder: Builder,
+  point: Vector3,
+  rotationY: number,
+  accent: number,
+): void {
+  for (const wheelX of [-0.58, 0.58]) {
+    const wheelCentre = localPoint(point, wheelX, 0, rotationY);
+    const wheel = new TorusGeometry(0.33, 0.035, 5, 10);
+    wheel.rotateY(rotationY);
+    wheel.translate(wheelCentre.x, point.y + 0.36, wheelCentre.z);
+    paintGeometry(wheel, PARISER_RAIL);
+    builder.parts.push(wheel);
+  }
+  for (const [start, end] of [
+    [[-0.58, 0.36], [0.02, 0.72]],
+    [[0.02, 0.72], [0.58, 0.36]],
+    [[-0.58, 0.36], [0.3, 0.36]],
+    [[0.3, 0.36], [0.02, 0.72]],
+    [[0.02, 0.72], [-0.08, 0.92]],
+    [[0.58, 0.36], [0.48, 0.94]],
+  ] as const) {
+    addBicycleBar(builder, accent, point, rotationY, start, end);
+  }
+  addBicycleBar(
+    builder,
+    PARISER_RAIL,
+    point,
+    rotationY,
+    [-0.25, 0.92],
+    [0.08, 0.92],
+  );
+  addBicycleBar(
+    builder,
+    PARISER_RAIL,
+    point,
+    rotationY,
+    [0.38, 0.94],
+    [0.68, 0.98],
+  );
+}
+
+function addPariserPlatzBicycleRack(
+  builder: Builder,
+  point: Vector3,
+  rotationY: number,
+): void {
+  for (const offset of [-0.72, 0, 0.72]) {
+    addBicycleBar(
+      builder,
+      STEEL,
+      point,
+      rotationY,
+      [offset - 0.28, 0.08],
+      [offset - 0.28, 0.72],
+    );
+    addBicycleBar(
+      builder,
+      STEEL,
+      point,
+      rotationY,
+      [offset - 0.28, 0.72],
+      [offset + 0.28, 0.72],
+    );
+    addBicycleBar(
+      builder,
+      STEEL,
+      point,
+      rotationY,
+      [offset + 0.28, 0.72],
+      [offset + 0.28, 0.08],
+    );
+  }
+}
+
 function addPariserPlatzPhotoDetails(builder: Builder): void {
   const rotation = 0.087;
   const squareBaseY = 4.84;
@@ -2532,6 +3025,28 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
   const benchTimber = 0x725a43;
   const lampIron = 0x343a39;
   const lampGlass = 0xf2e1b2;
+
+  // The elevated Academy views make the oval circulation seam legible around
+  // the open middle of the square. Two narrow boundaries describe that loop
+  // without covering or replacing the surveyed paving surface.
+  addLocalEllipseBoundary(
+    builder,
+    darkCobble,
+    squareCentre,
+    67.5,
+    32.8,
+    0.18,
+    rotation,
+  );
+  addLocalEllipseBoundary(
+    builder,
+    cobble,
+    squareCentre,
+    61.8,
+    27.3,
+    0.12,
+    rotation,
+  );
 
   // The photographs show a quiet field of rectangular setts bounded by dark
   // granite/cobble ribbons. These six strips sit slightly above the general
@@ -2658,6 +3173,54 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
         );
       }
     }
+
+    // Bicycle rows are a persistent part of all six elevated views. They are
+    // deliberately small silhouettes, merged into the existing detail body,
+    // and do not duplicate OSM transport or street-furniture semantics.
+    const innerSide = gardenIndex === 0 ? -1 : 1;
+    for (let index = 0; index < 16; index += 1) {
+      const along = -width / 2 + 5.5 + (index / 15) * (width - 11);
+      const bicyclePosition = localPoint(
+        point,
+        along,
+        innerSide * (depth / 2 + 1.55 + (index % 2) * 0.12),
+        rotation,
+      );
+      addPariserPlatzBicycle(
+        builder,
+        new Vector3(bicyclePosition.x, squareBaseY + 0.06, bicyclePosition.z),
+        rotation + ((index % 3) - 1) * 0.035,
+        index % 5 === 0 ? 0x815447 : PARISER_RAIL,
+      );
+    }
+    for (let index = 0; index < 8; index += 1) {
+      const along = -width / 2 + 7.5 + (index / 7) * (width - 15);
+      const bicyclePosition = localPoint(
+        point,
+        along,
+        -innerSide * (depth / 2 + 3.35),
+        rotation,
+      );
+      addPariserPlatzBicycle(
+        builder,
+        new Vector3(bicyclePosition.x, squareBaseY + 0.06, bicyclePosition.z),
+        rotation - ((index % 3) - 1) * 0.04,
+        index % 4 === 0 ? 0x42647b : PARISER_RAIL,
+      );
+    }
+    for (let rackIndex = 0; rackIndex < 4; rackIndex += 1) {
+      const rackPosition = localPoint(
+        point,
+        -27 + rackIndex * 18,
+        innerSide * (depth / 2 + 2.55),
+        rotation,
+      );
+      addPariserPlatzBicycleRack(
+        builder,
+        new Vector3(rackPosition.x, squareBaseY + 0.04, rackPosition.z),
+        rotation,
+      );
+    }
   });
 
   // Schupmann-style twin lanterns visible around the gate and square. Their
@@ -2753,6 +3316,7 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
       addCylinder(builder, STEEL, x, 5.35, z, 0.1, 1.1, 10);
     }
   }
+  addAdlonForecourtPhotoDetails(builder);
 }
 
 function addWilhelmstrasseEmbassies(builder: Builder): void {
@@ -4369,11 +4933,13 @@ export function createCentralCivicDetails(
     source: "Berlin LoD2 + OSM + Futurium architecture specification",
   };
   group.userData.pariserPlatz = {
+    adlonForecourt: ADLON_FORECOURT_PROFILE,
+    academyView: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
     gardens: PARISER_PLATZ_GARDENS,
     photoDetailProfile: PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
     subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
     source:
-      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints + six owner-supplied public-space reference views",
+      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints + thirteen owner-supplied reference views",
   };
   group.userData.cubeBerlin = {
     facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
@@ -4470,6 +5036,8 @@ export function createCentralCivicDetails(
   if (pariserPlatzFineDetail) {
     pariserPlatzFineDetail.userData = {
       ...PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
+      adlonForecourt: ADLON_FORECOURT_PROFILE,
+      academyView: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
       photographsBundled: false,
     };
     group.add(pariserPlatzFineDetail);

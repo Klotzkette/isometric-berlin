@@ -266,6 +266,21 @@ function facadeGrid(
         0xc8d0ce,
         yaw,
       );
+      // Shallow exterior reveals share the existing fine-detail instance batch.
+      for (const side of [-1, 1]) {
+        fine.box(
+          facadePoint(options.axis, u + side * pitch * 0.375, y, outward + 0.14),
+          [0.12, 2.42, 0.16],
+          pierColor,
+          yaw,
+        );
+      }
+      fine.box(
+        facadePoint(options.axis, u, y + 0.46, outward + 0.17),
+        [pitch * 0.73, 0.075, 0.08],
+        0xc8d0ce,
+        yaw,
+      );
     }
   }
   for (let boundary = 0; boundary <= options.bays; boundary += 1) {

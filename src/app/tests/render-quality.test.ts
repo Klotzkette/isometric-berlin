@@ -50,6 +50,7 @@ describe("stable 3D render quality", () => {
       0,
     );
     expect(boundedMotionFrameDeltaSeconds(900, 1_000)).toBe(0);
+    expect(MAX_MOTION_FRAME_DELTA_SECONDS).toBe(0.1);
   });
 
   test("bounds environmental buffer uploads independently of camera motion", () => {

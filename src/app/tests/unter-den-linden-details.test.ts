@@ -121,7 +121,7 @@ describe("source-bound Unter den Linden recognition details", () => {
     const stats = budget(createUnterDenLindenDetails());
     expect(stats.draws).toBe(10);
     expect(stats.instances).toBeGreaterThan(600);
-    expect(stats.instances).toBeLessThan(1_200);
+    expect(stats.instances).toBe(1_649);
     expect(stats.bytes).toBeLessThan(180_000);
   });
 

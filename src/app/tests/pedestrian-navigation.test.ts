@@ -9,6 +9,7 @@ import {
   PEDESTRIAN_MAX_PITCH_RAD,
   PEDESTRIAN_RESPAWN,
   PEDESTRIAN_SPRINT_MULTIPLIER,
+  PEDESTRIAN_WALK_SPEED_MPS,
   addPedestrianParkObstacles,
   compilePedestrianObstacles,
   compilePedestrianWater,
@@ -179,7 +180,7 @@ describe("pedestrian navigation", () => {
     );
     expect(
       Math.hypot(result.state.x - start.x, result.state.z - start.z),
-    ).toBeCloseTo(0.32);
+    ).toBeCloseTo(PEDESTRIAN_WALK_SPEED_MPS * 0.05);
     expect(result.state.groundY).toBe(start.groundY);
     expect(result.state.jumpOffset).toBe(0);
   });
@@ -194,7 +195,9 @@ describe("pedestrian navigation", () => {
     );
     expect(
       Math.hypot(result.state.x - start.x, result.state.z - start.z),
-    ).toBeCloseTo(0.32 * PEDESTRIAN_SPRINT_MULTIPLIER);
+    ).toBeCloseTo(
+      PEDESTRIAN_WALK_SPEED_MPS * 0.05 * PEDESTRIAN_SPRINT_MULTIPLIER,
+    );
   });
 
   test("triple activation adds a distinct eight-times fast-run layer", () => {
@@ -214,7 +217,9 @@ describe("pedestrian navigation", () => {
     );
     expect(
       Math.hypot(result.state.x - start.x, result.state.z - start.z),
-    ).toBeCloseTo(0.32 * PEDESTRIAN_FAST_RUN_MULTIPLIER);
+    ).toBeCloseTo(
+      PEDESTRIAN_WALK_SPEED_MPS * 0.05 * PEDESTRIAN_FAST_RUN_MULTIPLIER,
+    );
   });
 
   test("double activation has a bounded, deterministic sprint window", () => {

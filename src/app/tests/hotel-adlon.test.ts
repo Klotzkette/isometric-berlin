@@ -100,6 +100,11 @@ describe("Hotel Adlon source profile", () => {
     expect(sources.kempinskiHistory).toContain("kempinski.com");
     expect(sources.lod2).toContain("dl-de/zero-2-0");
     expect(sources.osm).toContain("ODbL 1.0");
+    expect(sources.ownerVisualReference).toMatchObject({
+      bundled: false,
+      runtimeTexture: false,
+    });
+    expect(sources.ownerVisualReference.view).toContain("Starbucks");
     expect(sources.visualReferences).toHaveLength(2);
     for (const reference of sources.visualReferences) {
       expect(reference).toContain("commons.wikimedia.org");
@@ -117,10 +122,21 @@ describe("Hotel Adlon smooth recognition layer", () => {
     expect(adlon.userData.hasCornerRisalit).toBe(false);
     expect(adlon.userData.upperHeadClosedWithHollowSkins).toBe(true);
     expect(adlon.userData.frontBearingDegreesXZ).toBe(-5.07);
+    expect(adlon.userData.ownerPhotoEnhancements).toEqual({
+      dormerPediments: 11,
+      germanFlagStripes: 3,
+      horizontalCourses: 6,
+      windowMuntins: 47,
+    });
     expect(adlon.name.toLowerCase()).not.toContain("risalit");
     expect(namedDescendantCount(adlon, "Adlon ground arch ")).toBe(5);
     expect(namedDescendantCount(adlon, "Adlon front dormer ")).toBe(8);
+    expect(
+      (adlon.getObjectByName("Adlon front dormer 1") as Group).userData
+        .pediment,
+    ).toBe(true);
     expect(namedDescendantCount(adlon, "Adlon flagpole ")).toBe(3);
+    expect(namedDescendantCount(adlon, "Adlon German roof flag")).toBe(1);
     expect(
       namedDescendantCount(adlon, "Adlon open HOTEL ADLON lettering "),
     ).toBe(2);

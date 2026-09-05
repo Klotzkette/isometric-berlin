@@ -1,7 +1,7 @@
 import type OpenSeadragon from "openseadragon";
 
 export const CARDINAL_SNAP_TOLERANCE_DEGREES = 4;
-export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.28;
+export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.38;
 
 export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
   pinchRotate: boolean;
@@ -136,9 +136,43 @@ export function isPedestrianJumpDoubleTap(
   );
 }
 
-const PEDESTRIAN_WHEEL_NOTCH_PIXELS = 100;
+const PEDESTRIAN_WHEEL_NOTCH_PIXELS = 80;
 const PEDESTRIAN_WHEEL_LINE_PIXELS = 32;
 const PEDESTRIAN_WHEEL_PAGE_PIXELS = 240;
+const MOUSE_WHEEL_ZOOM_EXPONENT_PER_PIXEL = 0.0022;
+const MOUSE_WHEEL_ZOOM_FACTOR_MIN = 0.62;
+const MOUSE_WHEEL_ZOOM_FACTOR_MAX = 1.62;
+
+function normalizedVerticalWheelPixels(
+  sample: WheelNavigationSample,
+): number | null {
+  if (
+    sample.ctrlKey ||
+    !Number.isFinite(sample.deltaX) ||
+    !Number.isFinite(sample.deltaY) ||
+    Math.abs(sample.deltaY) <= Math.abs(sample.deltaX)
+  ) {
+    return null;
+  }
+  return sample.deltaMode === 1
+    ? sample.deltaY * PEDESTRIAN_WHEEL_LINE_PIXELS
+    : sample.deltaMode === 2
+      ? Math.sign(sample.deltaY) * PEDESTRIAN_WHEEL_PAGE_PIXELS
+      : sample.deltaY;
+}
+
+/** Consistent, responsive zoom for pixel-, line- and page-mode mouse wheels. */
+export function wheelZoomFactor(sample: WheelNavigationSample): number {
+  const pixels = normalizedVerticalWheelPixels(sample);
+  if (pixels === null || pixels === 0) return 1;
+  return Math.max(
+    MOUSE_WHEEL_ZOOM_FACTOR_MIN,
+    Math.min(
+      MOUSE_WHEEL_ZOOM_FACTOR_MAX,
+      Math.exp(-pixels * MOUSE_WHEEL_ZOOM_EXPONENT_PER_PIXEL),
+    ),
+  );
+}
 
 /**
  * Convert a vertical wheel gesture into pedestrian forward input. A regular
@@ -149,20 +183,8 @@ const PEDESTRIAN_WHEEL_PAGE_PIXELS = 240;
 export function pedestrianWheelForwardInput(
   sample: WheelNavigationSample,
 ): number {
-  if (
-    sample.ctrlKey ||
-    !Number.isFinite(sample.deltaX) ||
-    !Number.isFinite(sample.deltaY) ||
-    Math.abs(sample.deltaY) <= Math.abs(sample.deltaX)
-  ) {
-    return 0;
-  }
-  const pixels =
-    sample.deltaMode === 1
-      ? sample.deltaY * PEDESTRIAN_WHEEL_LINE_PIXELS
-      : sample.deltaMode === 2
-        ? Math.sign(sample.deltaY) * PEDESTRIAN_WHEEL_PAGE_PIXELS
-        : sample.deltaY;
+  const pixels = normalizedVerticalWheelPixels(sample);
+  if (pixels === null) return 0;
   return Math.max(-1, Math.min(1, -pixels / PEDESTRIAN_WHEEL_NOTCH_PIXELS));
 }
 

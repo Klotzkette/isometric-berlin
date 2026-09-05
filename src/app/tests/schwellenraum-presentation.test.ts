@@ -129,7 +129,10 @@ describe("Schwellenraum presentation", () => {
     );
     const root = createSchwellenraumPraesentation();
     expect(setSchwellenraumDatenSchutz(root, protection)).toBeFalse();
-    for (const child of root.children) {
+    const lightPlaces = root.children.filter(
+      (child) => child.userData.schwellenraumPraesentation === true,
+    );
+    for (const child of lightPlaces) {
       expect(child.visible, child.name).toBeTrue();
       expect(child.userData.datenSchutzAktiv, child.name).toBeFalse();
       expect(child.userData.datenSchutzabstandM, child.name).toBeGreaterThan(
@@ -158,15 +161,20 @@ describe("Schwellenraum presentation", () => {
   test("builds a deterministic pastel light layer without moving the city", () => {
     const root = createSchwellenraumPraesentation();
     expect(root.visible).toBeFalse();
-    expect(root.children).toHaveLength(SCHWELLENRAUM_LICHTORTE.length);
+    const lightPlaces = root.children.filter(
+      (child) => child.userData.schwellenraumPraesentation === true,
+    );
+    expect(lightPlaces).toHaveLength(SCHWELLENRAUM_LICHTORTE.length);
+    expect(root.children).toHaveLength(SCHWELLENRAUM_LICHTORTE.length + 1);
     expect(root.userData.standardstadtBleibtUnveraendert).toBeTrue();
     expect(root.userData.tonfolge).toHaveLength(SCHWELLENRAUM_LIGHT_TONES.length);
-    for (const [index, child] of root.children.entries()) {
+    for (const [index, child] of lightPlaces.entries()) {
       const profile = SCHWELLENRAUM_LICHTORTE[index];
       expect(child.position).toEqual(new Vector3(profile.x, 0.12, profile.z));
       expect(child.userData.schwellenraumPraesentation).toBeTrue();
       expect(child.userData.schutzabstandM).toBeGreaterThan(35);
       expect(child.userData.uncannyFrameShearM).toBeGreaterThan(0);
+      expect(child.userData.dreamcoreCorridorFrameCount).toBe(3);
       expect(child.userData.veilLayerCount).toBe(3);
     }
 
@@ -208,12 +216,18 @@ describe("Schwellenraum presentation", () => {
       expect(geometries.size).toBeLessThanOrEqual(budget.geometries);
       expect(materials.size).toBeLessThanOrEqual(budget.materials);
       expect(vertices).toBeLessThanOrEqual(budget.vertices);
-      expect(root.children.every((place) => place.children.length === 3)).toBe(
-        true,
-      );
+      expect(
+        root.children
+          .filter(
+            (place) => place.userData.schwellenraumPraesentation === true,
+          )
+          .every((place) => place.children.length === 3),
+      ).toBe(true);
       if (detailProfile === "full") fullVertices = vertices;
       else mobileVertices = vertices;
     }
+    expect(fullVertices).toBe(5_613);
+    expect(mobileVertices).toBe(4_269);
     expect(mobileVertices).toBeLessThan(fullVertices);
   });
 

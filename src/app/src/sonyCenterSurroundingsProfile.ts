@@ -253,6 +253,27 @@ export const SONY_SURROUNDING_BUILDINGS: readonly SonySurroundingBuilding[] = [
     ],
     runs: [
       {
+        prismId: "e1PTH7PY",
+        groundY: 5.4,
+        heightM: 40.7,
+        chain: [
+          [205.8, 918.9],
+          [205.7, 918.4],
+          [255.7, 913.5],
+        ],
+      },
+      {
+        prismId: "e1PTH7PY",
+        groundY: 5.4,
+        heightM: 40.7,
+        chain: [
+          [255.7, 913.5],
+          [255.8, 914],
+          [256.3, 913.9],
+          [257.7, 928.3],
+        ],
+      },
+      {
         prismId: "AyaY6CC9",
         groundY: 5.4,
         heightM: 73.3,

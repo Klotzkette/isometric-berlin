@@ -7,6 +7,9 @@ import {
   MeshStandardMaterial,
 } from "three";
 
+import { ADLON_FORECOURT_PROFILE } from "../src/AdlonForecourtProfile";
+import { PARISER_PLATZ_ACADEMY_VIEW_PROFILE } from "../src/PariserPlatzAcademyViewProfile";
+
 import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
   BERLINER_ENSEMBLE_PROFILE,
@@ -368,6 +371,8 @@ describe("task-11 central transit and civic details", () => {
       576.06, 4.8, 286.37,
     ]);
     expect(details.userData.pariserPlatz).toMatchObject({
+      adlonForecourt: ADLON_FORECOURT_PROFILE,
+      academyView: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
       gardens: PARISER_PLATZ_GARDENS,
       photoDetailProfile: PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
       subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
@@ -378,17 +383,60 @@ describe("task-11 central transit and civic details", () => {
     expect(pariserPlatzDetails).toBeDefined();
     expect(pariserPlatzDetails!.userData).toMatchObject({
       ...PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
+      adlonForecourt: ADLON_FORECOURT_PROFILE,
+      academyView: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
       photographsBundled: false,
     });
     expect(PARISER_PLATZ_PHOTO_DETAIL_PROFILE).toMatchObject({
       continuousFlowerBedCount: 8,
+      bicycleRackGroupCount: 8,
+      bicycleSilhouetteCount: 48,
+      circulationBoundaryCount: 2,
       formalLawnCount: 2,
       formalTopiaryCount: 4,
       fountainBasinCount: 2,
       fountainJetCount: 2,
       gardenRailPostCount: 96,
-      sourceViewCount: 6,
+      sourceViewCount: 13,
     });
+    expect(ADLON_FORECOURT_PROFILE).toMatchObject({
+      kiosk: {
+        osmNodeId: 10885617184,
+        osmWorldM: [602.459568, 4.84, 291.132611],
+      },
+      elevator: {
+        levels: "-3;-1;0",
+        osmNodeId: 2451641811,
+        osmWorldM: [593.845696, 4.84, 277.485931],
+      },
+      ownerVisualReference: {
+        bundled: false,
+        runtimeTexture: false,
+      },
+      performance: {
+        smoothAdditionalDrawCalls: 0,
+      },
+    });
+    const forecourtBodies = pariserPlatzDetails!.getObjectByName(
+      "Pariser Platz photo-bounded fine detail bodies",
+    ) as Mesh;
+    const forecourtPositions = forecourtBodies.geometry.getAttribute("position");
+    for (const [x, , z] of [
+      ADLON_FORECOURT_PROFILE.kiosk.osmWorldM,
+      ADLON_FORECOURT_PROFILE.elevator.osmWorldM,
+    ]) {
+      const nearbyVertices = Array.from(
+        { length: forecourtPositions.count },
+        (_, index) => index,
+      ).filter(
+        (index) =>
+          Math.hypot(
+            forecourtPositions.getX(index) - x,
+            forecourtPositions.getZ(index) - z,
+          ) < 7,
+      );
+      expect(nearbyVertices.length).toBeGreaterThan(100);
+    }
     const civicBodies = details.getObjectByName(
       "Central transit and civic details bodies",
     ) as Mesh;
@@ -468,6 +516,56 @@ describe("task-11 central transit and civic details", () => {
     });
     expect(FRIEDRICHSTRASSE_STATION_ROTATION_RAD).toBeCloseTo(-0.31);
     expect(details.userData.economicsMinistry.source).toContain("Berlin LoD2");
+  });
+
+  test("keeps the Akademie view on the metric Gate, Reichstag and Carillon axes", () => {
+    const profile = PARISER_PLATZ_ACADEMY_VIEW_PROFILE;
+    const [academyX, , academyZ] = profile.observation.facadeAnchorWorldM;
+    for (const sightline of [
+      profile.sightlines.brandenburgGate,
+      profile.sightlines.reichstag,
+      profile.sightlines.carillon,
+    ]) {
+      const [targetX, , targetZ] = sightline.worldM;
+      expect(
+        Math.hypot(targetX - academyX, targetZ - academyZ),
+      ).toBeCloseTo(sightline.planDistanceFromAcademyM, 3);
+    }
+    expect(
+      profile.sightlines.brandenburgGate.planDistanceFromAcademyM,
+    ).toBeLessThan(profile.sightlines.reichstag.planDistanceFromAcademyM);
+    expect(
+      profile.sightlines.reichstag.planDistanceFromAcademyM,
+    ).toBeLessThan(profile.sightlines.carillon.planDistanceFromAcademyM);
+
+    const [targetX, , targetZ] = profile.targetWorldM;
+    const targetToAcademyAzimuth =
+      (Math.atan2(academyX - targetX, academyZ - targetZ) * 180) / Math.PI;
+    expect(targetToAcademyAzimuth).toBeCloseTo(
+      profile.isometricCamera.azimuth_degrees,
+      2,
+    );
+    const camera = profile.isometricCamera;
+    const polarRad = (camera.polar_degrees * Math.PI) / 180;
+    const azimuthRad = (camera.azimuth_degrees * Math.PI) / 180;
+    const cameraPlanDistance = camera.distance_m * Math.sin(polarRad);
+    const cameraPlanX =
+      targetX + cameraPlanDistance * Math.sin(azimuthRad);
+    const cameraPlanZ =
+      targetZ + cameraPlanDistance * Math.cos(azimuthRad);
+    expect(
+      Math.hypot(cameraPlanX - academyX, cameraPlanZ - academyZ),
+    ).toBeLessThan(5);
+    expect(camera.fov_degrees).toBe(58);
+    expect(profile.ownerVisualReferences).toMatchObject({
+      bundled: false,
+      count: 6,
+      runtimeTexture: false,
+    });
+    expect(profile.performance).toEqual({
+      minecraftAdditionalDrawCalls: 0,
+      smoothAdditionalDrawCalls: 0,
+    });
   });
 
   test("pins the three embassy facades to their Berlin LoD2 envelopes", () => {
@@ -579,11 +677,8 @@ describe("task-11 central transit and civic details", () => {
       target_world: futurium.world,
     });
     expect(centralCivicFocusCamera(pariserPlatz)).toEqual({
-      azimuth_degrees: 88,
-      distance_m: 128,
-      polar_degrees: 72,
-      target_height_m: 7,
-      target_world: pariserPlatz.world,
+      ...PARISER_PLATZ_ACADEMY_VIEW_PROFILE.isometricCamera,
+      target_world: [...PARISER_PLATZ_ACADEMY_VIEW_PROFILE.targetWorldM],
     });
     expect(centralCivicFocusCamera(ensemble)).toMatchObject({
       azimuth_degrees: 121,

@@ -28,6 +28,7 @@ import {
   isSchwellenraumProtectedObjectName,
   type SchwellenraumProtectedVolume,
 } from "../../SchwellenraumInteriors";
+import { attachPariserPlatzEntityLoop } from "./pariserPlatzEntityLoop";
 
 /**
  * The Schwellenraum keeps the ordinary daylight city intact. Its atmosphere
@@ -45,10 +46,10 @@ export const SCHWELLENRAUM_LIGHT_TONES = [
 
 export type SchwellenraumDetailProfile = "full" | "mobile";
 
-/** Hard geometry budgets for the additive layer, including all eight sites. */
+/** Hard geometry budgets for all eight sites and the local Pariser Platz loop. */
 export const SCHWELLENRAUM_PRESENTATION_BUDGET = {
-  full: { geometries: 17, materials: 3, objects: 33, renderables: 24, vertices: 3_000 },
-  mobile: { geometries: 17, materials: 3, objects: 33, renderables: 24, vertices: 1_800 },
+  full: { geometries: 24, materials: 10, objects: 41, renderables: 31, vertices: 5_700 },
+  mobile: { geometries: 24, materials: 10, objects: 41, renderables: 31, vertices: 4_350 },
 } as const;
 
 /**
@@ -385,6 +386,56 @@ function pushVeil(
   }
 }
 
+function pushDreamcoreCorridor(
+  positions: number[],
+  colors: number[],
+  width: number,
+  height: number,
+  index: number,
+  detailProfile: SchwellenraumDetailProfile,
+): number {
+  const frameCount = detailProfile === "mobile" ? 2 : 3;
+  for (let frame = 1; frame <= frameCount; frame += 1) {
+    const scale = 1 - frame * 0.16;
+    const alternatingShift =
+      (index % 2 === 0 ? 1 : -1) * (frame % 2 === 0 ? -0.16 : 0.2);
+    pushFrame(
+      positions,
+      colors,
+      width * scale,
+      height * scale,
+      height * (0.5 - frame * 0.018),
+      -2.25 - frame * 1.65,
+      SCHWELLENRAUM_LIGHT_TONES[(index + frame + 2) % 4],
+      0.58 - frame * 0.09,
+      alternatingShift,
+      alternatingShift * 1.7,
+    );
+  }
+  const farScale = 1 - frameCount * 0.16;
+  const farZ = -2.25 - frameCount * 1.65;
+  const tone = SCHWELLENRAUM_LIGHT_TONES[(index + 3) % 4];
+  for (const side of [-1, 1]) {
+    pushSegment(
+      positions,
+      colors,
+      [side * width * 0.5, 0.08, -0.1],
+      [side * width * farScale * 0.5, height * 0.06, farZ],
+      tone,
+      0.36,
+    );
+    pushSegment(
+      positions,
+      colors,
+      [side * width * 0.5, height * 0.98, -0.1],
+      [side * width * farScale * 0.5, height * 0.91, farZ],
+      tone,
+      0.26,
+    );
+  }
+  return frameCount;
+}
+
 function createLichtschwelle(
   profile: SchwellenraumLichtort,
   index: number,
@@ -427,6 +478,14 @@ function createLichtschwelle(
       echoShearX,
     );
   }
+  const corridorFrameCount = pushDreamcoreCorridor(
+    linePositions,
+    lineColors,
+    width,
+    height,
+    index,
+    detailProfile,
+  );
   const ringCount = detailProfile === "mobile" ? 2 : 3;
   const ringSegments = detailProfile === "mobile" ? 24 : 36;
   for (let ringIndex = 0; ringIndex < ringCount; ringIndex += 1) {
@@ -518,6 +577,7 @@ function createLichtschwelle(
   group.userData.schwellenraumPraesentation = true;
   group.userData.schwellenraumStatic = true;
   group.userData.uncannyFrameShearM = (echoCount - 1) * 0.22;
+  group.userData.dreamcoreCorridorFrameCount = corridorFrameCount;
   group.userData.veilLayerCount = 3;
   group.userData.kollision = "nur Licht; keine begehbare oder durchfliegbare Masse";
   // The outer floor-light torus is the widest accent. This radius lets the
@@ -531,7 +591,7 @@ function createLichtschwelle(
   return group;
 }
 
-/** Create the complete deterministic, static atmospheric accent layer. */
+/** Create the deterministic accents and one tightly bounded local motion loop. */
 export function createSchwellenraumPraesentation(
   detailProfile: SchwellenraumDetailProfile = "full",
 ): Group {
@@ -544,7 +604,7 @@ export function createSchwellenraumPraesentation(
   );
   root.userData.detailProfile = detailProfile;
   root.userData.atmosphere =
-    "cold dissonant light with static misregistered frame echoes";
+    "cold dissonant light, impossible receding corridors and static misregistered frame echoes";
   root.userData.renderBudget = SCHWELLENRAUM_PRESENTATION_BUDGET[detailProfile];
   const assets: LichtschwelleAssets = {
     line: lineMaterial(0.22),
@@ -555,6 +615,7 @@ export function createSchwellenraumPraesentation(
   for (const [index, profile] of SCHWELLENRAUM_LICHTORTE.entries()) {
     root.add(createLichtschwelle(profile, index, detailProfile, assets));
   }
+  attachPariserPlatzEntityLoop(root, detailProfile);
   return root;
 }
 

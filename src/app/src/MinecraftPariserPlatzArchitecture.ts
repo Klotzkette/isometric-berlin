@@ -13,6 +13,8 @@ import {
   PARISER_PLATZ_ARCHITECTURE_PROFILE,
   PARISER_PLATZ_ARCHITECTURE_GROUP_NAME,
 } from "./PariserPlatzArchitecture";
+import { ADLON_FORECOURT_PROFILE } from "./AdlonForecourtProfile";
+import { PARISER_PLATZ_ACADEMY_VIEW_PROFILE } from "./PariserPlatzAcademyViewProfile";
 import { MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK } from "./visual-modes/minecraft/palette";
 
 /**
@@ -397,6 +399,84 @@ function addEuropeanHouseSignature(blocks: Block[]): void {
   pushBlock(blocks, profile, BLOCK.gold, 5.45, 6.5, 1.85, [0.35, 0.35, 0.35]);
 }
 
+function addAdlonForecourtSignature(blocks: Block[]): void {
+  const rotationYRad = 0.087;
+  const kiosk: BuildingProfile = {
+    facadeCenterWorldM: ADLON_FORECOURT_PROFILE.kiosk.osmWorldM,
+    outwardSign: 1,
+    rotationYRad,
+  };
+  for (const depth of [-2.25, 2.25]) {
+    for (const u of [-4, -2, 0, 2, 4]) {
+      pushBlock(blocks, kiosk, DARK, u, 1.25, depth, [1.8, 2.2, 0.55]);
+      pushBlock(blocks, kiosk, BLOCK.red, u, 2.45, depth, [1.9, 0.5, 0.7]);
+    }
+  }
+  for (const u of [-4.7, 4.7]) {
+    pushBlock(blocks, kiosk, STEEL, u, 1.25, 0, [0.55, 2.2, 3.9]);
+    pushBlock(blocks, kiosk, BLOCK.red, u, 2.45, 0, [0.7, 0.5, 4.2]);
+  }
+  for (const u of [-3.15, 0, 3.15]) {
+    pushBlock(blocks, kiosk, GLASS, u, 1.48, -2.58, [2.5, 1.05, 0.4]);
+  }
+  for (const u of [-4, -2, 0, 2, 4]) {
+    pushBlock(blocks, kiosk, STEEL, u, 2.85, 0, [1.82, 0.45, 5.8]);
+  }
+  for (const u of [-5.15, 5.15]) {
+    pushBlock(blocks, kiosk, STEEL, u, 1.55, -0.95, [0.4, 3.1, 0.4]);
+    pushBlock(blocks, kiosk, BLOCK.red, u, 3.15, -0.95, [4, 0.45, 1.8]);
+    pushBlock(blocks, kiosk, BLOCK.red, u, 3.15, -0.95, [1.8, 0.45, 4]);
+  }
+
+  const elevator: BuildingProfile = {
+    facadeCenterWorldM: ADLON_FORECOURT_PROFILE.elevator.osmWorldM,
+    outwardSign: 1,
+    rotationYRad,
+  };
+  for (const u of [-2.15, 2.15]) {
+    for (const depth of [-1.55, 1.55]) {
+      pushBlock(blocks, elevator, STEEL, u, 2.55, depth, [0.45, 4.8, 0.45]);
+    }
+  }
+  for (const u of [-1.05, 1.05]) {
+    for (const depth of [-1.7, 1.7]) {
+      pushBlock(blocks, elevator, GLASS, u, 2.55, depth, [1.75, 3.8, 0.35]);
+    }
+  }
+  for (const u of [-2.2, 2.2]) {
+    pushBlock(blocks, elevator, GLASS, u, 2.55, 0, [0.35, 3.8, 2.7]);
+  }
+  pushBlock(blocks, elevator, PALE, 0, 1.35, 0, [3.2, 0.4, 2.35]);
+  pushBlock(blocks, elevator, DARK, 0, 2.55, 0.8, [0.4, 4.1, 0.4]);
+  pushBlock(blocks, elevator, STEEL, 0, 5.05, 0, [5.6, 0.45, 4.2]);
+}
+
+function addAcademyViewBicycleClusters(blocks: Block[]): void {
+  const rotationYRad = 0.087;
+  const gardens = [
+    { center: [500.7, 4.84, 334.1] as const, innerSide: -1 },
+    { center: [494.2, 4.84, 254.9] as const, innerSide: 1 },
+  ] as const;
+  for (const garden of gardens) {
+    const profile: BuildingProfile = {
+      facadeCenterWorldM: garden.center,
+      outwardSign: 1,
+      rotationYRad,
+    };
+    for (let cluster = 0; cluster < 6; cluster += 1) {
+      pushBlock(
+        blocks,
+        profile,
+        cluster % 3 === 0 ? STEEL : DARK,
+        -29 + cluster * 11.6,
+        0.55,
+        garden.innerSide * 12.9,
+        [3.8, 0.72, 0.5],
+      );
+    }
+  }
+}
+
 export function createMinecraftPariserPlatzArchitecture(): Group {
   const blocks: Block[] = [];
   addMaxLiebermannSignature(blocks);
@@ -404,6 +484,8 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
   addUsEmbassySignature(blocks);
   addAkademieSignature(blocks);
   addEuropeanHouseSignature(blocks);
+  addAdlonForecourtSignature(blocks);
+  addAcademyViewBicycleClusters(blocks);
 
   const geometry = new BoxGeometry(1, 1, 1);
   const material = new MeshStandardMaterial({
@@ -435,6 +517,11 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
     blockNative: true,
     drawCallBudget: 1,
     genericSourceMassRetained: true,
+    adlonForecourtObjectCount: 2,
+    academyViewBicycleClusterCount: 12,
+    academyViewRepresentedBicycleCount:
+      PARISER_PLATZ_ACADEMY_VIEW_PROFILE.publicSpaceCues
+        .bicycleSilhouetteCount,
     instanceCount: blocks.length,
     maxBlockSpanM: 6.2,
     sourceSurfaceModule: PARISER_PLATZ_ARCHITECTURE_GROUP_NAME,
@@ -444,6 +531,10 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
   const group = new Group();
   group.name = MINECRAFT_PARISER_PLATZ_GROUP_NAME;
   group.userData = {
+    adlonForecourtObjectCount: 2,
+    adlonForecourtProfile: ADLON_FORECOURT_PROFILE,
+    academyViewProfile: PARISER_PLATZ_ACADEMY_VIEW_PROFILE,
+    bicycleClusterCount: 12,
     buildingCount: 5,
     drawCallBudget: 1,
     geometryStatus:

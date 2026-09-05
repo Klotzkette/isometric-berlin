@@ -14,6 +14,8 @@ export const MINECRAFT_UNTER_DEN_LINDEN_GROUP_NAME =
 export const UNTER_DEN_LINDEN_DETAILS_PROFILE = {
   name: UNTER_DEN_LINDEN_DETAILS_GROUP_NAME,
   sourceCreated: "2026-09-03",
+  detailRevised: "2026-09-05",
+  windowDetailStatus: "Shallow paired stone reveals and transoms are procedural visual subdivisions, not surveyed dimensions; all LoD2 envelopes and facade axes remain unchanged.",
   buildings: {
     britishEmbassy: {
       name: "British Embassy",
