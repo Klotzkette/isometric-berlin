@@ -1,9 +1,10 @@
 {
   "name": "isometric-berlin-viewer",
   "private": true,
-  "version": "0.72.41",
+  "version": "0.72.42",
   "type": "module",
   "scripts": {
+    "benchmark:minecraft-world": "bun scripts/benchmark-minecraft-world.ts",
     "benchmark:box-outlines": "bun scripts/benchmark-box-outlines.ts",
     "benchmark:progressive-world": "bun scripts/benchmark-progressive-world.ts",
     "benchmark:monolithic-world": "bun scripts/benchmark-monolithic-world.ts",

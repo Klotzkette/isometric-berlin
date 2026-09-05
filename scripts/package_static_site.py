@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.41"
+PACKAGE_VERSION = "0.72.42"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})

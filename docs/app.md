@@ -475,6 +475,18 @@ The earlier pre-retention Minecraft benchmark measured **845,561 instances /
 full. The current streamed 1/3 and 2/3 tree retention makes those figures
 conservative upper bounds; the small mob and loot batches remain separately
 fixed.
+The v0.72.42 cold builder uses a bounded recognition index, streams compact
+building rows and counts then writes facade panes into their final buffers.
+Fully overwritten building/window matrices skip redundant identity filling;
+spare-capacity batches retain the original initialization. Its cooperative
+iterator yields during ground classification, column processing and window
+passes, using the existing browser scheduler with a soft 8 ms task budget.
+Individual allocations and authored detail constructors can exceed that
+budget. Cancellation closes suspended state and disposes the unpublished
+root; publication still waits for the complete world. The synchronous API
+uses the same iterator for tests and benchmarks. No Worker transfer, duplicate
+world, texture, reduced visibility or changed geometry budget is introduced.
+See [Minecraft construction measurements](performance-minecraft-construction.md).
 Only that touch profile omits generic facade panes and meadow flowers and
 collapses non-Hero source columns to one body block; all Hero courses no taller
 than 8 m, block-native signatures and navigation contracts remain. Every WebGL

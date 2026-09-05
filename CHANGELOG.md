@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.72.42
+
+- **Minecraft baut schneller und unterbrechbar auf.** Vorberechnete lokale
+  Suchbereiche ersetzen wiederholte Pruefungen aller Erkennungsgebaeude.
+  Die originalen gedrehten Randtests und ihre Prioritaet bleiben unveraendert.
+- **Weniger temporaerer Speicher.** Alle Fassadenfenster werden direkt in
+  ihre endgueltigen Instanzpuffer geschrieben. Die Millionen kurzlebiger
+  Fensterobjekte und die expandierte Zwischenkopie der Gebaeudedaten entfallen.
+  Vollstaendig beschriebene Instanzmatrizen werden nicht zuvor doppelt gefuellt.
+- **Browser-Eingaben bekommen Rechenzeit.** Gelaende, Gebaeude und Fenster
+  entstehen kooperativ in Abschnitten mit einem weichen 8-ms-Arbeitsbudget.
+  Ein Moduswechsel bricht den unveroeffentlichten Aufbau ab und gibt dessen
+  Ressourcen frei. Erst die vollstaendige Welt ersetzt das bisherige Bild.
+  Verspaetete Downloads einer inaktiven Welt hinterlassen keine festhaengende
+  Prozentanzeige mehr ueber der bereits fertigen Ansicht.
+- **Kein Detailverlust.** Reproduzierbare Gesamtwelt-Pruefsummen bestaetigen
+  identische Geometrie-, Farb- und Instanzpuffer fuer Desktop und Mobilprofil.
+  Sichtweite, Fensterzahl, Architektur, Spawn-Regeln und GPU-Budget bleiben
+  erhalten. Der Benchmark misst Aufbauarbeit, keine allgemeine Browser-FPS.
+
 ## v0.72.41
 
 - **Keine Himmel-Luecken beim kalten Moduswechsel.** Solange die angeforderte

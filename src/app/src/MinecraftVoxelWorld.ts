@@ -3,6 +3,7 @@ import {
   Color,
   DoubleSide,
   Group,
+  InstancedBufferAttribute,
   InstancedMesh,
   Matrix4,
   MeshBasicMaterial,
@@ -139,21 +140,30 @@ export function decodeVoxelBuildingColumns(
   payload: VoxelPayload,
 ): VoxelBuildingColumn[] {
   if (!payload.building_rows) return payload.buildings ?? [];
-  const columns: VoxelBuildingColumn[] = [];
-  payload.building_rows.forEach((row, zOffset) => {
+  return Array.from(voxelBuildingColumns(payload));
+}
+
+function* voxelBuildingColumns(
+  payload: VoxelPayload,
+): Generator<VoxelBuildingColumn> {
+  if (!payload.building_rows) {
+    yield* payload.buildings ?? [];
+    return;
+  }
+  for (let zOffset = 0; zOffset < payload.building_rows.length; zOffset += 1) {
+    const row = payload.building_rows[zOffset];
     for (const [xOffset, runLength, y0dm, y1dm, classId] of row) {
       for (let offset = 0; offset < runLength; offset += 1) {
-        columns.push([
+        yield [
           payload.grid.min_x_idx + xOffset + offset,
           payload.grid.min_z_idx + zOffset,
           y0dm,
           y1dm,
           classId,
-        ]);
+        ];
       }
     }
-  });
-  return columns;
+  }
 }
 
 /** Losslessly expand compact schema-2 trees, while accepting schema 1. */
@@ -367,7 +377,7 @@ export type VoxelRecognitionArea = {
 // Metric envelopes copied from the versioned architectural signatures in
 // scene.json. The true voxel columns remain untouched; only their generic
 // square-window overlay yields to the more accurate recognition model.
-const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
+export const VOXEL_RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
   {
     center: [317.729, 40.477],
     depthM: 138,
@@ -560,14 +570,56 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
   },
 ];
 
+const RECOGNITION_BUCKET_M = 128;
+const recognitionBuckets = new Map<
+  number,
+  Map<
+    number,
+    Array<{
+      area: VoxelRecognitionArea;
+      cosine: number;
+      sine: number;
+    }>
+  >
+>();
+for (const area of VOXEL_RECOGNITION_AREAS) {
+  const radians = (area.rotationDegrees * Math.PI) / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const halfX = area.widthM / 2 + area.paddingM;
+  const halfZ = area.depthM / 2 + area.paddingM;
+  // Conservative broad phase only; the original rotated test owns edges.
+  const extentX = Math.abs(cosine) * halfX + Math.abs(sine) * halfZ + 1e-7;
+  const extentZ = Math.abs(sine) * halfX + Math.abs(cosine) * halfZ + 1e-7;
+  const entry = { area, cosine, sine };
+  for (
+    let bx = Math.floor((area.center[0] - extentX) / RECOGNITION_BUCKET_M);
+    bx <= Math.floor((area.center[0] + extentX) / RECOGNITION_BUCKET_M);
+    bx += 1
+  ) {
+    let row = recognitionBuckets.get(bx);
+    if (!row) recognitionBuckets.set(bx, (row = new Map()));
+    for (
+      let bz = Math.floor((area.center[1] - extentZ) / RECOGNITION_BUCKET_M);
+      bz <= Math.floor((area.center[1] + extentZ) / RECOGNITION_BUCKET_M);
+      bz += 1
+    ) {
+      const entries = row.get(bz);
+      if (entries) entries.push(entry);
+      else row.set(bz, [entry]);
+    }
+  }
+}
+
 export function voxelRecognitionAreaAt(
   x: number,
   z: number,
 ): VoxelRecognitionArea | null {
-  for (const area of RECOGNITION_AREAS) {
-    const radians = (area.rotationDegrees * Math.PI) / 180;
-    const cosine = Math.cos(radians);
-    const sine = Math.sin(radians);
+  const entries = recognitionBuckets
+    .get(Math.floor(x / RECOGNITION_BUCKET_M))
+    ?.get(Math.floor(z / RECOGNITION_BUCKET_M));
+  if (!entries) return null;
+  for (const { area, cosine, sine } of entries) {
     const dx = x - area.center[0];
     const dz = z - area.center[1];
     const localX = dx * cosine - dz * sine;
@@ -691,12 +743,15 @@ function instancedBoxes(
   name: string,
   count: number,
   emissive?: number,
+  fullyWritten = false,
 ): InstanceWriter {
+  const deferMatrices = fullyWritten && count > 0;
   const mesh = new InstancedMesh(
     new BoxGeometry(1, 1, 1),
     voxelMaterial(emissive),
-    Math.max(1, count),
+    deferMatrices ? 0 : Math.max(1, count),
   );
+  if (deferMatrices) allocateUnwrittenInstances(mesh, count);
   mesh.name = name;
   mesh.count = 0;
   const matrix = new Matrix4();
@@ -716,6 +771,13 @@ function instancedBoxes(
       mesh.count = index + 1;
     },
   };
+}
+
+// Only for private meshes whose complete capacity is written before publish.
+function allocateUnwrittenInstances(mesh: InstancedMesh, count: number): void {
+  mesh.instanceMatrix = new InstancedBufferAttribute(new Float32Array(count * 16), 16);
+  mesh.instanceColor = new InstancedBufferAttribute(new Float32Array(count * 3), 3);
+  mesh.count = count;
 }
 
 /**
@@ -951,6 +1013,18 @@ export function worldGroundSampler(
  * the same surveyed ground/water/road classes with its own palette).
  */
 export function createGroundSlabs(
+  ...args: Parameters<typeof createGroundSlabsSteps>
+): InstancedMesh {
+  return finishSteps(createGroundSlabsSteps(...args));
+}
+
+function finishSteps<T>(steps: Generator<void, T>): T {
+  let step = steps.next();
+  while (!step.done) step = steps.next();
+  return step.value;
+}
+
+function* createGroundSlabsSteps(
   payload: VoxelPayload,
   name: string,
   shadeMap: Record<string, readonly number[]>,
@@ -963,7 +1037,7 @@ export function createGroundSlabs(
     skipAtWorld?: (x: number, z: number) => boolean;
     skipWater?: boolean;
   },
-): InstancedMesh {
+): Generator<void, InstancedMesh> {
   const cell = payload.cell_m;
   const { min_x_idx, min_z_idx } = payload.grid;
   const worldXAbs = (xIdx: number, span = 1): number =>
@@ -979,7 +1053,9 @@ export function createGroundSlabs(
   }> = [];
   let skippedByWorldPredicateCells = 0;
   let skippedBridgeCells = 0;
-  payload.ground_rows.forEach((row, zOffset) => {
+  for (let zOffset = 0; zOffset < payload.ground_rows.length; zOffset += 1) {
+    if (zOffset % 16 === 0) yield;
+    const row = payload.ground_rows[zOffset];
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
       if (
@@ -1032,7 +1108,7 @@ export function createGroundSlabs(
         });
       }
     }
-  });
+  }
   const ground = instancedBoxes(name, visibleRuns.length, options?.emissive);
   ground.mesh.userData.skippedByWorldPredicateCells =
     skippedByWorldPredicateCells;
@@ -2470,7 +2546,25 @@ export function createMinecraftVoxelWorld(
   tunnel?: TunnelPortalCourseInput | null,
   options: MinecraftVoxelWorldOptions = {},
 ): Group {
-  const group = new Group();
+  return finishSteps(
+    buildMinecraftVoxelWorldSteps(
+      new Group(),
+      payload,
+      toneLookup,
+      tunnel,
+      options,
+    ),
+  );
+}
+
+/** The caller owns the unpublished root, including cleanup after cancellation. */
+export function* buildMinecraftVoxelWorldSteps(
+  group: Group,
+  payload: VoxelPayload,
+  toneLookup?: ColumnToneLookup | null,
+  tunnel?: TunnelPortalCourseInput | null,
+  options: MinecraftVoxelWorldOptions = {},
+): Generator<void, Group> {
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
   const mobileDetail = options.detailProfile === "mobile";
   const cell = payload.cell_m;
@@ -2486,8 +2580,9 @@ export function createMinecraftVoxelWorld(
     ? createTunnelPortalApproachTester(tunnel, cell / Math.SQRT2)
     : null;
   group.add(createMinecraftExtrapolatedWorld());
+  yield;
   group.add(
-    createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES, {
+    yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
       // The northern harbour staircase below is rebuilt from the same exact
       // predicate in one block-native detail mesh. Suppressing it here first
       // prevents coincident DGM slabs and Schrägufer blocks from flickering.
@@ -2499,17 +2594,22 @@ export function createMinecraftVoxelWorld(
       skipBridgeAtWorld: isBundestagSpreeBridgeGroundCell,
     }),
   );
+  yield;
   group.add(createMinecraftHumboldthafenDetails(payload));
+  yield;
   group.add(createMinecraftArchitecturalLandmarks());
+  yield;
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftSonyCenterSurroundings());
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   group.add(createMinecraftTipiAmKanzleramt());
+  yield;
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftBrechtMemorial());
   group.add(createTiergartenLiteraryMemorialsMinecraft());
   group.add(createWagnerMemorialMinecraft());
+  yield;
   group.add(
     createMoabitPrisonMemorialParkMinecraft(options.detailProfile ?? "full"),
   );
@@ -2528,90 +2628,94 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftUpbeatRecognition());
   group.add(createMinecraftFunboxRecognition());
   group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
+  yield;
 
-  const buildingColumns = decodeVoxelBuildingColumns(payload);
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
-  const visibleBuildingColumns = buildingColumns
-    .filter(
-      ([xIdx, zIdx, y0dm, y1dm]) =>
-        !wagnerMemorialVoxelReplacementAt(
-          worldXAbs(xIdx),
-          worldZAbs(zIdx),
-          (y1dm - y0dm) / 10,
-          y0dm / 10,
-        ) &&
-        !isFalseSintiRomaVoxelColumn(
-          worldXAbs(xIdx),
-          worldZAbs(zIdx),
-          (y1dm - y0dm) / 10,
-        ) &&
-        !isFalseBundestagSpreeBridgeVoxelColumn(
-          worldXAbs(xIdx),
-          worldZAbs(zIdx),
-          (y1dm - y0dm) / 10,
-        ) &&
-        !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
-        (!insideTunnelApproach ||
-          !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx))),
-    )
-    .map(([xIdx, zIdx, y0dm, y1dm, classId]): VoxelBuildingColumn => {
-      const sourceTopY = y1dm / 10;
-      const clippedTopY = sonyRoofColumnTopAt(
+  const visibleBuildingColumns: VoxelBuildingColumn[] = [];
+  let visitedColumns = 0;
+  for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
+    payload,
+  )) {
+    if (visitedColumns++ % 1024 === 0) yield;
+    if (!(
+      !wagnerMemorialVoxelReplacementAt(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
         y0dm / 10,
-        minecraftArchitecturalVoxelTopAt(
-          worldXAbs(xIdx),
-          worldZAbs(zIdx),
-          sourceTopY,
-          cell,
-        ),
-      );
-      const clippedTopDm =
-        clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;
-      return [xIdx, zIdx, y0dm, Math.max(y0dm, clippedTopDm), classId];
-    })
-    .filter(([, , y0dm, y1dm]) => y1dm > y0dm);
+      ) &&
+      !isFalseSintiRomaVoxelColumn(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
+      ) &&
+      !isFalseBundestagSpreeBridgeVoxelColumn(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
+      ) &&
+      !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      (!insideTunnelApproach ||
+        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx)))
+    ))
+      continue;
+    const sourceTopY = y1dm / 10;
+    const clippedTopY = sonyRoofColumnTopAt(
+      worldXAbs(xIdx),
+      worldZAbs(zIdx),
+      y0dm / 10,
+      minecraftArchitecturalVoxelTopAt(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        sourceTopY,
+        cell,
+      ),
+    );
+    const clippedTopDm =
+      clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;
+    const topDm = Math.max(y0dm, clippedTopDm);
+    if (topDm > y0dm)
+      visibleBuildingColumns.push([xIdx, zIdx, y0dm, topDm, classId]);
+  }
 
-  const buildingLayerCount = visibleBuildingColumns.reduce(
-    (count, [xIdx, zIdx, y0dm, y1dm]) => {
-      const worldX = worldXAbs(xIdx);
-      const worldZ = worldZAbs(zIdx);
-      const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
-      const roofTopY =
-        recognitionArea?.name === "Rieckhallen"
-          ? RIECKHALLEN_PROFILE.minecraftRoofTopY
-          : y1dm / 10;
-      const height = Math.max(cell, roofTopY - y0dm / 10);
-      const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
-      if (mobileDetail && !heroSource) {
-        return count + 1;
-      }
-      const capHeight = height > 5 ? 1 : 0;
-      const plinthHeight = height > 8 ? 1 : 0;
-      const bodyHeight = height - capHeight - plinthHeight;
-      const bodyCourseCount = heroSource
-        ? Math.max(
-            1,
-            Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
-          )
-        : 1;
-      return (
-        count +
-        bodyCourseCount +
-        (plinthHeight > 0 ? 1 : 0) +
-        (capHeight > 0 ? 1 : 0)
-      );
-    },
-    0,
-  );
+  let buildingLayerCount = 0;
+  for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+    if (i % 2048 === 0) yield;
+    const [xIdx, zIdx, y0dm, y1dm] = visibleBuildingColumns[i];
+    const worldX = worldXAbs(xIdx);
+    const worldZ = worldZAbs(zIdx);
+    const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
+    const roofTopY =
+      recognitionArea?.name === "Rieckhallen"
+        ? RIECKHALLEN_PROFILE.minecraftRoofTopY
+        : y1dm / 10;
+    const height = Math.max(cell, roofTopY - y0dm / 10);
+    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
+    if (mobileDetail && !heroSource) {
+      buildingLayerCount += 1;
+      continue;
+    }
+    const capHeight = height > 5 ? 1 : 0;
+    const plinthHeight = height > 8 ? 1 : 0;
+    const bodyHeight = height - capHeight - plinthHeight;
+    const bodyCourseCount = heroSource
+      ? Math.max(1, Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M))
+      : 1;
+    buildingLayerCount +=
+      bodyCourseCount + (plinthHeight > 0 ? 1 : 0) + (capHeight > 0 ? 1 : 0);
+  }
   const buildings = instancedBoxes(
     "Voxel building columns",
     buildingLayerCount,
+    undefined,
+    true,
   );
+  group.add(buildings.mesh);
   const facadePaint = new Color();
   const layerPaint = new Color();
-  for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
+  for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+    if (i % 1024 === 0) yield;
+    const [xIdx, zIdx, y0dm, y1dm, classId] = visibleBuildingColumns[i];
     const className = payload.classes[classId] ?? "concrete";
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
     const y0 = y0dm / 10;
@@ -2631,13 +2735,7 @@ export function createMinecraftVoxelWorld(
     const facade =
       tone !== null
         ? facadePaint.setHex(tone)
-        : shadeFor(
-            shades,
-            xIdx,
-            zIdx,
-            Math.round(height / cell),
-            facadePaint,
-          );
+        : shadeFor(shades, xIdx, zIdx, Math.round(height / cell), facadePaint);
     if (mobileDetail && !heroSource) {
       center.set(worldX, y0 + height / 2, worldZ);
       size.set(cell, height, cell);
@@ -2688,8 +2786,6 @@ export function createMinecraftVoxelWorld(
       buildings.write(center, size, layerPaint.setHex(layers.cap));
     }
   }
-  group.add(buildings.mesh);
-
   // Window cells on exterior faces: every ~4 m storey of a column face
   // that no neighbouring column covers gets a pale portrait pane. Hero
   // envelopes yield to their referenced recognition fenestration instead of
@@ -2697,106 +2793,101 @@ export function createMinecraftVoxelWorld(
   if (!mobileDetail) {
     const columnTops = new Map<number, number>();
     const columnKey = (x: number, z: number): number => x * 65536 + z;
-    for (const [xIdx, zIdx, , y1dm] of visibleBuildingColumns) {
+    for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+      if (i % 2048 === 0) yield;
+      const [xIdx, zIdx, , y1dm] = visibleBuildingColumns[i];
       const key = columnKey(xIdx, zIdx);
       columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
     }
-    type WindowFace = {
-      color: Color;
-      nx: number;
-      nz: number;
-      x: number;
-      y: number;
-      z: number;
-    };
-    const faces: WindowFace[] = [];
     const glass = new Color(VOXEL_WINDOW_GLASS);
     const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
     const teal = new Color(VOXEL_WINDOW_TEAL);
-    for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
-      if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
-        continue;
-      }
-      if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
-        continue;
-      }
-      const top = y1dm / 10;
-      for (const [dx, dz] of [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1],
-      ] as const) {
-        const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
-        const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
-        const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
-        if (voxelRecognitionAreaAt(faceX, faceZ)) {
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const;
+    const matrix = new Matrix4();
+    function* visitWindows(panes?: InstancedMesh): Generator<void, number> {
+      let count = 0;
+      for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+        if (i % 1024 === 0) yield;
+        const [xIdx, zIdx, y0dm, y1dm, classId] = visibleBuildingColumns[i];
+        if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
           continue;
         }
-        // Storey-banded window rows: every column face carries its glass
-        // on the SAME storey grid, so the facade reads as designed rows
-        // rather than randomly punched holes.
-        const base = y0dm / 10;
-        const firstRow = Math.ceil((base + 2) / cell) * cell;
-        for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
-          if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
+        if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
+          continue;
+        }
+        const top = y1dm / 10;
+        for (const [dx, dz] of directions) {
+          const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
+          const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
+          const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
+          if (voxelRecognitionAreaAt(faceX, faceZ)) {
             continue;
           }
-          // Two glass tones alternate along the row for gentle block
-          // variety; a teal accent every fourth bay keeps it lively.
-          const bay = Math.abs(xIdx + zIdx);
-          const color =
-            bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
-          faces.push({
-            color,
-            nx: dx,
-            nz: dz,
-            x: faceX,
-            y: yCenter,
-            z: faceZ,
-          });
+          // Storey-banded window rows: every column face carries its glass
+          // on the SAME storey grid, so the facade reads as designed rows
+          // rather than randomly punched holes.
+          const base = y0dm / 10;
+          const firstRow = Math.ceil((base + 2) / cell) * cell;
+          for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
+            if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
+              continue;
+            }
+            // Two glass tones alternate along the row for gentle block
+            // variety; a teal accent every fourth bay keeps it lively.
+            const bay = Math.abs(xIdx + zIdx);
+            const color =
+              bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
+            if (panes) {
+              // Same tangent and matrix order as the former WindowFace array.
+              matrix.set(
+                -dz * VOXEL_WINDOW_WIDTH_M,
+                0,
+                dx,
+                faceX,
+                0,
+                VOXEL_WINDOW_HEIGHT_M,
+                0,
+                yCenter,
+                dx * VOXEL_WINDOW_WIDTH_M,
+                0,
+                dz,
+                faceZ,
+                0,
+                0,
+                0,
+                1,
+              );
+              panes.setMatrixAt(count, matrix);
+              panes.setColorAt(count, color);
+            }
+            count += 1;
+          }
         }
       }
+      return count;
     }
-    if (faces.length > 0) {
+    // Count first, then write directly: no million-object staging array.
+    const windowCount = yield* visitWindows();
+    if (windowCount > 0) {
       const panes = new InstancedMesh(
         new PlaneGeometry(1, 1),
         new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
-        faces.length,
+        0,
       );
+      allocateUnwrittenInstances(panes, windowCount);
       panes.name = "Voxel facade windows";
-      const matrix = new Matrix4();
-      faces.forEach((face, index) => {
-        // Plane spans the face's tangent; dir = up × normal in the plane.
-        const dirX = -face.nz;
-        const dirZ = face.nx;
-        matrix.set(
-          dirX * VOXEL_WINDOW_WIDTH_M,
-          0,
-          face.nx,
-          face.x,
-          0,
-          VOXEL_WINDOW_HEIGHT_M,
-          0,
-          face.y,
-          dirZ * VOXEL_WINDOW_WIDTH_M,
-          0,
-          face.nz,
-          face.z,
-          0,
-          0,
-          0,
-          1,
-        );
-        panes.setMatrixAt(index, matrix);
-        panes.setColorAt(index, face.color);
-      });
+      group.add(panes);
+      yield* visitWindows(panes);
       panes.instanceMatrix.needsUpdate = true;
       if (panes.instanceColor) {
         panes.instanceColor.needsUpdate = true;
       }
       panes.frustumCulled = false;
-      group.add(panes);
     }
   }
 
@@ -2816,16 +2907,8 @@ export function createMinecraftVoxelWorld(
         cell * 1.1,
       ) &&
       (!insideTunnelApproach ||
-        !insideTunnelApproach(
-          worldXAbs(xIdx),
-          worldZAbs(zIdx),
-          cell * 1.1,
-        )) &&
-      minecraftVoxelTreeRetained(
-        xIdx,
-        zIdx,
-        options.detailProfile ?? "full",
-      )
+        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)) &&
+      minecraftVoxelTreeRetained(xIdx, zIdx, options.detailProfile ?? "full")
     ) {
       const tree: VoxelTreeBlock = [xIdx, zIdx, y0dm, heightDm];
       if (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, cell)) {
@@ -2839,14 +2922,17 @@ export function createMinecraftVoxelWorld(
   group.userData.visibleVoxelTreeCount =
     visibleTrees.length + (lenneOakVoxel ? 1 : 0);
   group.userData.lenneOakVoxelReplacementCount = lenneOakVoxel ? 1 : 0;
-  group.userData.voxelTreeRetentionProfile =
-    options.detailProfile ?? "full";
+  group.userData.voxelTreeRetentionProfile = options.detailProfile ?? "full";
   const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
   const crowns = instancedBoxes("Voxel tree crowns", visibleTrees.length * 2);
+  group.add(trunks.mesh);
+  group.add(crowns.mesh);
   const birchPaint = new Color(0xd6dfe0);
   const trunkPaint = new Color();
   const leafPaint = new Color();
-  for (const [xIdx, zIdx, y0dm, hdm] of visibleTrees) {
+  for (let i = 0; i < visibleTrees.length; i += 1) {
+    if (i % 1024 === 0) yield;
+    const [xIdx, zIdx, y0dm, hdm] = visibleTrees[i];
     const y0 = y0dm / 10;
     const height = Math.max(cell, hdm / 10);
     const trunkHeight = Math.max(cell / 2, height - cell * 1.5);
@@ -2884,8 +2970,6 @@ export function createMinecraftVoxelWorld(
       );
     }
   }
-  group.add(trunks.mesh);
-  group.add(crowns.mesh);
   if (lenneOakVoxel) {
     group.add(
       createMinecraftLenneOak(

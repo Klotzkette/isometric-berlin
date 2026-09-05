@@ -284,7 +284,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(voxelLoader).toContain("sourcePrisms: prisms?.buildings");
     expect(
       voxelLoader.indexOf("!voxelWorldIntentActive(runtime)"),
-    ).toBeLessThan(voxelLoader.indexOf("createMinecraftVoxelWorld("));
+    ).toBeLessThan(voxelLoader.indexOf("buildMinecraftVoxelWorldSteps("));
   });
 
   test("rolls back a partially attached voxel world before fallback", () => {

@@ -1,3 +1,4 @@
+import { completeCooperatively } from "./cooperativeWork";
 import {
   TOUCH,
   BoxGeometry,
@@ -274,7 +275,7 @@ import {
   VOXEL_WORLD_FILE,
   WATER_TOP_Y,
   buildColumnToneLookup,
-  createMinecraftVoxelWorld,
+  buildMinecraftVoxelWorldSteps,
   smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
@@ -3009,7 +3010,9 @@ function ensureIsoWorld(
       return await task;
     } finally {
       loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, totalParts);
+      if (isoWorldIntentActive(runtime)) {
+        runtime.reportCoreProgress(loadedParts, totalParts);
+      }
     }
   };
   let provisionalIsoWorld: Group | null = null;
@@ -3475,7 +3478,9 @@ function ensureVoxelWorld(
       return await task;
     } finally {
       loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, 3);
+      if (voxelWorldIntentActive(runtime)) {
+        runtime.reportCoreProgress(loadedParts, 3);
+      }
     }
   };
   let provisionalVoxelWorld: Group | null = null;
@@ -3490,7 +3495,7 @@ function ensureVoxelWorld(
     // stops being one cream-coloured mass.
     tracked(fetchPrismPayload(runtime)).catch(() => null),
   ])
-    .then(([payload, prisms]) => {
+    .then(async ([payload, prisms]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3502,16 +3507,24 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
-      pedestrianSnapshot = capturePedestrianAttachment(runtime);
-      provisionalVoxelWorld = createMinecraftVoxelWorld(
-        payload,
-        prisms ? buildColumnToneLookup(prisms) : null,
-        runtime.tunnelPortalCourse,
+      provisionalVoxelWorld = new Group();
+      await completeCooperatively(
+        buildMinecraftVoxelWorldSteps(
+          provisionalVoxelWorld,
+          payload,
+          prisms ? buildColumnToneLookup(prisms) : null,
+          runtime.tunnelPortalCourse,
+          {
+            detailProfile: runtime.coarsePointer ? "mobile" : "full",
+            sourcePrisms: prisms?.buildings,
+          },
+        ),
         {
-          detailProfile: runtime.coarsePointer ? "mobile" : "full",
-          sourcePrisms: prisms?.buildings,
+          yieldTask: yieldStartupWork,
+          isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
+      pedestrianSnapshot = capturePedestrianAttachment(runtime);
       provisionalMinecraftMobs = createMinecraftMobs(
         payload,
         !runtime.coarsePointer,
@@ -3661,9 +3674,6 @@ function ensureVoxelWorld(
       if (runtime.disposed) {
         return;
       }
-      if (import.meta.env.DEV) {
-        console.error("Failed to attach Minecraft voxel world", error);
-      }
       runtime.renderInvalidated = true;
       if (!voxelWorldIntentActive(runtime)) {
         // Keep the cached request and retry when this optional world is active.
@@ -3671,6 +3681,9 @@ function ensureVoxelWorld(
         restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
         notifyPresentationReadyWhenPossible(runtime);
         return;
+      }
+      if (import.meta.env.DEV) {
+        console.error("Failed to attach Minecraft voxel world", error);
       }
       runtime.voxelWorldState = "failed";
       restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
@@ -4542,6 +4555,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.startDeferredDetails();
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
+      if (currentStartupPresentationStatus(runtime) === "ready") {
+        runtime.reportCoreProgress(1, 1);
+      }
       const selectedLandmarkName = selectedRef.current;
       if (
         previousLightingMode !== lightingMode &&
