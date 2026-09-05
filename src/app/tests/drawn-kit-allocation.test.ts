@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { BoxGeometry, EdgesGeometry } from "three";
-import { addBox, createBuilder, paintGeometry } from "../src/drawnKit";
+import { addBox, boxOutlineGeometry, createBuilder, paintGeometry } from "../src/drawnKit";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "../src/architecturalInk";
 
 describe("lossless drawn box construction", () => {
@@ -37,5 +37,25 @@ describe("lossless drawn box construction", () => {
     expect(a.getAttribute("position").array).not.toBe(b.getAttribute("position").array);
     a.index!.setX(0, 7);
     expect(b.index!.getX(0)).not.toBe(7);
+    expect(builder.edges[0].getAttribute("position").array).not.toBe(
+      builder.edges[1].getAttribute("position").array,
+    );
+    builder.edges[0].getAttribute("position").setX(0, 777);
+    expect(builder.edges[1].getAttribute("position").getX(0)).not.toBe(777);
+  });
+
+  test("preserves contour bytes at city-scale offsets and thin-part degeneracies", () => {
+    for (let i = 0; i < 1_200; i += 1) {
+      const small = 10 ** (-(i % 8));
+      const sizes = [0.2 + (i * 7.317) % 84, 0.3 + (i * 2.891) % 32, 0.4 + (i * 3.621) % 7];
+      sizes[i % 3] = small;
+      const box = new BoxGeometry(...sizes);
+      box.rotateY(i * 0.0783);
+      box.translate(6_450 - i * 11.763, i % 400, -6_450 + i * 10.619);
+      const legacy = new EdgesGeometry(box, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES);
+      const actual = boxOutlineGeometry(box);
+      expect(actual.getAttribute("position").array).toEqual(legacy.getAttribute("position").array);
+      box.dispose(); legacy.dispose(); actual.dispose();
+    }
   });
 });

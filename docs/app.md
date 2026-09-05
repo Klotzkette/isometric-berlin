@@ -27,6 +27,28 @@ OSM + Geoportal Berlin minimum:
 When Google Photorealistic 3D Tiles are enabled (opt-in), additionally
 show the Google attribution required by the Google Maps Platform Terms.
 
+## Lossless contour construction
+
+Cold switches between the drawn and voxel families keep the last presented
+canvas frame until the requested world publishes its first usable batch. The
+RAF, input and loading indicator continue, but no partial accessory-only scene
+overwrites that frame. This requires no screenshot texture or additional world
+residency. Mobile family remounts, resizing and context recovery still use the
+existing startup backdrop.
+
+The v0.72.41 drawn kit reuses Three.js's ordered box-corner topology for
+positive-size rigid boxes, including the Terrassenhaus facade kit. Each output
+still owns its position buffer. Thin or collapsed world-space edges fall back
+to `EdgesGeometry`, preserving its quantisation rules. No facade, outline,
+material, draw call, resolution or antialiasing tier is removed. The
+`bun run benchmark:box-outlines` check compares output hashes before reporting
+timings; [measurement notes](performance-box-outlines.md) distinguish this
+construction microbenchmark from browser frame rate.
+
+The Tilla-Durieux ground exclusion also rejects points outside the two mapped
+lawn envelopes before running the unchanged polygon classifier. Its edge
+decisions and output ground slabs remain identical.
+
 ## Keyboard shortcuts & help
 
 The viewer has a built-in help panel (the keyboard button in the top

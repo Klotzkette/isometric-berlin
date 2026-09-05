@@ -432,7 +432,23 @@ export function createTillaDurieuxGroundTester(
           [xDecimetres / 10, zDecimetres / 10] as [number, number],
       ),
     );
-  return (x, z) => rings.some((ring) => pointInWorldRing(x, z, ring));
+  const boundedRings = rings.map((ring) => ({
+    ring,
+    minX: Math.min(...ring.map(([x]) => x)),
+    maxX: Math.max(...ring.map(([x]) => x)),
+    minZ: Math.min(...ring.map(([, z]) => z)),
+    maxZ: Math.max(...ring.map(([, z]) => z)),
+  }));
+  return (x, z) => {
+    for (const bound of boundedRings) {
+      if (
+        x >= bound.minX && x <= bound.maxX &&
+        z >= bound.minZ && z <= bound.maxZ &&
+        pointInWorldRing(x, z, bound.ring)
+      ) return true;
+    }
+    return false;
+  };
 }
 
 /** Local water uses park terrain, not the much lower Spree table. */

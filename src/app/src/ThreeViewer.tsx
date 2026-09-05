@@ -6817,6 +6817,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!renderRequired) {
           return;
         }
+        // Keep the already-presented framebuffer during a cold world switch.
+        // Drawing while the old root is hidden and the new root is still null
+        // exposes sky holes between accessory models. Loaders and input keep
+        // running, without a snapshot texture or a second resident world.
+        if (
+          !startupCurtainMayOpen(currentStartupPresentationStatus(runtime))
+        ) {
+          return;
+        }
         const frameIntervalMs = isMoving ? ACTIVE_MOTION_FRAME_INTERVAL_MS : 0;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;

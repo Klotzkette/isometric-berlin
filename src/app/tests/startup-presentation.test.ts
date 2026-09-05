@@ -99,6 +99,27 @@ describe("startup presentation gate", () => {
     expect(startupCurtainMayOpen("ready")).toBeTrue();
   });
 
+  test("a cold mode switch does not overwrite the last complete framebuffer", () => {
+    const gate = viewerSource.lastIndexOf(
+      "!startupCurtainMayOpen(currentStartupPresentationStatus(runtime))",
+    );
+    const frame = viewerSource.indexOf("composer.render();");
+    expect(gate).toBeGreaterThan(0);
+    expect(gate).toBeGreaterThan(viewerSource.indexOf("const renderRequired ="));
+    expect(gate).toBeLessThan(frame);
+    expect(viewerSource.slice(gate, gate + 120)).toContain("return;");
+    expect(viewerSource.slice(gate, frame)).not.toContain(".clear(");
+    for (const lightingMode of [...drawnModes, "minecraft"] as VisualMode[]) {
+      expect(startupCurtainMayOpen(startupPresentationStatus({
+        isoWorldReady: lightingMode === "minecraft",
+        isoWorldState: "loading",
+        lightingMode,
+        voxelWorldReady: lightingMode !== "minecraft",
+        voxelWorldState: "loading",
+      }))).toBeFalse();
+    }
+  });
+
   test("never requests the retired photographic surface", () => {
     expect(photographicSurfaceNeeded("pending", false)).toBeFalse();
     expect(photographicSurfaceNeeded("ready", false)).toBeFalse();

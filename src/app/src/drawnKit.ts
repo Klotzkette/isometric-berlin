@@ -69,6 +69,63 @@ export function paintGeometry(geometry: BufferGeometry, color: number): void {
 const UNIT_BOX = new BoxGeometry(1, 1, 1);
 const BOX_POSITIONS = UNIT_BOX.getAttribute("position").array;
 const BOX_INDICES = UNIT_BOX.index!.array;
+const UNIT_BOX_EDGES = new EdgesGeometry(
+  UNIT_BOX,
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+);
+const BOX_EDGE_CORNERS = Array.from(
+  { length: UNIT_BOX_EDGES.getAttribute("position").count },
+  (_, edgeVertex) => {
+    const edge = UNIT_BOX_EDGES.getAttribute("position");
+    for (let vertex = 0; vertex < BOX_POSITIONS.length / 3; vertex += 1) {
+      if (
+        BOX_POSITIONS[vertex * 3] === edge.getX(edgeVertex) &&
+        BOX_POSITIONS[vertex * 3 + 1] === edge.getY(edgeVertex) &&
+        BOX_POSITIONS[vertex * 3 + 2] === edge.getZ(edgeVertex)
+      ) return vertex;
+    }
+    throw new Error("Box outline vertex is not a box corner");
+  },
+);
+UNIT_BOX_EDGES.dispose();
+UNIT_BOX.dispose();
+const BOX_ADJACENT_CORNERS = [1, 2, 5] as const;
+
+/** Rigid, positive-size single-segment boxes keep Three.js's edge order. */
+export function boxOutlineGeometry(geometry: BufferGeometry): BufferGeometry {
+  const position = geometry.getAttribute("position");
+  // Extremely thin/collapsed boxes can have coincident quantised corners.
+  // Keep Three.js's full edge classification for those exceptional parts.
+  let minEdgeSquared = Number.POSITIVE_INFINITY;
+  let maxCoordinate = 1;
+  for (const b of BOX_ADJACENT_CORNERS) {
+    let distanceSquared = 0;
+    for (let axis = 0; axis < 3; axis += 1) {
+      const from = position.array[axis];
+      const to = position.array[b * 3 + axis];
+      distanceSquared += (to - from) ** 2;
+      maxCoordinate = Math.max(maxCoordinate, Math.abs(from), Math.abs(to));
+    }
+    minEdgeSquared = Math.min(minEdgeSquared, distanceSquared);
+  }
+  if (
+    position.count !== 24 ||
+    !Number.isFinite(minEdgeSquared) ||
+    !Number.isFinite(maxCoordinate) ||
+    minEdgeSquared <= Math.max(0.005, maxCoordinate / 100_000) ** 2
+  ) return new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES);
+
+  const positions = new Float32Array(BOX_EDGE_CORNERS.length * 3);
+  for (let index = 0; index < BOX_EDGE_CORNERS.length; index += 1) {
+    const corner = BOX_EDGE_CORNERS[index] * 3;
+    positions[index * 3] = position.array[corner];
+    positions[index * 3 + 1] = position.array[corner + 1];
+    positions[index * 3 + 2] = position.array[corner + 2];
+  }
+  const edges = new BufferGeometry();
+  edges.setAttribute("position", new BufferAttribute(positions, 3));
+  return edges;
+}
 
 /** Same 24 indexed vertices, without allocating normals/UVs the kit discards. */
 function unlitBoxGeometry(sx: number, sy: number, sz: number): BufferGeometry {
@@ -107,7 +164,9 @@ export function addBox(
   builder.parts.push(geometry);
   if (inked) {
     builder.edges.push(
-      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+      sx > 0 && sy > 0 && sz > 0
+        ? boxOutlineGeometry(geometry)
+        : new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
     );
   }
 }

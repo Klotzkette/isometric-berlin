@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.72.41
+
+- **Keine Himmel-Luecken beim kalten Moduswechsel.** Solange die angeforderte
+  Welt noch aufgebaut wird, ueberschreibt der Renderer das zuletzt vollstaendige
+  Bild nicht mit isolierten Detailmodellen. Ladeanzeige und Eingabe bleiben
+  aktiv; es entstehen weder Screenshot-Texturen noch eine zweite residente Welt.
+- **Weniger Aufbauarbeit bei unveraenderten Konturen.** Fassadenquader und
+  Zubehoer im Drawn-Kit sowie am Terrassenhaus Hafenplatz nutzen die einmal
+  ermittelte Three.js-Kantenreihenfolge. Pro Bauteil entfallen Dreiecksnormalen,
+  Kanten-Hash und temporaere Nachbarschaftsobjekte. Extrem duenne und entartete
+  Quader behalten die bisherige Berechnung; alle Ausgabepuffer bleiben separat.
+- **Gelaendepruefung lokal begrenzt.** Die zwei Tilla-Durieux-Rasenflaechen
+  werden nur noch innerhalb ihrer exakten Bounding-Box polygonal geprueft.
+  Fussabdruecke, Randentscheidungen und sichtbare Geometrie bleiben gleich.
+- **Messbar und ohne Fotoballast.** Der neue reproduzierbare Konturbenchmark
+  prueft 8.000 Quader bytegenau gegen Three.js. Zeichenaufrufe, Geometriebudget,
+  Bildaufloesung, Kantenglaettung und Sichtweite werden nicht reduziert.
+
 ## v0.72.40
 
 - **Direktere Bewegung ohne wechselnde Bildqualitaet.** WASD, Pfeiltasten,

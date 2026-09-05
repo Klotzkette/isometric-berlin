@@ -1,8 +1,8 @@
-import { BoxGeometry, EdgesGeometry, Group } from "three";
+import { BoxGeometry, Group } from "three";
 
-import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   type Builder,
+  boxOutlineGeometry,
   createBuilder,
   finishDrawnGroup,
   paintGeometry,
@@ -239,9 +239,7 @@ function addWallBox(
   paintGeometry(geometry, color);
   (lamp ? builder.lamps : builder.parts).push(geometry);
   if (inked) {
-    builder.edges.push(
-      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
-    );
+    builder.edges.push(boxOutlineGeometry(geometry));
   }
 }
 
