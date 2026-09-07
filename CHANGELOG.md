@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.2
+
+- **Kein Kamerakippen durch den Joystick-Finger.** Bewegungen des orangefarbenen
+  Joysticks erreichen keine parallel aktive Kartengeste mehr. Ein Finger auf
+  der Karte und einer auf dem Joystick konnten zuvor die Kamera abrupt bis in
+  den Himmel drehen.
+- **Ruhigere Telefonsteuerung.** Die Joystick-Mitte bleibt fuer die gesamte
+  Beruehrung fest, auch wenn sich die Browserleisten verschieben. Ein kleiner
+  Ruhebereich filtert Daumenwackeln; der Punkt folgt direkt ohne erneutes
+  React-Rendern bei jeder Bewegung. Abgebrochene Zeigeruebernahme hinterlaesst
+  keine festhaengende Bewegung. Doppeltippen zum Springen bleibt erhalten.
+
 ## v1.0.1
 
 - **Ein orangefarbener Bewegungs-Joystick auf allen Geraeten.** Ziehen steuert

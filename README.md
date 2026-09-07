@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.1/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.2 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.2/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,15 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.1** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.2** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.1 refines the Abgeordnetenhaus and Gropius Bau in all five modes
-and makes the desktop orange joystick move forward/backward/sideways like
-the mobile control. See [release changes](CHANGELOG.md#v101),
-[Abgeordnetenhaus evidence](docs/abgeordnetenhaus-refinement.md),
-[Gropius Bau evidence](docs/gropius-bau-refinement.md) and
-[desktop controls](docs/desktop-joystick.md).
+Version 1.0.2 fixes orange-joystick touch movements being consumed by an
+active camera gesture, which could jerk the view into the sky. A stable drag
+origin and small neutral zone also improve thumb control on phones.
+See [release changes](CHANGELOG.md#v102) and
+[joystick controls and regression coverage](docs/desktop-joystick.md).
+
+Version 1.0.2 korrigiert das Kamerakippen bei gleichzeitiger Bedienung von
+Joystick und Karte. Eine feste Mitte und ein kleiner Ruhebereich machen die
+Steuerung auf dem Telefon ruhiger.
 
 ## Screenshots
 
@@ -57,7 +60,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.1**, built from `main`. Its full viewer
+The current public package is **v1.0.2**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

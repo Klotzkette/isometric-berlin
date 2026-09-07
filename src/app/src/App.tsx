@@ -513,6 +513,7 @@ function viewUrlFor(
 }
 
 const JOYSTICK_RADIUS_PX = 44;
+const JOYSTICK_DEAD_ZONE_PX = 4;
 
 function FlightJoystick({
   disabled,
@@ -530,13 +531,14 @@ function FlightJoystick({
   onInput: (horizontal: number, vertical: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
+  const knobRef = useRef<HTMLSpanElement | null>(null);
+  const originRef = useRef<{ x: number; y: number } | null>(null);
   const lastActivationAtRef = useRef(0);
   const pointerIdRef = useRef<number | null>(null);
   const tapStateRef = useRef(createJoystickTapState());
   const inputRef = useRef(onInput);
   inputRef.current = onInput;
   const touchDoubleTapEnabled = onTouchDoubleTap !== undefined;
-  const [knob, setKnob] = useState({ x: 0, y: 0 });
 
   const pointerSample = (
     event: ReactPointerEvent<HTMLDivElement>,
@@ -552,27 +554,38 @@ function FlightJoystick({
 
   const applyFromEvent = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      const base = baseRef.current;
-      if (!base) {
+      const origin = originRef.current;
+      if (!origin) {
         return;
       }
-      const rect = base.getBoundingClientRect();
-      const dx = event.clientX - (rect.left + rect.width / 2);
-      const dy = event.clientY - (rect.top + rect.height / 2);
+      // Keep the gesture's origin stable when Safari's browser chrome or the
+      // safe-area layout moves the pad while the thumb is still down.
+      const dx = event.clientX - origin.x;
+      const dy = event.clientY - origin.y;
       const length = Math.hypot(dx, dy);
       const scale =
         length > JOYSTICK_RADIUS_PX ? JOYSTICK_RADIUS_PX / length : 1;
       const x = dx * scale;
       const y = dy * scale;
-      setKnob({ x, y });
-      inputRef.current(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX);
+      if (knobRef.current) {
+        knobRef.current.style.transform = `translate(${x}px, ${y}px)`;
+      }
+      const strength = Math.max(0, Math.min(1,
+        (length - JOYSTICK_DEAD_ZONE_PX) /
+        (JOYSTICK_RADIUS_PX - JOYSTICK_DEAD_ZONE_PX),
+      ));
+      const inputScale = length > 0 ? strength / length : 0;
+      inputRef.current(dx * inputScale, -dy * inputScale);
     },
     [],
   );
 
   const release = useCallback(() => {
     pointerIdRef.current = null;
-    setKnob({ x: 0, y: 0 });
+    originRef.current = null;
+    if (knobRef.current) {
+      knobRef.current.style.transform = "translate(0px, 0px)";
+    }
     inputRef.current(0, 0);
   }, []);
 
@@ -621,10 +634,13 @@ function FlightJoystick({
       aria-label={label}
       data-disabled={disabled ? "true" : undefined}
       onPointerDown={(event) => {
-        if (disabled) {
+        // OrbitControls listens for moves/up on ownerDocument during a canvas
+        // gesture. Keep every pad pointer out of that separate camera gesture.
+        event.stopPropagation();
+        event.preventDefault();
+        if (disabled || (event.pointerType === "mouse" && event.button !== 0)) {
           return;
         }
-        event.preventDefault();
         if (pointerIdRef.current !== null) {
           cancelJoystickTap(tapStateRef.current);
           return;
@@ -644,10 +660,25 @@ function FlightJoystick({
           lastActivationAtRef.current = now;
         }
         pointerIdRef.current = event.pointerId;
-        event.currentTarget.setPointerCapture(event.pointerId);
+        const rect = event.currentTarget.getBoundingClientRect();
+        originRef.current = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+        try {
+          event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+          // A rejected capture must never leave movement held after the
+          // pointer leaves the pad. The next gesture can start normally.
+          cancelJoystickTap(tapStateRef.current);
+          release();
+          return;
+        }
         applyFromEvent(event);
       }}
       onPointerMove={(event) => {
+        event.stopPropagation();
+        event.preventDefault();
         if (pointerIdRef.current !== event.pointerId) {
           return;
         }
@@ -655,6 +686,7 @@ function FlightJoystick({
         applyFromEvent(event);
       }}
       onPointerUp={(event) => {
+        event.stopPropagation();
         if (pointerIdRef.current === event.pointerId) {
           const doubleTap = endJoystickTap(
             tapStateRef.current, pointerSample(event),
@@ -667,12 +699,14 @@ function FlightJoystick({
         }
       }}
       onPointerCancel={(event) => {
+        event.stopPropagation();
         if (pointerIdRef.current === event.pointerId) {
           cancelJoystickTap(tapStateRef.current);
           release();
         }
       }}
       onLostPointerCapture={(event) => {
+        event.stopPropagation();
         if (pointerIdRef.current === event.pointerId) {
           cancelJoystickTap(tapStateRef.current);
           release();
@@ -680,8 +714,8 @@ function FlightJoystick({
       }}
     >
       <span
+        ref={knobRef}
         className="flight-joystick-knob"
-        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         aria-hidden="true"
       />
     </div>
