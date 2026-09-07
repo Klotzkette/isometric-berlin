@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.2 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.2/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.3 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.3/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,18 +24,20 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.2** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.3** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.2 fixes orange-joystick touch movements being consumed by an
-active camera gesture, which could jerk the view into the sky. A stable drag
-origin and small neutral zone also improve thumb control on phones.
-See [release changes](CHANGELOG.md#v102) and
-[joystick controls and regression coverage](docs/desktop-joystick.md).
+Version 1.0.3 improves walking in every mode: 53% faster exploration, Space
+or joystick double-click to jump on laptops, and a short joystick tap on phones.
+Nine public bridge crossings now follow the represented decks. Zollpackhof,
+Sandkrugbrücke and the Economics Ministry gain source-bound architectural details.
+See [release changes](CHANGELOG.md#v103), [walking access](docs/pedestrian-mobility.md)
+and [architecture evidence](docs/riverside-refinements.md).
 
-Version 1.0.2 korrigiert das Kamerakippen bei gleichzeitiger Bedienung von
-Joystick und Karte. Eine feste Mitte und ein kleiner Ruhebereich machen die
-Steuerung auf dem Telefon ruhiger.
+Version 1.0.3 verbessert den Spaziergang in jedem Modus: 53% schneller,
+Springen per Leertaste oder Joystick-Doppelklick am Laptop und per kurzem Tipp
+auf dem Handy. Neun öffentliche Brücken sind begehbar; Zollpackhof,
+Sandkrugbrücke und Wirtschaftsministerium sind genauer ausgearbeitet.
 
 ## Screenshots
 
@@ -60,7 +62,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.2**, built from `main`. Its full viewer
+The current public package is **v1.0.3**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -146,13 +148,13 @@ local modules.
   tunnel course or terrain. Only a protected memorial volume or an invalid
   out-of-bounds camera point may invoke the established safe fallback.
 
-- **The Federal Ministry for Economic Affairs reads as the real canal-side
-  Invalidenhaus ensemble.** Its five exact LoD2 parts remain authoritative.
-  The long replacement wing along the Berlin-Spandauer Schifffahrtskanal gains
-  44 facade bays and 220 windows, while the two historic wings gain warmer
-  stone trim, red hipped roofs, 114 windows, courtyard grids, cornices and
-  framed entrances. Minecraft adds 78 block-native facade cues inside the
-  existing single Humboldthafen draw call.
+- **Zollpackhof, Sandkrugbrücke and the Economics Ministry have closer detail.**
+  The Zollpackhof keeps its exact source plans with a documented low display
+  envelope, red hipped roofs, arched glazing, dormers and lamps. The ministry's
+  main Invalidenstraße facade joins the five existing canal-side parts, with
+  framed windows, pilasters, pediments and courtyard detail. Minecraft uses
+  separate block construction; the source height conflicts and procedural
+  subdivisions are documented in [the evidence note](docs/riverside-refinements.md).
 
 - **The full progressive city is substantially lighter without losing a
   building.** Desktop transfers immutable asset URLs, shows all 29,818 source
@@ -235,8 +237,9 @@ local modules.
 - **Sandkrugbrücke and the Konrad-Adenauer-Haus have their characteristic
   structures back.** The bridge retains both mapped carriageway axes and the
   current 32.6 x 28.8 m inventory envelope, while its five-stem steel frame,
-  21 m clear span, 18.7 m roadway, 1.28 m structural depth, fine three-level
-  rail and four slender lamps follow published engineering data. There is no
+  32.6 m engineer span and 1.10 m structural depth follow GRASSL. Four tall
+  lamp masts and fine horizontal rails follow licensed photographs. The 21 m
+  clear opening and 18.7 m roadway division remain explicit display assumptions. There is no
   invented river-centre pier. At Tiergarten the generic opaque CDU shell is
   removed only for OSM way `25999445`; an exact rhomboid glass envelope now
   reveals the four-storey winter garden, six-storey elliptical timber body,

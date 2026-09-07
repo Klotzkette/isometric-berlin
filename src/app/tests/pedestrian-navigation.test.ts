@@ -185,6 +185,24 @@ describe("pedestrian navigation", () => {
     expect(result.state.jumpOffset).toBe(0);
   });
 
+  test("default travel covers 13 metres in one second, with proportional precise thumb input", () => {
+    const start = createPedestrianState(environment);
+    for (const forward of [0.1, 0.35, 1]) {
+      let state = start;
+      for (let frame = 0; frame < 60; frame += 1) {
+        state = stepPedestrian(state,
+          { forward, look: 0, sprint: false, strafe: 0, turn: 0 },
+          1 / 60, environment).state;
+      }
+      expect(Math.hypot(state.x - start.x, state.z - start.z)).toBeCloseTo(13 * forward, 6);
+      const stopped = stepPedestrian(state,
+        { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
+        1 / 60, environment);
+      expect(stopped.changed).toBeFalse();
+      expect(stopped.state).toBe(state);
+    }
+  });
+
   test("sprint is an explicit four-times speed layer", () => {
     const start = createPedestrianState(environment);
     const result = stepPedestrian(

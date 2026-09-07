@@ -24,8 +24,10 @@ describe("block-native Humboldthafen parity", () => {
     expect(blocks).toBeInstanceOf(InstancedMesh);
     expect(details.userData.drawCalls).toBe(1);
     expect(blocks.userData.drawCalls).toBe(1);
-    expect(blocks.userData.approxInstanceTransferBytes).toBeLessThan(40_000);
-    expect(blocks.count).toBeLessThan(500);
+    // The complete Sandkrug deck/frame and individually framed historic
+    // windows now replace the previous furniture-only 500-block allowance.
+    expect(blocks.userData.approxInstanceTransferBytes).toBeLessThan(150_000);
+    expect(blocks.count).toBeLessThan(1_950);
     const matrix = new Matrix4();
     const keys = new Set<string>();
     for (let index = 0; index < blocks.count; index += 1) {
@@ -56,9 +58,11 @@ describe("block-native Humboldthafen parity", () => {
     expect(details.userData.collisionSource).toContain("same predicate");
   });
 
-  test("adds only bridge furniture over the existing source deck", () => {
+  test("includes the complete Sandkrug deck, steel frame and four paired lamp masts", () => {
     expect(blocks.userData.sourceRoles["bridge-rail"]).toBeGreaterThan(100);
-    expect(blocks.userData.sourceRoles["bridge-deck"]).toBeUndefined();
+    expect(blocks.userData.sourceRoles["bridge-deck"]).toBe(64);
+    expect(blocks.userData.sourceRoles["bridge-frame"]).toBe(79);
+    expect(blocks.userData.sourceRoles["bridge-lamp"]).toBe(16);
     expect(details.userData.sources.bridges.hugoPreuss).toEqual(
       HUGO_PREUSS_OSM_DECK,
     );
@@ -72,7 +76,7 @@ describe("block-native Humboldthafen parity", () => {
   });
 
   test("keeps the ministry facade grid block-native and inside the same draw call", () => {
-    expect(blocks.userData.sourceRoles["building-detail"]).toBe(78);
+    expect(blocks.userData.sourceRoles["building-detail"]).toBe(1003);
     expect(details.userData.sources.wirtschaftsministerium.osmOfficeWay).toBe(
       24911034,
     );

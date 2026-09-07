@@ -42,8 +42,6 @@ const BENCH_SEAT = 0xdfd8c6;
 const HEDGE = 0x9fb083;
 const TRUNK = 0x9a8b76;
 const CROWN = 0x8fa877;
-const TAP_HOUSE = 0xefe8d6;
-const TAP_ROOF = 0xb4604a;
 
 const CHAIR_SPACING_M = 2.2;
 const CHAIR_ROWS = 2;
@@ -201,7 +199,7 @@ function buildBeerGarden(
     for (let slot = 0; slot < perRow; slot += 1) {
       const along = -halfLength + (slot + 0.5) * ((halfLength * 2) / perRow);
       const [tx, tz] = at(along, across);
-      if (!insideRing(ring, tx, tz)) {
+      if (!insideRing(ring, tx, tz) || (garden.name === "Zollpackhof" && Math.abs(across) < 1.6)) {
         continue;
       }
       beerTable(builder, tx, ground, tz, rotation);
@@ -290,7 +288,7 @@ function buildRiversideBar(
   }
 }
 
-/** The Zollpackhof's Schankhaus and its 1555 chestnut natural monument. */
+/** Independent service-hut anchor and mapped chestnut natural monument. */
 export const ZOLLPACKHOF_TAP = { x: -276.2, z: -284.6 };
 const ZOLLPACKHOF_CHESTNUT = { height: 20, x: -293.2, z: -255.0 };
 
@@ -312,22 +310,10 @@ export function createRiversideVenues(
     }
     buildBeerGarden(builder, garden, y);
     if (garden.name === "Zollpackhof") {
-      const tapY = sample(ZOLLPACKHOF_TAP.x, ZOLLPACKHOF_TAP.z);
-      if (tapY !== null) {
-        addBox(
-          builder, TAP_HOUSE,
-          ZOLLPACKHOF_TAP.x, tapY + 1.6, ZOLLPACKHOF_TAP.z,
-          9.0, 3.2, 7.0,
-          0,
-        );
-        addBox(
-          builder, TAP_ROOF,
-          ZOLLPACKHOF_TAP.x, tapY + 3.6, ZOLLPACKHOF_TAP.z,
-          9.6, 0.8, 7.6,
-          0,
-        );
-      }
-      // `natural_monument`, planted 1555, height 20 m — all from OSM.
+      // The source-bound restaurant/remise now live in ZollpackhofDetails.
+      // The separate mapped service hut keeps its original source building.
+      // OSM natural-monument identity and height remain; a planting year is
+      // not asserted because the operator's published age conflicts with it.
       const treeY = sample(ZOLLPACKHOF_CHESTNUT.x, ZOLLPACKHOF_CHESTNUT.z);
       if (treeY !== null) {
         chestnut(

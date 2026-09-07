@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.0.3
+
+- **Schneller und zuverlaessiger zu Fuss.** Alle fuenf Modi verwenden jetzt
+  13 statt 8,5 m/s bei vollem Vorwaertsimpuls. Kleine Joystick-Ausschlaege
+  bleiben proportional; Loslassen stoppt sofort. Die Leertaste und ein
+  Maus-Doppelklick auf den orangefarbenen Joystick springen am Laptop, ein
+  kurzer Tipp springt auf Touch-Geraeten. Ziehen und langes Halten loesen
+  keinen Sprung aus. Der Gehmodus uebernimmt den Tastaturfokus.
+- **Neun oeffentliche Bruecken sind durchgaengig begehbar.** Die Gehhoehe
+  folgt den dargestellten Fahrbahnen und Gehwegen. Ein falscher hoher
+  Brueckenstuetzen-Quader am Gustav-Heinemann-Uebergang ist quellgebunden
+  ersetzt; die Koerperbreite wird an engen Durchgaengen nicht mehr doppelt
+  angewendet. Der direkte Minecraft-Start erhaelt ebenfalls die Bruecken.
+- **Zollpackhof, Sandkrugbruecke und Wirtschaftsministerium genauer.** Der
+  Zollpackhof erhaelt niedrige Putzbauten mit roten Walmdachflaechen,
+  Rundbogenfenstern, Gauben und Eingangslampen auf den exakten Quellgrundrissen.
+  Widerspruechliche Quellhoehen bleiben dokumentiert; auch die Kollision folgt
+  dem dargestellten Dach. Sandkrug erhaelt fuenf Rahmenreihen, feinere Gelaender,
+  vier hohe Lampenmasten und eine eigene Minecraft-Fahrbahn. Beim Ministerium
+  kommen die gegliederte Invalidenstrassenfassade, Fensterrahmen, Pilaster,
+  Giebel- und Hofdetails hinzu. Belege und Darstellungsschaetzungen bleiben
+  getrennt; neue Wikimedia-Referenzen sind einzeln kreditiert.
+
 ## v1.0.2
 
 - **Kein Kamerakippen durch den Joystick-Finger.** Bewegungen des orangefarbenen

@@ -14,6 +14,7 @@ import {
   HUMBOLDTHAFEN_ROAD_AXES,
   HUMBOLDTHAFEN_SOURCES,
   SANDKRUG_OSM_DECK,
+  SANDKRUG_STRUCTURE_PROFILE,
   isNorthernHumboldthafenReplacementCell,
   northernHumboldthafenCrestZAt,
   northernHumboldthafenWaterZAt,
@@ -28,6 +29,8 @@ import {
 } from "./EconomicMinistryDetails";
 
 type HumboldthafenVoxelPayload = {
+  classes?: string[];
+  ground_rows?: number[][][];
   cell_m: number;
   grid: { cols: number; min_x_idx: number; min_z_idx: number; rows: number };
   ground_height: {
@@ -47,6 +50,9 @@ type Block = {
   sourceRole:
     | "bank"
     | "bridge-rail"
+    | "bridge-frame"
+    | "bridge-deck"
+    | "bridge-lamp"
     | "building-detail"
     | "path"
     | "vessel";
@@ -198,6 +204,54 @@ function addBridgeRail(
   }
 }
 
+/** Complete block-native bridge; replaces only its separately named drawn root. */
+function addSandkrugBridge(blocks: Block[], payload: HumboldthafenVoxelPayload,
+  sample: (x:number,z:number)=>number|null): void {
+  const p=SANDKRUG_OSM_DECK,[ux,uz]=p.axis,[cx,cz]=p.centreWorldM;
+  const yaw=-Math.atan2(uz,ux),hl=p.inventoryLengthM/2,hw=p.inventoryWidthM/2;
+  let deckY=payload.water_top_y_m+5.4;
+  const bridgeClass=payload.classes?.indexOf("bridge")??-1;
+  payload.ground_rows?.forEach((row,zOffset)=>{for(const entry of row){
+    const [start,run,kind]=entry;if(kind!==bridgeClass)continue;
+    for(let j=0;j<run;j+=1){
+      const x=(payload.grid.min_x_idx+start+j+0.5)*payload.cell_m;
+      const z=(payload.grid.min_z_idx+zOffset+0.5)*payload.cell_m;
+      const dx=x-cx,dz=z-cz;
+      if(Math.abs(dx*ux+dz*uz)<hl+payload.cell_m && Math.abs(-dx*uz+dz*ux)<hw+payload.cell_m)
+        deckY=Math.max(deckY,(sample(x,z)??0)+0.55);
+    }
+  }});
+  const add=(u:number,v:number,y:number,length:number,height:number,width:number,color:number,sourceRole:Block["sourceRole"],cross=false)=>
+    blocks.push({position:[cx+ux*u-uz*v,y,cz+uz*u+ux*v],size:[length,height,width],rotationY:yaw+(cross?Math.PI/2:0),color,sourceRole});
+  for(let i=0;i<16;i+=1){
+    const length=p.inventoryLengthM/16,u=-hl+(i+0.5)*length;
+    const rise=0.12*Math.cos(u/hl*Math.PI/2)**2,y=deckY+rise;
+    add(u,0,y-0.17,length+0.015,0.34,p.inventoryWidthM,0x555b5b,"bridge-deck");
+    add(u,0,y+0.035,length+0.015,0.07,18.7,0x77746f,"bridge-deck");
+    for(const side of [-1,1]) {
+      add(u,side*(18.7/2+(p.inventoryWidthM-18.7)/4),y+0.07,length+0.015,0.12,(p.inventoryWidthM-18.7)/2,0xb9b8b1,"bridge-deck");
+      add(u,side*(hw-0.25),y-0.55,length+0.015,1.1,0.45,IRON,"bridge-frame");
+      add(u,side*hw,y+0.58,0.2,1.16,0.2,0xadb6b5,"bridge-rail");
+      for(const level of [0.16,0.31,0.46,0.61,0.76,1.18])
+        add(u,side*hw,y+level,length+0.015,0.09,0.12,0xadb6b5,"bridge-rail");
+    }
+  }
+  for(let stem=0;stem<5;stem+=1){
+    const v=-(p.inventoryWidthM-1.8)/2+stem*(p.inventoryWidthM-1.8)/4;
+    add(0,v,deckY-0.88,21,0.45,0.46,IRON,"bridge-frame");
+    for(const end of [-1,1])for(let step=0;step<4;step+=1)
+      add(end*(10.9+step*1.2),v,deckY-0.85+step*0.16,1.25,0.36,0.46,IRON,"bridge-frame");
+  }
+  for(const u of [-hl+1.35,hl-1.35])add(u,0,deckY-2.65,2.1,3.1,p.inventoryWidthM-0.8,0x8c8c86,"bridge-frame");
+  for(const fraction of [-0.58,0.58])for(const side of [-1,1]){
+    const u=hl*fraction,y=deckY+0.12*Math.cos(fraction*Math.PI/2)**2,v=side*(hw-0.22);
+    add(u,v,y+4.25,0.15,8.5,0.2,0xb2bab6,"bridge-lamp");
+    add(u+0.3,v,y+4.25,0.12,8.5,0.2,0xb2bab6,"bridge-lamp");
+    add(u+0.15,v,y+2.3,0.12,2.8,0.22,0xffd77b,"bridge-lamp");
+    add(u+0.24,v,y+8.52,0.54,0.2,0.28,0xffd77b,"bridge-lamp");
+  }
+}
+
 function addRoadLine(
   blocks: Block[],
   sampleGround: (x: number, z: number) => number | null,
@@ -282,14 +336,31 @@ function addEconomicMinistryFacadeBlocks(blocks: Block[]): void {
     const uz = dz / run;
     const rotationY = -Math.atan2(uz, ux);
     const historic = key.includes("Historic");
-    const floorPitch = historic ? 3.75 : 3.55;
+    const main = key.startsWith("main");
+    const floorPitch = main ? 4.85 : historic ? 3.75 : 3.55;
+    const firstCentre = main ? 5.55 : 2.35;
     const facadeHeight = (profile.levels - 1) * floorPitch + 2.45;
     for (let level = 0; level < profile.levels; level += 1) {
+      if (historic) {
+        const count=profile.mullions;
+        for(let bay=0;bay<count;bay+=1) {
+          const along=0.6+(run-1.2)*(bay+0.5)/count;
+          const x=profile.from[0]+ux*along,z=profile.from[1]+uz*along;
+          const y=profile.y0+firstCentre+level*floorPitch,width=(run-1.2)/count*0.52;
+          blocks.push({color:MINISTRY_GLASS,position:[x,y,z],rotationY,
+            size:[width,main?2.8:2.25,0.6],sourceRole:"building-detail"});
+          blocks.push({color:MINISTRY_HISTORIC_STONE,position:[x,y,z],rotationY,
+            size:[0.09,main?2.8:2.25,0.68],sourceRole:"building-detail"});
+          blocks.push({color:MINISTRY_HISTORIC_STONE,position:[x,y+0.3,z],rotationY,
+            size:[width,0.09,0.68],sourceRole:"building-detail"});
+        }
+        continue;
+      }
       blocks.push({
         color: MINISTRY_GLASS,
         position: [
           (profile.from[0] + profile.to[0]) / 2,
-          profile.y0 + 2.35 + level * floorPitch,
+          profile.y0 + firstCentre + level * floorPitch,
           (profile.from[1] + profile.to[1]) / 2,
         ],
         rotationY,
@@ -303,7 +374,7 @@ function addEconomicMinistryFacadeBlocks(blocks: Block[]): void {
         color: historic ? MINISTRY_HISTORIC_STONE : MINISTRY_STONE,
         position: [
           profile.from[0] + ux * along,
-          profile.y0 + 2.35 + ((profile.levels - 1) * floorPitch) / 2,
+          profile.y0 + firstCentre + ((profile.levels - 1) * floorPitch) / 2,
           profile.from[1] + uz * along,
         ],
         rotationY,
@@ -325,7 +396,7 @@ export function createMinecraftHumboldthafenDetails(
   const sampleGround = worldGroundSampler(payload);
   addNorthBank(blocks, payload, sampleGround);
   addBridgeRail(blocks, sampleGround, HUGO_PREUSS_OSM_DECK);
-  addBridgeRail(blocks, sampleGround, SANDKRUG_OSM_DECK);
+  addSandkrugBridge(blocks, payload, sampleGround);
   addRoadLine(
     blocks,
     sampleGround,
@@ -378,6 +449,7 @@ export function createMinecraftHumboldthafenDetails(
     bridges: {
       hugoPreuss: HUGO_PREUSS_OSM_DECK,
       sandkrug: SANDKRUG_OSM_DECK,
+      sandkrugStructure: SANDKRUG_STRUCTURE_PROFILE,
     },
     roads: HUMBOLDTHAFEN_ROAD_AXES,
     wirtschaftsministerium: ECONOMIC_MINISTRY_PROFILE,

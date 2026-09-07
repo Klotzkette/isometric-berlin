@@ -1,3 +1,7 @@
+import { createMinecraftZollpackhofDetails } from "./ZollpackhofDetails";
+import { zollpackhofContains } from "./zollpackhofProfile";
+import { gustavBridgeSupportReplacementAt } from "./gustavBridgeSupportSource";
+import { sandkrugDeckContains } from "./HumboldthafenSources";
 import { abgeordnetenhausMainContains } from "./abgeordnetenhausProfile";
 import { createMinecraftAbgeordnetenhausDetails } from "./AbgeordnetenhausDetails";
 import { createMinecraftGropiusBauDetails } from "./GropiusBauDetails";
@@ -710,7 +714,9 @@ export function isCompleteRecognitionVoxelColumn(
     isMinecraftArchitecturalReplacementColumn(x, z) ||
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
-    abgeordnetenhausMainContains(x, z)
+    abgeordnetenhausMainContains(x, z) ||
+    gustavBridgeSupportReplacementAt(x, z) ||
+    zollpackhofContains(x, z)
   );
 }
 
@@ -2606,11 +2612,12 @@ export function* buildMinecraftVoxelWorldSteps(
           insideTunnelApproach?.(x, z) ||
           isNorthernHumboldthafenReplacementCell(x, z),
         ),
-      skipBridgeAtWorld: isBundestagSpreeBridgeGroundCell,
+      skipBridgeAtWorld: (x, z) => isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
     }),
   );
   yield;
   group.add(createMinecraftHumboldthafenDetails(payload));
+  group.add(createMinecraftZollpackhofDetails());
   yield;
   group.add(createMinecraftArchitecturalLandmarks());
   yield;

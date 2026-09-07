@@ -79,11 +79,11 @@ describe("shared desktop and mobile movement joystick", () => {
     }
   });
 
-  test("keeps pointer release, cancellation, mode resets and the distinct mouse/touch shortcuts", () => {
+  test("keeps pointer release, cancellation, mode resets and the mouse/touch jump shortcuts", () => {
     const control = appText.slice(appText.indexOf("function FlightJoystick("), appText.indexOf("function HoldControlButton("));
     expect(control).toContain("inputRef.current(0, 0)");
-    expect(control).toContain("[disabled, resetKey, touchDoubleTapEnabled, release]");
-    expect(control).toContain('event.pointerType === "mouse" &&');
+    expect(control).toContain("[disabled, resetKey, jumpEnabled, release]");
+    expect(control).toContain('event.pointerType === "mouse" ? "double" : "single"');
     expect(control).toContain('window.addEventListener("blur", reset)');
     expect(control).toContain('document.addEventListener("visibilitychange", visibility)');
     for (const event of ["onPointerUp", "onPointerCancel", "onLostPointerCapture"]) {
@@ -93,7 +93,7 @@ describe("shared desktop and mobile movement joystick", () => {
     const padStart = appText.indexOf("<FlightJoystick");
     const pad = appText.slice(padStart, appText.indexOf("<PedestrianMiniMap", padStart));
     expect(pad).toContain("resetKey={lightingMode}");
-    expect(pad).toContain("isPedestrianMode ? togglePedestrianSprint : undefined");
+    expect(pad).toContain("onJump={");
     expect(pad).toContain("isPedestrianMode ? () => triggerPedestrianJump() : undefined");
     expect(pad).not.toContain("setOrbitInput");
   });

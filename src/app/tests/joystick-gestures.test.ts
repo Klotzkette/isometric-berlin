@@ -62,14 +62,14 @@ describe("orange walking joystick double tap", () => {
     );
     expect(pointerUp.indexOf("endJoystickTap(")).toBeLessThan(pointerUp.indexOf("release();"));
     expect(pointerUp.indexOf("release();")).toBeLessThan(pointerUp.indexOf("releasePointerCapture("));
-    expect(pointerUp).toContain("if (doubleTap) onTouchDoubleTap?.()");
+    expect(pointerUp).toContain("if (jump) onJump?.()");
     const lostCapture = joystick.slice(joystick.indexOf("onLostPointerCapture="));
     expect(lostCapture).toContain("if (pointerIdRef.current === event.pointerId)");
     expect(lostCapture).toContain("cancelJoystickTap(tapStateRef.current)");
   });
 
   test("recognises touch and pen only after the second completed nearby tap", () => {
-    for (const pointerType of ["touch", "pen"]) {
+    for (const pointerType of ["touch", "pen", "mouse"]) {
       const state = createJoystickTapState();
       expect(tap(state, 1000, { pointerType })).toBeFalse();
       beginJoystickTap(state, pointer(1200, { pointerType, pointerId: 2, x: 85 }));
@@ -107,7 +107,7 @@ describe("orange walking joystick double tap", () => {
 
   test("rejects stale, distant, held, non-primary and unsupported pointer gestures", () => {
     const cases: Array<Partial<JoystickPointerSample>> = [
-      { pointerType: "mouse" }, { pointerType: "" }, { pointerType: "pen", button: 2 },
+      { pointerType: "mouse", button: 2 }, { pointerType: "" }, { pointerType: "pen", button: 2 },
       { isPrimary: false }, { x: Number.NaN },
     ];
     for (const sample of cases) {

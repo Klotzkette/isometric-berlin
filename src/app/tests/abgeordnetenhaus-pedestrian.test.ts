@@ -46,7 +46,8 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
       expect(obstacle.maxY).toBe((annex.y0_dm + annex.h_dm) / 10);
       expect(obstacle.topAt).toBeUndefined();
     }
-    expect([...indexed.values()].filter((obstacle) => obstacle.topAt)).toEqual([main]);
+    expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
+      .toEqual([profile.mainPrismId, "RVRCWHeT", "FqL2azIz"].sort());
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

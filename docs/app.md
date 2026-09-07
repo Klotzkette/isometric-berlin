@@ -104,9 +104,9 @@ proportional, while pinch and horizontal gestures do not move the walker. All
 wheel travel passes through the same solid-object, terrain, tunnel and water
 checks as keyboard movement. Hold `Shift` for a four-times sprint,
 or double-tap `W`/up or the forward button to latch and unlatch the same sprint;
-a mouse double-click on the walking joystick or 3D view does the same. A
-touch/pen double-tap on the orange walking joystick jumps. The normal
-8.5 m/s rate remains available, and both speeds pass
+a mouse double-click on the 3D view does the same. A completed mouse
+double-click or one short touch/pen tap on the orange walking joystick jumps.
+The normal rate is 13 m/s, with proportional slow analog input; all speeds pass
 through the same terrain, tunnel and water checks. One `Space`, the touch-safe
 jump button or a double-tap on the free 3D view produces the normal ground jump
 with a 6.2 m apex. A second `Space` within 320 ms raises that same jump once to
@@ -738,25 +738,31 @@ length. Max Dudler's published 5 m overall width and 2.25 m height control two
 pale-sage Vierendeel frames around the 4 m timber path and two rectangular
 bank supports. The two Sandkrugbrücke carriageways preserve ways `36260393`
 and `248010193`. Berlin's June-2025 bridge inventory fixes its current 32.6 x
-28.8 m envelope and identifier `BW 3446035`; the engineer's published design
-dimensions fix the recognisable five-stem steel frame, 21 m clear span, 18.7 m
-roadway, 1.28 m structural depth and four lamp masts. The authored frame spans
-the water without a centre pier and adds cross girders, abutments and a fine
-three-level rail inside the existing merged bridge layer. Minecraft carries
-the same harbour, vessel and railing identities as one compact block-native
-instance layer.
+28.8 m envelope and identifier `BW 3446035`. GRASSL's engineering record gives
+34.10 m overall length, 32.60 m span, 29.52 m construction width, 1.10 m
+structural depth and five rows of two-hinged frames. The 21 m clear opening,
+4.93 m clearance and 18.7 m roadway division remain explicitly labelled
+display assumptions. Reference-informed lower railing bars and four paired
+lamp masts strengthen the silhouette. Minecraft carries a complete block
+deck, footways, frames and furniture without a smooth Sandkrug double.
 
 Immediately north of Sandkrugbrücke, the Federal Ministry for Economic Affairs
-keeps five exact LoD2 source parts. Prism `yAAWS2KQ` is the long replacement
+keeps six exact LoD2 source parts. Prism `yAAWS2KQ` is the long replacement
 wing parallel to the Berlin-Spandauer Schifffahrtskanal; prisms `K0000EU2` and
 `K0000B4S` are the two retained Invalidenhaus side wings. The dedicated layer
 does not replace those envelopes. It adds a five-storey canal grid with 44 bays
 and 220 panes, court-side ribbon grids, two framed east-end entrances, warmer
-historic stone bands, cornices and 114 historic windows. Only the two retained
+historic stone bands, cornices and 240 framed historic windows. Main house
+`K00008CN` adds 60 framed street windows, three risalits, paired pilasters,
+segmental pediments and rustication while keeping its original source body,
+all eleven courts and roof cap. Only the two retained
 wings change from the undifferentiated LoD2 roof code to the OSM-supported red
 hipped-roof reading. Bodies, emissive panes and ink are merged into three
-renderables. Minecraft adds 78 pale-mullion/glass cues to the existing single
-Humboldthafen instance mesh rather than opening a new draw call.
+renderables. Minecraft adds 1,003 individual facade cues to the existing
+single Humboldthafen instance mesh. Zollpackhof separately keeps both exact
+restaurant plans with a disclosed, photo-estimated low roof envelope,
+arched glazing, dormers and lamp details in drawn and block-native forms.
+See [riverside sources, assumptions and budgets](riverside-refinements.md).
 
 Nine bounded facade-detail zones strengthen the source-derived street walls at
 Pariser Platz, Leipziger Platz, Potsdamer Platz, Tilla-Durieux-Park,

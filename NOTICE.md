@@ -261,11 +261,49 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   attribution above. The official
   [Masterplan Brücken inventory](https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/brueckenbau/masterplan-bruecken-berlin/mpb_anhang_1_brueckenliste_bestand.pdf)
   fixes structure `BW 3446035` and its current 32.6 x 28.8 m envelope. The
-  [Grassl project record](https://www.grassl-ing.de/project/sandkrugbruecke_42.html)
-  supplies the published five-stem steel-frame system, design dimensions,
-  clear span, roadway width, structural depth and lamp count. Member sections,
-  cross-girder spacing and rail subdivisions are procedural recognition
-  geometry; no source photograph, drawing or texture is bundled or loaded.
+  [GRASSL project record](https://www.grassl-ing.de/projekt/sandkrugbruecke_42.html)
+  supplies five rows of two-hinged frames, 34.10 m overall length, 32.60 m
+  structural span, 29.52 m construction width and 1.10 m structural depth.
+  The old 21 m clear opening, 4.93 m clearance and roadway subdivision remain
+  explicitly labelled display assumptions. External visual QA uses Lukas
+  Beck's [*Berlin Sandkrugbrücke lub 2023-05-11.jpg*](https://commons.wikimedia.org/wiki/File:Berlin_Sandkrugbr%C3%BCcke_lub_2023-05-11.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)) and Ansgar
+  Koreng's [*Sandkrugbrücke, Berlin-Mitte, 160824, ako.jpg*](https://commons.wikimedia.org/wiki/File:Sandkrugbr%C3%BCcke,_Berlin-Mitte,_160824,_ako.jpg)
+  ([CC BY 3.0 DE](https://creativecommons.org/licenses/by/3.0/de/)); these
+  photographs support the four lamp masts and horizontal railing reading.
+  Member sections, cross-girder spacing and rail subdivisions are procedural
+  recognition geometry. Per-file credits accompany the viewer; no source
+  photograph, crop, drawing or texture is bundled or loaded.
+
+- **Zollpackhof (source conflict and visual evidence):** the two exact
+  Berlin LoD2 footprints under parent `DEBE01YYK0002Tak` remain the metric
+  plan anchors. Their 26.046 m and 17.639 m source heights, rechecked in the
+  [2 March 2026 tile](https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip),
+  conflict with the photographed low restaurant and Remise. The replacement
+  4.2 m walls and 8.4/7.7 m overall heights are non-surveyed display estimates.
+  The [restaurant](https://www.zollpackhof.de/the-restaurant.html) and
+  [beer-garden](https://www.zollpackhof.de/the-beergarden.html) operator records
+  supply present-day venue context and the chestnut's more-than-150-year age
+  statement. Existing credited visual references are Schibo's
+  [*Zollpackhof-Berlin.jpg*](https://commons.wikimedia.org/wiki/File:Zollpackhof-Berlin.jpg)
+  and Leonhard Lenz's
+  [*Zollpackhof Berlin 2024-05-09 01.jpg*](https://commons.wikimedia.org/wiki/File:Zollpackhof_Berlin_2024-05-09_01.jpg)
+  (both [CC0](https://creativecommons.org/publicdomain/zero/1.0/)). Window,
+  dormer, roof and furniture subdivisions are procedural recognition details.
+  No new image asset or photographic texture is added to the viewer.
+
+- **Bundeswirtschaftsministerium (architectural and visual evidence):**
+  the ministry's [architecture account](https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Textsammlungen/Ministerium/architektur.html)
+  distinguishes the main Invalidenstraße building from the older
+  Invalidenhaus wings. Their committed LoD2 plans and heights remain the
+  envelopes. Main-house window frames, pilasters and curved pediment cues use
+  Bärbel Miemietz's
+  [*2022-10-10 Bundesministerium Wirtschaft Klimaschutz 06.jpg*](https://commons.wikimedia.org/wiki/File:2022-10-10_Bundesministerium_Wirtschaft_Klimaschutz_06.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)) and Lukas
+  Beck's Sandkrugbrücke photograph credited above for external visual QA.
+  Local facade subdivisions and projections remain non-surveyed recognition
+  geometry. Per-file credits accompany the viewer; no photograph, crop or
+  derived texture is bundled or loaded.
 
 - **Konrad-Adenauer-Haus (factual and architectural evidence):** exact plan
   geometry and glass material come from

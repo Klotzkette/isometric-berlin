@@ -24,6 +24,10 @@ import { MAX_MOTION_FRAME_DELTA_SECONDS } from "./renderQuality";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { BODE_SOURCE, GRILL_SOURCE, SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionProfile";
 import { ABGEORDNETENHAUS_PROFILE, abgeordnetenhausDisplayTopAt } from "./abgeordnetenhausProfile";
+import { createPedestrianBridgeGround } from "./PedestrianBridgeGround";
+import type { VisualMode } from "./visualMode";
+import { GUSTAV_BRIDGE_SUPPORT_FALLBACK } from "./gustavBridgeSupportSource";
+import { ZOLLPACKHOF_PARTS, zollpackhofDisplayTopAt } from "./zollpackhofProfile";
 
 export {
   heldPedestrianInput,
@@ -41,7 +45,7 @@ export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
 // apex below without allowing repeated airborne stacking.
 export const PEDESTRIAN_JUMP_APEX_M = 6.2;
 export const PEDESTRIAN_HIGH_JUMP_APEX_M = 10.5;
-export const PEDESTRIAN_WALK_SPEED_MPS = 8.5;
+export const PEDESTRIAN_WALK_SPEED_MPS = 13;
 export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
 export const PEDESTRIAN_FAST_RUN_MULTIPLIER = 8;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.9;
@@ -168,7 +172,11 @@ export type PedestrianObstacleIndex = {
 
 export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
+  /** Source-bound represented bridge decks override water only within their span. */
+  bridgeGroundAt?: (x: number, z: number) => number | null;
   groundAt: (x: number, z: number) => number | null;
+  /** A live getter keeps bridge support consistent across a mode change. */
+  visualMode?: () => VisualMode;
   obstacles?: PedestrianObstacleIndex;
   /** Mode-aware visibility of indexed source trees; other solids stay active. */
   parkTreeSolidAt?: (x: number, z: number, landmarkOak: boolean) => boolean;
@@ -532,11 +540,23 @@ function addSegmentObstacle(
 /** Compile exact LoD2 building footprints into a constant-time local index. */
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
+  visualMode: () => VisualMode = () => "day",
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
   for (const building of prisms.buildings) {
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
+    if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
+    const zollpackhof = ZOLLPACKHOF_PARTS.find(({ id }) => id === building.id);
+    if (zollpackhof) {
+      addPolygonObstacle(index, building.ring, building.holes ?? [],
+        zollpackhof.groundY,
+        zollpackhof.groundY + zollpackhof.wallHeightM + zollpackhof.roofRiseM + 0.55,
+        building.id, 0.1,
+        (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
+      index.buildingCount += 1;
+      continue;
+    }
     if (SPREE_RECOGNITION_PRISM_IDS.has(building.id)) {
       const source = building.id === "-4211594" ? BODE_SOURCE : GRILL_SOURCE;
       if (!replacedParents.has(source.parent_id)) {
@@ -949,10 +969,12 @@ function pedestrianBodyTouchesInteriorSolid(
     tester(x, bodyBottomY, z, radius) ||
     tester(x, bodyMiddleY, z, radius) ||
     tester(x, bodyTopY, z, radius) ||
-    tester(x - radius, bodyMiddleY, z, radius) ||
-    tester(x + radius, bodyMiddleY, z, radius) ||
-    tester(x, bodyMiddleY, z - radius, radius) ||
-    tester(x, bodyMiddleY, z + radius, radius)
+    // Offset samples already lie on the capsule boundary. Expanding each by
+    // its radius again falsely closed narrow doors and bridge approaches.
+    tester(x - radius, bodyMiddleY, z, 0) ||
+    tester(x + radius, bodyMiddleY, z, 0) ||
+    tester(x, bodyMiddleY, z - radius, 0) ||
+    tester(x, bodyMiddleY, z + radius, 0)
   );
 }
 
@@ -1236,13 +1258,21 @@ export function createPedestrianEnvironment(
       ? null
       : { insideTunnel: false, layer: "surface", y: surfaceY };
   };
-  return {
+  const environment: PedestrianEnvironment = {
     bounds,
     groundAt: surfaceGroundAt,
-    obstacles: prisms ? compilePedestrianObstacles(prisms) : undefined,
     resolveGround,
     water: compilePedestrianWater(surfaces),
   };
+  environment.obstacles = prisms ? compilePedestrianObstacles(
+    prisms, () => environment.visualMode?.() ?? "day",
+  ) : undefined;
+  environment.bridgeGroundAt = createPedestrianBridgeGround(
+    ground,
+    () => environment.visualMode?.() ?? "day",
+    PEDESTRIAN_BODY_RADIUS_M,
+  );
+  return environment;
 }
 
 function resolvePedestrianGround(
@@ -1261,6 +1291,10 @@ function resolvePedestrianGround(
     if (typeof interiorY === "number" && Number.isFinite(interiorY)) {
       return { insideTunnel: false, layer: "surface", y: interiorY };
     }
+    const bridgeY = environment.bridgeGroundAt?.(x, z);
+    if (typeof bridgeY === "number" && Number.isFinite(bridgeY)) {
+      return { insideTunnel: false, layer: "surface", y: bridgeY };
+    }
   }
   if (environment.resolveGround) {
     return environment.resolveGround(x, z, currentLayer, groundYHint);
@@ -1269,6 +1303,20 @@ function resolvePedestrianGround(
   return y === null
     ? null
     : ({ insideTunnel: false, layer: "surface", y } as const);
+}
+
+function pedestrianGroundIsWater(
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  ground: PedestrianGround,
+): boolean {
+  if (ground.layer !== "surface") return false;
+  const bridgeY = environment.bridgeGroundAt?.(x, z);
+  if (typeof bridgeY === "number" && Math.abs(ground.y - bridgeY) < 0.05) {
+    return false;
+  }
+  return pedestrianPointIsWater(x, z, environment.water);
 }
 
 const PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M = 10;
@@ -1300,8 +1348,8 @@ function pedestrianSpawnViewClearance(
         environment.obstacles,
         environment,
       ) ||
-      (ground.layer === "surface" &&
-        pedestrianPointIsWater(sampleX, sampleZ, environment.water))
+      pedestrianGroundIsWater(environment, sampleX, sampleZ,
+        resolvePedestrianGround(environment, sampleX, sampleZ, ground.layer, ground.y) ?? ground)
     ) {
       break;
     }
@@ -1323,10 +1371,7 @@ function nearestClearPedestrianSpawn(
       environment.obstacles,
       environment,
     ) &&
-    !(
-      requestedGround.layer === "surface" &&
-      pedestrianPointIsWater(spawn.x, spawn.z, environment.water)
-    )
+    !pedestrianGroundIsWater(environment, spawn.x, spawn.z, requestedGround)
   ) {
     return { ground: requestedGround, spawn };
   }
@@ -1359,8 +1404,7 @@ function nearestClearPedestrianSpawn(
           environment.obstacles,
           environment,
         ) ||
-        (ground.layer === "surface" &&
-          pedestrianPointIsWater(x, z, environment.water))
+        pedestrianGroundIsWater(environment, x, z, ground)
       ) {
         continue;
       }
@@ -1624,8 +1668,7 @@ export function stepPedestrian(
     );
   let currentInWater =
     movementLength > 0 &&
-    currentGround.layer === "surface" &&
-    pedestrianPointIsWater(x, z, environment.water);
+    pedestrianGroundIsWater(environment, x, z, currentGround);
   let acceptedCandidateBlocked = currentBlocked;
   let acceptedCandidateInWater = currentInWater;
 
@@ -1653,9 +1696,9 @@ export function stepPedestrian(
       environment.obstacles,
       environment,
     );
-    const candidateInWater =
-      ground.layer === "surface" &&
-      pedestrianPointIsWater(candidateX, candidateZ, environment.water);
+    const candidateInWater = pedestrianGroundIsWater(
+      environment, candidateX, candidateZ, ground,
+    );
     // If a deferred obstacle arrives around the current position, permit the
     // next movement to escape it. A normal clear position may never enter one.
     if (candidateBlocked && !currentBlocked) {
@@ -1716,8 +1759,7 @@ export function stepPedestrian(
 
   if (
     grounded &&
-    groundLayer === "surface" &&
-    pedestrianPointIsWater(x, z, environment.water)
+    pedestrianGroundIsWater(environment, x, z, currentGround)
   ) {
     // Late-loaded water geometry may surround an existing position. Keep it
     // stable instead of treating the streamed shoreline as a death volume.

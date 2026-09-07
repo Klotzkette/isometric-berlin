@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.2"
+PACKAGE_VERSION = "1.0.3"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,13 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.2: Der orangefarbene Joystick bleibt von der Kameradrehung
+Neu in v1.0.3: Der Spaziergang ist rund 53 Prozent schneller. Am Laptop
+springen Leertaste oder Doppelklick auf den orangefarbenen Joystick; auf dem
+Handy reicht ein kurzer Tipp. Neun oeffentliche Bruecken sind in allen Modi
+begehbar. Zollpackhof, Sandkrugbruecke und Wirtschaftsministerium erhalten
+quellgebundene Fassaden- und Konstruktionsdetails.
+
+Seit v1.0.2: Der orangefarbene Joystick bleibt von der Kameradrehung
 getrennt, auch wenn ein zweiter Finger auf der Karte liegt. Seine Mitte
 bleibt waehrend des Ziehens fest; kleine Daumenbewegungen sind abgefedert.
 
@@ -3404,7 +3410,7 @@ auch am Computer vorwaerts, rueckwaerts und seitwaerts wie auf dem Telefon.
 Seit v1.0: Reichstag und Brandenburger Tor erhalten genauere Details in der
 jeweiligen Modussprache. Der Hauptbahnhof laesst sich in allen fuenf Modi
 durch die oeffentlichen Eingaenge betreten. Auf dem Telefon springt die Figur
-im Fussgaengermodus durch zweimaliges kurzes Tippen auf den orangefarbenen
+im Fussgaengermodus durch kurzes Tippen auf den orangefarbenen
 Joystick; Ziehen bleibt die Bewegungssteuerung. Weniger Minecraft-Baeume,
 ein weicherer Schwellenraum, quellgebundene Gebaeudeattribute und die
 ueberarbeitete Siegessaeule sind ebenfalls enthalten.
@@ -3728,8 +3734,8 @@ Leertaste steigt und Shift sinkt. Alt/Option plus Pfeiltasten dreht oder neigt.
 Der orange Joystick bewegt am Desktop, auf Telefon und Tablet gleich:
 Nach oben/unten ziehen fliegt oder geht vorwaerts/rueckwaerts, seitliches
 Ziehen bewegt seitwaerts. Er sitzt neben dem Desktop-Bedienfeld oder am
-gewaehlten unteren Rand der kompakten Ansicht. Im Spaziergang schaltet ein
-Maus-Doppelklick den Sprint; ein Touch-/Stift-Doppeltipp springt. Loslassen
+gewaehlten unteren Rand der kompakten Ansicht. Im Spaziergang springen ein
+Maus-Doppelklick auf den Joystick oder ein kurzer Touch-/Stift-Tipp. Loslassen
 oder ein Moduswechsel beendet die gehaltene Joystick-Bewegung.
 Im Spaziergang bewegt WASD; einmal Leertaste springt bis 6,2 m, zweimal binnen
 320 ms hebt denselben Sprung einmalig bis 10,5 m an. Drei schnelle Anschläge
@@ -3924,7 +3930,12 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.2: the orange joystick stays separate from camera rotation,
+New in v1.0.3: walking is about 53 percent faster. Space or a double-click
+on the orange joystick jumps on laptops; phones use a short tap. Nine public
+bridges are walkable in all modes. Zollpackhof, Sandkrugbruecke and the
+Economics Ministry gain source-bound facade and structural details.
+
+Since v1.0.2: the orange joystick stays separate from camera rotation,
 even while another finger touches the map. Its origin stays fixed during
 a drag, and a small neutral zone filters thumb wobble.
 
@@ -3934,8 +3945,8 @@ forward, backward and sideways on desktop, as it does on phones.
 
 Since v1.0: the Reichstag and Brandenburg Gate gain more accurate detail in
 each mode's visual style. Hauptbahnhof's public entrances are accessible in
-all five modes. On phones in walking mode, two quick taps on the orange
-joystick make the person jump; dragging still moves them. The release also
+all five modes. On phones in walking mode, a short tap on the orange
+joystick makes the person jump; dragging still moves them. The release also
 includes fewer Minecraft trees, a softer Schwellenraum, recorded building
 attributes and the refined Siegessaeule.
 
@@ -4239,7 +4250,7 @@ Shift descends, while Alt/Option plus arrows orbits and tilts.
 The orange joystick uses the same movement on desktop, phone and tablet:
 drag up/down to fly or walk forward/backward, and left/right to strafe. It sits
 beside the desktop controls or at the chosen bottom edge of the compact view.
-While walking, mouse double-click toggles sprint and touch/pen double-tap jumps.
+While walking, a mouse double-click on the joystick or a short touch/pen tap jumps.
 Release or a mode change stops held joystick movement. Walking also uses
 WASD; one Space jumps to 6.2 m and a second press within 320 ms raises that same
 jump once to 10.5 m. Three quick presses of the same arrow or WASD key toggle

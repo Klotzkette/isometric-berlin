@@ -1,25 +1,26 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.1 appearance baselines include the source-bound Abgeordnetenhaus
-// replacement and Gropius Bau facade refinement.
+// v1.0.3 appearance baselines include the source-bound Zollpackhof
+// replacement and Sandkrug/ministry block refinement. Both cooperative
+// and synchronous factories were checked against these exact buffers.
 // Complete committed payloads remain unchanged,
 // including sampled colours and the tunnel. Hashes include every geometry,
 // index, colour and instance buffer, even spare allocated capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
   [
     "full",
-    "9ad53b3bb70e90db55589d1b26df2feefca9a12f2d599afad3af1e6b4ded3c83",
-    3572980,
-    52,
-    272749420,
+    "62e53581154554da01687ad89f51779cc72545b883339ff97a2ce043654bc199",
+    3574724,
+    53,
+    272882804,
   ],
   [
     "mobile",
-    "d70f0747edd976c74312461d7332c284cab0780d11acebe3a282e0f25da641d0",
-    813167,
-    50,
-    62436604,
+    "d3ef326dac063cbc48e09d5f651a8a447a544b1e85f68a4562847d4c56247e19",
+    815072,
+    51,
+    62582224,
   ],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {

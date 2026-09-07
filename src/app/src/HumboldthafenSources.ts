@@ -83,22 +83,36 @@ export const SANDKRUG_OSM_DECK = {
   osmWays: [36260393, 248010193] as const,
 } as const;
 
+/** Exact represented deck area; only source bridge-class ground may yield. */
+export function sandkrugDeckContains(x: number, z: number): boolean {
+  const p = SANDKRUG_OSM_DECK;
+  const dx = x - p.centreWorldM[0], dz = z - p.centreWorldM[1];
+  return Math.abs(dx * p.axis[0] + dz * p.axis[1]) <= p.inventoryLengthM / 2 &&
+    Math.abs(-dx * p.axis[1] + dz * p.axis[0]) <= p.inventoryWidthM / 2;
+}
+
 /** Published recognition dimensions for the 1994 Sandkrugbruecke. */
 export const SANDKRUG_STRUCTURE_PROFILE = {
   bridgeInventoryId: "BW 3446035",
   clearanceM: 4.93,
   clearSpanM: 21,
-  construction: "five-stem steel frame with orthotropic deck",
+  clearanceStatus: "21 m clear opening and 4.93 m clearance are retained legacy display assumptions, not published in the current engineer record",
+  engineerSpanM: 32.6,
+  engineerConstructionWidthM: 29.52,
+  legacyStructuralDepthM: 1.28,
+  engineerCheckedAt: "2026-09-07",
+  construction: "five rows of two-hinged steel frames supporting a reinforced-concrete and steel deck",
   engineerSourceUrl:
-    "https://www.grassl-ing.de/project/sandkrugbruecke_42.html",
+    "https://www.grassl-ing.de/projekt/sandkrugbruecke_42.html",
   frameStemCount: 5,
   geometryStatus:
-    "current Berlin inventory controls the 32.6 x 28.8 m deck envelope; the engineer's published 34.1 x 29 m design dimensions control the recognisable five-stem steel frame, 18.7 m roadway, structural depth and four lamp masts",
+    "current Berlin inventory controls the 32.6 x 28.8 m deck envelope; GRASSL gives 34.1 m total length, 32.6 m span, 29.52 m construction width, 1.10 m depth and five rows of two-hinged frames. Legacy 21 m clear opening, roadway division and member spacing remain display assumptions; four masts and railing form follow licensed reference photographs",
   lampMastCount: 4,
   publishedOverallLengthM: 34.1,
-  publishedOverallWidthM: 29,
+  publishedOverallWidthM: 29.52,
   roadwayWidthM: 18.7,
-  structuralDepthM: 1.28,
+  structuralDepthM: 1.1,
+  lowerRailCount: 5,
 } as const;
 
 /** The erroneous pre-correction bearing, retained only as a regression pin. */

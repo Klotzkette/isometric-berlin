@@ -1004,10 +1004,12 @@ describe("progressive exact-world scheduling", () => {
     expect(renderables).toBeLessThanOrEqual(49);
     // Includes source-envelope/floor ink and mapped material classifications;
     // the four source Gropius parts now replace their far boxes within the
-    // same building limit and bounded draw-call count.
+    // same building limit and bounded draw-call count. Zollpackhof and the
+    // false Gustav support yield to their context models: 1,354 fewer generic
+    // vertices, without reducing the source inventory.
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_747_298,
-      retainedBytes: 53_984_764,
+      vertices: 3_745_944,
+      retainedBytes: 53_965_154,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

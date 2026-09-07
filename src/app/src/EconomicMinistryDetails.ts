@@ -1,5 +1,6 @@
 import {
   BoxGeometry,
+  CircleGeometry,
   type BufferGeometry,
   EdgesGeometry,
   Group,
@@ -14,6 +15,8 @@ import {
 } from "./drawnKit";
 import type { PrismBuilding, PrismPayload } from "./IsometricCityWorld";
 
+export const ECONOMIC_MINISTRY_MAIN_ID = "K00008CN";
+
 export const ECONOMIC_MINISTRY_MODERN_CANAL_ID = "yAAWS2KQ";
 export const ECONOMIC_MINISTRY_CANAL_PODIUM_ID = "-3202585";
 export const ECONOMIC_MINISTRY_SOUTH_WING_ID = "K0000EU2";
@@ -21,6 +24,7 @@ export const ECONOMIC_MINISTRY_NORTH_WING_ID = "K0000B4S";
 export const ECONOMIC_MINISTRY_SOUTH_HEAD_ID = "K0000A7g";
 
 export const ECONOMIC_MINISTRY_IDS = new Set([
+  ECONOMIC_MINISTRY_MAIN_ID,
   ECONOMIC_MINISTRY_MODERN_CANAL_ID,
   ECONOMIC_MINISTRY_CANAL_PODIUM_ID,
   ECONOMIC_MINISTRY_SOUTH_WING_ID,
@@ -40,6 +44,7 @@ export const ECONOMIC_MINISTRY_HISTORIC_WING_IDS = new Set([
 ]);
 
 export const ECONOMIC_MINISTRY_PRISM_TONES: Record<string, number> = {
+  [ECONOMIC_MINISTRY_MAIN_ID]: 0xd6ccba,
   [ECONOMIC_MINISTRY_MODERN_CANAL_ID]: 0xe1e4df,
   [ECONOMIC_MINISTRY_CANAL_PODIUM_ID]: 0xd9ddd8,
   [ECONOMIC_MINISTRY_SOUTH_WING_ID]: 0xe8e3d5,
@@ -48,6 +53,7 @@ export const ECONOMIC_MINISTRY_PRISM_TONES: Record<string, number> = {
 };
 
 export const ECONOMIC_MINISTRY_PRISM_ROOF_TONES: Record<string, number> = {
+  [ECONOMIC_MINISTRY_MAIN_ID]: 0x955a42,
   [ECONOMIC_MINISTRY_MODERN_CANAL_ID]: 0x7f8b8b,
   [ECONOMIC_MINISTRY_CANAL_PODIUM_ID]: 0xc9ceca,
   [ECONOMIC_MINISTRY_SOUTH_WING_ID]: 0x93483e,
@@ -68,11 +74,19 @@ export const ECONOMIC_MINISTRY_PROFILE = {
   protectedBuildingRecord:
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011190",
   sourcePrismIds: [...ECONOMIC_MINISTRY_IDS],
+  mainHouseIdentity: "former Kaiser-Wilhelm-Akademie, Invalidenstrasse; separate from the older Invalidenhaus wings",
+  mainHouseArchitecture: "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Textsammlungen/Ministerium/architektur.html",
+  mainHouseVisualReference: "https://commons.wikimedia.org/wiki/File:2022-10-10_Bundesministerium_Wirtschaft_Klimaschutz_06.jpg",
   spatialReading:
     "long replacement wing parallel to the Berlin-Spandauer Schifffahrtskanal, joined to the two retained Invalidenhaus side wings around the garden courts",
 } as const;
 
 export const ECONOMIC_MINISTRY_MINECRAFT_FACADES = {
+  mainHistoricWest: {from:[237.2,-1037.3] as const,to:[206.3,-1023.2] as const,levels:2,mullions:10,y0:5.4},
+  mainHistoricCentre: {from:[261.2,-1042.6] as const,to:[242.7,-1034.3] as const,levels:2,mullions:6,y0:5.4},
+  mainHistoricEast: {from:[294.6,-1062.4] as const,to:[263.3,-1048.3] as const,levels:2,mullions:10,y0:5.4},
+  northHistoricCourt: {from:[170,-1325.7] as const,to:[95.8,-1283.6] as const,levels:3,mullions:19,y0:5.2},
+  southHistoricCourt: {from:[141.1,-1205.4] as const,to:[214.2,-1247.4] as const,levels:3,mullions:19,y0:5.2},
   modernCanal: {
     from: [148.2, -1157.2] as const,
     levels: 5,
@@ -90,14 +104,14 @@ export const ECONOMIC_MINISTRY_MINECRAFT_FACADES = {
   northHistoricOuter: {
     from: [88, -1297.4] as const,
     levels: 3,
-    mullions: 8,
+    mullions: 19,
     to: [162.2, -1339.5] as const,
     y0: 5.2,
   },
   southHistoricOuter: {
     from: [222, -1233.7] as const,
     levels: 3,
-    mullions: 8,
+    mullions: 19,
     to: [149, -1191.2] as const,
     y0: 5.2,
   },
@@ -220,6 +234,7 @@ function addWindowGrid(
     trimColor?: number;
     windowHeightM: number;
     windowWidthRatio: number;
+    historicFrames?: boolean;
   },
 ): { bays: number; windows: number } {
   const wall = wallOf(building, wallIndex);
@@ -244,6 +259,26 @@ function addWindowGrid(
         true,
         true,
       );
+      if (options.historicFrames) {
+        const centre = options.marginM + moduleWidth * (bay + 0.5);
+        const width = moduleWidth * options.windowWidthRatio;
+        // Straight, evenly repeated window rows are documented by the Berlin
+        // monument inventory. The sill and four-light sash are non-surveyed
+        // subdivisions fitted wholly to the retained source wall.
+        for (const side of [-1, 1]) {
+          addWallBox(builder, wall, HISTORIC_STONE, centre + side * (width / 2 + 0.1),
+            y, 0.22, 0.16, options.windowHeightM + 0.26, 0.16);
+        }
+        for (const sign of [-1, 1]) {
+          addWallBox(builder, wall, HISTORIC_STONE, centre,
+            y + sign * (options.windowHeightM / 2 + 0.09), 0.23,
+            width + 0.38, sign < 0 ? 0.18 : 0.13, 0.2);
+        }
+        addWallBox(builder, wall, HISTORIC_STONE, centre, y, 0.26,
+          0.065, options.windowHeightM, 0.08);
+        addWallBox(builder, wall, HISTORIC_STONE, centre, y + 0.28, 0.26,
+          width, 0.065, 0.08);
+      }
     }
     addWallBox(
       builder,
@@ -391,17 +426,53 @@ function addHistoricWing(
     trimColor: HISTORIC_STONE,
     windowHeightM: 2.25,
     windowWidthRatio: 0.5,
+    historicFrames: true,
   });
-  const courtyardPiers = addRibbonGrid(
-    builder,
-    building,
-    courtyardWallIndex,
-    3,
-    3.75,
-    HISTORIC_GLASS,
-  );
+  const court = addWindowGrid(builder, building, courtyardWallIndex, {
+    bayPitchM: 4.35, color: HISTORIC_GLASS, firstCentreAboveGroundM: 2.35,
+    floorPitchM: 3.75, levels: 3, majorPierEvery: 4, marginM: 1.2,
+    trimColor: HISTORIC_STONE, windowHeightM: 2.25, windowWidthRatio: 0.5,
+    historicFrames: true,
+  });
+  const courtyardPiers = 0;
   addHistoricEntrance(builder, building, entranceWallIndex);
-  for (const wallIndex of [outerWallIndex, courtyardWallIndex]) {
+  if (building.id === ECONOMIC_MINISTRY_NORTH_WING_ID) {
+    const wall = wallOf(building, entranceWallIndex);
+    for (const [radius, outward, color] of [[1.55, 0.24, HISTORIC_STONE], [1.28, 0.28, HISTORIC_GLASS]]) {
+      const geometry = new CircleGeometry(radius, 24);
+      geometry.rotateY(Math.atan2(wall.nx, wall.nz));
+      geometry.translate(wall.x1 + wall.dirX * wall.length / 2 + wall.nx * outward,
+        building.y0_dm / 10 + 5.65,
+        wall.z1 + wall.dirZ * wall.length / 2 + wall.nz * outward);
+      addPaintedGeometry(builder, geometry, color, color === HISTORIC_GLASS, true);
+    }
+    addWallBox(builder, wall, HISTORIC_STONE, wall.length / 2,
+      building.y0_dm / 10 + 5.65, 0.3, 0.09, 2.5, 0.06);
+    addWallBox(builder, wall, HISTORIC_STONE, wall.length / 2,
+      building.y0_dm / 10 + 5.65, 0.3, 2.5, 0.09, 0.06);
+  }
+  // End elevations keep their documented regular openings as well; previously
+  // the historic side wings had completely blank gables around one large door.
+  const endWall = wallOf(building, entranceWallIndex);
+  let endWindows = 0;
+  for (const fraction of [0.19, 0.81]) {
+    for (let level = 0; level < 3; level += 1) {
+      const along = endWall.length * fraction;
+      const y = building.y0_dm / 10 + 2.35 + level * 3.75;
+      addWallBox(builder, endWall, HISTORIC_GLASS, along, y, 0.17,
+        1.6, 2.25, 0.16, true, true);
+      addWallBox(builder, endWall, HISTORIC_STONE, along, y - 1.2, 0.22,
+        1.94, 0.16, 0.22);
+      addWallBox(builder, endWall, HISTORIC_STONE, along, y, 0.26,
+        0.075, 2.25, 0.08);
+      endWindows += 1;
+    }
+  }
+  for (const wall of ringWalls(building.ring)) {
+    addWallBox(builder, wall, 0xc9c4b5, wall.length / 2,
+      building.y0_dm / 10 + 0.42, 0.12, wall.length - 0.28, 0.74, 0.18);
+  }
+  for (const wallIndex of [outerWallIndex, courtyardWallIndex, entranceWallIndex]) {
     const wall = wallOf(building, wallIndex);
     addWallBox(
       builder,
@@ -417,7 +488,56 @@ function addHistoricWing(
       true,
     );
   }
-  return { courtyardPiers, windows: outer.windows };
+  return { courtyardPiers, windows: outer.windows + court.windows + endWindows };
+}
+
+/** A facade-only reading of the distinct neo-Baroque Invalidenstrasse main house. */
+function addMainHouseFacade(builder: Builder, building: PrismBuilding): number {
+  let windows = 0;
+  const y0 = building.y0_dm / 10;
+  for (const wallIndex of [23, 27, 35, 42, 46]) {
+    const wall = wallOf(building, wallIndex);
+    const risalit = wallIndex === 35 || wallIndex === 23 || wallIndex === 46;
+    const bays = Math.max(2, Math.round((wall.length - 2) / 3.2));
+    const pitch = (wall.length - 1.6) / bays;
+    // Source wall only: rusticated plinth and straight stone storey bands.
+    for (let row = 0; row < 5; row += 1) addWallBox(builder, wall, 0xc2b5a0,
+      wall.length / 2, y0 + 0.45 + row * 0.54, 0.12, wall.length - 0.15, 0.055, 0.18);
+    for (const level of [3.3, 8.1, 13.5]) addWallBox(builder, wall, HISTORIC_STONE,
+      wall.length / 2, y0 + level, 0.24, wall.length + 0.12, level > 13 ? 0.48 : 0.2, 0.4);
+    for (let bay=0; bay<bays; bay+=1) {
+      const along=0.8+pitch*(bay+0.5);
+      for (let floor=0; floor<2; floor+=1) {
+        const y=y0+5.55+floor*4.85, h=floor===0?3.05:2.75;
+        addWallBox(builder,wall,0xf0e7d5,along,y,0.18,pitch*0.66,h+0.35,0.2);
+        addWallBox(builder,wall,HISTORIC_GLASS,along,y,0.31,pitch*0.54,h,0.12,true,true);
+        addWallBox(builder,wall,HISTORIC_STONE,along,y,0.4,0.085,h,0.08);
+        addWallBox(builder,wall,HISTORIC_STONE,along,y+0.4,0.4,pitch*0.54,0.085,0.08);
+        addWallBox(builder,wall,HISTORIC_STONE,along,y-h/2-0.14,0.28,pitch*0.74,0.18,0.34);
+        if(floor===0) addWallBox(builder,wall,0xcfc2ac,along,y+h/2+0.32,0.32,pitch*0.83,0.2,0.34);
+        windows+=1;
+      }
+      if(!risalit && bay%2===0) {
+        addWallBox(builder,wall,0x84918a,along,y0+15.6,0.19,1.55,1.75,0.38);
+        addWallBox(builder,wall,HISTORIC_GLASS,along,y0+15.55,0.43,1.1,1.25,0.12,true);
+      }
+    }
+    if(risalit) {
+      for(const side of [-1,1]) for(const paired of [0,0.82]) {
+        const along=side<0?0.45+paired:wall.length-0.45-paired;
+        addWallBox(builder,wall,HISTORIC_STONE,along,y0+8.3,0.32,0.42,10.15,0.38,true);
+        addWallBox(builder,wall,0xe8ddc9,along,y0+13.2,0.38,0.65,0.35,0.44);
+      }
+      // Segmental pediment, sampled into static short stone chords.
+      for(let step=0;step<12;step+=1) {
+        const along=(step+0.5)*wall.length/12;
+        const t=(along/wall.length-0.5)*2;
+        addWallBox(builder,wall,HISTORIC_STONE,along,y0+14.0+1.45*(1-t*t),0.32,
+          wall.length/12+0.025,0.22,0.4);
+      }
+    }
+  }
+  return windows;
 }
 
 /** Use the OSM hipped-roof identity instead of the undifferentiated LoD2 5000 code. */
@@ -459,6 +579,8 @@ export function createEconomicMinistryDetails(prisms: PrismPayload): Group {
   const courtyardPiers =
     addRibbonGrid(builder, modern, 3, 5, 3.55, MODERN_GLASS) +
     addRibbonGrid(builder, modern, 7, 5, 3.55, MODERN_GLASS);
+  const mainHouse = byId.get(ECONOMIC_MINISTRY_MAIN_ID);
+  const mainHouseWindows = mainHouse ? addMainHouseFacade(builder, mainHouse) : 0;
   const south = addHistoricWing(builder, southWing, 3, 1, 2);
   const north = addHistoricWing(builder, northWing, 0, 2, 1);
 
@@ -474,12 +596,16 @@ export function createEconomicMinistryDetails(prisms: PrismPayload): Group {
     courtyardPiers:
       courtyardPiers + south.courtyardPiers + north.courtyardPiers,
     historicEntrances: 2,
+    northHistoricBullseyes: 1,
+    mainHouseWindows,
+    mainHouseRisalits: mainHouse ? 3 : 0,
+    framedHistoricWindows: south.windows + north.windows,
     historicWindows: south.windows + north.windows,
     sourcePrisms: ECONOMIC_MINISTRY_IDS.size,
   };
   group.userData.geometryStatus = ECONOMIC_MINISTRY_PROFILE.geometryStatus;
   group.userData.hasOpaqueEnvelope = false;
-  group.userData.maxFacadeProjectionM = 0.34;
+  group.userData.maxFacadeProjectionM = 0.6;
   group.userData.profile = ECONOMIC_MINISTRY_PROFILE;
   group.userData.replacesLoD2 = false;
   group.userData.sourcePrismIds = [...ECONOMIC_MINISTRY_IDS];

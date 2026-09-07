@@ -244,6 +244,7 @@ import {
   type SurfacePayload,
   SURFACE_WORLD_FILE,
   PRISM_WORLD_FILE,
+  createBridgeStructures,
   createIsometricCity,
   setIsoNightPresentation,
 } from "./IsometricCityWorld";
@@ -498,6 +499,7 @@ type ThreeViewerProps = {
 };
 
 export type ThreeViewerHandle = {
+  focusNavigation: () => void;
   flyBy: (horizontal: number, vertical: number) => void;
   flyForwardBy: (strafe: number, forward: number) => void;
   focusLandmark: (name: string, immediate?: boolean) => void;
@@ -741,6 +743,11 @@ function minecraftVisibilityRoots(runtime: Runtime): MinecraftVisibilityRoots {
   };
 }
 
+function setSandkrugBridgePresentation(root: Object3D, mode: LightingMode): void {
+  const bridge = root.getObjectByName("Sandkrugbrücke drawn architecture");
+  if (bridge) bridge.visible = mode !== "minecraft";
+}
+
 /**
  * Minecraft visibility owns whole signature branches; the Weidendammer
  * presentation owns the smooth-vs-block replacement inside the otherwise
@@ -753,6 +760,7 @@ function applyRuntimeMinecraftVisibility(
 ): void {
   applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   setWeidendammerBridgePresentation(runtime.signatures, runtime.lightingMode);
+  setSandkrugBridgePresentation(runtime.signatures, runtime.lightingMode);
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
@@ -1881,6 +1889,7 @@ export function applySignatureLightingPresentation(
   lightsOn = true,
 ): void {
   setWeidendammerBridgePresentation(signatures, mode);
+  setSandkrugBridgePresentation(signatures, mode);
   applyLightingToRoot(signatures, mode, lightsOn);
 }
 
@@ -3074,6 +3083,7 @@ function ensureIsoWorld(
           prisms,
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
+        pedestrianEnvironment.visualMode = () => runtime.lightingMode;
         pedestrianEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(
             ground.cell_m,
@@ -3233,6 +3243,7 @@ function ensureIsoWorld(
         surfaces,
         {
           buildings: initialBuildings,
+          bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
           retainRasterAsphalt: true,
           retainRasterWater: runtime.coarsePointer,
           smoothSurfaces:
@@ -3252,6 +3263,7 @@ function ensureIsoWorld(
       const bridges = isoWorld.getObjectByName("drawn bridge structures");
       if (bridges) {
         setWeidendammerBridgePresentation(bridges, runtime.lightingMode);
+        setSandkrugBridgePresentation(bridges, runtime.lightingMode);
         runtime.signatures.add(bridges);
       }
       if (ground && street) {
@@ -3502,6 +3514,7 @@ function ensureVoxelWorld(
     }
   };
   let provisionalVoxelWorld: Group | null = null;
+  let provisionalBridges: Group | null = null;
   let provisionalLootBoxes: MinecraftLootBoxField | null = null;
   let provisionalMinecraftMobs: MinecraftMobField | null = null;
   let provisionalEnvironment: PedestrianEnvironment | null = null;
@@ -3567,6 +3580,7 @@ function ensureVoxelWorld(
           runtime.tunnelPortalCourse,
           prisms,
         );
+        provisionalEnvironment.visualMode = () => runtime.lightingMode;
         provisionalEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(
             payload.cell_m,
@@ -3604,12 +3618,20 @@ function ensureVoxelWorld(
       // Commit only after every expensive constructor succeeds. Anything
       // below that can still throw is guarded by the chain's rollback, so a
       // partial group can never masquerade as a ready voxel world.
+      if (!runtime.signatures.getObjectByName("drawn bridge structures")) {
+        // A cold Minecraft visit needs the same public bridge decks as a
+        // warm visit. Their source geometry must exist before walking starts.
+        provisionalBridges = createBridgeStructures(
+          payload, runtime.coarsePointer ? "mobile" : "full",
+        );
+      }
       runtime.voxelWorld = provisionalVoxelWorld;
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
       runtime.scene.add(provisionalLootBoxes.group);
       runtime.scene.add(provisionalMinecraftMobs.group);
+      if (provisionalBridges) runtime.signatures.add(provisionalBridges);
       registerBerlinerEnsembleRoofSignTargets(runtime, provisionalVoxelWorld);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, 3);
@@ -3655,6 +3677,7 @@ function ensureVoxelWorld(
       // successful loader calls the same idempotent hook later, so cold voxel
       // starts must not download/build a large group merely to hide it.
       provisionalVoxelWorld = null;
+      provisionalBridges = null;
       provisionalLootBoxes = null;
       provisionalMinecraftMobs = null;
       provisionalEnvironment = null;
@@ -3671,6 +3694,10 @@ function ensureVoxelWorld(
     .catch((error: unknown) => {
       const rollbackUnderside =
         pedestrianSnapshot?.underside ?? runtime.underside;
+      if (provisionalBridges) {
+        disposeObject3D(runtime, provisionalBridges);
+        provisionalBridges = null;
+      }
       if (provisionalLootBoxes) {
         if (runtime.minecraftLootBoxes === provisionalLootBoxes) {
           runtime.minecraftLootBoxes = null;
@@ -4896,6 +4923,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setOrbitAngles(runtime, MathUtils.degToRad(degrees));
           notifyView(runtime, onViewChangeRef.current);
         },
+        focusNavigation: () => {
+          runtimeRef.current?.renderer.domElement.focus({ preventScroll: true });
+        },
         setPedestrianMode: (enabled) => {
           const runtime = runtimeRef.current;
           pedestrianModeRef.current = enabled;
@@ -4912,6 +4942,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const changed = enabled
             ? activatePedestrianMode(runtime)
             : deactivatePedestrianMode(runtime);
+          if (enabled) {
+            // The walking button otherwise keeps focus and consumes Space as
+            // a button activation, switching walking off instead of jumping.
+            runtime.renderer.domElement.focus({ preventScroll: true });
+          }
           if (changed) {
             emitPedestrianPose(runtime, true);
             notifyView(runtime, onViewChangeRef.current);

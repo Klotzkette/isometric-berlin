@@ -1,3 +1,6 @@
+import { ZOLLPACKHOF_PRISM_IDS } from "./zollpackhofProfile";
+import { createZollpackhofDetails } from "./ZollpackhofDetails";
+import { GUSTAV_BRIDGE_SUPPORT_FALLBACK } from "./gustavBridgeSupportSource";
 import { ABGEORDNETENHAUS_PROFILE } from "./abgeordnetenhausProfile";
 import { GROPIUS_BAU_PRISM_TONES, GROPIUS_BAU_PRISM_ROOF_TONES } from "./gropiusBauProfile";
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
@@ -224,6 +227,8 @@ export type PrismPayload = {
  * remaining batches without copying or simplifying any source coordinate.
  */
 export type IsometricCityBuildOptions = {
+  /** The shared bridge root may already have been installed by cold Minecraft. */
+  bridgeStructures?: boolean;
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
   /** Add the one-off presentation/recognition models only to the base batch. */
@@ -809,6 +814,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId,
+  ...ZOLLPACKHOF_PRISM_IDS,
   // The official main envelope is only 3m high. The source-plan replacement
   // keeps all six courtyards; the six valid rear annexes remain source prisms.
   ABGEORDNETENHAUS_PROFILE.mainPrismId,
@@ -3792,7 +3799,7 @@ function prismTriangles(
  * water. Positions and extents come from the ground grid; the drawing
  * is ours.
  */
-function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
+export function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
   const { cols, rows } = ground.grid;
   const bridgeClass = ground.classes.indexOf("bridge");
   if (bridgeClass < 0) {
@@ -4163,7 +4170,7 @@ export function usesGenericBridgeDeckOrnament(
   return profile?.name !== WEIDENDAMMER_BRIDGE_PROFILE.name;
 }
 
-function createBridgeStructures(
+export function createBridgeStructures(
   ground: VoxelPayload,
   detailProfile: WeidendammerBridgeDetailProfile,
 ): Group | null {
@@ -4181,6 +4188,8 @@ function createBridgeStructures(
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
   const lampParts: BufferGeometry[] = [];
+  const sandkrugBuilder = createBuilder();
+  let collectingSandkrug = false;
   const moltkeDetailParts: BufferGeometry[] = [];
   const moltkeDetailEdges: BufferGeometry[] = [];
   const moltkeDetailLampParts: BufferGeometry[] = [];
@@ -4212,16 +4221,16 @@ function createBridgeStructures(
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
     bakeBridgeColor(geometry, tone);
-    parts.push(geometry);
+    (collectingSandkrug ? sandkrugBuilder.parts : parts).push(geometry);
     if (inked) {
-      edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+      (collectingSandkrug ? sandkrugBuilder.edges : edges).push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
     }
   };
   const addLamp = (triangles: Float32Array, tone: Color): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
     bakeBridgeColor(geometry, tone);
-    lampParts.push(geometry);
+    (collectingSandkrug ? sandkrugBuilder.lamps : lampParts).push(geometry);
   };
   const addMoltkeDetail = (
     triangles: Float32Array,
@@ -4285,6 +4294,7 @@ function createBridgeStructures(
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
+    collectingSandkrug = kind === "openFrame";
     if (profile?.name === WEIDENDAMMER_BRIDGE_PROFILE.name) {
       weidendammerBaseRendered = true;
     }
@@ -5205,7 +5215,7 @@ function createBridgeStructures(
             const railU = u + bayLength / 2;
             const [railX, railZ] = at(railU, side * halfWidth);
             const railY = deckY + riseAt(railU);
-            for (const level of [0.38, 0.78, 1.18]) {
+            for (const level of [0.16, 0.31, 0.46, 0.61, 0.76, 1.18]) {
               addPart(
                 boxTriangles(
                   railX,
@@ -5233,14 +5243,18 @@ function createBridgeStructures(
         for (const side of [-1, 1]) {
           const [mastX, mastZ] = at(u, side * (halfWidth - 0.22));
           addPart(
-            boxTriangles(mastX, y + 2.65, mastZ, localAxis, 0.17, 5.3, 0.17),
+            boxTriangles(mastX, y + 4.25, mastZ, localAxis, 0.13, 8.5, 0.16),
             STEEL,
             false,
           );
+          addPart(boxTriangles(mastX + ax * 0.3, y + 4.25,
+            mastZ + az * 0.3, localAxis, 0.11, 8.5, 0.16), STEEL, false);
+          addLamp(boxTriangles(mastX + ax * 0.15, y + 2.3,
+            mastZ + az * 0.15, localAxis, 0.12, 2.8, 0.18), WARM_LIGHT);
           addLamp(
             boxTriangles(
               mastX + ax * 0.24,
-              y + 5.32,
+              y + 8.52,
               mastZ + az * 0.24,
               localAxis,
               0.54,
@@ -6355,6 +6369,18 @@ function createBridgeStructures(
         }
       }
     } else if (kind === "openFrame") {
+      // Repeated cantilever brackets are visible in the licensed canal views.
+      // Their local section and spacing remain procedural, not surveyed.
+      for (let bay = 0; bay < 12; bay += 1) {
+        const u = -halfLength + (bay + 0.5) * halfLength * 2 / 12;
+        for (const side of [-1, 1]) {
+          const [innerX, innerZ] = at(u, side * (halfWidth - 1.8));
+          const [outerX, outerZ] = at(u, side * (halfWidth - 0.22));
+          addPart(beamBetweenTriangles(
+            [innerX, deckY - 1.12, innerZ],
+            [outerX, deckY - 0.3, outerZ], 0.13, 0.2), STEEL, false);
+        }
+      }
       // Five parallel steel frame stems carry the orthotropic slab. Their
       // haunches stop at the stone-clad bank abutments, preserving the
       // published 21 m clear navigation opening with no invented river pier.
@@ -6480,6 +6506,12 @@ function createBridgeStructures(
   }
   const group = new Group();
   group.name = "drawn bridge structures";
+  const sandkrug = finishDrawnGroup(sandkrugBuilder, {name: "Sandkrugbrücke drawn architecture"});
+  if (sandkrug) {
+    sandkrug.userData.sandkrugOnly = true;
+    sandkrug.userData.staticAntiFlicker = true;
+    group.add(sandkrug);
+  }
   group.userData.bridgeProfiles = BRIDGE_PROFILES.map(
     ({ axis, curveSagittaM, kind, name, palette, surveyedDeck, world }) => ({
       axis,
@@ -12911,12 +12943,12 @@ export function createIsometricCity(
         group.add(quays);
       }
     }
-    const bridges = createBridgeStructures(
-      ground,
-      options.retainRasterAsphalt ? "mobile" : "full",
-    );
-    if (bridges) {
-      group.add(bridges);
+    if (options.bridgeStructures !== false) {
+      const bridges = createBridgeStructures(
+        ground,
+        options.retainRasterAsphalt ? "mobile" : "full",
+      );
+      if (bridges) group.add(bridges);
     }
     if (options.includeContext !== false) {
       group.add(createNorthernHumboldthafenRefinements(ground));
@@ -12940,6 +12972,7 @@ export function createIsometricCity(
     group.add(createBerlinerEnsemble(prisms));
     group.add(createReichstagspraesidentenpalais(prisms));
     group.add(createEconomicMinistryDetails(prisms));
+    group.add(createZollpackhofDetails());
     group.add(createFederalStateRepresentations());
   }
   return group;

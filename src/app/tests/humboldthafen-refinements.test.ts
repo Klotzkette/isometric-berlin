@@ -86,12 +86,21 @@ describe("source-bound northern Humboldthafen", () => {
       frameStemCount: 5,
       lampMastCount: 4,
       roadwayWidthM: 18.7,
-      structuralDepthM: 1.28,
+      structuralDepthM: 1.1,
+      engineerSpanM: 32.6,
+      engineerConstructionWidthM: 29.52,
+      publishedOverallLengthM: 34.1,
+      publishedOverallWidthM: 29.52,
+      lowerRailCount: 5,
     });
     expect(SANDKRUG_STRUCTURE_PROFILE.construction).toContain("steel frame");
     expect(SANDKRUG_STRUCTURE_PROFILE.engineerSourceUrl).toContain(
-      "grassl-ing.de",
+      "grassl-ing.de/projekt/sandkrugbruecke_42.html",
     );
+    expect(SANDKRUG_STRUCTURE_PROFILE.clearanceStatus).toContain("display assumptions");
+    expect(SANDKRUG_STRUCTURE_PROFILE.geometryStatus).toContain("roadway division");
+    expect(SANDKRUG_OSM_DECK.inventoryLengthM).toBe(32.6);
+    expect(SANDKRUG_OSM_DECK.inventoryWidthM).toBe(28.8);
   });
 
   test("replaces only the northern horizontal quay run", () => {

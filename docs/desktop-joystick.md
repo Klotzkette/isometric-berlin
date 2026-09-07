@@ -1,11 +1,11 @@
 # Shared desktop and mobile joystick — step 10
 
-The orange joystick now uses the same movement input on desktop, phone and
+The orange joystick uses the same movement input on desktop, phone and
 tablet. Drag up/down to move forward/backward along the view heading; drag
 left/right to strafe. It flies in camera mode and walks in pedestrian mode.
 Walking retains the existing terrain, water and solid-object checks in every
 visual mode.
-Mouse double-click still toggles walking sprint; touch/pen double-tap requests
+Mouse double-click and one short touch/pen tap request
 the normal jump with the guards described in [mobile-joystick-jump.md](mobile-joystick-jump.md).
 
 There is one joystick component. CSS places its 82 px desktop pad beside the
@@ -18,7 +18,7 @@ Releasing, cancelling or losing the active pointer stops movement. Changing
 visual mode, switching walking/flight, disabling the control, hiding the chrome,
 leaving 3D, losing page focus or hiding the page also clears held input and
 pending gestures. Normal pointer-up capture loss preserves a completed first
-touch tap for its double-tap pair.
+mouse click for its double-click pair.
 
 In v1.0.2, pad pointer events stop before reaching the document listeners used
 by an active OrbitControls canvas gesture. The dependency accepts moves from
@@ -35,12 +35,17 @@ on every move. Capture rejection cancels the gesture and clears input.
 
 `desktop-joystick.test.ts` executes the actual App-to-viewer input adapters and
 checks movement without orbit/look input, walking direction, release-to-zero,
-mode resets and layout rules. The gesture suite retains touch jump and physics
+mode resets and layout rules. The gesture suite retains jump and physics
 coverage. Browser QA checks mouse dragging in flight and walking plus the
 compact/touch and mirrored desktop layouts.
 
 `iphone-joystick.test.ts` executes the actual component handlers with the real
 OrbitControls dependency and synthetic event targets. It reproduces the old
 foreign-pointer camera flip and checks event isolation, a moving pad rectangle,
-neutral/full input, pointer lifecycle and double-tap behavior. This is an
+neutral/full input, pointer lifecycle and mouse double-click/mobile tap behavior. This is an
 automated touch-event regression test, not validation on physical iPhone hardware.
+
+In v1.0.3, mouse jump requires two completed clicks and touch/pen jump requires
+one completed tap. The pad also accepts keyboard focus; Space jumps after
+using it. Default walking speed is 13 m/s, with proportional analog control
+and the existing sprint/fast-run actions. See [walking access](pedestrian-mobility.md).

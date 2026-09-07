@@ -5,6 +5,7 @@ import {
   compilePedestrianObstacles,
   createPedestrianState,
   pedestrianPointIsBlocked,
+  PEDESTRIAN_WALK_SPEED_MPS,
   stepPedestrian,
   type PedestrianEnvironment,
 } from "../src/pedestrianNavigation";
@@ -249,11 +250,13 @@ describe("Schwellenraum solid movement", () => {
       yaw: Math.PI / 2,
       z: 2,
     });
-    for (let index = 0; index < 12; index += 1) {
+    // Follow five metres of the seven-metre ramp independently of the chosen
+    // presentation speed; a fixed frame count would walk beyond its far end.
+    for (let index = 0; index < 20; index += 1) {
       state = stepPedestrian(
         state,
         { forward: 1, look: 0, sprint: false, strafe: 0, turn: 0 },
-        0.05,
+        0.25 / PEDESTRIAN_WALK_SPEED_MPS,
         rampEnvironment,
       ).state;
     }

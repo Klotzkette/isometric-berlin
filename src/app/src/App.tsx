@@ -519,26 +519,23 @@ function FlightJoystick({
   disabled,
   label,
   resetKey,
-  onDoubleActivate,
-  onTouchDoubleTap,
+  onJump,
   onInput,
 }: {
   disabled: boolean;
   label: string;
   resetKey: string;
-  onDoubleActivate?: () => void;
-  onTouchDoubleTap?: () => void;
+  onJump?: () => void;
   onInput: (horizontal: number, vertical: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
   const knobRef = useRef<HTMLSpanElement | null>(null);
   const originRef = useRef<{ x: number; y: number } | null>(null);
-  const lastActivationAtRef = useRef(0);
   const pointerIdRef = useRef<number | null>(null);
   const tapStateRef = useRef(createJoystickTapState());
   const inputRef = useRef(onInput);
   inputRef.current = onInput;
-  const touchDoubleTapEnabled = onTouchDoubleTap !== undefined;
+  const jumpEnabled = onJump !== undefined;
 
   const pointerSample = (
     event: ReactPointerEvent<HTMLDivElement>,
@@ -591,21 +588,19 @@ function FlightJoystick({
 
   useEffect(() => {
     cancelJoystickTap(tapStateRef.current);
-    lastActivationAtRef.current = 0;
     release();
-  }, [disabled, resetKey, touchDoubleTapEnabled, release]);
+  }, [disabled, resetKey, jumpEnabled, release]);
 
   useEffect(() => {
     const reset = () => {
       cancelJoystickTap(tapStateRef.current);
-      lastActivationAtRef.current = 0;
       release();
     };
     const visibility = () => {
       if (document.hidden) reset();
     };
     const otherPointer = (event: PointerEvent) => {
-      if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+      if (!["touch", "pen", "mouse"].includes(event.pointerType)) return;
       if (
         (pointerIdRef.current !== null && pointerIdRef.current !== event.pointerId) ||
         !(event.target instanceof Node && baseRef.current?.contains(event.target))
@@ -631,6 +626,7 @@ function FlightJoystick({
       ref={baseRef}
       className="flight-joystick"
       role="application"
+      tabIndex={disabled ? -1 : 0}
       aria-label={label}
       data-disabled={disabled ? "true" : undefined}
       onPointerDown={(event) => {
@@ -645,19 +641,9 @@ function FlightJoystick({
           cancelJoystickTap(tapStateRef.current);
           return;
         }
-        if (touchDoubleTapEnabled) {
+        event.currentTarget.focus({ preventScroll: true });
+        if (jumpEnabled) {
           beginJoystickTap(tapStateRef.current, pointerSample(event));
-        }
-        const now = performance.now();
-        if (
-          event.pointerType === "mouse" &&
-          onDoubleActivate &&
-          isPedestrianSprintDoubleActivation(lastActivationAtRef.current, now)
-        ) {
-          lastActivationAtRef.current = 0;
-          onDoubleActivate();
-        } else if (event.pointerType === "mouse") {
-          lastActivationAtRef.current = now;
         }
         pointerIdRef.current = event.pointerId;
         const rect = event.currentTarget.getBoundingClientRect();
@@ -688,14 +674,15 @@ function FlightJoystick({
       onPointerUp={(event) => {
         event.stopPropagation();
         if (pointerIdRef.current === event.pointerId) {
-          const doubleTap = endJoystickTap(
+          const jump = endJoystickTap(
             tapStateRef.current, pointerSample(event),
+            event.pointerType === "mouse" ? "double" : "single",
           );
           release();
           if (event.currentTarget.hasPointerCapture(event.pointerId)) {
             event.currentTarget.releasePointerCapture(event.pointerId);
           }
-          if (doubleTap) onTouchDoubleTap?.();
+          if (jump) onJump?.();
         }
       }}
       onPointerCancel={(event) => {
@@ -2131,6 +2118,9 @@ export function App() {
         resumeStandardAudio();
       }
       setLightingMode(next);
+      if (isPedestrianMode) {
+        threeViewerRef.current?.focusNavigation();
+      }
       // Schwellenraum is a spatial 3D presentation with authored thresholds,
       // interiors and collision. Keeping the photographic 2D sheet untouched
       // also guarantees that protected memorial pixels are never recoloured.
@@ -2152,6 +2142,7 @@ export function App() {
     },
     [
       copy,
+      isPedestrianMode,
       persistentThreeWorld,
       resumeStandardAudio,
       startSchwellenraumAudio,
@@ -3987,16 +3978,13 @@ export function App() {
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: ziehen zum Laufen; Touch-Doppeltipp springt, Maus-Doppelklick schaltet Sprint"
-                  : "Walking joystick: drag to walk; touch double-tap jumps, mouse double-click toggles sprint"
+                  ? "Geh-Joystick: ziehen zum Laufen; kurz tippen oder mit der Maus doppelklicken zum Springen. Leertaste springt ebenfalls"
+                  : "Walking joystick: drag to move; tap or mouse double-click to jump. Space also jumps"
                 : language === "de"
                   ? "Flug-Joystick: ziehen zum Vorwärts-, Rückwärts- und Seitwärtsfliegen"
                   : "Flight joystick: drag to fly forward, backward or sideways"
             }
-            onDoubleActivate={
-              isPedestrianMode ? togglePedestrianSprint : undefined
-            }
-            onTouchDoubleTap={
+            onJump={
               isPedestrianMode ? () => triggerPedestrianJump() : undefined
             }
             onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
@@ -4027,7 +4015,7 @@ export function App() {
           className="pedestrian-jump-button"
           aria-label={copy.pedestrianJump}
           title={`${copy.pedestrianJump} (Space · ${
-            language === "de" ? "Doppeltipp" : "double-tap"
+            language === "de" ? "Tipp / Doppelklick" : "tap / double-click"
           })`}
           onClick={() => triggerPedestrianJump()}
         >
@@ -5164,10 +5152,10 @@ export function App() {
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
-                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Touch-Doppeltipp springt, Maus-Doppelklick schaltet Sprint. Im Bild ziehen zum Umsehen"
+                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Kurzer Touch-Tipp oder Maus-Doppelklick springt; Leertaste ebenfalls. Im Bild ziehen zum Umsehen"
                         : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Die Pfeilknöpfe können ebenfalls gedrückt gehalten werden"
                       : isPedestrianMode
-                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. Touch double-tap jumps; mouse double-click toggles sprint. Drag the view to look around"
+                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. A short touch tap or mouse double-click jumps; so does Space. Drag the view to look around"
                         : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. The arrow buttons also move continuously while held"}
                   </dd>
                 </div>
@@ -5303,8 +5291,8 @@ export function App() {
               {viewerMode === "three"
                 ? isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf und Doppeltipp springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
-                    : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Space jumps; double Space jumps higher, while the jump button and double-tap perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
+                    ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf, kurzer Joystick-Tipp und Maus-Doppelklick auf den Joystick springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
+                    : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Space jumps; double Space jumps higher, while the jump button, a short joystick tap or a mouse double-click on the joystick perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
                     ? "3D: WASD fliegt relativ zur Blickrichtung, Leertaste steigt, Shift allein sinkt, und Shift+A/D oder Shift+Links/Rechts dreht die Ansicht. Das Mausrad zoomt am Zeiger. Linke Maustaste verschiebt direkt, rechte dreht. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
                     : "3D: WASD flies relative to the view heading, Space rises, Shift alone descends, and Shift+A/D or Shift+Left/Right rotates the view. The mouse wheel zooms at the pointer. Left-drag pans directly and right-drag orbits. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."

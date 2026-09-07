@@ -36,6 +36,7 @@ import {
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
+import { sandkrugDeckContains, SANDKRUG_OSM_DECK } from "../src/HumboldthafenSources";
 import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
 import {
   MINECRAFT_ARCHITECTURAL_PROFILES,
@@ -136,15 +137,17 @@ describe("true voxel Minecraft world", () => {
     expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
     expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
     // Source replacements remove duplicate monument/bridge panes, including
-    // 122 false windows on the Siegessäule's 37 coarse source columns.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_593_979);
+    // 122 false windows on the Siegessäule's 37 coarse source columns and
+    // 113 obsolete panes on the Zollpackhof/Gustav-support source envelopes.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_593_866);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
     // Abgeordnetenhaus replaces its 476 faulty 3 m columns in both profiles.
-    expect(instanced("Voxel building columns", world).count).toBe(1_479_562);
+    // Zollpackhof and the false Gustav support remove another 76 / 28.
+    expect(instanced("Voxel building columns", world).count).toBe(1_479_486);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      541_736,
+      541_708,
     );
 
     const landmarks = world.getObjectByName(
@@ -659,9 +662,9 @@ describe("true voxel Minecraft world", () => {
       (sum, row) => sum + row.length,
       0,
     );
-    // One 11-cell generic bridge run yields to the two source-sized
-    // Bundestag footbridges; every other block-ground run stays intact.
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 1);
+    // Eight net runs yield to source-sized Bundestag and Sandkrug decks;
+    // the latter is now one complete block-native bridge.
+    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8);
     // Ordinary columns are a facade body plus palette-native plinth and
     // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;
@@ -774,7 +777,21 @@ describe("true voxel Minecraft world", () => {
     // portal cuts to that same counter; neither layer is a dirty double.
     expect(harbourReplacementCells).toBe(68);
     expect(skipped).toBeGreaterThan(harbourReplacementCells);
-    expect(fullGround.userData.skippedBridgeCells).toBe(11);
+    let sandkrugCells = 0;
+    for (const [rowIndex, row] of payload.ground_rows.entries()) {
+      for (const [start, run, kind] of row) {
+        if (payload.classes[kind] !== "bridge") continue;
+        for (let offset = 0; offset < run; offset += 1) {
+          const x = (payload.grid.min_x_idx + start + offset + 0.5) * payload.cell_m;
+          const z = (payload.grid.min_z_idx + rowIndex + 0.5) * payload.cell_m;
+          if (sandkrugDeckContains(x, z)) sandkrugCells += 1;
+        }
+      }
+    }
+    expect(sandkrugCells).toBe(53);
+    expect(fullGround.userData.skippedBridgeCells).toBe(11 + sandkrugCells);
+    expect(sandkrugDeckContains(...SANDKRUG_OSM_DECK.centreWorldM)).toBeTrue();
+    expect(sandkrugDeckContains(185, -940)).toBeFalse();
     expect(isBundestagSpreeBridgeGroundCell(342, -186)).toBe(true);
     expect(isBundestagSpreeBridgeGroundCell(342, -178)).toBe(false);
 

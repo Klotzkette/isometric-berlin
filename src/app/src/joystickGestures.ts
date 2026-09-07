@@ -34,9 +34,9 @@ export function cancelJoystickTap(state: JoystickTapState): void {
   state.previous = null;
 }
 
-function validTouchSample(sample: JoystickPointerSample): boolean {
+function validPointerSample(sample: JoystickPointerSample): boolean {
   return (
-    (sample.pointerType === "touch" || sample.pointerType === "pen") &&
+    ["touch", "pen", "mouse"].includes(sample.pointerType) &&
     sample.isPrimary &&
     [sample.at, sample.x, sample.y, sample.pointerId].every(Number.isFinite)
   );
@@ -47,7 +47,7 @@ export function beginJoystickTap(
   state: JoystickTapState,
   sample: JoystickPointerSample,
 ): void {
-  if (state.active || !validTouchSample(sample) || sample.button !== 0) {
+  if (state.active || !validPointerSample(sample) || sample.button !== 0) {
     cancelJoystickTap(state);
     return;
   }
@@ -61,7 +61,7 @@ export function moveJoystickTap(
 ): void {
   const active = state.active;
   if (!active || active.pointerId !== sample.pointerId) return;
-  if (!validTouchSample(sample) || sample.pointerType !== active.pointerType) {
+  if (!validPointerSample(sample) || sample.pointerType !== active.pointerType) {
     cancelJoystickTap(state);
     return;
   }
@@ -71,10 +71,11 @@ export function moveJoystickTap(
   );
 }
 
-/** Only two completed taps can jump; pressing or beginning a drag cannot. */
+/** Activate on release only: one touch tap or two completed mouse clicks. */
 export function endJoystickTap(
   state: JoystickTapState,
   sample: JoystickPointerSample,
+  activation: "single" | "double" = "double",
 ): boolean {
   const active = state.active;
   if (!active || active.pointerId !== sample.pointerId) return false;
@@ -89,6 +90,10 @@ export function endJoystickTap(
   ) {
     state.previous = null;
     return false;
+  }
+  if (activation === "single") {
+    state.previous = null;
+    return true;
   }
   const completed: JoystickTap = {
     at: sample.at,

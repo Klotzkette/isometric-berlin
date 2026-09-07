@@ -3058,6 +3058,42 @@
       "description": "Bertolt Brecht memorial by Fritz Cremer beside the Berliner Ensemble.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "wirtschaftsministerium",
+      "title": "File:2022-10-10 Bundesministerium Wirtschaft Klimaschutz 06.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2022-10-10_Bundesministerium_Wirtschaft_Klimaschutz_06.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Bärbel Miemietz",
+      "credit": "Bärbel Miemietz, 2022 / CC BY-SA 4.0",
+      "description": "Main ministry facade on Invalidenstrasse: window framing, pilasters and curved pediments; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sandkrug_bridge",
+      "title": "File:Berlin Sandkrugbrücke lub 2023-05-11.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Sandkrugbr%C3%BCcke_lub_2023-05-11.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Lukas Beck",
+      "credit": "Lukas Beck, 2023 / CC BY-SA 4.0",
+      "description": "Sandkrug bridge deck, frame, horizontal railing and paired-bar lamp masts, with the ministry facade behind; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sandkrug_bridge",
+      "title": "File:Sandkrugbrücke, Berlin-Mitte, 160824, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Sandkrugbr%C3%BCcke,_Berlin-Mitte,_160824,_ako.jpg",
+      "license": "CC BY 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/de/",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY 3.0 (DE)",
+      "description": "Sandkrug bridge side elevation, supporting frames, horizontal railing and four lamp masts; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

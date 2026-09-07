@@ -36,6 +36,8 @@ class ElementHost extends EventTarget {
   constructor(readonly ownerDocument: EventTarget) { super(); }
   getRootNode(): EventTarget { return this.ownerDocument; }
   getBoundingClientRect(): typeof this.rect { this.rectReads += 1; return this.rect; }
+  focused = false;
+  focus(): void { this.focused = true; }
   contains(node: unknown): boolean { return node === this || node === this.child; }
   setPointerCapture(id: number): void {
     if (this.rejectCapture) throw new Error("Pointer capture rejected");
@@ -50,8 +52,7 @@ type Props = {
   resetKey: string;
   label: string;
   onInput: (x: number, y: number) => void;
-  onTouchDoubleTap?: () => void;
-  onDoubleActivate?: () => void;
+  onJump?: () => void;
 };
 type Tree = { props: Record<string, any>; children: Tree[] };
 type Hook = { value?: any; deps?: unknown[]; cleanup?: () => void };
@@ -217,39 +218,36 @@ describe("iPhone joystick gesture ownership and stability", () => {
     });
   }
 
-  test("desktop mouse retains forward, strafe, release and sprint without accepting right clicks", () => {
-    let sprints = 0;
+  test("desktop mouse retains movement, focuses navigation and jumps only after completed double-clicks", () => {
     let jumps = 0;
-    const host = joystickHost({
-      onDoubleActivate: () => { sprints += 1; },
-      onTouchDoubleTap: () => { jumps += 1; },
-    });
+    const host = joystickHost({ onJump: () => { jumps += 1; } });
     try {
       const mouse = { pointerType: "mouse" };
-      // A rejected secondary click neither moves nor seeds a sprint pair.
-      expect(host.emit("pointerdown", { ...mouse, button: 2, y: 520, at: 1_000 }).stopped).toBeTrue();
+      host.emit("pointerdown", { ...mouse, button: 2, y: 520, at: 1_000 });
       host.emit("pointermove", { ...mouse, y: 520, at: 1_010 });
       expect(host.values).toHaveLength(0);
       expect(host.pad.captures.size).toBe(0);
       expect(host.pad.rectReads).toBe(0);
+      expect(host.pad.focused).toBeFalse();
 
       host.emit("pointerdown", { ...mouse, y: 520, at: 1_200 });
-      expect(sprints).toBe(0);
-      expect(host.lastInput()![0]).toBe(0);
       expect(host.lastInput()![1]).toBe(1);
-      expect(host.pad.hasPointerCapture(1)).toBeTrue();
+      expect(host.pad.focused).toBeTrue();
       host.emit("pointermove", { ...mouse, x: 122, at: 1_220 });
       expect(host.lastInput()![0]).toBe(1);
-      expect(host.lastInput()![1]).toBeCloseTo(0, 10);
       host.emit("pointerup", { ...mouse, x: 122, at: 1_240 });
       expect(host.lastInput()).toEqual([0, 0]);
       expect(host.pad.hasPointerCapture(1)).toBeFalse();
-
-      host.emit("pointerdown", { ...mouse, at: 1_350 });
-      expect(sprints).toBe(1);
-      host.emit("pointerup", { ...mouse, at: 1_390 });
-      expect(host.lastInput()).toEqual([0, 0]);
       expect(jumps).toBe(0);
+      // The previous drag cannot count as the first click.
+      host.emit("pointerdown", { ...mouse, at: 1_350 });
+      host.emit("pointerup", { ...mouse, at: 1_390 });
+      expect(jumps).toBe(0);
+      host.emit("pointerdown", { ...mouse, at: 1_500 });
+      expect(jumps).toBe(0);
+      host.emit("pointerup", { ...mouse, at: 1_560 });
+      expect(jumps).toBe(1);
+      expect(host.lastInput()).toEqual([0, 0]);
     } finally { host.unmount(); }
   });
 
@@ -332,30 +330,27 @@ describe("iPhone joystick gesture ownership and stability", () => {
     } finally { host.unmount(); }
   });
 
-  test("completed touch double-tap still jumps once and a drag cannot become a tap", () => {
+  test("one completed touch tap jumps, but a hold or returning drag cannot", () => {
     let jumps = 0;
-    const host = joystickHost({ onTouchDoubleTap: () => { jumps += 1; } });
-    const tap = (at: number) => {
-      host.emit("pointerdown", { at });
-      host.emit("pointerup", { at: at + 60 });
-      host.emit("lostpointercapture", { at: at + 61 });
-    };
+    const host = joystickHost({ onJump: () => { jumps += 1; } });
     try {
-      tap(1_000);
+      host.emit("pointerdown", { at: 1_000 });
       expect(jumps).toBe(0);
-      host.emit("pointerdown", { at: 1_200 });
-      expect(jumps).toBe(0);
-      host.emit("pointerup", { at: 1_260 });
+      host.emit("pointerup", { at: 1_060 });
+      host.emit("lostpointercapture", { at: 1_061 });
       expect(jumps).toBe(1);
       expect(host.lastInput()).toEqual([0, 0]);
-      tap(2_000);
-      host.emit("pointerdown", { at: 2_200 });
-      host.emit("pointermove", { at: 2_230, y: 520 });
-      host.emit("pointermove", { at: 2_250 });
-      host.emit("pointerup", { at: 2_270 });
+      host.emit("pointerdown", { at: 1_200 });
+      host.emit("pointermove", { at: 1_230, y: 520 });
+      host.emit("pointermove", { at: 1_250 });
+      host.emit("pointerup", { at: 1_270 });
       expect(jumps).toBe(1);
-      tap(2_400);
+      host.emit("pointerdown", { at: 2_000 });
+      host.emit("pointerup", { at: 2_500 });
       expect(jumps).toBe(1);
+      host.emit("pointerdown", { pointerType: "pen", at: 3_000 });
+      host.emit("pointerup", { pointerType: "pen", at: 3_060 });
+      expect(jumps).toBe(2);
     } finally { host.unmount(); }
   });
 });
