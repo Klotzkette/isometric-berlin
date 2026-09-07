@@ -998,9 +998,12 @@ describe("progressive exact-world scheduling", () => {
     // LoD2 walls in the existing facade-axis renderables.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
-    // Potsdamer upper-storey colour boundaries subdivide existing wall faces.
-    expect(vertices).toBe(3_678_034);
-    expect(retainedBytes).toBe(53_008_918);
+    // Includes source-envelope/floor ink and mapped material classifications;
+    // all follow-up geometry still shares the same bounded draw-call count.
+    expect({ vertices, retainedBytes }).toEqual({
+      vertices: 3_743_716,
+      retainedBytes: 53_932_500,
+    });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.
     expect(retainedBytes).toBeLessThanOrEqual(54_135_158);

@@ -206,7 +206,7 @@ describe("Brandenburg Gate pedestrian access", () => {
     }
   });
 
-  test("keeps station access confined to its two authored interior modes", () => {
+  test("shares the source-bound station entrance across all five modes", () => {
     const stationPortal = MINECRAFT_HERO_PORTALS.find(
       ({ id }) => id === "hauptbahnhof-europaplatz-portal",
     );
@@ -222,7 +222,7 @@ describe("Brandenburg Gate pedestrian access", () => {
           ...world,
           stationPortal!.sourceBuildingIds[0],
         ),
-      ).toBe(mode === "minecraft" || mode === "schwellenraum");
+      ).toBeTrue();
     }
   });
 

@@ -252,7 +252,7 @@ describe("premium Minecraft visual mode", () => {
       dome.getObjectByName("dome alternating diagonal glazing braces"),
     ).toBeDefined();
     expect(
-      dome.getObjectByName("daylight mirror cone 24-sector facet grid"),
+      dome.getObjectByName("daylight mirror cone 12-sector 30-row facet grid"),
     ).toBeDefined();
     disposeMinecraftMaterialState(state);
   });

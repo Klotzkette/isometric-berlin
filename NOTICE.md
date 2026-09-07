@@ -48,6 +48,24 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
 
+  The bounded building-attribute supplement in
+  `src/app/src/buildingAttributeSource.json` also derives from OpenStreetMap.
+  It retains selected public building/roof material, colour and floor-count
+  tags with source way identities and retrieval provenance. LoD2 remains the
+  geometry authority. Equal floor subdivisions and material-only colour
+  swatches are procedural display estimates; mapped counts do not establish
+  individual window positions.
+
+- **Siegessäule shaft and gallery (factual and visual evidence):** the
+  [Landesdenkmalamt inventory](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050419),
+  [official historical panel](https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-1084_geschichte-der-siegessaeule.pdf)
+  and [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/siegessaeule-4706/)
+  support the four-drum shaft, sixty lower trophies, upper laurel, eagle-frieze
+  capital and octagonal gallery. Local proportions and carving/rail subdivisions
+  remain procedural. The existing BugWarp CC0 photograph is used only for QA;
+  no new image asset or texture is distributed. See
+  [architecture evidence and limits](docs/siegessaeule-architecture.md).
+
 - **Spreebogenpark, Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke and Potsdamer
   Platz public realm (factual and metric evidence):** exact plan axes come
   from attributed OSM ways `34834265`, `1128036906`, `4395332`, `15405394`
@@ -438,9 +456,23 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   `src/app/public/dzi/regierungsviertel/visual_reference_attribution.json`.
 
 - **Reichstag dome dimensions:** the procedural glass/steel signature uses
-  the diameter, height, rib and ring counts published on the
+  the dimensions, structural counts, mirror arrangement and public ramp/platform
+  measurements published on the
   [Deutscher Bundestag architecture page](https://www.bundestag.de/besuche/architektur/reichstag/kuppel).
   No Bundestag photograph or other media asset is copied into the viewer.
+
+- **Brandenburg Gate relief dimensions:** the procedural frieze and eastern
+  attic use factual counts, dimensions and placement from Bildhauerei in
+  Berlin's [metope inventory](https://bildhauerei-in-berlin.de/bildwerk/metopen-triglyphenfries-10441/)
+  and [attic relief inventory](https://bildhauerei-in-berlin.de/bildwerk/zug-der-friedensgoettin-10442/).
+  Relief poses are simplified display geometry; no inventory photograph or
+  texture is bundled. See `docs/reichstag-gate-refinement.md`.
+
+- **Hauptbahnhof public access:** the
+  [Deutsche Bahn station plan](https://www.bahnhof.de/downloads/station-plans/1071.pdf)
+  validates the north/south entrance and public concourse connection. Individual
+  door widths and display floor subdivisions are schematic; the plan itself is
+  not bundled.
 
 ## Required attribution
 

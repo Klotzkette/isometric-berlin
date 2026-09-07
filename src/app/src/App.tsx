@@ -119,6 +119,14 @@ import {
   isReservedBrowserChord,
 } from "./keyboardShortcuts";
 import {
+  beginJoystickTap,
+  cancelJoystickTap,
+  createJoystickTapState,
+  endJoystickTap,
+  moveJoystickTap,
+  type JoystickPointerSample,
+} from "./joystickGestures";
+import {
   LANGUAGE_STORAGE_KEY,
   UI_COPY,
   type Language,
@@ -511,18 +519,36 @@ function FlightJoystick({
   disabled,
   label,
   onDoubleActivate,
+  onTouchDoubleTap,
   onInput,
 }: {
   className?: string;
   disabled: boolean;
   label: string;
   onDoubleActivate?: () => void;
+  onTouchDoubleTap?: () => void;
   onInput: (horizontal: number, vertical: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
   const lastActivationAtRef = useRef(0);
   const pointerIdRef = useRef<number | null>(null);
+  const tapStateRef = useRef(createJoystickTapState());
+  const inputRef = useRef(onInput);
+  inputRef.current = onInput;
+  const touchDoubleTapEnabled = onTouchDoubleTap !== undefined;
   const [knob, setKnob] = useState({ x: 0, y: 0 });
+
+  const pointerSample = (
+    event: ReactPointerEvent<HTMLDivElement>,
+  ): JoystickPointerSample => ({
+    at: event.timeStamp,
+    button: event.button,
+    isPrimary: event.isPrimary,
+    pointerId: event.pointerId,
+    pointerType: event.pointerType,
+    x: event.clientX,
+    y: event.clientY,
+  });
 
   const applyFromEvent = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -539,16 +565,53 @@ function FlightJoystick({
       const x = dx * scale;
       const y = dy * scale;
       setKnob({ x, y });
-      onInput(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX);
+      inputRef.current(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX);
     },
-    [onInput],
+    [],
   );
 
   const release = useCallback(() => {
     pointerIdRef.current = null;
     setKnob({ x: 0, y: 0 });
-    onInput(0, 0);
-  }, [onInput]);
+    inputRef.current(0, 0);
+  }, []);
+
+  useEffect(() => {
+    cancelJoystickTap(tapStateRef.current);
+    lastActivationAtRef.current = 0;
+    release();
+  }, [disabled, touchDoubleTapEnabled, release]);
+
+  useEffect(() => {
+    const reset = () => {
+      cancelJoystickTap(tapStateRef.current);
+      lastActivationAtRef.current = 0;
+      release();
+    };
+    const visibility = () => {
+      if (document.hidden) reset();
+    };
+    const otherPointer = (event: PointerEvent) => {
+      if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+      if (
+        (pointerIdRef.current !== null && pointerIdRef.current !== event.pointerId) ||
+        !(event.target instanceof Node && baseRef.current?.contains(event.target))
+      ) {
+        cancelJoystickTap(tapStateRef.current);
+      }
+    };
+    window.addEventListener("blur", reset);
+    window.addEventListener("pointerdown", otherPointer, true);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      window.removeEventListener("blur", reset);
+      window.removeEventListener("pointerdown", otherPointer, true);
+      document.removeEventListener("visibilitychange", visibility);
+      cancelJoystickTap(tapStateRef.current);
+      pointerIdRef.current = null;
+      inputRef.current(0, 0);
+    };
+  }, [release]);
 
   return (
     <div
@@ -562,14 +625,22 @@ function FlightJoystick({
           return;
         }
         event.preventDefault();
+        if (pointerIdRef.current !== null) {
+          cancelJoystickTap(tapStateRef.current);
+          return;
+        }
+        if (touchDoubleTapEnabled) {
+          beginJoystickTap(tapStateRef.current, pointerSample(event));
+        }
         const now = performance.now();
         if (
+          event.pointerType === "mouse" &&
           onDoubleActivate &&
           isPedestrianSprintDoubleActivation(lastActivationAtRef.current, now)
         ) {
           lastActivationAtRef.current = 0;
           onDoubleActivate();
-        } else {
+        } else if (event.pointerType === "mouse") {
           lastActivationAtRef.current = now;
         }
         pointerIdRef.current = event.pointerId;
@@ -580,19 +651,33 @@ function FlightJoystick({
         if (pointerIdRef.current !== event.pointerId) {
           return;
         }
+        moveJoystickTap(tapStateRef.current, pointerSample(event));
         applyFromEvent(event);
       }}
       onPointerUp={(event) => {
         if (pointerIdRef.current === event.pointerId) {
+          const doubleTap = endJoystickTap(
+            tapStateRef.current, pointerSample(event),
+          );
           release();
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
+          if (doubleTap) onTouchDoubleTap?.();
         }
       }}
       onPointerCancel={(event) => {
         if (pointerIdRef.current === event.pointerId) {
+          cancelJoystickTap(tapStateRef.current);
           release();
         }
       }}
-      onLostPointerCapture={release}
+      onLostPointerCapture={(event) => {
+        if (pointerIdRef.current === event.pointerId) {
+          cancelJoystickTap(tapStateRef.current);
+          release();
+        }
+      }}
     >
       <span
         className="flight-joystick-knob"
@@ -3867,14 +3952,17 @@ export function App() {
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: ziehen zum Laufen, doppeltippen für Sprint"
-                  : "Walking joystick: drag to walk, double-tap for sprint"
+                  ? "Geh-Joystick: ziehen zum Laufen, doppeltippen zum Springen"
+                  : "Walking joystick: drag to walk, double-tap to jump"
                 : language === "de"
                   ? "Flug-Joystick: Daumen ziehen zum Fliegen"
                   : "Flight joystick: drag with your thumb to fly"
             }
             onDoubleActivate={
               isPedestrianMode ? togglePedestrianSprint : undefined
+            }
+            onTouchDoubleTap={
+              isPedestrianMode ? () => triggerPedestrianJump() : undefined
             }
             onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
           />
@@ -5025,8 +5113,8 @@ export function App() {
                   </dt>
                   <dd>
                     {language === "de"
-                      ? "Shift halten oder Vorwärts beziehungsweise Geh-Joystick doppeltippen; mit der Maus geht auch ein Doppelklick auf die 3D-Fläche: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
-                      : "Hold Shift or double-tap forward or the walking pad; a mouse double-click on the 3D view also toggles four-times sprint speed"}
+                      ? "Shift halten oder Vorwärts doppeltippen; mit der Maus geht auch ein Doppelklick auf die 3D-Fläche: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
+                      : "Hold Shift or double-tap forward; a mouse double-click on the 3D view also toggles four-times sprint speed"}
                   </dd>
                 </div>
               ) : null}
@@ -5060,10 +5148,10 @@ export function App() {
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
-                        ? "Mit der Maus am Blick-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Geh-Joystick unten links, Doppeltipp schaltet Sprint"
+                        ? "Mit der Maus am Blick-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten am orangefarbenen Geh-Joystick ziehen zum Laufen, doppeltippen zum Springen"
                         : "Mit der Maus am Orbit-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Flug-Joystick unten links"
                       : isPedestrianMode
-                        ? "Drag the desktop look pad or hold the arrow buttons; on touch devices use the bottom-left walking joystick, and double-tap it for sprint"
+                        ? "Drag the desktop look pad or hold the arrow buttons; on touch devices drag the orange walking joystick to walk, and double-tap it to jump"
                         : "Drag the desktop orbit pad or hold the arrow buttons; on touch devices use the bottom-left flight joystick"}
                   </dd>
                 </div>

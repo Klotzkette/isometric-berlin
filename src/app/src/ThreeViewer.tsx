@@ -184,6 +184,7 @@ import {
   addPedestrianParkObstacles,
   compilePedestrianWater,
   createPedestrianEnvironment,
+  createPedestrianParkTreeSolidTester,
   createPedestrianState,
   jumpPedestrian,
   lookPedestrian,
@@ -279,6 +280,7 @@ import {
   smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
+import { hauptbahnhofGroundAt, hauptbahnhofSolidAt } from "./HauptbahnhofNavigation";
 import {
   applyMinecraftVisibility,
   restoreMinecraftVisibility,
@@ -3068,6 +3070,12 @@ function ensureIsoWorld(
           prisms,
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
+        pedestrianEnvironment.parkTreeSolidAt =
+          createPedestrianParkTreeSolidTester(
+            ground.cell_m,
+            runtime.coarsePointer ? "mobile" : "full",
+            () => voxelModeActive(runtime),
+          );
         const ardRoofCollision = createArdHauptstadtstudioRoofCollision(prisms);
         const historicParkBridgeCollision =
           createHistoricParkBridgeCollision(ground);
@@ -3105,7 +3113,8 @@ function ensureIsoWorld(
             // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||
-            invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
+            invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
+            hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0)
           ) {
             return true;
           }
@@ -3125,6 +3134,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const stationFloor = hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY);
+          if (stationFloor !== null) return stationFloor;
           if (minecraftHeroCollisionEnabled(runtime.lightingMode)) {
             return minecraftHeroGroundAt(x, z);
           }
@@ -3549,6 +3560,12 @@ function ensureVoxelWorld(
           runtime.tunnelPortalCourse,
           prisms,
         );
+        provisionalEnvironment.parkTreeSolidAt =
+          createPedestrianParkTreeSolidTester(
+            payload.cell_m,
+            runtime.coarsePointer ? "mobile" : "full",
+            () => voxelModeActive(runtime),
+          );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
           visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
@@ -3565,14 +3582,16 @@ function ensureVoxelWorld(
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||
             invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
+            hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0) ||
             (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
               minecraftHeroSolidAt(x, y, z, radius))
           );
         };
-        provisionalEnvironment.interiorGroundAt = (x, z) =>
-          minecraftHeroCollisionEnabled(runtime.lightingMode)
+        provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
+          (minecraftHeroCollisionEnabled(runtime.lightingMode)
             ? minecraftHeroGroundAt(x, z)
-            : null;
+            : null);
       }
 
       // Commit only after every expensive constructor succeeds. Anything

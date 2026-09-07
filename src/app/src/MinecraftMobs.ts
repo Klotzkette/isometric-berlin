@@ -15,6 +15,7 @@ import {
   worldGroundSampler,
 } from "./MinecraftVoxelWorld";
 import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
+import { isLenneOakVoxelTree } from "./MinecraftLenneOak";
 
 export const CREEPER_COUNT = 6;
 export const SKELETON_COUNT = 5;
@@ -175,8 +176,9 @@ function buildWalkableGrid(
     }
   }
   const treeCells = new Uint8Array(payload.grid.cols * payload.grid.rows);
-  forEachVoxelTreeBlock(payload, (xIndex, zIndex) => {
-    if (!minecraftVoxelTreeRetained(xIndex, zIndex, detailProfile)) return;
+  forEachVoxelTreeBlock(payload, (xIndex, zIndex, y0dm, heightDm) => {
+    if (!isLenneOakVoxelTree(xIndex, zIndex, y0dm, heightDm, payload.cell_m) &&
+      !minecraftVoxelTreeRetained(xIndex, zIndex, detailProfile)) return;
     const xOffset = xIndex - payload.grid.min_x_idx;
     const zOffset = zIndex - payload.grid.min_z_idx;
     if (

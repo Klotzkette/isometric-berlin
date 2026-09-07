@@ -123,7 +123,8 @@ describe("metre-scale architectural recognition models", () => {
       ),
     ).toHaveLength(0);
     expect(bounds.max.z - bounds.min.z).toBeCloseTo(62.5, 1);
-    expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
+    // Thin reliefs project from the unchanged 11 m architectural body.
+    expect(bounds.max.x - bounds.min.x).toBeCloseTo(11.45, 2);
     expect(bounds.max.y).toBeGreaterThan(25);
     expect(bounds.max.y).toBeLessThan(27);
     // The Quadriga is its own module now (Quadriga.ts), merged into a
@@ -187,7 +188,7 @@ describe("metre-scale architectural recognition models", () => {
       "Brandenburg Gate instanced frieze triglyphs",
     );
     expect(triglyphs).toBeInstanceOf(InstancedMesh);
-    expect((triglyphs as InstancedMesh).count).toBe(50);
+    expect((triglyphs as InstancedMesh).count).toBe(34);
     const abaci = gate!.getObjectByName(
       "Brandenburg Gate instanced Doric capital abaci",
     );
@@ -296,6 +297,20 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       photoDetails!.getObjectByName("Brandenburg Gate passage masonry divider"),
     ).toBeDefined();
+    const reliefFields = photoDetails!.children.filter((child) => child.name === "Brandenburg Gate central attic relief field") as Mesh[];
+    expect(reliefFields).toHaveLength(1);
+    expect(reliefFields[0].position.x).toBeGreaterThan(0);
+    const reliefBounds = new Box3().setFromObject(reliefFields[0]);
+    expect(reliefBounds.max.z - reliefBounds.min.z).toBeCloseTo(7.63, 5);
+    expect(reliefBounds.max.y - reliefBounds.min.y).toBeCloseTo(1.51, 5);
+    const metopes = gate!.getObjectByName("Brandenburg Gate recessed Doric metopes") as InstancedMesh;
+    expect(metopes.count).toBe(32);
+    const panelMatrix = new Matrix4();
+    for (let index = 0; index < metopes.count; index += 1) {
+      metopes.getMatrixAt(index, panelMatrix);
+      // Reliefs must project beyond the opaque wall, rather than disappear inside it.
+      expect(Math.abs(panelMatrix.elements[12])).toBeGreaterThan(signature.depth_m / 2);
+    }
   });
 
   test("makes the Hauptbahnhof cross and office bridges legible", () => {

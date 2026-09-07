@@ -12,7 +12,9 @@ import {
   type ArchitecturalSignature,
   createOfficialReichstagDome,
   domeRadius,
+  reichstagRampPoints,
 } from "../src/ReichstagDome";
+import { REICHSTAG_DOME_EVIDENCE } from "../src/HeroArchitectureEvidence";
 
 const signature: ArchitecturalSignature = {
   anchor_world: [12, 36.4, -8],
@@ -30,7 +32,7 @@ describe("official-dimension Reichstag dome", () => {
   test("uses the published diameter and keeps an open crown", () => {
     expect(domeRadius(0, signature.diameter_m)).toBe(20);
     expect(domeRadius(0.5, signature.diameter_m)).toBeLessThan(20);
-    expect(domeRadius(1, signature.diameter_m)).toBeCloseTo(2.4, 5);
+    expect(domeRadius(1, signature.diameter_m)).toBe(5);
   });
 
   test("builds every published rib and horizontal ring", () => {
@@ -85,13 +87,14 @@ describe("official-dimension Reichstag dome", () => {
       dome.getObjectByName("dome crown compression and open oculus ring"),
     ).toBeDefined();
     expect(
-      dome.getObjectByName("daylight mirror cone 24-sector facet grid"),
+      dome.getObjectByName("daylight mirror cone 12-sector 30-row facet grid"),
     ).toBeDefined();
     const mirrorPanels = dome.getObjectByName(
       "daylight mirror cone 360 individual panels",
     );
     expect(mirrorPanels).toBeInstanceOf(InstancedMesh);
     expect((mirrorPanels as InstancedMesh).count).toBe(360);
+    expect(mirrorPanels?.userData).toEqual({ rows: 30, mirrorsPerRow: 12 });
     expect(
       (mirrorPanels as InstancedMesh).material.userData.nightEmissiveIntensity,
     ).toBeGreaterThan(2);
@@ -122,6 +125,31 @@ describe("official-dimension Reichstag dome", () => {
           (line.material as LineBasicMaterial).userData.modeInk === true,
       ),
     ).toBeTrue();
+  });
+
+  test("keeps two flat, separate 230 m routes inside the source envelope", () => {
+    const paths = [reichstagRampPoints(), reichstagRampPoints(Math.PI)];
+    for (const points of paths) {
+      const length = points.slice(1).reduce((sum, point, i) => sum + point.distanceTo(points[i]), 0);
+      expect(length).toBeCloseTo(230, 5);
+      expect(points[0].y).toBe(0);
+      expect(points.at(-1)!.y).toBeCloseTo(REICHSTAG_DOME_EVIDENCE.platformHeightAboveTerraceM, 6);
+      for (const point of points) expect(Math.hypot(point.x, point.z) + 0.9).toBeLessThan(domeRadius(point.y / 23.5, 40));
+    }
+    paths[0].forEach((point, i) => {
+      expect(point.y).toBe(paths[1][i].y);
+      expect(point.x).toBeCloseTo(-paths[1][i].x, 6);
+      expect(point.z).toBeCloseTo(-paths[1][i].z, 6);
+    });
+    const dome = createOfficialReichstagDome(signature);
+    const deck = dome.getObjectByName("ascending visitor ramp deck") as Mesh;
+    expect(deck.geometry.type).toBe("BufferGeometry");
+    const platform = dome.getObjectByName("Reichstag open observation platform") as Mesh;
+    expect(platform.position.y).toBeCloseTo(16.7, 6);
+    expect(platform.userData.publishedAreaM2).toBe(200);
+    const shade = dome.getObjectByName("Reichstag aluminium louvre sunshade") as InstancedMesh;
+    expect(shade.count).toBe(32);
+    expect(shade.userData.staticPose).toBeTrue();
   });
 
   test("anchors the complete structure at metre-scale scene coordinates", () => {

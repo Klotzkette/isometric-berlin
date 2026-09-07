@@ -59,7 +59,7 @@ const GATE_QUADRIGA_SIZE_M = [8, 6.2, 14] as const;
 const stationEastWestEntrance = station.entrances.eastWest;
 const stationNorthSouthEntrance = station.entrances.northSouth;
 const stationOfficeEntrance = station.officeEntrances;
-const HAUPTBAHNHOF_NAVIGATION_SOURCE_IDS = [
+export const HAUPTBAHNHOF_NAVIGATION_SOURCE_IDS = [
   ...station.sourcePrismIds,
   // These two long glass-roof LoD2 parts cross the public north-south axis.
   // They are not separate voxel ownership components, but they remain in the

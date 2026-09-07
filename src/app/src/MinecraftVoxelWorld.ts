@@ -1,6 +1,16 @@
 import { inPotsdamerPanoramaLandscape, POTSDAMER_PANORAMA_LANDSCAPE, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
+  buildingAttributes,
+  mappedColor,
+  mappedFacadeTone,
+  mappedRoofTone,
+  mappedStoreyProfile,
+  type BuildingAttributes,
+  type MappedStoreyProfile,
+} from "./buildingAttributes";
+import { applyMinecraftColumnDetail } from "./MinecraftColumnDetail";
+import {
   BoxGeometry,
   Color,
   DoubleSide,
@@ -15,6 +25,8 @@ import {
 } from "three";
 
 import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
+import { minecraftSiegessaeuleBlocks, SIEGESSAEULE_LEVELS } from "./MinecraftSiegessaeule";
+import { isSiegessaeuleSourceVoxelColumn } from "./SiegessaeuleSource";
 
 import {
   MATERIAL_PALETTES,
@@ -206,11 +218,19 @@ export function forEachVoxelTreeBlock(
 }
 
 export const MINECRAFT_TREE_RETENTION = Object.freeze({
-  full: Object.freeze({ keptBuckets: 2, modulo: 3 }),
-  mobile: Object.freeze({ keptBuckets: 1, modulo: 3 }),
+  full: Object.freeze({
+    keptBuckets: 2, modulo: 3, thinningBuckets: 5, thinningModulo: 6,
+  }),
+  mobile: Object.freeze({
+    keptBuckets: 1, modulo: 3, thinningBuckets: 5, thinningModulo: 6,
+  }),
 });
 
-/** Deterministically thin only the block-native copy of nearby trees. */
+/**
+ * Keep five sixths of the previously visible block-native trees. The second
+ * bucket uses the quotient so it cannot reintroduce previously absent trees,
+ * and mobile remains a stable subset of full. Source tree data is untouched.
+ */
 export function minecraftVoxelTreeRetained(
   xIndex: number,
   zIndex: number,
@@ -219,7 +239,10 @@ export function minecraftVoxelTreeRetained(
   const policy = MINECRAFT_TREE_RETENTION[detailProfile];
   const hash =
     (Math.imul(xIndex, 73_856_093) ^ Math.imul(zIndex, 19_349_663)) >>> 0;
-  return hash % policy.modulo < policy.keptBuckets;
+  return (
+    hash % policy.modulo < policy.keptBuckets &&
+    Math.floor(hash / policy.modulo) % policy.thinningModulo < policy.thinningBuckets
+  );
 }
 
 export const VOXEL_WORLD_FILE = "minecraft-voxels.json";
@@ -840,20 +863,28 @@ export function smoothGroundTopSampler(
  * Minecraft palette entry. Kills the one-colour-city ("einfarbig")
  * while staying strictly inside the authored block palette.
  */
-export type ColumnToneLookup = (x: number, z: number) => number | null;
+export type ColumnToneLookup = ((x: number, z: number) => number | null) & {
+  attributesAt?: (x: number, z: number) => BuildingAttributes | undefined;
+  storeysAt?: (x: number, z: number) => MappedStoreyProfile | null;
+};
 
 type TonedPrism = {
-  hex: number;
+  hex: number | null;
+  attributes?: BuildingAttributes;
+  storeys: MappedStoreyProfile | null;
   maxX: number;
   maxZ: number;
   minX: number;
   minZ: number;
   ring: Array<[number, number]>;
+  holes: Array<Array<[number, number]>>;
 };
 
 export function buildColumnToneLookup(prisms: {
   buildings: Array<{
     id?: string;
+    h_dm?: number;
+    holes?: number[][][];
     ring: number[][];
     tone?: [number, number, number];
   }>;
@@ -910,7 +941,10 @@ export function buildColumnToneLookup(prisms: {
   const buckets = new Map<string, TonedPrism[]>();
   for (const building of prisms.buildings) {
     const panorama = building.id ? potsdamerPanoramaMaterialFor(building.id) : undefined;
-    if ((!building.tone && !panorama) || building.ring.length < 3) {
+    const attributes = building.id ? buildingAttributes(building.id) : undefined;
+    const mappedTone = mappedColor(attributes?.tags["building:colour"]) ??
+      (building.tone ? undefined : mappedFacadeTone(attributes));
+    if ((!building.tone && !panorama && !attributes) || building.ring.length < 3) {
       continue;
     }
     const ring = building.ring.map(
@@ -919,10 +953,15 @@ export function buildColumnToneLookup(prisms: {
     const xs = ring.map(([x]) => x);
     const zs = ring.map(([, z]) => z);
     const toned: TonedPrism = {
+      attributes,
+      storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
+      holes: (building.holes ?? []).map((ring) => ring.map(([x, z]) => [x / 10, z / 10] as [number, number])),
       hex: panorama?.facade ?? (
         building.id && KOLLHOFF_TOWER_PAYLOAD_IDS.has(building.id)
           ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
-          : snap(building.tone!)
+          : mappedTone !== undefined
+            ? snap([(mappedTone >> 16) & 255, (mappedTone >> 8) & 255, mappedTone & 255])
+            : building.tone ? snap(building.tone) : null
       ),
       maxX: Math.max(...xs),
       maxZ: Math.max(...zs),
@@ -965,7 +1004,7 @@ export function buildColumnToneLookup(prisms: {
     }
     return odd;
   };
-  return (x, z) => {
+  const lookup: ColumnToneLookup = (x, z) => {
     const recognitionArea = voxelRecognitionAreaAt(x, z);
     if (recognitionArea) {
       return recognitionArea.tone;
@@ -978,17 +1017,28 @@ export function buildColumnToneLookup(prisms: {
     }
     for (const toned of list) {
       if (
+        toned.hex !== null &&
         x >= toned.minX &&
         x <= toned.maxX &&
         z >= toned.minZ &&
         z <= toned.maxZ &&
-        inside(x, z, toned.ring)
+        inside(x, z, toned.ring) && !toned.holes.some((hole) => inside(x, z, hole))
       ) {
         return toned.hex;
       }
     }
     return null;
   };
+  const sourceAt = (x: number, z: number): TonedPrism | undefined => {
+    if (voxelRecognitionAreaAt(x, z)) return undefined;
+    const list = buckets.get(`${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`);
+    return list?.find((toned) => x >= toned.minX && x <= toned.maxX &&
+      z >= toned.minZ && z <= toned.maxZ && inside(x, z, toned.ring) &&
+      !toned.holes.some((hole) => inside(x, z, hole)));
+  };
+  lookup.attributesAt = (x, z) => sourceAt(x, z)?.attributes;
+  lookup.storeysAt = (x, z) => sourceAt(x, z)?.storeys ?? null;
+  return lookup;
 }
 
 /**
@@ -1259,57 +1309,8 @@ export function createMinecraftExtrapolatedWorld(): Group {
   }
   group.add(ground.mesh);
 
-  const columnParts: ExtrapolatedBlock[] = [
-    {
-      color: 0xc7c4b7,
-      position: [AXIS_TO[0], 2.7, AXIS_TO[1]],
-      size: [30, 1.2, 30],
-    },
-    {
-      color: 0x994a35,
-      position: [AXIS_TO[0], 6.25, AXIS_TO[1]],
-      size: [26, 5.9, 26],
-    },
-    {
-      color: SIEGESSAEULE_MOSAIC_TONES[0],
-      position: [AXIS_TO[0], 11.6, AXIS_TO[1]],
-      size: [10, 4.8, 10],
-    },
-    {
-      color: 0xd4d4b7,
-      position: [AXIS_TO[0], 14.35, AXIS_TO[1]],
-      size: [19, 0.7, 19],
-    },
-    {
-      color: 0xe8d1ae,
-      position: [AXIS_TO[0], 36.1, AXIS_TO[1]],
-      size: [9, 44, 9],
-    },
-    {
-      color: 0xe6bd4c,
-      position: [AXIS_TO[0], 59.6, AXIS_TO[1]],
-      size: [12, 3, 12],
-    },
-    {
-      color: 0xe6bd4c,
-      position: [AXIS_TO[0], 64.1, AXIS_TO[1]],
-      size: [3, 6, 3],
-    },
-    {
-      color: 0xe6bd4c,
-      position: [AXIS_TO[0], 65.2, AXIS_TO[1]],
-      size: [9, 3, 1.5],
-    },
-    {
-      color: 0xe6bd4c,
-      position: [
-        AXIS_TO[0],
-        2.1 + SIEGESSAEULE_PROFILE.heightM - 1,
-        AXIS_TO[1],
-      ],
-      size: [2, 2, 2],
-    },
-  ];
+  const axisLength = Math.hypot(AXIS_TO[0] - AXIS_FROM[0], AXIS_TO[1] - AXIS_FROM[1]);
+  const columnParts = minecraftSiegessaeuleBlocks(AXIS_TO[0], AXIS_TO[1], [(AXIS_TO[0] - AXIS_FROM[0]) / axisLength, (AXIS_TO[1] - AXIS_FROM[1]) / axisLength]);
   const column = instancedBoxes(
     "Voxel extrapolated Siegessäule",
     columnParts.length,
@@ -1319,12 +1320,18 @@ export function createMinecraftExtrapolatedWorld(): Group {
       new Vector3(...part.position),
       new Vector3(...part.size),
       new Color(part.color),
+      part.rotationY ?? 0,
     );
   }
   column.mesh.userData.animated = false;
   column.mesh.userData.groundTopY = 2.1;
   column.mesh.userData.renderedHeightM = SIEGESSAEULE_PROFILE.heightM;
   column.mesh.userData.renderedTopY = 2.1 + SIEGESSAEULE_PROFILE.heightM;
+  column.mesh.userData.blockNative = true;
+  column.mesh.userData.textureFree = true;
+  column.mesh.userData.shaftDrumCount = 4;
+  column.mesh.userData.cannonCount = 60;
+  column.mesh.userData.platformSides = 8;
   group.add(column.mesh);
 
   // The four historic bronze reliefs belong to the lower red-granite base,
@@ -1333,22 +1340,22 @@ export function createMinecraftExtrapolatedWorld(): Group {
   const bronzeReliefParts: ExtrapolatedBlock[] = [
     {
       color: SIEGESSAEULE_BRONZE_TONES.field,
-      position: [AXIS_TO[0], 6.25, AXIS_TO[1] - 13.16],
+      position: [AXIS_TO[0], 6.9, AXIS_TO[1] - 12.81],
       size: [11.8, 2.1, 0.48],
     },
     {
       color: SIEGESSAEULE_BRONZE_TONES.highlight,
-      position: [AXIS_TO[0], 6.25, AXIS_TO[1] + 13.16],
+      position: [AXIS_TO[0], 6.9, AXIS_TO[1] + 12.81],
       size: [11.8, 2.1, 0.48],
     },
     {
       color: SIEGESSAEULE_BRONZE_TONES.field,
-      position: [AXIS_TO[0] - 13.16, 6.25, AXIS_TO[1]],
+      position: [AXIS_TO[0] - 12.81, 6.9, AXIS_TO[1]],
       size: [0.48, 2.1, 11.8],
     },
     {
       color: SIEGESSAEULE_BRONZE_TONES.highlight,
-      position: [AXIS_TO[0] + 13.16, 6.25, AXIS_TO[1]],
+      position: [AXIS_TO[0] + 12.81, 6.9, AXIS_TO[1]],
       size: [0.48, 2.1, 11.8],
     },
   ];
@@ -1391,7 +1398,7 @@ export function createMinecraftExtrapolatedWorld(): Group {
         color: tone,
         position: [
           AXIS_TO[0] + (xFace ? sign * 5.18 : along),
-          11.75 + ((face + index) % 2) * 0.32,
+          (SIEGESSAEULE_LEVELS.hallFloorY + SIEGESSAEULE_LEVELS.hallRoofBottomY) / 2 + ((face + index) % 2) * 0.18,
           AXIS_TO[1] + (xFace ? along : sign * 5.18),
         ],
         size: xFace ? [0.42, 1.35, 1.7] : [1.7, 1.35, 0.42],
@@ -1429,10 +1436,10 @@ export function createMinecraftExtrapolatedWorld(): Group {
       color: index % 2 === 0 ? 0xe7e0c9 : 0xd4d4b7,
       position: [
         AXIS_TO[0] + Math.cos(angle) * hallRadius,
-        11.7,
+        (SIEGESSAEULE_LEVELS.hallFloorY + SIEGESSAEULE_LEVELS.hallRoofBottomY) / 2,
         AXIS_TO[1] + Math.sin(angle) * hallRadius,
       ],
-      size: [0.9, 4.1, 0.9],
+      size: [0.9, SIEGESSAEULE_PROFILE.colonnade.columnHeightM, 0.9],
     });
   }
   const colonnade = instancedBoxes(
@@ -2659,6 +2666,7 @@ export function* buildMinecraftVoxelWorldSteps(
         (y1dm - y0dm) / 10,
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !isSiegessaeuleSourceVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx)))
     ))
@@ -2696,7 +2704,8 @@ export function* buildMinecraftVoxelWorldSteps(
     const height = Math.max(cell, roofTopY - y0dm / 10);
     const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
     if (mobileDetail && !heroSource) {
-      buildingLayerCount += 1;
+      const mappedRoof = mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ));
+      buildingLayerCount += mappedRoof !== undefined && height > 5 ? 2 : 1;
       continue;
     }
     const capHeight = height > 5 ? 1 : 0;
@@ -2721,6 +2730,13 @@ export function* buildMinecraftVoxelWorldSteps(
     true,
   );
   group.add(buildings.mesh);
+  applyMinecraftColumnDetail(buildings.mesh.material as MeshStandardMaterial, cell);
+  buildings.mesh.userData.buildingDetail = {
+    sourceEnvelope: "unchanged retained LoD2 voxel columns",
+    courseJoints: "Minecraft block-grid display; not surveyed masonry courses",
+    extraRenderables: 0,
+    extraAttributes: 0,
+  };
   const facadePaint = new Color();
   const layerPaint = new Color();
   for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
@@ -2732,6 +2748,8 @@ export function* buildMinecraftVoxelWorldSteps(
     const worldX = worldXAbs(xIdx);
     const worldZ = worldZAbs(zIdx);
     const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
+    const attributes = toneLookup?.attributesAt?.(worldX, worldZ);
+    const sourceRoofTone = mappedRoofTone(attributes);
     const roofTopY =
       recognitionArea?.name === "Rieckhallen"
         ? RIECKHALLEN_PROFILE.minecraftRoofTopY
@@ -2747,9 +2765,15 @@ export function* buildMinecraftVoxelWorldSteps(
         ? facadePaint.setHex(tone)
         : shadeFor(shades, xIdx, zIdx, Math.round(height / cell), facadePaint);
     if (mobileDetail && !heroSource) {
-      center.set(worldX, y0 + height / 2, worldZ);
-      size.set(cell, height, cell);
+      const mappedCap = sourceRoofTone !== undefined && height > 5 ? 0.4 : 0;
+      center.set(worldX, y0 + (height - mappedCap) / 2, worldZ);
+      size.set(cell, height - mappedCap, cell);
       buildings.write(center, size, facade);
+      if (mappedCap > 0) {
+        center.set(worldX, y0 + height - mappedCap / 2, worldZ);
+        size.set(cell, mappedCap, cell);
+        buildings.write(center, size, layerPaint.setHex(sourceRoofTone!));
+      }
       continue;
     }
     // A palette-native plinth/body/cap stack reads as deliberate block
@@ -2793,7 +2817,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (capHeight > 0) {
       center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);
-      buildings.write(center, size, layerPaint.setHex(layers.cap));
+      buildings.write(center, size, layerPaint.setHex(sourceRoofTone ?? layers.cap));
     }
   }
   for (const box of panoramaRoofs) {
@@ -2836,6 +2860,9 @@ export function* buildMinecraftVoxelWorldSteps(
           continue;
         }
         const top = y1dm / 10;
+        // One retained prism envelope supplies the storey grid for every
+        // column; changing roof-step tops must never slope the window rows.
+        const sourceStoreys = toneLookup?.storeysAt?.(worldXAbs(xIdx), worldZAbs(zIdx));
         for (const [dx, dz] of directions) {
           const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
           const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
@@ -2847,8 +2874,11 @@ export function* buildMinecraftVoxelWorldSteps(
           // on the SAME storey grid, so the facade reads as designed rows
           // rather than randomly punched holes.
           const base = y0dm / 10;
-          const firstRow = Math.ceil((base + 2) / cell) * cell;
-          for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
+          const rowPitch = sourceStoreys?.floorPitch ?? cell;
+          const firstRow = sourceStoreys
+            ? base + sourceStoreys.sillStart + sourceStoreys.height / 2
+            : Math.ceil((base + 2) / cell) * cell;
+          for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += rowPitch) {
             if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
               continue;
             }
@@ -2911,6 +2941,7 @@ export function* buildMinecraftVoxelWorldSteps(
   let sourceTreeCount = 0;
   forEachVoxelTreeBlock(payload, (xIdx, zIdx, y0dm, heightDm) => {
     sourceTreeCount += 1;
+    const isLandmarkOak = isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, cell);
     if (
       !isChancelleryExtensionConstructionPoint(
         worldXAbs(xIdx),
@@ -2923,10 +2954,11 @@ export function* buildMinecraftVoxelWorldSteps(
       ) &&
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)) &&
-      minecraftVoxelTreeRetained(xIdx, zIdx, options.detailProfile ?? "full")
+      (isLandmarkOak ||
+        minecraftVoxelTreeRetained(xIdx, zIdx, options.detailProfile ?? "full"))
     ) {
       const tree: VoxelTreeBlock = [xIdx, zIdx, y0dm, heightDm];
-      if (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, cell)) {
+      if (isLandmarkOak) {
         lenneOakVoxel = tree;
       } else {
         visibleTrees.push(tree);

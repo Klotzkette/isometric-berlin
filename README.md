@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.43 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.43/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.43** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+The v1.0 release adds refined landmarks, accessible station entrances across
+all modes, mobile joystick jumping, fewer Minecraft trees and a softer
+Schwellenraum atmosphere. See [release changes](CHANGELOG.md#v100).
 
 ## Screenshots
 
@@ -50,7 +54,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.43**, built from `main`. Its full viewer
+The current public package is **v1.0.0**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -286,11 +290,11 @@ local modules.
 
 - **Minecraft is lighter but a little livelier outside the Holocaust
   Memorial.** The protected field remains completely free of trees, Creepers,
-  Zombies, Skeletons and loot. Elsewhere deterministic thinning keeps **2/3**
-  of block trees on desktop and **1/3** on mobile without allocating the old
-  25,000-tree expansion. The single-draw mob field uses **6 Creepers / 9
-  Zombies / 5 Skeletons** on desktop (**245 parts**) and **4 / 7 / 3** on
-  mobile (**169 parts**). Four or two rare loot boxes open once on pedestrian
+  Zombies, Skeletons and loot. Elsewhere deterministic thinning keeps about **5/9**
+  of block trees on desktop and **5/18** on mobile without allocating the old
+  25,000-tree expansion. The single-draw mob field uses **6 Creepers / 16
+  Zombies / 5 Skeletons / 4 foxes** on desktop (**386 parts**) and **4 / 10 / 3 / 3**
+  on mobile (**250 parts**). Four or two rare loot boxes open once on pedestrian
   contact with a bounded 1.35-second instanced firework; chest and particles
   stay at two draw calls and use no independent animation loop.
 
@@ -564,8 +568,9 @@ local modules.
 - **Minecraft and WebGL stay inside substantially smaller memory budgets.**
   The earlier pre-retention benchmark measured **845,561 instances / 63.265
   MiB of instance buffers** on touch and **3,419,412 / 249.815 MiB** in full.
-  Current streamed 1/3 and 2/3 tree retention makes those figures conservative
-  upper bounds; small mob and loot batches are separately fixed. Only the touch
+  Those are historical measurements; later architecture and source-attribute
+  refinements intentionally change the complete-world baseline. Small mob and
+  loot batches are separately fixed. Only the touch
   profile omits generic facade panes and meadow flowers and collapses non-Hero
   source columns; all Hero courses up to 8 m, block signatures and navigation
   stay intact. Every WebGL profile
@@ -576,7 +581,7 @@ local modules.
   device validation.
 
 - **Minecraft's principal architecture is deliberately coarser and more
-  block-like.** Fewer than 5,000 block-native signature blocks use an 8 m hero
+  block-like.** The 5,184 block-native signature blocks use an 8 m hero
   raster. Retained Reichstag, Federal Chancellery and parliamentary source
   bodies are split into vertical block courses no taller than 8 m, while their
   smooth architectural overlays remain hidden in Minecraft. Existing entrance
@@ -1115,10 +1120,11 @@ local modules.
   that same jump once to 10.5 m. The mouse wheel also walks along the
   current view direction (up forward, down backward) without changing camera
   zoom. Holding `Shift` gives a four-times
-  sprint; double-tapping forward, the forward control or the walking joystick
-  latches the same fast mode until the next double action; a mouse double-click
-  on the 3D view does the same. `Space`, the jump control or a touch double-tap
-  on the free 3D view jumps; drags, pinches and long presses cannot trigger it.
+  sprint; double-tapping forward or the forward control latches the same fast
+  mode until the next double action; a mouse double-click on the walking pad
+  or 3D view does the same. `Space`, the jump control or a touch double-tap
+  on the orange walking joystick or free 3D view jumps; drags, pinches and long
+  presses cannot trigger it.
   Flight, camera zoom and underside controls
   stay locked in this mode; mapped water acts as a solid shoreline, so the
   walker stays in place instead of dying or being reset. A dedicated 52 px
@@ -1611,8 +1617,8 @@ local modules.
 - Close-up detail now stays sharp without multiplying draw calls: instanced
   roof ribs, sleepers, facade panes, train fittings and balustrade posts are
   combined with batched glass seams, masonry courses, column fluting and
-  entablature profiles. All additions remain inside the published metric
-  envelopes of the four hero landmarks.
+  entablature profiles. Source anchors and main-body dimensions stay fixed;
+  projecting ornaments have bounded, documented display dimensions.
 - Day, Night, Minecraft, Snowstorm and Schwellenraum have separate direct
   controls. The true 3D scene
   changes sky, fog, directional light and exposure; only the Reichstag's tall
@@ -1642,12 +1648,13 @@ local modules.
   distance instead of fading the outer ring. Its official metric voxel payload
   grows with the expanded bounds; the matching 6,450 m block surround is
   explicitly tagged as extrapolated presentation geometry.
-- Six Creepers, nine Zombies and five bow-carrying Skeletons walk on desktop;
-  mobile uses four, seven and three. Each profile shares one instanced rendering
+- Six Creepers, sixteen Zombies, five bow-carrying Skeletons and four foxes walk
+  on desktop; mobile uses four, ten, three and three. Each profile shares one instanced rendering
   batch and disappears completely in Day, Night, Snowstorm, Schwellenraum,
   underwater and underside views.
-- Eligible Minecraft trees are retained deterministically at two thirds on
-  desktop and one third on mobile. Four desktop or two mobile loot boxes open
+- Eligible Minecraft trees are retained deterministically at approximately five
+  ninths on desktop and five eighteenths on mobile, about one sixth fewer than
+  v0.72.43. The landmark Lenné-Eiche stays present. Four desktop or two mobile loot boxes open
   once on pedestrian contact with a bounded instanced firework; trees, hostile
   mobs and loot remain excluded from the complete Holocaust Memorial field.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact

@@ -6,6 +6,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   NoToneMapping,
+  Raycaster,
   Vector3,
 } from "three";
 
@@ -28,6 +29,7 @@ import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import { applyLightingToRoot } from "../src/ThreeViewer";
 import { createSchwellenraumMemorialProtectionIndex } from "../src/schwellenraumMemorialProtection";
 import { createCsdAttackMemorial } from "../src/CsdAttackMemorial";
+import { createSchwellenraumSky } from "../src/visual-modes/schwellenraum/sky";
 
 const appSource = await Bun.file(new URL("../src/App.tsx", import.meta.url)).text();
 const street = streetDetails as unknown as StreetDetailsPayload;
@@ -165,7 +167,7 @@ describe("Schwellenraum presentation", () => {
       (child) => child.userData.schwellenraumPraesentation === true,
     );
     expect(lightPlaces).toHaveLength(SCHWELLENRAUM_LICHTORTE.length);
-    expect(root.children).toHaveLength(SCHWELLENRAUM_LICHTORTE.length + 1);
+    expect(root.children).toHaveLength(SCHWELLENRAUM_LICHTORTE.length + 2);
     expect(root.userData.standardstadtBleibtUnveraendert).toBeTrue();
     expect(root.userData.tonfolge).toHaveLength(SCHWELLENRAUM_LIGHT_TONES.length);
     for (const [index, child] of lightPlaces.entries()) {
@@ -226,9 +228,34 @@ describe("Schwellenraum presentation", () => {
       if (detailProfile === "full") fullVertices = vertices;
       else mobileVertices = vertices;
     }
-    expect(fullVertices).toBe(5_613);
-    expect(mobileVertices).toBe(4_269);
+    expect(fullVertices).toBe(5_760);
+    expect(mobileVertices).toBe(4_416);
     expect(mobileVertices).toBeLessThan(fullVertices);
+  });
+
+  test("renders the static sky behind geometry without depth, texture or picking interference", () => {
+    const sky = createSchwellenraumSky();
+    expect(sky.geometry.getAttribute("position").count).toBe(3);
+    expect(sky.material.depthTest).toBeFalse();
+    expect(sky.material.depthWrite).toBeFalse();
+    expect(sky.material.transparent).toBeFalse();
+    expect(sky.material.fog).toBeFalse();
+    expect(sky.material.toneMapped).toBeFalse();
+    expect(sky.renderOrder).toBeLessThan(0);
+    expect(sky.frustumCulled).toBeFalse();
+    expect(sky.userData.schwellenraumStatic).toBeTrue();
+    expect(Object.values(sky.material.uniforms).every(({ value }) => value.isColor)).toBeTrue();
+    const ray = new Raycaster(new Vector3(0, 0, 5), new Vector3(0, 0, -1));
+    expect(ray.intersectObject(sky)).toHaveLength(0);
+
+    const root = createSchwellenraumPraesentation();
+    const background = root.getObjectByName(sky.name)!;
+    setSchwellenraumPraesentation(root, "schwellenraum", false);
+    expect(background.parent?.visible).toBeTrue();
+    setSchwellenraumPraesentation(root, "schwellenraum", true);
+    expect(background.parent?.visible).toBeFalse();
+    setSchwellenraumPraesentation(root, "day", false);
+    expect(background.parent?.visible).toBeFalse();
   });
 
   test("opens the spatial mode in 3D and never repaints the source map", () => {

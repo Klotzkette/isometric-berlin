@@ -226,6 +226,11 @@ const WATER_FRAGMENT_SHADER = /* glsl */ `
     highp float fieldB = 0.5 + 0.5 * sin(point.x * -0.0049 + point.y * 0.0123 + 1.7);
     highp float mist = smoothstep(0.63, 0.93, fieldA * 0.58 + fieldB * 0.42);
 
+    // Long, fixed pearl reflections echo the sky's warm horizon and cool
+    // upper sky. Their world-space coordinates have no time component.
+    highp float pearlField = 0.5 + 0.5 * sin(point.x * 0.019 - point.y * 0.011 + 0.8);
+    highp float pearlRibbon = smoothstep(0.84, 0.99, pearlField);
+
     // Only a small deterministic subset of 24 m water cells can glint. Each
     // selected cell has a long individual cycle and a soft rise/fall; there
     // is no rapid flash and no synchronised river-wide pulse.
@@ -250,12 +255,12 @@ const WATER_FRAGMENT_SHADER = /* glsl */ `
     highp float glint =
       selected * envelope * max(halo * 0.72, crossGlint * 0.46) * uGlintStrength;
 
-    highp float mistAlpha = (0.0015 + mist * 0.0105 * uBreath) * uStrength;
+    highp float mistAlpha = (0.002 + mist * 0.013 * uBreath + pearlRibbon * 0.009) * uStrength;
     highp float glintAlpha = glint * 0.052 * uStrength;
     highp float alpha = mistAlpha + glintAlpha;
     if (alpha < 0.0012) discard;
 
-    lowp vec3 mistTone = vec3(0.72, 0.91, 0.91);
+    lowp vec3 mistTone = mix(vec3(0.62, 0.83, 0.91), vec3(0.93, 0.77, 0.69), pearlRibbon * 0.58);
     lowp vec3 glintTone = vec3(1.0, 0.91, 0.69);
     gl_FragColor = vec4(mix(mistTone, glintTone, min(0.58, glint)), alpha);
   }
@@ -338,7 +343,7 @@ function createWaterOverlay(host: Mesh): Mesh {
   overlay.userData.sourceWaterName = host.name;
   overlay.userData.geometryMotion = "none";
   overlay.userData.presentation =
-    "Light-only fixed mist fields and rare slow glints over source water";
+    "Light-only fixed pearl reflections, mist fields and rare slow glints over source water";
   return overlay;
 }
 

@@ -25,6 +25,8 @@ import {
   BERLINER_ENSEMBLE_ROOF_TOWER_ROTATION_DEGREES,
 } from "./BerlinerEnsemble";
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
+import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS, REICHSTAG_DOME_EVIDENCE as DOME_EVIDENCE } from "./HeroArchitectureEvidence";
+import { reichstagRampPoints } from "./ReichstagDome";
 import { STARBUCKS_PARISER_PLATZ_PROFILE } from "./StarbucksPariserPlatz";
 import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
@@ -893,11 +895,12 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
   }
   const domeTiers = [
     [20, 4, 8],
-    [17.5, 4, 7],
-    [15, 4, 6],
-    [12.5, 3.5, 5],
-    [10, 3.5, 4],
-    [7, 3, 3],
+    [19, 4, 7.6],
+    [18, 4, 7.2],
+    [17, 3.5, 6.8],
+    [15.5, 3.5, 6.2],
+    [13.5, 3, 5.4],
+    [10, 5, 5],
   ] as const;
   for (const [row, [halfExtent, edgeThickness, bevel]] of domeTiers.entries()) {
     const y = dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + row * 3.35;
@@ -938,27 +941,31 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
       }
     }
   }
-  pushLocalBlock(
-    plan,
-    frame,
-    "seven-step octagonal glass dome",
-    [0, dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + 6 * 3.35, 0],
-    [8, 3, 8],
-    BLOCK.iron,
-  );
+  const domeBaseY = dome.anchorWorld[1] - profile.anchorWorld[1];
+  // The seventh ring leaves a ten-metre square opening in the block reading.
   for (let level = 0; level < 4; level += 1) {
-    const width = 7 - level * 1.2;
-    pushWorldBlock(
-      plan,
-      "four-block silver daylight cone",
-      [
-        dome.anchorWorld[0],
-        dome.anchorWorld[1] + 3 + level * 4,
-        dome.anchorWorld[2],
-      ],
-      [width, 3.6, width],
-      level === 0 ? BLOCK.marbleLight : BLOCK.iron,
-    );
+    const width = 4.8 + level * 3.6;
+    pushWorldBlock(plan, "four-tier widening silver daylight cone", [dome.anchorWorld[0], dome.anchorWorld[1] + 2.1 + level * 4.2, dome.anchorWorld[2]], [width, 3.6, width], BLOCK.marbleLight);
+  }
+  // Axis-aligned stair ribbons preserve Minecraft's block grammar. The source
+  // spiral is sampled; individual block lengths/risers are display subdivisions.
+  for (let route = 0; route < 2; route += 1) {
+    const points = reichstagRampPoints(route * Math.PI);
+    for (let index = 0; index < 160; index += 5) {
+      const a = points[index], b = points[index + 5];
+      pushLocalBlock(plan, frame, "paired stepped dome visitor ramps",
+        [(a.x+b.x)/2, domeBaseY+(a.y+b.y)/2, (a.z+b.z)/2],
+        [Math.abs(b.x-a.x)+1.8, 0.4, Math.abs(b.z-a.z)+1.8], BLOCK.marbleShadow);
+    }
+  }
+  const platformY = domeBaseY + DOME_EVIDENCE.platformHeightAboveTerraceM;
+  for (const side of [-1, 1]) {
+    pushLocalBlock(plan, frame, "open block observation platform", [side * 9.65, platformY, 0], [3.5, 0.5, 22.8], BLOCK.marbleLight);
+    pushLocalBlock(plan, frame, "open block observation platform", [0, platformY, side * 9.65], [15.8, 0.5, 3.5], BLOCK.marbleLight);
+  }
+  for (let row = 0; row < 12; row += 1) {
+    const t = (row + 0.5) / 12;
+    pushLocalBlock(plan, frame, "stepped aluminium sunshade", [2.8 + 5.4*t, domeBaseY + 18*t, 0], [0.5, 0.75, 2.8+4.8*t], BLOCK.marbleShadow);
   }
 
   return finishPlan(
@@ -1527,13 +1534,13 @@ function createBrandenburgGateBlocks(
 
   for (const localX of [-4.25, 4.25]) {
     for (const localZ of axes) {
-      for (let layer = 0; layer < 3; layer += 1) {
+      for (let layer = 0; layer < 6; layer += 1) {
         pushLocalBlock(
           plan,
           frame,
-          "twelve three-course Doric columns",
-          [localX, 2.4 + layer * 4.7, localZ],
-          [2.8, 4.4, 2.8],
+          "twelve six-course Doric columns",
+          [localX, 1.125 + layer * 2.25, localZ],
+          [columnDiameter - layer * 0.025, 2.2, columnDiameter - layer * 0.025],
           layer % 2 === 0 ? BLOCK.quartzIvory : BLOCK.limestone,
         );
       }
@@ -1542,7 +1549,7 @@ function createBrandenburgGateBlocks(
         frame,
         "Doric block capitals",
         [localX, profile.columnHeightM + 0.1, localZ],
-        [2.8, 0.9, 2.8],
+        [2.3, 0.9, 2.3],
         BLOCK.marbleLight,
       );
     }
@@ -1562,6 +1569,21 @@ function createBrandenburgGateBlocks(
       color,
     );
   }
+
+  const metopesPerFace = GATE_RELIEFS.metopeCount / 2;
+  for (const side of [-1, 1]) {
+    for (let index = 0; index < metopesPerFace; index += 1) {
+      const z = -mainBodyWidth / 2 + (index + 0.5) / metopesPerFace * mainBodyWidth;
+      pushLocalBlock(plan, frame, "32 Doric metope panels", [side * 5.58, 16.7, z], [0.18, 1, 1], BLOCK.limestone);
+      for (const offset of [-0.22, 0.22]) pushLocalBlock(plan, frame, "block metope relief silhouettes", [side * 5.73, 16.7 + offset * 0.5, z + offset], [0.14, 0.56, 0.22], BLOCK.marbleLight);
+    }
+    for (let index = 0; index <= metopesPerFace; index += 1) {
+      const z = -mainBodyWidth / 2 + index / metopesPerFace * mainBodyWidth;
+      pushLocalBlock(plan, frame, "Doric block triglyphs", [side * 5.63, 16.7, z], [0.26, 1.05, 0.7], BLOCK.limestone);
+    }
+  }
+  pushLocalBlock(plan, frame, "east-only Peace attic relief", [5.57, 19.52, 0], [0.16, GATE_RELIEFS.atticHeightM, GATE_RELIEFS.atticLengthM], BLOCK.limestone);
+  for (let index = 0; index < 18; index += 1) pushLocalBlock(plan, frame, "Peace procession block silhouettes", [5.72, 19.5 + (index % 3) * 0.08, -3.45 + index / 17 * 6.9], [0.16, 0.8, 0.18], BLOCK.marbleLight);
 
   const pavilionWidth = (profile.widthM - mainBodyWidth) / 2;
   for (const side of [-1, 1]) {
@@ -1592,62 +1614,30 @@ function createBrandenburgGateBlocks(
     }
   }
 
-  // Restrained Quadriga: a block chariot, four horses and Victoria read as a
-  // silhouette; no smooth animals or fantasy jewel decoration survive here.
-  pushLocalBlock(
-    plan,
-    frame,
-    "block Quadriga chariot",
-    [0, 21.7, 0],
-    [4.8, 2, 6.5],
-    BLOCK.oxidisedCopper,
-  );
-  for (const z of [-4.5, -1.5, 1.5, 4.5]) {
-    pushLocalBlock(
-      plan,
-      frame,
-      "four Quadriga horse bodies",
-      [-1.8, 23.2, z],
-      [4, 2, 2],
-      BLOCK.oxidisedCopper,
-    );
-    pushLocalBlock(
-      plan,
-      frame,
-      "four Quadriga horse heads",
-      [-3.5, 24.3, z],
-      [1.6, 1.6, 1.6],
-      BLOCK.oxidisedCopper,
-    );
-    for (const legX of [-1.2, 0.6]) {
-      pushLocalBlock(
-        plan,
-        frame,
-        "Quadriga horse legs",
-        [legX, 21.8, z],
-        [0.8, 2.4, 0.8],
-        BLOCK.oxidisedCopper,
-      );
+  // The Quadriga faces east (+local X), matching the drawn signature and
+  // Pariser Platz. Separate four horses, paired wheels and Schinkel's standard.
+  pushLocalBlock(plan, frame, "block Quadriga chariot", [-1.2, 21.65, 0], [2.6, 1.1, 2.5], BLOCK.oxidisedCopper);
+  for (const z of [-2.25, -0.75, 0.75, 2.25]) {
+    pushLocalBlock(plan, frame, "four Quadriga horse bodies", [1.3, 22.55, z], [2.6, 1.1, 0.86], BLOCK.oxidisedCopper);
+    pushLocalBlock(plan, frame, "four Quadriga horse necks", [2.3, 23.1, z], [0.65, 1.6, 0.65], BLOCK.oxidisedCopper);
+    pushLocalBlock(plan, frame, "four Quadriga horse heads", [2.65, 23.95, z], [1.1, 0.6, 0.62], BLOCK.oxidisedCopper);
+    for (const legX of [0.4, 2.05]) for (const legZ of [-0.27, 0.27]) {
+      pushLocalBlock(plan, frame, "Quadriga horse legs", [legX, 21.3, z+legZ], [0.28, 1.5, 0.28], BLOCK.oxidisedCopper);
     }
+    pushLocalBlock(plan, frame, "Quadriga block harness reins", [0.15, 23.1, z * 0.72], [3.4, 0.12, 0.12], BLOCK.oxidisedCopper);
   }
-  pushLocalBlock(
-    plan,
-    frame,
-    "Quadriga Victoria",
-    [1.5, 24, 0],
-    [1.8, 4, 1.8],
-    BLOCK.oxidisedCopper,
-  );
   for (const side of [-1, 1]) {
-    pushLocalBlock(
-      plan,
-      frame,
-      "Quadriga wings",
-      [1.4, 24.8, side * 1.8],
-      [1.1, 3, 2.4],
-      BLOCK.oxidisedCopper,
-    );
+    for (const [dx, dy, sx, sy] of [[-0.55, 0, 0.28, 1.1], [0.55, 0, 0.28, 1.1], [0, -0.55, 1.1, 0.28], [0, 0.55, 1.1, 0.28]]) {
+      pushLocalBlock(plan, frame, "open square chariot wheels", [-1.2+dx, 21.25+dy, side*1.35], [sx, sy, 0.2], BLOCK.oxidisedCopper);
+    }
+    pushLocalBlock(plan, frame, "Quadriga wings", [-1.45, 24.25, side*0.95], [0.4, 1.7, 1.45], BLOCK.oxidisedCopper);
+    pushLocalBlock(plan, frame, "Quadriga stepped wing tips", [-1.45, 24.95, side*1.45], [0.3, 0.8, 0.6], BLOCK.oxidisedCopper);
   }
+  pushLocalBlock(plan, frame, "Quadriga Victoria", [-1.25, 23.55, 0], [0.75, 2.6, 0.7], BLOCK.oxidisedCopper);
+  pushLocalBlock(plan, frame, "Quadriga Victoria head", [-1.18, 25.03, 0], [0.5, 0.55, 0.5], BLOCK.oxidisedCopper);
+  pushLocalBlock(plan, frame, "Quadriga victory standard staff", [-0.35, 24.1, -0.5], [0.14, 3.5, 0.14], BLOCK.oxidisedCopper);
+  pushLocalBlock(plan, frame, "Quadriga standard eagle wings", [-0.35, 25.78, -0.5], [0.25, 0.26, 1.45], BLOCK.oxidisedCopper);
+  pushLocalBlock(plan, frame, "Quadriga standard eagle crown", [-0.3, 25.92, -0.5], [0.28, 0.16, 0.28], BLOCK.oxidisedCopper);
 
   return finishPlan(
     "Minecraft Brandenburg Gate block signature",

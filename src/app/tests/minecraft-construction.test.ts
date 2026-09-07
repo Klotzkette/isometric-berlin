@@ -1,25 +1,25 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// Appearance baselines updated for the v0.72.43 Potsdamer panorama refinement,
-// intentionally superseding the byte-identical v0.72.41/v0.72.42 output.
+// Appearance baselines updated after v0.72.43 for the source-backed building
+// attributes, refined hero architecture and reduced Minecraft tree selection.
 // Complete committed payloads remain unchanged,
 // including sampled colours and the tunnel. Hashes include every geometry,
 // index, colour and instance buffer, even spare allocated capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
   [
     "full",
-    "157605b35505742f44e246becfcfc1379e49b181c95bdd083024a660c3bd7305",
-    3397805,
+    "80eb24802b341daca13a7622cbebef8b5ebab15855e01c719fa6dac00309cf70",
+    3568825,
     50,
-    259656668,
+    272432344,
   ],
   [
     "mobile",
-    "68472a5b72e8ce101a6f268c93f4355aa931eeaf9578a52b8e58f34be7323430",
-    788936,
+    "2fe637c00b98142e44e6990311d0ed1fcc87d237b091e83ebed0621326d7489a",
+    809716,
     48,
-    60702128,
+    62173032,
   ],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {

@@ -46,6 +46,19 @@ export const SIEGESSAEULE_PROFILE = {
     material: "bronze",
     widthMApprox: 11.8,
   },
+  shaft: {
+    material: "Obernkirchner sandstone",
+    drumCount: 4,
+    gildedCannonCount: 60,
+    gildedCannonDrumCount: 3,
+    flutesPerDrum: 20,
+    heightRhythm: "drums become taller and slimmer upwards",
+    upperDrumDecoration: "gilded laurel festoons",
+    capitalDecoration: "eagle frieze",
+    observationPlatformSides: 8,
+    geometryStatus:
+      "shaft radii, individual drum heights, cannon profiles, laurel spacing, capital carving and rail subdivisions are procedural proportions guided by the pinned full-height CC0 view, not surveyed dimensions",
+  },
   sourceUrls: [
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050419",
     "https://www.berlin.de/sehenswuerdigkeiten/3560160-3558930-siegessaeule.html",

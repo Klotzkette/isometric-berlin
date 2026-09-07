@@ -1,5 +1,13 @@
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import {
+  buildingAttributes,
+  mappedColor,
+  mappedFacadeTone,
+  mappedGlazing,
+  mappedRoofTone,
+  mappedStoreyProfile,
+} from "./buildingAttributes";
+import {
   BoxGeometry,
   BufferGeometry,
   Color,
@@ -53,6 +61,7 @@ import {
   TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
 import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
+import { createSiegessaeuleArchitecture } from "./SiegessaeuleArchitecture";
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
 import { WAGNER_MEMORIAL_PRISM_IDS } from "./WagnerMemorial";
 import {
@@ -1326,6 +1335,8 @@ export const ISO_FACADE_AXIS_OPACITY = 0.34;
 export const ISO_FACADE_DETAIL_FADE_M = [500, 780] as const;
 export const FACADE_AXIS_V07231_ATTRIBUTE_BYTES = 23_221_352;
 export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 104 * 1024;
+// City-wide source envelope ink + two mapped floor-head registers per wall.
+export const BUILDING_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 8 * 1024 * 1024;
 
 function facadeColorFor(
   building: PrismBuilding,
@@ -1364,6 +1375,12 @@ function facadeColorFor(
   }
   if (isScharounGoldPrism(building)) {
     return target.setHex(0xf0cf7d).lerp(IVORY, 0.08);
+  }
+  const attributes = buildingAttributes(building.id);
+  const recordedTone = mappedColor(attributes?.tags["building:colour"]) ??
+    (building.tone ? undefined : mappedFacadeTone(attributes));
+  if (recordedTone !== undefined) {
+    return target.setHex(recordedTone).lerp(IVORY, 0.12);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
@@ -6907,8 +6924,19 @@ export function createSiegessaeule(): Group {
     triangles: Float32Array,
     tone: number,
     inked = true,
+    faceShading = false,
   ): void => {
     const geometry = colouredGeometry(triangles, tone);
+    if (faceShading) {
+      // Day uses an unlit drawing material. Modest baked relief shading keeps
+      // the physical flutes and capital legible in every drawn presentation.
+      const normal = geometry.getAttribute("normal");
+      const colors = geometry.getAttribute("color");
+      for (let index = 0; index < colors.count; index += 1) {
+        const light = 0.84 + 0.16 * Math.max(0, normal.getX(index) * 0.5 + normal.getY(index) * 0.72 - normal.getZ(index) * 0.48);
+        colors.setXYZ(index, colors.getX(index) * light, colors.getY(index) * light, colors.getZ(index) * light);
+      }
+    }
     bodyGeometries.push(geometry);
     if (inked) {
       edgeGeometries.push(
@@ -6955,19 +6983,7 @@ export function createSiegessaeule(): Group {
   const HALL_ROOF_THICKNESS_M = 0.7;
   const HALL_ROOF_TOP_Y = HALL_ROOF_BOTTOM_Y + HALL_ROOF_THICKNESS_M;
   const TARGET_TOP_Y = GROUND_TOP + SIEGESSAEULE_PROFILE.heightM;
-  const DRUM_BAND_HEIGHT_M = 0.8;
-  const COLUMN_CROWN_HEIGHT_M = 2.2;
-  const DRUM_PROPORTIONS = [14, 13, 12, 11] as const;
-  const DRUM_BODY_HEIGHT_M =
-    TARGET_TOP_Y -
-    HALL_ROOF_TOP_Y -
-    DRUM_PROPORTIONS.length * DRUM_BAND_HEIGHT_M -
-    COLUMN_CROWN_HEIGHT_M -
-    GOLDELSE_HEIGHT_M;
-  const drumProportionTotal = DRUM_PROPORTIONS.reduce(
-    (total, proportion) => total + proportion,
-    0,
-  );
+  const STATUE_BASE_Y = TARGET_TOP_Y - GOLDELSE_HEIGHT_M;
   group.userData.lowerRegisterMetrics = {
     baseTopY: BASE_TOP_Y,
     bronzeReliefCount: SIEGESSAEULE_PROFILE.reliefs.count,
@@ -6986,7 +7002,10 @@ export function createSiegessaeule(): Group {
     ISO_GROUND_SHADES.asphalt[1],
     false,
   );
-  addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xcbc8be);
+  for (let step = 0; step < 5; step += 1) {
+    const width = SIEGESSAEULE_PROFILE.base.widthM + 3.0 - step * 0.52;
+    addPart(boxTriangles(SX, GROUND_TOP + (step + 0.5) * 0.28, SZ, axis, width, 0.28, width), 0xc6c1b5);
+  }
   addPart(
     boxTriangles(
       SX,
@@ -6999,52 +7018,22 @@ export function createSiegessaeule(): Group {
     ),
     0x855345,
   );
-  // Four sandstone drums (the fourth was added when the column was moved in
-  // 1938/39, taking it from 60.5 m to today's 67 m).
-  const DRUMS = [4.4, 4.0, 3.6, 3.2].map(
-    (radius, index) =>
-      [
-        radius,
-        (DRUM_BODY_HEIGHT_M * DRUM_PROPORTIONS[index]) / drumProportionTotal,
-      ] as const,
-  );
-  let columnBase = HALL_ROOF_TOP_Y;
-  for (const [radius, height] of DRUMS) {
-    addPart(
-      prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12),
-      0xc9b98f,
-    );
-    columnBase += height;
-    addPart(
-      prismTriangles(
-        SX,
-        columnBase + DRUM_BAND_HEIGHT_M / 2,
-        SZ,
-        radius + 0.5,
-        DRUM_BAND_HEIGHT_M,
-        12,
-      ),
-      0xd4af37,
-    );
-    columnBase += DRUM_BAND_HEIGHT_M;
+  for (const [y, width, height, tone] of [
+    [BASE_PLATFORM_TOP_Y + 0.28, 25.65, 0.56, 0x835748],
+    [BASE_TOP_Y - 0.48, 25.66, 0.24, 0x9d7160],
+    [BASE_TOP_Y - 0.16, 26.12, 0.32, 0xa77a68],
+  ]) {
+    addPart(boxTriangles(SX, y, SZ, axis, width, height, width), tone);
   }
-  addPart(
-    prismTriangles(
-      SX,
-      columnBase + COLUMN_CROWN_HEIGHT_M / 2,
-      SZ,
-      4.6,
-      COLUMN_CROWN_HEIGHT_M,
-      12,
-    ),
-    0xcbc8be,
-  );
+  const architecture = createSiegessaeuleArchitecture(SX, SZ, HALL_ROOF_TOP_Y, STATUE_BASE_Y);
+  for (const part of architecture.parts) addPart(part.triangles, part.tone, part.inked, true);
+  group.userData.shaftMetrics = architecture.metrics;
   // Drake's gilded Viktoria. She faces west along the Straße des 17. Juni
   // axis towards Ernst-Reuter-Platz, as she has since the 1939 move from the
   // Königsplatz; `axis` runs Pariser Platz -> Großer Stern, so it already
   // points that way.
   const goldelse = createGoldelseFigure({
-    base: [SX, columnBase + COLUMN_CROWN_HEIGHT_M, SZ],
+    base: [SX, STATUE_BASE_Y, SZ],
     facing: axis,
   });
   for (const part of goldelse.parts) {
@@ -7055,44 +7044,6 @@ export function createSiegessaeule(): Group {
   // and the circular colonnade with von Werner's glass mosaic one level
   // higher.  Keeping those registers separate is the key recognition cue.
   const monumentInk: number[] = [...goldelse.inkSegments];
-  // Sixty captured gun barrels are gilded into the flutes of the lower three
-  // drums; the fourth drum was added in 1938 and carries plain flutes.
-  const BARRELS_PER_DRUM = 20;
-  let fluteBase = HALL_ROOF_TOP_Y;
-  DRUMS.forEach(([radius, height], drum) => {
-    const gilded = drum < 3;
-    const count = gilded ? BARRELS_PER_DRUM : 12;
-    for (let flute = 0; flute < count; flute += 1) {
-      const angle = (flute / count) * Math.PI * 2;
-      const fx = SX + Math.cos(angle) * (radius + 0.04);
-      const fz = SZ + Math.sin(angle) * (radius + 0.04);
-      monumentInk.push(
-        fx,
-        fluteBase + 0.4,
-        fz,
-        fx,
-        fluteBase + height - 0.4,
-        fz,
-      );
-      if (gilded) {
-        // The barrel itself, proud of the shaft: a slim gilded rod that reads
-        // as a highlight in the flute rather than as a drawn line only.
-        addPart(
-          prismTriangles(
-            SX + Math.cos(angle) * (radius + 0.12),
-            fluteBase + height / 2,
-            SZ + Math.sin(angle) * (radius + 0.12),
-            0.17,
-            height - 1.2,
-            5,
-          ),
-          0xd4af37,
-          false,
-        );
-      }
-    }
-    fluteBase += height + DRUM_BAND_HEIGHT_M;
-  });
   const halfBase = SIEGESSAEULE_PROFILE.base.widthM / 2;
   const reliefY = BASE_PLATFORM_TOP_Y + 3.4;
   for (const y of [BASE_PLATFORM_TOP_Y + 0.75, BASE_TOP_Y - 0.75]) {
@@ -11488,6 +11439,17 @@ export function createIsometricCity(
   const buildings = options.buildings ?? prisms.buildings;
   const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
   const facadeAxisDistances = new Uint16Accumulator(buildings.length * 60);
+  const buildingDetailCoverage = {
+    sourceAttributeParts: 0,
+    mappedStoreyParts: 0,
+    mappedGlassStoreyParts: 0,
+    envelopeDetailedParts: 0,
+    envelopeStrokes: 0,
+    mappedStoreyHeadStrokes: 0,
+    extraRenderables: 0,
+    evidence: "retained LoD2 planes/roof form; matched OSM material, colour and storey tags",
+    interpretation: "inset edge ink, equal storey subdivision and bay positions are display estimates; no opening coordinates",
+  };
   const plazaFacadeDetailWallCounts = new Map(
     PLAZA_FACADE_DETAIL_ZONES.map((zone) => [zone.name, 0]),
   );
@@ -11637,9 +11599,16 @@ export function createIsometricCity(
     }
     const y0 = building.y0_dm / 10;
     const totalHeight = Math.max(2.5, building.h_dm / 10);
-    const isGlass =
-      (prisms.classes[building.class] ?? "concrete") === "glass" ||
-      PRISM_GLASSED_IDS.has(building.id);
+    const attributes = buildingAttributes(building.id);
+    if (attributes) buildingDetailCoverage.sourceAttributeParts += 1;
+    const mappedMaterialGlazing = HERO_PRISM_TONES[building.id] === undefined
+      ? mappedGlazing(attributes)
+      : undefined;
+    // A wall-material tag must not turn a measured pitched roof into a box.
+    const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
+      ? undefined : mappedMaterialGlazing;
+    const isGlass = PRISM_GLASSED_IDS.has(building.id) ||
+      (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass");
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
     // the exact flat cap. Glass volumes stay clean transparent boxes.
@@ -11739,6 +11708,15 @@ export function createIsometricCity(
       color.setHex(glassShades[hash32(building.id, 5) % glassShades.length]);
       bakeColor(geometry, color);
       glassGeometries.push(geometry);
+      const sourceStoreys = totalHeight >= 5 &&
+        HERO_PRISM_TONES[building.id] === undefined &&
+        HERO_WINDOW_FORMATS[building.id] === undefined &&
+        !WINDOWS_SUPPRESSED_IDS.has(building.id)
+        ? mappedStoreyProfile(attributes, bodyHeight) : null;
+      if (sourceStoreys) {
+        buildingDetailCoverage.mappedStoreyParts += 1;
+        buildingDetailCoverage.mappedGlassStoreyParts += 1;
+      }
       // Curtain-wall mullions: the transparent volume gets its drawn
       // glazing grid — verticals on the bay pitch, horizontals on the
       // storey pitch — as ink lines just outside each surveyed wall.
@@ -11756,11 +11734,11 @@ export function createIsometricCity(
           const z = wall.z1 + wall.dirZ * along + oz;
           mullionPositions.push(x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z);
         }
-        const storeys = Math.floor(
-          (totalHeight - 1) / ISO_WINDOW_FLOOR_PITCH_M,
-        );
+        const floorPitch = sourceStoreys?.floorPitch ?? ISO_WINDOW_FLOOR_PITCH_M;
+        const storeys = sourceStoreys ? sourceStoreys.count - 1 :
+          Math.floor((totalHeight - 1) / floorPitch);
         for (let step = 1; step <= storeys; step += 1) {
-          const y = y0 + step * ISO_WINDOW_FLOOR_PITCH_M;
+          const y = y0 + step * floorPitch;
           mullionPositions.push(
             wall.x1 + ox,
             y,
@@ -11784,7 +11762,7 @@ export function createIsometricCity(
         ? 0xe1e3dc
         : isScharounGoldPrism(building)
           ? 0xf6e0a7
-          : undefined);
+          : mappedRoofTone(attributes));
     const capTone =
       pinnedRoof !== undefined
         ? capColor.setHex(pinnedRoof)
@@ -11872,6 +11850,29 @@ export function createIsometricCity(
         bodyGeometries.push(parapet);
       }
     }
+    // An inset eave stroke follows the retained wall plane of every ordinary
+    // source part, including low annexes that carry no storey grid. This is
+    // edge emphasis, not an invented projecting cornice or roof fixture.
+    if (!WINDOWS_SUPPRESSED_IDS.has(building.id) && HERO_WINDOW_FORMATS[building.id] === undefined) {
+      const walls = facadeWallsOf(building);
+      const longest = Math.max(0, ...walls.map(({ length }) => length));
+      const before = buildingDetailCoverage.envelopeStrokes;
+      for (const wall of walls) {
+        if (wall.length < Math.min(3.2, longest) || wall.length < 1) continue;
+        const inset = Math.min(0.18, wall.length * 0.08);
+        const ox = wall.nx * WINDOW_FACE_OFFSET_M;
+        const oz = wall.nz * WINDOW_FACE_OFFSET_M;
+        const y = y0 + bodyHeight - 0.18;
+        pushFacadeAxis(
+          wall.x1 + wall.dirX * inset + ox, y,
+          wall.z1 + wall.dirZ * inset + oz,
+          wall.x1 + wall.dirX * (wall.length - inset) + ox, y,
+          wall.z1 + wall.dirZ * (wall.length - inset) + oz,
+        );
+        buildingDetailCoverage.envelopeStrokes += 1;
+      }
+      if (buildingDetailCoverage.envelopeStrokes > before) buildingDetailCoverage.envelopeDetailedParts += 1;
+    }
     // Every measured outer and courtyard wall carries slender
     // floor-to-cornice axes plus storey bands. Formats follow the building's
     // own kind: piano-nobile for civic monuments, housing proportions
@@ -11887,9 +11888,14 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const buildingFormat = windowFormatForBuilding(building.id, isCivic);
       const hasPinnedFacadeFormat =
         HERO_WINDOW_FORMATS[building.id] !== undefined;
+      const sourceStoreys = hasPinnedFacadeFormat ? null : mappedStoreyProfile(attributes, bodyHeight);
+      if (sourceStoreys) buildingDetailCoverage.mappedStoreyParts += 1;
+      const buildingFormat = {
+        ...windowFormatForBuilding(building.id, isCivic),
+        ...(sourceStoreys ?? {}),
+      };
       const axisTop = y0 + bodyHeight - 0.9;
       const axisBottom = y0 + 1.2;
       const nightStrip = isCivic
@@ -11905,10 +11911,10 @@ export function createIsometricCity(
           const plazaDetailZone = hasPinnedFacadeFormat
             ? null
             : plazaFacadeDetailZoneForWall(wall);
-          const format =
-            plazaDetailZone && !isCivic
-              ? plazaDetailZone.facadeRhythm
-              : buildingFormat;
+          const format = {
+            ...(plazaDetailZone && !isCivic ? plazaDetailZone.facadeRhythm : buildingFormat),
+            ...(sourceStoreys ?? {}),
+          };
           if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
             const profile = CHARITE_BETTENHOCHHAUS_PROFILE;
             const floorCount = Math.min(
@@ -12033,8 +12039,8 @@ export function createIsometricCity(
                 wall.length,
               );
               if (
-                plazaDetailZone &&
-                floor < plazaDetailZone.facadeRhythm.maximumDetailedStoreys
+                (plazaDetailZone && floor < plazaDetailZone.facadeRhythm.maximumDetailedStoreys) ||
+                (sourceStoreys && !plazaDetailZone && (floor === 0 || floor === grid.floors - 1))
               ) {
                 const headY = Math.min(
                   axisTop,
@@ -12050,6 +12056,7 @@ export function createIsometricCity(
                     wall.z1 + wall.dirZ * wall.length + oz,
                     wall.length,
                   );
+                  if (!plazaDetailZone) buildingDetailCoverage.mappedStoreyHeadStrokes += 1;
                 }
               }
             }
@@ -12279,7 +12286,8 @@ export function createIsometricCity(
       const pitchedRoofTone =
         HISTORIC_CHARITE_IDS.has(building.id) ||
         BERLINER_ENSEMBLE_IDS.has(building.id) ||
-        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id)
+        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) ||
+        mappedRoofTone(attributes) !== undefined
           ? capTone.clone()
           : color.clone().multiplyScalar(0.9);
       bakeColor(roofGeometry, pitchedRoofTone);
@@ -12432,6 +12440,7 @@ export function createIsometricCity(
     zones: PLAZA_FACADE_DETAIL_ZONES,
   };
   group.userData.plazaFacadeDetails = plazaFacadeDetails;
+  group.userData.buildingDetailCoverage = buildingDetailCoverage;
 
   // Facade glazing axes: fine ink lines (day). A subtle grey so they
   // articulate without weighing the pale panels down.
@@ -12471,11 +12480,14 @@ export function createIsometricCity(
         "bay-axis",
         "storey-sill",
         "plaza-front-window-head",
+        "mapped-storey-head",
+        "source-envelope-eave",
         "window-dash",
       ],
       openingCoordinates: "inferred rhythm; not surveyed individual panes",
     };
     axes.userData.plazaFacadeDetails = plazaFacadeDetails;
+    axes.userData.buildingDetailCoverage = buildingDetailCoverage;
     group.add(axes);
   }
   if (kollhoffClinkerJointPositions.length > 0) {

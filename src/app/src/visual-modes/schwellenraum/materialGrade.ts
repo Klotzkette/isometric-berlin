@@ -9,9 +9,10 @@ import {
 import type { VisualMode } from "../../visualMode";
 
 export const SCHWELLENRAUM_MATERIAL_GRADE = {
-  saturation: 0.28,
-  shadowLift: [0.026, 0.038, 0.052] as const,
-  strength: 0.85,
+  saturation: 0.38,
+  highlightTint: [1.08, 1.015, 0.955] as const,
+  shadowLift: [0.018, 0.025, 0.043] as const,
+  strength: 0.72,
   tint: [0.93, 0.97, 1.04] as const,
 } as const;
 
@@ -20,13 +21,15 @@ type PatchableShader = {
 };
 
 function gradeFragmentShader(source: string): string {
-  const { saturation, shadowLift, strength, tint } =
+  const { saturation, highlightTint, shadowLift, strength, tint } =
     SCHWELLENRAUM_MATERIAL_GRADE;
   return source.replace(
     "#include <opaque_fragment>",
     `float schwellenraumLuma = dot( outgoingLight, vec3( 0.2126, 0.7152, 0.0722 ) );
     vec3 schwellenraumMuted = mix( vec3( schwellenraumLuma ), outgoingLight, ${saturation.toFixed(2)} );
-    vec3 schwellenraumTinted = schwellenraumMuted * vec3( ${tint.map((value) => value.toFixed(2)).join(", ")} );
+    float schwellenraumHighlight = smoothstep( 0.30, 0.85, schwellenraumLuma );
+    vec3 schwellenraumTemperature = mix( vec3( ${tint.map((value) => value.toFixed(3)).join(", ")} ), vec3( ${highlightTint.map((value) => value.toFixed(3)).join(", ")} ), schwellenraumHighlight );
+    vec3 schwellenraumTinted = schwellenraumMuted * schwellenraumTemperature;
     float schwellenraumShadow = 1.0 - smoothstep( 0.15, 0.72, schwellenraumLuma );
     schwellenraumTinted += vec3( ${shadowLift.map((value) => value.toFixed(3)).join(", ")} ) * schwellenraumShadow;
     outgoingLight = clamp( mix( outgoingLight, schwellenraumTinted, ${strength.toFixed(2)} ), 0.0, 1.0 );
@@ -39,7 +42,8 @@ function gradeFragmentShader(source: string): string {
  *
  * The grade is part of each existing material shader, so it adds no scene
  * traversal per frame, render target, full-screen pass or draw call. Flat
- * source colours remain flat; only their saturation and temperature change.
+ * source colours remain flat. Cool shadows and warm stone highlights retain
+ * more of their colour identity than the former near-monochrome grade.
  */
 export function schwellenraumMaterialFor(
   object: Object3D,
@@ -59,7 +63,7 @@ export function schwellenraumMaterialFor(
     patchable.fragmentShader = gradeFragmentShader(patchable.fragmentShader);
   };
   material.customProgramCacheKey = () =>
-    `${previousProgramCacheKey}|schwellenraum-material-grade-v2`;
+    `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
   material.needsUpdate = true;
   object.userData.schwellenraumMaterial = material;
   return material;
@@ -91,9 +95,15 @@ export function setSchwellenraumStandardMaterialTone(
     source,
     SCHWELLENRAUM_MATERIAL_GRADE.saturation,
   );
-  muted.multiply(
-    new Color().setRGB(...SCHWELLENRAUM_MATERIAL_GRADE.tint),
-  );
+  const highlightRamp = Math.min(1, Math.max(0, (luma - 0.3) / 0.55));
+  const highlight = highlightRamp * highlightRamp * (3 - 2 * highlightRamp);
+  const temperature = new Color()
+    .setRGB(...SCHWELLENRAUM_MATERIAL_GRADE.tint)
+    .lerp(
+      new Color().setRGB(...SCHWELLENRAUM_MATERIAL_GRADE.highlightTint),
+      highlight,
+    );
+  muted.multiply(temperature);
   const shadowRamp = Math.min(
     1,
     Math.max(0, (luma - 0.15) / (0.72 - 0.15)),

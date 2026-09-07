@@ -46,8 +46,13 @@ import {
   createOfficialReichstagDome,
 } from "./ReichstagDome";
 import { QUADRIGA_DIMENSIONS, createQuadriga } from "./Quadriga";
+import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS } from "./HeroArchitectureEvidence";
 import { createDedicationTexture } from "./reichstagInscription";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
+import {
+  HAUPTBAHNHOF_ACCESS,
+  hauptbahnhofDoorOpeningAt,
+} from "./HauptbahnhofAccessProfile";
 
 export type FocusCamera = {
   azimuth_degrees: number;
@@ -130,9 +135,9 @@ export const BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE = {
   columnBaseDiameterM: 1.73,
   columnFluteCount: 20,
   columnFluteGeometrySegmentCount: 3,
-  guttaCount: 300,
+  guttaCount: 204,
   mainBodyWidthM: 33.2,
-  metopePanelCount: 48,
+  metopePanelCount: GATE_RELIEFS.metopeCount,
   passageDividerCount: 4,
   passageMedallionCount: 8,
   pavilionHeightM: 10.8,
@@ -5335,14 +5340,17 @@ function addStationInterior(
     const far = side * halfLength;
     const armLength = Math.abs(far - near);
     for (const [levelIndex, level] of levels.entries()) {
+      const slabFar = level.y === 0
+        ? side * HAUPTBAHNHOF_ACCESS.foyerInnerLocalZ
+        : far;
       for (const edge of [-1, 1]) {
         const inner = edge * level.openHalf;
         const outer = edge * halfWidth;
         addBox(
           group,
           "Hauptbahnhof concourse gallery slab",
-          [Math.abs(outer - inner), 0.5, Math.abs(far - near)],
-          [(inner + outer) / 2, level.y, (near + far) / 2],
+          [Math.abs(outer - inner), 0.5, Math.abs(slabFar - near)],
+          [(inner + outer) / 2, level.y, (near + slabFar) / 2],
           slab,
           0.45,
         );
@@ -5360,26 +5368,32 @@ function addStationInterior(
           });
         }
       }
+      // The ground-floor entrance foyer connects both side galleries before
+      // the daylight slot starts. Upper/lower gallery outlines stay unchanged.
+      const railFar = level.y === 0
+        ? side * HAUPTBAHNHOF_ACCESS.foyerInnerLocalZ
+        : far;
+      const railLength = Math.abs(railFar - near);
       for (const edge of [-1, 1]) {
         galleryRailSegments.push([
           [edge * level.openHalf, level.y + 1.5, near],
-          [edge * level.openHalf, level.y + 1.5, far],
+          [edge * level.openHalf, level.y + 1.5, railFar],
         ]);
         galleryGlassPanels.push({
           position: [
             edge * level.openHalf,
             level.y + 0.85,
-            (near + far) / 2,
+            (near + railFar) / 2,
           ],
-          scale: [1, 1, Math.max(1, armLength - 0.8)],
+          scale: [1, 1, Math.max(1, railLength - 0.8)],
         });
         galleryTopRails.push({
           position: [
             edge * level.openHalf,
             level.y + 1.5,
-            (near + far) / 2,
+            (near + railFar) / 2,
           ],
-          scale: [1, 1, armLength],
+          scale: [1, 1, railLength],
         });
         galleryFascias.push({
           position: [
@@ -5389,13 +5403,13 @@ function addStationInterior(
           ],
           scale: [1, 1, armLength],
         });
-        const postCount = Math.max(2, Math.ceil(armLength / 5.5));
+        const postCount = Math.max(2, Math.ceil(railLength / 5.5));
         for (let post = 0; post <= postCount; post += 1) {
           galleryPosts.push({
             position: [
               edge * level.openHalf,
               level.y + 0.84,
-              near + (post / postCount) * (far - near),
+              near + (post / postCount) * (railFar - near),
             ],
           });
         }
@@ -6023,6 +6037,15 @@ function stationEntranceFacadeGeometry(
     );
   }
   shape.lineTo(halfWidth, 0);
+  // Boundary notches (rather than coplanar transparent door rectangles)
+  // leave genuinely empty, ground-reaching apertures through the gable.
+  for (const centre of [...HAUPTBAHNHOF_ACCESS.doorCentresLocalX].reverse()) {
+    const halfOpening = HAUPTBAHNHOF_ACCESS.doorClearWidthM / 2;
+    shape.lineTo(centre + halfOpening, 0);
+    shape.lineTo(centre + halfOpening, HAUPTBAHNHOF_ACCESS.doorHeightM);
+    shape.lineTo(centre - halfOpening, HAUPTBAHNHOF_ACCESS.doorHeightM);
+    shape.lineTo(centre - halfOpening, 0);
+  }
   shape.closePath();
   return new ShapeGeometry(shape);
 }
@@ -6324,9 +6347,12 @@ function addStationHallEntranceFacade(
     const top =
       barrelBaseY +
       (barrelHeight - 0.6) * Math.sqrt(Math.max(0, 1 - normalized ** 2));
+    const bottom = hauptbahnhofDoorOpeningAt(x)
+      ? HAUPTBAHNHOF_ACCESS.doorHeightM + 0.08
+      : 0;
     mullions.push({
-      position: [x, top / 2, z],
-      scale: [1, top, 1],
+      position: [x, (top + bottom) / 2, z],
+      scale: [1, top - bottom, 1],
     });
   }
   const horizontalCount = Math.max(10, Math.round(facadeApex / 1.65));
@@ -6339,10 +6365,23 @@ function addStationHallEntranceFacade(
           Math.sqrt(
             Math.max(0, 1 - ((y - barrelBaseY) / (barrelHeight - 0.6)) ** 2),
           );
-    mullions.push({
-      position: [0, y, z],
-      scale: [widthAtY / 0.16, 1, 1],
-    });
+    const spans: Array<readonly [number, number]> = [];
+    let start = -widthAtY / 2;
+    if (y < HAUPTBAHNHOF_ACCESS.doorHeightM) {
+      for (const centre of HAUPTBAHNHOF_ACCESS.doorCentresLocalX) {
+        const halfOpening = HAUPTBAHNHOF_ACCESS.doorClearWidthM / 2 + 0.08;
+        spans.push([start, centre - halfOpening]);
+        start = centre + halfOpening;
+      }
+    }
+    spans.push([start, widthAtY / 2]);
+    for (const [from, to] of spans) {
+      if (to <= from) continue;
+      mullions.push({
+        position: [(from + to) / 2, y, z],
+        scale: [(to - from) / 0.16, 1, 1],
+      });
+    }
   }
   addInstancedBoxes(
     group,
@@ -6363,21 +6402,23 @@ function addStationHallEntranceFacade(
     1.25,
   );
   const doorTransforms: InstanceTransform[] = [];
-  const doorCount = 6;
-  const doorWidth = 3.15;
-  for (let index = 0; index < doorCount; index += 1) {
-    doorTransforms.push({
-      position: [
-        (index - (doorCount - 1) / 2) * (doorWidth + 0.34),
-        2.45,
-        z + outward * 0.18,
-      ],
-    });
+  const leafWidth =
+    (HAUPTBAHNHOF_ACCESS.doorBayWidthM - HAUPTBAHNHOF_ACCESS.doorClearWidthM) / 2;
+  for (const centre of HAUPTBAHNHOF_ACCESS.doorCentresLocalX) {
+    for (const side of [-1, 1]) {
+      doorTransforms.push({
+        position: [
+          centre + side * (HAUPTBAHNHOF_ACCESS.doorClearWidthM + leafWidth) / 2,
+          HAUPTBAHNHOF_ACCESS.doorHeightM / 2,
+          z + outward * 0.18,
+        ],
+      });
+    }
   }
   addInstancedBoxes(
     group,
     "Hauptbahnhof instanced entrance sliding doors",
-    [doorWidth, 4.9, 0.18],
+    [leafWidth, HAUPTBAHNHOF_ACCESS.doorHeightM, 0.18],
     doorGlass,
     doorTransforms,
   );
@@ -6403,6 +6444,29 @@ function addStationHallEntranceFacade(
     "#ffffff",
   );
   addStationEntranceCanopy(group, z, outward);
+  const foyer = HAUPTBAHNHOF_ACCESS;
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof entrance foyer landing",
+    [foyer.hallHalfWidthM * 2, 0.5, foyer.foyerOuterLocalZ - foyer.foyerInnerLocalZ],
+    modelMaterial(0xb6bbb5, { roughness: 0.84 }),
+    [{ position: [0, 0, outward * (foyer.foyerOuterLocalZ + foyer.foyerInnerLocalZ) / 2] }],
+  );
+  // Close only the exposed end of the daylight slot, not the hall entrance.
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof entrance foyer atrium guard glass",
+    [foyer.groundAtriumHalfWidthM * 2, 1.3, 0.08],
+    glass,
+    [{ position: [0, 0.85, outward * foyer.foyerInnerLocalZ] }],
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof entrance foyer atrium guard top rail",
+    [foyer.groundAtriumHalfWidthM * 2, 0.1, 0.14],
+    frame,
+    [{ position: [0, 1.5, outward * foyer.foyerInnerLocalZ] }],
+  );
 }
 
 function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
@@ -8101,12 +8165,12 @@ function createBrandenburgGateModel(
     0.88,
   );
   const triglyphs: InstanceTransform[] = [];
-  const triglyphCount = 24;
+  const triglyphCount = GATE_RELIEFS.metopeCount / 2;
   for (const xSide of [-1, 1]) {
     for (let index = 0; index <= triglyphCount; index += 1) {
       triglyphs.push({
         position: [
-          xSide * (signature.depth_m / 2 - 0.13),
+          xSide * (signature.depth_m / 2 + 0.11),
           16.73,
           -mainBodyWidth / 2 + (index / triglyphCount) * mainBodyWidth,
         ],
@@ -8116,7 +8180,7 @@ function createBrandenburgGateModel(
   addInstancedBoxes(
     group,
     "Brandenburg Gate instanced frieze triglyphs",
-    [0.26, 0.64, 0.72],
+    [0.22, 1.02, 0.72],
     sandstoneShadow,
     triglyphs,
   );
@@ -8127,7 +8191,7 @@ function createBrandenburgGateModel(
       const z =
         -mainBodyWidth / 2 + ((index + 0.5) / triglyphCount) * mainBodyWidth;
       metopePanels.push({
-        position: [xSide * (signature.depth_m / 2 - 0.145), 16.73, z],
+        position: [xSide * (signature.depth_m / 2 + 0.025), 16.73, z],
       });
     }
     for (let triglyph = 0; triglyph <= triglyphCount; triglyph += 1) {
@@ -8136,8 +8200,8 @@ function createBrandenburgGateModel(
       for (let drop = 0; drop < 6; drop += 1) {
         guttae.push({
           position: [
-            xSide * (signature.depth_m / 2 - 0.18),
-            16.28,
+            xSide * (signature.depth_m / 2 + 0.13),
+            16.13,
             centreZ - 0.25 + drop * 0.1,
           ],
         });
@@ -8147,7 +8211,7 @@ function createBrandenburgGateModel(
   addInstancedBoxes(
     photoDetails,
     "Brandenburg Gate recessed Doric metopes",
-    [0.055, 0.43, 1.1],
+    [0.055, GATE_RELIEFS.metopeSizeM, GATE_RELIEFS.metopeSizeM],
     sandstoneShadow,
     metopePanels,
   );
@@ -8178,43 +8242,35 @@ function createBrandenburgGateModel(
   const atticFigures: InstanceTransform[] = [];
   const atticHeads: InstanceTransform[] = [];
   const friezeFigures: InstanceTransform[] = [];
+  // Only the eastern attic carries the executed Peace procession. The western
+  // companion was planned but never carved. Poses remain procedural, not a scan.
+  addBox(
+    photoDetails,
+    "Brandenburg Gate central attic relief field",
+    [0.1, GATE_RELIEFS.atticHeightM, GATE_RELIEFS.atticLengthM],
+    [signature.depth_m / 2 - 0.15, 19.52, 0],
+    sandstoneShadow,
+    0.42,
+  );
+  for (let index = 0; index < BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.atticReliefFigureCount; index += 1) {
+    const z = -3.45 + (index / 17) * 6.9;
+    atticFigures.push({
+      position: [signature.depth_m / 2 - 0.06, 19.38 + (index % 3) * 0.07, z],
+      rotation: [(index % 2 === 0 ? -1 : 1) * 0.18, 0, 0],
+      scale: [0.8, 1.45, 1],
+    });
+    atticHeads.push({ position: [signature.depth_m / 2 - 0.045, 19.88 + (index % 3) * 0.03, z] });
+  }
   for (const xSide of [-1, 1]) {
-    addBox(
-      photoDetails,
-      "Brandenburg Gate central attic relief field",
-      [0.1, 1.08, 11.8],
-      [xSide * (signature.depth_m / 2 - 0.12), 19.56, 0],
-      sandstoneShadow,
-      0.42,
-    );
-    for (
-      let index = 0;
-      index < BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.atticReliefFigureCount;
-      index += 1
-    ) {
-      const z = -5.15 + (index / 17) * 10.3;
-      atticFigures.push({
-        position: [
-          xSide * (signature.depth_m / 2 - 0.13),
-          19.45 + (index % 3) * 0.035,
-          z,
-        ],
-        rotation: [0, 0, (index % 2 === 0 ? -1 : 1) * 0.1],
-      });
-      atticHeads.push({
-        position: [xSide * (signature.depth_m / 2 - 0.16), 19.79, z],
-      });
-    }
-    for (let index = 0; index < 24; index += 1) {
-      friezeFigures.push({
-        position: [
-          xSide * (signature.depth_m / 2 - 0.12),
-          16.73,
-          -mainBodyWidth / 2 +
-            0.6 +
-            ((index + 0.5) / 24) * (mainBodyWidth - 1.2),
-        ],
-      });
+    for (let index = 0; index < triglyphCount; index += 1) {
+      const z = -mainBodyWidth / 2 + ((index + 0.5) / triglyphCount) * mainBodyWidth;
+      const faceX = xSide * (signature.depth_m / 2 + 0.105);
+      // Human/centaur silhouettes establish the documented subject without
+      // claiming to reproduce the distinct historical carving in each panel.
+      for (const [dz, dy, length, angle] of [
+        [-0.25, 0.07, 1.55, -0.3], [0.18, -0.07, 1.5, Math.PI / 2],
+        [0.32, 0.15, 1.3, 0.18], [0.05, -0.29, 0.8, -0.3], [0.32, -0.29, 0.8, 0.25],
+      ]) friezeFigures.push({ position: [faceX, 16.73 + dy, z + dz], rotation: [angle, 0, 0], scale: [0.8, length, 1] });
     }
   }
   addInstancedGeometry(
@@ -8241,6 +8297,11 @@ function createBrandenburgGateModel(
 
   const entablatureProfiles: VectorSegment[] = [];
   for (const xSide of [-1, 1]) {
+    for (let index = 0; index <= triglyphCount; index += 1) {
+      const z = -mainBodyWidth / 2 + index / triglyphCount * mainBodyWidth;
+      const x = xSide * (signature.depth_m / 2 + 0.225);
+      for (const offset of [-0.23, 0, 0.23]) entablatureProfiles.push([[x, 16.28, z + offset], [x, 17.18, z + offset]]);
+    }
     const faceX = xSide * (signature.depth_m / 2 - 0.01);
     for (const y of [13.72, 14.48, 15.18, 15.76, 16.34, 17.28]) {
       entablatureProfiles.push([

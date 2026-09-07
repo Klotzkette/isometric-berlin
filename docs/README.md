@@ -24,9 +24,17 @@ local ZIP starts, and which legal/attribution rules apply.
 |---|---|
 | Local setup | [setup.md](setup.md) |
 | Viewer app notes | [app.md](app.md) |
+| Hauptbahnhof doors, gallery access and collision limits | [hauptbahnhof-pedestrian-access.md](hauptbahnhof-pedestrian-access.md) |
+| Building attributes, detail coverage and source limits | [building-attribute-detail.md](building-attribute-detail.md) |
+| Siegessäule architecture and source replacement | [siegessaeule-architecture.md](siegessaeule-architecture.md) |
+| Reichstag dome and Brandenburg Gate refinements, evidence and budgets | [reichstag-gate-refinement.md](reichstag-gate-refinement.md) |
+| Schwellenraum atmosphere | [schwellenraum-atmosphere.md](schwellenraum-atmosphere.md) |
+| Minecraft tree selection and walking collision | [minecraft-tree-navigation.md](minecraft-tree-navigation.md) |
+| Mobile orange joystick jump gesture | [mobile-joystick-jump.md](mobile-joystick-jump.md) |
 | Generation pipeline | [generation.md](generation.md) |
 | Bounds editor | [bounds.md](bounds.md) |
 | Deployment and release packaging | [deployment.md](deployment.md) |
+| v1.0.0 release verification | [release-v1.0.0.md](release-v1.0.0.md) |
 | Perplexity/static-hosting constraints | [perplexity-hosting.md](perplexity-hosting.md) |
 
 ## Agent And Source Guidance

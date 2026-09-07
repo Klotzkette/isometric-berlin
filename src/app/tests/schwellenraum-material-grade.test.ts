@@ -41,4 +41,20 @@ describe("Schwellenraum material-integrated colour grade", () => {
     setSchwellenraumStandardMaterialTone(material, "day");
     expect(material.color.getHex()).toBe(0x5f8d4e);
   });
+
+  test("separates warm stone highlights from cool shadows without flattening their contrast", () => {
+    const highlight = new MeshStandardMaterial({ color: 0xe3e3e3 });
+    const shadow = new MeshStandardMaterial({ color: 0x303030 });
+    setSchwellenraumStandardMaterialTone(highlight, "schwellenraum");
+    setSchwellenraumStandardMaterialTone(shadow, "schwellenraum");
+    expect(highlight.color.r).toBeGreaterThan(highlight.color.b);
+    expect(shadow.color.b).toBeGreaterThan(shadow.color.r);
+    expect(highlight.color.r - shadow.color.r).toBeGreaterThan(0.65);
+
+    const first = highlight.color.getHex();
+    setSchwellenraumStandardMaterialTone(highlight, "schwellenraum");
+    expect(highlight.color.getHex()).toBe(first);
+    setSchwellenraumStandardMaterialTone(highlight, "night");
+    expect(highlight.color.getHex()).toBe(0xe3e3e3);
+  });
 });

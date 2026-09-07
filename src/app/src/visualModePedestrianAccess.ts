@@ -10,6 +10,7 @@ import {
 } from "./InvalidenfriedhofDetails";
 import { wagnerMemorialWalkableInteriorAt } from "./WagnerMemorial";
 import type { VisualMode } from "./visualMode";
+import { hauptbahnhofWalkableInteriorAt } from "./HauptbahnhofNavigation";
 
 /** Capsule-aware solids without double-closing the authored bell opening. */
 export function invalidenfriedhofPedestrianSolidAt(
@@ -23,8 +24,8 @@ export function invalidenfriedhofPedestrianSolidAt(
 
 /**
  * Compose the deliberately narrow public openings used by pedestrian mode.
- * The Brandenburg Gate's five passages exist in every visual mode; station
- * and parliamentary shell exceptions remain presentation-specific.
+ * The Gate's five passages and station's public main hall exist in every
+ * visual mode; parliamentary shell exceptions remain presentation-specific.
  */
 export function visualModeWalkableInteriorAt(
   mode: VisualMode,
@@ -40,6 +41,7 @@ export function visualModeWalkableInteriorAt(
     return true;
   }
   if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
+  if (hauptbahnhofWalkableInteriorAt(x, y, z, sourceBuildingId)) return true;
   if (mode === "schwellenraum") {
     return schwellenraumNavigationOverrideAt(x, y, z, sourceBuildingId);
   }

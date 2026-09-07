@@ -1,9 +1,12 @@
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
 import {
+  minecraftVoxelTreeRetained,
+  type MinecraftVoxelDetailProfile,
   type VoxelPayload,
   smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
+import { isLenneOakTree } from "./LenneOak";
 import {
   decodeTrees,
   parkHedgeSegments,
@@ -118,6 +121,8 @@ type PedestrianRing = ReadonlyArray<readonly number[]>;
 
 export type PedestrianCircleObstacle = PedestrianObstacleBase & {
   kind: "circle";
+  /** Only decoded source trees follow Minecraft's reversible density filter. */
+  parkTree?: "ordinary" | "lenne-oak";
   radius: number;
   x: number;
   z: number;
@@ -162,6 +167,8 @@ export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
   groundAt: (x: number, z: number) => number | null;
   obstacles?: PedestrianObstacleIndex;
+  /** Mode-aware visibility of indexed source trees; other solids stay active. */
+  parkTreeSolidAt?: (x: number, z: number, landmarkOak: boolean) => boolean;
   /**
    * A tightly bounded authored doorway, ramp, stair or interior may locally
    * replace its matching closed LoD2 footprint. The optional source id lets a
@@ -410,6 +417,7 @@ function addCircleObstacle(
   radius: number,
   minY: number,
   maxY: number,
+  parkTree?: PedestrianCircleObstacle["parkTree"],
 ): void {
   if (
     !Number.isFinite(x) ||
@@ -424,6 +432,7 @@ function addCircleObstacle(
   }
   addObstacle(index, {
     kind: "circle",
+    parkTree,
     maxX: x + radius,
     maxY,
     maxZ: z + radius,
@@ -569,6 +578,28 @@ function equipmentRadius(item: PlaygroundEquipment): number | null {
 }
 
 /**
+ * Keep the shared Day obstacle index intact. Only a fully attached Minecraft
+ * world may release its omitted source trunks; loading/fallback and unusable
+ * grid scales retain ordinary collision. Mode changes require no index rebuild.
+ */
+export function createPedestrianParkTreeSolidTester(
+  cellM: number,
+  detailProfile: MinecraftVoxelDetailProfile,
+  voxelWorldActive: () => boolean,
+): NonNullable<PedestrianEnvironment["parkTreeSolidAt"]> {
+  const usableCell = Number.isFinite(cellM) && cellM > 0;
+  return (x, z, landmarkOak) =>
+    landmarkOak ||
+    !usableCell ||
+    !voxelWorldActive() ||
+    minecraftVoxelTreeRetained(
+      Math.floor(x / cellM),
+      Math.floor(z / cellM),
+      detailProfile,
+    );
+}
+
+/**
  * Add the same visible trunks, shrub clumps, lamp posts and playground fixtures
  * that the deferred park layer draws. Surface objects inside tunnel approaches
  * or the Chancellery construction site stay filtered as they are visually.
@@ -600,7 +631,15 @@ export function addPedestrianParkObstacles(
       ? clamp(tree.crown_radius_m * 0.55, 0.3, 1.5)
       : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 1.5);
     const before = index.obstacleCount;
-    addCircleObstacle(index, x, z, radius, y, y + Math.max(1, tree.height_m));
+    addCircleObstacle(
+      index,
+      x,
+      z,
+      radius,
+      y,
+      y + Math.max(1, tree.height_m),
+      isLenneOakTree(tree) ? "lenne-oak" : "ordinary",
+    );
     if (index.obstacleCount > before) {
       index.treeCount += 1;
     }
@@ -894,7 +933,10 @@ export function pedestrianPointIsBlocked(
   obstacles: PedestrianObstacleIndex | undefined,
   access?: Pick<
     PedestrianEnvironment,
-    "interiorSolidAt" | "protectedVolumeAt" | "walkableInteriorAt"
+    | "interiorSolidAt"
+    | "parkTreeSolidAt"
+    | "protectedVolumeAt"
+    | "walkableInteriorAt"
   >,
 ): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
@@ -941,6 +983,16 @@ export function pedestrianPointIsBlocked(
       continue;
     }
     if (obstacle.kind === "circle") {
+      if (
+        obstacle.parkTree &&
+        access?.parkTreeSolidAt?.(
+          obstacle.x,
+          obstacle.z,
+          obstacle.parkTree === "lenne-oak",
+        ) === false
+      ) {
+        continue;
+      }
       const radius = obstacle.radius + PEDESTRIAN_BODY_RADIUS_M;
       if ((x - obstacle.x) ** 2 + (z - obstacle.z) ** 2 <= radius * radius) {
         return true;

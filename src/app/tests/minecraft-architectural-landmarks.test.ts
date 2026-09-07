@@ -119,9 +119,9 @@ describe("block-native Berlin architectural signatures", () => {
     expect(geometryIds.size).toBe(1);
     expect(materialIds.size).toBe(1);
     expect(totalBlocks).toBeGreaterThan(3_500);
-    expect(totalBlocks).toBeLessThan(5_000);
+    expect(totalBlocks).toBeLessThan(5_500);
     expect(meshes.map(({ count }) => count)).toEqual([
-      327, 371, 2_699, 134, 776, 56, 444,
+      489, 371, 2_699, 349, 776, 56, 444,
     ]);
   });
 
@@ -158,7 +158,7 @@ describe("block-native Berlin architectural signatures", () => {
       "four three-tier corner crowns": 36,
       "paired block crown finials": 6,
       "paired crowned Wappenbaum reliefs": 28,
-      "seven-step octagonal glass dome": 81,
+      "seven-step octagonal glass dome": 108,
       "six coarse west-portico columns": 24,
       "three-step west pediment": 11,
     });
@@ -180,8 +180,11 @@ describe("block-native Berlin architectural signatures", () => {
     });
     expect(byName.get(EXPECTED_MODELS[3])).toMatchObject({
       "four Quadriga horse bodies": 4,
-      "twelve three-course Doric columns": 36,
+      "twelve six-course Doric columns": 72,
       "two coarse sandstone side pavilions": 16,
+      "32 Doric metope panels": 32,
+      "east-only Peace attic relief": 1,
+      "open square chariot wheels": 8,
     });
     expect(byName.get(EXPECTED_MODELS[4])).toMatchObject({
       "eight coarse Paul-Löbe chord walls": 96,
@@ -229,6 +232,31 @@ describe("block-native Berlin architectural signatures", () => {
     expect(byName.get(EXPECTED_MODELS[2])).not.toHaveProperty(
       "office-bridge floor bands",
     );
+  });
+
+  test("faces the block Quadriga east and preserves full-width five Gate passages", () => {
+    const mesh = instancedChildren()[3];
+    const profile = MINECRAFT_ARCHITECTURAL_PROFILES.brandenburgGate;
+    const frame = new Matrix4().makeRotationY(profile.rotationDegrees * Math.PI / 180);
+    frame.setPosition(...profile.anchorWorld);
+    const inverse = frame.invert();
+    const matrix = new Matrix4(), position = new Vector3(), size = new Vector3(), rotation = new Quaternion();
+    let horseHeads = 0, shafts = 0;
+    for (let index = 0; index < mesh.count; index += 1) {
+      mesh.getMatrixAt(index, matrix);
+      matrix.premultiply(inverse).decompose(position, rotation, size);
+      if (Math.abs(position.y - 23.95) < 0.001 && Math.abs(size.y - 0.6) < 0.001) {
+        expect(position.x).toBeCloseTo(2.65, 3);
+        horseHeads += 1;
+      }
+      if (Math.abs(size.y - 2.2) < 0.001) {
+        expect(Math.abs(position.x)).toBeCloseTo(4.25, 3);
+        expect(size.z).toBeLessThanOrEqual(1.731);
+        shafts += 1;
+      }
+    }
+    expect(horseHeads).toBe(4);
+    expect(shafts).toBe(72);
   });
 
   test("keeps dome and rotunda blocks on axis-aligned quarter turns", () => {

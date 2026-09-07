@@ -135,14 +135,15 @@ describe("true voxel Minecraft world", () => {
     expect(world.getObjectByName("Voxel meadow flowers")).toBeDefined();
     expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
     expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
-    // The Spree recognition replacements remove 742 duplicate source panes;
-    // their block-native detail is covered by spree-museum-details.test.ts.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_594_101);
+    // Source replacements remove duplicate monument/bridge panes, including
+    // 122 false windows on the Siegessäule's 37 coarse source columns.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_593_979);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
-    // The two photo-guided roof lights add 72 surfaces to this existing batch.
-    expect(instanced("Voxel building columns", world).count).toBe(1_480_149);
+    // Includes 72 roof-light surfaces; the Siegessäule replacement removes
+    // 111 full / 37 mobile generic column instances from the prior baseline.
+    expect(instanced("Voxel building columns", world).count).toBe(1_480_038);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      542_249,
+      542_212,
     );
 
     const landmarks = world.getObjectByName(
@@ -526,7 +527,9 @@ describe("true voxel Minecraft world", () => {
       }
     }
     expect(vegetationBoxes.some(({ kind }) => kind === "trunk")).toBe(true);
-    expect(vegetationBoxes.some(({ kind }) => kind === "crown")).toBe(true);
+    // Lighter tree cover may clear every nearby crown; retain the exact
+    // visibility sweep over all remaining trunks/crowns in the envelope.
+    expect(instanced("Voxel tree crowns", world).count).toBeGreaterThan(0);
 
     const ray = new Ray();
     const hit = new Vector3();
@@ -664,7 +667,7 @@ describe("true voxel Minecraft world", () => {
     expect(columns).toBeGreaterThanOrEqual(buildingColumns.length);
     expect(columns).toBeLessThanOrEqual(buildingColumns.length * 4);
     const visibleTreeCount = treeBlocks.filter(
-      ([xIdx, zIdx]) =>
+      ([xIdx, zIdx, y0dm, heightDm]) =>
         !isChancelleryExtensionConstructionPoint(
           (xIdx + 0.5) * payload.cell_m,
           (zIdx + 0.5) * payload.cell_m,
@@ -673,7 +676,8 @@ describe("true voxel Minecraft world", () => {
           (xIdx + 0.5) * payload.cell_m,
           (zIdx + 0.5) * payload.cell_m,
           payload.cell_m * 1.1,
-        ) && minecraftVoxelTreeRetained(xIdx, zIdx, "full"),
+        ) && (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m) ||
+          minecraftVoxelTreeRetained(xIdx, zIdx, "full")),
     ).length;
     const signatureTreeCount = treeBlocks.filter(([xIdx, zIdx, y0dm, heightDm]) =>
       isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m),
@@ -698,7 +702,7 @@ describe("true voxel Minecraft world", () => {
       (visibleTreeCount - signatureTreeCount) * 2,
     );
     const mobileTreeCount = treeBlocks.filter(
-      ([xIdx, zIdx]) =>
+      ([xIdx, zIdx, y0dm, heightDm]) =>
         !isChancelleryExtensionConstructionPoint(
           (xIdx + 0.5) * payload.cell_m,
           (zIdx + 0.5) * payload.cell_m,
@@ -708,7 +712,8 @@ describe("true voxel Minecraft world", () => {
           (zIdx + 0.5) * payload.cell_m,
           payload.cell_m * 1.1,
         ) &&
-        minecraftVoxelTreeRetained(xIdx, zIdx, "mobile"),
+        (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m) ||
+          minecraftVoxelTreeRetained(xIdx, zIdx, "mobile")),
     ).length;
     expect(instanced("Voxel tree trunks", mobileWorld).count).toBe(
       mobileTreeCount - signatureTreeCount,

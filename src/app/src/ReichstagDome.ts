@@ -1,5 +1,6 @@
 import {
   AdditiveBlending,
+  BoxGeometry,
   BufferGeometry,
   CatmullRomCurve3,
   CylinderGeometry,
@@ -18,12 +19,14 @@ import {
   Object3D,
   PlaneGeometry,
   PointLight,
+  RingGeometry,
   TorusGeometry,
   TubeGeometry,
   Vector2,
   Vector3,
 } from "three";
 import { markArchitecturalAccentInk } from "./architecturalInk";
+import { REICHSTAG_DOME_EVIDENCE as EVIDENCE } from "./HeroArchitectureEvidence";
 
 export type ArchitecturalSignature = {
   anchor_world: [number, number, number];
@@ -37,7 +40,9 @@ export type ArchitecturalSignature = {
   vertical_ribs: number;
 };
 
-const TOP_OPENING_RADIUS_M = 2.4;
+const TOP_OPENING_RADIUS_M = EVIDENCE.openingDiameterM / 2;
+const PLATFORM_INNER_RADIUS_M = 7.8;
+const PLATFORM_OUTER_RADIUS_M = Math.sqrt(EVIDENCE.platformAreaM2 / Math.PI + PLATFORM_INNER_RADIUS_M ** 2);
 const UNGLAZED_LOWER_ROWS = 4;
 
 export function domeRadius(
@@ -69,87 +74,112 @@ function domeCurvePoints(
   });
 }
 
-function addRamps(group: Group, signature: ArchitecturalSignature): void {
-  const deckMaterial = new MeshStandardMaterial({
-    color: 0xd8e0e3,
-    metalness: 0.72,
-    roughness: 0.24,
+/** Same-handed, half-turn-separated helices provide separate up/down routes.
+ * Only length, endpoints and separation are published; width/curvature are display choices.
+ */
+export function reichstagRampPoints(phase = 0): Vector3[] {
+  const makePoints = (turns: number): Vector3[] => Array.from({ length: 161 }, (_, index) => {
+    const t = index / 160;
+    const radius = 18.1 + (PLATFORM_OUTER_RADIUS_M - 0.9 - 18.1) * t;
+    const angle = t * Math.PI * 2 * turns + phase;
+    return new Vector3(Math.cos(angle) * radius, t * EVIDENCE.platformHeightAboveTerraceM, Math.sin(angle) * radius);
   });
-  const railMaterial = new MeshStandardMaterial({
-    color: 0xaebbc0,
-    metalness: 0.86,
-    roughness: 0.18,
+  let low = 1, high = 4;
+  for (let iteration = 0; iteration < 28; iteration += 1) {
+    const turns = (low + high) / 2;
+    const points = makePoints(turns);
+    const length = points.slice(1).reduce((sum, point, index) => sum + point.distanceTo(points[index]), 0);
+    if (length < EVIDENCE.rampLengthM) low = turns;
+    else high = turns;
+  }
+  return makePoints((low + high) / 2);
+}
+
+function rampDeckGeometry(points: Vector3[]): BufferGeometry {
+  const vertices: number[] = [], indices: number[] = [];
+  points.forEach((point, index) => {
+    const radial = new Vector3(point.x, 0, point.z).normalize();
+    for (const y of [0, -0.14]) for (const offset of [-0.9, 0.9]) {
+      vertices.push(point.x + radial.x * offset, point.y + y, point.z + radial.z * offset);
+    }
+    if (index === 0) return;
+    const a = (index - 1) * 4, b = index * 4;
+    indices.push(a, b, a+1, a+1, b, b+1, a+2, a+3, b+2, a+3, b+3, b+2,
+      a, a+2, b, a+2, b+2, b, a+1, b+1, a+3, a+3, b+1, b+3);
   });
-  for (const direction of [-1, 1]) {
-    const points = Array.from({ length: 97 }, (_, index) => {
-      const t = index / 96;
-      const verticalT = 0.08 + t * 0.7;
-      const radius = domeRadius(verticalT, signature.diameter_m) - 1.7;
-      const angle =
-        direction * t * Math.PI * 4.4 + (direction < 0 ? Math.PI : 0);
-      return new Vector3(
-        Math.cos(angle) * radius,
-        verticalT * signature.height_m,
-        Math.sin(angle) * radius,
-      );
-    });
-    const label = direction < 0 ? "descending" : "ascending";
-    const ramp = new Mesh(
-      new TubeGeometry(new CatmullRomCurve3(points), 160, 0.42, 8, false),
-      deckMaterial,
-    );
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function addRamps(group: Group): void {
+  const deckMaterial = new MeshStandardMaterial({ color: 0xd8e0e3, metalness: 0.35, roughness: 0.42, side: DoubleSide });
+  const railMaterial = new MeshStandardMaterial({ color: 0xaebbc0, metalness: 0.6, roughness: 0.3 });
+  for (const route of [0, 1]) {
+    const points = reichstagRampPoints(route * EVIDENCE.rampStartSeparationRadians);
+    const label = route === 0 ? "ascending" : "descending";
+    const ramp = new Mesh(rampDeckGeometry(points), deckMaterial);
     ramp.name = `${label} visitor ramp deck`;
+    ramp.userData = { flatDeck: true, publishedLengthM: EVIDENCE.rampLengthM, displayWidthM: 1.8 };
     ramp.castShadow = true;
     group.add(ramp);
-
-    for (const railOffset of [-0.72, 0.72]) {
-      const railPoints = points.map((point, index) => {
-        const radial = new Vector3(point.x, 0, point.z).normalize();
-        return point
-          .clone()
-          .addScaledVector(radial, railOffset)
-          .add(new Vector3(0, 0.92, 0));
-      });
-      const rail = new Mesh(
-        new TubeGeometry(
-          new CatmullRomCurve3(railPoints),
-          160,
-          0.045,
-          6,
-          false,
-        ),
-        railMaterial,
-      );
+    for (const railOffset of [-0.85, 0.85]) {
+      const railPoints = points.map((point) => point.clone().addScaledVector(new Vector3(point.x, 0, point.z).normalize(), railOffset).add(new Vector3(0, 0.92, 0)));
+      const rail = new Mesh(new TubeGeometry(new CatmullRomCurve3(railPoints), 160, 0.045, 6, false), railMaterial);
       rail.name = `${label} ramp ${railOffset < 0 ? "inner" : "outer"} handrail`;
       group.add(rail);
     }
-
     const balusters: number[] = [];
     for (let index = 0; index < points.length; index += 4) {
       const point = points[index];
-      for (const railOffset of [-0.72, 0.72]) {
-        const radial = new Vector3(point.x, 0, point.z).normalize();
-        const base = point.clone().addScaledVector(radial, railOffset);
-        const top = base.clone().add(new Vector3(0, 0.92, 0));
-        balusters.push(...base.toArray(), ...top.toArray());
+      for (const railOffset of [-0.85, 0.85]) {
+        const base = point.clone().addScaledVector(new Vector3(point.x, 0, point.z).normalize(), railOffset);
+        balusters.push(...base.toArray(), base.x, base.y + 0.92, base.z);
       }
     }
-    const balusterGeometry = new BufferGeometry();
-    balusterGeometry.setAttribute(
-      "position",
-      new Float32BufferAttribute(balusters, 3),
-    );
-    const balusterLines = new LineSegments(
-      balusterGeometry,
-      markArchitecturalAccentInk(
-        new LineBasicMaterial(),
-        0xaebbc0,
-        "detail",
-      ),
-    );
-    balusterLines.name = `${label} ramp batched guardrail balusters`;
-    group.add(balusterLines);
+    // Continue the inner/outer guards around the observation platform in the same ink batch.
+    if (route === 0) for (const radius of [PLATFORM_INNER_RADIUS_M, PLATFORM_OUTER_RADIUS_M]) {
+      for (let index = 0; index < 96; index += 1) {
+        const a = index / 96 * Math.PI * 2, b = (index + 1) / 96 * Math.PI * 2;
+        const y = EVIDENCE.platformHeightAboveTerraceM;
+        balusters.push(Math.cos(a)*radius,y+0.92,Math.sin(a)*radius,Math.cos(b)*radius,y+0.92,Math.sin(b)*radius);
+        if (index % 4 === 0) balusters.push(Math.cos(a)*radius,y,Math.sin(a)*radius,Math.cos(a)*radius,y+0.92,Math.sin(a)*radius);
+      }
+    }
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(balusters, 3));
+    const lines = new LineSegments(geometry, markArchitecturalAccentInk(new LineBasicMaterial(), 0xaebbc0, "detail"));
+    lines.name = `${label} ramp batched guardrail balusters`;
+    group.add(lines);
   }
+  const platform = new Mesh(new RingGeometry(PLATFORM_INNER_RADIUS_M, PLATFORM_OUTER_RADIUS_M, 96), deckMaterial);
+  platform.name = "Reichstag open observation platform";
+  platform.rotation.x = -Math.PI / 2;
+  platform.position.y = EVIDENCE.platformHeightAboveTerraceM;
+  platform.userData = { publishedAreaM2: EVIDENCE.platformAreaM2, annularPlanIsDisplayApproximation: true };
+  group.add(platform);
+  // Static position of the documented moving louvre screen; no simulated tracking claim.
+  const shade = new InstancedMesh(new BoxGeometry(1, 1, 1), railMaterial, 32);
+  shade.name = "Reichstag aluminium louvre sunshade";
+  shade.userData = { displayLouvreCount: 30, sourceUrl: EVIDENCE.sourceUrl, staticPose: true };
+  const dummy = new Object3D();
+  for (let index = 0; index < 32; index += 1) {
+    if (index < 30) {
+      const t = (index + 0.5) / 30;
+      dummy.position.set(2.4 + 5.4 * t + 0.4, t * 18, 0);
+      dummy.scale.set(0.12, 0.42, 2.8 + 4.8 * t);
+    } else {
+      dummy.position.set(5.5, 9, (index === 30 ? -1 : 1) * 2.5);
+      dummy.scale.set(0.16, 18, 0.16);
+    }
+    dummy.rotation.set(0, 0, index < 30 ? 0.12 : -Math.atan(5.4 / 18));
+    dummy.updateMatrix();
+    shade.setMatrixAt(index, dummy.matrix);
+  }
+  shade.computeBoundingBox(); shade.computeBoundingSphere(); shade.castShadow = true;
+  group.add(shade);
 }
 
 function addDiagonalBracing(
@@ -227,7 +257,7 @@ function addBaseRadialBeams(
 
 function addMirrorConeFacets(group: Group): void {
   const positions: number[] = [];
-  const sectors = 24;
+  const sectors = EVIDENCE.mirrorsPerRow;
   for (let index = 0; index < sectors; index += 1) {
     const angle = (index / sectors) * Math.PI * 2;
     positions.push(
@@ -239,8 +269,8 @@ function addMirrorConeFacets(group: Group): void {
       Math.sin(angle) * 7.8,
     );
   }
-  for (let level = 1; level < 6; level += 1) {
-    const t = level / 6;
+  for (let level = 1; level < EVIDENCE.mirrorRows; level += 1) {
+    const t = level / EVIDENCE.mirrorRows;
     const radius = 2.4 + (7.8 - 2.4) * t;
     for (let index = 0; index < sectors; index += 1) {
       const angle0 = (index / sectors) * Math.PI * 2;
@@ -268,14 +298,14 @@ function addMirrorConeFacets(group: Group): void {
       "micro",
     ),
   );
-  facets.name = "daylight mirror cone 24-sector facet grid";
+  facets.name = "daylight mirror cone 12-sector 30-row facet grid";
   facets.renderOrder = 8;
   group.add(facets);
 }
 
 function addMirrorConePanels(group: Group): void {
-  const sectors = 24;
-  const rows = 15;
+  const sectors = EVIDENCE.mirrorsPerRow;
+  const rows = EVIDENCE.mirrorRows;
   const panelGeometry = new PlaneGeometry(1, 1);
   // Drawn silver, not physical metal: high metalness without an
   // environment map renders nearly black in three.js, which made the
@@ -294,6 +324,7 @@ function addMirrorConePanels(group: Group): void {
     sectors * rows,
   );
   panels.name = "daylight mirror cone 360 individual panels";
+  panels.userData = { rows, mirrorsPerRow: sectors };
   const dummy = new Object3D();
   let instance = 0;
   for (let row = 0; row < rows; row += 1) {
@@ -308,7 +339,7 @@ function addMirrorConePanels(group: Group): void {
         Math.sin(angle) * radius,
       );
       dummy.rotation.set(0, Math.PI / 2 - angle, 0);
-      dummy.scale.set(panelWidth, 0.94, 1);
+      dummy.scale.set(panelWidth, (18 / rows) * 0.88, 1);
       dummy.updateMatrix();
       panels.setMatrixAt(instance, dummy.matrix);
       instance += 1;
@@ -332,6 +363,7 @@ export function createOfficialReichstagDome(
     geometryStatus: signature.geometry_status,
     heightM: signature.height_m,
     sourceUrl: signature.source_url,
+    sourceDetail: EVIDENCE,
   };
 
   const firstGlazedRow = UNGLAZED_LOWER_ROWS / signature.horizontal_rings;
@@ -491,6 +523,6 @@ export function createOfficialReichstagDome(
     group.add(light);
   }
 
-  addRamps(group, signature);
+  addRamps(group);
   return group;
 }

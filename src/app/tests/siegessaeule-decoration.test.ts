@@ -21,6 +21,8 @@ import {
   SIEGESSAEULE_PROFILE,
 } from "../src/SiegessaeuleProfile";
 import { AXIS_FROM, AXIS_TO } from "../src/worldEnvelope";
+import { createSiegessaeuleArchitecture, siegessaeuleShaftStack } from "../src/SiegessaeuleArchitecture";
+import { minecraftSiegessaeuleBlocks, SIEGESSAEULE_LEVELS } from "../src/MinecraftSiegessaeule";
 import wikimediaAttribution from "../public/dzi/regierungsviertel/wikimedia_attribution.json";
 
 function namedMesh(root: ReturnType<typeof createSiegessaeule>, name: string) {
@@ -385,8 +387,8 @@ describe("the source-bounded lower Siegessäule registers", () => {
     band.getMatrixAt(7, after);
     expect(after.equals(before)).toBe(true);
     const position = new Vector3().setFromMatrixPosition(after);
-    expect(position.y).toBeGreaterThan(11);
-    expect(position.y).toBeLessThan(13);
+    expect(position.y).toBeGreaterThan(SIEGESSAEULE_LEVELS.hallFloorY);
+    expect(position.y).toBeLessThan(SIEGESSAEULE_LEVELS.hallRoofBottomY);
 
     const reliefBounds = new Box3().setFromObject(reliefs);
     const mosaicBounds = new Box3().setFromObject(band);
@@ -406,5 +408,53 @@ describe("the source-bounded lower Siegessäule registers", () => {
       expect(detail.userData.animated).toBe(false);
       expect(detail.frustumCulled).toBe(false);
     }
+  });
+});
+
+describe("the corrected Siegessäule shaft and observation balcony", () => {
+  test("keeps taller, slimmer upper drums and 60 short trophies below the laurel register", () => {
+    const { hallRoofTopY, statueBaseY } = SIEGESSAEULE_LEVELS;
+    const architecture = createSiegessaeuleArchitecture(0, 0, hallRoofTopY, statueBaseY);
+    const { drums } = siegessaeuleShaftStack(hallRoofTopY, statueBaseY);
+    for (let index = 1; index < drums.length; index += 1) {
+      expect(drums[index].topY - drums[index].bottomY).toBeGreaterThan(drums[index - 1].topY - drums[index - 1].bottomY);
+      expect(drums[index].radius).toBeLessThan(drums[index - 1].radius);
+    }
+    const guns = architecture.parts.filter((part) => part.name === "gilded captured cannon");
+    expect(guns).toHaveLength(60);
+    for (const gun of guns) {
+      const ys = Array.from(gun.triangles).filter((_, index) => index % 3 === 1);
+      expect(Math.max(...ys)).toBeLessThan(drums[3].bottomY);
+      expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(3);
+    }
+    expect(architecture.metrics.platformSides).toBe(8);
+    expect(architecture.metrics.laurelFestoonCount).toBe(20);
+    expect(architecture.metrics.vertexCount).toBeLessThan(30_000);
+    expect(architecture.parts.filter((part) => part.name === "open viewing rail baluster")).toHaveLength(40);
+    // The viewing gallery stays open around its central pedestal, instead
+    // of the former single 9.2 m-wide solid crown block.
+    const pedestal = architecture.parts.find((part) => part.name === "Viktoria central pedestal")!;
+    for (let index = 0; index < pedestal.triangles.length; index += 3) {
+      expect(Math.hypot(pedestal.triangles[index], pedestal.triangles[index + 2])).toBeLessThan(1.5);
+    }
+  });
+
+  test("gives Minecraft the same architecture and a west-facing open-wreath figure in one bounded batch", () => {
+    const blocks = minecraftSiegessaeuleBlocks(0, 0, [-1, 0]);
+    expect(blocks.filter((block) => block.feature === "captured gilded cannon")).toHaveLength(60);
+    expect(blocks.filter((block) => block.feature === "octagonal balcony rail")).toHaveLength(16);
+    expect(blocks.filter((block) => block.feature === "stepped wing feather")).toHaveLength(10);
+    const wreath = blocks.filter((block) => block.feature === "open laurel wreath");
+    expect(wreath).toHaveLength(12);
+    expect(wreath.every((block) => block.position[0] < 0)).toBe(true);
+    expect(blocks.length).toBeLessThan(350);
+    const world = createMinecraftExtrapolatedWorld();
+    const column = namedInstances(world, "Voxel extrapolated Siegessäule");
+    expect(column.count).toBe(blocks.length);
+    const hall = namedInstances(world, "Voxel Siegessäule upper colonnade");
+    const bounds = new Box3().setFromObject(hall);
+    expect(bounds.min.y).toBeCloseTo(SIEGESSAEULE_LEVELS.hallFloorY, 5);
+    expect(bounds.max.y).toBeCloseTo(SIEGESSAEULE_LEVELS.hallRoofBottomY, 5);
+    expect(world.children.filter((child) => child.name.includes("Siegessäule"))).toHaveLength(4);
   });
 });

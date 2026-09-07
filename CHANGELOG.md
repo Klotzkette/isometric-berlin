@@ -1,5 +1,39 @@
 # Changelog
 
+## v1.0.0
+
+- **Reichstag und Brandenburger Tor genauer.** Die Reichstagskuppel erhaelt
+  flache Doppelrampen, Aussichtsplattform, Sonnenschutz und die
+  dokumentierte Spiegelgliederung. Am Tor folgen Metopen, Triglyphen und
+  oestliches Attikarelief den Denkmalquellen. Minecraft behaelt seine eigene
+  Blocksprache und korrigiert unter anderem die Blickrichtung der Quadriga.
+- **Hauptbahnhof in jedem Modus betreten.** Oeffentliche Eingangsluecken,
+  zurueckgeschobene Tuerfluegel und passende Vorhallen verbinden die Zugangswege
+  in Day, Night, Snowstorm, Minecraft und Schwellenraum. Reale Waende,
+  Atriumkanten und Aufzugsschaechte bleiben Hindernisse.
+- **Springen am orangefarbenen Joystick.** Zwei kurze Finger- oder Stifttipps
+  loesen im mobilen Gehmodus den normalen Sprung aus. Ziehen, lange Beruehrung,
+  Mehrfingergesten und abgebrochene Eingaben koennen keinen Sprung ausloesen.
+- **Ein gemeinsames Release.** Hauptzweig, GitHub-Release, Downloadpakete und
+  oeffentlicher Viewer verwenden denselben geprueften Stand v1.0.0.
+- **Weniger Baeume in Minecraft.** Rund ein Sechstel der bisher sichtbaren
+  gewoehnlichen Baeume entfaellt deterministisch auf Desktop und Mobilgeraeten.
+  Die Lenne-Eiche bleibt; Fussgaenger- und Mob-Kollisionen folgen der sichtbaren
+  Auswahl auch nach einem Moduswechsel.
+- **Mehr quellgebundene Gebaeudedetails in allen Modi.** Ein begrenztes
+  OSM-Attributmanifest ergaenzt 12.646 LoD2-IDs um vorhandene Geschosszahlen,
+  Material- und Farbangaben. Dachformen und Grundrisse bleiben erhalten;
+  Geschosslinien und Traufenkonturen verfeinern bisher schlichte Fassaden.
+  Nicht vermessene Unterteilungen bleiben als Darstellungsschaetzungen benannt.
+  Minecraft erhaelt dazu dezente Blockfugen ohne weitere Geometrie.
+- **Ruhigerer Schwellenraum.** Ein perlmuttfarbener Abendhimmel, warme Lichter,
+  kuehle Flieder-Schatten und feine Wasserreflexe ergaenzen die bestehenden
+  Schwellen. Schutzmasken und reduzierte Bewegung bleiben erhalten.
+- **Genauere Siegessaeule.** Vier schlankere kannelierte Trommeln, sechzig kurze
+  vergoldete Trophaeen, oberer Lorbeer, Adlerfries und offene achteckige Galerie
+  folgen den Denkmalquellen. Minecraft teilt die korrigierten Proportionen und
+  erhaelt eine klarere westwaerts gerichtete Viktoria-Silhouette.
+
 ## v0.72.43
 
 - **Potsdamer Platz nach den Kollhoff-Panoramen.** 20 Gebaeudegruppen mit

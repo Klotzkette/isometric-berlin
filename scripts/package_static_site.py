@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.43"
+PACKAGE_VERSION = "1.0.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,14 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0: Reichstag und Brandenburger Tor erhalten genauere Details in der
+jeweiligen Modussprache. Der Hauptbahnhof laesst sich in allen fuenf Modi
+durch die oeffentlichen Eingaenge betreten. Auf dem Telefon springt die Figur
+im Fussgaengermodus durch zweimaliges kurzes Tippen auf den orangefarbenen
+Joystick; Ziehen bleibt die Bewegungssteuerung. Weniger Minecraft-Baeume,
+ein weicherer Schwellenraum, quellgebundene Gebaeudeattribute und die
+ueberarbeitete Siegessaeule sind ebenfalls enthalten.
+
 Dieses Paket ist eine lokale Website mit allen Kartendaten. Zum Anzeigen
 brauchst du keine KI und keinen Google-Key. START-HERE.html ist die klar
 gekennzeichnete 2D-Kompatibilitätsansicht ohne Server, nicht das vollständige
@@ -3411,9 +3419,9 @@ Man kann nicht hindurchgehen, stirbt aber nie und wird nicht zurückgesetzt.
 OpenSeadragon hält mobil höchstens 32 Kacheln bei drei Ladern und am Desktop 64
 bei sechs. Beim Wechsel zur 2D-Karte wird WebGL überall freigegeben; die
 Renderziele bleiben mobil bei 1,35x / 3,2 MP und am Desktop bei 1,75x / 8,5 MP.
-Version {PACKAGE_VERSION} setzt den Fußgängermodus exakt auf den aktuellen
-Kamera-Fokus; nur bei einem ungültigen Fokus dient die Kameraposition als
-Rückfall. Das Bundeswirtschaftsministerium an Sandkrugbrücke und
+Version {PACKAGE_VERSION} setzt den Fußgängermodus senkrecht unter die aktuelle
+Kameraposition; nur ausserhalb der gueltigen Welt dient der Kamera-Fokus als
+Rueckfall. Das Bundeswirtschaftsministerium an Sandkrugbrücke und
 Berlin-Spandauer Schifffahrtskanal erhält auf seinen amtlichen LoD2-Hüllen
 Kanalraster, historische Invalidenhaus-Fenster, Gesimse und Eingänge. Auf dem
 Desktop lädt der Progressive-Worker seine unveränderten Welt-URLs selbst,
@@ -3443,10 +3451,10 @@ Fokussieren frei vom dichten Kronendach.
 Im Minecraft-Modus schützt eine gemeinsame gedrehte Ausschlussfläche das
 Holocaust-Mahnmal vollständig vor Voxelbäumen und vor Spawn, Wegfindung und
 Bewegung von Creepern, Zombies und Skeletten. Außerhalb davon behält die
-gestreamte deterministische Auswahl im Vollprofil zwei Drittel und mobil ein
-Drittel der zulässigen Voxelbäume, ohne eine große Zwischenliste aufzubauen.
-Ein einziges Mob-Batch enthält voll vier Creeper, sechs Zombies und drei
-Skelette, mobil drei, fünf und zwei. Vier beziehungsweise zwei Lootboxen
+gestreamte deterministische Auswahl im Vollprofil etwa fuenf Neuntel und mobil
+fuenf Achtzehntel der zulaessigen Voxelbaeume; die Lenne-Eiche bleibt.
+Ein einziges Mob-Batch enthaelt voll sechs Creeper, sechzehn Zombies, fuenf
+Skelette und vier Fuechse, mobil vier, zehn, drei und drei. Vier beziehungsweise zwei Lootboxen
 benötigen zwei zusätzliche Instanz-Batches, öffnen einmalig bei Kontakt im
 Fußgängermodus und zeigen 1,35 Sekunden lang begrenztes Feuerwerk. Das
 geschützte Mahnmal bleibt in jedem Profil frei von Bäumen, Mobs und Loot.
@@ -3723,7 +3731,7 @@ stoppt sieben lokal erzeugte 8-Bit-Musikvarianten; Musik bleibt standardmäßig
 aus. Taste D schaltet Tag/Nacht, Taste M Minecraft.
 
 In Version {PACKAGE_VERSION} ist die Minecraft-Hauptarchitektur bewusst gröber
-und blockiger: weniger als 5.000 Signaturblöcke folgen einem 8-m-Hero-Raster.
+und blockiger: 5.184 Signaturblöcke folgen einem 8-m-Hero-Raster.
 Beibehaltene Quellkörper von Reichstag, Kanzleramt und Parlamentsbauten werden
 vertikal in höchstens 8 m hohe Blockkurse geteilt; glatte Architektur-Overlays
 bleiben im Minecraft-Modus ausgeblendet. Vorhandene Eingangsportale, offene
@@ -3734,8 +3742,8 @@ Im mobilen Touch-Profil begrenzt Version {PACKAGE_VERSION} den Minecraft-
 Speicher. Es gilt bei primärem oder beliebigem groben Zeiger sowie bei
 navigator.maxTouchPoints > 0. Der frühere Benchmark vor der Baum-Auswahl maß
 845,561 Instanzen / 63.265 MiB Instanzpuffer mobil und 3,419,412 / 249.815 MiB
-voll; die aktuelle 1/3- beziehungsweise 2/3-Retention macht diese Werte zu
-konservativen Obergrenzen. Nur im mobilen Profil entfallen generische
+voll. Dies sind historische Werte; die spaeteren Architektur- und
+Attributdetails aendern den Gesamtpuffer. Nur im mobilen Profil entfallen generische
 Fassadenscheiben und Wiesenblumen; Nicht-Hero-
 Quellspalten werden zusammengefasst, während Hero-Kurse bis 8 m, Signaturen und
 Navigation erhalten bleiben. Jedes WebGL-Profil nutzt kein Renderer-MSAA,
@@ -3775,7 +3783,7 @@ gezeichnete oder Minecraft-Weltfamilie im Speicher. Profilunabhängig erhält ei
 WebGL-Laufzeitfehler genau einen sauberen Neustart; beim zweiten Fehler
 erscheinen Wiederherstellung und 2D-Karte als ausdrückliche Auswahl.
 Nicht-Touch-Desktop behält die vollständige Architektur, reduziert aber seine
-Minecraft-Bäume ebenfalls deterministisch auf zwei Drittel.
+Minecraft-Baeume ebenfalls deterministisch auf etwa fuenf Neuntel.
 
 Version {PACKAGE_VERSION} entfernt die 74 nie mehr dargestellten Foto-GLBs und
 den duplizierten Asphaltplatten-Cache vollständig. Alle {source_buildings_de}
@@ -3902,6 +3910,13 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
+New in v1.0: the Reichstag and Brandenburg Gate gain more accurate detail in
+each mode's visual style. Hauptbahnhof's public entrances are accessible in
+all five modes. On phones in walking mode, two quick taps on the orange
+joystick make the person jump; dragging still moves them. The release also
+includes fewer Minecraft trees, a softer Schwellenraum, recorded building
+attributes and the refined Siegessaeule.
+
 This package is a local website with all map data included. It does not need an
 AI model or a Google key to run. START-HERE.html is the clearly labelled
 zero-server 2D compatibility view, not the complete model. True 3D starts with
@@ -3919,8 +3934,8 @@ resets the walker. OpenSeadragon keeps at most 32 tiles with three loaders on
 mobile and 64 with six on desktop. Switching to the 2D map releases WebGL
 everywhere; render targets stay within 1.35x / 3.2 MP on touch and 1.75x /
 8.5 MP on desktop.
-Version {PACKAGE_VERSION} enters pedestrian mode at the exact current camera
-focus; the camera position is only a fallback for an invalid focus. The Federal
+Version {PACKAGE_VERSION} enters pedestrian mode directly below the current
+camera position; the orbit focus is only a fallback outside the valid world. The Federal
 Ministry for Economic Affairs at Sandkrugbrücke and the Berlin-Spandauer
 Schifffahrtskanal gains canal grids, historic Invalidenhaus windows, cornices
 and entrances on its official LoD2 shells. On desktop, the progressive Worker
@@ -3947,11 +3962,11 @@ renderables / 2,847 stored / 7,137 rendered vertices. A dedicated elevated
 southern focus keeps the niches, figures and cupola clear of the dense canopy.
 In Minecraft, one shared rotated exclusion protects the entire Holocaust
 Memorial from voxel trees and from hostile-mob spawn, walkability and motion.
-Outside it, streamed deterministic retention keeps two thirds of eligible
-voxel trees in the full profile and one third on mobile without expanding a
-large intermediate tree list. The single mob instance batch contains four
-Creepers, six Zombies and three bow-carrying Skeletons in full, or three, five
-and two respectively on mobile. Four full-profile or two mobile loot boxes use
+Outside it, streamed deterministic retention keeps about five ninths of eligible
+voxel trees in full and five eighteenths on mobile; the Lenné-Eiche remains.
+The single mob instance batch supports six Creepers, sixteen Zombies, five
+bow-carrying Skeletons and four foxes in full, or four, ten, three and three
+respectively on mobile. Four full-profile or two mobile loot boxes use
 two additional instance batches, open once on pedestrian contact and show a
 bounded 1.35-second firework. The protected memorial stays free of trees,
 hostile mobs and loot in every profile.
@@ -4214,7 +4229,7 @@ browsers may require the first click, touch or key gesture before either layer
 becomes audible. D toggles Day/Night and M toggles Minecraft.
 
 In version {PACKAGE_VERSION}, Minecraft's principal architecture is
-deliberately coarser and more block-like: fewer than 5,000 signature blocks
+deliberately coarser and more block-like: 5,184 signature blocks
 follow an 8 m hero raster. Retained Reichstag, Chancellery and parliamentary
 source bodies are split vertically into block courses no taller than 8 m;
 smooth architectural overlays stay hidden in Minecraft. Existing entrance
@@ -4225,8 +4240,8 @@ Version {PACKAGE_VERSION} bounds Minecraft in the mobile-like touch profile,
 which applies when the primary or any pointer is coarse or
 navigator.maxTouchPoints > 0. The earlier pre-retention benchmark measured
 845,561 instances / 63.265 MiB of instance buffers on mobile and 3,419,412 /
-249.815 MiB in full; current 1/3 and 2/3 tree retention makes these conservative
-upper bounds. Only the mobile profile omits generic facade panes and meadow
+249.815 MiB in full. These are historical figures; later architecture and
+source-attribute detail change the complete-world baseline. Only the mobile profile omits generic facade panes and meadow
 flowers and collapses non-Hero source columns; Hero courses up to 8 m,
 signatures and navigation remain. Every WebGL profile uses no renderer MSAA, a
 0x UnsignedByte composer and one final SMAA pass. Inactive world builds are canceled, failed
@@ -4260,7 +4275,7 @@ construction. The touch profile retains only the active drawn or Minecraft
 world family.
 In every profile, a WebGL runtime failure receives exactly one clean restart; a
 second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop
-keeps complete architecture while deterministically retaining two thirds of
+keeps complete architecture while deterministically retaining about five ninths of
 its Minecraft trees as well.
 
 Version {PACKAGE_VERSION} removes all 74 retired photographic GLBs and the

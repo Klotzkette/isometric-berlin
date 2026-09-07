@@ -24,7 +24,7 @@ import {
   CHARITE_CAMPUS_BRIDGE_ID,
   FACADE_AXIS_V07231_ATTRIBUTE_BYTES,
   PLAZA_FACADE_DETAIL_ZONES,
-  PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
+  BUILDING_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
   PRISM_SUPPRESSED_IDS,
   type PrismWall,
   type PrismPayload,
@@ -275,6 +275,8 @@ describe("ligne-claire fenestration", () => {
         "bay-axis",
         "storey-sill",
         "plaza-front-window-head",
+        "mapped-storey-head",
+        "source-envelope-eave",
         "window-dash",
       ],
       openingCoordinates: "inferred rhythm; not surveyed individual panes",
@@ -763,7 +765,7 @@ describe("ligne-claire fenestration", () => {
     expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);
   });
 
-  test("keeps the richer place facades inside a sub-104 KiB buffer delta", () => {
+  test("keeps city-wide source detail inside an 8 MiB buffer delta with no new draws", () => {
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     const position = axes.geometry.getAttribute("position");
     const lineDistance = axes.geometry.getAttribute("lineDistance");
@@ -773,8 +775,11 @@ describe("ligne-claire fenestration", () => {
       attributeBytes,
     );
     expect(attributeBytes - FACADE_AXIS_V07231_ATTRIBUTE_BYTES).toBeLessThanOrEqual(
-      PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
+      BUILDING_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
     );
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts).toBeGreaterThan(24_000);
+    expect(axes.userData.buildingDetailCoverage.mappedStoreyParts).toBeGreaterThan(9_500);
+    expect(axes.userData.buildingDetailCoverage.extraRenderables).toBe(0);
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {

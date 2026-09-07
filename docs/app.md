@@ -103,10 +103,10 @@ forward and scrolling down walks backward; fine vertical trackpad deltas are
 proportional, while pinch and horizontal gestures do not move the walker. All
 wheel travel passes through the same solid-object, terrain, tunnel and water
 checks as keyboard movement. Hold `Shift` for a four-times sprint,
-or double-tap `W`/up, the forward button or the walking joystick to latch and
-unlatch the same sprint on keyboard, mouse and touch; a mouse double-click on
-the 3D view does the same. The normal
-6.4 m/s rate remains available for precise inspection, and both speeds pass
+or double-tap `W`/up or the forward button to latch and unlatch the same sprint;
+a mouse double-click on the walking joystick or 3D view does the same. A
+touch/pen double-tap on the orange walking joystick jumps. The normal
+8.5 m/s rate remains available, and both speeds pass
 through the same terrain, tunnel and water checks. One `Space`, the touch-safe
 jump button or a double-tap on the free 3D view produces the normal ground jump
 with a 6.2 m apex. A second `Space` within 320 ms raises that same jump once to
@@ -172,9 +172,11 @@ audio layers into a dedicated, very quiet procedural soundscape. Its two
 existing audio controls independently fade a soft room-rustle bus and a sparse
 harmonic bus; leaving the mode restores the standard layers without losing
 either user choice. Lower descending roots alternate minor and unresolved
-suspended intervals. A colder mauve-grey sky and a material-integrated
-cyan-lavender split tone desaturate ordinary city surfaces without a render target,
-full-screen pass or extra draw call. The grade is a lazily cached material
+suspended intervals. A static pearl-dusk sky grades from a peach horizon through
+lavender to blue-violet, while warm stone highlights and cool lilac shadows
+retain more of the original facade colours. The material grade adds no render
+target, full-screen pass or draw call; the sky is one background triangle.
+The grade is a lazily cached material
 variant: leaving the mode restores the exact Day material and protected
 memorial subtrees never receive it. Buildings are never warped. It shares the
 all-mode official-civic flag
@@ -203,8 +205,9 @@ silent phosphor television cues join the existing seats and appliances without
 photographic textures. The frames gain deterministic lateral shear and each
 threshold uses three faintly misregistered veil planes, while the former 128
 threshold renderables remain consolidated into 24 using three shared materials.
-The full layer stays below 3,000 source vertices and
-the coarse-pointer profile below 1,800. Static motes use one instanced mesh per
+The complete threshold, sky and Pariser-Platz presentation stays at 5,760
+vertices on desktop and 4,416 in the compact profile, with 32 renderables.
+See [the atmosphere notes](schwellenraum-atmosphere.md). Static motes use one instanced mesh per
 site, while frames and veils are each batched, so richer atmosphere does not
 turn into hidden startup residency or hundreds of draw calls.
 
@@ -365,7 +368,7 @@ payload uses the same single-remount recovery contract as the drawn world. Leavi
 Minecraft restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
 Hauptbahnhof, Brandenburger Tor and the parliamentary band receive shared,
 opaque `InstancedMesh<BoxGeometry>` recognition batches over the same metric
-voxel mass. Fewer than 5,000 signature blocks use a deliberately coarse 8 m
+voxel mass. The 5,184 signature blocks use a deliberately coarse 8 m
 hero raster. Retained Reichstag, Chancellery and parliamentary source bodies
 are divided vertically into block courses no taller than 8 m. Their stepped
 dome, portals, glass halls, rotundas and open Spree bridges replace the smooth
@@ -465,16 +468,19 @@ The complete monument is exactly 10.00 m high and stays at 30 renderables /
 2,847 stored / 7,137 rendered vertices. Its dedicated elevated southern focus
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
 shared protection excludes every tree, mob and loot spawn from the field.
-Outside it, deterministic retention keeps two thirds of eligible voxel trees
-in full and one third on mobile; the single mob draw call has a capacity of
+Outside it, deterministic retention now keeps five sixths of the previously
+visible Minecraft trees: approximately five ninths of eligible source trees
+in full and five eighteenths on mobile. This reduces the previous visible
+counts by about 16.7% / 16.5%, without relocating trees or changing the source
+catalogue or any drawn-mode trees. The Lenné-Eiche remains explicitly retained,
+and mob walkability uses the same retained-tree rule. The single mob draw call has a capacity of
 386 parts for the 6/16/5/4 full field or 250 parts for the 4/10/3/3 mobile field
 (Creepers/Zombies/Skeletons/foxes). Only active nearby slots are submitted.
 
 The earlier pre-retention Minecraft benchmark measured **845,561 instances /
 63.265 MiB of instance buffers** on mobile and **3,419,412 / 249.815 MiB** in
-full. The current streamed 1/3 and 2/3 tree retention makes those figures
-conservative upper bounds; the small mob and loot batches remain separately
-fixed.
+full. These are historical figures, not bounds for the later source-attribute
+and monument refinements. The small mob and loot batches remain separately fixed.
 The v0.72.42 cold builder uses a bounded recognition index, streams compact
 building rows and counts then writes facade panes into their final buffers.
 Fully overwritten building/window matrices skip redundant identity filling;
@@ -657,7 +663,8 @@ overridden with `?theme=day` or `?theme=night` for deterministic QA.
 The four hero landmarks carry metre-scale recognition models over their exact
 LoD2/OSM anchors. The Reichstag combines its four corner towers and west portico
 with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
-datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
+datum, 24 main ribs, 17 horizontal rings, two noncrossing ramps with opposite
+travel directions and a
 mirror cone. The Chancellery keeps the published 36 m by 55 m leadership
 building and 18 m office bands, but opens the central east/west elevations into
 their concrete frame, semicircular halls, split gallery plates around a 14.4 m

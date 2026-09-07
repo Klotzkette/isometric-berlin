@@ -29,27 +29,28 @@ import {
   type SchwellenraumProtectedVolume,
 } from "../../SchwellenraumInteriors";
 import { attachPariserPlatzEntityLoop } from "./pariserPlatzEntityLoop";
+import { createSchwellenraumSky } from "./sky";
 
 /**
  * The Schwellenraum keeps the ordinary daylight city intact. Its atmosphere
  * is therefore made from a different sky and a few additive light objects,
  * never from displaced, stretched or post-processed architecture.
  */
-export const SCHWELLENRAUM_SKY_COLOR = 0x837e8b;
+export const SCHWELLENRAUM_SKY_COLOR = 0xa5a3bf;
 
 export const SCHWELLENRAUM_LIGHT_TONES = [
-  0xe0b07f,
-  0xa8cbb7,
-  0xc1a4ca,
-  0x78a5aa,
+  0xeac79a,
+  0xacd8c7,
+  0xc5b3e0,
+  0x8bbdcd,
 ] as const;
 
 export type SchwellenraumDetailProfile = "full" | "mobile";
 
-/** Hard geometry budgets for all eight sites and the local Pariser Platz loop. */
+/** Hard budgets for the sky, eight sites and the local Pariser Platz loop. */
 export const SCHWELLENRAUM_PRESENTATION_BUDGET = {
-  full: { geometries: 24, materials: 10, objects: 41, renderables: 31, vertices: 5_700 },
-  mobile: { geometries: 24, materials: 10, objects: 41, renderables: 31, vertices: 4_350 },
+  full: { geometries: 25, materials: 11, objects: 42, renderables: 32, vertices: 5_800 },
+  mobile: { geometries: 25, materials: 11, objects: 42, renderables: 32, vertices: 4_450 },
 } as const;
 
 /**
@@ -371,18 +372,22 @@ function pushVeil(
   const halfWidth = width / 2;
   const bottom = height * 0.03;
   const top = height * 0.97;
-  const vertices = [
+  // A four-panel colour fan fades the veil toward its perimeter. This avoids
+  // an opaque-looking rectangular card while staying in the existing batch.
+  const corners = [
     [-halfWidth, bottom, z],
     [halfWidth, bottom, z],
     [halfWidth, top, z],
-    [-halfWidth, bottom, z],
-    [halfWidth, top, z],
     [-halfWidth, top, z],
   ] as const;
-  const color = new Color(tone).multiplyScalar(strength);
-  for (const vertex of vertices) {
-    positions.push(...vertex);
-    colors.push(color.r, color.g, color.b);
+  const center = [0, height * 0.46, z] as const;
+  const color = new Color(tone);
+  for (let side = 0; side < 4; side += 1) {
+    for (const [index, vertex] of [center, corners[side], corners[(side + 1) % 4]].entries()) {
+      positions.push(...vertex);
+      const light = strength * (index === 0 ? 1 : 0.05);
+      colors.push(color.r * light, color.g * light, color.b * light);
+    }
   }
 }
 
@@ -510,8 +515,8 @@ function createLichtschwelle(
   contours.userData.schwellenraumStatic = true;
   group.add(contours);
 
-  // Two close translucent planes make a quiet spatial afterimage instead of
-  // a bright portal card. Both planes remain in one draw call.
+  // Three softly fading planes make a quiet spatial afterimage. All veil
+  // geometry remains in one draw call per place.
   const veilPositions: number[] = [];
   const veilColors: number[] = [];
   pushVeil(veilPositions, veilColors, width * 0.94, height, 0, mainTone, 0.8);
@@ -604,18 +609,19 @@ export function createSchwellenraumPraesentation(
   );
   root.userData.detailProfile = detailProfile;
   root.userData.atmosphere =
-    "cold dissonant light, impossible receding corridors and static misregistered frame echoes";
+    "pearl dusk, warm stone and sea-glass light, impossible receding corridors and static misregistered frame echoes";
   root.userData.renderBudget = SCHWELLENRAUM_PRESENTATION_BUDGET[detailProfile];
   const assets: LichtschwelleAssets = {
-    line: lineMaterial(0.22),
+    line: lineMaterial(0.25),
     mote: lightMaterial(0.42),
     moteGeometry: new OctahedronGeometry(0.13, 0),
-    veil: lightMaterial(0.052),
+    veil: lightMaterial(0.068),
   };
   for (const [index, profile] of SCHWELLENRAUM_LICHTORTE.entries()) {
     root.add(createLichtschwelle(profile, index, detailProfile, assets));
   }
   attachPariserPlatzEntityLoop(root, detailProfile);
+  root.add(createSchwellenraumSky());
   return root;
 }
 
