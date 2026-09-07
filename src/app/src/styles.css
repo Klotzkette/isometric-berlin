@@ -835,7 +835,19 @@ button:active:not(:disabled) {
 }
 
 .flight-joystick-wrap {
-  display: none;
+  position: absolute;
+  z-index: 18;
+  bottom: 76px;
+  left: 306px;
+  display: block;
+  pointer-events: auto;
+  --joystick-size: 82px;
+  --joystick-background: rgba(25, 31, 29, 0.96);
+}
+
+.app-shell--controls-right .flight-joystick-wrap {
+  right: 306px;
+  left: auto;
 }
 
 .pedestrian-jump-button {
@@ -1021,29 +1033,10 @@ button:active:not(:disabled) {
   cursor: grabbing;
 }
 
-.orbit-joystick-wrap {
-  position: absolute;
-  z-index: 18;
-  top: auto;
-  bottom: 76px;
-  left: 306px;
-  display: block;
-  pointer-events: auto;
-}
-
-.app-shell--controls-right .orbit-joystick-wrap {
-  right: 306px;
-  left: auto;
-}
-
 @media (pointer: coarse) {
   .pedestrian-jump-button {
     width: 60px;
     height: 60px;
-  }
-
-  .orbit-joystick-wrap {
-    display: none;
   }
 
   .flight-joystick-wrap {
@@ -1054,6 +1047,7 @@ button:active:not(:disabled) {
     bottom: calc(128px + env(safe-area-inset-bottom, 0px));
     display: block;
     pointer-events: auto;
+    --joystick-background: rgba(25, 31, 29, 0.62);
   }
 
   .app-shell--controls-right .flight-joystick-wrap {
@@ -1063,10 +1057,6 @@ button:active:not(:disabled) {
 }
 
 @media (max-width: 1024px) {
-  .orbit-joystick-wrap {
-    display: none;
-  }
-
   /* Some mobile browsers report a fine primary pointer when a trackpad,
      stylus or accessibility device is connected. Compact layout still needs
      its direct touch joystick from the first frame. */
@@ -1077,6 +1067,8 @@ button:active:not(:disabled) {
     left: 14px;
     display: block;
     pointer-events: auto;
+    --joystick-size: 108px;
+    --joystick-background: rgba(25, 31, 29, 0.62);
   }
 
   .app-shell--controls-right .flight-joystick-wrap {
@@ -1087,11 +1079,11 @@ button:active:not(:disabled) {
 
 .flight-joystick {
   position: relative;
-  width: 108px;
-  height: 108px;
+  width: var(--joystick-size);
+  height: var(--joystick-size);
   border: 1px solid rgba(245, 239, 228, 0.22);
   border-radius: 999px;
-  background: rgba(25, 31, 29, 0.62);
+  background: var(--joystick-background);
   box-shadow: 0 14px 42px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(14px);
   touch-action: none;
@@ -1123,12 +1115,6 @@ button:active:not(:disabled) {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.36);
   pointer-events: none;
   will-change: transform;
-}
-
-.flight-joystick.orbit-joystick {
-  width: 82px;
-  height: 82px;
-  background: rgba(25, 31, 29, 0.96);
 }
 
 .control-row {

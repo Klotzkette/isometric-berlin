@@ -3028,6 +3028,8 @@ function ensureIsoWorld(
   // core viewer parse; these small modules download beside the five data files.
   const spreeDetails = import("./SpreeMuseumDetails");
   const unterDenLindenDetails = import("./UnterDenLindenDetails");
+  const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
+  const gropiusBauDetails = import("./GropiusBauDetails");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3036,8 +3038,10 @@ function ensureIsoWorld(
     tracked(fetchRailPayload(runtime)).catch(() => null),
     spreeDetails,
     unterDenLindenDetails,
+    abgeordnetenhausDetails,
+    gropiusBauDetails,
   ])
-    .then(([prisms, ground, street, surfaces, rail, spree, unterDenLinden]) => {
+    .then(([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3237,6 +3241,9 @@ function ensureIsoWorld(
       );
       isoWorld.add(spree.createSpreeMuseumDetails());
       isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
+      const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
+      isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
+      isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
       provisionalIsoWorld = isoWorld;
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,

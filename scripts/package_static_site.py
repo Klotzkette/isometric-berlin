@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.0"
+PACKAGE_VERSION = "1.0.1"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,11 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0: Reichstag und Brandenburger Tor erhalten genauere Details in der
+Neu in v1.0.1: Abgeordnetenhaus und Gropius Bau erhalten eigene,
+quellgebundene Fassaden und Blockmodelle. Der orangefarbene Joystick bewegt
+auch am Computer vorwaerts, rueckwaerts und seitwaerts wie auf dem Telefon.
+
+Seit v1.0: Reichstag und Brandenburger Tor erhalten genauere Details in der
 jeweiligen Modussprache. Der Hauptbahnhof laesst sich in allen fuenf Modi
 durch die oeffentlichen Eingaenge betreten. Auf dem Telefon springt die Figur
 im Fussgaengermodus durch zweimaliges kurzes Tippen auf den orangefarbenen
@@ -3717,6 +3721,12 @@ Touch-Geräten verschieben zwei Finger per Swipe und zoomen per Pinch; drei
 Finger steuern Drehung und Neigung bis in die echte Untersicht. Pfeiltasten
 verschieben in der sichtbaren Ebene; WASD fliegt relativ zur Blickrichtung,
 Leertaste steigt und Shift sinkt. Alt/Option plus Pfeiltasten dreht oder neigt.
+Der orange Joystick bewegt am Desktop, auf Telefon und Tablet gleich:
+Nach oben/unten ziehen fliegt oder geht vorwaerts/rueckwaerts, seitliches
+Ziehen bewegt seitwaerts. Er sitzt neben dem Desktop-Bedienfeld oder am
+gewaehlten unteren Rand der kompakten Ansicht. Im Spaziergang schaltet ein
+Maus-Doppelklick den Sprint; ein Touch-/Stift-Doppeltipp springt. Loslassen
+oder ein Moduswechsel beendet die gehaltene Joystick-Bewegung.
 Im Spaziergang bewegt WASD; einmal Leertaste springt bis 6,2 m, zweimal binnen
 320 ms hebt denselben Sprung einmalig bis 10,5 m an. Drei schnelle Anschläge
 derselben Pfeil- oder WASD-Taste schalten den eigenen 8×-Schnelllauf ein und
@@ -3910,7 +3920,11 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0: the Reichstag and Brandenburg Gate gain more accurate detail in
+New in v1.0.1: the Abgeordnetenhaus and Gropius Bau gain dedicated,
+source-bound facades and block models. The orange joystick now moves
+forward, backward and sideways on desktop, as it does on phones.
+
+Since v1.0: the Reichstag and Brandenburg Gate gain more accurate detail in
 each mode's visual style. Hauptbahnhof's public entrances are accessible in
 all five modes. On phones in walking mode, two quick taps on the orange
 joystick make the person jump; dragging still moves them. The release also
@@ -4213,7 +4227,12 @@ pans while pinch zooms around its midpoint. On touch devices, a two-finger
 centre swipe pans while pinch zooms around that midpoint; three fingers
 control azimuth and polar tilt into a real below-ground view. Arrows pan in the
 visible screen plane; WASD flies relative to the view heading, Space rises and
-Shift descends, while Alt/Option plus arrows orbits and tilts. Walking also uses
+Shift descends, while Alt/Option plus arrows orbits and tilts.
+The orange joystick uses the same movement on desktop, phone and tablet:
+drag up/down to fly or walk forward/backward, and left/right to strafe. It sits
+beside the desktop controls or at the chosen bottom edge of the compact view.
+While walking, mouse double-click toggles sprint and touch/pen double-tap jumps.
+Release or a mode change stops held joystick movement. Walking also uses
 WASD; one Space jumps to 6.2 m and a second press within 320 ms raises that same
 jump once to 10.5 m. Three quick presses of the same arrow or WASD key toggle
 the dedicated 8x fast run; Shift or two forward presses retain the 4x sprint.

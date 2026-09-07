@@ -1,25 +1,25 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// Appearance baselines updated after v0.72.43 for the source-backed building
-// attributes, refined hero architecture and reduced Minecraft tree selection.
+// v1.0.1 appearance baselines include the source-bound Abgeordnetenhaus
+// replacement and Gropius Bau facade refinement.
 // Complete committed payloads remain unchanged,
 // including sampled colours and the tunnel. Hashes include every geometry,
 // index, colour and instance buffer, even spare allocated capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
   [
     "full",
-    "80eb24802b341daca13a7622cbebef8b5ebab15855e01c719fa6dac00309cf70",
-    3568825,
-    50,
-    272432344,
+    "9ad53b3bb70e90db55589d1b26df2feefca9a12f2d599afad3af1e6b4ded3c83",
+    3572980,
+    52,
+    272749420,
   ],
   [
     "mobile",
-    "2fe637c00b98142e44e6990311d0ed1fcc87d237b091e83ebed0621326d7489a",
-    809716,
-    48,
-    62173032,
+    "d70f0747edd976c74312461d7332c284cab0780d11acebe3a282e0f25da641d0",
+    813167,
+    50,
+    62436604,
   ],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {

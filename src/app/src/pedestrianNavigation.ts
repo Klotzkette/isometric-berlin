@@ -23,6 +23,7 @@ import type { PedestrianInput } from "./navigationInput";
 import { MAX_MOTION_FRAME_DELTA_SECONDS } from "./renderQuality";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { BODE_SOURCE, GRILL_SOURCE, SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionProfile";
+import { ABGEORDNETENHAUS_PROFILE, abgeordnetenhausDisplayTopAt } from "./abgeordnetenhausProfile";
 
 export {
   heldPedestrianInput,
@@ -134,6 +135,8 @@ export type PedestrianPolygonObstacle = PedestrianObstacleBase & {
   holes: ReadonlyArray<PedestrianRing>;
   kind: "polygon";
   ring: PedestrianRing;
+  /** Source-bound display roof when a documented source height is unusable. */
+  topAt?: (x: number, z: number) => number | null;
 };
 
 export type PedestrianSegmentObstacle = PedestrianObstacleBase & {
@@ -453,6 +456,7 @@ function addPolygonObstacle(
   maxY: number,
   sourceId?: string,
   coordinateScale = 1,
+  topAt?: PedestrianPolygonObstacle["topAt"],
 ): void {
   if (
     ring.length < 3 ||
@@ -488,6 +492,7 @@ function addPolygonObstacle(
     minZ,
     ring,
     sourceId,
+    topAt,
   });
 }
 
@@ -545,14 +550,16 @@ export function compilePedestrianObstacles(
       continue;
     }
     const before = index.obstacleCount;
+    const parliamentDisplay = building.id === ABGEORDNETENHAUS_PROFILE.mainPrismId;
     addPolygonObstacle(
       index,
       building.ring,
       building.holes ?? [],
-      building.y0_dm / 10,
-      (building.y0_dm + building.h_dm) / 10,
+      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.groundY : building.y0_dm / 10,
+      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : (building.y0_dm + building.h_dm) / 10,
       building.id,
       0.1,
+      parliamentDisplay ? abgeordnetenhausDisplayTopAt : undefined,
     );
     if (index.obstacleCount > before) {
       index.buildingCount += 1;
@@ -835,7 +842,48 @@ function pointTouchesPolygonObstacle(
   return true;
 }
 
-/** Highest LoD2 roof directly below an eye-height hint at one exact X/Z. */
+/** Local roof height, retaining capsule clearance just outside a wall/court. */
+function polygonObstacleTopAt(
+  x: number,
+  z: number,
+  obstacle: PedestrianPolygonObstacle,
+): number {
+  if (!obstacle.topAt) return obstacle.maxY;
+  const direct = obstacle.topAt(x, z);
+  if (direct !== null) return direct;
+  // The centre can sit in a courtyard while its capsule still touches a wall.
+  // Query just inside the nearest source edge rather than using the tallest
+  // roof over every padded boundary of the building.
+  let nearestSquared = Number.POSITIVE_INFINITY;
+  let nearestTop = obstacle.maxY;
+  for (const ring of [obstacle.ring, ...obstacle.holes]) {
+    for (let index = 0; index < ring.length; index += 1) {
+      const a = ring[index];
+      const b = ring[(index + 1) % ring.length];
+      const ax = a[0] * obstacle.coordinateScale;
+      const az = a[1] * obstacle.coordinateScale;
+      const dx = (b[0] - a[0]) * obstacle.coordinateScale;
+      const dz = (b[1] - a[1]) * obstacle.coordinateScale;
+      const lengthSquared = dx * dx + dz * dz;
+      if (lengthSquared < 1e-12) continue;
+      const progress = clamp(((x - ax) * dx + (z - az) * dz) / lengthSquared, 1e-7, 1 - 1e-7);
+      const edgeX = ax + progress * dx;
+      const edgeZ = az + progress * dz;
+      const distanceSquared = (x - edgeX) ** 2 + (z - edgeZ) ** 2;
+      if (distanceSquared >= nearestSquared) continue;
+      const epsilon = 1e-5 / Math.sqrt(lengthSquared);
+      const top = obstacle.topAt(edgeX - dz * epsilon, edgeZ + dx * epsilon)
+        ?? obstacle.topAt(edgeX + dz * epsilon, edgeZ - dx * epsilon);
+      if (top !== null) {
+        nearestSquared = distanceSquared;
+        nearestTop = top;
+      }
+    }
+  }
+  return nearestTop;
+}
+
+/** Highest represented roof directly below an eye-height hint at exact X/Z. */
 function pedestrianRoofGroundAt(
   environment: PedestrianEnvironment,
   x: number,
@@ -855,12 +903,16 @@ function pedestrianRoofGroundAt(
     if (
       obstacle.kind !== "polygon" ||
       !obstacle.sourceId ||
-      obstacle.maxY > ceilingY! + 0.05 ||
       !pointIsInsidePolygonObstacle(x, z, obstacle)
     ) {
       continue;
     }
-    highest = Math.max(highest, obstacle.maxY);
+    const top = polygonObstacleTopAt(x, z, obstacle);
+    // A 22 cm movement substep can climb 9 cm on the authored glass hip.
+    // Keep flat source roofs' existing tolerance; only a variable roof needs
+    // this bounded rise allowance to avoid stalling on its upward slope.
+    const riseAllowance = obstacle.topAt ? 0.15 : 0.05;
+    if (top <= ceilingY! + riseAllowance) highest = Math.max(highest, top);
   }
   return Number.isFinite(highest) ? highest : null;
 }
@@ -1006,6 +1058,7 @@ export function pedestrianPointIsBlocked(
         return true;
       }
     } else if (pointTouchesPolygonObstacle(x, z, obstacle)) {
+      if (bodyBottomY >= polygonObstacleTopAt(x, z, obstacle) - 0.02) continue;
       if (
         !access?.walkableInteriorAt ||
         !pedestrianBodyHasWalkableInterior(

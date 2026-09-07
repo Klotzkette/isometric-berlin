@@ -24,5 +24,5 @@ The joystick's accessible DE/EN label and control help now describe jumping.
 timing and distance guards, cancellation and multiple pointers. It also drives
 the real pedestrian jump/step functions through takeoff, rejected airborne
 retrigger and landing. Browser QA should double-tap and drag the orange walking
-pad on a mobile viewport, then verify that flight and look-pad dragging remain
+pad on a mobile viewport, then verify that flight and canvas look dragging remain
 unchanged.

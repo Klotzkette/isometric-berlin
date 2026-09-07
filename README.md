@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,15 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-The v1.0 release adds refined landmarks, accessible station entrances across
-all modes, mobile joystick jumping, fewer Minecraft trees and a softer
-Schwellenraum atmosphere. See [release changes](CHANGELOG.md#v100).
+Version 1.0.1 refines the Abgeordnetenhaus and Gropius Bau in all five modes
+and makes the desktop orange joystick move forward/backward/sideways like
+the mobile control. See [release changes](CHANGELOG.md#v101),
+[Abgeordnetenhaus evidence](docs/abgeordnetenhaus-refinement.md),
+[Gropius Bau evidence](docs/gropius-bau-refinement.md) and
+[desktop controls](docs/desktop-joystick.md).
 
 ## Screenshots
 
@@ -54,7 +57,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.0**, built from `main`. Its full viewer
+The current public package is **v1.0.1**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -777,7 +780,7 @@ local modules.
   and six courtyards remain unchanged.
 
 - **Desktop navigation now lives in a compact lower-corner dock.** The button
-  pad and analogue orbit control start together at the lower left instead of
+  pad and analogue movement joystick start together at the lower left instead of
   obscuring the upper city view. One icon moves the complete control dock to
   the right and back again, and the browser remembers that preference. The
   same choice moves the direct touch joystick on phones and tablets; wrapped
@@ -1236,9 +1239,10 @@ local modules.
   WASD flies relative to the view heading, `Space` rises, `Shift` alone descends,
   `Shift+A/D` or `Shift+Left/Right` rotates in both free-camera and pedestrian mode, and
   `Alt`/`Option`+arrows orbit/tilt; the matching mouse buttons keep moving while
-  held. A collision-free analogue orbit pad sits
-  beside the desktop controls, while the existing compact touch controls stay
-  unchanged on phones and tablets.
+  held. The orange joystick beside the desktop controls uses the same
+  forward/backward and strafe movement as on phones and tablets, in both flight
+  and walking mode. Mouse double-click toggles walking sprint; touch double-tap
+  jumps. Canvas drag and keyboard controls still rotate the view.
 
 - **The underside now reveals Berlin's mapped passenger-rail structure as an
   architectural cutaway.** All 207 underground rail, S-Bahn and U-Bahn track
@@ -1682,8 +1686,9 @@ local modules.
   `Shift` alone descends, `Shift+A/D` or `Shift+Left/Right` rotates the view,
   and `Alt`/`Option` + arrows orbit and tilt. Every channel is
   continuous while held; the desktop
-  arrow buttons behave the same way, and a separate mouse orbit pad provides
-  analogue rotation and tilt. Camera and target move together, so flight never
+  arrow buttons behave the same way. On desktop and mobile, the orange joystick
+  flies or walks forward/backward and sideways; canvas drag and keyboard
+  controls provide orbit and look. Camera and target move together, so flight never
   changes the orbit distance accidentally.
 - Fullscreen works through the native browser API on desktop and a safe-area-
   aware pseudo-fullscreen fallback on iOS. Both connected Tiergartentunnel

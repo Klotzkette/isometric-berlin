@@ -416,9 +416,13 @@ describe("progressive exact-world scheduling", () => {
     expect(threeViewerSource).toContain('type: "batch-attached"');
   });
 
-  test("pauses only for Minecraft and retains partial exact batches on errors", () => {
+  test("pauses unfinished Minecraft work but retains completed city batches for a warm return", () => {
     expect(progressiveWorldTransition("minecraft", "loading")).toBe("pause");
-    expect(progressiveWorldTransition("minecraft", "complete")).toBe("pause");
+    // Completion drops the source input; disposing its batches here cannot
+    // restart on return and would leave facade-only landmarks hollow.
+    for (const mode of ["minecraft", "day", "night", "snowstorm", "schwellenraum", "minecraft", "day"] as const) {
+      expect(progressiveWorldTransition(mode, "complete")).toBe("none");
+    }
     expect(progressiveWorldTransition("night", "loading")).toBe("none");
     expect(progressiveWorldTransition("schwellenraum", "loading")).toBe("none");
     expect(progressiveWorldTransition("day", "idle")).toBe("resume");
@@ -999,10 +1003,11 @@ describe("progressive exact-world scheduling", () => {
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBeLessThanOrEqual(49);
     // Includes source-envelope/floor ink and mapped material classifications;
-    // all follow-up geometry still shares the same bounded draw-call count.
+    // the four source Gropius parts now replace their far boxes within the
+    // same building limit and bounded draw-call count.
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_743_716,
-      retainedBytes: 53_932_500,
+      vertices: 3_747_298,
+      retainedBytes: 53_984_764,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

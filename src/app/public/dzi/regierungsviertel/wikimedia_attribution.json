@@ -3,6 +3,17 @@
   "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM. Records marked attribution-only have no bundled photograph.",
   "records": [
     {
+      "landmark_id": "gropius_bau",
+      "title": "File:Gropius Bau Berlin 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Gropius_Bau_Berlin_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels, 2009 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "grill_royal",
       "title": "File:Grill-Royal-Riverside-Hotel-Friedrichstr-Berlin-Mitte-04-2017.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File:Grill-Royal-Riverside-Hotel-Friedrichstr-Berlin-Mitte-04-2017.jpg",

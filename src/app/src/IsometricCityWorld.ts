@@ -1,3 +1,5 @@
+import { ABGEORDNETENHAUS_PROFILE } from "./abgeordnetenhausProfile";
+import { GROPIUS_BAU_PRISM_TONES, GROPIUS_BAU_PRISM_ROOF_TONES } from "./gropiusBauProfile";
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import {
   buildingAttributes,
@@ -574,6 +576,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
+  ...GROPIUS_BAU_PRISM_TONES,
   K0002MCN: 0xe0e3df,
   MLwG4KW9: 0xeeeeea,
   // Sozialgericht Berlin: warm ochre sandstone body matching the restored
@@ -741,6 +744,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
 // towers) read as the real light stone terrace instead of sun-warmed
 // facade brown; the Chancellery roof stays light.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
+  ...GROPIUS_BAU_PRISM_ROOF_TONES,
   K0002MCN: 0xe1e3dc,
   K0003Ty1: 0xe1e3dc,
   K0003VDk: 0xe1e3dc,
@@ -805,6 +809,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // The official main envelope is only 3m high. The source-plan replacement
+  // keeps all six courtyards; the six valid rear annexes remain source prisms.
+  ABGEORDNETENHAUS_PROFILE.mainPrismId,
   ...SONY_CENTER_ROOF_PRISM_IDS,
   ...SPREE_RECOGNITION_PRISM_IDS,
   // Richard-Wagner-Denkmal: SR00009n is the closed LoD2 envelope of the
@@ -1748,7 +1755,8 @@ export function setIsoNightPresentation(
     if (
       !accessoryNames.has(accessory.name) &&
       accessory.userData.federalStateRepresentation !== true &&
-      accessory.userData.reichstagspraesidentenpalaisDetail !== true
+      accessory.userData.reichstagspraesidentenpalaisDetail !== true &&
+      accessory.userData.civicBuildingDetail !== true
     ) {
       return;
     }

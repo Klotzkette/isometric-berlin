@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.1
+
+- **Ein orangefarbener Bewegungs-Joystick auf allen Geraeten.** Ziehen steuert
+  nun auch am Computer Vorwaerts-, Rueckwaerts- und Seitwaertsbewegung im Flug-
+  und Gehmodus. Die bisherige separate Desktop-Kreisbewegung entfaellt;
+  Kameradrehen bleibt ueber die vorhandenen Bild- und Tastaturgesten erreichbar.
+  Mobiles Doppeltippen zum Springen bleibt erhalten.
+- **Abgeordnetenhaus und Gropius Bau verfeinert.** Eigene Fassaden und
+  Blockdarstellungen ersetzen die groben Erkennungskaesten. Der Gropius Bau
+  behaelt seine amtlichen Masse, das Abgeordnetenhaus seinen genauen Grundriss
+  mit sechs Hoefen. Fehlende Hoehen des Hauptbaus werden als begrenzte
+  Darstellungsschaetzung dokumentiert.
+- **Gebaeudekoerper bleiben beim Moduswechsel erhalten.** Fertig geladene
+  Stadtgeometrie uebersteht auf dem Desktop den Wechsel zu Minecraft und
+  zurueck; Fassaden stehen danach weiterhin vor ihren vollstaendigen Bauten.
+
 ## v1.0.0
 
 - **Reichstag und Brandenburger Tor genauer.** Die Reichstagskuppel erhaelt

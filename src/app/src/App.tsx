@@ -515,16 +515,16 @@ function viewUrlFor(
 const JOYSTICK_RADIUS_PX = 44;
 
 function FlightJoystick({
-  className = "",
   disabled,
   label,
+  resetKey,
   onDoubleActivate,
   onTouchDoubleTap,
   onInput,
 }: {
-  className?: string;
   disabled: boolean;
   label: string;
+  resetKey: string;
   onDoubleActivate?: () => void;
   onTouchDoubleTap?: () => void;
   onInput: (horizontal: number, vertical: number) => void;
@@ -580,7 +580,7 @@ function FlightJoystick({
     cancelJoystickTap(tapStateRef.current);
     lastActivationAtRef.current = 0;
     release();
-  }, [disabled, touchDoubleTapEnabled, release]);
+  }, [disabled, resetKey, touchDoubleTapEnabled, release]);
 
   useEffect(() => {
     const reset = () => {
@@ -616,7 +616,7 @@ function FlightJoystick({
   return (
     <div
       ref={baseRef}
-      className={`flight-joystick ${className}`.trim()}
+      className="flight-joystick"
       role="application"
       aria-label={label}
       data-disabled={disabled ? "true" : undefined}
@@ -3949,14 +3949,15 @@ export function App() {
         <div className="flight-joystick-wrap">
           <FlightJoystick
             disabled={!isReady}
+            resetKey={lightingMode}
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: ziehen zum Laufen, doppeltippen zum Springen"
-                  : "Walking joystick: drag to walk, double-tap to jump"
+                  ? "Geh-Joystick: ziehen zum Laufen; Touch-Doppeltipp springt, Maus-Doppelklick schaltet Sprint"
+                  : "Walking joystick: drag to walk; touch double-tap jumps, mouse double-click toggles sprint"
                 : language === "de"
-                  ? "Flug-Joystick: Daumen ziehen zum Fliegen"
-                  : "Flight joystick: drag with your thumb to fly"
+                  ? "Flug-Joystick: ziehen zum Vorwärts-, Rückwärts- und Seitwärtsfliegen"
+                  : "Flight joystick: drag to fly forward, backward or sideways"
             }
             onDoubleActivate={
               isPedestrianMode ? togglePedestrianSprint : undefined
@@ -3965,25 +3966,6 @@ export function App() {
               isPedestrianMode ? () => triggerPedestrianJump() : undefined
             }
             onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
-          />
-        </div>
-      ) : null}
-
-      {viewerMode === "three" && !isChromeHidden ? (
-        <div className="orbit-joystick-wrap">
-          <FlightJoystick
-            className="orbit-joystick"
-            disabled={!isReady}
-            label={
-              isPedestrianMode
-                ? language === "de"
-                  ? "Blick-Joystick: mit der Maus Kopf drehen und heben"
-                  : "Look joystick: drag to turn and raise your head"
-                : language === "de"
-                  ? "Orbit-Joystick: mit der Maus ziehen zum Drehen und Neigen"
-                  : "Orbit joystick: drag with the mouse to orbit and tilt"
-            }
-            onInput={setOrbitInput}
           />
         </div>
       ) : null}
@@ -5148,11 +5130,11 @@ export function App() {
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
-                        ? "Mit der Maus am Blick-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten am orangefarbenen Geh-Joystick ziehen zum Laufen, doppeltippen zum Springen"
-                        : "Mit der Maus am Orbit-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Flug-Joystick unten links"
+                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Touch-Doppeltipp springt, Maus-Doppelklick schaltet Sprint. Im Bild ziehen zum Umsehen"
+                        : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Die Pfeilknöpfe können ebenfalls gedrückt gehalten werden"
                       : isPedestrianMode
-                        ? "Drag the desktop look pad or hold the arrow buttons; on touch devices drag the orange walking joystick to walk, and double-tap it to jump"
-                        : "Drag the desktop orbit pad or hold the arrow buttons; on touch devices use the bottom-left flight joystick"}
+                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. Touch double-tap jumps; mouse double-click toggles sprint. Drag the view to look around"
+                        : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. The arrow buttons also move continuously while held"}
                   </dd>
                 </div>
               ) : null}

@@ -1,3 +1,6 @@
+import { abgeordnetenhausMainContains } from "./abgeordnetenhausProfile";
+import { createMinecraftAbgeordnetenhausDetails } from "./AbgeordnetenhausDetails";
+import { createMinecraftGropiusBauDetails } from "./GropiusBauDetails";
 import { inPotsdamerPanoramaLandscape, POTSDAMER_PANORAMA_LANDSCAPE, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
@@ -706,7 +709,8 @@ export function isCompleteRecognitionVoxelColumn(
   return (
     isMinecraftArchitecturalReplacementColumn(x, z) ||
     isMinecraftTipiReplacementColumn(x, z) ||
-    isSpreeRecognitionReplacementColumn(x, z)
+    isSpreeRecognitionReplacementColumn(x, z) ||
+    abgeordnetenhausMainContains(x, z)
   );
 }
 
@@ -2614,6 +2618,9 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSonyCenterSurroundings());
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
+  yield;
+  group.add(createMinecraftAbgeordnetenhausDetails(options.detailProfile ?? "full"));
+  group.add(createMinecraftGropiusBauDetails(options.detailProfile ?? "full"));
   group.add(createMinecraftTipiAmKanzleramt());
   yield;
   group.add(createMinecraftInvalidenfriedhofDetails());

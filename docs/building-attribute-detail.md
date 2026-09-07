@@ -91,13 +91,14 @@ attributes or draw calls; only mapped mobile roof surfaces need a second
 instance in the existing building batch.
 
 The complete Minecraft world, including the same-pass tree reduction and
-Siegessäule, Reichstag and Gate refinements, now stores 3,568,825 instances / 272,432,344 buffer
+Siegessäule, Reichstag and Gate refinements, at v1.0.0 stores 3,568,825 instances / 272,432,344 buffer
 bytes in full and 809,716 / 62,173,032 in mobile. Draw counts remain 50 / 48.
 Compared with v0.72.43, buffer usage grows about 4.9% / 2.4%; reduced trees
 partially offset the new floor rows. These totals include geometry and spare
 allocated capacity; they are not GPU frame-time measurements. The frozen
-construction test checks cooperative output byte-for-byte against these
-synchronous baselines.
+construction test checks cooperative output byte-for-byte against the
+current synchronous baselines; [v1.0.1 verification](release-v1.0.1.md) records
+the subsequent Abgeordnetenhaus and Gropius Bau refinement.
 
 ```sh
 uv run python scripts/build_building_attribute_source.py --fetch

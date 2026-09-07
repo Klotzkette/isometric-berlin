@@ -141,9 +141,10 @@ describe("true voxel Minecraft world", () => {
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
-    expect(instanced("Voxel building columns", world).count).toBe(1_480_038);
+    // Abgeordnetenhaus replaces its 476 faulty 3 m columns in both profiles.
+    expect(instanced("Voxel building columns", world).count).toBe(1_479_562);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      542_212,
+      541_736,
     );
 
     const landmarks = world.getObjectByName(

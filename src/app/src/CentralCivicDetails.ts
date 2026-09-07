@@ -86,9 +86,9 @@ export const OGGIS_MUBIS_PROFILE = {
 const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
   "Abgeordnetenhaus von Berlin": {
     azimuth_degrees: 28,
-    distance_m: 142,
+    distance_m: 190,
     polar_degrees: 59,
-    target_height_m: 13,
+    target_height_m: 18,
   },
   "Bahnhof Berlin Friedrichstraße": {
     azimuth_degrees: -138,
@@ -115,7 +115,7 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     target_height_m: 14,
   },
   "Gropius Bau": {
-    azimuth_degrees: 18,
+    azimuth_degrees: -150,
     distance_m: 178,
     polar_degrees: 59,
     target_height_m: 14,
@@ -4564,51 +4564,6 @@ function addFinanceMinistry(
   }
 }
 
-function addGropiusAndParliament(
-  builder: Builder,
-  byName: Map<string, CentralCivicLandmark>,
-): void {
-  const gropius = anchor(byName, "Gropius Bau");
-  if (gropius) {
-    localBox(builder, BRICK, gropius, 0, 14.8, -9, 74, 28.5, 76, 0.01);
-    localBox(builder, SANDSTONE, gropius, 0, 29.4, -9, 77, 1, 79, 0.01);
-    for (const side of [-1, 1]) {
-      addFacadeGrid(builder, gropius, {
-        bays: 11,
-        baySpacing: 5.7,
-        color: 0x4a5e61,
-        floors: 3,
-        floorSpacing: 6.2,
-        frontZ: -9 + side * 38.25,
-        rotationY: 0.01,
-        startY: 6.2,
-        width: 2.7,
-      });
-    }
-    for (const x of [-30, -20, -10, 0, 10, 20, 30]) {
-      localBox(builder, SANDSTONE, gropius, x, 14.5, 29.5, 0.65, 27, 0.5, 0.01);
-    }
-  }
-
-  const parliament = anchor(byName, "Abgeordnetenhaus von Berlin");
-  if (!parliament) return;
-  localBox(builder, SANDSTONE, parliament, 0, 12.5, 0, 96, 24, 82, 0.01);
-  localBox(builder, DARK_BRICK, parliament, 0, 25.2, 0, 99, 1.4, 85, 0.01);
-  addFacadeGrid(builder, parliament, {
-    bays: 15,
-    baySpacing: 5.5,
-    floors: 4,
-    floorSpacing: 4.6,
-    frontZ: 41.2,
-    rotationY: 0.01,
-    startY: 4.5,
-    width: 2.65,
-  });
-  for (const x of [-22, -16.5, -11, -5.5, 0, 5.5, 11, 16.5, 22]) {
-    localBox(builder, IVORY, parliament, x, 13.1, 41.6, 0.55, 23, 0.45, 0.01);
-  }
-}
-
 function addTopographyOfTerror(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
@@ -5002,7 +4957,6 @@ export function createCentralCivicDetails(
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);
   addFinanceMinistry(builder, byName);
-  addGropiusAndParliament(builder, byName);
   addTopographyOfTerror(builder, byName);
   const drawn = finishDrawnGroup(builder, {
     lampEmissive: 0xffd68a,

@@ -8,6 +8,9 @@ import {
 import type { TunnelPortalCourseInput } from "./TunnelPortals";
 import type { TransferObject3D } from "./transferableObject3D";
 import type { VisualMode } from "./visualMode";
+import { GROPIUS_BAU_PRISM_IDS } from "./gropiusBauProfile";
+
+const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>(GROPIUS_BAU_PRISM_IDS);
 
 export const DESKTOP_INITIAL_BUILDING_COUNT = 420;
 export const MOBILE_INITIAL_BUILDING_COUNT = 160;
@@ -158,7 +161,11 @@ export function progressiveWorldTransition(
   state: ProgressiveWorldState,
 ): ProgressiveWorldTransition {
   if (mode === "minecraft") {
-    return state === "loading" || state === "complete" ? "pause" : "none";
+    // A completed world has released its construction input. Its attached
+    // batches must survive a warm desktop mode switch, otherwise returning
+    // to Day leaves facade accessories around permanently missing bodies.
+    // Mobile family changes dispose their entire viewer separately.
+    return state === "loading" ? "pause" : "none";
   }
   return state === "idle" ? "resume" : "none";
 }
@@ -227,7 +234,7 @@ function centroidDistanceSquared(
   return (x - centerX) ** 2 + (z - centerZ) ** 2;
 }
 
-/** Stable near-to-far order around the authored Reichstag startup view. */
+/** Source-dependent landmark facades first, then stable near-to-far context. */
 export function prioritizeBuildings(
   buildings: readonly PrismBuilding[],
   center: readonly [number, number] = [317.729, 40.477],
@@ -235,10 +242,11 @@ export function prioritizeBuildings(
   return buildings
     .map((building, index) => ({
       building,
+      required: REQUIRED_INITIAL_SOURCE_PARTS.has(building.id) ? 0 : 1,
       distance: centroidDistanceSquared(building, center[0], center[1]),
       index,
     }))
-    .sort((left, right) => left.distance - right.distance || left.index - right.index)
+    .sort((left, right) => left.required - right.required || left.distance - right.distance || left.index - right.index)
     .map(({ building }) => building);
 }
 

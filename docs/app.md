@@ -125,12 +125,14 @@ building remains the same closed solid.
 **Continuous navigation:** held plain arrows pan in screen space; held WASD
 flies along the current heading, `Space` rises, `Shift` descends, and held
 `Alt`/`Option`+arrows orbit and tilt. The matching on-screen arrow controls also move continuously while
-the primary mouse button stays down, and desktop layouts expose an analogue
-orbit pad beside the control panel. In the 2D detail map, a plain `Space` tap
-still toggles the sight tour.
-On coarse-pointer devices a bottom-left thumb joystick provides continuous
-flight (drag up = forward, sideways = strafe); the existing two-finger swipe
-remains. Flying below the Spree surface (scene water level 1.31 m) switches to
+the primary mouse button stays down. The orange joystick uses the same movement
+on desktop, phone and tablet: drag up/down to move forward/backward, and
+left/right to strafe. It sits beside the desktop panel or near the chosen
+bottom edge on compact touch layouts, and uses walking input in pedestrian
+mode. Canvas drag and keyboard/arrow controls still provide orbit and look.
+In the 2D detail map, a plain `Space` tap still toggles the sight tour.
+The existing two-finger swipe remains. Flying below the Spree surface
+(scene water level 1.31 m) switches to
 an underwater presentation with deep-teal fog; it lifts as soon as the camera
 surfaces, and the Tiergartentunnel interior — which passes under the river — is
 exempt.

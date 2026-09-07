@@ -56,6 +56,25 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   swatches are procedural display estimates; mapped counts do not establish
   individual window positions.
 
+- **Abgeordnetenhaus and Gropius Bau architecture:** the
+  [Berlin parliament architecture record](https://www.parlament-berlin.de/das-haus/architektur),
+  its [building brochure](https://www.parlament-berlin.de/media/download/541),
+  the [Landesdenkmalamt Abgeordnetenhaus entry](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096004)
+  and [Gropius Bau entry](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031246)
+  support the facade materials and storey/window order. The Gropius Bau keeps
+  all four delivered LoD2 parts and their heights. Abgeordnetenhaus keeps the
+  exact main footprint, six courtyard holes and six separate annexes. Its
+  official main part incorrectly reports only 3 m height, also confirmed in
+  the 2 March 2026 source tile; the replacement wall and centre heights are
+  documented photo-proportioned display estimates, not surveyed dimensions.
+  Visual references are the parliament's official press facade photograph
+  by Peter Thieme and Manfred Brückels's
+  [Gropius Bau Berlin 1.jpg](https://commons.wikimedia.org/wiki/File:Gropius_Bau_Berlin_1.jpg)
+  (CC BY-SA 3.0; reference-only, credited in both Wikimedia manifests).
+  No photograph or texture is bundled. See
+  [Abgeordnetenhaus evidence](docs/abgeordnetenhaus-refinement.md) and
+  [Gropius Bau evidence](docs/gropius-bau-refinement.md).
+
 - **Siegessäule shaft and gallery (factual and visual evidence):** the
   [Landesdenkmalamt inventory](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050419),
   [official historical panel](https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-1084_geschichte-der-siegessaeule.pdf)
