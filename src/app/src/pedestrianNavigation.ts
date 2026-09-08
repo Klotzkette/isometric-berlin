@@ -1,3 +1,5 @@
+import { BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_UNDERSIDE } from "./boellStiftungProfile";
+import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_PROFILE, friedrichstadtPalastTopAt } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
 import { MUSIC_MUSEUM_HALL_ID, musicMuseumRoofHeightAt } from "./museumLenneProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
@@ -579,11 +581,11 @@ export function compilePedestrianObstacles(
       index,
       building.ring,
       building.holes ?? [],
-      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.groundY : building.y0_dm / 10,
-      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : (building.y0_dm + building.h_dm) / 10,
+      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.groundY : building.id === BOELL_STIFTUNG_LOW_ID ? BOELL_STIFTUNG_UNDERSIDE : building.y0_dm / 10,
+      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? FRIEDRICHSTADT_PALAST_PROFILE.baseY + 32.24 : (building.y0_dm + building.h_dm) / 10,
       building.id,
       0.1,
-      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === MUSIC_MUSEUM_HALL_ID
+      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? friedrichstadtPalastTopAt : building.id === MUSIC_MUSEUM_HALL_ID
         ? (x,z) => musicMuseumRoofHeightAt(x,z,visualMode() === "minecraft")
         : undefined,
     );

@@ -656,3 +656,52 @@ Marie-Elisabeth-Lüders-Haus: their lower wings, central volumes and roof
 elements no longer receive one area-derived fallback height. OSM named
 building polygons associate the segmented LoD2 families with semantics, but
 Berlin LoD2 remains the geometry and height anchor.
+
+## Luisenstraße and theatre corridor refinement — v1.0.6
+
+`luisenCorridorSource.json` is an exact subset of 120 delivered Berlin LoD2
+parts, with 25 identity/material profiles and 65 already mapped OSM axes from
+Luisenstraße, Schumannstraße and Reinhardtstraße. Heights, roof codes,
+courtyard holes and footprints remain unchanged. Facade tops are static
+values derived from the existing renderer's source roof/eaves interpretation;
+they are not extra measured heights. The repeated bay counts, floor divisions,
+colours, cornices, louvres and balcony details remain photo-proportioned
+recognition estimates. Existing Luisenstraße 18 Landesvertretung geometry is
+refined in its separate module, avoiding a duplicate corridor facade. See
+[the full inventory and reference limits](luisen-corridor-refinement.md).
+
+Four presentation differences are explicit in `fused_sources.json`:
+
+- **Deutsches Theater / Kammerspiele:** the old fifteen-part display associated
+  four main-theatre parts with the wrong stage and placed the portico on a
+  side wing. Twenty-seven unchanged source parts now retain their two actual
+  source parents, the main entrance and the separate Kammerspiele front.
+  Neither source geometry nor heights move. The rooftop DT mark and facade
+  subdivisions are code-built recognition details.
+- **Heinrich-Böll-Stiftung:** source part `PZ80obrB` is an elevated L-shaped
+  beletage, rather than the closed ground-level mass implied by its prism.
+  The exact source outline, source maximum of 15.8 m and original record stay;
+  its displayed underside is the explicitly non-surveyed 8.8 m viewer estimate.
+  `G9NcorMt` retains its original core envelope. Drawn, Minecraft and pedestrian
+  collision agree on the open space beneath the projecting public level.
+  Its Minecraft core cap removes only the source voxel rounding from 29.2 m
+  to the exact 28.8 m source roof, keeping the new roof fields visible.
+- **Friedrichstadt-Palast:** source context prism `24314976` has a generic
+  12 m fallback. Its exact eighteen-point OSM plan and record remain retained,
+  while the recognition envelope follows the monument authority's 20 m main
+  volume and 32 m stage-tower dimensions. Local staging, fascia and decoration
+  remain labelled display approximations.
+- **Luisenstraße 18 / Sachsen-Anhalt:** the former four-storey north-party-wall
+  facade is corrected to three storeys on the verified eastern street edge.
+  Nine upper bays and the closed 1874 oriel follow the photograph and monument
+  record. All four LoD2 source bodies and their roof/collision envelopes remain.
+
+Sixteen new freely licensed photographs are attributed in both Wikimedia
+manifests, bringing them to 190 unique files. All are external references;
+none adds a runtime image, crop, font or photographic texture. Official DOP
+supports Böll roof vocabulary and theatre-front orientation without changing
+its dl-de/zero-2-0 attribution. The tour catalogue and project bounds do not
+change. Detailed evidence: [Böll](boell-stiftung-refinement.md),
+[Deutsches Theater](deutsches-theater-refinement.md), and
+[Friedrichstadt-Palast](friedrichstadt-palast-refinement.md), plus the separate
+[Luisenstraße 18 facade](sachsen-anhalt-facade-refinement.md).

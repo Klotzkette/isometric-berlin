@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.5 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.5/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.6 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.6/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,25 +24,26 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.5** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.6** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.5 refines the Musikinstrumenten-Museum, the five Lennéstraße
-buildings including CMS, the composer and Lessing monuments, and the Soviet
-memorial with source-aligned tanks and guns. The Chancellery entrance fence
-and traced lawn plots now stand above the terrain. Detailed rust-coloured
-bearing frames sit beside Hauptbahnhof; HumboldtHafenEins, home to the SPIEGEL
-capital studio, gains folded facade fins and a clearer arcade.
-See [release changes](CHANGELOG.md#v105), [museum and Lennéstraße](docs/museum-lenne-refinement.md),
-[composer and Lessing](docs/music-lessing-refinement.md),
-[Soviet memorial](docs/soviet-memorial-refinement.md), and
-[entrance and station](docs/entrance-station-refinement.md).
+Version 1.0.6 refines the Luisenstraße corridor from Charité to the Spree,
+with separate facade families along Schumannstraße and Reinhardtstraße.
+Deutsches Theater and Kammerspiele now use the correct building parts and
+geometric lettering. Heinrich-Böll-Stiftung gains its elevated green beletage,
+metal profiles and entrance; Friedrichstadt-Palast keeps nine detailed glass
+axes and a corrected main/stage envelope. All five modes remain available,
+including dedicated Minecraft details. See [Luisenstraße evidence](docs/luisen-corridor-refinement.md),
+[theatre evidence](docs/deutsches-theater-refinement.md),
+[Böll-Stiftung evidence](docs/boell-stiftung-refinement.md) and
+[Palast evidence](docs/friedrichstadt-palast-refinement.md).
 
-Version 1.0.5 präzisiert Museum, Lennéstraße, Komponisten- und Lessing-Denkmal
-sowie das sowjetische Ehrenmal mit korrigierten Panzer- und Geschützpositionen.
-Am Kanzleramt sind Zaun und Rasenflächen jetzt oberhalb des Geländes sichtbar.
-Hauptbahnhof-Stahlstützen und die Fassaden am SPIEGEL-Hauptstadtstudio erhalten
-weitere belegte Details. Alle fünf Darstellungen bleiben verfügbar.
+Version 1.0.6 präzisiert die Luisenstraße von der Charité bis zur Spree sowie
+Schumann- und Reinhardtstraße. Deutsches Theater und Kammerspiele erhalten
+korrekte Gebäudeteile und Schriftzüge, die Böll-Stiftung ihre erhöhte grüne
+Beletage und den Eingang. Der Friedrichstadt-Palast zeigt alle neun Glasachsen,
+Dachschrift und korrigierte Haupt- und Bühnenhöhen. Die Details sind in allen
+fünf Darstellungen verfügbar, einschließlich eigener Minecraft-Modelle.
 
 ## Screenshots
 
@@ -67,7 +68,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.5**, built from `main`. Its full viewer
+The current public package is **v1.0.6**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

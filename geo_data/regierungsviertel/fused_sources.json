@@ -157,6 +157,107 @@
         "KSP Engel HumboldtHafenEins"
       ],
       "conflicts": []
+    },
+    {
+      "feature_id": "luisen_schumann_reinhardt_corridor",
+      "anchor_source": "lod2 + existing OSM road axes",
+      "geometry_ref": "src/app/src/luisenCorridorSource.json",
+      "documentation_ref": "docs/luisen-corridor-refinement.md",
+      "source_part_count": 120,
+      "profile_count": 25,
+      "road_axis_count": 65,
+      "semantic_evidence": [
+        "OSM address/office records",
+        "Landesdenkmalamt 09095859,T and 09095894",
+        "Foreign Office Philippine Embassy address",
+        "Humboldt-Universitaet Mori-Ogai address",
+        "Nine credited Wikimedia Commons references"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [],
+      "facade_occlusion_context": "Full delivered sourcePrisms, including unselected adjoining buildings; shared interior fields and impossible tight-courtyard overlays omitted.",
+      "minecraft_clearance": "Actual 4 m source-cell corners; one shared outward displacement per window bay keeps pane, frame and trim layered."
+    },
+    {
+      "feature_id": "deutsches_theater_and_kammerspiele",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/DeutschesTheater.ts",
+      "documentation_ref": "docs/deutsches-theater-refinement.md",
+      "source_parents": [
+        "DEBE01YYK00002VR",
+        "DEBE01YYK000037b"
+      ],
+      "source_part_count": 27,
+      "semantic_evidence": [
+        "Landesdenkmalamt 09011193",
+        "Deutsches Theater profile",
+        "DOP 2025 spring",
+        "Leonhard Lenz May 2024 CC0 references"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "deutsches_theater_facade_identity"
+      ]
+    },
+    {
+      "feature_id": "DEBE01YYK00003sO",
+      "anchor_source": "lod2 + OSM node/4597099723",
+      "geometry_ref": "src/app/src/boellStiftungProfile.ts",
+      "documentation_ref": "docs/boell-stiftung-refinement.md",
+      "source_part_count": 2,
+      "semantic_evidence": [
+        "Heinrich-Boell-Stiftung building account and brochure",
+        "e2a architect opening speech",
+        "DOP 2025 spring",
+        "Three credited Wikimedia Commons references"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "boell_beletage_ground_void"
+      ],
+      "minecraft_core_roof": "Retain every core-centred source column; clip only its vertical voxel rounding band from 29.2 m to the exact 28.8 m LoD2 roof so procedural roof fields remain visible. Raw voxel records unchanged."
+    },
+    {
+      "feature_id": "friedrichstadt_palast",
+      "anchor_source": "OSM way/24314976 + published Landesdenkmalamt dimensions",
+      "geometry_ref": "src/app/src/FriedrichstadtPalastDetails.ts",
+      "documentation_ref": "docs/friedrichstadt-palast-refinement.md",
+      "semantic_evidence": [
+        "Landesdenkmalamt Friedrichstrasse 107 explanatory sheet",
+        "Palast 40th anniversary account",
+        "John Samuel May 2024 CC BY-SA4.0 references"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "friedrichstadt_palast_fallback_height"
+      ]
+    },
+    {
+      "feature_id": "sachsen_anhalt_luisen18_facade",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/SachsenAnhaltFacade.ts",
+      "documentation_ref": "docs/sachsen-anhalt-facade-refinement.md",
+      "source_parent": "DEBE01YYK00002dn",
+      "source_part_count": 4,
+      "source_part_ids": [
+        "mIgrCTOY",
+        "7c76Dz9u",
+        "5WQW7BjX",
+        "T3KBPJfQ"
+      ],
+      "semantic_evidence": [
+        "Landesdenkmalamt 09095966",
+        "Kvikk, Landesvertretung Sachsen-Anhalt in Berlin.JPG, 13 September 2014, CC BY-SA4.0"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "sachsen_anhalt_street_facade_assignment"
+      ]
     }
   ],
   "features": [
@@ -447759,6 +447860,68 @@
       "resolution": "Retain old source name and all geometry. Map CMS to current official Lennestrasse7, parent DEBE01YYK0002N8w, verified by address and office nodes. Render each tower separately without asserting current embassy tenancy at no5.",
       "geometry_ref": "src/app/src/museumLenneProfile.ts",
       "source_records_retained": true
+    },
+    {
+      "feature_id": "deutsches_theater_facade_identity",
+      "kind": "display_facade_assignment_conflict",
+      "sources": [
+        "lod2 named parents and source parts",
+        "Landesdenkmalamt 09011193",
+        "DOP 2025 spring",
+        "Wikimedia Commons references"
+      ],
+      "conflict": "The old display called four parts of main-theatre parent DEBE01YYK00002VR Kammerspiele and placed its portico on side wing wZRgel5C; all 15 old IDs actually belong to the main theatre.",
+      "resolution": "Retain all source geometry. Assign the main portico to exact KeeAYa8r edge2; include 12 already-delivered actual Kammerspiele parts under DEBE01YYK000037b with its front on the eastern 23.15m display subdivision of yMkbzxqy edge4. Document photo-bounded bays and sign geometry separately from exact source records.",
+      "geometry_ref": "src/app/src/DeutschesTheater.ts",
+      "documentation_ref": "docs/deutsches-theater-refinement.md",
+      "source_records_retained": true,
+      "source_heights_retained": true
+    },
+    {
+      "feature_id": "boell_beletage_ground_void",
+      "kind": "elevated_volume_source_envelope",
+      "sources": [
+        "lod2 part PZ80obrB",
+        "Heinrich-Boell-Stiftung building brochure",
+        "e2a architect opening speech",
+        "Wikimedia Commons references"
+      ],
+      "conflict": "The delivered low L-shaped prism extends from world5.2m to15.8m and incorrectly closes the photographed recessed ground space under the projecting beletage.",
+      "resolution": "Preserve both source records and exact outlines. Retain G9NcorMt core. Replace only PZ80obrB generic drawn/voxel envelope with an elevated model beginning at world8.8m (non-surveyed photo-proportioned underside), retaining its source15.8m maximum. Pedestrian collision follows the represented elevated volume. Core Minecraft cells retain their full horizontal extent; only their vertical rounding above the exact 28.8m source roof is removed, with raw voxel records retained.",
+      "geometry_ref": "src/app/src/boellStiftungProfile.ts",
+      "documentation_ref": "docs/boell-stiftung-refinement.md",
+      "source_records_retained": true,
+      "display_underside_is_surveyed": false
+    },
+    {
+      "feature_id": "friedrichstadt_palast_fallback_height",
+      "kind": "context_fallback_vs_published_architecture",
+      "sources": [
+        "OSM way/24314976 and delivered context prism",
+        "Landesdenkmalamt Friedrichstrasse107 explanatory sheet",
+        "Palast institutional history"
+      ],
+      "conflict": "The delivered context building carries a generic12m fallback rather than the documented20m main volume and32m stage tower.",
+      "resolution": "Keep the original source record and exact eighteen-point OSM outline. Render the source-bound main/stage hierarchy using the published dimensions, with explicitly procedural local stage placement, fascia, glazing and relief details. Pedestrian roof support follows the displayed envelope.",
+      "geometry_ref": "src/app/src/FriedrichstadtPalastDetails.ts",
+      "documentation_ref": "docs/friedrichstadt-palast-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "sachsen_anhalt_street_facade_assignment",
+      "kind": "display_facade_assignment_conflict",
+      "sources": [
+        "lod2 parent DEBE01YYK00002dn",
+        "Landesdenkmalamt 09095966",
+        "Kvikk 2014 CC BY-SA4.0 reference"
+      ],
+      "conflict": "The former generic four-storey display selected the north party wall as the primary front and added unverified window overlays to other sides.",
+      "resolution": "Retain all four source bodies, heights, roofs and collision envelopes. Apply three ochre storeys, nine upper bays and the documented closed 1874 oriel only to the exact eastern street edge of mIgrCTOY. Local window and ornament subdivisions remain procedural display estimates.",
+      "geometry_ref": "src/app/src/SachsenAnhaltFacade.ts",
+      "documentation_ref": "docs/sachsen-anhalt-facade-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ]
 }

@@ -455,9 +455,13 @@ concrete-glass fields. The exact Tränenpalast outline remains separate from the
 station as a low steel-and-glass pavilion; its three false opaque source prisms
 stay suppressed. Full and coarse-pointer paths choose distinct bounded detail
 profiles, and no photograph or canvas texture is constructed or fetched.
-Together the two buildings use 8 renderables / 439 instances / 5,329 stored /
-16,873 rendered vertices in full and 8 / 393 / 3,477 / 13,365 in the
-coarse-pointer mobile profile.
+As of v1.0.6, the two Palast presentations plus Tränenpalast store 9 renderables,
+17,374 instances, 1,560 stored / 418,392 rendered instance vertices and
+1,347,640 geometry/instance bytes in full; mobile stores 9 / 13,794 / 1,272 /
+332,184 / 1,070,880 respectively. Only the selected Palast representation is
+visible. Its source fallback prism and coarse columns are suppressed; the
+unchanged record remains in the payload. The exact OSM footprint and published
+20 m main / 32 m stage heights now govern the model and pedestrian roof query.
 
 The ten-metre Beethoven-Haydn-Mozart monument keeps its exact Tiergarten anchor
 but now uses the documented rounded granite base, three-sided corner-chamfered
@@ -1389,3 +1393,58 @@ stations receive photographed steel-section detail, and HumboldtHafenEins
 gets folded fins, blinds and a clearer arcade. See the focused evidence docs:
 [museum](museum-lenne-refinement.md), [composer/Lessing](music-lessing-refinement.md),
 and [entrance/station](entrance-station-refinement.md).
+
+
+## v1.0.6 Luisenstraße, theatres and Böll-Stiftung
+
+The Luisenstraße corridor has 25 photo-guided facade profiles bound to 120
+unchanged LoD2 records. Street-facing detail is selected against 65 existing
+OSM road axes on Luisenstraße, Schumannstraße and Reinhardtstraße; full source
+neighbours suppress hidden partywall detail. The source roof/eave calculation
+bounds all facade rows. No facade opening is presented as an individual survey.
+Luisenstraße 18 stays in the separate FederalStateRepresentations model.
+
+Deutsches Theater and Kammerspiele now have 27 exact source parts with corrected
+parent identity, courtyard/main-front orientation, source-bound entrance and
+geometric signs. The Böll-Stiftung retains its core and both source records;
+only the false closed low annex is replaced by an elevated beletage. Its 8.8 m
+underside is documented as a photograph-proportioned display estimate. The
+obstacle index uses that same underside, preserving the open ground underneath.
+
+Day, Night, Snowstorm and Schwellenraum use the drawn facades; Minecraft adds
+separate bounded facade batches with clearance from retained coarse columns.
+Full and mobile models retain all buildings and primary identifying features.
+The Palast's independent smooth/block visibility is reapplied on cold loading,
+mode switches and subtree replacement, including the first direct Minecraft
+entry. No controller input bindings change in this release.
+
+Böll geometry/instance cost: drawn full 2 draws / 1,909 instances / 146,044 bytes;
+mobile 2 / 1,244 / 95,504. Minecraft full 1 / 2,315 / 176,588; mobile
+1 / 2,095 / 159,868. Palast alone: drawn full 4 / 4,801 / 370,876;
+mobile 4 / 2,978 / 232,328. Minecraft full 1 / 12,455 / 947,228; mobile
+1 / 10,740 / 816,888. The inactive Palast is stored but does not draw.
+
+See [corridor evidence](luisen-corridor-refinement.md),
+[theatre evidence](deutsches-theater-refinement.md),
+[foundation evidence](boell-stiftung-refinement.md), and
+[Palast evidence](friedrichstadt-palast-refinement.md).
+
+Luisen corridor geometry cost (two batches over one 24-vertex cube): drawn
+full 24,038 instances / 576,912 rendered vertices / 1,827,536 unique bytes;
+mobile 20,614 / 494,736 / 1,567,312. Minecraft full/mobile each 11,251 /
+270,024 / 855,724. Both Minecraft profiles retain the same structural detail;
+only the drawn profile has additional microdetail to reduce on mobile. The
+corridor and Böll body tones also feed the existing Minecraft palette matcher.
+Deutsches Theater alone: drawn full 4 draws / 4,568 cube instances / 110,338
+rendered vertices / 363,026 bytes; mobile 4 / 3,226 / 77,810 / 254,314.
+Minecraft full 1 / 3,340 / 80,160 / 254,488; mobile 1 / 3,284 / 78,816 / 250,232.
+
+Luisenstraße 18 (Sachsen-Anhalt) uses one extra facade batch: drawn full
+403 instances / 9,672 rendered vertices / 31,276 bytes; drawn mobile and both
+Minecraft profiles 276 / 6,624 / 21,624. Its four original source parts remain
+present, with only the verified eastern three-storey, nine-bay frontage detailed.
+
+The Minecraft visibility filter explicitly retains the block Palast and its
+ancestors beside the existing Weigel public-art branch. Its final leaf selection
+runs after branch filtering/restoration, so generic visibility policy cannot
+silently undo the chosen model during cold loading or warm mode switches.

@@ -1,4 +1,8 @@
 import type { Object3D } from "three";
+import {
+  FRIEDRICHSTADT_PALAST_MINECRAFT_NAME,
+  setFriedrichstadtMinecraftPresentation,
+} from "./FriedrichstadtPalastDetails";
 
 /** Scene roots whose smooth presentation must be filtered by voxel mode. */
 export type MinecraftVisibilityRoots = {
@@ -30,8 +34,10 @@ const UNITY_FLAGPOLE_NAME = "Flag of Unity 28.5 m galvanized-steel pole";
 const UNITY_STRIPE_NAMES = new Set(
   [1, 2, 3].map((index) => `Flag of Unity animated German stripe ${index}`),
 );
-const BERLINER_ENSEMBLE_MINECRAFT_SMOOTH_BRANCH_NAME =
-  "Für Helene Weigel current memorial";
+const MINECRAFT_CENTRAL_BRANCHES = new Set([
+  "Für Helene Weigel current memorial",
+  FRIEDRICHSTADT_PALAST_MINECRAFT_NAME,
+]);
 
 // Minecraft visibility is deliberately reversible. In particular, night-only
 // fixtures may be false before voxel mode and true after a later Night relight;
@@ -92,18 +98,18 @@ function setSelectedLeavesVisible(
 }
 
 /**
- * Keep one authored public-art branch without forcing its mode-owned children
- * (snow-only caps and distance-faded portrait dots) back on.
+ * Keep authored compatible branches and their ancestors without forcing
+ * mode-owned children (snow caps and distance-faded portrait dots) back on.
  */
-function setSelectedBranchVisible(root: Object3D, branchName: string): boolean {
-  if (root.name === branchName) {
+function setSelectedBranchesVisible(root: Object3D): boolean {
+  if (MINECRAFT_CENTRAL_BRANCHES.has(root.name)) {
     setOwnedVisibility(root, true);
     return true;
   }
   let hasVisibleBranch = false;
   for (const child of root.children) {
     hasVisibleBranch =
-      setSelectedBranchVisible(child, branchName) || hasVisibleBranch;
+      setSelectedBranchesVisible(child) || hasVisibleBranch;
   }
   setOwnedVisibility(root, hasVisibleBranch);
   return hasVisibleBranch;
@@ -179,17 +185,18 @@ export function applyMinecraftVisibility(
 ): void {
   if (!voxelMode) {
     restoreMinecraftVisibility(roots);
+    // Restoring the saved pre-filter branch state must not re-enable a block
+    // model that an earlier presentation call had selected for Minecraft.
+    setFriedrichstadtMinecraftPresentation(roots.centralDetails, false);
     return;
   }
   // Root visibility starts with the ordinary underside/surface policy. The
-  // selective branch pass may expose only the non-voxel Weigel work above
-  // ground; the captured value is released before the next mode establishes
-  // its baseline.
+  // selective branch pass exposes the Weigel work and block-native Palast
+  // above ground; the captured value is released before the next mode
+  // establishes its baseline.
   const centralBaselineVisible = roots.centralDetails.visible;
-  setSelectedBranchVisible(
-    roots.centralDetails,
-    BERLINER_ENSEMBLE_MINECRAFT_SMOOTH_BRANCH_NAME,
-  );
+  setSelectedBranchesVisible(roots.centralDetails);
+  setFriedrichstadtMinecraftPresentation(roots.centralDetails, true);
   if (!centralBaselineVisible) roots.centralDetails.visible = false;
   roots.cityStaffage.visible = false;
   applySignaturePolicy(roots.signatures);

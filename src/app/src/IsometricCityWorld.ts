@@ -1,3 +1,8 @@
+import { createLuisenCorridorArchitecture } from "./LuisenCorridorArchitecture";
+import { LUISEN_CORRIDOR_IDS, LUISEN_CORRIDOR_TONES, LUISEN_CORRIDOR_ROOF_TONES } from "./luisenCorridorProfile";
+import { createBoellStiftungArchitecture } from "./BoellStiftungArchitecture";
+import { BOELL_STIFTUNG_IDS, BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_PRISM_TONES, BOELL_STIFTUNG_ROOF_TONES } from "./boellStiftungProfile";
+import { FRIEDRICHSTADT_PALAST_PRISM_ID } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
 import { createMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
 import { MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
@@ -97,6 +102,7 @@ import {
   DEUTSCHES_THEATER_KAMMERSPIELE_IDS,
   DEUTSCHES_THEATER_MAIN_IDS,
   DEUTSCHES_THEATER_TONES,
+  DEUTSCHES_THEATER_ROOF_TONES,
   createDeutschesTheater,
 } from "./DeutschesTheater";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
@@ -124,7 +130,7 @@ import {
   REICHSTAGSPRAESIDENTENPALAIS_TONES,
   createReichstagspraesidentenpalais,
 } from "./Reichstagspraesidentenpalais";
-import { createFederalStateRepresentations } from "./FederalStateRepresentations";
+import { createFederalStateRepresentations, SACHSEN_ANHALT_FACADE_IDS } from "./FederalStateRepresentations";
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -599,6 +605,9 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   K00006ot: 0xeee5d4,
   ...ECONOMIC_MINISTRY_PRISM_TONES,
   ...MUSEUM_LENNE_PRISM_TONES,
+  ...LUISEN_CORRIDOR_TONES,
+  ...BOELL_STIFTUNG_PRISM_TONES,
+  mIgrCTOY: 0xe4be7d,
   ...SONY_SURROUNDINGS_PRISM_TONES,
   // The Center / former Sony Center: cool glass-and-steel towers around the
   // authored Forum facades, instead of unrelated sampled beige prisms.
@@ -768,6 +777,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   K00005Hq: 0x54796a,
   ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
   ...MUSEUM_LENNE_ROOF_TONES,
+  ...LUISEN_CORRIDOR_ROOF_TONES,
+  ...BOELL_STIFTUNG_ROOF_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0x747c79])),
   ORqiW8aK: 0x729083,
   yrDOCds1: 0x729083,
@@ -794,9 +805,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
     ]),
   ),
   ...Object.fromEntries([...CHARITE_VIROLOGY_IDS].map((id) => [id, 0x77827d])),
-  ...Object.fromEntries(
-    [...DEUTSCHES_THEATER_IDS].map((id) => [id, DEUTSCHES_THEATER_TONES.slate]),
-  ),
+  ...DEUTSCHES_THEATER_ROOF_TONES,
   ...Object.fromEntries(
     [...TERRASSENHAUS_HAFENPLATZ_IDS].map((id) => [
       id,
@@ -825,6 +834,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  BOELL_STIFTUNG_LOW_ID,
+  FRIEDRICHSTADT_PALAST_PRISM_ID,
   ...SOVIET_MEMORIAL_PRISM_IDS,
   GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId,
   ...ZOLLPACKHOF_PRISM_IDS,
@@ -2354,6 +2365,9 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...SACHSEN_ANHALT_FACADE_IDS,
+  ...LUISEN_CORRIDOR_IDS,
+  ...BOELL_STIFTUNG_IDS,
   ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
@@ -2375,6 +2389,10 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...SACHSEN_ANHALT_FACADE_IDS,
+  ...LUISEN_CORRIDOR_IDS,
+  ...BOELL_STIFTUNG_IDS,
+  ...DEUTSCHES_THEATER_IDS,
   ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
@@ -2388,6 +2406,10 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // Wallot's two affected Palais roof parts instead use source-bounded crest
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...SACHSEN_ANHALT_FACADE_IDS,
+  ...LUISEN_CORRIDOR_IDS,
+  ...BOELL_STIFTUNG_IDS,
+  ...DEUTSCHES_THEATER_IDS,
   ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
@@ -11601,7 +11623,7 @@ export function createIsometricCity(
     // A wall-material tag must not turn a measured pitched roof into a box.
     const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
       ? undefined : mappedMaterialGlazing;
-    const isGlass = !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+    const isGlass = !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
       (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass"));
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
@@ -12932,14 +12954,16 @@ export function createIsometricCity(
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createDeutschesTheater(prisms));
+    group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
+    group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));
     group.add(createBerlinerEnsemble(prisms));
     group.add(createReichstagspraesidentenpalais(prisms));
     group.add(createEconomicMinistryDetails(prisms));
     group.add(createZollpackhofDetails());
-    group.add(createFederalStateRepresentations());
+    group.add(createFederalStateRepresentations({ mobileLike: options.detailProfile === "mobile" }));
   }
   return group;
 }

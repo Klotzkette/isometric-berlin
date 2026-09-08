@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.5"
+PACKAGE_VERSION = "1.0.6"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,14 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.5: Musikinstrumenten-Museum und die fuenf Haeuser an der
+Neu in v1.0.6: Die Luisenstrasse von der Charite zur Spree, Schumann- und
+Reinhardtstrasse erhalten differenzierte Fassaden. Deutsches Theater und
+Kammerspiele zeigen ihre richtigen Gebaeudeteile und Schriftzuege. Die
+Heinrich-Boell-Stiftung hat eine gruene erhoehte Beletage und ihren Eingang.
+Der Friedrichstadt-Palast bekommt neun Glasachsen, Dachschrift und eine
+korrigierte Haupt- und Buehnenhoehe. Eigene Minecraft-Details sind enthalten.
+
+Seit v1.0.5: Musikinstrumenten-Museum und die fuenf Haeuser an der
 Lennestrasse erhalten eigene Fassaden. Komponisten-, Lessing- und sowjetisches
 Ehrenmal sind genauer modelliert; Panzer und Geschuetze stehen an ihren
 Quellpositionen. Der Kanzleramt-Zaun und die Luftbild-Rasenflaechen liegen
@@ -3945,7 +3952,14 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.5: the musical instrument museum and five Lennestrasse buildings
+New in v1.0.6: Luisenstrasse from Charite to the Spree, Schumannstrasse and
+Reinhardtstrasse gain differentiated facades. Deutsches Theater and
+Kammerspiele retain their correct buildings and lettering. The Heinrich Boell
+Foundation gains its elevated green beletage and entrance. Friedrichstadt-
+Palast gains nine glazed axes, rooftop lettering and corrected main/stage
+heights. Dedicated Minecraft details are included.
+
+Since v1.0.5: the musical instrument museum and five Lennestrasse buildings
 gain individual facades. Composer, Lessing and Soviet memorials are refined;
 tanks and guns use their source positions. The Chancellery fence and traced
 lawns now stand above the terrain. Rust-coloured station bearing frames and

@@ -46,7 +46,7 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
     expect(FRIEDRICHSTADT_PALAST_PROFILE).toMatchObject({
       baseY: 5.2,
       facade: {
-        fieldCounts: { full: 9, mobile: 5 },
+        fieldCounts: { full: 9, mobile: 9 },
         officialGlassBlockCount: 22_500,
         structuralGridM: 6,
       },
@@ -88,7 +88,8 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
       FRIEDRICHSTADT_PALAST_GLASS_LAYER_NAME,
     ) as InstancedMesh;
     expect(glass).toBeInstanceOf(InstancedMesh);
-    expect(glass.count).toBe(9);
+    expect(glass.count).toBeGreaterThan(1000);
+    expect(glass.userData.facadeAxes).toBe(9);
     expect(glass.instanceColor).not.toBeNull();
     expect(glass.userData).toMatchObject({
       officialGlassBlockCount: 22_500,
@@ -102,7 +103,7 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
     expect(sign.count).toBeGreaterThan(220);
     expect(sign.userData).toMatchObject({
       proceduralGlyphGrid: [5, 7],
-      text: "FRIEDRICHSTADT-PALAST",
+      text: "FRIEDRICHSTADT PALAST",
       textureFree: true,
     });
   });
@@ -179,6 +180,8 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
     const mobile = createFriedrichstadtAndTearPalaces("mobile");
     const fullStats = palaceRenderStats(full);
     const mobileStats = palaceRenderStats(mobile);
+    expect(fullStats).toEqual({ instanceCount: 17_374, renderedVertices: 418_392, renderables: 9, storedVertices: 1_560 });
+    expect(mobileStats).toEqual({ instanceCount: 13_794, renderedVertices: 332_184, renderables: 9, storedVertices: 1_272 });
     const fullBudget = PALACE_DETAIL_RENDER_BUDGETS.full;
     const mobileBudget = PALACE_DETAIL_RENDER_BUDGETS.mobile;
     expect(full.userData.performanceBudget).toBe(fullBudget);
@@ -218,7 +221,7 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
     expect(mobileCentral.userData.detailProfile).toBe("mobile");
     expect(
       mobileCentral.getObjectByName(FRIEDRICHSTADT_PALAST_GLASS_LAYER_NAME),
-    ).toMatchObject({ count: 5 });
+    ).toMatchObject({ userData: { facadeAxes: 9 } });
     expect(viewerSource).toContain(
       'runtime.coarsePointer ? "mobile" : "full"',
     );

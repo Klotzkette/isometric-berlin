@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.0.6
+
+- **Luisenstraße und Theaterverbindung.** 25 Gebäudegruppen mit 120 exakten
+  Quellteilen erhalten unterschiedliche Altbau-, Steinraster-, Lamellen- und
+  Balkonfassaden. Die Luisenstraße von der Charité bis zur Spree sowie
+  Schumann- und Reinhardtstraße behalten ihre vorhandenen Straßenachsen.
+  Fenster auf verdeckten Brandwänden werden ausgespart. Luisenstraße 18
+  bleibt als getrennte Landesvertretung erhalten und wird ebenfalls präzisiert.
+- **Deutsches Theater und Kammerspiele.** Die bisherigen falschen
+  Gebäudeteil-Zuordnungen und der falsch platzierte Portikus werden korrigiert.
+  27 Quellteile, Hauptportal, Dachmonogramm, Kammerspiele-Schriftzug und
+  differenzierte Dachfarben erhalten eigene Fassaden und Minecraft-Details.
+- **Heinrich-Böll-Stiftung.** Aluminiumprofile, drei Bürofensterreihen,
+  grüne erhöhte Beletage, zurückgesetzter Eingang und vertikale Beschriftung.
+  Der Durchgang unter der Auskragung bleibt auch beim Gehen offen; die
+  Unterkante ist ausdrücklich eine fotoorientierte Darstellungsschätzung.
+- **Friedrichstadt-Palast.** Neun große Glasachsen bleiben auch mobil erhalten,
+  ergänzt durch schmale Farbglasstreifen, Betonreliefs und richtig gerichtete
+  Dachschrift. Die dokumentierten Haupt- und Bühnenhöhen ersetzen den
+  generischen 12-Meter-Darstellungskörper mit passender Dachkollision.
+- **Quellen und Prüfung.** Quellkörper und abweichende Darstellungen bleiben
+  getrennt dokumentiert. Alle Fotoreferenzen bleiben außerhalb der Laufzeit;
+  tatsächliche Geometriestrahlen prüfen Fassaden vor den erhaltenen Quellkörpern.
+
+
 ## v1.0.5
 
 - **Musikinstrumenten-Museum und Lennéstraße präzisiert.** Graue Plattenfugen,

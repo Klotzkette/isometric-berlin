@@ -170,8 +170,8 @@ Keep attribution when using any listed reference.
 ## v1.0.5 external reference additions
 
 These ten files were inspected for architectural and monument detail. No new
-photograph or photographic texture is bundled. Both attribution manifests
-contain 174 unique files. The previously repeated *Berlin Kemperplatz.jpg*
+photograph or photographic texture is bundled. For v1.0.5 both attribution manifests
+contained 174 unique files. The previously repeated *Berlin Kemperplatz.jpg*
 credit now retains its two landmark roles in one record; its existing thumbnail
 and material palette remain unchanged. The three existing Lessing and two
 existing composer references were reused.
@@ -188,3 +188,33 @@ existing composer references were reused.
 | bundeskanzleramt | [Eingangsbereich Bundeskanzleramt.JPG](https://commons.wikimedia.org/wiki/File:Eingangsbereich_Bundeskanzleramt.JPG) | Martin S. Lindner | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) |
 | bundeskanzleramt | [Bundeskanzleramt Berlin 2013-05-16.JPG](https://commons.wikimedia.org/wiki/File:Bundeskanzleramt_Berlin_2013-05-16.JPG) | Rolf Heinrich, Köln | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
 | humboldthafenbruecke | [Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg](https://commons.wikimedia.org/wiki/File:Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg) | Sven Okas | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+
+## v1.0.6 external reference additions
+
+Sixteen external photographs support the Luisenstraße–Schumannstraße–
+Reinhardtstraße corridor, Deutsches Theater/Kammerspiele, Heinrich-Böll-Stiftung
+and Friedrichstadt-Palast. Both manifests now contain 190 unique file records.
+All new records are attribution-only; no photograph, crop or image texture is
+bundled or fetched by the viewer. Dated views establish visible architecture,
+not current occupancy or a current-condition survey. Luisenstraße 19 appears
+only partially in the Landesvertretung view; its specific architectural account
+comes from the Berlin monument inventory.
+
+| Landmark | File | Author | License |
+|---|---|---|---|
+| luisen_schumann_reinhardt_corridor | [Berlin 20260713 Luisenstraße.jpg](https://commons.wikimedia.org/wiki/File:Berlin_20260713_Luisenstra%C3%9Fe.jpg) | NutzerAusBerlin | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| luisen_schumann_reinhardt_corridor | [Mitte Luisenstraße.JPG](https://commons.wikimedia.org/wiki/File:Mitte_Luisenstra%C3%9Fe.JPG) | Fridolin freudenfett | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| luisen_schumann_reinhardt_corridor | [Reinhardtstraße Berlin-Mitte 2024-05-09 01.jpg](https://commons.wikimedia.org/wiki/File:Reinhardtstra%C3%9Fe_Berlin-Mitte_2024-05-09_01.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| luisen_schumann_reinhardt_corridor | [Wohn- und Geschäftshaus Luisenstraße 48-49 — Schumannstraße 19 (1).jpg](https://commons.wikimedia.org/wiki/File:Wohn-_und_Gesch%C3%A4ftshaus_Luisenstra%C3%9Fe_48-49_%E2%80%94_Schumannstra%C3%9Fe_19_(1).jpg) | Андрей Романенко | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| luisen_schumann_reinhardt_corridor | [Berlin, Mitte, Luisenstrasse 42, Geschaeftshaus.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Luisenstrasse_42,_Geschaeftshaus.jpg) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| luisen_schumann_reinhardt_corridor | [Berlin 20260713 Kaiserliches Patentamt.jpg](https://commons.wikimedia.org/wiki/File:Berlin_20260713_Kaiserliches_Patentamt.jpg) | NutzerAusBerlin | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| luisen_schumann_reinhardt_corridor | [Landesvertretung Sachsen-Anhalt in Berlin.JPG](https://commons.wikimedia.org/wiki/File:Landesvertretung_Sachsen-Anhalt_in_Berlin.JPG) | Kvikk | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| luisen_schumann_reinhardt_corridor | [Philippinische Botschaft, Luisenstraße, 2019-12-07 ama fec (3).jpg](https://commons.wikimedia.org/wiki/File:Philippinische_Botschaft,_Luisenstra%C3%9Fe,_2019-12-07_ama_fec_(3).jpg) | 44penguins (Angela M. Arnold) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| luisen_schumann_reinhardt_corridor | [Berlin, Mitte, Luisenstrasse 39, Mietshaus.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Luisenstrasse_39,_Mietshaus.jpg) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| heinrich_boell_stiftung | [Heinrich-Böll-Stiftung building Berlin 2024-05-09 01.jpg](https://commons.wikimedia.org/wiki/File:Heinrich-Böll-Stiftung_building_Berlin_2024-05-09_01.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| heinrich_boell_stiftung | [Heinrich-Böll-Stiftung building Berlin 2024-05-09 04.jpg](https://commons.wikimedia.org/wiki/File:Heinrich-Böll-Stiftung_building_Berlin_2024-05-09_04.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| heinrich_boell_stiftung | [Eingang zum Gebäude der Heinrich-Böll-Stiftung, Berlin.jpg](https://commons.wikimedia.org/wiki/File:Eingang_zum_Gebäude_der_Heinrich-Böll-Stiftung,_Berlin.jpg) | Ankermast | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| friedrichstadt-palast | [Exterior view of Friedrichstadtpalast, Berlin 02.jpg](https://commons.wikimedia.org/wiki/File:Exterior_view_of_Friedrichstadtpalast,_Berlin_02.jpg) | John Samuel | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| friedrichstadt-palast | [Exterior view of Friedrichstadtpalast, Berlin 04.jpg](https://commons.wikimedia.org/wiki/File:Exterior_view_of_Friedrichstadtpalast,_Berlin_04.jpg) | John Samuel | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| deutsches_theater | [Deutsches Theater Berlin 2024-05-09 01.jpg](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_01.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| deutsches_theater | [Deutsches Theater Berlin 2024-05-09 03.jpg](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_03.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |

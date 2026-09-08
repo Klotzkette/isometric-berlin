@@ -649,6 +649,80 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   survey. Local member sections and spacing remain display estimates; the
   photographs and video are not bundled, projected or used as textures.
 
+- **Luisenstraße, Schumannstraße and Reinhardtstraße facade evidence:** the
+  [Friedrich-Wilhelm-Stadt ensemble](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095859%2CT)
+  and [Luisenstraße 19 pharmacy record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095894)
+  establish the historic building context. The
+  [German Foreign Office](https://manila.diplo.de/ph-de/willkommen/laenderinfos/vertretungen-in-deutschland)
+  and [Humboldt-Universität](https://www.ogai.hu-berlin.de/contact-en) verify the
+  Philippine Embassy and Mori-Ôgai-Gedenkstätte addresses. All 120 selected
+  Berlin LoD2 parts and 65 existing OSM road axes remain unchanged; storey,
+  window, shallow moulding and colour subdivisions are procedural estimates.
+  External visual references are NutzerAusBerlin's July 2026 Luisenstraße and
+  former Patentamt photographs, plus Leonhard Lenz's May 2024 Reinhardtstraße
+  view (CC0); Fridolin freudenfett's *Mitte Luisenstraße.JPG*, Андрей Романенко's
+  Luisenstraße 48–49 / Schumannstraße 19 view and Kvikk's Landesvertretung
+  Sachsen-Anhalt photograph (CC BY-SA 4.0); and Jörg Zägel's Luisenstraße 42 and
+  39 photographs plus 44penguins / Angela M. Arnold's Philippine Embassy view
+  (CC BY-SA 3.0). The Landesvertretung photograph principally depicts number
+  18, whose existing dedicated model is refined separately; number 19 is only
+  partially visible. The [Luisenstraße 18 monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095966)
+  identifies the 1874 closed oriel; the corrected east street facade uses
+  three storeys and nine upper bays while retaining all four source parts.
+  See [its evidence contract](docs/sachsen-anhalt-facade-refinement.md).
+  All nine per-file links and credits are recorded in
+  [the reference inventory](references/wikimedia/README.md#v106-external-reference-additions)
+  and mirrored in the viewer. No source photograph or texture is bundled.
+  See [corridor evidence](docs/luisen-corridor-refinement.md).
+
+- **Deutsches Theater and Kammerspiele facade identity correction:** the
+  [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011193)
+  and [theatre profile](https://www.deutschestheater.de/das-deutsche-theater/profil)
+  supplement exact LoD2 parents `DEBE01YYK00002VR` and `DEBE01YYK000037b`.
+  All 27 measured parts remain unchanged. The previous model misidentified
+  four main-theatre parts as Kammerspiele and placed the main portico on a
+  side wing. The corrected source-bound assignments preserve the ivory main
+  theatre, actual Kammerspiele facade, eight upper arched bays and open DT
+  rooftop monogram. Leonhard Lenz's
+  [*Deutsches Theater Berlin 2024-05-09 01.jpg*](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_01.jpg)
+  and [*03.jpg*](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_03.jpg)
+  (CC0), plus official DOP 2025, guide exterior recognition and orientation.
+  Local subdivisions and code-built sign strokes are display estimates;
+  no photograph, logo file, proprietary font or texture is bundled. See
+  [theatre evidence](docs/deutsches-theater-refinement.md).
+
+- **Heinrich-Böll-Stiftung at Schumannstraße 8:** the
+  [foundation's building account](https://www.boell.de/de/das-stiftungshaus-der-schumannstrasse),
+  [building brochure](https://www.boell.de/sites/default/files/hbs_neubau_broschure.pdf)
+  and [architect's opening speech](https://www.boell.de/de/presse/neubau-4970.html)
+  establish the e2a office block, projecting green beletage, recessed glazed
+  foyer and seasonally closing atrium roof. Both LoD2 parts under
+  `DEBE01YYK00003sO` retain their outlines and maximum heights. The low source
+  part incorrectly closes the space below the cantilever; its 8.8 m viewer
+  underside is a documented photo-proportioned display estimate. Leonhard
+  Lenz's [*Heinrich-Böll-Stiftung building Berlin 2024-05-09 01.jpg*](https://commons.wikimedia.org/wiki/File:Heinrich-Böll-Stiftung_building_Berlin_2024-05-09_01.jpg)
+  and [*04.jpg*](https://commons.wikimedia.org/wiki/File:Heinrich-Böll-Stiftung_building_Berlin_2024-05-09_04.jpg)
+  (CC0) guide silver profiles and green glazing. Ankermast's
+  [*Eingang zum Gebäude der Heinrich-Böll-Stiftung, Berlin.jpg*](https://commons.wikimedia.org/wiki/File:Eingang_zum_Gebäude_der_Heinrich-Böll-Stiftung,_Berlin.jpg)
+  (CC BY 4.0) guides the four doors, vertical name, small green mark and number
+  8. Photographs, brochure artwork and the DOP raster are reference-only,
+  never runtime textures. See [Böll evidence](docs/boell-stiftung-refinement.md).
+
+- **Friedrichstadt-Palast envelope and close facade evidence:** exact OSM way
+  `24314976` remains the plan anchor. The
+  [Landesdenkmalamt explanatory sheet](https://www.berlin.de/landesdenkmalamt/_assets/pdf-und-zip/aktuelles/kurzmeldungen/efriedrichstrasse-107.pdf)
+  supplies the 110 × 80 × 20 m main volume and 32 m stage tower, in contrast
+  to the source context record's generic 12 m fallback. That source record is
+  retained. The [theatre's anniversary account](https://www.palast.berlin/news/der-neue-palast-feiert-40-jahre/)
+  supplies the documented glass-block count. John Samuel's
+  [*Exterior view of Friedrichstadtpalast, Berlin 02.jpg*](https://commons.wikimedia.org/wiki/File:Exterior_view_of_Friedrichstadtpalast,_Berlin_02.jpg)
+  and [*04.jpg*](https://commons.wikimedia.org/wiki/File:Exterior_view_of_Friedrichstadtpalast,_Berlin_04.jpg)
+  (CC BY-SA 4.0, 7 May 2024) guide faceted two-storey glazing, narrow coloured
+  strips, nested arch mouldings, foyer returns and rooftop sign. Local window
+  subdivisions, relief cues and code-built lettering/fan shapes are procedural
+  estimates; promotional poster artwork and photographs are not reproduced.
+  See [Palast evidence](docs/friedrichstadt-palast-refinement.md).
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

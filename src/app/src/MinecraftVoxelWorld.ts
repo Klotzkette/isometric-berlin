@@ -1,3 +1,10 @@
+import { LUISEN_CORRIDOR_TONES } from "./luisenCorridorProfile";
+import { createMinecraftSachsenAnhaltFacade } from "./FederalStateRepresentations";
+import { createLuisenCorridorArchitecture } from "./LuisenCorridorArchitecture";
+import { createMinecraftBoellStiftungArchitecture } from "./BoellStiftungArchitecture";
+import { boellStiftungLowColumnContains, boellStiftungCoreColumnTopAt, BOELL_STIFTUNG_PRISM_TONES } from "./boellStiftungProfile";
+import { createMinecraftDeutschesTheater } from "./DeutschesTheater";
+import { friedrichstadtPalastContains } from "./FriedrichstadtPalastDetails";
 import { isSovietMemorialReplacementPoint } from "./SovietMemorialSource";
 import { createMinecraftSovietMemorial } from "./MinecraftSovietMemorial";
 import { createComposerMemorialMinecraft } from "./MusicComposerMemorial";
@@ -961,9 +968,12 @@ export function buildColumnToneLookup(prisms: {
   for (const building of prisms.buildings) {
     const panorama = building.id ? potsdamerPanoramaMaterialFor(building.id) : undefined;
     const attributes = building.id ? buildingAttributes(building.id) : undefined;
-    const mappedTone = mappedColor(attributes?.tags["building:colour"]) ??
+    // These bounded v1.0.6 facades use the same photo-guided colour family
+    // as the drawn world, snapped to the existing Minecraft material palette.
+    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] : undefined;
+    const mappedTone = corridorTone ?? mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes));
-    if ((!building.tone && !panorama && !attributes) || building.ring.length < 3) {
+    if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
       continue;
     }
     const ring = building.ring.map(
@@ -2668,6 +2678,11 @@ export function* buildMinecraftVoxelWorldSteps(
 
   group.add(createMinecraftHbfBearingSupports(worldGroundSampler(payload)));
   group.add(createMinecraftMuseumLenneArchitecture(options.sourcePrisms ? { buildings: options.sourcePrisms.map(p => ({...p,class:0})) } : undefined, {voxels:payload,mobileLike:options.detailProfile === "mobile"}));
+  group.add(createLuisenCorridorArchitecture({ sourcePrisms: options.sourcePrisms, minecraft: true, mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createMinecraftBoellStiftungArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
+  group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  yield;
   const harbourBuildingColumnAt = createHumboldthafenBuildingColumnTester(options.sourcePrisms);
   const chariteBuildingColumnAt = createHistoricChariteColumnTester(options.sourcePrisms ?? []);
   const sourcePrismPayload = { buildings: (options.sourcePrisms ?? []).filter(p => PARLIAMENT_ARCHITECTURE_IDS.has(p.id)).map(p => ({ ...p, class: 0 })), classes: [], schema_version: 1 };
@@ -2702,6 +2717,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !musicMuseumHallColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&
       !chariteBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isSiegessaeuleSourceVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
@@ -2717,7 +2734,7 @@ export function* buildMinecraftVoxelWorldSteps(
       minecraftArchitecturalVoxelTopAt(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
-        sourceTopY,
+        boellStiftungCoreColumnTopAt(worldXAbs(xIdx), worldZAbs(zIdx), sourceTopY, cell),
         cell,
       ),
     );

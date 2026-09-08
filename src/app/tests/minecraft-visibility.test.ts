@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { Group, Object3D } from "three";
+import {
+  createFriedrichstadtAndTearPalaces,
+  FRIEDRICHSTADT_PALAST_MINECRAFT_NAME,
+  FRIEDRICHSTADT_PALAST_ROOT_NAME,
+  setFriedrichstadtMinecraftPresentation,
+  TEAR_PALACE_ROOT_NAME,
+} from "../src/FriedrichstadtAndTearPalaces";
 
 import {
   applyMinecraftVisibility,
@@ -195,6 +202,13 @@ function visibilitySnapshot(roots: MinecraftVisibilityRoots): Map<string, boolea
   return result;
 }
 
+function effectivelyVisible(object: Object3D): boolean {
+  for (let node: Object3D | null = object; node; node = node.parent) {
+    if (!node.visible) return false;
+  }
+  return true;
+}
+
 describe("Minecraft smooth-scene visibility", () => {
   test("keeps only block-compatible landscape, bridge and flag details", () => {
     const roots = miniScene();
@@ -343,6 +357,60 @@ describe("Minecraft smooth-scene visibility", () => {
     expect(lateSmooth.visible).toBeTrue();
     expect(lateTerrain.children[0].visible).toBeFalse();
   });
+
+  for (const profile of ["full", "mobile"] as const) {
+    test(`${profile}: cold Palast commit retains its block batch and every wrapper`, () => {
+      const roots = miniScene();
+      applyMinecraftVisibility(roots, true);
+      const palaces = createFriedrichstadtAndTearPalaces(profile);
+      roots.centralDetails.add(branch("late civic wrapper", palaces));
+      const smooth = palaces.getObjectByName(FRIEDRICHSTADT_PALAST_ROOT_NAME)!;
+      const blocks = palaces.getObjectByName(FRIEDRICHSTADT_PALAST_MINECRAFT_NAME)!;
+      const tearPalace = palaces.getObjectByName(TEAR_PALACE_ROOT_NAME)!;
+      // Covers the old viewer order too: a preceding leaf selector cannot
+      // survive if the central visibility pass hides its wrapper afterwards.
+      setFriedrichstadtMinecraftPresentation(roots.centralDetails, true);
+      for (let frame = 0; frame < 2; frame += 1) {
+        applyMinecraftVisibility(roots, true);
+        expect(effectivelyVisible(blocks)).toBeTrue();
+        expect(blocks.children.every(effectivelyVisible)).toBeTrue();
+        expect(effectivelyVisible(smooth)).toBeFalse();
+        expect(effectivelyVisible(tearPalace)).toBeFalse();
+        expect(effectivelyVisible(roots.centralWeigel)).toBeTrue();
+        expect(roots.centralPublicArtSnow.visible).toBeFalse();
+      }
+      // A prior setter must likewise not be overwritten by saved visibility
+      // when leaving Minecraft, even without a separate restoration call.
+      setFriedrichstadtMinecraftPresentation(roots.centralDetails, false);
+      applyMinecraftVisibility(roots, false);
+      expect(effectivelyVisible(smooth)).toBeTrue();
+      expect(effectivelyVisible(tearPalace)).toBeTrue();
+      expect(effectivelyVisible(blocks)).toBeFalse();
+    });
+
+    test(`${profile}: Palast warm mode and underside transitions select one visible body`, () => {
+      const roots = miniScene();
+      const palaces = createFriedrichstadtAndTearPalaces(profile);
+      roots.centralDetails.add(branch("nested civic wrapper", palaces));
+      const smooth = palaces.getObjectByName(FRIEDRICHSTADT_PALAST_ROOT_NAME)!;
+      const blocks = palaces.getObjectByName(FRIEDRICHSTADT_PALAST_MINECRAFT_NAME)!;
+      const tearPalace = palaces.getObjectByName(TEAR_PALACE_ROOT_NAME)!;
+      for (const mode of ["day", "minecraft", "night", "minecraft", "snowstorm", "schwellenraum", "minecraft", "day"]) {
+        // The real viewer releases saved visibility before relighting and
+        // then establishes the ordinary surface/underside root baseline.
+        restoreMinecraftVisibility(roots);
+        const minecraft = mode === "minecraft";
+        for (const underside of [false, true, false]) {
+          roots.centralDetails.visible = !underside;
+          applyMinecraftVisibility(roots, minecraft);
+          expect(effectivelyVisible(blocks)).toBe(minecraft && !underside);
+          expect(effectivelyVisible(smooth)).toBe(!minecraft && !underside);
+          expect(effectivelyVisible(tearPalace)).toBe(!minecraft && !underside);
+          expect(effectivelyVisible(roots.centralWeigel)).toBe(!underside);
+        }
+      }
+    });
+  }
 });
 
 const viewerSource = await Bun.file(

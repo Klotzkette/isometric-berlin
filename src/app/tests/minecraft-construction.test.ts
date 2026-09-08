@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.5 appearance baselines include refined museum, memorial, harbour,
-// Chancellery entrance and station bearing architecture. Synchronous and cooperative construction
+// v1.0.6 appearance baselines include the Luisen corridor, both theatres,
+// Sachsen-Anhalt, Böll facade and clipped core roof; source Palast columns are replaced. Synchronous and cooperative construction
 // were compared over all complete source payloads before freezing the hashes.
 // Hashes cover all geometry, index, colour and instance buffer capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "cd8fc787af01f06533a3f6c88a29f2c70a8a0bdc0d4c09654e7c724f439cfc52", 3605208, 61, 275211462],
-  ["mobile", "f7fff2fbf94d9179e92576c9399afe8eba1b87f6d0632f25bf4b5062c70b44a8", 845404, 59, 64899330],
+  ["full", "15c4bf2cfea05c7f7a4e1d637bd1242aa9accca6e5608058e687db64960fdcb1", 3620438, 66, 276371534],
+  ["mobile", "b54b108ce7f175d24993f7a7d746945084a64165310ddd107e8a9252f81e2bcb", 861801, 64, 66148094],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

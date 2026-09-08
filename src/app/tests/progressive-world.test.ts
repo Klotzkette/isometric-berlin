@@ -1011,9 +1011,11 @@ describe("progressive exact-world scheduling", () => {
     // masonry Charite roofs retain their exact source heights. v1.0.5
     // replaces the museum/Lenne generic details and four false Soviet prisms
     // with separate source-bound context models (17,720 fewer vertices).
+    // v1.0.6 removes duplicated Luisen/theatre generic facade details and
+    // the replaced Palast/Böll low source display envelopes: 52,478 vertices.
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_693_968,
-      retainedBytes: 53_198_102,
+      vertices: 3_641_490,
+      retainedBytes: 52_409_926,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

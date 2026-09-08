@@ -108,7 +108,7 @@ describe("federal-state representations", () => {
 
   test("binds every surveyed façade to its parent part", () => {
     for (const site of FEDERAL_STATE_REPRESENTATIONS) {
-      expect(site.facadeRuns.length).toBeGreaterThanOrEqual(4);
+      expect(site.facadeRuns.length).toBeGreaterThanOrEqual(site.id === "sachsen-anhalt" ? 1 : 4);
       const partIds = new Set(site.lod2?.partIds ?? []);
       for (const facade of site.facadeRuns) {
         expect(
@@ -176,9 +176,18 @@ describe("federal-state representations", () => {
       expect(mesh).toBeInstanceOf(Mesh);
       expect(mesh.userData.federalStateRepresentation).toBe(true);
       expect(mesh.userData.stateCodes).toEqual(site.stateCodes);
-      expect(mesh.geometry.getAttribute("color").count).toBeGreaterThan(3_000);
-      expect(root.getObjectByName(`${groupName(site.id)} ink lines`)).toBeDefined();
-      expect(bounds.min.x).toBeLessThan(site.centerWorldM[0]);
+      if (site.id === "sachsen-anhalt") {
+        expect(site.facadeRuns[0].storeys).toBe(3);
+        expect(site.facadeRuns[0].bayCount).toBe(9);
+        expect(site.facadeRuns[0].startWorldM).toEqual([560.926, -333.489]);
+        expect(site.facadeRuns[0].endWorldM).toEqual([562.863, -309.704]);
+        expect(bounds.min.x).toBeGreaterThan(560.8);
+        expect(siteGroup.userData.detailCounts.oriels).toBe(1);
+      } else {
+        expect(mesh.geometry.getAttribute("color").count).toBeGreaterThan(3_000);
+        expect(root.getObjectByName(`${groupName(site.id)} ink lines`)).toBeDefined();
+        expect(bounds.min.x).toBeLessThan(site.centerWorldM[0]);
+      }
       expect(bounds.max.x).toBeGreaterThan(site.centerWorldM[0]);
       expect(bounds.min.z).toBeLessThan(site.centerWorldM[1]);
       expect(bounds.max.z).toBeGreaterThan(site.centerWorldM[1]);

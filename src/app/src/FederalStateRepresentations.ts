@@ -9,6 +9,8 @@ import {
 } from "three";
 
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
+import { createSachsenAnhaltFacade } from "./SachsenAnhaltFacade";
+export { SACHSEN_ANHALT_FACADE_IDS, createMinecraftSachsenAnhaltFacade } from "./SachsenAnhaltFacade";
 import {
   type Builder,
   addBox,
@@ -434,16 +436,13 @@ export const FEDERAL_STATE_REPRESENTATIONS = [
   },
   {
     address: "Luisenstraße 18, 10117 Berlin",
-    architecture: ["1827–28 city house", "1874 historic exterior", "bay, halls and iron gallery"],
+    architecture: ["1827–28 city house", "three-storey ochre street facade", "central 1874 oriel and bracketed dentil cornice"],
     centerWorldM: [548.267, -320.508],
     facadeRuns: [
-      run("DEBE3DSR5WQW7BjX", [528.207, -330.922], [560.926, -333.489], 18.21, 4.0, 4),
-      run("DEBE3DlK7c76Dz9u", [562.863, -309.704], [530.158, -307.15], 18.27, 4.0, 4),
-      run("DEBE3DfrmIgrCTOY", [560.926, -333.489], [562.863, -309.704], 19.03, 4.0, 4),
-      run("DEBE3DSR5WQW7BjX", [549.183, -326.558], [528.705, -324.923], 18.21, 4.0, 4),
+      run("DEBE3DfrmIgrCTOY", [560.926, -333.489], [562.863, -309.704], 19.03, 4.0, 3, 9),
     ],
     footprint: { areaM2: 552.4, axisAlignedBboxSizeM: [32.89, 23.87], heightRangeM: [18.21, 19.03] },
-    geometryStatus: "official LoD2-parent-bound protected historic façade overlays",
+    geometryStatus: "official LoD2-parent-bound three-storey street facade; photo-bounded 1874 oriel, cornice and window subdivisions; no invented party-wall windows",
     id: "sachsen-anhalt",
     lod2: { parentId: "DEBE01YYK00002dn", partIds: ["DEBE3DlK7c76Dz9u", "DEBE3DDbT3KBPJfQ", "DEBE3DSR5WQW7BjX", "DEBE3DfrmIgrCTOY"] },
     name: "Vertretung des Landes Sachsen-Anhalt beim Bund",
@@ -813,7 +812,6 @@ function addCharacterDetails(
       break;
     case "bayern":
     case "hamburg":
-    case "sachsen-anhalt":
     case "sachsen":
       for (let course = 1; course <= 3; course += 1) {
         addRunBox(builder, primary, site.centerWorldM, style.accent, 0, primary.groundYM + primary.measuredHeightM - course * 0.42, 0.25, frame.lengthM, 0.16, 0.24);
@@ -857,7 +855,19 @@ function addCharacterDetails(
   }
 }
 
-function buildSite(site: FederalStateRepresentationProfile): Group {
+function buildSite(site: FederalStateRepresentationProfile, options: { mobileLike?: boolean } = {}): Group {
+  if (site.id === "sachsen-anhalt") {
+    const group = createSachsenAnhaltFacade(options);
+    group.userData.profile = site;
+    group.userData.collisionPolicy = "thin street-front recognition overlay; retain all four measured LoD2 bodies";
+    group.traverse(object => {
+      if (!(object instanceof Mesh)) return;
+      object.userData.federalStateRepresentation = true;
+      object.userData.federalStateRepresentationId = site.id;
+      object.userData.stateCodes = site.stateCodes;
+    });
+    return group;
+  }
   const builder = createBuilder();
   const style = SITE_STYLES[site.id];
   if (site.manualMassing) {
@@ -973,14 +983,14 @@ export function federalStateRepresentationSolidAt(
 }
 
 /** Build all 13 source-bound houses for the 15 Länder. */
-export function createFederalStateRepresentations(): Group {
+export function createFederalStateRepresentations(options: { mobileLike?: boolean } = {}): Group {
   const root = new Group();
   root.name = "Federal state representations source-bound details";
   root.userData.profile = FEDERAL_STATE_REPRESENTATIONS;
   root.userData.sourceRegistry = FEDERAL_STATE_REPRESENTATION_SOURCE_REGISTRY;
   root.userData.collisionPolicy =
     "eleven visual overlays retain LoD2 obstacles; Bremen and Saxony export closed full-height manual solids because their false OSM display prisms are suppressed";
-  for (const site of FEDERAL_STATE_REPRESENTATIONS) root.add(buildSite(site));
+  for (const site of FEDERAL_STATE_REPRESENTATIONS) root.add(buildSite(site, options));
   const bounds = new Box3().setFromObject(root);
   root.userData.metricBounds = {
     max: bounds.max.toArray(),
