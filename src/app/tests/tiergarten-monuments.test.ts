@@ -384,9 +384,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(
       createTiergartenMonuments({ ...street, monuments: [entry] }, ground),
     ).toBeNull();
-    // Moltke and Roon are generals on pedestals, not 15 m chancellors.
-    expect(tallestNear("Moltke")).toBeGreaterThan(10);
-    expect(tallestNear("Moltke")).toBeLessThan(13);
+    // The white marble Moltke is owned by its dedicated source-bound model.
+    expect(tallestNear("Moltke")).toBe(-Infinity);
   });
 
   test("Robert Koch sits in marble on the surveyed Robert-Koch-Platz anchor", () => {
@@ -489,12 +488,11 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
   });
 
   test("Bismarck is not drawn twice at the Großer Stern", () => {
-    // createSiegessaeule() in IsometricCityWorld.ts already draws the
-    // Bismarck-Nationaldenkmal as part of its verified recognition
-    // model; the OSM "Otto von Bismarck" artwork point must be skipped
-    // here so the two chancellors don't stand ~58 m apart.
+    // The source-bound BismarckMoltkeMonuments owns the two exact OSM points.
+    // Generic markers must not survive under its sculptural replacements.
     expect(MONUMENTS_ALREADY_MODELLED.test("Otto von Bismarck")).toBe(true);
     expect(tallestNear("Otto von Bismarck")).toBe(-Infinity);
+    expect(monuments.userData.externallyModelledSourceKeys).toContain("node/278706862");
   });
 
   test("the Luiseninsel carries its marble figures, not pebbles", () => {

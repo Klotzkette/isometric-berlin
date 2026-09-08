@@ -3682,6 +3682,94 @@
       "credit": "Hans G. Oberlack / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "schloss_bellevue",
+      "title": "File:Schloss Bellevue Berlin with snow 2025-02-15 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schloss_Bellevue_Berlin_with_snow_2025-02-15_01.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "GPSLeo",
+      "credit": "GPSLeo / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schloss_bellevue",
+      "title": "File:Schloss Bellevue Berlin with snow 2025-02-15 03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schloss_Bellevue_Berlin_with_snow_2025-02-15_03.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "GPSLeo",
+      "credit": "GPSLeo / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schloss_bellevue",
+      "title": "File:Bellevue Palace (Berlin), 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bellevue_Palace_(Berlin),_2024_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bahnfrend",
+      "credit": "Bahnfrend / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bundespraesidialamt_bellevue",
+      "title": "File:2004-12 Berlin Bundespraesidialamt.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2004-12_Berlin_Bundespraesidialamt.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Sir James",
+      "credit": "Sir James / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bundespraesidialamt_bellevue",
+      "title": "File:Siegessäule TopView6.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Siegess%C3%A4ule_TopView6.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Achim Raschka",
+      "credit": "Achim Raschka / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bismarck_memorial",
+      "title": "File:Bismarck Memorial in Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bismarck_Memorial_in_Berlin.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Pudelek (Marcin Szala)",
+      "credit": "Pudelek (Marcin Szala) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bismarck_memorial",
+      "title": "File:Germania - Bismarck Memorial in Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Germania_-_Bismarck_Memorial_in_Berlin.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Pudelek (Marcin Szala)",
+      "credit": "Pudelek (Marcin Szala) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moltke_memorial",
+      "title": "File:Berlin-Tiergarten, standbeeld van Helmuth Karl Bernhard von Moltke Dm09050419 IMG 5599 2024-09-06 15.39.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Tiergarten,_standbeeld_van_Helmuth_Karl_Bernhard_von_Moltke_Dm09050419_IMG_5599_2024-09-06_15.39.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Michielverbeek",
+      "credit": "Michielverbeek / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

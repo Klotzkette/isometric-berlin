@@ -56,6 +56,28 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   swatches are procedural display estimates; mapped counts do not establish
   individual window positions.
 
+- **Bellevue and Großer Stern refinements (v1.0.8):** original Geoportal
+  LoD2 wall/roof planes preserve all fourteen palace parts and the permanent
+  presidential office footprint. DOP 2025 and the Federal President's
+  [palace account](https://www.bundespraesident.de/DE/amt-und-aufgaben/amtssitze/schloss-bellevue/schloss-bellevue_node.html),
+  [office account](https://www.bundespraesident.de/DE/amt-und-aufgaben/bundespraesidialamt/gebaeude/gebaeude_node.html)
+  and [renovation information](https://www.bundespraesident.de/DE/amt-und-aufgaben/amtssitze/baumassnahmen-am-berliner-amtssitz/baumassnahmen-am-berliner-amtssitz_node.html)
+  support the established architectural fabric. The office's coarse conical
+  LoD2 roof is subdivided inside its source envelope into the photographed
+  glass lantern and outer roof rim. No unverified current scaffold or future
+  competition proposal is reproduced.
+  Bildhauerei in Berlin's [Bismarck record](https://bildhauerei-in-berlin.de/bildwerk/bismarck-denkmal-4617/)
+  and [Moltke record](https://bildhauerei-in-berlin.de/bildwerk/moltke-denkmal-5323/)
+  support materials, figures and historic changes; both use exact OSM nodes.
+  Lost Bismarck reliefs/fountains remain absent. Moltke's published historic
+  11.5 m height is not presented as a current survey: the replacement uses an
+  explicitly documented photo-based current pedestal estimate.
+  Eight Commons photographs are credited individually in both manifests and
+  [the reference catalogue](references/wikimedia/README.md), including
+  Achim Raschka's *Siegessäule TopView6.JPG* (CC BY-SA 3.0). Photographs are
+  references only; no textures are bundled. See [Bellevue evidence](docs/bellevue-refinement.md)
+  and [monument evidence](docs/bismarck-moltke-refinement.md).
+
 - **Abgeordnetenhaus and Gropius Bau architecture:** the
   [Berlin parliament architecture record](https://www.parlament-berlin.de/das-haus/architektur),
   its [building brochure](https://www.parlament-berlin.de/media/download/541),

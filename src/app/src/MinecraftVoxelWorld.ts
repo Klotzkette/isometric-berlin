@@ -1,3 +1,7 @@
+import { createMinecraftBellevueArchitecture } from "./BellevueArchitecture";
+import { BELLEVUE_PRISM_TONES, bellevueColumnTopAt } from "./bellevueProfile";
+import { createMinecraftBismarckMoltkeMonuments } from "./BismarckMoltkeMonuments";
+import { bismarckMoltkeSourceColumnAt } from "./bismarckMoltkeProfiles";
 import { createMinecraftTopographyTerrorArchitecture } from "./TopographyTerrorArchitecture";
 import { topographySourceColumnContains } from "./topographyTerrorProfile";
 import { createMinecraftBundesratArchitecture } from "./BundesratArchitecture";
@@ -976,7 +980,7 @@ export function buildColumnToneLookup(prisms: {
     const attributes = building.id ? buildingAttributes(building.id) : undefined;
     // These bounded v1.0.6 facades use the same photo-guided colour family
     // as the drawn world, snapped to the existing Minecraft material palette.
-    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] : undefined;
+    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] : undefined;
     const mappedTone = corridorTone ?? mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes));
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
@@ -2688,6 +2692,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftBoellStiftungArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftBundesratArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftRohwedderHausArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createMinecraftBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" }));
+  group.add(createMinecraftBellevueArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2728,6 +2734,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !musicMuseumHallColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !bismarckMoltkeSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !topographySourceColumnContains(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&
       !chariteBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
@@ -2738,7 +2745,8 @@ export function* buildMinecraftVoxelWorldSteps(
       continue;
     const sourceTopY = y1dm / 10;
     const civicRoofY = bundesratColumnTopAt(worldXAbs(xIdx), worldZAbs(zIdx),
-      rohwedderHausColumnTopAt(worldXAbs(xIdx), worldZAbs(zIdx), sourceTopY, cell), cell);
+      rohwedderHausColumnTopAt(worldXAbs(xIdx), worldZAbs(zIdx),
+        bellevueColumnTopAt(worldXAbs(xIdx), worldZAbs(zIdx), sourceTopY, cell), cell), cell);
     const clippedTopY = sonyRoofColumnTopAt(
       worldXAbs(xIdx),
       worldZAbs(zIdx),

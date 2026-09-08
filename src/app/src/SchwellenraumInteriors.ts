@@ -725,6 +725,7 @@ export const SCHWELLENRAUM_PROTECTED_NAMES: ReadonlySet<string> = new Set([
   "Goethe-Denkmal",
   "Lessing-Denkmal",
   "Siegessäule and Bismarck-Nationaldenkmal",
+  "Bismarck and Moltke source-bound monuments",
 ]);
 
 const PROTECTED_NAME_MARKERS = [

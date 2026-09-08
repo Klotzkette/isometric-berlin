@@ -314,6 +314,43 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bellevue_architecture",
+      "anchor_source": "original Berlin LoD2 planes + OSM way/1034456118 and way/226371533",
+      "geometry_ref": "src/app/src/bellevueSource.json",
+      "documentation_ref": "docs/bellevue-refinement.md",
+      "source_part_count": 15,
+      "semantic_evidence": [
+        "Federal President palace, office and 2026 renovation accounts",
+        "Geoportal DOP 2025",
+        "Five credited free Commons photographs"
+      ],
+      "conflicts": [
+        "bellevue_flat_prism_roofs",
+        "bellevue_office_conical_roof"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "retained_neighbour_occluder_count": 13
+    },
+    {
+      "feature_id": "bismarck_moltke_monuments",
+      "anchor_source": "OSM node/270687313 and node/278706862 + LoD2 and DGM",
+      "geometry_ref": "src/app/src/bismarckMoltkeSource.json",
+      "documentation_ref": "docs/bismarck-moltke-refinement.md",
+      "source_part_count": 3,
+      "semantic_evidence": [
+        "Bildhauerei in Berlin Bismarck and Moltke inventory",
+        "Berlin monument inventory",
+        "Three credited free Commons photographs"
+      ],
+      "conflicts": [
+        "bismarck_displaced_duplicate",
+        "moltke_material_and_historic_height"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448040,6 +448077,70 @@
       "resolution": "Preserve both source routes and use the official line clipped at stations nearest OSM endpoints, measuring195.800m. Show small procedural chips and openings without invented10m gaps. Published approximate length stays separately attributed.",
       "geometry_ref": "src/app/src/topographyTerrorSource.json",
       "documentation_ref": "docs/topography-terror-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bellevue_flat_prism_roofs",
+      "kind": "height_envelope_vs_original_roof_planes",
+      "sources": [
+        "Federal President palace, office and 2026 renovation accounts",
+        "Geoportal DOP 2025",
+        "Five credited free Commons photographs",
+        "original Berlin LoD2 planes + OSM way/1034456118 and way/226371533"
+      ],
+      "conflict": "The previous footprint prisms flattened the maximum palace height and lost the hipped roof planes.",
+      "resolution": "Suppress 15 coarse display prisms; retain 14 exact palace surface sets with the existing DGM-aligned vertical offset. Original records remain intact.",
+      "geometry_ref": "src/app/src/bellevueSource.json",
+      "documentation_ref": "docs/bellevue-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bellevue_office_conical_roof",
+      "kind": "coarse_roof_surface_vs_observed_architecture",
+      "sources": [
+        "Federal President palace, office and 2026 renovation accounts",
+        "Geoportal DOP 2025",
+        "Five credited free Commons photographs",
+        "original Berlin LoD2 planes + OSM way/1034456118 and way/226371533"
+      ],
+      "conflict": "The previous 13.2 m synthetic ellipse and the source conical roof do not represent the photographed permanent office.",
+      "resolution": "Retain its exact footprint and 21.087 m source height; subdivide the roof into a glass lantern and rim inside the envelope. Facade bays and roof furniture remain procedural estimates.",
+      "geometry_ref": "src/app/src/bellevueSource.json",
+      "documentation_ref": "docs/bellevue-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bismarck_displaced_duplicate",
+      "kind": "approximate_display_anchor_vs_osm",
+      "sources": [
+        "Bildhauerei in Berlin Bismarck and Moltke inventory",
+        "Berlin monument inventory",
+        "Three credited free Commons photographs",
+        "OSM node/270687313 and node/278706862 + LoD2 and DGM"
+      ],
+      "conflict": "The old 22 m square Bismarck model stood approximately 58 m from its OSM point; two equal LoD2 base parts duplicated the source envelope.",
+      "resolution": "Use the exact OSM point and bounded source base. Suppress both coarse source parts and five exact coarse voxel columns, plus the old displaced model and generic artwork marker.",
+      "geometry_ref": "src/app/src/bismarckMoltkeSource.json",
+      "documentation_ref": "docs/bismarck-moltke-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "moltke_material_and_historic_height",
+      "kind": "generic_material_and_historic_dimension",
+      "sources": [
+        "Bildhauerei in Berlin Bismarck and Moltke inventory",
+        "Berlin monument inventory",
+        "Three credited free Commons photographs",
+        "OSM node/270687313 and node/278706862 + LoD2 and DGM"
+      ],
+      "conflict": "The generic bronze/red-granite statue conflicts with white Laas marble. The published 11.5 m total refers to the original pre-1938 base.",
+      "resolution": "Use white marble, the documented 5.5 m figure and a photo-proportioned 3.7 m current pedestal estimate. Preserve original source and historical dimension separately.",
+      "geometry_ref": "src/app/src/bismarckMoltkeSource.json",
+      "documentation_ref": "docs/bismarck-moltke-refinement.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

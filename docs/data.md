@@ -735,3 +735,22 @@ models. Full source conflicts and evidence limits are recorded in
 `fused_sources.json` and the individual [Rohwedder](rohwedder-haus-refinement.md),
 [Bundesrat](bundesrat-refinement.md) and
 [Topography](topography-terror-refinement.md) contracts.
+
+## Bellevue and Großer Stern source refinement (v1.0.8)
+
+`bellevueSource.json` preserves all fourteen palace LoD2 parts and the
+permanent presidential office source footprint. The palace's original roof
+planes replace flat maximum-height prisms. The office's coarse cone roof
+conflicts with DOP 2025 and photographs; the viewer subdivides the roof within
+its source envelope. Current 2026 renovation is documented without inventing
+a date-specific scaffold arrangement.
+
+`bismarckMoltkeSource.json` retains all three coarse monument records, exact
+OSM nodes and the five occupied source voxel columns replaced by the model.
+Published historic dimensions, current material evidence and photo-based
+sculptural estimates remain distinct. Eight freely licensed photographs were
+inspected and credited in both manifests (215 total records); no runtime
+photographs or textures are added. The additive fusion conflict log records
+all four source/display discrepancies. See
+[Bellevue evidence](bellevue-refinement.md) and
+[Bismarck/Moltke evidence](bismarck-moltke-refinement.md).

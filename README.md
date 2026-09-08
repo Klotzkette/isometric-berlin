@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.7 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.7/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.8 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.8/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,21 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.7** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.8** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.8 refines Schloss Bellevue and the neighbouring permanent
+Bundespräsidialamt with source-bound roofs and individual facades. Bismarck
+and Moltke receive correctly positioned, differentiated sculptural models.
+Civic flags flutter gently in normal mode, with coherent cloth and emblems.
+Dedicated Minecraft geometry is included for desktop and mobile.
+
+Version 1.0.8 präzisiert Schloss Bellevue und das benachbarte permanente
+Bundespräsidialamt mit quellgebundenen Dächern und eigenen Fassaden.
+Bismarck- und Moltke-Denkmal erhalten richtig platzierte, differenzierte
+Figuren. Die amtlichen Fahnen flattern auch im normalen Modus dezent,
+mit zusammenhängendem Stoff und Emblemen. Eigene Minecraft-Geometrie ist
+für Desktop und Mobilgeräte enthalten.
 
 Version 1.0.7 refines the Detlev-Rohwedder-Haus with source-bound wings,
 limestone facades, open courtyards and entrance fencing. The neighbouring
@@ -83,7 +96,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.7**, built from `main`. Its full viewer
+The current public package is **v1.0.8**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -543,9 +556,9 @@ local modules.
   The three German and one European Reichstag flags, the German and European
   Chancellery protocol flags, the Flag of Unity, the Swiss Embassy flag and the
   Federal President's standard share one deterministic wind field across 30
-  cloth and emblem layers. Free-edge movement stays at or below 0.28 m and is
+  cloth and emblem layers. Free-edge movement stays at or below 0.5 m and is
   limited to 12 Hz on non-touch devices or 8 Hz in the mobile-like touch
-  profile. Reduced-motion, distant, underside and hidden-page presentations
+  profile. Reduced-motion, offscreen/subpixel, underside and hidden-page presentations
   hold an authored pose. Snowstorm adds a reversible frost tint and exactly 27
   instanced icicles, which move with the same light wave. Minecraft retains
   coarse block masts but replaces their static block-cloth doubles with this

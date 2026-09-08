@@ -1,13 +1,18 @@
 import {
   BufferAttribute,
+  BufferGeometry,
+  Camera,
   Color,
   ConeGeometry,
+  DynamicDrawUsage,
+  Frustum,
   InstancedMesh,
   Material,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
+  Sphere,
   Vector3,
 } from "three";
 
@@ -22,8 +27,9 @@ export type WindFlagKind =
 export const CIVIC_FLAG_WIND_PROFILE = Object.freeze({
   frameIntervalMs: 1000 / 12,
   flutterRadiansPerSecond: 1.7,
-  maxAmplitudeM: 0.28,
-  maxAmplitudeWidthRatio: 0.032,
+  maxAmplitudeM: 0.5,
+  maxAmplitudeWidthRatio: 0.065,
+  minProjectedWidthPx: 3,
   mobileFrameIntervalMs: 1000 / 8,
   primaryRadiansPerSecond: 0.95,
 });
@@ -32,6 +38,7 @@ export const CIVIC_FLAG_WIND_PROFILE = Object.freeze({
 // both axes by their conservative joint bound so `maxAmplitudeM` is a true
 // vector-displacement ceiling, not merely a waveform coefficient.
 const CIVIC_FLAG_WAVE_VECTOR_BOUND = Math.hypot(1.18, 0.12);
+const FLAG_CLOTH_COLUMNS = 24;
 
 export function civicFlagFrameIntervalMs(coarsePointer: boolean): number {
   return coarsePointer
@@ -110,7 +117,7 @@ export type WindFlagUpdateOptions = {
   kindAllowed?: (kind: WindFlagKind) => boolean;
 };
 
-function waveAt(
+function waveAtKnot(
   xFromPoleM: number,
   widthM: number,
   elapsedSeconds: number,
@@ -149,6 +156,154 @@ function waveAt(
   return target;
 }
 
+/** Every artwork layer uses the same piecewise-linear cloth surface. */
+function waveAt(
+  xFromPoleM: number,
+  widthM: number,
+  elapsedSeconds: number,
+  phase: number,
+  amplitudeM: number,
+  target: WindWaveSample,
+): WindWaveSample {
+  const column =
+    (Math.max(0, Math.min(widthM, xFromPoleM)) / widthM) * FLAG_CLOTH_COLUMNS;
+  const left = Math.floor(column);
+  const mix = column - left;
+  waveAtKnot(
+    (left * widthM) / FLAG_CLOTH_COLUMNS,
+    widthM,
+    elapsedSeconds,
+    phase,
+    amplitudeM,
+    target,
+  );
+  const leftLift = target.lift;
+  const leftOffset = target.offset;
+  waveAtKnot(
+    (Math.min(FLAG_CLOTH_COLUMNS, left + 1) * widthM) / FLAG_CLOTH_COLUMNS,
+    widthM,
+    elapsedSeconds,
+    phase,
+    amplitudeM,
+    target,
+  );
+  target.lift = leftLift + (target.lift - leftLift) * mix;
+  target.offset = leftOffset + (target.offset - leftOffset) * mix;
+  return target;
+}
+
+/**
+ * Split triangles at the shared cloth columns. Without these cuts a large
+ * border/eagle triangle remains a flat chord while the cloth under it bends,
+ * making the emblem sink into or detach from its flag. Position/UV/normal
+ * interpolation keeps the original artwork outline and holes unchanged.
+ */
+function prepareFlagClothGeometry(
+  geometry: BufferGeometry,
+  widthM: number,
+): void {
+  const attributes = Object.entries(geometry.attributes).filter(
+    (entry): entry is [string, BufferAttribute] =>
+      entry[1] instanceof BufferAttribute,
+  );
+  const positionIndex = attributes.findIndex(([name]) => name === "position");
+  if (positionIndex < 0) return;
+  const offsets: number[] = [];
+  let stride = 0;
+  for (const [, attribute] of attributes) {
+    offsets.push(stride);
+    stride += attribute.itemSize;
+  }
+  const xOffset = offsets[positionIndex];
+  const positions = attributes[positionIndex][1];
+  const values = attributes.map(() => [] as number[]);
+  const indices: number[] = [];
+  const vertices = new Map<string, number>();
+  const append = (vertex: number[]): number => {
+    const key = vertex.map((value) => Math.round(value * 1e7)).join(",");
+    const previous = vertices.get(key);
+    if (previous !== undefined) return previous;
+    const index = vertices.size;
+    vertices.set(key, index);
+    attributes.forEach(([, attribute], attributeIndex) => {
+      for (let component = 0; component < attribute.itemSize; component += 1) {
+        values[attributeIndex].push(
+          vertex[offsets[attributeIndex] + component],
+        );
+      }
+    });
+    return index;
+  };
+  const clip = (
+    polygon: number[][],
+    x: number,
+    keepRight: boolean,
+  ): number[][] => {
+    const output: number[][] = [];
+    for (let i = 0; i < polygon.length; i += 1) {
+      const a = polygon[i];
+      const b = polygon[(i + 1) % polygon.length];
+      const aInside = keepRight ? a[xOffset] >= x : a[xOffset] <= x;
+      const bInside = keepRight ? b[xOffset] >= x : b[xOffset] <= x;
+      if (aInside) output.push(a);
+      if (aInside !== bInside) {
+        const mix = (x - a[xOffset]) / (b[xOffset] - a[xOffset]);
+        const intersection = a.map(
+          (value, component) => value + (b[component] - value) * mix,
+        );
+        intersection[xOffset] = x;
+        output.push(intersection);
+      }
+    }
+    return output;
+  };
+  const columnWidth = widthM / FLAG_CLOTH_COLUMNS;
+  const elementCount = geometry.index?.count ?? positions.count;
+  for (let start = 0; start < elementCount; start += 3) {
+    const triangle = [0, 1, 2].map((offset) => {
+      const index = geometry.index?.getX(start + offset) ?? start + offset;
+      return attributes.flatMap(([, attribute]) =>
+        Array.from(
+          { length: attribute.itemSize },
+          (_, component) =>
+            attribute.array[index * attribute.itemSize + component],
+        ),
+      );
+    });
+    const minColumn = Math.floor(
+      Math.min(...triangle.map((v) => v[xOffset])) / columnWidth,
+    );
+    const maxColumn = Math.floor(
+      Math.max(...triangle.map((v) => v[xOffset])) / columnWidth,
+    );
+    for (let column = minColumn; column <= maxColumn; column += 1) {
+      const polygon = clip(
+        clip(triangle, column * columnWidth, true),
+        (column + 1) * columnWidth,
+        false,
+      );
+      for (let i = 1; i + 1 < polygon.length; i += 1) {
+        const [a, b, c] = [polygon[0], polygon[i], polygon[i + 1]].map(append);
+        if (a !== b && b !== c && a !== c) indices.push(a, b, c);
+      }
+    }
+  }
+  const prepared = new BufferGeometry();
+  attributes.forEach(([name, attribute], index) => {
+    prepared.setAttribute(
+      name,
+      new BufferAttribute(
+        new Float32Array(values[index]),
+        attribute.itemSize,
+        attribute.normalized,
+      ),
+    );
+  });
+  prepared.setIndex(indices);
+  geometry.copy(prepared);
+  prepared.dispose();
+}
+
 function civicAmplitudeM(widthM: number): number {
   return Math.min(
     CIVIC_FLAG_WIND_PROFILE.maxAmplitudeM,
@@ -165,12 +320,14 @@ export function markWindFlag(
     phase?: number;
   } = {},
 ): void {
+  const kind = options.kind ?? "other";
+  if (isCivicWindFlagKind(kind)) prepareFlagClothGeometry(mesh.geometry, widthM);
   const positions = mesh.geometry.getAttribute("position");
   if (!(positions instanceof BufferAttribute)) {
     return;
   }
   mesh.frustumCulled = false;
-  const kind = options.kind ?? "other";
+  positions.setUsage(DynamicDrawUsage);
   mesh.userData.windFlag = {
     amplitudeM: isCivicWindFlagKind(kind)
       ? civicAmplitudeM(widthM)
@@ -193,6 +350,7 @@ export function markWindFlagInstances(
   } = {},
 ): void {
   mesh.frustumCulled = false;
+  mesh.instanceMatrix.setUsage(DynamicDrawUsage);
   const kind = options.kind ?? "other";
   mesh.userData.windFlagInstances = {
     amplitudeM: isCivicWindFlagKind(kind)
@@ -203,6 +361,106 @@ export function markWindFlagInstances(
     phase: options.phase ?? 0.35,
     widthM,
   } satisfies WindFlagInstanceData;
+}
+
+export type CivicWindFlagTarget = {
+  bounds: Sphere;
+  mesh: Mesh;
+  widthM: number;
+};
+
+export function collectCivicWindFlagTargets(
+  roots: readonly Object3D[],
+): CivicWindFlagTarget[] {
+  const targets: CivicWindFlagTarget[] = [];
+  for (const root of roots) {
+    root.updateWorldMatrix(true, true);
+    root.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      const data = (
+        object.userData.windFlag ?? object.userData.windFlagInstances
+      ) as WindFlagData | WindFlagInstanceData | undefined;
+      if (!data || !isCivicWindFlagKind(data.kind)) return;
+      let sphere: Sphere | null;
+      if (object instanceof InstancedMesh) {
+        object.computeBoundingSphere();
+        sphere = object.boundingSphere;
+      } else {
+        object.geometry.computeBoundingSphere();
+        sphere = object.geometry.boundingSphere;
+      }
+      if (!sphere) return;
+      const bounds = sphere.clone();
+      // Collection may follow a mode switch at an already deformed pose.
+      // Include both displacement extremes, not only the current vertex box.
+      bounds.radius += 2 * data.amplitudeM;
+      targets.push({ bounds, mesh: object, widthM: data.widthM });
+    });
+  }
+  return targets;
+}
+
+export function createCivicWindFlagScreenScratch() {
+  return {
+    frustum: new Frustum(),
+    projection: new Matrix4(),
+    sphere: new Sphere(),
+    viewCentre: new Vector3(),
+  };
+}
+
+/**
+ * Flags keep moving when the global ornament tier fades. Only their own
+ * effective visibility, screen coverage and subpixel size can stop the idle
+ * clock. This avoids repainting the whole city for flags behind the camera.
+ */
+export function civicWindFlagsOnScreen(
+  targets: readonly CivicWindFlagTarget[],
+  camera: Camera,
+  viewportHeightPx: number,
+  scratch: ReturnType<typeof createCivicWindFlagScreenScratch>,
+): boolean {
+  camera.updateMatrixWorld();
+  scratch.projection.multiplyMatrices(
+    camera.projectionMatrix,
+    camera.matrixWorldInverse,
+  );
+  scratch.frustum.setFromProjectionMatrix(scratch.projection);
+  for (const { mesh, bounds, widthM } of targets) {
+    let visible = true;
+    for (
+      let ancestor: Object3D | null = mesh;
+      ancestor;
+      ancestor = ancestor.parent
+    ) {
+      if (!ancestor.visible) {
+        visible = false;
+        break;
+      }
+    }
+    const materialVisible = Array.isArray(mesh.material)
+      ? mesh.material.some((material) => material.visible)
+      : mesh.material.visible;
+    if (!visible || !materialVisible) {
+      continue;
+    }
+    scratch.sphere.copy(bounds).applyMatrix4(mesh.matrixWorld);
+    if (!scratch.frustum.intersectsSphere(scratch.sphere)) continue;
+    scratch.viewCentre
+      .copy(scratch.sphere.center)
+      .applyMatrix4(camera.matrixWorldInverse);
+    const depth = -scratch.viewCentre.z;
+    const projectionScale = Math.abs(camera.projectionMatrix.elements[5]);
+    const perspective = camera.projectionMatrix.elements[15] === 0;
+    const projectedWidthPx =
+      (widthM * mesh.matrixWorld.getMaxScaleOnAxis() * projectionScale *
+        viewportHeightPx) /
+      (2 * (perspective ? Math.max(0.001, depth) : 1));
+    if (projectedWidthPx >= CIVIC_FLAG_WIND_PROFILE.minProjectedWidthPx) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function updateFlagMesh(

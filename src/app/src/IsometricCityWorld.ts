@@ -1,3 +1,7 @@
+import { createBellevueArchitecture } from "./BellevueArchitecture";
+import { BELLEVUE_IDS, BELLEVUE_PRISM_TONES, BELLEVUE_ROOF_TONES } from "./bellevueProfile";
+import { createBismarckMoltkeMonuments } from "./BismarckMoltkeMonuments";
+import { BISMARCK_MOLTKE_PRISM_IDS } from "./bismarckMoltkeProfiles";
 import { createTopographyTerrorArchitecture } from "./TopographyTerrorArchitecture";
 import { TOPOGRAPHY_TERROR_IDS } from "./topographyTerrorProfile";
 import { createBundesratArchitecture } from "./BundesratArchitecture";
@@ -614,6 +618,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...LUISEN_CORRIDOR_TONES,
   ...BUNDESRAT_PRISM_TONES,
   ...ROHWEDDER_HAUS_PRISM_TONES,
+  ...BELLEVUE_PRISM_TONES,
   ...BOELL_STIFTUNG_PRISM_TONES,
   mIgrCTOY: 0xe4be7d,
   ...SONY_SURROUNDINGS_PRISM_TONES,
@@ -788,6 +793,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   ...LUISEN_CORRIDOR_ROOF_TONES,
   ...BUNDESRAT_ROOF_TONES,
   ...ROHWEDDER_HAUS_ROOF_TONES,
+  ...BELLEVUE_ROOF_TONES,
   ...BOELL_STIFTUNG_ROOF_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0x747c79])),
   ORqiW8aK: 0x729083,
@@ -845,6 +851,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...TOPOGRAPHY_TERROR_IDS,
+  ...BELLEVUE_IDS,
+  ...BISMARCK_MOLTKE_PRISM_IDS,
   BOELL_STIFTUNG_LOW_ID,
   FRIEDRICHSTADT_PALAST_PRISM_ID,
   ...SOVIET_MEMORIAL_PRISM_IDS,
@@ -2379,6 +2387,8 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
+  ...BELLEVUE_IDS,
+  ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
@@ -2406,6 +2416,8 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
+  ...BELLEVUE_IDS,
+  ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
@@ -2426,6 +2438,8 @@ export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
+  ...BELLEVUE_IDS,
+  ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
@@ -7402,73 +7416,14 @@ export function createSiegessaeule(): Group {
     }
   }
 
-  // Bismarck-Nationaldenkmal (Begas, 1901): granite pedestal, bronze
-  // chancellor in his cuirassier's coat resting on the Reichsschwert,
-  // four allegorical bronze groups at the corners (Kraft, Weisheit,
-  // Staatengruendung/Gesetzgebung -- represented as figure-bearing
-  // plinths rather than plain cubes). Reference:
-  // https://de.wikipedia.org/wiki/Bismarck-Nationaldenkmal_(Berlin)
-  const BX = SX + 24;
-  const BZ = SZ - 118;
-  addPart(
-    boxTriangles(BX, GROUND_TOP + 1.1, BZ, [1, 0], 22, 2.2, 22),
-    0xcbc8be,
-  );
-  addPart(
-    boxTriangles(BX, GROUND_TOP + 6.2, BZ, [1, 0], 9.6, 8, 9.6),
-    0x9a5f4c,
-  );
-  // Chancellor figure on the pedestal: long coat (wide at the hem,
-  // narrowing toward the shoulders), shoulder block, head, and the
-  // Reichsschwert he leans on at his side.
-  addPart(
-    boxTriangles(BX, GROUND_TOP + 11.2, BZ, [1, 0], 3.6, 4.6, 2.4),
-    0x5d7264,
-  ); // coat, hem-to-waist
-  addPart(
-    boxTriangles(BX, GROUND_TOP + 13.9, BZ, [1, 0], 2.7, 1.2, 2.1),
-    0x5d7264,
-  ); // chest/shoulders
-  addPart(
-    boxTriangles(BX, GROUND_TOP + 14.75, BZ, [1, 0], 1.0, 1.0, 1.0),
-    0x5d7264,
-  ); // head
-  addPart(
-    boxTriangles(
-      BX + 1.5,
-      GROUND_TOP + 10.6,
-      BZ + 0.6,
-      [1, 0],
-      0.32,
-      5.4,
-      0.32,
-    ),
-    0x4a5b50,
-  ); // Reichsschwert, point resting near the feet
-  for (const cornerX of [-1, 1]) {
-    for (const cornerZ of [-1, 1]) {
-      const cx = BX + cornerX * 8.2;
-      const cz = BZ + cornerZ * 8.2;
-      addPart(
-        boxTriangles(cx, GROUND_TOP + 2.9, cz, [1, 0], 3.6, 1.6, 3.6),
-        0x5d7264,
-      ); // plinth
-      addPart(
-        boxTriangles(cx, GROUND_TOP + 4.7, cz, [1, 0], 1.6, 2.0, 1.4),
-        0x5d7264,
-      ); // seated allegorical torso
-      addPart(
-        boxTriangles(cx, GROUND_TOP + 5.85, cz, [1, 0], 0.7, 0.7, 0.7),
-        0x5d7264,
-      ); // head
-    }
-  }
-  const bismarckGeometry = new BufferGeometry();
-  bismarckGeometry.setAttribute(
+  // Bismarck now lives at its exact OSM anchor in BismarckMoltkeMonuments.
+  // Keep the column mosaic ink accumulated above.
+  const columnDecorationInk = new BufferGeometry();
+  columnDecorationInk.setAttribute(
     "position",
     new Float32BufferAttribute(monumentInk, 3),
   );
-  edgeGeometries.push(bismarckGeometry);
+  edgeGeometries.push(columnDecorationInk);
   const addMergedDecoration = (
     name: string,
     geometries: BufferGeometry[],
@@ -12966,6 +12921,7 @@ export function createIsometricCity(
     group.add(createPresentationBackdrop());
     group.add(createExtrapolatedMargin());
     group.add(createSiegessaeule());
+    group.add(createBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createHotelAdlon());
     group.add(createPaulLoebeCanopy());
     group.add(createLandmarkRefinements());
@@ -12979,6 +12935,7 @@ export function createIsometricCity(
     group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

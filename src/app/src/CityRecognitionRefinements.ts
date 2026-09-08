@@ -99,19 +99,6 @@ export const CITY_REFINEMENT_PROFILES = {
     ],
     widthM: 12.1,
   },
-  presidentialOffice: {
-    centreWorldM: [-1383.58, 259.87],
-    depthM: 40.96,
-    geometryStatus:
-      "OSM footprint envelope with official three-storey elliptical description",
-    heightM: 13.2,
-    name: "Bundespraesidialamt am Schloss Bellevue",
-    rotationY: -0.4738,
-    sourceUrls: [
-      "https://www.bundespraesident.de/DE/amt-und-aufgaben/bundespraesidialamt/gebaeude/gebaeude_node.html",
-    ],
-    widthM: 82.82,
-  },
   reweHeidestrasse: {
     centreWorldM: [-333.13, -1497.19],
     depthM: 0.7,
@@ -208,7 +195,7 @@ export const MEMORIAL_REFINEMENT_PROFILES = {
 export const DETAIL_COVERAGE = {
   "Adlerbruecke im Tiergarten": "AdlerBridge",
   "ALDI Nord Invalidenstrasse": "CityRecognitionRefinements",
-  "Bismarck-Nationaldenkmal": "IsometricCityWorld/createSiegessaeule",
+  "Bismarck-Nationaldenkmal": "BismarckMoltkeMonuments",
   "Englischer Garten": "OSM park polygons plus current Teehaus presentation",
   "Erweiterungsbaustelle des Kanzleramts": "ChancelleryExtension",
   Europacity: "ExpandedCityDetails plus CityRecognitionRefinements",
@@ -227,7 +214,7 @@ export const DETAIL_COVERAGE = {
   "REWE Heidestrasse": "CityRecognitionRefinements",
   Rosengarten: "OSM garden polygons and TiergartenMonuments",
   "Schloss Bellevue und Bundespraesidialamt":
-    "LoD2 plus CityRecognitionRefinements",
+    "BellevueArchitecture with original LoD2 wall and roof surfaces",
   Sozialgericht: "ExpandedCityDetails",
   "Tilla-Durieux-Park": "ExpandedCityDetails/Tilla-Durieux lawn sculpture",
   "Tour TotalEnergies": "CityRecognitionRefinements",
@@ -964,49 +951,8 @@ function addHansaviertelDetails(
     );
   }
 
-  const office = CITY_REFINEMENT_PROFILES.presidentialOffice;
-  const officeGround = groundAt(...office.centreWorldM);
-  const shell = new CylinderGeometry(1, 1, office.heightM, 64);
-  shell.scale(office.widthM / 2, 1, office.depthM / 2);
-  shell.rotateY(office.rotationY);
-  shell.translate(
-    office.centreWorldM[0],
-    officeGround + office.heightM / 2,
-    office.centreWorldM[1],
-  );
-  paintGeometry(shell, 0x4d5658);
-  builder.parts.push(shell);
-  builder.edges.push(new EdgesGeometry(shell, 18));
-  for (const floor of [1, 2]) {
-    const ring = new CylinderGeometry(1.005, 1.005, 0.24, 64, 1, true);
-    ring.scale(office.widthM / 2, 1, office.depthM / 2);
-    ring.rotateY(office.rotationY);
-    ring.translate(
-      office.centreWorldM[0],
-      officeGround + floor * (office.heightM / 3),
-      office.centreWorldM[1],
-    );
-    paintGeometry(ring, WINDOW_LIGHT);
-    builder.parts.push(ring);
-  }
-  for (let bay = 0; bay < 28; bay += 1) {
-    const angle = (bay / 28) * Math.PI * 2;
-    const localX = Math.cos(angle) * (office.widthM / 2 + 0.14);
-    const localZ = Math.sin(angle) * (office.depthM / 2 + 0.14);
-    const [x, z] = at(office, localX, localZ);
-    addBox(
-      builder,
-      bay % 3 === 0 ? WINDOW_LIGHT : 0x6b7475,
-      x,
-      officeGround + office.heightM / 2,
-      z,
-      0.32,
-      office.heightM - 1.0,
-      0.32,
-      office.rotationY - angle,
-      false,
-    );
-  }
+  // Bellevue and its permanent office are owned by BellevueArchitecture.
+
 }
 
 function addSquareDetails(

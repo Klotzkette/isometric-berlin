@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.8
+
+- **Fahnen.** Dezentes Flattern auch bei ruhender Kamera im normalen Modus;
+  Stoff, Streifen und Embleme bleiben zusammenhängend.
+- **Bellevue.** Schloss und permanentes Bundespräsidialamt erhalten eigene
+  Fassaden und quellgebundene Dächer statt grober Ersatzkörper.
+- **Bismarck und Moltke.** Korrigierte Positionen, Materialien und
+  Figurengruppen mit eigenen Minecraft-Darstellungen.
+
 ## v1.0.7
 
 - **Detlev-Rohwedder-Haus.** Exakte Flügelgrundrisse und Höhen, differenzierte

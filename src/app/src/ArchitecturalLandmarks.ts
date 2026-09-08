@@ -630,7 +630,6 @@ function addGermanFlag(
       position[2],
     );
     stripe.rotation.y = -0.06;
-    stripe.rotation.z = 0.04 * (index - 1);
     markWindFlag(stripe, flagWidth, { kind: "germany", phase: 0.42 });
     group.add(stripe);
   }
@@ -678,30 +677,32 @@ function addEuropeanFlag(
   const stars = new InstancedMesh(
     new CircleGeometry(flagHeight * 0.032, 5),
     new MeshBasicMaterial({ color: 0xffd447, side: DoubleSide }),
-    12,
+    24,
   );
   stars.name = `${name} European Union flag stars`;
+  stars.position.copy(flag.position);
+  stars.rotation.copy(flag.rotation);
   const dummy = new Object3D();
   const starTransforms: Array<{
     position: [number, number, number];
     rotation: [number, number, number];
     xFromPoleM: number;
   }> = [];
-  for (let index = 0; index < 12; index += 1) {
-    const angle = (index / 12) * Math.PI * 2;
+  for (let index = 0; index < 24; index += 1) {
+    const angle = ((index % 12) / 12) * Math.PI * 2;
     const starPosition: [number, number, number] = [
-      position[0] + flagWidth / 2 + Math.cos(angle) * flagHeight * 0.21,
-      flagCentreY + Math.sin(angle) * flagHeight * 0.21,
-      position[2] - 0.015,
+      flagWidth / 2 + Math.cos(angle) * flagHeight * 0.21,
+      Math.sin(angle) * flagHeight * 0.21,
+      index < 12 ? 0.025 : -0.025,
     ];
     dummy.position.set(...starPosition);
-    dummy.rotation.y = -0.06;
+    dummy.rotation.y = 0;
     dummy.updateMatrix();
     stars.setMatrixAt(index, dummy.matrix);
     starTransforms.push({
       position: starPosition,
-      rotation: [0, -0.06, 0],
-      xFromPoleM: starPosition[0] - position[0],
+      rotation: [0, 0, 0],
+      xFromPoleM: starPosition[0],
     });
   }
   stars.instanceMatrix.needsUpdate = true;

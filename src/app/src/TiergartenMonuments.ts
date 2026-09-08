@@ -2751,15 +2751,9 @@ const STATUE_NAMES =
 // models completely — the Holocaust stelae field, the Soviet memorial
 // with its T-34s and soldier, Sinti-und-Roma, the Homosexuellen cuboid,
 // Goethe, Lessing and the composers. Drawing them twice doubles the geometry.
-// Bismarck is here too: createSiegessaeule() in IsometricCityWorld.ts
-// already draws the Bismarck-Nationaldenkmal as part of its verified
-// Großer Stern recognition model (fixed offset from the Siegessäule,
-// matching the real 1938/39 relocation next to the column) — v0.58.0
-// found this OSM "Otto von Bismarck" artwork point was drawing a
-// *second*, independently-positioned Bismarck about 58 m away from
-// the recognition model's placement, i.e. two chancellors at the same
-// intersection. Skipping it here removes the duplicate; the detailed
-// figure now lives solely in createSiegessaeule().
+// BismarckMoltkeMonuments owns Bismarck at its exact OSM point. The old
+// accessory positioned by a Siegessäule offset has been removed. Suppress
+// this generic marker so the dedicated sculpture remains the sole model.
 export const MONUMENTS_ALREADY_MODELLED =
   /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Johann Wolfgang von Goethe|Lessing-Denkmal|Gotthold Ephraim Lessing|Richard Wagner|Wagner-Denkmal|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
 
@@ -2843,6 +2837,7 @@ export function createTiergartenMonuments(
       kindertransportAnchor = { groundYM: y, protected: isProtected };
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
     } else if (
+      entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
       BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
       KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||

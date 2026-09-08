@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.7 appearance includes Rohwedder, Bundesrat and Topography; the false
-// occupied Topography site columns are replaced by open platform surfaces.
+// v1.0.8 adds source-bound Bellevue and native Bismarck/Moltke details;
+// displaced legacy source columns are omitted at their exact recorded bands.
 // This synchronous baseline is checked against cooperative construction.
 // Hashes cover all geometry, index, colour and instance buffer capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "4826e048c4b170c57d31111c45930045f3d242f960b4dd1328caf1acca7bbfbd", 3644292, 79, 278187978],
-  ["mobile", "fef981db905c0143fb0a9933365a10596bbe35dccebf0a552d08d5e7ac3ff28f", 880777, 77, 67593810],
+  ["full", "fb9af1459fac4a1c5e66216da8d18ee8636d1a4e16f9b7b70b3f03472b19dd24", 3658571, 82, 279275510],
+  ["mobile", "dc7e44364cd1c6429ede6f8c1fcef9007447cb974e6b41326f06142627c9523b", 888494, 80, 68182630],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

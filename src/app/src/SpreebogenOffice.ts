@@ -397,7 +397,8 @@ function addPresidentialStandard(group: Group, roofY: number): void {
       new MeshBasicMaterial({ color, side: DoubleSide }),
     );
     mesh.name = name;
-    mesh.position.set(poleX, flagCentreY, poleZ + zOffset);
+    geometry.translate(0, 0, zOffset);
+    mesh.position.set(poleX, flagCentreY, poleZ);
     mesh.rotation.y = -0.08;
     markWindFlag(mesh, flagSide, {
       amplitudeM,
@@ -475,6 +476,8 @@ function addPresidentialStandard(group: Group, roofY: number): void {
       PRESIDENTIAL_STANDARD_PROFILE.eaglePartCount,
     );
     redParts.name = `Amtssitz presidential standard eagle red details ${face}`;
+    redParts.position.set(poleX, flagCentreY, poleZ);
+    redParts.rotation.y = -0.08;
     const dummy = new Object3D();
     const transforms: Array<{
       position: [number, number, number];
@@ -483,13 +486,13 @@ function addPresidentialStandard(group: Group, roofY: number): void {
       xFromPoleM: number;
     }> = [];
     detailPoints.forEach(([xRatio, yRatio, scale], index) => {
-      const x = poleX + (1 - xRatio) * flagSide;
-      const y = flagCentreY + yRatio * flagSide * 0.55;
+      const x = (1 - xRatio) * flagSide;
+      const y = yRatio * flagSide * 0.55;
       const transform = {
-        position: [x, y, poleZ + zOffset] as [number, number, number],
-        rotation: [0, -0.08, 0] as [number, number, number],
+        position: [x, y, zOffset] as [number, number, number],
+        rotation: [0, 0, 0] as [number, number, number],
         scale: [scale, index < 2 ? 0.72 : 1, 1] as [number, number, number],
-        xFromPoleM: x - poleX,
+        xFromPoleM: x,
       };
       dummy.position.set(...transform.position);
       dummy.rotation.set(...transform.rotation);

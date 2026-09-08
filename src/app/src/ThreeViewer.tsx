@@ -1,3 +1,4 @@
+import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
 import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt } from "./SovietMemorialSource";
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
@@ -351,7 +352,11 @@ import {
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import {
+  type CivicWindFlagTarget,
   civicFlagFrameIntervalMs,
+  civicWindFlagsOnScreen,
+  collectCivicWindFlagTargets,
+  createCivicWindFlagScreenScratch,
   setWindFlagWinterPresentation,
   updateWindFlags,
 } from "./WindFlags";
@@ -593,6 +598,7 @@ type Runtime = {
   schwellenraumLastPariserPlatzFrameAt: number;
   schwellenraumLastWaterFrameAt: number;
   schwellenraumMovingFlagCount: number;
+  civicWindFlagTargets: CivicWindFlagTarget[];
   schwellenraumPariserPlatzElapsedSeconds: number;
   schwellenraumPariserPlatzLoop: PariserPlatzEntityLoop | null;
   schwellenraumWaterElapsedSeconds: number;
@@ -767,9 +773,9 @@ function applyRuntimeMinecraftVisibility(
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
-  runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags(
-    schwellenraumMovingRoots(runtime),
-  );
+  const roots = schwellenraumMovingRoots(runtime);
+  runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags(roots);
+  runtime.civicWindFlagTargets = collectCivicWindFlagTargets(roots);
 }
 
 function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
@@ -2217,6 +2223,7 @@ function setSceneLighting(
   }
   if (runtime.isoWorld) {
     setIsoNightPresentation(runtime.isoWorld, isNight, lightsOn, mode);
+    setBismarckMoltkeSnow(runtime.isoWorld, isSnowstorm);
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -3129,6 +3136,7 @@ function ensureIsoWorld(
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             sovietMemorialSolidAt(x,y,z,radius) ||
+            bismarckMoltkeSolidAt(x,y,z,radius) ||
             // pedestrianPointIsBlocked already supplies seven capsule body
             // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
@@ -3609,6 +3617,7 @@ function ensureVoxelWorld(
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             sovietMemorialSolidAt(x,y,z,radius) ||
+            bismarckMoltkeSolidAt(x,y,z,radius) ||
             // The navigation sampler already carries the capsule radius.
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||
@@ -5300,6 +5309,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumLastPariserPlatzFrameAt: 0,
         schwellenraumLastWaterFrameAt: 0,
         schwellenraumMovingFlagCount: 0,
+        civicWindFlagTargets: [],
         schwellenraumPariserPlatzElapsedSeconds:
           PARISER_PLATZ_ENTITY_INITIAL_TIME_SECONDS,
         schwellenraumPariserPlatzLoop: null,
@@ -6560,6 +6570,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return true;
       };
       const roofSignScreenScratch = new Vector3();
+      const civicFlagScreenScratch = createCivicWindFlagScreenScratch();
       const pariserPlatzLoopScreenScratch =
         createPariserPlatzLoopScreenScratch();
       const renderFrameSources = {
@@ -6641,6 +6652,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.coarsePointer,
         );
         const documentHidden = document.visibilityState === "hidden";
+        const civicFlagsVisible =
+          !reducedMotion &&
+          !runtime.underside &&
+          !documentHidden &&
+          civicWindFlagsOnScreen(
+            runtime.civicWindFlagTargets,
+            camera,
+            renderer.domElement.clientHeight || window.innerHeight,
+            civicFlagScreenScratch,
+          );
         const pariserPlatzFrameIntervalMs = runtime.coarsePointer
           ? PARISER_PLATZ_ENTITY_FRAME_INTERVAL_MS.mobile
           : PARISER_PLATZ_ENTITY_FRAME_INTERVAL_MS.full;
@@ -6692,14 +6713,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ordinaryEnvironmentFrameIntervalMs,
           );
         }
-        if (
+        if (civicFlagsVisible || (
           !reducedMotion &&
           !runtime.underside &&
           runtime.fineDetailVisible &&
           !documentHidden &&
-          (runtime.schwellenraumMovingFlagCount > 0 ||
-            runtime.berlinerEnsembleRoofSignTargets.length > 0)
-        ) {
+          runtime.berlinerEnsembleRoofSignTargets.length > 0
+        )) {
           passiveFrameIntervalMs = Math.min(
             passiveFrameIntervalMs,
             flagFrameIntervalMs,
@@ -6772,10 +6792,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (stabilizedRecovered) resetTouchGesture();
         }
         const movingFlagCount =
-          stability.animateWind &&
-          !runtime.underside &&
-          runtime.fineDetailVisible &&
-          !documentHidden
+          stability.animateWind && civicFlagsVisible
             ? runtime.schwellenraumMovingFlagCount
             : 0;
         schwellenraumMotionOptions.flagFrameIntervalMs = flagFrameIntervalMs;
@@ -6893,11 +6910,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           renderer.shadowMap.enabled &&
           runtime.shadowInvalidated &&
           !cameraMoving;
-        // Day/Night used to repaint at 12 fps while the view was still.
-        // That kept animated flags and signal buffers changing beneath a
-        // nominally fixed far camera, making fine ink edges shimmer. A static
-        // scene now receives one render for a real mutation and then holds its
-        // framebuffer exactly; RAF remains alive for input and loaders.
+        // Visible civic cloth can request its own cadenced idle render in
+        // every mode. Views with no screen-sized flag or other active source
+        // hold their framebuffer; RAF remains alive for input and loaders.
         renderFrameSources.cameraMoving = cameraMoving;
         renderFrameSources.environmentalMotion = environmentalMotion;
         renderFrameSources.presentationChanged =

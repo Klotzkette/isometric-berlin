@@ -1,3 +1,5 @@
+import { BELLEVUE_IDS, BELLEVUE_OFFICE_ID, BELLEVUE_PROFILE, bellevueRoofTopAt } from "./bellevueProfile";
+import { BISMARCK_MOLTKE_PRISM_IDS } from "./bismarckMoltkeProfiles";
 import { BUNDESRAT_MAIN_ID, BUNDESRAT_TOP, BUNDESRAT_PROFILE, bundesratRoofTopAt } from "./bundesratProfile";
 import { TOPOGRAPHY_TERROR_IDS, TOPOGRAPHY_TERROR_SITE_IDS, TOPOGRAPHY_TERROR_MUSEUM_ID, topographySiteSurfaceAt } from "./topographyTerrorProfile";
 import { topographyAuthoredSolids } from "./TopographyTerrorArchitecture";
@@ -555,6 +557,7 @@ export function compilePedestrianObstacles(
   const replacedParents = new Set<string>();
   for (const building of prisms.buildings) {
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
+    if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
     const zollpackhof = ZOLLPACKHOF_PARTS.find(({ id }) => id === building.id);
@@ -577,6 +580,14 @@ export function compilePedestrianObstacles(
           index.buildingCount += 1;
         }
       }
+      continue;
+    }
+    if (BELLEVUE_IDS.has(building.id)) {
+      const sourceTop = (building.y0_dm + building.h_dm) / 10;
+      addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10,
+        building.id === BELLEVUE_OFFICE_ID ? BELLEVUE_PROFILE.office.top + 0.5 : sourceTop + 0.2,
+        building.id, 0.1, (x, z) => bellevueRoofTopAt(x, z, building.id) ?? sourceTop);
+      index.buildingCount += 1;
       continue;
     }
     // Site platforms are walkable surfaces, not occupied building volumes.

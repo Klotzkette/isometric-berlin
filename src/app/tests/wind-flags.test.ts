@@ -105,7 +105,7 @@ describe("shared flag wind field", () => {
     ).toBeCloseTo(2.2 * CIVIC_FLAG_WIND_PROFILE.maxAmplitudeWidthRatio, 6);
   });
 
-  test("keeps every free-edge lift-plus-wave vector below 0.28 m", () => {
+  test("keeps every free-edge lift-plus-wave vector below the gentle width-scaled bound", () => {
     for (const kind of CIVIC_WIND_FLAG_KINDS) {
       for (const widthM of [2.2, 3.8, 10]) {
         const flag = officialFlag(kind, widthM);

@@ -163,9 +163,9 @@ official civic flags use one deterministic, low-amplitude wind field: three
 German and one European flag on the Reichstag, German and European protocol
 flags at the Chancellery, the Flag of Unity, the Swiss Embassy flag and the
 Federal President's standard. Their 30 coordinated cloth/emblem layers move no
-more than 0.28 m at the free edge. The renderer requests flag frames at a
+more than 0.5 m at the free edge. The renderer requests flag frames at a
 bounded 12 Hz on non-touch devices and 8 Hz in the mobile-like touch profile;
-reduced-motion, distant, underside and hidden-page views retain one authored
+reduced-motion, offscreen/subpixel, underside and hidden-page views retain one authored
 pose. Decorative hotel flags and the small static Pride memorial offerings are
 outside this allowlist.
 
@@ -1485,3 +1485,25 @@ site-surface pieces. See the [Rohwedder](rohwedder-haus-refinement.md),
 [Topography](topography-terror-refinement.md) contracts for full geometry,
 source, test and per-profile budgets. All reference photographs are excluded
 from the runtime package.
+
+## Bellevue, civic cloth and Großer Stern (v1.0.8)
+
+The original LoD2 wall/roof surfaces now replace the fifteen coarse Bellevue
+prisms. The exact palace parts retain their terrain-aligned vertical frame;
+the permanent presidential office keeps its footprint and source maximum
+height, with a documented roof subdivision. The old 13.2 m ellipse overlay is
+removed. Dedicated drawn/full/mobile and native Minecraft details are used.
+
+The Bismarck and Moltke models own both exact OSM points. The old displaced
+Bismarck and generic Moltke are removed, as are the three coarse source
+prisms and five exact duplicate voxel columns. Granular sculpture collision
+replaces the coarse envelopes; paths remain open. Snow presentation resets
+on mode changes and the historic monuments retain their Day treatment in
+Schwellenraum.
+
+Civic flags have their own projected visibility check instead of the global
+ornament distance switch. Cloth and artwork share one deformation surface,
+with fixed mast edges, at the existing 12 Hz desktop/8 Hz touch cadence.
+See [flag runtime and tests](civic-flags-v108.md),
+[Bellevue evidence](bellevue-refinement.md) and
+[monument evidence](bismarck-moltke-refinement.md).

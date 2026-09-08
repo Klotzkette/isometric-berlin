@@ -243,3 +243,20 @@ site recognition only. No image, photograph crop or texture is bundled.
 | topography_of_terror | [Topo 1285w.jpg](https://commons.wikimedia.org/wiki/File:Topo_1285w.jpg) | Marco van Oel | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | topography_of_terror | [Topographie des Terrors 0206.jpg](https://commons.wikimedia.org/wiki/File:Topographie_des_Terrors_0206.jpg) | Dosseman | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | topography_of_terror | [Topographie des Terrors Aerial view.JPG](https://commons.wikimedia.org/wiki/File:Topographie_des_Terrors_Aerial_view.JPG) | Hans G. Oberlack | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+
+## Bellevue and Großer Stern refinement (v1.0.8)
+
+Eight freely licensed photographs were inspected as geometry and material
+references. No photographs are bundled as runtime textures. Historical
+scaffolding visible in the 2005 overview is not copied into the current scene.
+
+| Landmark | File | Author / credit | License |
+|---|---|---|---|
+| schloss_bellevue | [Schloss Bellevue Berlin with snow 2025-02-15 01.jpg](https://commons.wikimedia.org/wiki/File:Schloss_Bellevue_Berlin_with_snow_2025-02-15_01.jpg) | GPSLeo | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| schloss_bellevue | [Schloss Bellevue Berlin with snow 2025-02-15 03.jpg](https://commons.wikimedia.org/wiki/File:Schloss_Bellevue_Berlin_with_snow_2025-02-15_03.jpg) | GPSLeo | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| schloss_bellevue | [Bellevue Palace (Berlin), 2024 (01).jpg](https://commons.wikimedia.org/wiki/File:Bellevue_Palace_(Berlin),_2024_(01).jpg) | Bahnfrend | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| bundespraesidialamt_bellevue | [2004-12 Berlin Bundespraesidialamt.JPG](https://commons.wikimedia.org/wiki/File:2004-12_Berlin_Bundespraesidialamt.JPG) | Sir James | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
+| bundespraesidialamt_bellevue | [Siegessäule TopView6.JPG](https://commons.wikimedia.org/wiki/File:Siegess%C3%A4ule_TopView6.JPG) | Achim Raschka | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) |
+| bismarck_memorial | [Bismarck Memorial in Berlin.JPG](https://commons.wikimedia.org/wiki/File:Bismarck_Memorial_in_Berlin.JPG) | Pudelek (Marcin Szala) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| bismarck_memorial | [Germania - Bismarck Memorial in Berlin.JPG](https://commons.wikimedia.org/wiki/File:Germania_-_Bismarck_Memorial_in_Berlin.JPG) | Pudelek (Marcin Szala) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| moltke_memorial | [Berlin-Tiergarten, standbeeld van Helmuth Karl Bernhard von Moltke Dm09050419 IMG 5599 2024-09-06 15.39.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Tiergarten,_standbeeld_van_Helmuth_Karl_Bernhard_von_Moltke_Dm09050419_IMG_5599_2024-09-06_15.39.jpg) | Michielverbeek | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
