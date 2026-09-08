@@ -258,6 +258,62 @@
       "conflicts": [
         "sachsen_anhalt_street_facade_assignment"
       ]
+    },
+    {
+      "feature_id": "detlev_rohwedder_haus_campus",
+      "anchor_source": "lod2 + OSM relation/280070",
+      "geometry_ref": "src/app/src/rohwedderHausPrisms.json",
+      "documentation_ref": "docs/rohwedder-haus-refinement.md",
+      "source_part_count": 21,
+      "semantic_evidence": [
+        "Landesdenkmalamt 09095987",
+        "Federal Ministry of Finance architectural history",
+        "Bundestag printed paper13/6594 Haus1A",
+        "Seven credited Wikimedia Commons photographs"
+      ],
+      "conflicts": [
+        "rohwedder_material_and_campus_identity"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bundesrat_herrenhaus",
+      "anchor_source": "lod2 + OSM way/11688785",
+      "geometry_ref": "src/app/src/bundesratPrisms.json",
+      "documentation_ref": "docs/bundesrat-refinement.md",
+      "source_part_count": 4,
+      "semantic_evidence": [
+        "Landesdenkmalamt 09096003",
+        "Bundesrat building account",
+        "BBR Museum der1000Orte",
+        "Geoportal DOP2025",
+        "Four credited Wikimedia Commons photographs"
+      ],
+      "conflicts": [
+        "bundesrat_source_absent_roof"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "topography_terror_site",
+      "anchor_source": "lod2 + OSM way/24368681 + official Vorderlandmauer85",
+      "geometry_ref": "src/app/src/topographyTerrorSource.json",
+      "documentation_ref": "docs/topography-terror-refinement.md",
+      "source_part_count": 5,
+      "semantic_evidence": [
+        "Topography of Terror institution and site tour",
+        "HeinleWischer project account",
+        "Geoportal DOP2025",
+        "Six credited Wikimedia Commons photographs"
+      ],
+      "conflicts": [
+        "topography_site_platform_volume",
+        "topography_wall_route"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -447920,6 +447976,70 @@
       "resolution": "Retain all four source bodies, heights, roofs and collision envelopes. Apply three ochre storeys, nine upper bays and the documented closed 1874 oriel only to the exact eastern street edge of mIgrCTOY. Local window and ornament subdivisions remain procedural display estimates.",
       "geometry_ref": "src/app/src/SachsenAnhaltFacade.ts",
       "documentation_ref": "docs/sachsen-anhalt-facade-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "rohwedder_material_and_campus_identity",
+      "kind": "material_and_semantic_source_conflict",
+      "sources": [
+        "Berlin LoD2",
+        "OSM relation/280070",
+        "Landesdenkmalamt09095987",
+        "BMF history"
+      ],
+      "conflict": "OSM calls the facade marble, whereas LDA identifies shell limestone. LoD2 names the connected northwestern wing Bundesrechnungshof, reflecting a former occupant, and OSM omits the measured Ehrenhof risalit.",
+      "resolution": "Retain every source record and all21 exact campus parts, including the five northwestern wing parts and measured court risalit. Apply limestone materials according to heritage evidence; preserve historical source labels in the inventory. Do not assign an unverified current tenant.",
+      "geometry_ref": "src/app/src/rohwedderHausPrisms.json",
+      "documentation_ref": "docs/rohwedder-haus-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bundesrat_source_absent_roof",
+      "kind": "survey_envelope_vs_visual_silhouette",
+      "sources": [
+        "Berlin LoD2 parentDEBE01YYK00005AI",
+        "BBR art inventory",
+        "DOP2025",
+        "Four credited free photographs"
+      ],
+      "conflict": "The main source roof is a flat27.3m cap and does not include the photographed pediment, glazed plenary roof or current bronze works.",
+      "resolution": "Retain the exact four original LoD2 bodies. Add bounded DOP-sited and photo-proportioned procedural roof/pediment/bronze silhouettes, with matching pedestrian roof support and source-column rounding removal only in their own height band.",
+      "geometry_ref": "src/app/src/bundesratProfile.ts",
+      "documentation_ref": "docs/bundesrat-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "topography_site_platform_volume",
+      "kind": "open_site_vs_occupied_source_volume",
+      "sources": [
+        "Berlin LoD2 museum400002h6 and site4000056X",
+        "OSM site/paths/archaeological areas",
+        "DGM",
+        "DOP2025",
+        "institutional and free-photo exterior references"
+      ],
+      "conflict": "The broad site sourcepartG4JuQSIz has no museum or court cutout and covers the lower facade and atrium. Generic building and rounded voxel columns turn archaeological grounds and mapped approaches into occupied mass. The former detail pavilion was offset from the actual museum.",
+      "resolution": "Keep all five source records. Use the exact museum footprint, courtyard and maximum height; replace source site volumes with thin walkable surfaces at their source elevations and museum/archaeological cutouts. Retain terrain underneath. Author only small visible archaeological relief, protective canopy and local facade subdivisions as display estimates.",
+      "geometry_ref": "src/app/src/topographyTerrorSource.json",
+      "documentation_ref": "docs/topography-terror-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "topography_wall_route",
+      "kind": "approximate_published_length_vs_source_trace",
+      "sources": [
+        "OSM way/591200192",
+        "official Vorderlandmauer line85",
+        "Topography of Terror institution"
+      ],
+      "conflict": "Published approximately200m length differs from the195.806m OSM remnant; official trace lies roughly1–2m away. The previous display invented two broad missing sections.",
+      "resolution": "Preserve both source routes and use the official line clipped at stations nearest OSM endpoints, measuring195.800m. Show small procedural chips and openings without invented10m gaps. Published approximate length stays separately attributed.",
+      "geometry_ref": "src/app/src/topographyTerrorSource.json",
+      "documentation_ref": "docs/topography-terror-refinement.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

@@ -705,3 +705,33 @@ change. Detailed evidence: [Böll](boell-stiftung-refinement.md),
 [Deutsches Theater](deutsches-theater-refinement.md), and
 [Friedrichstadt-Palast](friedrichstadt-palast-refinement.md), plus the separate
 [Luisenstraße 18 facade](sachsen-anhalt-facade-refinement.md).
+
+## Rohwedder-Haus, Bundesrat and Topography of Terror — v1.0.7
+
+The viewer recognition supplement retains all 21 measured Rohwedder campus
+parts, all four Bundesrat parts and the five Topography museum/site records.
+Footprints, holes and original source heights stay in separate small exact
+subsets; no building catalogue, tour stop or project boundary changes.
+
+LDA limestone evidence resolves the Rohwedder OSM marble tag. The legacy
+Bundesrechnungshof label remains attached to the northwestern source parts;
+it is not presented as a verified current tenant. The measured Ehrenhof
+risalit resolves a conflicting OSM courtyard omission. On the Bundesrat,
+source-absent pediment and glazed roof are explicitly procedural supplements
+informed by institutional references, DOP and freely licensed photographs.
+
+Topography's four low site records describe ground/platforms. They now render
+as thin walkable surfaces with the museum and archaeology cut out, retaining
+their heights without filling the atrium or creating false occupied buildings.
+The museum uses its exact outer ring, inner court and 13.2 m source top. The
+Wall follows official Vorderlandmauer line 85 clipped to OSM remnant endpoints;
+its 195.800 m route, the OSM line and the institution's approximate 200 m length
+remain separately documented. Ground samples anchor local wall/ruin detail.
+Exhibition artwork and historical reconstruction plans are not reproduced.
+
+Seventeen external free-photo references bring both attribution manifests to
+207 files. These are reference-only; the runtime remains image-free for these
+models. Full source conflicts and evidence limits are recorded in
+`fused_sources.json` and the individual [Rohwedder](rohwedder-haus-refinement.md),
+[Bundesrat](bundesrat-refinement.md) and
+[Topography](topography-terror-refinement.md) contracts.

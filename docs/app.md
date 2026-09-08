@@ -1448,3 +1448,40 @@ The Minecraft visibility filter explicitly retains the block Palast and its
 ancestors beside the existing Weigel public-art branch. Its final leaf selection
 runs after branch filtering/restoration, so generic visibility policy cannot
 silently undo the chosen model during cold loading or warm mode switches.
+
+## v1.0.7 Rohwedder-Haus, Bundesrat and Topography
+
+All five visual modes now include the complete 21-part Rohwedder campus,
+the four-part Bundesrat and the source-bound Topography museum/site. The
+initial 160 mobile / 420 desktop source-shell limits remain unchanged; all
+30 selected parts arrive in that initial batch. Existing context factories
+continue receiving the entire source payload. Follow-up batches add source
+shells without duplicating authored context.
+
+Day, Night, Snowstorm and Schwellenraum use the drawn variants and existing
+material presentation. Minecraft builds its own variants. Generic windows,
+trim and chimneys are disabled only on the dedicated buildings. Rohwedder
+and Bundesrat keep their original occupied bodies; only source voxel roof
+rounding is clipped, using bounded position/height checks. Topography's
+false low occupied site bodies and coarse museum columns are replaced by
+its exact footprint facade/roof and thin walkable site surfaces.
+
+Pedestrian collision retains the measured museum walls with an open court,
+the authored Wall panels, small archaeological solids, railings and entrance
+fence. It treats site platforms as ground and follows the Bundesrat skylight
+roof shape. Memorial protection uses the entire mapped Topography site.
+Controller bindings and movement tuning are unchanged.
+
+| Contribution | Drawn full | Drawn mobile | Minecraft full | Minecraft mobile |
+|---|---|---|---|---|
+| Rohwedder instances / bytes | 29,272 / 2,225,320 | 11,944 / 908,392 | 16,105 / 1,224,628 | 11,307 / 859,980 |
+| Bundesrat instances / bytes | 7,045 / 628,975 | 4,579 / 403,855 | 5,752 / 437,800 | 5,107 / 388,780 |
+| Topography instances / bytes | 9,849 / 750,768 | 6,850 / 522,844 | 4,406 / 337,100 | 4,394 / 336,188 |
+
+Rohwedder uses one draw call per variant; Bundesrat uses four drawn calls or
+one Minecraft call; Topography uses eleven calls per variant, including five
+site-surface pieces. See the [Rohwedder](rohwedder-haus-refinement.md),
+[Bundesrat](bundesrat-refinement.md) and
+[Topography](topography-terror-refinement.md) contracts for full geometry,
+source, test and per-profile budgets. All reference photographs are excluded
+from the runtime package.

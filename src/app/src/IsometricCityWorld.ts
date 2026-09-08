@@ -1,3 +1,9 @@
+import { createTopographyTerrorArchitecture } from "./TopographyTerrorArchitecture";
+import { TOPOGRAPHY_TERROR_IDS } from "./topographyTerrorProfile";
+import { createBundesratArchitecture } from "./BundesratArchitecture";
+import { BUNDESRAT_IDS, BUNDESRAT_PRISM_TONES, BUNDESRAT_ROOF_TONES } from "./bundesratProfile";
+import { createRohwedderHausArchitecture } from "./RohwedderHausArchitecture";
+import { ROHWEDDER_HAUS_IDS, ROHWEDDER_HAUS_PRISM_TONES, ROHWEDDER_HAUS_ROOF_TONES } from "./rohwedderHausProfile";
 import { createLuisenCorridorArchitecture } from "./LuisenCorridorArchitecture";
 import { LUISEN_CORRIDOR_IDS, LUISEN_CORRIDOR_TONES, LUISEN_CORRIDOR_ROOF_TONES } from "./luisenCorridorProfile";
 import { createBoellStiftungArchitecture } from "./BoellStiftungArchitecture";
@@ -606,6 +612,8 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...ECONOMIC_MINISTRY_PRISM_TONES,
   ...MUSEUM_LENNE_PRISM_TONES,
   ...LUISEN_CORRIDOR_TONES,
+  ...BUNDESRAT_PRISM_TONES,
+  ...ROHWEDDER_HAUS_PRISM_TONES,
   ...BOELL_STIFTUNG_PRISM_TONES,
   mIgrCTOY: 0xe4be7d,
   ...SONY_SURROUNDINGS_PRISM_TONES,
@@ -778,6 +786,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
   ...MUSEUM_LENNE_ROOF_TONES,
   ...LUISEN_CORRIDOR_ROOF_TONES,
+  ...BUNDESRAT_ROOF_TONES,
+  ...ROHWEDDER_HAUS_ROOF_TONES,
   ...BOELL_STIFTUNG_ROOF_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0x747c79])),
   ORqiW8aK: 0x729083,
@@ -834,6 +844,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...TOPOGRAPHY_TERROR_IDS,
   BOELL_STIFTUNG_LOW_ID,
   FRIEDRICHSTADT_PALAST_PRISM_ID,
   ...SOVIET_MEMORIAL_PRISM_IDS,
@@ -2367,6 +2378,9 @@ export function windowFormatForBuilding(
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
+  ...TOPOGRAPHY_TERROR_IDS,
+  ...BUNDESRAT_IDS,
+  ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
   ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
@@ -2391,6 +2405,9 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
+  ...TOPOGRAPHY_TERROR_IDS,
+  ...BUNDESRAT_IDS,
+  ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
   ...DEUTSCHES_THEATER_IDS,
   ...MUSEUM_LENNE_IDS,
@@ -2408,6 +2425,9 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
+  ...TOPOGRAPHY_TERROR_IDS,
+  ...BUNDESRAT_IDS,
+  ...ROHWEDDER_HAUS_IDS,
   ...BOELL_STIFTUNG_IDS,
   ...DEUTSCHES_THEATER_IDS,
   ...MUSEUM_LENNE_IDS,
@@ -11623,7 +11643,7 @@ export function createIsometricCity(
     // A wall-material tag must not turn a measured pitched roof into a box.
     const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
       ? undefined : mappedMaterialGlazing;
-    const isGlass = !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+    const isGlass = !BUNDESRAT_IDS.has(building.id) && !ROHWEDDER_HAUS_IDS.has(building.id) && !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
       (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass"));
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
@@ -12957,6 +12977,9 @@ export function createIsometricCity(
     group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
     group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));
     group.add(createBerlinerEnsemble(prisms));

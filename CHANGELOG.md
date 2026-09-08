@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.7
+
+- **Detlev-Rohwedder-Haus.** Exakte Flügelgrundrisse und Höhen, differenzierte
+  Kalksteinfassaden, Fensterreihen, Dachdetails und kartierter Eingangszaun.
+  Die offenen Höfe bleiben erhalten.
+- **Bundesrat.** Historische Front mit Rustika, sechssäuligem Portikus und
+  Giebel sowie Glasdach und heutigen Bronzen; vier Quellteile bleiben erhalten.
+- **Topographie des Terrors.** Der versetzte, zu hohe Ersatzpavillon weicht
+  dem tatsächlichen Museumsgrundriss mit offenem Atrium, Metallgitterfassade
+  und aktuellem Solardach. Mauerrest und archäologische Bereiche folgen den
+  Kartenquellen; frei erfundene große Mauerlücken entfallen.
+- **Alle Darstellungen.** Eigene Geometrie für Desktop und Mobilgeräte,
+  einschließlich Minecraft. Fotoreferenzen bleiben außerhalb der Laufzeit;
+  Quellenabweichungen und nicht vermessene Details werden dokumentiert.
+
 ## v1.0.6
 
 - **Luisenstraße und Theaterverbindung.** 25 Gebäudegruppen mit 120 exakten

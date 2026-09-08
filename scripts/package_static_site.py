@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.6"
+PACKAGE_VERSION = "1.0.7"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,14 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.6: Die Luisenstrasse von der Charite zur Spree, Schumann- und
+Neu in v1.0.7: Detlev-Rohwedder-Haus mit genaueren Kalksteinfassaden,
+Hoffluegeln und Eingangszaun. Der benachbarte Bundesrat bekommt seine
+historische Front und Dachdetails. Die Topographie des Terrors zeigt den
+korrekten Museumsgrundriss, den offenen Innenhof, die Metallfassade und
+das aktuelle Solardach sowie kartierten Mauerrest und Ausgrabungsbereiche.
+Eigene Minecraft-Modelle sind auch fuer Mobilgeraete enthalten.
+
+Seit v1.0.6: Die Luisenstrasse von der Charite zur Spree, Schumann- und
 Reinhardtstrasse erhalten differenzierte Fassaden. Deutsches Theater und
 Kammerspiele zeigen ihre richtigen Gebaeudeteile und Schriftzuege. Die
 Heinrich-Boell-Stiftung hat eine gruene erhoehte Beletage und ihren Eingang.
@@ -3952,7 +3959,14 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.6: Luisenstrasse from Charite to the Spree, Schumannstrasse and
+New in v1.0.7: Detlev-Rohwedder-Haus gains source-bound limestone facades,
+courtyard wings and entrance fencing. The neighbouring Bundesrat receives
+its historic front and roof details. Topography of Terror uses the correct
+museum footprint, open atrium, metal screen and current solar roof, plus
+the mapped Wall remnant and archaeological areas. Dedicated Minecraft
+models are included for desktop and mobile.
+
+Since v1.0.6: Luisenstrasse from Charite to the Spree, Schumannstrasse and
 Reinhardtstrasse gain differentiated facades. Deutsches Theater and
 Kammerspiele retain their correct buildings and lettering. The Heinrich Boell
 Foundation gains its elevated green beletage and entrance. Friedrichstadt-

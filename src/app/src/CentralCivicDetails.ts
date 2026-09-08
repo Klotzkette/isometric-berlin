@@ -220,10 +220,6 @@ export const PARISER_PLATZ_WATER_MESH_NAME =
   "Pariser Platz authored fountain water";
 const PARISER_FOUNTAIN_MIST = 0xe8f3ef;
 const TAXI_IVORY = 0xe9dfbd;
-const WALL_CONCRETE = 0xa8a69e;
-const WALL_CONCRETE_DARK = 0x87877f;
-const WALL_PIPE = 0x9a9992;
-const WALL_FENCE = 0x555d5e;
 const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
@@ -491,10 +487,6 @@ export const BUNDESTAG_KITA_DIAGONAL_PATH_WORLD = [
   [189.175, -228.176],
 ] as const;
 export const BUNDESTAG_KITA_DIAGONAL_PATH_OSM_WAY_ID = "912645859";
-
-export const TOPOGRAPHY_WALL_LENGTH_M = 200;
-export const TOPOGRAPHY_WALL_SECTION_COUNT = 20;
-export const TOPOGRAPHY_WALL_ROTATION_RAD = 0.0742;
 
 function anchor(
   byName: Map<string, CentralCivicLandmark>,
@@ -4526,155 +4518,6 @@ function addFriedrichstrasseStation(
   }
 }
 
-function addFinanceMinistry(
-  builder: Builder,
-  byName: Map<string, CentralCivicLandmark>,
-): void {
-  const point = anchor(
-    byName,
-    "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus",
-  );
-  if (!point) return;
-  const facade = point.clone().add(new Vector3(-21, 0, 0));
-  const rotation = Math.PI / 2 + 0.02;
-  localBox(builder, LIMESTONE, facade, 0, 32.8, 0, 184, 1.1, 7, rotation);
-  addFacadeGrid(builder, facade, {
-    bays: 31,
-    baySpacing: 5.75,
-    floors: 6,
-    floorSpacing: 4.2,
-    frontZ: 3.7,
-    rotationY: rotation,
-    startY: 4.5,
-    width: 2.5,
-  });
-  for (let bay = -15; bay <= 15; bay += 1) {
-    localBox(
-      builder,
-      SANDSTONE,
-      facade,
-      bay * 5.75,
-      16,
-      3.9,
-      0.45,
-      29,
-      0.4,
-      rotation,
-    );
-  }
-}
-
-function addTopographyOfTerror(
-  builder: Builder,
-  byName: Map<string, CentralCivicLandmark>,
-): void {
-  const point = anchor(byName, "Topographie des Terrors");
-  if (!point) return;
-  const pavilion = point.clone().add(new Vector3(-30, 0, -48));
-  localBox(builder, DARK_GLASS, pavilion, 0, 4.9, 0, 59, 9.4, 58, 0.01);
-  localBox(builder, STEEL, pavilion, 0, 9.8, 0, 62, 0.5, 61, 0.01);
-  // Follow the official/OSM Wall trace between x=725.849 and 934.853 m:
-  // its surveyed z coordinate falls from 1317.754 to 1302.225 m. The former
-  // almost-horizontal approximation visibly drifted off Niederkirchnerstrasse.
-  const rotation = TOPOGRAPHY_WALL_ROTATION_RAD;
-  const wallZ = -117;
-  const pitch = TOPOGRAPHY_WALL_LENGTH_M / TOPOGRAPHY_WALL_SECTION_COUNT;
-  const heights = [3.28, 2.92, 3.46, 3.12, 2.58, 3.4, 3.02, 3.34] as const;
-  const graffiti = [0x3c6692, 0x9f3f38, 0xc89b2b, 0x506d4c] as const;
-  for (let index = 0; index < TOPOGRAPHY_WALL_SECTION_COUNT; index += 1) {
-    // The monument is intentionally retained in its 1989/90 overcome state:
-    // missing panels, broken top edges and chipped seams are historical
-    // evidence, not damage to be repaired into a pristine wall.
-    if (index === 4 || index === 12) continue;
-    const x = -TOPOGRAPHY_WALL_LENGTH_M / 2 + pitch * (index + 0.5);
-    const height = heights[index % heights.length];
-    const sectionLength = index % 5 === 2 ? 8.45 : 9.05;
-    localBox(
-      builder,
-      index % 3 === 0 ? WALL_CONCRETE_DARK : WALL_CONCRETE,
-      point,
-      x,
-      height / 2,
-      wallZ,
-      sectionLength,
-      height,
-      0.72,
-      rotation,
-    );
-
-    // The familiar rounded Berlin-Wall crown survives only on the less
-    // damaged panels. It is a true low-poly concrete tube, not a square cap.
-    if (index % 4 !== 1) {
-      const local = localPoint(point, x, wallZ, rotation);
-      const pipe = new CylinderGeometry(0.34, 0.34, sectionLength - 0.34, 10);
-      pipe.rotateZ(Math.PI / 2);
-      pipe.rotateY(rotation);
-      pipe.translate(local.x, point.y + height + 0.13, local.z);
-      paintGeometry(pipe, WALL_PIPE);
-      builder.parts.push(pipe);
-      builder.edges.push(
-        new EdgesGeometry(pipe, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
-      );
-    }
-
-    // Small, flat paint strokes recall the surviving graffiti without
-    // distributing a copied photograph or pretending to transcribe it.
-    if (index % 2 === 0) {
-      for (let stroke = 0; stroke < 3; stroke += 1) {
-        localBox(
-          builder,
-          graffiti[(index + stroke) % graffiti.length],
-          point,
-          x - 2.2 + stroke * 2.1,
-          0.75 + ((index + stroke) % 3) * 0.46,
-          wallZ - 0.375,
-          1.3 + (stroke % 2) * 0.55,
-          0.18,
-          0.055,
-          rotation,
-          false,
-        );
-      }
-    }
-  }
-
-  // Low security fence between the archaeological grounds and the ruin.
-  // Posts and three taut rails keep the 200 m line legible without creating
-  // a moire-prone wire mesh at the overview scale.
-  const fenceZ = -112.9;
-  for (let x = -100; x <= 100; x += 4) {
-    localBox(
-      builder,
-      WALL_FENCE,
-      point,
-      x,
-      1.15,
-      fenceZ,
-      0.1,
-      2.3,
-      0.1,
-      rotation,
-      false,
-    );
-  }
-  for (const y of [0.42, 1.12, 1.82]) {
-    localBox(
-      builder,
-      WALL_FENCE,
-      point,
-      0,
-      y,
-      fenceZ,
-      TOPOGRAPHY_WALL_LENGTH_M,
-      0.075,
-      0.075,
-      rotation,
-      false,
-    );
-  }
-  localBox(builder, LIMESTONE, point, 0, -0.15, -82, 198, 0.35, 31, 0.01);
-}
-
 function createSign(
   text: string,
   width: number,
@@ -4847,7 +4690,7 @@ export function createCentralCivicDetails(
   const group = new Group();
   group.name = "Task-11 central transit and civic recognition details";
   group.userData.geometryStatus =
-    "Official LoD2 and OSM anchors with primary-source recognition details; vehicles, facade rhythms and damaged Wall crown are bounded display approximations";
+    "Official LoD2 and OSM anchors with primary-source recognition details; vehicles and facade rhythms are bounded display approximations";
   group.userData.keepInMinecraft = true;
   group.userData.detailProfile = detailProfile;
   group.userData.bundestagSpreeConnection = {
@@ -4861,13 +4704,6 @@ export function createCentralCivicDetails(
     tramCount: 1,
     tramType:
       "yellow five-section Flexity presentation model with articulated joints, doors, bogies and pantograph",
-  };
-  group.userData.topographyWall = {
-    lengthM: TOPOGRAPHY_WALL_LENGTH_M,
-    sectionCount: TOPOGRAPHY_WALL_SECTION_COUNT,
-    source: "Topography of Terror / Niederkirchnerstrasse monument",
-    state: "preserved 1989/90 ruin with security fence",
-    traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
   };
   group.userData.bundestagKita = {
     bodyFootprintWorld: BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
@@ -4956,8 +4792,6 @@ export function createCentralCivicDetails(
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);
-  addFinanceMinistry(builder, byName);
-  addTopographyOfTerror(builder, byName);
   const drawn = finishDrawnGroup(builder, {
     lampEmissive: 0xffd68a,
     lampEmissiveIntensity: 0.85,

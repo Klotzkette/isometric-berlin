@@ -1013,9 +1013,11 @@ describe("progressive exact-world scheduling", () => {
     // with separate source-bound context models (17,720 fewer vertices).
     // v1.0.6 removes duplicated Luisen/theatre generic facade details and
     // the replaced Palast/Böll low source display envelopes: 52,478 vertices.
+    // v1.0.7 suppresses dedicated civic facade overlays and moves 30 source
+    // parts into the bounded initial group (17,256 fewer follow-up vertices).
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_641_490,
-      retainedBytes: 52_409_926,
+      vertices: 3_624_234,
+      retainedBytes: 52_144_044,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

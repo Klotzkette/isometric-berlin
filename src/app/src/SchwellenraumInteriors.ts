@@ -1,3 +1,4 @@
+import topographySource from "./topographyTerrorSource.json";
 import {
   BoxGeometry,
   DoubleSide,
@@ -860,14 +861,12 @@ export const SCHWELLENRAUM_PROTECTED_VOLUMES: ReadonlyArray<SchwellenraumProtect
       shape: "circle",
     },
     {
-      centerWorldM: [829.8579813517281, 1426.930023255758],
       id: "protected-topography-of-terror",
       maxYM: 30,
       minYM: -12,
       name: "Topographie des Terrors",
-      rotationY: -0.01,
-      shape: "box",
-      sizeM: [174, 112],
+      ringWorldM: topographySource.site.ring.map(([x, z]) => [x, z] as const),
+      shape: "polygon",
     },
     {
       id: "protected-moabit-prison-memorial-park",

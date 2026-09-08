@@ -187,14 +187,15 @@ describe("authored small-water Schwellenraum surface batches", () => {
     // includes the bounded Oggi's/Mubis street-front recognition geometry and
     // the source-bound British Embassy facade refinement. Dedicated civic
     // modules replace the old Gropius/Abgeordnetenhaus recognition boxes.
-    expect(main.geometry.getAttribute("position").count).toBe(94_783);
-    expect(main.geometry.index?.count).toBe(155_028);
+    // v1.0.7 moves Rohwedder and Topography to their exact source-bound modules.
+    expect(main.geometry.getAttribute("position").count).toBe(90_807);
+    expect(main.geometry.index?.count).toBe(148_752);
     expect(
       main.geometry.getAttribute("position").count +
         water.geometry.getAttribute("position").count,
-    ).toBe(95_271);
+    ).toBe(91_295);
     expect((main.geometry.index?.count ?? 0) + (water.geometry.index?.count ?? 0)).toBe(
-      155_988,
+      149_712,
     );
     expect(countColourVertices(root, 0x77b7c8)).toBe(488);
     expect(water.parent?.children).toHaveLength(1);

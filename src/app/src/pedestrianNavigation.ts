@@ -1,3 +1,7 @@
+import { BUNDESRAT_MAIN_ID, BUNDESRAT_TOP, BUNDESRAT_PROFILE, bundesratRoofTopAt } from "./bundesratProfile";
+import { TOPOGRAPHY_TERROR_IDS, TOPOGRAPHY_TERROR_SITE_IDS, TOPOGRAPHY_TERROR_MUSEUM_ID, topographySiteSurfaceAt } from "./topographyTerrorProfile";
+import { topographyAuthoredSolids } from "./TopographyTerrorArchitecture";
+import { ROHWEDDER_HAUS_IDS, ROHWEDDER_HAUS_SOURCE } from "./rohwedderHausProfile";
 import { BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_UNDERSIDE } from "./boellStiftungProfile";
 import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_PROFILE, friedrichstadtPalastTopAt } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
@@ -575,6 +579,8 @@ export function compilePedestrianObstacles(
       }
       continue;
     }
+    // Site platforms are walkable surfaces, not occupied building volumes.
+    if (TOPOGRAPHY_TERROR_SITE_IDS.has(building.id)) continue;
     const before = index.obstacleCount;
     const parliamentDisplay = building.id === ABGEORDNETENHAUS_PROFILE.mainPrismId;
     addPolygonObstacle(
@@ -582,10 +588,10 @@ export function compilePedestrianObstacles(
       building.ring,
       building.holes ?? [],
       parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.groundY : building.id === BOELL_STIFTUNG_LOW_ID ? BOELL_STIFTUNG_UNDERSIDE : building.y0_dm / 10,
-      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? FRIEDRICHSTADT_PALAST_PROFILE.baseY + 32.24 : (building.y0_dm + building.h_dm) / 10,
+      parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : building.id === BUNDESRAT_MAIN_ID ? BUNDESRAT_TOP + 0.15 + BUNDESRAT_PROFILE.roof.rise : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? FRIEDRICHSTADT_PALAST_PROFILE.baseY + 32.24 : (building.y0_dm + building.h_dm) / 10,
       building.id,
       0.1,
-      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? friedrichstadtPalastTopAt : building.id === MUSIC_MUSEUM_HALL_ID
+      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === BUNDESRAT_MAIN_ID ? (x, z) => bundesratRoofTopAt(x, z) ?? BUNDESRAT_TOP : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? friedrichstadtPalastTopAt : building.id === MUSIC_MUSEUM_HALL_ID
         ? (x,z) => musicMuseumRoofHeightAt(x,z,visualMode() === "minecraft")
         : undefined,
     );
@@ -607,6 +613,24 @@ export function compilePedestrianObstacles(
         () => visualMode() === "minecraft" ? upper.topY : Number.NEGATIVE_INFINITY);
     }
     index.buildingCount += 1;
+  }
+  if (prisms.buildings.some(building => ROHWEDDER_HAUS_IDS.has(building.id))) {
+    const fence = ROHWEDDER_HAUS_SOURCE.entranceFence.points;
+    for (let i = 1; i < fence.length; i += 1) {
+      addSegmentObstacle(index, [fence[i - 1][0], fence[i - 1][1]],
+        [fence[i][0], fence[i][1]], 0.19, 5, 9.8);
+    }
+  }
+  if (prisms.buildings.some(building => TOPOGRAPHY_TERROR_IDS.has(building.id))) {
+    for (const solid of topographyAuthoredSolids()) {
+      const c = Math.cos(solid.yaw), s = Math.sin(solid.yaw);
+      const ring = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sz]) => {
+        const dx = sx * solid.width / 2, dz = sz * solid.depth / 2;
+        return [solid.x + dx * c + dz * s, solid.z - dx * s + dz * c];
+      });
+      addPolygonObstacle(index, ring, [], solid.y - solid.height / 2,
+        solid.y + solid.height / 2, `${TOPOGRAPHY_TERROR_MUSEUM_ID}:${solid.role}`, 1);
+    }
   }
   return index;
 }
@@ -1199,7 +1223,9 @@ export function createPedestrianEnvironment(
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
       return null;
     }
-    return smoothGround(xOffset, zOffset);
+    const terrain = smoothGround(xOffset, zOffset);
+    const site = topographySiteSurfaceAt(x, z);
+    return site === null ? terrain : Math.max(terrain, site);
   };
   const tunnelSegments = tunnel
     ? tunnelWalkCourses(tunnel).flatMap((course) =>

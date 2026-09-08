@@ -9,8 +9,16 @@ import type { TunnelPortalCourseInput } from "./TunnelPortals";
 import type { TransferObject3D } from "./transferableObject3D";
 import type { VisualMode } from "./visualMode";
 import { GROPIUS_BAU_PRISM_IDS } from "./gropiusBauProfile";
+import { BUNDESRAT_IDS } from "./bundesratProfile";
+import { ROHWEDDER_HAUS_IDS } from "./rohwedderHausProfile";
+import { TOPOGRAPHY_TERROR_IDS } from "./topographyTerrorProfile";
 
-const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>(GROPIUS_BAU_PRISM_IDS);
+const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>([
+  ...GROPIUS_BAU_PRISM_IDS,
+  ...BUNDESRAT_IDS,
+  ...ROHWEDDER_HAUS_IDS,
+  ...TOPOGRAPHY_TERROR_IDS,
+]);
 
 export const DESKTOP_INITIAL_BUILDING_COUNT = 420;
 export const MOBILE_INITIAL_BUILDING_COUNT = 160;

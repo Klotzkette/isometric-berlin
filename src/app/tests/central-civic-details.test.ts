@@ -50,9 +50,6 @@ import {
   FUTURIUM_DREHMOMENT_WORLD,
   FUTURIUM_FOOTPRINT_WORLD,
   FUTURIUM_HEIGHT_M,
-  TOPOGRAPHY_WALL_LENGTH_M,
-  TOPOGRAPHY_WALL_ROTATION_RAD,
-  TOPOGRAPHY_WALL_SECTION_COUNT,
 } from "../src/CentralCivicDetails";
 
 const names = [
@@ -593,19 +590,6 @@ describe("task-11 central transit and civic details", () => {
     expect(EMBASSY_DETAIL_PROFILES.hungary.description).toContain(
       "fully glazed base",
     );
-  });
-
-  test("keeps the Topography wall as the documented 200 m ruin", () => {
-    const details = createCentralCivicDetails(landmarks);
-    expect(TOPOGRAPHY_WALL_LENGTH_M).toBe(200);
-    expect(TOPOGRAPHY_WALL_SECTION_COUNT).toBe(20);
-    expect(TOPOGRAPHY_WALL_ROTATION_RAD).toBeCloseTo(0.0742, 4);
-    expect(details.userData.topographyWall).toMatchObject({
-      lengthM: 200,
-      sectionCount: 20,
-      state: "preserved 1989/90 ruin with security fence",
-      traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
-    });
   });
 
   test("anchors the Bundestag Kita to OSM and LoD2 evidence", () => {

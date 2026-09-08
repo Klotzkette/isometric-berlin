@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.6 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.6/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.7 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.7/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,23 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.6** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.7** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.7 refines the Detlev-Rohwedder-Haus with source-bound wings,
+limestone facades, open courtyards and entrance fencing. The neighbouring
+Bundesrat receives its historic front and roof details. The Topography of
+Terror now follows the measured museum footprint with an open atrium,
+metal screen and current roof arrays; the surviving Wall and archaeological
+areas follow their mapped positions. All five modes include these details,
+with dedicated full/mobile Minecraft geometry.
+
+Version 1.0.7 präzisiert das Detlev-Rohwedder-Haus mit seinen langen Flügeln,
+Kalksteinfassaden, offenen Höfen und dem Eingangszaun. Der benachbarte
+Bundesrat erhält seine historische Front und Dachdetails. Bei der Topographie
+des Terrors stimmen Museumsgrundriss und offener Innenhof; Metallfassade,
+Solardach, Mauerrest und Ausgrabungsbereiche werden genauer dargestellt.
+Die Ergänzungen sind in allen fünf Darstellungen verfügbar.
 
 Version 1.0.6 refines the Luisenstraße corridor from Charité to the Spree,
 with separate facade families along Schumannstraße and Reinhardtstraße.
@@ -68,7 +83,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.6**, built from `main`. Its full viewer
+The current public package is **v1.0.7**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -1509,8 +1524,8 @@ local modules.
   Moltkebruecke; and the 17.3 x 2.0 m timber suspension Loewenbruecke with its
   four bronzed lions. The interim Bundespräsidialamt uses
   its current OSM bent-bar footprint instead of the former capsule/rectangle
-  approximation. Topography of Terror carries a 200 m damaged Wall-fragment
-  treatment aligned to the mapped trace, and Otto-Weidt-Platz keeps its actual
+  approximation. Topography of Terror retains its approximately 200 m Wall
+  remnant on the 195.800 m clipped official route, and Otto-Weidt-Platz keeps its actual
   fountain outline with a darker basin. These recognition details remain
   visible and co-located in Day, Night, Minecraft, Snowstorm and
   Schwellenraum.

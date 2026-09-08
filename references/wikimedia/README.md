@@ -218,3 +218,28 @@ comes from the Berlin monument inventory.
 | friedrichstadt-palast | [Exterior view of Friedrichstadtpalast, Berlin 04.jpg](https://commons.wikimedia.org/wiki/File:Exterior_view_of_Friedrichstadtpalast,_Berlin_04.jpg) | John Samuel | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | deutsches_theater | [Deutsches Theater Berlin 2024-05-09 01.jpg](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_01.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 | deutsches_theater | [Deutsches Theater Berlin 2024-05-09 03.jpg](https://commons.wikimedia.org/wiki/File:Deutsches_Theater_Berlin_2024-05-09_03.jpg) | Leonhard Lenz | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+
+## v1.0.7 external reference additions
+
+The following freely licensed photographs guide procedural facade, roof and
+site recognition only. No image, photograph crop or texture is bundled.
+
+| Site | Reference | Author | License |
+|---|---|---|---|
+| bundesrat | [Berlin, Mitte, Leipziger Strasse, Bundesrat 01.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Leipziger_Strasse,_Bundesrat_01.jpg) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| bundesrat | [Berlin Hi-Flyer Sept14 views10.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Hi-Flyer_Sept14_views10.jpg) | A.Savin | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| bundesrat | [Christmas tree Bundesrat Berlin-Mitte 2025-12-18 01.jpg](https://commons.wikimedia.org/wiki/File:Christmas_tree_Bundesrat_Berlin-Mitte_2025-12-18_01.jpg) | Leonhard Lenz | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| bundesrat | [Vista del Bundesrat desde el hotel de enfrente 01.jpg](https://commons.wikimedia.org/wiki/File:Vista_del_Bundesrat_desde_el_hotel_de_enfrente_01.jpg) | Luis Alvaz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| detlev_rohwedder_haus | [Berlin, Mitte, Wilhelmstraße, Detlev-Rohwedder-Haus.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Wilhelmstra%C3%9Fe,_Detlev-Rohwedder-Haus.jpg) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| detlev_rohwedder_haus | [Berlin-Detlev-Rohwedder-Haus-Bundesfinanzministerium-02-2023-gje X.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Detlev-Rohwedder-Haus-Bundesfinanzministerium-02-2023-gje_X.jpg) | Gerd Eichmann | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| detlev_rohwedder_haus | [Detlev-Rohwedder-Haus Luftaufnahme.jpg](https://commons.wikimedia.org/wiki/File:Detlev-Rohwedder-Haus_Luftaufnahme.jpg) | Gavailer | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| detlev_rohwedder_haus | [Detlev-Rohwedder-Haus exterior 2.JPG](https://commons.wikimedia.org/wiki/File:Detlev-Rohwedder-Haus_exterior_2.JPG) | BrokenSphere | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| detlev_rohwedder_haus | [Rohwedder-Haus Fenstergitter 2013-08-29 ama fec (2).JPG](https://commons.wikimedia.org/wiki/File:Rohwedder-Haus_Fenstergitter_2013-08-29_ama_fec_(2).JPG) | Monika Angela Arnold (=44penguins) | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) |
+| detlev_rohwedder_haus | [Federal Ministry of Finance.jpg](https://commons.wikimedia.org/wiki/File:Federal_Ministry_of_Finance.jpg) | Magnus Manske | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| detlev_rohwedder_haus | [Panoramafoto Reichsluftfahrtministerium 2017.jpg](https://commons.wikimedia.org/wiki/File:Panoramafoto_Reichsluftfahrtministerium_2017.jpg) | Maddriver371 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| topography_of_terror | [BERLIN WALL (TOPOGRAPHIE DES TERRORS).jpg](https://commons.wikimedia.org/wiki/File:BERLIN_WALL_(TOPOGRAPHIE_DES_TERRORS).jpg) | Vedha242424 | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| topography_of_terror | [Dokumentationszentrum Topographie des Terrors.jpg](https://commons.wikimedia.org/wiki/File:Dokumentationszentrum_Topographie_des_Terrors.jpg) | Josef Streichholz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| topography_of_terror | [Exterior of the Topography of Terror building GLAM.jpg](https://commons.wikimedia.org/wiki/File:Exterior_of_the_Topography_of_Terror_building_GLAM.jpg) | Moleskine | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| topography_of_terror | [Topo 1285w.jpg](https://commons.wikimedia.org/wiki/File:Topo_1285w.jpg) | Marco van Oel | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| topography_of_terror | [Topographie des Terrors 0206.jpg](https://commons.wikimedia.org/wiki/File:Topographie_des_Terrors_0206.jpg) | Dosseman | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| topography_of_terror | [Topographie des Terrors Aerial view.JPG](https://commons.wikimedia.org/wiki/File:Topographie_des_Terrors_Aerial_view.JPG) | Hans G. Oberlack | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |

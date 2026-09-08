@@ -723,6 +723,48 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   estimates; promotional poster artwork and photographs are not reproduced.
   See [Palast evidence](docs/friedrichstadt-palast-refinement.md).
 
+- **Detlev-Rohwedder-Haus / Federal Ministry of Finance:** the
+  [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095987)
+  and [ministry's architectural history](https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Video-Textfassungen/Geschichte/textfassung-detlev-rohwedder-haus.html)
+  supplement the exact Berlin LoD2 parts and OSM relation `280070`.
+  Limestone evidence takes precedence over the conflicting OSM marble tag;
+  both sources remain recorded. Window subdivisions, roof equipment, arcade
+  depth and fence height are procedural display estimates. Seven credited
+  photographs by Jörg Zägel, Gerd Eichmann, Gavailer, BrokenSphere, Monika
+  Angela Arnold, Magnus Manske and Maddriver371 guide exterior recognition.
+  No historical removed emblems, photograph textures or mural reproductions
+  are included. See [source contract](docs/rohwedder-haus-refinement.md).
+
+- **Bundesrat / former Prussian House of Lords:** the
+  [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096003),
+  [Bundesrat building account](https://www.bundesrat.de/DE/bundesrat/gebaeude/gebaeude-node.html)
+  and [BBR art inventory](https://www.museum-der-1000-orte.de/kunstwerke/kunstwerk/o-t-plastik)
+  supplement all four LoD2 parts under `DEBE01YYK00005AI`. The current front
+  retains Otto Lessing's pediment relief and Per Kirkeby's eight bronze works
+  in simplified procedural silhouette. Source-absent roof and pediment details
+  are labelled display supplements. Photographs by Jörg Zägel, A.Savin,
+  Leonhard Lenz and Luis Alvaz plus official DOP 2025 guide the geometry;
+  no sculpture scans or photograph textures are distributed. See
+  [source contract](docs/bundesrat-refinement.md).
+
+- **Topography of Terror:** the [institution's site history](https://www.topographie.de/ueber-den-ort/geschichte-nach-1945)
+  and [site tour](https://www.topographie.de/ausstellungen/gelaenderundgang)
+  supplement the exact LoD2 museum and OSM archaeological-site outlines.
+  Architecture is credited to Ursula Wilms / Heinle, Wischer und Partner;
+  landscape design to Heinz W. Hallmann. The surviving Wall follows official
+  Vorderlandmauer line 85 clipped to the OSM remnant's endpoints. Its roughly
+  196 m measured route and published approximate 200 m length are kept
+  distinct. Current rooftop arrays follow DOP 2025. Photographs by Vedha242424,
+  Josef Streichholz, Moleskine, Marco van Oel, Dosseman and Hans G. Oberlack
+  guide material and facade recognition. Mauer chips, canopy subdivisions
+  and local excavation relief are display estimates. No exhibition texts,
+  historical reconstruction plans or photographs are reproduced. See
+  [source contract](docs/topography-terror-refinement.md).
+
+All v1.0.7 free-photo links, authors and licences are listed in the
+[reference inventory](references/wikimedia/README.md#v107-external-reference-additions)
+and mirrored in the packaged viewer attribution manifest.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published
