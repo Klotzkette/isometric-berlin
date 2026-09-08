@@ -1,3 +1,4 @@
+import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
 import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt } from "./SovietMemorialSource";
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
@@ -3137,6 +3138,7 @@ function ensureIsoWorld(
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             sovietMemorialSolidAt(x,y,z,radius) ||
             bismarckMoltkeSolidAt(x,y,z,radius) ||
+            fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
             // pedestrianPointIsBlocked already supplies seven capsule body
             // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
@@ -3618,6 +3620,7 @@ function ensureVoxelWorld(
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             sovietMemorialSolidAt(x,y,z,radius) ||
             bismarckMoltkeSolidAt(x,y,z,radius) ||
+            fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
             // The navigation sampler already carries the capsule radius.
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||

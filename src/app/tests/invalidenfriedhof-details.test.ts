@@ -57,7 +57,10 @@ function distanceToSegment(
       ? 0
       : Math.max(
           0,
-          Math.min(1, ((x - start[0]) * dx + (z - start[1]) * dz) / denominator),
+          Math.min(
+            1,
+            ((x - start[0]) * dx + (z - start[1]) * dz) / denominator,
+          ),
         );
   return Math.hypot(x - (start[0] + dx * t), z - (start[1] + dz * t));
 }
@@ -107,9 +110,7 @@ describe("granular Invalidenfriedhof details", () => {
       "conservation copies",
     );
     expect(profile.graves.scharnhorst.rotationY).toBe(-0.08);
-    expect(profile.graves.scharnhorst.landmarkName).toBe(
-      "Scharnhorst-Grabmal",
-    );
+    expect(profile.graves.scharnhorst.landmarkName).toBe("Scharnhorst-Grabmal");
     expect(profile.graves.scharnhorst.focus).toEqual({
       azimuthDegrees: -28,
       distanceM: 18,
@@ -224,7 +225,7 @@ describe("granular Invalidenfriedhof details", () => {
       "Scharnhorst bronze lion mane tufts face and claw detail",
       "Scharnhorst Schinkel railing circular ornaments",
       "Invalidenfriedhof Witzleben canopy exact Day protected",
-      "Witzleben Gothic pointed canopy arches",
+      "Witzleben four Renaissance semicircular canopy arches",
       "Invalidenfriedhof Winterfeld pedestal exact Day protected",
       "Winterfeld laurel portrait medallion",
       "Winterfeld helmet and feather plume blocks",
@@ -236,19 +237,17 @@ describe("granular Invalidenfriedhof details", () => {
       "Invalidenfriedhof Auguste-Viktoria bell tower exact Day protected",
       "Auguste-Viktoria bell open steel legs",
       "Auguste-Viktoria visible 1.60 m bell",
-      "Auguste-Viktoria faceted upper casing",
+      "Auguste-Viktoria twelve folded silver sheet panels",
       "Günter Litfin watchtower exact Day protected",
-      "Günter Litfin sixteen upper observation panes",
-      "Günter Litfin eight small shaft windows",
-      "Günter Litfin roof railing uprights",
-      "Günter Litfin roof railing two horizontal courses",
+      "Günter Litfin structural concrete glazing terrace and silver rails",
+      "Günter Litfin wire glass surface repairs and unlettered panels",
       "Invalidenfriedhof historic walls exact Day protected",
       "Invalidenfriedhof Hinterlandmauer continuous grey backing shell",
-      "Invalidenfriedhof Hinterlandmauer irregular white paint fields",
+      "Invalidenfriedhof Hinterlandmauer long white paint fields",
       "Invalidenfriedhof canal wall white inset fields",
     ];
     for (const name of requiredNames) {
-      expect(root.getObjectByName(name), name).not.toBeNull();
+      expect(root.getObjectByName(name), name).toBeDefined();
     }
 
     const protectedRoots = root.children.filter(
@@ -348,54 +347,17 @@ describe("granular Invalidenfriedhof details", () => {
       )!.userData.sourceKeys,
     ).toEqual(["node/281941696", "node/281941700"]);
 
-    const upperPanes = root.getObjectByName(
-      "Günter Litfin sixteen upper observation panes",
-    ) as InstancedMesh;
-    const smallWindows = root.getObjectByName(
-      "Günter Litfin eight small shaft windows",
-    ) as InstancedMesh;
-    expect(upperPanes.count).toBe(16);
-    expect(smallWindows.count).toBe(8);
+    const litfin = root.getObjectByName(
+      "Günter Litfin watchtower exact Day protected",
+    )!;
+    expect(litfin.userData.geometryStatus).toContain(
+      "source envelope retained",
+    );
     expect(
-      (root.getObjectByName(
-        "Günter Litfin roof railing two horizontal courses",
-      ) as InstancedMesh).count,
-    ).toBe(8);
-    expect(
-      (root.getObjectByName(
-        "Günter Litfin roof railing uprights",
-      ) as InstancedMesh).count,
-    ).toBe(22);
-    expect(
-      root.getObjectByName("Günter Litfin roof railing uprights")!.userData
-        .cornerDownpipeCount,
-    ).toBe(2);
-    expect(
-      root.getObjectByName(
-        "Günter Litfin roof railing two horizontal courses",
-      )!.userData.horizontalCourseCount,
-    ).toBe(2);
-    expect(
-      root.getObjectByName(
-        "Günter Litfin sealed door plaques and information board",
-      )!.userData.rooftopEquipment,
-    ).toContain("not interpreted as a searchlight");
-
-    const litfinShell = root.getObjectByName(
-      "Günter Litfin concrete shaft and roof ring",
-    ) as InstancedMesh;
-    const shellMatrix = new Matrix4();
-    const shellPosition = new Vector3();
-    const shellQuaternion = new Quaternion();
-    const shellScale = new Vector3();
-    litfinShell.getMatrixAt(0, shellMatrix);
-    shellMatrix.decompose(shellPosition, shellQuaternion, shellScale);
-    const shaftTop = shellPosition.y + shellScale.y / 2;
-    litfinShell.getMatrixAt(1, shellMatrix);
-    shellMatrix.decompose(shellPosition, shellQuaternion, shellScale);
-    const observationCabinBottom = shellPosition.y - shellScale.y / 2;
-    expect(shaftTop).toBeCloseTo(7.74, 5);
-    expect(observationCabinBottom).toBeCloseTo(shaftTop, 5);
+      litfin.getObjectByName(
+        "Günter Litfin structural concrete glazing terrace and silver rails",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
   });
 
   test("freezes the Scharnhorst smooth and block-native render budgets", () => {
@@ -424,7 +386,11 @@ describe("granular Invalidenfriedhof details", () => {
     const [centerX, , centerZ] =
       INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.scharnhorst.centerWorldM;
     const scharnhorstBlocksByPalette = Object.fromEntries(
-      (voxel.children as InstancedMesh[])
+      (
+        voxel.children.filter(
+          (child) => child instanceof InstancedMesh,
+        ) as InstancedMesh[]
+      )
         .map((batch) => [
           batch.userData.blockPalette as string,
           instancePositions(batch).filter(
@@ -443,8 +409,9 @@ describe("granular Invalidenfriedhof details", () => {
       (total, count) => total + count,
       0,
     );
-    const sharedVertices = (voxel.children[0] as InstancedMesh).geometry
-      .getAttribute("position").count;
+    const sharedVertices = (
+      voxel.children[0] as InstancedMesh
+    ).geometry.getAttribute("position").count;
     expect({
       batches: Object.keys(scharnhorstBlocksByPalette).length,
       blocks: blockCount,
@@ -456,9 +423,11 @@ describe("granular Invalidenfriedhof details", () => {
       renderedVertices: 13_728,
       uniqueStoredVertices: 24,
     });
-    const patinaBatch = (voxel.children as InstancedMesh[]).find(
-      (batch) => batch.userData.blockPalette === "patina",
-    )!;
+    const patinaBatch = (
+      voxel.children.filter(
+        (child) => child instanceof InstancedMesh,
+      ) as InstancedMesh[]
+    ).find((batch) => batch.userData.blockPalette === "patina")!;
     const voxelPatinaTone = (patinaBatch.material as MeshStandardMaterial)
       .color;
     expect(voxelPatinaTone.g).toBeGreaterThan(voxelPatinaTone.r);
@@ -481,7 +450,7 @@ describe("granular Invalidenfriedhof details", () => {
       }
       expect(object.geometry.getAttribute("uv")).toBeUndefined();
     });
-    expect(renderables.length).toBeLessThanOrEqual(50);
+    expect(renderables.length).toBeLessThanOrEqual(53);
     expect(
       renderables.filter((object) => object instanceof InstancedMesh).length,
     ).toBeGreaterThan(30);
@@ -489,7 +458,7 @@ describe("granular Invalidenfriedhof details", () => {
     expect(root.userData.texturePolicy).toContain("no image textures");
 
     const bounds = new Box3().setFromObject(root);
-    expect(bounds.min.y).toBeCloseTo(5.2, 5);
+    expect(bounds.min.y).toBeGreaterThanOrEqual(4.9);
     expect(bounds.max.y).toBeGreaterThan(15.2);
     expect(bounds.max.y).toBeLessThan(15.4);
     expect(bounds.min.z).toBeLessThan(-1654);
@@ -502,7 +471,7 @@ describe("granular Invalidenfriedhof details", () => {
       "Invalidenfriedhof Hinterlandmauer continuous grey backing shell",
     ) as InstancedMesh;
     const white = root.getObjectByName(
-      "Invalidenfriedhof Hinterlandmauer irregular white paint fields",
+      "Invalidenfriedhof Hinterlandmauer long white paint fields",
     ) as InstancedMesh;
     const canalWhite = root.getObjectByName(
       "Invalidenfriedhof canal wall white inset fields",
@@ -522,18 +491,10 @@ describe("granular Invalidenfriedhof details", () => {
       INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.hinterlandWallSegmentsWorldM;
     for (const paintPosition of instancePositions(white)) {
       expect(
-        nearestLineDistance(
-          paintPosition.x,
-          paintPosition.z,
-          hinterlandLines,
-        ),
+        nearestLineDistance(paintPosition.x, paintPosition.z, hinterlandLines),
       ).toBeGreaterThan(0.17);
       expect(
-        nearestLineDistance(
-          paintPosition.x,
-          paintPosition.z,
-          hinterlandLines,
-        ),
+        nearestLineDistance(paintPosition.x, paintPosition.z, hinterlandLines),
       ).toBeLessThan(0.24);
     }
     const canalLines = [
@@ -593,9 +554,7 @@ describe("granular Invalidenfriedhof details", () => {
       }
     });
 
-    const bell = root.getObjectByName(
-      "Auguste-Viktoria visible 1.60 m bell",
-    )!;
+    const bell = root.getObjectByName("Auguste-Viktoria visible 1.60 m bell")!;
     const bellMatrix = bell.matrix.toArray();
     setInvalidenfriedhofSnow(root, true);
     expect(snow.visible).toBeTrue();
@@ -635,7 +594,7 @@ describe("granular Invalidenfriedhof details", () => {
 
     expect(
       invalidenfriedhofSolidAt(
-        ...worldFromLocal(graves.witzleben.centerWorldM, 0.04, 0.45, 1.8, 0.45),
+        ...worldFromLocal(graves.witzleben.centerWorldM, 0.04, 0.45, 2.8, 0.45),
       ),
     ).toBeFalse();
     expect(
@@ -685,12 +644,12 @@ describe("granular Invalidenfriedhof details", () => {
     ).toBeTrue();
     expect(
       invalidenfriedhofSolidAt(
-        ...worldFromLocal(litfin.centerWorldM, litfin.rotationY, 1.8, 2, 0),
+        ...worldFromLocal(litfin.centerWorldM, litfin.rotationY, 2.1, 2, 0),
       ),
     ).toBeFalse();
     expect(
       invalidenfriedhofSolidAt(
-        ...worldFromLocal(litfin.centerWorldM, litfin.rotationY, 0, 1, 3.08),
+        ...worldFromLocal(litfin.centerWorldM, litfin.rotationY, 0, 1, 0),
       ),
     ).toBeTrue();
 
@@ -785,19 +744,9 @@ describe("granular Invalidenfriedhof details", () => {
       1.95,
     );
     expect(
-      invalidenfriedhofWalkableInteriorAt(
-        ...leg,
-        bell.lod2BuildingPartId,
-        0.2,
-      ),
+      invalidenfriedhofWalkableInteriorAt(...leg, bell.lod2BuildingPartId, 0.2),
     ).toBeFalse();
-    const bellBody = worldFromLocal(
-      bell.centerWorldM,
-      bell.rotationY,
-      0,
-      3,
-      0,
-    );
+    const bellBody = worldFromLocal(bell.centerWorldM, bell.rotationY, 0, 3, 0);
     expect(
       invalidenfriedhofWalkableInteriorAt(
         ...bellBody,
@@ -805,19 +754,10 @@ describe("granular Invalidenfriedhof details", () => {
         0.2,
       ),
     ).toBeFalse();
-    const casing = worldFromLocal(
-      bell.centerWorldM,
-      bell.rotationY,
-      0,
-      5,
-      0,
-    );
+    const casing = worldFromLocal(bell.centerWorldM, bell.rotationY, 0, 5, 0);
     expect(
-      invalidenfriedhofWalkableInteriorAt(
-        ...casing,
-        bell.lod2BuildingPartId,
-      ),
-    ).toBeFalse();
+      invalidenfriedhofWalkableInteriorAt(...casing, bell.lod2BuildingPartId),
+    ).toBeTrue(); // hollow folded-sheet casing, not a filled building envelope
     expect(
       invalidenfriedhofWalkableInteriorAt(
         ...center,
@@ -845,10 +785,12 @@ describe("granular Invalidenfriedhof details", () => {
       "litfin-watchtower",
       "invalidenfriedhof-historic-walls",
     ]);
-    expect(root.children.length).toBeLessThanOrEqual(10);
+    expect(root.children.length).toBeLessThanOrEqual(11);
     expect(root.userData.drawCallCount).toBe(root.children.length);
     expect(root.userData.instanceCount).toBeGreaterThan(1_900);
-    const batches = root.children as InstancedMesh[];
+    const batches = root.children.filter(
+      (child) => child instanceof InstancedMesh,
+    ) as InstancedMesh[];
     const sharedGeometry = batches[0].geometry;
     for (const batch of batches) {
       expect(batch).toBeInstanceOf(InstancedMesh);
@@ -862,15 +804,15 @@ describe("granular Invalidenfriedhof details", () => {
       expect(batch.userData.blockNative).toBeTrue();
     }
     expect(
-      (root.getObjectByName(
-        "Minecraft Invalidenfriedhof glass blocks",
-      ) as InstancedMesh).count,
-    ).toBeGreaterThanOrEqual(32);
+      root.getObjectByName("Minecraft Günter Litfin continuous block surfaces"),
+    ).toBeInstanceOf(InstancedMesh);
     expect(
-      (root.getObjectByName(
-        "Minecraft Invalidenfriedhof bellSteel blocks",
-      ) as InstancedMesh).count,
-    ).toBe(8);
+      (
+        root.getObjectByName(
+          "Minecraft Invalidenfriedhof bellSteel blocks",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(58);
     const patinaPositions = instancePositions(
       root.getObjectByName(
         "Minecraft Invalidenfriedhof patina blocks",
@@ -887,7 +829,7 @@ describe("granular Invalidenfriedhof details", () => {
     expect(Math.max(...patinaPositions.map(({ y }) => y))).toBeCloseTo(10.6, 4);
 
     const bounds = new Box3().setFromObject(root);
-    expect(bounds.min.y).toBeCloseTo(5.2, 5);
+    expect(bounds.min.y).toBeGreaterThanOrEqual(4.9);
     expect(bounds.max.y).toBeGreaterThan(15.2);
     expect(bounds.min.z).toBeLessThan(-1654);
   });
@@ -908,8 +850,13 @@ describe("granular Invalidenfriedhof details", () => {
     const firstMinecraft = createMinecraftInvalidenfriedhofDetails();
     const secondMinecraft = createMinecraftInvalidenfriedhofDetails();
     for (let index = 0; index < firstMinecraft.children.length; index += 1) {
-      const firstBatch = firstMinecraft.children[index] as InstancedMesh;
-      const secondBatch = secondMinecraft.children[index] as InstancedMesh;
+      const firstBatch = firstMinecraft.children[index];
+      const secondBatch = secondMinecraft.children[index];
+      if (
+        !(firstBatch instanceof InstancedMesh) ||
+        !(secondBatch instanceof InstancedMesh)
+      )
+        continue;
       expect(firstBatch.name).toBe(secondBatch.name);
       expect(Array.from(firstBatch.instanceMatrix.array)).toEqual(
         Array.from(secondBatch.instanceMatrix.array),

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.8"
+PACKAGE_VERSION = "1.0.9"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,11 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.9: Heidestrasse und Otto-Weidt-Platz mit unterschiedlichen
+Gebaeudefassaden, Autobahn-Zentrale und korrigiertem KPMG-Sockel. 50Hertz
+erhaelt sein vollstaendiges Tragwerk und den fertigen Anbau. Invalidenfriedhof
+und Guenter-Litfin-Turm werden in allen Darstellungen genauer.
+
 Neu in v1.0.8: Schloss Bellevue und das permanente Bundespraesidialamt
 bekommen quellgebundene Daecher und eigene Fassaden. Bismarck und Moltke
 stehen an ihren richtigen Positionen und erhalten differenzierte Figuren.
@@ -3964,6 +3969,11 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.9: Heidestrasse and Otto-Weidt-Platz gain individual building
+facades, the Autobahn headquarters and the corrected KPMG podium. 50Hertz
+gains its complete structure and finished extension. Invalidenfriedhof
+and the Guenter Litfin tower gain accurate details in every visual mode.
 
 New in v1.0.8: Schloss Bellevue and the permanent presidential office gain
 source-bound roofs and individual facades. Bismarck and Moltke receive

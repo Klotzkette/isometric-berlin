@@ -1,3 +1,4 @@
+import { FIFTY_HERTZ_IDS, FIFTY_HERTZ_SOURCE, fiftyHertzRoofAt } from "./fiftyHertzProfile";
 import { BELLEVUE_IDS, BELLEVUE_OFFICE_ID, BELLEVUE_PROFILE, bellevueRoofTopAt } from "./bellevueProfile";
 import { BISMARCK_MOLTKE_PRISM_IDS } from "./bismarckMoltkeProfiles";
 import { BUNDESRAT_MAIN_ID, BUNDESRAT_TOP, BUNDESRAT_PROFILE, bundesratRoofTopAt } from "./bundesratProfile";
@@ -580,6 +581,14 @@ export function compilePedestrianObstacles(
           index.buildingCount += 1;
         }
       }
+      continue;
+    }
+    if (FIFTY_HERTZ_IDS.has(building.id)) {
+      const sourceTop = building.id === FIFTY_HERTZ_SOURCE.extension.id
+        ? (FIFTY_HERTZ_SOURCE.extension.y0_dm + FIFTY_HERTZ_SOURCE.extension.h_dm) / 10
+        : (building.y0_dm + building.h_dm) / 10;
+      addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10, sourceTop + 0.1, building.id, 0.1, (x, z) => fiftyHertzRoofAt(x, z, building.id) ?? sourceTop);
+      index.buildingCount += 1;
       continue;
     }
     if (BELLEVUE_IDS.has(building.id)) {

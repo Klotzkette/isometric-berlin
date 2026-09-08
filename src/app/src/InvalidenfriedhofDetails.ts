@@ -1,6 +1,8 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  Float32BufferAttribute,
+  DoubleSide,
   Color,
   CylinderGeometry,
   Group,
@@ -17,6 +19,13 @@ import {
   Vector2,
   Vector3,
 } from "three";
+
+import {
+  LITFIN_WATCHTOWER_PROFILE,
+  createLitfinWatchtower,
+  createMinecraftLitfinWatchtower,
+  litfinWatchtowerSolidAt,
+} from "./LitfinWatchtower";
 
 import { NORTHERN_CITY_PROFILE } from "./expandedCityProfiles";
 
@@ -52,7 +61,7 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
   modeContract:
     "Static exact-Day protected geometry in Day, Night, Snow and Schwellenraum; Minecraft uses separate block-native signatures for all five graves, both LoD2 structures and the historic walls",
   visualReferenceStatus:
-    "Owner-supplied field photographs are reference-only; no photograph, lettering, portrait or texture is redistributed",
+    "Owner-supplied field photographs and attributed Wikimedia images are reference-only; no photograph, lettering, portrait or texture is redistributed",
   graves: {
     scharnhorst: {
       artists: {
@@ -112,9 +121,9 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
       osmKey: "node/279219447",
       recognitionCues: [
         "green patinated base",
-        "four-column Gothic canopy",
-        "central figure",
-        "crowned finials",
+        "four-column Renaissance round-arch cast-iron canopy",
+        "female genius on a tall inscribed plinth",
+        "four crowned Prussian eagles above the pediments",
       ] as const,
       sourcePointWorldM: cemetery.graveWorldM[10],
     },
@@ -125,9 +134,9 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
       name: "Grabmal Hans Carl von Winterfeld",
       osmKey: "node/279219439",
       recognitionCues: [
-        "light rectangular pedestal",
+        "brown granite rectangular pedestal",
         "portrait medallion with laurel wreath",
-        "flat trophy and mantle crown",
+        "green bronze cuirass, drapery and trophy crown",
         "helmet with feather plume",
       ] as const,
       sourcePointWorldM: cemetery.graveWorldM[5],
@@ -182,31 +191,7 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
       "https://daten.berlin.de/datensaetze/3d-gebaudemodelle-im-level-of-detail-2-lod-2-3c7c49af",
     ] as const,
   },
-  litfinWatchtower: {
-    bodyHeightM: 8.946,
-    centerWorldM: [-107.991, 5.2, -1652.087] as const,
-    id: "litfin-watchtower",
-    lod2BuildingPartId: "1pC0000R",
-    lod2BuildingPartFullId: "DEBE01AL1pC0000R",
-    name: "Gedenkstätte Günter Litfin im ehemaligen Führungsturm Kieler Eck",
-    osmKey: "way/31347999",
-    osmWayId: "31347999",
-    railingHeightM: 1.05,
-    roofFootprintM: [4.15, 4.16] as const,
-    rotationY: 0.46,
-    shaftFootprintM: [3.0, 3.0] as const,
-    smallWindowCount: 8,
-    sourceUrl: "https://www.openstreetmap.org/way/31347999",
-    sourceUrls: [
-      "https://www.openstreetmap.org/way/31347999",
-      "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040270",
-      "https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-649714.php",
-      "https://www.stiftung-berliner-mauer.de/de/gedenkstaette-guenter-litfin",
-      "https://www.stiftung-berliner-mauer.de/sites/default/files/media/standorte/ggl/allgemein/220727_SBM_Basisflyer_GGL_DE_Web.pdf",
-      "https://daten.berlin.de/datensaetze/3d-gebaudemodelle-im-level-of-detail-2-lod-2-3c7c49af",
-    ] as const,
-    upperPaneCount: 16,
-  },
+  litfinWatchtower: LITFIN_WATCHTOWER_PROFILE,
   walls: {
     canalBrickWallWorldM: cemetery.canalBrickWallWorldM,
     cemeteryOsmWayId: cemetery.cemeteryOsmWayId,
@@ -215,8 +200,7 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
     // these new source-bound overlays above the cemetery surface.
     groundY: 5.2,
     hinterlandWallOsmWayIds: cemetery.hinterlandWallOsmWayIds,
-    hinterlandWallSegmentsWorldM:
-      cemetery.hinterlandWallSegmentsWorldM,
+    hinterlandWallSegmentsWorldM: cemetery.hinterlandWallSegmentsWorldM,
     sourceUrls: cemetery.sources,
   },
   renderingStrategy:
@@ -575,10 +559,7 @@ function addScharnhorstTomb(parent: Group): void {
       },
     ],
   );
-  stone.userData.materialSequence = [
-    "einheimischer Granit",
-    "Carrara-Marmor",
-  ];
+  stone.userData.materialSequence = ["einheimischer Granit", "Carrara-Marmor"];
   stone.userData.lionPlinthFinish = "weathered green bronze";
 
   const fine = new Group();
@@ -782,75 +763,162 @@ function addWitzlebenCanopy(parent: Group): void {
   grave.position.set(...profile.centerWorldM);
   grave.rotation.y = 0.04;
   markProtected(grave, [profile.osmKey]);
-  const green = material(COLORS.green, { metalness: 0.42, roughness: 0.63 });
+  grave.userData.architecture =
+    "Renaissance round arches, high cast-iron plinth, four crowned eagles; not Gothic";
+  const green = material(0x698b7a, { metalness: 0.42, roughness: 0.63 });
+  const columns: Transform[] = [];
+  for (const x of [-0.83, 0.83])
+    for (const z of [-0.83, 0.83]) {
+      columns.push({ position: [x, 3.12, z], scale: [0.14, 2.18, 0.14] });
+      for (const y of [2.05, 2.2, 2.9, 3.76, 3.92])
+        columns.push({ position: [x, y, z], scale: [0.23, 0.075, 0.23] });
+    }
   addInstances(
     grave,
-    "Witzleben green patinated base and Gothic columns",
+    "Witzleben green patinated base and Renaissance columns",
     new BoxGeometry(1, 1, 1),
     green,
     [
-      { position: [0, 0.11, 0], scale: [2.7, 0.22, 2.7] },
-      { position: [0, 0.53, 0], scale: [2.18, 0.62, 2.18] },
-      ...([-0.83, 0.83] as const).flatMap((x) =>
-        ([-0.83, 0.83] as const).map((z) => ({
-          position: [x, 2.25, z] as const,
-          scale: [0.16, 3.5, 0.16] as const,
-        })),
-      ),
+      { position: [0, 0.1, 0], scale: [2.7, 0.2, 2.7] },
+      { position: [0, 0.38, 0], scale: [2.25, 0.56, 2.25] },
+      { position: [0, 1.23, 0], scale: [1.96, 1.3, 1.96] },
+      { position: [0, 1.92, 0], scale: [2.26, 0.14, 2.26] },
+      { position: [0, 2.04, 0], scale: [2.4, 0.1, 2.4] },
+      { position: [0, 2.25, 0], scale: [0.65, 0.32, 0.65] },
+      ...columns,
     ],
   );
-  const canopySegments: Segment[] = [];
-  for (const z of [-0.83, 0.83]) {
-    canopySegments.push(
-      { start: [-0.83, 3.98, z], end: [0, 4.62, z], thickness: 0.11 },
-      { start: [0, 4.62, z], end: [0.83, 3.98, z], thickness: 0.11 },
-    );
+  const archTransforms: Transform[] = [];
+  for (const sign of [-1, 1]) {
+    archTransforms.push({ position: [0, 3.92, sign * 0.83] });
+    archTransforms.push({
+      position: [sign * 0.83, 3.92, 0],
+      rotation: [0, Math.PI / 2, 0],
+    });
   }
-  for (const x of [-0.83, 0.83]) {
-    canopySegments.push(
-      { start: [x, 3.98, -0.83], end: [x, 4.62, 0], thickness: 0.11 },
-      { start: [x, 4.62, 0], end: [x, 3.98, 0.83], thickness: 0.11 },
+  addInstances(
+    grave,
+    "Witzleben four Renaissance semicircular canopy arches",
+    new TorusGeometry(0.83, 0.095, 6, 18, Math.PI),
+    green,
+    archTransforms,
+  );
+  const roof: Segment[] = [];
+  for (const sign of [-1, 1]) {
+    roof.push(
+      {
+        start: [-0.94, 4.64, sign * 0.83],
+        end: [0, 5.0, sign * 0.83],
+        thickness: 0.14,
+      },
+      {
+        start: [0, 5.0, sign * 0.83],
+        end: [0.94, 4.64, sign * 0.83],
+        thickness: 0.14,
+      },
+    );
+    roof.push(
+      {
+        start: [sign * 0.83, 4.64, -0.94],
+        end: [sign * 0.83, 5.0, 0],
+        thickness: 0.14,
+      },
+      {
+        start: [sign * 0.83, 5.0, 0],
+        end: [sign * 0.83, 4.64, 0.94],
+        thickness: 0.14,
+      },
     );
   }
   addSegmentInstances(
     grave,
-    "Witzleben Gothic pointed canopy arches",
-    canopySegments,
+    "Witzleben open pediment canopy crown",
+    roof,
     green,
   );
-  addMesh(
+  const figures: Transform[] = [
+    { position: [0, 2.91, 0], scale: [0.26, 0.59, 0.2] },
+    { position: [0, 3.46, 0], scale: [0.19, 0.28, 0.16] },
+    { position: [0, 3.81, 0], scale: [0.14, 0.19, 0.14] },
+    {
+      position: [-0.21, 3.43, 0],
+      rotation: [0, 0, -0.35],
+      scale: [0.085, 0.28, 0.08],
+    },
+    {
+      position: [0.22, 3.42, 0.09],
+      rotation: [0, 0, 0.6],
+      scale: [0.08, 0.3, 0.09],
+    },
+  ];
+  // Four outward-facing birds, centred above the four pediments, not a spike.
+  for (let side = 0; side < 4; side++) {
+    const angle = (side * Math.PI) / 2,
+      co = Math.cos(angle),
+      si = Math.sin(angle);
+    const place = (
+      x: number,
+      y: number,
+      z: number,
+      scale: readonly [number, number, number],
+      tilt = 0,
+    ): Transform => ({
+      position: [x * co + z * si, y, -x * si + z * co],
+      rotation: [0, angle, tilt],
+      scale,
+    });
+    figures.push(
+      place(0, 5.24, 0.83, [0.13, 0.22, 0.11]),
+      place(0, 5.48, 0.83, [0.09, 0.13, 0.09]),
+      place(-0.23, 5.35, 0.83, [0.12, 0.33, 0.06], -0.5),
+      place(0.23, 5.35, 0.83, [0.12, 0.33, 0.06], 0.5),
+    );
+  }
+  addInstances(
     grave,
-    "Witzleben patinated canopy crown",
-    new CylinderGeometry(0, 1.38, 1.12, 4),
+    "Witzleben female genius and four crowned eagle silhouettes",
+    new IcosahedronGeometry(1, 1),
     green,
-    [0, 4.7, 0],
-  ).rotation.y = Math.PI / 4;
-
+    figures,
+  );
   const fine = new Group();
   fine.name = "Invalidenfriedhof Witzleben canopy fine detail";
   fine.userData.detailFadeM = [60, 150];
+  const rings: Transform[] = [];
+  for (const t of archTransforms)
+    for (const x of [-0.52, 0.52])
+      rings.push({
+        position: [
+          t.position[0] + (t.rotation ? 0 : x),
+          4.53,
+          t.position[2] + (t.rotation ? x : 0),
+        ],
+        rotation: t.rotation,
+        scale: [0.16, 0.16, 0.16],
+      });
   addInstances(
     fine,
-    "Witzleben canopy crowned finials",
-    new CylinderGeometry(0, 0.14, 0.42, 5),
-    material(COLORS.greenDark, { metalness: 0.45, roughness: 0.62 }),
-    [
-      { position: [-0.84, 4.35, -0.84] },
-      { position: [0.84, 4.35, -0.84] },
-      { position: [-0.84, 4.35, 0.84] },
-      { position: [0.84, 4.35, 0.84] },
-      { position: [0, 5.42, 0], scale: [1.25, 1.25, 1.25] },
-    ],
+    "Witzleben pierced cast-iron scrollwork",
+    new TorusGeometry(1, 0.18, 5, 12, Math.PI * 1.65),
+    green,
+    rings,
   );
+  const ornaments: Transform[] = [];
+  for (const x of [-0.83, 0.83])
+    for (const z of [-0.83, 0.83])
+      ornaments.push({ position: [x, 4.88, z], scale: [0.09, 0.32, 0.09] });
+  for (const side of [-1, 1])
+    for (let k = 0; k < 9; k++)
+      ornaments.push({
+        position: [(k - 4) * 0.18, 1.23, side * 0.99],
+        scale: [0.05, 0.04, 0.025],
+      });
   addInstances(
     fine,
-    "Witzleben central standing bronze figure",
-    new CylinderGeometry(0.17, 0.25, 1, 8),
-    material(COLORS.bronzeDark, { metalness: 0.5, roughness: 0.58 }),
-    [
-      { position: [0, 1.42, 0], scale: [1, 1.62, 1] },
-      { position: [0, 2.4, 0], scale: [0.72, 0.35, 0.72] },
-    ],
+    "Witzleben corner pinnacles and plinth relief marks",
+    new BoxGeometry(1, 1, 1),
+    green,
+    ornaments,
   );
   grave.add(fine);
   parent.add(grave);
@@ -867,14 +935,22 @@ function addWinterfeldPedestal(parent: Group): void {
     grave,
     "Winterfeld light pedestal and trophy crown",
     new BoxGeometry(1, 1, 1),
-    material(COLORS.marble),
+    material(0x8d8274),
     [
       { position: [0, 0.11, 0], scale: [2.8, 0.22, 2.1] },
       { position: [0, 0.34, 0], scale: [2.35, 0.24, 1.75] },
       { position: [0, 1.63, 0], scale: [1.82, 2.34, 1.36] },
       { position: [0, 2.91, 0], scale: [2.04, 0.22, 1.55] },
-      { position: [-0.5, 3.19, 0], rotation: [0, 0, -0.18], scale: [1.15, 0.3, 1.18] },
-      { position: [0.5, 3.19, 0], rotation: [0, 0, 0.18], scale: [1.15, 0.3, 1.18] },
+      {
+        position: [-0.5, 3.19, 0],
+        rotation: [0, 0, -0.18],
+        scale: [1.15, 0.3, 1.18],
+      },
+      {
+        position: [0.5, 3.19, 0],
+        rotation: [0, 0, 0.18],
+        scale: [1.15, 0.3, 1.18],
+      },
     ],
   );
   const fine = new Group();
@@ -884,7 +960,7 @@ function addWinterfeldPedestal(parent: Group): void {
     fine,
     "Winterfeld laurel portrait medallion",
     new TorusGeometry(0.43, 0.1, 6, 20),
-    material(COLORS.marbleDark),
+    material(COLORS.bronzeDark),
     [0, 1.72, 0.705],
   );
   addMesh(
@@ -895,18 +971,38 @@ function addWinterfeldPedestal(parent: Group): void {
     [0, 1.72, 0.73],
   ).scale.set(0.25, 0.34, 0.05);
   addInstances(
-    fine,
+    grave,
     "Winterfeld helmet and feather plume blocks",
     new IcosahedronGeometry(1, 1),
-    material(COLORS.marbleDark),
+    material(COLORS.bronzeDark),
     [
-      { position: [0, 3.58, 0], scale: [0.5, 0.36, 0.44] },
+      { position: [0, 3.64, 0], scale: [0.48, 0.64, 0.35] },
+      {
+        position: [-0.48, 3.54, 0],
+        rotation: [0, 0, -0.4],
+        scale: [0.24, 0.67, 0.3],
+      },
+      {
+        position: [0.48, 3.5, 0],
+        rotation: [0, 0, 0.4],
+        scale: [0.24, 0.62, 0.3],
+      },
       { position: [0.12, 3.95, 0], scale: [0.22, 0.5, 0.2] },
-      { position: [0.25, 4.34, 0], rotation: [0, 0, -0.25], scale: [0.18, 0.48, 0.16] },
-      { position: [0.42, 4.69, 0], rotation: [0, 0, -0.4], scale: [0.14, 0.4, 0.13] },
+      {
+        position: [0.25, 4.34, 0],
+        rotation: [0, 0, -0.25],
+        scale: [0.18, 0.48, 0.16],
+      },
+      {
+        position: [0.42, 4.69, 0],
+        rotation: [0, 0, -0.4],
+        scale: [0.14, 0.4, 0.13],
+      },
     ],
   );
   fine.userData.letteringPolicy = "no photographed inscription reproduced";
+  // The source record specifies the same Schinkel enclosure family as Scharnhorst.
+  addRectangularFence(fine, "Winterfeld Schinkel", 1.7, 1.45, 1.2);
   grave.add(fine);
   parent.add(grave);
 }
@@ -948,10 +1044,7 @@ function addVonRauchGrave(parent: Group): void {
   grave.name = "Invalidenfriedhof Familie von Rauch grave exact Day protected";
   grave.position.set(...profile.centerWorldM);
   grave.rotation.y = 0.16;
-  markProtected(grave, [
-    profile.osmKey,
-    ...profile.absorbedGenericOsmKeys,
-  ]);
+  markProtected(grave, [profile.osmKey, ...profile.absorbedGenericOsmKeys]);
   const yellow = material(COLORS.sandstone);
   addInstances(
     grave,
@@ -978,7 +1071,7 @@ function addVonRauchGrave(parent: Group): void {
   fine.name = "Invalidenfriedhof Familie von Rauch arch fine detail";
   fine.userData.detailFadeM = [55, 135];
   addInstances(
-    fine,
+    grave,
     "Familie von Rauch white memorial cross",
     new BoxGeometry(1, 1, 1),
     material(COLORS.marble),
@@ -997,8 +1090,36 @@ function addVonRauchGrave(parent: Group): void {
       { position: [1.48, 3.68, 1.08], scale: [0.22, 0.28, 0.2] },
     ],
   );
+  const familyCrosses: Transform[] = [];
+  for (const x of [-1.3, 1.3]) {
+    familyCrosses.push(
+      { position: [x, 0.41, -0.45], scale: [0.58, 0.58, 0.52] },
+      { position: [x, 1.48, -0.45], scale: [0.13, 1.55, 0.13] },
+      { position: [x, 1.82, -0.45], scale: [0.82, 0.13, 0.13] },
+    );
+  }
+  addInstances(
+    grave,
+    "Familie von Rauch neighbouring marble crosses",
+    new BoxGeometry(1, 1, 1),
+    material(COLORS.marble),
+    familyCrosses,
+  );
+  addSegmentInstances(
+    grave,
+    "Familie von Rauch pediment and side coping",
+    [
+      { start: [-0.94, 3.96, 1.08], end: [0, 4.28, 1.08], thickness: 0.13 },
+      { start: [0, 4.28, 1.08], end: [0.94, 3.96, 1.08], thickness: 0.13 },
+    ],
+    yellow,
+  );
   grave.add(fine);
   parent.add(grave);
+}
+
+function bellHalfWidth(y: number): number {
+  return 2.05 - (Math.max(0, Math.min(10.044, y)) / 10.044) * 0.64;
 }
 
 function addAugusteViktoriaBell(parent: Group): void {
@@ -1012,39 +1133,101 @@ function addAugusteViktoriaBell(parent: Group): void {
     profile.osmKey,
     `LoD2/${profile.lod2BuildingPartFullId}`,
   ]);
-  const steel = material(COLORS.rail, { metalness: 0.58, roughness: 0.52 });
+  tower.userData.panelContract =
+    "square tapered galvanised frame with three folded-sheet tiers, twelve panels; no diamond concrete shaft";
+  const steel = material(0xaebbc0, { metalness: 0.65, roughness: 0.42 });
   const legs: Segment[] = [];
-  for (const x of [-2.05, 2.05]) {
-    for (const z of [-2.05, 2.05]) {
+  for (const x of [-1, 1])
+    for (const z of [-1, 1])
       legs.push({
-        start: [x, 0.08, z],
-        end: [x * 0.78, 4.35, z * 0.78],
-        thickness: 0.16,
+        start: [x * 2.05, 0.08, z * 2.05],
+        end: [x * bellHalfWidth(10.044), 10.044, z * bellHalfWidth(10.044)],
+        thickness: 0.17,
       });
-    }
-  }
   addSegmentInstances(
     tower,
     "Auguste-Viktoria bell open steel legs",
     legs,
     steel,
   );
+  const rails: Transform[] = [];
+  for (const y of [3.0, 4.65, 6.42, 8.19, 9.99]) {
+    const h = bellHalfWidth(y);
+    for (const sign of [-1, 1])
+      rails.push(
+        { position: [0, y, sign * h], scale: [h * 2, 0.1, 0.1] },
+        { position: [sign * h, y, 0], scale: [0.1, 0.1, h * 2] },
+      );
+  }
+  for (const x of [-1, 1])
+    for (const z of [-1, 1])
+      rails.push({
+        position: [x * 2.05, 0.08, z * 2.05],
+        scale: [0.55, 0.16, 0.55],
+      });
   addInstances(
     tower,
     "Auguste-Viktoria bell lower frame rails",
     new BoxGeometry(1, 1, 1),
     steel,
-    [
-      { position: [0, 4.22, -1.62], scale: [3.24, 0.17, 0.17] },
-      { position: [0, 4.22, 1.62], scale: [3.24, 0.17, 0.17] },
-      { position: [-1.62, 4.22, 0], scale: [0.17, 0.17, 3.24] },
-      { position: [1.62, 4.22, 0], scale: [0.17, 0.17, 3.24] },
-    ],
+    rails,
   );
-
-  const fine = new Group();
-  fine.name = "Invalidenfriedhof Auguste-Viktoria bell tower fine detail";
-  fine.userData.detailFadeM = [75, 190];
+  const braces: Segment[] = [];
+  for (const side of [-1, 1])
+    for (const x of [-1, 1])
+      braces.push({
+        start: [x * 1.73, 3.0, side * bellHalfWidth(3)],
+        end: [x * 0.36, 4.56, side * bellHalfWidth(4.56)],
+        thickness: 0.12,
+      });
+  addSegmentInstances(
+    tower,
+    "Auguste-Viktoria bell trapezoidal suspension braces",
+    braces,
+    steel,
+  );
+  // Twelve shallow folded quadrilateral sheets; the central fold is geometric.
+  const vertices: number[] = [];
+  const colors: number[] = [];
+  for (let side = 0; side < 4; side++)
+    for (let tier = 0; tier < 3; tier++) {
+      const y0 = 4.76 + tier * 1.77,
+        y1 = Math.min(9.94, y0 + 1.64),
+        h0 = bellHalfWidth(y0) - 0.08,
+        h1 = bellHalfWidth(y1) - 0.08;
+      const rotate = (x: number, y: number, z: number): number[] => {
+        const co = Math.cos((side * Math.PI) / 2),
+          si = Math.sin((side * Math.PI) / 2);
+        return [x * co + z * si, y, -x * si + z * co];
+      };
+      const q = [
+        rotate(-h0, y0, h0),
+        rotate(h0, y0, h0),
+        rotate(h1, y1, h1),
+        rotate(-h1, y1, h1),
+      ];
+      const mid = rotate(0, (y0 + y1) / 2, (h0 + h1) / 2 + 0.055);
+      for (let face = 0; face < 4; face++) {
+        vertices.push(...q[face], ...q[(face + 1) % 4], ...mid);
+        const color = new Color([0x7c949f, 0x91a8b2, 0xa2b6bc, 0x879ea8][face]);
+        for (let k = 0; k < 3; k++) colors.push(color.r, color.g, color.b);
+      }
+    }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  addMesh(
+    tower,
+    "Auguste-Viktoria twelve folded silver sheet panels",
+    geometry,
+    new MeshStandardMaterial({
+      vertexColors: true,
+      side: DoubleSide,
+      metalness: 0.55,
+      roughness: 0.5,
+    }),
+  );
   const bellProfile = [
     new Vector2(0.18, 0.82),
     new Vector2(0.28, 0.66),
@@ -1056,231 +1239,26 @@ function addAugusteViktoriaBell(parent: Group): void {
     new Vector2(0.2, -0.82),
   ];
   addMesh(
-    fine,
+    tower,
     "Auguste-Viktoria visible 1.60 m bell",
     new LatheGeometry(bellProfile, 24),
     material(COLORS.castSteel, { metalness: 0.66, roughness: 0.5 }),
-    [0, 3.27, 0],
+    [0, 3.68, 0],
   );
   addInstances(
-    fine,
+    tower,
     "Auguste-Viktoria bell yoke and clapper",
     new CylinderGeometry(0.1, 0.1, 1, 8),
-    material(COLORS.bronzeDark, { metalness: 0.56, roughness: 0.5 }),
+    material(COLORS.bronzeDark),
     [
-      { position: [0, 4.32, 0], rotation: [0, 0, Math.PI / 2], scale: [1, 2.7, 1] },
-      { position: [0, 2.35, 0], scale: [0.72, 0.88, 0.72] },
+      {
+        position: [0, 4.59, 0],
+        rotation: [0, 0, Math.PI / 2],
+        scale: [1, 2.7, 1],
+      },
+      { position: [0, 2.91, 0], scale: [0.72, 0.75, 0.72] },
     ],
   );
-  tower.add(fine);
-
-  addMesh(
-    tower,
-    "Auguste-Viktoria faceted upper casing",
-    new CylinderGeometry(1.72, 2.05, 5.42, 4, 3, false),
-    material(COLORS.concrete, { metalness: 0.3, roughness: 0.68 }),
-    [0, 7.08, 0],
-  );
-  const casingDiagonals: Segment[] = [];
-  for (const side of [-1, 1]) {
-    for (let tier = 0; tier < 3; tier += 1) {
-      const y0 = 4.45 + tier * 1.7;
-      const y1 = y0 + 1.55;
-      const radius = 1.98 - tier * 0.1;
-      casingDiagonals.push(
-        {
-          start: [-radius, y0, side * radius],
-          end: [radius, y1, side * radius],
-          thickness: 0.055,
-        },
-        {
-          start: [side * radius, y0, -radius],
-          end: [side * radius, y1, radius],
-          thickness: 0.055,
-        },
-      );
-    }
-  }
-  addSegmentInstances(
-    tower,
-    "Auguste-Viktoria faceted casing diagonal seams",
-    casingDiagonals,
-    steel,
-  );
-  addMesh(
-    tower,
-    "Auguste-Viktoria bell tower top cap",
-    new BoxGeometry(3.5, 0.16, 3.5),
-    material(COLORS.concreteDark),
-    [0, profile.measuredHeightM - 0.08, 0],
-  );
-  parent.add(tower);
-}
-
-function addLitfinWatchtower(parent: Group): void {
-  const profile = INVALIDENFRIEDHOF_DETAIL_PROFILE.litfinWatchtower;
-  const tower = new Group();
-  tower.name = "Günter Litfin watchtower exact Day protected";
-  tower.position.set(...profile.centerWorldM);
-  tower.rotation.y = profile.rotationY;
-  markProtected(tower, [
-    profile.osmKey,
-    `LoD2/${profile.lod2BuildingPartFullId}`,
-  ]);
-  const concrete = material(COLORS.concrete, { roughness: 0.94 });
-  addInstances(
-    tower,
-    "Günter Litfin concrete shaft and roof ring",
-    new BoxGeometry(1, 1, 1),
-    concrete,
-    [
-      { position: [0, 3.87, 0], scale: [3, 7.74, 3] },
-      { position: [0, 8.32, 0], scale: [3.2, 1.16, 3.2] },
-      {
-        position: [0, profile.bodyHeightM - 0.14, 0],
-        scale: [profile.roofFootprintM[0], 0.28, profile.roofFootprintM[1]],
-      },
-    ],
-  );
-  addInstances(
-    tower,
-    "Günter Litfin concrete lift seams",
-    new BoxGeometry(1, 1, 1),
-    material(COLORS.concreteDark),
-    [2.45, 4.82, 7.18].flatMap((y) => [
-      { position: [0, y, 1.505] as const, scale: [3.0, 0.045, 0.025] as const },
-      { position: [1.505, y, 0] as const, scale: [0.025, 0.045, 3.0] as const },
-    ]),
-  );
-
-  const fine = new Group();
-  fine.name = "Günter Litfin watchtower fine detail";
-  fine.userData.detailFadeM = [85, 210];
-  const glass = material(COLORS.glass, { metalness: 0.18, roughness: 0.5 });
-  const upperPanes: Transform[] = [];
-  for (let index = 0; index < 4; index += 1) {
-    const offset = -1.12 + index * 0.745;
-    upperPanes.push(
-      { position: [offset, 8.24, 1.612], scale: [0.59, 0.78, 0.035] },
-      { position: [offset, 8.24, -1.612], scale: [0.59, 0.78, 0.035] },
-      { position: [1.612, 8.24, offset], scale: [0.035, 0.78, 0.59] },
-      { position: [-1.612, 8.24, offset], scale: [0.035, 0.78, 0.59] },
-    );
-  }
-  addInstances(
-    fine,
-    "Günter Litfin sixteen upper observation panes",
-    new BoxGeometry(1, 1, 1),
-    glass,
-    upperPanes,
-  );
-  const smallWindows: Transform[] = [];
-  for (const offset of [-0.72, 0.72]) {
-    smallWindows.push(
-      { position: [offset, 3.48, 1.512], scale: [0.47, 0.28, 0.03] },
-      { position: [offset, 3.48, -1.512], scale: [0.47, 0.28, 0.03] },
-      { position: [1.512, 3.48, offset], scale: [0.03, 0.28, 0.47] },
-      { position: [-1.512, 3.48, offset], scale: [0.03, 0.28, 0.47] },
-    );
-  }
-  addInstances(
-    fine,
-    "Günter Litfin eight small shaft windows",
-    new BoxGeometry(1, 1, 1),
-    glass,
-    smallWindows,
-  );
-  const litfinFixtures = addInstances(
-    fine,
-    "Günter Litfin sealed door plaques and information board",
-    new BoxGeometry(1, 1, 1),
-    material(COLORS.concreteDark),
-    [
-      { position: [0.64, 1.03, 1.515], scale: [0.92, 2.06, 0.05] },
-      { position: [-0.58, 2.32, 1.525], scale: [0.78, 0.58, 0.04] },
-      { position: [0, 1.38, 3.08], scale: [2.32, 1.16, 0.09] },
-      { position: [-0.92, 0.65, 3.08], scale: [0.08, 1.3, 0.08] },
-      { position: [0.92, 0.65, 3.08], scale: [0.08, 1.3, 0.08] },
-      {
-        position: [0.52, profile.bodyHeightM + 0.24, 0.1],
-        rotation: [-0.32, 0.28, 0],
-        scale: [0.72, 0.07, 0.46],
-      },
-      {
-        position: [0.52, profile.bodyHeightM + 0.1, 0.1],
-        scale: [0.1, 0.28, 0.1],
-      },
-    ],
-  );
-  litfinFixtures.userData.rooftopEquipment =
-    "small static inclined dish/technical silhouette; not interpreted as a searchlight";
-  fine.userData.letteringPolicy =
-    "unlettered relief plates; no photographed text reproduced";
-  tower.add(fine);
-
-  const railingMaterial = material(COLORS.rail, {
-    metalness: 0.58,
-    roughness: 0.52,
-  });
-  const railingHeight = profile.railingHeightM;
-  const railingPosts: Transform[] = perimeterPosts(
-    1.82,
-    1.825,
-    0.72,
-    railingHeight,
-  ).map(
-    (post) => ({
-      position: [
-        post.position[0],
-        profile.bodyHeightM + railingHeight / 2,
-        post.position[2],
-      ] as const,
-    }),
-  );
-  railingPosts.push(
-    {
-      position: [-1.44, profile.bodyHeightM / 2, -1.515],
-      scale: [1.6, profile.bodyHeightM / railingHeight, 1.6],
-    },
-    {
-      position: [1.44, profile.bodyHeightM / 2, -1.515],
-      scale: [1.6, profile.bodyHeightM / railingHeight, 1.6],
-    },
-  );
-  const railingUprights = addInstances(
-    tower,
-    "Günter Litfin roof railing uprights",
-    new CylinderGeometry(0.025, 0.025, railingHeight, 6),
-    railingMaterial,
-    railingPosts,
-  );
-  railingUprights.userData.railingPostCount = railingPosts.length - 2;
-  railingUprights.userData.cornerDownpipeCount = 2;
-  const railingCourses = addInstances(
-    tower,
-    "Günter Litfin roof railing two horizontal courses",
-    new BoxGeometry(1, 1, 1),
-    railingMaterial,
-    [0.52, railingHeight].flatMap((height) => [
-      {
-        position: [0, profile.bodyHeightM + height, -1.825] as const,
-        scale: [3.64, 0.045, 0.045] as const,
-      },
-      {
-        position: [0, profile.bodyHeightM + height, 1.825] as const,
-        scale: [3.64, 0.045, 0.045] as const,
-      },
-      {
-        position: [-1.82, profile.bodyHeightM + height, 0] as const,
-        scale: [0.045, 0.045, 3.65] as const,
-      },
-      {
-        position: [1.82, profile.bodyHeightM + height, 0] as const,
-        scale: [0.045, 0.045, 3.65] as const,
-      },
-    ]),
-  );
-  railingCourses.userData.horizontalCourseCount = 2;
   parent.add(tower);
 }
 
@@ -1313,6 +1291,19 @@ function segmentBoxes(
   return transforms;
 }
 
+const CANAL_PIER_POSITIONS = segmentBoxes(
+  INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.canalBrickWallWorldM,
+  5.2,
+  0,
+  1,
+  1,
+  0.78,
+).map((field) => ({
+  x: field.position[0] - Math.cos(field.rotation![1]) * field.scale![0] * 0.53,
+  z: field.position[2] + Math.sin(field.rotation![1]) * field.scale![0] * 0.53,
+  yaw: field.rotation![1],
+}));
+
 function addWallRefinements(parent: Group): void {
   const profile = INVALIDENFRIEDHOF_DETAIL_PROFILE.walls;
   const walls = new Group();
@@ -1331,43 +1322,25 @@ function addWallRefinements(parent: Group): void {
     new BoxGeometry(1, 1, 1),
     material(COLORS.wallGrey),
     profile.hinterlandWallSegmentsWorldM.flatMap((segment) =>
-      segmentBoxes(
-        segment,
-        10_000,
-        profile.groundY + 1.7,
-        3.4,
-        0.34,
-      ),
+      segmentBoxes(segment, 10_000, profile.groundY + 1.7, 3.4, 0.34),
     ),
   );
 
   const hinterlandPanels = profile.hinterlandWallSegmentsWorldM.flatMap(
     (segment) =>
-      segmentBoxes(
-        segment,
-        3.15,
-        profile.groundY + 1.62,
-        2.66,
-        0.045,
-        0.22,
-      ),
+      segmentBoxes(segment, 6.3, profile.groundY + 1.78, 2.08, 0.035, 0.42),
   );
   addInstances(
     fine,
-    "Invalidenfriedhof Hinterlandmauer irregular white paint fields",
+    "Invalidenfriedhof Hinterlandmauer long white paint fields",
     new BoxGeometry(1, 1, 1),
     material(COLORS.paintWhite),
-    hinterlandPanels.map((panel, index) => ({
+    hinterlandPanels.map((panel) => ({
       ...panel,
       position: [
-        panel.position[0] + Math.sin(panel.rotation![1]) * 0.205,
-        panel.position[1] + ((index % 4) - 1.5) * 0.025,
-        panel.position[2] + Math.cos(panel.rotation![1]) * 0.205,
-      ],
-      scale: [
-        panel.scale![0] * [0.9, 0.72, 0.84, 0.95][index % 4],
-        panel.scale![1] * [0.94, 0.8, 0.89][index % 3],
-        panel.scale![2],
+        panel.position[0] + Math.sin(panel.rotation![1]) * 0.193,
+        panel.position[1],
+        panel.position[2] + Math.cos(panel.rotation![1]) * 0.193,
       ],
     })),
   );
@@ -1377,21 +1350,16 @@ function addWallRefinements(parent: Group): void {
     new BoxGeometry(1, 1, 1),
     material(COLORS.wallGrey),
     profile.hinterlandWallSegmentsWorldM.flatMap((segment) =>
-      segmentBoxes(
-        segment,
-        3.15,
-        profile.groundY + 1.7,
-        3.4,
-        0.045,
-        3.03,
-      ).map((joint) => ({
-        ...joint,
-        position: [
-          joint.position[0] + Math.sin(joint.rotation![1]) * 0.232,
-          joint.position[1],
-          joint.position[2] + Math.cos(joint.rotation![1]) * 0.232,
-        ],
-      })),
+      segmentBoxes(segment, 3.15, profile.groundY + 1.7, 3.4, 0.045, 3.03).map(
+        (joint) => ({
+          ...joint,
+          position: [
+            joint.position[0] + Math.sin(joint.rotation![1]) * 0.232,
+            joint.position[1],
+            joint.position[2] + Math.cos(joint.rotation![1]) * 0.232,
+          ],
+        }),
+      ),
     ),
   );
 
@@ -1433,9 +1401,13 @@ function addWallRefinements(parent: Group): void {
       ),
       ...canalFields.map((field) => ({
         position: [
-          field.position[0] - Math.cos(field.rotation![1]) * field.scale![0] * 0.53,
+          field.position[0] -
+            Math.sin(field.rotation![1]) * 0.265 -
+            Math.cos(field.rotation![1]) * field.scale![0] * 0.53,
           profile.groundY + 1.35,
-          field.position[2] + Math.sin(field.rotation![1]) * field.scale![0] * 0.53,
+          field.position[2] -
+            Math.cos(field.rotation![1]) * 0.265 +
+            Math.sin(field.rotation![1]) * field.scale![0] * 0.53,
         ] as const,
         rotation: field.rotation,
         scale: [0.32, 2.05, 0.52] as const,
@@ -1465,6 +1437,56 @@ function addWallRefinements(parent: Group): void {
       })),
     ),
   );
+  const pierCaps: Transform[] = [];
+  const brickJoints: Transform[] = [];
+  for (const field of canalFields) {
+    const yaw = field.rotation![1],
+      co = Math.cos(yaw),
+      si = Math.sin(yaw);
+    const x = field.position[0] - si * 0.265 - co * field.scale![0] * 0.53,
+      z = field.position[2] - co * 0.265 + si * field.scale![0] * 0.53;
+    pierCaps.push(
+      {
+        position: [x, profile.groundY + 2.42, z],
+        rotation: field.rotation,
+        scale: [0.56, 0.13, 0.64],
+      },
+      {
+        position: [x, profile.groundY + 2.65, z],
+        rotation: field.rotation,
+        scale: [0.34, 0.33, 0.42],
+      },
+      {
+        position: [x, profile.groundY + 2.88, z],
+        rotation: field.rotation,
+        scale: [0.48, 0.12, 0.56],
+      },
+    );
+    for (let row = 0; row < 8; row++)
+      brickJoints.push({
+        position: [
+          x + si * 0.275,
+          profile.groundY + 0.3 + row * 0.26,
+          z + co * 0.275,
+        ],
+        rotation: field.rotation,
+        scale: [0.32, 0.023, 0.025],
+      });
+  }
+  addInstances(
+    walls,
+    "Invalidenfriedhof historic brick pier capstones",
+    new BoxGeometry(1, 1, 1),
+    material(COLORS.wallBrickDark),
+    pierCaps,
+  );
+  addInstances(
+    fine,
+    "Invalidenfriedhof historic pier masonry joints",
+    new BoxGeometry(1, 1, 1),
+    material(0xb9aa94),
+    brickJoints,
+  );
   walls.add(fine);
   parent.add(walls);
 }
@@ -1474,7 +1496,7 @@ type VoxelPaletteKey =
   | "brick"
   | "concrete"
   | "dark"
-  | "glass"
+  | "sheet"
   | "ivy"
   | "marble"
   | "patina"
@@ -1486,7 +1508,7 @@ const VOXEL_COLORS: Readonly<Record<VoxelPaletteKey, number>> = {
   brick: 0x8c4d3c,
   concrete: 0xa19d92,
   dark: 0x2d3333,
-  glass: 0x456268,
+  sheet: 0x91a8b2,
   ivy: 0x486d3f,
   marble: 0xded8c9,
   patina: 0x5f9184,
@@ -1502,7 +1524,7 @@ function createVoxelBatches(): VoxelBatches {
     brick: [],
     concrete: [],
     dark: [],
-    glass: [],
+    sheet: [],
     ivy: [],
     marble: [],
     patina: [],
@@ -1717,54 +1739,55 @@ function addMinecraftGraves(batches: VoxelBatches): void {
   }
 
   const witzleben = graves.witzleben;
-  for (const x of [-0.9, 0, 0.9]) {
-    for (const z of [-0.9, 0, 0.9]) {
-      pushLocalVoxel(
-        batches,
-        "patina",
-        witzleben.centerWorldM,
-        0.04,
-        x,
-        0.3,
-        z,
-        0.6,
-      );
-    }
-  }
-  for (const x of [-0.9, 0.9]) {
-    for (const z of [-0.9, 0.9]) {
-      for (const y of [0.9, 1.5, 2.1, 2.7, 3.3, 3.9]) {
-        pushLocalVoxel(
-          batches,
-          "patina",
-          witzleben.centerWorldM,
-          0.04,
-          x,
-          y,
-          z,
-          0.6,
-        );
-      }
-    }
-  }
-  for (const [x, y, z] of [
-    [-0.9, 4.5, -0.9],
-    [0, 5.1, -0.9],
-    [0.9, 4.5, -0.9],
-    [-0.9, 4.5, 0.9],
-    [0, 5.1, 0.9],
-    [0.9, 4.5, 0.9],
-  ] as const) {
+  const wv = (
+    x: number,
+    y: number,
+    z: number,
+    size: number,
+    palette: VoxelPaletteKey = "patina",
+  ) =>
     pushLocalVoxel(
       batches,
-      "patina",
+      palette,
       witzleben.centerWorldM,
       0.04,
       x,
       y,
       z,
-      0.6,
+      size,
     );
+  for (let xi = -2; xi <= 2; xi++)
+    for (let zi = -2; zi <= 2; zi++)
+      for (let yi = 0; yi < 5; yi++)
+        wv(xi * 0.4, 0.2 + yi * 0.4, zi * 0.4, 0.4);
+  for (const x of [-0.84, 0.84])
+    for (const z of [-0.84, 0.84])
+      for (let yi = 0; yi < 11; yi++) wv(x, 2.1 + yi * 0.2, z, 0.2);
+  for (const side of [-1, 1])
+    for (let step = 0; step <= 12; step++) {
+      const angle = (step * Math.PI) / 12,
+        x = Math.cos(angle) * 0.83,
+        y = 3.92 + Math.sin(angle) * 0.83;
+      wv(x, y, side * 0.83, 0.2);
+      wv(side * 0.83, y, x, 0.2);
+    }
+  for (let yi = 0; yi < 7; yi++)
+    wv(0, 2.3 + yi * 0.24, 0, yi < 4 ? 0.38 : 0.27);
+  for (let side = 0; side < 4; side++) {
+    const angle = (side * Math.PI) / 2,
+      co = Math.cos(angle),
+      si = Math.sin(angle);
+    const bird = (x: number, y: number) =>
+      wv(x * co + 0.83 * si, y, -x * si + 0.83 * co, 0.16);
+    bird(0, 5.15);
+    bird(0, 5.31);
+    bird(0, 5.47);
+    for (const x of [-1, 1])
+      for (let k = 0; k < 3; k++) bird(x * (0.15 + k * 0.1), 5.22 + k * 0.13);
+    for (let k = -4; k <= 4; k++) {
+      const x = k * 0.21;
+      wv(x * co + 0.83 * si, 5 - Math.abs(x) * 0.38, -x * si + 0.83 * co, 0.2);
+    }
   }
 
   const winterfeld = graves.winterfeld;
@@ -1772,7 +1795,7 @@ function addMinecraftGraves(batches: VoxelBatches): void {
     for (const z of [-0.6, 0, 0.6]) {
       pushLocalVoxel(
         batches,
-        "marble",
+        "concrete",
         winterfeld.centerWorldM,
         -0.06,
         x,
@@ -1787,7 +1810,7 @@ function addMinecraftGraves(batches: VoxelBatches): void {
       for (const z of [-0.3, 0.3]) {
         pushLocalVoxel(
           batches,
-          "marble",
+          "concrete",
           winterfeld.centerWorldM,
           -0.06,
           x,
@@ -1801,7 +1824,7 @@ function addMinecraftGraves(batches: VoxelBatches): void {
   for (const x of [-0.6, 0, 0.6]) {
     pushLocalVoxel(
       batches,
-      "marble",
+      "concrete",
       winterfeld.centerWorldM,
       -0.06,
       x,
@@ -1812,8 +1835,10 @@ function addMinecraftGraves(batches: VoxelBatches): void {
   }
   for (const [x, y, z, palette] of [
     [0, 1.8, 0.6, "dark"],
-    [0, 3.9, 0, "marble"],
-    [0.3, 4.5, 0, "marble"],
+    [0, 3.9, 0, "patina"],
+    [-0.45, 3.6, 0, "patina"],
+    [0.45, 3.6, 0, "patina"],
+    [0.3, 4.5, 0, "patina"],
   ] as const) {
     pushLocalVoxel(
       batches,
@@ -1827,6 +1852,30 @@ function addMinecraftGraves(batches: VoxelBatches): void {
     );
   }
 
+  for (const sign of [-1, 1])
+    for (let k = -5; k <= 5; k++)
+      for (const y of [0.25, 0.75, 1.25]) {
+        pushLocalVoxel(
+          batches,
+          "dark",
+          winterfeld.centerWorldM,
+          -0.06,
+          k * 0.3,
+          y,
+          sign * 1.45,
+          0.14,
+        );
+        pushLocalVoxel(
+          batches,
+          "dark",
+          winterfeld.centerWorldM,
+          -0.06,
+          sign * 1.7,
+          y,
+          k * 0.26,
+          0.14,
+        );
+      }
   const kessel = graves.vonKessel;
   for (const x of [-1.2, -0.6, 0, 0.6, 1.2]) {
     for (const z of [-0.6, 0, 0.6]) {
@@ -1887,11 +1936,11 @@ function addMinecraftGraves(batches: VoxelBatches): void {
     }
   }
   for (const [x, y] of [
-    [-1.2, 3.9],
-    [-0.6, 4.5],
-    [0, 4.8],
-    [0.6, 4.5],
-    [1.2, 3.9],
+    [-0.9, 3.6],
+    [-0.6, 3.9],
+    [0, 4.1],
+    [0.6, 3.9],
+    [0.9, 3.6],
   ] as const) {
     pushLocalVoxel(
       batches,
@@ -1911,220 +1960,163 @@ function addMinecraftGraves(batches: VoxelBatches): void {
     [-0.6, 2.1],
     [0.6, 2.1],
   ] as const) {
-    pushLocalVoxel(
-      batches,
-      "white",
-      rauch.centerWorldM,
-      0.16,
-      x,
-      y,
-      0.3,
-      0.6,
-    );
+    pushLocalVoxel(batches, "white", rauch.centerWorldM, 0.16, x, y, 0.3, 0.6);
+  }
+  for (const side of [-1, 1]) {
+    for (let k = 0; k < 7; k++)
+      pushLocalVoxel(
+        batches,
+        "white",
+        rauch.centerWorldM,
+        0.16,
+        side * 1.3,
+        0.4 + k * 0.3,
+        -0.45,
+        0.22,
+      );
+    for (let k = -1; k <= 1; k++)
+      pushLocalVoxel(
+        batches,
+        "white",
+        rauch.centerWorldM,
+        0.16,
+        side * 1.3 + k * 0.28,
+        1.82,
+        -0.45,
+        0.22,
+      );
   }
 }
 
 function addMinecraftBell(batches: VoxelBatches): void {
   const bell = INVALIDENFRIEDHOF_DETAIL_PROFILE.augusteViktoriaBell;
-  const block = 0.5;
-  for (const xSign of [-1, 1]) {
-    for (const zSign of [-1, 1]) {
-      for (let level = 0; level < 8; level += 1) {
-        const fraction = level / 7;
-        pushLocalVoxel(
-          batches,
-          "dark",
-          bell.centerWorldM,
-          bell.rotationY,
-          xSign * (2 - fraction * 0.4),
-          0.25 + level * block,
-          zSign * (2 - fraction * 0.4),
-          block,
-        );
+  const place = (
+    palette: VoxelPaletteKey,
+    x: number,
+    y: number,
+    z: number,
+    sx: number,
+    sy: number,
+    sz: number,
+  ) =>
+    batches[palette].push({
+      position: localVoxelPosition(bell.centerWorldM, bell.rotationY, x, y, z),
+      rotation: [0, bell.rotationY, 0],
+      scale: [sx, sy, sz],
+    });
+  for (const xs of [-1, 1])
+    for (const zs of [-1, 1])
+      for (let i = 0; i < 40; i++) {
+        const y = 0.125 + i * 0.25,
+          h = bellHalfWidth(y);
+        place("white", xs * h, y, zs * h, 0.22, 0.25, 0.22);
       }
+  for (const y of [3, 4.65, 6.42, 8.19, 9.99]) {
+    const h = bellHalfWidth(y);
+    for (const sign of [-1, 1]) {
+      place("white", 0, y, sign * h, h * 2, 0.12, 0.14);
+      place("white", sign * h, y, 0, 0.14, 0.12, h * 2);
     }
   }
-  for (const [x, y, z] of [
-    [0, 2.25, 0],
-    [-0.5, 2.75, 0],
-    [0, 2.75, 0],
-    [0.5, 2.75, 0],
-    [-0.5, 3.25, 0],
-    [0, 3.25, 0],
-    [0.5, 3.25, 0],
-    [0, 3.75, 0],
-  ] as const) {
-    pushLocalVoxel(
-      batches,
-      "bellSteel",
-      bell.centerWorldM,
-      bell.rotationY,
-      x,
-      y,
-      z,
-      block,
-    );
-  }
-  for (let level = 0; level < 11; level += 1) {
-    const y = 4.25 + level * block;
-    const half = level < 6 ? 2 : 1.5;
-    for (let step = -Math.round(half / block); step <= Math.round(half / block); step += 1) {
-      const offset = step * block;
-      for (const [x, z] of [
-        [offset, -half],
-        [offset, half],
-        [-half, offset],
-        [half, offset],
-      ] as const) {
-        pushLocalVoxel(
-          batches,
-          "concrete",
-          bell.centerWorldM,
-          bell.rotationY,
-          x,
-          y,
-          z,
-          block,
-        );
-      }
+  for (let level = 0; level < 21; level++) {
+    const y = 4.85 + level * 0.24,
+      h = bellHalfWidth(y) - 0.08;
+    for (const sign of [-1, 1]) {
+      place("sheet", 0, y, sign * h, h * 2, 0.24, 0.1);
+      place("sheet", sign * h, y, 0, 0.1, 0.24, h * 2);
     }
   }
-}
-
-function addMinecraftLitfinTower(batches: VoxelBatches): void {
-  const tower = INVALIDENFRIEDHOF_DETAIL_PROFILE.litfinWatchtower;
-  const block = 0.75;
-  for (let level = 0; level < 12; level += 1) {
-    const y = block / 2 + level * block;
-    for (const x of [-1.125, -0.375, 0.375, 1.125]) {
-      for (const z of [-1.125, -0.375, 0.375, 1.125]) {
-        let palette: VoxelPaletteKey = "concrete";
-        const onFacade = Math.abs(x) > 1 || Math.abs(z) > 1;
-        if (level >= 10 && onFacade) palette = "glass";
-        if (
-          level === 4 &&
-          onFacade &&
-          ((Math.abs(x) === 0.375 && Math.abs(z) > 1) ||
-            (Math.abs(z) === 0.375 && Math.abs(x) > 1))
-        ) {
-          palette = "glass";
-        }
-        pushLocalVoxel(
-          batches,
-          palette,
-          tower.centerWorldM,
-          tower.rotationY,
-          x,
-          y,
-          z,
-          block,
-        );
-      }
-    }
+  for (let level = 0; level < 6; level++) {
+    const y = 2.98 + level * 0.25,
+      r = 0.76 - level * 0.105;
+    for (let x = -2; x <= 2; x++)
+      for (let z = -2; z <= 2; z++)
+        if (Math.hypot(x * 0.3, z * 0.3) < r)
+          place("bellSteel", x * 0.3, y, z * 0.3, 0.3, 0.25, 0.3);
   }
-  for (const x of [-1.875, -1.125, -0.375, 0.375, 1.125, 1.875]) {
-    for (const z of [-1.875, 1.875]) {
-      pushLocalVoxel(
-        batches,
-        "concrete",
-        tower.centerWorldM,
-        tower.rotationY,
-        x,
-        9.0,
-        z,
-        block,
-      );
-    }
-  }
-  for (const z of [-1.125, -0.375, 0.375, 1.125]) {
-    for (const x of [-1.875, 1.875]) {
-      pushLocalVoxel(
-        batches,
-        "concrete",
-        tower.centerWorldM,
-        tower.rotationY,
-        x,
-        9.0,
-        z,
-        block,
-      );
-    }
-  }
-  const railBlock = 0.25;
-  for (const x of [-1.75, -1.25, -0.75, -0.25, 0.25, 0.75, 1.25, 1.75]) {
-    for (const z of [-1.75, 1.75]) {
-      for (const y of [9.4, 9.9]) {
-        pushLocalVoxel(
-          batches,
-          "dark",
-          tower.centerWorldM,
-          tower.rotationY,
-          x,
-          y,
-          z,
-          railBlock,
-        );
-      }
-    }
-  }
-  for (const z of [-1.25, -0.75, -0.25, 0.25, 0.75, 1.25]) {
-    for (const x of [-1.75, 1.75]) {
-      for (const y of [9.4, 9.9]) {
-        pushLocalVoxel(
-          batches,
-          "dark",
-          tower.centerWorldM,
-          tower.rotationY,
-          x,
-          y,
-          z,
-          railBlock,
-        );
-      }
-    }
-  }
+  place("dark", 0, 2.89, 0, 0.12, 0.56, 0.12);
+  place("dark", 0, 4.59, 0, 2.7, 0.18, 0.18);
 }
 
 function addMinecraftWalls(batches: VoxelBatches): void {
   const walls = INVALIDENFRIEDHOF_DETAIL_PROFILE.walls;
-  const addCourse = (
-    points: readonly WorldPoint2[],
-    rowCount: number,
-    paletteAt: (index: number, row: number) => VoxelPaletteKey,
-  ): void => {
-    let sampleIndex = 0;
-    for (let pointIndex = 0; pointIndex < points.length - 1; pointIndex += 1) {
-      const start = points[pointIndex];
-      const end = points[pointIndex + 1];
-      const dx = end[0] - start[0];
-      const dz = end[1] - start[1];
-      const length = Math.hypot(dx, dz);
-      const count = Math.max(1, Math.ceil(length / 1.2));
-      for (let index = 0; index < count; index += 1) {
-        const t = (index + 0.5) / count;
-        for (let row = 0; row < rowCount; row += 1) {
-          pushVoxel(
-            batches,
-            paletteAt(sampleIndex, row),
-            [
-              start[0] + dx * t,
-              walls.groundY + 0.55 + row * 1.1,
-              start[1] + dz * t,
-            ],
-            1.1,
-          );
-        }
-        sampleIndex += 1;
-      }
-    }
-  };
-  addCourse(walls.canalBrickWallWorldM, 2, (index, row) =>
-    row === 0 && index % 5 !== 0 ? "white" : "brick",
-  );
-  for (const segment of walls.hinterlandWallSegmentsWorldM) {
-    addCourse(segment, 3, (index, row) =>
-      row < 2 && index % 4 !== 0 ? "white" : "concrete",
+  // Thin rectangular block walls follow the exact OSM segments. The old 1.1 m
+  // cubes widened the wall beyond its physical collision and left sample gaps.
+  const put = (t: Transform, palette: VoxelPaletteKey) =>
+    batches[palette].push(t);
+  for (const t of segmentBoxes(
+    walls.canalBrickWallWorldM,
+    1.1,
+    walls.groundY + 1.08,
+    2.16,
+    0.46,
+  ))
+    put(t, "brick");
+  for (const t of segmentBoxes(
+    walls.canalBrickWallWorldM,
+    5.2,
+    walls.groundY + 1.38,
+    1.55,
+    0.05,
+    0.78,
+  )) {
+    const y = t.rotation![1],
+      co = Math.cos(y),
+      si = Math.sin(y);
+    put(
+      {
+        ...t,
+        position: [
+          t.position[0] + si * 0.26,
+          t.position[1],
+          t.position[2] + co * 0.26,
+        ],
+      },
+      "white",
     );
+    put(
+      {
+        position: [
+          t.position[0] - co * t.scale![0] * 0.53,
+          walls.groundY + 1.47,
+          t.position[2] + si * t.scale![0] * 0.53,
+        ],
+        rotation: t.rotation,
+        scale: [0.4, 2.94, 0.54],
+      },
+      "brick",
+    );
+  }
+  for (const t of segmentBoxes(
+    walls.canalBrickWallWorldM,
+    1.1,
+    walls.groundY + 2.28,
+    0.18,
+    0.5,
+  ))
+    put(t, "brick");
+  for (const segment of walls.hinterlandWallSegmentsWorldM) {
+    for (const t of segmentBoxes(segment, 1.05, walls.groundY + 1.7, 3.4, 0.34))
+      put(t, "concrete");
+    for (const t of segmentBoxes(
+      segment,
+      6.3,
+      walls.groundY + 1.78,
+      2.08,
+      0.035,
+      0.42,
+    ))
+      put(
+        {
+          ...t,
+          position: [
+            t.position[0] + Math.sin(t.rotation![1]) * 0.193,
+            t.position[1],
+            t.position[2] + Math.cos(t.rotation![1]) * 0.193,
+          ],
+        },
+        "white",
+      );
   }
 }
 
@@ -2132,7 +2124,9 @@ function addMinecraftWalls(batches: VoxelBatches): void {
  * Block-native Minecraft signatures for every authored ensemble. The shared
  * cube geometry and ten opaque palette batches replace all smooth primitives.
  */
-export function createMinecraftInvalidenfriedhofDetails(): Group {
+export function createMinecraftInvalidenfriedhofDetails(
+  options: { mobileLike?: boolean } = {},
+): Group {
   const root = new Group();
   root.name = "Minecraft Invalidenfriedhof block-native details";
   root.userData = {
@@ -2140,10 +2134,7 @@ export function createMinecraftInvalidenfriedhofDetails(): Group {
     geometryStatus:
       "source-bound stepped voxel signatures; exact LoD2/OSM anchors retained",
     motionPolicy: "static in Minecraft",
-    sourceFootprintOwnership: [
-      "litfin-watchtower",
-      "auguste-viktoria-bell",
-    ],
+    sourceFootprintOwnership: ["litfin-watchtower", "auguste-viktoria-bell"],
     signatureIds: [
       "scharnhorst-lion-tomb",
       "witzleben-green-canopy-tomb",
@@ -2159,7 +2150,6 @@ export function createMinecraftInvalidenfriedhofDetails(): Group {
   const batches = createVoxelBatches();
   addMinecraftGraves(batches);
   addMinecraftBell(batches);
-  addMinecraftLitfinTower(batches);
   addMinecraftWalls(batches);
   const sharedCube = new BoxGeometry(1, 1, 1);
   sharedCube.deleteAttribute("uv");
@@ -2171,8 +2161,7 @@ export function createMinecraftInvalidenfriedhofDetails(): Group {
       `Minecraft Invalidenfriedhof ${palette} blocks`,
       sharedCube,
       material(VOXEL_COLORS[palette], {
-        metalness:
-          palette === "bellSteel" || palette === "patina" ? 0.22 : 0,
+        metalness: palette === "bellSteel" || palette === "patina" ? 0.22 : 0,
         roughness: 0.86,
       }),
       transforms,
@@ -2180,10 +2169,14 @@ export function createMinecraftInvalidenfriedhofDetails(): Group {
     mesh.userData.blockPalette = palette;
     mesh.userData.blockNative = true;
   }
-  root.userData.instanceCount = Object.values(batches).reduce(
-    (total, transforms) => total + transforms.length,
-    0,
-  );
+  const litfin = createMinecraftLitfinWatchtower(options);
+  root.add(litfin);
+  root.userData.instanceCount =
+    litfin.userData.instanceCount +
+    Object.values(batches).reduce(
+      (total, transforms) => total + transforms.length,
+      0,
+    );
   root.userData.drawCallCount = root.children.length;
   return root;
 }
@@ -2231,9 +2224,21 @@ function addSnow(parent: Group): void {
       rotation: [0, graves.scharnhorst.rotationY, 0],
       scale: [0.62, 0.045, 0.66],
     },
-    { position: [30.23, 10.655, -1429.853], rotation: [0, 0.04, 0], scale: [1.7, 0.055, 1.7] },
-    { position: [15.239, 8.565, -1423.548], rotation: [0, -0.06, 0], scale: [2.05, 0.05, 1.56] },
-    { position: [49.102, 5.6, -1453.619], rotation: [-0.09, -0.12, 0], scale: [2.05, 0.045, 1.1] },
+    {
+      position: [30.23, 7.315, -1429.853],
+      rotation: [0, 0.04, 0],
+      scale: [2.4, 0.05, 2.4],
+    },
+    {
+      position: [15.239, 8.565, -1423.548],
+      rotation: [0, -0.06, 0],
+      scale: [2.05, 0.05, 1.56],
+    },
+    {
+      position: [49.102, 5.6, -1453.619],
+      rotation: [-0.09, -0.12, 0],
+      scale: [2.05, 0.045, 1.1],
+    },
     {
       position: localVoxelPosition(
         graves.vonRauch.centerWorldM,
@@ -2272,15 +2277,30 @@ function addSnow(parent: Group): void {
     new BoxGeometry(1, 1, 1),
     snowMaterial,
     [
-      {
-        position: [
-          bell.centerWorldM[0],
-          bell.centerWorldM[1] + bell.measuredHeightM + 0.025,
-          bell.centerWorldM[2],
-        ],
-        rotation: [0, bell.rotationY, 0],
-        scale: [3.52, 0.05, 3.52],
-      },
+      ...([-1, 1] as const).flatMap((sign) => [
+        {
+          position: localVoxelPosition(
+            bell.centerWorldM,
+            bell.rotationY,
+            0,
+            bell.measuredHeightM + 0.025,
+            sign * bellHalfWidth(10.044),
+          ),
+          rotation: [0, bell.rotationY, 0] as const,
+          scale: [2.88, 0.05, 0.13] as const,
+        },
+        {
+          position: localVoxelPosition(
+            bell.centerWorldM,
+            bell.rotationY,
+            sign * bellHalfWidth(10.044),
+            bell.measuredHeightM + 0.025,
+            0,
+          ),
+          rotation: [0, bell.rotationY, 0] as const,
+          scale: [0.13, 0.05, 2.88] as const,
+        },
+      ]),
       {
         position: [
           litfin.centerWorldM[0],
@@ -2288,7 +2308,11 @@ function addSnow(parent: Group): void {
           litfin.centerWorldM[2],
         ],
         rotation: [0, litfin.rotationY, 0],
-        scale: [litfin.roofFootprintM[0] + 0.03, 0.05, litfin.roofFootprintM[1] + 0.03],
+        scale: [
+          litfin.roofFootprintM[0] + 0.03,
+          0.05,
+          litfin.roofFootprintM[1] + 0.03,
+        ],
       },
     ],
   );
@@ -2324,11 +2348,28 @@ function addSnow(parent: Group): void {
     snowMaterial,
     hinterlandCaps,
   );
+  addInstances(
+    snow,
+    "Invalidenfriedhof historic brick pier snow caps",
+    new BoxGeometry(1, 1, 1),
+    snowMaterial,
+    CANAL_PIER_POSITIONS.map((pier) => ({
+      position: [
+        pier.x,
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.groundY + 2.965,
+        pier.z,
+      ],
+      rotation: [0, pier.yaw, 0],
+      scale: [0.5, 0.05, 0.58],
+    })),
+  );
   parent.add(snow);
 }
 
 /** Build the static source-bound Invalidenfriedhof recognition layer. */
-export function createInvalidenfriedhofDetails(): Group {
+export function createInvalidenfriedhofDetails(
+  options: { mobileLike?: boolean } = {},
+): Group {
   const root = new Group();
   root.name = "Invalidenfriedhof granular isometric details";
   root.userData = {
@@ -2347,7 +2388,12 @@ export function createInvalidenfriedhofDetails(): Group {
   addVonKesselGrave(root);
   addVonRauchGrave(root);
   addAugusteViktoriaBell(root);
-  addLitfinWatchtower(root);
+  const litfin = createLitfinWatchtower(options);
+  markProtected(litfin, [
+    LITFIN_WATCHTOWER_PROFILE.osmKey,
+    `LoD2/${LITFIN_WATCHTOWER_PROFILE.lod2BuildingPartFullId}`,
+  ]);
+  root.add(litfin);
   addWallRefinements(root);
   addSnow(root);
   return root;
@@ -2408,7 +2454,10 @@ function distanceToSegmentSquared(
       ? 0
       : Math.max(
           0,
-          Math.min(1, ((x - start[0]) * dx + (z - start[1]) * dz) / denominator),
+          Math.min(
+            1,
+            ((x - start[0]) * dx + (z - start[1]) * dz) / denominator,
+          ),
         );
   const closestX = start[0] + dx * t;
   const closestZ = start[1] + dz * t;
@@ -2417,10 +2466,7 @@ function distanceToSegmentSquared(
 
 function wallSolidAt(x: number, y: number, z: number, radius: number): boolean {
   const profile = INVALIDENFRIEDHOF_DETAIL_PROFILE.walls;
-  if (
-    y >= profile.groundY - radius &&
-    y <= profile.groundY + 2.5 + radius
-  ) {
+  if (y >= profile.groundY - radius && y <= profile.groundY + 2.5 + radius) {
     const canalRadiusSquared = (0.25 + radius) ** 2;
     const points = profile.canalBrickWallWorldM;
     for (let index = 0; index < points.length - 1; index += 1) {
@@ -2432,10 +2478,7 @@ function wallSolidAt(x: number, y: number, z: number, radius: number): boolean {
       }
     }
   }
-  if (
-    y >= profile.groundY - radius &&
-    y <= profile.groundY + 3.4 + radius
-  ) {
+  if (y >= profile.groundY - radius && y <= profile.groundY + 3.4 + radius) {
     const hinterlandRadiusSquared = (0.17 + radius) ** 2;
     for (const points of profile.hinterlandWallSegmentsWorldM) {
       for (let index = 0; index < points.length - 1; index += 1) {
@@ -2448,6 +2491,21 @@ function wallSolidAt(x: number, y: number, z: number, radius: number): boolean {
       }
     }
   }
+  if (y >= profile.groundY - radius && y <= profile.groundY + 2.95 + radius)
+    for (const pier of CANAL_PIER_POSITIONS) {
+      if (
+        withinOrientedBox(
+          x,
+          z,
+          [pier.x, profile.groundY, pier.z],
+          pier.yaw,
+          0.56,
+          0.64,
+          radius,
+        )
+      )
+        return true;
+    }
   return false;
 }
 
@@ -2520,30 +2578,29 @@ export function invalidenfriedhofSolidAt(
   const witzlebenY = y - graves.witzleben.centerWorldM[1];
   if (
     witzlebenY >= -bodyRadius &&
-    witzlebenY <= 0.85 + bodyRadius &&
-    Math.abs(witzlebenX) <= 1.38 + bodyRadius &&
-    Math.abs(witzlebenZ) <= 1.38 + bodyRadius
-  ) {
+    witzlebenY <= 2.09 + bodyRadius &&
+    Math.abs(witzlebenX) <= 1.2 + bodyRadius &&
+    Math.abs(witzlebenZ) <= 1.2 + bodyRadius
+  )
     return true;
-  }
   if (
-    witzlebenY >= 0.5 - bodyRadius &&
-    witzlebenY <= 4.2 + bodyRadius &&
-    ((Math.abs(Math.abs(witzlebenX) - 0.83) <= 0.14 + bodyRadius &&
-      Math.abs(Math.abs(witzlebenZ) - 0.83) <= 0.14 + bodyRadius) ||
-      witzlebenX * witzlebenX + witzlebenZ * witzlebenZ <=
-        (0.31 + bodyRadius) ** 2)
-  ) {
+    witzlebenY >= 2.09 - bodyRadius &&
+    witzlebenY <= 4.13 + bodyRadius &&
+    ((Math.abs(Math.abs(witzlebenX) - 0.83) <= 0.13 + bodyRadius &&
+      Math.abs(Math.abs(witzlebenZ) - 0.83) <= 0.13 + bodyRadius) ||
+      (Math.hypot(witzlebenX, witzlebenZ) <= 0.3 + bodyRadius &&
+        witzlebenY < 4.0 + bodyRadius))
+  )
     return true;
-  }
   if (
-    witzlebenY >= 3.82 - bodyRadius &&
-    witzlebenY <= 5.5 + bodyRadius &&
-    Math.abs(witzlebenX) <= 1.45 + bodyRadius &&
-    Math.abs(witzlebenZ) <= 1.45 + bodyRadius
-  ) {
+    witzlebenY >= 3.92 - bodyRadius &&
+    witzlebenY <= 5.6 + bodyRadius &&
+    ((Math.abs(Math.abs(witzlebenX) - 0.83) <= 0.17 + bodyRadius &&
+      Math.abs(witzlebenZ) <= 1.0 + bodyRadius) ||
+      (Math.abs(Math.abs(witzlebenZ) - 0.83) <= 0.17 + bodyRadius &&
+        Math.abs(witzlebenX) <= 1.0 + bodyRadius))
+  )
     return true;
-  }
 
   const [winterfeldX, winterfeldZ] = worldToLocal(
     x,
@@ -2571,12 +2628,21 @@ export function invalidenfriedhofSolidAt(
   if (
     winterfeldY >= 2.8 - bodyRadius &&
     winterfeldY <= 4.95 + bodyRadius &&
-    Math.abs(winterfeldX) <=
-      (winterfeldY < 3.5 ? 1.08 : 0.65) + bodyRadius &&
+    Math.abs(winterfeldX) <= (winterfeldY < 3.5 ? 1.08 : 0.65) + bodyRadius &&
     Math.abs(winterfeldZ) <= 0.82 + bodyRadius
   ) {
     return true;
   }
+
+  if (
+    winterfeldY >= -bodyRadius &&
+    winterfeldY <= 1.36 + bodyRadius &&
+    ((Math.abs(Math.abs(winterfeldX) - 1.7) <= 0.07 + bodyRadius &&
+      Math.abs(winterfeldZ) <= 1.45 + bodyRadius) ||
+      (Math.abs(Math.abs(winterfeldZ) - 1.45) <= 0.07 + bodyRadius &&
+        Math.abs(winterfeldX) <= 1.7 + bodyRadius))
+  )
+    return true;
 
   const [kesselX, kesselZ] = worldToLocal(
     x,
@@ -2666,78 +2732,46 @@ export function invalidenfriedhofSolidAt(
     return true;
   }
 
-  const litfin = INVALIDENFRIEDHOF_DETAIL_PROFILE.litfinWatchtower;
-  const [litfinX, litfinZ] = worldToLocal(
-    x,
-    z,
-    litfin.centerWorldM,
-    litfin.rotationY,
-  );
-  const litfinY = y - litfin.centerWorldM[1];
-  if (litfinY >= -bodyRadius && litfinY <= litfin.bodyHeightM + bodyRadius) {
-    const footprint =
-      litfinY >= litfin.bodyHeightM - 0.3
-        ? litfin.roofFootprintM
-        : litfin.shaftFootprintM;
+  for (const side of [-1, 1])
     if (
-      Math.abs(litfinX) <= footprint[0] / 2 + bodyRadius &&
-      Math.abs(litfinZ) <= footprint[1] / 2 + bodyRadius
-    ) {
+      Math.abs(rauchZ + 0.45) <= 0.26 + bodyRadius &&
+      ((rauchY <= 0.7 + bodyRadius &&
+        rauchY >= -bodyRadius &&
+        Math.abs(rauchX - side * 1.3) <= 0.29 + bodyRadius) ||
+        (rauchY <= 2.26 + bodyRadius &&
+          rauchY >= 0.7 - bodyRadius &&
+          Math.abs(rauchX - side * 1.3) <= 0.07 + bodyRadius) ||
+        (Math.abs(rauchY - 1.82) <= 0.07 + bodyRadius &&
+          Math.abs(rauchX - side * 1.3) <= 0.41 + bodyRadius))
+    )
       return true;
-    }
-  }
-  if (
-    litfinY >= litfin.bodyHeightM - bodyRadius &&
-    litfinY <=
-      litfin.bodyHeightM + litfin.railingHeightM + bodyRadius &&
-    ((Math.abs(Math.abs(litfinX) - 1.82) <= 0.06 + bodyRadius &&
-      Math.abs(litfinZ) <= 1.83 + bodyRadius) ||
-      (Math.abs(Math.abs(litfinZ) - 1.825) <= 0.06 + bodyRadius &&
-        Math.abs(litfinX) <= 1.83 + bodyRadius))
-  ) {
-    return true;
-  }
-  if (
-    litfinY >= -bodyRadius &&
-    litfinY <= 2.05 + bodyRadius &&
-    Math.abs(litfinX) <= 1.22 + bodyRadius &&
-    Math.abs(litfinZ - 3.08) <= 0.12 + bodyRadius
-  ) {
-    return true;
-  }
+
+  if (litfinWatchtowerSolidAt(x, y, z, bodyRadius)) return true;
 
   const bell = INVALIDENFRIEDHOF_DETAIL_PROFILE.augusteViktoriaBell;
   const [bellX, bellZ] = worldToLocal(x, z, bell.centerWorldM, bell.rotationY);
   const bellY = y - bell.centerWorldM[1];
   if (bellY >= -bodyRadius && bellY <= bell.measuredHeightM + bodyRadius) {
-    if (bellY >= 4.05 - bodyRadius) {
-      if (
-        Math.abs(bellX) <= bell.footprintM[0] / 2 + bodyRadius &&
-        Math.abs(bellZ) <= bell.footprintM[1] / 2 + bodyRadius
-      ) {
-        return true;
-      }
-    } else if (
-      bellY >= 2.15 - bodyRadius &&
-      bellY <= 4.25 + bodyRadius &&
-      bellX * bellX + bellZ * bellZ <= (0.92 + bodyRadius) ** 2
-    ) {
+    const half = bellHalfWidth(bellY);
+    if (
+      bellY >= 4.65 - bodyRadius &&
+      Math.max(Math.abs(bellX), Math.abs(bellZ)) <= half + 0.13 + bodyRadius &&
+      Math.max(Math.abs(bellX), Math.abs(bellZ)) >= half - 0.14 - bodyRadius
+    )
       return true;
-    } else {
-      const legInset = Math.min(1, Math.max(0, bellY / 4.25)) * 0.43;
-      for (const localX of [-2.05, 2.05]) {
-        for (const localZ of [-2.05, 2.05]) {
-          const legX = Math.sign(localX) * (2.05 - legInset);
-          const legZ = Math.sign(localZ) * (2.05 - legInset);
-          if (
-            (bellX - legX) ** 2 + (bellZ - legZ) ** 2 <=
-            (0.24 + bodyRadius) ** 2
-          ) {
-            return true;
-          }
-        }
-      }
-    }
+    if (
+      bellY >= 2.51 - bodyRadius &&
+      bellY <= 4.6 + bodyRadius &&
+      Math.hypot(bellX, bellZ) <= 0.8 + bodyRadius
+    )
+      return true;
+    for (const xs of [-1, 1])
+      for (const zs of [-1, 1])
+        if (
+          Math.hypot(bellX - xs * half, bellZ - zs * half) <=
+          0.17 + bodyRadius
+        )
+          return true;
   }
   return wallSolidAt(x, y, z, bodyRadius);
 }
@@ -2762,11 +2796,16 @@ export function invalidenfriedhofWalkableInteriorAt(
     return false;
   }
   const bodyRadius = Math.max(0, radius);
-  const [localX, localZ] = worldToLocal(x, z, bell.centerWorldM, bell.rotationY);
+  const [localX, localZ] = worldToLocal(
+    x,
+    z,
+    bell.centerWorldM,
+    bell.rotationY,
+  );
   const localY = y - bell.centerWorldM[1];
   if (
     localY < -bodyRadius ||
-    localY > 4.05 + bodyRadius ||
+    localY > bell.measuredHeightM + bodyRadius ||
     Math.abs(localX) > bell.footprintM[0] / 2 - bodyRadius ||
     Math.abs(localZ) > bell.footprintM[1] / 2 - bodyRadius
   ) {

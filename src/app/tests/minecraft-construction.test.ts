@@ -1,13 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.8 adds source-bound Bellevue and native Bismarck/Moltke details;
-// displaced legacy source columns are omitted at their exact recorded bands.
-// This synchronous baseline is checked against cooperative construction.
-// Hashes cover all geometry, index, colour and instance buffer capacity.
+// v1.0.9 refines the Heidestrasse facade families, complete 50Hertz complex,
+// cemetery and Litfin tower. Synchronous buffers are compared with cooperative
+// construction, including all geometry, colours and instance capacities.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "fb9af1459fac4a1c5e66216da8d18ee8636d1a4e16f9b7b70b3f03472b19dd24", 3658571, 82, 279275510],
-  ["mobile", "dc7e44364cd1c6429ede6f8c1fcef9007447cb974e6b41326f06142627c9523b", 888494, 80, 68182630],
+  ["full", "bc3378022e9bf1d5c42d83fe7346dc58cad0254c2c8bc3cb273b3f0d45b1d494", 3720442, 86, 283980954],
+  ["mobile", "b25bd4305377aed98318567b710db1a29338c0d95f4f3cbf141d41330d1f340f", 932887, 84, 71559746],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

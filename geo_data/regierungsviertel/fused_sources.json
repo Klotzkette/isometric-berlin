@@ -351,6 +351,79 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "invalidenfriedhof_v109",
+      "anchor_source": "existing OSM cemetery way 51804411, exact grave nodes, two independent wall traces and LoD2 bell part DEBE01YYK0001yqp",
+      "geometry_ref": "src/app/src/InvalidenfriedhofDetails.ts",
+      "documentation_ref": "docs/invalidenfriedhof-v109.md",
+      "semantic_evidence": [
+        "Landesdenkmalamt ensemble 09010206",
+        "Landesdenkmalamt Invalidenfriedhof Wall account",
+        "Five inspected and attributed free Commons images"
+      ],
+      "conflicts": [
+        "witzleben_canopy_style",
+        "bell_folded_sheet_casing",
+        "invalidenfriedhof_voxel_wall_thickness"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "litfin_watchtower_v109",
+      "anchor_source": "OSM way/31347999 and original LoD2 DEBE01AL1pC0000R",
+      "geometry_ref": "src/app/src/LitfinWatchtower.ts",
+      "documentation_ref": "docs/litfin-watchtower-refinement.md",
+      "semantic_evidence": [
+        "Berlin monument database object 09040270,T,010",
+        "Current Landesdenkmalamt Führungsstelle Kieler Eck account",
+        "Stiftung Berliner Mauer",
+        "Five inspected and attributed free Commons images"
+      ],
+      "conflicts": [
+        "litfin_conflicting_published_footprints"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "fifty_hertz_einz_v109",
+      "anchor_source": "Berlin LoD2 parent DEBE00YY1AT000Ab + current OSM way/1224022429; EINZ parent DEBE01AL2TJ0000u",
+      "geometry_ref": "src/app/src/fiftyHertzSource.json",
+      "documentation_ref": "docs/fifty-hertz-refinement.md",
+      "source_part_count": 6,
+      "semantic_evidence": [
+        "LOVE / kadawittfeldarchitektur architecture account",
+        "50Hertz extension announcement 2024 and Züblin completion 2025",
+        "Two Roy Zuo Commons photographs from 2026-06-14, CC BY-SA 4.0"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "fifty_hertz_extension_height_v109",
+        "fifty_hertz_roof_subdivision_v109",
+        "einz_displaced_podium_v109"
+      ]
+    },
+    {
+      "feature_id": "heidestrasse_otto_weidt_v109",
+      "anchor_source": "140 original Berlin LoD2 and OSM parts with mapped street and courtyard context",
+      "geometry_ref": "src/app/src/europacityArchitectureSource.json",
+      "documentation_ref": "docs/europacity-architecture-refinement.md",
+      "source_part_count": 140,
+      "semantic_evidence": [
+        "KSP Engel KPMG Heidestraße 58 and OSM relation/7433644",
+        "Staab Otto-Weidt-Platz office and Autobahn GmbH Heidestraße 15 imprint",
+        "Architect/developer records for BUWOG THE ONE, Budapester Höfe and QH buildings",
+        "Four inspected Commons photographs with CC0 or CC BY 4.0 licenses"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "heidestrasse_generic_facades_v109",
+        "kpmg_heidestrasse58_floor_count_v109"
+      ]
     }
   ],
   "features": [
@@ -448141,6 +448214,144 @@
       "resolution": "Use white marble, the documented 5.5 m figure and a photo-proportioned 3.7 m current pedestal estimate. Preserve original source and historical dimension separately.",
       "geometry_ref": "src/app/src/bismarckMoltkeSource.json",
       "documentation_ref": "docs/bismarck-moltke-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "witzleben_canopy_style",
+      "kind": "procedural_style_vs_monument_evidence",
+      "sources": [
+        "Berlin monument database 09010206",
+        "File:Invalidenfriedhof, Grabmal Job von Witzleben.jpg"
+      ],
+      "conflict": "The previous display used a low base and Gothic pointed arches with a pyramidal crown, conflicting with the Renaissance cast-iron canopy and high plinth.",
+      "resolution": "Retain exact OSM anchor node/279219447; replace local display articulation with round arches, high patinated plinth, female genius and four crowned eagles. Unpublished dimensions remain estimates.",
+      "geometry_ref": "src/app/src/InvalidenfriedhofDetails.ts",
+      "documentation_ref": "docs/invalidenfriedhof-v109.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bell_folded_sheet_casing",
+      "kind": "closed_coarse_envelope_vs_open_structure",
+      "sources": [
+        "LoD2 DEBE01YYK0001yqp",
+        "OSM node/7430297888",
+        "File:Berlin-Mitte Invalidenfriedhof Glockenturm mit Auguste-Viktoria-Glocke der Gnadenkirche Nahaufnahme.JPG"
+      ],
+      "conflict": "The source prism is closed and the old four-sided cylinder produced a diamond-oriented concrete-like casing; the visible structure is a square tapered steel frame and folded sheet panels.",
+      "resolution": "Retain exact source footprint and 10.044 m height as evidence. The existing narrowly owned presentation replacement now has four continuous legs, twelve folded metal panels and a permanently visible 1.60 m bell; collision exempts only physically empty regions within that same source part.",
+      "geometry_ref": "src/app/src/InvalidenfriedhofDetails.ts",
+      "documentation_ref": "docs/invalidenfriedhof-v109.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "invalidenfriedhof_voxel_wall_thickness",
+      "kind": "coarse_block_sampling_vs_source_trace",
+      "sources": [
+        "committed independent OSM canal and Hinterlandmauer traces",
+        "Landesdenkmalamt Invalidenfriedhof Wall account"
+      ],
+      "conflict": "The previous 1.1 m cubes widened the represented barriers beyond their collision widths and left sampling gaps.",
+      "resolution": "Use continuous thin box segments on the original traces, preserving mapped gaps and distinct historical/DDR material readings.",
+      "geometry_ref": "src/app/src/InvalidenfriedhofDetails.ts",
+      "documentation_ref": "docs/invalidenfriedhof-v109.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "litfin_conflicting_published_footprints",
+      "kind": "incompatible_published_widths",
+      "sources": [
+        "Berlin monument database object 09040270,T,010: 3 x 3 m",
+        "Current Landesdenkmalamt Führungsstelle Kieler Eck account: 4.2 x 4.2 m",
+        "LoD2 DEBE01AL1pC0000R: 4.15 x 4.16 m roof, 8.946 m height",
+        "Five inspected free Commons images"
+      ],
+      "conflict": "Published tower footprint descriptions disagree, while the independent LoD2 roof does not establish the shaft subdivision.",
+      "resolution": "Preserve the LoD2 roof dimensions and height, record both published descriptions, and label the 3.65 m local shaft as a non-surveyed photo-proportioned estimate inside that envelope.",
+      "geometry_ref": "src/app/src/LitfinWatchtower.ts",
+      "documentation_ref": "docs/litfin-watchtower-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "fifty_hertz_extension_height_v109",
+      "kind": "default_height_vs_current_completed_building",
+      "sources": [
+        "LOVE / kadawittfeldarchitektur architecture account",
+        "50Hertz extension announcement 2024 and Züblin completion 2025",
+        "Two Roy Zuo Commons photographs from 2026-06-14, CC BY-SA 4.0",
+        "Berlin LoD2 parent DEBE00YY1AT000Ab + current OSM way/1224022429; EINZ parent DEBE01AL2TJ0000u"
+      ],
+      "conflict": "OSM extension 24022429 has an older default 21 m shell; the published current floor count is seven.",
+      "resolution": "Retain the original record and exactly coincident OSM footprint; use an explicitly estimated 31 m display height and matching collision.",
+      "geometry_ref": "src/app/src/fiftyHertzSource.json",
+      "documentation_ref": "docs/fifty-hertz-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "fifty_hertz_roof_subdivision_v109",
+      "kind": "coarse_roof_envelope_vs_photographed_form",
+      "sources": [
+        "LOVE / kadawittfeldarchitektur architecture account",
+        "50Hertz extension announcement 2024 and Züblin completion 2025",
+        "Two Roy Zuo Commons photographs from 2026-06-14, CC BY-SA 4.0",
+        "Berlin LoD2 parent DEBE00YY1AT000Ab + current OSM way/1224022429; EINZ parent DEBE01AL2TJ0000u"
+      ],
+      "conflict": "Two coarse pitched LoD2 roofs conflict with the flat plates and service equipment visible in the 2026 views.",
+      "resolution": "Retain the original planes and maximum heights as source evidence; subdivide the display into flat roof plates and compact procedural screened housings.",
+      "geometry_ref": "src/app/src/fiftyHertzSource.json",
+      "documentation_ref": "docs/fifty-hertz-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "einz_displaced_podium_v109",
+      "kind": "misplaced_generic_overlay",
+      "sources": [
+        "LOVE / kadawittfeldarchitektur architecture account",
+        "50Hertz extension announcement 2024 and Züblin completion 2025",
+        "Two Roy Zuo Commons photographs from 2026-06-14, CC BY-SA 4.0",
+        "Berlin LoD2 parent DEBE00YY1AT000Ab + current OSM way/1224022429; EINZ parent DEBE01AL2TJ0000u"
+      ],
+      "conflict": "The legacy rectangular podium overlay at world Z = -926.346 m conflicts with the actual source centroid at -966.437 m and the multi-part courts.",
+      "resolution": "Remove the old smooth and Minecraft overlays; preserve the original part geometry and add the Europacity facades.",
+      "geometry_ref": "src/app/src/fiftyHertzSource.json",
+      "documentation_ref": "docs/fifty-hertz-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "heidestrasse_generic_facades_v109",
+      "kind": "generic_material_and_fenestration",
+      "sources": [
+        "KSP Engel KPMG Heidestraße 58 and OSM relation/7433644",
+        "Staab Otto-Weidt-Platz office and Autobahn GmbH Heidestraße 15 imprint",
+        "Architect/developer records for BUWOG THE ONE, Budapester Höfe and QH buildings",
+        "Four inspected Commons photographs with CC0 or CC BY 4.0 licenses",
+        "140 original Berlin LoD2 and OSM parts with mapped street and courtyard context"
+      ],
+      "conflict": "Generic windows, repeated trim and material families obscure the individual constructed buildings and courtyard facades.",
+      "resolution": "Retain every source body and roof; replace only generic facade decoration with bounded exposed-wall subdivisions for the correctly identified building groups.",
+      "geometry_ref": "src/app/src/europacityArchitectureSource.json",
+      "documentation_ref": "docs/europacity-architecture-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "kpmg_heidestrasse58_floor_count_v109",
+      "kind": "published_floor_count_disagreement",
+      "sources": [
+        "https://www.ksp-engel.com/projekte/kpmg-headquarters-berlin",
+        "https://www.caimmo.com/de/portfolio/projekt/buerogebaeude-heidestrasse-58/"
+      ],
+      "conflict": "The architect describes six storeys while the current owner account describes seven.",
+      "resolution": "Retain the exact LoD2 footprint and height. Seven facade display rows follow the owner account; this is not a surveyed floor or opening schedule. Both claims remain documented.",
+      "geometry_ref": "src/app/src/europacityArchitectureSource.json",
+      "documentation_ref": "docs/europacity-architecture-refinement.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

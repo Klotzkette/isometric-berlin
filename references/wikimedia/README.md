@@ -260,3 +260,47 @@ scaffolding visible in the 2005 overview is not copied into the current scene.
 | bismarck_memorial | [Bismarck Memorial in Berlin.JPG](https://commons.wikimedia.org/wiki/File:Bismarck_Memorial_in_Berlin.JPG) | Pudelek (Marcin Szala) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | bismarck_memorial | [Germania - Bismarck Memorial in Berlin.JPG](https://commons.wikimedia.org/wiki/File:Germania_-_Bismarck_Memorial_in_Berlin.JPG) | Pudelek (Marcin Szala) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | moltke_memorial | [Berlin-Tiergarten, standbeeld van Helmuth Karl Bernhard von Moltke Dm09050419 IMG 5599 2024-09-06 15.39.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Tiergarten,_standbeeld_van_Helmuth_Karl_Bernhard_von_Moltke_Dm09050419_IMG_5599_2024-09-06_15.39.jpg) | Michielverbeek | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+
+## Invalidenfriedhof and Günter Litfin refinement (v1.0.9)
+
+Ten freely licensed photographs were inspected for the cemetery monuments,
+separate wall systems, bell frame and current Litfin tower. They are external
+visual references only; photographs, crops and textures are not bundled.
+LoD2 and OSM retain their metric/semantic roles. The photographed local
+articulation is not represented as a new survey.
+
+| Landmark | File | Author / credit | License |
+|---|---|---|---|
+| invalidenfriedhof | [Berlin-Mitte Invalidenfriedhof Glockenturm mit Auguste-Viktoria-Glocke der Gnadenkirche Nahaufnahme.JPG](https://commons.wikimedia.org/wiki/File:Berlin-Mitte_Invalidenfriedhof_Glockenturm_mit_Auguste-Viktoria-Glocke_der_Gnadenkirche_Nahaufnahme.JPG) | Assenmacher | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| invalidenfriedhof | [Invalidenfriedhof, Grabmal Job von Witzleben.jpg](https://commons.wikimedia.org/wiki/File:Invalidenfriedhof,_Grabmal_Job_von_Witzleben.jpg) | Beek100 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| invalidenfriedhof | [Invalidenfriedhof, Friedhofsmauer mit Königslinde.jpg](https://commons.wikimedia.org/wiki/File:Invalidenfriedhof,_Friedhofsmauer_mit_K%C3%B6nigslinde.jpg) | Beek100 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| invalidenfriedhof | [Invalidenfriedhof, Grab von Rauch.jpg](https://commons.wikimedia.org/wiki/File:Invalidenfriedhof,_Grab_von_Rauch.jpg) | Beek100 | Public domain |
+| invalidenfriedhof | [Invalidenfriedhof, Grabmal von Winterfeldt.jpg](https://commons.wikimedia.org/wiki/File:Invalidenfriedhof,_Grabmal_von_Winterfeldt.jpg) | Beek100 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| guenter_litfin_memorial | [Gedenkstätte Günter Litfin, Kieler Straße 2, Berlin-Mitte.jpg](https://commons.wikimedia.org/wiki/File:Gedenkst%C3%A4tte_G%C3%BCnter_Litfin,_Kieler_Stra%C3%9Fe_2,_Berlin-Mitte.jpg) | Neuköllner | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| guenter_litfin_memorial | [Gedenkstätte Günter Litfin Berlin.jpg](https://commons.wikimedia.org/wiki/File:Gedenkst%C3%A4tte_G%C3%BCnter_Litfin_Berlin.jpg) | Singlespeedfahrer | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| guenter_litfin_memorial | [Günter Litfin Memorial.jpg](https://commons.wikimedia.org/wiki/File:G%C3%BCnter_Litfin_Memorial.jpg) | Rodngrt | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| guenter_litfin_memorial | [Watchtower - Berlin - Stierch A 01.jpg](https://commons.wikimedia.org/wiki/File:Watchtower_-_Berlin_-_Stierch_A_01.jpg) | Sarah Stierch | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| guenter_litfin_memorial | [Watchtower - Berlin - Stierch A 02.jpg](https://commons.wikimedia.org/wiki/File:Watchtower_-_Berlin_-_Stierch_A_02.jpg) | Sarah Stierch | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+
+## 50Hertz v1.0.9 facade references
+
+Two June 2026 views by Roy Zuo were inspected for the current floor frames,
+external supports and flat roof plates. Images are external references only;
+no photograph or texture is bundled. See [evidence](../../docs/fifty-hertz-refinement.md).
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [(20260614 102704276 HDR) Berlin Sunday morning.jpg](https://commons.wikimedia.org/wiki/File:(20260614_102704276_HDR)_Berlin_Sunday_morning.jpg) | Roy Zuo | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [(20260614 102848821 HDR) Berlin Sunday morning.jpg](https://commons.wikimedia.org/wiki/File:(20260614_102848821_HDR)_Berlin_Sunday_morning.jpg) | Roy Zuo | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+
+## Heidestraße and Otto-Weidt-Platz v1.0.9
+
+Four inspected external references clarify the built facade families and
+canal loggias. No photo is bundled. See [evidence](../../docs/europacity-architecture-refinement.md).
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [Berlin 20260711 Quartier Heidestraße 01.jpg](https://commons.wikimedia.org/wiki/File:Berlin_20260711_Quartier_Heidestra%C3%9Fe_01.jpg) | NutzerAusBerlin | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| [Berlin-Moabit Otto-Weidt-Platz.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Moabit_Otto-Weidt-Platz.jpg) | Definitiv | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| [Golda-Meir-Steg Berlin 1v5.jpg](https://commons.wikimedia.org/wiki/File:Golda-Meir-Steg_Berlin_1v5.jpg) | Singlespeedfahrer | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| [Golda-Meir-Steg Berlin 2v5.jpg](https://commons.wikimedia.org/wiki/File:Golda-Meir-Steg_Berlin_2v5.jpg) | Singlespeedfahrer | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |

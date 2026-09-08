@@ -673,7 +673,7 @@ export const EUROPACITY_PROFILE = {
     parentBuildingId: "DEBE01AL2TJ0000u",
     primaryFinEveryBays: 4,
     podium: {
-      centerWorldM: [-141.536, -926.346] as const,
+      centerWorldM: [-141.536, -966.437] as const,
       floorCount: 6,
       footprintDepthM: 28.359,
       footprintLengthM: 50.535,

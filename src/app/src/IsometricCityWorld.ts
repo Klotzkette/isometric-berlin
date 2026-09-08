@@ -1,3 +1,7 @@
+import { createEuropacityArchitecture } from "./EuropacityArchitecture";
+import { EUROPACITY_ARCHITECTURE_IDS, EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
+import { createFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
+import { FIFTY_HERTZ_IDS, FIFTY_HERTZ_PRISM_TONES } from "./fiftyHertzProfile";
 import { createBellevueArchitecture } from "./BellevueArchitecture";
 import { BELLEVUE_IDS, BELLEVUE_PRISM_TONES, BELLEVUE_ROOF_TONES } from "./bellevueProfile";
 import { createBismarckMoltkeMonuments } from "./BismarckMoltkeMonuments";
@@ -619,6 +623,8 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...BUNDESRAT_PRISM_TONES,
   ...ROHWEDDER_HAUS_PRISM_TONES,
   ...BELLEVUE_PRISM_TONES,
+  ...EUROPACITY_ARCHITECTURE_TONES,
+  ...FIFTY_HERTZ_PRISM_TONES,
   ...BOELL_STIFTUNG_PRISM_TONES,
   mIgrCTOY: 0xe4be7d,
   ...SONY_SURROUNDINGS_PRISM_TONES,
@@ -852,6 +858,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...TOPOGRAPHY_TERROR_IDS,
   ...BELLEVUE_IDS,
+  ...FIFTY_HERTZ_IDS,
   ...BISMARCK_MOLTKE_PRISM_IDS,
   BOELL_STIFTUNG_LOW_ID,
   FRIEDRICHSTADT_PALAST_PRISM_ID,
@@ -2388,6 +2395,8 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
   ...BELLEVUE_IDS,
+  ...EUROPACITY_ARCHITECTURE_IDS,
+  ...FIFTY_HERTZ_IDS,
   ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
@@ -2417,6 +2426,8 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
   ...BELLEVUE_IDS,
+  ...EUROPACITY_ARCHITECTURE_IDS,
+  ...FIFTY_HERTZ_IDS,
   ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
@@ -2439,6 +2450,8 @@ export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
   ...BELLEVUE_IDS,
+  ...EUROPACITY_ARCHITECTURE_IDS,
+  ...FIFTY_HERTZ_IDS,
   ...BISMARCK_MOLTKE_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
@@ -12936,6 +12949,8 @@ export function createIsometricCity(
     group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
+    group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
     group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

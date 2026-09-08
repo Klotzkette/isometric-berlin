@@ -573,21 +573,41 @@ The Invalidenfriedhof recognition layer keeps source roles separate:
   into the cemetery wall, and uncited facade subdivisions must not be
   relabelled as LoD2 survey detail.
 
-Close procedural shapes for the Scharnhorst, Witzleben, Winterfeld, Kessel and
-Rauch grave monuments, the bell frame and the watchtower's openings, rails,
-plaques and information board are bounded recognition geometry wherever no
-published dimension exists. User-supplied photographs remain unbundled visual
-references only; they are never source textures or metric evidence. Repeated
-members are batched, every visual mode keeps the ensembles static, and
-navigation collision is limited to the represented solid geometry so mapped
-paths and deliberate open structural bays stay traversable.
+The v1.0.9 refinement corrects Witzleben's former Gothic interpretation to
+its documented cast-iron Renaissance canopy with round arches, high plinth,
+female genius and four crowned eagles. Winterfeld's brown granite pedestal,
+bronze trophy and Schinkel enclosure, Rauch's neighbouring marble crosses,
+and the bell's four continuous silver legs and twelve folded metal panels
+follow inspected free photographs and the primary records. The old bell
+four-sided cylinder incorrectly formed a diamond-oriented concrete-like
+casing; its replacement remains within the same retained LoD2 envelope.
+The canal boundary gains brick pier caps and joints; the Hinterlandmauer's
+long white fields keep their grey surrounds. Minecraft walls now have the
+same thin, continuous alignment instead of 1.1 m cubes with sample gaps.
+
+Litfin has conflicting published footprint descriptions: the monument
+database gives 3 × 3 m and the current LDA account 4.2 × 4.2 m. The measured
+LoD2 roof remains 4.15 × 4.16 m and 8.946 m high. A 3.65 m local shaft is an
+explicit visual estimate inside that envelope, not an assertion that either
+published description constitutes a current shaft survey. The model retains
+sixteen upper panes, eight small shaft openings, silver rails, downpipes,
+entry, plaque and terraced approach.
+
+All uncited local subdivisions remain procedural recognition geometry.
+Ten inspected, freely licensed Commons photographs supplement prior supplied
+field views; exact per-file metadata is mirrored in the canonical and public
+Wikimedia manifests. No photograph is bundled, projected or converted into a
+texture. Repeated members are batched, memorials remain static in all modes,
+and physical collision follows represented solids while paths and open bays
+stay traversable. See [v1.0.9 cemetery evidence](invalidenfriedhof-v109.md) and
+[Litfin evidence](litfin-watchtower-refinement.md).
 
 Primary public records:
 
 - [Invalidenfriedhof monument ensemble](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206)
 - [Berlin Wall remains at Invalidenfriedhof](https://www.berlin.de/mauer/orte/mauerreste/artikel.151178.php)
 - [Invalidenfriedhof Wall monument record](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php)
-- [Führungsstelle Kieler Eck monument record](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-649714.php)
+- [Führungsstelle Kieler Eck monument record](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-648149.php)
 - [Gedenkstätte Günter Litfin](https://www.stiftung-berliner-mauer.de/de/gedenkstaette-guenter-litfin)
 - [Auguste-Viktoria bell information](https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/augusta-viktoria-glocke)
 - [OpenStreetMap watchtower footprint](https://www.openstreetmap.org/way/31347999)
@@ -754,3 +774,24 @@ photographs or textures are added. The additive fusion conflict log records
 all four source/display discrepancies. See
 [Bellevue evidence](bellevue-refinement.md) and
 [Bismarck/Moltke evidence](bismarck-moltke-refinement.md).
+
+## 50Hertz and EINZ v1.0.9 source corrections
+
+The five 50Hertz LoD2 parts retain their exact horizontal and maximum-height
+contract. OSM extension `24022429` retains its original record separately:
+the seven-floor completed extension uses the identical footprint and an
+explicitly estimated 31 m display height. Two coarse pitched source roofs
+are subdivided into photographed flat plates and bounded service housings;
+original roof planes remain in the source JSON. The misplaced rectangular
+EINZ podium overlay is removed in favour of its retained source parts.
+See [50Hertz evidence](fifty-hertz-refinement.md).
+
+## Heidestraße and Otto-Weidt-Platz v1.0.9
+
+The facade layer retains 140 LoD2/OSM parts in 21 independent building groups.
+The source mapping separates KPMG Heidestraße 58, the EINZ podium, Autobahn's
+Staab office, BUWOG THE ONE, Budapester Höfe and the QH buildings. Source
+footprints, courts and roof envelopes remain unchanged. Exposed-wall tests
+prevent detail on concealed party walls. The four inspected Commons records
+are mirrored into both reference manifests. See
+[corridor evidence](europacity-architecture-refinement.md).

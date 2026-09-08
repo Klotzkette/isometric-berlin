@@ -756,12 +756,12 @@ describe("ligne-claire fenestration", () => {
       detailedWallCounts["Großer Tiergarten-Parkrand"],
     ).toBeGreaterThan(250);
     // Eight harbour fronts moved to the dedicated source-bound
-    // Humboldthafen facade model; the generic station surroundings remain.
+    // Humboldthafen and Heidestrasse facade models; 100 generic station walls remain.
     expect(
       detailedWallCounts.Europaplatz +
         detailedWallCounts.Washingtonplatz +
         detailedWallCounts["Hauptbahnhof-Umfeld"],
-    ).toBeGreaterThan(100);
+    ).toBeGreaterThanOrEqual(100);
     expect(axes.userData.plazaFacadeDetails.heroFacadesExcluded).toBe(true);
     expect(axes.userData.plazaFacadeDetails.extraRenderables).toBe(0);
     expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);

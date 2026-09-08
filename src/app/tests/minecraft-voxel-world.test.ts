@@ -141,7 +141,7 @@ describe("true voxel Minecraft world", () => {
     // 113 obsolete panes on the Zollpackhof/Gustav-support source envelopes.
     // v1.0.6 removes 348 further panes on replaced Palast/Böll low mass and the clipped Böll roof.
     // v1.0.7 removes false Topography site columns and rounds only authored civic roofs.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_590_823);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_589_937);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -151,9 +151,9 @@ describe("true voxel Minecraft world", () => {
     // envelope. v1.0.5 removes false Soviet bodies and the museum hall
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
-    expect(instanced("Voxel building columns", world).count).toBe(1_473_220);
+    expect(instanced("Voxel building columns", world).count).toBe(1_472_480);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      538_513,
+      538_241,
     );
 
     const landmarks = world.getObjectByName(
@@ -316,12 +316,15 @@ describe("true voxel Minecraft world", () => {
       motionPolicy: "static in Minecraft",
       sourceFootprintOwnership: ["litfin-watchtower", "auguste-viktoria-bell"],
     });
-    expect(
-      details?.children.every((child) => child instanceof InstancedMesh),
-    ).toBe(true);
-    expect(details?.userData.drawCallCount).toBeLessThanOrEqual(10);
+    const batches: InstancedMesh[] = [];
+    details?.traverse((child) => {
+      if (child instanceof InstancedMesh) batches.push(child);
+      else expect(child.children.length).toBeGreaterThan(0);
+    });
+    expect(batches).toHaveLength(11);
+    expect(details?.userData.drawCallCount).toBe(11);
     expect(details?.userData.instanceCount).toBeGreaterThan(250);
-    expect(details?.userData.instanceCount).toBeLessThanOrEqual(2_500);
+    expect(details?.userData.instanceCount).toBe(9_490);
   });
 
   test("loads exactly one bounded block-native Brecht memorial with full/mobile transform parity", () => {

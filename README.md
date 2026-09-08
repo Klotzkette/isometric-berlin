@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.8 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.8/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.9 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.9/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,22 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.8** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.9** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.9 refines 21 building groups along Heidestraße and around
+Otto-Weidt-Platz, including both KPMG sites and the Autobahn headquarters.
+50Hertz receives its complete facade structure and the completed extension.
+The Invalidenfriedhof's monuments, walls and bell tower gain distinct forms;
+the Günter Litfin watchtower gains corrected proportions and permanent windows.
+All five modes include the refinements, with separate mobile Minecraft budgets.
+
+Version 1.0.9 präzisiert 21 Gebäudegruppen an der Heidestraße und am
+Otto-Weidt-Platz, einschließlich beider KPMG-Standorte und der Autobahn-Zentrale.
+50Hertz erhält sein vollständiges Fassadentragwerk und den fertigen Anbau.
+Im Invalidenfriedhof werden Grabmäler, Mauern und Glockenturm genauer;
+der Günter-Litfin-Turm erhält korrigierte Proportionen und dauerhaft sichtbare
+Fenster. Die Ergänzungen gelten in allen fünf Darstellungen, auch mobil.
 
 Version 1.0.8 refines Schloss Bellevue and the neighbouring permanent
 Bundespräsidialamt with source-bound roofs and individual facades. Bismarck

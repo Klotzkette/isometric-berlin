@@ -394,6 +394,64 @@ def test_current_tree_is_release_ready() -> None:
   assert release_readiness.collect_failures(ROOT) == []
 
 
+def test_litfin_readiness_follows_the_extracted_model_and_integration() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_litfin", "scripts/check_release_readiness.py"
+  )
+  assert release_readiness.litfin_watchtower_source_failures(ROOT) == []
+
+
+@pytest.mark.parametrize(
+  ("filename", "remove", "message"),
+  [
+    ("LitfinWatchtower.ts", 'osmKey: "way/31347999"', "OSM anchor"),
+    ("LitfinWatchtower.ts", "upperPaneCount: 16", "sixteen observation panes"),
+    ("LitfinWatchtower.ts", "currentLdaAccountM: [4.2, 4.2]", "current footprint"),
+    (
+      "InvalidenfriedhofDetails.ts",
+      "createLitfinWatchtower(options)",
+      "drawn model with mobile options",
+    ),
+    (
+      "InvalidenfriedhofDetails.ts",
+      "createMinecraftLitfinWatchtower(options)",
+      "Minecraft model with mobile options",
+    ),
+    (
+      "InvalidenfriedhofDetails.ts",
+      "litfinWatchtowerSolidAt(x, y, z, bodyRadius)",
+      "granular physical collision",
+    ),
+  ],
+)
+def test_litfin_readiness_rejects_lost_evidence_or_disconnected_representation(
+  tmp_path: Path, filename: str, remove: str, message: str
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_litfin_regression", "scripts/check_release_readiness.py"
+  )
+  source_dir = tmp_path / "src/app/src"
+  source_dir.mkdir(parents=True)
+  for name in ("LitfinWatchtower.ts", "InvalidenfriedhofDetails.ts"):
+    source = (ROOT / "src/app/src" / name).read_text(encoding="utf-8")
+    if name == filename:
+      assert remove in source
+      source = source.replace(remove, "REMOVED_CONTRACT")
+    (source_dir / name).write_text(source, encoding="utf-8")
+  failures = release_readiness.litfin_watchtower_source_failures(tmp_path)
+  assert len(failures) == 1
+  assert message in failures[0]
+
+
+def test_litfin_readiness_rejects_missing_module(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_litfin_missing", "scripts/check_release_readiness.py"
+  )
+  assert release_readiness.litfin_watchtower_source_failures(tmp_path) == [
+    "Missing Litfin watchtower model or cemetery integration source"
+  ]
+
+
 def test_built_app_version_guard_rejects_a_stale_hashed_bundle(
   tmp_path: Path,
 ) -> None:

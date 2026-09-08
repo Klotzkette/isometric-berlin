@@ -56,6 +56,29 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   swatches are procedural display estimates; mapped counts do not establish
   individual window positions.
 
+- **Heidestraße / Otto-Weidt-Platz (v1.0.9):** 140 retained LoD2 and OSM
+  parts receive source-labelled facade subdivisions across 21 groups. KSP
+  Engel identifies the older KPMG building at Heidestraße 58; Staab and the
+  Autobahn GmbH imprint identify its headquarters at Heidestraße 15. The
+  BUWOG, Budapester Höfe and QH buildings remain separate architectural
+  families. Floor counts and materials follow the documented source roles;
+  windows and loggia members remain procedural, not surveyed. Four inspected
+  Commons references by NutzerAusBerlin (CC0), Definitiv (CC BY 4.0) and
+  Singlespeedfahrer (CC0) are credited individually in both manifests.
+  See [corridor evidence](docs/europacity-architecture-refinement.md).
+
+- **50Hertz and EINZ refinements (v1.0.9):** the original five 50Hertz LoD2
+  parts retain metric footprints and maximum heights. Current OSM way
+  `1224022429` and 50Hertz's seven-floor announcement supplement the completed
+  extension; its prior default 21 m record stays preserved beside an explicitly
+  estimated 31 m display height. The two coarse pitched roof envelopes are
+  subdivided into the photographed flat plates and bounded service housings.
+  LOVE / kadawittfeldarchitektur and Züblin provide architectural and completion
+  evidence. Two inspected June 2026 photographs by Roy Zuo (CC BY-SA 4.0)
+  are credited in both manifests; no image is bundled. The misplaced EINZ
+  podium overlay is removed while its source parts remain. See
+  [evidence and source conflicts](docs/fifty-hertz-refinement.md).
+
 - **Bellevue and Großer Stern refinements (v1.0.8):** original Geoportal
   LoD2 wall/roof planes preserve all fourteen palace parts and the permanent
   presidential office footprint. DOP 2025 and the Federal President's
@@ -518,6 +541,22 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   part subdivisions remain procedural. The supplied close field view only
   bounds the lion's raised-head silhouette, green patina and bronze top plate;
   no new photograph or page medium is redistributed for this refinement.
+
+  **v1.0.9 refinement:** Witzleben now follows the inventory's Renaissance
+  round-arch cast-iron canopy, tall plinth, female genius and four crowned
+  eagles. Winterfeld uses granite and bronze with a Schinkel enclosure;
+  Rauch gains neighbouring marble crosses. The bell's three-tier folded
+  silver-sheet casing and four continuous legs replace the previous
+  misoriented concrete-like form. The two wall traces remain distinct.
+  Litfin retains the measured LoD2 envelope while the conflicting 3 × 3 m
+  monument-database and 4.2 × 4.2 m current LDA descriptions are recorded;
+  the 3.65 m shaft articulation is an explicitly non-surveyed estimate.
+  Ten inspected Commons photographs by Assenmacher, Beek100, Neuköllner,
+  Singlespeedfahrer, Rodngrt and Sarah Stierch have individual credits and
+  licence links in both Wikimedia manifests and the
+  [reference catalogue](references/wikimedia/README.md). No photographs are
+  bundled. See [cemetery evidence](docs/invalidenfriedhof-v109.md) and
+  [Litfin evidence](docs/litfin-watchtower-refinement.md).
 
 - **Goethe- and Lessing-Denkmal in the Großer Tiergarten (factual and visual
   evidence):** the Berlin monument database records both works as parts

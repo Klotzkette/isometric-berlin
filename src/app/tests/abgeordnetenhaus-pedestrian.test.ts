@@ -1,3 +1,4 @@
+import { FIFTY_HERTZ_IDS } from "../src/fiftyHertzProfile";
 import { describe, expect, test } from "bun:test";
 import type { PrismPayload } from "../src/IsometricCityWorld";
 import {
@@ -53,7 +54,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // its source podium stays untouched and is tested independently.
     // C63xrbXN now follows the museum sawtooth roof instead of a flat maximum.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
-      .toEqual([...BELLEVUE_IDS, profile.mainPrismId, "RVRCWHeT", "FqL2azIz", "C63xrbXN", "24314976", BUNDESRAT_MAIN_ID, JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
+      .toEqual([...BELLEVUE_IDS, ...FIFTY_HERTZ_IDS, profile.mainPrismId, "RVRCWHeT", "FqL2azIz", "C63xrbXN", "24314976", BUNDESRAT_MAIN_ID, JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

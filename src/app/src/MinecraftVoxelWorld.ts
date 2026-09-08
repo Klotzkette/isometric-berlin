@@ -1,3 +1,7 @@
+import { createEuropacityArchitecture } from "./EuropacityArchitecture";
+import { EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
+import { createMinecraftFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
+import { fiftyHertzSourceColumnAt, FIFTY_HERTZ_PRISM_TONES } from "./fiftyHertzProfile";
 import { createMinecraftBellevueArchitecture } from "./BellevueArchitecture";
 import { BELLEVUE_PRISM_TONES, bellevueColumnTopAt } from "./bellevueProfile";
 import { createMinecraftBismarckMoltkeMonuments } from "./BismarckMoltkeMonuments";
@@ -980,7 +984,7 @@ export function buildColumnToneLookup(prisms: {
     const attributes = building.id ? buildingAttributes(building.id) : undefined;
     // These bounded v1.0.6 facades use the same photo-guided colour family
     // as the drawn world, snapped to the existing Minecraft material palette.
-    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] : undefined;
+    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] : undefined;
     const mappedTone = corridorTone ?? mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes));
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
@@ -2112,61 +2116,7 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     );
   }
 
-  const podium = profile.podium;
-  const podiumBox = (
-    localX: number,
-    centerY: number,
-    localZ: number,
-    width: number,
-    height: number,
-    depth: number,
-    tone: number,
-  ): void =>
-    writeAt(
-      podium.centerWorldM,
-      profile.rotationY,
-      localX,
-      centerY,
-      localZ,
-      width,
-      height,
-      depth,
-      tone,
-    );
-  podiumBox(
-    0,
-    profile.groundY + podium.measuredHeightM / 2,
-    0,
-    podium.footprintLengthM,
-    podium.measuredHeightM,
-    podium.footprintDepthM,
-    0x72c5d2,
-  );
-  for (let floor = 0; floor <= podium.floorCount; floor += 1) {
-    const y =
-      profile.groundY + (podium.measuredHeightM * floor) / podium.floorCount;
-    for (const side of [-1, 1]) {
-      podiumBox(
-        0,
-        y,
-        side * (podium.footprintDepthM / 2 + 0.35),
-        podium.footprintLengthM,
-        0.42,
-        0.42,
-        0xd4d4b7,
-      );
-      podiumBox(
-        side * (podium.footprintLengthM / 2 + 0.35),
-        y,
-        0,
-        0.42,
-        0.42,
-        podium.footprintDepthM,
-        0xd4d4b7,
-      );
-    }
-  }
-
+  // Multi-part podium facades retain their exact source rings in EuropacityArchitecture.
   const plazaBox = (
     localX: number,
     centerY: number,
@@ -2659,7 +2609,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftGropiusBauDetails(options.detailProfile ?? "full"));
   group.add(createMinecraftTipiAmKanzleramt());
   yield;
-  group.add(createMinecraftInvalidenfriedhofDetails());
+  group.add(createMinecraftInvalidenfriedhofDetails({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftBrechtMemorial());
   group.add(createTiergartenLiteraryMemorialsMinecraft());
   group.add(createComposerMemorialMinecraft());
@@ -2694,6 +2644,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftRohwedderHausArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftBellevueArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createMinecraftFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
+  group.add(createEuropacityArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", minecraft: true, voxels: payload }));
   group.add(createMinecraftTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2734,6 +2686,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !musicMuseumHallColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !bismarckMoltkeSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !topographySourceColumnContains(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&

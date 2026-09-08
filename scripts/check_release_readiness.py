@@ -820,6 +820,64 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
   )
 
 
+def litfin_watchtower_source_failures(root: Path) -> list[str]:
+  """Check the extracted tower model and its drawn, block and physical wiring."""
+  tower_path = root / "src/app/src/LitfinWatchtower.ts"
+  cemetery_path = root / "src/app/src/InvalidenfriedhofDetails.ts"
+  if not tower_path.exists() or not cemetery_path.exists():
+    return ["Missing Litfin watchtower model or cemetery integration source"]
+  tower = tower_path.read_text(encoding="utf-8")
+  cemetery = cemetery_path.read_text(encoding="utf-8")
+  required_tower_snippets = {
+    "OSM anchor": 'osmKey: "way/31347999"',
+    "LoD2 ownership": 'lod2BuildingPartId: "1pC0000R"',
+    "retained source height": "bodyHeightM: 8.946",
+    "retained source roof envelope": "roofFootprintM: [4.15, 4.16]",
+    "documented shaft display estimate": "shaftFootprintM: [3.65, 3.65]",
+    "conflicting historic footprint": "monumentDatabaseM: [3, 3]",
+    "conflicting current footprint": "currentLdaAccountM: [4.2, 4.2]",
+    "non-surveyed shaft disclaimer": "non-surveyed visual estimate",
+    "sixteen observation panes": "upperPaneCount: 16",
+    "eight small windows": "smallWindowCount: 8",
+    "drawn factory": "export function createLitfinWatchtower(",
+    "block-native factory": "export function createMinecraftLitfinWatchtower(",
+    "granular physical solids": "export function litfinWatchtowerSolidAt(",
+    "exact-Day memorial protection": "schwellenraumGeschuetzt: true",
+  }
+  failures = [
+    f"Litfin watchtower model lacks {label}: {tower_path}"
+    for label, snippet in required_tower_snippets.items()
+    if snippet not in tower
+  ]
+  required_integration_snippets = {
+    "extracted module import": 'from "./LitfinWatchtower"',
+    "shared source profile": "litfinWatchtower: LITFIN_WATCHTOWER_PROFILE",
+    "drawn model with mobile options": "createLitfinWatchtower(options)",
+    "Minecraft model with mobile options": "createMinecraftLitfinWatchtower(options)",
+    "granular physical collision": "litfinWatchtowerSolidAt(x, y, z, bodyRadius)",
+  }
+  failures.extend(
+    f"Litfin cemetery integration lacks {label}: {cemetery_path}"
+    for label, snippet in required_integration_snippets.items()
+    if snippet not in cemetery
+  )
+  for forbidden in [
+    "CanvasTexture",
+    "TextureLoader",
+    "PointLight",
+    "markWindFlag(",
+    ".userData.windFlag =",
+    ".userData.windFlagInstances =",
+    "Math.random",
+  ]:
+    if forbidden in tower:
+      failures.append(
+        "Litfin watchtower model violates its lightweight static contract, "
+        f"found {forbidden}: {tower_path}"
+      )
+  return failures
+
+
 def webgl_viewer_source_failures(root: Path) -> list[str]:
   """Keep the true-3D, selected-only and touch interaction contracts intact."""
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
@@ -1148,7 +1206,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       )
   required_invalidenfriedhof_snippets = {
     "Scharnhorst lion tomb": 'id: "scharnhorst-lion-tomb"',
-    "Witzleben Gothic canopy": 'id: "witzleben-green-canopy-tomb"',
+    "Witzleben Renaissance canopy": 'id: "witzleben-green-canopy-tomb"',
     "Winterfeld OSM-owned pedestal": 'osmKey: "node/279219439"',
     "Kessel fenced grave": 'id: "von-kessel-fenced-slab"',
     "correct Rauch family OSM anchor": 'osmKey: "node/281941696"',
@@ -1156,11 +1214,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "August-Viktoria bell OSM anchor": 'osmKey: "node/7430297888"',
     "open bell LoD2 ownership": 'lod2BuildingPartId: "K0001yqp"',
     "documented 1.60 m bell": "displayBellDiameterM: 1.6",
-    "Litfin watchtower OSM anchor": 'osmKey: "way/31347999"',
-    "Litfin LoD2 ownership": 'lod2BuildingPartId: "1pC0000R"',
-    "three-metre Litfin shaft": "shaftFootprintM: [3.0, 3.0]",
-    "sixteen Litfin observation panes": "upperPaneCount: 16",
-    "eight Litfin small windows": "smallWindowCount: 8",
     "solid Hinterland wall shell": (
       "Invalidenfriedhof Hinterlandmauer continuous grey backing shell"
     ),
@@ -1177,7 +1230,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "deterministic horizontal snow": "setInvalidenfriedhofSnow",
     "reference-only supplied photographs": (
-      "Owner-supplied field photographs are reference-only"
+      "Owner-supplied field photographs and attributed Wikimedia images "
+      "are reference-only"
     ),
   }
   failures.extend(
@@ -1199,6 +1253,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
         "Invalidenfriedhof detail layer violates its lightweight static "
         f"contract, found {forbidden}: {invalidenfriedhof_path}"
       )
+  failures.extend(litfin_watchtower_source_failures(root))
   required_park_snippets = {
     "official settled tree microcrowns": (
       "Geoportal Berlin settled-only official tree microcrowns"

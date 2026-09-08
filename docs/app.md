@@ -822,7 +822,7 @@ as metadata: the viewer reproduces no song lyric, photograph, plan or texture.
 
 Invalidenfriedhof uses a dedicated close-detail layer over the committed
 cemetery, terrain and wall evidence. Berlin's monument inventory object
-`09010206`, OSM cemetery/path/grave features and the existing official-mesh
+`09010206`, OSM cemetery/path/grave features and the committed DGM-derived
 ground frame fix the ensemble context. Exact OSM node `273120316` anchors
 Scharnhorst's monument. The Berlin-Lexikon supplies its published 5.60 m
 overall height; the Schinkel portal supplies the form/material, authorship and
@@ -836,54 +836,67 @@ its raised head, full faceted mane, pointed ears, split muzzle, paired
 forepaws, curled tail and green-patinated bronze top plate remain legible at
 the landmark focus. Close-only mane tufts, face and claw cues fade at 62/155 m
 instead of reducing the whole sculpture to an ellipsoid. Job von Witzleben's
-memorial keeps its green Gothic Revival tabernacle;
-Hans Carl von Winterfeld's monument at OSM node `279219439` keeps a pale
-rectangular pedestal, unlettered laurel portrait medallion, trophy mantle and
-plumed helmet;
-Gustav Friedrich von Kessel's low dark grave remains inside a compact Gothic
-fence; and the von Rauch family grave retains its ochre four-support arcade and
-white cross. These are characteristic procedural recognition forms rather
-than replacement survey meshes. Repeated fence bars, relief cues and grave
-details share batches and the normal close-detail fade.
+cast-iron memorial now has the documented Renaissance round arches, tall
+patinated plinth, female genius and four crowned eagles. Hans Carl von
+Winterfeld's monument at OSM node `279219439` has a brown granite pedestal,
+bronze portrait and cuirass/helmet trophy inside its Schinkel enclosure.
+Kessel retains the low dark slab and compact wrought fence; the Rauch family
+ensemble has its ochre arch, pediment and neighbouring white marble crosses.
+All source anchors remain unchanged; unpublished local dimensions remain
+bounded procedural estimates.
 
 Scharnhorst's full and mobile smooth profiles are identical: 9 renderables /
 698 stored vertices / 16,978 rendered vertices. Its Minecraft contribution is
-4 palette batches / 572 blocks / 13,728 rendered instance vertices, within the
-complete 10-batch / 1,999-block Invalidenfriedhof voxel root and over one
-shared 24-vertex cube. The 18 m focus
+4 palette batches / 572 blocks / 13,728 rendered instance vertices. The 18 m focus
 targets the exact OSM anchor at 2.8 m local height. Collision follows the
 foundation, two piers, sarcophagus, reclining lion and railing: the centre
 between the piers stays open, the lion is solid at 5.4 m and clear again above
 the published 5.60 m silhouette.
 
-The Auguste-Viktoria bell is a separate open structure at OSM node
-`7430297888`, associated with official LoD2 building
-`DEBE01YYK0001yqp`; its measured building height is 10.044 m. The documented
-1.60 m bell diameter and 1.8 t mass control the bell itself; frame, hood and
-local-spacing values that lack a published dimension remain reference-bounded
-display geometry. The model preserves the open lower steel bays instead of
-filling them with a collision box. The
-canal-side brick cemetery boundary and the surviving concrete
-Hinterlandmauer fragments likewise remain separate structures rather than one
-generic perimeter wall.
+The Auguste-Viktoria bell remains at OSM node `7430297888` and official
+LoD2 part `DEBE01YYK0001yqp`, with its 10.044 m measured height and published
+1.60 m bell diameter. Four continuous silver steel legs support three tiers
+of folded sheet panels with an open bell bay below; a four-sided cylinder no
+longer rotates the casing into a diamond. The bell itself stays visible when
+close-only detail fades. Snow covers the horizontal top rails, without a
+floating plate across the open casing. Physical collision follows the steel
+legs, suspended bell and thin casing; the undercroft remains traversable.
 
-The Gedenkstätte Günter Litfin is independent of the cemetery group. OSM way
-`31347999`, Berlin monument object `09040270,T,010`, LoD2 object
-`DEBE01AL1pC0000R` and the responsible foundation's documentation anchor the
-former Führungsstelle Kieler Eck. LoD2 supplies the 8.946 m measured building
-height. Its procedural signature includes the square concrete shaft, small
-lower wall openings, upper window band, projecting slab roof and guard rail;
-uncited opening, plaque and information-board proportions remain
-visual-reference estimates. Collision is attached only to represented solid
-parts, so adjacent public paths and the information area stay open.
+The 1902 canal-side brick boundary and surviving concrete Hinterlandmauer
+retain their separate mapped lines and gaps. Brick pier crowns, inset white
+fields and masonry joints distinguish the historic wall; the DDR wall has
+long white fields in grey surrounds. Minecraft uses thin, continuous slabs
+on these same source traces instead of widening them with separated cubes.
 
-All of these details remain static in Day, Night, Minecraft, Snowstorm and
-Schwellenraum. Minecraft uses separate block-native replacements for the bell,
-tower, graves and wall signatures rather than leaking the smooth close layer.
-Repeated members are instanced or consolidated, and the fine layer fades
-before sub-pixel shimmer can appear. Supplied photographs only bound
-recognisable proportions and materials: no photograph is bundled, projected
-or converted into a texture.
+The Gedenkstätte Günter Litfin remains independently anchored by OSM way
+`31347999`, monument object `09040270,T,010` and LoD2 part `DEBE01AL1pC0000R`.
+Its 8.946 m height and 4.15 × 4.16 m roof envelope are preserved. The
+conflicting published 3 × 3 m and 4.2 × 4.2 m plan descriptions are documented;
+the 3.65 m rendered shaft is a visual estimate. Persistent concrete bands,
+sixteen observation panes, eight small openings and silver guard rails stay
+visible after near-only wire-glass and surface marks fade. A separate
+terraced approach, stairs, door and information panel complete the current
+form. Collision follows the represented core, glazing, rails and terrace.
+
+Day, Night, Snowstorm and Schwellenraum use the protected, static drawn
+models; Minecraft substitutes separate box geometry for the entire ensemble.
+Both cemetery factories forward their `mobileLike` option to the Litfin
+factory. The complete layer, including Litfin and hidden snow, has these
+bounded full/mobile budgets:
+
+| Representation | Renderables | Instances / meshes | Rendered vertices | Unique buffer bytes |
+|---|---:|---:|---:|---:|
+| Drawn full | 53 | 1,874 | 62,960 | 216,320 |
+| Drawn mobile | 53 | 1,792 | 60,992 | 210,088 |
+| Minecraft full | 11 | 9,490 | 227,760 | 697,648 |
+| Minecraft mobile | 11 | 6,650 | 159,600 | 481,808 |
+
+Inspected Commons and supplied photographs remain reference-only. No photo,
+crop, texture or inscription transcription is bundled. Tests cover actual
+ray visibility of the bell panels and observation panes, the open Witzleben
+bay above its solid plinth, source ownership, reversible snow and physical
+access. See [cemetery evidence](invalidenfriedhof-v109.md) and
+[Litfin evidence](litfin-watchtower-refinement.md).
 
 The Berliner Ensemble retains the complete four-part Berlin LoD2 parent
 `DEBE01YYK00004vY`; the measured shells remain visible and authoritative. Its
@@ -1507,3 +1520,21 @@ with fixed mast edges, at the existing 12 Hz desktop/8 Hz touch cadence.
 See [flag runtime and tests](civic-flags-v108.md),
 [Bellevue evidence](bellevue-refinement.md) and
 [monument evidence](bismarck-moltke-refinement.md).
+
+## Heidestraße v1.0.9 — complete 50Hertz structure
+
+`FiftyHertzArchitecture` replaces the old two-sided X grid with complete
+instanced frames and source-bound stepped wings. Full/mobile Minecraft use
+independent block geometry; only matching source columns are replaced.
+Original neighbour columns remain. The completed extension has matching
+solid and rooftop collision, with open adjoining streets. Per-mesh day,
+night and moonlit materials follow the existing mode-transition contract.
+See [50Hertz evidence](fifty-hertz-refinement.md).
+
+`EuropacityArchitecture` supplies two instanced facade batches over 140 retained
+source parts in 21 building groups. Existing generic panes, trim and chimneys
+are suppressed only for those IDs; source bodies and roofs stay visible.
+Minecraft facade panes are projected beyond their own coarse source cells,
+while small courts and neighbour overlaps reject hidden bays. Full/mobile
+profiles retain the same buildings with reduced close detail. The old
+misplaced rectangular EINZ podium overlay is removed in both renderers.

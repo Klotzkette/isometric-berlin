@@ -991,49 +991,8 @@ function addEinzFacadeScreen(builder: Builder): void {
   // Six-storey base from the companion LoD2 part. This was previously absent
   // from the shipped payload and made the tower appear detached from its real
   // 4–6-storey urban block.
-  const podium = profile.podium;
-  const podiumOrigin = new Vector3(
-    podium.centerWorldM[0],
-    profile.groundY,
-    podium.centerWorldM[1],
-  );
-  addLocalBox(
-    builder,
-    EURO_GLASS,
-    podiumOrigin,
-    0,
-    profile.groundY + podium.measuredHeightM / 2,
-    0,
-    podium.footprintLengthM,
-    podium.measuredHeightM,
-    podium.footprintDepthM,
-    profile.rotationY,
-  );
-  addTierFacadeGrid(
-    builder,
-    rotatedRectangleRing(
-      podium.centerWorldM,
-      podium.footprintLengthM,
-      podium.footprintDepthM,
-      profile.rotationY,
-    ),
-    profile.groundY,
-    profile.groundY + podium.measuredHeightM,
-    podium.floorCount,
-    EURO_ALUMINIUM,
-  );
-  addLocalBox(
-    builder,
-    EURO_ALUMINIUM_SHADOW,
-    podiumOrigin,
-    0,
-    profile.groundY + podium.measuredHeightM + 0.16,
-    0,
-    podium.footprintLengthM + 0.38,
-    0.32,
-    podium.footprintDepthM + 0.38,
-    profile.rotationY,
-  );
+  // The exact multi-part podium facades are supplied by EuropacityArchitecture.
+
 }
 
 function addEuropaplatzNorth(builder: Builder): void {
@@ -1617,81 +1576,6 @@ function addLehrterCampusConstruction(builder: Builder): void {
   const beacon = new SphereGeometry(0.24, 8, 6);
   beacon.translate(crane.x, mastTopY + 0.4, crane.z);
   addCustomGeometry(builder, beacon, 0xe35a47, false, true);
-}
-
-function addFiftyHertzStructure(builder: Builder): void {
-  const profile = EUROPACITY_PROFILE.fiftyHertz;
-  const origin = new Vector3(
-    profile.centerWorldM[0],
-    profile.groundY,
-    profile.centerWorldM[1],
-  );
-  const floorCount = profile.floorCount;
-  const floorPitch = profile.measuredHeightM / floorCount;
-  for (const side of [-1, 1]) {
-    for (let floor = 0; floor <= floorCount; floor += 1) {
-      addLocalBox(
-        builder,
-        EURO_ALUMINIUM_SHADOW,
-        origin,
-        0,
-        profile.groundY + floorPitch * floor,
-        side * (profile.footprintDepthM / 2 + 0.2),
-        profile.footprintLengthM + 0.5,
-        0.16,
-        0.32,
-        profile.rotationY,
-        false,
-      );
-    }
-    const bayCount = 4;
-    const bayWidth = profile.footprintLengthM / bayCount;
-    for (let firstFloor = 0; firstFloor < floorCount; firstFloor += 2) {
-      const moduleFloors = Math.min(2, floorCount - firstFloor);
-      const moduleHeight = floorPitch * moduleFloors;
-      const braceLength = Math.hypot(bayWidth, moduleHeight);
-      const braceAngle = Math.atan2(moduleHeight, bayWidth);
-      for (let bay = 0; bay < bayCount; bay += 1) {
-        const localX = -profile.footprintLengthM / 2 + bayWidth * (bay + 0.5);
-        const centerY =
-          profile.groundY + floorPitch * (firstFloor + moduleFloors / 2);
-        for (const direction of [-1, 1]) {
-          addTiltedLocalBox(
-            builder,
-            EURO_ALUMINIUM,
-            origin,
-            localX,
-            centerY,
-            side * (profile.footprintDepthM / 2 + 0.34),
-            braceLength,
-            0.3,
-            0.24,
-            direction * braceAngle,
-            profile.rotationY,
-          );
-        }
-      }
-    }
-    for (let floor = 1; floor < floorCount; floor += 1) {
-      if (floor % 4 !== 1) continue;
-      for (let bay = 0; bay < 8; bay += 1) {
-        if ((floor + bay * 2 + (side > 0 ? 1 : 3)) % 5 > 1) continue;
-        addLocalLampBox(
-          builder,
-          EURO_WINDOW_LIGHT,
-          origin,
-          -profile.footprintLengthM / 2 +
-            (profile.footprintLengthM * (bay + 0.5)) / 8,
-          profile.groundY + floorPitch * (floor + 0.5),
-          side * (profile.footprintDepthM / 2 + 0.04),
-          (profile.footprintLengthM / 8) * 0.7,
-          floorPitch - 0.62,
-          0.1,
-          profile.rotationY,
-        );
-      }
-    }
-  }
 }
 
 function addUpbeatCampus(builder: Builder): void {
@@ -5327,7 +5211,6 @@ function addEuropacityCompanyBuildings(
     addEuropaplatzNorth(builder);
     addLehrterCampusConstruction(builder);
   }
-  addFiftyHertzStructure(builder);
   if (dkb) addUpbeatCampus(builder);
 }
 
@@ -6125,7 +6008,7 @@ export function createExpandedCityDetails(
     name: "Invalidenfriedhof surveyed walls and graves",
   });
   if (invalidenfriedhof) group.add(invalidenfriedhof);
-  group.add(createInvalidenfriedhofDetails());
+  group.add(createInvalidenfriedhofDetails({ mobileLike: options.detailProfile === "mobile" }));
 
   const pankeMouthBuilder = createBuilder();
   addPankeMouthFishPass(pankeMouthBuilder);

@@ -23,10 +23,7 @@ type PrismFixture = NonNullable<
 };
 
 const prismPayload = (await Bun.file(
-  new URL(
-    "../public/mesh/regierungsviertel/lod2-prisms.json",
-    import.meta.url,
-  ),
+  new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url),
 ).json()) as PrismFixture;
 const groundPayload = (await Bun.file(
   new URL(
@@ -92,7 +89,7 @@ describe("Invalidenfriedhof pedestrian access", () => {
     }
   });
 
-  test("keeps the four steel legs, bell and upper envelope solid", () => {
+  test("keeps the four steel legs and suspended bell solid", () => {
     const access = environment("day");
     const [legX, legZ] = bellLocalToWorld(2.05, 2.05);
     expect(
@@ -112,7 +109,7 @@ describe("Invalidenfriedhof pedestrian access", () => {
         access,
       ),
     ).toBeTrue();
-    for (const heightAboveGround of [2.9, 4.3, 8.5]) {
+    for (const heightAboveGround of [2.9, 4.3]) {
       expect(
         invalidenfriedhofWalkableInteriorAt(
           bell.centerWorldM[0],
@@ -126,15 +123,14 @@ describe("Invalidenfriedhof pedestrian access", () => {
 
   test("uses the pedestrian capsule radius beside a steel leg", () => {
     const heightAboveGround = 1;
-    const legInset = (heightAboveGround / 4.25) * 0.43;
+    const legInset = (heightAboveGround / 10.044) * 0.64;
     const legCenter = 2.05 - legInset;
-    const [nearLegX, nearLegZ] = bellLocalToWorld(
-      legCenter - 0.4,
-      legCenter,
-    );
+    const [nearLegX, nearLegZ] = bellLocalToWorld(legCenter - 0.4, legCenter);
     const y = bell.centerWorldM[1] + heightAboveGround;
 
-    expect(invalidenfriedhofPedestrianSolidAt(nearLegX, y, nearLegZ, 0)).toBeFalse();
+    expect(
+      invalidenfriedhofPedestrianSolidAt(nearLegX, y, nearLegZ, 0),
+    ).toBeFalse();
     expect(
       invalidenfriedhofPedestrianSolidAt(nearLegX, y, nearLegZ, 0.35),
     ).toBeTrue();

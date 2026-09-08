@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.9
+
+- **Heidestraße und Otto-Weidt-Platz.** 21 Gebäudegruppen mit eigenen
+  Fassaden, Loggien und Materialrhythmen; Autobahn-Zentrale, KPMG Heidestraße 58
+  und der korrekt platzierte mehrteilige EINZ-Sockel bleiben quellgebunden.
+- **50Hertz.** Vollständiges Außentragwerk, Geschossrahmen und orange Kerne;
+  der fertige siebenstöckige Anbau folgt seinem aktuellen OSM-Grundriss.
+- **Invalidenfriedhof.** Witzleben, Winterfeld und Rauch, der offene silberne
+  Glockenträger sowie die getrennten historischen und DDR-Mauern werden präzisiert.
+- **Günter-Litfin-Gedenkstätte.** Korrigierte Schaft- und Dachproportionen,
+  umlaufende Fenster, Geländer, Fallrohre und terrassierter Zugang.
+- **Darstellungen.** Eigene Desktop- und Mobilgeometrie für Minecraft;
+  Quellenkonflikte dokumentiert, Fotoreferenzen bleiben außerhalb der Laufzeit.
+
 ## v1.0.8
 
 - **Fahnen.** Dezentes Flattern auch bei ruhender Kamera im normalen Modus;
