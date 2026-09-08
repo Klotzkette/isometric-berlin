@@ -1,3 +1,4 @@
+import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
 import {
@@ -584,6 +585,21 @@ export function compilePedestrianObstacles(
     if (index.obstacleCount > before) {
       index.buildingCount += 1;
     }
+  }
+  // A documented display supplement resolves the official LoD2 gap only
+  // when the source wing is in this payload. Keep its source record intact.
+  const upper = JAKOB_KAISER_EAST_UPPER_PROFILE;
+  if (prisms.buildings.some(b => b.id === upper.sourcePrismId)) {
+    addPolygonObstacle(index, upper.footprintWorld, [upper.courtyardWorld],
+      upper.bottomY, upper.topY, upper.displayPrismId, 1,
+      () => visualMode() === "minecraft" ? Number.NEGATIVE_INFINITY : upper.topY);
+    for (let x = 536; x < 598; x += 4) for (let z = 20; z < 104; z += 4) {
+      if (!pointInPedestrianRing(x, z, upper.footprintWorld) || pointInPedestrianRing(x, z, upper.courtyardWorld)) continue;
+      addPolygonObstacle(index, [[x-2,z-2],[x+2,z-2],[x+2,z+2],[x-2,z+2]], [],
+        upper.bottomY, upper.topY, upper.displayPrismId, 1,
+        () => visualMode() === "minecraft" ? upper.topY : Number.NEGATIVE_INFINITY);
+    }
+    index.buildingCount += 1;
   }
   return index;
 }

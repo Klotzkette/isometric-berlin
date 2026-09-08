@@ -1963,37 +1963,6 @@ function createParliamentaryBandBlocks(
   }
 
   const melh = MINECRAFT_ARCHITECTURAL_PROFILES.marieElisabethLuedersHaus;
-  const melhRowHeight = melh.rotunda.heightM / 6;
-  for (let row = 0; row < 6; row += 1) {
-    pushRing(
-      plan,
-      "six-course Lüders-Haus library rotunda",
-      melh.rotunda.centreWorld,
-      melh.rotunda.baseY + (row + 0.5) * melhRowHeight,
-      melh.rotunda.radiusM,
-      12,
-      [5.6, melhRowHeight - 0.18, 3],
-      row,
-    );
-  }
-  for (let xOffset = -16; xOffset <= 16; xOffset += 8) {
-    for (let zOffset = -16; zOffset <= 16; zOffset += 8) {
-      if (Math.hypot(xOffset, zOffset) > melh.rotunda.radiusM - 1.1) {
-        continue;
-      }
-      pushWorldBlock(
-        plan,
-        "coarse Lüders-Haus rotunda roof cap",
-        [
-          melh.rotunda.centreWorld[0] + xOffset,
-          melh.rotunda.baseY + melh.rotunda.heightM - 0.45,
-          melh.rotunda.centreWorld[1] + zOffset,
-        ],
-        [7.6, 1.2, 7.6],
-        (xOffset + zOffset) % 16 === 0 ? BLOCK.marbleLight : BLOCK.silver,
-      );
-    }
-  }
   const circular = melh.facade.circularFacade;
   const circularCentreY = circular.bottomY + circular.heightM / 2;
   for (let step = 0; step < 16; step += 1) {
@@ -2912,16 +2881,6 @@ export function minecraftArchitecturalReplacementAt(
     return "paul-loebe-rotunda";
   }
 
-  const melh = MINECRAFT_ARCHITECTURAL_PROFILES.marieElisabethLuedersHaus;
-  if (
-    Math.hypot(
-      x - melh.rotunda.centreWorld[0],
-      z - melh.rotunda.centreWorld[1],
-    ) <=
-    melh.rotunda.radiusM + 5
-  ) {
-    return "melh-library-rotunda";
-  }
   if (insideWideningStairReplacement(x, z)) {
     return "melh-widening-stair";
   }

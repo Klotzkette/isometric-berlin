@@ -3243,6 +3243,7 @@ function ensureIsoWorld(
         surfaces,
         {
           buildings: initialBuildings,
+          detailProfile: runtime.coarsePointer ? "mobile" : "full",
           bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
           retainRasterAsphalt: true,
           retainRasterWater: runtime.coarsePointer,

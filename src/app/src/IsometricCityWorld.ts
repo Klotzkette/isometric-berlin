@@ -1,3 +1,6 @@
+import { createParliamentArchitecture } from "./ParliamentArchitecture";
+import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
+import { createHumboldthafenBuildingDetails, HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
 import { ZOLLPACKHOF_PRISM_IDS } from "./zollpackhofProfile";
 import { createZollpackhofDetails } from "./ZollpackhofDetails";
 import { GUSTAV_BRIDGE_SUPPORT_FALLBACK } from "./gustavBridgeSupportSource";
@@ -229,6 +232,7 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
+  detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
   /** Add the one-off presentation/recognition models only to the base batch. */
@@ -581,6 +585,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
+  ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0xe7e3d6])),
   ...GROPIUS_BAU_PRISM_TONES,
   K0002MCN: 0xe0e3df,
   MLwG4KW9: 0xeeeeea,
@@ -758,6 +763,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   // Pariser Platz 4a: reference-supported patina, with the source cap intact.
   K00005Hq: 0x54796a,
   ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
+  ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0x747c79])),
   ORqiW8aK: 0x729083,
   yrDOCds1: 0x729083,
   Vkos5eqV: 0x729083,
@@ -2342,6 +2348,8 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...HUMBOLDTHAFEN_BUILDING_IDS,
+  ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
   "K0002MCN",
   "K0003Ty1",
   "K0003VDk",
@@ -2360,6 +2368,8 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...HUMBOLDTHAFEN_BUILDING_IDS,
+  ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
   ...ARD_HAUPTSTADTSTUDIO_IDS,
   ...BERLINER_ENSEMBLE_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
@@ -2370,6 +2380,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // Wallot's two affected Palais roof parts instead use source-bounded crest
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
   ECONOMIC_MINISTRY_MODERN_CANAL_ID,
 ]);
@@ -8877,9 +8888,6 @@ const HKW_SADDLE_BASE_Y = 15.5;
 /** North/south tips lift, east/west edges dip: the hyperbolic paraboloid. */
 const HKW_SADDLE_RISE_M = 10.5;
 const HKW_SADDLE_DROP_M = 4.5;
-const MELH_ROTUNDA: readonly [number, number] = [406, -139];
-const MELH_ROTUNDA_RADIUS = 16.5;
-const JKH_ARCADE_X = 403.2;
 /**
  * Paul-Löbe-Haus: the LoD2 extract carries the comb as ten plain bars,
  * so the eight glazed committee rotundas that stand in the courtyards
@@ -8893,13 +8901,6 @@ const PLH_NORTH_COURTYARD_X = [179.5, 213.5, 251, 286] as const;
 const PLH_SOUTH_COURTYARD_X = [180.5, 216, 252, 287.5] as const;
 /** Spine hall of the Paul-Löbe-Haus, glazed over its full length. */
 const PLH_SPINE_ROOF_Y = 33.2;
-/** Marie-Elisabeth-Lüders-Haus block roof (LoD2 y0 3.7 + h 29.9). */
-const MELH_ROOF_Y = 33.6;
-/** Jakob-Kaiser-Haus west and north bars. */
-const JKH_ROOF_BARS = [
-  [406, 532, 20, 113, 30.8],
-  [401, 571, 119, 191, 35.1],
-] as const;
 const BOTSCHAFT_MIN_X = -32.1;
 const BOTSCHAFT_MAX_X = 19.9;
 const BOTSCHAFT_MIN_Z = -256.4;
@@ -9305,46 +9306,6 @@ export function createLandmarkRefinements(): Group {
   add(boxTriangles(hkwX - 82, 3.5, hkwZ, [1, 0], 54, 0.5, 66), POOL);
   add(boxTriangles(hkwX - 82, 3.95, hkwZ, [1, 0], 56, 0.4, 68), SHELL_EDGE);
 
-  // --- Marie-Elisabeth-Lüders-Haus: library rotunda + quayside canopy -----
-  const [melhX, melhZ] = MELH_ROTUNDA;
-  add(
-    prismTriangles(melhX, 21, melhZ, MELH_ROTUNDA_RADIUS, 34, 28),
-    STONE_TONE,
-  );
-  add(
-    prismTriangles(melhX, 38.6, melhZ, MELH_ROTUNDA_RADIUS + 1.1, 1.2, 28),
-    SHELL_EDGE,
-  );
-  // Storey rings on the drum: the reading-room galleries.
-  for (let ring = 1; ring <= 6; ring += 1) {
-    const ringY = 6 + (32 / 7) * ring;
-    for (let seg = 0; seg < 28; seg += 1) {
-      const a = (seg / 28) * Math.PI * 2;
-      const b = ((seg + 1) / 28) * Math.PI * 2;
-      const r = MELH_ROTUNDA_RADIUS + 0.05;
-      inkLines.push(
-        melhX + Math.cos(a) * r,
-        ringY,
-        melhZ + Math.sin(a) * r,
-        melhX + Math.cos(b) * r,
-        ringY,
-        melhZ + Math.sin(b) * r,
-      );
-    }
-  }
-  // --- Jakob-Kaiser-Haus: the west arcade facing the Reichstag ------------
-  for (let z = 26; z <= 186; z += 5.6) {
-    add(prismTriangles(JKH_ARCADE_X, 16.6, z, 0.5, 23, 10), COLUMN_TONE);
-  }
-  add(
-    boxTriangles(JKH_ARCADE_X + 0.8, 28.8, 106, [0, 1], 164, 1.3, 3.4),
-    STONE_TONE,
-  );
-  add(
-    boxTriangles(JKH_ARCADE_X + 0.8, 5.3, 106, [0, 1], 164, 0.5, 4.4),
-    SHELL_EDGE,
-  );
-
   // --- Paul-Löbe-Haus: the eight glazed committee rotundas ----------------
   const plhRotundaY = PLH_ROTUNDA_BASE_Y + PLH_ROTUNDA_HEIGHT / 2;
   const plhDrums: [number, number][] = [
@@ -9405,22 +9366,6 @@ export function createLandmarkRefinements(): Group {
   }
   for (const z of [-148, -135, -122]) {
     inkLines.push(158, PLH_SPINE_ROOF_Y, z, 310, PLH_SPINE_ROOF_Y, z);
-  }
-
-  // --- Roof light grids on the Lüders and Kaiser blocks -------------------
-  for (let x = 378; x <= 486; x += 6.4) {
-    inkLines.push(x, MELH_ROOF_Y, -179, x, MELH_ROOF_Y, -82);
-  }
-  for (let z = -179; z <= -82; z += 8) {
-    inkLines.push(378, MELH_ROOF_Y, z, 486, MELH_ROOF_Y, z);
-  }
-  for (const [x0, x1, z0, z1, roofY] of JKH_ROOF_BARS) {
-    for (let x = x0 + 4; x <= x1 - 4; x += 6.6) {
-      inkLines.push(x, roofY, z0 + 3, x, roofY, z1 - 3);
-    }
-    for (let z = z0 + 3; z <= z1 - 3; z += 9) {
-      inkLines.push(x0 + 4, roofY, z, x1 - 4, roofY, z);
-    }
   }
 
   // --- Schweizerische Botschaft: legacy overlay, deliberately disabled ----
@@ -11647,15 +11592,15 @@ export function createIsometricCity(
     // A wall-material tag must not turn a measured pitched roof into a box.
     const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
       ? undefined : mappedMaterialGlazing;
-    const isGlass = PRISM_GLASSED_IDS.has(building.id) ||
-      (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass");
+    const isGlass = !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+      (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass"));
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
     // the exact flat cap. Glass volumes stay clean transparent boxes.
     let bodyHeight = totalHeight;
     let roofTriangles: Float32Array | null = null;
     let roofRect: ReturnType<typeof fitRectangle> = null;
-    const roofCode = economicMinistryRoofCode(
+    const roofCode = HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) ? 1000 : economicMinistryRoofCode(
       building.id,
       historicChariteRoofCode(building.id, building.roof ?? 0),
     );
@@ -12312,6 +12257,15 @@ export function createIsometricCity(
       glassGeometries.push(restaurantGlass);
     }
     if (roofTriangles) {
+      // Newly restored masonry Charité roofs must face the exterior. Legacy
+      // fitted roof facets have mixed winding; preserve vertical gable faces.
+      if (HISTORIC_CHARITE_IDS.has(building.id)) for (let i = 0; i < roofTriangles.length; i += 9) {
+        const ax = roofTriangles[i+3]-roofTriangles[i], az = roofTriangles[i+5]-roofTriangles[i+2];
+        const bx = roofTriangles[i+6]-roofTriangles[i], bz = roofTriangles[i+8]-roofTriangles[i+2];
+        if (az*bx-ax*bz < -1e-6) for (let axis = 0; axis < 3; axis++) {
+          const value = roofTriangles[i+3+axis]; roofTriangles[i+3+axis] = roofTriangles[i+6+axis]; roofTriangles[i+6+axis] = value;
+        }
+      }
       const roofGeometry = new BufferGeometry();
       roofGeometry.setAttribute(
         "position",
@@ -12965,7 +12919,9 @@ export function createIsometricCity(
     group.add(createPaulLoebeCanopy());
     group.add(createLandmarkRefinements());
     group.add(createGymnasiumTiergarten());
-    group.add(createHistoricChariteCampus(prisms));
+    group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full"));
+    group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createDeutschesTheater(prisms));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

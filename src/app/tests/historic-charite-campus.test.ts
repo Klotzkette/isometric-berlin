@@ -94,7 +94,9 @@ describe("the source-distinct historic Charite campus", () => {
   test("keeps the Althoff helm inside the measured source height", () => {
     const campus = model();
     const bounds = new Box3().setFromObject(campus);
-    expect(bounds.max.y).toBeLessThanOrEqual(27.346);
+    const althoffOnly = createHistoricChariteCampus({...prisms, buildings:prisms.buildings.filter(b => CHARITE_FRIEDRICH_ALTHOFF_IDS.has(b.id))});
+    expect(new Box3().setFromObject(althoffOnly).max.y).toBeLessThanOrEqual(27.346);
+    expect(bounds.max.y).toBeLessThanOrEqual(30.501);
     expect(bounds.min.x).toBeLessThan(194);
     expect(bounds.max.x).toBeGreaterThan(510);
     expect(campus.userData.geometryStatus).toContain("LoD2 shells retained");

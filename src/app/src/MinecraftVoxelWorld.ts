@@ -1,3 +1,7 @@
+import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
+import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
+import { createMinecraftHistoricCharite, createHistoricChariteColumnTester } from "./MinecraftHistoricCharite";
+import { createHumboldthafenBuildingDetails, createHumboldthafenBuildingColumnTester } from "./HumboldthafenBuildings";
 import { createMinecraftZollpackhofDetails } from "./ZollpackhofDetails";
 import { zollpackhofContains } from "./zollpackhofProfile";
 import { gustavBridgeSupportReplacementAt } from "./gustavBridgeSupportSource";
@@ -2655,6 +2659,13 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
   yield;
 
+  const harbourBuildingColumnAt = createHumboldthafenBuildingColumnTester(options.sourcePrisms);
+  const chariteBuildingColumnAt = createHistoricChariteColumnTester(options.sourcePrisms ?? []);
+  const sourcePrismPayload = { buildings: (options.sourcePrisms ?? []).filter(p => PARLIAMENT_ARCHITECTURE_IDS.has(p.id)).map(p => ({ ...p, class: 0 })), classes: [], schema_version: 1 };
+  group.add(createMinecraftHistoricCharite(options.sourcePrisms ?? [], options.detailProfile ?? "full"));
+  group.add(createMinecraftParliamentArchitecture(sourcePrismPayload, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createHumboldthafenBuildingDetails(options.sourcePrisms ? { buildings: options.sourcePrisms } : undefined, { minecraft: true, mobileLike: options.detailProfile === "mobile" }));
+  yield;
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   let visitedColumns = 0;
@@ -2680,6 +2691,8 @@ export function* buildMinecraftVoxelWorldSteps(
         (y1dm - y0dm) / 10,
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !chariteBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isSiegessaeuleSourceVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx)))

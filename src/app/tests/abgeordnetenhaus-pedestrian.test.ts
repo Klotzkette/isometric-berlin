@@ -12,6 +12,7 @@ import {
   stepPedestrian, type PedestrianEnvironment, type PedestrianPolygonObstacle,
 } from "../src/pedestrianNavigation";
 import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess";
+import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "../src/parliamentArchitectureProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -46,8 +47,10 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
       expect(obstacle.maxY).toBe((annex.y0_dm + annex.h_dm) / 10);
       expect(obstacle.topAt).toBeUndefined();
     }
+    // The JKH source-gap supplement has a mode-dependent polygon/cube top;
+    // its source podium stays untouched and is tested independently.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
-      .toEqual([profile.mainPrismId, "RVRCWHeT", "FqL2azIz"].sort());
+      .toEqual([profile.mainPrismId, "RVRCWHeT", "FqL2azIz", JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

@@ -447641,6 +447641,29 @@
       "part_inventory": "src/app/src/sonyCenterRoofSource.ts#SONY_CENTER_ROOF_PRISM_IDS",
       "source_records_retained": true,
       "neighbouring_building_envelopes_retained": true
+    },
+    {
+      "feature_id": "DEBE3DsO9RhopAvB",
+      "kind": "missing_upper_wing_display_reconstruction",
+      "sources": [
+        "lod2",
+        "Bundestag Jakob-Kaiser-Haus architecture",
+        "gmp houses 4 and 8",
+        "Wikimedia Commons visual references"
+      ],
+      "conflict": "The delivered part records only a 4.325 m podium; its northeast upper wing is absent although clearly visible in the 2025 exterior references. A fresh 2026-03-02 CityGML check confirms the same low geometry and eight parent parts, with no missing part in the neighbouring 390_5819 tile.",
+      "resolution": "Retain every source record. Add only the exact existing 9RhopAvB plan intersected with world x >= 535 m, preserving its courtyard hole. The supplement extends from world y 8.9 m to 26.6 m, using the published general 22 m eaves constraint above source ground 4.6 m as an explicitly non-surveyed display height. Drawn collision uses the exact plan; Minecraft uses its matching 4 m cube union. No bounds expansion.",
+      "geometry_ref": "src/app/src/parliamentArchitectureProfile.ts#JAKOB_KAISER_EAST_UPPER_PROFILE",
+      "documentation_ref": "docs/parliament-refinement.md",
+      "source_recheck": {
+        "created": "2026-03-02",
+        "checked": "2026-09-08",
+        "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5819.zip",
+        "sha256": "86084bf012830c373bbcb4ac1ca2814153430bb9a1eb6d8271b1f7fc8ccecd17"
+      },
+      "source_records_retained": true,
+      "courtyard_void_retained": true,
+      "display_height_is_surveyed": false
     }
   ]
 }

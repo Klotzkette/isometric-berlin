@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.0.4
+
+- **Jakob-Kaiser-Haus und Marie-Elisabeth-Lueders-Haus genauer.** Eigene
+  Fensterachsen, Laibungen, Zedernholzfelder und getrennte Westfassaden folgen
+  den Quellkanten. Der falsche hohe Bibliothekszylinder weicht einer flachen
+  verglasten Dachkrone. Strassen und Innenhoefe bleiben frei. Der amtlich
+  fehlende obere Jakob-Kaiser-Ostfluegel wird auf seinem vorhandenen Grundriss
+  als dokumentierte Hoehenschaetzung mit passender Kollision ergaenzt.
+- **HumboldtHafenEins und H3/H4 erhalten eigene Fassaden.** Gefaltete helle
+  Pfeiler, versetzte breite und schmale Fenster, Geschossbaender, Sockelglas
+  und Balkonbrüstungen folgen den dokumentierten Gebaeudefamilien. Die
+  Quellkoerper und ihre Hoehen bleiben erhalten; Flachdaecher ersetzen
+  unpassende generische Dachinterpretationen.
+- **Historische Charite als Backsteinarchitektur.** Pathologie und Museum
+  erhalten Rundbogenfenster, Blindfelder, Gesimse und den modernisierten
+  Museumseingang. Am Friedrich-Althoff-Haus kommen sieben Fassadenachsen,
+  gepaarte Obergeschossfenster und vier Gauben hinzu. Falsche Glasmaterialien
+  und nach innen gerichtete Dachflaechen sind korrigiert.
+- **Eigene Minecraft-Darstellungen und Quellenpruefung.** Sichtbare Fassaden
+  ersetzen verdeckende grobe Quellbloecke in eng begrenzten Bereichen. Acht
+  neue Commons-Referenzen sind einzeln kreditiert; Fotos bleiben ungebuendelt.
+
 ## v1.0.3
 
 - **Schneller und zuverlaessiger zu Fuss.** Alle fuenf Modi verwenden jetzt

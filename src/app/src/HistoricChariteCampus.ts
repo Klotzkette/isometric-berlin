@@ -22,7 +22,9 @@ import {
 } from "./drawnKit";
 import type { PrismBuilding, PrismPayload } from "./IsometricCityWorld";
 
-type FacadeWall = {
+export type ChariteSourcePrism = Pick<PrismBuilding, "id" | "ring" | "y0_dm" | "h_dm"> & { holes?: number[][][] };
+
+export type ChariteFacadeWall = {
   dirX: number;
   dirZ: number;
   index: number;
@@ -101,6 +103,7 @@ export const HISTORIC_CHARITE_PROFILE = {
     sourceUrls: [
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080",
       "https://sammlungsportal.charite.de/viewer/historischerrundgang/",
+      "https://commons.wikimedia.org/wiki/File:Friedrich-Althoff-Haus_Charit%C3%A9_Campus_Mitte_2024-05-09_01.jpg",
     ],
   },
   museum: {
@@ -111,6 +114,10 @@ export const HISTORIC_CHARITE_PROFILE = {
     lod2Parent: "DEBE01YYK000012I",
     name: "Berliner Medizinhistorisches Museum and former Pathology",
     sourceUrls: [
+      "https://www.charite.de/service/pressemitteilung/artikel/detail/wieder_geoeffnet_berliner_medizinhistorisches_museum",
+      "https://www.charite.de/en/service/map/plan/map/ccm_virchowweg_16/",
+      "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_14,_2025.jpg",
+      "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_16,_2025.jpg",
       "https://bmm-charite.de/museum",
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080",
     ],
@@ -146,7 +153,7 @@ export const HISTORIC_CHARITE_TONES = {
   virologyFrame: 0xf0f0e8,
 } as const;
 
-function ringWalls(ring: number[][]): FacadeWall[] {
+export function chariteRingWalls(ring: number[][]): ChariteFacadeWall[] {
   let doubleArea = 0;
   for (let index = 0; index < ring.length; index += 1) {
     const [x1, z1] = ring[index];
@@ -154,7 +161,7 @@ function ringWalls(ring: number[][]): FacadeWall[] {
     doubleArea += x1 * z2 - x2 * z1;
   }
   const flip = doubleArea >= 0 ? 1 : -1;
-  const walls: FacadeWall[] = [];
+  const walls: ChariteFacadeWall[] = [];
   for (let index = 0; index < ring.length; index += 1) {
     const [x1dm, z1dm] = ring[index];
     const [x2dm, z2dm] = ring[(index + 1) % ring.length];
@@ -182,7 +189,7 @@ function ringWalls(ring: number[][]): FacadeWall[] {
 
 function addWallBox(
   builder: Builder,
-  wall: FacadeWall,
+  wall: ChariteFacadeWall,
   color: number,
   along: number,
   y: number,
@@ -211,7 +218,7 @@ function addWallBox(
 
 function addWallLine(
   builder: Builder,
-  wall: FacadeWall,
+  wall: ChariteFacadeWall,
   y: number,
   outward: number,
   inset = 0.12,
@@ -248,7 +255,7 @@ function segmentalWindowShape(width: number, height: number): Shape {
 
 function addWallShape(
   builder: Builder,
-  wall: FacadeWall,
+  wall: ChariteFacadeWall,
   shape: Shape,
   color: number,
   along: number,
@@ -278,6 +285,16 @@ function addWallShape(
     1,
   );
   geometry.applyMatrix4(matrix);
+  // ShapeGeometry's local +Z winding becomes inward on counter-clockwise
+  // source rings. Repair the triangles rather than hiding it with DoubleSide.
+  if (matrix.determinant() < 0 && geometry.index) {
+    const indices = geometry.index;
+    for (let i = 0; i < indices.count; i += 3) {
+      const second = indices.getX(i + 1);
+      indices.setX(i + 1, indices.getX(i + 2));
+      indices.setX(i + 2, second);
+    }
+  }
   paintGeometry(geometry, color);
   (lamp ? builder.lamps : builder.parts).push(geometry);
   if (inked) {
@@ -298,157 +315,222 @@ function deterministicLit(
   return value % 11 < 2;
 }
 
-function addHeritageFacade(
-  builder: Builder,
-  building: PrismBuilding,
-  ornate: boolean,
-): { brickCourses: number; windows: number } {
+/** Roof rises derived from the shipped LoD2 plans by the existing roof fitter.
+ * Kept separate from measured heights; tests compare these against that fitter.
+ */
+const CHARITE_PRESENTATION_ROOF_RISE: Readonly<Record<string, number>> = {
+  t76KCSEh: 4.526422, KztaII44: 2.890276, f4N7OZJI: 1.506490,
+  YxDLPnmj: 1.2, a1867w53: 3.311571, "8iaMbUbh": 3.877433,
+  GvVmBh7X: 3.335511, L1huVZLC: 1.2, FYv2Tjwz: 1.2,
+  nbLoon0z: 4.052172, z6MeXghE: 1.2, KfoCv8uc: 1.2,
+  g4TL0DRA: 3.669679, ipiWvMxH: 1.2, kE14CQ1A: 1.2,
+  "6tNuQDav": 4.077240, S8FCLrDr: 1.2, wPdkkr3q: 3.196970,
+};
+
+export function historicChariteFacadeTop(building: ChariteSourcePrism): number {
+  if (building.id === CHARITE_ALTHOFF_TOWER_ID) {
+    return CHARITE_ALTHOFF_TOWER_HELM_BOTTOM_Y_M;
+  }
+  return (building.y0_dm + building.h_dm) / 10 -
+    (CHARITE_PRESENTATION_ROOF_RISE[building.id] ?? 0);
+}
+
+export function chariteContainsRing(ring: number[][], x: number, z: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [ax, az] = ring[i].map(v => v / 10);
+    const [bx, bz] = ring[j].map(v => v / 10);
+    if ((az > z) !== (bz > z) && x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
+  }
+  return inside;
+}
+
+export function chariteFacadePointExposed(
+  sourceId: string, wall: ChariteFacadeWall, along: number, y: number,
+  buildings: readonly ChariteSourcePrism[], outward = 0.24,
+): boolean {
+  const x = wall.x1 + wall.dirX * along + wall.nx * outward;
+  const z = wall.z1 + wall.dirZ * along + wall.nz * outward;
+  return !buildings.some(other => other.id !== sourceId &&
+    y >= other.y0_dm / 10 && y <= (other.y0_dm + other.h_dm) / 10 &&
+    chariteContainsRing(other.ring, x, z) &&
+    !(other.holes ?? []).some(hole => chariteContainsRing(hole, x, z)));
+}
+
+export type ChariteHeritageWindow = {
+  sourceId: string;
+  wall: ChariteFacadeWall;
+  along: number;
+  bottom: number;
+  width: number;
+  height: number;
+  floor: number;
+  bay: number;
+  paired: boolean;
+  blind: boolean;
+  streetAlthoff: boolean;
+  museumStreet?: boolean;
+  towerWindow?: boolean;
+};
+
+export function historicChariteWindows(
+  building: ChariteSourcePrism, buildings: readonly ChariteSourcePrism[],
+): ChariteHeritageWindow[] {
+  const windows: ChariteHeritageWindow[] = [];
   const y0 = building.y0_dm / 10;
-  const height = Math.max(2.5, building.h_dm / 10);
-  const roofReserve = Math.min(4.2, Math.max(1.1, height * 0.17));
-  const facadeTop = y0 + height - roofReserve;
-  let windows = 0;
-  let brickCourses = 0;
-
-  for (const wall of ringWalls(building.ring)) {
-    if (wall.length < 2.5) continue;
-    const outward = 0.135;
-    addWallBox(
-      builder,
-      wall,
-      HISTORIC_CHARITE_TONES.stone,
-      wall.length / 2,
-      y0 + 0.48,
-      outward,
-      wall.length + 0.12,
-      0.88,
-      0.12,
-    );
-    addWallBox(
-      builder,
-      wall,
-      HISTORIC_CHARITE_TONES.plaster,
-      wall.length / 2,
-      facadeTop - 0.28,
-      outward + 0.01,
-      wall.length + 0.16,
-      0.48,
-      0.14,
-      false,
-      true,
-    );
-    for (let y = y0 + 1.14; y < facadeTop - 0.55; y += 1.12) {
-      addWallLine(builder, wall, y, outward + 0.085);
-      brickCourses += 1;
-    }
-
-    const floorPitch = ornate ? 4.05 : 4.18;
-    const floors = Math.max(
-      1,
-      Math.floor((facadeTop - y0 - 1.25) / floorPitch),
-    );
-    const bayPitch = ornate ? 3.05 : 3.25;
-    const bays = Math.max(1, Math.floor((wall.length - 1.2) / bayPitch));
-    const actualPitch = (wall.length - 1.2) / bays;
-    for (let floor = 0; floor < floors; floor += 1) {
-      const bottom = y0 + 1.32 + floor * floorPitch;
-      const outerWidth = Math.min(1.74, actualPitch * 0.61);
-      const outerHeight = ornate ? 2.65 : 2.52;
-      if (bottom + outerHeight > facadeTop - 0.3) continue;
-      for (let bay = 0; bay < bays; bay += 1) {
-        const along = 0.6 + actualPitch * (bay + 0.5);
-        addWallShape(
-          builder,
-          wall,
-          segmentalWindowShape(outerWidth, outerHeight),
-          HISTORIC_CHARITE_TONES.plaster,
-          along,
-          bottom,
-          outward + 0.035,
-          false,
-          true,
-        );
-        const paneWidth = outerWidth - 0.32;
-        const paneHeight = outerHeight - 0.36;
-        addWallShape(
-          builder,
-          wall,
-          segmentalWindowShape(paneWidth, paneHeight),
-          deterministicLit(building.id, wall.index, floor, bay)
-            ? HISTORIC_CHARITE_TONES.nightGlass
-            : HISTORIC_CHARITE_TONES.glassDark,
-          along,
-          bottom + 0.16,
-          outward + 0.065,
-          deterministicLit(building.id, wall.index, floor, bay),
-        );
-        addWallBox(
-          builder,
-          wall,
-          HISTORIC_CHARITE_TONES.stone,
-          along,
-          bottom - 0.055,
-          outward + 0.075,
-          outerWidth + 0.18,
-          0.11,
-          0.12,
-        );
-        addWallBox(
-          builder,
-          wall,
-          HISTORIC_CHARITE_TONES.stone,
-          along,
-          bottom + paneHeight * 0.58,
-          outward + 0.09,
-          paneWidth,
-          0.055,
-          0.08,
-        );
-        addWallBox(
-          builder,
-          wall,
-          HISTORIC_CHARITE_TONES.stone,
-          along,
-          bottom + paneHeight * 0.43,
-          outward + 0.09,
-          0.055,
-          paneHeight * 0.72,
-          0.08,
-        );
-        windows += 1;
+  const top = historicChariteFacadeTop(building);
+  const ornate = CHARITE_FRIEDRICH_ALTHOFF_IDS.has(building.id);
+  for (const wall of chariteRingWalls(building.ring)) {
+    const towerWindow = building.id === CHARITE_ALTHOFF_TOWER_ID && wall.index >= 2 && wall.index <= 8;
+    if (wall.length < (towerWindow ? 0.8 : 2.5)) continue;
+    const streetAlthoff = building.id === CHARITE_ALTHOFF_TOWER_ID && wall.index === 0;
+    if (building.id === "gwXjAt32" && [14,16].includes(wall.index)) {
+      // OSM museum POI 2033362563 is inside this exact part. The two
+      // northeast-facing source edges read the photographed 2023 vitrine
+      // entrance; the window-to-edge correspondence is a display inference.
+      const rows = wall.index === 14
+        ? [{floor:0,bays:3,bottom:y0+0.5,height:6.2,width:2.9,paired:false},
+           {floor:1,bays:4,bottom:y0+13.5,height:4.8,width:2.55,paired:true}]
+        : [{floor:0,bays:3,bottom:y0+0.5,height:6.2,width:2.7,paired:false},
+           ...[0,1,2].map(floor=>({floor:floor+1,bays:3,bottom:y0+8.3+floor*3.5,height:2.85,width:2.35,paired:true}))];
+      for (const row of rows) for(let bay=0;bay<row.bays;bay++) {
+        const along=(bay+0.5)*wall.length/row.bays;
+        if (![along-row.width/2,along+row.width/2].every(u=>
+          [row.bottom+0.2,row.bottom+row.height-0.2].every(y=>
+            chariteFacadePointExposed(building.id,wall,u,y,buildings)))) continue;
+        windows.push({sourceId:building.id,wall,along,bottom:row.bottom,width:row.width,height:row.height,
+          floor:row.floor,bay,paired:row.paired,blind:false,streetAlthoff:false,museumStreet:true});
       }
+      continue;
     }
-    if (ornate && wall.length >= 7) {
-      for (const along of [0.42, wall.length - 0.42]) {
-        addWallBox(
-          builder,
-          wall,
-          HISTORIC_CHARITE_TONES.stone,
-          along,
-          y0 + (facadeTop - y0) / 2,
-          outward + 0.025,
-          0.42,
-          facadeTop - y0,
-          0.16,
-          false,
-          true,
-        );
+    const floorPitch = streetAlthoff || towerWindow ? 4.65 : ornate ? 4.05 : 4.18;
+    const floors = streetAlthoff || towerWindow ? 3 : Math.max(1, Math.floor((top - y0 - 1.25) / floorPitch));
+    const bays = towerWindow ? 1 : streetAlthoff ? 7 : Math.max(1, Math.floor((wall.length - 1.2) / (ornate ? 3.05 : 3.25)));
+    const margin = towerWindow ? 0.08 : 0.6;
+    const pitch = (wall.length - margin * 2) / bays;
+    for (let floor = 0; floor < floors; floor++) {
+      const bottom = y0 + 1.32 + floor * floorPitch;
+      const width = Math.min(towerWindow ? 0.96 : streetAlthoff ? 1.88 : 1.74, pitch * (towerWindow ? 0.9 : 0.61));
+      const height = streetAlthoff || towerWindow ? 3.0 : ornate ? 2.65 : 2.52;
+      if (bottom + height > top - 0.3) continue;
+      for (let bay = 0; bay < bays; bay++) {
+        const along = margin + pitch * (bay + 0.5);
+        // Neighboring LoD2 parts used to bury a large share of the windows.
+        // Sample both jambs and heights so connecting wings stay blank inside.
+        if (![along - width / 2, along, along + width / 2].every(u =>
+          [bottom + 0.2, bottom + height - 0.2].every(y =>
+            chariteFacadePointExposed(building.id, wall, u, y, buildings)))) continue;
+        windows.push({sourceId: building.id, wall, along, bottom, width, height,
+          floor, bay, paired: streetAlthoff && floor === 2,
+          blind: streetAlthoff && floor === 0 && bay === 0, streetAlthoff, towerWindow});
       }
     }
   }
-  return { brickCourses, windows };
+  return windows;
+}
+
+function addHeritageFacade(
+  builder: Builder, building: ChariteSourcePrism, ornate: boolean,
+  buildings: readonly ChariteSourcePrism[], detailProfile: "full" | "mobile",
+): { brickCourses: number; windows: number; pairedWindows: number; blindWindows: number } {
+  const y0 = building.y0_dm / 10;
+  const facadeTop = historicChariteFacadeTop(building);
+  let brickCourses = 0;
+  const outward = 0.135;
+  for (const wall of chariteRingWalls(building.ring)) {
+    if (wall.length < 2.5) continue;
+    const clearAt = (y: number) => [0.25, 0.5, 0.75].some(fraction =>
+      chariteFacadePointExposed(building.id, wall, wall.length * fraction, y, buildings));
+    if (clearAt(y0 + 0.48)) addWallBox(builder, wall, 0xaaa697, wall.length / 2,
+      y0 + 0.48, outward, wall.length, 0.88, 0.12);
+    if (clearAt(facadeTop - 0.28)) {
+      addWallBox(builder, wall, HISTORIC_CHARITE_TONES.stone, wall.length / 2,
+        facadeTop - 0.28, outward + 0.01, wall.length, 0.32, 0.2, false, true);
+      addWallBox(builder, wall, 0x535956, wall.length / 2,
+        facadeTop - 0.06, outward + 0.10, wall.length, 0.12, 0.16);
+    }
+    for (let y = y0 + 1.14; y < facadeTop - 0.55; y += detailProfile === "mobile" ? 1.28 : 0.64) {
+      if (!clearAt(y)) continue;
+      addWallLine(builder, wall, y, 0.09);
+      brickCourses++;
+    }
+    if (wall.length >= 7 && clearAt((y0 + facadeTop) / 2)) {
+      // Rainwater pipes are slim metal; historic corners are not giant columns.
+      for (const along of [0.23, wall.length - 0.23]) {
+        if (!chariteFacadePointExposed(building.id, wall, along, (y0 + facadeTop) / 2, buildings)) continue;
+        addWallBox(builder, wall, 0x566059, along, (y0 + facadeTop) / 2,
+          0.26, 0.11, facadeTop - y0, 0.12);
+      }
+    }
+    if (ornate && clearAt(y0 + 5.05)) addWallBox(builder, wall,
+      HISTORIC_CHARITE_TONES.stone, wall.length / 2, y0 + 5.05,
+      0.19, wall.length, 0.16, 0.14);
+  }
+  const windows = historicChariteWindows(building, buildings);
+  for (const window of windows) {
+    const {wall, along, bottom, width, height, paired, blind, streetAlthoff, floor, bay} = window;
+    if (window.museumStreet && floor === 1 && wall.index === 14) {
+      addWallBox(builder,wall,HISTORIC_CHARITE_TONES.plaster,along,bottom-3.0,0.16,width,5.75,0.07);
+    }
+    if (window.towerWindow && floor < 2) {
+      addWallBox(builder,wall,HISTORIC_CHARITE_TONES.plaster,along,bottom+height+0.6,0.145,width+0.16,1.18,0.045);
+    }
+    if (streetAlthoff && floor === 1) {
+      addWallBox(builder, wall, HISTORIC_CHARITE_TONES.plaster, along,
+        bottom + height + 0.63, 0.16, width - 0.05, 1.27, 0.07);
+      addWallBox(builder, wall, HISTORIC_CHARITE_TONES.brickLight, along,
+        bottom + height + 0.63, 0.205, 0.12, 1.27, 0.035);
+    }
+    const pieces = paired ? 2 : 1;
+    for (let piece = 0; piece < pieces; piece++) {
+      const w = paired ? (width - 0.15) / 2 : width;
+      const u = along + (paired ? (piece - 0.5) * (width / 2 + 0.075) : 0);
+      addWallShape(builder, wall, segmentalWindowShape(w, height),
+        HISTORIC_CHARITE_TONES.brickDark, u, bottom, 0.17, false, true);
+      const paneWidth = w - 0.25, paneHeight = height - 0.28;
+      const lit = !blind && deterministicLit(building.id, wall.index, floor, bay);
+      addWallShape(builder, wall, segmentalWindowShape(paneWidth, paneHeight),
+        blind ? HISTORIC_CHARITE_TONES.plaster : lit ? HISTORIC_CHARITE_TONES.nightGlass : HISTORIC_CHARITE_TONES.glassDark,
+        u, bottom + 0.12, 0.215, lit);
+      if (!blind) {
+        addWallBox(builder, wall, HISTORIC_CHARITE_TONES.stone, u, bottom + paneHeight * 0.64,
+          0.265, paneWidth, 0.065, 0.06);
+        if (!paired) addWallBox(builder, wall, HISTORIC_CHARITE_TONES.stone, u,
+          bottom + paneHeight * 0.46, 0.265, 0.075, paneHeight * 0.84, 0.06);
+      }
+      if (detailProfile !== "mobile") {
+        // Five lighter voussoir cues around each photographed brick arch;
+        // subdivisions are deliberately not represented as a masonry survey.
+        for (let brick = 0; brick < 5; brick++) {
+          const dx = (brick - 2) * w / 5;
+          const rise = height - Math.min(w * 0.34, height * 0.2) +
+            Math.min(w * 0.17, height * 0.1) * (1 - (dx / (w / 2)) ** 2);
+          const brickFace = new Shape();
+          brickFace.moveTo(-w/12,0);brickFace.lineTo(w/12,0);
+          brickFace.lineTo(w/12,0.10);brickFace.lineTo(-w/12,0.10);brickFace.closePath();
+          addWallShape(builder,wall,brickFace,HISTORIC_CHARITE_TONES.brickLight,
+            u+dx,bottom+rise-0.015,0.245);
+        }
+      }
+    }
+    addWallBox(builder, wall, HISTORIC_CHARITE_TONES.stone, along, bottom - 0.055,
+      0.22, width + 0.18, 0.13, 0.25);
+  }
+  return {brickCourses, windows: windows.length,
+    pairedWindows: windows.filter(w => w.paired).length,
+    blindWindows: windows.filter(w => w.blind).length};
 }
 
 function addVirologyFacade(
   builder: Builder,
-  building: PrismBuilding,
+  building: ChariteSourcePrism,
 ): { ivyPatches: number; windows: number } {
   const y0 = building.y0_dm / 10;
   const height = Math.max(2.5, building.h_dm / 10);
   const facadeTop = y0 + height - 0.7;
   let ivyPatches = 0;
   let windows = 0;
-  for (const wall of ringWalls(building.ring)) {
+  for (const wall of chariteRingWalls(building.ring)) {
     if (wall.length < 2.2) continue;
     const outward = 0.14;
     addWallBox(
@@ -536,6 +618,60 @@ function addVirologyFacade(
   return { ivyPatches, windows };
 }
 
+export const ALTHOFF_STREET_ROOF = {
+  streetStart: [510.4, -500.9] as const,
+  streetEnd: [487.4, -495.1] as const,
+  ridgeInwardM: 4.84,
+  eaveY: 20.1,
+  ridgeY: 26.75,
+  dormerCount: 4,
+  geometryStatus: "street axis and outline from LoD2; roof and dormer proportions from CC0 facade photograph, within original 27.3 m envelope",
+} as const;
+
+export function chariteAlthoffRoofY(x: number, z: number): number {
+  const p = ALTHOFF_STREET_ROOF;
+  const length = Math.hypot(p.streetEnd[0] - p.streetStart[0], p.streetEnd[1] - p.streetStart[1]);
+  const ux = (p.streetEnd[0] - p.streetStart[0]) / length;
+  const uz = (p.streetEnd[1] - p.streetStart[1]) / length;
+  const inward = -(x - p.streetStart[0]) * uz + (z - p.streetStart[1]) * ux;
+  return p.eaveY + (p.ridgeY - p.eaveY) * Math.max(0, 1 - Math.abs(inward - p.ridgeInwardM) / p.ridgeInwardM);
+}
+
+function addAlthoffStreetRoof(builder: Builder, building: ChariteSourcePrism): void {
+  const wall = chariteRingWalls(building.ring).find(w => w.index === 0)!;
+  const ring = building.ring.map(([x,z]) => [x / 10, z / 10]);
+  const ridge = ALTHOFF_STREET_ROOF.ridgeInwardM;
+  const distance = ([x,z]: number[]) => -(x-wall.x1)*wall.nx-(z-wall.z1)*wall.nz-ridge;
+  // Split the exact footprint at the procedural ridge, so triangulation cannot
+  // bridge across the ridge and accidentally flatten this photographed roof.
+  for (const side of [-1, 1]) {
+    const clipped: number[][] = [];
+    for (let i=0;i<ring.length;i++) {
+      const a=ring[i], b=ring[(i+1)%ring.length], da=distance(a)*side, db=distance(b)*side;
+      if (da>=0) clipped.push(a);
+      if ((da>=0)!==(db>=0)) {
+        const t=da/(da-db);clipped.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);
+      }
+    }
+    if(clipped.length<3) continue;
+    const shape=new Shape();clipped.forEach(([x,z],i)=>i===0?shape.moveTo(x,-z):shape.lineTo(x,-z));shape.closePath();
+    const geometry=new ShapeGeometry(shape);geometry.rotateX(-Math.PI/2);
+    const position=geometry.getAttribute("position");
+    for(let i=0;i<position.count;i++) position.setY(i,chariteAlthoffRoofY(position.getX(i),position.getZ(i)));
+    paintGeometry(geometry,HISTORIC_CHARITE_TONES.slate);builder.parts.push(geometry);
+    builder.edges.push(new EdgesGeometry(geometry,25));
+  }
+  for (let index=0;index<ALTHOFF_STREET_ROOF.dormerCount;index++) {
+    const along=wall.length*(index+0.5)/ALTHOFF_STREET_ROOF.dormerCount;
+    addWallBox(builder,wall,HISTORIC_CHARITE_TONES.slate,along,22.28,-1.75,2.65,2.0,1.75);
+    addWallBox(builder,wall,HISTORIC_CHARITE_TONES.stone,along,22.24,-0.83,2.35,1.65,0.12);
+    addWallBox(builder,wall,HISTORIC_CHARITE_TONES.glassDark,along,22.24,-0.73,2.12,1.43,0.08);
+    for(const offset of [-0.53,0,0.53]) addWallBox(builder,wall,HISTORIC_CHARITE_TONES.stone,along+offset,22.24,-0.66,0.065,1.43,0.055);
+    for(const y of [21.98,22.48]) addWallBox(builder,wall,HISTORIC_CHARITE_TONES.stone,along,y,-0.66,2.12,0.065,0.055);
+    addWallBox(builder,wall,HISTORIC_CHARITE_TONES.slate,along,23.33,-1.72,2.83,0.13,1.92);
+  }
+}
+
 function addAlthoffTowerHelm(builder: Builder): void {
   // Centre and total top are read from LoD2 part 50yMshCk. The cone and
   // finial end at the measured 27.345 m world elevation rather than adding
@@ -599,7 +735,9 @@ export function historicChariteRoofCode(
  * Fine facade layer for the three source-distinct Charite ensembles.
  * It never replaces or moves their official LoD2 footprint geometry.
  */
-export function createHistoricChariteCampus(prisms: PrismPayload): Group {
+export function createHistoricChariteCampus(
+  prisms: PrismPayload, detailProfile: "full" | "mobile" = "full", diagnostics = false,
+): Group {
   const group = new Group();
   group.name = "Historic Charite campus details";
   const heritageBuilder = createBuilder();
@@ -609,15 +747,22 @@ export function createHistoricChariteCampus(prisms: PrismPayload): Group {
   let virologyWindows = 0;
   let brickCourses = 0;
   let ivyPatches = 0;
+  let pairedWindows = 0;
+  let blindWindows = 0;
+  const sourceBuildings = prisms.buildings.filter(b => HISTORIC_CHARITE_IDS.has(b.id));
 
-  for (const building of prisms.buildings) {
+  for (const building of sourceBuildings) {
     if (CHARITE_MEDICAL_MUSEUM_IDS.has(building.id)) {
-      const counts = addHeritageFacade(heritageBuilder, building, false);
+      const counts = addHeritageFacade(heritageBuilder, building, false, sourceBuildings, detailProfile);
       museumWindows += counts.windows;
+      pairedWindows += counts.pairedWindows;
+      blindWindows += counts.blindWindows;
       brickCourses += counts.brickCourses;
     } else if (CHARITE_FRIEDRICH_ALTHOFF_IDS.has(building.id)) {
-      const counts = addHeritageFacade(heritageBuilder, building, true);
+      const counts = addHeritageFacade(heritageBuilder, building, true, sourceBuildings, detailProfile);
       althoffWindows += counts.windows;
+      pairedWindows += counts.pairedWindows;
+      blindWindows += counts.blindWindows;
       brickCourses += counts.brickCourses;
     } else if (CHARITE_VIROLOGY_IDS.has(building.id)) {
       const counts = addVirologyFacade(virologyBuilder, building);
@@ -625,7 +770,10 @@ export function createHistoricChariteCampus(prisms: PrismPayload): Group {
       ivyPatches += counts.ivyPatches;
     }
   }
-  addAlthoffTowerHelm(heritageBuilder);
+  if (sourceBuildings.some(b => b.id === CHARITE_ALTHOFF_TOWER_ID)) {
+    addAlthoffStreetRoof(heritageBuilder, sourceBuildings.find(b => b.id === CHARITE_ALTHOFF_TOWER_ID)!);
+    addAlthoffTowerHelm(heritageBuilder);
+  }
 
   const heritage = finishDrawnGroup(heritageBuilder, {
     lampEmissive: HISTORIC_CHARITE_TONES.nightGlass,
@@ -646,9 +794,15 @@ export function createHistoricChariteCampus(prisms: PrismPayload): Group {
     brickCourses,
     ivyPatches,
     museumWindows,
-    sourcePrisms: HISTORIC_CHARITE_IDS.size,
+    sourcePrisms: sourceBuildings.length,
+    pairedWindows,
+    blindWindows,
+    althoffDormers: sourceBuildings.some(b => b.id === CHARITE_ALTHOFF_TOWER_ID) ? 4 : 0,
     virologyWindows,
   };
+  group.userData.detailProfile = detailProfile;
+  if (diagnostics) group.userData.facadeWindowRecords = sourceBuildings.flatMap(b =>
+    CHARITE_VIROLOGY_IDS.has(b.id) ? [] : historicChariteWindows(b, sourceBuildings));
   group.userData.geometryStatus =
     "official LoD2 shells retained; all facade detail is source-bounded, deterministic and explicitly unsurveyed";
   return group;

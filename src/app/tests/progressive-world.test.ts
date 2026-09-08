@@ -1006,10 +1006,12 @@ describe("progressive exact-world scheduling", () => {
     // the four source Gropius parts now replace their far boxes within the
     // same building limit and bounded draw-call count. Zollpackhof and the
     // false Gustav support yield to their context models: 1,354 fewer generic
-    // vertices, without reducing the source inventory.
+    // vertices, without reducing the source inventory. v1.0.4 dedicated
+    // parliament/harbour facades remove duplicate generic detail; restored
+    // masonry Charite roofs retain their exact source heights.
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_745_944,
-      retainedBytes: 53_965_154,
+      vertices: 3_711_688,
+      retainedBytes: 53_456_268,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

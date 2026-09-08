@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.3"
+PACKAGE_VERSION = "1.0.4"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,15 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.3: Der Spaziergang ist rund 53 Prozent schneller. Am Laptop
+Neu in v1.0.4: Jakob-Kaiser-Haus und Marie-Elisabeth-Lueders-Haus erhalten
+quellgebundene Fassaden, freie Hoefe und eine korrigierte Bibliothekskrone.
+HumboldtHafenEins sowie H3/H4 zeigen ihre eigenen Pfeiler-, Fenster- und
+Balkonrhythmen. Pathologie/Museum und Friedrich-Althoff-Haus der Charite
+bekommen Backsteinboegen, Sandsteindetails und geschlossene Dachflaechen.
+Alle Ensembles erhalten eigene Minecraft-Details. Der fehlende obere
+Jakob-Kaiser-Ostfluegel ist als begrenzte Darstellungsschaetzung dokumentiert.
+
+Seit v1.0.3: Der Spaziergang ist rund 53 Prozent schneller. Am Laptop
 springen Leertaste oder Doppelklick auf den orangefarbenen Joystick; auf dem
 Handy reicht ein kurzer Tipp. Neun oeffentliche Bruecken sind in allen Modi
 begehbar. Zollpackhof, Sandkrugbruecke und Wirtschaftsministerium erhalten
@@ -3930,7 +3938,15 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.3: walking is about 53 percent faster. Space or a double-click
+New in v1.0.4: Jakob-Kaiser-Haus and Marie-Elisabeth-Lueders-Haus gain
+source-bound facades, open courtyards and a corrected library crown.
+HumboldtHafenEins and H3/H4 show their distinct piers, windows and balconies.
+The historic Charite Pathology/Museum and Friedrich-Althoff-Haus gain brick
+arches, sandstone details and closed roof surfaces. All ensembles have
+Minecraft details. The missing upper Jakob-Kaiser east wing is documented
+as a bounded display estimate.
+
+Since v1.0.3: walking is about 53 percent faster. Space or a double-click
 on the orange joystick jumps on laptops; phones use a short tap. Nine public
 bridges are walkable in all modes. Zollpackhof, Sandkrugbruecke and the
 Economics Ministry gain source-bound facade and structural details.

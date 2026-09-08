@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.3 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.3/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.4/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,20 +24,23 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.3** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.4** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.3 improves walking in every mode: 53% faster exploration, Space
-or joystick double-click to jump on laptops, and a short joystick tap on phones.
-Nine public bridge crossings now follow the represented decks. Zollpackhof,
-Sandkrugbrücke and the Economics Ministry gain source-bound architectural details.
-See [release changes](CHANGELOG.md#v103), [walking access](docs/pedestrian-mobility.md)
-and [architecture evidence](docs/riverside-refinements.md).
+Version 1.0.4 refines Jakob-Kaiser-Haus, Marie-Elisabeth-Lüders-Haus,
+HumboldtHafenEins, H3/H4 and the historic Charité. Dedicated facades and
+Minecraft details follow source outlines and licensed reference photographs.
+The missing Jakob-Kaiser east wing is an explicitly documented display estimate
+with matching collision. See [release changes](CHANGELOG.md#v104),
+[parliament](docs/parliament-refinement.md),
+[Humboldthafen](docs/humboldthafen-buildings-refinement.md) and
+[Charité](docs/historic-charite-refinement.md).
 
-Version 1.0.3 verbessert den Spaziergang in jedem Modus: 53% schneller,
-Springen per Leertaste oder Joystick-Doppelklick am Laptop und per kurzem Tipp
-auf dem Handy. Neun öffentliche Brücken sind begehbar; Zollpackhof,
-Sandkrugbrücke und Wirtschaftsministerium sind genauer ausgearbeitet.
+Version 1.0.4 verfeinert Jakob-Kaiser-Haus, Marie-Elisabeth-Lüders-Haus,
+HumboldtHafenEins, H3/H4 und die historische Charité. Eigene Fassaden und
+Minecraft-Details folgen den Quellgrundrissen und lizenzierten Referenzfotos.
+Der fehlende obere Jakob-Kaiser-Ostflügel ist als begrenzte
+Darstellungsschätzung mit passender Kollision dokumentiert.
 
 ## Screenshots
 
@@ -62,7 +65,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.3**, built from `main`. Its full viewer
+The current public package is **v1.0.4**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

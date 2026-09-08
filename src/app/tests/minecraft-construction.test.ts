@@ -1,27 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.3 appearance baselines include the source-bound Zollpackhof
-// replacement and Sandkrug/ministry block refinement. Both cooperative
-// and synchronous factories were checked against these exact buffers.
-// Complete committed payloads remain unchanged,
-// including sampled colours and the tunnel. Hashes include every geometry,
-// index, colour and instance buffer, even spare allocated capacity.
+// v1.0.4 appearance baselines include source-bound parliament, harbour and
+// historic Charite architecture. Synchronous and cooperative construction
+// were compared over all complete source payloads before freezing the hashes.
+// Hashes cover all geometry, index, colour and instance buffer capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  [
-    "full",
-    "62e53581154554da01687ad89f51779cc72545b883339ff97a2ce043654bc199",
-    3574724,
-    53,
-    272882804,
-  ],
-  [
-    "mobile",
-    "d3ef326dac063cbc48e09d5f651a8a447a544b1e85f68a4562847d4c56247e19",
-    815072,
-    51,
-    62582224,
-  ],
+  ["full", "fc8c00104aa9348971bb46293b404d3d94e21f0620e076de5609e6d27fd746fd", 3597744, 57, 274641030],
+  ["mobile", "08b7bad85faa91937a8955b03ef87afe270e97ca2c2cac6e6a9d50d029a9e89a", 837953, 55, 64329886],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

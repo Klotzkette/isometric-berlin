@@ -3094,6 +3094,102 @@
       "description": "Sandkrug bridge side elevation, supporting frames, horizontal railing and four lamp masts; external visual QA only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "jakob_kaiser_haus",
+      "title": "File:Jakob-Kaiser-Haus-2025-06-msu-6595.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Jakob-Kaiser-Haus-2025-06-msu-6595.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Matthias Süßen",
+      "credit": "Matthias Süßen / CC BY-SA 4.0",
+      "description": "Northern glazed court, separate office wings and visible stair bays; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "jakob_kaiser_haus",
+      "title": "File:Jakob-Kaiser-Haus-2025-06-msu-6620.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Jakob-Kaiser-Haus-2025-06-msu-6620.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Matthias Süßen",
+      "credit": "Matthias Süßen / CC BY-SA 4.0",
+      "description": "Glazed court hall, limestone facade and external cedar shading; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "historic_charite_campus",
+      "title": "File:Friedrich-Althoff-Haus Charité Campus Mitte 2024-05-09 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Friedrich-Althoff-Haus_Charit%C3%A9_Campus_Mitte_2024-05-09_01.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Leonhard Lenz",
+      "credit": "Leonhard Lenz / CC0",
+      "description": "Historic Charite administration facade: seven window axes, paired upper arches, plaster fields, four dormers and stair turret; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "historic_charite_campus",
+      "title": "File:Charité CCM, Virchowweg 14, 2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_14,_2025.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Schibo",
+      "credit": "Schibo / CC0",
+      "description": "Historic Pathology/Museum building: stepped gable, brick arches, pale blind tracery and chimney rhythm; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "historic_charite_campus",
+      "title": "File:Charité CCM, Virchowweg 16, 2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_16,_2025.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Schibo",
+      "credit": "Schibo / CC0",
+      "description": "Renovated museum facade: tall ground openings, paired upper windows, pale panels and roof dormers; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldthafen",
+      "title": "File:Berlín en agosto de 2024 - BugWarp (50).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(50).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "BugWarp",
+      "credit": "BugWarp / CC BY-SA 4.0",
+      "description": "H3/H4 side balconies and corner loggias, with the historic Charite waterfront context; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldthafen",
+      "title": "File:Humboldthafen Berlin Blick vom Futurium.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_Blick_vom_Futurium.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Elisauer",
+      "credit": "Elisauer / CC BY-SA 4.0",
+      "description": "H3/H4 harbour facade: varied window widths, pale stone grid, dark horizontal belt and tall rectangular colonnade. September 2019 construction-stage photograph; facade cues only, not current site status.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldthafen",
+      "title": "File:Humboldthafen Berlin from Hugo-Preuß-Brücke 2022-10-07 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_from_Hugo-Preu%C3%9F-Br%C3%BCcke_2022-10-07_01.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Leonhard Lenz",
+      "credit": "Leonhard Lenz / CC0",
+      "description": "HumboldtHafenEins: asymmetric vertical facade fins, horizontal floor bands, glazing ribbon and ground arcade; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

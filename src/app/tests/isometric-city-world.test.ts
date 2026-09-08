@@ -755,11 +755,13 @@ describe("ligne-claire fenestration", () => {
     expect(
       detailedWallCounts["Großer Tiergarten-Parkrand"],
     ).toBeGreaterThan(250);
+    // Eight harbour fronts moved to the dedicated source-bound
+    // Humboldthafen facade model; the generic station surroundings remain.
     expect(
       detailedWallCounts.Europaplatz +
         detailedWallCounts.Washingtonplatz +
         detailedWallCounts["Hauptbahnhof-Umfeld"],
-    ).toBeGreaterThan(110);
+    ).toBeGreaterThan(100);
     expect(axes.userData.plazaFacadeDetails.heroFacadesExcluded).toBe(true);
     expect(axes.userData.plazaFacadeDetails.extraRenderables).toBe(0);
     expect(PRISM_SUPPRESSED_IDS.has("25999445")).toBe(true);
@@ -2083,7 +2085,7 @@ describe("real bridge structures", () => {
     );
   });
 
-  test("the four coarsest LoD2 blocks carry their missing signatures", () => {
+  test("HKW and Paul-Löbe retain their signatures without legacy JKH or Lüders doubles", () => {
     const refined = createLandmarkRefinements();
     const bodies = refined.getObjectByName(
       "Landmark refinement bodies",
@@ -2093,13 +2095,13 @@ describe("real bridge structures", () => {
       refined.getObjectByName("Landmark refinement ink lines"),
     ).toBeInstanceOf(LineSegments);
     const bounds = new Box3().setFromObject(bodies);
-    // West as far as the Haus-der-Kulturen reflecting pool, east to the
-    // Jakob-Kaiser-Haus arcade.
+    // This legacy batch now ends at Paul-Löbe. Source-bound parliament
+    // facades replace the old JKH arcade and opaque Lüders cylinder.
     expect(bounds.min.x).toBeLessThan(-550);
-    expect(bounds.max.x).toBeGreaterThan(400);
-    // The saddle shell and the Lüders rotunda both rise well over the
-    // 7 m boxes LoD2 gives them.
-    expect(bounds.max.y).toBeGreaterThan(35);
+    expect(bounds.max.x).toBeGreaterThan(295);
+    expect(bounds.max.x).toBeLessThan(300);
+    expect(bounds.max.y).toBeGreaterThan(29);
+    expect(bounds.max.y).toBeLessThan(34);
   });
 });
 

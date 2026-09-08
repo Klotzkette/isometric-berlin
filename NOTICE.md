@@ -75,6 +75,69 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Abgeordnetenhaus evidence](docs/abgeordnetenhaus-refinement.md) and
   [Gropius Bau evidence](docs/gropius-bau-refinement.md).
 
+- **Jakob-Kaiser-Haus and Marie-Elisabeth-Lüders-Haus architecture:** the
+  Bundestag's [Jakob-Kaiser-Haus account](https://www.bundestag.de/besuche/architektur/kaiserhaus/architektur/architektur-198866)
+  establishes the eight-house structure, separate northern and southern
+  blocks, varied courts and the connections between houses 2/6 and 4/8.
+  [gmp's houses 4 and 8 record](https://www.gmp.de/de/projekte/398/jakob-kaiser-haus-abgeordnetenburos-des-deutschen-bundestages-hauser-4-und-8)
+  documents limestone, cedar and folding exterior shading. The Bundestag's
+  [Marie-Elisabeth-Lüders-Haus account](https://www.bundestag.de/besuche/architektur/luedershaus/architektur)
+  supports the library rotunda, circular hearing-room opening, coffered hall
+  roof and exterior stair reading; its old extension schedule is not used as
+  evidence of present-day construction status. Berlin LoD2 and OSM remain
+  the metric and identity anchors. The current LoD2 Jakob-Kaiser-Haus north
+  block has incomplete upper-storey coverage on its eastern side, also verified
+  in the 2 March 2026 CityGML. Its added upper wing retains the exact eastern
+  portion of the existing podium plan and its courtyard hole. The 22 m eaves
+  height is a display estimate based on the Bundestag's overall architectural
+  description, not a surveyed height for this wing. The original source podium
+  remains unchanged, and pedestrian collision follows the displayed supplement.
+  External visual QA uses Matthias Süßen's
+  [*Jakob-Kaiser-Haus-2025-06-msu-6595.jpg*](https://commons.wikimedia.org/wiki/File:Jakob-Kaiser-Haus-2025-06-msu-6595.jpg)
+  and [*Jakob-Kaiser-Haus-2025-06-msu-6620.jpg*](https://commons.wikimedia.org/wiki/File:Jakob-Kaiser-Haus-2025-06-msu-6620.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)), plus the
+  already credited *Lueders-haus.jpg* and *M E Lueders Haus.jpg* (CC BY-SA 3.0).
+  Local facade articulation is procedural, non-surveyed recognition detail;
+  no new photograph or photographic texture is bundled or loaded.
+
+- **Humboldthafen building ensemble architecture:** [KSP Engel](https://www.ksp-engel.com/projekte/humboldt-hafen-eins)
+  and project manager [KVL](https://www.kvlgroup.com/referenzen/humboldthafen-eins)
+  document HumboldtHafenEins's open upper courts, public passage, arcade and
+  asymmetric glass-fibre-concrete facade fins. [Schüco's H3B/H4B account](https://www.schueco.com/carboncontrol-lu-de/start/humboldthafen)
+  identifies the two seven-storey courtyard buildings and their distinct
+  residential and commercial facade systems. These completed buildings remain
+  separate from earlier competition alternatives. Exact building footprints,
+  courtyard holes and source heights remain attributed Berlin LoD2 geometry;
+  window spacing, small projections and material shades are display estimates.
+  External visual QA uses Elisauer's
+  [*Humboldthafen Berlin Blick vom Futurium.jpg*](https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_Blick_vom_Futurium.jpg)
+  and BugWarp's
+  [*Berlín en agosto de 2024 - BugWarp (50).jpg*](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(50).jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)), and Leonhard
+  Lenz's [*Humboldthafen Berlin from Hugo-Preuß-Brücke 2022-10-07 01.jpg*](https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_from_Hugo-Preu%C3%9F-Br%C3%BCcke_2022-10-07_01.jpg)
+  ([CC0](https://creativecommons.org/publicdomain/zero/1.0/)). Elisauer's
+  September 2019 photograph supplies facade cues only, not current construction
+  status. All three files are attribution-only references; no photograph,
+  crop or image texture is bundled or loaded.
+
+- **Historic Charité Campus Mitte architecture:** the
+  [Landesdenkmalamt ensemble record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080%2CT)
+  documents the historic material palette and building hierarchy. The
+  [Charité museum reopening account](https://www.charite.de/service/pressemitteilung/artikel/detail/wieder_geoeffnet_berliner_medizinhistorisches_museum)
+  establishes the large display windows and entrance changes made in
+  2020–2023. Institutional campus addresses and the attributed OSM museum POI
+  distinguish the Pathological Institute, museum and Friedrich-Althoff-Haus;
+  Berlin LoD2 supplies their footprints and height envelopes. External visual
+  QA uses Leonhard Lenz's
+  [*Friedrich-Althoff-Haus Charité Campus Mitte 2024-05-09 01.jpg*](https://commons.wikimedia.org/wiki/File:Friedrich-Althoff-Haus_Charit%C3%A9_Campus_Mitte_2024-05-09_01.jpg),
+  and Schibo's [*Charité CCM, Virchowweg 14, 2025.jpg*](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_14,_2025.jpg)
+  and [*Charité CCM, Virchowweg 16, 2025.jpg*](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_16,_2025.jpg)
+  (all [CC0](https://creativecommons.org/publicdomain/zero/1.0/)). Window arches,
+  pale plaster fields, gable articulation and dormer proportions are procedural
+  display reconstructions, not facade surveys. Per-file credits accompany the
+  viewer; no photograph, campus-map artwork or photographic texture is bundled
+  or loaded.
+
 - **Siegessäule shaft and gallery (factual and visual evidence):** the
   [Landesdenkmalamt inventory](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050419),
   [official historical panel](https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-1084_geschichte-der-siegessaeule.pdf)

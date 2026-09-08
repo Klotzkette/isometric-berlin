@@ -120,8 +120,11 @@ describe("block-native Berlin architectural signatures", () => {
     expect(materialIds.size).toBe(1);
     expect(totalBlocks).toBeGreaterThan(3_500);
     expect(totalBlocks).toBeLessThan(5_500);
+    // v1.0.4 removes the unsupported library drum (72 wall blocks and
+    // nine roof-cap blocks). The separate source-bound parliament batch
+    // owns its shallow roof crown and the restored source library body.
     expect(meshes.map(({ count }) => count)).toEqual([
-      489, 371, 2_699, 349, 776, 56, 444,
+      489, 371, 2_699, 349, 695, 56, 444,
     ]);
   });
 
@@ -192,11 +195,12 @@ describe("block-native Berlin architectural signatures", () => {
       "eight-step Lüders-Haus widening stair": 20,
       "lower public bridge block handrails": 52,
       "lower public bridge deck": 26,
-      "six-course Lüders-Haus library rotunda": 72,
       "sixteen-block Lüders-Haus Spree opening": 16,
       "upper bridge single block ties": 26,
       "upper parliamentary bridge deck": 13,
     });
+    expect(byName.get(EXPECTED_MODELS[4])["six-course Lüders-Haus library rotunda"]).toBeUndefined();
+    expect(byName.get(EXPECTED_MODELS[4])["coarse Lüders-Haus rotunda roof cap"]).toBeUndefined();
     expect(byName.get(EXPECTED_MODELS[6])).toMatchObject({
       "Hotel Adlon pale stone facade courses": 45,
       "Hotel Adlon supported upper-head block mass": 54,
@@ -285,7 +289,7 @@ describe("block-native Berlin architectural signatures", () => {
         180,
     );
     assertQuarterTurns(meshes[4], "eight coarse Paul-Löbe committee rotundas");
-    assertQuarterTurns(meshes[4], "six-course Lüders-Haus library rotunda");
+    expect(meshes[4].userData.rotationYByCue["six-course Lüders-Haus library rotunda"]).toBeUndefined();
     assertQuarterTurns(meshes[4], "sixteen-block Lüders-Haus Spree opening");
   });
 
@@ -645,9 +649,12 @@ describe("block-native Berlin architectural signatures", () => {
     expect(minecraftArchitecturalReplacementAt(179.5, -108.2)).toBe(
       "paul-loebe-rotunda",
     );
-    expect(minecraftArchitecturalReplacementAt(406, -139)).toBe(
-      "melh-library-rotunda",
-    );
+    // The old 21.5 m-radius rotunda mask erased the actual library envelope.
+    // The new facade/crown layer needs those source columns below it.
+    for (const [x, z] of [[406, -139], [390, -150], [412, -132]]) {
+      expect(minecraftArchitecturalReplacementAt(x, z)).toBeNull();
+      expect(isMinecraftArchitecturalReplacementColumn(x, z)).toBeFalse();
+    }
     expect(minecraftArchitecturalReplacementAt(435, -101)).toBe(
       "melh-widening-stair",
     );

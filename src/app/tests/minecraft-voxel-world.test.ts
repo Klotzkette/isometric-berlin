@@ -139,15 +139,17 @@ describe("true voxel Minecraft world", () => {
     // Source replacements remove duplicate monument/bridge panes, including
     // 122 false windows on the Siegessäule's 37 coarse source columns and
     // 113 obsolete panes on the Zollpackhof/Gustav-support source envelopes.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_593_866);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_591_944);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
     // Abgeordnetenhaus replaces its 476 faulty 3 m columns in both profiles.
     // Zollpackhof and the false Gustav support remove another 76 / 28.
-    expect(instanced("Voxel building columns", world).count).toBe(1_479_486);
+    // v1.0.4 replaces harbour columns and restores the actual MELH library
+    // envelope; these totals cover the factory without optional source prisms.
+    expect(instanced("Voxel building columns", world).count).toBe(1_477_820);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      541_708,
+      541_476,
     );
 
     const landmarks = world.getObjectByName(
@@ -922,7 +924,6 @@ describe("true voxel Minecraft world", () => {
       "berlin-hauptbahnhof": 1_284,
       "brandenburg-gate": 52,
       "chancellery-leadership-cube": 188,
-      "melh-library-rotunda": 85,
       "melh-widening-stair": 40,
       "paul-loebe-rotunda": 149,
       "reichstag-west-portico": 12,
@@ -936,7 +937,6 @@ describe("true voxel Minecraft world", () => {
       "berlin-hauptbahnhof": 1_235,
       "brandenburg-gate": 46,
       "chancellery-leadership-cube": 188,
-      "melh-library-rotunda": 85,
       "melh-widening-stair": 40,
       "paul-loebe-rotunda": 149,
       "reichstag-west-portico": 12,
