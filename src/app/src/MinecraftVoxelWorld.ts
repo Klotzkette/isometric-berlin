@@ -1,3 +1,8 @@
+import { isSovietMemorialReplacementPoint } from "./SovietMemorialSource";
+import { createMinecraftSovietMemorial } from "./MinecraftSovietMemorial";
+import { createComposerMemorialMinecraft } from "./MusicComposerMemorial";
+import { createMinecraftMuseumLenneArchitecture, musicMuseumHallColumnContains } from "./MuseumLenneArchitecture";
+import { createMinecraftHbfBearingSupports } from "./HauptbahnhofBearingSupports";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
 import { createMinecraftHistoricCharite, createHistoricChariteColumnTester } from "./MinecraftHistoricCharite";
@@ -2637,6 +2642,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftBrechtMemorial());
   group.add(createTiergartenLiteraryMemorialsMinecraft());
+  group.add(createComposerMemorialMinecraft());
+  group.add(createMinecraftSovietMemorial(options.detailProfile ?? "full"));
   group.add(createWagnerMemorialMinecraft());
   yield;
   group.add(
@@ -2659,6 +2666,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
   yield;
 
+  group.add(createMinecraftHbfBearingSupports(worldGroundSampler(payload)));
+  group.add(createMinecraftMuseumLenneArchitecture(options.sourcePrisms ? { buildings: options.sourcePrisms.map(p => ({...p,class:0})) } : undefined, {voxels:payload,mobileLike:options.detailProfile === "mobile"}));
   const harbourBuildingColumnAt = createHumboldthafenBuildingColumnTester(options.sourcePrisms);
   const chariteBuildingColumnAt = createHistoricChariteColumnTester(options.sourcePrisms ?? []);
   const sourcePrismPayload = { buildings: (options.sourcePrisms ?? []).filter(p => PARLIAMENT_ARCHITECTURE_IDS.has(p.id)).map(p => ({ ...p, class: 0 })), classes: [], schema_version: 1 };
@@ -2692,6 +2701,8 @@ export function* buildMinecraftVoxelWorldSteps(
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !musicMuseumHallColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&
       !chariteBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isSiegessaeuleSourceVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       (!insideTunnelApproach ||

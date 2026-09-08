@@ -1,3 +1,4 @@
+import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from "./ChancelleryEntranceProfile";
 import {
   BoxGeometry,
   Color,
@@ -1148,6 +1149,19 @@ function createChancelleryBlocks(
     }
   }
 
+  const groundY = CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - frame.anchorWorld[1];
+  const limits = chancelleryFenceLimits(profile.officeSegments.map(s => ({width_m:s.widthM,depth_m:s.depthM,offset_world:[s.offsetLocal[0],0,s.offsetLocal[1]]})));
+  for (let z=limits.z0;z<=limits.z1;z+=.8) {
+    pushLocalBlock(plan,frame,"Ehrenhof iron entrance fence",[limits.x,groundY+1.5,z],[.35,3,.2],BLOCK.iron);
+  }
+  for (const y of [.35,2.55]) pushLocalBlock(plan,frame,"Ehrenhof fence crossbar",[limits.x,groundY+y,(limits.z0+limits.z1)/2],[.25,.14,limits.z1-limits.z0],BLOCK.iron);
+  for (const ring of CHANCELLERY_LAWN_RINGS) {
+    const xs=ring.map(v=>v[0]),zs=ring.map(v=>v[1]);
+    for(let x=Math.floor(Math.min(...xs)/2)*2+1;x<Math.max(...xs);x+=2) for(let z=Math.floor(Math.min(...zs)/2)*2+1;z<Math.max(...zs);z+=2) {
+      if(chancelleryLawnContains(ring,x,z)) pushLocalBlock(plan,frame,"Ehrenhof stepped lawn crossing fence",[x,groundY+.18,z],[2,.22,2],0x5d9634);
+    }
+  }
+
   const [courtX, courtZ] = profile.forecourtOffsetLocal;
   pushFlagPole(
     plan,
@@ -1155,7 +1169,7 @@ function createChancelleryBlocks(
     "Kanzleramt German protocol flag",
     courtX,
     courtZ - 7.2,
-    0,
+    groundY,
   );
   pushFlagPole(
     plan,
@@ -1163,7 +1177,7 @@ function createChancelleryBlocks(
     "Kanzleramt EU protocol flag",
     courtX,
     courtZ + 7.2,
-    0,
+    groundY,
   );
 
   return finishPlan(
@@ -2689,7 +2703,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
     blockNative: true,
     coarseBlockSpanM: COARSE_CIVIC_BLOCK_SPAN_M,
     drawCallBudget: 7,
-    instanceBudget: 5_000,
+    instanceBudget: 5_500,
     noAdditionalPayload: true,
     sourceStack: "versioned architectural signatures + LoD2 voxel mass + OSM",
     staticAntiFlicker: true,

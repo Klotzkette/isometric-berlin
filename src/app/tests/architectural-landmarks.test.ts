@@ -740,9 +740,9 @@ describe("metre-scale architectural recognition models", () => {
       "Chancellery instanced Ehrenhof entrance fence bars",
     );
     expect(fenceBars).toBeInstanceOf(InstancedMesh);
-    expect((fenceBars as InstancedMesh).count).toBe(381);
-    expect(fenceBars!.userData.widthM).toBe(76);
-    expect(fenceBars!.userData.offsetFromSculptureM).toBe(17.5);
+    expect((fenceBars as InstancedMesh).count).toBe(267);
+    expect(fenceBars!.userData.widthM).toBeCloseTo(47.741, 5);
+    expect(fenceBars!.userData.groundWorldY).toBe(5.15);
     expect(fenceBars!.userData.geometryStatus).toContain(
       "between the office wings",
     );
@@ -762,15 +762,11 @@ describe("metre-scale architectural recognition models", () => {
       middleFenceMatrix,
     );
     const lastFenceBar = new Vector3().setFromMatrixPosition(lastFenceMatrix);
-    const cube = new Vector3(...signature.cube_offset_world);
-    const court = new Vector3(...signature.forecourt_offset_world!);
-    const streetDirection = court.clone().sub(cube).normalize();
-    const expectedFenceCentre = court
-      .clone()
-      .addScaledVector(streetDirection, 17.5);
-    expectedFenceCentre.y = 1.325;
-    expect(firstFenceBar.distanceTo(lastFenceBar)).toBeCloseTo(76, 5);
-    expect(middleFenceBar.distanceTo(expectedFenceCentre)).toBeLessThan(0.001);
+    expect(firstFenceBar.distanceTo(lastFenceBar)).toBeCloseTo(47.741,5);
+    expect(firstFenceBar.x).toBeCloseTo(170.438,3);
+    expect(firstFenceBar.z).toBeCloseTo(-27.621,3);
+    expect(lastFenceBar.z).toBeCloseTo(20.12,3);
+    expect(middleFenceBar.y + fenceBars!.position.y).toBeCloseTo(6.65,5);
     expect(
       chancellery!.children.filter((child) =>
         child.name.startsWith("Chancellery Ehrenhof entrance fence rail "),
@@ -819,10 +815,9 @@ describe("metre-scale architectural recognition models", () => {
       8,
     );
     const grassIslands = chancellery!.getObjectByName(
-      "Chancellery instanced Ehrenhof organic grass islands",
+      "Chancellery curved Ehrenhof lawn plots",
     );
-    expect(grassIslands).toBeInstanceOf(InstancedMesh);
-    expect((grassIslands as InstancedMesh).count).toBe(5);
+    expect(grassIslands!.children).toHaveLength(10);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {

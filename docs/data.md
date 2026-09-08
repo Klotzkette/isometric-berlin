@@ -195,6 +195,16 @@ differs by > 2 m between `lod2` and `google3d`), the fusion step:
 3. **Does not delete** the losing value. It remains available for
    downstream QA or for the bounds editor / hero tile workflow.
 
+Step-10 v1.0.5 records three further conflicts in `fused_sources.json`:
+the closed Soviet memorial source envelopes versus the open colonnade and
+forecourt; the Chancellery's low model anchor versus its DGM courtyard
+surface; and the old Lennéstraße 5 source name versus CMS's verified address
+at number 7. Every original source record remains available. The museum's
+sawtooth roof reuses its existing footprint and maximum height. Hbf steel
+sections and facade subdivisions remain explicitly estimated display details.
+See [entrance/station evidence](entrance-station-refinement.md) and
+[museum/Lennéstraße evidence](museum-lenne-refinement.md).
+
 ## Raw download locations (all gitignored)
 
 ```

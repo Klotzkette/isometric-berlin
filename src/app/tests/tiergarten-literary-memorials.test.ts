@@ -475,13 +475,13 @@ describe("analytical solids and protection envelopes", () => {
 });
 
 describe("mobile-bounded Minecraft presentation", () => {
-  test("uses one colour-instanced block-native batch below the 600-block cap", () => {
+  test("uses one colour-instanced block-native batch below the 850-block cap", () => {
     const minecraft = createTiergartenLiteraryMemorialsMinecraft();
     expect(minecraft).toBeInstanceOf(InstancedMesh);
     expect(minecraft.material).toBeInstanceOf(MeshStandardMaterial);
     expect(minecraft.frustumCulled).toBeFalse();
     expect(minecraft.instanceColor).not.toBeNull();
-    expect(minecraft.count).toBe(557);
+    expect(minecraft.count).toBe(763);
     expect(minecraft.userData).toMatchObject({
       blockCount: minecraft.count,
       blockNative: true,
@@ -509,7 +509,7 @@ describe("mobile-bounded Minecraft presentation", () => {
     expect(material.map).toBeNull();
 
     const instanceColor = minecraft.instanceColor!;
-    expect(instanceColor.count).toBe(557);
+    expect(instanceColor.count).toBe(763);
     expect(instanceColor.itemSize).toBe(3);
     expect(instanceColor.version).toBeGreaterThan(0);
     const sampled = new Color();
@@ -519,7 +519,7 @@ describe("mobile-bounded Minecraft presentation", () => {
       palette.add(sampled.getHex());
     }
     expect([...palette].sort((left, right) => left - right)).toEqual(
-      [0xe7e3d6, 0xaaa9a3, 0xaaa79f, 0x987368, 0x486d63, 0x353b3a].sort(
+      [0xe7e3d6, 0xaaa9a3, 0xaaa79f, 0x987368, 0x486d63, 0x353b3a, 0x64867a, 0x716d58].sort(
         (left, right) => left - right,
       ),
     );
@@ -532,8 +532,8 @@ describe("mobile-bounded Minecraft presentation", () => {
     const minecraft = createTiergartenLiteraryMemorialsMinecraft();
     const blockMode = renderedStats(minecraft, true);
     const storedRenderableCount = renderedStats(smooth, false).renderables + blockMode.renderables;
-    expect(snowstorm).toEqual({ renderables: 8, vertices: 24_870 });
-    expect(blockMode).toEqual({ renderables: 1, vertices: 13_368 });
+    expect(snowstorm).toEqual({ renderables: 8, vertices: 33_306 });
+    expect(blockMode).toEqual({ renderables: 1, vertices: 18_312 });
     expect(storedRenderableCount).toBe(9);
   });
 });

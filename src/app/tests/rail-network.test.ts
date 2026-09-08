@@ -66,14 +66,14 @@ describe("C13: the aboveground railway", () => {
     expect(bounds.min.y).toBeLessThan(5);
   });
 
-  test("uses rust-red steel trestles on the east Hauptbahnhof approach", () => {
+  test("uses four photo-guided steel bearing frames immediately east of Hauptbahnhof", () => {
     const group = createRailNetwork(rail, ground)!;
-    expect(group.userData.hbfEastSteelSupportCount).toBeGreaterThan(10);
+    expect(group.userData.hbfEastSteelSupportCount).toBe(4);
     expect(HBF_EAST_STEEL_SUPPORT_BOUNDS).toEqual({
-      maxX: 270,
-      maxZ: -580,
-      minX: -92,
-      minZ: -755,
+      maxX: -10,
+      maxZ: -658,
+      minX: -46,
+      minZ: -722,
     });
   });
 });

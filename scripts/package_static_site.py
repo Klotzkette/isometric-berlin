@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.4"
+PACKAGE_VERSION = "1.0.5"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,14 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.4: Jakob-Kaiser-Haus und Marie-Elisabeth-Lueders-Haus erhalten
+Neu in v1.0.5: Musikinstrumenten-Museum und die fuenf Haeuser an der
+Lennestrasse erhalten eigene Fassaden. Komponisten-, Lessing- und sowjetisches
+Ehrenmal sind genauer modelliert; Panzer und Geschuetze stehen an ihren
+Quellpositionen. Der Kanzleramt-Zaun und die Luftbild-Rasenflaechen liegen
+jetzt oberhalb des Gelaendes. Rostfarbene Hauptbahnhof-Stuetzrahmen und
+HumboldtHafenEins mit dem SPIEGEL-Hauptstadtstudio erhalten weitere Details.
+
+Seit v1.0.4: Jakob-Kaiser-Haus und Marie-Elisabeth-Lueders-Haus erhalten
 quellgebundene Fassaden, freie Hoefe und eine korrigierte Bibliothekskrone.
 HumboldtHafenEins sowie H3/H4 zeigen ihre eigenen Pfeiler-, Fenster- und
 Balkonrhythmen. Pathologie/Museum und Friedrich-Althoff-Haus der Charite
@@ -3938,7 +3945,13 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.4: Jakob-Kaiser-Haus and Marie-Elisabeth-Lueders-Haus gain
+New in v1.0.5: the musical instrument museum and five Lennestrasse buildings
+gain individual facades. Composer, Lessing and Soviet memorials are refined;
+tanks and guns use their source positions. The Chancellery fence and traced
+lawns now stand above the terrain. Rust-coloured station bearing frames and
+HumboldtHafenEins, home to the SPIEGEL capital studio, gain further details.
+
+Since v1.0.4: Jakob-Kaiser-Haus and Marie-Elisabeth-Lueders-Haus gain
 source-bound facades, open courtyards and a corrected library crown.
 HumboldtHafenEins and H3/H4 show their distinct piers, windows and balconies.
 The historic Charite Pathology/Museum and Friedrich-Althoff-Haus gain brick

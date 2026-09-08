@@ -413,8 +413,8 @@ describe("granular memorial recognition models", () => {
       "Composer memorial three lyre-bearing swans": 3,
       "Composer memorial six spread swan wings": 6,
       "Composer memorial three swan lyres": 3,
-      "Composer memorial gilded scale-roof shingles": 18,
-      "Composer memorial three leaf volutes and pinecones": 3,
+
+      "Composer memorial three upward pinecones": 3,
       "Composer memorial three gilded putti": 3,
       "Composer memorial six raised putti arms": 6,
     };
@@ -488,9 +488,9 @@ describe("granular memorial recognition models", () => {
       renderedVertices +=
         vertices * (object instanceof InstancedMesh ? object.count : 1);
     });
-    expect(renderables).toBe(30);
-    expect(storedVertices).toBe(2_847);
-    expect(renderedVertices).toBe(7_137);
+    expect(renderables).toBe(31);
+    expect(storedVertices).toBe(16_777);
+    expect(renderedVertices).toBe(20_659);
   });
 
   test("the literary memorials and composers carry ink-line edges", () => {
@@ -584,8 +584,8 @@ describe("granular memorial recognition models", () => {
   test("gives both restored T-34s their documented display numbers", () => {
     const root = createMemorialLandmarks(landmarks);
     for (const [side, number] of [
-      ["west", "300"],
-      ["east", "200"],
+      ["west", "200"],
+      ["east", "300"],
     ] as const) {
       for (const face of ["left", "right"]) {
         const panel = root.getObjectByName(

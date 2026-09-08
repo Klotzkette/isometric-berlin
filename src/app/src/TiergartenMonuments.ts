@@ -1,3 +1,4 @@
+import { SOVIET_MEMORIAL_SOURCE } from "./SovietMemorialSource";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -2847,7 +2848,8 @@ export function createTiergartenMonuments(
       KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||
       MOABIT_PRISON_GENERIC_ARTWORK_SUPPRESSION_KEYS.has(entry.osm_key) ||
       MONUMENTS_ALREADY_MODELLED.test(name) ||
-      entry.kind === "tank"
+      entry.kind === "tank" ||
+      SOVIET_MEMORIAL_SOURCE.guns.some(gun => gun.osmKey === entry.osm_key)
     ) {
       // The verified recognition layer carries these (incl. both T-34s).
       externallyModelledSourceKeys.push(entry.osm_key);

@@ -472,8 +472,8 @@ isometric-berlin/
   spouts, three portrait fields, two principal bronze allegories and a
   28-field/eight-segment chamfered-octagon fence shared by drawn, Minecraft and
   collision forms. Their combined Smooth Snowstorm budget is exactly 8
-  renderables / 24,870 rendered vertices; Minecraft is one InstancedMesh / 557
-  blocks / 13,368 rendered vertices, for 9 stored renderables across both
+  renderables / 33,306 rendered vertices; Minecraft is one InstancedMesh / 763
+  blocks / 18,312 rendered vertices, for 9 stored renderables across both
   representations. Protection
   radii are 4.3 m and 2.95 m; physical collision remains core-plus-fence-side
   only, and all eight sampled approach directions remain free.

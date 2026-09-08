@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.4/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.5 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.5/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,23 +24,25 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.4** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.5** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.4 refines Jakob-Kaiser-Haus, Marie-Elisabeth-Lüders-Haus,
-HumboldtHafenEins, H3/H4 and the historic Charité. Dedicated facades and
-Minecraft details follow source outlines and licensed reference photographs.
-The missing Jakob-Kaiser east wing is an explicitly documented display estimate
-with matching collision. See [release changes](CHANGELOG.md#v104),
-[parliament](docs/parliament-refinement.md),
-[Humboldthafen](docs/humboldthafen-buildings-refinement.md) and
-[Charité](docs/historic-charite-refinement.md).
+Version 1.0.5 refines the Musikinstrumenten-Museum, the five Lennéstraße
+buildings including CMS, the composer and Lessing monuments, and the Soviet
+memorial with source-aligned tanks and guns. The Chancellery entrance fence
+and traced lawn plots now stand above the terrain. Detailed rust-coloured
+bearing frames sit beside Hauptbahnhof; HumboldtHafenEins, home to the SPIEGEL
+capital studio, gains folded facade fins and a clearer arcade.
+See [release changes](CHANGELOG.md#v105), [museum and Lennéstraße](docs/museum-lenne-refinement.md),
+[composer and Lessing](docs/music-lessing-refinement.md),
+[Soviet memorial](docs/soviet-memorial-refinement.md), and
+[entrance and station](docs/entrance-station-refinement.md).
 
-Version 1.0.4 verfeinert Jakob-Kaiser-Haus, Marie-Elisabeth-Lüders-Haus,
-HumboldtHafenEins, H3/H4 und die historische Charité. Eigene Fassaden und
-Minecraft-Details folgen den Quellgrundrissen und lizenzierten Referenzfotos.
-Der fehlende obere Jakob-Kaiser-Ostflügel ist als begrenzte
-Darstellungsschätzung mit passender Kollision dokumentiert.
+Version 1.0.5 präzisiert Museum, Lennéstraße, Komponisten- und Lessing-Denkmal
+sowie das sowjetische Ehrenmal mit korrigierten Panzer- und Geschützpositionen.
+Am Kanzleramt sind Zaun und Rasenflächen jetzt oberhalb des Geländes sichtbar.
+Hauptbahnhof-Stahlstützen und die Fassaden am SPIEGEL-Hauptstadtstudio erhalten
+weitere belegte Details. Alle fünf Darstellungen bleiben verfügbar.
 
 ## Screenshots
 
@@ -65,7 +67,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.4**, built from `main`. Its full viewer
+The current public package is **v1.0.5**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

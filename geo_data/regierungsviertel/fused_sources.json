@@ -53,7 +53,9 @@
       "feature_id": "DEBE01YYK00002jp",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/spreeRecognitionSource.json#bode",
-      "semantic_evidence": ["OSM relation/4211594"],
+      "semantic_evidence": [
+        "OSM relation/4211594"
+      ],
       "conflicts": [
         {
           "field": "display_height_and_envelope",
@@ -66,7 +68,10 @@
       "feature_id": "DEBE01YYK0000Ahf",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/spreeRecognitionSource.json#grill",
-      "semantic_evidence": ["OSM way/105733634", "OSM node/2884321484"],
+      "semantic_evidence": [
+        "OSM way/105733634",
+        "OSM node/2884321484"
+      ],
       "conflicts": [
         {
           "field": "clipped_geometry_completeness",
@@ -79,35 +84,78 @@
       "feature_id": "DEBE01YYK00001KP",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#britishEmbassy",
-      "semantic_evidence": ["OSM relation/24516"],
+      "semantic_evidence": [
+        "OSM relation/24516"
+      ],
       "conflicts": []
     },
     {
       "feature_id": "DEBE01YYK00003En",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#russianEmbassy",
-      "semantic_evidence": ["OSM node/514864739"],
+      "semantic_evidence": [
+        "OSM node/514864739"
+      ],
       "conflicts": []
     },
     {
       "feature_id": "DEBE01YYK00001vY",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#aeroflot",
-      "semantic_evidence": ["OSM way/195071820"],
+      "semantic_evidence": [
+        "OSM way/195071820"
+      ],
       "conflicts": []
     },
     {
       "feature_id": "DEBE01YYK0000A6r",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#einstein",
-      "semantic_evidence": ["OSM node/1412218896"],
+      "semantic_evidence": [
+        "OSM node/1412218896"
+      ],
       "conflicts": []
     },
     {
       "feature_id": "DEBE01YYK00002Es",
       "anchor_source": "lod2",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts#dussmann",
-      "semantic_evidence": ["OSM node/1665158255"],
+      "semantic_evidence": [
+        "OSM node/1665158255"
+      ],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK0002Kgr",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/museumLenneProfile.ts",
+      "semantic_evidence": [
+        "OSM way/22990151",
+        "SIM museum history",
+        "Wikimedia Commons"
+      ],
+      "conflicts": []
+    },
+    {
+      "feature_id": "hbf_eastern_bearing_frames",
+      "anchor_source": "existing derived OSM railway",
+      "geometry_ref": "src/app/src/HauptbahnhofBearingSupports.ts",
+      "semantic_evidence": [
+        "Sven Okas 2023 CC BY4.0",
+        "DOP2025",
+        "owner observation"
+      ],
+      "conflicts": []
+    },
+    {
+      "feature_id": "DEBE01YYK00003Qp_spiegel",
+      "anchor_source": "lod2",
+      "geometry_ref": "src/app/src/HumboldthafenBuildings.ts",
+      "semantic_evidence": [
+        "OSM node/12121083184",
+        "Berlin.de Alexanderufer5",
+        "KSP Engel HumboldtHafenEins"
+      ],
       "conflicts": []
     }
   ],
@@ -447635,7 +447683,12 @@
     {
       "feature_id": "sony_center_forum_roof",
       "kind": "presentation_interpretation",
-      "sources": ["lod2", "osm", "JAHN project description", "Arup Journal 2000 issue 2"],
+      "sources": [
+        "lod2",
+        "osm",
+        "JAHN project description",
+        "Arup Journal 2000 issue 2"
+      ],
       "conflict": "Ground-to-top prism simplification turns 71 high LoD2 roof parts and OSM roof way 13648222 (building=roof, layer=1, height=67) into occupied buildings below the suspended Forum canopy.",
       "resolution": "Retain all source records and the existing OSM/Arup-bound canopy. Exclude only the 72 explicitly listed roof records from solid prism rendering and ground collision. Correct overlapping voxel columns against the retained neighbouring LoD2 footprints and heights.",
       "part_inventory": "src/app/src/sonyCenterRoofSource.ts#SONY_CENTER_ROOF_PRISM_IDS",
@@ -447664,6 +447717,48 @@
       "source_records_retained": true,
       "courtyard_void_retained": true,
       "display_height_is_surveyed": false
+    },
+    {
+      "feature_id": "soviet_memorial_tiergarten",
+      "kind": "open_memorial_source_envelope",
+      "sources": [
+        "lod2",
+        "osm",
+        "DOP 2025",
+        "Wikimedia Commons references"
+      ],
+      "conflict": "The low FubIvyI4 source mass closes the forecourt; generic WJ00005g/WJ00005h/K0002Kle prisms close the open colonnade and give false walkable roof planes. The old display also compressed/reversed the two tank positions and pointed the guns north.",
+      "resolution": "Preserve all four source records. Replace only their drawn and voxel/collision envelopes with source-bound open colonnade, stairs and granular solids. Exact committed OSM soldier/tank/gun nodes establish component anchors, and 2025 DOP plus credited photos establish relative form/orientation. Suppress only the two now-duplicated generic gun nodes.",
+      "geometry_ref": "src/app/src/SovietMemorialSource.ts",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bundeskanzleramt_ehrenhof",
+      "kind": "terrain_finish_level_conflict",
+      "sources": [
+        "lod2 signature",
+        "dgm",
+        "DOP 2025",
+        "Wikimedia Commons references"
+      ],
+      "conflict": "The recognition anchor at world y1.554m was treated as surface level, burying the 2.65m entrance fence below the actual DGM5.0–5.1m terrain.",
+      "resolution": "Preserve building source anchors and heights; place entrance furniture and paving at5.15m finish level. Join source wing inner faces and trace ten visible lawn boundaries from2025orthophoto. Local section dimensions remain photo estimates.",
+      "geometry_ref": "src/app/src/ChancelleryEntranceProfile.ts",
+      "source_records_retained": true
+    },
+    {
+      "feature_id": "DEBE01YYK0002SCQ",
+      "kind": "semantic_identity_conflict",
+      "sources": [
+        "delivered LoD2 name",
+        "OSM address nodes",
+        "CMS official office address"
+      ],
+      "conflict": "Older source name Botschaft Botsuana on parts at Lennestrasse5 can be mistaken for the requested CMS office.",
+      "resolution": "Retain old source name and all geometry. Map CMS to current official Lennestrasse7, parent DEBE01YYK0002N8w, verified by address and office nodes. Render each tower separately without asserting current embassy tenancy at no5.",
+      "geometry_ref": "src/app/src/museumLenneProfile.ts",
+      "source_records_retained": true
     }
   ]
 }

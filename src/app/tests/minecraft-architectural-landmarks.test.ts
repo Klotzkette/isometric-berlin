@@ -62,7 +62,7 @@ describe("block-native Berlin architectural signatures", () => {
       blockNative: true,
       coarseBlockSpanM: 8,
       drawCallBudget: 7,
-      instanceBudget: 5_000,
+      instanceBudget: 5_500,
       noAdditionalPayload: true,
       staticAntiFlicker: true,
     });
@@ -124,7 +124,7 @@ describe("block-native Berlin architectural signatures", () => {
     // nine roof-cap blocks). The separate source-bound parliament batch
     // owns its shallow roof crown and the restored source library body.
     expect(meshes.map(({ count }) => count)).toEqual([
-      489, 371, 2_699, 349, 695, 56, 444,
+      489, 666, 2_699, 349, 695, 56, 444,
     ]);
   });
 
@@ -443,7 +443,8 @@ describe("block-native Berlin architectural signatures", () => {
     expect(reichstag.max.y).toBeGreaterThan(49);
 
     expect(chancellery.max.x - chancellery.min.x).toBeGreaterThan(325);
-    expect(chancellery.max.x - chancellery.min.x).toBeLessThan(345);
+    // Source buildings plus the newly traced small lawns outside the fence.
+    expect(chancellery.max.x - chancellery.min.x).toBeLessThan(351);
     expect(chancellery.max.y).toBeCloseTo(37.55, 1);
     expect(station.max.x - station.min.x).toBeGreaterThan(335);
     expect(station.max.y).toBeGreaterThan(50);

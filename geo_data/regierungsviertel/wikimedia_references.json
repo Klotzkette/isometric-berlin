@@ -71,15 +71,29 @@
       "photo_bundled": false
     },
     {
-      "landmark_id": "sony_center_surroundings",
+      "landmark_id": "kemperplatz_tiergartentunnel",
       "title": "File:Berlin Kemperplatz.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Kemperplatz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Kemperplatz.jpg",
+      "thumbnail_path": "kemperplatz_tiergartentunnel_01_file-berlin-kemperplatz-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Berlin_Kemperplatz.jpg/960px-Berlin_Kemperplatz.jpg",
       "license": "Public domain",
       "license_url": "",
       "artist": "Bukk",
-      "credit": "Own work; public-domain dedication",
-      "role": "external_visual_QA_reference_attribution_only",
-      "photo_bundled": false
+      "credit": "Own work",
+      "description": "Kemperplatz in Berlin, links Sony-Center, rechts Musikinstrumente-Museum, hinten Turm zur Entlüftung des Tiergartentunnels B96; Blick nach Süden",
+      "dominant_colours": [
+        "#e1e1e1",
+        "#dadadb",
+        "#c9c9ca",
+        "#878889",
+        "#6b7173",
+        "#515253"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA",
+      "used_for_landmark_ids": [
+        "kemperplatz_tiergartentunnel",
+        "sony_center_surroundings"
+      ]
     },
     {
       "landmark_id": "sony_center_surroundings",
@@ -2272,27 +2286,6 @@
     },
     {
       "landmark_id": "kemperplatz_tiergartentunnel",
-      "title": "File:Berlin Kemperplatz.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Kemperplatz.jpg",
-      "thumbnail_path": "kemperplatz_tiergartentunnel_01_file-berlin-kemperplatz-jpg.jpg",
-      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Berlin_Kemperplatz.jpg/960px-Berlin_Kemperplatz.jpg",
-      "license": "Public domain",
-      "license_url": "",
-      "artist": "Bukk",
-      "credit": "Own work",
-      "description": "Kemperplatz in Berlin, links Sony-Center, rechts Musikinstrumente-Museum, hinten Turm zur Entlüftung des Tiergartentunnels B96; Blick nach Süden",
-      "dominant_colours": [
-        "#e1e1e1",
-        "#dadadb",
-        "#c9c9ca",
-        "#878889",
-        "#6b7173",
-        "#515253"
-      ],
-      "role": "visual_reference_for_material_and_facade_QA"
-    },
-    {
-      "landmark_id": "kemperplatz_tiergartentunnel",
       "title": "File:Berlin Tiergartentunnel01 2009-04-04.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Tiergartentunnel01_2009-04-04.jpg",
       "thumbnail_path": "kemperplatz_tiergartentunnel_02_file-berlin-tiergartentunnel01-2009-04-04-jpg.jpg",
@@ -3188,6 +3181,126 @@
       "artist": "Leonhard Lenz",
       "credit": "Leonhard Lenz / CC0",
       "description": "HumboldtHafenEins: asymmetric vertical facade fins, horizontal floor bands, glazing ribbon and ground arcade; external facade QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "beethoven_haydn_mozart_memorial",
+      "title": "File:Mozart - Beethoven-Haydn-Mozart-Denkmal - Berlin, Germany - DSC09446.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mozart_-_Beethoven-Haydn-Mozart-Denkmal_-_Berlin,_Germany_-_DSC09446.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Daderot",
+      "credit": "Daderot / Public domain (via Wikimedia Commons)",
+      "description": "Composer portrait, gesture and console carving; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "musikinstrumentenmuseum",
+      "title": "File:Berlin Musikinstrumentenmuseum 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Musikinstrumentenmuseum_01.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Photo: Andreas Praefcke",
+      "credit": "Photo: Andreas Praefcke / CC BY 3.0 (via Wikimedia Commons)",
+      "description": "Museum low hall, rooflight crown, courtyard and music-research facades; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "musikinstrumentenmuseum",
+      "title": "File:State Institute for Music Research.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:State_Institute_for_Music_Research.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Magnus Manske",
+      "credit": "Magnus Manske / CC BY-SA 3.0 (via Wikimedia Commons)",
+      "description": "Museum low hall, rooflight crown, courtyard and music-research facades; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lenne_tiergarten_fronts",
+      "title": "File:Berlin Tiergartenrand Lennéstr.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Tiergartenrand_Lenn%C3%A9str.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0 (via Wikimedia Commons)",
+      "description": "Lennéstraße 3/5/7 material changes, facade rhythm, projecting storeys and roof profiles; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lenne_tiergarten_fronts",
+      "title": "File:TiergartenLennestraße.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TiergartenLennestra%C3%9Fe.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0 (via Wikimedia Commons)",
+      "description": "Lennéstraße 3/5/7 material changes, facade rhythm, projecting storeys and roof profiles; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "soviet_war_memorial_tiergarten",
+      "title": "File:Berlín en agosto de 2024 - BugWarp (15).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(15).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "BugWarp",
+      "credit": "BugWarp / CC BY-SA 4.0 (via Wikimedia Commons)",
+      "description": "Soviet memorial Tiergarten forecourt, T-34 positions, plinths, vehicle running gear and guns; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "soviet_war_memorial_tiergarten",
+      "title": "File:Berlín en agosto de 2024 - BugWarp (9).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(9).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "BugWarp",
+      "credit": "BugWarp / CC BY-SA 4.0 (via Wikimedia Commons)",
+      "description": "Soviet memorial Tiergarten forecourt, T-34 positions, plinths, vehicle running gear and guns; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Eingangsbereich Bundeskanzleramt.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Eingangsbereich_Bundeskanzleramt.JPG",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "artist": "Martin S. Lindner",
+      "credit": "Martin S. Lindner / CC BY-SA 3.0 de (via Wikimedia Commons)",
+      "description": "Eastern entrance grille between Chancellery wings and its small lawn fields; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Bundeskanzleramt Berlin 2013-05-16.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bundeskanzleramt_Berlin_2013-05-16.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Rolf Heinrich, Köln",
+      "credit": "Rolf Heinrich, Köln / CC BY 3.0 (via Wikimedia Commons)",
+      "description": "Eastern entrance grille between Chancellery wings and its small lawn fields; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldthafenbruecke",
+      "title": "File:Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Sven Okas",
+      "credit": "Sven Okas / CC BY 4.0 (via Wikimedia Commons)",
+      "description": "Rust-brown steel bearing supports beneath the eastern Hauptbahnhof rail exit; 2023 photograph bounds structural recognition detail, not a current condition survey.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
     }

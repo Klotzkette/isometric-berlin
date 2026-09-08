@@ -1,5 +1,35 @@
 # Changelog
 
+## v1.0.5
+
+- **Musikinstrumenten-Museum und Lennéstraße präzisiert.** Graue Plattenfugen,
+  Goldrelief, ovale Fenster, Eingangsvordach und acht Dachlichtzähne ergänzen
+  den Museumsbau. Lennéstraße 3, 5, 7, 9 und 11 erhalten getrennte Fassaden;
+  CMS ist korrekt der Nummer 7 zugeordnet. Quellgrundrisse und maximale
+  Gebäudehöhen bleiben erhalten.
+- **Komponisten- und Lessing-Denkmal verfeinert.** Dreiseitige Dachform,
+  differenzierte Komponistenfiguren, Reliefs und vergoldete Ornamente; beim
+  Lessing-Denkmal vierseitiger Sockel, Figur, offene Becken und Bronzedetails.
+  Beide erhalten abgestimmte Minecraft-Modelle.
+- **Sowjetisches Ehrenmal richtig ausgerichtet.** Westlicher Panzer 200 und
+  östlicher Panzer 300 stehen an ihren Kartenpositionen. Geschütze zeigen
+  nach Süden, Kolonnade und Brunnen folgen den Quellen. Falsche geschlossene
+  Quellkörper und doppelte Geschützmodelle sind ersetzt; Treppen, Durchgänge
+  und Kollision stimmen mit der Darstellung überein.
+- **Kanzleramt-Zaun wieder sichtbar.** Die alte Sockelhöhe hatte Zaun und
+  Rasen verdeckt. Der Ehrenhof verwendet jetzt das Geländeniveau; zehn
+  sichtbare Rasenflächen folgen dem amtlichen Luftbild, einschließlich der
+  vom Zaun durchschnittenen kleinen Flächen. Minecraft erhält Zaun und Rasen.
+- **Hauptbahnhof und SPIEGEL-Standort.** Vier bisher schematische Stützen
+  erhalten fotoorientierte rostfarbene Stahlrahmen, Flansche, Versteifungen
+  und Wartungsgeländer. HumboldtHafenEins mit dem Hauptstadtstudio am
+  Alexanderufer 5 erhält gefaltete Fassadenprofile, Sonnenschutz und eine
+  klarer lesbare Arkadenzone. Temporäre Stützendetails bleiben ausdrücklich
+  Darstellungsschätzungen.
+- **Quellen und Laufzeit.** Zehn neue frei lizenzierte Fotoreferenzen;
+  174 eindeutige Einzelnachweise. Fotos werden nicht als Texturen gebündelt.
+
+
 ## v1.0.4
 
 - **Jakob-Kaiser-Haus und Marie-Elisabeth-Lueders-Haus genauer.** Eigene

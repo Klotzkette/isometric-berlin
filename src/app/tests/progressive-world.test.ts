@@ -1008,10 +1008,12 @@ describe("progressive exact-world scheduling", () => {
     // false Gustav support yield to their context models: 1,354 fewer generic
     // vertices, without reducing the source inventory. v1.0.4 dedicated
     // parliament/harbour facades remove duplicate generic detail; restored
-    // masonry Charite roofs retain their exact source heights.
+    // masonry Charite roofs retain their exact source heights. v1.0.5
+    // replaces the museum/Lenne generic details and four false Soviet prisms
+    // with separate source-bound context models (17,720 fewer vertices).
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_711_688,
-      retainedBytes: 53_456_268,
+      vertices: 3_693_968,
+      retainedBytes: 53_198_102,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

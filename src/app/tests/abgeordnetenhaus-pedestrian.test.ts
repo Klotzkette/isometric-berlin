@@ -49,8 +49,9 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     }
     // The JKH source-gap supplement has a mode-dependent polygon/cube top;
     // its source podium stays untouched and is tested independently.
+    // C63xrbXN now follows the museum sawtooth roof instead of a flat maximum.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
-      .toEqual([profile.mainPrismId, "RVRCWHeT", "FqL2azIz", JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
+      .toEqual([profile.mainPrismId, "RVRCWHeT", "FqL2azIz", "C63xrbXN", JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

@@ -1,3 +1,5 @@
+import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
+import { MUSIC_MUSEUM_HALL_ID, musicMuseumRoofHeightAt } from "./museumLenneProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
@@ -547,6 +549,7 @@ export function compilePedestrianObstacles(
   const replacedParents = new Set<string>();
   for (const building of prisms.buildings) {
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
+    if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
     const zollpackhof = ZOLLPACKHOF_PARTS.find(({ id }) => id === building.id);
     if (zollpackhof) {
@@ -580,7 +583,9 @@ export function compilePedestrianObstacles(
       parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : (building.y0_dm + building.h_dm) / 10,
       building.id,
       0.1,
-      parliamentDisplay ? abgeordnetenhausDisplayTopAt : undefined,
+      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === MUSIC_MUSEUM_HALL_ID
+        ? (x,z) => musicMuseumRoofHeightAt(x,z,visualMode() === "minecraft")
+        : undefined,
     );
     if (index.obstacleCount > before) {
       index.buildingCount += 1;

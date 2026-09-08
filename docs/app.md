@@ -463,11 +463,11 @@ The ten-metre Beethoven-Haydn-Mozart monument keeps its exact Tiergarten anchor
 but now uses the documented rounded granite base, three-sided corner-chamfered
 Pentelic-marble pavilion, three 1.56–1.70 m white-marble half figures in
 round-arched niches, pilasters, masks and instruments, lyre-bearing swans,
-scaled gilded cupola, pinecones and three putti carrying a laurel wreath.
+three-lobed scaled roof with gilded ribs, pinecones and three putti carrying a laurel wreath.
 Published dimensions and iconography remain explicit metadata; uncited local
 subdivision is labelled procedural recognition geometry.
-The complete monument is exactly 10.00 m high and stays at 30 renderables /
-2,847 stored / 7,137 rendered vertices. Its dedicated elevated southern focus
+The complete monument is exactly 10.00 m high and stays at 31 renderables /
+16,777 stored / 20,659 rendered vertices. Its dedicated elevated southern focus
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
 shared protection excludes every tree, mob and loot spawn from the field.
 Outside it, deterministic retention now keeps five sixths of the previously
@@ -576,8 +576,8 @@ Day, Night, Snowstorm and Schwellenraum share the drawn monument models;
 Minecraft substitutes separate block-native counterparts and suppresses the
 smooth roots. Snow caps are reversible and do not alter the
 source anchors. Across Goethe and Lessing, the Smooth Snowstorm model is frozen
-at exactly 8 renderables and 24,870 rendered vertices. Minecraft uses one
-InstancedMesh containing 557 blocks and 13,368 rendered vertices; the two
+at exactly 8 renderables and 33,306 rendered vertices. Minecraft uses one
+InstancedMesh containing 763 blocks and 18,312 rendered vertices; the two
 representations store 9 renderables together. Schwellenraum protection keeps
 the enclosed memorials non-enterable with radii of 4.3 m for Goethe and 2.95 m
 for Lessing, while normal pedestrian collision follows each represented core
@@ -1372,3 +1372,20 @@ The packaged HTTP server uses HTTP/1.1. Immutable procedural JSON, DZI images,
 JavaScript and CSS receive a one-year cache policy, while HTML and the small
 scene manifest revalidate. The repository development server uses revalidation
 so a rebuilt file with the same name is not hidden by cache.
+
+## v1.0.5 museum, Tiergarten and entrance refinements
+
+The museum and five separate Lennéstraße towers use 36 exact source parts,
+source-specific facades and eight museum rooflight teeth within the existing
+height. Composer and Lessing models gain sculptural and architectural detail;
+the composer has a separate 951-block Minecraft interpretation. The Soviet
+memorial replaces four false closed source envelopes with open, source-aligned
+architecture and granular collision. Tanks 200/300 and the two guns now use
+their individual OSM anchors.
+
+The Chancellery entrance is lifted to its actual DGM surface, with ten traced
+lawn outlines crossing the wing-to-wing fence. Four Hauptbahnhof support
+stations receive photographed steel-section detail, and HumboldtHafenEins
+gets folded fins, blinds and a clearer arcade. See the focused evidence docs:
+[museum](museum-lenne-refinement.md), [composer/Lessing](music-lessing-refinement.md),
+and [entrance/station](entrance-station-refinement.md).

@@ -166,3 +166,25 @@ Keep attribution when using any listed reference.
 | humboldthafen | [Berlín en agosto de 2024 - BugWarp (50).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(50).jpg) | BugWarp — attribution only, no bundled photograph | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | humboldthafen | [Humboldthafen Berlin Blick vom Futurium.jpg](https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_Blick_vom_Futurium.jpg) | Elisauer — attribution only, no bundled photograph | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | humboldthafen | [Humboldthafen Berlin from Hugo-Preuß-Brücke 2022-10-07 01.jpg](https://commons.wikimedia.org/wiki/File:Humboldthafen_Berlin_from_Hugo-Preu%C3%9F-Br%C3%BCcke_2022-10-07_01.jpg) | Leonhard Lenz — attribution only, no bundled photograph | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+
+## v1.0.5 external reference additions
+
+These ten files were inspected for architectural and monument detail. No new
+photograph or photographic texture is bundled. Both attribution manifests
+contain 174 unique files. The previously repeated *Berlin Kemperplatz.jpg*
+credit now retains its two landmark roles in one record; its existing thumbnail
+and material palette remain unchanged. The three existing Lessing and two
+existing composer references were reused.
+
+| Landmark | File | Author / credit | License |
+|---|---|---|---|
+| beethoven_haydn_mozart_memorial | [Mozart - Beethoven-Haydn-Mozart-Denkmal - Berlin, Germany - DSC09446.JPG](https://commons.wikimedia.org/wiki/File:Mozart_-_Beethoven-Haydn-Mozart-Denkmal_-_Berlin,_Germany_-_DSC09446.JPG) | Daderot | Public domain |
+| musikinstrumentenmuseum | [Berlin Musikinstrumentenmuseum 01.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Musikinstrumentenmuseum_01.jpg) | Photo: Andreas Praefcke | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
+| musikinstrumentenmuseum | [State Institute for Music Research.jpg](https://commons.wikimedia.org/wiki/File:State_Institute_for_Music_Research.jpg) | Magnus Manske | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| lenne_tiergarten_fronts | [Berlin Tiergartenrand Lennéstr.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Tiergartenrand_Lenn%C3%A9str.jpg) | Manfred Brückels | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| lenne_tiergarten_fronts | [TiergartenLennestraße.jpg](https://commons.wikimedia.org/wiki/File:TiergartenLennestra%C3%9Fe.jpg) | Fridolin freudenfett (Peter Kuley) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| soviet_war_memorial_tiergarten | [Berlín en agosto de 2024 - BugWarp (15).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(15).jpg) | BugWarp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| soviet_war_memorial_tiergarten | [Berlín en agosto de 2024 - BugWarp (9).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(9).jpg) | BugWarp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| bundeskanzleramt | [Eingangsbereich Bundeskanzleramt.JPG](https://commons.wikimedia.org/wiki/File:Eingangsbereich_Bundeskanzleramt.JPG) | Martin S. Lindner | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) |
+| bundeskanzleramt | [Bundeskanzleramt Berlin 2013-05-16.JPG](https://commons.wikimedia.org/wiki/File:Bundeskanzleramt_Berlin_2013-05-16.JPG) | Rolf Heinrich, Köln | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) |
+| humboldthafenbruecke | [Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg](https://commons.wikimedia.org/wiki/File:Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg) | Sven Okas | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |

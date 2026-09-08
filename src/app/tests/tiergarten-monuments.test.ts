@@ -151,6 +151,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
   });
 
+  test("delegates exactly the two mapped ML-20 guns without dropping their source protection",()=>{
+    for(const key of ["node/489765078","node/489766052"]) {
+      expect(monuments.userData.externallyModelledSourceKeys).toContain(key);
+      expect(monuments.userData.protectedExternallyModelledSourceKeys).toContain(key);
+      expect(monuments.userData.protectedRenderedSourceKeys).not.toContain(key);
+    }
+  });
+
   test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {
     expect(monuments).toBeInstanceOf(Group);
     const bodies = monumentBodyMeshes(monuments);

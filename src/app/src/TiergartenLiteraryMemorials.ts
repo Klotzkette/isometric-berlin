@@ -7,7 +7,10 @@ import {
   CylinderGeometry,
   EdgesGeometry,
   Group,
+  Float32BufferAttribute,
   InstancedMesh,
+  LatheGeometry,
+  Vector2,
   Material,
   Mesh,
   MeshStandardMaterial,
@@ -187,8 +190,8 @@ export const TIERGARTEN_LITERARY_MEMORIALS_PROFILE = Object.freeze({
     ]),
     texturePolicy: "procedural geometry only; no photograph or canvas texture",
     maxCombinedRenderables: 12,
-    maxRenderedVertices: 25_000,
-    maxMinecraftBlocks: 599,
+    maxRenderedVertices: 40_000,
+    maxMinecraftBlocks: 850,
   }),
 });
 
@@ -700,6 +703,75 @@ function addWing(
   addEllipsoid(builder, BRONZE_HIGHLIGHT, [position[0], position[1] + 0.12, position[2]], [0.09, 0.42, 0.26], [0.12 * mirror, rotationY, 0.46 * mirror], 7);
 }
 
+/** Chamfered square, unlike a regular octagon; four cornice faces bow inward. */
+export function lessingStoneCourseGeometry(bottom:number,top:number,height:number,concave=false):BufferGeometry {
+  const outline:Array<[number,number]>=[];
+  const half=.81,corner=.47;
+  for(let side=0;side<4;side++) {
+    const a=side*Math.PI/2;
+    for(const [x,z] of [[corner,half],[0,half-(concave?.09:0)],[-corner,half]])
+      outline.push([Math.cos(a)*x-Math.sin(a)*z,Math.sin(a)*x+Math.cos(a)*z]);
+  }
+  const positions:number[]=[],indices:number[]=[],n=outline.length;
+  for(const [level,r] of [[0,bottom],[height,top]])for(const [x,z] of outline)positions.push(x*r,level,z*r);
+  for(let i=0;i<n;i++){const next=(i+1)%n;indices.push(i,n+next,next,i,n+i,n+next);}
+  // The outline is counterclockwise in x/z, so upper triangles reverse winding.
+  for(let i=1;i<n-1;i++){indices.push(0,i,i+1,n,n+i+1,n+i);}
+  const g=new BufferGeometry();g.setAttribute("position",new Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function addLessingStoneCourse(b:Builder,color:number,y:number,bottom:number,top:number,h:number,concave=false,inked=true):void {
+  const g=lessingStoneCourseGeometry(bottom,top,h,concave);g.translate(0,y,0);addGeometry(b,g,color,inked);
+}
+function createLessingCloseCarving(core:Builder,fine:Builder):void {
+  // Four sculptural S-volutes read on the diagonally chamfered pedestal corners.
+  for(const [x,z] of [[-1,-1],[-1,1],[1,-1],[1,1]]) {
+    const a=Math.atan2(x,z),radial=(r:number,y:number):[number,number,number]=>[x*r,y,z*r];
+    addBeam(core,LESSING_RED_GRANITE,radial(.91,1.33),radial(.78,2.12),.105,7,true);
+    addBeam(core,LESSING_RED_GRANITE,radial(.78,2.12),radial(.86,3.04),.085,7,true);
+    for(const [r,y,size] of [[.92,1.41,.19],[.86,3.03,.18]])addTorus(fine,LESSING_RED_GRANITE,radial(r,y),size,.052,[0,a,0],Math.PI*1.8);
+  }
+  // Bronze oval fields and asymmetrical Rococo leaf frames lie in their own facade plane.
+  for(const a of [0,Math.PI/2,Math.PI,-Math.PI/2]) {
+    const p=(x:number,y:number,r:number):[number,number,number]=>[Math.sin(a)*r+Math.cos(a)*x,y,Math.cos(a)*r-Math.sin(a)*x];
+    addEllipsoid(fine,PATINATED_BRONZE,p(0,2.52,1.08),[.39,.47,.047],[0,a,0],9);
+    for(let k=0;k<14;k++){const t=k/14*Math.PI*2;addEllipsoid(fine,k%3===0?BRONZE_HIGHLIGHT:PATINATED_BRONZE,p(Math.cos(t)*.44,2.52+Math.sin(t)*.51,1.16),[.07,.12,.038],[0,a,.45*Math.cos(t)],6);}
+    if(a!==0) {
+      addEllipsoid(fine,BRONZE_HIGHLIGHT,p(.02,2.57,1.19),[.13,.19,.052],[0,a,0],8);
+      addEllipsoid(fine,BRONZE_HIGHLIGHT,p(.15,2.6,1.21),[.058,.05,.04],[0,a,0],6);
+      addEllipsoid(fine,BRONZE_HIGHLIGHT,p(-.03,2.32,1.19),[.24,.14,.045],[0,a,0],8);
+    }
+  }
+  // Breeches, stockings, coat folds, neck ruffle, jaw and period hair rolls.
+  addEllipsoid(fine,CARRARA,[0,6.42,.02],[.15,.16,.16],[0,0,0],7);
+  addEllipsoid(fine,CARRARA,[.035,6.74,.28],[.073,.095,.075],[0,-.1,0],7);
+  for(const x of [-.16,-.06,.06,.16])addBeam(fine,CARRARA,[x,6.3,.38],[x*.5,5.98,.44],.025,5);
+  for(const side of [-1,1]) {
+    for(let k=0;k<3;k++)addEllipsoid(fine,CARRARA,[side*.28,6.62+k*.075,-.035],[.073,.055,.085],[0,0,0],6);
+    addBeam(fine,LESSING_GREY_GRANITE,[side*.21,4.17,.23],[side*.21,4.75,.2],.016,5);
+    addBeam(fine,CARRARA,[side*.41,4.13,-.13],[side*.45,5.32,-.16],.036,5);
+    addBeam(fine,CARRARA,[side*.33,5.9,.35],[side*.15,5.5,.42],.031,5);
+  }
+  for(let k=0;k<3;k++)addBox(fine,LESSING_GREY_GRANITE,[.55,5.18+k*.022,.5],[.40,.009,.53],[-.15,.08,0]);
+  addEllipsoid(fine,CARRARA,[-.39,5.39,.34],[.1,.12,.075],[0,0,-.3],7);
+  // Broad, feathered wings remain sculptural silhouettes rather than tiny ellipsoids.
+  for(const back of [-1,1])for(const side of [-1,1])for(let k=0;k<5;k++) {
+    addBeam(fine,PATINATED_BRONZE,[side*.16,2.03,back*1.46],[side*(.45+k*.17),2.37-k*.045,back*1.52],.048,6);
+  }
+  // Fluted bowls and their supporting water forms, with a dark inset hollow.
+  for(const side of [-1,1]) {
+    addEllipsoid(fine,0x716d58,[side*1.51,1.32,0],[.43,.022,.51],[0,0,0],10);
+    for(let k=0;k<8;k++){const t=k/7*Math.PI-Math.PI/2;addBeam(fine,LESSING_RED_GRANITE,[side*(1.5+.47*Math.cos(t)),1.11,.55*Math.sin(t)],[side*(1.5+.5*Math.cos(t)),1.28,.57*Math.sin(t)],.027,5);}
+    addEllipsoid(core,LESSING_RED_GRANITE,[side*1.5,.96,0],[.19,.19,.21],[0,0,0],8,true);
+    addEllipsoid(fine,PATINATED_BRONZE,[side*1.49,1.69,0],[.09,.055,.12],[0,0,0],7);
+  }
+  // Rear owl sits on real stacked books, beside an exposed lion-head and mane.
+  for(let k=0;k<3;k++)addBox(fine,PATINATED_BRONZE,[-.69,.86+k*.11,-1.72],[.43,.09,.37],[0,k*.08,0]);
+  addEllipsoid(fine,PATINATED_BRONZE,[-.7,1.44,-1.75],[.15,.22,.14],[0,0,0],8);
+  for(const side of [-1,1])addEllipsoid(fine,BRONZE_HIGHLIGHT,[-.7+side*.065,1.5,-1.87],[.034,.039,.022],[0,0,0],6);
+  for(let k=0;k<10;k++){const t=k/10*Math.PI*2;addEllipsoid(fine,PATINATED_BRONZE,[.65+Math.cos(t)*.2,.99+Math.sin(t)*.16,-1.8],[.06,.09,.1],[0,0,t],6);}
+  addEllipsoid(fine,BRONZE_HIGHLIGHT,[.65,.98,-1.88],[.16,.13,.12],[0,0,0],7);
+}
+
 function createLessingFence(core: Builder, fine: Builder): void {
   const height = 0.96;
   for (let segment = 0; segment < LESSING_FENCE_VERTICES.length; segment += 1) {
@@ -789,12 +861,13 @@ function createLessingRearGroup(core: Builder, fine: Builder): void {
 
 function createLessingSideDetails(core: Builder, fine: Builder): void {
   for (const side of [-1, 1]) {
-    addEllipsoid(core, LESSING_RED_GRANITE, [side * 1.5, 1.18, 0], [0.58, 0.22, 0.72], [0, 0, 0], 9, true);
-    addTorus(fine, LESSING_RED_GRANITE, [side * 1.5, 1.27, 0], 0.5, 0.06, [Math.PI / 2, 0, 0]);
+    const bowl = new LatheGeometry([[0,0],[.25,.04],[.45,.14],[.54,.34],[.47,.36],[.42,.25],[.25,.11],[0,.11]].map(([x,y])=>new Vector2(x,y)),16);
+    bowl.scale(1,1,1.25);bowl.translate(side*1.5,1.02,0);addGeometry(core,bowl,LESSING_RED_GRANITE,true);
+    addTorus(fine, LESSING_RED_GRANITE, [side * 1.5, 1.36, 0], 0.5, 0.04, [Math.PI / 2, 0, 0]);
     addEllipsoid(fine, PATINATED_BRONZE, [side * 1.28, 1.72, 0], [0.26, 0.2, 0.18], [0, 0, side * 0.35], 8);
     addCone(fine, PATINATED_BRONZE, [side * 1.48, 1.69, 0], 0.09, 0.28, 6, [0, 0, side * Math.PI / 2]);
     addTorus(fine, PATINATED_BRONZE, [side * 1.17, 2.5, 0], 0.36, 0.055, [0, Math.PI / 2, 0]);
-    addEllipsoid(fine, BRONZE_HIGHLIGHT, [side * 1.19, 2.5, 0], [0.23, 0.3, 0.08], [0, 0, 0], 8);
+    addEllipsoid(fine, BRONZE_HIGHLIGHT, [side * 1.19, 2.5, 0], [0.23, 0.3, 0.08], [0, Math.PI / 2, 0], 8);
   }
   addTorus(fine, PATINATED_BRONZE, [0, 2.52, -1.16], 0.36, 0.055, [0, 0, 0]);
   addEllipsoid(fine, BRONZE_HIGHLIGHT, [0, 2.52, -1.18], [0.23, 0.3, 0.08], [0, 0, 0], 8);
@@ -803,8 +876,8 @@ function createLessingSideDetails(core: Builder, fine: Builder): void {
 
 function createLessingSnow(): Group {
   const builder = createBuilder();
-  addCylinder(builder, SNOW, [0, 0.725, 0], 1.62, 1.62, 0.05, 8);
-  addCylinder(builder, SNOW, [0, 3.825, 0], 1.5, 1.5, 0.05, 8);
+  addLessingStoneCourse(builder, SNOW, 0.70, 1.62, 1.62, 0.05, false, false);
+  addLessingStoneCourse(builder, SNOW, 3.8, 1.5, 1.5, 0.05, true, false);
   addEllipsoid(builder, SNOW, [0.02, 7.015, 0], [0.27, 0.045, 0.24], [0, 0, 0], 6);
   addEllipsoid(builder, SNOW, [-0.24, 6.05, -0.03], [0.54, 0.05, 0.34], [0, 0, 0.12], 6);
   addEllipsoid(builder, SNOW, [-0.4, 3.23, 1.58], [0.65, 0.045, 0.28], [0, 0, 0], 6);
@@ -828,6 +901,8 @@ function createLessingMemorial(): Group {
     frontWorldXZ: [...TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.frontWorldXZ],
     profile: TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing,
     sourceOwned: true,
+    refinementRevision: "v1.0.5",
+    pedestalPlan: "chamfered square with four concave cornice faces",
   };
   const core = createBuilder();
   const fine = createBuilder();
@@ -841,26 +916,27 @@ function createLessingMemorial(): Group {
   ] as const;
   let stepBottom = 0;
   for (const [radius, height, color] of steps) {
-    addCylinder(core, color, [0, stepBottom + height / 2, 0], radius, radius, height, 8, [0, 0, 0], true);
+    addLessingStoneCourse(core, color, stepBottom, radius, radius, height);
     stepBottom += height;
   }
-  addCylinder(core, LESSING_RED_GRANITE, [0, 0.86, 0], 1.48, 1.55, 0.32, 8, [0, 0, 0], true);
-  addCylinder(core, LESSING_RED_GRANITE, [0, 1.12, 0], 1.32, 1.45, 0.2, 8, [0, 0, 0], true);
-  addCylinder(core, LESSING_RED_GRANITE, [0, 2.18, 0], 1.07, 1.3, 1.92, 8, [0, 0, 0], true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 0.86 - 0.32 / 2, 1.55, 1.48, 0.32, true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 1.12 - 0.2 / 2, 1.45, 1.32, 0.2, true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 2.18 - 1.92 / 2, 1.3, 1.07, 1.92, true);
   for (const [x, z] of [[-0.93, -0.93], [-0.93, 0.93], [0.93, -0.93], [0.93, 0.93]] as const) {
     addTorus(fine, LESSING_RED_GRANITE, [x, 3.15, z], 0.22, 0.09, [Math.PI / 2, 0, 0]);
   }
-  addCylinder(core, LESSING_RED_GRANITE, [0, 3.25, 0], 1.48, 1.08, 0.22, 8, [0, 0, 0], true);
-  addCylinder(core, LESSING_RED_GRANITE, [0, 3.5, 0], 1.62, 1.46, 0.28, 8, [0, 0, 0], true);
-  addCylinder(core, LESSING_RED_GRANITE, [0, 3.74, 0], 1.47, 1.62, 0.2, 8, [0, 0, 0], true);
-  addCylinder(core, LESSING_RED_GRANITE, [0, 3.92, 0], 0.93, 1.22, 0.16, 8, [0, 0, 0], true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 3.25 - 0.22 / 2, 1.08, 1.48, 0.22, true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 3.5 - 0.28 / 2, 1.46, 1.62, 0.28, true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 3.74 - 0.2 / 2, 1.62, 1.47, 0.2, true);
+  addLessingStoneCourse(core, LESSING_RED_GRANITE, 3.92 - 0.16 / 2, 1.22, 0.93, 0.16, true);
 
   addCapsule(core, CARRARA, [-0.2, 4.62, 0.12], 0.19, 0.88, [0.82, 1, 0.82], [0, 0, -0.04], true);
   addCapsule(core, CARRARA, [0.22, 4.58, -0.07], 0.19, 0.8, [0.82, 1, 0.82], [0, 0, 0.04], true);
   addEllipsoid(core, CARRARA, [0, 5.55, 0], [0.59, 0.83, 0.4], [0, 0, 0], 10, true);
-  addCone(core, CARRARA, [0.16, 5.25, -0.17], 0.7, 2.2, 10, [0, 0, -0.08], true);
+  addEllipsoid(core, CARRARA, [0.18, 5.0, -0.22], [0.61, 1.04, 0.18], [0, 0, -0.08], 10, true);
   addEllipsoid(core, CARRARA, [0, 6.7, 0.02], [0.28, 0.3, 0.26], [0, -0.12, 0], 10, true);
-  addBeam(core, CARRARA, [-0.48, 5.95, 0.02], [-0.57, 5.45, 0.12], 0.12, 7, true);
+  addBeam(core, CARRARA, [-0.47, 5.95, 0.05], [-0.78, 5.65, 0.12], 0.12, 7, true);
+  addBeam(core, CARRARA, [-0.78, 5.65, 0.12], [-0.4, 5.38, 0.35], 0.11, 7, true);
   addBeam(core, CARRARA, [0.48, 5.94, 0.03], [0.52, 5.27, 0.42], 0.12, 7, true);
   addBox(core, CARRARA, [0.55, 5.17, 0.5], [0.44, 0.12, 0.58], [-0.15, 0.08, 0], true);
   addEllipsoid(fine, CARRARA, [-0.25, 6.74, -0.17], [0.12, 0.18, 0.1], [0, 0, 0], 7);
@@ -870,10 +946,11 @@ function createLessingMemorial(): Group {
   addBox(fine, CARRARA, [-0.23, 4.1, 0.16], [0.38, 0.12, 0.64], [0, 0, 0]);
   addBox(fine, CARRARA, [0.23, 4.1, -0.08], [0.38, 0.12, 0.64], [0, 0, 0]);
 
+  createLessingCloseCarving(core, fine);
   createLessingFrontGroup(core, fine);
   createLessingRearGroup(core, fine);
   createLessingSideDetails(core, fine);
-  addFrontWord(fine, "LESSING", 2.55, 1.11, 1.65, PATINATED_BRONZE);
+  addFrontWord(fine, "LESSING", 2.55, 1.24, .70, BRONZE_HIGHLIGHT);
   createLessingFence(core, fine);
 
   const coreLayer = finishLayer(core, "Lessing memorial structural silhouette", {
@@ -1187,9 +1264,10 @@ function createGoetheBlocks(blocks: Block[], size: number): void {
 function createLessingBlocks(blocks: Block[], size: number): void {
   const world = LESSING_WORLD_M;
   const yaw = LESSING_YAW_RAD;
-  pushDiscLayer(blocks, world, yaw, 3, size * 0.5, LESSING_GREY_GRANITE, size);
-  pushDiscLayer(blocks, world, yaw, 3, size * 1.5, LESSING_RED_GRANITE, size);
-  for (let level = 2; level <= 6; level += 1) pushDiscLayer(blocks, world, yaw, 2, size * (level + 0.5), LESSING_RED_GRANITE, size);
+  // Five documented stair levels on a chamfered-square plan, followed by the red pedestal.
+  for(const [radius,y,h,color] of [[2.28,.07,.14,LESSING_GREY_GRANITE],[2.12,.21,.14,LESSING_GREY_GRANITE],[1.96,.35,.14,LESSING_GREY_GRANITE],[1.8,.49,.14,LESSING_RED_GRANITE],[1.64,.63,.14,LESSING_RED_GRANITE],[1.55,.86,.32,LESSING_RED_GRANITE],[1.45,1.12,.20,LESSING_RED_GRANITE],[1.3,1.46,.48,LESSING_RED_GRANITE],[1.24,1.94,.48,LESSING_RED_GRANITE],[1.18,2.42,.48,LESSING_RED_GRANITE],[1.12,2.90,.48,LESSING_RED_GRANITE],[1.5,3.38,.48,LESSING_RED_GRANITE],[1.47,3.81,.38,LESSING_RED_GRANITE]]) {
+    for(let x=-radius*.81+.24;x<radius*.81;x+=.48)for(let z=-radius*.81+.24;z<radius*.81;z+=.48){if(Math.abs(x)+Math.abs(z)>radius*1.28)continue;pushBlock(blocks,world,yaw,[x,y,z],color,1,[.48,h,.48]);}
+  }
   for (const x of [-0.28, 0.28]) {
     for (const y of [4.2, 4.76, 5.32]) pushBlock(blocks, world, yaw, [x, y, 0], CARRARA, size);
   }
@@ -1200,6 +1278,16 @@ function createLessingBlocks(blocks: Block[], size: number): void {
   for (const z of [-1.55, 1.55]) {
     for (const local of [[-0.45, 1.12, z], [0.1, 1.12, z], [0.1, 1.68, z], [-0.45, 2.24, z], [0.55, 2.24, z]] as const) pushBlock(blocks, world, yaw, local, PATINATED_BRONZE, size);
   }
+  // Distinct hip-hand, down-held book, spread allegory wings and side basins.
+  for(const [x,y,z,sx,sy,sz,color] of [
+    [-.76,5.73,.1,.24,.25,.24,CARRARA],[-.56,5.48,.25,.3,.18,.22,CARRARA],
+    [.57,5.18,.5,.44,.10,.55,CARRARA],[-.72,1.48,-1.78,.22,.3,.24,PATINATED_BRONZE],
+    [-1.54,1.25,0,.75,.18,1.05,LESSING_RED_GRANITE],[1.54,1.25,0,.75,.18,1.05,LESSING_RED_GRANITE],
+    [-1.54,1.35,0,.48,.04,.75,0x716d58],[1.54,1.35,0,.48,.04,.75,0x716d58],
+    [-.7,2.89,1.8,.3,.12,.3,PATINATED_BRONZE],[-.7,3.06,1.8,.14,.2,.14,BRONZE_HIGHLIGHT],
+  ])pushBlock(blocks,world,yaw,[x,y,z],color,1,[sx,sy,sz]);
+  for(const back of [-1,1])for(const side of [-1,1])for(let feather=0;feather<3;feather++)pushBlock(blocks,world,yaw,[side*(.35+feather*.27),2.2+feather*.08,back*1.51],PATINATED_BRONZE,1,[.28,.18,.2]);
+  for(const side of [-1,1])for(const y of [1.4,2.9])pushBlock(blocks,world,yaw,[side*.96,y,.96],LESSING_RED_GRANITE,.24);
   pushLessingChamferedPerimeter(blocks, world, yaw, 0.56, WROUGHT_IRON, size, size);
   pushLessingChamferedPerimeter(blocks, world, yaw, 1.12, WROUGHT_IRON, size, size * 2);
 }
@@ -1210,7 +1298,7 @@ export function createTiergartenLiteraryMemorialsMinecraft(): InstancedMesh {
   const blocks: Block[] = [];
   createGoetheBlocks(blocks, blockSizeM);
   createLessingBlocks(blocks, blockSizeM);
-  if (blocks.length >= 600) throw new Error(`Literary memorial Minecraft budget exceeded: ${blocks.length}`);
+  if (blocks.length > 850) throw new Error(`Literary memorial Minecraft budget exceeded: ${blocks.length}`);
   const geometry = new BoxGeometry(1, 1, 1);
   const material = new MeshStandardMaterial({
     color: 0xffffff,

@@ -1,3 +1,6 @@
+import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt } from "./SovietMemorialSource";
+import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
+import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
 import {
   TOUCH,
@@ -2183,6 +2186,8 @@ function setSceneLighting(
   setWindFlagWinterPresentation(runtime.civicDetails, isSnowstorm);
   runtime.monuments.visible = !runtime.underside;
   setTiergartenLiteraryMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setSovietMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setComposerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
@@ -3101,7 +3106,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return visualModeWalkableInteriorAt(
+          return sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3123,6 +3128,7 @@ function ensureIsoWorld(
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+            sovietMemorialSolidAt(x,y,z,radius) ||
             // pedestrianPointIsBlocked already supplies seven capsule body
             // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
@@ -3148,6 +3154,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const memorialFloor = sovietMemorialGroundAt(x,z);
+          if (memorialFloor !== null) return memorialFloor;
           const stationFloor = hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY);
           if (stationFloor !== null) return stationFloor;
           if (minecraftHeroCollisionEnabled(runtime.lightingMode)) {
@@ -3590,7 +3598,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
-          visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+          sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return false;
@@ -3600,6 +3608,7 @@ function ensureVoxelWorld(
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+            sovietMemorialSolidAt(x,y,z,radius) ||
             // The navigation sampler already carries the capsule radius.
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||
@@ -3610,6 +3619,7 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          sovietMemorialGroundAt(x,z) ??
           hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
           (minecraftHeroCollisionEnabled(runtime.lightingMode)
             ? minecraftHeroGroundAt(x, z)
@@ -4221,6 +4231,8 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   applyRuntimeMinecraftVisibility(runtime, voxelMode);
   runtime.monuments.visible = !underside;
   setTiergartenLiteraryMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setSovietMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setComposerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
@@ -7246,19 +7258,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: scharnhorstProfile.focus.targetHeightM,
             target_world: [...scharnhorstProfile.focus.targetWorldM],
           });
-          // The forecourt wings span roughly 72 m (T-34 hulls at +/-33 m,
-          // ML-20 howitzers farther in at +/-24 m); a south approach at 145 m
-          // with a steep polar
-          // angle is the framing that keeps both wings in frame at once
-          // instead of cropping one tank and one gun off-screen, which is
-          // what the generic distance-only fallback used to do.
+          // Source-aligned vehicles now occupy the full forecourt. Aim at
+          // its centre so the 84 m-wide ensemble stays in the same frame.
           runtime.focusCameraByName.set("Sowjetisches Ehrenmal Tiergarten", {
             // Spherical azimuth 0 is +z: the Strasse des 17. Juni side.
             azimuth_degrees: 0,
             distance_m: 145,
-            polar_degrees: 68,
+            polar_degrees: 60,
             target_height_m: 3,
-            target_world: [26.57719945925055, 4.79, 245.32870413176715],
+            target_world: [31, 4.79, 277],
           });
           runtime.focusCameraByName.set(
             "Beethoven-Haydn-Mozart-Denkmal",
@@ -7369,6 +7377,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",
           );
+          setSovietMemorialSmoothVisibility(runtime.monuments, !voxelModeActive(runtime));
+          setComposerMemorialSmoothVisibility(runtime.monuments, !voxelModeActive(runtime));
           setTiergartenLiteraryMemorialSmoothVisibility(
             runtime.monuments,
             !voxelModeActive(runtime),

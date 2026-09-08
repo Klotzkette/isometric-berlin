@@ -594,6 +594,61 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   door widths and display floor subdivisions are schematic; the plan itself is
   not bundled.
 
+- **Musikinstrumenten-Museum and Lennéstraße fronts (factual and visual evidence):**
+  the [museum's history](https://www.simpk.de/museum/sammlung/geschichte.html),
+  [CMS Berlin office](https://cms.law/de/deu/office/berlin) and Collignon's
+  [Lennéstraße 3](https://www.collignonarchitektur.com/de/projekte/lennestrasse-3)
+  and [Lennéstraße 5](https://www.collignonarchitektur.com/de/projekte/lennestrasse-5)
+  records support building identities and architectural context. The delivered
+  Berlin LoD2 parts remain the footprint and height authority. External visual
+  QA uses Andreas Praefcke's
+  [*Berlin Musikinstrumentenmuseum 01.jpg*](https://commons.wikimedia.org/wiki/File:Berlin_Musikinstrumentenmuseum_01.jpg)
+  (CC BY 3.0), Magnus Manske's
+  [*State Institute for Music Research.jpg*](https://commons.wikimedia.org/wiki/File:State_Institute_for_Music_Research.jpg)
+  (CC BY-SA 3.0), Manfred Brückels'
+  [*Berlin Tiergartenrand Lennéstr.jpg*](https://commons.wikimedia.org/wiki/File:Berlin_Tiergartenrand_Lenn%C3%A9str.jpg)
+  and Fridolin freudenfett / Peter Kuley's
+  [*TiergartenLennestraße.jpg*](https://commons.wikimedia.org/wiki/File:TiergartenLennestra%C3%9Fe.jpg)
+  (both CC BY-SA 3.0). Facade and rooflight subdivisions remain procedural;
+  these photographs are not bundled or loaded by the viewer.
+
+- **Composer monument and Lessing close refinement (visual evidence):** the
+  [composer sculpture inventory](https://bildhauerei-in-berlin.de/bildwerk/haydn-mozart-beethoven-denkmal-5236/)
+  and [Lessing inventory](https://bildhauerei-in-berlin.de/bildwerk/lessingdenkmal-4997/)
+  establish their documented dimensions and programmes. The previously credited
+  composer full view and Beethoven portrait remain references. Daderot's
+  [*Mozart … DSC09446.JPG*](https://commons.wikimedia.org/wiki/File:Mozart_-_Beethoven-Haydn-Mozart-Denkmal_-_Berlin,_Germany_-_DSC09446.JPG)
+  (public domain) additionally bounds the scroll/hand pose and console carving.
+  Current pale scaled roof fields are distinguished from the documented gilt
+  ornament programme. The three Lessing references credited above additionally
+  guide the four-sided pedestal, hollow basins, pose and bronze groups. The
+  existing CC BY-SA 3.0 choice for Lessing 3K/4K is retained; their Commons pages
+  also offer CC BY 2.5. No new image is bundled or turned into a texture. See
+  [evidence and measured geometry budgets](docs/music-lessing-refinement.md).
+
+- **Soviet memorial Tiergarten positions and vehicle detail (factual and visual
+  evidence):** Berlin's [memorial account](https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/friedhoefe-und-begraebnisstaetten/sowjetische-ehrenmale/tiergarten/),
+  exact OSM anchors and the attributed official DOP 2025 spring orthophoto
+  support site placement. BugWarp's
+  [*Berlín en agosto de 2024 … (15).jpg*](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(15).jpg)
+  and [*(9).jpg*](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(9).jpg)
+  (both CC BY-SA 4.0) support external checks of the tank, gun, plinth and
+  running-gear readings. These photographs remain unbundled references;
+  local vehicle parts and support dimensions are procedural display estimates.
+
+- **Chancellery entrance and Hauptbahnhof bearing supports (visual evidence):**
+  Martin S. Lindner's
+  [*Eingangsbereich Bundeskanzleramt.JPG*](https://commons.wikimedia.org/wiki/File:Eingangsbereich_Bundeskanzleramt.JPG)
+  (CC BY-SA 3.0 DE) and Rolf Heinrich, Köln's
+  [*Bundeskanzleramt Berlin 2013-05-16.JPG*](https://commons.wikimedia.org/wiki/File:Bundeskanzleramt_Berlin_2013-05-16.JPG)
+  (CC BY 3.0) guide the entrance grille and lawn fields. Sven Okas's
+  [*Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg*](https://commons.wikimedia.org/wiki/File:Hauptbahnhof-berlin-abstuetzung-humboldthafenbruecke-2023.jpg)
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), from his
+  27 March 2023 S-21 Berlin video, guides the rust-brown bearing braces at
+  the eastern rail exit. It is dated structural evidence, not a new condition
+  survey. Local member sections and spacing remain display estimates; the
+  photographs and video are not bundled, projected or used as textures.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

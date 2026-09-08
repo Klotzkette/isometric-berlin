@@ -1,3 +1,6 @@
+import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
+import { createMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
+import { MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
 import { createParliamentArchitecture } from "./ParliamentArchitecture";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createHumboldthafenBuildingDetails, HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
@@ -595,6 +598,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   // Hotel Adlon: pale reconstructed stone body below its patinated roof.
   K00006ot: 0xeee5d4,
   ...ECONOMIC_MINISTRY_PRISM_TONES,
+  ...MUSEUM_LENNE_PRISM_TONES,
   ...SONY_SURROUNDINGS_PRISM_TONES,
   // The Center / former Sony Center: cool glass-and-steel towers around the
   // authored Forum facades, instead of unrelated sampled beige prisms.
@@ -763,6 +767,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   // Pariser Platz 4a: reference-supported patina, with the source cap intact.
   K00005Hq: 0x54796a,
   ...ECONOMIC_MINISTRY_PRISM_ROOF_TONES,
+  ...MUSEUM_LENNE_ROOF_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0x747c79])),
   ORqiW8aK: 0x729083,
   yrDOCds1: 0x729083,
@@ -820,6 +825,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...SOVIET_MEMORIAL_PRISM_IDS,
   GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId,
   ...ZOLLPACKHOF_PRISM_IDS,
   // The official main envelope is only 3m high. The source-plan replacement
@@ -2348,6 +2354,7 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
   "K0002MCN",
@@ -2368,6 +2375,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...[...PARLIAMENT_ARCHITECTURE_IDS].filter(id => !["5ITeMfv2", "9RhopAvB", "1i200023"].includes(id)),
   ...ARD_HAUPTSTADTSTUDIO_IDS,
@@ -2380,6 +2388,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // Wallot's two affected Palais roof parts instead use source-bounded crest
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...MUSEUM_LENNE_IDS,
   ...HUMBOLDTHAFEN_BUILDING_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
   ECONOMIC_MINISTRY_MODERN_CANAL_ID,
@@ -11592,12 +11601,12 @@ export function createIsometricCity(
     // A wall-material tag must not turn a measured pitched roof into a box.
     const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
       ? undefined : mappedMaterialGlazing;
-    const isGlass = !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+    const isGlass = !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
       (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass"));
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
     // the exact flat cap. Glass volumes stay clean transparent boxes.
-    let bodyHeight = totalHeight;
+    let bodyHeight = musicMuseumBodyHeight(building.id,totalHeight);
     let roofTriangles: Float32Array | null = null;
     let roofRect: ReturnType<typeof fitRectangle> = null;
     const roofCode = HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) ? 1000 : economicMinistryRoofCode(
@@ -12922,6 +12931,7 @@ export function createIsometricCity(
     group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full"));
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createDeutschesTheater(prisms));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

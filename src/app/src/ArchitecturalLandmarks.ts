@@ -54,6 +54,8 @@ import {
   hauptbahnhofDoorOpeningAt,
 } from "./HauptbahnhofAccessProfile";
 
+import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits } from "./ChancelleryEntranceProfile";
+
 export type FocusCamera = {
   azimuth_degrees: number;
   distance_m: number;
@@ -3209,11 +3211,6 @@ function addChancelleryStreetEntrance(
   const lateral = new Vector3(-streetDirection.z, 0, streetDirection.x);
   const entrance = court.clone().addScaledVector(streetDirection, 24);
   const heading = Math.atan2(streetDirection.x, streetDirection.z);
-  const concrete = nightEmitter(
-    modelMaterial(0xf1efe7, { roughness: 0.8 }),
-    0x657181,
-    0.3,
-  );
   const metal = modelMaterial(0x6f7778, {
     metalness: 0.55,
     roughness: 0.38,
@@ -3225,20 +3222,6 @@ function addChancelleryStreetEntrance(
     }),
     0x829294,
     0.26,
-  );
-
-  addOrientedBox(
-    group,
-    "Chancellery street pavilion flat entrance canopy",
-    [29, 0.38, 7.5],
-    [
-      entrance.x + streetDirection.x * 6.2,
-      3.25,
-      entrance.z + streetDirection.z * 6.2,
-    ],
-    heading,
-    concrete,
-    0.5,
   );
 
   const lampPosts: InstanceTransform[] = [];
@@ -3275,54 +3258,31 @@ function addChancelleryStreetEntrance(
   );
 
   const fencePosts: InstanceTransform[] = [];
-  const fenceHalfWidthM = 38;
-  const fenceOffsetFromSculptureM = 17.5;
-  const fenceCentre = court
-    .clone()
-    .addScaledVector(streetDirection, fenceOffsetFromSculptureM);
-  const fenceBarCount = 381;
+  const limits = chancelleryFenceLimits(signature.office_segments);
+  const fenceWidth = limits.z1 - limits.z0;
+  const fenceCentre = new Vector3(limits.x,0,(limits.z0+limits.z1)/2);
+  const fenceBarCount = Math.ceil(fenceWidth / CHANCELLERY_ENTRANCE_PROFILE.bladePitchM) + 1;
   for (let index = 0; index < fenceBarCount; index += 1) {
-    const offset =
-      -fenceHalfWidthM + (index / (fenceBarCount - 1)) * fenceHalfWidthM * 2;
-    const point = fenceCentre.clone().addScaledVector(lateral, offset);
-    fencePosts.push({ position: [point.x, 1.325, point.z] });
+    const z = limits.z0 + index / (fenceBarCount - 1) * fenceWidth;
+    fencePosts.push({position:[limits.x,1.5,z]});
   }
-  const fenceBars = addInstancedBoxes(
-    group,
+  const fenceBars = addInstancedBoxes(group,
     "Chancellery instanced Ehrenhof entrance fence bars",
-    [0.055, 2.65, 0.055],
-    fenceMetal,
-    fencePosts,
-  );
-  fenceBars.userData.widthM = fenceHalfWidthM * 2;
-  fenceBars.userData.offsetFromSculptureM = fenceOffsetFromSculptureM;
-  fenceBars.userData.geometryStatus =
-    "Owner-verified closed security fence across the Ehrenhof between the office wings";
-  fenceBars.renderOrder = 6;
-  for (const [index, y] of [0.32, 2.42].entries()) {
-    const fenceRail = addOrientedBox(
-      group,
-      `Chancellery Ehrenhof entrance fence rail ${index + 1}`,
-      [fenceHalfWidthM * 2, 0.075, 0.09],
-      [fenceCentre.x, y, fenceCentre.z],
-      heading,
-      fenceMetal,
-    );
-    fenceRail.renderOrder = 6;
+    [CHANCELLERY_ENTRANCE_PROFILE.bladeDepthM,3,CHANCELLERY_ENTRANCE_PROFILE.bladeThicknessM],
+    fenceMetal,fencePosts);
+  fenceBars.userData.widthM = fenceWidth;
+  fenceBars.userData.geometryStatus = CHANCELLERY_ENTRANCE_PROFILE.geometryStatus;
+  fenceBars.userData.groundWorldY = CHANCELLERY_ENTRANCE_PROFILE.groundWorldY;
+  // The horizontal ties sit below the blade tops. They run across the
+  // actual wing gap; the blades retain open space between them.
+  for (const [index,y] of [.35,2.55].entries()) {
+    addBox(group,`Chancellery Ehrenhof entrance fence rail ${index+1}`,
+      [.10,.07,fenceWidth],[limits.x-.12,y,fenceCentre.z],fenceMetal);
   }
+  const gatePosts: InstanceTransform[] = [-6.4,0,6.4].map(z => ({position:[limits.x,1.52,z]}));
+  addInstancedBoxes(group,"Chancellery instanced Ehrenhof entrance gate posts",
+    [.28,3.04,.14],fenceMetal,gatePosts);
 
-  const gatePosts: InstanceTransform[] = [-7.4, 0, 7.4].map((offset) => {
-    const point = fenceCentre.clone().addScaledVector(lateral, offset);
-    return { position: [point.x, 1.4, point.z] };
-  });
-  const entranceGatePosts = addInstancedBoxes(
-    group,
-    "Chancellery instanced Ehrenhof entrance gate posts",
-    [0.18, 2.8, 0.18],
-    fenceMetal,
-    gatePosts,
-  );
-  entranceGatePosts.renderOrder = 6;
 }
 
 /**
@@ -3685,30 +3645,18 @@ function addChancelleryForecourt(
   );
 
   const grass = modelMaterial(0x668a55, { roughness: 0.96 });
-  const grassIslandTransforms: InstanceTransform[] = [
-    [-12, -18, 5.6, 2.2],
-    [-4, 20, 7.2, 2.6],
-    [8, -22, 5.2, 2.1],
-    [13, 18, 6.4, 2.4],
-    [20, -8, 4.6, 2],
-  ].map(([along, across, width, depth]) => {
-    const centre = court
-      .clone()
-      .addScaledVector(forward, along)
-      .addScaledVector(lateral, across);
-    return {
-      position: [centre.x, 0.25, centre.z],
-      rotation: [0, plazaHeading, 0],
-      scale: [width, 1, depth],
-    };
-  });
-  addInstancedGeometry(
-    group,
-    "Chancellery instanced Ehrenhof organic grass islands",
-    new CylinderGeometry(1, 1, 0.18, 32),
-    grass,
-    grassIslandTransforms,
-  );
+  const lawns = new Group();lawns.name="Chancellery curved Ehrenhof lawn plots";
+  lawns.userData.geometryStatus = CHANCELLERY_ENTRANCE_PROFILE.geometryStatus;
+  for (const [index,ring] of CHANCELLERY_LAWN_RINGS.entries()) {
+    const shape = new Shape();
+    const last=ring[ring.length-1],first=ring[0];
+    shape.moveTo((last[0]+first[0])/2,-(last[1]+first[1])/2);
+    ring.forEach(([x,z],i) => {const next=ring[(i+1)%ring.length];shape.quadraticCurveTo(x,-z,(x+next[0])/2,-(z+next[1])/2);});
+    shape.closePath();
+    const mesh=new Mesh(new ShapeGeometry(shape).rotateX(-Math.PI/2),grass);
+    mesh.position.y=.21;mesh.name=`Chancellery curved lawn ${index+1}`;lawns.add(mesh);
+  }
+  group.add(lawns);
 
   const sculptureHeight = signature.forecourt_sculpture_height_m ?? 5.5;
   const steel = modelMaterial(0x8d4938, {
@@ -4057,10 +4005,19 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
     );
   }
   addChancelleryCourtyardArchitecture(group, signature);
+  for (const child of group.children) {
+    if (["Chancellery Ehrenhof German", "Chancellery Ehrenhof EU", "Chancellery Ehrenhof empty protocol flagpole"].some(prefix=>child.name.startsWith(prefix))) {
+      child.position.y += CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - signature.anchor_world[1];
+    }
+  }
+  const entranceStart = group.children.length;
   addChancelleryStreetEntrance(group, signature);
+  for (const child of group.children.slice(entranceStart)) child.position.y += CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - signature.anchor_world[1];
   addChancelleryDocumentedDetail(group, signature);
+  const forecourtStart = group.children.length;
   addChancelleryForecourt(group, signature);
   addChancelleryPolice(group, signature);
+  for (const child of group.children.slice(forecourtStart)) child.position.y += CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - signature.anchor_world[1];
   return group;
 }
 
