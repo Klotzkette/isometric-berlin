@@ -21,6 +21,43 @@ Per owner policy this project uses **additive data fusion** across
 all permitted sources (see [`docs/data.md`](docs/data.md) and
 [`AGENTS.md`](AGENTS.md) §4):
 
+- **Friedrichstraße and Schiffbauerdamm architecture (v1.0.10):** all 52
+  existing LoD2 prism records remain retained. The 2 March 2026 official tile
+  adds the Admiralspalast's 205 original wall/roof surfaces, with explicit
+  vertical translations preserving the existing viewer ground. Berlin's
+  monument inventory, restoration architects and the building operators
+  support facade identities and materials; ordinary bay dimensions and
+  ornament are procedural estimates. Eight inspected Commons photographs by
+  Matt Cec, Jörg Zägel, Ansgar Koreng, Dguendel and Molgreen are individually
+  credited in both manifests. See
+  [source and architecture evidence](docs/friedrichstrasse-architecture-refinement.md).
+
+- **Pergamonmuseum, Neues Museum and Alte Nationalgalerie (v1.0.10):** all
+  26 official LoD2 parts and the prior OSM records remain retained. The
+  Landesdenkmalamt, Staatliche Museen zu Berlin and David Chipperfield
+  Architects provide building and restoration evidence. The open
+  Nationalgalerie portico, glazed Neues Museum courts, roof ornaments and
+  local member sizes are source-labelled procedural additions. Seven
+  inspected CC BY-SA 4.0 photographs by HerrAdams, Raimond Spekking, Roy Zuo,
+  Ad Meskens and Bahnfrend are credited individually. The misnamed *Berlin
+  Neues Museum from Berliner Dom 02.jpg* depicts Alte Nationalgalerie and is
+  identified accordingly. See [source conflicts](docs/museum-triad-refinement.md).
+
+- **Berliner Dom, Altes Museum and granite bowl (v1.0.10):** all eighteen
+  official LoD2 source parts and prior OSM records remain retained, including
+  the separate overlapping portico. The cathedral's architecture account,
+  Staatliche Museen zu Berlin, the monument inventory, Bildhauerei in Berlin
+  and official DOP 2025 support the bounded procedural subdivisions. The
+  Dom's 98 m complete silhouette is a published dimension; intermediate
+  cupola and lantern dimensions are display estimates. The bowl at exact
+  OSM node `376689138` is red granite, with a published 6.9 m diameter.
+  Five references by Alexander Hüsing, Chainwit., Ansgar Koreng,
+  Janericloebe and Times are individually credited. The three v1.0.10 groups
+  add twenty external reference records (251 total in each manifest);
+  photographs, crops and textures are not bundled or loaded. See
+  [Dom and museum evidence](docs/dom-altes-museum-refinement.md) and the
+  [complete per-file credit catalogue](references/wikimedia/README.md).
+
 - **3D building models (LoD2) — Berlin:**
   [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin),
   licensed under

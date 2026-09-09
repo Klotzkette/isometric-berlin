@@ -91,6 +91,8 @@ let firstBatchArrivalMs: number | null = null;
 let firstBuildingArrivalMs: number | null = null;
 let firstExactBuildingArrivalMs: number | null = null;
 let allBuildingsVisibleMs: number | null = null;
+let allExactBuildingsReadyMs: number | null = null;
+let exactBuildingBatchCount = 0;
 let firstSurfaceBuildMs: number | null = null;
 let maxAttachMs = 0;
 let maxBatchBytes = 0;
@@ -162,7 +164,11 @@ const complete = await new Promise<
         buildingPreviews.add(message.id);
       } else {
         buildingBatchCount += 1;
+        exactBuildingBatchCount += 1;
         firstExactBuildingArrivalMs ??= arrivalMs;
+        if (exactBuildingBatchCount === buildingPartition.remaining.length) {
+          allExactBuildingsReadyMs = arrivalMs;
+        }
       }
     } else {
       surfaceBatchCount += 1;
@@ -272,6 +278,7 @@ console.log(
       batches: batchCount,
       batch_timeline: batchTimeline,
       all_buildings_visible_ms: Number(allBuildingsVisibleMs?.toFixed(1)),
+      all_exact_buildings_ready_ms: Number(allExactBuildingsReadyMs?.toFixed(1)),
       building_batches: buildingBatchCount,
       exact_ready_ms: Number((performance.now() - startedAt).toFixed(1)),
       first_batch_arrival_ms: Number(firstBatchArrivalMs?.toFixed(1)),

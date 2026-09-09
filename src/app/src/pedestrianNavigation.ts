@@ -1,3 +1,7 @@
+import { DOM_ALTES_SOURCE, DOM_PROFILE, museumDisplayY, domRoofAt, altesRoofAt } from "./domAltesMuseumProfile";
+import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
+import { museumTriadSourceForPrism, museumTriadPartRoofAt } from "./museumTriadProfile";
+import { ADMIRALSPALAST_IDS, admiralspalastRoofAt } from "./friedrichstrasseArchitectureProfile";
 import { FIFTY_HERTZ_IDS, FIFTY_HERTZ_SOURCE, fiftyHertzRoofAt } from "./fiftyHertzProfile";
 import { BELLEVUE_IDS, BELLEVUE_OFFICE_ID, BELLEVUE_PROFILE, bellevueRoofTopAt } from "./bellevueProfile";
 import { BISMARCK_MOLTKE_PRISM_IDS } from "./bismarckMoltkeProfiles";
@@ -583,11 +587,46 @@ export function compilePedestrianObstacles(
       }
       continue;
     }
+    const museum = museumTriadSourceForPrism(building.id);
+    if (museum) {
+      if (!replacedParents.has(museum.parent_id)) {
+        replacedParents.add(museum.parent_id);
+        for (const part of museum.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m, part.top_y_m, part.id, 1,
+            (x, z) => museumTriadPartRoofAt(part, x, z));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (DOM_ALTES_PRISM_IDS.has(building.id)) {
+      const isDom = building.id === "13670734";
+      const source = isDom ? DOM_ALTES_SOURCE.dom : DOM_ALTES_SOURCE.altes;
+      if (!replacedParents.has(source.parent_id)) {
+        replacedParents.add(source.parent_id);
+        for (const part of source.parts) {
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m,
+            isDom ? DOM_PROFILE.top : museumDisplayY(part, part.top_y_m), part.id, 1,
+            (x, z) => isDom ? domRoofAt(x, z) : altesRoofAt(x, z, part.id));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     if (FIFTY_HERTZ_IDS.has(building.id)) {
       const sourceTop = building.id === FIFTY_HERTZ_SOURCE.extension.id
         ? (FIFTY_HERTZ_SOURCE.extension.y0_dm + FIFTY_HERTZ_SOURCE.extension.h_dm) / 10
         : (building.y0_dm + building.h_dm) / 10;
       addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10, sourceTop + 0.1, building.id, 0.1, (x, z) => fiftyHertzRoofAt(x, z, building.id) ?? sourceTop);
+      index.buildingCount += 1;
+      continue;
+    }
+    if (ADMIRALSPALAST_IDS.has(building.id)) {
+      const sourceTop = (building.y0_dm + building.h_dm) / 10;
+      addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10,
+        sourceTop + 0.2, building.id, 0.1,
+        (x, z) => admiralspalastRoofAt(x, z, building.id) ?? sourceTop);
       index.buildingCount += 1;
       continue;
     }

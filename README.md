@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.9 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.9/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.10 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.10/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,22 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.9** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.10** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.10 removes repeated waits when attaching completed city geometry.
+The orange joystick starts neutral wherever its knob is gripped, with matching
+mouse, touch and pen movement. Source-bound refinements cover Admiralspalast
+and the Friedrichstraße/Ensemble surroundings, the four requested museums,
+Berliner Dom with its gilded cross, and the granite bowl in the Lustgarten.
+All five visual modes retain their own presentation, including mobile Minecraft.
+
+Version 1.0.10 beseitigt wiederholte Wartefristen beim Einblenden fertiger
+Stadtgeometrie. Der orange Joystick startet beim Greifen neutral und reagiert
+mit Maus, Touch und Stift gleich. Admiralspalast und das Umfeld von
+Friedrichstraße/Ensemble, die vier angefragten Museen, Berliner Dom samt
+vergoldetem Kreuz und die Granitschale im Lustgarten werden präzisiert.
+Die Ergänzungen gelten in allen fünf Darstellungen, auch in mobilem Minecraft.
 
 Version 1.0.9 refines 21 building groups along Heidestraße and around
 Otto-Weidt-Platz, including both KPMG sites and the Autobahn headquarters.
@@ -110,7 +124,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.8**, built from `main`. Its full viewer
+The current public package is **v1.0.10**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

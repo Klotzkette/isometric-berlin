@@ -1,5 +1,11 @@
 # Web viewer
 
+The v1.0.10 attachment scheduler uses each batch's original deadline and
+available idle time while navigating. Exact building refinement now precedes
+optional ground surfaces; see [reproduction and limits](performance-progressive-loading.md).
+Off-centre orange-knob grips start neutral on mouse, touch and pen; see
+[shared joystick behavior](desktop-joystick.md).
+
 React + TypeScript + Vite with two complementary static engines, managed with
 `bun`:
 
@@ -1538,3 +1544,25 @@ Minecraft facade panes are projected beyond their own coarse source cells,
 while small courts and neighbour overlaps reject hidden bays. Full/mobile
 profiles retain the same buildings with reduced close detail. The old
 misplaced rectangular EINZ podium overlay is removed in both renderers.
+
+## Friedrichstraße and Museumsinsel v1.0.10
+
+Nine building groups around the Ensemble and station retain all 52 source
+parts. Admiralspalast now uses its official wall and roof planes; neighbouring
+buildings keep their bodies with individual facade families. The generic
+Minecraft window grid is suppressed only for these exact source identities.
+See [Friedrichstraße evidence](friedrichstrasse-architecture-refinement.md).
+
+The Pergamonmuseum, Neues Museum and Alte Nationalgalerie replace three low
+OSM display prisms with 26 complete official parts. The Nationalgalerie's
+stairs and open portico share the geometry and pedestrian contract; the roof
+still supports landing from flight. See [museum triad evidence](museum-triad-refinement.md).
+
+The Berliner Dom and Altes Museum also retain their original source records
+while displaying dedicated architecture, dome/cross profiles and an open
+18-column portico. The hollow red granite bowl uses its exact OSM anchor and
+terrain level. Three former generic artwork markers are suppressed to avoid
+duplicates. See [Dom and Altes Museum evidence](dom-altes-museum-refinement.md).
+Each group has separate full/mobile Minecraft geometry and mode-aware materials.
+The integrated navigation regression uses the complete delivered prism payload
+to check every replacement part, open passages, column solids and roof landings.

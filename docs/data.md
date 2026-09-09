@@ -795,3 +795,56 @@ footprints, courts and roof envelopes remain unchanged. Exposed-wall tests
 prevent detail on concealed party walls. The four inspected Commons records
 are mirrored into both reference manifests. See
 [corridor evidence](europacity-architecture-refinement.md).
+
+## Friedrichstraße and Museum Island source refinement (v1.0.10)
+
+Step 5a appends twenty inspected, freely licensed photo references to both
+Wikimedia manifests, preserving each manifest's previous 231-record prefix.
+Each now has 251 title-unique records; the new twenty are identical across
+both manifests and remain external, attribution-only references. No new
+photograph or texture is bundled. Per-file credits are listed in the
+[reference catalogue](../references/wikimedia/README.md).
+
+Step 6 adds three viewer-recognition supplements and three grouped conflict
+records to `fused_sources.json`. Its original 17,091 canonical features,
+source availability, bounds reference and previous conflicts remain intact.
+All new official parts were checked against the committed polygon. The
+93-place tour catalogue and project boundary remain unchanged.
+
+`friedrichstrasseArchitectureSource.json` retains 52 existing prism records
+in nine groups around Friedrichstraße and Schiffbauerdamm. The 2 March 2026
+LoD2 tile `390_5820` adds the Admiralspalast's 205 original wall/roof planes.
+Its three parts retain their previous viewer ground through documented
+1.690 / 2.719 / 3.541 m datum translations; their heights and court remain
+source-bound. The other bodies and roofs stay intact. Exact OSM identities
+separate Schiffbauerdamm 5, 6–7, 8, 12, the Albrechtstraße frontage, SpreeDreieck,
+Meliá and the Ensemble's Neues Haus. Generic facade decoration is replaced
+only on the owned source parts. The station, main Ensemble theatre and
+public-art models remain separate. See
+[Friedrichstraße evidence](friedrichstrasse-architecture-refinement.md).
+
+`museumTriadSource.json` preserves the prior OSM museum records and all
+26 complete parts from tile `391_5820`: twelve Pergamonmuseum parts,
+thirteen Neues Museum parts and one Alte Nationalgalerie part. The original
+low OSM prisms are retained as evidence while the complete LoD2 planes govern
+the display. The Nationalgalerie's source-closed upper portico becomes a
+bounded opening, retaining its base and inner wall; its local dimensions and
+the Neues Museum court rooflights are explicitly estimated subdivisions.
+The current Pergamon three-wing plan stays separate from future expansion
+proposals. The misleading filename of one Commons view is retained but its
+actual Nationalgalerie subject is recorded. See
+[museum-triad evidence](museum-triad-refinement.md).
+
+`domAltesMuseumSource.json` preserves eighteen official parts from tile
+`391_5819`, including sixteen Altes Museum parts and its separate overlapping
+portico, together with the prior OSM records. Neither the Dom's flat 98 m OSM
+extrusion nor its flat 45.688 m LoD2 roof expresses the domes. Its exact plan
+and 2.270 m source ground stay fixed; the published 98 m total silhouette
+ends at viewer y=100.270 m, with estimated intermediate dome and lantern
+dimensions. The museum keeps its original courts and roof planes, except
+that two narrow display roof strips are limited to the retained 32.211 m
+rotunda top, following DOP evidence; their higher source planes remain in the
+JSON. The overlapping 7.301 m portico source is retained and not drawn twice.
+The 6.9 m red-granite bowl retains exact OSM node `376689138`, three support
+blocks and access steps. See
+[Dom, Altes Museum and bowl evidence](dom-altes-museum-refinement.md).

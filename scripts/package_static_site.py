@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.9"
+PACKAGE_VERSION = "1.0.10"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,13 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.10: Weniger Wartezeit beim Nachladen fertiger Stadtgeometrie;
+der orange Joystick startet beim Greifen neutral und reagiert mit Maus,
+Touch und Stift gleich. Admiralspalast und Friedrichstrassen-Umfeld,
+Pergamonmuseum, Neues Museum, Alte Nationalgalerie, Altes Museum und
+Berliner Dom erhalten eigene Architektur. Die Granitschale im Lustgarten
+und das vergoldete Domkreuz werden genauer dargestellt.
+
 Neu in v1.0.9: Heidestrasse und Otto-Weidt-Platz mit unterschiedlichen
 Gebaeudefassaden, Autobahn-Zentrale und korrigiertem KPMG-Sockel. 50Hertz
 erhaelt sein vollstaendiges Tragwerk und den fertigen Anbau. Invalidenfriedhof
@@ -3969,6 +3976,13 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.10: Less avoidable waiting for completed city geometry;
+grabbing the orange joystick starts neutral, with matching mouse, touch
+and pen movement. Admiralspalast and Friedrichstrasse surroundings,
+Pergamonmuseum, Neues Museum, Alte Nationalgalerie, Altes Museum and
+Berliner Dom receive distinct architecture. The Lustgarten granite bowl
+and the cathedral's gilded cross gain more accurate forms.
 
 New in v1.0.9: Heidestrasse and Otto-Weidt-Platz gain individual building
 facades, the Autobahn headquarters and the corrected KPMG podium. 50Hertz

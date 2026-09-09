@@ -424,6 +424,71 @@
         "heidestrasse_generic_facades_v109",
         "kpmg_heidestrasse58_floor_count_v109"
       ]
+    },
+    {
+      "feature_id": "friedrichstrasse_schiffbauerdamm_v110",
+      "anchor_source": "52 original Berlin LoD2 public prism parts in nine building groups, with exact OSM building identities and street axes",
+      "geometry_ref": "src/app/src/friedrichstrasseArchitectureSource.json",
+      "documentation_ref": "docs/friedrichstrasse-architecture-refinement.md",
+      "source_part_count": 52,
+      "semantic_evidence": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5820.zip",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065048",
+        "https://www.reckersarchitekten.de/referenzen/kulturbauten/admiralspalast.html",
+        "https://www.denkmalschutz.de/denkmal/admiralspalast-friedrichstr-101-102.html",
+        "https://feldhaus.de/en/projekte/spree-dreieck/",
+        "https://www.mbbm-bso.com/de/projekt/?id=M66484",
+        "https://www.berliner-ensemble.de/node/386",
+        "Eight inspected free Commons photographs; per-file metadata retained in both Wikimedia manifests"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "friedrichstrasse_source_display_conflicts_v110"
+      ]
+    },
+    {
+      "feature_id": "museum_triad_v110",
+      "anchor_source": "Berlin LoD2 parents DEBE01YYK0000AdR, DEBE01YYK00001VG and DEBE01YYK00000rL; retained OSM ways 313659704, 18578139 and 313670733",
+      "geometry_ref": "src/app/src/museumTriadSource.json",
+      "documentation_ref": "docs/museum-triad-refinement.md",
+      "source_part_count": 26,
+      "semantic_evidence": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5820.zip",
+        "https://www.berlin.de/landesdenkmalamt/welterbe/museumsinsel-berlin/pergamonmuseum-654567.php",
+        "https://www.smb.museum/museen-einrichtungen/pergamonmuseum/sanierung/",
+        "https://www.smb.museum/nachrichten/detail/das-pergamonmuseum-kehrt-zurueck-eroeffnung-am-4-juni-2027/",
+        "https://davidchipperfield.com/projects/neues-museum",
+        "https://www.museumsinsel-berlin.de/gebaeude/neues-museum/",
+        "https://www.berlin.de/landesdenkmalamt/welterbe/museumsinsel-berlin/alte-nationalgalerie-654560.php",
+        "Seven inspected CC BY-SA 4.0 Commons photographs; the misnamed Berliner Dom roof view is identified as Alte Nationalgalerie"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "museum_triad_source_display_conflicts_v110"
+      ]
+    },
+    {
+      "feature_id": "dom_altes_museum_v110",
+      "anchor_source": "Berlin LoD2 parents DEBE01YYK000000D, DEBE01YYK00000kr and DEBE01YYK0001xI7; retained OSM way 313670734 and relation 3619; granite bowl node 376689138",
+      "geometry_ref": "src/app/src/domAltesMuseumSource.json",
+      "documentation_ref": "docs/dom-altes-museum-refinement.md",
+      "source_part_count": 18,
+      "semantic_evidence": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5819.zip",
+        "https://www.berlinerdom.de/besuchen-wissen/ueber-den-dom/architektur/",
+        "https://www.smb.museum/en/museums-institutions/altes-museum/about-us/profile/",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09012501",
+        "https://bildhauerei-in-berlin.de/bildwerk/granitschale-7879/",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "Five inspected free Commons photographs; per-file metadata retained in both Wikimedia manifests"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "conflicts": [
+        "dom_altes_source_display_conflicts_v110"
+      ]
     }
   ],
   "features": [
@@ -448352,6 +448417,68 @@
       "resolution": "Retain the exact LoD2 footprint and height. Seven facade display rows follow the owner account; this is not a surveyed floor or opening schedule. Both claims remain documented.",
       "geometry_ref": "src/app/src/europacityArchitectureSource.json",
       "documentation_ref": "docs/europacity-architecture-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "friedrichstrasse_source_display_conflicts_v110",
+      "kind": "source_envelopes_and_identity_vs_documented_architecture",
+      "sources": [
+        "52 original Berlin LoD2 public prism parts in nine building groups, with exact OSM building identities and street axes",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5820.zip",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065048",
+        "https://www.reckersarchitekten.de/referenzen/kulturbauten/admiralspalast.html",
+        "https://www.denkmalschutz.de/denkmal/admiralspalast-friedrichstr-101-102.html",
+        "https://feldhaus.de/en/projekte/spree-dreieck/",
+        "https://www.mbbm-bso.com/de/projekt/?id=M66484",
+        "https://www.berliner-ensemble.de/node/386",
+        "Eight inspected free Commons photographs; per-file metadata retained in both Wikimedia manifests"
+      ],
+      "conflict": "The three Admiralspalast public prisms flatten pitched roofs and court elevations. Generic facade grids do not express the separately documented Admiralspalast, SpreeDreieck, hotel and Schiffbauerdamm buildings. Original CityGML ground datums differ from the existing viewer prism ground.",
+      "resolution": "Keep all 52 original prism records verbatim. Display the 205 original Admiralspalast wall/roof surfaces for K00002ap, K00006mJ and K00002uV, translated vertically by 1.690, 2.719 and 3.541 m respectively to retain the existing viewer ground; maximum heights still match delivered envelopes to decimetre rounding. Keep other body/roof meshes and replace only generic decoration with bounded exterior details. Bind Schiffbauerdamm 8 to the eleven-part parent DEBE01YYK0000592 using mapped address and restaurant nodes; do not misassign rear parent DEBE01YYK0000Csz. Dormers, ordinary facade pitches and local ornamental dimensions are non-surveyed display subdivisions. Preserve the existing station, theatre and public-art models.",
+      "geometry_ref": "src/app/src/friedrichstrasseArchitectureSource.json",
+      "documentation_ref": "docs/friedrichstrasse-architecture-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "museum_triad_source_display_conflicts_v110",
+      "kind": "source_envelopes_and_identity_vs_documented_architecture",
+      "sources": [
+        "Berlin LoD2 parents DEBE01YYK0000AdR, DEBE01YYK00001VG and DEBE01YYK00000rL; retained OSM ways 313659704, 18578139 and 313670733",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5820.zip",
+        "https://www.berlin.de/landesdenkmalamt/welterbe/museumsinsel-berlin/pergamonmuseum-654567.php",
+        "https://www.smb.museum/museen-einrichtungen/pergamonmuseum/sanierung/",
+        "https://www.smb.museum/nachrichten/detail/das-pergamonmuseum-kehrt-zurueck-eroeffnung-am-4-juni-2027/",
+        "https://davidchipperfield.com/projects/neues-museum",
+        "https://www.museumsinsel-berlin.de/gebaeude/neues-museum/",
+        "https://www.berlin.de/landesdenkmalamt/welterbe/museumsinsel-berlin/alte-nationalgalerie-654560.php",
+        "Seven inspected CC BY-SA 4.0 Commons photographs; the misnamed Berliner Dom roof view is identified as Alte Nationalgalerie"
+      ],
+      "conflict": "Legacy OSM museum prisms at 15 m, 12 m and 9 m omit the official roof hierarchy. Alte Nationalgalerie LoD2 closes the upper portico. Neues Museum court voids omit the documented glazed covers. Historic or future Pergamon plans and a misnamed reference filename can be mistaken for present building evidence.",
+      "resolution": "Retain the prior OSM records and all 26 official parts and original planes; use complete LoD2 bodies, roofs and courts as metric display anchors. Open only the bounded upper Nationalgalerie portico while retaining its source base, inner wall and entablature; its 13.54 m floor and 25.2 m local inner-wall boundary are photo-based estimates. Keep the 35.995 m official roof; procedural crown figures reach about 38.65 m. Add thin Neues Museum court rooflights at estimated viewer y=26.9 m, retaining the original court holes. Keep Pergamon's documented three-wing state and no unverified future fourth wing or scaffold layout. Preserve the Commons filename Berlin Neues Museum from Berliner Dom 02.jpg while identifying its actual Nationalgalerie subject in the credit. Local architectural and sculptural subdivisions are not survey measurements.",
+      "geometry_ref": "src/app/src/museumTriadSource.json",
+      "documentation_ref": "docs/museum-triad-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "dom_altes_source_display_conflicts_v110",
+      "kind": "source_envelopes_and_identity_vs_documented_architecture",
+      "sources": [
+        "Berlin LoD2 parents DEBE01YYK000000D, DEBE01YYK00000kr and DEBE01YYK0001xI7; retained OSM way 313670734 and relation 3619; granite bowl node 376689138",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5819.zip",
+        "https://www.berlinerdom.de/besuchen-wissen/ueber-den-dom/architektur/",
+        "https://www.smb.museum/en/museums-institutions/altes-museum/about-us/profile/",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09012501",
+        "https://bildhauerei-in-berlin.de/bildwerk/granitschale-7879/",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "Five inspected free Commons photographs; per-file metadata retained in both Wikimedia manifests"
+      ],
+      "conflict": "The old Dom OSM record is a flat 98 m extrusion; official LoD2 instead ends at viewer y=45.688 m and omits domes and lantern. Altes Museum's old OSM record is a generic 9 m mass; two narrow LoD2 roof strips have isolated 33.323/39.416 m peaks inconsistent with DOP. A separate official portico duplicates a low museum part. The requested marble bowl is documented as red granite.",
+      "resolution": "Retain all eighteen official parts, original planes and prior OSM records. Keep the Dom's exact plan and ground y=2.270 m; procedural dome, lantern and single long cross express the cathedral's published 98 m total height at viewer y=100.270 m. Intermediate and east-cupola dimensions remain estimates; do not reconstruct the removed Denkmalskirche. Display all sixteen Altes Museum parts and both courts, limiting only roof strips DEBE3DZGavw271ZU and DEBE3DMfhQc2wgOO to the retained rotunda top y=32.211 m while keeping their original higher source planes. Retain portico parent DEBE01YYK0001xI7 without drawing its 7.301 m overlap with DEBE3DyLUEjxE0Jc twice. At exact OSM node 376689138, use the published 6.9 m granite bowl with three supporting blocks and access steps. DOP roof-image displacement is not used to move ground coordinates; local member and sculpture dimensions are procedural estimates.",
+      "geometry_ref": "src/app/src/domAltesMuseumSource.json",
+      "documentation_ref": "docs/dom-altes-museum-refinement.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

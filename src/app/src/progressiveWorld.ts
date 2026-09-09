@@ -55,24 +55,27 @@ export type ProgressiveAttachmentReadiness = {
 };
 
 /**
- * Visibility previews attach immediately; exact refinement yields to current
- * input unless it has waited long enough to guarantee forward progress.
+ * Visibility previews attach immediately. Exact refinement uses available
+ * idle time even while moving; pending input retains priority until deadline.
  */
 export function progressiveAttachmentReady({
   critical,
   idleBudgetMs,
   inputPending,
-  interactionActive,
   queuedForMs,
 }: ProgressiveAttachmentReadiness): boolean {
   if (critical || queuedForMs >= PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS) {
     return true;
   }
   return (
-    !interactionActive &&
     !inputPending &&
     idleBudgetMs >= PROGRESSIVE_ATTACHMENT_MIN_IDLE_BUDGET_MS
   );
+}
+
+/** A queued batch's deadline belongs to its arrival, never to a retry. */
+export function progressiveAttachmentRemainingMs(queuedForMs: number): number {
+  return Math.max(0, PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS - Math.max(0, queuedForMs));
 }
 
 /**

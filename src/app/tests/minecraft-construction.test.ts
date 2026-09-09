@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.9 refines the Heidestrasse facade families, complete 50Hertz complex,
-// cemetery and Litfin tower. Synchronous buffers are compared with cooperative
+// v1.0.10 adds Friedrichstrasse facades and all five Museum Island buildings,
+// replacing only their coarse source bodies. Synchronous buffers are compared with cooperative
 // construction, including all geometry, colours and instance capacities.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "bc3378022e9bf1d5c42d83fe7346dc58cad0254c2c8bc3cb273b3f0d45b1d494", 3720442, 86, 283980954],
-  ["mobile", "b25bd4305377aed98318567b710db1a29338c0d95f4f3cbf141d41330d1f340f", 932887, 84, 71559746],
+  ["full", "7e2f6814a6c93fac68b0a9d3538708ff0632560b1cb80bbf146ee5a891581a91", 3764166, 90, 287305922],
+  ["mobile", "cebb0978c3188c853afdd724d1fabce1b9c714eca6873c08c35ebdefebae195a", 969863, 88, 74371866],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

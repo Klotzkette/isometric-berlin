@@ -5,6 +5,18 @@ tablet. Drag up/down to move forward/backward along the view heading; drag
 left/right to strafe. It flies in camera mode and walks in pedestrian mode.
 Walking retains the existing terrain, water and solid-object checks in every
 visual mode.
+
+In v1.0.10, grabbing any point inside the orange knob starts neutral (40 px
+normally, 48 px for coarse pointers; the actual size is sampled at pointer-down).
+The drag origin follows that initial grip, so grabbing the right edge and
+dragging straight forward no longer adds unintended sideways movement.
+Mouse, touch and pen share this rule, the 4 px dead zone and 44 px travel;
+pressing the surrounding pad still requests its direction immediately.
+The origin stays fixed for the gesture even if mobile browser chrome moves.
+Mouse movement without the primary button held cancels stale input after a
+lost release. Dragging beyond the pad remains captured; release stops motion.
+The actual-handler regression compares identical trajectories on 82 px
+desktop and 128 px mobile pads, including off-centre grips and lost releases.
 Mouse double-click and one short touch/pen tap request
 the normal jump with the guards described in [mobile-joystick-jump.md](mobile-joystick-jump.md).
 

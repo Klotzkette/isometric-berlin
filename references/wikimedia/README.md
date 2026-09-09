@@ -304,3 +304,43 @@ canal loggias. No photo is bundled. See [evidence](../../docs/europacity-archite
 | [Berlin-Moabit Otto-Weidt-Platz.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Moabit_Otto-Weidt-Platz.jpg) | Definitiv | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
 | [Golda-Meir-Steg Berlin 1v5.jpg](https://commons.wikimedia.org/wiki/File:Golda-Meir-Steg_Berlin_1v5.jpg) | Singlespeedfahrer | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 | [Golda-Meir-Steg Berlin 2v5.jpg](https://commons.wikimedia.org/wiki/File:Golda-Meir-Steg_Berlin_2v5.jpg) | Singlespeedfahrer | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+
+## Friedrichstraße and Museum Island references (v1.0.10)
+
+Twenty freely licensed photographs were inspected for facade, roof, column,
+sculpture and material recognition. Each remains an external attribution-only
+reference; no photograph, crop or texture is bundled or loaded. LoD2 retains
+the metric role and OSM the semantic role. Both manifests preserve all 231
+previous records and append the same twenty records, bringing each to 251.
+Source limits and geometry evidence are documented for
+[Friedrichstraße and Schiffbauerdamm](../../docs/friedrichstrasse-architecture-refinement.md),
+[Pergamonmuseum, Neues Museum and Alte Nationalgalerie](../../docs/museum-triad-refinement.md),
+and [Berliner Dom, Altes Museum and granite bowl](../../docs/dom-altes-museum-refinement.md).
+
+The original filename *Berlin Neues Museum from Berliner Dom 02.jpg* is
+retained verbatim. Its subject is Alte Nationalgalerie, whose roof and stairs
+it informs. The Dom cross restoration view and the bowl's temporary cover
+are not treated as evidence of present scaffolding or permanent bowl geometry.
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [Admiralspalast - Facciata esterna.jpg](<https://commons.wikimedia.org/wiki/File:Admiralspalast_-_Facciata_esterna.jpg>) | Matt Cec | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Berlin, Mitte, Friedrichstrasse, Admiralspalast 02.jpg](<https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Friedrichstrasse,_Admiralspalast_02.jpg>) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| [Admiralspalast - Cortile interno.jpg](<https://commons.wikimedia.org/wiki/File:Admiralspalast_-_Cortile_interno.jpg>) | Matt Cec | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Spreedreieck, Berlin-Mitte, 170117, ako.jpg](<https://commons.wikimedia.org/wiki/File:Spreedreieck,_Berlin-Mitte,_170117,_ako.jpg>) | Ansgar Koreng | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| [Berlin-Mitte, Häuser Schiffbauerdamm 6-8.JPG](<https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_H%C3%A4user_Schiffbauerdamm_6-8.JPG>) | Dguendel | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| [20241030 xl 0722-Meliá Berlin.jpg](<https://commons.wikimedia.org/wiki/File:20241030_xl_0722-Meli%C3%A1_Berlin.jpg>) | Molgreen | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [141209 Schiffbauerdamm 12 Berlin-Mitte.jpg](<https://commons.wikimedia.org/wiki/File:141209_Schiffbauerdamm_12_Berlin-Mitte.jpg>) | Ansgar Koreng | [CC BY 3.0 de](https://creativecommons.org/licenses/by/3.0/de/deed.en) |
+| [Berlin, Mitte, Schiffbauerdamm 5, Mietshaus.jpg](<https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Schiffbauerdamm_5,_Mietshaus.jpg>) | Jörg Zägel | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| [Berlin, Pergamonmuseum 2014-07.jpg](<https://commons.wikimedia.org/wiki/File:Berlin,_Pergamonmuseum_2014-07.jpg>) | HerrAdams | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Pergamonmuseum Front.jpg](<https://commons.wikimedia.org/wiki/File:Pergamonmuseum_Front.jpg>) | Raimond Spekking | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [(20260607) Neues Museum Berlin 131455.jpg](<https://commons.wikimedia.org/wiki/File:(20260607)_Neues_Museum_Berlin_131455.jpg>) | Roy Zuo | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Berlin Neues Museum from Berliner Dom 02.jpg](<https://commons.wikimedia.org/wiki/File:Berlin_Neues_Museum_from_Berliner_Dom_02.jpg>) | Ad Meskens | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Berlin, Neues Museum 2014-07 (1).jpg](<https://commons.wikimedia.org/wiki/File:Berlin,_Neues_Museum_2014-07_(1).jpg>) | HerrAdams | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Alte Nationalgalerie, 2024 (01).jpg](<https://commons.wikimedia.org/wiki/File:Alte_Nationalgalerie,_2024_(01).jpg>) | Bahnfrend | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Alte Nationalgalerie, 2024 (02).jpg](<https://commons.wikimedia.org/wiki/File:Alte_Nationalgalerie,_2024_(02).jpg>) | Bahnfrend | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| [Berliner Dom Kuppelkreuz.jpg](<https://commons.wikimedia.org/wiki/File:Berliner_Dom_Kuppelkreuz.jpg>) | Alexander Hüsing from Berlin, Deutschland | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
+| [2023 Berliner Dom - Westfassade -- 01.jpg](<https://commons.wikimedia.org/wiki/File:2023_Berliner_Dom_-_Westfassade_--_01.jpg>) | Chainwit. | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| [Altes Museum, Berlin-Mitte, 170117, ako.jpg](<https://commons.wikimedia.org/wiki/File:Altes_Museum,_Berlin-Mitte,_170117,_ako.jpg>) | Ansgar Koreng | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| [Berlin Lustgarten Granitschale 002.JPG](<https://commons.wikimedia.org/wiki/File:Berlin_Lustgarten_Granitschale_002.JPG>) | Janericloebe | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) |
+| [Riss der Granitschale im Lustgarten.JPG](<https://commons.wikimedia.org/wiki/File:Riss_der_Granitschale_im_Lustgarten.JPG>) | Times | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |

@@ -251,6 +251,14 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     );
   }
 
+  // Finish building recognition before optional surface refinement. A slow
+  // park/water payload must not hold the far half of the exact city hostage.
+  batchCount += await postBuildingBatches(
+    prismPayload,
+    deferredBuildingBatches,
+    nearestBuildingBatch ? 1 : 0,
+  );
+
   const [groundResponse, surfacesResponse] = await Promise.all([
     groundPromise,
     surfacesPromise,
@@ -334,13 +342,6 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   batchCount += 1;
   await yieldWorker();
 
-  // Exact batches are already merged by material. The permanent distant shell
-  // keeps every remaining source building visible in all visual modes.
-  batchCount += await postBuildingBatches(
-    prismPayload,
-    deferredBuildingBatches,
-    nearestBuildingBatch ? 1 : 0,
-  );
   await waitForAttachedBatches();
   workerScope.postMessage({
     batches: batchCount,

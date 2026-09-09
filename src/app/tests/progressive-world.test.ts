@@ -521,6 +521,11 @@ describe("progressive exact-world scheduling", () => {
     expect(desktopPreview).toBeGreaterThan(0);
     expect(exactBuildings).toBeGreaterThan(desktopPreview);
     expect(firstSurface).toBeGreaterThan(exactBuildings);
+    const allExactBuildings = progressiveWorkerSource.indexOf(
+      "    deferredBuildingBatches,", exactBuildings,
+    );
+    expect(allExactBuildings).toBeGreaterThan(exactBuildings);
+    expect(allExactBuildings).toBeLessThan(firstSurface);
     expect(laneMarkings).toBeGreaterThan(firstSurface);
     expect(progressiveWorkerSource).not.toContain("surface-paving");
     expect(progressiveWorkerSource).not.toContain("surface-asphalt");
@@ -1017,8 +1022,9 @@ describe("progressive exact-world scheduling", () => {
     // parts into the bounded initial group (17,256 fewer follow-up vertices).
     // v1.0.9 removes 1,338 duplicate follow-up vertices on dedicated Heidestrasse / 50Hertz facades.
     expect({ vertices, retainedBytes }).toEqual({
-      vertices: 3_622_896,
-      retainedBytes: 52_125_348,
+      // v1.0.10 dedicated street facades and museums replace their generic detail.
+      vertices: 3_601_816,
+      retainedBytes: 51_809_160,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

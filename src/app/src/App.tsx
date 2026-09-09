@@ -647,10 +647,21 @@ function FlightJoystick({
         }
         pointerIdRef.current = event.pointerId;
         const rect = event.currentTarget.getBoundingClientRect();
-        originRef.current = {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        };
+        const centreX = rect.left + rect.width / 2;
+        const centreY = rect.top + rect.height / 2;
+        // Grabbing any part of the visible knob starts neutral. Otherwise a
+        // slightly off-centre mouse click already strafed before the drag,
+        // and a straight forward drag retained that sideways bias. Touch,
+        // pen and mouse now use the same stable grip point. Pressing the
+        // surrounding pad still requests its direction immediately.
+        const knobWidth = knobRef.current?.getBoundingClientRect().width ?? 40;
+        const knobRadius = knobWidth > 0 ? knobWidth / 2 : 20;
+        const grabsKnob = Math.hypot(
+          event.clientX - centreX, event.clientY - centreY,
+        ) <= knobRadius;
+        originRef.current = grabsKnob
+          ? { x: event.clientX, y: event.clientY }
+          : { x: centreX, y: centreY };
         try {
           event.currentTarget.setPointerCapture(event.pointerId);
         } catch {
@@ -666,6 +677,13 @@ function FlightJoystick({
         event.stopPropagation();
         event.preventDefault();
         if (pointerIdRef.current !== event.pointerId) {
+          return;
+        }
+        if (event.pointerType === "mouse" && (event.buttons & 1) === 0) {
+          // Recover from a release outside the browser even if pointer-up
+          // was lost. Hovering back onto the pad must not keep flying.
+          cancelJoystickTap(tapStateRef.current);
+          release();
           return;
         }
         moveJoystickTap(tapStateRef.current, pointerSample(event));

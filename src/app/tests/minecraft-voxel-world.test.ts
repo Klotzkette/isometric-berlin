@@ -141,7 +141,8 @@ describe("true voxel Minecraft world", () => {
     // 113 obsolete panes on the Zollpackhof/Gustav-support source envelopes.
     // v1.0.6 removes 348 further panes on replaced Palast/Böll low mass and the clipped Böll roof.
     // v1.0.7 removes false Topography site columns and rounds only authored civic roofs.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_589_937);
+    // v1.0.10 replaces Admiralspalast and five museums' coarse source bodies.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_585_111);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -151,9 +152,9 @@ describe("true voxel Minecraft world", () => {
     // envelope. v1.0.5 removes false Soviet bodies and the museum hall
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
-    expect(instanced("Voxel building columns", world).count).toBe(1_472_480);
+    expect(instanced("Voxel building columns", world).count).toBe(1_466_811);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      538_241,
+      536_350,
     );
 
     const landmarks = world.getObjectByName(

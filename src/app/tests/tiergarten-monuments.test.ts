@@ -2,13 +2,18 @@ import { describe, expect, test } from "bun:test";
 
 import {
   Box3,
+  Color,
   Group,
+  InstancedMesh,
+  Matrix4,
   LineBasicMaterial,
   LineSegments,
   Mesh,
   Vector3
 } from "three";
 
+import { createDomAltesMuseum } from "../src/DomAltesMuseum";
+import { DOM_ALTES_ARTWORK_KEYS } from "../src/domAltesMuseumIds";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
@@ -277,9 +282,51 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
   });
 
   test("every named artwork has an explicit presentation builder and a height band", () => {
-    // Quiet memorials use subtype-aware presentation geometry. A named
-    // `tourism=artwork` must instead enter the explicit artwork dispatcher and
-    // lift clear of every low marker band.
+    // Named artwork has explicit ownership, either in the generic dispatcher
+    // or in the source-bound museum scene; both paths must contain real art.
+    const museum = createDomAltesMuseum();
+    museum.updateMatrixWorld(true);
+    const museumArtworkBounds = new Map<string, Box3>();
+    const museumEntries = street.monuments!.filter(entry =>
+      DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key));
+    expect(new Set(museumEntries.map(entry => entry.osm_key))).toEqual(
+      DOM_ALTES_ARTWORK_KEYS);
+    const transform = new Matrix4();
+    const vertex = new Vector3();
+    const color = new Color();
+    for (const entry of museumEntries) {
+      const bounds = new Box3();
+      let contributions = 0;
+      museum.traverse(object => {
+        if (!(object instanceof Mesh)) return;
+        if (entry.osm_key === "node/376689138" &&
+          object.name.startsWith("Granitschale ")) {
+          bounds.expandByObject(object);
+          contributions += 1;
+        }
+        if (!(object instanceof InstancedMesh)) return;
+        const positions = object.geometry.getAttribute("position");
+        for (let instance = 0; instance < object.count; instance += 1) {
+          object.getMatrixAt(instance, transform);
+          transform.premultiply(object.matrixWorld);
+          vertex.setFromMatrixPosition(transform);
+          if (Math.hypot(vertex.x - entry.x_dm / 10,
+            vertex.z - entry.z_dm / 10) > 4) continue;
+          object.getColorAt(instance, color);
+          if (entry.osm_key !== "node/376689138" &&
+            color.getHex() !== 0x416f5c) continue;
+          contributions += 1;
+          for (let index = 0; index < positions.count; index += 1) {
+            bounds.expandByPoint(vertex.fromBufferAttribute(positions, index)
+              .applyMatrix4(transform));
+          }
+        }
+      });
+      expect(contributions).toBeGreaterThan(
+        entry.osm_key === "node/376689138" ? 7 : 10);
+      expect(bounds.isEmpty()).toBe(false);
+      museumArtworkBounds.set(entry.osm_key, bounds);
+    }
     for (const entry of street.monuments!.filter(
       (candidate) =>
         candidate.kind === "artwork" &&
@@ -289,10 +336,35 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
           .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
     )) {
-      expect(resolveArtworkBuilder(entry.name)).toBeFunction();
-      const height = tallestAtArtwork(entry.name);
-      if (height <= 1.2) {
-        throw new Error(`${entry.name} remained in the marker height band (${height} m)`);
+      const dedicated = museumArtworkBounds.get(entry.osm_key);
+      if (DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key)) {
+        expect(createDomAltesMuseum).toBeFunction();
+        expect(dedicated).toBeDefined();
+        const size = dedicated!.getSize(new Vector3());
+        if (entry.osm_key === "node/376689138") {
+          // Actual hollow bowl plus platform: 6.9 m basin, 8.84 m lower
+          // plinth and approximately 2.27 m overall presentation height.
+          expect(size.y).toBeGreaterThan(2.2);
+          expect(size.y).toBeLessThan(2.4);
+          expect(size.x).toBeCloseTo(8.84, 2);
+          expect(size.z).toBeCloseTo(8.84, 2);
+        } else {
+          // Bronze horse/rider geometry only, excluding the taller source
+          // museum and stone pedestal. These are recognition subdivisions,
+          // in the 3.7–4.5 m sculpture band, rather than generic low markers.
+          expect(size.y).toBeGreaterThan(3.7);
+          expect(size.y).toBeLessThan(4.5);
+          expect(size.x).toBeGreaterThan(2.5);
+          expect(size.z).toBeGreaterThan(1.5);
+          expect(dedicated!.min.y).toBeGreaterThan(9);
+          expect(dedicated!.max.y).toBeLessThan(13.5);
+        }
+      } else {
+        expect(resolveArtworkBuilder(entry.name)).toBeFunction();
+        const height = tallestAtArtwork(entry.name);
+        if (height <= 1.2) {
+          throw new Error(`${entry.name} remained in the marker height band (${height} m)`);
+        }
       }
     }
   expect(monuments.userData.fallbackArtworkCount).toBeGreaterThan(100);

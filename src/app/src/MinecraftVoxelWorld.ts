@@ -1,3 +1,9 @@
+import { createMinecraftDomAltesMuseum } from "./DomAltesMuseum";
+import { isDomAltesReplacementColumn } from "./domAltesMuseumProfile";
+import { createMinecraftMuseumTriadArchitecture } from "./MuseumTriadArchitecture";
+import { isMuseumTriadReplacementColumn } from "./museumTriadProfile";
+import { createMinecraftFriedrichstrasseArchitecture } from "./FriedrichstrasseArchitecture";
+import { admiralspalastSourceColumnAt, FRIEDRICHSTRASSE_ARCHITECTURE_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_TONES } from "./friedrichstrasseArchitectureProfile";
 import { createEuropacityArchitecture } from "./EuropacityArchitecture";
 import { EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
 import { createMinecraftFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
@@ -744,6 +750,7 @@ export function isCompleteRecognitionVoxelColumn(
     isMinecraftArchitecturalReplacementColumn(x, z) ||
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
+    isMuseumTriadReplacementColumn(x, z) ||
     abgeordnetenhausMainContains(x, z) ||
     gustavBridgeSupportReplacementAt(x, z) ||
     zollpackhofContains(x, z)
@@ -904,11 +911,13 @@ export function smoothGroundTopSampler(
  * while staying strictly inside the authored block palette.
  */
 export type ColumnToneLookup = ((x: number, z: number) => number | null) & {
+  sourceIdAt?: (x: number, z: number) => string | null;
   attributesAt?: (x: number, z: number) => BuildingAttributes | undefined;
   storeysAt?: (x: number, z: number) => MappedStoreyProfile | null;
 };
 
 type TonedPrism = {
+  id?: string;
   hex: number | null;
   attributes?: BuildingAttributes;
   storeys: MappedStoreyProfile | null;
@@ -984,7 +993,7 @@ export function buildColumnToneLookup(prisms: {
     const attributes = building.id ? buildingAttributes(building.id) : undefined;
     // These bounded v1.0.6 facades use the same photo-guided colour family
     // as the drawn world, snapped to the existing Minecraft material palette.
-    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] : undefined;
+    const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] ?? FRIEDRICHSTRASSE_ARCHITECTURE_TONES[building.id] : undefined;
     const mappedTone = corridorTone ?? mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes));
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
@@ -996,6 +1005,7 @@ export function buildColumnToneLookup(prisms: {
     const xs = ring.map(([x]) => x);
     const zs = ring.map(([, z]) => z);
     const toned: TonedPrism = {
+      id: building.id,
       attributes,
       storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
       holes: (building.holes ?? []).map((ring) => ring.map(([x, z]) => [x / 10, z / 10] as [number, number])),
@@ -1080,6 +1090,7 @@ export function buildColumnToneLookup(prisms: {
       !toned.holes.some((hole) => inside(x, z, hole)));
   };
   lookup.attributesAt = (x, z) => sourceAt(x, z)?.attributes;
+  lookup.sourceIdAt = (x, z) => sourceAt(x, z)?.id ?? null;
   lookup.storeysAt = (x, z) => sourceAt(x, z)?.storeys ?? null;
   return lookup;
 }
@@ -2646,6 +2657,13 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftBellevueArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createEuropacityArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", minecraft: true, voxels: payload }));
+  yield;
+  group.add(createMinecraftFriedrichstrasseArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  yield;
+  group.add(createMinecraftMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" }));
+  yield;
+  group.add(createMinecraftDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" }));
+  yield;
   group.add(createMinecraftTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2687,6 +2705,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
+      !admiralspalastSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !isDomAltesReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y1dm / 10, cell) &&
       !bismarckMoltkeSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !topographySourceColumnContains(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&
@@ -2885,6 +2905,14 @@ export function* buildMinecraftVoxelWorldSteps(
           continue;
         }
         if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
+          continue;
+        }
+        const windowX = worldXAbs(xIdx), windowZ = worldZAbs(zIdx);
+        // The nine new street fronts own their full window rhythm. Keep the
+        // coarse block body, but do not add a second arbitrary grid of panes.
+        // Reject the rest of the city before another footprint lookup.
+        if (windowX >= 800 && windowX <= 1280 && windowZ >= -460 && windowZ <= -150 &&
+          FRIEDRICHSTRASSE_ARCHITECTURE_IDS.has(toneLookup?.sourceIdAt?.(windowX, windowZ) ?? "")) {
           continue;
         }
         const top = y1dm / 10;

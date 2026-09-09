@@ -63,6 +63,7 @@ type PointerOptions = {
   at?: number;
   pointerType?: string;
   button?: number;
+  buttons?: number;
 };
 
 function nativePointer(type: string, options: PointerOptions = {}): Event {
@@ -72,6 +73,7 @@ function nativePointer(type: string, options: PointerOptions = {}): Event {
     pointerType: options.pointerType ?? "touch",
     isPrimary: true,
     button: options.button ?? 0,
+    buttons: options.buttons ?? 1,
     clientX: options.x ?? 78, clientY: options.y ?? 564,
     pageX: options.x ?? 78, pageY: options.y ?? 564,
   });
@@ -84,6 +86,7 @@ function joystickHost(overrides: Partial<Props> = {}) {
   const window = new EventTarget();
   const pad = new ElementHost(document);
   const knob = new ElementHost(document);
+  knob.rect = { left: 58, top: 544, width: 40, height: 40 };
   pad.child = knob;
   const values: [number, number][] = [];
   const props: Props = {
@@ -148,7 +151,7 @@ function joystickHost(overrides: Partial<Props> = {}) {
     let stopped = false;
     const event = {
       pointerId: native.pointerId, pointerType: native.pointerType,
-      isPrimary: native.isPrimary, button: native.button,
+      isPrimary: native.isPrimary, button: native.button, buttons: native.buttons,
       clientX: native.clientX, clientY: native.clientY, timeStamp: native.timeStamp,
       currentTarget: pad, target: pad, nativeEvent: native,
       preventDefault: () => native.preventDefault(),
@@ -182,6 +185,70 @@ function orbitRig(document: EventTarget) {
 }
 
 describe("iPhone joystick gesture ownership and stability", () => {
+  test("the outer edge of the larger coarse-pointer knob also starts neutral", () => {
+    const host = joystickHost();
+    try {
+      host.knob.rect = { left: 54, top: 540, width: 48, height: 48 };
+      host.emit("pointerdown", { x: 100, y: 564 });
+      expect(host.lastInput()!.every(value => value === 0)).toBeTrue();
+      host.emit("pointermove", { x: 100, y: 520 });
+      expect(host.lastInput()).toEqual([0, 1]);
+      expect(host.pad.rectReads).toBe(1);
+      expect(host.knob.rectReads).toBe(1);
+      host.emit("pointerup", { x: 100, y: 520 });
+      expect(host.lastInput()).toEqual([0, 0]);
+    } finally { host.unmount(); }
+  });
+
+  test("off-centre knob grips stay neutral and mouse/touch/pen produce identical drags", () => {
+    const trajectories: Array<Array<[number, number]>> = [];
+    for (const pointerType of ["mouse", "touch", "pen"]) {
+      const host = joystickHost();
+      try {
+        // Desktop and phone place differently sized pads in different corners.
+        host.pad.rect = pointerType === "mouse"
+          ? { left: 306, top: 700, width: 82, height: 82 }
+          : { left: 14, top: 500, width: 128, height: 128 };
+        const x = host.pad.rect.left + host.pad.rect.width / 2 + 16;
+        const y = host.pad.rect.top + host.pad.rect.height / 2 - 8;
+        host.emit("pointerdown", { pointerType, x, y });
+        expect(host.lastInput()!.every(value => value === 0)).toBeTrue();
+        const path: Array<[number, number]> = [];
+        for (const [dx, dy] of [[0, -20], [0, -44], [44, 0], [-31, 31], [180, -180], [0, 0]]) {
+          host.emit("pointermove", { pointerType, x: x + dx, y: y + dy });
+          path.push(host.lastInput()!);
+        }
+        expect(path[1][0]).toBe(0);
+        expect(path[1][1]).toBe(1);
+        expect(path[2][0]).toBe(1);
+        expect(path[2][1]).toBeCloseTo(0);
+        expect(path[4][0]).toBeCloseTo(Math.SQRT1_2);
+        host.emit("pointerup", { pointerType, x, y });
+        expect(host.lastInput()).toEqual([0, 0]);
+        expect(host.pad.rectReads).toBe(1);
+        trajectories.push(path);
+      } finally { host.unmount(); }
+    }
+    expect(trajectories[0]).toEqual(trajectories[1]);
+    expect(trajectories[1]).toEqual(trajectories[2]);
+  });
+
+  test("a lost mouse release cannot leave hover movement or a pending jump", () => {
+    let jumps = 0;
+    const host = joystickHost({ onJump: () => { jumps += 1; } });
+    try {
+      host.emit("pointerdown", { pointerType: "mouse" });
+      host.emit("pointermove", { pointerType: "mouse", y: 520 });
+      expect(host.lastInput()![1]).toBe(1);
+      host.emit("pointermove", { pointerType: "mouse", y: 520, buttons: 0 });
+      expect(host.lastInput()).toEqual([0, 0]);
+      host.emit("pointermove", { pointerType: "mouse", y: 510 });
+      expect(host.lastInput()).toEqual([0, 0]);
+      host.emit("pointerup", { pointerType: "mouse" });
+      expect(jumps).toBe(0);
+    } finally { host.unmount(); }
+  });
+
   test("reproduces the real OrbitControls foreign-touch sky pitch", () => {
     const document = new EventTarget();
     const { camera, controls, canvas } = orbitRig(document);

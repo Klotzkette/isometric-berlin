@@ -16,6 +16,9 @@ import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess"
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "../src/parliamentArchitectureProfile";
 import { BUNDESRAT_MAIN_ID } from "../src/bundesratProfile";
 import { BELLEVUE_IDS } from "../src/bellevueProfile";
+import { ADMIRALSPALAST_IDS } from "../src/friedrichstrasseArchitectureProfile";
+import { MUSEUM_TRIAD_SOURCES } from "../src/museumTriadProfile";
+import { DOM_ALTES_SOURCE } from "../src/domAltesMuseumProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -54,7 +57,20 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // its source podium stays untouched and is tested independently.
     // C63xrbXN now follows the museum sawtooth roof instead of a flat maximum.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
-      .toEqual([...BELLEVUE_IDS, ...FIFTY_HERTZ_IDS, profile.mainPrismId, "RVRCWHeT", "FqL2azIz", "C63xrbXN", "24314976", BUNDESRAT_MAIN_ID, JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId].sort());
+      .toEqual([
+        ...BELLEVUE_IDS,
+        ...FIFTY_HERTZ_IDS,
+        profile.mainPrismId,
+        "RVRCWHeT",
+        "FqL2azIz",
+        "C63xrbXN",
+        "24314976",
+        BUNDESRAT_MAIN_ID,
+        JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId,
+        ...ADMIRALSPALAST_IDS,
+        ...MUSEUM_TRIAD_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
+        ...[DOM_ALTES_SOURCE.dom, DOM_ALTES_SOURCE.altes].flatMap(({ parts }) => parts.map(({ id }) => id)),
+      ].sort());
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

@@ -1,3 +1,9 @@
+import { createDomAltesMuseum } from "./DomAltesMuseum";
+import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
+import { createMuseumTriadArchitecture } from "./MuseumTriadArchitecture";
+import { MUSEUM_TRIAD_PRISM_IDS } from "./museumTriadIds";
+import { createFriedrichstrasseArchitecture } from "./FriedrichstrasseArchitecture";
+import { ADMIRALSPALAST_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_TONES } from "./friedrichstrasseArchitectureProfile";
 import { createEuropacityArchitecture } from "./EuropacityArchitecture";
 import { EUROPACITY_ARCHITECTURE_IDS, EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
 import { createFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
@@ -624,6 +630,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...ROHWEDDER_HAUS_PRISM_TONES,
   ...BELLEVUE_PRISM_TONES,
   ...EUROPACITY_ARCHITECTURE_TONES,
+  ...FRIEDRICHSTRASSE_ARCHITECTURE_TONES,
   ...FIFTY_HERTZ_PRISM_TONES,
   ...BOELL_STIFTUNG_PRISM_TONES,
   mIgrCTOY: 0xe4be7d,
@@ -856,6 +863,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...DOM_ALTES_PRISM_IDS,
+  ...MUSEUM_TRIAD_PRISM_IDS,
+  ...ADMIRALSPALAST_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
   ...BELLEVUE_IDS,
   ...FIFTY_HERTZ_IDS,
@@ -2391,6 +2401,7 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
@@ -2422,6 +2433,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
@@ -2446,6 +2458,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // Wallot's two affected Palais roof parts instead use source-bounded crest
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
@@ -12951,6 +12964,9 @@ export function createIsometricCity(
     group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
+    group.add(createFriedrichstrasseArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
+    group.add(createMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" }));
+    group.add(createDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

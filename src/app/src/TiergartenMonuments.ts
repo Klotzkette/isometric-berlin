@@ -1,4 +1,5 @@
 import { SOVIET_MEMORIAL_SOURCE } from "./SovietMemorialSource";
+import { DOM_ALTES_ARTWORK_KEYS } from "./domAltesMuseumIds";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -2838,6 +2839,7 @@ export function createTiergartenMonuments(
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
     } else if (
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
+      DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
       BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
       KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||

@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.10
+
+- **Ladeverhalten.** Fertige Geometrie behält ihre ursprüngliche Wartefrist;
+  freie Rechenzeit wird auch während der Bewegung genutzt. Exakte Gebäude
+  werden vor optionalen Bodenflächen fertiggestellt; kürzere Parkdetail-Pause.
+- **Joystick.** Greifen am Rand des orangen Knopfes startet neutral. Maus,
+  Touch und Stift verwenden denselben Griffpunkt und dieselbe Bewegungskurve;
+  verlorenes Loslassen mit der Maus hinterlässt keine laufende Bewegung.
+- **Friedrichstraße und Ensemble.** Admiralspalast und umliegende Gebäude
+  erhalten quellgebundene Fassaden und differenzierte Dachformen.
+- **Museumsinsel.** Pergamonmuseum, Neues Museum, Alte Nationalgalerie,
+  Altes Museum und Berliner Dom ersetzen grobe Platzhalter durch eigene
+  Architektur. Vergoldetes Domkreuz und Granitschale erhalten erkennbare Formen.
+- **Darstellungen.** Eigene Minecraft-Geometrie für Desktop und Mobilgeräte;
+  amtliche Quellgeometrie, dokumentierte Ergänzungen und externe Fotoreferenzen.
+
 ## v1.0.9
 
 - **Heidestraße und Otto-Weidt-Platz.** 21 Gebäudegruppen mit eigenen

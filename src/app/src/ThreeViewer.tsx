@@ -4,6 +4,8 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
+import { domAltesExtraSolidAt, domAltesExtraGroundAt } from "./domAltesMuseumProfile";
+import { nationalgaleriePorticoWalkableAt, nationalgaleriePorticoSolidAt, nationalgalerieWalkSurfaceAt } from "./museumTriadProfile";
 import {
   TOUCH,
   BoxGeometry,
@@ -258,7 +260,7 @@ import {
   DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_INITIAL_BUILDING_COUNT,
   MOBILE_TOTAL_BUILDING_LIMIT,
-  PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
+  progressiveAttachmentRemainingMs,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
   PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
   progressiveAttachmentReady,
@@ -2839,9 +2841,12 @@ function scheduleProgressiveAttachment(
     scheduleProgressiveAttachment(runtime, worker, warn);
   };
 
+  const remainingMs = progressiveAttachmentRemainingMs(
+    performance.now() - entry.enqueuedAt,
+  );
   const interactionActiveNow =
     performance.now() < runtime.interactionUntil || browserInputPending();
-  if (critical || !interactionActiveNow) {
+  if (critical || !interactionActiveNow || remainingMs === 0) {
     const handle = window.setTimeout(
       () => run(Number.POSITIVE_INFINITY),
       critical ? 0 : 16,
@@ -2861,7 +2866,7 @@ function scheduleProgressiveAttachment(
     if (typeof idleWindow.requestIdleCallback === "function") {
       const handle = idleWindow.requestIdleCallback(
         (deadline) => run(deadline.timeRemaining()),
-        { timeout: PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS },
+        { timeout: Math.max(1, remainingMs) },
       );
       cancel = () => {
         cancelled = true;
@@ -3114,7 +3119,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3139,6 +3144,8 @@ function ensureIsoWorld(
             sovietMemorialSolidAt(x,y,z,radius) ||
             bismarckMoltkeSolidAt(x,y,z,radius) ||
             fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
+            nationalgaleriePorticoSolidAt(x,z,y) ||
+            domAltesExtraSolidAt(x,y,z,radius) ||
             // pedestrianPointIsBlocked already supplies seven capsule body
             // samples; do not expand these analytical memorials a second time.
             wagnerMemorialSolidAt(x, y, z, 0) ||
@@ -3164,6 +3171,10 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+          if (altesFloor !== null) return altesFloor;
+          const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
+          if (museumFloor !== null) return museumFloor;
           const memorialFloor = sovietMemorialGroundAt(x,z);
           if (memorialFloor !== null) return memorialFloor;
           const stationFloor = hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY);
@@ -3608,6 +3619,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
+          nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
           sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
@@ -3621,6 +3633,8 @@ function ensureVoxelWorld(
             sovietMemorialSolidAt(x,y,z,radius) ||
             bismarckMoltkeSolidAt(x,y,z,radius) ||
             fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
+            nationalgaleriePorticoSolidAt(x,z,y) ||
+            domAltesExtraSolidAt(x,y,z,radius) ||
             // The navigation sampler already carries the capsule radius.
             wagnerMemorialSolidAt(x, y, z, 0) ||
             moabitPrisonMemorialSolidAt(x, y, z, 0) ||
@@ -3631,6 +3645,8 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          domAltesExtraGroundAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
+          nationalgalerieWalkSurfaceAt(x,z) ??
           sovietMemorialGroundAt(x,z) ??
           hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
           (minecraftHeroCollisionEnabled(runtime.lightingMode)
@@ -7617,9 +7633,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               }
             ).requestIdleCallback;
             if (typeof requestIdle === "function") {
-              requestIdle(loadParkDetails, { timeout: 3_000 });
+              requestIdle(loadParkDetails, { timeout: 500 });
             } else {
-              window.setTimeout(loadParkDetails, 1_200);
+              window.setTimeout(loadParkDetails, 32);
             }
           };
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
