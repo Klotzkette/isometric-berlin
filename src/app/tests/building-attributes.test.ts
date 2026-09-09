@@ -88,9 +88,10 @@ describe("source-separated ordinary building details", () => {
   });
 
   test("mapped glass walls cannot flatten a retained pitched roof", () => {
-    expect(mappedGlazing(buildingAttributes("NKE26iHe"))).toBe(true);
+    // Use an ordinary mapped glass building; the BahnTower now has its own source mesh.
+    expect(mappedGlazing(buildingAttributes("19869019"))).toBe(true);
     const city = createIsometricCity({ schema_version: 1, classes: ["concrete"], buildings: [{
-      id: "NKE26iHe", class: 0, h_dm: 180, y0_dm: 40, roof: 2100,
+      id: "19869019", class: 0, h_dm: 180, y0_dm: 40, roof: 2100,
       ring: [[35000, 20000], [35160, 20000], [35160, 20080], [35000, 20080]],
     }] }, null, null, null, { includeContext: false });
     expect(city.getObjectByName("LoD2 prism buildings")).toBeDefined();

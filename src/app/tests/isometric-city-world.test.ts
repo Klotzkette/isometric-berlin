@@ -746,9 +746,9 @@ describe("ligne-claire fenestration", () => {
       axes.userData.plazaFacadeDetails.detailedWallCounts;
     expect(detailedWallCounts["Pariser Platz"]).toBeGreaterThan(100);
     expect(detailedWallCounts["Leipziger Platz"]).toBeGreaterThan(200);
-    // The committed payload currently contributes 248 qualifying exact walls;
-    // recognition-model shells are deliberately excluded from this generic pass.
-    expect(detailedWallCounts["Potsdamer Platz"]).toBeGreaterThan(240);
+    // v1.0.11 moves ten BahnTower walls to its dedicated source facade;
+    // 238 qualifying ordinary walls remain in this generic pass.
+    expect(detailedWallCounts["Potsdamer Platz"]).toBe(238);
     expect(detailedWallCounts["Tilla-Durieux-Park"]).toBeGreaterThan(200);
     expect(detailedWallCounts["Stresemannstraße"]).toBeGreaterThan(150);
     expect(detailedWallCounts["Wilhelmstraße"]).toBeGreaterThan(300);

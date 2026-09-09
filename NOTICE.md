@@ -21,6 +21,18 @@ Per owner policy this project uses **additive data fusion** across
 all permitted sources (see [`docs/data.md`](docs/data.md) and
 [`AGENTS.md`](AGENTS.md) §4):
 
+- **BahnTower, Musikinstrumentenmuseum and Spreebogen bank (v1.0.11):**
+  the original tower prisms, museum parts, mapped park and river records remain
+  preserved. Original LoD2 roof planes correct flattened crowns and the museum's
+  basement-to-street height error; the separate entrance pavilion is retained.
+  Rooflights, facade subdivisions, the geometric DB sign and intermediate
+  landscape grades are documented display reconstruction. Four newly inspected
+  Commons photographs of the tower are individually credited in both manifests;
+  existing licensed museum and park references are reused without bundling photos.
+  See [BahnTower evidence](docs/db-tower-refinement.md),
+  [museum correction](docs/music-museum-correction-v111.md) and
+  [Spreebogen evidence](docs/spreebogen-bank-refinement.md).
+
 - **Friedrichstraße and Schiffbauerdamm architecture (v1.0.10):** all 52
   existing LoD2 prism records remain retained. The 2 March 2026 official tile
   adds the Admiralspalast's 205 original wall/roof surfaces, with explicit

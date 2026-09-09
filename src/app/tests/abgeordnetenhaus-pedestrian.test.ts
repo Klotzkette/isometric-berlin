@@ -19,6 +19,8 @@ import { BELLEVUE_IDS } from "../src/bellevueProfile";
 import { ADMIRALSPALAST_IDS } from "../src/friedrichstrasseArchitectureProfile";
 import { MUSEUM_TRIAD_SOURCES } from "../src/museumTriadProfile";
 import { DOM_ALTES_SOURCE } from "../src/domAltesMuseumProfile";
+import { MUSIC_MUSEUM_IDS } from "../src/museumLenneProfile";
+import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -55,7 +57,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     }
     // The JKH source-gap supplement has a mode-dependent polygon/cube top;
     // its source podium stays untouched and is tested independently.
-    // C63xrbXN now follows the museum sawtooth roof instead of a flat maximum.
+    // Museum and BahnTower support follow their individual source roof planes.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
         ...BELLEVUE_IDS,
@@ -63,7 +65,8 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         profile.mainPrismId,
         "RVRCWHeT",
         "FqL2azIz",
-        "C63xrbXN",
+        ...MUSIC_MUSEUM_IDS,
+        ...DB_TOWER_PRISM_IDS,
         "24314976",
         BUNDESRAT_MAIN_ID,
         JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId,

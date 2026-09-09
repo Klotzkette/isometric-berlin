@@ -1,5 +1,9 @@
 import {
+  BoxGeometry,
   BufferGeometry,
+  Color,
+  InstancedMesh,
+  Matrix4,
   DoubleSide,
   EdgesGeometry,
   Float32BufferAttribute,
@@ -9,14 +13,36 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Shape,
+  ShapeGeometry,
+  Vector2,
   Vector3,
 } from "three";
+import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 
 import {
   ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
   markArchitecturalInk,
 } from "./architecturalInk";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import {
+  type VoxelPayload,
+  smoothGroundTopSampler,
+} from "./MinecraftVoxelWorld";
+
+import {
+  LUDWIG_ERHARD_UFER_WORLD_M,
+  PANORAMAWEG_WORLD_M,
+  SPREEBOGEN_SHORE_WORLD_M,
+  SPREEBOGEN_BANK_SOURCES,
+  SPREEBOGEN_PARK_RING_DM,
+  spreebogenParkGradeAt,
+  spreebogenPromenadeYAt,
+  spreebogenLowerPathYAt,
+  spreebogenPanoramaYAt,
+  spreebogenMinecraftPathCells,
+  spreebogenPathSections as sections,
+  type SpreebogenPathSection as PathSection,
+} from "./spreebogenBankProfile";
 
 /**
  * OSM way 737280675 plus the landscape design documented by Berlin and
@@ -31,66 +57,21 @@ export const SPREEBOGEN_PARK_PROFILE = {
   northZ: -414,
   centreX: 20,
   landscapeWindowWidthM: 17,
-  maximumRiseM: 6.8,
+  maximumRiseM: 5,
   ludwigErhardUferWayIds: ["34834265", "1128036906"],
   panoramawegWayId: "4395332",
   panoramawegWidthM: 2.4,
   panoramawegSupportCount: 9,
-  gartenspurSlabCount: 18,
+  gartenspurSlabCount: 16,
   geometryStatus:
-    "OSM-bounded rising lawns and exact path axes; Panoramaweg elevation, supports and Gartenspur slab rhythm are source-bounded presentation reconstruction rather than a fixture survey",
+    "Exact path axes and OSM shore; continuous lower promenade, upper path up to 5m higher and source-bound lawns. Deck sections, garden edging and intermediate grades are display reconstruction, not a fixture survey",
   sourceUrls: [
     "https://www.openstreetmap.org/way/737280675",
     "https://www.berlin.de/sen/uvk/_assets/natur-gruen/landschaftsplanung/20-gruene-hauptwege/weg-1/flyer_flanieren_entlang_der_stadtspree.pdf",
     "https://www.german-architects.com/de/architecture-news/building-of-the-week/gelassene-weite",
+    SPREEBOGEN_BANK_SOURCES.officialDescription,
   ],
 } as const;
-
-const LUDWIG_ERHARD_UFER_WORLD_M = [
-  [268.89, 1.692, -317.78],
-  [240.53, 1.86, -345.51],
-  [198.6, 2.086, -376.21],
-  [154.86, 2.237, -397.92],
-  [123.4, 1.982, -409.83],
-  [106.26, 2.16, -414.97],
-  [86.51, 2.164, -419.46],
-  [75.63, 2.129, -420.57],
-  [41.91, 2.308, -421.66],
-  [23.85, 2.362, -421.39],
-  [15.07, 2.353, -420.69],
-  [-0.7, 2.382, -418.45],
-  [-36.98, 2.35, -409.76],
-  [-60.73, 2.101, -398.32],
-  [-88.06, 1.867, -381.07],
-  [-101.12, 1.864, -369.88],
-  [-117.12, 1.927, -353.66],
-  [-120.98, 2.005, -348.44],
-  [-121.24, 2.031, -343.09],
-  [-122.65, 2.081, -340.58],
-  [-124.93, 2.139, -337.69],
-  [-129.97, 2.066, -336.05],
-  [-139.87, 2.214, -323.67],
-] as const;
-
-const PANORAMAWEG_WORLD_M = [
-  [-124.22, -325.56],
-  [-98.49, -360.63],
-  [-84.53, -372.27],
-  [-70.48, -381.67],
-  [-55.74, -390.26],
-  [-46.62, -394.77],
-  [-38.07, -398.56],
-  [-20.48, -405.16],
-  [-7.26, -408.73],
-  [8.02, -411.42],
-  [22.26, -412.29],
-  [51.8, -412.48],
-  [78.25, -411.51],
-  [94.85, -409.16],
-  [121.64, -402.9],
-  [137.36, -397.98],
-  [154.08, -391.58],
-] as const;
 
 type Vertex = [number, number, number];
 
@@ -168,6 +149,28 @@ function geometryFromPositions(positions: number[]): BufferGeometry {
   return geometry;
 }
 
+function upperAtX(x: number): { z: number; y: number } {
+  for (let i = 0; i < PANORAMAWEG_WORLD_M.length - 1; i++) {
+    const a = PANORAMAWEG_WORLD_M[i],
+      b = PANORAMAWEG_WORLD_M[i + 1];
+    if (x >= a[0] && x <= b[0]) {
+      const t = (x - a[0]) / (b[0] - a[0]);
+      return {
+        z: a[1] + (b[1] - a[1]) * t + 1.28,
+        y:
+          spreebogenPanoramaYAt(i) * (1 - t) +
+          spreebogenPanoramaYAt(i + 1) * t +
+          0.1,
+      };
+    }
+  }
+  const i = x < PANORAMAWEG_WORLD_M[0][0] ? 0 : PANORAMAWEG_WORLD_M.length - 1;
+  return {
+    z: PANORAMAWEG_WORLD_M[i][1] + 1.28,
+    y: spreebogenPanoramaYAt(i) + 0.1,
+  };
+}
+
 function lawnPoint(
   side: -1 | 1,
   row: number,
@@ -175,20 +178,18 @@ function lawnPoint(
   groundAt: (x: number, z: number) => number,
 ): Vertex {
   const t = row / SPREEBOGEN_PARK_PROFILE.lawnRows;
-  const eased = Math.sin((t * Math.PI) / 2);
-  const circularBow = Math.sin(t * Math.PI);
-  const z =
-    SPREEBOGEN_PARK_PROFILE.southZ +
-    (SPREEBOGEN_PARK_PROFILE.northZ - SPREEBOGEN_PARK_PROFILE.southZ) * t;
-  // The paired lawns are circle segments, not wedges. Their outer edges bow
-  // away from the former Alsenstrasse and taper again at the Spree promenade.
-  const halfGap = SPREEBOGEN_PARK_PROFILE.landscapeWindowWidthM / 2;
+  const gap = SPREEBOGEN_PARK_PROFILE.landscapeWindowWidthM / 2;
   const distance =
-    edge === "inner" ? halfGap : halfGap + 48 + circularBow * 34 + eased * 6;
+    edge === "inner"
+      ? gap
+      : gap + 48 + Math.sin(t * Math.PI) * 34 + Math.sin((t * Math.PI) / 2) * 6;
   const x = SPREEBOGEN_PARK_PROFILE.centreX + side * distance;
-  const ground = groundAt(x, z);
-  const rise = SPREEBOGEN_PARK_PROFILE.maximumRiseM * eased * eased;
-  return [x, ground + 0.1 + rise, z];
+  const upper = upperAtX(x),
+    south = SPREEBOGEN_PARK_PROFILE.southZ;
+  const z = south + (upper.z - south) * t;
+  const southY = groundAt(x, south) + 0.1;
+  // The source terrain already rises; never add the full height difference twice.
+  return [x, southY + (upper.y - southY) * (t * t * (3 - 2 * t)), z];
 }
 
 function makeLawnGeometry(
@@ -196,18 +197,110 @@ function makeLawnGeometry(
   groundAt: (x: number, z: number) => number,
 ): BufferGeometry {
   const positions: number[] = [];
-  for (let row = 0; row < SPREEBOGEN_PARK_PROFILE.lawnRows; row += 1) {
-    const inner0 = lawnPoint(side, row, "inner", groundAt);
-    const outer0 = lawnPoint(side, row, "outer", groundAt);
-    const inner1 = lawnPoint(side, row + 1, "inner", groundAt);
-    const outer1 = lawnPoint(side, row + 1, "outer", groundAt);
-    if (side < 0) {
-      addQuad(positions, outer0, inner0, inner1, outer1);
-    } else {
-      addQuad(positions, inner0, outer0, outer1, inner1);
-    }
+  for (let row = 0; row < SPREEBOGEN_PARK_PROFILE.lawnRows; row++) {
+    const a = lawnPoint(side, row, "inner", groundAt),
+      b = lawnPoint(side, row, "outer", groundAt);
+    const c = lawnPoint(side, row + 1, "inner", groundAt),
+      d = lawnPoint(side, row + 1, "outer", groundAt);
+    const count = Math.ceil(
+      Math.max(
+        Math.hypot(a[0] - b[0], a[2] - b[2]),
+        Math.hypot(c[0] - d[0], c[2] - d[2]),
+      ) / 4,
+    );
+    const at = (p: Vertex, q: Vertex, t: number): Vertex => {
+      const x = p[0] + (q[0] - p[0]) * t,
+        z = p[2] + (q[2] - p[2]) * t;
+      return [x, Math.max(p[1] + (q[1] - p[1]) * t, groundAt(x, z) + 0.18), z];
+    };
+    for (let i = 0; i < count; i++)
+      addQuad(
+        positions,
+        at(a, b, i / count),
+        at(a, b, (i + 1) / count),
+        at(c, d, (i + 1) / count),
+        at(c, d, i / count),
+      );
+    // Close the outside turf edge down to retained park terrain.
+    const bb: Vertex = [b[0], groundAt(b[0], b[2]) + 0.04, b[2]],
+      dd: Vertex = [d[0], groundAt(d[0], d[2]) + 0.04, d[2]];
+    addQuad(positions, b, bb, dd, d);
   }
   return geometryFromPositions(positions);
+}
+
+function makeParkTerrainGeometry(
+  groundAt: (x: number, z: number) => number,
+): BufferGeometry {
+  const shape = new Shape(
+    SPREEBOGEN_PARK_RING_DM.map(([x, z]) => new Vector2(x / 10, -z / 10)),
+  );
+  const raw = new ShapeGeometry(shape);
+  const geometry = new TessellateModifier(4, 12).modify(raw);
+  raw.dispose();
+  geometry.rotateX(-Math.PI / 2);
+  const a = geometry.getAttribute("position");
+  for (let i = 0; i < a.count; i++) {
+    const x = a.getX(i),
+      z = a.getZ(i);
+    // The precise lawn ribbon owns the visible river strip. Its independently
+    // triangulated backing stays recessed, including at the source boundary.
+    const offset = spreebogenPromenadeYAt(x, z) === null ? 0.025 : -0.16;
+    a.setY(i, spreebogenParkGradeAt(x, z, groundAt(x, z)) + offset);
+  }
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+/** Compile the actual turf triangles once per environment, never per frame. */
+export function createSpreebogenLawnGroundAt(
+  ground: VoxelPayload,
+): (x: number, z: number) => number | null {
+  const sample = smoothGroundTopSampler(ground);
+  const sourceGroundAt = (x: number, z: number): number => sample(
+    x / ground.cell_m - ground.grid.min_x_idx,
+    z / ground.cell_m - ground.grid.min_z_idx,
+  );
+  type Triangle = { x: number; z: number; y: number; dx: number; dz: number; dy: number; ex: number; ez: number; ey: number; den: number };
+  const index = new Map<string, Triangle[]>();
+  const cell = 16;
+  for (const side of [-1, 1] as const) {
+    const geometry = makeLawnGeometry(side, sourceGroundAt);
+    const a = geometry.getAttribute("position");
+    for (let i = 0; i < a.count; i += 3) {
+      const x = a.getX(i), z = a.getZ(i), y = a.getY(i);
+      const dx = a.getX(i + 1) - x, dz = a.getZ(i + 1) - z;
+      const ex = a.getX(i + 2) - x, ez = a.getZ(i + 2) - z;
+      const den = dx * ez - dz * ex;
+      if (Math.abs(den) < 1e-8) continue;
+      const triangle = { x, z, y, dx, dz, ex, ez, den, dy: a.getY(i + 1) - y, ey: a.getY(i + 2) - y };
+      const minX = Math.floor(Math.min(x, x + dx, x + ex) / cell);
+      const maxX = Math.floor(Math.max(x, x + dx, x + ex) / cell);
+      const minZ = Math.floor(Math.min(z, z + dz, z + ez) / cell);
+      const maxZ = Math.floor(Math.max(z, z + dz, z + ez) / cell);
+      for (let ix = minX; ix <= maxX; ix++) for (let iz = minZ; iz <= maxZ; iz++) {
+        const key = `${ix}:${iz}`;
+        const bucket = index.get(key) ?? [];
+        bucket.push(triangle);
+        index.set(key, bucket);
+      }
+    }
+    geometry.dispose();
+  }
+  return (x, z) => {
+    let top: number | null = null;
+    for (const t of index.get(`${Math.floor(x / cell)}:${Math.floor(z / cell)}`) ?? []) {
+      const px = x - t.x, pz = z - t.z;
+      const u = (px * t.ez - pz * t.ex) / t.den;
+      const v = (t.dx * pz - t.dz * px) / t.den;
+      if (u < -1e-8 || v < -1e-8 || u + v > 1 + 1e-8) continue;
+      const y = t.y + u * t.dy + v * t.ey;
+      top = top === null ? y : Math.max(top, y);
+    }
+    return top;
+  };
 }
 
 function makeCortenWallGeometry(
@@ -237,108 +330,219 @@ function makeCortenWallGeometry(
   return geometryFromPositions(positions);
 }
 
+function ribbon(
+  positions: number[],
+  profile: PathSection[],
+  thickness: number,
+): void {
+  for (let i = 0; i < profile.length - 1; i++) {
+    const a = profile[i],
+      b = profile[i + 1];
+    addQuad(positions, a.left, b.left, b.right, a.right);
+    const down = (p: Vertex): Vertex => [p[0], p[1] - thickness, p[2]];
+    if (thickness > 0) {
+      addQuad(
+        positions,
+        down(a.right),
+        down(b.right),
+        down(b.left),
+        down(a.left),
+      );
+      addQuad(positions, a.left, down(a.left), down(b.left), b.left);
+      addQuad(positions, a.right, b.right, down(b.right), down(a.right));
+      if (i === 0)
+        addQuad(positions, a.right, down(a.right), down(a.left), a.left);
+      if (i === profile.length - 2)
+        addQuad(positions, b.left, down(b.left), down(b.right), b.right);
+    }
+  }
+}
+const lower2d = LUDWIG_ERHARD_UFER_WORLD_M.map((p) => [p[0], p[2]] as const);
 function makeUferEdgeGeometry(): BufferGeometry {
   const positions: number[] = [];
-  for (
-    let index = 0;
-    index < LUDWIG_ERHARD_UFER_WORLD_M.length - 1;
-    index += 1
-  ) {
-    const start = LUDWIG_ERHARD_UFER_WORLD_M[index];
-    const end = LUDWIG_ERHARD_UFER_WORLD_M[index + 1];
-    const [ax, az, length] = pathAxis([start[0], start[2]], [end[0], end[2]]);
-    const nx = -az;
-    const nz = ax;
-    for (const side of [-1, 1]) {
-      const offset = side * (2 - 0.11);
-      addBox(
-        positions,
-        [
-          (start[0] + end[0]) / 2 + nx * offset,
-          (start[1] + end[1]) / 2 + 0.08,
-          (start[2] + end[2]) / 2 + nz * offset,
-        ],
-        [ax, az],
-        length + 0.08,
-        0.16,
-        0.22,
-      );
+  const profile = sections(
+    lower2d,
+    (i) => LUDWIG_ERHARD_UFER_WORLD_M[i][1] + 0.09,
+    4,
+  );
+  ribbon(positions, profile, 0.12);
+  // Shared corner sections close the entire surface, unlike separately averaged boxes.
+  return geometryFromPositions(positions);
+}
+function closestLower(x: number, z: number): Vertex {
+  let best = Infinity,
+    result: Vertex = [0, 0, 0];
+  for (let i = 0; i < lower2d.length - 1; i++) {
+    const a = lower2d[i],
+      b = lower2d[i + 1],
+      dx = b[0] - a[0],
+      dz = b[1] - a[1];
+    const t = Math.max(
+      0,
+      Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz)),
+    );
+    const px = a[0] + dx * t,
+      pz = a[1] + dz * t,
+      d = Math.hypot(x - px, z - pz);
+    if (d < best) {
+      best = d;
+      result = [px, spreebogenLowerPathYAt(px, pz) + 0.055, pz];
     }
+  }
+  return result;
+}
+function makeBankLawnGeometry(): BufferGeometry {
+  const positions: number[] = [];
+  for (let i = 0; i < SPREEBOGEN_SHORE_WORLD_M.length - 1; i++) {
+    const a = SPREEBOGEN_SHORE_WORLD_M[i],
+      b = SPREEBOGEN_SHORE_WORLD_M[i + 1];
+    const la = closestLower(...a),
+      lb = closestLower(...b);
+    const toward = (p: readonly [number, number], q: Vertex): Vertex => {
+      const d = Math.hypot(q[0] - p[0], q[2] - p[1]) || 1;
+      return [
+        q[0] + ((p[0] - q[0]) * 2.08) / d,
+        q[1],
+        q[2] + ((p[1] - q[2]) * 2.08) / d,
+      ];
+    };
+    addQuad(
+      positions,
+      [a[0], la[1], a[1]],
+      [b[0], lb[1], b[1]],
+      toward(b, lb),
+      toward(a, la),
+    );
   }
   return geometryFromPositions(positions);
 }
 
-function panoramaDeckY(
-  index: number,
-  groundAt: (x: number, z: number) => number,
-): number {
-  const [x, z] = PANORAMAWEG_WORLD_M[index];
-  const t = index / (PANORAMAWEG_WORLD_M.length - 1);
-  return groundAt(x, z) + 0.22 + 4.55 * Math.sin(t * Math.PI) ** 1.35;
-}
-
-function makePanoramawegGeometry(
-  groundAt: (x: number, z: number) => number,
-): BufferGeometry {
+function makePanoramawegGeometry(): BufferGeometry {
   const positions: number[] = [];
-  for (let index = 0; index < PANORAMAWEG_WORLD_M.length - 1; index += 1) {
-    const start = PANORAMAWEG_WORLD_M[index];
-    const end = PANORAMAWEG_WORLD_M[index + 1];
-    const [ax, az, length] = pathAxis(start, end);
-    const nx = -az;
-    const nz = ax;
-    const y =
-      (panoramaDeckY(index, groundAt) + panoramaDeckY(index + 1, groundAt)) / 2;
+  const profile = sections(
+    PANORAMAWEG_WORLD_M,
+    (i) => spreebogenPanoramaYAt(i) + 0.11,
+    SPREEBOGEN_PARK_PROFILE.panoramawegWidthM,
+  );
+  ribbon(positions, profile, 0.22);
+  for (let side = 0; side < 2; side++) {
+    const edge = profile.map((q) => (side === 0 ? q.left : q.right));
+    for (const height of [0.43, 0.75, 1.04]) {
+      const p = sections(
+        edge.map((v) => [v[0], v[2]]),
+        (i) => edge[i][1] + height,
+        0.065,
+      );
+      ribbon(positions, p, 0.055);
+    }
+    for (let i = 0; i < edge.length - 1; i++) {
+      const a = edge[i],
+        b = edge[i + 1],
+        n = Math.ceil(Math.hypot(b[0] - a[0], b[2] - a[2]) / 3.2);
+      for (let j = 0; j < n; j++) {
+        const t = j / n;
+        addBox(
+          positions,
+          [
+            a[0] + (b[0] - a[0]) * t,
+            a[1] + (b[1] - a[1]) * t + 0.51,
+            a[2] + (b[2] - a[2]) * t,
+          ],
+          [1, 0],
+          0.075,
+          1.02,
+          0.075,
+        );
+      }
+    }
+  }
+  for (let i = 0; i < PANORAMAWEG_WORLD_M.length; i += 2) {
+    const [x, z] = PANORAMAWEG_WORLD_M[i];
+    const top = spreebogenPanoramaYAt(i) - 0.11,
+      bottom = spreebogenLowerPathYAt(x, z) + 0.04;
+    const h = Math.max(0.18, top - bottom);
+    const before = PANORAMAWEG_WORLD_M[Math.max(0, i - 1)],
+      after =
+        PANORAMAWEG_WORLD_M[Math.min(PANORAMAWEG_WORLD_M.length - 1, i + 1)];
+    const [ax, az] = pathAxis(before, after);
+    addBox(positions, [x, bottom + h / 2, z], [ax, az], 0.6, h, 2.1);
+  }
+  return geometryFromPositions(positions);
+}
+function makeGartenspurGeometry(): BufferGeometry {
+  const positions: number[] = [];
+  // The photographed low garden slabs are on the land strip between the
+  // source footpath and shore, never placed on a repeated world-Z row.
+  const first = 10,
+    last = 28;
+  for (let i = 0; i < SPREEBOGEN_PARK_PROFILE.gartenspurSlabCount; i++) {
+    const t =
+      ((i + 0.5) / SPREEBOGEN_PARK_PROFILE.gartenspurSlabCount) *
+        (last - first) +
+      first;
+    const j = Math.floor(t),
+      f = t - j,
+      a = SPREEBOGEN_SHORE_WORLD_M[j],
+      b = SPREEBOGEN_SHORE_WORLD_M[j + 1];
+    const x = a[0] + (b[0] - a[0]) * f,
+      z = a[1] + (b[1] - a[1]) * f,
+      lower = closestLower(x, z);
+    const fraction = i % 2 === 0 ? 0.4 : 0.66;
+    const px = x + (lower[0] - x) * fraction,
+      pz = z + (lower[2] - z) * fraction;
+    const [ax, az] = pathAxis(a, b);
     addBox(
       positions,
-      [(start[0] + end[0]) / 2, y, (start[1] + end[1]) / 2],
+      [px, spreebogenLowerPathYAt(px, pz) + 0.12, pz],
       [ax, az],
-      length + 0.08,
-      0.22,
-      SPREEBOGEN_PARK_PROFILE.panoramawegWidthM,
+      6 + (i % 3) * 1.6,
+      0.16,
+      0.72,
     );
-    for (const side of [-1, 1]) {
-      const offset =
-        side * (SPREEBOGEN_PARK_PROFILE.panoramawegWidthM / 2 - 0.08);
-      addBox(
-        positions,
-        [
-          (start[0] + end[0]) / 2 + nx * offset,
-          y + 0.78,
-          (start[1] + end[1]) / 2 + nz * offset,
-        ],
-        [ax, az],
-        length + 0.04,
-        0.1,
-        0.1,
-      );
-    }
-  }
-  for (let index = 0; index < PANORAMAWEG_WORLD_M.length; index += 2) {
-    const [x, z] = PANORAMAWEG_WORLD_M[index];
-    const topY = panoramaDeckY(index, groundAt) - 0.11;
-    const bottomY = groundAt(x, z) + 0.08;
-    const height = Math.max(0.18, topY - bottomY);
-    addBox(positions, [x, bottomY + height / 2, z], [1, 0], 0.72, height, 1.7);
   }
   return geometryFromPositions(positions);
 }
-
-function makeGartenspurGeometry(
-  groundAt: (x: number, z: number) => number,
-): BufferGeometry {
+function makeRevetmentGeometry(): BufferGeometry {
   const positions: number[] = [];
-  for (
-    let index = 0;
-    index < SPREEBOGEN_PARK_PROFILE.gartenspurSlabCount;
-    index += 1
-  ) {
-    const row = index % 3;
-    const column = Math.floor(index / 3);
-    const x = -109 + column * 64 + row * 7;
-    const z = -412.6 + row * 3.25 + (column % 2) * 0.7;
-    const length = 24 + ((index * 7) % 13);
-    addBox(positions, [x, groundAt(x, z) + 0.1, z], [1, 0], length, 0.18, 0.9);
+  const upper = sections(
+    PANORAMAWEG_WORLD_M,
+    (i) => spreebogenPanoramaYAt(i) - 0.12,
+    2.4,
+  );
+  for (let i = 0; i < upper.length - 1; i++) {
+    const a = upper[i].right,
+      b = upper[i + 1].right;
+    const foot = (p: Vertex): Vertex => {
+      const q = closestLower(p[0], p[2]),
+        d = Math.hypot(p[0] - q[0], p[2] - q[2]) || 1;
+      return [
+        q[0] + ((p[0] - q[0]) * 2.2) / d,
+        q[1] + 0.035,
+        q[2] + ((p[2] - q[2]) * 2.2) / d,
+      ];
+    };
+    const la = foot(a),
+      lb = foot(b);
+    // The central revetment is sloped stone. On the eastern gallery the
+    // garden corridor remains in front of an inset retaining face.
+    const inset = (p: Vertex, q: Vertex): Vertex =>
+      i < 11
+        ? q
+        : [p[0] + (p[0] - q[0]) * 0.45, q[1], p[2] + (p[2] - q[2]) * 0.45];
+    if (i < 11) addQuad(positions, la, lb, b, a);
+    if (i >= 11) {
+      // An open gallery still needs its rear ground closure; the lower
+      // source promenade is untouched and remains outside this face.
+      const backA = inset(a, la),
+        backB = inset(b, lb);
+      addQuad(
+        positions,
+        backA,
+        backB,
+        [backB[0], b[1], backB[2]],
+        [backA[0], a[1], backA[2]],
+      );
+    }
   }
   return geometryFromPositions(positions);
 }
@@ -360,15 +564,23 @@ function addModeMesh(
   return mesh;
 }
 
-/** Build the missing terrain sculpture without replacing the OSM lawn plate. */
-export function createSpreebogenPark(ground: VoxelPayload): Group {
+/** Build the terrain sculpture and its exact-OSM replacement lawn plate. */
+export function createSpreebogenPark(
+  ground: VoxelPayload,
+  _options: { mobileLike?: boolean } = {},
+): Group {
   const group = new Group();
   group.name = "Spreebogenpark landscape window";
-  group.userData.keepInMinecraft = true;
+  group.userData.keepInMinecraft = false;
+  group.userData.sourceProfile = SPREEBOGEN_BANK_SOURCES;
   group.userData.profile = SPREEBOGEN_PARK_PROFILE;
   group.userData.geometryStatus = SPREEBOGEN_PARK_PROFILE.geometryStatus;
-  const sample = worldGroundSampler(ground);
-  const groundAt = (x: number, z: number): number => sample(x, z) ?? 4.8;
+  const sample = smoothGroundTopSampler(ground);
+  const groundAt = (x: number, z: number): number =>
+    sample(
+      x / ground.cell_m - ground.grid.min_x_idx,
+      z / ground.cell_m - ground.grid.min_z_idx,
+    );
 
   const lawnDay = new MeshBasicMaterial({
     color: 0x91c67a,
@@ -409,6 +621,13 @@ export function createSpreebogenPark(ground: VoxelPayload): Group {
     roughness: 0.94,
   });
 
+  addModeMesh(
+    group,
+    "Spreebogenpark exact OSM park terrain",
+    makeParkTerrainGeometry(groundAt),
+    lawnDay,
+    lawnNight,
+  );
   for (const side of [-1, 1] as const) {
     const lawn = makeLawnGeometry(side, groundAt);
     addModeMesh(
@@ -435,6 +654,24 @@ export function createSpreebogenPark(ground: VoxelPayload): Group {
     group.add(edges);
   }
 
+  addModeMesh(
+    group,
+    "Spreebogenpark maintained river lawn strip",
+    makeBankLawnGeometry(),
+    lawnDay,
+    lawnNight,
+  );
+  addModeMesh(
+    group,
+    "Spreebogenpark stone-faced upper bank",
+    makeRevetmentGeometry(),
+    new MeshBasicMaterial({ color: 0xb3b0a3, side: DoubleSide }),
+    new MeshStandardMaterial({
+      color: 0x494b44,
+      roughness: 0.96,
+      side: DoubleSide,
+    }),
+  );
   const uferEdges = makeUferEdgeGeometry();
   addModeMesh(
     group,
@@ -443,7 +680,7 @@ export function createSpreebogenPark(ground: VoxelPayload): Group {
     pathDay,
     pathNight,
   );
-  const panoramaweg = makePanoramawegGeometry(groundAt);
+  const panoramaweg = makePanoramawegGeometry();
   addModeMesh(
     group,
     "Spreebogenpark raised Panoramaweg",
@@ -458,10 +695,10 @@ export function createSpreebogenPark(ground: VoxelPayload): Group {
   panoramaInk.name = "Spreebogenpark Panoramaweg ink";
   panoramaInk.renderOrder = 2;
   group.add(panoramaInk);
-  const gartenspur = makeGartenspurGeometry(groundAt);
+  const gartenspur = makeGartenspurGeometry();
   addModeMesh(
     group,
-    "Spreebogenpark Gartenspur slabs",
+    "Spreebogenpark source-bound Gartenspur slabs",
     gartenspur,
     pathDay,
     pathNight,
@@ -493,5 +730,265 @@ export function createSpreebogenPark(ground: VoxelPayload): Group {
   );
   axis.name = "Spreebogenpark former Alsenstrasse axis";
   group.add(axis);
+  return group;
+}
+
+/** Surface-only, world-axis block reading of the same authored landscape. */
+export function createMinecraftSpreebogenPark(
+  ground: VoxelPayload,
+  options: { mobileLike?: boolean } = {},
+): Group {
+  const source = createSpreebogenPark(ground, options);
+  const blocks = new Map<
+    string,
+    {
+      x: number;
+      y: number;
+      z: number;
+      sx: number;
+      sy: number;
+      sz: number;
+      color: Color;
+    }
+  >();
+  source.traverse((object) => {
+    if (!(object instanceof Mesh)) return;
+    // Shared conservative cell coverage below owns both complete path decks.
+    // Testing only triangle-centre samples left holes along diagonal joints.
+    if (object.name === "Spreebogenpark raised Panoramaweg" ||
+        object.name === "Spreebogenpark Ludwig-Erhard-Ufer stone edge bands") return;
+    const material = object.material as MeshBasicMaterial;
+    const a = object.geometry.getAttribute("position");
+    const lawn =
+      object.name.includes("lawn") || object.name.includes("park terrain");
+    const step = lawn
+      ? options.mobileLike
+        ? 4
+        : 2.8
+      : options.mobileLike
+        ? 2.0
+        : 1.4;
+    const put = (v: number[], axis: number): void => {
+      const p = [...v],
+        sizes = [step, step, step];
+      if (axis === 1) {
+        p[0] = (Math.floor(p[0] / step) + 0.5) * step;
+        p[2] = (Math.floor(p[2] / step) + 0.5) * step;
+        sizes[1] = 0.24;
+        p[1] -= 0.12;
+      } else {
+        for (let d = 0; d < 3; d++)
+          if (d !== axis) p[d] = (Math.floor(p[d] / step) + 0.5) * step;
+        sizes[axis] = 0.28;
+      }
+      const key =
+        axis === 1
+          // Cell centres have fractional index .5. Rounding those ties makes
+          // adjacent 2.8m cells collide when their float errors differ.
+          ? `top:${step}:${Math.floor(p[0] / step)}:${Math.floor(p[2] / step)}`
+          : `${axis}:${p.map((n) => Math.round(n * 20)).join(":")}`;
+      if (axis === 1 && (blocks.get(key)?.y ?? -Infinity) > p[1]) return;
+      blocks.set(key, {
+        x: p[0],
+        y: p[1],
+        z: p[2],
+        sx: sizes[0],
+        sy: sizes[1],
+        sz: sizes[2],
+        color: material.color,
+      });
+    };
+    for (let i = 0; i < a.count; i += 3) {
+      const p = [0, 1, 2].map((j) => [
+        a.getX(i + j),
+        a.getY(i + j),
+        a.getZ(i + j),
+      ]);
+      const u = p[1].map((n, j) => n - p[0][j]),
+        v = p[2].map((n, j) => n - p[0][j]);
+      const n = [
+        u[1] * v[2] - u[2] * v[1],
+        u[2] * v[0] - u[0] * v[2],
+        u[0] * v[1] - u[1] * v[0],
+      ];
+      let axis = 0;
+      for (let d = 1; d < 3; d++)
+        if (Math.abs(n[d]) > Math.abs(n[axis])) axis = d;
+      if (Math.abs(n[axis]) < 1e-7) continue;
+      const dims = [0, 1, 2].filter((d) => d !== axis),
+        [d0, d1] = dims;
+      const min0 = Math.floor(Math.min(...p.map((q) => q[d0])) / step),
+        max0 = Math.floor(Math.max(...p.map((q) => q[d0])) / step);
+      const min1 = Math.floor(Math.min(...p.map((q) => q[d1])) / step),
+        max1 = Math.floor(Math.max(...p.map((q) => q[d1])) / step);
+      let hits = 0;
+      for (let j = min0; j <= max0; j++)
+        for (let k = min1; k <= max1; k++) {
+          const b0 = (j + 0.5) * step,
+            b1 = (k + 0.5) * step;
+          const e0 = p[1][d0] - p[0][d0],
+            e1 = p[1][d1] - p[0][d1],
+            f0 = p[2][d0] - p[0][d0],
+            f1 = p[2][d1] - p[0][d1];
+          const den = e0 * f1 - e1 * f0,
+            du = b0 - p[0][d0],
+            dv = b1 - p[0][d1];
+          const s = (du * f1 - dv * f0) / den,
+            t = (e0 * dv - e1 * du) / den;
+          if (s < 0 || t < 0 || s + t > 1) continue;
+          const q = [0, 0, 0];
+          q[d0] = b0;
+          q[d1] = b1;
+          q[axis] =
+            p[0][axis] +
+            s * (p[1][axis] - p[0][axis]) +
+            t * (p[2][axis] - p[0][axis]);
+          put(q, axis);
+          hits++;
+        }
+      if (!hits && !lawn)
+        put(
+          p[0].map((_, d) => (p[0][d] + p[1][d] + p[2][d]) / 3),
+          axis,
+        );
+    }
+  });
+  const railColor = new Color(0x858781),
+    concrete = new Color(0xbcb9ae);
+  const nativeBox = (
+    x: number,
+    y: number,
+    z: number,
+    sx: number,
+    sy: number,
+    sz: number,
+    color: Color,
+    key: string,
+  ): void => {
+    blocks.set(key, { x, y, z, sx, sy, sz, color });
+  };
+  const pathCells = spreebogenMinecraftPathCells(options.mobileLike);
+  const pathStep = options.mobileLike ? 2 : 1.4;
+  const cellsByPosition = new Map<string, typeof pathCells[number][]>();
+  for (const cell of pathCells) {
+    const key = `${Math.floor(cell.x / pathStep)}:${Math.floor(cell.z / pathStep)}`;
+    const at = cellsByPosition.get(key) ?? [];
+    at.push(cell);
+    cellsByPosition.set(key, at);
+  }
+  // Quantized lawn, stone and garden cells can straddle a path. Trim those
+  // backing blocks below the shared deck, preserving its uninterrupted top.
+  for (const [key, block] of blocks) {
+    let cap = Infinity;
+    const bottom = block.y - block.sy / 2;
+    for (let x = Math.floor((block.x - block.sx / 2 + 1e-6) / pathStep);
+      x <= Math.floor((block.x + block.sx / 2 - 1e-6) / pathStep); x++) {
+      for (let z = Math.floor((block.z - block.sz / 2 + 1e-6) / pathStep);
+        z <= Math.floor((block.z + block.sz / 2 - 1e-6) / pathStep); z++) {
+        for (const deck of cellsByPosition.get(`${x}:${z}`) ?? []) {
+          if (bottom < deck.y + 0.5) cap = Math.min(cap, deck.y - 0.02);
+        }
+      }
+    }
+    if (block.y + block.sy / 2 <= cap) continue;
+    if (bottom >= cap) blocks.delete(key);
+    else {
+      block.sy = cap - bottom;
+      block.y = (bottom + cap) / 2;
+    }
+  }
+  for (const [i, cell] of pathCells.entries()) nativeBox(
+    cell.x, cell.y - 0.12, cell.z, cell.size, 0.24, cell.size,
+    cell.kind === "upper" ? concrete : new Color(0xd1c9b8), `path-deck:${i}`,
+  );
+  for (let i = 0; i < PANORAMAWEG_WORLD_M.length - 1; i++) {
+    const a = PANORAMAWEG_WORLD_M[i],
+      b = PANORAMAWEG_WORLD_M[i + 1];
+    const [ax, az, length] = pathAxis(a, b),
+      step = options.mobileLike ? 1.8 : 1.2,
+      count = Math.ceil(length / step);
+    for (let j = 0; j <= count; j++) {
+      const t = j / count,
+        x = a[0] + (b[0] - a[0]) * t,
+        z = a[1] + (b[1] - a[1]) * t;
+      const y =
+        spreebogenPanoramaYAt(i) * (1 - t) +
+        spreebogenPanoramaYAt(i + 1) * t +
+        0.11;
+      for (const side of [-1, 1]) {
+        const px = x - az * 1.12 * side,
+          pz = z + ax * 1.12 * side;
+        nativeBox(
+          px,
+          y + 1.0,
+          pz,
+          Math.abs(ax) > Math.abs(az) ? step + 0.15 : 0.16,
+          0.16,
+          Math.abs(ax) > Math.abs(az) ? 0.16 : step + 0.15,
+          railColor,
+          `rail:${i}:${j}:${side}`,
+        );
+        if (j % 3 === 0)
+          nativeBox(
+            px,
+            y + 0.5,
+            pz,
+            0.18,
+            1,
+            0.18,
+            railColor,
+            `post:${i}:${j}:${side}`,
+          );
+      }
+    }
+  }
+  for (let i = 0; i < PANORAMAWEG_WORLD_M.length; i += 2) {
+    const [x, z] = PANORAMAWEG_WORLD_M[i],
+      bottom = spreebogenLowerPathYAt(x, z) + 0.04,
+      top = spreebogenPanoramaYAt(i) - 0.11;
+    nativeBox(
+      x,
+      (top + bottom) / 2,
+      z,
+      0.7,
+      Math.max(0.2, top - bottom),
+      2.2,
+      concrete,
+      `support:${i}`,
+    );
+  }
+  const group = new Group();
+  group.name = "Minecraft Spreebogenpark maintained bank";
+  group.userData.sourceProfile = SPREEBOGEN_BANK_SOURCES;
+  const material = new MeshBasicMaterial({ color: 0xffffff });
+  const geometry = new BoxGeometry(1, 1, 1);
+  geometry.deleteAttribute("uv");
+  geometry.deleteAttribute("normal");
+  const mesh = new InstancedMesh(geometry, material, blocks.size),
+    matrix = new Matrix4();
+  let i = 0;
+  for (const b of blocks.values()) {
+    matrix.makeScale(b.sx, b.sy, b.sz);
+    matrix.setPosition(b.x, b.y, b.z);
+    mesh.setMatrixAt(i, matrix);
+    mesh.setColorAt(i, b.color);
+    i++;
+  }
+  mesh.name = "Minecraft Spreebogenpark surface blocks";
+  mesh.frustumCulled = false;
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  group.add(mesh);
+  group.userData.blockCount = blocks.size;
+  const materials = new Set<MeshBasicMaterial | MeshStandardMaterial>();
+  source.traverse((o) => {
+    if (o instanceof Mesh || o instanceof LineSegments) {
+      o.geometry.dispose();
+      const list = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of list) materials.add(m as MeshBasicMaterial);
+      if (o.userData.nightMaterial) materials.add(o.userData.nightMaterial);
+    }
+  });
+  for (const m of materials) m.dispose();
   return group;
 }

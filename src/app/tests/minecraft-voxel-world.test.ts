@@ -142,7 +142,8 @@ describe("true voxel Minecraft world", () => {
     // v1.0.6 removes 348 further panes on replaced Palast/Böll low mass and the clipped Böll roof.
     // v1.0.7 removes false Topography site columns and rounds only authored civic roofs.
     // v1.0.10 replaces Admiralspalast and five museums' coarse source bodies.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_585_111);
+    // v1.0.11 replaces the BahnTower and all15 music museum parts.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_583_655);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -152,9 +153,9 @@ describe("true voxel Minecraft world", () => {
     // envelope. v1.0.5 removes false Soviet bodies and the museum hall
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
-    expect(instanced("Voxel building columns", world).count).toBe(1_466_811);
+    expect(instanced("Voxel building columns", world).count).toBe(1_466_262);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      536_350,
+      536_166,
     );
 
     const landmarks = world.getObjectByName(
@@ -673,8 +674,9 @@ describe("true voxel Minecraft world", () => {
       0,
     );
     // Eight net runs yield to source-sized Bundestag and Sandkrug decks;
-    // the latter is now one complete block-native bridge.
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8);
+    // the latter is now one complete block-native bridge. The bounded v1.0.11
+    // Spreebogen grading splits 3,697 further runs into local terrain cells.
+    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697);
     // Ordinary columns are a facade body plus palette-native plinth and
     // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;

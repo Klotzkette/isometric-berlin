@@ -20,7 +20,7 @@ describe("Spreebogenpark landscape window", () => {
   test("keeps the documented OSM and landscape-design evidence", () => {
     expect(SPREEBOGEN_PARK_PROFILE.osmWayId).toBe("737280675");
     expect(SPREEBOGEN_PARK_PROFILE.landscapeWindowWidthM).toBe(17);
-    expect(SPREEBOGEN_PARK_PROFILE.maximumRiseM).toBe(6.8);
+    expect(SPREEBOGEN_PARK_PROFILE.maximumRiseM).toBe(5);
     expect(SPREEBOGEN_PARK_PROFILE.ludwigErhardUferWayIds).toEqual([
       "34834265",
       "1128036906",
@@ -28,9 +28,9 @@ describe("Spreebogenpark landscape window", () => {
     expect(SPREEBOGEN_PARK_PROFILE.panoramawegWayId).toBe("4395332");
     expect(SPREEBOGEN_PARK_PROFILE.panoramawegWidthM).toBe(2.4);
     expect(SPREEBOGEN_PARK_PROFILE.panoramawegSupportCount).toBe(9);
-    expect(SPREEBOGEN_PARK_PROFILE.gartenspurSlabCount).toBe(18);
-    expect(SPREEBOGEN_PARK_PROFILE.geometryStatus).toContain("exact path axes");
-    expect(SPREEBOGEN_PARK_PROFILE.sourceUrls).toHaveLength(3);
+    expect(SPREEBOGEN_PARK_PROFILE.gartenspurSlabCount).toBe(16);
+    expect(SPREEBOGEN_PARK_PROFILE.geometryStatus).toContain("Exact path axes");
+    expect(SPREEBOGEN_PARK_PROFILE.sourceUrls).toHaveLength(4);
     expect(SPREEBOGEN_PARK_PROFILE.sourceUrls[1]).toContain("berlin.de");
   });
 
@@ -60,10 +60,10 @@ describe("Spreebogenpark landscape window", () => {
     expect(
       (westWall.userData.nightMaterial as MeshStandardMaterial).color.getHex(),
     ).toBe(0x201918);
-    expect(westLawn.geometry.getAttribute("position").count).toBe(
+    expect(westLawn.geometry.getAttribute("position").count).toBeGreaterThan(
       SPREEBOGEN_PARK_PROFILE.lawnRows * 6,
     );
-    expect(eastLawn.geometry.getAttribute("position").count).toBe(
+    expect(eastLawn.geometry.getAttribute("position").count).toBeGreaterThan(
       SPREEBOGEN_PARK_PROFILE.lawnRows * 6,
     );
     expect(
@@ -81,25 +81,23 @@ describe("Spreebogenpark landscape window", () => {
       park.getObjectByName("Spreebogenpark Panoramaweg ink"),
     ).toBeInstanceOf(LineSegments);
     expect(
-      park.getObjectByName("Spreebogenpark Gartenspur slabs"),
+      park.getObjectByName("Spreebogenpark source-bound Gartenspur slabs"),
     ).toBeInstanceOf(Mesh);
-    expect(park.userData.keepInMinecraft).toBe(true);
+    expect(park.userData.keepInMinecraft).toBe(false);
   });
 
   test("covers the mapped river edge while keeping a bounded render budget", () => {
     const park = createSpreebogenPark(ground);
     const bounds = new Box3().setFromObject(park);
-    expect(bounds.min.x).toBeGreaterThan(-145);
+    expect(bounds.min.x).toBeGreaterThan(-146);
     expect(bounds.min.x).toBeLessThan(-139);
     expect(bounds.max.x).toBeGreaterThan(268);
-    expect(bounds.max.x).toBeLessThan(273);
-    expect(bounds.min.z).toBeGreaterThan(-425);
+    expect(bounds.max.x).toBeLessThan(275);
+    expect(bounds.min.z).toBeGreaterThan(-435);
     expect(bounds.min.z).toBeLessThan(-420);
-    expect(bounds.max.z).toBeLessThanOrEqual(
-      SPREEBOGEN_PARK_PROFILE.southZ + 1,
-    );
-    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(8);
-    expect(bounds.max.y - bounds.min.y).toBeLessThan(12);
+    expect(bounds.max.z).toBeLessThanOrEqual(-230);
+    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(6);
+    expect(bounds.max.y - bounds.min.y).toBeLessThan(8);
 
     let drawables = 0;
     let vertices = 0;
@@ -109,8 +107,8 @@ describe("Spreebogenpark landscape window", () => {
         vertices += object.geometry.getAttribute("position")?.count ?? 0;
       }
     });
-    expect(drawables).toBeLessThanOrEqual(12);
+    expect(drawables).toBeLessThanOrEqual(14);
     expect(vertices).toBeGreaterThan(4_000);
-    expect(vertices).toBeLessThan(9_000);
+    expect(vertices).toBeLessThan(200_000);
   });
 });

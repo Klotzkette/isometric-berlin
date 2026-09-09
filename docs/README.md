@@ -34,6 +34,10 @@ local ZIP starts, and which legal/attribution rules apply.
 | Generation pipeline | [generation.md](generation.md) |
 | Bounds editor | [bounds.md](bounds.md) |
 | Deployment and release packaging | [deployment.md](deployment.md) |
+| v1.0.11 review and verification | [release-v1.0.11-review.md](release-v1.0.11-review.md) |
+| BahnTower geometry and night facade | [db-tower-refinement.md](db-tower-refinement.md) |
+| Music museum roof and entrance correction | [music-museum-correction-v111.md](music-museum-correction-v111.md) |
+| Spreebogen bank geometry and grading | [spreebogen-bank-refinement.md](spreebogen-bank-refinement.md) |
 | v1.0.0 release verification | [release-v1.0.0.md](release-v1.0.0.md) |
 | Perplexity/static-hosting constraints | [perplexity-hosting.md](perplexity-hosting.md) |
 

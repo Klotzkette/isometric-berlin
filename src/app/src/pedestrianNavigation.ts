@@ -1,3 +1,5 @@
+import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
+import { DB_TOWER_PRISM_IDS, DB_TOWER_SOURCE, dbTowerDisplayY, dbTowerRoofAt } from "./dbTowerProfile";
 import { DOM_ALTES_SOURCE, DOM_PROFILE, museumDisplayY, domRoofAt, altesRoofAt } from "./domAltesMuseumProfile";
 import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
 import { museumTriadSourceForPrism, museumTriadPartRoofAt } from "./museumTriadProfile";
@@ -12,7 +14,7 @@ import { ROHWEDDER_HAUS_IDS, ROHWEDDER_HAUS_SOURCE } from "./rohwedderHausProfil
 import { BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_UNDERSIDE } from "./boellStiftungProfile";
 import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_PROFILE, friedrichstadtPalastTopAt } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
-import { MUSIC_MUSEUM_HALL_ID, musicMuseumRoofHeightAt } from "./museumLenneProfile";
+import { musicMuseumPart, musicMuseumPartRoofHeightAt, musicMuseumDisplayTop } from "./museumLenneProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
@@ -638,6 +640,24 @@ export function compilePedestrianObstacles(
       index.buildingCount += 1;
       continue;
     }
+    const musicPart = musicMuseumPart(building.id);
+    if (musicPart) {
+      // The source height begins at the basement. Keep the street-level base,
+      // but use the absolute official roof instead of adding height twice.
+      addPolygonObstacle(index, building.ring, building.holes ?? [],
+        musicPart.street_ground_y_m, musicMuseumDisplayTop(building.id), building.id, 0.1,
+        (x,z) => musicMuseumPartRoofHeightAt(building.id,x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+      continue;
+    }
+    if (DB_TOWER_PRISM_IDS.has(building.id)) {
+      const part = DB_TOWER_SOURCE.parts.find(p => p.id.endsWith(building.id))!;
+      addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10,
+        dbTowerDisplayY(part.top_y_m), building.id, 0.1,
+        (x,z) => dbTowerRoofAt(x,z,building.id));
+      index.buildingCount += 1;
+      continue;
+    }
     // Site platforms are walkable surfaces, not occupied building volumes.
     if (TOPOGRAPHY_TERROR_SITE_IDS.has(building.id)) continue;
     const before = index.obstacleCount;
@@ -650,9 +670,7 @@ export function compilePedestrianObstacles(
       parliamentDisplay ? ABGEORDNETENHAUS_PROFILE.roofTopY : building.id === BUNDESRAT_MAIN_ID ? BUNDESRAT_TOP + 0.15 + BUNDESRAT_PROFILE.roof.rise : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? FRIEDRICHSTADT_PALAST_PROFILE.baseY + 32.24 : (building.y0_dm + building.h_dm) / 10,
       building.id,
       0.1,
-      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === BUNDESRAT_MAIN_ID ? (x, z) => bundesratRoofTopAt(x, z) ?? BUNDESRAT_TOP : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? friedrichstadtPalastTopAt : building.id === MUSIC_MUSEUM_HALL_ID
-        ? (x,z) => musicMuseumRoofHeightAt(x,z,visualMode() === "minecraft")
-        : undefined,
+      parliamentDisplay ? abgeordnetenhausDisplayTopAt : building.id === BUNDESRAT_MAIN_ID ? (x, z) => bundesratRoofTopAt(x, z) ?? BUNDESRAT_TOP : building.id === FRIEDRICHSTADT_PALAST_PRISM_ID ? friedrichstadtPalastTopAt : undefined,
     );
     if (index.obstacleCount > before) {
       index.buildingCount += 1;
@@ -1282,7 +1300,7 @@ export function createPedestrianEnvironment(
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
       return null;
     }
-    const terrain = smoothGround(xOffset, zOffset);
+    const terrain = spreebogenTerrainYAt(x,z,smoothGround(xOffset, zOffset));
     const site = topographySiteSurfaceAt(x, z);
     return site === null ? terrain : Math.max(terrain, site);
   };

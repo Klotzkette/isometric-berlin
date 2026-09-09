@@ -1,5 +1,9 @@
 # Musikinstrumenten-Museum and Lennéstraße architecture
 
+The museum portion is superseded by the [v1.0.11 correction](music-museum-correction-v111.md),
+which fixes the absolute elevation, complete roof and separate public entrance.
+The Lenné buildings below remain unchanged.
+
 Step 10, v1.0.5. The museum/SIM and the five separate towers at Lennéstraße
 3, 5, 7, 9 and 11 receive source-bound recognition details. These are context
 buildings; the tour inventory does not change.

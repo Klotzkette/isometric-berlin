@@ -2539,6 +2539,50 @@
       "credit": "Own work",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahntower-potsdamer-platz",
+      "title": "File:Berlin BahnTower 3.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_BahnTower_3.jpg",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "artist": "Lusitana",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahntower-potsdamer-platz",
+      "title": "File:BahnTower0196.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:BahnTower0196.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "MaryG90",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahntower-potsdamer-platz",
+      "title": "File:Berlin potsdamer platz db haus atnight.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_potsdamer_platz_db_haus_atnight.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "janine pohl",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahntower-potsdamer-platz",
+      "title": "File:Bahntower, Potsdamer Platz, Berlin, 141027, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bahntower,_Potsdamer_Platz,_Berlin,_141027,_ako.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY-SA 3.0 (DE)",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

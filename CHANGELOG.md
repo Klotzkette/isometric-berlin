@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.11
+
+- **BahnTower.** Amtliche Dachstaffelung und gebogene Glasfassade am Potsdamer
+  Platz, lesbares DB-Logo und alle 26 Etagen bei Nacht hell beleuchtet.
+  Der Lichtschalter stellt die dunkle Fassade wieder her.
+- **Musikinstrumentenmuseum.** Fehlerhafte Addition der Kellerhöhe behoben;
+  absolute Dachhöhen, durchgehende Oberlichtbänder und der bisher fehlende
+  Eingangspavillon folgen der amtlichen Geometrie und Bildreferenzen.
+- **Spreebogen.** Durchgehende Promenade, korrigierte Rasenhänge und
+  quellgebundene Gartenelemente ersetzen überhöhte oder versetzte Flächen.
+- **Darstellungen.** Eigene Minecraft-Geometrie für Desktop und Mobilgeräte;
+  passende Gehflächen und erhaltene Rohdaten mit dokumentierten Konflikten.
+
 ## v1.0.10
 
 - **Ladeverhalten.** Fertige Geometrie behält ihre ursprüngliche Wartefrist;

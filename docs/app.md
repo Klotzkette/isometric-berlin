@@ -1,5 +1,13 @@
 # Web viewer
 
+The v1.0.11 [BahnTower](db-tower-refinement.md),
+[Musikinstrumentenmuseum](music-museum-correction-v111.md) and
+[Spreebogen bank](spreebogen-bank-refinement.md) use source-bound replacement
+geometry with separate Minecraft full/mobile profiles. All 26 tower storeys
+retain bright night glazing and reversible lights-off materials. Corrected
+museum roofs and continuous promenade surfaces also support walking.
+Canonical terrain data remain unchanged; grading is bounded to the authored bank.
+
 The v1.0.10 attachment scheduler uses each batch's original deadline and
 available idle time while navigating. Exact building refinement now precedes
 optional ground surfaces; see [reproduction and limits](performance-progressive-loading.md).

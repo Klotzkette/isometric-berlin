@@ -344,3 +344,14 @@ are not treated as evidence of present scaffolding or permanent bowl geometry.
 | [Altes Museum, Berlin-Mitte, 170117, ako.jpg](<https://commons.wikimedia.org/wiki/File:Altes_Museum,_Berlin-Mitte,_170117,_ako.jpg>) | Ansgar Koreng | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
 | [Berlin Lustgarten Granitschale 002.JPG](<https://commons.wikimedia.org/wiki/File:Berlin_Lustgarten_Granitschale_002.JPG>) | Janericloebe | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) |
 | [Riss der Granitschale im Lustgarten.JPG](<https://commons.wikimedia.org/wiki/File:Riss_der_Granitschale_im_Lustgarten.JPG>) | Times | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+
+## BahnTower refinement v1.0.11
+
+Four additional photographs were inspected externally; none is bundled.
+
+| Landmark | File | Author / credit | License |
+|---|---|---|---|
+| BahnTower | [Berlin BahnTower 3.jpg](https://commons.wikimedia.org/wiki/File:Berlin_BahnTower_3.jpg) | Lusitana | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5) |
+| BahnTower | [BahnTower0196.JPG](https://commons.wikimedia.org/wiki/File:BahnTower0196.JPG) | MaryG90 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| BahnTower | [Berlin potsdamer platz db haus atnight.jpg](https://commons.wikimedia.org/wiki/File:Berlin_potsdamer_platz_db_haus_atnight.jpg) | janine pohl | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+| BahnTower | [Bahntower, Potsdamer Platz, Berlin, 141027, ako.jpg](https://commons.wikimedia.org/wiki/File:Bahntower,_Potsdamer_Platz,_Berlin,_141027,_ako.jpg) | Ansgar Koreng | [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/) |

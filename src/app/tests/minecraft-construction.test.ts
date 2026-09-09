@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.10 adds Friedrichstrasse facades and all five Museum Island buildings,
-// replacing only their coarse source bodies. Synchronous buffers are compared with cooperative
+// v1.0.11 replaces the BahnTower, music museum and bounded Spreebogen bank
+// while preserving their source records and unrelated terrain. Synchronous buffers are compared with cooperative
 // construction, including all geometry, colours and instance capacities.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "7e2f6814a6c93fac68b0a9d3538708ff0632560b1cb80bbf146ee5a891581a91", 3764166, 90, 287305922],
-  ["mobile", "cebb0978c3188c853afdd724d1fabce1b9c714eca6873c08c35ebdefebae195a", 969863, 88, 74371866],
+  ["full", "82832658023b7b1773a7328cb949578d52019e02137b1ba1e4e79b018d0d65e2", 3794603, 96, 289620142],
+  ["mobile", "836445338101473a01a8c549a7ee5fd93300f2f8338c6dfde31a81da844b7d1c", 991634, 94, 76027470],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

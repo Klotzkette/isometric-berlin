@@ -4252,56 +4252,12 @@ function addPotsdamerEntranceHallLettering(
   }
 }
 
-function addBahnTowerFacade(builder: Builder): void {
-  const profile = POTSDAMER_DETAIL_PROFILE.bahnTower;
-  const arc = profile.facadeArcWorldM;
-  const facadeBottomY = profile.groundY + 4.8;
-  const facadeTopY = profile.groundY + 90.5;
-
-  // The tower shell is already the three exact LoD2 parts. These belts and
-  // mullions follow a coarsened subset of the measured curved outer ring, so
-  // the 103 m glass blade reads at distance without adding a second tower.
-  for (let band = 0; band < profile.facadeBandCount; band += 1) {
-    const amount = band / (profile.facadeBandCount - 1);
-    const y = facadeBottomY + amount * (facadeTopY - facadeBottomY);
-    for (let index = 0; index < arc.length - 1; index += 1) {
-      addFacadeSegment(
-        builder,
-        band === profile.facadeBandCount - 1 ? 0x9bb1b3 : 0x52676c,
-        arc[index],
-        arc[index + 1],
-        y,
-        band === profile.facadeBandCount - 1 ? 0.36 : 0.16,
-        0.2,
-      );
-    }
-  }
-  for (let index = 0; index < arc.length; index += 1) {
-    const previous = arc[Math.max(0, index - 1)];
-    const next = arc[Math.min(arc.length - 1, index + 1)];
-    const rotationY = -Math.atan2(next[1] - previous[1], next[0] - previous[0]);
-    addBox(
-      builder,
-      index % 2 === 0 ? 0x42575c : 0x637b7f,
-      arc[index][0],
-      (facadeBottomY + facadeTopY) / 2,
-      arc[index][1],
-      0.18,
-      facadeTopY - facadeBottomY,
-      0.2,
-      rotationY,
-      false,
-    );
-  }
-}
-
 function addPotsdamerWilhelmDetails(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
 ): void {
   if (!byName.has("Mall of Berlin")) return;
   addPotsdamerUndergroundStation(builder);
-  addBahnTowerFacade(builder);
   const profile = POTSDAMER_DETAIL_PROFILE;
 
   const spielbank = fixedWorldPoint(profile.spielbankWorldM);

@@ -489,6 +489,64 @@
       "conflicts": [
         "dom_altes_source_display_conflicts_v110"
       ]
+    },
+    {
+      "feature_id": "bahntower_v111",
+      "anchor_source": "Berlin LoD2 parent DEBE01YYK0002KhX; three retained public prism records and 99 original source wall/roof surfaces",
+      "geometry_ref": "src/app/src/dbTowerSource.json",
+      "documentation_ref": "docs/db-tower-refinement.md",
+      "source_part_count": 3,
+      "semantic_evidence": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://www.aukett-heese.de/de/projects/sony-center-bahntower/",
+        "https://ir.deutschebahn.com/fileadmin/Anhaenge/Wegbeschreibungen_Deutsche_Bahn_Potsdamer_Platz_en.pdf",
+        "Four separately credited external Commons photographs in both manifests"
+      ],
+      "conflicts": [
+        "bahntower-flat-prism-roofs-v111",
+        "bahntower-source-ground-v111",
+        "bahntower-night-presentation-v111"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "music_museum_v111",
+      "anchor_source": "Fourteen retained Berlin LoD2 museum/SIM parts and separate official entrance pavilion DEBE01YYK0003U6g; all previous museum and Lenne records remain retained",
+      "geometry_ref": "src/app/src/musicMuseumSource.json",
+      "documentation_ref": "docs/music-museum-correction-v111.md",
+      "source_part_count": 15,
+      "semantic_evidence": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5819.zip",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "https://www.simpk.de/museum/sammlung/geschichte.html",
+        "Existing individually credited licensed museum photographs remain external"
+      ],
+      "conflicts": [
+        "music-museum-absolute-roofs-entrance-v111"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "spreebogen_bank_v111",
+      "anchor_source": "Retained OSM park way 737280675, lower ways 34834265 and 1128036906, upper way 4395332 and exact vertices of three committed river rings",
+      "geometry_ref": "src/app/src/spreebogenBankProfile.ts",
+      "documentation_ref": "docs/spreebogen-bank-refinement.md",
+      "semantic_evidence": [
+        "https://www.openstreetmap.org/way/737280675",
+        "https://www.openstreetmap.org/way/34834265",
+        "https://www.openstreetmap.org/way/1128036906",
+        "https://www.openstreetmap.org/way/4395332",
+        "https://www.berlin.de/sen/uvk/natur-und-gruen/landschaftsplanung/gruene-hauptwege/die-wege-im-ueberblick/artikel.930432.php",
+        "Existing separately credited park photographs remain external"
+      ],
+      "conflicts": [
+        "spreebogen-display-grading-v111"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448479,6 +448537,94 @@
       "resolution": "Retain all eighteen official parts, original planes and prior OSM records. Keep the Dom's exact plan and ground y=2.270 m; procedural dome, lantern and single long cross express the cathedral's published 98 m total height at viewer y=100.270 m. Intermediate and east-cupola dimensions remain estimates; do not reconstruct the removed Denkmalskirche. Display all sixteen Altes Museum parts and both courts, limiting only roof strips DEBE3DZGavw271ZU and DEBE3DMfhQc2wgOO to the retained rotunda top y=32.211 m while keeping their original higher source planes. Retain portico parent DEBE01YYK0001xI7 without drawing its 7.301 m overlap with DEBE3DyLUEjxE0Jc twice. At exact OSM node 376689138, use the published 6.9 m granite bowl with three supporting blocks and access steps. DOP roof-image displacement is not used to move ground coordinates; local member and sculpture dimensions are procedural estimates.",
       "geometry_ref": "src/app/src/domAltesMuseumSource.json",
       "documentation_ref": "docs/dom-altes-museum-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bahntower-flat-prism-roofs-v111",
+      "kind": "flat_prisms_vs_original_roof_planes",
+      "sources": [
+        "Berlin LoD2 parent DEBE01YYK0002KhX; three retained public prism records and 99 original source wall/roof surfaces",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://www.aukett-heese.de/de/projects/sony-center-bahntower/",
+        "https://ir.deutschebahn.com/fileadmin/Anhaenge/Wegbeschreibungen_Deutsche_Bahn_Potsdamer_Platz_en.pdf",
+        "Four separately credited external Commons photographs in both manifests"
+      ],
+      "conflict": "The original public prisms flatten the tower roof hierarchy; the previous recognition model adds only twelve thin facade belts.",
+      "resolution": "Retain all three original prisms and 99 original wall/roof planes. Display the source crown, curved 26-storey facade and bounded windscreen; sign, facade bays and lighting details remain procedural estimates.",
+      "geometry_ref": "src/app/src/dbTowerSource.json",
+      "documentation_ref": "docs/db-tower-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bahntower-source-ground-v111",
+      "kind": "source_ground_vs_delivered_street_ground",
+      "sources": [
+        "Berlin LoD2 parent DEBE01YYK0002KhX; three retained public prism records and 99 original source wall/roof surfaces",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://www.aukett-heese.de/de/projects/sony-center-bahntower/",
+        "https://ir.deutschebahn.com/fileadmin/Anhaenge/Wegbeschreibungen_Deutsche_Bahn_Potsdamer_Platz_en.pdf",
+        "Four separately credited external Commons photographs in both manifests"
+      ],
+      "conflict": "The original ground is viewer y=4.923 m, while the delivered prism street ground is 5.3 m.",
+      "resolution": "Keep both values and translate all original wall/roof planes by the same +0.377 m. Preserve exact plan coordinates and relative heights; no tower relocation or rescaling.",
+      "geometry_ref": "src/app/src/dbTowerSource.json",
+      "documentation_ref": "docs/db-tower-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bahntower-night-presentation-v111",
+      "kind": "photo_room_occupation_vs_owner_presentation",
+      "sources": [
+        "Berlin LoD2 parent DEBE01YYK0002KhX; three retained public prism records and 99 original source wall/roof surfaces",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://www.aukett-heese.de/de/projects/sony-center-bahntower/",
+        "https://ir.deutschebahn.com/fileadmin/Anhaenge/Wegbeschreibungen_Deutsche_Bahn_Potsdamer_Platz_en.pdf",
+        "Four separately credited external Commons photographs in both manifests"
+      ],
+      "conflict": "Reference photographs have variable room occupation, whereas the owner requests every floor brightly illuminated at night.",
+      "resolution": "Use continuous bright glazing on all 26 storeys as a reversible presentation mode, with a working lights-off state. Emission settings are not a lux measurement or current occupancy survey.",
+      "geometry_ref": "src/app/src/dbTowerSource.json",
+      "documentation_ref": "docs/db-tower-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "music-museum-absolute-roofs-entrance-v111",
+      "kind": "basement_height_and_missing_pavilion_vs_original_surfaces",
+      "sources": [
+        "Fourteen retained Berlin LoD2 museum/SIM parts and separate official entrance pavilion DEBE01YYK0003U6g; all previous museum and Lenne records remain retained",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5819.zip",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "https://www.simpk.de/museum/sammlung/geschichte.html",
+        "Existing individually credited licensed museum photographs remain external"
+      ],
+      "conflict": "The old model adds height measured from a basement ground to the street base, making the museum approximately 5.45 m too tall. Short rooflights cover only a fraction of the main hall. The separate entrance pavilion K0003U6g was omitted from the museum selection and a substitute canopy was misplaced.",
+      "resolution": "Keep all previous 36 museum/Lenne prism records and add the exact separate pavilion record. Preserve original roof planes and use absolute NHN minus 30 m elevations; the main hall roof reaches 13.914 m and the institute 18.393 m. Display fourteen full-width rooflight bands and the pavilion at its official footprint. Public entrance, three local rooflets and facade details are documented display reconstruction. Keep the canopy passage open while retaining roof landing.",
+      "geometry_ref": "src/app/src/musicMuseumSource.json",
+      "documentation_ref": "docs/music-museum-correction-v111.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "spreebogen-display-grading-v111",
+      "kind": "coarse_terrain_and_unbound_details_vs_source_paths",
+      "sources": [
+        "Retained OSM park way 737280675, lower ways 34834265 and 1128036906, upper way 4395332 and exact vertices of three committed river rings",
+        "https://www.openstreetmap.org/way/737280675",
+        "https://www.openstreetmap.org/way/34834265",
+        "https://www.openstreetmap.org/way/1128036906",
+        "https://www.openstreetmap.org/way/4395332",
+        "https://www.berlin.de/sen/uvk/natur-und-gruen/landschaftsplanung/gruene-hauptwege/die-wege-im-ueberblick/artikel.930432.php",
+        "Existing separately credited park photographs remain external"
+      ],
+      "conflict": "Generic quay and terrain slabs overtop the lower promenade; lawns add height twice; independent flat upper-path sections leave discontinuities, and arbitrary Gartenspur placements extend into the river.",
+      "resolution": "Keep raw DGM/OSM payloads and all exact park, path and river records. Replace only bounded presentation surfaces with continuous paths, source-bound planting and lawns. Retain lower-path ordinates and the official upper-path envelope up to five metres higher; intermediate grading is display interpolation. Suppress only overlapping coarse display surfaces and use matching pedestrian support. Treat source-boundary float32 rounding within 0.1 mm as inside and recess the backing beneath the separate river lawn, avoiding edge spikes and overlapping triangles. Preserve original RLE colour seeds when splitting terrain runs.",
+      "geometry_ref": "src/app/src/spreebogenBankProfile.ts",
+      "documentation_ref": "docs/spreebogen-bank-refinement.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

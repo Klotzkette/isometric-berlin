@@ -1,3 +1,6 @@
+import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenBankTopAt } from "./spreebogenBankProfile";
+import { createDbTowerArchitecture } from "./DbTowerArchitecture";
+import { DB_TOWER_PRISM_IDS } from "./dbTowerIds";
 import { createDomAltesMuseum } from "./DomAltesMuseum";
 import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
 import { createMuseumTriadArchitecture } from "./MuseumTriadArchitecture";
@@ -25,7 +28,7 @@ import { BOELL_STIFTUNG_IDS, BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_PRISM_TONES, 
 import { FRIEDRICHSTADT_PALAST_PRISM_ID } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
 import { createMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
-import { MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
+import { MUSIC_MUSEUM_IDS, MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
 import { createParliamentArchitecture } from "./ParliamentArchitecture";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createHumboldthafenBuildingDetails, HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
@@ -863,6 +866,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...DB_TOWER_PRISM_IDS,
+  ...MUSIC_MUSEUM_IDS,
   ...DOM_ALTES_PRISM_IDS,
   ...MUSEUM_TRIAD_PRISM_IDS,
   ...ADMIRALSPALAST_IDS,
@@ -3580,7 +3585,10 @@ function createQuayWalls(
     towardWaterX: number,
     towardWaterZ: number,
   ): void => {
-    const top = sample(xOffset, zOffset) + 0.22;
+    const top = spreebogenBankTopAt(
+      (min_x_idx + (x1+x2)/2)*cell,
+      (min_z_idx + (z1+z2)/2)*cell,
+    ) ?? sample(xOffset, zOffset) + 0.22;
     const bottom = waterTop - 3.1;
     if (top <= bottom) {
       return;
@@ -9805,6 +9813,10 @@ export function createSmoothSurfaces(
   terrainAt?: (x: number, z: number) => number,
   options: SmoothSurfaceBuildOptions = {},
 ): Group {
+  const sourceTerrainAt = terrainAt;
+  if (sourceTerrainAt) {
+    terrainAt = (x,z) => spreebogenTerrainYAt(x,z,sourceTerrainAt(x,z));
+  }
   const group = new Group();
   group.name = "smooth OSM water and parkland";
   const BED_DROP = 3.1;
@@ -9903,7 +9915,7 @@ export function createSmoothSurfaces(
   // the 4 m steps disappear under a smooth sage plate.
   const lawns = buildPlate(
     surfaces.parks.filter(
-      (entry) => entry.kind !== "garden" && !isTillaDurieuxLawn(entry),
+      (entry) => entry.kind !== "garden" && !isTillaDurieuxLawn(entry) && !isSpreebogenParkSurface(entry),
     ),
     terrainAt ? 0.06 : bankY + 0.08,
     true,
@@ -10317,6 +10329,7 @@ export function createSmoothSurfaces(
   /** Masonry courses, in metres — tied to the bank, not to the subdivision. */
   const COURSE_M = 7;
   const bankTopAt = (x: number, z: number): number =>
+    spreebogenBankTopAt(x,z) ??
     Math.max(bankY - 0.8, terrainAt ? terrainAt(x, z) : bankY) + 0.12;
   // OSM splits the Spree into separate riverbank polygons, and the cuts sit
   // at the bridges: polygon 0 stops at x −35, the next starts at x −61, both
@@ -12798,13 +12811,8 @@ export function createIsometricCity(
         skipClasses:
           surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld:
-          insideTunnelApproach || insideTillaDurieux
-            ? (x, z) =>
-                Boolean(
-                  insideTunnelApproach?.(x, z) || insideTillaDurieux?.(x, z),
-                )
-            : undefined,
+        skipAtWorld: (x,z) => isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
+          Boolean(insideTunnelApproach?.(x,z) || insideTillaDurieux?.(x,z)),
         skipWater: true,
       },
     );
@@ -12967,6 +12975,7 @@ export function createIsometricCity(
     group.add(createFriedrichstrasseArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" }));
+    group.add(createDbTowerArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));

@@ -1,3 +1,7 @@
+import { createMinecraftDbTowerArchitecture } from "./DbTowerArchitecture";
+import { isDbTowerReplacementColumn } from "./dbTowerProfile";
+import { createMinecraftSpreebogenPark } from "./SpreebogenPark";
+import { SPREEBOGEN_BANK_BOUNDS, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { createMinecraftDomAltesMuseum } from "./DomAltesMuseum";
 import { isDomAltesReplacementColumn } from "./domAltesMuseumProfile";
 import { createMinecraftMuseumTriadArchitecture } from "./MuseumTriadArchitecture";
@@ -28,7 +32,8 @@ import { friedrichstadtPalastContains } from "./FriedrichstadtPalastDetails";
 import { isSovietMemorialReplacementPoint } from "./SovietMemorialSource";
 import { createMinecraftSovietMemorial } from "./MinecraftSovietMemorial";
 import { createComposerMemorialMinecraft } from "./MusicComposerMemorial";
-import { createMinecraftMuseumLenneArchitecture, musicMuseumHallColumnContains } from "./MuseumLenneArchitecture";
+import { createMinecraftMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
+import { musicMuseumReplacementColumn } from "./museumLenneProfile";
 import { createMinecraftHbfBearingSupports } from "./HauptbahnhofBearingSupports";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
@@ -1144,6 +1149,11 @@ function* createGroundSlabsSteps(
     skipBridgeAtWorld?: (x: number, z: number) => boolean;
     skipAtWorld?: (x: number, z: number) => boolean;
     skipWater?: boolean;
+    /** Display grading only; canonical terrain samplers remain unchanged. */
+    terrainOverride?: {
+      bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
+      topAt: (x: number, z: number) => number | null;
+    };
   },
 ): Generator<void, InstancedMesh> {
   const cell = payload.cell_m;
@@ -1158,6 +1168,9 @@ function* createGroundSlabsSteps(
     run: number;
     xStart: number;
     zOffset: number;
+    topY?: number;
+    shadeXStart?: number;
+    shadeRun?: number;
   }> = [];
   let skippedByWorldPredicateCells = 0;
   let skippedBridgeCells = 0;
@@ -1217,20 +1230,55 @@ function* createGroundSlabsSteps(
       }
     }
   }
-  const ground = instancedBoxes(name, visibleRuns.length, options?.emissive);
+  // Only split runs touching the authored bank. In particular, never grade
+  // water or change the sampling/colour of a run outside this bounded repair.
+  const gradedRuns: typeof visibleRuns = [];
+  const override = options?.terrainOverride;
+  let gradedCells = 0;
+  for (let index = 0; index < visibleRuns.length; index++) {
+    if (index % 512 === 0) yield;
+    const entry = visibleRuns[index];
+    const { classId, xStart, run, zOffset } = entry;
+    const className = payload.classes[classId];
+    const z = worldZAbs(min_z_idx + zOffset);
+    if (!override || ["water", "basin", "pond", "bridge"].includes(className) ||
+        z < override.bounds.minZ || z > override.bounds.maxZ ||
+        worldXAbs(min_x_idx + xStart + run - 1) < override.bounds.minX ||
+        worldXAbs(min_x_idx + xStart) > override.bounds.maxX) {
+      gradedRuns.push(entry);
+      continue;
+    }
+    let ungradedStart = xStart;
+    const originalTop = groundTopY(xStart + run / 2, zOffset);
+    const originalShade = { shadeXStart: xStart, shadeRun: run };
+    for (let xOffset = xStart; xOffset < xStart + run; xOffset++) {
+      const x = worldXAbs(min_x_idx + xOffset);
+      const topY = x >= override.bounds.minX && x <= override.bounds.maxX
+        ? override.topAt(x, z) : null;
+      if (topY === null) continue;
+      if (xOffset > ungradedStart) gradedRuns.push({ ...entry, ...originalShade, xStart: ungradedStart, run: xOffset - ungradedStart, topY: originalTop });
+      gradedRuns.push({ ...entry, ...originalShade, xStart: xOffset, run: 1, topY });
+      ungradedStart = xOffset + 1;
+      gradedCells++;
+    }
+    if (ungradedStart === xStart) gradedRuns.push(entry);
+    else if (ungradedStart < xStart + run) gradedRuns.push({ ...entry, ...originalShade, xStart: ungradedStart, run: xStart + run - ungradedStart, topY: originalTop });
+  }
+  const ground = instancedBoxes(name, gradedRuns.length, options?.emissive);
+  ground.mesh.userData.gradedPromenadeCells = gradedCells;
   ground.mesh.userData.skippedByWorldPredicateCells =
     skippedByWorldPredicateCells;
   ground.mesh.userData.skippedBridgeCells = skippedBridgeCells;
   const center = new Vector3();
   const size = new Vector3();
   const shade = new Color();
-  for (const { classId, run, xStart, zOffset } of visibleRuns) {
+  for (const { classId, run, xStart, zOffset, topY: overriddenTop, shadeXStart, shadeRun } of gradedRuns) {
     const className = payload.classes[classId] ?? "grass";
     const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
     const topY =
       className === "water"
         ? (payload.water_top_y_m ?? WATER_TOP_Y)
-        : groundTopY(xStart + run / 2, zOffset);
+        : overriddenTop ?? groundTopY(xStart + run / 2, zOffset);
     // Real bridge decks (drawn city): a thin plate at bank level with
     // open air beneath, so the river visibly flows under the bridge
     // instead of the deck being ironed flat onto the water.
@@ -1242,7 +1290,7 @@ function* createGroundSlabsSteps(
       worldZAbs(min_z_idx + zOffset),
     );
     size.set(run * cell, slabHeight, cell);
-    ground.write(center, size, shadeFor(shades, xStart, zOffset, run, shade));
+    ground.write(center, size, shadeFor(shades, shadeXStart ?? xStart, zOffset, shadeRun ?? run, shade));
   }
   return ground.mesh;
 }
@@ -2590,10 +2638,20 @@ export function* buildMinecraftVoxelWorldSteps(
   const insideTunnelApproach = tunnel
     ? createTunnelPortalApproachTester(tunnel, cell / Math.SQRT2)
     : null;
+  const parkGround = smoothGroundTopSampler(payload);
   group.add(createMinecraftExtrapolatedWorld());
   yield;
   group.add(
     yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
+      terrainOverride: {
+        bounds: SPREEBOGEN_BANK_BOUNDS,
+        // Leave the native paving surface visible above its terrain backing.
+        topAt: (x, z) => {
+          if (!isSpreebogenRasterReplacementAt(x, z, 0)) return null;
+          const sourceTop = parkGround(x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx);
+          return spreebogenTerrainYAt(x, z, sourceTop) - 0.24;
+        },
+      },
       // The northern harbour staircase below is rebuilt from the same exact
       // predicate in one block-native detail mesh. Suppressing it here first
       // prevents coincident DGM slabs and Schrägufer blocks from flickering.
@@ -2605,6 +2663,8 @@ export function* buildMinecraftVoxelWorldSteps(
       skipBridgeAtWorld: (x, z) => isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
     }),
   );
+  yield;
+  group.add(createMinecraftSpreebogenPark(payload, { mobileLike: mobileDetail }));
   yield;
   group.add(createMinecraftHumboldthafenDetails(payload));
   group.add(createMinecraftZollpackhofDetails());
@@ -2664,6 +2724,8 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" }));
   yield;
+  group.add(createMinecraftDbTowerArchitecture({ mobileLike: options.detailProfile === "mobile" }));
+  yield;
   group.add(createMinecraftTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2701,12 +2763,13 @@ export function* buildMinecraftVoxelWorldSteps(
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
-      !musicMuseumHallColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !admiralspalastSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isDomAltesReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y1dm / 10, cell) &&
+      !isDbTowerReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y1dm / 10, cell) &&
       !bismarckMoltkeSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !topographySourceColumnContains(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&

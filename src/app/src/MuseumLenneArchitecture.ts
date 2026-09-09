@@ -1,15 +1,17 @@
 import {
   BoxGeometry, BufferGeometry, CircleGeometry, Color, Float32BufferAttribute,
   Group, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial,
-  Shape, ShapeGeometry, Vector2, Vector3,
+  Vector3,
 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { createBuilder, finishDrawnGroup, paintGeometry, type Builder } from "./drawnKit";
+import { letteringStrokePaths } from "./drawnLettering";
+import { addMusicMuseumShell } from "./musicMuseumShell";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import {
   LENNE_TOWERS, MINECRAFT_MUSEUM_LENNE_GROUP, MUSEUM_LENNE_GROUP,
   MUSEUM_LENNE_IDS, MUSEUM_LENNE_SOURCE_PRISMS, MUSIC_MUSEUM_HALL_ID,
-  MUSIC_MUSEUM_HALL_ROOF_RISE, MUSIC_MUSEUM_IDS, MUSIC_MUSEUM_PROFILE, MUSIC_MUSEUM_ROOF_LIGHT_RUNS, musicMuseumFacadeTop,
+  MUSIC_MUSEUM_IDS, MUSIC_MUSEUM_ENTRANCE_ID, MUSIC_MUSEUM_PROFILE, musicMuseumFacadeTop, MUSIC_MUSEUM_ROOF_BASE, musicMuseumPartRoofHeightAt, musicMuseumReplacementColumn,
 } from "./museumLenneProfile";
 
 type Point = readonly [number, number];
@@ -22,7 +24,7 @@ export type MuseumLenneVoxelPayload = {
 export type MuseumLenneOptions = { mobileLike?: boolean; minecraft?: boolean; voxels?: MuseumLenneVoxelPayload; diagnostics?: boolean };
 export type MuseumLenneBlock = { position: Triple; size: Triple; yaw: number; color: number; role: string; sourceId: string; normal?: Point };
 export type MuseumLenneWall = { part: PrismBuilding; a: Point; b: Point; length: number; nx: number; nz: number; dx: number; dz: number };
-const C = { stone: 0xc0beb0, light: 0xe4e4d9, seam: 0x9d9d92, glass: 0x3c5960, glassLight: 0x648086,
+const C = { stone: 0xb9b8b0, light: 0xe4e4d9, seam: 0x9d9d92, glass: 0x3c5960, glassLight: 0x648086,
   silver: 0xcad3d1, dark: 0x354748, gold: 0xc79d42, goldLight: 0xe2be57, roof: 0xc3c3b9 };
 
 function inRing(ring: readonly (readonly number[])[], x: number, z: number): boolean {
@@ -68,7 +70,7 @@ function makeVoxelSampler(payload?: MuseumLenneVoxelPayload): (x: number, y: num
   const cell = payload.cell_m;
   const add = (x: number, z: number, low: number, high: number) => {
     const wx = (x + .5) * cell, wz = (z + .5) * cell;
-    if (wx < -100 || wx > 325 || wz < 775 || wz > 1035 || musicMuseumHallColumnContains(wx, wz)) return;
+    if (wx < -100 || wx > 325 || wz < 775 || wz > 1035 || musicMuseumReplacementColumn(wx, wz, low / 10, high / 10, cell)) return;
     columns.set(`${x},${z}`, [low / 10, high / 10]);
   };
   payload.building_rows?.forEach((row, zi) => {
@@ -95,10 +97,10 @@ function addQuad(builder: Builder, points: Triple[], color: number, normal: Trip
 function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, options: MuseumLenneOptions) {
   const parts = selected(payload), walls = museumLenneWalls(payload), blocks: MuseumLenneBlock[] = [], curved = createBuilder();
   const minecraft = !!options.minecraft, mobile = !!options.mobileLike, voxel = makeVoxelSampler(options.voxels);
-  const occupied = (sourceId: string, p: Triple) => parts.some(q => q.id !== sourceId && p[1] >= q.y0_dm / 10 && p[1] < (q.y0_dm + q.h_dm) / 10 && museumLennePrismContains(q, p[0], p[2]));
+  const occupied = (sourceId: string, p: Triple) => parts.some(q => q.id !== sourceId && q.id !== MUSIC_MUSEUM_ENTRANCE_ID && p[1] >= q.y0_dm / 10 && p[1] < (MUSIC_MUSEUM_IDS.has(q.id) ? musicMuseumPartRoofHeightAt(q.id,p[0],p[2]) ?? -Infinity : (q.y0_dm + q.h_dm) / 10) && museumLennePrismContains(q, p[0], p[2]));
   const emit = (w: MuseumLenneWall, u: number, y: number, width: number, height: number, depth: number, out: number, color: number, role: string, visible = true) => {
     if (width <= 0 || height <= 0 || (visible && occupied(w.part.id, at(w, u, y, .2)))) return;
-    if (minecraft && w.part.id !== MUSIC_MUSEUM_HALL_ID) {
+    if (minecraft && !MUSIC_MUSEUM_IDS.has(w.part.id)) {
       // Trace the actual coarse cell skin, never hide a facade inside a 4 m cube.
       for (const du of [-width * .45, 0, width * .45]) for (let d = 0; d < 3.6; d += .15)
         if (voxel(...at(w, u + du, y, d))) out = Math.max(out, d + depth / 2 + .12);
@@ -111,16 +113,24 @@ function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, opti
         size: [ww, hh, depth], yaw: -Math.atan2(w.dz, w.dx), color, role, sourceId: w.part.id, normal: [w.nx, w.nz] });
     }
   };
+  addMusicMuseumShell(curved, blocks, minecraft, new Set(parts.map(p=>p.id)));
   for (const w of walls) {
     const museum = MUSIC_MUSEUM_IDS.has(w.part.id), tower = LENNE_TOWERS.find(t => (t.ids as readonly string[]).includes(w.part.id));
     const base = w.part.y0_dm / 10, top = (w.part.y0_dm + w.part.h_dm) / 10;
     const wallTop = museum ? musicMuseumFacadeTop(w.part.id, top) : top;
-    if (minecraft && w.part.id === MUSIC_MUSEUM_HALL_ID)
-      emit(w, w.length / 2, (base + wallTop) / 2, w.length, wallTop - base, .4, -.2, C.stone, "museum source wall", false);
+    if (w.part.id===MUSIC_MUSEUM_ENTRANCE_ID)continue;
+    if (minecraft && museum) {
+      const count=Math.max(1,Math.ceil(w.length));
+      for(let i=0;i<count;i++){
+        const u=(i+.5)*w.length/count, v=at(w,u,0,-.08);
+        const y=w.part.id===MUSIC_MUSEUM_HALL_ID?wallTop:musicMuseumPartRoofHeightAt(w.part.id,v[0],v[2])??wallTop;
+        emit(w,u,(base+y)/2,w.length/count,y-base,.28,-.14,C.stone,"museum source wall",false);
+      }
+    }
     if (w.length < 2.5) continue;
     if (museum) {
       // Long slim staggered panels, not a generic apartment-window grid.
-      const pitch = minecraft ? (mobile ? 4.4 : 3.4) : mobile ? 2.6 : 1.65, bays = Math.max(1, Math.floor(w.length / pitch));
+      const pitch = minecraft ? (mobile ? 2.6 : 1.8) : mobile ? 1.4 : .96, bays = Math.max(1, Math.floor(w.length / pitch));
       for (let i = 0; i < bays; i++) {
         const u = (i + .5) * w.length / bays, x = at(w, u, 0, 0);
         for (let y = base + 1; y < wallTop - .5; y += mobile || minecraft ? 3.6 : 2.2) {
@@ -176,46 +186,23 @@ function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, opti
 
   const hall = parts.find(p => p.id === MUSIC_MUSEUM_HALL_ID);
   if (hall) {
-    const roofY = (hall.y0_dm + hall.h_dm) / 10 - MUSIC_MUSEUM_HALL_ROOF_RISE;
-    // The broad flat main cap is below the eight rooflight teeth, keeping
-    // their crests at the delivered 19.4 m source top, not above it.
-    if (minecraft) {
-      const q = mobile ? 2.4 : 1.6;
-      const xs = hall.ring.map(p => p[0] / 10), zs = hall.ring.map(p => p[1] / 10);
-      for (let x = Math.min(...xs) + q / 2; x < Math.max(...xs); x += q) for (let z = Math.min(...zs) + q / 2; z < Math.max(...zs); z += q)
-        if (museumLennePrismContains(hall, x, z)) blocks.push({ position: [x, roofY - .18, z], size: [q, .36, q], yaw: 0, color: C.roof, role: "museum roof block", sourceId: hall.id });
-    } else {
-      const shape = new Shape(hall.ring.map(([x,z]) => new Vector2(x / 10, -z / 10)));
-      const cap = new ShapeGeometry(shape).rotateX(-Math.PI / 2).translate(0, roofY + .025, 0);
-      paintGeometry(cap, C.roof); curved.parts.push(cap);
-    }
-    const front = MUSIC_MUSEUM_ROOF_LIGHT_RUNS.map(run => walls.find(w => w.part.id === hall.id &&
-      Math.abs(w.a[0]-run.a[0])<.001 && Math.abs(w.a[1]-run.a[1])<.001)!).filter(Boolean);
-    let toothIndex = 0;
-    for (const [index, w] of front.entries()) {
-      const count = MUSIC_MUSEUM_ROOF_LIGHT_RUNS[index].count, pitch = w.length / count;
-      for (let n = 0; n < count; n++) {
-        toothIndex++;
-        const lo = n * pitch + .04, hi = (n + 1) * pitch - .04;
-        const p0 = at(w, lo, roofY + .03, -.15), p1 = at(w, hi, roofY + 2.4, -.15);
-        const p2 = at(w, hi, roofY + 2.4, -8), p3 = at(w, lo, roofY + .03, -8);
-        if (minecraft) {
-          for (let s = 0; s < 4; s++) emit(w, lo + (s + .5) * (hi - lo) / 4, roofY + (s + 1) * .6 - .2,
-            (hi - lo) / 4, .4, 7.85, -4.075, C.roof, "museum stepped rooflight", false);
-        } else {
-          addQuad(curved, [p0, p1, p2, p3], C.roof, [0,1,0]);
-          addQuad(curved, [at(w,hi,roofY,-.15),p1,p2,at(w,hi,roofY,-8)], C.glassLight, [w.dx,0,w.dz]);
-          addTriangle(curved, [p0,p1,at(w,hi,roofY,-.15)], C.silver, [w.nx,0,w.nz]);
-        }
-        emit(w, hi, roofY + 1.2, .1, 2.4, .15, -.10, C.silver, "museum rooflight upright", false);
-      }
-    }
-    const entrance = front[2];
+    const roofY = MUSIC_MUSEUM_ROOF_BASE;
+    const entrance = walls.find(w => w.part.id === hall.id && Math.abs(w.a[0]+38.9)<.01 && Math.abs(w.a[1]-940.3)<.01);
     if (entrance) {
       const u = entrance.length * .5;
       emit(entrance, u, hall.y0_dm / 10 + 1.65, entrance.length * .92, 3.3, .16, .24, C.glass, "museum entry glazing");
       for (const du of [-3.4, 0, 3.4]) emit(entrance, u + du, 5.95, .16, 3.3, .23, .35, C.silver, "museum entry mullion");
-      emit(entrance, u, 8.08, entrance.length + 1.6, .3, 5.5, 2.5, C.light, "museum entrance canopy", false);
+      // The separate exact K0003U6g source roof supplies the 8.053 m entrance canopy.
+      for(const line of letteringStrokePaths("MUSIKINSTRUMENTEN-MUSEUM",.3))for(let i=1;i<line.length;i++){
+        const a=line[i-1],b=line[i],d=Math.hypot(b[0]-a[0],b[1]-a[1]),steps=Math.max(1,Math.ceil(d/.055));
+        if(minecraft)for(let j=0;j<steps;j++)emit(entrance,u+a[0]+(b[0]-a[0])*(j+.5)/steps,7.52+a[1]+(b[1]-a[1])*(j+.5)/steps,.045,.045,.075,.39,C.dark,"museum entrance lettering",false);
+        else{const dx=-(b[1]-a[1])/d*.022,dy=(b[0]-a[0])/d*.022;addQuad(curved,[at(entrance,u+a[0]+dx,7.52+a[1]+dy,.43),at(entrance,u+b[0]+dx,7.52+b[1]+dy,.43),at(entrance,u+b[0]-dx,7.52+b[1]-dy,.43),at(entrance,u+a[0]-dx,7.52+a[1]-dy,.43)],C.dark,[entrance.nx,0,entrance.nz]);}
+      }
+      for(const du of [-4.1,0,4.1]){
+        const lo=u+du-1.45,hi=u+du+1.45;
+        if(minecraft)for(let k=0;k<3;k++)emit(entrance,u+du,8.24+(3-k)*.72-.18,2.9,.36,2.45/3,.1+(k+.5)*2.45/3,C.roof,"museum entrance sloping rooflet",false);
+        else addQuad(curved,[at(entrance,lo,8.24,2.55),at(entrance,hi,8.24,2.55),at(entrance,hi,10.4,.1),at(entrance,lo,10.4,.1)],C.roof,[0,1,0]);
+      }
     }
     const gold = walls.find(w => w.part.id === hall.id && Math.abs(w.a[0] + 34.9) < .02 && Math.abs(w.a[1] - 959) < .02);
     if (gold) {
@@ -227,19 +214,24 @@ function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, opti
           .18, (r + col) % 2 ? C.gold : C.goldLight, "museum triangular gold relief", false);
       }
     }
+    if(gold){
+      const u=gold.length*.24;
+      if(minecraft)for(let row=-2;row<=2;row++)emit(gold,u,5.9+row*.26,1.5*Math.sqrt(1-(row/2.6)**2),.27,.12,.35,C.glass,"museum low round opening",false);
+      else {const oval=new CircleGeometry(.8,mobile?16:28).rotateY(Math.atan2(gold.nx,gold.nz));oval.translate(...at(gold,u,5.9,.35));paintGeometry(oval,C.glass);curved.parts.push(oval);}
+    }
     // Exactly two large upper oval openings in the institute's east plane.
     const ovalWall = walls.find(w => w.part.id === "4keChp4s" && w.nx > .5 && w.length > 20);
     if (ovalWall) for (const u of [8.2, 14.2]) {
       if (minecraft) for (let row = -3; row <= 3; row++) {
         const width = 2.3 * Math.sqrt(Math.max(0, 1 - (row / 3.5) ** 2));
-        emit(ovalWall, u, 17.7 + row * .5, width, .5, .19, .36, C.glass, "museum oval opening", false);
+        emit(ovalWall, u, 12.2 + row * .4, width, .5, .19, .36, C.glass, "museum oval opening", false);
       } else {
-        const oval = new CircleGeometry(1, mobile ? 20 : 32).scale(1.15, 2.0, 1).rotateY(Math.atan2(ovalWall.nx,ovalWall.nz));
-        const p = at(ovalWall,u,17.7,.36); oval.translate(...p); paintGeometry(oval,C.glass); curved.parts.push(oval);
-        for (let l = -2; l <= 2; l++) emit(ovalWall,u,17.7+l*.55,2.15*Math.sqrt(1-(l/3.5)**2),.075,.14,.43,C.silver,"museum oval grille",false);
+        const oval = new CircleGeometry(1, mobile ? 20 : 32).scale(1.15, 1.7, 1).rotateY(Math.atan2(ovalWall.nx,ovalWall.nz));
+        const p = at(ovalWall,u,12.2,.36); oval.translate(...p); paintGeometry(oval,C.glass); curved.parts.push(oval);
+        for (let l = -2; l <= 2; l++) emit(ovalWall,u,12.2+l*.45,2.15*Math.sqrt(1-(l/3.5)**2),.075,.14,.43,C.silver,"museum oval grille",false);
       }
     }
-    curved.parts.forEach(g => g.userData.rooflightCount = toothIndex);
+    curved.parts.forEach(g => g.userData.rooflightCount = 14);
   }
   return { blocks, curved, parts };
 }

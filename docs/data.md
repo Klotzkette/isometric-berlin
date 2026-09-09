@@ -848,3 +848,23 @@ JSON. The overlapping 7.301 m portico source is retained and not drawn twice.
 The 6.9 m red-granite bowl retains exact OSM node `376689138`, three support
 blocks and access steps. See
 [Dom, Altes Museum and bowl evidence](dom-altes-museum-refinement.md).
+
+## BahnTower, music museum and Spreebogen correction (v1.0.11)
+
+[The BahnTower source supplement](db-tower-refinement.md) retains the three
+original prism records and 99 original wall/roof planes, applying a documented
++0.377 m translation to keep the delivered street ground. The fully lit
+26-storey night facade is an explicit reversible presentation choice.
+
+[The music museum correction](music-museum-correction-v111.md) retains all
+previous museum/Lenné records and the separate official entrance pavilion.
+Absolute roof elevations correct the previous addition of a basement-relative
+height to the street base. Rooflight bands and entrance details are bounded,
+photo/orthophoto-guided display subdivisions.
+
+[The Spreebogen bank correction](spreebogen-bank-refinement.md) retains the
+exact mapped shoreline, park and path axes and existing lower-path ordinates.
+Its continuous grading, path cross-sections and planting details are display
+interpolation, not a new DGM survey. Raw ground, water and park payloads remain
+unchanged. Conflicts are appended to the fusion manifest; reference photographs
+remain external and credited individually.

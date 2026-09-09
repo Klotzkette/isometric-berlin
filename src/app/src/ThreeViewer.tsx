@@ -4,6 +4,8 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
+import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
+import { musicMuseumEntranceCanopyWalkableAt } from "./museumLenneProfile";
 import { domAltesExtraSolidAt, domAltesExtraGroundAt } from "./domAltesMuseumProfile";
 import { nationalgaleriePorticoWalkableAt, nationalgaleriePorticoSolidAt, nationalgalerieWalkSurfaceAt } from "./museumTriadProfile";
 import {
@@ -154,7 +156,7 @@ import {
   weidendammerBridgeSolidAt,
 } from "./WeidendammerBridgeDetails";
 import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
-import { createSpreebogenPark } from "./SpreebogenPark";
+import { createSpreebogenPark, createSpreebogenLawnGroundAt } from "./SpreebogenPark";
 import {
   type ParkDetailsPayload,
   createParkDetails,
@@ -3101,6 +3103,7 @@ function ensureIsoWorld(
           prisms,
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
+        const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
         pedestrianEnvironment.visualMode = () => runtime.lightingMode;
         pedestrianEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(
@@ -3119,7 +3122,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3171,6 +3174,10 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
+          if (promenade !== null) return promenade;
+          const parkLawn = spreebogenLawnGroundAt(x,z);
+          if (parkLawn !== null) return parkLawn;
           const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
           if (altesFloor !== null) return altesFloor;
           const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
@@ -3611,6 +3618,7 @@ function ensureVoxelWorld(
           prisms,
         );
         provisionalEnvironment.visualMode = () => runtime.lightingMode;
+        const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
         provisionalEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(
             payload.cell_m,
@@ -3619,6 +3627,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
+          musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
           sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
@@ -3645,6 +3654,8 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          spreebogenWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
+          spreebogenLawnGroundAt(x,z) ??
           domAltesExtraGroundAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
           nationalgalerieWalkSurfaceAt(x,z) ??
           sovietMemorialGroundAt(x,z) ??
