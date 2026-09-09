@@ -1035,11 +1035,13 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       failures.append(
         f"3D compositor isolation lacks {compositor_contract!r}: {styles_path}"
       )
+  # Object-local animation clocks (flags, the requested traffic signal) are
+  # allowed. A seconds conversion alone is not a scene-quality switch; retain
+  # the concrete guards against changing quality or camera response on input.
   for forbidden_runtime_switch in (
     "coarsePointer ? 1000 / 30 : 0",
     "nextPixelRatioMode(",
     "nextSettledDetailMode(",
-    "timestamp / 1000",
     "controls.enableDamping = true",
     "timestamp < settleUntil",
     "timestamp < runtime.interactionUntil",

@@ -202,8 +202,8 @@ describe("progressive exact-world scheduling", () => {
     expect(shells.material).toBe(shells.userData.nightMaterial);
     setIsoNightPresentation(coverage, false, true, "schwellenraum");
     expect(shells.material).toBe(shells.userData.schwellenraumMaterial);
-    expect(progressiveWorkerSource).toContain(
-      "createDistantBuildingShells(prismPayload, partition.omitted)",
+    expect(threeViewerSource).toContain(
+      "createProgressiveBuildingCoverage(prisms, buildingPartition)",
     );
     const wire = serializeObject3DForTransfer(coverage);
     const restored = deserializeTransferredObject3D(
@@ -372,10 +372,8 @@ describe("progressive exact-world scheduling", () => {
       workerDesktopStart,
     );
     expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
-    expect(workerMobileBranch).toContain("buildings-distant");
-    expect(workerMobileBranch).toContain(
-      "postBuildingPreviews(prisms, partition.remaining)",
-    );
+    expect(workerMobileBranch).not.toContain("buildings-distant");
+    expect(progressiveWorkerSource).not.toContain("postBuildingPreviews");
     expect(workerMobileBranch).toContain(
       "postBuildingBatches(prisms, partition.remaining)",
     );
@@ -388,7 +386,7 @@ describe("progressive exact-world scheduling", () => {
       workerDesktopStart,
     );
     expect(workerDesktopBranch).toContain("DESKTOP_TOTAL_BUILDING_LIMIT");
-    expect(workerDesktopBranch).toContain("buildings-distant");
+    expect(workerDesktopBranch).not.toContain("buildings-distant");
     expect(workerDesktopBranch).toContain("prismPayload.buildings = []");
     expect(progressiveWorkerSource).toContain("buildingBatches[index].length = 0");
     expect(workerDesktopBranch).toContain("surfaces.roads = []");
@@ -497,45 +495,26 @@ describe("progressive exact-world scheduling", () => {
     ).toBe(true);
   });
 
-  test("shows every building through replaceable previews before exact refinement", () => {
-    const distantBuildings = progressiveWorkerSource.lastIndexOf(
-      '"buildings-distant"',
+  test("publishes complete coverage before readiness and refines buildings before surfaces", () => {
+    const initialCoverage = threeViewerSource.indexOf(
+      "isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition))",
     );
-    const desktopPreview = progressiveWorkerSource.lastIndexOf(
-      "postBuildingPreviews(prismPayload, buildingBatches)",
-    );
-    const exactBuildings = progressiveWorkerSource.indexOf(
-      "[nearestBuildingBatch]",
-      desktopPreview,
-    );
-    const firstSurface = progressiveWorkerSource.indexOf(
-      'postSurface("water")',
-      exactBuildings,
-    );
-    const laneMarkings = progressiveWorkerSource.indexOf(
-      '"surface-lane-markings"',
-      firstSurface,
-    );
-    expect(distantBuildings).toBeGreaterThan(0);
-    expect(desktopPreview).toBeGreaterThan(distantBuildings);
-    expect(desktopPreview).toBeGreaterThan(0);
-    expect(exactBuildings).toBeGreaterThan(desktopPreview);
-    expect(firstSurface).toBeGreaterThan(exactBuildings);
+    const publish = threeViewerSource.indexOf("runtime.isoWorld = isoWorld", initialCoverage);
+    const ready = threeViewerSource.indexOf("notifyPresentationReadyWhenPossible(runtime)", publish);
+    expect(initialCoverage).toBeGreaterThan(0);
+    expect(publish).toBeGreaterThan(initialCoverage);
+    expect(ready).toBeGreaterThan(publish);
+    const exactBuildings = progressiveWorkerSource.indexOf("[nearestBuildingBatch]");
     const allExactBuildings = progressiveWorkerSource.indexOf(
       "    deferredBuildingBatches,", exactBuildings,
     );
+    const firstSurface = progressiveWorkerSource.indexOf('postSurface("water")', exactBuildings);
+    expect(exactBuildings).toBeGreaterThan(0);
     expect(allExactBuildings).toBeGreaterThan(exactBuildings);
     expect(allExactBuildings).toBeLessThan(firstSurface);
-    expect(laneMarkings).toBeGreaterThan(firstSurface);
     expect(progressiveWorkerSource).not.toContain("surface-paving");
     expect(progressiveWorkerSource).not.toContain("surface-asphalt");
-    expect(progressiveWorkerSource).toContain(
-      "`buildings-preview-${index + 1}`",
-    );
-    expect(threeViewerSource).toContain(
-      "batch.userData.progressiveWorldBatchId === message.replaces",
-    );
-    expect(threeViewerSource).toContain("disposeObject3D(runtime, replaced)");
+    expect(progressiveWorkerSource).not.toContain("createDistantBuildingShells");
     expect(PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS).toBeLessThanOrEqual(600);
     expect(PROGRESSIVE_WORLD_FALLBACK_DELAY_MS).toBeLessThanOrEqual(60);
   });

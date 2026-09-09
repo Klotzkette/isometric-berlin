@@ -21,6 +21,15 @@ Per owner policy this project uses **additive data fusion** across
 all permitted sources (see [`docs/data.md`](docs/data.md) and
 [`AGENTS.md`](AGENTS.md) §4):
 
+- **Potsdamer Platz traffic tower (v1.0.12):** the retained OSM way
+  `241572310` and its original perimeter anchor the modern replica. Berlin's
+  transport history and the sculpture inventory support the 8.50 m height,
+  five supports, glazed cabin, clocks and horizontal signals. Local dimensions,
+  orientation and the slow light cycle are explicitly approximate display
+  choices. Three external CC BY-SA 4.0 photographs by BugWarp and Luis Alvaz
+  are individually credited in both manifests; no photograph is bundled.
+  See [evidence and signal uncertainty](docs/potsdamer-traffic-tower.md).
+
 - **BahnTower, Musikinstrumentenmuseum and Spreebogen bank (v1.0.11):**
   the original tower prisms, museum parts, mapped park and river records remain
   preserved. Original LoD2 roof planes correct flattened crowns and the museum's

@@ -2583,6 +2583,39 @@
       "credit": "Ansgar Koreng / CC BY-SA 3.0 (DE)",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer-platz-verkehrsturm",
+      "title": "File:Berlín en agosto de 2024 - BugWarp (45).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(45).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "BugWarp",
+      "credit": "BugWarp / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer-platz-verkehrsturm",
+      "title": "File:Semáforo histórico en Potsdamer Platz, Berlín 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_01.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Luis Alvaz",
+      "credit": "Luis Alvaz / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer-platz-verkehrsturm",
+      "title": "File:Semáforo histórico en Potsdamer Platz, Berlín 03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_03.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Luis Alvaz",
+      "credit": "Luis Alvaz / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

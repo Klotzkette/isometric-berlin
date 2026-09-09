@@ -1,4 +1,5 @@
 import type { Object3D } from "three";
+import { POTSDAMER_TOWER_ROOT_NAME } from "./potsdamerTrafficTowerProfile";
 import {
   FRIEDRICHSTADT_PALAST_MINECRAFT_NAME,
   setFriedrichstadtMinecraftPresentation,
@@ -13,6 +14,7 @@ export type MinecraftVisibilityRoots = {
 };
 
 const FULL_SIGNATURE_ALLOWLIST = new Set([
+  POTSDAMER_TOWER_ROOT_NAME,
   "drawn bridge structures",
   "Spreebogenpark landscape window",
   "Tilla-Durieux-Park lawn sculpture",

@@ -249,21 +249,17 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     );
   });
 
-  test("the Verkehrsturm rises at the surveyed Potsdamer Platz corner", () => {
+  test("the original Verkehrsturm source remains while its dedicated tower owns the geometry", () => {
     const entry = street.monuments!.find((candidate) => candidate.name.includes("Verkehrsturm"))!;
-    let towerTop = 0;
+    expect(entry.osm_key).toBe("way/241572310");
+    expect(monuments.userData.externallyModelledSourceKeys).toContain(entry.osm_key);
+    expect(monuments.userData.protectedExternallyModelledSourceKeys).toContain(entry.osm_key);
+    let duplicateVertices = 0;
     forEachMonumentVertex(monuments, (vertex) => {
-      if (
-        Math.abs(vertex.x - entry.x_dm / 10) < 4 &&
-        Math.abs(vertex.z - entry.z_dm / 10) < 4
-      ) {
-        towerTop = Math.max(towerTop, vertex.y);
-      }
-    }
-    );
-    // ~8.9 m tower head above the plaza (ground ≈ 34 m NHN offset).
-    const groundBounds = monumentBodyBounds(monuments);
-    expect(towerTop - groundBounds.min.y).toBeGreaterThan(7);
+      if (Math.abs(vertex.x - entry.x_dm / 10) < 3 && Math.abs(vertex.z - entry.z_dm / 10) < 3)
+        duplicateVertices++;
+    });
+    expect(duplicateVertices).toBe(0);
   });
   test("the Tiergarten's marble is drawn, not just its historic= tags", () => {
     // Most Tiergarten statuary is tagged tourism=artwork, not historic=*.

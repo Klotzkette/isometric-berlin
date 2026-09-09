@@ -4,6 +4,19 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
+import { worldCameraFarM } from "./worldCameraDepth";
+import {
+  createPotsdamerTrafficTower,
+  setPotsdamerTrafficTowerPresentation,
+  updatePotsdamerTrafficTower,
+} from "./PotsdamerTrafficTower";
+import { POTSDAMER_TOWER_ROOT_NAME } from "./potsdamerTrafficTowerProfile";
+import { updateVisiblePotsdamerTrafficTower } from "./potsdamerTrafficTowerMotion";
+import {
+  createProgressiveBuildingCoverage,
+  hideReplacedBuildingPreview,
+  restoreBuildingPreviews,
+} from "./progressiveBuildingCoverage";
 import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
 import { musicMuseumEntranceCanopyWalkableAt } from "./museumLenneProfile";
 import { domAltesExtraSolidAt, domAltesExtraGroundAt } from "./domAltesMuseumProfile";
@@ -655,6 +668,7 @@ type Runtime = {
   reportCoreProgress: (loaded: number, total: number) => void;
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
+  potsdamerTrafficTower: Group;
   tramCatenary: Group;
   cancelPanGlide?: () => void;
   isoWorld: Group | null;
@@ -775,6 +789,7 @@ function applyRuntimeMinecraftVisibility(
   applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   setWeidendammerBridgePresentation(runtime.signatures, runtime.lightingMode);
   setSandkrugBridgePresentation(runtime.signatures, runtime.lightingMode);
+  setPotsdamerTrafficTowerPresentation(runtime.potsdamerTrafficTower, runtime.lightingMode);
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
@@ -1904,6 +1919,11 @@ export function applySignatureLightingPresentation(
 ): void {
   setWeidendammerBridgePresentation(signatures, mode);
   setSandkrugBridgePresentation(signatures, mode);
+  const trafficTower = signatures.getObjectByName(POTSDAMER_TOWER_ROOT_NAME);
+  if (trafficTower instanceof Group) {
+    setIsoNightPresentation(trafficTower, mode === "night", lightsOn, mode);
+    setPotsdamerTrafficTowerPresentation(trafficTower, mode);
+  }
   applyLightingToRoot(signatures, mode, lightsOn);
 }
 
@@ -2115,6 +2135,8 @@ function setSceneLighting(
     runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
   }
   refreshSchwellenraumMovingFlagCount(runtime);
+  updatePotsdamerTrafficTower(runtime.potsdamerTrafficTower, performance.now() / 1000,
+    runtime.reducedMotion, mode !== "night" || lightsOn);
   if (runtime.trafficSignals) {
     updateTrafficSignals(
       runtime.trafficSignals,
@@ -2222,7 +2244,7 @@ function setSceneLighting(
       2600 * fovDollyScale(DEFAULT_FOV_DEGREES, targetFov);
     runtime.controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
     runtime.camera.position.copy(runtime.controls.target).add(offset);
-    runtime.camera.far = 16_000;
+    runtime.camera.far = worldCameraFarM(runtime.controls.maxDistance);
     runtime.camera.fov = targetFov;
     runtime.camera.updateProjectionMatrix();
   }
@@ -2633,7 +2655,7 @@ function primeRequestedWorldPayloads(
 }
 
 const PROGRESSIVE_WORLD_WARNING =
-  "Die verfeinerte Stadtgeometrie konnte nicht vollständig ergänzt werden; der bereits geladene exakte Nahbereich bleibt bedienbar.";
+  "Die Gebäudedetails konnten nicht vollständig ergänzt werden; die gesamte Stadt bleibt als 3D-Ansicht sichtbar und bedienbar.";
 
 function cancelScheduledProgressiveAttachment(runtime: Runtime): void {
   runtime.progressiveWorldAttachCancel?.();
@@ -2716,6 +2738,7 @@ function stopProgressiveWorld(runtime: Runtime): void {
   runtime.progressiveWorldWorker?.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
+  restoreBuildingPreviews(runtime.isoWorld);
   releaseProgressiveWorldBatches(runtime.progressiveWorldBatches, (batch) =>
     disposeObject3D(runtime, batch),
   );
@@ -2763,22 +2786,11 @@ function attachProgressiveWorldMessage(
     runtime.nightLightsOn,
     runtime.lightingMode,
   );
-  if (message.replaces) {
-    const replacedIndex = runtime.progressiveWorldBatches.findIndex(
-      (batch) => batch.userData.progressiveWorldBatchId === message.replaces,
-    );
-    if (replacedIndex >= 0) {
-      const [replaced] = runtime.progressiveWorldBatches.splice(
-        replacedIndex,
-        1,
-      );
-      disposeObject3D(runtime, replaced);
-    }
-  }
   object.userData.progressiveWorldBatch = true;
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
+  hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
   registerBerlinerEnsembleRoofSignTargets(runtime, object);
   // Water is commonly the first exact progressive surface batch. Install the
   // light-only Schwellenraum veil in this task, before a frame exposes an
@@ -3287,6 +3299,7 @@ function ensureIsoWorld(
             runtime.coarsePointer || progressiveInput ? null : undefined,
         },
       );
+      isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
       isoWorld.add(spree.createSpreeMuseumDetails());
       isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
       const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
@@ -5202,7 +5215,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 
-      const camera = new PerspectiveCamera(39, 1, 0.25, 6000);
+      const camera = new PerspectiveCamera(39, 1, 0.25, worldCameraFarM(2600));
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
       // One compact byte target is enough for the authored flat palette. The
       // final SMAA pass below owns edge smoothing on every device, avoiding
@@ -5246,6 +5259,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const signatures = new Group();
       signatures.name = "Dimensioned architectural signatures";
       scene.add(signatures);
+      const potsdamerTrafficTower = createPotsdamerTrafficTower(undefined, { mobileLike: coarsePointer });
+      signatures.add(potsdamerTrafficTower);
       const civicDetails = new Group();
       civicDetails.name = "Pending civic landmark details";
       scene.add(civicDetails);
@@ -5327,6 +5342,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         minecraftLootBoxes: null,
         minecraftMobs: null,
         monuments,
+        potsdamerTrafficTower,
         schwellenraumContentReady: false,
         schwellenraumInteriors,
         schwellenraumPraesentation,
@@ -6655,6 +6671,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const ordinaryEnvironmentFrameIntervalMs =
         environmentFrameIntervalMs(runtime.coarsePointer);
+      const trafficTowerScreen = new Vector3();
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -6682,6 +6699,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.coarsePointer,
         );
         const documentHidden = document.visibilityState === "hidden";
+        // Run before the passive-frame early return: a signal boundary must
+        // wake a still view. Keep invalidation until the actual render so a
+        // cadence limit cannot swallow the one changed phase.
+        if (updateVisiblePotsdamerTrafficTower(runtime.potsdamerTrafficTower,
+          camera, timestamp / 1000, reducedMotion,
+          runtime.lightingMode !== "night" || runtime.nightLightsOn,
+          documentHidden, runtime.underside, trafficTowerScreen)) {
+          runtime.renderInvalidated = true;
+        }
         const civicFlagsVisible =
           !reducedMotion &&
           !runtime.underside &&

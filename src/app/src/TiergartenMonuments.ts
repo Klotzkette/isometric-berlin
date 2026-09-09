@@ -1,3 +1,4 @@
+import { POTSDAMER_TRAFFIC_TOWER_PROFILE } from "./potsdamerTrafficTowerProfile";
 import { SOVIET_MEMORIAL_SOURCE } from "./SovietMemorialSource";
 import { DOM_ALTES_ARTWORK_KEYS } from "./domAltesMuseumIds";
 import {
@@ -44,8 +45,7 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * layer already models in full (Holocaust stelae field, Soviet War
  * Memorial with its T-34s, Sinti-und-Roma, Homosexuellen-Denkmal,
  * Goethe, Lessing, the composers, Zeugen Jehovas) are skipped here; this layer
- * adds everything else — the Potsdamer Platz Verkehrsturm replica,
- * the Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
+ * adds the remaining Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
  * Weiße Kreuze, the Grundgesetz-49 glass
  * panels, statues on plinths for Grimm/Bruno/Der Rufer, and
  * subtype-aware quiet markers. Positions, footprints and memorial types
@@ -67,7 +67,6 @@ const SOVIET_GREEN = 0x6b7a5c;
 const DARK_CUBE = 0x8f9497;
 const WHITE = 0xf2f2ee;
 const GLASS_BLUE = 0x5f9fc4;
-const TOWER_GREEN = 0x4a6b52;
 const MARBLE = 0xe8e5dc;
 const GRANITE_RED = 0x9d7a6e;
 const FLOWER_RED = 0xc95564;
@@ -2526,24 +2525,6 @@ function buildCannon(builder: Builder, x: number, y: number, z: number): void {
   box(builder, SOVIET_GREEN, x + 2.2, y + 2.1, z, 4.4, 0.32, 0.32);
 }
 
-/** The 1924 Verkehrsturm replica: the Potsdamer Platz light tower. */
-function buildVerkehrsturm(
-  builder: Builder,
-  x: number,
-  y: number,
-  z: number
-): void {
-  box(builder, TOWER_GREEN, x, y + 2.8, z, 0.55, 5.6, 0.55);
-  box(builder, TOWER_GREEN, x, y + 6.9, z, 2.5, 2.6, 2.5, Math.PI / 5);
-  box(builder, WHITE, x, y + 7.55, z, 2.62, 0.55, 2.62, Math.PI / 5);
-  const lampTones = [0xff453a, 0xffb63b, 0x30d158];
-  lampTones.forEach((tone, index) => {
-    box(builder, tone, x, y + 7 - index * 0.62, z + 1.32, 0.34, 0.34, 0.12);
-    box(builder, tone, x, y + 7 - index * 0.62, z - 1.32, 0.34, 0.34, 0.12);
-  });
-  box(builder, TOWER_GREEN, x, y + 8.5, z, 1.4, 0.8, 1.4, Math.PI / 5);
-}
-
 /** The Euthanasie (T4) memorial's long blue glass wall. */
 function buildBlueWall(builder: Builder, x: number, y: number, z: number): void {
   box(builder, DARK_CUBE, x, y + 0.15, z, 26, 0.3, 3.2);
@@ -2838,6 +2819,7 @@ export function createTiergartenMonuments(
       kindertransportAnchor = { groundYM: y, protected: isProtected };
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
     } else if (
+      entry.osm_key === POTSDAMER_TRAFFIC_TOWER_PROFILE.osmKey ||
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
@@ -2853,8 +2835,6 @@ export function createTiergartenMonuments(
       if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
-    } else if (/Verkehrsturm/i.test(name)) {
-      buildVerkehrsturm(builder, x, y, z);
     } else if (/Euthanasie|Aktion T4/i.test(name)) {
       buildBlueWall(builder, x, y, z);
     } else if (/Weiße Kreuze/i.test(name)) {

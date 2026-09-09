@@ -868,3 +868,17 @@ Its continuous grading, path cross-sections and planting details are display
 interpolation, not a new DGM survey. Raw ground, water and park payloads remain
 unchanged. Conflicts are appended to the fusion manifest; reference photographs
 remain external and credited individually.
+
+## Potsdamer Platz traffic tower (v1.0.12)
+
+The [traffic tower evidence](potsdamer-traffic-tower.md) preserves OSM way
+`241572310`, its six perimeter vertices and unrounded centroid. The modern
+replica uses the published 8.50 m total height, five open supports, glazed
+cabin, five clocks and horizontal lenses. The original source record remains;
+only its previous generic display is superseded. Local subdivisions and the
+36-second demonstration cycle are estimates, not a current controller survey.
+Three external Commons references are individually credited (258 records in
+each manifest). Source fusion adds one supplement and one explicit conflict;
+canonical features, original sources, bounds and the 93-place catalogue remain
+unchanged. Complete initial building coverage is a lifecycle/performance
+correction and does not change source geometry or data authority.

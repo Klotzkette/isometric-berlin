@@ -1563,3 +1563,28 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
     "Package server fallback does not verify/open/flush the 3D viewer: "
     f"{package_dir / 'serve-local.py'}" in release_readiness.collect_failures(tmp_path)
   )
+
+
+def test_object_animation_clock_does_not_weaken_world_quality_guard(
+  monkeypatch: pytest.MonkeyPatch,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_signal_clock", "scripts/check_release_readiness.py"
+  )
+  viewer_path = ROOT / "src/app/src/ThreeViewer.tsx"
+  original_read = Path.read_text
+  viewer = original_read(viewer_path, encoding="utf-8")
+  assert "timestamp / 1000" in viewer  # Requested signal clock, not quality LOD.
+  assert release_readiness.webgl_viewer_source_failures(ROOT) == []
+
+  def read_with_regression(path: Path, *args, **kwargs) -> str:
+    content = original_read(path, *args, **kwargs)
+    if path == viewer_path:
+      return content + "\nnextPixelRatioMode(timestamp / 1000);\n"
+    return content
+
+  monkeypatch.setattr(Path, "read_text", read_with_regression)
+  assert any(
+    "time/input-driven visual switch: nextPixelRatioMode(" in failure
+    for failure in release_readiness.webgl_viewer_source_failures(ROOT)
+  )

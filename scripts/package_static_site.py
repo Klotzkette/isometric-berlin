@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.11"
+PACKAGE_VERSION = "1.0.12"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,12 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.12: Die vollständige Stadt ist schon mit der ersten bedienbaren
+Ansicht räumlich sichtbar. Kompakte Gebäudehüllen bleiben bei Tabwechseln und
+stockender Detailverfeinerung erhalten; exakte Gebäude ersetzen sie lückenlos.
+Der historische Verkehrsturm am Potsdamer Platz erhält seine fünfeckige Form,
+offenen Stützen, Uhren und horizontalen, langsam wechselnden Lichtsignale.
+
 Neu in v1.0.11: BahnTower mit gebogener Glasfassade, gestaffeltem Dach,
 DB-Logo und durchgehend hellen Etagen bei Nacht. Musikinstrumentenmuseum
 mit korrigierten Dachhoehen, Oberlichtern und Eingangspavillon.
@@ -3982,6 +3988,12 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.12: The entire city has 3D coverage with the first interactive
+view. Compact building shells survive tab switches and stalled refinement;
+exact buildings replace them without gaps. The historical Potsdamer Platz
+traffic tower gains its pentagonal form, open supports, clocks and horizontal
+signals with a slow demonstration cycle.
 
 New in v1.0.11: BahnTower with curved glazing, stepped crown, DB sign
 and every floor brightly lit at night. Correct absolute roof heights,

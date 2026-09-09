@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.12
+
+- Step 10: publish complete, bounded building coverage before opening the
+  interactive view. Exact worker batches replace only their matching fallback;
+  tab suspension and worker failure no longer expose missing city districts.
+- Keep the current controls, architectural styling, source bounds and 93-place
+  catalogue. Extend the camera depth to include the opposite city boundary.
+- Reconstruct the Potsdamer Platz traffic tower at its mapped present position,
+  with pentagonal open supports, glazed cabin, clocks and horizontal signals.
+  All five styles include a slow illustrative signal cycle; exact present-day
+  controller timings are not claimed as measured.
+
 ## v1.0.11
 
 - **BahnTower.** Amtliche Dachstaffelung und gebogene Glasfassade am Potsdamer

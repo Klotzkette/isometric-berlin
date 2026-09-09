@@ -7,7 +7,8 @@
  * so RSS and steady-state scene counts represent the browser ownership model
  * instead of a build-and-discard microbenchmark.
  */
-import { Group, InstancedMesh, LineSegments, Mesh } from "three";
+import { Group, InstancedMesh, LineSegments, Mesh, type Object3D } from "three";
+import { createProgressiveBuildingCoverage, hideReplacedBuildingPreview } from "../src/progressiveBuildingCoverage";
 
 import {
   createIsometricCity,
@@ -24,6 +25,9 @@ import {
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   DESKTOP_TOTAL_BUILDING_LIMIT,
+  MOBILE_INITIAL_BUILDING_COUNT,
+  MOBILE_TOTAL_BUILDING_LIMIT,
+  type ProgressiveWorldWorkerInput,
   splitProgressiveBuildings,
   type ProgressiveWorldWorkerOutput,
 } from "../src/progressiveWorld";
@@ -40,6 +44,8 @@ const [prismPayload, ground, surfaces] = await Promise.all([
   Bun.file(`${meshRoot}/surface-polygons.json`).json() as Promise<SurfacePayload>,
 ]);
 
+const mobile = process.argv.includes("--mobile");
+const initialCount = mobile ? MOBILE_INITIAL_BUILDING_COUNT : DESKTOP_INITIAL_BUILDING_COUNT;
 const root = new Group();
 const startedAt = performance.now();
 let peakRss = process.memoryUsage.rss();
@@ -58,39 +64,52 @@ const worker = new Worker(
 );
 const buildingPartition = splitProgressiveBuildings(
   prismPayload.buildings,
-  DESKTOP_INITIAL_BUILDING_COUNT,
+  initialCount,
   undefined,
-  DESKTOP_TOTAL_BUILDING_LIMIT,
+  mobile ? MOBILE_TOTAL_BUILDING_LIMIT : DESKTOP_TOTAL_BUILDING_LIMIT,
+  !mobile,
 );
 const initialBuildings = buildingPartition.initial;
-const input = {
-  detailProfile: "full" as const,
-  groundUrl: new URL(GROUND_CONTEXT_FILE, sceneRootUrl).toString(),
-  initialBuildingCount: DESKTOP_INITIAL_BUILDING_COUNT,
+const sharedInput = {
+  initialBuildingCount: initialCount,
   prismUrl: new URL(PRISM_WORLD_FILE, sceneRootUrl).toString(),
-  surfacesUrl: new URL(SURFACE_WORLD_FILE, sceneRootUrl).toString(),
-  tunnel: null,
   type: "build" as const,
 };
-const postStartedAt = performance.now();
-worker.postMessage(input);
-const postInputMs = performance.now() - postStartedAt;
-
+const input: ProgressiveWorldWorkerInput = mobile
+  ? { ...sharedInput, detailProfile: "mobile" }
+  : {
+      ...sharedInput,
+      detailProfile: "full",
+      groundUrl: new URL(GROUND_CONTEXT_FILE, sceneRootUrl).toString(),
+      surfacesUrl: new URL(SURFACE_WORLD_FILE, sceneRootUrl).toString(),
+      tunnel: null,
+    };
 const previewStartedAt = performance.now();
 root.add(
   createIsometricCity(prismPayload, ground, null, surfaces, {
     buildings: initialBuildings,
+    detailProfile: mobile ? "mobile" : "full",
+    retainRasterAsphalt: true,
+    retainRasterWater: mobile,
     smoothSurfaces: null,
   }),
 );
+const coverageStartedAt = performance.now();
+root.add(createProgressiveBuildingCoverage(prismPayload, buildingPartition));
+const coverageCpuMs = performance.now() - coverageStartedAt;
 const previewCpuMs = performance.now() - previewStartedAt;
+const allBuildingsVisibleMs = performance.now() - startedAt;
+// Match production ordering: the complete preview exists before the worker
+// begins its fetch/build. No real browser paint/GPU upload is measured here.
+const postStartedAt = performance.now();
+worker.postMessage(input);
+const postInputMs = performance.now() - postStartedAt;
 
 let batchCount = 0;
 let buildingBatchCount = 0;
 let firstBatchArrivalMs: number | null = null;
 let firstBuildingArrivalMs: number | null = null;
 let firstExactBuildingArrivalMs: number | null = null;
-let allBuildingsVisibleMs: number | null = null;
 let allExactBuildingsReadyMs: number | null = null;
 let exactBuildingBatchCount = 0;
 let firstSurfaceBuildMs: number | null = null;
@@ -98,9 +117,6 @@ let maxAttachMs = 0;
 let maxBatchBytes = 0;
 let surfaceBatchCount = 0;
 const attachTimes: number[] = [];
-const attachedBatches = new Map<string, Group>();
-const buildingPreviews = new Set<string>();
-let distantBuildingsVisible = buildingPartition.omitted.length === 0;
 const batchTimeline: Array<{
   arrival_ms: number;
   id: string;
@@ -122,16 +138,6 @@ function descriptorBytes(value: unknown, seen = new Set<ArrayBuffer>()): number 
     total += descriptorBytes(child, seen);
   }
   return total;
-}
-
-function releaseBatch(batch: Group): void {
-  batch.removeFromParent();
-  batch.traverse((object) => {
-    if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
-    object.geometry.dispose();
-    if (object instanceof InstancedMesh) object.dispose();
-  });
-  batch.clear();
 }
 
 const complete = await new Promise<
@@ -157,18 +163,11 @@ const complete = await new Promise<
     firstBatchArrivalMs ??= arrivalMs;
     if (message.kind === "buildings") {
       firstBuildingArrivalMs ??= arrivalMs;
-      if (message.id === "buildings-distant") {
-        distantBuildingsVisible = true;
-        buildingBatchCount += 1;
-      } else if (message.id.startsWith("buildings-preview-")) {
-        buildingPreviews.add(message.id);
-      } else {
-        buildingBatchCount += 1;
-        exactBuildingBatchCount += 1;
-        firstExactBuildingArrivalMs ??= arrivalMs;
-        if (exactBuildingBatchCount === buildingPartition.remaining.length) {
-          allExactBuildingsReadyMs = arrivalMs;
-        }
+      buildingBatchCount += 1;
+      exactBuildingBatchCount += 1;
+      firstExactBuildingArrivalMs ??= arrivalMs;
+      if (exactBuildingBatchCount === buildingPartition.remaining.length) {
+        allExactBuildingsReadyMs = arrivalMs;
       }
     } else {
       surfaceBatchCount += 1;
@@ -184,22 +183,8 @@ const complete = await new Promise<
     const attachStartedAt = performance.now();
     const object = deserializeTransferredObject3D(message.object);
     setIsoNightPresentation(object as Group, false, true, "day");
-    if (message.replaces) {
-      const replaced = attachedBatches.get(message.replaces);
-      if (replaced) {
-        attachedBatches.delete(message.replaces);
-        releaseBatch(replaced);
-      }
-    }
     root.add(object);
-    attachedBatches.set(message.id, object as Group);
-    if (
-      distantBuildingsVisible &&
-      buildingPreviews.size === buildingPartition.remaining.length &&
-      allBuildingsVisibleMs === null
-    ) {
-      allBuildingsVisibleMs = performance.now() - startedAt;
-    }
+    hideReplacedBuildingPreview(root, message.replaces);
     const attachMs = performance.now() - attachStartedAt;
     attachTimes.push(attachMs);
     maxAttachMs = Math.max(maxAttachMs, attachMs);
@@ -226,14 +211,25 @@ const renderableStats: Array<{
   name: string;
   vertices: number;
 }> = [];
+function visibleInScene(object: Object3D): boolean {
+  for (let ancestor: Object3D | null = object; ancestor; ancestor = ancestor.parent) {
+    if (!ancestor.visible) return false;
+  }
+  return true;
+}
 root.traverse((object) => {
   object3DCount += 1;
   if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
   renderableCount += 1;
   const geometry = object.geometry;
-  drawCalls += Array.isArray(object.material)
-    ? Math.max(1, geometry.groups.length)
-    : 1;
+  if (visibleInScene(object)) {
+    drawCalls += Array.isArray(object.material)
+      ? Math.max(1, geometry.groups.length) : 1;
+  }
+  if (object instanceof InstancedMesh) {
+    geometryBytes += object.instanceMatrix.array.byteLength +
+      (object.instanceColor?.array.byteLength ?? 0);
+  }
   if (geometries.has(geometry)) return;
   geometries.add(geometry);
   const position = geometry.getAttribute("position");
@@ -275,6 +271,8 @@ const attachP95 =
 console.log(
   JSON.stringify(
     {
+      profile: mobile ? "mobile" : "full",
+      coverage_cpu_ms: Number(coverageCpuMs.toFixed(1)),
       batches: batchCount,
       batch_timeline: batchTimeline,
       all_buildings_visible_ms: Number(allBuildingsVisibleMs?.toFixed(1)),
@@ -309,7 +307,7 @@ console.log(
         vertices,
       },
       surface_batches: surfaceBatchCount,
-      temporary_building_preview_batches: buildingPreviews.size,
+      initial_coverage_batches: buildingPartition.remaining.length + (buildingPartition.omitted.length > 0 ? 1 : 0),
       worker_build_ms: Number(complete.build_ms.toFixed(1)),
       worker_reported_batches: complete.batches,
     },

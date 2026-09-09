@@ -547,6 +547,24 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "potsdamer_traffic_tower_v112",
+      "anchor_source": "Retained OpenStreetMap way/241572310 polygon, exact unrounded centroid and packaged official surface sample",
+      "geometry_ref": "src/app/src/potsdamerTrafficTowerProfile.ts",
+      "documentation_ref": "docs/potsdamer-traffic-tower.md",
+      "semantic_evidence": [
+        "https://www.openstreetmap.org/way/241572310",
+        "https://www.berlin.de/sen/uvk/presse/pressemitteilungen/2024/pressemitteilung.1512202.php",
+        "https://bildhauerei-in-berlin.de/bildwerk/verkehrsturm-7891/",
+        "https://www.potsdamerplatz.de/de/explore/verkehrsturm-ampel/",
+        "https://de.wikipedia.org/wiki/Verkehrsturm_am_Potsdamer_Platz"
+      ],
+      "conflicts": [
+        "potsdamer-traffic-tower-display-v112"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448625,6 +448643,23 @@
       "resolution": "Keep raw DGM/OSM payloads and all exact park, path and river records. Replace only bounded presentation surfaces with continuous paths, source-bound planting and lawns. Retain lower-path ordinates and the official upper-path envelope up to five metres higher; intermediate grading is display interpolation. Suppress only overlapping coarse display surfaces and use matching pedestrian support. Treat source-boundary float32 rounding within 0.1 mm as inside and recess the backing beneath the separate river lawn, avoiding edge spikes and overlapping triangles. Preserve original RLE colour seeds when splitting terrain runs.",
       "geometry_ref": "src/app/src/spreebogenBankProfile.ts",
       "documentation_ref": "docs/spreebogen-bank-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "potsdamer-traffic-tower-display-v112",
+      "kind": "coarse_generic_marker_vs_documented_replica",
+      "sources": [
+        "https://www.openstreetmap.org/way/241572310",
+        "https://www.berlin.de/sen/uvk/presse/pressemitteilungen/2024/pressemitteilung.1512202.php",
+        "https://bildhauerei-in-berlin.de/bildwerk/verkehrsturm-7891/",
+        "https://www.potsdamerplatz.de/de/explore/verkehrsturm-ampel/",
+        "https://de.wikipedia.org/wiki/Verkehrsturm_am_Potsdamer_Platz"
+      ],
+      "conflict": "Old square solid marker had vertically stacked permanently bright lamps and no five-clock/open-support composition. The retained mapped perimeter has six vertices; it does not survey all members of the five-sided tower. Exact current controller timings are unpublished in inspected evidence.",
+      "resolution": "Retain every source record and original perimeter; suppress only old generic geometry for way/241572310. Anchor an 8.50 m five-sided display to its full-precision centroid. Keep all local proportions, orientation and 36-second light demonstration explicitly approximate; use a separate native Minecraft counterpart and no photographic textures.",
+      "geometry_ref": "src/app/src/potsdamerTrafficTowerProfile.ts",
+      "documentation_ref": "docs/potsdamer-traffic-tower.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

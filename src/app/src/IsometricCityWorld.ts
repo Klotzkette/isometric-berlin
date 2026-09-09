@@ -1198,6 +1198,15 @@ function insideInterimOfficeFootprint(x: number, z: number): boolean {
   return inside;
 }
 
+// Reject distant points before testing every edge of this one local footprint.
+// Including the exact suppression margin preserves all near-boundary cases.
+const INTERIM_OFFICE_SUPPRESSION_BOUNDS = {
+  minX: Math.min(...INTERIM_OFFICE_FOOTPRINT_RING.map(([x]) => x)) - INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
+  maxX: Math.max(...INTERIM_OFFICE_FOOTPRINT_RING.map(([x]) => x)) + INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
+  minZ: Math.min(...INTERIM_OFFICE_FOOTPRINT_RING.map(([, z]) => z)) - INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
+  maxZ: Math.max(...INTERIM_OFFICE_FOOTPRINT_RING.map(([, z]) => z)) + INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
+};
+
 /**
  * True when a LoD2 footprint substantially overlaps the exact OSM outline of
  * the hand-built Amtssitz am Spreebogen. The 2026 building postdates the LoD2
@@ -1215,6 +1224,12 @@ export function isInterimOfficeFootprintSuppressed(
   for (const [xDm, zDm] of building.ring) {
     const x = xDm / 10;
     const z = zDm / 10;
+    if (
+      x < INTERIM_OFFICE_SUPPRESSION_BOUNDS.minX ||
+      x > INTERIM_OFFICE_SUPPRESSION_BOUNDS.maxX ||
+      z < INTERIM_OFFICE_SUPPRESSION_BOUNDS.minZ ||
+      z > INTERIM_OFFICE_SUPPRESSION_BOUNDS.maxZ
+    ) continue;
     const nearOutline = INTERIM_OFFICE_FOOTPRINT_RING.some(
       ([ax, az], index) => {
         const [bx, bz] =

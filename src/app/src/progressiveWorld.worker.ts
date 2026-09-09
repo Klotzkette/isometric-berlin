@@ -1,7 +1,6 @@
 import { Group } from "three";
 
 import {
-  createDistantBuildingShells,
   createIsometricCity,
   createSmoothSurfaces,
   type PrismPayload,
@@ -85,27 +84,6 @@ function yieldWorker(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-async function postBuildingPreviews(
-  prismPayload: PrismPayload,
-  buildingBatches: readonly PrismPayload["buildings"][],
-): Promise<number> {
-  for (let index = 0; index < buildingBatches.length; index += 1) {
-    const startedAt = performance.now();
-    const root = createDistantBuildingShells(
-      prismPayload,
-      buildingBatches[index],
-    );
-    root.userData.representation = "temporary complete-city preview";
-    await postBatch(
-      root,
-      "buildings",
-      `buildings-preview-${index + 1}`,
-      startedAt,
-    );
-  }
-  return buildingBatches.length;
-}
-
 async function postBuildingBatches(
   prismPayload: PrismPayload,
   buildingBatches: readonly PrismPayload["buildings"][],
@@ -181,20 +159,9 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     );
     prisms.buildings = [];
     partition.initial.length = 0;
-    if (partition.omitted.length > 0) {
-      const startedAt = performance.now();
-      await postBatch(
-        createDistantBuildingShells(prisms, partition.omitted),
-        "buildings",
-        "buildings-distant",
-        startedAt,
-      );
-      partition.omitted.length = 0;
-      batchCount += 1;
-      await yieldWorker();
-    }
-    batchCount += await postBuildingPreviews(prisms, partition.remaining);
-    await yieldWorker();
+    // The main preview already covers the entire city. Only exact refinement
+    // crosses the worker boundary; no duplicate shell construction or upload.
+    partition.omitted.length = 0;
     batchCount += await postBuildingBatches(prisms, partition.remaining);
     await waitForAttachedBatches();
     workerScope.postMessage({
@@ -225,20 +192,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   );
   prismPayload.buildings = [];
   partition.initial.length = 0;
-  if (partition.omitted.length > 0) {
-    const startedAt = performance.now();
-    await postBatch(
-      createDistantBuildingShells(prismPayload, partition.omitted),
-      "buildings",
-      "buildings-distant",
-      startedAt,
-    );
-    partition.omitted.length = 0;
-    batchCount += 1;
-  }
+  partition.omitted.length = 0;
   const buildingBatches = partition.remaining;
-  batchCount += await postBuildingPreviews(prismPayload, buildingBatches);
-  await yieldWorker();
 
   // The nearest exact batch does not depend on terrain or roads. Publish it
   // while those payloads are still decoding instead of serialising all work

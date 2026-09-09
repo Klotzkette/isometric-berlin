@@ -355,3 +355,15 @@ Four additional photographs were inspected externally; none is bundled.
 | BahnTower | [BahnTower0196.JPG](https://commons.wikimedia.org/wiki/File:BahnTower0196.JPG) | MaryG90 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | BahnTower | [Berlin potsdamer platz db haus atnight.jpg](https://commons.wikimedia.org/wiki/File:Berlin_potsdamer_platz_db_haus_atnight.jpg) | janine pohl | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | BahnTower | [Bahntower, Potsdamer Platz, Berlin, 141027, ako.jpg](https://commons.wikimedia.org/wiki/File:Bahntower,_Potsdamer_Platz,_Berlin,_141027,_ako.jpg) | Ansgar Koreng | [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/) |
+
+## Potsdamer Platz traffic tower v1.0.12
+
+These three inspected photographs remain external; no photograph or crop is
+included in the viewer. Each is recorded independently in both attribution
+manifests. See [evidence](../../docs/potsdamer-traffic-tower.md).
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [Berlín en agosto de 2024 - BugWarp (45).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(45).jpg) | BugWarp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| [Semáforo histórico en Potsdamer Platz, Berlín 01.jpg](https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_01.jpg) | Luis Alvaz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| [Semáforo histórico en Potsdamer Platz, Berlín 03.jpg](https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_03.jpg) | Luis Alvaz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
