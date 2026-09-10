@@ -1,10 +1,15 @@
-Isometric Berlin - Regierungsviertel 1.0.20
+Isometric Berlin - Regierungsviertel 1.0.21
 ==============================================
 
 Deutsch
 -------
 
-Neu in v1.0.20: Audio startet erst beim ersten Klick, Tastendruck oder Tippen.
+Neu in v1.0.21: Das mobile Modusmenü bleibt links unten erreichbar. Alle fünf
+Modi stehen oben; Scrollen durch die übrigen Aktionen schließt das Menü nicht.
+Gebäude in der Ferne behalten jetzt ihre Quellgrundrisse, Innenhöfe, Dachformen
+und Farben. Feine Fassadendetails folgen der Kamera über das gesamte Gebiet.
+
+Seit v1.0.20: Audio startet erst beim ersten Klick, Tastendruck oder Tippen.
 Die Seite bleibt davor ohne AudioContext; ein Tabwechsel startet keinen Ton.
 Bereits aktivierte Musik kann nach dem Zurückkehren weiterlaufen.
 
@@ -119,7 +124,7 @@ Echtes 3D startet per OPEN-3D-WINDOWS.bat, OPEN-3D-MAC.command oder
 start-linux.sh. Die 2D-Notansicht enthält Karte, Zoom/Verschieben,
 Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
-Version 1.0.20 hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
+Version 1.0.21 hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
 Bei jedem frischen Browserladen wechselt der Start deterministisch zwischen
 Reichstag, Bundeskanzleramt, Hauptbahnhof und Siegessäule; ein Sehenswürdigkeits-
@@ -129,7 +134,7 @@ Man kann nicht hindurchgehen, stirbt aber nie und wird nicht zurückgesetzt.
 OpenSeadragon hält mobil höchstens 32 Kacheln bei drei Ladern und am Desktop 64
 bei sechs. Beim Wechsel zur 2D-Karte wird WebGL überall freigegeben; die
 Renderziele bleiben mobil bei 1,35x / 3,2 MP und am Desktop bei 1,75x / 8,5 MP.
-Version 1.0.20 setzt den Fußgängermodus senkrecht unter die aktuelle
+Version 1.0.21 setzt den Fußgängermodus senkrecht unter die aktuelle
 Kameraposition; nur ausserhalb der gueltigen Welt dient der Kamera-Fokus als
 Rueckfall. Das Bundeswirtschaftsministerium an Sandkrugbrücke und
 Berlin-Spandauer Schifffahrtskanal erhält auf seinen amtlichen LoD2-Hüllen
@@ -137,7 +142,7 @@ Kanalraster, historische Invalidenhaus-Fenster, Gesimse und Eingänge. Auf dem
 Desktop lädt der Progressive-Worker seine unveränderten Welt-URLs selbst,
 liefert den nächstgelegenen Detailblock zuerst und überträgt Bounding-Spheres
 direkt mit den Geometrien.
-Version 1.0.20 rekonstruiert das Sozialgericht Berlin anhand der
+Version 1.0.21 rekonstruiert das Sozialgericht Berlin anhand der
 sechs bereitgestellten Fassadenfotos als warme ockerfarbene 4 + 3 + 4-Front.
 Die 58,038 m lange OSM-Arealgrenze bleibt ausdrücklich getrennt von der
 48,905 m langen LoD2-Gebäudewand und ihrem 15,392 m breiten Mittelrisalit.
@@ -149,7 +154,7 @@ werden weder gebündelt noch geladen. Smooth nutzt 3 Renderables / 30.005
 Vertices in Full und 3 / 19.338 mobil; Minecraft ergänzt ein einziges
 Instanz-Batch mit 244 beziehungsweise 196 Blöcken und vollständiger
 3-x-5-Pixel-Hausnummer 52.
-Version 1.0.20 baut das Beethoven-Haydn-Mozart-Denkmal als zehn
+Version 1.0.21 baut das Beethoven-Haydn-Mozart-Denkmal als zehn
 Meter hohen, dreiseitigen und an den Ecken abgestumpften „Musikerofen“ mit
 Granitunterbau, getöntem Marmor, drei Rundbogennischen und weißen Halbfiguren,
 Pilastern, Masken und Instrumenten, Schwänen, vergoldetem Schuppendach,
@@ -168,7 +173,7 @@ Skelette und vier Fuechse, mobil vier, zehn, drei und drei. Vier beziehungsweise
 benötigen zwei zusätzliche Instanz-Batches, öffnen einmalig bei Kontakt im
 Fußgängermodus und zeigen 1,35 Sekunden lang begrenztes Feuerwerk. Das
 geschützte Mahnmal bleibt in jedem Profil frei von Bäumen, Mobs und Loot.
-Version 1.0.20 gibt Europa-Center, Allianz-Haus, altem Café Kranzler
+Version 1.0.21 gibt Europa-Center, Allianz-Haus, altem Café Kranzler
 und Neuem Kranzler Eck, Bahnhof Zoo, Gedächtniskirche/Breitscheidplatz und
 Urania eigene quellengebundene Silhouetten und Fassadenrhythmen. Der
 City-West-Block nutzt vier zusammengeführte Ensembles mit 11 Renderables /
@@ -180,7 +185,7 @@ Friedrichstraße. Alle neuen Details sind foto- und texturfrei gebündelt und
 besitzen begrenzte Voll-/Mobilprofile. Friedrichstadt- und Tränenpalast nutzen
 zusammen voll 8 Renderables / 439 Instanzen / 5.329 gespeicherte / 16.873
 gerenderte Vertices und mobil 8 / 393 / 3.477 / 13.365.
-Version 1.0.20 hält die temporäre FUNBOX vollständig auf ihrer
+Version 1.0.21 hält die temporäre FUNBOX vollständig auf ihrer
 Darstellungsfläche zwischen Heidestraße, Minna-Cauer-Straße und Döberitzer
 Straße. Gezeichnete und Minecraft-Hülle haben mindestens 2,553 m Abstand zu
 den ausgelieferten OSM-basierten Straßenflächen, bleiben vom Nordportal des
@@ -190,7 +195,7 @@ gezeichneten Renderables mit 7.921 gerenderten Vertices und 62
 Minecraft-Blöcken. Offizielle Lage, Zeitraum, Größenordnung und Programm
 stammen von visitBerlin; die eingepasste Hülle ist nicht vermessene,
 prozedurale Darstellungsgeometrie.
-Version 1.0.20 gibt dem Geschichtspark Zellengefängnis Moabit ein
+Version 1.0.21 gibt dem Geschichtspark Zellengefängnis Moabit ein
 quellengebundenes, heutiges Gedenkstättenmodell mit roten Backsteinmauern. Der
 22-Punkt-Parkring, 19 Mauersegmente und das Panoptikum folgen exakten OSM-
 Geometrien. Vier Segmente behalten die expliziten 4 m von OSM-Weg 105495351;
@@ -208,7 +213,7 @@ Landschaftsplan wird weder nachgezeichnet noch gebündelt; Foto, Canvas-Bild,
 Thumbnail und Fototextur werden nicht geladen. Der Quellenkontext zu den im
 Nationalsozialismus inhaftierten Gegnern, darunter Albrecht Haushofer, bleibt
 dem heutigen Gedenkpark zugeordnet, ohne das abgerissene Gefängnis nachzubauen.
-Version 1.0.20 verankert das Richard-Wagner-Denkmal als 90.
+Version 1.0.21 verankert das Richard-Wagner-Denkmal als 90.
 navigierbare Sehenswürdigkeit am exakten OSM-Knoten 243487615 und bindet seine
 Identität an das Landesdenkmalamt-Teilobjekt 09046318,T,041. Der fehlerhaft
 geschlossene LoD2-Schutzdachkörper SR00009n und seine sechs massiven
@@ -223,7 +228,7 @@ Figurenhöhe. Lokale Figurengliederung, Dachquerschnitt, Bauteilabstände,
 Ausrichtung und Kollisionskörper sind nicht vermessene Darstellungswerte.
 Es werden weder Referenzfoto noch Thumbnail oder Fototextur gebündelt oder
 geladen.
-Version 1.0.20 macht die Weidendammer Brücke als 91.
+Version 1.0.21 macht die Weidendammer Brücke als 91.
 Sehenswürdigkeit anwählbar. Exakter OSM-Weg 6228081 bestimmt Mitte und Achse;
 das Berliner Brückeninventar bestimmt die heutige Hülle von 69,48 x 25,17 m,
 das Landesdenkmalamt-Objekt 09030074 das geschützte Dreifeld- und
@@ -237,14 +242,14 @@ Blöcken / 8.256 Instanz-Vertices beziehungsweise mobil 224 / 5.376. Fahrbahn,
 Gehwege und Zufahrten bleiben begehbar. Die kulturelle Biermann-Verbindung zum
 Brückenadler bleibt Metadatum; weder Liedtext noch Foto, Plan oder Textur wird
 kopiert oder geladen.
-Version 1.0.20 gibt dem Max-Liebermann-Haus, der Französischen und
+Version 1.0.21 gibt dem Max-Liebermann-Haus, der Französischen und
 der US-Botschaft sowie der Akademie der Künste vier getrennte, quellengebundene
 Fassaden über den erhaltenen LoD2-/OSM-Körpern. Die gezeichneten Varianten
 zeigen ihre charakteristischen Fenster-, Stein-, Eingangs-, Glas- und
 Erschließungsrhythmen in Tag, Nacht, Schneesturm und Schwellenraum; Minecraft
 nutzt dafür eine einzige grobe, opake Blocksignatur. Alle Details sind
 codebasiert, nicht vermessen und enthalten keine Fototextur.
-Version 1.0.20 rekonstruiert außerdem Goethe und Lessing an ihren
+Version 1.0.21 rekonstruiert außerdem Goethe und Lessing an ihren
 exakten OSM-Knoten als getrennte quellengebundene Tiergarten-Denkmäler. Goethe
 ist schneefrei 6,08 m hoch und behält 42 Zaunfelder sowie drei Zweiergruppen
 mit sechs Allegoriefiguren. Lessing ist schneefrei 7,00 m hoch und behält fünf
@@ -258,7 +263,7 @@ Vertices; Minecraft nutzt ein InstancedMesh mit 557 Blöcken und 13.368
 gerenderten Vertices, insgesamt sind 9 Renderables gespeichert. Schutzradien
 von 4,3 m und 2,95 m halten die Denkmäler geschlossen, während Core- und
 Zaunseiten-Kollision alle acht geprüften Anlaufrichtungen frei lässt.
-Version 1.0.20 verfeinert außerdem das Forum des ehemaligen Sony
+Version 1.0.21 verfeinert außerdem das Forum des ehemaligen Sony
 Center mit dem 24-teiligen Dachplan, Ringfachwerk, Seilen, geneigter Mittelstütze,
 sieben Auflagern, Klemmen, Licht, gegliederten Glasfassaden und Brunnen. Das
 TIPI am Kanzleramt behält die veröffentlichte 32 x 26 m Hülle, erhält aber ein
@@ -268,7 +273,7 @@ EICHHORN` bleibt in allen fünf Modi gut lesbar, in Minecraft als eigene
 Blockschrift. Die reine Anzeigezeile `NUR HEUTE ABEND` bleibt nur in den vier
 gezeichneten Modi sichtbar und wird in Minecraft nicht dupliziert. Beide Zeilen
 stammen nicht vom TIPI-Betreiber und behaupten kein aktuelles Programm.
-Version 1.0.20 verkleinert den offenen Dachring des Berliner
+Version 1.0.21 verkleinert den offenen Dachring des Berliner
 Ensemble auf fotoeingegrenzte 4,8 m und dreht ihn in allen fünf Modi einmal in
 120 Sekunden. Die Bewegung ist auf 12 Hz ohne Touch oder 8 Hz im
 mobilähnlichen Touch-Profil begrenzt und bleibt bei reduzierter Bewegung sowie
@@ -300,7 +305,7 @@ Skelette mit Bogen auf deterministischen, von behaltenen Bäumen freien und
 gedenkstättengeschützten Grasrouten laufen; mobil sind es drei, fünf und zwei.
 Das Mob-Feld bleibt in jedem Profil ein Renderdurchlauf und verschwindet
 außerhalb des Minecraft-Modus.
-Version 1.0.20 ergänzt außerdem die neue, vom vorhandenen
+Version 1.0.21 ergänzt außerdem die neue, vom vorhandenen
 Queer-Rainbow-Gedenkmodell getrennte CSD-Gedenkstelle am exakten OSM-Knoten
 14076715427. Französischer Ahorn, belaubte junge Krone, rundes Metallschutzgitter,
 wenige statische Pride-Fahnen, Kränze und Karten sowie die Regenbogenbank bleiben
@@ -309,7 +314,7 @@ Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Ma�
 und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
 kein Foto oder Screenshot gebündelt. Sie bleibt außerhalb des 93-Orte-Katalogs
 und ist keine 94. Tourstation.
-Version 1.0.20 versetzt 1.093 Ampelmasten an deterministische äußere
+Version 1.0.21 versetzt 1.093 Ampelmasten an deterministische äußere
 Straßenränder: 1.092 Quellpunkte in der modellierten Fahrbahn sowie einen
 Dezimeter-Randfall. 227 bereits sichere Masten bleiben am Quellort. Schema 7
 behält alle 1.328 OSM-Quellknoten samt
@@ -319,7 +324,7 @@ unbelegte Lücken im Straßennetz gelten nie als Insel. Nach
 Dezimeterquantisierung halten versetzte Masten mindestens 0,5 m Abstand zur
 Fahrbahn. Keine Ampel wird entfernt. Eine schemaspezifische Cache-Abfrage
 verhindert, dass alte Schema-6-Daten die Korrektur verdecken.
-Version 1.0.20 lässt genau neun amtliche Staatsfahnen in Tag, Nacht,
+Version 1.0.21 lässt genau neun amtliche Staatsfahnen in Tag, Nacht,
 Minecraft, Schneesturm und Schwellenraum leicht flattern: drei deutsche und
 eine europäische Fahne auf dem Reichstag, die deutsche und europäische
 Protokollfahne am Kanzleramt, die Fahne der Einheit, die Schweizer Fahne und
@@ -333,7 +338,7 @@ blockige Masten, zeigt darüber aber das bewegte Tuch ohne statische
 Block-Doppelung. Die frühere zusätzliche Denkmal-Kopie der Fahne der Einheit
 ist entfernt, ihr OSM-Quellbezug bleibt im eigenen maßstäblichen Modell
 erhalten.
-Version 1.0.20 richtet Hotel Adlon und Starbucks an ihren echten
+Version 1.0.21 richtet Hotel Adlon und Starbucks an ihren echten
 Pariser-Platz-Fassaden aus. Adlon folgt OSM-Relation 4582978, Außenweg 26041943
 und LoD2-Körper K00006ot; Rundbögen, Rustika, rotes Eingangsvordach,
 Balkonbänder, patiniertes Mansarddach, Gauben, Flaggen und offene Dachschrift
@@ -344,7 +349,7 @@ ersetzen die frühere diagonale grüne Blende. Minecraft verwendet dafür eine
 gemeinsame grobe, opake Blocksignatur. Vier frei lizenzierte Referenzen sind im
 öffentlichen Quellenpaket attribuiert; kein Foto wird als Fassadentextur
 gebündelt oder projiziert.
-Version 1.0.20 zeigt das als 93. Sehenswürdigkeit anwählbare
+Version 1.0.21 zeigt das als 93. Sehenswürdigkeit anwählbare
 Scharnhorst-Grab am exakten OSM-Knoten 273120316 mit der im Berlin-Lexikon
 veröffentlichten Gesamthöhe von 5,60 m: Schinkels zwei
 Architekturpfeiler und Eisengitter fassen den hohen Carrara-Marmorsarkophag,
@@ -373,7 +378,7 @@ Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
 Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
 Tunnelbeleuchtung über die Karte.
-Version 1.0.20 ergänzt außerdem eine Szenen-Detail-Ebene mit zwei
+Version 1.0.21 ergänzt außerdem eine Szenen-Detail-Ebene mit zwei
 transparenten isometrischen Wolken, Südwest-Sonnenlicht am späten Nachmittag,
 Wolkenschatten, Wasser-Tiefenakzenten, Tunnel-Zusatzästen, ICE, S-Bahn,
 Autos mit Nachtlichtkegeln, Flaggen, Spree-Ausflugsboot, Pariser-Platz-
@@ -384,11 +389,11 @@ diese Ebenen direkt. Beim Ziehen reduziert der Viewer teure SVG-Filter, damit
 sich Pan/Rotate/Swivel leichter anfühlen. Neu sind außerdem Glasglanz auf
 Reichstag, Hauptbahnhof und Kanzleramt, Wasser-Ripples, Tiergarten-Baumgruppen
 und kleine Wegakzente.
-Version 1.0.20 ergänzt einen gespeicherten Leichtmodus mit Taste P.
+Version 1.0.21 ergänzt einen gespeicherten Leichtmodus mit Taste P.
 Er schaltet teure Schatten, Filter und Wolkenanimationen herunter. Außerdem
 behält der Viewer beim Ändern der Fenstergröße Fokus, Zoom, Drehung, Swivel
 und Unterseitenansicht, statt auf die Übersicht zurückzuspringen.
-Version 1.0.20 kann außerdem gezielt mit URL-Parametern gestartet
+Version 1.0.21 kann außerdem gezielt mit URL-Parametern gestartet
 werden, etwa `START-HERE.html?lite=1&details=0&clouds=0` oder
 `START-HERE.html?lang=en&theme=night`. Wenn die schärfere Detailgrafik lokal
 nicht geladen werden kann, fällt der Viewer automatisch auf die Pixelgrafik
@@ -403,7 +408,7 @@ Querschnittsmarken. Von oben bleibt er verborgen; sichtbar wird er erst in der
 Unterseitenansicht. Die Geometrie nutzt
 ab v0.1.49 abgeleitete OSM-B96-Tunnel-Ways als Carriageway-Evidenz und bleibt
 eine Ingenieurannäherung; sie ist noch keine amtliche Bestandsvermessung.
-Version 1.0.20 formt den Tunnel weiter aus: Unterseitenmodus,
+Version 1.0.21 formt den Tunnel weiter aus: Unterseitenmodus,
 Portalrahmen, Deckenrippen, Fahrbahn-/Röhrenmarken und Servicebuchten laufen
 beim Drehen, Swiveln und Verschieben mit.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
@@ -446,7 +451,7 @@ Deutsch/Englisch umschaltbar. Taste B oder der Lautsprecherknopf startet und
 stoppt sieben lokal erzeugte 8-Bit-Musikvarianten; Musik bleibt standardmäßig
 aus. Taste D schaltet Tag/Nacht, Taste M Minecraft.
 
-In Version 1.0.20 ist die Minecraft-Hauptarchitektur bewusst gröber
+In Version 1.0.21 ist die Minecraft-Hauptarchitektur bewusst gröber
 und blockiger: 5.184 Signaturblöcke folgen einem 8-m-Hero-Raster.
 Beibehaltene Quellkörper von Reichstag, Kanzleramt und Parlamentsbauten werden
 vertikal in höchstens 8 m hohe Blockkurse geteilt; glatte Architektur-Overlays
@@ -454,7 +459,7 @@ bleiben im Minecraft-Modus ausgeblendet. Vorhandene Eingangsportale, offene
 Passagen sowie freie Dreh-, Schwenk-, Zoom-, Flug- und Fußgängernavigation
 bleiben erhalten.
 
-Im mobilen Touch-Profil begrenzt Version 1.0.20 den Minecraft-
+Im mobilen Touch-Profil begrenzt Version 1.0.21 den Minecraft-
 Speicher. Es gilt bei primärem oder beliebigem groben Zeiger sowie bei
 navigator.maxTouchPoints > 0. Der frühere Benchmark vor der Baum-Auswahl maß
 845,561 Instanzen / 63.265 MiB Instanzpuffer mobil und 3,419,412 / 249.815 MiB
@@ -501,7 +506,7 @@ erscheinen Wiederherstellung und 2D-Karte als ausdrückliche Auswahl.
 Nicht-Touch-Desktop behält die vollständige Architektur, reduziert aber seine
 Minecraft-Baeume ebenfalls deterministisch auf etwa fuenf Neuntel.
 
-Version 1.0.20 entfernt die 74 nie mehr dargestellten Foto-GLBs und
+Version 1.0.21 entfernt die 74 nie mehr dargestellten Foto-GLBs und
 den duplizierten Asphaltplatten-Cache vollständig. Alle 29.818
 Quellgebäude bleiben sichtbar: Desktop hält die nächsten 12.000,
 Mobil die nächsten 5.000 als exakte LoD2-Geometrie; der Rest wird
@@ -554,7 +559,7 @@ mittig pfeilerfreien Stahlkasten. Am Potsdamer Platz verankern 28 amtliche
 Leuchtenpositionen eine heutige Fußgängerachse mit gebündelten Belags- und
 Möblierungsdetails, ohne die vorhandene Leuchtenschicht zu duplizieren.
 
-Version 1.0.20 erweitert den sichtbaren Radius auf 6.450 m und
+Version 1.0.21 erweitert den sichtbaren Radius auf 6.450 m und
 ergänzt den rundum nochmals um 500 m erweiterten LoD2-/OSM-Datenring. Tram und
 Haltestelle am Hauptbahnhof, S15-Zugang,
 Washingtonplatz-Taxis, Futurium, die Bundesministerien, Parlament der Bäume,
@@ -626,7 +631,12 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.20: Audio starts on the first click, key press or tap.
+New in v1.0.21: The mobile mode menu remains accessible at bottom left. All
+five modes stay above the scrollable actions without accidental dismissal.
+Distant buildings retain source footprints, courts, roof-code forms and colors.
+Bounded exact facade detail follows the camera across the complete source area.
+
+Since v1.0.20: Audio starts on the first click, key press or tap.
 No AudioContext is created beforehand, and tab focus cannot start cold audio.
 Music that already played can resume when returning to the viewer.
 
@@ -737,7 +747,7 @@ first and clearly labels the server-free view as an optional 2D fallback. True
 The 2D fallback has the map, zoom/pan,
 reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
-Version 1.0.20 also adds Atlas/Cinematic/Lab visual profiles, a
+Version 1.0.21 also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
 Every fresh browser load deterministically advances among the Reichstag,
 Federal Chancellery, Hauptbahnhof and Victory Column; an explicit landmark link
@@ -747,14 +757,14 @@ resets the walker. OpenSeadragon keeps at most 32 tiles with three loaders on
 mobile and 64 with six on desktop. Switching to the 2D map releases WebGL
 everywhere; render targets stay within 1.35x / 3.2 MP on touch and 1.75x /
 8.5 MP on desktop.
-Version 1.0.20 enters pedestrian mode directly below the current
+Version 1.0.21 enters pedestrian mode directly below the current
 camera position; the orbit focus is only a fallback outside the valid world. The Federal
 Ministry for Economic Affairs at Sandkrugbrücke and the Berlin-Spandauer
 Schifffahrtskanal gains canal grids, historic Invalidenhaus windows, cornices
 and entrances on its official LoD2 shells. On desktop, the progressive Worker
 fetches immutable world URLs itself, returns the nearest detail batch first
 and transfers bounding spheres together with geometry.
-Version 1.0.20 reconstructs Sozialgericht Berlin from the six
+Version 1.0.21 reconstructs Sozialgericht Berlin from the six
 supplied facade photographs as a warm ochre 4 + 3 + 4 elevation. The 58.038 m
 OSM site boundary remains explicitly separate from the actual 48.905 m LoD2
 building wall and its 15.392 m central risalit. Arched windows, biforia, sills,
@@ -765,7 +775,7 @@ photographs remain reference-only and are neither bundled nor loaded. Smooth
 uses 3 renderables / 30,005 vertices in full and 3 / 19,338 on mobile;
 Minecraft adds one instanced batch with 244 or 196 blocks and a complete
 3-by-5-pixel address 52.
-Version 1.0.20 rebuilds the Beethoven-Haydn-Mozart memorial as its
+Version 1.0.21 rebuilds the Beethoven-Haydn-Mozart memorial as its
 ten-metre, three-sided, corner-chamfered “Musikerofen”, with granite base,
 tinted marble, three round-arched niches and white half figures, pilasters,
 masks and instruments, swans, a scaled gilded roof, pinecones and three putti
@@ -783,7 +793,7 @@ respectively on mobile. Four full-profile or two mobile loot boxes use
 two additional instance batches, open once on pedestrian contact and show a
 bounded 1.35-second firework. The protected memorial stays free of trees,
 hostile mobs and loot in every profile.
-Version 1.0.20 gives Europa-Center, Allianz-Haus, the historic Café
+Version 1.0.21 gives Europa-Center, Allianz-Haus, the historic Café
 Kranzler and New Kranzler Eck, Bahnhof Zoo, Memorial Church/Breitscheidplatz
 and Urania their own source-anchored silhouettes and facade rhythms.
 The City-West layer uses four merged ensembles with 11 renderables / 14,634
@@ -795,7 +805,7 @@ Friedrichstraße station. Every new detail is batched, image-free and bounded
 by separate full/mobile profiles. Friedrichstadt-Palast and Tränenpalast
 together use 8 renderables / 439 instances / 5,329 stored / 16,873 rendered
 vertices in full and 8 / 393 / 3,477 / 13,365 on mobile.
-Version 1.0.20 keeps the temporary FUNBOX completely on its display
+Version 1.0.21 keeps the temporary FUNBOX completely on its display
 lot between Heidestraße, Minna-Cauer-Straße and Döberitzer Straße. Its drawn
 and Minecraft envelopes retain at least 2.553 m clearance from the delivered
 OSM-derived road surfaces, stay clear of the northern Tiergartentunnel portal
@@ -804,7 +814,7 @@ footprint in full and mobile profiles. FUNBOX remains exactly 5 drawn
 renderables / 7,921 rendered vertices and 62 Minecraft blocks. visitBerlin
 supplies the official location, dates, scale and programme; the fitted envelope
 is procedural, non-surveyed display geometry.
-Version 1.0.20 gives the Geschichtspark Zellengefängnis Moabit a
+Version 1.0.21 gives the Geschichtspark Zellengefängnis Moabit a
 source-bound present-day memorial model with red-brick walls. Its 22-point park
 ring, 19 wall segments and Panoptikum follow exact OSM geometry. Four segments
 retain the explicit 4 m from OSM way 105495351; the other 15 use Berlin's
@@ -822,7 +832,7 @@ traced nor bundled; no photograph, canvas image, thumbnail or photographic
 texture is loaded. The sourced remembrance context for opponents imprisoned
 during National Socialism, including Albrecht Haushofer, remains attached to
 the present-day park without rebuilding the demolished prison.
-Version 1.0.20 anchors the Richard-Wagner-Denkmal as the 90th
+Version 1.0.21 anchors the Richard-Wagner-Denkmal as the 90th
 navigable sight at exact OSM node 243487615 and binds its identity to
 Landesdenkmalamt part object 09046318,T,041. The false closed LoD2 shelter
 SR00009n and its six solid Minecraft columns are removed. Day, Night,
@@ -836,7 +846,7 @@ and figure heights. Local figure segmentation, roof section, component
 spacing, orientation and collision volumes are non-surveyed display values.
 No reference photograph, thumbnail or photographic texture is bundled or
 loaded.
-Version 1.0.20 makes Weidendammer Brücke selectable as sight 91.
+Version 1.0.21 makes Weidendammer Brücke selectable as sight 91.
 Exact OSM way 6228081 controls its centre and axis; Berlin's bridge inventory
 controls the current 69.48 x 25.17 m envelope, and Landesdenkmalamt object
 09030074 controls the protected three-opening and ornamental system. Exactly
@@ -849,13 +859,13 @@ batch using 344 blocks / 8,256 rendered instance vertices, or 224 / 5,376 on
 mobile. Roadway, pavements and approaches stay walkable. Biermann's cultural
 association with the bridge eagle remains metadata; no song lyric, photograph,
 plan or texture is copied or loaded.
-Version 1.0.20 gives the Max-Liebermann-Haus, French Embassy, US
+Version 1.0.21 gives the Max-Liebermann-Haus, French Embassy, US
 Embassy and Akademie der Künste four separate source-bounded facades over their
 retained LoD2/OSM bodies. Drawn variants carry their characteristic window,
 stone, entrance, glass and circulation rhythms in Day, Night, Snowstorm and
 Schwellenraum; Minecraft uses one coarse opaque block signature. Every detail
 is code-native, non-surveyed and free of photographic facade textures.
-Version 1.0.20 also reconstructs Goethe and Lessing at their exact
+Version 1.0.21 also reconstructs Goethe and Lessing at their exact
 OSM nodes as separate, source-bound Tiergarten memorials. Snow-free Goethe is
 6.08 m high and retains 42 fence fields plus three paired groups with six
 allegorical figures. Snow-free Lessing is 7.00 m high and retains five steps,
@@ -869,7 +879,7 @@ InstancedMesh with 557 blocks and 13,368 rendered vertices, for 9 stored
 renderables overall. Protection radii of 4.3 m and 2.95 m keep the memorials
 closed while core and fence-side collision leaves all eight sampled approach
 directions open.
-Version 1.0.20 also deepens the former Sony Center Forum with its
+Version 1.0.21 also deepens the former Sony Center Forum with its
 24-part roof plan, ring lattice, cables, tilted kingpost, seven supports,
 clamps, light, articulated glass facades and fountain. TIPI am Kanzleramt keeps
 the published 32 x 26 m envelope but gains an eight-peak roof, 48 ribs,
@@ -878,7 +888,7 @@ headline was authored by the user/project owner, not by the venue, and stays
 legible in all five modes, including separate Minecraft block lettering. The
 presentation-only `NUR HEUTE ABEND` line remains in the four drawn modes and is
 not duplicated in Minecraft.
-Version 1.0.20 reduces the Berliner Ensemble open roof ring to a
+Version 1.0.21 reduces the Berliner Ensemble open roof ring to a
 photo-bounded 4.8 m and turns it once every 120 seconds in all five modes.
 Motion is capped at 12 Hz without touch or 8 Hz in the mobile-like touch
 profile and freezes for reduced-motion, distant, hidden, off-screen or
@@ -908,7 +918,7 @@ Minecraft lets exactly four Creepers, six Zombies and three bow-carrying
 Skeletons roam deterministic, retained-tree-cleared and memorial-protected
 grass routes in the full profile; mobile uses three, five and two. Every
 profile keeps the mob field to one draw call and hides it outside Minecraft.
-Version 1.0.20 also adds the new CSD memorial place at exact OSM
+Version 1.0.21 also adds the new CSD memorial place at exact OSM
 node 14076715427, separately from the existing Queer Rainbow memorial model.
 Its French maple, already leafed young crown, round metal guard, sparse static
 Pride flags, wreaths and cards, and rainbow bench remain visible in Day, Night,
@@ -916,7 +926,7 @@ Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
 descriptive facts are fixed; all local dimensions and arrangements are
 photo-bounded, non-surveyed display values. No photograph or screenshot is
 bundled. It remains outside the 93-place catalogue and is not a 94th tour stop.
-Version 1.0.20 moves 1,093 traffic-signal poles to deterministic
+Version 1.0.21 moves 1,093 traffic-signal poles to deterministic
 exterior verges: 1,092 source points in the modelled carriageway plus one
 decimetre edge case. 227 already-safe poles stay at source. Schema 7 retains
 all 1,328 source OSM nodes and their
@@ -926,7 +936,7 @@ unverified road-network gaps never count as islands. After decimetre
 quantisation, every moved pole stays at least 0.5 m clear of the road. No
 signal is removed. A schema-specific cache query prevents stale schema-6 data
 from masking the correction.
-Version 1.0.20 gives exactly nine official state flags a gentle
+Version 1.0.21 gives exactly nine official state flags a gentle
 flutter in Day, Night, Minecraft, Snowstorm and Schwellenraum: three German
 and one European flag on the Reichstag, the German and European protocol flags
 at the Chancellery, the Flag of Unity, the Swiss flag and the Federal
@@ -938,7 +948,7 @@ icicles follow the same gentle wind. Minecraft retains blocky masts but shows
 the moving cloth without static block duplicates. The former extra monument
 copy of the Flag of Unity is removed while its OSM source identity remains in
 the dedicated metric model.
-Version 1.0.20 aligns Hotel Adlon and Starbucks to their real
+Version 1.0.21 aligns Hotel Adlon and Starbucks to their real
 Pariser-Platz frontages. Adlon follows OSM relation 4582978, outer way
 26041943 and LoD2 body K00006ot; arches, rustication, wine-red entrance canopy,
 balcony bands, patinated mansard, dormers, flags and open roof lettering form
@@ -948,7 +958,7 @@ grey facade lettering and freestanding black terrace cues replace the former
 diagonal green fascia. Minecraft uses one shared coarse, opaque block
 signature. Four openly licensed references are attributed in the public source
 package; no photograph is bundled or projected as a facade texture.
-Version 1.0.20 renders Scharnhorst's grave, selectable as sight 93,
+Version 1.0.21 renders Scharnhorst's grave, selectable as sight 93,
 at exact OSM node 273120316 to the 5.60 m overall height published by the
 Berlin-Lexikon: Schinkel's two architectural piers and iron railing frame the
 high Carrara-marble sarcophagus, Tieck relief
@@ -976,7 +986,7 @@ It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
 Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
-Version 1.0.20 also adds a scene-detail layer with two translucent
+Version 1.0.21 also adds a scene-detail layer with two translucent
 isometric clouds, southwest late-afternoon sunlight, cloud shadows, water-depth
 accents, tunnel branch hints, an ICE, an S-Bahn, cars with night light beams,
 flags, a Spree tour boat, Pariser Platz visitors / pedicab cues and
@@ -986,10 +996,10 @@ the other offline preferences. Keys G and C switch those layers directly. While
 dragging, the viewer reduces costly SVG filters so pan/rotate/swivel feels
 lighter. This version also adds glass glints for the Reichstag, Hauptbahnhof
 and Chancellery, water ripples, Tiergarten tree clusters and small path accents.
-Version 1.0.20 adds a saved Lite mode on key P. It reduces expensive
+Version 1.0.21 adds a saved Lite mode on key P. It reduces expensive
 shadows, filters and cloud animation. Window resizing now preserves focus, zoom,
 rotation, swivel and underside view instead of snapping back to the overview.
-Version 1.0.20 can also start with URL parameters such as
+Version 1.0.21 can also start with URL parameters such as
 `START-HERE.html?lite=1&details=0&clouds=0` or
 `START-HERE.html?lang=en&theme=night`. If the sharper detail image cannot be
 loaded locally, the viewer automatically falls back to the pixel image.
@@ -1003,7 +1013,7 @@ and cross-section markers. It stays hidden from above and appears only in the
 underside view. Starting with v0.1.49, the geometry uses
 derived OSM B96 tunnel ways as carriageway evidence and remains an engineering
 approximation; it is not yet official surveyed as-built geometry.
-Version 1.0.20 further shapes the tunnel with an underside mode,
+Version 1.0.21 further shapes the tunnel with an underside mode,
 portal frames, ceiling ribs, lane/tube marks and service bays that stay attached
 while the map is rotated, swivelled and panned.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
@@ -1046,7 +1056,7 @@ ambient variants. T or the note button controls the independent procedural
 browsers may require the first click, touch or key gesture before either layer
 becomes audible. D toggles Day/Night and M toggles Minecraft.
 
-In version 1.0.20, Minecraft's principal architecture is
+In version 1.0.21, Minecraft's principal architecture is
 deliberately coarser and more block-like: 5,184 signature blocks
 follow an 8 m hero raster. Retained Reichstag, Chancellery and parliamentary
 source bodies are split vertically into block courses no taller than 8 m;
@@ -1054,7 +1064,7 @@ smooth architectural overlays stay hidden in Minecraft. Existing entrance
 portals, open passages and free orbit, pan, zoom, flight and pedestrian
 navigation remain available.
 
-Version 1.0.20 bounds Minecraft in the mobile-like touch profile,
+Version 1.0.21 bounds Minecraft in the mobile-like touch profile,
 which applies when the primary or any pointer is coarse or
 navigator.maxTouchPoints > 0. The earlier pre-retention benchmark measured
 845,561 instances / 63.265 MiB of instance buffers on mobile and 3,419,412 /
@@ -1096,7 +1106,7 @@ second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop
 keeps complete architecture while deterministically retaining about five ninths of
 its Minecraft trees as well.
 
-Version 1.0.20 removes all 74 retired photographic GLBs and the
+Version 1.0.21 removes all 74 retired photographic GLBs and the
 duplicated asphalt-plate cache. All 29,818 source buildings
 remain visible: desktop keeps the nearest 12,000 and mobile the
 nearest 5,000 as exact LoD2 geometry, while an oriented,
@@ -1145,7 +1155,7 @@ At Potsdamer Platz, 28 official light positions anchor a present-day pedestrian
 axis with batched paving and furniture details without duplicating the existing
 lamp layer.
 
-Version 1.0.20 extends the visible radius to 6,450 m and carries an
+Version 1.0.21 extends the visible radius to 6,450 m and carries an
 additional 500 m LoD2/OSM data ring on every side. Futurium now follows its
 exact Berlin LoD2 footprint and height, while
 its cassette skin, panoramic end windows, roof basin, solar field, Skywalk and
