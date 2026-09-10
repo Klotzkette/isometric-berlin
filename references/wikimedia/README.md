@@ -378,3 +378,16 @@ bundled nor loaded by the viewer. Procedural dimensions are display fits.
 | Reference | Author | License |
 | --- | --- | --- |
 | [Berlin Siegessaeule Victoria.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Siegessaeule_Victoria.jpg), 29 May 2003 | AlterVista | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+
+## v1.0.25 external reference additions
+
+These inspected photographs guide the CDU facade and Wagner canopy/figure
+refinements. They remain external references, individually credited in both
+manifests; no image, crop or photographic texture is bundled or loaded.
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [20220812 Richard-Wagner-Denkmal Berlin.jpg](https://commons.wikimedia.org/wiki/File%3A20220812_Richard-Wagner-Denkmal_Berlin.jpg) | Flocci Nivis | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| [2019-05-05-Richard-Wagner-Denkmal-1.jpg](https://commons.wikimedia.org/wiki/File%3A2019-05-05-Richard-Wagner-Denkmal-1.jpg) | Gunnar Klack | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| [141101 Berlin Konrad-Adenauer-Haus.jpg](https://commons.wikimedia.org/wiki/File%3A141101_Berlin_Konrad-Adenauer-Haus.jpg) | Ansgar Koreng | [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/) |
+| [Berlin Konrad-Adenauer-Haus-20241207-RM-102533.jpg](https://commons.wikimedia.org/wiki/File%3ABerlin_Konrad-Adenauer-Haus-20241207-RM-102533.jpg) | Reinhold Möller (Ermell) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |

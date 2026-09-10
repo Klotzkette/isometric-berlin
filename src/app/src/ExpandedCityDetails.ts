@@ -1,3 +1,4 @@
+import { createKonradAdenauerHaus } from "./KonradAdenauerHaus";
 import { POTSDAMER_PANORAMA_LANDSCAPE } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
@@ -1965,100 +1966,6 @@ function addPankeMouthFishPass(builder: Builder): void {
   }
 }
 
-function addKonradAdenauerHaus(builder: Builder): void {
-  const profile = KONRAD_ADENAUER_HAUS_PROFILE;
-  const ring = profile.footprintWorldM;
-  const glassBodyTopY = profile.groundY + profile.eavesHeightM;
-
-  // The glass panes stay open in the merged flat-shaded batch so the timber
-  // body remains visible. The exact pointed OSM hull is carried by a warm
-  // travertine plinth, a slim roof plate and the four-storey frame register.
-  addPolygonPrism(
-    builder,
-    0xc9c0ad,
-    ring,
-    profile.groundY,
-    profile.travertinePlinthHeightM,
-  );
-  addPolygonPrism(builder, 0xb8ced0, ring, glassBodyTopY - 0.18, 0.18);
-  addTierFacadeGrid(
-    builder,
-    ring,
-    profile.groundY,
-    glassBodyTopY,
-    profile.glassEnvelopeStoreys,
-    0x59696b,
-    2.35,
-  );
-
-  // The elliptical timber-clad inner body is the principal spatial motif. It
-  // is deliberately inset from the exact hull, leaving the winter garden
-  // visibly open instead of filling it with the former LoD2 concrete prism.
-  const inner = new CylinderGeometry(1, 1, profile.innerBodyLowerHeightM, 48);
-  inner.scale(profile.innerBodyLengthM / 2, 1, profile.innerBodyDepthM / 2);
-  inner.rotateY(profile.innerBodyRotationY);
-  inner.translate(
-    profile.innerBodyCenterWorldM[0],
-    profile.groundY + profile.innerBodyLowerHeightM / 2,
-    profile.innerBodyCenterWorldM[1],
-  );
-  addCustomGeometry(builder, inner, 0xa88d69);
-
-  // Continuous timber floor bands make the six-level organisation readable
-  // through the transparent climate-buffer frame without fabricating doors
-  // or party signage.
-  for (let level = 1; level <= 4; level += 1) {
-    const band = new TorusGeometry(16.8, 0.1, 5, 64);
-    band.rotateX(Math.PI / 2);
-    band.scale(1.48, 1, 0.86);
-    band.rotateY(profile.innerBodyRotationY);
-    band.translate(
-      profile.innerBodyCenterWorldM[0],
-      profile.groundY + level * 3.1,
-      profile.innerBodyCenterWorldM[1],
-    );
-    addCustomGeometry(builder, band, 0x536163, false);
-  }
-
-  // Two successively smaller upper decks rise above the four-storey glass
-  // eaves and taper like a ship's superstructure.
-  for (const [storey, lengthM, depthM, offsetX, offsetZ, tone] of [
-    [0, 45, 23.6, -0.55, -0.38, 0xd7d0be],
-    [1, 39.6, 19.2, -1.05, -0.72, 0xc5c7c1],
-  ] as const) {
-    const upper = new CylinderGeometry(1, 1, 4, 48);
-    upper.scale(lengthM / 2, 1, depthM / 2);
-    upper.rotateY(profile.innerBodyRotationY);
-    upper.translate(
-      profile.innerBodyCenterWorldM[0] + offsetX,
-      glassBodyTopY + 2 + storey * 4,
-      profile.innerBodyCenterWorldM[1] + offsetZ,
-    );
-    addCustomGeometry(builder, upper, tone);
-
-    const accent = new TorusGeometry(16.8, 0.11, 6, 64);
-    accent.rotateX(Math.PI / 2);
-    accent.scale(lengthM / 33.6, 1, depthM / 33.6);
-    accent.rotateY(profile.innerBodyRotationY);
-    accent.translate(
-      profile.innerBodyCenterWorldM[0] + offsetX,
-      glassBodyTopY + storey * 4 + 0.16,
-      profile.innerBodyCenterWorldM[1] + offsetZ,
-    );
-    addCustomGeometry(builder, accent, 0x4e5b5c, false);
-  }
-
-  const roofRail = new TorusGeometry(16.8, 0.09, 5, 64);
-  roofRail.rotateX(Math.PI / 2);
-  roofRail.scale(1.15, 1, 0.55);
-  roofRail.rotateY(profile.innerBodyRotationY);
-  roofRail.translate(
-    profile.innerBodyCenterWorldM[0] - 1.05,
-    glassBodyTopY + 8.28,
-    profile.innerBodyCenterWorldM[1] - 0.72,
-  );
-  addCustomGeometry(builder, roofRail, 0x4e5b5c, false);
-}
 
 function addGableRoofShell(
   builder: Builder,
@@ -6209,17 +6116,7 @@ export function createExpandedCityDetails(
     group.add(pankeMouth);
   }
 
-  const konradAdenauerBuilder = createBuilder();
-  addKonradAdenauerHaus(konradAdenauerBuilder);
-  const konradAdenauerHaus = finishDrawnGroup(konradAdenauerBuilder, {
-    lampEmissive: 0xffd89a,
-    lampEmissiveIntensity: 0.45,
-    name: "Konrad-Adenauer-Haus glass envelope",
-  });
-  if (konradAdenauerHaus) {
-    konradAdenauerHaus.userData = KONRAD_ADENAUER_HAUS_PROFILE;
-    group.add(konradAdenauerHaus);
-  }
+  group.add(createKonradAdenauerHaus());
 
   group.add(createCityWestDetails(options.detailProfile ?? "full"));
 

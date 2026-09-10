@@ -1,3 +1,4 @@
+import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
 import { createMinecraftDbTowerArchitecture } from "./DbTowerArchitecture";
 import { isDbTowerReplacementColumn } from "./dbTowerProfile";
 import { createMinecraftSpreebogenPark } from "./SpreebogenPark";
@@ -2670,6 +2671,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftHumboldthafenDetails(payload));
   group.add(createMinecraftZollpackhofDetails());
+  group.add(createMinecraftKonradAdenauerHaus());
   yield;
   group.add(createMinecraftArchitecturalLandmarks());
   yield;
@@ -2766,6 +2768,7 @@ export function* buildMinecraftVoxelWorldSteps(
         (y1dm - y0dm) / 10,
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !konradAdenauerFootprintContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isEconomicMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&

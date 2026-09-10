@@ -4255,6 +4255,50 @@
       "credit": "AlterVista, 2003-05-29 / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "richard_wagner",
+      "title": "File:20220812 Richard-Wagner-Denkmal Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A20220812_Richard-Wagner-Denkmal_Berlin.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "artist": "Flocci Nivis",
+      "credit": "Flocci Nivis / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "richard_wagner",
+      "title": "File:2019-05-05-Richard-Wagner-Denkmal-1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A2019-05-05-Richard-Wagner-Denkmal-1.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "konrad_adenauer_haus",
+      "title": "File:141101 Berlin Konrad-Adenauer-Haus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A141101_Berlin_Konrad-Adenauer-Haus.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "konrad_adenauer_haus",
+      "title": "File:Berlin Konrad-Adenauer-Haus-20241207-RM-102533.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Konrad-Adenauer-Haus-20241207-RM-102533.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Reinhold Möller (Ermell)",
+      "credit": "Reinhold Möller (Ermell) / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

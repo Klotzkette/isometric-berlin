@@ -481,7 +481,7 @@ isometric-berlin/
   monument part `09046318,T,041`. Day, Night, Snowstorm and Schwellenraum share
   its source-bound drawn root; Minecraft substitutes a block-native reading.
   The former closed LoD2 shelter `SR00009n` stays removed. Smooth presentation
-  is frozen at 6 renderables / 12,167 rendered vertices; Minecraft is one batch
+  is frozen at 6 renderables / 26,304 rendered vertices; Minecraft is one batch
   / 514 blocks. Front, rear, side and high shelter approaches remain open,
   collision follows only authored granular solids, and no reference photograph
   or photographic texture is loaded by the viewer.

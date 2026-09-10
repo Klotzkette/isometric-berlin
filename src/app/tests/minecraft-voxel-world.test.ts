@@ -146,7 +146,9 @@ describe("true voxel Minecraft world", () => {
     // v1.0.11 replaces the BahnTower and all15 music museum parts.
     // v1.0.14 replaces the ministry's six coarse source bodies and their panes.
     // v1.0.22 replaces fallback-height TIPI tents with source-bound canvas pavilions.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_579_434);
+    // v1.0.25 replaces the CDU winter garden's 149 false solid columns
+    // and their 264 generic exterior panes with an open block-native hull.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_579_170);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -157,9 +159,9 @@ describe("true voxel Minecraft world", () => {
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
     // Serra's open plate model removes one false source column in both profiles.
-    expect(instanced("Voxel building columns", world).count).toBe(1_462_180);
+    expect(instanced("Voxel building columns", world).count).toBe(1_461_733);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      534_700,
+      534_551,
     );
 
     const landmarks = world.getObjectByName(
@@ -495,16 +497,14 @@ describe("true voxel Minecraft world", () => {
     const focus = WAGNER_MEMORIAL_PROFILE.minecraftFocus;
     expect(focus).toEqual({
       azimuthDegrees: -6,
-      distanceM: 21.25,
+      distanceM: 31,
+      fovDegrees: 39,
       polarDegrees: 82,
       targetHeightM: 4,
     });
 
-    // Focus distances are authored for the 39-degree photographic lens. The
-    // viewer applies this same dolly factor when Minecraft switches to 16°.
-    const dollyScale =
-      Math.tan(MathUtils.degToRad(39) / 2) /
-      Math.tan(MathUtils.degToRad(16) / 2);
+    // The monument opts into its physical 39-degree close lens. The viewer
+    // must not dolly this position back into the embassy/tree corridor.
     const target = new Vector3(...WAGNER_MEMORIAL_PROFILE.worldM);
     target.y += focus.targetHeightM;
     const camera = target
@@ -512,7 +512,7 @@ describe("true voxel Minecraft world", () => {
       .add(
         new Vector3().setFromSpherical(
           new Spherical(
-            focus.distanceM * dollyScale,
+            focus.distanceM,
             MathUtils.degToRad(focus.polarDegrees),
             MathUtils.degToRad(focus.azimuthDegrees),
           ),
@@ -564,9 +564,10 @@ describe("true voxel Minecraft world", () => {
         }
       }
     }
-    expect(vegetationBoxes.some(({ kind }) => kind === "trunk")).toBe(true);
-    // Lighter tree cover may clear every nearby crown; retain the exact
-    // visibility sweep over all remaining trunks/crowns in the envelope.
+    // The physical 39-degree camera can clear the entire local tree
+    // envelope. Verify source trees still exist, then sweep any candidates
+    // retained by the conservative camera-to-monument bounds.
+    expect(instanced("Voxel tree trunks", world).count).toBeGreaterThan(0);
     expect(instanced("Voxel tree crowns", world).count).toBeGreaterThan(0);
 
     const ray = new Ray();

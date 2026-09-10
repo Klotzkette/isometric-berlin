@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.24/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.25/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,16 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.24** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.25** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.25 refines the CDU headquarters and the marble Richard Wagner
+memorial with its deep transparent protective vault. The Venusbassin location
+was verified against current OSM and official Berlin aerial imagery.
+
+Version 1.0.25 verfeinert die CDU-Bundeszentrale und das marmorne Richard-Wagner-
+Denkmal mit seinem tiefen transparenten Schutzgewölbe. Die Lage des Venusbassins
+wurde mit aktuellem OSM und dem amtlichen Berliner Luftbild abgeglichen.
 
 Version 1.0.24 rotates through six opening views: beside Goldelse, at Richard
 Serra's Berlin Junction, in front of the Reichstag, on Pariser Platz facing the

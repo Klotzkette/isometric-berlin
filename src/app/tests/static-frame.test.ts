@@ -467,6 +467,11 @@ describe("idle-frame anti-flicker contract", () => {
   });
 
   test("keeps Richard Wagner readable when switching between smooth and Minecraft worlds", () => {
+    const wagnerFocusSource = viewerSource.slice(
+      viewerSource.indexOf("function wagnerMemorialFocusCamera"),
+      viewerSource.indexOf("function composerMemorialFocusCamera"),
+    );
+    expect(wagnerFocusSource).toContain("fov_degrees: focus.fovDegrees");
     expect(viewerSource).toContain(
       "wagnerMemorialFocusCamera(runtime.lightingMode)",
     );

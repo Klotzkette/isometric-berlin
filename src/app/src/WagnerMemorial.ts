@@ -18,6 +18,7 @@ import {
   Quaternion,
   SphereGeometry,
   TorusGeometry,
+  Uint8BufferAttribute,
   Vector3,
 } from "three";
 
@@ -52,7 +53,7 @@ export const WAGNER_MEMORIAL_PRISM_IDS: ReadonlySet<string> = new Set([
  * The photographs are reference-only: every runtime surface is procedural.
  */
 export const WAGNER_MEMORIAL_PROFILE = Object.freeze({
-  apiVersion: 1,
+  apiVersion: 2,
   name: "Richard Wagner",
   publicLabel: "Richard-Wagner-Denkmal",
   osmKey: "node/243487615",
@@ -82,13 +83,17 @@ export const WAGNER_MEMORIAL_PROFILE = Object.freeze({
     built: "1987–1988",
     form: "open steel frame with a plexiglass-covered barrel vault",
     footprintM: [9.6, 10.4] as const,
-    eaveHeightM: 6.75,
+    eaveHeightM: 3.1,
     ridgeHeightM: 8.55,
     postLocalXZ: Object.freeze([
-      [-4.35, -4.85],
-      [4.35, -4.85],
-      [-4.35, 4.85],
-      [4.35, 4.85],
+      [-4.8, -4.85],
+      [4.8, -4.85],
+      [-4.8, -1.62],
+      [4.8, -1.62],
+      [-4.8, 1.62],
+      [4.8, 1.62],
+      [-4.8, 4.85],
+      [4.8, 4.85],
     ] as const),
   }),
   lod2: Object.freeze({
@@ -116,18 +121,21 @@ export const WAGNER_MEMORIAL_PROFILE = Object.freeze({
     ] as const),
   }),
   focus: Object.freeze({
-    // The closer eastern gap between the documented Tiergarten tree crowns
-    // keeps both the marble ensemble and the open canopy legible on focus.
-    azimuthDegrees: 80,
-    distanceM: 21.25,
-    polarDegrees: 36,
+    // A low frontal aisle clears the documented crowns and looks through
+    // the open end. The explicit lens keeps this a physical park position,
+    // without a 39-to-16-degree dolly through the embassy/tree corridor.
+    azimuthDegrees: -6,
+    distanceM: 31,
+    fovDegrees: 39,
+    polarDegrees: 82,
     targetHeightM: 4,
   }),
   minecraftFocus: Object.freeze({
     // This low northern aisle clears both surveyed voxel trunks and crowns
     // while looking straight into the open end of the protective canopy.
     azimuthDegrees: -6,
-    distanceM: 21.25,
+    distanceM: 31,
+    fovDegrees: 39,
     polarDegrees: 82,
     targetHeightM: 4,
   }),
@@ -141,6 +149,12 @@ export const WAGNER_MEMORIAL_PROFILE = Object.freeze({
     osm: "https://www.openstreetmap.org/node/243487615",
     visualReference:
       "https://commons.wikimedia.org/wiki/Richard-Wagner-Denkmal_(Berlin)",
+    canopyPhoto:
+      "https://commons.wikimedia.org/wiki/File%3A2019-05-05-Richard-Wagner-Denkmal-1.jpg",
+    restoredFigurePhoto:
+      "https://commons.wikimedia.org/wiki/File%3A20220812_Richard-Wagner-Denkmal_Berlin.jpg",
+    officialPlaque:
+      "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2518_wagner.pdf",
   }),
   renderPolicy: Object.freeze({
     modes: Object.freeze([
@@ -174,7 +188,8 @@ const INSCRIPTION = 0x777772;
 const STEEL = 0x555f61;
 const STEEL_DARK = 0x3e484b;
 const PLEXIGLASS = 0xb9d7dc;
-const RHINEGOLD = 0xb6963f;
+// The represented treasure is carved in marble too, not a gilded addition.
+const RHINEGOLD = MARBLE_SHADE;
 const SNOW = 0xeaf1ef;
 const MINECRAFT_GLASS = 0xa8d7dc;
 
@@ -191,7 +206,21 @@ function addGeometry(
   color: number,
   inked = false,
 ): void {
+  // Bake restrained relief shading into sculptural surfaces so their shape
+  // remains readable in the unlit isometric Day material as well as at night.
+  const normals = geometry.getAttribute("normal");
+  const faceted = normals && [MARBLE, MARBLE_SHADE, MARBLE_SHADOW].includes(color)
+    && !(geometry instanceof BoxGeometry);
+  const shades = faceted ? Array.from({ length: normals.count }, (_, index) =>
+    0.8 + 0.2 * Math.max(0, normals.getX(index) * -0.36
+      + normals.getY(index) * 0.78 + normals.getZ(index) * 0.51)) : null;
   paintGeometry(geometry, color);
+  if (shades) {
+    const base = new Color(color);
+    geometry.setAttribute("color", new Uint8BufferAttribute(shades.flatMap(
+      (shade) => [base.r, base.g, base.b].map((channel) => Math.round(channel * shade * 255)),
+    ), 3, true));
+  }
   builder.parts.push(geometry);
   if (inked) builder.edges.push(new EdgesGeometry(geometry, 29));
 }
@@ -263,7 +292,7 @@ function addEllipsoid(
   rotation: readonly [number, number, number] = [0, 0, 0],
   inked = false,
 ): void {
-  const geometry = new SphereGeometry(1, 9, 6);
+  const geometry = new SphereGeometry(1, 14, 10);
   geometry.scale(...scale);
   geometry.rotateX(rotation[0]);
   geometry.rotateY(rotation[1]);
@@ -361,7 +390,7 @@ function barrelPoint(
 }
 
 function barrelShellGeometry(yOffset = 0): BufferGeometry {
-  const segments = 16;
+  const segments = 24;
   const halfLength = WAGNER_MEMORIAL_PROFILE.canopy.footprintM[1] / 2;
   const positions: number[] = [];
   for (let segment = 0; segment < segments; segment += 1) {
@@ -369,7 +398,7 @@ function barrelShellGeometry(yOffset = 0): BufferGeometry {
     const a1 = barrelPoint(segment / segments, halfLength, yOffset);
     const b0 = barrelPoint((segment + 1) / segments, -halfLength, yOffset);
     const b1 = barrelPoint((segment + 1) / segments, halfLength, yOffset);
-    positions.push(...a0, ...b0, ...b1, ...a0, ...b1, ...a1);
+    positions.push(...a0, ...b1, ...b0, ...a0, ...a1, ...b1);
   }
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
@@ -398,52 +427,20 @@ function addCanopySteel(builder: Builder): void {
     addBox(builder, STEEL_DARK, [x, 0.08, z], [0.42, 0.16, 0.42]);
   }
 
-  for (const z of [
-    -halfLength,
-    -halfLength / 2,
-    0,
-    halfLength / 2,
-    halfLength,
-  ]) {
-    for (let segment = 0; segment < 12; segment += 1) {
-      addBeam(
-        builder,
-        STEEL,
-        barrelPoint(segment / 12, z),
-        barrelPoint((segment + 1) / 12, z),
-        0.052,
-        6,
-      );
+  // Nine full-depth barrel ribs and eleven thin longitudinal glazing bars.
+  // The roof descends to pedestal height, not a shallow cap above Wagner.
+  for (let rib = 0; rib <= 8; rib += 1) {
+    const z = -halfLength + rib * halfLength / 4;
+    for (let segment = 0; segment < 24; segment += 1) {
+      addBeam(builder, STEEL, barrelPoint(segment / 24, z),
+        barrelPoint((segment + 1) / 24, z), rib === 0 || rib === 8 ? 0.066 : 0.04, 5);
     }
   }
-  for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
-    addBeam(
-      builder,
-      STEEL_DARK,
-      barrelPoint(progress, -halfLength),
-      barrelPoint(progress, halfLength),
-      0.06,
-      6,
-      progress === 0 || progress === 1,
-    );
-  }
-  // Open end bracing: the diagonals stop at the eave/ridge frame and never
-  // become a wall across either public approach.
-  for (const z of [-halfLength, halfLength]) {
-    addBeam(
-      builder,
-      STEEL,
-      [-4.35, 3.1, z],
-      [-4.35, canopy.eaveHeightM, z],
-      0.045,
-    );
-    addBeam(
-      builder,
-      STEEL,
-      [4.35, 3.1, z],
-      [4.35, canopy.eaveHeightM, z],
-      0.045,
-    );
+  for (let rail = 0; rail <= 10; rail += 1) {
+    const progress = rail / 10;
+    addBeam(builder, STEEL_DARK, barrelPoint(progress, -halfLength),
+      barrelPoint(progress, halfLength), rail === 0 || rail === 10 ? 0.08 : 0.036,
+      5, rail === 0 || rail === 10);
   }
 }
 
@@ -491,6 +488,39 @@ function addPixelWord(
   }
 }
 
+/** Connected fluted mantle: avoids disconnected capsule limbs and ball knees. */
+function addDrapedMantle(builder: Builder): void {
+  const rings = [
+    [3.33, 0.68, 0.43, 0.39], [3.5, 0.66, 0.47, 0.4],
+    [3.78, 0.6, 0.52, 0.34], [4.02, 0.65, 0.46, 0.28],
+    [4.22, 0.5, 0.32, 0.08], [4.48, 0.47, 0.32, 0.01],
+    [4.8, 0.56, 0.3, -0.015], [5.06, 0.27, 0.22, -0.015],
+  ] as const;
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const segments = 24;
+  for (const [y, breadth, depth, z] of rings) {
+    for (let segment = 0; segment <= segments; segment += 1) {
+      const angle = segment / segments * Math.PI * 2;
+      const fold = 1 + 0.045 * Math.cos(angle * 8 + y * 0.8);
+      positions.push(Math.cos(angle) * breadth * fold, y,
+        z + Math.sin(angle) * depth * fold);
+    }
+  }
+  for (let ring = 0; ring < rings.length - 1; ring += 1) {
+    for (let segment = 0; segment < segments; segment += 1) {
+      const a = ring * (segments + 1) + segment;
+      const b = a + segments + 1;
+      indices.push(a, b, b + 1, a, b + 1, a + 1);
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  addGeometry(builder, geometry, MARBLE);
+}
+
 function addMonumentBody(builder: Builder): void {
   // Three steps and the nearly square, rear-apsed Romanesque pedestal.
   addBox(
@@ -521,73 +551,80 @@ function addMonumentBody(builder: Builder): void {
     true,
   );
   addBox(builder, MARBLE, [0, 3.08, -0.05], [2.72, 0.5, 2.35], [0, 0, 0], true);
-  addPixelWord(builder, "RICHARD", 2.29, 1.337, 2.1);
-  addPixelWord(builder, "WAGNER", 1.93, 1.337, 1.88);
+  // Shallow paired pilasters and round archivolts on all three square faces.
+  for (const yaw of [0, Math.PI / 2, -Math.PI / 2]) {
+    const arcade = createBuilder();
+    const faceZ = yaw === 0 ? 1.36 : 1.64;
+    const halfArch = yaw === 0 ? 1.03 : 0.88;
+    for (const sign of [-1, 1]) {
+      for (const offset of [-0.09, 0.09]) {
+        const x = sign * halfArch + offset;
+        addCylinder(arcade, MARBLE, [x, 1.64, faceZ], 0.06, 0.072, 0.96, 8);
+        addBox(arcade, MARBLE_SHADE, [x, 1.13, faceZ], [0.18, 0.09, 0.18]);
+        addBox(arcade, MARBLE, [x, 2.16, faceZ], [0.2, 0.11, 0.2]);
+      }
+    }
+    // Broad, shallow arch rises into the cornice without covering the name.
+    for (let segment = 0; segment < 18; segment += 1) {
+      const point = (index: number): [number, number, number] => {
+        const angle = index / 18 * Math.PI;
+        return [Math.cos(angle) * halfArch, 2.17 + Math.sin(angle) * 0.45, faceZ];
+      };
+      addBeam(arcade, MARBLE, point(segment), point(segment + 1), 0.045, 5);
+    }
+    for (const part of arcade.parts) { part.rotateY(yaw); builder.parts.push(part); }
+  }
+  addPixelWord(builder, "RICHARD", 1.95, 1.337, 1.36);
+  addPixelWord(builder, "WAGNER", 1.65, 1.337, 1.28);
 
-  // Wagner sits on the throne: 2.70 m from chair-step to the hair crown.
-  addBox(
-    builder,
-    MARBLE_SHADOW,
-    [0, 4.3, -0.52],
-    [1.62, 2.08, 0.42],
-    [0, 0, 0],
-    true,
-  );
+  // Wagner's long cloak joins lap, knees and feet; the hands rest on the
+  // sphinx armrests and the turned head has an actual forehead/nose/chin.
+  // All local anatomy is a procedural display reconstruction, not a scan.
+  addBox(builder, MARBLE_SHADE, [0, 4.2, -0.52], [1.62, 1.88, 0.42]);
   addBox(builder, MARBLE_SHADE, [0, 3.55, -0.03], [1.55, 0.32, 1.32]);
-  addBox(builder, MARBLE_SHADOW, [-0.83, 3.78, 0.03], [0.18, 0.46, 1.28]);
-  addBox(builder, MARBLE_SHADOW, [0.83, 3.78, 0.03], [0.18, 0.46, 1.28]);
-  addCapsule(
-    builder,
-    MARBLE,
-    [0, 4.63, -0.08],
-    0.46,
-    0.72,
-    [1.05, 1, 0.82],
-    [0.02, 0, 0],
-    true,
-  );
-  addEllipsoid(
-    builder,
-    MARBLE,
-    [-0.08, 5.55, 0.02],
-    [0.34, 0.43, 0.32],
-    [0, -0.16, 0],
-    true,
-  );
-  addEllipsoid(
-    builder,
-    MARBLE_SHADOW,
-    [-0.12, 5.85, -0.08],
-    [0.38, 0.15, 0.34],
-  );
-  addCone(
-    builder,
-    MARBLE_SHADOW,
-    [-0.28, 5.76, -0.2],
-    0.15,
-    0.28,
-    6,
-    [0.25, 0, -0.3],
-  );
-  addBeam(builder, MARBLE, [-0.4, 4.75, 0], [-0.82, 4.18, 0.18], 0.13, 7);
-  addBeam(builder, MARBLE, [0.4, 4.75, 0], [0.78, 4.12, 0.22], 0.13, 7);
-  addBeam(builder, MARBLE, [-0.32, 4.12, 0.08], [-0.45, 3.38, 0.48], 0.2, 7);
-  addBeam(builder, MARBLE, [0.32, 4.12, 0.08], [0.46, 3.38, 0.48], 0.2, 7);
-  addBox(
-    builder,
-    MARBLE_SHADE,
-    [0.55, 4.02, 0.31],
-    [0.65, 0.05, 0.5],
-    [0, 0.08, 0.04],
-  );
-  // Sphinx heads on the throne arms.
   for (const x of [-0.83, 0.83]) {
-    addEllipsoid(builder, MARBLE, [x, 4.08, 0.58], [0.2, 0.25, 0.28]);
-    addCone(builder, MARBLE, [x, 3.95, 0.79], 0.21, 0.4, 6, [
-      Math.PI / 2,
-      0,
-      0,
-    ]);
+    addBox(builder, MARBLE, [x, 3.86, 0.1], [0.18, 0.68, 1.28]);
+    addEllipsoid(builder, MARBLE, [x, 4.08, 0.58], [0.18, 0.23, 0.24]);
+    addEllipsoid(builder, MARBLE_SHADE, [x, 3.78, 0.67], [0.15, 0.3, 0.16]);
+  }
+  addDrapedMantle(builder);
+  for (const x of [-0.42, 0.42]) {
+    addEllipsoid(builder, MARBLE, [x, 3.39, 0.78], [0.24, 0.09, 0.29]);
+    addBeam(builder, MARBLE, [x, 4.89, 0.02], [x * 1.8, 4.2, 0.3], 0.18, 10);
+    addEllipsoid(builder, MARBLE, [x * 1.8, 4.18, 0.54], [0.15, 0.11, 0.18]);
+  }
+  // Raised lapels, collar, cravat and irregular flowing fold ridges.
+  for (const sign of [-1, 1]) {
+    addBeam(builder, MARBLE_SHADE, [sign * 0.23, 5.07, 0.2],
+      [sign * 0.07, 4.61, 0.36], 0.045, 6);
+    for (let fold = 0; fold < 5; fold += 1) {
+      const x = sign * (0.13 + fold * 0.09);
+      addBeam(builder, MARBLE_SHADE, [x * 0.8, 4.17 - fold * 0.02, 0.77],
+        [x, 3.41 + fold * 0.017, 0.89 - fold * 0.03], 0.022, 5);
+    }
+  }
+  addEllipsoid(builder, MARBLE, [0, 5.18, 0.06], [0.18, 0.17, 0.18]);
+  addBox(builder, MARBLE_SHADE, [0, 5.04, 0.27], [0.16, 0.24, 0.08], [0,0,-0.15]);
+  const face = createBuilder();
+  addEllipsoid(face, MARBLE, [0, 5.61, 0.02], [0.29, 0.33, 0.25]);
+  addEllipsoid(face, MARBLE, [0, 5.69, 0.19], [0.23, 0.18, 0.14]);
+  addEllipsoid(face, MARBLE, [0, 5.48, 0.15], [0.23, 0.12, 0.19]);
+  addEllipsoid(face, MARBLE, [0, 5.61, 0.3], [0.065, 0.1, 0.09]);
+  for (const sign of [-1, 1]) {
+    addEllipsoid(face, MARBLE_SHADE, [sign * 0.115, 5.68, 0.293], [0.078, 0.025, 0.025]);
+    addEllipsoid(face, MARBLE, [sign * 0.282, 5.59, 0], [0.063, 0.106, 0.055]);
+  }
+  addEllipsoid(face, MARBLE_SHADE, [0, 5.855, -0.05], [0.31, 0.145, 0.27]);
+  for (let lock = 0; lock < 7; lock += 1) {
+    const angle = lock / 6 * Math.PI;
+    addEllipsoid(face, MARBLE_SHADE, [Math.cos(angle) * 0.27, 5.73,
+      -0.07 - Math.sin(angle) * 0.18], [0.09, 0.14, 0.085]);
+  }
+  for (const part of face.parts) { part.rotateY(0.62); builder.parts.push(part); }
+  // The clenched right hand is on the composer's right (viewer left).
+  for (let sheet = 0; sheet < 3; sheet += 1) {
+    addBox(builder, MARBLE_SHADE, [-0.76, 4.08 + sheet * 0.035, 0.55],
+      [0.47, 0.027, 0.39], [0, 0.06, -0.05]);
   }
 
   // Front: Wolfram von Eschenbach kneels with the unmistakable harp.
@@ -639,7 +676,14 @@ function addMonumentBody(builder: Builder): void {
     );
   }
 
-  // Left: Bruennhilde bends over the dead Siegfried.
+  addBeam(builder, MARBLE, [-0.32, 2.05, 2.05], [-0.67, 2.43, 1.95], 0.1, 8);
+  addBeam(builder, MARBLE, [-0.67, 2.43, 1.95], [-0.83, 2.83, 1.82], 0.077, 8);
+  addEllipsoid(builder, MARBLE, [-0.84, 2.9, 1.82], [0.09, 0.13, 0.07]);
+  addBeam(builder, MARBLE, [0.13, 2.06, 2.05], [0.55, 1.65, 2.36], 0.1, 8);
+
+  // Left in the photographed front-facing display: Bruennhilde/Siegfried.
+  // Berlin's plaque reverses left/right compared with BiB's viewpoint;
+  // preserve the inspected photograph, see docs/wagner-refinement-v125.md.
   addCapsule(
     builder,
     MARBLE,
@@ -1139,33 +1183,36 @@ function createMinecraftBlocks(): Block[] {
 
   const halfLengthCells = 7;
   const halfWidthCells = 7;
-  for (const xCell of [-halfWidthCells, halfWidthCells]) {
-    for (const zCell of [-halfLengthCells, halfLengthCells]) {
-      for (let level = 0; level <= 10; level += 1) {
-        pushBlock(
-          blocks,
-          [xCell * size, size * (level + 0.5), zCell * size],
-          STEEL_DARK,
-          size,
-          [0.38, 1, 0.38],
-        );
-      }
+  for (const [x, z] of WAGNER_MEMORIAL_PROFILE.canopy.postLocalXZ) {
+    for (let level = 0; level < 5; level += 1) {
+      pushBlock(blocks, [x, 0.31 + level * 0.62, z], STEEL_DARK, size,
+        [0.28, 0.62 / size, 0.28]);
     }
   }
+  // Four source-signature blocks: mantle hem, harp frame and raised hand.
+  pushBlock(blocks, [0, 3.72, 0.58], MARBLE_SHADE, size, [1.6, 0.8, 0.8]);
+  pushBlock(blocks, [0.84, 1.88, 2.35], MARBLE_SHADE, size, [0.18, 1.6, 0.18]);
+  pushBlock(blocks, [0.58, 2.3, 2.35], MARBLE_SHADE, size, [0.95, 0.18, 0.18]);
+  pushBlock(blocks, [-0.65, 2.68, 1.93], MARBLE, size, [0.35, 0.9, 0.35]);
   // One block-thick, curved glass roof. Its underside remains wholly open.
   for (let xCell = -halfWidthCells; xCell <= halfWidthCells; xCell += 1) {
-    const normalised = xCell / halfWidthCells;
-    const roofY =
-      WAGNER_MEMORIAL_PROFILE.canopy.eaveHeightM +
-      Math.sqrt(Math.max(0, 1 - normalised * normalised)) *
-        (WAGNER_MEMORIAL_PROFILE.canopy.ridgeHeightM -
-          WAGNER_MEMORIAL_PROFILE.canopy.eaveHeightM);
+    const segment = xCell + halfWidthCells;
+    const segmentCount = halfWidthCells * 2 + 1;
+    const [leftX, leftY] = barrelPoint(segment / segmentCount, 0);
+    const [rightX, rightY] = barrelPoint((segment + 1) / segmentCount, 0);
+    const roofX = (leftX + rightX) / 2;
+    const roofY = (leftY + rightY) / 2;
+    // Each axis-aligned step spans adjacent arc samples. Steep haunches
+    // therefore connect continuously instead of hanging as floating strips.
+    const blockWidth = Math.max(0.14, rightX - leftX + 0.035);
+    const blockHeight = Math.max(0.14, Math.abs(rightY - leftY) + 0.1);
     for (let zCell = -halfLengthCells; zCell <= halfLengthCells; zCell += 1) {
       pushBlock(
         blocks,
-        [xCell * size, roofY, zCell * size],
-        MINECRAFT_GLASS,
+        [roofX, roofY, zCell * size],
+        zCell % 2 === 0 ? STEEL : MINECRAFT_GLASS,
         size,
+        [blockWidth / size, blockHeight / size, 1],
       );
     }
   }

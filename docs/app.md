@@ -642,14 +642,16 @@ limited to its authored marble masses and steel canopy posts.
 Day, Night, Snowstorm and Schwellenraum share the texture-free smooth Wagner
 root; Minecraft hides it and substitutes one block-native root. Reversible
 snow affects only the smooth exposed surfaces. The frozen smooth budget is
-exactly 6 renderables and 12,167 rendered vertices; Minecraft is exactly one
+exactly 6 renderables and 26,304 rendered vertices; Minecraft is exactly one
 batch containing 514 blocks. The OSM position, official register identity and
 published six-metre overall / 2.7-metre seated-figure dimensions are source
 facts. The local sculptural segmentation, canopy section, component spacing,
 presentation orientation and collision volumes are code-authored display
 reconstructions rather than surveyed geometry. The Commons category remains
 visual QA evidence only: no photograph, thumbnail, crop, tracing or
-photographic texture is bundled or loaded by the viewer.
+photographic texture is bundled or loaded by the viewer. The v1.0.25
+[Wagner refinement](wagner-refinement-v125.md) corrects the deep transparent
+vault, strengthens the marble ensemble and improves its focus framing.
 
 The Georg Elser memorial at Wilhelmstrasse is an additional independent
 recognition model at OSM sculpture node `1986458966`. Its published 17 m height,
@@ -840,8 +842,8 @@ that source key. A transparent four-storey climate-buffer envelope now reveals
 the source-described six-storey elliptical ship-like timber body, 18 m glass
 eaves, two stepped upper decks and a 0.65 m travertine plinth. The published
 6,300 m² usable area remains metadata; inner subdivisions are bounded
-recognition geometry, not a surveyed interior, and no political lettering is
-rendered.
+recognition geometry, not a surveyed interior, and the small building-identification sign is procedural geometry. See
+[the v1.0.25 facade and mode contract](cdu-refinement-v125.md).
 
 Weidendammer Brücke is centred and aligned on exact OSM bridge way `6228081`.
 Berlin's June-2025 bridge inventory controls the current 69.48 x 25.17 m

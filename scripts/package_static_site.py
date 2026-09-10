@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.24"
+PACKAGE_VERSION = "1.0.25"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,6 +3457,10 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.25: Genauere CDU-Bundeszentrale und Richard-Wagner-Denkmal aus
+Marmor mit tiefem transparentem Schutzgewölbe. Venusbassin-Lage anhand
+aktueller OSM-Daten und amtlichem Berliner Luftbild bestätigt.
+
 Neu in v1.0.24: Sechs wechselnde Startblicke an Siegessäule, Serra/Philharmonie,
 Reichstag, Pariser Platz, Kanzleramt und Washingtonplatz. Die goldene Viktoria
 hat eine vollere, feiner triangulierte Figur und genauer geformte Flügel.
@@ -4095,6 +4099,10 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.25: Refined CDU headquarters and Richard Wagner marble memorial
+with its deep transparent protective vault. Venusbassin location verified
+against current OSM data and official Berlin aerial imagery.
 
 New in v1.0.24: Six rotating arrival views at the Victory Column, Serra/Philharmonie,
 Reichstag, Pariser Platz, Chancellery and Washingtonplatz. The gilded Viktoria

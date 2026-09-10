@@ -4548,6 +4548,7 @@ function wagnerMemorialFocusCamera(mode: LightingMode): FocusCamera {
   return {
     azimuth_degrees: focus.azimuthDegrees,
     distance_m: focus.distanceM,
+    fov_degrees: focus.fovDegrees,
     polar_degrees: focus.polarDegrees,
     target_height_m: focus.targetHeightM,
     target_world: [...WAGNER_MEMORIAL_PROFILE.worldM],

@@ -388,7 +388,7 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.upperDeckStoreys).toBe(2);
     expect(profile.winterGardenRole).toContain("climate buffer");
     expect(profile.eavesHeightM).toBe(18);
-    expect(profile.signageRendered).toBe(false);
+    expect(profile.signageRendered).toBe(true);
     expect(profile.footprintWorldM).toHaveLength(6);
     const envelope = details.getObjectByName(
       "Konrad-Adenauer-Haus glass envelope bodies",
@@ -402,7 +402,7 @@ describe("task-10 expanded city recognition details", () => {
     expect(Math.abs(bounds.min.z - 1299.21)).toBeLessThan(0.3);
     expect(Math.abs(bounds.max.z - 1379.604)).toBeLessThan(0.3);
     expect(bounds.max.y).toBeGreaterThan(profile.groundY + 24);
-    expect(profile.sources).toHaveLength(5);
+    expect(profile.sources).toHaveLength(8);
   });
 
   test("adds company signs and the blue-striped WELT balloon livery", () => {

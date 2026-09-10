@@ -11,6 +11,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  Raycaster,
   Vector3,
 } from "three";
 
@@ -94,14 +95,16 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
       [-670, 970],
     ]);
     expect(WAGNER_MEMORIAL_PROFILE.focus).toEqual({
-      azimuthDegrees: 80,
-      distanceM: 21.25,
-      polarDegrees: 36,
+      azimuthDegrees: -6,
+      distanceM: 31,
+      fovDegrees: 39,
+      polarDegrees: 82,
       targetHeightM: 4,
     });
     expect(WAGNER_MEMORIAL_PROFILE.minecraftFocus).toEqual({
       azimuthDegrees: -6,
-      distanceM: 21.25,
+      distanceM: 31,
+      fovDegrees: 39,
       polarDegrees: 82,
       targetHeightM: 4,
     });
@@ -174,7 +177,7 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
     expect(ensembleBounds.min.y).toBeCloseTo(5.2, 5);
     expect(ensembleBounds.max.y).toBeCloseTo(11.2, 5);
     expect(fullSize.x).toBeGreaterThan(10);
-    expect(fullSize.x).toBeLessThan(10.4);
+    expect(fullSize.x).toBeLessThan(10.7);
     expect(fullSize.z).toBeGreaterThan(10.7);
     expect(fullSize.z).toBeLessThan(11);
     expect(fullBounds.max.y).toBeCloseTo(13.81, 2);
@@ -189,9 +192,9 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
     expect(lines).toHaveLength(2);
     expect(wagnerMemorialRenderStats(model)).toEqual({
       renderables: 6,
-      renderedVertices: 12_167,
+      renderedVertices: 26_304,
     });
-    expect(12_167).toBeLessThanOrEqual(
+    expect(26_304).toBeLessThanOrEqual(
       WAGNER_MEMORIAL_PROFILE.renderPolicy.maxSmoothRenderedVertices,
     );
 
@@ -217,9 +220,6 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
     ).toHaveLength(2);
 
     const expectedColours = new Map([
-      ["Richard Wagner six-metre marble ensemble bodies", [
-        0x777772, 0xa9a8a2, 0xb6963f, 0xc9c7c0, 0xe7e4dc,
-      ]],
       ["Richard Wagner open steel canopy bodies", [0x3e484b, 0x555f61]],
       ["Richard Wagner reversible snow caps bodies", [0xeaf1ef]],
     ] as const);
@@ -247,6 +247,73 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
         ).toBe(true);
       }
     }
+  });
+
+  test("models a deep glazed barrel above open approaches, not a shallow roof cap", () => {
+    const model = createWagnerMemorial();
+    const canopy = model.getObjectByName(
+      "Richard Wagner open plexiglass barrel vault",
+    ) as Mesh;
+    canopy.geometry.computeBoundingBox();
+    const bounds = canopy.geometry.boundingBox!;
+    expect(bounds.min.y).toBeCloseTo(3.1, 5);
+    expect(bounds.max.y).toBeCloseTo(8.55, 5);
+    expect(bounds.getSize(new Vector3()).toArray()).toEqual([
+      expect.closeTo(9.6, 5), expect.closeTo(5.45, 5), expect.closeTo(10.4, 5),
+    ]);
+    expect(WAGNER_MEMORIAL_PROFILE.canopy.postLocalXZ).toHaveLength(8);
+    for (const [x, z] of WAGNER_MEMORIAL_PROFILE.canopy.postLocalXZ) {
+      expect(wagnerMemorialSolidAt(...localToWorld(x, 2.9, z))).toBe(true);
+    }
+    // Both gables and the lateral low aisles remain free of invented walls.
+    for (const z of [-5, 5]) {
+      for (const x of [-3.8, 0, 3.8]) {
+        expect(wagnerMemorialSolidAt(...localToWorld(x, 2.7, z))).toBe(false);
+      }
+    }
+    const material = canopy.material as MeshBasicMaterial;
+    expect(material.transparent).toBe(true);
+    expect(material.depthWrite).toBe(false);
+  });
+
+  test("keeps marble relief readable in the unlit day material without gold paint", () => {
+    const model = createWagnerMemorial();
+    const body = model.getObjectByName(
+      "Richard Wagner six-metre marble ensemble bodies",
+    ) as Mesh;
+    const colours = body.geometry.getAttribute("color");
+    const palette = new Set<number>();
+    const colour = new Color();
+    for (let index = 0; index < colours.count; index += 1) {
+      colour.fromBufferAttribute(colours, index);
+      palette.add(colour.getHex());
+      // All marble / inscription tones stay neutral, including Rheingold.
+      expect(Math.max(colour.r, colour.g, colour.b)
+        - Math.min(colour.r, colour.g, colour.b)).toBeLessThan(0.11);
+    }
+    expect(palette.size).toBeGreaterThan(15);
+    expect(palette.has(0xb6963f)).toBe(false);
+    expect((body.material as MeshBasicMaterial).map).toBeNull();
+  });
+
+  test("faces the marble mantle and snow roof outward for real front-face rendering", () => {
+    const model = createWagnerMemorial();
+    model.position.set(0, 0, 0);
+    model.rotation.y = 0;
+    model.updateMatrixWorld(true);
+    const body = model.getObjectByName(
+      "Richard Wagner six-metre marble ensemble bodies",
+    ) as Mesh;
+    const mantleRay = new Raycaster(new Vector3(0.12, 4.4, 4), new Vector3(0, 0, -1));
+    const mantleHit = mantleRay.intersectObject(body)[0];
+    expect(mantleHit).toBeDefined();
+    expect(mantleHit.point.z).toBeGreaterThan(0.2);
+    setWagnerMemorialSnow(model, true);
+    const snow = model.getObjectByName("Richard Wagner reversible snow caps")!;
+    const roofRay = new Raycaster(new Vector3(0, 12, 0), new Vector3(0, -1, 0));
+    const roofHit = roofRay.intersectObject(snow, true)[0];
+    expect(roofHit).toBeDefined();
+    expect(roofHit.point.y).toBeCloseTo(8.605, 5);
   });
 
   test("toggles snow and smooth visibility reversibly without changing authored transforms", () => {
@@ -311,7 +378,7 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
     const openUnderRoof = localToWorld(0, 7.5, 0);
     const base = localToWorld(0, 0.2, 0);
     const seatedStatue = localToWorld(0, 4, 0);
-    const canopyPost = localToWorld(-4.35, 3, -4.85);
+    const canopyPost = localToWorld(-4.8, 3, -4.85);
 
     for (const point of [
       frontApproach,
@@ -370,11 +437,11 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
     }
     expect([...counts.entries()].sort(([a], [b]) => a - b)).toEqual(
       [
-        [0x3e484b, 44],
-        [0xa8d7dc, 225],
-        [0xb6963f, 3],
-        [0xc9c7c0, 81],
-        [0xe7e4dc, 161],
+        [0x3e484b, 40],
+        [0x555f61, 105],
+        [0xa8d7dc, 120],
+        [0xc9c7c0, 87],
+        [0xe7e4dc, 162],
       ].sort(([a], [b]) => a - b),
     );
 

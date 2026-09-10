@@ -1,14 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.22 replaces twenty generic TIPI masses with source-bound tents/service
-// wings. Independently measured synchronous buffers are compared with
-// cooperative construction, including colours and every instance capacity.
-// v1.0.24 changes 42 existing Goldelse transforms (body, head,
-// feathers and the corrected left/right attribute frame); independent synchronous builds retain every count and buffer size.
+// v1.0.25 adds the source-bound CDU surface batch and corrects Wagner's
+// deep open canopy. Independently measured synchronous buffers are compared
+// with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "b55faba55d8657794a51b551a8f7f2af3db6d7816e235e584d1817e69bcc1b3c", 3814622, 97, 291142087],
-  ["mobile", "17165828948d379d7874e3600ec26077b4d18b1e34e9caa2befe627b6ce4022e", 1010241, 95, 77442103],
+  ["full", "9fcba8bd95b2efd1ce92a52344e9cda040ef4fb07bcb339ed7183436235a1ee7", 3816384, 98, 291276839],
+  ["mobile", "df22fc1dba0e72624d57e07f3f0fc996fd274bb13a884b67f22cf06289119f8d", 1012631, 96, 77624583],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

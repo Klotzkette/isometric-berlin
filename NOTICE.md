@@ -494,8 +494,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   and the [CDU archive](https://archiv.cdu.de/node/1151) document the six-storey
   elliptical inner body, transparent winter garden and ship-like composition.
   Local floor bands, deck taper and frame spacing are deterministic,
-  non-surveyed recognition geometry. No page image, political logo, lettering
-  or photographic texture is bundled or loaded.
+  non-surveyed recognition geometry. v1.0.25 uses Ansgar Koreng's
+  [2014 view](https://commons.wikimedia.org/wiki/File%3A141101_Berlin_Konrad-Adenauer-Haus.jpg)
+  ([CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/)) and
+  Reinhold Möller's
+  [2024 view](https://commons.wikimedia.org/wiki/File%3ABerlin_Konrad-Adenauer-Haus-20241207-RM-102533.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)) to refine
+  the glass grid, office ribbons, upper decks and entrance. Building lettering
+  is procedural geometry. No photograph or photographic texture is bundled or
+  loaded. See [source contract](docs/cdu-refinement-v125.md).
 
 - **CSD memorial place at Ahornsteig (factual and visual evidence):**
   [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php)
@@ -668,8 +675,13 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   section, member spacing, presentation orientation and collision volumes are
   procedural, non-surveyed display reconstructions. The
   [Wikimedia Commons category](https://commons.wikimedia.org/wiki/Category:Richard-Wagner-Denkmal_(Berlin))
-  is reference-only visual QA; no source photograph, thumbnail, crop or
-  photographic texture is bundled or loaded by the viewer.
+  remains reference-only visual QA. v1.0.25 additionally credits Flocci Nivis's
+  [2022 view](https://commons.wikimedia.org/wiki/File%3A20220812_Richard-Wagner-Denkmal_Berlin.jpg)
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)) and Gunnar Klack's
+  [2019 view](https://commons.wikimedia.org/wiki/File%3A2019-05-05-Richard-Wagner-Denkmal-1.jpg)
+  ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)) for the deep
+  protective vault and marble ensemble. No source photograph, thumbnail, crop or
+  photographic texture is bundled or loaded. See [source contract](docs/wagner-refinement-v125.md).
 
 - **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
   pages are used only to validate the displayed U5 and shared North-South

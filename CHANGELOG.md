@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.25
+
+- Refine the source-bound CDU headquarters with articulated glazed facades,
+  continuous storeys, roof and entrance detail, including a block-native counterpart.
+- Correct the Richard Wagner memorial’s protective barrel vault and refine
+  its marble figure ensemble while retaining its mapped anchor and open approaches.
+- Verify Venusbassin / Goldfischteich against current OSM, official DOP 2025
+  and the actual viewer; its location is correct and remains unchanged.
+
 ## v1.0.24
 
 - Rotate through six physical opening poses: Goldelse, Serra/Philharmonie,
