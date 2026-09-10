@@ -2,9 +2,9 @@
  * First-gesture audio start.
  *
  * Browsers refuse to let an unmuted AudioContext run before the user has
- * interacted with the page, so "music on load" can only ever mean: try
- * immediately, and otherwise start on the very first gesture the visitor
- * makes. Two details decide whether that actually works on a phone:
+ * interacted with the page. Wait for a trusted activating gesture before
+ * creating or resuming the first graph. Two details decide whether that
+ * actually works on a phone:
  *
  * - the listeners must run in the CAPTURE phase on `window`, because the
  *   first gesture is nearly always a map drag, and the canvas handlers
@@ -20,24 +20,65 @@
 /** Gestures a browser accepts as "the user interacted with the page". */
 export const FIRST_GESTURE_EVENTS = [
   "pointerdown",
-  "pointermove",
-  "touchstart",
+  "pointerup",
   "touchend",
   "mousedown",
   "keydown",
-  "wheel",
-  "scroll",
   "click",
 ] as const;
 
 /** Keys bound to viewer shortcuts that must not double as an audio start. */
 const IGNORED_KEYS = new Set(["b", "t", "n"]);
 
-// A pointerdown/touchstart resume can remain pending in Safari and embedded
-// browsers even though the later click/touchend in the same physical gesture
+// A pointerdown resume can remain pending in Safari and embedded browsers
+// even though the later click/touchend in the same physical gesture
 // is accepted. Let that stronger completion event supersede the stale attempt
 // instead of leaving the soundtrack locked in "waiting" forever.
-const RETRY_WHILE_PENDING_EVENTS = new Set(["click", "touchend", "keydown"]);
+const RETRY_WHILE_PENDING_EVENTS = new Set([
+  "click",
+  "pointerup",
+  "touchend",
+  "keydown",
+]);
+
+const NON_ACTIVATING_KEYS = new Set([
+  "Escape",
+  "Alt",
+  "AltGraph",
+  "Control",
+  "Meta",
+  "Shift",
+  "Unidentified",
+]);
+
+function isActivatingGesture(event: Event): boolean {
+  if (!event.isTrusted) {
+    return false;
+  }
+  if (event.type === "pointerdown") {
+    return (event as PointerEvent).pointerType === "mouse";
+  }
+  if (event.type === "pointerup") {
+    const pointerType = (event as PointerEvent).pointerType;
+    return pointerType === "touch" || pointerType === "pen";
+  }
+  if (event.type === "keydown") {
+    const key = event as KeyboardEvent;
+    return (
+      Boolean(key.key) &&
+      !NON_ACTIVATING_KEYS.has(key.key) &&
+      !/^F\d{1,2}$/.test(key.key) &&
+      !key.altKey &&
+      !key.ctrlKey &&
+      !key.metaKey
+    );
+  }
+  return (
+    event.type === "mousedown" ||
+    event.type === "touchend" ||
+    event.type === "click"
+  );
+}
 
 export interface FirstGestureTarget {
   addEventListener(
@@ -68,6 +109,8 @@ export interface VisibleAutoplayRetryOptions {
     Document,
     "addEventListener" | "hidden" | "removeEventListener"
   >;
+  /** True only after this engine has successfully started in this page. */
+  isActivated: () => boolean;
   isAudible: () => boolean;
   isEnabled: () => boolean;
   start: () => Promise<boolean>;
@@ -75,17 +118,15 @@ export interface VisibleAutoplayRetryOptions {
 }
 
 /**
- * Retry a permitted load-time start when Chrome first exposes the page.
+ * Recover previously activated sound when the page becomes visible again.
  *
- * A tab opened in the background skips App's eager attempt because starting
- * sound while hidden would be hostile and is rejected by browsers anyway.
- * `visibilitychange`, `pageshow`, and window focus are the earliest later
- * opportunities at which an origin with autoplay permission can begin. They
- * do not bypass browser policy: a fresh origin still falls through to the
- * first-gesture listener above.
+ * Focus, visibilitychange and pageshow are not user activation. They must
+ * never create or resume an engine that has not already played successfully;
+ * that first start belongs to the synchronous gesture listener below.
  */
 export function registerVisibleAutoplayRetry({
   documentTarget,
+  isActivated,
   isAudible,
   isEnabled,
   start,
@@ -98,6 +139,7 @@ export function registerVisibleAutoplayRetry({
       cancelled ||
       attempting ||
       documentTarget.hidden ||
+      !isActivated() ||
       !isEnabled() ||
       isAudible()
     ) {
@@ -154,7 +196,7 @@ export function registerFirstGestureStart(
     if (isMuted?.()) {
       return;
     }
-    if (isIgnoredGesture(event)) {
+    if (!isActivatingGesture(event) || isIgnoredGesture(event)) {
       return;
     }
     attempting = true;

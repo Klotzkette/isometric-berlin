@@ -27,6 +27,7 @@ CRITICAL_RESOURCE_TYPES = {"document", "script", "stylesheet", "xhr", "fetch"}
 CONSOLE_ADVISORIES = {
   'Viewport argument key "interactive-widget" not recognized and ignored.'
 }
+STATE_MESSAGE_PREFIX = "isometric-startup-probe:"
 STARTUP_STATE = """() => {
   const visible = (element) => {
     if (!element) return false;
@@ -88,12 +89,22 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
   observing = True
 
   def on_console(message: ConsoleMessage) -> None:
-    if observing and message.type == "error":
+    nonlocal state
+    if message.type == "debug" and message.text.startswith(STATE_MESSAGE_PREFIX):
+      state = json.loads(message.text[len(STATE_MESSAGE_PREFIX) :])
+      return
+    autoplay_warning = (
+      message.type == "warning"
+      and "AudioContext was not allowed to start" in message.text
+    )
+    if observing and (message.type == "error" or autoplay_warning):
       # React/runtime catches can log exceptions without emitting pageerror.
       entries = (
         console_advisories if message.text in CONSOLE_ADVISORIES else console_errors
       )
-      entries.append({"text": message.text, "location": message.location})
+      entries.append(
+        {"type": message.type, "text": message.text, "location": message.location}
+      )
 
   def on_response(response: Response) -> None:
     nonlocal response_count
@@ -118,6 +129,11 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
     page = None
     try:
       launch_options: dict[str, Any] = {"headless": True}
+      if args.engine == "chromium":
+        launch_options["args"] = [
+          "--autoplay-policy=document-user-activation-required",
+          "--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies",
+        ]
       if args.channel:
         launch_options["channel"] = args.channel
       browser = getattr(playwright, args.engine).launch(**launch_options)
@@ -133,18 +149,25 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
       page.on("console", on_console)
       page.on("response", on_response)
       page.on("requestfailed", on_request_failed)
+      # Read the scene from a page timer instead of page.evaluate(), whose
+      # automation protocol can grant user activation and conceal autoplay bugs.
+      page.add_init_script(
+        f"const readStartupState = {STARTUP_STATE};"
+        "setInterval(() => console.debug("
+        f"{json.dumps(STATE_MESSAGE_PREFIX)} + JSON.stringify(readStartupState())"
+        "), 250);"
+      )
       page.goto(
         args.url, wait_until="domcontentloaded", timeout=min(args.timeout, 45) * 1000
       )
       next_progress = started
       ready_since: float | None = None
       while time.monotonic() < deadline:
-        state = page.evaluate(STARTUP_STATE)
-        if page_errors or console_errors or failed_requests or state["error"]:
+        if page_errors or console_errors or failed_requests or state.get("error"):
           failure = "3D startup reported a browser, runtime or critical network error"
           break
         now = time.monotonic()
-        ready_since = (ready_since or now) if state["ready"] else None
+        ready_since = (ready_since or now) if state.get("ready") else None
         if ready_since is not None and now - ready_since >= 3:
           break
         if now >= next_progress:

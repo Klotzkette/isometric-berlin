@@ -54,14 +54,14 @@ const DE = {
   soundtrackOff: "Soundtrack aus",
   soundtrackOn: "Soundtrack an (Dusk Republic)",
   soundtrackShortcut: "Dusk Republic an / aus",
-  soundtrackWaiting: "Soundtrack wartet auf einen Klick (Autoplay blockiert)",
+  soundtrackWaiting: "Soundtrack wartet auf einen Klick",
   musicStarting: "Musik wird gestartet",
   schwellenraumAudioOn: "Schwellenraum-Klang bereit",
   schwellenraumAudioStarting: "Schwellenraum-Klang wird aufgebaut",
   schwellenraumAudioUnsupported:
     "Schwellenraum-Klang wird von diesem Browser nicht unterstützt",
   schwellenraumAudioWaiting:
-    "Schwellenraum-Klang wartet auf einen Klick (Autoplay blockiert)",
+    "Schwellenraum-Klang wartet auf einen Klick",
   schwellenraumRoomOff: "Leises Raumrauschen aus",
   schwellenraumRoomOn: "Leises Raumrauschen an",
   schwellenraumScoreOff: "Schwellenraum-Musik aus",
@@ -196,14 +196,14 @@ const EN: Record<CopyKey, string> = {
   soundtrackOff: "Soundtrack off",
   soundtrackOn: "Soundtrack on (Dusk Republic)",
   soundtrackShortcut: "Toggle Dusk Republic",
-  soundtrackWaiting: "Soundtrack waiting for a click (autoplay blocked)",
+  soundtrackWaiting: "Soundtrack waiting for a click",
   musicStarting: "Starting music",
   schwellenraumAudioOn: "Schwellenraum sound ready",
   schwellenraumAudioStarting: "Preparing Schwellenraum sound",
   schwellenraumAudioUnsupported:
     "Schwellenraum sound is not supported by this browser",
   schwellenraumAudioWaiting:
-    "Schwellenraum sound waiting for a click (autoplay blocked)",
+    "Schwellenraum sound waiting for a click",
   schwellenraumRoomOff: "Quiet room rustle off",
   schwellenraumRoomOn: "Quiet room rustle on",
   schwellenraumScoreOff: "Schwellenraum music off",

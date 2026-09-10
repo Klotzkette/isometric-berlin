@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.19"
+PACKAGE_VERSION = "1.0.20"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,7 +3457,11 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.19: Der 3D-Start funktioniert wieder mit den Museumsschriftzügen.
+Neu in v1.0.20: Audio startet erst beim ersten Klick, Tastendruck oder Tippen.
+Die Seite bleibt davor ohne AudioContext; ein Tabwechsel startet keinen Ton.
+Bereits aktivierte Musik kann nach dem Zurückkehren weiterlaufen.
+
+Seit v1.0.19: Der 3D-Start funktioniert wieder mit den Museumsschriftzügen.
 Umlaute und Mittelpunkt sind im Zeichensatz enthalten. Dieselben Schriftzüge
 werden jetzt auch ohne Browser geprüft; ein Browser-Smoke-Test prüft den Start.
 
@@ -4075,7 +4079,11 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.19: Museum entrance lettering no longer crashes 3D startup.
+New in v1.0.20: Audio starts on the first click, key press or tap.
+No AudioContext is created beforehand, and tab focus cannot start cold audio.
+Music that already played can resume when returning to the viewer.
+
+Since v1.0.19: Museum entrance lettering no longer crashes 3D startup.
 The drawn alphabet includes umlauts and the middle dot. Headless tests now
 validate the same signs; a browser smoke test checks the actual viewer start.
 

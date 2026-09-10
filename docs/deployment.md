@@ -38,9 +38,11 @@ For a WebKit check, install its test browser with
 instead of `--channel chrome`. Repeat against the public URL after deployment.
 The script checks the active canvas's presentation-ready state and absence of
 the startup curtain, then observes three further seconds. Caught runtime errors
-logged through `console.error` are failures, as are page errors, critical network
-failures and the visible recovery panel. Touch emulation does not establish
-physical iPhone GPU compatibility.
+logged through `console.error` are failures, as are Chrome's blocked
+AudioContext warning, page errors, critical network failures and the visible
+recovery panel. A page timer observes the scene without granting automation
+user activation; Chromium runs with strict autoplay enforcement. Touch
+emulation does not establish physical iPhone GPU compatibility.
 
 v1.0.19 fixes a deterministic crash in the entrance signs `GEMÄLDEGALERIE` and
 `KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT`. The former canvas-only validation skipped

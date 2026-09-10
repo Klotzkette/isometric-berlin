@@ -46,10 +46,24 @@ function fakeTarget() {
   };
 }
 
-function fire(registered: Registration[], type: string, event: Partial<Event>) {
+type GestureEvent = Partial<Event> & {
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  key?: string;
+  metaKey?: boolean;
+  pointerType?: string;
+};
+
+function fire(registered: Registration[], type: string, event: GestureEvent) {
   for (const entry of [...registered]) {
     if (entry.type === type) {
-      entry.listener({ target: null, type, ...event } as Event);
+      entry.listener({
+        isTrusted: true,
+        pointerType: "mouse",
+        target: null,
+        type,
+        ...event,
+      } as Event);
     }
   }
 }
@@ -67,17 +81,99 @@ describe("first-gesture audio start", () => {
     }
   });
 
-  test("covers the gestures a phone actually produces first", () => {
+  test("listens to activating gestures without treating movement as activation", () => {
     for (const type of [
       "pointerdown",
-      "pointermove",
-      "touchstart",
+      "pointerup",
+      "touchend",
+      "mousedown",
       "keydown",
-      "scroll",
-      "wheel",
+      "click",
     ]) {
       expect(FIRST_GESTURE_EVENTS).toContain(type as never);
     }
+    for (const type of ["pointermove", "touchstart", "scroll", "wheel"]) {
+      expect(FIRST_GESTURE_EVENTS).not.toContain(type as never);
+    }
+  });
+
+  test.each([
+    ["pointerdown", { pointerType: "mouse" }],
+    ["mousedown", {}],
+    ["pointerup", { pointerType: "touch" }],
+    ["pointerup", { pointerType: "pen" }],
+    ["touchend", {}],
+    ["click", {}],
+    ["keydown", { key: "ArrowUp" }],
+    ["keydown", { key: " " }],
+  ] satisfies Array<[string, GestureEvent]>)(
+    "starts synchronously on trusted %s %j",
+    (type, event) => {
+      const { registered, target } = fakeTarget();
+      let attempts = 0;
+      registerFirstGestureStart({
+        start: async () => {
+          attempts += 1;
+          return true;
+        },
+        target,
+      });
+      fire(registered, type, event);
+      expect(attempts).toBe(1);
+    },
+  );
+
+  test.each([
+    ["pointerdown", { pointerType: "touch" }],
+    ["pointerdown", { pointerType: "pen" }],
+    ["pointerup", { pointerType: "mouse" }],
+    ["pointerup", { pointerType: "" }],
+    ["pointermove", {}],
+    ["wheel", {}],
+    ["scroll", {}],
+    ["touchstart", {}],
+    ["keydown", { key: "Escape" }],
+    ["keydown", { key: "Control" }],
+    ["keydown", { key: "Shift" }],
+    ["keydown", { key: "F5" }],
+    ["keydown", { key: "r", ctrlKey: true }],
+    ["keydown", { key: "r", metaKey: true }],
+    ["keydown", { key: "ArrowLeft", altKey: true }],
+    ["keydown", { key: "" }],
+  ] satisfies Array<[string, GestureEvent]>)(
+    "keeps waiting after nonactivating %s %j",
+    (type, event) => {
+      const { registered, target } = fakeTarget();
+      let attempts = 0;
+      registerFirstGestureStart({
+        start: async () => {
+          attempts += 1;
+          return true;
+        },
+        target,
+      });
+      fire(registered, type, event);
+      expect(attempts).toBe(0);
+      expect(registered).toHaveLength(FIRST_GESTURE_EVENTS.length);
+    },
+  );
+
+  test("synthetic events cannot start audio or consume the first real gesture", () => {
+    const { registered, target } = fakeTarget();
+    let attempts = 0;
+    registerFirstGestureStart({
+      start: async () => {
+        attempts += 1;
+        return true;
+      },
+      target,
+    });
+    for (const type of FIRST_GESTURE_EVENTS) {
+      fire(registered, type, { isTrusted: false, key: "Enter" });
+    }
+    expect(attempts).toBe(0);
+    fire(registered, "click", {});
+    expect(attempts).toBe(1);
   });
 
   test("calls start synchronously inside the handler (iOS keeps the gesture)", () => {
@@ -252,7 +348,36 @@ describe("first-gesture audio start", () => {
 });
 
 describe("visible-page autoplay retry", () => {
-  test("retries a permitted soundtrack when a background tab becomes visible", async () => {
+  test("never makes the first audio start from focus, pageshow or visibility", async () => {
+    const documentEvents = fakeTarget();
+    const windowEvents = fakeTarget();
+    const documentTarget = { ...documentEvents.target, hidden: false };
+    let activated = false;
+    let attempts = 0;
+    registerVisibleAutoplayRetry({
+      documentTarget,
+      isActivated: () => activated,
+      isAudible: () => false,
+      isEnabled: () => true,
+      start: async () => {
+        attempts += 1;
+        return true;
+      },
+      windowTarget: windowEvents.target,
+    });
+    fire(windowEvents.registered, "focus", {});
+    fire(windowEvents.registered, "pageshow", {});
+    fire(documentEvents.registered, "visibilitychange", {});
+    await Promise.resolve();
+    expect(attempts).toBe(0);
+
+    // Only a prior successful gesture-driven start unlocks recovery.
+    activated = true;
+    fire(windowEvents.registered, "focus", {});
+    expect(attempts).toBe(1);
+  });
+
+  test("retries an activated soundtrack when a background tab becomes visible", async () => {
     const documentEvents = fakeTarget();
     const windowEvents = fakeTarget();
     const documentTarget = {
@@ -262,6 +387,7 @@ describe("visible-page autoplay retry", () => {
     let attempts = 0;
     registerVisibleAutoplayRetry({
       documentTarget,
+      isActivated: () => true,
       isAudible: () => false,
       isEnabled: () => true,
       start: async () => {
@@ -292,6 +418,7 @@ describe("visible-page autoplay retry", () => {
     let resolveStart: ((started: boolean) => void) | null = null;
     const unregister = registerVisibleAutoplayRetry({
       documentTarget,
+      isActivated: () => true,
       isAudible: () => audible,
       isEnabled: () => enabled,
       start: () => {
@@ -327,6 +454,7 @@ describe("visible-page autoplay retry", () => {
     let attempts = 0;
     registerVisibleAutoplayRetry({
       documentTarget: { ...documentEvents.target, hidden: false },
+      isActivated: () => true,
       isAudible: () => false,
       isEnabled: () => true,
       start: () => {

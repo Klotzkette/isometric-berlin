@@ -56,14 +56,29 @@ def smoke_harness(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Any:
       self.callbacks[event] = callback
 
     def goto(self, *_args: Any, **_kwargs: Any) -> None:
+      self.emit_state()
       for event, payload in self.events:
         self.callbacks[event](payload)
 
-    def evaluate(self, _expression: str) -> dict[str, Any]:
-      return self.states.pop(0) if len(self.states) > 1 else self.states[0]
+    def add_init_script(self, script: str) -> None:
+      assert "setInterval" in script
+      assert module.STATE_MESSAGE_PREFIX in script
+
+    def emit_state(self) -> None:
+      state = self.states.pop(0) if len(self.states) > 1 else self.states[0]
+      self.callbacks["console"](
+        SimpleNamespace(
+          type="debug",
+          text=module.STATE_MESSAGE_PREFIX + module.json.dumps(state),
+        )
+      )
+
+    def evaluate(self, _expression: str) -> None:
+      pytest.fail("The probe must not grant user activation via page.evaluate")
 
     def wait_for_timeout(self, milliseconds: float) -> None:
       clock.now += milliseconds / 1000
+      self.emit_state()
 
     def screenshot(self, *, path: str, **_kwargs: Any) -> None:
       self.screenshots.append(path)
@@ -114,6 +129,23 @@ def test_transient_ready_then_startup_curtain_does_not_pass(smoke_harness: Any) 
   assert result["success"] is False
   assert "Timed out" in result["failure"]
   assert result["state"]["curtain"] is True
+
+
+def test_blocked_audio_start_warning_fails_even_with_a_ready_scene(
+  smoke_harness: Any,
+) -> None:
+  message = (
+    "The AudioContext was not allowed to start. It must be resumed (or created) "
+    "after a user gesture on the page."
+  )
+  smoke_harness.page.events = [
+    ("console", SimpleNamespace(type="warning", text=message, location={}))
+  ]
+  result = smoke_harness.run()
+  assert result["success"] is False
+  assert result["state"]["ready"] is True
+  assert result["consoleErrors"][0]["type"] == "warning"
+  assert result["consoleErrors"][0]["text"] == message
 
 
 def test_critical_http_failure_does_not_pass(smoke_harness: Any) -> None:

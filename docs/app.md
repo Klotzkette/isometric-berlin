@@ -315,8 +315,9 @@ a visible error boundary with explicit Reload and 2D-map actions instead of
 leaving a blank surface or an apparently inactive 3D mode button. Once the
 3D runtime exists, the small scene manifest starts first and the immutable
 payloads for the requested world transfer in parallel with manifest-driven
-recognition-detail construction. Procedural audio graph preparation and its
-autoplay attempt run only after the first app-shell paint.
+recognition-detail construction. Since v1.0.20, procedural audio graphs are
+created and started only during the first trusted activating user gesture.
+Mount, animation frames and cold tab focus perform no audio graph work.
 
 The drawn city itself is progressive. Non-touch desktop constructs the nearest
 exact 420 LoD2/OSM buildings on the main thread. Its Worker retains exact
@@ -547,11 +548,13 @@ Both music layers are generated locally with Web Audio and load no recording,
 stream or external audio asset. The music button or `B` controls seven original
 54 BPM ambient variants; an explicit Ambient mute persists across reloads. The
 note button or `T` independently controls `Dusk Republic`, whose enabled intent
-resets on each reload. Browser autoplay rules still require the first permitted
-click, touch, wheel or key gesture before sound becomes audible. A suspended
-context is recovered on the next gesture, and both layers pause while the page
-is hidden and dispose on a real page exit. Selecting a sight does not add
-temporary slogans or commentary over the map.
+resets on each reload. Sound starts synchronously on the first trusted mouse
+press/click, completed touch/pen gesture or activating key press. Hover, wheel,
+scroll, modifier shortcuts and synthetic events do not start audio. Focus,
+pageshow and visibility recovery require a successful prior start of the
+corresponding engine. A suspended context is recovered on the next gesture;
+both layers pause while the page is hidden and dispose on a real page exit.
+Selecting a sight does not add temporary slogans or commentary over the map.
 
 The ordinary Day/Night pipeline applies a bounded crisp/saturation pass only
 after camera movement settles; direct rendering resumes during motion. The

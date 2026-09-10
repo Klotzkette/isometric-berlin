@@ -817,14 +817,17 @@ export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   const ambientStartAttemptRef = useRef(0);
+  const ambientActivatedRef = useRef(false);
   // "Dusk Republic": enabled on every load, but Web Audio starts only from
   // the visitor's first gesture. Turning it off applies to this session.
   const chiptuneRef = useRef<DuskChiptune | null>(null);
   const chiptuneStartAttemptRef = useRef(0);
+  const chiptuneActivatedRef = useRef(false);
   const soundtrackIntentRef = useRef(isChiptuneSupported());
   const schwellenraumSoundscapeRef =
     useRef<SchwellenraumSoundscape | null>(null);
   const schwellenraumStartAttemptRef = useRef(0);
+  const schwellenraumActivatedRef = useRef(false);
   const schwellenraumMixRef = useRef<SchwellenraumMix>({
     room: !isMusicMutedByUser(),
     score: isChiptuneSupported(),
@@ -832,9 +835,8 @@ export function App() {
   const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(
     soundtrackIntentRef.current,
   );
-  // Intent is on from the first frame, but a browser that blocks autoplay
-  // leaves the page silent. The toggle follows this, not the intent, so it
-  // never claims to be playing over silence.
+  // Intent is on from the first frame; playback waits for user activation.
+  // The toggle follows actual sound and never claims to play over silence.
   const [isSoundtrackAudible, setIsSoundtrackAudible] = useState(false);
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -1130,10 +1132,13 @@ export function App() {
     schwellenraumStartAttemptRef.current += 1;
     const ambient = ambientSoundscapeRef.current;
     ambientSoundscapeRef.current = null;
+    ambientActivatedRef.current = false;
     const chiptune = chiptuneRef.current;
     chiptuneRef.current = null;
+    chiptuneActivatedRef.current = false;
     const schwellenraum = schwellenraumSoundscapeRef.current;
     schwellenraumSoundscapeRef.current = null;
+    schwellenraumActivatedRef.current = false;
     ambient?.dispose();
     void chiptune?.dispose();
     schwellenraum?.dispose();
@@ -1244,6 +1249,7 @@ export function App() {
       }
 
       const audible = started && soundscape.audible;
+      schwellenraumActivatedRef.current = audible;
       setIsMusicAudible(audible && normalizedMix.room);
       setIsSoundtrackAudible(audible && normalizedMix.score);
       // Let the quiet replacement establish itself before retiring the
@@ -1315,6 +1321,7 @@ export function App() {
           if (failed) {
             soundscape.dispose();
             ambientSoundscapeRef.current = null;
+            ambientActivatedRef.current = false;
           } else if (started) {
             void soundscape.setSuspended(true);
           }
@@ -1336,9 +1343,11 @@ export function App() {
         soundscape.stop();
         if (ambientSoundscapeRef.current === soundscape) {
           ambientSoundscapeRef.current = null;
+          ambientActivatedRef.current = false;
         }
       }
       setIsMusicEnabled(started);
+      ambientActivatedRef.current = started && soundscape.audible;
       setIsMusicAudible(started && soundscape.audible);
       if (rememberMute && started) {
         rememberMusicMuted(false);
@@ -1458,6 +1467,7 @@ export function App() {
           if (failed) {
             await player.dispose();
             chiptuneRef.current = null;
+            chiptuneActivatedRef.current = false;
           } else if (started) {
             void player.setSuspended(true);
           }
@@ -1479,6 +1489,7 @@ export function App() {
         soundtrackIntentRef.current = started;
         setIsSoundtrackEnabled(started);
       }
+      chiptuneActivatedRef.current = started && player.audible;
       setIsSoundtrackAudible(started && player.audible);
       if (!silent) {
         setStatus(started ? copy.soundtrackOn : unsupportedMessage);
@@ -1509,8 +1520,7 @@ export function App() {
     return () => window.clearInterval(timer);
   }, []);
 
-  // Intent without sound is the state the browser's autoplay block leaves
-  // us in: say "waiting for a click" rather than pretending to be off.
+  // Before user activation, show the pending intent without claiming playback.
   const isSoundtrackWaiting = isSoundtrackEnabled && !isSoundtrackAudible;
   const soundtrackOnLabel = isSoundtrackWaiting
     ? lightingMode === "schwellenraum"
@@ -1611,59 +1621,13 @@ export function App() {
     }
   }, [startMusic, startSoundtrack]);
 
-  // Build both procedural graphs while they are suspended. There are no media
-  // files in this soundtrack; the generated reverb/noise/wave buffers are the
-  // assets to warm, leaving the first permitted gesture only the resume call.
-  useEffect(() => {
-    if (typeof window === "undefined" || document.hidden) {
-      return;
-    }
-    if (lightingModeRef.current === "schwellenraum") {
-      return;
-    }
-    if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
-      const ambient = ambientSoundscapeRef.current ?? new AmbientSoundscape();
-      ambientSoundscapeRef.current = ambient;
-      ambient.prepare();
-    }
-    if (isChiptuneSupported()) {
-      const chiptune = chiptuneRef.current ?? new DuskChiptune();
-      chiptuneRef.current = chiptune;
-      chiptune.prepare();
-    }
-  }, []);
-
-  // Give the browser one complete app-shell paint before generating the two
-  // Web Audio graphs. Origins with autoplay permission still begin
-  // immediately afterwards; fresh origins keep the gesture fallback below.
-  // Audio must never delay the visible map controls or the 3D engine request.
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const frame = window.requestAnimationFrame(() => {
-      if (lightingModeRef.current === "schwellenraum") {
-        void startSchwellenraumAudio(schwellenraumMixRef.current, {
-          silent: true,
-        });
-        return;
-      }
-      if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
-        void startMusic({ rememberMute: false, silent: true });
-      }
-      if (isChiptuneSupported()) {
-        void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
-      }
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [startMusic, startSchwellenraumAudio, startSoundtrack]);
-
-  // A page opened in a background tab is deliberately silent while hidden.
-  // Retry as soon as Chrome first exposes or restores it, while leaving a
-  // genuinely blocked fresh origin to the first-gesture path below.
+  // Restore only audio that already played after a user gesture. A fresh
+  // page stays silent through focus/pageshow until the first activation below;
+  // even creating a suspended AudioContext on mount can trigger a warning.
   useEffect(() => {
     const unregisterAmbient = registerVisibleAutoplayRetry({
       documentTarget: document,
+      isActivated: () => ambientActivatedRef.current,
       isAudible: () => ambientSoundscapeRef.current?.audible ?? false,
       isEnabled: () =>
         lightingModeRef.current !== "schwellenraum" &&
@@ -1674,6 +1638,7 @@ export function App() {
     });
     const unregisterSoundtrack = registerVisibleAutoplayRetry({
       documentTarget: document,
+      isActivated: () => chiptuneActivatedRef.current,
       isAudible: () => chiptuneRef.current?.audible ?? false,
       isEnabled: () =>
         lightingModeRef.current !== "schwellenraum" && isSoundtrackEnabled,
@@ -1683,6 +1648,7 @@ export function App() {
     });
     const unregisterSchwellenraum = registerVisibleAutoplayRetry({
       documentTarget: document,
+      isActivated: () => schwellenraumActivatedRef.current,
       isAudible: () => schwellenraumSoundscapeRef.current?.audible ?? false,
       isEnabled: () => {
         const mix = schwellenraumMixRef.current;
@@ -1708,9 +1674,8 @@ export function App() {
     startSoundtrack,
   ]);
 
-  // A phone never allows the load-time attempt above, so the real start is
-  // the visitor's FIRST gesture — including a map drag, which is why these
-  // listeners run in the capture phase (see audioAutostart.ts).
+  // Build and start audio synchronously on the first browser activation.
+  // Capture listeners also see map gestures whose handlers stop propagation.
   useEffect(() => {
     if (typeof window === "undefined" || !isAmbientAudioSupported()) {
       return;

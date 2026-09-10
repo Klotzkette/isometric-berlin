@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.20
+
+- Create and start procedural audio only on the first trusted activating
+  gesture; remove mount-time graph preparation and animation-frame autoplay.
+- Ignore mouse hover, scrolling, wheel events and synthetic gestures for
+  audio activation. Preserve synchronous click, key and completed touch starts.
+- Allow focus/pageshow audio recovery only after that engine played successfully;
+  preserve explicit mute and visual-mode handovers.
+- Treat Chrome's blocked AudioContext warning as a browser startup check failure.
+
 ## v1.0.19
 
 - Fix the 3D startup crash at `GEMÄLDEGALERIE` and the subsequent middle dot

@@ -84,10 +84,9 @@ describe("progressive viewer startup", () => {
     });
   });
 
-  test("paints an attributed shell before React and defers audio graph work", () => {
+  test("paints an attributed shell before React", () => {
     expect(indexSource).toContain('class="boot-shell"');
     expect(indexSource).toContain("© OpenStreetMap contributors");
     expect(appSource).not.toContain("useLayoutEffect");
-    expect(appSource).toContain("window.requestAnimationFrame(() => {");
   });
 });
