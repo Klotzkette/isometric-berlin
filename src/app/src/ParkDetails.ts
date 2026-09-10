@@ -520,7 +520,10 @@ type TreeCrownCutaway = {
 
 export type ParkDetailProfile = "full" | "mobile";
 
+export type ParkPathTerrainAt = (path: ParkPath, x: number, z: number, sourceY: number) => number;
+
 export type ParkDetailOptions = {
+  pathTerrainAt?: ParkPathTerrainAt;
   detailProfile?: ParkDetailProfile;
   settledDetail?: boolean;
   tunnel?: TunnelPortalPayload | null;
@@ -815,6 +818,7 @@ export function smoothParkPathPoints(path: ParkPath): Vector3[] {
 export function createPathGeometry(
   paths: ParkPath[],
   width: number | ((path: ParkPath) => number),
+  terrainAt?: ParkPathTerrainAt,
 ): BufferGeometry {
   const positions: number[] = [];
   const uvs: number[] = [];
@@ -875,10 +879,10 @@ export function createPathGeometry(
       const extension = Math.min(resolvedWidth, halfWidth / denominator);
       positions.push(
         point.x + mx * extension,
-        point.y + 0.12,
+        (terrainAt?.(path, point.x + mx * extension, point.z + mz * extension, point.y) ?? point.y) + 0.12,
         point.z + mz * extension,
         point.x - mx * extension,
-        point.y + 0.12,
+        (terrainAt?.(path, point.x - mx * extension, point.z - mz * extension, point.y) ?? point.y) + 0.12,
         point.z - mz * extension,
       );
       // Metre-space UVs keep grains and joints at one physical scale on every
@@ -913,6 +917,7 @@ function addPaths(
   paths: ParkPath[],
   encodedWidthScaleM: number,
   includeTextures = true,
+  pathTerrainAt?: ParkPathTerrainAt,
 ): void {
   const byKind = new Map<string, ParkPath[]>();
   for (const path of paths) {
@@ -932,6 +937,7 @@ function addPaths(
         path.w
           ? path.w * encodedWidthScaleM
           : PATH_STYLE[pathCategory(path.kind)].width,
+        pathTerrainAt,
       ),
       pathMaterial,
     );
@@ -2672,6 +2678,7 @@ export function createParkDetails(
     payload.paths,
     payload.schema_version >= 7 ? 0.01 : 0.1,
     detailProfile === "full",
+    options.pathTerrainAt,
   );
   if (detailProfile === "mobile") {
     addMobileTrees(group, genericTrees);

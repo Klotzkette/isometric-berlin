@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.25/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.26 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.26/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.25** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.26** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.26 adds continuous, source-bound streets, roadside paths and raised
+kerbs throughout the Tiergarten and around Hauptbahnhof, the Chancellery,
+Brandenburg Gate, Potsdamer Platz, Europacity and Charité. All street details
+are present in the initial drawn city on desktop and mobile.
+
+Version 1.0.26 ergänzt durchgehende Straßen, kartierte Gehwege und sichtbare
+Bordsteine im Tiergarten und rund um Hauptbahnhof, Kanzleramt, Brandenburger Tor,
+Potsdamer Platz, Europacity und Charité. Die Straßendetails sind auf Desktop
+und Mobil bereits beim ersten isometrischen Stadtbild vorhanden.
 
 Version 1.0.25 refines the CDU headquarters and the marble Richard Wagner
 memorial with its deep transparent protective vault. The Venusbassin location

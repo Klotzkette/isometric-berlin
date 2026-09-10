@@ -375,7 +375,7 @@ complete envelope coverage occupies 25.9 MiB of geometry buffers in a local
 host measurement; the regression ceiling is 32 MiB. This is a storage bound,
 not a physical iPhone frame-rate or startup guarantee.
 
-Both profiles retain raster asphalt rather than duplicating the OSM road union
+Both profiles retain raster asphalt outside the v1.0.26 district supplement rather than duplicating the OSM road union
 as paving, asphalt and kerb meshes. The Worker transfers water, park, sand,
 earth, wood, metal and source lane-marking families, splitting large park
 families into bounded chunks; ParkDetails supplies the complete authored path
@@ -1619,3 +1619,32 @@ only in display/collision; all source records are retained. Physical collision
 follows the steel. The T4 protection is unchanged; decorative-prop clearance
 still uses the original complete source footprints. The 93-place tour is unchanged.
 See [source evidence and geometric checks](berlin-junction-v123.md).
+
+
+### v1.0.26: continuous streets in requested districts
+
+`DistrictStreets.ts` installs five static draws with the first isometric city,
+using identical geometry on desktop and touch. The 1799 retained OSM road parts
+cover the Tiergarten and its margins, the requested CDU connection, Hauptbahnhof,
+Chancellery/Reichstag, Brandenburg Gate, Potsdamer Platz, Europacity and Charité.
+The rest of the city retains its existing surface path. Buildings, movement,
+landmark selection and the block-native Minecraft ground remain unchanged.
+
+`scripts/build_district_streets.py` unions the bounded road bands offline,
+triangulates their holes, subdivides to 16m terrain edges and writes indexed
+centimetre coordinates to the bundled source supplement. Runtime only decodes
+compact integers and drapes vertices on the committed DGM sampler. It does not
+run the whole-city road triangulator or stream/discard roads on camera movement.
+The road layer uses 13,463,244 geometry bytes in five draws (61.5ms construction
+in the local Bun diagnostic). This is added display detail, not a reduced LOD.
+
+Curbs follow the union boundary, excluding scope cuts, source path approaches
+and tunnel ramps. Bridges/covered/underground ways keep their existing structures.
+Source lane counts determine divider count; dash rhythm is a documented display
+inference and markings stop before mapped junctions. The progressive Worker
+suppresses its older centreline dashes only within this supplement's scope.
+`ParkDetails` accepts an optional terrain callback, used only in these areas to
+raise buried nonbridge/nonstep ribbon vertices while retaining every X/Z point,
+source width and any already-elevated Y value.
+
+See `docs/district-streets-v126-review.md` for sources and release verification.

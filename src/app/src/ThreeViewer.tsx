@@ -1,3 +1,6 @@
+import { createTunnelPortalApproachTester } from "./TunnelPortals";
+import { pointInDistrictStreetScope } from "./districtStreetScope";
+import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
 import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
@@ -191,6 +194,7 @@ import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
 import { createSpreebogenPark, createSpreebogenLawnGroundAt } from "./SpreebogenPark";
 import {
   type ParkDetailsPayload,
+  type ParkPathTerrainAt,
   createParkDetails,
   parkDetailFocusDistance,
   setParkDetailsFocus,
@@ -645,6 +649,7 @@ type Runtime = {
   schwellenraumMovingRootsScratch: Object3D[];
   schwellenraumWaterRootsScratch: Object3D[];
   parkDetails: Group;
+  districtPathTerrainAt?: ParkPathTerrainAt;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
   openingDetailReady: boolean;
@@ -3475,6 +3480,16 @@ function ensureIsoWorld(
             runtime.coarsePointer || progressiveInput ? null : undefined,
         },
       );
+      if (ground) {
+        isoWorld.add(createDistrictStreets(ground));
+        const roadTerrainAt = districtStreetTerrainSampler(ground);
+        const portalAt = runtime.tunnelPortalCourse
+          ? createTunnelPortalApproachTester(runtime.tunnelPortalCourse) : null;
+        runtime.districtPathTerrainAt = (path, x, z, sourceY) =>
+          path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
+          pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
+            ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
+      }
       isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
       isoWorld.add(spree.createSpreeMuseumDetails());
       isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
@@ -7845,6 +7860,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     );
                   }
                   const details = createParkDetails(payload, {
+                    pathTerrainAt: runtime.districtPathTerrainAt,
                     detailProfile: runtime.coarsePointer ? "mobile" : "full",
                     settledDetail: !runtime.coarsePointer,
                     tunnel: manifest.tiergartentunnel ?? null,

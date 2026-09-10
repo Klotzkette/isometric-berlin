@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.26
+
+- Restore continuous OSM carriageways, mapped roadside paving and raised kerbs
+  in the Tiergarten and the requested central districts: Hauptbahnhof, Chancellery,
+  Brandenburg Gate, Potsdamer Platz, Europacity and Charité.
+- Keep the full street layer resident from the first drawn frame on desktop
+  and touch, with five batched draws and offline, terrain-ready triangulation.
+- Preserve open road junctions, footpath approaches, bridges and tunnel ramps;
+  separate lane markings before intersections and document inferred widths.
+- Lift locally buried source park ribbons above the retained terrain without
+  moving their plan, narrowing paths, or changing bridge/step levels.
+
 ## v1.0.25
 
 - Refine the source-bound CDU headquarters with articulated glazed facades,

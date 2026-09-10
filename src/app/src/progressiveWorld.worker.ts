@@ -288,6 +288,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       waterTop,
       bankY,
       terrainAt,
+      { excludeDistrictMarkings: true },
     );
     await postBatch(root, "surfaces", id, startedAt);
     batchCount += 1;

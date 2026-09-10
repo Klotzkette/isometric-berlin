@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.25"
+PACKAGE_VERSION = "1.0.26"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,6 +3457,10 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.26: Durchgehende Straßen, kartierte Gehwege und sichtbare Bordsteine
+im Tiergarten und um Hauptbahnhof, Kanzleramt, Brandenburger Tor, Potsdamer Platz,
+Europacity und Charité. Diese Details sind bereits beim ersten Stadtbild sichtbar.
+
 Neu in v1.0.25: Genauere CDU-Bundeszentrale und Richard-Wagner-Denkmal aus
 Marmor mit tiefem transparentem Schutzgewölbe. Venusbassin-Lage anhand
 aktueller OSM-Daten und amtlichem Berliner Luftbild bestätigt.
@@ -4099,6 +4103,10 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.26: Continuous streets, mapped roadside paths and visible kerbs
+in the Tiergarten and around Hauptbahnhof, Chancellery, Brandenburg Gate,
+Potsdamer Platz, Europacity and Charité, present in the initial drawn city.
 
 New in v1.0.25: Refined CDU headquarters and Richard Wagner marble memorial
 with its deep transparent protective vault. Venusbassin location verified

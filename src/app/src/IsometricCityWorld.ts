@@ -1,3 +1,4 @@
+import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { TIPI_SITE_PRISM_IDS } from "./tipiSiteProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
 import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenBankTopAt } from "./spreebogenBankProfile";
@@ -440,6 +441,8 @@ export type SurfacePayload = {
 export type PretriangulatedSurfaceKind = "asphalt" | "paving";
 
 export type SmoothSurfaceBuildOptions = {
+  /** First-frame district layer already owns these source lane markings. */
+  excludeDistrictMarkings?: boolean;
   /**
    * Lossless, source-hash-bound ShapeGeometry results for the two
    * hole-heavy road unions. Terrain tessellation and draping still happen at
@@ -10335,6 +10338,10 @@ export function createSmoothSurfaces(
             const sz = z0 + (z1 - z0) * t0;
             const ex = x0 + (x1 - x0) * t1;
             const ez = z0 + (z1 - z0) * t1;
+            if (options.excludeDistrictMarkings && pointInDistrictStreetScope((sx + ex) / 2, (sz + ez) / 2)) {
+              travelled += DASH_ON_M + DASH_OFF_M;
+              continue;
+            }
             points.push(
               sx,
               terrainAt ? terrainAt(sx, sz) + markingLift : markingY,
