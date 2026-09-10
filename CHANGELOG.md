@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.13
+
+- Step 10: attach completed exact buildings in the next task during navigation,
+  without waiting for an idle input window. Keep architectural forms visible;
+  evaluate remaining close-detail visibility against each object's camera distance.
+- Retain already loaded exact batches during tab suspension and skip their
+  construction on restart. Preserve geometry, source data and rendering resolution.
+- Prepare offscreen geometry and instance buffers through bounded zero-vertex GPU
+  passes. Preserve the displayed framebuffer, shadow atlas and glass render targets.
+
 ## v1.0.12
 
 - Step 10: publish complete, bounded building coverage before opening the

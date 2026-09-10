@@ -87,9 +87,16 @@ function yieldWorker(): Promise<void> {
 async function postBuildingBatches(
   prismPayload: PrismPayload,
   buildingBatches: readonly PrismPayload["buildings"][],
+  completedBatchIds: ReadonlySet<string>,
   batchOffset = 0,
 ): Promise<number> {
+  let postedCount = 0;
   for (let index = 0; index < buildingBatches.length; index += 1) {
+    const id = `buildings-${batchOffset + index + 1}`;
+    if (completedBatchIds.has(id)) {
+      buildingBatches[index].length = 0;
+      continue;
+    }
     const startedAt = performance.now();
     const root = createIsometricCity(
       prismPayload,
@@ -105,17 +112,18 @@ async function postBuildingBatches(
     await postBatch(
       root,
       "buildings",
-      `buildings-${batchOffset + index + 1}`,
+      id,
       startedAt,
       `buildings-preview-${batchOffset + index + 1}`,
     );
+    postedCount += 1;
     // The exact geometry owns compact typed buffers now. Release the decoded
     // source objects before yielding so completed batches cannot accumulate
     // behind the Worker's garbage collector.
     buildingBatches[index].length = 0;
     await yieldWorker();
   }
-  return buildingBatches.length;
+  return postedCount;
 }
 
 async function loadPrismPayload(url: string): Promise<PrismPayload> {
@@ -144,6 +152,7 @@ async function loadJsonResponse(url: string, label: string): Promise<Response> {
 
 async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const overallStart = performance.now();
+  const completedBatchIds = new Set(input.completedBatchIds ?? []);
   let batchCount = 0;
   if (input.detailProfile === "mobile") {
     // The main-thread preview already owns the coarse raster water, parks and
@@ -162,7 +171,11 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     // The main preview already covers the entire city. Only exact refinement
     // crosses the worker boundary; no duplicate shell construction or upload.
     partition.omitted.length = 0;
-    batchCount += await postBuildingBatches(prisms, partition.remaining);
+    batchCount += await postBuildingBatches(
+      prisms,
+      partition.remaining,
+      completedBatchIds,
+    );
     await waitForAttachedBatches();
     workerScope.postMessage({
       batches: batchCount,
@@ -203,6 +216,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     batchCount += await postBuildingBatches(
       prismPayload,
       [nearestBuildingBatch],
+      completedBatchIds,
     );
   }
 
@@ -211,6 +225,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   batchCount += await postBuildingBatches(
     prismPayload,
     deferredBuildingBatches,
+    completedBatchIds,
     nearestBuildingBatch ? 1 : 0,
   );
 
@@ -245,6 +260,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     payload: SurfacePayload,
     id: string,
   ): Promise<void> => {
+    if (completedBatchIds.has(id)) return;
     const startedAt = performance.now();
     const root = createSmoothSurfaces(
       payload,
@@ -286,15 +302,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   await postSurface("metal");
   const markingPayload = surfaceFamilyPayload(surfaces, "asphalt");
   markingPayload.roads = [];
-  const markingStartedAt = performance.now();
-  await postBatch(
-    createSmoothSurfaces(markingPayload, waterTop, bankY, terrainAt),
-    "surfaces",
-    "surface-lane-markings",
-    markingStartedAt,
-  );
+  await postSurfacePayload(markingPayload, "surface-lane-markings");
   surfaces.lane_markings = [];
-  batchCount += 1;
   await yieldWorker();
 
   await waitForAttachedBatches();

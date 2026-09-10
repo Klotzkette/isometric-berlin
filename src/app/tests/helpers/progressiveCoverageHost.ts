@@ -5,12 +5,12 @@ import {
 } from "three";
 import { setIsoNightPresentation } from "../../src/IsometricCityWorld";
 import {
-  hideReplacedBuildingPreview, restoreBuildingPreviews,
+  hideReplacedBuildingPreview,
 } from "../../src/progressiveBuildingCoverage";
 import {
-  progressiveWorldStopPolicy, releaseProgressiveWorldBatches,
+  progressiveWorldStopPolicy,
   tryProgressiveWorkerOperation, type ProgressiveWorldWorkerOutput,
-  type ProgressiveWorldState,
+  type ProgressiveWorldState, type ProgressiveWorldWorkerInput,
 } from "../../src/progressiveWorld";
 import {
   deserializeTransferredObject3D, objectMaterialsIncludingTransferredAlternates,
@@ -38,6 +38,7 @@ export function progressiveCoverageHost(
     "cancelScheduledProgressiveAttachment", "clearProgressiveAttachmentQueue",
     "cancelScheduledProgressiveWorld", "failProgressiveWorld",
     "markProgressiveWorldUnavailable", "stopProgressiveWorld",
+    "startProgressiveWorld",
     "attachProgressiveWorldMessage", "releaseBuiltWorldPayloads",
     "disposeObject3D",
   ];
@@ -45,45 +46,59 @@ export function progressiveCoverageHost(
   const declarations = names.map((name) => {
     const node = parsed.statements.find((entry) => ts.isFunctionDeclaration(entry) && entry.name?.text === name);
     if (!node) throw new Error(`Missing production function ${name}`);
-    return node.getText(parsed).replace(/^export\s+/, "");
+    return node.getText(parsed).replace(/^export\s+/, "")
+      .replaceAll("import.meta.url", JSON.stringify("https://fixture.invalid/ThreeViewer.tsx"));
   });
   const compiled = ts.transpileModule(declarations.join("\n"), {
     compilerOptions: { target: ts.ScriptTarget.ES2022 },
   }).outputText;
+  const warnings: string[] = [];
+  const acknowledged: string[] = [];
+  const builds: ProgressiveWorldWorkerInput[] = [];
+  let terminated = 0;
+  let failAcknowledgement = false;
+  const createWorker = () => ({
+    terminate: () => { terminated += 1; },
+    postMessage: (message: ProgressiveWorldWorkerInput | { id: string; type: "batch-attached" }) => {
+      if (message.type === "build") {
+        builds.push(message);
+        return;
+      }
+      if (failAcknowledgement) throw new Error("Worker already closed");
+      acknowledged.push(message.id);
+    },
+  });
+  let worker = createWorker();
+  const document = { hidden: false };
   const bindings = {
     Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
-    setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreviews,
-    progressiveWorldStopPolicy, releaseProgressiveWorldBatches,
+    setIsoNightPresentation, hideReplacedBuildingPreview,
+    progressiveWorldStopPolicy,
     tryProgressiveWorkerOperation, deserializeTransferredObject3D,
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
     collectFarZoomAntiFlickerTargets: () => {},
     registerBerlinerEnsembleRoofSignTargets: () => {},
     setEnvironmentalPresentation: () => {},
+    scheduleProgressiveAttachment: () => {},
+    isoWorldIntentActive: (state: { lightingMode: VisualMode }) => state.lightingMode !== "minecraft",
+    Worker: function () { worker = createWorker(); return worker; },
+    URL, document,
     PROGRESSIVE_WORLD_WARNING: "coverage worker unavailable",
-    performance: { mark: () => {} },
+    performance: { mark: () => {}, now: () => performance.now() },
   };
   const functions = new Function(...Object.keys(bindings), `${compiled}; return { ${names.join(", ")} };`)(
     ...Object.values(bindings),
   ) as {
     attachProgressiveWorldMessage: (runtime: unknown, worker: unknown, message: AttachMessage, warn: (message: string) => void) => void;
     stopProgressiveWorld: (runtime: unknown) => void;
+    startProgressiveWorld: (runtime: unknown, warn: (message: string) => void) => void;
     failProgressiveWorld: (runtime: unknown, worker: unknown, warn: (message: string) => void) => void;
     markProgressiveWorldUnavailable: (runtime: unknown, warn: (message: string) => void) => void;
     disposeObject3D: (runtime: unknown, root: Object3D) => void;
   };
-  const warnings: string[] = [];
-  const acknowledged: string[] = [];
-  let terminated = 0;
-  let failAcknowledgement = false;
-  const worker = {
-    terminate: () => { terminated += 1; },
-    postMessage: (message: { id: string }) => {
-      if (failAcknowledgement) throw new Error("Worker already closed");
-      acknowledged.push(message.id);
-    },
-  };
   let deferredStarts = 0;
   const runtime = {
+    disposed: false,
     isoWorld, voxelWorld: null,
     coarsePointer,
     lightingMode: "day" as VisualMode,
@@ -92,7 +107,7 @@ export function progressiveCoverageHost(
     progressiveWorldState: "loading" as ProgressiveWorldState,
     progressiveWorldBatches: [] as Group[],
     progressiveWorldMessages: [] as unknown[],
-    progressiveWorldInput: {},
+    progressiveWorldInput: { type: "build", detailProfile: "mobile", initialBuildingCount: 0, prismUrl: "https://fixture.invalid/prisms.json" } as ProgressiveWorldWorkerInput,
     progressiveWorldAttachCancel: undefined as undefined | (() => void),
     progressiveWorldStartCancel: undefined as undefined | (() => void),
     renderInvalidated: false,
@@ -101,7 +116,8 @@ export function progressiveCoverageHost(
   };
   const warn = (message: string) => { warnings.push(message); };
   return {
-    runtime, worker, warnings, acknowledged,
+    runtime, warnings, acknowledged, builds, document,
+    get worker() { return worker; },
     get terminated() { return terminated; },
     get deferredStarts() { return deferredStarts; },
     attach: (message: AttachMessage) => functions.attachProgressiveWorldMessage(runtime, worker, message, warn),
@@ -109,10 +125,7 @@ export function progressiveCoverageHost(
     fail: () => functions.failProgressiveWorld(runtime, worker, warn),
     unavailable: () => functions.markProgressiveWorldUnavailable(runtime, warn),
     failAcknowledgement: () => { failAcknowledgement = true; },
-    restart: () => {
-      runtime.progressiveWorldWorker = worker;
-      runtime.progressiveWorldState = "loading";
-    },
+    restart: () => functions.startProgressiveWorld(runtime, warn),
     dispose: () => {
       functions.disposeObject3D(runtime, isoWorld);
       disposeMinecraftMaterialState(runtime.minecraftMaterialState);

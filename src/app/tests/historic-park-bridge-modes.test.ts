@@ -34,6 +34,6 @@ describe("historic park bridge presentation refinements", () => {
       setIsoNightPresentation(bridge, mode === "night", true, mode);
       expect(snow.visible).toBeFalse();
     }
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(name);
+    expect(FINE_DETAIL_LAYER_NAMES).not.toContain(name);
   });
 });

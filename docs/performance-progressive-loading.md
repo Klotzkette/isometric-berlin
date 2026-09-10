@@ -3,6 +3,62 @@
 Pipeline step 10. Geometry is preserved; this change removes avoidable waiting
 between already computed geometry and its attachment to the scene.
 
+## Navigation and first-view preparation, v1.0.13
+
+The v1.0.12 shells did not address all delayed shape appearances during a pan.
+Construction is not camera-triggered: the authored building replacements are
+constructed once before the drawn world is published. The separate problems
+are scene visibility, input-dependent attachment and first GPU use.
+
+- Exact building packets now use the visibility-critical path. A completed
+  building batch enters the next browser task even with continuous pending
+  pointer input. Optional surfaces retain the bounded idle scheduler. Each
+  packet still owns its own task and the worker keeps four-buffer backpressure.
+- Attached exact batches remain in their parent world during suspension.
+  Restart supplies their IDs and skips both their constructors and transfers.
+  Their geometry identities and GPU allocations survive; only disposing the
+  containing world releases them.
+- Architectural form/facade groups no longer belong to the close-detail hide
+  list. Remaining small-detail visibility uses the object's own spatial bounds,
+  so moving past a building is evaluated independently of the orbit target.
+- A bounded preparation queue submits the unchanged offscreen buffers before
+  their first visible frame. It handles at most eight objects / 2 MiB per task,
+  allowing one existing indivisible larger buffer. A zero-vertex render into
+  a 1×1 target initializes the same attributes, indices, instances and programs
+  through Three's public renderer path. The usual bounds are also prepared before
+  the first real frustum test. No geometry or instance buffer is copied.
+  Original draw ranges, layers, culling, viewport, scissor, background and shadow
+  update flags are restored synchronously, including error paths. A separate
+  camera prevents Three's glass transmission target from resizing the live view.
+  Hidden modes and lost contexts are skipped; teardown cancels the queue.
+
+The installed Three 0.185.1 source performs its frustum test before buffer
+upload, then prepares the shader and index bindings before the zero-count draw.
+The backend regression uses its real `WebGLObjects`, `WebGLGeometries` and
+`WebGLAttributes` with a counting GL host: after preparation, the first simulated
+pan uploads zero new buffers and the ordinary full draw retains all vertices.
+See the public [renderer API](https://threejs.org/docs/pages/WebGLRenderer.html)
+and [geometry draw ranges](https://threejs.org/docs/pages/BufferGeometry.html).
+
+The production-scheduler regression holds input pending with no idle budget.
+Both exact building packets execute on their next separate tasks, replacing the
+old first-packet wait of 900 ms. This is a controlled scheduler measurement,
+not a browser frame-time or physical iPhone performance claim.
+
+Reproduction commands from `src/app`:
+
+```sh
+bun run test tests/detail-visibility-motion.test.ts tests/scene-gpu-warmup.test.ts
+bun run test tests/progressive-attachment.test.ts tests/progressive-worker-resume.test.ts
+```
+
+Replaying `detail-visibility-motion.test.ts` against v1.0.12's `ThreeViewer.tsx`
+via `DETAIL_VISIBILITY_REFERENCE` reproduces five failures. Current tests pass,
+including the two unchanged-radius pan/orbit cases and real Sony/Wilhelmstraße
+facade groups. The existing full/mobile geometry budgets, exact-building caps,
+source files, five modes and navigation controls are unchanged. This patch does
+not turn the distant source shells into newly surveyed full-detail buildings.
+
 ## Complete startup coverage, v1.0.12
 
 The previous main-thread preview contained only 160 exact source building parts

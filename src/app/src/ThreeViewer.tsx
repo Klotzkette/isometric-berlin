@@ -5,6 +5,13 @@ import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
 import { worldCameraFarM } from "./worldCameraDepth";
+import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
+import {
+  createDistanceDetailTarget,
+  restoreDistanceDetailTarget,
+  updateDistanceDetailTarget,
+  type DistanceDetailTarget,
+} from "./detailVisibility";
 import {
   createPotsdamerTrafficTower,
   setPotsdamerTrafficTowerPresentation,
@@ -15,7 +22,6 @@ import { updateVisiblePotsdamerTrafficTower } from "./potsdamerTrafficTowerMotio
 import {
   createProgressiveBuildingCoverage,
   hideReplacedBuildingPreview,
-  restoreBuildingPreviews,
 } from "./progressiveBuildingCoverage";
 import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
 import { musicMuseumEntranceCanopyWalkableAt } from "./museumLenneProfile";
@@ -241,12 +247,14 @@ import {
   DEFAULT_THREE_TARGET_WORLD,
 } from "./resetView";
 import {
-  type DetailFadeRangeM,
   FINE_DETAIL_LAYER_NAMES,
+  FINE_DETAIL_SHOW_DISTANCE_M,
+  FINE_DETAIL_HIDE_DISTANCE_M,
   INK_LINE_REFERENCE_FEATURE_M,
   MICRO_DETAIL_LAYER_NAMES,
+  MICRO_DETAIL_SHOW_DISTANCE_M,
+  MICRO_DETAIL_HIDE_DISTANCE_M,
   inkLineFadeOpacity,
-  nextDetailFadeVisible,
   nextInkLineFadeState,
   nextFineDetailVisible,
   nextMicroDetailVisible,
@@ -282,7 +290,6 @@ import {
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
   progressiveWorldVisibilityTransition,
-  releaseProgressiveWorldBatches,
   splitProgressiveBuildings,
   tryProgressiveWorkerOperation,
   type ProgressiveWorldState,
@@ -306,6 +313,7 @@ import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLa
 import { hauptbahnhofGroundAt, hauptbahnhofSolidAt } from "./HauptbahnhofNavigation";
 import {
   applyMinecraftVisibility,
+  minecraftOwnsVisibility,
   restoreMinecraftVisibility,
   type MinecraftVisibilityRoots,
 } from "./MinecraftVisibility";
@@ -632,6 +640,8 @@ type Runtime = {
   precipitationEnabled: boolean;
   snowstorm: Snowstorm;
   renderer: WebGLRenderer;
+  gpuWarmup?: SceneGpuWarmup;
+  scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
   /** Static desktop shadows refresh once after mutation, never per move. */
@@ -678,22 +688,16 @@ type Runtime = {
   // once per isoWorld (re)build, so its opacity can be dampened by
   // projected pixel width every frame without re-walking the scene graph.
   inkLineMaterials: Set<LineBasicMaterial>;
-  // Small accessory layers (lane markings, railings, window-band mullions)
-  // that only read as detail up close; hidden past FINE_DETAIL_HIDE_DISTANCE_M
-  // with hysteresis so they do not blink at the boundary.
-  fineDetailObjects: Array<{
-    object: Object3D;
-    rangeM: DetailFadeRangeM | null;
-  }>;
+  // Small ornament only, with cached world bounds. Complete architecture and
+  // street furniture never participate in distance-dependent visibility.
+  fineDetailObjects: DistanceDetailTarget[];
   fineDetailVisible: boolean;
-  microDetailObjects: Array<{
-    object: Object3D;
-    rangeM: DetailFadeRangeM | null;
-  }>;
+  microDetailObjects: DistanceDetailTarget[];
   microDetailVisible: boolean;
   farZoomAntiFlickerDistanceM: number;
   farZoomAntiFlickerFovDegrees: number;
   farZoomAntiFlickerViewportHeightPx: number;
+  farZoomAntiFlickerCameraPosition: Vector3;
   /** Explicit lens owned by the active curated landmark close-up. */
   focusedCameraFov: number | null;
   voxelWorld: Group | null;
@@ -1566,6 +1570,7 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
  * resizing or LOD swapping.
  */
 function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
+  restoreFarZoomDetailVisibility(runtime);
   invalidateFarZoomAntiFlickerCache(runtime);
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
@@ -1600,16 +1605,26 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
         inkLines.push(object);
       }
       if (fineDetailNames.has(object.name)) {
-        runtime.fineDetailObjects.push({
-          object,
-          rangeM: readDetailFadeRangeM(object.userData.detailFadeM),
-        });
+        runtime.fineDetailObjects.push(
+          createDistanceDetailTarget(
+            object,
+            readDetailFadeRangeM(object.userData.detailFadeM) ?? [
+              FINE_DETAIL_SHOW_DISTANCE_M,
+              FINE_DETAIL_HIDE_DISTANCE_M,
+            ],
+          ),
+        );
       }
       if (microDetailNames.has(object.name)) {
-        runtime.microDetailObjects.push({
-          object,
-          rangeM: readDetailFadeRangeM(object.userData.detailFadeM),
-        });
+        runtime.microDetailObjects.push(
+          createDistanceDetailTarget(
+            object,
+            readDetailFadeRangeM(object.userData.detailFadeM) ?? [
+              MICRO_DETAIL_SHOW_DISTANCE_M,
+              MICRO_DETAIL_HIDE_DISTANCE_M,
+            ],
+          ),
+        );
       }
       if (isBerlinerEnsembleRoofSignTarget(object)) {
         runtime.berlinerEnsembleRoofSignTargets.push(object);
@@ -1621,12 +1636,24 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.berlinerEnsembleRoofSignElapsedSeconds,
   );
   assignStableInkRenderOrder(inkLines);
+  runtime.gpuWarmup?.enqueue(runtime.scene);
+  runtime.scheduleGpuWarmup?.();
 }
 
 function invalidateFarZoomAntiFlickerCache(runtime: Runtime): void {
   runtime.farZoomAntiFlickerDistanceM = Number.NaN;
   runtime.farZoomAntiFlickerFovDegrees = Number.NaN;
   runtime.farZoomAntiFlickerViewportHeightPx = Number.NaN;
+}
+
+function restoreFarZoomDetailVisibility(runtime: Runtime): void {
+  for (const targets of [runtime.fineDetailObjects, runtime.microDetailObjects]) {
+    for (const target of targets) {
+      if (!minecraftOwnsVisibility(target.object)) {
+        restoreDistanceDetailTarget(target);
+      }
+    }
+  }
 }
 
 function registerBerlinerEnsembleRoofSignTargets(
@@ -1760,13 +1787,15 @@ function updateFarZoomAntiFlicker(
   if (
     Math.abs(runtime.farZoomAntiFlickerDistanceM - distanceM) <= 1e-5 &&
     runtime.farZoomAntiFlickerViewportHeightPx === viewportHeightPx &&
-    runtime.farZoomAntiFlickerFovDegrees === fovDegrees
+    runtime.farZoomAntiFlickerFovDegrees === fovDegrees &&
+    runtime.farZoomAntiFlickerCameraPosition.equals(runtime.camera.position)
   ) {
     return false;
   }
   runtime.farZoomAntiFlickerDistanceM = distanceM;
   runtime.farZoomAntiFlickerViewportHeightPx = viewportHeightPx;
   runtime.farZoomAntiFlickerFovDegrees = fovDegrees;
+  runtime.farZoomAntiFlickerCameraPosition.copy(runtime.camera.position);
   const px = projectedPixelSize(
     INK_LINE_REFERENCE_FEATURE_M,
     distanceM,
@@ -1801,15 +1830,9 @@ function updateFarZoomAntiFlicker(
     changed = true;
   }
   for (const target of runtime.fineDetailObjects) {
-    const visible = target.rangeM
-      ? nextDetailFadeVisible(
-          { distanceM, visible: target.object.visible },
-          target.rangeM,
-        )
-      : fineDetailVisible;
-    if (target.object.visible !== visible) {
-      target.object.visible = visible;
-      changed = true;
+    if (!minecraftOwnsVisibility(target.object)) {
+      changed =
+        updateDistanceDetailTarget(target, runtime.camera.position) || changed;
     }
   }
   const microDetailVisible = nextMicroDetailVisible({
@@ -1821,15 +1844,9 @@ function updateFarZoomAntiFlicker(
     changed = true;
   }
   for (const target of runtime.microDetailObjects) {
-    const visible = target.rangeM
-      ? nextDetailFadeVisible(
-          { distanceM, visible: target.object.visible },
-          target.rangeM,
-        )
-      : microDetailVisible;
-    if (target.object.visible !== visible) {
-      target.object.visible = visible;
-      changed = true;
+    if (!minecraftOwnsVisibility(target.object)) {
+      changed =
+        updateDistanceDetailTarget(target, runtime.camera.position) || changed;
     }
   }
   return changed;
@@ -1932,6 +1949,7 @@ function setSceneLighting(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  restoreFarZoomDetailVisibility(runtime);
   invalidateFarZoomAntiFlickerCache(runtime);
   const enteringSchwellenraum =
     mode === "schwellenraum" && runtime.lightingMode !== "schwellenraum";
@@ -2257,6 +2275,8 @@ function setSceneLighting(
     setUnderwaterPresentation(runtime, true);
   }
   setEnvironmentalPresentation(runtime);
+  runtime.gpuWarmup?.enqueue(runtime.scene);
+  runtime.scheduleGpuWarmup?.();
 }
 
 function voxelModeActive(runtime: Runtime): boolean {
@@ -2687,9 +2707,11 @@ function progressiveVisibilityBatch(
   message: ProgressiveWorldAttachMessage,
 ): boolean {
   return (
-    message.type === "batch" &&
-    (message.id === "buildings-distant" ||
-      message.id.startsWith("buildings-preview-"))
+    message.type === "complete" ||
+    (message.type === "batch" &&
+      (message.kind === "buildings" ||
+      message.id === "buildings-distant" ||
+      message.id.startsWith("buildings-preview-")))
   );
 }
 
@@ -2738,11 +2760,9 @@ function stopProgressiveWorld(runtime: Runtime): void {
   runtime.progressiveWorldWorker?.terminate();
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
-  restoreBuildingPreviews(runtime.isoWorld);
-  releaseProgressiveWorldBatches(runtime.progressiveWorldBatches, (batch) =>
-    disposeObject3D(runtime, batch),
-  );
-  collectFarZoomAntiFlickerTargets(runtime);
+  // Keep completed geometry and its GPU buffers resident. Restarting passes
+  // these batch IDs to the Worker, so returning never restores coarse shapes
+  // or repeats construction/upload for already visible buildings and surfaces.
   runtime.renderInvalidated = true;
 }
 
@@ -2791,6 +2811,8 @@ function attachProgressiveWorldMessage(
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
+  runtime.gpuWarmup?.enqueue(object);
+  runtime.scheduleGpuWarmup?.();
   registerBerlinerEnsembleRoofSignTargets(runtime, object);
   // Water is commonly the first exact progressive surface batch. Install the
   // light-only Schwellenraum veil in this task, before a frame exposes an
@@ -2947,7 +2969,12 @@ function startProgressiveWorld(
   worker.onerror = (): void => {
     failProgressiveWorld(runtime, worker, warn);
   };
-  const posted = tryProgressiveWorkerOperation(() => worker.postMessage(input));
+  const completedBatchIds = runtime.progressiveWorldBatches
+    .filter((batch) => batch.parent === runtime.isoWorld)
+    .map((batch) => batch.userData.progressiveWorldBatchId as string);
+  const posted = tryProgressiveWorkerOperation(() =>
+    worker.postMessage({ ...input, completedBatchIds }),
+  );
   if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
 }
 
@@ -5427,6 +5454,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         farZoomAntiFlickerDistanceM: Number.NaN,
         farZoomAntiFlickerFovDegrees: Number.NaN,
         farZoomAntiFlickerViewportHeightPx: Number.NaN,
+        farZoomAntiFlickerCameraPosition: new Vector3(
+          Number.NaN, Number.NaN, Number.NaN,
+        ),
         focusedCameraFov: null,
         voxelWorld: null,
         voxelWorldState: "idle",
@@ -5437,6 +5467,29 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underwater: false,
       };
       runtimeRef.current = runtime;
+      // Warm exact offscreen buffers in separate short tasks. A camera pan
+      // should encounter GPU-resident geometry instead of triggering its
+      // first upload. The helper draws no vertices and preserves the canvas.
+      runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera);
+      let gpuWarmupTimer: number | null = null;
+      runtime.scheduleGpuWarmup = () => {
+        if (disposed || document.hidden || !activeRef.current ||
+          gpuWarmupTimer !== null || !runtime.gpuWarmup?.pending) return;
+        gpuWarmupTimer = window.setTimeout(() => {
+          gpuWarmupTimer = null;
+          if (disposed || document.hidden || !activeRef.current) return;
+          try {
+            runtime.gpuWarmup?.warmNext();
+          } catch (error: unknown) {
+            // First-view preparation is optional; an upload error must not
+            // replace the ordinary renderer's existing recovery behavior.
+            runtime.gpuWarmup?.dispose();
+            runtime.gpuWarmup = undefined;
+            if (import.meta.env.DEV) console.warn("GPU preparation stopped", error);
+          }
+          runtime.scheduleGpuWarmup?.();
+        }, 16);
+      };
       if (lightingModeRef.current === "schwellenraum") {
         ensureSchwellenraumContent(runtime);
       }
@@ -6323,6 +6376,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const onVisibilityChange = () => {
         if (document.hidden) {
+          if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
+          gpuWarmupTimer = null;
           resetTouchGesture();
           cancelScheduledProgressiveWorld(runtime);
           if (
@@ -6334,6 +6389,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             stopProgressiveWorld(runtime);
           }
         } else {
+          runtime.scheduleGpuWarmup?.();
           runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
           runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
           runtime.schwellenraumLastWaterFrameAt = performance.now();
@@ -6362,6 +6418,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onPageHide = () => {
+        if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
+        gpuWarmupTimer = null;
         resetTouchGesture();
         cancelScheduledProgressiveWorld(runtime);
         if (runtime.progressiveWorldState === "loading") {
@@ -6683,6 +6741,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           lastAnimateAt = timestamp;
           return;
         }
+        runtime.scheduleGpuWarmup?.();
         if (timestamp >= wheelEndNotifyAt) {
           wheelEndNotifyAt = Number.POSITIVE_INFINITY;
           notifyView(runtime, onViewChangeRef.current);
@@ -6950,10 +7009,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.renderInvalidated) {
           setSurfacePresentation(runtime, stability.pinInteractionSurface);
         }
-        // Far-zoom anti-flicker (v0.53.0): ink lines and small accessory
-        // layers are dampened by a pure function of distance, so the picture
-        // is identical for a given standoff no matter how the camera got
-        // there, and never re-pops when motion stops.
+        // Ink retains its stable projection fade; small ornament follows its
+        // actual world bounds on every pan/orbit. Complete facades and forms
+        // stay present, without a movement/settling visibility switch.
         const farDetailChanged =
           cameraMoving || runtime.renderInvalidated
             ? updateFarZoomAntiFlicker(
@@ -7747,6 +7805,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       return () => {
         disposed = true;
         runtime.disposed = true;
+        if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
+        runtime.gpuWarmup?.dispose();
+        runtime.gpuWarmup = undefined;
+        runtime.scheduleGpuWarmup = undefined;
         loadController.abort();
         cancelScheduledProgressiveWorld(runtime);
         clearProgressiveAttachmentQueue(runtime);

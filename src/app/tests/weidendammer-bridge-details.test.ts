@@ -47,6 +47,7 @@ import {
   applySignatureLightingPresentation,
 } from "../src/ThreeViewer";
 import { applyMinecraftVisibility } from "../src/MinecraftVisibility";
+import { createDistanceDetailTarget, updateDistanceDetailTarget } from "../src/detailVisibility";
 
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
@@ -489,10 +490,17 @@ describe("Weidendammer Bruecke source-bound close details", () => {
     );
     expect(viewerSource).toContain("case WEIDENDAMMER_BRIDGE_PROFILE.name:");
     expect(viewerSource).toContain("return WEIDENDAMMER_BRIDGE_MARKER_Y;");
-    expect(viewerSource).toContain(
-      "rangeM: readDetailFadeRangeM(object.userData.detailFadeM)",
-    );
-    expect(viewerSource).toContain("nextDetailFadeVisible(");
+    const bridge = createWeidendammerBridgeDetails();
+    const locks = bridge.getObjectByName(WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME)!;
+    const range = readDetailFadeRangeM(locks.userData.detailFadeM)!;
+    const target = createDistanceDetailTarget(locks, range);
+    const camera = target.bounds.getCenter(new Vector3());
+    camera.x = target.bounds.max.x + range[1] + 1;
+    updateDistanceDetailTarget(target, camera);
+    expect(locks.visible).toBeFalse();
+    camera.x = target.bounds.max.x + range[0] - 1;
+    updateDistanceDetailTarget(target, camera);
+    expect(locks.visible).toBeTrue();
     expect(viewerSource).toContain(
       "applyRuntimeMinecraftVisibility(runtime, voxelMode);",
     );

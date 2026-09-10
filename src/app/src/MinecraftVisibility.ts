@@ -47,6 +47,11 @@ const MINECRAFT_CENTRAL_BRANCHES = new Set([
 // lighting policy remain the sole owner of those differences.
 const savedVisibility = new WeakMap<Object3D, boolean>();
 
+/** Distance detail must not override a branch owned by the voxel policy. */
+export function minecraftOwnsVisibility(object: Object3D): boolean {
+  return savedVisibility.has(object);
+}
+
 function setOwnedVisibility(object: Object3D, visible: boolean): void {
   if (!savedVisibility.has(object)) {
     savedVisibility.set(object, object.visible);

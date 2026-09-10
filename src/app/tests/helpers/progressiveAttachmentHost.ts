@@ -11,10 +11,13 @@ export function progressiveAttachmentHost(source: string, options: {
   legacyReady?: boolean; initialAgeMs?: number;
 } = {}) {
   const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  const declaration = parsed.statements.find(node =>
-    ts.isFunctionDeclaration(node) && node.name?.text === "scheduleProgressiveAttachment");
-  if (!declaration) throw new Error("Missing production attachment scheduler");
-  const compiled = ts.transpileModule(declaration.getText(parsed), {
+  const declarations = ["progressiveVisibilityBatch", "scheduleProgressiveAttachment"].map(name => {
+    const declaration = parsed.statements.find(node =>
+      ts.isFunctionDeclaration(node) && node.name?.text === name);
+    if (!declaration) throw new Error(`Missing production function ${name}`);
+    return declaration.getText(parsed);
+  });
+  const compiled = ts.transpileModule(declarations.join("\n"), {
     compilerOptions: { target: ts.ScriptTarget.ES2022 },
   }).outputText;
   let now = 0;
@@ -38,7 +41,7 @@ export function progressiveAttachmentHost(source: string, options: {
   const worker = {};
   const document = { hidden: false };
   const runtime = {
-    progressiveWorldMessages: [] as Array<{ enqueuedAt: number; message: { id: string; type: string } }>,
+    progressiveWorldMessages: [] as Array<{ enqueuedAt: number; message: { id: string; type: string; kind: "buildings" | "surfaces" } }>,
     progressiveWorldAttachCancel: undefined as (() => void) | undefined,
     progressiveWorldWorker: worker as object | undefined,
     disposed: false, interactionUntil: Number.POSITIVE_INFINITY,
@@ -46,7 +49,6 @@ export function progressiveAttachmentHost(source: string, options: {
   const attached: Array<{ id: string; at: number }> = [];
   const bindings = {
     window, document, performance: { now: () => now },
-    progressiveVisibilityBatch: (message: { id: string }) => message.id.startsWith("preview"),
     progressiveAttachmentReady: options.legacyReady
       ? (input: Parameters<typeof progressiveAttachmentReady>[0]) => input.critical || input.queuedForMs >= 900 || (!input.interactionActive && !input.inputPending && input.idleBudgetMs >= 4)
       : progressiveAttachmentReady,
@@ -61,8 +63,12 @@ export function progressiveAttachmentHost(source: string, options: {
   ) as (runtime: unknown, worker: unknown, warn: () => void) => void;
   return {
     runtime, document, attached,
-    add(id: string) {
-      runtime.progressiveWorldMessages.push({ enqueuedAt: now - (options.initialAgeMs ?? 0), message: { id, type: "batch" } });
+    add(id: string, kind: "buildings" | "surfaces" = "surfaces") {
+      runtime.progressiveWorldMessages.push({ enqueuedAt: now - (options.initialAgeMs ?? 0), message: { id, type: "batch", kind } });
+      schedule(runtime, worker, () => {});
+    },
+    complete() {
+      runtime.progressiveWorldMessages.push({ enqueuedAt: now, message: { id: "complete", type: "complete", kind: "surfaces" } });
       schedule(runtime, worker, () => {});
     },
     runNext() {

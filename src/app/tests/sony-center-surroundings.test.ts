@@ -233,13 +233,13 @@ describe("Sony Center surrounding architecture", () => {
     }
   });
 
-  test("fades fine detail without removing source mass and has no smooth voxel double", () => {
+  test("keeps complete facades at every distance and has no smooth voxel double", () => {
     const drawn = createSonyCenterSurroundings();
     for (const name of [
       SONY_SURROUNDINGS_GROUP_NAME,
       MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
     ]) {
-      expect(FINE_DETAIL_LAYER_NAMES).toContain(name);
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(name);
     }
     expect(readDetailFadeRangeM(drawn.userData.detailFadeM)).toEqual([
       1350, 1750,

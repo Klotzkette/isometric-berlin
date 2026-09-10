@@ -32,12 +32,27 @@ describe("production progressive attachment scheduling", () => {
 
   test("critical previews are immediate; timer fallback still makes progress", () => {
     const preview = progressiveAttachmentHost(source);
-    preview.add("preview-1");
+    preview.add("buildings-preview-1");
     expect(preview.drain()).toBe(0);
     const fallback = progressiveAttachmentHost(source, { idleApi: false });
     for (let i = 0; i < 4; i++) fallback.add(`exact-${i}`);
     expect(fallback.drain()).toBeLessThan(1_000);
     expect(fallback.attached).toHaveLength(4);
+  });
+
+  test("exact building shapes attach in the next task even with continuous pending input", () => {
+    for (const idleApi of [true, false]) {
+      const host = progressiveAttachmentHost(source, { idleApi, idleBudgetMs: 0, inputPending: true });
+      host.add("buildings-exact-1", "buildings");
+      host.add("buildings-exact-2", "buildings");
+      expect(host.runNext()).toBeTrue();
+      expect(host.attached).toEqual([{ id: "buildings-exact-1", at: 0 }]);
+      expect(host.drain()).toBe(0);
+      expect(host.attached).toHaveLength(2);
+      host.complete();
+      expect(host.drain()).toBe(0);
+      expect(host.attached.at(-1)?.id).toBe("complete");
+    }
   });
 
   test("cancelled, hidden, disposed or replaced worlds cannot attach stale batches", () => {

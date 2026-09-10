@@ -159,34 +159,24 @@ describe("micro-detail visibility", () => {
     }
   });
 
-  test("fades only smooth Starbucks furniture, never its Minecraft batch", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
-      expect.arrayContaining([
-        "Starbucks west direct STARBUCKS wordmark",
-        "Starbucks south direct STARBUCKS wordmark",
-      ]),
-    );
-    expect(MICRO_DETAIL_LAYER_NAMES).toEqual(
-      expect.arrayContaining([
-        "Starbucks four black freestanding umbrella canopies",
-        "Starbucks umbrella poles",
-        "Starbucks compact round pavement tables",
-        "Starbucks compact table stems",
-        "Starbucks compact dark pavement chairs",
-        "Starbucks compact stone planters",
-      ]),
-    );
-    // Snow caps are mode state, not distance state. Registering them here
-    // would let the far-detail updater turn them back on in Day.
-    expect(MICRO_DETAIL_LAYER_NAMES).not.toContain("Starbucks snow caps");
-    for (const persistentName of [
+  test("keeps Starbucks furniture and lettering present at every distance", () => {
+    for (const name of [
+      "Starbucks west direct STARBUCKS wordmark",
+      "Starbucks south direct STARBUCKS wordmark",
+      "Starbucks four black freestanding umbrella canopies",
+      "Starbucks umbrella poles",
+      "Starbucks compact round pavement tables",
+      "Starbucks compact table stems",
+      "Starbucks compact dark pavement chairs",
+      "Starbucks compact stone planters",
+      "Starbucks snow caps",
       "Minecraft Hotel Adlon and Starbucks block signature",
       "Starbucks west source-bound facade overlay",
       "Starbucks south source-bound facade overlay",
       "Adlon bodies",
     ]) {
-      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
-      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(name);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(name);
     }
   });
 });
@@ -320,30 +310,24 @@ describe("nextFineDetailVisible", () => {
       expect.arrayContaining([
         "Adlerbruecke ink lines",
         "Löwenbrücke ink lines",
-        "Löwenbrücke modern safety posts bodies",
-        "Löwenbrücke modern safety mesh fields",
       ]),
     );
     for (const persistentBodyName of [
       "Adlerbruecke bodies",
       "Löwenbrücke bodies",
       "Löwenbrücke modern safety handrails bodies",
+      "Löwenbrücke modern safety posts bodies",
+      "Löwenbrücke modern safety mesh fields",
     ]) {
       expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentBodyName);
       expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentBodyName);
     }
   });
 
-  test("keeps Moltkebrücke ornament in the anti-flicker detail layer", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
-      "Moltkebrücke ornamental stone bodies",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
-      "Moltkebrücke ornamental stone lamps",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
-      "Moltkebrücke ornamental stone ink lines",
-    );
+  test("retains Moltkebrücke stonework and lamps while fading only its ink", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).not.toContain("Moltkebrücke ornamental stone bodies");
+    expect(FINE_DETAIL_LAYER_NAMES).not.toContain("Moltkebrücke ornamental stone lamps");
+    expect(FINE_DETAIL_LAYER_NAMES).toContain("Moltkebrücke ornamental stone ink lines");
   });
 
   test("keeps the presidential standard's minute red eagle details stable", () => {
@@ -355,57 +339,32 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
-  test("keeps the Swiss Embassy street-front articulation out of the far overview", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+  test("retains complete facade and interior articulation at every distance", () => {
+    for (const name of [
       "Swiss Embassy historic street-front fine detail",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Swiss Embassy historic roof fine detail",
-    );
-  });
-
-  test("keeps the Chancellery's exterior-visible interior stable at overview distance", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Chancellery exterior-visible interior fine detail",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Chancellery monumental roof soffit downlights",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Chancellery Ehrenhof lobby ceiling lights",
-    );
-  });
-
-  test("keeps Brandenburg Gate reliefs and Pariser Platz furniture out of the far overview", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
-      "Brandenburg Gate photo-bounded fine detail",
-    );
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Pariser Platz photo-bounded fine detail",
-    );
-  });
-
-  test("drops ARD facade modules, roof grid and lettering without hiding either roof surface", () => {
-    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
-      expect.arrayContaining([
-        "ARD Hauptstadtstudio architectural details bodies",
-        "ARD Hauptstadtstudio architectural details lamps",
-        "ARD Hauptstadtstudio architectural details ink lines",
-        "ARD HAUPTSTADTSTUDIO facade lettering",
-        "ARD Hauptstadtstudio facade subtitle",
-      ]),
-    );
-
-    // The batched bodies contain the repeated panes and the fine atrium-grid
-    // bars. The two roof surfaces remain independent recognition/envelope
-    // meshes and must therefore survive every far-detail visibility step.
-    for (const retainedRoofName of [
+      "ARD Hauptstadtstudio architectural details bodies",
+      "ARD Hauptstadtstudio architectural details lamps",
+      "ARD Hauptstadtstudio architectural details ink lines",
+      "ARD HAUPTSTADTSTUDIO facade lettering",
+      "ARD Hauptstadtstudio facade subtitle",
       "ARD Hauptstadtstudio atrium roof glazing",
       "ARD Hauptstadtstudio opaque rear roof",
+      "LoD2 facade axes",
+      "LoD2 glass mullions",
+      "LoD2 prism window bars",
+      "Kollhoff recessed window panes",
+      "tram catenary masts",
+      "sparse city life bodies",
     ]) {
-      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(retainedRoofName);
-      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(retainedRoofName);
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(name);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(name);
     }
+    expect(FINE_DETAIL_LAYER_NAMES).toContain("Brandenburg Gate photo-bounded fine detail");
   });
 
   test("drops only the Palais micro-facade layer while retaining its monumental silhouette", () => {

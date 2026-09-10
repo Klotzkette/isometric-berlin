@@ -197,30 +197,41 @@ describe("production preview replacement lifecycle", () => {
     });
   }
 
-  test("background/Minecraft pause restores roofs before disposal and restart never duplicates a batch", () => {
+  test("background/Minecraft pause retains exact roofs and restart requests only missing batches", () => {
     const f = fixture();
+    let disposals = 0;
     try {
       f.host.attach(packet(f.partition.remaining[0], 0));
       const batch = f.host.runtime.progressiveWorldBatches[0];
-      let disposals = 0;
       const geometry = meshes(batch)[0].geometry;
       geometry.addEventListener("dispose", () => {
         disposals += 1;
-        expect(f.previews[0].visible).toBeTrue();
-        expect(batch.parent).toBeNull();
-        f.assertCoverage();
       });
       expect(progressiveWorldTransition("minecraft", "loading")).toBe("pause");
       f.host.pause();
-      expect(disposals).toBe(1);
-      expect(f.host.runtime.progressiveWorldBatches).toHaveLength(0);
+      expect(disposals).toBe(0);
+      expect(batch.parent).toBe(f.world);
+      expect(meshes(batch)[0].geometry).toBe(geometry);
+      expect(f.previews[0].visible).toBeFalse();
+      expect(f.host.runtime.progressiveWorldBatches).toEqual([batch]);
       expect(f.host.runtime.progressiveWorldState).toBe("idle");
       f.assertCoverage();
       f.host.restart();
-      for (const [index, buildings] of f.partition.remaining.entries()) f.host.attach(packet(buildings, index));
+      expect(f.host.builds[0].completedBatchIds).toEqual(["buildings-1"]);
+      f.host.attach(packet(f.partition.remaining[1], 1));
       f.assertCoverage();
       expect(f.host.runtime.progressiveWorldBatches).toHaveLength(2);
+      f.host.pause();
+      expect(disposals).toBe(0);
+      f.assertCoverage();
+      f.host.restart();
+      expect(f.host.builds[1].completedBatchIds).toEqual(["buildings-1", "buildings-2"]);
+      f.host.attach({ type: "complete", batches: 0, build_ms: 0, pretriangulated: false });
+      expect(f.host.runtime.progressiveWorldState).toBe("complete");
+      expect(f.host.runtime.progressiveWorldBatches[0]).toBe(batch);
+      f.assertCoverage();
     } finally { f.host.dispose(); }
+    expect(disposals).toBe(1);
   });
 
   test("Worker API unavailable preserves complete startup coverage", () => {

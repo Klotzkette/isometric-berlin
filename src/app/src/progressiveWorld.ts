@@ -101,6 +101,8 @@ const DESKTOP_PLACE_DETAIL_ZONES = PLAZA_FACADE_DETAIL_ZONES.filter((zone) =>
 );
 
 type ProgressiveWorldWorkerInputBase = {
+  /** Attached scene batches survive suspension and must not be rebuilt. */
+  completedBatchIds?: readonly string[];
   initialBuildingCount: number;
   type: "build";
 };
@@ -183,8 +185,8 @@ export function progressiveWorldTransition(
 
 /**
  * A background tab must not keep constructing transferable city geometry.
- * Pausing disposes every already attached partial batch, so a visible-tab
- * restart can replay the deterministic Worker output without duplicates.
+ * Pausing retains every attached batch. A visible-tab restart supplies their
+ * IDs so the Worker constructs only the still-missing deterministic batches.
  */
 export function progressiveWorldVisibilityTransition(
   hidden: boolean,
@@ -199,7 +201,7 @@ export function progressiveWorldStopPolicy(
 ): { disposePartialBatches: boolean; nextState: ProgressiveWorldState } {
   switch (reason) {
     case "pause":
-      return { disposePartialBatches: true, nextState: "idle" };
+      return { disposePartialBatches: false, nextState: "idle" };
     case "error":
       // The bounded exact near field and every successfully received batch are
       // a usable fallback; never replace them with a synchronous rebuild.
@@ -220,7 +222,7 @@ export function tryProgressiveWorkerOperation<T>(
   }
 }
 
-/** Dispose each partial batch exactly once before a paused Worker restarts. */
+/** Release owned batches when their containing world is being disposed. */
 export function releaseProgressiveWorldBatches<T>(
   batches: T[],
   dispose: (batch: T) => void,

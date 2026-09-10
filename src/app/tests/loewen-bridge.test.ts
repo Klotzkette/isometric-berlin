@@ -229,12 +229,12 @@ describe("Löwenbrücke recognition model", () => {
     expect(FINE_DETAIL_LAYER_NAMES).toEqual(
       expect.arrayContaining([
         "Löwenbrücke ink lines",
-        "Löwenbrücke modern safety posts bodies",
         "Löwenbrücke modern safety posts ink lines",
-        "Löwenbrücke modern safety mesh fields",
       ]),
     );
-    expect(FINE_DETAIL_LAYER_NAMES).not.toContain("Löwenbrücke bodies");
+    for (const name of ["Löwenbrücke modern safety posts bodies", "Löwenbrücke modern safety mesh fields", "Löwenbrücke bodies"]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(name);
+    }
     expect(FINE_DETAIL_LAYER_NAMES).not.toContain(
       "Löwenbrücke modern safety handrails bodies",
     );

@@ -152,7 +152,7 @@ describe("Pariser Platz source-bounded civic architecture", () => {
     }
   });
 
-  test("integrates once into the surface-mode civic layer and fades only its overlay", () => {
+  test("integrates once into the surface-mode civic layer and retains the complete overlay", () => {
     const central = createCentralCivicDetails([]);
     expect(
       central.children.filter(
@@ -166,13 +166,9 @@ describe("Pariser Platz source-bounded civic architecture", () => {
       "schwellenraum",
     ]);
     for (const name of EXPECTED_FACADES) {
-      expect(FINE_DETAIL_LAYER_NAMES).toEqual(
-        expect.arrayContaining([
-          `${name} bodies`,
-          `${name} lamps`,
-          `${name} ink lines`,
-        ]),
-      );
+      for (const layer of [`${name} bodies`, `${name} lamps`, `${name} ink lines`]) {
+        expect(FINE_DETAIL_LAYER_NAMES).not.toContain(layer);
+      }
     }
     expect(FINE_DETAIL_LAYER_NAMES).not.toContain(
       PARISER_PLATZ_ARCHITECTURE_GROUP_NAME,

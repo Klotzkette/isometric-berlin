@@ -75,7 +75,7 @@ describe("Wilhelmstrasse and Stresemannstrasse recognition detail", () => {
   test("merges the richer desktop layer into five or fewer renderables", () => {
     const group = createWilhelmStresemannDetails("full");
     expect(group.name).toBe(WILHELM_STRESEMANN_DETAILS_GROUP_NAME);
-    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+    expect(FINE_DETAIL_LAYER_NAMES).not.toContain(
       WILHELM_STRESEMANN_DETAILS_GROUP_NAME,
     );
     let renderables = 0;

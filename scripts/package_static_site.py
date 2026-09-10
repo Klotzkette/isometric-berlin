@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.12"
+PACKAGE_VERSION = "1.0.13"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,11 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.13: Fertige Gebäude werden auch während der Bewegung direkt
+eingebunden. Größere Architekturformen bleiben sichtbar, geladene Details
+bleiben beim Tabwechsel erhalten. Geometrie außerhalb des Bildes wird auf der
+GPU vorbereitet. Die Geometriequalität bleibt erhalten.
+
 Neu in v1.0.12: Die vollständige Stadt ist schon mit der ersten bedienbaren
 Ansicht räumlich sichtbar. Kompakte Gebäudehüllen bleiben bei Tabwechseln und
 stockender Detailverfeinerung erhalten; exakte Gebäude ersetzen sie lückenlos.
@@ -3988,6 +3993,10 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.13: Completed buildings attach directly during movement.
+Architectural forms remain visible and loaded detail survives tab switches.
+Offscreen geometry is prepared on the GPU. The geometry quality is preserved.
 
 New in v1.0.12: The entire city has 3D coverage with the first interactive
 view. Compact building shells survive tab switches and stalled refinement;

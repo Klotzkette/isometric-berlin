@@ -374,8 +374,8 @@ describe("progressive exact-world scheduling", () => {
     expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
     expect(workerMobileBranch).not.toContain("buildings-distant");
     expect(progressiveWorkerSource).not.toContain("postBuildingPreviews");
-    expect(workerMobileBranch).toContain(
-      "postBuildingBatches(prisms, partition.remaining)",
+    expect(workerMobileBranch).toMatch(
+      /postBuildingBatches\(\s*prisms,\s*partition\.remaining,\s*completedBatchIds,/,
     );
     expect(workerMobileBranch).toContain("prisms.buildings = []");
     expect(workerMobileBranch).toContain("partition.omitted.length = 0");
@@ -426,7 +426,7 @@ describe("progressive exact-world scheduling", () => {
     expect(progressiveWorldTransition("day", "idle")).toBe("resume");
     expect(progressiveWorldTransition("day", "failed")).toBe("none");
     expect(progressiveWorldStopPolicy("pause")).toEqual({
-      disposePartialBatches: true,
+      disposePartialBatches: false,
       nextState: "idle",
     });
     expect(progressiveWorldStopPolicy("error")).toEqual({
@@ -444,7 +444,7 @@ describe("progressive exact-world scheduling", () => {
     expect(batches).toEqual([]);
   });
 
-  test("stops hidden-tab refinement and restarts it without retaining partial batches", () => {
+  test("stops hidden-tab construction while retaining already attached batches", () => {
     expect(progressiveWorldVisibilityTransition(true, "loading")).toBe(
       "pause",
     );

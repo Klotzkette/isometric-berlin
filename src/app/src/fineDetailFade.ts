@@ -39,13 +39,6 @@ import {
   WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
   WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
 } from "./WeidendammerBridgeDetails";
-import {
-  SONY_SURROUNDINGS_GROUP_NAME,
-  MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
-} from "./sonyCenterSurroundingsProfile";
-import {
-  WILHELM_STRESEMANN_DETAILS_GROUP_NAME,
-} from "./WilhelmStresemannDetails";
 import { SPREE_RECOGNITION_FINE_LAYER_NAME } from "./spreeRecognitionProfile";
 import { UNTER_DEN_LINDEN_FINE_LAYER_NAME } from "./unterDenLindenProfiles";
 
@@ -166,9 +159,9 @@ export function nextInkLineFadeState({
 }
 
 /**
- * Distance thresholds (world metres) for the fine-detail layers: lane
- * markings, window-band seams, railings, and other small accessories that
- * only read as detail up close and as aliasing noise far out.
+ * Distance thresholds (world metres) for small ornament and fine drawing.
+ * The viewer measures to each object's cached world bounds. Whole facades,
+ * railings and other readable forms remain visible at every distance.
  *
  * The gap between SHOW and HIDE is deliberate hysteresis, same shape as
  * `renderQuality.ts`'s pixel-ratio/settled-detail governors: a camera
@@ -222,7 +215,7 @@ export function nextDetailFadeVisible(
 
 /**
  * Hysteretic visibility decision for a fine-detail layer, given only the
- * current camera standoff and the layer's own last-applied state. Unlike
+ * current camera-to-object distance and the layer's own last-applied state. Unlike
  * `renderQuality.ts`'s time-based hysteresis (which debounces *bursts of
  * input*), this debounces *distance*: the camera can sit anywhere without
  * a clock, so the band is defined in metres, not milliseconds, and the
@@ -257,82 +250,25 @@ export function nextMicroDetailVisible({
 }
 
 /**
- * Object names (drawnKit's `finishDrawnGroup` / hand-built mesh names) that
- * only read as fine detail up close: lane markings and window-band mullions
- * are already `LineSegments` and get the ink-line fade above too, but this
- * list also reaches the solid accessory *bodies* (e.g. bridge railings)
- * that ink-line fading alone would leave as a flat silhouette once their
- * outline vanished. Kept as plain data (no `three` import) so it stays
- * testable without a scene graph.
+ * Only close ornament and sub-pixel drawing belong in distance visibility.
+ * Facades, railings, lamps, canopies, furniture and other readable forms remain
+ * present at every distance. Their ordinary ink still uses its opacity fade.
  */
 export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   SPREE_RECOGNITION_FINE_LAYER_NAME,
   UNTER_DEN_LINDEN_FINE_LAYER_NAME,
-  SONY_SURROUNDINGS_GROUP_NAME,
-  MINECRAFT_SONY_SURROUNDINGS_GROUP_NAME,
-  WILHELM_STRESEMANN_DETAILS_GROUP_NAME,
-  "LoD2 facade axes",
   "carriageway lane markings",
-  "LoD2 glass mullions",
-  "LoD2 prism window bars",
-  "Kollhoff recessed window panes",
   "drawn kerb lines",
-  "bridge railing bodies",
   "bridge railing ink lines",
-  "Moltkebrücke ornamental stone bodies",
-  "Moltkebrücke ornamental stone lamps",
   "Moltkebrücke ornamental stone ink lines",
   "Adlerbruecke ink lines",
-  "Adlerbruecke snow accents",
   "Löwenbrücke ink lines",
-  "Löwenbrücke snow accents",
-  "Löwenbrücke modern safety posts bodies",
   "Löwenbrücke modern safety posts ink lines",
-  "Löwenbrücke modern safety mesh fields",
   WEIDENDAMMER_BRIDGE_INK_LAYER_NAME,
   WEIDENDAMMER_BRIDGE_LOVE_LOCK_LAYER_NAME,
-  "static water ripple ribbons",
-  "three hidden Tiergarten beavers",
-  "vessel wake ribbons",
-  "tram contact wires",
-  "tram catenary masts",
-  "sparse city life bodies",
-  "sparse city life ink lines",
-  "MEININGER Hotel facade details bodies",
-  "MEININGER Hotel facade details lamps",
-  "MEININGER Hotel facade details ink lines",
-  "Swiss Embassy historic street-front fine detail",
-  "Swiss Embassy historic roof fine detail",
   "Amtssitz presidential standard eagle red details front",
   "Amtssitz presidential standard eagle red details back",
-  "Chancellery extension construction details bodies",
-  "Chancellery extension construction details lamps",
-  "Chancellery extension construction details ink lines",
-  "Chancellery exterior-visible interior fine detail",
-  "Chancellery monumental roof soffit downlights",
-  "Chancellery Ehrenhof lobby ceiling lights",
   "Brandenburg Gate photo-bounded fine detail",
-  "Pariser Platz photo-bounded fine detail",
-  "Max-Liebermann-Haus source-bounded facade bodies",
-  "Max-Liebermann-Haus source-bounded facade lamps",
-  "Max-Liebermann-Haus source-bounded facade ink lines",
-  "French Embassy source-bounded facade bodies",
-  "French Embassy source-bounded facade lamps",
-  "French Embassy source-bounded facade ink lines",
-  "US Embassy source-bounded facade bodies",
-  "US Embassy source-bounded facade lamps",
-  "US Embassy source-bounded facade ink lines",
-  "Akademie der Künste source-bounded facade bodies",
-  "Akademie der Künste source-bounded facade lamps",
-  "Akademie der Künste source-bounded facade ink lines",
-  "Europäisches Haus source-bounded facade bodies",
-  "Europäisches Haus source-bounded facade lamps",
-  "Europäisches Haus source-bounded facade ink lines",
-  "ARD Hauptstadtstudio architectural details bodies",
-  "ARD Hauptstadtstudio architectural details lamps",
-  "ARD Hauptstadtstudio architectural details ink lines",
-  "ARD HAUPTSTADTSTUDIO facade lettering",
-  "ARD Hauptstadtstudio facade subtitle",
   "Reichstag west pediment crowned-finial fine detail",
   "Reichstag west portico Wappenbaum fine detail",
   "Reichstagspräsidentenpalais micro facade details bodies",
@@ -356,19 +292,11 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Invalidenfriedhof Auguste-Viktoria bell tower fine detail",
   "Günter Litfin watchtower fine detail",
   "Invalidenfriedhof historic wall fine detail",
-  "Starbucks west direct STARBUCKS wordmark",
-  "Starbucks south direct STARBUCKS wordmark",
   MOABIT_PRISON_MEMORIAL_FINE_LAYER_NAME,
 ];
 
-/** Dense line layers that would alias in the overview even when faded. */
+/** Mortar and brick-bond strokes, never entire pieces of street furniture. */
 export const MICRO_DETAIL_LAYER_NAMES: readonly string[] = [
   "Kollhoff clinker mortar joints",
-  "Starbucks four black freestanding umbrella canopies",
-  "Starbucks umbrella poles",
-  "Starbucks compact round pavement tables",
-  "Starbucks compact table stems",
-  "Starbucks compact dark pavement chairs",
-  "Starbucks compact stone planters",
   MOABIT_PRISON_MEMORIAL_MICRO_LAYER_NAME,
 ];
