@@ -62,6 +62,7 @@ import {
 } from "../src/WeidendammerBridgeDetails";
 import { isHolocaustMinecraftProtectedAt } from "../src/holocaustField";
 import { isLenneOakVoxelTree } from "../src/MinecraftLenneOak";
+import { MINECRAFT_ECONOMIC_MINISTRY_GROUP, isEconomicMinistryReplacementCell } from "../src/EconomicMinistrySourceGeometry";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -143,7 +144,8 @@ describe("true voxel Minecraft world", () => {
     // v1.0.7 removes false Topography site columns and rounds only authored civic roofs.
     // v1.0.10 replaces Admiralspalast and five museums' coarse source bodies.
     // v1.0.11 replaces the BahnTower and all15 music museum parts.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_583_655);
+    // v1.0.14 replaces the ministry's six coarse source bodies and their panes.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_579_600);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -153,9 +155,9 @@ describe("true voxel Minecraft world", () => {
     // envelope. v1.0.5 removes false Soviet bodies and the museum hall
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
-    expect(instanced("Voxel building columns", world).count).toBe(1_466_262);
+    expect(instanced("Voxel building columns", world).count).toBe(1_462_309);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      536_166,
+      534_758,
     );
 
     const landmarks = world.getObjectByName(
@@ -326,7 +328,26 @@ describe("true voxel Minecraft world", () => {
     expect(batches).toHaveLength(11);
     expect(details?.userData.drawCallCount).toBe(11);
     expect(details?.userData.instanceCount).toBeGreaterThan(250);
-    expect(details?.userData.instanceCount).toBe(9_490);
+    expect(details?.userData.instanceCount).toBe(9_519);
+  });
+
+  test("both complete voxel worlds replace ministry columns with one source model", () => {
+    for (const root of [world, mobileWorld]) {
+      const matches: Object3D[] = [];
+      root.traverse(object => { if (object.name === MINECRAFT_ECONOMIC_MINISTRY_GROUP) matches.push(object); });
+      expect(matches).toHaveLength(1);
+      expect(matches[0].parent).toBe(root);
+      expect(matches[0].userData.solarModules).toBe(447);
+      const columns = instanced("Voxel building columns", root);
+      const matrix = new Matrix4();
+      let duplicates = 0;
+      for (let i = 0; i < columns.count; i++) {
+        columns.getMatrixAt(i, matrix);
+        const x = matrix.elements[12], z = matrix.elements[14];
+        if (isEconomicMinistryReplacementCell(x - payload.cell_m / 2, z - payload.cell_m / 2, payload.cell_m)) duplicates++;
+      }
+      expect(duplicates).toBe(0);
+    }
   });
 
   test("loads exactly one bounded block-native Brecht memorial with full/mobile transform parity", () => {

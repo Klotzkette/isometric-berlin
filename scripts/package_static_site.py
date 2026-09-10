@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.13"
+PACKAGE_VERSION = "1.0.14"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,10 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.14: Richtige Grundrisse am Humboldthafen bereits beim Start,
+freie Höfe und freie Wasserflächen; genaueres Wirtschaftsministerium mit
+Altbau, Neubau und Solaranlage. Alle erfassten Friedhofsgräber auch in Minecraft.
+
 Neu in v1.0.13: Fertige Gebäude werden auch während der Bewegung direkt
 eingebunden. Größere Architekturformen bleiben sichtbar, geladene Details
 bleiben beim Tabwechsel erhalten. Geometrie außerhalb des Bildes wird auf der
@@ -3993,6 +3997,10 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.14: Correct Humboldthafen footprints from startup, open courts
+and clear water; refined historic and modern ministry roofs with solar panels.
+All mapped cemetery graves remain visible in Minecraft.
 
 New in v1.0.13: Completed buildings attach directly during movement.
 Architectural forms remain visible and loaded detail survives tab switches.

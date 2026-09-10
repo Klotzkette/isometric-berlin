@@ -32,6 +32,8 @@ import { MUSIC_MUSEUM_IDS, MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LE
 import { createParliamentArchitecture } from "./ParliamentArchitecture";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createHumboldthafenBuildingDetails, HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
+import { resolveHumboldthafenPrism } from "./humboldthafenCourtyardProfile";
+import { ECONOMIC_MINISTRY_SOURCE_IDS } from "./EconomicMinistrySourceGeometry";
 import { ZOLLPACKHOF_PRISM_IDS } from "./zollpackhofProfile";
 import { createZollpackhofDetails } from "./ZollpackhofDetails";
 import { GUSTAV_BRIDGE_SUPPORT_FALLBACK } from "./gustavBridgeSupportSource";
@@ -866,6 +868,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...ECONOMIC_MINISTRY_SOURCE_IDS,
   ...DB_TOWER_PRISM_IDS,
   ...MUSIC_MUSEUM_IDS,
   ...DOM_ALTES_PRISM_IDS,
@@ -11638,7 +11641,8 @@ export function createIsometricCity(
     }
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
-  for (const building of buildings) {
+  for (const sourceBuilding of buildings) {
+    const building = resolveHumboldthafenPrism(sourceBuilding);
     if (!isRenderablePrismBuilding(building)) {
       continue;
     }

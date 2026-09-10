@@ -448662,6 +448662,51 @@
       "documentation_ref": "docs/potsdamer-traffic-tower.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "humboldthafen-startup-coverage-v114",
+      "kind": "permanent_display_box_vs_source_footprints",
+      "sources": [
+        "Retained 66 Humboldthafen and six economic-ministry LoD2 prism records",
+        "Committed OSM water polygons in surface-polygons.json"
+      ],
+      "conflict": "The mobile exact-building selection omitted every one of these 72 parts. Permanent oriented boxes filled source courtyards and the H4 box overlapped 528.316 square metres of mapped water.",
+      "resolution": "Retain all records and include their identities in the first exact partition, within the existing initial counts and total caps. Source-bound replacement bodies and original-outline harbour extrusion expose courts from the first interactive frame.",
+      "geometry_ref": "src/app/src/progressiveWorld.ts",
+      "documentation_ref": "docs/release-v1.0.14-review.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "humboldthafen-h3-courtyard-overlap-v114",
+      "kind": "high_source_blanket_vs_low_courtyard_parts",
+      "sources": [
+        "Berlin LoD2 ee9JgIcN, WeZM0Chn, fMIvAwPW, U8FpiULv and OOUdyXFj",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "https://pbp.hamburg/en/1276-2/office-building/humboldthafen-baufeld-h3-and-h4-berlin-2016/"
+      ],
+      "conflict": "The high H3 main record has no hole and covers three lower courtyard roof records. The official aerial and built-project account show a recessed court.",
+      "resolution": "Preserve all 66 records unchanged. Resolve only the displayed upper main part with the 405.245-square-metre inner wall perimeter copied from WeZM0Chn; expose original lower roofs at 11.8–12.4 metres. Use this interpretation in drawn geometry, native Minecraft and pedestrian collision; remove the old coarse Minecraft columns using the original blanket footprint.",
+      "geometry_ref": "src/app/src/humboldthafenCourtyardProfile.ts",
+      "documentation_ref": "docs/humboldthafen-buildings-refinement.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "economic-ministry-roof-source-v114",
+      "kind": "flat_main_source_roof_vs_official_aerial",
+      "sources": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5821.zip (2026-03-02)",
+        "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+        "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Textsammlungen/Ministerium/architektur.html"
+      ],
+      "conflict": "Original K00008CN supplies one flat RoofSurface despite pitched perimeter/court wings in DOP; generic mobile boxes additionally concealed all eleven courts. Original modern/historic roof planes had been flattened or approximated.",
+      "resolution": "Retain all six prisms and 328 original wall/roof/closure surfaces, recover four parts original roof planes, preserve eleven main and five podium courts. Add DOP-guided main pitched bands inside retained 23.5 m top and narrow solar strip on the actual modern source slope. Local pitches, eaves and 447 tile divisions are procedural display estimates; block-native panels rest above their stepped roof representation.",
+      "geometry_ref": "src/app/src/economicMinistrySource.json",
+      "documentation_ref": "docs/economic-ministry-refinement-v114.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ]
 }

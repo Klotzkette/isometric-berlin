@@ -1,6 +1,7 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshBasicMaterial, Path, PlaneGeometry, Shape, ShapeGeometry, Vector2, Vector3 } from "three";
 import { addBox, createBuilder, finishDrawnGroup, paintGeometry } from "./drawnKit";
 import sourceProfile from "./humboldthafenBuildingProfile.json";
+import { HUMBOLDTHAFEN_H3_COURTYARD_PROFILE, resolveHumboldthafenPrism } from "./humboldthafenCourtyardProfile";
 
 export type HarbourPrism = { id: string; ring: number[][]; holes?: number[][][]; y0_dm: number; h_dm: number };
 export const HUMBOLDTHAFEN_BUILDING_IDS: ReadonlySet<string> = new Set(sourceProfile.map(p => p.id));
@@ -12,7 +13,8 @@ export const HUMBOLDTHAFEN_BUILDING_PROFILE = {
   eins: { architect: "KSP Engel", completed: 2015, storeys: [7, 8], source: "https://www.kvlgroup.com/referenzen/humboldthafen-eins", facade: "irregularly spaced, one-sided bevelled pale GFB pilasters; floor bands and two-storey waterfront arcade" },
   h3h4: { completed: 2019, storeys: 7, source: "https://www.schueco.com/schueco/fabricators/references/humboldthafen-baufeld-h3-h4-4085", facade: "pale panel grid, alternating broad and narrow window bays, glazed commercial base and projecting balcony parapets" },
   spiegel: { name: "SPIEGEL-Hauptstadtstudio", address: "Alexanderufer 5", osmNode: "12121083184", world: [151.18712440156378,-596.7039961535484], sourcePart: "tppqGxWH", source: "https://www.berlin.de/tickets/suche/orte/spiegel-hauptstadtstudio-bdc53199-9a0f-4b6b-8e25-37db8cfd1d2d/", note: "Office identity only; the OSM office point is not asserted to be a surveyed door." },
-  geometryStatus: "Exact source outlines and heights retained, including source inconsistencies between courtyard parts. Window spacing, reveals and panel joints are photo-guided display dimensions, not a measured facade survey. Flat roof interpretation follows completed-building photographs; no roof height is raised. The colonnade is a shallow facade articulation, not an invented through-building route.",
+  courtyardResolution: HUMBOLDTHAFEN_H3_COURTYARD_PROFILE,
+  geometryStatus: "Exact outer source outlines and heights retained. The documented H3 overlap is resolved using its existing upper courtyard wall and three lower LoD2 roof parts; original records remain unchanged. Window spacing, reveals and panel joints are photo-guided display dimensions, not a measured facade survey. Flat roof interpretation follows completed-building photographs; no roof height is raised. The colonnade is a shallow facade articulation, not an invented through-building route.",
 } as const;
 
 function inRing(ring: number[][], x: number, z: number): boolean {
@@ -29,10 +31,12 @@ export function harbourPrismContains(p: HarbourPrism, x: number, z: number): boo
 function selectPrisms(prisms?: readonly HarbourPrism[]): HarbourPrism[] {
   // Cold Minecraft startup can use this exact, compact source subset without
   // allocating the full drawn world. Source coordinates are checked in tests.
-  return (prisms ?? sourceProfile).filter(p => HUMBOLDTHAFEN_BUILDING_IDS.has(p.id));
+  return (prisms ?? sourceProfile).filter(p => HUMBOLDTHAFEN_BUILDING_IDS.has(p.id)).map(resolveHumboldthafenPrism);
 }
 export function createHumboldthafenBuildingColumnTester(prisms?: readonly HarbourPrism[]) {
-  const parts = selectPrisms(prisms);
+  // Remove the delivered raster column mass, including its erroneous full-
+  // height H3 court fill. The replacement preserves its separate low roofs.
+  const parts = (prisms ?? sourceProfile).filter(p => HUMBOLDTHAFEN_BUILDING_IDS.has(p.id));
   return (x: number, z: number): boolean => {
     if (x < 43 || x > 168 || z < -960 || z > -514) return false;
     return parts.some(p => harbourPrismContains(p, x, z));

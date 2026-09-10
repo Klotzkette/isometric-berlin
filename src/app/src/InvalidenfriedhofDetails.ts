@@ -59,7 +59,7 @@ export const INVALIDENFRIEDHOF_DETAIL_PROFILE = {
   geometryStatus:
     "OSM/LoD2 anchored procedural recognition geometry; uncited grave, railing, bell and facade subdivisions are field-view-bounded display estimates",
   modeContract:
-    "Static exact-Day protected geometry in Day, Night, Snow and Schwellenraum; Minecraft uses separate block-native signatures for all five graves, both LoD2 structures and the historic walls",
+    "Static exact-Day protected geometry in Day, Night, Snow and Schwellenraum; Minecraft uses separate block-native signatures for all five graves, the retained ordinary mapped grave markers, both LoD2 structures and the historic walls",
   visualReferenceStatus:
     "Owner-supplied field photographs and attributed Wikimedia images are reference-only; no photograph, lettering, portrait or texture is redistributed",
   graves: {
@@ -1576,6 +1576,36 @@ function pushLocalVoxel(
   );
 }
 
+/** Retain the ordinary OSM grave markers when the drawn cemetery is hidden. */
+function addMinecraftMappedGraves(batches: VoxelBatches): number {
+  const replacedAnchors = Object.values(
+    INVALIDENFRIEDHOF_DETAIL_PROFILE.graves,
+  ).flatMap((grave) => [
+    grave.sourcePointWorldM,
+    ...("absorbedGenericSourcePointsWorldM" in grave
+      ? grave.absorbedGenericSourcePointsWorldM
+      : []),
+  ]);
+  let count = 0;
+  cemetery.graveWorldM.forEach(([x, z], index) => {
+    if (replacedAnchors.some(([gx, gz]) => gx === x && gz === z)) return;
+    // Keep the drawn field's existing display dimensions and source position.
+    // These are unnamed recognition markers, not surveyed tomb reconstructions.
+    const height = 0.72 + (index % 5) * 0.16;
+    batches[index % 4 === 0 ? "dark" : "concrete"].push({
+      position: [
+        x,
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.groundY + height / 2,
+        z,
+      ],
+      rotation: [0, ((index * 37) % 13) * 0.018 - 0.1, 0],
+      scale: [0.52 + (index % 3) * 0.12, height, 0.24],
+    });
+    count += 1;
+  });
+  return count;
+}
+
 function addMinecraftGraves(batches: VoxelBatches): void {
   const graves = INVALIDENFRIEDHOF_DETAIL_PROFILE.graves;
   const scharnhorst = graves.scharnhorst;
@@ -2149,6 +2179,7 @@ export function createMinecraftInvalidenfriedhofDetails(
   };
   const batches = createVoxelBatches();
   addMinecraftGraves(batches);
+  root.userData.mappedOrdinaryGraveCount = addMinecraftMappedGraves(batches);
   addMinecraftBell(batches);
   addMinecraftWalls(batches);
   const sharedCube = new BoxGeometry(1, 1, 1);

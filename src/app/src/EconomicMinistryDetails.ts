@@ -6,6 +6,8 @@ import {
   Group,
 } from "three";
 
+import { createEconomicMinistrySourceGeometry } from "./EconomicMinistrySourceGeometry";
+
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   type Builder,
@@ -64,7 +66,7 @@ export const ECONOMIC_MINISTRY_PRISM_ROOF_TONES: Record<string, number> = {
 export const ECONOMIC_MINISTRY_PROFILE = {
   address: "Scharnhorststrasse 34-37, Berlin",
   geometryStatus:
-    "LoD2 envelopes remain authoritative; the added facade grids, entrance framing and roof-form correction are reference-bounded recognition detail",
+    "Original LoD2 wall and roof surfaces restore four pitched parts, all source footprints and courtyards remain authoritative; the main-house pitched roof subdivision and solar module dimensions are DOP-guided procedural recognition detail",
   officialArchitecture:
     "https://www.bundeswirtschaftsministerium.de/Navigation/DE/Ministerium/Architektur/architektur.html",
   officialBuildingReference:
@@ -89,7 +91,7 @@ export const ECONOMIC_MINISTRY_MINECRAFT_FACADES = {
   southHistoricCourt: {from:[141.1,-1205.4] as const,to:[214.2,-1247.4] as const,levels:3,mullions:19,y0:5.2},
   modernCanal: {
     from: [148.2, -1157.2] as const,
-    levels: 5,
+    levels: 4,
     mullions: 36,
     to: [58.3, -1313.6] as const,
     y0: 5.2,
@@ -236,8 +238,10 @@ function addWindowGrid(
     windowWidthRatio: number;
     historicFrames?: boolean;
   },
+  courtyard = false,
 ): { bays: number; windows: number } {
   const wall = wallOf(building, wallIndex);
+  if (courtyard) { wall.nx *= -1; wall.nz *= -1; }
   const y0 = building.y0_dm / 10;
   const available = Math.max(1, wall.length - options.marginM * 2);
   const bays = Math.max(1, Math.round(available / options.bayPitchM));
@@ -419,7 +423,7 @@ function addHistoricWing(
     bayPitchM: 4.35,
     color: HISTORIC_GLASS,
     firstCentreAboveGroundM: 2.35,
-    floorPitchM: 3.75,
+    floorPitchM: 3.3,
     levels: 3,
     majorPierEvery: 4,
     marginM: 1.2,
@@ -430,7 +434,7 @@ function addHistoricWing(
   });
   const court = addWindowGrid(builder, building, courtyardWallIndex, {
     bayPitchM: 4.35, color: HISTORIC_GLASS, firstCentreAboveGroundM: 2.35,
-    floorPitchM: 3.75, levels: 3, majorPierEvery: 4, marginM: 1.2,
+    floorPitchM: 3.3, levels: 3, majorPierEvery: 4, marginM: 1.2,
     trimColor: HISTORIC_STONE, windowHeightM: 2.25, windowWidthRatio: 0.5,
     historicFrames: true,
   });
@@ -458,7 +462,7 @@ function addHistoricWing(
   for (const fraction of [0.19, 0.81]) {
     for (let level = 0; level < 3; level += 1) {
       const along = endWall.length * fraction;
-      const y = building.y0_dm / 10 + 2.35 + level * 3.75;
+      const y = building.y0_dm / 10 + 2.35 + level * 3.3;
       addWallBox(builder, endWall, HISTORIC_GLASS, along, y, 0.17,
         1.6, 2.25, 0.16, true, true);
       addWallBox(builder, endWall, HISTORIC_STONE, along, y - 1.2, 0.22,
@@ -479,7 +483,7 @@ function addHistoricWing(
       wall,
       HISTORIC_STONE,
       wall.length / 2,
-      building.y0_dm / 10 + 11.75,
+      building.y0_dm / 10 + 10.1,
       0.2,
       wall.length - 0.35,
       0.46,
@@ -537,6 +541,19 @@ function addMainHouseFacade(builder: Builder, building: PrismBuilding): number {
       }
     }
   }
+  // Every remaining exterior and court wing receives its own source-edge grid.
+  // This never spans across the eleven source openings.
+  for (const [ringIndex, ring] of [building.ring, ...(building.holes ?? [])].entries()) {
+    for (const wall of ringWalls(ring)) {
+      if (wall.length < 5 || (ringIndex === 0 && [23, 27, 35, 42, 46].includes(wall.index))) continue;
+      const extra = addWindowGrid(builder, { ...building, ring }, wall.index, {
+        bayPitchM: 3.65, color: HISTORIC_GLASS, firstCentreAboveGroundM: 5.55,
+        floorPitchM: 4.85, levels: 2, majorPierEvery: 5, marginM: .75,
+        trimColor: HISTORIC_STONE, windowHeightM: 2.75, windowWidthRatio: .49,
+      }, ringIndex > 0);
+      windows += extra.windows;
+    }
+  }
   return windows;
 }
 
@@ -569,16 +586,16 @@ export function createEconomicMinistryDetails(prisms: PrismPayload): Group {
     bayPitchM: 4.05,
     color: MODERN_GLASS,
     firstCentreAboveGroundM: 2.35,
-    floorPitchM: 3.55,
-    levels: 5,
+    floorPitchM: 3.35,
+    levels: 4,
     majorPierEvery: 5,
     marginM: 1.1,
     windowHeightM: 2.2,
     windowWidthRatio: 0.66,
   });
   const courtyardPiers =
-    addRibbonGrid(builder, modern, 3, 5, 3.55, MODERN_GLASS) +
-    addRibbonGrid(builder, modern, 7, 5, 3.55, MODERN_GLASS);
+    addRibbonGrid(builder, modern, 3, 4, 3.0, MODERN_GLASS) +
+    addRibbonGrid(builder, modern, 7, 4, 3.0, MODERN_GLASS);
   const mainHouse = byId.get(ECONOMIC_MINISTRY_MAIN_ID);
   const mainHouseWindows = mainHouse ? addMainHouseFacade(builder, mainHouse) : 0;
   const south = addHistoricWing(builder, southWing, 3, 1, 2);
@@ -604,10 +621,12 @@ export function createEconomicMinistryDetails(prisms: PrismPayload): Group {
     sourcePrisms: ECONOMIC_MINISTRY_IDS.size,
   };
   group.userData.geometryStatus = ECONOMIC_MINISTRY_PROFILE.geometryStatus;
+  group.add(createEconomicMinistrySourceGeometry());
   group.userData.hasOpaqueEnvelope = false;
   group.userData.maxFacadeProjectionM = 0.6;
   group.userData.profile = ECONOMIC_MINISTRY_PROFILE;
-  group.userData.replacesLoD2 = false;
+  group.userData.replacesLoD2 = true;
+  group.userData.originalSourceRetained = true;
   group.userData.sourcePrismIds = [...ECONOMIC_MINISTRY_IDS];
   group.userData.staticAllModes = true;
   group.userData.staticAntiFlicker = true;

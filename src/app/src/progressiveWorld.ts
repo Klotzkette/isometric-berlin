@@ -12,12 +12,20 @@ import { GROPIUS_BAU_PRISM_IDS } from "./gropiusBauProfile";
 import { BUNDESRAT_IDS } from "./bundesratProfile";
 import { ROHWEDDER_HAUS_IDS } from "./rohwedderHausProfile";
 import { TOPOGRAPHY_TERROR_IDS } from "./topographyTerrorProfile";
+import { HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
+import { ECONOMIC_MINISTRY_IDS } from "./EconomicMinistryDetails";
 
 const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>([
   ...GROPIUS_BAU_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,
   ...TOPOGRAPHY_TERROR_IDS,
+  // These source-bound facade overlays require the actual courts and oblique
+  // perimeter beneath them. A permanent far-field box fills the ministry's
+  // eleven courts and projects the harbour blocks over the quay/water. Keep
+  // their 72 source parts in the first exact batch on both device profiles.
+  ...HUMBOLDTHAFEN_BUILDING_IDS,
+  ...ECONOMIC_MINISTRY_IDS,
 ]);
 
 export const DESKTOP_INITIAL_BUILDING_COUNT = 420;

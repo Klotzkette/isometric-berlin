@@ -39,6 +39,7 @@ import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
 import { createMinecraftHistoricCharite, createHistoricChariteColumnTester } from "./MinecraftHistoricCharite";
 import { createHumboldthafenBuildingDetails, createHumboldthafenBuildingColumnTester } from "./HumboldthafenBuildings";
+import { createMinecraftEconomicMinistryDetails, isEconomicMinistryReplacementCell } from "./EconomicMinistrySourceGeometry";
 import { createMinecraftZollpackhofDetails } from "./ZollpackhofDetails";
 import { zollpackhofContains } from "./zollpackhofProfile";
 import { gustavBridgeSupportReplacementAt } from "./gustavBridgeSupportSource";
@@ -2736,6 +2737,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftHistoricCharite(options.sourcePrisms ?? [], options.detailProfile ?? "full"));
   group.add(createMinecraftParliamentArchitecture(sourcePrismPayload, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createHumboldthafenBuildingDetails(options.sourcePrisms ? { buildings: options.sourcePrisms } : undefined, { minecraft: true, mobileLike: options.detailProfile === "mobile" }));
+  group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
   yield;
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
@@ -2763,6 +2765,7 @@ export function* buildMinecraftVoxelWorldSteps(
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !isEconomicMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&

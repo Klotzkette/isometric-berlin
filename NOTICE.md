@@ -21,6 +21,20 @@ Per owner policy this project uses **additive data fusion** across
 all permitted sources (see [`docs/data.md`](docs/data.md) and
 [`AGENTS.md`](AGENTS.md) §4):
 
+- **Humboldthafen, economic ministry and Invalidenfriedhof (v1.0.14):**
+  original LoD2 and OSM records remain retained. The first scene uses the correct
+  harbour footprints; H3's measured inner wall and lower source roofs resolve its
+  covered courtyard. PBP's built-project account and official DOP 2025 support
+  the interpretation. Original ministry wall/roof surfaces and the official
+  aerial guide its historic and modern roofs and solar strip; unpublished roof
+  subdivisions and module spacing remain display estimates. Minecraft restores
+  29 existing mapped grave markers, while the detailed Scharnhorst tomb remains
+  intact. No new photograph or runtime texture is bundled. See the
+  [harbour source contract](docs/humboldthafen-buildings-refinement.md),
+  [ministry source contract](docs/economic-ministry-refinement-v114.md),
+  [release review](docs/release-v1.0.14-review.md) and
+  [cemetery audit](docs/invalidenfriedhof-audit-v114.md).
+
 - **Potsdamer Platz traffic tower (v1.0.12):** the retained OSM way
   `241572310` and its original perimeter anchor the modern replica. Berlin's
   transport history and the sculpture inventory support the 8.50 m height,

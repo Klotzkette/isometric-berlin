@@ -18,6 +18,8 @@ import { musicMuseumPart, musicMuseumPartRoofHeightAt, musicMuseumDisplayTop } f
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
+import { resolveHumboldthafenPrism } from "./humboldthafenCourtyardProfile";
+import { ECONOMIC_MINISTRY_SOURCE_IDS, economicMinistryRoofTopAt } from "./EconomicMinistrySourceGeometry";
 import {
   minecraftVoxelTreeRetained,
   type MinecraftVoxelDetailProfile,
@@ -562,11 +564,20 @@ export function compilePedestrianObstacles(
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
-  for (const building of prisms.buildings) {
+  for (const sourceBuilding of prisms.buildings) {
+    const building = resolveHumboldthafenPrism(sourceBuilding);
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
+    if (ECONOMIC_MINISTRY_SOURCE_IDS.has(building.id)) {
+      const sourceTop = (building.y0_dm + building.h_dm) / 10;
+      addPolygonObstacle(index, building.ring, building.holes ?? [],
+        building.y0_dm / 10, sourceTop + 0.2, building.id, 0.1,
+        (x, z) => economicMinistryRoofTopAt(x, z, building.id));
+      index.buildingCount += 1;
+      continue;
+    }
     const zollpackhof = ZOLLPACKHOF_PARTS.find(({ id }) => id === building.id);
     if (zollpackhof) {
       addPolygonObstacle(index, building.ring, building.holes ?? [],
@@ -1015,9 +1026,17 @@ function polygonObstacleTopAt(
       const edgeZ = az + progress * dz;
       const distanceSquared = (x - edgeX) ** 2 + (z - edgeZ) ** 2;
       if (distanceSquared >= nearestSquared) continue;
-      const epsilon = 1e-5 / Math.sqrt(lengthSquared);
-      const top = obstacle.topAt(edgeX - dz * epsilon, edgeZ + dx * epsilon)
-        ?? obstacle.topAt(edgeX + dz * epsilon, edgeZ - dx * epsilon);
+      const inverseLength = 1 / Math.sqrt(lengthSquared);
+      const sampleEdge = (inset: number): number | null => {
+        const offset = inset * inverseLength;
+        return obstacle.topAt!(edgeX - dz * offset, edgeZ + dx * offset)
+          ?? obstacle.topAt!(edgeX + dz * offset, edgeZ - dx * offset);
+      };
+      // Detailed roof planes retain millimetres; source obstacle plans are
+      // rounded to decimetres (up to 0.071 m displacement). If the infinitesimal
+      // probe misses, sample just inside that bounded rounding band instead
+      // of borrowing a distant ridge's height over the visible low eave.
+      const top = sampleEdge(1e-5) ?? sampleEdge(0.1);
       if (top !== null) {
         nearestSquared = distanceSquared;
         nearestTop = top;

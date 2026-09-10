@@ -57,7 +57,7 @@ describe("Bundeswirtschaftsministerium at the canal", () => {
       expect(HERO_PRISM_ROOF_TONES[id]).toBe(
         ECONOMIC_MINISTRY_PRISM_ROOF_TONES[id],
       );
-      expect(PRISM_SUPPRESSED_IDS.has(id)).toBeFalse();
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBeTrue();
     }
   });
 
@@ -95,17 +95,17 @@ describe("Bundeswirtschaftsministerium at the canal", () => {
 
   test("adds one merged facade layer with canal bays, court grids and entrances", () => {
     const details = createEconomicMinistryDetails(ministryPrisms);
-    expect(details.userData.replacesLoD2).toBeFalse();
+    expect(details.userData.replacesLoD2).toBeTrue();
     expect(details.userData.hasOpaqueEnvelope).toBeFalse();
     expect(details.userData.staticAllModes).toBeTrue();
     expect(details.userData.maxFacadeProjectionM).toBe(0.6);
     expect(details.userData.detailCounts).toEqual({
       canalFacadeBays: 44,
-      canalFacadeWindows: 220,
+      canalFacadeWindows: 176,
       courtyardPiers: 24,
       historicEntrances: 2,
       northHistoricBullseyes: 1,
-      mainHouseWindows: 60,
+      mainHouseWindows: 640,
       mainHouseRisalits: 3,
       framedHistoricWindows: 240,
       historicWindows: 240,
@@ -132,12 +132,12 @@ describe("Bundeswirtschaftsministerium at the canal", () => {
     const bounds = new Box3().setFromObject(
       createEconomicMinistryDetails(ministryPrisms),
     );
-    expect(bounds.min.x).toBeGreaterThan(57);
-    expect(bounds.max.x).toBeLessThan(305);
+    expect(bounds.min.x).toBeGreaterThan(36.7);
+    expect(bounds.max.x).toBeLessThan(312);
     expect(bounds.min.z).toBeGreaterThan(-1341);
     expect(bounds.max.z).toBeLessThan(-1017);
     expect(bounds.min.y).toBeGreaterThan(5);
-    expect(bounds.max.y).toBeLessThan(24.8);
+    expect(bounds.max.y).toBeLessThan(31.9);
   });
 
   test("adds the Invalidenstrasse facade without altering its official body or courts", () => {
@@ -152,8 +152,8 @@ describe("Bundeswirtschaftsministerium at the canal", () => {
       buildings: ministryPrisms.buildings.filter(({ id }) => id !== source.id),
     });
     expect(prior.userData.detailCounts.mainHouseWindows).toBe(0);
-    expect(complete.userData.detailCounts.mainHouseWindows).toBe(60);
-    expect(new Box3().setFromObject(prior).max.z).toBeLessThan(-1156);
+    expect(complete.userData.detailCounts.mainHouseWindows).toBe(640);
+    expect(prior.userData.originalSourceRetained).toBeTrue();
     expect(new Box3().setFromObject(complete).max.z).toBeGreaterThan(-1018);
     expect(JSON.stringify(source)).toBe(before);
   });
@@ -170,10 +170,10 @@ describe("Bundeswirtschaftsministerium at the canal", () => {
       }
       bytes += object.geometry.index?.array.byteLength ?? 0;
     });
-    expect(renderables).toBe(3);
-    // 1,206,636 measured bytes including ink, now covering the main facade,
-    // framed individual court windows, pediments and the north bullseye.
+    expect(renderables).toBe(5);
+    // Full source bodies/roof planes, all eleven court facades and photovoltaic
+    // modules stay bounded; the measured shared-geometry total is below 2.2 MB.
     expect(bytes).toBeGreaterThan(0);
-    expect(bytes).toBeLessThan(1_300_000);
+    expect(bytes).toBeLessThan(2_200_000);
   });
 });

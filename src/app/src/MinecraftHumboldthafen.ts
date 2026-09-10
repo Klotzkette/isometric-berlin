@@ -337,7 +337,7 @@ function addEconomicMinistryFacadeBlocks(blocks: Block[]): void {
     const rotationY = -Math.atan2(uz, ux);
     const historic = key.includes("Historic");
     const main = key.startsWith("main");
-    const floorPitch = main ? 4.85 : historic ? 3.75 : 3.55;
+    const floorPitch = main ? 4.85 : historic ? 3.3 : key === "modernCourtyard" ? 3.0 : 3.35;
     const firstCentre = main ? 5.55 : 2.35;
     const facadeHeight = (profile.levels - 1) * floorPitch + 2.45;
     for (let level = 0; level < profile.levels; level += 1) {

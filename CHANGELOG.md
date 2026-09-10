@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.14
+
+- Step 10: include all 72 Humboldthafen/ministry source parts in the first exact
+  building partition on mobile and desktop. Remove permanent box coverage that
+  filled courtyards and projected H4 over the canal. Keep the existing city limits.
+- Distinguish the ministry’s historic and modern architecture, roof forms and
+  source-bound solar array in drawn and block-native presentations.
+- Restore the 29 mapped Invalidenfriedhof graves missing from Minecraft while
+  preserving the detailed Scharnhorst lion tomb and other individual monuments.
+
 ## v1.0.13
 
 - Step 10: attach completed exact buildings in the next task during navigation,

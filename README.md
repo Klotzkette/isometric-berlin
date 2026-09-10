@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.13/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.14/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.13** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.14** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.14 gives the Humboldthafen buildings and economic ministry their
+source footprints from the first interactive frame, preserving courts and water.
+The ministry gains differentiated historic and modern roofs with a solar array;
+Minecraft retains all mapped Invalidenfriedhof graves.
+
+Version 1.0.14 zeigt die Gebäude am Humboldthafen und das Wirtschaftsministerium
+vom ersten Bild an mit ihren tatsächlichen Grundrissen, offenen Höfen und freiem
+Wasser. Das Ministerium erhält unterscheidbare historische und moderne Dächer
+mit Solaranlage; Minecraft zeigt alle erfassten Gräber des Invalidenfriedhofs.
 
 Version 1.0.13 attaches completed building geometry directly during movement,
 keeps architectural forms visible and retains loaded detail across tab switches.
@@ -156,7 +166,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.13**, built from `main`. Its full viewer
+The current public package is **v1.0.14**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

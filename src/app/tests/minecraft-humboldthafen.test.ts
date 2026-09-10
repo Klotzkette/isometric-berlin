@@ -76,7 +76,8 @@ describe("block-native Humboldthafen parity", () => {
   });
 
   test("keeps the ministry facade grid block-native and inside the same draw call", () => {
-    expect(blocks.userData.sourceRoles["building-detail"]).toBe(1003);
+    // Four canal glazing rows fit below the measured asymmetric roof eave.
+    expect(blocks.userData.sourceRoles["building-detail"]).toBe(1002);
     expect(details.userData.sources.wirtschaftsministerium.osmOfficeWay).toBe(
       24911034,
     );

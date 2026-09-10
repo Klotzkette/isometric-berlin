@@ -1,12 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.11 replaces the BahnTower, music museum and bounded Spreebogen bank
-// while preserving their source records and unrelated terrain. Synchronous buffers are compared with cooperative
-// construction, including all geometry, colours and instance capacities.
+// v1.0.14 restores the H3 court and adds the source-bound ministry, closed
+// native roof steps and mapped graves. Independently measured synchronous
+// buffers are compared with cooperative construction, including geometry,
+// colours, source replacement and all instance capacities.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "82832658023b7b1773a7328cb949578d52019e02137b1ba1e4e79b018d0d65e2", 3794603, 96, 289620142],
-  ["mobile", "836445338101473a01a8c549a7ee5fd93300f2f8338c6dfde31a81da844b7d1c", 991634, 94, 76027470],
+  ["full", "0084ceb8adb8f44c8eae3aaa32cba7ba10e3a798634f9a6ef03ede891b1ee04f", 3814244, 97, 291113359],
+  ["mobile", "82d85ecefe618fbd826c750a9ac03c53976ce7049c9309c5bceca276703bfd3d", 1009599, 95, 77393311],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
