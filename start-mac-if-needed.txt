@@ -1,8 +1,8 @@
-macOS fallback, only if START-HERE.html does not open correctly.
+macOS 3D viewer launch instructions.
 
 First try double-clicking OPEN-3D-MAC.command. If macOS warns about the
 download, right-click it and choose Open. START-HERE.html provides the same
-choice and retains the optional 2D fallback.
+local HTTP launch instructions.
 
 Only use Terminal for the server fallback:
 

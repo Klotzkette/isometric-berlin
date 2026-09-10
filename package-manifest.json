@@ -1,16 +1,13 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.27",
+  "package_version": "1.0.28",
   "start_page": "START-HERE.html",
-  "start_page_mode": "3d-launcher-with-2d-compatibility-fallback",
+  "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
-  "preferred_image": "dzi/regierungsviertel/overview_source.png",
-  "optional_pixel_image": "dzi/regierungsviertel/overview.png",
-  "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
   "uses_google_content": false,
   "scope": "Berlin Regierungsviertel bounds only",
-  "render_mode": "procedural LoD2/OpenStreetMap city with DZI 2D compatibility fallback",
+  "render_mode": "procedural LoD2/OpenStreetMap isometric city",
   "controls": [
     "mouse-pan",
     "mouse-rotate-swivel",
@@ -21,7 +18,7 @@
     "exact-current-view-pedestrian-spawn",
     "cancelable-progressive-model-loading",
     "photogrammetry-assets-removed",
-    "procedural-recovery-to-clean-remount-or-2d",
+    "procedural-recovery-to-clean-remount",
     "desktop-and-mobile-exact-building-budgets",
     "instanced-complete-building-coverage",
     "raster-road-and-authored-path-memory-profile",
@@ -32,7 +29,7 @@
     "sequential-mobile-progressive-and-park-build",
     "mobile-family-keyed-single-world-residency",
     "single-clean-webgl-runtime-recovery",
-    "explicit-recovery-or-2d-after-repeat-failure",
+    "explicit-recovery-after-repeat-failure",
     "minecraft-defers-surface-polygons-until-drawn-or-pedestrian",
     "economic-ministry-canal-invalidenhaus-details",
     "timeout-and-retry-json-loading",
@@ -42,9 +39,7 @@
     "keyboard-space-rise-shift-descend",
     "pedestrian-space-jump-double-space-high-jump",
     "alt-arrow-orbit-tilt",
-    "fallback-shift-drag-rotate-swivel",
     "top-north-east-south-west-presets",
-    "atlas-cinematic-lab-visual-profiles",
     "bilingual-de-en-ui",
     "direct-day-night-minecraft-snowstorm-modes",
     "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
@@ -52,11 +47,7 @@
     "manual-tiergartentunnel-entry-both-directions",
     "minecraft-roaming-creepers-zombies-and-skeletons",
     "opt-in-seven-variant-procedural-audio",
-    "persistent-offline-viewer-preferences",
-    "persistent-last-landmark-and-view",
-    "selected-landmark-focus-ring",
     "selected-landmark-only-marker",
-    "instrument-hud",
     "night-building-window-lights",
     "night-street-lamps",
     "night-monument-accents",
@@ -73,30 +64,20 @@
   ],
   "required_attribution": "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)",
   "assets": {
-    "detail_image": {
-      "path": "dzi/regierungsviertel/overview_source.png",
-      "bytes": 4389764,
-      "sha256": "9ce9531389284804ec82e67e45d8d59fdd93beac80d8d2693a7c53ea309e467e"
+    "pedestrian_map": {
+      "path": "dzi/regierungsviertel/pedestrian_map.png",
+      "bytes": 430276,
+      "sha256": "addc7f0e507bd6c9c728be8abdd31237e821e40ca9f8349f7f70cc67072f8923"
     },
-    "pixel_image": {
-      "path": "dzi/regierungsviertel/overview.png",
-      "bytes": 4383856,
-      "sha256": "49854eaefea12299edc0b7ea832adf868e869cdcab3533f110b638beebfa09aa"
-    },
-    "dzi_descriptor": {
-      "path": "dzi/regierungsviertel/regierungsviertel.dzi",
-      "bytes": 180,
-      "sha256": "ad568f8f2eff7adf625a02d6dd8e71aaf4236790613e4888960a48d786bc1d9b"
-    },
-    "reference_map": {
-      "path": "dzi/regierungsviertel/reference_map.png",
-      "bytes": 613693,
-      "sha256": "5a4e58fc37e99fda9fc3d1d2b923631ee2a3841fbde26a6923d3cce9b171eff0"
+    "startup_backdrop": {
+      "path": "dzi/regierungsviertel/startup-map.jpg",
+      "bytes": 21215,
+      "sha256": "c886d8d5c64f91709e6cb04db366e14fdd468adf3e3c71320a1c95593262738b"
     },
     "landmarks": {
       "path": "dzi/regierungsviertel/landmarks.json",
-      "bytes": 17284,
-      "sha256": "92813e7ec0b3d46488b48428d6d240091ee95a32bc8f87d3954ed52839110acf"
+      "bytes": 17308,
+      "sha256": "867850e2c73994a1715fe49ef69632600ea119e5dd9e118767b0ec938144b3e6"
     },
     "tiergartentunnel_overlay": {
       "path": "dzi/regierungsviertel/tiergartentunnel.json",
@@ -155,8 +136,8 @@
     },
     "start_page": {
       "path": "START-HERE.html",
-      "bytes": 127631,
-      "sha256": "a3139e8f58dd78fd251ce32ead1a1a8f24dbbf491f6bfffdc7596ea039a71b0e"
+      "bytes": 3932,
+      "sha256": "a56a95ca5ccf7447f0b2c58acb7302c510425fc09f62bddb20467e0c66af3145"
     }
   }
 }
