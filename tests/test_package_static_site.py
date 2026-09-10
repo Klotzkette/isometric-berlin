@@ -66,11 +66,14 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "BrokenPipeError" in serve_text
   assert "ConnectionResetError" in serve_text
   assert not (tmp_path / "start-mac.command").exists()
+  assert (tmp_path / "OPEN-3D-MAC.command").stat().st_mode & stat.S_IXUSR
+  assert "serve-local.py" in (tmp_path / "OPEN-3D-MAC.command").read_text()
+  assert "serve-local.py" in (tmp_path / "OPEN-3D-WINDOWS.bat").read_text()
 
   mac_notes = (tmp_path / "start-mac-if-needed.txt").read_text(encoding="utf-8")
   linux = (tmp_path / "start-linux.sh").read_text(encoding="utf-8")
   windows = (tmp_path / "start-windows.bat").read_text(encoding="utf-8")
-  assert "Gatekeeper" in mac_notes
+  assert "right-click" in mac_notes
   assert "python3 serve-local.py" in mac_notes
   assert "index.html address" in mac_notes
   assert "python3 serve-local.py" in linux
@@ -106,6 +109,9 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "overview_source.png" in html
   assert "reference_map.png" in html
   assert "Reichstag" in html
+  assert "Vollständige 3D-Version starten" in html
+  assert "OPEN-3D-WINDOWS.bat" in html
+  assert "OPEN-3D-MAC.command" in html
   assert "Bundeskanzleramt" in html
   assert "DEFAULT_FOCUS_LANDMARK" in html
   assert 'const DEFAULT_FOCUS_LANDMARK = "Reichstagsgebäude"' in html
@@ -314,13 +320,13 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   readme = (tmp_path / "README.txt").read_text(encoding="utf-8")
   assert package_static_site.PACKAGE_VERSION in readme
   assert "START-HERE.html" in readme
-  assert "2D-Kompatibilitätsansicht" in readme
+  assert "2D-Notansicht" in readme
   assert "Echtes 3D" in readme
   assert "40 x 23,5 m Kuppel" in readme
   assert "321-m-Glasdach" in readme
   assert "62,5 x 11 x 26 m" in readme
-  assert "start-mac.command" in readme
-  assert "Gatekeeper" in readme
+  assert "OPEN-3D-MAC.command" in readme
+  assert "Rechtsklick" in readme
   assert "nächsten freien Port" in readme
   assert "next free port" in readme
   assert "Tag-/Nachtmodus" in readme
@@ -376,7 +382,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     (tmp_path / "package-manifest.json").read_text(encoding="utf-8")
   )
   assert manifest["package_version"] == package_static_site.PACKAGE_VERSION
-  assert manifest["start_page_mode"] == "2d-compatibility-fallback"
+  assert manifest["start_page_mode"] == "3d-launcher-with-2d-compatibility-fallback"
   assert manifest["full_3d_start_page"] == "index.html"
   assert manifest["preferred_image"] == "dzi/regierungsviertel/overview_source.png"
   assert manifest["uses_google_content"] is False

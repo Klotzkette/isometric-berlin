@@ -1581,7 +1581,7 @@ def package_manifest_failures(
     )
   if manifest.get("start_page") != "START-HERE.html":
     failures.append(f"Package manifest does not point at START-HERE.html: {label}")
-  if manifest.get("start_page_mode") != "2d-compatibility-fallback":
+  if manifest.get("start_page_mode") != "3d-launcher-with-2d-compatibility-fallback":
     failures.append(f"Package manifest mislabels the compatibility start: {label}")
   if manifest.get("full_3d_start_page") != "index.html":
     failures.append(f"Package manifest lacks the full 3D start page: {label}")

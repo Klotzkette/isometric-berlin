@@ -781,7 +781,7 @@ def write_minimal_package_zip(
         "package_name": release_readiness.PACKAGE_NAME,
         "package_version": "9.9.9",
         "start_page": "START-HERE.html",
-        "start_page_mode": "2d-compatibility-fallback",
+        "start_page_mode": "3d-launcher-with-2d-compatibility-fallback",
         "full_3d_start_page": "index.html",
         "preferred_image": "dzi/regierungsviertel/overview_source.png",
         "uses_google_content": False,

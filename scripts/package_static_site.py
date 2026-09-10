@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.17"
+PACKAGE_VERSION = "1.0.18"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -48,6 +48,8 @@ START_PAGE = "index.html"
 REQUIRED_PACKAGE_FILES = (
   START_PAGE,
   "START-HERE.html",
+  "OPEN-3D-MAC.command",
+  "OPEN-3D-WINDOWS.bat",
   "README.txt",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
@@ -282,6 +284,20 @@ START_HERE_HTML = """<!doctype html>
       height: 100vh;
       height: 100dvh;
     }
+    .start-choice {
+      position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center;
+      padding: 24px; background: rgba(7, 12, 12, .94);
+    }
+    .start-choice[hidden] { display: none; }
+    .start-card { max-width: 680px; padding: 28px; border: 2px solid #f1c84b;
+      border-radius: 18px; background: #fbf5e7; color: #1f2825; box-shadow: 0 30px 90px #000; }
+    .start-card h1 { margin: 0 0 12px; font-size: clamp(25px, 5vw, 42px); }
+    .start-card p { line-height: 1.5; }
+    .start-actions { display: grid; gap: 10px; margin-top: 20px; }
+    .start-actions a, .start-actions button { display: block; padding: 13px 16px;
+      border: 0; border-radius: 10px; background: #1f8aa5; color: white;
+      font: inherit; font-weight: 800; text-align: center; text-decoration: none; cursor: pointer; }
+    .start-actions button { background: #59615e; }
     .stage {
       position: relative;
       min-width: 0;
@@ -1188,6 +1204,22 @@ START_HERE_HTML = """<!doctype html>
   </style>
 </head>
 <body>
+  <section class="start-choice" id="start-choice">
+    <div class="start-card">
+      <h1>Vollständige 3D-Version starten</h1>
+      <p><strong>Diese HTML-Datei allein ist nur die 2D-Notansicht.</strong>
+        Für Gebäude, freie Kamera, Fußgängermodus und Minecraft starte zuerst
+        den kleinen lokalen Server im entpackten Ordner.</p>
+      <div class="start-actions">
+        <a href="OPEN-3D-WINDOWS.bat">Windows: OPEN-3D-WINDOWS.bat</a>
+        <a href="OPEN-3D-MAC.command">macOS: OPEN-3D-MAC.command</a>
+        <a href="start-linux.sh">Linux: start-linux.sh</a>
+        <button type="button" id="continue-2d">Nur die 2D-Notansicht öffnen</button>
+      </div>
+      <p>Nach dem Download das ZIP zuerst vollständig entpacken. macOS: Falls
+        nötig den Starter mit Rechtsklick → Öffnen freigeben.</p>
+    </div>
+  </section>
   <main class="shell">
     <section class="stage" id="stage" aria-label="Isometrische Karte">
       <div class="map-layer" id="layer">
@@ -1274,6 +1306,12 @@ START_HERE_HTML = """<!doctype html>
     <img src="dzi/regierungsviertel/reference_map.png" alt="Top-down reference map">
   </section>
   <script>
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      location.replace("index.html" + location.search + location.hash);
+    }
+    document.getElementById("continue-2d").addEventListener("click", () => {
+      document.getElementById("start-choice").hidden = true;
+    });
     const payload = __LANDMARK_PAYLOAD__;
     const tunnelPayload = __TUNNEL_PAYLOAD__;
     const image = Object.freeze({ width: 2157, height: 1529 });
@@ -3307,16 +3345,17 @@ def write_start_here(package_dir: Path) -> None:
 def write_launchers(package_dir: Path) -> None:
   """Write optional local-server fallbacks.
 
-  The primary package entry point is START-HERE.html. A downloaded macOS
-  .command file is intentionally not emitted, because Gatekeeper blocks
-  unsigned executable scripts from ZIP downloads before our code can run.
+  START-HERE explains the required local HTTP origin. Platform launchers make
+  the complete 3D viewer the obvious path after extracting the ZIP.
   """
   write_serve_script(package_dir)
   mac_notes = package_dir / "start-mac-if-needed.txt"
   mac_notes.write_text(
     """macOS fallback, only if START-HERE.html does not open correctly.
 
-For the 2D compatibility fallback, double-click START-HERE.html.
+First try double-clicking OPEN-3D-MAC.command. If macOS warns about the
+download, right-click it and choose Open. START-HERE.html provides the same
+choice and retains the optional 2D fallback.
 
 Only use Terminal for the server fallback:
 
@@ -3328,9 +3367,7 @@ Only use Terminal for the server fallback:
 5. The server opens the full 3D viewer at the printed
    http://127.0.0.1:.../index.html address.
 
-The command below opens the true 3D viewer directly. This package does not
-include start-mac.command because macOS Gatekeeper
-blocks unsigned downloaded .command files before the viewer can start.
+OPEN-3D-MAC.command runs this same command for you.
 """,
     encoding="utf-8",
   )
@@ -3351,6 +3388,22 @@ fi
   )
   linux.chmod(linux.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
+  mac = package_dir / "OPEN-3D-MAC.command"
+  mac.write_text(
+    """#!/bin/sh
+cd "$(dirname "$0")"
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 serve-local.py
+elif command -v python >/dev/null 2>&1; then
+  exec python serve-local.py
+else
+  osascript -e 'display dialog "Python 3 wird zum Start des lokalen 3D-Viewers benötigt." buttons {"OK"} default button 1'
+fi
+""",
+    encoding="utf-8",
+  )
+  mac.chmod(mac.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
   windows = package_dir / "start-windows.bat"
   windows.write_text(
     """@echo off
@@ -3359,6 +3412,17 @@ py -3 serve-local.py
 if errorlevel 1 (
   python serve-local.py
 )
+pause
+""",
+    encoding="utf-8",
+  )
+  (package_dir / "OPEN-3D-WINDOWS.bat").write_text(
+    """@echo off
+cd /d "%~dp0"
+where py >nul 2>nul && (py -3 serve-local.py & goto :eof)
+where python >nul 2>nul && (python serve-local.py & goto :eof)
+echo Python 3 is required to start the local 3D viewer.
+echo Install it from https://www.python.org/downloads/ and run this file again.
 pause
 """,
     encoding="utf-8",
@@ -3393,7 +3457,7 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.17: Das Botschaftsband südlich des Tiergartens, der Robert-Koch-Platz
+Neu in v1.0.18: Das Botschaftsband südlich des Tiergartens, der Robert-Koch-Platz
 und der bepflanzte Bendlerhof besitzen zusätzliche quellengestützte Details.
 Das Charlottenburger Tor besitzt zwei richtige Kolonnaden
 nördlich und südlich der Straße. Vier klassizistische Torhäuser mit offenen
@@ -3494,11 +3558,10 @@ ein weicherer Schwellenraum, quellgebundene Gebaeudeattribute und die
 ueberarbeitete Siegessaeule sind ebenfalls enthalten.
 
 Dieses Paket ist eine lokale Website mit allen Kartendaten. Zum Anzeigen
-brauchst du keine KI und keinen Google-Key. START-HERE.html ist die klar
-gekennzeichnete 2D-Kompatibilitätsansicht ohne Server, nicht das vollständige
-Modell. Echtes 3D startet unter Windows per start-windows.bat und unter
-macOS/Linux per `python3 serve-local.py`; ein unsigniertes macOS-.command-Skript
-wird nicht ausgeliefert. Die 2D-Notansicht enthält Karte, Zoom/Verschieben,
+brauchst du keine KI und keinen Google-Key. START-HERE.html erklärt zuerst den
+3D-Start und bezeichnet die optionale Ansicht ohne Server klar als 2D-Notansicht.
+Echtes 3D startet per OPEN-3D-WINDOWS.bat, OPEN-3D-MAC.command oder
+start-linux.sh. Die 2D-Notansicht enthält Karte, Zoom/Verschieben,
 Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
@@ -3974,17 +4037,18 @@ Pflanz- und Informationsdetails lesen den heutigen Gedenkpark prozedural, ohne
 eine historische Gefängnisanlage oder den geschützten Landschaftsplan zu
 rekonstruieren.
 
-2D-Kompatibilitätsansicht ohne Terminal:
+Empfohlener vollständiger 3D-Start:
 
 1. ZIP entpacken.
-2. Doppelklick auf START-HERE.html.
-3. Der Viewer öffnet sich im Browser.
+2. Windows: OPEN-3D-WINDOWS.bat; macOS: OPEN-3D-MAC.command; Linux:
+   start-linux.sh öffnen.
+3. Der lokale Server öffnet das vollständige 3D-Modell im Browser.
 
 Für vollständiges lokales 3D beziehungsweise falls der Browser lokale
 Deep-Zoom-Dateien blockiert:
 
-- macOS: siehe start-mac-if-needed.txt und starte `python3 serve-local.py`.
-- Windows: Doppelklick auf start-windows.bat.
+- macOS: OPEN-3D-MAC.command oder die Anleitung start-mac-if-needed.txt.
+- Windows: Doppelklick auf OPEN-3D-WINDOWS.bat.
 - Linux: ./start-linux.sh
 
 Der Server-Fallback öffnet eine lokale Adresse im Browser, normalerweise
@@ -3994,9 +4058,8 @@ sofort und nennt die genaue Adresse. Das Terminalfenster muss geöffnet
 bleiben, solange die Website laufen soll. Beenden mit Ctrl+C oder Fenster
 schließen.
 
-Warum kein start-mac.command mehr? Apple Gatekeeper blockiert unsignierte,
-aus dem Internet geladene .command-Dateien oft mit "Not Opened", bevor sie
-überhaupt laufen können. START-HERE.html vermeidet genau diese Falle.
+Falls macOS den heruntergeladenen Starter zunächst blockiert: Rechtsklick auf
+OPEN-3D-MAC.command, „Öffnen“ wählen und den Dialog bestätigen.
 
 Erweitert: `python3 serve-local.py --no-open --port 8770`
 
@@ -4008,7 +4071,7 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.17: The diplomatic quarter south of Tiergarten, Robert-Koch-Platz
+New in v1.0.18: The diplomatic quarter south of Tiergarten, Robert-Koch-Platz
 and the planted Bendlerblock court gain source-backed recognition detail.
 The Charlottenburger Tor has two proper colonnades north and
 south of the road. Four neoclassical gatehouses with open tunnel mouths mark
@@ -4105,10 +4168,10 @@ includes fewer Minecraft trees, a softer Schwellenraum, recorded building
 attributes and the refined Siegessaeule.
 
 This package is a local website with all map data included. It does not need an
-AI model or a Google key to run. START-HERE.html is the clearly labelled
-zero-server 2D compatibility view, not the complete model. True 3D starts with
-start-windows.bat on Windows or `python3 serve-local.py` on macOS/Linux; no
-unsigned macOS .command script is shipped. The 2D fallback has the map, zoom/pan,
+AI model or a Google key to run. START-HERE.html presents the complete 3D start
+first and clearly labels the server-free view as an optional 2D fallback. True
+3D starts with OPEN-3D-WINDOWS.bat, OPEN-3D-MAC.command, or start-linux.sh.
+The 2D fallback has the map, zoom/pan,
 reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
@@ -4556,16 +4619,17 @@ retains the official LoD2 cell. Wing, yard, planting and information details
 read the present-day memorial park procedurally without reconstructing the
 historic prison or the protected landscape plan.
 
-2D compatibility view without Terminal:
+Recommended complete 3D start:
 
 1. Unzip the package.
-2. Double-click START-HERE.html.
-3. The viewer opens in your browser.
+2. Open OPEN-3D-WINDOWS.bat on Windows, OPEN-3D-MAC.command on macOS, or
+   start-linux.sh on Linux.
+3. The local server opens the complete 3D model in your browser.
 
 For full local 3D, or if your browser blocks local Deep Zoom files:
 
-- macOS: read start-mac-if-needed.txt and run `python3 serve-local.py`.
-- Windows: double-click start-windows.bat.
+- macOS: OPEN-3D-MAC.command or the start-mac-if-needed.txt instructions.
+- Windows: double-click OPEN-3D-WINDOWS.bat.
 - Linux: ./start-linux.sh
 
 The server fallback opens a local browser address, usually
@@ -4574,9 +4638,8 @@ uses the next free port. Terminal output is flushed immediately and prints the
 exact address. Keep the terminal window open while the website is running.
 Stop with Ctrl+C or close the window.
 
-Why no start-mac.command? Apple Gatekeeper often blocks unsigned
-downloaded .command files with "Not Opened" before they can run.
-START-HERE.html avoids that trap.
+If macOS initially blocks the downloaded launcher, right-click
+OPEN-3D-MAC.command, choose Open, and confirm the dialog.
 
 Advanced: `python3 serve-local.py --no-open --port 8770`
 
@@ -4628,7 +4691,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "package_name": PACKAGE_NAME,
     "package_version": PACKAGE_VERSION,
     "start_page": "START-HERE.html",
-    "start_page_mode": "2d-compatibility-fallback",
+    "start_page_mode": "3d-launcher-with-2d-compatibility-fallback",
     "full_3d_start_page": "index.html",
     "preferred_image": "dzi/regierungsviertel/overview_source.png",
     "optional_pixel_image": "dzi/regierungsviertel/overview.png",

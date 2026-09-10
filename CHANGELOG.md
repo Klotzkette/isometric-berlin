@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.18
+
+- Der Download führt mit einer unübersehbaren Startauswahl zuerst zur echten
+  3D-Version und bezeichnet die bisher leicht verwechselbare HTML-Ansicht klar
+  als 2D-Notansicht.
+- Fügt eindeutige 3D-Starter für Windows und macOS hinzu. Beim Aufruf über den
+  lokalen Server leitet `START-HERE.html` direkt zum vollständigen WebGL-Viewer
+  weiter.
+- Erweitert Paket-, Manifest-, Archiv- und Smoke-Prüfungen um die 3D-Starter.
+
 ## v1.0.17
 
 - Ergänzt das Botschaftsband südlich des Tiergartens mit den prägenden,

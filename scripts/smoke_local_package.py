@@ -187,6 +187,8 @@ def wait_for_http(base_url: str, process: subprocess.Popen[bytes]) -> None:
 def require_package_files(package_dir: Path) -> None:
   required = [
     "START-HERE.html",
+    "OPEN-3D-MAC.command",
+    "OPEN-3D-WINDOWS.bat",
     "README.txt",
     "package-manifest.json",
     "serve-local.py",
@@ -238,7 +240,7 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
       "Package manifest version "
       f"{manifest.get('package_version')!r} != {expected_version!r}"
     )
-  if manifest.get("start_page_mode") != "2d-compatibility-fallback":
+  if manifest.get("start_page_mode") != "3d-launcher-with-2d-compatibility-fallback":
     raise RuntimeError("Package manifest mislabels START-HERE.html")
   if manifest.get("full_3d_start_page") != "index.html":
     raise RuntimeError("Package manifest lacks the true 3D entry point")

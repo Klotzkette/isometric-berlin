@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.17 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.17/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.18 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.18/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,20 +24,12 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.17** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.18** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.17 adds the defining facades of five embassy ensembles south of
-Tiergarten, the Green party headquarters and Kaiserin-Friedrich-Haus at
-Robert-Koch-Platz, and planted court details at the Bendlerblock. Version 1.0.15 separates Richard Serra's walk-through Berlin Junction from the
-neighbouring T4 memorial. The Philharmonie, Kammermusiksaal and Piazzetta
-museum entrances gain visible glazing, canopies, steps and names.
+Version 1.0.18 makes the downloaded package open with a clear 3D launcher choice and adds named Windows and macOS 3D starters. The HTML-only view is explicitly marked as a fallback.
 
-Version 1.0.17 ergänzt die prägenden Fassaden von fünf Botschafts-Ensembles
-südlich des Tiergartens, Grünen-Bundesgeschäftsstelle und Kaiserin-Friedrich-Haus
-am Robert-Koch-Platz sowie die Bepflanzung des Bendlerhofs. Version 1.0.15 trennt Richard Serras begehbare Berlin Junction vom benachbarten
-T4-Gedenkort. Philharmonie, Kammermusiksaal und die Museumseingänge an der
-Piazzetta erhalten sichtbare Verglasung, Vordächer, Stufen und Namen.
+Version 1.0.18 öffnet das Downloadpaket mit einer eindeutigen 3D-Startauswahl und ergänzt klar benannte 3D-Starter für Windows und macOS. Die reine HTML-Ansicht ist ausdrücklich als Notansicht gekennzeichnet.
 
 Version 1.0.14 gives the Humboldthafen buildings and economic ministry their
 source footprints from the first interactive frame, preserving courts and water.
@@ -178,7 +170,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.17**, built from `main`. Its full viewer
+The current public package is **v1.0.18**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
