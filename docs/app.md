@@ -512,12 +512,15 @@ The complete monument is exactly 10.00 m high and stays at 31 renderables /
 16,777 stored / 20,659 rendered vertices. Its dedicated elevated southern focus
 keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
 shared protection excludes every tree, mob and loot spawn from the field.
-Outside it, deterministic retention now keeps five sixths of the previously
-visible Minecraft trees: approximately five ninths of eligible source trees
-in full and five eighteenths on mobile. This reduces the previous visible
-counts by about 16.7% / 16.5%, without relocating trees or changing the source
-catalogue or any drawn-mode trees. The Lenné-Eiche remains explicitly retained,
-and mob walkability uses the same retained-tree rule. The single mob draw call has a capacity of
+Outside it, v1.0.27 retains four of the five hash buckets used by v1.0.26:
+approximately four ninths of eligible source trees in full and two ninths on
+mobile. The delivered world has 19,721 / 9,901 visible voxel trees, including
+the protected Lenné-Eiche, versus 24,585 / 12,274 previously (about 19.8% /
+19.3% fewer). Both profiles retain the entire 44,222-entry source inventory;
+only the deterministic Minecraft display subset changes. Trees are never
+relocated or newly introduced, mobile remains a subset of full, and every
+drawn-mode tree remains unchanged. The Lenné-Eiche remains explicitly retained,
+and pedestrian and mob walkability use the same retained-tree rule. The single mob draw call has a capacity of
 386 parts for the 6/16/5/4 full field or 250 parts for the 4/10/3/3 mobile field
 (Creepers/Zombies/Skeletons/foxes). Only active nearby slots are submitted.
 
@@ -1648,3 +1651,24 @@ raise buried nonbridge/nonstep ribbon vertices while retaining every X/Z point,
 source width and any already-elevated Y value.
 
 See `docs/district-streets-v126-review.md` for sources and release verification.
+
+### v1.0.27: position continuity and local recovery
+
+Visual-mode changes retain the complete camera and walking state. Mobile keeps
+the one-world memory policy and transfers only a numeric snapshot across the
+drawn/voxel renderer replacement. Restored views bypass automatic landmark
+framing; explicit resets and map visits consume or clear that transfer.
+An idle pedestrian keeps the same floor and a restored jump waits behind the
+loading curtain. The current walking speed and free-flight speed are unchanged.
+
+The bilingual Freikommen/Get unstuck action first searches verified recent or
+nearby walk positions, preserving heading and the selected speed. If none is
+available, it can enter flight above the obstruction at the same X/Z. Its
+bounded search and protected-volume behavior are described in
+`docs/pedestrian-recovery-v127.md`. Both pedestrian and flying collision omit
+the newly thinned Minecraft trees, avoiding invisible barriers.
+
+First HTML and React share a quiet isometric title plate over the existing
+marker-free map. Initial progress remains visible on mobile and still reports
+real construction progress, with no extra loading delay. See
+`docs/mode-continuity-v127-review.md` for verification and tree counts.

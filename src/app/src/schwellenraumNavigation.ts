@@ -259,6 +259,12 @@ export function schwellenraumFlightPointIsBlocked(
     }
     let touches = false;
     if (obstacle.kind === "circle") {
+      if (
+        obstacle.parkTree &&
+        environment.parkTreeSolidAt?.(
+          obstacle.x, obstacle.z, obstacle.parkTree === "lenne-oak",
+        ) === false
+      ) continue;
       const combinedRadius = obstacle.radius + radius;
       touches =
         (point.x - obstacle.x) ** 2 + (point.z - obstacle.z) ** 2 <=

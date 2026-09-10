@@ -466,7 +466,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain('"recovery-required"');
   });
 
-  test("keeps Richard Wagner readable when switching between smooth and Minecraft worlds", () => {
+  test("retains Richard Wagner's authored lens for explicit landmark selection", () => {
     const wagnerFocusSource = viewerSource.slice(
       viewerSource.indexOf("function wagnerMemorialFocusCamera"),
       viewerSource.indexOf("function composerMemorialFocusCamera"),
@@ -475,17 +475,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain(
       "wagnerMemorialFocusCamera(runtime.lightingMode)",
     );
-    expect(viewerSource).toContain(
-      "previousLightingMode !== lightingMode &&",
-    );
-    expect(viewerSource).toContain(
-      "selectedLandmarkName === WAGNER_MEMORIAL_PROFILE.name ||",
-    );
-    expect(viewerSource).toContain(
-      "selectedLandmarkName === MOABIT_PRISON_MEMORIAL_PROFILE.name",
-    );
-    expect(viewerSource).toContain(
-      "focusLandmarkRef.current(selectedLandmarkName, true)",
-    );
+    // Visual-mode navigation continuity is exercised by the numeric snapshot
+    // and browser tests. A mode change must no longer reselect this landmark.
   });
 });

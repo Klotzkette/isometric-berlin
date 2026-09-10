@@ -392,7 +392,7 @@ button:active:not(:disabled) {
 
 /*
  * Never expose the streaming photogrammetry as a placeholder. The curtain is
- * a fully opaque copy of the active mode's background and disappears without
+ * an opaque, mode-coloured map plate and disappears without
  * a cross-fade only after the requested drawn world has rendered successfully
  * (or after a real load failure makes the photo mesh the explicit fallback).
  */
@@ -402,11 +402,19 @@ button:active:not(:disabled) {
   inset: 0;
   background-color: inherit;
   background-image:
-    linear-gradient(rgba(191, 220, 233, 0.68), rgba(191, 220, 233, 0.68)),
+    radial-gradient(ellipse at 50% 45%, rgba(245, 241, 229, 0.9) 8%, rgba(230, 232, 213, 0.54) 75%),
     var(--viewer-static-backdrop-image);
   background-position: center;
   background-size: cover;
   pointer-events: none;
+}
+
+.three-startup-curtain::after {
+  position: absolute;
+  inset: clamp(14px, 3vw, 40px);
+  border: 1px solid rgba(87, 100, 86, 0.16);
+  border-radius: 2px;
+  content: "";
 }
 
 .app-shell--night .three-startup-curtain {
@@ -503,6 +511,110 @@ button:active:not(:disabled) {
   height: 100%;
   background: #ffc45d;
   transition: width 160ms ease;
+}
+
+.three-progress--startup {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: min(332px, calc(100% - 48px));
+  gap: 12px;
+  padding: 26px 30px 24px;
+  transform: translate(-50%, -50%);
+  border-color: rgba(255, 255, 255, 0.8);
+  border-radius: 18px;
+  color: #35473e;
+  background: rgba(250, 248, 239, 0.96);
+  box-shadow: 0 22px 70px rgba(37, 54, 44, 0.13), 0 2px 7px rgba(37, 54, 44, 0.05);
+  font-size: 12px;
+}
+
+.three-startup-brand {
+  display: grid;
+  grid-column: 1 / -1;
+  justify-items: center;
+  padding-bottom: 17px;
+}
+
+.three-startup-mark {
+  width: 86px;
+  height: 66px;
+  margin-bottom: 17px;
+}
+
+.three-startup-eyebrow {
+  margin-bottom: 2px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.three-startup-title {
+  font-size: 49px;
+  font-weight: 550;
+  line-height: 1.12;
+  letter-spacing: -0.065em;
+}
+
+.three-progress--startup .three-progress-percentage {
+  color: #7a6950;
+  font-weight: 500;
+}
+
+.three-progress--startup .three-progress-track {
+  height: 3px;
+  background: #e5e5d9;
+}
+
+.three-progress--startup .three-progress-track span {
+  background: #b77f41;
+}
+
+.app-shell--night .three-progress--startup {
+  border-color: rgba(235, 233, 212, 0.17);
+  color: #edeade;
+  background: #23332f;
+  box-shadow: 0 22px 70px rgba(0, 10, 15, 0.28);
+}
+
+.app-shell--night .three-progress--startup .three-progress-percentage {
+  color: #d7be94;
+}
+
+.app-shell--night .three-progress--startup .three-progress-track {
+  background: #3d4c43;
+}
+
+.app-shell--night .three-progress--startup .three-progress-track span {
+  background: #d7ad6a;
+}
+
+.app-shell--minecraft .three-progress--startup {
+  border-radius: 3px;
+  box-shadow: 8px 8px 0 rgba(51, 74, 63, 0.13);
+}
+
+@media (max-height: 560px) {
+  .three-progress--startup {
+    padding: 16px 24px;
+    gap: 8px;
+  }
+
+  .three-startup-brand {
+    padding-bottom: 4px;
+  }
+
+  .three-startup-mark {
+    width: 55px;
+    height: 42px;
+    margin-bottom: 7px;
+  }
+
+  .three-startup-title {
+    font-size: 34px;
+  }
 }
 
 .three-viewer-error {
@@ -880,6 +992,35 @@ button:active:not(:disabled) {
 
 .pedestrian-jump-button:active {
   transform: translateY(1px) scale(0.96);
+}
+
+.navigation-recovery-button {
+  position: fixed;
+  z-index: 22;
+  right: 88px;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid rgba(245, 239, 228, 0.38);
+  border-radius: 22px;
+  background: rgba(25, 31, 29, 0.94);
+  color: #f5efe4;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.navigation-recovery-button:focus-visible {
+  outline: 2px solid #f0c982;
+  outline-offset: 3px;
+}
+
+.navigation-recovery-button:disabled { opacity: 0.5; }
+
+.app-shell--controls-right .navigation-recovery-button {
+  right: auto;
+  left: 88px;
 }
 
 .pedestrian-minimap {
@@ -2009,7 +2150,7 @@ button:active:not(:disabled) {
     user-select: none;
   }
 
-  .three-progress,
+  .three-progress:not(.three-progress--startup),
   .orientation-pill,
   .view-controls,
   .selection-card,
@@ -2536,6 +2677,10 @@ button:active:not(:disabled) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .three-progress .three-progress-track span {
+    transition: none;
+  }
+
   .topbar,
   .toolbar,
   .mobile-sheet,

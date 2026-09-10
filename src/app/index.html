@@ -30,22 +30,50 @@
         width: 100%;
         height: 100%;
         place-content: center;
-        gap: 8px;
         padding: 24px;
-        color: #f5f1e7;
-        font: 15px/1.4 system-ui, sans-serif;
+        color: #35473e;
+        background:
+          radial-gradient(ellipse at 50% 45%, rgba(245, 241, 229, 0.9) 8%, rgba(230, 232, 213, 0.54) 75%),
+          url("./dzi/regierungsviertel/regierungsviertel_files/8/0_0.jpg") center / cover,
+          #e9e7da;
+        font: 12px/1.4 system-ui, sans-serif;
         text-align: center;
       }
+      .boot-panel {
+        box-sizing: border-box;
+        display: grid;
+        justify-items: center;
+        width: min(332px, calc(100vw - 48px));
+        padding: 26px 24px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 18px;
+        background: rgba(250, 248, 239, 0.96);
+        box-shadow: 0 22px 70px rgba(37, 54, 44, 0.13);
+      }
+      .boot-panel svg {
+        width: 86px;
+        height: 66px;
+        margin-bottom: 17px;
+      }
+      .boot-eyebrow {
+        font-size: 10px;
+        font-weight: 650;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+      }
       .boot-shell strong {
-        font-size: clamp(24px, 5vw, 44px);
-        letter-spacing: -0.035em;
+        margin-bottom: 28px;
+        font-size: 49px;
+        font-weight: 550;
+        line-height: 1.12;
+        letter-spacing: -0.065em;
       }
       .boot-shell small {
         position: fixed;
         right: 16px;
-        bottom: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom, 0px));
         left: 16px;
-        color: #c5ccc7;
+        color: #46534b;
         font-size: 10px;
       }
     </style>
@@ -53,8 +81,23 @@
   <body>
     <div id="root">
       <div class="boot-shell" role="status">
-        <strong>Isometric Berlin</strong>
-        <span>Berlin wird gezeichnet · Drawing Berlin…</span>
+        <div class="boot-panel">
+          <svg viewBox="0 0 100 76" fill="none" aria-hidden="true">
+            <path d="M7 45 50 20 93 45 50 70Z" fill="#d5c4a5" />
+            <path d="m7 45 43 25v5L7 50Z" fill="#bbaa8b" />
+            <path d="m50 70 43-25v5L50 75Z" fill="#9caa9e" />
+            <path d="m20 37 13-8 13 8-13 8Z" fill="#efdfb9" />
+            <path d="m20 37 13 8v14l-13-8Z" fill="#b78150" />
+            <path d="m33 45 13-8v14l-13 8Z" fill="#d5a569" />
+            <path d="m43 19 16-9 16 9-16 9Z" fill="#f5e8c6" />
+            <path d="m43 19 16 9v29l-16-9Z" fill="#b78150" />
+            <path d="m59 28 16-9v29l-16 9Z" fill="#d5a569" />
+            <path d="m49 35 5 3m-5 5 5 3m11-14 5-3m-5 11 5-3" stroke="#645f4d" stroke-width="2" />
+          </svg>
+          <span class="boot-eyebrow">Isometric</span>
+          <strong>Berlin</strong>
+          <span>Berlin wird gezeichnet · Drawing Berlin…</span>
+        </div>
         <small>
           © OpenStreetMap contributors · 3D building models: Geoportal Berlin
           (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia

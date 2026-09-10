@@ -252,6 +252,21 @@ export type PedestrianStep = {
   state: PedestrianState;
 };
 
+/** A small trail of actual walk positions, not a second navigation graph. */
+export type PedestrianRecoveryHistory = {
+  checkpoints: PedestrianState[];
+  lastRecorded: PedestrianState | null;
+};
+
+export type PedestrianRecoveryResult = {
+  recovered: boolean;
+  source: "checkpoint" | "nearby" | "none";
+  state: PedestrianState;
+};
+
+export const PEDESTRIAN_RECOVERY_CHECKPOINT_LIMIT = 48;
+export const PEDESTRIAN_RECOVERY_RADIUS_M = 96;
+
 /**
  * Convert the live camera rig into a walking spawn without changing place.
  * The camera's projected ground point is the visible viewer location; the
@@ -1731,6 +1746,157 @@ function inBounds(x: number, z: number, bounds: PedestrianBounds): boolean {
   );
 }
 
+export function createPedestrianRecoveryHistory(): PedestrianRecoveryHistory {
+  return { checkpoints: [], lastRecorded: null };
+}
+
+/** Recheck a standing destination, including body clearance from shorelines. */
+function pedestrianRecoveryGround(
+  state: PedestrianState,
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  groundYHint = state.groundY,
+): PedestrianGround | null {
+  const radius = PEDESTRIAN_BODY_RADIUS_M;
+  if (
+    !Number.isFinite(groundYHint) ||
+    !inBounds(x - radius, z - radius, environment.bounds) ||
+    !inBounds(x + radius, z + radius, environment.bounds)
+  ) return null;
+  const ground = resolvePedestrianGround(
+    environment, x, z, state.groundLayer, groundYHint,
+  );
+  // Never exchange a tunnel for its overlying road or switch station floors.
+  if (
+    !ground || !Number.isFinite(ground.y) || ground.layer !== state.groundLayer ||
+    Math.abs(ground.y - groundYHint) > 1.5 ||
+    Math.abs(ground.y - state.groundY) > 1.5 ||
+    pedestrianPointIsBlocked(
+      x, z, ground.y, environment.obstacles, environment,
+    )
+  ) return null;
+  for (const [dx, dz] of [[0, 0], [-radius, 0], [radius, 0], [0, -radius], [0, radius]]) {
+    if (pedestrianGroundIsWater(environment, x + dx!, z + dz!, ground)) return null;
+  }
+  return ground;
+}
+
+/** Record only grounded, currently clear positions, at most once per 3 metres. */
+export function rememberPedestrianRecoveryState(
+  history: PedestrianRecoveryHistory,
+  state: PedestrianState,
+  environment: PedestrianEnvironment,
+): void {
+  if (!state.grounded) return;
+  const previous = history.lastRecorded;
+  if (
+    previous && previous.groundLayer === state.groundLayer &&
+    Math.abs(previous.groundY - state.groundY) < 1.5 &&
+    Math.hypot(previous.x - state.x, previous.z - state.z) < 3
+  ) return;
+  if (!pedestrianRecoveryGround(state, environment, state.x, state.z)) return;
+  const checkpoint = { ...state };
+  history.checkpoints.push(checkpoint);
+  history.lastRecorded = checkpoint;
+  if (history.checkpoints.length > PEDESTRIAN_RECOVERY_CHECKPOINT_LIMIT) {
+    history.checkpoints.shift();
+  }
+}
+
+function pedestrianRecoveryHasExit(
+  state: PedestrianState,
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  ground: PedestrianGround,
+  firstAngle: number,
+): boolean {
+  // Check a swept two-metre exit, not just an unoccupied but isolated capsule.
+  // This runs only on an explicit recovery request, never in the render loop.
+  for (let direction = 0; direction < 8; direction += 1) {
+    const angle = firstAngle + direction * Math.PI / 4;
+    let clear = true;
+    for (let step = 1; step <= 10; step += 1) {
+      if (!pedestrianRecoveryGround(
+        state, environment,
+        x + Math.cos(angle) * step * 0.2,
+        z + Math.sin(angle) * step * 0.2,
+        ground.y,
+      )) {
+        clear = false;
+        break;
+      }
+    }
+    if (clear) return true;
+  }
+  return false;
+}
+
+/**
+ * Explicit local escape: retrace a verified walk point, then try bounded nearby
+ * ground. It never changes normal collision rules or falls back to a landmark.
+ * Returning `none` leaves the exact state intact for the caller's flight option.
+ */
+export function recoverPedestrian(
+  state: PedestrianState,
+  environment: PedestrianEnvironment,
+  history: PedestrianRecoveryHistory,
+): PedestrianRecoveryResult {
+  const finish = (
+    x: number,
+    z: number,
+    ground: PedestrianGround,
+    source: "checkpoint" | "nearby",
+  ): PedestrianRecoveryResult => {
+    const recoveredState: PedestrianState = {
+      ...state,
+      grounded: true,
+      groundLayer: ground.layer,
+      groundY: ground.y,
+      insideTunnel: ground.insideTunnel,
+      jumpOffset: 0,
+      verticalVelocity: 0,
+      x,
+      z,
+    };
+    // Repeated presses continue back along the trail instead of bouncing
+    // between the obstruction and the recovered position.
+    history.lastRecorded = recoveredState;
+    return { recovered: true, source, state: recoveredState };
+  };
+  for (let index = history.checkpoints.length - 1; index >= 0; index -= 1) {
+    const checkpoint = history.checkpoints[index]!;
+    const distance = Math.hypot(checkpoint.x - state.x, checkpoint.z - state.z);
+    if (
+      distance < 4 || distance > PEDESTRIAN_RECOVERY_RADIUS_M ||
+      checkpoint.groundLayer !== state.groundLayer ||
+      Math.abs(checkpoint.groundY - state.groundY) > 1.5
+    ) continue;
+    const ground = pedestrianRecoveryGround(
+      state, environment, checkpoint.x, checkpoint.z, checkpoint.groundY,
+    );
+    if (!ground || !pedestrianRecoveryHasExit(
+      state, environment, checkpoint.x, checkpoint.z, ground,
+      Math.atan2(checkpoint.z - state.z, checkpoint.x - state.x),
+    )) continue;
+    history.checkpoints.splice(index);
+    return finish(checkpoint.x, checkpoint.z, ground, "checkpoint");
+  }
+  const backwards = state.yaw + Math.PI / 2;
+  for (const radius of [2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, PEDESTRIAN_RECOVERY_RADIUS_M]) {
+    for (let direction = 0; direction < 24; direction += 1) {
+      const angle = backwards + direction * Math.PI / 12;
+      const x = state.x + Math.cos(angle) * radius;
+      const z = state.z + Math.sin(angle) * radius;
+      const ground = pedestrianRecoveryGround(state, environment, x, z);
+      if (!ground || !pedestrianRecoveryHasExit(state, environment, x, z, ground, angle)) continue;
+      return finish(x, z, ground, "nearby");
+    }
+  }
+  return { recovered: false, source: "none", state };
+}
+
 export function stepPedestrian(
   state: PedestrianState,
   input: PedestrianInput,
@@ -1791,14 +1957,16 @@ export function stepPedestrian(
   const stepZ = requestedDz / movementSteps;
   let x = state.x;
   let z = state.z;
+  // A style switch can change a block deck by a metre. Merely waiting or
+  // looking must not relocate the visitor; resolve support when they move.
   let currentGround =
-    resolvePedestrianGround(
+    (movementLength > 0 ? resolvePedestrianGround(
       environment,
       x,
       z,
       state.groundLayer,
       state.groundY,
-    ) ??
+    ) : null) ??
     ({
       insideTunnel: state.insideTunnel,
       layer: state.groundLayer,
@@ -1836,6 +2004,13 @@ export function stepPedestrian(
     if (ground === null) {
       return null;
     }
+    if (
+      currentBlocked && environment.protectedVolumeAt &&
+      pedestrianBodyTouchesProtectedVolume(
+        candidateX, candidateZ, ground.y + jumpOffset,
+        environment.protectedVolumeAt,
+      )
+    ) return null;
     const candidateBlocked = pedestrianPointIsBlocked(
       candidateX,
       candidateZ,
@@ -1904,18 +2079,9 @@ export function stepPedestrian(
   const groundLayer = currentGround.layer;
   const insideTunnel = currentGround.insideTunnel;
 
-  if (
-    grounded &&
-    pedestrianGroundIsWater(environment, x, z, currentGround)
-  ) {
-    // Late-loaded water geometry may surround an existing position. Keep it
-    // stable instead of treating the streamed shoreline as a death volume.
-    return {
-      changed: false,
-      respawned: false,
-      state,
-    };
-  }
+  // An already wet position may advance toward dry ground over several frames.
+  // Rejecting every intermediate wet frame permanently trapped slow movement
+  // after a deferred shoreline arrived. Dry positions still cannot enter water.
 
   const changed =
     x !== state.x ||

@@ -3,7 +3,11 @@ import { describe, expect, test } from "bun:test";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
   createPedestrianEnvironment,
+  createPedestrianRecoveryHistory,
+  createPedestrianState,
   pedestrianPointIsBlocked,
+  recoverPedestrian,
+  rememberPedestrianRecoveryState,
   type PedestrianEnvironment,
 } from "../src/pedestrianNavigation";
 import {
@@ -63,6 +67,32 @@ function tunnelEnvironment(mode: VisualMode): PedestrianEnvironment {
 }
 
 describe("Tiergartentunnel pedestrian access", () => {
+  test("recovery retains the actual tunnel floor rather than its overlying terrain", () => {
+    for (const mode of MODES) {
+      const environment = tunnelEnvironment(mode);
+      const tube = courses.find(({ kind }) => kind === "tube")!;
+      const segment = tube.points.slice(1).map((to, i) => ({ from: tube.points[i], to }))
+        .find(({ from, to }) => Math.hypot(to[0] - from[0], to[2] - from[2]) > 15)!;
+      const distance = Math.hypot(segment.to[0] - segment.from[0], segment.to[2] - segment.from[2]);
+      const stateAt = (progress: number) => {
+        const p = segment.from.map((value, i) => value + (segment.to[i] - value) * progress);
+        return createPedestrianState(environment, {
+          x: p[0], z: p[2], groundYHint: p[1], yaw: 0,
+          preserveHorizontalPosition: true,
+        });
+      };
+      const previous = stateAt(0.5 - 6 / distance);
+      const current = stateAt(0.5);
+      const history = createPedestrianRecoveryHistory();
+      rememberPedestrianRecoveryState(history, previous, environment);
+      const result = recoverPedestrian(current, environment, history);
+      expect(result.source).toBe("checkpoint");
+      expect(result.state.groundLayer).toBe("tunnel");
+      expect(result.state.groundY).toBeCloseTo(previous.groundY, 5);
+      expect(result.state.insideTunnel).toBe(true);
+    }
+  });
+
   test("keeps both tubes and all eight portal courses clear in every mode", () => {
     expect(courses.filter(({ kind }) => kind === "tube")).toHaveLength(2);
     expect(courses.filter(({ kind }) => kind === "portal")).toHaveLength(8);

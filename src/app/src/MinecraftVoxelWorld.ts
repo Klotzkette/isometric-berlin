@@ -270,17 +270,18 @@ export function forEachVoxelTreeBlock(
 
 export const MINECRAFT_TREE_RETENTION = Object.freeze({
   full: Object.freeze({
-    keptBuckets: 2, modulo: 3, thinningBuckets: 5, thinningModulo: 6,
+    keptBuckets: 2, modulo: 3, thinningBuckets: 4, thinningModulo: 6,
   }),
   mobile: Object.freeze({
-    keptBuckets: 1, modulo: 3, thinningBuckets: 5, thinningModulo: 6,
+    keptBuckets: 1, modulo: 3, thinningBuckets: 4, thinningModulo: 6,
   }),
 });
 
 /**
- * Keep five sixths of the previously visible block-native trees. The second
- * bucket uses the quotient so it cannot reintroduce previously absent trees,
- * and mobile remains a stable subset of full. Source tree data is untouched.
+ * Keep four of the five secondary buckets used through v1.0.26: about 20%
+ * fewer existing generic trees in both profiles. Reducing the same bucket
+ * threshold cannot reintroduce previously absent trees, and mobile remains
+ * a stable subset of full. Source tree data is untouched.
  */
 export function minecraftVoxelTreeRetained(
   xIndex: number,

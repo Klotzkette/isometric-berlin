@@ -10,6 +10,7 @@ import { schwellenraumInteriorGroundAt, schwellenraumInteriorSolidAt } from "../
 import { createPedestrianEnvironment, createPedestrianState, pedestrianPointIsBlocked, PEDESTRIAN_WALK_SPEED_MPS, stepPedestrian, type PedestrianEnvironment, type PedestrianState } from "../src/pedestrianNavigation";
 import type { VisualMode } from "../src/visualMode";
 import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess";
+import { createPedestrianRecoveryHistory, recoverPedestrian, rememberPedestrianRecoveryState } from "../src/pedestrianNavigation";
 
 const MODES: readonly VisualMode[] = ["day", "night", "snowstorm", "minecraft", "schwellenraum"];
 const station = MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof;
@@ -49,6 +50,25 @@ function walkTo(state: PedestrianState, localX: number, localZ: number, environm
 }
 
 describe("Hauptbahnhof public entry in every visual mode", () => {
+  test("local recovery stays on the actual source-bound gallery in all five modes", () => {
+    for (const mode of MODES) {
+      const environment = environmentFor(mode);
+      const previous = world(12, 70);
+      const current = world(12, 60);
+      const floor = station.anchorWorld[1] + (mode === "minecraft" ? 1.32 : 0.25);
+      const stateAt = (point: number[]) => createPedestrianState(environment, {
+        x: point[0], z: point[2], yaw: 0.4,
+        groundYHint: floor, preserveHorizontalPosition: true,
+      });
+      const history = createPedestrianRecoveryHistory();
+      rememberPedestrianRecoveryState(history, stateAt(previous), environment);
+      const result = recoverPedestrian(stateAt(current), environment, history);
+      expect(result.source).toBe("checkpoint");
+      expect(result.state.groundY).toBeCloseTo(floor, 5);
+      expect(Math.hypot(result.state.x - previous[0], result.state.z - previous[2])).toBeLessThan(0.01);
+    }
+  });
+
   for (const mode of MODES) {
     test(`${mode}: north/south inbound, side-gallery visit and outbound with desktop and mobile analog input`, () => {
       const environment = environmentFor(mode);

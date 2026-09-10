@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.26 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.26/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.27 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.27/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,16 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.26** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.27** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.27 retains position, view and walking/flight state across visual
+mode switches, including mobile Minecraft reloads. Minecraft has about 20 percent
+fewer trees, a local Get unstuck action and a calmer loading title plate.
+
+Version 1.0.27 behält beim Moduswechsel Standort, Blickrichtung und Geh-/Flugzustand
+bei, auch beim mobilen Minecraft-Wechsel. Minecraft hat rund 20 Prozent weniger
+Bäume; dazu kommen „Freikommen“ und ein ruhigerer Ladebildschirm.
 
 Version 1.0.26 adds continuous, source-bound streets, roadside paths and raised
 kerbs throughout the Tiergarten and around Hauptbahnhof, the Chancellery,

@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.27
+
+- Preserve camera position, view, lens and pedestrian state across all visual
+  modes, including mobile renderer replacement and rapid changes during loading.
+- Reduce ordinary Minecraft trees by about 20 percent in desktop and mobile
+  profiles; keep retained source trees and collision visibility consistent.
+- Add local Get unstuck recovery with verified paths and an above-obstacle
+  flight exit; fix deferred-water trapping and invisible removed-tree collision.
+- Restyle first HTML and scene startup with a lightweight isometric title plate,
+  the existing map backdrop and real progress, including small mobile screens.
+
 ## v1.0.26
 
 - Restore continuous OSM carriageways, mapped roadside paving and raised kerbs

@@ -2,6 +2,7 @@ import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
+import { StartupPresentation } from "./StartupPresentation";
 import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
@@ -231,6 +232,9 @@ import {
   createPedestrianEnvironment,
   createPedestrianParkTreeSolidTester,
   createPedestrianState,
+  createPedestrianRecoveryHistory,
+  rememberPedestrianRecoveryState,
+  recoverPedestrian,
   jumpPedestrian,
   lookPedestrian,
   pedestrianPointIsBlocked,
@@ -241,7 +245,14 @@ import {
   type PedestrianEnvironment,
   type PedestrianInput,
   type PedestrianState,
+  type PedestrianRecoveryHistory,
 } from "./pedestrianNavigation";
+import {
+  captureNavigationSnapshot,
+  restoreNavigationSnapshot,
+  type NavigationSnapshot,
+} from "./navigationContinuity";
+import { findPedestrianFlightRecoveryPosition } from "./pedestrianFlightRecovery";
 import {
   createSchwellenraumFlightScratch,
   resolveSchwellenraumFlightTranslation,
@@ -541,6 +552,7 @@ type ThreeViewerProps = {
   sceneUrl: string;
   selectedLandmark: string;
   openingLandmark?: string | null;
+  initialNavigation?: NavigationSnapshot | null;
   onError: (message: string) => void;
   onPedestrianPoseChange: (pose: PedestrianPose | null) => void;
   onPedestrianRespawn: () => void;
@@ -550,6 +562,8 @@ type ThreeViewerProps = {
 };
 
 export type ThreeViewerHandle = {
+  captureNavigation: () => NavigationSnapshot | null;
+  recoverPedestrian: () => "checkpoint" | "nearby" | "flight" | "unavailable";
   focusNavigation: () => void;
   flyBy: (horizontal: number, vertical: number) => void;
   flyForwardBy: (strafe: number, forward: number) => void;
@@ -570,6 +584,7 @@ export type ThreeViewerHandle = {
 };
 
 type PedestrianRuntime = {
+  recoveryHistory: PedestrianRecoveryHistory;
   cameraDirty: boolean;
   enabled: boolean;
   environment: PedestrianEnvironment | null;
@@ -652,6 +667,7 @@ type Runtime = {
   districtPathTerrainAt?: ParkPathTerrainAt;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
+  navigationRestored: boolean;
   openingDetailReady: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
@@ -1121,6 +1137,12 @@ function activatePedestrianMode(runtime: Runtime): boolean {
   if (!environment) {
     return false;
   }
+  // Attaching another visual world changes collision data, not our location.
+  // In particular, retain a restored jump or a station/tunnel floor exactly.
+  if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+    applyPedestrianCamera(runtime);
+    return true;
+  }
   if (!runtime.pedestrian.enabled) {
     runtime.pedestrian.savedPose = captureCameraPose(
       runtime.camera,
@@ -1143,6 +1165,10 @@ function activatePedestrianMode(runtime: Runtime): boolean {
     viewDirection,
   );
   runtime.pedestrian.state = createPedestrianState(environment, spawn);
+  runtime.pedestrian.recoveryHistory = createPedestrianRecoveryHistory();
+  rememberPedestrianRecoveryState(
+    runtime.pedestrian.recoveryHistory, runtime.pedestrian.state, environment,
+  );
   runtime.pedestrian.cameraDirty = true;
   runtime.controls.enabled = false;
   runtime.camera.fov = PEDESTRIAN_FOV_DEGREES;
@@ -1221,6 +1247,7 @@ function nudgePedestrian(
     }
   }
   runtime.pedestrian.state = state;
+  if (changed) rememberPedestrianRecoveryState(runtime.pedestrian.recoveryHistory, state, environment);
   runtime.pedestrian.cameraDirty ||= changed;
   if (state.insideTunnel !== wasInsideTunnel) {
     syncPedestrianTunnelPresentation(runtime, state.insideTunnel);
@@ -2293,7 +2320,9 @@ function setSceneLighting(
   // Both drawn worlds (prisms and voxels) use the flat isometric FOV.
   const targetFov = runtime.pedestrian.enabled
     ? PEDESTRIAN_FOV_DEGREES
-    : (runtime.focusedCameraFov ??
+    : runtime.navigationRestored || runtime.presentationReady
+      ? runtime.camera.fov
+      : (runtime.focusedCameraFov ??
       (isoMode || voxelMode ? ISO_FOV_DEGREES : DEFAULT_FOV_DEGREES));
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
@@ -4691,6 +4720,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sceneUrl,
       selectedLandmark,
       openingLandmark = null,
+      initialNavigation = null,
       onError,
       onPedestrianPoseChange,
       onPedestrianRespawn,
@@ -4704,9 +4734,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const runtimeRef = useRef<Runtime | null>(null);
     const selectedRef = useRef(selectedLandmark);
     const openingLandmarkRef = useRef(openingLandmark);
-    const focusLandmarkRef = useRef<
-      (name: string, immediate?: boolean) => void
-    >(() => undefined);
+    const initialNavigationRef = useRef(initialNavigation);
     const activeRef = useRef(active);
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
@@ -4839,7 +4867,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
-      const previousLightingMode = runtime.lightingMode;
       if (lightingMode === "schwellenraum") {
         ensureSchwellenraumContent(runtime);
       }
@@ -4871,15 +4898,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       setSceneLighting(runtime, lightingMode, nightLightsOn);
       if (currentStartupPresentationStatus(runtime) === "ready") {
         runtime.reportCoreProgress(1, 1);
-      }
-      const selectedLandmarkName = selectedRef.current;
-      if (
-        previousLightingMode !== lightingMode &&
-        (selectedLandmarkName === WAGNER_MEMORIAL_PROFILE.name ||
-          selectedLandmarkName === MOABIT_PRISON_MEMORIAL_PROFILE.name) &&
-        !runtime.pedestrian.enabled
-      ) {
-        focusLandmarkRef.current(selectedLandmarkName, true);
       }
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
@@ -5006,11 +5024,63 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.controls.update(immediate ? 1 : undefined);
       notifyView(runtime, onViewChangeRef.current);
     };
-    focusLandmarkRef.current = focusLandmark;
 
     useImperativeHandle(
       ref,
       () => ({
+        captureNavigation: () => {
+          const runtime = runtimeRef.current;
+          return runtime && !runtime.disposed &&
+            (runtime.presentationReady || runtime.navigationRestored)
+            ? captureNavigationSnapshot(runtime) : null;
+        },
+        recoverPedestrian: () => {
+          const runtime = runtimeRef.current;
+          const environment = runtime?.pedestrian.environment;
+          if (!runtime || !environment || !runtime.presentationReady) return "unavailable";
+          runtime.cancelPanGlide?.();
+          flightInputRef.current.set(0, 0, 0);
+          panInputRef.current.set(0, 0);
+          orbitInputRef.current.set(0, 0);
+          pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+          const pedestrian = runtime.pedestrian;
+          if (pedestrian.enabled && pedestrian.state) {
+            const result = recoverPedestrian(pedestrian.state, environment, pedestrian.recoveryHistory);
+            if (result.recovered) {
+              pedestrian.state = result.state;
+              applyPedestrianCamera(runtime);
+              syncPedestrianTunnelPresentation(runtime, result.state.insideTunnel);
+              emitPedestrianPose(runtime, true);
+              notifyView(runtime, onViewChangeRef.current);
+              runtime.renderer.domElement.focus({ preventScroll: true });
+              return result.source as "checkpoint" | "nearby";
+            }
+          }
+          const exit = findPedestrianFlightRecoveryPosition(runtime.camera.position, environment);
+          if (!exit) return "unavailable";
+          // An explicit rescue may rise over a solid, but never returns to
+          // the old landmark/orbit pose saved when walking was entered.
+          const rise = exit.y - runtime.camera.position.y;
+          runtime.camera.position.y = exit.y;
+          runtime.controls.target.y += rise;
+          pedestrian.enabled = false;
+          pedestrian.requested = false;
+          pedestrian.state = null;
+          pedestrian.savedPose = null;
+          pedestrian.cameraDirty = false;
+          pedestrianModeRef.current = false;
+          runtime.controls.enabled = true;
+          runtime.focusedCameraFov = runtime.camera.fov;
+          setModelMaterialState(runtime, false);
+          syncPedestrianTunnelPresentation(runtime, false);
+          runtime.controls.update();
+          runtime.camera.updateMatrixWorld();
+          runtime.renderInvalidated = true;
+          emitPedestrianPose(runtime, true);
+          notifyView(runtime, onViewChangeRef.current);
+          runtime.renderer.domElement.focus({ preventScroll: true });
+          return "flight";
+        },
         flyBy: (horizontal, vertical) => {
           const runtime = runtimeRef.current;
           if (!runtime) {
@@ -5563,6 +5633,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumWaterRootsScratch: [],
         parkDetails,
         pedestrian: {
+          recoveryHistory: createPedestrianRecoveryHistory(),
           cameraDirty: false,
           enabled: false,
           environment: null,
@@ -5574,7 +5645,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           state: null,
         },
         presentationReady: false,
-        openingDetailReady: openingLandmarkRef.current !== "Berliner Philharmonie",
+        navigationRestored: false,
+        openingDetailReady: initialNavigationRef.current !== null || openingLandmarkRef.current !== "Berliner Philharmonie",
         notifyPresentationReady: () => {
           if (disposed) {
             return;
@@ -5670,6 +5742,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         lightingModeRef.current,
         nightLightsOnRef.current,
       );
+      if (initialNavigationRef.current) {
+        restoreNavigationSnapshot(runtime, initialNavigationRef.current);
+        runtime.navigationRestored = true;
+        runtime.marker.visible = false;
+        setModelMaterialState(runtime, runtime.underside);
+        setEnvironmentalPresentation(runtime);
+        applyPedestrianCamera(runtime);
+        notifyView(runtime, onViewChangeRef.current);
+      }
 
       type TouchPoint = { x: number; y: number };
       type TwoFingerGesture = {
@@ -6721,6 +6802,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const flightSpeedScratch = { horizontal: 0, vertical: 0 };
       const stabilizationScratch = createCameraRigStabilizationScratch();
       const applyContinuousPedestrian = (dtSeconds: number): boolean => {
+        // A resumed jump waits while the replacement mobile world is hidden.
+        if (!runtime.presentationReady) return false;
         const pedestrian = runtime.pedestrian;
         const environment = pedestrian.environment;
         const state = pedestrian.state;
@@ -6739,6 +6822,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           Math.abs(input.look) > 1e-6;
         const result = stepPedestrian(state, input, dtSeconds, environment);
         pedestrian.state = result.state;
+        if (result.changed) {
+          rememberPedestrianRecoveryState(pedestrian.recoveryHistory, result.state, environment);
+        }
         if (result.state.insideTunnel !== state.insideTunnel) {
           syncPedestrianTunnelPresentation(runtime, result.state.insideTunnel);
         }
@@ -7380,7 +7466,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           // Frame the chosen arrival before construction/streaming starts,
           // so the first visible city and the first detail districts agree.
-          if (openingLandmarkRef.current === selectedRef.current) {
+          if (!initialNavigationRef.current && openingLandmarkRef.current === selectedRef.current) {
             focusLandmark(selectedRef.current, true, true);
           }
           // World payloads are the first visible content. Start them as soon
@@ -7970,7 +8056,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
           // Automatic arrivals were framed before world construction. Do not
           // snap a visitor back after secondary details finish loading.
-          if (openingLandmarkRef.current !== selectedRef.current) {
+          if (!initialNavigationRef.current && openingLandmarkRef.current !== selectedRef.current) {
             focusLandmark(selectedRef.current, true);
           }
           // The requested world was started immediately after manifest
@@ -8084,18 +8170,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         className={`${active ? "three-viewer is-active" : "three-viewer"}${presentationReady ? " is-presentation-ready" : ""}`}
         aria-hidden={!active}
       >
-        {!presentationReady ? (
-          <div className="three-startup-curtain" aria-hidden="true" />
-        ) : null}
-        {percentage < 100 ? (
-          <div className="three-progress" role="status">
-            <span>{progressLabel}</span>
-            <strong>{percentage}%</strong>
-            <div aria-hidden="true">
-              <span style={{ width: `${percentage}%` }} />
-            </div>
-          </div>
-        ) : null}
+        <StartupPresentation
+          label={progressLabel}
+          percentage={percentage}
+          showBackdrop={!presentationReady}
+        />
       </div>
     );
   },

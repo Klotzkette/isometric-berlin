@@ -1,4 +1,5 @@
 import { simulationStartLabel } from "./simulationStartViews";
+import { StartupPresentation } from "./StartupPresentation";
 import {
   ArrowDown,
   ArrowLeft,
@@ -69,6 +70,7 @@ import {
 } from "react";
 
 import type { PedestrianPose, ThreeViewerHandle } from "./ThreeViewer";
+import type { NavigationSnapshot } from "./navigationContinuity";
 import type { PedestrianMiniMapHandle } from "./PedestrianMiniMap";
 import {
   ThreeViewerErrorBoundary,
@@ -866,6 +868,7 @@ export function App() {
   const brandRevealTimerRef = useRef<number | null>(null);
   const minecraftSparkTimerRef = useRef<number | null>(null);
   const activeThreeViewerKeyRef = useRef("");
+  const retainedNavigationRef = useRef<NavigationSnapshot | null>(null);
   const latestPedestrianPoseRef = useRef<PedestrianPose | null>(null);
   const pedestrianMiniMapRef = useRef<PedestrianMiniMapHandle | null>(null);
   const threeViewerAutoRecoveryUsedRef = useRef(false);
@@ -1043,6 +1046,22 @@ export function App() {
     },
     [],
   );
+
+  const recoverNavigation = useCallback(() => {
+    const result = threeViewerRef.current?.recoverPedestrian() ?? "unavailable";
+    if (result === "flight") disablePedestrianMode();
+    else {
+      threeViewerRef.current?.setPedestrianFastRun(pedestrianFastRunLockedRef.current);
+      threeViewerRef.current?.setPedestrianSprint(pedestrianSprintLockedRef.current);
+    }
+    setStatus(language === "de"
+      ? result === "flight" ? "Über dem Hindernis · du kannst weiterfliegen"
+        : result === "unavailable" ? "Hier ist noch kein freier Ausstieg verfügbar"
+          : "Wieder auf freiem Weg · Blickrichtung beibehalten"
+      : result === "flight" ? "Above the obstacle · continue flying"
+        : result === "unavailable" ? "No clear exit is available here yet"
+          : "Back on a clear path · heading preserved");
+  }, [disablePedestrianMode, language]);
 
   const focusLandmark = useCallback(
     (landmark: Landmark, immediate = false, openingView = false) => {
@@ -2091,12 +2110,16 @@ export function App() {
         persistentThreeWorld,
       );
       if (changesMobileWorldFamily) {
+        // Keep only numeric navigation data: the previous world and WebGL
+        // context are still fully released on phones. During rapid switches
+        // retain the last valid pose rather than a half-built default camera.
+        retainedNavigationRef.current =
+          threeViewerRef.current?.captureNavigation() ?? retainedNavigationRef.current;
         // React unmounts the previous ThreeViewer before constructing the new
         // family, releasing its scene, parsed payloads and WebGL context. A
         // phone therefore never retains the full drawn and voxel worlds at
         // the same time. Browser cache still avoids repeat network transfer.
         setIsThreeReady(false);
-        setIsThreeUnderside(false);
         setThreeRuntimeError(null);
         threeViewerAutoRecoveryUsedRef.current = false;
       }
@@ -2133,7 +2156,6 @@ export function App() {
       // also guarantees that protected memorial pixels are never recoloured.
       if (next === "schwellenraum") {
         setViewerMode("three");
-        setIsThreeUnderside(false);
       }
       setStatus(
         next === "minecraft"
@@ -2160,6 +2182,7 @@ export function App() {
     disablePedestrianMode();
     const target = resolveResetView();
     selectVisualMode(target.lightingMode);
+    retainedNavigationRef.current = null;
     setRotation(target.rotationDegrees);
     setIsThreeUnderside(target.isUnderside);
     setThreePolarDegrees(58);
@@ -2279,6 +2302,7 @@ export function App() {
     const next = viewerMode === "three" ? "map" : "three";
     if (next === "map") {
       disablePedestrianMode();
+      retainedNavigationRef.current = null;
     }
     if (next === "map" && !keepThreeWarm) {
       setIsThreeReady(false);
@@ -2295,6 +2319,7 @@ export function App() {
 
   const useMapAfterThreeViewerFailure = useCallback(() => {
     disablePedestrianMode();
+    retainedNavigationRef.current = null;
     setIsThreeReady(false);
     setIsThreeUnderside(false);
     setThreeRuntimeError(null);
@@ -2312,6 +2337,7 @@ export function App() {
         return;
       }
       console.error(`Isometric Berlin 3D: ${message}`);
+      retainedNavigationRef.current = null;
       setIsPedestrianMode(false);
       setIsThreeReady(false);
       setIsThreeUnderside(false);
@@ -3488,14 +3514,11 @@ export function App() {
                   }
                   aria-hidden={viewerMode !== "three"}
                 >
-                  <div className="three-startup-curtain" aria-hidden="true" />
-                  <div className="three-progress" role="status">
-                    <span>{copy.loadingCity}</span>
-                    <strong>0%</strong>
-                    <div aria-hidden="true">
-                      <span style={{ width: "0%" }} />
-                    </div>
-                  </div>
+                  <StartupPresentation
+                    label={copy.loadingCity}
+                    percentage={0}
+                    showBackdrop
+                  />
                 </div>
               }
             >
@@ -3516,6 +3539,7 @@ export function App() {
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
+                initialNavigation={retainedNavigationRef.current}
                 onReady={() => {
                   if (
                     activeThreeViewerKeyRef.current !==
@@ -3524,6 +3548,11 @@ export function App() {
                     return;
                   }
                   setIsThreeReady(true);
+                  // The mounted viewer owns its restored copy now. A later
+                  // reset, map visit or error remount must not reuse it.
+                  retainedNavigationRef.current = null;
+                  threeViewerRef.current?.setPedestrianFastRun(pedestrianFastRunLockedRef.current);
+                  threeViewerRef.current?.setPedestrianSprint(pedestrianSprintLockedRef.current);
                   setThreeRuntimeError(null);
                   setStatus(
                     language === "de"
@@ -4033,6 +4062,19 @@ export function App() {
           onClick={() => triggerPedestrianJump()}
         >
           <ArrowUpFromLine size={22} aria-hidden="true" />
+        </button>
+      ) : null}
+
+      {viewerMode === "three" && !isChromeHidden && !(isCompactLayout && isAttributionOpen) &&
+        (isPedestrianMode || lightingMode === "minecraft" || lightingMode === "schwellenraum") ? (
+        <button
+          type="button"
+          className="navigation-recovery-button"
+          disabled={!isReady}
+          onClick={recoverNavigation}
+          title={language === "de" ? "Einen freien Weg in der Nähe finden" : "Find a clear way out nearby"}
+        >
+          {language === "de" ? "Freikommen" : "Get unstuck"}
         </button>
       ) : null}
 

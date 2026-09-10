@@ -12,6 +12,7 @@ import type { MinecraftVoxelDetailProfile } from "../src/MinecraftVoxelWorld";
 import type { VisualMode } from "../src/visualMode";
 
 const newlyOmittedPosition = [-1656.21, 5.245, 688.7] as const;
+const v127OmittedPosition = [-1652.08, 5.245, 682.89] as const;
 const fullOnlyPosition = [1001.2, 4.25, 901.3] as const;
 const bothProfilesPosition = [1009.2, 4.25, 901.3] as const;
 const lampPosition = [1040, 4.25, 950] as const;
@@ -63,6 +64,7 @@ function fixture(profile: MinecraftVoxelDetailProfile = "full", cellM = 4) {
     }],
     trees: [
       tree(newlyOmittedPosition),
+      tree(v127OmittedPosition),
       tree(fullOnlyPosition),
       tree(bothProfilesPosition),
       oak,
@@ -93,7 +95,26 @@ describe("Minecraft pedestrian tree density collision", () => {
     expect(environment.obstacles).toBe(obstacles);
     expect(obstacles.cells).toBe(cells);
     expect(obstacles.obstacleCount).toBe(count);
-    expect(obstacles.treeCount).toBe(4);
+    expect(obstacles.treeCount).toBe(5);
+  });
+
+  test("releases the new v1.0.27 thinning bucket in both profiles without changing drawn collision", () => {
+    const [x, , z] = v127OmittedPosition;
+    const hash =
+      (Math.imul(Math.floor(x / 4), 73_856_093) ^
+        Math.imul(Math.floor(z / 4), 19_349_663)) >>> 0;
+    // This exact delivered Tiergarten tree survived both v1.0.26 profiles.
+    expect(hash % 3).toBe(0);
+    expect(Math.floor(hash / 3) % 6).toBe(4);
+    for (const profile of ["full", "mobile"] as const) {
+      const { blocked, state } = fixture(profile);
+      expect(blocked(v127OmittedPosition)).toBeTrue();
+      state.mode = "minecraft";
+      state.voxelAttached = true;
+      expect(blocked(v127OmittedPosition)).toBeFalse();
+      state.mode = "day";
+      expect(blocked(v127OmittedPosition)).toBeTrue();
+    }
   });
 
   test("uses the mobile tree subset while retaining Lenné-Eiche in both profiles", () => {

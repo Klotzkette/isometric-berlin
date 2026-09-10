@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.25 adds the source-bound CDU surface batch and corrects Wagner's
-// deep open canopy. Independently measured synchronous buffers are compared
+// v1.0.27 further reduces generic Minecraft tree cover in both profiles.
+// Independently measured synchronous buffers are compared
 // with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "9fcba8bd95b2efd1ce92a52344e9cda040ef4fb07bcb339ed7183436235a1ee7", 3816384, 98, 291276839],
-  ["mobile", "df22fc1dba0e72624d57e07f3f0fc996fd274bb13a884b67f22cf06289119f8d", 1012631, 96, 77624583],
+  ["full", "05ea000a87e69247abe1a25537b7cab6770e591c56f10c4adf38cd7ed78e31a4", 3804782, 98, 290167847],
+  ["mobile", "92a5910c5f354c57ffc09c21d4a2edbb07c4073c09a1ad18d61fe8e56f775b38", 1006955, 96, 77083539],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

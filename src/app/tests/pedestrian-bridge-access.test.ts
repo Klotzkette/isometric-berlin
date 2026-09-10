@@ -103,21 +103,42 @@ describe("source-bound bridge pedestrian routes", () => {
     }
   });
 
-  test("mode changes retain the same bridge position and use that representation's floor", () => {
+  test("mode changes preserve an idle bridge pose exactly; the first walking step uses the active deck", () => {
     let mode: VisualMode = "day";
     const environment = environmentFor(mode);
     environment.visualMode = () => mode;
-    const profile = profiles.find(({ kind }) => kind === "suspension")!;
-    let state = createPedestrianState(environment, { x: profile.world[0], z: profile.world[1], yaw: 0 });
-    for (const nextMode of ["minecraft", "schwellenraum", "night", "snowstorm", "day"] as const) {
-      mode = nextMode;
-      state = stepPedestrian(state, { forward: 0, strafe: 0, look: 0, turn: 0, sprint: false }, 0.016, environment).state;
-      expect([state.x, state.z]).toEqual(profile.world);
-      expect(state.groundY).toBeCloseTo(environment.bridgeGroundAt!(...profile.world)!, 6);
-      expect(state.grounded).toBeTrue();
+    let lastState: PedestrianState | null = null;
+    for (const profile of profiles) {
+      for (const forward of [1, 0.35]) {
+        mode = "day";
+        const axis = profile.axis!;
+        let state = createPedestrianState(environment, {
+          x: profile.world[0], z: profile.world[1], yaw: Math.atan2(axis[0], -axis[1]),
+        });
+        for (const nextMode of ["minecraft", "schwellenraum", "night", "snowstorm", "day"] as const) {
+          mode = nextMode;
+          const idle = stepPedestrian(state, { forward: 0, strafe: 0, look: 0, turn: 0, sprint: false }, 0.016, environment);
+          expect(idle.state).toBe(state);
+          expect(idle.changed).toBeFalse();
+
+          const moved = stepPedestrian(state, { forward, strafe: 0, look: 0, turn: 0, sprint: false }, 0.016, environment);
+          expect(moved.respawned).toBeFalse();
+          expect(Math.hypot(moved.state.x - state.x, moved.state.z - state.z))
+            .toBeCloseTo(PEDESTRIAN_WALK_SPEED_MPS * forward * 0.016, 6);
+          const deckY = environment.bridgeGroundAt!(moved.state.x, moved.state.z);
+          expect(deckY).not.toBeNull();
+          expect(moved.state.groundY).toBeCloseTo(deckY!, 6);
+          expect(moved.state.grounded).toBeTrue();
+          expect(moved.state.jumpOffset).toBe(0);
+          expect(pedestrianPointIsBlocked(moved.state.x, moved.state.z,
+            moved.state.groundY, environment.obstacles, environment)).toBeFalse();
+          state = moved.state;
+        }
+        lastState = state;
+      }
     }
     environment.protectedVolumeAt = () => true;
-    expect(pedestrianPointIsBlocked(state.x, state.z, state.groundY, environment.obstacles, environment)).toBeTrue();
+    expect(pedestrianPointIsBlocked(lastState!.x, lastState!.z, lastState!.groundY, environment.obstacles, environment)).toBeTrue();
   });
 
   test("navigation height agrees with real drawn and block deck meshes", () => {
