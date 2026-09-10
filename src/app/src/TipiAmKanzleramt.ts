@@ -1,7 +1,6 @@
 import {
   BoxGeometry,
   BufferGeometry,
-  ConeGeometry,
   CylinderGeometry,
   DoubleSide,
   Float32BufferAttribute,
@@ -18,8 +17,12 @@ import {
   Vector3,
 } from "three";
 
+import { createTipiSitePavilions } from "./TipiSitePavilions";
+import { TIPI_SITE_PRISM_IDS } from "./tipiSiteProfile";
+
 export const TIPI_GROUND_Y = 3.98;
-export const TIPI_ROTATION_Y = (8 * Math.PI) / 180;
+// The retained auditorium footprint runs north/south; the oval long axis is local X.
+export const TIPI_ROTATION_Y = Math.PI / 2;
 
 export const TIPI_AM_KANZLERAMT_PROFILE = {
   ellipseLengthM: 32,
@@ -213,30 +216,6 @@ function compoundRoofGeometry(parity: 0 | 1): BufferGeometry {
   return geometry;
 }
 
-function gableRoofGeometry(
-  width: number,
-  depth: number,
-  rise: number,
-): BufferGeometry {
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const frontLeft = new Vector3(-width / 2, -rise / 2, depth / 2);
-  const frontRight = new Vector3(width / 2, -rise / 2, depth / 2);
-  const frontRidge = new Vector3(0, rise / 2, depth / 2);
-  const backLeft = new Vector3(-width / 2, -rise / 2, -depth / 2);
-  const backRight = new Vector3(width / 2, -rise / 2, -depth / 2);
-  const backRidge = new Vector3(0, rise / 2, -depth / 2);
-  addQuad(positions, normals, frontLeft, backLeft, backRidge, frontRidge);
-  addQuad(positions, normals, frontRidge, backRidge, backRight, frontRight);
-  addTriangle(positions, normals, frontLeft, frontRight, frontRidge);
-  addTriangle(positions, normals, backRight, backLeft, backRidge);
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
-  geometry.computeBoundingSphere();
-  return geometry;
-}
-
 function cylinderMatrix(start: Vector3, end: Vector3): Matrix4 {
   const direction = end.clone().sub(start);
   const rotation = new Quaternion().setFromUnitVectors(
@@ -341,35 +320,12 @@ function addEntrancePavilion(group: Group): void {
     [0, 2.1, 13.8],
     timber,
   );
-  addInstances(
-    group,
-    "TIPI two symmetric entrance gables",
-    gableRoofGeometry(11.2, 5.6, 3.3),
-    timberHighlight,
-    [-1, 1].map((side) => ({ position: [side * 10.35, 5.55, 13.5] })),
-  );
-  addBox(
-    group,
-    "TIPI central raised foyer pavilion",
-    [10.2, 4.6, 5.3],
-    [0, 6.0, 11.8],
-    timber,
-  );
   addBox(
     group,
     "TIPI projecting entrance canopy",
-    [11.1, 0.36, 6.2],
-    [0, 8.48, 11.8],
+    [35.5, 0.26, 3.0],
+    [0, 4.32, 15.0],
     timberHighlight,
-  );
-  addInstances(
-    group,
-    "TIPI four raised foyer blue-grey glazing fields",
-    new BoxGeometry(1.65, 2.4, 0.22),
-    darkGlass,
-    [-3.6, -1.2, 1.2, 3.6].map((x) => ({
-      position: [x, 6.05, 14.52],
-    })),
   );
   addInstances(
     group,
@@ -379,17 +335,6 @@ function addEntrancePavilion(group: Group): void {
     Array.from({ length: 8 }, (_, index) => ({
       position: [-14.3 + index * 4.08, 1.75, 16.16],
     })),
-  );
-  const railingTransforms: InstanceTransform[] = [];
-  for (let index = 0; index < 11; index += 1) {
-    railingTransforms.push({ position: [-5 + index, 9.15, 14.28] });
-  }
-  addInstances(
-    group,
-    "TIPI central roof-deck railing posts",
-    new BoxGeometry(0.08, 1.15, 0.08),
-    material(0xb0aaa1, { metalness: 0.38, roughness: 0.42 }),
-    railingTransforms,
   );
   addBox(
     group,
@@ -474,34 +419,6 @@ function addMarquee(group: Group): void {
   );
 }
 
-function addSatellitePavilions(group: Group): void {
-  const canvas = nightEmitter(
-    material(0xe9e7df, { roughness: 0.94 }),
-    0xffb56f,
-    0.1,
-  );
-  addInstances(
-    group,
-    "TIPI two large side pavilions",
-    new ConeGeometry(7.1, 10.6, 20, 1, true),
-    canvas,
-    [-1, 1].map((side) => ({
-      position: [side * 18.1, 5.3, 5.8],
-      scale: [1, 1, 0.82],
-    })),
-  );
-  addInstances(
-    group,
-    "TIPI two smaller rear pavilions",
-    new ConeGeometry(4.2, 7.8, 16, 1, true),
-    canvas,
-    [-1, 1].map((side) => ({
-      position: [side * 10.5, 3.9, -10.2],
-      scale: [1, 1, 0.86],
-    })),
-  );
-}
-
 function addCanvasLights(group: Group): void {
   const transforms: InstanceTransform[] = [];
   for (let rib = 0; rib < 16; rib += 1) {
@@ -555,6 +472,7 @@ export function createTipiAmKanzleramt(
     marqueeIsOwnerAuthored: true,
     mainRoofPeakCount: TIPI_AM_KANZLERAMT_PROFILE.mainRoofPeakCount,
     sourceUrls: [...TIPI_AM_KANZLERAMT_PROFILE.sourceUrls],
+    sourcePrismIds: [...TIPI_SITE_PRISM_IDS],
     todayMarquee: TIPI_AM_KANZLERAMT_PROFILE.todayMarquee,
   };
 
@@ -587,9 +505,18 @@ export function createTipiAmKanzleramt(
     [0, 0, 0],
   );
   addRoofRibs(group);
-  addSatellitePavilions(group);
-  addEntrancePavilion(group);
-  addMarquee(group);
+  const site = createTipiSitePavilions();
+  // Site vertices remain in the retained world frame while the oval turns.
+  site.rotation.y = -TIPI_ROTATION_Y;
+  site.position.copy(group.position).negate().applyAxisAngle(UP, -TIPI_ROTATION_Y);
+  group.add(site);
+  const front = new Group();
+  front.name = "TIPI north-facing timber entrance and marquee";
+  front.position.set(0, 0, 28 - anchorWorld[2]).applyAxisAngle(UP, -TIPI_ROTATION_Y);
+  front.rotation.y = Math.PI - TIPI_ROTATION_Y;
+  addEntrancePavilion(front);
+  addMarquee(front);
+  group.add(front);
   addCanvasLights(group);
   return group;
 }

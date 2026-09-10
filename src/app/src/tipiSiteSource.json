@@ -1,0 +1,662 @@
+{
+  "source": {
+    "geometry": "Committed OSM context prism footprints, unchanged decimetre coordinates",
+    "license": "ODbL-1.0",
+    "verified": "2026-09-10",
+    "osmApi": "https://api.openstreetmap.org/api/0.6/ways.json?ways=174277607,258756196,258756197,258756198,258756199,258756200,258756201,258756202,258756203,258756204,258756206,258756208,258756209,258756210,258756211,258756212,258756213,1065507883,1065507884,1065507885",
+    "officialAerial": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+    "aerialRequest": {
+      "layer": "dop_2025",
+      "crs": "EPSG:25833",
+      "bbox": [
+        389160,
+        5819890,
+        389260,
+        5820000
+      ]
+    },
+    "geometryStatus": "Source-bound footprints; canvas curvature, eaves and peak heights are photo/aerial-bounded display estimates, not a survey"
+  },
+  "parts": [
+    {
+      "osmWay": "174277607",
+      "prismId": "74277607",
+      "role": "auditorium",
+      "ringDm": [
+        [
+          -3040,
+          702
+        ],
+        [
+          -3062,
+          686
+        ],
+        [
+          -3088,
+          655
+        ],
+        [
+          -3098,
+          634
+        ],
+        [
+          -3104,
+          611
+        ],
+        [
+          -3105,
+          480
+        ],
+        [
+          -3100,
+          456
+        ],
+        [
+          -3091,
+          435
+        ],
+        [
+          -3079,
+          417
+        ],
+        [
+          -3058,
+          395
+        ],
+        [
+          -3033,
+          379
+        ],
+        [
+          -2998,
+          368
+        ],
+        [
+          -2961,
+          367
+        ],
+        [
+          -2926,
+          377
+        ],
+        [
+          -2902,
+          391
+        ],
+        [
+          -2881,
+          410
+        ],
+        [
+          -2867,
+          430
+        ],
+        [
+          -2856,
+          452
+        ],
+        [
+          -2850,
+          477
+        ],
+        [
+          -2850,
+          504
+        ],
+        [
+          -2860,
+          622
+        ],
+        [
+          -2870,
+          649
+        ],
+        [
+          -2887,
+          674
+        ],
+        [
+          -2910,
+          695
+        ],
+        [
+          -2943,
+          711
+        ],
+        [
+          -2978,
+          717
+        ],
+        [
+          -3014,
+          712
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "osm:height",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756196",
+      "prismId": "58756196",
+      "role": "turret",
+      "ringDm": [
+        [
+          -3114,
+          245
+        ],
+        [
+          -3113,
+          181
+        ],
+        [
+          -3049,
+          182
+        ],
+        [
+          -3050,
+          247
+        ]
+      ],
+      "groundY": 4.4,
+      "retainedSourceHeightM": 6.0,
+      "heightSource": "osm:building:levels",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756197",
+      "prismId": "58756197",
+      "role": "turret",
+      "ringDm": [
+        [
+          -2892,
+          250
+        ],
+        [
+          -2891,
+          189
+        ],
+        [
+          -2829,
+          190
+        ],
+        [
+          -2830,
+          252
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 6.0,
+      "heightSource": "osm:building:levels",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756198",
+      "prismId": "58756198",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -3180,
+          779
+        ],
+        [
+          -3180,
+          716
+        ],
+        [
+          -3120,
+          716
+        ],
+        [
+          -3120,
+          779
+        ]
+      ],
+      "groundY": 4.0,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756199",
+      "prismId": "58756199",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -3181,
+          707
+        ],
+        [
+          -3181,
+          644
+        ],
+        [
+          -3121,
+          644
+        ],
+        [
+          -3121,
+          707
+        ]
+      ],
+      "groundY": 4.0,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756200",
+      "prismId": "58756200",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -3174,
+          482
+        ],
+        [
+          -3171,
+          419
+        ],
+        [
+          -3111,
+          422
+        ],
+        [
+          -3114,
+          485
+        ]
+      ],
+      "groundY": 4.2,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756201",
+      "prismId": "58756201",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2804,
+          569
+        ],
+        [
+          -2804,
+          506
+        ],
+        [
+          -2744,
+          506
+        ],
+        [
+          -2744,
+          569
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756202",
+      "prismId": "58756202",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2721,
+          506
+        ],
+        [
+          -2781,
+          506
+        ],
+        [
+          -2781,
+          443
+        ],
+        [
+          -2721,
+          442
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756203",
+      "prismId": "58756203",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2777,
+          324
+        ],
+        [
+          -2837,
+          324
+        ],
+        [
+          -2836,
+          261
+        ],
+        [
+          -2776,
+          261
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756204",
+      "prismId": "58756204",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2777,
+          388
+        ],
+        [
+          -2837,
+          388
+        ],
+        [
+          -2837,
+          324
+        ],
+        [
+          -2777,
+          324
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756206",
+      "prismId": "58756206",
+      "role": "foyer",
+      "ringDm": [
+        [
+          -2890,
+          131
+        ],
+        [
+          -2893,
+          275
+        ],
+        [
+          -3051,
+          271
+        ],
+        [
+          -3048,
+          128
+        ]
+      ],
+      "groundY": 4.2,
+      "retainedSourceHeightM": 3.0,
+      "heightSource": "osm:building:levels",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756208",
+      "prismId": "58756208",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -3008,
+          355
+        ],
+        [
+          -3006,
+          272
+        ],
+        [
+          -2943,
+          273
+        ],
+        [
+          -2945,
+          356
+        ]
+      ],
+      "groundY": 4.2,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756209",
+      "prismId": "58756209",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2946,
+          871
+        ],
+        [
+          -2921,
+          813
+        ],
+        [
+          -2866,
+          836
+        ],
+        [
+          -2890,
+          894
+        ]
+      ],
+      "groundY": 4.0,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756210",
+      "prismId": "58756210",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2727,
+          199
+        ],
+        [
+          -2702,
+          141
+        ],
+        [
+          -2647,
+          164
+        ],
+        [
+          -2672,
+          222
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756211",
+      "prismId": "58756211",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2688,
+          383
+        ],
+        [
+          -2664,
+          325
+        ],
+        [
+          -2608,
+          348
+        ],
+        [
+          -2633,
+          406
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756212",
+      "prismId": "58756212",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2630,
+          236
+        ],
+        [
+          -2608,
+          177
+        ],
+        [
+          -2552,
+          198
+        ],
+        [
+          -2574,
+          257
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "258756213",
+      "prismId": "58756213",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2841,
+          451
+        ],
+        [
+          -2841,
+          388
+        ],
+        [
+          -2781,
+          388
+        ],
+        [
+          -2781,
+          451
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=tent",
+      "buildingTag": "tent"
+    },
+    {
+      "osmWay": "1065507883",
+      "prismId": "65507883",
+      "role": "pagoda",
+      "ringDm": [
+        [
+          -2907,
+          352
+        ],
+        [
+          -2907,
+          288
+        ],
+        [
+          -2836,
+          288
+        ],
+        [
+          -2837,
+          352
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=yes",
+      "buildingTag": "yes"
+    },
+    {
+      "osmWay": "1065507884",
+      "prismId": "65507884",
+      "role": "service",
+      "ringDm": [
+        [
+          -2944,
+          315
+        ],
+        [
+          -2943,
+          273
+        ],
+        [
+          -2914,
+          274
+        ],
+        [
+          -2915,
+          298
+        ],
+        [
+          -2906,
+          298
+        ],
+        [
+          -2907,
+          316
+        ]
+      ],
+      "groundY": 4.1,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=yes",
+      "buildingTag": "yes"
+    },
+    {
+      "osmWay": "1065507885",
+      "prismId": "65507885",
+      "role": "service",
+      "ringDm": [
+        [
+          -3086,
+          264
+        ],
+        [
+          -3087,
+          325
+        ],
+        [
+          -3154,
+          325
+        ],
+        [
+          -3154,
+          263
+        ]
+      ],
+      "groundY": 4.2,
+      "retainedSourceHeightM": 9.0,
+      "heightSource": "display_fallback:building=yes",
+      "buildingTag": "yes"
+    }
+  ]
+}

@@ -996,11 +996,12 @@ describe("progressive exact-world scheduling", () => {
     // v1.0.7 suppresses dedicated civic facade overlays and moves 30 source
     // parts into the bounded initial group (17,256 fewer follow-up vertices).
     // v1.0.9 removes 1,338 duplicate follow-up vertices on dedicated Heidestrasse / 50Hertz facades.
+    // v1.0.22 replaces twenty TIPI fallback masses in its dedicated site model.
     expect({ vertices, retainedBytes }).toEqual({
       // v1.0.14 puts harbour identities in startup and moves ministry bodies
       // into their source-bound context model, without extra worker batches.
-      vertices: 3_574_240,
-      retainedBytes: 51_418_438,
+      vertices: 3_565_364,
+      retainedBytes: 51_291_808,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

@@ -1,13 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.14 restores the H3 court and adds the source-bound ministry, closed
-// native roof steps and mapped graves. Independently measured synchronous
-// buffers are compared with cooperative construction, including geometry,
-// colours, source replacement and all instance capacities.
+// v1.0.22 replaces twenty generic TIPI masses with source-bound tents/service
+// wings. Independently measured synchronous buffers are compared with
+// cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "0084ceb8adb8f44c8eae3aaa32cba7ba10e3a798634f9a6ef03ede891b1ee04f", 3814244, 97, 291113359],
-  ["mobile", "82d85ecefe618fbd826c750a9ac03c53976ce7049c9309c5bceca276703bfd3d", 1009599, 95, 77393311],
+  ["full", "61b71a9b2d1e7195d0bf0a3e67986d260db5a3622484878d4238a28363202a77", 3814623, 97, 291142163],
+  ["mobile", "410a54870d73f5b4177af47c64d21032140d8774d9f59c930ee7e72c98ca2876", 1010242, 95, 77442179],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

@@ -80,16 +80,9 @@ describe("cultural and Spree recognition details", () => {
     expect(
       tipi?.getObjectByName("TIPI alternating cool compound roof facets"),
     ).toBeDefined();
-    const sidePavilions = tipi?.getObjectByName(
-      "TIPI two large side pavilions",
-    ) as InstancedMesh;
-    const rearPavilions = tipi?.getObjectByName(
-      "TIPI two smaller rear pavilions",
-    ) as InstancedMesh;
-    expect(sidePavilions).toBeInstanceOf(InstancedMesh);
-    expect(sidePavilions.count).toBe(2);
-    expect(rearPavilions).toBeInstanceOf(InstancedMesh);
-    expect(rearPavilions.count).toBe(2);
+    const pavilions = tipi?.getObjectByName("TIPI source-bound ancillary tents and service wings");
+    expect(pavilions?.userData.sourcePrismIds).toHaveLength(19);
+    expect(pavilions?.children).toHaveLength(4);
     expect(
       tipi?.children.some((child) =>
         child.name.includes("colourful night uplight"),
@@ -183,7 +176,7 @@ describe("cultural and Spree recognition details", () => {
     });
 
     expect(drawables).toBeLessThanOrEqual(22);
-    expect(instances).toBeGreaterThan(900);
+    expect(instances).toBeGreaterThan(850);
   });
 
   test("preserves the Carillon height and all 68 visible bells", () => {
@@ -294,7 +287,7 @@ describe("cultural and Spree recognition details", () => {
     );
     expect(hkwCamera?.distance_m).toBeGreaterThanOrEqual(380);
     expect(hkwCamera?.target_world).toEqual([-505.17, 3.89, -12.073]);
-    expect(culturalFocusCamera("TIPI am Kanzleramt")?.distance_m).toBe(74);
+    expect(culturalFocusCamera("TIPI am Kanzleramt")?.distance_m).toBe(100);
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(
       20,
     );

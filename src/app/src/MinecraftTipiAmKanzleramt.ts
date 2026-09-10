@@ -14,6 +14,7 @@ import {
   TIPI_ROTATION_Y,
   tipiMarqueeTransforms,
 } from "./TipiAmKanzleramt";
+import { TIPI_SITE_PARTS, isTipiSourceReplacementAt, tipiSiteEnvelope, tipiSitePartContains } from "./tipiSiteProfile";
 import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
   MINECRAFT_PALETTE,
@@ -26,6 +27,7 @@ type LocalBlock = {
   cue: string;
   position: Point3;
   size: Point3;
+  rotationY?: number;
 };
 
 const ANCHOR: Point3 = [
@@ -144,31 +146,7 @@ function addEntrance(blocks: LocalBlock[]): void {
     [35.5, 4.2, 4.6],
     0x704a2d,
   );
-  for (const side of [-1, 1]) {
-    for (let tier = 0; tier < 3; tier += 1) {
-      pushSplitBox(
-        blocks,
-        "TIPI twin stepped entrance gables",
-        [side * 10.35, 4.5 + tier * 1.25, 13.35],
-        [10.8 - tier * 3.0, 1.1, 4.0],
-        tier % 2 === 0 ? 0xc09a68 : 0x704a2d,
-      );
-    }
-  }
-  pushSplitBox(
-    blocks,
-    "TIPI raised central foyer block pavilion",
-    [0, 6.0, 11.8],
-    [10.2, 4.6, 5.3],
-    0x704a2d,
-  );
-  pushSplitBox(
-    blocks,
-    "TIPI central flat canopy",
-    [0, 8.5, 11.8],
-    [11.1, 0.5, 6.2],
-    0xc09a68,
-  );
+  pushSplitBox(blocks, "TIPI central flat canopy", [0, 4.3, 15], [35.5, 0.4, 3], 0xc09a68);
   for (let door = 0; door < 8; door += 1) {
     pushBlock(
       blocks,
@@ -180,27 +158,31 @@ function addEntrance(blocks: LocalBlock[]): void {
   }
 }
 
-function addSidePavilions(blocks: LocalBlock[]): void {
-  for (const side of [-1, 1]) {
-    for (let tier = 0; tier < 4; tier += 1) {
-      const width = 13.2 - tier * 2.7;
-      pushSplitBox(
-        blocks,
-        "TIPI two stepped white side pavilions",
-        [side * 18.1, 2.1 + tier * 2.25, 5.8],
-        [width, 2.1, width * 0.82],
-        tier % 2 === 0 ? BLOCK.marbleLight : BLOCK.silver,
-      );
-    }
-    for (let tier = 0; tier < 3; tier += 1) {
-      const width = 7.6 - tier * 2.0;
-      pushSplitBox(
-        blocks,
-        "TIPI two smaller rear pavilion peaks",
-        [side * 10.5, 1.8 + tier * 2.1, -10.2],
-        [width, 1.9, width * 0.86],
-        tier % 2 === 0 ? BLOCK.marbleLight : BLOCK.silver,
-      );
+function addSourcePavilions(blocks: LocalBlock[]): void {
+  for (const part of TIPI_SITE_PARTS) {
+    if (part.role === "auditorium") continue;
+    const xs = part.ringDm.map(([x]) => x / 10), zs = part.ringDm.map(([, z]) => z / 10);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
+    const { eaves, peak } = tipiSiteEnvelope(part);
+    const nx = Math.ceil((maxX - minX) / 1.5), nz = Math.ceil((maxZ - minZ) / 1.5);
+    const dx = (maxX - minX) / nx, dz = (maxZ - minZ) / nz;
+    for (let ix = 0; ix < nx; ix++) for (let iz = 0; iz < nz; iz++) {
+      const x = minX + (ix + 0.5) * dx, z = minZ + (iz + 0.5) * dz;
+      if (!tipiSitePartContains(part, x, z)) continue;
+      const [lx, lz] = worldToLocal(x, z);
+      const wall = ix === 0 || iz === 0 || ix === nx - 1 || iz === nz - 1;
+      const radius = Math.max(Math.abs(x - (minX + maxX) / 2) / ((maxX - minX) / 2), Math.abs(z - (minZ + maxZ) / 2) / ((maxZ - minZ) / 2));
+      const y = eaves + (peak - eaves) * Math.pow(1 - radius, 1.8);
+      if (wall) {
+        // Split taller turret walls into the same <=4m closed palette blocks.
+        const heights = Math.ceil(eaves / MAX_BLOCK_SPAN_M);
+        for (let level = 0; level < heights; level++) blocks.push({
+          cue: "TIPI source-bound low pavilion walls", position: [lx, part.groundY - ANCHOR[1] + (level + 0.5) * eaves / heights, lz],
+          size: [dx * 0.96, eaves / heights, dz * 0.96], color: part.role === "turret" || part.role === "foyer" ? 0x704a2d : BLOCK.quartzIvory,
+          rotationY: -TIPI_ROTATION_Y,
+        });
+      }
+      blocks.push({cue: "TIPI source-bound stepped canvas roofs", position: [lx, part.groundY - ANCHOR[1] + y, lz], size: [dx, 0.65, dz], color: (ix + iz) % 2 ? BLOCK.marbleLight : BLOCK.silver, rotationY: -TIPI_ROTATION_Y});
     }
   }
 }
@@ -231,9 +213,14 @@ function addOwnerMarquee(blocks: LocalBlock[]): void {
 export function createMinecraftTipiAmKanzleramt(): InstancedMesh {
   const blocks: LocalBlock[] = [];
   addAuditorium(blocks);
-  addSidePavilions(blocks);
-  addEntrance(blocks);
-  addOwnerMarquee(blocks);
+  addSourcePavilions(blocks);
+  const front: LocalBlock[] = [];
+  addEntrance(front);
+  addOwnerMarquee(front);
+  for (const block of front) {
+    const [x, z] = worldToLocal(ANCHOR[0] - block.position[0], 28 - block.position[2]);
+    blocks.push({ ...block, position: [x, block.position[1], z], rotationY: Math.PI - TIPI_ROTATION_Y });
+  }
 
   const material = new MeshStandardMaterial({
     color: 0xffffff,
@@ -254,7 +241,7 @@ export function createMinecraftTipiAmKanzleramt(): InstancedMesh {
   const color = new Color();
   blocks.forEach((block, index) => {
     const [worldX, worldZ] = localToWorld(block.position[0], block.position[2]);
-    matrix.makeRotationY(TIPI_ROTATION_Y);
+    matrix.makeRotationY(TIPI_ROTATION_Y + (block.rotationY ?? 0));
     matrix.scale(scale.fromArray(block.size));
     matrix.setPosition(worldX, ANCHOR[1] + block.position[1], worldZ);
     mesh.setMatrixAt(index, matrix);
@@ -288,28 +275,15 @@ export function createMinecraftTipiAmKanzleramt(): InstancedMesh {
     marqueeFictional: true,
     marqueeIsOwnerAuthored: true,
     noTexture: true,
+    sourcePrismIds: TIPI_SITE_PARTS.map((part) => part.prismId),
     sourceUrls: [...TIPI_AM_KANZLERAMT_PROFILE.sourceUrls],
   };
   return mesh;
 }
 
-/** Exact union of the authored tent, foyer and four pavilion footprints. */
-export function isMinecraftTipiReplacementColumn(
-  worldX: number,
-  worldZ: number,
-): boolean {
-  const [localX, localZ] = worldToLocal(worldX, worldZ);
-  const inMainEllipse = (localX / 16) ** 2 + (localZ / 13) ** 2 <= 1;
-  const inEntrance = Math.abs(localX) <= 18 && localZ >= 11 && localZ <= 18.2;
-  const inSidePavilion = [-18.1, 18.1].some(
-    (centerX) =>
-      ((localX - centerX) / 7.1) ** 2 + ((localZ - 5.8) / 5.9) ** 2 <= 1,
-  );
-  const inRearPavilion = [-10.5, 10.5].some(
-    (centerX) =>
-      ((localX - centerX) / 4.2) ** 2 + ((localZ + 10.2) / 3.7) ** 2 <= 1,
-  );
-  return inMainEllipse || inEntrance || inSidePavilion || inRearPavilion;
+/** Exact mapped TIPI parts; preserve the two real containers and all neighbours. */
+export function isMinecraftTipiReplacementColumn(worldX: number, worldZ: number): boolean {
+  return isTipiSourceReplacementAt(worldX, worldZ);
 }
 
 export function minecraftTipiPaletteIsClosed(): boolean {

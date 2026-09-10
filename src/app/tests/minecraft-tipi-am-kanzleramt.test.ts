@@ -25,7 +25,8 @@ describe("Minecraft TIPI am Kanzleramt", () => {
 
     expect(tipi).toBeInstanceOf(InstancedMesh);
     expect(tipi.geometry).toBeInstanceOf(BoxGeometry);
-    expect(tipi.count).toBe(491);
+    expect(tipi.count).toBeLessThanOrEqual(1250);
+    expect(tipi.userData.sourcePrismIds).toHaveLength(20);
     expect(tipi.userData.drawCallBudget).toBe(1);
     expect(tipi.userData.blockCount).toBe(tipi.count);
     expect(tipi.userData.blockNative).toBe(true);
@@ -70,10 +71,10 @@ describe("Minecraft TIPI am Kanzleramt", () => {
     }
 
     const bounds = new Box3().setFromObject(tipi);
-    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(48);
-    expect(bounds.max.x - bounds.min.x).toBeLessThan(52);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(32);
-    expect(bounds.max.z - bounds.min.z).toBeLessThan(36);
+    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(62);
+    expect(bounds.max.x - bounds.min.x).toBeLessThan(64);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(76);
+    expect(bounds.max.z - bounds.min.z).toBeLessThan(80);
     expect(bounds.max.y - bounds.min.y).toBeGreaterThan(13);
     expect(bounds.max.y - bounds.min.y).toBeLessThan(14);
     expect(TIPI_AM_KANZLERAMT_PROFILE.ellipseLengthM).toBe(32);
@@ -88,6 +89,6 @@ describe("Minecraft TIPI am Kanzleramt", () => {
     expect(isMinecraftTipiReplacementColumn(anchorX, anchorZ)).toBe(true);
     expect(isMinecraftTipiReplacementColumn(anchorX, anchorZ + 16)).toBe(true);
     expect(isMinecraftTipiReplacementColumn(anchorX + 50, anchorZ)).toBe(false);
-    expect(isMinecraftTipiReplacementColumn(anchorX, anchorZ - 30)).toBe(false);
+    expect(isMinecraftTipiReplacementColumn(anchorX, anchorZ - 30)).toBe(true);
   });
 });

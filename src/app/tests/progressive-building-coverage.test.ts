@@ -201,7 +201,7 @@ describe("production preview replacement lifecycle", () => {
   });
 
   test("fast travel restores source roofs before evicting distant detail and accepts its return", () => {
-    const buildings: PrismBuilding[] = Array.from({ length: 16 }, (_, index) => ({
+    const buildings: PrismBuilding[] = Array.from({ length: 32 }, (_, index) => ({
       id: `stream-fixture-${index}`, class: 0, h_dm: 100, y0_dm: 0,
       ring: [[index * 4000, 80000], [index * 4000 + 100, 80000],
         [index * 4000 + 100, 80100], [index * 4000, 80100]],
@@ -214,20 +214,20 @@ describe("production preview replacement lifecycle", () => {
       host.runtime.mobileBuildingDistricts = buildingDetailDistricts(partition.remaining);
       host.view(0, 8000, 1000);
       expect(host.runtime.mobileBuildingWanted).toContain("buildings-1");
-      expect(host.runtime.mobileBuildingWanted).not.toContain("buildings-16");
-      host.attach(packet(partition.remaining[0], 0));
+      expect(host.runtime.mobileBuildingWanted).not.toContain("buildings-32");
+      for (let index = 0; index < 7; index += 1) host.attach(packet(partition.remaining[index], index));
       const original = host.runtime.progressiveWorldBatches[0];
       let disposed = false;
       meshes(original)[0].geometry.addEventListener("dispose", () => {
         disposed = true;
         expect(coverage.children[1].visible).toBeTrue();
       });
-      host.view(6000, 8000, 2000);
+      host.view(12000, 8000, 2000);
       expect(disposed).toBeTrue();
-      expect(host.runtime.mobileBuildingWanted).toContain("buildings-16");
-      expect(host.runtime.progressiveWorldBatches).toHaveLength(0);
-      host.attach(packet(partition.remaining[15], 15));
-      expect(coverage.children[16].visible).toBeFalse();
+      expect(host.runtime.mobileBuildingWanted).toContain("buildings-32");
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(5);
+      host.attach(packet(partition.remaining[31], 31));
+      expect(coverage.children[32].visible).toBeFalse();
       expect(coverage.children[1].visible).toBeTrue();
       const revision = host.runtime.mobileBuildingViewRevision!;
       host.attach({ type: "settled", viewRevision: revision - 1 });
@@ -239,9 +239,38 @@ describe("production preview replacement lifecycle", () => {
       host.view(0, 8000, 3000);
       host.attach(packet(partition.remaining[0], 0));
       expect(coverage.children[1].visible).toBeFalse();
-      expect(coverage.children[16].visible).toBeTrue();
-      expect(host.runtime.progressiveWorldBatches).toHaveLength(1);
+      expect(coverage.children[32].visible).toBeFalse(); // recently visited detail stays cached
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(7);
     } finally { host.dispose(); }
+  });
+
+  test("a quick reversal reuses cached exact geometry without reupload or disposal", () => {
+    const buildings: PrismBuilding[] = Array.from({length: 40}, (_, index) => ({
+      id: `cache-${index}`, class: 0, h_dm: 100, y0_dm: 0,
+      ring: [[index * 4000, 80000], [index * 4000 + 100, 80000],
+        [index * 4000 + 100, 80100], [index * 4000, 80100]],
+    }));
+    const partition = { initial: [], omitted: [], remaining: buildings.map(b => [b]) };
+    const coverage = createProgressiveBuildingCoverage(payload, partition);
+    const host = progressiveCoverageHost(viewerSource, new Group().add(coverage));
+    try {
+      host.runtime.mobileBuildingDistricts = buildingDetailDistricts(partition.remaining);
+      host.view(0, 8000, 1000);
+      host.attach(packet(partition.remaining[0], 0));
+      const original = host.runtime.progressiveWorldBatches[0];
+      let disposals = 0;
+      meshes(original)[0].geometry.addEventListener("dispose", () => disposals++);
+      host.view(12000, 8000, 2000);
+      expect(host.runtime.mobileBuildingWanted).not.toContain("buildings-1");
+      expect(host.runtime.progressiveWorldBatches).toContain(original);
+      expect(coverage.children[1].visible).toBeFalse();
+      host.view(0, 8000, 3000);
+      expect(host.runtime.mobileBuildingWanted).toContain("buildings-1");
+      expect((host.views.at(-1) as {retainedBatchIds: string[]}).retainedBatchIds).toContain("buildings-1");
+      expect(host.runtime.progressiveWorldBatches).toEqual([original]);
+      expect(disposals).toBe(0);
+      expect(host.acknowledged).toEqual(["buildings-1"]);
+    } finally {host.dispose();}
   });
 
   test("a district finishing after the camera left is acknowledged without hiding the envelope", () => {

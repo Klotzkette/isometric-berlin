@@ -1,3 +1,4 @@
+import { TIPI_SITE_PRISM_IDS } from "./tipiSiteProfile";
 import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenBankTopAt } from "./spreebogenBankProfile";
 import { createDbTowerArchitecture } from "./DbTowerArchitecture";
 import { DB_TOWER_PRISM_IDS } from "./dbTowerIds";
@@ -871,6 +872,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Exact TIPI tent/service ways: source-footprint pavilions replace their fallback boxes.
+  ...TIPI_SITE_PRISM_IDS,
   ...ECONOMIC_MINISTRY_SOURCE_IDS,
   ...DB_TOWER_PRISM_IDS,
   ...MUSIC_MUSEUM_IDS,

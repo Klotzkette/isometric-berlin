@@ -1,3 +1,4 @@
+import { retainedBuildingDetailIds } from "../../src/buildingDetailResidency";
 import ts from "typescript";
 import {
   Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
@@ -75,11 +76,16 @@ export function progressiveCoverageHost(
   const document = { hidden: false };
   const bindings = {
     Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
-    setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts,
+    setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts, retainedBuildingDetailIds,
+    buildingDetailViewPoints: () => [],
     progressiveWorldStopPolicy,
     tryProgressiveWorkerOperation, deserializeTransferredObject3D,
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
     collectFarZoomAntiFlickerTargets: () => {},
+    appendFarZoomAntiFlickerTargets: () => {},
+    forgetFarZoomAntiFlickerTargets: () => {},
+    assignStableInkRenderOrder: () => {},
+    updateBerlinerEnsembleRoofSign: () => {},
     registerBerlinerEnsembleRoofSignTargets: () => {},
     setEnvironmentalPresentation: () => {},
     scheduleProgressiveAttachment: () => {},
@@ -108,6 +114,7 @@ export function progressiveCoverageHost(
     pedestrian: { enabled: false },
     mobileBuildingDistricts: undefined as readonly BuildingDetailDistrict[] | undefined,
     mobileBuildingWanted: undefined as readonly string[] | undefined,
+    mobileBuildingLastUsed: undefined as Map<string, number> | undefined,
     mobileBuildingViewRevision: undefined as number | undefined,
     mobileBuildingLastView: undefined as {x: number; z: number; at: number} | undefined,
     isoWorld, voxelWorld: null,

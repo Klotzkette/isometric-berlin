@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.21/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.22 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.22/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.21** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.22** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.22 reduces repeated district construction and redundant GPU
+preparation, raises horizontal flight speed by about 15 percent and prepares
+fine building detail across the actual visible view out to 2.4 km. The TIPI's
+mapped ancillary tents now have pointed canvas roofs instead of generic boxes.
+
+Version 1.0.22 vermeidet wiederholten Gebietsaufbau und doppelte GPU-Vorbereitung,
+erhöht das horizontale Flugtempo um etwa 15 Prozent und bereitet Gebäudedetails
+im sichtbaren Bildausschnitt bis 2,4 km voraus vor. Die Nebenzelte des TIPI stehen
+mit spitzen Zeltdächern an ihren erfassten Grundrissen statt als grobe Quader da.
 
 Version 1.0.21 restores the mobile mode menu and replaces permanent distant
 building boxes with source-footprint envelopes, open courts, roof-code shapes

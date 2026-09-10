@@ -333,16 +333,25 @@ The touch profile applies when the primary or any pointer is coarse, or the
 browser reports `navigator.maxTouchPoints > 0`. It constructs an initial
 160-part exact frame and complete source envelopes, then partitions the entire
 remaining inventory into districts of at most 240 parts. A persistent Worker
-refines up to 15 districts / 3,600 additional parts around the current camera
-focus and projected travel direction (1.5 seconds ahead, capped at 480 m).
+refines up to 15 districts / 3,600 additional parts. Since v1.0.22 the selection
+spreads across the current ground focus, the actual camera/FOV/viewport and
+projected travel direction. Five lens samples reach up to 2,400 m into the
+visible view; motion looks 1.5 seconds ahead, capped at 900 m. A 120 m priority
+margin keeps requests stable near district boundaries. Five recently visited
+districts remain uploaded for quick returns, with a fixed maximum of 4,800
+streamed resident parts plus the initial 160 parts.
 The old fixed Reichstag-centred mobile cutoff is gone: every district can be
 selected as the visitor travels. The main thread keeps small district metadata;
 the Worker fetches and retains the source itself, avoiding a second structured
 clone of the decoded world graph. Only one transferred exact district awaits
 attachment acknowledgement at a time. A changed route replaces queued work.
 
-Before retiring a distant exact district, the viewer restores its matching
-source envelope. A replacement hides that envelope only after attachment with
+Before retiring an exact district beyond the small recent cache, the viewer
+restores its matching source envelope. District attachment and removal update
+only that district's ink/detail targets; they no longer traverse the entire
+city, recreate every distance bound or enqueue all GPU buffers. Ordinary draws
+mark their uploaded geometry/materials resident so GPU preparation skips a
+redundant render; offscreen preparation remains available. A replacement hides that envelope only after attachment with
 the current Day, Night, Snow or Schwellenraum materials. Obsolete arrivals are
 released and acknowledged without removing coverage. Hiding a loading page
 stops the Worker but retains attached districts; resume skips those districts.
@@ -737,9 +746,12 @@ only inside the current construction polygon.
 The cultural recognition layer keeps similarly small features readable without
 altering the metric base city. The TIPI am Kanzleramt retains the published
 32 x 26 m auditorium envelope but now uses a photo-bounded eight-peak compound
-canvas, 48 batched seam ribs, low dark-timber entrance hall, paired entrance
-gables, raised foyer, projecting canopy, ticket booth, planters and distinct
-side and rear pavilions. Its 144 warm rib bulbs and restrained night-only
+canvas and 48 batched seam ribs. Since v1.0.22 its north/south axis, northern
+timber entrance, two pointed front turrets, foyer and mapped satellite tents
+follow the retained source layout. Twenty generic fallback-height display
+masses are replaced by source-bound tent/service forms; their original source
+records and real neighbouring containers remain. Height and canvas curvature
+are procedural estimates; see [the TIPI source contract](tipi-site-v122.md). Its 144 warm rib bulbs and restrained night-only
 four-colour show wash remain code-native. The fictional golden
 `PIGOR & EICHHORN` headline is viewer display text authored by the user/project
 owner, not by the venue; its accompanying `NUR HEUTE ABEND` line is likewise

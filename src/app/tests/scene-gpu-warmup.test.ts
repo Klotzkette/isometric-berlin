@@ -40,6 +40,7 @@ function host(scene: Scene, camera: Camera) {
   const calls: { objects: Mesh[]; vertices: number; cameraId: number }[] = [];
   const events = new EventTarget();
   const renderer = {
+    info,
     domElement: events,
     shadowMap: { enabled: true, type: 2, autoUpdate: true, needsUpdate: true },
     localClippingEnabled: false, clippingPlanes: [],
@@ -77,6 +78,8 @@ function host(scene: Scene, camera: Camera) {
             if (count < 0 || !Number.isFinite(count)) continue;
             if (object.geometry.index) attributes.update(object.geometry.index, gl.ELEMENT_ARRAY_BUFFER);
             call.vertices += count * (object instanceof InstancedMesh ? object.count : 1);
+            object.onAfterRender(renderer as unknown as WebGLRenderer, root, view,
+              object.geometry, mats[group.materialIndex ?? 0], group);
           }
         }
         for (const child of object.children) visit(child);
@@ -101,6 +104,102 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("ordinary rendering drains visible uploads without an extra scene render and preserves callbacks", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    scene.add(mesh);
+    let afterCalls = 0;
+    const after = function (this: Object3D) { expect(this).toBe(mesh); afterCalls++; };
+    mesh.onAfterRender = after;
+    const h = host(scene, camera);
+    h.warmup.enqueue(mesh);
+    h.renderer.render(scene, camera);
+    expect(afterCalls).toBe(1);
+    expect(mesh.onAfterRender).toBe(after);
+    expect(h.uploads.length).toBeGreaterThan(0);
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.calls).toHaveLength(1);
+    h.warmup.enqueue(mesh);
+    expect(h.warmup.pending).toBeFalse();
+    mesh.geometry.getAttribute("position").needsUpdate = true;
+    h.warmup.enqueue(mesh);
+    expect(h.warmup.pending).toBeTrue();
+    h.renderer.render(scene, camera);
+    expect(h.updates).toHaveLength(1);
+    expect(afterCalls).toBe(2);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("multi-material uploads wait for every drawn group and keep offscreen work queued", () => {
+    const { scene, camera } = fixture();
+    const materials = Array.from({ length: 6 }, () => new MeshBasicMaterial());
+    const visible = new Mesh(new BoxGeometry(), materials);
+    const offscreen = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    offscreen.position.x = 1000;
+    scene.add(visible, offscreen);
+    const h = host(scene, camera);
+    let groups = 0;
+    visible.onAfterRender = () => {
+      groups++;
+      expect(h.warmup.pending).toBeTrue();
+    };
+    const after = visible.onAfterRender;
+    h.warmup.enqueue(scene);
+    h.renderer.render(scene, camera);
+    expect(groups).toBe(6);
+    expect(visible.onAfterRender).toBe(after);
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([offscreen]);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("changed modes, self-replacing callbacks and cancelled queues keep their ownership", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(mesh);
+    const h = host(scene, camera);
+    const replacement = () => {};
+    mesh.onAfterRender = () => { mesh.onAfterRender = replacement; };
+    h.warmup.enqueue(mesh); h.renderer.render(scene, camera);
+    expect(mesh.onAfterRender).toBe(replacement);
+    scene.fog = { name: "changed shader context" } as unknown as Scene["fog"];
+    h.warmup.enqueue(mesh); expect(h.warmup.pending).toBeTrue();
+    h.warmup.dispose();
+    expect(mesh.onAfterRender).toBe(replacement);
+    expect(h.warmup.pending).toBeFalse();
+  });
+
+  test("another camera cannot consume the ordinary-view preparation queue", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(mesh);
+    const h = host(scene, camera);
+    h.warmup.enqueue(mesh);
+    h.renderer.render(scene, camera.clone());
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    h.warmup.dispose();
+  });
+
+  test("callbacks that change the just-rendered resources do not claim the replacement was uploaded", () => {
+    const { scene, camera } = fixture();
+    const originalGeometry = new BoxGeometry();
+    const replacement = new BoxGeometry(2, 2, 2);
+    const mesh = new Mesh(originalGeometry, new MeshBasicMaterial()); scene.add(mesh);
+    const h = host(scene, camera);
+    mesh.onAfterRender = () => { mesh.geometry = replacement; };
+    const after = mesh.onAfterRender;
+    h.warmup.enqueue(mesh); h.renderer.render(scene, camera);
+    expect(h.uploads).not.toContain(replacement.getAttribute("position").array);
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.uploads).toContain(replacement.getAttribute("position").array);
+    expect(mesh.onAfterRender).toBe(after);
+    h.warmup.dispose();
+  });
+
   test("the actual Three buffer backend needs no first-pan uploads after zero-draw warmup", () => {
     const { scene, camera } = fixture();
     const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 3);
@@ -261,5 +360,8 @@ describe("offscreen GPU residency without geometry changes", () => {
     expect(direct.indexOf("setProgram(")).toBeLessThan(direct.indexOf("if ( drawCount < 0"));
     expect(direct).toContain("if ( drawCount < 0 || drawCount === Infinity ) return;");
     expect(direct.indexOf("bindingStates.setup(")).toBeLessThan(direct.indexOf("renderer.renderInstances("));
+    const renderObject = source.slice(source.indexOf("function renderObject( object"), source.indexOf("function getProgram"));
+    expect(renderObject.indexOf("_this.renderBufferDirect")).toBeGreaterThan(0);
+    expect(renderObject.lastIndexOf("_this.renderBufferDirect")).toBeLessThan(renderObject.indexOf("object.onAfterRender("));
   });
 });

@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.22
+
+- Raise horizontal flight/pan speed by about 15 percent while preserving the
+  shared mouse/touch response, level heading and vertical speed.
+- Prepare exact mobile detail across the current lens and viewport out to
+  2.4 km, with 900 m travel lookahead and stable district selection.
+- Reuse five recently visited districts within a fixed 4,800-part cache;
+  register/remove streamed detail incrementally instead of scanning the city.
+- Skip redundant GPU preparation when the ordinary render already uploaded
+  the same geometry/materials. Preserve all source geometry and quality settings.
+- Replace twenty fallback-height TIPI masses with source-bound tent/service
+  forms, align the main canvas and northern entrance, and retain real neighbours.
+
 ## v1.0.21
 
 - Keep the labelled mobile mode menu at bottom left in portrait/landscape;

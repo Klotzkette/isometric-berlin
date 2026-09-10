@@ -916,6 +916,13 @@ All v1.0.7 free-photo links, authors and licences are listed in the
 [reference inventory](references/wikimedia/README.md#v107-external-reference-additions)
 and mirrored in the packaged viewer attribution manifest.
 
+- **TIPI site (v1.0.22):** exact retained OSM context footprints and official
+  [DOP 2025 spring](https://gdi.berlin.de/services/wms/dop_2025_fruehjahr)
+  (Geoportal Berlin, dl-de/zero-2-0) distinguish the real canvas pavilions,
+  northern entrance and low service wings from generic fallback-height prisms.
+  The aerial remains an unbundled reference. Roof curvature and heights are
+  labelled procedural estimates; [source contract](docs/tipi-site-v122.md).
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

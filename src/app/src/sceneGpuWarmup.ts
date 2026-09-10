@@ -56,6 +56,8 @@ function same(left: Snapshot | undefined, right: Snapshot): boolean {
  * a tiny target reaches that same public upload and shader path, including
  * instance/index buffers, without drawing vertices. Nothing is reparented or
  * cloned; temporary flags are restored synchronously even on rendering errors.
+ * Queued objects encountered by the ordinary view leave the queue after their
+ * real upload, avoiding a redundant preparation render of the entire scene.
  */
 export function createSceneGpuWarmup(
   renderer: WebGLRenderer,
@@ -72,6 +74,12 @@ export function createSceneGpuWarmup(
   const watched = new Map<GpuResource, () => void>();
   const queued = new Set<Renderable>();
   const queue: Renderable[] = [];
+  const renderHooks = new Map<Renderable, {
+    original: Renderable["onAfterRender"];
+    wrapped: Renderable["onAfterRender"];
+  }>();
+  let observedFrame = -1;
+  let observedContext: Snapshot = [];
   let disposed = false;
 
   const watch = (resource: GpuResource): void => {
@@ -112,6 +120,61 @@ export function createSceneGpuWarmup(
     return values;
   };
 
+  const restoreRenderHook = (object: Renderable): void => {
+    const hook = renderHooks.get(object);
+    if (!hook) return;
+    // An authored callback may replace itself while it runs. Do not overwrite
+    // that replacement when removing this temporary residency observer.
+    if (object.onAfterRender === hook.wrapped) object.onAfterRender = hook.original;
+    renderHooks.delete(object);
+  };
+
+  const observeOrdinaryUpload = (object: Renderable): void => {
+    if (renderHooks.has(object)) return;
+    const original = object.onAfterRender;
+    const seenMaterials = new Set<Material>();
+    let seenSnapshot: Snapshot | undefined;
+    const wrapped: Renderable["onAfterRender"] = function (this: Renderable, ...args) {
+      const [drawingRenderer, drawingScene, drawingCamera, geometry, material] = args;
+      const ordinary = drawingRenderer === renderer && drawingScene === scene &&
+        drawingCamera === camera && queued.has(object);
+      let current: Snapshot | undefined;
+      if (ordinary) {
+        // A real render has already uploaded the buffers and compiled this
+        // material. Share one light/context scan across its queued objects.
+        if (observedFrame !== renderer.info.render.frame) {
+          observedFrame = renderer.info.render.frame;
+          observedContext = context();
+        }
+        current = snapshot(object, observedContext);
+        if (!same(seenSnapshot, current)) {
+          seenSnapshot = current;
+          seenMaterials.clear();
+        }
+        seenMaterials.add(material);
+      }
+      original.apply(this, args);
+      if (!current || geometry !== object.geometry ||
+          !same(current, snapshot(object, observedContext))) return;
+      const list = materials(object);
+      const expected = Array.isArray(object.material)
+        ? object.geometry.groups
+          .filter((group) => group.count > 0 &&
+            group.start < geometry.drawRange.start + geometry.drawRange.count &&
+            group.start + group.count > geometry.drawRange.start)
+          .map((group) => list[group.materialIndex ?? 0])
+        : list;
+      if (!expected.filter((item) => item?.visible).every((item) => seenMaterials.has(item))) return;
+      warmed.set(object, current);
+      queued.delete(object);
+      const index = queue.indexOf(object);
+      if (index >= 0) queue.splice(index, 1);
+      restoreRenderHook(object);
+    };
+    renderHooks.set(object, { original, wrapped });
+    object.onAfterRender = wrapped;
+  };
+
   const enqueue = (root: Object3D): void => {
     if (disposed) return;
     const state = context();
@@ -123,6 +186,7 @@ export function createSceneGpuWarmup(
       if (object instanceof InstancedMesh) watch(object);
       queued.add(object);
       queue.push(object);
+      observeOrdinaryUpload(object);
     });
   };
 
@@ -142,6 +206,7 @@ export function createSceneGpuWarmup(
       const object = queue[0];
       if (!active(object, scene, camera) || same(warmed.get(object), snapshot(object, state))) {
         queue.shift(); queued.delete(object);
+        restoreRenderHook(object);
         continue;
       }
       const newBuffers = new Set(attributes(object).map((attribute) => attribute.array.buffer)
@@ -151,6 +216,7 @@ export function createSceneGpuWarmup(
       // split/copy authored buffers or silently skip its exact geometry.
       if (selected.length && bytes + additionalBytes > GPU_WARMUP_MAX_BYTES) break;
       queue.shift(); queued.delete(object);
+      restoreRenderHook(object);
       selected.push(object);
       bytes += additionalBytes;
       for (const buffer of newBuffers) selectedBuffers.add(buffer);
@@ -237,6 +303,7 @@ export function createSceneGpuWarmup(
       disposed = true;
       queue.length = 0;
       queued.clear();
+      for (const object of renderHooks.keys()) restoreRenderHook(object);
       for (const [resource, listener] of watched) (resource as BufferGeometry).removeEventListener("dispose", listener);
       watched.clear();
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);

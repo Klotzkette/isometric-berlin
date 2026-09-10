@@ -1,3 +1,4 @@
+import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
 import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt } from "./SovietMemorialSource";
@@ -25,7 +26,7 @@ import {
   restoreBuildingPreview,
 } from "./progressiveBuildingCoverage";
 import {
-  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
+  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, buildingDetailViewPoints, selectBuildingDetailDistricts,
   type BuildingDetailDistrict,
 } from "./buildingDetailStreaming";
 import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
@@ -671,6 +672,7 @@ type Runtime = {
   progressiveWorldBatches: Group[];
   mobileBuildingDistricts?: readonly BuildingDetailDistrict[];
   mobileBuildingWanted?: readonly string[];
+  mobileBuildingLastUsed?: Map<string, number>;
   mobileBuildingViewRevision?: number;
   mobileBuildingLastView?: { x: number; z: number; at: number };
   progressiveWorldAttachCancel?: () => void;
@@ -696,6 +698,7 @@ type Runtime = {
   // once per isoWorld (re)build, so its opacity can be dampened by
   // projected pixel width every frame without re-walking the scene graph.
   inkLineMaterials: Set<LineBasicMaterial>;
+  inkLineObjects: Array<LineSegments<BufferGeometry, LineBasicMaterial>>;
   // Small ornament only, with cached world bounds. Complete architecture and
   // street furniture never participate in distance-dependent visibility.
   fineDetailObjects: DistanceDetailTarget[];
@@ -1584,8 +1587,7 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.fineDetailObjects = [];
   runtime.microDetailObjects = [];
   runtime.berlinerEnsembleRoofSignTargets = [];
-  const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
-  const microDetailNames = new Set(MICRO_DETAIL_LAYER_NAMES);
+  runtime.inkLineObjects = [];
   const roots: Array<Object3D | null> = [
     runtime.isoWorld,
     runtime.voxelWorld,
@@ -1601,51 +1603,70 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.tunnel,
     runtime.tunnelPortals,
   ];
-  const inkLines: Array<LineSegments<BufferGeometry, LineBasicMaterial>> = [];
   for (const root of roots) {
-    root?.traverse((object) => {
-      if (
-        object instanceof LineSegments &&
-        object.material instanceof LineBasicMaterial
-      ) {
-        stabilizeInkLineMaterial(object.material);
-        runtime.inkLineMaterials.add(object.material);
-        inkLines.push(object);
-      }
-      if (fineDetailNames.has(object.name)) {
-        runtime.fineDetailObjects.push(
-          createDistanceDetailTarget(
-            object,
-            readDetailFadeRangeM(object.userData.detailFadeM) ?? [
-              FINE_DETAIL_SHOW_DISTANCE_M,
-              FINE_DETAIL_HIDE_DISTANCE_M,
-            ],
-          ),
-        );
-      }
-      if (microDetailNames.has(object.name)) {
-        runtime.microDetailObjects.push(
-          createDistanceDetailTarget(
-            object,
-            readDetailFadeRangeM(object.userData.detailFadeM) ?? [
-              MICRO_DETAIL_SHOW_DISTANCE_M,
-              MICRO_DETAIL_HIDE_DISTANCE_M,
-            ],
-          ),
-        );
-      }
-      if (isBerlinerEnsembleRoofSignTarget(object)) {
-        runtime.berlinerEnsembleRoofSignTargets.push(object);
-      }
-    });
+    if (root) appendFarZoomAntiFlickerTargets(runtime, root);
   }
   updateBerlinerEnsembleRoofSign(
     runtime.berlinerEnsembleRoofSignTargets,
     runtime.berlinerEnsembleRoofSignElapsedSeconds,
   );
-  assignStableInkRenderOrder(inkLines);
+  assignStableInkRenderOrder(runtime.inkLineObjects);
   runtime.gpuWarmup?.enqueue(runtime.scene);
   runtime.scheduleGpuWarmup?.();
+}
+
+/** Register only the new district; movement must not rescan all landmarks. */
+function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void {
+  const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
+  const microDetailNames = new Set(MICRO_DETAIL_LAYER_NAMES);
+  root.traverse((object) => {
+    if (
+      object instanceof LineSegments &&
+      object.material instanceof LineBasicMaterial
+    ) {
+      stabilizeInkLineMaterial(object.material);
+      runtime.inkLineMaterials.add(object.material);
+      runtime.inkLineObjects.push(object);
+    }
+    if (fineDetailNames.has(object.name)) {
+      runtime.fineDetailObjects.push(
+        createDistanceDetailTarget(
+          object,
+          readDetailFadeRangeM(object.userData.detailFadeM) ?? [
+            FINE_DETAIL_SHOW_DISTANCE_M,
+            FINE_DETAIL_HIDE_DISTANCE_M,
+          ],
+        ),
+      );
+    }
+    if (microDetailNames.has(object.name)) {
+      runtime.microDetailObjects.push(
+        createDistanceDetailTarget(
+          object,
+          readDetailFadeRangeM(object.userData.detailFadeM) ?? [
+            MICRO_DETAIL_SHOW_DISTANCE_M,
+            MICRO_DETAIL_HIDE_DISTANCE_M,
+          ],
+        ),
+      );
+    }
+    if (isBerlinerEnsembleRoofSignTarget(object)) {
+      runtime.berlinerEnsembleRoofSignTargets.push(object);
+    }
+  });
+  invalidateFarZoomAntiFlickerCache(runtime);
+}
+
+/** Drop references before disposing a district, without touching retained detail. */
+function forgetFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void {
+  const retired = new Set<Object3D>();
+  root.traverse((object) => retired.add(object));
+  runtime.inkLineObjects = runtime.inkLineObjects.filter((object) => !retired.has(object));
+  runtime.inkLineMaterials = new Set(runtime.inkLineObjects.map((object) => object.material));
+  runtime.fineDetailObjects = runtime.fineDetailObjects.filter((target) => !retired.has(target.object));
+  runtime.microDetailObjects = runtime.microDetailObjects.filter((target) => !retired.has(target.object));
+  runtime.berlinerEnsembleRoofSignTargets = runtime.berlinerEnsembleRoofSignTargets.filter((object) => !retired.has(object));
+  invalidateFarZoomAntiFlickerCache(runtime);
 }
 
 function invalidateFarZoomAntiFlickerCache(runtime: Runtime): void {
@@ -2730,27 +2751,42 @@ function updateMobileBuildingDetails(
   let leadX = previous ? (x - previous.x) / seconds * 1.5 : 0;
   let leadZ = previous ? (z - previous.z) / seconds * 1.5 : 0;
   const leadDistance = Math.hypot(leadX, leadZ);
-  if (leadDistance > 480) { leadX *= 480 / leadDistance; leadZ *= 480 / leadDistance; }
+  if (leadDistance > 900) { leadX *= 900 / leadDistance; leadZ *= 900 / leadDistance; }
   runtime.mobileBuildingLastView = { x, z, at: now };
-  const wanted = selectBuildingDetailDistricts(districts, [x, z], [x + leadX, z + leadZ]);
+  const wanted = selectBuildingDetailDistricts(districts, [x, z], [x + leadX, z + leadZ], {
+    viewPoints: buildingDetailViewPoints(runtime.camera, focus),
+    retainedIds: [
+      ...runtime.mobileBuildingWanted ?? [],
+      ...runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
+    ],
+  });
+  const lastUsed = runtime.mobileBuildingLastUsed ??= new Map<string, number>();
+  for (const id of wanted) lastUsed.set(id, now);
   if (wanted.join(",") === runtime.mobileBuildingWanted?.join(",")) return;
   if (runtime.progressiveWorldState === "complete" &&
       wanted.length === runtime.mobileBuildingWanted?.length &&
       wanted.every((id) => runtime.mobileBuildingWanted!.includes(id))) return;
   runtime.mobileBuildingWanted = wanted;
   runtime.mobileBuildingViewRevision = (runtime.mobileBuildingViewRevision ?? 0) + 1;
-  let retired = false;
+  const retained = retainedBuildingDetailIds(
+    districts, wanted,
+    runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
+    lastUsed,
+  );
   for (const batch of [...runtime.progressiveWorldBatches]) {
     const id = batch.userData.progressiveWorldBatchId as string;
-    if (!id.startsWith("buildings-") || wanted.includes(id)) continue;
+    if (!id.startsWith("buildings-") || retained.has(id)) continue;
     // There is always a roof and its correct walls under the viewer. Restore
     // that source geometry before freeing the costly facade buffers.
     restoreBuildingPreview(runtime.isoWorld, id.replace("buildings-", "buildings-preview-"));
     runtime.progressiveWorldBatches.splice(runtime.progressiveWorldBatches.indexOf(batch), 1);
+    forgetFarZoomAntiFlickerTargets(runtime, batch);
     disposeObject3D(runtime, batch);
-    retired = true;
+    lastUsed.delete(id);
   }
-  if (retired) collectFarZoomAntiFlickerTargets(runtime);
+  for (const id of lastUsed.keys()) {
+    if (!wanted.includes(id) && !retained.has(id)) lastUsed.delete(id);
+  }
   runtime.progressiveWorldState = "loading";
   runtime.renderInvalidated = true;
   const posted = tryProgressiveWorkerOperation(() => worker.postMessage({
@@ -2834,7 +2870,6 @@ function attachProgressiveWorldMessage(
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
     runtime.progressiveWorldState = "complete";
     releaseBuiltWorldPayloads(runtime);
-    collectFarZoomAntiFlickerTargets(runtime);
     runtime.renderInvalidated = true;
     performance.clearMarks("isometric-city-exact-ready");
     performance.mark("isometric-city-exact-ready");
@@ -2867,8 +2902,9 @@ function attachProgressiveWorldMessage(
     failProgressiveWorld(runtime, worker, warn);
     return;
   }
-  if (runtime.mobileBuildingWanted && message.kind === "buildings" &&
-      !runtime.mobileBuildingWanted.includes(message.id)) {
+  if ((runtime.mobileBuildingWanted && message.kind === "buildings" &&
+      !runtime.mobileBuildingWanted.includes(message.id)) ||
+      runtime.progressiveWorldBatches.some((batch) => batch.userData.progressiveWorldBatchId === message.id)) {
     // The camera moved while this district was building. Its complete source
     // envelope is already visible; discard obsolete detail and unblock the worker.
     disposeObject3D(runtime, object);
@@ -2893,7 +2929,12 @@ function attachProgressiveWorldMessage(
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
   runtime.gpuWarmup?.enqueue(object);
   runtime.scheduleGpuWarmup?.();
-  registerBerlinerEnsembleRoofSignTargets(runtime, object);
+  appendFarZoomAntiFlickerTargets(runtime, object);
+  assignStableInkRenderOrder(runtime.inkLineObjects);
+  updateBerlinerEnsembleRoofSign(
+    runtime.berlinerEnsembleRoofSignTargets,
+    runtime.berlinerEnsembleRoofSignElapsedSeconds,
+  );
   // Water is commonly the first exact progressive surface batch. Install the
   // light-only Schwellenraum veil in this task, before a frame exposes an
   // uninitialised or day-bright overlay.
@@ -3365,7 +3406,8 @@ function ensureIsoWorld(
         runtime.mobileBuildingDistricts = buildingDetailDistricts(buildingPartition.remaining);
         runtime.mobileBuildingWanted = selectBuildingDetailDistricts(
           runtime.mobileBuildingDistricts,
-          [runtime.controls.target.x, runtime.controls.target.z],
+          [runtime.controls.target.x, runtime.controls.target.z], undefined,
+          { viewPoints: buildingDetailViewPoints(runtime.camera, runtime.controls.target) },
         );
         runtime.mobileBuildingViewRevision = 1;
       }
@@ -5542,6 +5584,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         isoWorld: null,
         isoWorldState: "idle",
         inkLineMaterials: new Set(),
+        inkLineObjects: [],
         fineDetailObjects: [],
         fineDetailVisible: true,
         microDetailObjects: [],

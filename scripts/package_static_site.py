@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.21"
+PACKAGE_VERSION = "1.0.22"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,7 +3457,12 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.21: Das mobile Modusmenü bleibt links unten erreichbar. Alle fünf
+Neu in v1.0.22: Etwa 15 Prozent schnelleres horizontales Flugtempo,
+weniger wiederholter Gebietsaufbau und GPU-Vorbereitung. Gebäudedetails
+werden im sichtbaren Bildausschnitt bis 2,4 km voraus vorbereitet. Die
+TIPI-Nebenzelte haben ihre erfassten Grundrisse und spitze Zeltdächer.
+
+Seit v1.0.21: Das mobile Modusmenü bleibt links unten erreichbar. Alle fünf
 Modi stehen oben; Scrollen durch die übrigen Aktionen schließt das Menü nicht.
 Gebäude in der Ferne behalten jetzt ihre Quellgrundrisse, Innenhöfe, Dachformen
 und Farben. Feine Fassadendetails folgen der Kamera über das gesamte Gebiet.
@@ -4084,7 +4089,12 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.21: The mobile mode menu remains accessible at bottom left. All
+New in v1.0.22: About 15 percent faster horizontal flight, fewer rebuilt
+districts and redundant GPU preparation passes. Detailed buildings are
+prepared across the visible view out to 2.4 km. TIPI ancillary tents keep
+their mapped footprints and pointed canvas roofs.
+
+Since v1.0.21: The mobile mode menu remains accessible at bottom left. All
 five modes stay above the scrollable actions without accidental dismissal.
 Distant buildings retain source footprints, courts, roof-code forms and colors.
 Bounded exact facade detail follows the camera across the complete source area.

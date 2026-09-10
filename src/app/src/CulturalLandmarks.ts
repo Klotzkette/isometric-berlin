@@ -664,11 +664,11 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
   }
   if (name === TIPI_NAME) {
     return {
-      azimuth_degrees: 34,
-      distance_m: 74,
+      azimuth_degrees: 154,
+      distance_m: 100,
       polar_degrees: 61,
       target_height_m: 8.6,
-      target_world: [-297.284, TIPI_GROUND_Y, 52.502],
+      target_world: [-293.5, TIPI_GROUND_Y, 44],
     };
   }
   if (name === CARILLON_NAME) {

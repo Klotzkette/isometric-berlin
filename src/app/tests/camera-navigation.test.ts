@@ -174,7 +174,7 @@ describe("screen-relative 3D flight", () => {
 describe("view-heading 3D flight", () => {
   test("reaches full continuous-flight speed immediately", () => {
     const cruising = continuousFlightSpeeds(200);
-    expect(cruising.horizontal).toBeCloseTo(470, 8);
+    expect(cruising.horizontal).toBeCloseTo(540, 8);
     expect(cruising.vertical).toBeCloseTo(310, 8);
     expect(continuousFlightSpeeds(0)).toEqual({
       horizontal: CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
@@ -240,7 +240,7 @@ describe("view-heading 3D flight", () => {
       screenRelativeFlightDelta(camera, target, 1, 1, result, right, up),
     ).toBe(result);
     expect(continuousFlightSpeeds(200, speeds)).toBe(speeds);
-    expect(speeds.horizontal).toBeCloseTo(470, 8);
+    expect(speeds.horizontal).toBeCloseTo(540, 8);
     expect(speeds.vertical).toBeCloseTo(310, 8);
   });
 });
