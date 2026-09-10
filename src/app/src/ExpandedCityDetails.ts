@@ -604,6 +604,50 @@ function addLocalLampBox(
   addCustomGeometry(builder, geometry, color, false, true);
 }
 
+function addKulturforumGlazedEntrance(
+  builder: Builder,
+  origin: Vector3,
+  rotationY: number,
+  entrance: { readonly localX: number; readonly localZ: number; readonly widthM: number; readonly heightM: number },
+  face: "local-x" | "local-z",
+  outward: -1 | 1,
+): void {
+  const glass = 0x729aa0;
+  const frame = 0x49585a;
+  const alongX = face === "local-z";
+  const glassWidth = alongX ? entrance.widthM : 0.22;
+  const glassDepth = alongX ? 0.22 : entrance.widthM;
+  addLocalLampBox(builder, glass, origin, entrance.localX, origin.y + entrance.heightM / 2,
+    entrance.localZ, glassWidth, entrance.heightM, glassDepth, rotationY);
+  const half = entrance.widthM / 2;
+  for (const offset of [-half, -half / 3, half / 3, half]) {
+    addLocalBox(builder, frame, origin,
+      entrance.localX + (alongX ? offset : 0), origin.y + entrance.heightM / 2,
+      entrance.localZ + (alongX ? 0 : offset),
+      alongX ? 0.12 : 0.3, entrance.heightM + 0.18, alongX ? 0.3 : 0.12,
+      rotationY, false);
+  }
+  for (const height of [0.08, entrance.heightM * 0.56, entrance.heightM + 0.08]) {
+    addLocalBox(builder, frame, origin, entrance.localX, origin.y + height,
+      entrance.localZ, alongX ? entrance.widthM + 0.3 : 0.3, 0.12,
+      alongX ? 0.3 : entrance.widthM + 0.3, rotationY, false);
+  }
+  const canopyOffset = outward * 1.65;
+  addLocalBox(builder, 0xd1b35c, origin,
+    entrance.localX + (alongX ? 0 : canopyOffset), origin.y + entrance.heightM + 0.42,
+    entrance.localZ + (alongX ? canopyOffset : 0),
+    alongX ? entrance.widthM + 2.2 : 3.4, 0.28,
+    alongX ? 3.4 : entrance.widthM + 2.2, rotationY);
+  for (let step = 0; step < 3; step += 1) {
+    const offset = outward * (0.65 + step * 0.55);
+    addLocalBox(builder, KULTURFORUM_STONE_LIGHT, origin,
+      entrance.localX + (alongX ? 0 : offset), origin.y + 0.05 + step * 0.06,
+      entrance.localZ + (alongX ? offset : 0),
+      alongX ? entrance.widthM + 2.6 : 1.15, 0.1,
+      alongX ? 1.15 : entrance.widthM + 2.6, rotationY, false);
+  }
+}
+
 function addTiltedLocalBox(
   builder: Builder,
   color: number,
@@ -3497,6 +3541,9 @@ function addKulturforumMuseums(builder: Builder): void {
       );
     }
   }
+  addKulturforumGlazedEntrance(
+    builder, gallery, galleryRotation, galleryProfile.piazzettaEntrance, "local-x", 1,
+  );
 
   const copperProfile = KULTURFORUM_PROFILE.kunstbibliothek;
   const copper = fixedWorldPoint(copperProfile.centerWorldM);
@@ -3553,6 +3600,9 @@ function addKulturforumMuseums(builder: Builder): void {
       copperProfile.rotationY,
     );
   }
+  addKulturforumGlazedEntrance(
+    builder, copper, copperProfile.rotationY, copperProfile.sharedEntrance, "local-z", -1,
+  );
 
   const craftProfile = KULTURFORUM_PROFILE.kunstgewerbemuseum;
   const craft = fixedWorldPoint(craftProfile.centerWorldM);
@@ -3616,6 +3666,9 @@ function addKulturforumMuseums(builder: Builder): void {
       false,
     );
   }
+  addKulturforumGlazedEntrance(
+    builder, craft, craftProfile.rotationY, craftProfile.piazzettaEntrance, "local-z", 1,
+  );
 
   const piazzettaProfile = KULTURFORUM_PROFILE.piazzetta;
   const piazzetta = fixedWorldPoint(piazzettaProfile.centerWorldM);
@@ -3722,6 +3775,9 @@ function addKulturforumConcertBuildings(builder: Builder): void {
       false,
     );
   }
+  addKulturforumGlazedEntrance(
+    builder, phil, philProfile.rotationY, philProfile.mainEntrance, "local-z", -1,
+  );
 
   const chamberProfile = KULTURFORUM_PROFILE.kammermusiksaal;
   const chamber = fixedWorldPoint(chamberProfile.centerWorldM);
@@ -3788,6 +3844,41 @@ function addKulturforumConcertBuildings(builder: Builder): void {
       chamberProfile.rotationY,
       false,
     );
+  }
+  addKulturforumGlazedEntrance(
+    builder, chamber, chamberProfile.rotationY, chamberProfile.mainEntrance, "local-z", 1,
+  );
+}
+
+function addKulturforumEntranceLettering(group: Group): void {
+  const specifications = [
+    ["PHILHARMONIE", KULTURFORUM_PROFILE.philharmonie, KULTURFORUM_PROFILE.philharmonie.mainEntrance, "local-z", -1, 14.5],
+    ["KAMMERMUSIKSAAL", KULTURFORUM_PROFILE.kammermusiksaal, KULTURFORUM_PROFILE.kammermusiksaal.mainEntrance, "local-z", 1, 14.5],
+    ["GEMÄLDEGALERIE", KULTURFORUM_PROFILE.gemaldegalerie, KULTURFORUM_PROFILE.gemaldegalerie.piazzettaEntrance, "local-x", 1, 13.5],
+    ["KUNSTGEWERBEMUSEUM", KULTURFORUM_PROFILE.kunstgewerbemuseum, KULTURFORUM_PROFILE.kunstgewerbemuseum.piazzettaEntrance, "local-z", 1, 14.8],
+    ["KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT", KULTURFORUM_PROFILE.kunstbibliothek, KULTURFORUM_PROFILE.kunstbibliothek.sharedEntrance, "local-z", -1, 24],
+  ] as const;
+  for (const [text, profile, entrance, face, outward, width] of specifications) {
+    const origin = fixedWorldPoint(profile.centerWorldM);
+    const normalOffset = outward * 0.18;
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      entrance.localX + (face === "local-x" ? normalOffset : 0),
+      entrance.localZ + (face === "local-z" ? normalOffset : 0),
+      profile.rotationY,
+    );
+    const sign = createLetterSign(
+      text,
+      width,
+      0.72,
+      new Vector3(origin.x + offsetX, origin.y + entrance.heightM + 0.22, origin.z + offsetZ),
+      profile.rotationY + (face === "local-x" ? Math.PI / 2 : outward < 0 ? Math.PI : 0),
+      "#cdb35e",
+      "#283235",
+    );
+    if (!sign) continue;
+    sign.name = `${text} entrance lettering`;
+    sign.userData.kulturforumEntrance = true;
+    group.add(sign);
   }
 }
 
@@ -5897,6 +5988,7 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+  addKulturforumEntranceLettering(group);
   group.add(createBendlerblockDetails(options.detailProfile ?? "full"));
   if (byName.has(SOCIAL_COURT_PROFILE.name)) {
     group.add(createSocialCourtDetails(options.detailProfile ?? "full"));

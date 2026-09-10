@@ -154,15 +154,31 @@ describe("task-10 expanded city recognition details", () => {
       "DEBE3DTtXzEkeXsu",
     );
     expect(KULTURFORUM_PROFILE.philharmonie.facadeBayCount).toBe(11);
+    expect(KULTURFORUM_PROFILE.philharmonie.mainEntrance.widthM).toBe(23.5);
     expect(KULTURFORUM_PROFILE.kammermusiksaal.mainSourcePartId).toBe(
       "DEBE3DbyaJ0e8oAr",
     );
     expect(KULTURFORUM_PROFILE.kammermusiksaal.facadeBayCount).toBe(9);
+    expect(KULTURFORUM_PROFILE.kammermusiksaal.mainEntrance.widthM).toBe(18);
+    expect(KULTURFORUM_PROFILE.gemaldegalerie.piazzettaEntrance.widthM).toBe(19.2);
+    expect(KULTURFORUM_PROFILE.kunstbibliothek.sharedEntrance.widthM).toBe(15.5);
+    expect(KULTURFORUM_PROFILE.kunstgewerbemuseum.piazzettaEntrance.widthM).toBe(15.2);
     expect(KULTURFORUM_PROFILE.staatsbibliothek.sourcePartCount).toBe(56);
     expect(KULTURFORUM_PROFILE.piazzetta.geometryStatus).toContain(
       "not surveyed paving",
     );
-    expect(KULTURFORUM_PROFILE.sources).toHaveLength(3);
+    expect(KULTURFORUM_PROFILE.sources).toHaveLength(5);
+    for (const label of [
+      "PHILHARMONIE",
+      "KAMMERMUSIKSAAL",
+      "GEMÄLDEGALERIE",
+      "KUNSTGEWERBEMUSEUM",
+      "KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT",
+    ]) {
+      const sign = details.getObjectByName(`${label} entrance lettering`) as Mesh;
+      expect(sign).toBeInstanceOf(Mesh);
+      expect(sign.userData.kulturforumEntrance).toBeTrue();
+    }
   });
 
   test("documents the source boundary of Potsdamer details", () => {

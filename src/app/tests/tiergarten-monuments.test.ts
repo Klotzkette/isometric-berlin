@@ -23,7 +23,7 @@ import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark"
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
-
+  BERLIN_JUNCTION_PROFILE,
   GRAEFE_CHARITE_FACING_TARGET_WORLD,
   GRAEFE_CHARITE_OSM_WORLD,
   GRAEFE_CHARITE_YAW_DEGREES,
@@ -31,6 +31,7 @@ import {
   GRAEFE_REAR_FENCE_HEIGHT_M,
   GRAEFE_STATUE_HEIGHT_M,
   MONUMENTS_ALREADY_MODELLED,
+  T4_MEMORIAL_PROFILE,
   createTiergartenMonuments,
   resolveArtworkBuilder,
 } from "../src/TiergartenMonuments";
@@ -79,6 +80,41 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     const kinds = street.monuments!.map((entry) => entry.kind);
     expect(kinds.filter((kind) => kind === "tank").length).toBe(2);
     expect(kinds.filter((kind) => kind === "cannon").length).toBe(2);
+  });
+
+  test("separates Berlin Junction from the later T4 glass memorial", () => {
+    const junctionEntry = street.monuments!.find(
+      ({ osm_key }) => osm_key === BERLIN_JUNCTION_PROFILE.osmKey,
+    )!;
+    const t4Entry = street.monuments!.find(
+      ({ osm_key }) => osm_key === T4_MEMORIAL_PROFILE.osmKey,
+    )!;
+    expect(junctionEntry.name).toContain("Berlin Junction");
+    expect(t4Entry.name).toContain("Euthanasie");
+
+    const junction = createTiergartenMonuments(
+      { ...street, monuments: [junctionEntry] }, ground,
+    )!;
+    const t4 = createTiergartenMonuments(
+      { ...street, monuments: [t4Entry] }, ground,
+    )!;
+    const junctionBounds = monumentBodyBounds(junction);
+    const t4Bounds = monumentBodyBounds(t4);
+    expect(junction.userData.tiergartenHeritageModels.berlinJunction).toEqual(
+      BERLIN_JUNCTION_PROFILE,
+    );
+    expect(t4.userData.tiergartenHeritageModels.t4Memorial).toEqual(
+      T4_MEMORIAL_PROFILE,
+    );
+    expect(junctionBounds.max.y - junctionBounds.min.y).toBeCloseTo(3.9, 1);
+    expect(Math.max(
+      junctionBounds.max.x - junctionBounds.min.x,
+      junctionBounds.max.z - junctionBounds.min.z,
+    )).toBeGreaterThan(13);
+    expect(Math.max(t4Bounds.max.x - t4Bounds.min.x, t4Bounds.max.z - t4Bounds.min.z))
+      .toBeGreaterThanOrEqual(29.9);
+    expect(monuments.userData.sourceUrls).toContain(BERLIN_JUNCTION_PROFILE.sourceUrl);
+    expect(monuments.userData.sourceUrls).toContain(T4_MEMORIAL_PROFILE.sourceUrl);
   });
 
   test("Floraplatz has exactly eight differentiated restored animals", () => {

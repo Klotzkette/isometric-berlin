@@ -45,7 +45,7 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * layer already models in full (Holocaust stelae field, Soviet War
  * Memorial with its T-34s, Sinti-und-Roma, Homosexuellen-Denkmal,
  * Goethe, Lessing, the composers, Zeugen Jehovas) are skipped here; this layer
- * adds the remaining Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
+ * adds the separate T4 glass memorial and Berlin Junction plates, the ML-20 howitzers, the
  * Weiße Kreuze, the Grundgesetz-49 glass
  * panels, statues on plinths for Grimm/Bruno/Der Rufer, and
  * subtype-aware quiet markers. Positions, footprints and memorial types
@@ -67,6 +67,8 @@ const SOVIET_GREEN = 0x6b7a5c;
 const DARK_CUBE = 0x8f9497;
 const WHITE = 0xf2f2ee;
 const GLASS_BLUE = 0x5f9fc4;
+const CORTEN_STEEL = 0x8b4a2e;
+const T4_SURFACE = 0x34383a;
 const MARBLE = 0xe8e5dc;
 const GRANITE_RED = 0x9d7a6e;
 const FLOWER_RED = 0xc95564;
@@ -106,6 +108,29 @@ export const GRAEFE_MONUMENT_SOURCE_URL =
   "https://bildhauerei-in-berlin.de/bildwerk/albrecht-von-graefe-denkmal-7878/";
 export const GRAEFE_CHARITE_SOURCE_URL =
   "https://denkmaeler.charite.de/graefe/";
+
+export const BERLIN_JUNCTION_PROFILE = Object.freeze({
+  osmKey: "way/187360886",
+  worldM: [-201.8, 931.8] as const,
+  plateCount: 2,
+  plateLengthM: 13.65,
+  plateHeightM: 3.9,
+  plateThicknessM: 0.055,
+  passageMinimumWidthM: 2.4,
+  sourceUrl: "https://bildhauerei-in-berlin.de/bildwerk/berlin-junction-6427/",
+  geometryStatus:
+    "OSM-footprint-centred, published overall plate dimensions; curve, lean and passage are bounded presentation fits",
+});
+
+export const T4_MEMORIAL_PROFILE = Object.freeze({
+  osmKey: "way/303577518",
+  worldM: [-165.4, 922.7] as const,
+  glassLengthM: 24,
+  sourceUrl:
+    "https://www.stiftung-denkmal.de/denkmaeler/gedenk-und-informationsort-fuer-die-opfer-der-nationalsozialistischen-euthanasie-morde/",
+  geometryStatus:
+    "OSM-area-centred 24 m transparent glass wall on a gently inclined anthracite field; local subdivisions are presentation geometry",
+});
 
 type Builder = {
   edges: BufferGeometry[];
@@ -2525,11 +2550,57 @@ function buildCannon(builder: Builder, x: number, y: number, z: number): void {
   box(builder, SOVIET_GREEN, x + 2.2, y + 2.1, z, 4.4, 0.32, 0.32);
 }
 
-/** The Euthanasie (T4) memorial's long blue glass wall. */
-function buildBlueWall(builder: Builder, x: number, y: number, z: number): void {
-  box(builder, DARK_CUBE, x, y + 0.15, z, 26, 0.3, 3.2);
-  box(builder, GLASS_BLUE, x, y + 1.6, z, 24, 2.6, 0.35);
+/** Richard Serra's two walk-through, opposed conical Corten-steel plates. */
+function buildBerlinJunction(builder: Builder, x: number, y: number, z: number): void {
+  const segments = 18;
+  const half = BERLIN_JUNCTION_PROFILE.plateLengthM / 2;
+  const segmentLength = BERLIN_JUNCTION_PROFILE.plateLengthM / segments + 0.04;
+  const siteYaw = -0.37;
+  for (const side of [-1, 1]) {
+    for (let index = 0; index < segments; index += 1) {
+      const along = -half + ((index + 0.5) / segments) * half * 2;
+      const lateral = side * 1.2 + 0.46 * (along / half) ** 2;
+      const tangentYaw = Math.atan((0.92 * along) / (half * half));
+      const geometry = new BoxGeometry(
+        BERLIN_JUNCTION_PROFILE.plateThicknessM,
+        BERLIN_JUNCTION_PROFILE.plateHeightM,
+        segmentLength,
+      );
+      geometry.rotateZ(side * 0.055);
+      geometry.rotateY(siteYaw + tangentYaw);
+      const cosine = Math.cos(siteYaw);
+      const sine = Math.sin(siteYaw);
+      geometry.translate(
+        x + lateral * cosine + along * sine,
+        y + BERLIN_JUNCTION_PROFILE.plateHeightM / 2,
+        z - lateral * sine + along * cosine,
+      );
+      addPaintedGeometry(builder, geometry, CORTEN_STEEL, 16);
+    }
+  }
 }
+
+/** The T4 memorial: blue wall, inclined dark field, information pult and bench. */
+function buildT4Memorial(builder: Builder, x: number, y: number, z: number): void {
+  const yaw = 0.2;
+  const fieldSlope = 0.026;
+  for (const side of [-1, 1]) {
+    const fieldHalf = new BoxGeometry(30, 0.18, 3.82);
+    fieldHalf.rotateX(-side * fieldSlope);
+    fieldHalf.translate(0, y + 0.14, side * 1.9);
+    fieldHalf.rotateY(yaw);
+    fieldHalf.translate(x, 0, z);
+    addPaintedGeometry(builder, fieldHalf, T4_SURFACE, 18);
+  }
+  box(builder, GLASS_BLUE, x, y + 1.58, z, T4_MEMORIAL_PROFILE.glassLengthM, 2.75, 0.18, yaw);
+  for (let offset = -10; offset <= 10; offset += 2) {
+    box(builder, 0x789baa, x + offset * Math.cos(yaw), y + 1.58,
+      z - offset * Math.sin(yaw), 0.035, 2.75, 0.24, yaw);
+  }
+  box(builder, 0x6e7374, x + 8.8, y + 0.82, z + 2.55, 7.4, 1.34, 0.18, yaw);
+  box(builder, 0x777a79, x - 8.6, y + 0.38, z - 2.5, 5.6, 0.16, 0.62, yaw);
+}
+
 
 function buildWhiteCrosses(
   builder: Builder,
@@ -2835,8 +2906,10 @@ export function createTiergartenMonuments(
       if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
-    } else if (/Euthanasie|Aktion T4/i.test(name)) {
-      buildBlueWall(builder, x, y, z);
+    } else if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) {
+      buildBerlinJunction(builder, x, y, z);
+    } else if (entry.osm_key === T4_MEMORIAL_PROFILE.osmKey) {
+      buildT4Memorial(builder, x, y, z);
     } else if (/Weiße Kreuze/i.test(name)) {
       buildWhiteCrosses(builder, x, y, z);
     } else if (/Grundgesetz/i.test(name)) {
@@ -2917,6 +2990,7 @@ export function createTiergartenMonuments(
   group.userData.quietMemorialGeometry =
     "OSM memorial subtypes preserved; Stolpersteine use Berlin's documented 0.10 m brass top, while unclassified points stay conservative low markers";
   group.userData.tiergartenHeritageModels = {
+    berlinJunction: BERLIN_JUNCTION_PROFILE,
     baumdank:
       "Four-part shell-limestone pillar with relief/text registers at the OSM point",
     flora:
@@ -2927,6 +3001,7 @@ export function createTiergartenMonuments(
       "Documented 2.2 m three-zone carved column with spiral bossing and floral crown",
     volkslied:
       "Seated embracing pair with lyre on a three-step shell-limestone pedestal",
+    t4Memorial: T4_MEMORIAL_PROFILE,
   };
   group.userData.graefeCharite = {
     architecture:
@@ -2954,6 +3029,8 @@ export function createTiergartenMonuments(
     "https://wiki.openstreetmap.org/wiki/Key:memorial",
     GRAEFE_CHARITE_SOURCE_URL,
     GRAEFE_MONUMENT_SOURCE_URL,
+    BERLIN_JUNCTION_PROFILE.sourceUrl,
+    T4_MEMORIAL_PROFILE.sourceUrl,
   ];
 
   // Ordinary artworks retain the established merged batch. Source-flagged

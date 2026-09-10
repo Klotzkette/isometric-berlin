@@ -894,6 +894,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   historical reconstruction plans or photographs are reproduced. See
   [source contract](docs/topography-terror-refinement.md).
 
+- **Kulturforum entrances and neighbouring memorials:** official visitor and
+  site plans from the Berliner Philharmoniker and Staatliche Museen establish
+  the principal Philharmonie, Kammermusiksaal and Piazzetta entrances. The
+  Stiftung Denkmal documents the separate 24 m blue-glass T4 memorial, while
+  the Berlin sculpture inventory documents Richard Serra's two 13.65 × 3.90 ×
+  0.055 m Corten-steel plates. Curvature, local door widths, mullions, canopies
+  and steps remain procedural display fits. No photograph, exhibition text or
+  sculpture scan is distributed. See [source contract](docs/kulturforum-memorial-entrances-v115.md).
+
 All v1.0.7 free-photo links, authors and licences are listed in the
 [reference inventory](references/wikimedia/README.md#v107-external-reference-additions)
 and mirrored in the packaged viewer attribution manifest.

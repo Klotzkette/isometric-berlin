@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.15
+
+- Step 10: separate Richard Serra's two curved Corten-steel plates from the
+  neighbouring T4 memorial instead of rendering their combined OSM name as one
+  generic blue wall. Keep the open passage and the T4 site's distinct 24 m
+  glass wall, dark field, information pult and bench.
+- Add framed glass entrances, canopies, steps and institutional lettering to
+  the Philharmonie, Kammermusiksaal, Gemäldegalerie, Kunstgewerbemuseum and the
+  shared Kunstbibliothek / Kupferstichkabinett facade at the Piazzetta.
+- Recheck the existing source-bound Spreebogen, Brandenburg Gate, historic
+  Charité, Ministergärten and Lessing models without adding inaccurate shells.
+
 ## v1.0.14
 
 - Step 10: include all 72 Humboldthafen/ministry source parts in the first exact

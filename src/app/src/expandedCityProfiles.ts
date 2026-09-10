@@ -117,6 +117,7 @@ export const KULTURFORUM_PROFILE = {
     sourceBuildingIds: ["DEBE01YYK0002V5W", "DEBE01YYK0002Sq5"] as const,
     widthM: 98.8,
     rotationY: (-16.82 * Math.PI) / 180,
+    piazzettaEntrance: { localX: 65.8, localZ: -10, widthM: 19.2, heightM: 5.6 } as const,
   },
   kammermusiksaal: {
     centerWorldM: [-190.028, 1056.839] as const,
@@ -129,6 +130,7 @@ export const KULTURFORUM_PROFILE = {
     roofFacetCueCount: 7,
     sourcePartCount: 18,
     widthM: 73.23,
+    mainEntrance: { localX: 0, localZ: 30.95, widthM: 18, heightM: 5.2 } as const,
   },
   kunstbibliothek: {
     centerWorldM: [-352.437, 1157.775] as const,
@@ -137,6 +139,7 @@ export const KULTURFORUM_PROFILE = {
     rotationY: (-16.65 * Math.PI) / 180,
     sourcePartCount: 15,
     widthM: 61.46,
+    sharedEntrance: { localX: 10, localZ: -29.45, widthM: 15.5, heightM: 5.4 } as const,
   },
   kunstgewerbemuseum: {
     centerWorldM: [-301.106, 1009.605] as const,
@@ -145,6 +148,7 @@ export const KULTURFORUM_PROFILE = {
     rotationY: (-25.49 * Math.PI) / 180,
     sourceBuildingId: "DEBE01YYK0002QYw",
     widthM: 76.46,
+    piazzettaEntrance: { localX: -18, localZ: 35.2, widthM: 15.2, heightM: 5.2 } as const,
   },
   philharmonie: {
     centerWorldM: [-139.863, 988.177] as const,
@@ -157,6 +161,7 @@ export const KULTURFORUM_PROFILE = {
     roofFacetCueCount: 9,
     sourcePartCount: 7,
     widthM: 84.48,
+    mainEntrance: { localX: 0, localZ: -35.65, widthM: 23.5, heightM: 5.8 } as const,
   },
   piazzetta: {
     centerWorldM: [-331.0, 1091.5] as const,
@@ -180,6 +185,8 @@ export const KULTURFORUM_PROFILE = {
   sources: [
     "https://www.smb.museum/museen-einrichtungen/kulturforum/museumsgebaeude-sammlungen/ueberblick/",
     "https://www.berliner-philharmoniker.de/en/about-us/philharmonie/architecture/",
+    "https://www.berliner-philharmoniker.de/ihr-besuch/anfahrt/",
+    "https://www.smb.museum/museen-einrichtungen/kulturforum/besuch-planen/lageplan/",
     "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
   ] as const,
 } as const;
