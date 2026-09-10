@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.17
+
+- Ergänzt das Botschaftsband südlich des Tiergartens mit den prägenden,
+  quellengestützten Fassadenmerkmalen Österreichs, Indiens, Japans, der
+  Nordischen Botschaften und Mexikos.
+- Ergänzt am Robert-Koch-Platz die Bundesgeschäftsstelle von Bündnis 90/Die
+  Grünen und das denkmalgeschützte Kaiserin-Friedrich-Haus mit Eingängen,
+  Geschoss- und Fassadenrhythmus.
+- Verfeinert den Bendlerhof mit den dokumentierten Hecken und Bäumen und hält
+  den Zugang zum Widerstandsdenkmal frei. Bestehende Spezialmodelle für
+  Konrad-Adenauer-Haus, JW Marriott, historische Charité und Wagner-Denkmal
+  wurden auf Lage und Einbindung geprüft.
+
 ## v1.0.16
 
 - Das Charlottenburger Tor steht nun mit seinen beiden Kolonnaden korrekt

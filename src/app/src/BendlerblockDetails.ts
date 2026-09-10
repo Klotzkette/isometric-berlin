@@ -64,6 +64,7 @@ export const BENDLERBLOCK_PROFILE = {
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050300",
     "https://www.gdw-berlin.de/gedenkstaette-deutscher-widerstand/ort-der-erinnerung",
     "https://www.gdw-berlin.de/ort-der-erinnerung/1945-bis-heute",
+    "https://www.henn.com/de/projekt/bendlerblock-bundesministerium-der-verteidigung",
   ] as const,
 } as const;
 
@@ -274,6 +275,17 @@ function addMemorialCourt(builder: Builder): void {
     court.courtRotationY,
     false,
   );
+
+  // The ministry's planted court is structured by clipped hedges and trees.
+  // Keep the central memorial approach completely open and walkable.
+  for (const side of [-1, 1]) {
+    localBox(builder, 0x58744d, center, side * 6.5, profile.groundY + 0.55, 0.8, 2.0, 1.0, 12.0, court.courtRotationY, false);
+    for (const localZ of [-8.5, 10.0]) {
+      const [treeX, treeZ] = localOffset(side * 6.6, localZ, court.courtRotationY);
+      addCylinder(builder, 0x655343, center[0] + treeX, profile.groundY + 2.0, center[1] + treeZ, 0.22, 3.7, 7);
+      addCylinder(builder, 0x638259, center[0] + treeX, profile.groundY + 4.2, center[1] + treeZ, 1.65, 2.7, 9);
+    }
+  }
 
   // Richard Scheibe's bound figure: a deliberately granular, image-free
   // silhouette that remains legible without claiming a scan of the artwork.

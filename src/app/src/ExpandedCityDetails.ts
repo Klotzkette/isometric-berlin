@@ -95,6 +95,10 @@ import {
   POTSDAMER_PUBLIC_REALM_PROFILE,
   POTSDAMER_PUBLIC_REALM_RENDER_BUDGET,
 } from "./PotsdamerPlatzPublicRealm";
+import {
+  createDiplomaticAndRobertKochDetails,
+  DIPLOMATIC_AND_ROBERT_KOCH_PROFILE,
+} from "./DiplomaticAndRobertKochDetails";
 
 export type ExpandedLandmark = {
   name: string;
@@ -6041,6 +6045,7 @@ export function createExpandedCityDetails(
   group.userData.amanoGrandCentral = AMANO_GRAND_CENTRAL_PROFILE;
   group.userData.bendlerblock = BENDLERBLOCK_PROFILE;
   group.userData.bendlerblockRenderBudget = BENDLERBLOCK_RENDER_BUDGET;
+  group.userData.diplomaticAndRobertKoch = DIPLOMATIC_AND_ROBERT_KOCH_PROFILE;
   group.userData.europacity = EUROPACITY_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.kulturforum = KULTURFORUM_PROFILE;
@@ -6068,6 +6073,7 @@ export function createExpandedCityDetails(
   group.userData.sourceUrls = [
     ...SOCIAL_COURT_PROFILE.sourceUrls,
     ...BENDLERBLOCK_PROFILE.sources,
+    ...DIPLOMATIC_AND_ROBERT_KOCH_PROFILE.sources,
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
@@ -6124,6 +6130,7 @@ export function createExpandedCityDetails(
   if (bodies) group.add(bodies);
   addKulturforumEntranceLettering(group);
   group.add(createBendlerblockDetails(options.detailProfile ?? "full"));
+  group.add(createDiplomaticAndRobertKochDetails(options.detailProfile ?? "full"));
   if (byName.has(SOCIAL_COURT_PROFILE.name)) {
     group.add(createSocialCourtDetails(options.detailProfile ?? "full"));
   }

@@ -57,7 +57,7 @@ describe("Bendlerblock recognition detail", () => {
     expect(BENDLERBLOCK_PROFILE.geometryStatus).toContain(
       "not a component survey",
     );
-    expect(BENDLERBLOCK_PROFILE.sources).toHaveLength(7);
+    expect(BENDLERBLOCK_PROFILE.sources).toHaveLength(8);
   });
 
   test("keeps the full and mobile readings bounded and image-free", () => {

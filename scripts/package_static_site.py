@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.16"
+PACKAGE_VERSION = "1.0.17"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,7 +3393,9 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.16: Das Charlottenburger Tor besitzt zwei richtige Kolonnaden
+Neu in v1.0.17: Das Botschaftsband südlich des Tiergartens, der Robert-Koch-Platz
+und der bepflanzte Bendlerhof besitzen zusätzliche quellengestützte Details.
+Das Charlottenburger Tor besitzt zwei richtige Kolonnaden
 nördlich und südlich der Straße. Vier klassizistische Torhäuser mit offenen
 Tunnelmündern markieren die Fußgängertunnel zur Siegessäule am Großen Stern.
 
@@ -4006,7 +4008,9 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.16: The Charlottenburger Tor has two proper colonnades north and
+New in v1.0.17: The diplomatic quarter south of Tiergarten, Robert-Koch-Platz
+and the planted Bendlerblock court gain source-backed recognition detail.
+The Charlottenburger Tor has two proper colonnades north and
 south of the road. Four neoclassical gatehouses with open tunnel mouths mark
 the pedestrian tunnels to the Victory Column at the Großer Stern.
 
