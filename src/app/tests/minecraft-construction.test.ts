@@ -4,10 +4,11 @@ import { fileURLToPath } from "node:url";
 // v1.0.22 replaces twenty generic TIPI masses with source-bound tents/service
 // wings. Independently measured synchronous buffers are compared with
 // cooperative construction, including colours and every instance capacity.
-// Serra now replaces one retained source voxel column with the open plates.
+// v1.0.24 changes 42 existing Goldelse transforms (body, head,
+// feathers and the corrected left/right attribute frame); independent synchronous builds retain every count and buffer size.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "e44a0a008add74052e109b35ddcbf89f0758928ca5788fa20d3ba88570991cf0", 3814622, 97, 291142087],
-  ["mobile", "3f3f1cd71eba639b4ddb3c3fa6537263a454255bac4467b8cdef720e94a94d40", 1010241, 95, 77442103],
+  ["full", "b55faba55d8657794a51b551a8f7f2af3db6d7816e235e584d1817e69bcc1b3c", 3814622, 97, 291142087],
+  ["mobile", "17165828948d379d7874e3600ec26077b4d18b1e34e9caa2befe627b6ce4022e", 1010241, 95, 77442103],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

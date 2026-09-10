@@ -925,6 +925,16 @@ and mirrored in the packaged viewer attribution manifest.
   The aerial remains an unbundled reference. Roof curvature and heights are
   labelled procedural estimates; [source contract](docs/tipi-site-v122.md).
 
+- **Viktoria / Goldelse (v1.0.24):** Friedrich Drake's gilded bronze keeps the
+  [Bildhauerei in Berlin inventory](https://bildhauerei-in-berlin.de/bildwerk/siegessaeule-4706/)
+  height, shoe length, west orientation and attributes. AlterVista's
+  [*Berlin Siegessaeule Victoria.jpg*](https://commons.wikimedia.org/wiki/File:Berlin_Siegessaeule_Victoria.jpg)
+  (29 May 2003, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/))
+  guides the frontal feather fan and draped body; the existing BugWarp CC0
+  photograph remains the full-height context reference. Anatomy, drapery and
+  feather subdivisions are procedural display fits. No image, crop or texture
+  is bundled or fetched. See [evidence and budgets](docs/goldelse-v124.md).
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

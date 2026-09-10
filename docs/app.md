@@ -257,11 +257,17 @@ instanced batches add exactly 27 lower-edge icicles, three per physical flag;
 the icicles follow the same deformation and disappear completely outside
 Snowstorm.
 
-A fresh browser load advances between Reichstag, Bundeskanzleramt,
-Hauptbahnhof and Siegessäule. The Reset command still focuses the Reichstag
-from an elevated camera over the Platz der Republik lawn in Day mode. Explicit
-landmark deep links override the rotating startup choice. The zero-server
-fallback keeps its static default.
+A fresh browser load cycles through six arrivals: Reichstag, Bundeskanzleramt,
+Washingtonplatz facing the Hauptbahnhof entrance, beside Goldelse, Pariser Platz
+facing the Brandenburg Gate, and Richard Serra's Berlin Junction at the
+Philharmonie. Startup-only physical camera poses use explicit lenses to avoid
+the ordinary 16-degree isometric dolly moving them away from their plazas.
+They are applied before world construction and preserved across unchanged
+mobile mode remounts. Normal sight selection, explicit landmark deep links and
+the Academy-facing Pariser-Platz tour camera retain their existing behavior.
+Serra's arrival reuses the Philharmonie catalogue entry and displays its own
+opening label; the catalogue stays at 93. Reset remains the Day Reichstag view.
+The zero-server fallback keeps its static default. See [opening-view contract](simulation-start-views-v124.md).
 
 **Day is a drawn isometric city**: prisms are extruded from authoritative LoD2
 footprint polygons plus a
@@ -281,7 +287,7 @@ tree layer stays soft ("Natur darf weich bleiben"). The recognition models
 (Reichstag dome, Brandenburg
 Gate, memorials, TIPI, Carillon…) remain visible on top of the prisms. The
 camera FOV narrows from 39°
-to 30° in this mode to flatten the view toward a true isometric look.
+to 16° in this mode to flatten the view toward a true isometric look.
 Night and Snow relight the same drawn city; Minecraft uses its separate voxel
 world. If the requested world fails, the viewer performs one clean procedural
 remount and then exposes Recovery and 2D-map actions.

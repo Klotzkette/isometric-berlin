@@ -104,6 +104,15 @@ export const SIEGESSAEULE_PROFILE = {
       role: "interior view: restrained gold, blue, red, ivory and green glass colour cues",
       title: "Mosaik in der Berliner Siegessäule.jpg",
     },
+    {
+      artist: "AlterVista",
+      geometryStatus: "external reference only; not used as a runtime texture",
+      license: "CC BY-SA 3.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+      pageUrl: "https://commons.wikimedia.org/wiki/File%3ABerlin_Siegessaeule_Victoria.jpg",
+      role: "2003 frontal view: downward feather fan, fuller draped body and face",
+      title: "Berlin Siegessaeule Victoria.jpg",
+    },
   ],
 } as const;
 

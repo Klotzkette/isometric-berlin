@@ -4244,6 +4244,17 @@
       "credit": "Luis Alvaz / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule",
+      "title": "File:Berlin Siegessaeule Victoria.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Siegessaeule_Victoria.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "AlterVista",
+      "credit": "AlterVista, 2003-05-29 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

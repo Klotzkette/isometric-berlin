@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.24
+
+- Rotate through six physical opening poses: Goldelse, Serra/Philharmonie,
+  Reichstag, Pariser Platz facing the gate, Chancellery and Washingtonplatz
+  facing the station entrance. Frame before construction; preserve normal
+  explicit deep links, subsequent sight selection and the 93-place catalogue.
+- Refine Viktoria with a fuller oval torso, flowing triangular drapery, finer
+  face/limbs and outward/downward feather fans, retaining her 8.32 m height
+  and west-facing attributes. Keep the block-native Minecraft counterpart.
+
 ## v1.0.23
 
 - Rebuild only Richard Serra’s Berlin Junction from four owner reference photos:

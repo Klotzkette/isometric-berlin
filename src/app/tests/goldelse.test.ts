@@ -132,7 +132,8 @@ describe("Goldelse figure", () => {
       0,
     );
     expect(figure.parts.length).toBeLessThanOrEqual(48);
-    expect(vertexCount).toBeLessThanOrEqual(8_000);
+    expect(vertexCount).toBe(21_828);
+    expect(vertexCount).toBeLessThanOrEqual(22_000);
     expect(figure.inkSegments.length / 6).toBeLessThanOrEqual(90);
     for (const name of [
       "Goldelse primary wing feathers",
@@ -140,6 +141,11 @@ describe("Goldelse figure", () => {
       "Goldelse layered wing coverts",
       "Goldelse individual laurel leaves",
       "Goldelse iron cross",
+      "Goldelse torso",
+      "Goldelse robe",
+      "Goldelse gathered bodice",
+      "Goldelse wind-filled robe front",
+      "Goldelse head",
     ]) {
       expect(
         figure.parts
@@ -147,6 +153,67 @@ describe("Goldelse figure", () => {
           .every((part) => part.inked === false),
       ).toBe(true);
     }
+  });
+
+  test("retains a waist between fuller hips and chest instead of enlarging the whole figure", () => {
+    const figure = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    const widthAt = (name: string, y: number): number => {
+      const positions = figure.parts.find((part) => part.name === name)!.triangles;
+      const across: number[] = [];
+      for (let index = 0; index < positions.length; index += 3) {
+        if (Math.abs(positions[index + 1] - y) < 0.001) across.push(positions[index + 2]);
+      }
+      return Math.max(...across) - Math.min(...across);
+    };
+    const chest = widthAt("Goldelse torso", 4.16);
+    const waist = widthAt("Goldelse torso", 3.72);
+    const hips = widthAt("Goldelse robe", 2.94);
+    // Source photos bound the shape, not surveyed anatomical dimensions.
+    expect(chest).toBeCloseTo(1.58, 5);
+    expect(waist).toBeCloseTo(1.26, 5);
+    expect(hips).toBeCloseTo(1.8, 5);
+    expect(chest / waist).toBeGreaterThan(1.2);
+    expect(hips / waist).toBeGreaterThan(1.35);
+    expect(figure.heightM).toBeCloseTo(8.32, 6);
+  });
+
+  test("subdivides the curved chest, face and drapery into finite small facets", () => {
+    const figure = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    for (const [name, minimumTriangles, maximumArea] of [
+      ["Goldelse torso", 300, 0.065],
+      ["Goldelse head", 400, 0.012],
+      ["Goldelse wind-filled robe front", 350, 0.06],
+    ] as const) {
+      const positions = figure.parts.find((part) => part.name === name)!.triangles;
+      expect(positions.length / 9).toBeGreaterThan(minimumTriangles);
+      let minArea = Infinity, maxArea = 0;
+      for (let index = 0; index < positions.length; index += 9) {
+        const ax = positions[index + 3] - positions[index];
+        const ay = positions[index + 4] - positions[index + 1];
+        const az = positions[index + 5] - positions[index + 2];
+        const bx = positions[index + 6] - positions[index];
+        const by = positions[index + 7] - positions[index + 1];
+        const bz = positions[index + 8] - positions[index + 2];
+        const area = Math.hypot(ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx) / 2;
+        minArea = Math.min(minArea, area);
+        maxArea = Math.max(maxArea, area);
+      }
+      expect(minArea).toBeGreaterThan(0.00001);
+      expect(maxArea).toBeLessThan(maximumArea);
+    }
+  });
+
+  test("fans the outer feathers downward behind the shoulders as in the frontal reference", () => {
+    const figure = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    const outerFeatherHeights: number[] = [];
+    for (const part of figure.parts.filter((entry) => entry.name === "Goldelse primary wing feathers")) {
+      for (let index = 0; index < part.triangles.length; index += 3) {
+        if (Math.abs(part.triangles[index + 2]) > 2.5) outerFeatherHeights.push(part.triangles[index + 1]);
+      }
+    }
+    expect(outerFeatherHeights.length).toBeGreaterThan(400);
+    expect(Math.max(...outerFeatherHeights)).toBeLessThan(4.3);
+    expect(Math.min(...outerFeatherHeights)).toBeGreaterThan(2.5);
   });
 
   test("uses bright leaf-gold highlights with deep fold separation", () => {

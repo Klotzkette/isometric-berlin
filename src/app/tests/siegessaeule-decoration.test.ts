@@ -108,7 +108,7 @@ describe("the source-bounded lower Siegessäule registers", () => {
       SIEGESSAEULE_PROFILE.visualReferences.map((reference) =>
         reference.license,
       ),
-    ).toEqual(["CC0", "CC BY-SA 4.0"]);
+    ).toEqual(["CC0", "CC BY-SA 4.0", "CC BY-SA 3.0"]);
     for (const reference of SIEGESSAEULE_PROFILE.visualReferences) {
       expect(reference.geometryStatus).toContain(
         "not used as a runtime texture",
@@ -123,7 +123,7 @@ describe("the source-bounded lower Siegessäule registers", () => {
     const publicRecords = wikimediaAttribution.records.filter(
       (record) => record.landmark_id === "siegessaeule",
     );
-    expect(publicRecords).toHaveLength(2);
+    expect(publicRecords).toHaveLength(3);
     expect(
       publicRecords.map(({ artist, license, license_url, page_url, title }) => ({
         artist,
@@ -339,7 +339,10 @@ describe("the source-bounded lower Siegessäule registers", () => {
     expect(night.map).toBeNull();
     expect(night.color.getHex()).toBe(0xffefc2);
     expect(goldelse.userData.schwellenraumGeschuetzt).toBe(true);
-    expect(goldelse.geometry.getAttribute("position").count).toBe(7_758);
+    expect(goldelse.geometry.getAttribute("position").count).toBe(21_828);
+    const colors = goldelse.geometry.getAttribute("color");
+    const redLevels = new Set(Array.from({ length: colors.count }, (_, index) => colors.getX(index).toFixed(3)));
+    expect(redLevels.size).toBeGreaterThan(40);
     expect(
       monument.children.filter(
         (child) => child.name === "Goldelse gilded Viktoria bodies",
@@ -444,9 +447,17 @@ describe("the corrected Siegessäule shaft and observation balcony", () => {
     expect(blocks.filter((block) => block.feature === "captured gilded cannon")).toHaveLength(60);
     expect(blocks.filter((block) => block.feature === "octagonal balcony rail")).toHaveLength(16);
     expect(blocks.filter((block) => block.feature === "stepped wing feather")).toHaveLength(10);
+    expect(blocks.find((block) => block.feature === "torso")!.size).toEqual([1.16, 1.28, 1.54]);
+    const featherTops = blocks.filter((block) => block.feature === "stepped wing feather")
+      .map((block) => block.position[1] + block.size[1] / 2);
+    expect(Math.max(...featherTops)).toBeLessThan(SIEGESSAEULE_LEVELS.statueBaseY + 4.8);
     const wreath = blocks.filter((block) => block.feature === "open laurel wreath");
     expect(wreath).toHaveLength(12);
     expect(wreath.every((block) => block.position[0] < 0)).toBe(true);
+    // West-facing right hand is north; left-hand standard is south, as in
+    // the source photograph and the shared drawn Goldelse frame.
+    expect(wreath.every((block) => block.position[2] < 0)).toBe(true);
+    expect(blocks.find((block) => block.feature === "standard shaft")!.position[2]).toBeGreaterThan(0);
     expect(blocks.length).toBeLessThan(350);
     const world = createMinecraftExtrapolatedWorld();
     const column = namedInstances(world, "Voxel extrapolated Siegessäule");

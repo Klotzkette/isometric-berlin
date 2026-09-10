@@ -21,6 +21,8 @@ export const SIMULATION_START_SIGHT_NAMES = [
   "Bundeskanzleramt",
   "Berlin Hauptbahnhof",
   "Siegessäule",
+  "Brandenburger Tor",
+  "Berliner Philharmonie",
 ] as const;
 
 export const SIMULATION_START_STORAGE_KEY =
@@ -29,7 +31,7 @@ export const SIMULATION_START_STORAGE_KEY =
 type StartStorage = Pick<Storage, "getItem" | "setItem">;
 
 /**
- * Advance through the four civic start points without keeping a large session
+ * Advance through the curated start points without keeping a large session
  * object alive. The one tiny persisted name prevents consecutive reloads from
  * opening at the same place; private-storage failures degrade harmlessly.
  */

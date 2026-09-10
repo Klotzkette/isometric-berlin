@@ -63,6 +63,18 @@ describe("view navigation", () => {
     });
   });
 
+  test("unavailable or obsolete storage still yields a valid opening", () => {
+    expect(nextSimulationStartSight()).toBe(SIMULATION_START_SIGHT_NAMES[0]);
+    expect(nextSimulationStartSight({
+      getItem: () => { throw new Error("blocked"); },
+      setItem: () => { throw new Error("blocked"); },
+    })).toBe(SIMULATION_START_SIGHT_NAMES[0]);
+    expect(nextSimulationStartSight({
+      getItem: () => "retired place",
+      setItem: () => {},
+    })).toBe(SIMULATION_START_SIGHT_NAMES[0]);
+  });
+
   test("uses a different civic start on every reload and wraps safely", () => {
     const values = new Map<string, string>();
     const storage = {
@@ -74,6 +86,8 @@ describe("view navigation", () => {
     expect(nextSimulationStartSight(storage)).toBe("Bundeskanzleramt");
     expect(nextSimulationStartSight(storage)).toBe("Berlin Hauptbahnhof");
     expect(nextSimulationStartSight(storage)).toBe("Siegessäule");
+    expect(nextSimulationStartSight(storage)).toBe("Brandenburger Tor");
+    expect(nextSimulationStartSight(storage)).toBe("Berliner Philharmonie");
     expect(nextSimulationStartSight(storage)).toBe("Reichstagsgebäude");
     expect(values.get(SIMULATION_START_STORAGE_KEY)).toBe(
       SIMULATION_START_SIGHT_NAMES[0],

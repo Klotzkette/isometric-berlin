@@ -39,12 +39,13 @@ elevation or reconstruct individual historical battle scenes.
 
 Day, Night, Snowstorm and Schwellenraum reuse the same merged architecture.
 Small baked face-tone variations reveal the flutes in the unlit Day material.
-The existing detailed Goldelse remains unchanged, including west orientation,
-helm, layered wings, raised wreath and standard. No mode rebuild is introduced.
+The v1.0.24 [Goldelse refinement](goldelse-v124.md) retains west orientation,
+helm, layered wings, raised wreath and standard while refining body, face and
+drapery. No mode rebuild is introduced.
 
 The architecture helper supplies 365 parts / 26,784 vertices, merged into the
 existing bodies mesh. The complete Siegessäule/Bismarck root remains five
-renderables / 50,902 stored vertices, including ink. No new draw call is added.
+renderables / 62,776 stored vertices, including ink. No new draw call is added.
 
 Minecraft uses the same four-drum stack, replaces the old wide shaft slab with
 stepped octagonal sections, and retains the 67 m top. Its 304-block main batch

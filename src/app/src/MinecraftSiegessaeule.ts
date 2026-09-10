@@ -94,21 +94,22 @@ export function minecraftSiegessaeuleBlocks(x: number, z: number, facing: readon
   // West-facing figure: an open wreath, stepped feather fans, robe, helmet,
   // folded standard arm and an Iron Cross. No smooth Goldelse is duplicated.
   const figure = (feature: string, fx: number, fy: number, fz: number, sx: number, sy: number, sz: number, tone = gold) => {
-    add(feature, facing[0] * fx - facing[1] * fz, levels.statueBaseY + fy,
-      facing[1] * fx + facing[0] * fz, sx, sy, sz, tone);
+    // Match the drawn figure: local +z is her left (up × facing).
+    add(feature, facing[0] * fx + facing[1] * fz, levels.statueBaseY + fy,
+      facing[1] * fx - facing[0] * fz, sx, sy, sz, tone);
     blocks[blocks.length - 1].rotationY = -Math.atan2(facing[1], facing[0]);
   };
   figure("left shoe", 0.2, 0.16, 0.32, 0.92, 0.32, 0.42);
   figure("right shoe", 0.45, 0.16, -0.32, 0.92, 0.32, 0.42);
   for (let fold = 0; fold < 5; fold += 1) figure("draped robe", -0.15 + fold * 0.06, 0.6 + fold * 0.59, 0.12 - fold * 0.025, 1.45 - fold * 0.08, 0.65, 2.2 - fold * 0.27, fold % 2 === 0 ? gold : 0xe4b849);
-  figure("torso", 0.13, 3.65, 0, 1, 1.28, 1.3);
+  figure("torso", 0.13, 3.65, 0, 1.16, 1.28, 1.54);
   figure("neck", 0.16, 4.43, 0, 0.5, 0.42, 0.5);
-  figure("head", 0.18, 4.88, 0, 0.78, 0.65, 0.64);
+  figure("head", 0.18, 4.88, 0, 0.82, 0.65, 0.7);
   figure("eagle helmet", 0.05, 5.33, 0, 1.03, 0.24, 0.98);
   figure("helmet eagle", 0.05, 5.58, 0, 0.25, 0.36, 0.92);
   for (const wing of [-1, 1]) {
     for (let feather = 0; feather < 5; feather += 1) {
-      figure("stepped wing feather", -0.68 - feather * 0.2, 3.92 + feather * 0.34, wing * (0.72 + feather * 0.38), 0.32, 1.5 - feather * 0.15, 0.5, feather % 2 ? 0xffe3a0 : gold);
+      figure("stepped wing feather", -0.68 - feather * 0.12, 4.02 - feather * 0.15, wing * (0.72 + feather * 0.53), 0.32, 1.5 - feather * 0.15, 0.64, feather % 2 ? 0xffe3a0 : gold);
     }
   }
   figure("raised wreath upper arm", 0.36, 4.05, -0.95, 0.42, 0.9, 0.42);

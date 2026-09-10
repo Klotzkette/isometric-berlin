@@ -7,8 +7,10 @@
  * Rechten einen Lorbeerkranz in die Höhe, in der Linken ein Feldzeichen mit
  * dem Eisernen Kreuz. Auf ihrem Helm sitzt ein Adler." Since the 1939 move
  * from the Königsplatz to the Großer Stern she faces WEST, towards today's
- * Ernst-Reuter-Platz — before the move she looked south. Nothing here is
- * invented beyond the silhouette needed to read those attributes.
+ * Ernst-Reuter-Platz — before the move she looked south. No
+ * source positions are changed by the local silhouette refinement. The body,
+ * drapery and feather subdivisions remain procedural display fits; see
+ * docs/goldelse-v124.md for the close reference and exact geometry budget.
  *
  * Everything is emitted in a local right-handed frame and mapped to world
  * coordinates by the caller, so the figure can be aimed down the Straße des
@@ -79,6 +81,84 @@ export type GoldelseOptions = {
 
 type Local = [number, number, number];
 type Outline = [number, number][];
+
+type BodyRing = {
+  y: number;
+  x: number;
+  z: number;
+  depth: number;
+  breadth: number;
+};
+
+/** Oval anatomical sections: fuller hips/chest with a gathered waist. */
+const ROBE_RINGS: BodyRing[] = [
+  { y: 0.16, x: -0.02, z: 0.1, depth: 0.74, breadth: 0.8 },
+  { y: 0.62, x: -0.03, z: 0.11, depth: 0.76, breadth: 0.84 },
+  { y: 1.18, x: -0.03, z: 0.1, depth: 0.73, breadth: 0.82 },
+  { y: 1.78, x: 0.01, z: 0.07, depth: 0.7, breadth: 0.83 },
+  { y: 2.38, x: 0.06, z: 0.02, depth: 0.67, breadth: 0.86 },
+  { y: 2.94, x: 0.08, z: -0.02, depth: 0.69, breadth: 0.9 },
+  { y: 3.38, x: 0.07, z: -0.02, depth: 0.63, breadth: 0.78 },
+  { y: 3.68, x: 0.05, z: 0, depth: 0.57, breadth: 0.64 },
+];
+const TORSO_RINGS: BodyRing[] = [
+  { y: 3.5, x: 0.05, z: 0, depth: 0.59, breadth: 0.66 },
+  { y: 3.72, x: 0.07, z: 0, depth: 0.56, breadth: 0.63 },
+  { y: 3.94, x: 0.1, z: 0, depth: 0.63, breadth: 0.72 },
+  { y: 4.16, x: 0.12, z: 0, depth: 0.67, breadth: 0.79 },
+  { y: 4.38, x: 0.09, z: 0, depth: 0.62, breadth: 0.78 },
+  { y: 4.58, x: 0.04, z: 0, depth: 0.5, breadth: 0.69 },
+  { y: 4.76, x: 0, z: 0, depth: 0.3, breadth: 0.36 },
+];
+
+/** Closed, finely faceted body, without a separate mesh per anatomical ring. */
+function ovalLoft(rings: BodyRing[], segments = 24): Local[] {
+  const triangles: Local[] = [];
+  const point = (ring: BodyRing, index: number): Local => {
+    const angle = index / segments * Math.PI * 2;
+    return [ring.x + Math.cos(angle) * ring.depth, ring.y,
+      ring.z + Math.sin(angle) * ring.breadth];
+  };
+  for (let row = 0; row < rings.length - 1; row += 1) {
+    for (let segment = 0; segment < segments; segment += 1) {
+      const a = point(rings[row], segment), b = point(rings[row], segment + 1);
+      const c = point(rings[row + 1], segment + 1), d = point(rings[row + 1], segment);
+      triangles.push(a, b, c, a, c, d);
+    }
+  }
+  const bottom = rings[0], top = rings[rings.length - 1];
+  for (let segment = 0; segment < segments; segment += 1) {
+    triangles.push([bottom.x, bottom.y, bottom.z], point(bottom, segment + 1), point(bottom, segment));
+    triangles.push([top.x, top.y, top.z], point(top, segment), point(top, segment + 1));
+  }
+  return triangles;
+}
+
+/** Drapery follows the oval volume, with small raised folds instead of a flat bib. */
+function gatheredDrapery(rings: BodyRing[], folds: number, scallopedHem = 0): Local[] {
+  const columns = folds * 4;
+  const triangles: Local[] = [];
+  const point = (row: number, column: number): Local => {
+    const ring = rings[row];
+    const t = column / columns;
+    const across = (t * 2 - 1) * 0.88;
+    // Slight diagonal gathering and rounded ridges describe cast fabric; the
+    // bounded offsets are not claimed as measured folds in Drake's bronze.
+    const phase = t * folds * Math.PI * 2 + row * 0.2;
+    const ridge = 0.025 + (0.5 + Math.cos(phase) * 0.5) * 0.085;
+    return [ring.x + ring.depth * Math.sqrt(1 - across * across) + ridge,
+      ring.y + (row === 0 ? Math.cos(t * folds * Math.PI * 2) * scallopedHem : 0),
+      ring.z + ring.breadth * across];
+  };
+  for (let row = 0; row < rings.length - 1; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      const a = point(row, column), b = point(row, column + 1);
+      const c = point(row + 1, column + 1), d = point(row + 1, column);
+      triangles.push(a, b, c, a, c, d);
+    }
+  }
+  return triangles;
+}
 
 /** A vertical prism whose radius changes with height (torso, gown, neck). */
 function taperedPrism(
@@ -335,20 +415,16 @@ function featherPlate(
   const length = Math.hypot(dz, dy) || 1;
   const normalZ = -dy / length;
   const normalY = dz / length;
-  const middle: [number, number] = [
-    (root[0] + tip[0]) / 2,
-    (root[1] + tip[1]) / 2 + bowY,
-  ];
-  const leading: Outline = [
-    [root[0] + normalZ * width * 0.46, root[1] + normalY * width * 0.46],
-    [middle[0] + normalZ * width * 0.32, middle[1] + normalY * width * 0.32],
-    [tip[0] + normalZ * width * 0.04, tip[1] + normalY * width * 0.04],
-  ];
-  const trailing: Outline = [
-    [root[0] - normalZ * width * 0.46, root[1] - normalY * width * 0.46],
-    [middle[0] - normalZ * width * 0.32, middle[1] - normalY * width * 0.32],
-    [tip[0] - normalZ * width * 0.04, tip[1] - normalY * width * 0.04],
-  ];
+  const leading: Outline = [];
+  const trailing: Outline = [];
+  for (let step = 0; step <= 6; step += 1) {
+    const t = step / 6;
+    const centreZ = root[0] + dz * t;
+    const centreY = root[1] + dy * t + bowY * 4 * t * (1 - t);
+    const halfWidth = width * (0.46 * (1 - t) + 0.04 * t + 0.09 * Math.sin(Math.PI * t));
+    leading.push([centreZ + normalZ * halfWidth, centreY + normalY * halfWidth]);
+    trailing.push([centreZ - normalZ * halfWidth, centreY - normalY * halfWidth]);
+  }
   return bladePlate(leading, trailing, atX, thickness);
 }
 
@@ -453,17 +529,17 @@ function mirrored(triangles: Local[]): Local[] {
  */
 const WING_LEADING: Outline = [
   [0.46, 4.72],
-  [0.96, 5.42],
-  [1.52, 5.96],
-  [2.18, 6.34],
-  [3.38, 6.5],
+  [0.96, 4.62],
+  [1.52, 4.32],
+  [2.18, 4.13],
+  [3.38, 3.96],
 ];
 const WING_TRAILING: Outline = [
   [0.5, 4.3],
-  [0.98, 4.5],
-  [1.52, 4.72],
-  [2.08, 4.88],
-  [2.74, 4.84],
+  [0.98, 3.76],
+  [1.52, 3.34],
+  [2.08, 3.06],
+  [2.74, 2.96],
 ];
 
 const PRIMARY_FEATHERS: Array<{
@@ -472,16 +548,16 @@ const PRIMARY_FEATHERS: Array<{
   tip: [number, number];
   width: number;
 }> = [
-  { bowY: 0.08, root: [0.9, 5.55], tip: [3.48, 6.5], width: 0.32 },
-  { bowY: 0.08, root: [0.94, 5.44], tip: [3.43, 6.28], width: 0.31 },
-  { bowY: 0.06, root: [0.98, 5.32], tip: [3.36, 6.05], width: 0.3 },
-  { bowY: 0.05, root: [1.02, 5.2], tip: [3.27, 5.81], width: 0.29 },
-  { bowY: 0.03, root: [1.05, 5.08], tip: [3.17, 5.58], width: 0.28 },
-  { bowY: 0.01, root: [1.08, 4.98], tip: [3.04, 5.34], width: 0.27 },
-  { bowY: -0.01, root: [1.08, 4.9], tip: [2.88, 5.1], width: 0.26 },
-  { bowY: -0.03, root: [1.06, 4.82], tip: [2.69, 4.88], width: 0.25 },
-  { bowY: -0.05, root: [1.02, 4.74], tip: [2.48, 4.68], width: 0.24 },
-  { bowY: -0.07, root: [0.96, 4.66], tip: [2.25, 4.5], width: 0.23 },
+  { bowY: -0.08, root: [0.9, 4.66], tip: [3.48, 3.95], width: 0.3 },
+  { bowY: -0.12, root: [0.94, 4.54], tip: [3.43, 3.7], width: 0.29 },
+  { bowY: -0.14, root: [0.98, 4.42], tip: [3.36, 3.45], width: 0.28 },
+  { bowY: -0.16, root: [1.02, 4.3], tip: [3.27, 3.21], width: 0.28 },
+  { bowY: -0.18, root: [1.05, 4.18], tip: [3.1, 2.99], width: 0.27 },
+  { bowY: -0.2, root: [1.08, 4.08], tip: [2.88, 2.82], width: 0.26 },
+  { bowY: -0.21, root: [1.08, 4], tip: [2.62, 2.74], width: 0.25 },
+  { bowY: -0.21, root: [1.06, 3.92], tip: [2.34, 2.72], width: 0.24 },
+  { bowY: -0.19, root: [1.02, 3.84], tip: [2.06, 2.78], width: 0.23 },
+  { bowY: -0.16, root: [0.96, 3.78], tip: [1.78, 2.9], width: 0.22 },
 ];
 
 const SECONDARY_FEATHERS: Array<{
@@ -489,29 +565,17 @@ const SECONDARY_FEATHERS: Array<{
   tip: [number, number];
   width: number;
 }> = [
-  { root: [0.56, 5.34], tip: [2.4, 6.28], width: 0.34 },
-  { root: [0.54, 5.2], tip: [2.22, 6.08], width: 0.34 },
-  { root: [0.53, 5.08], tip: [2.03, 5.88], width: 0.33 },
-  { root: [0.52, 4.97], tip: [1.83, 5.67], width: 0.32 },
-  { root: [0.51, 4.86], tip: [1.63, 5.45], width: 0.31 },
-  { root: [0.5, 4.76], tip: [1.43, 5.23], width: 0.29 },
-  { root: [0.5, 4.66], tip: [1.23, 5.01], width: 0.27 },
-  { root: [0.5, 4.58], tip: [1.05, 4.82], width: 0.25 },
+  { root: [0.56, 4.69], tip: [2.4, 4.03], width: 0.31 },
+  { root: [0.54, 4.58], tip: [2.22, 3.84], width: 0.31 },
+  { root: [0.53, 4.47], tip: [2.03, 3.65], width: 0.3 },
+  { root: [0.52, 4.36], tip: [1.83, 3.46], width: 0.29 },
+  { root: [0.51, 4.25], tip: [1.63, 3.29], width: 0.28 },
+  { root: [0.5, 4.14], tip: [1.43, 3.15], width: 0.27 },
+  { root: [0.5, 4.03], tip: [1.23, 3.04], width: 0.25 },
+  { root: [0.5, 3.92], tip: [1.05, 3.04], width: 0.23 },
 ];
 
-/** Robe hem panel, widening towards the feet the way the cast bronze does. */
-const ROBE_OUTLINE: Outline = [
-  [-0.63, 0.13],
-  [0.24, 0.08],
-  [1.28, 0.5],
-  [1.08, 1.42],
-  [0.86, 2.48],
-  [0.62, 3.64],
-  [-0.56, 3.64],
-  [-0.72, 1.72],
-];
-
-const ROBE_FOLD_ACROSS = [-0.5, -0.28, -0.05, 0.2, 0.43, 0.68, 0.91] as const;
+const ROBE_FOLD_ACROSS = [-0.64, -0.43, -0.22, 0, 0.22, 0.43, 0.64] as const;
 const STANDARD_RIBBON_COUNT = 3;
 
 /**
@@ -590,12 +654,14 @@ export function createGoldelseFigure({
   }
 
   parts.push({
-    local: taperedPrism(0.08, 0.16, 3.68, 0.72, 0.52, 12),
+    inked: false,
+    local: ovalLoft(ROBE_RINGS),
     name: "Goldelse robe",
     tone: GOLDELSE_GOLD_SHADED,
   });
   parts.push({
-    local: plate(ROBE_OUTLINE, 0.48, 0.22),
+    inked: false,
+    local: gatheredDrapery(ROBE_RINGS, 7),
     name: "Goldelse wind-filled robe front",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
@@ -615,53 +681,60 @@ export function createGoldelseFigure({
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: taperedPrism(0, 3.5, SHOULDER_Y, 0.5, 0.66, 12),
+    inked: false,
+    local: ovalLoft(TORSO_RINGS),
     name: "Goldelse torso",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: plate(
-      [
-        [-0.57, 3.63],
-        [0.58, 3.63],
-        [0.66, 4.34],
-        [0.38, 4.6],
-        [-0.38, 4.6],
-        [-0.66, 4.34],
-      ],
-      0.51,
-      0.18,
-    ),
+    inked: false,
+    local: gatheredDrapery(TORSO_RINGS, 5),
     name: "Goldelse gathered bodice",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    inked: false,
+    local: gatheredDrapery([
+      { y: 2.99, x: 0.1, z: -0.02, depth: 0.77, breadth: 0.94 },
+      { y: 3.23, x: 0.08, z: -0.02, depth: 0.74, breadth: 0.89 },
+      { y: 3.48, x: 0.07, z: 0, depth: 0.65, breadth: 0.78 },
+      { y: 3.68, x: 0.06, z: 0, depth: 0.6, breadth: 0.66 },
+    ], 5, 0.12),
+    name: "Goldelse folded overfall",
+    tone: GOLDELSE_GOLD,
   });
   parts.push({
     local: roundStrut(
       [0, SHOULDER_Y, -0.7],
       [0, SHOULDER_Y, 0.7],
-      0.2,
-      8,
+      0.24,
+      16,
     ),
+    inked: false,
     name: "Goldelse shoulders",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: taperedPrism(0, 4.72, 4.98, 0.2, 0.19, 8),
+    local: taperedPrism(0, 4.72, 4.98, 0.22, 0.21, 16),
+    inked: false,
     name: "Goldelse neck",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
   parts.push({
-    local: ellipsoid([0.03, HEAD_CENTRE_Y, 0], [0.31, 0.43, 0.3], 10, 6),
+    local: ellipsoid([0.04, HEAD_CENTRE_Y, 0], [0.34, 0.43, 0.33], 20, 12),
+    inked: false,
     name: "Goldelse head",
     tone: GOLDELSE_GOLD,
   });
   parts.push({
-    local: ellipsoid([0.3, HEAD_CENTRE_Y + 0.02, 0], [0.15, 0.11, 0.1], 8, 4),
+    local: ellipsoid([0.34, HEAD_CENTRE_Y + 0.015, 0], [0.12, 0.14, 0.075], 12, 8),
+    inked: false,
     name: "Goldelse face and nose",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
   parts.push({
-    local: ellipsoid([-0.18, HEAD_CENTRE_Y + 0.02, 0], [0.2, 0.4, 0.33], 8, 5),
+    local: ellipsoid([-0.18, HEAD_CENTRE_Y + 0.02, 0], [0.22, 0.41, 0.35], 16, 10),
+    inked: false,
     name: "Goldelse hair mass",
     tone: GOLDELSE_GOLD_DEEP,
   });
@@ -669,17 +742,18 @@ export function createGoldelseFigure({
   // The Borussia helmet is a brim, a domed crown and a separately readable
   // eagle, instead of the previous narrow spike.
   parts.push({
-    local: taperedPrism(0, 5.61, 5.73, 0.39, 0.37, 12),
+    local: taperedPrism(0, 5.61, 5.73, 0.41, 0.39, 24),
     name: "Goldelse helmet brim",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
   parts.push({
-    local: taperedPrism(0, 5.7, HELMET_TOP_Y, 0.34, 0.13, 10),
+    local: taperedPrism(0, 5.7, HELMET_TOP_Y, 0.36, 0.13, 24),
     name: "Goldelse helmet",
     tone: GOLDELSE_GOLD_SHADED,
   });
   parts.push({
-    local: ellipsoid([0, 6.2, 0], [0.13, 0.23, 0.12], 7, 4),
+    local: ellipsoid([0, 6.2, 0], [0.13, 0.23, 0.12], 12, 6),
+    inked: false,
     name: "Goldelse helmet eagle body",
     tone: GOLDELSE_GOLD,
   });
@@ -781,13 +855,13 @@ export function createGoldelseFigure({
   });
   const coverts: Local[] = [];
   for (let feather = 0; feather < 9; feather += 1) {
-    const angle = -0.48 + feather * 0.12;
-    const root: [number, number] = [0.48 + feather * 0.055, 4.67 + feather * 0.07];
-    const length = 0.72 + feather * 0.045;
+    const angle = -0.42 - feather * 0.09;
+    const root: [number, number] = [0.5 + feather * 0.055, 4.67 - feather * 0.045];
+    const length = 0.62 + feather * 0.025;
     coverts.push(
       ...featherPlate(
         root,
-        [root[0] + Math.cos(angle) * length, root[1] + Math.sin(angle) * length + 0.4],
+        [root[0] + Math.cos(angle) * length, root[1] + Math.sin(angle) * length],
         0.25,
         0.12,
         0.12,
@@ -815,17 +889,19 @@ export function createGoldelseFigure({
   const rightElbow: Local = [0.2, 5.34, -1.32];
   const rightHand: Local = [0.28, 6.68, -1.88];
   for (const [from, to, radius] of [
-    [rightShoulder, rightElbow, 0.17],
-    [rightElbow, rightHand, 0.145],
+    [rightShoulder, rightElbow, 0.215],
+    [rightElbow, rightHand, 0.17],
   ] as const) {
     parts.push({
-      local: roundStrut(from, to, radius, 8),
+      local: roundStrut(from, to, radius, 16),
+      inked: false,
       name: "Goldelse raised arm",
       tone: GOLDELSE_GOLD_HIGHLIGHT,
     });
   }
   parts.push({
-    local: ellipsoid(rightHand, [0.15, 0.18, 0.13], 8, 4),
+    local: ellipsoid(rightHand, [0.165, 0.18, 0.145], 12, 8),
+    inked: false,
     name: "Goldelse wreath hand",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
@@ -897,14 +973,25 @@ export function createGoldelseFigure({
     [leftElbow, leftHand],
   ] as const) {
     parts.push({
-      local: roundStrut(from, to, 0.16, 8),
+      local: roundStrut(from, to, 0.19, 16),
+      inked: false,
       name: "Goldelse standard arm",
       tone: GOLDELSE_GOLD,
     });
   }
   parts.push({
-    local: ellipsoid(leftHand, [0.14, 0.18, 0.13], 8, 4),
+    local: ellipsoid(leftHand, [0.155, 0.18, 0.145], 12, 8),
+    inked: false,
     name: "Goldelse standard hand",
+    tone: GOLDELSE_GOLD_HIGHLIGHT,
+  });
+  parts.push({
+    inked: false,
+    local: [
+      ...ellipsoid(rightElbow, [0.215, 0.23, 0.215], 12, 8),
+      ...ellipsoid(leftElbow, [0.195, 0.21, 0.195], 12, 8),
+    ],
+    name: "Goldelse rounded elbows",
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
   const standardZ = 0.82;
@@ -985,26 +1072,13 @@ export function createGoldelseFigure({
     tone: GOLDELSE_GOLD_HIGHLIGHT,
   });
 
-  // Curved fold paths and the gathered waist retain fine legibility without
-  // adding separate draw calls; the caller merges every part and line batch.
-  for (const across of ROBE_FOLD_ACROSS) {
-    const fold: Local[] = [
-      [0.61, 3.54, across * 0.55],
-      [0.64, 2.62, across * 0.66 + 0.08],
-      [0.65, 1.55, across * 0.82 + 0.16],
-      [0.63, 0.28, across],
-    ];
-    for (let point = 0; point < fold.length - 1; point += 1) {
-      inkLocal.push(fold[point], fold[point + 1]);
-    }
-  }
+  // Gilded relief supplies the robe folds; a few short facial/waist strokes
+  // remain in the existing ink batch without blackening the finer triangles.
   inkLocal.push(
-    [0.64, 3.64, -0.55],
-    [0.64, 3.64, 0.57],
-    [0.36, 5.56, -0.28],
-    [0.36, 5.56, 0.28],
-    [0.38, 5.31, -0.12],
-    [0.38, 5.31, 0.12],
+    [0.67, 3.69, -0.38], [0.67, 3.69, 0.38],
+    [0.34, 5.46, -0.23], [0.4, 5.46, -0.08],
+    [0.4, 5.46, 0.08], [0.34, 5.46, 0.23],
+    [0.39, 5.14, -0.085], [0.39, 5.14, 0.085],
   );
 
   const [ax, az] = facing;

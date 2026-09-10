@@ -7199,6 +7199,16 @@ export function createSiegessaeule(): Group {
     inked = true,
   ): void => {
     const geometry = colouredGeometry(triangles, tone);
+    // Fine anatomical facets must remain legible in the unlit drawn modes.
+    // Baked, restrained gold shading adds no texture, light or draw call.
+    const normal = geometry.getAttribute("normal");
+    const colors = geometry.getAttribute("color");
+    for (let index = 0; index < colors.count; index += 1) {
+      const light = 0.88 + 0.12 * (
+        normal.getX(index) * 0.5 + normal.getY(index) * 0.72 - normal.getZ(index) * 0.48);
+      colors.setXYZ(index, colors.getX(index) * light,
+        colors.getY(index) * light, colors.getZ(index) * light);
+    }
     goldelseGeometries.push(geometry);
     if (inked) {
       edgeGeometries.push(

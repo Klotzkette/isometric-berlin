@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.23 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.23/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.24/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.23** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.24** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.24 rotates through six opening views: beside Goldelse, at Richard
+Serra's Berlin Junction, in front of the Reichstag, on Pariser Platz facing the
+gate, at the Chancellery and on Washingtonplatz facing the station entrance.
+Viktoria gains a fuller figure, finer triangular surfaces and corrected wings.
+
+Version 1.0.24 startet abwechselnd oben bei der Goldelse, bei Richard Serras
+Berlin Junction, vor dem Reichstag, auf dem Pariser Platz mit Blick zum Tor,
+vor dem Kanzleramt und auf dem Washingtonplatz mit Blick zum Bahnhof.
+Die Viktoria bekommt eine vollere Figur, feinere Dreiecksflächen und genauere Flügel.
 
 Version 1.0.23 refines only Richard Serra’s Berlin Junction: continuous curved,
 inward-leaning steel plates, darker patina and an open passage in all five modes.

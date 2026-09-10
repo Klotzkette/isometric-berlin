@@ -367,3 +367,14 @@ manifests. See [evidence](../../docs/potsdamer-traffic-tower.md).
 | [Berlín en agosto de 2024 - BugWarp (45).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(45).jpg) | BugWarp | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | [Semáforo histórico en Potsdamer Platz, Berlín 01.jpg](https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_01.jpg) | Luis Alvaz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | [Semáforo histórico en Potsdamer Platz, Berlín 03.jpg](https://commons.wikimedia.org/wiki/File:Sem%C3%A1foro_hist%C3%B3rico_en_Potsdamer_Platz,_Berl%C3%ADn_03.jpg) | Luis Alvaz | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+
+## v1.0.24 external reference addition
+
+The Goldelse refinement uses AlterVista's frontal view to check the outward/downward
+feather fan, fuller draped torso, gathered overfall and face. The image remains an
+external visual reference, independently credited in both manifests; it is neither
+bundled nor loaded by the viewer. Procedural dimensions are display fits.
+
+| Reference | Author | License |
+| --- | --- | --- |
+| [Berlin Siegessaeule Victoria.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Siegessaeule_Victoria.jpg), 29 May 2003 | AlterVista | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |

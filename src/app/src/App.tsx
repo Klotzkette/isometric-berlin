@@ -1,3 +1,4 @@
+import { simulationStartLabel } from "./simulationStartViews";
 import {
   ArrowDown,
   ArrowLeft,
@@ -202,16 +203,18 @@ function browserStartStorage(): Pick<Storage, "getItem" | "setItem"> | null {
   }
 }
 
-function initialSimulationStart(): string {
+function initialSimulationStart(): { name: string; automatic: boolean } {
   if (typeof window === "undefined") {
-    return DEFAULT_FOCUS_LANDMARK;
+    return { name: DEFAULT_FOCUS_LANDMARK, automatic: true };
   }
   const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
   const explicit = findSightBySlug(
     landmarks,
     parseViewHash(window.location.hash).landmarkSlug,
   );
-  return explicit?.name ?? nextSimulationStartSight(browserStartStorage());
+  return explicit
+    ? { name: explicit.name, automatic: false }
+    : { name: nextSimulationStartSight(browserStartStorage()), automatic: true };
 }
 
 const INITIAL_SIMULATION_START = initialSimulationStart();
@@ -869,7 +872,10 @@ export function App() {
   const threeViewerGenerationRef = useRef(0);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START);
+  const openingLandmarkRef = useRef<string | null>(
+    INITIAL_SIMULATION_START.automatic ? INITIAL_SIMULATION_START.name : null,
+  );
+  const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const copy = UI_COPY[language];
   const [status, setStatus] = useState(copy.loadingCity);
@@ -989,6 +995,9 @@ export function App() {
       null,
     [landmarks, selected],
   );
+  const selectedDisplayName = openingLandmarkRef.current === selected
+    ? simulationStartLabel(selected)
+    : selectedLandmark?.name;
   const featuredLandmarks = useMemo(
     () => featuredSights(landmarks),
     [landmarks],
@@ -1036,15 +1045,17 @@ export function App() {
   );
 
   const focusLandmark = useCallback(
-    (landmark: Landmark, immediate = false) => {
+    (landmark: Landmark, immediate = false, openingView = false) => {
       const shouldMoveImmediately = immediate || prefersReducedMotion();
+      if (!openingView) openingLandmarkRef.current = null;
       disablePedestrianMode();
       setSelected(landmark.name);
-      setStatus(`${copy.focus}: ${landmarkShortLabel(landmark.name)}`);
+      setStatus(`${copy.focus}: ${openingView ? simulationStartLabel(landmark.name) : landmarkShortLabel(landmark.name)}`);
       if (viewerMode === "three") {
         threeViewerRef.current?.focusLandmark(
           landmark.name,
           shouldMoveImmediately,
+          openingView,
         );
         return;
       }
@@ -2317,6 +2328,7 @@ export function App() {
         threeViewerAutoRecoveryUsedRef.current = true;
         const nextStart = nextSimulationStartSight(browserStartStorage());
         selectedRef.current = nextStart;
+        openingLandmarkRef.current = nextStart;
         initialFocusModeRef.current = null;
         setSelected(nextStart);
         threeViewerGenerationRef.current += 1;
@@ -3352,7 +3364,8 @@ export function App() {
       return;
     }
     initialFocusModeRef.current = viewerMode;
-    focusLandmark(selectedLandmark ?? landmarks[0], true);
+    const landmark = selectedLandmark ?? landmarks[0];
+    focusLandmark(landmark, true, openingLandmarkRef.current === landmark.name);
   }, [
     focusLandmark,
     isPedestrianMode,
@@ -3502,6 +3515,7 @@ export function App() {
                 progressLabel={copy.loadingCity}
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
+                openingLandmark={openingLandmarkRef.current}
                 onReady={() => {
                   if (
                     activeThreeViewerKeyRef.current !==
@@ -3591,7 +3605,7 @@ export function App() {
             <strong>
               {showBrandTitle
                 ? `Isometric Berlin · Regierungsviertel · ${PROJECT_VERSION}`
-                : landmarkShortLabel(selectedLandmark?.name ?? status)}
+                : landmarkShortLabel(selectedDisplayName ?? status)}
             </strong>
             <small>
               {selectedIndex >= 0 ? selectedIndex + 1 : 1}/
@@ -4877,7 +4891,7 @@ export function App() {
             <Info aria-hidden="true" size={16} />
             <span>{copy.focus}</span>
           </div>
-          <strong>{selectedLandmark.name}</strong>
+          <strong>{selectedDisplayName}</strong>
           <small>{roleLabel(selectedLandmark.role, language)}</small>
           <span>
             {selectedIndex >= 0 ? selectedIndex + 1 : 1} / {landmarks.length}

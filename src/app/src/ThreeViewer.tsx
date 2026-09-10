@@ -1,3 +1,4 @@
+import { simulationStartCamera } from "./simulationStartViews";
 import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
@@ -535,6 +536,7 @@ type ThreeViewerProps = {
   progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
+  openingLandmark?: string | null;
   onError: (message: string) => void;
   onPedestrianPoseChange: (pose: PedestrianPose | null) => void;
   onPedestrianRespawn: () => void;
@@ -547,7 +549,7 @@ export type ThreeViewerHandle = {
   focusNavigation: () => void;
   flyBy: (horizontal: number, vertical: number) => void;
   flyForwardBy: (strafe: number, forward: number) => void;
-  focusLandmark: (name: string, immediate?: boolean) => void;
+  focusLandmark: (name: string, immediate?: boolean, openingView?: boolean) => void;
   reset: () => void;
   rotateBy: (degrees: number) => void;
   setAzimuth: (degrees: number) => void;
@@ -645,6 +647,7 @@ type Runtime = {
   parkDetails: Group;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
+  openingDetailReady: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
   reducedMotion: boolean;
@@ -1378,6 +1381,7 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
   if (
     runtime.disposed ||
     runtime.presentationReady ||
+    !runtime.openingDetailReady ||
     !startupCurtainMayOpen(currentStartupPresentationStatus(runtime))
   ) {
     return;
@@ -4670,6 +4674,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       progressLabel,
       sceneUrl,
       selectedLandmark,
+      openingLandmark = null,
       onError,
       onPedestrianPoseChange,
       onPedestrianRespawn,
@@ -4682,6 +4687,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const hostRef = useRef<HTMLDivElement | null>(null);
     const runtimeRef = useRef<Runtime | null>(null);
     const selectedRef = useRef(selectedLandmark);
+    const openingLandmarkRef = useRef(openingLandmark);
     const focusLandmarkRef = useRef<
       (name: string, immediate?: boolean) => void
     >(() => undefined);
@@ -4888,7 +4894,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       onViewChange,
     ]);
 
-    const focusLandmark = (name: string, immediate = false): void => {
+    const focusLandmark = (name: string, immediate = false, openingView = false): void => {
+      if (!openingView) openingLandmarkRef.current = null;
       const runtime = runtimeRef.current;
       if (!runtime) {
         return;
@@ -4901,7 +4908,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // A leftover glide would drift the camera off the fresh focus.
       runtime.cancelPanGlide?.();
       setParkDetailsFocus(runtime.parkDetails, name);
-      const cameraPreset =
+      const cameraPreset = (openingView ? simulationStartCamera(name) : null) ?? (
         name === WAGNER_MEMORIAL_PROFILE.name
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
           : name === "Beethoven-Haydn-Mozart-Denkmal"
@@ -4910,7 +4917,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
               : name === "Oggi's Gemüsekebab" && voxelModeActive(runtime)
                 ? funboxEntranceFocusCamera()
-                : runtime.focusCameraByName.get(name);
+                : runtime.focusCameraByName.get(name));
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
       );
@@ -5305,7 +5312,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
     useEffect(() => {
       selectedRef.current = selectedLandmark;
-      focusLandmark(selectedLandmark);
+      focusLandmark(selectedLandmark, false, openingLandmarkRef.current === selectedLandmark);
     }, [selectedLandmark]);
 
     useEffect(() => {
@@ -5551,6 +5558,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           state: null,
         },
         presentationReady: false,
+        openingDetailReady: openingLandmarkRef.current !== "Berliner Philharmonie",
         notifyPresentationReady: () => {
           if (disposed) {
             return;
@@ -7354,6 +7362,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.landmarkByName = new Map(
             manifest.landmarks.map((landmark) => [landmark.name, landmark]),
           );
+          // Frame the chosen arrival before construction/streaming starts,
+          // so the first visible city and the first detail districts agree.
+          if (openingLandmarkRef.current === selectedRef.current) {
+            focusLandmark(selectedRef.current, true, true);
+          }
           // World payloads are the first visible content. Start them as soon
           // as the tunnel course is known, then construct secondary civic and
           // cultural detail in yielded slices instead of serialising both
@@ -7681,6 +7694,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode === "snowstorm",
           );
           scene.add(runtime.monuments);
+          runtime.openingDetailReady = true;
+          notifyPresentationReadyWhenPossible(runtime);
           applyLightingToRoot(
             runtime.monuments,
             runtime.lightingMode,
@@ -7936,7 +7951,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
           };
 
-          focusLandmark(selectedRef.current, true);
+          // Automatic arrivals were framed before world construction. Do not
+          // snap a visitor back after secondary details finish loading.
+          if (openingLandmarkRef.current !== selectedRef.current) {
+            focusLandmark(selectedRef.current, true);
+          }
           // The requested world was started immediately after manifest
           // metadata arrived. These calls are idempotent and cover a mode
           // switch that happened while secondary details were being built.

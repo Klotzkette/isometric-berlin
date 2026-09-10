@@ -318,6 +318,7 @@ def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
   ]
   expected = {
     "File:Berlin Victory Column - BugWarp 01.jpg": ("BugWarp", "CC0"),
+    "File:Berlin Siegessaeule Victoria.jpg": ("AlterVista", "CC BY-SA 3.0"),
     "File:Mosaik in der Berliner Siegessäule.jpg": (
       "OguzKurt28",
       "CC BY-SA 4.0",
@@ -327,10 +328,13 @@ def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
   assert {
     record["title"]: (record["artist"], record["license"]) for record in records
   } == expected
-  assert all(
-    (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
-    for record in records
-  )
+  for record in records:
+    if record["title"] == "File:Berlin Siegessaeule Victoria.jpg":
+      assert record["photo_bundled"] is False
+      assert record["role"] == "external_visual_QA_reference_attribution_only"
+      assert "thumbnail_path" not in record
+    else:
+      assert (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
 
   readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
   assert all(title.removeprefix("File:") in readme for title in expected)
@@ -349,7 +353,7 @@ def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
     record["title"] for record in records
   ]
   for public_record, manifest_record in zip(public_records, records, strict=True):
-    assert public_record == {
+    expected_public = {
       key: manifest_record.get(key)
       for key in (
         "landmark_id",
@@ -361,6 +365,9 @@ def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
         "credit",
       )
     }
+    if manifest_record.get("photo_bundled") is False:
+      expected_public.update(photo_bundled=False, role=manifest_record["role"])
+    assert public_record == expected_public
 
 
 def test_daderot_reichstag_west_reference_is_pinned_and_publicly_packaged() -> None:
