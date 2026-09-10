@@ -17,6 +17,8 @@ START_PAGE = "index.html"
 REQUIRED_PACKAGE_FILES = (
   START_PAGE,
   "START-HERE.html",
+  "OPEN-3D-MAC.command",
+  "OPEN-3D-WINDOWS.bat",
   "README.txt",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",

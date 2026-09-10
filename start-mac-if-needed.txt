@@ -1,6 +1,8 @@
 macOS fallback, only if START-HERE.html does not open correctly.
 
-For the 2D compatibility fallback, double-click START-HERE.html.
+First try double-clicking OPEN-3D-MAC.command. If macOS warns about the
+download, right-click it and choose Open. START-HERE.html provides the same
+choice and retains the optional 2D fallback.
 
 Only use Terminal for the server fallback:
 
@@ -12,6 +14,4 @@ Only use Terminal for the server fallback:
 5. The server opens the full 3D viewer at the printed
    http://127.0.0.1:.../index.html address.
 
-The command below opens the true 3D viewer directly. This package does not
-include start-mac.command because macOS Gatekeeper
-blocks unsigned downloaded .command files before the viewer can start.
+OPEN-3D-MAC.command runs this same command for you.
