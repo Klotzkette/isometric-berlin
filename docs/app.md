@@ -320,37 +320,45 @@ created and started only during the first trusted activating user gesture.
 Mount, animation frames and cold tab focus perform no audio graph work.
 
 The drawn city itself is progressive. Non-touch desktop constructs the nearest
-exact 420 LoD2/OSM buildings on the main thread. Its Worker retains exact
-geometry for the nearest 9,000 source buildings and represents every farther
-building as one measured, oriented, source-coloured instance shell. The desktop Worker
-receives immutable URLs for the prism, ground and surface assets instead of a
-second structured clone of three decoded world graphs. It fetches and parses
-those assets off the main thread, sends the permanent distant shell followed
-by two compact near-field previews, and then replaces those previews with
-bounded spatially partitioned exact districts.
-Their transferred bounding spheres avoid a fresh main-thread geometry scan and
-allow Three.js to cull off-camera districts as units. The nearest deferred exact
-district is posted before terrain and surface decoding. The mobile-like touch
-profile applies when the primary or any pointer is coarse, or the browser
-reports `navigator.maxTouchPoints > 0`; it constructs an initial 160-building frame and stops
-after exact geometry for the nearest **3,600 LoD2 buildings**. Every eligible
-source building beyond that near field remains visible as a measured, oriented,
-source-coloured instance shell. Both profiles retain the complete ground, the
-complete building inventory and every one-off recognition model.
-Non-touch desktop's Worker supplies all eight exact surface families. The touch
-profile's delayed Worker receives only the source URL and initial count. It
-fetches the source directly, transfers the single-draw-call distant shell first,
-then the 4,680 remaining exact near-field records, without a second copy of the
-city/ground/surface payload, and creates no exact `surface-*` batches; the
-preview's raster ground, water and
-asphalt plus the complete ParkDetails path network retain the context. Park
-construction starts only after that Worker completes or fails. Hiding the page
-stops the Worker, disposes partial follow-up groups and restarts deterministically
-when visible. Every transferred typed geometry buffer changes ownership rather
-than being JSON-serialised, and each batch receives the active Day, Night, Snow
-or Schwellenraum materials before attachment. Entering Minecraft likewise stops
-the hidden Worker and disposes its completed follow-up groups. A Worker or asset
+420 exact LoD2/OSM building parts on the main thread and refines the nearest
+9,000 parts in its Worker. Since v1.0.21, every remaining building starts with
+its source footprint, open courtyard rings, height and roof-code form, separate
+roof/facade colours and directional shading. These compact indexed envelopes
+replace the former oriented boxes. Roof-code forms are procedural readings of
+the delivered source, not surveyed roof-surface meshes. Each spatial district
+has its own bounds for off-camera culling. No source footprint is rounded or
+simplified for this coverage.
+
+The touch profile applies when the primary or any pointer is coarse, or the
+browser reports `navigator.maxTouchPoints > 0`. It constructs an initial
+160-part exact frame and complete source envelopes, then partitions the entire
+remaining inventory into districts of at most 240 parts. A persistent Worker
+refines up to 15 districts / 3,600 additional parts around the current camera
+focus and projected travel direction (1.5 seconds ahead, capped at 480 m).
+The old fixed Reichstag-centred mobile cutoff is gone: every district can be
+selected as the visitor travels. The main thread keeps small district metadata;
+the Worker fetches and retains the source itself, avoiding a second structured
+clone of the decoded world graph. Only one transferred exact district awaits
+attachment acknowledgement at a time. A changed route replaces queued work.
+
+Before retiring a distant exact district, the viewer restores its matching
+source envelope. A replacement hides that envelope only after attachment with
+the current Day, Night, Snow or Schwellenraum materials. Obsolete arrivals are
+released and acknowledged without removing coverage. Hiding a loading page
+stops the Worker but retains attached districts; resume skips those districts.
+An idle settled Worker retains source data for the next movement. Changing
+heavy world families releases the touch world's resources. A Worker or asset
 failure never invokes the old synchronous full-city build.
+
+Both profiles retain the complete building inventory and all recognition
+models. Desktop additionally transfers the eight exact surface families from
+immutable source URLs. Touch keeps the preview ground/water/asphalt and the
+complete ParkDetails path network, with park construction beginning after the
+first detail selection settles or fails. Geometry buffers transfer ownership
+instead of being JSON-serialised. For the committed 29,818-part source, the new
+complete envelope coverage occupies 25.9 MiB of geometry buffers in a local
+host measurement; the regression ceiling is 32 MiB. This is a storage bound,
+not a physical iPhone frame-rate or startup guarantee.
 
 Both profiles retain raster asphalt rather than duplicating the OSM road union
 as paving, asphalt and kerb meshes. The Worker transfers water, park, sand,
@@ -803,11 +811,10 @@ that bound. Desktop also schedules every LoD2 building whose centroid lies in
 the five owner-prioritised Pariser, Leipziger, Potsdamer, Tilla-Durieux and
 Hauptbahnhof zones into the unchanged 9,000-building exact-geometry budget.
 The Reichstag startup set remains first and the total batch, draw-call and
-buffer caps do not grow. Mobile keeps its 3,600-building cap and represents all
-remaining source buildings as one oriented, class-coloured instanced shell.
-That shell relies only on `instanceColor` (not a nonexistent box-vertex colour),
-so it stays visible instead of producing black gaps without adding a texture,
-request, geometry buffer or draw call.
+buffer caps do not grow. Since v1.0.21, mobile's additional 3,600-part detail residency follows the
+camera across the entire inventory. Complete source-footprint envelopes keep
+courtyards, roof-code forms and distinct facade/roof colours visible while a
+new district refines; see the progressive loading contract above.
 
 At Tiergarten, OSM way `25999445` remains the exact rhomboid plan of the
 Konrad-Adenauer-Haus. Its former opaque generic prism is suppressed only for

@@ -10,6 +10,7 @@ import {
   PRISM_GLASSED_IDS, PRISM_SUPPRESSED_IDS, setIsoNightPresentation,
   type PrismBuilding, type PrismPayload,
 } from "../src/IsometricCityWorld";
+import { MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts } from "../src/buildingDetailStreaming";
 import { createProgressiveBuildingCoverage } from "../src/progressiveBuildingCoverage";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT, DESKTOP_TOTAL_BUILDING_LIMIT,
@@ -96,12 +97,12 @@ function fixture() {
 
 describe("complete buildings before worker refinement", () => {
   for (const mobile of [true, false]) {
-    test(`${mobile ? "mobile" : "desktop"}: real source is covered synchronously within the bounded box budget`, () => {
+    test(`${mobile ? "mobile" : "desktop"}: all source buildings have permanent colored envelopes within the memory budget`, () => {
       const partition = splitProgressiveBuildings(
         payload.buildings,
         mobile ? MOBILE_INITIAL_BUILDING_COUNT : DESKTOP_INITIAL_BUILDING_COUNT,
-        PROGRESSIVE_BUILDING_BATCH_SIZE,
-        mobile ? MOBILE_TOTAL_BUILDING_LIMIT : DESKTOP_TOTAL_BUILDING_LIMIT,
+        mobile ? MOBILE_DETAIL_BATCH_SIZE : PROGRESSIVE_BUILDING_BATCH_SIZE,
+        mobile ? Number.POSITIVE_INFINITY : DESKTOP_TOTAL_BUILDING_LIMIT,
         !mobile,
       );
       const all = [...partition.initial, ...partition.omitted, ...partition.remaining.flat()];
@@ -111,37 +112,22 @@ describe("complete buildings before worker refinement", () => {
       const host = progressiveCoverageHost(viewerSource, new Group().add(coverage), mobile);
       try {
         expect(coverage.children.length).toBe(1 + partition.remaining.length);
-        expect(meshes(coverage).length).toBeLessThanOrEqual(mobile ? 2 : 3);
+        expect(meshes(coverage).length).toBeLessThanOrEqual(coverage.children.length);
         let represented = partition.initial.filter(representable).length;
-        let maxOutsideMetres = 0;
-        let maxVerticalError = 0;
         for (const [index, buildings] of [partition.omitted, ...partition.remaining].entries()) {
           const group = coverage.children[index];
           const visible = buildings.filter(representable);
-          const shell = group.children[0] as InstancedMesh;
-          expect(shell).toBeInstanceOf(InstancedMesh);
-          expect(shell.count).toBe(visible.length);
           expect(group.userData.sourceBuildingCount).toBe(buildings.length);
-          represented += shell.count;
-          const matrix = new Matrix4();
-          const local = new Vector3();
-          for (const [instance, building] of visible.entries()) {
-            shell.getMatrixAt(instance, matrix);
-            const sizeX = new Vector3().setFromMatrixColumn(matrix, 0).length();
-            const sizeZ = new Vector3().setFromMatrixColumn(matrix, 2).length();
-            maxVerticalError = Math.max(maxVerticalError,
-              Math.abs(matrix.elements[13] - matrix.elements[5] / 2 - building.y0_dm / 10),
-              Math.abs(matrix.elements[5] - Math.max(2.5, building.h_dm / 10)));
-            const inverse = matrix.clone().invert();
-            for (const point of building.ring) {
-              local.set(point[0] / 10, matrix.elements[13], point[1] / 10).applyMatrix4(inverse);
-              maxOutsideMetres = Math.max(maxOutsideMetres,
-                (Math.abs(local.x) - 0.5) * sizeX, (Math.abs(local.z) - 0.5) * sizeZ);
-            }
-          }
-          // Teleport the isometric camera to distant ends of each real batch:
-          // retained bounding volumes must still make the shell drawable.
+          expect(group.userData.visibleBuildingCount).toBe(visible.length);
+          represented += visible.length;
+          if (visible.length === 0) { expect(group.children).toHaveLength(0); continue; }
+          const shell = group.children[0] as Mesh;
+          expect(shell).toBeInstanceOf(Mesh);
+          expect(shell.geometry.index).not.toBeNull();
+          expect(shell.geometry.getAttribute("color").count).toBe(shell.geometry.getAttribute("position").count);
           shell.updateWorldMatrix(true, false);
+          // Accurate bounds keep the permanent envelopes drawable after a fast
+          // jump to either end of every spatial source district.
           for (const building of [visible[0], visible[Math.floor(visible.length / 2)], visible.at(-1)!]) {
             const target = new Vector3(building.ring[0][0] / 10, building.y0_dm / 10, building.ring[0][1] / 10);
             const camera = new OrthographicCamera(-160, 160, 160, -160, 0.1, 10000);
@@ -152,12 +138,11 @@ describe("complete buildings before worker refinement", () => {
           }
         }
         expect(represented).toBe(payload.buildings.filter(representable).length);
-        expect(maxOutsideMetres).toBeLessThan(0.002);
-        expect(maxVerticalError).toBeLessThan(0.001);
-        // Count without reparenting: each independent fallback owns its buffers.
-        const temporaryBytes = coverage.children.slice(1).reduce((sum, child) => sum + retainedBytes(child), 0);
-        expect(temporaryBytes).toBeLessThanOrEqual((mobile ? 3440 : 8580) * 76 + partition.remaining.length * 840);
-        expect(retainedBytes(coverage)).toBeLessThanOrEqual((payload.buildings.length - partition.initial.length) * 76 + coverage.children.length * 840);
+        expect(retainedBytes(coverage)).toBeLessThan(32 * 1024 * 1024);
+        if (mobile) {
+          expect(partition.omitted).toHaveLength(0);
+          expect(partition.remaining.every((batch) => batch.length <= MOBILE_DETAIL_BATCH_SIZE)).toBeTrue();
+        }
         expect(host.acknowledged).toHaveLength(0);
       } finally { host.dispose(); }
     });
@@ -165,6 +150,113 @@ describe("complete buildings before worker refinement", () => {
 });
 
 describe("production preview replacement lifecycle", () => {
+  test("a settled district set ignores priority-only reordering while unfinished detail still reprioritizes", () => {
+    const buildings: PrismBuilding[] = Array.from({ length: 3 }, (_, index) => ({
+      id: `ordering-fixture-${index}`, class: 0, h_dm: 100, y0_dm: 0,
+      ring: [[index * 4000, 80000], [index * 4000 + 100, 80000],
+        [index * 4000 + 100, 80100], [index * 4000, 80100]],
+    }));
+    const partition = { initial: [], omitted: [], remaining: buildings.map((building) => [building]) };
+    const coverage = createProgressiveBuildingCoverage(payload, partition);
+    const world = new Group().add(coverage);
+    const host = progressiveCoverageHost(viewerSource, world);
+    try {
+      const districts = buildingDetailDistricts(partition.remaining);
+      host.runtime.mobileBuildingDistricts = districts;
+      host.view(0, 8000, 1000);
+      for (const [index, batch] of partition.remaining.entries()) host.attach(packet(batch, index));
+      const wanted = host.runtime.mobileBuildingWanted!;
+      const revision = host.runtime.mobileBuildingViewRevision!;
+      host.attach({ type: "settled", viewRevision: revision });
+      const resident = [...host.runtime.progressiveWorldBatches];
+      let disposals = 0;
+      for (const batch of resident) {
+        for (const mesh of meshes(batch)) mesh.geometry.addEventListener("dispose", () => { disposals += 1; });
+      }
+      host.runtime.renderInvalidated = false;
+      const reordered = selectBuildingDetailDistricts(districts, [800, 8000], [1280, 8000]);
+      expect(reordered).not.toEqual(wanted);
+      expect([...reordered].sort()).toEqual([...wanted].sort());
+      host.view(800, 8000, 2000);
+      expect(host.views).toHaveLength(1);
+      expect(host.runtime.mobileBuildingViewRevision).toBe(revision);
+      expect(host.runtime.mobileBuildingWanted).toBe(wanted);
+      expect(host.runtime.progressiveWorldState).toBe("complete");
+      expect(host.runtime.renderInvalidated).toBeFalse();
+      expect(host.runtime.progressiveWorldBatches).toEqual(resident);
+      expect(disposals).toBe(0);
+
+      // With unfinished work, changing priority must still reach the worker;
+      // equal membership is not enough to freeze its construction order.
+      host.runtime.progressiveWorldState = "loading";
+      host.view(800, 8000, 2300);
+      expect(host.views).toHaveLength(2);
+      expect(host.runtime.mobileBuildingViewRevision).toBe(revision + 1);
+      expect(host.runtime.mobileBuildingWanted).toEqual(
+        selectBuildingDetailDistricts(districts, [800, 8000]),
+      );
+      expect(host.runtime.progressiveWorldBatches).toEqual(resident);
+      expect(disposals).toBe(0);
+    } finally { host.dispose(); }
+  });
+
+  test("fast travel restores source roofs before evicting distant detail and accepts its return", () => {
+    const buildings: PrismBuilding[] = Array.from({ length: 16 }, (_, index) => ({
+      id: `stream-fixture-${index}`, class: 0, h_dm: 100, y0_dm: 0,
+      ring: [[index * 4000, 80000], [index * 4000 + 100, 80000],
+        [index * 4000 + 100, 80100], [index * 4000, 80100]],
+    }));
+    const partition = { initial: [], omitted: [], remaining: buildings.map((b) => [b]) };
+    const coverage = createProgressiveBuildingCoverage(payload, partition);
+    const world = new Group().add(coverage);
+    const host = progressiveCoverageHost(viewerSource, world);
+    try {
+      host.runtime.mobileBuildingDistricts = buildingDetailDistricts(partition.remaining);
+      host.view(0, 8000, 1000);
+      expect(host.runtime.mobileBuildingWanted).toContain("buildings-1");
+      expect(host.runtime.mobileBuildingWanted).not.toContain("buildings-16");
+      host.attach(packet(partition.remaining[0], 0));
+      const original = host.runtime.progressiveWorldBatches[0];
+      let disposed = false;
+      meshes(original)[0].geometry.addEventListener("dispose", () => {
+        disposed = true;
+        expect(coverage.children[1].visible).toBeTrue();
+      });
+      host.view(6000, 8000, 2000);
+      expect(disposed).toBeTrue();
+      expect(host.runtime.mobileBuildingWanted).toContain("buildings-16");
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(0);
+      host.attach(packet(partition.remaining[15], 15));
+      expect(coverage.children[16].visible).toBeFalse();
+      expect(coverage.children[1].visible).toBeTrue();
+      const revision = host.runtime.mobileBuildingViewRevision!;
+      host.attach({ type: "settled", viewRevision: revision - 1 });
+      expect(host.runtime.progressiveWorldState).toBe("loading");
+      host.attach({ type: "settled", viewRevision: revision });
+      expect(host.runtime.progressiveWorldState).toBe("complete");
+      expect(host.terminated).toBe(0);
+      expect(host.runtime.progressiveWorldInput).toBeDefined();
+      host.view(0, 8000, 3000);
+      host.attach(packet(partition.remaining[0], 0));
+      expect(coverage.children[1].visible).toBeFalse();
+      expect(coverage.children[16].visible).toBeTrue();
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(1);
+    } finally { host.dispose(); }
+  });
+
+  test("a district finishing after the camera left is acknowledged without hiding the envelope", () => {
+    const f = fixture();
+    try {
+      f.host.runtime.mobileBuildingWanted = ["buildings-2"];
+      f.host.attach(packet(f.partition.remaining[0], 0));
+      expect(f.host.acknowledged).toEqual(["buildings-1"]);
+      expect(f.host.runtime.progressiveWorldBatches).toHaveLength(0);
+      f.assertCoverage();
+      f.host.attach(packet(f.partition.remaining[1], 1));
+      f.assertCoverage();
+    } finally { f.host.dispose(); }
+  });
+
   for (const mode of ["day", "night", "snowstorm", "schwellenraum"] as VisualMode[]) {
     test(`${mode}: relights and attaches exact geometry before hiding its fallback`, () => {
       const f = fixture();

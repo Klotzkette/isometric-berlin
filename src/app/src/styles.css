@@ -2104,7 +2104,13 @@ button:active:not(:disabled) {
   }
 
   .toolbar .mobile-overflow {
+    display: flex;
+    width: auto;
+    justify-content: center;
+    gap: 5px;
     margin-right: auto;
+    padding-inline: 9px;
+    font-size: 12px;
   }
 
   .mobile-floating-controls {
@@ -2199,6 +2205,20 @@ button:active:not(:disabled) {
     background: rgba(245, 239, 228, 0.32);
   }
 
+  .mobile-overflow-sheet {
+    display: flex;
+    flex-direction: column;
+    max-height: min(
+      64dvh,
+      calc(100dvh - 140px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))
+    );
+    overflow: hidden;
+  }
+
+  .mobile-overflow-sheet > :not(.mobile-overflow-grid) {
+    flex-shrink: 0;
+  }
+
   .mobile-sheet-title {
     display: grid;
     min-height: 38px;
@@ -2211,6 +2231,7 @@ button:active:not(:disabled) {
   .mobile-sheet-title button,
   .mobile-compass-grid button,
   .mobile-sheet-footer button,
+  .mobile-visual-mode-grid button,
   .mobile-overflow-grid button,
   .attribution-toggle {
     min-width: 44px;
@@ -2237,6 +2258,7 @@ button:active:not(:disabled) {
 
   .mobile-compass-grid button[aria-pressed="true"],
   .mobile-sheet-footer button[aria-pressed="true"],
+  .mobile-visual-mode-grid button[aria-pressed="true"],
   .mobile-overflow-grid button[aria-pressed="true"] {
     color: #211d18;
     background: #e0ae69;
@@ -2262,8 +2284,22 @@ button:active:not(:disabled) {
     display: grid;
     grid-template-columns: repeat(3, minmax(64px, 1fr));
     gap: 6px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 
+  .mobile-visual-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(245, 239, 228, 0.18);
+  }
+
+  .mobile-visual-mode-grid button,
   .mobile-overflow-grid button {
     display: grid;
     min-height: 60px;
@@ -2272,6 +2308,11 @@ button:active:not(:disabled) {
     padding: 5px;
   }
 
+  .mobile-visual-mode-grid button {
+    padding-inline: 1px;
+  }
+
+  .mobile-visual-mode-grid button span,
   .mobile-overflow-grid button span {
     display: -webkit-box;
     overflow: hidden;
@@ -2282,6 +2323,10 @@ button:active:not(:disabled) {
     white-space: normal;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+
+  .mobile-visual-mode-grid button span {
+    overflow-wrap: normal;
   }
 
   .reference-modal {
@@ -2313,8 +2358,9 @@ button:active:not(:disabled) {
 
   .landmark-rail {
     top: auto;
+    z-index: 22;
     right: calc(8px + env(safe-area-inset-right, 0px));
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(128px + env(safe-area-inset-bottom, 0px));
     left: calc(8px + env(safe-area-inset-left, 0px));
     width: auto;
     max-height: 40dvh;
@@ -2408,18 +2454,9 @@ button:active:not(:disabled) {
   .brand {
     width: min(420px, calc(100% - 96px));
   }
-
-  .toolbar {
-    left: auto;
-    width: 176px;
-  }
-
-  .toolbar .mobile-overflow {
-    margin-right: 0;
-  }
 }
 
-@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+@media (max-width: 1024px) and (max-height: 500px) and (orientation: landscape) {
   .topbar {
     top: calc(4px + env(safe-area-inset-top, 0px));
     height: 44px;
@@ -2462,6 +2499,16 @@ button:active:not(:disabled) {
   .landmark-rail {
     bottom: calc(52px + env(safe-area-inset-bottom, 0px));
     max-height: 48dvh;
+  }
+
+  .mobile-overflow-sheet {
+    max-height: calc(
+      100dvh - 108px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .landmark-rail {
+    bottom: calc(108px + env(safe-area-inset-bottom, 0px));
   }
 
   .attribution {

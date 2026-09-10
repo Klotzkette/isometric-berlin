@@ -5,7 +5,7 @@ import {
 } from "three";
 import { setIsoNightPresentation } from "../../src/IsometricCityWorld";
 import {
-  hideReplacedBuildingPreview,
+  hideReplacedBuildingPreview, restoreBuildingPreview,
 } from "../../src/progressiveBuildingCoverage";
 import {
   progressiveWorldStopPolicy,
@@ -19,6 +19,7 @@ import {
   createMinecraftMaterialState, disposeMinecraftMaterialState,
   releaseMinecraftMaterialBindings,
 } from "../../src/visual-modes/minecraft/materialMode";
+import { selectBuildingDetailDistricts, type BuildingDetailDistrict } from "../../src/buildingDetailStreaming";
 import type { VisualMode } from "../../src/visualMode";
 
 type AttachMessage = Exclude<ProgressiveWorldWorkerOutput, { type: "error" }>;
@@ -40,7 +41,7 @@ export function progressiveCoverageHost(
     "markProgressiveWorldUnavailable", "stopProgressiveWorld",
     "startProgressiveWorld",
     "attachProgressiveWorldMessage", "releaseBuiltWorldPayloads",
-    "disposeObject3D",
+    "disposeObject3D", "updateMobileBuildingDetails",
   ];
   const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const declarations = names.map((name) => {
@@ -55,6 +56,7 @@ export function progressiveCoverageHost(
   const warnings: string[] = [];
   const acknowledged: string[] = [];
   const builds: ProgressiveWorldWorkerInput[] = [];
+  const views: unknown[] = [];
   let terminated = 0;
   let failAcknowledgement = false;
   const createWorker = () => ({
@@ -64,6 +66,7 @@ export function progressiveCoverageHost(
         builds.push(message);
         return;
       }
+      if ((message as { type: string }).type === "detail-view") { views.push(message); return; }
       if (failAcknowledgement) throw new Error("Worker already closed");
       acknowledged.push(message.id);
     },
@@ -72,7 +75,7 @@ export function progressiveCoverageHost(
   const document = { hidden: false };
   const bindings = {
     Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
-    setIsoNightPresentation, hideReplacedBuildingPreview,
+    setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts,
     progressiveWorldStopPolicy,
     tryProgressiveWorkerOperation, deserializeTransferredObject3D,
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
@@ -84,7 +87,7 @@ export function progressiveCoverageHost(
     Worker: function () { worker = createWorker(); return worker; },
     URL, document,
     PROGRESSIVE_WORLD_WARNING: "coverage worker unavailable",
-    performance: { mark: () => {}, now: () => performance.now() },
+    performance: { clearMarks: () => {}, mark: () => {}, now: () => performance.now() },
   };
   const functions = new Function(...Object.keys(bindings), `${compiled}; return { ${names.join(", ")} };`)(
     ...Object.values(bindings),
@@ -95,10 +98,18 @@ export function progressiveCoverageHost(
     failProgressiveWorld: (runtime: unknown, worker: unknown, warn: (message: string) => void) => void;
     markProgressiveWorldUnavailable: (runtime: unknown, warn: (message: string) => void) => void;
     disposeObject3D: (runtime: unknown, root: Object3D) => void;
+    updateMobileBuildingDetails: (runtime: unknown, time: number, warn: (message: string) => void) => void;
   };
   let deferredStarts = 0;
   const runtime = {
     disposed: false,
+    camera: { position: { x: 0, z: 0 } },
+    controls: { target: { x: 0, z: 0 } },
+    pedestrian: { enabled: false },
+    mobileBuildingDistricts: undefined as readonly BuildingDetailDistrict[] | undefined,
+    mobileBuildingWanted: undefined as readonly string[] | undefined,
+    mobileBuildingViewRevision: undefined as number | undefined,
+    mobileBuildingLastView: undefined as {x: number; z: number; at: number} | undefined,
     isoWorld, voxelWorld: null,
     coarsePointer,
     lightingMode: "day" as VisualMode,
@@ -116,11 +127,15 @@ export function progressiveCoverageHost(
   };
   const warn = (message: string) => { warnings.push(message); };
   return {
-    runtime, warnings, acknowledged, builds, document,
+    runtime, warnings, acknowledged, builds, views, document,
     get worker() { return worker; },
     get terminated() { return terminated; },
     get deferredStarts() { return deferredStarts; },
     attach: (message: AttachMessage) => functions.attachProgressiveWorldMessage(runtime, worker, message, warn),
+    view: (x: number, z: number, time: number) => {
+      runtime.controls.target = { x, z };
+      functions.updateMobileBuildingDetails(runtime, time, warn);
+    },
     pause: () => functions.stopProgressiveWorld(runtime),
     fail: () => functions.failProgressiveWorld(runtime, worker, warn),
     unavailable: () => functions.markProgressiveWorldUnavailable(runtime, warn),

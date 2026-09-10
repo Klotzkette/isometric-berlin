@@ -59,6 +59,7 @@ import {
   Group,
   IcosahedronGeometry,
   InstancedMesh,
+  Int8BufferAttribute,
   LineBasicMaterial,
   LineDashedMaterial,
   LineSegments,
@@ -72,8 +73,10 @@ import {
   PlaneGeometry,
   Shape,
   ShapeGeometry,
+  ShapeUtils,
   Uint16BufferAttribute,
   Uint8BufferAttribute,
+  Vector2,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
@@ -1507,10 +1510,34 @@ function isRenderablePrismBuilding(building: PrismBuilding): boolean {
   );
 }
 
+/** The coverage and detailed pass must agree about source facade material. */
+function isGlassPrismBuilding(building: PrismBuilding, classes: string[]): boolean {
+  const attributes = buildingAttributes(building.id);
+  const mappedMaterialGlazing = HERO_PRISM_TONES[building.id] === undefined
+    ? mappedGlazing(attributes) : undefined;
+  // A wall-material tag must not turn a measured pitched roof into a box.
+  const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
+    ? undefined : mappedMaterialGlazing;
+  return !BUNDESRAT_IDS.has(building.id) && !ROHWEDDER_HAUS_IDS.has(building.id) && !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+    (recordedGlazing ?? (classes[building.class] ?? "concrete") === "glass"));
+}
+
+function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Color {
+  const pinnedRoof = potsdamerPanoramaMaterialFor(building.id)?.roof ??
+    HERO_PRISM_ROOF_TONES[building.id] ??
+    (inReichstagRegion(building) ? 0xe1e3dc : isScharounGoldPrism(building)
+      ? 0xf6e0a7 : mappedRoofTone(buildingAttributes(building.id)));
+  return pinnedRoof !== undefined ? target.setHex(pinnedRoof)
+    : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
+}
+
 /**
- * One instanced oriented box per far building keeps the complete source city
- * visible on memory-bounded phones. Exact near-field LoD2 batches replace this
- * representation; omitted far buildings cost one draw call and no facade mesh.
+ * Complete coloured source envelopes, available before expensive facade work.
+ * The old boxes filled courts and used the same pale facade tint on the roofs.
+ * One indexed draw keeps each measured wall/court and the same ALKIS roof-code
+ * interpretation as the detailed pass. It adds no window meshes or invented
+ * roof survey: the payload contains footprints, heights and roof codes.
+ * Positions stay Float32; only unit normals and colours use normalized bytes.
  */
 export function createDistantBuildingShells(
   prisms: PrismPayload,
@@ -1518,97 +1545,145 @@ export function createDistantBuildingShells(
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
-  const visible = buildings.filter(isRenderablePrismBuilding);
+  const visible = buildings.map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
-  group.userData.representation = "one oriented instanced box per far building";
+  group.userData.representation = "indexed source footprints, open courts and source-code roofs";
+  group.userData.openCourtyardCount = 0;
+  group.userData.pitchedRoofCount = 0;
   if (visible.length === 0) return group;
 
-  const geometry = new BoxGeometry(1, 1, 1);
-  // Instanced colours are enabled by `instanceColor` itself. Enabling ordinary
-  // vertex colours as well would make Three.js expect a missing per-vertex
-  // `color` attribute on BoxGeometry and multiply every valid instance colour
-  // by black.
-  const dayMaterial = new MeshBasicMaterial();
+  const positions: number[] = [];
+  const normals: number[] = [];
+  const colors: number[] = [];
+  const indices: number[] = [];
+  const color = new Color();
+  const capColor = new Color();
+  const upperColor = new Color(POTSDAMER_UPPER_STOREYS.color);
+  const vertex = (
+    x: number, y: number, z: number,
+    nx: number, ny: number, nz: number, tone: Color,
+  ): number => {
+    const index = positions.length / 3;
+    positions.push(x, y, z);
+    normals.push(Math.round(nx * 127), Math.round(ny * 127), Math.round(nz * 127));
+    const shade = isoFaceShade(nx, ny, nz);
+    colors.push(
+      Math.round(tone.r * shade * 255),
+      Math.round(tone.g * shade * 255),
+      Math.round(tone.b * shade * 255),
+    );
+    return index;
+  };
+  for (const building of visible) {
+    const y0 = building.y0_dm / 10;
+    const totalHeight = Math.max(2.5, building.h_dm / 10);
+    const isGlass = isGlassPrismBuilding(building, prisms.classes);
+    if (isGlass) {
+      const glassShades = FACADE_SHADES.glass;
+      color.setHex(glassShades[hash32(building.id, 5) % glassShades.length]);
+    } else {
+      facadeColorFor(building, prisms.classes, color);
+    }
+    roofColorFor(building, color, capColor);
+    let bodyHeight = musicMuseumBodyHeight(building.id, totalHeight);
+    if (building.id === CHARITE_ALTHOFF_TOWER_ID) {
+      bodyHeight = Math.max(2.5, Math.min(bodyHeight, CHARITE_ALTHOFF_TOWER_HELM_BOTTOM_Y_M - y0));
+    }
+    let roofTriangles: Float32Array | null = null;
+    const roofCode = HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) ? 1000 : economicMinistryRoofCode(
+      building.id, historicChariteRoofCode(building.id, building.roof ?? 0));
+    // Never span an open source court with the fitted rectangular roof helper.
+    if (!isGlass && !(building.holes?.length) &&
+      [ROOF_GABLED, ROOF_HIPPED, ROOF_TENT, ROOF_SHED].includes(roofCode)) {
+      const rect = fitRectangle(building.ring.map(([x, z]) => [x / 10, z / 10] as [number, number]));
+      if (rect && rect.rectangularity >= ROOF_MIN_RECTANGULARITY) {
+        const rise = roofRise(rect, totalHeight);
+        if (rise > 0) {
+          roofTriangles = buildRoofGeometry(rect, y0 + totalHeight - rise, y0 + totalHeight, roofCode);
+          if (roofTriangles) {
+            bodyHeight = totalHeight - rise;
+            group.userData.pitchedRoofCount += 1;
+          }
+        }
+      }
+    }
+    const upperY = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight)
+      ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined;
+    for (const wall of facadeWallsOf(building)) {
+      const x2 = wall.x1 + wall.dirX * wall.length;
+      const z2 = wall.z1 + wall.dirZ * wall.length;
+      const levels = upperY === undefined ? [y0, y0 + bodyHeight] : [y0, upperY, y0 + bodyHeight];
+      for (let level = 0; level < levels.length - 1; level += 1) {
+        const tone = level === 0 ? color : upperColor;
+        const a = vertex(wall.x1, levels[level], wall.z1, wall.nx, 0, wall.nz, tone);
+        const b = vertex(x2, levels[level], z2, wall.nx, 0, wall.nz, tone);
+        const c = vertex(x2, levels[level + 1], z2, wall.nx, 0, wall.nz, tone);
+        const d = vertex(wall.x1, levels[level + 1], wall.z1, wall.nx, 0, wall.nz, tone);
+        if (-wall.dirZ * wall.nx + wall.dirX * wall.nz > 0) {
+          indices.push(a, b, c, a, c, d);
+        } else {
+          indices.push(a, c, b, a, d, c);
+        }
+      }
+    }
+    if (!PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS.has(building.id)) {
+      const contour = building.ring.map(([x, z]) => new Vector2(x / 10, -z / 10));
+      const holes = (building.holes ?? []).map(hole => hole.map(([x, z]) => new Vector2(x / 10, -z / 10)));
+      const triangles = ShapeUtils.triangulateShape(contour, holes);
+      // triangulateShape removes duplicated closing points in place.
+      const points = [contour, ...holes].flat();
+      const offset = positions.length / 3;
+      for (const point of points) vertex(point.x, y0 + bodyHeight, -point.y, 0, 1, 0, capColor);
+      for (const [a, b, c] of triangles) indices.push(offset + a, offset + b, offset + c);
+      group.userData.openCourtyardCount += holes.length;
+    }
+    if (roofTriangles) {
+      const attributes = buildingAttributes(building.id);
+      const roofTone = HISTORIC_CHARITE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
+        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) || mappedRoofTone(attributes) !== undefined
+        ? capColor : color.clone().multiplyScalar(0.9);
+      for (let offset = 0; offset < roofTriangles.length; offset += 9) {
+        const ax = roofTriangles[offset + 3] - roofTriangles[offset];
+        const ay = roofTriangles[offset + 4] - roofTriangles[offset + 1];
+        const az = roofTriangles[offset + 5] - roofTriangles[offset + 2];
+        const bx = roofTriangles[offset + 6] - roofTriangles[offset];
+        const by = roofTriangles[offset + 7] - roofTriangles[offset + 1];
+        const bz = roofTriangles[offset + 8] - roofTriangles[offset + 2];
+        let nx = ay * bz - az * by;
+        let ny = az * bx - ax * bz;
+        let nz = ax * by - ay * bx;
+        const flip = ny < -1e-6;
+        const length = Math.hypot(nx, ny, nz) * (flip ? -1 : 1);
+        if (length === 0) continue;
+        nx /= length;
+        ny /= length;
+        nz /= length;
+        const first = positions.length / 3;
+        for (const point of flip ? [0, 6, 3] : [0, 3, 6]) {
+          vertex(roofTriangles[offset + point], roofTriangles[offset + point + 1], roofTriangles[offset + point + 2], nx, ny, nz, roofTone);
+        }
+        indices.push(first, first + 1, first + 2);
+      }
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("normal", new Int8BufferAttribute(normals, 3, true));
+  geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
+  geometry.setIndex(indices);
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  const dayMaterial = new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
   const nightMaterial = new MeshStandardMaterial({
-    flatShading: true,
-    metalness: 0,
-    roughness: 0.95,
+    vertexColors: true, side: DoubleSide, flatShading: true,
+    metalness: 0, roughness: 0.95, emissive: 0x252c39, emissiveIntensity: 0.68,
   });
-  const shells = new InstancedMesh(geometry, dayMaterial, visible.length);
+  const shells = new Mesh(geometry, dayMaterial);
   shells.name = "LoD2 distant building shells";
   shells.userData.dayMaterial = dayMaterial;
   shells.userData.nightMaterial = nightMaterial;
-  shells.userData.detailProfile = "mobile-far";
-  const matrix = new Matrix4();
-  const color = new Color();
-
-  visible.forEach((building, index) => {
-    let axisX = 1;
-    let axisZ = 0;
-    let longestEdgeSq = 0;
-    for (let point = 0; point < building.ring.length; point += 1) {
-      const current = building.ring[point];
-      const next = building.ring[(point + 1) % building.ring.length];
-      const dx = (next[0] - current[0]) / 10;
-      const dz = (next[1] - current[1]) / 10;
-      const edgeSq = dx * dx + dz * dz;
-      if (edgeSq > longestEdgeSq) {
-        const length = Math.sqrt(edgeSq);
-        axisX = dx / length;
-        axisZ = dz / length;
-        longestEdgeSq = edgeSq;
-      }
-    }
-    const sideX = -axisZ;
-    const sideZ = axisX;
-    let minAlong = Number.POSITIVE_INFINITY;
-    let maxAlong = Number.NEGATIVE_INFINITY;
-    let minAcross = Number.POSITIVE_INFINITY;
-    let maxAcross = Number.NEGATIVE_INFINITY;
-    for (const [xDm, zDm] of building.ring) {
-      const x = xDm / 10;
-      const z = zDm / 10;
-      const along = x * axisX + z * axisZ;
-      const across = x * sideX + z * sideZ;
-      minAlong = Math.min(minAlong, along);
-      maxAlong = Math.max(maxAlong, along);
-      minAcross = Math.min(minAcross, across);
-      maxAcross = Math.max(maxAcross, across);
-    }
-    const alongCenter = (minAlong + maxAlong) / 2;
-    const acrossCenter = (minAcross + maxAcross) / 2;
-    const width = Math.max(0.8, maxAlong - minAlong);
-    const depth = Math.max(0.8, maxAcross - minAcross);
-    const height = Math.max(2.5, building.h_dm / 10);
-    const centerX = axisX * alongCenter + sideX * acrossCenter;
-    const centerZ = axisZ * alongCenter + sideZ * acrossCenter;
-    const centerY = building.y0_dm / 10 + height / 2;
-    matrix.set(
-      axisX * width,
-      0,
-      sideX * depth,
-      centerX,
-      0,
-      height,
-      0,
-      centerY,
-      axisZ * width,
-      0,
-      sideZ * depth,
-      centerZ,
-      0,
-      0,
-      0,
-      1,
-    );
-    shells.setMatrixAt(index, matrix);
-    shells.setColorAt(index, facadeColorFor(building, prisms.classes, color));
-  });
-  shells.instanceMatrix.needsUpdate = true;
-  if (shells.instanceColor) shells.instanceColor.needsUpdate = true;
-  shells.computeBoundingBox();
-  shells.computeBoundingSphere();
+  shells.userData.detailProfile = "source-envelope";
   group.add(shells);
   return freezeStaticSceneTransforms(group);
 }
@@ -11650,14 +11725,7 @@ export function createIsometricCity(
     const totalHeight = Math.max(2.5, building.h_dm / 10);
     const attributes = buildingAttributes(building.id);
     if (attributes) buildingDetailCoverage.sourceAttributeParts += 1;
-    const mappedMaterialGlazing = HERO_PRISM_TONES[building.id] === undefined
-      ? mappedGlazing(attributes)
-      : undefined;
-    // A wall-material tag must not turn a measured pitched roof into a box.
-    const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
-      ? undefined : mappedMaterialGlazing;
-    const isGlass = !BUNDESRAT_IDS.has(building.id) && !ROHWEDDER_HAUS_IDS.has(building.id) && !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
-      (recordedGlazing ?? (prisms.classes[building.class] ?? "concrete") === "glass"));
+    const isGlass = isGlassPrismBuilding(building, prisms.classes);
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
     // the exact flat cap. Glass volumes stay clean transparent boxes.
@@ -11804,21 +11872,7 @@ export function createIsometricCity(
     // Flat caps read as drawn roof plates, not sun-baked facade paint:
     // recolour up-facing cap vertices cooler and slightly darker (the
     // Reichstag's huge roof was one warm brown slab).
-    const pinnedRoof =
-      potsdamerPanoramaMaterialFor(building.id)?.roof ??
-      HERO_PRISM_ROOF_TONES[building.id] ??
-      (inReichstagRegion(building)
-        ? 0xe1e3dc
-        : isScharounGoldPrism(building)
-          ? 0xf6e0a7
-          : mappedRoofTone(attributes));
-    const capTone =
-      pinnedRoof !== undefined
-        ? capColor.setHex(pinnedRoof)
-        : capColor
-            .copy(color)
-            .multiplyScalar(0.97)
-            .lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
+    const capTone = roofColorFor(building, color, capColor);
     const capY = y0 + bodyHeight - 0.05;
     bakeFacadeColor(geometry, color, capTone, capY,
       hasUpperStoreys ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined);

@@ -22,7 +22,12 @@ import { updateVisiblePotsdamerTrafficTower } from "./potsdamerTrafficTowerMotio
 import {
   createProgressiveBuildingCoverage,
   hideReplacedBuildingPreview,
+  restoreBuildingPreview,
 } from "./progressiveBuildingCoverage";
+import {
+  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
+  type BuildingDetailDistrict,
+} from "./buildingDetailStreaming";
 import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
 import { musicMuseumEntranceCanopyWalkableAt } from "./museumLenneProfile";
 import { domAltesExtraSolidAt, domAltesExtraGroundAt } from "./domAltesMuseumProfile";
@@ -282,7 +287,6 @@ import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_INITIAL_BUILDING_COUNT,
-  MOBILE_TOTAL_BUILDING_LIMIT,
   progressiveAttachmentRemainingMs,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
   PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
@@ -665,6 +669,10 @@ type Runtime = {
   surfacePayloadPromise?: Promise<SurfacePayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
   progressiveWorldBatches: Group[];
+  mobileBuildingDistricts?: readonly BuildingDetailDistrict[];
+  mobileBuildingWanted?: readonly string[];
+  mobileBuildingViewRevision?: number;
+  mobileBuildingLastView?: { x: number; z: number; at: number };
   progressiveWorldAttachCancel?: () => void;
   progressiveWorldInput?: ProgressiveWorldWorkerInput;
   progressiveWorldMessages: ProgressiveWorldQueuedMessage[];
@@ -2703,11 +2711,61 @@ function browserInputPending(): boolean {
   }
 }
 
+/** Keep bounded exact detail around the moving ground focus and its route ahead. */
+function updateMobileBuildingDetails(
+  runtime: Runtime,
+  now: number,
+  warn: (message: string) => void,
+): void {
+  const districts = runtime.mobileBuildingDistricts;
+  const worker = runtime.progressiveWorldWorker;
+  if (!districts || !worker || !runtime.isoWorld || !isoWorldIntentActive(runtime) ||
+      document.hidden || runtime.disposed) return;
+  const previous = runtime.mobileBuildingLastView;
+  if (previous && now - previous.at < 200) return;
+  const focus = runtime.pedestrian.enabled ? runtime.camera.position : runtime.controls.target;
+  const x = focus.x;
+  const z = focus.z;
+  const seconds = previous ? Math.max(0.2, (now - previous.at) / 1000) : 1;
+  let leadX = previous ? (x - previous.x) / seconds * 1.5 : 0;
+  let leadZ = previous ? (z - previous.z) / seconds * 1.5 : 0;
+  const leadDistance = Math.hypot(leadX, leadZ);
+  if (leadDistance > 480) { leadX *= 480 / leadDistance; leadZ *= 480 / leadDistance; }
+  runtime.mobileBuildingLastView = { x, z, at: now };
+  const wanted = selectBuildingDetailDistricts(districts, [x, z], [x + leadX, z + leadZ]);
+  if (wanted.join(",") === runtime.mobileBuildingWanted?.join(",")) return;
+  if (runtime.progressiveWorldState === "complete" &&
+      wanted.length === runtime.mobileBuildingWanted?.length &&
+      wanted.every((id) => runtime.mobileBuildingWanted!.includes(id))) return;
+  runtime.mobileBuildingWanted = wanted;
+  runtime.mobileBuildingViewRevision = (runtime.mobileBuildingViewRevision ?? 0) + 1;
+  let retired = false;
+  for (const batch of [...runtime.progressiveWorldBatches]) {
+    const id = batch.userData.progressiveWorldBatchId as string;
+    if (!id.startsWith("buildings-") || wanted.includes(id)) continue;
+    // There is always a roof and its correct walls under the viewer. Restore
+    // that source geometry before freeing the costly facade buffers.
+    restoreBuildingPreview(runtime.isoWorld, id.replace("buildings-", "buildings-preview-"));
+    runtime.progressiveWorldBatches.splice(runtime.progressiveWorldBatches.indexOf(batch), 1);
+    disposeObject3D(runtime, batch);
+    retired = true;
+  }
+  if (retired) collectFarZoomAntiFlickerTargets(runtime);
+  runtime.progressiveWorldState = "loading";
+  runtime.renderInvalidated = true;
+  const posted = tryProgressiveWorkerOperation(() => worker.postMessage({
+    type: "detail-view", requestedBatchIds: wanted,
+    retainedBatchIds: runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
+    viewRevision: runtime.mobileBuildingViewRevision,
+  }));
+  if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
+}
+
 function progressiveVisibilityBatch(
   message: ProgressiveWorldAttachMessage,
 ): boolean {
   return (
-    message.type === "complete" ||
+    message.type === "complete" || message.type === "settled" ||
     (message.type === "batch" &&
       (message.kind === "buildings" ||
       message.id === "buildings-distant" ||
@@ -2772,6 +2830,17 @@ function attachProgressiveWorldMessage(
   message: ProgressiveWorldAttachMessage,
   warn: (message: string) => void,
 ): void {
+  if (message.type === "settled") {
+    if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
+    runtime.progressiveWorldState = "complete";
+    releaseBuiltWorldPayloads(runtime);
+    collectFarZoomAntiFlickerTargets(runtime);
+    runtime.renderInvalidated = true;
+    performance.clearMarks("isometric-city-exact-ready");
+    performance.mark("isometric-city-exact-ready");
+    runtime.startDeferredDetails();
+    return;
+  }
   if (message.type === "complete") {
     worker.terminate();
     runtime.progressiveWorldWorker = undefined;
@@ -2796,6 +2865,17 @@ function attachProgressiveWorldMessage(
   if (!(object instanceof Group) || !runtime.isoWorld) {
     disposeObject3D(runtime, object);
     failProgressiveWorld(runtime, worker, warn);
+    return;
+  }
+  if (runtime.mobileBuildingWanted && message.kind === "buildings" &&
+      !runtime.mobileBuildingWanted.includes(message.id)) {
+    // The camera moved while this district was building. Its complete source
+    // envelope is already visible; discard obsolete detail and unblock the worker.
+    disposeObject3D(runtime, object);
+    const acknowledged = tryProgressiveWorkerOperation(() =>
+      worker.postMessage({ id: message.id, type: "batch-attached" }),
+    );
+    if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
     return;
   }
   // Materialise against the mode active at ATTACH time. Day ↔ Night ↔ Snow
@@ -2973,7 +3053,12 @@ function startProgressiveWorld(
     .filter((batch) => batch.parent === runtime.isoWorld)
     .map((batch) => batch.userData.progressiveWorldBatchId as string);
   const posted = tryProgressiveWorkerOperation(() =>
-    worker.postMessage({ ...input, completedBatchIds }),
+    worker.postMessage({ ...input, completedBatchIds,
+      ...(input.detailProfile === "mobile" ? {
+        requestedBatchIds: runtime.mobileBuildingWanted,
+        viewRevision: runtime.mobileBuildingViewRevision,
+      } : {}),
+    }),
   );
   if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
 }
@@ -3270,12 +3355,20 @@ function ensureIsoWorld(
       const buildingPartition = splitProgressiveBuildings(
         prisms.buildings,
         initialBuildingCount,
-        undefined,
+        runtime.coarsePointer ? MOBILE_DETAIL_BATCH_SIZE : undefined,
         runtime.coarsePointer
-          ? MOBILE_TOTAL_BUILDING_LIMIT
+          ? Number.POSITIVE_INFINITY
           : DESKTOP_TOTAL_BUILDING_LIMIT,
         !runtime.coarsePointer,
       );
+      if (runtime.coarsePointer) {
+        runtime.mobileBuildingDistricts = buildingDetailDistricts(buildingPartition.remaining);
+        runtime.mobileBuildingWanted = selectBuildingDetailDistricts(
+          runtime.mobileBuildingDistricts,
+          [runtime.controls.target.x, runtime.controls.target.z],
+        );
+        runtime.mobileBuildingViewRevision = 1;
+      }
       const initialBuildings = buildingPartition.initial;
       const progressiveInput: ProgressiveWorldWorkerInput | null =
         runtime.coarsePointer
@@ -3283,6 +3376,8 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
+                requestedBatchIds: runtime.mobileBuildingWanted,
+                viewRevision: runtime.mobileBuildingViewRevision,
                 initialBuildingCount,
                 prismUrl: new URL(
                   PRISM_WORLD_FILE,
@@ -6906,6 +7001,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           stabilizedRecovered = stabilized.recovered;
           if (stabilizedRecovered) resetTouchGesture();
         }
+        updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
         const movingFlagCount =
           stability.animateWind && civicFlagsVisible
             ? runtime.schwellenraumMovingFlagCount

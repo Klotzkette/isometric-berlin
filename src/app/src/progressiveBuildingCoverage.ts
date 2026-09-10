@@ -10,8 +10,9 @@ const COVERAGE_NAME = "Startup complete building coverage";
 /**
  * Publish every source building with the first interactive frame. These small
  * buffers belong to the preview world, not the disposable refinement worker.
- * Keep the temporary shells for a paused worker's restart (at most 8,580 boxes
- * on desktop / 3,440 on mobile), so hiding a tab never reopens city-sized gaps.
+ * Preserve source-footprint envelopes for every refinement district, including
+ * roofs and courtyard openings, so suspension or detail eviction never reopens
+ * city-sized gaps. Mobile coverage spans the full source inventory.
  */
 export function createProgressiveBuildingCoverage(
   prisms: PrismPayload,
@@ -42,6 +43,15 @@ export function hideReplacedBuildingPreview(
     (child) => child.userData.progressiveBuildingPreviewId === previewId,
   );
   if (preview) preview.visible = false;
+}
+
+/** Restore the permanent source envelope before releasing a distant district. */
+export function restoreBuildingPreview(world: Object3D, previewId: string): void {
+  const coverage = world.getObjectByName(COVERAGE_NAME);
+  const preview = coverage?.children.find(
+    (child) => child.userData.progressiveBuildingPreviewId === previewId,
+  );
+  if (preview) preview.visible = true;
 }
 
 /** Restore coverage before disposing partial exact geometry on a pause. */

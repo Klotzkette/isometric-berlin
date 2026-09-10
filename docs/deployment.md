@@ -44,6 +44,21 @@ recovery panel. A page timer observes the scene without granting automation
 user activation; Chromium runs with strict autoplay enforcement. Touch
 emulation does not establish physical iPhone GPU compatibility.
 
+The mobile interaction gate must also run against a production package, with
+fresh storage: development StrictMode can conceal first-visit state bugs.
+
+```bash
+uv run --with playwright python scripts/smoke_mobile_menu.py http://127.0.0.1:8766/
+uv run --with playwright python scripts/smoke_mobile_menu.py http://127.0.0.1:8766/ --engine webkit
+```
+
+It exercises the bottom-left mode opener and all five modes across narrow,
+portrait, landscape and tablet viewports. The streaming regressions additionally
+exercise changing routes, bounded district residency, transfer acknowledgements,
+pause/resume and restoring source envelopes before eviction. Browser travel
+checks must stay within the delivered source area: the outer paper margin
+intentionally contains no invented city geometry.
+
 v1.0.19 fixes a deterministic crash in the entrance signs `GEMÄLDEGALERIE` and
 `KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT`. The former canvas-only validation skipped
 unsupported letters during headless tests. Letter layout now validates before

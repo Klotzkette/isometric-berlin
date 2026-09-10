@@ -170,7 +170,7 @@ describe("progressive exact-world scheduling", () => {
     ).toBe(buildings.length);
   });
 
-  test("represents every omitted mobile building in one bounded instanced shell", () => {
+  test("represents every omitted building in one compact source-envelope draw", () => {
     const buildings = Array.from({ length: 1_000 }, (_, index) =>
       building(String(index), 3_177 + index * 20, 405 + (index % 11) * 20),
     );
@@ -183,21 +183,18 @@ describe("progressive exact-world scheduling", () => {
     const coverage = createDistantBuildingShells(payload, partition.omitted);
     const shells = coverage.getObjectByName(
       "LoD2 distant building shells",
-    ) as InstancedMesh;
-    expect(shells).toBeInstanceOf(InstancedMesh);
-    expect(shells.count).toBe(800);
+    ) as Mesh;
+    expect(shells).toBeInstanceOf(Mesh);
+    expect(coverage.userData.visibleBuildingCount).toBe(800);
     expect(coverage.userData.sourceBuildingCount).toBe(800);
-    expect((shells.material as MeshBasicMaterial).vertexColors).toBeFalse();
-    expect(shells.instanceColor).not.toBeNull();
+    expect((shells.material as MeshBasicMaterial).vertexColors).toBeTrue();
     const retainedBytes =
-      shells.instanceMatrix.array.byteLength +
-      (shells.instanceColor?.array.byteLength ?? 0) +
       Object.values(shells.geometry.attributes).reduce(
         (sum, attribute) => sum + attribute.array.byteLength,
         0,
       ) +
       (shells.geometry.index?.array.byteLength ?? 0);
-    expect(retainedBytes).toBeLessThan(80 * 1024);
+    expect(retainedBytes).toBeLessThan(400 * 1024);
     setIsoNightPresentation(coverage, true, true, "night");
     expect(shells.material).toBe(shells.userData.nightMaterial);
     setIsoNightPresentation(coverage, false, true, "schwellenraum");
@@ -205,19 +202,19 @@ describe("progressive exact-world scheduling", () => {
     expect(threeViewerSource).toContain(
       "createProgressiveBuildingCoverage(prisms, buildingPartition)",
     );
+    const before = Array.from(shells.geometry.getAttribute("color").array);
     const wire = serializeObject3DForTransfer(coverage);
     const restored = deserializeTransferredObject3D(
       structuredClone(wire.object, { transfer: wire.transfers }),
     ) as Group;
     const restoredShells = restored.getObjectByName(
       "LoD2 distant building shells",
-    ) as InstancedMesh;
-    expect((restoredShells.material as MeshBasicMaterial).vertexColors).toBeFalse();
-    expect(restoredShells.instanceMatrix.version).toBeGreaterThan(0);
-    expect(restoredShells.instanceColor?.version).toBeGreaterThan(0);
-    expect(
-      Math.min(...Array.from(restoredShells.instanceColor!.array.slice(0, 3))),
-    ).toBeGreaterThan(0);
+    ) as Mesh;
+    expect((restoredShells.material as MeshBasicMaterial).vertexColors).toBeTrue();
+    expect(restoredShells.geometry.getAttribute("color").normalized).toBeTrue();
+    expect(Array.from(restoredShells.geometry.getAttribute("color").array)).toEqual(before);
+    expect(Math.min(...before)).toBeGreaterThan(0);
+    expect(new Set(before).size).toBeGreaterThan(3);
   });
 
   test("repairs black legacy building shells after worker transfer", () => {
@@ -374,14 +371,13 @@ describe("progressive exact-world scheduling", () => {
     expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
     expect(workerMobileBranch).not.toContain("buildings-distant");
     expect(progressiveWorkerSource).not.toContain("postBuildingPreviews");
-    expect(workerMobileBranch).toMatch(
-      /postBuildingBatches\(\s*prisms,\s*partition\.remaining,\s*completedBatchIds,/,
-    );
+    expect(workerMobileBranch).toContain("new BuildingDetailWorker({");
+    expect(workerMobileBranch).toContain("MOBILE_DETAIL_BATCH_SIZE, Number.POSITIVE_INFINITY");
     expect(workerMobileBranch).toContain("prisms.buildings = []");
-    expect(workerMobileBranch).toContain("partition.omitted.length = 0");
+    expect(workerMobileBranch).not.toContain("MOBILE_TOTAL_BUILDING_LIMIT");
     expect(workerMobileBranch).not.toContain("postSurface(");
     expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
-    expect(workerMobileBranch).toContain("pretriangulated: false");
+    expect(workerMobileBranch).toContain('type: "settled"');
     const workerDesktopBranch = progressiveWorkerSource.slice(
       workerDesktopStart,
     );
@@ -665,7 +661,7 @@ describe("progressive exact-world scheduling", () => {
       "const construction = tryProgressiveWorkerOperation",
     );
     const postGuard = threeViewerSource.indexOf(
-      "const posted = tryProgressiveWorkerOperation",
+      "const posted = tryProgressiveWorkerOperation", constructionGuard,
     );
     expect(constructionGuard).toBeGreaterThan(0);
     expect(postGuard).toBeGreaterThan(constructionGuard);

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.20"
+PACKAGE_VERSION = "1.0.21"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,7 +3457,12 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Neu in v1.0.20: Audio startet erst beim ersten Klick, Tastendruck oder Tippen.
+Neu in v1.0.21: Das mobile Modusmenü bleibt links unten erreichbar. Alle fünf
+Modi stehen oben; Scrollen durch die übrigen Aktionen schließt das Menü nicht.
+Gebäude in der Ferne behalten jetzt ihre Quellgrundrisse, Innenhöfe, Dachformen
+und Farben. Feine Fassadendetails folgen der Kamera über das gesamte Gebiet.
+
+Seit v1.0.20: Audio startet erst beim ersten Klick, Tastendruck oder Tippen.
 Die Seite bleibt davor ohne AudioContext; ein Tabwechsel startet keinen Ton.
 Bereits aktivierte Musik kann nach dem Zurückkehren weiterlaufen.
 
@@ -4079,7 +4084,12 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-New in v1.0.20: Audio starts on the first click, key press or tap.
+New in v1.0.21: The mobile mode menu remains accessible at bottom left. All
+five modes stay above the scrollable actions without accidental dismissal.
+Distant buildings retain source footprints, courts, roof-code forms and colors.
+Bounded exact facade detail follows the camera across the complete source area.
+
+Since v1.0.20: Audio starts on the first click, key press or tap.
 No AudioContext is created beforehand, and tab focus cannot start cold audio.
 Music that already played can resume when returning to the viewer.
 

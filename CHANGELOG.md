@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.21
+
+- Keep the labelled mobile mode menu at bottom left in portrait/landscape;
+  pin all five modes above the actions and allow native content scrolling
+  without closing the sheet. Retain header swipe, close and backdrop actions.
+  Prevent first-visit source credits from covering landmark choices.
+- Replace distant oriented boxes with compact source-footprint envelopes,
+  open courts, existing roof-code shapes and direction-shaded roof/wall colors.
+- Let mobile exact facade detail follow the moving view across all source
+  districts, with bounded resident geometry and one 240-part transfer in flight.
+  Prioritize the current area and the route ahead; restore source envelopes
+  before evicting far detail, and discard stale completions without opening gaps.
+- Add browser menu, worker backpressure, rapid-travel, source-shape and
+  replacement-lifecycle regressions. Audio activation fixes remain intact.
+
 ## v1.0.20
 
 - Create and start procedural audio only on the first trusted activating

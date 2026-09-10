@@ -928,7 +928,6 @@ export function App() {
       const seen = window.sessionStorage.getItem(
         "isometric-berlin.attributionSeen",
       );
-      window.sessionStorage.setItem("isometric-berlin.attributionSeen", "true");
       return seen !== "true";
     } catch {
       return true;
@@ -1731,6 +1730,20 @@ export function App() {
       // The viewer remains usable when storage is blocked.
     }
   }, [isChromeHidden, isCompactLayout]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem("isometric-berlin.attributionSeen", "true");
+    } catch {
+      // Source attribution remains visible when session storage is unavailable.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isCompactLayout && (isLandmarkRailOpen || mobileSheet !== null)) {
+      setIsAttributionOpen(false);
+    }
+  }, [isCompactLayout, isLandmarkRailOpen, mobileSheet]);
 
   useEffect(() => {
     try {
@@ -3601,6 +3614,8 @@ export function App() {
             className="mobile-overflow"
             aria-label={copy.moreActions}
             aria-expanded={mobileSheet === "overflow"}
+            aria-haspopup="dialog"
+            aria-controls="mobile-actions"
             title={copy.moreActions}
             onClick={() =>
               setMobileSheet((current) =>
@@ -3609,6 +3624,7 @@ export function App() {
             }
           >
             <MoreHorizontal size={20} aria-hidden="true" />
+            <span>{copy.mode}</span>
           </button>
           <button
             type="button"
@@ -4297,21 +4313,23 @@ export function App() {
           role="dialog"
           aria-label={copy.alignMove}
           onClick={(event) => event.stopPropagation()}
-          onTouchStart={(event) => {
-            event.currentTarget.dataset.startY = String(
-              event.touches[0]?.clientY ?? 0,
-            );
-          }}
-          onTouchEnd={(event) => {
-            const start = Number(event.currentTarget.dataset.startY ?? 0);
-            const end = event.changedTouches[0]?.clientY ?? start;
-            if (end - start > 48) {
-              setMobileSheet(null);
-            }
-          }}
         >
           <div className="mobile-sheet-handle" aria-hidden="true" />
-          <div className="mobile-sheet-title">
+          <div
+            className="mobile-sheet-title"
+            onTouchStart={(event) => {
+              event.currentTarget.dataset.startY = String(
+                event.touches[0]?.clientY ?? 0,
+              );
+            }}
+            onTouchEnd={(event) => {
+              const start = Number(event.currentTarget.dataset.startY ?? 0);
+              const end = event.changedTouches[0]?.clientY ?? start;
+              if (end - start > 48) {
+                setMobileSheet(null);
+              }
+            }}
+          >
             <Compass size={17} aria-hidden="true" />
             <strong>{copy.alignMove}</strong>
             <button
@@ -4489,24 +4507,27 @@ export function App() {
 
       {mobileSheet === "overflow" ? (
         <aside
+          id="mobile-actions"
           className="mobile-sheet mobile-overflow-sheet"
           role="dialog"
           aria-label={copy.moreActions}
-          onTouchStart={(event) => {
-            event.currentTarget.dataset.startY = String(
-              event.touches[0]?.clientY ?? 0,
-            );
-          }}
-          onTouchEnd={(event) => {
-            const start = Number(event.currentTarget.dataset.startY ?? 0);
-            const end = event.changedTouches[0]?.clientY ?? start;
-            if (end - start > 48) {
-              setMobileSheet(null);
-            }
-          }}
         >
           <div className="mobile-sheet-handle" aria-hidden="true" />
-          <div className="mobile-sheet-title">
+          <div
+            className="mobile-sheet-title"
+            onTouchStart={(event) => {
+              event.currentTarget.dataset.startY = String(
+                event.touches[0]?.clientY ?? 0,
+              );
+            }}
+            onTouchEnd={(event) => {
+              const start = Number(event.currentTarget.dataset.startY ?? 0);
+              const end = event.changedTouches[0]?.clientY ?? start;
+              if (end - start > 48) {
+                setMobileSheet(null);
+              }
+            }}
+          >
             <MoreHorizontal size={18} aria-hidden="true" />
             <strong>{copy.actions}</strong>
             <button
@@ -4515,6 +4536,71 @@ export function App() {
               onClick={() => setMobileSheet(null)}
             >
               <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div
+            className="mobile-visual-mode-grid"
+            role="group"
+            aria-label={copy.visualModes}
+          >
+            <button
+              type="button"
+              aria-pressed={lightingMode === "day"}
+              onClick={() => {
+                selectVisualMode("day");
+                setMobileSheet(null);
+              }}
+            >
+              <Sun size={20} aria-hidden="true" />
+              <span>{copy.day}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "night"}
+              onClick={() => {
+                selectVisualMode("night");
+                setMobileSheet(null);
+              }}
+            >
+              <Moon size={20} aria-hidden="true" />
+              <span>{copy.night}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "minecraft"}
+              onClick={() => {
+                selectVisualMode("minecraft");
+                setMobileSheet(null);
+              }}
+            >
+              <MinecraftCubeIcon size={20} />
+              <span>{copy.minecraft}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "snowstorm"}
+              onClick={() => {
+                selectVisualMode("snowstorm");
+                setMobileSheet(null);
+              }}
+            >
+              <Snowflake size={20} aria-hidden="true" />
+              <span>
+                {language === "de" ? (
+                  <>Schnee<wbr />sturm</>
+                ) : copy.snowstorm}
+              </span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "schwellenraum"}
+              onClick={() => {
+                selectVisualMode("schwellenraum");
+                setMobileSheet(null);
+              }}
+            >
+              <Sparkles size={20} aria-hidden="true" />
+              <span>Schwellen<wbr />raum</span>
             </button>
           </div>
           <div className="mobile-overflow-grid">
@@ -4551,22 +4637,6 @@ export function App() {
               <Footprints size={20} aria-hidden="true" />
               <span>{copy.pedestrian}</span>
             </button>
-            <button
-              type="button"
-              aria-pressed={lightingMode === "day"}
-              onClick={() => selectVisualMode("day")}
-            >
-              <Sun size={20} aria-hidden="true" />
-              <span>{copy.day}</span>
-            </button>
-            <button
-              type="button"
-              aria-pressed={lightingMode === "night"}
-              onClick={() => selectVisualMode("night")}
-            >
-              <Moon size={20} aria-hidden="true" />
-              <span>{copy.night}</span>
-            </button>
             {supportsNightLightsToggle(lightingMode) ? (
               <button
                 type="button"
@@ -4586,30 +4656,6 @@ export function App() {
                 </span>
               </button>
             ) : null}
-            <button
-              type="button"
-              aria-pressed={lightingMode === "minecraft"}
-              onClick={() => selectVisualMode("minecraft")}
-            >
-              <MinecraftCubeIcon size={20} />
-              <span>{copy.minecraft}</span>
-            </button>
-            <button
-              type="button"
-              aria-pressed={lightingMode === "snowstorm"}
-              onClick={() => selectVisualMode("snowstorm")}
-            >
-              <Snowflake size={20} aria-hidden="true" />
-              <span>{copy.snowstorm}</span>
-            </button>
-            <button
-              type="button"
-              aria-pressed={lightingMode === "schwellenraum"}
-              onClick={() => selectVisualMode("schwellenraum")}
-            >
-              <Sparkles size={20} aria-hidden="true" />
-              <span>{copy.schwellenraum}</span>
-            </button>
             <button
               type="button"
               className="weather-toggle"
@@ -5297,7 +5343,13 @@ export function App() {
           className="attribution-toggle"
           aria-label={isAttributionOpen ? copy.dataClose : copy.dataOpen}
           aria-expanded={isAttributionOpen}
-          onClick={() => setIsAttributionOpen((open) => !open)}
+          onClick={() => {
+            if (isCompactLayout && !isAttributionOpen) {
+              setIsLandmarkRailOpen(false);
+              setMobileSheet(null);
+            }
+            setIsAttributionOpen((open) => !open);
+          }}
         >
           <Info size={18} aria-hidden="true" />
         </button>

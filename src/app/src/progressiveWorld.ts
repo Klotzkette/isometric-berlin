@@ -31,10 +31,10 @@ const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>([
 export const DESKTOP_INITIAL_BUILDING_COUNT = 420;
 export const MOBILE_INITIAL_BUILDING_COUNT = 160;
 /**
- * Every profile keeps all source buildings visible. The nearest buildings use
- * exact LoD2 geometry while the remainder stays present as a compact,
- * mode-aware instanced shell. This caps retained CPU/GPU buffers without
- * opening holes in the city at overview distance.
+ * Desktop retains a fixed exact-detail budget and complete source envelopes.
+ * MOBILE_TOTAL_BUILDING_LIMIT remains a historical partition/test constant;
+ * mobile production partitions the whole source and uses the moving resident
+ * budget in buildingDetailStreaming instead of permanently omitting districts.
  */
 export const DESKTOP_TOTAL_BUILDING_LIMIT = 9_000;
 export const MOBILE_TOTAL_BUILDING_LIMIT = 3_600;
@@ -127,11 +127,18 @@ export type ProgressiveWorldWorkerInput =
       /** Mobile fetches source in-worker; no large decoded graph is cloned. */
       detailProfile: "mobile";
       prismUrl: string;
+      requestedBatchIds?: readonly string[];
+      viewRevision?: number;
     });
 
 export type ProgressiveWorldWorkerControl = {
   id: string;
   type: "batch-attached";
+} | {
+  type: "detail-view";
+  requestedBatchIds: readonly string[];
+  retainedBatchIds: readonly string[];
+  viewRevision: number;
 };
 
 export type ProgressiveWorldWorkerMessage =
@@ -170,6 +177,7 @@ export type ProgressiveWorldWorkerOutput =
       pretriangulated: boolean;
       type: "complete";
     }
+  | { type: "settled"; viewRevision: number }
   | { message: string; type: "error" };
 
 /**

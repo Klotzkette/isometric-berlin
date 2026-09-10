@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { Color, InstancedMesh, Mesh } from "three";
+import { Color, Mesh } from "three";
 import {
   inPotsdamerPanoramaLandscape,
   hasPotsdamerUpperStoreys,
@@ -9,7 +9,7 @@ import {
   potsdamerPanoramaMaterialFor,
 } from "../src/potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "../src/potsdamerPanoramaRoofs";
-import { createDistantBuildingShells, createIsometricCity, type PrismPayload } from "../src/IsometricCityWorld";
+import { createDistantBuildingShells, createIsometricCity, isoFaceShade, type PrismPayload } from "../src/IsometricCityWorld";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
 import { treeFoliageTone, type ParkTree } from "../src/ParkDetails";
 import { addBox, createBuilder, finishDrawnGroup } from "../src/drawnKit";
@@ -38,15 +38,19 @@ test("panorama colours retain 20 complete source groups and 276 real prism ident
 test("gold, terracotta, glass and pale residential facades stay distinct in distant shells", () => {
   const ids = ["eVfooGWp", "AOI6FuOL", "7tOasE68", "GlU2rEzg"];
   const buildings = ids.map(id => payload.buildings.find(building => building.id === id)!);
-  const group = createDistantBuildingShells(payload, buildings);
-  const shell = group.children[0] as InstancedMesh;
-  expect(shell).toBeInstanceOf(InstancedMesh);
-  const color = new Color();
-  for (let i = 0; i < buildings.length; i += 1) {
-    shell.getColorAt(i, color);
-    expect(color.getHex()).toBe(potsdamerPanoramaMaterialFor(buildings[i].id)!.facade);
+  for (const building of buildings) {
+    const group = createDistantBuildingShells(payload, [building]);
+    const shell = group.children[0] as Mesh;
+    expect(shell).toBeInstanceOf(Mesh);
+    const normals = shell.geometry.getAttribute("normal");
+    const colors = shell.geometry.getAttribute("color");
+    const expected = new Color(potsdamerPanoramaMaterialFor(building.id)!.facade);
+    const shade = isoFaceShade(normals.getX(0), normals.getY(0), normals.getZ(0));
+    expect(colors.getX(0)).toBeCloseTo(expected.r * shade, 2);
+    expect(colors.getY(0)).toBeCloseTo(expected.g * shade, 2);
+    expect(colors.getZ(0)).toBeCloseTo(expected.b * shade, 2);
+    shell.geometry.dispose();
   }
-  shell.geometry.dispose();
 });
 
 test("Minecraft uses the same photo-supported facade hue even without a sampled tone", () => {

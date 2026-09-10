@@ -10,7 +10,6 @@ import { smoothGroundTopSampler, WATER_TOP_Y } from "./MinecraftVoxelWorld";
 import type { VoxelPayload } from "./MinecraftVoxelWorld";
 import {
   DESKTOP_TOTAL_BUILDING_LIMIT,
-  MOBILE_TOTAL_BUILDING_LIMIT,
   splitProgressiveBuildings,
   splitParkSurfaceFamily,
   surfaceFamilyPayload,
@@ -18,6 +17,10 @@ import {
   type ProgressiveWorldWorkerMessage,
   type ProgressiveWorldWorkerOutput,
 } from "./progressiveWorld";
+import { BuildingDetailWorker } from "./buildingDetailWorker";
+import {
+  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
+} from "./buildingDetailStreaming";
 import { serializeObject3DForTransfer } from "./transferableObject3D";
 
 type WorkerScope = {
@@ -29,6 +32,8 @@ const workerScope = self as unknown as WorkerScope;
 const attachedBatchResolvers = new Map<string, () => void>();
 const attachedBatchPromises = new Map<string, Promise<void>>();
 const MAX_TRANSFERRED_BATCHES_IN_FLIGHT = 4;
+let mobileDetailWorker: BuildingDetailWorker | undefined;
+let latestMobileView: Extract<ProgressiveWorldWorkerMessage, { type: "detail-view" }> | undefined;
 
 function removeEmptyGroups(root: Group): void {
   for (const child of [...root.children]) {
@@ -155,34 +160,50 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const completedBatchIds = new Set(input.completedBatchIds ?? []);
   let batchCount = 0;
   if (input.detailProfile === "mobile") {
-    // The main-thread preview already owns the coarse raster water, parks and
-    // asphalt. Rebuilding those exact surface families in another realm drove
-    // phone peaks by hundreds of MiB. Fetching LoD2 directly in this Worker
-    // also avoids cloning the 29k-building decoded graph through postMessage.
+    latestMobileView = {
+      type: "detail-view",
+      requestedBatchIds: input.requestedBatchIds ?? [],
+      retainedBatchIds: [...completedBatchIds],
+      viewRevision: input.viewRevision ?? 0,
+    };
     const prisms = await loadPrismPayload(input.prismUrl);
     const partition = splitProgressiveBuildings(
-      prisms.buildings,
-      input.initialBuildingCount,
-      undefined,
-      MOBILE_TOTAL_BUILDING_LIMIT,
+      prisms.buildings, input.initialBuildingCount,
+      MOBILE_DETAIL_BATCH_SIZE, Number.POSITIVE_INFINITY,
     );
     prisms.buildings = [];
     partition.initial.length = 0;
-    // The main preview already covers the entire city. Only exact refinement
-    // crosses the worker boundary; no duplicate shell construction or upload.
-    partition.omitted.length = 0;
-    batchCount += await postBuildingBatches(
-      prisms,
-      partition.remaining,
-      completedBatchIds,
+    const batches = new Map(partition.remaining.map((buildings, index) => [
+      `buildings-${index + 1}`, buildings,
+    ]));
+    const defaultWanted = selectBuildingDetailDistricts(
+      buildingDetailDistricts(partition.remaining), [317.729, 40.477],
     );
-    await waitForAttachedBatches();
-    workerScope.postMessage({
-      batches: batchCount,
-      build_ms: performance.now() - overallStart,
-      pretriangulated: false,
-      type: "complete",
+    mobileDetailWorker = new BuildingDetailWorker({
+      build: async (id) => {
+        const buildings = batches.get(id);
+        if (!buildings) throw new Error(`Unknown building district ${id}`);
+        const startedAt = performance.now();
+        const root = createIsometricCity(prisms, null, null, null, {
+          buildings, includeContext: false, smoothSurfaces: null,
+        });
+        await postBatch(root, "buildings", id, startedAt,
+          id.replace("buildings-", "buildings-preview-"));
+        // One small in-flight district, with a message turn before the next
+        // build. Never construct a stale multi-thousand-building batch.
+        await waitForAttachedBatches();
+        await yieldWorker();
+      },
+      settled: (viewRevision) => workerScope.postMessage({ type: "settled", viewRevision }),
+      failed: (error) => workerScope.postMessage({
+        type: "error", message: error instanceof Error ? error.message : String(error),
+      }),
     });
+    const view = latestMobileView;
+    mobileDetailWorker.update(
+      view.requestedBatchIds.length ? view.requestedBatchIds : defaultWanted,
+      view.retainedBatchIds, view.viewRevision,
+    );
     return;
   }
   // Start both transfers now, but leave their multi-megabyte JSON graphs
@@ -316,6 +337,12 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
 }
 
 workerScope.onmessage = (event): void => {
+  if (event.data.type === "detail-view") {
+    latestMobileView = event.data;
+    mobileDetailWorker?.update(event.data.requestedBatchIds,
+      event.data.retainedBatchIds, event.data.viewRevision);
+    return;
+  }
   if (event.data.type === "batch-attached") {
     const resolve = attachedBatchResolvers.get(event.data.id);
     if (resolve) {
