@@ -22,31 +22,14 @@ const boundarySource = await Bun.file(
 ).text();
 
 describe("progressive viewer startup", () => {
-  test("keeps both rendering engines behind dynamic imports", () => {
-    expect(engineLoaderSource).toContain('import("openseadragon")');
+  test("lazy-loads only the isometric renderer", () => {
     expect(engineLoaderSource).toContain('import("./ThreeViewer")');
     expect(appSource).toContain("lazy(loadThreeViewerComponent)");
-    expect(appSource).toContain("await loadOpenSeadragon()");
-    expect(appSource).not.toContain(
-      'import OpenSeadragon from "openseadragon"',
-    );
-    expect(appSource).not.toContain(
-      'import { ThreeViewer, type ThreeViewerHandle } from "./ThreeViewer"',
-    );
-  });
-
-  test("coalesces Strict Mode map imports into one promise", () => {
-    expect(engineLoaderSource).toContain("openSeadragonPromise ??=");
-    expect(engineLoaderSource).toContain("return openSeadragonPromise");
-  });
-
-  test("bounds decoded DZI tiles and parallel image work", () => {
-    expect(appSource).toContain("mapMemoryProfile(boundedMapProfile)");
-    expect(appSource).toContain("imageLoaderLimit: memoryProfile.imageLoaderLimit");
-    expect(appSource).toContain(
-      "maxImageCacheCount: memoryProfile.maxImageCacheCount",
-    );
-    expect(appSource).toContain("showNavigator: !boundedMapProfile");
+    expect(engineLoaderSource).not.toContain("openseadragon");
+    expect(appSource).not.toContain("OpenSeadragon");
+    expect(appSource).not.toContain("setViewerMode");
+    expect(appSource).not.toContain("regierungsviertel.dzi");
+    expect(appSource).toContain('data-viewer-mode="three"');
   });
 
   test("keeps a visible recovery boundary around the lazy 3D viewer", () => {
@@ -63,7 +46,7 @@ describe("progressive viewer startup", () => {
     expect(lazyViewer).toBeGreaterThan(suspenseStart);
     expect(boundaryEnd).toBeGreaterThan(lazyViewer);
     expect(boundarySource).toContain('role="alert"');
-    expect(appSource).toContain('setViewerMode("map")');
+    expect(appSource).not.toContain("onUseMap");
     expect(appSource).toContain("setIsThreeReady(false)");
   });
 

@@ -14,7 +14,8 @@ Build a giant, zoomable, freely orbitable **isometric model of central
 Berlin**, centred on the Regierungsviertel and derived from open and permitted
 city data. It is the Berlin equivalent of
 [isometric.nyc](https://isometric.nyc) by Andy Coenen, extended with a true
-Three.js scene, a high-resolution DZI map and downloadable offline packages.
+Three.js scene and downloadable offline packages. The viewer is isometric 3D
+only as requested in v1.0.28; archival DZI generation remains optional tooling.
 Per owner policy this project uses **additive data fusion**: every permitted
 source contributes; the best evidence from each source is kept per tile.
 
@@ -352,12 +353,11 @@ commit messages and PR titles (e.g. `step-4: …`).
    returned pixel-art PNG in the `generation` BLOB. Apply the
    2×2 / 1×2 / 2×1 / 1×1 adjacency rules from the NYC project to
    avoid seams.
-10. **DZI export + viewer.**
-    `isometric_berlin.generation.export_dzi` runs pyvips to build a
-    Deep Zoom pyramid into `src/app/public/dzi/regierungsviertel/`,
-    then React + TypeScript + Vite + OpenSeadragon under `src/app/`
-    serve it as a static build, deployable via Perplexity hosting
-    (see §9).
+10. **Isometric 3D viewer.**
+    React + TypeScript + Vite + Three.js under `src/app/` serve the
+    measured procedural scene as a static build. No 2D viewer, map engine
+    or DZI pyramid is shipped. `generation.export_dzi` remains archival
+    tooling; its outputs are not runtime dependencies.
 
 ## 6. Tech stack and conventions
 
@@ -369,7 +369,7 @@ commit messages and PR titles (e.g. `step-4: …`).
 - **Type hints required** on all public function signatures.
 - **Absolute imports** inside the `isometric_berlin` package.
 - **Frontend:** `bun` for install/dev/build under `src/app/`. React +
-  TypeScript + Vite + OpenSeadragon.
+  TypeScript + Vite + Three.js.
 - **Geometry stack:** `shapely`, `pyproj`, `geopandas`, `osmnx`,
   `rasterio`, `pyvista`, `pyvips`.
 
@@ -424,7 +424,7 @@ isometric-berlin/
 │   ├── isometric_berlin/     # Python pipeline package
 │   │   ├── data/             # fetch_*, fuse_sources
 │   │   └── generation/
-│   └── app/                  # React + OpenSeadragon viewer
+│   └── app/                  # React + Three.js viewer
 └── tests/
 ```
 
@@ -441,9 +441,10 @@ isometric-berlin/
   AI-generated pixel-art PNGs for every quadrant. This SQLite DB is a
   regenerated intermediate (`generations/**/*.db` is gitignored): it is
   rebuilt on demand by `create_grid` → `render_quadrants` →
-  `generate_tile`, not committed. The committed deliverable is the DZI
-  pyramid below.
-- A DZI pyramid built into `src/app/public/dzi/regierungsviertel/`.
+  `generate_tile`, not committed. This archival image-generation pipeline
+  is independent of the shipped 3D scene.
+- Complete committed procedural 3D payloads under `src/app/public/mesh/`;
+  keep the walking minimap, startup image, landmark metadata and credits.
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
@@ -454,8 +455,8 @@ isometric-berlin/
 - A true Three.js mode using procedural Berlin LoD2/OSM geometry, with
   progressive loading, complete instanced building coverage, mouse/touch
   orbit, a real below-ground camera and a schematic Tiergartentunnel cutaway.
-  Retired GLBs and heavy road plates stay absent; the DZI remains the fast
-  detail-map fallback.
+  Retired GLBs, heavy road plates and the retired 2D engine stay absent.
+  Recovery keeps the visitor in 3D; local downloads include 3D launchers.
 - All landmarks and required context details from §3 are navigable. Hero
   recognition geometry may supplement, but never displace, the measured
   LoD2/OSM anchors.
@@ -553,23 +554,21 @@ isometric-berlin/
   two piers open.
   Unpublished part proportions remain procedural display geometry.
 
-## 9. Hosting target: Perplexity
+## 9. Static hosting
 
-The owner intends to publish the viewer through Perplexity. Optimise
-for this:
+The published viewer uses GitHub Pages. Keep the build portable to other
+static hosts, including Perplexity:
 
 - Keep the viewer **fully static** after `bun run build` —
-  `index.html` + `assets/*` + `dzi/regierungsviertel/*`. No backend
+  `index.html` + `assets/*` + `mesh/*` + retained `dzi/regierungsviertel/*`
+  metadata and small images. No backend
   required at serve time.
 - All paths inside the built viewer must be **relative**
   (`./dzi/regierungsviertel/…`), so the site works under any subdomain
   or sub-path. Configure Vite's `base: './'`.
-- DZI tile pyramid should be small enough to ship inside the static
-  bundle (low hundreds of source tiles → a few thousand pyramid
-  tiles, each a small WebP). Target total bundle size **< 200 MB**,
-  ideally **< 50 MB**. If it grows beyond that, switch to hosting the
-  DZI pyramid on Cloudflare R2 and keep only the HTML/JS/CSS in the
-  Perplexity-hosted bundle.
+- Ship the complete 3D geometry without reducing detail, coverage or resolution.
+  Exclude retired flat-map tiles and duplicate offline viewers from downloads.
+  Target total bundle size **< 200 MB**, ideally **< 50 MB**.
 - When a Perplexity agent deploys this, it will run
   `cd src/app && bun install && bun run build`, then deploy
   `src/app/dist/`. Make sure that command sequence always works from
@@ -633,7 +632,7 @@ a task:
 - Replacing `uv` with `pip`/`poetry`, or `bun` with `npm`/`pnpm`.
 - Building anything outside the currently committed bounds without explicit
   owner approval and a documented bounds revision.
-- Hardcoding absolute URLs for the DZI tiles that break under
+- Hardcoding absolute URLs for the scene assets that break under
   Perplexity hosting.
 
 ## 12. Owner profile (helps with judgement calls)

@@ -11,12 +11,10 @@ import stat
 import struct
 import tarfile
 import tomllib
-import xml.etree.ElementTree as ET
 import zipfile
 from collections import Counter
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from pathlib import Path, PurePosixPath
-from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_RE = re.compile(r"__version__ = \"([^\"]+)\"")
@@ -25,8 +23,8 @@ DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_VIEWER_FILES = (
   "landmarks.json",
-  "reference_map.png",
-  "regierungsviertel.dzi",
+  "pedestrian_map.png",
+  "startup-map.jpg",
   "tiergartentunnel.json",
   "visual_reference_attribution.json",
   "wikimedia_attribution.json",
@@ -37,8 +35,6 @@ REQUIRED_REPORT_FILES = (
   "geo_data/regierungsviertel/landmark_alignment.json",
   "geo_data/regierungsviertel/metric_precision.json",
 )
-DZI_DESCRIPTOR = "regierungsviertel.dzi"
-DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
@@ -52,7 +48,7 @@ SURFACE_PLATE_HEADER_BYTES = 32
 SURFACE_PLATE_SCHEMA_VERSION = 1
 SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # The retired photographic scene was the dominant package cost. Keep enough
-# room for the compact DZI pyramid and procedural source JSON while preventing
+# room for complete procedural source JSON while preventing
 # that legacy payload from silently returning.
 MAX_PACKAGE_UNCOMPRESSED_BYTES = 120 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
@@ -70,7 +66,7 @@ REQUIRED_MESHOPT_NORMAL_BITS = 8
 # complete archive resident. This is an offline/download ceiling, not a live
 # GPU-memory target.
 MAX_WEBGL_SCENE_BYTES = 178 * 1024 * 1024
-BOUNDED_PREVIEW_FILES = ("overview.png", "overview_source.png", "reference_map.png")
+BOUNDED_PREVIEW_FILES = ("pedestrian_map.png", "startup-map.jpg")
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
   "README.txt",
@@ -79,15 +75,16 @@ REQUIRED_PACKAGE_ENTRIES = (
   "start-mac-if-needed.txt",
   "start-windows.bat",
   "start-linux.sh",
+  "OPEN-3D-MAC.command",
+  "OPEN-3D-WINDOWS.bat",
   "index.html",
   "favicon.svg",
-  "dzi/regierungsviertel/overview.png",
-  "dzi/regierungsviertel/overview_source.png",
-  "dzi/regierungsviertel/reference_map.png",
-  "dzi/regierungsviertel/regierungsviertel.dzi",
-  "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+  "dzi/regierungsviertel/pedestrian_map.png",
+  "dzi/regierungsviertel/startup-map.jpg",
+  "dzi/regierungsviertel/landmarks.json",
   "dzi/regierungsviertel/tiergartentunnel.json",
   "dzi/regierungsviertel/visual_reference_attribution.json",
+  "dzi/regierungsviertel/wikimedia_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
   "mesh/regierungsviertel/lod2-prisms.json",
@@ -129,13 +126,6 @@ VERIFIED_TRAFFIC_SIGNAL_ISLAND_KEYS = {
   "node/13235279484",
 }
 TRAFFIC_SIGNAL_PRECISION_GUARD_KEYS = {"node/3098737953"}
-
-
-class DziInfo(NamedTuple):
-  tile_size: int
-  fmt: str
-  width: int
-  height: int
 
 
 def project_version(root: Path = ROOT) -> str:
@@ -587,7 +577,7 @@ def surface_pretriangulation_failures(mesh_root: Path) -> list[str]:
 
 
 def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
-  """Keep committed fallback images below the repository binary limit."""
+  """Keep the retained minimap and startup image below the binary limit."""
   failures: list[str] = []
   for filename in BOUNDED_PREVIEW_FILES:
     path = public_dzi / filename
@@ -1022,11 +1012,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       f"3D surface quality policy lacks stable mode gating: {surface_quality_path}"
     )
-  if "`app-shell--viewer-${viewerMode}`" not in app:
+  if "app-shell--viewer-three" not in app:
     failures.append(f"Viewer lacks a compositor-isolation mode class: {app_path}")
   for compositor_contract in (
-    ".app-shell--viewer-three .viewer",
-    "visibility: hidden",
     ".app-shell--viewer-three .map-stage::after",
     "-webkit-backdrop-filter: none",
     "contain: strict",
@@ -1089,12 +1077,17 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       "Selected sight marker contains an idle pulse that can look like flicker"
     )
-  if 'marker.className = "map-marker map-marker--selected"' not in app:
-    failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
-  if "const keepThreeWarm = false" not in app:
-    failures.append(f"2D-map transitions do not release inactive 3D memory: {app_path}")
-  if "toggleLightingMode" not in app or "lightingMode={lightingMode}" not in app:
-    failures.append(f"Viewer lacks persistent day/night controls: {app_path}")
+  if "OpenSeadragon" in app or 'setViewerMode("map")' in app:
+    failures.append(f"Viewer still includes the retired flat-map mode: {app_path}")
+  visual_mode_contract = (
+    "const selectVisualMode = useCallback(",
+    "setLightingMode(next)",
+    "lightingMode={lightingMode}",
+    'className="visual-mode-switch"',
+    'className="mobile-visual-mode-grid"',
+  )
+  if any(snippet not in app for snippet in visual_mode_contract):
+    failures.append(f"Viewer lacks connected visual-style controls: {app_path}")
   if "openRepository" not in app or "REPOSITORY_URL" not in app:
     failures.append(f"Viewer lacks repository information control: {app_path}")
   if "https://github.com/Klotzkette/isometric-berlin" not in project_metadata:
@@ -1113,9 +1106,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       f"Viewer lacks continuous pan, heading-flight, or orbit input: {app_path}"
     )
-  for mode in ("day", "night", "minecraft"):
-    if f'selectVisualMode("{mode}")' not in app:
-      failures.append(f"Viewer lacks direct {mode} mode selection: {app_path}")
+  for mode in ("day", "night", "minecraft", "snowstorm", "schwellenraum"):
+    if app.count(f'selectVisualMode("{mode}")') < 2:
+      failures.append(f"Viewer lacks desktop/mobile {mode} mode selection: {app_path}")
   if (
     'attractions: "Sehenswürdigkeiten"' not in localization
     or 'attraction: "Sehenswürdigkeit"' not in localization
@@ -1285,18 +1278,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for label, snippet in required_camera_snippets.items()
     if snippet not in camera_navigation
   )
-  required_map_navigation_snippets = {
-    "immediate programmatic pan": "viewport.applyConstraints(true)",
-    "immediate programmatic zoom": "zoomBy(factor, undefined, true)",
-    "short fallback animation": "animationTime: 0.12",
-    "immediate tile presentation": "immediateRender: true",
-    "responsive map spring": "springStiffness: 18",
-  }
-  failures.extend(
-    f"Map navigation lacks {label}: {app_path}"
-    for label, snippet in required_map_navigation_snippets.items()
-    if snippet not in app
-  )
   required_architecture_snippets = {
     "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "metric Brandenburg Gate columns": "Brandenburg Gate Doric column",
@@ -1348,201 +1329,45 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
 
 
 def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
+  """Require a file-safe guide and HTTP redirect, never a second renderer."""
   failures: list[str] = []
-  if 'type="module"' in start_here_text:
-    failures.append(
-      f"Package HTML launcher still depends on browser module loading: {label}"
-    )
-  if "dzi/regierungsviertel/overview.png" not in start_here_text:
-    failures.append(f"Package HTML launcher does not reference overview.png: {label}")
-  if "dzi/regierungsviertel/overview_source.png" not in start_here_text:
-    failures.append(
-      f"Package HTML launcher does not reference overview_source.png: {label}"
-    )
-  if REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION not in start_here_text:
-    failures.append(
-      f"Package HTML launcher lacks the Kindertransport photo credit: {label}"
-    )
-  if (
-    "sourceImage" not in start_here_text
-    or "landmarkScaleX" not in start_here_text
-    or "mapImage.style.width" not in start_here_text
-    or "stagePointToImage" not in start_here_text
-    or "constrainView" not in start_here_text
+  for forbidden in (
+    'type="module"',
+    "mapImage",
+    "regierungsviertel.dzi",
+    "2D-Kompatibilitätsansicht",
   ):
-    failures.append(
-      f"Package HTML launcher does not normalize DZI coordinates to its offline canvas: {label}"
-    )
-  if "Drehen/Swivel" not in start_here_text or "event.shiftKey" not in start_here_text:
-    failures.append(
-      f"Package HTML launcher lacks rotate/swivel mouse controls: {label}"
-    )
-  if (
-    "ArrowLeft" not in start_here_text
-    or "ArrowRight" not in start_here_text
-    or "tiltBy" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks keyboard pan/rotate/swivel controls: {label}"
-    )
-  if (
-    "setViewPreset" not in start_here_text
-    or "view-north" not in start_here_text
-    or "compass" not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks reproducible view presets: {label}")
-  if "tunnel-overlay" not in start_here_text or "tunnelPayload" not in start_here_text:
-    failures.append(f"Package HTML launcher lacks Tiergartentunnel overlay: {label}")
-  if (
-    "tunnel-light" not in start_here_text
-    or "tunnel-vent" not in start_here_text
-    or "addTunnelVentilation" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks tunnel lighting / ventilation cues: {label}"
-    )
-  if (
-    "tunnel-volume" not in start_here_text
-    or "tunnel-center-wall" not in start_here_text
-    or "addTunnelTube" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks tunnel volume / centre-wall geometry: {label}"
-    )
-  if (
-    "under-view" not in start_here_text
-    or "scaleY" not in start_here_text
-    or "focusTunnelRoute" not in start_here_text
-    or "tunnel-ceiling-rib" not in start_here_text
-    or "tunnel-service-bay" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks tunnel underside / detail controls: {label}"
-    )
-  if (
-    "lang-de" not in start_here_text
-    or "lang-en" not in start_here_text
-    or "applyLanguage" not in start_here_text
-    or "setLanguage" not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks bilingual DE/EN UI: {label}")
-  if (
-    "theme-night" not in start_here_text
-    or "setTheme" not in start_here_text
-    or "night-light-overlay" not in start_here_text
-    or "addNightLights" not in start_here_text
-    or "night-window" not in start_here_text
-    or "night-street-lamp" not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks day/night lighting controls: {label}")
-  if (
-    "scene-detail-overlay" not in start_here_text
-    or "addSceneDetails" not in start_here_text
-    or "details-toggle" not in start_here_text
-    or "clouds-toggle" not in start_here_text
-    or "performance-toggle" not in start_here_text
-    or "setDetails" not in start_here_text
-    or "setClouds" not in start_here_text
-    or "setPerformance" not in start_here_text
-    or "data-performance" not in start_here_text
-    or "data-dragging" not in start_here_text
-    or "detail-cloud" not in start_here_text
-    or "cloud-shadow" not in start_here_text
-    or "sunbeam" not in start_here_text
-    or "detail-glint" not in start_here_text
-    or "detail-ripple" not in start_here_text
-    or "detail-tree-cluster" not in start_here_text
-    or "detail-water-depth" not in start_here_text
-    or "detail-tunnel-branch" not in start_here_text
-    or "detail-train-ice" not in start_here_text
-    or "detail-train-sbahn" not in start_here_text
-    or "detail-vehicle" not in start_here_text
-    or "vehicle-light-cone" not in start_here_text
-    or "addFlag" not in start_here_text
-    or "detail-boat" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks v0.1.57 scene detail/performance overlays: {label}"
-    )
-  if (
-    "PREFERENCE_STORAGE_KEY" not in start_here_text
-    or "readPreferences" not in start_here_text
-    or "savePreferences" not in start_here_text
-    or "localStorage" not in start_here_text
-    or "applyQualityImage" not in start_here_text
-    or "savedLandmarkName" not in start_here_text
-    or "restoreInitialView" not in start_here_text
-    or "initialViewState" not in start_here_text
-    or "resetView" not in start_here_text
-    or "readStartParams" not in start_here_text
-    or "paramFlag" not in start_here_text
-    or "paramChoice" not in start_here_text
-    or "imageFallbackAttempted" not in start_here_text
-    or 'mapImage.addEventListener("error"' not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks persistent preferences: {label}")
-  if (
-    "event.metaKey" not in start_here_text
-    or "event.ctrlKey" not in start_here_text
-    or "event.altKey" not in start_here_text
-    or "targetTag" not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks keyboard shortcut guards: {label}")
-  if (
-    "requestAnimationFrame" not in start_here_text
-    or "renderQueued" not in start_here_text
-    or "lostpointercapture" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks anti-freeze render throttling: {label}"
-    )
-  if (
-    "resizeTimer" not in start_here_text
-    or "refitPreservingView" not in start_here_text
-    or "setTimeout(refitPreservingView, 80)" not in start_here_text
-  ):
-    failures.append(f"Package HTML launcher lacks resize debounce: {label}")
-  if (
-    "viewport-fit=cover" not in start_here_text
-    or "100dvh" not in start_here_text
-    or "@media (pointer: coarse)" not in start_here_text
-    or "min-height: 44px" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks mobile viewport/touch-target hardening: {label}"
-    )
-  if (
-    "activePointers" not in start_here_text
-    or "pinchGesture" not in start_here_text
-    or 'pointerType === "touch"' not in start_here_text
-    or "startPinchGesture" not in start_here_text
-    or "updatePinchGesture" not in start_here_text
-    or "pointerAngle" not in start_here_text
-    or "startRotation" not in start_here_text
-    or "resumeSingleTouchDrag" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher lacks touchscreen pinch/pan handling: {label}"
-    )
-  if (
-    'className = "marker"' in start_here_text
-    or '<div id="markers">' in start_here_text
-    or "markerRoot" in start_here_text
-  ):
-    failures.append(f"Package HTML launcher still renders permanent markers: {label}")
-  if "focus-ring" not in start_here_text or "addLandmarkList" not in start_here_text:
-    failures.append(f"Package HTML launcher lacks selected-only focus UI: {label}")
-  if (
-    'window.location.protocol !== "file:"' not in start_here_text
-    or "serverRequired" not in start_here_text
-  ):
-    failures.append(
-      f"Package HTML launcher can still open broken true-3D file URLs: {label}"
-    )
-  if "!activePointers.has(event.pointerId)" not in start_here_text:
-    failures.append(
-      f"Package HTML launcher lacks duplicate pointer-end protection: {label}"
-    )
+    if forbidden in start_here_text:
+      failures.append(
+        f"Package HTML launcher contains retired or file-unsafe content {forbidden!r}: {label}"
+      )
+  required = {
+    "local launch instructions": (
+      "OPEN-3D-MAC.command",
+      "OPEN-3D-WINDOWS.bat",
+      "sh start-linux.sh",
+      "python3 serve-local.py",
+    ),
+    "bilingual help": ('lang="en"', "Lokal starten", "Start locally"),
+    "HTTP-only redirect": (
+      'window.location.protocol === "http:"',
+      'window.location.protocol === "https:"',
+      'new URL("index.html", window.location.href)',
+      "window.location.replace(viewer.href)",
+    ),
+    "preserved view links": (
+      "viewer.search = window.location.search",
+      "viewer.hash = window.location.hash",
+    ),
+    "attribution": (
+      REQUIRED_ATTRIBUTION,
+      "Wikimedia Commons/Wikipedia",
+      REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION,
+    ),
+  }
+  for purpose, snippets in required.items():
+    if any(snippet not in start_here_text for snippet in snippets):
+      failures.append(f"Package HTML launcher lacks {purpose}: {label}")
   return failures
 
 
@@ -1581,12 +1406,10 @@ def package_manifest_failures(
     )
   if manifest.get("start_page") != "START-HERE.html":
     failures.append(f"Package manifest does not point at START-HERE.html: {label}")
-  if manifest.get("start_page_mode") != "3d-launcher-with-2d-compatibility-fallback":
-    failures.append(f"Package manifest mislabels the compatibility start: {label}")
+  if manifest.get("start_page_mode") != "3d-launch-guide":
+    failures.append(f"Package manifest mislabels the 3D launch guide: {label}")
   if manifest.get("full_3d_start_page") != "index.html":
     failures.append(f"Package manifest lacks the full 3D start page: {label}")
-  if manifest.get("preferred_image") != "dzi/regierungsviertel/overview_source.png":
-    failures.append(f"Package manifest does not prefer overview_source.png: {label}")
   if manifest.get("uses_google_content") is not False:
     failures.append(f"Package manifest unexpectedly marks Google content used: {label}")
   attribution = str(manifest.get("required_attribution", ""))
@@ -1602,10 +1425,8 @@ def package_manifest_failures(
     return failures + [f"Package manifest has no asset inventory: {label}"]
 
   required_asset_labels = [
-    "detail_image",
-    "pixel_image",
-    "dzi_descriptor",
-    "reference_map",
+    "pedestrian_map",
+    "startup_backdrop",
     "landmarks",
     "tiergartentunnel_overlay",
     "visual_reference_attribution",
@@ -1671,147 +1492,6 @@ def package_manifest_failures(
   return failures
 
 
-def parse_dzi_descriptor(
-  descriptor_label: str, data: bytes
-) -> tuple[DziInfo | None, list[str]]:
-  try:
-    root = ET.fromstring(data)
-  except ET.ParseError as exc:
-    return None, [f"Invalid DZI descriptor {descriptor_label}: {exc}"]
-
-  try:
-    tile_size = int(root.attrib["TileSize"])
-    fmt = root.attrib["Format"]
-    size = next(child for child in root if child.tag.endswith("Size"))
-    width = int(size.attrib["Width"])
-    height = int(size.attrib["Height"])
-  except (KeyError, StopIteration, ValueError) as exc:
-    return None, [f"Incomplete DZI descriptor {descriptor_label}: {exc}"]
-
-  if tile_size <= 0 or width <= 0 or height <= 0:
-    return None, [f"Invalid DZI dimensions in {descriptor_label}"]
-
-  return DziInfo(tile_size=tile_size, fmt=fmt, width=width, height=height), []
-
-
-def iter_dzi_tile_paths(info: DziInfo) -> Iterator[str]:
-  max_level = math.ceil(math.log2(max(info.width, info.height)))
-  for level in range(max_level + 1):
-    scale = 2 ** (max_level - level)
-    level_width = math.ceil(info.width / scale)
-    level_height = math.ceil(info.height / scale)
-    cols = math.ceil(level_width / info.tile_size)
-    rows = math.ceil(level_height / info.tile_size)
-    for row in range(rows):
-      for col in range(cols):
-        yield f"{level}/{col}_{row}.{info.fmt}"
-
-
-def dzi_landmark_failures(
-  descriptor_data: bytes,
-  landmark_data: bytes,
-  label: str,
-) -> list[str]:
-  """Require focus coordinates to use the descriptor's pixel grid."""
-  info, failures = parse_dzi_descriptor(f"{label} descriptor", descriptor_data)
-  if failures:
-    return failures
-  assert info is not None
-  try:
-    payload = json.loads(landmark_data.decode("utf-8"))
-    image = payload["image"]
-    landmarks = payload["landmarks"]
-  except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
-    return [f"Invalid DZI landmark metadata {label}: {exc}"]
-
-  failures = []
-  if image.get("width") != info.width or image.get("height") != info.height:
-    failures.append(f"DZI landmark image dimensions differ from descriptor: {label}")
-  for landmark in landmarks:
-    name = landmark.get("name", "unnamed landmark")
-    x = landmark.get("x")
-    y = landmark.get("y")
-    if (
-      not isinstance(x, int | float)
-      or not isinstance(y, int | float)
-      or not 0 <= x <= info.width
-      or not 0 <= y <= info.height
-    ):
-      failures.append(f"DZI landmark lies outside descriptor: {label}: {name}")
-      continue
-    nx = landmark.get("nx")
-    ny = landmark.get("ny")
-    if isinstance(nx, int | float) and abs(x - nx * info.width) > 1:
-      failures.append(f"DZI landmark x/nx mismatch: {label}: {name}")
-    if isinstance(ny, int | float) and abs(y - ny * info.height) > 1:
-      failures.append(f"DZI landmark y/ny mismatch: {label}: {name}")
-  return failures
-
-
-def dzi_tile_failures(public_dzi: Path) -> list[str]:
-  descriptor = public_dzi / DZI_DESCRIPTOR
-  tiles_root = public_dzi / DZI_TILES_DIR
-  if not descriptor.exists():
-    return [f"Missing DZI descriptor: {descriptor}"]
-  if not tiles_root.is_dir():
-    return [f"Missing DZI tile directory: {tiles_root}"]
-
-  info, failures = parse_dzi_descriptor(str(descriptor), descriptor.read_bytes())
-  if failures:
-    return failures
-  assert info is not None
-
-  failures = []
-  seen_level_dirs: set[Path] = set()
-  for relative_tile in iter_dzi_tile_paths(info):
-    tile = tiles_root / relative_tile
-    level_dir = tile.parent
-    if level_dir not in seen_level_dirs:
-      seen_level_dirs.add(level_dir)
-      if not level_dir.is_dir():
-        failures.append(f"Missing DZI level directory: {level_dir}")
-        continue
-    if not tile.exists():
-      failures.append(f"Missing DZI tile: {tile}")
-    elif tile.stat().st_size == 0:
-      failures.append(f"Empty DZI tile: {tile}")
-  return failures
-
-
-def zip_dzi_tile_failures(
-  archive: zipfile.ZipFile, names: set[str], zip_path: Path
-) -> list[str]:
-  descriptor = package_arcname(f"dzi/regierungsviertel/{DZI_DESCRIPTOR}")
-  if descriptor not in names:
-    return []
-
-  info, failures = parse_dzi_descriptor(
-    f"{zip_path}!{descriptor}", archive.read(descriptor)
-  )
-  if failures:
-    return failures
-  assert info is not None
-
-  failures = []
-  seen_level_dirs: set[str] = set()
-  for relative_tile in iter_dzi_tile_paths(info):
-    level_dir = package_arcname(
-      f"dzi/regierungsviertel/{DZI_TILES_DIR}/{Path(relative_tile).parent}"
-    )
-    if level_dir not in seen_level_dirs:
-      seen_level_dirs.add(level_dir)
-      if not any(name.startswith(f"{level_dir}/") for name in names):
-        failures.append(f"Missing DZI ZIP level directory: {zip_path}!{level_dir}")
-        continue
-    tile = package_arcname(f"dzi/regierungsviertel/{DZI_TILES_DIR}/{relative_tile}")
-    if tile not in names:
-      failures.append(f"Missing DZI ZIP tile: {zip_path}!{tile}")
-      continue
-    if archive.getinfo(tile).file_size == 0:
-      failures.append(f"Empty DZI ZIP tile: {zip_path}!{tile}")
-  return failures
-
-
 def zip_webgl_scene_failures(
   archive: zipfile.ZipFile, names: set[str], zip_path: Path
 ) -> list[str]:
@@ -1874,6 +1554,21 @@ def zip_surface_pretriangulation_failures(
   )
 
 
+def retired_map_export(relative: str) -> bool:
+  path = PurePosixPath(relative)
+  return "regierungsviertel_files" in path.parts or (
+    path.parent.as_posix().endswith("dzi/regierungsviertel")
+    and path.name
+    in {
+      "overview.png",
+      "overview_source.png",
+      "reference_map.png",
+      "regierungsviertel.dzi",
+      "preview.html",
+    }
+  )
+
+
 def zip_package_failures(root: Path = ROOT) -> list[str]:
   zip_path = root / "releases" / PACKAGE_ZIP
   if not zip_path.exists():
@@ -1915,17 +1610,6 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
         if arcname not in names:
           failures.append(f"Missing package ZIP entry: {zip_path}!{arcname}")
 
-      failures.extend(zip_dzi_tile_failures(archive, names, zip_path))
-      zip_dzi = package_arcname(f"dzi/regierungsviertel/{DZI_DESCRIPTOR}")
-      zip_landmarks = package_arcname("dzi/regierungsviertel/landmarks.json")
-      if zip_dzi in names and zip_landmarks in names:
-        failures.extend(
-          dzi_landmark_failures(
-            archive.read(zip_dzi),
-            archive.read(zip_landmarks),
-            f"{zip_path}!dzi/regierungsviertel",
-          )
-        )
       failures.extend(zip_webgl_scene_failures(archive, names, zip_path))
 
       for name in names:
@@ -1935,6 +1619,8 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
           failures.append(f"Unexpected package ZIP root entry: {zip_path}!{name}")
           continue
         inner = Path(name).relative_to(PACKAGE_NAME)
+        if retired_map_export(inner.as_posix()):
+          failures.append(f"Retired flat-map package ZIP asset: {zip_path}!{name}")
         if has_forbidden_duplicate_name(inner):
           failures.append(
             f"Unwanted duplicate/hidden package ZIP path: {zip_path}!{name}"
@@ -2011,6 +1697,10 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         if member.isfile():
           name_counts[normalized] += 1
           files.setdefault(normalized, member)
+          if retired_map_export(normalized):
+            failures.append(
+              f"Retired flat-map static archive asset: {tar_path}!{member.name}"
+            )
           if has_forbidden_duplicate_name(Path(normalized)):
             failures.append(
               f"Unwanted duplicate/hidden static archive path: {tar_path}!{member.name}"
@@ -2040,8 +1730,12 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         "mesh/regierungsviertel/rail-lines.json",
         "mesh/regierungsviertel/street-details.json",
         f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
-        "dzi/regierungsviertel/regierungsviertel.dzi",
-        "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+        "dzi/regierungsviertel/pedestrian_map.png",
+        "dzi/regierungsviertel/startup-map.jpg",
+        "dzi/regierungsviertel/landmarks.json",
+        "dzi/regierungsviertel/tiergartentunnel.json",
+        "dzi/regierungsviertel/visual_reference_attribution.json",
+        "dzi/regierungsviertel/wikimedia_attribution.json",
       }
       for name in sorted(required - files.keys()):
         failures.append(f"Missing static archive entry: {tar_path}!{name}")
@@ -2054,17 +1748,6 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         if extracted is None:
           raise KeyError(name)
         return extracted.read()
-
-      tar_dzi = "dzi/regierungsviertel/regierungsviertel.dzi"
-      tar_landmarks = "dzi/regierungsviertel/landmarks.json"
-      if tar_dzi in files and tar_landmarks in files:
-        failures.extend(
-          dzi_landmark_failures(
-            read_member(tar_dzi),
-            read_member(tar_landmarks),
-            f"{tar_path}!dzi/regierungsviertel",
-          )
-        )
 
       scene_name = "mesh/regierungsviertel/scene.json"
       if scene_name in files:
@@ -2092,21 +1775,6 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
               )
             )
 
-      descriptor_name = f"dzi/regierungsviertel/{DZI_DESCRIPTOR}"
-      if descriptor_name in files:
-        info, dzi_failures = parse_dzi_descriptor(
-          f"{tar_path}!{descriptor_name}", read_member(descriptor_name)
-        )
-        failures.extend(dzi_failures)
-        if info is not None:
-          for relative_tile in iter_dzi_tile_paths(info):
-            tile_name = f"dzi/regierungsviertel/{DZI_TILES_DIR}/{relative_tile}"
-            if tile_name not in files:
-              failures.append(
-                f"Missing DZI static archive tile: {tar_path}!{tile_name}"
-              )
-            elif files[tile_name].size == 0:
-              failures.append(f"Empty DZI static archive tile: {tar_path}!{tile_name}")
   except (OSError, EOFError, tarfile.TarError) as exc:
     return [f"Invalid static viewer archive: {tar_path}: {exc}"]
 
@@ -2185,14 +1853,6 @@ def collect_failures(
     failures.append(
       f"README.md direct download link does not point at v{version} package"
     )
-  package_source = (root / "scripts" / "package_static_site.py").read_text(
-    encoding="utf-8"
-  )
-  if (
-    "Große transparente Cumulus-Wolke über Spreebogen und Kanzleramt" in package_source
-  ):
-    failures.append("Zero-server fallback still places a cloud over the Chancellery")
-
   for report_file in REQUIRED_REPORT_FILES:
     if not (root / report_file).exists():
       failures.append(f"Missing QA/report artefact: {root / report_file}")
@@ -2207,17 +1867,7 @@ def collect_failures(
       public_dzi / "visual_reference_attribution.json"
     )
   )
-  failures.extend(dzi_tile_failures(public_dzi))
-  public_descriptor = public_dzi / DZI_DESCRIPTOR
   public_landmarks = public_dzi / "landmarks.json"
-  if public_descriptor.exists() and public_landmarks.exists():
-    failures.extend(
-      dzi_landmark_failures(
-        public_descriptor.read_bytes(),
-        public_landmarks.read_bytes(),
-        str(public_dzi),
-      )
-    )
   public_mesh = root / "src" / "app" / "public" / "mesh" / "regierungsviertel"
   failures.extend(
     traffic_signal_payload_failures(
@@ -2306,17 +1956,6 @@ def collect_failures(
         )
       except json.JSONDecodeError as exc:
         failures.append(f"Invalid packaged Tiergartentunnel payload: {exc}")
-    packaged_dzi = package_dir / "dzi" / "regierungsviertel"
-    packaged_descriptor = packaged_dzi / DZI_DESCRIPTOR
-    packaged_landmarks = packaged_dzi / "landmarks.json"
-    if packaged_descriptor.exists() and packaged_landmarks.exists():
-      failures.extend(
-        dzi_landmark_failures(
-          packaged_descriptor.read_bytes(),
-          packaged_landmarks.read_bytes(),
-          str(packaged_dzi),
-        )
-      )
     packaged_mesh = package_dir / "mesh" / "regierungsviertel"
     failures.extend(webgl_scene_failures(packaged_mesh))
   elif require_package_zip or require_static_tarball:

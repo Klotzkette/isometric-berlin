@@ -1,17 +1,18 @@
 # Deployment and release package
 
 The complete viewer is static after `bun run build`: React/Three.js assets,
-eight compact source-derived world JSON files and the OpenSeadragon DZI pyramid
-live below `src/app/dist/`. No GLB, source photograph or pretriangulated road
-plate ships in the current release. Runtime needs no AI service, API key or
-backend. Vite uses relative paths, so the directory can be served from a
+eight compact source-derived world JSON files, walking minimap and startup
+backdrop live below `src/app/dist/`. The viewer always uses the isometric 3D
+scene; retired flat-map tiles and the separate 2D renderer are excluded. No GLB,
+source photograph or pretriangulated road plate ships in the current release.
+Runtime needs no AI service, API key or backend. Vite uses relative paths, so the directory can be served from a
 subpath or static host.
 
 The same build is public at
 [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/).
 The GitHub release ZIP linked at the top of `README.md` is the supported
-offline deliverable for macOS and Windows. Build both outputs from a clean tree
-with:
+offline deliverable for macOS, Windows and Linux. Build both outputs from a
+clean tree with:
 
 ```bash
 cd src/app
@@ -72,19 +73,24 @@ the macOS system `tar`: it can inject AppleDouble `._…` metadata files. The
 Python packager normalizes timestamps and ownership, excludes source maps and
 produces byte-identical output for identical builds.
 
-The package contains two entries:
+The package has one viewer and a launch guide:
 
-- `START-HERE.html` is the double-click, zero-server 2D compatibility view.
-- `index.html` is the complete 3D viewer and must be served over local HTTP.
-  Windows users double-click `start-windows.bat`; macOS/Linux users run
-  `python3 serve-local.py` from the extracted folder.
+- `index.html` is the complete isometric viewer and requires local HTTP. Windows
+  users run `OPEN-3D-WINDOWS.bat` or `start-windows.bat`; macOS users can run
+  `OPEN-3D-MAC.command`; Linux users run `sh start-linux.sh`. Every platform can
+  also run `python3 serve-local.py` in the extracted folder. Python 3 is required.
+- `START-HERE.html` shows bilingual launch instructions when double-clicked from
+  disk. Over HTTP it redirects to `index.html`, retaining the query and hash.
+  It contains no separate renderer and never sends a file URL to the 3D app.
 
 The generated server verifies the declared inventory, size and SHA-256 of every
 world JSON file before opening the browser and rejects retired GLB/plate assets.
 Release readiness performs the same check against the source tree, extracted
-package and final ZIP, verifies every DZI tile, and rejects hidden, duplicate or
-stale 3D assets. The same gate parses the static tarball, rejects links/special
-files/path traversal and verifies all scene and DZI payloads before tagging.
+package and final ZIP, preserves the walking minimap and startup backdrop,
+and rejects retired flat-map output, hidden, duplicate or stale 3D assets. The
+same gate parses the static tarball, rejects links, special files and path
+traversal, and verifies all scene payloads and retained support assets before
+tagging.
 
 ## Hashed lazy assets and already-open tabs
 
@@ -105,23 +111,21 @@ The v0.72.3 runtime adds a second line of defence. Its early
 `vite:preloadError` listener performs at most one version-scoped reload so the
 tab can acquire the current HTML manifest, and the successful Three.js import
 clears that guard. If loading or rendering still fails, a visible boundary
-offers Reload and the 2D map rather than leaving the 3D surface blank. Asset
+offers Reload rather than leaving the 3D surface blank. Asset
 retention remains required because it also preserves uninterrupted sessions
 that have not yet loaded the new recovery runtime.
 
 v0.72.9 separately bounds failures after the 3D runtime is already active.
 Recovery is not gated by touch capability: every profile releases the failed
 canvas and active world and performs exactly one clean remount for that world
-family. A second failure presents explicit Recovery and 2D-map actions; it does
-not start another renderer, retain a second world or select the DZI map
-automatically. Separately, a mobile-like touch session—primary or any coarse
-pointer, or `navigator.maxTouchPoints > 0`—keeps only one heavy world family
+family. A second failure presents an explicit Reload action; it does not start
+another renderer or retain a second world. Separately, a mobile-like touch
+session—primary or any coarse pointer, or `navigator.maxTouchPoints > 0`—keeps only one heavy world family
 resident across family changes. Non-touch desktop's complete warm-scene
-behavior remains available only while switching among live 3D modes; moving
-to the DZI map releases WebGL on every device. These are source,
-production-profile and automated-browser release contracts, not a claim of
+behavior remains available while switching among live 3D modes. Disposing the
+viewer releases WebGL. These are source, production-profile and automated-browser release contracts, not a claim of
 physical iOS-device validation.
 
-If a future deployment separates heavy assets, the DZI pyramid and world JSON
+If a future deployment separates heavy assets, the world JSON
 can be placed on an object store such as Cloudflare R2. Attribution and
 relative-path requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.

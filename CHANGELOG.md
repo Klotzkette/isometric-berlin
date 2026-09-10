@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.28
+
+- Make the viewer isometric 3D only; remove the 2D switch, flat-map engine,
+  duplicated fallback renderer and unused map tiles from builds and downloads.
+- Align look controls: arrows and primary mouse dragging look in the indicated
+  direction in flight and walking; WASD and the orange joystick retain movement.
+- Keep all eight 3D payloads byte-identical, including buildings, streets, trees
+  and details; retain the small walking minimap and the same startup backdrop.
+- Replace the download’s separate 2D page with a compact bilingual 3D launch
+  guide and preserve recovery, view links and visual-mode position continuity.
+
 ## v1.0.27
 
 - Preserve camera position, view, lens and pedestrian state across all visual

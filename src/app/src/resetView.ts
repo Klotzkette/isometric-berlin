@@ -15,7 +15,7 @@ export const DEFAULT_THREE_CAMERA_OFFSET = [
 
 export type ViewState = {
   focus: string;
-  isFlipped: boolean;
+
   isUnderside: boolean;
   lightingMode: VisualMode;
   rotationDegrees: number;
@@ -23,7 +23,7 @@ export type ViewState = {
 
 export const DEFAULT_VIEW: ViewState = {
   focus: DEFAULT_FOCUS_LANDMARK,
-  isFlipped: false,
+
   isUnderside: false,
   lightingMode: "day",
   rotationDegrees: NORTH_UP_ROTATION,
@@ -40,7 +40,6 @@ export function resolveResetView(): ViewState {
 export function isDefaultView(current: ViewState): boolean {
   return (
     current.focus === DEFAULT_VIEW.focus &&
-    current.isFlipped === DEFAULT_VIEW.isFlipped &&
     current.isUnderside === DEFAULT_VIEW.isUnderside &&
     current.lightingMode === DEFAULT_VIEW.lightingMode &&
     Math.abs(current.rotationDegrees - DEFAULT_VIEW.rotationDegrees) < 1e-9

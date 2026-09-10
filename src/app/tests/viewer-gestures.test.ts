@@ -6,16 +6,11 @@ import {
   PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX,
   PEDESTRIAN_TAP_MAX_DURATION_MS,
   PEDESTRIAN_TAP_MAX_TRAVEL_PX,
-  PEN_GESTURE_SETTINGS,
   THREE_MOUSE_GESTURE_SETTINGS,
-  TOUCH_GESTURE_SETTINGS,
   accumulateBoundedFrameDelta,
   isPedestrianJumpDoubleTap,
   isPedestrianTouchTap,
   pedestrianWheelForwardInput,
-  rotationDeltaFromMouseDrag,
-  rotationDeltaFromTouchPairs,
-  snapRotationToCardinals,
   touchInteractionAfterPanGlideCancel,
   viewerGestureResetRequired,
   wheelNavigationIntent,
@@ -109,59 +104,10 @@ describe("touch viewer gestures", () => {
     ).toBe(true);
   });
 
-  test("primary drag pans while secondary drag deliberately orbits", () => {
-    expect(THREE_MOUSE_GESTURE_SETTINGS.LEFT).toBe(MOUSE.PAN);
+  test("primary drag looks around and secondary drag pans", () => {
+    expect(THREE_MOUSE_GESTURE_SETTINGS.LEFT).toBe(MOUSE.ROTATE);
     expect(THREE_MOUSE_GESTURE_SETTINGS.MIDDLE).toBe(MOUSE.DOLLY);
-    expect(THREE_MOUSE_GESTURE_SETTINGS.RIGHT).toBe(MOUSE.ROTATE);
-  });
-
-  test(
-    "v0.5.2: two-finger swipe pans (no accidental rotation), pinch zooms, " +
-      "flicks are controlled",
-    () => {
-      for (const settings of [TOUCH_GESTURE_SETTINGS, PEN_GESTURE_SETTINGS]) {
-        // Rotation on two-finger swipe felt weird on iPhone (people expect
-        // pan). The rotate buttons and the mouse-drag rotation still cover
-        // rotation on desktop and via the on-screen controls.
-        expect(settings.pinchRotate).toBe(false);
-        expect(settings.pinchToZoom).toBe(true);
-        expect(settings.dragToPan).toBe(true);
-        expect(settings.flickEnabled).toBe(true);
-        // v0.5.5: lighter flick threshold + more momentum for effortless
-        // phone panning (still bounded so a hard swipe does not fling away).
-        expect(settings.flickMinSpeed).toBe(35);
-        expect(settings.flickMomentum).toBe(0.68);
-        expect(settings.flickMomentum).toBeLessThan(1);
-      }
-    },
-  );
-
-  test("a two-touch twist advances rotation by more than 15 degrees", () => {
-    const delta = rotationDeltaFromTouchPairs(
-      [
-        { x: 0, y: 0 },
-        { x: 100, y: 0 },
-      ],
-      [
-        { x: 6.7, y: -25 },
-        { x: 93.3, y: 25 },
-      ],
-    );
-
-    expect(delta).toBeGreaterThan(15);
-    expect(delta).toBeLessThan(45);
-  });
-
-  test("snaps only rotations within four degrees of a cardinal", () => {
-    const cardinals = [296.565, 26.565, 116.565, 206.565] as const;
-
-    expect(snapRotationToCardinals(299.9, cardinals)).toBeCloseTo(296.565);
-    expect(snapRotationToCardinals(301, cardinals)).toBeCloseTo(301);
-  });
-
-  test("turns a deliberate shift-drag into a controlled free rotation", () => {
-    expect(rotationDeltaFromMouseDrag(100)).toBeCloseTo(38);
-    expect(rotationDeltaFromMouseDrag(-50)).toBeCloseTo(-19);
+    expect(THREE_MOUSE_GESTURE_SETTINGS.RIGHT).toBe(MOUSE.PAN);
   });
 
   test("normalizes mouse-wheel zoom across browser delta modes", () => {

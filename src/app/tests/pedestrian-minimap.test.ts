@@ -16,7 +16,7 @@ describe("pedestrian minimap projection", () => {
       'assetPath("dzi/regierungsviertel/pedestrian_map.png")',
     );
     expect(appSource).toContain("imageUrl={pedestrianMapUrl}");
-    expect(appSource).toContain("src={referenceMapUrl}");
+    expect(appSource).not.toContain("referenceMapUrl");
   });
 
   test("keeps the top-down reference map north-up", () => {

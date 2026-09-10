@@ -1,9 +1,8 @@
 """Serve the local Isometric Berlin viewer from disk.
 
 This script uses only the Python standard library. It serves the
-already-built static app from ``src/app/dist`` when present. If the
-Vite build has not been generated yet, it falls back to the committed
-single-image preview under ``src/app/public/dzi/regierungsviertel``.
+already-built isometric static app from ``src/app/dist``. A missing
+build is reported with the build command; no separate renderer is started.
 """
 
 from __future__ import annotations
@@ -75,12 +74,8 @@ def viewer_directory(root: Path) -> tuple[Path, str]:
   dist = root / "src" / "app" / "dist"
   if (dist / "index.html").exists():
     return dist, "/"
-  preview = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
-  if (preview / "preview.html").exists():
-    return preview, "/preview.html"
   raise SystemExit(
-    "No local viewer found. Build it with `cd src/app && bun run build`, "
-    "or regenerate the DZI preview."
+    "No built 3D viewer found. Build it with `cd src/app && bun install && bun run build`."
   )
 
 

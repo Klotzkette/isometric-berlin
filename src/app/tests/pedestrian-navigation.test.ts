@@ -250,16 +250,16 @@ describe("pedestrian navigation", () => {
   test("counts three quick presses only for the same movement direction", () => {
     const first = pedestrianMovementActivation(
       { count: 0, key: "", lastActivationAt: 0 },
-      "ArrowUp",
+      "w",
       1_000,
     );
-    const second = pedestrianMovementActivation(first, "ArrowUp", 1_339);
-    const third = pedestrianMovementActivation(second, "ArrowUp", 1_678);
+    const second = pedestrianMovementActivation(first, "w", 1_339);
+    const third = pedestrianMovementActivation(second, "w", 1_678);
     expect([first.count, second.count, third.count]).toEqual([1, 2, 3]);
     expect(pedestrianMovementActivation(second, "w", 1_500).count).toBe(3);
     expect(pedestrianMovementActivation(second, "s", 1_500).count).toBe(1);
     expect(
-      pedestrianMovementActivation(second, "ArrowUp", 1_680).count,
+      pedestrianMovementActivation(second, "w", 1_680).count,
     ).toBe(1);
   });
 
@@ -429,6 +429,19 @@ describe("pedestrian navigation", () => {
       strafe: 0,
       turn: 1,
     });
+  });
+
+  test("up/down arrows look in that direction without walking or changing floor", () => {
+    const start = createPedestrianState(environment);
+    const up = stepPedestrian(start, heldPedestrianInput(new Set(["ArrowUp"])), 0.05, environment).state;
+    expect(up.pitch).toBeGreaterThan(start.pitch);
+    expect([up.x, up.z, up.groundY]).toEqual([start.x, start.z, start.groundY]);
+    const down = stepPedestrian(up, heldPedestrianInput(new Set(["ArrowDown"])), 0.05, environment).state;
+    expect(down.pitch).toBeLessThan(up.pitch);
+    expect([down.x, down.z, down.groundY]).toEqual([start.x, start.z, start.groundY]);
+    const combined = heldPedestrianInput(new Set(["w", "ArrowUp"]));
+    expect(combined.forward).toBe(1);
+    expect(combined.look).toBe(1);
   });
 
   test("LoD2 walls are solid while a real courtyard hole remains walkable", () => {

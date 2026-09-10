@@ -6,26 +6,37 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.27 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.27/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.28 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.28/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
-The downloadable viewer is the built React + Three.js/OpenSeadragon app from
-`src/app/`. It defaults directly to the drawn isometric 3D view and works on modern
-desktop, phone and tablet browsers. No AI model, Google key or paid service is
-needed at runtime. The same functional viewer is deployed on GitHub Pages and
-bundled with all required local assets in the release ZIP.
+The downloadable viewer is the built React + Three.js app from `src/app/`.
+It always presents the isometric 3D city, in Day, Night, Snowstorm, Minecraft or
+Schwellenraum, on modern desktop, phone and tablet browsers. No AI model, Google
+key or paid service is needed at runtime. GitHub Pages and the release ZIP use
+the same viewer and all required local assets.
 
-`START-HERE.html` is the zero-server **2D compatibility fallback**, not the
-full model. For true 3D on Windows, double-click `start-windows.bat`. On macOS
-or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
-3D viewer directly. The distinction is explicit in the package so the old
-flat renderer cannot be mistaken for current 3D quality.
+For local use, extract the whole ZIP and launch `OPEN-3D-WINDOWS.bat` on Windows,
+`OPEN-3D-MAC.command` on macOS, or `sh start-linux.sh` on Linux. Alternatively,
+run `python3 serve-local.py` in the extracted folder. Python 3 is required.
+`START-HERE.html` shows these instructions when double-clicked; when served over
+HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.27** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.28** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.28 removes the separate 2D renderer and its unused map exports.
+Arrow keys and mouse dragging now look in the indicated direction: up looks up,
+down looks down. All city geometry, visual styles, walking navigation and source
+data remain intact; the walking minimap and startup backdrop stay available.
+
+Version 1.0.28 entfernt den separaten 2D-Renderer und seine ungenutzten
+Kartenexporte. Pfeiltasten und Mausbewegung richten den Blick in die angegebene
+Richtung: nach oben schaut nach oben, nach unten schaut nach unten. Stadtgeometrie,
+Darstellungsmodi, Fußnavigation und Quelldaten bleiben erhalten; Minikarte und
+Starthintergrund bleiben verfügbar.
 
 Version 1.0.27 retains position, view and walking/flight state across visual
 mode switches, including mobile Minecraft reloads. Minecraft has about 20 percent
@@ -229,10 +240,35 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.21**, built from `main`. Its full viewer
-is a progressively loaded, freely orbitable 3D scene; the double-click HTML
-remains a clearly labelled compatibility fallback for browsers that cannot run
-local modules.
+The public package is **v1.0.28**, built from `main`. It contains one freely
+orbitable isometric scene with five visual styles. Changing a visual style
+preserves location, view and walking/flight state. The launch guide opens this
+same viewer through local HTTP.
+
+Mouse dragging turns the view in the drag direction. The arrow keys look left,
+right, up and down; `W`/`A`/`S`/`D` move through the city. In flight, `Space`
+rises and `Shift` descends; while walking, `Space` jumps. The orange joystick
+supports mouse and touch. The in-viewer Help menu lists the complete controls,
+and **Get unstuck / Freikommen** provides a local escape from obstacles.
+
+Mit der Maus folgt der Blick der Ziehrichtung. Die Pfeiltasten richten den
+Blick nach links, rechts, oben und unten; `W`/`A`/`S`/`D` bewegen durch die Stadt.
+Im Schweben steigt `Space` auf und `Shift` sinkt ab; zu Fuß springt `Space`.
+Der orange Joystick funktioniert mit Maus und Touch. Die vollständige Bedienung
+steht im Hilfemenü; **Freikommen** hilft an Hindernissen.
+
+### Earlier implementation notes / Frühere Entwicklungsschritte
+
+The following notes record earlier releases and their original behavior. Their
+references to a separate 2D map, OpenSeadragon or a zero-server compatibility
+viewer are historical: those features were removed in v1.0.28. Current launch
+instructions and controls are described above and under **Run locally**.
+
+Die folgenden Notizen dokumentieren frühere Releases mit ihrem damaligen
+Verhalten. Hinweise auf eine separate 2D-Karte, OpenSeadragon oder eine
+Kompatibilitätsansicht ohne Server sind historisch: Diese Funktionen wurden mit
+v1.0.28 entfernt. Die aktuelle Bedienung und der lokale Start stehen oben und
+unter **Lokal starten**.
 
 - **Kollhoff panorama colours at Potsdamer Platz.** Twenty complete source
   building groups now distinguish golden Stabi, terracotta, grey upper
@@ -2292,121 +2328,99 @@ Die Credits der fünf Kindertransport-Referenzfotos liegen in
 
 ## Run locally
 
-The committed viewer can run from your hard drive with the generated
-open-data artefacts. It does **not** need an AI model at runtime. AI is
-only needed later if you want to replace the deterministic local
-pixel-art pass with a fine-tuned image model.
+A GitHub checkout must be built once before starting the viewer. It uses the
+committed open-data assets and needs no AI model, account or API key at runtime.
 
 ```bash
-python3 scripts/serve_local_viewer.py
+cd src/app
+bun install
+bun run build
+cd ../..
+uv run python scripts/serve_local_viewer.py
 ```
 
-Open the printed local URL, usually:
+The server opens the built isometric viewer at the printed local URL, normally
+`http://127.0.0.1:8766/`. If that port is busy, it uses the next free port.
+The server remains running while you use the viewer. It reports a missing build
+with the build command instead of launching a different renderer.
 
-```text
-http://127.0.0.1:8766/
-```
+The five visual styles share the same source-bound city and location. Free
+orbit, walking, flight, zoom and the Tiergartentunnel cutaway are available.
+Cardinal presets and the walking minimap help orientation. Landmark placement
+is checked in [the alignment audit](docs/landmark-alignment.md) against OSM
+and Berlin LoD2 geometry. Optional Google data fetching remains separate from
+the viewer and requires the explicit local opt-in flags.
 
-If port `8766` is already busy, the local server automatically uses
-the next free port and prints that URL.
-
-Current default data sources are free/open: Berlin LoD2, OSM, ALKIS, DOP
-preview, and DGM preview. Google 3D Tiles remain wired as an
-optional opt-in source, but are not required and are not fetched unless
-you provide a local `.env` with a Maps API key and the opt-in flags.
-
-Landmark placement is checked in
-[`docs/landmark-alignment.md`](docs/landmark-alignment.md) against the
-local OSM city-map layer and Berlin LoD2 building geometry. The viewer
-starts in a north-up true 3D view. It supports free orbit, zoom, pan and a
-physical underside camera with the Tiergartentunnel cutaway. Cardinal presets
-and a top-down OSM/LoD2 reference map keep orientation reproducible; the static
-Deep Zoom image remains available from the mode switch.
-
-To create a downloadable folder and ZIP for another Mac or PC:
+After building, create the downloadable package with:
 
 ```bash
-python3 scripts/package_static_site.py
+uv run python scripts/package_static_site.py
 ```
 
-The result is written to
-`releases/isometric-berlin-regierungsviertel-local/` and
-`releases/isometric-berlin-regierungsviertel-local.zip`. Unzip it on
-the target computer and start:
+The folder and ZIP are written under `releases/`. On the destination computer,
+extract the entire archive and use one of these Python 3 launchers:
 
-- Mac and Windows zero-server fallback: double-click `START-HERE.html`.
-- Full local 3D on macOS: open Terminal and run `python3 serve-local.py` from
-  the unzipped folder; it opens the 3D viewer directly.
-- Full local 3D on Windows: double-click `start-windows.bat`; it opens the 3D
-  viewer directly.
-- Linux fallback: `./start-linux.sh`.
+- Windows: double-click `OPEN-3D-WINDOWS.bat` or `start-windows.bat`.
+- macOS: open `OPEN-3D-MAC.command`; if blocked, right-click and choose Open.
+- Linux: run `sh start-linux.sh`.
+- Any platform: run `python3 serve-local.py` in the extracted folder.
 
-There is intentionally no `start-mac.command` anymore: downloaded
-`.command` files are unsigned executable scripts, so macOS Gatekeeper can
-block them before the viewer starts.
+`START-HERE.html` provides bilingual instructions even before the server starts.
+Over HTTP it redirects to `index.html`, preserving the URL settings. Opening
+`index.html` directly as a file cannot load the scene because of browser
+file-access restrictions. Use the local HTTP address printed by the launcher.
+All required city assets and credits are included, so subsequent use is offline.
 
 </td>
 <td valign="top">
 
 ## Lokal starten
 
-Der committed Viewer läuft mit den erzeugten Open-Data-Artefakten
-direkt von deiner Festplatte. Dafür brauchst du **kein KI-Modell** zur
-Laufzeit. KI wird erst später relevant, wenn der deterministische
-lokale Pixel-Art-Schritt durch ein feinabgestimmtes Bildmodell ersetzt
-werden soll.
+Ein GitHub-Checkout muss vor dem ersten Start einmal gebaut werden. Der Viewer
+nutzt die mitgelieferten Open-Data-Dateien und benötigt zur Laufzeit weder
+KI-Modell noch Konto oder API-Schlüssel.
 
 ```bash
-python3 scripts/serve_local_viewer.py
+cd src/app
+bun install
+bun run build
+cd ../..
+uv run python scripts/serve_local_viewer.py
 ```
 
-Öffne die ausgegebene lokale URL, normalerweise:
+Der Server öffnet den gebauten isometrischen Viewer unter der ausgegebenen
+lokalen Adresse, normalerweise `http://127.0.0.1:8766/`. Bei belegtem Port wählt
+er den nächsten freien. Lass den Server während der Nutzung laufen. Fehlt der
+Build, nennt er den nötigen Build-Befehl.
 
-```text
-http://127.0.0.1:8766/
-```
+Alle fünf Darstellungen teilen dieselbe quellengebundene Stadt und Position.
+Freies Drehen, Gehen, Schweben, Zoomen und der Tiergartentunnel-Cutaway sind
+verfügbar. Himmelsrichtungs-Presets und die Minikarte beim Gehen erleichtern die
+Orientierung. Der [Lageabgleich](docs/landmark-alignment.md) prüft die
+Sehenswürdigkeiten gegen OSM und Berliner LoD2-Geometrie. Der optionale Abruf
+von Google-Daten bleibt von der Viewernutzung getrennt und benötigt die
+expliziten lokalen Opt-in-Einstellungen.
 
-Falls Port `8766` schon belegt ist, nutzt der lokale Server automatisch
-den nächsten freien Port und gibt diese URL aus.
-
-Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin LoD2, OSM,
-ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
-als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
-und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
-Opt-in-Flags vorhanden ist.
-
-Die Lage der Sehenswürdigkeiten wird in
-[`docs/landmark-alignment.md`](docs/landmark-alignment.md) gegen den
-lokalen OSM-Stadtplan-Layer und die Berliner LoD2-Gebäudegeometrie
-geprüft. Der Viewer startet mit geographisch Norden oben in echtem 3D. Freies
-Drehen, Zoomen, Verschieben und die physische Untersicht mit
-Tiergartentunnel-Cutaway sind direkt verfügbar. Kardinal-Presets und die
-Top-down-Referenzkarte aus OSM/LoD2 machen den Stadtplan-Abgleich
-reproduzierbar; die statische Deep-Zoom-Ansicht bleibt als Modus erhalten.
-
-Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
+Nach dem Build erzeugst du das Download-Paket so:
 
 ```bash
-python3 scripts/package_static_site.py
+uv run python scripts/package_static_site.py
 ```
 
-Das Ergebnis liegt unter
-`releases/isometric-berlin-regierungsviertel-local/` und
-`releases/isometric-berlin-regierungsviertel-local.zip`. Auf dem
-Zielrechner entpacken und starten:
+Ordner und ZIP liegen unter `releases/`. Auf dem Zielrechner das ganze Archiv
+entpacken und einen dieser Python-3-Starter verwenden:
 
-- Mac und Windows ohne Server: Doppelklick auf `START-HERE.html` öffnet die
-  robuste 2D-Fallbackansicht.
-- Volles lokales 3D auf macOS: Terminal öffnen und im entpackten Ordner
-  `python3 serve-local.py` ausführen; der 3D-Viewer öffnet sich direkt.
-- Volles lokales 3D auf Windows: `start-windows.bat` doppelklicken; der
-  3D-Viewer öffnet sich direkt.
-- Linux-Fallback: `./start-linux.sh`.
+- Windows: `OPEN-3D-WINDOWS.bat` oder `start-windows.bat` doppelklicken.
+- macOS: `OPEN-3D-MAC.command` öffnen; falls blockiert, Rechtsklick → Öffnen.
+- Linux: `sh start-linux.sh` ausführen.
+- Jedes System: im entpackten Ordner `python3 serve-local.py` ausführen.
 
-Ein `start-mac.command` wird absichtlich nicht mehr ausgeliefert:
-heruntergeladene `.command`-Dateien sind unsignierte ausführbare Skripte
-und werden von macOS Gatekeeper oft blockiert, bevor der Viewer starten
-kann.
+`START-HERE.html` zeigt die zweisprachige Anleitung auch ohne laufenden Server.
+Über HTTP leitet die Seite mit den URL-Einstellungen an `index.html` weiter.
+Ein direktes Öffnen von `index.html` als Datei kann wegen der Dateizugriffsregeln
+des Browsers keine Szene laden. Verwende die vom Starter ausgegebene lokale
+HTTP-Adresse. Alle benötigten Stadtdateien und Credits liegen im Paket, daher
+ist die anschließende Nutzung offline möglich.
 
 </td>
 </tr>
@@ -2430,10 +2444,9 @@ kann.
    → "whitebox" / textured render PNG.
 7. **AI tile generation** — optionally feed each render into a fine-tuned
    `Qwen/Image-Edit` model to produce the pixel-art tile.
-8. **DZI export** — assemble tiles into a Deep Zoom pyramid
-   (libvips / pyvips).
-9. **Viewer** — React + Three.js/OpenSeadragon app for true 3D and the 2D
-   compatibility view.
+8. **Archival DZI export** — optionally assemble tiles into a Deep Zoom pyramid
+   (libvips / pyvips); these exports are not bundled in the viewer.
+9. **Viewer** — React + Three.js app for the isometric city and its five styles.
 
 The NYC repo's `src/isometric_nyc/` layout is mirrored as
 `src/isometric_berlin/`.
@@ -2458,10 +2471,9 @@ The NYC repo's `src/isometric_nyc/` layout is mirrored as
    → „Whitebox"- bzw. texturiertes Render-PNG.
 7. **KI-Kachelgenerierung** — optional jedes Render in ein feingetuntes
    `Qwen/Image-Edit`-Modell speisen, das die Pixel-Art-Kachel erzeugt.
-8. **DZI-Export** — Kacheln zu einer Deep-Zoom-Pyramide zusammenbauen
-   (libvips / pyvips).
-9. **Viewer** — React + Three.js/OpenSeadragon für echtes 3D und die
-   2D-Kompatibilitätsansicht.
+8. **DZI-Archivexport** — Kacheln optional zu einer Deep-Zoom-Pyramide
+   zusammenbauen (libvips / pyvips); diese Exporte werden nicht im Viewer gebündelt.
+9. **Viewer** — React + Three.js für die isometrische Stadt und ihre fünf Darstellungen.
 
 Das Layout `src/isometric_nyc/` aus dem NYC-Repo wird hier als
 `src/isometric_berlin/` gespiegelt.
@@ -2482,7 +2494,7 @@ isometric-berlin/
 ├── generations/             # SQLite DBs of rendered/generated tiles
 ├── references/              # Style reference images
 ├── src/
-│   ├── app/                 # React + OpenSeadragon viewer
+│   ├── app/                 # React + Three.js isometric viewer
 │   └── isometric_berlin/    # Python pipeline
 ├── inference/               # Modal serving for fine-tuned model
 ├── pyproject.toml
@@ -2521,7 +2533,7 @@ isometric-berlin/
 ├── generations/             # SQLite-DBs der gerenderten/generierten Tiles
 ├── references/              # Stilreferenzbilder
 ├── src/
-│   ├── app/                 # React + OpenSeadragon Viewer
+│   ├── app/                 # Isometrischer React + Three.js-Viewer
 │   └── isometric_berlin/    # Python-Pipeline
 ├── inference/               # Modal-Serving des feingetunten Modells
 ├── pyproject.toml

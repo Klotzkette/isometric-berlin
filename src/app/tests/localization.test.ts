@@ -16,17 +16,16 @@ describe("bilingual viewer copy", () => {
     );
   });
 
-  test("localizes the complete 3D view-switch and underside controls", () => {
-    expect(UI_COPY.en.switchToMap).toBe(
-      "Switch to the high-resolution detail map",
-    );
-    expect(UI_COPY.en.switchToThreeD).toBe(
-      "Switch to the free official 3D view",
-    );
-    expect(UI_COPY.en.viewTransform).toBe("Rotate and flip view");
+  test("localizes isometric camera controls without a flat-map action", () => {
+    expect(UI_COPY.en.viewTransform).toBe("Rotate and tilt view");
     expect(UI_COPY.en.trueUnderside).toContain("Tiergarten tunnel");
-    expect(UI_COPY.en.flipHorizontal).not.toBe(UI_COPY.de.flipHorizontal);
-    expect(UI_COPY.en.flipVertical).not.toBe(UI_COPY.de.flipVertical);
+    expect(UI_COPY.de.tiltUp).toBe("Nach oben schauen");
+    expect(UI_COPY.de.tiltDown).toBe("Nach unten schauen");
+    for (const copy of Object.values(UI_COPY)) {
+      expect(Object.values(copy).join(" ")).not.toContain("2D");
+      expect(copy).not.toHaveProperty("switchToMap");
+      expect(copy).not.toHaveProperty("useMapFallback");
+    }
   });
 
   test("labels contextual rain and snowfall controls in both languages", () => {

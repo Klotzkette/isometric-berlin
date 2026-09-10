@@ -19,90 +19,18 @@ DEFAULT_PORT = 8876
 REQUEST_TIMEOUT_SECONDS = 8
 SERVER_START_TIMEOUT_SECONDS = 12
 REQUIRED_START_SNIPPETS = (
-  "requestAnimationFrame",
-  "renderQueued",
-  "resizeTimer",
-  "lostpointercapture",
-  "tunnelPayload",
-  "tunnel-light",
-  "tunnel-vent",
-  "tunnel-volume",
-  "tunnel-center-wall",
-  "tunnel-ceiling-rib",
-  "tunnel-service-bay",
-  "under-view",
-  "scaleY",
-  "focusTunnelRoute",
-  "addTunnelTube",
-  "addTunnelVentilation",
-  "Drehen/Swivel",
-  "2D-Kompatibilitätsansicht",
-  "addLandmarkList",
-  "lang-en",
-  "applyLanguage",
-  "setLanguage",
-  "theme-night",
-  "setTheme",
-  "night-light-overlay",
-  "addNightLights",
-  "night-window",
-  "night-street-lamp",
-  "scene-detail-overlay",
-  "addSceneDetails",
-  "details-toggle",
-  "clouds-toggle",
-  "performance-toggle",
-  "setDetails",
-  "setClouds",
-  "setPerformance",
-  "data-performance",
-  "data-dragging",
-  "detail-cloud",
-  "cloud-shadow",
-  "sunbeam",
-  "detail-glint",
-  "detail-ripple",
-  "detail-tree-cluster",
-  "detail-water-depth",
-  "detail-tunnel-branch",
-  "detail-train-ice",
-  "detail-train-sbahn",
-  "detail-vehicle",
-  "vehicle-light-cone",
-  "addFlag",
-  "detail-boat",
-  "PREFERENCE_STORAGE_KEY",
-  "readPreferences",
-  "savePreferences",
-  "localStorage",
-  "readStartParams",
-  "paramFlag",
-  "paramChoice",
-  "applyQualityImage",
-  "imageFallbackAttempted",
-  'mapImage.addEventListener("error"',
-  "savedLandmarkName",
-  "restoreInitialView",
-  "initialViewState",
-  "resetView",
-  "refitPreservingView",
-  "setTimeout(refitPreservingView, 80)",
-  "event.metaKey",
-  "event.ctrlKey",
-  "event.altKey",
-  "targetTag",
-  "viewport-fit=cover",
-  "100dvh",
-  "@media (pointer: coarse)",
-  "min-height: 44px",
-  "activePointers",
-  "pinchGesture",
-  'pointerType === "touch"',
-  "startPinchGesture",
-  "updatePinchGesture",
-  "pointerAngle",
-  "startRotation",
-  "resumeSingleTouchDrag",
+  "OPEN-3D-MAC.command",
+  "OPEN-3D-WINDOWS.bat",
+  "sh start-linux.sh",
+  "python3 serve-local.py",
+  'window.location.protocol === "http:"',
+  'window.location.protocol === "https:"',
+  "window.location.replace(viewer.href)",
+  "viewer.search = window.location.search",
+  "viewer.hash = window.location.hash",
+  "Lokal starten",
+  "Start locally",
+  "© OpenStreetMap contributors",
 )
 
 
@@ -192,8 +120,8 @@ def require_package_files(package_dir: Path) -> None:
     "README.txt",
     "package-manifest.json",
     "serve-local.py",
-    "dzi/regierungsviertel/regierungsviertel.dzi",
-    "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+    "dzi/regierungsviertel/pedestrian_map.png",
+    "dzi/regierungsviertel/startup-map.jpg",
     "dzi/regierungsviertel/tiergartentunnel.json",
     "dzi/regierungsviertel/landmarks.json",
     "mesh/regierungsviertel/scene.json",
@@ -227,12 +155,8 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   ]
   if missing:
     raise RuntimeError("START-HERE.html missing snippets: " + ", ".join(missing))
-  if (
-    'className = "marker"' in start_html
-    or '<div id="markers">' in start_html
-    or "markerRoot" in start_html
-  ):
-    raise RuntimeError("START-HERE.html still contains permanent landmark markers")
+  if "mapImage" in start_html or "regierungsviertel.dzi" in start_html:
+    raise RuntimeError("START-HERE.html still includes the retired flat-map renderer")
 
   manifest = read_json_url(f"{base_url}/package-manifest.json")
   if manifest.get("package_version") != expected_version:
@@ -240,12 +164,14 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
       "Package manifest version "
       f"{manifest.get('package_version')!r} != {expected_version!r}"
     )
-  if manifest.get("start_page_mode") != "3d-launcher-with-2d-compatibility-fallback":
+  if manifest.get("start_page_mode") != "3d-launch-guide":
     raise RuntimeError("Package manifest mislabels START-HERE.html")
   if manifest.get("full_3d_start_page") != "index.html":
     raise RuntimeError("Package manifest lacks the true 3D entry point")
   assets = manifest.get("assets")
   required_assets = {
+    "pedestrian_map",
+    "startup_backdrop",
     "tiergartentunnel_overlay",
     "webgl_scene",
     "ground_context",
@@ -259,15 +185,10 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   if not isinstance(assets, dict) or not required_assets.issubset(assets):
     raise RuntimeError("Package manifest lacks procedural scene assets")
 
-  dzi = read_url(f"{base_url}/dzi/regierungsviertel/regierungsviertel.dzi")
-  if b"<Image" not in dzi or b"<Size" not in dzi:
-    raise RuntimeError("DZI descriptor does not look valid")
-
-  tile = read_url(
-    f"{base_url}/dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg"
-  )
-  if len(tile) < 100 or not tile.startswith(b"\xff\xd8"):
-    raise RuntimeError("DZI tile 12/0_0.jpg does not look like a JPEG")
+  minimap = read_url(f"{base_url}/dzi/regierungsviertel/pedestrian_map.png")
+  backdrop = read_url(f"{base_url}/dzi/regierungsviertel/startup-map.jpg")
+  if not minimap.startswith(b"\x89PNG") or not backdrop.startswith(b"\xff\xd8"):
+    raise RuntimeError("The walking minimap or startup backdrop is invalid")
 
   tunnel = read_json_url(f"{base_url}/dzi/regierungsviertel/tiergartentunnel.json")
   routes = tunnel.get("routes")

@@ -45,15 +45,11 @@ describe("idle-frame anti-flicker contract", () => {
     );
     expect(viewerSource).not.toContain("flightVelocity.lerp");
     expect(viewerSource).toContain("controls.rotateSpeed = 1.45");
-    expect(appSource).toContain("animationTime: 0.12");
-    expect(appSource).toContain("immediateRender: true");
-    expect(appSource).toContain("springStiffness: 18");
   });
 
   test("isolates one compositor surface behind the 3D modes", () => {
-    expect(appSource).toContain("`app-shell--viewer-${viewerMode}`");
-    expect(stylesSource).toContain(".app-shell--viewer-three .viewer");
-    expect(stylesSource).toContain("visibility: hidden");
+    expect(appSource).toContain('"app-shell--viewer-three"');
+    expect(appSource).not.toContain('id="openseadragon-viewer"');
     expect(stylesSource).toContain(
       ".app-shell--viewer-three .map-stage::after",
     );

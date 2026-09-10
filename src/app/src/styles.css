@@ -60,7 +60,6 @@ button:active:not(:disabled) {
 }
 
 .map-stage,
-.viewer,
 .three-viewer {
   position: absolute;
   inset: 0;
@@ -152,151 +151,6 @@ button:active:not(:disabled) {
   filter: saturate(0.54) sepia(0.12) brightness(1.02) contrast(0.88);
 }
 
-.viewer {
-  z-index: 1;
-  opacity: 0;
-  background: transparent;
-  overscroll-behavior: none;
-  pointer-events: none;
-  touch-action: none;
-  transition: opacity 180ms ease;
-}
-
-.viewer canvas {
-  transition: filter 320ms ease;
-}
-
-.app-shell--night .viewer canvas {
-  filter: brightness(0.4) saturate(0.82) contrast(1.12) hue-rotate(8deg);
-}
-
-.minecraft-dzi-filter {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.map-rain {
-  position: absolute;
-  z-index: 4;
-  inset: -12%;
-  overflow: hidden;
-  opacity: 0.58;
-  pointer-events: none;
-}
-
-.map-rain::before,
-.map-rain::after {
-  content: "";
-  position: absolute;
-  inset: -35% -20%;
-  background-image: repeating-linear-gradient(
-    104deg,
-    transparent 0 18px,
-    rgba(88, 145, 168, 0.5) 18px 19px,
-    transparent 19px 42px
-  );
-  background-size: 42px 76px;
-  animation: map-rain-fall 560ms linear infinite;
-  transform: translate3d(0, -76px, 0);
-  will-change: transform;
-}
-
-.map-rain::after {
-  opacity: 0.48;
-  background-size: 58px 104px;
-  animation-duration: 760ms;
-}
-
-.map-rain--night {
-  opacity: 0.72;
-  filter: brightness(1.35) saturate(0.8);
-}
-
-.map-rain--minecraft {
-  opacity: 0.7;
-  image-rendering: pixelated;
-}
-
-.map-rain--minecraft::before,
-.map-rain--minecraft::after {
-  animation-timing-function: steps(6, end);
-}
-
-/* Schwellenraum's world-motion contract permits recognised civic flags only. */
-.app-shell--schwellenraum .map-rain,
-.app-shell--schwellenraum .map-snowstorm {
-  display: none;
-}
-
-@keyframes map-rain-fall {
-  to {
-    transform: translate3d(-24px, 76px, 0);
-  }
-}
-
-.map-snowstorm {
-  position: absolute;
-  z-index: 4;
-  inset: -12%;
-  overflow: hidden;
-  background: rgba(222, 232, 237, 0.18);
-  pointer-events: none;
-}
-
-.map-snowstorm::before,
-.map-snowstorm::after {
-  content: "";
-  display: none;
-  position: absolute;
-  inset: -30%;
-  opacity: 0.9;
-  background-image:
-    radial-gradient(circle, #fff 0 1.3px, transparent 1.5px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 0.8px, transparent 1px);
-  background-position:
-    0 0,
-    19px 27px;
-  background-size:
-    43px 51px,
-    31px 37px;
-  animation: map-snow-fall 1.15s linear infinite;
-  transform: translate3d(-30px, -70px, 0);
-  will-change: transform;
-}
-
-.map-snowstorm.is-active::before,
-.map-snowstorm.is-active::after {
-  display: block;
-}
-
-.map-snowstorm::after {
-  opacity: 0.58;
-  background-size:
-    67px 73px,
-    49px 61px;
-  animation-duration: 1.75s;
-}
-
-@keyframes map-snow-fall {
-  to {
-    transform: translate3d(45px, 80px, 0);
-  }
-}
-
-.minecraft-dzi-fallback .openseadragon-canvas canvas {
-  filter: saturate(1.24) contrast(1.16) brightness(1.06);
-  image-rendering: pixelated;
-}
-
-.viewer.is-active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 .three-viewer {
   z-index: 2;
   overflow: hidden;
@@ -308,17 +162,11 @@ button:active:not(:disabled) {
 }
 
 /*
- * WebKit may repeatedly recomposite a WebGL canvas when a second canvas, a
- * viewport-sized inset shadow and several backdrop blurs sit above/below it.
- * In 3D the map canvas is not visible and the blur contributes no map detail,
- * so keep a single isolated compositor surface with opaque UI chrome. This is
+ * WebKit may repeatedly recomposite a WebGL canvas beneath viewport-sized
+ * inset shadows and backdrop blurs. Keep the scene on a single isolated
+ * compositor surface with opaque UI chrome. This is
  * the same presentation in all five visual modes and removes idle flashes.
  */
-.app-shell--viewer-three .viewer {
-  visibility: hidden;
-  transition: none;
-}
-
 .app-shell--viewer-three .three-viewer {
   isolation: isolate;
   contain: strict;
@@ -675,26 +523,10 @@ button:active:not(:disabled) {
   cursor: pointer;
 }
 
-.three-viewer-error-actions button:last-child {
-  background: rgba(255, 255, 255, 0.08);
-}
-
 .three-viewer-error-actions button:hover,
 .three-viewer-error-actions button:focus-visible {
   outline: 2px solid rgba(245, 239, 228, 0.94);
   outline-offset: 2px;
-}
-
-.openseadragon-canvas {
-  background: transparent;
-  outline: none;
-  overscroll-behavior: none;
-  touch-action: none;
-}
-
-.openseadragon-canvas canvas {
-  background: transparent;
-  image-rendering: auto;
 }
 
 .topbar {
@@ -1738,118 +1570,6 @@ button:active:not(:disabled) {
   }
 }
 
-.map-marker {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 3px solid #ffc45d;
-  border-radius: 999px;
-  background: rgba(255, 196, 93, 0.14);
-  box-shadow:
-    0 0 0 4px rgba(255, 196, 93, 0.22),
-    0 0 24px rgba(255, 196, 93, 0.54),
-    0 4px 10px rgba(0, 0, 0, 0.36);
-  pointer-events: none;
-}
-
-.map-marker[data-role="hero_tile"] {
-  background: #2f8fa7;
-  box-shadow:
-    0 0 0 3px rgba(47, 143, 167, 0.28),
-    0 4px 10px rgba(0, 0, 0, 0.36);
-}
-
-.map-marker[data-role="must_be_visible"] {
-  background: #a94235;
-  box-shadow:
-    0 0 0 3px rgba(169, 66, 53, 0.28),
-    0 4px 10px rgba(0, 0, 0, 0.36);
-}
-
-.map-marker[data-role="owner_added"] {
-  background: #d2a044;
-  box-shadow:
-    0 0 0 3px rgba(210, 160, 68, 0.24),
-    0 4px 10px rgba(0, 0, 0, 0.36);
-}
-
-.map-marker[data-priority="true"] {
-  width: 17px;
-  height: 17px;
-  border-color: #fff8e7;
-  background: #2f8fa7;
-  box-shadow:
-    0 0 0 3px rgba(47, 143, 167, 0.34),
-    0 0 0 7px rgba(224, 174, 105, 0.12),
-    0 8px 18px rgba(0, 0, 0, 0.42);
-}
-
-.map-marker[data-priority="true"]::after {
-  opacity: 1;
-  border-color: rgba(224, 174, 105, 0.9);
-  background: rgba(255, 248, 231, 0.96);
-  font-weight: 820;
-}
-
-.map-marker::before {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border: 1px solid rgba(224, 174, 105, 0);
-  border-radius: 999px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.map-marker::after {
-  content: attr(data-label);
-  position: absolute;
-  top: 50%;
-  left: 17px;
-  z-index: 2;
-  max-width: 190px;
-  padding: 4px 6px;
-  transform: translateY(-50%);
-  border: 1px solid rgba(245, 239, 228, 0.72);
-  border-radius: 6px;
-  color: #241f1a;
-  background: rgba(245, 239, 228, 0.92);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
-  font-size: 11px;
-  font-weight: 760;
-  line-height: 1.1;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.map-marker[data-role="owner_added"]::after {
-  opacity: 0.86;
-  font-weight: 680;
-}
-
-.map-marker:hover,
-.map-marker:focus-visible,
-.map-marker--selected {
-  background: #e0ae69;
-  transform: scale(1.12);
-  outline: none;
-}
-
-.map-marker:hover::before,
-.map-marker:focus-visible::before,
-.map-marker--selected::before {
-  opacity: 0.72;
-  transform: scale(1.08);
-}
-
-.map-marker:hover::after,
-.map-marker:focus-visible::after,
-.map-marker--selected::after {
-  border-color: #f5efe4;
-  background: #e0ae69;
-}
-
 .reference-modal {
   position: absolute;
   z-index: 30;
@@ -1860,18 +1580,6 @@ button:active:not(:disabled) {
   background: rgba(12, 16, 15, 0.72);
   backdrop-filter: blur(5px);
   pointer-events: auto;
-}
-
-.reference-panel {
-  display: grid;
-  width: min(1220px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
-  grid-template-rows: auto minmax(0, 1fr);
-  overflow: hidden;
-  border: 1px solid rgba(245, 239, 228, 0.18);
-  border-radius: 8px;
-  background: #191f1d;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.46);
 }
 
 .reference-header {
@@ -1915,15 +1623,6 @@ button:active:not(:disabled) {
 .reference-header button:focus-visible {
   background: #a94235;
   outline: none;
-}
-
-.reference-panel img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  object-fit: contain;
-  background: #f4f0e6;
 }
 
 .help-panel {
@@ -2561,10 +2260,6 @@ button:active:not(:disabled) {
     display: grid;
   }
 
-  .map-marker::after {
-    display: none;
-  }
-
   .app-shell--minecraft .mobile-sheet,
   .app-shell--minecraft .chrome-toggle,
   .app-shell--minecraft .mobile-compass-fab {
@@ -2670,10 +2365,6 @@ button:active:not(:disabled) {
     min-width: 44px;
   }
 
-  .map-marker {
-    min-width: 26px;
-    min-height: 26px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2687,15 +2378,8 @@ button:active:not(:disabled) {
   .mobile-sheet-backdrop,
   .mobile-floating-controls,
   .attribution,
-  .viewer,
   .three-viewer {
     transition-duration: 60ms !important;
-  }
-
-  .map-marker:hover::before,
-  .map-marker:focus-visible::before,
-  .map-marker--selected::before {
-    animation: none;
   }
 
 }

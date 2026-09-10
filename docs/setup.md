@@ -18,7 +18,25 @@ Photorealistic 3D Tiles are an **optional, additive** source: leave the
 uv sync
 ```
 
-## 3. Geodata download (Regierungsviertel only)
+## 3. Run the existing viewer
+
+The repository already contains the clipped runtime data. No geodata download,
+AI generation or DZI export is needed to work on or build the viewer.
+
+```bash
+cd src/app
+bun install
+bun run dev
+```
+
+Open the HTTP URL printed by Vite. The viewer always starts in isometric 3D;
+all five visual modes use that renderer. For a production build, run
+`bun run build` in the same directory and serve `dist/` over HTTP.
+
+The following pipeline commands are for regenerating source-derived artefacts,
+not prerequisites for opening an existing release.
+
+## 4. Geodata download (Regierungsviertel only)
 
 ```bash
 # Clip Berlin LoD2 CityGML to the Regierungsviertel polygon
@@ -36,7 +54,7 @@ Both commands are implemented and intentionally clipped to the
 Regierungsviertel bounds. Raw upstream downloads and caches remain
 under `geo_data/regierungsviertel/raw/` and are gitignored.
 
-## 4. Quadrant grid + render
+## 5. Quadrant grid + render
 
 ```bash
 uv run python -m isometric_berlin.generation.create_grid \
@@ -45,26 +63,40 @@ uv run python -m isometric_berlin.generation.create_grid \
 uv run python -m isometric_berlin.generation.render_quadrants
 ```
 
-## 5. Generate pixel-art tiles
+## 6. Generate archival pixel-art tiles
 
 ```bash
 uv run python -m isometric_berlin.generate_tile --all
 ```
 
-## 6. DZI export and viewer
+## 7. Archival DZI export
 
 ```bash
 uv run python -m isometric_berlin.generation.export_dzi
-cd src/app && bun install && bun run dev
 ```
 
-## 7. Release sanity check
+This pipeline command remains available for archival outputs. The current
+isometric viewer does not load a DZI pyramid and the live build excludes those
+tiles. Its startup backdrop and walking minimap are retained support images.
+
+## 8. Downloaded release
+
+Extract the full release package, then double-click `OPEN-3D-WINDOWS.bat` on
+Windows or `OPEN-3D-MAC.command` on macOS. Alternatively, run
+`python3 serve-local.py` from the extracted directory on macOS or Linux.
+The launcher serves and opens the same full 3D viewer over local HTTP.
+
+`START-HERE.html` explains these steps when opened as a local file. Over HTTP
+it redirects to the isometric app. A browser cannot reliably load JavaScript
+modules and scene JSON by double-clicking `index.html`; there is no alternate
+flat-map renderer.
+
+## 9. Release sanity check
 
 ```bash
 uv run python scripts/check_release_readiness.py
 ```
 
-This checks version sync, the README status line, required bundled DZI
-viewer assets, the 5 MiB committed-preview limit, zero-server camera
-normalization, and stale duplicate/hidden files before packaging or tagging a
-release.
+This checks version sync, the README status line, the retained 3D viewer assets,
+preview size limits, 3D launch instructions and stale duplicate/hidden files
+before packaging or tagging a release.

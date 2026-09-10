@@ -3,7 +3,6 @@ export type NamedSight = {
 };
 
 export type ViewHashState = {
-  flipped: boolean | null;
   landmarkSlug: string | null;
   rotationValue: string | null;
 };
@@ -104,14 +103,12 @@ export function findSightBySlug<T extends NamedSight>(
 export function parseViewHash(rawHash: string): ViewHashState {
   const hash = rawHash.replace(/^#/, "");
   if (!hash) {
-    return { flipped: null, landmarkSlug: null, rotationValue: null };
+    return { landmarkSlug: null, rotationValue: null };
   }
   const params = new URLSearchParams(
     hash.includes("=") ? hash : `landmark=${hash}`,
   );
-  const flipValue = params.get("flip");
   return {
-    flipped: flipValue === null ? null : flipValue === "1",
     landmarkSlug: params.get("landmark"),
     rotationValue: params.get("view"),
   };

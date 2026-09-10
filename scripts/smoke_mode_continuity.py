@@ -325,32 +325,39 @@ def explicit_actions(page: Any, touch: bool, timeout: float) -> None:
   assert math.dist(recovered["position"], expected["position"]) < 40, recovered
   emit(event="recovery-control-passed", touch=touch, state=recovered)
 
-  for viewer_mode in ("map", "three"):
-    if touch:
-      open_mobile_actions(page)
-      page.locator(".mobile-overflow-grid").get_by_role(
-        "button", name="2D" if viewer_mode == "map" else "3D", exact=True
-      ).tap()
-    else:
-      page.locator(".toolbar").get_by_role(
-        "button",
-        name=(
-          "Switch to the high-resolution detail map"
-          if viewer_mode == "map"
-          else "Switch to the free official 3D view"
-        ),
-        exact=True,
-      ).click()
-    page.locator(f'.map-stage[data-viewer-mode="{viewer_mode}"]').wait_for()
-    if viewer_mode == "map":
-      assert "app-shell--pedestrian" not in page.locator(".app-shell").get_attribute(
-        "class"
-      ), "2D did not exit walking"
-      page.wait_for_timeout(1000)
+  # The only renderer is now 3D. An explicit Walk toggle restores the saved
+  # flight pose; subsequent visual-style changes must preserve that pose too.
+  assert page.locator('.map-stage[data-viewer-mode="three"]').is_visible()
+  assert page.get_by_role("button", name="2D", exact=True).count() == 0
+  assert (
+    page.get_by_role(
+      "button", name="Switch to the high-resolution detail map", exact=True
+    ).count()
+    == 0
+  )
+  assert recovered["enabled"] and recovered["requested"], recovered
+  if touch:
+    open_mobile_actions(page)
+    page.locator(".mobile-overflow-grid").get_by_role(
+      "button", name="Walk", exact=True
+    ).tap()
+    if page.locator(".mobile-sheet-title button").is_visible():
+      page.locator(".mobile-sheet-title button").tap()
+  else:
+    page.locator(".pedestrian-mode-toggle").click()
   actual = wait_ready(page, "day", timeout)
   assert not actual["enabled"] and not actual["requested"], actual
   assert actual["pedestrian"] is None, actual
-  emit(event="walk-2d-3d-passed", touch=touch, state=actual)
+  near(actual["position"], recovered["savedPosition"], "walk-exit.position")
+  near(actual["target"], recovered["savedTarget"], "walk-exit.target")
+  near(actual["fov"], recovered["savedFov"], "walk-exit.fov")
+  near(actual["near"], recovered["savedNear"], "walk-exit.near")
+  expected_flight = start_tracking(page)
+  for mode in ("minecraft", "night", "day"):
+    select_mode(page, mode, touch)
+    assert_pose(wait_ready(page, mode, timeout), expected_flight)
+  samples = check_tracking(page, expected_flight)
+  emit(event="walk-flight-3d-only-passed", touch=touch, samples=samples, state=actual)
 
 
 def run(url: str, touch: bool, timeout: float, case: str, output: Path | None) -> None:

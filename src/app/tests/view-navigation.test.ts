@@ -50,14 +50,12 @@ describe("view navigation", () => {
     ).toBe("Queer Rainbow Memorial Berlin");
   });
 
-  test("parses full and shorthand hashes", () => {
+  test("parses landmark hashes and ignores obsolete flat-map mirroring", () => {
     expect(parseViewHash("#landmark=brandenburger-tor&view=N&flip=1")).toEqual({
-      flipped: true,
       landmarkSlug: "brandenburger-tor",
       rotationValue: "N",
     });
     expect(parseViewHash("#bundeskanzleramt")).toEqual({
-      flipped: null,
       landmarkSlug: "bundeskanzleramt",
       rotationValue: null,
     });

@@ -14,22 +14,21 @@ optional ground surfaces; see [reproduction and limits](performance-progressive-
 Off-centre orange-knob grips start neutral on mouse, touch and pen; see
 [shared joystick behavior](desktop-joystick.md).
 
-React + TypeScript + Vite with two complementary static engines, managed with
-`bun`:
+React + TypeScript + Vite + Three.js, managed with `bun`, presents one
+isometric 3D city from procedural Berlin LoD2/OSM geometry. The city loads
+progressively and remains freely navigable above and below ground in all five
+visual modes. Since v1.0.28, every entry point opens this same renderer;
+legacy `?view=map` links also open 3D.
 
-- **Three.js true 3D:** procedural Berlin LoD2/OSM geometry, progressively
-  loaded and freely orbitable from above and below.
-- **OpenSeadragon detail map:** the 16384×11616 DZI remains the fast,
-  high-resolution cartographic fallback.
-
-The hosted build keeps that full pyramid. Release archives intentionally omit
-only its redundant top level and ship an 8192×5808 DZI fallback alongside the
-6144×4356 double-click overview. Both forms carry the same compact procedural
-JSON scene and no retired GLB or road-plate assets.
+The hosted build and release archives carry the same compact procedural JSON
+scene. They contain no flat-map renderer, tile pyramid, retired GLB or road-plate
+assets. The small walking minimap, startup backdrop and source metadata remain.
+The Python DZI export command is an archival pipeline tool; it is unnecessary
+for building, running or publishing the current viewer.
 
 Required attribution overlay in the viewer chrome. The viewer ships the
 required minimum (OSM + Geoportal Berlin) **plus** the Wikimedia visual-
-reference clause, because the bundled tiles use Wikimedia references
+reference clause, because authored geometry uses Wikimedia visual references
 (see `NOTICE.md`). This is the exact string in `src/app/src/App.tsx`
 (`ATTRIBUTION`); keep the two in sync, and never drop the leading
 OSM + Geoportal Berlin minimum:
@@ -71,13 +70,14 @@ previous/next sight, `+`/`=`/`−` zoom, `Home`/`0` overview, `M` toggle
 Minecraft, `P` toggle pedestrian mode, `N` toggle night lights, `F` fullscreen,
 `R` reset, `B` ambient
 music, `T` Dusk Republic, `L` copy
-a view link, and `Esc` close overlays. In the 2D detail map, `Space` controls
-the tour and `D`/`S` switch Day/Night and Snowstorm; those keys become movement
-controls in 3D. `Alt`/`Option` plus arrows remains a
-viewer chord and is deliberately exempt from the browser-shortcut guard.
+a view link, and `Esc` close overlays. `D` and `S` are movement keys;
+Day/Night and Snowstorm are selected through the visual-mode buttons.
+`Alt`/`Option` plus arrows remains a viewer chord and is deliberately exempt
+from the browser-shortcut guard.
 
-In true 3D, left-drag pans with direct manipulation, the wheel zooms at the
-pointer, right-drag orbits, and one finger orbits on touch. A two-finger centre
+Left-drag turns the view in the drag direction: upward looks up and downward
+looks down. Right-drag or Shift+left-drag pans with direct manipulation, the
+wheel zooms at the pointer, and one finger turns the view on touch. A two-finger centre
 swipe pans with direct manipulation; pinch zooms around the finger midpoint,
 and double-tap zooms around the tapped world point. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
@@ -87,7 +87,8 @@ appears automatically after the camera crosses below ground **or flies into
 the tunnel tube itself** — approaching a portal at street level and diving in
 switches to the lit interior (safety-light strips, ceiling lights, ventilation
 shafts and fans) and out the other end.
-Arrow keys translate camera and target together in the visible screen plane.
+Arrow keys turn the view in their indicated direction: Up looks up, Down
+looks down, Left looks left and Right looks right.
 `W`/`A`/`S`/`D` flies forward/left/back/right relative to the current heading,
 `Space` rises and `Shift` alone descends. `Shift+A/D` and
 `Shift+Left/Right` rotate the view continuously in free-camera and pedestrian
@@ -110,14 +111,15 @@ unless the exact body column intersects a protected memorial volume. The orbit
 focus remains only an out-of-bounds fallback, while the established default
 spawn is used only when neither live point is valid.
 Pedestrian mode disables
-flight, camera zoom and underside controls. `W`/`S` or up/down walk,
-`A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
-the head with an 80-degree vertical limit. Scrolling the mouse wheel up walks
+flight, camera zoom and underside controls. `W`/`S` walk, `A`/`D` strafe,
+arrow keys look, and `Q`/`E` also turn. Mouse or one-finger drag moves the
+head in the drag direction with an 80-degree vertical limit. Scrolling the mouse
+wheel up walks
 forward and scrolling down walks backward; fine vertical trackpad deltas are
 proportional, while pinch and horizontal gestures do not move the walker. All
 wheel travel passes through the same solid-object, terrain, tunnel and water
 checks as keyboard movement. Hold `Shift` for a four-times sprint,
-or double-tap `W`/up or the forward button to latch and unlatch the same sprint;
+or double-tap `W` or the forward button to latch and unlatch the same sprint;
 a mouse double-click on the 3D view does the same. A completed mouse
 double-click or one short touch/pen tap on the orange walking joystick jumps.
 The normal rate is 13 m/s, with proportional slow analog input; all speeds pass
@@ -136,39 +138,37 @@ and both side pavilions remain solid. Schwellenraum adds only its further
 bounded doorway, interior-wall and floor collision contracts; every other
 building remains the same closed solid.
 
-**Continuous navigation:** held plain arrows pan in screen space; held WASD
-flies along the current heading, `Space` rises, `Shift` descends, and held
-`Alt`/`Option`+arrows orbit and tilt. The matching on-screen arrow controls also move continuously while
-the primary mouse button stays down. The orange joystick uses the same movement
+**Continuous navigation:** held arrows look in their indicated direction;
+held WASD moves along the current heading. In flight, `Space` rises and `Shift`
+alone descends; in walking, Space jumps and Shift sprints. Holding a desktop movement
+or look button continues its labelled action until release. The orange joystick
+uses the same movement
 on desktop, phone and tablet: drag up/down to move forward/backward, and
 left/right to strafe. It sits beside the desktop panel or near the chosen
 bottom edge on compact touch layouts, and uses walking input in pedestrian
 mode. Canvas drag and keyboard/arrow controls still provide orbit and look.
-In the 2D detail map, a plain `Space` tap still toggles the sight tour.
 The existing two-finger swipe remains. Flying below the Spree surface
 (scene water level 1.31 m) switches to
 an underwater presentation with deep-teal fog; it lifts as soon as the camera
 surfaces, and the Tiergartentunnel interior — which passes under the river — is
 exempt.
 
-In DZI mode, ordinary drag pans and Shift-drag rotates. On phones and
-coarse-pointer tablets up to 1024 px, the sight rail starts closed and leaves
-the safe-area-aware bottom controls accessible.
+On phones and coarse-pointer tablets up to 1024 px, the sight rail starts
+closed and leaves the safe-area-aware bottom controls accessible.
 
 ## Language, visual modes, and sound
 
 The toolbar exposes direct Day, Night, Minecraft, Snowstorm and Schwellenraum
-buttons. `D`
-remains the fast Day/Night toggle, `M` enters or leaves Minecraft independently
-and `S` enters or leaves Snowstorm. A fullscreen control uses the native API on
+buttons. `M` enters or leaves Minecraft independently; the other visual modes
+are available directly in the mode menu. A fullscreen control uses the native
+API on
 desktop and a safe-area-aware pseudo-fullscreen fallback on iOS.
 A separate weather button adds moderate rain without changing Day, Night or
 Minecraft. In Snowstorm the same button becomes a snowfall
 control: it pauses
 or resumes falling flakes while the settled snow, drifts and snowploughs remain
 in place. True 3D renders precipitation as one camera-following field, with a
-lower particle budget on coarse pointers; the DZI fallback uses a lightweight
-screen layer. Precipitation is hidden automatically in underwater and underside
+lower particle budget on coarse pointers. Precipitation is hidden automatically in underwater and underside
 views. Schwellenraum preserves the visitor's rain preference but disables the
 weather control and precipitation so its geometry remains still.
 
@@ -267,7 +267,8 @@ mobile mode remounts. Normal sight selection, explicit landmark deep links and
 the Academy-facing Pariser-Platz tour camera retain their existing behavior.
 Serra's arrival reuses the Philharmonie catalogue entry and displays its own
 opening label; the catalogue stays at 93. Reset remains the Day Reichstag view.
-The zero-server fallback keeps its static default. See [opening-view contract](simulation-start-views-v124.md).
+The local launchers open these same 3D arrivals. See
+[opening-view contract](simulation-start-views-v124.md).
 
 **Day is a drawn isometric city**: prisms are extruded from authoritative LoD2
 footprint polygons plus a
@@ -290,7 +291,7 @@ camera FOV narrows from 39°
 to 16° in this mode to flatten the view toward a true isometric look.
 Night and Snow relight the same drawn city; Minecraft uses its separate voxel
 world. If the requested world fails, the viewer performs one clean procedural
-remount and then exposes Recovery and 2D-map actions.
+remount and then exposes an explicit Reload action if the failure persists.
 
 The Sozialgericht Berlin is a dedicated source-bound recognition group rather
 than part of the kilometre-wide expanded-city batch. OSM way `423490503`
@@ -309,16 +310,15 @@ LoD2, terrain and bounded surface JSON needed by that world; the complete
 Minecraft instances remain lazy. Retired GLBs and the pretriangulated road
 plate are absent from the repository, build and offline package.
 The first HTML response contains a small attributed startup plate. React then
-loads the requested Three.js viewer as a separate chunk, while OpenSeadragon
-stays entirely dormant until the visitor chooses the 2D map. A
-production-build guard caps the synchronous JavaScript graph at 400 KiB
+loads the Three.js viewer as a separate chunk. No alternate map engine is
+installed or loaded. A production-build guard caps the synchronous JavaScript graph at 400 KiB
 uncompressed. Since v0.72.3, a version-scoped preload listener is registered
 before React can request that lazy chunk. If an already-open tab references a
 hashed viewer file removed by a newer deployment, it requests exactly one
 reload to obtain the current HTML manifest. The guard clears only after the
 Three.js module loads successfully. A repeated module or render failure reaches
-a visible error boundary with explicit Reload and 2D-map actions instead of
-leaving a blank surface or an apparently inactive 3D mode button. Once the
+a visible error boundary with an explicit Reload action and an explanation
+that helps diagnose persistent WebGL failures. Once the
 3D runtime exists, the small scene manifest starts first and the immutable
 payloads for the requested world transfer in parallel with manifest-driven
 recognition-detail construction. Since v1.0.20, procedural audio graphs are
@@ -564,11 +564,10 @@ source anchor.
 Mobile-like touch sessions use family-keyed single-world residency: drawn modes
 share one family and Minecraft uses another, so a family transition unmounts
 the previous scene, parsed payload ownership and WebGL context before mounting
-the next. Non-touch desktop retains its warm complete scene while it remains
-inside live 3D; switching to the DZI map releases WebGL on every device. Runtime recovery is
-not touch-gated: every profile gets exactly one clean automatic WebGL remount;
-a repeated failure exposes the Recovery and 2D-map actions instead of creating
-another hidden renderer.
+the next. Non-touch desktop retains one warm complete scene across visual-mode
+changes. Runtime recovery is not touch-gated: every profile gets exactly one
+clean automatic WebGL remount; a repeated failure exposes an explicit Reload
+action without creating another hidden renderer.
 
 Both music layers are generated locally with Web Audio and load no recording,
 stream or external audio asset. The music button or `B` controls seven original
@@ -699,11 +698,11 @@ photo-bounded display estimates rather than survey measurements. No supplied
 or press photograph is bundled, projected or converted into a texture.
 
 Only the selected landmark receives a small focus ring, and that ring fades
-again after 2.4 seconds. Permanently visible coloured map dots
-were removed from the Three.js, DZI and zero-server fallbacks because they
-obscured roofs and facades. The opaque startup curtain uses the marker-free
-21 KiB low-resolution DZI overview tile; the numbered top-down reference plate
-is loaded only when the user explicitly opens it.
+again after 2.4 seconds. Permanently visible coloured dots no longer obscure
+roofs and facades. The opaque startup curtain uses the standalone, marker-free
+21 KiB `startup-map.jpg`; its pixels are unchanged from the previous lightweight
+backdrop. The full-screen reference-map panel has been removed. Walking keeps
+its small, marker-free navigation minimap.
 
 Day/Night is a real scene-lighting mode rather than a CSS tint. It changes the
 sun, hemisphere and fill lighting, fog, background and tone mapping; tagged
@@ -1356,21 +1355,16 @@ centre of the complete office ensemble. The model remains freely orbitable
 immediately afterward; the preset only prevents small landmarks such as the
 Brandenburg Gate from opening as an unrecognisable object in a 250 m-wide view.
 
-The downloadable `START-HERE.html` is explicitly a 2D compatibility fallback,
-not the full viewer. It uses a separate zero-server camera and
-normalizes the 16384×11616 landmark payload into the 2157×1529 SVG overlay
-coordinate system, applies an invertible pan/scale/skew/rotate transform, keeps
-the stage centre stable through zoom and swivel, and constrains the transformed
-corners so the map cannot be lost completely outside the viewport. Desktop
-stage height is fixed to the viewport; below 850 px the map uses 58dvh and the
-controls scroll independently in the remaining 42dvh. The local server opens
-`index.html` directly so users do not mistake this fallback for the true 3D
-scene.
+The downloadable `START-HERE.html` is a file-safe 3D launch guide. When opened
+as a local file, it explains how to start the bundled HTTP server on Windows,
+macOS or Linux. When served over HTTP, it redirects to `index.html`, retaining
+the query and hash. It contains no alternate renderer or map navigation.
+The platform launchers and `serve-local.py` open the full isometric viewer.
 
 ## Shareable view links
 
-The link button in the top toolbar copies the current landmark,
-orientation, and mirror state into the URL hash. Opening that URL restores
+The link button in the top toolbar copies the current landmark
+and compass orientation into the URL hash. Opening that URL restores
 the same landmark focus and view orientation, which makes local QA notes
 and screenshot handoff easier without needing server-side routes.
 
@@ -1391,9 +1385,10 @@ For local download reliability, the same landmark payload is also bundled
 into the React app at `src/app/src/data/regierungsviertel-landmarks.json`.
 Keep it byte-identical to
 `src/app/public/dzi/regierungsviertel/landmarks.json`; the package tests
-enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
+enforce this. Bundling avoids a separate landmark fetch during startup;
+local 3D still runs from the bundled HTTP server.
 
-## Remote DZI hosting
+## Static assets, local launch and recovery
 
 By default the viewer loads the world manifest from
 `public/mesh/regierungsviertel/scene.json` and the compact procedural JSON
@@ -1406,11 +1401,10 @@ timeout, one retry and cancellation on unmount.
 
 A WebGL runtime failure in any profile releases the canvas and active world,
 then performs exactly one clean automatic remount for that world family. A
-repeated failure exposes the Recovery and 2D-map actions instead of allocating
-another hidden renderer or selecting 2D implicitly. In mobile-like touch
-sessions, a drawn/Minecraft family transition unmounts the inactive WebGL
-world. Moving to the 2D map unmounts WebGL on every device; non-touch desktop
-keeps its complete scene warm only across visual modes inside the live viewer.
+repeated failure exposes an explicit Reload action without allocating another
+hidden renderer. In mobile-like touch sessions, a drawn/Minecraft family
+transition unmounts the inactive WebGL world. Non-touch desktop keeps one
+complete scene warm across visual-mode changes.
 Static scenes hold the final framebuffer without a periodic redraw. Repeated
 tunnel fixtures are instanced, and only three compact progressive world batches
 can be pending. Disposal stops workers before another batch can attach, closes
@@ -1419,20 +1413,18 @@ state on lost pointer capture, global pointer release, window blur or tab
 hiding. A watchdog restores controls after a stale three-finger sequence, while
 finite camera bounds recover a lost pose.
 
-The DZI tile pyramid and reference map
-load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is
-bundled into the app to support double-click local starts. Set
-`VITE_DZI_BASE_URL` at build time to load the tile
-pyramid and reference map from a remote host (e.g. a Cloudflare R2
-bucket) instead — see
-[`perplexity-hosting.md`](perplexity-hosting.md).
+The retained `public/dzi/regierungsviertel/` directory name is historical:
+it carries compact landmark/projection metadata, the walking minimap and the
+startup backdrop. The current build does not copy or request the archival tile
+pyramid or numbered reference image. All live assets use relative URLs; no
+`VITE_DZI_BASE_URL` setting is required or read by the viewer. See
+[`perplexity-hosting.md`](perplexity-hosting.md) for static-host path rules.
 
-`START-HERE.html` intentionally remains a zero-server 2D compatibility view.
-When opened over `file://`, its full-3D link now displays the platform-specific
-server command instead of navigating to a module page that browsers cannot load
-reliably from local files.
+`START-HERE.html` explains the local HTTP launch when opened over `file://`.
+Over HTTP it redirects to the same full 3D app. There is no separate local
+map experience.
 
-The packaged HTTP server uses HTTP/1.1. Immutable procedural JSON, DZI images,
+The packaged HTTP server uses HTTP/1.1. Immutable procedural JSON, support images,
 JavaScript and CSS receive a one-year cache policy, while HTML and the small
 scene manifest revalidate. The repository development server uses revalidation
 so a rebuilt file with the same name is not hidden by cache.
@@ -1657,7 +1649,7 @@ See `docs/district-streets-v126-review.md` for sources and release verification.
 Visual-mode changes retain the complete camera and walking state. Mobile keeps
 the one-world memory policy and transfers only a numeric snapshot across the
 drawn/voxel renderer replacement. Restored views bypass automatic landmark
-framing; explicit resets and map visits consume or clear that transfer.
+framing; explicit resets consume or clear that transfer.
 An idle pedestrian keeps the same floor and a restored jump waits behind the
 loading curtain. The current walking speed and free-flight speed are unchanged.
 
@@ -1672,3 +1664,18 @@ First HTML and React share a quiet isometric title plate over the existing
 marker-free map. Initial progress remains visible on mobile and still reports
 real construction progress, with no extra loading delay. See
 `docs/mode-continuity-v127-review.md` for verification and tree counts.
+
+### v1.0.28: isometric-only viewer and direct look controls
+
+Every entry point now opens the isometric 3D viewer, including old `?view=map`
+URLs. The flat-map engine, full-screen reference map, map-specific controls,
+weather overlays and tile pyramid are absent from the live build and release
+package. Walking retains its navigation minimap. The startup backdrop, all
+source geometry, visual modes, scene detail and credits are unchanged.
+
+Arrow keys look in the labelled direction in walking and flight. WASD moves;
+primary mouse drag looks, while secondary or Shift+primary drag pans. The
+on-screen look buttons use the same direction for a tap and a held press.
+The orange joystick keeps its established forward/backward/strafe behavior.
+The compass reads the actual camera update once, avoiding duplicate angle
+changes in the app shell.

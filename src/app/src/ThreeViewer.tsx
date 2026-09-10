@@ -578,6 +578,7 @@ export type ThreeViewerHandle = {
   setPedestrianFastRun: (enabled: boolean) => void;
   setPedestrianSprint: (enabled: boolean) => void;
   setUnderside: (enabled: boolean) => void;
+  /** Positive degrees raise the view; negative degrees lower it. */
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
   jumpPedestrian: (higher?: boolean) => boolean;
@@ -5161,7 +5162,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           markSurfaceInteraction(runtime);
           setOrbitAngles(
             runtime,
-            runtime.controls.getAzimuthalAngle() + MathUtils.degToRad(degrees),
+            runtime.controls.getAzimuthalAngle() - MathUtils.degToRad(degrees),
           );
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -5344,7 +5345,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.pedestrian.state = lookPedestrian(
               runtime.pedestrian.state,
               0,
-              -MathUtils.degToRad(degrees),
+              MathUtils.degToRad(degrees),
             );
             runtime.pedestrian.cameraDirty = true;
             applyPedestrianCamera(runtime);
@@ -6913,14 +6914,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         wasOrbiting = true;
         const nextPolar = MathUtils.clamp(
-          controls.getPolarAngle() -
+          controls.getPolarAngle() +
             MathUtils.degToRad(input.y * 58 * dtSeconds),
           0.08,
           Math.PI - 0.08,
         );
         setOrbitAngles(
           runtime,
-          controls.getAzimuthalAngle() +
+          controls.getAzimuthalAngle() -
             MathUtils.degToRad(input.x * 84 * dtSeconds),
           nextPolar,
         );

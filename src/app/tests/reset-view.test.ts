@@ -15,7 +15,7 @@ const WRECKED_STATES: Array<[string, ViewState]> = [
     "night mode, orbited camera, wrong landmark",
     {
       focus: "Berlin Hauptbahnhof",
-      isFlipped: true,
+
       isUnderside: false,
       lightingMode: "night",
       rotationDegrees: 12.5,
@@ -25,17 +25,17 @@ const WRECKED_STATES: Array<[string, ViewState]> = [
     "Minecraft mode seen from underneath",
     {
       focus: "Moltkebrücke",
-      isFlipped: false,
+
       isUnderside: true,
       lightingMode: "minecraft",
       rotationDegrees: 203,
     },
   ],
   [
-    "day mode but zoomed off to a mirrored corner",
+    "day mode but looking underneath a distant corner",
     {
       focus: "Humboldthafen",
-      isFlipped: true,
+
       isUnderside: true,
       lightingMode: "day",
       rotationDegrees: NORTH_UP_ROTATION + 90,
@@ -49,7 +49,6 @@ describe("reset returns to the default view", () => {
     expect(DEFAULT_VIEW.focus).toBe(DEFAULT_FOCUS_LANDMARK);
     expect(DEFAULT_VIEW.lightingMode).toBe("day");
     expect(DEFAULT_VIEW.rotationDegrees).toBe(NORTH_UP_ROTATION);
-    expect(DEFAULT_VIEW.isFlipped).toBe(false);
     expect(DEFAULT_VIEW.isUnderside).toBe(false);
     expect(DEFAULT_THREE_TARGET_WORLD).toEqual([317.729, 21.595, 40.477]);
     expect(DEFAULT_THREE_CAMERA_OFFSET[1]).toBeGreaterThan(35);

@@ -21,12 +21,13 @@ describe("pedestrian keyboard movement activation", () => {
     expect(third.key).toBe("forward");
   });
 
-  test("treats equivalent WASD and arrow movement keys as one sequence", () => {
+  test("does not treat look arrows as walking speed activations", () => {
     const first = pedestrianMovementActivation(idle, "w", 1000);
     const second = pedestrianMovementActivation(first, "ArrowUp", 1120);
     const third = pedestrianMovementActivation(second, "w", 1240);
 
-    expect(third.count).toBe(3);
+    expect(second.key).toBe("ArrowUp");
+    expect(third.count).toBe(1);
     expect(third.key).toBe("forward");
   });
 

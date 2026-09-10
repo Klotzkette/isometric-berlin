@@ -178,10 +178,10 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateWaterLight: false,
       environmentalMotion: true,
     });
-    expect(stylesSource).toContain(".app-shell--schwellenraum .map-rain");
-    expect(stylesSource).toMatch(
-      /\.app-shell--schwellenraum \.map-rain,\s*\.app-shell--schwellenraum \.map-snowstorm\s*\{\s*display: none;/,
-    );
+    // Static-world suppression is enforced by the 3D motion decision above;
+    // the retired flat-map weather layer no longer exists in any visual mode.
+    expect(stylesSource).not.toContain(".map-rain");
+    expect(stylesSource).not.toContain(".map-snowstorm");
     expect(stylesSource).toContain(
       '.mobile-overflow-grid button:disabled[aria-pressed="true"]',
     );

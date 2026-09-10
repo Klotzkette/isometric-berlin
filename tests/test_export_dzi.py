@@ -10,15 +10,11 @@ from PIL import Image
 
 from isometric_berlin.generation.export_dzi import (
   DEFAULT_DZI_OVERLAP,
-  MIN_DZI_HEIGHT,
-  MIN_DZI_WIDTH,
   WIKIMEDIA_ATTRIBUTION,
   export_dzi,
   wikimedia_extra_attribution,
   write_preview,
 )
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_wikimedia_extra_attribution_requires_manifest_records(tmp_path: Path) -> None:
@@ -65,14 +61,15 @@ def test_export_dzi_writes_real_overlap_pixels(tmp_path: Path) -> None:
   assert middle.size == (258, 258)
 
 
-def test_bundled_dzi_meets_high_resolution_target() -> None:
-  dzi = ROOT / "src/app/public/dzi/regierungsviertel/regierungsviertel.dzi"
+def test_archival_dzi_export_preserves_input_dimensions(tmp_path: Path) -> None:
+  """Archival export stays supported without shipping its tiles in the viewer."""
+  dzi = tmp_path / "archival.dzi"
+  export_dzi(Image.new("RGB", (1031, 739)), dzi_path=dzi, tile_size=256)
   root = ET.parse(dzi).getroot()
   size = root.find("{http://schemas.microsoft.com/deepzoom/2008}Size")
-
   assert size is not None
-  assert int(size.attrib["Width"]) >= MIN_DZI_WIDTH
-  assert int(size.attrib["Height"]) >= MIN_DZI_HEIGHT
+  assert (int(size.attrib["Width"]), int(size.attrib["Height"])) == (1031, 739)
   assert root.attrib["TileSize"] == "256"
   assert root.attrib["Overlap"] == "1"
   assert root.attrib["Format"] == "jpg"
+  assert (tmp_path / "archival_files" / "11" / "4_2.jpg").is_file()

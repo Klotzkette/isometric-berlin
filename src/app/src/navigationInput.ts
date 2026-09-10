@@ -29,7 +29,7 @@ export function holdNavigationKey(keys: Set<string>, key: string): boolean {
   return keys.size !== previousSize;
 }
 
-/** Route held desktop controls to camera-relative flight, pan, or orbit. */
+/** WASD moves; arrows look in their indicated direction in every mode. */
 export function heldNavigationInput(
   keys: ReadonlySet<string>,
 ): HeldNavigationInput {
@@ -44,26 +44,23 @@ export function heldNavigationInput(
   const shiftTurnActive =
     shift && !alt && (arrowHorizontal !== 0 || wasdHorizontal !== 0);
   const shiftTurn = shiftTurnActive
-    // OrbitControls' positive azimuth moves the visible heading to the left.
-    // Invert only this chord so Shift+D/Right turns the view right while
-    // plain A/D strafing, Alt+arrows and pedestrian yaw keep their semantics.
-    ? -Math.sign(arrowHorizontal + wasdHorizontal)
+    ? Math.sign(arrowHorizontal + wasdHorizontal)
     : 0;
   return {
     flight: {
       forward: (keys.has("w") ? 1 : 0) - (keys.has("s") ? 1 : 0),
       strafe: shiftTurnActive ? 0 : wasdHorizontal,
-      vertical: alt || shiftTurnActive
+      vertical: alt || shiftTurnActive || arrowVertical !== 0
         ? 0
         : (keys.has("Space") ? 1 : 0) - (shift ? 1 : 0),
     },
     orbit: {
-      horizontal: alt ? arrowHorizontal : shiftTurn,
-      vertical: alt ? arrowVertical : 0,
+      horizontal: shiftTurnActive ? shiftTurn : arrowHorizontal,
+      vertical: arrowVertical,
     },
     pan: {
-      horizontal: alt || shiftTurnActive ? 0 : arrowHorizontal,
-      vertical: alt ? 0 : arrowVertical,
+      horizontal: 0,
+      vertical: 0,
     },
   };
 }
@@ -108,13 +105,13 @@ export function pedestrianMovementActivation(
   activationAt: number,
 ): PedestrianMovementActivation {
   const activationKey =
-    key === "ArrowUp" || key === "w"
+    key === "w"
       ? "forward"
-      : key === "ArrowDown" || key === "s"
+      : key === "s"
         ? "backward"
-        : key === "ArrowLeft" || key === "a"
+        : key === "a"
           ? "left"
-          : key === "ArrowRight" || key === "d"
+          : key === "d"
             ? "right"
             : key;
   const elapsed = activationAt - previous.lastActivationAt;
@@ -140,10 +137,8 @@ export function heldPedestrianInput(
     (keys.has("ArrowRight") || keys.has("e") ? 1 : 0) -
     (keys.has("ArrowLeft") || keys.has("q") ? 1 : 0);
   return {
-    forward:
-      (keys.has("ArrowUp") || keys.has("w") ? 1 : 0) -
-      (keys.has("ArrowDown") || keys.has("s") ? 1 : 0),
-    look: 0,
+    forward: (keys.has("w") ? 1 : 0) - (keys.has("s") ? 1 : 0),
+    look: (keys.has("ArrowUp") ? 1 : 0) - (keys.has("ArrowDown") ? 1 : 0),
     sprint: shift,
     strafe: shift ? 0 : wasdHorizontal,
     turn: Math.sign(explicitTurn + (shift ? wasdHorizontal : 0)),

@@ -258,9 +258,11 @@ describe("Schwellenraum presentation", () => {
     expect(background.parent?.visible).toBeFalse();
   });
 
-  test("opens the spatial mode in 3D and never repaints the source map", () => {
-    expect(appSource).toContain('if (next === "schwellenraum")');
-    expect(appSource).toContain('setViewerMode("three")');
+  test("keeps Schwellenraum in the shared isometric renderer", () => {
+    expect(appSource).toContain('data-viewer-mode="three"');
+    expect(appSource).toContain('selectVisualMode("schwellenraum")');
+    expect(appSource).toContain("lightingMode={lightingMode}");
+    expect(appSource).not.toContain("setViewerMode");
     expect(appSource).not.toContain("map-schwellenraum");
   });
 });

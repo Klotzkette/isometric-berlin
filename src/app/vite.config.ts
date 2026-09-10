@@ -5,8 +5,8 @@ export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
 
 /**
  * Guard the synchronous app shell, including all of its static JS imports.
- * Three.js and OpenSeadragon are deliberately dynamic and therefore excluded
- * from this graph until their respective viewer is requested.
+ * Three.js stays deliberately dynamic and is therefore excluded from this
+ * graph until the isometric viewer is requested.
  */
 function startupBudget(): Plugin {
   return {
@@ -56,9 +56,6 @@ export default defineConfig({
       output: {
         manualChunks(moduleId) {
           const normalizedModuleId = moduleId.replaceAll("\\", "/");
-          if (normalizedModuleId.includes("/node_modules/openseadragon/")) {
-            return "map-engine";
-          }
           if (
             normalizedModuleId.includes("/node_modules/react/") ||
             normalizedModuleId.includes("/node_modules/react-dom/")

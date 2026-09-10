@@ -145,14 +145,14 @@ describe("startup presentation gate", () => {
   test("keeps a marker-free lightweight city backdrop below startup", async () => {
     const backdrop = Bun.file(
       new URL(
-        "../public/dzi/regierungsviertel/regierungsviertel_files/8/0_0.jpg",
+        "../public/dzi/regierungsviertel/startup-map.jpg",
         import.meta.url,
       ),
     );
 
     expect(appSource).toContain("resolveCssAssetUrl(startupBackdropUrl)");
     expect(appSource).not.toContain("resolveCssAssetUrl(referenceMapUrl)");
-    expect(appSource).toContain("regierungsviertel_files/8/0_0.jpg");
+    expect(appSource).toContain("startup-map.jpg");
     expect(await backdrop.exists()).toBeTrue();
     expect(backdrop.size).toBeLessThan(32_000);
     expect(appSource).toContain("new URL(path, document.baseURI).href");
@@ -161,7 +161,6 @@ describe("startup presentation gate", () => {
     expect(stylesSource).toContain(".viewer-static-backdrop");
     expect(stylesSource).toContain("--viewer-static-backdrop-image");
     expect(stylesSource).toContain("background: transparent");
-    expect(stylesSource).toContain(".openseadragon-canvas canvas");
   });
 
   test("describes the procedural source-fused city instead of a photo mesh", () => {

@@ -1,64 +1,69 @@
 # Hosting via Perplexity
 
-The intended publication channel for the finished viewer is
-**Perplexity** — likely through the `pplx.app` static-site deployment
-flow that Perplexity agents can drive. This document captures the
-constraints that flow puts on the build, so any agent (Codex, Claude
-Code, Cursor, Gemini CLI, or Perplexity itself) can ship without
-re-deriving them.
+The public release currently runs on GitHub Pages. The same static build can
+also be deployed through a Perplexity static-site flow, such as `pplx.app`.
+This document records the portable build and path requirements; a different
+hosting destination does not require another rendering mode.
 
 ## Build target
 
-- `cd src/app && bun install && bun run build` must work from a clean
-  clone with **only** `uv` and `bun` installed.
-- The output lives in `src/app/dist/` and is fully static:
-  `index.html` + `assets/*` + a copy of `dzi/regierungsviertel/`
-  next to it (or a remote DZI URL — see below).
-- Vite must be configured with `base: './'` so all asset URLs are
-  relative. The site must work under any subdomain, any sub-path, and
-  when opened via `file://` for local sanity checks.
-- Landmark navigation is bundled into the app so downloaded local
-  packages do not need `fetch()` for `landmarks.json`.
+- `cd src/app && bun install && bun run build` must work from a clean clone
+  with the committed clipped runtime data.
+- The output lives in `src/app/dist/` and is fully static: `index.html`,
+  `assets/*`, procedural scene data under `mesh/regierungsviertel/` and a
+  small set of support images/metadata under `dzi/regierungsviertel/`.
+- Since v1.0.28, only the isometric Three.js viewer is built. The historical
+  DZI directory name remains for support assets; no tile pyramid or separate
+  flat-map engine is loaded or published.
+- Vite uses `base: './'`. Every runtime asset must resolve under the deployed
+  subdomain and sub-path.
+- Test from an HTTP origin. Browser module and JSON loading is not supported
+  by directly opening `index.html` through `file://`.
+- The 93-place landmark navigation payload is bundled into the app.
 
-## DZI hosting strategy
+## Asset delivery
 
-Two acceptable options, chosen at build time:
+Deploy the complete `src/app/dist/` directory. Procedural scene JSON, the
+walking minimap, the small startup backdrop and source metadata remain local
+to the static site. No remote DZI host, R2 bucket or `VITE_DZI_BASE_URL` setting
+is needed by the viewer. The archival Python export pipeline remains available
+separately and its tile pyramid is excluded from the current build.
 
-1. **Inline DZI (preferred while small).** Copy the DZI pyramid into
-   `src/app/public/dzi/regierungsviertel/` before `bun run build`.
-   The whole site (HTML + JS + CSS + DZI) ships in one bundle.
-   Target total size: **< 50 MB**, hard ceiling **< 200 MB**.
-2. **Remote DZI on R2.** Upload the DZI pyramid to a Cloudflare R2
-   bucket (CORS-enabled, public read) and set
-   `VITE_DZI_BASE_URL="https://…/dzi/regierungsviertel"` before
-   building. The bundle then carries HTML/JS/CSS plus the small bundled
-   landmark-navigation payload.
-
-The MVP is small enough that option 1 should work cleanly. Re-evaluate
-if pyramid size approaches 100 MB.
+Preserve existing hashed JavaScript assets during an update so an already-open
+page can finish its lazy imports. The app also performs one version-scoped
+reload after a stale-module failure and offers explicit recovery if a problem
+persists.
 
 ## Path discipline
 
-- No absolute paths to `localhost`, `github.io`, or any specific
-  hostname in committed code.
-- No hard-coded `window.location.origin` assumptions; if a path needs
-  to be resolved at runtime, derive it from `import.meta.env.BASE_URL`.
-- Service workers, if added, must scope to the relative `base`.
+- Do not hard-code `localhost`, `github.io` or a deployment hostname into
+  runtime asset URLs.
+- Resolve relative assets from `import.meta.env.BASE_URL` or the loaded scene
+  manifest, without assuming the site is hosted at `/`.
+- If service workers are added, scope them to the relative base.
+- Serve the output with the correct JavaScript, JSON and image content types.
+
+## Local release launch
+
+The downloadable package uses its bundled HTTP server to open this same 3D
+app. `START-HERE.html` is a file-safe launch guide: it shows platform-specific
+instructions when double-clicked and redirects to `index.html` over HTTP,
+retaining query and hash. It contains no second renderer.
 
 ## Attribution overlay
 
 The OSM + Geoportal Berlin attribution string from
-[`../NOTICE.md`](../NOTICE.md) must be hard-coded into the viewer
-component, not injected by a separate footer file that could be
-stripped during deployment.
+[`../NOTICE.md`](../NOTICE.md), together with the required visual-reference
+credits, stays hard-coded in the viewer chrome. Do not strip it during hosting
+or packaging. Source geometry and licensing requirements are unchanged.
 
 ## Deploy checklist for a Perplexity agent
 
-1. Clone repo, run `uv sync` and `bun install` under `src/app/`.
-2. Ensure `src/app/public/dzi/regierungsviertel/` is populated (or
-   set `VITE_DZI_BASE_URL`).
-3. `cd src/app && bun run build`.
-4. Verify `src/app/dist/index.html` references all assets via `./…`.
-5. Deploy `src/app/dist/` to the Perplexity static-site target.
-6. Sanity check: open the deployed URL, confirm pan/zoom works and
-   the attribution overlay is visible in the viewer chrome.
+1. Clone the repository and run `uv sync`; run `bun install` under `src/app/`.
+2. Run `cd src/app && bun run build` against the committed runtime assets.
+3. Serve `src/app/dist/` over HTTP and verify that the full isometric scene
+   loads, controls respond, all five visual modes work and attribution is visible.
+4. Confirm that asset URLs remain relative and no flat-map tile requests occur.
+5. Deploy the complete `src/app/dist/` to the requested static-site target.
+6. Repeat the load, movement, mode-switch and attribution checks on the public
+   URL, including a phone-sized viewport and a legacy `?view=map` URL.
