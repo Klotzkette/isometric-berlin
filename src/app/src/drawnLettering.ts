@@ -590,6 +590,48 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
   " ": { advance: 0.5, strokes: [] },
 };
 
+// Keep the complete Latin capital/digit register available to new civic signs.
+GLYPHS.J = {
+  advance: 0.8,
+  strokes: [
+    [[0.12, 1], [0.7, 1]],
+    [[0.7, 1], [0.7, 0.24], [0.6, 0.06], [0.36, 0], [0.14, 0.08], [0.06, 0.26]],
+  ],
+};
+GLYPHS.Q = {
+  advance: 1,
+  strokes: [...GLYPHS.O.strokes, [[0.58, 0.28], [0.96, -0.12]]],
+};
+GLYPHS["6"] = {
+  advance: 0.82,
+  strokes: GLYPHS["9"].strokes.map((stroke) =>
+    stroke.map(([x, y]): [number, number] => [0.82 - x, 1 - y]),
+  ),
+};
+GLYPHS["7"] = {
+  advance: 0.82,
+  strokes: [[[0.06, 1], [0.76, 1], [0.24, 0]]],
+};
+GLYPHS["·"] = {
+  advance: 0.3,
+  strokes: [[[0.14, 0.5], [0.16, 0.5]]],
+};
+// Both the capital and its dots fit in the existing one-unit cap envelope,
+// including the stroke radius. The dots must not be clipped by narrow plaques.
+for (const [umlaut, latin] of [["Ä", "A"], ["Ö", "O"], ["Ü", "U"]] as const) {
+  const base = GLYPHS[latin];
+  GLYPHS[umlaut] = {
+    advance: base.advance,
+    strokes: [
+      ...base.strokes.map((stroke) =>
+        stroke.map(([x, y]): [number, number] => [x, y * 0.72]),
+      ),
+      [[base.advance * 0.3, 0.91], [base.advance * 0.3, 0.92]],
+      [[base.advance * 0.7, 0.91], [base.advance * 0.7, 0.92]],
+    ],
+  };
+}
+
 // The Soviet War Memorial carries a Russian dedication in raised gilded
 // capitals. Keep those letters in the same deterministic line alphabet as the
 // Reichstag and civic signs instead of falling back to a platform font. The
@@ -903,7 +945,7 @@ export function letteringLayout(
   capHeightM: number,
 ): LetteringLayout {
   const tracking = capHeightM * LETTERING_TRACKING;
-  const characters = [...text];
+  const characters = [...text.normalize("NFC")];
   let cursor = 0;
   const glyphs: LetteringGlyph[] = characters.map((character, index) => {
     const glyph = GLYPHS[character];
@@ -962,6 +1004,9 @@ export function createLetteringTexture({
   text,
   texelsPerMetre = 79,
 }: LetteringTextureOptions): Texture | null {
+  // Validate in every environment, including headless model/release tests.
+  // Previously the DOM guard hid invalid production labels until browser boot.
+  const layout = letteringLayout(text, capHeightM);
   if (typeof document === "undefined") {
     return null;
   }
@@ -978,7 +1023,6 @@ export function createLetteringTexture({
   context.fillStyle = fieldColor;
   context.fillRect(0, 0, width, height);
 
-  const layout = letteringLayout(text, capHeightM);
   const originX = (bandWidthM - layout.totalWidthM) / 2;
   const baselineY = (bandHeightM - layout.capHeightM) / 2;
   context.strokeStyle = letterColor;

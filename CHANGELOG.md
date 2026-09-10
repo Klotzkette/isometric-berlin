@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.19
+
+- Fix the 3D startup crash at `GEMÄLDEGALERIE` and the subsequent middle dot
+  in `KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT`. Complete the drawn Latin capitals,
+  digits and German umlauts without substituting building names.
+- Validate lettering before checking DOM/canvas availability, so the same
+  malformed scene labels fail in headless tests instead of only in browsers.
+- Add a fresh-browser startup smoke check that executes the built 3D viewer
+  and fails on runtime errors; use a neutral recovery message instead of
+  incorrectly suggesting every failure is caused by a site update.
+
 ## v1.0.18
 
 - Der Download führt mit einer unübersehbaren Startauswahl zuerst zur echten

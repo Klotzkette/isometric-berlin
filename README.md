@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.18 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.18/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.19 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.19/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,16 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.18** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.19** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.18 makes the downloaded package open with a clear 3D launcher choice and adds named Windows and macOS 3D starters. The HTML-only view is explicitly marked as a fallback.
+Version 1.0.19 fixes a 3D startup crash caused by unsupported characters in
+museum entrance signs. German umlauts and the middle dot now render in the
+drawn alphabet, and headless tests validate the same labels as the browser.
 
-Version 1.0.18 öffnet das Downloadpaket mit einer eindeutigen 3D-Startauswahl und ergänzt klar benannte 3D-Starter für Windows und macOS. Die reine HTML-Ansicht ist ausdrücklich als Notansicht gekennzeichnet.
+Version 1.0.19 behebt den 3D-Startabsturz durch fehlende Zeichen in den
+Museumsschriftzügen. Umlaute und Mittelpunkt werden korrekt gezeichnet;
+die Zeichenprüfung läuft jetzt auch in Tests ohne Browser.
 
 Version 1.0.14 gives the Humboldthafen buildings and economic ministry their
 source footprints from the first interactive frame, preserving courts and water.
@@ -170,7 +174,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.18**, built from `main`. Its full viewer
+The current public package is **v1.0.19**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.

@@ -23,6 +23,31 @@ uv run python scripts/check_release_readiness.py
 uv run python scripts/smoke_local_package.py
 ```
 
+## Browser startup gate
+
+Asset hashes and HTTP checks do not execute the scene. Before publishing, serve
+the freshly unpacked release and run the browser gate from a fresh context:
+
+```bash
+uv run --with playwright python scripts/smoke_browser_startup.py http://127.0.0.1:8766/ --channel chrome
+uv run --with playwright python scripts/smoke_browser_startup.py http://127.0.0.1:8766/ --channel chrome --touch
+```
+
+For a WebKit check, install its test browser with
+`uv run --with playwright playwright install webkit`, then use `--engine webkit`
+instead of `--channel chrome`. Repeat against the public URL after deployment.
+The script checks the active canvas's presentation-ready state and absence of
+the startup curtain, then observes three further seconds. Caught runtime errors
+logged through `console.error` are failures, as are page errors, critical network
+failures and the visible recovery panel. Touch emulation does not establish
+physical iPhone GPU compatibility.
+
+v1.0.19 fixes a deterministic crash in the entrance signs `GEMÄLDEGALERIE` and
+`KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT`. The former canvas-only validation skipped
+unsupported letters during headless tests. Letter layout now validates before
+checking for a DOM, and the full/mobile catalogue tests construct these real
+signs. The browser gate also reproduces the failure on the earlier public build.
+
 `package_static_site.py` writes both
 `isometric-berlin-regierungsviertel-local.zip` and the independently deployable
 `isometric-berlin-viewer-v<version>.tar.gz`. Do not recreate the tarball with

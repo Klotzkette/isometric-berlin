@@ -127,7 +127,7 @@ const DE = {
   threeD: "Freie 3D-Ansicht",
   threeLoadError: "Die 3D-Ansicht konnte nicht geladen werden.",
   threeLoadErrorDetail:
-    "Die Seite war möglicherweise während einer Aktualisierung geöffnet.",
+    "Bitte lade die Seite neu. Falls der Fehler bleibt, kannst du die 2D-Karte öffnen und uns die Fehlermeldung melden.",
   tiltDown: "Kamera tiefer bis zur Untersicht neigen",
   tiltUp: "Kamera höher neigen",
   tour: "Tour",
@@ -269,7 +269,7 @@ const EN: Record<CopyKey, string> = {
   threeD: "Free 3D view",
   threeLoadError: "The 3D view could not be loaded.",
   threeLoadErrorDetail:
-    "The page may have remained open while the site was updated.",
+    "Please reload the page. If the problem persists, you can open the 2D map and report the error to us.",
   tiltDown: "Tilt camera down into the underside view",
   tiltUp: "Tilt camera up",
   tour: "Tour",
