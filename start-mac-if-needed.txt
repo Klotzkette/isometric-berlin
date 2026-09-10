@@ -1,0 +1,17 @@
+macOS fallback, only if START-HERE.html does not open correctly.
+
+For the 2D compatibility fallback, double-click START-HERE.html.
+
+Only use Terminal for the server fallback:
+
+1. Open Terminal.
+2. Type exactly `cd ` including the trailing space.
+3. Drag the whole unzipped folder into the Terminal window and press Return.
+   The command line must start with `cd `. Do not run the folder path alone.
+4. Run: python3 serve-local.py
+5. The server opens the full 3D viewer at the printed
+   http://127.0.0.1:.../index.html address.
+
+The command below opens the true 3D viewer directly. This package does not
+include start-mac.command because macOS Gatekeeper
+blocks unsigned downloaded .command files before the viewer can start.

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "package_name": "isometric-berlin-regierungsviertel-local",
+  "package_version": "1.0.15",
+  "start_page": "START-HERE.html",
+  "start_page_mode": "2d-compatibility-fallback",
+  "full_3d_start_page": "index.html",
+  "preferred_image": "dzi/regierungsviertel/overview_source.png",
+  "optional_pixel_image": "dzi/regierungsviertel/overview.png",
+  "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
+  "uses_google_content": false,
+  "scope": "Berlin Regierungsviertel bounds only",
+  "render_mode": "procedural LoD2/OpenStreetMap city with DZI 2D compatibility fallback",
+  "controls": [
+    "mouse-pan",
+    "mouse-rotate-swivel",
+    "touch-pinch-pan-rotate",
+    "touch-three-finger-underside-orbit",
+    "touch-two-finger-direct-pan-midpoint-pinch-zoom",
+    "true-threejs-3d-orbit",
+    "exact-current-view-pedestrian-spawn",
+    "cancelable-progressive-model-loading",
+    "photogrammetry-assets-removed",
+    "procedural-recovery-to-clean-remount-or-2d",
+    "desktop-and-mobile-exact-building-budgets",
+    "instanced-complete-building-coverage",
+    "raster-road-and-authored-path-memory-profile",
+    "touch-capability-mobile-profile",
+    "mobile-complete-building-progressive-worker",
+    "desktop-worker-url-payloads-spatial-batches",
+    "hidden-tab-progressive-pause-and-restart",
+    "sequential-mobile-progressive-and-park-build",
+    "mobile-family-keyed-single-world-residency",
+    "single-clean-webgl-runtime-recovery",
+    "explicit-recovery-or-2d-after-repeat-failure",
+    "minecraft-defers-surface-polygons-until-drawn-or-pedestrian",
+    "economic-ministry-canal-invalidenhaus-details",
+    "timeout-and-retry-json-loading",
+    "http11-immutable-heavy-asset-cache",
+    "keyboard-arrow-screen-plane-pan",
+    "keyboard-wasd-heading-flight",
+    "keyboard-space-rise-shift-descend",
+    "pedestrian-space-jump-double-space-high-jump",
+    "alt-arrow-orbit-tilt",
+    "fallback-shift-drag-rotate-swivel",
+    "top-north-east-south-west-presets",
+    "atlas-cinematic-lab-visual-profiles",
+    "bilingual-de-en-ui",
+    "direct-day-night-minecraft-snowstorm-modes",
+    "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
+    "native-and-ios-safe-pseudo-fullscreen",
+    "manual-tiergartentunnel-entry-both-directions",
+    "minecraft-roaming-creepers-zombies-and-skeletons",
+    "opt-in-seven-variant-procedural-audio",
+    "persistent-offline-viewer-preferences",
+    "persistent-last-landmark-and-view",
+    "selected-landmark-focus-ring",
+    "selected-landmark-only-marker",
+    "instrument-hud",
+    "night-building-window-lights",
+    "night-street-lamps",
+    "night-monument-accents",
+    "visible-tiergartentunnel-overlay",
+    "visible-tiergartentunnel-volume",
+    "visible-tiergartentunnel-center-wall",
+    "visible-tiergartentunnel-underside-view",
+    "visible-tiergartentunnel-ceiling-ribs",
+    "visible-tiergartentunnel-service-bays",
+    "visible-tiergartentunnel-osm-way-evidence",
+    "visible-tiergartentunnel-lighting",
+    "night-tiergartentunnel-lighting",
+    "visible-tiergartentunnel-ventilation"
+  ],
+  "required_attribution": "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)",
+  "assets": {
+    "detail_image": {
+      "path": "dzi/regierungsviertel/overview_source.png",
+      "bytes": 4389764,
+      "sha256": "9ce9531389284804ec82e67e45d8d59fdd93beac80d8d2693a7c53ea309e467e"
+    },
+    "pixel_image": {
+      "path": "dzi/regierungsviertel/overview.png",
+      "bytes": 4383856,
+      "sha256": "49854eaefea12299edc0b7ea832adf868e869cdcab3533f110b638beebfa09aa"
+    },
+    "dzi_descriptor": {
+      "path": "dzi/regierungsviertel/regierungsviertel.dzi",
+      "bytes": 180,
+      "sha256": "ad568f8f2eff7adf625a02d6dd8e71aaf4236790613e4888960a48d786bc1d9b"
+    },
+    "reference_map": {
+      "path": "dzi/regierungsviertel/reference_map.png",
+      "bytes": 613693,
+      "sha256": "5a4e58fc37e99fda9fc3d1d2b923631ee2a3841fbde26a6923d3cce9b171eff0"
+    },
+    "landmarks": {
+      "path": "dzi/regierungsviertel/landmarks.json",
+      "bytes": 17284,
+      "sha256": "92813e7ec0b3d46488b48428d6d240091ee95a32bc8f87d3954ed52839110acf"
+    },
+    "tiergartentunnel_overlay": {
+      "path": "dzi/regierungsviertel/tiergartentunnel.json",
+      "bytes": 5538,
+      "sha256": "3f90c1049ae83e4172599bf28d747e232aa66fd34a66194016d32acd945736e0"
+    },
+    "visual_reference_attribution": {
+      "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+      "bytes": 3726,
+      "sha256": "e849b6f78ba710868052c5af4033e867af01f9ee98164504d910a819d17df612"
+    },
+    "wikimedia_attribution": {
+      "path": "dzi/regierungsviertel/wikimedia_attribution.json",
+      "bytes": 127347,
+      "sha256": "d1fec21f1b9a53eb581cff0a016821ecee9c2d172f1264c0d605439e4eabc531"
+    },
+    "webgl_scene": {
+      "path": "mesh/regierungsviertel/scene.json",
+      "bytes": 49388,
+      "sha256": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4"
+    },
+    "ground_context": {
+      "path": "mesh/regierungsviertel/ground-context.json",
+      "bytes": 2327956,
+      "sha256": "4de9a9338f51c9d83f30adbddc41748684828f40a14de9264023cc977a2e3e61"
+    },
+    "lod2_prisms": {
+      "path": "mesh/regierungsviertel/lod2-prisms.json",
+      "bytes": 6308689,
+      "sha256": "08fa6a0155561e6d76448cd9f35e66c34b98afdefb2ec5b661bcd9ed86168253"
+    },
+    "minecraft_voxels": {
+      "path": "mesh/regierungsviertel/minecraft-voxels.json",
+      "bytes": 5593154,
+      "sha256": "39230de49a70e257f578821b16389895ae17139336b8aad97eecc920c6bb4414"
+    },
+    "park_details": {
+      "path": "mesh/regierungsviertel/park-details.json",
+      "bytes": 6106768,
+      "sha256": "e6d036fceac66cfda666d38bbc3237cf4d217c18a319f7eb1637377ea34cf978"
+    },
+    "rail_lines": {
+      "path": "mesh/regierungsviertel/rail-lines.json",
+      "bytes": 435216,
+      "sha256": "3640b597f4cb90656b5b06d8ef92776cb7e8a56a5807d30575b629253506afcb"
+    },
+    "street_details": {
+      "path": "mesh/regierungsviertel/street-details.json",
+      "bytes": 708921,
+      "sha256": "17caa17e502732f9cd7af8dee0ab28ba18f624068e470cdce1f9e3b5c4d42c53"
+    },
+    "surface_source": {
+      "path": "mesh/regierungsviertel/surface-polygons.json",
+      "bytes": 4770788,
+      "sha256": "251a98f8f73e77990ef594b468f10bf8f81570970d8d750697a850ea35c60895"
+    },
+    "start_page": {
+      "path": "START-HERE.html",
+      "bytes": 125604,
+      "sha256": "477cf0511589f6c73d919d30a03d7cab0dd5b32778309172000937ef435c8738"
+    }
+  }
+}
