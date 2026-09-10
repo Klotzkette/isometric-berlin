@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.15"
+PACKAGE_VERSION = "1.0.16"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3393,6 +3393,10 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.16: Das Charlottenburger Tor besitzt zwei richtige Kolonnaden
+nördlich und südlich der Straße. Vier klassizistische Torhäuser mit offenen
+Tunnelmündern markieren die Fußgängertunnel zur Siegessäule am Großen Stern.
+
 Neu in v1.0.15: Berlin Junction und der T4-Gedenkort sind als zwei getrennte
 Werke dargestellt. Philharmonie, Kammermusiksaal sowie die Museumseingänge an
 der Piazzetta erhalten sichtbare Glastüren, Vordächer und Gebäudebezeichnungen.
@@ -4001,6 +4005,10 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.16: The Charlottenburger Tor has two proper colonnades north and
+south of the road. Four neoclassical gatehouses with open tunnel mouths mark
+the pedestrian tunnels to the Victory Column at the Großer Stern.
 
 New in v1.0.15: Berlin Junction and the T4 memorial are rendered as two
 separate works. The Philharmonie, Kammermusiksaal and Piazzetta museum

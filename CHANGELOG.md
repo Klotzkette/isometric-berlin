@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.16
+
+- Das Charlottenburger Tor steht nun mit seinen beiden Kolonnaden korrekt
+  nördlich und südlich der Straße. Endpfeiler, vier Säulen je Flügel, Attika,
+  Bronzestandbilder und Dachgruppen ersetzen die versetzten Blocktürme.
+- Vier einzeln OSM-vermessene Torhäuser markieren die westlichen und östlichen
+  Zugänge zu den Fußgängertunneln am Großen Stern. Dunkle Tunnelmünder,
+  Portiken, Dreiecksgiebel, Walmdächer und Treppen machen ihre tatsächliche
+  Funktion und klassizistische Form erkennbar.
+- Die Torhäuser stehen auf dem lokalen OSM-Geländeniveau; ihre bestehenden
+  Wege, die Straße und die Siegessäule bleiben unverändert.
+
 ## v1.0.15
 
 - Step 10: separate Richard Serra's two curved Corten-steel plates from the

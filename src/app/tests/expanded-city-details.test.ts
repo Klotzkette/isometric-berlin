@@ -11,11 +11,13 @@ import {
 import {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
+  CHARLOTTENBURGER_TOR_PROFILE,
   createExpandedCityDetails,
   EUROPACITY_PROFILE,
   expandedCityFocusCamera,
   funboxEntranceFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  GROSSER_STERN_TUNNEL_HOUSES_PROFILE,
   INVALIDENFRIEDHOF_DETAIL_PROFILE,
   KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
@@ -56,6 +58,7 @@ const landmarks = [
   "DKB Campus Upbeat",
   "Geschichtspark Ehemaliges Zellengefängnis Moabit",
   "Oggi's Gemüsekebab",
+  "Siegessäule",
 ].map((name, index) => ({
   name,
   world: [index * 120, 3.8, (index % 4) * 160] as [number, number, number],
@@ -139,6 +142,33 @@ function polylineDistance(a: readonly Point2[], b: readonly Point2[]): number {
 }
 
 describe("task-10 expanded city recognition details", () => {
+  test("rebuilds the Charlottenburger Tor and all four Großer Stern tunnel houses", () => {
+    const gate = createExpandedCityDetails([
+      { name: "Charlottenburger Tor", world: [-2731.136, 8, 568.211] },
+    ]);
+    expect(gate.userData.charlottenburgerTor).toEqual(
+      CHARLOTTENBURGER_TOR_PROFILE,
+    );
+    const gateBounds = new Box3().setFromObject(gate);
+    expect(gateBounds.max.z - gateBounds.min.z).toBeGreaterThan(43);
+    expect(gateBounds.max.x - gateBounds.min.x).toBeGreaterThan(27);
+    expect(gateBounds.max.y).toBeGreaterThan(32);
+
+    const tunnelHouses = createExpandedCityDetails([
+      { name: "Siegessäule", world: [-1461.967, 8, 457.11] },
+    ]);
+    expect(tunnelHouses.userData.grosserSternTunnelHouses).toEqual(
+      GROSSER_STERN_TUNNEL_HOUSES_PROFILE,
+    );
+    expect(GROSSER_STERN_TUNNEL_HOUSES_PROFILE.osmKeys).toHaveLength(4);
+    const bounds = new Box3().setFromObject(tunnelHouses);
+    expect(bounds.min.x).toBeLessThan(-1584);
+    expect(bounds.max.x).toBeGreaterThan(-1334);
+    expect(bounds.min.z).toBeLessThan(404);
+    expect(bounds.max.z).toBeGreaterThan(506);
+    expect(bounds.max.y).toBeGreaterThan(9.9);
+  });
+
   test("anchors the Kulturforum buildings independently from entrance POIs", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.userData.kulturforum).toEqual(KULTURFORUM_PROFILE);

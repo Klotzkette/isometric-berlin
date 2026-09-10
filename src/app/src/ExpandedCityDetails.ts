@@ -105,6 +105,39 @@ export type ExpandedCityDetailsOptions = {
   detailProfile?: MoabitPrisonMemorialDetailProfile;
 };
 
+export const CHARLOTTENBURGER_TOR_PROFILE = Object.freeze({
+  centerWorldM: [-2731.136, 568.211] as const,
+  roadOpeningM: 34,
+  wingCount: 2,
+  columnCountPerWing: 4,
+  sourceUrl:
+    "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/artikel.1368662.php",
+  geometryStatus:
+    "landmark-centred and road-axis-aligned; 34 m post-1937 opening is published, local colonnade and sculpture subdivisions are bounded presentation fits",
+});
+
+export const GROSSER_STERN_TUNNEL_HOUSES_PROFILE = Object.freeze({
+  architect: "Johannes Huntemüller",
+  buildingLevels: 2,
+  osmKeys: [
+    "way/106952577",
+    "way/106952579",
+    "way/106953928",
+    "way/106953934",
+  ] as const,
+  centersWorldM: [
+    [-1580.32, 432.35],
+    [-1574.54, 498.54],
+    [-1338.91, 479.07],
+    [-1344.48, 411.26],
+  ] as const,
+  sourceUrl: "https://www.openstreetmap.org/way/106952577",
+  referenceUrl:
+    "https://www.architektur-bildarchiv.de/image/Siegess%C3%A4ule-Berlin-27250.html",
+  geometryStatus:
+    "four OSM-footprint-centred two-level civic gatehouses with mapped hipped roofs; portico, pediment and tunnel-mouth subdivisions are reference-bounded presentation geometry",
+});
+
 export {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
@@ -4712,39 +4745,133 @@ function addCharlottenburgerTor(
 ): void {
   const point = anchor(byName, "Charlottenburger Tor");
   if (!point) return;
+  const rotation = 0.087;
   for (const side of [-1, 1]) {
-    addBox(
-      builder,
-      SANDSTONE,
-      point.x + side * 19,
-      point.y + 10,
-      point.z,
-      8,
-      20,
-      8,
-      0.12,
+    const wingZ = side * (CHARLOTTENBURGER_TOR_PROFILE.roadOpeningM / 2 + 3.2);
+    // Schaede's two gate wings are colonnades north and south of the road,
+    // rather than the two tower blocks formerly placed along its centreline.
+    for (const localX of [-11.2, 11.2]) {
+      addLocalBox(builder, SANDSTONE, point, localX, point.y + 8.6, wingZ,
+        4.3, 17.2, 5.6, rotation);
+      addLocalBox(builder, 0xa79a80, point, localX, point.y + 18.3, wingZ,
+        5.2, 2.2, 6.3, rotation);
+    }
+    for (const localX of [-6.6, -2.2, 2.2, 6.6]) {
+      const [offsetX, offsetZ] = rotatedLocalOffset(localX, wingZ, rotation);
+      addCylinder(builder, SANDSTONE, point.x + offsetX, point.y + 9.0,
+        point.z + offsetZ, 0.72, 14.4, 12);
+      addLocalBox(builder, 0xb4aa91, point, localX, point.y + 2.0, wingZ,
+        1.75, 0.7, 1.75, rotation);
+      addLocalBox(builder, 0xb4aa91, point, localX, point.y + 16.1, wingZ,
+        1.6, 0.65, 1.6, rotation);
+    }
+    addLocalBox(builder, SANDSTONE, point, 0, point.y + 17.15, wingZ,
+      26.8, 1.8, 6.0, rotation);
+    addLocalBox(builder, 0xa89b82, point, 0, point.y + 19.45, wingZ,
+      28.2, 2.8, 6.5, rotation);
+    for (const localX of [-8, -4, 0, 4, 8]) {
+      addLocalBox(builder, 0x958970, point, localX, point.y + 19.45,
+        wingZ + side * 3.31, 1.45, 0.62, 0.16, rotation, false);
+    }
+    // Friedrich I and Sophie Charlotte on the Tiergarten-facing side.
+    const statueX = side < 0 ? -11.2 : 11.2;
+    const [statueOffsetX, statueOffsetZ] = rotatedLocalOffset(
+      statueX,
+      wingZ - side * 3.45,
+      rotation,
     );
-    addBox(
-      builder,
-      IVORY,
-      point.x + side * 19,
-      point.y + 20.8,
-      point.z,
-      10,
-      2.2,
-      10,
-      0.12,
-    );
-    addCone(
-      builder,
-      BRONZE,
-      point.x + side * 19,
-      point.y + 24.3,
-      point.z,
-      2.5,
-      5,
-      12,
-    );
+    addCylinder(builder, BRONZE, point.x + statueOffsetX, point.y + 8.0,
+      point.z + statueOffsetZ, 1.2, 3.8, 10);
+    addCone(builder, BRONZE, point.x + statueOffsetX, point.y + 11.0,
+      point.z + statueOffsetZ, 1.35, 3.1, 10);
+    addCylinder(builder, BRONZE, point.x + statueOffsetX, point.y + 13.0,
+      point.z + statueOffsetZ, 0.62, 1.2, 10);
+    // The high end pylons and their allegorical bronze groups replace the
+    // previous single cones.
+    addLocalBox(builder, SANDSTONE, point, -statueX, point.y + 22.0, wingZ,
+      4.5, 3.2, 4.7, rotation);
+    const [crownX, crownZ] = rotatedLocalOffset(-statueX, wingZ, rotation);
+    for (const crownSide of [-1, 1]) {
+      addCone(builder, BRONZE, point.x + crownX + crownSide * 1.0,
+        point.y + 25.1, point.z + crownZ, 0.72, 2.4, 8);
+    }
+  }
+}
+
+function addTemplePediment(
+  builder: Builder,
+  origin: Vector3,
+  centerY: number,
+  facadeZ: number,
+  width: number,
+  height: number,
+  depth: number,
+  rotationY: number,
+): void {
+  const shape = new Shape();
+  shape.moveTo(-width / 2, 0);
+  shape.lineTo(width / 2, 0);
+  shape.lineTo(0, height);
+  shape.closePath();
+  const geometry = new ExtrudeGeometry(shape, { bevelEnabled: false, depth });
+  geometry.translate(0, 0, -depth / 2);
+  const [offsetX, offsetZ] = rotatedLocalOffset(0, facadeZ, rotationY);
+  transformGeometry(
+    geometry,
+    origin.x + offsetX,
+    centerY,
+    origin.z + offsetZ,
+    rotationY,
+  );
+  addCustomGeometry(builder, geometry, SANDSTONE);
+}
+
+function addGrosserSternTunnelHouses(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Siegessäule")) return;
+  const centers = GROSSER_STERN_TUNNEL_HOUSES_PROFILE.centersWorldM;
+  for (let index = 0; index < centers.length; index += 1) {
+    const [x, z] = centers[index];
+    const groundY = 5.245;
+    const origin = new Vector3(x, groundY, z);
+    const northHouse = index === 0 || index === 3;
+    const facadeSide = northHouse ? 1 : -1;
+    const rotation = -0.145;
+    addLocalBox(builder, SANDSTONE, origin, 0, groundY + 2.65, 0,
+      9.2, 5.3, 14.8, rotation);
+    addLocalBox(builder, 0xa99f89, origin, 0, groundY + 5.45, 0,
+      9.8, 0.55, 15.4, rotation);
+    // Recessed dark opening makes the real descent into the pedestrian
+    // tunnel readable instead of suggesting an occupied pavilion.
+    addLocalBox(builder, 0x31383a, origin, 0, groundY + 2.0, facadeSide * 7.46,
+      3.7, 3.5, 0.16, rotation, false);
+    for (const localX of [-3.1, -1.05, 1.05, 3.1]) {
+      const [offsetX, offsetZ] = rotatedLocalOffset(
+        localX,
+        facadeSide * 8.0,
+        rotation,
+      );
+      addCylinder(builder, SANDSTONE, origin.x + offsetX, groundY + 3.25,
+        origin.z + offsetZ, 0.38, 4.7, 10);
+    }
+    addLocalBox(builder, SANDSTONE, origin, 0, groundY + 5.6, facadeSide * 8.0,
+      9.8, 0.7, 1.5, rotation);
+    addTemplePediment(builder, origin, groundY + 5.88, facadeSide * 8.0,
+      9.8, 2.25, 1.45, rotation);
+    const roof = new CylinderGeometry(0.34, 1, 2.0, 4);
+    roof.rotateY(Math.PI / 4);
+    roof.scale(9.9 / Math.SQRT2, 1, 15.5 / Math.SQRT2);
+    roof.rotateY(rotation);
+    roof.translate(x, groundY + 7.05, z);
+    addCustomGeometry(builder, roof, 0x6f6d66);
+    // Shallow stair flight immediately before each portal.
+    for (let step = 0; step < 4; step += 1) {
+      addLocalBox(builder, 0x8c8980, origin, 0, groundY + 0.08 - step * 0.08,
+        facadeSide * (8.35 + step * 0.75), 5.0 + step * 0.45, 0.16,
+        1.4, rotation, false);
+    }
   }
 }
 
@@ -5935,6 +6062,9 @@ export function createExpandedCityDetails(
   group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
   group.userData.weltBalloon = WELT_BALLOON_PROFILE;
   group.userData.cityWest = CITY_WEST_PROFILE;
+  group.userData.charlottenburgerTor = CHARLOTTENBURGER_TOR_PROFILE;
+  group.userData.grosserSternTunnelHouses =
+    GROSSER_STERN_TUNNEL_HOUSES_PROFILE;
   group.userData.sourceUrls = [
     ...SOCIAL_COURT_PROFILE.sourceUrls,
     ...BENDLERBLOCK_PROFILE.sources,
@@ -5965,6 +6095,9 @@ export function createExpandedCityDetails(
     ...TILLA_DURIEUX_PROFILE.sources,
     ...WELT_BALLOON_PROFILE.sources,
     ...CITY_WEST_SOURCE_URLS,
+    CHARLOTTENBURGER_TOR_PROFILE.sourceUrl,
+    GROSSER_STERN_TUNNEL_HOUSES_PROFILE.sourceUrl,
+    GROSSER_STERN_TUNNEL_HOUSES_PROFILE.referenceUrl,
   ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
@@ -5978,6 +6111,7 @@ export function createExpandedCityDetails(
   }
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
+  addGrosserSternTunnelHouses(builder, byName);
   addCivicAccents(builder, byName);
   addAmanoGrandCentral(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);

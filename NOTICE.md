@@ -903,6 +903,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   and steps remain procedural display fits. No photograph, exhibition text or
   sculpture scan is distributed. See [source contract](docs/kulturforum-memorial-entrances-v115.md).
 
+- **Charlottenburger Tor and Großer Stern tunnel houses:** the
+  Charlottenburg-Wilmersdorf district history establishes Bernhard Schaede's
+  colonnaded 1907–08 gate, its two principal bronze figures and the published
+  34 m road opening. OSM ways `106952577`, `106952579`, `106953928` and
+  `106953934` supply the four separate tunnel-house footprints, two-level
+  identities and hipped roofs. Portico, pediment, stair and sculptural
+  subdivisions remain procedural display fits. No photograph or sculpture
+  scan is distributed. See [source contract](docs/charlottenburger-tor-tunnelhouses-v116.md).
+
 All v1.0.7 free-photo links, authors and licences are listed in the
 [reference inventory](references/wikimedia/README.md#v107-external-reference-additions)
 and mirrored in the packaged viewer attribution manifest.

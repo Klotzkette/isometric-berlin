@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.15/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.16 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.16/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,14 +24,18 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v1.0.15** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.16** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.15 separates Richard Serra's walk-through Berlin Junction from the
+Version 1.0.16 rebuilds the Charlottenburger Tor as two road-flanking
+colonnades and adds the four source-positioned neoclassical pedestrian-tunnel
+gatehouses around the Großer Stern. Version 1.0.15 separates Richard Serra's walk-through Berlin Junction from the
 neighbouring T4 memorial. The Philharmonie, Kammermusiksaal and Piazzetta
 museum entrances gain visible glazing, canopies, steps and names.
 
-Version 1.0.15 trennt Richard Serras begehbare Berlin Junction vom benachbarten
+Version 1.0.16 stellt das Charlottenburger Tor als zwei straßenbegleitende
+Kolonnaden dar und ergänzt die vier quellpositionierten klassizistischen
+Fußgängertunnel-Torhäuser am Großen Stern. Version 1.0.15 trennt Richard Serras begehbare Berlin Junction vom benachbarten
 T4-Gedenkort. Philharmonie, Kammermusiksaal und die Museumseingänge an der
 Piazzetta erhalten sichtbare Verglasung, Vordächer, Stufen und Namen.
 
@@ -174,7 +178,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v1.0.15**, built from `main`. Its full viewer
+The current public package is **v1.0.16**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
