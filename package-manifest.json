@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.26",
+  "package_version": "1.0.27",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launcher-with-2d-compatibility-fallback",
   "full_3d_start_page": "index.html",
