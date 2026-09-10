@@ -7,9 +7,17 @@ import { smoothGroundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 type Point = [number, number];
+const SURFACE_STYLES = {
+  asphalt: { name: "District asphalt carriageways", day: 0x858d89, night: 0x171c22, lift: 0.18 },
+  paving: { name: "District mapped paved walkways", day: 0xd4d0c3, night: 0x252932, lift: 0.1 },
+  sidewalk: { name: "Brandenburg approach raised sidewalks", day: 0xd4d0c3, night: 0x252932, lift: 0.32 },
+  gravel: { name: "Unter den Linden mapped gravel promenade", day: 0xd9c9a6, night: 0x241f19, lift: 0.3 },
+  // The plaza's authored flowerbeds/lawn plates already stand above this base.
+  grass: { name: "Brandenburg approach mapped lawns", day: 0x8eab79, night: 0x24352b, lift: 0.035 },
+} as const;
 type StreetSource = {
   source: Record<string, unknown>;
-  surfaces: { kind: "asphalt" | "paving"; positions_cm_b64: string; indices_b64: string }[];
+  surfaces: { kind: keyof typeof SURFACE_STYLES; positions_cm_b64: string; indices_b64: string }[];
   curbs_m: Point[][];
   elevated_path_ids: string[];
   markings_m: { points: Point[]; width_m: number; lanes?: number | null }[];
@@ -74,17 +82,16 @@ export function createDistrictStreets(ground: VoxelPayload): Group {
     group.add(mesh);
   };
   for (const surface of streets.surfaces) {
-    const asphalt = surface.kind === "asphalt";
+    const style = SURFACE_STYLES[surface.kind];
     const positions: number[] = [];
     const points = decodeNumbers(surface.positions_cm_b64, true);
     for (let i = 0; i < points.length; i += 2) {
       const x = points[i];
       const z = points[i + 1];
-      positions.push(x, terrainAt(x, z) + (asphalt ? DISTRICT_STREET_LIFT_M : 0.1), z);
+      positions.push(x, terrainAt(x, z) + style.lift, z);
     }
     addSurface(
-      asphalt ? "District asphalt carriageways" : "District mapped paved walkways",
-      positions, asphalt ? 0x858d89 : 0xd4d0c3, asphalt ? 0x171c22 : 0x252932, decodeNumbers(surface.indices_b64, false),
+      style.name, positions, style.day, style.night, decodeNumbers(surface.indices_b64, false),
     );
   }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.30
+
+- Replace coarse raster fringes at Pariser Platz and western Unter den Linden
+  with a continuous ALKIS/OSM public-space foundation through Friedrichstraße.
+- Keep straight avenue carriageways, raised sidewalks and open kerbs at
+  intersections; preserve mapped median lawns/gravel and authored plaza gardens.
+- Retain terrain grades, all buildings, navigation and the bounded static street
+  batches across the four drawn visual modes.
+
 ## v1.0.29
 
 - Partition large immutable opaque park instances into 256 m cells, preserving

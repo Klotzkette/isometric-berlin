@@ -1,4 +1,5 @@
 import { pointInDistrictStreetScope } from "./districtStreetScope";
+import { pointInBrandenburgApproach } from "./brandenburgApproachScope";
 import { TIPI_SITE_PRISM_IDS } from "./tipiSiteProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
 import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenBankTopAt } from "./spreebogenBankProfile";
@@ -12907,7 +12908,8 @@ export function createIsometricCity(
         skipClasses:
           surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld: (x,z) => isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
+        skipAtWorld: (x,z) => pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
+          isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
           Boolean(insideTunnelApproach?.(x,z) || insideTillaDurieux?.(x,z)),
         skipWater: true,
       },
@@ -12989,7 +12991,7 @@ export function createIsometricCity(
     const kerbs = createKerbLines(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
-      insideTunnelApproach ?? undefined,
+      (x, z) => pointInBrandenburgApproach(x, z) || Boolean(insideTunnelApproach?.(x, z)),
     );
     if (kerbs) {
       group.add(kerbs);

@@ -78,7 +78,13 @@ def test_geometry_is_inside_scope_and_retains_bounded_terrain_samples(
       np.abs(edges[:, 0, 0] * edges[:, 1, 1] - edges[:, 0, 1] * edges[:, 1, 0]).sum()
       / 2
     )
-    assert area == pytest.approx(surface["area_m2"], rel=0.0001)
+    # Centimetre encoding moves a boundary by at most sqrt(2)*5mm. Narrow
+    # sidewalk/median polygons have much more perimeter per square metre than
+    # the old citywide road union; use that geometric error bound, not a fixed
+    # area percentage that rejects correct centimetre quantization.
+    assert area == pytest.approx(
+      surface["area_m2"], abs=surface["source_perimeter_m"] * 0.0071 + 0.02
+    )
   assert count == streets["inventory"]["triangle_count"]
 
 

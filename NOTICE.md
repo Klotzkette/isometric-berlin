@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Pariser Platz and western Unter den Linden (v1.0.30):** retained ALKIS
+  cadastral parcels anchor the western public-space envelope; OSM road,
+  sidewalk, plaza, grass and gravel features determine the source partition.
+  Eastern pavement infill, continuous widths where tags are absent, kerb
+  dimensions and colours are documented display reconstruction. Original
+  source data and authored gardens are retained; no photograph is added.
+  See [evidence and validation](docs/brandenburg-approach-v130-review.md).
+
 Per owner policy this project uses **additive data fusion** across
 all permitted sources (see [`docs/data.md`](docs/data.md) and
 [`AGENTS.md`](AGENTS.md) §4):

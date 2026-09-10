@@ -114,7 +114,7 @@ describe("bounded District streets in the drawn city", () => {
     expect(inkTop).toBeLessThan(kerbTop + 0.04);
   });
 
-  test("keeps the full street reading in five static, image-free batches", () => {
+  test("keeps the street reading and bounded avenue infill in eight static, image-free batches", () => {
     const geometries = new Set<BufferGeometry>();
     const materials = new Set<Material>();
     let drawables = 0;
@@ -132,7 +132,7 @@ describe("bounded District streets in the drawn city", () => {
       (sum, geometry) => sum + geometryBytes(geometry),
       0,
     );
-    expect(drawables).toBe(5);
+    expect(drawables).toBe(8);
     expect(bytes).toBeGreaterThan(10_000);
     expect(bytes).toBeLessThan(25 * 1024 * 1024);
     for (const material of materials) {
