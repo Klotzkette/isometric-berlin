@@ -12,6 +12,7 @@ import {
   Vector3
 } from "three";
 
+import { createBerlinJunction } from "../src/BerlinJunction";
 import { createDomAltesMuseum } from "../src/DomAltesMuseum";
 import { DOM_ALTES_ARTWORK_KEYS } from "../src/domAltesMuseumIds";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
@@ -92,27 +93,29 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(junctionEntry.name).toContain("Berlin Junction");
     expect(t4Entry.name).toContain("Euthanasie");
 
-    const junction = createTiergartenMonuments(
+    expect(createTiergartenMonuments(
       { ...street, monuments: [junctionEntry] }, ground,
-    )!;
+    )).toBeNull();
+    const junction = createBerlinJunction();
     const t4 = createTiergartenMonuments(
       { ...street, monuments: [t4Entry] }, ground,
     )!;
-    const junctionBounds = monumentBodyBounds(junction);
+    const junctionBounds = new Box3().setFromObject(junction);
     const t4Bounds = monumentBodyBounds(t4);
-    expect(junction.userData.tiergartenHeritageModels.berlinJunction).toEqual(
+    expect(junction.userData.berlinJunction).toEqual(
       BERLIN_JUNCTION_PROFILE,
     );
     expect(t4.userData.tiergartenHeritageModels.t4Memorial).toEqual(
       T4_MEMORIAL_PROFILE,
     );
-    expect(junctionBounds.max.y - junctionBounds.min.y).toBeCloseTo(3.9, 1);
+    expect(junctionBounds.max.y - junctionBounds.min.y).toBeCloseTo(3.4, 1);
     expect(Math.max(
       junctionBounds.max.x - junctionBounds.min.x,
       junctionBounds.max.z - junctionBounds.min.z,
     )).toBeGreaterThan(13);
     expect(Math.max(t4Bounds.max.x - t4Bounds.min.x, t4Bounds.max.z - t4Bounds.min.z))
       .toBeGreaterThanOrEqual(29.9);
+    expect(monuments.userData.externallyModelledSourceKeys).toContain(BERLIN_JUNCTION_PROFILE.osmKey);
     expect(monuments.userData.sourceUrls).toContain(BERLIN_JUNCTION_PROFILE.sourceUrl);
     expect(monuments.userData.sourceUrls).toContain(T4_MEMORIAL_PROFILE.sourceUrl);
   });

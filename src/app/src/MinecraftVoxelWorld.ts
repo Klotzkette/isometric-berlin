@@ -122,6 +122,7 @@ import {
   createWagnerMemorialMinecraft,
   wagnerMemorialVoxelReplacementAt,
 } from "./WagnerMemorial";
+import { berlinJunctionReplacesSourceColumn } from "./BerlinJunction";
 import { createMoabitPrisonMemorialParkMinecraft } from "./MoabitPrisonMemorialPark";
 import { createWeidendammerBridgeMinecraft } from "./WeidendammerBridgeDetails";
 import {
@@ -2747,6 +2748,7 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (!(
+      !berlinJunctionReplacesSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !wagnerMemorialVoxelReplacementAt(
         worldXAbs(xIdx),
         worldZAbs(zIdx),

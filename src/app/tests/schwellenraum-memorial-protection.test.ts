@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
+import { BERLIN_JUNCTION_PROFILE } from "../src/BerlinJunction";
 import {
   CSD_ATTACK_MEMORIAL_OSM_KEY,
   CSD_ATTACK_MEMORIAL_PROFILE,
@@ -37,6 +38,9 @@ describe("data-driven Schwellenraum memorial protection", () => {
     expect(index.sourceKeys.size).toBe(index.protectedEntryCount);
     for (const entry of protectedEntries) {
       expect(index.sourceKeys.has(entry.osm_key), entry.osm_key).toBeTrue();
+      // Serra's centre belongs to the intentional passage. Its two steel
+      // surfaces are covered by berlin-junction-pedestrian-access.test.ts.
+      if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) continue;
       expect(
         schwellenraumProtectedMemorialAt(
           index,

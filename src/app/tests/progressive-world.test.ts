@@ -997,11 +997,13 @@ describe("progressive exact-world scheduling", () => {
     // parts into the bounded initial group (17,256 fewer follow-up vertices).
     // v1.0.9 removes 1,338 duplicate follow-up vertices on dedicated Heidestrasse / 50Hertz facades.
     // v1.0.22 replaces twenty TIPI fallback masses in its dedicated site model.
+    // Serra's closed source prism contributes exactly 180 vertices / 2,536 bytes;
+    // its open plate model now owns that footprint instead.
     expect({ vertices, retainedBytes }).toEqual({
       // v1.0.14 puts harbour identities in startup and moves ministry bodies
       // into their source-bound context model, without extra worker batches.
-      vertices: 3_565_364,
-      retainedBytes: 51_291_808,
+      vertices: 3_565_184,
+      retainedBytes: 51_289_272,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

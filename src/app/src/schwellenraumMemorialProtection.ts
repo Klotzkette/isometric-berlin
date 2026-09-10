@@ -1,5 +1,9 @@
 import type { StreetDetailsPayload } from "./TrafficSignals";
 import {
+  BERLIN_JUNCTION_PROFILE,
+  berlinJunctionSolidAt,
+} from "./BerlinJunction";
+import {
   KINDERTRANSPORT_MEMORIAL_OSM_KEY,
   KINDERTRANSPORT_MEMORIAL_PROFILE,
 } from "./KindertransportMemorial";
@@ -24,7 +28,7 @@ const PROTECTED_MAX_Y_M = 45;
 export type SchwellenraumProtectedMemorialShape = {
   halfDepthM: number;
   halfWidthM: number;
-  kind: "box" | "circle" | "literary";
+  kind: "box" | "circle" | "literary" | "berlin-junction";
   maxYM: number;
   minYM: number;
   name: string;
@@ -62,6 +66,23 @@ function pointRadiusM(entry: MonumentEntry): number {
 function protectionShapes(
   entry: MonumentEntry,
 ): readonly SchwellenraumProtectedMemorialShape[] {
+  if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) {
+    // The artwork's passage is intentional. Keep the existing OSM-area
+    // clearance for decorative props, but resolve visitor protection against
+    // the represented steel alone rather than filling the whole footprint.
+    return [{
+      halfDepthM: entry.d_dm / 20 + 1.25,
+      halfWidthM: entry.w_dm / 20 + 1.25,
+      kind: "berlin-junction",
+      maxYM: PROTECTED_MAX_Y_M,
+      minYM: PROTECTED_MIN_Y_M,
+      name: entry.name,
+      osmKey: entry.osm_key,
+      radiusM: Math.hypot(entry.w_dm, entry.d_dm) / 20,
+      x: BERLIN_JUNCTION_PROFILE.worldM[0],
+      z: BERLIN_JUNCTION_PROFILE.worldM[1],
+    }];
+  }
   if (
     TIERGARTEN_LITERARY_MEMORIAL_OSM_KEYS.includes(
       entry.osm_key as (typeof TIERGARTEN_LITERARY_MEMORIAL_OSM_KEYS)[number],
@@ -265,6 +286,8 @@ export function schwellenraumProtectedMemorialShapeAt(
     if (y < shape.minYM || y > shape.maxYM) continue;
     if (shape.kind === "literary") {
       if (tiergartenLiteraryMemorialProtectedAt(x, z)) return shape;
+    } else if (shape.kind === "berlin-junction") {
+      if (berlinJunctionSolidAt(x, y, z)) return shape;
     } else if (shape.kind === "circle") {
       if ((x - shape.x) ** 2 + (z - shape.z) ** 2 <= shape.radiusM ** 2) {
         return shape;

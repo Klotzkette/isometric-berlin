@@ -140,6 +140,12 @@ import {
   wagnerMemorialSolidAt,
 } from "./WagnerMemorial";
 import {
+  BERLIN_JUNCTION_PROFILE,
+  berlinJunctionSolidAt,
+  createBerlinJunction,
+  setBerlinJunctionPresentation,
+} from "./BerlinJunction";
+import {
   QUEER_RAINBOW_MEMORIAL_PROFILE,
   createQueerRainbowMemorial,
   setQueerRainbowMemorialSnow,
@@ -2270,6 +2276,7 @@ function setSceneLighting(
   setComposerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setBerlinJunctionPresentation(runtime.monuments, voxelMode);
   setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
@@ -3306,6 +3313,7 @@ function ensureIsoWorld(
           }
           if (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
+            berlinJunctionSolidAt(x, y, z, radius) ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
@@ -3813,6 +3821,7 @@ function ensureVoxelWorld(
           }
           return (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
+            berlinJunctionSolidAt(x, y, z, radius) ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
@@ -4450,6 +4459,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setSovietMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setComposerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
+  setBerlinJunctionPresentation(runtime.monuments, voxelMode);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -7617,6 +7627,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.monuments.add(createQueerRainbowMemorial());
           runtime.monuments.add(createCsdAttackMemorial());
+          runtime.monuments.add(
+            createBerlinJunction(BERLIN_JUNCTION_PROFILE.groundYM),
+          );
           runtime.monuments.add(createSonyCenterForumRoof());
           runtime.focusCameraByName.set(QUEER_RAINBOW_MEMORIAL_PROFILE.name, {
             azimuth_degrees: -18,
@@ -7658,6 +7671,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setWagnerMemorialSmoothVisibility(
             runtime.monuments,
             !voxelModeActive(runtime),
+          );
+          setBerlinJunctionPresentation(
+            runtime.monuments,
+            voxelModeActive(runtime),
           );
           setWagnerMemorialSnow(
             runtime.monuments,

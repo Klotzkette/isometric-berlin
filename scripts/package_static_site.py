@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.22"
+PACKAGE_VERSION = "1.0.23"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset({SERVE_SCRIPT_NAME, "start-linux.sh"})
@@ -3457,6 +3457,9 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
+Neu in v1.0.23: Richard Serras Berlin Junction mit zwei durchgehend gebogenen,
+nach innen geneigten Stahlplatten und offenem Durchgang in allen Modi.
+
 Neu in v1.0.22: Etwa 15 Prozent schnelleres horizontales Flugtempo,
 weniger wiederholter Gebietsaufbau und GPU-Vorbereitung. Gebäudedetails
 werden im sichtbaren Bildausschnitt bis 2,4 km voraus vorbereitet. Die
@@ -4088,6 +4091,9 @@ QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
+
+New in v1.0.23: Richard Serra's Berlin Junction has two continuous curved,
+inward-leaning steel plates and an open passage in every mode.
 
 New in v1.0.22: About 15 percent faster horizontal flight, fewer rebuilt
 districts and redundant GPU preparation passes. Detailed buildings are

@@ -1,4 +1,5 @@
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
+import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
 import { DB_TOWER_PRISM_IDS, DB_TOWER_SOURCE, dbTowerDisplayY, dbTowerRoofAt } from "./dbTowerProfile";
 import { DOM_ALTES_SOURCE, DOM_PROFILE, museumDisplayY, domRoofAt, altesRoofAt } from "./domAltesMuseumProfile";
 import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
@@ -566,6 +567,7 @@ export function compilePedestrianObstacles(
   const replacedParents = new Set<string>();
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (BERLIN_JUNCTION_PRISM_IDS.has(building.id)) continue;
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;

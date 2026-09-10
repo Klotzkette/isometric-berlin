@@ -1,3 +1,6 @@
+import { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
+export { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
+
 import { POTSDAMER_TRAFFIC_TOWER_PROFILE } from "./potsdamerTrafficTowerProfile";
 import { SOVIET_MEMORIAL_SOURCE } from "./SovietMemorialSource";
 import { DOM_ALTES_ARTWORK_KEYS } from "./domAltesMuseumIds";
@@ -67,7 +70,6 @@ const SOVIET_GREEN = 0x6b7a5c;
 const DARK_CUBE = 0x8f9497;
 const WHITE = 0xf2f2ee;
 const GLASS_BLUE = 0x5f9fc4;
-const CORTEN_STEEL = 0x8b4a2e;
 const T4_SURFACE = 0x34383a;
 const MARBLE = 0xe8e5dc;
 const GRANITE_RED = 0x9d7a6e;
@@ -108,19 +110,6 @@ export const GRAEFE_MONUMENT_SOURCE_URL =
   "https://bildhauerei-in-berlin.de/bildwerk/albrecht-von-graefe-denkmal-7878/";
 export const GRAEFE_CHARITE_SOURCE_URL =
   "https://denkmaeler.charite.de/graefe/";
-
-export const BERLIN_JUNCTION_PROFILE = Object.freeze({
-  osmKey: "way/187360886",
-  worldM: [-201.8, 931.8] as const,
-  plateCount: 2,
-  plateLengthM: 13.65,
-  plateHeightM: 3.9,
-  plateThicknessM: 0.055,
-  passageMinimumWidthM: 2.4,
-  sourceUrl: "https://bildhauerei-in-berlin.de/bildwerk/berlin-junction-6427/",
-  geometryStatus:
-    "OSM-footprint-centred, published overall plate dimensions; curve, lean and passage are bounded presentation fits",
-});
 
 export const T4_MEMORIAL_PROFILE = Object.freeze({
   osmKey: "way/303577518",
@@ -2550,36 +2539,6 @@ function buildCannon(builder: Builder, x: number, y: number, z: number): void {
   box(builder, SOVIET_GREEN, x + 2.2, y + 2.1, z, 4.4, 0.32, 0.32);
 }
 
-/** Richard Serra's two walk-through, opposed conical Corten-steel plates. */
-function buildBerlinJunction(builder: Builder, x: number, y: number, z: number): void {
-  const segments = 18;
-  const half = BERLIN_JUNCTION_PROFILE.plateLengthM / 2;
-  const segmentLength = BERLIN_JUNCTION_PROFILE.plateLengthM / segments + 0.04;
-  const siteYaw = -0.37;
-  for (const side of [-1, 1]) {
-    for (let index = 0; index < segments; index += 1) {
-      const along = -half + ((index + 0.5) / segments) * half * 2;
-      const lateral = side * 1.2 + 0.46 * (along / half) ** 2;
-      const tangentYaw = Math.atan((0.92 * along) / (half * half));
-      const geometry = new BoxGeometry(
-        BERLIN_JUNCTION_PROFILE.plateThicknessM,
-        BERLIN_JUNCTION_PROFILE.plateHeightM,
-        segmentLength,
-      );
-      geometry.rotateZ(side * 0.055);
-      geometry.rotateY(siteYaw + tangentYaw);
-      const cosine = Math.cos(siteYaw);
-      const sine = Math.sin(siteYaw);
-      geometry.translate(
-        x + lateral * cosine + along * sine,
-        y + BERLIN_JUNCTION_PROFILE.plateHeightM / 2,
-        z - lateral * sine + along * cosine,
-      );
-      addPaintedGeometry(builder, geometry, CORTEN_STEEL, 16);
-    }
-  }
-}
-
 /** The T4 memorial: blue wall, inclined dark field, information pult and bench. */
 function buildT4Memorial(builder: Builder, x: number, y: number, z: number): void {
   const yaw = 0.2;
@@ -2891,6 +2850,7 @@ export function createTiergartenMonuments(
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
     } else if (
       entry.osm_key === POTSDAMER_TRAFFIC_TOWER_PROFILE.osmKey ||
+      entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey ||
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
@@ -2906,8 +2866,6 @@ export function createTiergartenMonuments(
       if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
-    } else if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) {
-      buildBerlinJunction(builder, x, y, z);
     } else if (entry.osm_key === T4_MEMORIAL_PROFILE.osmKey) {
       buildT4Memorial(builder, x, y, z);
     } else if (/Weiße Kreuze/i.test(name)) {

@@ -10,10 +10,11 @@ official LoD2 building shells.
 OSM way `187360886` is the exact mapped footprint for Richard Serra's *Berlin
 Junction* but its name also mentions the victims of Aktion T4. Treating that
 whole record as a blue glass wall was wrong. The work is now represented by
-two curved, slightly opposed Corten-steel plates with an open passage. The
-published dimensions are 13.65 m long, 3.90 m high and 0.055 m thick per
-plate. Segment curvature, lean and passage width are bounded procedural
-display fits, not a sculpture scan.
+two curved, slightly opposed Corten-steel plates with an open passage. The v1.0.15 attribution of 13.65 × 3.90 × 0.055 m to the sculpture inventory
+was incorrect: the inventory publishes 14 m length and 3.4 m height per plate,
+and no thickness. v1.0.23 uses that inventory envelope; the retained 0.055 m
+display thickness, curvature, lean and passage width are explicitly estimates.
+See the [owner-photo correction and source conflict](berlin-junction-v123.md).
 
 The later memorial and information site owns separate OSM way `303577518`.
 The [Stiftung Denkmal account](https://www.stiftung-denkmal.de/denkmaeler/gedenk-und-informationsort-fuer-die-opfer-der-nationalsozialistischen-euthanasie-morde/)

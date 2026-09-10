@@ -1596,3 +1596,18 @@ duplicates. See [Dom and Altes Museum evidence](dom-altes-museum-refinement.md).
 Each group has separate full/mobile Minecraft geometry and mode-aware materials.
 The integrated navigation regression uses the complete delivered prism payload
 to check every replacement part, open passages, column solids and roof landings.
+
+
+### Berlin Junction (v1.0.23)
+
+Richard Serra’s sculpture now has its own source-bound root in the existing
+memorial layer. Two continuous thin conical strips replace the generic sequence
+of outlined boxes. The equal-height plates bend the same way and lean inward;
+vertex colour supplies dark patina without a texture. A separate 0.2 m Minecraft
+surface batch uses outward-rounded blocks to retain the real passage.
+The generic OSM monument dispatch delegates only way/187360886.
+The closed LoD2 K0003UOE envelope and its one original voxel column are replaced
+only in display/collision; all source records are retained. Physical collision
+follows the steel. The T4 protection is unchanged; decorative-prop clearance
+still uses the original complete source footprints. The 93-place tour is unchanged.
+See [source evidence and geometric checks](berlin-junction-v123.md).

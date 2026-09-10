@@ -4,9 +4,10 @@ import { fileURLToPath } from "node:url";
 // v1.0.22 replaces twenty generic TIPI masses with source-bound tents/service
 // wings. Independently measured synchronous buffers are compared with
 // cooperative construction, including colours and every instance capacity.
+// Serra now replaces one retained source voxel column with the open plates.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "61b71a9b2d1e7195d0bf0a3e67986d260db5a3622484878d4238a28363202a77", 3814623, 97, 291142163],
-  ["mobile", "410a54870d73f5b4177af47c64d21032140d8774d9f59c930ee7e72c98ca2876", 1010242, 95, 77442179],
+  ["full", "e44a0a008add74052e109b35ddcbf89f0758928ca5788fa20d3ba88570991cf0", 3814622, 97, 291142087],
+  ["mobile", "3f3f1cd71eba639b4ddb3c3fa6537263a454255bac4467b8cdef720e94a94d40", 1010241, 95, 77442103],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

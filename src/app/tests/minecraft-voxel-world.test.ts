@@ -156,9 +156,10 @@ describe("true voxel Minecraft world", () => {
     // envelope. v1.0.5 removes false Soviet bodies and the museum hall
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
-    expect(instanced("Voxel building columns", world).count).toBe(1_462_181);
+    // Serra's open plate model removes one false source column in both profiles.
+    expect(instanced("Voxel building columns", world).count).toBe(1_462_180);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      534_701,
+      534_700,
     );
 
     const landmarks = world.getObjectByName(

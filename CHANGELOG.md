@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.23
+
+- Rebuild only Richard Serra’s Berlin Junction from four owner reference photos:
+  two continuous, equally curved steel plates with inward lean and dark patina.
+- Correct the sculpture-inventory dimension attribution to 14 × 3.4 m per plate;
+  retain OSM identity, fit the retained LoD2 course and label local curvature/thickness as display fits.
+- Replace exactly the closed LoD2 envelope K0003UOE and its one voxel column,
+  retaining all source records; collision follows the two steel plates. Add a surface-only
+  Minecraft version whose outward-rounded blocks preserve pedestrian clearance.
+
 ## v1.0.22
 
 - Raise horizontal flight/pan speed by about 15 percent while preserving the

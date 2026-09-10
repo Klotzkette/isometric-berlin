@@ -898,8 +898,10 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   site plans from the Berliner Philharmoniker and Staatliche Museen establish
   the principal Philharmonie, Kammermusiksaal and Piazzetta entrances. The
   Stiftung Denkmal documents the separate 24 m blue-glass T4 memorial, while
-  the Berlin sculpture inventory documents Richard Serra's two 13.65 × 3.90 ×
-  0.055 m Corten-steel plates. Curvature, local door widths, mullions, canopies
+  the Berlin sculpture inventory documents Richard Serra's two 14 × 3.4 m
+  Corten-steel plates (the older precise dimension attribution was incorrect).
+  Four owner-supplied photos guide the v1.0.23 correction and remain reference-only.
+  Plate thickness, curvature, local door widths, mullions, canopies
   and steps remain procedural display fits. No photograph, exhibition text or
   sculpture scan is distributed. See [source contract](docs/kulturforum-memorial-entrances-v115.md).
 
