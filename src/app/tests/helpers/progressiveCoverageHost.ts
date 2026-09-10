@@ -42,7 +42,7 @@ export function progressiveCoverageHost(
     "markProgressiveWorldUnavailable", "stopProgressiveWorld",
     "startProgressiveWorld",
     "attachProgressiveWorldMessage", "releaseBuiltWorldPayloads",
-    "disposeObject3D", "updateMobileBuildingDetails",
+    "disposeObject3D", "updateMobileBuildingDetails", "invalidateScenePresentation",
   ];
   const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const declarations = names.map((name) => {
@@ -129,6 +129,7 @@ export function progressiveCoverageHost(
     progressiveWorldAttachCancel: undefined as undefined | (() => void),
     progressiveWorldStartCancel: undefined as undefined | (() => void),
     renderInvalidated: false,
+    shadowInvalidated: false,
     minecraftMaterialState: createMinecraftMaterialState(),
     startDeferredDetails: () => { deferredStarts += 1; },
   };

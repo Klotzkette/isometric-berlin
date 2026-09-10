@@ -199,6 +199,13 @@ export function registerFirstGestureStart(
     if (!isActivatingGesture(event) || isIgnoredGesture(event)) {
       return;
     }
+    // Creating the first AudioContext can block for >100 ms on desktop Chrome.
+    // A canvas/joystick drag must take control immediately; its trusted click
+    // (or touch completion) still starts audio synchronously after release.
+    const element = event.target as Element | null;
+    if ((event.type === "pointerdown" || event.type === "mousedown") &&
+        typeof element?.closest === "function" &&
+        element.closest(".three-viewer, .flight-joystick-wrap")) return;
     attempting = true;
     const generation = ++attemptGeneration;
     // No await before this call: the gesture must still be "active".

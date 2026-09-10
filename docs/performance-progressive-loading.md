@@ -3,6 +3,13 @@
 Pipeline step 10. Geometry is preserved; this change removes avoidable waiting
 between already computed geometry and its attachment to the scene.
 
+## Lossless spatial park batches, v1.0.29
+
+See [the movement review](smooth-navigation-v129-review.md) for the fresh-Chrome
+measurements, exact full/mobile instance comparisons, static-shadow policy and
+32-object / unchanged 2 MiB upload preparation budget. Source geometry, render
+range and pixel ratio are unchanged.
+
 ## Navigation and first-view preparation, v1.0.13
 
 The v1.0.12 shells did not address all delayed shape appearances during a pan.

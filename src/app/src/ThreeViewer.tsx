@@ -222,6 +222,7 @@ import {
   viewHeadingFlightDelta,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
+import { constrainSurfaceCameraRig, surfaceOrbitMaxPolar } from "./surfaceCameraNavigation";
 import {
   PEDESTRIAN_EYE_HEIGHT_M,
   PEDESTRIAN_FOV_DEGREES,
@@ -780,7 +781,7 @@ function runSchwellenraumWorldDetailsInstaller(runtime: Runtime): void {
     runtime.lightingMode,
     runtime.nightLightsOn,
   );
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
 }
 
 /** Allocate hidden mode-only geometry only when the mode is actually used. */
@@ -804,7 +805,7 @@ function ensureSchwellenraumContent(runtime: Runtime): boolean {
     runtime.lightingMode,
     runtime.nightLightsOn,
   );
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
   return true;
 }
 
@@ -850,6 +851,19 @@ function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
   roots[0] = runtime.signatures;
   roots[1] = runtime.civicDetails;
   return roots;
+}
+
+/** Portal approaches and the surveyed tunnel interior retain free traversal. */
+function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
+  const p = runtime.camera.position;
+  return runtime.tunnelPortalInteriorVisible ||
+    runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
+}
+
+function updateSurfaceOrbitLimit(runtime: Runtime): void {
+  runtime.controls.maxPolarAngle = surfaceCameraTunnelExemption(runtime)
+    ? Math.PI - 0.06
+    : surfaceOrbitMaxPolar(runtime.camera, runtime.controls.target);
 }
 
 /**
@@ -1193,7 +1207,7 @@ function syncPedestrianTunnelPresentation(
     insideTunnel,
   );
   setEnvironmentalPresentation(runtime);
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
 }
 
 function deactivatePedestrianMode(runtime: Runtime): boolean {
@@ -1357,7 +1371,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     waterAtmosphere.changed ||
     interiorsChanged
   ) {
-    runtime.renderInvalidated = true;
+    invalidateScenePresentation(runtime);
   }
 }
 
@@ -1446,6 +1460,14 @@ function setSurfacePresentation(
   }
 }
 
+/** Geometry, visibility or light changes invalidate the fixed light-space atlas. */
+export function invalidateScenePresentation(
+  runtime: Pick<Runtime, "renderInvalidated" | "shadowInvalidated">,
+): void {
+  runtime.renderInvalidated = true;
+  runtime.shadowInvalidated = true;
+}
+
 function markSurfaceInteraction(
   runtime: Runtime,
   durationMs = 650,
@@ -1453,6 +1475,7 @@ function markSurfaceInteraction(
 ): void {
   if (runtime.tunnelPortalInteriorVisible && !preserveTunnelFocus) {
     runtime.tunnelPortalInteriorVisible = false;
+    invalidateScenePresentation(runtime);
     setTunnelPortalPresentation(
       runtime.tunnelPortals,
       runtime.underside,
@@ -1624,6 +1647,7 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
  * resizing or LOD swapping.
  */
 function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
+  invalidateScenePresentation(runtime);
   restoreFarZoomDetailVisibility(runtime);
   invalidateFarZoomAntiFlickerCache(runtime);
   runtime.inkLineMaterials.clear();
@@ -1903,8 +1927,11 @@ function updateFarZoomAntiFlicker(
   }
   for (const target of runtime.fineDetailObjects) {
     if (!minecraftOwnsVisibility(target.object)) {
-      changed =
-        updateDistanceDetailTarget(target, runtime.camera.position) || changed;
+      const visibilityChanged = updateDistanceDetailTarget(
+        target, runtime.camera.position,
+      );
+      if (visibilityChanged) invalidateScenePresentation(runtime);
+      changed = visibilityChanged || changed;
     }
   }
   const microDetailVisible = nextMicroDetailVisible({
@@ -1917,8 +1944,11 @@ function updateFarZoomAntiFlicker(
   }
   for (const target of runtime.microDetailObjects) {
     if (!minecraftOwnsVisibility(target.object)) {
-      changed =
-        updateDistanceDetailTarget(target, runtime.camera.position) || changed;
+      const visibilityChanged = updateDistanceDetailTarget(
+        target, runtime.camera.position,
+      );
+      if (visibilityChanged) invalidateScenePresentation(runtime);
+      changed = visibilityChanged || changed;
     }
   }
   return changed;
@@ -2028,7 +2058,7 @@ function setSceneLighting(
   // Release only the visibility values owned by the previous voxel filter
   // before the target mode's lighting and night-only policies run.
   restoreMinecraftVisibility(minecraftVisibilityRoots(runtime));
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
   const isNight = mode === "night";
@@ -2510,7 +2540,7 @@ function restorePedestrianAttachment(
   runtime.marker.visible = snapshot.markerVisible;
   runtime.tunnelPortalInteriorVisible = snapshot.tunnelPortalInteriorVisible;
   runtime.underside = snapshot.underside;
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
 }
 
 function captureProgressiveWorld(runtime: Runtime): ProgressiveWorldSnapshot {
@@ -2834,7 +2864,7 @@ function updateMobileBuildingDetails(
     if (!wanted.includes(id) && !retained.has(id)) lastUsed.delete(id);
   }
   runtime.progressiveWorldState = "loading";
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
   const posted = tryProgressiveWorkerOperation(() => worker.postMessage({
     type: "detail-view", requestedBatchIds: wanted,
     retainedBatchIds: runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
@@ -2916,7 +2946,7 @@ function attachProgressiveWorldMessage(
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
     runtime.progressiveWorldState = "complete";
     releaseBuiltWorldPayloads(runtime);
-    runtime.renderInvalidated = true;
+    invalidateScenePresentation(runtime);
     performance.clearMarks("isometric-city-exact-ready");
     performance.mark("isometric-city-exact-ready");
     runtime.startDeferredDetails();
@@ -2930,7 +2960,7 @@ function attachProgressiveWorldMessage(
     delete runtime.progressiveWorldInput;
     releaseBuiltWorldPayloads(runtime);
     collectFarZoomAntiFlickerTargets(runtime);
-    runtime.renderInvalidated = true;
+    invalidateScenePresentation(runtime);
     performance.mark("isometric-city-exact-ready");
     if (runtime.coarsePointer) runtime.startDeferredDetails();
     return;
@@ -2987,7 +3017,7 @@ function attachProgressiveWorldMessage(
   if (message.id === "surface-water") {
     setEnvironmentalPresentation(runtime);
   }
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
   const acknowledged = tryProgressiveWorkerOperation(() =>
     worker.postMessage({ id: message.id, type: "batch-attached" }),
   );
@@ -3432,7 +3462,7 @@ function ensureIsoWorld(
               memorialProtection,
             )
           ) {
-            runtime.renderInvalidated = true;
+            invalidateScenePresentation(runtime);
           }
         };
         runSchwellenraumWorldDetailsInstaller(runtime);
@@ -3735,7 +3765,7 @@ function ensureIsoWorld(
       if (runtime.disposed) {
         return;
       }
-      runtime.renderInvalidated = true;
+      invalidateScenePresentation(runtime);
       if (!isoWorldIntentActive(runtime)) {
         runtime.isoWorldState = "idle";
         restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
@@ -4012,7 +4042,7 @@ function ensureVoxelWorld(
       if (runtime.disposed) {
         return;
       }
-      runtime.renderInvalidated = true;
+      invalidateScenePresentation(runtime);
       if (!voxelWorldIntentActive(runtime)) {
         // Keep the cached request and retry when this optional world is active.
         runtime.voxelWorldState = "idle";
@@ -4457,7 +4487,7 @@ export function setTunnelPresentation(
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
-  runtime.renderInvalidated = true;
+  invalidateScenePresentation(runtime);
   const fogRange = presentationFogRange(runtime.lightingMode, underside);
   const fogColor =
     runtime.scene.background instanceof Color
@@ -4639,7 +4669,8 @@ function setOrbitAngles(
     spherical.theta = azimuth;
   }
   if (polar !== undefined) {
-    spherical.phi = MathUtils.clamp(polar, 0.06, Math.PI - 0.06);
+    updateSurfaceOrbitLimit(runtime);
+    spherical.phi = MathUtils.clamp(polar, 0.06, runtime.controls.maxPolarAngle);
   }
   offset.setFromSpherical(spherical);
   runtime.camera.position.copy(runtime.controls.target).add(offset);
@@ -4943,6 +4974,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // A leftover glide would drift the camera off the fresh focus.
       runtime.cancelPanGlide?.();
       setParkDetailsFocus(runtime.parkDetails, name);
+      invalidateScenePresentation(runtime);
       const cameraPreset = (openingView ? simulationStartCamera(name) : null) ?? (
         name === WAGNER_MEMORIAL_PROFILE.name
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
@@ -5022,6 +5054,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         runtime.markerTimer = null;
       }, 2400);
+      updateSurfaceOrbitLimit(runtime);
       runtime.controls.update(immediate ? 1 : undefined);
       notifyView(runtime, onViewChangeRef.current);
     };
@@ -5326,6 +5359,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               new Spherical(2_150, MathUtils.degToRad(128), theta),
             );
             runtime.camera.position.copy(runtime.controls.target).add(offset);
+            updateSurfaceOrbitLimit(runtime);
             runtime.controls.update();
           } else {
             runtime.controls.target.copy(DEFAULT_TARGET);
@@ -5357,10 +5391,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const polar = MathUtils.clamp(
             runtime.controls.getPolarAngle() + MathUtils.degToRad(degrees),
             0.08,
-            Math.PI - 0.08,
+            runtime.controls.maxPolarAngle,
           );
           setOrbitAngles(runtime, undefined, polar);
-          const underside = polar > Math.PI / 2;
+          const underside = runtime.controls.getPolarAngle() > Math.PI / 2;
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -6344,6 +6378,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             if (Math.abs(pinchRatio - 1) > 0.002) {
               if (
                 !signedPinchDolly &&
+                surfaceCameraTunnelExemption(runtime) &&
                 pinchRatio > 1 &&
                 camera.position.distanceTo(controls.target) <=
                   PINCH_TARGET_CROSSING_ZONE_M
@@ -6413,7 +6448,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.getPolarAngle() +
             (center.y - previousThreeFingerCenter.y) * 0.006,
           0.08,
-          Math.PI - 0.08,
+          runtime.controls.maxPolarAngle,
         );
         setOrbitAngles(
           runtime,
@@ -6421,8 +6456,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
         );
-        if (polar > Math.PI / 2 !== runtime.underside) {
-          setModelMaterialState(runtime, polar > Math.PI / 2);
+        if ((controls.getPolarAngle() > Math.PI / 2) !== runtime.underside) {
+          setModelMaterialState(runtime, controls.getPolarAngle() > Math.PI / 2);
         }
         previousThreeFingerCenter = storeThreeFingerCenter(center);
         markSurfaceInteraction(runtime);
@@ -6786,7 +6821,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         if (!disposed) {
           onErrorRef.current(
-            "WebGL-Kontext verloren; die Detailkarte bleibt verfügbar und 3D kann erneut geöffnet werden.",
+            "WebGL-Kontext verloren; lade die Seite neu, um die isometrische 3D-Ansicht wieder zu öffnen.",
           );
         }
       };
@@ -6917,7 +6952,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.getPolarAngle() +
             MathUtils.degToRad(input.y * 58 * dtSeconds),
           0.08,
-          Math.PI - 0.08,
+          runtime.controls.maxPolarAngle,
         );
         setOrbitAngles(
           runtime,
@@ -6925,7 +6960,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             MathUtils.degToRad(input.x * 84 * dtSeconds),
           nextPolar,
         );
-        const underside = nextPolar > Math.PI / 2;
+        const underside = controls.getPolarAngle() > Math.PI / 2;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
         }
@@ -7010,6 +7045,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           lastAnimateAt,
         );
         lastAnimateAt = timestamp;
+        if (!runtime.pedestrian.enabled) updateSurfaceOrbitLimit(runtime);
         const frameNavigationMoved = applyPendingFrameNavigation();
         const touchGestureMoved = applyPendingTouchGesture();
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
@@ -7024,7 +7060,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           camera, timestamp / 1000, reducedMotion,
           runtime.lightingMode !== "night" || runtime.nightLightsOn,
           documentHidden, runtime.underside, trafficTowerScreen)) {
-          runtime.renderInvalidated = true;
+          invalidateScenePresentation(runtime);
         }
         const civicFlagsVisible =
           !reducedMotion &&
@@ -7160,8 +7196,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             undefined,
             stabilizationScratch,
           );
+          const surfaceChanged = constrainSurfaceCameraRig(
+            camera, controls.target, runtime.pedestrian.environment?.groundAt,
+            surfaceCameraTunnelExemption(runtime), runtime.navigationScratch.orbitOffset,
+          );
+          if (surfaceChanged) {
+            controls.update();
+            stabilized.pose.position.copy(camera.position);
+            stabilized.pose.target.copy(controls.target);
+          }
           lastSafeCameraPose = stabilized.pose;
-          stabilizedChanged = stabilized.changed;
+          stabilizedChanged = stabilized.changed || surfaceChanged;
           stabilizedRecovered = stabilized.recovered;
           if (stabilizedRecovered) resetTouchGesture();
         }
@@ -7260,9 +7305,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           cameraMoving ||
           stability.forceContinuousRender ||
           environmentalMotion;
-        if (runtime.renderInvalidated && renderer.shadowMap.enabled) {
-          runtime.shadowInvalidated = true;
-        }
         // Resolution and official-surface tiers are fixed for a viewport and
         // mode. Input must never resize the canvas or replace the complete
         // city/tree surface underneath a moving camera.
@@ -7280,6 +7322,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 renderer.domElement.clientHeight || window.innerHeight,
               )
             : false;
+        // The sun and its shadow camera stay fixed in world space. Orbit,
+        // flight and walking redraw the view without rebuilding that atlas;
+        // source/visibility/light mutations explicitly retain a refresh.
         const shadowRefresh =
           renderer.shadowMap.enabled &&
           runtime.shadowInvalidated &&
@@ -7322,6 +7367,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ) === true);
         if (physicallyInsideTunnel !== runtime.cameraInsideTunnel) {
           runtime.cameraInsideTunnel = physicallyInsideTunnel;
+          invalidateScenePresentation(runtime);
           if (!runtime.pedestrian.enabled) {
             setTunnelPresentation(
               runtime.tunnel,
@@ -7976,7 +8022,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   }
                   setEnvironmentalPresentation(runtime);
                   collectFarZoomAntiFlickerTargets(runtime);
-                  runtime.renderInvalidated = true;
+                  invalidateScenePresentation(runtime);
                 })
                 .catch((error: unknown) => {
                   if (

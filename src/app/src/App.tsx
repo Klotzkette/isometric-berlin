@@ -756,6 +756,8 @@ export function App() {
   // Intent is on from the first frame; playback waits for user activation.
   // The toggle follows actual sound and never claims to play over silence.
   const [isSoundtrackAudible, setIsSoundtrackAudible] = useState(false);
+  const soundtrackAudibleRef = useRef(isSoundtrackAudible);
+  soundtrackAudibleRef.current = isSoundtrackAudible;
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
 
   const closeRepositoryButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -826,6 +828,8 @@ export function App() {
   const [isRepositoryOpen, setIsRepositoryOpen] = useState(false);
   const [isMusicEnabled, setIsMusicEnabled] = useState(false);
   const [isMusicAudible, setIsMusicAudible] = useState(false);
+  const musicAudibleRef = useRef(isMusicAudible);
+  musicAudibleRef.current = isMusicAudible;
   const [isTouring, setIsTouring] = useState(false);
   const [isChromeHidden, setIsChromeHidden] = useState(initialChromeHidden);
   const [controlDockSide, setControlDockSide] = useState<ControlDockSide>(
@@ -1264,9 +1268,12 @@ export function App() {
   // below and immune to the same first-gesture race, even though
   // `isMusicEnabled` starts `false` here (see the useState above) and so
   // was not actually exposed to it in practice.
+  // Audibility changes during the first held navigation key. Keep the toggle
+  // identity stable so that change cannot tear down the keyboard listeners and
+  // clear the held keys. The ref still follows the latest playback state.
   const toggleMusic = useCallback(async () => {
     if (lightingModeRef.current === "schwellenraum") {
-      if (shouldStopAudioOnToggleTap(isMusicAudible)) {
+      if (shouldStopAudioOnToggleTap(musicAudibleRef.current)) {
         const nextMix = { ...schwellenraumMixRef.current, room: false };
         schwellenraumMixRef.current = nextMix;
         schwellenraumSoundscapeRef.current?.setMix(nextMix);
@@ -1295,7 +1302,7 @@ export function App() {
       );
       return;
     }
-    if (shouldStopAudioOnToggleTap(isMusicAudible)) {
+    if (shouldStopAudioOnToggleTap(musicAudibleRef.current)) {
       ambientStartAttemptRef.current += 1;
       ambientSoundscapeRef.current?.stop();
       setIsMusicEnabled(false);
@@ -1312,7 +1319,6 @@ export function App() {
     copy.schwellenraumAudioUnsupported,
     copy.schwellenraumRoomOff,
     copy.schwellenraumRoomOn,
-    isMusicAudible,
     startMusic,
     startSchwellenraumAudio,
   ]);
@@ -1443,7 +1449,7 @@ export function App() {
   // exists.
   const toggleSoundtrack = useCallback(async () => {
     if (lightingModeRef.current === "schwellenraum") {
-      if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
+      if (shouldStopAudioOnToggleTap(soundtrackAudibleRef.current)) {
         const nextMix = { ...schwellenraumMixRef.current, score: false };
         schwellenraumMixRef.current = nextMix;
         schwellenraumSoundscapeRef.current?.setMix(nextMix);
@@ -1471,7 +1477,7 @@ export function App() {
       );
       return;
     }
-    if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
+    if (shouldStopAudioOnToggleTap(soundtrackAudibleRef.current)) {
       chiptuneStartAttemptRef.current += 1;
       chiptuneRef.current?.stop();
       soundtrackIntentRef.current = false;
@@ -1488,7 +1494,6 @@ export function App() {
     copy.schwellenraumScoreOff,
     copy.schwellenraumScoreOn,
     copy.soundtrackOff,
-    isSoundtrackAudible,
     startSchwellenraumAudio,
     startSoundtrack,
   ]);
@@ -2973,23 +2978,6 @@ export function App() {
         <div className="toolbar" aria-label={copy.controls}>
           <button
             type="button"
-            className="mobile-overflow"
-            aria-label={copy.moreActions}
-            aria-expanded={mobileSheet === "overflow"}
-            aria-haspopup="dialog"
-            aria-controls="mobile-actions"
-            title={copy.moreActions}
-            onClick={() =>
-              setMobileSheet((current) =>
-                current === "overflow" ? null : "overflow",
-              )
-            }
-          >
-            <MoreHorizontal size={20} aria-hidden="true" />
-            <span>{copy.mode}</span>
-          </button>
-          <button
-            type="button"
             aria-label={copy.home}
             disabled={!isReady}
             title={copy.home}
@@ -3275,6 +3263,23 @@ export function App() {
           </button>
         </div>
       </header>
+
+      <button
+        type="button"
+        className="mobile-overflow"
+        aria-label={copy.moreActions}
+        aria-expanded={mobileSheet === "overflow"}
+        aria-haspopup="dialog"
+        aria-controls="mobile-actions"
+        title={copy.moreActions}
+        onClick={() => {
+          setIsChromeHidden(false);
+          setMobileSheet((current) => current === "overflow" ? null : "overflow");
+        }}
+      >
+        <MoreHorizontal size={20} aria-hidden="true" />
+        <span>{copy.mode}</span>
+      </button>
 
       <div className="mobile-floating-controls">
         <button
@@ -3925,6 +3930,26 @@ export function App() {
               <span>Schwellen<wbr />raum</span>
             </button>
           </div>
+          {supportsNightLightsToggle(lightingMode) ? (
+            <button
+              type="button"
+              className="mobile-light-toggle"
+              aria-pressed={nightLightsOn}
+              aria-label={
+                nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn
+              }
+              onClick={toggleNightLights}
+            >
+              {nightLightsOn ? (
+                <Lightbulb size={20} aria-hidden="true" />
+              ) : (
+                <LightbulbOff size={20} aria-hidden="true" />
+              )}
+              <span>
+                {nightLightsOn ? copy.nightLightsOn : copy.nightLightsOff}
+              </span>
+            </button>
+          ) : null}
           <div className="mobile-overflow-grid">
             <button
               type="button"
@@ -3946,25 +3971,6 @@ export function App() {
               <Footprints size={20} aria-hidden="true" />
               <span>{copy.pedestrian}</span>
             </button>
-            {supportsNightLightsToggle(lightingMode) ? (
-              <button
-                type="button"
-                aria-pressed={nightLightsOn}
-                aria-label={
-                  nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn
-                }
-                onClick={toggleNightLights}
-              >
-                {nightLightsOn ? (
-                  <Lightbulb size={20} aria-hidden="true" />
-                ) : (
-                  <LightbulbOff size={20} aria-hidden="true" />
-                )}
-                <span>
-                  {nightLightsOn ? copy.nightLightsOn : copy.nightLightsOff}
-                </span>
-              </button>
-            ) : null}
             <button
               type="button"
               className="weather-toggle"

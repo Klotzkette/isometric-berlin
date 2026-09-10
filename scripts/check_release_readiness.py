@@ -927,7 +927,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
     "three-finger gesture": "touchPoints.size >= 3",
-    "three-finger underside": "setModelMaterialState(runtime, polar > Math.PI / 2)",
+    "bounded three-finger underside": "setModelMaterialState(runtime, controls.getPolarAngle() > Math.PI / 2)",
+    "normal surface camera protection": "constrainSurfaceCameraRig(",
     "full underside orbit": "controls.maxPolarAngle = Math.PI - 0.06",
     "hidden default marker": "marker.visible = false",
     "GPU texture disposal": "texture.dispose()",

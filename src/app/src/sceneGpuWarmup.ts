@@ -4,7 +4,9 @@ import {
   type Camera, type Object3D, type Scene, type WebGLRenderer,
 } from "three";
 
-export const GPU_WARMUP_MAX_OBJECTS = 8;
+// Spatial park cells share geometry and carry small instance buffers. Keep
+// the byte ceiling, but amortize scene traversal over more of these tiny draws.
+export const GPU_WARMUP_MAX_OBJECTS = 32;
 export const GPU_WARMUP_MAX_BYTES = 2 * 1024 * 1024;
 
 type Renderable = Mesh | Line | Points;

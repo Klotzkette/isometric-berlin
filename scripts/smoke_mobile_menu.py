@@ -173,6 +173,20 @@ def run(url: str, engine: str, screenshots: Path | None) -> None:
       assert opener.get_attribute("aria-expanded") == "false"
       emit(event="layout-passed", engine=engine, width=width, height=height)
 
+    # The mode opener is a separate viewport control, including while the
+    # chrome is hidden and after an iPhone orientation change.
+    for width, height in ((390, 664), (568, 320)):
+      page.set_viewport_size({"width": width, "height": height})
+      page.locator(".chrome-toggle").tap()
+      page.wait_for_timeout(220)
+      assert page.locator(".app-shell--chrome-hidden").count() == 1
+      state = opener.evaluate(BUTTON_STATE)
+      assert state["inside"] and state["hittable"], state
+      opener.tap()
+      check_modes(page)
+      assert page.locator(".app-shell--chrome-hidden").count() == 0
+      page.locator(".mobile-sheet-title button").tap()
+    emit(event="hidden-chrome-menu-passed", engine=engine)
     page.set_viewport_size({"width": 390, "height": 664})
     selected = "Tag"
     for mode in ("Nacht", "Schneesturm", "Schwellenraum", "Minecraft", "Tag"):
@@ -187,6 +201,27 @@ def run(url: str, engine: str, screenshots: Path | None) -> None:
       )
       opener.tap()
       check_modes(page, mode)
+      lights = page.locator(".mobile-light-toggle")
+      if lights.count():
+        state = lights.evaluate(BUTTON_STATE)
+        assert state["inside"] and state["hittable"], state
+        previous = lights.get_attribute("aria-pressed")
+        lights.tap()
+        assert lights.get_attribute("aria-pressed") != previous
+        lights.tap()
+        assert lights.get_attribute("aria-pressed") == previous
+        if mode == "Nacht":
+          for width, height in ((568, 320), (320, 568), (844, 390)):
+            page.set_viewport_size({"width": width, "height": height})
+            check_modes(page, mode)
+            state = lights.evaluate(BUTTON_STATE)
+            assert state["inside"] and state["hittable"], state
+            assert page.locator(".mobile-overflow-grid").bounding_box()["height"] >= 60
+            if screenshots:
+              page.screenshot(
+                path=str(screenshots / f"{engine}-night-{width}x{height}.png")
+              )
+          page.set_viewport_size({"width": 390, "height": 664})
       page.locator(".mobile-sheet-backdrop").tap(position={"x": 4, "y": 150})
       assert opener.get_attribute("aria-expanded") == "false"
       selected = mode

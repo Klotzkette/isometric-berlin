@@ -33,6 +33,10 @@ const restoreDeclaration = parsed.statements.find((entry) =>
 );
 declarations.push(restoreDeclaration?.getText(parsed) ?? "function restoreFarZoomDetailVisibility() {}");
 functions.push("restoreFarZoomDetailVisibility");
+const sceneInvalidation = parsed.statements.find((entry) =>
+  ts.isFunctionDeclaration(entry) && entry.name?.text === "invalidateScenePresentation",
+);
+if (sceneInvalidation) declarations.push(sceneInvalidation.getText(parsed).replace(/^export\s+/, ""));
 const compiled = ts.transpileModule(declarations.join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
@@ -60,6 +64,7 @@ function host() {
     inkLineMaterials: new Set<LineBasicMaterial>(),
     inkLineObjects: [] as LineSegments[],
     fineDetailVisible: true, microDetailVisible: false,
+    renderInvalidated: false, shadowInvalidated: false,
     farZoomAntiFlickerDistanceM: Number.NaN,
     farZoomAntiFlickerFovDegrees: Number.NaN,
     farZoomAntiFlickerViewportHeightPx: Number.NaN,

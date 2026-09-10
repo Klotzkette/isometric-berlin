@@ -34,6 +34,7 @@ import { markArchitecturalAccentInk } from "./architecturalInk";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import { createLenneOak, isLenneOakTree } from "./LenneOak";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { partitionStaticSpatialInstances } from "./staticSpatialInstances";
 import {
   inPotsdamerPanoramaLandscape,
   POTSDAMER_PANORAMA_LANDSCAPE,
@@ -922,7 +923,9 @@ function addPaths(
   const byKind = new Map<string, ParkPath[]>();
   for (const path of paths) {
     const kind = path.m ? `material:${path.m}` : pathCategory(path.kind);
-    byKind.set(kind, [...(byKind.get(kind) ?? []), path]);
+    const entries = byKind.get(kind);
+    if (entries) entries.push(path);
+    else byKind.set(kind, [path]);
   }
   for (const [kind, entries] of byKind) {
     const materialCode = kind.startsWith("material:")
@@ -2720,7 +2723,7 @@ export function createParkDetails(
   } else {
     addPlaygrounds(group, payload.playgrounds);
   }
-  return freezeStaticSceneTransforms(group);
+  return freezeStaticSceneTransforms(partitionStaticSpatialInstances(group));
 }
 
 export function setParkDetailsFocus(group: Group, name: string): void {

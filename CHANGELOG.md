@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.29
+
+- Partition large immutable opaque park instances into 256 m cells, preserving
+  every matrix, colour, material and shape while rejecting offscreen cells.
+- Reuse the static shadow atlas during camera movement; geometry, visibility
+  and lighting changes still request a fresh shadow render.
+- Keep the first held navigation key active across audio startup, and start
+  first-drag audio at gesture completion so input does not wait for the device.
+- Keep the compact mode opener independently visible at bottom-left, including
+  hidden-chrome layouts, and pin the lighting toggle beside the mode choices.
+- Prevent close flight/orbit/pinch from flipping beneath the city; preserve
+  terrain clearance, walking, tunnel traversal and deliberate wide inspection.
+- Add repeatable desktop motion profiling, fixed-view image comparison and
+  expanded mobile menu/navigation regression checks.
+
 ## v1.0.28
 
 - Make the viewer isometric 3D only; remove the 2D switch, flat-map engine,

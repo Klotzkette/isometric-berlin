@@ -69,6 +69,20 @@ function fire(registered: Registration[], type: string, event: GestureEvent) {
 }
 
 describe("first-gesture audio start", () => {
+  test("first mouse drag controls the camera before audio starts at completion", async () => {
+    const { registered, target } = fakeTarget();
+    let attempts = 0;
+    const canvas = { closest: (selector: string) => selector.includes(".three-viewer") ? {} : null };
+    registerFirstGestureStart({ start: async () => { attempts++; return true; }, target });
+    fire(registered, "pointerdown", { target: canvas } as never);
+    fire(registered, "mousedown", { target: canvas } as never);
+    expect(attempts).toBe(0);
+    fire(registered, "click", { target: canvas } as never);
+    expect(attempts).toBe(1);
+    await Promise.resolve();
+    expect(registered).toHaveLength(0);
+  });
+
   test("listens in the capture phase so a map drag still starts the music", () => {
     const { registered, target } = fakeTarget();
     registerFirstGestureStart({ start: async () => true, target });

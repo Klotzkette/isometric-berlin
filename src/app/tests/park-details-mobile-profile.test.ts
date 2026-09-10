@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  BufferGeometry,
   InstancedMesh,
   LineSegments,
   type Material,
@@ -36,16 +37,20 @@ const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
   geometryBytes: 6_428_830,
   instanceBytes: 33_793_136,
   instances: 450_029,
-  instancedMeshes: 66,
+  instancedMeshes: 5_373,
   mappedMaterials: 9,
-  meshes: 1_446,
-  objects: 1_841,
+  meshes: 6_753,
+  objects: 7_173,
   transparentMaterials: 1,
   triangles: 125_921,
   vertices: 172_864,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
+  // Spatial batches share their original geometry; count resident resources,
+  // not the same vertex/index buffer once again for every culled cell.
+  const geometries = new Set<BufferGeometry>();
+  const buffers = new Set<ArrayBufferLike>();
   const budget: ParkGeometryBudget = {
     geometryBytes: 0,
     instanceBytes: 0,
@@ -66,13 +71,20 @@ function geometryBudget(root: Object3D): ParkGeometryBudget {
     budget.meshes += 1;
     const position = object.geometry.getAttribute("position");
     const index = object.geometry.getIndex();
-    budget.vertices += position?.count ?? 0;
-    budget.triangles += index ? index.count / 3 : (position?.count ?? 0) / 3;
-    for (const attribute of Object.values(object.geometry.attributes)) {
-      budget.geometryBytes += attribute.array.byteLength;
+    if (!geometries.has(object.geometry)) {
+      geometries.add(object.geometry);
+      budget.vertices += position?.count ?? 0;
+      budget.triangles += index ? index.count / 3 : (position?.count ?? 0) / 3;
     }
-    if (index) {
-      budget.geometryBytes += index.array.byteLength;
+    for (const attribute of Object.values(object.geometry.attributes)) {
+      if (!buffers.has(attribute.array.buffer)) {
+        buffers.add(attribute.array.buffer);
+        budget.geometryBytes += attribute.array.buffer.byteLength;
+      }
+    }
+    if (index && !buffers.has(index.array.buffer)) {
+      buffers.add(index.array.buffer);
+      budget.geometryBytes += index.array.buffer.byteLength;
     }
     const materials = Array.isArray(object.material)
       ? object.material
@@ -95,6 +107,30 @@ function geometryBudget(root: Object3D): ParkGeometryBudget {
   return budget;
 }
 
+function instanceBatches(root: Object3D | undefined): InstancedMesh[] {
+  expect(root).toBeDefined();
+  const result: InstancedMesh[] = [];
+  root?.traverse((object) => {
+    if (object instanceof InstancedMesh) result.push(object);
+  });
+  expect(result.length).toBeGreaterThan(0);
+  return result;
+}
+
+function* instanceMatrices(meshes: InstancedMesh[]): Generator<Matrix4> {
+  const matrix = new Matrix4();
+  for (const mesh of meshes) {
+    for (let index = 0; index < mesh.count; index += 1) {
+      mesh.getMatrixAt(index, matrix);
+      yield matrix;
+    }
+  }
+}
+
+function instanceCount(meshes: InstancedMesh[]): number {
+  return meshes.reduce((total, mesh) => total + mesh.count, 0);
+}
+
 function finiteArray(values: ArrayLike<number>): boolean {
   for (let index = 0; index < values.length; index += 1) {
     if (!Number.isFinite(values[index])) {
@@ -115,7 +151,7 @@ function drawableCount(root: Object3D): number {
 }
 
 describe("coarse-pointer ParkDetails profile", () => {
-  test("keeps the frozen production full budget and explicit full equivalent", () => {
+  test("keeps geometry/instance storage unchanged with the full spatial batch budget", () => {
     const implicit = createParkDetails(payload, { settledDetail: false });
     const explicit = createParkDetails(payload, {
       detailProfile: "full",
@@ -129,7 +165,7 @@ describe("coarse-pointer ParkDetails profile", () => {
     );
   });
 
-  test("retains every path, tree and playground anchor in a small static budget", () => {
+  test("retains every path, tree and playground anchor in the mobile spatial budget", () => {
     // The preceding desktop fixture is intentionally exhaustive and no longer
     // needs to occupy the heap while the independent mobile budget is checked.
     Bun.gc(true);
@@ -139,16 +175,18 @@ describe("coarse-pointer ParkDetails profile", () => {
       geometryBytes: 3_640_306,
       instanceBytes: 8_001_332,
       instances: 107_237,
-      instancedMeshes: 8,
+      instancedMeshes: 1_461,
       mappedMaterials: 0,
-      meshes: 68,
-      objects: 76,
+      meshes: 1_521,
+      objects: 1_534,
       transparentMaterials: 0,
       triangles: 86_535,
       vertices: 97_585,
     });
-    expect(drawableCount(mobile)).toBe(72);
-    expect(drawableCount(mobile)).toBeLessThanOrEqual(150);
+    expect(drawableCount(mobile)).toBe(1_525);
+    // The cells retain the complete source inventory; only intersecting cells
+    // become draw calls, instead of submitting every instance on every frame.
+    expect(drawableCount(mobile)).toBeLessThanOrEqual(1_600);
     expect(budget.instances).toBeLessThan(FROZEN_FULL_BUDGET.instances * 0.25);
     expect(budget.instanceBytes).toBeLessThan(
       FROZEN_FULL_BUDGET.instanceBytes * 0.25,
@@ -196,19 +234,19 @@ describe("coarse-pointer ParkDetails profile", () => {
       );
     }
 
-    const trunks = mobile.getObjectByName(
+    const trunks = instanceBatches(mobile.getObjectByName(
       "Mobile park instanced coarse tree trunks",
-    ) as InstancedMesh;
-    const crowns = mobile.getObjectByName(
+    ));
+    const crowns = instanceBatches(mobile.getObjectByName(
       "Mobile park instanced one-crown tree anchors",
-    ) as InstancedMesh;
+    ));
     const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
-    expect(trunks).toBeInstanceOf(InstancedMesh);
-    expect(crowns).toBeInstanceOf(InstancedMesh);
-    expect(trunks.count + mobile.userData.signatureTreeCount).toBe(
+    expect(trunks.length).toBeGreaterThan(1);
+    expect(crowns.length).toBeGreaterThan(1);
+    expect(instanceCount(trunks) + mobile.userData.signatureTreeCount).toBe(
       mobile.userData.treeCount,
     );
-    expect(crowns.count + mobile.userData.signatureTreeCount).toBe(
+    expect(instanceCount(crowns) + mobile.userData.signatureTreeCount).toBe(
       mobile.userData.treeCount,
     );
     expect(
@@ -222,19 +260,18 @@ describe("coarse-pointer ParkDetails profile", () => {
           `${Math.fround(tree.position[0])}:${Math.fround(tree.position[2])}`,
       ),
     );
-    const matrix = new Matrix4();
+    const crownMatrices = instanceMatrices(crowns);
     const trunkPosition = new Vector3();
     const crownPosition = new Vector3();
     let allAnchorMatricesFinite = true;
     let allCrownAnchorsMatchTrunks = true;
     let everyRenderedAnchorIsSourced = true;
-    for (let index = 0; index < trunks.count; index += 1) {
-      trunks.getMatrixAt(index, matrix);
+    for (const matrix of instanceMatrices(trunks)) {
       allAnchorMatricesFinite &&= finiteArray(matrix.elements);
       trunkPosition.setFromMatrixPosition(matrix);
-      crowns.getMatrixAt(index, matrix);
-      allAnchorMatricesFinite &&= finiteArray(matrix.elements);
-      crownPosition.setFromMatrixPosition(matrix);
+      const crownMatrix = crownMatrices.next().value!;
+      allAnchorMatricesFinite &&= finiteArray(crownMatrix.elements);
+      crownPosition.setFromMatrixPosition(crownMatrix);
       allCrownAnchorsMatchTrunks &&=
         crownPosition.x === trunkPosition.x &&
         crownPosition.z === trunkPosition.z;
@@ -254,9 +291,7 @@ describe("coarse-pointer ParkDetails profile", () => {
         "OSM exact Großer Tiergarten scrub-area footprints",
       ),
     ).toBeInstanceOf(Mesh);
-    expect(
-      mobile.getObjectByName("OSM finite Tiergarten hedge course bodies"),
-    ).toBeInstanceOf(InstancedMesh);
+    instanceBatches(mobile.getObjectByName("OSM finite Tiergarten hedge course bodies"));
     expect(
       mobile.getObjectByName(
         "OSM polygon-bounded diverse Tiergarten shrub clumps",
@@ -265,21 +300,17 @@ describe("coarse-pointer ParkDetails profile", () => {
     expect(
       mobile.getObjectByName("OSM finite Tiergarten hedge foliage lobes"),
     ).toBeUndefined();
-    expect(
-      mobile.getObjectByName(
+    instanceBatches(mobile.getObjectByName(
         "Geoportal Berlin official public-lighting masts",
-      ),
-    ).toBeInstanceOf(InstancedMesh);
+    ));
     expect(
       mobile.getObjectByName(
         "Geoportal Berlin night-only instanced street-light cones",
       ),
     ).toBeUndefined();
-    expect(
-      mobile.getObjectByName(
+    instanceBatches(mobile.getObjectByName(
         "Mobile official Vorderlandmauer coarse continuous courses",
-      ),
-    ).toBeInstanceOf(InstancedMesh);
+    ));
     const footprintMeshes = mobile.children.filter((child) =>
       child.name.startsWith("Mobile batched "),
     ) as Mesh[];

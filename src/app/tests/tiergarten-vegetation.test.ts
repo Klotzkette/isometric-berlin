@@ -55,16 +55,13 @@ describe("source-bounded Großer Tiergarten vegetation", () => {
         "OSM exact Großer Tiergarten scrub-area footprints",
       ),
     ).toBeInstanceOf(Mesh);
-    expect(
-      park.getObjectByName("OSM polygon-bounded diverse Tiergarten shrub clumps"),
-    ).toBeInstanceOf(InstancedMesh);
-    expect(
-      (
-        park.getObjectByName(
-          "OSM polygon-bounded diverse Tiergarten shrub clumps",
-        ) as InstancedMesh
-      ).count,
-    ).toBe(3535);
+    const shrubs = park.getObjectByName("OSM polygon-bounded diverse Tiergarten shrub clumps");
+    expect(shrubs).toBeDefined();
+    let shrubCount = 0;
+    shrubs!.traverse((object) => {
+      if (object instanceof InstancedMesh) shrubCount += object.count;
+    });
+    expect(shrubCount).toBe(3535);
     expect(
       (
         park.getObjectByName("OSM finite Tiergarten hedge course bodies") as
