@@ -282,6 +282,7 @@ export function finishDrawnGroup(
   const merged =
     builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
   if (merged) {
+    merged.userData.exactIndexPending = true;
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({
       flatShading: true,
@@ -301,6 +302,7 @@ export function finishDrawnGroup(
   const lampGeometry =
     builder.lamps.length > 0 ? mergeGeometries(builder.lamps, false) : null;
   if (lampGeometry) {
+    lampGeometry.userData.exactIndexPending = true;
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({
       flatShading: true,
@@ -323,6 +325,7 @@ export function finishDrawnGroup(
   const inkGeometry =
     builder.edges.length > 0 ? mergeGeometries(builder.edges, false) : null;
   if (inkGeometry) {
+    inkGeometry.userData.exactIndexPending = true;
     const ink = new LineSegments(
       inkGeometry,
       markArchitecturalInk(new LineBasicMaterial(), "detail"),

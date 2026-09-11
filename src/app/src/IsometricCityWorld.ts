@@ -6734,6 +6734,7 @@ export function createBridgeStructures(
     mesh.userData.dayMaterial = dayMaterial;
     mesh.userData.nightMaterial = nightMaterial;
     mesh.name = "bridge structure bodies";
+    merged.userData.exactIndexPending = true;
     group.add(mesh);
     for (const geometry of parts) {
       geometry.dispose();
@@ -6744,6 +6745,7 @@ export function createBridgeStructures(
     const inkMaterial = markArchitecturalInk(new LineBasicMaterial(), "detail");
     const lines = new LineSegments(ink, inkMaterial);
     lines.name = "bridge structure ink lines";
+    ink.userData.exactIndexPending = true;
     lines.renderOrder = 2;
     group.add(lines);
     for (const geometry of edges) {
@@ -6764,6 +6766,7 @@ export function createBridgeStructures(
     nightMaterial.userData.nightEmissiveIntensity = 1.35;
     const lamps = new Mesh(lampGeometry, dayMaterial);
     lamps.name = "bridge structure lamps";
+    lampGeometry.userData.exactIndexPending = true;
     lamps.userData.dayMaterial = dayMaterial;
     lamps.userData.nightMaterial = nightMaterial;
     group.add(lamps);
@@ -6785,6 +6788,7 @@ export function createBridgeStructures(
     });
     const details = new Mesh(moltkeDetailGeometry, dayMaterial);
     details.name = "Moltkebrücke ornamental stone bodies";
+    moltkeDetailGeometry.userData.exactIndexPending = true;
     details.userData.dayMaterial = dayMaterial;
     details.userData.nightMaterial = nightMaterial;
     group.add(details);
@@ -6802,6 +6806,7 @@ export function createBridgeStructures(
       markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "Moltkebrücke ornamental stone ink lines";
+    moltkeDetailInk.userData.exactIndexPending = true;
     lines.renderOrder = 2;
     group.add(lines);
     for (const geometry of moltkeDetailEdges) {
@@ -6824,6 +6829,7 @@ export function createBridgeStructures(
     nightMaterial.userData.nightEmissiveIntensity = 1.45;
     const lamps = new Mesh(moltkeDetailLampGeometry, dayMaterial);
     lamps.name = "Moltkebrücke ornamental stone lamps";
+    moltkeDetailLampGeometry.userData.exactIndexPending = true;
     lamps.userData.dayMaterial = dayMaterial;
     lamps.userData.nightMaterial = nightMaterial;
     group.add(lamps);
@@ -13007,6 +13013,14 @@ export function createIsometricCity(
   }
   // Core terrain and building batches never change local poses. Append the
   // authored context afterwards: it also contains the rotating Ensemble sign.
+  // Direct core meshes also have immutable attributes. Mark them for exact
+  // indexing at publication, after source-to-Minecraft conversions are done.
+  // Do not opt arbitrary landmark descendants or animated flags into this.
+  for (const object of group.children) {
+    if (object instanceof Mesh || object instanceof LineSegments) {
+      object.geometry.userData.exactIndexPending = true;
+    }
+  }
   freezeStaticSceneTransforms(group);
   if (options.includeContext !== false) {
     group.add(createPresentationBackdrop());

@@ -1,4 +1,5 @@
 import { Group } from "three";
+import { compactStaticGeometry } from "./compactStaticGeometry";
 
 import {
   createIsometricCity,
@@ -53,6 +54,7 @@ async function postBatch(
   replaces?: string,
 ): Promise<void> {
   removeEmptyGroups(root);
+  root.traverse(compactStaticGeometry);
   const { object, transfers } = serializeObject3DForTransfer(root);
   const attached = new Promise<void>((resolve) => {
     attachedBatchResolvers.set(id, () => {

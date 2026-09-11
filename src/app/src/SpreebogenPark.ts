@@ -254,18 +254,19 @@ function makeParkTerrainGeometry(
   return geometry;
 }
 
-/** Compile the actual turf triangles once per environment, never per frame. */
-export function createSpreebogenLawnGroundAt(
+type LawnTriangle = { x: number; z: number; y: number; dx: number; dz: number; dy: number; ex: number; ez: number; ey: number; den: number };
+const LAWN_QUERY_CELL_M = 16;
+
+function compileSpreebogenLawnTriangles(
   ground: VoxelPayload,
-): (x: number, z: number) => number | null {
+): Map<string, LawnTriangle[]> {
   const sample = smoothGroundTopSampler(ground);
   const sourceGroundAt = (x: number, z: number): number => sample(
     x / ground.cell_m - ground.grid.min_x_idx,
     z / ground.cell_m - ground.grid.min_z_idx,
   );
-  type Triangle = { x: number; z: number; y: number; dx: number; dz: number; dy: number; ex: number; ez: number; ey: number; den: number };
-  const index = new Map<string, Triangle[]>();
-  const cell = 16;
+  const index = new Map<string, LawnTriangle[]>();
+  const cell = LAWN_QUERY_CELL_M;
   for (const side of [-1, 1] as const) {
     const geometry = makeLawnGeometry(side, sourceGroundAt);
     const a = geometry.getAttribute("position");
@@ -289,6 +290,17 @@ export function createSpreebogenLawnGroundAt(
     }
     geometry.dispose();
   }
+  return index;
+}
+
+/** Compile the actual turf triangles once per environment, never per frame. */
+export function createSpreebogenLawnGroundAt(
+  ground: VoxelPayload,
+): (x: number, z: number) => number | null {
+  // Keep source-sampling callbacks in a separate scope: this persistent query
+  // must retain only its triangle index, not the decoded ground payload.
+  const index = compileSpreebogenLawnTriangles(ground);
+  const cell = LAWN_QUERY_CELL_M;
   return (x, z) => {
     let top: number | null = null;
     for (const t of index.get(`${Math.floor(x / cell)}:${Math.floor(z / cell)}`) ?? []) {

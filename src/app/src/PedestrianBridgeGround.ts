@@ -16,11 +16,10 @@ import type { VisualMode } from "./visualMode";
  * represented upper surface. The same committed profiles and terrain clusters
  * drive the renderer. No arbitrary shoreline buffer is made walkable.
  */
-export function createPedestrianBridgeGround(
+function compilePedestrianBridgeDecks(
   ground: VoxelPayload,
-  visualMode: () => VisualMode,
   bodyRadiusM: number,
-): (x: number, z: number) => number | null {
+) {
   // The two-level parliament connection keeps its existing authored floor
   // contract. Unnamed clusters may be railway bridges and are not opened.
   const profiles = BRIDGE_PROFILES.filter((profile) => profile.surveyedDeck && profile.kind !== "parliament");
@@ -42,7 +41,7 @@ export function createPedestrianBridgeGround(
     for (const [x, z] of cluster) highest = Math.max(highest, sample(x, z) + 0.55);
     sampledDecks.set(profile.name, highest);
   }
-  const decks = profiles.flatMap((profile) => {
+  return profiles.flatMap((profile) => {
     if (!profile.surveyedDeck || !profile.axis) return [];
     // The two park crossings are always installed as dedicated models. Other
     // profiles require the actual delivered OSM bridge cluster to be present.
@@ -62,6 +61,16 @@ export function createPedestrianBridgeGround(
       halfWidth: Math.max(0, profile.surveyedDeck.halfWidthM - bodyRadiusM),
     }];
   });
+}
+
+export function createPedestrianBridgeGround(
+  ground: VoxelPayload,
+  visualMode: () => VisualMode,
+  bodyRadiusM: number,
+): (x: number, z: number) => number | null {
+  // Compilation callbacks capture the source and terrain samplers. Isolate
+  // their scope so this persistent query retains only the completed decks.
+  const decks = compilePedestrianBridgeDecks(ground, bodyRadiusM);
   return (x, z) => {
     if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
     for (const deck of decks) {

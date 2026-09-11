@@ -1,4 +1,5 @@
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
+import { compactStaticGeometry } from "./compactStaticGeometry";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
@@ -1969,6 +1970,7 @@ export function applyLightingToRoot(
 ): void {
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
+    compactStaticGeometry(object);
     // A protected memorial subtree always resolves to ordinary Day. Walking
     // the ancestry also catches unnamed meshes below a named memorial root.
     const objectMode = schwellenraumObjektmodus(mode, object);

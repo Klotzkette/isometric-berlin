@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.35 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.35/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.36 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.36/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,16 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.35** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.36** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.36 reduces mobile memory by sharing identical static geometry vertices
+and releasing terrain source data after navigation compilation. Detail, colours,
+sight distance and movement remain unchanged. See [memory measurements](docs/mobile-memory-v136.md).
+
+Version 1.0.36 senkt den mobilen Speicherbedarf durch gemeinsam genutzte identische
+Geometriepunkte und freigegebene Geländequelldaten. Details, Farben, Sichtweite
+und Bewegung bleiben erhalten.
 
 Version 1.0.35 strengthens retained facade colours and materials in the requested
 central neighbourhoods, with clearer existing facade lines and tonal detail.
@@ -283,7 +291,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The public package is **v1.0.35**, built from `main`. It contains one freely
+The public package is **v1.0.36**, built from `main`. It contains one freely
 orbitable isometric scene with five visual styles. Changing a visual style
 preserves location, view and walking/flight state. The launch guide opens this
 same viewer through local HTTP.

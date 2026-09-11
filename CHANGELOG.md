@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.36
+
+- Release decoded terrain data accidentally retained by persistent lawn and
+  bridge navigation closures; preserve every sampled height in all modes.
+- Index explicitly immutable geometry using byte-identical vertices, retaining
+  every triangle, contour, colour, normal, UV and draw order.
+- Compact worker batches before transfer and runtime geometry before upload,
+  with bounded scratch memory and no repeat allocations on mode switches.
+- Preserve animated flags, Quadriga palettes, complete building coverage,
+  navigation, render resolution and draw distance.
+
 ## v1.0.35
 
 - Prioritise retained OSM facade materials over old illustration samples in the
