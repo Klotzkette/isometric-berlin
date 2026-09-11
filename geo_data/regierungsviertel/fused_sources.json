@@ -565,6 +565,29 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "humboldt_bebelplatz_buildings_v131",
+      "anchor_source": "Original complete Geoportal LoD2 parents from 390_5819 and 391_5819, exact local coordinates; previous OSM prisms retained",
+      "geometry_ref": "src/app/src/bebelplatzBuildingSource.json",
+      "documentation_ref": "docs/bebelplatz-building-source.md",
+      "conflicts": [
+        "bebelplatz-building-display-v131"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bebelplatz_empty_library_v131",
+      "anchor_source": "Retained OSM node/262525336 and plaza way/205728152 (sett)",
+      "geometry_ref": "src/app/src/bebelplatzMemorialProfile.ts",
+      "documentation_ref": "docs/bebelplatz-memorial.md",
+      "conflicts": [
+        "bebelplatz-library-dimensions-v131",
+        "bebelplatz-paving-v131"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448705,6 +448728,49 @@
       "resolution": "Retain all six prisms and 328 original wall/roof/closure surfaces, recover four parts original roof planes, preserve eleven main and five podium courts. Add DOP-guided main pitched bands inside retained 23.5 m top and narrow solar strip on the actual modern source slope. Local pitches, eaves and 447 tile divisions are procedural display estimates; block-native panels rest above their stepped roof representation.",
       "geometry_ref": "src/app/src/economicMinistrySource.json",
       "documentation_ref": "docs/economic-ministry-refinement-v114.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bebelplatz-building-display-v131",
+      "kind": "low_osm_fallbacks_vs_complete_official_envelopes",
+      "sources": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5819.zip",
+        "https://www.hedwigs-kathedrale.de/kathedrale/geschichte/"
+      ],
+      "conflict": "Coarse OSM fallback prisms omit the proper full heights, courts and pitched roofs. The Hedwig LoD2 envelope retains generalized pitched roof planes instead of its two curved copper domes.",
+      "resolution": "Retain all prior source prisms; display the original full civic LoD2 surfaces and documented facade subdivisions. Hedwig retains the official fitted plan and 35.620 m overall envelope, with photo-guided curved roof reconstruction and separate Minecraft surface blocks. Walking roof support follows the corrected forms.",
+      "geometry_ref": "src/app/src/bebelplatzBuildingSource.json",
+      "documentation_ref": "docs/bebelplatz-building-source.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bebelplatz-library-dimensions-v131",
+      "kind": "inventory_dimensions_vs_general_tourist_description",
+      "sources": [
+        "https://bildhauerei-in-berlin.de/bildwerk/mahnmal-buecherverbrennung-5322/",
+        "https://www.bpb.de/themen/holocaust/erinnerungsorte/503086/denkmal-buecherverbrennung/",
+        "https://taz.de/Bebelplatz-Denkmal-Klaeglich/!1469294/"
+      ],
+      "conflict": "A general tourist description quotes an eight-metre depth; the object inventory specifies 7.06 x 7.06 x 5.29 m and fourteen empty shelf levels.",
+      "resolution": "Use the explicit object inventory and contemporary 1.20 m glass pane report. Retain exact OSM anchor and two separate plaque nodes. Shelving subdivisions and glass bearing are display estimates. No books are added.",
+      "geometry_ref": "src/app/src/bebelplatzMemorialProfile.ts",
+      "documentation_ref": "docs/bebelplatz-memorial.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bebelplatz-paving-v131",
+      "kind": "coarse_orange_raster_vs_retained_osm_sett",
+      "sources": [
+        "https://www.openstreetmap.org/way/205728152"
+      ],
+      "conflict": "Generic plazaBrick raster colour produces orange stripes over the mapped stone-paved Bebelplatz.",
+      "resolution": "Add continuous grey-beige paving within the exact retained OSM sett polygon, with a real small opening over the library. Remove only six coarse raster cells over the underground room; canonical arrays and all other ground remain unchanged.",
+      "geometry_ref": "src/app/src/BebelplatzMemorial.ts",
+      "documentation_ref": "docs/bebelplatz-memorial.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

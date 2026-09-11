@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.31
+
+- Replace the low HU, Alte Bibliothek and Hotel de Rome fallback envelopes with
+  bounded complete official LoD2 surfaces and more accurate entrance/facade detail.
+- Rebuild St Hedwig with two green copper domes, curved walking support and its
+  six-column portico; provide dedicated block models in Minecraft.
+- Set the Bebelplatz memorial glass flush in continuous stone paving above a
+  real white room with fourteen levels of empty shelves. Preserve source anchors.
+- Add repeatable WebKit/iPhone and Chrome/Android-profile startup, menu, movement
+  and mode-cycle checks, including JavaScript and WebGL context-loss detection.
+
 ## v1.0.30
 
 - Replace coarse raster fringes at Pariser Platz and western Unter den Linden

@@ -1,5 +1,7 @@
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { pointInBrandenburgApproach } from "./brandenburgApproachScope";
+import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
+import { BEBELPLATZ_BUILDING_PRISM_IDS } from "./bebelplatzBuildingProfile";
 import { TIPI_SITE_PRISM_IDS } from "./tipiSiteProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
 import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenBankTopAt } from "./spreebogenBankProfile";
@@ -877,6 +879,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...BEBELPLATZ_BUILDING_PRISM_IDS,
   // Exact TIPI tent/service ways: source-footprint pavilions replace their fallback boxes.
   ...TIPI_SITE_PRISM_IDS,
   // Serra's two thin plates replace only their closed LoD2 source envelope.
@@ -12908,7 +12911,7 @@ export function createIsometricCity(
         skipClasses:
           surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld: (x,z) => pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
+        skipAtWorld: (x,z) => isBebelLibraryGroundCell(x,z) || pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
           isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
           Boolean(insideTunnelApproach?.(x,z) || insideTillaDurieux?.(x,z)),
         skipWater: true,

@@ -955,6 +955,20 @@ and mirrored in the packaged viewer attribution manifest.
   feather subdivisions are procedural display fits. No image, crop or texture
   is bundled or fetched. See [evidence and budgets](docs/goldelse-v124.md).
 
+- **Humboldt/Bebelplatz (v1.0.31):** bounded original wall/roof surfaces from
+  Geoportal Berlin LoD2 tiles `390_5819` and `391_5819` (dl-de/zero-2-0), retained
+  OSM identities and the exact Bebelplatz stone-paving polygon (ODbL 1.0).
+  [Building evidence](docs/bebelplatz-building-source.md),
+  [facade references and individual photo credits](docs/bebelplatz-facades.md),
+  [Hedwig dome evidence](docs/hedwig-cathedral.md) and
+  [empty-library dimensions and photo credits](docs/bebelplatz-memorial.md)
+  distinguish measured envelopes from procedural display subdivisions.
+  Reference photographers: Christian Wolf (CC BY-SA 3.0 DE), Ansgar Koreng
+  (CC BY 3.0 DE), GFreihalter, Bahnfrend and Yair Haklai (CC BY-SA 4.0),
+  Daniel Neugebauer (CC BY-SA 2.5), Stefan Kemmerling / crop Beyond My Ken
+  (CC BY-SA 3.0). Full per-file metadata is mirrored in both manifests.
+  All photographs remain external references; no image or crop is bundled.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

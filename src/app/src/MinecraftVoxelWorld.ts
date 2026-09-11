@@ -1,4 +1,10 @@
 import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
+import { createBebelplatzMemorial } from "./BebelplatzMemorial";
+import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
+import { createMinecraftBebelplatzBuildingShells } from "./BebelplatzBuildingShells";
+import { createMinecraftBebelplatzFacades } from "./BebelplatzFacades";
+import { createMinecraftHedwigCathedral } from "./HedwigCathedral";
+import { isBebelplatzBuildingReplacementColumn } from "./bebelplatzBuildingProfile";
 import { createMinecraftDbTowerArchitecture } from "./DbTowerArchitecture";
 import { isDbTowerReplacementColumn } from "./dbTowerProfile";
 import { createMinecraftSpreebogenPark } from "./SpreebogenPark";
@@ -759,6 +765,7 @@ export function isCompleteRecognitionVoxelColumn(
     isMinecraftArchitecturalReplacementColumn(x, z) ||
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
+    isBebelplatzBuildingReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
     abgeordnetenhausMainContains(x, z) ||
     gustavBridgeSupportReplacementAt(x, z) ||
@@ -2661,6 +2668,7 @@ export function* buildMinecraftVoxelWorldSteps(
       // prevents coincident DGM slabs and Schrägufer blocks from flickering.
       skipAtWorld: (x, z) =>
         Boolean(
+          isBebelLibraryGroundCell(x, z) ||
           insideTunnelApproach?.(x, z) ||
           isNorthernHumboldthafenReplacementCell(x, z),
         ),
@@ -2680,6 +2688,9 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSonyCenterSurroundings());
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
+  group.add(createMinecraftBebelplatzBuildingShells());
+  group.add(createMinecraftBebelplatzFacades(payload));
+  group.add(createMinecraftHedwigCathedral(payload));
   yield;
   group.add(createMinecraftAbgeordnetenhausDetails(options.detailProfile ?? "full"));
   group.add(createMinecraftGropiusBauDetails(options.detailProfile ?? "full"));
@@ -2687,6 +2698,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftInvalidenfriedhofDetails({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftBrechtMemorial());
+  group.add(createBebelplatzMemorial(payload, true));
   group.add(createTiergartenLiteraryMemorialsMinecraft());
   group.add(createComposerMemorialMinecraft());
   group.add(createMinecraftSovietMemorial(options.detailProfile ?? "full"));

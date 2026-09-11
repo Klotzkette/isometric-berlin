@@ -33,6 +33,7 @@ import {
   markArchitecturalInk,
 } from "./architecturalInk";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "./BerlinerEnsemble";
+import { BEBEL_LIBRARY_MEMORIAL } from "./bebelplatzMemorialProfile";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "./CsdAttackMemorial";
 import { createLetteringTexture } from "./drawnLettering";
 import { createKindertransportMemorial, KINDERTRANSPORT_MEMORIAL_OSM_KEY } from "./KindertransportMemorial";
@@ -2855,6 +2856,7 @@ export function createTiergartenMonuments(
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
       BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
+      entry.osm_key === BEBEL_LIBRARY_MEMORIAL.osmKey ||
       KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||
       MOABIT_PRISON_GENERIC_ARTWORK_SUPPRESSION_KEYS.has(entry.osm_key) ||
       MONUMENTS_ALREADY_MODELLED.test(name) ||

@@ -1002,8 +1002,10 @@ describe("progressive exact-world scheduling", () => {
     expect({ vertices, retainedBytes }).toEqual({
       // v1.0.14 puts harbour identities in startup and moves ministry bodies
       // into their source-bound context model, without extra worker batches.
-      vertices: 3_565_184,
-      retainedBytes: 51_289_272,
+      // The selected HU/library fallbacks yield to complete initial models;
+      // the shared four-vertex facade quad remains allocated by other parts.
+      vertices: 3_565_184 - 9_658,
+      retainedBytes: 51_289_272 - 145_576,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

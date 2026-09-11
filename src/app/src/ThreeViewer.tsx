@@ -97,6 +97,10 @@ import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
 import { createMeiningerHotel } from "./MeiningerHotel";
 import { createChancelleryExtension } from "./ChancelleryExtension";
 import { createCityRecognitionRefinements } from "./CityRecognitionRefinements";
+import { createBebelplatzMemorial } from "./BebelplatzMemorial";
+import { createBebelplatzBuildingShells } from "./BebelplatzBuildingShells";
+import { createBebelplatzFacades } from "./BebelplatzFacades";
+import { createHedwigCathedral } from "./HedwigCathedral";
 import { createCivicLandmarks } from "./CivicLandmarks";
 import {
   centralCivicDetailsVisible,
@@ -3542,6 +3546,10 @@ function ensureIsoWorld(
       );
       if (ground) {
         isoWorld.add(createDistrictStreets(ground));
+        isoWorld.add(createBebelplatzMemorial(ground));
+        isoWorld.add(createBebelplatzBuildingShells());
+        isoWorld.add(createBebelplatzFacades(ground));
+        isoWorld.add(createHedwigCathedral(ground));
         const roadTerrainAt = districtStreetTerrainSampler(ground);
         const portalAt = runtime.tunnelPortalCourse
           ? createTunnelPortalApproachTester(runtime.tunnelPortalCourse) : null;

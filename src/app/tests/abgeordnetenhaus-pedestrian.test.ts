@@ -22,6 +22,7 @@ import { DOM_ALTES_SOURCE } from "../src/domAltesMuseumProfile";
 import { MUSIC_MUSEUM_IDS } from "../src/museumLenneProfile";
 import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
 import { ECONOMIC_MINISTRY_SOURCE_IDS } from "../src/EconomicMinistrySourceGeometry";
+import { BEBELPLATZ_BUILDING_SOURCES } from "../src/bebelplatzBuildingProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -74,6 +75,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId,
         ...ADMIRALSPALAST_IDS,
         ...MUSEUM_TRIAD_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
+        ...BEBELPLATZ_BUILDING_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
         ...[DOM_ALTES_SOURCE.dom, DOM_ALTES_SOURCE.altes].flatMap(({ parts }) => parts.map(({ id }) => id)),
       ].sort());
   });

@@ -56,6 +56,7 @@ import {
   wagnerMemorialVoxelReplacementAt,
 } from "../src/WagnerMemorial";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
+import { isBebelplatzBuildingReplacementColumn } from "../src/bebelplatzBuildingProfile";
 import {
   WEIDENDAMMER_BRIDGE_MINECRAFT_ROOT_NAME,
   WEIDENDAMMER_BRIDGE_PROFILE,
@@ -98,6 +99,19 @@ describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
   const mobileWorld = createMinecraftVoxelWorld(payload, null, null, {
     detailProfile: "mobile",
+  });
+
+  test("Bebelplatz replaces exactly the source columns under the four complete models", () => {
+    const removed = buildingColumns.filter(([x,z]) => isBebelplatzBuildingReplacementColumn(
+      (x + 0.5) * payload.cell_m, (z + 0.5) * payload.cell_m));
+    expect(removed).toHaveLength(1_096);
+    expect(isBebelplatzBuildingReplacementColumn(1519,300)).toBeFalse();
+    expect(isBebelplatzBuildingReplacementColumn(1506,93)).toBeFalse();
+    for (const root of [world,mobileWorld]) {
+      expect(root.getObjectByName("Block-native Humboldt and Bebelplatz building envelopes")).toBeDefined();
+      expect(root.getObjectByName("Minecraft St Hedwig Cathedral")).toBeDefined();
+      expect(root.getObjectByName("Block-native Bebelplatz empty library")).toBeDefined();
+    }
   });
 
   test("keeps omitted and explicit full detail profiles byte-for-byte equivalent", () => {
@@ -148,7 +162,8 @@ describe("true voxel Minecraft world", () => {
     // v1.0.22 replaces fallback-height TIPI tents with source-bound canvas pavilions.
     // v1.0.25 replaces the CDU winter garden's 149 false solid columns
     // and their 264 generic exterior panes with an open block-native hull.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_579_170);
+    // Bebelplatz/HU replaces 1,096 source columns and their 1,682 generic panes.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_579_170 - 1_682);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -159,9 +174,9 @@ describe("true voxel Minecraft world", () => {
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
     // Serra's open plate model removes one false source column in both profiles.
-    expect(instanced("Voxel building columns", world).count).toBe(1_461_733);
+    expect(instanced("Voxel building columns", world).count).toBe(1_461_733 - 1_096 * 3);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      534_551,
+      534_551 - 1_096,
     );
 
     const landmarks = world.getObjectByName(
@@ -700,7 +715,8 @@ describe("true voxel Minecraft world", () => {
     // Eight net runs yield to source-sized Bundestag and Sandkrug decks;
     // the latter is now one complete block-native bridge. The bounded v1.0.11
     // Spreebogen grading splits 3,697 further runs into local terrain cells.
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697);
+    // The six library chamber cells split two more source runs at Bebelplatz.
+    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697 + 2);
     // Ordinary columns are a facade body plus palette-native plinth and
     // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;
@@ -811,7 +827,7 @@ describe("true voxel Minecraft world", () => {
     // The direct world deliberately removes exactly the north-bank cells
     // rebuilt by its block-native Schrägufer detail. The tunnel adds its two
     // portal cuts to that same counter; neither layer is a dirty double.
-    expect(harbourReplacementCells).toBe(68);
+    expect(harbourReplacementCells).toBe(68 + 6);
     expect(skipped).toBeGreaterThan(harbourReplacementCells);
     let sandkrugCells = 0;
     for (const [rowIndex, row] of payload.ground_rows.entries()) {

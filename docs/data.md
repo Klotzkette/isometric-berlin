@@ -882,3 +882,24 @@ each manifest). Source fusion adds one supplement and one explicit conflict;
 canonical features, original sources, bounds and the 93-place catalogue remain
 unchanged. Complete initial building coverage is a lifecycle/performance
 correction and does not change source geometry or data authority.
+
+
+## Humboldt and Bebelplatz supplement (v1.0.31)
+
+The [bounded LoD2 supplement](bebelplatz-building-source.md) retains thirteen
+complete original parts of four parents at Humboldt University, Alte Bibliothek,
+Hotel de Rome and St Hedwig. Six superseded OSM fallback prisms remain recorded
+with their original geometry; only their display and walking support are replaced.
+No canonical dataset, bounds or catalogue is expanded. The first three buildings
+use the source wall/roof sheets; Hedwig's two curved green domes are an explicitly
+photo-guided replacement of generalized roof planes within the authoritative
+35.620 m full height. New facade divisions are procedural, not surveyed measurements.
+
+[The empty library](bebelplatz-memorial.md) keeps exact OSM node `262525336`,
+uses the inventory's 7.06 × 7.06 × 5.29 m room and fourteen empty shelf levels,
+and retains the separately mapped bronze plaques. The exact OSM Bebelplatz
+`sett` polygon supplies continuous grey-beige paving above the coarse orange
+raster. Only six display ground cells above the chamber are suppressed;
+canonical terrain remains unchanged. Source differences and their resolutions
+are appended to `fused_sources.json`; seven external photo records are appended
+to the two existing reference manifests, without bundling the photographs.

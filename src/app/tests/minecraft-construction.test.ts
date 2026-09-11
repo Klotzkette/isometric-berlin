@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.27 further reduces generic Minecraft tree cover in both profiles.
+// v1.0.31 replaces six Bebelplatz/HU fallback prisms and adds the empty library.
 // Independently measured synchronous buffers are compared
 // with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "05ea000a87e69247abe1a25537b7cab6770e591c56f10c4adf38cd7ed78e31a4", 3804782, 98, 290167847],
-  ["mobile", "92a5910c5f354c57ffc09c21d4a2edbb07c4073c09a1ad18d61fe8e56f775b38", 1006955, 96, 77083539],
+  ["full", "b25ffb1b87422e97ffe4b1a5d671feb59961856b2ed5aa3311bae4d240a28062", 3811444, 105, 290679041],
+  ["mobile", "34ca1798233dcf2431024edbafa98728445c55364a350e854dee254562cea892", 1017435, 103, 77884901],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

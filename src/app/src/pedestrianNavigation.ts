@@ -44,6 +44,8 @@ import type { PedestrianInput } from "./navigationInput";
 import { MAX_MOTION_FRAME_DELTA_SECONDS } from "./renderQuality";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { BODE_SOURCE, GRILL_SOURCE, SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionProfile";
+import { bebelplatzSourceForPrism, bebelplatzPartRoofAt } from "./bebelplatzBuildingProfile";
+import { hedwigRoofTopAt } from "./HedwigCathedral";
 import { ABGEORDNETENHAUS_PROFILE, abgeordnetenhausDisplayTopAt } from "./abgeordnetenhausProfile";
 import { createPedestrianBridgeGround } from "./PedestrianBridgeGround";
 import type { VisualMode } from "./visualMode";
@@ -603,6 +605,20 @@ export function compilePedestrianObstacles(
         building.id, 0.1,
         (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
       index.buildingCount += 1;
+      continue;
+    }
+    const bebelplatz = bebelplatzSourceForPrism(building.id);
+    if (bebelplatz) {
+      if (!replacedParents.has(bebelplatz.parent_id)) {
+        replacedParents.add(bebelplatz.parent_id);
+        for (const part of bebelplatz.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m, part.top_y_m, part.id, 1,
+            (x, z) => bebelplatz.parent_id === "DEBE01YYK00000AQ"
+              ? hedwigRoofTopAt(x, z) : bebelplatzPartRoofAt(part, x, z));
+          index.buildingCount += 1;
+        }
+      }
       continue;
     }
     if (SPREE_RECOGNITION_PRISM_IDS.has(building.id)) {
