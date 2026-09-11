@@ -2916,6 +2916,54 @@
       "description": "Elevated glazed link with blue-grey frame and red crossed bracing, clear path underneath; 9 April 2016. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_tiergarten_neubau",
+      "title": "File:Hansaviertel_Altonaer_Straße_Gymnasium_Tiergarten.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Altonaer_Stra%C3%9Fe_Gymnasium_Tiergarten.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "description": "9 April 2016: white stepped classroom facades, red vertical strips and upper service volume. External visual QA only; no photograph or texture is bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_tiergarten_neubau",
+      "title": "File:Hansaviertel_Lessingstraße_Gymnasium_Tiergarten-001.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Lessingstra%C3%9Fe_Gymnasium_Tiergarten-001.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "description": "9 April 2016: opposite classroom front, narrow stairwell glazing and ground-floor glass. External visual QA only; no photograph or texture is bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_tiergarten_neubau",
+      "title": "File:Gymnasium_Tiergarten.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Gymnasium_Tiergarten.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Michael T Alemu",
+      "credit": "Michael T Alemu / CC BY-SA 4.0",
+      "description": "31 August 2015: river-side context and the relationship of the older brick school to the white Neubau. External visual QA only; no photograph or texture is bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_tiergarten_neubau",
+      "title": "File:Joachim_Schmettau_-_Hand_mit_Uhr_2013.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Joachim_Schmettau_-_Hand_mit_Uhr_2013.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Rlbberlin",
+      "credit": "Rlbberlin / CC BY-SA 4.0",
+      "description": "2013, after restoration: wrist upwards, fingers gripping downwards, orange cube above white concrete stem and red LED watch. Sculpture by Joachim Schmettau,1975. External visual QA only; no photograph or texture is bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
