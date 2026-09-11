@@ -665,6 +665,17 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "grips_hansaplatz_v139",
+      "anchor_source": "Fourteen original Berlin LoD2 parents with 31 parts; retained OSM Hansaplatz routes; official monument part 09050387,T,005 and five individually credited external photographs",
+      "geometry_ref": "src/app/src/gripsHansaplatzSource.json",
+      "documentation_ref": "docs/grips-hansaplatz-v139.md",
+      "conflicts": [
+        "grips_hansaplatz_v139"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448933,6 +448944,16 @@
       "resolution": "Preserve original source records; use documented bounded display subdivision in all modes.",
       "geometry_ref": "src/app/src/behren42Source.json",
       "documentation_ref": "docs/behren42-mitte-v138.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "grips_hansaplatz_v139",
+      "kind": "closed_source_envelopes_vs_open_covered_public_space",
+      "conflict": "LoD2 closes covered arcades, the U9 roof and elevated glazed link to the ground. Photos and mapped covered paths show open undersides. Raw source ground differs from the existing 5.2 m display street. OSM way/533899752 crosses the photographed continuous west glass-block wall; retain that coarse station route record without cutting a fictional street-level door.",
+      "resolution": "Preserve every original source sheet and prior prism. Translate each complete parent to the retained street datum. Preserve all roof vertices exactly after translation; clip only covered-space lower display walls. Keep photographed U9 west wall and all three mapped southern stair approaches. Local facade bays, posts, glazing, sign/mural/stair detail and 3.05 m glazed-link depth remain recognition estimates.",
+      "geometry_ref": "src/app/src/gripsHansaplatzSource.json",
+      "documentation_ref": "docs/grips-hansaplatz-v139.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

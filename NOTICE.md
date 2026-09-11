@@ -1044,3 +1044,5 @@ When the Kindertransport memorial reconstruction is displayed, also display:
 When the Berlin 3D Mesh viewer is used, also display:
 
 > 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
+
+- GRIPS-Theater / Hansaplatz v1.0.39 uses 31 retained Berlin LoD2 parts (dl-de/zero-2-0) and original OSM paths (ODbL-1.0). Five external photographs by De-okin (CC BY-SA 3.0) and Fridolin freudenfett (CC BY-SA 4.0) are credited individually in both Wikimedia manifests and references/wikimedia/README.md. No photograph or texture is bundled. See docs/grips-hansaplatz-v139.md for source/display distinctions.

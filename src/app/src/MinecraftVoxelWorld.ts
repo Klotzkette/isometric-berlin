@@ -2,6 +2,8 @@ import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createMinecraftGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
+import { createGripsHansaplatz } from "./GripsHansaplatz";
+import { isGripsHansaplatzReplacementColumn } from "./gripsHansaplatzProfile";
 import { isGorkiBuildingReplacementColumn } from "./gorkiBuildingProfile";
 import { createBehren42Architecture } from "./Behren42Architecture";
 import { isBehren42ReplacementColumn } from "./Behren42Profile";
@@ -785,6 +787,7 @@ export function isCompleteRecognitionVoxelColumn(
     isGendarmenmarktReplacementColumn(x, z) ||
     isNeueWacheReplacementColumn(x, z) ||
     isGorkiBuildingReplacementColumn(x, z) ||
+    isGripsHansaplatzReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
@@ -2716,6 +2719,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftGendarmenmarktArchitecture());
   group.add(createNeueWache(true));
   group.add(createGorkiBuilding(true));
+  group.add(createGripsHansaplatz(true));
   group.add(createBehren42Architecture(true));
   group.add(createMinecraftSchlossNaturkundeShells());
   group.add(createMinecraftSchlossNaturkundeFacades());

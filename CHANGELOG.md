@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.39
+
+- Refine GRIPS-Theater and the immediate Hansaplatz shopping court from all 31 official source parts, with photographed glazing, red lettering, external stair and elevated link.
+- Keep both compact courts, covered passages and three U9 approaches open.
+- Share static geometry in all modes, with a separate native Minecraft batch and retained original source records.
+
 ## v1.0.38
 
 - Restore full source-bound forms for HU courtyard and street wings, Gorki Theater,

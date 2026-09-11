@@ -1,5 +1,6 @@
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
+import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
 import { NEUE_WACHE_PRISM_IDS, NEUE_WACHE_PROFILE, NEUE_WACHE_ROOF_INDEX_RING, neueWacheRoofAt } from "./neueWacheProfile";
 import { BEHREN42_PRISM_IDS, BEHREN42_SOURCE } from "./Behren42Profile";
 import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
@@ -596,6 +597,13 @@ export function compilePedestrianObstacles(
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === ROSENGARTEN_PERGOLA_PRISM_ID) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
+    const grips = gripsHansaplatzPartForPrism(building.id);
+    if (grips) {
+      addPolygonObstacle(index, grips.ring, grips.holes, grips.ground_y_m,
+        grips.top_y_m, building.id, 1, (x,z) => gripsHansaplatzRoofAt(grips,x,z));
+      index.buildingCount += 1;
+      continue;
+    }
     if (NEUE_WACHE_PRISM_IDS.has(building.id)) {
       // Retain the raw OSM prism as provenance, but its former six-metre
       // fallback slab is not a floor inside the authored hollow memorial.

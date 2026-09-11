@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 // Independent synchronous measurements are compared with cooperative buffers;
 // existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "8a51ef751a7fe92f6e00404ef172da20acd599a21b3bbad65e97db9888b13843", 3836019, 115, 292553581],
-  ["mobile", "df6dac58d4304233a6718eb2345189aa774011493334a2dd3912a7870027a209", 1052177, 113, 80532133],
+  ["full", "8e4d91b7d0b6fc493ed7269a4c5907558ecb98ccda825d6a0aa75fc87f2d76fb", 3839770, 116, 292839305],
+  ["mobile", "43cb0219324ede35f426cdba84ca7188708f2459bbdb569f320650e7ba905635", 1056438, 114, 80856617],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

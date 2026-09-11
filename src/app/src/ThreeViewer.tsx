@@ -1,6 +1,8 @@
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { createGorkiBuilding } from "./GorkiBuilding";
+import { createGripsHansaplatz } from "./GripsHansaplatz";
+import { gripsHansaplatzSolidAt } from "./gripsHansaplatzProfile";
 import { createBehren42Architecture } from "./Behren42Architecture";
 import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
@@ -3403,6 +3405,7 @@ function ensureIsoWorld(
           if (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
+            gripsHansaplatzSolidAt(x, y, z, radius) ||
             neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
@@ -3574,6 +3577,8 @@ function ensureIsoWorld(
         isoWorld.add(createGendarmenmarktArchitecture());
         yield;
         isoWorld.add(createGorkiBuilding());
+        yield;
+        isoWorld.add(createGripsHansaplatz());
         yield;
         isoWorld.add(createBehren42Architecture());
         yield;
@@ -4017,6 +4022,7 @@ function ensureVoxelWorld(
           return (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
+            gripsHansaplatzSolidAt(x, y, z, radius) ||
             neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
