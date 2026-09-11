@@ -45,13 +45,44 @@ function dispose(group: Group): void {
 
 describe("bounded ordinary facade presentation", () => {
   test("covers the requested quarters and immediate park edge without extending across Berlin", () => {
-    for (const [x, z] of [[427, 1066], [497, 293], [565.85, -1091.96], [-500, -1500], [-1404, 1166], [-1820, -50]]) {
+    for (const [x, z] of [[427, 1066], [497, 293], [565.85, -1091.96], [-500, -1500], [-1404, 1166], [-1820, -50], [1500, 250], [1550, 700], [2100, -100]]) {
       expect(pointInUrbanFacadeScope(x, z)).toBeTrue();
       expect(urbanFacadeScope({ ring: [[x * 10 - 10, z * 10 - 10], [x * 10 + 10, z * 10 - 10], [x * 10 + 10, z * 10 + 10], [x * 10 - 10, z * 10 + 10]] })).toBeTrue();
     }
     for (const [x, z] of [[3500, 2000], [3000, -3000], [-4000, 2000], [0, -4000]]) {
       expect(pointInUrbanFacadeScope(x, z)).toBeFalse();
     }
+  });
+
+  test("Mitte neighbours retain mapped materials and existing source storeys without new house identities", () => {
+    const local = source.buildings.filter(p => {
+      const x = p.ring.reduce((s, v) => s + v[0], 0) / p.ring.length / 10;
+      const z = p.ring.reduce((s, v) => s + v[1], 0) / p.ring.length / 10;
+      return x >= 1280 && x <= 2180 && z >= -400 && z <= 1100;
+    });
+    expect(local).toHaveLength(673);
+    expect(local.every(urbanFacadeScope)).toBeTrue();
+    expect(local.filter(p => buildingAttributes(p.id))).toHaveLength(319);
+    const tagged = sourcePart("Lg1aIGS9");
+    expect(buildingAttributes(tagged.id)?.tags["building:colour"]).toBe("#dfd8c8");
+    expect(urbanMappedFacadeTone(buildingAttributes(tagged.id))).toBe(0xdfd8c8);
+    const shader = urbanFacadeInkShader(ShaderLib.dashed.vertexShader, ShaderLib.dashed.fragmentShader);
+    expect(shader.vertexShader).toContain("step(1280.0, urbanXZ.x) * step(urbanXZ.x, 2180.0) * step(-400.0, urbanXZ.y) * step(urbanXZ.y, 1100.0)");
+    for (const [x, z] of [[2181, 300], [1800, -401], [1700, 1101]]) expect(pointInUrbanFacadeScope(x, z)).toBeFalse();
+  });
+
+  test("the retained mapped six-storey rhythm gains head registers without changing its building mesh", () => {
+    const part = sourcePart("aJudVUG4"), original = JSON.stringify(part);
+    const local = build(part, "detailed");
+    const outside = build({ ...part, ring: part.ring.map(([x, z]) => [x + 20000, z + 20000]) }, "detailed");
+    try {
+      expect(local.group.userData.buildingDetailCoverage.mappedStoreyParts).toBe(1);
+      expect(local.group.userData.buildingDetailCoverage.mappedStoreyHeadStrokes).toBe(24);
+      expect(outside.group.userData.buildingDetailCoverage.mappedStoreyHeadStrokes).toBe(8);
+      expect(local.body.geometry.getAttribute("position").count).toBe(outside.body.geometry.getAttribute("position").count);
+      expect(local.group.userData.buildingDetailCoverage.extraRenderables).toBe(0);
+      expect(JSON.stringify(part)).toBe(original);
+    } finally { dispose(local.group); dispose(outside.group); }
   });
 
   test("resolves retained CSS colour names exactly and preserves explicit colour priority", () => {

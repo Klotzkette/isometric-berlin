@@ -8,6 +8,7 @@ export const URBAN_FACADE_ZONES = [
   [130, 725, -70, 530], // Pariser Platz
   [65, 820, -1220, -90], // Charité to Robert-Koch-Platz
   [620, 1280, -660, 65], // Deutsches Theater, Friedrichstraße and Schiffbauerdamm
+  [1280, 2180, -400, 1100], // HU, Bebelplatz, Gendarmenmarkt and nearby Mitte blocks
   [-830, 220, -2260, -700], // Europacity
   [-2400, 150, 650, 1400], // south edge of Tiergarten
 ] as const;

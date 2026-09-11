@@ -621,6 +621,50 @@
       "conflicts": [],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "neue_wache_v138",
+      "anchor_source": "Retained Geoportal Berlin LoD2 and OSM geometry/identity plus cited primary institutional and architectural evidence",
+      "geometry_ref": "src/app/src/neueWacheSource.json",
+      "documentation_ref": "docs/neue-wache-v138.md",
+      "conflicts": [
+        "The 6 m OSM fallback is replaced by a source-fitted hollow hall and portico. The retained source roof is opened for the documented oculus in display only; sculpture anatomy and interior dimensions are recognition estimates."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gorki_hu_bebel_v138",
+      "anchor_source": "Retained Geoportal Berlin LoD2 and OSM geometry/identity plus cited primary institutional and architectural evidence",
+      "geometry_ref": "src/app/src/gorkiBuildingSource.json",
+      "documentation_ref": "docs/gorki-building-v138.md",
+      "conflicts": [
+        "Gorki OSM 9 m fallback and generalized source roof are retained; display hall roof and separate stage tower follow facade evidence. HU subdivisions follow projecting source chains. Bebel shelves remain empty and the glass sealed."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gendarmenmarkt_v138",
+      "anchor_source": "Retained Geoportal Berlin LoD2 and OSM geometry/identity plus cited primary institutional and architectural evidence",
+      "geometry_ref": "src/app/src/gendarmenmarktSource.json",
+      "documentation_ref": "docs/gendarmenmarkt-v138.md",
+      "conflicts": [
+        "Low fallback blocks are replaced with complete source envelopes and recognition subdivisions for both dome towers, distinct churches and Konzerthaus. The bounded square reflects the completed 2025 stone paving. Local facade and figure dimensions remain estimates."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "behren42_mitte_v138",
+      "anchor_source": "Retained Geoportal Berlin LoD2 and OSM geometry/identity plus cited primary institutional and architectural evidence",
+      "geometry_ref": "src/app/src/behren42Source.json",
+      "documentation_ref": "docs/behren42-mitte-v138.md",
+      "conflicts": [
+        "Current Hengeler Mueller / Humboldt Carré identity supersedes stale source parent name for display only; retained LoD2 geometry anchors complete shell. Ordinary Mitte elevations use retained floor and material evidence, not an invented opening survey."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448849,6 +448893,46 @@
       "resolution": "Retain all LoD2 envelopes, adjacent source parts, OSM identity and previous east/south axes; add the northern return from the retained outline. Replace only procedural detail with tall rectangular arcade piers, broad modern glazing, selected red panels, historic four-storey returns and a vertical identity blade. Remove unsupported procedural roof boxes. The 8.2 m arcade and local bay/member dimensions remain photo-proportioned estimates. Full drawn layer changes from 1649 to 1669 instances (+1,520 bytes), retaining ten draws and the existing 180 kB ceiling; native remains one facade-only batch below 50 kB.",
       "geometry_ref": "src/app/src/unterDenLindenProfiles.ts",
       "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "neue_wache_v138",
+      "kind": "source_envelope_vs_recognition_display",
+      "conflict": "The 6 m OSM fallback is replaced by a source-fitted hollow hall and portico. The retained source roof is opened for the documented oculus in display only; sculpture anatomy and interior dimensions are recognition estimates.",
+      "resolution": "Preserve original source records; use documented bounded display subdivision in all modes.",
+      "geometry_ref": "src/app/src/neueWacheSource.json",
+      "documentation_ref": "docs/neue-wache-v138.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gorki_hu_bebel_v138",
+      "kind": "source_envelope_vs_recognition_display",
+      "conflict": "Gorki OSM 9 m fallback and generalized source roof are retained; display hall roof and separate stage tower follow facade evidence. HU subdivisions follow projecting source chains. Bebel shelves remain empty and the glass sealed.",
+      "resolution": "Preserve original source records; use documented bounded display subdivision in all modes.",
+      "geometry_ref": "src/app/src/gorkiBuildingSource.json",
+      "documentation_ref": "docs/gorki-building-v138.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gendarmenmarkt_v138",
+      "kind": "source_envelope_vs_recognition_display",
+      "conflict": "Low fallback blocks are replaced with complete source envelopes and recognition subdivisions for both dome towers, distinct churches and Konzerthaus. The bounded square reflects the completed 2025 stone paving. Local facade and figure dimensions remain estimates.",
+      "resolution": "Preserve original source records; use documented bounded display subdivision in all modes.",
+      "geometry_ref": "src/app/src/gendarmenmarktSource.json",
+      "documentation_ref": "docs/gendarmenmarkt-v138.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "behren42_mitte_v138",
+      "kind": "source_envelope_vs_recognition_display",
+      "conflict": "Current Hengeler Mueller / Humboldt Carré identity supersedes stale source parent name for display only; retained LoD2 geometry anchors complete shell. Ordinary Mitte elevations use retained floor and material evidence, not an invented opening survey.",
+      "resolution": "Preserve original source records; use documented bounded display subdivision in all modes.",
+      "geometry_ref": "src/app/src/behren42Source.json",
+      "documentation_ref": "docs/behren42-mitte-v138.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

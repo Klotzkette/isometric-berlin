@@ -2852,6 +2852,9 @@ export function createTiergartenMonuments(
     } else if (
       entry.osm_key === POTSDAMER_TRAFFIC_TOWER_PROFILE.osmKey ||
       entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey ||
+      entry.osm_key === "node/262457570" || // source-bound Gendarmenmarkt Schiller
+      entry.osm_key === "node/262455810" || // Neue Wache memorial identity
+      entry.osm_key === "node/5253735916" || // authored Kollwitz sculpture
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||

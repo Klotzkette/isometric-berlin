@@ -1,3 +1,7 @@
+import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
+import { GORKI_BUILDING_PRISM_IDS } from "./gorkiBuildingProfile";
+import { BEHREN42_PRISM_IDS } from "./Behren42Profile";
+import { NEUE_WACHE_PRISM_IDS } from "./neueWacheProfile";
 import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
@@ -885,6 +889,10 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...GENDARMENMARKT_PRISM_IDS,
+  ...NEUE_WACHE_PRISM_IDS,
+  ...GORKI_BUILDING_PRISM_IDS,
+  ...BEHREN42_PRISM_IDS,
   ...BEBELPLATZ_BUILDING_PRISM_IDS,
   ...SCHLOSS_NATURKUNDE_PRISM_IDS,
   // Exact TIPI tent/service ways: source-footprint pavilions replace their fallback boxes.
@@ -12131,7 +12139,7 @@ export function createIsometricCity(
               );
               if (
                 (plazaDetailZone && floor < plazaDetailZone.facadeRhythm.maximumDetailedStoreys) ||
-                (sourceStoreys && !plazaDetailZone && (floor === 0 || floor === grid.floors - 1))
+                (sourceStoreys && !plazaDetailZone && (floor === 0 || floor === grid.floors - 1 || urbanFacadeScope(building)))
               ) {
                 const headY = Math.min(
                   axisTop,

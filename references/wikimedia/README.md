@@ -403,3 +403,16 @@ is bundled. [Full source roles and individual file links](../../docs/schloss-dus
 
 The existing JoachimKohler-HB *Dussmann Das Kulturkaufhaus in Berlin (2026).jpg*
 (CC BY-SA 4.0) is reused for the arcade and historic-return refinement.
+
+## Mitte refinements v1.0.38
+
+Six external visual references were inspected for the Neue Wache, Maxim Gorki
+Theater and Behrenstraße 42. Both attribution manifests now contain 279 records.
+Photographs remain external; no runtime textures are added.
+
+- [File:150214 Neue Wache Berlin.jpg](https://commons.wikimedia.org/wiki/File:150214_Neue_Wache_Berlin.jpg), Ansgar Koreng, [CC BY 3.0 de](https://creativecommons.org/licenses/by/3.0/de/deed.en). Doric six-column front, projecting corner piers, shallow pediment and three gated openings; photo 14 February 2015. External visual reference only; no photograph or texture bundled.
+- [File:B Neue Wache interior 1.jpg](https://commons.wikimedia.org/wiki/File:B_Neue_Wache_interior_1.jpg), Daniel Schwen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0). Tessenow hall, pale ashlar, three openings and open oculus; photo 27 August 2007. External visual reference only; no photograph or texture bundled.
+- [File:Käthe Kollwitz, Pieta.JPG](https://commons.wikimedia.org/wiki/File:Käthe_Kollwitz,_Pieta.JPG), World3000, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0). Kollwitz Mother with her Dead Son: seated hooded mother encloses the folded adult body; photo 9 February 2013. External visual reference only; no photograph or texture bundled.
+- [File:Berlin, Mitte, Maxim-Gorki-Theater 02.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Maxim-Gorki-Theater_02.jpg), Jörg Zägel (Beek100), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). 13 June 2009 south and west front: three wooden portals, fluted pilasters, pale stone, framed blind panels, pediment and theatre inscription. Historical form reference, not current event-banner or construction evidence. External visual QA only.
+- [File:Berlin, Mitte, Behrenstraße, Humboldt-Carré.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Behrenstraße,_Humboldt-Carré.jpg), Jörg Zägel, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). South and west sandstone facades, historic round arches, rusticated ground storey and two glazed modern upper storeys; dated 27 July 2009. External visual reference only.
+- [File:Humboldt Carré, Hengeler Mueller Berlin.jpg](https://commons.wikimedia.org/wiki/File:Humboldt_Carré,_Hengeler_Mueller_Berlin.jpg), Max Christophel / Project Motion, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Hengeler Mueller office facade photograph, supplied through the firm and licensed with VRT ticket2025062510005042; dated13 June2025. Sandstone arch, recessed window and dentil cornice detail; external visual reference only.

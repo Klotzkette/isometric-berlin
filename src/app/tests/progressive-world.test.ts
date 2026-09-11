@@ -1004,8 +1004,12 @@ describe("progressive exact-world scheduling", () => {
       // into their source-bound context model, without extra worker batches.
       // The selected HU/library fallbacks yield to complete initial models;
       // the shared four-vertex facade quad remains allocated by other parts.
-      vertices: 3_565_184 - 9_658,
-      retainedBytes: 51_289_272 - 145_576,
+      // v1.0.38 retains paired head strokes on existing mapped urban storeys
+      // and moves the newly authored landmarks out of generic batches. An
+      // independent production-argument build remains 22 renderables across
+      // the same two follow-ups, below both unchanged hard budget ceilings.
+      vertices: 3_568_444,
+      retainedBytes: 51_320_568,
     });
     // The identical all-attribute/index/instance accounting for the previous
     // distance-only selection was 54,135,158 bytes.

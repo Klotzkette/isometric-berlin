@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.37 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.37/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.38 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.38/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,20 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.37** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.38** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.38 restores source-bound HU, Gorki Theater, Neue Wache, the
+Gendarmenmarkt ensemble and Behrenstraße 42. The Neue Wache has a walkable hall
+with Kollwitz's sculpture and an open oculus. Bebelplatz's sealed glass reveals
+its empty shelves more clearly; existing material and floor evidence gives
+ordinary Mitte facades more definition. See [architecture and validation](docs/release-v1.0.38-review.md).
+
+Version 1.0.38 verbessert HU, Gorki-Theater, Neue Wache, Gendarmenmarkt und
+Behrenstraße 42 anhand der Quellen. Die Neue Wache ist begehbar, mit sichtbarer
+Kollwitz-Skulptur und offenem Oberlicht. Am Bebelplatz sind die leeren Regale
+unter der Glasscheibe klarer erkennbar; weitere Mitte-Fassaden erhalten
+zurückhaltende Gliederung anhand vorhandener Material- und Geschossangaben.
 
 Version 1.0.37 stages city construction across cancellable tasks and releases
 queued GPU warmup references when geometry is evicted. It refines the Schloss,
@@ -303,7 +315,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The public package is **v1.0.37**, built from `main`. It contains one freely
+The public package is **v1.0.38**, built from `main`. It contains one freely
 orbitable isometric scene with five visual styles. Changing a visual style
 preserves location, view and walking/flight state. The launch guide opens this
 same viewer through local HTTP.

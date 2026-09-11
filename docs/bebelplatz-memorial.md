@@ -32,8 +32,8 @@ polygons do not cover this location. The visitor's existing terrain collision
 continues across the closed glass surface, so this repair cannot make the
 visitor fall into the room. Its internal white illumination remains legible at
 night. Minecraft uses the same squared structural room and aperture with an
-axis-aligned frame. Both versions have four renderables and fewer than one
-hundred chamber instances; no framebuffers, runtime images or per-frame updates
+axis-aligned frame. Both versions have four renderables and 157 chamber
+instances; no framebuffers, runtime images or per-frame updates
 are added.
 
 Inspected external visual references, also recorded in both attribution manifests:
@@ -48,3 +48,12 @@ Inspected external visual references, also recorded in both attribution manifest
 Photographs are external references only; neither original nor crop is bundled
 or loaded. Focused ray tests check the empty opening, transparent pane, visible
 chamber below and removal of exactly six raster cells without source mutation.
+
+The v1.0.38 visibility pass adds a 16 cm deep pale aperture reveal, four small
+flush frame-fastener cues and thin underside shading on the existing fourteen
+empty shelf tiers. The pane tint is lighter and less opaque. These small local
+display details keep the real 1.20 m aperture and sealed ground plane unchanged.
+The shelves and floor are actual geometry, visible in inspected Chrome renders;
+the narrow historical aperture naturally hides some upper shelf rows when viewed
+from standing height. No artificial enlarged window, books or visitor staircase
+is introduced.

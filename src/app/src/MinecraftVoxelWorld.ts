@@ -1,3 +1,12 @@
+import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
+import { createMinecraftGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
+import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
+import { createGorkiBuilding } from "./GorkiBuilding";
+import { isGorkiBuildingReplacementColumn } from "./gorkiBuildingProfile";
+import { createBehren42Architecture } from "./Behren42Architecture";
+import { isBehren42ReplacementColumn } from "./Behren42Profile";
+import { createNeueWache } from "./NeueWache";
+import { isNeueWacheReplacementColumn } from "./neueWacheProfile";
 import { createSpreeRailings } from "./SpreeRailings";
 import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
@@ -773,6 +782,10 @@ export function isCompleteRecognitionVoxelColumn(
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
     isBebelplatzBuildingReplacementColumn(x, z) ||
+    isGendarmenmarktReplacementColumn(x, z) ||
+    isNeueWacheReplacementColumn(x, z) ||
+    isGorkiBuildingReplacementColumn(x, z) ||
+    isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
     abgeordnetenhausMainContains(x, z) ||
@@ -2699,6 +2712,11 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   yield;
+  group.add(createMinecraftGendarmenmarktShells());
+  group.add(createMinecraftGendarmenmarktArchitecture());
+  group.add(createNeueWache(true));
+  group.add(createGorkiBuilding(true));
+  group.add(createBehren42Architecture(true));
   group.add(createMinecraftSchlossNaturkundeShells());
   group.add(createMinecraftSchlossNaturkundeFacades());
   yield;

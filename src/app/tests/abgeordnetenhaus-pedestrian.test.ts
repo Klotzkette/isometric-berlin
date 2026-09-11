@@ -23,6 +23,11 @@ import { MUSIC_MUSEUM_IDS } from "../src/museumLenneProfile";
 import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
 import { ECONOMIC_MINISTRY_SOURCE_IDS } from "../src/EconomicMinistrySourceGeometry";
 import { BEBELPLATZ_BUILDING_SOURCES } from "../src/bebelplatzBuildingProfile";
+import { SCHLOSS_NATURKUNDE_SOURCES } from "../src/schlossNaturkundeProfile";
+import { GENDARMENMARKT_SOURCES } from "../src/gendarmenmarktProfile";
+import { GORKI_BUILDING_SOURCE } from "../src/gorkiBuildingProfile";
+import { BEHREN42_SOURCE } from "../src/Behren42Profile";
+import { NEUE_WACHE_PRISM_IDS } from "../src/neueWacheProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -60,6 +65,10 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // The JKH source-gap supplement has a mode-dependent polygon/cube top;
     // its source podium stays untouched and is tested independently.
     // Museum, BahnTower and ministry support follow their individual roof planes.
+    // Complete source replacements add 49 local roof callbacks: Schloss and
+    // Naturkunde 21, Gendarmenmarkt 17, Gorki 3 and Humboldt Carre 8. They are
+    // geographically separate from the unchanged Abgeordnetenhaus annexes.
+    // Neue Wache's retained source ID separately follows the open authored roof.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
         ...BELLEVUE_IDS,
@@ -76,6 +85,9 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         ...ADMIRALSPALAST_IDS,
         ...MUSEUM_TRIAD_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
         ...BEBELPLATZ_BUILDING_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
+        ...[...SCHLOSS_NATURKUNDE_SOURCES, ...GENDARMENMARKT_SOURCES, GORKI_BUILDING_SOURCE, BEHREN42_SOURCE]
+          .flatMap(({ parts }) => parts.map(({ id }) => id)),
+        ...NEUE_WACHE_PRISM_IDS,
         ...[DOM_ALTES_SOURCE.dom, DOM_ALTES_SOURCE.altes].flatMap(({ parts }) => parts.map(({ id }) => id)),
       ].sort());
   });

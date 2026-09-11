@@ -73,10 +73,10 @@ the existing visible Wikimedia visual-reference notice remains required.
 
 ## Runtime and checks
 
-- Four Smooth instance batches, `3,413` instances, `265,412` geometry/instance
+- Four Smooth instance batches, `5,241` instances, `404,340` geometry/instance
   bytes including indices. Material instances use the existing day/night policy.
-- Minecraft is a separate cube-only reading: one batch, `850` blocks,
-  `65,248` geometry/instance bytes. It retains the window rhythm, portals,
+- Minecraft is a separate cube-only reading: one batch, `2,920` blocks,
+  `222,568` geometry/instance bytes. It retains the window rhythm, portals,
   columns, curved footprint and open gateway without smooth duplicate surfaces.
 - All boxes, heads, column shafts and robe silhouettes reuse four tiny unit
   meshes; no runtime texture loader, animation, union or per-frame constructor.
@@ -85,3 +85,21 @@ the existing visible Wikimedia visual-reference notice remains required.
 - Focused tests check exact source axes, preserved library curvature, finite
   matrices, static transforms and GPU budgets, an open central HU gateway,
   exterior hotel glazing, and axis-aligned cube-only Minecraft geometry.
+
+## v1.0.38 HU wing refinement
+
+The two 48 m courtyard returns and the two Linden-facing wing ends now repeat
+the photographed three-level palace order. Each end follows its actual
+2 + 3 + 2 source wall segments: the central risalit projects approximately
+0.76 m beyond the flanks. Its windows, pilasters and cornices are on that
+projected face, avoiding the hidden-window error of a single baseline.
+The LDA record documents the repeated pilaster order, garlands, keystone heads
+and added roof statues. Window spacing and individual sculptural poses remain
+procedural display fits to the existing Christian Wolf reference.
+
+This requested extension reuses all four existing prototype geometries and
+materials. Minecraft cornices and sill courses now follow their true bearing
+as bounded small axis-aligned blocks; a long north-south member can no longer
+turn sideways into a broad plate. Actual Chrome renders of both representations
+were inspected with the original official shell present. Ray tests verify the
+two court faces and both projected wing ends before the source walls.

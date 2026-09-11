@@ -163,7 +163,10 @@ describe("true voxel Minecraft world", () => {
     // v1.0.25 replaces the CDU winter garden's 149 false solid columns
     // and their 264 generic exterior panes with an open block-native hull.
     // Bebelplatz/HU replaces 1,096 source columns and their 1,682 generic panes.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_579_170 - 1_682);
+    // Complete source-bound Schloss/Naturkunde and v1.0.38 Gendarmenmarkt,
+    // Gorki, Neue Wache and Humboldt Carre models remove their duplicate
+    // generic panes; measured separately with this payload-only factory.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_571_540);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -174,9 +177,13 @@ describe("true voxel Minecraft world", () => {
     // roof columns. v1.0.6 replaces 488 Palast/Böll low columns (three
     // layers in full); these totals cover the factory without optional source prisms.
     // Serra's open plate model removes one false source column in both profiles.
-    expect(instanced("Voxel building columns", world).count).toBe(1_461_733 - 1_096 * 3);
+    // The same exact landmark replacement masks now remove the obsolete
+    // generic column stacks before the single native models are added.
+    // These independently measured totals omit the optional sourcePrisms,
+    // tone lookup and tunnel arguments used by the full world benchmark.
+    expect(instanced("Voxel building columns", world).count).toBe(1_451_778);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      534_551 - 1_096,
+      531_131,
     );
 
     const landmarks = world.getObjectByName(

@@ -17,6 +17,22 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Mitte landmarks (v1.0.38):** retained LoD2 walls, roofs and OSM identities
+  anchor HU, Maxim Gorki Theater, Neue Wache, the Gendarmenmarkt ensemble and
+  Humboldt Carré / Hengeler Mueller at Behrenstraße 42. Original low fallback
+  blocks and generalized closed roofs remain retained beside documented
+  display corrections. The Neue Wache hall and oculus are open; the Kollwitz
+  figure is procedural recognition geometry. Bebelplatz keeps its sealed glass
+  aperture and empty shelves. The Gendarmenmarkt square follows official
+  evidence for the completed 2025 paving. Generic Mitte facades use existing
+  material and storey evidence. Local member dimensions are not a facade survey.
+  Six additional external Commons photographs by Ansgar Koreng, Daniel Schwen,
+  World3000, Jörg Zägel and Max Christophel / Project Motion are individually
+  credited in both manifests. No photograph or photographic texture is bundled.
+  See [Neue Wache](docs/neue-wache-v138.md), [HU and Gorki](docs/gorki-building-v138.md),
+  [Gendarmenmarkt](docs/gendarmenmarkt-v138.md) and
+  [Behrenstraße 42 / Mitte](docs/behren42-mitte-v138.md).
+
 - **Pariser Platz and western Unter den Linden (v1.0.30):** retained ALKIS
   cadastral parcels anchor the western public-space envelope; OSM road,
   sidewalk, plaza, grass and gravel features determine the source partition.

@@ -4,19 +4,21 @@ import {
   MeshStandardMaterial, ShapeUtils, Vector2, Vector3,
 } from "three";
 import {
-  BEBELPLATZ_BUILDING_GROUP_NAME, BEBELPLATZ_CIVIC_SOURCES,
-  MINECRAFT_BEBELPLATZ_BUILDING_GROUP_NAME, bebelplatzPartBounds,
-  bebelplatzPartContains, bebelplatzPartRoofAt, type BebelplatzSourcePart,
-} from "./bebelplatzBuildingProfile";
+  GENDARMENMARKT_GROUP_NAME, GENDARMENMARKT_SOURCES,
+  MINECRAFT_GENDARMENMARKT_GROUP_NAME, gendarmenmarktPartBounds,
+  gendarmenmarktPartRoofAt, type GendarmenmarktPart,
+} from "./gendarmenmarktProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 const TONES = [
-  { wall: 0xd9d3c2, roof: 0x665d58, name: "Humboldt main building" },
-  { wall: 0xcdbb97, roof: 0x64625d, name: "Alte Bibliothek" },
-  { wall: 0xbebdb3, roof: 0x696b68, name: "Hotel de Rome" },
+  { wall: 0xd5c8b0, roof: 0x73786e, name: "French Friedrichstadt Church" },
+  { wall: 0xd9ccb1, roof: 0x738b78, name: "German Cathedral tower" },
+  { wall: 0xd9ccb1, roof: 0x6d8273, name: "Neue Kirche" },
+  { wall: 0xd5c8b0, roof: 0x738b78, name: "French Cathedral tower" },
+  { wall: 0xddcdb3, roof: 0x777b71, name: "Konzerthaus" },
 ];
 
-export function sourceMesh(parts: BebelplatzSourcePart[], tone: typeof TONES[number]): Mesh {
+function sourceMesh(parts: GendarmenmarktPart[], tone: typeof TONES[number]): Mesh {
   const positions: number[] = [], colors: number[] = [];
   const normal = new Vector3(), tint = new Color();
   for (const part of parts) for (const surface of part.surfaces) {
@@ -67,50 +69,58 @@ export function sourceMesh(parts: BebelplatzSourcePart[], tone: typeof TONES[num
 }
 
 /** Complete original source sheets: facade detail never floats above 9 m placeholders. */
-export function createBebelplatzBuildingShells(): Group {
+export function createGendarmenmarktShells(): Group {
   const root = new Group();
-  root.name = BEBELPLATZ_BUILDING_GROUP_NAME;
-  root.userData = { textureFree: true, sourceParents: BEBELPLATZ_CIVIC_SOURCES.map((s) => s.parent_id) };
-  BEBELPLATZ_CIVIC_SOURCES.forEach((profile, i) => root.add(sourceMesh(profile.parts, TONES[i])));
+  root.name = GENDARMENMARKT_GROUP_NAME;
+  root.userData = { textureFree: true, sourceParents: GENDARMENMARKT_SOURCES.map((s) => s.parent_id) };
+  GENDARMENMARKT_SOURCES.forEach((profile, i) => {
+    if (profile.parent_id === "DEBE01YYK000085g" || profile.parent_id === "DEBE01YYK00000sJ") return;
+    const mesh = sourceMesh(profile.parts, TONES[i]);
+    mesh.position.y = profile.display_y_translation_m;
+    root.add(mesh);
+  });
   return freezeStaticSceneTransforms(root);
 }
 
-export type SourceEnvelopeBlock = { position: [number, number, number]; size: [number, number, number]; color: number };
-type Block = SourceEnvelopeBlock;
+type Block = { position: [number, number, number]; size: [number, number, number]; color: number };
 
-/** Surface-only voxel sampling retains pitched source roofs without interior fill. */
-export function appendVoxelEnvelope(part: BebelplatzSourcePart, tone: typeof TONES[number], blocks: Block[]): void {
-  const [minX, minZ, maxX, maxZ] = bebelplatzPartBounds(part);
-  const cell = 2;
-  const base = Math.max(part.ground_y_m, 5.18);
-  for (let x = Math.floor(minX / cell) * cell + cell / 2; x < maxX; x += cell) {
-    for (let z = Math.floor(minZ / cell) * cell + cell / 2; z < maxZ; z += cell) {
-      if (!bebelplatzPartContains(part, x, z)) continue;
-      const top = bebelplatzPartRoofAt(part, x, z);
-      if (top === null || top <= base) continue;
-      const roofThickness = Math.min(0.8, top - base);
-      blocks.push({ position: [x, top - roofThickness / 2, z], size: [cell, roofThickness, cell], color: tone.roof });
-      const boundary = [[cell, 0], [-cell, 0], [0, cell], [0, -cell]].some(([dx, dz]) =>
-        !bebelplatzPartContains(part, x + dx, z + dz));
-      if (!boundary) continue;
-      const wallHeight = top - roofThickness - base;
-      const courses = Math.ceil(wallHeight / 3.8), pitch = wallHeight / courses;
-      for (let i = 0; i < courses; i++) blocks.push({
-        position: [x, base + (i + 0.5) * pitch, z], size: [cell, pitch, cell],
-        color: tone.wall,
-      });
+/** Uppermost surface only: overlapping LoD2 parts do not create buried blocks. */
+function appendVoxelEnvelope(profile: typeof GENDARMENMARKT_SOURCES[number], tone: typeof TONES[number], blocks: Block[]): void {
+  const bounds = profile.parts.map(gendarmenmarktPartBounds), cell = 2.5;
+  const minX = Math.min(...bounds.map((v) => v[0])), minZ = Math.min(...bounds.map((v) => v[1]));
+  const maxX = Math.max(...bounds.map((v) => v[2])), maxZ = Math.max(...bounds.map((v) => v[3]));
+  const base = Math.max(profile.parts[0].ground_y_m + profile.display_y_translation_m, 5.2);
+  const columns = new Map<string, { x: number; z: number; top: number; roof: number }>();
+  const firstX = Math.floor(minX / cell), firstZ = Math.floor(minZ / cell);
+  for (let ix = firstX; ix * cell < maxX; ix++) for (let iz = firstZ; iz * cell < maxZ; iz++) {
+    const x = (ix + .5) * cell, z = (iz + .5) * cell;
+    let top: number | null = null, roof = tone.roof;
+    for (const part of profile.parts) {
+      const y = gendarmenmarktPartRoofAt(part, x, z);
+      if (y !== null && (top === null || y > top)) { top = y; roof = tone.roof; }
     }
+    if (top !== null && top > base) columns.set(`${ix},${iz}`, { x, z, top, roof });
+  }
+  for (const [key, c] of columns) {
+    const [ix, iz] = key.split(",").map(Number), roofThickness = Math.min(.7, c.top - base);
+    blocks.push({ position: [c.x, c.top - roofThickness / 2, c.z], size: [cell, roofThickness, cell], color: c.roof });
+    const neighbourTop = Math.min(...[[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dz]) => columns.get(`${ix + dx},${iz + dz}`)?.top ?? base));
+    const wallBase = Math.max(base, neighbourTop), wallHeight = c.top - roofThickness - wallBase;
+    if (wallHeight <= .15) continue;
+    const courses = Math.ceil(wallHeight / 3.8), pitch = wallHeight / courses;
+    for (let i = 0; i < courses; i++) blocks.push({ position: [c.x, wallBase + (i + .5) * pitch, c.z], size: [cell, pitch, cell], color: tone.wall });
   }
 }
 
-export function createMinecraftBebelplatzBuildingShells(): Group {
+export function createMinecraftGendarmenmarktShells(): Group {
   const root = new Group();
-  root.name = MINECRAFT_BEBELPLATZ_BUILDING_GROUP_NAME;
+  root.name = MINECRAFT_GENDARMENMARKT_GROUP_NAME;
   root.userData = { keepInMinecraft: true, blockNative: true, textureFree: true,
     surfaceOnly: true, hiddenSolidInfill: false };
   const blocks: Block[] = [];
-  BEBELPLATZ_CIVIC_SOURCES.forEach((profile, i) => {
-    for (const part of profile.parts) appendVoxelEnvelope(part, TONES[i], blocks);
+  GENDARMENMARKT_SOURCES.forEach((profile, i) => {
+    if (profile.parent_id === "DEBE01YYK000085g" || profile.parent_id === "DEBE01YYK00000sJ") return;
+    appendVoxelEnvelope(profile, TONES[i], blocks);
   });
   const geometry = new BoxGeometry(1, 1, 1);
   geometry.deleteAttribute("uv");
@@ -126,7 +136,7 @@ export function createMinecraftBebelplatzBuildingShells(): Group {
   mesh.instanceMatrix = new InstancedBufferAttribute(matrices, 16);
   mesh.instanceColor = new InstancedBufferAttribute(colors, 3);
   mesh.count = blocks.length;
-  mesh.name = "Bebelplatz source-bound wall and roof blocks";
+  mesh.name = "Gendarmenmarkt source-bound wall and roof blocks";
   mesh.userData = { dayMaterial, nightMaterial, textureFree: true, surfaceOnly: true };
   mesh.computeBoundingBox();
   mesh.computeBoundingSphere();

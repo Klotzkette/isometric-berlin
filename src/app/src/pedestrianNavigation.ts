@@ -1,3 +1,7 @@
+import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
+import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
+import { NEUE_WACHE_PRISM_IDS, NEUE_WACHE_PROFILE, NEUE_WACHE_ROOF_INDEX_RING, neueWacheRoofAt } from "./neueWacheProfile";
+import { BEHREN42_PRISM_IDS, BEHREN42_SOURCE } from "./Behren42Profile";
 import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
@@ -592,6 +596,15 @@ export function compilePedestrianObstacles(
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === ROSENGARTEN_PERGOLA_PRISM_ID) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
+    if (NEUE_WACHE_PRISM_IDS.has(building.id)) {
+      // Retain the raw OSM prism as provenance, but its former six-metre
+      // fallback slab is not a floor inside the authored hollow memorial.
+      addPolygonObstacle(index, NEUE_WACHE_ROOF_INDEX_RING, [],
+        NEUE_WACHE_PROFILE.streetY, NEUE_WACHE_PROFILE.pedimentTopY,
+        building.id, 1, (x, z) => neueWacheRoofAt(x, z, visualMode() === "minecraft"));
+      index.buildingCount += 1;
+      continue;
+    }
     if (ECONOMIC_MINISTRY_SOURCE_IDS.has(building.id)) {
       const sourceTop = (building.y0_dm + building.h_dm) / 10;
       addPolygonObstacle(index, building.ring, building.holes ?? [],
@@ -608,6 +621,39 @@ export function compilePedestrianObstacles(
         building.id, 0.1,
         (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
       index.buildingCount += 1;
+      continue;
+    }
+    const gendarmenmarkt = gendarmenmarktSourceForPrism(building.id);
+    if (gendarmenmarkt) {
+      if (!replacedParents.has(gendarmenmarkt.parent_id)) {
+        replacedParents.add(gendarmenmarkt.parent_id);
+        for (const part of gendarmenmarkt.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m + gendarmenmarkt.display_y_translation_m,
+            part.top_y_m + gendarmenmarkt.display_y_translation_m, part.id, 1,
+            (x,z) => gendarmenmarktPartRoofAt(part,x,z));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    const mitteSource = GORKI_BUILDING_PRISM_IDS.has(building.id) ? GORKI_BUILDING_SOURCE :
+      BEHREN42_PRISM_IDS.has(building.id) ? BEHREN42_SOURCE : null;
+    if (mitteSource) {
+      if (!replacedParents.has(mitteSource.parent_id)) {
+        replacedParents.add(mitteSource.parent_id);
+        const shift = "display_y_translation_m" in mitteSource ? mitteSource.display_y_translation_m : 0;
+        for (const part of mitteSource.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m + shift, part.top_y_m + shift, part.id, 1,
+            (x, z) => {
+              const y = GORKI_BUILDING_PRISM_IDS.has(building.id)
+                ? gorkiPartRoofAt(part, x, z) : bebelplatzPartRoofAt(part, x, z);
+              return y === null ? null : y + shift;
+            });
+          index.buildingCount += 1;
+        }
+      }
       continue;
     }
     const schlossNaturkunde = schlossNaturkundeSourceForPrism(building.id);

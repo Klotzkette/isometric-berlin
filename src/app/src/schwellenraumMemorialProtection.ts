@@ -1,3 +1,4 @@
+import { NEUE_WACHE_PROFILE, neueWacheSolidAt } from "./neueWacheProfile";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 import {
   BERLIN_JUNCTION_PROFILE,
@@ -28,7 +29,7 @@ const PROTECTED_MAX_Y_M = 45;
 export type SchwellenraumProtectedMemorialShape = {
   halfDepthM: number;
   halfWidthM: number;
-  kind: "box" | "circle" | "literary" | "berlin-junction";
+  kind: "box" | "circle" | "literary" | "berlin-junction" | "neue-wache";
   maxYM: number;
   minYM: number;
   name: string;
@@ -66,6 +67,14 @@ function pointRadiusM(entry: MonumentEntry): number {
 function protectionShapes(
   entry: MonumentEntry,
 ): readonly SchwellenraumProtectedMemorialShape[] {
+  if (entry.osm_key === "node/262455810" || entry.osm_key === "node/5253735916") {
+    // Quiet prop exclusion covers the hall; visitor collision follows its
+    // represented walls and sculpture, leaving the entrance genuinely open.
+    return [{halfDepthM: 24, halfWidthM: 16, kind: "neue-wache",
+      maxYM: PROTECTED_MAX_Y_M, minYM: PROTECTED_MIN_Y_M,
+      name: entry.name, osmKey: entry.osm_key, radiusM: 28,
+      x: NEUE_WACHE_PROFILE.centre[0], z: NEUE_WACHE_PROFILE.centre[1]}];
+  }
   if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) {
     // The artwork's passage is intentional. Keep the existing OSM-area
     // clearance for decorative props, but resolve visitor protection against
@@ -286,6 +295,8 @@ export function schwellenraumProtectedMemorialShapeAt(
     if (y < shape.minYM || y > shape.maxYM) continue;
     if (shape.kind === "literary") {
       if (tiergartenLiteraryMemorialProtectedAt(x, z)) return shape;
+    } else if (shape.kind === "neue-wache") {
+      if (neueWacheSolidAt(x, y, z)) return shape;
     } else if (shape.kind === "berlin-junction") {
       if (berlinJunctionSolidAt(x, y, z)) return shape;
     } else if (shape.kind === "circle") {

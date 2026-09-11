@@ -1,16 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.37 extends the retained palette to Friedrichstraße/theatre neighbours.
-// Existing source-bound Charité, theatre and Schiffbauerdamm details gain
-// 387 shallow facade pieces / 29,412 bytes in each profile, with no new draws.
-// The final integrated baseline also includes source-bound Schloss/Naturkunde,
-// Dussmann, and Spree railings, adding three core batches in each profile.
-// Independently measured synchronous buffers are compared
-// with cooperative construction, including colours and every instance capacity.
+// v1.0.38 adds the complete source-bound Mitte landmarks and open Neue Wache.
+// Independent synchronous measurements are compared with cooperative buffers;
+// existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "c70c2113f3025779ae92fc659d6ffa154898752b74af499139154ad7185d7645", 3822717, 108, 291537733],
-  ["mobile", "1bff93f7fc2a199bc7b3841f6ef120b4c40f30ebee3e4d3a049516db3dfb86a8", 1036617, 106, 79344677],
+  ["full", "8a51ef751a7fe92f6e00404ef172da20acd599a21b3bbad65e97db9888b13843", 3836019, 115, 292553581],
+  ["mobile", "df6dac58d4304233a6718eb2345189aa774011493334a2dd3912a7870027a209", 1052177, 113, 80532133],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

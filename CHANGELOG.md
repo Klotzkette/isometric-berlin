@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.38
+
+- Restore full source-bound forms for HU courtyard and street wings, Gorki Theater,
+  Neue Wache, both Gendarmenmarkt domes and churches, Konzerthaus and Behrenstraße 42.
+- Open the Neue Wache hall, central gate and oculus; show the Kollwitz mother/son
+  sculpture and retain granular walls, grilles and figure collision in every mode.
+- Clarify Bebelplatz glass, frame and empty underground bookshelves.
+- Give ordinary Mitte facades stronger retained material and storey articulation.
+- Keep detailed native Minecraft versions in shared static batches, preserve
+  mobile construction safeguards, navigation and view distance.
+
 ## v1.0.37
 
 - Build and compact the exact city cooperatively, stage shared additions until

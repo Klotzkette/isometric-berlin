@@ -107,6 +107,12 @@ function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: 
     createIsometricCity: () => { const city = model("core"); city.add(model("drawn bridge structures")); return city; },
     createSchlossNaturkundeShells: () => model("Schloss and Naturkunde shells"),
     createSchlossNaturkundeFacades: () => model("Schloss and Naturkunde facades"),
+    createGendarmenmarktShells: () => model("Gendarmenmarkt shells"),
+    createGendarmenmarktArchitecture: () => model("Gendarmenmarkt architecture"),
+    createGorkiBuilding: () => model("Gorki building"),
+    createBehren42Architecture: () => model("Behrenstrasse 42 architecture"),
+    createNeueWache: () => model("Neue Wache"),
+    createBebelplatzBuildingShells: () => model("Bebelplatz shells"),
     createProgressiveBuildingCoverage: () => model("coverage"),
     setWeidendammerBridgePresentation: () => {}, setSandkrugBridgePresentation: () => {},
     capturePedestrianAttachment: () => { savedPose = pose; return { underside: false, pose }; },
@@ -147,7 +153,7 @@ function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: 
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(9);
+  expect(h.built).toHaveLength(15);
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
   expect(h.runtime.signatures.getObjectByName("drawn bridge structures")).toBeDefined();
@@ -158,7 +164,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
 
 test("context loss cancels later allocations and frees every unpublished buffer", async () => {
   const h = host({ stopAtTask: 4 }); await h.finished;
-  expect(h.built.length).toBeGreaterThan(0); expect(h.built.length).toBeLessThan(9);
+  expect(h.built.length).toBeGreaterThan(0); expect(h.built.length).toBeLessThan(15);
   expect(h.runtime.isoWorld).toBeNull();
   expect(h.runtime.signatures.children).toEqual([h.existing, h.concurrent]);
   expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));

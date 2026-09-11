@@ -27,7 +27,8 @@ describe("Bebelplatz's source-bound empty library", () => {
       expect(chamber.userData.emptyShelfTiers).toBe(14);
       expect(chamber.boundingBox!.min.y).toBeCloseTo(root.userData.glassGroundY-P.roomHeightM-0.12,4);
       expect(root.children.length).toBe(4);
-      expect(chamber.count).toBeLessThan(100);
+      expect(chamber.count).toBe(157);
+      expect((glass.material as { opacity: number }).opacity).toBeLessThan(0.1);
       ray.set(new Vector3(x-1,8,z-1),new Vector3(1,-2.788,1).normalize());
       expect(ray.intersectObject(chamber).length).toBeGreaterThan(0);
     });

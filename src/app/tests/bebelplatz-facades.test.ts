@@ -7,6 +7,7 @@ import {
   Group,
   InstancedMesh,
   Matrix4,
+  Raycaster,
   Vector3,
 } from "three";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../src/BebelplatzFacades";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import source from "../src/bebelplatzBuildingSource.json";
+import { createBebelplatzBuildingShells } from "../src/BebelplatzBuildingShells";
 
 const ground = JSON.parse(
   readFileSync(
@@ -68,6 +70,8 @@ describe("Bebelplatz and Humboldt source-bound facades", () => {
       p.humboldt.centralAxis,
       p.humboldt.westAxis,
       p.humboldt.eastAxis,
+      ...p.humboldt.courtWingAxes,
+      ...p.humboldt.streetWingAxes,
     ]) {
       expect(source.profiles.humboldt.parts[0].ring).toContainEqual(axis.start);
       expect(source.profiles.humboldt.parts[0].ring).toContainEqual(axis.end);
@@ -93,20 +97,38 @@ describe("Bebelplatz and Humboldt source-bound facades", () => {
       blockBudget = budget(blocks);
     console.log({ smoothBudget, blockBudget });
     expect(smoothBudget.draws).toBe(4);
-    expect(smoothBudget.instances).toBeLessThan(3500);
-    expect(smoothBudget.bytes).toBeLessThan(300000);
+    expect(smoothBudget.instances).toBeLessThan(5300);
+    expect(smoothBudget.bytes).toBeLessThan(410000);
     expect(blockBudget.draws).toBe(1);
-    expect(blockBudget.instances).toBeLessThan(900);
-    expect(blockBudget.bytes).toBeLessThan(80000);
+    expect(blockBudget.instances).toBeLessThan(3000);
+    expect(blockBudget.bytes).toBeLessThan(230000);
     expect(blocks.userData.keepInMinecraft).toBeTrue();
     expect(blocks.userData.blockNative).toBeTrue();
     const bounds = new Box3().setFromObject(drawn);
     expect(bounds.min.x).toBeGreaterThan(1430);
-    expect(bounds.max.x).toBeLessThan(1555);
+    expect(bounds.max.x).toBeLessThan(1590);
     expect(bounds.min.z).toBeGreaterThan(124);
     expect(bounds.max.z).toBeLessThan(379);
     expect(bounds.min.y).toBeGreaterThan(3.4);
     expect(bounds.max.y).toBeLessThan(31.5);
+  });
+  test("court-wing glazing is visible before the measured wall from either courtyard side", () => {
+    const root = new Group();
+    root.add(createBebelplatzBuildingShells(), createBebelplatzFacades(ground));
+    root.updateMatrixWorld(true);
+    for (const axis of [
+      ...BEBELPLATZ_FACADE_PROFILES.humboldt.courtWingAxes,
+      ...BEBELPLATZ_FACADE_PROFILES.humboldt.streetWingFronts.filter((p) => p.risalit).map((p) => p.axis),
+    ]) {
+      const dx = axis.end[0] - axis.start[0], dz = axis.end[1] - axis.start[1], l = Math.hypot(dx, dz);
+      const nx = dz * axis.side / l, nz = -dx * axis.side / l;
+      const x = (axis.start[0] + axis.end[0]) / 2, z = (axis.start[1] + axis.end[1]) / 2;
+      const ray = new Raycaster(new Vector3(x + nx * 10, 14.4, z + nz * 10), new Vector3(-nx, 0, -nz));
+      const hit = ray.intersectObject(root, true)[0];
+      expect(hit).toBeDefined();
+      expect(hit.object.name).toContain("source-bound facades");
+      expect(hit.distance).toBeLessThan(9.8);
+    }
   });
   test("keeps the street gateway centre and court approach visibly open", () => {
     const root = createBebelplatzFacades(ground),

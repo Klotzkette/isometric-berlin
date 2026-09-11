@@ -175,6 +175,11 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(monuments.userData.externallyModelledSourceKeys).toContain(
       WAGNER_MEMORIAL_PROFILE.osmKey,
     );
+    // v1.0.38 owns these source identities in the source-bound Schiller
+    // and hollow Neue Wache models; no generic duplicate belongs here.
+    for (const osmKey of ["node/262457570", "node/262455810", "node/5253735916"]) {
+      expect(monuments.userData.externallyModelledSourceKeys).toContain(osmKey);
+    }
     expect(KROLLOPER_SCULPTURE_OSM_KEYS.size).toBe(20);
     const mappedKrolloperKeys = street.monuments!
       .map((entry) => entry.osm_key)
@@ -365,6 +370,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     for (const entry of street.monuments!.filter(
       (candidate) =>
         candidate.kind === "artwork" &&
+        !["node/262457570", "node/262455810", "node/5253735916"].includes(candidate.osm_key) &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
         !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
         !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership

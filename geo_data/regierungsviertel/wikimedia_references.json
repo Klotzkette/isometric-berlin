@@ -4412,6 +4412,78 @@
       "description": "Protected south facade, round arches, central column order, attic and entrance figures; photograph dated 7 April 2010, not a current construction-status survey; external visual QA only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "neue_wache",
+      "title": "File:150214 Neue Wache Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:150214_Neue_Wache_Berlin.jpg",
+      "license": "CC BY 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/de/deed.en",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY 3.0 de",
+      "description": "Doric six-column front, projecting corner piers, shallow pediment and three gated openings; photo 14 February 2015. External visual reference only; no photograph or texture bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neue_wache",
+      "title": "File:B Neue Wache interior 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:B_Neue_Wache_interior_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Daniel Schwen",
+      "credit": "Daniel Schwen / CC BY-SA 4.0",
+      "description": "Tessenow hall, pale ashlar, three openings and open oculus; photo 27 August 2007. External visual reference only; no photograph or texture bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neue_wache",
+      "title": "File:Käthe Kollwitz, Pieta.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Käthe_Kollwitz,_Pieta.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "World3000",
+      "credit": "World3000 / CC BY-SA 3.0",
+      "description": "Kollwitz Mother with her Dead Son: seated hooded mother encloses the folded adult body; photo 9 February 2013. External visual reference only; no photograph or texture bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldt_carre",
+      "title": "File:Berlin, Mitte, Behrenstraße, Humboldt-Carré.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Behrenstraße,_Humboldt-Carré.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "description": "South and west sandstone facades, historic round arches, rusticated ground storey and two glazed modern upper storeys; dated 27 July 2009. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldt_carre",
+      "title": "File:Humboldt Carré, Hengeler Mueller Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Humboldt_Carré,_Hengeler_Mueller_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Max Christophel / Project Motion",
+      "credit": "Max Christophel / Project Motion / CC BY-SA 4.0",
+      "description": "Hengeler Mueller office facade photograph, supplied through the firm and licensed with VRT ticket2025062510005042; dated13 June2025. Sandstone arch, recessed window and dentil cornice detail; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "maxim_gorki_theater",
+      "title": "File:Berlin, Mitte, Maxim-Gorki-Theater 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Maxim-Gorki-Theater_02.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel (Beek100)",
+      "credit": "Jörg Zägel (Beek100) / CC BY-SA 3.0",
+      "description": "13 June 2009 south and west front: three wooden portals, fluted pilasters, pale stone, framed blind panels, pediment and theatre inscription. Historical form reference, not current event-banner or construction evidence. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

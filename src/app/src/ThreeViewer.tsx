@@ -1,3 +1,9 @@
+import { createGendarmenmarktShells } from "./GendarmenmarktShells";
+import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
+import { createGorkiBuilding } from "./GorkiBuilding";
+import { createBehren42Architecture } from "./Behren42Architecture";
+import { createNeueWache } from "./NeueWache";
+import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
@@ -3377,7 +3383,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3397,6 +3403,7 @@ function ensureIsoWorld(
           if (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
+            neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
@@ -3430,6 +3437,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
+          if (wacheFloor !== null) return wacheFloor;
           const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
           if (promenade !== null) return promenade;
           const parkLawn = spreebogenLawnGroundAt(x,z);
@@ -3560,8 +3569,20 @@ function ensureIsoWorld(
         );
         provisionalIsoWorld = isoWorld;
         yield* compactStaticGeometrySteps(isoWorld);
+        isoWorld.add(createGendarmenmarktShells());
+        yield;
+        isoWorld.add(createGendarmenmarktArchitecture());
+        yield;
+        isoWorld.add(createGorkiBuilding());
+        yield;
+        isoWorld.add(createBehren42Architecture());
+        yield;
+        isoWorld.add(createNeueWache());
+        yield;
         isoWorld.add(createSchlossNaturkundeShells());
         isoWorld.add(createSchlossNaturkundeFacades());
+        yield;
+        isoWorld.add(createBebelplatzBuildingShells());
         yield;
         if (ground) {
           isoWorld.add(createDistrictStreets(ground));
@@ -3571,7 +3592,6 @@ function ensureIsoWorld(
           isoWorld.add(createRosengarten());
           yield;
           isoWorld.add(createBebelplatzMemorial(ground));
-          isoWorld.add(createBebelplatzBuildingShells());
           isoWorld.add(createBebelplatzFacades(ground));
           yield;
           isoWorld.add(createHedwigCathedral(ground));
@@ -3986,6 +4006,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
+          neueWacheWalkableAt(x,y,z,sourceId) ||
           musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
           sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
@@ -3996,6 +4017,7 @@ function ensureVoxelWorld(
           return (
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
+            neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
             tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
@@ -4014,6 +4036,7 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          neueWacheGroundAt(x,z,currentGroundY) ??
           spreebogenWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
           spreebogenLawnGroundAt(x,z) ??
           domAltesExtraGroundAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??

@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import { BERLIN_JUNCTION_PROFILE } from "../src/BerlinJunction";
+import { NEUE_WACHE_PROFILE, neueWacheWorld } from "../src/neueWacheProfile";
 import {
   CSD_ATTACK_MEMORIAL_OSM_KEY,
   CSD_ATTACK_MEMORIAL_PROFILE,
@@ -41,6 +42,9 @@ describe("data-driven Schwellenraum memorial protection", () => {
       // Serra's centre belongs to the intentional passage. Its two steel
       // surfaces are covered by berlin-junction-pedestrian-access.test.ts.
       if (entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey) continue;
+      // The hall's nominal memorial point is a passage, while the sculpture
+      // is on its actual raised floor. Their exact protection is checked below.
+      if (["node/262455810","node/5253735916"].includes(entry.osm_key)) continue;
       expect(
         schwellenraumProtectedMemorialAt(
           index,
@@ -51,6 +55,16 @@ describe("data-driven Schwellenraum memorial protection", () => {
         entry.osm_key,
       ).toBeTrue();
     }
+  });
+
+  test("keeps Neue Wache quiet without closing its real door or open hall",()=>{
+    for(const [u,v] of [[-.43,13.37],[-.43,8],[2.2,0]]) {
+      const [x,z]=neueWacheWorld(u,v);
+      expect(schwellenraumProtectedMemorialAt(index,x,NEUE_WACHE_PROFILE.floorY+1,z)).toBeFalse();
+      expect(schwellenraumProtectedMemorialClearanceM(index,x,z)).toBe(0);
+    }
+    const [x,z]=neueWacheWorld(0,0);
+    expect(schwellenraumProtectedMemorialAt(index,x,NEUE_WACHE_PROFILE.floorY+1,z)).toBeTrue();
   });
 
   test("reports exact horizontal clearance for presentation safety", () => {

@@ -27,7 +27,7 @@ export function createBebelplatzMemorial(ground: VoxelPayload, minecraft = false
   const half = P.roomWidthM / 2;
   const floor = top - P.roomHeightM;
   const ceiling = top - 0.16;
-  box(0, floor - 0.06, 0, P.roomWidthM + 0.16, 0.12, P.roomWidthM + 0.16, 0xc8cecb);
+  box(0, floor - 0.06, 0, P.roomWidthM + 0.16, 0.12, P.roomWidthM + 0.16, 0xe2e6de);
   // Solid white plaster rear walls and projecting empty shelves; there are no books.
   for (const side of [-1, 1]) {
     box(side * (half + 0.08), (floor + ceiling) / 2, 0, 0.16, ceiling - floor, P.roomWidthM + 0.16, side < 0 ? 0xb3bdb9 : 0xc1c9c3);
@@ -36,6 +36,11 @@ export function createBebelplatzMemorial(ground: VoxelPayload, minecraft = false
       const y = floor + 0.12 + level * (P.roomHeightM - 0.38) / P.shelfTiers;
       box(side * (half - 0.12), y, 0, 0.24, 0.055, P.roomWidthM, 0xf2f2e9);
       box(0, y, side * (half - 0.12), P.roomWidthM - 0.48, 0.055, 0.24, 0xe9ede5);
+      // Real shelf depth stays legible through the small pane without filling
+      // it with books or replacing the chamber with a texture. The dark lip is
+      // a bounded baked underside cue for the otherwise unlit Basic material.
+      box(side * (half - 0.122), y - 0.052, 0, 0.244, 0.048, P.roomWidthM, 0x939f9a);
+      box(0, y - 0.052, side * (half - 0.122), P.roomWidthM - 0.48, 0.048, 0.244, 0x939f9a);
     }
     for (let bay = 0; bay <= 7; bay++) {
       const u = -half + 0.1 + bay * (P.roomWidthM - 0.2) / 7;
@@ -47,6 +52,14 @@ export function createBebelplatzMemorial(ground: VoxelPayload, minecraft = false
   box(0, floor + 1.12, -half + 0.48, 0.88, 2.12, 0.045, 0xd2dbd6);
   for (const side of [-1, 1]) box(side * 0.48, floor + 1.12, -half + 0.52, 0.05, 2.22, 0.08, 0xf2f2e9);
   box(0, floor + 2.24, -half + 0.52, 1.01, 0.06, 0.08, 0xf2f2e9);
+  // Recessed pale reveal immediately below the glass, outside its clear
+  // opening. A finite thickness makes the sealed ground aperture readable.
+  for (const side of [-1, 1]) {
+    box(side * (P.glassWidthM / 2 + 0.045), top - 0.08, 0,
+      0.09, 0.16, P.glassWidthM + 0.18, 0xdbe1db);
+    box(0, top - 0.08, side * (P.glassWidthM / 2 + 0.045),
+      P.glassWidthM, 0.16, 0.09, 0xdbe1db);
+  }
 
   const mesh = new InstancedMesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0xffffff }), blocks.length);
   mesh.name = "Bebelplatz illuminated empty shelves and chamber";
@@ -90,6 +103,8 @@ export function createBebelplatzMemorial(ground: VoxelPayload, minecraft = false
     frame(side * (a + 0.004), 0, 0.012, P.glassWidthM, 0xb8cfca);
     frame(0, side * (a + 0.004), P.glassWidthM, 0.012, 0xb8cfca);
   }
+  for (const sx of [-1, 1]) for (const sz of [-1, 1])
+    frame(sx * (a + 0.036), sz * (a + 0.036), 0.026, 0.026, 0xd3dbd6, top + 0.034);
   // The two separately mapped bronze plaques stay at their original OSM anchors.
   const details = new InstancedMesh(new BoxGeometry(1,1,1), new MeshBasicMaterial({color:0xffffff}),trim.length);
   details.name = "Bebelplatz flush steel glass frame";
@@ -100,7 +115,7 @@ export function createBebelplatzMemorial(ground: VoxelPayload, minecraft = false
   root.add(details);
   const glassGeometry = new PlaneGeometry(P.glassWidthM, P.glassWidthM);
   glassGeometry.rotateX(-Math.PI / 2); glassGeometry.rotateY(rotation);
-  const glassMaterial = new MeshBasicMaterial({ color: 0xb8d8dd, transparent: true, opacity: 0.15, depthWrite: false, side: DoubleSide });
+  const glassMaterial = new MeshBasicMaterial({ color: 0xc7dfe0, transparent: true, opacity: 0.085, depthWrite: false, side: DoubleSide });
   const glass = new Mesh(glassGeometry, glassMaterial);
   glass.name = "Bebelplatz transparent walkable glass pane";
   glass.position.set(cx, top + 0.021, cz); glass.renderOrder = 3;

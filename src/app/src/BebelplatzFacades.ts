@@ -72,6 +72,22 @@ export const BEBELPLATZ_FACADE_PROFILES = {
     mainBayCount: 17,
     centralBayCount: 5,
     centralColumnCount: 6,
+    courtWingAxes: [
+      { start: [1469.323, 133.647], end: [1473.188, 181.393], side: 1 },
+      { start: [1546.027, 126.986], end: [1550.169, 174.708], side: -1 },
+    ] as Axis[],
+    streetWingAxes: [
+      { start: [1436.287, 184.596], end: [1473.188, 181.393], side: -1 },
+      { start: [1550.169, 174.708], end: [1587.11, 171.501], side: -1 },
+    ] as Axis[],
+    streetWingFronts: [
+      { axis: { start: [1436.287, 184.596], end: [1446.08, 183.746], side: -1 } as Axis, bays: 2, risalit: false },
+      { axis: { start: [1446.276, 184.492], end: [1463.322, 183.022], side: -1 } as Axis, bays: 3, risalit: true },
+      { axis: { start: [1463.395, 182.243], end: [1473.188, 181.393], side: -1 } as Axis, bays: 2, risalit: false },
+      { axis: { start: [1550.169, 174.708], end: [1559.982, 173.856], side: -1 } as Axis, bays: 2, risalit: false },
+      { axis: { start: [1560.177, 174.602], end: [1577.213, 173.123], side: -1 } as Axis, bays: 3, risalit: true },
+      { axis: { start: [1577.277, 172.354], end: [1587.11, 171.501], side: -1 } as Axis, bays: 2, risalit: false },
+    ],
   },
   hotel: {
     osmKey: "node/1598987141",
@@ -155,6 +171,17 @@ class Builder {
     size: Point,
     color: number,
   ): void {
+    if (this.minecraft) {
+      const dx = Math.abs(axis.end[0] - axis.start[0]) / length(axis),
+        dz = Math.abs(axis.end[1] - axis.start[1]) / length(axis);
+      const n = size[0] > 2.5 && size[0] > size[2] * 2 ? Math.ceil(size[0] / 1.4) : 1;
+      for (let i = 0; i < n; i++) {
+        const w = size[0] / n;
+        this.add("box", point(axis, u - size[0] / 2 + (i + 0.5) * w, y, out),
+          [w * dx + size[2] * dz, size[1], w * dz + size[2] * dx], color);
+      }
+      return;
+    }
     this.add(
       "box",
       point(axis, u, y, out),
@@ -461,6 +488,39 @@ function humboldt(
   }
   b.box(axis, l / 2, 25.12, 0.36, [l + 0.8, 1.05, 0.72], STONE);
   inscription(b, axis, "HUMBOLDT UNIVERSITAET", l / 2, 24.85, 0.76, 0.5, GOLD);
+  // The open three-wing palace must read from an oblique camera, not only
+  // straight on: exact LoD2 courtyard returns and the two Linden end fronts.
+  for (const [wing, n, endFront] of [
+    ...p.courtWingAxes.map((a) => [a, 9, false] as const),
+    ...p.streetWingFronts.map((p) => [p.axis, p.bays, p.risalit] as const),
+  ]) {
+    const span = length(wing);
+    for (let i = 0; i < n; i++) {
+      const u = (i + 0.5) * span / n;
+      window(b, wing, u, 7.45, 1.9, 3.6, 0.45);
+      window(b, wing, u, 14.4, 2.15, 4.7, 0.45, true);
+      window(b, wing, u, 20.25, 2.15, 2.5, 0.45);
+      if (!b.minecraft && endFront) {
+        b.add("head", point(wing, u, 17.9, 0.72), [0.45, 0.55, 0.34], LIGHT);
+        for (const side of [-1, 1])
+          b.arch(wing, u + side * 0.8, 17.0, 0.7, 1.0, -0.3, 0.1, SHADOW);
+      }
+    }
+    for (const y of [5.75, 10.3, 24.15, 24.75])
+      b.box(wing, span / 2, y, 0.45, [span, 0.28, 0.58], LIGHT);
+    balustrade(b, wing, 25.07, 0.43);
+    if (endFront) {
+      // LDA identifies flattened pilaster orders on the wing end risalits.
+      for (let i = 0; i < 4; i++) {
+        const u = 0.3 + (span - 0.6) * i / 3;
+        b.box(wing, u, 17.05, 0.62, [0.86, 13.1, 0.34], STONE);
+        b.box(wing, u, 23.66, 0.69, [1.25, 0.5, 0.55], LIGHT);
+      }
+      for (const u of [1.35, span - 1.35]) statue(b, wing, u, 26.12, 0.45, 1.85);
+    }
+    if (!b.minecraft) for (let row = 0; row < 9; row++)
+      b.box(wing, span / 2, base + 0.45 + row * 0.49, 0.48, [span, 0.045, 0.045], SHADOW);
+  }
   // The central portal: dark paired doors, shallow stone reveals and clear steps.
   window(b, axis, l / 2, 7.5, 3.5, 4.6, 0.53, true);
   b.box(axis, l / 2, 6.75, 0.69, [0.13, 3.0, 0.1], GOLD);
