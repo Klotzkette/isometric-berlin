@@ -9,6 +9,7 @@ import {
   type ProgressiveWorldWorkerOutput,
 } from "../src/progressiveWorld";
 import { BuildingDetailWorker } from "../src/buildingDetailWorker";
+import { PackedBuildingDistrictStore } from "../src/packedBuildingDistrictStore";
 import {
   MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
 } from "../src/buildingDetailStreaming";
@@ -62,7 +63,7 @@ function workerHost() {
   };
   const bindings = {
     Group, performance, setTimeout,
-    DESKTOP_TOTAL_BUILDING_LIMIT, MOBILE_DETAIL_BATCH_SIZE, BuildingDetailWorker,
+    DESKTOP_TOTAL_BUILDING_LIMIT, MOBILE_DETAIL_BATCH_SIZE, BuildingDetailWorker, PackedBuildingDistrictStore,
     buildingDetailDistricts, selectBuildingDetailDistricts,
     splitProgressiveBuildings, splitParkSurfaceFamily, surfaceFamilyPayload,
     serializeObject3DForTransfer, attachedBatchResolvers, attachedBatchPromises,

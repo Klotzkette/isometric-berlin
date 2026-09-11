@@ -35,9 +35,10 @@ const KERB_HALF_WIDTH_M = 0.11;
 
 export function districtStreetTerrainSampler(ground: VoxelPayload): (x: number, z: number) => number {
   const sample = smoothGroundTopSampler(ground);
+  const { cell_m: cell, grid: { min_x_idx: minX, min_z_idx: minZ } } = ground;
   return (x, z) => sample(
-    x / ground.cell_m - ground.grid.min_x_idx,
-    z / ground.cell_m - ground.grid.min_z_idx,
+    x / cell - minX,
+    z / cell - minZ,
   );
 }
 

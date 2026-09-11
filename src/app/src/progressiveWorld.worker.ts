@@ -18,6 +18,7 @@ import {
   type ProgressiveWorldWorkerOutput,
 } from "./progressiveWorld";
 import { BuildingDetailWorker } from "./buildingDetailWorker";
+import { PackedBuildingDistrictStore } from "./packedBuildingDistrictStore";
 import {
   MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
 } from "./buildingDetailStreaming";
@@ -173,20 +174,19 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     );
     prisms.buildings = [];
     partition.initial.length = 0;
-    const batches = new Map(partition.remaining.map((buildings, index) => [
-      `buildings-${index + 1}`, buildings,
-    ]));
     const defaultWanted = selectBuildingDetailDistricts(
       buildingDetailDistricts(partition.remaining), [317.729, 40.477],
     );
+    const batches = new PackedBuildingDistrictStore(partition.remaining);
+    await yieldWorker();
     mobileDetailWorker = new BuildingDetailWorker({
       build: async (id) => {
-        const buildings = batches.get(id);
-        if (!buildings) throw new Error(`Unknown building district ${id}`);
         const startedAt = performance.now();
+        const buildings = batches.read(id);
         const root = createIsometricCity(prisms, null, null, null, {
           buildings, includeContext: false, smoothSurfaces: null,
         });
+        buildings.length = 0;
         await postBatch(root, "buildings", id, startedAt,
           id.replace("buildings-", "buildings-preview-"));
         // One small in-flight district, with a message turn before the next

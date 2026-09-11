@@ -1,3 +1,4 @@
+import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
 import { createBebelplatzMemorial } from "./BebelplatzMemorial";
 import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
@@ -1174,15 +1175,12 @@ function* createGroundSlabsSteps(
   const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
   const groundTopY = groundTopSampler(payload);
   const skippedClasses = new Set(options?.skipClasses ?? []);
-  const visibleRuns: Array<{
-    classId: number;
-    run: number;
-    xStart: number;
-    zOffset: number;
-    topY?: number;
-    shadeXStart?: number;
-    shadeRun?: number;
-  }> = [];
+  // Grading keeps the original shared records; ordinary ground has no object list.
+  const visibleRuns = options?.terrainOverride ? [] as GroundRun[] : new GroundRunBuffer();
+  const appendRun = (classId: number, run: number, xStart: number, zOffset: number): void => {
+    if (visibleRuns instanceof GroundRunBuffer) visibleRuns.push(classId, run, xStart, zOffset);
+    else visibleRuns.push({ classId, run, xStart, zOffset });
+  };
   let skippedByWorldPredicateCells = 0;
   let skippedBridgeCells = 0;
   for (let zOffset = 0; zOffset < payload.ground_rows.length; zOffset += 1) {
@@ -1203,7 +1201,7 @@ function* createGroundSlabsSteps(
       const skipBridgeAtWorld =
         className === "bridge" ? options?.skipBridgeAtWorld : undefined;
       if (!options?.skipAtWorld && !skipBridgeAtWorld) {
-        visibleRuns.push({ classId, run, xStart, zOffset });
+        appendRun(classId, run, xStart, zOffset);
         continue;
       }
       let visibleStart = -1;
@@ -1221,34 +1219,26 @@ function* createGroundSlabsSteps(
           if (hiddenByWorld) skippedByWorldPredicateCells += 1;
           if (hiddenBridge) skippedBridgeCells += 1;
           if (visibleStart >= 0) {
-            visibleRuns.push({
-              classId,
-              run: xOffset - visibleStart,
-              xStart: visibleStart,
-              zOffset,
-            });
+            appendRun(classId, xOffset - visibleStart, visibleStart, zOffset);
             visibleStart = -1;
           }
         }
       }
       if (visibleStart >= 0) {
-        visibleRuns.push({
-          classId,
-          run: xStart + run - visibleStart,
-          xStart: visibleStart,
-          zOffset,
-        });
+        appendRun(classId, xStart + run - visibleStart, visibleStart, zOffset);
       }
     }
   }
   // Only split runs touching the authored bank. In particular, never grade
   // water or change the sampling/colour of a run outside this bounded repair.
-  const gradedRuns: typeof visibleRuns = [];
   const override = options?.terrainOverride;
+  const gradedRuns: Array<{ classId: number; run: number; xStart: number;
+    zOffset: number; topY?: number; shadeXStart?: number; shadeRun?: number }> = [];
   let gradedCells = 0;
-  for (let index = 0; index < visibleRuns.length; index++) {
-    if (index % 512 === 0) yield;
-    const entry = visibleRuns[index];
+  let gradedIndex = 0;
+  // Ordinary city ground needs no second list of the same runs.
+  for (const entry of Array.isArray(visibleRuns) ? visibleRuns : []) {
+    if (gradedIndex++ % 512 === 0) yield;
     const { classId, xStart, run, zOffset } = entry;
     const className = payload.classes[classId];
     const z = worldZAbs(min_z_idx + zOffset);
@@ -1275,7 +1265,8 @@ function* createGroundSlabsSteps(
     if (ungradedStart === xStart) gradedRuns.push(entry);
     else if (ungradedStart < xStart + run) gradedRuns.push({ ...entry, ...originalShade, xStart: ungradedStart, run: xStart + run - ungradedStart, topY: originalTop });
   }
-  const ground = instancedBoxes(name, gradedRuns.length, options?.emissive);
+  const finalRuns: GroundRunBuffer | typeof gradedRuns = override ? gradedRuns : visibleRuns;
+  const ground = instancedBoxes(name, finalRuns.length, options?.emissive, true);
   ground.mesh.userData.gradedPromenadeCells = gradedCells;
   ground.mesh.userData.skippedByWorldPredicateCells =
     skippedByWorldPredicateCells;
@@ -1283,7 +1274,8 @@ function* createGroundSlabsSteps(
   const center = new Vector3();
   const size = new Vector3();
   const shade = new Color();
-  for (const { classId, run, xStart, zOffset, topY: overriddenTop, shadeXStart, shadeRun } of gradedRuns) {
+  const writeRun = (classId: number, run: number, xStart: number, zOffset: number,
+    overriddenTop?: number, shadeXStart?: number, shadeRun?: number): void => {
     const className = payload.classes[classId] ?? "grass";
     const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
     const topY =
@@ -1302,6 +1294,11 @@ function* createGroundSlabsSteps(
     );
     size.set(run * cell, slabHeight, cell);
     ground.write(center, size, shadeFor(shades, shadeXStart ?? xStart, zOffset, shadeRun ?? run, shade));
+  };
+  if (finalRuns instanceof GroundRunBuffer) finalRuns.forEach(writeRun);
+  else for (const entry of finalRuns) {
+    writeRun(entry.classId, entry.run, entry.xStart, entry.zOffset,
+      entry.topY, entry.shadeXStart, entry.shadeRun);
   }
   return ground.mesh;
 }

@@ -3444,6 +3444,7 @@ function ensureIsoWorld(
           return schwellenraumInteriorGroundAt(x, z, hint);
         };
         const terrainSample = smoothGroundTopSampler(ground);
+        const { cell_m: terrainCell, grid: { min_x_idx: terrainMinX, min_z_idx: terrainMinZ } } = ground;
         const unterDenLindenMedianSamples =
           deriveUnterDenLindenMedianSamples(surfaces);
         runtime.schwellenraumWorldDetailsInstaller = () => {
@@ -3456,8 +3457,8 @@ function ensureIsoWorld(
             unterDenLindenMedianSamples,
             (x, z) =>
               terrainSample(
-                x / ground.cell_m - ground.grid.min_x_idx,
-                z / ground.cell_m - ground.grid.min_z_idx,
+                x / terrainCell - terrainMinX,
+                z / terrainCell - terrainMinZ,
               ),
           );
           if (

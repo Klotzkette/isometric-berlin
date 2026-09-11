@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.33
+
+- Keep mobile building districts in a lossless compact source store; decode only
+  the requested district and release it after construction.
+- Replace per-run ground object lists with bounded double-precision chunks and
+  avoid a second list when terrain grading is unnecessary.
+- Release unrelated ground source data from persistent terrain-sampling closures.
+- Preserve all geometry, colour buffers, coverage, draw distance and movement.
+
 ## v1.0.32
 
 - Stop frames, GPU warmup, pending downloads and progressive worker work as soon
