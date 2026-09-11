@@ -8,20 +8,21 @@ export const SOVIET_MEMORIAL_SOURCE = {
   // Angle of the exact pair of source tank nodes, also confirmed by DOP2025.
   rotationY: 0.08223736774175701,
   groundY: 4.79,
+  // DOP2025 and owner correction: hulls and tubes face the street (+local z).
   tanks: [
     {
       side: "west",
       number: "200",
       osmKey: "node/489762789",
       worldXZ: [-7.91679659905, 307.389059542] as const,
-      yaw: Math.PI / 2,
+      yaw: Math.PI,
     },
     {
       side: "east",
       number: "300",
       osmKey: "node/489764929",
       worldXZ: [69.8889564662, 300.97605561] as const,
-      yaw: -Math.PI / 2,
+      yaw: Math.PI,
     },
   ] as const,
   guns: [
@@ -46,7 +47,7 @@ export const SOVIET_MEMORIAL_SOURCE = {
     [11.8, -1.25],
     [18.2, 1.4],
   ] as const,
-  tankPlinthM: [8.1, 1.35, 4.8] as const,
+  tankPlinthM: [4.8, 1.35, 8.1] as const,
   gunPlinthM: [10.5, 1.15, 8.5] as const,
   sources: [
     "https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/friedhoefe-und-begraebnisstaetten/sowjetische-ehrenmale/tiergarten/",
@@ -189,7 +190,7 @@ export function sovietMemorialSolidAt(
     lx < -46 - radius ||
     lx > 46 + radius ||
     lz < -25 - radius ||
-    lz > 54 + radius
+    lz > 55 + radius
   )
     return false;
   const box = (
@@ -209,7 +210,7 @@ export function sovietMemorialSolidAt(
     if (box(px, pz, Math.abs(px) > 18 ? 2.7 : 2.35, 2.82, 0, 8.1)) return true;
   for (const tank of SOVIET_MEMORIAL_SOURCE.tanks) {
     const [tx, tz] = sovietMemorialLocalXZ(tank.worldXZ[0], tank.worldXZ[1]);
-    if (box(tx, tz, 8.1, 4.8, 0, 1.53) || box(tx, tz, 6.2, 3.2, 1.53, 4.25))
+    if (box(tx, tz, 4.8, 8.1, 0, 1.53) || box(tx, tz, 3.2, 6.2, 1.53, 4.25))
       return true;
   }
   for (const gun of SOVIET_MEMORIAL_SOURCE.guns) {

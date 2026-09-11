@@ -828,13 +828,13 @@ function addTank(
   x: number,
   z: number,
   lift = 0,
+  yaw = Math.PI,
 ): void {
   const vehicle = new Group();
   vehicle.name = `${name} vehicle`;
   vehicle.position.set(x, 0, z);
-  // Both preserved tanks stand parallel to the Strasse des 17. Juni and face
-  // outward along it, rather than aiming through the memorial forecourt.
-  vehicle.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2;
+  // Both vehicles and barrels face the street normal in the shared site plan.
+  vehicle.rotation.y = yaw;
   group.add(vehicle);
   vehicle.scale.set(0.83, 0.84, 1);
   // Restored display finish: pale Soviet olive, not the near-black green that
@@ -1004,8 +1004,19 @@ function addTank(
     new Vector3(0, 2.38 + lift, -1.38),
     new Vector3(0, 2.45 + lift, -3.95),
     0.14,
-    dark,
+    armor,
   );
+  // Photo-bound mantlet shield and dark bore within the olive barrel rim.
+  addEdges(vehicle, addBox(vehicle, `${name} mantlet shield`,
+    [0.78, 0.64, 0.14], [0, 2.38 + lift, -1.48], armor));
+  const muzzle = addMesh(vehicle, `${name} dark muzzle bore`,
+    new CylinderGeometry(0.102, 0.102, 0.012, 12), dark, [0, 2.4503 + lift, -3.961]);
+  muzzle.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(0, 0.07, -2.57).normalize());
+  const mantletBolts: InstanceTransform[] = [];
+  for (const side of [-1, 1]) for (const row of [-1, 0, 1]) {
+    mantletBolts.push({ position: [side * 0.29, 2.38 + lift + row * 0.23, -1.57] });
+  }
+  addInstances(vehicle, `${name} six mantlet fasteners`, new BoxGeometry(0.06, 0.06, 0.04), dark, mantletBolts);
   for (const side of [-1, 1]) {
     addMesh(
       vehicle,
@@ -1704,9 +1715,9 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
     const plinth=addBox(group,"Soviet memorial T-34 plinth",[...SOVIET_MEMORIAL_SOURCE.tankPlinthM],[x,0.675,z],stoneDark);
     plinth.userData.osmKey=tank.osmKey;
     addEdges(group,plinth);
-    addBox(group,"Soviet memorial T-34 stepped plinth cap",[7.6,0.18,4.3],[x,1.44,z],stone);
-    addTank(group,`Soviet memorial T-34 ${tank.side}`,x,z,1.53);
-    for(let row=0;row<3;row+=1)addBox(group,"Soviet memorial tank plinth granite courses",[8.12,0.025,4.82],[x,0.25+row*0.45,z],stoneJoint);
+    addBox(group,"Soviet memorial T-34 stepped plinth cap",[4.3,0.18,7.6],[x,1.44,z],stone);
+    addTank(group,`Soviet memorial T-34 ${tank.side}`,x,z,1.53,tank.yaw);
+    for(let row=0;row<3;row+=1)addBox(group,"Soviet memorial tank plinth granite courses",[4.82,0.025,8.12],[x,0.25+row*0.45,z],stoneJoint);
   }
   for(const gun of SOVIET_MEMORIAL_SOURCE.guns) {
     const [x,z]=sovietMemorialLocalXZ(gun.worldXZ[0],gun.worldXZ[1]);

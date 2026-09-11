@@ -1,3 +1,4 @@
+import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
@@ -3545,8 +3546,10 @@ function ensureIsoWorld(
             runtime.coarsePointer || progressiveInput ? null : undefined,
         },
       );
+      provisionalIsoWorld = isoWorld;
       if (ground) {
         isoWorld.add(createDistrictStreets(ground));
+        isoWorld.add(createRosengarten());
         isoWorld.add(createBebelplatzMemorial(ground));
         isoWorld.add(createBebelplatzBuildingShells());
         isoWorld.add(createBebelplatzFacades(ground));
@@ -3565,7 +3568,6 @@ function ensureIsoWorld(
       const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
       isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
       isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
-      provisionalIsoWorld = isoWorld;
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
       // Gustav-Heinemann and Sandkrug retain their real proportions in the
@@ -3949,6 +3951,7 @@ function ensureVoxelWorld(
           payload, runtime.coarsePointer ? "mobile" : "full",
         );
       }
+      provisionalVoxelWorld.add(createRosengartenMinecraft());
       runtime.voxelWorld = provisionalVoxelWorld;
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;

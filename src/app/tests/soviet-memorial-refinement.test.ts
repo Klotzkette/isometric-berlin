@@ -52,6 +52,39 @@ const localRay = (x: number, y: number, fromZ: number, toZ: number) => {
 };
 
 describe("Soviet memorial source-resolved site and vehicles", () => {
+  test("Minecraft tubes face the street and the rotated plinths have matching collision", () => {
+    for (const profile of ["full", "mobile"] as const) {
+      const root = createMinecraftSovietMemorial(profile);
+      root.updateMatrixWorld(true);
+      const batch = root.children[0] as InstancedMesh;
+      const matrix = new Matrix4(), size = new Vector3(), point = new Vector3();
+      let barrels = 0;
+      for (let i = 0; i < batch.count; i++) {
+        batch.getMatrixAt(i, matrix);
+        size.setFromMatrixScale(matrix);
+        if (Math.abs(size.x - 0.16) > 1e-5 || Math.abs(size.z - 2.75) > 1e-5) continue;
+        barrels++;
+        point.setFromMatrixPosition(matrix.multiplyMatrices(batch.matrixWorld, matrix));
+        const tank = source.tanks.reduce((nearest, candidate) =>
+          Math.hypot(point.x-candidate.worldXZ[0], point.z-candidate.worldXZ[1]) <
+          Math.hypot(point.x-nearest.worldXZ[0], point.z-nearest.worldXZ[1]) ? candidate : nearest);
+        const [tx, tz] = sovietMemorialLocalXZ(...tank.worldXZ);
+        const [bx, bz] = sovietMemorialLocalXZ(point.x, point.z);
+        expect(bx).toBeCloseTo(tx, 4);
+        expect(bz - tz).toBeCloseTo(2.76, 4);
+      }
+      expect(barrels).toBe(2);
+    }
+    for (const tank of source.tanks) {
+      const [tx, tz] = sovietMemorialLocalXZ(...tank.worldXZ);
+      for (const side of [-1, 1]) {
+        const [frontX, frontZ] = sovietMemorialWorldXZ(tx, tz + side * 3.9);
+        const [sideX, sideZ] = sovietMemorialWorldXZ(tx + side * 3, tz);
+        expect(sovietMemorialSolidAt(frontX, source.groundY + 0.6, frontZ)).toBeTrue();
+        expect(sovietMemorialSolidAt(sideX, source.groundY + 0.6, sideZ)).toBeFalse();
+      }
+    }
+  });
   test("places the soldier and four vehicles at their own exact committed OSM coordinates", () => {
     const root = drawn();
     root.updateMatrixWorld(true);
@@ -70,9 +103,12 @@ describe("Soviet memorial source-resolved site and vehicles", () => {
       const point = root
         .getObjectByName(`Soviet memorial T-34 ${tank.side} 76 mm barrel`)!
         .getWorldPosition(new Vector3());
-      expect(
-        (point.x - position.x) * (tank.side === "west" ? -1 : 1),
-      ).toBeGreaterThan(2);
+      const streetAxis = new Vector3(source.tanks[1].worldXZ[0] - source.tanks[0].worldXZ[0], 0,
+        source.tanks[1].worldXZ[1] - source.tanks[0].worldXZ[1]).normalize();
+      const towardsStreet = new Vector3(-streetAxis.z, 0, streetAxis.x);
+      const barrelDirection = point.clone().sub(position).setY(0).normalize();
+      expect(barrelDirection.dot(towardsStreet)).toBeGreaterThan(0.9999);
+      expect(Math.abs(barrelDirection.dot(streetAxis))).toBeLessThan(0.0001);
     }
     for (const gun of source.guns) {
       const point = root
@@ -254,8 +290,8 @@ describe("Soviet memorial source-resolved site and vehicles", () => {
       mobile = createMinecraftSovietMemorial("mobile");
     expect(full.children).toHaveLength(1);
     expect(mobile.children).toHaveLength(1);
-    expect(full.userData.blockCount).toBe(691);
-    expect(mobile.userData.blockCount).toBe(627);
+    expect(full.userData.blockCount).toBe(693);
+    expect(mobile.userData.blockCount).toBe(629);
     const matrix = new Matrix4();
     for (const root of [full, mobile]) {
       const batch = root.children[0] as InstancedMesh;

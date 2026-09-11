@@ -969,6 +969,14 @@ and mirrored in the packaged viewer attribution manifest.
   (CC BY-SA 3.0). Full per-file metadata is mirrored in both manifests.
   All photographs remain external references; no image or crop is bundled.
 
+- **Rosengarten and Soviet Memorial (v1.0.34):** retained OpenStreetMap geometry
+  (ODbL 1.0), Geoportal Berlin DOP 2025 (dl-de/zero-2-0) and the
+  Landesdenkmalamt Tiergarten description guide the mapped planting beds,
+  open pergola and street-facing tank bearings. Existing BugWarp tank photo
+  references remain external. No photograph or texture is bundled. See
+  [Rosengarten evidence](docs/rosengarten-refinement-v134.md) and
+  [memorial evidence](docs/soviet-memorial-refinement.md).
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

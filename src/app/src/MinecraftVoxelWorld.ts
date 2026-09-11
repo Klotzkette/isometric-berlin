@@ -1,4 +1,5 @@
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
+import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
 import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
 import { createBebelplatzMemorial } from "./BebelplatzMemorial";
 import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
@@ -2761,6 +2762,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (visitedColumns++ % 1024 === 0) yield;
     if (!(
       !berlinJunctionReplacesSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !rosengartenPergolaVoxelReplacementAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !wagnerMemorialVoxelReplacementAt(
         worldXAbs(xIdx),
         worldZAbs(zIdx),

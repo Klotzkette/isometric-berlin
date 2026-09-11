@@ -1,12 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.31 replaces six Bebelplatz/HU fallback prisms and adds the empty library.
+// v1.0.34 turns the Soviet tanks toward the street, adds two muzzle blocks,
+// and removes the false Rosengarten pergola's 21 closed source columns.
 // Independently measured synchronous buffers are compared
 // with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "b25ffb1b87422e97ffe4b1a5d671feb59961856b2ed5aa3311bae4d240a28062", 3811444, 105, 290679041],
-  ["mobile", "34ca1798233dcf2431024edbafa98728445c55364a350e854dee254562cea892", 1017435, 103, 77884901],
+  ["full", "1aa301bd2ec2badb93458b2311c1472f06f3e8a1faa28259f198078b9b77e45b", 3811391, 105, 290675013],
+  ["mobile", "75362553682855a69ced93c2240052e9c5d4f17a4acde4470ece80badd8b80c2", 1017416, 103, 77883457],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

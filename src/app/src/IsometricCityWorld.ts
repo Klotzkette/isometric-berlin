@@ -114,6 +114,7 @@ import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
 import { createSiegessaeuleArchitecture } from "./SiegessaeuleArchitecture";
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
 import { WAGNER_MEMORIAL_PRISM_IDS } from "./WagnerMemorial";
+import { ROSENGARTEN_PERGOLA_PRISM_ID } from "./rosengartenProfile";
 import {
   SIEGESSAEULE_BRONZE_TONES,
   SIEGESSAEULE_MOSAIC_TONES,
@@ -908,6 +909,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // later protective barrel-vault canopy. The source-bound model preserves
   // its open steel frame and the complete marble ensemble underneath.
   ...WAGNER_MEMORIAL_PRISM_IDS,
+  // OSM roof 584884256 is the open garden pergola, not a solid building.
+  ROSENGARTEN_PERGOLA_PRISM_ID,
   // Bremen and Saxony have no matching official LoD2 object in the committed
   // source set. Their 9 m OSM context prisms are display fallbacks, not height
   // surveys; FederalStateRepresentations keeps the exact OSM outlines and

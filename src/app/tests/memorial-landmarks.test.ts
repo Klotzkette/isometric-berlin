@@ -676,9 +676,9 @@ describe("granular memorial recognition models", () => {
       Math.abs(eastGunWorld.x - soviet.position.x),
     );
     expect(root.getObjectByName("Soviet memorial T-34 west vehicle")!.rotation.y)
-      .toBeCloseTo(Math.PI / 2);
+      .toBeCloseTo(Math.PI);
     expect(root.getObjectByName("Soviet memorial T-34 east vehicle")!.rotation.y)
-      .toBeCloseTo(-Math.PI / 2);
+      .toBeCloseTo(Math.PI);
   });
 
   test("the Polish memorial is the 2025 Findling, not an unbuilt building", () => {

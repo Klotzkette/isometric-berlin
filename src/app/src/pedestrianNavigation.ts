@@ -15,6 +15,7 @@ import { ROHWEDDER_HAUS_IDS, ROHWEDDER_HAUS_SOURCE } from "./rohwedderHausProfil
 import { BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_UNDERSIDE } from "./boellStiftungProfile";
 import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_PROFILE, friedrichstadtPalastTopAt } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
+import { ROSENGARTEN_PERGOLA_PRISM_ID } from "./rosengartenProfile";
 import { musicMuseumPart, musicMuseumPartRoofHeightAt, musicMuseumDisplayTop } from "./museumLenneProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
@@ -588,6 +589,7 @@ export function compilePedestrianObstacles(
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
+    if (building.id === ROSENGARTEN_PERGOLA_PRISM_ID) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
     if (ECONOMIC_MINISTRY_SOURCE_IDS.has(building.id)) {
       const sourceTop = (building.y0_dm + building.h_dm) / 10;

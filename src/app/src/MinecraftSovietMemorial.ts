@@ -208,8 +208,8 @@ export function createMinecraftSovietMemorial(
   segment(1.5, 20.91, -3.66, 0.78, 15.45, -3.42, 0.2, 0x3c5144);
   for (const tank of SOVIET_MEMORIAL_SOURCE.tanks) {
     const [tx, tz] = sovietMemorialLocalXZ(tank.worldXZ[0], tank.worldXZ[1]);
-    box(tx, 0.675, tz, 8.1, 1.35, 4.8, darkStone);
-    box(tx, 1.44, tz, 7.6, 0.18, 4.3, stone);
+    box(tx, 0.675, tz, 4.8, 1.35, 8.1, darkStone);
+    box(tx, 1.44, tz, 4.3, 0.18, 7.6, stone);
     const c = Math.cos(tank.yaw),
       s = Math.sin(tank.yaw);
     const part = (
@@ -256,6 +256,7 @@ export function createMinecraftSovietMemorial(
     part(0.28, 2.29, -0.06, 0.65, 0.18, 0.65, track);
     part(0, 1.91, -1.3, 0.9, 0.52, 0.4, green);
     part(0, 1.98, -2.76, 0.16, 0.16, 2.75, green);
+    part(0, 1.98, -4.15, 0.10, 0.10, 0.035, track);
     // Contrasting procedural 200/300 pixel numerals on both turret sides.
     const glyphs: Record<string, string[]> = {
       "2": ["111", "001", "111", "100", "111"],

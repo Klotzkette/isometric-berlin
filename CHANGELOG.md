@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.34
+
+- Align both Soviet Memorial tanks, barrels and plinths toward Straße des 17. Juni
+  in drawn and Minecraft modes; refine gun mantlets and muzzle openings.
+- Add bounded, instanced roses in the Rosengarten’s nine mapped planting beds,
+  stone edging, its open curved pergola and four central benches.
+- Keep source positions, mobile quality, coverage and navigation unchanged.
+
 ## v1.0.33
 
 - Keep mobile building districts in a lossless compact source store; decode only

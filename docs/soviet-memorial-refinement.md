@@ -23,8 +23,11 @@ The old display reversed the tank numbers, used approximate ±33 m tank offsets
 and placed them only 11.5 m in front of the catalogue target. That target is
 8.48 m north of the soldier and is not a statue survey point. The actual tank
 nodes stand 78.07 m apart and roughly 50.54 m in front of the soldier along the
-site axis. Both tanks face outward along the road. The site angle of 0.082237
-radians follows the two exact tank nodes rather than an assumed east-west axis.
+site axis. Both tanks face the street, with the long axes of their hulls and plinths
+perpendicular to the entrance frontage. The former outward/road-parallel
+interpretation was incorrect and is corrected in v1.0.34. The site angle of
+0.082237 radians follows the two exact tank nodes rather than an assumed
+east-west axis.
 The two guns retain their independently mapped positions and point south toward
 the street, correcting the former north-pointing barrels.
 
@@ -36,7 +39,10 @@ colonnade. The [official 2025 spring DOP](https://gdi.berlin.de/services/wms/dop
 was inspected in the bounded EPSG:25833 rectangle
 `389477,5819683,389580,5819780` (1545 × 1455 pixels). It confirms the long
 forecourt, narrower curved colonnade, street-side lawns and flower strips,
-south-facing guns and rear fountains. No aerial image is shipped in the viewer.
+south-facing guns and rear fountains. A second v1.0.34 inspection at
+`389477,5819674,389580,5819733` explicitly resolves the tank and plinth long
+axes towards the street; the 2024 BugWarp images corroborate the hull/barrel
+alignment. No aerial image is shipped in the viewer.
 
 The freely licensed photographs actually inspected for vehicle form and street
 context are BugWarp's [Berlín en agosto de 2024 - BugWarp (15).jpg](https://commons.wikimedia.org/wiki/File:Berl%C3%ADn_en_agosto_de_2024_-_BugWarp_(15).jpg)
@@ -99,17 +105,17 @@ win ahead of those support surfaces.
 
 | Representation | Renderables | Stored vertices | Rendered vertices | Geometry and instance bytes |
 | --- | ---: | ---: | ---: | ---: |
-| Drawn, full/mobile | 274 | 11,600 | 27,040 | 412,284 |
-| Minecraft full | 1 | 24 | 16,584 | 53,356 |
-| Minecraft mobile | 1 | 24 | 15,048 | 48,492 |
+| Drawn, full/mobile | 282 | 11,896 | 27,576 | 422,428 |
+| Minecraft full | 1 | 24 | 16,632 | 53,508 |
+| Minecraft mobile | 1 | 24 | 15,096 | 48,644 |
 
-Minecraft uses 691 / 627 fixed block instances. Mobile preserves the whole
+Minecraft uses 693 / 629 fixed block instances. Mobile preserves the whole
 site and all four vehicles; only member segmentation and track-shoe repetition
 are reduced. The existing drawn inscription canvases remain procedural local
 lettering, not photographic imagery. Stored/rendered vertex counts include
 ink lines and repeated instances; runtime canvas memory is not included above.
 
-Seven dedicated regression tests check exact component positions, correct
+Eight dedicated regression tests check exact component positions, correct
 number identities and barrel directions, unchanged source rings, absence of
 the four generic bodies and roof obstacles, open-bay and solid-pier raycasts
 in drawn/full/mobile geometry, actual stair surface support, source-scoped
@@ -117,3 +123,9 @@ walking overrides, retained protection and reversible five-mode visibility.
 Software orthographic QA additionally inspected actual Three.js triangles and
 instance matrices for an overview, the eastern tank and the Minecraft model.
 These checks are not a browser/WebGL or physical-device inspection.
+
+The v1.0.34 tank correction also rotates both cap courses and the matching
+pedestrian collision footprint. The barrel uses olive armour paint around
+a dark bore, with a small mantlet shield and six fasteners. These dimensions
+remain photo-guided display estimates. The Minecraft version adds one dark
+muzzle block per tank, with no extra draw call or smooth-geometry duplicate.

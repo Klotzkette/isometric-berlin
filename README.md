@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.33 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.33/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.34 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.34/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,14 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.33** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.34** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.34 turns both Soviet Memorial tanks toward the street and refines
+the Rosengarten's mapped flower beds, open stone pergola and benches.
+
+Version 1.0.34 richtet beide Panzer am Sowjetischen Ehrenmal zur Straße aus und
+verfeinert die kartierten Rosenbeete, die offene Steinpergola und die Bänke.
 
 Version 1.0.33 reduces mobile source-data and ground-construction memory while
 keeping geometry, detail, draw distance and navigation unchanged.
@@ -271,7 +277,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The public package is **v1.0.33**, built from `main`. It contains one freely
+The public package is **v1.0.34**, built from `main`. It contains one freely
 orbitable isometric scene with five visual styles. Changing a visual style
 preserves location, view and walking/flight state. The launch guide opens this
 same viewer through local HTTP.
