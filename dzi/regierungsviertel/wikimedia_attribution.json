@@ -2671,6 +2671,83 @@
       "credit": "Reinhold Möller (Ermell) / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "bebelplatz_empty_library",
+      "title": "File:Berlin DenkmalBuecherverbrennung BookBurningMemorial Bebelplatz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_DenkmalBuecherverbrennung_BookBurningMemorial_Bebelplatz.jpg",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5/",
+      "artist": "Daniel Neugebauer (Energiequant)",
+      "credit": "Daniel Neugebauer (Energiequant) / CC BY-SA 2.5",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bebelplatz_empty_library",
+      "title": "File:The Empty Library - Bebelplatz mit Mahnmal Bücherverbrennung Aug 2009.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:The_Empty_Library_-_Bebelplatz_mit_Mahnmal_B%C3%BCcherverbrennung_Aug_2009.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Stefan Kemmerling (Kemmi.1), crop by Beyond My Ken",
+      "credit": "Stefan Kemmerling (Kemmi.1), crop by Beyond My Ken / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldt_university",
+      "title": "File:Frontansicht des Hauptgebäudes der Humboldt-Universität in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Frontansicht_des_Hauptgeb%C3%A4udes_der_Humboldt-Universit%C3%A4t_in_Berlin.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Christian Wolf (www.c-w-design.de)",
+      "credit": "Christian Wolf (www.c-w-design.de) / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alte_bibliothek",
+      "title": "File:Alte Bibliothek, Bebelplatz, Berlin-Mitte, 150926, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Alte_Bibliothek,_Bebelplatz,_Berlin-Mitte,_150926,_ako.jpg",
+      "license": "CC BY 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/de/",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hotel_de_rome",
+      "title": "File:Berlin-Mitte Bebelplatz Hotel de Rome 178.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte_Bebelplatz_Hotel_de_Rome_178.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "GFreihalter",
+      "credit": "GFreihalter / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hedwig_cathedral",
+      "title": "File:St. Hedwig's Cathedral (Berlin), 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:St._Hedwig%27s_Cathedral_(Berlin),_2024_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Bahnfrend",
+      "credit": "Bahnfrend / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hedwig_cathedral",
+      "title": "File:St. Hedwig's Cathedral (Berlin) - Exterior.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:St._Hedwig%27s_Cathedral_(Berlin)_-_Exterior.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Yair Haklai",
+      "credit": "Yair Haklai / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
