@@ -53,6 +53,14 @@ def test_orbit_path_is_closed_and_independent_of_event_rate() -> None:
     assert 395 <= y <= 505
 
 
+def test_panorama_exercises_far_view_without_exceeding_viewer_camera_limit() -> None:
+  import math
+
+  pose = profile.LOCATIONS["panorama"]
+  assert 2400 < math.dist(pose["position"], pose["target"]) < 2600
+  assert pose["fov"] == 39
+
+
 def test_summary_keeps_scene_and_compositor_counts_separate_from_timing() -> None:
   phase = {
     "startMs": 100,

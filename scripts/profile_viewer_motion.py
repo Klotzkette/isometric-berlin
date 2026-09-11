@@ -40,6 +40,12 @@ LOCATIONS = {
     "target": [417.898, 17, 300.453],
     "fov": 39,
   },
+  "panorama": {
+    "slug": "reichstagsgebaeude",
+    "position": [1500, 1350, 1500],
+    "target": [100, 8, 0],
+    "fov": 39,
+  },
 }
 RUNTIME_PROBE = """() => {
   const el = document.querySelector('.three-viewer.is-active');

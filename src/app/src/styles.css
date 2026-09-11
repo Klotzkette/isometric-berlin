@@ -1103,13 +1103,41 @@ button:active:not(:disabled) {
   gap: 4px;
 }
 
-.control-row--orientation {
+.desktop-navigation-guide {
+  display: grid;
+  grid-template-columns: 98px 1fr;
+  gap: 6px;
   align-items: center;
 }
 
 .view-controls .dock-side-toggle {
-  margin-left: 2px;
   color: #d8c8a8;
+}
+
+.desktop-navigation-legend {
+  color: #d8c8a8;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.desktop-navigation-legend p,
+.desktop-height-guide {
+  margin: 0;
+}
+
+.desktop-height-guide {
+  padding: 3px 0 5px;
+  border-bottom: 1px solid rgba(245, 239, 228, 0.14);
+  color: #d8c8a8;
+  font-size: 11px;
+  text-align: center;
+}
+
+.desktop-navigation-legend kbd,
+.desktop-height-guide kbd {
+  color: #f5efe4;
+  font: inherit;
+  font-weight: 750;
 }
 
 .movement-controls {
@@ -1117,8 +1145,6 @@ button:active:not(:disabled) {
   width: max-content;
   grid-template-columns: repeat(3, 30px);
   justify-self: center;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(245, 239, 228, 0.14);
 }
 
 .movement-controls button:first-child {
@@ -1185,6 +1211,16 @@ button:active:not(:disabled) {
 /* Keep touch targets comfortable on phones, tablets and touch laptops while
    retaining the denser 30 px desktop dock for precise pointer input. */
 @media (pointer: coarse) {
+  .desktop-navigation-guide {
+    grid-template-columns: 146px 1fr;
+    gap: 12px;
+  }
+
+  .desktop-navigation-legend,
+  .desktop-height-guide {
+    font-size: 13px;
+  }
+
   .movement-controls {
     grid-template-columns: repeat(3, 46px);
     gap: 4px;
@@ -1213,6 +1249,18 @@ button:active:not(:disabled) {
   }
 }
 
+/* Wrapped desktop attribution needs enough room below the complete dock. */
+@media (min-width: 1025px) {
+  .view-controls,
+  .flight-joystick-wrap {
+    bottom: 92px;
+  }
+
+  .app-shell--controls-left .selection-card {
+    bottom: 252px;
+  }
+}
+
 /* Large touch displays keep the desktop panel visible. Give its eight-button
    command row enough room and keep the analogue pad beside the chosen edge. */
 @media (pointer: coarse) and (min-width: 1025px) {
@@ -1221,7 +1269,7 @@ button:active:not(:disabled) {
   }
 
   .flight-joystick-wrap {
-    bottom: 76px;
+    bottom: 92px;
     left: 442px;
   }
 
@@ -1231,7 +1279,7 @@ button:active:not(:disabled) {
   }
 
   .app-shell--controls-left .selection-card {
-    bottom: 302px;
+    bottom: 318px;
   }
 }
 

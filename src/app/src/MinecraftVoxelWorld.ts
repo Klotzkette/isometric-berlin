@@ -4,6 +4,9 @@ import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
 import { isGripsHansaplatzReplacementColumn } from "./gripsHansaplatzProfile";
+import { createGymnasiumTiergartenNeubau } from "./GymnasiumTiergartenNeubau";
+import { isGymnasiumNeubauReplacementColumn } from "./gymnasiumTiergartenProfile";
+import { createHansaplatzBlockStreets } from "./HansaplatzBlockStreets";
 import { isGorkiBuildingReplacementColumn } from "./gorkiBuildingProfile";
 import { createBehren42Architecture } from "./Behren42Architecture";
 import { isBehren42ReplacementColumn } from "./Behren42Profile";
@@ -788,6 +791,7 @@ export function isCompleteRecognitionVoxelColumn(
     isNeueWacheReplacementColumn(x, z) ||
     isGorkiBuildingReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
+    isGymnasiumNeubauReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
@@ -2720,6 +2724,11 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createNeueWache(true));
   group.add(createGorkiBuilding(true));
   group.add(createGripsHansaplatz(true));
+  yield;
+  group.add(createGymnasiumTiergartenNeubau(true));
+  yield;
+  group.add(createHansaplatzBlockStreets(payload));
+  yield;
   group.add(createBehren42Architecture(true));
   group.add(createMinecraftSchlossNaturkundeShells());
   group.add(createMinecraftSchlossNaturkundeFacades());

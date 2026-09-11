@@ -167,7 +167,9 @@ describe("true voxel Minecraft world", () => {
     // Gorki, Neue Wache and Humboldt Carre models remove their duplicate
     // generic panes; measured separately with this payload-only factory.
     // GRIPS replaces 314 more panes on its exact source footprint.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_571_226);
+    // The Neubau's exact 13 source parts replace 86 columns: 344 panes
+    // disappear and 42 neighbouring panes become exposed, a net 302 fewer.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_570_924);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -182,9 +184,10 @@ describe("true voxel Minecraft world", () => {
     // generic column stacks before the single native models are added.
     // These independently measured totals omit the optional sourcePrisms,
     // tone lookup and tunnel arguments used by the full world benchmark.
-    expect(instanced("Voxel building columns", world).count).toBe(1_451_289);
+    // The Neubau removes 258 full / 86 mobile generic column instances.
+    expect(instanced("Voxel building columns", world).count).toBe(1_451_031);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      530_852,
+      530_766,
     );
 
     const landmarks = world.getObjectByName(

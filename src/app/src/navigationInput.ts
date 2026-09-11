@@ -34,28 +34,21 @@ export function heldNavigationInput(
   keys: ReadonlySet<string>,
 ): HeldNavigationInput {
   const shift = keys.has("Shift");
-  const alt = keys.has("Alt");
   const arrowHorizontal =
     (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
   const arrowVertical =
     (keys.has("ArrowUp") ? 1 : 0) - (keys.has("ArrowDown") ? 1 : 0);
   const wasdHorizontal =
     (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0);
-  const shiftTurnActive =
-    shift && !alt && (arrowHorizontal !== 0 || wasdHorizontal !== 0);
-  const shiftTurn = shiftTurnActive
-    ? Math.sign(arrowHorizontal + wasdHorizontal)
-    : 0;
   return {
     flight: {
       forward: (keys.has("w") ? 1 : 0) - (keys.has("s") ? 1 : 0),
-      strafe: shiftTurnActive ? 0 : wasdHorizontal,
-      vertical: alt || shiftTurnActive || arrowVertical !== 0
-        ? 0
-        : (keys.has("Space") ? 1 : 0) - (shift ? 1 : 0),
+      strafe: wasdHorizontal,
+      // Minecraft-style flight height stays independent of movement and look.
+      vertical: (keys.has("Space") ? 1 : 0) - (shift ? 1 : 0),
     },
     orbit: {
-      horizontal: shiftTurnActive ? shiftTurn : arrowHorizontal,
+      horizontal: arrowHorizontal,
       vertical: arrowVertical,
     },
     pan: {

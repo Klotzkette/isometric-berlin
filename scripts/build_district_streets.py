@@ -19,6 +19,12 @@ from typing import Any
 import geopandas as gpd
 import shapely
 from brandenburg_approach import build_brandenburg_approach
+from hansaplatz_streets import (
+  HANSAPLATZ_COVERED_ROAD_IDS,
+  HANSAPLATZ_WINDOW,
+  hansaplatz_block_payload,
+  hansaplatz_clearance,
+)
 from shapely.geometry import LineString, Point, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
@@ -63,6 +69,7 @@ DISTRICT_WINDOWS = {
   "Potsdamer Platz": (389390, 5818340, 390200, 5819350),
   "Europacity": (388770, 5820890, 389620, 5822160),
   "Charité": (389665, 5820090, 390185, 5821080),
+  "Hansaplatz und Gymnasium Tiergarten": HANSAPLATZ_WINDOW,
 }
 MARKED_CLASSES = frozenset({"primary", "secondary", "tertiary"})
 
@@ -153,11 +160,18 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
     bridge = optional_osm_text(row.get("bridge"))
     covered = optional_osm_text(row.get("covered"))
     tunnel = optional_osm_text(row.get("tunnel"))
+    ground_road_under_railway = str(row["id"]) in HANSAPLATZ_COVERED_ROAD_IDS
+    # `runs_underground` intentionally treats generic covered ways as buried.
+    # These two verified at-grade roads have only an overhead railway roof;
+    # keep every actual tunnel/negative-layer guard when ignoring that tag.
+    below_grade = runs_underground(
+      {**row, "covered": "no"} if ground_road_under_railway else row
+    )
     if (
       width is None
-      or runs_underground(row)
+      or below_grade
       or bridge not in (None, "no")
-      or covered not in (None, "no")
+      or (covered not in (None, "no") and not ground_road_under_railway)
       or tunnel not in (None, "no")
     ):
       elevated_path_ids.add(str(row["id"]))
@@ -254,6 +268,18 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
   # paint an unmarked zebra crossing across a real street.
   asphalt = unary_union(by_kind["asphalt"])
   motor_union = unary_union(vehicular_bands)
+  hansa_scope = box(*HANSAPLATZ_WINDOW)
+  hansa_exclusion = hansaplatz_clearance(ROOT)
+  # Mapped paved approaches around the school/theatre continue even where
+  # they leave the immediate road edge. The two small GRIPS courts, arcades,
+  # building footprints and U9 entrances keep their existing authored floors.
+  hansa_paving = (
+    unary_union(by_kind["paving"])
+    .intersection(hansa_scope)
+    .difference(motor_union)
+    .difference(asphalt)
+    .difference(hansa_exclusion)
+  )
   # The full park-path inventory is already resident in ParkDetails. Only
   # roadside paving is repeated here, to join the source street surface.
   paving = (
@@ -274,6 +300,8 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
     approach["paving"].intersection(approach["plaza_scope"])
   )
   sidewalks = approach["paving"].difference(approach["plaza_scope"])
+  paving = paving.difference(hansa_paving)
+  sidewalks = sidewalks.union(hansa_paving)
   curb_edges = curb_edges.difference(local_scope).union(approach["curbs"])
   scope = scope.union(local_scope)
   retained_markings: list[dict[str, Any]] = []
@@ -340,6 +368,12 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
         "https://www.berlin.de/rbmskzl/aktuelles/media/einweihung-der-helmut-kohl-allee-1669992.php",
       ],
       "brandenburg_approach": approach["source"],
+      "hansaplatz": {
+        "window_epsg25833": HANSAPLATZ_WINDOW,
+        "paving_area_m2": round(hansa_paving.area, 2),
+        "ground_roads_under_railway": sorted(HANSAPLATZ_COVERED_ROAD_IDS),
+        "policy": "Retained OSM asphalt and paved approach axes; original widths or labelled class fallback; authored GRIPS courts, arcades and U9 floors retained",
+      },
     },
     "brandenburg_approach_scope_m": [
       {
@@ -359,6 +393,12 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
     "elevated_path_ids": sorted(elevated_path_ids),
     "markings_m": markings,
     "roads": source_roads,
+    "hansaplatz_native": hansaplatz_block_payload(
+      asphalt,
+      paving.union(sidewalks),
+      curb_edges,
+      hansa_exclusion,
+    ),
     "inventory": {
       "source_road_count": len(source_roads),
       "by_width_source": dict(
@@ -378,6 +418,11 @@ def main() -> None:
   parser.add_argument("--out", type=Path, default=OUT)
   args = parser.parse_args()
   payload = build_payload()
+  native = payload.pop("hansaplatz_native")
+  native["osm_sha256"] = payload["source"]["osm_sha256"]
+  (ROOT / "src/app/src/data/hansaplatzBlockStreets.json").write_text(
+    json.dumps(native, ensure_ascii=False, separators=(",", ":")) + "\n"
+  )
   for surface in payload["surfaces"]:
     positions = [round(value * 100) for value in surface.pop("positions_m")]
     indices = surface.pop("indices")

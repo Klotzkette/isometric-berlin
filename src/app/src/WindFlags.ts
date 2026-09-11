@@ -115,6 +115,8 @@ export type WindFlagUpdateOptions = {
   cacheKey?: string;
   /** Return true only for flag kinds that may change in this update. */
   kindAllowed?: (kind: WindFlagKind) => boolean;
+  /** Collected on attachment/mode changes; avoids visiting unrelated city geometry. */
+  targets?: readonly CivicWindFlagTarget[];
 };
 
 function waveAtKnot(
@@ -794,7 +796,7 @@ export function updateWindFlags(
   }
   root.userData.windFlagsAppliedAtByContract = appliedByContract;
   root.userData.windFlagsLastElapsedSeconds = elapsedSeconds;
-  root.traverse((object) => {
+  const updateObject = (object: Object3D): void => {
     if (object instanceof InstancedMesh) {
       const data = object.userData.windFlagInstances as
         WindFlagInstanceData | undefined;
@@ -809,7 +811,18 @@ export function updateWindFlags(
         updateFlagMesh(object, data, elapsedSeconds);
       }
     }
-  });
+  };
+  if (options.targets) {
+    for (const { mesh } of options.targets) {
+      // A detached/disposed flag must not keep updating through an old cache.
+      // Keep hidden flags in phase exactly as the former whole-root traversal.
+      let ancestor: Object3D | null = mesh;
+      while (ancestor && ancestor !== root) ancestor = ancestor.parent;
+      if (ancestor === root) updateObject(mesh);
+    }
+  } else {
+    root.traverse(updateObject);
+  }
   const winter = root.userData.windFlagWinter as WindFlagWinterData | undefined;
   if (winter?.mesh.visible) updateWinterIcicles(winter, elapsedSeconds);
 }
@@ -818,11 +831,13 @@ export function updateWindFlags(
 export function updateCivicWindFlags(
   roots: readonly Object3D[],
   elapsedSeconds: number,
+  targets?: readonly CivicWindFlagTarget[],
 ): void {
   for (const root of roots) {
     updateWindFlags(root, elapsedSeconds, {
       cacheKey: "official-civic-flags",
       kindAllowed: isCivicWindFlagKind,
+      targets,
     });
   }
 }

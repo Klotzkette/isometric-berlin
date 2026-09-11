@@ -4,6 +4,7 @@ import {
   CIVIC_FLAG_WIND_PROFILE,
   CIVIC_WIND_FLAG_KINDS,
   type WindFlagKind,
+  type CivicWindFlagTarget,
   isCivicWindFlagKind,
   updateCivicWindFlags,
   windFlagKindCount,
@@ -75,8 +76,9 @@ export function countSchwellenraumMovingFlags(
 export function updateSchwellenraumMovingFlags(
   roots: readonly Object3D[],
   elapsedSeconds: number,
+  targets?: readonly CivicWindFlagTarget[],
 ): void {
-  updateCivicWindFlags(roots, elapsedSeconds);
+  updateCivicWindFlags(roots, elapsedSeconds, targets);
 }
 
 export type SchwellenraumMotionDecision = {

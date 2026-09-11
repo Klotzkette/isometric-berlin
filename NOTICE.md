@@ -1046,3 +1046,19 @@ When the Berlin 3D Mesh viewer is used, also display:
 > 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
 
 - GRIPS-Theater / Hansaplatz v1.0.39 uses 31 retained Berlin LoD2 parts (dl-de/zero-2-0) and original OSM paths (ODbL-1.0). Five external photographs by De-okin (CC BY-SA 3.0) and Fridolin freudenfett (CC BY-SA 4.0) are credited individually in both Wikimedia manifests and references/wikimedia/README.md. No photograph or texture is bundled. See docs/grips-hansaplatz-v139.md for source/display distinctions.
+
+- **Gymnasium Tiergarten / Hand mit Uhr (v1.0.40):** original Berlin LoD2
+  parent `DEBE01YYK0002KxL` preserves all thirteen measured parts and roof
+  sheets; the school identifies the blue Aula and 1971–1975 extension.
+  OSM node `5140418371` anchors Joachim Schmettau's 1975 hand sculpture.
+  The conflicting published 4.5 / 5.5 m heights and bronze / Neusilber
+  descriptions remain explicit; local hand and facade subdivisions are
+  procedural display fits. Four external photographs by Fridolin freudenfett,
+  Michael T Alemu and Rlbberlin (CC BY-SA 4.0) are individually credited in
+  both manifests and [the source contract](docs/gymnasium-tiergarten-v140.md).
+  No photograph, music-video image, lyric or texture is bundled.
+  The separate [Hansaplatz street extension](docs/hansaplatz-streets-v140.md)
+  reuses OSM geometry in a bounded 310 × 300 m area, including covered
+  at-grade Altonaer Straße ways `455280943` and `455280945`, while preserving
+  the GRIPS courts, U9 stairs and covered approaches. Kerb/member dimensions
+  are display estimates; no new street photograph is used.

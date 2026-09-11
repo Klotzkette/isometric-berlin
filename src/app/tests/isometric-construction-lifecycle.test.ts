@@ -27,7 +27,7 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: boolean } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean } = {}) {
   const built: Mesh[] = [];
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
@@ -89,7 +89,8 @@ function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: 
       expect(runtime.signatures.children.every(child => child === existing || child === concurrent)).toBeTrue();
       pose++;
       if (taskCount === 2) runtime.signatures.add(concurrent);
-      if (taskCount === options.stopAtTask) {
+      if (taskCount === options.stopAtTask ||
+          (options.stopAfterModel && built.some(mesh => mesh.name === options.stopAfterModel))) {
         runtime.disposed = true;
         runtime.worldFailureReported = true;
         loadController.abort();
@@ -111,6 +112,7 @@ function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: 
     createGendarmenmarktArchitecture: () => model("Gendarmenmarkt architecture"),
     createGorkiBuilding: () => model("Gorki building"),
     createGripsHansaplatz: () => model("GRIPS and Hansaplatz court"),
+    createGymnasiumTiergartenNeubau: () => model("Gymnasium Tiergarten Neubau"),
     createBehren42Architecture: () => model("Behrenstrasse 42 architecture"),
     createNeueWache: () => model("Neue Wache"),
     createBebelplatzBuildingShells: () => model("Bebelplatz shells"),
@@ -154,7 +156,7 @@ function host(options: { stopAtTask?: number; modeAtTask?: number; failCommit?: 
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(16);
+  expect(h.built).toHaveLength(17);
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
   expect(h.runtime.signatures.getObjectByName("drawn bridge structures")).toBeDefined();
@@ -165,11 +167,21 @@ test("drawn construction publishes all staged geometry at the current pose", asy
 
 test("context loss cancels later allocations and frees every unpublished buffer", async () => {
   const h = host({ stopAtTask: 4 }); await h.finished;
-  expect(h.built.length).toBeGreaterThan(0); expect(h.built.length).toBeLessThan(16);
+  expect(h.built.length).toBeGreaterThan(0); expect(h.built.length).toBeLessThan(17);
   expect(h.runtime.isoWorld).toBeNull();
   expect(h.runtime.signatures.children).toEqual([h.existing, h.concurrent]);
   expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
   expect(h.releaseCount).toBeGreaterThan(0);
+  expect(h.ready).toBe(0); expect(h.reported).toBe(0); expect(h.warnings).toHaveLength(0);
+});
+
+test("cancellation after school construction releases its staged buffers and stops the next addon", async () => {
+  const h = host({ stopAfterModel: "Gymnasium Tiergarten Neubau" }); await h.finished;
+  expect(h.built.some(mesh => mesh.name === "Gymnasium Tiergarten Neubau")).toBeTrue();
+  expect(h.built.some(mesh => mesh.name === "Behrenstrasse 42 architecture")).toBeFalse();
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.runtime.signatures.children).toEqual([h.existing, h.concurrent]);
   expect(h.ready).toBe(0); expect(h.reported).toBe(0); expect(h.warnings).toHaveLength(0);
 });
 

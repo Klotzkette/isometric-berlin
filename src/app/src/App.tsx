@@ -2532,13 +2532,9 @@ export function App() {
           changed = holdNavigationKey(heldFlightKeysRef.current, key) || changed;
           if (!event.repeat) {
             setStatus(
-              event.shiftKey && ["a", "d"].includes(key)
-                ? language === "de"
-                  ? "Freie Kamera · Blickrichtung drehen"
-                  : "Free camera · rotate the view"
-                : language === "de"
-                  ? "Freie Kamera · WASD fliegt, Leertaste hoch, Shift allein runter"
-                  : "Free camera · WASD flies, Space rises, Shift alone descends",
+              language === "de"
+                ? "Schweben · WASD bewegt, Leertaste steigt, Shift sinkt"
+                : "Hover · WASD moves, Space rises, Shift descends",
             );
           }
           if (changed) updateHeldNavigation();
@@ -3424,47 +3420,8 @@ export function App() {
       </aside>
 
       <aside className="view-controls" aria-label={copy.alignMove}>
-        <div
-          className="control-row control-row--orientation"
-          role="group"
-          aria-label={copy.orientation}
-        >
-          {ORIENTATIONS.map((candidate) => (
-            <button
-              key={candidate.short}
-              type="button"
-              aria-label={orientationLabel(candidate.short, language)}
-              aria-pressed={isRotationActive(rotation, candidate.degrees)}
-              disabled={!isReady}
-              title={orientationLabel(candidate.short, language)}
-              onClick={() => applyRotation(candidate.degrees)}
-            >
-              <span>{orientationShort(candidate.short, language)}</span>
-            </button>
-          ))}
-          <button
-            type="button"
-            className="dock-side-toggle"
-            aria-label={
-              controlDockSide === "left"
-                ? copy.moveControlsRight
-                : copy.moveControlsLeft
-            }
-            title={
-              controlDockSide === "left"
-                ? copy.moveControlsRight
-                : copy.moveControlsLeft
-            }
-            onClick={toggleControlDockSide}
-          >
-            {controlDockSide === "left" ? (
-              <PanelRight size={16} aria-hidden="true" />
-            ) : (
-              <PanelLeft size={16} aria-hidden="true" />
-            )}
-          </button>
-        </div>
-        <div
+        <div className="desktop-navigation-guide">
+          <div
             className="control-row movement-controls"
             role="group"
             aria-label={isPedestrianMode ? copy.pedestrian : copy.flight}
@@ -3492,7 +3449,7 @@ export function App() {
               onHoldStart={() => setFlightInput(0, 1, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
-              <ArrowUp size={17} aria-hidden="true" />
+              <span aria-hidden="true">W</span>
             </HoldControlButton>
             <HoldControlButton
               ariaLabel={
@@ -3514,7 +3471,7 @@ export function App() {
               onHoldStart={() => setFlightInput(-1, 0, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
-              <ArrowLeft size={17} aria-hidden="true" />
+              <span aria-hidden="true">A</span>
             </HoldControlButton>
             <HoldControlButton
               ariaLabel={
@@ -3536,7 +3493,7 @@ export function App() {
               onHoldStart={() => setFlightInput(0, -1, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
-              <ArrowDown size={17} aria-hidden="true" />
+              <span aria-hidden="true">S</span>
             </HoldControlButton>
             <HoldControlButton
               ariaLabel={
@@ -3558,9 +3515,27 @@ export function App() {
               onHoldStart={() => setFlightInput(1, 0, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
-              <ArrowRight size={17} aria-hidden="true" />
+              <span aria-hidden="true">D</span>
             </HoldControlButton>
           </div>
+          <div className="desktop-navigation-legend">
+            <p><kbd>W</kbd> {language === "de" ? "vor" : "forward"} · <kbd>S</kbd> {language === "de" ? "zurück" : "back"}</p>
+            <p><kbd>A</kbd> / <kbd>D</kbd> {language === "de" ? "seitwärts" : "strafe left / right"}</p>
+            <p><kbd>↑</kbd> / <kbd>↓</kbd> {language === "de" ? "hoch / runter schauen" : "look up / down"}</p>
+            <p><kbd>←</kbd> / <kbd>→</kbd> {language === "de" ? "links / rechts schauen" : "look left / right"}</p>
+            <p>{language === "de" ? "Maus ziehen: umsehen" : "Mouse drag: look around"}</p>
+          </div>
+        </div>
+        <p className="desktop-height-guide">
+          <kbd>{language === "de" ? "Leertaste" : "Space"}</kbd>{" "}
+          {isPedestrianMode
+            ? language === "de" ? "springen" : "jump"
+            : language === "de" ? "steigen" : "rise"}
+          {" · "}<kbd>Shift</kbd>{" "}
+          {isPedestrianMode
+            ? language === "de" ? "sprinten" : "sprint"
+            : language === "de" ? "sinken" : "descend"}
+        </p>
         <div
           className="control-row"
           role="group"
@@ -3570,7 +3545,7 @@ export function App() {
               <HoldControlButton
                 ariaLabel={copy.tiltUp}
                 disabled={!isReady}
-                title={`${copy.tiltUp} (Alt/Option + ↑)`}
+                title={`${copy.tiltUp} (↑)`}
                 onActivate={() => tiltBy(10)}
                 onHoldStart={() => setOrbitInput(0, 1)}
                 onHoldEnd={() => setOrbitInput(0, 0)}
@@ -3580,7 +3555,7 @@ export function App() {
               <HoldControlButton
                 ariaLabel={copy.tiltDown}
                 disabled={!isReady}
-                title={`${copy.tiltDown} (Alt/Option + ↓)`}
+                title={`${copy.tiltDown} (↓)`}
                 onActivate={() => tiltBy(-10)}
                 onHoldStart={() => setOrbitInput(0, -1)}
                 onHoldEnd={() => setOrbitInput(0, 0)}
@@ -3591,7 +3566,7 @@ export function App() {
           <HoldControlButton
             ariaLabel={copy.rotateLeft}
             disabled={!isReady}
-            title={`${copy.rotateLeft} (Shift + A/← · Alt/Option + ←)`}
+            title={`${copy.rotateLeft} (←)`}
             onActivate={() => rotateBy(-15)}
             onHoldStart={() => setOrbitInput(-1, 0)}
             onHoldEnd={() => setOrbitInput(0, 0)}
@@ -3601,7 +3576,7 @@ export function App() {
           <HoldControlButton
             ariaLabel={copy.rotateRight}
             disabled={!isReady}
-            title={`${copy.rotateRight} (Shift + D/→ · Alt/Option + →)`}
+            title={`${copy.rotateRight} (→)`}
             onActivate={() => rotateBy(15)}
             onHoldStart={() => setOrbitInput(1, 0)}
             onHoldEnd={() => setOrbitInput(0, 0)}
@@ -3645,7 +3620,19 @@ export function App() {
           >
             <Compass size={17} aria-hidden="true" />
           </button>
-
+          <button
+            type="button"
+            className="dock-side-toggle"
+            aria-label={controlDockSide === "left" ? copy.moveControlsRight : copy.moveControlsLeft}
+            title={controlDockSide === "left" ? copy.moveControlsRight : copy.moveControlsLeft}
+            onClick={toggleControlDockSide}
+          >
+            {controlDockSide === "left" ? (
+              <PanelRight size={16} aria-hidden="true" />
+            ) : (
+              <PanelLeft size={16} aria-hidden="true" />
+            )}
+          </button>
         </div>
       </aside>
 
@@ -4323,24 +4310,26 @@ export function App() {
                 </dt>
                 <dd>
                   {language === "de"
-                    ? "Blick nach links / rechts und oben / unten drehen; WASD bewegt"
-                    : "Look left / right and up / down; WASD moves"}
+                    ? "↑ schaut nach oben, ↓ nach unten; ← / → schwenkt den Blick nach links / rechts"
+                    : "↑ looks up, ↓ looks down; ← / → turns the view left / right"}
                 </dd>
               </div>
-              {!isPedestrianMode ? (
-                <div>
-                  <dt>
-                    <>
-                        <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>
-                      </>
-                  </dt>
-                  <dd>
-                    {language === "de"
-                        ? "Gedrückt halten: relativ zur Blickrichtung vorwärts, links, rückwärts und rechts fliegen"
-                        : "Hold: fly forward, left, backward, and right relative to the view heading"}
-                  </dd>
-                </div>
-              ) : null}
+              <div>
+                <dt><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></dt>
+                <dd>
+                  {language === "de"
+                    ? "Gedrückt halten: W vorwärts, S rückwärts, A seitwärts nach links, D seitwärts nach rechts – relativ zur Blickrichtung"
+                    : "Hold: W forward, S backward, A strafe left, D strafe right, relative to the view heading"}
+                </dd>
+              </div>
+              <div>
+                <dt>{language === "de" ? "Maus ziehen" : "Mouse drag"}</dt>
+                <dd>
+                  {language === "de"
+                    ? "Linke Maustaste halten und ziehen: umsehen; nach oben ziehen schaut nach oben"
+                    : "Hold the left mouse button and drag to look around; dragging up looks up"}
+                </dd>
+              </div>
               <div>
                 <dt>
                   <kbd>Alt</kbd>/<kbd>Option</kbd> + <kbd>←</kbd> <kbd>→</kbd>
@@ -4356,17 +4345,17 @@ export function App() {
                         : "Orbit and tilt the camera continuously into the underside view"}
                 </dd>
               </div>
-              <div>
+              {isPedestrianMode ? <div>
                   <dt>
                     <kbd>Shift</kbd> + <kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd>{" "}
                     <kbd>→</kbd>
                   </dt>
                   <dd>
                     {language === "de"
-                      ? "Ansicht in freier Kamera und Spaziergang stufenlos nach links / rechts drehen"
-                      : "Rotate the view smoothly left / right in free camera and walking mode"}
+                      ? "Im Spaziergang stufenlos nach links / rechts drehen; Q / E dreht ebenfalls"
+                      : "Turn smoothly left / right while walking; Q / E also turn"}
                   </dd>
-                </div>
+                </div> : null}
               <div>
                 <dt>
                   <kbd>PageUp</kbd> <kbd>PageDown</kbd>
@@ -4379,16 +4368,17 @@ export function App() {
               </div>
               <div>
                 <dt>
-                  <kbd>Leertaste</kbd>
+                  <kbd>{language === "de" ? "Leertaste" : "Space"}</kbd>
+                  {!isPedestrianMode ? <> / <kbd>Shift</kbd></> : null}
                 </dt>
                 <dd>
                   {language === "de"
                     ? isPedestrianMode
                       ? "Einmal: springen (6,2 m); zweimal schnell: höher springen (10,5 m)"
-                      : "Freie Kamera: steigen; Shift allein: sinken"
+                      : "Schweben: Leertaste halten zum Steigen, Shift halten zum Sinken – auch mit WASD und Pfeiltasten; wie beim Minecraft-Flug"
                     : isPedestrianMode
                       ? "Once: jump (6.2 m); twice quickly: jump higher (10.5 m)"
-                      : "Free camera: rise; Shift alone: descend"}
+                      : "Hover: hold Space to rise, Shift to descend, also while using WASD and arrow keys, like Minecraft flight"}
                 </dd>
               </div>
               {isPedestrianMode ? (
@@ -4415,28 +4405,16 @@ export function App() {
                   </dd>
                 </div>
               ) : null}
-              {isPedestrianMode ? (
-                <div>
-                  <dt>
-                    <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>
-                  </dt>
-                  <dd>
-                    {language === "de"
-                      ? "Vorwärts, seitwärts und rückwärts gehen; Q / E drehen ebenfalls"
-                      : "Walk forward, sideways, and back; Q / E also turn"}
-                  </dd>
-                </div>
-              ) : null}
               <div>
                   <dt>{language === "de" ? "Steuerkreise" : "Control pads"}</dt>
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
                         ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Kurzer Touch-Tipp oder Maus-Doppelklick springt; Leertaste ebenfalls. Im Bild ziehen zum Umsehen"
-                        : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Die Pfeilknöpfe können ebenfalls gedrückt gehalten werden"
+                        : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Die WASD-Knöpfe können ebenfalls gedrückt gehalten werden"
                       : isPedestrianMode
                         ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. A short touch tap or mouse double-click jumps; so does Space. Drag the view to look around"
-                        : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. The arrow buttons also move continuously while held"}
+                        : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. The WASD buttons also move continuously while held"}
                   </dd>
                 </div>
               <div>
@@ -4548,8 +4526,8 @@ export function App() {
                     ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Pfeile drehen den Blick: nach oben schaut nach oben. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf, kurzer Joystick-Tipp und Maus-Doppelklick auf den Joystick springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
                     : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Arrow keys turn the view: Up looks up. Space jumps; double Space jumps higher, while the jump button, a short joystick tap or a mouse double-click on the joystick perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
-                    ? "3D: WASD fliegt relativ zur Blickrichtung, die Pfeile drehen den Blick, Leertaste steigt, Shift allein sinkt, und Shift+A/D oder Shift+Links/Rechts dreht die Ansicht. Das Mausrad zoomt am Zeiger. Mit linker Maustaste ziehen: Blick folgt der Maus, nach oben ist oben. Rechte Maustaste oder Shift + Ziehen verschiebt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                    : "3D: WASD flies relative to the view heading, arrow keys turn the view, Space rises, Shift alone descends, and Shift+A/D or Shift+Left/Right rotates the view. The mouse wheel zooms at the pointer. Left-drag looks in the drag direction: upward looks up. Right-drag or Shift-drag pans. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."}
+                    ? "3D: W/S fliegt vorwärts/rückwärts, A/D seitwärts nach links/rechts. ↑/↓ schaut nach oben/unten, ←/→ schwenkt nach links/rechts. Leertaste steigt, Shift sinkt, auch während der Bewegung. Das Mausrad zoomt am Zeiger. Mit linker Maustaste ziehen: Blick folgt der Maus, nach oben ist oben. Rechte Maustaste oder Shift + Ziehen verschiebt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                    : "3D: W/S flies forward/backward, A/D strafes left/right. ↑/↓ looks up/down, ←/→ turns left/right. Space rises and Shift descends, also while moving. The mouse wheel zooms at the pointer. Left-drag looks in the drag direction: upward looks up. Right-drag or Shift-drag pans. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."}
             </p>
           </div>
         </div>

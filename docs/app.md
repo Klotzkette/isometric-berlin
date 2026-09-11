@@ -90,9 +90,9 @@ shafts and fans) and out the other end.
 Arrow keys turn the view in their indicated direction: Up looks up, Down
 looks down, Left looks left and Right looks right.
 `W`/`A`/`S`/`D` flies forward/left/back/right relative to the current heading,
-`Space` rises and `Shift` alone descends. `Shift+A/D` and
-`Shift+Left/Right` rotate the view continuously in free-camera and pedestrian
-mode; unmodified `A`/`D` keep their lateral movement. The mouse wheel zooms at the pointer.
+`Space` rises and `Shift` descends, independently of held movement and arrow
+keys. `A`/`D` still strafe while descending. In pedestrian mode, `Shift+A/D`
+retains the walking turn shortcut; unmodified `A`/`D` strafe. The mouse wheel zooms at the pointer.
 `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 lit Tiergartentunnel is entered manually through either connected road portal;
 there is no scripted tunnel ride competing with direct camera control.
@@ -140,13 +140,18 @@ building remains the same closed solid.
 
 **Continuous navigation:** held arrows look in their indicated direction;
 held WASD moves along the current heading. In flight, `Space` rises and `Shift`
-alone descends; in walking, Space jumps and Shift sprints. Holding a desktop movement
+descends, including during movement and looking; in walking, Space jumps and Shift sprints. Holding a desktop movement
 or look button continues its labelled action until release. The orange joystick
 uses the same movement
 on desktop, phone and tablet: drag up/down to move forward/backward, and
 left/right to strafe. It sits beside the desktop panel or near the chosen
 bottom edge on compact touch layouts, and uses walking input in pedestrian
 mode. Canvas drag and keyboard/arrow controls still provide orbit and look.
+The desktop dock displays W/A/S/D movement buttons and a bilingual legend for
+movement, arrow-key looking, mouse drag and the current mode's Space/Shift
+actions. Compass-letter presets remain in the dedicated mobile compass sheet;
+they no longer resemble movement controls in the desktop dock. See
+[v1.0.40 browser controls](browser-controls-v140.md).
 The existing two-finger swipe remains. Flying below the Spree surface
 (scene water level 1.31 m) switches to
 an underwater presentation with deep-teal fog; it lifts as soon as the camera

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.39 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.39/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.40 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.40/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,21 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.39** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.40** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.40 refines Gymnasium Tiergarten, its blue Aula, the Hand mit Uhr
+and the streets around the school and GRIPS-Theater. It clarifies desktop
+controls: WASD moves, arrows look, Space rises and Shift descends while hovering.
+Distant views avoid invisible ink draws without
+changing scene detail or resolution. See [validation](docs/release-v1.0.40-review.md).
+
+Version 1.0.40 verbessert das Gymnasium Tiergarten mit blauer Aula, die Hand mit
+Uhr und die Straßen rund um Schule und GRIPS-Theater. Das Browser-Panel erklärt:
+WASD zum Bewegen, Pfeile für den Blick, beim Schweben Leertaste zum Steigen
+und Shift zum Sinken.
+Weite Ansichten sparen unsichtbare Zeichenaufrufe bei unveränderten Details und
+unveränderter Auflösung.
 
 Version 1.0.39 refines GRIPS-Theater and the small Hansaplatz shopping courts with source-bound roofs, glass doors, red lettering, the elevated glazed link and open covered passages. See [sources and validation](docs/release-v1.0.39-review.md).
 

@@ -54,23 +54,23 @@ describe("held desktop navigation routing", () => {
     });
   });
 
-  test("routes Shift plus horizontal arrows to orbit without descending", () => {
+  test("descends while looking left or right with Shift and arrows", () => {
     expect(heldNavigationInput(new Set(["Shift", "ArrowRight"]))).toEqual({
-      flight: { forward: 0, strafe: 0, vertical: 0 },
+      flight: { forward: 0, strafe: 0, vertical: -1 },
       orbit: { horizontal: 1, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });
   });
 
-  test("turns Shift+A left and Shift+D right while plain A and D still strafe", () => {
+  test("keeps A and D strafing while Shift descends", () => {
     expect(heldNavigationInput(new Set(["Shift", "a"]))).toEqual({
-      flight: { forward: 0, strafe: 0, vertical: 0 },
-      orbit: { horizontal: -1, vertical: 0 },
+      flight: { forward: 0, strafe: -1, vertical: -1 },
+      orbit: { horizontal: 0, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });
     expect(heldNavigationInput(new Set(["Shift", "d"]))).toEqual({
-      flight: { forward: 0, strafe: 0, vertical: 0 },
-      orbit: { horizontal: 1, vertical: 0 },
+      flight: { forward: 0, strafe: 1, vertical: -1 },
+      orbit: { horizontal: 0, vertical: 0 },
       pan: { horizontal: 0, vertical: 0 },
     });
     expect(heldNavigationInput(new Set(["d"]))).toEqual({
@@ -80,7 +80,7 @@ describe("held desktop navigation routing", () => {
     });
   });
 
-  test("keeps Shift alone as the free-camera descent control", () => {
+  test("keeps Shift as the free-camera descent control", () => {
     expect(heldNavigationInput(new Set(["Shift"]))).toEqual({
       flight: { forward: 0, strafe: 0, vertical: -1 },
       orbit: { horizontal: 0, vertical: 0 },
@@ -88,14 +88,39 @@ describe("held desktop navigation routing", () => {
     });
   });
 
-  test("gives Alt orbit precedence over pan and vertical flight", () => {
+  test("allows Alt arrow orbit alongside vertical flight", () => {
     expect(
       heldNavigationInput(new Set(["Alt", "Shift", "ArrowLeft", "ArrowDown"])),
     ).toEqual({
-      flight: { forward: 0, strafe: 0, vertical: 0 },
+      flight: { forward: 0, strafe: 0, vertical: -1 },
       orbit: { horizontal: -1, vertical: -1 },
       pan: { horizontal: 0, vertical: 0 },
     });
+  });
+
+  test("keeps flight height independent of every movement and look direction", () => {
+    for (const heightKey of ["Space", "Shift"]) {
+      for (const movementKey of ["w", "a", "s", "d"]) {
+        for (const lookKey of ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]) {
+          const input = heldNavigationInput(new Set([heightKey, movementKey, lookKey]));
+          expect(input.flight.vertical).toBe(heightKey === "Space" ? 1 : -1);
+          expect(input.flight.forward).toBe(movementKey === "w" ? 1 : movementKey === "s" ? -1 : 0);
+          expect(input.flight.strafe).toBe(movementKey === "d" ? 1 : movementKey === "a" ? -1 : 0);
+          expect(input.orbit.horizontal).toBe(lookKey === "ArrowRight" ? 1 : lookKey === "ArrowLeft" ? -1 : 0);
+          expect(input.orbit.vertical).toBe(lookKey === "ArrowUp" ? 1 : lookKey === "ArrowDown" ? -1 : 0);
+        }
+      }
+    }
+  });
+
+  test("opposed height keys cancel and release resumes the remaining direction", () => {
+    const keys = new Set(["w", "Shift", "Space", "ArrowUp"]);
+    expect(heldNavigationInput(keys).flight).toEqual({ forward: 1, strafe: 0, vertical: 0 });
+    keys.delete("Space");
+    expect(heldNavigationInput(keys).flight).toEqual({ forward: 1, strafe: 0, vertical: -1 });
+    keys.delete("Shift");
+    expect(heldNavigationInput(keys).flight).toEqual({ forward: 1, strafe: 0, vertical: 0 });
+    expect(heldNavigationInput(keys).orbit).toEqual({ horizontal: 0, vertical: 1 });
   });
 });
 

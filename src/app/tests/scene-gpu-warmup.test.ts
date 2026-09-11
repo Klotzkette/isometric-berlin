@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, Color, DirectionalLight,
-  Frustum, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
+  Frustum, Group, InstancedMesh, Line, LineBasicMaterial, LineSegments,
+  Matrix4, Mesh, MeshBasicMaterial,
   OrthographicCamera, Scene, Vector4, WebGLRenderTarget,
   type Camera, type Object3D, type WebGLRenderer,
 } from "three";
@@ -9,6 +10,9 @@ import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
 import { WebGLGeometries } from "three/src/renderers/webgl/WebGLGeometries.js";
 import { WebGLObjects } from "three/src/renderers/webgl/WebGLObjects.js";
 import { createSceneGpuWarmup, GPU_WARMUP_MAX_BYTES, GPU_WARMUP_MAX_OBJECTS } from "../src/sceneGpuWarmup";
+import {
+  isInkDrawSuppressed, registerInkDrawObject, updateInkDrawVisibility,
+} from "../src/inkDrawVisibility";
 
 /** Real Three buffer backend, counting GL uploads; no browser/GPU speed claim. */
 function host(scene: Scene, camera: Camera) {
@@ -37,7 +41,7 @@ function host(scene: Scene, camera: Camera) {
   let fail = false;
   let contextLost = false;
   let onRender: (() => void) | undefined;
-  const calls: { objects: Mesh[]; vertices: number; cameraId: number }[] = [];
+  const calls: { objects: Array<Mesh | Line>; vertices: number; cameraId: number }[] = [];
   const events = new EventTarget();
   const renderer = {
     info,
@@ -63,10 +67,10 @@ function host(scene: Scene, camera: Camera) {
       info.render.frame++;
       root.updateMatrixWorld(true); view.updateMatrixWorld(true);
       const frustum = new Frustum().setFromProjectionMatrix(new Matrix4().multiplyMatrices(view.projectionMatrix, view.matrixWorldInverse));
-      const call = { objects: [] as Mesh[], vertices: 0, cameraId: view.id };
+      const call = { objects: [] as Array<Mesh | Line>, vertices: 0, cameraId: view.id };
       const visit = (object: Object3D) => {
         if (!object.visible) return;
-        if (object instanceof Mesh && object.layers.test(view.layers) && (!object.frustumCulled || frustum.intersectsObject(object))) {
+        if ((object instanceof Mesh || object instanceof Line) && object.layers.test(view.layers) && (!object.frustumCulled || frustum.intersectsObject(object))) {
           objects.update(object);
           call.objects.push(object);
           const mats = Array.isArray(object.material) ? object.material : [object.material];
@@ -104,6 +108,116 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("prepares suppressed ink and keeps it resident through exact-zero fade transitions", () => {
+    const { scene, camera } = fixture();
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const line = new LineSegments(new BoxGeometry(), material);
+    line.position.x = 1000;
+    scene.add(line);
+    const originalAfterRender = line.onAfterRender;
+    const h = host(scene, camera);
+    h.warmup.enqueue(line);
+    expect(line.onAfterRender).not.toBe(originalAfterRender);
+    // Recollection while a residency observer is installed must not treat
+    // the observer as an authored callback and disable the optimization.
+    registerInkDrawObject(line);
+    expect(updateInkDrawVisibility(material)).toBeTrue();
+    h.onRender = () => {
+      expect(material.visible).toBeTrue();
+      expect(isInkDrawSuppressed(material)).toBeTrue();
+      expect(line.geometry.drawRange.count).toBe(0);
+    };
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.vertices).toBe(0);
+    expect(h.uploads).toContain(line.geometry.getAttribute("position").array);
+    expect(h.uploads).toContain(line.geometry.index!.array);
+    expect(material.visible).toBeFalse();
+    expect(isInkDrawSuppressed(material)).toBeTrue();
+    expect(line.onAfterRender).toBe(originalAfterRender);
+    const uploaded = h.uploads.length;
+    h.warmup.enqueue(line);
+    expect(h.warmup.pending).toBeFalse();
+
+    h.onRender = undefined;
+    material.opacity = Number.MIN_VALUE;
+    expect(updateInkDrawVisibility(material)).toBeTrue();
+    h.warmup.enqueue(line);
+    expect(h.warmup.pending).toBeFalse();
+    line.position.x = 0;
+    h.renderer.render(scene, camera);
+    expect(h.calls.at(-1)!.vertices).toBeGreaterThan(0);
+    expect(h.uploads).toHaveLength(uploaded);
+    material.opacity = 0;
+    updateInkDrawVisibility(material);
+    h.warmup.enqueue(line);
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.warmup.warmNext()).toBe(0);
+    h.warmup.dispose();
+  });
+
+  test("restores suppressed ink after failed preparation and permits a clean retry", () => {
+    const { scene, camera } = fixture();
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const line = new LineSegments(new BoxGeometry(), material);
+    line.geometry.setDrawRange(2, 10);
+    scene.add(line);
+    registerInkDrawObject(line);
+    updateInkDrawVisibility(material);
+    const h = host(scene, camera);
+    const state = h.state();
+    h.warmup.enqueue(line);
+    h.onRender = () => expect(material.visible).toBeTrue();
+    h.fail = true;
+    expect(() => h.warmup.warmNext()).toThrow("injected render failure");
+    expect(material.visible).toBeFalse();
+    expect(isInkDrawSuppressed(material)).toBeTrue();
+    expect(line.geometry.drawRange).toEqual({ start: 2, count: 10 });
+    expect(h.state()).toEqual(state);
+    h.fail = false;
+    h.warmup.enqueue(line);
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(material.visible).toBeFalse();
+    expect(h.uploads).toContain(line.geometry.index!.array);
+    h.warmup.dispose();
+  });
+
+  test("never promotes authored-hidden ink to a preparation draw", () => {
+    const { scene, camera } = fixture();
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    material.visible = false;
+    const line = new LineSegments(new BoxGeometry(), material);
+    scene.add(line);
+    registerInkDrawObject(line);
+    updateInkDrawVisibility(material);
+    const h = host(scene, camera);
+    h.warmup.enqueue(line);
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.uploads).toHaveLength(0);
+    expect(material.visible).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("residency observers do not make authored ink callbacks safe to suppress", () => {
+    const { scene, camera } = fixture();
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const line = new LineSegments(new BoxGeometry(), material);
+    let callbacks = 0;
+    const after = () => { callbacks++; };
+    line.onAfterRender = after;
+    scene.add(line);
+    const h = host(scene, camera);
+    h.warmup.enqueue(line);
+    registerInkDrawObject(line);
+    expect(updateInkDrawVisibility(material)).toBeFalse();
+    expect(material.visible).toBeTrue();
+    h.renderer.render(scene, camera);
+    expect(callbacks).toBe(1);
+    expect(line.onAfterRender).toBe(after);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
   test("eviction immediately removes queued descendants without waiting for a render", () => {
     const { scene, camera } = fixture();
     const evicted = new Group();

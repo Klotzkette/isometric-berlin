@@ -1,4 +1,5 @@
 import { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
+import { HAND_MIT_UHR_PROFILE } from "./gymnasiumTiergartenProfile";
 export { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
 
 import { POTSDAMER_TRAFFIC_TOWER_PROFILE } from "./potsdamerTrafficTowerProfile";
@@ -2851,6 +2852,7 @@ export function createTiergartenMonuments(
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
     } else if (
       entry.osm_key === POTSDAMER_TRAFFIC_TOWER_PROFILE.osmKey ||
+      entry.osm_key === HAND_MIT_UHR_PROFILE.osmKey ||
       entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey ||
       entry.osm_key === "node/262457570" || // source-bound Gendarmenmarkt Schiller
       entry.osm_key === "node/262455810" || // Neue Wache memorial identity

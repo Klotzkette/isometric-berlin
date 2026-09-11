@@ -3,6 +3,7 @@ import {
   WebGLRenderTarget,
   type Camera, type Object3D, type Scene, type WebGLRenderer,
 } from "three";
+import { isInkDrawSuppressed, registerInkRenderObserver } from "./inkDrawVisibility";
 
 // Spatial park cells share geometry and carry small instance buffers. Keep
 // the byte ceiling, but amortize scene traversal over more of these tiny draws.
@@ -31,8 +32,12 @@ function materials(object: Renderable): Material[] {
   return Array.isArray(object.material) ? object.material : [object.material];
 }
 
+function authoredMaterialVisible(material: Material): boolean {
+  return material.visible || isInkDrawSuppressed(material);
+}
+
 function active(object: Renderable, scene: Scene, camera: Camera): boolean {
-  if (!object.layers.test(camera.layers) || !materials(object).some((item) => item.visible)) return false;
+  if (!object.layers.test(camera.layers) || !materials(object).some(authoredMaterialVisible)) return false;
   for (let parent: Object3D | null = object; parent; parent = parent.parent) {
     if (!parent.visible) return false;
     if (parent === scene) return true;
@@ -115,7 +120,7 @@ export function createSceneGpuWarmup(
       epochs.get(object as InstancedMesh) ?? 0, object.receiveShadow, ...state];
     for (const material of materials(object)) {
       values.push(material, material.version, epochs.get(material) ?? 0,
-        material.visible, material.customProgramCacheKey());
+        authoredMaterialVisible(material), material.customProgramCacheKey());
     }
     for (const attribute of attributes(object)) {
       const buffer = "data" in attribute ? attribute.data : attribute;
@@ -168,13 +173,14 @@ export function createSceneGpuWarmup(
             group.start + group.count > geometry.drawRange.start)
           .map((group) => list[group.materialIndex ?? 0])
         : list;
-      if (!expected.filter((item) => item?.visible).every((item) => seenMaterials.has(item))) return;
+      if (!expected.filter((item) => item && authoredMaterialVisible(item)).every((item) => seenMaterials.has(item))) return;
       warmed.set(object, current);
       queued.delete(object);
       const index = queue.indexOf(object);
       if (index >= 0) queue.splice(index, 1);
       restoreRenderHook(object);
     };
+    registerInkRenderObserver(original, wrapped);
     renderHooks.set(object, { original, wrapped });
     object.onAfterRender = wrapped;
   };
@@ -247,6 +253,7 @@ export function createSceneGpuWarmup(
     const layers = new Map<Renderable, number>();
     const culling = new Map<Renderable, boolean>();
     const ranges = new Map<BufferGeometry, { start: number; count: number }>();
+    const temporarilyVisible = new Set<Material>();
     const savedTarget = renderer.getRenderTarget();
     const cubeFace = renderer.getActiveCubeFace();
     const mipLevel = renderer.getActiveMipmapLevel();
@@ -268,6 +275,15 @@ export function createSceneGpuWarmup(
       });
       for (const object of selected) {
         const geometry: BufferGeometry = object.geometry;
+        // Zero-alpha ink keeps its buffers resident even while its ordinary
+        // draw is skipped. This pass already draws zero vertices; restore the
+        // exact material visibility synchronously, including renderer errors.
+        for (const material of materials(object)) {
+          if (!material.visible && isInkDrawSuppressed(material)) {
+            temporarilyVisible.add(material);
+            material.visible = true;
+          }
+        }
         // The first real frustum test must not inherit a deferred vertex or
         // instance scan either. Compute the same bounds Three would compute.
         if (object.frustumCulled) {
@@ -298,6 +314,7 @@ export function createSceneGpuWarmup(
       preparationCamera.copy(camera, false);
       renderer.render(scene, preparationCamera);
     } finally {
+      for (const material of temporarilyVisible) material.visible = false;
       for (const [object, mask] of layers) object.layers.mask = mask;
       for (const [object, frustumCulled] of culling) object.frustumCulled = frustumCulled;
       for (const [geometry, range] of ranges) geometry.setDrawRange(range.start, range.count);

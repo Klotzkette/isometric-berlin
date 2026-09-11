@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.40
+
+- Refine the Gymnasium Tiergarten Neubau, its blue Aula and Schmettau’s Hand mit Uhr from source-bound forms.
+- Complete nearby Hansaplatz/GRIPS street surfaces, pavements and kerbs, including a bounded native Minecraft reading.
+- Explain WASD movement and arrow-key looking directly in the desktop dock.
+- Use held Space/Shift for ascent/descent while hovering, independently of movement and looking; retain walking jump and sprint.
+- Skip exactly zero-alpha ink draws and redundant ink updates during constant-radius motion, preserving geometry, view distance and resolution.
+
 ## v1.0.39
 
 - Refine GRIPS-Theater and the immediate Hansaplatz shopping court from all 31 official source parts, with photographed glazing, red lettering, external stair and elevated link.

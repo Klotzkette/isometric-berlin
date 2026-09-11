@@ -29,6 +29,7 @@ import { GORKI_BUILDING_SOURCE } from "../src/gorkiBuildingProfile";
 import { BEHREN42_SOURCE } from "../src/Behren42Profile";
 import { NEUE_WACHE_PRISM_IDS } from "../src/neueWacheProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "../src/gripsHansaplatzProfile";
+import { GYMNASIUM_NEUBAU_PRISM_IDS } from "../src/gymnasiumTiergartenProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -70,6 +71,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // Naturkunde 21, Gendarmenmarkt 17, Gorki 3 and Humboldt Carre 8. They are
     // geographically separate from the unchanged Abgeordnetenhaus annexes.
     // Neue Wache's retained source ID separately follows the open authored roof.
+    // The 13 Gymnasium Neubau parts also retain their individual roof planes.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
         ...BELLEVUE_IDS,
@@ -90,6 +92,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
           .flatMap(({ parts }) => parts.map(({ id }) => id)),
         ...NEUE_WACHE_PRISM_IDS,
         ...GRIPS_HANSAPLATZ_PRISM_IDS,
+        ...GYMNASIUM_NEUBAU_PRISM_IDS,
         ...[DOM_ALTES_SOURCE.dom, DOM_ALTES_SOURCE.altes].flatMap(({ parts }) => parts.map(({ id }) => id)),
       ].sort());
   });

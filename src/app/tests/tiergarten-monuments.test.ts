@@ -20,6 +20,8 @@ import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
 import { KROLLOPER_SCULPTURE_OSM_KEYS } from "../src/KrolloperSculptures";
 import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
+import { createHandMitUhr } from "../src/GymnasiumTiergartenNeubau";
+import { HAND_MIT_UHR_PROFILE } from "../src/gymnasiumTiergartenProfile";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
@@ -373,6 +375,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         !["node/262457570", "node/262455810", "node/5253735916"].includes(candidate.osm_key) &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
         !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
+        candidate.osm_key !== HAND_MIT_UHR_PROFILE.osmKey &&
         !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
           .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
@@ -499,6 +502,24 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     ).toBeNull();
     // The white marble Moltke is owned by its dedicated source-bound model.
     expect(tallestNear("Moltke")).toBe(-Infinity);
+  });
+
+  test("Hand mit Uhr is owned exclusively by its dedicated five-finger model", () => {
+    const entry = street.monuments!.find(
+      (candidate) => candidate.osm_key === HAND_MIT_UHR_PROFILE.osmKey,
+    )!;
+    expect(entry.name).toBe("Hand mit Uhr");
+    expect(createTiergartenMonuments({ ...street, monuments: [entry] }, ground))
+      .toBeNull();
+    expect(monuments.userData.externallyModelledSourceKeys)
+      .toContain(HAND_MIT_UHR_PROFILE.osmKey);
+    const hand = createHandMitUhr();
+    const bounds = new Box3().setFromObject(hand);
+    expect(hand.userData.osmKey).toBe(entry.osm_key);
+    expect(hand.userData.fingerCount).toBe(5);
+    expect(bounds.max.y - bounds.min.y)
+      .toBeCloseTo(HAND_MIT_UHR_PROFILE.displayHeightM, 2);
+    expect(HAND_MIT_UHR_PROFILE.heightIsSurveyed).toBeFalse();
   });
 
   test("Robert Koch sits in marble on the surveyed Robert-Koch-Platz anchor", () => {

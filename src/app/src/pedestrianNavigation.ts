@@ -1,6 +1,7 @@
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
 import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
+import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
 import { NEUE_WACHE_PRISM_IDS, NEUE_WACHE_PROFILE, NEUE_WACHE_ROOF_INDEX_RING, neueWacheRoofAt } from "./neueWacheProfile";
 import { BEHREN42_PRISM_IDS, BEHREN42_SOURCE } from "./Behren42Profile";
 import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
@@ -598,6 +599,13 @@ export function compilePedestrianObstacles(
     if (building.id === ROSENGARTEN_PERGOLA_PRISM_ID) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
     const grips = gripsHansaplatzPartForPrism(building.id);
+    const school = gymnasiumNeubauPartForPrism(building.id);
+    if (school) {
+      addPolygonObstacle(index, school.ring, school.holes, school.ground_y_m,
+        school.top_y_m, building.id, 1, (x,z) => gymnasiumNeubauRoofAt(school,x,z));
+      index.buildingCount += 1;
+      continue;
+    }
     if (grips) {
       addPolygonObstacle(index, grips.ring, grips.holes, grips.ground_y_m,
         grips.top_y_m, building.id, 1, (x,z) => gripsHansaplatzRoofAt(grips,x,z));

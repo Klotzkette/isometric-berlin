@@ -4,6 +4,7 @@ import {
   BoxGeometry, Group, InstancedMesh, LineBasicMaterial, LineSegments,
   Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3,
 } from "three";
+import * as inkDrawVisibility from "../src/inkDrawVisibility";
 import * as fade from "../src/fineDetailFade";
 import * as visibility from "../src/detailVisibility";
 import {
@@ -41,13 +42,15 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const bindings = {
-  ...fade, ...visibility, LineSegments, LineBasicMaterial, minecraftOwnsVisibility,
+  ...fade, ...visibility, ...inkDrawVisibility, LineSegments, LineBasicMaterial, minecraftOwnsVisibility,
   // Sign animation and material shader installation are independent of the
   // object-visibility contract; collection and frame decisions run unchanged.
   isBerlinerEnsembleRoofSignTarget: () => false,
   updateBerlinerEnsembleRoofSign: () => {},
   assignStableInkRenderOrder: () => {},
   stabilizeInkLineMaterial: (material: LineBasicMaterial) => {
+    material.transparent = true;
+    material.depthWrite = false;
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
   },
@@ -251,4 +254,45 @@ test("streamed district registration and eviction leave the retained city cache 
   expect(run.runtime.inkLineMaterials.has(sharedInk)).toBeTrue();
   expect(sceneScans).toBe(0);
   expect(gpuEnqueues).toBe(0);
+});
+
+
+describe("far ink submission during real viewer updates", () => {
+  test("omits only zero-alpha draws, restores near ink and releases mode ownership", () => {
+    const run = host();
+    run.runtime.camera.fov = 39;
+    const material = new LineBasicMaterial();
+    const line = new LineSegments(new BoxGeometry(2, 2, 2), material);
+    run.runtime.isoWorld.add(line);
+    run.collect();
+    run.runtime.camera.position.set(0, 0, 2450);
+    run.update(new Vector3());
+    expect(material.opacity).toBe(0);
+    expect(material.visible).toBeFalse();
+    expect(line.visible).toBeTrue();
+    run.runtime.camera.position.set(0, 0, 500);
+    run.update(new Vector3());
+    expect(material.opacity).toBe(1);
+    expect(material.visible).toBeTrue();
+    run.runtime.camera.position.set(0, 0, 2450);
+    run.update(new Vector3());
+    run.restore();
+    expect(material.visible).toBeTrue();
+  });
+
+  test("constant-radius pan skips material iteration but updates position detail", () => {
+    const run = host();
+    const object = detail();
+    run.runtime.isoWorld.add(object);
+    run.collect();
+    run.runtime.camera.position.set(500, 2, 25);
+    run.update(new Vector3(500, 2, -475));
+    expect(object.visible).toBeFalse();
+    const materials = run.runtime.inkLineMaterials;
+    materials[Symbol.iterator] = () => { throw new Error("unnecessary ink iteration"); };
+    run.runtime.camera.position.set(0, 2, 25);
+    run.update(new Vector3(0, 2, -475));
+    expect(object.visible).toBeTrue();
+    delete (materials as unknown as Record<symbol, unknown>)[Symbol.iterator];
+  });
 });

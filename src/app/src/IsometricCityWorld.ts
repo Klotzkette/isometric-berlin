@@ -1,6 +1,7 @@
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
 import { GORKI_BUILDING_PRISM_IDS } from "./gorkiBuildingProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "./gripsHansaplatzProfile";
+import { GYMNASIUM_NEUBAU_PRISM_IDS } from "./gymnasiumTiergartenProfile";
 import { BEHREN42_PRISM_IDS } from "./Behren42Profile";
 import { NEUE_WACHE_PRISM_IDS } from "./neueWacheProfile";
 import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
@@ -894,6 +895,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...NEUE_WACHE_PRISM_IDS,
   ...GORKI_BUILDING_PRISM_IDS,
   ...GRIPS_HANSAPLATZ_PRISM_IDS,
+  ...GYMNASIUM_NEUBAU_PRISM_IDS,
   ...BEHREN42_PRISM_IDS,
   ...BEBELPLATZ_BUILDING_PRISM_IDS,
   ...SCHLOSS_NATURKUNDE_PRISM_IDS,

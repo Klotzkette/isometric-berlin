@@ -426,3 +426,15 @@ Five external photographs support the existing theatre, foyer, U9 wall and eleva
 - [File:Hansaviertel_Hansaplatz_Gripstheater-001.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-001.JPG) — Fridolin freudenfett / CC BY-SA 4.0. Glazed foyer, paired entrance doors, transom, suspended red sign and number 22; 9 April 2016.
 - [File:Hansaviertel_Hansaplatz_Gripstheater-004.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-004.JPG) — Fridolin freudenfett / CC BY-SA 4.0. Continuous glass-block U9 west wall, white tiled piers, blue canopy, roof-mounted red letters and south access; 9 April 2016.
 - [File:Hansaviertel_Hansaplatz_Gripstheater-006.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-006.JPG) — Fridolin freudenfett / CC BY-SA 4.0. Elevated glazed link with blue-grey frame and red crossed bracing, clear path underneath; 9 April 2016.
+# Gymnasium Tiergarten Neubau and Hand mit Uhr (v1.0.40)
+
+External visual references only; no photograph, crop or texture is bundled.
+All four files are [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+See [source distinctions and geometry](../../docs/gymnasium-tiergarten-v140.md).
+
+| Photograph | Author | Used for |
+| --- | --- | --- |
+| [Hansaviertel Altonaer Straße Gymnasium Tiergarten.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Altonaer_Stra%C3%9Fe_Gymnasium_Tiergarten.JPG) | Fridolin freudenfett | White facades, terracotta strips, service tower; 2016 |
+| [Hansaviertel Lessingstraße Gymnasium Tiergarten-001.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Lessingstra%C3%9Fe_Gymnasium_Tiergarten-001.JPG) | Fridolin freudenfett | Opposite facade, narrow stairwell glazing; 2016 |
+| [Gymnasium Tiergarten.jpg](https://commons.wikimedia.org/wiki/File:Gymnasium_Tiergarten.jpg) | Michael T Alemu | River context and old/new school relationship; 2015 |
+| [Joachim Schmettau – Hand mit Uhr 2013.jpg](https://commons.wikimedia.org/wiki/File:Joachim_Schmettau_-_Hand_mit_Uhr_2013.jpg) | Rlbberlin | Restored downward-gripping hand, wrist clock, orange/white pedestal; 2013 |

@@ -676,6 +676,27 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gymnasium_tiergarten_v140",
+      "anchor_source": "Complete Berlin LoD2 parent DEBE01YYK0002KxL and retained OSM Hand mit Uhr node 5140418371; school account and four individually credited Commons photographs",
+      "geometry_ref": "src/app/src/gymnasiumTiergartenSource.json",
+      "documentation_ref": "docs/gymnasium-tiergarten-v140.md",
+      "conflicts": [
+        "gymnasium_tiergarten_v140",
+        "hand_mit_uhr_v140"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "hansaplatz_streets_v140",
+      "anchor_source": "Retained OSM roads and paths in the bounded 310 x 300 m Hansaplatz school/GRIPS scope, including covered at-grade AltonaerStrasse ways 455280943 and 455280945",
+      "geometry_ref": "src/app/src/data/hansaplatzBlockStreets.json",
+      "documentation_ref": "docs/hansaplatz-streets-v140.md",
+      "conflicts": [],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448954,6 +448975,25 @@
       "resolution": "Preserve every original source sheet and prior prism. Translate each complete parent to the retained street datum. Preserve all roof vertices exactly after translation; clip only covered-space lower display walls. Keep photographed U9 west wall and all three mapped southern stair approaches. Local facade bays, posts, glazing, sign/mural/stair detail and 3.05 m glazed-link depth remain recognition estimates.",
       "geometry_ref": "src/app/src/gripsHansaplatzSource.json",
       "documentation_ref": "docs/grips-hansaplatz-v139.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gymnasium_tiergarten_v140",
+      "kind": "coarse_display_roofs_and_generic_facades",
+      "conflict": "Thirteen school prisms omitted original stepped roofs and used uniform white for the blue projecting Aula. Original source ground is 0.868 m below the retained 5.2 m viewer street.",
+      "resolution": "Keep all original parts and prior prisms. Apply a rigid 0.868 m vertical display translation to source sheets; preserve footprints and all source roof heights. Source-described blue Aula and photo-proportioned facade windows are procedural recognition detail.",
+      "geometry_ref": "src/app/src/gymnasiumTiergartenSource.json",
+      "documentation_ref": "docs/gymnasium-tiergarten-v140.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "hand_mit_uhr_v140",
+      "kind": "generic_artwork_and_conflicting_published_height_material",
+      "conflict": "Previous generic abstract marker lacked the hand. School account calls the metal bronze; Hansaviertel association calls it Neusilber and states 5.50 m, while the Berlin-Mitte lexicon quoted by Wikipedia gives 4.5 m including the plinth. These height claims conflict and are not surveys.",
+      "resolution": "Use exact retained OSM node 5140418371 with a documented 4.5 m procedural display height, a dark silver-grey hand, wrist at top, four downward fingers and thumb, red digital clock and restored orange/white pedestal. Retain both height claims and credit Joachim Schmettau; no music-video material or texture is reproduced. The small tiled apron and 1.8 m walking connection to mapped footway1104087086 are bounded, photo-proportioned display surfaces, not surveyed paving polygons.",
+      "documentation_ref": "docs/gymnasium-tiergarten-v140.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

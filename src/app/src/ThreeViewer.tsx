@@ -3,6 +3,8 @@ import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
 import { gripsHansaplatzSolidAt } from "./gripsHansaplatzProfile";
+import { createGymnasiumTiergartenNeubau } from "./GymnasiumTiergartenNeubau";
+import { handMitUhrSolidAt } from "./gymnasiumTiergartenProfile";
 import { createBehren42Architecture } from "./Behren42Architecture";
 import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
@@ -23,6 +25,7 @@ import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
 import { worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
+import { registerInkDrawObject, registerInkShaderWrapper, restoreInkDrawVisibility, updateInkDrawVisibility } from "./inkDrawVisibility";
 import {
   createDistanceDetailTarget,
   restoreDistanceDetailTarget,
@@ -1710,6 +1713,7 @@ function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
       object.material instanceof LineBasicMaterial
     ) {
       stabilizeInkLineMaterial(object.material);
+      registerInkDrawObject(object);
       runtime.inkLineMaterials.add(object.material);
       runtime.inkLineObjects.push(object);
     }
@@ -1761,6 +1765,7 @@ function invalidateFarZoomAntiFlickerCache(runtime: Runtime): void {
 }
 
 function restoreFarZoomDetailVisibility(runtime: Runtime): void {
+  for (const material of runtime.inkLineMaterials) restoreInkDrawVisibility(material);
   for (const targets of [runtime.fineDetailObjects, runtime.microDetailObjects]) {
     for (const target of targets) {
       if (!minecraftOwnsVisibility(target.object)) {
@@ -1843,7 +1848,7 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   if (material.userData.temporallyStableInk === true) {
     return;
   }
-  const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
+  const previousOnBeforeCompile = material.onBeforeCompile;
   const previousProgramCacheKey = material.customProgramCacheKey();
   const urbanContrast = material.userData.urbanFacadeContrast === true;
   material.userData.temporallyStableInk = true;
@@ -1852,10 +1857,11 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   material.depthWrite = false;
   material.alphaToCoverage = false;
   material.onBeforeCompile = (shader, renderer) => {
-    previousOnBeforeCompile(shader, renderer);
+    previousOnBeforeCompile.call(material, shader, renderer);
     shader.vertexShader = stabilizeInkVertexShader(shader.vertexShader);
     if (urbanContrast) Object.assign(shader, urbanFacadeInkShader(shader.vertexShader, shader.fragmentShader));
   };
+  registerInkShaderWrapper(previousOnBeforeCompile, material.onBeforeCompile);
   material.customProgramCacheKey = () =>
     `${previousProgramCacheKey}|stable-ink-view-bias-v1${urbanContrast ? "|urban-facade-ink-v1" : ""}`;
   material.needsUpdate = true;
@@ -1900,41 +1906,47 @@ function updateFarZoomAntiFlicker(
   viewportHeightPx: number,
 ): boolean {
   const fovDegrees = runtime.camera.fov;
-  if (
+  // Ink depends on the projection, while close ornaments depend on position.
+  // A constant-radius pan/orbit must still update ornament visibility immediately.
+  const projectionChanged = !(
     Math.abs(runtime.farZoomAntiFlickerDistanceM - distanceM) <= 1e-5 &&
     runtime.farZoomAntiFlickerViewportHeightPx === viewportHeightPx &&
-    runtime.farZoomAntiFlickerFovDegrees === fovDegrees &&
-    runtime.farZoomAntiFlickerCameraPosition.equals(runtime.camera.position)
-  ) {
+    runtime.farZoomAntiFlickerFovDegrees === fovDegrees
+  );
+  if (!projectionChanged &&
+      runtime.farZoomAntiFlickerCameraPosition.equals(runtime.camera.position)) {
     return false;
   }
   runtime.farZoomAntiFlickerDistanceM = distanceM;
   runtime.farZoomAntiFlickerViewportHeightPx = viewportHeightPx;
   runtime.farZoomAntiFlickerFovDegrees = fovDegrees;
   runtime.farZoomAntiFlickerCameraPosition.copy(runtime.camera.position);
-  const px = projectedPixelSize(
-    INK_LINE_REFERENCE_FEATURE_M,
-    distanceM,
-    viewportHeightPx,
-    fovDegrees,
-  );
-  const opacity = inkLineFadeOpacity(px);
   let changed = false;
-  for (const material of runtime.inkLineMaterials) {
-    const state = nextInkLineFadeState({
-      authoredOpacity: material.userData.stableInkAuthoredOpacity as number,
-      currentOpacity: material.opacity,
-      fadeOpacity: opacity,
-      lastAppliedOpacity:
-        typeof material.userData.stableInkAppliedOpacity === "number"
-          ? material.userData.stableInkAppliedOpacity
-          : null,
-    });
-    material.userData.stableInkAuthoredOpacity = state.authoredOpacity;
-    material.userData.stableInkAppliedOpacity = state.appliedOpacity;
-    if (Math.abs(material.opacity - state.appliedOpacity) > 1e-6) {
-      material.opacity = state.appliedOpacity;
-      changed = true;
+  if (projectionChanged) {
+    const px = projectedPixelSize(
+      INK_LINE_REFERENCE_FEATURE_M,
+      distanceM,
+      viewportHeightPx,
+      fovDegrees,
+    );
+    const opacity = inkLineFadeOpacity(px);
+    for (const material of runtime.inkLineMaterials) {
+      const state = nextInkLineFadeState({
+        authoredOpacity: material.userData.stableInkAuthoredOpacity as number,
+        currentOpacity: material.opacity,
+        fadeOpacity: opacity,
+        lastAppliedOpacity:
+          typeof material.userData.stableInkAppliedOpacity === "number"
+            ? material.userData.stableInkAppliedOpacity
+            : null,
+      });
+      material.userData.stableInkAuthoredOpacity = state.authoredOpacity;
+      material.userData.stableInkAppliedOpacity = state.appliedOpacity;
+      if (Math.abs(material.opacity - state.appliedOpacity) > 1e-6) {
+        material.opacity = state.appliedOpacity;
+        changed = true;
+      }
+      changed = updateInkDrawVisibility(material) || changed;
     }
   }
   const fineDetailVisible = nextFineDetailVisible({
@@ -3406,6 +3418,7 @@ function ensureIsoWorld(
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
             gripsHansaplatzSolidAt(x, y, z, radius) ||
+            handMitUhrSolidAt(x, y, z, radius) ||
             neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
@@ -3579,6 +3592,8 @@ function ensureIsoWorld(
         isoWorld.add(createGorkiBuilding());
         yield;
         isoWorld.add(createGripsHansaplatz());
+        yield;
+        isoWorld.add(createGymnasiumTiergartenNeubau());
         yield;
         isoWorld.add(createBehren42Architecture());
         yield;
@@ -4023,6 +4038,7 @@ function ensureVoxelWorld(
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
             gripsHansaplatzSolidAt(x, y, z, radius) ||
+            handMitUhrSolidAt(x, y, z, radius) ||
             neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
@@ -7596,6 +7612,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           updateSchwellenraumMovingFlags(
             schwellenraumMovingRoots(runtime),
             runtime.schwellenraumFlagElapsedSeconds,
+            runtime.civicWindFlagTargets,
           );
           runtime.schwellenraumLastFlagFrameAt = timestamp;
         }

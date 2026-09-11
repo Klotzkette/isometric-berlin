@@ -51,7 +51,7 @@ def test_all_requested_street_districts_are_represented(streets: dict) -> None:
     "Ebertstraße",
   } <= names
   assert streets["schema_version"] == 2
-  assert len(streets["source"]["district_windows_epsg25833"]) == 6
+  assert len(streets["source"]["district_windows_epsg25833"]) == 7
   assert streets["inventory"]["source_road_count"] == len(streets["roads"])
   assert set(streets["elevated_path_ids"]).isdisjoint(
     {road["id"] for road in streets["roads"]}

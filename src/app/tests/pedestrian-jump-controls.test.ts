@@ -2,7 +2,11 @@ import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 import { Vector2, Vector3 } from "three";
 import { isPedestrianJumpKey, isReservedBrowserChord } from "../src/keyboardShortcuts";
-import { isPedestrianHighJumpDoubleActivation } from "../src/navigationInput";
+import {
+  heldNavigationInput,
+  holdNavigationKey,
+  isPedestrianHighJumpDoubleActivation,
+} from "../src/navigationInput";
 
 const parse = async (name: string) => ts.createSourceFile(name,
   await Bun.file(new URL(`../src/${name}`, import.meta.url)).text(),
@@ -89,5 +93,83 @@ describe("walking keyboard focus and jump routing", () => {
       bind(viewer, "focusNavigation", { runtimeRef })();
       expect(focused).toBe(canvas);
     }
+  });
+});
+
+describe("hover keyboard height and movement routing", () => {
+  test("real keyboard handlers preserve movement and look while height keys change", () => {
+    const heldFlightKeysRef = { current: new Set<string>() };
+    let flight = { strafe: 0, forward: 0, vertical: 0 };
+    let orbit = { horizontal: 0, vertical: 0 };
+    let resets = 0;
+    const updateHeldNavigation = bind(app, "updateHeldNavigation", {
+      isPedestrianMode: false,
+      heldFlightKeysRef,
+      heldNavigationInput,
+      setPanInput: () => {},
+      setFlightInput: (strafe: number, forward: number, vertical: number) => {
+        flight = { strafe, forward, vertical };
+      },
+      setOrbitInput: (horizontal: number, vertical: number) => {
+        orbit = { horizontal, vertical };
+      },
+    });
+    const navigationKey = bind(app, "navigationKey", { isPedestrianJumpKey });
+    const keyDown = bind(app, "handleKeyDown", {
+      HTMLElement: class {},
+      isReservedBrowserChord,
+      isPedestrianJumpKey,
+      isPedestrianMode: false,
+      isHelpOpen: false,
+      isRepositoryOpen: false,
+      isReady: true,
+      navigationKey,
+      heldFlightKeysRef,
+      holdNavigationKey,
+      updateHeldNavigation,
+      language: "en",
+      setStatus: () => {},
+      resetToDefaultView: () => { resets += 1; },
+    });
+    const keyUp = bind(app, "handleKeyUp", {
+      navigationKey,
+      NAVIGATION_KEYS: ["Shift", "Space", "w", "a", "ArrowUp", "ArrowRight"],
+      heldFlightKeysRef,
+      updateHeldNavigation,
+    });
+    const event = (key: string, shiftKey = false, repeat = false) => ({
+      key,
+      code: key === " " ? "Space" : "",
+      shiftKey,
+      repeat,
+      ctrlKey: false,
+      altKey: false,
+      metaKey: false,
+      target: null,
+      preventDefault: () => {},
+    });
+
+    keyDown(event("w"));
+    keyDown(event("Shift", true));
+    keyDown(event("A", true));
+    keyDown(event("ArrowUp", true));
+    expect(flight).toEqual({ strafe: -1, forward: 1, vertical: -1 });
+    expect(orbit).toEqual({ horizontal: 0, vertical: 1 });
+    keyDown(event("W", true, true));
+    expect(flight.vertical).toBe(-1);
+
+    keyDown(event(" ", true));
+    expect(flight).toEqual({ strafe: -1, forward: 1, vertical: 0 });
+    keyUp(event("Shift"));
+    keyDown(event("ArrowRight"));
+    expect(flight).toEqual({ strafe: -1, forward: 1, vertical: 1 });
+    expect(orbit).toEqual({ horizontal: 1, vertical: 1 });
+    keyUp(event(" "));
+    expect(flight).toEqual({ strafe: -1, forward: 1, vertical: 0 });
+
+    for (const key of ["w", "a", "ArrowUp", "ArrowRight"]) keyUp(event(key));
+    expect(flight).toEqual({ strafe: 0, forward: 0, vertical: 0 });
+    expect(orbit).toEqual({ horizontal: 0, vertical: 0 });
+    expect(resets).toBe(0);
   });
 });

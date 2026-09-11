@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.38 adds the complete source-bound Mitte landmarks and open Neue Wache.
+// v1.0.40 adds the source-bound Gymnasium, Hand mit Uhr and Hansaplatz paving.
 // Independent synchronous measurements are compared with cooperative buffers;
 // existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "8e4d91b7d0b6fc493ed7269a4c5907558ecb98ccda825d6a0aa75fc87f2d76fb", 3839770, 116, 292839305],
-  ["mobile", "43cb0219324ede35f426cdba84ca7188708f2459bbdb569f320650e7ba905635", 1056438, 114, 80856617],
+  ["full", "1faae9cbc20975af16d328b73338433fa5f124c32c0efcb8add1ff9954d74048", 3848744, 119, 293523465],
+  ["mobile", "ada8090508de99f3f5589bceada55e612288b5ddc5ce9a3d5724a69df5428992", 1065880, 117, 81576345],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
