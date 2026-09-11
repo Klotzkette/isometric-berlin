@@ -1,3 +1,4 @@
+import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
@@ -1832,6 +1833,7 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   }
   const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
   const previousProgramCacheKey = material.customProgramCacheKey();
+  const urbanContrast = material.userData.urbanFacadeContrast === true;
   material.userData.temporallyStableInk = true;
   material.transparent = true;
   material.depthTest = true;
@@ -1840,9 +1842,10 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   material.onBeforeCompile = (shader, renderer) => {
     previousOnBeforeCompile(shader, renderer);
     shader.vertexShader = stabilizeInkVertexShader(shader.vertexShader);
+    if (urbanContrast) Object.assign(shader, urbanFacadeInkShader(shader.vertexShader, shader.fragmentShader));
   };
   material.customProgramCacheKey = () =>
-    `${previousProgramCacheKey}|stable-ink-view-bias-v1`;
+    `${previousProgramCacheKey}|stable-ink-view-bias-v1${urbanContrast ? "|urban-facade-ink-v1" : ""}`;
   material.needsUpdate = true;
 }
 

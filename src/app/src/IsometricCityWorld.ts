@@ -1,3 +1,6 @@
+import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
+export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
+import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone, urbanIllustrationToneInto } from "./urbanFacadePresentation";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { pointInBrandenburgApproach } from "./brandenburgApproachScope";
 import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
@@ -254,7 +257,7 @@ export type PrismBuilding = {
   id: string;
   ring: number[][];
   roof?: number;
-  /** Sampled real median colour of this building (0-255 RGB). */
+  /** Median RGB from the retained Step-8 illustration, not a facade survey. */
   tone?: [number, number, number];
   y0_dm: number;
 };
@@ -1306,7 +1309,7 @@ export const PRISM_GLASSED_IDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Clean a sampled real building colour into a flat illustration paint
+ * Clean a retained overview colour into a flat illustration paint
  * tone: mild desaturation kills photo chroma noise, the lightness is
  * clamped to a readable band (dark grey stays possible — the Reichstag
  * is grey — but never black) and quantised onto six shared paint levels
@@ -1492,15 +1495,17 @@ function facadeColorFor(
     return target.setHex(0xf0cf7d).lerp(IVORY, 0.08);
   }
   const attributes = buildingAttributes(building.id);
-  const recordedTone = mappedColor(attributes?.tags["building:colour"]) ??
+  const urban = urbanFacadeScope(building);
+  const recordedTone = urban ? urbanMappedFacadeTone(attributes) :
+    mappedColor(attributes?.tags["building:colour"]) ??
     (building.tone ? undefined : mappedFacadeTone(attributes));
   if (recordedTone !== undefined) {
-    return target.setHex(recordedTone).lerp(IVORY, 0.12);
+    return target.setHex(recordedTone).lerp(IVORY, urban ? 0.04 : 0.12);
   }
-  // Each building carries its sampled real colour ("den jeweiligen
-  // Gebäudetyp angleichen"); the shared class shades are only the
-  // fallback for footprints without a valid sample.
+  // Retain the per-part Step-8 illustration sample where no stronger source
+  // attribute exists; this colour is not a surveyed facade observation.
   if (building.tone) {
+    if (urban) return urbanIllustrationToneInto(building.tone, target);
     return cleanedToneInto(building.tone, target).lerp(
       IVORY,
       SOURCE_FACADE_IVORY_BLEND,
@@ -1542,7 +1547,9 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
   const pinnedRoof = potsdamerPanoramaMaterialFor(building.id)?.roof ??
     HERO_PRISM_ROOF_TONES[building.id] ??
     (inReichstagRegion(building) ? 0xe1e3dc : isScharounGoldPrism(building)
-      ? 0xf6e0a7 : mappedRoofTone(buildingAttributes(building.id)));
+      ? 0xf6e0a7 : (urbanFacadeScope(building)
+        ? urbanMappedRoofTone(buildingAttributes(building.id))
+        : mappedRoofTone(buildingAttributes(building.id))));
   return pinnedRoof !== undefined ? target.setHex(pinnedRoof)
     : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
 }
@@ -2861,66 +2868,8 @@ const TIERGARTEN_PARK_EDGE_RHYTHM = {
   width: 1.2,
 } as const;
 
-/**
- * Display-scale outer envelope of OSM relation 7643526 (Großer Tiergarten).
- *
- * The six road-separated source polygons were closed by 30 m and their outer
- * boundary simplified by 20 m before conversion from EPSG:25833 into viewer
- * metres. This small ring is only a facade-facing classifier: the committed
- * exact OSM park surfaces remain the visible geometry and source of truth.
- */
-export const TIERGARTEN_PARK_EDGE_WORLD_M = [
-  [-2715.5, 614.7],
-  [-2707.4, 592.3],
-  [-2285.3, 550.2],
-  [-2279, 417.8],
-  [-2221, 327.7],
-  [-1962.8, 346.9],
-  [-1866.9, 280.7],
-  [-1781.8, 281.6],
-  [-1749.4, 223.4],
-  [-1856.6, 140.1],
-  [-1827.2, 113.7],
-  [-1838.1, 3.9],
-  [-1810.4, 36.1],
-  [-1739.6, 29.2],
-  [-1727.5, 87.7],
-  [-1659.6, 83],
-  [-1637.2, -46],
-  [-1673.6, -91.1],
-  [-1616.1, -74.8],
-  [-1569.1, -126.4],
-  [-1448.8, -118.9],
-  [-1371.9, -47.8],
-  [-1540.8, -84.8],
-  [-1600.8, 81],
-  [-1428.3, 166.3],
-  [-1455.6, 255.8],
-  [-1341.7, 337.4],
-  [-1132.3, 185.2],
-  [-930.6, 199.1],
-  [-662.9, 127.3],
-  [-166.7, 175.4],
-  [-99.3, 132],
-  [352.4, 145.9],
-  [370.5, 214.5],
-  [301.1, 303],
-  [374.8, 393.4],
-  [327.2, 704.9],
-  [275, 757.7],
-  [13.8, 831.7],
-  [-53.9, 805],
-  [-73.6, 861.6],
-  [-593.5, 989.5],
-  [-1384, 974.6],
-  [-1491.3, 1024.7],
-  [-1720.9, 958],
-  [-1787.8, 863.1],
-  [-1946.5, 1033.6],
-  [-2246.7, 860.2],
-  [-2462.1, 624.2],
-  [-2715.5, 614.7],
-] as const;
+
+
 
 const EUROPAPLATZ_CENTRE_WORLD_M = [-116, -1002] as const;
 const WASHINGTONPLATZ_CENTRE_WORLD_M = [
@@ -12260,11 +12209,14 @@ export function createIsometricCity(
       totalHeight >= DETAIL_MIN_BUILDING_M &&
       !GENERIC_FACADE_TRIM_SUPPRESSED_IDS.has(building.id)
     ) {
-      const sockelTone = color.clone().multiplyScalar(0.92);
+      const urbanOrdinary = urbanFacadeScope(building) &&
+        HERO_PRISM_TONES[building.id] === undefined &&
+        !potsdamerPanoramaMaterialFor(building.id);
+      const sockelTone = color.clone().multiplyScalar(urbanOrdinary ? 0.74 : 0.92);
       const corniceTone = color
         .clone()
         .multiplyScalar(0.95)
-        .lerp(ROOF_PLATE_TINT, 0.15);
+        .lerp(ROOF_PLATE_TINT, urbanOrdinary ? 0.30 : 0.15);
       for (const wall of facadeWallsOf(building)) {
         if (wall.length < DETAIL_MIN_WALL_M) {
           continue;
@@ -12614,6 +12566,7 @@ export function createIsometricCity(
       ),
     );
     axes.name = "LoD2 facade axes";
+    axes.material.userData.urbanFacadeContrast = true;
     axes.renderOrder = 2;
     axes.userData.detailFadeM = ISO_FACADE_DETAIL_FADE_M;
     axes.userData.facadeRhythm = {

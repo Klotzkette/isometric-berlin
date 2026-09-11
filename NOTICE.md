@@ -977,6 +977,12 @@ and mirrored in the packaged viewer attribution manifest.
   [Rosengarten evidence](docs/rosengarten-refinement-v134.md) and
   [memorial evidence](docs/soviet-memorial-refinement.md).
 
+- **Bounded urban facade presentation (v1.0.35):** reuses the retained OSM
+  building colour/material supplement (ODbL 1.0) and the existing Step-8
+  illustration palette. Source tags and illustrative tones remain distinct;
+  no new photograph, texture or opening survey is introduced. See
+  [scope and evidence](docs/urban-facade-presentation-v135.md).
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

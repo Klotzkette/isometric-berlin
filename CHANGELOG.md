@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.35
+
+- Prioritise retained OSM facade materials over old illustration samples in the
+  requested Tiergarten, Potsdamer/Pariser Platz, Charité and Europacity areas.
+- Resolve additional recorded CSS colour names for facades and roofs, including
+  their existing Minecraft material representation.
+- Rebalance ordinary illustration tones and strengthen existing facade strokes,
+  plinths and cornices without adding window positions or facade geometry.
+- Preserve authored landmark palettes, surrounding areas and mobile detail.
+
 ## v1.0.34
 
 - Align both Soviet Memorial tanks, barrels and plinths toward Straße des 17. Juni

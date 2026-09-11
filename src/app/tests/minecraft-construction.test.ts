@@ -1,13 +1,14 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.34 turns the Soviet tanks toward the street, adds two muzzle blocks,
-// and removes the false Rosengarten pergola's 21 closed source columns.
+// v1.0.35 restores scoped mapped facade/material colours and roof colours.
+// Newly resolved roof colours add 141 mobile roof-cap instances inside the
+// existing column envelopes; full geometry and both draw counts are unchanged.
 // Independently measured synchronous buffers are compared
 // with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "1aa301bd2ec2badb93458b2311c1472f06f3e8a1faa28259f198078b9b77e45b", 3811391, 105, 290675013],
-  ["mobile", "75362553682855a69ced93c2240052e9c5d4f17a4acde4470ece80badd8b80c2", 1017416, 103, 77883457],
+  ["full", "b52a735653e33483bfdfb92eb3573462c453aec7f5f6175dbe3e15b9a87fdbb4", 3811391, 105, 290675013],
+  ["mobile", "3153643f1205b1dc98edac963162620aae74b405ae8e67c6aff2fdc80ad13ef1", 1017557, 103, 77894173],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

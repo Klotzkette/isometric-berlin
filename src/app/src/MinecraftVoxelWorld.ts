@@ -1,3 +1,4 @@
+import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
 import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
@@ -923,7 +924,7 @@ export function smoothGroundTopSampler(
 }
 
 /**
- * Per-column real-colour lookup: point-in-footprint against the LoD2
+ * Per-column source/illustration colour lookup against the LoD2
  * prism payload, each building's sampled tone snapped to the nearest
  * Minecraft palette entry. Kills the one-colour-city ("einfarbig")
  * while staying strictly inside the authored block palette.
@@ -932,12 +933,14 @@ export type ColumnToneLookup = ((x: number, z: number) => number | null) & {
   sourceIdAt?: (x: number, z: number) => string | null;
   attributesAt?: (x: number, z: number) => BuildingAttributes | undefined;
   storeysAt?: (x: number, z: number) => MappedStoreyProfile | null;
+  roofToneAt?: (x: number, z: number) => number | undefined;
 };
 
 type TonedPrism = {
   id?: string;
   hex: number | null;
   attributes?: BuildingAttributes;
+  roofTone?: number;
   storeys: MappedStoreyProfile | null;
   maxX: number;
   maxZ: number;
@@ -973,7 +976,7 @@ export function buildColumnToneLookup(prisms: {
     return { b, cb: b - y, cr: r - y, g, hex, r, y };
   });
   const snap = (tone: [number, number, number]): number => {
-    // Lighten and desaturate the raw photo sample toward the drawn
+    // Lighten and desaturate the retained illustration sample toward the drawn
     // city's bright band BEFORE matching ("heller"), so a building that
     // is pale cream by day is not a dark block in Minecraft.
     const luma = luminance(tone[0], tone[1], tone[2]);
@@ -1012,8 +1015,10 @@ export function buildColumnToneLookup(prisms: {
     // These bounded v1.0.6 facades use the same photo-guided colour family
     // as the drawn world, snapped to the existing Minecraft material palette.
     const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] ?? FRIEDRICHSTRASSE_ARCHITECTURE_TONES[building.id] : undefined;
-    const mappedTone = corridorTone ?? mappedColor(attributes?.tags["building:colour"]) ??
-      (building.tone ? undefined : mappedFacadeTone(attributes));
+    const urban = urbanFacadeScope(building);
+    const mappedTone = corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
+      mappedColor(attributes?.tags["building:colour"]) ??
+      (building.tone ? undefined : mappedFacadeTone(attributes)));
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
       continue;
     }
@@ -1025,6 +1030,7 @@ export function buildColumnToneLookup(prisms: {
     const toned: TonedPrism = {
       id: building.id,
       attributes,
+      roofTone: urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes),
       storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
       holes: (building.holes ?? []).map((ring) => ring.map(([x, z]) => [x / 10, z / 10] as [number, number])),
       hex: panorama?.facade ?? (
@@ -1108,6 +1114,7 @@ export function buildColumnToneLookup(prisms: {
       !toned.holes.some((hole) => inside(x, z, hole)));
   };
   lookup.attributesAt = (x, z) => sourceAt(x, z)?.attributes;
+  lookup.roofToneAt = (x, z) => sourceAt(x, z)?.roofTone;
   lookup.sourceIdAt = (x, z) => sourceAt(x, z)?.id ?? null;
   lookup.storeysAt = (x, z) => sourceAt(x, z)?.storeys ?? null;
   return lookup;
@@ -2835,7 +2842,7 @@ export function* buildMinecraftVoxelWorldSteps(
     const height = Math.max(cell, roofTopY - y0dm / 10);
     const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
     if (mobileDetail && !heroSource) {
-      const mappedRoof = mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ));
+      const mappedRoof = toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ));
       buildingLayerCount += mappedRoof !== undefined && height > 5 ? 2 : 1;
       continue;
     }
@@ -2880,7 +2887,7 @@ export function* buildMinecraftVoxelWorldSteps(
     const worldZ = worldZAbs(zIdx);
     const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
     const attributes = toneLookup?.attributesAt?.(worldX, worldZ);
-    const sourceRoofTone = mappedRoofTone(attributes);
+    const sourceRoofTone = toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(attributes);
     const roofTopY =
       recognitionArea?.name === "Rieckhallen"
         ? RIECKHALLEN_PROFILE.minecraftRoofTopY
