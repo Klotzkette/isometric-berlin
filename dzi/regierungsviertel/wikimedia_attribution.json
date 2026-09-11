@@ -2856,6 +2856,66 @@
       "description": "13 June 2009 south and west front: three wooden portals, fluted pilasters, pale stone, framed blind panels, pediment and theatre inscription. Historical form reference, not current event-banner or construction evidence. External visual QA only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "grips_hansaplatz",
+      "title": "File:Grips-theater.berlin-hansaplatz.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Grips-theater.berlin-hansaplatz.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "De-okin",
+      "credit": "De-okin / CC BY-SA 3.0",
+      "description": "Street facade, metal-panel hall, red GRIPS lettering and exterior spiral stair; August 2008. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grips_hansaplatz",
+      "title": "File:Grips-theater.berlin-hansaplatz.II.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Grips-theater.berlin-hansaplatz.II.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "De-okin",
+      "credit": "De-okin / CC BY-SA 3.0",
+      "description": "South mural zone, low cafe wing and red theatre identity; August 2008. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grips_hansaplatz",
+      "title": "File:Hansaviertel_Hansaplatz_Gripstheater-001.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-001.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "description": "Glazed foyer, paired entrance doors, transom, suspended red sign and number 22; 9 April 2016. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grips_hansaplatz",
+      "title": "File:Hansaviertel_Hansaplatz_Gripstheater-004.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-004.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "description": "Continuous glass-block U9 west wall, white tiled piers, blue canopy, roof-mounted red letters and south access; 9 April 2016. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grips_hansaplatz",
+      "title": "File:Hansaviertel_Hansaplatz_Gripstheater-006.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Hansaplatz_Gripstheater-006.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "description": "Elevated glazed link with blue-grey frame and red crossed bracing, clear path underneath; 9 April 2016. Historical visual reference for existing architecture; no current event poster or proposed new building is reproduced. External visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
