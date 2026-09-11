@@ -300,7 +300,7 @@ function finish(root: Group, blocks: Block[], name: string, minecraft: boolean, 
 }
 
 function create(payload: PrismPayload, options: ParliamentDetailOptions, minecraft: boolean): Group {
-  const mobile = options.mobileLike ?? false;
+  const mobile = minecraft && (options.mobileLike ?? false);
   const displayPayload = withDisplayWing(payload);
   const parts = displayPayload.buildings.filter((b) => PARLIAMENT_ARCHITECTURE_IDS.has(b.id) || b.id === JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId);
   const blocks: Block[] = [];

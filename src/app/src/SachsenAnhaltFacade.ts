@@ -18,7 +18,7 @@ const dx=SACHSEN_ANHALT_FACADE_PROFILE.end[0]-SACHSEN_ANHALT_FACADE_PROFILE.star
 const cx=(SACHSEN_ANHALT_FACADE_PROFILE.start[0]+SACHSEN_ANHALT_FACADE_PROFILE.end[0])/2,cz=(SACHSEN_ANHALT_FACADE_PROFILE.start[1]+SACHSEN_ANHALT_FACADE_PROFILE.end[1])/2;
 const at=(u:number,y:number,o:number):[number,number,number]=>[cx+ax*u+nx*o,y,cz+az*u+nz*o];
 function plan(minecraft:boolean,options:SachsenAnhaltFacadeOptions):SachsenAnhaltFacadeBlock[]{
-  const blocks:SachsenAnhaltFacadeBlock[]=[],mobile=!!options.mobileLike,q=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),-Math.atan2(az,ax)).toArray();
+  const blocks:SachsenAnhaltFacadeBlock[]=[],mobile=minecraft&&!!options.mobileLike,q=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),-Math.atan2(az,ax)).toArray();
   const add=(u:number,y:number,out:number,w:number,h:number,d:number,color:number,role:string)=>blocks.push({position:at(u,y,out),size:[w,h,d],quaternion:q,color,role});
   const pane=(u:number,bottom:number,w:number,h:number,out:number,role:string)=>{
     add(u,bottom+h/2,out,w+.3,h+.28,.1,C.stone,"window architrave");add(u,bottom+h/2,out+.08,w,h,.1,C.glass,role);

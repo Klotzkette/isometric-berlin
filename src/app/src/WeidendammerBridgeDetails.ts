@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   Box3,
   BoxGeometry,
@@ -116,11 +117,11 @@ export const WEIDENDAMMER_BRIDGE_RAIL_BAY_COUNT_PER_SIDE = 28;
 export const WEIDENDAMMER_BRIDGE_RAILING_SYSTEM_COUNT = 1;
 export const WEIDENDAMMER_BRIDGE_REPEATING_RAIL_FIELD_COUNT = Object.freeze({
   full: 52,
-  mobile: 24,
+  mobile: 52,
 });
 export const WEIDENDAMMER_BRIDGE_LOVE_LOCK_COUNT = Object.freeze({
   full: 192,
-  mobile: 96,
+  mobile: 192,
 });
 
 export const WEIDENDAMMER_BRIDGE_STRUCTURAL_LAYER_NAME =
@@ -885,6 +886,7 @@ export function createWeidendammerBridgeDetails(
   detailProfile: WeidendammerBridgeDetailProfile = "full",
   waterTopY = DEFAULT_WATER_TOP_Y_M,
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = WEIDENDAMMER_BRIDGE_SMOOTH_ROOT_NAME;
   const { ink, lamps, mesh } = createOrnamentMesh(detailProfile);

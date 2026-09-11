@@ -463,9 +463,9 @@ export function createBismarckMoltkeMonuments(
   for (const key of ["bismarck", "moltke"] as const) {
     const profile = BISMARCK_MOLTKE_PROFILES[key],
       b = createBuilder(),
-      solids = model(key, options.mobileLike);
+      solids = model(key, false);
     for (const s of solids) {
-      const g = geometry(s, !!options.mobileLike);
+      const g = geometry(s, false);
       if (s.ink) b.edges.push(new EdgesGeometry(g, 30));
       paintGeometry(g, s.color);
       b.parts.push(g);

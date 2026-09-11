@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { staticGeometryAudit } from "./helpers/staticGeometryAudit";
 import {
   Box3,
   InstancedMesh,
@@ -175,13 +176,18 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
     });
   });
 
-  test("selects and freezes separate full/mobile render budgets", () => {
+  test("restores complete drawn detail while preserving the separate native budgets", () => {
     const full = createFriedrichstadtAndTearPalaces("full");
     const mobile = createFriedrichstadtAndTearPalaces("mobile");
     const fullStats = palaceRenderStats(full);
     const mobileStats = palaceRenderStats(mobile);
     expect(fullStats).toEqual({ instanceCount: 17_374, renderedVertices: 418_392, renderables: 9, storedVertices: 1_560 });
-    expect(mobileStats).toEqual({ instanceCount: 13_794, renderedVertices: 332_184, renderables: 9, storedVertices: 1_272 });
+    expect(mobileStats).toEqual({ instanceCount: 15_659, renderedVertices: 377_232, renderables: 9, storedVertices: 1_560 });
+    // The only remaining profile difference belongs to the native Minecraft
+    // child; drawn Palast and Tränenpalast retain every full-detail attribute.
+    for (const index of [0, 1]) {
+      expect(staticGeometryAudit(mobile.children[index])).toEqual(staticGeometryAudit(full.children[index]));
+    }
     const fullBudget = PALACE_DETAIL_RENDER_BUDGETS.full;
     const mobileBudget = PALACE_DETAIL_RENDER_BUDGETS.mobile;
     expect(full.userData.performanceBudget).toBe(fullBudget);

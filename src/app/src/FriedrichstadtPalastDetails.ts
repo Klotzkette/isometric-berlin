@@ -150,7 +150,7 @@ function lettering(p: Plans): void {
 
 export function planFriedrichstadtPalast(detailProfile: PalaceDetailProfile = "full", minecraft = false): Plans {
   const p: Plans = { stone: [], glass: [], sign: [] };
-  const mobile = detailProfile === "mobile";
+  const mobile = minecraft && detailProfile === "mobile";
   const subdivisions = mobile ? 6 : 10;
   for (let axis = -4; axis <= 4; axis++) {
     const u = axis * 5.28;

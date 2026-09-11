@@ -248,7 +248,7 @@ describe("source-bound Moabit prison memorial park", () => {
     });
     expect(moabitPrisonMemorialRenderStats(mobile)).toEqual({
       renderables: 5,
-      renderedVertices: 5_448,
+      renderedVertices: 7_818,
     });
     full.traverse((object) => {
       if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;

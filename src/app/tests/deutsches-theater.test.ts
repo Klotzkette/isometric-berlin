@@ -62,7 +62,7 @@ describe("Deutsches Theater and real Kammerspiele source correction",()=>{
   });
   for(const minecraft of [false,true])for(const mobileLike of [false,true])test(`${minecraft?"Minecraft":"drawn"} ${mobileLike?"mobile":"full"} is bounded, image-free and leaves every source intact`,()=>{
     const before=JSON.stringify(subset),g=(minecraft?createMinecraftDeutschesTheater:createDeutschesTheater)(subset,{mobileLike,voxels,diagnostics:true});
-    const s=stats(g);expect(s.calls).toBe(minecraft?1:4);expect(s.bytes).toBeLessThan(minecraft?600_000:mobileLike?290_000:380_000);
+    const s=stats(g);expect(s.calls).toBe(minecraft?1:4);expect(s.bytes).toBeLessThan(minecraft?600_000:380_000);
     expect(s.instances).toBeGreaterThan(2500);expect(s.instances).toBeLessThan(7000);
     g.traverse(o=>{if(!(o instanceof Mesh))return;expect(o.geometry.getAttribute("uv")).toBeUndefined();for(const a of Object.values(o.geometry.attributes))expect(Array.from(a.array).every(Number.isFinite)).toBeTrue();if(o instanceof InstancedMesh)expect(Array.from(o.instanceMatrix.array).every(Number.isFinite)).toBeTrue();
       for(const m of [o.material,o.userData.dayMaterial,o.userData.nightMaterial].flat())if(m&&"map"in m)expect(m.map).toBeNull();

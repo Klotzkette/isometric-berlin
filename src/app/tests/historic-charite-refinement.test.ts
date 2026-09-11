@@ -145,7 +145,7 @@ describe("Charite v1.0.4 exterior and block reconstruction",()=>{
     const drawn=createHistoricChariteCampus(prisms,profile);
     const block=createMinecraftHistoricCharite(source,profile,true);
     expect(stats(drawn).calls).toBe(5);expect(stats(block).calls).toBe(1);
-    expect(stats(drawn).bytes).toBeLessThan(profile==="full"?2_600_000:2_250_000);
+    expect(stats(drawn).bytes).toBeLessThan(2_600_000);
     expect(stats(block).bytes).toBeLessThan(profile==="full"?580_000:370_000);
     expect(block.userData.sourcePrisms).toBe(26);
     expect(block.userData.detailCounts.windows).toBe(673);

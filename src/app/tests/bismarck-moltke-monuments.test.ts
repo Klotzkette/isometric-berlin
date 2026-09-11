@@ -190,6 +190,6 @@ describe("Bismarck and Moltke present-day source-bound monuments", () => {
     expect(stats(root).vertices).toBeLessThan(36000);
     expect(
       stats(createBismarckMoltkeMonuments({ mobileLike: true })).vertices,
-    ).toBeLessThan(22000);
+    ).toBe(stats(root).vertices);
   });
 });

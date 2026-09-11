@@ -443,7 +443,7 @@ function makeRoot(blockNative: boolean): Group {
 }
 export function createLitfinWatchtower(options: LitfinOptions = {}): Group {
   const root = makeRoot(false);
-  const boxes = litfinWatchtowerBoxes(options.mobileLike);
+  const boxes = litfinWatchtowerBoxes(false);
   root.add(
     makeBatch(
       boxes.filter((b) => !b.fine),

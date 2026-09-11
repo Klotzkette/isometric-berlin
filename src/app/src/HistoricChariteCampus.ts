@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -761,6 +762,7 @@ export function historicChariteRoofCode(
 export function createHistoricChariteCampus(
   prisms: PrismPayload, detailProfile: "full" | "mobile" = "full", diagnostics = false,
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
   group.name = "Historic Charite campus details";
   const heritageBuilder = createBuilder();

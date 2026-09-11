@@ -957,8 +957,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "static selected marker": "marker.visible = false",
     "compact fast-start terrain": "GROUND_CONTEXT_FILE",
     "retired photographic surface hard-disable": "photographicSurfaceNeeded(",
-    "desktop exact-building cap": "DESKTOP_TOTAL_BUILDING_LIMIT",
-    "raster asphalt retention": "retainRasterAsphalt: true",
+    "camera-following bounded building detail": "buildingDetailProfile(detailProfile).batchSize",
+    "exact roads without protruding raster asphalt": "retainRasterAsphalt: false",
     "startup work yielding": "await yieldStartupWork();",
     "procedural failure reporting": "runtime.reportWorldFailure = () => {",
     "settled-only official-tree detail gate": (

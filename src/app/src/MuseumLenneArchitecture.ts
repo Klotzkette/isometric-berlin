@@ -96,7 +96,7 @@ function addQuad(builder: Builder, points: Triple[], color: number, normal: Trip
 
 function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, options: MuseumLenneOptions) {
   const parts = selected(payload), walls = museumLenneWalls(payload), blocks: MuseumLenneBlock[] = [], curved = createBuilder();
-  const minecraft = !!options.minecraft, mobile = !!options.mobileLike, voxel = makeVoxelSampler(options.voxels);
+  const minecraft = !!options.minecraft, mobile = minecraft && !!options.mobileLike, voxel = makeVoxelSampler(options.voxels);
   const occupied = (sourceId: string, p: Triple) => parts.some(q => q.id !== sourceId && q.id !== MUSIC_MUSEUM_ENTRANCE_ID && p[1] >= q.y0_dm / 10 && p[1] < (MUSIC_MUSEUM_IDS.has(q.id) ? musicMuseumPartRoofHeightAt(q.id,p[0],p[2]) ?? -Infinity : (q.y0_dm + q.h_dm) / 10) && museumLennePrismContains(q, p[0], p[2]));
   const emit = (w: MuseumLenneWall, u: number, y: number, width: number, height: number, depth: number, out: number, color: number, role: string, visible = true) => {
     if (width <= 0 || height <= 0 || (visible && occupied(w.part.id, at(w, u, y, .2)))) return;

@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -860,6 +861,7 @@ function finishLayer(
 export function createMoabitPrisonMemorialPark(
   detailProfile: MoabitPrisonMemorialDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = "Geschichtspark Moabit dedicated source-bound memorial park";
   root.position.set(...ROOT_WORLD_M);

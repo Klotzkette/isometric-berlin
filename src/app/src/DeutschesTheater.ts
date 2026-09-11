@@ -234,7 +234,7 @@ function voxelSampler(v?:DeutschesTheaterVoxelPayload):(x:number,y:number,z:numb
   return(x,y,z)=>{const c=cols.get(`${Math.floor(x/cell)},${Math.floor(z/cell)}`);return !!c&&y>=c[0]&&y<=c[1];};
 }
 function plan(payload:Pick<PrismPayload,"buildings">|undefined,options:DeutschesTheaterOptions,minecraft:boolean):Plan {
-  const source=parts(payload),byId=new Map(source.map(b=>[b.id,b])),p:Plan={blocks:[],curved:createBuilder(),labels:[],windows:0,mobile:!!options.mobileLike,minecraft};
+  const source=parts(payload),byId=new Map(source.map(b=>[b.id,b])),p:Plan={blocks:[],curved:createBuilder(),labels:[],windows:0,mobile:minecraft&&!!options.mobileLike,minecraft};
   const main=byId.get("KeeAYa8r"),kammer=byId.get("yMkbzxqy"),annex=byId.get("TVjCvFcI");if(!main||!kammer||!annex)return p;
   const m=walls(main).find(w=>w.index===2)!,k=subwall(walls(kammer).find(w=>w.index===4)!,0,23.15);
   const obscured=(w:Wall,u:number,y:number)=>{const point=at(w,u,y,.3);return source.some(q=>q.id!==w.id&&y>=q.y0_dm/10&&y<(q.y0_dm+q.h_dm)/10&&contains(q,point[0],point[2]));};

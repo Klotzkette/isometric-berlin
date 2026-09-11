@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BufferGeometry,
   Color,
@@ -663,6 +664,7 @@ function addTennisNet(builder: Builder): void {
 export function createWilhelmStresemannDetails(
   detailProfile: DetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
   group.name = WILHELM_STRESEMANN_DETAILS_GROUP_NAME;
   group.userData = {

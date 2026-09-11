@@ -1,0 +1,200 @@
+{
+  "BendlerblockDetails": {
+    "bytes": 155520,
+    "draws": 2,
+    "instances": 0,
+    "vertices": 8664
+  },
+  "DiplomaticAndRobertKochDetails": {
+    "bytes": 118440,
+    "draws": 2,
+    "instances": 0,
+    "vertices": 6848
+  },
+  "SocialCourtDetails": {
+    "bytes": 539445,
+    "draws": 3,
+    "instances": 0,
+    "vertices": 30005
+  },
+  "CityWestDetails": {
+    "bytes": 467328,
+    "draws": 11,
+    "instances": 0,
+    "vertices": 25816
+  },
+  "WilhelmStresemannDetails": {
+    "bytes": 97748,
+    "draws": 5,
+    "instances": 0,
+    "vertices": 5522
+  },
+  "PotsdamerPlatzPublicRealm": {
+    "bytes": 72216,
+    "draws": 2,
+    "instances": 0,
+    "vertices": 4168
+  },
+  "MoabitPrisonMemorialPark": {
+    "bytes": 137214,
+    "draws": 5,
+    "instances": 0,
+    "vertices": 7818
+  },
+  "WeidendammerBridgeDetails": {
+    "bytes": 1513296,
+    "draws": 5,
+    "instances": 192,
+    "vertices": 46568
+  },
+  "KrolloperSculptureEnsemble": {
+    "bytes": 330696,
+    "draws": 114,
+    "instances": 89,
+    "vertices": 12824
+  },
+  "FriedrichstadtPalast": {
+    "bytes": 370876,
+    "draws": 4,
+    "instances": 4801,
+    "vertices": 288
+  },
+  "BellevueArchitecture": {
+    "bytes": 634792,
+    "draws": 3,
+    "instances": 6724,
+    "vertices": 3444
+  },
+  "BundesratArchitecture": {
+    "bytes": 628327,
+    "draws": 4,
+    "instances": 7045,
+    "vertices": 4539
+  },
+  "BoellStiftungArchitecture": {
+    "bytes": 146044,
+    "draws": 2,
+    "instances": 1909,
+    "vertices": 40
+  },
+  "DeutschesTheater": {
+    "bytes": 363898,
+    "draws": 4,
+    "instances": 4588,
+    "vertices": 730
+  },
+  "HumboldthafenBuildingDetails": {
+    "bytes": 4078932,
+    "draws": 2,
+    "instances": 0,
+    "vertices": 200828
+  },
+  "MuseumLenneArchitecture": {
+    "bytes": 895844,
+    "draws": 2,
+    "instances": 11249,
+    "vertices": 2372
+  },
+  "RohwedderHausArchitecture": {
+    "bytes": 2225320,
+    "draws": 1,
+    "instances": 29272,
+    "vertices": 24
+  },
+  "BismarckMoltkeMonuments": {
+    "bytes": 687015,
+    "draws": 6,
+    "instances": 0,
+    "vertices": 33393
+  },
+  "DbTowerArchitecture": {
+    "bytes": 986340,
+    "draws": 6,
+    "instances": 12549,
+    "vertices": 912
+  },
+  "DomAltesMuseum": {
+    "bytes": 825112,
+    "draws": 14,
+    "instances": 6505,
+    "vertices": 9488
+  },
+  "EuropacityArchitecture": {
+    "bytes": 6946288,
+    "draws": 2,
+    "instances": 91390,
+    "vertices": 24
+  },
+  "FiftyHertzArchitecture": {
+    "bytes": 382284,
+    "draws": 2,
+    "instances": 4878,
+    "vertices": 327
+  },
+  "FriedrichstrasseArchitecture": {
+    "bytes": 1656664,
+    "draws": 3,
+    "instances": 21082,
+    "vertices": 1518
+  },
+  "LuisenCorridorArchitecture": {
+    "bytes": 2155552,
+    "draws": 2,
+    "instances": 28354,
+    "vertices": 24
+  },
+  "LitfinWatchtower": {
+    "bytes": 22500,
+    "draws": 2,
+    "instances": 279,
+    "vertices": 48
+  },
+  "MuseumTriadArchitecture": {
+    "bytes": 585836,
+    "draws": 3,
+    "instances": 6332,
+    "vertices": 2929
+  },
+  "TopographyTerrorArchitecture": {
+    "bytes": 750768,
+    "draws": 11,
+    "instances": 9849,
+    "vertices": 80
+  },
+  "HistoricChariteCampus": {
+    "bytes": 2460072,
+    "draws": 5,
+    "instances": 0,
+    "vertices": 126362
+  },
+  "ParliamentArchitecture": {
+    "bytes": 1349472,
+    "draws": 2,
+    "instances": 17634,
+    "vertices": 384
+  },
+  "AbgeordnetenhausDetails": {
+    "bytes": 240920,
+    "draws": 7,
+    "instances": 2558,
+    "vertices": 2679
+  },
+  "GropiusBauDetails": {
+    "bytes": 1287360,
+    "draws": 2,
+    "instances": 0,
+    "vertices": 75720
+  },
+  "SachsenAnhaltFacade": {
+    "bytes": 31276,
+    "draws": 1,
+    "instances": 403,
+    "vertices": 24
+  },
+  "FederalStateRepresentations": {
+    "bytes": 1362934,
+    "draws": 25,
+    "instances": 403,
+    "vertices": 75342
+  }
+}

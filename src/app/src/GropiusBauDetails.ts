@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry, Color, EdgesGeometry, Group, InstancedBufferAttribute,
   InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial,
@@ -47,7 +48,7 @@ const C = {
 
 export const GROPIUS_BAU_DETAIL_BUDGETS = {
   full: { drawnParts: 2700, drawnBytes: 1_500_000, minecraftBlocks: 1400 },
-  mobile: { drawnParts: 1700, drawnBytes: 1_000_000, minecraftBlocks: 1350 },
+  mobile: { drawnParts: 2700, drawnBytes: 1_500_000, minecraftBlocks: 1350 },
   drawnRenderables: 2,
   minecraftRenderables: 1,
 } as const;
@@ -273,12 +274,13 @@ export function gropiusBauDetailPlan(
   profile: GropiusBauDetailProfile = "full",
   minecraft = false,
 ): Readonly<Plan> {
-  return makePlan(profile, minecraft);
+  return makePlan(minecraft ? profile : staticModelDetailProfile(profile), minecraft);
 }
 
 export function createGropiusBauDetails(
   profile: GropiusBauDetailProfile = "full",
 ): Group {
+  profile = staticModelDetailProfile(profile);
   const plan = makePlan(profile, false);
   const builder = createBuilder();
   for (const part of plan.parts) {

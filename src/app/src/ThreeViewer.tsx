@@ -45,7 +45,7 @@ import {
   restoreBuildingPreview,
 } from "./progressiveBuildingCoverage";
 import {
-  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, buildingDetailViewPoints, selectBuildingDetailDistricts,
+  buildingDetailProfile, buildingDetailDistricts, buildingDetailViewPoints, selectBuildingDetailDistricts,
   type BuildingDetailDistrict,
 } from "./buildingDetailStreaming";
 import { spreebogenWalkSurfaceAt } from "./spreebogenBankProfile";
@@ -330,7 +330,6 @@ import {
 } from "./IsometricCityWorld";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
-  DESKTOP_TOTAL_BUILDING_LIMIT,
   MOBILE_INITIAL_BUILDING_COUNT,
   progressiveAttachmentRemainingMs,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
@@ -414,6 +413,7 @@ import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
 import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
+import { createInitialDrawnWater, drawnWaterMonumentKeys } from "./initialDrawnWater";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
   boundedMotionFrameDeltaSeconds,
@@ -2862,8 +2862,10 @@ function updateMobileBuildingDetails(
   const leadDistance = Math.hypot(leadX, leadZ);
   if (leadDistance > 900) { leadX *= 900 / leadDistance; leadZ *= 900 / leadDistance; }
   runtime.mobileBuildingLastView = { x, z, at: now };
+  const profile = runtime.coarsePointer ? "mobile" : "full";
   const wanted = selectBuildingDetailDistricts(districts, [x, z], [x + leadX, z + leadZ], {
-    viewPoints: buildingDetailViewPoints(runtime.camera, focus),
+    profile,
+    viewPoints: buildingDetailViewPoints(runtime.camera, focus, profile),
     retainedIds: [
       ...runtime.mobileBuildingWanted ?? [],
       ...runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
@@ -2880,7 +2882,7 @@ function updateMobileBuildingDetails(
   const retained = retainedBuildingDetailIds(
     districts, wanted,
     runtime.progressiveWorldBatches.map((batch) => batch.userData.progressiveWorldBatchId),
-    lastUsed,
+    lastUsed, profile,
   );
   for (const batch of [...runtime.progressiveWorldBatches]) {
     const id = batch.userData.progressiveWorldBatchId as string;
@@ -3204,10 +3206,8 @@ function startProgressiveWorld(
     .map((batch) => batch.userData.progressiveWorldBatchId as string);
   const posted = tryProgressiveWorkerOperation(() =>
     worker.postMessage({ ...input, completedBatchIds,
-      ...(input.detailProfile === "mobile" ? {
         requestedBatchIds: runtime.mobileBuildingWanted,
         viewRevision: runtime.mobileBuildingViewRevision,
-      } : {}),
     }),
   );
   if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
@@ -3509,24 +3509,21 @@ function ensureIsoWorld(
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
         : DESKTOP_INITIAL_BUILDING_COUNT;
+      const detailProfile = runtime.coarsePointer ? "mobile" : "full";
       const buildingPartition = splitProgressiveBuildings(
         prisms.buildings,
         initialBuildingCount,
-        runtime.coarsePointer ? MOBILE_DETAIL_BATCH_SIZE : undefined,
-        runtime.coarsePointer
-          ? Number.POSITIVE_INFINITY
-          : DESKTOP_TOTAL_BUILDING_LIMIT,
-        !runtime.coarsePointer,
+        buildingDetailProfile(detailProfile).batchSize,
+        Number.POSITIVE_INFINITY,
       );
-      if (runtime.coarsePointer) {
-        runtime.mobileBuildingDistricts = buildingDetailDistricts(buildingPartition.remaining);
-        runtime.mobileBuildingWanted = selectBuildingDetailDistricts(
-          runtime.mobileBuildingDistricts,
-          [runtime.controls.target.x, runtime.controls.target.z], undefined,
-          { viewPoints: buildingDetailViewPoints(runtime.camera, runtime.controls.target) },
-        );
-        runtime.mobileBuildingViewRevision = 1;
-      }
+      runtime.mobileBuildingDistricts = buildingDetailDistricts(buildingPartition.remaining);
+      runtime.mobileBuildingWanted = selectBuildingDetailDistricts(
+        runtime.mobileBuildingDistricts,
+        [runtime.controls.target.x, runtime.controls.target.z], undefined,
+        { profile: detailProfile,
+          viewPoints: buildingDetailViewPoints(runtime.camera, runtime.controls.target, detailProfile) },
+      );
+      runtime.mobileBuildingViewRevision = 1;
       const initialBuildings = buildingPartition.initial;
       const progressiveInput: ProgressiveWorldWorkerInput | null =
         runtime.coarsePointer
@@ -3534,6 +3531,8 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
+                groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
+                surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
                 requestedBatchIds: runtime.mobileBuildingWanted,
                 viewRevision: runtime.mobileBuildingViewRevision,
                 initialBuildingCount,
@@ -3577,14 +3576,17 @@ function ensureIsoWorld(
             buildings: initialBuildings,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
-            retainRasterAsphalt: true,
-            retainRasterWater: runtime.coarsePointer,
+            retainRasterAsphalt: false,
+            retainRasterWater: runtime.coarsePointer && !surfaces,
             smoothSurfaces:
               runtime.coarsePointer || progressiveInput ? null : undefined,
           },
         );
         provisionalIsoWorld = isoWorld;
         yield* compactStaticGeometrySteps(isoWorld);
+        const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
+        if (initialWater) isoWorld.add(initialWater);
+        yield;
         isoWorld.add(createGendarmenmarktShells());
         yield;
         isoWorld.add(createGendarmenmarktArchitecture());
@@ -3661,7 +3663,9 @@ function ensureIsoWorld(
           }
           yield;
           // Every OSM monument in the quarter, drawn ("alle Denkmäler").
-          const monuments = createTiergartenMonuments(street, ground);
+          const monuments = createTiergartenMonuments(street, ground, {
+            externallyModelledSourceKeys: drawnWaterMonumentKeys(surfaces),
+          });
           if (monuments) {
             isoWorld.add(monuments);
           }

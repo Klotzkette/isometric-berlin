@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.41
+
+- Restore the exact mobile water family, including all basins, the complete Sinkende Mauer and continuous source-bound quays.
+- Restore omitted park, path and lane-marking families on mobile.
+- Prepare exact asphalt/paving and original kerbs offline in bounded spatial batches; preserve newer authored streets, courts and memorial apertures.
+- Clip raster land exactly at retained water boundaries and give quay masonry stable depth priority, removing stepped bank intrusions without simplifying either surface.
+- Restore full static authored architecture on touch devices instead of substituting simplified profiles.
+- Make all source building parts eligible for camera-following exact detail on desktop; retain complete source envelopes and bounded residency.
+- Retain lossless indexing, instancing, transfer backpressure and cancellation instead of dropping visible content.
+
 ## v1.0.40
 
 - Refine the Gymnasium Tiergarten Neubau, its blue Aula and Schmettau’s Hand mit Uhr from source-bound forms.

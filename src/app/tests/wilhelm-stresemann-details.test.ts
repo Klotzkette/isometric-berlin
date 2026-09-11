@@ -101,7 +101,7 @@ describe("Wilhelmstrasse and Stresemannstrasse recognition detail", () => {
     ).toBeDefined();
   });
 
-  test("uses the same source geometry with a coarser mobile facade rhythm", () => {
+  test("retains the complete full facade rhythm on mobile", () => {
     const full = createWilhelmStresemannDetails("full");
     const mobile = createWilhelmStresemannDetails("mobile");
     const vertices = (group: typeof full): number => {
@@ -113,7 +113,7 @@ describe("Wilhelmstrasse and Stresemannstrasse recognition detail", () => {
       });
       return count;
     };
-    expect(vertices(mobile)).toBeLessThan(vertices(full));
+    expect(vertices(mobile)).toBe(vertices(full));
     expect(mobile.userData.keepInMinecraft).toBeFalse();
   });
 

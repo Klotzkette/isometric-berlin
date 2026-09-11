@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -105,10 +106,10 @@ export const PALACE_DETAIL_RENDER_BUDGETS = Object.freeze({
     maxStoredVertices: 1_600,
   }),
   mobile: Object.freeze({
-    maxInstances: 13_900,
+    maxInstances: 17_600,
     maxRenderables: 9,
-    maxRenderedVertices: 335_000,
-    maxStoredVertices: 1_300,
+    maxRenderedVertices: 420_000,
+    maxStoredVertices: 1_600,
   }),
 });
 
@@ -355,6 +356,7 @@ function addTearPalaceStructure(
 export function createTearPalace(
   detailProfile: PalaceDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = TEAR_PALACE_ROOT_NAME;
   root.userData = {

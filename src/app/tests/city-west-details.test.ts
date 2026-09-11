@@ -303,7 +303,7 @@ describe("City West and Urania recognition details", () => {
     expect(mobileBudget.vertices).toBeLessThanOrEqual(
       CITY_WEST_RENDER_BUDGET.mobile.maxVertices,
     );
-    expect(mobileBudget.vertices).toBeLessThan(fullBudget.vertices * 0.65);
+    expect(mobileBudget).toEqual(fullBudget);
   });
 
   test("publishes primary sources and follows the expanded mobile profile", () => {
@@ -352,6 +352,6 @@ describe("City West and Urania recognition details", () => {
     const cityWest = expanded.getObjectByName(
       "City West and Urania recognition details",
     );
-    expect(cityWest?.userData.detailProfile).toBe("mobile");
+    expect(cityWest?.userData.detailProfile).toBe("full");
   });
 });

@@ -2801,7 +2801,8 @@ function addMergedMonumentBatch(parent: Group, builder: Builder): void {
 
 export function createTiergartenMonuments(
   street: StreetDetailsPayload,
-  ground: VoxelPayload
+  ground: VoxelPayload,
+  options: { externallyModelledSourceKeys?: ReadonlySet<string> } = {},
 ): Group | null {
   if (!street.monuments || street.monuments.length === 0) {
     return null;
@@ -2864,6 +2865,7 @@ export function createTiergartenMonuments(
       entry.osm_key === BEBEL_LIBRARY_MEMORIAL.osmKey ||
       KROLLOPER_SCULPTURE_OSM_KEYS.has(entry.osm_key) ||
       MOABIT_PRISON_GENERIC_ARTWORK_SUPPRESSION_KEYS.has(entry.osm_key) ||
+      options.externallyModelledSourceKeys?.has(entry.osm_key) ||
       MONUMENTS_ALREADY_MODELLED.test(name) ||
       entry.kind === "tank" ||
       SOVIET_MEMORIAL_SOURCE.guns.some(gun => gun.osmKey === entry.osm_key)

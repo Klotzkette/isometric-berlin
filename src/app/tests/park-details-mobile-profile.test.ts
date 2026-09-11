@@ -3,7 +3,6 @@ import {
   BufferGeometry,
   InstancedMesh,
   LineSegments,
-  type Material,
   Matrix4,
   Mesh,
   type Object3D,
@@ -17,6 +16,8 @@ import {
   decodeTrees,
   smoothParkPathPoints,
 } from "../src/ParkDetails";
+
+import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
 
 const payload = parkDetailsJson as unknown as ParkDetailsPayload;
 
@@ -165,255 +166,70 @@ describe("coarse-pointer ParkDetails profile", () => {
     );
   });
 
-  test("retains every path, tree and playground anchor in the mobile spatial budget", () => {
-    // The preceding desktop fixture is intentionally exhaustive and no longer
-    // needs to occupy the heap while the independent mobile budget is checked.
+  test("touch retains the full path, tree, shrub, wall and playground geometry", () => {
     Bun.gc(true);
-    const mobile = createParkDetails(payload, { detailProfile: "mobile" });
-    const budget = geometryBudget(mobile);
-    expect(budget).toEqual({
-      geometryBytes: 3_640_306,
-      instanceBytes: 8_001_332,
-      instances: 107_237,
-      instancedMeshes: 1_461,
-      mappedMaterials: 0,
-      meshes: 1_521,
-      objects: 1_534,
-      transparentMaterials: 0,
-      triangles: 86_535,
-      vertices: 97_585,
-    });
-    expect(drawableCount(mobile)).toBe(1_525);
-    // The cells retain the complete source inventory; only intersecting cells
-    // become draw calls, instead of submitting every instance on every frame.
-    expect(drawableCount(mobile)).toBeLessThanOrEqual(1_600);
-    expect(budget.instances).toBeLessThan(FROZEN_FULL_BUDGET.instances * 0.25);
-    expect(budget.instanceBytes).toBeLessThan(
-      FROZEN_FULL_BUDGET.instanceBytes * 0.25,
-    );
+    const full = createParkDetails(payload, { detailProfile: "full", settledDetail: false });
+    const fullAudit = staticGeometryAudit(full);
+    const fullDraws = drawableCount(full);
+    const fullMetadata = full.userData;
+    disposeStaticAudit(full);
+    const mobile = createParkDetails(payload, { detailProfile: "mobile", settledDetail: false });
+    expect(geometryBudget(mobile)).toEqual(FROZEN_FULL_BUDGET);
+    expect(staticGeometryAudit(mobile)).toEqual(fullAudit);
+    expect(drawableCount(mobile)).toBe(fullDraws);
+    expect(mobile.userData).toEqual(fullMetadata);
 
-    const pathMeshes = mobile.children.filter((child) =>
-      child.name.endsWith("batched path ribbons"),
-    ) as Mesh[];
-    const expectedPathVertices = payload.paths.reduce(
-      (sum, path) => {
-        const points = smoothParkPathPoints(path).filter(
-          (point, index, entries) =>
-            index === 0 ||
-            Math.hypot(
-              point.x - entries[index - 1].x,
-              point.z - entries[index - 1].z,
-            ) >= 0.05,
-        );
-        return sum + (points.length >= 2 ? points.length * 2 : 0);
-      },
-      0,
-    );
+    const paths = mobile.children.filter(child => child.name.endsWith("batched path ribbons")) as Mesh[];
+    const expectedPathVertices = payload.paths.reduce((sum, path) => {
+      const points = smoothParkPathPoints(path).filter((point, index, entries) =>
+        index === 0 || Math.hypot(point.x - entries[index - 1].x, point.z - entries[index - 1].z) >= 0.05);
+      return sum + (points.length >= 2 ? points.length * 2 : 0);
+    }, 0);
+    expect(paths.reduce((sum, mesh) => sum + mesh.geometry.getAttribute("position").count, 0)).toBe(expectedPathVertices);
     expect(mobile.userData.pathCount).toBe(payload.paths.length);
-    expect(
-      pathMeshes.reduce(
-        (sum, mesh) => sum + mesh.geometry.getAttribute("position").count,
-        0,
-      ),
-    ).toBe(expectedPathVertices);
-    expect(
-      new Set(
-        pathMeshes.map((mesh) =>
-          String(
-            (Array.isArray(mesh.material)
-              ? mesh.material[0]
-              : mesh.material
-            ).userData.pathMaterialCode,
-          ),
-        ),
-      ),
-    ).toEqual(new Set(payload.paths.map((path) => path.m)));
-    for (const mesh of pathMeshes) {
-      expect(mesh.geometry.getAttribute("uv").count).toBe(
-        mesh.geometry.getAttribute("position").count,
-      );
-    }
+    expect(mobile.userData.playgroundCount).toBe(payload.playgrounds.length);
+    const playgrounds = mobile.children.filter(child => child.name.endsWith("OSM playground details"));
+    expect(playgrounds).toHaveLength(payload.playgrounds.length);
+    expect(mobile.getObjectByName("Spielplatz an der Luiseninsel OSM playground details")?.children.length).toBeGreaterThan(1);
 
-    const trunks = instanceBatches(mobile.getObjectByName(
-      "Mobile park instanced coarse tree trunks",
-    ));
-    const crowns = instanceBatches(mobile.getObjectByName(
-      "Mobile park instanced one-crown tree anchors",
-    ));
-    const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
-    expect(trunks.length).toBeGreaterThan(1);
-    expect(crowns.length).toBeGreaterThan(1);
-    expect(instanceCount(trunks) + mobile.userData.signatureTreeCount).toBe(
-      mobile.userData.treeCount,
-    );
-    expect(instanceCount(crowns) + mobile.userData.signatureTreeCount).toBe(
-      mobile.userData.treeCount,
-    );
-    expect(
-      mobile.userData.treeCount +
-        mobile.userData.suppressedConstructionTreeCount +
-        mobile.userData.suppressedTunnelApproachTreeCount,
-    ).toBe(sourceTrees.length);
-    const sourceAnchors = new Set(
-      sourceTrees.map(
-        (tree) =>
-          `${Math.fround(tree.position[0])}:${Math.fround(tree.position[2])}`,
-      ),
-    );
-    const crownMatrices = instanceMatrices(crowns);
-    const trunkPosition = new Vector3();
-    const crownPosition = new Vector3();
-    let allAnchorMatricesFinite = true;
-    let allCrownAnchorsMatchTrunks = true;
-    let everyRenderedAnchorIsSourced = true;
+    const trees = decodeTrees(payload.trees, payload.tree_vocabulary);
+    const trunks = instanceBatches(mobile.getObjectByName("OSM instanced granular tree trunks"));
+    expect(instanceCount(trunks) + mobile.userData.signatureTreeCount).toBe(mobile.userData.treeCount);
+    expect(mobile.userData.treeCount + mobile.userData.suppressedConstructionTreeCount + mobile.userData.suppressedTunnelApproachTreeCount).toBe(trees.length);
+    const anchors = new Set(trees.map(tree => `${Math.fround(tree.position[0])}:${Math.fround(tree.position[2])}`));
+    const position = new Vector3();
     for (const matrix of instanceMatrices(trunks)) {
-      allAnchorMatricesFinite &&= finiteArray(matrix.elements);
-      trunkPosition.setFromMatrixPosition(matrix);
-      const crownMatrix = crownMatrices.next().value!;
-      allAnchorMatricesFinite &&= finiteArray(crownMatrix.elements);
-      crownPosition.setFromMatrixPosition(crownMatrix);
-      allCrownAnchorsMatchTrunks &&=
-        crownPosition.x === trunkPosition.x &&
-        crownPosition.z === trunkPosition.z;
-      everyRenderedAnchorIsSourced &&= sourceAnchors.has(
-        `${trunkPosition.x}:${trunkPosition.z}`,
-      );
+      expect(finiteArray(matrix.elements)).toBeTrue();
+      position.setFromMatrixPosition(matrix);
+      expect(anchors.has(`${position.x}:${position.z}`)).toBeTrue();
     }
-    expect(allAnchorMatricesFinite).toBeTrue();
-    expect(allCrownAnchorsMatchTrunks).toBeTrue();
-    expect(everyRenderedAnchorIsSourced).toBeTrue();
-
-    expect(
-      mobile.getObjectByName("Berlin park timber batched path ribbons"),
-    ).toBeInstanceOf(Mesh);
-    expect(
-      mobile.getObjectByName(
-        "OSM exact Großer Tiergarten scrub-area footprints",
-      ),
-    ).toBeInstanceOf(Mesh);
-    instanceBatches(mobile.getObjectByName("OSM finite Tiergarten hedge course bodies"));
-    expect(
-      mobile.getObjectByName(
-        "OSM polygon-bounded diverse Tiergarten shrub clumps",
-      ),
-    ).toBeUndefined();
-    expect(
-      mobile.getObjectByName("OSM finite Tiergarten hedge foliage lobes"),
-    ).toBeUndefined();
-    instanceBatches(mobile.getObjectByName(
-        "Geoportal Berlin official public-lighting masts",
-    ));
-    expect(
-      mobile.getObjectByName(
-        "Geoportal Berlin night-only instanced street-light cones",
-      ),
-    ).toBeUndefined();
-    instanceBatches(mobile.getObjectByName(
-        "Mobile official Vorderlandmauer coarse continuous courses",
-    ));
-    const footprintMeshes = mobile.children.filter((child) =>
-      child.name.startsWith("Mobile batched "),
-    ) as Mesh[];
-    const expectedFootprintVertices = payload.playgrounds.reduce(
-      (sum, playground) => {
-        const outline = playground.outline.filter(
-          (point, index) =>
-            index === 0 ||
-            point[0] !== playground.outline[index - 1][0] ||
-            point[2] !== playground.outline[index - 1][2],
-        );
-        if (
-          outline.length > 2 &&
-          outline[0][0] === outline.at(-1)?.[0] &&
-          outline[0][2] === outline.at(-1)?.[2]
-        ) {
-          outline.pop();
-        }
-        return sum + outline.length;
-      },
-      0,
-    );
-    expect(
-      footprintMeshes.reduce(
-        (sum, mesh) =>
-          sum + mesh.geometry.getAttribute("position").count,
-        0,
-      ),
-    ).toBe(expectedFootprintVertices);
-    expect(
-      footprintMeshes.reduce(
-        (sum, mesh) => sum + mesh.userData.playgroundFootprintCount,
-        0,
-      ),
-    ).toBe(payload.playgrounds.length);
-    expect(
-      new Set(
-        footprintMeshes.flatMap((mesh) => mesh.userData.playgroundIds),
-      ),
-    ).toEqual(new Set(payload.playgrounds.map((entry) => entry.id)));
-    const playgroundAnchors = mobile.getObjectByName(
-      "Mobile mapped playground source anchors",
-    ) as InstancedMesh;
-    expect(playgroundAnchors).toBeInstanceOf(InstancedMesh);
-    expect(playgroundAnchors.count).toBe(payload.playgrounds.length);
-    expect(new Set(playgroundAnchors.userData.playgroundIds)).toEqual(
-      new Set(payload.playgrounds.map((entry) => entry.id)),
-    );
-    const luiseninsel = mobile.getObjectByName(
-      "Spielplatz an der Luiseninsel OSM playground details",
-    );
-    expect(luiseninsel?.userData.mobileSignature).toBeTrue();
-    expect(luiseninsel?.children.length).toBeGreaterThan(0);
-    expect(mobile.userData.mobilePlaygroundFootprintCount).toBe(
-      payload.playgrounds.length,
-    );
-    expect(mobile.userData.mobilePlaygroundSourceAnchorCount).toBe(
-      payload.playgrounds.length,
-    );
-
-    let allGeometryFinite = true;
-    let allMaterialsOpaque = true;
-    let allMaterialsTextureless = true;
-    let allObjectsStatic = true;
-    mobile.traverse((object) => {
-      if (object instanceof Mesh || object instanceof LineSegments) {
-        for (const attribute of Object.values(object.geometry.attributes)) {
-          allGeometryFinite &&= finiteArray(attribute.array);
-        }
-        const index = object.geometry.getIndex();
-        if (index) {
-          allGeometryFinite &&= finiteArray(index.array);
-        }
-      }
-      if (object instanceof InstancedMesh) {
-        allGeometryFinite &&= finiteArray(object.instanceMatrix.array);
-        if (object.instanceColor) {
-          allGeometryFinite &&= finiteArray(object.instanceColor.array);
-        }
-      }
-      const material = (
-        object as Object3D & { material?: Material | Material[] }
-      ).material;
-      if (material) {
-        const materials = Array.isArray(material) ? material : [material];
-        for (const surface of materials) {
-          allMaterialsOpaque &&= !surface.transparent && surface.opacity === 1;
-          if ("map" in surface) {
-            allMaterialsTextureless &&= surface.map === null;
-          }
-        }
-      }
-      allObjectsStatic &&=
-        object.userData.snowOnly !== true &&
-        object.userData.settledOnly !== true &&
-        object.userData.nightOnly !== true;
+    for (const name of [
+      "OSM instanced granular tree fork branches",
+      "OSM polygon-bounded diverse Tiergarten shrub clumps",
+      "OSM finite Tiergarten hedge foliage lobes",
+      "Geoportal Berlin official public-lighting masts",
+      "Official Vorderlandmauer double row of individual granite setts",
+      "Snowstorm-only tree crown snow caps",
+    ]) instanceBatches(mobile.getObjectByName(name));
+    expect(mobile.userData.wallStoneCount).toBe(41_354);
+    expect(mobile.userData.shrubClusterCount).toBe(3_535);
+    expect(mobile.userData.hedgeAreaClusterCount).toBe(208);
+    mobile.traverse(object => {
+      if (!(object instanceof Mesh || object instanceof LineSegments)) return;
+      for (const attribute of Object.values(object.geometry.attributes)) expect(finiteArray(attribute.array)).toBeTrue();
+      if (object instanceof InstancedMesh) expect(finiteArray(object.instanceMatrix.array)).toBeTrue();
     });
-    expect(allGeometryFinite).toBeTrue();
-    expect(allMaterialsOpaque).toBeTrue();
-    expect(allMaterialsTextureless).toBeTrue();
-    expect(allObjectsStatic).toBeTrue();
-    expect(mobile.userData.shrubClusterCount).toBe(0);
-    expect(mobile.userData.hedgeAreaClusterCount).toBe(0);
-    expect(mobile.userData.eggCount).toBe(0);
+    disposeStaticAudit(mobile);
+  });
+
+  test("settled touch foliage also keeps every full crown subdivision", () => {
+    const full = createParkDetails(payload, { detailProfile: "full", settledDetail: true });
+    const expected = staticGeometryAudit(full);
+    expect(expected.budget.instances).toBe(500_033);
+    disposeStaticAudit(full);
+    const mobile = createParkDetails(payload, { detailProfile: "mobile", settledDetail: true });
+    expect(staticGeometryAudit(mobile)).toEqual(expected);
+    expect(mobile.userData.settledOfficialTreeDetailFaces).toBeGreaterThan(0);
+    disposeStaticAudit(mobile);
   });
 });

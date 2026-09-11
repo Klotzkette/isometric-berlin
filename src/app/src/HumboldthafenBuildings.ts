@@ -46,6 +46,7 @@ export function createHumboldthafenBuildingColumnTester(prisms?: readonly Harbou
 type Block = { position: [number, number, number]; size: [number, number, number]; yaw: number; color: number; role: string; sourceId: string; normal?: [number, number] };
 const STONE = 0xe7e3d6, FIN = 0xf0eee2, GLASS = 0x38565d, JOINT = 0xbbbdb6, ROOF = 0x747c79;
 export function planHumboldthafenBuildingDetails(prisms?: readonly HarbourPrism[], minecraft = false, mobileLike = false): Block[] {
+  mobileLike = minecraft && mobileLike;
   const parts = selectPrisms(prisms), blocks: Block[] = [];
   const occupied = (p: HarbourPrism, x: number, z: number, y: number) => parts.some(q => q !== p && q.y0_dm / 10 <= y && (q.y0_dm + q.h_dm) / 10 > y && harbourPrismContains(q, x, z));
   for (const p of parts) {

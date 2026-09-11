@@ -55,7 +55,7 @@ function voxelSampler(payload?: BoellStiftungVoxelPayload): (x: number, y: numbe
 export function createBoellStiftungArchitecture(payload?: { buildings: readonly PrismBuilding[] }, options: BoellStiftungOptions = {}): Group {
   const parts = (payload?.buildings ?? BOELL_STIFTUNG_SOURCE_PRISMS as unknown as PrismBuilding[]).filter(p => BOELL_STIFTUNG_IDS.has(p.id));
   const walls = boellStiftungWalls({ buildings: parts }), blocks: BoellStiftungBlock[] = [], caps = createBuilder();
-  const minecraft = !!options.minecraft, mobile = !!options.mobileLike, voxel = voxelSampler(options.voxels);
+  const minecraft = !!options.minecraft, mobile = minecraft && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const core = parts.find(p => p.id === BOELL_STIFTUNG_CORE_ID), low = parts.find(p => p.id === BOELL_STIFTUNG_LOW_ID);
   const occupied = (w: BoellStiftungWall, u: number, y: number) => {
     const p = at(w, u, y, .15);

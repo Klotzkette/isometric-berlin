@@ -478,7 +478,7 @@ describe("task-10 expanded city recognition details", () => {
       detailProfile: "mobile",
     });
     expect(mobile.getObjectByName(dedicatedName)?.userData.detailProfile).toBe(
-      "mobile",
+      "full",
     );
   });
 

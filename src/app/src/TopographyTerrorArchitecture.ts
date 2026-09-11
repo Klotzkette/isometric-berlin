@@ -20,7 +20,7 @@ function local(u: number, v: number, y: number): Triple { return at(entryWall, u
 function lineFrame(a: Point, b: Point): TopographyWall { const length = Math.hypot(b[0] - a[0], b[1] - a[1]), dx = (b[0] - a[0]) / length, dz = (b[1] - a[1]) / length; return { a, b, length, dx, dz, nx: dz, nz: -dx, court: false, index: 0 }; }
 
 export function planTopographyTerror(options: TopographyOptions = {}): TopographyBlock[] {
-  const blocks: TopographyBlock[] = [], mc = !!options.minecraft, mobile = !!options.mobileLike;
+  const blocks: TopographyBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike;
   const box = (position: Triple, size: Triple, color: number, role: string, yaw = 0, glass = false, solid = false, normal?: Point) => { if (size.every(n => n > 0)) blocks.push({ position, size, color, role, yaw, glass, solid, normal }); };
   const emit = (w: TopographyWall, u: number, y: number, width: number, height: number, depth: number, out: number, color: number, role: string, glass = false, solid = false) => box(at(w, u, y, out), [width, height, depth], color, role, -Math.atan2(w.dz, w.dx), glass, solid, [w.nx, w.nz]);
   for (const w of topographyMuseumWalls()) {

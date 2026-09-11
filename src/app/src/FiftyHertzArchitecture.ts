@@ -575,7 +575,7 @@ function build(
 export function createFiftyHertzArchitecture(
   options: { mobileLike?: boolean; diagnostics?: boolean } = {},
 ): Group {
-  return build(false, !!options.mobileLike, !!options.diagnostics);
+  return build(false, false, !!options.diagnostics);
 }
 export function createMinecraftFiftyHertzArchitecture(
   options: { mobileLike?: boolean; diagnostics?: boolean } = {},

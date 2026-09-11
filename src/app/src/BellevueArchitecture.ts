@@ -158,7 +158,7 @@ function minecraftRoofs(p: Plan): void {
   for(const part of S.prisms){const xs=part.ring.map(q=>q[0]/10),zs=part.ring.map(q=>q[1]/10);for(let xi=Math.floor(Math.min(...xs)/cell);xi<=Math.floor(Math.max(...xs)/cell);xi++)for(let zi=Math.floor(Math.min(...zs)/cell);zi<=Math.floor(Math.max(...zs)/cell);zi++){const x=(xi+.5)*cell,z=(zi+.5)*cell;if(!bellevueContains(part,x,z))continue;const y=bellevueRoofTopAt(x,z,part.id);if(y===null)continue;add(p,[x,y-.62,z],[cell,1.24,cell],part.id===BELLEVUE_OFFICE_ID?(bellevueOfficeRoofTopAt(x,z)>24?0xa7bbc0:C.solar):C.roof,"source roof block",part.id);}}
 }
 function make(payload: { buildings: readonly Part[] } | undefined, options:BellevueOptions, mc:boolean):Group {
-  const walls=bellevueWalls(),p:Plan={blocks:[],positions:[],colors:[],mc,mobile:!!options.mobileLike,push:mc?sourceClearance(walls,options.voxels):new Map()};
+  const walls=bellevueWalls(),p:Plan={blocks:[],positions:[],colors:[],mc,mobile:mc&&!!options.mobileLike,push:mc?sourceClearance(walls,options.voxels):new Map()};
   sourceBodies(p);palaceFacades(p,walls);palaceRoofs(p,walls);minecraftRoofs(p);office(p,walls);
   const root=new Group();root.name=mc?MINECRAFT_BELLEVUE_GROUP:BELLEVUE_GROUP;
   const attach=(mesh:Mesh,luminous:boolean)=>{const day=mesh.material,night=new MeshStandardMaterial({color:0xffffff,vertexColors:!(mesh instanceof InstancedMesh),side:DoubleSide,roughness:.82,emissive:luminous?0xffd395:0,emissiveIntensity:luminous?.24:0});mesh.userData.dayMaterial=day;mesh.userData.nightMaterial=night;mesh.userData.sourceBounded=true;root.add(mesh);};

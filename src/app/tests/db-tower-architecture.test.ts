@@ -28,7 +28,7 @@ describe("BahnTower source, exterior glazing and full-height night signature",()
    root.traverse(o=>{if(o instanceof Mesh){expect(o.geometry.getAttribute("uv")).toBeUndefined();expect(o.userData.dayMaterial).toBeDefined();expect(o.userData.nightMaterial).toBeDefined();expect(o.userData.moonlitMaterial).toBeDefined();if(mc)expect(o instanceof InstancedMesh).toBe(true);}});
    expect(new Box3().setFromObject(root).max.y).toBeLessThanOrEqual(P.top+.02);
   }
-  expect(budgets[2].bytes).toBeLessThan(budgets[0].bytes);expect(budgets[3].instances).toBeLessThan(budgets[1].instances);
+  expect(budgets[2]).toEqual(budgets[0]);expect(budgets[3].instances).toBeLessThan(budgets[1].instances);
  });
  test("window rays hit new glazing before the exact source body at low, middle and top levels",()=>{
   for(const mobile of[false,true])for(const mc of[false,true]){

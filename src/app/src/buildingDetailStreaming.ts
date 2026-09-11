@@ -9,9 +9,36 @@ export const MOBILE_DETAIL_MAX_RESIDENT_DISTRICTS = Math.floor(
 export const MOBILE_DETAIL_VIEW_REACH_M = 2_400;
 export const MOBILE_DETAIL_RETAIN_DISTANCE_M = 120;
 
+export type BuildingDetailProfileName = "full" | "mobile";
+export type BuildingDetailProfile = {
+  readonly batchSize: number;
+  readonly residentPartLimit: number;
+  readonly maxResidentDistricts: number;
+  readonly viewReachM: number;
+};
+
+const FULL_BUILDING_DETAIL_PROFILE: BuildingDetailProfile = Object.freeze({
+  batchSize: 600,
+  residentPartLimit: 9_000,
+  maxResidentDistricts: 15,
+  viewReachM: 6_450,
+});
+const MOBILE_BUILDING_DETAIL_PROFILE: BuildingDetailProfile = Object.freeze({
+  batchSize: MOBILE_DETAIL_BATCH_SIZE,
+  residentPartLimit: MOBILE_DETAIL_RESIDENT_LIMIT,
+  maxResidentDistricts: MOBILE_DETAIL_MAX_RESIDENT_DISTRICTS,
+  viewReachM: MOBILE_DETAIL_VIEW_REACH_M,
+});
+
+/** A residency budget never limits which source buildings can be refined. */
+export function buildingDetailProfile(profile: BuildingDetailProfileName): BuildingDetailProfile {
+  return profile === "full" ? FULL_BUILDING_DETAIL_PROFILE : MOBILE_BUILDING_DETAIL_PROFILE;
+}
+
 type GroundPoint = readonly [number, number];
 
 export type BuildingDetailSelectionOptions = {
+  readonly profile?: BuildingDetailProfileName;
   readonly viewPoints?: readonly GroundPoint[];
   /** Attached, cached and still-requested districts may all retain priority. */
   readonly retainedIds?: readonly string[];
@@ -29,7 +56,9 @@ const DETAIL_VIEW_SAMPLES = [
 export function buildingDetailViewPoints(
   camera: PerspectiveCamera,
   focus: { readonly x: number; readonly y: number; readonly z: number },
+  profile: BuildingDetailProfileName = "mobile",
 ): readonly GroundPoint[] {
+  const reachM = buildingDetailProfile(profile).viewReachM;
   camera.updateMatrixWorld();
   const points: GroundPoint[] = [];
   const direction = new Vector3();
@@ -50,14 +79,14 @@ export function buildingDetailViewPoints(
     } else {
       const horizontalLength = Math.hypot(direction.x, direction.z);
       const reach = horizontalLength > 1e-8
-        ? MOBILE_DETAIL_VIEW_REACH_M / horizontalLength : 0;
+        ? reachM / horizontalLength : 0;
       point.set(focus.x + direction.x * reach, planeY, focus.z + direction.z * reach);
     }
     const dx = point.x - focus.x;
     const dz = point.z - focus.z;
     const distance = Math.hypot(dx, dz);
-    const scale = distance > MOBILE_DETAIL_VIEW_REACH_M
-      ? MOBILE_DETAIL_VIEW_REACH_M / distance : 1;
+    const scale = distance > reachM
+      ? reachM / distance : 1;
     points.push(Number.isFinite(distance)
       ? [focus.x + dx * scale, focus.z + dz * scale]
       : [focus.x, focus.z]);
@@ -135,6 +164,7 @@ export function selectBuildingDetailDistricts(
   ahead: readonly [number, number] = focus,
   options: BuildingDetailSelectionOptions = {},
 ): string[] {
+  const profile = buildingDetailProfile(options.profile ?? "mobile");
   const retained = new Set(options.retainedIds);
   const ordered = (point: GroundPoint, preferRetained = true): BuildingDetailDistrict[] =>
     districts
@@ -162,7 +192,7 @@ export function selectBuildingDetailDistricts(
       if (
         selectedIds.has(district.id) ||
         district.count <= 0 ||
-        residentCount + district.count > MOBILE_DETAIL_RESIDENT_LIMIT
+        residentCount + district.count > profile.residentPartLimit
       ) {
         continue;
       }
@@ -181,13 +211,13 @@ export function selectBuildingDetailDistricts(
     take(1);
     take(1);
     let viewIndex = 0;
-    for (let slot = 0; slot < 12 && selected.length < MOBILE_DETAIL_MAX_RESIDENT_DISTRICTS; slot++) {
+    for (let slot = 0; slot < 12 && selected.length < profile.maxResidentDistricts; slot++) {
       const priority = slot % 4 === 3 ? 2 : 3 + (viewIndex++ % viewPoints.length);
       if (!take(priority)) take(1);
     }
     return selected;
   }
-  while (selected.length < MOBILE_DETAIL_MAX_RESIDENT_DISTRICTS) {
+  while (selected.length < profile.maxResidentDistricts) {
     const priority = selected.length % 3 === 2 ? 1 : 0;
     if (!take(priority) && !take(1 - priority)) break;
   }

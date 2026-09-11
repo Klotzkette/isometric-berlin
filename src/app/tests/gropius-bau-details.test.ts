@@ -60,8 +60,7 @@ describe("Gropius Bau source-bound facade refinement", () => {
         expect(plan.parts.every((part) => part.size[2] <= 1.5)).toBeTrue();
       }
     }
-    expect(gropiusBauDetailPlan("mobile").parts.length)
-      .toBeLessThan(gropiusBauDetailPlan("full").parts.length * 0.7);
+    expect(gropiusBauDetailPlan("mobile")).toEqual(gropiusBauDetailPlan("full"));
   });
 
   test("never adds a filled roof, envelope or geometry through the source courts/central atrium", () => {

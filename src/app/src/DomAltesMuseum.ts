@@ -93,7 +93,7 @@ function bowl(b:Builder,root:Group):void{
 
 }
 export function createDomAltesMuseum(options:{mobileLike?:boolean;minecraft?:boolean}={}):Group{
- const root=new Group(),b=new Builder(options.minecraft,options.mobileLike);root.name=options.minecraft?MINECRAFT_DOM_ALTES_GROUP:DOM_ALTES_GROUP;root.userData={...DOM_ALTES_ARCHITECTURE_PROFILE,profile:options.mobileLike?"mobile":"full",nativeMinecraft:!!options.minecraft};
+ const root=new Group(),b=new Builder(options.minecraft,!!options.minecraft && !!options.mobileLike);root.name=options.minecraft?MINECRAFT_DOM_ALTES_GROUP:DOM_ALTES_GROUP;root.userData={...DOM_ALTES_ARCHITECTURE_PROFILE,profile:options.mobileLike?"mobile":"full",nativeMinecraft:!!options.minecraft};
  if(options.minecraft){sourceBlocks(b,S.dom.parts,true);sourceBlocks(b,S.altes.parts,false);}else{root.add(sourceMesh(S.dom.parts,"Berliner Dom retained LoD2 footprint",true));root.add(sourceMesh(S.altes.parts,"Altes Museum retained LoD2 wings and courts",false));}
  domDetail(b,root);altesDetail(b);bowl(b,root);finish(b,root);freezeStaticSceneTransforms(root);return root;
 }

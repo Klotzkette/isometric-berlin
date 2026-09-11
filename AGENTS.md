@@ -44,6 +44,19 @@ in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/boun
 Its presentation radius is 6,450 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
+**Owner quality-preservation policy (v1.0.41):** Performance work must not remove
+visible source geometry, roads, paths, shorelines, facade details or monuments.
+Retaining source files while omitting their rendered layers is a quality loss.
+The four drawn modes use the existing full static model detail on both touch
+and pointer devices. Use exact indexing, instancing, offline preparation,
+bounded transfers and cancellation to reduce memory instead. Camera-following
+building residency must leave every source part eligible for exact refinement
+and preserve its full source envelope before refinement and before eviction.
+The explicitly requested Minecraft tree reduction and existing separate native
+Minecraft geometry remain independent. Keep source-area/ownership accounting
+and visual checks at Invalidenpark, Otto-Weidt-Platz and Spree/Hauptbahnhof;
+never restore coarse raster substitutes as the finished drawn presentation.
+
 Must be inside the polygon and visible in the final map:
 
 - Brandenburger Tor and Pariser Platz
@@ -93,7 +106,7 @@ Must be inside the polygon and visible in the final map:
   plates. The generic OSM monument pass must not duplicate these 20 works.
   Owner photographs remain reference-only and must never become bundled or
   runtime textures. Full and mobile profiles both retain the entire ensemble;
-  mobile may reduce only bounded edge and inscription microdetail.
+  touch and pointer profiles retain the same full static detail.
 - The ten-metre Beethoven-Haydn-Mozart monument at its committed Tiergarten
   anchor, retaining the rounded granite understructure, chamfered three-sided
   tinted-marble pavilion, three round-arched white-marble half figures,
@@ -496,7 +509,7 @@ isometric-berlin/
   four segments of OSM way `105495351` retain their explicit 4 m height and the
   other 15 use Berlin's published general 5 m wall height only as a display
   value, not as per-segment survey evidence. Full Smooth presentation is frozen
-  at 5 renderables / 7,818 rendered vertices and mobile Smooth at 5 / 5,448;
+  at 5 renderables / 7,818 rendered vertices on both pointer and touch;
   Minecraft is one batch with 3,882 / 2,093 blocks and 93,168 / 50,232 rendered
   instance vertices for full / mobile. The exact Panoptikum and retained LoD2
   cell do not replace or duplicate source park, lawn, path, tree or cell
@@ -509,8 +522,8 @@ isometric-berlin/
   Weidendammer's official 69.48 x 25.17 m envelope carries
   exactly two forged eagle reliefs, eight lamp standards and one railing system.
   Full Smooth is frozen at 5 renderables / 46,568 stored vertices / 90,116
-  rendered vertices / 192 procedural love locks; mobile Smooth at 5 / 32,744 /
-  54,404 / 96. Minecraft is one batch with 344 / 224 blocks and 8,256 / 5,376
+  rendered vertices / 192 procedural love locks on both pointer and touch.
+  Minecraft is one batch with 344 / 224 blocks and 8,256 / 5,376
   rendered instance vertices for full / mobile. The roadway and pavements stay
   walkable while represented rail, lamp and eagle solids remain collidable. The
   Biermann association is factual cultural context only: no song lyric,

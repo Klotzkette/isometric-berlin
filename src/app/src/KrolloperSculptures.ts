@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -1552,6 +1553,7 @@ function renderableCount(root: Group): number {
 export function createKrolloperSculptureEnsemble(
   detailProfile: KrolloperDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = "Skulpturen gegen Krieg und Gewalt am ehemaligen Krolloperplatz";
   root.userData.detailProfile = detailProfile;

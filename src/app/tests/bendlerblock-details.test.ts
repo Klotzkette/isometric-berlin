@@ -85,7 +85,7 @@ describe("Bendlerblock recognition detail", () => {
     expect(fullStats.renderedVertices).toBeLessThanOrEqual(
       BENDLERBLOCK_RENDER_BUDGET.maxRenderedVertices,
     );
-    expect(mobileStats.storedVertices).toBeLessThan(fullStats.storedVertices);
+    expect(mobileStats).toEqual(fullStats);
 
     full.traverse((object) => {
       if (!(object instanceof Mesh)) return;

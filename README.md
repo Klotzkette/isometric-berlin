@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.40 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.40/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.41 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.41/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,23 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.40** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.41** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.41 restores omitted exact water, basins, the Sinkende Mauer,
+park surfaces and street geometry on mobile, plus full static architectural
+detail. All delivered buildings can receive their existing exact details as
+the camera travels. Streets are prepared offline in bounded batches while
+preserving newer authored paving, courts and memorial openings. See the
+[source audit](docs/source-quality-audit-v141.md) and
+[validation](docs/release-v1.0.41-review.md).
+
+Version 1.0.41 stellt ausgelassene Wasser-, Becken-, Park- und Straßenmodelle
+sowie die Sinkende Mauer und vollständige Gebäudedetails auf Mobilgeräten
+wieder her. Alle gelieferten Gebäude können beim Erkunden ihre vorhandenen
+Einzelheiten erhalten. Straßen werden vorab in begrenzten Abschnitten
+berechnet; bereits ausgearbeitete Gehwege, Höfe und Denkmalöffnungen bleiben
+erhalten.
 
 Version 1.0.40 refines Gymnasium Tiergarten, its blue Aula, the Hand mit Uhr
 and the streets around the school and GRIPS-Theater. It clarifies desktop

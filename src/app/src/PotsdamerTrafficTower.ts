@@ -264,7 +264,7 @@ export function createPotsdamerTrafficTower(groundYM = P.groundYM, options: Pots
   const root = new Group(); root.name = POTSDAMER_TOWER_ROOT_NAME;
   root.position.set(P.worldXZ[0], groundYM, P.worldXZ[1]);
   const parts = planPotsdamerTrafficTower();
-  root.add(createDrawn(parts, !!options.mobileLike), createMinecraft(parts, !!options.mobileLike));
+  root.add(createDrawn(parts, false), createMinecraft(parts, !!options.mobileLike));
   Object.assign(root.userData, {
     sourceKey: P.osmKey, sourceRecordsRetained: true, sourceRingXZ: P.sourceRingXZ,
     heightM: P.heightM, textureFree: true, geometryStatus: P.geometryStatus,

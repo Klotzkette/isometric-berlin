@@ -112,6 +112,10 @@ type ProgressiveWorldWorkerInputBase = {
   /** Attached scene batches survive suspension and must not be rebuilt. */
   completedBatchIds?: readonly string[];
   initialBuildingCount: number;
+  groundUrl: string;
+  surfacesUrl: string;
+  requestedBatchIds?: readonly string[];
+  viewRevision?: number;
   type: "build";
 };
 
@@ -151,15 +155,13 @@ export type ProgressiveWorldTransition = "none" | "pause" | "resume";
 export type ProgressiveWorldStopReason = "complete" | "error" | "pause";
 
 /**
- * Exact asphalt/paving plates were the worker's dominant transient allocation
- * and duplicated the already visible raster streets plus authored ParkDetails
- * paths. Every profile now retains that compact representation and builds only
- * inexpensive lane-marking lines from the road payload.
+ * Exact road geometry is prepared offline and attached in bounded batches.
+ * Raster startup coverage must never become the finished surface model.
  */
 export function progressiveHeavyRoadPlatesEnabled(
   _detailProfile: ProgressiveWorldWorkerInput["detailProfile"],
 ): boolean {
-  return false;
+  return true;
 }
 
 export type ProgressiveWorldWorkerOutput =

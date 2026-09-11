@@ -108,7 +108,7 @@ describe("source-bound parliamentary architecture", () => {
         : createParliamentArchitecture(partPayload, { mobileLike });
       expect(finiteGeometry(root)).toBeTrue();
       expect(root.children).toHaveLength(minecraft ? 1 : 2);
-      expect(bytes(root)).toBeLessThan(minecraft ? (mobileLike ? 530_000 : 680_000) : mobileLike ? 760_000 : 1_380_000);
+      expect(bytes(root)).toBeLessThan(minecraft ? (mobileLike ? 530_000 : 680_000) : 1_380_000);
       expect(root.userData.detailCounts["library curtain glazing"]).toBeGreaterThan(60);
       expect(root.userData.detailCounts["cedar folding shade"]).toBeGreaterThan(300);
       expect(root.userData.detailCounts["JKH hall secondary transom"]).toBeGreaterThan(0);

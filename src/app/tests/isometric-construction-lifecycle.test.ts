@@ -27,7 +27,7 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; initialWater?: boolean } = {}) {
   const built: Mesh[] = [];
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
@@ -104,8 +104,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     isoWorldIntentActive: () => runtime.lightingMode !== "minecraft",
     createSchwellenraumMemorialProtectionIndex: () => ({}),
     splitProgressiveBuildings: () => ({ initial: [], remaining: [], omitted: [] }),
+    buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
     createIsometricCity: () => { const city = model("core"); city.add(model("drawn bridge structures")); return city; },
+    createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
     createSchlossNaturkundeShells: () => model("Schloss and Naturkunde shells"),
     createSchlossNaturkundeFacades: () => model("Schloss and Naturkunde facades"),
     createGendarmenmarktShells: () => model("Gendarmenmarkt shells"),
@@ -173,6 +175,23 @@ test("context loss cancels later allocations and frees every unpublished buffer"
   expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
   expect(h.releaseCount).toBeGreaterThan(0);
   expect(h.ready).toBe(0); expect(h.reported).toBe(0); expect(h.warnings).toHaveLength(0);
+});
+
+test("mobile water is owned before its yield and disposed when construction is cancelled", async () => {
+  const h = host({ initialWater: true, stopAfterModel: "source-bound drawn water" });
+  await h.finished;
+  expect(h.built.some(mesh => mesh.name === "source-bound drawn water")).toBeTrue();
+  expect(h.built.some(mesh => mesh.name === "Gendarmenmarkt shells")).toBeFalse();
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.ready).toBe(0); expect(h.warnings).toHaveLength(0);
+});
+
+test("the mobile water phase is published with the complete drawn world", async () => {
+  const h = host({ initialWater: true }); await h.finished;
+  expect(h.runtime.isoWorld?.getObjectByName("source-bound drawn water")).toBeDefined();
+  expect(h.disposed.size).toBe(0);
+  expect(h.ready).toBe(1); expect(h.warnings).toHaveLength(0);
 });
 
 test("cancellation after school construction releases its staged buffers and stops the next addon", async () => {

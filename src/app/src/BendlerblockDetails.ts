@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import { Group } from "three";
 
 import {
@@ -404,6 +405,7 @@ export function addBendlerblockDetails(
   builder: Builder,
   detailProfile: BendlerblockDetailProfile = "full",
 ): void {
+  detailProfile = staticModelDetailProfile(detailProfile);
   addEastWingFacade(builder, detailProfile);
   addMemorialCourt(builder);
 }

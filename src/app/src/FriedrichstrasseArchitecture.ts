@@ -102,7 +102,7 @@ function voxelSampler(payload?: Voxels): (w: Wall, u: number, width: number, y: 
 
 /** Exterior-only facade details; no source courtyard or neighbouring mass is filled. */
 export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {
-  const blocks: FriedrichstrasseBlock[] = [], mc = !!options.minecraft, mobile = !!options.mobileLike, voxel = voxelSampler(options.voxels);
+  const blocks: FriedrichstrasseBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const parts = S.prisms as unknown as PrismBuilding[], profiles = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));
   const nearby = (options.sourcePrisms ?? parts).map(p => ({p, x0: Math.min(...p.ring.map(a=>a[0]))/10, x1: Math.max(...p.ring.map(a=>a[0]))/10, z0: Math.min(...p.ring.map(a=>a[1]))/10, z1: Math.max(...p.ring.map(a=>a[1]))/10})).filter(b=>b.x1>800 && b.x0<1280 && b.z1> -460 && b.z0< -150);
   const hidden = (w: Wall, u: number, y: number, out: number) => {

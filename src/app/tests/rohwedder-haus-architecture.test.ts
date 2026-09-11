@@ -54,7 +54,7 @@ describe("Detlev-Rohwedder-Haus source-bound 21-part campus", () => {
   });
   for (const minecraft of [false, true]) for (const mobileLike of [false, true]) test(`${minecraft ? "Minecraft" : "drawn"} ${mobileLike ? "mobile" : "full"} retains complete recognition without textures`, () => {
     const before = JSON.stringify(subset), g = (minecraft ? createMinecraftRohwedderHausArchitecture : createRohwedderHausArchitecture)(prisms, { mobileLike, voxels, diagnostics: true }), b = blocks(g), budget = stats(g);
-    expect(budget.calls).toBe(1); expect(budget.bytes).toBeLessThan(minecraft ? 1_350_000 : mobileLike ? 950_000 : 2_350_000);
+    expect(budget.calls).toBe(1); expect(budget.bytes).toBeLessThan(minecraft ? 1_350_000 : 2_350_000);
     expect(budget.instances).toBeGreaterThan(9_000); expect(budget.instances).toBeLessThan(31_000);
     expect(b.filter(p => p.role === "Ehrenhof tall hall glazing")).toHaveLength(9);
     expect(b.filter(p => p.role === "Ehrenhof upper office glazing")).toHaveLength(9);

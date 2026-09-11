@@ -10,12 +10,12 @@ import {
   PRISM_GLASSED_IDS, PRISM_SUPPRESSED_IDS, setIsoNightPresentation,
   type PrismBuilding, type PrismPayload,
 } from "../src/IsometricCityWorld";
-import { MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts } from "../src/buildingDetailStreaming";
+import { buildingDetailProfile, buildingDetailDistricts, selectBuildingDetailDistricts } from "../src/buildingDetailStreaming";
 import { createProgressiveBuildingCoverage } from "../src/progressiveBuildingCoverage";
 import {
-  DESKTOP_INITIAL_BUILDING_COUNT, DESKTOP_TOTAL_BUILDING_LIMIT,
-  MOBILE_INITIAL_BUILDING_COUNT, MOBILE_TOTAL_BUILDING_LIMIT,
-  PROGRESSIVE_BUILDING_BATCH_SIZE, progressiveWorldTransition,
+  DESKTOP_INITIAL_BUILDING_COUNT,
+  MOBILE_INITIAL_BUILDING_COUNT,
+  progressiveWorldTransition,
   splitProgressiveBuildings, type ProgressiveWorldWorkerOutput,
 } from "../src/progressiveWorld";
 import { serializeObject3DForTransfer } from "../src/transferableObject3D";
@@ -66,7 +66,7 @@ function packet(buildings: PrismBuilding[], index: number): Extract<ProgressiveW
   };
 }
 
-function fixture() {
+function fixture(mobile = true) {
   // Small actual source footprints keep lifecycle tests fast while exercising
   // real LoD2 generation and transferred building materials.
   const buildings = [10000, 10010, 10100, 10200].map((index) => payload.buildings[index]);
@@ -76,7 +76,7 @@ function fixture() {
   const coverage = createProgressiveBuildingCoverage(payload, partition);
   world.add(coverage);
   const previews = coverage.children.slice(1);
-  const host = progressiveCoverageHost(viewerSource, world);
+  const host = progressiveCoverageHost(viewerSource, world, mobile);
   function assertCoverage() {
     world.updateMatrixWorld(true);
     for (const [index, batch] of partition.remaining.entries()) {
@@ -101,9 +101,8 @@ describe("complete buildings before worker refinement", () => {
       const partition = splitProgressiveBuildings(
         payload.buildings,
         mobile ? MOBILE_INITIAL_BUILDING_COUNT : DESKTOP_INITIAL_BUILDING_COUNT,
-        mobile ? MOBILE_DETAIL_BATCH_SIZE : PROGRESSIVE_BUILDING_BATCH_SIZE,
-        mobile ? Number.POSITIVE_INFINITY : DESKTOP_TOTAL_BUILDING_LIMIT,
-        !mobile,
+        buildingDetailProfile(mobile ? "mobile" : "full").batchSize,
+        Number.POSITIVE_INFINITY,
       );
       const all = [...partition.initial, ...partition.omitted, ...partition.remaining.flat()];
       expect(all.length).toBe(payload.buildings.length);
@@ -139,10 +138,8 @@ describe("complete buildings before worker refinement", () => {
         }
         expect(represented).toBe(payload.buildings.filter(representable).length);
         expect(retainedBytes(coverage)).toBeLessThan(32 * 1024 * 1024);
-        if (mobile) {
-          expect(partition.omitted).toHaveLength(0);
-          expect(partition.remaining.every((batch) => batch.length <= MOBILE_DETAIL_BATCH_SIZE)).toBeTrue();
-        }
+        expect(partition.omitted).toHaveLength(0);
+        expect(partition.remaining.every((batch) => batch.length <= buildingDetailProfile(mobile ? "mobile" : "full").batchSize)).toBeTrue();
         expect(host.acknowledged).toHaveLength(0);
       } finally { host.dispose(); }
     });
@@ -200,7 +197,7 @@ describe("production preview replacement lifecycle", () => {
     } finally { host.dispose(); }
   });
 
-  test("fast travel restores source roofs before evicting distant detail and accepts its return", () => {
+  for (const mobile of [true, false]) test(`${mobile ? "mobile" : "desktop"}: fast travel restores source roofs before evicting distant detail and accepts its return`, () => {
     const buildings: PrismBuilding[] = Array.from({ length: 32 }, (_, index) => ({
       id: `stream-fixture-${index}`, class: 0, h_dm: 100, y0_dm: 0,
       ring: [[index * 4000, 80000], [index * 4000 + 100, 80000],
@@ -209,7 +206,7 @@ describe("production preview replacement lifecycle", () => {
     const partition = { initial: [], omitted: [], remaining: buildings.map((b) => [b]) };
     const coverage = createProgressiveBuildingCoverage(payload, partition);
     const world = new Group().add(coverage);
-    const host = progressiveCoverageHost(viewerSource, world);
+    const host = progressiveCoverageHost(viewerSource, world, mobile);
     try {
       host.runtime.mobileBuildingDistricts = buildingDetailDistricts(partition.remaining);
       host.view(0, 8000, 1000);
@@ -225,7 +222,7 @@ describe("production preview replacement lifecycle", () => {
       host.view(12000, 8000, 2000);
       expect(disposed).toBeTrue();
       expect(host.runtime.mobileBuildingWanted).toContain("buildings-32");
-      expect(host.runtime.progressiveWorldBatches).toHaveLength(5);
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(mobile ? 5 : 0);
       host.attach(packet(partition.remaining[31], 31));
       expect(coverage.children[32].visible).toBeFalse();
       expect(coverage.children[1].visible).toBeTrue();
@@ -239,8 +236,8 @@ describe("production preview replacement lifecycle", () => {
       host.view(0, 8000, 3000);
       host.attach(packet(partition.remaining[0], 0));
       expect(coverage.children[1].visible).toBeFalse();
-      expect(coverage.children[32].visible).toBeFalse(); // recently visited detail stays cached
-      expect(host.runtime.progressiveWorldBatches).toHaveLength(7);
+      expect(coverage.children[32].visible).toBe(!mobile); // mobile retains its bounded return-trip cache
+      expect(host.runtime.progressiveWorldBatches).toHaveLength(mobile ? 7 : 1);
     } finally { host.dispose(); }
   });
 
@@ -318,8 +315,8 @@ describe("production preview replacement lifecycle", () => {
     });
   }
 
-  test("background/Minecraft pause retains exact roofs and restart requests only missing batches", () => {
-    const f = fixture();
+  for (const mobile of [true, false]) test(`${mobile ? "mobile" : "desktop"}: background/Minecraft pause retains exact roofs and restart requests only missing batches`, () => {
+    const f = fixture(mobile);
     let disposals = 0;
     try {
       f.host.attach(packet(f.partition.remaining[0], 0));
@@ -339,6 +336,7 @@ describe("production preview replacement lifecycle", () => {
       f.assertCoverage();
       f.host.restart();
       expect(f.host.builds[0].completedBatchIds).toEqual(["buildings-1"]);
+      expect(f.host.builds[0].detailProfile).toBe(mobile ? "mobile" : "full");
       f.host.attach(packet(f.partition.remaining[1], 1));
       f.assertCoverage();
       expect(f.host.runtime.progressiveWorldBatches).toHaveLength(2);

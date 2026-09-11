@@ -92,10 +92,8 @@ describe("granular memorial recognition models", () => {
 
     expect(mobile.children).toHaveLength(20);
     expect(mobile.userData.modelCount).toBe(20);
-    expect(mobile.userData.renderableCount).toBeLessThan(
-      full.userData.renderableCount,
-    );
-    expect(mobile.userData.renderableCount).toBeLessThanOrEqual(91);
+    expect(mobile.userData.renderableCount).toBe(full.userData.renderableCount);
+    expect(mobile.userData.renderableCount).toBeLessThanOrEqual(114);
     expect(full.userData.renderableCount).toBeLessThanOrEqual(114);
     for (const work of KROLLOPER_SCULPTURE_PROFILE.works) {
       expect(

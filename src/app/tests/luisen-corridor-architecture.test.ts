@@ -131,9 +131,9 @@ describe("Luisenstraße and Reinhardtstraße source-bound facade refinement", ()
         expect(Array.from(mesh.instanceColor!.array).every(Number.isFinite)).toBeTrue();
       }
       const bytes = [...arrays].reduce((sum, a) => sum + a.byteLength, 0);
-      expect(count).toBe(minecraft ? 11_251 : mobileLike ? 20_614 : 24_038);
-      expect(bytes).toBe(minecraft ? 855_724 : mobileLike ? 1_567_312 : 1_827_536);
-      expect(bytes).toBeLessThan(minecraft ? 860_000 : mobileLike ? 1_580_000 : 1_840_000);
+      expect(count).toBe(minecraft ? 11_251 : 24_038);
+      expect(bytes).toBe(minecraft ? 855_724 : 1_827_536);
+      expect(bytes).toBeLessThan(minecraft ? 860_000 : 1_840_000);
       expect(root.userData).toMatchObject({ textureFree: true, runtimeAssets: [], sourcePartCount: 120 });
     }
   });

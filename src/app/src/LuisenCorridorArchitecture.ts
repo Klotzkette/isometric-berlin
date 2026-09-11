@@ -101,7 +101,7 @@ function voxelSampler(payload?: Voxels): (w: Wall, u: number, width: number, y: 
 }
 
 export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
-  const blocks: LuisenBlock[] = [], mc = !!options.minecraft, mobile = !!options.mobileLike, voxel = voxelSampler(options.voxels);
+  const blocks: LuisenBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const parts = S.prisms as PrismBuilding[];
   const byId = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));
   const boundsOf = (p: LuisenSourcePrism) => ({ p, x0: Math.min(...p.ring.map(a => a[0])) / 10, x1: Math.max(...p.ring.map(a => a[0])) / 10,

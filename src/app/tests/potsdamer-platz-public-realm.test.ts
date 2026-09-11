@@ -44,7 +44,7 @@ describe("Potsdamer Platz public realm", () => {
     const mobile = createPotsdamerPlatzPublicRealm("mobile");
     expect(full.userData.keepInMinecraft).toBe(true);
     expect(full.userData.detailProfile).toBe("full");
-    expect(mobile.userData.detailProfile).toBe("mobile");
+    expect(mobile.userData.detailProfile).toBe("full");
     expect(
       full.getObjectByName("Potsdamer Platz public realm bodies"),
     ).toBeInstanceOf(Mesh);
@@ -68,6 +68,6 @@ describe("Potsdamer Platz public realm", () => {
     expect(fullStats.vertices).toBeLessThanOrEqual(
       POTSDAMER_PUBLIC_REALM_RENDER_BUDGET.maximumVertices,
     );
-    expect(mobileStats.vertices).toBeLessThan(fullStats.vertices);
+    expect(mobileStats).toEqual(fullStats);
   });
 });

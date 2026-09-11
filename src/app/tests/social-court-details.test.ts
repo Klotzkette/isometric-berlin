@@ -277,7 +277,7 @@ describe("Sozialgericht Berlin source-bound facade", () => {
     const fullStats = socialCourtRenderStats(full);
     const mobileStats = socialCourtRenderStats(mobile);
     expect(fullStats).toEqual({ renderables: 3, vertices: 30_005 });
-    expect(mobileStats).toEqual({ renderables: 3, vertices: 19_338 });
+    expect(mobileStats).toEqual(fullStats);
     expect(fullStats.renderables).toBe(3);
     expect(mobileStats.renderables).toBe(3);
     expect(fullStats.renderables).toBeLessThanOrEqual(
@@ -292,9 +292,9 @@ describe("Sozialgericht Berlin source-bound facade", () => {
     expect(mobileStats.vertices).toBeLessThanOrEqual(
       SOCIAL_COURT_RENDER_BUDGET.mobile.maxVertices,
     );
-    expect(mobileStats.vertices).toBeLessThan(fullStats.vertices * 0.7);
+    expect(mobileStats.vertices).toBe(fullStats.vertices);
     expect(full.userData.detailProfile).toBe("full");
-    expect(mobile.userData.detailProfile).toBe("mobile");
+    expect(mobile.userData.detailProfile).toBe("full");
   });
 
   test("stays a shallow facade skin while retaining the full roof silhouette", () => {
@@ -363,7 +363,7 @@ describe("Sozialgericht Berlin source-bound facade", () => {
     });
     expect(
       mobile.getObjectByName(SOCIAL_COURT_ROOT_NAME)?.userData.detailProfile,
-    ).toBe("mobile");
+    ).toBe("full");
     expect(
       full.getObjectByName(
         "Expanded architecture and public-realm details bodies",

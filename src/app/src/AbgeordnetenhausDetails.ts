@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry, BufferGeometry, CircleGeometry, Color, CylinderGeometry, DoubleSide,
   Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh,
@@ -29,7 +30,7 @@ const YAW = new Quaternion().setFromAxisAngle(UP, P.facadeYaw);
 
 export const ABGEORDNETENHAUS_DETAIL_BUDGETS = {
   full: { drawnInstances: 2_700, drawnBytes: 270_000, minecraftBlocks: 3_500 },
-  mobile: { drawnInstances: 1_700, drawnBytes: 170_000, minecraftBlocks: 2_800 },
+  mobile: { drawnInstances: 2_700, drawnBytes: 270_000, minecraftBlocks: 2_800 },
   drawnRenderables: 7,
   minecraftRenderables: 1,
 } as const;
@@ -356,6 +357,7 @@ function roofFrames(b: Builder): void {
 }
 
 export function createAbgeordnetenhausDetails(detailProfile: DetailProfile = "full"): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = ABGEORDNETENHAUS_GROUP_NAME;
   root.add(reconstructedEnvelope());

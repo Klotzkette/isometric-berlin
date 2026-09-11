@@ -72,7 +72,7 @@ function voxelClearance(payload?: Voxels): (w: Wall, u: number, width: number, y
 }
 
 export function planRohwedderHaus(payload?: { buildings: readonly SourcePrism[] }, options: RohwedderOptions = {}): RohwedderBlock[] {
-  const parts = S.buildings as SourcePrism[], blocks: RohwedderBlock[] = [], mc = !!options.minecraft, mobile = !!options.mobileLike, clearance = voxelClearance(options.voxels);
+  const parts = S.buildings as SourcePrism[], blocks: RohwedderBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, clearance = voxelClearance(options.voxels);
   const nearby = (payload?.buildings ?? [...parts, ...S.occluders]).filter(p => p.ring.some(([x, z]) => x >= 6880 && x <= 9200 && z >= 10150 && z <= 13000));
   const walls = rohwedderHausWalls(parts);
   const hidden = (w: Wall, u: number, y: number, width: number, height: number, out: number) => {

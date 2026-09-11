@@ -770,7 +770,7 @@ export function createMuseumTriadArchitecture(
   options: { mobileLike?: boolean; minecraft?: boolean } = {},
 ): Group {
   const root = new Group(),
-    b = new Builder(options.minecraft ?? false, options.mobileLike ?? false);
+    b = new Builder(options.minecraft ?? false, !!options.minecraft && !!options.mobileLike);
   root.name = b.minecraft
     ? MINECRAFT_MUSEUM_TRIAD_GROUP_NAME
     : MUSEUM_TRIAD_GROUP_NAME;

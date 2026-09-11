@@ -1,5 +1,6 @@
 import { Group } from "three";
 import { compactStaticGeometry } from "./compactStaticGeometry";
+import { createRestoredRoadSurfaceBatches } from "./restoredRoadSurfaces";
 
 import {
   createIsometricCity,
@@ -10,7 +11,6 @@ import {
 import { smoothGroundTopSampler, WATER_TOP_Y } from "./MinecraftVoxelWorld";
 import type { VoxelPayload } from "./MinecraftVoxelWorld";
 import {
-  DESKTOP_TOTAL_BUILDING_LIMIT,
   splitProgressiveBuildings,
   splitParkSurfaceFamily,
   surfaceFamilyPayload,
@@ -21,7 +21,7 @@ import {
 import { BuildingDetailWorker } from "./buildingDetailWorker";
 import { PackedBuildingDistrictStore } from "./packedBuildingDistrictStore";
 import {
-  MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
+  buildingDetailProfile, buildingDetailDistricts, selectBuildingDetailDistricts,
 } from "./buildingDetailStreaming";
 import { serializeObject3DForTransfer } from "./transferableObject3D";
 
@@ -92,48 +92,6 @@ function yieldWorker(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-async function postBuildingBatches(
-  prismPayload: PrismPayload,
-  buildingBatches: readonly PrismPayload["buildings"][],
-  completedBatchIds: ReadonlySet<string>,
-  batchOffset = 0,
-): Promise<number> {
-  let postedCount = 0;
-  for (let index = 0; index < buildingBatches.length; index += 1) {
-    const id = `buildings-${batchOffset + index + 1}`;
-    if (completedBatchIds.has(id)) {
-      buildingBatches[index].length = 0;
-      continue;
-    }
-    const startedAt = performance.now();
-    const root = createIsometricCity(
-      prismPayload,
-      null,
-      null,
-      null,
-      {
-        buildings: buildingBatches[index],
-        includeContext: false,
-        smoothSurfaces: null,
-      },
-    );
-    await postBatch(
-      root,
-      "buildings",
-      id,
-      startedAt,
-      `buildings-preview-${batchOffset + index + 1}`,
-    );
-    postedCount += 1;
-    // The exact geometry owns compact typed buffers now. Release the decoded
-    // source objects before yielding so completed batches cannot accumulate
-    // behind the Worker's garbage collector.
-    buildingBatches[index].length = 0;
-    await yieldWorker();
-  }
-  return postedCount;
-}
-
 async function loadPrismPayload(url: string): Promise<PrismPayload> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -158,58 +116,11 @@ async function loadJsonResponse(url: string, label: string): Promise<Response> {
   return response;
 }
 
-async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
-  const overallStart = performance.now();
-  const completedBatchIds = new Set(input.completedBatchIds ?? []);
-  let batchCount = 0;
-  if (input.detailProfile === "mobile") {
-    latestMobileView = {
-      type: "detail-view",
-      requestedBatchIds: input.requestedBatchIds ?? [],
-      retainedBatchIds: [...completedBatchIds],
-      viewRevision: input.viewRevision ?? 0,
-    };
-    const prisms = await loadPrismPayload(input.prismUrl);
-    const partition = splitProgressiveBuildings(
-      prisms.buildings, input.initialBuildingCount,
-      MOBILE_DETAIL_BATCH_SIZE, Number.POSITIVE_INFINITY,
-    );
-    prisms.buildings = [];
-    partition.initial.length = 0;
-    const defaultWanted = selectBuildingDetailDistricts(
-      buildingDetailDistricts(partition.remaining), [317.729, 40.477],
-    );
-    const batches = new PackedBuildingDistrictStore(partition.remaining);
-    await yieldWorker();
-    mobileDetailWorker = new BuildingDetailWorker({
-      build: async (id) => {
-        const startedAt = performance.now();
-        const buildings = batches.read(id);
-        const root = createIsometricCity(prisms, null, null, null, {
-          buildings, includeContext: false, smoothSurfaces: null,
-        });
-        buildings.length = 0;
-        await postBatch(root, "buildings", id, startedAt,
-          id.replace("buildings-", "buildings-preview-"));
-        // One small in-flight district, with a message turn before the next
-        // build. Never construct a stale multi-thousand-building batch.
-        await waitForAttachedBatches();
-        await yieldWorker();
-      },
-      settled: (viewRevision) => workerScope.postMessage({ type: "settled", viewRevision }),
-      failed: (error) => workerScope.postMessage({
-        type: "error", message: error instanceof Error ? error.message : String(error),
-      }),
-    });
-    const view = latestMobileView;
-    mobileDetailWorker.update(
-      view.requestedBatchIds.length ? view.requestedBatchIds : defaultWanted,
-      view.retainedBatchIds, view.viewRevision,
-    );
-    return;
-  }
-  // Start both transfers now, but leave their multi-megabyte JSON graphs
-  // undecoded until the first exact building batch has been published.
+/** This scope ends after attachment; persistent building callbacks retain no terrain graph. */
+async function buildSurfaceFamilies(
+  input: ProgressiveWorldWorkerInput,
+  completedBatchIds: ReadonlySet<string>,
+): Promise<void> {
   const groundPromise = loadJsonResponse(
     input.groundUrl,
     "Ground context",
@@ -218,40 +129,6 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     input.surfacesUrl,
     "Surface polygon",
   );
-  const prismPayload = await loadPrismPayload(input.prismUrl);
-  const partition = splitProgressiveBuildings(
-    prismPayload.buildings,
-    input.initialBuildingCount,
-    undefined,
-    DESKTOP_TOTAL_BUILDING_LIMIT,
-    true,
-  );
-  prismPayload.buildings = [];
-  partition.initial.length = 0;
-  partition.omitted.length = 0;
-  const buildingBatches = partition.remaining;
-
-  // The nearest exact batch does not depend on terrain or roads. Publish it
-  // while those payloads are still decoding instead of serialising all work
-  // behind the former road-plate allocation.
-  const [nearestBuildingBatch, ...deferredBuildingBatches] = buildingBatches;
-  if (nearestBuildingBatch) {
-    batchCount += await postBuildingBatches(
-      prismPayload,
-      [nearestBuildingBatch],
-      completedBatchIds,
-    );
-  }
-
-  // Finish building recognition before optional surface refinement. A slow
-  // park/water payload must not hold the far half of the exact city hostage.
-  batchCount += await postBuildingBatches(
-    prismPayload,
-    deferredBuildingBatches,
-    completedBatchIds,
-    nearestBuildingBatch ? 1 : 0,
-  );
-
   const [groundResponse, surfacesResponse] = await Promise.all([
     groundPromise,
     surfacesPromise,
@@ -293,7 +170,9 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       { excludeDistrictMarkings: true },
     );
     await postBatch(root, "surfaces", id, startedAt);
-    batchCount += 1;
+    // One surface and at most one building packet may coexist in flight.
+    // The next construction waits for their acknowledged viewer attachment.
+    await waitForAttachedBatches();
   };
   const postSurface = async (
     family: Parameters<typeof surfaceFamilyPayload>[1],
@@ -309,9 +188,11 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     }
   };
 
-  // Water, lawns and the small special-surface families establish the map
-  // reading without duplicating the raster streets and authored park paths.
-  await postSurface("water");
+  // Mobile installs the exact whole water family before opening its curtain.
+  // Desktop retains the same globally aware family in this worker.
+  if (input.detailProfile === "full") await postSurface("water");
+  surfaces.water = [];
+  surfaces.sunken_walls = [];
   for (const [index, payload] of splitParkSurfaceFamily(
     surfaces,
   ).entries()) {
@@ -329,18 +210,86 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   await postSurfacePayload(markingPayload, "surface-lane-markings");
   surfaces.lane_markings = [];
   await yieldWorker();
-
+  let roadStartedAt = performance.now();
+  for await (const { id, root } of createRestoredRoadSurfaceBatches(ground, completedBatchIds)) {
+    await postBatch(root, "surfaces", id, roadStartedAt);
+    await waitForAttachedBatches();
+    await yieldWorker();
+    roadStartedAt = performance.now();
+  }
   await waitForAttachedBatches();
-  workerScope.postMessage({
-    batches: batchCount,
-    build_ms: performance.now() - overallStart,
-    pretriangulated: false,
-    type: "complete",
+}
+
+async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
+  const completedBatchIds = new Set(input.completedBatchIds ?? []);
+  latestMobileView = {
+    type: "detail-view",
+    requestedBatchIds: input.requestedBatchIds ?? [],
+    retainedBatchIds: [...completedBatchIds],
+    viewRevision: input.viewRevision ?? 0,
+  };
+  const prisms = await loadPrismPayload(input.prismUrl);
+  const profile = buildingDetailProfile(input.detailProfile);
+  const partition = splitProgressiveBuildings(
+    prisms.buildings, input.initialBuildingCount, profile.batchSize, Number.POSITIVE_INFINITY,
+  );
+  prisms.buildings = [];
+  partition.initial.length = 0;
+  const defaultWanted = selectBuildingDetailDistricts(
+    buildingDetailDistricts(partition.remaining), [317.729, 40.477], undefined,
+    { profile: input.detailProfile },
+  );
+  const batches = new PackedBuildingDistrictStore(partition.remaining);
+  await yieldWorker();
+  let surfacesReady = false;
+  let failed = false;
+  let settledRevision: number | undefined;
+  let publishedRevision: number | undefined;
+  const publishSettled = (): void => {
+    if (failed || !surfacesReady || settledRevision === undefined ||
+        settledRevision !== latestMobileView?.viewRevision ||
+        settledRevision === publishedRevision) return;
+    publishedRevision = settledRevision;
+    workerScope.postMessage({ type: "settled", viewRevision: settledRevision });
+  };
+  mobileDetailWorker = new BuildingDetailWorker({
+    build: async (id) => {
+      const startedAt = performance.now();
+      const buildings = batches.read(id);
+      const root = createIsometricCity(prisms, null, null, null, {
+        buildings, includeContext: false, smoothSurfaces: null,
+      });
+      buildings.length = 0;
+      await postBatch(root, "buildings", id, startedAt,
+        id.replace("buildings-", "buildings-preview-"));
+      await waitForAttachedBatches();
+      await yieldWorker();
+    },
+    settled: (viewRevision) => { settledRevision = viewRevision; publishSettled(); },
+    failed: (error) => {
+      failed = true;
+      workerScope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) });
+    },
   });
+  const view = latestMobileView;
+  mobileDetailWorker.update(
+    view.requestedBatchIds.length ? view.requestedBatchIds : defaultWanted,
+    view.retainedBatchIds, view.viewRevision,
+  );
+  try {
+    await buildSurfaceFamilies(input, completedBatchIds);
+    surfacesReady = true;
+    publishSettled();
+  } catch (error) {
+    failed = true;
+    mobileDetailWorker.stop();
+    throw error;
+  }
 }
 
 workerScope.onmessage = (event): void => {
   if (event.data.type === "detail-view") {
+    if (latestMobileView && event.data.viewRevision < latestMobileView.viewRevision) return;
     latestMobileView = event.data;
     mobileDetailWorker?.update(event.data.requestedBatchIds,
       event.data.retainedBatchIds, event.data.viewRevision);

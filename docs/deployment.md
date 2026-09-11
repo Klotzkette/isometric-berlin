@@ -3,8 +3,13 @@
 The complete viewer is static after `bun run build`: React/Three.js assets,
 eight compact source-derived world JSON files, walking minimap and startup
 backdrop live below `src/app/dist/`. The viewer always uses the isometric 3D
-scene; retired flat-map tiles and the separate 2D renderer are excluded. No GLB,
-source photograph or pretriangulated road plate ships in the current release.
+scene; retired flat-map tiles and the separate 2D renderer are excluded. No GLB
+or source photograph ships in the current release. v1.0.41 adds a hashed,
+streamed NDJSON asset containing exact asphalt, paving and kerb batches,
+prepared offline from the retained source polygons. It also prepares precise
+land/water boundaries in the viewer bundle. The retired whole-city `.plate.gz`
+format remains excluded; the new worker decodes one bounded road batch at a
+time and waits for attachment before continuing.
 Runtime needs no AI service, API key or backend. Vite uses relative paths, so the directory can be served from a
 subpath or static host.
 

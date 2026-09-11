@@ -69,8 +69,8 @@ describe("Heidestraße and Otto-Weidt-Platz architecture", () => {
         if (m.geometry.index) arrays.add(m.geometry.index.array);
         arrays.add(m.instanceMatrix.array); arrays.add(m.instanceColor!.array); expect(Array.from(m.instanceMatrix.array).every(Number.isFinite)).toBeTrue();
       }
-      expect(count).toBe(minecraft ? mobileLike ? 31751 : 43181 : mobileLike ? 47072 : 82545);
-      expect([...arrays].reduce((sum, a) => sum + a.byteLength, 0)).toBeLessThan(minecraft ? mobileLike ? 2_415_000 : 3_290_000 : mobileLike ? 3_580_000 : 6_280_000);
+      expect(count).toBe(minecraft ? mobileLike ? 31751 : 43181 : 82545);
+      expect([...arrays].reduce((sum, a) => sum + a.byteLength, 0)).toBeLessThan(minecraft ? mobileLike ? 2_415_000 : 3_290_000 : 6_280_000);
     }
   });
 });

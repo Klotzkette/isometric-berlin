@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   AdditiveBlending,
   BoxGeometry,
@@ -2618,7 +2619,7 @@ export function createParkDetails(
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
-  const detailProfile = options.detailProfile ?? "full";
+  const detailProfile = staticModelDetailProfile(options.detailProfile);
   const insideTunnelApproach = options.tunnel
     ? createTunnelPortalApproachTester(options.tunnel)
     : null;

@@ -207,9 +207,9 @@ describe("Weidendammer Bruecke source-bound close details", () => {
     expect(Array.from(fullLocks.instanceColor!.array)).toEqual(
       Array.from(repeatedLocks.instanceColor!.array),
     );
-    expect(mobileLocks.count).toBe(WEIDENDAMMER_BRIDGE_LOVE_LOCK_COUNT.mobile);
+    expect(mobileLocks.count).toBe(WEIDENDAMMER_BRIDGE_LOVE_LOCK_COUNT.full);
     expect(mobile.userData.repeatingRailFieldCount).toBe(
-      WEIDENDAMMER_BRIDGE_REPEATING_RAIL_FIELD_COUNT.mobile,
+      WEIDENDAMMER_BRIDGE_REPEATING_RAIL_FIELD_COUNT.full,
     );
     const fullStats = weidendammerBridgeRenderStats(full);
     const mobileStats = weidendammerBridgeRenderStats(mobile);
@@ -219,16 +219,7 @@ describe("Weidendammer Bruecke source-bound close details", () => {
       renderables: 5,
       storedVertices: 46_568,
     });
-    expect(mobileStats).toEqual({
-      instanceCount: 96,
-      renderedVertices: 54_404,
-      renderables: 5,
-      storedVertices: 32_744,
-    });
-    expect(mobileStats.renderedVertices).toBeLessThan(
-      fullStats.renderedVertices,
-    );
-    expect(mobileStats.instanceCount).toBeLessThan(fullStats.instanceCount);
+    expect(mobileStats).toEqual(fullStats);
 
     const envelope = weidendammerBridgeWorldEnvelope();
     const bounds = new Box3().setFromObject(full);

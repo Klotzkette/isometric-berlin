@@ -1,0 +1,452 @@
+{
+  "AbgeordnetenhausDetails/full": {
+    "hash": "6db11b2820fcbc6cbd924501b870c26ae51af72bf5c5eaa02d27842eda9e332a",
+    "budget": {
+      "bytes": 251524,
+      "draws": 1,
+      "instances": 3301,
+      "vertices": 24
+    }
+  },
+  "AbgeordnetenhausDetails/mobile": {
+    "hash": "b4812191d6f39d7fd96f1f004c8c03ca97c0f718c1c024a2dad1b8ce0096f4bb",
+    "budget": {
+      "bytes": 200300,
+      "draws": 1,
+      "instances": 2627,
+      "vertices": 24
+    }
+  },
+  "GropiusBauDetails/full": {
+    "hash": "a727d66fd2a5d9fd97908d3648bcbd3cb6a04305ff3374d6a4b109530d48d810",
+    "budget": {
+      "bytes": 101728,
+      "draws": 1,
+      "instances": 1330,
+      "vertices": 24
+    }
+  },
+  "GropiusBauDetails/mobile": {
+    "hash": "3aeccc91f1c155e2273818435959c705495d423485c68de591640f6267b29dcc",
+    "budget": {
+      "bytes": 99448,
+      "draws": 1,
+      "instances": 1300,
+      "vertices": 24
+    }
+  },
+  "MoabitPrisonMemorialPark/full": {
+    "hash": "49ec5f64e5ef9d47145ed99ee6148041bc893b1e0fe33b2cdd6a23b3652ebaa6",
+    "budget": {
+      "bytes": 295872,
+      "draws": 1,
+      "instances": 3882,
+      "vertices": 24
+    }
+  },
+  "MoabitPrisonMemorialPark/mobile": {
+    "hash": "36c262ae506d5383bc35a5127774f49ef994c8020a39ddbb36d10bd5699e8230",
+    "budget": {
+      "bytes": 159908,
+      "draws": 1,
+      "instances": 2093,
+      "vertices": 24
+    }
+  },
+  "WeidendammerBridgeDetails/full": {
+    "hash": "19e1d3a264e456eb1e20edfdb721bdb5ed65ef327badcbed23922c6440a7858a",
+    "budget": {
+      "bytes": 26984,
+      "draws": 1,
+      "instances": 344,
+      "vertices": 24
+    }
+  },
+  "WeidendammerBridgeDetails/mobile": {
+    "hash": "7f219b3de7f2e39d880e56c60e5481f57dfa377902fa7facd63248a2c3186198",
+    "budget": {
+      "bytes": 17864,
+      "draws": 1,
+      "instances": 224,
+      "vertices": 24
+    }
+  },
+  "FriedrichstadtPalastDetails/full": {
+    "hash": "0fadf05c991fdd53c9a1ee10de71cd2f847b9a498306b39d732eec5f5f2340c1",
+    "budget": {
+      "bytes": 947228,
+      "draws": 1,
+      "instances": 12455,
+      "vertices": 24
+    }
+  },
+  "FriedrichstadtPalastDetails/mobile": {
+    "hash": "7778c8c3ef609c55e6e3ef6e39ad1a8d2ca442cae44bb046fa53fd25fc1dd04f",
+    "budget": {
+      "bytes": 816888,
+      "draws": 1,
+      "instances": 10740,
+      "vertices": 24
+    }
+  },
+  "BellevueArchitecture/full": {
+    "hash": "fdd66ed8a7b608dd498b473dcdb211bffe8591130bd9d9c9195eb9a97b1dba80",
+    "budget": {
+      "bytes": 665800,
+      "draws": 1,
+      "instances": 8752,
+      "vertices": 24
+    }
+  },
+  "BellevueArchitecture/mobile": {
+    "hash": "ed61fd87c09004121921fc3c0feb545cf1837e68a51bed0782814333589cf49c",
+    "budget": {
+      "bytes": 359976,
+      "draws": 1,
+      "instances": 4728,
+      "vertices": 24
+    }
+  },
+  "BundesratArchitecture/full": {
+    "hash": "02d8d372953b56e64fcfcf41d6242f813504a5e2d22ffe62215f09976fcbb1e9",
+    "budget": {
+      "bytes": 437800,
+      "draws": 1,
+      "instances": 5752,
+      "vertices": 24
+    }
+  },
+  "BundesratArchitecture/mobile": {
+    "hash": "3d163881fbceec5719baced5e4658e2e591e17899124f5f6bd4314627360b0d6",
+    "budget": {
+      "bytes": 388780,
+      "draws": 1,
+      "instances": 5107,
+      "vertices": 24
+    }
+  },
+  "BoellStiftungArchitecture/full": {
+    "hash": "0b6fc376f9720adccd9e92822f47f5c11cf46509b7b45130a247979db06e7d4b",
+    "budget": {
+      "bytes": 176588,
+      "draws": 1,
+      "instances": 2315,
+      "vertices": 24
+    }
+  },
+  "BoellStiftungArchitecture/mobile": {
+    "hash": "411c94c853d68e437a6bfce98b9bba3fead2446f9fc4ceec7c8a5f3459732203",
+    "budget": {
+      "bytes": 159868,
+      "draws": 1,
+      "instances": 2095,
+      "vertices": 24
+    }
+  },
+  "DeutschesTheater/full": {
+    "hash": "c11a25d581979a5e9df4255ffa2c37bf837594352c50cbc8ee4f2b3cf2d48149",
+    "budget": {
+      "bytes": 256008,
+      "draws": 1,
+      "instances": 3360,
+      "vertices": 24
+    }
+  },
+  "DeutschesTheater/mobile": {
+    "hash": "9fa02bf13d0d3d67128a4d59ad32268c528ee00c7e9d2baa090dc2a046402972",
+    "budget": {
+      "bytes": 251752,
+      "draws": 1,
+      "instances": 3304,
+      "vertices": 24
+    }
+  },
+  "HumboldthafenBuildings/full": {
+    "hash": "bc8a904617de8568fe1d71bda151542a1bf6da9cd9e8c5569a1642e4270fa9e7",
+    "budget": {
+      "bytes": 1029051,
+      "draws": 2,
+      "instances": 13440,
+      "vertices": 383
+    }
+  },
+  "HumboldthafenBuildings/mobile": {
+    "hash": "9e73fd549ca5067e219533e7f1889596abcb7af2219b70538993f3814d4f7667",
+    "budget": {
+      "bytes": 994091,
+      "draws": 2,
+      "instances": 12980,
+      "vertices": 383
+    }
+  },
+  "MuseumLenneArchitecture/full": {
+    "hash": "87ae9f447e0b5ab6e19d6988918bce71879452f5b1d291ff11608642910ddddc",
+    "budget": {
+      "bytes": 932940,
+      "draws": 1,
+      "instances": 12267,
+      "vertices": 24
+    }
+  },
+  "MuseumLenneArchitecture/mobile": {
+    "hash": "aaa347c1450885d8d8d566c84946280f6688668b834515c0b5bb89c5b0350aa1",
+    "budget": {
+      "bytes": 929900,
+      "draws": 1,
+      "instances": 12227,
+      "vertices": 24
+    }
+  },
+  "RohwedderHausArchitecture/full": {
+    "hash": "6f0746b550d70e08289137e9d4afcaaa469a66661d25b39c3b3b8b08f665655d",
+    "budget": {
+      "bytes": 1308304,
+      "draws": 1,
+      "instances": 17206,
+      "vertices": 24
+    }
+  },
+  "RohwedderHausArchitecture/mobile": {
+    "hash": "88d91bae923a197a4f2678dfaf14654909e06b4ca442719739d2f040f176eb75",
+    "budget": {
+      "bytes": 917740,
+      "draws": 1,
+      "instances": 12067,
+      "vertices": 24
+    }
+  },
+  "BismarckMoltkeMonuments/full": {
+    "hash": "fadeed09dd60ff785bd3489b007917786ef63919bce8225a5603ff69f4f1c94b",
+    "budget": {
+      "bytes": 457452,
+      "draws": 2,
+      "instances": 5997,
+      "vertices": 48
+    }
+  },
+  "BismarckMoltkeMonuments/mobile": {
+    "hash": "6b204b290f689793cdd5f073f8e29279f3771977ee4ee00775dba3947291181d",
+    "budget": {
+      "bytes": 235532,
+      "draws": 2,
+      "instances": 3077,
+      "vertices": 48
+    }
+  },
+  "DbTowerArchitecture/full": {
+    "hash": "4ecb68bbf28e24baf496cebc59d6110da66f240772398e2c8380400a6dac0602",
+    "budget": {
+      "bytes": 863476,
+      "draws": 5,
+      "instances": 11353,
+      "vertices": 24
+    }
+  },
+  "DbTowerArchitecture/mobile": {
+    "hash": "56ae858f0b7a6cc1a0ba00e917a3bf92c3aef4f8175fd0aad4212fec8cea65bc",
+    "budget": {
+      "bytes": 457560,
+      "draws": 5,
+      "instances": 6012,
+      "vertices": 24
+    }
+  },
+  "DomAltesMuseum/full": {
+    "hash": "df8ba48a0c7b4571b04db4a831984a929cbaafbfb22a07ffb5e2a18f3bc4f27c",
+    "budget": {
+      "bytes": 1186020,
+      "draws": 1,
+      "instances": 15597,
+      "vertices": 24
+    }
+  },
+  "DomAltesMuseum/mobile": {
+    "hash": "f9bfa37525f5da8016d4b5218354e539943edde9560a8ea6d8c89238312fb93b",
+    "budget": {
+      "bytes": 732908,
+      "draws": 1,
+      "instances": 9635,
+      "vertices": 24
+    }
+  },
+  "EuropacityArchitecture/full": {
+    "hash": "cdecab01a01a33ab320c65b1cb38f7a60dc0da24a45e9c674140e55f0e59d4e2",
+    "budget": {
+      "bytes": 3810148,
+      "draws": 2,
+      "instances": 50125,
+      "vertices": 24
+    }
+  },
+  "EuropacityArchitecture/mobile": {
+    "hash": "c1c3b23000b3efa446f4c6314f19412224eb46b9c3278ed96d85b9256afd4f72",
+    "budget": {
+      "bytes": 2861288,
+      "draws": 2,
+      "instances": 37640,
+      "vertices": 24
+    }
+  },
+  "FiftyHertzArchitecture/full": {
+    "hash": "d89cc3ca373ea92bbbe9ac6fba2145deff10a66b5e02035cfaad6903b02b004a",
+    "budget": {
+      "bytes": 996856,
+      "draws": 1,
+      "instances": 13108,
+      "vertices": 24
+    }
+  },
+  "FiftyHertzArchitecture/mobile": {
+    "hash": "af0983766fd4f94fede9872a7f979c4b060dd4279b7dbfd953a2172731938695",
+    "budget": {
+      "bytes": 630840,
+      "draws": 1,
+      "instances": 8292,
+      "vertices": 24
+    }
+  },
+  "FriedrichstrasseArchitecture/full": {
+    "hash": "ad60e755a8f498194a259f5512b05ad141cc020cd59ee313626ff6460693e4c1",
+    "budget": {
+      "bytes": 1747128,
+      "draws": 2,
+      "instances": 22980,
+      "vertices": 24
+    }
+  },
+  "FriedrichstrasseArchitecture/mobile": {
+    "hash": "19355719f80bd80b81994011ecf5d055a92cecbcf7832005c4797c2ff2045e55",
+    "budget": {
+      "bytes": 1492832,
+      "draws": 2,
+      "instances": 19634,
+      "vertices": 24
+    }
+  },
+  "LuisenCorridorArchitecture/full": {
+    "hash": "60d312a4de31dd14af5d98a05280afd6b29ed858e120fa42c63e9c3c12f3833e",
+    "budget": {
+      "bytes": 1197268,
+      "draws": 2,
+      "instances": 15745,
+      "vertices": 24
+    }
+  },
+  "LuisenCorridorArchitecture/mobile": {
+    "hash": "60d312a4de31dd14af5d98a05280afd6b29ed858e120fa42c63e9c3c12f3833e",
+    "budget": {
+      "bytes": 1197268,
+      "draws": 2,
+      "instances": 15745,
+      "vertices": 24
+    }
+  },
+  "LitfinWatchtower/full": {
+    "hash": "ab4f948a3e26babfe0b6681a525a510491b29be7964a0570fefebf4a69bdfa65",
+    "budget": {
+      "bytes": 564264,
+      "draws": 1,
+      "instances": 7416,
+      "vertices": 24
+    }
+  },
+  "LitfinWatchtower/mobile": {
+    "hash": "f603695d2e5e947b387238355855c2487cc329e27ec8ff5f39086e6b099112f3",
+    "budget": {
+      "bytes": 348424,
+      "draws": 1,
+      "instances": 4576,
+      "vertices": 24
+    }
+  },
+  "MuseumTriadArchitecture/full": {
+    "hash": "286ef2966f4ff424f6253c0f5878e6c548b9c2eabdac7586160fea260efd5e2c",
+    "budget": {
+      "bytes": 1464028,
+      "draws": 1,
+      "instances": 19255,
+      "vertices": 24
+    }
+  },
+  "MuseumTriadArchitecture/mobile": {
+    "hash": "14137c0642209bb55a4e5b6a4a72ef2a35e7821830e1d57b4ecc0adf429b71b4",
+    "budget": {
+      "bytes": 802524,
+      "draws": 1,
+      "instances": 10551,
+      "vertices": 24
+    }
+  },
+  "TopographyTerrorArchitecture/full": {
+    "hash": "6c2c93a3cf2cec04ffa01009b747cc0dcc0f19158cbbd082abbbe9068dcce0ba",
+    "budget": {
+      "bytes": 337100,
+      "draws": 11,
+      "instances": 4406,
+      "vertices": 80
+    }
+  },
+  "TopographyTerrorArchitecture/mobile": {
+    "hash": "cccb25c64109717b77cd084f4fc946e6ef5a3f11578ab32351f179d87f6075d7",
+    "budget": {
+      "bytes": 336188,
+      "draws": 11,
+      "instances": 4394,
+      "vertices": 80
+    }
+  },
+  "SachsenAnhaltFacade/full": {
+    "hash": "62c8de47708bc3972c097efdb12dc171305603465e894a52bcf7cb17085310b6",
+    "budget": {
+      "bytes": 21624,
+      "draws": 1,
+      "instances": 276,
+      "vertices": 24
+    }
+  },
+  "SachsenAnhaltFacade/mobile": {
+    "hash": "62c8de47708bc3972c097efdb12dc171305603465e894a52bcf7cb17085310b6",
+    "budget": {
+      "bytes": 21624,
+      "draws": 1,
+      "instances": 276,
+      "vertices": 24
+    }
+  },
+  "ParliamentArchitecture/full": {
+    "hash": "f4a9c16ccb72bc9da906346b8d775d25b6e7f000651722afce6e069f1823c2d2",
+    "budget": {
+      "bytes": 665268,
+      "draws": 1,
+      "instances": 8745,
+      "vertices": 24
+    }
+  },
+  "ParliamentArchitecture/mobile": {
+    "hash": "ebd40a274e3cae7c30f031e799a8767b6f1f4b0046e7eaa779d42bc5072898b5",
+    "budget": {
+      "bytes": 511216,
+      "draws": 1,
+      "instances": 6718,
+      "vertices": 24
+    }
+  },
+  "PotsdamerTrafficTower/full": {
+    "hash": "3a85a64b6517b6f91d56ebaabde2f82fb9504de97a8381ffc7052923057204a2",
+    "budget": {
+      "bytes": 135512,
+      "draws": 3,
+      "instances": 1766,
+      "vertices": 48
+    }
+  },
+  "PotsdamerTrafficTower/mobile": {
+    "hash": "ef5b8c695412fca8006c03c9b554ee7dc8306fbe0e564be4a2a1b70e472911c0",
+    "budget": {
+      "bytes": 77144,
+      "draws": 3,
+      "instances": 998,
+      "vertices": 48
+    }
+  }
+}

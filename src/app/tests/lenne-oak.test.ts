@@ -95,7 +95,7 @@ describe("source-bound Lenné-Eiche", () => {
     expect(model.userData.vertexCount).toBeLessThan(30_000);
   });
 
-  test("retains the signature silhouette inside a much smaller mobile budget", () => {
+  test("retains the complete veteran oak detail on mobile", () => {
     const full = createLenneOak(sourceOak(), "full");
     const mobile = createLenneOak(sourceOak(), "mobile");
     const bounds = localBounds(mobile);
@@ -103,16 +103,13 @@ describe("source-bound Lenné-Eiche", () => {
 
     expect(size.x).toBeGreaterThan(18);
     expect(bounds.max.y).toBeGreaterThanOrEqual(22.85);
-    expect(mobile.userData.renderableCount).toBe(6);
-    expect(mobile.userData.vertexCount).toBeLessThan(5_500);
-    expect(mobile.userData.vertexCount).toBeLessThan(
-      full.userData.vertexCount / 4,
-    );
+    expect(mobile.userData.renderableCount).toBe(7);
+    expect(mobile.userData.vertexCount).toBe(full.userData.vertexCount);
     expect(
       mobile.getObjectByName(
         "Snowstorm-only Lenné-Eiche branch and crown snow",
       ),
-    ).toBeUndefined();
+    ).toBeDefined();
   });
 
   test("replaces only the generic drawing while keeping source counts and snow", () => {

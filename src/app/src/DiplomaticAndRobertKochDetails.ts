@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import { Group } from "three";
 
 import { addBox, addCylinder, createBuilder, finishDrawnGroup } from "./drawnKit";
@@ -37,6 +38,7 @@ function facadeGrid(builder: ReturnType<typeof createBuilder>, x: number, z: num
 }
 
 export function createDiplomaticAndRobertKochDetails(detailProfile: "full" | "mobile" = "full"): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const b = createBuilder();
   const full = detailProfile === "full";
 

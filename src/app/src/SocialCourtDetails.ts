@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -190,7 +191,7 @@ export const SOCIAL_COURT_PROFILE = Object.freeze({
 
 export const SOCIAL_COURT_RENDER_BUDGET = Object.freeze({
   full: Object.freeze({ maxRenderables: 3, maxVertices: 32_000 }),
-  mobile: Object.freeze({ maxRenderables: 3, maxVertices: 21_000 }),
+  mobile: Object.freeze({ maxRenderables: 3, maxVertices: 32_000 }),
 });
 
 const MAIN_STONE = SOCIAL_COURT_PROFILE.palette.main;
@@ -1522,6 +1523,7 @@ function addFacade(
 export function createSocialCourtDetails(
   detailProfile: SocialCourtDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = SOCIAL_COURT_ROOT_NAME;
   root.userData = {

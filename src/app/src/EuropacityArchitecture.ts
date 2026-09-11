@@ -100,7 +100,7 @@ function voxelSampler(payload?: Voxels): (w: Wall, u: number, width: number, y: 
 
 /** Exposed-wall recognition only: retained roofs and open courts stay authoritative. */
 export function planEuropacityArchitecture(options: EuropacityOptions = {}): EuropacityBlock[] {
-  const blocks: EuropacityBlock[] = [], mc = !!options.minecraft, mobile = !!options.mobileLike, voxel = voxelSampler(options.voxels);
+  const blocks: EuropacityBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const parts = S.prisms as unknown as PrismBuilding[], byId = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));
   const bound = (p: EuropacitySourcePrism) => ({ p, x0: Math.min(...p.ring.map(a => a[0])) / 10, x1: Math.max(...p.ring.map(a => a[0])) / 10, z0: Math.min(...p.ring.map(a => a[1])) / 10, z1: Math.max(...p.ring.map(a => a[1])) / 10 });
   const nearbyParts = (options.sourcePrisms ?? parts).map(bound).filter(b => b.x1 >= -725 && b.x0 <= -50 && b.z1 >= -1960 && b.z0 <= -880);

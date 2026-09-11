@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -766,6 +767,7 @@ export function createLenneOak(
   tree: LenneOakTree,
   detailProfile: LenneOakDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   if (!isLenneOakTree(tree)) {
     throw new Error("Lenné-Eiche model requires the exact official source tree");
   }

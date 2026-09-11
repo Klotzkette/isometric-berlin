@@ -46,3 +46,19 @@ test("long travel keeps residency bounded and never excludes attached requested 
     expect(attached.length * 240).toBeLessThanOrEqual(MOBILE_DETAIL_CACHE_PART_LIMIT);
   }
 });
+
+test("desktop reserves its existing 9,000-part detail capacity without accumulating visited districts", () => {
+  const full = districts.map(d => ({ ...d, count: 600 }));
+  let attached: string[] = [];
+  const lastUsed = new Map<string, number>();
+  for (let step = 0; step < 150; step++) {
+    const start = Math.round((Math.sin(step / 10) + 1) * 22);
+    const wanted = full.slice(start, start + 15).map(d => d.id);
+    wanted.forEach(id => lastUsed.set(id, step));
+    const retained = retainedBuildingDetailIds(full, wanted, [...attached, "surface-water"], lastUsed, "full");
+    expect([...retained].every(id => wanted.includes(id))).toBeTrue();
+    expect(attached.filter(id => wanted.includes(id)).every(id => retained.has(id))).toBeTrue();
+    attached = [...new Set([...retained, ...wanted])];
+    expect(attached.length * 600).toBe(9_000);
+  }
+});

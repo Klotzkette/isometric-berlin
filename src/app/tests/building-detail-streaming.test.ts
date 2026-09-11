@@ -3,6 +3,7 @@ import { Box3, Frustum, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import type { PrismBuilding, PrismPayload } from "../src/IsometricCityWorld";
 import {
   buildingDetailDistricts,
+  buildingDetailProfile,
   buildingDetailViewPoints,
   MOBILE_DETAIL_BATCH_SIZE,
   MOBILE_DETAIL_MAX_RESIDENT_DISTRICTS,
@@ -13,6 +14,7 @@ import {
 } from "../src/buildingDetailStreaming";
 import {
   MOBILE_INITIAL_BUILDING_COUNT,
+  DESKTOP_INITIAL_BUILDING_COUNT,
   splitProgressiveBuildings,
 } from "../src/progressiveWorld";
 
@@ -252,5 +254,53 @@ describe("camera-following mobile building detail", () => {
       expect(distant.length).toBeGreaterThan(50);
       expect(newExact).toBeGreaterThan(oldExact + distant.length * 0.5);
     }
+  });
+});
+
+describe("complete desktop detail eligibility", () => {
+  test("every delivered source part can receive exact detail after travel, including the old permanent omissions", async () => {
+    const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
+    const profile = buildingDetailProfile("full");
+    const original = splitProgressiveBuildings(payload.buildings, DESKTOP_INITIAL_BUILDING_COUNT, 5_000, 9_000, true);
+    expect(original.omitted).toHaveLength(20_818);
+    const partition = splitProgressiveBuildings(payload.buildings, DESKTOP_INITIAL_BUILDING_COUNT, profile.batchSize);
+    const districts = buildingDetailDistricts(partition.remaining);
+    expect(partition.omitted).toHaveLength(0);
+    expect(new Set([...partition.initial, ...partition.remaining.flat()].map(p => p.id))).toEqual(
+      new Set(payload.buildings.map(p => p.id)),
+    );
+    expect(districts.every(d => d.count <= profile.batchSize)).toBeTrue();
+    const counts = new Map(districts.map(d => [d.id, d.count]));
+    const selectedAnywhere = new Set<string>();
+    for (const district of districts) {
+      const ids = selectBuildingDetailDistricts(districts, district.center, district.center, { profile: "full" });
+      expect(ids).toContain(district.id);
+      expect(ids.length).toBeLessThanOrEqual(profile.maxResidentDistricts);
+      const parts = ids.reduce((sum, id) => sum + counts.get(id)!, 0);
+      expect(parts).toBeLessThanOrEqual(9_000);
+      // The previous full renderer had 9,000 exact parts including the first
+      // 420. Restoring travel must not give desktop the smaller phone budget.
+      expect(parts + partition.initial.length).toBeGreaterThanOrEqual(9_000);
+      ids.forEach(id => selectedAnywhere.add(id));
+    }
+    const eligible = new Set(partition.remaining.flatMap((batch, index) =>
+      selectedAnywhere.has(`buildings-${index + 1}`) ? batch.map(p => p.id) : []));
+    expect(original.omitted.every(p => eligible.has(p.id))).toBeTrue();
+    expect(selectedAnywhere.size).toBe(districts.length);
+    // Paused/recreated workers must derive identical IDs from the source URL.
+    const resumed = splitProgressiveBuildings(payload.buildings, DESKTOP_INITIAL_BUILDING_COUNT, profile.batchSize);
+    expect(buildingDetailDistricts(resumed.remaining)).toEqual(districts);
+  });
+
+  test("desktop horizon selection uses the complete published reach with finite bounded rays", () => {
+    const camera = new PerspectiveCamera(39, 16 / 9, .25, 18_000);
+    const focus = new Vector3(0, 2, 0);
+    camera.position.copy(focus);
+    camera.lookAt(new Vector3(0, 2, -1));
+    const desktop = buildingDetailViewPoints(camera, focus, "full");
+    const mobile = buildingDetailViewPoints(camera, focus, "mobile");
+    expect(Math.hypot(...desktop[0])).toBeCloseTo(6_450);
+    expect(Math.hypot(...mobile[0])).toBeCloseTo(2_400);
+    expect(desktop.every(([x, z]) => Number.isFinite(x) && Number.isFinite(z) && Math.hypot(x, z) <= 6_450 + 1e-8)).toBeTrue();
   });
 });

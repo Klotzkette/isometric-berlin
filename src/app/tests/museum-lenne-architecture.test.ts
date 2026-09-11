@@ -54,7 +54,7 @@ describe("museum and Tiergarten-facing Lenne architecture", () => {
       expect(o.geometry.getAttribute("uv")).toBeUndefined();
       if(o instanceof InstancedMesh){bytes+=o.instanceMatrix.array.byteLength+(o.instanceColor?.array.byteLength??0);expect(Array.from(o.instanceMatrix.array).every(Number.isFinite)).toBeTrue();}
     }});
-    expect(renderables).toBe(minecraft?1:2);expect(bytes).toBeLessThan(minecraft?1_050_000:mobileLike?480_000:900_000);
+    expect(renderables).toBe(minecraft?1:2);expect(bytes).toBeLessThan(minecraft?1_050_000:900_000);
     expect(root.userData.profile.roofLightCount).toBe(14);
     expect(root.userData.detailCounts["museum entry glazing"]).toBeGreaterThan(0);
     expect(root.userData.detailCounts["museum triangular gold relief"]).toBeGreaterThan(40);

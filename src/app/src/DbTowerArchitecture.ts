@@ -16,8 +16,9 @@ function walls(part:DbTowerPart):Wall[]{return part.ring.map((a,i)=>{
  return{a,b,length,dx,dz,nx,nz,part};
 });}
 function at(w:Wall,u:number,y:number,out=.12):Point {return[w.a[0]+w.dx*u+w.nx*out,y,w.a[1]+w.dz*u+w.nz*out];}
-/** All 26 storeys retain glazing; mobile reduces only lateral bay subdivisions. */
+/** All devices retain the same 26-storey drawn glazing, bays and fine rails. */
 export function planDbTowerArchitecture(minecraft=false,mobileLike=false):DbTowerBlock[]{
+ mobileLike = minecraft && mobileLike;
  const blocks:DbTowerBlock[]=[];
  const add=(w:Wall,u:number,y:number,width:number,height:number,depth:number,out:number,color:number,family:Family,role:string,floor=-1)=>blocks.push({position:at(w,u,y,out),size:[width,height,depth],yaw:-Math.atan2(w.dz,w.dx),color,family,role,floor,normal:[w.nx,w.nz]});
  const pitch=(P.mainTop-P.officeBottom)/P.officeFloors;

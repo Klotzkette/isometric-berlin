@@ -125,7 +125,12 @@ export function progressiveCoverageHost(
     progressiveWorldState: "loading" as ProgressiveWorldState,
     progressiveWorldBatches: [] as Group[],
     progressiveWorldMessages: [] as unknown[],
-    progressiveWorldInput: { type: "build", detailProfile: "mobile", initialBuildingCount: 0, prismUrl: "https://fixture.invalid/prisms.json" } as ProgressiveWorldWorkerInput,
+    progressiveWorldInput: {
+      type: "build", detailProfile: coarsePointer ? "mobile" : "full",
+      initialBuildingCount: 0, prismUrl: "https://fixture.invalid/prisms.json",
+      groundUrl: "https://fixture.invalid/ground.json",
+      surfacesUrl: "https://fixture.invalid/surfaces.json", tunnel: null,
+    } as ProgressiveWorldWorkerInput,
     progressiveWorldAttachCancel: undefined as undefined | (() => void),
     progressiveWorldStartCancel: undefined as undefined | (() => void),
     renderInvalidated: false,

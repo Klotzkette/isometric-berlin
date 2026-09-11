@@ -180,6 +180,7 @@ import { createFederalStateRepresentations, SACHSEN_ANHALT_FACADE_IDS } from "./
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { restoreDrawnWaterBoundary } from "./drawnWaterBoundary";
 import { SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionIds";
 import {
   SANDKRUG_OSM_DECK,
@@ -1958,7 +1959,8 @@ export function setIsoNightPresentation(
       !accessoryNames.has(accessory.name) &&
       accessory.userData.federalStateRepresentation !== true &&
       accessory.userData.reichstagspraesidentenpalaisDetail !== true &&
-      accessory.userData.civicBuildingDetail !== true
+      accessory.userData.civicBuildingDetail !== true &&
+      accessory.userData.exactWaterBoundaryLand !== true
     ) {
       return;
     }
@@ -10563,10 +10565,18 @@ export function createSmoothSurfaces(
     const dayMaterial = new MeshBasicMaterial({
       side: DoubleSide,
       vertexColors: true,
+      // Exact clipped land shares this bank plane. Keep the authored masonry
+      // in front without moving either surface or removing any land geometry.
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
     });
     const nightMaterial = new MeshBasicMaterial({
       color: 0x2a3138,
       side: DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
     });
     const walls = new Mesh(geometry, dayMaterial);
     walls.userData.dayMaterial = dayMaterial;
@@ -12906,6 +12916,9 @@ export function createIsometricCity(
     slabs.userData.nightMaterial = slabs.material;
     slabs.userData.dayMaterial = new MeshBasicMaterial({ color: 0xffffff });
     slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
+    // Exact water must also own its boundary through the underlying raster land.
+    // The clip keeps each existing run's paint/height and all authored exclusions.
+    if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface

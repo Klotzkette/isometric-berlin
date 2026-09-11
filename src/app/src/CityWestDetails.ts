@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -304,7 +305,7 @@ export const CITY_WEST_SOURCE_URLS = [
 
 export const CITY_WEST_RENDER_BUDGET = {
   full: { maxRenderables: 12, maxVertices: 26_100 },
-  mobile: { maxRenderables: 12, maxVertices: 16_900 },
+  mobile: { maxRenderables: 12, maxVertices: 26_100 },
 } as const;
 
 function pushGeometry(
@@ -2519,6 +2520,7 @@ function finishBatch(
 export function createCityWestDetails(
   detailProfile: CityWestDetailProfile = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
   group.name = "City West and Urania recognition details";
   group.userData.detailProfile = detailProfile;

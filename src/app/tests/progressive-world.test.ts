@@ -13,6 +13,7 @@ import {
   MeshStandardMaterial,
 } from "three";
 
+import { buildingDetailProfile, buildingDetailDistricts, selectBuildingDetailDistricts } from "../src/buildingDetailStreaming";
 import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import {
   releaseCompiledSurfacePayload,
@@ -32,13 +33,9 @@ import {
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
   DESKTOP_PLACE_DETAIL_ZONE_NAMES,
-  DESKTOP_TOTAL_BUILDING_LIMIT,
   DESKTOP_INITIAL_BUILDING_COUNT,
-  MAX_PROGRESSIVE_BUILDING_BATCHES,
   MOBILE_INITIAL_BUILDING_COUNT,
-  MOBILE_TOTAL_BUILDING_LIMIT,
   PAVING_POLYGON_BATCH_SIZE,
-  PROGRESSIVE_BUILDING_BATCH_SIZE,
   PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
   PROGRESSIVE_WORLD_FALLBACK_DELAY_MS,
   PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS,
@@ -91,84 +88,25 @@ function building(id: string, xDm: number, zDm: number): PrismBuilding {
 }
 
 describe("progressive exact-world scheduling", () => {
-  test("bounds desktop exact geometry while covering every source building once", () => {
-    expect(MOBILE_INITIAL_BUILDING_COUNT).toBeLessThanOrEqual(320);
-    expect(DESKTOP_INITIAL_BUILDING_COUNT).toBeLessThanOrEqual(700);
-    expect(PROGRESSIVE_BUILDING_BATCH_SIZE).toBeLessThanOrEqual(5_000);
-    const buildings = Array.from({ length: 29_818 }, (_, index) =>
-      building(String(index), 3_177 + index * 20, 405),
-    );
-    const { initial, omitted, remaining } = splitProgressiveBuildings(
-      buildings,
-      700,
-      PROGRESSIVE_BUILDING_BATCH_SIZE,
-      DESKTOP_TOTAL_BUILDING_LIMIT,
-    );
-    expect(initial).toHaveLength(700);
-    expect(omitted).toHaveLength(
-      buildings.length - DESKTOP_TOTAL_BUILDING_LIMIT,
-    );
-    expect(remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
-    expect(
-      remaining.every(
-        (batch) => batch.length <= PROGRESSIVE_BUILDING_BATCH_SIZE,
-      ),
-    ).toBeTrue();
-    const ids = [...initial, ...remaining.flat(), ...omitted].map(
-      (entry) => entry.id,
-    );
-    expect(ids).toHaveLength(buildings.length);
-    expect(new Set(ids).size).toBe(buildings.length);
-  });
-
-  test("bounds exact LoD2 geometry on both profiles without hiding buildings", () => {
-    const buildings = Array.from({ length: 29_818 }, (_, index) =>
-      building(String(index), 3_177 + index * 20, 405),
-    );
-    const mobile = splitProgressiveBuildings(
-      buildings,
-      MOBILE_INITIAL_BUILDING_COUNT,
-      PROGRESSIVE_BUILDING_BATCH_SIZE,
-      MOBILE_TOTAL_BUILDING_LIMIT,
-    );
-    const desktop = splitProgressiveBuildings(
-      buildings,
-      DESKTOP_INITIAL_BUILDING_COUNT,
-      PROGRESSIVE_BUILDING_BATCH_SIZE,
-      DESKTOP_TOTAL_BUILDING_LIMIT,
-    );
-
-    expect(MOBILE_TOTAL_BUILDING_LIMIT).toBeLessThanOrEqual(5_000);
-    expect([...mobile.initial, ...mobile.remaining.flat()]).toHaveLength(
-      MOBILE_TOTAL_BUILDING_LIMIT,
-    );
-    expect(mobile.omitted).toHaveLength(
-      buildings.length - MOBILE_TOTAL_BUILDING_LIMIT,
-    );
-    expect(
-      new Set([
-        ...mobile.initial,
-        ...mobile.remaining.flat(),
-        ...mobile.omitted,
-      ]).size,
-    ).toBe(buildings.length);
-    expect(mobile.initial).toHaveLength(MOBILE_INITIAL_BUILDING_COUNT);
-    expect(mobile.remaining).toHaveLength(1);
-    expect(DESKTOP_TOTAL_BUILDING_LIMIT).toBeLessThanOrEqual(12_000);
-    expect(desktop.omitted).toHaveLength(
-      buildings.length - DESKTOP_TOTAL_BUILDING_LIMIT,
-    );
-    expect([...desktop.initial, ...desktop.remaining.flat()]).toHaveLength(
-      DESKTOP_TOTAL_BUILDING_LIMIT,
-    );
-    expect(
-      new Set([
-        ...desktop.initial,
-        ...desktop.remaining.flat(),
-        ...desktop.omitted,
-      ]).size,
-    ).toBe(buildings.length);
-  });
+  for (const profile of ["full", "mobile"] as const) {
+    test(`${profile}: construction batches cover every source part without a permanent exact-detail exclusion`, () => {
+      const budget = buildingDetailProfile(profile);
+      const buildings = Array.from({ length: 29_818 }, (_, index) =>
+        building(String(index), 3_177 + index * 20, 405));
+      const { initial, omitted, remaining } = splitProgressiveBuildings(
+        buildings, profile === "full" ? DESKTOP_INITIAL_BUILDING_COUNT : MOBILE_INITIAL_BUILDING_COUNT,
+        budget.batchSize, Number.POSITIVE_INFINITY);
+      expect(omitted).toHaveLength(0);
+      expect(remaining.every(batch => batch.length <= budget.batchSize)).toBeTrue();
+      expect(new Set([...initial, ...remaining.flat()].map(entry => entry.id)))
+        .toEqual(new Set(buildings.map(entry => entry.id)));
+      const districts = buildingDetailDistricts(remaining);
+      const wanted = selectBuildingDetailDistricts(districts, [317.729, 40.477], undefined, { profile });
+      const counts = new Map(districts.map(d => [d.id, d.count]));
+      expect(wanted.reduce((sum, id) => sum + counts.get(id)!, 0)).toBeLessThanOrEqual(budget.residentPartLimit);
+      expect(wanted.length).toBeLessThanOrEqual(budget.maxResidentDistricts);
+    });
+  }
 
   test("represents every omitted building in one compact source-envelope draw", () => {
     const buildings = Array.from({ length: 1_000 }, (_, index) =>
@@ -291,9 +229,9 @@ describe("progressive exact-world scheduling", () => {
     ).toBeFalse();
   });
 
-  test("uses compact raster asphalt on desktop and phones", async () => {
-    expect(progressiveHeavyRoadPlatesEnabled("full")).toBeFalse();
-    expect(progressiveHeavyRoadPlatesEnabled("mobile")).toBeFalse();
+  test("keeps raster fallback explicit and avoids stepped asphalt underneath restored exact roads", async () => {
+    expect(progressiveHeavyRoadPlatesEnabled("full")).toBeTrue();
+    expect(progressiveHeavyRoadPlatesEnabled("mobile")).toBeTrue();
     const [ground, surfaces] = await Promise.all([
       Bun.file(`${meshRoot}/ground-context.json`).json() as Promise<VoxelPayload>,
       Bun.file(`${meshRoot}/surface-polygons.json`).json() as Promise<SurfacePayload>,
@@ -322,9 +260,8 @@ describe("progressive exact-world scheduling", () => {
       "Drawn ground slabs",
     ) as InstancedMesh;
     expect(mobileSlabs.count).toBeGreaterThan(deferredSlabs.count);
-    expect(
-      threeViewerSource.match(/retainRasterAsphalt: true/g)?.length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(threeViewerSource).toContain("retainRasterAsphalt: false");
+    expect(threeViewerSource).not.toContain("retainRasterAsphalt: true");
   });
 
   test("posts source URLs instead of decoded world graphs to both Workers", () => {
@@ -357,57 +294,13 @@ describe("progressive exact-world scheduling", () => {
     expect(desktopInput).toContain("surfacesUrl: new URL(");
     expect(desktopInput).not.toContain("prismPayload:");
 
-    const workerMobileStart = progressiveWorkerSource.indexOf(
-      'if (input.detailProfile === "mobile")',
-    );
-    const workerDesktopStart = progressiveWorkerSource.indexOf(
-      "const groundPromise",
-      workerMobileStart,
-    );
-    const workerMobileBranch = progressiveWorkerSource.slice(
-      workerMobileStart,
-      workerDesktopStart,
-    );
-    expect(workerMobileBranch).toContain("loadPrismPayload(input.prismUrl)");
-    expect(workerMobileBranch).not.toContain("buildings-distant");
-    expect(progressiveWorkerSource).not.toContain("postBuildingPreviews");
-    expect(workerMobileBranch).toContain("new BuildingDetailWorker({");
-    expect(workerMobileBranch).toContain("MOBILE_DETAIL_BATCH_SIZE, Number.POSITIVE_INFINITY");
-    expect(workerMobileBranch).toContain("prisms.buildings = []");
-    expect(workerMobileBranch).not.toContain("MOBILE_TOTAL_BUILDING_LIMIT");
-    expect(workerMobileBranch).not.toContain("postSurface(");
-    expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
-    expect(workerMobileBranch).toContain('type: "settled"');
-    const workerDesktopBranch = progressiveWorkerSource.slice(
-      workerDesktopStart,
-    );
-    expect(workerDesktopBranch).toContain("DESKTOP_TOTAL_BUILDING_LIMIT");
-    expect(workerDesktopBranch).not.toContain("buildings-distant");
-    expect(workerDesktopBranch).toContain("prismPayload.buildings = []");
-    expect(progressiveWorkerSource).toContain("buildingBatches[index].length = 0");
-    expect(workerDesktopBranch).toContain("surfaces.roads = []");
-    expect(workerDesktopBranch).toContain("surfaces.water = []");
-    expect(workerDesktopBranch).toContain("surfaces.parks = []");
-    expect(workerDesktopBranch).toContain("surfaces.lane_markings = []");
-    expect(workerDesktopBranch).toContain("splitParkSurfaceFamily(");
-    expect(workerDesktopBranch).toContain("surface-parks-${index + 1}");
-    expect(workerDesktopBranch).toContain("surface-lane-markings");
-    expect(workerDesktopBranch.indexOf("groundResponse.json()")).toBeGreaterThan(
-      workerDesktopBranch.indexOf("[nearestBuildingBatch]"),
-    );
-    expect(workerDesktopBranch).not.toContain("loadHeavyPlates");
-    expect(workerDesktopBranch).not.toContain("splitIndexedSurfacePlate");
-    expect(progressiveWorkerSource).toContain(
-      "MAX_TRANSFERRED_BATCHES_IN_FLIGHT = 4",
-    );
-    expect(progressiveWorkerSource).toContain(
-      "Promise.race(attachedBatchPromises.values())",
-    );
-    expect(progressiveWorkerSource).toContain(
-      "await waitForAttachedBatches()",
-    );
-    expect(progressiveWorkerSource).toContain('type === "batch-attached"');
-    expect(threeViewerSource).toContain('type: "batch-attached"');
+    expect(mobileBranch).toContain("groundUrl: new URL(");
+    expect(mobileBranch).toContain("surfacesUrl: new URL(");
+    // Constructor execution, complete feature accounting, acknowledgements,
+    // changing views and suspension run in progressive-worker-resume.test.ts.
+    // A source-string assertion that mobile skipped those constructors hid
+    // the original quality regression and is deliberately not retained.
+
   });
 
   test("pauses unfinished Minecraft work but retains completed city batches for a warm return", () => {
@@ -491,7 +384,7 @@ describe("progressive exact-world scheduling", () => {
     ).toBe(true);
   });
 
-  test("publishes complete coverage before readiness and refines buildings before surfaces", () => {
+  test("publishes complete source coverage before the first interactive frame", () => {
     const initialCoverage = threeViewerSource.indexOf(
       "isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition))",
     );
@@ -500,17 +393,6 @@ describe("progressive exact-world scheduling", () => {
     expect(initialCoverage).toBeGreaterThan(0);
     expect(publish).toBeGreaterThan(initialCoverage);
     expect(ready).toBeGreaterThan(publish);
-    const exactBuildings = progressiveWorkerSource.indexOf("[nearestBuildingBatch]");
-    const allExactBuildings = progressiveWorkerSource.indexOf(
-      "    deferredBuildingBatches,", exactBuildings,
-    );
-    const firstSurface = progressiveWorkerSource.indexOf('postSurface("water")', exactBuildings);
-    expect(exactBuildings).toBeGreaterThan(0);
-    expect(allExactBuildings).toBeGreaterThan(exactBuildings);
-    expect(allExactBuildings).toBeLessThan(firstSurface);
-    expect(progressiveWorkerSource).not.toContain("surface-paving");
-    expect(progressiveWorkerSource).not.toContain("surface-asphalt");
-    expect(progressiveWorkerSource).not.toContain("createDistantBuildingShells");
     expect(PROGRESSIVE_WORLD_IDLE_TIMEOUT_MS).toBeLessThanOrEqual(600);
     expect(PROGRESSIVE_WORLD_FALLBACK_DELAY_MS).toBeLessThanOrEqual(60);
   });
@@ -836,7 +718,7 @@ describe("progressive exact-world scheduling", () => {
     expect(preview.getObjectByName("smooth quay walls")).toBeUndefined();
   });
 
-  test("the production mobile preview retains bounded static water, bed and quays", async () => {
+  test("the explicit raster water fallback remains bounded when no exact surface is supplied", async () => {
     const [ground, surfaces] = await Promise.all([
       Bun.file(`${meshRoot}/ground-context.json`).json() as Promise<VoxelPayload>,
       Bun.file(`${meshRoot}/surface-polygons.json`).json() as Promise<SurfacePayload>,
@@ -893,39 +775,29 @@ describe("progressive exact-world scheduling", () => {
       threeViewerSource.indexOf("function ensureVoxelWorld("),
     );
     expect(isoLoader).toContain(
-      "retainRasterWater: runtime.coarsePointer",
+      "retainRasterWater: runtime.coarsePointer && !surfaces",
     );
   });
 
-  test("production follow-up groups stay inside the steady draw-call budget", async () => {
+  test("camera-selected desktop districts retain exact geometry within a bounded aggregate allocation", async () => {
     const payload = (await Bun.file(`${meshRoot}/lod2-prisms.json`).json()) as {
       buildings: PrismBuilding[];
       classes: string[];
       schema_version: number;
     };
-    const batches = splitProgressiveBuildings(
-      payload.buildings,
-      DESKTOP_INITIAL_BUILDING_COUNT,
-      PROGRESSIVE_BUILDING_BATCH_SIZE,
-      DESKTOP_TOTAL_BUILDING_LIMIT,
-      true,
-    );
-    const exactIds = new Set(
-      [...batches.initial, ...batches.remaining.flat()].map((entry) => entry.id),
-    );
-    const requestedPlaceBuildings = payload.buildings.filter(
-      isDesktopPlaceDetailBuilding,
-    );
-    expect(requestedPlaceBuildings).toHaveLength(1582);
-    expect(
-      requestedPlaceBuildings.every((entry) => exactIds.has(entry.id)),
-    ).toBeTrue();
+    const profile = buildingDetailProfile("full");
+    const partition = splitProgressiveBuildings(payload.buildings, DESKTOP_INITIAL_BUILDING_COUNT, profile.batchSize);
+    const districts = buildingDetailDistricts(partition.remaining);
+    const wanted = new Set(selectBuildingDetailDistricts(districts, [317.729, 40.477], undefined, { profile: "full" }));
+    const selected = partition.remaining.filter((_, i) => wanted.has(`buildings-${i + 1}`));
+    expect(selected.reduce((sum, parts) => sum + parts.length, 0)).toBeLessThanOrEqual(9_000);
+    expect(partition.omitted).toHaveLength(0);
     let renderables = 0;
     let retainedBytes = 0;
     let vertices = 0;
     let largestBatchArea = 0;
     const seenGeometries = new Set<BufferGeometry>();
-    for (const buildings of [batches.initial, ...batches.remaining]) {
+    for (const buildings of [partition.initial, ...selected]) {
       let minX = Number.POSITIVE_INFINITY;
       let maxX = Number.NEGATIVE_INFINITY;
       let minZ = Number.POSITIVE_INFINITY;
@@ -974,47 +846,14 @@ describe("progressive exact-world scheduling", () => {
       });
       group.clear();
     }
-    // Exact production geometry is retained in two spatial batches; all
-    // remaining buildings are represented by one shared instanced shell. The
-    // Source-bound Bode/Grill models now replace the two coarse envelopes;
-    // their separate shared-instance budget is pinned in spree-museum-details.
-    // The Tiergarten edge adds inferred head strokes only to exact outward
-    // LoD2 walls in the existing facade-axis renderables.
-    expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
-    expect(renderables).toBeLessThanOrEqual(49);
-    // Includes source-envelope/floor ink and mapped material classifications;
-    // the four source Gropius parts now replace their far boxes within the
-    // same building limit and bounded draw-call count. Zollpackhof and the
-    // false Gustav support yield to their context models: 1,354 fewer generic
-    // vertices, without reducing the source inventory. v1.0.4 dedicated
-    // parliament/harbour facades remove duplicate generic detail; restored
-    // masonry Charite roofs retain their exact source heights. v1.0.5
-    // replaces the museum/Lenne generic details and four false Soviet prisms
-    // with separate source-bound context models (17,720 fewer vertices).
-    // v1.0.6 removes duplicated Luisen/theatre generic facade details and
-    // the replaced Palast/Böll low source display envelopes: 52,478 vertices.
-    // v1.0.7 suppresses dedicated civic facade overlays and moves 30 source
-    // parts into the bounded initial group (17,256 fewer follow-up vertices).
-    // v1.0.9 removes 1,338 duplicate follow-up vertices on dedicated Heidestrasse / 50Hertz facades.
-    // v1.0.22 replaces twenty TIPI fallback masses in its dedicated site model.
-    // Serra's closed source prism contributes exactly 180 vertices / 2,536 bytes;
-    // its open plate model now owns that footprint instead.
-    expect({ vertices, retainedBytes }).toEqual({
-      // v1.0.14 puts harbour identities in startup and moves ministry bodies
-      // into their source-bound context model, without extra worker batches.
-      // The selected HU/library fallbacks yield to complete initial models;
-      // the shared four-vertex facade quad remains allocated by other parts.
-      // v1.0.38 retains paired head strokes on existing mapped urban storeys
-      // and moves the newly authored landmarks out of generic batches. An
-      // independent production-argument build remains 22 renderables across
-      // the same two follow-ups, below both unchanged hard budget ceilings.
-      vertices: 3_568_444,
-      retainedBytes: 51_320_568,
-    });
-    // The identical all-attribute/index/instance accounting for the previous
-    // distance-only selection was 54,135,158 bytes.
-    expect(retainedBytes).toBeLessThanOrEqual(54_135_158);
+    // Subdividing the resident detail into districts enables travel without
+    // retaining the whole city. No triangles are simplified for this budget.
+    expect(selected).toHaveLength(profile.maxResidentDistricts);
+    expect(renderables).toBeLessThanOrEqual(128);
+    expect(vertices).toBeGreaterThan(1_000_000);
+    expect(retainedBytes).toBeLessThanOrEqual(64 * 1024 * 1024);
     expect(largestBatchArea).toBeLessThan(11 * 1_000_000);
+
   });
 });
 

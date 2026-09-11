@@ -1,3 +1,4 @@
+import { staticModelDetailProfile } from "./staticModelDetail";
 import { Group } from "three";
 
 import {
@@ -354,6 +355,7 @@ function addTrafficTowerPaving(
 export function createPotsdamerPlatzPublicRealm(
   detailProfile: "full" | "mobile" = "full",
 ): Group {
+  detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = POTSDAMER_PUBLIC_REALM_PROFILE.name;
   root.userData = {
