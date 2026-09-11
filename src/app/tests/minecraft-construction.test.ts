@@ -1,14 +1,16 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.35 restores scoped mapped facade/material colours and roof colours.
-// Newly resolved roof colours add 141 mobile roof-cap instances inside the
-// existing column envelopes; full geometry and both draw counts are unchanged.
+// v1.0.37 extends the retained palette to Friedrichstraße/theatre neighbours.
+// Existing source-bound Charité, theatre and Schiffbauerdamm details gain
+// 387 shallow facade pieces / 29,412 bytes in each profile, with no new draws.
+// The final integrated baseline also includes source-bound Schloss/Naturkunde,
+// Dussmann, and Spree railings, adding three core batches in each profile.
 // Independently measured synchronous buffers are compared
 // with cooperative construction, including colours and every instance capacity.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "b52a735653e33483bfdfb92eb3573462c453aec7f5f6175dbe3e15b9a87fdbb4", 3811391, 105, 290675013],
-  ["mobile", "3153643f1205b1dc98edac963162620aae74b405ae8e67c6aff2fdc80ad13ef1", 1017557, 103, 77894173],
+  ["full", "c70c2113f3025779ae92fc659d6ffa154898752b74af499139154ad7185d7645", 3822717, 108, 291537733],
+  ["mobile", "1bff93f7fc2a199bc7b3841f6ef120b4c40f30ebee3e4d3a049516db3dfb86a8", 1036617, 106, 79344677],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

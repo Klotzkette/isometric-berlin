@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.37
+
+- Build and compact the exact city cooperatively, stage shared additions until
+  commit, and safely dispose cancelled or failed construction across modes.
+- Release evicted geometry from pending GPU warmup queues immediately.
+- Replace Schloss and Naturkundemuseum fallback blocks with source-bound shells
+  and recognition detail; refine Dussmann, Deutsches Theater, historic Charité,
+  Schiffbauerdamm and the Kollhoff facade.
+- Extend retained facade colour treatment along Friedrichstraße without adding
+  speculative window positions.
+- Complete mapped Spree-side streets, paths and kerbs; add 15 source-bound
+  railing runs with shared geometry in drawn and Minecraft modes.
+- Keep existing scene quality, view distance, movement and recovery limits.
+
 ## v1.0.36
 
 - Release decoded terrain data accidentally retained by persistent lawn and

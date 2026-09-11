@@ -1,5 +1,5 @@
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
-import { compactStaticGeometry } from "./compactStaticGeometry";
+import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
@@ -101,6 +101,9 @@ import { createMeiningerHotel } from "./MeiningerHotel";
 import { createChancelleryExtension } from "./ChancelleryExtension";
 import { createCityRecognitionRefinements } from "./CityRecognitionRefinements";
 import { createBebelplatzMemorial } from "./BebelplatzMemorial";
+import { createSpreeRailings } from "./SpreeRailings";
+import { createSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
+import { createSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { createBebelplatzBuildingShells } from "./BebelplatzBuildingShells";
 import { createBebelplatzFacades } from "./BebelplatzFacades";
 import { createHedwigCathedral } from "./HedwigCathedral";
@@ -3298,12 +3301,15 @@ function ensureIsoWorld(
     }
   };
   let provisionalIsoWorld: Group | null = null;
+  let provisionalIsoAddons: Group | null = null;
   let provisionalPedestrianEnvironment: PedestrianEnvironment | null = null;
   let mutableRootSnapshots: MutableRootSnapshot[] | null = null;
   let pedestrianSnapshot: PedestrianAttachmentSnapshot | null = null;
   let progressiveSnapshot: ProgressiveWorldSnapshot | null = null;
   let originalIsoWorld: Group | null = null;
   let originalTrafficSignals: Group | null | undefined;
+  let originalPathTerrainAt: ParkPathTerrainAt | undefined;
+  let originalWorldDetailsInstaller: (() => void) | null = null;
   // Keep the source profiles and their repeated facade instances out of the
   // core viewer parse; these small modules download beside the five data files.
   const spreeDetails = import("./SpreeMuseumDetails");
@@ -3321,7 +3327,7 @@ function ensureIsoWorld(
     abgeordnetenhausDetails,
     gropiusBauDetails,
   ])
-    .then(([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3332,17 +3338,15 @@ function ensureIsoWorld(
         runtime.isoWorldState = "idle";
         return;
       }
-      mutableRootSnapshots = captureMutableRootSnapshots([
-        runtime.signatures,
-        runtime.cityStaffage,
-        runtime.undergroundNetwork,
-        runtime.tramCatenary,
-        runtime.schwellenraumPraesentation,
-      ]);
-      pedestrianSnapshot = capturePedestrianAttachment(runtime);
-      progressiveSnapshot = captureProgressiveWorld(runtime);
-      originalIsoWorld = runtime.isoWorld;
-      originalTrafficSignals = runtime.trafficSignals;
+      const pendingSignatures = new Group();
+      const pendingStaffage = new Group();
+      const pendingUnderground = new Group();
+      const pendingCatenary = new Group();
+      provisionalIsoAddons = new Group();
+      provisionalIsoAddons.add(pendingSignatures, pendingStaffage, pendingUnderground, pendingCatenary);
+      let pendingWorldDetailsInstaller: (() => void) | null = null;
+      let pendingPathTerrainAt: ParkPathTerrainAt | undefined;
+      let pendingTrafficSignals: Group | null | undefined;
       const memorialProtection = createSchwellenraumMemorialProtectionIndex(
         street?.monuments,
       );
@@ -3453,7 +3457,7 @@ function ensureIsoWorld(
         const { cell_m: terrainCell, grid: { min_x_idx: terrainMinX, min_z_idx: terrainMinZ } } = ground;
         const unterDenLindenMedianSamples =
           deriveUnterDenLindenMedianSamples(surfaces);
-        runtime.schwellenraumWorldDetailsInstaller = () => {
+        pendingWorldDetailsInstaller = () => {
           installSchwellenraumStaticProps(
             runtime.schwellenraumPraesentation,
             pedestrianEnvironment.groundAt,
@@ -3476,7 +3480,6 @@ function ensureIsoWorld(
             invalidateScenePresentation(runtime);
           }
         };
-        runSchwellenraumWorldDetailsInstaller(runtime);
       }
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -3536,169 +3539,238 @@ function ensureIsoWorld(
                 type: "build",
               }
             : null;
-      const isoWorld = createIsometricCity(
-        prisms,
-        ground,
-        runtime.tunnelPortalCourse,
-        surfaces,
-        {
-          buildings: initialBuildings,
-          detailProfile: runtime.coarsePointer ? "mobile" : "full",
-          bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
-          retainRasterAsphalt: true,
-          retainRasterWater: runtime.coarsePointer,
-          smoothSurfaces:
-            runtime.coarsePointer || progressiveInput ? null : undefined,
-        },
-      );
-      provisionalIsoWorld = isoWorld;
-      if (ground) {
-        isoWorld.add(createDistrictStreets(ground));
-        isoWorld.add(createRosengarten());
-        isoWorld.add(createBebelplatzMemorial(ground));
-        isoWorld.add(createBebelplatzBuildingShells());
-        isoWorld.add(createBebelplatzFacades(ground));
-        isoWorld.add(createHedwigCathedral(ground));
-        const roadTerrainAt = districtStreetTerrainSampler(ground);
-        const portalAt = runtime.tunnelPortalCourse
-          ? createTunnelPortalApproachTester(runtime.tunnelPortalCourse) : null;
-        runtime.districtPathTerrainAt = (path, x, z, sourceY) =>
-          path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
-          pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
-            ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
-      }
-      isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
-      isoWorld.add(spree.createSpreeMuseumDetails());
-      isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
-      const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
-      isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
-      isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
-      // Metric bridge profiles are recognition geometry, not a soft surface
-      // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
-      // Gustav-Heinemann and Sandkrug retain their real proportions in the
-      // block mode as well as in Day/Night/Snow/Schwellenraum.
-      const bridges = isoWorld.getObjectByName("drawn bridge structures");
-      if (bridges) {
-        setWeidendammerBridgePresentation(bridges, runtime.lightingMode);
-        setSandkrugBridgePresentation(bridges, runtime.lightingMode);
-        runtime.signatures.add(bridges);
-      }
-      if (ground && street) {
-        // Task 07: the real OSM traffic signals join the drawn city, so
-        // they inherit its day/night/voxel/underside visibility.
-        const signals = createTrafficSignals(street, ground);
-        if (signals) {
-          isoWorld.add(signals);
-          runtime.trafficSignals = signals;
-          updateTrafficSignals(
-            signals,
-            0,
-            false,
-            runtime.lightingMode !== "night" || runtime.nightLightsOn,
-          );
-        }
-        // Every OSM monument in the quarter, drawn ("alle Denkmäler").
-        const monuments = createTiergartenMonuments(street, ground);
-        if (monuments) {
-          isoWorld.add(monuments);
-        }
-        // The quarter's three filling stations, canopy and all.
-        const fuel = createFuelStations(street, ground);
-        if (fuel) {
-          isoWorld.add(fuel);
-        }
-        // Capital Beach on the Ludwig-Erhard-Ufer and the beer gardens.
-        const venues = createRiversideVenues(street, ground);
-        if (venues) {
-          isoWorld.add(venues);
-        }
-      }
-      if (ground) {
-        // Two source-bound Berlin passenger-vessel envelopes on committed OSM
-        // waterway axes. Their positions are explicit static display
-        // compositions, not live vessel observations or AIS tracks.
-        isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
-        // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
-        // Like the surveyed bridge signatures it remains visible in Minecraft,
-        // where the old LoD2/voxel mass cannot represent its new bent outline.
-        const office = createSpreebogenOffice(ground);
-        if (office) {
-          runtime.signatures.add(office);
-        }
-        const spreebogenPark = createSpreebogenPark(ground);
-        markAuthoredFlatUnlit(spreebogenPark);
-        runtime.signatures.add(spreebogenPark);
-        applyLightingToRoot(
-          spreebogenPark,
-          runtime.lightingMode,
-          runtime.nightLightsOn,
+      // Keep the old scene intact until every exact layer is ready. Task
+      // boundaries release constructor scratch space and let context loss or
+      // a mode switch cancel remaining work before it allocates.
+      const isoWorld = await completeCooperatively((function* () {
+        const isoWorld = createIsometricCity(
+          prisms,
+          ground,
+          runtime.tunnelPortalCourse,
+          surfaces,
+          {
+            buildings: initialBuildings,
+            detailProfile: runtime.coarsePointer ? "mobile" : "full",
+            bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
+            retainRasterAsphalt: true,
+            retainRasterWater: runtime.coarsePointer,
+            smoothSurfaces:
+              runtime.coarsePointer || progressiveInput ? null : undefined,
+          },
         );
-        if (runtime.lightingMode === "minecraft") {
-          setMinecraftMaterialPresentation(
+        provisionalIsoWorld = isoWorld;
+        yield* compactStaticGeometrySteps(isoWorld);
+        isoWorld.add(createSchlossNaturkundeShells());
+        isoWorld.add(createSchlossNaturkundeFacades());
+        yield;
+        if (ground) {
+          isoWorld.add(createDistrictStreets(ground));
+          yield;
+          isoWorld.add(createSpreeRailings(ground));
+          yield;
+          isoWorld.add(createRosengarten());
+          yield;
+          isoWorld.add(createBebelplatzMemorial(ground));
+          isoWorld.add(createBebelplatzBuildingShells());
+          isoWorld.add(createBebelplatzFacades(ground));
+          yield;
+          isoWorld.add(createHedwigCathedral(ground));
+          yield;
+          const roadTerrainAt = districtStreetTerrainSampler(ground);
+          const portalAt = runtime.tunnelPortalCourse
+            ? createTunnelPortalApproachTester(runtime.tunnelPortalCourse) : null;
+          pendingPathTerrainAt = (path, x, z, sourceY) =>
+            path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
+            pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
+              ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
+        }
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
+        yield;
+        isoWorld.add(spree.createSpreeMuseumDetails());
+        yield;
+        isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
+        yield;
+        const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
+        isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
+        yield;
+        isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
+        yield;
+        // Metric bridge profiles are recognition geometry, not a soft surface
+        // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
+        // Gustav-Heinemann and Sandkrug retain their real proportions in the
+        // block mode as well as in Day/Night/Snow/Schwellenraum.
+        const bridges = isoWorld.getObjectByName("drawn bridge structures");
+        if (bridges) {
+          setWeidendammerBridgePresentation(bridges, runtime.lightingMode);
+          setSandkrugBridgePresentation(bridges, runtime.lightingMode);
+          pendingSignatures.add(bridges);
+        }
+        if (ground && street) {
+          // Task 07: the real OSM traffic signals join the drawn city, so
+          // they inherit its day/night/voxel/underside visibility.
+          const signals = createTrafficSignals(street, ground);
+          if (signals) {
+            isoWorld.add(signals);
+            pendingTrafficSignals = signals;
+            updateTrafficSignals(
+              signals,
+              0,
+              false,
+              runtime.lightingMode !== "night" || runtime.nightLightsOn,
+            );
+          }
+          yield;
+          // Every OSM monument in the quarter, drawn ("alle Denkmäler").
+          const monuments = createTiergartenMonuments(street, ground);
+          if (monuments) {
+            isoWorld.add(monuments);
+          }
+          yield;
+          // The quarter's three filling stations, canopy and all.
+          const fuel = createFuelStations(street, ground);
+          if (fuel) {
+            isoWorld.add(fuel);
+          }
+          yield;
+          // Capital Beach on the Ludwig-Erhard-Ufer and the beer gardens.
+          const venues = createRiversideVenues(street, ground);
+          if (venues) {
+            isoWorld.add(venues);
+          }
+        }
+        if (ground) {
+          // Two source-bound Berlin passenger-vessel envelopes on committed OSM
+          // waterway axes. Their positions are explicit static display
+          // compositions, not live vessel observations or AIS tracks.
+          isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
+          yield;
+          // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
+          // Like the surveyed bridge signatures it remains visible in Minecraft,
+          // where the old LoD2/voxel mass cannot represent its new bent outline.
+          const office = createSpreebogenOffice(ground);
+          if (office) {
+            pendingSignatures.add(office);
+          }
+          yield;
+          const spreebogenPark = createSpreebogenPark(ground);
+          markAuthoredFlatUnlit(spreebogenPark);
+          pendingSignatures.add(spreebogenPark);
+          applyLightingToRoot(
             spreebogenPark,
-            runtime.minecraftMaterialState,
-            true,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
           );
+          if (runtime.lightingMode === "minecraft") {
+            setMinecraftMaterialPresentation(
+              spreebogenPark,
+              runtime.minecraftMaterialState,
+              true,
+            );
+          }
+          yield;
+          // Current OSM footprints and the installed South Bridge define the
+          // western Kanzlerpark extension; temporary site detail stays labelled.
+          const extension = createChancelleryExtension(ground);
+          if (extension) {
+            markAuthoredFlatUnlit(extension);
+            pendingSignatures.add(extension);
+          }
+          yield;
+          // The hotel's exact LoD2 shell is suppressed from the generic prism
+          // batch and rebuilt with its current OSM ten-storey facade plus the
+          // owner-photographed entrance. Minecraft retains the source voxels.
+          const meininger = createMeiningerHotel(ground);
+          markAuthoredFlatUnlit(meininger);
+          pendingSignatures.add(meininger);
+          yield;
+          // Source-audited micro-architecture for the wider presentation radius:
+          // landmark facades, Tiergarten bridges/memorials and exact mapped shop
+          // fronts. The four merged batches stay visible in all surface modes;
+          // Minecraft applies its own material presentation below.
+          const refinements = createCityRecognitionRefinements(ground);
+          markAuthoredFlatUnlit(refinements);
+          pendingSignatures.add(refinements);
+          yield;
+          const staffage = createCityStaffage(ground);
+          if (staffage) {
+            pendingStaffage.add(staffage);
+          }
         }
-        // Current OSM footprints and the installed South Bridge define the
-        // western Kanzlerpark extension; temporary site detail stays labelled.
-        const extension = createChancelleryExtension(ground);
-        if (extension) {
-          markAuthoredFlatUnlit(extension);
-          runtime.signatures.add(extension);
+        if (ground && rail) {
+          // The Stadtbahn viaduct carries the tracks off both ends of the
+          // Hauptbahnhof instead of letting them stop in mid-air.
+          const railway = createRailNetwork(rail, ground);
+          if (railway) {
+            isoWorld.add(railway);
+          }
+          yield;
+          // Task 37: the stationary ICE used to stand on the Hauptbahnhof
+          // model's own stub track, which pointed off the east gable at
+          // open water over the Humboldthafen. It now rides a real
+          // viaduct_tracks centreline near the station, in the same
+          // world-space frame as the railway above (not nested inside the
+          // rotated/translated station model group).
+          const ice = createIceOnRails(rail);
+          if (ice) {
+            isoWorld.add(ice);
+          }
+          yield;
+          // OSM node/2231321435 fixes the small Grillstand HBF beneath the
+          // western Stadtbahn approach. It stays beside the architectural
+          // signatures so its photo-bounded recognition details survive every
+          // surface mode while still disappearing in the underground cutaway.
+          const grillstand = createHauptbahnhofGrillstand(ground, rail);
+          if (grillstand) {
+            markAuthoredFlatUnlit(grillstand);
+            pendingSignatures.add(grillstand);
+          }
+          yield;
+          const underground = createUndergroundNetwork(rail);
+          if (underground) {
+            pendingUnderground.add(underground);
+          }
+          yield;
+          const catenary = createTramCatenary(rail, ground);
+          if (catenary) {
+            pendingCatenary.add(catenary);
+          }
         }
-        // The hotel's exact LoD2 shell is suppressed from the generic prism
-        // batch and rebuilt with its current OSM ten-storey facade plus the
-        // owner-photographed entrance. Minecraft retains the source voxels.
-        const meininger = createMeiningerHotel(ground);
-        markAuthoredFlatUnlit(meininger);
-        runtime.signatures.add(meininger);
-        // Source-audited micro-architecture for the wider presentation radius:
-        // landmark facades, Tiergarten bridges/memorials and exact mapped shop
-        // fronts. The four merged batches stay visible in all surface modes;
-        // Minecraft applies its own material presentation below.
-        const refinements = createCityRecognitionRefinements(ground);
-        markAuthoredFlatUnlit(refinements);
-        runtime.signatures.add(refinements);
-        const staffage = createCityStaffage(ground);
-        if (staffage) {
-          runtime.cityStaffage.add(staffage);
-        }
+        yield* compactStaticGeometrySteps(isoWorld);
+        yield* compactStaticGeometrySteps(provisionalIsoAddons!);
+        return isoWorld;
+      })(), {
+        yieldTask: yieldStartupWork,
+        isCancelled: () => runtime.disposed || runtime.loadSignal.aborted ||
+          runtime.worldFailureReported || !isoWorldIntentActive(runtime),
+      });
+      mutableRootSnapshots = captureMutableRootSnapshots([
+        runtime.signatures,
+        runtime.cityStaffage,
+        runtime.undergroundNetwork,
+        runtime.tramCatenary,
+        runtime.schwellenraumPraesentation,
+      ]);
+      pedestrianSnapshot = capturePedestrianAttachment(runtime);
+      progressiveSnapshot = captureProgressiveWorld(runtime);
+      originalIsoWorld = runtime.isoWorld;
+      originalTrafficSignals = runtime.trafficSignals;
+      originalPathTerrainAt = runtime.districtPathTerrainAt;
+      originalWorldDetailsInstaller = runtime.schwellenraumWorldDetailsInstaller;
+      // Move the prepared children only inside the synchronous commit. The
+      // staging roots never become visible or enter GPU warmup themselves.
+      for (const [pending, target] of [
+        [pendingSignatures, runtime.signatures],
+        [pendingStaffage, runtime.cityStaffage],
+        [pendingUnderground, runtime.undergroundNetwork],
+        [pendingCatenary, runtime.tramCatenary],
+      ]) {
+        while (pending.children.length) target.add(pending.children[0]);
       }
-      if (ground && rail) {
-        // The Stadtbahn viaduct carries the tracks off both ends of the
-        // Hauptbahnhof instead of letting them stop in mid-air.
-        const railway = createRailNetwork(rail, ground);
-        if (railway) {
-          isoWorld.add(railway);
-        }
-        // Task 37: the stationary ICE used to stand on the Hauptbahnhof
-        // model's own stub track, which pointed off the east gable at
-        // open water over the Humboldthafen. It now rides a real
-        // viaduct_tracks centreline near the station, in the same
-        // world-space frame as the railway above (not nested inside the
-        // rotated/translated station model group).
-        const ice = createIceOnRails(rail);
-        if (ice) {
-          isoWorld.add(ice);
-        }
-        // OSM node/2231321435 fixes the small Grillstand HBF beneath the
-        // western Stadtbahn approach. It stays beside the architectural
-        // signatures so its photo-bounded recognition details survive every
-        // surface mode while still disappearing in the underground cutaway.
-        const grillstand = createHauptbahnhofGrillstand(ground, rail);
-        if (grillstand) {
-          markAuthoredFlatUnlit(grillstand);
-          runtime.signatures.add(grillstand);
-        }
-        const underground = createUndergroundNetwork(rail);
-        if (underground) {
-          runtime.undergroundNetwork.add(underground);
-        }
-        const catenary = createTramCatenary(rail, ground);
-        if (catenary) {
-          runtime.tramCatenary.add(catenary);
-        }
+      if (pendingPathTerrainAt) runtime.districtPathTerrainAt = pendingPathTerrainAt;
+      if (pendingTrafficSignals) runtime.trafficSignals = pendingTrafficSignals;
+      if (pendingWorldDetailsInstaller) {
+        runtime.schwellenraumWorldDetailsInstaller = pendingWorldDetailsInstaller;
+        runSchwellenraumWorldDetailsInstaller(runtime);
       }
       // Publish the complete preview root atomically. The progressive worker
       // is deliberately started only after this pointer and scene attachment
@@ -3730,6 +3802,7 @@ function ensureIsoWorld(
       }
       releaseBuiltWorldPayloads(runtime);
       provisionalIsoWorld = null;
+      provisionalIsoAddons = null;
       provisionalPedestrianEnvironment = null;
       mutableRootSnapshots = null;
       pedestrianSnapshot = null;
@@ -3764,8 +3837,14 @@ function ensureIsoWorld(
         disposeObject3D(runtime, provisionalIsoWorld);
         provisionalIsoWorld = null;
       }
+      if (provisionalIsoAddons) {
+        disposeObject3D(runtime, provisionalIsoAddons);
+        provisionalIsoAddons = null;
+      }
       if (transactionStarted) {
         runtime.trafficSignals = originalTrafficSignals;
+        runtime.districtPathTerrainAt = originalPathTerrainAt;
+        runtime.schwellenraumWorldDetailsInstaller = originalWorldDetailsInstaller;
       }
       if (pedestrianSnapshot) {
         restorePedestrianAttachment(runtime, pedestrianSnapshot);
@@ -4696,6 +4775,7 @@ function setOrbitAngles(
 }
 
 function disposeObject3D(runtime: Runtime, root: Object3D): void {
+  runtime.gpuWarmup?.release(root);
   releaseMinecraftMaterialBindings(root, runtime.minecraftMaterialState);
   const geometries = new Set<Mesh["geometry"]>();
   const materials = new Set<Material>();

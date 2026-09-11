@@ -113,7 +113,15 @@ function archField(p: Plan,w: Wall,u:number,y:number,out:number,width:number,hei
 }
 function window(p:Plan,w:Wall,u:number,bottom:number,width:number,height:number,arched=false,shutters=false,out=.2):void {
   const t=p.minecraft?.13:.075;
-  if(arched) {archField(p,w,u,bottom-.17,out,width+.34,height+.34,C.frame);archField(p,w,u,bottom,out+.1,width,height,C.glass,true);}
+  if(arched) {
+    archField(p,w,u,bottom-.17,out,width+.34,height+.34,C.frame);
+    archField(p,w,u,bottom,out+.1,width,height,C.glass,true);
+    // The retained courtyard photograph resolves a masonry opening with
+    // visible jambs. Keep its existing arch/pane coordinates and add only
+    // shallow side returns; the glazing remains the first central surface.
+    const jambHeight=height-width/2;
+    for(const side of [-1,1])box(p,w,u+side*(width/2+.095),bottom+jambHeight/2,out+.11,.13,jambHeight,.27,C.stone,"arched masonry jamb return");
+  }
   else {box(p,w,u,bottom+height/2,out,width+.32,height+.3,.11,C.frame,"window surround");box(p,w,u,bottom+height/2,out+.095,width,height,.1,C.glass,"window glazing",true);}
   box(p,w,u,bottom+height*.44,out+.2,t,height*.88,.09,C.frame,"window central mullion");
   const divisions=p.mobile||p.minecraft?2:4;

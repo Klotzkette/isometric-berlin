@@ -165,7 +165,24 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
           }
           if ((style === "historic" || style === "terrace-plaster") && wall.street) {
             if (style === "historic") emit(u, y+h/2+.22, width+.65,.18,.26,.20,0xd4cbb6,"historic hood cornice");
-            if ((style === "historic" && (f===1 || f===2)) || (style === "terrace-plaster" && f>0 && f<floors-1 && (i<2 || i>bays-3))) { emit(u,base+f*pitch+.17,width+.7,.16,.7,.40,0xc8c0ad,"historic shallow balcony slab"); emit(u,base+f*pitch+1.08,width+.6,.09,.08,.72,DARK,"historic open balcony rail"); }
+            if ((style === "historic" && (f===1 || f===2)) || (style === "terrace-plaster" && f>0 && f<floors-1 && (i<2 || i>bays-3))) {
+              const balconyBase = base+f*pitch;
+              emit(u,balconyBase+.17,width+.7,.16,.7,.40,0xc8c0ad,"historic shallow balcony slab");
+              const stoneBalustrade = profile.key === "schiff8";
+              emit(u,balconyBase+1.08,width+.6,stoneBalustrade?.14:.09,stoneBalustrade?.22:.08,.72,stoneBalustrade?0xd0c6b0:DARK,"historic open balcony rail");
+              if (stoneBalustrade) {
+                // Dguendel's credited Schiffbauerdamm 6–8 view shows pale
+                // open stone balustrades, not a single dark metal line. The
+                // existing balcony/window layout is retained; spindle spacing
+                // and sections remain small procedural display subdivisions.
+                for (let k=0;k<4;k++) {
+                  const bu=u-width*.43+k*width*.86/3;
+                  emit(bu,balconyBase+.64,.105,.70,.14,.72,0xd0c6b0,"Schiffbauerdamm 8 stone baluster stem");
+                  emit(bu,balconyBase+.59,.21,.26,.19,.72,0xbcb19b,"Schiffbauerdamm 8 stone baluster body");
+                }
+                emit(u,balconyBase+.30,width+.6,.10,.22,.72,0xc8c0ad,"Schiffbauerdamm 8 lower balustrade course");
+              }
+            }
           }
         }
       }

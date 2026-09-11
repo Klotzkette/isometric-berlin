@@ -588,6 +588,39 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "schloss_naturkunde_buildings_v137",
+      "anchor_source": "Complete retained Geoportal Berlin LoD2 parents DEBE01AL5N30002e and DEBE01YYK00002C5, original surfaces and previous display records; OSM relation/3007958 and node/538692583",
+      "geometry_ref": "src/app/src/schlossNaturkundeSource.json",
+      "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
+      "conflicts": [
+        "schloss-building-display-v137",
+        "naturkunde-vertical-datum-v137"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "dussmann_facade_refinement_v137",
+      "anchor_source": "Unchanged retained Berlin LoD2 parent DEBE01YYK00002Es and adjacent parts; OSM node/1665158255; existing credited JoachimKohler-HB 2026 photograph",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts",
+      "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
+      "conflicts": [
+        "dussmann-facade-display-v137"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "spree_public_space_v137",
+      "anchor_source": "Retained OSM Spree/Spreekanal water and road/path records plus mapped barrier lines in the 2026-09-11T13:05:41Z Overpass snapshot; Geoportal Berlin terrain retained",
+      "geometry_ref": "src/app/src/data/spreeRailings.json",
+      "additional_geometry_ref": "src/app/src/data/districtStreets.json",
+      "documentation_ref": "docs/spree-streets-v137.md",
+      "conflicts": [],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
@@ -448771,6 +448804,51 @@
       "resolution": "Add continuous grey-beige paving within the exact retained OSM sett polygon, with a real small opening over the library. Remove only six coarse raster cells over the underground room; canonical arrays and all other ground remain unchanged.",
       "geometry_ref": "src/app/src/BebelplatzMemorial.ts",
       "documentation_ref": "docs/bebelplatz-memorial.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "schloss-building-display-v137",
+      "kind": "flat_osm_prism_and_coarse_lod2_dome_vs_documented_architecture",
+      "sources": [
+        "https://www.openstreetmap.org/relation/3007958",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5819.zip",
+        "https://www.humboldtforum.org/wp-content/uploads/2020/12/20201202_HF-Architectural-Backgrounder.pdf"
+      ],
+      "conflict": "The previous Schloss display was one flat 32 m OSM prism. The retained official tile supplies seventeen parts, varied roofs and courts. Its dome part has a tall extruded perimeter/fan roof ending at viewer y=64.870 m; the institution documents a 70 m overall silhouette including cross.",
+      "resolution": "Preserve the previous OSM record and all original official planes. Display complete source sheets, subdividing only the coarse dome within its retained plan and 64.870 m top into an octagonal drum and curved brown copper roof. An explicitly estimated open lantern and five-metre cross complete the published 70 m overall height at viewer y=75.236 m. The block-native roof and navigation share the same dome subdivision.",
+      "geometry_ref": "src/app/src/schlossNaturkundeSource.json",
+      "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "naturkunde-vertical-datum-v137",
+      "kind": "official_source_ground_vs_retained_viewer_street_base",
+      "sources": [
+        "https://www.openstreetmap.org/node/538692583",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5821.zip",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011177%2CT"
+      ],
+      "conflict": "The four original Naturkunde LoD2 parts use viewer-frame ground y=3.034 m; the committed prism and street display base is y=5.2 m. Applying raw source surfaces without a datum treatment would bury the existing street-facing base.",
+      "resolution": "Preserve all source ordinates and all four prior display records. Apply +2.166 m to the complete source-sheet display and navigation/native roof sampling, retaining the existing street relationship; main top is y=31.250 m. Southern round arches, raised columned centre, three portrait fields and paired entrance figures follow the monument inventory with explicit non-surveyed facade subdivisions.",
+      "geometry_ref": "src/app/src/schlossNaturkundeSource.json",
+      "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "dussmann-facade-display-v137",
+      "kind": "uniform_procedural_grid_vs_distinct_modern_and_historic_fronts",
+      "sources": [
+        "https://www.openstreetmap.org/node/1665158255",
+        "https://www.kulturkaufhaus.de/de/service/impressum",
+        "https://commons.wikimedia.org/wiki/File:Dussmann_Das_Kulturkaufhaus_in_Berlin_(2026).jpg"
+      ],
+      "conflict": "The old detail overlay applied identical six-row grids and round ground columns to the modern frontage and historic return, and added unsupported solid roof boxes. The already credited current photograph shows a tall square-pier arcade, four regular upper rows with setbacks, and separate historic street-return architecture.",
+      "resolution": "Retain all LoD2 envelopes, adjacent source parts, OSM identity and previous east/south axes; add the northern return from the retained outline. Replace only procedural detail with tall rectangular arcade piers, broad modern glazing, selected red panels, historic four-storey returns and a vertical identity blade. Remove unsupported procedural roof boxes. The 8.2 m arcade and local bay/member dimensions remain photo-proportioned estimates. Full drawn layer changes from 1649 to 1669 instances (+1,520 bytes), retaining ten draws and the existing 180 kB ceiling; native remains one facade-only batch below 50 kB.",
+      "geometry_ref": "src/app/src/unterDenLindenProfiles.ts",
+      "documentation_ref": "docs/schloss-dussmann-naturkunde-v137.md",
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
     }

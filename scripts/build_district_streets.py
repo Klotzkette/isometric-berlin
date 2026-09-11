@@ -22,6 +22,7 @@ from brandenburg_approach import build_brandenburg_approach
 from shapely.geometry import LineString, Point, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
+from spree_shore import SPREE_SHORE_BUFFER_M, spree_water_envelope
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_surface_polygons import (
@@ -103,7 +104,9 @@ def triangulated_positions(geometry: BaseGeometry) -> list[float]:
   return output
 
 
-def extract_scope(roads: gpd.GeoDataFrame, park: BaseGeometry) -> BaseGeometry:
+def extract_scope(
+  roads: gpd.GeoDataFrame, park: BaseGeometry, spree: BaseGeometry
+) -> BaseGeometry:
   """Park plus bordering streets and the owner's explicit CDU connection."""
   cdu = roads[
     (roads["name"] == "Klingelhöferstraße") & roads["highway"].isin(VEHICULAR_HIGHWAYS)
@@ -116,6 +119,7 @@ def extract_scope(roads: gpd.GeoDataFrame, park: BaseGeometry) -> BaseGeometry:
       park.buffer(SCOPE_BUFFER_M),
       continuation.buffer(20.0),
       *(box(*bounds) for bounds in DISTRICT_WINDOWS.values()),
+      spree.boundary.buffer(SPREE_SHORE_BUFFER_M),
     ]
   )
   return scope.intersection(project_geometry(load_bounds_polygon(DEFAULT_BOUNDS)))
@@ -129,7 +133,8 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
   if len(rows) != 1:
     raise ValueError("Expected one exact Großer Tiergarten OSM relation")
   park = rows.geometry.iloc[0]
-  scope = extract_scope(roads, park)
+  spree, spree_water_ids = spree_water_envelope(osm_path)
+  scope = extract_scope(roads, park, spree)
   ramps = open_tunnel_ramp_corridors(DEFAULT_SCENE)
   if ramps is not None:
     scope = scope.difference(ramps.buffer(0.2))
@@ -322,6 +327,8 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
       "scope_buffer_m": SCOPE_BUFFER_M,
       "cdu_connection_south_northing": CDU_SOUTH_NORTHING,
       "district_windows_epsg25833": DISTRICT_WINDOWS,
+      "spree_water_ids": spree_water_ids,
+      "spree_shore_buffer_m": SPREE_SHORE_BUFFER_M,
       "scope_policy": "Display masks for user-requested areas, not administrative boundaries",
       "marking_policy": "Lane-divider dashes inferred from mapped lane count; 4m on / 6m off display convention, not a traffic-paint survey",
       "width_policy": "OSM width, est_width, lane-derived, shared class fallback",

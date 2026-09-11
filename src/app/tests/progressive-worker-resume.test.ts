@@ -14,6 +14,7 @@ import {
   MOBILE_DETAIL_BATCH_SIZE, buildingDetailDistricts, selectBuildingDetailDistricts,
 } from "../src/buildingDetailStreaming";
 import { serializeObject3DForTransfer } from "../src/transferableObject3D";
+import { compactStaticGeometry } from "../src/compactStaticGeometry";
 
 const source = await Bun.file(new URL("../src/progressiveWorld.worker.ts", import.meta.url)).text();
 const parsed = ts.createSourceFile("progressiveWorld.worker.ts", source, ts.ScriptTarget.Latest, true);
@@ -66,7 +67,7 @@ function workerHost() {
     DESKTOP_TOTAL_BUILDING_LIMIT, MOBILE_DETAIL_BATCH_SIZE, BuildingDetailWorker, PackedBuildingDistrictStore,
     buildingDetailDistricts, selectBuildingDetailDistricts,
     splitProgressiveBuildings, splitParkSurfaceFamily, surfaceFamilyPayload,
-    serializeObject3DForTransfer, attachedBatchResolvers, attachedBatchPromises,
+    serializeObject3DForTransfer, compactStaticGeometry, attachedBatchResolvers, attachedBatchPromises,
     MAX_TRANSFERRED_BATCHES_IN_FLIGHT: 4, WATER_TOP_Y: 0,
     mobileDetailWorker: undefined, latestMobileView: undefined,
     smoothGroundTopSampler: () => () => 0,

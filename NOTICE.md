@@ -983,6 +983,26 @@ and mirrored in the packaged viewer attribution manifest.
   no new photograph, texture or opening survey is introduced. See
   [scope and evidence](docs/urban-facade-presentation-v135.md).
 
+- **Spree public space (v1.0.37):** retained OpenStreetMap water/road/path
+  geometry and a 2026-09-11 Overpass barrier snapshot (ODbL 1.0). Exact mapped
+  rail courses are distinguished from unmeasured member dimensions and colours.
+  No imagery is bundled. See [source selection and budgets](docs/spree-streets-v137.md).
+
+- **Schloss, Dussmann and Naturkunde (v1.0.37):** complete retained Geoportal
+  Berlin LoD2 source sheets and existing OSM identities anchor the buildings.
+  The Humboldt Forum architectural backgrounder supplies the 70 m overall
+  silhouette; Landesdenkmalamt `09011177,T,002` supplies Naturkunde's facade
+  programme. Dome curvature, lantern, window bays and local member dimensions
+  are procedural display fits; original source planes remain preserved.
+  New external visual references: Falk2 / Falk Arnhold's *L01 490
+  Humboldt-Forum.jpg* and AusleseBeeren's *The Dome Of Berlin Palace.jpg*
+  (CC BY-SA 4.0), plus Jörg Zägel's *Berlin, Mitte, Invalidenstrasse 43,
+  Museum für Naturkunde.jpg* (CC BY-SA 3.0). The existing JoachimKohler-HB
+  Dussmann 2026 reference is reused. Individual links, licences, source conflicts
+  and measured budgets are in the [source contract](docs/schloss-dussmann-naturkunde-v137.md).
+  All three new per-file credits are mirrored in both manifests. No photograph
+  or image texture is bundled or loaded.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

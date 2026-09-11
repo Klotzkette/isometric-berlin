@@ -1,6 +1,8 @@
+import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone, urbanIllustrationToneInto } from "./urbanFacadePresentation";
+import { createKollhoffWindowRelief } from "./kollhoffWindowRelief";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { pointInBrandenburgApproach } from "./brandenburgApproachScope";
 import { isBebelLibraryGroundCell } from "./bebelplatzMemorialProfile";
@@ -884,6 +886,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...BEBELPLATZ_BUILDING_PRISM_IDS,
+  ...SCHLOSS_NATURKUNDE_PRISM_IDS,
   // Exact TIPI tent/service ways: source-footprint pavilions replace their fallback boxes.
   ...TIPI_SITE_PRISM_IDS,
   // Serra's two thin plates replace only their closed LoD2 source envelope.
@@ -12618,13 +12621,15 @@ export function createIsometricCity(
     const dayMaterial = new MeshBasicMaterial({
       color: 0xffffff,
       side: DoubleSide,
+      vertexColors: true,
     });
     const nightMaterial = new MeshBasicMaterial({
-      color: 0x59636b,
+      color: 0xa7adb0,
       side: DoubleSide,
+      vertexColors: true,
     });
     const panes = new InstancedMesh(
-      new PlaneGeometry(1, 1),
+      createKollhoffWindowRelief(),
       dayMaterial,
       kollhoffWindows.length,
     );
@@ -12635,7 +12640,7 @@ export function createIsometricCity(
     panes.userData.architecturalProfile = KOLLHOFF_TOWER_PROFILE;
     const matrix = new Matrix4();
     const paneTone = new Color();
-    const dayTones = [0x718189, 0x829399, 0x66777f] as const;
+    const dayTones = [0xffffff, 0xf8f6f2, 0xefeee8] as const;
     kollhoffWindows.forEach((pane, index) => {
       matrix.set(
         pane.dirX * KOLLHOFF_TOWER_PROFILE.windowWidthM,

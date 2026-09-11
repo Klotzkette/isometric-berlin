@@ -242,29 +242,30 @@ function addEinstein(builder: BlockBuilder): void {
 }
 
 function addDussmann(builder: BlockBuilder): void {
-  const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.dussmann;
-  const baseY = profile.anchorWorldM[1];
-  for (const [axis, bays] of [
-    [profile.eastFacade, 9],
-    [profile.southFacade, 7],
-  ] as const) {
-    const length = axisLength(axis);
-    voxelGrid(
-      builder,
-      axis,
-      baseY,
-      bays,
-      6,
-      7.1,
-      3.65,
-      (bay, floor) => (bay % 3 === 1 && floor % 2 === 1 ? RED : null),
-    );
-    facadeBlock(builder, axis, length / 2, baseY + 2.65, 0.9, length, 4.8, 0.75, GLASS);
+  const p = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.dussmann, base = p.anchorWorldM[1];
+  const modern = (axis: FacadeAxis, bays: number): void => {
+    const l = axisLength(axis), pitch = l / bays;
+    for (let bay = 0; bay < bays; bay++) for (let floor = 0; floor < 4; floor++)
+      facadeBlock(builder, axis, (bay + .5) * pitch, base + 10.5 + floor * 4.1, .85,
+        pitch * .77, 3.2, .7, (floor === 0 && bay > 3) || (floor === 1 && bay < 3) ? RED : GLASS_LIGHT);
+    for (let i = 0; i <= bays; i++) facadeBlock(builder, axis, i * pitch, base + 4.1, 1.2, .9, 8.2, 1.4, STONE_LIGHT);
+    for (const y of [8.3, 12.8, 16.9, 21.0, 25.1]) facadeBlock(builder, axis, l / 2, base + y, 1, l, .45, .7, STONE_LIGHT);
+    for (const y of [27.4, 30.45]) facadeBlock(builder, axis, l / 2, base + y, -.5, l - 2, 1.6, .6, GLASS);
+  };
+  modern(p.eastFacade, 9);
+  for (const axis of [p.northFacade, p.southFacade]) {
+    const l = axisLength(axis), historic = l - 11.2;
+    for (let bay = 0; bay < 8; bay++) for (let floor = 0; floor < 4; floor++)
+      facadeBlock(builder, axis, (bay + .5) * historic / 8, base + 2.7 + floor * 5, .9,
+        historic / 8 * .53, 3.1, .7, GLASS);
+    for (const y of [4.8, 10, 15, 20.8]) facadeBlock(builder, axis, historic / 2, base + y, 1.1, historic, .4, .7, STONE_LIGHT);
+    const start = facadePoint(axis, historic, base, 0);
+    modern({ ...axis, startWorldXZ: [start[0], start[2]] }, 2);
   }
-  const east = profile.eastFacade;
-  const eastLength = axisLength(east);
-  facadeBlock(builder, east, eastLength - 4.2, baseY + 16.5, 1.3, 2.4, 18, 0.8, RED);
-  facadeBlock(builder, east, eastLength * 0.45, baseY + 4.35, 1.25, 13.5, 0.8, 0.7, WHITE);
+  const l = axisLength(p.eastFacade);
+  facadeBlock(builder, p.eastFacade, l * .32, base + 15.6, 1.7, 1.3, 14.2, .8, STONE_LIGHT);
+  for (let i = 0; i < 8; i++) facadeBlock(builder, p.eastFacade, l * .32, base + 21.2 - i * 1.55, 2.1, .7, .7, .5, RED);
+  facadeBlock(builder, p.eastFacade, l * .5, base + 7.55, 1.8, 13.5, .8, .7, WHITE);
 }
 
 function finishBlocks(builder: BlockBuilder, root: Group): void {

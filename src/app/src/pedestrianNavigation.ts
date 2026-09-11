@@ -1,3 +1,4 @@
+import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
 import { DB_TOWER_PRISM_IDS, DB_TOWER_SOURCE, dbTowerDisplayY, dbTowerRoofAt } from "./dbTowerProfile";
@@ -607,6 +608,20 @@ export function compilePedestrianObstacles(
         building.id, 0.1,
         (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
       index.buildingCount += 1;
+      continue;
+    }
+    const schlossNaturkunde = schlossNaturkundeSourceForPrism(building.id);
+    if (schlossNaturkunde) {
+      if (!replacedParents.has(schlossNaturkunde.parent_id)) {
+        replacedParents.add(schlossNaturkunde.parent_id);
+        const translation = schlossNaturkunde.display_y_translation_m;
+        for (const part of schlossNaturkunde.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m + translation, part.top_y_m + translation, part.id, 1,
+            (x, z) => schlossNaturkundePartRoofAt(part, x, z));
+          index.buildingCount += 1;
+        }
+      }
       continue;
     }
     const bebelplatz = bebelplatzSourceForPrism(building.id);

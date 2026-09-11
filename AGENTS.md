@@ -539,7 +539,7 @@ isometric-berlin/
   is one surface-only block batch below 360 KiB, without hidden solid fill.
 - The five-building Unter den Linden recognition sequence stays source-bound
   and outside the tour count. Its Smooth overlay remains at 10 draw calls,
-  1,649 instances and below 180 KiB; its Minecraft reading remains one
+  1,669 instances and below 180 KiB; its Minecraft reading remains one
   facade-only batch, 280-500 instances and below 50 KiB. Both are texture-free
   and retain exterior-facing details without hidden solid infill.
 - Scharnhorst reads as a 5.60 m architectural tomb rather than a generic lion

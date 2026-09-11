@@ -12,3 +12,16 @@ export function compactStaticGeometry(object: Object3D): number {
   geometry.userData.exactIndexPending = false;
   return result.savedBytes;
 }
+
+/** Compact unpublished geometry between task boundaries, before GPU upload. */
+export function* compactStaticGeometrySteps(root: Object3D): Generator<void> {
+  const pending: Object3D[] = [];
+  root.traverse((object) => {
+    if ((object instanceof Mesh || object instanceof LineSegments) &&
+        object.geometry.userData.exactIndexPending === true) pending.push(object);
+  });
+  for (const object of pending) {
+    compactStaticGeometry(object);
+    yield;
+  }
+}

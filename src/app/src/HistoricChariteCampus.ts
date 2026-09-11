@@ -467,6 +467,29 @@ function addHeritageFacade(
       0.19, wall.length, 0.16, 0.14);
   }
   const windows = historicChariteWindows(building, buildings);
+  const upperStreet = windows.filter(window => window.streetAlthoff && window.floor === 2);
+  if (upperStreet.length) {
+    const wall = upperStreet[0].wall;
+    // The retained Lenz photograph shows continuous pale plaster between
+    // the paired heads and the eaves, interrupted by red-brick ogee crowns.
+    // This belongs only to the verified Althoff street wall, not every
+    // historic campus elevation. Keep all existing opening coordinates.
+    addWallBox(builder, wall, HISTORIC_CHARITE_TONES.plaster, wall.length/2,
+      facadeTop-.94, .125, wall.length-.4, 1.32, .04);
+    for (const window of upperStreet) {
+      for (const side of [-1, 1]) {
+        const crown = new Shape();
+        const shoulderDrop = Math.min((window.width-.15)*.17,window.height*.2);
+        const points = [[0,.58],[.15,.29],[.42,.12],[.5,-shoulderDrop]];
+        crown.moveTo(side*points[0][0]*window.width,points[0][1]);
+        for (const [x,y] of points.slice(1)) crown.lineTo(side*x*window.width,y);
+        for (const [x,y] of [...points].reverse()) crown.lineTo(side*x*window.width,y+.105);
+        crown.closePath();
+        addWallShape(builder,wall,crown,HISTORIC_CHARITE_TONES.brickDark,
+          window.along,window.bottom+window.height,.185);
+      }
+    }
+  }
   for (const window of windows) {
     const {wall, along, bottom, width, height, paired, blind, streetAlthoff, floor, bay} = window;
     if (window.museumStreet && floor === 1 && wall.index === 14) {
@@ -798,6 +821,7 @@ export function createHistoricChariteCampus(
     pairedWindows,
     blindWindows,
     althoffDormers: sourceBuildings.some(b => b.id === CHARITE_ALTHOFF_TOWER_ID) ? 4 : 0,
+    althoffUpperCrowns: sourceBuildings.some(b => b.id === CHARITE_ALTHOFF_TOWER_ID) ? 7 : 0,
     virologyWindows,
   };
   group.userData.detailProfile = detailProfile;

@@ -4376,6 +4376,42 @@
       "credit": "Yair Haklai / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "berliner_schloss",
+      "title": "File:L01 490 Humboldt-Forum.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:L01_490_Humboldt-Forum.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Falk2 / Falk Arnhold",
+      "credit": "Falk2 / Falk Arnhold / CC BY-SA 4.0",
+      "description": "Baroque south facade, portal orders, window pediments and modern eastern boundary; photograph dated 7 April 2023; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berliner_schloss",
+      "title": "File:The Dome Of Berlin Palace.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:The_Dome_Of_Berlin_Palace.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "AusleseBeeren",
+      "credit": "AusleseBeeren / CC BY-SA 4.0",
+      "description": "Brown copper dome, ribs, octagonal drum, open gilded lantern and cross; photograph dated 8 March 2025; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "museum_fuer_naturkunde",
+      "title": "File:Berlin, Mitte, Invalidenstrasse 43, Museum für Naturkunde.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Invalidenstrasse_43,_Museum_für_Naturkunde.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "description": "Protected south facade, round arches, central column order, attic and entrance figures; photograph dated 7 April 2010, not a current construction-status survey; external visual QA only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

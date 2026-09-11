@@ -104,6 +104,33 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("eviction immediately removes queued descendants without waiting for a render", () => {
+    const { scene, camera } = fixture();
+    const evicted = new Group();
+    const removed = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const retained = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    removed.position.x = retained.position.x = 1000;
+    evicted.add(removed); scene.add(evicted, retained);
+    const after = removed.onAfterRender;
+    const h = host(scene, camera);
+    h.warmup.enqueue(scene);
+    expect(removed.onAfterRender).not.toBe(after);
+    h.warmup.release(evicted);
+    evicted.removeFromParent();
+    removed.geometry.dispose(); removed.material.dispose();
+    expect(removed.onAfterRender).toBe(after);
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([retained]);
+    expect(h.warmup.pending).toBeFalse();
+    // Releasing a warmed object also invalidates its old residency snapshot.
+    h.warmup.release(retained);
+    h.warmup.enqueue(retained);
+    expect(h.warmup.pending).toBeTrue();
+    h.warmup.release(scene);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
   test("ordinary rendering drains visible uploads without an extra scene render and preserves callbacks", () => {
     const { scene, camera } = fixture();
     const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());

@@ -391,3 +391,15 @@ manifests; no image, crop or photographic texture is bundled or loaded.
 | [2019-05-05-Richard-Wagner-Denkmal-1.jpg](https://commons.wikimedia.org/wiki/File%3A2019-05-05-Richard-Wagner-Denkmal-1.jpg) | Gunnar Klack | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | [141101 Berlin Konrad-Adenauer-Haus.jpg](https://commons.wikimedia.org/wiki/File%3A141101_Berlin_Konrad-Adenauer-Haus.jpg) | Ansgar Koreng | [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/) |
 | [Berlin Konrad-Adenauer-Haus-20241207-RM-102533.jpg](https://commons.wikimedia.org/wiki/File%3ABerlin_Konrad-Adenauer-Haus-20241207-RM-102533.jpg) | Reinhold Möller (Ermell) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+
+## v1.0.37 Schloss and Naturkunde external references
+
+Three new attribution-only references are packaged in both manifests; no image
+is bundled. [Full source roles and individual file links](../../docs/schloss-dussmann-naturkunde-v137.md):
+
+- Falk2 / Falk Arnhold, *L01 490 Humboldt-Forum.jpg* — CC BY-SA 4.0.
+- AusleseBeeren, *The Dome Of Berlin Palace.jpg* — CC BY-SA 4.0.
+- Jörg Zägel, *Berlin, Mitte, Invalidenstrasse 43, Museum für Naturkunde.jpg* — CC BY-SA 3.0.
+
+The existing JoachimKohler-HB *Dussmann Das Kulturkaufhaus in Berlin (2026).jpg*
+(CC BY-SA 4.0) is reused for the arcade and historic-return refinement.

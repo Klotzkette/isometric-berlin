@@ -1,3 +1,7 @@
+import { createSpreeRailings } from "./SpreeRailings";
+import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
+import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
+import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
@@ -769,6 +773,7 @@ export function isCompleteRecognitionVoxelColumn(
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
     isBebelplatzBuildingReplacementColumn(x, z) ||
+    isSchlossNaturkundeReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
     abgeordnetenhausMainContains(x, z) ||
     gustavBridgeSupportReplacementAt(x, z) ||
@@ -2693,6 +2698,12 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSonyCenterSurroundings());
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
+  yield;
+  group.add(createMinecraftSchlossNaturkundeShells());
+  group.add(createMinecraftSchlossNaturkundeFacades());
+  yield;
+  group.add(createSpreeRailings(payload, true));
+  yield;
   group.add(createMinecraftBebelplatzBuildingShells());
   group.add(createMinecraftBebelplatzFacades(payload));
   group.add(createMinecraftHedwigCathedral(payload));

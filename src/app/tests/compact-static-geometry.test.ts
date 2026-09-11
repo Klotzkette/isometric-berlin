@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { BoxGeometry, BufferGeometry, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from "three";
-import { compactStaticGeometry } from "../src/compactStaticGeometry";
+import { compactStaticGeometry, compactStaticGeometrySteps } from "../src/compactStaticGeometry";
+import { completeCooperatively } from "../src/cooperativeWork";
 import { addBox, createBuilder, finishDrawnGroup } from "../src/drawnKit";
 import { deserializeTransferredObject3D, serializeObject3DForTransfer } from "../src/transferableObject3D";
 
@@ -46,4 +47,31 @@ test("unmarked authored or animated layouts remain untouched", () => {
   const root = new Group(); root.add(mesh);
   root.traverse(object => { expect(compactStaticGeometry(object)).toBe(0); });
   expect(mesh.geometry.getAttribute("position")).toBe(original);
+});
+
+test("cooperative preparation preserves every primitive and leaves unpublished work cancellable", async () => {
+  const root = new Group();
+  for (let index = 0; index < 12; index++) {
+    const builder = createBuilder();
+    addBox(builder, 0xbca987, index * 2, 0, 0, 1, 2, 3);
+    root.add(finishDrawnGroup(builder, { name: `batch ${index}` })!);
+  }
+  const meshes: Mesh[] = [];
+  root.traverse(object => { if (object instanceof Mesh) meshes.push(object); });
+  const before = meshes.map(object => renderedBytes(object.geometry));
+  let tasks = 0;
+  await expect(completeCooperatively(compactStaticGeometrySteps(root), {
+    budgetMs: 0,
+    yieldTask: async () => { tasks++; },
+    isCancelled: () => tasks === 3,
+  })).rejects.toMatchObject({ name: "AbortError" });
+  const completed = meshes.filter(object => object.geometry.userData.exactIndexPending === false);
+  expect(completed.length).toBeGreaterThan(0);
+  expect(completed.length).toBeLessThan(meshes.length);
+  const positions = completed.map(object => object.geometry.getAttribute("position"));
+  await completeCooperatively(compactStaticGeometrySteps(root), {
+    budgetMs: 0, yieldTask: async () => {}, isCancelled: () => false,
+  });
+  expect(meshes.map(object => renderedBytes(object.geometry))).toEqual(before);
+  expect(completed.map(object => object.geometry.getAttribute("position"))).toEqual(positions);
 });

@@ -71,7 +71,23 @@ export function createMinecraftHistoricCharite(sourcePrisms: readonly ChariteSou
         add(part.id,"source-roof",[x,(upper+lower)/2,z],[dx,Math.max(0.18,upper-lower),dz],T.slate,-Math.atan2(az,ax));
       }
     }
-    for(const w of historicChariteWindows(part,parts)) {
+    const windows=historicChariteWindows(part,parts);
+    const upperStreet=windows.filter(w=>w.streetAlthoff&&w.floor===2);
+    if(upperStreet.length) {
+      const wall=upperStreet[0].wall;
+      wallBox(part,wall,"Althoff upper plaster band",wall.length/2,eave-.94,.03,wall.length-.4,1.32,.04,T.plaster);
+      for(const w of upperStreet)for(const side of [-1,1]) {
+        // Stepped reading of the same photographed ogee crown; no smooth
+        // facade double and no added window/floor rhythm.
+        const shoulderDrop=Math.min((w.width-.15)*.17,w.height*.2);
+        const points=[[0,.58],[.15,.29],[.42,.12],[.5,-shoulderDrop]];
+        for(let i=0;i<points.length-1;i++) {
+          const [x,y]=points[i], [xx,yy]=points[i+1];
+          wallBox(part,wall,"Althoff stepped brick crown",w.along+side*(x+xx)*w.width/2,w.bottom+w.height+(y+yy)/2+.05,.115,(xx-x)*w.width,Math.abs(yy-y)+.105,.13,T.brickDark);
+        }
+      }
+    }
+    for(const w of windows) {
       windowCount++;if(w.paired)pairedWindows++;
       const {wall,along,bottom,width,height}=w;
       if(w.museumStreet&&w.floor===1&&wall.index===14) wallBox(part,wall,"museum-plaster-panel",along,bottom-3.0,0.045,width,5.75,0.08,T.plaster);
@@ -120,7 +136,7 @@ export function createMinecraftHistoricCharite(sourcePrisms: readonly ChariteSou
     Object.assign(mesh.userData,{dayMaterial:day,nightMaterial:night,textureFree:true});mesh.computeBoundingBox();mesh.computeBoundingSphere();root.add(mesh);
   }
   Object.assign(root.userData,{blockNative:true,textureFree:true,keepInMinecraft:true,detailProfile,sourcePrismIds:parts.map(p=>p.id),sourcePrisms:parts.length,
-    detailCounts:{blocks:blocks.length,windows:windowCount,pairedWindows,althoffDormers:parts.some(p=>p.id===CHARITE_ALTHOFF_TOWER_ID)?4:0},
+    detailCounts:{blocks:blocks.length,windows:windowCount,pairedWindows,althoffDormers:parts.some(p=>p.id===CHARITE_ALTHOFF_TOWER_ID)?4:0,althoffUpperCrowns:parts.some(p=>p.id===CHARITE_ALTHOFF_TOWER_ID)?7:0},
     geometryStatus:"source-bound thin wall/roof shell; exact LoD2 footprint/height anchors, procedural block quantisation and photo-bounded unsurveyed facade detail"});
   if(diagnostics) root.userData.blockRecords=blocks;
   return freezeStaticSceneTransforms(root);

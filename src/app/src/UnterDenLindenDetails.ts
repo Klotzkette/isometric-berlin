@@ -547,86 +547,70 @@ function addEinstein(
 }
 
 function addDussmannFacade(
-  builder: DetailBuilder,
-  fine: DetailBuilder,
-  axis: FacadeAxis,
-  baseY: number,
-  bays: number,
+  builder: DetailBuilder, fine: DetailBuilder, axis: FacadeAxis, baseY: number, bays: number,
 ): void {
-  const length = axisLength(axis);
-  const yaw = axisYaw(axis);
-  const pitch = length / bays;
-  builder.box(
-    facadePoint(axis, length / 2, baseY + 2.65, 0.45),
-    [length - 0.4, 4.8, 0.28],
-    0x45575b,
-    yaw,
-  );
-  facadeGrid(builder, fine, {
-    axis,
-    baseY,
-    bays,
-    floors: 6,
-    floorPitch: 3.65,
-    firstFloorY: 7.1,
-    outward: 0.46,
-    glass: 0x62777b,
-    pierColor: 0xe1ded4,
-  });
-  for (let bay = 0; bay < bays; bay += 1) {
-    if (bay % 3 !== 1) continue;
-    for (const floor of [1, 3, 5]) {
-      builder.box(
-        facadePoint(
-          axis,
-          (bay + 0.5) * pitch,
-          baseY + 7.1 + floor * 3.65,
-          0.72,
-        ),
-        [pitch * 0.68, 0.78, 0.24],
-        RED,
-        yaw,
-      );
+  const length = axisLength(axis), angle = axisYaw(axis), pitch = length / bays;
+  // A deep, tall arcade and broad rectangular piers, as distinct from the
+  // neighbouring nineteenth-century returns. Upper windows form four rows.
+  builder.box(facadePoint(axis, length / 2, baseY + 4.1, .42), [length, 8.2, .28], 0x38474b, angle);
+  for (let bay = 0; bay < bays; bay++) {
+    const u = (bay + .5) * pitch;
+    for (let floor = 0; floor < 4; floor++) {
+      const y = baseY + 10.5 + floor * 4.1;
+      builder.box(facadePoint(axis, u, y, .55), [pitch * .79, 3.2, .25], 0x65797e, angle);
+      // Red panels occupy selected lower commercial windows, not whole glass rows.
+      if ((floor === 0 && bay > 3) || (floor === 1 && bay < 3))
+        builder.box(facadePoint(axis, u, y, .75), [pitch * .72, 2.6, .12], RED, angle);
+      for (const offset of [-.26, 0, .26])
+        fine.box(facadePoint(axis, u + pitch * offset, y, .87), [.07, 3.2, .12], 0xd0cec3, angle);
+      builder.box(facadePoint(axis, u, y - 1.83, .73), [pitch, .44, .5], STONE_LIGHT, angle);
     }
+    builder.box(facadePoint(axis, u, baseY + 2.0, .67), [pitch * .76, 3.7, .2], 0x506268, angle);
   }
-  for (let boundary = 0; boundary <= bays; boundary += 1) {
-    builder.column(
-      facadePoint(axis, boundary * pitch, baseY + 2.75, 1.0),
-      0.52,
-      5.5,
-      STONE_LIGHT,
-    );
+  for (let boundary = 0; boundary <= bays; boundary++) {
+    builder.box(facadePoint(axis, boundary * pitch, baseY + 4.1, 1.12), [.82, 8.2, 1.35], STONE_LIGHT, angle);
+    builder.box(facadePoint(axis, boundary * pitch, baseY + 16.25, .79), [.52, 16.1, .44], STONE_LIGHT, angle);
+  }
+  builder.box(facadePoint(axis, length / 2, baseY + 8.3, 1.05), [length, .65, 1.4], STONE_LIGHT, angle);
+  // Two shallow setback-storey window bands follow the retained stepped roof.
+  for (const y of [27.4, 30.45]) {
+    builder.box(facadePoint(axis, length / 2, baseY + y, -.9), [length - 3, 1.75, .2], GLASS, angle);
+    builder.box(facadePoint(axis, length / 2, baseY + y - 1, -.72), [length - 2, .3, .35], STONE_LIGHT, angle);
   }
 }
 
-function addDussmann(
-  builder: DetailBuilder,
-  fine: DetailBuilder,
-): void {
-  const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.dussmann;
-  const baseY = profile.anchorWorldM[1];
-  addDussmannFacade(builder, fine, profile.eastFacade, baseY, 9);
-  addDussmannFacade(builder, fine, profile.southFacade, baseY, 7);
+function addDussmannHistoricReturn(builder: DetailBuilder, fine: DetailBuilder, axis: FacadeAxis, baseY: number): void {
+  const l = axisLength(axis) - 11.2, pitch = l / 8, angle = axisYaw(axis);
+  for (let bay = 0; bay < 8; bay++) for (let floor = 0; floor < 4; floor++) {
+    const u = (bay + .5) * pitch, y = baseY + 2.7 + floor * 5;
+    builder.box(facadePoint(axis, u, y, .58), [pitch * .52, 3.1, .24], 0x52676b, angle);
+    builder.box(facadePoint(axis, u, y - 1.7, .76), [pitch * .76, .28, .4], STONE_LIGHT, angle);
+    fine.box(facadePoint(axis, u, y, .82), [.08, 3.1, .1], STONE_LIGHT, angle);
+    if (floor === 1 || floor === 2) {
+      fine.beam(facadePoint(axis, u - pitch * .36, y + 1.8, .86), facadePoint(axis, u, y + 2.3, .86), .16, STONE_LIGHT);
+      fine.beam(facadePoint(axis, u, y + 2.3, .86), facadePoint(axis, u + pitch * .36, y + 1.8, .86), .16, STONE_LIGHT);
+    }
+  }
+  for (const y of [4.8, 10, 15, 20.8]) builder.box(facadePoint(axis, l / 2, baseY + y, .75), [l, .3, .4], STONE_LIGHT, angle);
+}
 
-  const east = profile.eastFacade;
-  const eastYaw = axisYaw(east);
-  const eastLength = axisLength(east);
-  builder.box(
-    facadePoint(east, eastLength - 4.2, baseY + 16.5, 1.0),
-    [2.2, 18.0, 0.42],
-    RED,
-    eastYaw,
-  );
-  builder.box([1191.0, baseY + 30.35, 77.4], [28.5, 3.4, 31.0], STONE_LIGHT);
-  builder.box([1203.0, baseY + 32.0, 75.5], [8.8, 1.5, 13.0], RED);
-  inscription(
-    fine,
-    "DUSSMANN",
-    facadePoint(east, eastLength * 0.45, baseY + 4.35, 0.9),
-    eastYaw,
-    0.7,
-    WHITE,
-  );
+function addDussmann(builder: DetailBuilder, fine: DetailBuilder): void {
+  const p = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.dussmann, base = p.anchorWorldM[1];
+  addDussmannFacade(builder, fine, p.eastFacade, base, 9);
+  for (const axis of [p.northFacade, p.southFacade]) {
+    addDussmannHistoricReturn(builder, fine, axis, base);
+    const l = axisLength(axis), start = facadePoint(axis, l - 11.2, base, 0);
+    addDussmannFacade(builder, fine, { ...axis, startWorldXZ: [start[0], start[2]] }, base, 2);
+  }
+  const east = p.eastFacade, angle = axisYaw(east), l = axisLength(east);
+  // Northern Dorotheenstraße entrance: the previous southern red roof box had
+  // no source counterpart. The vertical identity blade now faces Friedrichstraße.
+  builder.box(facadePoint(east, l * .32, base + 15.6, 1.28), [1.25, 14.2, .55], STONE_LIGHT, angle);
+  for (let i = 0; i < 8; i++) inscription(fine, "DUSSMANN"[i], facadePoint(east, l * .32, base + 21.2 - i * 1.55, 1.64), angle, .82, RED);
+  inscription(fine, "DUSSMANN", facadePoint(east, l * .5, base + 7.55, 1.81), angle, .66, WHITE);
+  const flag = facadePoint(east, 5.5, base + 35.6, -2.6);
+  builder.column(flag, .12, 6.1, METAL);
+  builder.box([flag[0] + .68, flag[1] + 1.1, flag[2]], [1.3, 3.0, .08], RED);
 }
 
 type BuildingSpec = {

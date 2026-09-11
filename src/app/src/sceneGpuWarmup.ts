@@ -15,6 +15,8 @@ type GpuResource = BufferGeometry | Material | InstancedMesh;
 
 export type SceneGpuWarmup = {
   enqueue: (root: Object3D) => void;
+  /** Stop retaining an evicted subtree before its CPU/GPU resources are freed. */
+  release: (root: Object3D) => void;
   /** One synchronous, bounded upload task. Returns the warmed object count. */
   warmNext: () => number;
   readonly pending: boolean;
@@ -192,6 +194,22 @@ export function createSceneGpuWarmup(
     });
   };
 
+  const release = (root: Object3D): void => {
+    root.traverse((object) => {
+      if (!renderable(object)) return;
+      warmed.delete(object);
+      queued.delete(object);
+      restoreRenderHook(object);
+    });
+    // A disposed district must not wait for another warmup task (which may
+    // be suspended in a hidden tab) before its attribute arrays can be freed.
+    let retained = 0;
+    for (const object of queue) {
+      if (queued.has(object)) queue[retained++] = object;
+    }
+    queue.length = retained;
+  };
+
   const onContextRestored = (): void => {
     warmed = new WeakMap();
     enqueue(scene);
@@ -298,6 +316,7 @@ export function createSceneGpuWarmup(
 
   return {
     enqueue,
+    release,
     warmNext,
     get pending() { return !disposed && queue.length > 0 && !renderer.getContext().isContextLost(); },
     dispose: () => {
