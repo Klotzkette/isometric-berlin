@@ -6827,10 +6827,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       const onContextLost = (event: Event) => {
         event.preventDefault();
-        if (!disposed) {
+        if (disposed || runtime.worldFailureReported) return;
+        runtime.worldFailureReported = true;
+        window.cancelAnimationFrame(frame);
+        if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
+        gpuWarmupTimer = null;
+        runtime.gpuWarmup?.dispose();
+        runtime.scheduleGpuWarmup = undefined;
+        loadController.abort();
+        cancelScheduledProgressiveWorld(runtime);
+        runtime.progressiveWorldWorker?.terminate();
+        runtime.progressiveWorldWorker = undefined;
+        clearProgressiveAttachmentQueue(runtime);
+        try {
+          // App captures the small navigation snapshot before disposal makes
+          // this runtime unavailable. React cleanup still releases all buffers.
           onErrorRef.current(
             "WebGL-Kontext verloren; lade die Seite neu, um die isometrische 3D-Ansicht wieder zu öffnen.",
           );
+        } finally {
+          disposed = true;
+          runtime.disposed = true;
         }
       };
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
@@ -7037,9 +7054,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         frame = window.requestAnimationFrame(animate);
-        if (!activeRef.current) {
-          // Do not replay time spent behind the 2D viewer as one large camera
-          // or collision step when 3D becomes active again.
+        if (!activeRef.current || document.hidden) {
+          // Hidden mobile tabs must not advance navigation or GPU work when
+          // a browser still supplies occasional animation frames.
           lastAnimateAt = timestamp;
           return;
         }

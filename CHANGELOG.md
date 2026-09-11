@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.32
+
+- Stop frames, GPU warmup, pending downloads and progressive worker work as soon
+  as a graphics context is lost; keep the existing one-retry limit.
+- Preserve the visitor’s position, view and walking state through clean recovery.
+- Skip navigation/render work in hidden tabs, without changing visible quality.
+- Add real WebGL context-loss injection to the mobile browser smoke test.
+
 ## v1.0.31
 
 - Replace the low HU, Alte Bibliothek and Hotel de Rome fallback envelopes with

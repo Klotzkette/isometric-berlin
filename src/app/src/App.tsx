@@ -2057,10 +2057,11 @@ export function App() {
         return;
       }
       console.error(`Isometric Berlin 3D: ${message}`);
-      retainedNavigationRef.current = null;
-      setIsPedestrianMode(false);
+      const navigation = threeViewerRef.current?.captureNavigation() ?? retainedNavigationRef.current;
+      retainedNavigationRef.current = navigation;
+      setIsPedestrianMode(navigation?.pedestrian.requested ?? false);
       setIsThreeReady(false);
-      setIsThreeUnderside(false);
+      setIsThreeUnderside(navigation?.underside ?? false);
 
       // A lost mobile context commonly recovers once the old canvas and all
       // of its CPU/GPU allocations are actually destroyed. Remount exactly
@@ -2071,10 +2072,14 @@ export function App() {
         ) === "restart-clean"
       ) {
         threeViewerAutoRecoveryUsedRef.current = true;
-        const nextStart = nextSimulationStartSight(browserStartStorage());
-        openingLandmarkRef.current = nextStart;
-        initialFocusAppliedRef.current = false;
-        setSelected(nextStart);
+        // The snapshot contains only navigation data, never the failed scene.
+        // Do not let the ordinary opening-focus effect overwrite its pose.
+        initialFocusAppliedRef.current = navigation !== null;
+        if (!navigation) {
+          const nextStart = nextSimulationStartSight(browserStartStorage());
+          openingLandmarkRef.current = nextStart;
+          setSelected(nextStart);
+        }
         threeViewerGenerationRef.current += 1;
         setThreeViewerGeneration(threeViewerGenerationRef.current);
         setThreeRuntimeError(null);

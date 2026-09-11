@@ -42,3 +42,17 @@ def test_rejects_unservable_urls_and_unbounded_timeouts(
 def test_selects_distinct_safari_and_android_devices(smoke: ModuleType) -> None:
   assert smoke.browser_profile("webkit") == "iPhone SE"
   assert smoke.browser_profile("chromium") == "Pixel 5"
+
+
+@pytest.mark.parametrize("flags, enabled", [([], False), (["--context-loss"], True)])
+def test_destructive_probe_requires_explicit_flag(
+  smoke: ModuleType, monkeypatch: pytest.MonkeyPatch, flags: list[str], enabled: bool
+) -> None:
+  calls = []
+  monkeypatch.setattr(smoke, "run", lambda *args: calls.append(args))
+  monkeypatch.setattr(
+    sys, "argv", ["smoke", "https://example.test/", "--engine", "webkit", *flags]
+  )
+  smoke.main()
+  assert len(calls) == 1
+  assert calls[0][-1] is enabled

@@ -18,6 +18,8 @@ from urllib.parse import urlsplit
 
 from smoke_mode_continuity import (
   PROBE,
+  assert_pose,
+  enter_walk,
   open_mobile_actions,
   seed_camera,
   select_mode,
@@ -41,7 +43,62 @@ def browser_profile(engine: str) -> str:
   return "iPhone SE" if engine == "webkit" else "Pixel 5"
 
 
-def run(url: str, engine: str, timeout: float, output: Path | None) -> None:
+def check_context_recovery(page: Any, engine: str, timeout: float) -> None:
+  """Lose a real WebGL context; check clean, pose-preserving, bounded recovery."""
+  if engine == "chromium":
+    enter_walk(page, True)
+  else:
+    seed_camera(page, POSE)
+  before = page.evaluate("window.__readModeContinuity()")
+  lose = """() => {
+    const r = window.__modeContinuityRuntime();
+    const extension = r.renderer.getContext().getExtension('WEBGL_lose_context');
+    if (!extension) throw new Error('Context-loss test extension unavailable');
+    window.__failedRuntime = r;
+    extension.loseContext();
+  }"""
+  page.evaluate(lose)
+  page.wait_for_function(
+    """id => {
+    const s=window.__readModeContinuity(); return s?.ready && s.runtime !== id;
+  }""",
+    arg=before["runtime"],
+    timeout=timeout * 1000,
+  )
+  after = wait_ready(page, "day", timeout)
+  assert_pose(after, before)
+  assert page.evaluate("""() => {
+    const r=window.__failedRuntime;
+    return r.disposed && !r.progressiveWorldWorker && !r.scheduleGpuWarmup
+      && r.scene.children.length === 0;
+  }""")
+  page.evaluate("window.__failedRuntime = null")
+  # The next loss must stop at explicit recovery, never allocate in a retry loop.
+  page.evaluate(lose)
+  page.wait_for_function("""() => !document.querySelector('.three-canvas') &&
+    document.body.innerText.includes('The 3D view could not be loaded')""")
+  page.wait_for_timeout(1200)
+  assert page.locator(".three-canvas").count() == 0
+  assert page.evaluate("window.__failedRuntime.disposed")
+  page.evaluate("window.__failedRuntime = null")
+  print(
+    json.dumps(
+      {
+        "success": True,
+        "engine": engine,
+        "contextRecovery": True,
+        "posePreserved": True,
+        "walking": before["enabled"],
+        "retryLoopPrevented": True,
+      }
+    ),
+    flush=True,
+  )
+
+
+def run(
+  url: str, engine: str, timeout: float, output: Path | None, context_loss: bool = False
+) -> None:
   from playwright.sync_api import sync_playwright
 
   errors: list[str] = []
@@ -71,6 +128,14 @@ def run(url: str, engine: str, timeout: float, output: Path | None) -> None:
     try:
       page.goto(viewer_url(url), wait_until="domcontentloaded")
       wait_ready(page, "day", timeout)
+      if context_loss:
+        check_context_recovery(page, engine, timeout)
+        assert not errors, errors
+        assert len(console_errors) == 2 and all(
+          "Isometric Berlin 3D: WebGL-Kontext verloren" in error
+          for error in console_errors
+        ), console_errors
+        return
       for mode in ("day", "night", "snowstorm", "schwellenraum", "minecraft", "day"):
         if mode != "day" or reports:
           select_mode(page, mode, True)
@@ -161,10 +226,15 @@ def main() -> None:
   parser.add_argument("--engine", choices=("webkit", "chromium"), required=True)
   parser.add_argument("--timeout", type=float, default=120)
   parser.add_argument("--failure-output", type=Path)
+  parser.add_argument(
+    "--context-loss",
+    action="store_true",
+    help="Inject two GPU context losses instead of cycling modes",
+  )
   args = parser.parse_args()
   if urlsplit(args.url).scheme not in {"http", "https"} or args.timeout <= 0:
     parser.error("Provide an HTTP(S) URL and a positive timeout")
-  run(args.url, args.engine, args.timeout, args.failure_output)
+  run(args.url, args.engine, args.timeout, args.failure_output, args.context_loss)
 
 
 if __name__ == "__main__":
