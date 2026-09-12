@@ -1,10 +1,58 @@
 import { describe, expect, test } from "bun:test";
 import { PerspectiveCamera, Vector3 } from "three";
 import {
-  constrainSurfaceCameraRig, surfaceOrbitMaxPolar, SURFACE_MAX_POLAR,
+  constrainSurfaceCameraRig, surfaceOrbitMaxPolar, surfaceUndersideView, SURFACE_MAX_POLAR,
 } from "../src/surfaceCameraNavigation";
 
 describe("surface flight camera", () => {
+  test("wide downward flight stays above terrain without slowing horizontal travel", () => {
+    const camera = new PerspectiveCamera(39);
+    camera.position.set(400, 20, 500);
+    const target = new Vector3(400, -85, -1500);
+    const offset = camera.position.clone().sub(target);
+    for (let frame = 0; frame < 240; frame++) {
+      const delta = new Vector3(4, -3, -6);
+      camera.position.add(delta); target.add(delta);
+      constrainSurfaceCameraRig(camera, target, () => 4);
+      expect(camera.position.y).toBeGreaterThanOrEqual(5.2 - 1e-9);
+      expect(camera.position.clone().sub(target).distanceTo(offset)).toBeLessThan(1e-8);
+      expect(surfaceUndersideView(camera, target, () => 4)).toBeFalse();
+    }
+    expect(camera.position.x).toBe(1360);
+    expect(camera.position.z).toBe(-940);
+  });
+
+  test("looking up above ground never hides the city, including wide views", () => {
+    const camera = new PerspectiveCamera(39);
+    const target = new Vector3(400, 180, -1500);
+    camera.position.set(400, 100, 500);
+    expect(constrainSurfaceCameraRig(camera, target, () => 4)).toBeFalse();
+    expect(surfaceUndersideView(camera, target, () => 4)).toBeFalse();
+    camera.position.y = -100;
+    expect(surfaceUndersideView(camera, target, () => 4)).toBeTrue();
+    expect(constrainSurfaceCameraRig(camera, target, () => 4)).toBeTrue();
+    expect(camera.position.y).toBeCloseTo(5.2);
+    expect(surfaceUndersideView(camera, target, () => 4)).toBeFalse();
+  });
+
+  test("ground-plane noise does not alternate the whole city and cutaway", () => {
+    const camera = new PerspectiveCamera(39);
+    const target = new Vector3(0, 10, -2000);
+    camera.position.set(0, -1, 0);
+    let underneath = surfaceUndersideView(camera, target, () => 0);
+    expect(underneath).toBeTrue();
+    for (const y of [-0.1, 0.1, -0.05, 0.05]) {
+      camera.position.y = y;
+      underneath = surfaceUndersideView(camera, target, () => 0, underneath);
+      expect(underneath).toBeTrue();
+    }
+    camera.position.y = 0.2;
+    underneath = surfaceUndersideView(camera, target, () => 0, underneath);
+    expect(underneath).toBeFalse();
+    camera.position.y = -0.2;
+    expect(surfaceUndersideView(camera, target, () => 0, underneath)).toBeFalse();
+  });
+
   test("looking past the horizon cannot flip a close orbit under the city", () => {
     const camera = new PerspectiveCamera(16);
     const target = new Vector3(15, 12, -100);
@@ -50,7 +98,7 @@ describe("surface flight camera", () => {
     camera.position.set(0, -1400, 1700);
     const overview = camera.position.clone();
     expect(surfaceOrbitMaxPolar(camera, target)).toBeGreaterThan(Math.PI / 2);
-    expect(constrainSurfaceCameraRig(camera, target, () => 4)).toBeFalse();
+    expect(constrainSurfaceCameraRig(camera, target, () => 4, false, new Vector3(), true)).toBeFalse();
     expect(camera.position.equals(overview)).toBeTrue();
     camera.position.set(0, -5, 20);
     const tunnelPose = camera.position.clone();

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.42
+
+- Keep ordinary flight above terrain at wide zoom, preventing accidental blue underwater fog over land.
+- Open the underground cutaway only through its explicit control; looking upward no longer hides the city. Retain tunnel traversal and deliberate cutaway navigation.
+- Apply touch glide before camera stabilization and presentation checks, so the rendered frame uses the validated final pose.
+- Resize the WebGL canvas and draw its replacement in the same task, preventing empty intermediate frames during viewport changes.
+- Preserve geometry, source layers, resolution, view distance and flight speeds.
+
 ## v1.0.41
 
 - Restore the exact mobile water family, including all basins, the complete Sinkende Mauer and continuous source-bound quays.

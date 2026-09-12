@@ -927,7 +927,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
     "three-finger gesture": "touchPoints.size >= 3",
-    "bounded three-finger underside": "setModelMaterialState(runtime, controls.getPolarAngle() > Math.PI / 2)",
+    "terrain-aware three-finger presentation": "setModelMaterialState(runtime, cameraUnderside(runtime))",
     "normal surface camera protection": "constrainSurfaceCameraRig(",
     "full underside orbit": "controls.maxPolarAngle = Math.PI - 0.06",
     "hidden default marker": "marker.visible = false",
@@ -941,7 +941,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "state-aware tunnel presentation": (
       "runtime.pedestrian.state?.insideTunnel === true ||"
     ),
-    "automatic orbit underside detection": ("controls.getPolarAngle() > Math.PI / 2;"),
+    "explicit underside activation": "runtime.underside && !runtime.pedestrian.enabled",
     "exact tunnel-corridor detection": "createTunnelInteriorTester(",
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "Ahornsteig rainbow memorial layer": "createQueerRainbowMemorial()",

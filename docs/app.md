@@ -80,10 +80,11 @@ looks down. Right-drag or Shift+left-drag pans with direct manipulation, the
 wheel zooms at the pointer, and one finger turns the view on touch. A two-finger centre
 swipe pans with direct manipulation; pinch zooms around the finger midpoint,
 and double-tap zooms around the tapped world point. A three-finger gesture controls
-azimuth and polar tilt continuously through 90 degrees into the real underside
-camera. The underside fades surface materials and strengthens the two-tube
-Tiergartentunnel cutaway; the tunnel is hidden in ordinary exterior views and
-appears automatically after the camera crosses below ground **or flies into
+azimuth and polar tilt. Since v1.0.42, ordinary movement retains a terrain floor
+even at wide zoom and looking upward does not hide the city. The explicit
+underside control opens the real underground cutaway; its wide inspection
+camera remains available. The tunnel is hidden in ordinary exterior views and
+appears when the underside is selected **or the camera flies into
 the tunnel tube itself** — approaching a portal at street level and diving in
 switches to the lit interior (safety-light strips, ceiling lights, ventilation
 shafts and fans) and out the other end.

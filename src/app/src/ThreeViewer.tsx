@@ -243,7 +243,7 @@ import {
   viewHeadingFlightDelta,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
-import { constrainSurfaceCameraRig, surfaceOrbitMaxPolar } from "./surfaceCameraNavigation";
+import { constrainSurfaceCameraRig, surfaceOrbitMaxPolar, surfaceUndersideView } from "./surfaceCameraNavigation";
 import {
   PEDESTRIAN_EYE_HEIGHT_M,
   PEDESTRIAN_FOV_DEGREES,
@@ -879,6 +879,14 @@ function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
   const p = runtime.camera.position;
   return runtime.tunnelPortalInteriorVisible ||
     runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
+}
+
+function cameraUnderside(runtime: Runtime): boolean {
+  // Only the explicit cutaway control opens the underside. Ordinary looking
+  // or downward flight must not silently hide the complete city at wide zoom.
+  return runtime.underside && !runtime.pedestrian.enabled && !surfaceCameraTunnelExemption(runtime) &&
+    surfaceUndersideView(runtime.camera, runtime.controls.target,
+      runtime.pedestrian.environment?.groundAt, runtime.underside);
 }
 
 function updateSurfaceOrbitLimit(runtime: Runtime): void {
@@ -5540,7 +5548,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.controls.maxPolarAngle,
           );
           setOrbitAngles(runtime, undefined, polar);
-          const underside = runtime.controls.getPolarAngle() > Math.PI / 2;
+          const underside = cameraUnderside(runtime);
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -6009,6 +6017,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let appliedWidth = 0;
       let appliedHeight = 0;
       let appliedPixelRatio = 0;
+      let pendingViewport: { width: number; height: number; pixelRatio: number } | null = null;
       const resize = (force = false) => {
         const bounds = host.getBoundingClientRect();
         if (bounds.width < 1 || bounds.height < 1) {
@@ -6030,10 +6039,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           height === appliedHeight &&
           pixelRatio === appliedPixelRatio
         ) {
+          pendingViewport = null;
           // Re-applying the same size still reallocates the composer's render
           // targets, which costs a frame. Nothing changed, so do nothing.
           return;
         }
+        // Resizing a WebGL canvas clears its existing image immediately.
+        // Queue the new size until the same task that draws its replacement.
+        pendingViewport = { width, height, pixelRatio };
+        runtime.renderInvalidated = true;
+      };
+      const applyPendingViewport = () => {
+        if (!pendingViewport) return;
+        const { width, height, pixelRatio } = pendingViewport;
+        pendingViewport = null;
         appliedWidth = width;
         appliedHeight = height;
         appliedPixelRatio = pixelRatio;
@@ -6543,7 +6562,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   runtime.navigationScratch.previousTarget.copy(
                     controls.target,
                   );
-                const signedDistance = advanceSignedPinchDolly(
+                advanceSignedPinchDolly(
                   camera,
                   controls.target,
                   signedPinchDolly,
@@ -6564,7 +6583,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     controls.target,
                   );
                 } else {
-                  const underside = signedDistance < 0;
+                  const underside = cameraUnderside(runtime);
                   if (underside !== runtime.underside) {
                     setModelMaterialState(runtime, underside);
                   }
@@ -6602,8 +6621,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
         );
-        if ((controls.getPolarAngle() > Math.PI / 2) !== runtime.underside) {
-          setModelMaterialState(runtime, controls.getPolarAngle() > Math.PI / 2);
+        if (cameraUnderside(runtime) !== runtime.underside) {
+          setModelMaterialState(runtime, cameraUnderside(runtime));
         }
         previousThreeFingerCenter = storeThreeFingerCenter(center);
         markSurfaceInteraction(runtime);
@@ -7123,7 +7142,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             MathUtils.degToRad(input.x * 84 * dtSeconds),
           nextPolar,
         );
-        const underside = controls.getPolarAngle() > Math.PI / 2;
+        const underside = cameraUnderside(runtime);
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
         }
@@ -7342,6 +7361,26 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           : applyContinuousOrbit(dtSeconds);
         const flying =
           !runtime.pedestrian.enabled && applyContinuousFlight(dtSeconds);
+        const panMomentumActive =
+          !runtime.pedestrian.enabled &&
+          (panMomentum.x !== 0 || panMomentum.y !== 0) &&
+          touchPoints.size === 0;
+        // Apply glide before the final terrain/pose checks and visibility decisions.
+        // No camera movement may occur between those checks and rendering.
+        if (panMomentumActive) {
+          const { strafe, forward } = twoFingerPanFlight(
+            panMomentum.x * dtSeconds,
+            panMomentum.y * dtSeconds,
+            undefined,
+            panFlightScratch,
+          );
+          flyCameraRigAlongViewHeading(runtime, strafe, forward);
+          decayPanMomentum(panMomentum, dtSeconds, panMomentum);
+          if (panMomentum.x === 0 && panMomentum.y === 0 && touchInteracting) {
+            touchInteracting = false;
+          }
+          markSurfaceInteraction(runtime, 220);
+        }
         const controlsChanged = runtime.pedestrian.enabled
           ? false
           : controls.update();
@@ -7362,6 +7401,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const surfaceChanged = constrainSurfaceCameraRig(
             camera, controls.target, runtime.pedestrian.environment?.groundAt,
             surfaceCameraTunnelExemption(runtime), runtime.navigationScratch.orbitOffset,
+            runtime.underside,
           );
           if (surfaceChanged) {
             controls.update();
@@ -7446,10 +7486,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           schwellenraumMotion.animateWaterLight ||
           ordinaryEnvironmentMotion ||
           roofSignMotion.environmentalMotion;
-        const panMomentumActive =
-          !runtime.pedestrian.enabled &&
-          (panMomentum.x !== 0 || panMomentum.y !== 0) &&
-          touchPoints.size === 0;
+
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
@@ -7518,6 +7555,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastRenderedAt = timestamp;
+        applyPendingViewport();
         // The cutaway also engages when the camera itself flies into the
         // Tiergartentunnel tube, not only when orbiting below the horizon.
         const physicallyInsideTunnel =
@@ -7547,10 +7585,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
         }
         const framedPortal = runtime.tunnelPortalInteriorVisible;
-        const underside =
-          !runtime.pedestrian.enabled &&
-          !framedPortal &&
-          controls.getPolarAngle() > Math.PI / 2;
+        const underside = cameraUnderside(runtime);
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
@@ -7640,21 +7675,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.berlinerEnsembleRoofSignElapsedSeconds,
           );
           runtime.berlinerEnsembleRoofSignLastFrameAt = timestamp;
-        }
-        // Momentum glide: the released pan eases out smoothly.
-        if (panMomentumActive) {
-          const { strafe, forward } = twoFingerPanFlight(
-            panMomentum.x * dtSeconds,
-            panMomentum.y * dtSeconds,
-            undefined,
-            panFlightScratch,
-          );
-          flyCameraRigAlongViewHeading(runtime, strafe, forward);
-          decayPanMomentum(panMomentum, dtSeconds, panMomentum);
-          if (panMomentum.x === 0 && panMomentum.y === 0 && touchInteracting) {
-            touchInteracting = false;
-          }
-          markSurfaceInteraction(runtime, 220);
         }
         if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();

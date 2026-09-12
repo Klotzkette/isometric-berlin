@@ -11,6 +11,22 @@ export function surfaceOrbitMaxPolar(camera: PerspectiveCamera, target: Vector3)
   return halfHeight >= UNDERSIDE_OVERVIEW_HALF_HEIGHT_M ? Math.PI - 0.06 : SURFACE_MAX_POLAR;
 }
 
+/** Looking upward above the city is not an underground cutaway. A small
+ * hysteresis band prevents whole-world visibility chatter at the ground plane.
+ */
+export function surfaceUndersideView(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  groundAt: ((x: number, z: number) => number | null) | undefined,
+  previouslyUnderneath = false,
+): boolean {
+  const sampled = groundAt?.(camera.position.x, camera.position.z);
+  const ground = sampled != null && Number.isFinite(sampled) ? sampled : 0;
+  const threshold = previouslyUnderneath ? 0.15 : -0.35;
+  return camera.position.y < ground + threshold &&
+    camera.position.y - target.y < threshold;
+}
+
 /** Clamp the actual camera, not just its target; horizontal travel stays fast.
  * Tunnel/portal traversal is explicitly exempt. Walking has its own ground solver.
  */
@@ -20,14 +36,19 @@ export function constrainSurfaceCameraRig(
   groundAt: ((x: number, z: number) => number | null) | undefined,
   insideTunnel = false,
   offset = new Vector3(),
+  allowUnderside = false,
 ): boolean {
-  if (insideTunnel || surfaceOrbitMaxPolar(camera, target) > Math.PI / 2) return false;
+  if (insideTunnel) return false;
+  const wideOverview = surfaceOrbitMaxPolar(camera, target) > Math.PI / 2;
   offset.copy(camera.position).sub(target);
   const distance = offset.length();
   if (!Number.isFinite(distance) || distance < 1e-6) return false;
+  // A deliberate wide orbit below its focal point can inspect the underside.
+  // Mere downward translation while looking down must still keep a floor.
+  if (allowUnderside && wideOverview && offset.y < -0.35) return false;
   let changed = false;
   const minRise = distance * Math.cos(SURFACE_MAX_POLAR);
-  if (offset.y < minRise - 1e-8) {
+  if (!wideOverview && offset.y < minRise - 1e-8) {
     const horizontal = Math.hypot(offset.x, offset.z);
     const radius = distance * Math.sin(SURFACE_MAX_POLAR);
     if (horizontal > 1e-8) {
