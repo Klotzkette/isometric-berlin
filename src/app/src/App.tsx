@@ -2658,7 +2658,6 @@ export function App() {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
       window.removeEventListener("blur", handleWindowBlur);
-      stopHeldNavigation();
     };
   }, [
     copy.home,
@@ -2687,6 +2686,17 @@ export function App() {
     triggerPedestrianJump,
     zoomBy,
   ]);
+
+  // Camera notifications change shortcut callbacks (notably copyViewLink).
+  // Rebinding those listeners must not release physically held navigation keys.
+  // Stop only at a real navigation-context boundary, blur/Escape or unmount.
+  useEffect(() => () => {
+    heldFlightKeysRef.current.clear();
+    setFlightInput(0, 0, 0);
+    setPanInput(0, 0);
+    setOrbitInput(0, 0);
+  }, [isHelpOpen, isRepositoryOpen, isPedestrianMode, isReady,
+    setFlightInput, setPanInput, setOrbitInput]);
 
   useEffect(() => {
     if (!isRepositoryOpen) {

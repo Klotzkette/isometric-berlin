@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.42 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.42/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.43 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.43/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,15 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.42** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.43** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.43 keeps held movement keys active while looking around. Releasing
+a look key no longer cancels W. Arrow-key mappings and all city detail remain
+unchanged. See [validation](docs/release-v1.0.43-review.md).
+
+Version 1.0.43 hält W beim Schwenken durchgehend aktiv, auch nach dem Loslassen
+einer Pfeiltaste. Tastenbelegung und Stadtdetails bleiben erhalten.
 
 Version 1.0.42 stabilizes flight and viewport resizing: ordinary movement stays
 above terrain, looking upward cannot silently hide the city, and canvas resizing

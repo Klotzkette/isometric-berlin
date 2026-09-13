@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.43
+
+- Preserve held movement keys when releasing look keys updates the compass and shortcut callbacks.
+- Retain navigation cancellation on blur, Escape, modal/context changes and unmount.
+- Keep all arrow mappings, movement speeds and city detail unchanged.
+
 ## v1.0.42
 
 - Keep ordinary flight above terrain at wide zoom, preventing accidental blue underwater fog over land.

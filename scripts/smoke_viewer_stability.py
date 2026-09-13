@@ -93,6 +93,25 @@ def main() -> int:
         page.wait_for_timeout(250)
         page.keyboard.up(key)
       page.wait_for_timeout(250)
+    # Releasing a look key publishes the new compass angle. That React update
+    # must not clear W while it is still physically held (no OS repeat needed).
+    page.keyboard.down("w")
+    for key in ("ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown") * 2:
+      page.keyboard.down(key)
+      page.wait_for_timeout(200)
+      page.keyboard.up(key)
+      page.wait_for_timeout(150)
+      position = "() => window.__modeContinuityRuntime().controls.target.toArray()"
+      before = page.evaluate(position)
+      page.wait_for_timeout(300)
+      after = page.evaluate(position)
+      travelled = sum((a - b) ** 2 for a, b in zip(after, before)) ** 0.5
+      assert travelled > 1, (key, before, after)
+    page.keyboard.up("w")
+    page.wait_for_timeout(200)
+    before = page.evaluate(position)
+    page.wait_for_timeout(300)
+    assert page.evaluate(position) == before, "Flight must stop on W release"
     # Pointer looking uses the real viewer handler on both browser engines.
     page.mouse.move(240 if args.touch else 600, 350)
     page.mouse.down()
