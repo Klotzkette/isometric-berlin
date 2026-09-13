@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.44
+
+- Reduce the mobile walking minimap width from 258 to 206 px and map height from 146 to 112 px; preserve desktop sizing and direction controls.
+- Reduce source magnification from 3.62× to 2.8× and use high-quality image smoothing with a bounded 2× canvas for finer map pixels.
+- Retain the existing map image and all scene geometry without loading a larger image.
+
 ## v1.0.43
 
 - Preserve held movement keys when releasing look keys updates the compass and shortcut callbacks.

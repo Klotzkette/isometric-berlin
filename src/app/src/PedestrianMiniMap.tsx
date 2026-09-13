@@ -38,8 +38,9 @@ export type PedestrianMiniMapHandle = {
   setPose: (pose: PedestrianPose | null) => void;
 };
 
-const MAP_ZOOM = 3.62;
-const MAX_CANVAS_DEVICE_PIXEL_RATIO = 1.5;
+// Enlarge the source less so street/building pixels stay fine in the HUD.
+const MAP_ZOOM = 2.8;
+const MAX_CANVAS_DEVICE_PIXEL_RATIO = 2;
 
 function orientationGlyph(short: string, language: Language): string {
   return language === "en" && short === "O" ? "E" : short;
@@ -133,7 +134,7 @@ export const PedestrianMiniMap = forwardRef<
     context.rotate((mapRotation * Math.PI) / 180);
     context.scale(MAP_ZOOM, MAP_ZOOM);
     context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = "medium";
+    context.imageSmoothingQuality = "high";
     context.drawImage(image, -imagePoint.x, -imagePoint.y);
     context.restore();
   }, [imageReady, northUpRotation, orientationDegrees, pose]);

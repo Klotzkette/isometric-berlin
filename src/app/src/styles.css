@@ -1879,6 +1879,16 @@ button:active:not(:disabled) {
 @media (max-width: 768px),
   (max-width: 1024px) and (pointer: coarse),
   (min-width: 769px) and (max-width: 1024px) {
+  .pedestrian-minimap {
+    width: min(206px, calc(100vw - 36px));
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .pedestrian-minimap__viewport {
+    height: 112px;
+  }
+
   :root {
     --control-size: 44px;
     --panel-padding: 8px;
