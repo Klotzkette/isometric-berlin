@@ -45,6 +45,9 @@ describe("data-driven Schwellenraum memorial protection", () => {
       // The hall's nominal memorial point is a passage, while the sculpture
       // is on its actual raised floor. Their exact protection is checked below.
       if (["node/262455810","node/5253735916"].includes(entry.osm_key)) continue;
+      // Schiller starts on the authored 5.23 m square; the common 5 m probe
+      // is underground. Its finite solids are covered in schiller-protection.
+      if (entry.osm_key === "node/262457570") continue;
       expect(
         schwellenraumProtectedMemorialAt(
           index,

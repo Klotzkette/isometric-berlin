@@ -1,5 +1,6 @@
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
+import { schillerMonumentSolidAt } from "./schillerMonumentProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
 import { gripsHansaplatzSolidAt } from "./gripsHansaplatzProfile";
@@ -3423,6 +3424,7 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            schillerMonumentSolidAt(x, y, z, radius) ||
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
             gripsHansaplatzSolidAt(x, y, z, radius) ||
@@ -4047,6 +4049,7 @@ function ensureVoxelWorld(
             return false;
           }
           return (
+            schillerMonumentSolidAt(x, y, z, radius) ||
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
             gripsHansaplatzSolidAt(x, y, z, radius) ||

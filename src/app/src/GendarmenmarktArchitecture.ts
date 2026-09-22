@@ -7,6 +7,7 @@ import source from "./gendarmenmarktSource.json";
 import { GENDARMENMARKT_PROFILE as P, GENDARMENMARKT_SOURCES, gendarmenmarktPartContains } from "./gendarmenmarktProfile";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createSchillerMonument } from "./SchillerMonument";
 
 type Point = [number, number, number];
 type Kind = "box" | "column" | "drum" | "head" | "dome" | "pediment";
@@ -310,12 +311,7 @@ function square(b: Builder, root: Group): void {
     const a = p(u, v), z = p(Math.min(.995, u + 3 / length), v);
     if (clear(a) && clear(z)) b.beam(a, z, .09, 0x898c84);
   }
-  const [sx, sz] = source.schiller.position;
-  for (const [h, radius] of [[.12, 5.5], [.38, 4.5], [.78, 3.6]]) b.add("drum", [sx, 5.2 + h, sz], [radius * 2, .35, radius * 2], LIGHT);
-  b.box([sx, 7.85, sz], [2.4, 3.9, 2.4], LIGHT);
-  b.box([sx, 9.95, sz], [2.9, .35, 2.9], LIGHT);
-  figure(b, [sx, 10.12, sz], 3.15, LIGHT);
-  for (const x of [-1, 1]) for (const z of [-1, 1]) figure(b, [sx + x * 2.1, 6.05, sz + z * 2.1], 2.45, LIGHT, true);
+  root.add(createSchillerMonument(b.minecraft));
 }
 
 function create(minecraft: boolean): Group {

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.44 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.44/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.45 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.45/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.44** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.45** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.45 refines the Schiller monument at its mapped Gendarmenmarkt
+location: six marble steps, four allegories with their attributes, four basins
+and lion masks, the draped poet and ornamental iron enclosure. All five modes
+retain their own presentation. [Sources](docs/schiller-monument-v145.md).
+
+Version 1.0.45 verfeinert das Schillerdenkmal am Gendarmenmarkt nach
+Denkmalinventar und Detailfotos: Marmorstufen, vier Allegorien, Becken,
+Löwenköpfe, Schillerfigur und schmiedeeiserne Einfassung.
 
 Version 1.0.44 makes the walking minimap smaller on mobile and less magnified,
 with a sharper 2× canvas. Desktop panel size and source map data are retained.

@@ -1,12 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.40 adds the source-bound Gymnasium, Hand mit Uhr and Hansaplatz paving.
+// v1.0.45 replaces the 77-cube Schiller sketch with 997 detailed cubes:
+// +920 instances, +1 draw and +70,856 bytes; all other geometry is retained.
 // Independent synchronous measurements are compared with cooperative buffers;
 // existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "1faae9cbc20975af16d328b73338433fa5f124c32c0efcb8add1ff9954d74048", 3848744, 119, 293523465],
-  ["mobile", "ada8090508de99f3f5589bceada55e612288b5ddc5ce9a3d5724a69df5428992", 1065880, 117, 81576345],
+  ["full", "9643c0b1ae3dc617e4feb217fb41d8b1da970dc5bc95f4a42d33c2109fcb51b2", 3849664, 120, 293594321],
+  ["mobile", "15374bc2c8b234206abb8817b250eced51433725653f62bda80120572fdcae8d", 1066800, 118, 81647201],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

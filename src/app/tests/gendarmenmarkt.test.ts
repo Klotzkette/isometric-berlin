@@ -63,11 +63,16 @@ describe("Gendarmenmarkt source-bound recognition", () => {
       expect(hit.object.parent).toBe(detail);
     }
   });
-  test("shares fixed geometry and keeps the entire ensemble below 600 KB per style", () => {
+  test("keeps the retained architecture below 600 KB beside its separate Schiller model", () => {
     for (const minecraft of [false, true]) {
       const root = new Group();
       const detail = minecraft ? createMinecraftGendarmenmarktArchitecture() : createGendarmenmarktArchitecture();
       root.add(minecraft ? createMinecraftGendarmenmarktShells() : createGendarmenmarktShells(), detail);
+      const schiller = root.getObjectByName("Schillerdenkmal — Reinhold Begas");
+      expect(schiller).toBeDefined();
+      // The upgraded monument has its own geometry/instance budget regression.
+      // Do not loosen the existing church, theatre and public-square budget.
+      schiller!.removeFromParent();
       const b = measure(root);
       expect(b.bytes).toBeLessThan(600_000);
       expect(b.draws).toBe(minecraft ? 3 : 10);

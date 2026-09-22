@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.45
+
+- Replace the coarse Schiller sketch at its retained Gendarmenmarkt OSM anchor with a source-bound marble and iron model.
+- Add six octagonal steps, four distinct seated allegories and attributes, separate basins and lion masks, pedestal relief cues and an ornamental enclosure.
+- Refine the 2.95 m poet with period clothing, draped cloak, laurel and the photographically established left-hand scroll.
+- Keep full drawn detail on mobile and desktop, with a separate native Minecraft form and finite solid-only pedestrian collision.
+- Preserve the existing square, architecture, source records and 93-stop catalogue. Record conflicting descriptions and all nine external photo credits.
+
 ## v1.0.44
 
 - Reduce the mobile walking minimap width from 258 to 206 px and map height from 146 to 112 px; preserve desktop sizing and direction controls.

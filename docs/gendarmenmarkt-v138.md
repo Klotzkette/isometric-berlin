@@ -1,5 +1,9 @@
 # Gendarmenmarkt: complete silhouettes and bounded recognition detail
 
+The coarse Schiller recognition figure described below is superseded in
+v1.0.45 by the separate [source-bound monument](schiller-monument-v145.md).
+Its mapped anchor and the surrounding architectural ensemble are retained.
+
 Pipeline step 10. This is a recognition ensemble within the approved polygon;
 it does not add stops to the 93-place tour. No source photograph, texture,
 sculpture scan or font is bundled or fetched by the viewer.

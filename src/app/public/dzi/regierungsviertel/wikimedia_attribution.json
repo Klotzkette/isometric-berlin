@@ -2964,6 +2964,105 @@
       "description": "2013, after restoration: wrist upwards, fingers gripping downwards, orange cube above white concrete stem and red LED watch. Sculpture by Joachim Schmettau,1975. External visual QA only; no photograph or texture is bundled.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Berlin (DE), Gendarmenmarkt, Schiller-Denkmal -- 2021 -- 9160.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_(DE),_Gendarmenmarkt,_Schiller-Denkmal_--_2021_--_9160.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Anil Öztas",
+      "credit": "Anil Öztas / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schiller-Denkmal am Gendarmenmarkt.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schiller-Denkmal_am_Gendarmenmarkt.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Ladiszlai",
+      "credit": "Ladiszlai / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Allegorie Geschichte.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Allegorie_Geschichte.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Allegorie Lyrik.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Allegorie_Lyrik.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Allegorie Philosophie.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Allegorie_Philosophie.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Allegorie Tragoedie.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Allegorie_Tragoedie.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Brunnenschale.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Brunnenschale.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin, Begas, Statue 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin,_Begas,_Statue_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schiller_gendarmenmarkt",
+      "title": "File:Schillerdenkmal Berlin Gendarmenmarkt Begas 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schillerdenkmal_Berlin_Gendarmenmarkt_Begas_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

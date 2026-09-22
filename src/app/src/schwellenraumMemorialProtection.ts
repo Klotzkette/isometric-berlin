@@ -1,6 +1,10 @@
 import { NEUE_WACHE_PROFILE, neueWacheSolidAt } from "./neueWacheProfile";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 import {
+  SCHILLER_MONUMENT_PROFILE,
+  schillerMonumentSolidAt,
+} from "./schillerMonumentProfile";
+import {
   BERLIN_JUNCTION_PROFILE,
   berlinJunctionSolidAt,
 } from "./BerlinJunction";
@@ -29,7 +33,7 @@ const PROTECTED_MAX_Y_M = 45;
 export type SchwellenraumProtectedMemorialShape = {
   halfDepthM: number;
   halfWidthM: number;
-  kind: "box" | "circle" | "literary" | "berlin-junction" | "neue-wache";
+  kind: "box" | "circle" | "literary" | "berlin-junction" | "neue-wache" | "schiller";
   maxYM: number;
   minYM: number;
   name: string;
@@ -67,6 +71,23 @@ function pointRadiusM(entry: MonumentEntry): number {
 function protectionShapes(
   entry: MonumentEntry,
 ): readonly SchwellenraumProtectedMemorialShape[] {
+  if (entry.osm_key === SCHILLER_MONUMENT_PROFILE.osmKey) {
+    const profile = SCHILLER_MONUMENT_PROFILE;
+    // Decorative props keep their quiet distance from the entire enclosure;
+    // visitor protection below follows only the actual stepped core/fence.
+    return [{
+      halfDepthM: profile.protectionRadiusM,
+      halfWidthM: profile.protectionRadiusM,
+      kind: "schiller",
+      maxYM: profile.worldM[1] + profile.totalHeightM,
+      minYM: profile.worldM[1],
+      name: profile.name,
+      osmKey: profile.osmKey,
+      radiusM: profile.protectionRadiusM,
+      x: profile.worldM[0],
+      z: profile.worldM[2],
+    }];
+  }
   if (entry.osm_key === "node/262455810" || entry.osm_key === "node/5253735916") {
     // Quiet prop exclusion covers the hall; visitor collision follows its
     // represented walls and sculpture, leaving the entrance genuinely open.
@@ -194,7 +215,7 @@ function protectionShapes(
 function shapeBounds(
   shape: SchwellenraumProtectedMemorialShape,
 ): readonly [number, number, number, number] {
-  const radial = shape.kind === "circle" || shape.kind === "literary";
+  const radial = shape.kind === "circle" || shape.kind === "literary" || shape.kind === "schiller";
   const halfX = radial ? shape.radiusM : shape.halfWidthM;
   const halfZ = radial ? shape.radiusM : shape.halfDepthM;
   return [shape.x - halfX, shape.z - halfZ, shape.x + halfX, shape.z + halfZ];
@@ -262,7 +283,7 @@ export function schwellenraumProtectedMemorialClearanceM(
   if (![x, z].every(Number.isFinite)) return 0;
   let clearanceM = Number.POSITIVE_INFINITY;
   for (const shape of index.shapes) {
-    if (shape.kind === "circle" || shape.kind === "literary") {
+    if (shape.kind === "circle" || shape.kind === "literary" || shape.kind === "schiller") {
       clearanceM = Math.min(
         clearanceM,
         Math.max(0, Math.hypot(x - shape.x, z - shape.z) - shape.radiusM),
@@ -293,7 +314,9 @@ export function schwellenraumProtectedMemorialShapeAt(
   if (!bucket) return null;
   for (const shape of bucket) {
     if (y < shape.minYM || y > shape.maxYM) continue;
-    if (shape.kind === "literary") {
+    if (shape.kind === "schiller") {
+      if (schillerMonumentSolidAt(x, y, z)) return shape;
+    } else if (shape.kind === "literary") {
       if (tiergartenLiteraryMemorialProtectedAt(x, z)) return shape;
     } else if (shape.kind === "neue-wache") {
       if (neueWacheSolidAt(x, y, z)) return shape;

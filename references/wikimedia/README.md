@@ -1,5 +1,11 @@
 # Wikimedia visual references
 
+The nine external Schillerdenkmal references added in v1.0.45 are listed with
+individual links, authors and licences in
+[the Schiller source record](../../docs/schiller-monument-v145.md#inspected-commons-photographs-and-credits)
+and both machine-readable manifests. They are inspected references only;
+no photograph or crop is shipped.
+
 Small Wikimedia Commons thumbnails and attribution-only records for externally
 inspected, freely licensed files used as additive visual references for the
 Regierungsviertel hero landmarks. The authoritative geometry remains Berlin

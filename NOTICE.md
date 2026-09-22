@@ -17,6 +17,16 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Schillerdenkmal, Gendarmenmarkt (v1.0.45):** the retained OSM node
+  `262457570` anchors Reinhold Begas's marble monument. Landesdenkmalamt
+  Berlin and Bildhauerei in Berlin establish the six-step octagonal base,
+  8 m socle, 2.95 m poet, four allegories, basins, lion masks and iron enclosure.
+  Nine external Commons photographs by Anil Öztas, Ladiszlai and Manfred
+  Brückels (CC BY-SA 4.0 / 3.0) guide procedural anatomy, drapery and ornament;
+  their individual credits are mirrored in both manifests. Intermediate
+  dimensions remain display estimates. No photograph or texture is bundled.
+  See [sources and conflicts](docs/schiller-monument-v145.md).
+
 - **Mitte landmarks (v1.0.38):** retained LoD2 walls, roofs and OSM identities
   anchor HU, Maxim Gorki Theater, Neue Wache, the Gendarmenmarkt ensemble and
   Humboldt Carré / Hengeler Mueller at Behrenstraße 42. Original low fallback
