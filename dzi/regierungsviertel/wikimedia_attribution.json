@@ -3952,6 +3952,72 @@
       "description": "Low curved glazed shop insertion; inspected as church context rather than as a source for the main tower silhouette. External visual reference only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "fernsehturm_pavilions",
+      "title": "File:Pavillon Fernsehturm Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Pavillon_Fernsehturm_Berlin.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Conbrio",
+      "credit": "Conbrio / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "fernsehturm_pavilions",
+      "title": "File:Berlin fernsehturm pavillon.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_fernsehturm_pavillon.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Dieter Brügmann",
+      "credit": "Dieter Brügmann / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_historic_campus",
+      "title": "File:Berlin, Tierarzneischule, Anatomisches Theater, Langhans, Seitenansicht.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Tierarzneischule,_Anatomisches_Theater,_Langhans,_Seitenansicht.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_historic_campus",
+      "title": "File:Ehrenhof und Lehrgebäude der Veterinärmedizinischen Fakultät der Humboldt-Universität Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Ehrenhof_und_Lehrgeb%C3%A4ude_der_Veterin%C3%A4rmedizinischen_Fakult%C3%A4t_der_Humboldt-Universit%C3%A4t_Berlin.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Kvikk",
+      "credit": "Kvikk / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_historic_campus",
+      "title": "File:Anatomie Charite.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Anatomie_Charite.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Immanuel Giel",
+      "credit": "Immanuel Giel / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_historic_campus",
+      "title": "File:Charité CCM, Philippstraße 11.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Philippstra%C3%9Fe_11.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Bernd Czyborra (Schibo)",
+      "credit": "Bernd Czyborra (Schibo) / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
