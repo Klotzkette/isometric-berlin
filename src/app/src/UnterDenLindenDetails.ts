@@ -298,81 +298,46 @@ function addRussianEmbassy(
   fine: DetailBuilder,
 ): void {
   const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy;
-  const axis = profile.streetFacade;
   const baseY = profile.anchorWorldM[1];
-  const yaw = axisYaw(axis);
-  const length = axisLength(axis);
-
-  builder.box(
-    facadePoint(axis, length / 2, baseY + 2.15, 0.38),
-    [length, 4.3, 0.48],
-    STONE_DARK,
-    yaw,
-  );
-  for (const y of [baseY + 4.4, baseY + 20.6, baseY + 23.1]) {
-    builder.box(
-      facadePoint(axis, length / 2, y, 0.48),
-      [length, y === baseY + 20.6 ? 0.65 : 0.34, 0.62],
-      y === baseY + 20.6 ? STONE_LIGHT : STONE,
-      yaw,
-    );
+  // The former overlay occupied the Behrenstraße rear. Each new shallow sheet
+  // follows one retained LoD2 edge, leaving the recessed Ehrenhof completely open.
+  for (const [section, axis] of profile.frontageAxes.entries()) {
+    const length = axisLength(axis), yaw = axisYaw(axis);
+    const central = section === 2;
+    builder.box(facadePoint(axis, length / 2, baseY + 2.1, .24),
+      [length, 4.2, .28], STONE_DARK, yaw);
+    facadeGrid(builder, fine, { axis, baseY, bays: central ? 4 : 4,
+      floors: 3, floorPitch: 5.0, firstFloorY: 7.3,
+      outward: .28, glass: 0x46565a });
+    for (const y of [4.3, 20.0, 21.3]) builder.box(
+      facadePoint(axis, length / 2, baseY + y, .48),
+      [length, y === 20 ? .65 : .3, .65], STONE_LIGHT, yaw);
+    for (let row = 0; row < 9; row++) fine.box(
+      facadePoint(axis, length / 2, baseY + .45 + row * .44, .42),
+      [length, .065, .06], 0xb7b4a9, yaw);
+    if (central) {
+      // Colossal fluted half-columns and open entrance bays, display dimensions.
+      for (let column = 0; column < 6; column++) {
+        const u = .8 + column * (length - 1.6) / 5;
+        builder.column(facadePoint(axis, u, baseY + 12.3, .58), .78, 14.3, STONE_LIGHT);
+        for (const y of [5.1, 19.4]) builder.box(facadePoint(axis, u, baseY + y, .65),
+          [1.05, .38, .9], STONE_LIGHT, yaw);
+        for (const offset of [-.2, 0, .2]) fine.box(
+          facadePoint(axis, u + offset, baseY + 12.3, 1),
+          [.055, 13.8, .07], 0xbab8ad, yaw);
+      }
+      builder.box(facadePoint(axis, length / 2, baseY + 2.3, .52),
+        [4.1, 4.3, .16], 0x273438, yaw);
+      builder.box(facadePoint(axis, length / 2, baseY + 4.8, .82),
+        [7.1, .6, .5], STONE_LIGHT, yaw);
+      // Restrained relief and balustrade cues do not reproduce a historic emblem.
+      for (let baluster = 0; baluster < 19; baluster++) fine.column(
+        facadePoint(axis, .65 + baluster * (length - 1.3) / 18, baseY + 21.95, .46),
+        .14, .85, STONE_LIGHT);
+      builder.box(facadePoint(axis, length / 2, baseY + 22.48, .5),
+        [length, .22, .45], STONE_LIGHT, yaw);
+    }
   }
-  facadeGrid(builder, fine, {
-    axis,
-    baseY,
-    bays: 14,
-    floors: 5,
-    floorPitch: 3.35,
-    firstFloorY: 6.4,
-    outward: 0.53,
-    glass: 0x46565a,
-  });
-
-  const porticoU = 5.1;
-  builder.box(
-    facadePoint(axis, porticoU, baseY + 5.0, 1.35),
-    [9.3, 9.8, 0.75],
-    0x676a66,
-    yaw,
-  );
-  for (let index = 0; index < 5; index += 1) {
-    const u = porticoU - 3.6 + index * 1.8;
-    const p = facadePoint(axis, u, baseY + 11.45, 2.15);
-    builder.column(p, 0.62, 12.6, STONE_LIGHT);
-    builder.box(
-      facadePoint(axis, u, baseY + 5.15, 2.15),
-      [0.9, 0.42, 0.9],
-      STONE,
-      yaw,
-    );
-  }
-  builder.box(
-    facadePoint(axis, porticoU, baseY + 17.9, 2.15),
-    [10.4, 1.0, 1.25],
-    STONE_LIGHT,
-    yaw,
-  );
-  builder.box(
-    facadePoint(axis, porticoU, baseY + 19.25, 1.92),
-    [8.9, 1.7, 0.75],
-    STONE,
-    yaw,
-  );
-  for (let post = 0; post < 13; post += 1) {
-    fine.box(
-      facadePoint(axis, porticoU - 4.15 + post * 0.69, baseY + 20.55, 2.12),
-      [0.13, 1.25, 0.13],
-      STONE_LIGHT,
-      yaw,
-    );
-  }
-  builder.box(
-    facadePoint(axis, porticoU, baseY + 4.25, 2.55),
-    [3.1, 6.2, 0.22],
-    0x283335,
-    yaw,
-  );
-
   // The official LoD2 tower part fixes this rear-world position and top.
   const [towerX, towerZ] = profile.towerWorldXZ;
   for (const [x, z] of [
@@ -402,14 +367,6 @@ function addRussianEmbassy(
     builder.box([towerX + 0.9, baseY + offsetY, towerZ], [1.8, 0.34, 0.08], color);
   }
 
-  for (let course = 0; course < 9; course += 1) {
-    fine.box(
-      facadePoint(axis, length / 2, baseY + 0.55 + course * 0.43, 0.72),
-      [length, 0.07, 0.08],
-      0xb8b6ad,
-      yaw,
-    );
-  }
 }
 
 function addAeroflot(
@@ -448,19 +405,15 @@ function addAeroflot(
     );
   }
 
-  builder.box(
-    facadePoint(axis, length / 2, baseY + 20.35, 0.38),
-    [24.8, 2.1, 0.24],
-    BLUE,
-    yaw,
-  );
+  builder.box(facadePoint(axis, length / 2, baseY + 18.8, .38),
+    [length, .55, .5], STONE_LIGHT, yaw);
   inscription(
     fine,
     "AEROFLOT",
-    facadePoint(axis, length / 2, baseY + 20.0, 0.58),
+    facadePoint(axis, length * .27, baseY + 19.2, .58),
     yaw,
-    1.05,
-    WHITE,
+    1.45,
+    0x5a6063,
   );
   builder.box(
     facadePoint(axis, length * 0.39, baseY + 2.8, 0.68),
@@ -476,16 +429,18 @@ function addAeroflot(
     0.58,
     WHITE,
   );
-  for (let row = 0; row < 5; row += 1) {
-    for (let column = 0; column < 3; column += 1) {
-      if ((row + column) % 2 === 0) continue;
-      fine.box(
-        facadePoint(axis, length - 1.6 + column * 0.5, baseY + 5.2 + row * 0.65, 0.83),
-        [0.24, 0.24, 0.12],
-        STONE_LIGHT,
-        yaw,
-      );
-    }
+  // Shallow square concrete lattice on the right; no solid wall closes its holes.
+  for (let row = 0; row < 10; row++) builder.box(
+    facadePoint(axis, length - .55, baseY + 5 + row * 1.35, .63),
+    [1.2, .22, .2], STONE_LIGHT, yaw);
+  for (const u of [length - 1.15, length - .55, length + .05]) builder.box(
+    facadePoint(axis, u, baseY + 11.1, .63), [.2, 13.5, .2], STONE_LIGHT, yaw);
+  for (let chevron = 0; chevron < 17; chevron++) {
+    const u = length * .49 + chevron * .92;
+    fine.beam(facadePoint(axis, u + .4, baseY + 20.3, .6),
+      facadePoint(axis, u, baseY + 19.75, .6), .09, METAL);
+    fine.beam(facadePoint(axis, u, baseY + 19.75, .6),
+      facadePoint(axis, u + .4, baseY + 19.2, .6), .09, METAL);
   }
 }
 
@@ -494,55 +449,47 @@ function addEinstein(
   fine: DetailBuilder,
 ): void {
   const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.einstein;
-  const axis = profile.streetFacade;
   const baseY = profile.anchorWorldM[1];
-  const yaw = axisYaw(axis);
-  const length = axisLength(axis);
-
-  builder.box(
-    facadePoint(axis, length / 2, baseY + 2.3, 0.45),
-    [length - 0.7, 4.2, 0.3],
-    0x313b3d,
-    yaw,
-  );
-  facadeGrid(builder, fine, {
-    axis,
-    baseY,
-    bays: 4,
-    floors: 6,
-    floorPitch: 3.35,
-    firstFloorY: 6.35,
-    outward: 0.45,
-    glass: 0x53666c,
-    pierColor: 0xd7d2c6,
-  });
-  builder.box(
-    facadePoint(axis, length / 2, baseY + 4.55, 0.65),
-    [length - 1.1, 0.55, 0.52],
-    0x282b2a,
-    yaw,
-  );
-  builder.box(
-    facadePoint(axis, length * 0.48, baseY + 3.65, 1.2),
-    [10.5, 0.28, 1.45],
-    0x4c352b,
-    yaw,
-  );
-  inscription(
-    fine,
-    "EINSTEIN",
-    facadePoint(axis, length / 2, baseY + 4.45, 0.98),
-    yaw,
-    0.58,
-    WHITE,
-  );
-  for (const u of [1.4, length - 1.4]) {
-    builder.box(
-      facadePoint(axis, u, baseY + 15.8, 0.66),
-      [0.55, 23.1, 0.48],
-      STONE_LIGHT,
-      yaw,
-    );
+  for (const [side, axis] of [profile.streetFacade, profile.westFacade].entries()) {
+    const length = axisLength(axis), yaw = axisYaw(axis);
+    const usable = side === 0 ? length - profile.glassAtriumWidthM : length;
+    const bays = side === 0 ? 3 : 10;
+    const windowAxis: FacadeAxis = { ...axis,
+      endWorldXZ: facadePoint(axis, usable, 0, 0).filter((_, i) => i !== 1) as [number, number] };
+    facadeGrid(builder, fine, { axis: windowAxis, baseY, bays, floors: 5,
+      floorPitch: 4.1, firstFloorY: 6.8, outward: .3,
+      glass: 0x53676c, pierColor: 0xd7d2c6 });
+    builder.box(facadePoint(axis, usable / 2, baseY + 1.9, .32),
+      [usable, 3.8, .24], 0x293a3d, yaw);
+    for (let bay = 0; bay <= bays; bay++) builder.box(
+      facadePoint(axis, bay * usable / bays, baseY + 2, .5),
+      [.22, 4, .32], STONE_LIGHT, yaw);
+    // Current recognizable cafe strip; lettering is original procedural strokes.
+    builder.box(facadePoint(axis, usable / 2, baseY + 3.95, .85),
+      [usable - .4, .6, .65], 0x75332e, yaw);
+    inscription(fine, "EINSTEIN", facadePoint(axis, usable / 2, baseY + 3.8, 1.2),
+      yaw, .38, 0xe1cfac);
+    builder.box(facadePoint(axis, length / 2, baseY + 25.8, .32),
+      [length, 3.1, .2], 0x789396, yaw);
+    for (let mullion = 0; mullion <= Math.ceil(length / 1.6); mullion++) fine.box(
+      facadePoint(axis, mullion * length / Math.ceil(length / 1.6), baseY + 25.8, .48),
+      [.09, 3.1, .12], STONE_LIGHT, yaw);
+    for (const y of [24.2, 27.5]) builder.box(facadePoint(axis, length / 2, baseY + y, .5),
+      [length, .24, .55], STONE_LIGHT, yaw);
+    for (let rail = 0; rail <= Math.ceil(length / .65); rail++) fine.box(
+      facadePoint(axis, rail * length / Math.ceil(length / .65), baseY + 24.75, .9),
+      [.065, 1, .08], STONE_LIGHT, yaw);
+    builder.box(facadePoint(axis, length / 2, baseY + 25.3, .9),
+      [length, .07, .08], STONE_LIGHT, yaw);
+    if (side === 0) {
+      const u = length - profile.glassAtriumWidthM / 2;
+      builder.box(facadePoint(axis, u, baseY + 14, .44),
+        [profile.glassAtriumWidthM, 27, .18], 0x78989c, yaw);
+      for (let row = 0; row < 10; row++) fine.box(
+        facadePoint(axis, u, baseY + 1.2 + row * 2.75, .6),
+        [profile.glassAtriumWidthM, .09, .1], STONE_LIGHT, yaw);
+      fine.box(facadePoint(axis, u, baseY + 14, .62), [.08, 27, .1], STONE_LIGHT, yaw);
+    }
   }
 }
 
@@ -613,6 +560,36 @@ function addDussmann(builder: DetailBuilder, fine: DetailBuilder): void {
   builder.box([flag[0] + .68, flag[1] + 1.1, flag[2]], [1.3, 3.0, .08], RED);
 }
 
+function addKomischeOper(builder: DetailBuilder, fine: DetailBuilder): void {
+  const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.komischeOper;
+  const axis = profile.streetFacade, base = profile.anchorWorldM[1];
+  const length = axisLength(axis), yaw = axisYaw(axis);
+  // Original sandstone sheets remain authoritative; joints sit shallowly outside.
+  for (let row = 0; row < 8; row++) fine.box(facadePoint(axis, length / 2, base + .7 + row * 1.85, .1),
+    [length, .035, .035], 0xa99f8b, yaw);
+  for (let joint = 0; joint <= 36; joint++) fine.box(facadePoint(axis, joint * length / 36, base + 7.7, .1),
+    [.035, 15.3, .035], 0xaaa18e, yaw);
+  const portal = profile.entranceRisalit, span = axisLength(portal), portalYaw = axisYaw(portal);
+  builder.box(facadePoint(portal, span / 2, base + 9.8, .24), [span, 9.6, .3], 0x465d62, portalYaw);
+  for (let mullion = 0; mullion <= 12; mullion++) builder.box(
+    facadePoint(portal, mullion * span / 12, base + 9.8, .44), [.085, 9.7, .18], 0x333d3c, portalYaw);
+  for (const y of [5.05, 9.0, 14.65]) builder.box(facadePoint(portal, span / 2, base + y, .46),
+    [span, .18, .2], 0x364541, portalYaw);
+  for (const y of [5.1, 14.75]) {
+    builder.box(facadePoint(portal, span / 2, base + y, .46), [span, .85, .32], 0x465346, portalYaw);
+    // Original procedural copper folds reference material without tracing artwork.
+    for (let fold = 0; fold < 42; fold++) fine.beam(
+      facadePoint(portal, fold * span / 42, base + y - .31, .64),
+      facadePoint(portal, (fold + .65) * span / 42, base + y + .3, .7), .075, fold % 2 ? 0x728071 : 0x2c3e36);
+  }
+  for (let door = 0; door < 3; door++) {
+    const u = (door + .5) * span / 3;
+    builder.box(facadePoint(portal, u, base + 1.7, .16), [3.1, 3.35, .2], 0x283637, portalYaw);
+    builder.box(facadePoint(portal, u + 1.65, base + 1.7, .3), [.5, 3.4, .6], 0xcabda3, portalYaw);
+  }
+  inscription(fine, "KOMISCHE OPER BERLIN", facadePoint(portal, span / 2, base + 3.95, .6), portalYaw, .45, 0x384444);
+}
+
 type BuildingSpec = {
   fine: DetailBuilder;
   name: string;
@@ -624,7 +601,7 @@ export function createUnterDenLindenDetails(): Group {
   group.name = UNTER_DEN_LINDEN_DETAILS_GROUP_NAME;
   group.userData = {
     ...UNTER_DEN_LINDEN_DETAILS_PROFILE,
-    buildingCount: 5,
+    buildingCount: 6,
     collisionRole: "visual facade overlays; existing LoD2 solids remain authoritative",
   };
 
@@ -649,11 +626,13 @@ export function createUnterDenLindenDetails(): Group {
       structure: new DetailBuilder(),
       fine: new DetailBuilder(),
     },
+    { name: "Komische Oper source-bound facade", structure: new DetailBuilder(), fine: new DetailBuilder() },
   ];
   addRussianEmbassy(specs[0].structure, specs[0].fine);
   addAeroflot(specs[1].structure, specs[1].fine);
   addEinstein(specs[2].structure, specs[2].fine);
   addDussmann(specs[3].structure, specs[3].fine);
+  addKomischeOper(specs[4].structure, specs[4].fine);
 
   const geometries = new Map<Kind, BufferGeometry>();
   const pair = materials();

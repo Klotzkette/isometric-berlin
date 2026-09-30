@@ -49,6 +49,9 @@ def owned_surfaces(source: dict[str, Any], root: Path) -> BaseGeometry:
   """Subtract actual replacement footprints, never whole district windows."""
   district = json.loads((root / "src/app/src/data/districtStreets.json").read_text())
   owners: list[BaseGeometry] = []
+  owners.extend(
+    box(*r) for r in district.get("station_paving_patch_rectangles_world_m", [])
+  )
   for surface in district["surfaces"]:
     positions = (
       np.frombuffer(base64.b64decode(surface["positions_cm_b64"]), dtype="<i4").reshape(

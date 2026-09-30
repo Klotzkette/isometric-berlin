@@ -66,14 +66,17 @@ describe("source-bound Unter den Linden recognition details", () => {
       anchorWorldM: [793.37, 5.2, 331.555],
       sourceHeightM: 30.318,
     });
-    expect(buildings.russianEmbassy.streetFacade.outwardSide).toBe(-1);
+    // v147 corrects a demonstrably rear-facing overlay; preserve its record.
+    expect(buildings.russianEmbassy.streetFacade.outwardSide).toBe(1);
+    expect(buildings.russianEmbassy.previousRearAxis.outwardSide).toBe(-1);
     expect(buildings.russianEmbassy.lod2PartIds).toHaveLength(4);
     expect(buildings.aeroflot).toMatchObject({
       osmKey: "way/195071820",
       lod2Parent: "DEBE01YYK00001vY",
       sourceHeightM: 19.606,
     });
-    expect(buildings.aeroflot.streetFacade.outwardSide).toBe(-1);
+    expect(buildings.aeroflot.streetFacade.outwardSide).toBe(1);
+    expect(buildings.aeroflot.previousRearAxis.outwardSide).toBe(-1);
     expect(buildings.einstein).toMatchObject({
       osmKey: "node/1412218896",
       lod2Parent: "DEBE01YYK0000A6r",
@@ -94,12 +97,13 @@ describe("source-bound Unter den Linden recognition details", () => {
   test("keeps persistent structures separate from close-only signs and mullions", () => {
     const root = createUnterDenLindenDetails();
     expect(root.name).toBe(UNTER_DEN_LINDEN_DETAILS_GROUP_NAME);
-    expect(root.userData.buildingCount).toBe(5);
+    expect(root.userData.buildingCount).toBe(6);
     for (const name of [
       "Russian Embassy source-bound facade",
       "Aeroflot and Trade Mission source-bound facade",
       "Haus Pietzsch and Einstein source-bound facade",
       "Dussmann KulturKaufhaus source-bound facade",
+      "Komische Oper source-bound facade",
     ]) {
       expect(root.getObjectByName(name)).toBeDefined();
     }
@@ -112,17 +116,20 @@ describe("source-bound Unter den Linden recognition details", () => {
       UNTER_DEN_LINDEN_DETAILS_GROUP_NAME,
     );
     const bounds = new Box3().setFromObject(root);
-    expect(bounds.min.x).toBeGreaterThan(790);
+    expect(bounds.min.x).toBeGreaterThan(750);
+    expect(bounds.min.x).toBeLessThan(752);
     expect(bounds.max.x).toBeGreaterThan(1215);
     expect(bounds.max.y).toBeGreaterThan(40);
   });
 
   test("adds hundreds of facade cues within a small texture-free GPU budget", () => {
     const stats = budget(createUnterDenLindenDetails());
-    expect(stats.draws).toBe(10);
+    // The historical v141 budget was 10 / 1669 / <180000. The authorised
+    // v147 frontage corrections and sixth building have this explicit budget.
+    expect(stats.draws).toBe(13);
     expect(stats.instances).toBeGreaterThan(600);
-    expect(stats.instances).toBe(1_669);
-    expect(stats.bytes).toBeLessThan(180_000);
+    expect(stats.instances).toBe(2_457);
+    expect(stats.bytes).toBe(189_156);
   });
 
   test("keeps the runtime model free of reference photographs and image loaders", () => {
@@ -134,7 +141,7 @@ describe("source-bound Unter den Linden recognition details", () => {
     expect(source).toContain("letteringStrokePaths");
   });
 
-  test("uses one facade-only Minecraft batch for all five buildings", () => {
+  test("uses one facade-only Minecraft batch for all six buildings", () => {
     const root = createMinecraftUnterDenLindenDetails();
     expect(root.name).toBe(MINECRAFT_UNTER_DEN_LINDEN_GROUP_NAME);
     expect(root.userData.keepInMinecraft).toBeTrue();
@@ -143,7 +150,7 @@ describe("source-bound Unter den Linden recognition details", () => {
     const stats = budget(root);
     expect(stats.draws).toBe(1);
     expect(stats.instances).toBeGreaterThan(280);
-    expect(stats.instances).toBeLessThan(500);
+    expect(stats.instances).toBe(507);
     expect(stats.bytes).toBeLessThan(50_000);
     expect(
       (root.children[0] as InstancedMesh).geometry.getAttribute("position").count,

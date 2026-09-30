@@ -1,0 +1,38 @@
+{
+  "DomAltesMuseum/full": {
+    "hash": "26d37e838cdf9c0ba0ccf92140dac58292c24527c236bc8bd0e87419c2473b67",
+    "budget": {
+      "bytes": 1210720,
+      "draws": 1,
+      "instances": 15922,
+      "vertices": 24
+    }
+  },
+  "DomAltesMuseum/mobile": {
+    "hash": "64a90f51f2c7d1f4775c3bf61bc995498cca2724e22419e15641bba8b14e9870",
+    "budget": {
+      "bytes": 757608,
+      "draws": 1,
+      "instances": 9960,
+      "vertices": 24
+    }
+  },
+  "MuseumTriadArchitecture/full": {
+    "hash": "2a80ef473826a68a9d99f75f5af09c2fe94d1d8d03a6e586feb375220256e36a",
+    "budget": {
+      "bytes": 1581676,
+      "draws": 1,
+      "instances": 20803,
+      "vertices": 24
+    }
+  },
+  "MuseumTriadArchitecture/mobile": {
+    "hash": "c51c4e062f8a4340c89d34dae79a46f61bb444409651c747497cb552a3704540",
+    "budget": {
+      "bytes": 920172,
+      "draws": 1,
+      "instances": 12099,
+      "vertices": 24
+    }
+  }
+}

@@ -39,7 +39,7 @@ def at_world(x: float, z: float) -> Point:
   return Point(389500 + x, 5820000 - z)
 
 
-def test_source_scope_joins_exact_parcels_to_friedrichstrasse(approach: dict) -> None:
+def test_source_scope_joins_exact_parcels_to_schlossbruecke(approach: dict) -> None:
   parcels = gpd.read_file(ALKIS, layer="flurstuecke").to_crs(epsg=25833)
   west = unary_union(parcels[parcels["uuid"].isin(PARCEL_IDS)].geometry.tolist())
   assert west.difference(approach["scope"]).area < 1e-6
@@ -49,9 +49,11 @@ def test_source_scope_joins_exact_parcels_to_friedrichstrasse(approach: dict) ->
   for x, z in ((500, 294), (580, 287), (700, 280), (900, 260), (1175, 236)):
     assert approach["scope"].covers(at_world(x, z))
   # The narrow source corridor cannot swallow embassy courtyards or continue
-  # indefinitely east of the selected Friedrichstraße junction.
-  for x, z in ((500, 200), (700, 220), (900, 320), (1220, 230)):
+  # indefinitely east across the bridge or into either side's courtyards.
+  for x, z in ((500, 200), (700, 220), (900, 320), (1820, 180), (1500, 140)):
     assert not approach["scope"].covers(at_world(x, z))
+  for x, z in ((1220, 230), (1350, 224), (1441, 214), (1700, 195), (1790, 190)):
+    assert approach["scope"].covers(at_world(x, z))
 
 
 def test_all_surface_classes_partition_scope_without_hiding_gardens(
@@ -65,7 +67,7 @@ def test_all_surface_classes_partition_scope_without_hiding_gardens(
   for left, right in combinations(classes, 2):
     assert left.intersection(right).area < 1e-6
   original_gravel = roads[roads["id"] == "915958593"].geometry.iloc[0]
-  assert approach["gravel"].symmetric_difference(original_gravel).area < 1e-6
+  assert original_gravel.difference(approach["gravel"]).area < 1e-6
   for geometry in parks[parks["id"].isin(MEDIAN_GRASS_IDS)].geometry:
     assert geometry.difference(approach["grass"]).area < 1e-6
   assert _authored_gardens().difference(approach["grass"]).area < 1e-6

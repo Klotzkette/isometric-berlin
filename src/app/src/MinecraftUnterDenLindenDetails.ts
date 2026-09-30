@@ -185,27 +185,18 @@ function addBritishEmbassy(builder: BlockBuilder): void {
 
 function addRussianEmbassy(builder: BlockBuilder): void {
   const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy;
-  const axis = profile.streetFacade;
   const baseY = profile.anchorWorldM[1];
-  const length = axisLength(axis);
-  voxelGrid(builder, axis, baseY, 14, 5, 6.4, 3.35);
-  const porticoU = 5.1;
-  for (let column = 0; column < 5; column += 1) {
-    facadeBlock(
-      builder,
-      axis,
-      porticoU - 3.6 + column * 1.8,
-      baseY + 11.45,
-      2.35,
-      0.8,
-      12.6,
-      0.8,
-      STONE_LIGHT,
-    );
+  for (const [section, axis] of profile.frontageAxes.entries()) {
+    const length = axisLength(axis);
+    voxelGrid(builder, axis, baseY, 4, 3, 7.3, 5);
+    facadeBlock(builder, axis, length / 2, baseY + 2.1, .65, length, 4.2, .55, STONE);
+    for (const y of [4.3, 20, 21.3]) facadeBlock(builder, axis, length / 2, baseY + y, .75, length, .45, .7, STONE_LIGHT);
+    if (section === 2) for (let column = 0; column < 6; column++)
+      facadeBlock(builder, axis, .8 + column * (length - 1.6) / 5, baseY + 12.3, 1, .8, 14.3, .8, STONE_LIGHT);
   }
-  facadeBlock(builder, axis, porticoU, baseY + 18.2, 2.3, 10.5, 1.4, 1.0, STONE);
   const [towerX, towerZ] = profile.towerWorldXZ;
-  builder.box([towerX, baseY + 26.2, towerZ], [5.5, 7.2, 8.0], STONE_LIGHT);
+  for (const x of [-2.1, 2.1]) for (const z of [-3.3, 3.3])
+    builder.box([towerX + x, baseY + 26.2, towerZ + z], [.7, 7.2, .7], STONE_LIGHT);
   builder.box([towerX, baseY + 30.05, towerZ], [6.2, 0.65, 8.7], STONE);
   builder.box([towerX, baseY + 34.0, towerZ], [0.35, 7.4, 0.35], METAL);
   for (const [y, color] of [
@@ -215,7 +206,6 @@ function addRussianEmbassy(builder: BlockBuilder): void {
   ] as const) {
     builder.box([towerX + 1.1, y, towerZ], [2.2, 0.38, 0.35], color);
   }
-  facadeBlock(builder, axis, length / 2, baseY + 2.15, 0.75, length, 4.3, 0.8, STONE);
 }
 
 function addAeroflot(builder: BlockBuilder): void {
@@ -225,20 +215,26 @@ function addAeroflot(builder: BlockBuilder): void {
   const length = axisLength(axis);
   voxelGrid(builder, axis, baseY, 8, 4, 6.25, 3.28);
   facadeBlock(builder, axis, length / 2, baseY + 2.3, 0.85, length - 1, 4.2, 0.72, GLASS);
-  facadeBlock(builder, axis, length / 2, baseY + 20.3, 0.82, 24.5, 2.2, 0.7, BLUE);
+  facadeBlock(builder, axis, length / 2, baseY + 18.8, .82, length, .55, .7, STONE_LIGHT);
   for (let mark = 0; mark < 8; mark += 1) {
-    facadeBlock(builder, axis, length * 0.22 + mark * 2.2, baseY + 20.3, 1.2, 1.4, 0.55, 0.55, WHITE);
+    facadeBlock(builder, axis, length * .06 + mark * 1.9, baseY + 19.8, 1.2, 1.2, 1.2, .55, METAL);
   }
 }
 
 function addEinstein(builder: BlockBuilder): void {
   const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.einstein;
-  const axis = profile.streetFacade;
-  const baseY = profile.anchorWorldM[1];
-  const length = axisLength(axis);
-  voxelGrid(builder, axis, baseY, 4, 6, 6.35, 3.35);
-  facadeBlock(builder, axis, length / 2, baseY + 2.3, 0.9, length - 0.7, 4.2, 0.75, METAL);
-  facadeBlock(builder, axis, length / 2, baseY + 4.55, 1.1, length - 1.2, 0.65, 0.72, WHITE);
+  const base = profile.anchorWorldM[1];
+  for (const [side, axis] of [profile.streetFacade, profile.westFacade].entries()) {
+    const length = axisLength(axis), usable = side === 0 ? length - profile.glassAtriumWidthM : length;
+    const end = facadePoint(axis, usable, 0, 0);
+    voxelGrid(builder, { ...axis, endWorldXZ: [end[0], end[2]] }, base, side === 0 ? 3 : 10, 5, 6.8, 4.1);
+    facadeBlock(builder, axis, usable / 2, base + 1.9, .9, usable, 3.8, .7, METAL);
+    facadeBlock(builder, axis, usable / 2, base + 3.95, 1.1, usable, .6, .8, 0x75332e);
+    facadeBlock(builder, axis, length / 2, base + 25.8, .85, length, 3.1, .7, GLASS_LIGHT);
+    for (const y of [24.2, 27.5]) facadeBlock(builder, axis, length / 2, base + y, 1.0, length, .4, .8, STONE_LIGHT);
+    if (side === 0) facadeBlock(builder, axis, length - profile.glassAtriumWidthM / 2,
+      base + 14, 1.0, profile.glassAtriumWidthM, 27, .7, GLASS_LIGHT);
+  }
 }
 
 function addDussmann(builder: BlockBuilder): void {
@@ -266,6 +262,15 @@ function addDussmann(builder: BlockBuilder): void {
   facadeBlock(builder, p.eastFacade, l * .32, base + 15.6, 1.7, 1.3, 14.2, .8, STONE_LIGHT);
   for (let i = 0; i < 8; i++) facadeBlock(builder, p.eastFacade, l * .32, base + 21.2 - i * 1.55, 2.1, .7, .7, .5, RED);
   facadeBlock(builder, p.eastFacade, l * .5, base + 7.55, 1.8, 13.5, .8, .7, WHITE);
+}
+
+function addKomischeOper(builder: BlockBuilder): void {
+  const p = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.komischeOper;
+  const axis = p.entranceRisalit, base = p.anchorWorldM[1], length = axisLength(axis);
+  facadeBlock(builder, axis, length / 2, base + 9.8, .8, length, 9.6, .6, GLASS);
+  for (let i = 0; i <= 8; i++) facadeBlock(builder, axis, i * length / 8, base + 9.8, 1.2, .35, 9.7, .55, METAL);
+  for (const y of [5.1, 14.75]) facadeBlock(builder, axis, length / 2, base + y, 1.2, length, .85, .7, 0x465346);
+  for (let i = 0; i < 3; i++) facadeBlock(builder, axis, (i + .5) * length / 3, base + 1.7, .8, 3.1, 3.35, .6, METAL);
 }
 
 function finishBlocks(builder: BlockBuilder, root: Group): void {
@@ -313,6 +318,7 @@ export function createMinecraftUnterDenLindenDetails(): Group {
   addAeroflot(builder);
   addEinstein(builder);
   addDussmann(builder);
+  addKomischeOper(builder);
   finishBlocks(builder, group);
   return freezeStaticSceneTransforms(group);
 }

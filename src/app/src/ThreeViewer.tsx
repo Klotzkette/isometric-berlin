@@ -1,5 +1,8 @@
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
+import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile";
+import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
+import { jamesSimonTerraceVoidAt, jamesSimonExtraSolidAt, jamesSimonWalkSurfaceAt } from "./jamesSimonProfile";
 import { schillerMonumentSolidAt } from "./schillerMonumentProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
@@ -3346,6 +3349,10 @@ function ensureIsoWorld(
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
   const perimeterDetails = import("./GendarmenmarktPerimeterShells");
+  const palacesDetails = import("./PalacesAndFriedrich");
+  const jamesSimonDetails = import("./JamesSimonArchitecture");
+  const komischeOperDetails = import("./KomischeOperSourceGeometry");
+  const udlEntrances = import("./UnterDenLindenEntrances");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3357,8 +3364,12 @@ function ensureIsoWorld(
     abgeordnetenhausDetails,
     gropiusBauDetails,
     perimeterDetails,
+    palacesDetails,
+    jamesSimonDetails,
+    komischeOperDetails,
+    udlEntrances,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3408,7 +3419,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3426,6 +3437,9 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            friedrichMonumentSolidAt(x, z, y, 0) ||
+            palacesUdlSupportSolidAt(x,z,y,0) ||
+            jamesSimonExtraSolidAt(x,y,z,radius) ||
             schillerMonumentSolidAt(x, y, z, radius) ||
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
@@ -3465,12 +3479,16 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const udlFloor = unterDenLindenEntranceFloorAt(x,z);
+          if (udlFloor !== null) return udlFloor;
           const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
           if (wacheFloor !== null) return wacheFloor;
           const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
           if (promenade !== null) return promenade;
           const parkLawn = spreebogenLawnGroundAt(x,z);
           if (parkLawn !== null) return parkLawn;
+          const jamesFloor = jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+          if (jamesFloor !== null) return jamesFloor;
           const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
           if (altesFloor !== null) return altesFloor;
           const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
@@ -3643,6 +3661,14 @@ function ensureIsoWorld(
               ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
         }
         isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
+        yield;
+        isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
+        yield;
+        isoWorld.add(entrances.createUnterDenLindenEntrances());
+        yield;
+        isoWorld.add(palaces.createPalacesAndFriedrich());
+        yield;
+        isoWorld.add(jamesSimon.createJamesSimonArchitecture());
         yield;
         isoWorld.add(spree.createSpreeMuseumDetails());
         yield;
@@ -4046,7 +4072,7 @@ function ensureVoxelWorld(
           );
         provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           runtime.tunnelInteriorAt?.(x, y, z) === true ||
-          neueWacheWalkableAt(x,y,z,sourceId) ||
+          palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
           musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
           sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
@@ -4055,6 +4081,9 @@ function ensureVoxelWorld(
             return false;
           }
           return (
+            friedrichMonumentSolidAt(x, z, y, 0) ||
+            palacesUdlSupportSolidAt(x,z,y,0) ||
+            jamesSimonExtraSolidAt(x,y,z,radius) ||
             schillerMonumentSolidAt(x, y, z, radius) ||
             weidendammerBridgeSolidAt(x, y, z, radius) ||
             berlinJunctionSolidAt(x, y, z, radius) ||
@@ -4079,9 +4108,11 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          unterDenLindenEntranceFloorAt(x,z) ??
           neueWacheGroundAt(x,z,currentGroundY) ??
           spreebogenWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
           spreebogenLawnGroundAt(x,z) ??
+          jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
           domAltesExtraGroundAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
           nationalgalerieWalkSurfaceAt(x,z) ??
           sovietMemorialGroundAt(x,z) ??

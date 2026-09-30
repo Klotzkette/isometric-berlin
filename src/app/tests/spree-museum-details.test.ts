@@ -94,7 +94,7 @@ describe("source-bound Spree museum and restaurant", () => {
     const root = createSpreeMuseumDetails();
     const stats = budget(root);
     expect(stats.draws).toBe(14);
-    expect(stats.bytes).toBeLessThan(600_000);
+    expect(stats.bytes).toBeLessThan(620_000);
     expect(stats.instances).toBeGreaterThan(5900);
     for (const mode of ["night", "snowstorm", "schwellenraum", "day"] as const) {
       setIsoNightPresentation(root, mode === "night", true, mode);
@@ -112,8 +112,8 @@ describe("source-bound Spree museum and restaurant", () => {
     const stats = budget(root);
     expect(root.children).toHaveLength(1);
     expect(stats.draws).toBe(1);
-    expect(stats.bytes).toBeLessThan(360_000);
-    expect(stats.instances).toBe(4638);
+    expect(stats.bytes).toBeLessThan(390_000);
+    expect(stats.instances).toBe(4890);
     expect(root.userData.keepInMinecraft).toBeTrue();
     expect((root.children[0] as InstancedMesh).geometry.getAttribute("position").count).toBe(24);
   });

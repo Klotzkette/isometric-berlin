@@ -281,7 +281,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect( new Set(sourceKeys).size).toBe(sourceKeys.length);
     expect(new Set(ownership).size).toBe(ownership.length);
     expect(new Set(ownership)).toEqual(new Set(sourceKeys));
-    expect(renderedKeys.length).toBeGreaterThan(1_400);
+    expect(renderedKeys.length).toBeGreaterThanOrEqual(1_400);
+    expect(externallyModelledKeys).toContain("node/262455591");
+    expect(renderedKeys).not.toContain("node/262455591");
     expect(externallyModelledKeys.length).toBeGreaterThan(0);
     expect(externallyModelledKeys).toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);
     expect(renderedKeys).not.toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);

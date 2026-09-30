@@ -1,4 +1,4 @@
-"""Source-bound step-10 public realm from Pariser Platz to Friedrichstraße.
+"""Source-bound step-10 public realm from Pariser Platz to Schlossbrücke.
 
 This presentation supplement never changes canonical OSM/ALKIS data. Cadastral
 parcels anchor the western public-space envelope; mapped outer sidewalk axes
@@ -46,8 +46,20 @@ NORTH_SIDEWALK_IDS = (
   "1343486303",
   "1124934333",
   "1158551332",
+  "1171464765",
+  "442389818",
+  "803471191",
 )
-SOUTH_SIDEWALK_IDS = ("1158536779", "1037138981", "1037130999")
+SOUTH_SIDEWALK_IDS = (
+  "1158536779",
+  "1037138981",
+  "1037130999",
+  "1443932522",
+  "1037130735",
+  "1215085509",
+  "1181092878",
+  "1215085513",
+)
 MEDIAN_GRASS_IDS = (
   "915958591",
   "915958592",
@@ -55,14 +67,22 @@ MEDIAN_GRASS_IDS = (
   "915958604",
   "915958613",
   "915958614",
+  "915958600",
+  "915958594",
+  "915958598",
+  "1447198830",
+  "1447198827",
+  "1447198826",
+  "915958588",
+  "915958589",
 )
 MEDIAN_GRAVEL_ID = "915958593"
 PLAZA_POLYGON_ID = "24240315"
 MEDIAN_PAVED_TIP_ID = "915958607"
-# A narrow display corridor ends just beyond both Friedrichstraße crossings.
+# The narrow display corridor continues to the western Schlossbrücke abutment.
 # It overlaps the retained cadastral envelope by about 27 m at its west end.
 CORRIDOR_WEST_X_M = 650.0
-CORRIDOR_EAST_X_M = 1195.0
+CORRIDOR_EAST_X_M = 1800.0
 SIDEWALK_OUTER_INFILL_M = 2.0
 # Missing width tags were interpreted as 2 or 3 vehicle lanes, creating 6.5/9.75m
 # steps along this straight avenue. Its mapped median edges lie roughly 7m
@@ -230,6 +250,9 @@ def build_brandenburg_approach(
       if not is_motor:
         # Open every mapped pedestrian approach, including untagged crossings.
         crossing_bands.append(band.buffer(0.35))
+        if str(row["id"]) == "1447198833":
+          # Retained explicit 11.5m compacted median walk east of Charlottenstr.
+          gravel_polygons.append(clipped)
         continue
       used_roads.append(
         {
@@ -287,7 +310,7 @@ def build_brandenburg_approach(
   curbs = curbs.difference(junctions.union(open_ends))
   ids = sorted({row["id"] for row in used_roads})
   source = {
-    "name": "Pariser Platz and western Unter den Linden public realm",
+    "name": "Pariser Platz and Unter den Linden public realm to Schlossbrücke",
     "crs": "EPSG:25833",
     "osm_sha256": _hash(osm_path),
     "alkis_sha256": _hash(alkis_path),
@@ -307,7 +330,7 @@ def build_brandenburg_approach(
     "scope_policy": (
       "Exact western ALKIS cadastral envelope, interpreted using OSM public-space "
       "context; eastern envelope follows mapped outer sidewalk axes through "
-      "Friedrichstraße, with 2m outward display infill and straight joins across "
+      "Friedrichstraße to Schlossbrücke, with 2m outward display infill and straight joins across "
       "crossings. This is not a cadastral extension or paving survey."
     ),
     "surface_policy": (
@@ -332,6 +355,8 @@ def build_brandenburg_approach(
       "14m envelope is display inference, not a measured width replacement."
     ),
     "sidewalk_outward_infill_m": SIDEWALK_OUTER_INFILL_M,
+    "corridor_east_world_x_m": CORRIDOR_EAST_X_M,
+    "eastern_compacted_median_way": "1447198833",
     "avenue_inferred_width_m": AVENUE_DISPLAY_WIDTH_M,
     "authored_garden_rotation_radians": 0.087,
     "authored_gardens_world_m": [

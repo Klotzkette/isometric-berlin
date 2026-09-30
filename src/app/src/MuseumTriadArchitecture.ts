@@ -415,6 +415,30 @@ function ngColumn(b: Builder, u: number, v: number): void {
       for (const t of [-1, 1])
         ngBox(b, u + s * 0.58, 28.95, v + t * 0.58, 0.42, 0.8, 0.42, 0xbda282);
 }
+function refinementsV147(b: Builder): void {
+  // Fluting is shared by the open front, long sides and apsis.
+  const columns:V[]=[];for(let i=0;i<8;i++)columns.push([-15+i*4.14,32.3]);
+  for(const side of[-1,1])for(let i=0;i<14;i++)columns.push([side<0?-16.58:15.3,25.9-i*4.25]);
+  for(let i=0;i<11;i++){const a=Math.PI*i/10;columns.push([-.5+13*Math.cos(a),-30.3-13*Math.sin(a)]);}
+  for(const [u,v]of columns){const n=b.minecraft?8:16;for(let i=0;i<n;i++){const a=i*2*Math.PI/n;ngBox(b,u+Math.cos(a)*.55,21.8,v+Math.sin(a)*.55,.045,13.8,.045,0xa68b6f);}
+    for(const sign of[-1,1])for(const row of[0,1])ngBox(b,u+sign*(.48+row*.13),28.65+row*.38,v+.57,.28,.53,.22,0xc2a482);}
+  for(const side of[-1,1])for(let y=5.4,row=0;y<13;y+=.7,row++){
+    ngBox(b,side<0?-16.72:15.47,y,-1.6,.05,.028,59,0xa48b70);
+    for(let v=-30+(row%2)*1.8;v<26;v+=3.6)ngBox(b,side<0?-16.73:15.48,y+.34,v,.06,.64,.029,0xaa9277);
+  }
+  // Carved stair cheeks and compact procedural rosettes.
+  for(const side of[-1,1])for(const [v,ya,yb]of[[54.45,5.25,9.95],[42.66,14.65,9.95]])for(let i=0;i<12;i++){
+    const u=5.2+(i+.5)*18.5/12,y=ya+(yb-ya)*(i+.5)/12;ngBox(b,side*u,y-.4,v,1.48,.68,.31,0xc7ad8b);
+    for(let j=0;j<8;j++){const a=j*Math.PI/4;ngBox(b,side*u+.18*Math.cos(a),y-.4+.18*Math.sin(a),v+.19,.08,.08,.06,0x9b836a);}
+  }
+  // Pergamon: Ionic volutes, upper blind panels and dentils.
+  for(const [u,v]of[[-154.45,-112.95],[-151.55,-34.15]]){
+    for(let i=0;i<6;i++)for(const sign of[-1,1]){const vv=v+(i-2.5)*4.8+sign*.64;
+      b.add(b.minecraft?'box':'column',ng(u-.88,22.65,vv),[.55,.18,.55],LIGHT,new Quaternion().setFromAxisAngle(new Vector3(0,0,1),Math.PI/2));ngBox(b,u-.99,22.65,vv,.09,.22,.22,DARK);}
+    for(let i=0;i<5;i++){const vv=v+(i-2)*4.8;ngBox(b,u-.27,18.2,vv,.11,4.1,3.1,0x938d7e);for(const edge of[-1,1])ngBox(b,u-.34,18.2,vv+edge*1.6,.16,4.35,.14,LIGHT);for(const y of[15.95,20.43])ngBox(b,u-.34,y,vv,.16,.16,3.35,LIGHT);}
+    for(let i=0;i<40;i++)ngBox(b,u-.79,24.9,v-13.6+i*.7,.38,.3,.23,LIGHT);
+  }
+}
 function figure(b: Builder, p: P, h: number, color: number): void {
   b.column([p[0], p[1] + h * 0.47, p[2]], h * 0.28, h * 0.65, color);
   b.box([p[0], p[1] + h * 0.89, p[2]], [h * 0.23, h * 0.25, h * 0.25], color);
@@ -786,6 +810,7 @@ export function createMuseumTriadArchitecture(
   nationalgalerie(b);
   museumFronts(b);
   roofDetails(b);
+  refinementsV147(b);
   finish(b, root);
   return freezeStaticSceneTransforms(root);
 }

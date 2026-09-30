@@ -2855,6 +2855,7 @@ export function createTiergartenMonuments(
       entry.osm_key === POTSDAMER_TRAFFIC_TOWER_PROFILE.osmKey ||
       entry.osm_key === HAND_MIT_UHR_PROFILE.osmKey ||
       entry.osm_key === BERLIN_JUNCTION_PROFILE.osmKey ||
+      entry.osm_key === "node/262455591" || // exact Friedrich equestrian monument
       entry.osm_key === "node/262457570" || // source-bound Gendarmenmarkt Schiller
       entry.osm_key === "node/262455810" || // Neue Wache memorial identity
       entry.osm_key === "node/5253735916" || // authored Kollwitz sculpture

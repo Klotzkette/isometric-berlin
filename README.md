@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.46 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.46/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.47 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.47/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,23 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.46** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.47** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.47 refines Unter den Linden and the Museum Island ensemble:
+Friedrich the Great's equestrian monument, both palais, the Schloss cupola and
+roof figures, James-Simon-Galerie, museum facades and the Lustgarten granite
+bowl. The embassy, Aeroflot, Haus Pietzsch / Einstein and Komische Oper facades
+receive further detail, alongside mapped street and U-Bahn entrance geometry.
+[Palais and Schloss sources](docs/palaces-udl-v147.md) ·
+[Museum sources](docs/museums-v147.md) ·
+[Unter den Linden sources](docs/unter-den-linden-v147.md).
+
+Version 1.0.47 verfeinert Unter den Linden und die Museumsinsel: das
+Reiterstandbild Friedrichs des Großen, Kronprinzen- und Prinzessinnenpalais,
+Schlosskuppel und Dachfiguren, James-Simon-Galerie, Museumsfassaden und
+Granitschale. Hinzu kommen Fassadendetails an Botschaft, Aeroflot, Haus Pietzsch /
+Einstein und Komischer Oper sowie kartierte Straßen und U-Bahn-Zugänge.
 
 Version 1.0.46 details sixteen building groups around Gendarmenmarkt, including
 Dentons, Einstein Kaffee, Hilton, the Academy, Quartier 205/206 and Borchardt.

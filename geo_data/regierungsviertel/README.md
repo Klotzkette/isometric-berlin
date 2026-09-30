@@ -5,11 +5,24 @@ city-wide dumps do **not** belong here; raw downloads and large source
 archives stay under gitignored `raw/` paths as described in
 [`docs/data.md`](../../docs/data.md).
 
-The current landmark layer contains 90 OSM/LoD2-checked points. The exact
+The current landmark layer contains 93 OSM/LoD2-checked points. The exact
 task-13 source hull is an additional 500 m EPSG:25833 buffer around every
 task-12 edge (E385602.60…391910.58 / N5817089.12…5823617.37). The Wikimedia manifest
-contains 113 freely licensed visual references for 38 landmarks; geometry
+contains 337 freely licensed visual references across 124 landmark and
+architecture groups; geometry
 still comes from Berlin LoD2, current OSM and official support data.
+
+The bounded v1.0.47 supplements retain the original LoD2 sheets for the
+Kronprinzenpalais, Prinzessinnenpalais and separate entrance portico,
+James-Simon-Galerie and Komische Oper. Original source identities, heights,
+roof surfaces and superseded display records remain auditable beside the
+procedural detail. Friedrich's monument keeps OSM node `262455591`.
+Street and U-Bahn additions use retained OSM context; local facade members,
+sculpture anatomy and stair dimensions remain explicit display estimates.
+The nine new external photo credits are attribution-only records in both
+Wikimedia manifests. See [palais and Schloss](../../docs/palaces-udl-v147.md)
+and [museums](../../docs/museums-v147.md), plus
+[Unter den Linden](../../docs/unter-den-linden-v147.md).
 
 ## Files
 
@@ -36,7 +49,7 @@ still comes from Berlin LoD2, current OSM and official support data.
 
 | Viewer artefact | Location |
 |---|---|
-| Landmark projection used by the static viewer | `../../src/app/public/dzi/regierungsviertel/landmarks.json` — all 90 landmarks projected from task-13 `overview_bounds.geojson` together with the regenerated DZI raster. |
+| Landmark projection used by the static viewer | `../../src/app/public/dzi/regierungsviertel/landmarks.json` — all 93 landmarks in the retained task-13 coordinate frame. |
 | Tiergartentunnel overlay used by the static viewer | `../../src/app/public/dzi/regierungsviertel/tiergartentunnel.json` — reprojected with task-13 through the Reichpietschufer portal. |
 | Wikimedia attribution shipped with the viewer | `../../src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` |
 

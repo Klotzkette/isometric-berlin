@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "retrieved": "2026-09-30",
+  "source": "https://api.openstreetmap.org/api/0.6/map?bbox=13.3873,52.5157,13.391,52.5182",
+  "source_sha256": "ba2f545b21709437d94545ddbf9b3a259eab1e771438666d07f20848e7d7f2b1",
+  "license": "ODbL-1.0",
+  "officialPlan": "https://www.bvg.de/dam/jcr:35d4b73c-7184-4db3-b322-a71a0139babd/unter-den-linden%20900100045.pdf",
+  "stairs": [
+    {
+      "ref": "A",
+      "osmNode": "node/8196141610",
+      "osmWay": "way/881245040",
+      "top": [
+        1155.038,
+        238.981
+      ],
+      "bottom": [
+        1142.121,
+        240.139
+      ],
+      "width": 2.3,
+      "stepCount": 30,
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "30",
+        "surface": "paving_stones",
+        "tactile_paving": "yes"
+      }
+    },
+    {
+      "ref": "B",
+      "osmNode": "node/8196190732",
+      "osmWay": "way/882389498",
+      "top": [
+        1189.775,
+        235.884
+      ],
+      "bottom": [
+        1204.362,
+        234.752
+      ],
+      "width": 2.3,
+      "stepCount": 24,
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "down",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "24",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "ref": "C",
+      "osmNode": "node/8196190741",
+      "osmWay": "way/881245044",
+      "top": [
+        1280.846,
+        228.658
+      ],
+      "bottom": [
+        1267.163,
+        229.788
+      ],
+      "width": 2.3,
+      "stepCount": 33,
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "33",
+        "surface": "concrete",
+        "tactile_paving": "yes"
+      }
+    },
+    {
+      "ref": "D",
+      "osmNode": "node/8196202085",
+      "osmWay": "way/881606906",
+      "top": [
+        1189.457,
+        352.962
+      ],
+      "bottom": [
+        1188.609,
+        342.272
+      ],
+      "width": 2.3,
+      "stepCount": 30,
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "30",
+        "surface": "concrete",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "ref": "E",
+      "osmNode": "node/8198930782",
+      "osmWay": "way/881606908",
+      "top": [
+        1176.775,
+        353.903
+      ],
+      "bottom": [
+        1175.911,
+        342.756
+      ],
+      "width": 2.3,
+      "stepCount": 30,
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "30",
+        "surface": "concrete",
+        "tactile_paving": "no"
+      }
+    }
+  ],
+  "escalators": [
+    {
+      "ref": "A",
+      "osmWay": "way/881245039",
+      "top": [
+        1154.982,
+        236.632
+      ],
+      "bottom": [
+        1141.917,
+        237.731
+      ],
+      "width": 1.6,
+      "stepCount": 32,
+      "tags": {
+        "conveying": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "surface": "metal"
+      }
+    },
+    {
+      "ref": "B",
+      "osmWay": "way/881245041",
+      "top": [
+        1189.586,
+        233.721
+      ],
+      "bottom": [
+        1204.173,
+        232.567
+      ],
+      "width": 1.6,
+      "stepCount": 32,
+      "tags": {
+        "conveying": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "surface": "metal"
+      }
+    },
+    {
+      "ref": "C",
+      "osmWay": "way/882389486",
+      "top": [
+        1280.635,
+        225.938
+      ],
+      "bottom": [
+        1266.932,
+        227.056
+      ],
+      "width": 1.6,
+      "stepCount": 32,
+      "tags": {
+        "conveying": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "surface": "metal"
+      }
+    }
+  ],
+  "lifts": [
+    {
+      "osmNode": "node/8196202075",
+      "point": [
+        1132.097,
+        246.726
+      ],
+      "tags": {
+        "highway": "elevator",
+        "level": "-2;-1;0",
+        "ref": "1",
+        "wheelchair": "yes"
+      },
+      "entranceNode": "node/13291147284",
+      "entrancePoint": [
+        1130.709,
+        246.851
+      ]
+    },
+    {
+      "osmNode": "node/8196202076",
+      "point": [
+        1215.594,
+        239.71
+      ],
+      "tags": {
+        "highway": "elevator",
+        "level": "-2;-1;0",
+        "ref": "2",
+        "wheelchair": "yes"
+      },
+      "entranceNode": "node/13280671539",
+      "entrancePoint": [
+        1216.86,
+        239.593
+      ]
+    }
+  ],
+  "displayStatus": "Source axes and entrances exact to millimetre transformation; widths, railings, lift cabin size, 4.8 m descent and escalator tread count are display estimates. Surface entrance nodes resolve conflicting incline direction on ways B/D/E. No complete underground route is inferred."
+}

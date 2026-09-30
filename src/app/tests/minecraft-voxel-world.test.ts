@@ -171,7 +171,7 @@ describe("true voxel Minecraft world", () => {
     // disappear and 42 neighbouring panes become exposed, a net 302 fewer.
     // v1.0.46's complete perimeter shells replace their old prisms and panes,
     // including the retained former OSM-height footprints in that ownership.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_565_682);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_564_590); // v147 source-complete opera/palais/James replace their old panes.
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -190,9 +190,9 @@ describe("true voxel Minecraft world", () => {
     // Perimeter ownership replaces 6,977 full / 2,349 mobile column instances.
     // Charité's152-part replacement requires optional sourcePrisms, so it is
     // deliberately absent from these payload-only fallback totals.
-    expect(instanced("Voxel building columns", world).count).toBe(1_444_054);
+    expect(instanced("Voxel building columns", world).count).toBe(1_441_927); // v147 replaces2,127 coarse stackedinstances.
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      528_417,
+      527_622, // v147 replaces795 coarsemobilecolumns.
     );
 
     const landmarks = world.getObjectByName(
@@ -732,7 +732,9 @@ describe("true voxel Minecraft world", () => {
     // the latter is now one complete block-native bridge. The bounded v1.0.11
     // Spreebogen grading splits 3,697 further runs into local terrain cells.
     // The six library chamber cells split two more source runs at Bebelplatz.
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697 + 2);
+    // Station patches split eight; exact James-Simon foundation complements
+    // split three net runs while retaining all land outside the source/stairs.
+    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697 + 2 + 8 + 3);
     // Ordinary columns are a facade body plus palette-native plinth and
     // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;
@@ -843,7 +845,7 @@ describe("true voxel Minecraft world", () => {
     // The direct world deliberately removes exactly the north-bank cells
     // rebuilt by its block-native Schrägufer detail. The tunnel adds its two
     // portal cuts to that same counter; neither layer is a dirty double.
-    expect(harbourReplacementCells).toBe(68 + 6);
+    expect(harbourReplacementCells).toBe(68 + 6 + 53); // five station patches own 53 ground cells.
     expect(skipped).toBeGreaterThan(harbourReplacementCells);
     let sandkrugCells = 0;
     for (const [rowIndex, row] of payload.ground_rows.entries()) {

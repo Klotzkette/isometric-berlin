@@ -5032,6 +5032,108 @@
       "credit": "Schibo / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "kronprinzenpalais",
+      "title": "File:Kronprinzenpalais (Berlin), 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kronprinzenpalais_(Berlin),_2024_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bahnfrend",
+      "credit": "Bahnfrend / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "prinzessinnenpalais",
+      "title": "File:Berlin, Mitte, Unter den Linden, Prinzessinnenpalais 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden,_Prinzessinnenpalais_01.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "prinzessinnenpalais",
+      "title": "File:Berlin, Mitte, Unter den Linden, Prinzessinnenpalais 04.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden,_Prinzessinnenpalais_04.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Beek100",
+      "credit": "Beek100 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "friedrich_der_grosse",
+      "title": "File:2023 Reiterstandbild Friedrich der Große (1).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2023_Reiterstandbild_Friedrich_der_Gro%C3%9Fe_(1).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bärwinkel,Klaus",
+      "credit": "Bärwinkel,Klaus / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "friedrich_der_grosse",
+      "title": "File:2023 Reiterstandbild Friedrich der Große (2).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2023_Reiterstandbild_Friedrich_der_Gro%C3%9Fe_(2).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bärwinkel,Klaus",
+      "credit": "Bärwinkel,Klaus / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "friedrich_der_grosse",
+      "title": "File:2023 Reiterstandbild Friedrich der Große (3).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2023_Reiterstandbild_Friedrich_der_Gro%C3%9Fe_(3).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bärwinkel,Klaus",
+      "credit": "Bärwinkel,Klaus / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:James-Simon-Galerie Berlin 2021-03-13 02.jpg",
+      "landmark_id": "james-simon-galerie",
+      "page_url": "https://commons.wikimedia.org/wiki/File:James-Simon-Galerie_Berlin_2021-03-13_02.jpg",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Leonhard Lenz",
+      "credit": "Own work / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_note": "Photograph 13 March 2021; inspected for slender rectangular colonnade, inset glazing, high plinth, fine joints and open terrace. No photo, crop or texture bundled."
+    },
+    {
+      "landmark_id": "einstein_unter_den_linden",
+      "title": "File:Berlin, Mitte, Unter den Linden 42, Haus Pietzsch.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_42,_Haus_Pietzsch.jpg",
+      "artist": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Jörg Zägel, 22 March 2010 / CC BY-SA 3.0",
+      "description": "Haus Pietzsch front, long Neustädtische Kirchstraße return, glass atrium and roof storey; inspected external recognition reference.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "komische_oper",
+      "title": "File:Berlin Komische Oper, Fassade von 1966.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Komische_Oper,_Fassade_von_1966.jpg",
+      "artist": "Wolfsraum",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Wolfsraum, 24 June 2012 / CC BY-SA 3.0",
+      "description": "Existing sandstone facade, glazed entrance risalit and textured copper fascia. The foreground demolition is from 2012 and is not modelled as current construction.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

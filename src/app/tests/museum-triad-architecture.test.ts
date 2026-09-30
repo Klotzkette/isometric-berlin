@@ -163,7 +163,7 @@ describe("source-bound Museum Island triad", () => {
         root.updateMatrixWorld(true);
         const m = metrics(root);
         expect(m.calls).toBe(minecraft ? 1 : 3);
-        expect(m.instances).toBeLessThan(minecraft ? 23000 : 8000);
+        expect(m.instances).toBeLessThan(minecraft ? 23000 : 8500);
         expect(m.bytes).toBeLessThan(minecraft ? 1800000 : 800000);
         expect(new Box3().setFromObject(root).max.y).toBeLessThan(45.1);
         root.traverse((o) => {

@@ -1,0 +1,20 @@
+{
+  "DomAltesMuseum": {
+    "hash": "7547a0e54d7af77b2a787c9ed3b19d8c912d8d1ae138db63fc32ea402be64e0f",
+    "budget": {
+      "bytes": 876008,
+      "draws": 14,
+      "instances": 6830,
+      "vertices": 9812
+    }
+  },
+  "MuseumTriadArchitecture": {
+    "hash": "bc99f23ed22a424039a621560dbacf48619edca5183cb2ba19e775092a8c4503",
+    "budget": {
+      "bytes": 732060,
+      "draws": 3,
+      "instances": 8256,
+      "vertices": 2929
+    }
+  }
+}

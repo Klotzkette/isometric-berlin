@@ -234,6 +234,20 @@ export function createMinecraftSpreeMuseumDetails(): Group {
       );
     }
   }
+  // v1.0.47 facade-only openings, sills and cornices over the retained native envelope.
+  for(const [a,b]of [
+    [[1586.598,-232.172],[1551.855,-274.45]],
+    [[1579.401,-320.082],[1633.108,-308.571]],
+    [[1676.052,-280.54],[1597.425,-220.229]],
+  ] as [PlanPoint,PlanPoint][]){
+    const length=Math.hypot(b[0]-a[0],b[1]-a[1]),count=Math.floor(length/4.8);
+    for(let i=0;i<count;i++){const u=(i+.5)*length/count;
+      for(const y of[7.4,17.1])builder.box(facadePoint(a,b,u,y,1.3),[1.8,3.6,.7],GLASS);
+      builder.box(facadePoint(a,b,u,10.1,1.3),[1.2,.7,.7],GLASS);
+      for(const y of[12,23.7])builder.box(facadePoint(a,b,u,y,1.35),[3.9,.45,.8],0xe0dacc);
+      builder.box(facadePoint(a,b,u,25.3,1.3),[.45,1.2,.65],0xe0dacc);
+    }
+  }
   finishBlocks(builder, group);
   return freezeStaticSceneTransforms(group);
 }

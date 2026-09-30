@@ -7,8 +7,12 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 /** Native road/pavement tops; adjacent equal-height cells share one cuboid. */
 export function createHansaplatzBlockStreets(ground: VoxelPayload): Group {
+  return createBlockStreetSurfaces(ground, source, "Hansaplatz and Gymnasium block-native streets");
+}
+
+export function createBlockStreetSurfaces(ground: VoxelPayload, source: {runs: number[][]; cell_count: number; osm_sha256: string}, name: string, tones = [0x767d7c, 0xc8c5b8, 0xd9d5c8], kerbKind = 2): Group {
   const root = new Group();
-  root.name = "Hansaplatz and Gymnasium block-native streets";
+  root.name = name;
   root.userData = {
     blockNative: true,
     keepInMinecraft: true,
@@ -35,18 +39,17 @@ export function createHansaplatzBlockStreets(ground: VoxelPayload): Group {
   const material = new MeshBasicMaterial({ color: 0xffffff });
   const mesh = new InstancedMesh(new BoxGeometry(1, 1, 1), material, boxes.length);
   const matrix = new Matrix4(), colour = new Color();
-  const tones = [0x767d7c, 0xc8c5b8, 0xd9d5c8];
   for (let i = 0; i < boxes.length; i++) {
     const [x, groundY, z, length, kind] = boxes[i];
     // Only a shallow exposed surface is stored. A kerb remains a low step,
     // never a fence or an additional collision solid across source crossings.
-    const thickness = kind === 2 ? 0.14 : 0.08;
+    const thickness = kind === kerbKind ? 0.14 : 0.08;
     const top = groundY + (kind === 0 ? 0.18 : 0.32);
     matrix.makeScale(length, thickness, 1).setPosition(x, top - thickness / 2, z);
     mesh.setMatrixAt(i, matrix);
     mesh.setColorAt(i, colour.setHex(tones[kind]));
   }
-  mesh.name = "Hansaplatz asphalt, paving and open kerb top cells";
+  mesh.name = `${name} exposed top cells`;
   mesh.userData.dayMaterial = material;
   mesh.userData.nightMaterial = new MeshBasicMaterial({ color: 0x626d82 });
   mesh.userData.staticAntiFlicker = true;

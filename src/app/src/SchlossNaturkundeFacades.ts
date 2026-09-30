@@ -25,7 +25,10 @@ export const SCHLOSS_NATURKUNDE_FACADE_PROFILE = {
     south: { start: [2004.3, 329.897], end: [2141.3, 237.2], side: -1 } as Axis,
     west: { start: [1937.111, 234.4], end: [2004.3, 329.897], side: -1 } as Axis,
     east: { start: [2085.2, 135.19], end: [2147.722, 223.8], side: 1 } as Axis,
-    baroqueFronts: 3, modernFronts: 1,
+    baroqueFronts: 3, modernFronts: 1, drumFacets: 8, drumWindowBaysPerFacet: 3,
+    prophets: 8, publishedProphetHeightM: 3.3, lanternAngels: 8,
+    contemporaryBalustradeFigures: 19, publishedAverageBalustradeHeightM: 3.14,
+    rooftopEvidence: ["https://www.humboldtforum.org/wp-content/uploads/2025/09/HF_Jahresbericht_2024.pdf", "https://www.humboldtforum.org/de/magazin/artikel/die-sache-mit-dem-kreuz/"],
   },
   naturkunde: {
     osmKey: "node/538692583", lod2Parent: "DEBE01YYK00002C5", mainPart: "DEBE3DrUA8mGJ9k2",
@@ -157,7 +160,9 @@ function palaceFront(b: Builder, axis: Axis, bays: number, portals: number[]): v
     }
     b.facade(axis, u, base + 28.3, 15.3, .9, 1.8, LIGHT, 1.5);
     b.facade(axis, u, base + 29.45, 13.8, 1.25, .8, STONE, 1.2);
-    for (const side of [-1, 1]) statue(b, point(axis, u + side * 5.4, base + 30.4, 1.15), .9);
+    const modernNineteen = axis === SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.north || axis === SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.south;
+    for (const offset of modernNineteen ? [-5.4, -1.8, 1.8, 5.4] : [-5.4, 5.4])
+      statue(b, point(axis, u + offset, base + 30.4, 1.15), modernNineteen ? 3.14 / 2.565 : .9);
   }
   for (let u = .7; u < l; u += b.minecraft ? 3.3 : 1.8)
     b.facade(axis, u, base + 29.2, .22, 1.1, .3, DARK, .85);
@@ -167,6 +172,10 @@ function schloss(b: Builder): void {
   palaceFront(b, p.north, 33, [.31, .76]);
   palaceFront(b, p.south, 31, [.39, .76]);
   palaceFront(b, p.west, 21, [.515]);
+  // Three western-corner/Eosanderschulter figures complete the 2025 group of 19.
+  // SHF explicitly identifies these as new contemporary sculptures, not copies.
+  for (const [axis, u] of [[p.north, 1.6], [p.north, 20.0], [p.south, 1.6]] as const)
+    statue(b, point(axis, u, p.groundY + 30.4, 1.15), 3.14 / 2.565);
   // Modern Spree elevation intentionally retains its spare concrete/glass order.
   const l = length(p.east);
   for (let bay = 0; bay < 12; bay++) for (const y of [11, 19.8, 27.8])
@@ -178,23 +187,65 @@ function schloss(b: Builder): void {
     b.add("drum", [x, 41.25, z], [23.6, 11.9, 23.6], STONE);
     b.add("dome", [x, 47.2, z], [23.6, 35.34, 23.6], 0x775443);
   }
+  // Three window bays per octagonal face and eight 3.30 m prophets (SHF).
   for (let i = 0; i < 8; i++) {
-    const a = i * Math.PI / 4, dx = Math.cos(a), dz = Math.sin(a);
-    b.box([x + dx * 11.8, 42, z + dz * 11.8], [2.8, 5.7, .3], GLASS, Math.PI / 2 - a);
-    statue(b, [x + dx * 11.6, 47.35, z + dz * 11.6], 1.1);
-    if (!b.minecraft) for (let j = 0; j < 10; j++) {
-      const t0 = j * Math.PI / 20, t1 = (j + 1) * Math.PI / 20;
+    const a = (i + .5) * Math.PI / 4, dx = Math.cos(a), dz = Math.sin(a);
+    const axis: Axis = { start: [x + dx * 10.97 - dz * 4.45, z + dz * 10.97 + dx * 4.45],
+      end: [x + dx * 10.97 + dz * 4.45, z + dz * 10.97 - dx * 4.45], side: -1 };
+    for (let j = 0; j < 3; j++) {
+      const u = 1.55 + j * 2.9;
+      b.facade(axis, u, 41.65, 1.85, 5.2, .16, DARK, .10);
+      b.facade(axis, u, 41.65, 1.55, 4.9, .18, GLASS, .22);
+      b.facade(axis, u, 41.65, .09, 4.9, .12, FRAME, .35);
+      b.facade(axis, u, 42.15, 1.55, .12, .12, FRAME, .35);
+    }
+    for (let j = 0; j <= 3; j++) {
+      const u = .16 + j * 2.85;
+      b.facade(axis, u, 41.5, .45, 7.65, .35, LIGHT, .35);
+      b.facade(axis, u, 45.36, .78, .43, .47, LIGHT, .39);
+    }
+    for (const y of [35.8, 37.2, 45.7, 46.1, 47.75])
+      b.facade(axis, 4.45, y, 9.2, .26, .55, LIGHT, .45);
+    for (let u = .3; u < 8.9; u += b.minecraft ? 1.25 : .68) {
+      b.add("column", point(axis, u, 46.92, .48), [.17, 1.36, .17], LIGHT);
+      if (!b.minecraft) b.add("head", point(axis, u, 46.83, .48), [.31, .4, .31], LIGHT);
+    }
+    const vertex = i * Math.PI / 4, vx = Math.cos(vertex), vz = Math.sin(vertex);
+    const p0: Point = [x + vx * 12.0, 47.89, z + vz * 12.0];
+    statue(b, p0, 3.3 / 2.565);
+    b.beam([p0[0] - .35, p0[1] + 2.35, p0[2]], [p0[0] - .72, p0[1] + 1.56, p0[2] + .20], .24, LIGHT);
+    b.beam([p0[0] + .35, p0[1] + 2.35, p0[2]], [p0[0] + .62, p0[1] + (i % 2 ? 2.65 : 1.7), p0[2] - .2], .23, LIGHT);
+  }
+  for (let i = 0; i < 16; i++) {
+    const a = i * Math.PI / 8, dx = Math.cos(a), dz = Math.sin(a);
+    if (!b.minecraft) for (let j = 0; j < 12; j++) {
+      const t0 = j * Math.PI / 24, t1 = (j + 1) * Math.PI / 24;
       b.beam([x + dx * 11.87 * Math.cos(t0), 47.2 + 17.72 * Math.sin(t0), z + dz * 11.87 * Math.cos(t0)],
         [x + dx * 11.87 * Math.cos(t1), 47.2 + 17.72 * Math.sin(t1), z + dz * 11.87 * Math.cos(t1)], .14, 0x9d7850);
+    }
+    // Round copper dormers sit just outside the retained curved envelope.
+    if (!b.minecraft) for (const t of [.15, .79]) {
+      const cy = 47.2 + 17.72 * Math.sin(t), r = 11.98 * Math.cos(t);
+      for (let k = 0; k < 8; k++) {
+        const a0 = k * Math.PI / 4, a1 = (k + 1) * Math.PI / 4;
+        b.beam([x + dx * r - dz * .57 * Math.cos(a0), cy + .43 * Math.sin(a0), z + dz * r + dx * .57 * Math.cos(a0)],
+          [x + dx * r - dz * .57 * Math.cos(a1), cy + .43 * Math.sin(a1), z + dz * r + dx * .57 * Math.cos(a1)], .10, 0xa17a58);
+      }
     }
   }
   // Open lantern and five-metre cross complete the published 70 m silhouette.
   for (let i = 0; i < 8; i++) {
     const a = i * Math.PI / 4;
-    b.add("column", [x + Math.cos(a) * 1.6, 67.6, z + Math.sin(a) * 1.6], [.24, 5.5, .24], GOLD);
+    const sx = x + Math.cos(a) * 1.6, sz = z + Math.sin(a) * 1.6;
+    b.add("column", [sx, 67.4, sz], [.31, 4.7, .31], 0x6c5942);
+    b.add("head", [sx, 68.72, sz], [.42, .55, .42], GOLD);
+    for (const side of [-1, 1]) b.beam([sx, 68.2, sz],
+      [sx - Math.sin(a) * side * .65, 69.12, sz + Math.cos(a) * side * .65], .20, GOLD);
   }
-  for (const y of [65, 70.2]) b.add("column", [x, y, z], [4.4, .35, 4.4], GOLD);
-  b.add("head", [x, 70.55, z], [2.6, 1.2, 2.6], GOLD);
+  for (const y of [65, 69.55]) b.add("column", [x, y, z], [4.4, .35, 4.4], GOLD);
+  if (!b.minecraft) b.add("dome", [x, 69.7, z], [4.4, 3.0, 4.4], GOLD);
+  else for (const [y, w] of [[69.9, 4.3], [70.35, 3.7], [70.8, 2.7], [71.1, 1.5]]) b.box([x, y, z], [w, .45, w], GOLD);
+  b.add("head", [x, 71.28, z], [.75, .8, .75], GOLD);
   b.box([x, 72.736, z], [.36, 5, .36], GOLD);
   b.box([x, 73.6, z], [2.4, .36, .36], GOLD);
 }

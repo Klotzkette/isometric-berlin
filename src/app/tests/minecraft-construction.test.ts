@@ -1,15 +1,16 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.46 adds the complete Gendarmenmarkt perimeter and historic Charité
-// source skins/facades while replacing their coarse duplicate columns/panes.
-// Versus v1.0.45: full +35,228 instances/+7,049,828 bytes; mobile +52,956
-// instances/+8,397,156 bytes. Both add36 draws; every source envelope remains.
+// v1.0.47 adds source-complete Palais, James-Simon, Komische Oper, U-Bahn
+// mouths and native avenue tops, plus requested museum/Schloss refinements.
+// v146 remains documented in docs/release-v1.0.47-review.md.
+// Full +19,655 instances/+1,590,092 bytes; mobile +22,053/+1,772,340 bytes.
+// Both add six draws; original sources and unrelated geometry remain.
 // Independent synchronous measurements are compared with cooperative buffers;
 // existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "847ccd8f1de5e7a6656cb1e7ddd8339514d55f99d8183401035854b7fd0d0c9f", 3884892, 156, 300644149],
-  ["mobile", "c2e3f3d1ffe912f702668fa045e5c3c658202a6af19b0e7b696b0753129ae942", 1119756, 154, 90044357],
+  ["full", "4725f688316f57506e3d269e9531948615545e85e49a4716c2bbb67fd4a42794", 3904547, 162, 302234241],
+  ["mobile", "c011fe412b8e91120508643d2e873106c80e8ab2f63dd209a8a839f4f05b6537", 1141809, 160, 91816697],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

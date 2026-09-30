@@ -29,6 +29,11 @@ from shapely.geometry import LineString, Point, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 from spree_shore import SPREE_SHORE_BUFFER_M, spree_water_envelope
+from unter_den_linden_streets import (
+  avenue_block_payload,
+  entrance_regions_metric,
+  entrance_regions_world,
+)
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_surface_polygons import (
@@ -295,6 +300,7 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
   # including the otherwise missing plaza areas and roadside pavement infill.
   approach = build_brandenburg_approach(roads, parks, osm_path=osm_path)
   local_scope = approach["scope"]
+  avenue_native = avenue_block_payload(approach)
   asphalt = asphalt.difference(local_scope).union(approach["asphalt"])
   paving = paving.difference(local_scope).union(
     approach["paving"].intersection(approach["plaza_scope"])
@@ -313,6 +319,13 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
           {**marking, "points": [world_point(p) for p in part.coords]}
         )
   markings = retained_markings
+  entrance_patches = entrance_regions_metric()
+  asphalt = asphalt.difference(entrance_patches)
+  paving = paving.difference(entrance_patches)
+  sidewalks = sidewalks.difference(entrance_patches)
+  approach["gravel"] = approach["gravel"].difference(entrance_patches)
+  approach["grass"] = approach["grass"].difference(entrance_patches)
+  curb_edges = curb_edges.difference(entrance_patches.buffer(0.15))
   curbs = world_lines(curb_edges)
   surfaces = [
     {
@@ -393,6 +406,8 @@ def build_payload(osm_path: Path = OSM) -> dict[str, Any]:
     "elevated_path_ids": sorted(elevated_path_ids),
     "markings_m": markings,
     "roads": source_roads,
+    "unter_den_linden_native": avenue_native,
+    "station_paving_patch_rectangles_world_m": entrance_regions_world(),
     "hansaplatz_native": hansaplatz_block_payload(
       asphalt,
       paving.union(sidewalks),
@@ -418,6 +433,10 @@ def main() -> None:
   parser.add_argument("--out", type=Path, default=OUT)
   args = parser.parse_args()
   payload = build_payload()
+  avenue_native = payload.pop("unter_den_linden_native")
+  (ROOT / "src/app/src/data/unterDenLindenBlockStreets.json").write_text(
+    json.dumps(avenue_native, ensure_ascii=False, separators=(",", ":")) + "\n"
+  )
   native = payload.pop("hansaplatz_native")
   native["osm_sha256"] = payload["source"]["osm_sha256"]
   (ROOT / "src/app/src/data/hansaplatzBlockStreets.json").write_text(

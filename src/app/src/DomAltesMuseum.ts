@@ -75,6 +75,12 @@ function altesDetail(b:Builder):void{
  for(let i=0;i<18;i++){const u=-40+i*80/17;if(Math.abs(u)<8)b.box(at(u,13.7,-3.2),[3.4,12,.15],GLASS,A.yaw);else{b.box(at(u,12,-3.2),[3.4,7.8,.15],0xad654c,A.yaw);b.box(at(u,18.1,-3.15),[3.8,3.3,.15],0xe6dbc1,A.yaw);}}
  for(let i=0;i<21;i++)b.box(at(0,5.22+(21-i)*(A.deck-5.22)/21,4.2+i*.26),[24,.16,.32],LIGHT,A.yaw);
  for(let i=0;i<18;i++)figure(b,at(-40+i*80/17,24.7,2.3),2.4,DARK,A.yaw);
+ // v1.0.47: framed red vestibule panels and recessed coffer rhythm.
+ for(let i=0;i<18;i++){const u=-40+i*80/17;
+  if(Math.abs(u)>=8){for(const side of[-1,1])b.box(at(u+side*1.65,11.95,-3.02),[.11,7.65,.1],LIGHT,A.yaw);for(const y of[8.1,11.25,15.85])b.box(at(u,y,-3.0),[3.4,.13,.13],LIGHT,A.yaw);}
+  if(i<17){const mid=-39.8+(i+.5)*79.6/17;for(const v of[-.8,3.45]){b.box(at(mid,22.46,v),[3.5,.06,3.5],0x8c7e67,A.yaw);for(const sign of[-1,1]){b.box(at(mid+sign*1.8,22.40,v),[.14,.16,3.7],LIGHT,A.yaw);b.box(at(mid,22.40,v+sign*1.8),[3.7,.16,.14],LIGHT,A.yaw);}}}
+ }
+ for(let i=0;i<85;i++)b.box(at(-41.6+i*.98,22.54,6.96),[.28,.24,.34],LIGHT,A.yaw);
  if(!b.mobile&&!b.minecraft){const text="FRIDERICVS GVILELMVS III STVDIO ANTIQVITATIS OMNIGENAE ET ARTIVM LIBERALIVM MVSEVM CONSTITVIT MDCCCXXVIII",base=text.replaceAll("Q","O"),paths=letteringStrokePaths(base,.65),layout=letteringLayout(base,.65);for(let j=0;j<text.length;j++)if(text[j]==="Q"){const x=layout.glyphs[j].leftM-layout.totalWidthM/2;paths.push([[x+.2,.21],[x+.47,-.05]]);}const points=paths.flat(),width=Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0]));for(const line of paths)for(let i=1;i<line.length;i++)b.beam(at(line[i-1][0]/width*80,23.12+line[i-1][1],6.89),at(line[i][0]/width*80,23.12+line[i][1],6.89),.065,0x897340);}
 
 
@@ -83,13 +89,13 @@ function altesDetail(b:Builder):void{
  b.add("column",[1856.2,32.45,-20.5],[8.5,.5,8.5],0x7b8986);for(let i=0;i<16;i++){const t=i*Math.PI/8;b.beam([1856.2,32.95,-20.5],[1856.2+Math.cos(t)*4.1,32.7,-20.5+Math.sin(t)*4.1],.11,LIGHT);}
 }
 function bowl(b:Builder,root:Group):void{
- const[x,z]=B.centre,color=0xa98e7d;
+ const[x,z]=B.centre,color=0xaa8170;
  if(b.minecraft)b.add("column",[x,B.ground+.13,z],[B.plinthRadius*2,.26,B.plinthRadius*2],0xb7a591);
  else {const g=new CylinderGeometry(B.plinthRadius,B.plinthRadius,.26,b.mobile?48:64);g.deleteAttribute("uv");const pair=materials();pair[0].color.setHex(0xb7a591);pair[1].color.setHex(0xb7a591);const m=new Mesh(g,pair[0]);m.position.set(x,B.ground+.13,z);m.name="Granitschale circular granite platform";attach(m,pair);root.add(m);}
 
  for(let i=0;i<3;i++){const t=i*Math.PI*2/3+.4;b.box([x+Math.cos(t)*1.65,5.79,z+Math.sin(t)*1.65],[.86,.86,1.14],color,t);b.box([x+Math.cos(t)*3.8,5.52,z+Math.sin(t)*3.8],[1.65,.38,.72],0xbaaa98,-t+Math.PI/2);}
- const profile=[[0,6.39],[1.3,6.39],[2.1,6.55],[2.78,6.87],[3.34,7.33],[3.45,7.47],[3.45,7.24],[3.05,6.77],[2.48,6.42],[1.6,6.22],[0,6.22]].map(p=>new Vector2(p[0],p[1]));
- if(!b.minecraft){const g=new LatheGeometry(profile,b.mobile?48:80);g.deleteAttribute("uv");const pair=materials();pair[0].color.setHex(color);pair[1].color.setHex(color);const m=new Mesh(g,pair[0]);m.position.set(x,0,z);m.name="Granitschale hollow polished red-granite basin";attach(m,pair);root.add(m);}else{for(let i=0;i<9;i++){const r=(i+.5)/9*3.45,y=6.39+1.08*(r/3.45)**2.45,n=Math.max(8,Math.ceil(2*Math.PI*r/.36));for(let j=0;j<n;j++){const t=j/n*Math.PI*2;b.box([x+Math.cos(t)*r,y-.13,z+Math.sin(t)*r],[.4,.26,.4],(i+j)%7===0?0xb49a83:color);}}}
+ const profile=[[0,6.39],[1.3,6.39],[2.1,6.55],[2.78,6.87],[3.26,7.22],[3.35,7.36],[3.40,7.445],[3.435,7.47],[3.45,7.445],[3.45,7.37],[3.40,7.28],[3.05,6.77],[2.48,6.42],[1.6,6.22],[0,6.22]].map(p=>new Vector2(p[0],p[1]));
+ if(!b.minecraft){const g=new LatheGeometry(profile,b.mobile?48:80);g.deleteAttribute("uv");const pair=materials(true);const tones=[0xaa8170,0xa78070,0xae8977,0xa58070,0xb08e7d];const colors=new Float32Array(g.getAttribute("position").count*3),tint=new Color();for(let i=0;i<colors.length/3;i++)tint.setHex(tones[(i*17+Math.floor(i/13))%tones.length]).toArray(colors,i*3);g.setAttribute("color",new Float32BufferAttribute(colors,3));pair[1].roughness=.24;pair[1].flatShading=false;const m=new Mesh(g,pair[0]);m.position.set(x,0,z);m.name="Granitschale hollow polished red-granite basin";attach(m,pair);root.add(m);}else{for(let i=0;i<9;i++){const r=(i+.5)/9*3.45,y=6.39+1.08*(r/3.45)**2.45,n=Math.max(8,Math.ceil(2*Math.PI*r/.36));for(let j=0;j<n;j++){const t=j/n*Math.PI*2;b.box([x+Math.cos(t)*r,y-.13,z+Math.sin(t)*r],[.4,.26,.4],(i+j)%7===0?0xb49a83:color);}}}
 
 }
 export function createDomAltesMuseum(options:{mobileLike?:boolean;minecraft?:boolean}={}):Group{

@@ -1081,3 +1081,57 @@ anchor the geometry. Individually credited external photographs guide only
 procedural facade/material readings. No photograph or texture is bundled.
 See [Gendarmenmarkt](docs/gendarmenmarkt-perimeter-sources-v146.md) and
 [Charité](docs/charite-historic-facades-v146.md).
+
+## Unter den Linden, Schloss and Museum Island (v1.0.47)
+
+Retained Geoportal Berlin LoD2 sheets (dl-de/zero-2-0) and OpenStreetMap
+identities and public-space geometry (ODbL-1.0) anchor this bounded revision.
+Source roof geometry, courtyards and original records remain distinct from
+procedural windows, columns, sculpture anatomy, stairs and railings.
+
+- **Palais and Friedrich II:** Landesdenkmalamt records
+  [09095949](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095949),
+  [09095951](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095951)
+  and [09060118](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09060118)
+  establish the building identities and monument history.
+  [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/reiterstandbild-friedrich-der-grosse-5108/)
+  documents Christian Daniel Rauch's monument, its 13.5 m overall height and
+  Johann Heinrich Strack's enclosure and lamp standards. OSM node `262455591`
+  fixes the current location. External photographs by Bahnfrend and
+  Bärwinkel,Klaus (CC BY-SA 4.0), Jörg Zägel and Beek100 (CC BY-SA 3.0) guide
+  material and silhouette details.
+- **Schloss roof structures:** the Humboldt Forum's
+  [2024 annual report](https://www.humboldtforum.org/wp-content/uploads/2025/09/HF_Jahresbericht_2024.pdf),
+  [lantern account](https://www.humboldtforum.org/de/magazin/artikel/die-sache-mit-dem-kreuz/)
+  and [2025 sculpture dossier](https://www.humboldtforum.org/wp-content/uploads/2025/04/20250430_Presseinformation_Balustradenfiguren-2.pdf)
+  distinguish the eight prophets, lantern angels and nineteen contemporary
+  balustrade sculptures. Their code-built silhouettes do not reproduce scans
+  or protected sculpture geometry. The existing AusleseBeeren dome photograph
+  (CC BY-SA 4.0) remains credited. See the full
+  [source and authorship record](docs/palaces-udl-v147.md).
+- **Museum Island:** David Chipperfield Architects'
+  [James-Simon-Galerie account](https://davidchipperfield.com/projects/james-simon-galerie)
+  supplies architectural context for the complete eight-part LoD2 supplement.
+  Leonhard Lenz's *James-Simon-Galerie Berlin 2021-03-13 02.jpg* (CC0) is the
+  new visual reference. Existing references are reused for the other museum
+  details: Till Niermann (Bode-Museum, CC BY-SA 3.0), HerrAdams (Pergamonmuseum,
+  CC BY-SA 4.0), Bahnfrend (Alte Nationalgalerie, CC BY-SA 4.0), Ansgar Koreng
+  (Altes Museum, CC BY 4.0) and Times (Granitschale, CC BY-SA 3.0). See the
+  [museum evidence record](docs/museums-v147.md).
+- **Western Unter den Linden and Komische Oper:** Landesdenkmalamt records
+  [09075006](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075006)
+  and [09065009](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065009)
+  identify the Russian Embassy and opera building. The opera's
+  [renovation account](https://www.komische-oper-berlin.de/entdecken/sanierung/)
+  distinguishes the existing building from planned work. The existing
+  Embassy/Aeroflot photographs are reused; Jörg Zägel's Haus Pietzsch view and
+  Wolfsraum's 1966 opera-facade view (both CC BY-SA 3.0) are newly credited.
+  The latter's 2012 foreground demolition is not presented as current work.
+  See [Unter den Linden sources](docs/unter-den-linden-v147.md).
+
+All nine new photo credits are mirrored in
+[`geo_data/regierungsviertel/wikimedia_references.json`](geo_data/regierungsviertel/wikimedia_references.json)
+and the shipped
+[`wikimedia_attribution.json`](src/app/public/dzi/regierungsviertel/wikimedia_attribution.json),
+with each file's page, author and license. They are external visual references
+only; no new photograph, crop or photographic texture is bundled or loaded.

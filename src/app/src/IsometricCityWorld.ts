@@ -1,3 +1,4 @@
+import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertures";
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
 import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
@@ -7,6 +8,11 @@ import { GRIPS_HANSAPLATZ_PRISM_IDS } from "./gripsHansaplatzProfile";
 import { GYMNASIUM_NEUBAU_PRISM_IDS } from "./gymnasiumTiergartenProfile";
 import { BEHREN42_PRISM_IDS } from "./Behren42Profile";
 import { NEUE_WACHE_PRISM_IDS } from "./neueWacheProfile";
+import { KOMISCHE_OPER_SOURCE_IDS } from "./KomischeOperSourceGeometry";
+import { pointInUnterDenLindenEntranceRegion } from "./unterDenLindenEntrancesProfile";
+import { PALACES_UDL_PRISM_IDS } from "./palacesUdlProfile";
+import { JAMES_SIMON_PRISM_IDS } from "./jamesSimonProfile";
+import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
 import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
@@ -906,6 +912,9 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...BEHREN42_PRISM_IDS,
   ...BEBELPLATZ_BUILDING_PRISM_IDS,
   ...SCHLOSS_NATURKUNDE_PRISM_IDS,
+  ...PALACES_UDL_PRISM_IDS,
+  ...KOMISCHE_OPER_SOURCE_IDS,
+  ...JAMES_SIMON_PRISM_IDS,
   // Exact TIPI tent/service ways: source-footprint pavilions replace their fallback boxes.
   ...TIPI_SITE_PRISM_IDS,
   // Serra's two thin plates replace only their closed LoD2 source envelope.
@@ -10178,7 +10187,7 @@ export function createSmoothSurfaces(
   ];
   const roads = surfaces.roads ?? [];
   for (const surface of ROAD_SURFACES) {
-    const plate = buildPlate(
+    let plate = buildPlate(
       roads.filter((entry) => entry.kind === surface.kind),
       terrainAt ? surface.lift : bankY + surface.lift,
       true,
@@ -10188,6 +10197,10 @@ export function createSmoothSurfaces(
     );
     if (!plate) {
       continue;
+    }
+    if (surface.kind === "metal") {
+      const opened = cutUnterDenLindenSurfaceApertures(plate);
+      if (opened !== plate) { plate.dispose(); plate = opened; }
     }
     const dayMaterial = new MeshBasicMaterial({ color: surface.day });
     const nightMaterial = new MeshBasicMaterial({ color: surface.night });
@@ -12908,7 +12921,7 @@ export function createIsometricCity(
         skipClasses:
           surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld: (x,z) => isBebelLibraryGroundCell(x,z) || pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
+        skipAtWorld: (x,z) => pointInUnterDenLindenEntranceRegion(x,z) || isBebelLibraryGroundCell(x,z) || pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
           isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
           Boolean(insideTunnelApproach?.(x,z) || insideTillaDurieux?.(x,z)),
         skipWater: true,
@@ -12926,6 +12939,7 @@ export function createIsometricCity(
     slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
+    restoreJamesSimonGroundOwnership(slabs, ground);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen

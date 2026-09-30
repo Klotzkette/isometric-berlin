@@ -13,6 +13,7 @@ import { createGripsHansaplatz } from "./GripsHansaplatz";
 import { isGripsHansaplatzReplacementColumn } from "./gripsHansaplatzProfile";
 import { createGymnasiumTiergartenNeubau } from "./GymnasiumTiergartenNeubau";
 import { isGymnasiumNeubauReplacementColumn } from "./gymnasiumTiergartenProfile";
+import { createUnterDenLindenBlockStreets } from "./UnterDenLindenBlockStreets";
 import { createHansaplatzBlockStreets } from "./HansaplatzBlockStreets";
 import { isGorkiBuildingReplacementColumn } from "./gorkiBuildingProfile";
 import { createBehren42Architecture } from "./Behren42Architecture";
@@ -20,6 +21,14 @@ import { isBehren42ReplacementColumn } from "./Behren42Profile";
 import { createNeueWache } from "./NeueWache";
 import { isNeueWacheReplacementColumn } from "./neueWacheProfile";
 import { createSpreeRailings } from "./SpreeRailings";
+import { createMinecraftKomischeOperSourceGeometry, isKomischeOperReplacementCell } from "./KomischeOperSourceGeometry";
+import { createMinecraftUnterDenLindenEntrances } from "./UnterDenLindenEntrances";
+import { pointInUnterDenLindenEntranceRegion } from "./unterDenLindenEntrancesProfile";
+import { createMinecraftPalacesAndFriedrich } from "./PalacesAndFriedrich";
+import { isPalacesUdlReplacementColumn } from "./palacesUdlProfile";
+import { createMinecraftJamesSimonArchitecture } from "./JamesSimonArchitecture";
+import { isJamesSimonReplacementColumn } from "./jamesSimonProfile";
+import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
 import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
@@ -802,6 +811,9 @@ export function isCompleteRecognitionVoxelColumn(
     isGymnasiumNeubauReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||
+    isPalacesUdlReplacementColumn(x, z) ||
+    isKomischeOperReplacementCell(x-2,z-2,4) ||
+    isJamesSimonReplacementColumn(x, z) ||
     isMuseumTriadReplacementColumn(x, z) ||
     abgeordnetenhausMainContains(x, z) ||
     gustavBridgeSupportReplacementAt(x, z) ||
@@ -2694,8 +2706,7 @@ export function* buildMinecraftVoxelWorldSteps(
   const parkGround = smoothGroundTopSampler(payload);
   group.add(createMinecraftExtrapolatedWorld());
   yield;
-  group.add(
-    yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
+  const groundSlabs = yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
       terrainOverride: {
         bounds: SPREEBOGEN_BANK_BOUNDS,
         // Leave the native paving surface visible above its terrain backing.
@@ -2710,13 +2721,15 @@ export function* buildMinecraftVoxelWorldSteps(
       // prevents coincident DGM slabs and Schrägufer blocks from flickering.
       skipAtWorld: (x, z) =>
         Boolean(
+          pointInUnterDenLindenEntranceRegion(x,z) ||
           isBebelLibraryGroundCell(x, z) ||
           insideTunnelApproach?.(x, z) ||
           isNorthernHumboldthafenReplacementCell(x, z),
         ),
       skipBridgeAtWorld: (x, z) => isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
-    }),
-  );
+    });
+  restoreJamesSimonGroundOwnership(groundSlabs, payload);
+  group.add(groundSlabs);
   yield;
   group.add(createMinecraftSpreebogenPark(payload, { mobileLike: mobileDetail }));
   yield;
@@ -2745,7 +2758,17 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createHansaplatzBlockStreets(payload));
   yield;
+  group.add(createUnterDenLindenBlockStreets(payload));
+  yield;
   group.add(createBehren42Architecture(true));
+  group.add(createMinecraftKomischeOperSourceGeometry());
+  yield;
+  group.add(createMinecraftUnterDenLindenEntrances());
+  yield;
+  group.add(createMinecraftPalacesAndFriedrich());
+  yield;
+  group.add(createMinecraftJamesSimonArchitecture());
+  yield;
   group.add(createMinecraftSchlossNaturkundeShells());
   group.add(createMinecraftSchlossNaturkundeFacades());
   yield;

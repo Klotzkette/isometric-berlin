@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.47
+
+- Refine Friedrich the Great's equestrian monument at its retained OSM anchor, with a stepped socle, figure registers, mounted king, enclosure and four lamp standards.
+- Add complete source-bound Kronprinzenpalais and Prinzessinnenpalais architecture, including their distinct roofs, elevated link, portico and colonnade.
+- Refine the Schloss drum, cupola, lantern and documented rooftop figures; retain the official roof geometry and distinguish the contemporary sculptures from historical reconstructions.
+- Add James-Simon-Galerie from all eight official source parts, with slender columns, recessed glazing, plinth and stairs; refine Bode-Museum, Pergamonmuseum, Alte Nationalgalerie, Altes Museum and the granite bowl.
+- Correct the Russian Embassy and Aeroflot facade placement, complete Haus Pietzsch / Einstein corner details and articulate the existing Komische Oper building without adding its proposed extension.
+- Extend source-derived street, pavement and U-Bahn entrance details along Unter den Linden, with separate native Minecraft architecture and street forms.
+- Add nine new external photo credits and reuse five existing museum references; retain all previous attribution records and bundle no new photographs or textures.
+
 ## v1.0.46
 
 - Detail sixteen Gendarmenmarkt perimeter groups with individually referenced materials, window grids, arches, entrances, balconies and lettering.

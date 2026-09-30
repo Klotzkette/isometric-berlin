@@ -399,6 +399,16 @@ export function createSpreeMuseumDetails(): Group {
   grill.add(sourceSurfaceMesh(GRILL_SOURCE.parts, "Grill official eight-part envelope", false));
   const builder = new DetailBuilder(), grillBuilder = new DetailBuilder(), fine = new DetailBuilder();
   museumFacades(builder, fine);
+  // v1.0.47 entrance cartouches, paired Corinthian leaves and projecting dentils.
+  const frontCentre=domeCentre(BODE_DOMES.find(p=>p.height_m>40)!);
+  for(let bay=0;bay<11;bay++){
+    const a=-2.602+(bay-5)*.199,yaw=Math.PI/2-a;
+    const at=(u:number,y:number,out:number):Point=>[frontCentre[0]+Math.cos(a)*(23.1+out)+Math.cos(yaw)*u,y,frontCentre[1]+Math.sin(a)*(23.1+out)-Math.sin(yaw)*u];
+    builder.add("round",at(0,20.36,.58),[.72,1.0,.23],STONE_LIGHT,new Quaternion().setFromAxisAngle(UP,yaw));
+    for(const sign of[-1,1]){builder.beam(at(sign*.15,20.9,.7),at(sign*.63,20.5,.7),.13,STONE_LIGHT);builder.add("round",at(sign*.48,20.77,.62),[.26,.33,.19],STONE_LIGHT);}
+    for(let i=-2;i<=2;i++)builder.box(at(i*.77,23.35,.65),[.24,.28,.58],STONE_LIGHT,yaw);
+    for(const sign of[-1,1])for(let leaf=-1;leaf<=1;leaf++)builder.add("round",at(sign*2.04+leaf*.23,22.35,.71),[.22,.64,.25],STONE_LIGHT);
+  }
   for (const dome of BODE_DOMES) museumDome(dome, museum, builder, fine);
   const [cx, cz] = domeCentre(BODE_DOMES.find((p) => p.height_m > 40)!);
   const angle = -2.602;

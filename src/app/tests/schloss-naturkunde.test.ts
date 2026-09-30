@@ -61,6 +61,9 @@ describe("Schloss and Naturkunde retained architecture", () => {
     expect(SCHLOSS_NATURKUNDE_PRISM_IDS.has("-3007958")).toBeTrue();
     expect(SCHLOSS_NATURKUNDE_PRISM_IDS.has("A8mGJ9k2")).toBeTrue();
     expect(source.profiles.naturkunde.display_y_translation_m).toBe(2.166);
+    expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.prophets).toBe(8);
+    expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.publishedProphetHeightM).toBe(3.3);
+    expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.drumWindowBaysPerFacet).toBe(3);
     expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.baroqueFronts).toBe(3);
     expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss.modernFronts).toBe(1);
     expect(SCHLOSS_NATURKUNDE_FACADE_PROFILE.naturkunde.centralBays).toBe(3);
@@ -81,7 +84,7 @@ describe("Schloss and Naturkunde retained architecture", () => {
     const shell = budget(createSchlossNaturkundeShells()), facade = budget(createSchlossNaturkundeFacades());
     expect(shell.draws).toBe(2); expect(shell.bytes).toBeLessThan(350_000);
     expect(facade.draws).toBe(5); expect(facade.instances).toBeGreaterThan(2900);
-    expect(facade.bytes).toBeLessThan(280_000);
+    expect(facade.bytes).toBeLessThan(340_000);
   });
   test("Minecraft uses two native surface batches with no smooth duplicate or hidden fill", () => {
     const shellRoot = createMinecraftSchlossNaturkundeShells(), facadeRoot = createMinecraftSchlossNaturkundeFacades();
@@ -90,7 +93,7 @@ describe("Schloss and Naturkunde retained architecture", () => {
     expect(shellRoot.userData.hiddenSolidInfill).toBeFalse();
     expect(facadeRoot.userData.blockNative).toBeTrue();
     expect(shell.draws).toBe(1); expect(facade.draws).toBe(1);
-    expect(shell.bytes).toBeLessThan(850_000); expect(facade.bytes).toBeLessThan(200_000);
+    expect(shell.bytes).toBeLessThan(850_000); expect(facade.bytes).toBeLessThan(220_000);
     expect(new Box3().setFromObject(facadeRoot).max.y).toBeCloseTo(75.236, 3);
     expect(shellRoot.children.every((o) => (o as Mesh).geometry.getAttribute("position").count === 24)).toBeTrue();
   });

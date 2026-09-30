@@ -1,3 +1,6 @@
+import { PALACES_UDL_SOURCES } from "../src/palacesUdlProfile";
+import { JAMES_SIMON_SOURCE } from "../src/jamesSimonProfile";
+import { KOMISCHE_OPER_SOURCE_PART } from "../src/KomischeOperSourceGeometry";
 import { FIFTY_HERTZ_IDS } from "../src/fiftyHertzProfile";
 import { describe, expect, test } from "bun:test";
 import type { PrismPayload } from "../src/IsometricCityWorld";
@@ -76,6 +79,9 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // also retain their individual roof planes.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
+        ...PALACES_UDL_SOURCES.flatMap(s=>s.parts.map(p=>p.id)),
+        ...JAMES_SIMON_SOURCE.parts.map(p=>p.id),
+        KOMISCHE_OPER_SOURCE_PART.id,
         ...BELLEVUE_IDS,
         ...FIFTY_HERTZ_IDS,
         profile.mainPrismId,

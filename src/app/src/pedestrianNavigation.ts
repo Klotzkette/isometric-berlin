@@ -5,6 +5,10 @@ import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansa
 import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
 import { NEUE_WACHE_PRISM_IDS, NEUE_WACHE_PROFILE, NEUE_WACHE_ROOF_INDEX_RING, neueWacheRoofAt } from "./neueWacheProfile";
 import { BEHREN42_PRISM_IDS, BEHREN42_SOURCE } from "./Behren42Profile";
+import { KOMISCHE_OPER_SOURCE_IDS, KOMISCHE_OPER_SOURCE_PART, KOMISCHE_OPER_GROUND_Y, komischeOperRoofTopAt } from "./KomischeOperSourceGeometry";
+import { UNTER_DEN_LINDEN_ENTRANCE_BARRIERS, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y, UNTER_DEN_LINDEN_ENTRANCE_DESCENT_M } from "./unterDenLindenEntrancesProfile";
+import { PALACES_UDL_SOURCES, PALACES_UDL_PRISM_IDS, palacesUdlPartRoofAt } from "./palacesUdlProfile";
+import { JAMES_SIMON_SOURCE, JAMES_SIMON_PRISM_IDS, jamesSimonRoofAt } from "./jamesSimonProfile";
 import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
@@ -693,6 +697,38 @@ export function compilePedestrianObstacles(
       }
       continue;
     }
+    if (KOMISCHE_OPER_SOURCE_IDS.has(building.id)) {
+      const p = KOMISCHE_OPER_SOURCE_PART;
+      addPolygonObstacle(index,p.ring,p.holes,KOMISCHE_OPER_GROUND_Y,p.top_y_m+KOMISCHE_OPER_GROUND_Y-p.ground_y_m,p.id,1,komischeOperRoofTopAt);
+      index.buildingCount += 1;
+      continue;
+    }
+    if (PALACES_UDL_PRISM_IDS.has(building.id)) {
+      for (const source of PALACES_UDL_SOURCES) {
+        if (replacedParents.has(source.parent_id)) continue;
+        replacedParents.add(source.parent_id);
+        for (const part of source.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m + source.display_y_translation_m,
+            part.top_y_m + source.display_y_translation_m, part.id, 1,
+            (x,z) => palacesUdlPartRoofAt(part,x,z));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (JAMES_SIMON_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has(JAMES_SIMON_SOURCE.parent_id)) {
+        replacedParents.add(JAMES_SIMON_SOURCE.parent_id);
+        for (const part of JAMES_SIMON_SOURCE.parts) {
+          addPolygonObstacle(index, part.ring, part.holes,
+            part.ground_y_m, part.top_y_m, part.id, 1,
+            (x,z) => jamesSimonRoofAt(x,z,part.id));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     const schlossNaturkunde = schlossNaturkundeSourceForPrism(building.id);
     if (schlossNaturkunde) {
       if (!replacedParents.has(schlossNaturkunde.parent_id)) {
@@ -851,6 +887,11 @@ export function compilePedestrianObstacles(
       });
       addPolygonObstacle(index, ring, [], solid.y - solid.height / 2,
         solid.y + solid.height / 2, `${TOPOGRAPHY_TERROR_MUSEUM_ID}:${solid.role}`, 1);
+    }
+  }
+  if (prisms.buildings.some(b => KOMISCHE_OPER_SOURCE_IDS.has(b.id))) {
+    for (const wall of UNTER_DEN_LINDEN_ENTRANCE_BARRIERS) {
+      addSegmentObstacle(index, wall.a, wall.b, wall.radius, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y - UNTER_DEN_LINDEN_ENTRANCE_DESCENT_M, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y + 1.1);
     }
   }
   return index;
