@@ -1,4 +1,5 @@
 import { NEUE_WACHE_PROFILE, neueWacheSolidAt } from "./neueWacheProfile";
+import { alexanderPublicRealmSolidAt } from "./alexanderPublicRealmProfile";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 import {
   SCHILLER_MONUMENT_PROFILE,
@@ -33,7 +34,7 @@ const PROTECTED_MAX_Y_M = 45;
 export type SchwellenraumProtectedMemorialShape = {
   halfDepthM: number;
   halfWidthM: number;
-  kind: "box" | "circle" | "literary" | "berlin-junction" | "neue-wache" | "schiller";
+  kind: "box" | "circle" | "literary" | "berlin-junction" | "neue-wache" | "schiller" | "marx-engels-forum";
   maxYM: number;
   minYM: number;
   name: string;
@@ -201,7 +202,9 @@ function protectionShapes(
     // standing/flying body room to stop before touching the object.
     halfDepthM: isArea ? Math.max(radiusM, depthM / 2 + 1.25) : radiusM,
     halfWidthM: isArea ? Math.max(radiusM, widthM / 2 + 1.25) : radiusM,
-    kind: isArea ? "box" : "circle",
+    // The mapped Forum ensemble retains its full quiet prop clearance, but
+    // visitor protection must leave the paths between its artworks open.
+    kind: entry.osm_key === "way/895523112" ? "marx-engels-forum" : isArea ? "box" : "circle",
     maxYM: PROTECTED_MAX_Y_M,
     minYM: PROTECTED_MIN_Y_M,
     name: entry.name,
@@ -314,7 +317,9 @@ export function schwellenraumProtectedMemorialShapeAt(
   if (!bucket) return null;
   for (const shape of bucket) {
     if (y < shape.minYM || y > shape.maxYM) continue;
-    if (shape.kind === "schiller") {
+    if (shape.kind === "marx-engels-forum") {
+      if (alexanderPublicRealmSolidAt(x, z, y)) return shape;
+    } else if (shape.kind === "schiller") {
       if (schillerMonumentSolidAt(x, y, z)) return shape;
     } else if (shape.kind === "literary") {
       if (tiergartenLiteraryMemorialProtectedAt(x, z)) return shape;

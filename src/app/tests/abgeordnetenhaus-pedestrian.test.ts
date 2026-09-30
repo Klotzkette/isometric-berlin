@@ -1,4 +1,5 @@
 import { PALACES_UDL_SOURCES } from "../src/palacesUdlProfile";
+import { ALEXANDER_CIVIC_SOURCES, MARIEN_TOWER_PART_IDS } from "../src/alexanderCivicProfile";
 import { JAMES_SIMON_SOURCE } from "../src/jamesSimonProfile";
 import { KOMISCHE_OPER_SOURCE_PART } from "../src/KomischeOperSourceGeometry";
 import { FIFTY_HERTZ_IDS } from "../src/fiftyHertzProfile";
@@ -93,6 +94,10 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     expect(DHM_PARTS).toHaveLength(11);
     expect(RUSSIAN_EMBASSY_SOURCE_PARTS).toHaveLength(16);
     expect(eastOutlineParts).toHaveLength(6);
+    const marienParts = ALEXANDER_CIVIC_SOURCES.find(s => s.key === "marien")!.parts;
+    expect(marienParts).toHaveLength(5);
+    const marienRoofs = marienParts.filter(p => !MARIEN_TOWER_PART_IDS.has(p.id));
+    expect(marienRoofs).toHaveLength(3);
     const tower = [...new Set([...obstacles.cells.values()].flat())].filter(p => p.sourceId === "fernsehturm-outline");
     expect(tower).toHaveLength(1);
     expect(tower[0].kind).toBe("circle");
@@ -104,6 +109,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         ...DHM_PARTS.map(p => p.id),
         ...RUSSIAN_EMBASSY_SOURCE_PARTS.map(p => p.id),
         ...eastOutlineParts.map(p => p.id),
+        ...marienRoofs.map(p => p.id),
         ...PALACES_UDL_SOURCES.flatMap(s=>s.parts.map(p=>p.id)),
         ...JAMES_SIMON_SOURCE.parts.map(p=>p.id),
         KOMISCHE_OPER_SOURCE_PART.id,

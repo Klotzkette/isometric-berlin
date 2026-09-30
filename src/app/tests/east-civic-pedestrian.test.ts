@@ -1,3 +1,4 @@
+import { ALEXANDER_CIVIC_SOURCES, MARIEN_TOWER_PART_IDS } from "../src/alexanderCivicProfile";
 import { describe, expect, test } from "bun:test";
 import type { PrismPayload } from "../src/IsometricCityWorld";
 import {
@@ -47,6 +48,7 @@ describe("v148 civic source pedestrian integration", () => {
       ...EAST_CIVIC_SOURCES.flatMap(p => p.parts).filter(p => p.top_y_m > eastCivicPartBaseAt(p)), ...DHM_PARTS,
       ...RUSSIAN_EMBASSY_SOURCE_PARTS,
       ...SCHLOSS_EAST_PARTS.filter(p => !TV.sourcePartIds.includes(p.id)),
+      ...ALEXANDER_CIVIC_SOURCES.find(s => s.key === "marien")!.parts.filter(p => !MARIEN_TOWER_PART_IDS.has(p.id)),
     ];
     expect(polygons.filter(p => p.topAt).map(p => p.sourceId).sort()).toEqual(expected.map(p => p.id).sort());
     for (const id of replaced) expect(indexed.has(id)).toBeFalse();

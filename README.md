@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.48 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.48/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.49 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.49/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.48** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.49** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.49 details the Fernsehturm and its view-dependent sunlight cross,
+Rotes Rathaus and St. Marienkirche. The Marx-Engels monument, mapped Forum trees
+and Neptunbrunnen join the existing eastern streets. Previous city geometry and
+the 93-stop catalogue remain. [Sources and checks](docs/release-v1.0.49-review.md).
+
+Version 1.0.49 verfeinert den Fernsehturm samt blickabhängigem Kreuzreflex,
+das Rote Rathaus und die Marienkirche. Marx-Engels-Denkmal, kartierte Bäume am
+Forum und Neptunbrunnen ergänzen die vorhandenen Straßen nach Osten.
 
 Version 1.0.48 completes the Friedrichswerder church towers and Foreign Office,
 refines the Russian Embassy, DHM with Pei's transparent spiral stair, Gorki

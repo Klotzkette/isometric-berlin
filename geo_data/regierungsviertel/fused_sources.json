@@ -750,6 +750,39 @@
       "conflicts": [],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "fernsehturm_detail_v149",
+      "anchor_source": "Retained v148 LoD2 source centre and published tower dimensions; licensed external photographs for procedural detail",
+      "geometry_ref": "src/app/src/fernsehturmDetailProfile.ts",
+      "documentation_ref": "docs/fernsehturm-detail-v149.md",
+      "conflicts": [
+        "Original generalized LoD2 cylinders remain retained as evidence; the narrow shaft/sphere interpretation is extended with bounded details. The sunlight cross is an explicitly approximate view-dependent anisotropic highlight."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "alexander_civic_v149",
+      "anchor_source": "Retained exact Rathaus LoD2 parts plus complete official five-part St. Marienkirche source",
+      "geometry_ref": "src/app/src/alexanderCivicSource.json",
+      "documentation_ref": "docs/alexander-civic-v149.md",
+      "conflicts": [
+        "Source tower pyramid and closed lantern envelopes are retained unchanged, with documented open detailed display corrections."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "alexander_public_realm_v149",
+      "anchor_source": "Retained September 2026 OSM monument/waterline/tree geometry, merged against both existing tree payloads",
+      "geometry_ref": "src/app/src/alexanderPublicRealmSource.json",
+      "documentation_ref": "docs/alexander-public-realm-v149.md",
+      "conflicts": [
+        "The 60 m ensemble circle is distinct from the small Marx-Engels statue footprint. Current mapped objects are distinguished from future landscape plans; unspecified tree/sculpture dimensions are procedural."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

@@ -49,6 +49,10 @@ Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing
 93-place tour and detailed city must remain intact. This narrow extension is
 not authorization for an unbounded whole-city rebuild.
+The owner-requested v1.0.49 refinement adds the detailed Fernsehturm, Rotes
+Rathaus, St. Marienkirche, Marx-Engels monument, mapped Forum trees and
+Neptunbrunnen within this same bounds polygon. Keep existing station outlines
+and distinguish current source evidence from future landscape plans.
 
 **Owner quality-preservation policy (v1.0.41):** Performance work must not remove
 visible source geometry, roads, paths, shorelines, facade details or monuments.

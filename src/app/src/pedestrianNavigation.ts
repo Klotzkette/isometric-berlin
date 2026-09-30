@@ -1,7 +1,11 @@
+import { SCHLOSS_EAST_NAVIGATION_BOUNDS, schlossEastNavigationGroundAt } from "./schlossEastNavigation";
 import { DHM_PARTS, DHM_PRISM_IDS, dhmPartBaseAt, dhmPartRoofAt } from "./dhmProfile";
 import { eastCivicSourceForPrism, eastCivicPartBaseAt, eastCivicPartRoofAt, EAST_CIVIC_LOGGIA_POSTS } from "./eastCivicProfile";
 import { RUSSIAN_EMBASSY_SOURCE_IDS, RUSSIAN_EMBASSY_SOURCE_PARTS, RUSSIAN_EMBASSY_SOURCE_DY, russianEmbassyRoofAt } from "./RussianEmbassySourceGeometry";
 import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE, fernsehturmOutlineSolidAt } from "./schlossEastProfile";
+import { ALEXANDER_CIVIC_PARTS, ALEXANDER_CIVIC_PRISM_IDS, MARIEN_TOWER, MARIEN_TOWER_PART_IDS,
+  RATHAUS_TOWER_ID, RATHAUS_TOWER_PLATFORM, RATHAUS_TERMINAL, rathausTerminalSolidAt,
+  alexanderCivicPartBaseAt, alexanderCivicPartRoofAt, alexanderCivicTowerSolidAt } from "./alexanderCivicProfile";
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
@@ -609,6 +613,8 @@ export function compilePedestrianObstacles(
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;
     if (building.id === ROSENGARTEN_PERGOLA_PRISM_ID) continue;
     if (building.id === GUSTAV_BRIDGE_SUPPORT_FALLBACK.prismId) continue;
+    // These complete parts are installed exactly once with the eastern family.
+    if (ALEXANDER_CIVIC_PRISM_IDS.has(building.id)) continue;
     const grips = gripsHansaplatzPartForPrism(building.id);
     const school = gymnasiumNeubauPartForPrism(building.id);
     if (school) {
@@ -926,11 +932,39 @@ export function compilePedestrianObstacles(
   }
   if (prisms.buildings.some(b => DHM_PRISM_IDS.has(b.id))) {
     for (const part of SCHLOSS_EAST_PARTS) {
-      if (FERNSEHTURM_PROFILE.sourcePartIds.includes(part.id)) continue;
+      if (FERNSEHTURM_PROFILE.sourcePartIds.includes(part.id) ||
+          ALEXANDER_CIVIC_PARTS.some(p => p.id === part.id)) continue;
       addPolygonObstacle(index,part.ring,part.holes,part.ground_y_m,part.top_y_m,part.id,1,
         (x,z)=>bebelplatzPartRoofAt(part,x,z));
       index.buildingCount += 1;
     }
+    for (const part of ALEXANDER_CIVIC_PARTS) {
+      if (MARIEN_TOWER_PART_IDS.has(part.id)) continue;
+      addPolygonObstacle(index, part.ring, part.holes, alexanderCivicPartBaseAt(part),
+        part.id === RATHAUS_TOWER_ID ? RATHAUS_TOWER_PLATFORM : part.top_y_m,
+        part.id, 1, (x,z) => alexanderCivicPartRoofAt(part,x,z));
+      index.buildingCount += 1;
+    }
+    const church = MARIEN_TOWER;
+    addObstacle(index, { kind: "circle", sourceId: "marien-source-bound-open-tower",
+      x: church.x, z: church.z, radius: 10,
+      minX: church.x-10, maxX: church.x+10, minZ: church.z-10, maxZ: church.z+10,
+      minY: church.groundY, maxY: church.finialTop,
+      solidAt: (x,y,z,r=0) => alexanderCivicTowerSolidAt(x,z,y,.01) || (r > 0 && (
+        alexanderCivicTowerSolidAt(x-r,z,y,.01) || alexanderCivicTowerSolidAt(x+r,z,y,.01) ||
+        alexanderCivicTowerSolidAt(x,z-r,y,.01) || alexanderCivicTowerSolidAt(x,z+r,y,.01))),
+    });
+    index.buildingCount += 1;
+    const terminal = RATHAUS_TERMINAL;
+    addObstacle(index, { kind: "circle", sourceId: "rathaus-open-steel-terminal",
+      x: terminal.x, z: terminal.z, radius: terminal.radius,
+      minX: terminal.x-terminal.radius, maxX: terminal.x+terminal.radius,
+      minZ: terminal.z-terminal.radius, maxZ: terminal.z+terminal.radius,
+      minY: terminal.base, maxY: terminal.top,
+      solidAt: (x,y,z,r=0) => rathausTerminalSolidAt(x,z,y,.01) || (r > 0 && (
+        rathausTerminalSolidAt(x-r,z,y,.01) || rathausTerminalSolidAt(x+r,z,y,.01) ||
+        rathausTerminalSolidAt(x,z-r,y,.01) || rathausTerminalSolidAt(x,z+r,y,.01))),
+    });
     const p = FERNSEHTURM_PROFILE;
     const radius = Math.max(p.footRadius, p.sphereRadius);
     addObstacle(index, { kind: "circle", sourceId: "fernsehturm-outline",
@@ -1561,11 +1595,16 @@ export function createPedestrianEnvironment(
     minX: minXIndex * cell,
     minZ: minZIndex * cell,
   };
+  // The optional authored east lobe is present with the source-bound city,
+  // including a Minecraft cold start. Synthetic/partial environments retain
+  // their own original grid. Original terrain heights inside that grid stay exact.
+  const easternExtension = prisms?.buildings.some(b => DHM_PRISM_IDS.has(b.id)) === true;
+  if (easternExtension) bounds.maxX = Math.max(bounds.maxX, SCHLOSS_EAST_NAVIGATION_BOUNDS.maxX);
   const surfaceGroundAt = (x: number, z: number): number | null => {
     const xOffset = x / cell - minXIndex;
     const zOffset = z / cell - minZIndex;
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
-      return null;
+      return easternExtension ? schlossEastNavigationGroundAt(x, z, environment.visualMode?.() ?? "day") : null;
     }
     const terrain = spreebogenTerrainYAt(x,z,smoothGround(xOffset, zOffset));
     const site = topographySiteSurfaceAt(x, z);

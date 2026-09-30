@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.49
+
+- Step 10: detailed Fernsehturm with source-bound sphere, shaft and antenna, window levels and a view/sun-dependent cross reflex on the actual steel surface.
+- Step 10: source-complete Rotes Rathaus and St. Marienkirche with bounded facade and tower details.
+- Step 10: mapped Marx-Engels monument, extant Forum trees and Neptunbrunnen; ongoing landscape work remains distinct from future designs.
+- Match walking support to the already rendered eastern street footprint and keep paths between the Marx-Engels sculptures open in Schwellenraum.
+- Existing streets, unrelated models, source records and the 93-place tour remain intact; Alexanderplatz station retains its original v148 outline geometry.
+
 ## v1.0.48
 
 - Restore the paired Friedrichswerder church towers and complete the old/new Foreign Office from 57 retained official source parts, including open courts, glass atria and loggia.

@@ -1,4 +1,5 @@
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
+import { alexanderPublicRealmSolidAt, alexanderPublicRealmSupportHeightAt } from "./alexanderPublicRealmProfile";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile";
 import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
@@ -3358,6 +3359,9 @@ function ensureIsoWorld(
   const embassyDetails = import("./RussianEmbassySourceGeometry");
   const eastOutlines = import("./SchlossEastOutlines");
   const eastStreets = import("./SchlossEastStreets");
+  const towerDetails = import("./FernsehturmArchitecture");
+  const alexanderCivicDetails = import("./AlexanderCivicArchitecture");
+  const alexanderPublicDetails = import("./AlexanderPublicRealm");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3373,8 +3377,9 @@ function ensureIsoWorld(
     jamesSimonDetails,
     komischeOperDetails,
     udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
+    towerDetails, alexanderCivicDetails, alexanderPublicDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3442,6 +3447,7 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
             palacesUdlSupportSolidAt(x,z,y,0) ||
             jamesSimonExtraSolidAt(x,y,z,radius) ||
@@ -3484,6 +3490,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const alexanderFloor = alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2);
+          if (alexanderFloor !== null) return alexanderFloor;
           const udlFloor = unterDenLindenEntranceFloorAt(x,z);
           if (udlFloor !== null) return udlFloor;
           const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
@@ -3675,7 +3683,13 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(embassy.createRussianEmbassySourceGeometry());
         yield;
-        isoWorld.add(outlines.createSchlossEastOutlines());
+        isoWorld.add(outlines.createSchlossEastOutlines(false, ["stationBase", "stationHall"]));
+        yield;
+        isoWorld.add(tower.createFernsehturmArchitecture());
+        yield;
+        isoWorld.add(alexanderCivic.createAlexanderCivicArchitecture());
+        yield;
+        isoWorld.add(alexanderPublic.createAlexanderPublicRealm());
         yield;
         if (ground) isoWorld.add(streetsEast.createSchlossEastStreets(ground));
         yield;
@@ -4096,6 +4110,7 @@ function ensureVoxelWorld(
             return false;
           }
           return (
+            alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
             palacesUdlSupportSolidAt(x,z,y,0) ||
             jamesSimonExtraSolidAt(x,y,z,radius) ||
@@ -4123,6 +4138,7 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
           unterDenLindenEntranceFloorAt(x,z) ??
           neueWacheGroundAt(x,z,currentGroundY) ??
           spreebogenWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??

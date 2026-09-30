@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.48 adds source-complete church, Foreign Office, DHM and embassy,
-// source-bound eastern outline/street layers, and the requested Altes/Gorki detail.
-// The independent v147 full/mobile values remain in docs/release-v1.0.48-review.md.
+// v1.0.49 replaces only the previous Rathaus/TV outline families with detailed
+// source-bound architecture, and adds St Marien and the mapped Forum public realm.
+// The independent v148 full/mobile values remain in docs/release-v1.0.49-review.md.
 // No unrelated baseline is lowered; exact replacement ownership removes duplicates.
 // Independent synchronous measurements must equal cooperative construction below.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "f738dcae331cd5e1294d8b310357b6bcc2af90e054bd90e1a0d5c18bf97de229", 3995398, 168, 309142997],
-  ["mobile", "13ebd55296c35f96118366a2949694062cb9da9c937f4713c8544154ab620b56", 1242109, 166, 99443577],
+  ["full", "86b76b284f0c2add4c3ef718e27d2262e2fcff13ed948e5563f48ad040664659", 4026302, 173, 311495229],
+  ["mobile", "9262f08b36073756f8d58420cbec5f3e753909ba1ff49f23105e95212393b799", 1273013, 171, 101795809],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

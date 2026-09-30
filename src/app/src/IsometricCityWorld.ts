@@ -1,4 +1,5 @@
 import { DHM_PRISM_IDS } from "./dhmProfile";
+import { ALEXANDER_CIVIC_PRISM_IDS } from "./alexanderCivicProfile";
 import { EAST_CIVIC_PRISM_IDS } from "./eastCivicProfile";
 import { RUSSIAN_EMBASSY_SOURCE_IDS } from "./RussianEmbassySourceGeometry";
 import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertures";
@@ -106,6 +107,7 @@ import {
   Uint16BufferAttribute,
   Uint8BufferAttribute,
   Vector2,
+  Vector3,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
@@ -906,7 +908,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
-  ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS,
+  ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS, ...ALEXANDER_CIVIC_PRISM_IDS,
   ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,
   ...GENDARMENMARKT_PRISM_IDS,
   ...NEUE_WACHE_PRISM_IDS,
@@ -1780,6 +1782,8 @@ function isometricDayMaterialForMode(
     : dayMaterial;
 }
 
+const FERNSEHTURM_DRAWN_SUN = new Vector3(-760, 980, 720).normalize();
+
 export function setIsoNightPresentation(
   city: Group,
   night: boolean,
@@ -1797,6 +1801,13 @@ export function setIsoNightPresentation(
   // geometry in ordinary modes, but remove it from Schwellenraum rather than
   // letting a frozen wake imply movement in that deliberately still world.
   city.traverse((object) => {
+    // Reflections follow the existing static sun; cameraPosition is updated
+    // directly by Three.js in the shader, without a CPU animation loop.
+    const setTowerLighting = object.userData.setFernsehturmLighting;
+    if (typeof setTowerLighting === "function") {
+      setTowerLighting(FERNSEHTURM_DRAWN_SUN,
+        mode === "night" || mode === "snowstorm" ? 0 : mode === "schwellenraum" ? .45 : 1);
+    }
     if (object.userData.hiddenInSchwellenraum === true) {
       object.visible = mode !== "schwellenraum";
     }

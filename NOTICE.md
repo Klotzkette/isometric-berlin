@@ -1135,3 +1135,21 @@ and the shipped
 [`wikimedia_attribution.json`](src/app/public/dzi/regierungsviertel/wikimedia_attribution.json),
 with each file's page, author and license. They are external visual references
 only; no new photograph, crop or photographic texture is bundled or loaded.
+
+### Alexanderplatz landmarks (v1.0.49)
+
+The detailed Fernsehturm, Rotes Rathaus and St. Marienkirche retain the
+Geoportal Berlin LoD2 envelopes and OpenStreetMap identities. The
+Marx–Engels ensemble, Neptunbrunnen and 59 additional mapped Forum trees use
+OpenStreetMap geometry (ODbL-1.0), preserving the 161 existing Forum trees.
+Procedural facade members, sculpture anatomy and the sunlight-dependent
+steel-sphere reflection are display interpretations, not surveyed detail.
+
+Eight additional freely licensed Wikimedia Commons references are recorded
+with their authors and licenses in both attribution manifests above.
+They remain external references; no photographic material is bundled.
+Official dimensions, documented source conflicts, visual evidence and
+individual reference credits are listed in the
+[Fernsehturm record](docs/fernsehturm-detail-v149.md),
+[Rathaus and Marienkirche record](docs/alexander-civic-v149.md) and
+[Forum and fountain record](docs/alexander-public-realm-v149.md).

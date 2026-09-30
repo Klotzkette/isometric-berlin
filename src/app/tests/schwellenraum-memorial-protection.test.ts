@@ -48,6 +48,9 @@ describe("data-driven Schwellenraum memorial protection", () => {
       // Schiller starts on the authored 5.23 m square; the common 5 m probe
       // is underground. Its finite solids are covered in schiller-protection.
       if (entry.osm_key === "node/262457570") continue;
+      // The Forum ensemble encloses pedestrian paths, not a filled memorial.
+      // Actual figures and retained prop clearance are checked in alexander-landmark-pedestrian.
+      if (entry.osm_key === "way/895523112") continue;
       expect(
         schwellenraumProtectedMemorialAt(
           index,

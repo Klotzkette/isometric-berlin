@@ -5,6 +5,10 @@ import { isEastCivicReplacementColumn } from "./eastCivicProfile";
 import { createMinecraftRussianEmbassySourceGeometry, isRussianEmbassyReplacementColumn } from "./RussianEmbassySourceGeometry";
 import { createSchlossEastOutlines } from "./SchlossEastOutlines";
 import { createSchlossEastStreets } from "./SchlossEastStreets";
+import { createMinecraftFernsehturmArchitecture } from "./FernsehturmArchitecture";
+import { createMinecraftAlexanderCivicArchitecture } from "./AlexanderCivicArchitecture";
+import { isAlexanderCivicReplacementColumn } from "./alexanderCivicProfile";
+import { createMinecraftAlexanderPublicRealm } from "./AlexanderPublicRealm";
 import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createMinecraftGendarmenmarktPerimeterShells } from "./GendarmenmarktPerimeterShells";
 import { createGendarmenmarktPerimeterFacades } from "./GendarmenmarktPerimeterFacades";
@@ -816,6 +820,7 @@ export function isCompleteRecognitionVoxelColumn(
     isGorkiBuildingReplacementColumn(x, z) ||
     isDhmReplacementColumn(x, z) ||
     isEastCivicReplacementColumn(x, z) ||
+    isAlexanderCivicReplacementColumn(x, z) ||
     isRussianEmbassyReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
     isGymnasiumNeubauReplacementColumn(x, z) ||
@@ -2779,7 +2784,13 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftRussianEmbassySourceGeometry({ mobileLike: options.detailProfile === "mobile" }));
   yield;
-  group.add(createSchlossEastOutlines(true));
+  group.add(createSchlossEastOutlines(true, ["stationBase", "stationHall"]));
+  yield;
+  group.add(createMinecraftFernsehturmArchitecture(options.detailProfile === "mobile"));
+  yield;
+  group.add(createMinecraftAlexanderCivicArchitecture(options.detailProfile === "mobile"));
+  yield;
+  group.add(createMinecraftAlexanderPublicRealm(options.detailProfile === "mobile"));
   yield;
   group.add(createSchlossEastStreets(payload, true));
   yield;

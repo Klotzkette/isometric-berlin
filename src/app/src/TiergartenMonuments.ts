@@ -1,4 +1,5 @@
 import { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
+import { ALEXANDER_PUBLIC_REALM_OSM_KEYS } from "./alexanderPublicRealmProfile";
 import { HAND_MIT_UHR_PROFILE } from "./gymnasiumTiergartenProfile";
 export { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
 
@@ -2861,6 +2862,7 @@ export function createTiergartenMonuments(
       entry.osm_key === "node/5253735916" || // authored Kollwitz sculpture
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
+      ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(entry.osm_key) ||
       entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY ||
       BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
       entry.osm_key === BEBEL_LIBRARY_MEMORIAL.osmKey ||

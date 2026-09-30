@@ -16,6 +16,19 @@ function instanceHash(mesh: InstancedMesh): string {
 }
 
 describe("lossless offline eastern outline surface cache", () => {
+  test("v149 delegates tower and Rathaus while retaining both complete station parts", () => {
+    const keys = ["stationBase", "stationHall"] as const;
+    const drawn = createSchlossEastOutlines(false, keys);
+    expect(drawn.userData.sourcePartCount).toBe(2);
+    expect(drawn.children.length).toBe(4);
+    expect(drawn.children.every(child => child.name.includes("Alexanderplatz station"))).toBeTrue();
+    const all = createSchlossEastOutlines(true).children[0] as InstancedMesh;
+    const station = createSchlossEastOutlines(true, keys).children[0] as InstancedMesh;
+    const first = data.profiles.find(p => p.key === "stationBase")!.first_cell;
+    expect(station.count).toBe(6575);
+    expect(station.instanceMatrix.array).toEqual(all.instanceMatrix.array.slice(first*16, (first+station.count)*16));
+    expect(station.instanceColor!.array).toEqual(all.instanceColor!.array.slice(first*3, (first+station.count)*3));
+  });
   test("prepared cells exactly reproduce the original source-surface algorithm", () => {
     expect(buildEastOutlineVoxels()).toEqual(data);
     expect(data.source_sha256).toBe(new Bun.CryptoHasher("sha256").update(JSON.stringify(source)).digest("hex"));

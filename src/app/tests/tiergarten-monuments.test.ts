@@ -16,7 +16,9 @@ import { createBerlinJunction } from "../src/BerlinJunction";
 import { createDomAltesMuseum } from "../src/DomAltesMuseum";
 import { DOM_ALTES_ARTWORK_KEYS } from "../src/domAltesMuseumIds";
 import { ALTES_EQUESTRIAN_GROUPS } from "../src/domAltesMuseumProfile";
-import { setIsoNightPresentation } from "../src/IsometricCityWorld";
+import { PRISM_SUPPRESSED_IDS, setIsoNightPresentation } from "../src/IsometricCityWorld";
+import { ALEXANDER_PUBLIC_REALM_OSM_KEYS } from "../src/alexanderPublicRealmProfile";
+import { isCompleteRecognitionVoxelColumn } from "../src/MinecraftVoxelWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
 import { KROLLOPER_SCULPTURE_OSM_KEYS } from "../src/KrolloperSculptures";
@@ -121,6 +123,29 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(monuments.userData.externallyModelledSourceKeys).toContain(BERLIN_JUNCTION_PROFILE.osmKey);
     expect(monuments.userData.sourceUrls).toContain(BERLIN_JUNCTION_PROFILE.sourceUrl);
     expect(monuments.userData.sourceUrls).toContain(T4_MEMORIAL_PROFILE.sourceUrl);
+  });
+
+  test("Alexander public art replaces only its ten exact identities, preserving the nearby ticket kiosk", () => {
+    const alteWelt = street.monuments!.find(entry => entry.osm_key === "way/895523113")!;
+    expect(alteWelt).toBeDefined();
+    expect(ALEXANDER_PUBLIC_REALM_OSM_KEYS).toHaveLength(10);
+    for (const osmKey of ALEXANDER_PUBLIC_REALM_OSM_KEYS) {
+      // The shared generic dispatcher runs before mode selection; exact source
+      // ownership must suppress even new payload arrivals without clearing a park.
+      const ownedEntry = { ...alteWelt, osm_key: osmKey };
+      expect(createTiergartenMonuments({ ...street, monuments: [ownedEntry] }, ground)).toBeNull();
+    }
+    const control = { ...alteWelt, osm_key: "node/test-unrelated-neighbour", name: "Neighbouring artwork" };
+    const neighbour = createTiergartenMonuments({ ...street, monuments: [control] }, ground);
+    expect(neighbour).not.toBeNull();
+    expect(monumentBodyMeshes(neighbour!).length).toBeGreaterThan(0);
+    const mappedKeys = street.monuments!.map(entry => entry.osm_key).filter(key => ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(key));
+    expect(mappedKeys.length).toBeGreaterThan(0);
+    for (const key of mappedKeys) expect(monuments.userData.externallyModelledSourceKeys).toContain(key);
+    // The grey object behind Alte Welt is a separate OSM fallback for the
+    // Stern und Kreis ticket kiosk way/506571883, not duplicated artwork.
+    expect(PRISM_SUPPRESSED_IDS.has("06571883")).toBeFalse();
+    expect(isCompleteRecognitionVoxelColumn(2170.6, 139.7)).toBeFalse();
   });
 
   test("Floraplatz has exactly eight differentiated restored animals", () => {
@@ -282,7 +307,12 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect( new Set(sourceKeys).size).toBe(sourceKeys.length);
     expect(new Set(ownership).size).toBe(ownership.length);
     expect(new Set(ownership)).toEqual(new Set(sourceKeys));
-    expect(renderedKeys.length).toBeGreaterThanOrEqual(1_400);
+    // The protected Marx-Engels ensemble moved from this generic batch into
+    // the dedicated source-bound Alexander public-art layer; retain its count.
+    const alexanderOwned = externallyModelledKeys.filter(key => ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(key));
+    expect(alexanderOwned).toEqual(["way/895523112"]);
+    expect(renderedKeys).not.toContain("way/895523112");
+    expect(renderedKeys.length + alexanderOwned.length).toBeGreaterThanOrEqual(1_400);
     expect(externallyModelledKeys).toContain("node/262455591");
     expect(renderedKeys).not.toContain("node/262455591");
     expect(externallyModelledKeys.length).toBeGreaterThan(0);
@@ -404,6 +434,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         !["node/262457570", "node/262455810", "node/5253735916"].includes(candidate.osm_key) &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
         !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
+        !ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(candidate.osm_key) &&
         candidate.osm_key !== HAND_MIT_UHR_PROFILE.osmKey &&
         !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
           .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
