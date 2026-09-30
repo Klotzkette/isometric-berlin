@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.52
+
+- Step 10: retire old drawn-mode shader programs on mobile mode transitions, while preserving every material, texture, geometry and navigation state.
+- Update Schwellenraum water effects through weakly held overlay targets instead of repeatedly scanning the city; released batches remain collectable.
+- Keep one city framebuffer for the final SMAA screen pass and resize the canvas/postprocessing targets atomically at unchanged resolution.
+- Verify repeated Schwellenraum visits and pose-preserving WebGL context-loss recovery in Chrome and WebKit; all city detail and effects remain intact.
+
 ## v1.0.51
 
 - Step 10: restore complete official wall and roof envelopes for Mall of Berlin, the incorporated Voßpalais and the Leipziger Platz perimeter; refine distinct facades and the open glass-covered passage.

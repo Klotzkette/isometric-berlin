@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.51 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.51/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.52 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.52/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.51** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.52** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.52 reduces memory retained across mobile mode switches and removes
+redundant framebuffer and water-effect work. City geometry, effects, drawing
+distance and resolution remain unchanged.
+[Stability measurements and checks](docs/schwellenraum-stability-v152.md).
+
+Version 1.0.52 entlastet den Schwellenraum und die Moduswechsel auf Mobilgeräten:
+weniger zurückgehaltener Grafik-Speicher, ein eingesparter Bildpuffer und
+gezielte Aktualisierung der Wassereffekte. Gebäude, Details und Bildqualität
+bleiben erhalten.
 
 Version 1.0.51 refines Potsdamer Platz, the old/new Environment Ministry,
 Leipziger Platz and Mall of Berlin, including the retained Voßpalais.

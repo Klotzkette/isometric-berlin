@@ -30,6 +30,7 @@ import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
 import { worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
+import { retireSceneMaterialPrograms } from "./sceneMaterialPrograms";
 import { registerInkDrawObject, registerInkShaderWrapper, restoreInkDrawVisibility, updateInkDrawVisibility } from "./inkDrawVisibility";
 import {
   createDistanceDetailTarget,
@@ -2120,6 +2121,13 @@ function setSceneLighting(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  // Keep only the current drawn mode's GPU shader cache on phones. Material
+  // instances, their textures/uniforms and every geometry buffer stay intact;
+  // the existing bounded warmup rebuilds the target mode's programs as needed.
+  if (runtime.coarsePointer && runtime.lightingMode !== mode &&
+      runtime.lightingMode !== "minecraft" && mode !== "minecraft") {
+    retireSceneMaterialPrograms(runtime.scene);
+  }
   restoreFarZoomDetailVisibility(runtime);
   invalidateFarZoomAntiFlickerCache(runtime);
   const enteringSchwellenraum =
@@ -5809,6 +5817,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // Navigation must not trade authored detail for a faster blurry frame.
       const smaaPass = new SMAAPass();
       smaaPass.enabled = true;
+      // This is the final pass and writes directly to the canvas. Swapping
+      // afterward made RenderPass alternate between two full-size city
+      // framebuffers even though the second image was never consumed.
+      // Keep the same scene input, SMAA shaders, precision and resolution.
+      smaaPass.needsSwap = false;
       composer.addPass(smaaPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
@@ -6181,12 +6194,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         appliedWidth = width;
         appliedHeight = height;
         appliedPixelRatio = pixelRatio;
-        renderer.setPixelRatio(pixelRatio);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.setSize(width, height, false);
-        composer.setPixelRatio(pixelRatio);
-        composer.setSize(width, height);
+        // Atomically change all three dimensions: setPixelRatio also resizes,
+        // so separate calls briefly create an unnecessary intermediate size.
+        renderer.setDrawingBufferSize(width, height, pixelRatio);
+        // Composer stays at its initial ratio of 1; supply the exact physical
+        // dimensions once instead of resizing each target/pass twice.
+        composer.setSize(width * pixelRatio, height * pixelRatio);
         runtime.renderInvalidated = true;
       };
       const copyTwoFingerGesture = (

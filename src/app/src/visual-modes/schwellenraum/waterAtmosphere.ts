@@ -321,7 +321,7 @@ function createWaterMaterial(): ShaderMaterial {
   return material;
 }
 
-function createWaterOverlay(host: Mesh): Mesh {
+function createWaterOverlay(host: Mesh): WaterOverlay {
   const material = createWaterMaterial();
   const overlay =
     host instanceof InstancedMesh
@@ -347,11 +347,25 @@ function createWaterOverlay(host: Mesh): Mesh {
   return overlay;
 }
 
-/** Add one geometry-sharing, non-interactive overlay per eligible water mesh. */
-export function installSchwellenraumWaterAtmosphere(root: Object3D): number {
+type WaterOverlay = Mesh<Mesh["geometry"], ShaderMaterial>;
+
+// Presentation/publication scans discover new batches. Steady water ticks only
+// visit their small overlay lists. Both ownership edges are weak: a live city
+// root cannot keep an evicted batch (or its GPU resources) alive through here.
+const waterTargetsByRoot = new WeakMap<Object3D, WeakRef<WaterOverlay>[]>();
+const lastMaterialUpdate = new WeakMap<ShaderMaterial, number>();
+let materialUpdateGeneration = 0;
+
+function refreshWaterTargets(root: Object3D, install: boolean): number {
+  const targets: WeakRef<WaterOverlay>[] = [];
   const hosts: Mesh[] = [];
   root.traverse((object) => {
+    if (isWaterOverlay(object)) {
+      targets.push(new WeakRef(object));
+      return;
+    }
     if (
+      install &&
       isSchwellenraumWaterSurface(object) &&
       object.userData.schwellenraumWaterAtmosphereInstalled !== true &&
       !isSchwellenraumGeschuetzt(object)
@@ -361,20 +375,37 @@ export function installSchwellenraumWaterAtmosphere(root: Object3D): number {
   });
   for (const host of hosts) {
     host.userData.schwellenraumWaterAtmosphereInstalled = true;
-    host.add(createWaterOverlay(host));
+    const overlay = createWaterOverlay(host);
+    host.add(overlay);
+    targets.push(new WeakRef(overlay));
   }
+  waterTargetsByRoot.set(root, targets);
   return hosts.length;
 }
 
-function isWaterOverlay(object: Object3D): object is Mesh<
-  Mesh["geometry"],
-  ShaderMaterial
-> {
+/** Add one geometry-sharing, non-interactive overlay per eligible water mesh. */
+export function installSchwellenraumWaterAtmosphere(root: Object3D): number {
+  return refreshWaterTargets(root, true);
+}
+
+function isWaterOverlay(object: Object3D): object is WaterOverlay {
   return (
     object instanceof Mesh &&
     object.userData.schwellenraumWaterAtmosphere === true &&
     object.material instanceof ShaderMaterial
   );
+}
+
+function waterTargets(root: Object3D): WeakRef<WaterOverlay>[] {
+  if (!waterTargetsByRoot.has(root)) refreshWaterTargets(root, false);
+  return waterTargetsByRoot.get(root)!;
+}
+
+function belongsToRoot(object: Object3D, root: Object3D): boolean {
+  for (let current: Object3D | null = object; current; current = current.parent) {
+    if (current === root) return true;
+  }
+  return false;
 }
 
 /**
@@ -387,23 +418,24 @@ export function setSchwellenraumWaterAtmospherePresentation(
   obstructed: boolean,
 ): SchwellenraumWaterPresentationResult {
   let installed = 0;
-  if (mode === "schwellenraum") {
-    for (const root of roots) {
-      installed += installSchwellenraumWaterAtmosphere(root);
-    }
-  }
   const visible = mode === "schwellenraum" && !obstructed;
-  let changed = installed > 0;
+  let changed = false;
   let visibleCount = 0;
   for (const root of roots) {
-    root.traverse((object) => {
-      if (!isWaterOverlay(object)) return;
+    // Progressive publication already reapplies presentation after attaching
+    // children. Refresh here so additions/reparenting need no scene listeners.
+    const added = refreshWaterTargets(root, mode === "schwellenraum");
+    installed += added;
+    changed ||= added > 0;
+    for (const target of waterTargets(root)) {
+      const object = target.deref();
+      if (!object) continue;
       if (object.visible !== visible) {
         object.visible = visible;
         changed = true;
       }
       if (visible) visibleCount += 1;
-    });
+    }
   }
   return { changed, installed, visibleCount };
 }
@@ -420,22 +452,34 @@ export function updateSchwellenraumWaterAtmosphere(
   elapsedSeconds: number,
   reducedMotion = false,
 ): number {
-  const materials = new Set<ShaderMaterial>();
-  for (const root of roots) {
-    root.traverse((object) => {
-      if (isWaterOverlay(object) && object.visible) {
-        materials.add(object.material);
-      }
-    });
-  }
+  const generation = ++materialUpdateGeneration;
   const safeTime = Number.isFinite(elapsedSeconds)
     ? Math.max(0, elapsedSeconds)
     : 0;
-  for (const material of materials) {
-    material.uniforms.uTime.value = safeTime;
-    material.uniforms.uBreath.value = schwellenraumWaterBreath(safeTime);
-    material.uniforms.uStrength.value = reducedMotion ? 0.48 : 0.72;
-    material.uniforms.uGlintStrength.value = reducedMotion ? 0.22 : 1;
+  const breath = schwellenraumWaterBreath(safeTime);
+  let updated = 0;
+  for (const root of roots) {
+    const targets = waterTargets(root);
+    let retained = 0;
+    for (let index = 0; index < targets.length; index += 1) {
+      const target = targets[index];
+      const object = target.deref();
+      // A batch may be evicted between presentation calls. Prune its weak
+      // entry without updating a detached/disposed material or walking city
+      // descendants. Compaction reuses the existing target array.
+      if (!object || !belongsToRoot(object, root)) continue;
+      targets[retained++] = target;
+      if (!object.visible || !isWaterOverlay(object)) continue;
+      const material = object.material;
+      if (lastMaterialUpdate.get(material) === generation) continue;
+      lastMaterialUpdate.set(material, generation);
+      material.uniforms.uTime.value = safeTime;
+      material.uniforms.uBreath.value = breath;
+      material.uniforms.uStrength.value = reducedMotion ? 0.48 : 0.72;
+      material.uniforms.uGlintStrength.value = reducedMotion ? 0.22 : 1;
+      updated += 1;
+    }
+    targets.length = retained;
   }
-  return materials.size;
+  return updated;
 }

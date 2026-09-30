@@ -10,6 +10,7 @@ import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
 import { WebGLGeometries } from "three/src/renderers/webgl/WebGLGeometries.js";
 import { WebGLObjects } from "three/src/renderers/webgl/WebGLObjects.js";
 import { createSceneGpuWarmup, GPU_WARMUP_MAX_BYTES, GPU_WARMUP_MAX_OBJECTS } from "../src/sceneGpuWarmup";
+import { retireSceneMaterialPrograms } from "../src/sceneMaterialPrograms";
 import {
   isInkDrawSuppressed, registerInkDrawObject, updateInkDrawVisibility,
 } from "../src/inkDrawVisibility";
@@ -430,6 +431,36 @@ describe("offscreen GPU residency without geometry changes", () => {
     h.events.dispatchEvent(new Event("webglcontextrestored"));
     expect(h.warmup.pending).toBeTrue(); h.warmup.warmNext();
     h.warmup.dispose(); h.warmup.enqueue(scene); expect(h.warmup.pending).toBeFalse(); expect(h.warmup.warmNext()).toBe(0);
+  });
+
+  test("mode retirement rewarms reusable materials, including retirement while already queued", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    mesh.position.x = 1000;
+    scene.add(mesh);
+    const material = mesh.material;
+    const after = mesh.onAfterRender;
+    const h = host(scene, camera);
+    h.warmup.enqueue(scene);
+    // The first mode changes before offscreen preparation reaches this object.
+    expect(retireSceneMaterialPrograms(scene)).toBe(1);
+    h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(mesh.onAfterRender).toBe(after);
+    const uploaded = h.uploads.length;
+    for (let transition = 0; transition < 3; transition++) {
+      h.warmup.enqueue(scene);
+      expect(h.warmup.pending).toBeFalse();
+      expect(retireSceneMaterialPrograms(scene)).toBe(1);
+      h.warmup.enqueue(scene);
+      expect(h.warmup.pending).toBeTrue();
+      expect(h.warmup.warmNext()).toBe(1);
+      expect(h.warmup.pending).toBeFalse();
+      expect(mesh.material).toBe(material);
+      expect(mesh.onAfterRender).toBe(after);
+      expect(h.uploads).toHaveLength(uploaded);
+    }
+    h.warmup.dispose();
   });
 
   test("respects mode/ancestor visibility changes while queued", () => {

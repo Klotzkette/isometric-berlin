@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from smoke_mode_continuity import PROBE, viewer_url, wait_ready
+from smoke_mode_continuity import PROBE, seed_camera, viewer_url, wait_ready
 
 FRAME_PROBE = """() => {
   const r = window.__modeContinuityRuntime();
@@ -26,8 +26,8 @@ FRAME_PROBE = """() => {
     }
     return result;
   };
-  const resize = r.renderer.setSize.bind(r.renderer);
-  r.renderer.setSize = (...args) => {
+  const resize = r.renderer.setDrawingBufferSize.bind(r.renderer);
+  r.renderer.setDrawingBufferSize = (...args) => {
     const serial = state.frames;
     state.resizeCount++;
     const result = resize(...args);
@@ -95,6 +95,12 @@ def main() -> int:
       page.wait_for_timeout(250)
     # Releasing a look key publishes the new compass angle. That React update
     # must not clear W while it is still physically held (no OS repeat needed).
+    # Re-centre after the preceding travel: hitting the real world boundary
+    # must not be mistaken for a dropped keyboard input on a fast desktop.
+    seed_camera(
+      page,
+      {"position": [712, 154, 619], "target": [507, 7, 301], "fov": 39},
+    )
     page.keyboard.down("w")
     for key in ("ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown") * 2:
       page.keyboard.down(key)

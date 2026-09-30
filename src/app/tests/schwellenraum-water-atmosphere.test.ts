@@ -238,6 +238,103 @@ describe("Schwellenraum ethereal water atmosphere", () => {
     expect(overlays(resumed)).toHaveLength(1);
   });
 
+  test("updates cached water targets without traversing the city on steady ticks", () => {
+    const root = new Group();
+    const batch = new Group();
+    batch.add(water("smooth water surface"), water("basin water"));
+    root.add(batch);
+    setSchwellenraumWaterAtmospherePresentation([root], "schwellenraum", false);
+    const materials = overlays(root).map((layer) => layer.material as ShaderMaterial);
+    root.traverse = () => { throw new Error("steady tick traversed city"); };
+    batch.traverse = () => { throw new Error("steady tick traversed batch"); };
+
+    for (let tick = 1; tick <= 30; tick += 1) {
+      expect(updateSchwellenraumWaterAtmosphere([root], tick)).toBe(2);
+    }
+    for (const material of materials) {
+      expect(material.uniforms.uTime.value).toBe(30);
+      expect(material.uniforms.uBreath.value).toBe(schwellenraumWaterBreath(30));
+    }
+  });
+
+  test("refreshes nested progressive additions and ignores evicted batches before the next presentation", () => {
+    const root = new Group();
+    const branch = new Group();
+    const oldBatch = new Group();
+    oldBatch.add(water("smooth water surface"));
+    branch.add(oldBatch);
+    root.add(branch);
+    setSchwellenraumWaterAtmospherePresentation([root], "schwellenraum", false);
+    const oldMaterial = overlays(oldBatch)[0].material as ShaderMaterial;
+    updateSchwellenraumWaterAtmosphere([root], 12);
+
+    const newBatch = new Group();
+    newBatch.add(water("basin water"));
+    branch.add(newBatch);
+    expect(
+      setSchwellenraumWaterAtmospherePresentation([root], "schwellenraum", false),
+    ).toEqual({ changed: true, installed: 1, visibleCount: 2 });
+    const newMaterial = overlays(newBatch)[0].material as ShaderMaterial;
+    oldBatch.removeFromParent();
+    oldMaterial.dispose();
+    root.traverse = () => { throw new Error("eviction caused a city traversal"); };
+    expect(updateSchwellenraumWaterAtmosphere([root], 24)).toBe(1);
+    expect(oldMaterial.uniforms.uTime.value).toBe(12);
+    expect(newMaterial.uniforms.uTime.value).toBe(24);
+    root.clear();
+    expect(updateSchwellenraumWaterAtmosphere([root], 36)).toBe(0);
+    expect(newMaterial.uniforms.uTime.value).toBe(24);
+  });
+
+  test("discovers installed child overlays on first use and deduplicates shared materials across roots", () => {
+    const root = new Group();
+    const child = new Group();
+    child.add(water("smooth water surface"), water("basin water"));
+    root.add(child);
+    installSchwellenraumWaterAtmosphere(child);
+    const layers = overlays(child);
+    layers[1].material = layers[0].material;
+    for (const layer of layers) layer.visible = true;
+    expect(updateSchwellenraumWaterAtmosphere([root, child, root], 10)).toBe(1);
+    root.traverse = () => { throw new Error("cached root traversed again"); };
+    child.traverse = () => { throw new Error("cached child traversed again"); };
+    expect(updateSchwellenraumWaterAtmosphere([root, child], 20, true)).toBe(1);
+    const material = layers[0].material as ShaderMaterial;
+    expect(material.uniforms.uTime.value).toBe(20);
+    expect(material.uniforms.uStrength.value).toBe(0.48);
+  });
+
+  test("does not retain released roots or removed overlays and attaches no lifecycle listeners", async () => {
+    const liveRoot = new Group();
+    liveRoot.addEventListener = () => { throw new Error("root listener installed"); };
+    const released = (() => {
+      const batch = new Group();
+      const host = water("smooth water surface");
+      batch.addEventListener = () => { throw new Error("batch listener installed"); };
+      host.addEventListener = () => { throw new Error("host listener installed"); };
+      batch.add(host);
+      liveRoot.add(batch);
+      setSchwellenraumWaterAtmospherePresentation([liveRoot], "schwellenraum", false);
+      updateSchwellenraumWaterAtmosphere([liveRoot], 10);
+      const layer = overlays(batch)[0];
+      const detachedRoot = new Group();
+      detachedRoot.add(water("basin water"));
+      setSchwellenraumWaterAtmospherePresentation([detachedRoot], "schwellenraum", false);
+      updateSchwellenraumWaterAtmosphere([detachedRoot], 10);
+      batch.removeFromParent();
+      return [new WeakRef(batch), new WeakRef(layer), new WeakRef(layer.material), new WeakRef(detachedRoot)];
+    })();
+    // WeakRef targets are kept alive until the current job ends. Cross real
+    // event-loop turns before requesting full GC; keep the city root live and
+    // do not run another presentation/tick that could hide cache retention.
+    for (let pass = 0; pass < 3; pass += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      Bun.gc(true);
+    }
+    for (const reference of released) expect(reference.deref()).toBeUndefined();
+    expect(updateSchwellenraumWaterAtmosphere([liveRoot], 20)).toBe(0);
+  });
+
   test("never adds atmosphere inside a protected memorial subtree", () => {
     const root = new Group();
     const memorial = new Group();

@@ -190,10 +190,14 @@ export function createSceneGpuWarmup(
     const state = context();
     root.traverseVisible((object) => {
       if (!renderable(object) || !active(object, scene, camera)) return;
-      if (same(warmed.get(object), snapshot(object, state)) || queued.has(object)) return;
+      if (same(warmed.get(object), snapshot(object, state))) return;
       watch(object.geometry);
       for (const material of materials(object)) watch(material);
       if (object instanceof InstancedMesh) watch(object);
+      // A mode transition can retire materials while this object is already
+      // queued. Their dispose observers are one-shot, so restore them even
+      // when no additional queue entry is needed.
+      if (queued.has(object)) return;
       queued.add(object);
       queue.push(object);
       observeOrdinaryUpload(object);
