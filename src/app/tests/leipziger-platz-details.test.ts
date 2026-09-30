@@ -112,7 +112,8 @@ describe("Leipziger Platz source-bound architecture details", () => {
     expect(bounds.max.x).toBeCloseTo(821.6, 0);
     expect(bounds.min.z).toBeCloseTo(860.4, 0);
     expect(bounds.max.z).toBeCloseTo(1023.1, 0);
-    expect(bounds.max.y).toBeCloseTo(24.06, 1);
+    // Complete raised residential/hotel levels now receive facade detail.
+    expect(bounds.max.y).toBeCloseTo(39.27, 1);
 
     const passage = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.coveredPassage;
     expect(passage.spanM).toBeCloseTo(24.06, 2);

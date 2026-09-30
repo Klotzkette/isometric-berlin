@@ -1,0 +1,106 @@
+{
+  "version": "1.0.51",
+  "scope": "Twelve Leipziger Platz perimeter source profiles for ten main frontage families, distinct from Mall of Berlin and historic Voss Palais",
+  "sources": [
+    {
+      "id": "leipziger-perimeter-lod2-v151",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5819.zip",
+      "license": "dl-de/zero-2-0",
+      "role": "Official northern perimeter source parts; façade runs select their original WallSurfaces with the existing rigid parent ground translation"
+    },
+    {
+      "id": "leipziger-southern-perimeter-lod2-v151",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+      "license": "dl-de/zero-2-0",
+      "role": "Official western and southern perimeter source parts, all roofs and courts retained"
+    },
+    {
+      "id": "leipziger-eastern-perimeter-lod2-v151",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5818.zip",
+      "license": "dl-de/zero-2-0",
+      "role": "Official eastern and chamfered perimeter source parts, all roofs and courts retained"
+    },
+    {
+      "id": "leipziger-1-3-architect",
+      "url": "https://www.mueller-reimann.de/projekte/leipziger-platz",
+      "role": "Primary design evidence: Torhaus vertical piers, pale beige limestone Stadtpalais and broad reveals, three Kontorhaus fields of black enamel glass and architectural bronze"
+    },
+    {
+      "id": "leipziger-8-architect",
+      "url": "https://www.h-s-a.de/projekte/leipziger_platz_8/1",
+      "role": "Primary design evidence: Spanish Bateig sandstone, recessed upper residential floors and tall bronze foyer windows"
+    },
+    {
+      "id": "mosse-palais-architect",
+      "url": "https://www.hdsarchitecture.com/mosse-palais-international",
+      "role": "Primary identification of modern ten-storey Mosse-Palais; warm stone, grouped glazing and curved central roof evidence checked against licensed Commons photographs"
+    },
+    {
+      "id": "trion-façade-contractor",
+      "url": "https://www.schollglas.com/referenzen/buero-und-geschaeftshaus-trion-berlin-de/",
+      "role": "Primary modern TRION façade evidence: large precast elements, deep grid, near-square glazing and tall base; replaces no source geometry"
+    },
+    {
+      "id": "spionagemuseum-address",
+      "url": "https://www.deutsches-spionagemuseum.de/kontakt",
+      "role": "Current Leipziger Platz 9 identity, matched to retained OSM museum point and the southEast Classicon source parent; prevents applying the LP8 identity to the wrong parcel"
+    },
+    {
+      "id": "leipziger-7-address",
+      "url": "https://www.openstreetmap.org/node/437371350",
+      "license": "ODbL-1.0",
+      "role": "Exact Leipziger Platz7 address point inside southMiddleWest parent DEBE01YYK00009rL"
+    },
+    {
+      "id": "leipziger-8-address",
+      "url": "https://www.openstreetmap.org/node/437371519",
+      "license": "ODbL-1.0",
+      "role": "Exact Leipziger Platz8 address point inside southMiddleEast parent DEBE01YYK00005Cd"
+    }
+  ],
+  "wikimedia_references": [
+    {
+      "title": "Leipziger Platz and Leipziger Straße from Kollhoff-Tower November 2013.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Leipziger_Platz_and_Leipziger_Stra%C3%9Fe_from_Kollhoff-Tower_November_2013.jpg",
+      "author": "Arild Vågen",
+      "credit": "Arild Vågen, 2013 / Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "External-only aerial reference for completed square façade hierarchy and roof forms; no reconstruction of temporary 2013 construction site"
+    },
+    {
+      "title": "20220811 Leipziger Platz Berlin-Mitte 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20220811_Leipziger_Platz_Berlin-Mitte_01.jpg",
+      "author": "Flocci Nivis",
+      "credit": "Flocci Nivis, 2022 / Wikimedia Commons",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "role": "External-only street reference for eastern stone frame/window distinctions and upper setbacks"
+    },
+    {
+      "title": "Berlin Leipziger Platz 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Leipziger_Platz_1.jpg",
+      "author": "NoRud",
+      "credit": "NoRud / Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "External-only north-side roof and façade reference; seasonal lighting not reproduced"
+    },
+    {
+      "title": "Berlin, Mitte, Leipziger Platz, Mosse-Palais.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Leipziger_Platz,_Mosse-Palais.jpg",
+      "author": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2009 / Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "External-only close reference for modern stone bands, grouped window mullions, glazing and central curved bay; no photo pixels bundled or loaded"
+    }
+  ],
+  "conflicts": [
+    "The current Mosse-Palais is the post-reunification building, not the lost historic palace. Source roof geometry is retained unchanged.",
+    "Classicon is the southEast source parent at Leipziger Platz 9, not Leipziger Platz 8. The two southern gap parents are separately preserved.",
+    "Floor and bay subdivisions, materials and colours are bounded procedural interpretations of primary descriptions and licensed external photographs, not surveyed façade measurements.",
+    "Unverified corner tenants are not assigned names or logos. Courtyard or hidden infill is not generated. The source-only canopy DEBE3DP5ii5cXk3Q stays open beneath its retained roof.",
+    "Live viewer raycasting identified two independently published LP7 source façade strips in front of the main parent: DEBE01YYK0001yp5 and DEBE00YY1Yq0005f. Both remain full source profiles and receive their own bounded window treatment. They are not removed as redundant geometry."
+  ]
+}

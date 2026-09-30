@@ -5329,6 +5329,149 @@
       "description": "External inspected visual reference for St. Marienkirche nave, masonry, copper clock stage and open lantern",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_platz_v151",
+      "title": "File:Berlin, Mitte, Voßstraße 33, Wohnhaus 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Vo%C3%9Fstra%C3%9Fe_33,_Wohnhaus_01.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_platz_v151",
+      "title": "File:Leipziger.Platz.Mall.of.Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Leipziger.Platz.Mall.of.Berlin.jpg",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Membeth",
+      "credit": "Membeth / CC0 1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_ministry_v151",
+      "title": "File:Bundesministerium für Umwelt, Naturschutz und nukleare Sicherheit, Stresemannstraße 128, Berlin-1780.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bundesministerium_f%C3%BCr_Umwelt,_Naturschutz_und_nukleare_Sicherheit,_Stresemannstra%C3%9Fe_128,_Berlin-1780.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Raimond Spekking / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_ministry_v151",
+      "title": "File:Fed. Ministry f.t. Environm't, Nature Conservation, Bldg. a. Nuclear Safety, Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Fed._Ministry_f.t._Environm%27t,_Nature_Conservation,_Bldg._a._Nuclear_Safety,_Berlin.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Ulf Heinsohn",
+      "credit": "Ulf Heinsohn / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_ministry_v151",
+      "title": "File:Berlin-alte-potsdamer-straße-5-haus-huth.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-alte-potsdamer-stra%C3%9Fe-5-haus-huth.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Roland.h.bueb",
+      "credit": "Roland.h.bueb / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_ministry_v151",
+      "title": "File:Forum Tower bzw. Potsdamer Platz 11 in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Forum_Tower_bzw._Potsdamer_Platz_11_in_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "JoachimKohler-HB",
+      "credit": "JoachimKohler-HB / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_ministry_v151",
+      "title": "File:Potsdamer Platz 2009 PD 20090321 006.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_2009_PD_20090321_006.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Politikaner",
+      "credit": "Politikaner / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "wilhelm_dessauer_v151",
+      "title": "File:Berlin - Botschaft der Tschechischen Republik (2).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Botschaft_der_Tschechischen_Republik_(2).jpg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "artist": "Fred Romero",
+      "credit": "Fred Romero, 2016 / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "wilhelm_dessauer_v151",
+      "title": "File:Denkmal Fürst Leopold von Dessau (Berlin, Zietenplatz).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Denkmal_F%C3%BCrst_Leopold_von_Dessau_(Berlin,_Zietenplatz).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "JoachimKohler-HB",
+      "credit": "JoachimKohler-HB, 2021 / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_perimeter_v151",
+      "title": "File:Leipziger Platz and Leipziger Straße from Kollhoff-Tower November 2013.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Leipziger_Platz_and_Leipziger_Stra%C3%9Fe_from_Kollhoff-Tower_November_2013.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Arild Vågen",
+      "credit": "Arild Vågen, 2013 / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_perimeter_v151",
+      "title": "File:20220811 Leipziger Platz Berlin-Mitte 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20220811_Leipziger_Platz_Berlin-Mitte_01.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "artist": "Flocci Nivis",
+      "credit": "Flocci Nivis, 2022 / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_perimeter_v151",
+      "title": "File:Berlin Leipziger Platz 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Leipziger_Platz_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "NoRud",
+      "credit": "NoRud / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_perimeter_v151",
+      "title": "File:Berlin, Mitte, Leipziger Platz, Mosse-Palais.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Leipziger_Platz,_Mosse-Palais.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2009 / Wikimedia Commons",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

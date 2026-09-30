@@ -72,6 +72,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     return group;
   }
   const modules = {
+    "./LeipzigerPlatzSourceShells": { createLeipzigerPlatzSourceShells: () => model("Leipziger source shells") },
+    "./LeipzigerPerimeterFacades": { createLeipzigerPerimeterFacades: () => model("Leipziger perimeter facades") },
+    "./PotsdamerMinistryArchitecture": { createPotsdamerMinistryArchitecture: () => model("Potsdamer ministry architecture") },
     "./EastCivicArchitecture": { createEastCivicArchitecture: () => model("East civic") },
     "./DhmArchitecture": { createDhmArchitecture: () => model("DHM") },
     "./RussianEmbassySourceGeometry": { createRussianEmbassySourceGeometry: () => model("Russian embassy source") },
@@ -178,7 +181,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(31); // One owned steam field; streets wait for ground.
+  expect(h.built).toHaveLength(34); // Exact Mall/ministry models publish with their world.
+  expect(h.runtime.isoWorld?.getObjectByName("Leipziger source shells")).toBeDefined();
+  expect(h.runtime.isoWorld?.getObjectByName("Potsdamer ministry architecture")).toBeDefined();
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
   expect(h.runtime.schwellenraumTowerSteam?.parent).toBe(h.runtime.isoWorld);

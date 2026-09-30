@@ -1,15 +1,13 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.49 replaces only the previous Rathaus/TV outline families with detailed
-// source-bound architecture, and adds St Marien and the mapped Forum public realm.
-// The independent v148 full/mobile values remain in docs/release-v1.0.49-review.md.
-// No unrelated baseline is lowered; exact replacement ownership removes duplicates.
-// Independent synchronous measurements must equal cooperative construction below.
-for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "86b76b284f0c2add4c3ef718e27d2262e2fcff13ed948e5563f48ad040664659", 4026302, 173, 311495229],
-  ["mobile", "9262f08b36073756f8d58420cbec5f3e753909ba1ff49f23105e95212393b799", 1273013, 171, 101795809],
-] as const) {
+import baseline from "./fixtures/minecraft-world-synchronous-v151.json";
+
+// Synchronous v151 measurements must equal cooperative construction below.
+// The former inline v149 baseline remains frozen in the adjacent v149 fixture.
+// Complete source replacements and native source-cell ownership are verified
+// independently; all unrelated model hashes retain their earlier fixtures.
+for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
       new URL("../scripts/benchmark-minecraft-world.ts", import.meta.url),
@@ -22,13 +20,7 @@ for (const [profile, sha256, instances, renderables, bufferBytes] of [
     ]);
     expect(run.exitCode).toBe(0);
     const result = JSON.parse(run.stdout.toString());
-    expect(result).toMatchObject({
-      detailProfile: profile,
-      sha256,
-      instances,
-      renderables,
-      bufferBytes,
-    });
+    expect(result).toMatchObject(expected);
     expect(result.taskCount).toBeGreaterThan(2);
   }, 60000);
 }

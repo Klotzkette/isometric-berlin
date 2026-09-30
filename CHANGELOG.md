@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.51
+
+- Step 10: restore complete official wall and roof envelopes for Mall of Berlin, the incorporated Voßpalais and the Leipziger Platz perimeter; refine distinct facades and the open glass-covered passage.
+- Detail the old/new Bundesumweltministerium, Forum tower, Haus Huth and Grand Hyatt with source-bound roofs, materials, window frames and entrances.
+- Refine the Czech Embassy bronze ribbon windows and folded granite faces, HIT Ullrich frontage and Alter Dessauer bronze figure, granite pedestal and enclosure.
+- Keep full drawn geometry on mobile and desktop, separate native Minecraft models, retained source records and all unrelated city geometry.
+
 ## v1.0.50
 
 - Step 10: soft rose vapour rises from the Fernsehturm sphere in Schwellenraum, with occasional taller smoke fountains.

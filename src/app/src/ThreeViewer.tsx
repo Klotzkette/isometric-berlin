@@ -3388,6 +3388,9 @@ function ensureIsoWorld(
   const towerDetails = import("./FernsehturmArchitecture");
   const alexanderCivicDetails = import("./AlexanderCivicArchitecture");
   const alexanderPublicDetails = import("./AlexanderPublicRealm");
+  const leipzigerShells = import("./LeipzigerPlatzSourceShells");
+  const potsdamerMinistryDetails = import("./PotsdamerMinistryArchitecture");
+  const leipzigerPerimeterDetails = import("./LeipzigerPerimeterFacades");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3404,8 +3407,9 @@ function ensureIsoWorld(
     komischeOperDetails,
     udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
     towerDetails, alexanderCivicDetails, alexanderPublicDetails,
+    leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3663,6 +3667,12 @@ function ensureIsoWorld(
         isoWorld.add(perimeter.createGendarmenmarktPerimeterShells());
         yield;
         isoWorld.add(perimeter.createGendarmenmarktPerimeterFacades());
+        yield;
+        isoWorld.add(leipziger.createLeipzigerPlatzSourceShells());
+        yield;
+        isoWorld.add(leipzigerPerimeter.createLeipzigerPerimeterFacades());
+        yield;
+        isoWorld.add(potsdamerMinistry.createPotsdamerMinistryArchitecture());
         yield;
         isoWorld.add(createGorkiBuilding());
         yield;

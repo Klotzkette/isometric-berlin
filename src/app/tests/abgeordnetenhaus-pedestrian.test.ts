@@ -39,6 +39,8 @@ import { EAST_CIVIC_SOURCES } from "../src/eastCivicProfile";
 import { DHM_PARTS } from "../src/dhmProfile";
 import { RUSSIAN_EMBASSY_SOURCE_PARTS } from "../src/RussianEmbassySourceGeometry";
 import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE } from "../src/schlossEastProfile";
+import { LEIPZIGER_SOURCE_PARTS } from "../src/leipzigerPlatzSourceProfile";
+import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -110,6 +112,8 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         ...RUSSIAN_EMBASSY_SOURCE_PARTS.map(p => p.id),
         ...eastOutlineParts.map(p => p.id),
         ...marienRoofs.map(p => p.id),
+        ...LEIPZIGER_SOURCE_PARTS.map(p => p.id),
+        ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(b => b.officialParts.map(p => p.id)),
         ...PALACES_UDL_SOURCES.flatMap(s=>s.parts.map(p=>p.id)),
         ...JAMES_SIMON_SOURCE.parts.map(p=>p.id),
         KOMISCHE_OPER_SOURCE_PART.id,

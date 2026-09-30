@@ -17,6 +17,19 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Potsdamer / Leipziger Platz and Wilhelmstraße (v1.0.51):** complete
+  official LoD2 wall/roof sheets retain the Mall, Voßpalais, plaza perimeter,
+  old/new Environment Ministry, Forum tower, Haus Huth and Hyatt envelopes.
+  Primary architect and institutional accounts identify materials and frontage
+  hierarchy; licensed Commons photographs guide procedural recognition detail.
+  The Czech Embassy keeps its source envelope beneath bronze glazing and
+  folded granite bands. The Alter Dessauer figure retains its OSM anchor.
+  Individual author, file and licence records are mirrored in both Wikimedia
+  manifests. No photograph or texture is bundled. Bay widths, ornament and
+  sculpture anatomy are display interpretations, not measured facade surveys.
+  See the [release source review](docs/release-v1.0.51-review.md) and its
+  building-specific source records.
+
 - **Schillerdenkmal, Gendarmenmarkt (v1.0.45):** the retained OSM node
   `262457570` anchors Reinhold Begas's marble monument. Landesdenkmalamt
   Berlin and Bildhauerei in Berlin establish the six-step octagonal base,

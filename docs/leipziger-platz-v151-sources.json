@@ -1,0 +1,28 @@
+{
+  "version": "1.0.51",
+  "primary_sources": [
+    "https://www.copro-gruppe.de/projekt/vosspalais-khu6p",
+    "https://pechtold-architekten.de/projekt/Mall_of_Berlin,_Erweiterung",
+    "https://tchobanvoss.de/de/projects/mall-of-berlin"
+  ],
+  "references": [
+    {
+      "title": "Berlin, Mitte, Voßstraße 33, Wohnhaus 01.jpg",
+      "file_page": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Vo%C3%9Fstra%C3%9Fe_33,_Wohnhaus_01.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "date": "2009-06-23",
+      "use": "External visual reference for surviving Voßpalais red-sandstone facade, four axes, projecting central pair, arch, pilaster, niche and cornice hierarchy. Current restored condition confirmed separately by COPRO. No photograph or crop bundled."
+    },
+    {
+      "title": "Leipziger.Platz.Mall.of.Berlin.jpg",
+      "file_page": "https://commons.wikimedia.org/wiki/File:Leipziger.Platz.Mall.of.Berlin.jpg",
+      "author": "Membeth",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "date": "2017-12-08",
+      "use": "External visual reference for Mall entrance paired-window rhythm, mullions and permanent name. Seasonal decoration and changing tenant signs excluded. No photograph or crop bundled."
+    }
+  ]
+}

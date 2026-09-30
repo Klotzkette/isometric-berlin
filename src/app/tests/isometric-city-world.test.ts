@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { LEIPZIGER_SOURCE_PROFILES } from "../src/leipzigerPlatzSourceProfile";
+import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
 
 import {
   Box3,
@@ -744,13 +746,25 @@ describe("ligne-claire fenestration", () => {
     }
     const detailedWallCounts =
       axes.userData.plazaFacadeDetails.detailedWallCounts;
+    // v151 moves matching generic faces into the complete source models.
+    // Count their retained source-front ownership alongside the ordinary pass;
+    // dedicated model tests verify the visible replacement detail and roofs.
+    const replacedWallCounts: Record<string, number> = {};
+    for (const prism of [...LEIPZIGER_SOURCE_PROFILES.flatMap(p => p.previous_display_prisms),
+      ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(p => p.previousDisplayPrisms)]) {
+      for (const wall of facadeWallsOf(prism)) {
+        const zone = plazaFacadeDetailZoneForWall(wall);
+        if (zone) replacedWallCounts[zone.name] = (replacedWallCounts[zone.name] ?? 0) + 1;
+      }
+    }
+    const retained = (zone: string) => detailedWallCounts[zone] + (replacedWallCounts[zone] ?? 0);
     expect(detailedWallCounts["Pariser Platz"]).toBeGreaterThan(100);
-    expect(detailedWallCounts["Leipziger Platz"]).toBeGreaterThan(200);
+    expect(retained("Leipziger Platz")).toBeGreaterThan(200);
     // v1.0.11 moves ten BahnTower walls to its dedicated source facade;
-    // 238 qualifying ordinary walls remain in this generic pass.
-    expect(detailedWallCounts["Potsdamer Platz"]).toBe(238);
-    expect(detailedWallCounts["Tilla-Durieux-Park"]).toBeGreaterThan(200);
-    expect(detailedWallCounts["Stresemannstraße"]).toBeGreaterThan(150);
+    // v151 transfers a subset of those 238 qualifying walls to complete source models.
+    expect(retained("Potsdamer Platz")).toBeGreaterThanOrEqual(238);
+    expect(retained("Tilla-Durieux-Park")).toBeGreaterThan(200);
+    expect(retained("Stresemannstraße")).toBeGreaterThan(150);
     expect(detailedWallCounts["Wilhelmstraße"]).toBeGreaterThan(300);
     expect(
       detailedWallCounts["Großer Tiergarten-Parkrand"],

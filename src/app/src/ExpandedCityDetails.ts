@@ -1,3 +1,4 @@
+import { createAlterDessauerMonument } from "./AlterDessauerMonument";
 import { createKonradAdenauerHaus } from "./KonradAdenauerHaus";
 import { POTSDAMER_PANORAMA_LANDSCAPE } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
@@ -4359,37 +4360,9 @@ function addPotsdamerWilhelmDetails(
     );
   }
 
-  const dessauer = fixedWorldPoint(profile.alterDessauerWorldM);
-  addBox(
-    builder,
-    SANDSTONE,
-    dessauer.x,
-    dessauer.y + 1.25,
-    dessauer.z,
-    4.2,
-    2.5,
-    4.2,
-  );
-  addCylinder(
-    builder,
-    BRONZE,
-    dessauer.x,
-    dessauer.y + 4.4,
-    dessauer.z,
-    0.72,
-    4.2,
-    10,
-  );
-  addCone(
-    builder,
-    BRONZE,
-    dessauer.x,
-    dessauer.y + 7.1,
-    dessauer.z,
-    1.05,
-    1.8,
-    10,
-  );
+  // The source-bound bronze figure and pedestal are an independent group;
+  // do not retain the former cone/cylinder placeholder underneath it.
+
 }
 
 type TillaLawnProfile =
@@ -6046,6 +6019,7 @@ export function createExpandedCityDetails(
     group.add(createPotsdamerPlatzPublicRealm(options.detailProfile ?? "full"));
     group.add(createSonyCenterSurroundings());
     group.add(createWilhelmStresemannDetails(options.detailProfile ?? "full"));
+    group.add(createAlterDessauerMonument());
   }
 
   const potsdamerHallBuilder = createBuilder();

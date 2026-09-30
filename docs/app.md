@@ -1685,3 +1685,26 @@ on-screen look buttons use the same direction for a tap and a held press.
 The orange joystick keeps its established forward/backward/strafe behavior.
 The compass reads the actual camera update once, avoiding duplicate angle
 changes in the app shell.
+
+## Potsdamer / Leipziger Platz refinement (v1.0.51)
+
+The owner-requested refinement keeps complete official source envelopes for
+Mall of Berlin, its incorporated Voßpalais, the Leipziger Platz perimeter and
+the old/new Bundesumweltministerium, Forum tower, Haus Huth and Hyatt.
+`LeipzigerPlatzSourceShells` and `PotsdamerMinistryArchitecture` are awaited and
+staged with the drawn world before publication; only their own source IDs
+suppress former flat prisms in both detailed and fallback geometry. The Mall
+Piazza's original roof planes are translucent and its undercroft remains open.
+Pedestrian geometry uses the same exact outlines, holes and roof planes.
+
+Separate perimeter, Mall and retained Potsdamer street-wing overlays add
+source-bound window, stone, bronze and entrance details. The Czech Embassy
+keeps all existing source parts with refined granite/bronze facade bands;
+HIT Ullrich and the source-anchored Alter Dessauer monument receive distinct
+recognition detail. All four drawn modes share the same static geometry on
+pointer and touch devices. Native Minecraft constructs separate fixed batches,
+yielding between models and retaining all mixed neighboring source columns.
+The existing city, streets, 93-place tour and bounds are unchanged.
+
+Sources, preservation rules and validation are in
+[the v1.0.51 review](release-v1.0.51-review.md).

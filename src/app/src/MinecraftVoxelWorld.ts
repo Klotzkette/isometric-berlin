@@ -1,3 +1,11 @@
+import { createAlterDessauerMonument } from "./AlterDessauerMonument";
+import { createMinecraftWilhelmStresemannDetails } from "./WilhelmStresemannDetails";
+import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
+import { createLeipzigerPerimeterFacades } from "./LeipzigerPerimeterFacades";
+import { createMinecraftPotsdamerMinistryArchitecture } from "./PotsdamerMinistryArchitecture";
+import { isPotsdamerMinistryReplacementCell } from "./potsdamerMinistryProfile";
+import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
+import { isLeipzigerMallPassageColumn } from "./leipzigerPlatzSourceProfile";
 import { createDhmArchitecture } from "./DhmArchitecture";
 import { isDhmReplacementColumn } from "./dhmProfile";
 import { createMinecraftEastCivicArchitecture } from "./EastCivicArchitecture";
@@ -1078,7 +1086,8 @@ export function buildColumnToneLookup(prisms: {
     const urban = urbanFacadeScope(building);
     const chariteTone = building.id ? CHARITE_HISTORIC_FACADE_TONES[building.id] ??
       (CHARITE_VIROLOGY_IDS.has(building.id) ? HISTORIC_CHARITE_TONES.virologyFacade : undefined) : undefined;
-    const mappedTone = chariteTone ?? corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
+    const wilhelmTones = building.id ? WILHELM_REFINEMENT_PRISM_TONES.get(building.id) : undefined;
+    const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
       mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes)));
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
@@ -1092,7 +1101,7 @@ export function buildColumnToneLookup(prisms: {
     const toned: TonedPrism = {
       id: building.id,
       attributes,
-      roofTone: (building.id ? CHARITE_HISTORIC_FACADE_ROOF_TONES[building.id] ??
+      roofTone: wilhelmTones?.[1] ?? (building.id ? CHARITE_HISTORIC_FACADE_ROOF_TONES[building.id] ??
         (CHARITE_VIROLOGY_IDS.has(building.id) ? 0x77827d : undefined) : undefined) ??
         (urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes)),
       storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
@@ -2756,6 +2765,16 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftSonyCenterSurroundings());
+  group.add(createMinecraftWilhelmStresemannDetails());
+  yield;
+  group.add(createAlterDessauerMonument(true));
+  yield;
+  group.add(createMallAndVosspalaisDetails({ minecraft: true }));
+  yield;
+  group.add(createLeipzigerPerimeterFacades(true));
+  yield;
+  group.add(createMinecraftPotsdamerMinistryArchitecture());
+  yield;
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   yield;
@@ -2907,6 +2926,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !konradAdenauerFootprintContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isEconomicMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
+      !isPotsdamerMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
+      !isLeipzigerMallPassageColumn(worldXAbs(xIdx), worldZAbs(zIdx), cell / 2) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&

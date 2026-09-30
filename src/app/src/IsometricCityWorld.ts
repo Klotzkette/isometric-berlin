@@ -192,6 +192,9 @@ import {
 } from "./Reichstagspraesidentenpalais";
 import { createFederalStateRepresentations, SACHSEN_ANHALT_FACADE_IDS } from "./FederalStateRepresentations";
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
+import { LEIPZIGER_SOURCE_PRISM_IDS } from "./leipzigerPlatzSourceProfile";
+import { POTSDAMER_MINISTRY_REPLACEMENT_IDS } from "./potsdamerMinistryProfile";
+import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { restoreDrawnWaterBoundary } from "./drawnWaterBoundary";
@@ -657,6 +660,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
+  ...Object.fromEntries([...WILHELM_REFINEMENT_PRISM_TONES].map(([id, tones]) => [id, tones[0]])),
   ...CHARITE_HISTORIC_FACADE_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0xe7e3d6])),
   ...GROPIUS_BAU_PRISM_TONES,
@@ -837,6 +841,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
 // towers) read as the real light stone terrace instead of sun-warmed
 // facade brown; the Chancellery roof stays light.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
+  ...Object.fromEntries([...WILHELM_REFINEMENT_PRISM_TONES].map(([id, tones]) => [id, tones[1]])),
   ...CHARITE_HISTORIC_FACADE_ROOF_TONES,
   ...GROPIUS_BAU_PRISM_ROOF_TONES,
   K0002MCN: 0xe1e3dc,
@@ -908,6 +913,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...LEIPZIGER_SOURCE_PRISM_IDS, ...POTSDAMER_MINISTRY_REPLACEMENT_IDS,
   ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS, ...ALEXANDER_CIVIC_PRISM_IDS,
   ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,
   ...GENDARMENMARKT_PRISM_IDS,
@@ -1508,6 +1514,9 @@ function facadeColorFor(
   }
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
+    if (WILHELM_REFINEMENT_PRISM_TONES.has(building.id)) {
+      return target.setHex(pinned).lerp(IVORY, 0.08);
+    }
     if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
       // The clinker is the building's identity. Keep the shared ivory lift
       // restrained here so the red ceramic does not wash back to beige.

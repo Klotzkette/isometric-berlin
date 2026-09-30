@@ -1,0 +1,11 @@
+{
+  "WilhelmStresemannDetails": {
+    "hash": "3e4b2d9d7e780e9395fdb5704b99d0b84b2ca643927a185f3f0581e01d6b5efe",
+    "budget": {
+      "bytes": 697076,
+      "draws": 5,
+      "instances": 0,
+      "vertices": 38810
+    }
+  }
+}

@@ -783,6 +783,39 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "leipziger_platz_v151",
+      "anchor_source": "Retained Berlin LoD2 metric geometry and OSM identities; licensed external photographs and primary built-project accounts",
+      "geometry_ref": "src/app/src/leipzigerPlatzSource.json",
+      "documentation_ref": "docs/release-v1.0.51-review.md",
+      "conflicts": [
+        "Complete official wall/roof sheets replace matching flat caps only; documented glass-roof display opens the covered Mall passage. Source sheets, previous prisms, courtyard holes and rigid terrain registrations remain retained."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "potsdamer_ministry_v151",
+      "anchor_source": "Retained Berlin LoD2 metric geometry and OSM identities; licensed external photographs and primary built-project accounts",
+      "geometry_ref": "src/app/src/potsdamerMinistrySource.json",
+      "documentation_ref": "docs/release-v1.0.51-review.md",
+      "conflicts": [
+        "Complete historic/new ministry, Forum, Huth and Hyatt envelopes retain exact roofs and courts; window subdivisions and material tones are source-bounded procedural interpretation."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "wilhelm_dessauer_v151",
+      "anchor_source": "Retained Berlin LoD2 metric geometry and OSM identities; licensed external photographs and primary built-project accounts",
+      "geometry_ref": "src/app/src/czechEmbassyFacadeSource.json",
+      "documentation_ref": "docs/release-v1.0.51-review.md",
+      "conflicts": [
+        "Czech source envelopes stay unchanged; folded granite and bronze glazing are procedural overlays. Dessauer replaces an old cone at the retained OSM anchor, with photo-proportioned bronze figure and granite plinth."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

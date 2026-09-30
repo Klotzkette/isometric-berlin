@@ -171,7 +171,9 @@ describe("true voxel Minecraft world", () => {
     // disappear and 42 neighbouring panes become exposed, a net 302 fewer.
     // v1.0.46's complete perimeter shells replace their old prisms and panes,
     // including the retained former OSM-height footprints in that ownership.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_558_746); // v148 exact DHM/AA/Embassy source ownership replaces 5,844 duplicate panes.
+    // v151 source replacements open former shared faces while retaining every
+    // mixed neighbor cell; this exposes 1,365 additional generic panes.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_560_111);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -190,9 +192,10 @@ describe("true voxel Minecraft world", () => {
     // Perimeter ownership replaces 6,977 full / 2,349 mobile column instances.
     // Charité's152-part replacement requires optional sourcePrisms, so it is
     // deliberately absent from these payload-only fallback totals.
-    expect(instanced("Voxel building columns", world).count).toBe(1_433_676); // v148 replaces 8,251 additional coarse stacked instances.
+    // v151 replaces only safe ministry/Potsdamer and open Mall passage cells.
+    expect(instanced("Voxel building columns", world).count).toBe(1_431_980);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      524_342, // v148 replaces 3,280 additional coarse mobile columns.
+      523_776,
     );
 
     const landmarks = world.getObjectByName(

@@ -20,7 +20,10 @@ import {
   addBox,
   createBuilder,
   finishDrawnGroup,
+  paintGeometry,
 } from "./drawnKit";
+
+import czechSource from "./czechEmbassyFacadeSource.json";
 
 type DetailProfile = "full" | "mobile";
 type WorldPoint2 = readonly [number, number];
@@ -345,72 +348,64 @@ function addSlabFacade(
   }
 }
 
-function addBrutalistFacade(
-  builder: Builder,
-  building: RecognitionBuilding,
-  run: SourceFacadeRun,
-  detailProfile: DetailProfile,
-): void {
-  const frame = runFrame(run, building.centerWorldM);
-  const bayPitch = detailProfile === "mobile" ? 6.4 : 4.25;
-  const bays = Math.max(2, Math.floor(frame.lengthM / bayPitch));
-  const pitch = frame.lengthM / bays;
-  const facadeHeight = Math.min(17.4, run.measuredHeightM - 2.4);
-  addRunBox(
-    builder,
-    run,
-    building.centerWorldM,
-    0x556d70,
-    0,
-    run.groundYM + facadeHeight / 2 + 2.2,
-    0.16,
-    frame.lengthM - 0.4,
-    facadeHeight,
-    0.1,
-  );
-  for (let bay = 0; bay <= bays; bay += 1) {
-    const along = -frame.lengthM / 2 + bay * pitch;
-    addRunBox(
-      builder,
-      run,
-      building.centerWorldM,
-      bay % 2 === 0 ? 0xb5976e : 0xc3aa83,
-      along,
-      run.groundYM + facadeHeight / 2 + 2.2,
-      0.31,
-      detailProfile === "mobile" ? 0.5 : 0.34,
-      facadeHeight + (bay % 2 === 0 ? 1.4 : 0.5),
-      0.28,
-      bay === 0 || bay === bays,
-    );
+/** Ribbon glazing and folded granite aprons follow all retained exterior runs. */
+function addCzechEmbassyFacades(builder: Builder, minecraft = false): void {
+  const center = [844.99, 868.37] as const;
+  const coreIds = new Set(["gFIHTCRe", "H5JWrRQf"]);
+  for (const part of czechSource.parts) for (const [start, end] of part.exterior_runs) {
+    const run: SourceFacadeRun = { startWorldM: start as [number, number], endWorldM: end as [number, number],
+      groundYM: 5.2, measuredHeightM: part.height_m, sourcePartId: part.short_id };
+    const frame = runFrame(run, center), length = frame.lengthM;
+    const box = (color: number, along: number, y: number, out: number, w: number, h: number, d: number): void =>
+      addRunBox(builder, run, center, color, along, y + 5.2, out, w, h, d, false);
+    const granite = 0xbdb7a7, bronzeGlass = 0x746c54, metal = 0x494b44;
+    if (coreIds.has(part.short_id)) {
+      box(0x635b4e, 0, part.height_m / 2, .12, length, part.height_m, .15);
+      const ribs = Math.max(2, Math.floor(length / .58));
+      for (let i=0;i<ribs;i++) box(i%3 ? 0x81725c : 0x6b6151,
+        (i+.5)*length/ribs-length/2, part.height_m/2, .22, .045, part.height_m-.2, .08);
+      if (length > 6) for(let level=0;level<6;level++)
+        box(level%2 ? 0x83b6ab : 0x9ac4b4, -length*.35, 3+level*3.7, .27, .54, 2.7, .06);
+      continue;
+    }
+    // Flat undercroft, lower glazed reception rooms and the upper office ribbons.
+    box(0x656052, 0, 1.6, .1, length, 3.2, .12);
+    box(0x7e6652, 0, 4.85, .16, length, 3.3, .18);
+    const bays=Math.max(1,Math.round(length/2.6)), pitch=length/bays;
+    for(let bay=1;bay<bays;bay++) box(metal,bay*pitch-length/2,4.85,.28,.09,3.3,.13);
+    const apron=(bottom: number, top: number, color: number):void => {
+      if(minecraft) { for(let step=0;step<4;step++) box(color,0,bottom+(top-bottom)*(step+.5)/4,
+        .06+.23*(step+.5)/4,length,(top-bottom)/4,.14); return; }
+      const point=(along:number,y:number,out:number):number[] => [frame.midpoint[0]+frame.axis[0]*along+frame.outward[0]*out,
+        y+5.2,frame.midpoint[1]+frame.axis[1]*along+frame.outward[1]*out];
+      const a=point(-length/2,bottom,.06), b=point(length/2,bottom,.06),
+        c=point(length/2,top,.31), d=point(-length/2,top,.31);
+      const g=new BufferGeometry();g.setAttribute("position",new Float32BufferAttribute([...a,...b,...c,...a,...c,...d,...c,...b,...a,...d,...c,...a],3));
+      g.setIndex(Array.from({length:12},(_,i)=>i));paintGeometry(g,color);builder.parts.push(g);
+      // Stone slab joints belong to the folds, not a full-height office grid.
+      for(let i=1;i<Math.ceil(length/1.2);i++) {
+        const along=i*length/Math.ceil(length/1.2)-length/2;
+        box(0x918875,along,(bottom+top)/2,.25,.027,top-bottom,.04);
+      }
+    };
+    apron(1.2,3.2,granite); apron(6.5,7.7,0xada797);
+    box(0x484b42,0,8.1,.14,length,.8,.16);
+    const upperTop=Math.min(23.18,part.height_m), first=9.1;
+    for(let base=first;base<upperTop-1.2;base+=3.45) {
+      const top=Math.min(base+3.45,upperTop);
+      apron(base,Math.min(base+1.42,top),granite);
+      const glassBottom=base+1.42, glassTop=top-.12;
+      if(glassTop<=glassBottom)continue;
+      box(bronzeGlass,0,(glassBottom+glassTop)/2,.18,length,glassTop-glassBottom,.12);
+      box(0x4c5049,0,glassBottom,.29,length,.09,.08);
+      box(0xc5bba1,0,glassTop,.28,length,.09,.08);
+      for(let bay=1;bay<bays;bay++) box(metal,bay*pitch-length/2,(glassBottom+glassTop)/2,.28,.075,glassTop-glassBottom,.1);
+      // A restrained warm reflection on individual panes keeps bronze glazing legible.
+      for(let bay=0;bay<bays;bay++) if(bay%3===1)
+        box(0x958c69,(bay+.5)*pitch-length/2,(glassBottom+glassTop)/2,.25,pitch-.16,glassTop-glassBottom-.16,.025);
+    }
+    box(granite,0,upperTop-.1,.12,length,.2,.28);
   }
-  for (let level = 1; level <= 4; level += 1) {
-    addRunBox(
-      builder,
-      run,
-      building.centerWorldM,
-      0xb89a71,
-      0,
-      run.groundYM + 1.1 + level * 3.55,
-      0.3,
-      frame.lengthM,
-      0.28,
-      0.26,
-    );
-  }
-  addRunBox(
-    builder,
-    run,
-    building.centerWorldM,
-    0x413c38,
-    0,
-    run.groundYM + 2.2,
-    0.33,
-    Math.min(8.5, frame.lengthM * 0.38),
-    4.2,
-    0.24,
-    true,
-  );
 }
 
 function addRetailFacade(
@@ -447,6 +442,17 @@ function addRetailFacade(
       0.18,
     );
   }
+  // Existing low store envelope: shallow parapet, transom and paired glazed entry.
+  addRunBox(builder,run,building.centerWorldM,0xc4b9a2,0,run.groundYM+7.45,.2,frame.lengthM,1.45,.2);
+  addRunBox(builder,run,building.centerWorldM,0x4e625d,0,run.groundYM+6.42,.24,frame.lengthM-.4,.63,.1);
+  for(let bay=1;bay<7;bay++) addRunBox(builder,run,building.centerWorldM,0xd6c9ae,
+    -frame.lengthM/2+frame.lengthM*bay/7,run.groundYM+6.42,.3,.1,.65,.1);
+  for(const side of[-1,1]) {
+    const along=frame.lengthM*.23+side*.67;
+    addRunBox(builder,run,building.centerWorldM,0x748680,along,run.groundYM+2.04,.51,1.24,3.7,.06);
+    addRunBox(builder,run,building.centerWorldM,0xd7d4c3,along-side*.45,run.groundYM+1.8,.57,.04,.6,.04);
+  }
+  addRunBox(builder,run,building.centerWorldM,0xbdb8a8,frame.lengthM*.23,run.groundYM+.06,.42,3.05,.12,.45);
   addRunBox(
     builder,
     run,
@@ -484,7 +490,7 @@ function addBuildingDetails(
     if (building.style === "slab") {
       addSlabFacade(builder, building, run, detailProfile);
     } else if (building.style === "brutalist") {
-      addBrutalistFacade(builder, building, run, detailProfile);
+      continue; // The complete source-perimeter pass below replaces the old three-run grid.
     } else {
       addRetailFacade(builder, building, run, detailProfile);
     }
@@ -679,6 +685,7 @@ export function createWilhelmStresemannDetails(
   for (const building of WILHELM_STRESEMANN_DETAIL_PROFILE.buildings) {
     addBuildingDetails(builder, building, detailProfile);
   }
+  addCzechEmbassyFacades(builder);
   addTennisNet(builder);
   const facades = finishDrawnGroup(builder, {
     name: "Wilhelmstrasse Stresemannstrasse recognition facades",
@@ -695,5 +702,18 @@ export function createWilhelmStresemannDetails(
     glass: new Color(0x556d70).getHex(),
     rubber: new Color(0x9d5e50).getHex(),
   };
+  return group;
+}
+
+/** Source bodies stay native Minecraft; these bounded facade-only cubes add recognition. */
+export function createMinecraftWilhelmStresemannDetails(): Group {
+  const builder=createBuilder();addCzechEmbassyFacades(builder,true);
+  const retail=WILHELM_STRESEMANN_DETAIL_PROFILE.buildings.find(b=>b.style === "retail")!;
+  addRetailFacade(builder,retail,retail.runs[0],"full");
+  // Coarse native red fascia is legible without a texture or smooth sign double.
+  const group=finishDrawnGroup(builder,{name:"Block-native Czech Embassy and HIT Ullrich facades"})!;
+  group.userData={...group.userData,keepInMinecraft:true,nativeMinecraft:true,blockNative:true,textureFree:true,
+    sourceParentIds:[czechSource.parent_id,retail.parentId],sourcePartIds:czechSource.parts.map(p=>p.short_id),
+    geometryRole:"facade-only cubes; every original source body remains"};
   return group;
 }

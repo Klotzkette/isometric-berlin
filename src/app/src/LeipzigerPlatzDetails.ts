@@ -5,7 +5,6 @@ import {
   CatmullRomCurve3,
   DoubleSide,
   EdgesGeometry,
-  Float32BufferAttribute,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -15,6 +14,8 @@ import {
   Vector3,
 } from "three";
 
+import { leipzigerMallRoofRib } from "./leipzigerPlatzSourceProfile";
+import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
 import {
@@ -162,9 +163,9 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
     coveredPassage: {
       axis: [0.07865, 0.9969] as const,
       centerWorldM: [633.506, 953.597] as const,
-      eaveYM: 16.7,
+      eaveYM: 21.451,
       geometryStatus:
-        "OSM roof footprint and round glass roof tag; arch rise and frame subdivision are source-bounded presentation detail",
+        "Exact three LoD2 roof planes over OSM covered passage; steel frame subdivision is source-bounded presentation detail",
       lengthM: 75.18,
       osmRoofWayId: "380104431",
       rotationY: degrees(4.51),
@@ -802,73 +803,14 @@ function addPaintedGeometry(
   }
 }
 
-function addBarrelRoof(builder: Builder): void {
+function addPassageFrame(builder: Builder): void {
   const passage = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.coveredPassage;
-  const archSegments = 16;
-  const lengthSegments = 10;
-  const riseM = 6.15;
   const crossAxis: WorldPoint2 = [passage.axis[1], -passage.axis[0]];
-  const positions: number[] = [];
-  const indices: number[] = [];
-
-  for (let alongIndex = 0; alongIndex <= lengthSegments; alongIndex += 1) {
-    const along =
-      -passage.lengthM / 2 +
-      (passage.lengthM * alongIndex) / lengthSegments;
-    for (let archIndex = 0; archIndex <= archSegments; archIndex += 1) {
-      const angle = -Math.PI / 2 + (Math.PI * archIndex) / archSegments;
-      const across = Math.sin(angle) * passage.spanM / 2;
-      const y = passage.eaveYM + Math.cos(angle) * riseM;
-      positions.push(
-        passage.centerWorldM[0] +
-          passage.axis[0] * along +
-          crossAxis[0] * across,
-        y,
-        passage.centerWorldM[1] +
-          passage.axis[1] * along +
-          crossAxis[1] * across,
-      );
-    }
-  }
-  for (let alongIndex = 0; alongIndex < lengthSegments; alongIndex += 1) {
-    for (let archIndex = 0; archIndex < archSegments; archIndex += 1) {
-      const first = alongIndex * (archSegments + 1) + archIndex;
-      const second = first + archSegments + 1;
-      indices.push(first, second, first + 1, first + 1, second, second + 1);
-    }
-  }
-  const roof = new BufferGeometry();
-  roof.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  roof.setIndex(indices);
-  roof.computeVertexNormals();
-  addPaintedGeometry(builder, roof, 0x91b3b5);
-
   for (let rib = 0; rib <= 8; rib += 1) {
-    const along = -passage.lengthM / 2 + (passage.lengthM * rib) / 8;
-    const points: Vector3[] = [];
-    for (let archIndex = 0; archIndex <= archSegments; archIndex += 1) {
-      const angle = -Math.PI / 2 + (Math.PI * archIndex) / archSegments;
-      const across = Math.sin(angle) * passage.spanM / 2;
-      points.push(
-        new Vector3(
-          passage.centerWorldM[0] +
-            passage.axis[0] * along +
-            crossAxis[0] * across,
-          passage.eaveYM + Math.cos(angle) * riseM + 0.05,
-          passage.centerWorldM[1] +
-            passage.axis[1] * along +
-            crossAxis[1] * across,
-        ),
-      );
-    }
-    addPaintedGeometry(
-      builder,
-      new TubeGeometry(new CatmullRomCurve3(points), 24, 0.075, 4, false),
-      MALL_FRAME,
-      false,
-    );
+    const points = leipzigerMallRoofRib(-37 + 74 * rib / 8).map(p => new Vector3(...p));
+    if (points.length < 2) continue;
+    addPaintedGeometry(builder, new TubeGeometry(new CatmullRomCurve3(points), 24, .075, 4, false), MALL_FRAME, false);
   }
-
   const columnHeight = passage.eaveYM - 5.1;
   for (let support = 0; support <= 6; support += 1) {
     const along = -passage.lengthM / 2 + (passage.lengthM * support) / 6;
@@ -911,10 +853,11 @@ function buildMall(): Group {
       windowWidthM: 2.85,
     });
   }
-  addBarrelRoof(builder);
+  addPassageFrame(builder);
   const group = finishDrawnGroup(builder, {
     name: "Mall of Berlin LoD2-bound facade overlays",
   })!;
+  group.add(createMallAndVosspalaisDetails());
   group.userData.profile = profile;
   group.userData.collisionRole = "visual-overlay-with-open-covered-axis";
   return group;

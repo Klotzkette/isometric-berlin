@@ -8,6 +8,8 @@ import { ALEXANDER_CIVIC_PARTS, ALEXANDER_CIVIC_PRISM_IDS, MARIEN_TOWER, MARIEN_
   alexanderCivicPartBaseAt, alexanderCivicPartRoofAt, alexanderCivicTowerSolidAt } from "./alexanderCivicProfile";
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
+import { LEIPZIGER_SOURCE_PARTS, leipzigerSourceRoofAt, leipzigerPartSolidBase } from "./leipzigerPlatzSourceProfile";
+import { POTSDAMER_MINISTRY_BUILDINGS } from "./potsdamerMinistrySourceProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
 import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
 import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
@@ -605,8 +607,36 @@ export function compilePedestrianObstacles(
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
+  const leipzigerParts = new Map(LEIPZIGER_SOURCE_PARTS.map(part => [part.id.slice(-8), part]));
+  const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
+    family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    const leipzigerPart = leipzigerParts.get(building.id);
+    if (leipzigerPart) {
+      // Roof-only canopies stay open underneath; a thin roof is not a solid
+      // building from street level. Original measured courtyards stay holes.
+      const base = leipzigerPartSolidBase(leipzigerPart);
+      addPolygonObstacle(index, leipzigerPart.ring, leipzigerPart.holes, base,
+        leipzigerPart.top_y_m, leipzigerPart.id, 1,
+        (x, z) => leipzigerSourceRoofAt(leipzigerPart, x, z));
+      index.buildingCount += 1;
+      continue;
+    }
+    const potsdamerPart = potsdamerParts.get(building.id);
+    if (potsdamerPart) {
+      const { part, shift } = potsdamerPart;
+      const base = part.surfaces.some(surface => surface.kind === "WallSurface")
+        ? part.ground_y_m : Math.min(...part.surfaces.flatMap(surface =>
+          surface.rings.flatMap(ring => ring.map(point => point[1])))) - .2;
+      addPolygonObstacle(index, part.ring, part.holes, base + shift,
+        part.top_y_m + shift, part.id, 1, (x, z) => {
+          const y = bebelplatzPartRoofAt(part, x, z);
+          return y === null ? null : y + shift;
+        });
+      index.buildingCount += 1;
+      continue;
+    }
     if (BERLIN_JUNCTION_PRISM_IDS.has(building.id)) continue;
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;

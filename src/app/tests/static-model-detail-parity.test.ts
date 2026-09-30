@@ -9,6 +9,7 @@ import prisms from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import budgets from "./fixtures/static-model-full-budgets-v141.json";
 import hashes from "./fixtures/static-model-full-hashes-v141.json";
 import overridesV148 from "./fixtures/static-model-full-overrides-v148.json";
+import overridesV151 from "./fixtures/static-model-full-overrides-v151.json";
 import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
@@ -71,7 +72,9 @@ describe("all devices retain the full authored static city detail", () => {
       // v147 adds the requested museum ornament while preserving source shells.
       // v148 refines only the Altes Ionic order and two bronze groups; older
       // fixtures stay frozen and every unrelated model retains its previous hash.
-      const override = overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v151 refines the Czech Embassy and HIT Ullrich only. All earlier
+      // fixtures remain frozen; every unrelated model keeps its previous hash.
+      const override = overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

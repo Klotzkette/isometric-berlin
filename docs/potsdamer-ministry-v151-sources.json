@@ -1,0 +1,124 @@
+{
+  "pipeline_step": 10,
+  "scope": "Complete source envelopes at Potsdamer Platz and BMUKN Stresemannstrasse, no tour or bounds extension",
+  "geometry": {
+    "source": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip",
+    "license": "dl-de/zero-2-0",
+    "parts": 45,
+    "source_file": "src/app/src/potsdamerMinistrySource.json",
+    "ownership_file": "src/app/src/potsdamerMinistryOwnership.json"
+  },
+  "factual_sources": [
+    {
+      "url": "https://www.bundesumweltministerium.de/ministerium/anschriften",
+      "fact": "Current Berlin main site Stresemannstraße 128–130; Köthener Straße is a different office site."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095986",
+      "fact": "Historic ministerial wing, sandstone ground-storey round arches and four office floors."
+    },
+    {
+      "url": "https://www.bundesumweltministerium.de/ministerium/ein-haus-mit-bewegter-geschichte",
+      "fact": "Historical building and new protected incorporation of original Hinterlandmauer fragments."
+    },
+    {
+      "url": "https://www.potsdamerplatz.de/de/office-leasing/potsdamerstrasse11/",
+      "fact": "Potsdamer Platz 11 designed by Renzo Piano."
+    },
+    {
+      "url": "https://www.potsdamerplatz.de/de/office-leasing/altepotsdamerstrasse5/",
+      "fact": "Haus Huth, 1912, Conrad Heidenreich and Paul Michel."
+    },
+    {
+      "url": "https://rafaelmoneo.com/en/projects/hyatt-hotel-and-mercedes-benz-offices-on-potsdamer-platz/",
+      "fact": "Grand Hyatt full-block plan around large patio and distinct hotel architecture."
+    },
+    {
+      "url": "https://www.rpbw.com/project/postdamer-platz",
+      "fact": "Mixed-use Potsdamer masterplan, transparent ground floors, terracotta facades and RPBW residential street wings. This does not attribute the Mandala or Moneo office to Piano."
+    },
+    {
+      "url": "https://www.potsdamerplatz.de/de/office-leasing/potsdamerstrasse7/",
+      "fact": "Operator confirms Rafael Moneo office building at Potsdamer Straße 7 and retained upper terraces."
+    },
+    {
+      "url": "https://www.themandala.de/de/the-mandala-story/",
+      "fact": "Operator confirms the Mandala building opened in 1999, formerly planned as residences, large windows and upper courtyard."
+    },
+    {
+      "url": "https://www.brookfieldproperties.com/en/our-properties/potsdamer-platz-b3-455",
+      "fact": "Property owner identifies mixed residential and retail B3 complex at Alte Potsdamer Straße 7."
+    }
+  ],
+  "visual_references": [
+    {
+      "title": "Bundesministerium für Umwelt, Naturschutz und nukleare Sicherheit, Stresemannstraße 128, Berlin-1780.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Bundesministerium_f%C3%BCr_Umwelt,_Naturschutz_und_nukleare_Sicherheit,_Stresemannstra%C3%9Fe_128,_Berlin-1780.jpg",
+      "author": "Raimond Spekking",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "use": "BMUKN roof/facade distinction and upper lunette dormers",
+      "reference_only": true,
+      "bundled": false,
+      "inspected": "2026-09-30"
+    },
+    {
+      "title": "Fed. Ministry f.t. Environm't, Nature Conservation, Bldg. a. Nuclear Safety, Berlin.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Fed._Ministry_f.t._Environm%27t,_Nature_Conservation,_Bldg._a._Nuclear_Safety,_Berlin.JPG",
+      "author": "Ulf Heinsohn",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "use": "BMUKN old/new entrance separation",
+      "reference_only": true,
+      "bundled": false,
+      "inspected": "2026-09-30"
+    },
+    {
+      "title": "Berlin-alte-potsdamer-straße-5-haus-huth.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin-alte-potsdamer-stra%C3%9Fe-5-haus-huth.JPG",
+      "author": "Roland.h.bueb",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "use": "Haus Huth shell-limestone, fluted piers, arches and inscription",
+      "reference_only": true,
+      "bundled": false,
+      "inspected": "2026-09-30"
+    },
+    {
+      "title": "Forum Tower bzw. Potsdamer Platz 11 in Berlin.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Forum_Tower_bzw._Potsdamer_Platz_11_in_Berlin.jpg",
+      "author": "JoachimKohler-HB",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "use": "Forum Tower glass wedge and terracotta wing",
+      "reference_only": true,
+      "bundled": false,
+      "inspected": "2026-09-30"
+    },
+    {
+      "title": "Potsdamer Platz 2009 PD 20090321 006.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_2009_PD_20090321_006.JPG",
+      "author": "Politikaner",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "use": "Grand Hyatt square windows, red stone and roof letters",
+      "reference_only": true,
+      "bundled": false,
+      "inspected": "2026-09-30"
+    }
+  ],
+  "uncertainty": "Facade colours, window subdivisions, groundfloor framing, local lunette size and sign geometry are procedural display interpretations of references, not measured survey. Complete measured source surfaces remain unmodified apart from explicit per-family terrain registration. The facade-only extension adds source-bounded window, glazing and sill rhythms; these are display estimates guided by the already credited owner panorama references, not surveyed window schedules. No unverified sign or new roof form is added.",
+  "facade_only_extension": {
+    "source_file": "src/app/src/potsdamerStreetWingSource.json",
+    "parts": 68,
+    "original_wall_planes": 69,
+    "source_suppression": false,
+    "roof_modification": false,
+    "palette": "Existing owner panorama references 2026-09-05; docs/potsdamer-panorama.md",
+    "scope": [
+      "The Mandala Hotel",
+      "Northern and southern Alte Potsdamer Straße wings",
+      "Rafael Moneo Potsdamer Straße 7 office"
+    ]
+  }
+}

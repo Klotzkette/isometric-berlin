@@ -1,0 +1,37 @@
+{
+  "version": "1.0.51",
+  "scope": "Czech Embassy, HIT Ullrich and Alter Dessauer at Wilhelmstraße/Zietenplatz",
+  "sources": [
+    {"id":"czech-embassy-lod2-v151","url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip","license":"dl-de/zero-2-0","role":"Authoritative metric fifteen-part source envelope; existing buildings.gpkg creation date 2026-03-08","parent_id":"DEBE01YYK00001Te"},
+    {"id":"czech-embassy-official-architecture","url":"https://mzv.gov.cz/berlin/de/die_botschaft/die_botschaft_stellt_sich_vor.html","role":"Institutional architecture/material description; archive, not current tenancy evidence"},
+    {"id":"czech-embassy-official-history","url":"https://mzv.gov.cz/berlin/cz/aktuality/raumschiff_enterprise_50_let.html","role":"Institutional 1972 design / 1978 completion and Machonin attribution"},
+    {"id":"hit-ullrich-official","url":"https://www.hit.de/maerkte/berlin-mitte","role":"Current store identity and address, not surveyed window/door measurements"},
+    {"id":"dessauer-osm","url":"https://www.openstreetmap.org/node/966034352","license":"ODbL-1.0","role":"Exact current monument anchor from retained osm.gpkg"},
+    {"id":"dessauer-monument-inventory","url":"https://bildhauerei-in-berlin.de/bildwerk/general-leopold-fuerst-von-anhalt-dessau-8591/","role":"Bronze/granite material distinction, Schadow/Kiss authorship and 2005 restoration history"}
+  ],
+  "wikimedia_references": [
+    {
+      "title":"Berlin - Botschaft der Tschechischen Republik (2).jpg",
+      "page_url":"https://commons.wikimedia.org/wiki/File:Berlin_-_Botschaft_der_Tschechischen_Republik_(2).jpg",
+      "author":"Fred Romero",
+      "credit":"Fred Romero, 2016 / Wikimedia Commons",
+      "license":"CC BY 2.0",
+      "license_url":"https://creativecommons.org/licenses/by/2.0/",
+      "role":"External visual reference for bronze ribbon glass, folded granite aprons, mullions and dark vertical core; no bundled image"
+    },
+    {
+      "title":"Denkmal Fürst Leopold von Dessau (Berlin, Zietenplatz).jpg",
+      "page_url":"https://commons.wikimedia.org/wiki/File:Denkmal_F%C3%BCrst_Leopold_von_Dessau_(Berlin,_Zietenplatz).jpg",
+      "author":"JoachimKohler-HB",
+      "credit":"JoachimKohler-HB, 2021 / Wikimedia Commons",
+      "license":"CC BY-SA 4.0",
+      "license_url":"https://creativecommons.org/licenses/by-sa/4.0/",
+      "role":"External visual reference for current bronze figure, tricorne, baton, boots, granite pedestal and chain enclosure; no bundled image"
+    }
+  ],
+  "conflicts": [
+    "The old Dessauer cone/cylinder at generic accessory ground y=8 is replaced by a source-anchored procedural figure aligned with local source ground y=5.2; original coarse profile remains in history.",
+    "LoD2 millimetre facade endpoints include collinear source vertices omitted by the existing decimetre runtime envelope; they lie within 8 cm of the same boundary.",
+    "Photographs establish materials and form, not surveyed window coordinates, monument height, contemporary renovations or exact colour values. Local subdivisions remain estimates."
+  ]
+}
