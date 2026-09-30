@@ -6,7 +6,7 @@ import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertu
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
 import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
-import { CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES } from "./chariteHistoricFacadeProfiles";
+import { CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES, CHARITE_THEATRE_REPLACEMENT_IDS } from "./chariteHistoricFacadeProfiles";
 import { GORKI_BUILDING_PRISM_IDS } from "./gorkiBuildingProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "./gripsHansaplatzProfile";
 import { GYMNASIUM_NEUBAU_PRISM_IDS } from "./gymnasiumTiergartenProfile";
@@ -914,6 +914,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // The complete source-outline theatre model restores the two-storey body,
+  // round lecture hall and dome above the source's coarse 3m lower extrusion.
+  ...CHARITE_THEATRE_REPLACEMENT_IDS,
   ...BIKINI_REPLACEMENT_IDS,
   // Both complete church towers are reconstructed at their original OSM
   // anchors; these former solid extrusions close the ruin's actual openings.

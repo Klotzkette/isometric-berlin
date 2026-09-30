@@ -424,7 +424,7 @@ describe("City West and Urania recognition details", () => {
     expect(root.userData.instanceCount).toBeLessThanOrEqual(
       root.userData.instanceBudget,
     );
-    expect(root.userData.instanceCount).toBe(15_632);
+    expect(root.userData.instanceCount).toBe(16_295);
     expect(GEDAECHTNISKIRCHE_MINECRAFT_REPLACEMENT_IDS).toHaveLength(5);
     expect(isGedaechtniskircheReplacementCell(-2472, 1521)).toBe(true);
     expect(isGedaechtniskircheReplacementCell(-2495, 1511)).toBe(true);

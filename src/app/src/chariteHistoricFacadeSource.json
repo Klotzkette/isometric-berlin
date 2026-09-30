@@ -4,7 +4,13 @@
   "geometryLicense": "dl-de/zero-2-0",
   "identitySources": [
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080",
-    "https://www.charite.de/en/charite/campuses/campus_charite_mitte/location_map_map_key_ccm/"
+    "https://www.charite.de/en/charite/campuses/campus_charite_mitte/location_map_map_key_ccm/",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055049",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055048",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055025",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055030",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055031",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055033"
   ],
   "profiles": [
     {
@@ -908,6 +914,271 @@
           "id": "yPswWzwX",
           "sourceId": "DEBE3DixyPswWzwX",
           "parent": "DEBE01YYK00008nj"
+        }
+      ]
+    },
+    {
+      "key": "anatomyI",
+      "name": "Wilhelm-Waldeyer-Haus / I. Anatomisches Institut",
+      "address": "Luisenstraße 57 / Philippstraße 11",
+      "style": "anatomy",
+      "lod2Parents": [
+        "DEBE01YYK00005dM"
+      ],
+      "osmKeys": [
+        "way/27438560"
+      ],
+      "monumentId": "09055049",
+      "parts": [
+        {
+          "id": "cl2QC0kY",
+          "sourceId": "DEBE3DGMcl2QC0kY",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "ZFxrO3eT",
+          "sourceId": "DEBE3DtfZFxrO3eT",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "Pop65Aff",
+          "sourceId": "DEBE3Dh5Pop65Aff",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "MBATKLBn",
+          "sourceId": "DEBE3DJ2MBATKLBn",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "SXB4ViHS",
+          "sourceId": "DEBE3DVgSXB4ViHS",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "hEPDhyP5",
+          "sourceId": "DEBE3DN8hEPDhyP5",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "2InmS2Zf",
+          "sourceId": "DEBE3DEF2InmS2Zf",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "n0Sw2iU1",
+          "sourceId": "DEBE3DUqn0Sw2iU1",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "QKEEcG88",
+          "sourceId": "DEBE3DsuQKEEcG88",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "ezEQU1fR",
+          "sourceId": "DEBE3DpzezEQU1fR",
+          "parent": "DEBE01YYK00005dM"
+        },
+        {
+          "id": "Ey8052Cz",
+          "sourceId": "DEBE3DaSEy8052Cz",
+          "parent": "DEBE01YYK00005dM"
+        }
+      ]
+    },
+    {
+      "key": "anatomyII",
+      "name": "Oskar-Hertwig-Haus / II. Anatomisches Institut",
+      "address": "Philippstraße 12",
+      "style": "lecture",
+      "lod2Parents": [
+        "DEBE01YYK00006zH"
+      ],
+      "osmKeys": [
+        "way/577202752"
+      ],
+      "monumentId": "09055048",
+      "parts": [
+        {
+          "id": "Z82y8IQe",
+          "sourceId": "DEBE3DRKZ82y8IQe",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "L70WOK8N",
+          "sourceId": "DEBE3DvEL70WOK8N",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "EKEhXPrF",
+          "sourceId": "DEBE3Dp3EKEhXPrF",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "73HKrPj7",
+          "sourceId": "DEBE3DHo73HKrPj7",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "3YmS2FKF",
+          "sourceId": "DEBE3DUR3YmS2FKF",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "s6vEZacG",
+          "sourceId": "DEBE3Diqs6vEZacG",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "91YB2vA8",
+          "sourceId": "DEBE3Dvs91YB2vA8",
+          "parent": "DEBE01YYK00006zH"
+        },
+        {
+          "id": "au01Jmym",
+          "sourceId": "DEBE3DXUau01Jmym",
+          "parent": "DEBE01YYK00006zH"
+        }
+      ]
+    },
+    {
+      "key": "graduate",
+      "name": "Humboldt Graduate School / Lehrgebäude der Tierarzneischule",
+      "address": "Luisenstraße 56",
+      "style": "classical",
+      "lod2Parents": [
+        "DEBE01YYK0000236"
+      ],
+      "osmKeys": [
+        "way/43025579"
+      ],
+      "monumentId": "09055025",
+      "parts": [
+        {
+          "id": "1Wpm4RVF",
+          "sourceId": "DEBE3DZk1Wpm4RVF",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "4EmIPFdW",
+          "sourceId": "DEBE3Dwy4EmIPFdW",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "esTCpW70",
+          "sourceId": "DEBE3DFnesTCpW70",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "g3N8PeXC",
+          "sourceId": "DEBE3DPgg3N8PeXC",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "NFtfP6sQ",
+          "sourceId": "DEBE3Du1NFtfP6sQ",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "bdBiu9vD",
+          "sourceId": "DEBE3DQSbdBiu9vD",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "ndukOXRx",
+          "sourceId": "DEBE3DuVndukOXRx",
+          "parent": "DEBE01YYK0000236"
+        },
+        {
+          "id": "TvvzEz3L",
+          "sourceId": "DEBE3Dj9TvvzEz3L",
+          "parent": "DEBE01YYK0000236"
+        }
+      ]
+    },
+    {
+      "key": "theatre",
+      "name": "Tieranatomisches Theater / Langhans- und Gerlachbau",
+      "address": "Philippstraße 13 / Haus 3",
+      "style": "theatre",
+      "lod2Parents": [
+        "DEBE01YYK00009Ws"
+      ],
+      "osmKeys": [
+        "way/95871837"
+      ],
+      "monumentId": "09055030",
+      "parts": [
+        {
+          "id": "sFAYdHwz",
+          "sourceId": "DEBE3DtdsFAYdHwz",
+          "parent": "DEBE01YYK00009Ws"
+        },
+        {
+          "id": "uBD055gq",
+          "sourceId": "DEBE3DS1uBD055gq",
+          "parent": "DEBE01YYK00009Ws"
+        }
+      ]
+    },
+    {
+      "key": "veterinary",
+      "name": "Institut für Tieranatomie / Haus 2",
+      "address": "Philippstraße 13 / Haus 2",
+      "style": "veterinary",
+      "lod2Parents": [
+        "DEBE01YYK0000FLf"
+      ],
+      "osmKeys": [
+        "way/95871838"
+      ],
+      "monumentId": "09055031",
+      "parts": [
+        {
+          "id": "kkPTynI5",
+          "sourceId": "DEBE3Db2kkPTynI5",
+          "parent": "DEBE01YYK0000FLf"
+        },
+        {
+          "id": "tUMocL9k",
+          "sourceId": "DEBE3DrMtUMocL9k",
+          "parent": "DEBE01YYK0000FLf"
+        }
+      ]
+    },
+    {
+      "key": "hygiene",
+      "name": "Ostertaghaus / former Hygienisches Institut",
+      "address": "Philippstraße 13 / Haus 4",
+      "style": "veterinary",
+      "lod2Parents": [
+        "DEBE01YYK00005vH"
+      ],
+      "osmKeys": [
+        "way/94453933"
+      ],
+      "monumentId": "09055033",
+      "parts": [
+        {
+          "id": "k1Jxoyfm",
+          "sourceId": "DEBE3DaQk1Jxoyfm",
+          "parent": "DEBE01YYK00005vH"
+        },
+        {
+          "id": "I7ycMxIR",
+          "sourceId": "DEBE3DfhI7ycMxIR",
+          "parent": "DEBE01YYK00005vH"
+        },
+        {
+          "id": "6AkXuFTq",
+          "sourceId": "DEBE3Ddi6AkXuFTq",
+          "parent": "DEBE01YYK00005vH"
+        },
+        {
+          "id": "bpNs9vOQ",
+          "sourceId": "DEBE3DMobpNs9vOQ",
+          "parent": "DEBE01YYK00005vH"
         }
       ]
     }

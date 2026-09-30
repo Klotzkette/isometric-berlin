@@ -20,10 +20,10 @@ function measure(root:Group) {
   });return{bytes,instances,draws,hash:hash.digest("hex")};
 }
 const drawn=createAlexanderPublicRealm(),native=createMinecraftAlexanderPublicRealm();
-test("full mobile and desktop static detail remains identical within five bounded draw calls",()=>{
+test("full mobile and desktop static detail remains identical with additive bounded pavilion batches",()=>{
   const a=measure(drawn),b=measure(createAlexanderPublicRealm(true)),n=measure(native);
-  expect(a).toEqual(b);expect(a.draws).toBe(5);expect(n.draws).toBe(1);
-  expect(a.bytes).toBeLessThan(1_000_000);expect(n.bytes).toBeLessThan(600_000);
+  expect(a).toEqual(b);expect(a.draws).toBe(7);expect(n.draws).toBe(2);
+  expect(a.bytes).toBeLessThan(1_000_000);expect(n.bytes).toBeLessThan(1_100_000);
   expect(native.userData.hiddenSolidInfill).toBeFalse();expect(native.children[0]).toBeInstanceOf(InstancedMesh);
   expect((native.children[0] as Mesh).geometry.getAttribute("position").count).toBe(24);
   expect(measure(createMinecraftAlexanderPublicRealm(true))).toEqual(n);

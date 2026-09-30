@@ -1,6 +1,7 @@
 import { CITY_WEST_PROFILE } from "./CityWestDetails";
 import { gedaechtniskircheRuinSolidAt } from "./MinecraftGedaechtniskirche";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
+import { CHARITE_THEATRE_PROFILE, chariteTheatreSourceForPrism, chariteTheatreRoofAt } from "./chariteTheatreProfile";
 import { SCHLOSS_EAST_NAVIGATION_BOUNDS, schlossEastNavigationGroundAt } from "./schlossEastNavigation";
 import { DHM_PARTS, DHM_PRISM_IDS, dhmPartBaseAt, dhmPartRoofAt } from "./dhmProfile";
 import { eastCivicSourceForPrism, eastCivicPartBaseAt, eastCivicPartRoofAt, EAST_CIVIC_LOGGIA_POSTS } from "./eastCivicProfile";
@@ -976,6 +977,21 @@ export function compilePedestrianObstacles(
     }
     // Site platforms are walkable surfaces, not occupied building volumes.
     if (TOPOGRAPHY_TERROR_SITE_IDS.has(building.id)) continue;
+    const theatrePart = chariteTheatreSourceForPrism(building.id);
+    if (theatrePart) {
+      // The low body was a default extrusion; the central roof is a dome,
+      // not the old flat 22.4m source-prism top. Keep the complete exact plan.
+      if (!replacedParents.has(theatrePart.id)) {
+        replacedParents.add(theatrePart.id);
+        addPolygonObstacle(index, theatrePart.ring, theatrePart.holes,
+          CHARITE_THEATRE_PROFILE.groundY,
+          building.id === "uBD055gq" ? CHARITE_THEATRE_PROFILE.bodyTopY : CHARITE_THEATRE_PROFILE.rooflightTopY,
+          building.id, 1,
+          (x, z) => chariteTheatreRoofAt(x, z, building.id, visualMode() === "minecraft"));
+        index.buildingCount += 1;
+      }
+      continue;
+    }
     const before = index.obstacleCount;
     const parliamentDisplay = building.id === ABGEORDNETENHAUS_PROFILE.mainPrismId;
     addPolygonObstacle(

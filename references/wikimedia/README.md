@@ -508,3 +508,19 @@ See [Gendarmenmarkt](../../docs/gendarmenmarkt-perimeter-sources-v146.md) and
 - [File:Charité CCM, Virchowweg 9–10, 2016.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_9%E2%80%9310,_2016.jpg) — Schibo / CC BY-SA 4.0.
 - [File:Charité CCM, Rahel-Hirsch-Weg 3 Südwestansicht, 2024.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg) — Schibo / CC BY-SA 4.0.
 - [File:Charité CCM, Rahel-Hirsch-Weg 2, 2024.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_2,_2024.jpg) — Schibo / CC BY-SA 4.0.
+
+## Fernsehturm pavilions — v1.0.55
+
+External visual references only; no image or texture is bundled.
+
+- [File:Pavillon Fernsehturm Berlin.jpg](https://commons.wikimedia.org/wiki/File:Pavillon_Fernsehturm_Berlin.jpg) — Conbrio / CC BY-SA 3.0.
+- [File:Berlin fernsehturm pavillon.jpg](https://commons.wikimedia.org/wiki/File:Berlin_fernsehturm_pavillon.jpg) — Dieter Brügmann / CC BY-SA 3.0.
+
+## Eastern Charité and university campus — v1.0.55
+
+External visual references only; no image or texture is bundled.
+
+- [File:Berlin, Tierarzneischule, Anatomisches Theater, Langhans, Seitenansicht.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Tierarzneischule,_Anatomisches_Theater,_Langhans,_Seitenansicht.jpg) — Manfred Brückels / CC BY-SA 3.0.
+- [File:Ehrenhof und Lehrgebäude der Veterinärmedizinischen Fakultät der Humboldt-Universität Berlin.JPG](https://commons.wikimedia.org/wiki/File:Ehrenhof_und_Lehrgeb%C3%A4ude_der_Veterin%C3%A4rmedizinischen_Fakult%C3%A4t_der_Humboldt-Universit%C3%A4t_Berlin.JPG) — Kvikk / CC BY-SA 3.0.
+- [File:Anatomie Charite.jpg](https://commons.wikimedia.org/wiki/File:Anatomie_Charite.jpg) — Immanuel Giel / Public domain.
+- [File:Charité CCM, Philippstraße 11.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Philippstra%C3%9Fe_11.jpg) — Bernd Czyborra (Schibo) / CC BY-SA 4.0.

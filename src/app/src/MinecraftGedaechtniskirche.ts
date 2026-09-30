@@ -10,6 +10,7 @@ import {
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
 import { CITY_WEST_PROFILE } from "./CityWestDetails";
 import { GEDAECHTNISKIRCHE_RUIN_PROFILE as RUIN } from "./gedaechtniskircheRuinProfile";
+import { GEDAECHTNISKIRCHE_CLOCK_STROKES } from "./gedaechtniskircheClock";
 
 const PROFILE = CITY_WEST_PROFILE.gedaechtniskirche;
 const GROUND = CITY_WEST_PROFILE.groundY;
@@ -661,6 +662,22 @@ export function createMinecraftGedaechtniskirche(): Group {
         0xd1ad4a,
       );
     }
+    // The same radial Roman dial, represented with small native square blocks.
+    for (const [a, b] of GEDAECHTNISKIRCHE_CLOCK_STROKES)
+      for (let step = 0; step < 4; step += 1) {
+        const t = (step + 0.5) / 4;
+        box(
+          ruin.centerWorldM,
+          yaw,
+          a[0] + (b[0] - a[0]) * t,
+          ruin.clock.centerHeightM + a[1] + (b[1] - a[1]) * t,
+          depth + 0.46,
+          Math.abs(b[0] - a[0]) / 4 + 0.065,
+          Math.abs(b[1] - a[1]) / 4 + 0.065,
+          0.12,
+          0xd1ad4a,
+        );
+      }
     box(
       ruin.centerWorldM,
       yaw,
@@ -772,6 +789,31 @@ export function createMinecraftGedaechtniskirche(): Group {
           ruinPale,
         );
     }
+    for (const u of side % 2 === 0 ? [-2.92, 0, 2.92] : [-2.85, 2.85]) {
+      const spring = side % 2 === 0 ? 51.4 : 51.3;
+      box(
+        ruin.centerWorldM,
+        ruin.rotationY + a,
+        u,
+        spring - 0.27,
+        apothem + 0.28,
+        0.5,
+        0.3,
+        0.4,
+        shadow,
+      );
+      box(
+        ruin.centerWorldM,
+        ruin.rotationY + a,
+        u,
+        spring - 0.04,
+        apothem + 0.32,
+        0.72,
+        0.17,
+        0.55,
+        ruinPale,
+      );
+    }
     const outline = crownOutline(side);
     const base = ruin.crownBaseHeightM;
     const top = Math.max(...outline.map((p) => p[1]));
@@ -798,6 +840,33 @@ export function createMinecraftGedaechtniskirche(): Group {
           (row + col + side) % 6 === 0 ? 0x8b9484 : patina,
         );
       }
+    }
+    const jointTop = Math.min(
+      ruin.crownTopHeightsM[side] - 0.8,
+      ruin.crownTopHeightsM[(side + 1) % 8] - 0.45,
+    );
+    for (let y = base + 1.8; y < jointTop - 0.25; y += 1.8) {
+      const ap = ruin.crownRadiusM * Math.cos(Math.PI / 8);
+      const scale = (ap - 0.11 * (y - base)) / ap;
+      const spans =
+        ruin.crownTopHeightsM[side] > 65 && y >= 61.2 && y <= 63.4
+          ? [
+              [-width / 2, -0.85],
+              [0.85, width / 2],
+            ]
+          : [[-width / 2, width / 2]];
+      for (const [left, right] of spans)
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY + a,
+          ((left + right) * scale) / 2,
+          y,
+          ap - 0.11 * (y - base) + 0.25,
+          (right - left) * scale,
+          0.065,
+          0.08,
+          0x526d68,
+        );
     }
   }
   for (const turret of ruin.sideTurrets) {

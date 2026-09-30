@@ -3,6 +3,7 @@ import {
   Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
   MeshStandardMaterial, Quaternion, SphereGeometry, Vector3,
 } from "three";
+import { createFernsehturmPavilions, createMinecraftFernsehturmPavilions } from "./FernsehturmPavilions";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { ALEXANDER_PUBLIC_REALM_PROFILE as P, ALEXANDER_PUBLIC_REALM_SOURCE as S,
   ALEXANDER_PUBLIC_REALM_OSM_KEYS } from "./alexanderPublicRealmProfile";
@@ -370,6 +371,7 @@ function build(minecraft:boolean):Group {
     ownedOsmKeys:[...ALEXANDER_PUBLIC_REALM_OSM_KEYS],sourceTreeCount:S.added_trees.length,
     retainedExistingTreeCount:S.retained_existing_tree_count_in_forum,proceduralDimensions:true,memorialProtected:true,schwellenraumGeschuetzt:true,fullStaticDetailOnTouch:true,hiddenSolidInfill:false};
   const b=new PublicRealmBuilder(minecraft);forumCourt(b);marxEngels(b);neptun(b);ensemble(b);trees(b);b.finish(root);
+  root.add(minecraft ? createMinecraftFernsehturmPavilions() : createFernsehturmPavilions());
   freezeStaticSceneTransforms(root);return root;
 }
 export function createAlexanderPublicRealm(_mobileLike=false):Group{return build(false);}

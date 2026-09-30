@@ -17,6 +17,22 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Eastern Charité / university campus and Fernsehturm pavilions (v1.0.55):**
+  Berlin LoD2 source identities, outlines and roof evidence anchor the added
+  anatomy institutes, Humboldt Graduate School and veterinary campus buildings.
+  The Tieranatomisches Theater retains the unmodified coarse source beside a
+  documented display correction for its main body, drum and dome. Official
+  monument and HU descriptions distinguish the permanent buildings from the
+  temporary Audimax II. Campus references by Manfred Brückels and Kvikk
+  (CC BY-SA 3.0), Immanuel Giel (public domain), and Bernd Czyborra / Schibo
+  (CC BY-SA 4.0) guide the individual historic facades. Complete LoD2 pavilion
+  sheets and LDA entry `09065023`
+  anchor the Fernsehturm entrance wings and folded roofs. Conbrio and Dieter
+  Brügmann photographs (CC BY-SA 3.0) guide its glazing and gallery details;
+  individual credits are mirrored in both Wikimedia manifests. No photograph,
+  crop or photographic texture is bundled. Fine subdivisions remain display
+  estimates. See the [release source review](docs/release-v1.0.55-review.md).
+
 - **Gedächtniskirche visual correction (v1.0.54):** opposing freely licensed
   reference photographs by W. Bulach, Pymouss and Geoprofi Lars (CC BY-SA 4.0),
   alongside the retained Hwyrd reference, establish the open octagonal

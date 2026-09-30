@@ -13,6 +13,7 @@ import { type Builder, paintGeometry } from "./drawnKit";
 import { GEDAECHTNISKIRCHE_RUIN_PROFILE as P } from "./gedaechtniskircheRuinProfile";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
+import { GEDAECHTNISKIRCHE_CLOCK_STROKES } from "./gedaechtniskircheClock";
 
 const STONE = 0x999387,
   LIGHT = 0xb4ad9e,
@@ -213,6 +214,41 @@ export function addGedaechtniskircheRuin(builder: Builder): void {
     const g = new BoxGeometry(width, Math.hypot(dx, dy), 0.2);
     g.rotateZ(-Math.atan2(dx, dy));
     g.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, 0);
+    faceGeometry(g, yaw, r, color);
+  };
+  const flatStroke = (
+    a: Point,
+    b: Point,
+    yaw: number,
+    r: number,
+    width: number,
+    color: number,
+  ): void => {
+    const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const dx = ((b[1] - a[1]) * width) / (2 * length);
+    const dy = ((a[0] - b[0]) * width) / (2 * length);
+    const g = new BufferGeometry();
+    g.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [
+          a[0] - dx,
+          a[1] - dy,
+          0,
+          a[0] + dx,
+          a[1] + dy,
+          0,
+          b[0] + dx,
+          b[1] + dy,
+          0,
+          b[0] - dx,
+          b[1] - dy,
+          0,
+        ],
+        3,
+      ),
+    );
+    g.setIndex([0, 1, 2, 0, 2, 3]);
     faceGeometry(g, yaw, r, color);
   };
   // Vertex-coloured ashlar planes carry finer stone variation cheaply. The
@@ -514,19 +550,28 @@ export function addGedaechtniskircheRuin(builder: Builder): void {
       );
     }
     ring(0, cy, r + 0.41, 3.26, 0.075, yaw, GOLD);
-    ring(0, cy, r + 0.41, 2.94, 0.075, yaw, GOLD);
+    ring(0, cy, r + 0.41, 2.56, 0.075, yaw, GOLD);
     for (let i = 0; i < 60; i++) {
       const a = (i * Math.PI) / 30,
-        lo = i % 5 === 0 ? 2.67 : 3.06;
+        lo = i % 5 === 0 ? 3.25 : 3.31;
       stroke(
         [Math.sin(a) * lo, cy + Math.cos(a) * lo],
-        [Math.sin(a) * 3.3, cy + Math.cos(a) * 3.3],
+        [Math.sin(a) * 3.46, cy + Math.cos(a) * 3.46],
         yaw,
         r + 0.46,
         i % 5 === 0 ? 0.085 : 0.04,
         GOLD,
       );
     }
+    for (const [a, b] of GEDAECHTNISKIRCHE_CLOCK_STROKES)
+      flatStroke(
+        [a[0], cy + a[1]],
+        [b[0], cy + b[1]],
+        yaw,
+        r + 0.6,
+        0.065,
+        GOLD,
+      );
     for (const [a, len] of [
       [-0.92, 1.9],
       [0.3, 2.7],
@@ -639,6 +684,15 @@ export function addGedaechtniskircheRuin(builder: Builder): void {
       ring(0, 53.5, apothem + 0.12, 1.63, 0.23, yaw, LIGHT, true);
       for (const side of [-1, 1])
         ring(side * 1.65, 51.6, apothem + 0.12, 1.03, 0.23, yaw, LIGHT, true);
+    }
+    // Projecting abaci and darker necks articulate the small capitals below
+    // the upper archivolts without intruding into their real openings.
+    const capitals = face % 2 === 0 ? [-2.92, 0, 2.92] : [-2.85, 2.85];
+    const spring = face % 2 === 0 ? 51.4 : 51.3;
+    for (const u of capitals) {
+      facetBox(u, spring - 0.27, apothem + 0.28, 0.5, 0.3, 0.4, yaw, DARK);
+      facetBox(u, spring - 0.04, apothem + 0.32, 0.72, 0.17, 0.55, yaw, LIGHT);
+      facetBox(u, 44.4, apothem + 0.25, 0.62, 0.22, 0.5, yaw, LIGHT);
     }
     for (const side of [-1, 1]) {
       stroke(
@@ -861,6 +915,45 @@ export function addGedaechtniskircheRuin(builder: Builder): void {
       sg.setIndex([0, 1, 2, 0, 2, 3]);
       sg.rotateY(yaw);
       put(sg, 0x435e5a);
+    }
+    // The sheath is made from metal sheets, not uninterrupted green strips.
+    // Horizontal joints stay on the tapered face and split around dormers.
+    for (let y = base + 1.8; y < Math.min(topL, topR) - 0.25; y += 1.8) {
+      const scale = (ap - 0.11 * (y - base)) / ap;
+      const spans: Point[] =
+        holes.length && y >= 61.2 && y <= 63.4
+          ? [
+              [-width / 2, -0.85],
+              [0.85, width / 2],
+            ]
+          : [[-width / 2, width / 2]];
+      for (const [left, right] of spans) {
+        const g = new BufferGeometry();
+        const z = ap - 0.11 * (y - base) + 0.215;
+        g.setAttribute(
+          "position",
+          new Float32BufferAttribute(
+            [
+              left * scale,
+              y - 0.027,
+              z,
+              right * scale,
+              y - 0.027,
+              z,
+              right * scale,
+              y + 0.027,
+              z,
+              left * scale,
+              y + 0.027,
+              z,
+            ],
+            3,
+          ),
+        );
+        g.setIndex([0, 1, 2, 0, 2, 3]);
+        g.rotateY(yaw);
+        put(g, 0x526d68);
+      }
     }
     if (holes.length) {
       const r = ap - 0.11 * (62.5 - base) + 0.23;

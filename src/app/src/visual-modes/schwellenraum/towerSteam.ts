@@ -10,9 +10,9 @@ export const SCHWELLENRAUM_TOWER_STEAM_NAME = "Schwellenraum Fernsehturm rose st
 export const SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS = 1000 / 30;
 export const SCHWELLENRAUM_TOWER_STEAM_INITIAL_TIME = 4.75;
 export const TOWER_STEAM_PROFILE = {
-  steadyCount: 72, burstCount: 36, ventCount: 6,
-  ventRadius: 10.7, ventHeight: 12, burstPeriod: 29,
-  steadyRise: 32, burstRise: 53,
+  steadyCount: 96, burstCount: 48, ventCount: 8, burstVentCount: 4,
+  ventRadius: 10.7, ventHeight: 12, burstPeriod: 23,
+  steadyRise: 39, burstRise: 67,
 } as const;
 
 /** Authored dream effect, not a claim about real tower emissions. */
@@ -28,25 +28,28 @@ export function createSchwellenraumTowerSteam(): Mesh<InstancedBufferGeometry, S
   const particles = new Float32Array(geometry.instanceCount * 4);
   for (let i = 0; i < geometry.instanceCount; i++) {
     const burst = i >= p.steadyCount, j = burst ? i - p.steadyCount : i;
+    const vents = burst ? p.burstVentCount : p.ventCount;
+    const rows = (burst ? p.burstCount : p.steadyCount) / vents;
     particles.set([
-      (Math.floor(j / (burst ? 3 : p.ventCount)) + .5) / 12,
+      (Math.floor(j / vents) + .5) / rows,
       ((i + 1) * .61803398875) % 1,
-      burst ? (j % 3) * 2 : j % p.ventCount,
+      burst ? (j % vents) * (p.ventCount / vents) : j % vents,
       Number(burst),
     ], i * 4);
   }
   geometry.setAttribute("particle", new InstancedBufferAttribute(particles, 4));
   // Shader displacement must be included in both Three.js draw culling and
   // idle-frame eligibility. Radius also includes every billboard corner.
-  geometry.boundingSphere = new Sphere(new Vector3(0, 28, 0), 65);
+  geometry.boundingSphere = new Sphere(new Vector3(0, 36, 0), 76);
   const material = new ShaderMaterial({
-    name: "Soft procedural rose vapour",
+    name: "Soft procedural rose and blue vapour",
     transparent: true, depthWrite: false, depthTest: true,
     toneMapped: false,
     uniforms: {
       steamTime: { value: SCHWELLENRAUM_TOWER_STEAM_INITIAL_TIME },
       rose: { value: new Color("#edb4cc") },
       vapour: { value: new Color("#f5dce9") },
+      blue: { value: new Color("#a9c5ed") },
     },
     vertexShader: `
       attribute vec4 particle;
@@ -66,9 +69,11 @@ export function createSchwellenraumTowerSteam(): Mesh<InstancedBufferGeometry, S
         float angle = particle.z * 6.28318530718 / ${p.ventCount}.0;
         vec3 centre = vec3(cos(angle) * ${p.ventRadius}, ${p.ventHeight}.0, sin(angle) * ${p.ventRadius});
         centre.y += age * mix(${p.steadyRise}.0, ${p.burstRise}.0, burst);
-        centre.x += age * (5.0 + sin(age * 5.0 + seed * 6.2831853 + steamTime * .14) * 4.0);
-        centre.z += age * (sin(age * 4.3 + seed * 9.0 - steamTime * .11) * 4.0 - 2.0);
-        float size = mix(mix(1.8, 10.0, age), mix(1.1, 7.0, age), burst);
+        // Two slow, offset curls keep the clouds breathing without jitter.
+        float curl = age * 6.5 + seed * 6.2831853 + steamTime * .17;
+        centre.x += age * (5.0 + sin(curl) * 5.0 + sin(steamTime * .09 + angle) * 2.0);
+        centre.z += age * (cos(curl * .83 - steamTime * .12) * 5.0 - 2.0);
+        float size = mix(mix(1.8, 11.0, age), mix(1.1, 8.0, age), burst);
         float turn = seed * 6.2831853 + steamTime * .025;
         mat2 rotation = mat2(cos(turn), -sin(turn), sin(turn), cos(turn));
         vec4 viewCentre = modelViewMatrix * vec4(centre, 1.0);
@@ -85,6 +90,7 @@ export function createSchwellenraumTowerSteam(): Mesh<InstancedBufferGeometry, S
       uniform float steamTime;
       uniform vec3 rose;
       uniform vec3 vapour;
+      uniform vec3 blue;
       varying vec2 steamUv;
       varying float steamFade;
       varying float steamAge;
@@ -96,9 +102,13 @@ export function createSchwellenraumTowerSteam(): Mesh<InstancedBufferGeometry, S
                         cos(q.x * 4.0 - steamTime * .16 + steamSeed * 7.0));
         vec2 a = q - vec2(.23, .13), b = q + vec2(.27, .18);
         float cloud = .58 * exp(-3.3 * dot(q,q)) + .24 * exp(-5.0 * dot(a,a)) + .18 * exp(-5.0 * dot(b,b));
-        float alpha = .19 * steamFade * cloud * edge;
+        float breath = .91 + .09 * sin(steamTime * .31 + steamSeed * 6.2831853);
+        float alpha = .19 * breath * steamFade * cloud * edge;
         if (alpha < .001) discard;
-        gl_FragColor = vec4(mix(rose, vapour, .18 + steamAge * .55), alpha);
+        // Mostly rose, with a few cool wisps dissolving toward pale lavender.
+        float cool = smoothstep(.65, .86, steamSeed) * .78;
+        vec3 tint = mix(rose, blue, cool);
+        gl_FragColor = vec4(mix(tint, vapour, .18 + steamAge * .55), alpha);
         #include <colorspace_fragment>
       }
     `,

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.55
+
+- Step 10: extend the historic Charité and university treatment east of Luisenstraße to the two anatomy institutes, Humboldt Graduate School, Tieranatomisches Theater and adjoining veterinary buildings; retain previous source records and west-side detail.
+- Restore the theatre's source-outline body, circular lecture hall and green dome above its coarse lower source extrusion, distinguishing visual interpretation from measured data.
+- Add the Fernsehturm's measured folded-roof entrance pavilions, glazing, gallery rails and walkable stair approaches in drawn and separate native Minecraft geometry.
+- Refine the Gedächtniskirche clocks, belfry capitals and copper joints without changing the corrected ruin silhouette.
+- Enrich Schwellenraum with softly curling rose and pale blue wisps and four staggered fountains, retaining a fixed texture-free particle batch and existing animation safeguards.
+
 ## v1.0.54
 
 - Step 10: rebuild the Gedächtniskirche ruin with its open octagonal upper storey, differentiated Romanesque arches, asymmetric side spires and tall hollow copper stump.

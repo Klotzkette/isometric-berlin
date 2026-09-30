@@ -1,5 +1,6 @@
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
 import { alexanderPublicRealmSolidAt, alexanderPublicRealmSupportHeightAt } from "./alexanderPublicRealmProfile";
+import { fernsehturmPavilionSolidAt, fernsehturmPavilionSupportHeightAt } from "./fernsehturmPavilionProfile";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile";
 import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
@@ -3486,6 +3487,7 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
             palacesUdlSupportSolidAt(x,z,y,0) ||
@@ -3529,6 +3531,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const pavilionFloor = fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2);
+          if (pavilionFloor !== null) return pavilionFloor;
           const alexanderFloor = alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2);
           if (alexanderFloor !== null) return alexanderFloor;
           const udlFloor = unterDenLindenEntranceFloorAt(x,z);
@@ -4168,6 +4172,7 @@ function ensureVoxelWorld(
             return false;
           }
           return (
+            fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
             palacesUdlSupportSolidAt(x,z,y,0) ||
@@ -4196,6 +4201,7 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
           alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
           unterDenLindenEntranceFloorAt(x,z) ??
           neueWacheGroundAt(x,z,currentGroundY) ??

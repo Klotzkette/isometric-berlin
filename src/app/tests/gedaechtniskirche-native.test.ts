@@ -40,7 +40,7 @@ describe("Gedächtniskirche native corrected architectural shell", () => {
 
   test("one native batch has the complete 71m asymmetric ruin silhouette", () => {
     expect(root.children).toHaveLength(1);
-    expect(mesh.count).toBe(15_632);
+    expect(mesh.count).toBe(16_295);
     expect(mesh.count).toBeLessThanOrEqual(root.userData.instanceBudget);
     expect(mesh.geometry.getAttribute("color")).toBeUndefined();
     expect(mesh.material).toHaveProperty("vertexColors", false);

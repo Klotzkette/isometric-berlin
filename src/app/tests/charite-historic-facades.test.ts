@@ -6,7 +6,7 @@ import {
   chariteHistoricFacadeExposure, chariteHistoricFacadeTop,
 } from "../src/ChariteHistoricFacades";
 import {
-  CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_PROFILES,
+  CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_PROFILES, CHARITE_THEATRE_REPLACEMENT_IDS,
 } from "../src/chariteHistoricFacadeProfiles";
 import { HISTORIC_CHARITE_IDS, chariteRingWalls } from "../src/HistoricChariteCampus";
 import { fitRectangle, roofRise, ROOF_MIN_RECTANGULARITY } from "../src/IsometricCityWorld";
@@ -30,19 +30,30 @@ function stats(root: ReturnType<typeof createChariteHistoricFacades>) {
   return { bytes, calls, instances };
 }
 describe("individual historic Charite campus facade coverage", () => {
-  test("retains 146 exact source parts across eleven named families without duplicating old refinements", () => {
-    expect(CHARITE_HISTORIC_FACADE_IDS.size).toBe(146);
-    expect(CHARITE_HISTORIC_FACADE_PROFILES.length).toBe(11);
+  test("retains 146 west parts and adds35 east parts across seventeen named families without duplicating old refinements", () => {
+    expect(CHARITE_HISTORIC_FACADE_IDS.size).toBe(181);
+    expect(CHARITE_HISTORIC_FACADE_PROFILES.length).toBe(17);
     const existing = new Set(prisms.buildings.map(b => b.id));
     for (const id of CHARITE_HISTORIC_FACADE_IDS) {
       expect(existing.has(id)).toBe(true); expect(HISTORIC_CHARITE_IDS.has(id)).toBe(false);
     }
     for (const p of CHARITE_HISTORIC_FACADE_PROFILES) {
-      expect(p.address.length).toBeGreaterThan(5); expect(p.monumentId.startsWith("09011080,T,")).toBe(true);
+      expect(p.address.length).toBeGreaterThan(5); expect(/^(09011080,T,|090550)/.test(p.monumentId)).toBe(true);
       expect(p.parts.every(part => p.lod2Parents.includes(part.parent))).toBe(true);
     }
     expect(CHARITE_HISTORIC_FACADE_PROFILES.find(p => p.key === "kitchen")!.lod2Parents).toEqual(["DEBE01YYK00007YT"]);
     expect(CHARITE_HISTORIC_FACADE_PROFILES.find(p => p.key === "workshops")!.lod2Parents).toEqual(["DEBE01YYK00004Nb", "DEBE01YYK00008nj"]);
+  });
+  test("retains every previously delivered western facade record byte-for-byte", () => {
+    const westIds=new Set(CHARITE_HISTORIC_FACADE_PROFILES.slice(0,11).flatMap(p=>p.parts.map(part=>part.id)));
+    const addedRoles=new Set(["masonry-pier","brick-bond-course","eaves-dentil"]);
+    const root=createChariteHistoricFacades(prisms,"full",true);
+    const records=root.userData.facadeRecords.filter((r:{sourceId:string;role:string})=>westIds.has(r.sourceId)&&!addedRoles.has(r.role));
+    expect(westIds.size).toBe(146);expect(records.length).toBe(39067);
+    const serialized=JSON.stringify(records.map((r:unknown)=>JSON.stringify(r)).sort());
+    expect(new Bun.CryptoHasher("sha256").update(serialized).digest("hex")).toBe("0264798a4ff48a176aa4c6126844e919e1cc3d5b499d518445b19339c55043f5");
+    expect(root.userData.sourceRecordsRetained).toBe(true);
+    expect(new Set(root.userData.sourceEnvelopeExceptions)).toEqual(CHARITE_THEATRE_REPLACEMENT_IDS);
   });
   test("keeps source bytes unchanged and cornices at the established drawn roof fit", () => {
     const parts = prisms.buildings.filter(b => CHARITE_HISTORIC_FACADE_IDS.has(b.id));
@@ -78,17 +89,19 @@ describe("individual historic Charite campus facade coverage", () => {
     const full = createChariteHistoricFacades(prisms), mobile = createChariteHistoricFacades(prisms, "mobile");
     expect(stats(full)).toEqual(stats(mobile));
     expect((full.children[0] as InstancedMesh).instanceMatrix.array).toEqual((mobile.children[0] as InstancedMesh).instanceMatrix.array);
-    expect(full.userData.detailCounts).toEqual({ sourcePrisms: 146, windows: 2416, portals: 11, loggias: 72, families: 11 });
-    expect(stats(full).calls).toBe(1); expect(stats(full).bytes).toBeLessThan(3_200_000);
+    expect(full.userData.detailCounts).toEqual({ sourcePrisms: 181, windows: 3090, portals: 18, loggias: 72, families: 17 });
+    expect(stats(full).calls).toBe(4); expect(stats(full).bytes).toBeLessThan(5_500_000);
     const native = createMinecraftChariteHistoricFacades(prisms);
-    expect(stats(native).calls).toBe(3); expect(stats(native).bytes).toBeLessThan(5_600_000);
-    expect(native.userData.detailCounts.sourcePrisms).toBe(152);
+    expect(stats(native).calls).toBe(6); expect(stats(native).bytes).toBeLessThan(8_600_000);
+    expect(native.userData.detailCounts.sourcePrisms).toBe(187);
     expect(full.userData.facadeRecords).toBeUndefined(); expect(native.userData.facadeRecords).toBeUndefined();
   });
-  test("native roofs retain the complete source footprint area and all152 source identities", () => {
+  test("native roofs retain the complete source footprint area and 185 clinic source identities plus the separately modeled theatre", () => {
     const root = createMinecraftChariteHistoricFacades(prisms);
     const shell = root.getObjectByName("Charite source-bound native wall and roof skins")!;
-    expect(new Set(shell.userData.sourcePrismIds)).toEqual(MINECRAFT_CHARITE_HISTORIC_SHELL_IDS);
+    const clinicIds = new Set([...MINECRAFT_CHARITE_HISTORIC_SHELL_IDS].filter(id => !CHARITE_THEATRE_REPLACEMENT_IDS.has(id)));
+    expect(new Set(shell.userData.sourcePrismIds)).toEqual(clinicIds);
+    expect(root.getObjectByName("Block-native Tieranatomisches Theater")!.userData.sourceIds).toEqual([...CHARITE_THEATRE_REPLACEMENT_IDS]);
     // Match the source extrusion's triangulator: two delivered decimetre
     // rings self-intersect, so their signed shoelace area is not rendered area.
     const area = (part: typeof prisms.buildings[number]) => {
@@ -98,7 +111,7 @@ describe("individual historic Charite campus facade coverage", () => {
       return faces.reduce((sum, [a, b, c]) => sum + Math.abs((p[b].x - p[a].x) * (p[c].y - p[a].y) -
         (p[b].y - p[a].y) * (p[c].x - p[a].x)) / 2, 0);
     };
-    const expected = prisms.buildings.filter(p => MINECRAFT_CHARITE_HISTORIC_SHELL_IDS.has(p.id))
+    const expected = prisms.buildings.filter(p => clinicIds.has(p.id))
       .reduce((sum, p) => sum + area(p), 0);
     const roof = root.getObjectByName("Charite clipped native stepped roofs") as Mesh;
     const p = roof.geometry.getAttribute("position"), index = roof.geometry.index!;
