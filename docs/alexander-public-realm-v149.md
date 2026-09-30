@@ -106,9 +106,10 @@ downloaded only into `/tmp`, and visually inspected:
   CC BY-SA 4.0. Used for the shell, seated Neptune, Tritons, patina and moulded
   red-granite bowl. Credits remain attribution-only in the packaged manifests.
 
-Focused checks: 3 Python source/bounds/tree-preservation tests; 5 Bun tests
+Focused checks: 3 Python source/bounds/tree-preservation tests; 6 Bun tests
 cover equal touch detail, native separation, finite bounded buffers, exact
-trident/water raycasts, navigation, memorial protection and all tree IDs. A real pedestrian-controller
+trident/water raycasts, native-water clearance over the retained source plaza,
+navigation, memorial protection and all tree IDs. A real pedestrian-controller
 regression walks off the small plinth without catching on its trailing edge;
 support persists for the body capsule until its trailing foot clears the step.
 Local Chrome views of both monuments, drawn and native, plus the complete
