@@ -11,18 +11,16 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Regierungsviertel bounds — task-13 additional 500 m context expansion",
-        "description": "An additional metric 500 m outward buffer around the complete task-12 central-Berlin polygon. The bounded task-13 scene adds a second current OSM street and context-building ring in every direction, propagates that exact scope through the 2D overview, 3D prisms and Minecraft voxel pipelines, and preserves every previously mapped civic area.",
-        "source": "Owner-approved task-13 scope revision on 2026-08-17. The committed task-12 polygon was projected from CRS84 to EPSG:25833 and buffered outward by exactly 500 m with mitred joins. The result was validated as one simple polygon and transformed back to CRS84; nine-decimal storage introduces only sub-millimetre boundary noise."
+        "name": "Regierungsviertel bounds — v1.0.48 eastern outline extension",
+        "description": "Complete retained task-13 polygon plus a narrow eastern lobe for the explicitly requested Alexanderplatz station, Fernsehturm and Rotes Rathaus outlines. The existing 93-place tour and full-detail map remain unchanged; this lobe is only an initial outline preview.",
+        "source": "Owner-requested eastern extension, 2026-09-30. Union of the archived task-13 polygon and EPSG:25833 rectangle [391600,5819770,392305,5820360]. No previous area is removed. Nine-decimal CRS84 storage only.",
+        "previous_area_m2": 30977268.666,
+        "added_area_m2": 307790.537
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [
-              13.35269636,
-              52.499102798
-            ],
             [
               13.339967973,
               52.499500483
@@ -68,8 +66,20 @@
               52.525132052
             ],
             [
-              13.405125027,
-              52.519163243
+              13.404637605,
+              52.52258311
+            ],
+            [
+              13.412652079,
+              52.522690889
+            ],
+            [
+              13.412843214,
+              52.517388731
+            ],
+            [
+              13.405659066,
+              52.51729215
             ],
             [
               13.407233016,
@@ -90,6 +100,10 @@
             [
               13.35269636,
               52.499102798
+            ],
+            [
+              13.339967973,
+              52.499500483
             ]
           ]
         ]

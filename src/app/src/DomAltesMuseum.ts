@@ -1,8 +1,8 @@
 import { BoxGeometry, BufferGeometry, Color, CylinderGeometry, DoubleSide, Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh, LatheGeometry, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, ShapeUtils, SphereGeometry, TorusGeometry, Vector2, Vector3 } from "three";
 import { letteringStrokePaths, letteringLayout } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { ALTES_PROFILE as A, DOM_PROFILE as D, GRANITE_BOWL_PROFILE as B, DOM_ALTES_SOURCE as S, DOM_ALTES_GROUP, MINECRAFT_DOM_ALTES_GROUP, DOM_ALTES_ARCHITECTURE_PROFILE, domWorld, domFrontVAt, domBackVAt, altesWorld, museumDisplayY, museumPartContains, altesRoofAt, type MuseumSourcePart } from "./domAltesMuseumProfile";
-type P=[number,number,number]; type Kind="box"|"column"|"sphere"|"arch"|"ring";
+import { ALTES_EQUESTRIAN_GROUPS, ALTES_PROFILE as A, DOM_PROFILE as D, GRANITE_BOWL_PROFILE as B, DOM_ALTES_SOURCE as S, DOM_ALTES_GROUP, MINECRAFT_DOM_ALTES_GROUP, DOM_ALTES_ARCHITECTURE_PROFILE, domWorld, domFrontVAt, domBackVAt, altesWorld, museumDisplayY, museumPartContains, altesRoofAt, type MuseumSourcePart } from "./domAltesMuseumProfile";
+type P=[number,number,number]; type Kind="box"|"column"|"ionic"|"sphere"|"bronze"|"arch"|"ring";
 const STONE=0xb9ad96,LIGHT=0xd6cab1,DARK=0x897d68,GLASS=0x414c4c,COPPER=0x668d78,PALE=0x8bad90,BRONZE=0x416f5c,GOLD=0xe8bd51;
 const UP=new Vector3(0,1,0),IDENTITY=new Quaternion();
 class Builder {
@@ -22,7 +22,18 @@ class Builder {
 }
 function materials(vertexColors=false){return [new MeshBasicMaterial({color:0xffffff,vertexColors,side:DoubleSide}),new MeshStandardMaterial({color:0xffffff,vertexColors,side:DoubleSide,roughness:.83,flatShading:true}),new MeshBasicMaterial({color:0xa4b4c5,vertexColors,side:DoubleSide})]as const;}
 function attach(m:Mesh,p:ReturnType<typeof materials>):void{m.material=p[0];m.userData.dayMaterial=p[0];m.userData.nightMaterial=p[1];m.userData.moonlitMaterial=p[2];m.userData.textureFree=true;}
-function finish(b:Builder,root:Group):void{const pair=materials();for(const[k,a]of b.batches){const g=k==="box"?new BoxGeometry(1,1,1):k==="column"?new CylinderGeometry(.46,.5,1,b.mobile?10:16):k==="sphere"?new SphereGeometry(.5,b.mobile?12:20,b.mobile?8:12):new TorusGeometry(.5,.052,5,b.mobile?18:28,k==="arch"?Math.PI:Math.PI*2);g.deleteAttribute("uv");const m=new InstancedMesh(g,pair[0],0),ms=new Float32Array(a.length*16),cs=new Float32Array(a.length*3),c=new Color();a.forEach((v,i)=>{ms.set(v.matrix,i*16);c.setHex(v.color).toArray(cs,i*3);});m.instanceMatrix=new InstancedBufferAttribute(ms,16);m.instanceColor=new InstancedBufferAttribute(cs,3);m.count=a.length;m.name=`${b.minecraft?"Museum island blocks":"Museum island details"} ${k}`;attach(m,pair);m.computeBoundingBox();m.computeBoundingSphere();root.add(m);}}
+/** One closed fluted shaft avoids coplanar painted strips at the viewer's long depth range. */
+function ionicShaftGeometry():BufferGeometry {
+ const segments=96,positions:number[]=[],colors:number[]=[],indices:number[]=[];
+ for(const y of[-.5,.5])for(let i=0;i<segments;i++){
+  const phase=i%4,angle=i*Math.PI*2/segments,radius=([.5,.478,.474,.478][phase])*(y>0?.92:1),shade=[1,.91,.86,.91][phase];
+  positions.push(Math.sin(angle)*radius,y,Math.cos(angle)*radius);colors.push(shade,shade,shade);
+ }
+ positions.push(0,-.5,0,0,.5,0);colors.push(1,1,1,1,1,1);
+ for(let i=0;i<segments;i++){const j=(i+1)%segments;indices.push(i,j,i+segments,j,j+segments,i+segments,segments*2,j,i,segments*2+1,i+segments,j+segments);}
+ const g=new BufferGeometry();g.setAttribute("position",new Float32BufferAttribute(positions,3));g.setAttribute("color",new Float32BufferAttribute(colors,3));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function finish(b:Builder,root:Group):void{const pair=materials();for(const[k,a]of b.batches){const g=k==="box"?new BoxGeometry(1,1,1):k==="ionic"?ionicShaftGeometry():k==="column"?new CylinderGeometry(.46,.5,1,b.mobile?10:16):(k==="sphere"||k==="bronze")?new SphereGeometry(.5,b.mobile?12:20,b.mobile?8:12):new TorusGeometry(.5,.052,5,b.mobile?18:28,k==="arch"?Math.PI:Math.PI*2);g.deleteAttribute("uv");const materialPair=k==="bronze"||k==="ionic"?materials(true):pair;if(k==="bronze"){const normals=g.getAttribute("normal"),colors=new Float32Array(normals.count*3);for(let i=0;i<normals.count;i++){const shade=.62+.38*Math.max(0,new Vector3().fromBufferAttribute(normals,i).dot(new Vector3(-.45,.8,.3).normalize()));colors.set([shade,shade,shade],i*3);}g.setAttribute("color",new Float32BufferAttribute(colors,3));}const m=new InstancedMesh(g,materialPair[0],0),ms=new Float32Array(a.length*16),cs=new Float32Array(a.length*3),c=new Color();a.forEach((v,i)=>{ms.set(v.matrix,i*16);c.setHex(v.color).toArray(cs,i*3);});m.instanceMatrix=new InstancedBufferAttribute(ms,16);m.instanceColor=new InstancedBufferAttribute(cs,3);m.count=a.length;m.name=`${b.minecraft?"Museum island blocks":"Museum island details"} ${k}`;attach(m,materialPair);m.computeBoundingBox();m.computeBoundingSphere();root.add(m);}}
 function sourceMesh(parts:MuseumSourcePart[],name:string,dom:boolean):Mesh {
  const positions:number[]=[],colors:number[]=[],color=new Color();
  for(const p of parts)for(const s of p.surfaces){const rings=s.rings.map(r=>r.map(v=>[v[0],museumDisplayY(p,v[1]),v[2]])),r=rings[0],n=new Vector3();for(let i=0;i<r.length;i++){const a=r[i],b=r[(i+1)%r.length];n.x+=(a[1]-b[1])*(a[2]+b[2]);n.y+=(a[2]-b[2])*(a[0]+b[0]);n.z+=(a[0]-b[0])*(a[1]+b[1]);}n.normalize();const axis=Math.abs(n.y)>Math.abs(n.x)?Math.abs(n.y)>Math.abs(n.z)?1:2:Math.abs(n.x)>Math.abs(n.z)?0:2;const pp=rings.map(rr=>rr.map(v=>axis===1?new Vector2(v[0],v[2]):axis===0?new Vector2(v[2],v[1]):new Vector2(v[0],v[1]))),tris=ShapeUtils.triangulateShape(pp[0],pp.slice(1)),flat=rings.flat();color.setHex(s.kind==="RoofSurface"?(dom?BRONZE:0xa6a59b):dom?STONE:LIGHT);if(s.kind!=="RoofSurface")color.multiplyScalar(.88+.12*Math.abs(n.x));for(const tri of tris)for(const i of tri){positions.push(...flat[i]);colors.push(color.r,color.g,color.b);}}
@@ -68,23 +79,92 @@ function domDetail(b:Builder,root:Group):void{
  const rear=(u:number,y:number,v:number):P=>at(-u,y,domBackVAt(-u)-.25-(v-38.85));
  for(let i=0;i<13;i++)for(const y of[8,15.7,23.4,30.4])window(b,rear,-32+i*5.2,y,38.85,1.6,3.7,D.yaw+Math.PI,y>20);
 }
-function horse(b:Builder,p:P,yaw:number,raised:boolean):void{const q=new Quaternion().setFromAxisAngle(UP,yaw),at=(x:number,y:number,z:number):P=>new Vector3(x,y,z).applyQuaternion(q).add(new Vector3(...p)).toArray()as P;b.add("sphere",at(0,1.55,0),[2.5,1.1,.8],BRONZE,q);b.beam(at(.7,1.6,0),at(1.12,2.8,0),.5,BRONZE);b.add("sphere",at(1.3,2.7,0),[.8,.55,.5],BRONZE,q);for(const x of[-.78,.65])for(const z of[-.3,.3])b.beam(at(x,1.35,z),at(x+(x>0&&raised?.7:0),x>0&&raised?1:.2,z),.23,BRONZE);b.beam(at(-1.1,1.8,0),at(-1.65,.7,0),.22,BRONZE);figure(b,at(-.1,1.9,0),1.7,BRONZE,yaw);b.beam(at(.2,3.2,0),at(1.3,4.1,.1),.11,BRONZE);}
+/** Distinct cast-bronze combat groups, hand-built from anatomical landmarks. */
+function combatHorse(b:Builder,p:P,yaw:number,amazon:boolean):void {
+ const q=new Quaternion().setFromAxisAngle(UP,yaw),at=(x:number,y:number,z:number):P=>new Vector3(x,y,z).applyQuaternion(q).add(new Vector3(...p)).toArray()as P;
+ const bronze=0x426456,shade=0x2e4b42,light=0x648271;
+ const blob=(v:P,size:P,tint=bronze,tilt=0)=>b.add("bronze",at(...v),size,tint,q.clone().multiply(new Quaternion().setFromAxisAngle(new Vector3(0,0,1),tilt)));
+ const limb=(a:P,c:P,r:number,tint=bronze)=>{const pa=at(...a),pc=at(...c),d=new Vector3(...pc).sub(new Vector3(...pa));b.add("bronze",pa.map((v,i)=>(v+pc[i])/2)as P,[r,d.length()+r*.35,r],tint,new Quaternion().setFromUnitVectors(UP,d.normalize()));};
+ const chain=(points:P[],r:number,tint=bronze)=>{for(let i=1;i<points.length;i++)limb(points[i-1],points[i],r,tint);};
+ b.box(at(0,.08,0),[3.65,.16,1.72],shade,yaw);
+ // Raised chest, sloping barrel, separated muscular quarters and curved neck.
+ blob([-.26,1.69,0],[2.25,1.02,.88],bronze,.32);
+ blob([-.98,1.35,0],[1.1,1.13,.98]);blob([.68,2.03,0],[1.05,1.24,.85],bronze,-.32);
+ limb([.65,2.03,0],[.93,2.92,0],.67);blob([1.00,3.03,0],[.57,.9,.56],bronze,-.26);
+ blob([1.33,3.04,0],[.92,.4,.41],light,-.08);blob([1.66,2.96,0],[.4,.29,.37],bronze);
+ for(const z of[-.19,.19]){blob([1.15,3.22,z],[.12,.1,.055],shade);blob([.94,3.53,z],[.12,.28,.14],bronze,-.25);}
+ // Both horses rear; four separately jointed legs retain open negative space.
+ chain([[-.93,1.27,-.3],[-.66,.68,-.39],[-1.04,.19,-.48]],.24);
+ chain([[-.77,1.24,.33],[-1.19,.6,.39],[-.96,.17,.48]],.24);
+ chain([[.55,1.93,-.29],[1.19,2.02,-.43],[1.55,1.46,-.45]],.19);
+ chain([[.66,2.06,.31],[1.02,2.39,.47],[1.5,1.85,.49]],.19);
+ for(const v of[[-1.04,.18,-.48],[-.96,.17,.48],[1.55,1.46,-.45],[1.5,1.85,.49]]as P[])blob(v,[.3,.22,.26],shade);
+ chain([[-1.28,1.71,0],[-1.72,1.91,.08],[-1.93,1.38,.11],[-1.76,.69,.16]],.24,shade);
+ for(let i=0;i<7;i++)blob([.63+i*.046,2.18+i*.18,-.10],[.22,.25,.28],shade);
+ // Rider's pelvis, angled torso, head, hair and bent bare legs.
+ blob([-.28,2.23,0],[.68,.47,.7]);limb([-.31,2.32,0],[-.49,3.03,0],.53);
+ blob([-.49,3.12,0],[.62,.38,.43],light);limb([-.51,3.22,0],[-.48,3.42,0],.22);
+ blob([-.46,3.56,0],[.35,.43,.34]);blob([-.29,3.54,.015],[.15,.13,.17],light);
+ for(let i=0;i<7;i++){const t=i*Math.PI*2/7;blob([-.49+Math.cos(t)*.18,3.7,Math.sin(t)*.17],[.19,.18,.17],shade);}
+ chain([[-.20,2.35,.33],[.19,1.92,.57],[-.24,1.21,.58]],.23);blob([-.08,1.16,.61],[.47,.13,.21]);
+ chain([[-.26,2.35,-.31],[.19,1.9,-.5],[.03,1.26,-.56]],.22);
+ chain([[-.3,3.08,-.2],[.11,2.85,-.49],[.68,3.0,-.41]],.17);
+ const highHand:P=amazon?[-1.12,3.7,.38]:[-1.0,3.7,.42];
+ chain([[-.66,3.08,.19],[-.97,3.35,.43],highHand],.18);
+ b.beam(at(-1.65,amazon?4.12:4.40,.4),at(1.49,amazon?3.27:1.20,.4),.055,shade);
+ // Fine reins follow the neck without a filled sheet.
+ const rein:P[]=[[.68,3.0,-.41],[.59,2.73,-.55],[1.27,2.78,-.32],[1.62,2.97,-.26]];
+ for(let i=1;i<rein.length;i++)b.beam(at(...rein[i-1]),at(...rein[i]),.035,shade);
+ if(amazon){
+  // Kiß: attacking panther upright on the horse's chest, curled tail, blown cloth.
+  blob([1.17,1.70,.18],[.6,1.32,.54],shade,-.34);blob([1.07,2.36,.24],[.58,.47,.45],shade);
+  blob([.89,2.41,.28],[.35,.21,.33],shade);for(const z of[.05,.4])blob([1.07,2.59,z],[.17,.16,.16],shade);
+  chain([[1.03,2.13,.37],[.76,2.39,.51],[.44,2.43,.42]],.15,shade);
+  chain([[1.13,2.13,-.13],[.85,2.53,-.28],[.58,2.53,-.23]],.15,shade);
+  chain([[1.35,1.3,.3],[1.70,.67,.44],[1.78,.26,.44]],.18,shade);
+  chain([[1.36,1.28,-.16],[1.24,.59,-.38],[1.46,.26,-.39]],.18,shade);
+  const tail:P[]=Array.from({length:15},(_,i)=>{const t=i/14*Math.PI*1.75;return[1.35+.37*Math.sin(t),1.25-.5*i/14,.35+.2*Math.cos(t)]as P;});chain(tail,.07,shade);
+  for(let i=0;i<7;i++)blob([-.75-i*.06,2.29-i*.06,.33],[.18,.53,.13],light,.45);
+ }else{
+  // Wolff/Rauch: lion on its back beneath the raised front legs, large mane/paws.
+  blob([.54,.36,.02],[2.12,.56,1.03],bronze,-.12);blob([1.26,.57,.10],[.69,.73,.76],shade);
+  for(let i=0;i<16;i++){const t=i*Math.PI/8;blob([1.2+.31*Math.cos(t),.58+.36*Math.sin(t),.16],[.30,.28,.84],i%3?shade:bronze);}
+  blob([1.5,.7,.14],[.5,.28,.45],bronze);blob([1.68,.76,.14],[.19,.22,.32],shade);
+  for(const z of[-.36,.45]){chain([[.81,.41,z],[.67,.88,z*1.3],[.31,.98,z*1.3]],.19);blob([.29,1.0,z*1.3],[.34,.2,.24]);}
+  chain([[-.27,.4,-.37],[-.64,.82,-.56],[-1.0,.87,-.59]],.2);chain([[-.31,.4,.38],[-.63,.72,.53],[-1.01,.75,.60]],.2);
+  chain([[-.57,.28,.20],[-1.11,.27,.77],[-1.49,.22,.83]],.10,shade);
+ }
+}
+/** Eighteen Ionic shafts with twenty-four grooves, double torus bases and spirals. */
+function altesIonicColumn(b:Builder,p:P,h:number):void {
+ const q=new Quaternion().setFromAxisAngle(UP,A.yaw),at=(x:number,y:number,z:number):P=>new Vector3(x,y,z).applyQuaternion(q).add(new Vector3(...p)).toArray()as P;
+ b.add(b.minecraft?"column":"ionic",at(0,(h-.75)/2,0),[1.4,h-.75,1.4],STONE,b.minecraft?IDENTITY:q);
+ for(const[y,w,t]of[[0,1.9,.25],[.28,1.57,.22],[.56,1.5,.19],[h-.91,1.43,.21],[h-.05,2.15,.28]])b.box(at(0,y,0),[w,t,w],LIGHT,A.yaw);
+ // Drawn grooves are part of the closed shaft, never competing overlay planes.
+ // Keep the existing native twelve block-grooves and their exact matrices.
+ if(b.minecraft)for(let i=0;i<12;i++){const angle=i*Math.PI/6,lo=.66,hi=h-1.44,r0=.7*(1-.08*lo/h),r1=.7*(1-.08*hi/h);b.beam(at(Math.cos(angle)*r0,lo,Math.sin(angle)*r0),at(Math.cos(angle)*r1,hi,Math.sin(angle)*r1),.09,DARK);}
+ for(const side of[-1,1])for(const face of[-1,1]){
+  const points:P[]=Array.from({length:b.minecraft?9:25},(_,i)=>{const count=b.minecraft?9:25,t=i/(count-1)*Math.PI*3.7,r=.36*(1-i/(count-1))+.035;return at(side*.68+side*Math.cos(t)*r,h-.65+Math.sin(t)*r,face*.62);});
+  for(let i=1;i<points.length;i++)b.beam(points[i-1],points[i],b.minecraft?.12:.065,LIGHT);
+ }
+ for(let i=0;i<9;i++){const t=Math.PI+i*Math.PI/8;b.add("sphere",at(Math.cos(t)*.61,h-.99,Math.sin(t)*.61),[.13,.23,.13],LIGHT);}
+}
 function altesDetail(b:Builder):void{
- const at=altesWorld;for(let i=0;i<A.columns;i++)column(b,at(-39.8+i*79.6/(A.columns-1),A.deck+.35,2.6),A.colonnadeTop-A.deck-.35,.7,A.yaw,true);
- for(const[y,h,w]of[[22.8,.6,85],[23.55,.85,85],[24.3,.45,85.4]])b.box(at(0,y,2.5),[w,h,8.7],LIGHT,A.yaw);
+ const at=altesWorld;for(let i=0;i<A.columns;i++)altesIonicColumn(b,at(-39.8+i*79.6/(A.columns-1),A.deck+.35,2.6),A.colonnadeTop-A.deck-.35);
+ for(const[y,h,w]of[[22.8,.6,85],[23.55,.85,85],[24.3,.45,85.4]])b.box(at(0,y,0),[w,h,7.7],LIGHT,A.yaw);
  for(let i=0;i<18;i++){const u=-40+i*80/17;if(Math.abs(u)<8)b.box(at(u,13.7,-3.2),[3.4,12,.15],GLASS,A.yaw);else{b.box(at(u,12,-3.2),[3.4,7.8,.15],0xad654c,A.yaw);b.box(at(u,18.1,-3.15),[3.8,3.3,.15],0xe6dbc1,A.yaw);}}
  for(let i=0;i<21;i++)b.box(at(0,5.22+(21-i)*(A.deck-5.22)/21,4.2+i*.26),[24,.16,.32],LIGHT,A.yaw);
  for(let i=0;i<18;i++)figure(b,at(-40+i*80/17,24.7,2.3),2.4,DARK,A.yaw);
  // v1.0.47: framed red vestibule panels and recessed coffer rhythm.
  for(let i=0;i<18;i++){const u=-40+i*80/17;
   if(Math.abs(u)>=8){for(const side of[-1,1])b.box(at(u+side*1.65,11.95,-3.02),[.11,7.65,.1],LIGHT,A.yaw);for(const y of[8.1,11.25,15.85])b.box(at(u,y,-3.0),[3.4,.13,.13],LIGHT,A.yaw);}
-  if(i<17){const mid=-39.8+(i+.5)*79.6/17;for(const v of[-.8,3.45]){b.box(at(mid,22.46,v),[3.5,.06,3.5],0x8c7e67,A.yaw);for(const sign of[-1,1]){b.box(at(mid+sign*1.8,22.40,v),[.14,.16,3.7],LIGHT,A.yaw);b.box(at(mid,22.40,v+sign*1.8),[3.7,.16,.14],LIGHT,A.yaw);}}}
+  if(i<17){const mid=-39.8+(i+.5)*79.6/17;for(const v of[-1.7,1.7]){b.box(at(mid,22.46,v),[3.5,.06,3.5],0x8c7e67,A.yaw);for(const sign of[-1,1]){b.box(at(mid+sign*1.8,22.40,v),[.14,.16,3.7],LIGHT,A.yaw);b.box(at(mid,22.40,v+sign*1.8),[3.7,.16,.14],LIGHT,A.yaw);}}}
  }
- for(let i=0;i<85;i++)b.box(at(-41.6+i*.98,22.54,6.96),[.28,.24,.34],LIGHT,A.yaw);
- if(!b.mobile&&!b.minecraft){const text="FRIDERICVS GVILELMVS III STVDIO ANTIQVITATIS OMNIGENAE ET ARTIVM LIBERALIVM MVSEVM CONSTITVIT MDCCCXXVIII",base=text.replaceAll("Q","O"),paths=letteringStrokePaths(base,.65),layout=letteringLayout(base,.65);for(let j=0;j<text.length;j++)if(text[j]==="Q"){const x=layout.glyphs[j].leftM-layout.totalWidthM/2;paths.push([[x+.2,.21],[x+.47,-.05]]);}const points=paths.flat(),width=Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0]));for(const line of paths)for(let i=1;i<line.length;i++)b.beam(at(line[i-1][0]/width*80,23.12+line[i-1][1],6.89),at(line[i][0]/width*80,23.12+line[i][1],6.89),.065,0x897340);}
+ for(let i=0;i<85;i++)b.box(at(-41.6+i*.98,22.54,3.96),[.28,.24,.34],LIGHT,A.yaw);
+ if(!b.mobile&&!b.minecraft){const text="FRIDERICVS GVILELMVS III STVDIO ANTIQVITATIS OMNIGENAE ET ARTIVM LIBERALIVM MVSEVM CONSTITVIT MDCCCXXVIII",base=text.replaceAll("Q","O"),paths=letteringStrokePaths(base,.65),layout=letteringLayout(base,.65);for(let j=0;j<text.length;j++)if(text[j]==="Q"){const x=layout.glyphs[j].leftM-layout.totalWidthM/2;paths.push([[x+.2,.21],[x+.47,-.05]]);}const points=paths.flat(),width=Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0]));for(const line of paths)for(let i=1;i<line.length;i++)b.beam(at(line[i-1][0]/width*80,23.12+line[i-1][1],3.89),at(line[i][0]/width*80,23.12+line[i][1],3.89),.065,0x897340);}
 
 
- for(const[x,z,raised]of[[1860.436566,15.845902,true],[1887.187458,-.040784,false]]as const){b.box([x,7.25,z],[3.5,3.7,2.7],STONE,A.yaw);horse(b,[x,9.1,z],A.yaw,raised);}
+ for(const sculpture of ALTES_EQUESTRIAN_GROUPS){const[x,z]=sculpture.worldXZ;b.box([x,7.25,z],[3.5,3.7,2.7],STONE,A.yaw);for(const y of[5.45,8.85,9.08])b.box([x,y,z],[3.72,.18,2.9],LIGHT,A.yaw);combatHorse(b,[x,9.18,z],sculpture.yaw,sculpture.amazon);}
  for(const p of S.altes.parts){if(p.top_y_m<20)continue;for(let i=0;i<p.ring.length;i++){const a=p.ring[i],c=p.ring[(i+1)%p.ring.length],dx=c[0]-a[0],dz=c[1]-a[1],l=Math.hypot(dx,dz);if(l<8)continue;const n=Math.floor(l/4.8),yaw=-Math.atan2(dz,dx),edge=(u:number,y:number,v:number):P=>[a[0]+dx*u/l+dz*v/l,y,a[1]+dz*u/l-dx*v/l];for(let j=0;j<n;j++){const t=(j+.5)*l/n,pt=edge(t,15,.45);if(S.altes.parts.some(o=>o.id!==p.id&&museumPartContains(o,pt[0],pt[2])))continue;for(const y of[10.2,18.4])window(b,edge,t,y,.42,1.55,3.7,yaw,false);}}}
  b.add("column",[1856.2,32.45,-20.5],[8.5,.5,8.5],0x7b8986);for(let i=0;i<16;i++){const t=i*Math.PI/8;b.beam([1856.2,32.95,-20.5],[1856.2+Math.cos(t)*4.1,32.7,-20.5+Math.sin(t)*4.1],.11,LIGHT);}
 }

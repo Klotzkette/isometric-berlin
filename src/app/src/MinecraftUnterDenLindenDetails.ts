@@ -183,29 +183,29 @@ function addBritishEmbassy(builder: BlockBuilder): void {
   facadeBlock(builder, axis, length / 2, baseY + 1.45, 1.25, length, 2.9, 0.9, STONE);
 }
 
-function addRussianEmbassy(builder: BlockBuilder): void {
-  const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy;
-  const baseY = profile.anchorWorldM[1];
-  for (const [section, axis] of profile.frontageAxes.entries()) {
-    const length = axisLength(axis);
-    voxelGrid(builder, axis, baseY, 4, 3, 7.3, 5);
-    facadeBlock(builder, axis, length / 2, baseY + 2.1, .65, length, 4.2, .55, STONE);
-    for (const y of [4.3, 20, 21.3]) facadeBlock(builder, axis, length / 2, baseY + y, .75, length, .45, .7, STONE_LIGHT);
-    if (section === 2) for (let column = 0; column < 6; column++)
-      facadeBlock(builder, axis, .8 + column * (length - 1.6) / 5, baseY + 12.3, 1, .8, 14.3, .8, STONE_LIGHT);
+function addRussianEmbassy(builder:BlockBuilder):void {
+ const p=UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy,base=p.anchorWorldM[1];
+ for(const[section,axis]of p.frontageAxes.entries()){
+  const length=axisLength(axis),central=section===2,pavilion=section===0||section===4,bays=central?3:pavilion?5:4;
+  if(!central)voxelGrid(builder,axis,base,bays,3,7.2,5.3);
+  else for(let i=0;i<3;i++)for(const[y,h]of[[7.1,3],[14.4,8.2]])facadeBlock(builder,axis,(i+.5)*length/3,base+y,.9,length/3*.56,h,.7,GLASS);
+  facadeBlock(builder,axis,length/2,base+2.1,.65,length,4.2,.7,0xaaa28d);
+  for(const y of[4.35,20.65,21.25,22.05])facadeBlock(builder,axis,length/2,base+y,1.05,length,.4,.85,STONE_LIGHT);
+  if(pavilion)for(let i=0;i<=5;i++){
+   const u=.45+i*(length-.9)/5;facadeBlock(builder,axis,u,base+12.5,1.1,.9,15.35,.9,STONE_LIGHT);
+   for(const y of[4.83,20.28])facadeBlock(builder,axis,u,base+y,1.15,1.22,.4,1.05,STONE_LIGHT);
   }
-  const [towerX, towerZ] = profile.towerWorldXZ;
-  for (const x of [-2.1, 2.1]) for (const z of [-3.3, 3.3])
-    builder.box([towerX + x, baseY + 26.2, towerZ + z], [.7, 7.2, .7], STONE_LIGHT);
-  builder.box([towerX, baseY + 30.05, towerZ], [6.2, 0.65, 8.7], STONE);
-  builder.box([towerX, baseY + 34.0, towerZ], [0.35, 7.4, 0.35], METAL);
-  for (const [y, color] of [
-    [baseY + 36.4, WHITE],
-    [baseY + 36.0, BLUE],
-    [baseY + 35.6, RED],
-  ] as const) {
-    builder.box([towerX + 1.1, y, towerZ], [2.2, 0.38, 0.35], color);
-  }
+ }
+ const[x,z]=p.towerWorldXZ;
+ builder.box([x,base+25.65,z],[18.2,5.8,17.5],STONE);
+ for(const y of[28.45,29.1])builder.box([x,base+y,z],[18.7,.55,18],STONE_LIGHT);
+ for(const sign of[-1,1])for(const u of[-4.5,0,4.5])for(const transpose of[false,true])builder.box([x+(transpose?sign*4.5:u),base+33.2,z+(transpose?u:sign*4.5)],[.7,7.2,.7],STONE_LIGHT);
+ for(const[y,w,h]of[[29.65,10.5,.7],[36.98,11.3,.7],[37.65,10.75,.5]])builder.box([x,base+y,z],[w,h,w],STONE_LIGHT);
+ for(const dx of[-7.6,7.6])for(const dz of[-7.3,7.3]){builder.box([x+dx,base+30.95,z+dz],[.8,2.7,.8],STONE);builder.box([x+dx,base+32.45,z+dz],[.55,.62,.55],STONE_LIGHT);}
+ builder.box([x,base+40.75,z],[.25,6.2,.25],METAL);for(const[y,color]of[[42.5,WHITE],[42.12,BLUE],[41.74,RED]]as const)builder.box([x+1,base+y,z],[2,.36,.3],color);
+ const axis=p.fenceAxis,l=axisLength(axis);for(const y of[.35,2.7])facadeBlock(builder,axis,l/2,base+y,0,l,.18,.2,METAL);
+ for(let u=.2;u<l;u+=.75)facadeBlock(builder,axis,u,base+1.6,0,.16,2.65,.2,METAL);
+ for(const u of[2.6,l-2.6]){facadeBlock(builder,axis,u,base+1.92,-1.45,3.4,3.84,2.9,STONE);facadeBlock(builder,axis,u,base+4.02,-1.45,3.75,.35,3.2,STONE_LIGHT);facadeBlock(builder,axis,u,base+1.5,.2,1.3,2.8,.3,METAL);}
 }
 
 function addAeroflot(builder: BlockBuilder): void {

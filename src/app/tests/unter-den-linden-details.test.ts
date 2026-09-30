@@ -125,11 +125,12 @@ describe("source-bound Unter den Linden recognition details", () => {
   test("adds hundreds of facade cues within a small texture-free GPU budget", () => {
     const stats = budget(createUnterDenLindenDetails());
     // The historical v141 budget was 10 / 1669 / <180000. The authorised
-    // v147 frontage corrections and sixth building have this explicit budget.
+    // v147 frontage corrections and sixth building remain audited in docs;
+    // v148 retains all six and refines Embassy only, with this explicit delta.
     expect(stats.draws).toBe(13);
     expect(stats.instances).toBeGreaterThan(600);
-    expect(stats.instances).toBe(2_457);
-    expect(stats.bytes).toBe(189_156);
+    expect(stats.instances).toBe(3_711);
+    expect(stats.bytes).toBe(284_460);
   });
 
   test("keeps the runtime model free of reference photographs and image loaders", () => {
@@ -150,7 +151,7 @@ describe("source-bound Unter den Linden recognition details", () => {
     const stats = budget(root);
     expect(stats.draws).toBe(1);
     expect(stats.instances).toBeGreaterThan(280);
-    expect(stats.instances).toBe(507);
+    expect(stats.instances).toBe(636);
     expect(stats.bytes).toBeLessThan(50_000);
     expect(
       (root.children[0] as InstancedMesh).geometry.getAttribute("position").count,

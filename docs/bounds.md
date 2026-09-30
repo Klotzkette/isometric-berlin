@@ -44,7 +44,7 @@ All four shipped landmark payloads are synchronised at 93 records. The
 alignment audit passes 41 relative-placement contracts and retains three
 established manual-review anchors.
 
-The current WGS84 extent is approximately `13.314761,52.493209` to
+The preserved task-13 WGS84 extent is approximately `13.314761,52.493209` to
 `13.407233,52.550987` (EPSG:25833 `385602.60,5817089.12` to
 `391910.58,5823617.37`). Its 30.977 km² polygon is the exact additional 500 m
 outward buffer of task-12 in EPSG:25833, with mitred joins and only 0.036 mm of
@@ -52,6 +52,27 @@ coordinate-rounding noise after conversion back to CRS84. The new ring adds
 11.015 km² (+55.18%) around the prior 19.962 km² scene. The corresponding
 versioned presentation radius is 6,450 m; it is a viewer/camera envelope, not a claim
 that every point in that circle is surveyed.
+
+## Owner-requested v1.0.48 eastern outline extension
+
+The current boundary retains the entire task-13 polygon and adds a **0.308 km²**
+eastern lobe (total **31.285 km²**) for Bahnhof Alexanderplatz, Fernsehturm and
+Rotes Rathaus. The lobe is the union with EPSG:25833 rectangle
+`391600,5819770,392305,5820360`. It is a presentation scope, not a surveyed
+parcel. The original file is retained as `bounds-task13.geojson`; its existing
+pipeline payloads and archival overview keep their original projection.
+
+All eight original building parts lie inside this extension. They appear as
+initial vector outlines; the generalized television-tower source is retained
+but its display silhouette uses separately documented published dimensions.
+Mapped street links are clipped to this scope and subtract exact existing
+street ownership. The neutral backing beneath the new outline area makes no
+claim to represent a surveyed plaza. There are still **93 tour places**, and
+the presentation radius stays **6,450 m**.
+
+Reproduce with `uv run python scripts/build_schloss_east_source.py` and
+`uv run python scripts/build_schloss_east_streets.py` after obtaining the retained
+source archives/extract recorded in the generated metadata.
 
 ## Editing
 

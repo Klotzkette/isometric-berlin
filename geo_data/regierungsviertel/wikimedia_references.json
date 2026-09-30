@@ -5134,6 +5134,107 @@
       "description": "Existing sandstone facade, glazed entrance risalit and textured copper fascia. The foreground demolition is from 2012 and is not modelled as current construction.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "title": "File:Deutsches Historisches Museum, Berlin-Mitte, 170128, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Deutsches_Historisches_Museum,_Berlin-Mitte,_170128,_ako.jpg",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY-SA 3.0 de",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "deutsches_historisches_museum"
+    },
+    {
+      "title": "File:Treppenturm, Deutsches Historisches Museum, Berlin, 150118, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Treppenturm,_Deutsches_Historisches_Museum,_Berlin,_150118,_ako.jpg",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY-SA 3.0 de",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "deutsches_historisches_museum"
+    },
+    {
+      "title": "File:Zeughaus, Berlin front 2.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Zeughaus,_Berlin_front_2.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "BrokenSphere",
+      "credit": "BrokenSphere / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "deutsches_historisches_museum"
+    },
+    {
+      "landmark_id": "friedrichswerdersche_kirche",
+      "title": "File:Berlin, Mitte, Werderscher Markt, Friedrichswerdersche Kirche 05.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Werderscher_Markt,_Friedrichswerdersche_Kirche_05.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "friedrichswerdersche_kirche",
+      "title": "File:Berlin, Mitte, Werderscher Markt, Friedrichswerdersche Kirche 07.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Werderscher_Markt,_Friedrichswerdersche_Kirche_07.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "auswaertiges_amt_neubau",
+      "title": "File:Auswärtiges Amt Neubau Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Ausw%C3%A4rtiges_Amt_Neubau_Berlin.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Andreas Praefcke",
+      "credit": "Andreas Praefcke / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "auswaertiges_amt_altbau",
+      "title": "File:ZK-SED-Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:ZK-SED-Berlin.jpg",
+      "license": "CC BY-SA 2.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en",
+      "artist": "Bettenburg",
+      "credit": "Bettenburg / CC BY-SA 2.0 de",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "altes-museum",
+      "title": "File:Löwenkämpfer (Berlin, Altes Museum).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Löwenkämpfer_(Berlin,_Altes_Museum).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Yair Haklai",
+      "credit": "Yair Haklai / CC BY-SA 4.0",
+      "description": "Distinct bronze equestrian combat group, anatomical pose and Ionic capital close-up; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "altes-museum",
+      "title": "File:Amazone zu Pferde by August Kiss (Berlin, Altes Museum).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Amazone_zu_Pferde_by_August_Kiss_(Berlin,_Altes_Museum).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Yair Haklai",
+      "credit": "Yair Haklai / CC BY-SA 4.0",
+      "description": "Distinct bronze equestrian combat group, anatomical pose and Ionic capital close-up; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

@@ -34,6 +34,10 @@ import { BEHREN42_SOURCE } from "../src/Behren42Profile";
 import { NEUE_WACHE_PRISM_IDS } from "../src/neueWacheProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "../src/gripsHansaplatzProfile";
 import { GYMNASIUM_NEUBAU_PRISM_IDS } from "../src/gymnasiumTiergartenProfile";
+import { EAST_CIVIC_SOURCES } from "../src/eastCivicProfile";
+import { DHM_PARTS } from "../src/dhmProfile";
+import { RUSSIAN_EMBASSY_SOURCE_PARTS } from "../src/RussianEmbassySourceGeometry";
+import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE } from "../src/schlossEastProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -76,9 +80,30 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // geographically separate from the unchanged Abgeordnetenhaus annexes.
     // Neue Wache's retained source ID separately follows the open authored roof.
     // The 13 Gymnasium Neubau parts and 152 complete perimeter parts
-    // also retain their individual roof planes.
+    // also retain their individual roof planes. The eastern civic additions
+    // retain 56 above-ground source parts, DHM 11, Embassy 16, and six simple
+    // outline parts. One original AA slab is entirely below displayed ground;
+    // the Fernsehturm instead has its explicit height-dependent radial solid.
+    const civicParts = EAST_CIVIC_SOURCES.flatMap(s => s.parts);
+    const buriedSlab = civicParts.find(p => p.id === "DEBE3DtJY9o2HgPQ")!;
+    expect(civicParts).toHaveLength(57);
+    expect(buriedSlab.top_y_m).toBeLessThan(5.2);
+    expect(indexed.has(buriedSlab.id)).toBeFalse();
+    const eastOutlineParts = SCHLOSS_EAST_PARTS.filter(p => !FERNSEHTURM_PROFILE.sourcePartIds.includes(p.id));
+    expect(DHM_PARTS).toHaveLength(11);
+    expect(RUSSIAN_EMBASSY_SOURCE_PARTS).toHaveLength(16);
+    expect(eastOutlineParts).toHaveLength(6);
+    const tower = [...new Set([...obstacles.cells.values()].flat())].filter(p => p.sourceId === "fernsehturm-outline");
+    expect(tower).toHaveLength(1);
+    expect(tower[0].kind).toBe("circle");
+    if (tower[0].kind === "circle") expect(tower[0].solidAt).toBeDefined();
+    for (const id of FERNSEHTURM_PROFILE.sourcePartIds) expect(indexed.has(id)).toBeFalse();
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
+        ...civicParts.filter(p => p.id !== buriedSlab.id).map(p => p.id),
+        ...DHM_PARTS.map(p => p.id),
+        ...RUSSIAN_EMBASSY_SOURCE_PARTS.map(p => p.id),
+        ...eastOutlineParts.map(p => p.id),
         ...PALACES_UDL_SOURCES.flatMap(s=>s.parts.map(p=>p.id)),
         ...JAMES_SIMON_SOURCE.parts.map(p=>p.id),
         KOMISCHE_OPER_SOURCE_PART.id,

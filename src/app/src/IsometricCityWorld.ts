@@ -1,3 +1,6 @@
+import { DHM_PRISM_IDS } from "./dhmProfile";
+import { EAST_CIVIC_PRISM_IDS } from "./eastCivicProfile";
+import { RUSSIAN_EMBASSY_SOURCE_IDS } from "./RussianEmbassySourceGeometry";
 import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertures";
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
@@ -903,6 +906,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS,
   ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,
   ...GENDARMENMARKT_PRISM_IDS,
   ...NEUE_WACHE_PRISM_IDS,

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.48
+
+- Restore the paired Friedrichswerder church towers and complete the old/new Foreign Office from 57 retained official source parts, including open courts, glass atria and loggia.
+- Replace Russian Embassy flat display prisms with all 16 original wall/roof envelopes; place the lantern on the photographed front risalit and refine its facade hierarchy.
+- Add the source-complete Zeughaus and Pei extension, with transparent glass envelopes and a visible helical stair; refine Gorki facade sculpture and capitals.
+- Refine Altes Museum Ionic capitals and both source-anchored bronze equestrian groups, with corrected entablature projection.
+- Add a narrow, owner-requested eastern outline preview for Alexanderplatz station, Fernsehturm and Rotes Rathaus, plus additive mapped streets toward Schloss. Retain the entire previous boundary and 93-stop tour.
+- Prepare native outline cells offline and retain exact original sources and prior geometry fixtures.
+
 ## v1.0.47
 
 - Refine Friedrich the Great's equestrian monument at its retained OSM anchor, with a stepped socle, figure registers, mounted king, enclosure and four lamp standards.

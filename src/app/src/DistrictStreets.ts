@@ -15,7 +15,7 @@ const SURFACE_STYLES = {
   // The plaza's authored flowerbeds/lawn plates already stand above this base.
   grass: { name: "Brandenburg approach mapped lawns", day: 0x8eab79, night: 0x24352b, lift: 0.035 },
 } as const;
-type StreetSource = {
+export type StreetSource = {
   source: Record<string, unknown>;
   surfaces: { kind: keyof typeof SURFACE_STYLES; positions_cm_b64: string; indices_b64: string }[];
   curbs_m: Point[][];
@@ -66,8 +66,12 @@ function geometry(positions: number[]): BufferGeometry {
  * lower-detail replacement or camera-dependent disappearance is necessary.
  */
 export function createDistrictStreets(ground: VoxelPayload): Group {
+  return createSourceStreetSurfaces(ground, streets, "District streets and roadside paths");
+}
+
+export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string): Group {
   const group = new Group();
-  group.name = "District streets and roadside paths";
+  group.name = name;
   group.userData.sourceGeometry = streets.source;
   const terrainAt = districtStreetTerrainSampler(ground);
   const addSurface = (name: string, positions: number[], day: number, night: number, indices?: number[]): void => {

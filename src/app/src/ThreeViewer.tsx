@@ -3353,6 +3353,11 @@ function ensureIsoWorld(
   const jamesSimonDetails = import("./JamesSimonArchitecture");
   const komischeOperDetails = import("./KomischeOperSourceGeometry");
   const udlEntrances = import("./UnterDenLindenEntrances");
+  const civicEastDetails = import("./EastCivicArchitecture");
+  const dhmDetails = import("./DhmArchitecture");
+  const embassyDetails = import("./RussianEmbassySourceGeometry");
+  const eastOutlines = import("./SchlossEastOutlines");
+  const eastStreets = import("./SchlossEastStreets");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3367,9 +3372,9 @@ function ensureIsoWorld(
     palacesDetails,
     jamesSimonDetails,
     komischeOperDetails,
-    udlEntrances,
+    udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3663,6 +3668,16 @@ function ensureIsoWorld(
         isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
+        yield;
+        isoWorld.add(civicEast.createEastCivicArchitecture());
+        yield;
+        isoWorld.add(dhm.createDhmArchitecture());
+        yield;
+        isoWorld.add(embassy.createRussianEmbassySourceGeometry());
+        yield;
+        isoWorld.add(outlines.createSchlossEastOutlines());
+        yield;
+        if (ground) isoWorld.add(streetsEast.createSchlossEastStreets(ground));
         yield;
         isoWorld.add(entrances.createUnterDenLindenEntrances());
         yield;

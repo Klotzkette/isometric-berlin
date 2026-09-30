@@ -15,6 +15,7 @@ import {
 import { createBerlinJunction } from "../src/BerlinJunction";
 import { createDomAltesMuseum } from "../src/DomAltesMuseum";
 import { DOM_ALTES_ARTWORK_KEYS } from "../src/domAltesMuseumIds";
+import { ALTES_EQUESTRIAN_GROUPS } from "../src/domAltesMuseumProfile";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
@@ -335,12 +336,28 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key));
     expect(new Set(museumEntries.map(entry => entry.osm_key))).toEqual(
       DOM_ALTES_ARTWORK_KEYS);
+    const equestrianKeys = ALTES_EQUESTRIAN_GROUPS.map(group => `node/${group.node}`);
+    expect(equestrianKeys).toEqual(["node/4353173360", "node/4353173363"]);
+    const bronzeBatches: InstancedMesh[] = [];
+    museum.traverse(object => {
+      if (object instanceof InstancedMesh && object.name === "Museum island details bronze")
+        bronzeBatches.push(object);
+    });
+    // v1.0.48 shares one shaded anatomical mesh across both combat groups.
+    // Ownership stays with DomAltes; the generic dispatcher must render neither.
+    expect(bronzeBatches).toHaveLength(1);
+    expect(bronzeBatches[0].count).toBe(176);
+    expect(bronzeBatches[0].geometry.getAttribute("color")).toBeDefined();
+    expect(createTiergartenMonuments({ ...street, monuments: museumEntries.filter(
+      entry => equestrianKeys.includes(entry.osm_key),
+    ) }, ground)).toBeNull();
     const transform = new Matrix4();
     const vertex = new Vector3();
     const color = new Color();
     for (const entry of museumEntries) {
       const bounds = new Box3();
       let contributions = 0;
+      let bronzeContributions = 0;
       museum.traverse(object => {
         if (!(object instanceof Mesh)) return;
         if (entry.osm_key === "node/376689138" &&
@@ -357,8 +374,13 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
           if (Math.hypot(vertex.x - entry.x_dm / 10,
             vertex.z - entry.z_dm / 10) > 4) continue;
           object.getColorAt(instance, color);
-          if (entry.osm_key !== "node/376689138" &&
-            color.getHex() !== 0x416f5c) continue;
+          if (entry.osm_key !== "node/376689138") {
+            const anatomical = object.name === "Museum island details bronze";
+            const bronzeBaseOrLance = object.name === "Museum island details box" &&
+              color.getHex() === 0x2e4b42;
+            if (!anatomical && !bronzeBaseOrLance) continue;
+            if (anatomical) bronzeContributions += 1;
+          }
           contributions += 1;
           for (let index = 0; index < positions.count; index += 1) {
             bounds.expandByPoint(vertex.fromBufferAttribute(positions, index)
@@ -366,8 +388,13 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
           }
         }
       });
-      expect(contributions).toBeGreaterThan(
-        entry.osm_key === "node/376689138" ? 7 : 10);
+      if (entry.osm_key === "node/376689138") {
+        expect(contributions).toBeGreaterThan(7);
+      } else {
+        const expectedAnatomical = entry.osm_key === "node/4353173360" ? 87 : 89;
+        expect(bronzeContributions).toBe(expectedAnatomical);
+        expect(contributions).toBe(expectedAnatomical + 5); // base, lance, three reins
+      }
       expect(bounds.isEmpty()).toBe(false);
       museumArtworkBounds.set(entry.osm_key, bounds);
     }
@@ -395,15 +422,16 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
           expect(size.x).toBeCloseTo(8.84, 2);
           expect(size.z).toBeCloseTo(8.84, 2);
         } else {
-          // Bronze horse/rider geometry only, excluding the taller source
-          // museum and stone pedestal. These are recognition subdivisions,
-          // in the 3.7–4.5 m sculpture band, rather than generic low markers.
-          expect(size.y).toBeGreaterThan(3.7);
-          expect(size.y).toBeLessThan(4.5);
+          // Full bronze group, including its thin base and lance, excluding
+          // source museum and stone pedestal. Published heights are 4.45 m for
+          // Wolff's lion group and 3.6 m without the lance for Kiß's Amazone.
+          const lion = entry.osm_key === "node/4353173360";
+          expect(size.y).toBeGreaterThan(lion ? 4.4 : 4.1);
+          expect(size.y).toBeLessThan(lion ? 4.5 : 4.2);
           expect(size.x).toBeGreaterThan(2.5);
           expect(size.z).toBeGreaterThan(1.5);
           expect(dedicated!.min.y).toBeGreaterThan(9);
-          expect(dedicated!.max.y).toBeLessThan(13.5);
+          expect(dedicated!.max.y).toBeLessThan(lion ? 13.65 : 13.4);
         }
       } else {
         expect(resolveArtworkBuilder(entry.name)).toBeFunction();

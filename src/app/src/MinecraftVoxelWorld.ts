@@ -1,3 +1,10 @@
+import { createDhmArchitecture } from "./DhmArchitecture";
+import { isDhmReplacementColumn } from "./dhmProfile";
+import { createMinecraftEastCivicArchitecture } from "./EastCivicArchitecture";
+import { isEastCivicReplacementColumn } from "./eastCivicProfile";
+import { createMinecraftRussianEmbassySourceGeometry, isRussianEmbassyReplacementColumn } from "./RussianEmbassySourceGeometry";
+import { createSchlossEastOutlines } from "./SchlossEastOutlines";
+import { createSchlossEastStreets } from "./SchlossEastStreets";
 import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createMinecraftGendarmenmarktPerimeterShells } from "./GendarmenmarktPerimeterShells";
 import { createGendarmenmarktPerimeterFacades } from "./GendarmenmarktPerimeterFacades";
@@ -807,6 +814,9 @@ export function isCompleteRecognitionVoxelColumn(
     isGendarmenmarktPerimeterReplacementColumn(x, z) ||
     isNeueWacheReplacementColumn(x, z) ||
     isGorkiBuildingReplacementColumn(x, z) ||
+    isDhmReplacementColumn(x, z) ||
+    isEastCivicReplacementColumn(x, z) ||
+    isRussianEmbassyReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
     isGymnasiumNeubauReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
@@ -2762,6 +2772,16 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createBehren42Architecture(true));
   group.add(createMinecraftKomischeOperSourceGeometry());
+  yield;
+  group.add(createDhmArchitecture(true));
+  yield;
+  group.add(createMinecraftEastCivicArchitecture());
+  yield;
+  group.add(createMinecraftRussianEmbassySourceGeometry({ mobileLike: options.detailProfile === "mobile" }));
+  yield;
+  group.add(createSchlossEastOutlines(true));
+  yield;
+  group.add(createSchlossEastStreets(payload, true));
   yield;
   group.add(createMinecraftUnterDenLindenEntrances());
   yield;

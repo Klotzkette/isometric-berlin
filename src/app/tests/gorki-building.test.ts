@@ -14,6 +14,8 @@ describe("Maxim Gorki Theater recognition model", () => {
     expect(isGorkiBuildingReplacementColumn(1640, 35)).toBeFalse();
     expect(P.largeHallWindows).toContain("bricked-up");
     expect(P.entranceCount).toBe(3);
+    expect(P.pairedGryphonReliefFields).toBe(3);
+    expect(P.corinthianLeafRows).toBe(2);
   });
   test("the hall has a gabled roof below a distinct stage tower without mutating the source", () => {
     const original = JSON.stringify(source), parts = gorkiDisplayParts();

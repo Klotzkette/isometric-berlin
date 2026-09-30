@@ -697,6 +697,59 @@
       "conflicts": [],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "east_civic_v148",
+      "anchor_source": "57 complete LoD2 parts across13parents, exact OSM church and Foreign Office identities; official heritage and architecture references",
+      "geometry_ref": "src/app/src/eastCivicSource.json",
+      "documentation_ref": "docs/east-civic-v148.md",
+      "conflicts": [
+        "AA coarse main overlaps independent glass atrium and high loggia; exact display openings retain source sheets"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "dhm_v148",
+      "anchor_source": "11 original Zeughaus, Schlueterhof roof and Pei source parts; DHM and project architect descriptions",
+      "geometry_ref": "src/app/src/dhmSource.json",
+      "documentation_ref": "docs/dhm-gorki-v148.md",
+      "conflicts": [
+        "Roof-only courtyard canopy generalized walls opened below measured roof; Pei glass overlap uses exterior envelopes"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "embassy_altes_v148",
+      "anchor_source": "16 retained Embassy parts, official2025orthophoto and licensed photos; Altes sculpture mapped nodes and Bildhauerei references",
+      "geometry_ref": "src/app/src/unterDenLindenSource.json",
+      "documentation_ref": "docs/embassy-altes-v148.md",
+      "conflicts": [
+        "Embassy procedural lantern corrected from rear chimney to front risalit; original chimney retained"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "schloss_east_outlines_v148",
+      "anchor_source": "8 original LoD2 parts and exact OSM identities; published tower dimensions from bpb/operator",
+      "geometry_ref": "src/app/src/schlossEastSource.json",
+      "documentation_ref": "docs/east-outline-cache-v148.md",
+      "conflicts": [
+        "TV LoD2 broad-cylinder generalization retained as evidence; published silhouette displayed separately"
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "schloss_east_streets_v148",
+      "anchor_source": "Current OSM map extract clipped to requested eastern corridor; exact existing street ownership retained",
+      "geometry_ref": "src/app/src/data/schlossEastStreets.json",
+      "documentation_ref": "docs/release-v1.0.48-review.md",
+      "conflicts": [],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

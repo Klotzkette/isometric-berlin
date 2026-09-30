@@ -25,7 +25,8 @@ export function createGorkiBuilding(minecraft = false): Group {
   const root = new Group();
   root.name = minecraft ? "Block-native Maxim Gorki Theater" : "Maxim Gorki Theater source-bound architecture";
   root.userData = { textureFree: true, keepInMinecraft: minecraft, blockNative: minecraft,
-    sourceParent: source.parent_id, entranceCount: P.entranceCount, largeHallWindows: P.largeHallWindows };
+    sourceParent: source.parent_id, entranceCount: P.entranceCount, largeHallWindows: P.largeHallWindows,
+    pairedGryphonReliefFields: P.pairedGryphonReliefFields, corinthianLeafRows: P.corinthianLeafRows };
   const instances: Instance[] = [];
   const box = (axis: Axis, u: number, y: number, out: number, size: Point, color: number, side = -1) => {
     const p = at(axis, u, y, out, side), yaw = -Math.atan2(axis[1][1] - axis[0][1], axis[1][0] - axis[0][0]);
@@ -108,6 +109,38 @@ export function createGorkiBuilding(minecraft = false): Group {
     box(west, u, 8.1, 0.13, [2.9, 2.0, 0.16], RECESS);
   }
   for (const y of [6.2, 9.5, 18.9, 19.25]) box(west, l / 2, y, 0.22, [l, 0.16, 0.44], LIGHT);
+  // Photographed shallow horizontal plaster courses remain subordinate to the
+  // tall blind hall panels; no glazing is invented in the former concert hall.
+  for (let y = 6.7; y < 18.7; y += .65) box(west, l / 2, y, .16, [l, .035, .055], SHADE);
+  for (let i = 0; i < 4; i++) {
+    const u = 1 + (w - 2) * i / 3;
+    for (let row = 0; row < P.corinthianLeafRows; row++) for (let leaf = 0; leaf < 5; leaf++) {
+      const du = (leaf - 2) * .19;
+      box(front, u + du, 17.2 + row * .34, .92, [.15, .46, .21 + .05 * (2 - Math.abs(leaf - 2))], LIGHT);
+      box(front, u + du, 17.42 + row * .34, 1.04, [.2, .1, .18], SHADE);
+    }
+  }
+  // The three photographed griffin-and-lyre relief fields use shallow generic
+  // silhouettes, separate from the pilaster capitals and untouched source roof.
+  for (const u of bays) {
+    box(front, u, 17.67, .15, [3.75, 1.03, .16], RECESS);
+    for (const y of [17.07, 18.26]) box(front, u, y, .31, [3.95, .1, .28], LIGHT);
+    for (const side of [-1, 1]) {
+      box(front, u + side * .24, 17.64, .37, [.075, .69, .1], LIGHT);
+      box(front, u + side * .19, 17.31, .37, [.17, .09, .1], LIGHT);
+      box(front, u + side * 1.1, 17.52, .4, [.9, .28, .21], LIGHT);
+      box(front, u + side * .7, 17.75, .4, [.24, .47, .22], LIGHT);
+      box(front, u + side * .58, 17.98, .4, [.27, .16, .22], LIGHT);
+      for (const leg of [.83, 1.4]) box(front, u + side * leg, 17.28, .4, [.12, .31, .15], LIGHT);
+      for (let feather = 0; feather < (minecraft ? 3 : 6); feather++) {
+        const f = feather / (minecraft ? 3 : 6);
+        box(front, u + side * (1.0 + .65 * f), 17.83 + .22 * Math.sin(f * Math.PI), .44,
+          [.13, .47 - .23 * f, .12], LIGHT);
+      }
+    }
+    box(front, u, 17.99, .37, [.65, .075, .1], LIGHT);
+    for (const du of [-.1, 0, .1]) box(front, u + du, 17.66, .39, [.025, .59, .05], SHADE);
+  }
   if (!minecraft) {
     // Code-built identity, no promotional poster artwork or font texture.
     for (const path of letteringStrokePaths("MAXIM GORKI THEATER", 0.59)) for (let i = 1; i < path.length; i++) {

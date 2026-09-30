@@ -293,80 +293,78 @@ function facadeGrid(
   }
 }
 
-function addRussianEmbassy(
-  builder: DetailBuilder,
-  fine: DetailBuilder,
-): void {
-  const profile = UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy;
-  const baseY = profile.anchorWorldM[1];
-  // The former overlay occupied the Behrenstraße rear. Each new shallow sheet
-  // follows one retained LoD2 edge, leaving the recessed Ehrenhof completely open.
-  for (const [section, axis] of profile.frontageAxes.entries()) {
-    const length = axisLength(axis), yaw = axisYaw(axis);
-    const central = section === 2;
-    builder.box(facadePoint(axis, length / 2, baseY + 2.1, .24),
-      [length, 4.2, .28], STONE_DARK, yaw);
-    facadeGrid(builder, fine, { axis, baseY, bays: central ? 4 : 4,
-      floors: 3, floorPitch: 5.0, firstFloorY: 7.3,
-      outward: .28, glass: 0x46565a });
-    for (const y of [4.3, 20.0, 21.3]) builder.box(
-      facadePoint(axis, length / 2, baseY + y, .48),
-      [length, y === 20 ? .65 : .3, .65], STONE_LIGHT, yaw);
-    for (let row = 0; row < 9; row++) fine.box(
-      facadePoint(axis, length / 2, baseY + .45 + row * .44, .42),
-      [length, .065, .06], 0xb7b4a9, yaw);
-    if (central) {
-      // Colossal fluted half-columns and open entrance bays, display dimensions.
-      for (let column = 0; column < 6; column++) {
-        const u = .8 + column * (length - 1.6) / 5;
-        builder.column(facadePoint(axis, u, baseY + 12.3, .58), .78, 14.3, STONE_LIGHT);
-        for (const y of [5.1, 19.4]) builder.box(facadePoint(axis, u, baseY + y, .65),
-          [1.05, .38, .9], STONE_LIGHT, yaw);
-        for (const offset of [-.2, 0, .2]) fine.box(
-          facadePoint(axis, u + offset, baseY + 12.3, 1),
-          [.055, 13.8, .07], 0xbab8ad, yaw);
-      }
-      builder.box(facadePoint(axis, length / 2, baseY + 2.3, .52),
-        [4.1, 4.3, .16], 0x273438, yaw);
-      builder.box(facadePoint(axis, length / 2, baseY + 4.8, .82),
-        [7.1, .6, .5], STONE_LIGHT, yaw);
-      // Restrained relief and balustrade cues do not reproduce a historic emblem.
-      for (let baluster = 0; baluster < 19; baluster++) fine.column(
-        facadePoint(axis, .65 + baluster * (length - 1.3) / 18, baseY + 21.95, .46),
-        .14, .85, STONE_LIGHT);
-      builder.box(facadePoint(axis, length / 2, baseY + 22.48, .5),
-        [length, .22, .45], STONE_LIGHT, yaw);
-    }
+function addRussianEmbassy(builder:DetailBuilder,fine:DetailBuilder):void {
+ const profile=UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.russianEmbassy,baseY=profile.anchorWorldM[1];
+ const warm=0xd6ceb8,shadow=0xaaa28d,highlight=0xe2dac7,glass=0x496064;
+ const arc=(axis:FacadeAxis,u:number,y:number,r:number,depth:number)=>{for(let i=0;i<18;i++){const a=i*Math.PI/18,c=(i+1)*Math.PI/18;fine.beam(facadePoint(axis,u+Math.cos(a)*r,y+Math.sin(a)*r,depth),facadePoint(axis,u+Math.cos(c)*r,y+Math.sin(c)*r,depth),.16,highlight);}};
+ for(const [section,axis]of profile.frontageAxes.entries()){
+  const length=axisLength(axis),yaw=axisYaw(axis),central=section===2,pavilion=section===0||section===4,bays=central?3:pavilion?5:4,pitch=length/bays;
+  builder.box(facadePoint(axis,length/2,baseY+2.1,.28),[length,4.2,.35],shadow,yaw);
+  // The actual outer pavilions carry five window axes in a six-column colossal order.
+  for(let bay=0;bay<bays;bay++){
+   const u=(bay+.5)*pitch;
+   for(const[y,h]of central?[[7.1,3.0],[14.4,8.2]]:[[7.2,3.3],[12.5,3.25],[17.9,3.3]]){
+    builder.box(facadePoint(axis,u,baseY+y,.40),[pitch*.56,h,.18],glass,yaw);
+    for(const sign of[-1,1])builder.box(facadePoint(axis,u+sign*pitch*.3,baseY+y,.55),[.18,h+.4,.36],highlight,yaw);
+    builder.box(facadePoint(axis,u,baseY+y-h/2-.24,.59),[pitch*.72,.34,.57],highlight,yaw);
+    builder.box(facadePoint(axis,u,baseY+y+h/2+.15,.58),[pitch*.7,.25,.42],warm,yaw);
+    fine.box(facadePoint(axis,u,baseY+y,.56),[.085,h,.085],0xb5b9ac,yaw);
+    for(const dy of[-h*.22,h*.22])fine.box(facadePoint(axis,u,baseY+y+dy,.56),[pitch*.55,.085,.085],0xb5b9ac,yaw);
+    if(y>17||central&&y>10)arc(axis,u,baseY+y+h/2+.18,pitch*.32,.61);
+   }
+   builder.box(facadePoint(axis,u,baseY+1.93,.52),[pitch*.49,2.9,.18],0x344146,yaw);
   }
-  // The official LoD2 tower part fixes this rear-world position and top.
-  const [towerX, towerZ] = profile.towerWorldXZ;
-  for (const [x, z] of [
-    [towerX - 2.0, towerZ - 3.15],
-    [towerX + 2.0, towerZ - 3.15],
-    [towerX - 2.0, towerZ + 3.15],
-    [towerX + 2.0, towerZ + 3.15],
-  ] as const) {
-    builder.column([x, baseY + 26.1, z], 0.55, 6.9, STONE_LIGHT);
-  }
-  builder.box(
-    [towerX, baseY + 22.75, towerZ],
-    [5.2, 0.65, 7.8],
-    STONE,
-  );
-  builder.box(
-    [towerX, baseY + 29.75, towerZ],
-    [5.7, 0.7, 8.3],
-    STONE_LIGHT,
-  );
-  builder.column([towerX, baseY + 34.0, towerZ], 0.13, 7.8, METAL);
-  for (const [offsetY, color] of [
-    [36.45, WHITE],
-    [36.1, BLUE],
-    [35.75, RED],
-  ] as const) {
-    builder.box([towerX + 0.9, baseY + offsetY, towerZ], [1.8, 0.34, 0.08], color);
-  }
-
+  for(const[y,h]of[[4.35,.43],[20.65,.42],[21.25,.65],[22.05,.37]])builder.box(facadePoint(axis,length/2,baseY+y,.57),[length+.24,h,.83],highlight,yaw);
+  // Horizontal stone joints and alternating corner quoins articulate the podium.
+  for(let row=0;row<10;row++)fine.box(facadePoint(axis,length/2,baseY+.24+row*.42,.51),[length,.055,.045],0x8e897c,yaw);
+  for(let row=0;row<17;row++)for(const u of[.42,length-.42])fine.box(facadePoint(axis,u,baseY+4.8+row*.96,.64),[row%2?1.35:.96,.10,.07],shadow,yaw);
+  if(pavilion){for(let i=0;i<=5;i++){
+   const u=.45+i*(length-.9)/5;
+   builder.column(facadePoint(axis,u,baseY+12.5,.67),.94,15.35,warm);
+   for(const y of[4.83,5.17,19.95,20.28])builder.box(facadePoint(axis,u,baseY+y,.74),[1.21,.25,1.06],highlight,yaw);
+   for(const du of[-.31,-.155,0,.155,.31])fine.box(facadePoint(axis,u+du,baseY+12.5,1.06),[.045,14.35,.06],shadow,yaw);
+  }}
+  for(let i=0;i<Math.floor(length/.72);i++)fine.box(facadePoint(axis,.45+i*.72,baseY+20.84,1.0),[.24,.28,.4],warm,yaw);
+ }
+ const axis=profile.frontageAxes[2],length=axisLength(axis),yaw=axisYaw(axis);
+ builder.box(facadePoint(axis,length/2,baseY+2.1,.73),[5.05,4.0,.2],0x283438,yaw);
+ builder.box(facadePoint(axis,length/2,baseY+4.83,1),[8.0,.65,.7],highlight,yaw);
+ // Shallow carved central frieze: wreath and six folded banner cues, no texture.
+ for(let i=0;i<24;i++){const t=i*Math.PI/12;fine.column(facadePoint(axis,length/2+Math.cos(t)*1.1,baseY+5.68+Math.sin(t)*.5,.94),.13,.18,shadow);}
+ for(const side of[-1,1])for(let i=0;i<3;i++)fine.beam(facadePoint(axis,length/2+side*1.3,baseY+5.12,.94),facadePoint(axis,length/2+side*(2.1+i*.55),baseY+6.2,.94),.15,warm);
+ // DOP 2025 resolves the front central lantern; the retained rear chimney is separate.
+ const[towerX,towerZ]=profile.towerWorldXZ;
+ const towerAxis:FacadeAxis={startWorldXZ:[towerX-8.98,towerZ-7.85],endWorldXZ:[towerX+8.93,towerZ-9.37],outwardSide:1};
+ builder.box([towerX,baseY+25.65,towerZ],[18.2,5.8,17.5],warm,yaw);
+ for(const y of[28.45,29.1])builder.box([towerX,baseY+y,towerZ],[18.7,.52,18.0],highlight,yaw);
+ for(const side of[-1,1])for(let row=0;row<5;row++)builder.box(facadePoint(towerAxis,side<0?.62:axisLength(towerAxis)-.62,baseY+23.15+row*.96,.1),[1.24,.84,1.25],warm,yaw);
+ // Square lantern with three open bays on each side and a coffered upper cap.
+ for(const sign of[-1,1])for(const u of[-4.5,0,4.5]){
+  for(const transpose of[false,true]){const dx=transpose?sign*4.5:u,dz=transpose?u:sign*4.5;builder.box([towerX+dx,baseY+33.2,towerZ+dz],[.64,7.2,.64],highlight,yaw);}
+ }
+ for(const[y,w,d,h]of[[29.65,10.5,10.5,.7],[36.98,11.3,11.3,.7],[37.65,10.75,10.75,.5]])builder.box([towerX,baseY+y,towerZ],[w,h,d],highlight,yaw);
+ builder.box([towerX,baseY+30.05,towerZ],[8.8,.12,8.8],0x8f8c80,yaw);
+ // Four sandstone figures distinguish the lower tower corners.
+ for(const dx of[-7.6,7.6])for(const dz of[-7.3,7.3]){
+  builder.box([towerX+dx,baseY+29.7,towerZ+dz],[1.2,.5,1.2],warm,yaw);
+  builder.column([towerX+dx,baseY+31.05,towerZ+dz],.67,2.25,warm);
+  builder.column([towerX+dx,baseY+32.45,towerZ+dz],.5,.61,highlight);
+  for(const side of[-1,1])builder.beam([towerX+dx,baseY+31.75,towerZ+dz],[towerX+dx+side*.56,baseY+30.9,towerZ+dz+.18],.19,warm);
+ }
+ builder.column([towerX,baseY+40.75,towerZ],.13,6.2,METAL);
+ for(const[dy,color]of[[42.5,WHITE],[42.12,BLUE],[41.74,RED]]as const)builder.box([towerX+.95,baseY+dy,towerZ],[1.9,.36,.08],color);
+ // Source-bound forecourt enclosure, broad central vehicle gate and flank wickets.
+ const fence=profile.fenceAxis,fenceLength=axisLength(fence),fenceYaw=axisYaw(fence);
+ for(const y of[.35,2.7])builder.box(facadePoint(fence,fenceLength/2,baseY+y,0),[fenceLength,.14,.14],METAL,fenceYaw);
+ for(let u=.15;u<fenceLength;u+=.44){fine.column(facadePoint(fence,u,baseY+1.57,0),.09,2.55,METAL);fine.box(facadePoint(fence,u,baseY+2.98,0),[.13,.22,.13],0xa28c52,fenceYaw);}
+ for(const u of[0,4.9,fenceLength/2-3.2,fenceLength/2+3.2,fenceLength-4.9,fenceLength]){
+  builder.box(facadePoint(fence,u,baseY+1.6,0),[.55,3.2,.55],warm,fenceYaw);builder.box(facadePoint(fence,u,baseY+3.31,0),[.7,.22,.7],highlight,fenceYaw);
+ }
+ for(const u of[2.6,fenceLength-2.6]){
+  builder.box(facadePoint(fence,u,baseY+1.92,-1.45),[3.4,3.84,2.9],warm,fenceYaw);
+  builder.box(facadePoint(fence,u,baseY+4.02,-1.4),[3.75,.36,3.2],highlight,fenceYaw);
+  builder.box(facadePoint(fence,u,baseY+1.48,.045),[1.27,2.8,.12],METAL,fenceYaw);arc(fence,u,baseY+2.76,.76,.09);
+ }
 }
 
 function addAeroflot(

@@ -52,7 +52,10 @@ export const UNTER_DEN_LINDEN_DETAILS_PROFILE = {
         { startWorldXZ: [829.27, 299.461], endWorldXZ: [853.256, 297.429], outwardSide: 1 },
       ] satisfies readonly FacadeAxis[],
       officialMonumentId: "09075006",
-      towerWorldXZ: [797.78, 357.151] as const,
+      previousMistakenLanternWorldXZ: [797.78, 357.151] as const,
+      towerWorldXZ: [805.25, 325.5] as const,
+      towerPlacementStatus: "DOP 2025 central front risalit; ±1 m display fit, separate from retained rear chimney DEBE3DmaCMlAOled",
+      fenceAxis: { startWorldXZ: [776.098, 304.169], endWorldXZ: [829.27, 299.461], outwardSide: 1 } satisfies FacadeAxis,
       sourceHeightM: 30.318,
     },
     aeroflot: {

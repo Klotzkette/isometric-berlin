@@ -58,6 +58,8 @@ def test_tiles_for_regierungsviertel_bounds_are_minimal() -> None:
     "391_5819",
     "391_5820",
     "391_5821",
+    "392_5819",
+    "392_5820",
   ]
 
 

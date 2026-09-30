@@ -71,6 +71,11 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     return group;
   }
   const modules = {
+    "./EastCivicArchitecture": { createEastCivicArchitecture: () => model("East civic") },
+    "./DhmArchitecture": { createDhmArchitecture: () => model("DHM") },
+    "./RussianEmbassySourceGeometry": { createRussianEmbassySourceGeometry: () => model("Russian embassy source") },
+    "./SchlossEastOutlines": { createSchlossEastOutlines: () => model("East outlines") },
+    "./SchlossEastStreets": { createSchlossEastStreets: () => model("East streets") },
     "./PalacesAndFriedrich": { createPalacesAndFriedrich: () => model("Eastern palais") },
     "./JamesSimonArchitecture": { createJamesSimonArchitecture: () => model("James-Simon") },
     "./KomischeOperSourceGeometry": { createKomischeOperSourceGeometry: () => model("Komische Oper") },
@@ -166,7 +171,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(23);
+  expect(h.built).toHaveLength(27); // Four new dry-ground model stages; streets wait for ground.
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
   expect(h.runtime.signatures.getObjectByName("drawn bridge structures")).toBeDefined();

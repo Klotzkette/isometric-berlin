@@ -1,0 +1,20 @@
+{
+  "DomAltesMuseum/full": {
+    "hash": "3b8c9272e8a17f3dfd7321be7663c8db44686a763ea4667e7cd3a9a5ccdb3ade",
+    "budget": {
+      "bytes": 1324568,
+      "draws": 1,
+      "instances": 17420,
+      "vertices": 24
+    }
+  },
+  "DomAltesMuseum/mobile": {
+    "hash": "1a8b9ca30a73a834381398308ec5a902f9d5b33577ab764b30d98348e22fd3f1",
+    "budget": {
+      "bytes": 909760,
+      "draws": 1,
+      "instances": 11962,
+      "vertices": 24
+    }
+  }
+}

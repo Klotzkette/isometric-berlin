@@ -1,3 +1,7 @@
+import { DHM_PARTS, DHM_PRISM_IDS, dhmPartBaseAt, dhmPartRoofAt } from "./dhmProfile";
+import { eastCivicSourceForPrism, eastCivicPartBaseAt, eastCivicPartRoofAt, EAST_CIVIC_LOGGIA_POSTS } from "./eastCivicProfile";
+import { RUSSIAN_EMBASSY_SOURCE_IDS, RUSSIAN_EMBASSY_SOURCE_PARTS, RUSSIAN_EMBASSY_SOURCE_DY, russianEmbassyRoofAt } from "./RussianEmbassySourceGeometry";
+import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE, fernsehturmOutlineSolidAt } from "./schlossEastProfile";
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
@@ -164,6 +168,8 @@ export type PedestrianCircleObstacle = PedestrianObstacleBase & {
   kind: "circle";
   /** Only decoded source trees follow Minecraft's reversible density filter. */
   parkTree?: "ordinary" | "lenne-oak";
+  /** A bounded authored radial shape may vary with height instead of filling a cylinder. */
+  solidAt?: (x: number, y: number, z: number, radius?: number) => boolean;
   radius: number;
   x: number;
   z: number;
@@ -678,6 +684,53 @@ export function compilePedestrianObstacles(
       }
       continue;
     }
+    const civicEast = eastCivicSourceForPrism(building.id);
+    if (civicEast) {
+      const key = `east-civic-${civicEast.key}`;
+      if (!replacedParents.has(key)) {
+        replacedParents.add(key);
+        for (const part of civicEast.parts) {
+          // The specific pitched glass atrium replaces the overlapping coarse
+          // parent roof. A real hole also prevents padded-edge roof fallback
+          // from creating an invisible support above the glass. Source is intact.
+          const atrium = part.id === "DEBE3DYaStnJ2Nlk"
+            ? civicEast.parts.find(p => p.id === "DEBE3DJrlFgy3FFk") : undefined;
+          const holes = atrium ? [...part.holes, atrium.ring] : part.holes;
+          addPolygonObstacle(index, part.ring, holes, eastCivicPartBaseAt(part), part.top_y_m, part.id, 1,
+            (x,z) => eastCivicPartRoofAt(part,x,z));
+          index.buildingCount += 1;
+        }
+        if (civicEast.key === "foreignOfficeNew") {
+          for (const [post, [x, z]] of EAST_CIVIC_LOGGIA_POSTS.entries()) {
+            addPolygonObstacle(index, [[x-.55,z-.55],[x+.55,z-.55],[x+.55,z+.55],[x-.55,z+.55]],
+              [], 5.2, 27.5, `aa-loggia-post-${post}`, 1);
+          }
+        }
+      }
+      continue;
+    }
+    if (DHM_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("dhm-v148")) {
+        replacedParents.add("dhm-v148");
+        for (const part of DHM_PARTS) {
+          addPolygonObstacle(index,part.ring,part.holes,dhmPartBaseAt(part),part.top_y_m,part.id,1,
+            (x,z) => dhmPartRoofAt(part,x,z));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (RUSSIAN_EMBASSY_SOURCE_IDS.has(building.id)) {
+      if (!replacedParents.has("embassy-v148")) {
+        replacedParents.add("embassy-v148");
+        for (const part of RUSSIAN_EMBASSY_SOURCE_PARTS) {
+          addPolygonObstacle(index,part.ring,part.holes,part.ground_y_m+RUSSIAN_EMBASSY_SOURCE_DY,
+            part.top_y_m+RUSSIAN_EMBASSY_SOURCE_DY,part.id,1,(x,z)=>russianEmbassyRoofAt(x,z,part.id));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     const mitteSource = GORKI_BUILDING_PRISM_IDS.has(building.id) ? GORKI_BUILDING_SOURCE :
       BEHREN42_PRISM_IDS.has(building.id) ? BEHREN42_SOURCE : null;
     if (mitteSource) {
@@ -869,6 +922,23 @@ export function compilePedestrianObstacles(
         upper.bottomY, upper.topY, upper.displayPrismId, 1,
         () => visualMode() === "minecraft" ? upper.topY : Number.NEGATIVE_INFINITY);
     }
+    index.buildingCount += 1;
+  }
+  if (prisms.buildings.some(b => DHM_PRISM_IDS.has(b.id))) {
+    for (const part of SCHLOSS_EAST_PARTS) {
+      if (FERNSEHTURM_PROFILE.sourcePartIds.includes(part.id)) continue;
+      addPolygonObstacle(index,part.ring,part.holes,part.ground_y_m,part.top_y_m,part.id,1,
+        (x,z)=>bebelplatzPartRoofAt(part,x,z));
+      index.buildingCount += 1;
+    }
+    const p = FERNSEHTURM_PROFILE;
+    const radius = Math.max(p.footRadius, p.sphereRadius);
+    addObstacle(index, { kind: "circle", sourceId: "fernsehturm-outline",
+      x: p.x, z: p.z, radius, minX: p.x-radius, maxX: p.x+radius,
+      minZ: p.z-radius, maxZ: p.z+radius, minY: p.groundY,
+      maxY: p.groundY+p.totalHeight,
+      solidAt: (x, y, z, bodyRadius = 0) => fernsehturmOutlineSolidAt(x, z, y, bodyRadius),
+    });
     index.buildingCount += 1;
   }
   if (prisms.buildings.some(building => ROHWEDDER_HAUS_IDS.has(building.id))) {
@@ -1374,6 +1444,10 @@ export function pedestrianPointIsBlocked(
       continue;
     }
     if (obstacle.kind === "circle") {
+      if (obstacle.solidAt) {
+        if (pedestrianBodyTouchesInteriorSolid(x, z, bodyBottomY, obstacle.solidAt)) return true;
+        continue;
+      }
       if (
         obstacle.parkTree &&
         access?.parkTreeSolidAt?.(

@@ -44,6 +44,12 @@ in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/boun
 Its presentation radius is 6,450 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
+The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
+Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
+The complete task-13 bounds remain in `bounds-task13.geojson`; the existing
+93-place tour and detailed city must remain intact. This narrow extension is
+not authorization for an unbounded whole-city rebuild.
+
 **Owner quality-preservation policy (v1.0.41):** Performance work must not remove
 visible source geometry, roads, paths, shorelines, facade details or monuments.
 Retaining source files while omitting their rendered layers is a quality loss.

@@ -63,6 +63,21 @@ def owned_surfaces(source: dict[str, Any], root: Path) -> BaseGeometry:
       base64.b64decode(surface["indices_b64"]), dtype="<u4"
     ).reshape(-1, 3)
     owners.append(unary_union(shapely.polygons(positions[indices])))
+  # v148 owns only its added mapped road/pavement footprints, never the
+  # neutral preview backing plate or a whole rectangular district.
+  east_path = root / "src/app/src/data/schlossEastStreets.json"
+  if east_path.exists():
+    for surface in json.loads(east_path.read_text())["surfaces"]:
+      points = (
+        np.frombuffer(
+          base64.b64decode(surface["positions_cm_b64"]), dtype="<i4"
+        ).reshape(-1, 2)
+        / 100
+      )
+      indices = np.frombuffer(
+        base64.b64decode(surface["indices_b64"]), dtype="<u4"
+      ).reshape(-1, 3)
+      owners.append(unary_union(shapely.polygons(points[indices])))
   owners.extend(Polygon(p["ring"], p["holes"]) for p in source["approach"])
   p = source["bebel"]
   owners.append(box(p["minX"], p["minZ"], p["maxX"], p["maxZ"]))
@@ -124,7 +139,25 @@ def build(source: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
   for source_index, road in enumerate(source["roads"]):
     kind = road["kind"]
     polygon = shapely.make_valid(Polygon(road["ring"], road["holes"]))
-    restored = polygon.difference(owned)
+    # Restrict the expensive overlay to the road's own bounding rectangle.
+    # The one-metre margin lies strictly outside every point of this road;
+    # clipping there cannot remove any ownership that intersects the source.
+    # This keeps added centimetre-precise pavement seams from making every
+    # unrelated road perform a full-city polygon overlay during generation.
+    x0, z0, x1, z1 = polygon.bounds
+    local_owned = unary_union(
+      polygons(
+        shapely.make_valid(shapely.clip_by_rect(owned, x0 - 1, z0 - 1, x1 + 1, z1 + 1))
+      )
+    )
+    local_kerb_owned = unary_union(
+      polygons(
+        shapely.make_valid(
+          shapely.clip_by_rect(kerb_owned, x0 - 1, z0 - 1, x1 + 1, z1 + 1)
+        )
+      )
+    )
+    restored = polygon.difference(local_owned)
     item = inventory.setdefault(
       kind,
       {
@@ -141,7 +174,10 @@ def build(source: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
     item["records"] += 1
     item["source_area_m2"] += polygon.area
     item["restored_area_m2"] += restored.area
-    item["owned_area_m2"] += polygon.intersection(owned).area
+    # The exact difference already partitions this polygon. Derive the
+    # complementary owned area from that result: a second GEOS intersection
+    # can assert on coincident zero-area seams left by centimetre triangles.
+    item["owned_area_m2"] += polygon.area - restored.area
     for part in polygons(restored):
       x0, z0, x1, z1 = part.bounds
       for ix in range(math.floor(x0 / TILE_M), math.floor(x1 / TILE_M) + 1):
@@ -163,7 +199,7 @@ def build(source: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
       for ring in [road["ring"], *road["holes"]]:
         if len(ring) < 3:
           continue
-        for line in lines(LineString([*ring, ring[0]]).difference(kerb_owned)):
+        for line in lines(LineString([*ring, ring[0]]).difference(local_kerb_owned)):
           points = list(line.coords)
           for a, b in zip(points, points[1:]):
             if math.dist(a, b) < 0.05:
@@ -225,10 +261,16 @@ def build(source: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
     "district_sha256": hashlib.sha256(
       (root / "src/app/src/data/districtStreets.json").read_bytes()
     ).hexdigest(),
+    "east_streets_sha256": hashlib.sha256(
+      (root / "src/app/src/data/schlossEastStreets.json").read_bytes()
+    ).hexdigest()
+    if (root / "src/app/src/data/schlossEastStreets.json").exists()
+    else None,
     "tile_m": TILE_M,
     "inventory": inventory,
     "ownership": [
       "DistrictStreets exact triangles",
+      "Schloss east exact added road and pavement triangles",
       "Brandenburg approach",
       "Bebelplatz glass/library",
       "Hansaplatz courts/U9/buildings",

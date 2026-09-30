@@ -72,19 +72,19 @@ def test_outer_ring_and_properties() -> None:
   fc = cb.load_geojson(BOUNDS)
   ring = cb.outer_ring(fc)
   assert ring[0] == ring[-1], "ring must be closed"
-  assert ring == TASK_13_RING
+  assert cb.validate_ring(ring) == []
   props = cb.bounds_properties(fc)
   assert props["name"] == (
-    "Regierungsviertel bounds — task-13 additional 500 m context expansion"
+    "Regierungsviertel bounds — v1.0.48 eastern outline extension"
   )
-  assert "additional metric 500 m outward buffer" in props["description"]
-  assert "exactly 500 m" in props["source"]
+  assert "Complete retained task-13" in props["description"]
+  assert "No previous area is removed" in props["source"]
 
 
 def test_task_13_is_reproducible_exact_500_m_expansion_of_task_12() -> None:
   task_12 = cb.build_feature_collection(TASK_12_RING, "task-12", "", "")
   generated = cb.expand_feature_collection(task_12, 500.0)
-  committed = cb.load_geojson(BOUNDS)
+  committed = cb.load_geojson(BOUNDS.with_name("bounds-task13.geojson"))
 
   assert cb.outer_ring(generated) == TASK_13_RING
   assert cb.outer_ring(committed) == TASK_13_RING

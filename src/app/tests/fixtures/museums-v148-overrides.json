@@ -1,0 +1,14 @@
+{
+  "dom": {
+    "bytes": 1037604,
+    "draws": 16,
+    "instances": 8670,
+    "vertices": 353304
+  },
+  "domMC": {
+    "bytes": 1324568,
+    "draws": 1,
+    "instances": 17420,
+    "vertices": 418080
+  }
+}

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.47 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.47/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.48 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.48/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,21 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.47** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.48** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.48 completes the Friedrichswerder church towers and Foreign Office,
+refines the Russian Embassy, DHM with Pei's transparent spiral stair, Gorki
+Theatre and Altes Museum columns and bronze equestrian groups. A narrow,
+explicitly requested eastern extension adds initial vector silhouettes of
+Alexanderplatz station, Fernsehturm and Rotes Rathaus, linked by mapped roads.
+The existing 93-stop tour and complete prior city remain.
+[Scope, preservation and validation](docs/release-v1.0.48-review.md).
+
+Version 1.0.48 ergänzt beide Türme der Friedrichswerderschen Kirche und das
+Auswärtige Amt. Russische Botschaft, DHM/Pei-Bau, Gorki-Theater sowie Säulen und
+Bronzegruppen des Alten Museums werden genauer. Bahnhof Alexanderplatz,
+Fernsehturm und Rotes Rathaus erscheinen zunächst als geometrische Umrisse.
 
 Version 1.0.47 refines Unter den Linden and the Museum Island ensemble:
 Friedrich the Great's equestrian monument, both palais, the Schloss cupola and

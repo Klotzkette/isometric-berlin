@@ -1,3 +1,5 @@
+import { eastCivicWalkableAt } from "./eastCivicProfile";
+import { dhmWalkableAt } from "./dhmProfile";
 import {
   brandenburgGateWalkableAt,
   minecraftHeroCollisionEnabled,
@@ -34,6 +36,8 @@ export function visualModeWalkableInteriorAt(
   z: number,
   sourceBuildingId?: string,
 ): boolean {
+  if (eastCivicWalkableAt(x, y, z, sourceBuildingId) ||
+      dhmWalkableAt(x, y, z, sourceBuildingId)) return true;
   if (wagnerMemorialWalkableInteriorAt(x, y, z, sourceBuildingId)) {
     return true;
   }

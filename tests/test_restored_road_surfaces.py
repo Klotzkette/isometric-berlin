@@ -57,6 +57,12 @@ def test_cache_binds_all_retained_source_roads_and_exact_replacements(
       (ROOT / "src/app/src/data/districtStreets.json").read_bytes()
     ).hexdigest()
   )
+  assert (
+    payload["east_streets_sha256"]
+    == hashlib.sha256(
+      (ROOT / "src/app/src/data/schlossEastStreets.json").read_bytes()
+    ).hexdigest()
+  )
   source = json.loads(SOURCE.read_text())
   for kind, expected in (("asphalt", 948), ("paving", 1483)):
     item = payload["inventory"][kind]
@@ -75,6 +81,7 @@ def test_cache_binds_all_retained_source_roads_and_exact_replacements(
     )
   assert set(payload["ownership"]) == {
     "DistrictStreets exact triangles",
+    "Schloss east exact added road and pavement triangles",
     "Brandenburg approach",
     "Bebelplatz glass/library",
     "Hansaplatz courts/U9/buildings",

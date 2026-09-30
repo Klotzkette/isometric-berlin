@@ -1,0 +1,11 @@
+{
+  "DomAltesMuseum": {
+    "hash": "78715b6989fba9d748d03a165d815fb5e02555274dc7eac447480fde7f2b4d48",
+    "budget": {
+      "bytes": 1037604,
+      "draws": 16,
+      "instances": 8670,
+      "vertices": 10279
+    }
+  }
+}

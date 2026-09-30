@@ -20,6 +20,11 @@ export const ALTES_PROFILE = {
   colonnadeTop: 22.45, entablatureTop: 24.53, columns: 18,
   rotundaTop: 32.211,
 };
+/** Exact committed OSM anchors; published sculpture heights exclude stone pedestals. */
+export const ALTES_EQUESTRIAN_GROUPS = [
+  { node: "4353173360", name: "Löwenkämpfer", author: "Albert Wolff after Christian Daniel Rauch", worldXZ: [1860.436566,15.845902] as const, yaw: ALTES_PROFILE.yaw+Math.PI, amazon: false, material: "cast bronze", publishedHeightM: 4.45, sourceUrl: "https://bildhauerei-in-berlin.de/bildwerk/loewenkaempfer-5364/" },
+  { node: "4353173363", name: "Amazone", author: "August Kiß", worldXZ: [1887.187458,-.040784] as const, yaw: ALTES_PROFILE.yaw, amazon: true, material: "cast bronze", publishedHeightM: 3.6, publishedHeightExcludes: "lance", sourceUrl: "https://bildhauerei-in-berlin.de/bildwerk/amazone-4936/" },
+] as const;
 export const GRANITE_BOWL_PROFILE = {
   node: "376689138", centre: [1880.092031, 19.330824] as const,
   ground: 5.2, diameterM: 6.9, plinthRadius: 4.42,
@@ -111,7 +116,7 @@ export function altesLocal(x:number,z:number):[number,number] {
 export function domAltesExtraSolidAt(x:number,y:number,z:number,radius=0):boolean {
   if(x<1800||x>2060||z< -70||z>80)return false;
   const [u,v]=altesLocal(x,z),p=ALTES_PROFILE;
-  if(y>=22.5-radius&&y<=24.53+radius&&Math.abs(u)<=42.7+radius&&Math.abs(v-2.5)<=4.35+radius)return true;
+  if(y>=22.5-radius&&y<=24.53+radius&&Math.abs(u)<=42.7+radius&&Math.abs(v)<=3.85+radius)return true;
   if(y>=p.deck-radius&&y<=p.colonnadeTop+.3+radius)
     for(let i=0;i<p.columns;i++)if(Math.hypot(u-(-39.8+i*79.6/17),v-2.6)<=.85+radius)return true;
   const b=GRANITE_BOWL_PROFILE,r=Math.hypot(x-b.centre[0],z-b.centre[1]);
@@ -123,7 +128,7 @@ export function domAltesExtraSolidAt(x:number,y:number,z:number,radius=0):boolea
 export function domAltesExtraGroundAt(x:number,z:number,referenceFeetY:number):number|null {
   const [u,v]=altesLocal(x,z);let result:number|null=null;
   const accept=(y:number)=>{if(y<=referenceFeetY+.52)result=Math.max(result??-Infinity,y);};
-  if(Math.abs(u)<=42.7&&Math.abs(v-2.5)<=4.35) {if(v<=3.5)accept(ALTES_PROFILE.deck);accept(ALTES_PROFILE.entablatureTop);}
+  if(Math.abs(u)<=42.7&&Math.abs(v)<=3.85) {if(v<=3.5)accept(ALTES_PROFILE.deck);accept(ALTES_PROFILE.entablatureTop);}
   if(Math.abs(u)<=12&&v>=4.04&&v<=9.56) {const i=Math.max(0,Math.min(20,Math.floor((v-4.04)/.26)));accept(5.22+(21-i)*(ALTES_PROFILE.deck-5.22)/21+.08);}
   const b=GRANITE_BOWL_PROFILE,r=Math.hypot(x-b.centre[0],z-b.centre[1]);if(r<=b.plinthRadius)accept(b.ground+.26);
   if(r<=3.45)accept(6.39+1.08*(r/3.45)**2.45);

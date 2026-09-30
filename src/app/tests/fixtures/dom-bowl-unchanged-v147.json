@@ -1,0 +1,29 @@
+{
+  "drawn": {
+    "hash": "642e9d0b6adf63595010ae3dbc26b843ce8c4faa1e047be1d3571373ee41b0cb",
+    "budget": {
+      "bytes": 689628,
+      "draws": 13,
+      "instances": 4848,
+      "vertices": 8819
+    }
+  },
+  "nativeFull": {
+    "hash": "623750d86dc33d150c90e784bd42aa5e22a36ebf24e1552c63e5dface636c47e",
+    "budget": {
+      "bytes": 857928,
+      "draws": 1,
+      "instances": 11280,
+      "vertices": 24
+    }
+  },
+  "nativeMobile": {
+    "hash": "73b49ce2c3d8d4e6cb30367b38da8f2fa0a193b381d44e4896f970a6b61752a9",
+    "budget": {
+      "bytes": 514408,
+      "draws": 1,
+      "instances": 6760,
+      "vertices": 24
+    }
+  }
+}

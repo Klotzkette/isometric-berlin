@@ -1,3 +1,4 @@
+import overridesV148 from "./fixtures/museums-v148-overrides.json";
 import {describe,expect,test} from 'bun:test';
 import {Box3,BoxGeometry,Color,Group,InstancedMesh,Matrix4,Mesh,MeshBasicMaterial,MeshStandardMaterial,Raycaster,Vector3} from 'three';
 import {createJamesSimonArchitecture} from '../src/JamesSimonArchitecture';
@@ -59,9 +60,11 @@ describe('museum source-preserving refinement v1.0.47',()=>{
  test('bowl keeps its exact OSM anchor, open cavity and rounded polished red-granite lip',()=>{
   const root=createDomAltesMuseum(),bowl=root.getObjectByName('Granitschale hollow polished red-granite basin') as Mesh;root.updateMatrixWorld(true);expect([bowl.position.x,bowl.position.z]).toEqual([...B.centre]);const box=new Box3().setFromObject(bowl);expect(box.max.x-box.min.x).toBeCloseTo(6.9,3);expect(box.max.y).toBeCloseTo(7.47,3);expect(bowl.geometry.getAttribute('color')).toBeDefined();expect((bowl.userData.nightMaterial as MeshStandardMaterial).roughness).toBe(.24);const hit=new Raycaster(new Vector3(B.centre[0],10,B.centre[1]),new Vector3(0,-1,0)).intersectObject(bowl)[0];expect(hit.point.y).toBeCloseTo(6.39,2);
  });
- test('v147 full budgets retain historical baselines and an explicit bounded delta',()=>{
+ test('v147 budgets stay frozen with explicit owner-requested v148 Altes overrides',()=>{
+  expect(MUSEUMS_V147_BUDGETS.current.dom).toEqual({bytes:876008,draws:14,instances:6830,vertices:230336});
+  expect(MUSEUMS_V147_BUDGETS.current.domMC).toEqual({bytes:1210720,draws:1,instances:15922,vertices:382128});
   const rows={dom:createDomAltesMuseum(),domMC:createDomAltesMuseum({minecraft:true}),triad:createMuseumTriadArchitecture(),triadMC:createMuseumTriadArchitecture({minecraft:true}),spree:createSpreeMuseumDetails(),spreeMC:createMinecraftSpreeMuseumDetails(),james:createJamesSimonArchitecture(),jamesMC:createJamesSimonArchitecture({minecraft:true})};
-  for(const [name,root] of Object.entries(rows))expect(budget(root)).toEqual(MUSEUMS_V147_BUDGETS.current[name as keyof typeof rows]);
+  for(const [name,root] of Object.entries(rows))expect(budget(root)).toEqual(overridesV148[name as keyof typeof overridesV148] ?? MUSEUMS_V147_BUDGETS.current[name as keyof typeof rows]);
   expect(budget(createJamesSimonArchitecture({mobileLike:true}))).toEqual(budget(rows.james));expect(budget(createDomAltesMuseum({mobileLike:true}))).toEqual(budget(rows.dom));expect(budget(createMuseumTriadArchitecture({mobileLike:true}))).toEqual(budget(rows.triad));
   const native=createJamesSimonArchitecture({minecraft:true,mobileLike:true});expect(native.children).toHaveLength(1);expect(native.children[0]).toBeInstanceOf(InstancedMesh);expect((native.children[0] as InstancedMesh).count).toBeLessThan(2200);expect(JAMES_SIMON_PROFILE.catalogueAddition).toBeFalse();
  });

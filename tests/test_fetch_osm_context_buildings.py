@@ -190,7 +190,18 @@ def test_committed_context_sidecar_is_bounded_and_compact() -> None:
     .to_crs(BERLIN_PROJECTED)
     .iloc[0]
   )
-  assert context.geometry.difference(bounds).area.max() < 1e-6
+  # The unchanged task-13 sidecar is still exactly inside its source bounds.
+  previous = (
+    gpd.GeoSeries(
+      [load_bounds_polygon(BOUNDS.with_name("bounds-task13.geojson"))], crs="EPSG:4326"
+    )
+    .to_crs(BERLIN_PROJECTED)
+    .iloc[0]
+  )
+  assert context.geometry.difference(previous).area.max() < 1e-6
+  # Adding boundary vertices at the narrow east lobe changes projected chord
+  # interpolation by micrometres. No sidecar geometry is clipped or removed.
+  assert context.geometry.difference(bounds.buffer(0.0001)).area.max() < 1e-6
   official = gpd.read_file(OFFICIAL, layer="buildings")
   official_union = official.geometry.union_all()
   assert not context.geometry.representative_point().covered_by(official_union).any()

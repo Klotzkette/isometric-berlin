@@ -11,6 +11,8 @@ export const GORKI_BUILDING_PROFILE = {
   westAxis: [[1592.372, 7.872], [1595.367, 34.967]],
   entranceCount: 3,
   giantPilasterCount: 4,
+  pairedGryphonReliefFields: 3,
+  corinthianLeafRows: 2,
   frontEavesY: 20.3,
   pedimentTopY: 23.55,
   sourceStageTopY: 26.777,

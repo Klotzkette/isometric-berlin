@@ -1,0 +1,74 @@
+{
+  "Aeroflot and Trade Mission source-bound facade": {
+    "hash": "5c4a5485d6a448a899ae94481e380615859744cfe400e67ae07328320e54b043",
+    "budget": {
+      "bytes": 7564,
+      "draws": 1,
+      "instances": 91,
+      "vertices": 24
+    }
+  },
+  "Aeroflot and Trade Mission source-bound facade fine": {
+    "hash": "f6143cec9e0eef80c371fcc49d362baf25e5728cd81cfa8758839acb46b7df0c",
+    "budget": {
+      "bytes": 19192,
+      "draws": 1,
+      "instances": 244,
+      "vertices": 24
+    }
+  },
+  "Haus Pietzsch and Einstein source-bound facade": {
+    "hash": "1d34e53eb614367e4ec369d075c154e34779943e85b9bb25e2d64542bdbf8015",
+    "budget": {
+      "bytes": 13796,
+      "draws": 1,
+      "instances": 173,
+      "vertices": 24
+    }
+  },
+  "Haus Pietzsch and Einstein source-bound facade fine": {
+    "hash": "132ce468a02275259f778908d9be0a10e4bfecd1e7ece946284a34a960e03bd8",
+    "budget": {
+      "bytes": 36444,
+      "draws": 1,
+      "instances": 471,
+      "vertices": 24
+    }
+  },
+  "Dussmann KulturKaufhaus source-bound facade": {
+    "hash": "736f86df886c5f22bab48dbcccfa7c7fe99d1d78767fe96cb6d3472a589f58e3",
+    "budget": {
+      "bytes": 26592,
+      "draws": 2,
+      "instances": 318,
+      "vertices": 88
+    }
+  },
+  "Dussmann KulturKaufhaus source-bound facade fine": {
+    "hash": "e740de5fb436ed45590eae6e497bffea8a77179753ac8ef8cc7e167032a9f79c",
+    "budget": {
+      "bytes": 29832,
+      "draws": 1,
+      "instances": 384,
+      "vertices": 24
+    }
+  },
+  "Komische Oper source-bound facade": {
+    "hash": "217761a43134b08ee6e53cbd6b8b9cfab65f364287b4a7dc4397e111acf146a0",
+    "budget": {
+      "bytes": 2548,
+      "draws": 1,
+      "instances": 25,
+      "vertices": 24
+    }
+  },
+  "Komische Oper source-bound facade fine": {
+    "hash": "0dce5728f13f6e78d6a026a48aefbd1f56df1f705532059950967a80455d0da6",
+    "budget": {
+      "bytes": 18356,
+      "draws": 1,
+      "instances": 233,
+      "vertices": 24
+    }
+  }
+}

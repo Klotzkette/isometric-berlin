@@ -1,16 +1,14 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.47 adds source-complete Palais, James-Simon, Komische Oper, U-Bahn
-// mouths and native avenue tops, plus requested museum/Schloss refinements.
-// v146 remains documented in docs/release-v1.0.47-review.md.
-// Full +19,655 instances/+1,590,092 bytes; mobile +22,053/+1,772,340 bytes.
-// Both add six draws; original sources and unrelated geometry remain.
-// Independent synchronous measurements are compared with cooperative buffers;
-// existing geometry quality and every instance capacity remain accounted for.
+// v1.0.48 adds source-complete church, Foreign Office, DHM and embassy,
+// source-bound eastern outline/street layers, and the requested Altes/Gorki detail.
+// The independent v147 full/mobile values remain in docs/release-v1.0.48-review.md.
+// No unrelated baseline is lowered; exact replacement ownership removes duplicates.
+// Independent synchronous measurements must equal cooperative construction below.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "4725f688316f57506e3d269e9531948615545e85e49a4716c2bbb67fd4a42794", 3904547, 162, 302234241],
-  ["mobile", "c011fe412b8e91120508643d2e873106c80e8ab2f63dd209a8a839f4f05b6537", 1141809, 160, 91816697],
+  ["full", "f738dcae331cd5e1294d8b310357b6bcc2af90e054bd90e1a0d5c18bf97de229", 3995398, 168, 309142997],
+  ["mobile", "13ebd55296c35f96118366a2949694062cb9da9c937f4713c8544154ab620b56", 1242109, 166, 99443577],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
