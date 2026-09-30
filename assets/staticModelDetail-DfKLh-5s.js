@@ -1,0 +1,1 @@
+function e(e=`full`){return`full`}export{e as t};
