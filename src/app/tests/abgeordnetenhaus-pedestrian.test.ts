@@ -24,6 +24,7 @@ import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
 import { ECONOMIC_MINISTRY_SOURCE_IDS } from "../src/EconomicMinistrySourceGeometry";
 import { BEBELPLATZ_BUILDING_SOURCES } from "../src/bebelplatzBuildingProfile";
 import { SCHLOSS_NATURKUNDE_SOURCES } from "../src/schlossNaturkundeProfile";
+import { GENDARMENMARKT_PERIMETER_BUILDINGS } from "../src/gendarmenmarktPerimeterProfile";
 import { GENDARMENMARKT_SOURCES } from "../src/gendarmenmarktProfile";
 import { GORKI_BUILDING_SOURCE } from "../src/gorkiBuildingProfile";
 import { BEHREN42_SOURCE } from "../src/Behren42Profile";
@@ -71,7 +72,8 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     // Naturkunde 21, Gendarmenmarkt 17, Gorki 3 and Humboldt Carre 8. They are
     // geographically separate from the unchanged Abgeordnetenhaus annexes.
     // Neue Wache's retained source ID separately follows the open authored roof.
-    // The 13 Gymnasium Neubau parts also retain their individual roof planes.
+    // The 13 Gymnasium Neubau parts and 152 complete perimeter parts
+    // also retain their individual roof planes.
     expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
       .toEqual([
         ...BELLEVUE_IDS,
@@ -90,6 +92,7 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
         ...BEBELPLATZ_BUILDING_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
         ...[...SCHLOSS_NATURKUNDE_SOURCES, ...GENDARMENMARKT_SOURCES, GORKI_BUILDING_SOURCE, BEHREN42_SOURCE]
           .flatMap(({ parts }) => parts.map(({ id }) => id)),
+        ...GENDARMENMARKT_PERIMETER_BUILDINGS.flatMap(b => b.officialParts.map(p => p.id)),
         ...NEUE_WACHE_PRISM_IDS,
         ...GRIPS_HANSAPLATZ_PRISM_IDS,
         ...GYMNASIUM_NEUBAU_PRISM_IDS,

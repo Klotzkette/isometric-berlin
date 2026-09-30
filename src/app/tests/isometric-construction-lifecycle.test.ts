@@ -75,6 +75,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./UnterDenLindenDetails": { createUnterDenLindenDetails: () => model("Unter den Linden") },
     "./AbgeordnetenhausDetails": { createAbgeordnetenhausDetails: () => model("Abgeordnetenhaus") },
     "./GropiusBauDetails": { createGropiusBauDetails: () => model("Gropius Bau") },
+    "./GendarmenmarktPerimeterShells": {
+      createGendarmenmarktPerimeterShells: () => model("Gendarmenmarkt perimeter shells"),
+      createGendarmenmarktPerimeterFacades: () => model("Gendarmenmarkt perimeter facades"),
+    },
   };
   const bindings = {
     Group, Mesh, InstancedMesh, LineSegments, Material, Texture,
@@ -158,7 +162,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(17);
+  expect(h.built).toHaveLength(19);
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
   expect(h.runtime.signatures.getObjectByName("drawn bridge structures")).toBeDefined();

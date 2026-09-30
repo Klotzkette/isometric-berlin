@@ -1,4 +1,11 @@
 import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
+import { createMinecraftGendarmenmarktPerimeterShells } from "./GendarmenmarktPerimeterShells";
+import { createGendarmenmarktPerimeterFacades } from "./GendarmenmarktPerimeterFacades";
+import { isGendarmenmarktPerimeterReplacementColumn } from "./gendarmenmarktPerimeterProfile";
+import { createMinecraftChariteHistoricFacades } from "./ChariteHistoricFacades";
+import { CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES } from "./chariteHistoricFacadeProfiles";
+import { CHARITE_VIROLOGY_IDS, HISTORIC_CHARITE_TONES } from "./HistoricChariteCampus";
+import { createChariteHistoricFacadeColumnTester, MINECRAFT_CHARITE_HISTORIC_SHELL_IDS } from "./MinecraftChariteHistoricShells";
 import { createMinecraftGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
@@ -788,6 +795,7 @@ export function isCompleteRecognitionVoxelColumn(
     isSpreeRecognitionReplacementColumn(x, z) ||
     isBebelplatzBuildingReplacementColumn(x, z) ||
     isGendarmenmarktReplacementColumn(x, z) ||
+    isGendarmenmarktPerimeterReplacementColumn(x, z) ||
     isNeueWacheReplacementColumn(x, z) ||
     isGorkiBuildingReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
@@ -1041,10 +1049,12 @@ export function buildColumnToneLookup(prisms: {
     // as the drawn world, snapped to the existing Minecraft material palette.
     const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] ?? FRIEDRICHSTRASSE_ARCHITECTURE_TONES[building.id] : undefined;
     const urban = urbanFacadeScope(building);
-    const mappedTone = corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
+    const chariteTone = building.id ? CHARITE_HISTORIC_FACADE_TONES[building.id] ??
+      (CHARITE_VIROLOGY_IDS.has(building.id) ? HISTORIC_CHARITE_TONES.virologyFacade : undefined) : undefined;
+    const mappedTone = chariteTone ?? corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
       mappedColor(attributes?.tags["building:colour"]) ??
       (building.tone ? undefined : mappedFacadeTone(attributes)));
-    if ((!building.tone && !panorama && !attributes && corridorTone === undefined) || building.ring.length < 3) {
+    if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
       continue;
     }
     const ring = building.ring.map(
@@ -1055,7 +1065,9 @@ export function buildColumnToneLookup(prisms: {
     const toned: TonedPrism = {
       id: building.id,
       attributes,
-      roofTone: urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes),
+      roofTone: (building.id ? CHARITE_HISTORIC_FACADE_ROOF_TONES[building.id] ??
+        (CHARITE_VIROLOGY_IDS.has(building.id) ? 0x77827d : undefined) : undefined) ??
+        (urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes)),
       storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
       holes: (building.holes ?? []).map((ring) => ring.map(([x, z]) => [x / 10, z / 10] as [number, number])),
       hex: panorama?.facade ?? (
@@ -2721,6 +2733,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftGendarmenmarktShells());
   group.add(createMinecraftGendarmenmarktArchitecture());
+  yield;
+  group.add(createMinecraftGendarmenmarktPerimeterShells());
+  yield;
+  group.add(createGendarmenmarktPerimeterFacades(true));
   group.add(createNeueWache(true));
   group.add(createGorkiBuilding(true));
   group.add(createGripsHansaplatz(true));
@@ -2796,8 +2812,13 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   const harbourBuildingColumnAt = createHumboldthafenBuildingColumnTester(options.sourcePrisms);
   const chariteBuildingColumnAt = createHistoricChariteColumnTester(options.sourcePrisms ?? []);
+  const historicCampusColumnAt = createChariteHistoricFacadeColumnTester(options.sourcePrisms ?? []);
+  const historicCampusIds = new Set((options.sourcePrisms ?? [])
+    .filter(part => MINECRAFT_CHARITE_HISTORIC_SHELL_IDS.has(part.id)).map(part => part.id));
   const sourcePrismPayload = { buildings: (options.sourcePrisms ?? []).filter(p => PARLIAMENT_ARCHITECTURE_IDS.has(p.id)).map(p => ({ ...p, class: 0 })), classes: [], schema_version: 1 };
   group.add(createMinecraftHistoricCharite(options.sourcePrisms ?? [], options.detailProfile ?? "full"));
+  yield;
+  group.add(createMinecraftChariteHistoricFacades({ buildings: options.sourcePrisms ?? [] }, options.detailProfile ?? "full"));
   group.add(createMinecraftParliamentArchitecture(sourcePrismPayload, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createHumboldthafenBuildingDetails(options.sourcePrisms ? { buildings: options.sourcePrisms } : undefined, { minecraft: true, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
@@ -2843,6 +2864,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !topographySourceColumnContains(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !isSovietMemorialReplacementPoint(worldXAbs(xIdx), worldZAbs(zIdx), cell*.5) &&
       !chariteBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      !historicCampusColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isSiegessaeuleSourceVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx)))
@@ -3040,6 +3062,8 @@ export function* buildMinecraftVoxelWorldSteps(
           continue;
         }
         const windowX = worldXAbs(xIdx), windowZ = worldZAbs(zIdx);
+        if (historicCampusIds.size > 0 && windowX >= 170 && windowX <= 560 && windowZ >= -1060 && windowZ <= -460 &&
+          historicCampusIds.has(toneLookup?.sourceIdAt?.(windowX, windowZ) ?? "")) continue;
         // The nine new street fronts own their full window rhythm. Keep the
         // coarse block body, but do not add a second arbitrary grid of panes.
         // Reject the rest of the city before another footprint lookup.

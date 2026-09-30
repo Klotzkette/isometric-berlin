@@ -1,4 +1,7 @@
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
+import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
+import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
+import { CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES } from "./chariteHistoricFacadeProfiles";
 import { GORKI_BUILDING_PRISM_IDS } from "./gorkiBuildingProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "./gripsHansaplatzProfile";
 import { GYMNASIUM_NEUBAU_PRISM_IDS } from "./gymnasiumTiergartenProfile";
@@ -643,6 +646,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
+  ...CHARITE_HISTORIC_FACADE_TONES,
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0xe7e3d6])),
   ...GROPIUS_BAU_PRISM_TONES,
   K0002MCN: 0xe0e3df,
@@ -822,6 +826,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
 // towers) read as the real light stone terrace instead of sun-warmed
 // facade brown; the Chancellery roof stays light.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
+  ...CHARITE_HISTORIC_FACADE_ROOF_TONES,
   ...GROPIUS_BAU_PRISM_ROOF_TONES,
   K0002MCN: 0xe1e3dc,
   K0003Ty1: 0xe1e3dc,
@@ -892,6 +897,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,
   ...GENDARMENMARKT_PRISM_IDS,
   ...NEUE_WACHE_PRISM_IDS,
   ...GORKI_BUILDING_PRISM_IDS,
@@ -1555,7 +1561,7 @@ function isGlassPrismBuilding(building: PrismBuilding, classes: string[]): boole
   // A wall-material tag must not turn a measured pitched roof into a box.
   const recordedGlazing = mappedMaterialGlazing === true && building.roof !== 1000 && building.roof !== 0
     ? undefined : mappedMaterialGlazing;
-  return !BUNDESRAT_IDS.has(building.id) && !ROHWEDDER_HAUS_IDS.has(building.id) && !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
+  return !BUNDESRAT_IDS.has(building.id) && !ROHWEDDER_HAUS_IDS.has(building.id) && !LUISEN_CORRIDOR_IDS.has(building.id) && !BOELL_STIFTUNG_IDS.has(building.id) && !DEUTSCHES_THEATER_IDS.has(building.id) && !MUSEUM_LENNE_IDS.has(building.id) && !HISTORIC_CHARITE_IDS.has(building.id) && !CHARITE_HISTORIC_FACADE_IDS.has(building.id) && !HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) && (PRISM_GLASSED_IDS.has(building.id) ||
     (recordedGlazing ?? (classes[building.class] ?? "concrete") === "glass"));
 }
 
@@ -1679,7 +1685,7 @@ export function createDistantBuildingShells(
     }
     if (roofTriangles) {
       const attributes = buildingAttributes(building.id);
-      const roofTone = HISTORIC_CHARITE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
+      const roofTone = HISTORIC_CHARITE_IDS.has(building.id) || CHARITE_HISTORIC_FACADE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) || mappedRoofTone(attributes) !== undefined
         ? capColor : color.clone().multiplyScalar(0.9);
       for (let offset = 0; offset < roofTriangles.length; offset += 9) {
@@ -2539,6 +2545,7 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...CHARITE_HISTORIC_FACADE_IDS,
   ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
@@ -12410,6 +12417,7 @@ export function createIsometricCity(
       // unpinned roofs retain the established darker-facade convention.
       const pitchedRoofTone =
         HISTORIC_CHARITE_IDS.has(building.id) ||
+        CHARITE_HISTORIC_FACADE_IDS.has(building.id) ||
         BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) ||
         mappedRoofTone(attributes) !== undefined
@@ -13062,6 +13070,7 @@ export function createIsometricCity(
     group.add(createLandmarkRefinements());
     group.add(createGymnasiumTiergarten());
     group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full"));
+    group.add(createChariteHistoricFacades(prisms, options.detailProfile ?? "full"));
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));

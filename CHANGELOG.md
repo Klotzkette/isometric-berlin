@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.46
+
+- Detail sixteen Gendarmenmarkt perimeter groups with individually referenced materials, window grids, arches, entrances, balconies and lettering.
+- Complete 152 official LoD2 parts and retain all source roofs/courtyards; archive the 109 superseded display prisms unchanged. Low porches no longer hide whole upper facades.
+- Detail 146 historic Charité parts across eleven named families; correct Helmut-Ruska-Haus identity and its brick/plaster facade.
+- Share full drawn detail on desktop/mobile and provide separate bounded native Minecraft geometry. Preserve the 93-stop catalogue and existing monuments.
+- Add 31 external visual-reference credits; no photographs or textures are bundled.
+
 ## v1.0.45
 
 - Replace the coarse Schiller sketch at its retained Gendarmenmarkt OSM anchor with a source-bound marble and iron model.

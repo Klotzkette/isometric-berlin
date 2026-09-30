@@ -36,7 +36,7 @@ export type ChariteFacadeWall = {
   z1: number;
 };
 
-/** Six measured LoD2 parts of the Edmund-Lesser-Haus at Rahel-Hirsch-Weg 3. */
+/** Six measured LoD2 parts of the Helmut-Ruska-Haus at Rahel-Hirsch-Weg 3. */
 export const CHARITE_VIROLOGY_IDS: ReadonlySet<string> = new Set([
   "nPSZAX1V",
   "bzFr0aOE",
@@ -124,15 +124,17 @@ export const HISTORIC_CHARITE_PROFILE = {
     ],
   },
   virology: {
-    built: [1956, 1960],
-    facade: "pale post-war render, white window frames and restrained ivy",
+    built: 1906,
+    facade: "historic tan plaster, red-brick bands and segmental arches, white window frames",
     geometryStatus:
       "exact Berlin LoD2 shells and heights; official-photo-bounded unsurveyed facade and vegetation articulation",
     lod2Parent: "DEBE01YYK00003IB",
-    name: "Edmund-Lesser-Haus / Institute of Virology",
+    name: "Helmut-Ruska-Haus / Institute of Virology",
     sourceUrls: [
       "https://virologie-ccm.charite.de/",
       "https://gedenkort.charite.de/orte/dermatologie/",
+      "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080",
+      "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg",
     ],
   },
 } as const;
@@ -150,7 +152,7 @@ export const HISTORIC_CHARITE_TONES = {
   plaster: 0xe6d8bc,
   slate: 0x58636a,
   stone: 0xd5c7aa,
-  virologyFacade: 0xd9ddd3,
+  virologyFacade: 0xb8a98b,
   virologyFrame: 0xf0f0e8,
 } as const;
 
@@ -548,6 +550,7 @@ function addHeritageFacade(
 function addVirologyFacade(
   builder: Builder,
   building: ChariteSourcePrism,
+  buildings: readonly ChariteSourcePrism[],
 ): { ivyPatches: number; windows: number } {
   const y0 = building.y0_dm / 10;
   const height = Math.max(2.5, building.h_dm / 10);
@@ -568,16 +571,23 @@ function addVirologyFacade(
       0.62,
       0.11,
     );
-    const floorPitch = 2.92;
-    const floors = Math.max(1, Math.floor((height - 1.15) / floorPitch));
-    const bays = Math.max(1, Math.floor((wall.length - 0.8) / 2.15));
+    const floors = Math.max(1, Math.min(3, Math.floor((height - 1.15) / 3.8)));
+    const floorPitch = (height - 1.6) / floors;
+    const bays = Math.max(1, Math.floor((wall.length - 0.8) / 3.05));
     const pitch = (wall.length - 0.8) / bays;
+    for (let floor = 0; floor <= floors; floor++) {
+      const y = y0 + .85 + floor * floorPitch;
+      if (y + .15 < facadeTop) addWallBox(builder, wall, HISTORIC_CHARITE_TONES.brickDark,
+        wall.length / 2, y, .075, wall.length, .22, .075);
+    }
     for (let floor = 0; floor < floors; floor += 1) {
-      const centreY = y0 + 1.58 + floor * floorPitch;
-      if (centreY + 1.05 > facadeTop) continue;
+      const centreY = y0 + 2.4 + floor * floorPitch;
+      if (centreY + 1.45 > facadeTop) continue;
       for (let bay = 0; bay < bays; bay += 1) {
         const along = 0.4 + pitch * (bay + 0.5);
-        const frameWidth = Math.min(1.48, pitch * 0.72);
+        const frameWidth = Math.min(1.60, pitch * 0.72);
+        if (![-frameWidth / 2, 0, frameWidth / 2].every(offset =>
+          chariteFacadePointExposed(building.id, wall, along + offset, centreY, buildings))) continue;
         const lit = deterministicLit(building.id, wall.index, floor, bay);
         addWallBox(
           builder,
@@ -587,7 +597,7 @@ function addVirologyFacade(
           centreY,
           outward + 0.02,
           frameWidth,
-          2.08,
+          2.65,
           0.09,
         );
         addWallBox(
@@ -600,7 +610,7 @@ function addVirologyFacade(
           centreY,
           outward + 0.07,
           frameWidth - 0.24,
-          1.78,
+          2.36,
           0.07,
           lit,
         );
@@ -612,9 +622,17 @@ function addVirologyFacade(
           centreY,
           outward + 0.1,
           0.055,
-          1.78,
+          2.36,
           0.04,
         );
+        for (let segment = 0; segment < 7; segment++) {
+          const dx = (segment / 6 - .5) * (frameWidth + .32);
+          const archY = centreY + 1.33 + .3 * Math.sqrt(Math.max(0, 1 - (dx / ((frameWidth + .32) / 2)) ** 2));
+          if (archY + .1 < facadeTop) addWallBox(builder, wall, HISTORIC_CHARITE_TONES.brickDark,
+            along + dx, archY, .25, (frameWidth + .4) / 7, .19, .13);
+        }
+        for (const side of [-1, 1]) addWallBox(builder, wall, HISTORIC_CHARITE_TONES.brickDark,
+          along + side * (frameWidth / 2 + .13), centreY, .10, .18, 2.8, .075);
         windows += 1;
       }
     }
@@ -790,7 +808,7 @@ export function createHistoricChariteCampus(
       blindWindows += counts.blindWindows;
       brickCourses += counts.brickCourses;
     } else if (CHARITE_VIROLOGY_IDS.has(building.id)) {
-      const counts = addVirologyFacade(virologyBuilder, building);
+      const counts = addVirologyFacade(virologyBuilder, building, sourceBuildings);
       virologyWindows += counts.windows;
       ivyPatches += counts.ivyPatches;
     }
@@ -809,7 +827,7 @@ export function createHistoricChariteCampus(
   const virology = finishDrawnGroup(virologyBuilder, {
     lampEmissive: HISTORIC_CHARITE_TONES.nightGlass,
     lampEmissiveIntensity: 0.68,
-    name: "Charite Virology post-war facade details",
+    name: "Charite Virology historic plaster and brick facade details",
   });
   if (virology) group.add(virology);
 

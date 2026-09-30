@@ -1,13 +1,15 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-// v1.0.45 replaces the 77-cube Schiller sketch with 997 detailed cubes:
-// +920 instances, +1 draw and +70,856 bytes; all other geometry is retained.
+// v1.0.46 adds the complete Gendarmenmarkt perimeter and historic Charité
+// source skins/facades while replacing their coarse duplicate columns/panes.
+// Versus v1.0.45: full +35,228 instances/+7,049,828 bytes; mobile +52,956
+// instances/+8,397,156 bytes. Both add36 draws; every source envelope remains.
 // Independent synchronous measurements are compared with cooperative buffers;
 // existing geometry quality and every instance capacity remain accounted for.
 for (const [profile, sha256, instances, renderables, bufferBytes] of [
-  ["full", "9643c0b1ae3dc617e4feb217fb41d8b1da970dc5bc95f4a42d33c2109fcb51b2", 3849664, 120, 293594321],
-  ["mobile", "15374bc2c8b234206abb8817b250eced51433725653f62bda80120572fdcae8d", 1066800, 118, 81647201],
+  ["full", "847ccd8f1de5e7a6656cb1e7ddd8339514d55f99d8183401035854b7fd0d0c9f", 3884892, 156, 300644149],
+  ["mobile", "c2e3f3d1ffe912f702668fa045e5c3c658202a6af19b0e7b696b0753129ae942", 1119756, 154, 90044357],
 ] as const) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

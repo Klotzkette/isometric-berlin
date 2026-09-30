@@ -3345,6 +3345,7 @@ function ensureIsoWorld(
   const unterDenLindenDetails = import("./UnterDenLindenDetails");
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
+  const perimeterDetails = import("./GendarmenmarktPerimeterShells");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3355,8 +3356,9 @@ function ensureIsoWorld(
     unterDenLindenDetails,
     abgeordnetenhausDetails,
     gropiusBauDetails,
+    perimeterDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3600,6 +3602,10 @@ function ensureIsoWorld(
         isoWorld.add(createGendarmenmarktShells());
         yield;
         isoWorld.add(createGendarmenmarktArchitecture());
+        yield;
+        isoWorld.add(perimeter.createGendarmenmarktPerimeterShells());
+        yield;
+        isoWorld.add(perimeter.createGendarmenmarktPerimeterFacades());
         yield;
         isoWorld.add(createGorkiBuilding());
         yield;

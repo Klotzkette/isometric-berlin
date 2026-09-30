@@ -39,9 +39,10 @@ describe("the source-distinct historic Charite campus", () => {
     }
   });
 
-  test("does not mislabel the post-war Virology building as historic brick", () => {
-    expect(HISTORIC_CHARITE_PROFILE.virology.built).toEqual([1956, 1960]);
-    expect(HISTORIC_CHARITE_PROFILE.virology.facade).toContain("post-war");
+  test("distinguishes historic Helmut Ruska-Haus from postwar Edmund Lesser-Haus", () => {
+    expect(HISTORIC_CHARITE_PROFILE.virology.built).toBe(1906);
+    expect(HISTORIC_CHARITE_PROFILE.virology.name).toContain("Helmut-Ruska-Haus");
+    expect(HISTORIC_CHARITE_PROFILE.virology.facade).toContain("red-brick");
     expect(HISTORIC_CHARITE_PROFILE.museum.built).toEqual([1899, 1905]);
     expect(HISTORIC_CHARITE_PROFILE.althoff.built).toBe(1901);
     for (const id of CHARITE_VIROLOGY_IDS) {
@@ -62,7 +63,7 @@ describe("the source-distinct historic Charite campus", () => {
     expect(historicChariteRoofCode("WCl6Bw6x", 1000)).toBe(1000);
   });
 
-  test("draws separate masonry and post-war facade layers", () => {
+  test("draws separate masonry and historic plaster facade layers", () => {
     const campus = model();
     const heritage = campus.getObjectByName(
       "Charite heritage facade details bodies",
@@ -74,10 +75,10 @@ describe("the source-distinct historic Charite campus", () => {
       "Charite heritage facade details ink lines",
     );
     const virology = campus.getObjectByName(
-      "Charite Virology post-war facade details bodies",
+      "Charite Virology historic plaster and brick facade details bodies",
     );
     const virologyLamps = campus.getObjectByName(
-      "Charite Virology post-war facade details lamps",
+      "Charite Virology historic plaster and brick facade details lamps",
     );
     expect(heritage).toBeInstanceOf(Mesh);
     expect(heritageLamps).toBeInstanceOf(Mesh);
@@ -87,7 +88,7 @@ describe("the source-distinct historic Charite campus", () => {
     expect(campus.userData.detailCounts.sourcePrisms).toBe(32);
     expect(campus.userData.detailCounts.museumWindows).toBeGreaterThan(350);
     expect(campus.userData.detailCounts.althoffWindows).toBeGreaterThan(90);
-    expect(campus.userData.detailCounts.virologyWindows).toBeGreaterThan(70);
+    expect(campus.userData.detailCounts.virologyWindows).toBe(70);
     expect(campus.userData.detailCounts.ivyPatches).toBeGreaterThan(0);
   });
 

@@ -903,3 +903,23 @@ raster. Only six display ground cells above the chamber are suppressed;
 canonical terrain remains unchanged. Source differences and their resolutions
 are appended to `fused_sources.json`; seven external photo records are appended
 to the two existing reference manifests, without bundling the photographs.
+
+
+## Gendarmenmarkt perimeter / historic Charité v1.0.46
+
+`gendarmenmarktPerimeterSource.json` preserves all 152 original LoD2 parts from
+30 parents, including every wall/roof sheet and four explicit courtyard holes.
+Its 109 earlier display prisms are preserved verbatim in `previousDisplayPrisms`
+and the canonical payload; only their duplicated render is suppressed after the
+complete replacement is installed. The 216 exterior fronts are exact source
+wall segments with street-facing normals. Low foreground roof sheets clip the
+lower decorating extent, not the whole upper facade. Source ground values and
+rigid display translations remain separate. Pedestrian roof/courtyard queries
+use the same source geometry.
+
+The Charité layer preserves every existing envelope and adds 146 source-bound
+historic parts from eleven documented families. Four modern Hufelandweg 3 link
+parts are excluded from historic decoration, not removed from the city. Six
+older Ruska parts retain geometry while correcting identity and facade reading.
+Facades are photograph-proportioned procedural hints, not measured individual
+windows. See the two v1.0.46 source documents for addresses and evidence.

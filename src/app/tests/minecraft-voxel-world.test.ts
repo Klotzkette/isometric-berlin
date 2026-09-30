@@ -169,7 +169,9 @@ describe("true voxel Minecraft world", () => {
     // GRIPS replaces 314 more panes on its exact source footprint.
     // The Neubau's exact 13 source parts replace 86 columns: 344 panes
     // disappear and 42 neighbouring panes become exposed, a net 302 fewer.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_570_924);
+    // v1.0.46's complete perimeter shells replace their old prisms and panes,
+    // including the retained former OSM-height footprints in that ownership.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_565_682);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -185,9 +187,12 @@ describe("true voxel Minecraft world", () => {
     // These independently measured totals omit the optional sourcePrisms,
     // tone lookup and tunnel arguments used by the full world benchmark.
     // The Neubau removes 258 full / 86 mobile generic column instances.
-    expect(instanced("Voxel building columns", world).count).toBe(1_451_031);
+    // Perimeter ownership replaces 6,977 full / 2,349 mobile column instances.
+    // Charité's152-part replacement requires optional sourcePrisms, so it is
+    // deliberately absent from these payload-only fallback totals.
+    expect(instanced("Voxel building columns", world).count).toBe(1_444_054);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      530_766,
+      528_417,
     );
 
     const landmarks = world.getObjectByName(

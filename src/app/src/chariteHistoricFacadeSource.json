@@ -1,0 +1,915 @@
+{
+  "schema": "charite-historic-facades/1",
+  "geometrySource": "geo_data/regierungsviertel/buildings.gpkg and unchanged delivered lod2-prisms.json",
+  "geometryLicense": "dl-de/zero-2-0",
+  "identitySources": [
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011080",
+    "https://www.charite.de/en/charite/campuses/campus_charite_mitte/location_map_map_key_ccm/"
+  ],
+  "profiles": [
+    {
+      "key": "henoch",
+      "name": "Eduard-Henoch-Haus / former Kinderklinik",
+      "address": "Virchowweg 4 / Charitéplatz 2",
+      "style": "children",
+      "lod2Parents": [
+        "DEBE01YYK00004WR"
+      ],
+      "osmKeys": [
+        "way/43026669"
+      ],
+      "monumentId": "09011080,T,002",
+      "parts": [
+        {
+          "id": "7BbVl2qU",
+          "sourceId": "DEBE3DzL7BbVl2qU",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "a9rZ14ud",
+          "sourceId": "DEBE3DU3a9rZ14ud",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "OgpdKI1u",
+          "sourceId": "DEBE3DXIOgpdKI1u",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "Bqt330QS",
+          "sourceId": "DEBE3DiMBqt330QS",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "TaP571Mz",
+          "sourceId": "DEBE3DoxTaP571Mz",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "f3ijVthy",
+          "sourceId": "DEBE3DSKf3ijVthy",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "piu3icHh",
+          "sourceId": "DEBE3DwYpiu3icHh",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "tcwbUczw",
+          "sourceId": "DEBE3DV6tcwbUczw",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "QktjQsLh",
+          "sourceId": "DEBE3DNJQktjQsLh",
+          "parent": "DEBE01YYK00004WR"
+        },
+        {
+          "id": "19pyrW6r",
+          "sourceId": "DEBE3DsA19pyrW6r",
+          "parent": "DEBE01YYK00004WR"
+        }
+      ]
+    },
+    {
+      "key": "learning",
+      "name": "Former Kinderklinik southern learning house",
+      "address": "Virchowweg 5",
+      "style": "plain",
+      "lod2Parents": [
+        "DEBE01YYK00008o5"
+      ],
+      "osmKeys": [
+        "way/43024972"
+      ],
+      "monumentId": "09011080,T,002",
+      "parts": [
+        {
+          "id": "6ZbXbxOv",
+          "sourceId": "DEBE3DBv6ZbXbxOv",
+          "parent": "DEBE01YYK00008o5"
+        },
+        {
+          "id": "VDTGxoIk",
+          "sourceId": "DEBE3DqlVDTGxoIk",
+          "parent": "DEBE01YYK00008o5"
+        }
+      ]
+    },
+    {
+      "key": "medical",
+      "name": "I. und II. Medizinische Klinik",
+      "address": "Virchowweg 9–10 / Sauerbruchweg 2–3",
+      "style": "medical",
+      "lod2Parents": [
+        "DEBE01YYK00001gK"
+      ],
+      "osmKeys": [
+        "way/293536813"
+      ],
+      "monumentId": "09011080,T,003",
+      "parts": [
+        {
+          "id": "RIxJ9mAF",
+          "sourceId": "DEBE3DtCRIxJ9mAF",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "082g18Y5",
+          "sourceId": "DEBE3DGO082g18Y5",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "RrrA6X50",
+          "sourceId": "DEBE3DliRrrA6X50",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "mWd19Ovo",
+          "sourceId": "DEBE3DComWd19Ovo",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "N4nrcTdh",
+          "sourceId": "DEBE3DGfN4nrcTdh",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "ZH1BqFmY",
+          "sourceId": "DEBE3DyVZH1BqFmY",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "tCco0eDj",
+          "sourceId": "DEBE3DaItCco0eDj",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "1XxefJkV",
+          "sourceId": "DEBE3DKf1XxefJkV",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "hqFMZvmk",
+          "sourceId": "DEBE3DC5hqFMZvmk",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "yrpycPao",
+          "sourceId": "DEBE3DruyrpycPao",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "UDsgsurU",
+          "sourceId": "DEBE3DxwUDsgsurU",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "neACCumF",
+          "sourceId": "DEBE3DqGneACCumF",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "YvqqADy6",
+          "sourceId": "DEBE3DLeYvqqADy6",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "0dWWV7MR",
+          "sourceId": "DEBE3Dgz0dWWV7MR",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "ETMdVL1W",
+          "sourceId": "DEBE3DRgETMdVL1W",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "wbg7rbf8",
+          "sourceId": "DEBE3DrIwbg7rbf8",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "qNjmQel2",
+          "sourceId": "DEBE3DvkqNjmQel2",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "UV4puguh",
+          "sourceId": "DEBE3DrfUV4puguh",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "MhCTV7eI",
+          "sourceId": "DEBE3DuwMhCTV7eI",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "vYGUz0YU",
+          "sourceId": "DEBE3DaMvYGUz0YU",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "2mBEUW7I",
+          "sourceId": "DEBE3DC02mBEUW7I",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "tGehfFyv",
+          "sourceId": "DEBE3DZotGehfFyv",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "axqmQ70y",
+          "sourceId": "DEBE3DUJaxqmQ70y",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "3iZ9Mozg",
+          "sourceId": "DEBE3DU03iZ9Mozg",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "TM62r50A",
+          "sourceId": "DEBE3DjSTM62r50A",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "ettt9IXE",
+          "sourceId": "DEBE3DL5ettt9IXE",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "PoQ7J9dV",
+          "sourceId": "DEBE3DbqPoQ7J9dV",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "y3A9lCHI",
+          "sourceId": "DEBE3DVQy3A9lCHI",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "ZmEBBA9C",
+          "sourceId": "DEBE3DnBZmEBBA9C",
+          "parent": "DEBE01YYK00001gK"
+        },
+        {
+          "id": "f814Z3om",
+          "sourceId": "DEBE3De8f814Z3om",
+          "parent": "DEBE01YYK00001gK"
+        }
+      ]
+    },
+    {
+      "key": "surgery",
+      "name": "Chirurgische Klinik / north teaching wing",
+      "address": "Hufelandweg 9",
+      "style": "surgery",
+      "lod2Parents": [
+        "DEBE01YYK00001TC",
+        "DEBE01YYK00005Qs",
+        "DEBE01YYK0000Avm"
+      ],
+      "osmKeys": [],
+      "monumentId": "09011080,T,004",
+      "parts": [
+        {
+          "id": "dHD3Gxcp",
+          "sourceId": "DEBE3DkKdHD3Gxcp",
+          "parent": "DEBE01YYK0000Avm"
+        },
+        {
+          "id": "2FNyBwLX",
+          "sourceId": "DEBE3Dab2FNyBwLX",
+          "parent": "DEBE01YYK0000Avm"
+        },
+        {
+          "id": "fAiKI0JM",
+          "sourceId": "DEBE3DGqfAiKI0JM",
+          "parent": "DEBE01YYK00005Qs"
+        },
+        {
+          "id": "sCqwXMQU",
+          "sourceId": "DEBE3DsfsCqwXMQU",
+          "parent": "DEBE01YYK00005Qs"
+        },
+        {
+          "id": "d0zg8QBY",
+          "sourceId": "DEBE3DmQd0zg8QBY",
+          "parent": "DEBE01YYK00005Qs"
+        },
+        {
+          "id": "CGeup45R",
+          "sourceId": "DEBE3Df9CGeup45R",
+          "parent": "DEBE01YYK00005Qs"
+        },
+        {
+          "id": "XRETz0I4",
+          "sourceId": "DEBE3Dq1XRETz0I4",
+          "parent": "DEBE01YYK00001TC"
+        },
+        {
+          "id": "UDwvUZzF",
+          "sourceId": "DEBE3DCOUDwvUZzF",
+          "parent": "DEBE01YYK00001TC"
+        }
+      ]
+    },
+    {
+      "key": "surgerySouth",
+      "name": "Chirurgische Klinik / south wings",
+      "address": "Hufelandweg 4–6 / Sauerbruchweg 5",
+      "style": "surgery",
+      "lod2Parents": [
+        "DEBE01YYK00004jL",
+        "DEBE01YYK000080h",
+        "DEBE01YYK0000ANx",
+        "DEBE01YYK0000E1V",
+        "DEBE01YYK0000EGa"
+      ],
+      "osmKeys": [],
+      "monumentId": "09011080,T,004",
+      "parts": [
+        {
+          "id": "ONJGlz4W",
+          "sourceId": "DEBE3DE5ONJGlz4W",
+          "parent": "DEBE01YYK0000EGa"
+        },
+        {
+          "id": "gOhxGVKX",
+          "sourceId": "DEBE3DmkgOhxGVKX",
+          "parent": "DEBE01YYK0000EGa"
+        },
+        {
+          "id": "zRFWtW3l",
+          "sourceId": "DEBE3DvjzRFWtW3l",
+          "parent": "DEBE01YYK0000E1V"
+        },
+        {
+          "id": "VypF4MLa",
+          "sourceId": "DEBE3DIQVypF4MLa",
+          "parent": "DEBE01YYK0000E1V"
+        },
+        {
+          "id": "l9Sb5gzz",
+          "sourceId": "DEBE3Djhl9Sb5gzz",
+          "parent": "DEBE01YYK0000E1V"
+        },
+        {
+          "id": "lf6GCXfU",
+          "sourceId": "DEBE3DO9lf6GCXfU",
+          "parent": "DEBE01YYK0000ANx"
+        },
+        {
+          "id": "Pd5X1tku",
+          "sourceId": "DEBE3DfiPd5X1tku",
+          "parent": "DEBE01YYK0000ANx"
+        },
+        {
+          "id": "pqTsDCUm",
+          "sourceId": "DEBE3DvKpqTsDCUm",
+          "parent": "DEBE01YYK0000ANx"
+        },
+        {
+          "id": "EUwHYQzO",
+          "sourceId": "DEBE3Dw8EUwHYQzO",
+          "parent": "DEBE01YYK0000ANx"
+        },
+        {
+          "id": "Dkk2PCJH",
+          "sourceId": "DEBE3DyDDkk2PCJH",
+          "parent": "DEBE01YYK000080h"
+        },
+        {
+          "id": "TFzSLdRM",
+          "sourceId": "DEBE3DlQTFzSLdRM",
+          "parent": "DEBE01YYK000080h"
+        },
+        {
+          "id": "N49wQEFb",
+          "sourceId": "DEBE3Dk3N49wQEFb",
+          "parent": "DEBE01YYK000080h"
+        },
+        {
+          "id": "DO66Btyt",
+          "sourceId": "DEBE3DLVDO66Btyt",
+          "parent": "DEBE01YYK000080h"
+        },
+        {
+          "id": "y7DUTDzc",
+          "sourceId": "DEBE3Do3y7DUTDzc",
+          "parent": "DEBE01YYK00004jL"
+        },
+        {
+          "id": "DNFnhxW7",
+          "sourceId": "DEBE3DJHDNFnhxW7",
+          "parent": "DEBE01YYK00004jL"
+        }
+      ]
+    },
+    {
+      "key": "griesinger",
+      "name": "Wilhelm-Griesinger-Haus / Nervenklinik",
+      "address": "Bonhoefferweg 3, 3a, 4 / Virchowweg 19",
+      "style": "nerve",
+      "lod2Parents": [
+        "DEBE01YYK00009HI"
+      ],
+      "osmKeys": [
+        "way/33177958",
+        "way/43025096"
+      ],
+      "monumentId": "09011080,T,005",
+      "parts": [
+        {
+          "id": "juOEGDBq",
+          "sourceId": "DEBE3DFhjuOEGDBq",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "S4lVS79h",
+          "sourceId": "DEBE3DVcS4lVS79h",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "QgVG9mOc",
+          "sourceId": "DEBE3DGFQgVG9mOc",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "MikE4Uq7",
+          "sourceId": "DEBE3DzjMikE4Uq7",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "PXAFspGB",
+          "sourceId": "DEBE3DQcPXAFspGB",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "jsxaxAgy",
+          "sourceId": "DEBE3DBEjsxaxAgy",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "TEeoMN0C",
+          "sourceId": "DEBE3DcwTEeoMN0C",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "mv2XcPxb",
+          "sourceId": "DEBE3DTAmv2XcPxb",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "15gLDPhs",
+          "sourceId": "DEBE3DN615gLDPhs",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "atQBkwvj",
+          "sourceId": "DEBE3DEUatQBkwvj",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "xSOYFO7a",
+          "sourceId": "DEBE3DD5xSOYFO7a",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "l64HHz79",
+          "sourceId": "DEBE3DoGl64HHz79",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "9nhQNYWs",
+          "sourceId": "DEBE3DDM9nhQNYWs",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "7M3HbAU4",
+          "sourceId": "DEBE3DWt7M3HbAU4",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "bFWPcGL2",
+          "sourceId": "DEBE3DsCbFWPcGL2",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "io5HWjGd",
+          "sourceId": "DEBE3DjDio5HWjGd",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "v5OXtZ2m",
+          "sourceId": "DEBE3DMjv5OXtZ2m",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "8jAjcqpI",
+          "sourceId": "DEBE3DAK8jAjcqpI",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "JWzQZK2i",
+          "sourceId": "DEBE3Dx1JWzQZK2i",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "09zsDJei",
+          "sourceId": "DEBE3DlQ09zsDJei",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "4RkoNGbg",
+          "sourceId": "DEBE3Dd74RkoNGbg",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "2vXiXQNj",
+          "sourceId": "DEBE3DLF2vXiXQNj",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "2vHUyRVh",
+          "sourceId": "DEBE3DSB2vHUyRVh",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "PKY3ljlu",
+          "sourceId": "DEBE3DVmPKY3ljlu",
+          "parent": "DEBE01YYK00009HI"
+        },
+        {
+          "id": "C4LXGa29",
+          "sourceId": "DEBE3DF0C4LXGa29",
+          "parent": "DEBE01YYK00009HI"
+        }
+      ]
+    },
+    {
+      "key": "griesingerNorth",
+      "name": "Nervenklinik / northern pavilion wings",
+      "address": "Virchowweg 19 / Bonhoefferweg",
+      "style": "nerve",
+      "lod2Parents": [
+        "DEBE01YYK0000C7h",
+        "DEBE01YYK0000DEi"
+      ],
+      "osmKeys": [
+        "way/327481166",
+        "way/54672659"
+      ],
+      "monumentId": "09011080,T,005",
+      "parts": [
+        {
+          "id": "emOZ1oyY",
+          "sourceId": "DEBE3DwbemOZ1oyY",
+          "parent": "DEBE01YYK0000C7h"
+        },
+        {
+          "id": "RHyGlNfp",
+          "sourceId": "DEBE3De2RHyGlNfp",
+          "parent": "DEBE01YYK0000C7h"
+        },
+        {
+          "id": "fizOixZR",
+          "sourceId": "DEBE3DyIfizOixZR",
+          "parent": "DEBE01YYK0000C7h"
+        },
+        {
+          "id": "cOUrYkW3",
+          "sourceId": "DEBE3DblcOUrYkW3",
+          "parent": "DEBE01YYK0000C7h"
+        },
+        {
+          "id": "4wt4kcAc",
+          "sourceId": "DEBE3DMP4wt4kcAc",
+          "parent": "DEBE01YYK0000C7h"
+        },
+        {
+          "id": "raSqaKuS",
+          "sourceId": "DEBE3DcFraSqaKuS",
+          "parent": "DEBE01YYK0000DEi"
+        },
+        {
+          "id": "Dc3xy16w",
+          "sourceId": "DEBE3DkTDc3xy16w",
+          "parent": "DEBE01YYK0000DEi"
+        },
+        {
+          "id": "wkRkc9Hj",
+          "sourceId": "DEBE3DUPwkRkc9Hj",
+          "parent": "DEBE01YYK0000DEi"
+        },
+        {
+          "id": "e2tlVOZk",
+          "sourceId": "DEBE3DPee2tlVOZk",
+          "parent": "DEBE01YYK0000DEi"
+        },
+        {
+          "id": "rR5MpY1Z",
+          "sourceId": "DEBE3DVqrR5MpY1Z",
+          "parent": "DEBE01YYK0000DEi"
+        },
+        {
+          "id": "z0ScAKWt",
+          "sourceId": "DEBE3Dqoz0ScAKWt",
+          "parent": "DEBE01YYK0000DEi"
+        }
+      ]
+    },
+    {
+      "key": "hno",
+      "name": "Former Hals-Nasen-Ohrenklinik",
+      "address": "Luisenstraße 10–12 / Hufelandweg 1–2",
+      "style": "hno",
+      "lod2Parents": [
+        "DEBE01YYK00005Dp",
+        "DEBE01YYK00007Iz",
+        "DEBE01YYK00008L3"
+      ],
+      "osmKeys": [
+        "way/327481172"
+      ],
+      "monumentId": "09011080,T,011",
+      "parts": [
+        {
+          "id": "0jIVYEag",
+          "sourceId": "DEBE3DAI0jIVYEag",
+          "parent": "DEBE01YYK00005Dp"
+        },
+        {
+          "id": "Ib4oQj8O",
+          "sourceId": "DEBE3DQgIb4oQj8O",
+          "parent": "DEBE01YYK00005Dp"
+        },
+        {
+          "id": "2bzuA9la",
+          "sourceId": "DEBE3DZj2bzuA9la",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "6W3ixxYe",
+          "sourceId": "DEBE3DqI6W3ixxYe",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "HQEiIudp",
+          "sourceId": "DEBE3DC1HQEiIudp",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "3OKvDPja",
+          "sourceId": "DEBE3DPz3OKvDPja",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "a6TbWjgl",
+          "sourceId": "DEBE3DAQa6TbWjgl",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "7a2veA78",
+          "sourceId": "DEBE3Dve7a2veA78",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "Qnu6CVTn",
+          "sourceId": "DEBE3DuWQnu6CVTn",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "H8EBek8v",
+          "sourceId": "DEBE3DPPH8EBek8v",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "2OYofahu",
+          "sourceId": "DEBE3DxJ2OYofahu",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "LoQzWvSj",
+          "sourceId": "DEBE3DCULoQzWvSj",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "BjqV2QHa",
+          "sourceId": "DEBE3DJqBjqV2QHa",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "ALFELxOq",
+          "sourceId": "DEBE3DfxALFELxOq",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "ZFNCVwYO",
+          "sourceId": "DEBE3DT7ZFNCVwYO",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "2WOYFJ78",
+          "sourceId": "DEBE3Dnb2WOYFJ78",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "K4ncCrPh",
+          "sourceId": "DEBE3DRzK4ncCrPh",
+          "parent": "DEBE01YYK00007Iz"
+        },
+        {
+          "id": "OWPt33Xe",
+          "sourceId": "DEBE3DXzOWPt33Xe",
+          "parent": "DEBE01YYK00008L3"
+        },
+        {
+          "id": "ywoTmQi4",
+          "sourceId": "DEBE3DDVywoTmQi4",
+          "parent": "DEBE01YYK00008L3"
+        },
+        {
+          "id": "vxF8Dmdi",
+          "sourceId": "DEBE3DGsvxF8Dmdi",
+          "parent": "DEBE01YYK00008L3"
+        }
+      ]
+    },
+    {
+      "key": "polyclinic",
+      "name": "Former Medizinische Poliklinik",
+      "address": "Luisenstraße 13A",
+      "style": "polyclinic",
+      "lod2Parents": [
+        "DEBE01YYK0000FLQ"
+      ],
+      "osmKeys": [
+        "way/327481157"
+      ],
+      "monumentId": "09011080,T,012",
+      "parts": [
+        {
+          "id": "4B4zOXRG",
+          "sourceId": "DEBE3DcJ4B4zOXRG",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "35tVypCW",
+          "sourceId": "DEBE3DF735tVypCW",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "HzO7kIh6",
+          "sourceId": "DEBE3DVAHzO7kIh6",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "uVD13E9o",
+          "sourceId": "DEBE3Dh1uVD13E9o",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "lDNKmzIF",
+          "sourceId": "DEBE3DStlDNKmzIF",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "KiRMhekm",
+          "sourceId": "DEBE3DSxKiRMhekm",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "mhfaJjHH",
+          "sourceId": "DEBE3DoamhfaJjHH",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "1fSu1rB5",
+          "sourceId": "DEBE3DJ71fSu1rB5",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "xlimwhZF",
+          "sourceId": "DEBE3Dl5xlimwhZF",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "g5ZQItJU",
+          "sourceId": "DEBE3Dv6g5ZQItJU",
+          "parent": "DEBE01YYK0000FLQ"
+        },
+        {
+          "id": "YohMCWUo",
+          "sourceId": "DEBE3DbnYohMCWUo",
+          "parent": "DEBE01YYK0000FLQ"
+        }
+      ]
+    },
+    {
+      "key": "kitchen",
+      "name": "Former Kochküchengebäude",
+      "address": "Hufelandweg 16 und 20",
+      "style": "kitchen",
+      "lod2Parents": [
+        "DEBE01YYK00007YT"
+      ],
+      "osmKeys": [
+        "way/151989840"
+      ],
+      "monumentId": "09011080,T,009",
+      "parts": [
+        {
+          "id": "aJykzHrQ",
+          "sourceId": "DEBE3DvQaJykzHrQ",
+          "parent": "DEBE01YYK00007YT"
+        },
+        {
+          "id": "cvkImfaf",
+          "sourceId": "DEBE3DyecvkImfaf",
+          "parent": "DEBE01YYK00007YT"
+        },
+        {
+          "id": "PgvLgNJh",
+          "sourceId": "DEBE3DxXPgvLgNJh",
+          "parent": "DEBE01YYK00007YT"
+        }
+      ]
+    },
+    {
+      "key": "workshops",
+      "name": "Former Maschinen- und Werkstättengebäude",
+      "address": "Hufelandweg 18, 18a, 19 und 19a",
+      "style": "workshop",
+      "lod2Parents": [
+        "DEBE01YYK00004Nb",
+        "DEBE01YYK00008nj"
+      ],
+      "osmKeys": [
+        "way/43025153",
+        "way/54672901"
+      ],
+      "monumentId": "09011080,T,010",
+      "parts": [
+        {
+          "id": "EmUmXN68",
+          "sourceId": "DEBE3DCaEmUmXN68",
+          "parent": "DEBE01YYK00004Nb"
+        },
+        {
+          "id": "SPRtw9ln",
+          "sourceId": "DEBE3DtPSPRtw9ln",
+          "parent": "DEBE01YYK00004Nb"
+        },
+        {
+          "id": "qvXhAVZ9",
+          "sourceId": "DEBE3Dt2qvXhAVZ9",
+          "parent": "DEBE01YYK00004Nb"
+        },
+        {
+          "id": "dPAn8Rba",
+          "sourceId": "DEBE3DuudPAn8Rba",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "jKQMYPwD",
+          "sourceId": "DEBE3DjzjKQMYPwD",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "kuAchr3r",
+          "sourceId": "DEBE3DE1kuAchr3r",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "tXvOdVgp",
+          "sourceId": "DEBE3Db4tXvOdVgp",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "nhSPNWTz",
+          "sourceId": "DEBE3DDonhSPNWTz",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "R3NSbmEQ",
+          "sourceId": "DEBE3DMdR3NSbmEQ",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "Ebxi0XiN",
+          "sourceId": "DEBE3DCOEbxi0XiN",
+          "parent": "DEBE01YYK00008nj"
+        },
+        {
+          "id": "yPswWzwX",
+          "sourceId": "DEBE3DixyPswWzwX",
+          "parent": "DEBE01YYK00008nj"
+        }
+      ]
+    }
+  ]
+}

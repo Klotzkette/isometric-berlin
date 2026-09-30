@@ -1072,3 +1072,12 @@ When the Berlin 3D Mesh viewer is used, also display:
   at-grade Altonaer Straße ways `455280943` and `455280945`, while preserving
   the GRIPS courts, U9 stairs and covered approaches. Kerb/member dimensions
   are display estimates; no new street photograph is used.
+
+
+## Gendarmenmarkt perimeter and historic Charité (v1.0.46)
+
+Complete Berlin LoD2 envelopes (dl-de/zero-2-0) and OSM addresses (ODbL-1.0)
+anchor the geometry. Individually credited external photographs guide only
+procedural facade/material readings. No photograph or texture is bundled.
+See [Gendarmenmarkt](docs/gendarmenmarkt-perimeter-sources-v146.md) and
+[Charité](docs/charite-historic-facades-v146.md).

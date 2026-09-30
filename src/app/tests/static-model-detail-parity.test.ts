@@ -8,6 +8,7 @@ import { POTSDAMER_TOWER_DRAWN_NAME } from "../src/potsdamerTrafficTowerProfile"
 import prisms from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import budgets from "./fixtures/static-model-full-budgets-v141.json";
 import hashes from "./fixtures/static-model-full-hashes-v141.json";
+import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
 
 const profileEntries = [
@@ -63,12 +64,15 @@ describe("all devices retain the full authored static city detail", () => {
       };
       const full = make("full");
       const expected = staticGeometryAudit(full);
-      const baseline = budgets[name as keyof typeof budgets];
+      // Keep v141 frozen. The source-verified v146 correction replaces the
+      // wrongly attributed postwar Virology grid with the historic Ruska facade.
+      const override = overridesV146[name as keyof typeof overridesV146];
+      const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.
       expect(baseline).toBeDefined();
       expect(expected.budget).toEqual(baseline);
-      expect(expected.hash).toBe(hashes[name as keyof typeof hashes]);
+      expect(expected.hash).toBe(override?.hash ?? hashes[name as keyof typeof hashes]);
       expect(expected.budget.draws).toBeGreaterThan(0);
       disposeStaticAudit(full);
       const mobile = make("mobile");

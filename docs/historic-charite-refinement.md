@@ -4,7 +4,9 @@ The revision refines the existing 32-part source-bound campus model. It does
 not add tour stops, modify geodata, move building footprints, fill courtyards
 or change measured heights. Twenty LoD2 parts remain assigned to the former
 Pathological Institute / Medical History Museum, six to Friedrich-Althoff-Haus
-and six to the postwar Edmund-Lesser-Haus / Virology building.
+and six to the Helmut-Ruska-Haus / Virology building. The original v1.0.4
+postwar Edmund-Lesser attribution was corrected in v1.0.46; see the
+[identity correction and expanded campus coverage](charite-historic-facades-v146.md).
 
 ## Evidence and its limits
 
@@ -68,7 +70,8 @@ stepped turret helm in one instanced draw call. It has no hidden solid interior
 fill. Wall plans remain exact; roof surface blocks have the explicit 1.5 m
 (full) / 2.25 m (mobile) presentation grid, while their vertical tops remain
 bounded by the original source heights. Original prism-based pedestrian
-collision, the campus entrance and the six separate postwar parts remain.
+collision, the campus entrance and the six separately retained Virology source
+parts remain.
 
 `createHistoricChariteColumnTester(sourcePrisms)` must be constructed once
 and used with `createMinecraftHistoricCharite(sourcePrisms, detailProfile)`.
@@ -76,7 +79,10 @@ A legacy constructor without source prisms keeps the original raster buildings;
 it does not suppress them or construct geometry from guessed source identities.
 The production viewer supplies the source prisms in its cold and warm paths.
 
-## Bounded geometry and validation
+## Original v1.0.4 geometry and validation
+
+The figures in this section record the original v1.0.4 refinement. The
+v1.0.46 facade and identity changes are documented separately above.
 
 | Representation | Draw calls | Stored geometry / instance bytes | Rendered vertices |
 | --- | ---: | ---: | ---: |
@@ -87,8 +93,9 @@ The production viewer supplies the source prisms in its cold and warm paths.
 
 Minecraft uses 7,225 / 4,554 instances. Both profiles retain all 673 eligible
 heritage opening groups, including 20 paired groups, four Althoff dormers and
-the blind ground-floor opening. Drawn detail also retains the 238 existing
-postwar Virology windows and its four ivy patches. Mobile reduces only brick
+the blind ground-floor opening. The original drawn detail also retained the
+238 Virology windows and its four ivy patches; v1.0.46 replaces that wrongly
+identified window grid with the historic Ruska facade. Mobile reduces only brick
 voussoir microdetail, masonry line density and roof/block subdivision.
 Diagnostic window/block records are emitted only when a test explicitly asks
 for them; they are not retained in the normal viewer scene.

@@ -444,3 +444,44 @@ See [source distinctions and geometry](../../docs/gymnasium-tiergarten-v140.md).
 | [Hansaviertel Lessingstraße Gymnasium Tiergarten-001.JPG](https://commons.wikimedia.org/wiki/File:Hansaviertel_Lessingstra%C3%9Fe_Gymnasium_Tiergarten-001.JPG) | Fridolin freudenfett | Opposite facade, narrow stairwell glazing; 2016 |
 | [Gymnasium Tiergarten.jpg](https://commons.wikimedia.org/wiki/File:Gymnasium_Tiergarten.jpg) | Michael T Alemu | River context and old/new school relationship; 2015 |
 | [Joachim Schmettau – Hand mit Uhr 2013.jpg](https://commons.wikimedia.org/wiki/File:Joachim_Schmettau_-_Hand_mit_Uhr_2013.jpg) | Rlbberlin | Restored downward-gripping hand, wrist clock, orange/white pedestal; 2013 |
+
+
+## Gendarmenmarkt perimeter and historic Charité (v1.0.46)
+
+Complete Berlin LoD2 envelopes (dl-de/zero-2-0) and OSM addresses (ODbL-1.0)
+anchor the geometry. Individually credited external photographs guide only
+procedural facade/material readings. No photograph or texture is bundled.
+See [Gendarmenmarkt](../../docs/gendarmenmarkt-perimeter-sources-v146.md) and
+[Charité](../../docs/charite-historic-facades-v146.md).
+
+- [File:Berlin-Gendarmenmarkt, Hilton-Hotel.JPG](https://commons.wikimedia.org/wiki/File:Berlin-Gendarmenmarkt,_Hilton-Hotel.JPG) — Dguendel / CC BY 3.0.
+- [File:Hilton Berlin Eingang.JPG](https://commons.wikimedia.org/wiki/File:Hilton_Berlin_Eingang.JPG) — Andrevishay / Public domain.
+- [File:BBAW-berlin-gebäude-vom-gendarmenmarkt-ecke-jaegerstr-2026-05-26.jpg](https://commons.wikimedia.org/wiki/File:BBAW-berlin-geb%C3%A4ude-vom-gendarmenmarkt-ecke-jaegerstr-2026-05-26.jpg) — Ixicon / CC0.
+- [File:Berlin, Mitte, Friedrichstrasse 71-74, Quartier 206.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Friedrichstrasse_71-74,_Quartier_206.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Quartier 205 Berlin-Mitte.jpg](https://commons.wikimedia.org/wiki/File:Quartier_205_Berlin-Mitte.jpg) — BMG Rights Management / CC BY-SA 3.0.
+- [File:Berlin, Mitte, Französische Strasse, Weinhandlung Borchardt 02.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Franz%C3%B6sische_Strasse,_Weinhandlung_Borchardt_02.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Berlin, Mitte, Französische Strasse, Weinhandlung Borchardt 06.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Franz%C3%B6sische_Strasse,_Weinhandlung_Borchardt_06.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Berlin-Gendarmenmarkt, view to the Jägerstraße.JPG](https://commons.wikimedia.org/wiki/File:Berlin-Gendarmenmarkt,_view_to_the_J%C3%A4gerstra%C3%9Fe.JPG) — Dguendel / CC BY 3.0.
+- [File:Berlin, Mitte, Charlottenstrasse, Handelsstaette Friedrichstadt 01.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Charlottenstrasse,_Handelsstaette_Friedrichstadt_01.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Sofitel Berlin Gendarmenmarkt 2017-1.jpg](https://commons.wikimedia.org/wiki/File:Sofitel_Berlin_Gendarmenmarkt_2017-1.jpg) — AccorHotels Germany / CC BY-SA 3.0 de.
+- [File:Berlin Mitte Charlottenstraße 55 (09075005).JPG](https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Charlottenstra%C3%9Fe_55_(09075005).JPG) — Kvikk / CC BY-SA 3.0.
+- [File:Berlin-Brandenburgische Akademie der Wissenschaften.jpg](https://commons.wikimedia.org/wiki/File:Berlin-Brandenburgische_Akademie_der_Wissenschaften.jpg) — Reinhard Ferdinand / CC BY-SA 4.0.
+- [File:Berlin, Mitte, Markgrafenstraße 36, Geschäfts- und Wohnhaus.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Markgrafenstra%C3%9Fe_36,_Gesch%C3%A4fts-_und_Wohnhaus.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Berlin, Mitte, Franzoesische Strasse 42-44, Berliner Handelsgesellschaft.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Franzoesische_Strasse_42-44,_Berliner_Handelsgesellschaft.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [File:Prédios na Markgrafenstraße (6270192749) (2).jpg](https://commons.wikimedia.org/wiki/File:Pr%C3%A9dios_na_Markgrafenstra%C3%9Fe_(6270192749)_(2).jpg) — Leandro Neumann Ciuffo / CC BY 2.0.
+- [File:Charité CCM, Bonhoefferweg 3, 2016.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Bonhoefferweg_3,_2016.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Bonhoefferweg 4, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Bonhoefferweg_4,_2025.jpg) — Schibo / CC0.
+- [File:Charité CCM, Hufelandweg 3, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_3,_2025.jpg) — Schibo / CC0.
+- [File:Charité CCM, Hufelandweg 4–6, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_4%E2%80%936,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Hufelandweg 9, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_9,_2025.jpg) — Schibo / CC0.
+- [File:Charité CCM, Hufelandweg 16 und 20, Westseite, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_16_und_20,_Westseite,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Hufelandweg 18, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_18,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Hufelandweg 18a, 19, 19a, 2016.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_18a,_19,_19a,_2016.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Luisenstraße 12, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Luisenstra%C3%9Fe_12,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Luisenstraße 13A, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Luisenstra%C3%9Fe_13A,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Sauerbruchweg 2, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Sauerbruchweg_2,_2025.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Virchowweg 4, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_4,_2025.jpg) — Schibo / CC0.
+- [File:Charité CCM, Virchowweg 5, 2025.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_5,_2025.jpg) — Schibo / CC0.
+- [File:Charité CCM, Virchowweg 9–10, 2016.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Virchowweg_9%E2%80%9310,_2016.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Rahel-Hirsch-Weg 3 Südwestansicht, 2024.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg) — Schibo / CC BY-SA 4.0.
+- [File:Charité CCM, Rahel-Hirsch-Weg 2, 2024.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_2,_2024.jpg) — Schibo / CC BY-SA 4.0.

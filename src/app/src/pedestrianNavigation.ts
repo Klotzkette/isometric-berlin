@@ -1,4 +1,5 @@
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
+import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
 import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
 import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
@@ -637,6 +638,26 @@ export function compilePedestrianObstacles(
         building.id, 0.1,
         (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
       index.buildingCount += 1;
+      continue;
+    }
+    const perimeter = gendarmenmarktPerimeterSourceForPrism(building.id);
+    if (perimeter) {
+      const key = `gendarmenmarkt-perimeter-${perimeter.key}`;
+      if (!replacedParents.has(key)) {
+        replacedParents.add(key);
+        const shift = perimeter.displayYTranslationM;
+        for (const part of perimeter.officialParts) {
+          const solidBase = part.surfaces.some(surface => surface.kind === "WallSurface")
+            ? part.ground_y_m : Math.min(...part.surfaces.flatMap(surface =>
+              surface.rings.flatMap(ring => ring.map(point => point[1])))) - .2;
+          addPolygonObstacle(index, part.ring, part.holes, solidBase + shift,
+            part.top_y_m + shift, part.id, 1, (x, z) => {
+              const top = bebelplatzPartRoofAt(part, x, z);
+              return top === null ? null : top + shift;
+            });
+          index.buildingCount += 1;
+        }
+      }
       continue;
     }
     const gendarmenmarkt = gendarmenmarktSourceForPrism(building.id);
