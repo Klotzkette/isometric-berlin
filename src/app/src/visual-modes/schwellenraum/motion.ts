@@ -11,6 +11,7 @@ import {
 } from "../../WindFlags";
 import type { VisualMode } from "../../visualMode";
 import { SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS } from "./waterAtmosphere";
+import { SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS } from "./towerSteam";
 
 /**
  * The complete, closed world-motion allowlist for Schwellenraum.
@@ -18,9 +19,9 @@ import { SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS } from "./waterAtmosphere";
  * Camera/navigation changes are not world animation. Every world animation
  * path must opt into this contract; an unclassified flag is deliberately
  * frozen like water geometry, vessels, vegetation, particles, lamps and
- * props. The two non-flag exceptions are the light-only water veil and the
- * explicitly local Pariser Platz entity loop requested from owner footage.
- * Neither exception moves measured city geometry.
+ * props. The named exceptions are the light-only water veil, the explicitly
+ * local Pariser Platz entity loop and owner-requested rose steam above the
+ * Fernsehturm sphere. None of these moves measured city geometry.
  */
 // Backwards-compatible name for the formerly mode-specific allowlist. The
 // four official classes now share one restrained wind field in every mode.
@@ -32,6 +33,7 @@ export type SchwellenraumWorldMotionSource =
       kind:
         | "light"
         | "minecraft-mob"
+        | "fernsehturm-steam"
         | "particle"
         | "pariser-platz-entity-loop"
         | "prop"
@@ -52,6 +54,7 @@ export function isSchwellenraumWorldMotionAllowed(
 ): boolean {
   return (
     source.kind === "water-light" ||
+    source.kind === "fernsehturm-steam" ||
     source.kind === "pariser-platz-entity-loop" ||
     (source.kind === "wind-flag" && isCivicWindFlagKind(source.flagKind))
   );
@@ -90,6 +93,8 @@ export type SchwellenraumMotionDecision = {
   animatePariserPlatzEntities: boolean;
   /** Whether the material-only water veil may advance on this frame. */
   animateWaterLight: boolean;
+  /** Whether the local, frustum-gated Fernsehturm steam may advance. */
+  animateTowerSteam: boolean;
   /** Whether world animation by itself requires a render on this RAF. */
   environmentalMotion: boolean;
 };
@@ -99,6 +104,8 @@ export type SchwellenraumMotionOptions = {
   lastFlagFrameAt: number;
   lastPariserPlatzFrameAt: number;
   lastWaterFrameAt: number;
+  lastTowerSteamFrameAt?: number;
+  towerSteamOnScreen?: boolean;
   minecraftMobsVisible: boolean;
   mode: VisualMode;
   movingFlagCount: number;
@@ -117,6 +124,8 @@ export function schwellenraumMotionDecision(
     lastFlagFrameAt,
     lastPariserPlatzFrameAt,
     lastWaterFrameAt,
+    lastTowerSteamFrameAt = 0,
+    towerSteamOnScreen = false,
     flagFrameIntervalMs = SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
     minecraftMobsVisible,
     mode,
@@ -142,12 +151,14 @@ export function schwellenraumMotionDecision(
       animateOrdinaryEnvironment: true,
       animatePariserPlatzEntities: false,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: false,
     };
     decision.animateFlags = animateFlags;
     decision.animateOrdinaryEnvironment = true;
     decision.animatePariserPlatzEntities = false;
     decision.animateWaterLight = false;
+    decision.animateTowerSteam = false;
     decision.environmentalMotion =
       animateFlags || rainVisible || snowVisible || minecraftMobsVisible;
     return decision;
@@ -156,6 +167,11 @@ export function schwellenraumMotionDecision(
     !reducedMotion &&
     waterLightCount > 0 &&
     timestamp - lastWaterFrameAt >= SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS;
+  const animateTowerSteam =
+    !reducedMotion &&
+    towerSteamOnScreen &&
+    timestamp - lastTowerSteamFrameAt + Number.EPSILON * 1_000 >=
+      SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS;
   const animatePariserPlatzEntities =
     !reducedMotion &&
     pariserPlatzEntitiesOnScreen &&
@@ -167,13 +183,16 @@ export function schwellenraumMotionDecision(
     animateOrdinaryEnvironment: false,
     animatePariserPlatzEntities: false,
     animateWaterLight: false,
+    animateTowerSteam: false,
     environmentalMotion: false,
   };
   decision.animateFlags = animateFlags;
   decision.animateOrdinaryEnvironment = false;
   decision.animatePariserPlatzEntities = animatePariserPlatzEntities;
   decision.animateWaterLight = animateWaterLight;
+  decision.animateTowerSteam = animateTowerSteam;
   decision.environmentalMotion =
-    animateFlags || animateWaterLight || animatePariserPlatzEntities;
+    animateFlags || animateWaterLight || animatePariserPlatzEntities ||
+    animateTowerSteam;
   return decision;
 }

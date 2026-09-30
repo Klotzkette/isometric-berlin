@@ -16,6 +16,7 @@ import {
   schwellenraumMotionDecision,
   updateSchwellenraumMovingFlags,
 } from "../src/visual-modes/schwellenraum/motion";
+import { SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS } from "../src/visual-modes/schwellenraum/towerSteam";
 import { createSchwellenraumPraesentation } from "../src/visual-modes/schwellenraum/presentation";
 import { installSchwellenraumStaticProps } from "../src/visual-modes/schwellenraum/staticProps";
 
@@ -88,6 +89,9 @@ describe("Schwellenraum closed world-motion contract", () => {
       expect(isSchwellenraumWorldMotionAllowed({ kind }), kind).toBeFalse();
     }
     expect(
+      isSchwellenraumWorldMotionAllowed({ kind: "fernsehturm-steam" }),
+    ).toBeTrue();
+    expect(
       isSchwellenraumWorldMotionAllowed({ kind: "water-light" }),
     ).toBeTrue();
     expect(
@@ -155,6 +159,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateOrdinaryEnvironment: false,
       animatePariserPlatzEntities: false,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: false,
     });
 
@@ -176,6 +181,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateOrdinaryEnvironment: false,
       animatePariserPlatzEntities: false,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: true,
     });
     // Static-world suppression is enforced by the 3D motion decision above;
@@ -193,6 +199,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateOrdinaryEnvironment: false,
       animatePariserPlatzEntities: false,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: false,
     };
     const result = schwellenraumMotionDecision(
@@ -235,6 +242,7 @@ describe("Schwellenraum closed world-motion contract", () => {
         animateOrdinaryEnvironment: true,
         animatePariserPlatzEntities: false,
         animateWaterLight: false,
+        animateTowerSteam: false,
         environmentalMotion: true,
       });
     }
@@ -259,6 +267,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateOrdinaryEnvironment: true,
       animatePariserPlatzEntities: false,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: true,
     });
   });
@@ -303,6 +312,7 @@ describe("Schwellenraum closed world-motion contract", () => {
       animateOrdinaryEnvironment: false,
       animatePariserPlatzEntities: true,
       animateWaterLight: false,
+      animateTowerSteam: false,
       environmentalMotion: true,
     });
 
@@ -360,5 +370,45 @@ describe("Schwellenraum closed world-motion contract", () => {
       expect(object.userData.windFlag).toBeUndefined();
       expect(object.userData.windFlagInstances).toBeUndefined();
     });
+  });
+});
+
+describe("local Fernsehturm steam cadence", () => {
+  const still = {
+    ...pariserPlatzIdle,
+    lastFlagFrameAt: 100, lastWaterFrameAt: 100, lastTowerSteamFrameAt: 100,
+    minecraftMobsVisible: false, mode: "schwellenraum" as const,
+    movingFlagCount: 0, rainVisible: false, reducedMotion: false, snowVisible: false,
+    towerSteamOnScreen: true, waterLightCount: 0,
+  };
+  test("wakes a still tower view only at the bounded steam cadence", () => {
+    const before = schwellenraumMotionDecision({ ...still,
+      timestamp: 100 + SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS - .01 });
+    expect(before.animateTowerSteam).toBeFalse();
+    expect(before.environmentalMotion).toBeFalse();
+    const due = schwellenraumMotionDecision({ ...still,
+      timestamp: 100 + SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS });
+    expect(due.animateTowerSteam).toBeTrue();
+    expect(due.environmentalMotion).toBeTrue();
+    expect(due.animateOrdinaryEnvironment).toBeFalse();
+    expect(due.animatePariserPlatzEntities).toBeFalse();
+    expect(due.animateWaterLight).toBeFalse();
+  });
+  test("freezes offscreen, reduced-motion and every other mode", () => {
+    for (const override of [
+      { towerSteamOnScreen: false }, { reducedMotion: true },
+      ...(["day", "night", "snowstorm", "minecraft"] as const).map(mode => ({ mode })),
+    ]) {
+      const decision = schwellenraumMotionDecision({ ...still, timestamp: 1_000_000, ...override });
+      expect(decision.animateTowerSteam).toBeFalse();
+      expect(decision.environmentalMotion).toBeFalse();
+    }
+  });
+  test("clears a reused active decision when the steam leaves view", () => {
+    const decision = schwellenraumMotionDecision({ ...still, timestamp: 1000 });
+    expect(decision.animateTowerSteam).toBeTrue();
+    expect(schwellenraumMotionDecision({ ...still, timestamp: 2000, towerSteamOnScreen: false }, decision)).toBe(decision);
+    expect(decision.animateTowerSteam).toBeFalse();
+    expect(decision.environmentalMotion).toBeFalse();
   });
 });

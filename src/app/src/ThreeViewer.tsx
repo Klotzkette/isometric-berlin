@@ -509,6 +509,14 @@ import {
   updateSchwellenraumWaterAtmosphere,
 } from "./visual-modes/schwellenraum/waterAtmosphere";
 import {
+  SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS,
+  SCHWELLENRAUM_TOWER_STEAM_INITIAL_TIME,
+  createSchwellenraumTowerSteam,
+  isSchwellenraumTowerSteamOnScreen,
+  setSchwellenraumTowerSteamPresentation,
+  updateSchwellenraumTowerSteam,
+} from "./visual-modes/schwellenraum/towerSteam";
+import {
   createSchwellenraumStaticPropCollision,
   installSchwellenraumStaticProps,
 } from "./visual-modes/schwellenraum/staticProps";
@@ -683,6 +691,9 @@ type Runtime = {
   schwellenraumLastFlagFrameAt: number;
   schwellenraumLastPariserPlatzFrameAt: number;
   schwellenraumLastWaterFrameAt: number;
+  schwellenraumLastTowerSteamFrameAt: number;
+  schwellenraumTowerSteamElapsedSeconds: number;
+  schwellenraumTowerSteam: Mesh | null;
   schwellenraumMovingFlagCount: number;
   civicWindFlagTargets: CivicWindFlagTarget[];
   schwellenraumPariserPlatzElapsedSeconds: number;
@@ -1388,6 +1399,17 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
       runtime.schwellenraumLastWaterFrameAt = performance.now();
     }
   }
+  const towerSteamWasVisible = runtime.schwellenraumTowerSteam?.visible === true;
+  setSchwellenraumTowerSteamPresentation(
+    runtime.schwellenraumTowerSteam,
+    runtime.lightingMode,
+    obstructed,
+  );
+  const towerSteamChanged =
+    towerSteamWasVisible !== (runtime.schwellenraumTowerSteam?.visible === true);
+  if (towerSteamChanged) {
+    runtime.schwellenraumLastTowerSteamFrameAt = performance.now();
+  }
   const interiorsVisible =
     runtime.lightingMode === "schwellenraum" && !runtime.underside;
   const interiorsChanged =
@@ -1403,6 +1425,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     snowChanged ||
     schwellenraumChanged ||
     waterAtmosphere.changed ||
+    towerSteamChanged ||
     interiorsChanged
   ) {
     invalidateScenePresentation(runtime);
@@ -2299,6 +2322,7 @@ function setSceneLighting(
     runtime.schwellenraumPariserPlatzElapsedSeconds =
       PARISER_PLATZ_ENTITY_INITIAL_TIME_SECONDS;
     runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
+    runtime.schwellenraumLastTowerSteamFrameAt = performance.now();
   }
   refreshSchwellenraumMovingFlagCount(runtime);
   updatePotsdamerTrafficTower(runtime.potsdamerTrafficTower, performance.now() / 1000,
@@ -3340,6 +3364,8 @@ function ensureIsoWorld(
   let pedestrianSnapshot: PedestrianAttachmentSnapshot | null = null;
   let progressiveSnapshot: ProgressiveWorldSnapshot | null = null;
   let originalIsoWorld: Group | null = null;
+  let originalTowerSteam: Mesh | null = null;
+  let pendingTowerSteam: Mesh | null = null;
   let originalTrafficSignals: Group | null | undefined;
   let originalPathTerrainAt: ParkPathTerrainAt | undefined;
   let originalWorldDetailsInstaller: (() => void) | null = null;
@@ -3686,6 +3712,9 @@ function ensureIsoWorld(
         isoWorld.add(outlines.createSchlossEastOutlines(false, ["stationBase", "stationHall"]));
         yield;
         isoWorld.add(tower.createFernsehturmArchitecture());
+        // One fixed-capacity field belongs to this drawn world transaction.
+        pendingTowerSteam = createSchwellenraumTowerSteam();
+        isoWorld.add(pendingTowerSteam);
         yield;
         isoWorld.add(alexanderCivic.createAlexanderCivicArchitecture());
         yield;
@@ -3868,6 +3897,7 @@ function ensureIsoWorld(
       pedestrianSnapshot = capturePedestrianAttachment(runtime);
       progressiveSnapshot = captureProgressiveWorld(runtime);
       originalIsoWorld = runtime.isoWorld;
+      originalTowerSteam = runtime.schwellenraumTowerSteam;
       originalTrafficSignals = runtime.trafficSignals;
       originalPathTerrainAt = runtime.districtPathTerrainAt;
       originalWorldDetailsInstaller = runtime.schwellenraumWorldDetailsInstaller;
@@ -3891,6 +3921,12 @@ function ensureIsoWorld(
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
       runtime.isoWorld = isoWorld;
+      runtime.schwellenraumTowerSteam = pendingTowerSteam;
+      if (pendingTowerSteam) {
+        updateSchwellenraumTowerSteam(
+          pendingTowerSteam, runtime.schwellenraumTowerSteamElapsedSeconds,
+        );
+      }
       runtime.scene.add(isoWorld);
       runtime.progressiveWorldInput = progressiveInput ?? undefined;
       collectFarZoomAntiFlickerTargets(runtime);
@@ -3943,6 +3979,7 @@ function ensureIsoWorld(
       }
       if (provisionalIsoWorld && runtime.isoWorld === provisionalIsoWorld) {
         runtime.isoWorld = originalIsoWorld;
+        runtime.schwellenraumTowerSteam = originalTowerSteam;
       }
       if (mutableRootSnapshots) {
         rollbackMutableRoots(runtime, mutableRootSnapshots);
@@ -4910,6 +4947,9 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   const textures = new Set<Texture>();
   const closeableImages = new Set<{ close: () => void }>();
   root.traverse((object) => {
+    if (object === runtime.schwellenraumTowerSteam) {
+      runtime.schwellenraumTowerSteam = null;
+    }
     if (!(object instanceof Mesh) && !(object instanceof LineSegments)) {
       return;
     }
@@ -5087,6 +5127,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (active && runtime) {
         runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
         runtime.schwellenraumLastWaterFrameAt = performance.now();
+        runtime.schwellenraumLastTowerSteamFrameAt = performance.now();
         runtime.renderInvalidated = true;
       }
     }, [active]);
@@ -5881,6 +5922,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumLastFlagFrameAt: 0,
         schwellenraumLastPariserPlatzFrameAt: 0,
         schwellenraumLastWaterFrameAt: 0,
+        schwellenraumLastTowerSteamFrameAt: 0,
+        schwellenraumTowerSteamElapsedSeconds: SCHWELLENRAUM_TOWER_STEAM_INITIAL_TIME,
+        schwellenraumTowerSteam: null,
         schwellenraumMovingFlagCount: 0,
         civicWindFlagTargets: [],
         schwellenraumPariserPlatzElapsedSeconds:
@@ -6918,6 +6962,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
           runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
           runtime.schwellenraumLastWaterFrameAt = performance.now();
+          runtime.schwellenraumLastTowerSteamFrameAt = performance.now();
           runtime.renderInvalidated = true;
           if (
             progressiveWorldVisibilityTransition(
@@ -7235,6 +7280,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         lastFlagFrameAt: 0,
         lastPariserPlatzFrameAt: 0,
         lastWaterFrameAt: 0,
+        lastTowerSteamFrameAt: 0,
+        towerSteamOnScreen: false,
         minecraftMobsVisible: false,
         mode: runtime.lightingMode,
         movingFlagCount: 0,
@@ -7252,6 +7299,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         animateOrdinaryEnvironment: false,
         animatePariserPlatzEntities: false,
         animateWaterLight: false,
+        animateTowerSteam: false,
         environmentalMotion: false,
       };
       const roofSignMotionOptions: BerlinerEnsembleRoofSignMotionOptions = {
@@ -7337,6 +7385,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             camera,
             pariserPlatzLoopScreenScratch,
           );
+        const towerSteamOnScreen =
+          !reducedMotion &&
+          !documentHidden &&
+          !runtime.underside &&
+          runtime.lightingMode === "schwellenraum" &&
+          isSchwellenraumTowerSteamOnScreen(
+            runtime.schwellenraumTowerSteam, camera,
+          );
+        // Inactive periods never become elapsed simulation time on re-entry.
+        if (!towerSteamOnScreen) {
+          runtime.schwellenraumLastTowerSteamFrameAt = timestamp;
+        }
         const rainVisible = runtime.rain.group.visible;
         const snowVisible = snowfallAnimationActive(runtime.snowstorm);
         const minecraftEnvironmentVisible =
@@ -7396,6 +7456,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           passiveFrameIntervalMs = Math.min(
             passiveFrameIntervalMs,
             SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS,
+          );
+        }
+        if (towerSteamOnScreen) {
+          passiveFrameIntervalMs = Math.min(
+            passiveFrameIntervalMs, SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS,
           );
         }
         if (pariserPlatzEntitiesOnScreen) {
@@ -7496,6 +7561,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.schwellenraumLastPariserPlatzFrameAt;
         schwellenraumMotionOptions.lastWaterFrameAt =
           runtime.schwellenraumLastWaterFrameAt;
+        schwellenraumMotionOptions.lastTowerSteamFrameAt =
+          runtime.schwellenraumLastTowerSteamFrameAt;
+        schwellenraumMotionOptions.towerSteamOnScreen = towerSteamOnScreen;
         schwellenraumMotionOptions.minecraftMobsVisible =
           minecraftEnvironmentVisible;
         schwellenraumMotionOptions.mode = runtime.lightingMode;
@@ -7555,6 +7623,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           schwellenraumMotion.animateFlags ||
           schwellenraumMotion.animatePariserPlatzEntities ||
           schwellenraumMotion.animateWaterLight ||
+          schwellenraumMotion.animateTowerSteam ||
           ordinaryEnvironmentMotion ||
           roofSignMotion.environmentalMotion;
 
@@ -7737,6 +7806,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.schwellenraumPariserPlatzElapsedSeconds,
           );
           runtime.schwellenraumLastPariserPlatzFrameAt = timestamp;
+        }
+        if (
+          schwellenraumMotion.animateTowerSteam && runtime.schwellenraumTowerSteam
+        ) {
+          runtime.schwellenraumTowerSteamElapsedSeconds +=
+            SCHWELLENRAUM_TOWER_STEAM_FRAME_INTERVAL_MS / 1_000;
+          updateSchwellenraumTowerSteam(
+            runtime.schwellenraumTowerSteam,
+            runtime.schwellenraumTowerSteamElapsedSeconds,
+          );
+          runtime.schwellenraumLastTowerSteamFrameAt = timestamp;
         }
         if (roofSignMotion.animate) {
           runtime.berlinerEnsembleRoofSignElapsedSeconds +=

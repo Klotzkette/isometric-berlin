@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.50
+
+- Step 10: soft rose vapour rises from the Fernsehturm sphere in Schwellenraum, with occasional taller smoke fountains.
+- One fixed-capacity, texture-free GPU effect; no per-frame particle allocation or city geometry changes.
+- Pause outside the camera view, outside Schwellenraum, in hidden tabs and with reduced motion; dispose resources with their owning world.
+
 ## v1.0.49
 
 - Step 10: detailed Fernsehturm with source-bound sphere, shaft and antenna, window levels and a view/sun-dependent cross reflex on the actual steel surface.

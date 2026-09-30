@@ -413,6 +413,7 @@ describe("Schwellenraum ethereal water atmosphere", () => {
       animateOrdinaryEnvironment: false,
       animatePariserPlatzEntities: false,
       animateWaterLight: true,
+      animateTowerSteam: false,
       environmentalMotion: true,
     });
 

@@ -47,6 +47,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     worldFailureReported: false, isoWorldState: "idle", coarsePointer: true,
     lightingMode: "schwellenraum", nightLightsOn: true, underside: false,
     scene: new Scene(), isoWorld: null as Group | null,
+    schwellenraumTowerSteam: null as Mesh | null, schwellenraumTowerSteamElapsedSeconds: 4.75,
     signatures: new Group(), cityStaffage: new Group(), undergroundNetwork: new Group(),
     tramCatenary: new Group(), schwellenraumPraesentation: new Group(),
     schwellenraumWorldDetailsInstaller: null, tunnelPortalCourse: null,
@@ -94,6 +95,8 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   };
   const bindings = {
     Group, Mesh, InstancedMesh, LineSegments, Material, Texture,
+    createSchwellenraumTowerSteam: () => model("Tower rose steam").children[0],
+    updateSchwellenraumTowerSteam: () => {},
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
     compactStaticGeometrySteps,
     completeCooperatively: (steps: Generator<void, unknown>, config: Parameters<typeof completeCooperatively>[1]) =>
@@ -161,11 +164,12 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       }),
     }),
   };
-  const start = new Function(...Object.keys(bindings), "Promise", `${compiled}; return ensureIsoWorld;`)(
+  const functions = new Function(...Object.keys(bindings), "Promise", `${compiled}; return { start: ensureIsoWorld, dispose: disposeObject3D };`)(
     ...Object.values(bindings), promise,
   );
-  start(runtime, (warning: string) => warnings.push(warning));
+  functions.start(runtime, (warning: string) => warnings.push(warning));
   return { finished, runtime, built, disposed, warnings, existing, concurrent,
+    disposeScene: () => functions.dispose(runtime, runtime.scene),
     get taskCount() { return taskCount; }, get ready() { return ready; },
     get reported() { return reported; }, get pose() { return pose; },
     get savedPose() { return savedPose; }, get releaseCount() { return releaseCount; } };
@@ -174,9 +178,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(30); // Three detailed Alexanderplatz families; streets wait for ground.
+  expect(h.built).toHaveLength(31); // One owned steam field; streets wait for ground.
   expect(h.disposed.size).toBe(0);
   expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+  expect(h.runtime.schwellenraumTowerSteam?.parent).toBe(h.runtime.isoWorld);
   expect(h.runtime.signatures.getObjectByName("drawn bridge structures")).toBeDefined();
   expect(h.runtime.signatures.children).toContain(h.concurrent);
   expect(h.pose).toBe(h.savedPose);
@@ -244,4 +249,40 @@ test("commit rollback preserves independently loaded siblings and frees moved ad
   expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
   expect(h.pose).toBe(h.savedPose);
   expect(h.reported).toBe(1); expect(h.warnings).toHaveLength(1);
+});
+
+test("cancelled tower construction releases its smoke field without publishing a runtime reference", async () => {
+  const h = host({ stopAfterModel: "Tower rose steam" });
+  await h.finished;
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.schwellenraumTowerSteam).toBeNull();
+  const steam = h.built.find(mesh => mesh.name === "Tower rose steam");
+  expect(steam).toBeDefined();
+  expect(h.disposed.get(steam!)).toBe(1);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.warnings).toHaveLength(0);
+});
+
+test("failed scene publication rolls back the tower steam pointer with its world", async () => {
+  const h = host({ failCommit: true });
+  await h.finished;
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.schwellenraumTowerSteam).toBeNull();
+  const steam = h.built.find(mesh => mesh.name === "Tower rose steam");
+  expect(steam).toBeDefined();
+  expect(h.disposed.get(steam!)).toBe(1);
+});
+
+
+test("world release clears the published steam pointer and disposes its buffers once", async () => {
+  const h = host();
+  await h.finished;
+  const steam = h.runtime.schwellenraumTowerSteam!;
+  expect(steam).toBeInstanceOf(Mesh);
+  let materialDisposals = 0;
+  (steam.material as Material).addEventListener("dispose", () => materialDisposals++);
+  h.disposeScene();
+  expect(h.runtime.schwellenraumTowerSteam).toBeNull();
+  expect(h.disposed.get(steam)).toBe(1);
+  expect(materialDisposals).toBe(1);
 });
