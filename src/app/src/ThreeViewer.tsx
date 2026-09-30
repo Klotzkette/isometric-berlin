@@ -3399,6 +3399,7 @@ function ensureIsoWorld(
   const leipzigerShells = import("./LeipzigerPlatzSourceShells");
   const potsdamerMinistryDetails = import("./PotsdamerMinistryArchitecture");
   const leipzigerPerimeterDetails = import("./LeipzigerPerimeterFacades");
+  const bikiniDetails = import("./BikiniBerlin");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3415,9 +3416,9 @@ function ensureIsoWorld(
     komischeOperDetails,
     udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
     towerDetails, alexanderCivicDetails, alexanderPublicDetails,
-    leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails,
+    leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails, bikiniDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3681,6 +3682,8 @@ function ensureIsoWorld(
         isoWorld.add(leipzigerPerimeter.createLeipzigerPerimeterFacades());
         yield;
         isoWorld.add(potsdamerMinistry.createPotsdamerMinistryArchitecture());
+        yield;
+        isoWorld.add(bikini.createBikiniBerlin());
         yield;
         isoWorld.add(createGorkiBuilding());
         yield;

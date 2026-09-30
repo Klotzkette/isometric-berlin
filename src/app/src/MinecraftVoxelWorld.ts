@@ -4,6 +4,9 @@ import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
 import { createLeipzigerPerimeterFacades } from "./LeipzigerPerimeterFacades";
 import { createMinecraftPotsdamerMinistryArchitecture } from "./PotsdamerMinistryArchitecture";
 import { isPotsdamerMinistryReplacementCell } from "./potsdamerMinistryProfile";
+import { createBikiniBerlin } from "./BikiniBerlin";
+import { isBikiniReplacementCell } from "./bikiniProfile";
+import { createMinecraftGedaechtniskirche, isGedaechtniskircheReplacementCell } from "./MinecraftGedaechtniskirche";
 import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
 import { isLeipzigerMallPassageColumn } from "./leipzigerPlatzSourceProfile";
 import { createDhmArchitecture } from "./DhmArchitecture";
@@ -2775,6 +2778,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftPotsdamerMinistryArchitecture());
   yield;
+  group.add(createBikiniBerlin(true));
+  yield;
+  group.add(createMinecraftGedaechtniskirche());
+  yield;
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   yield;
@@ -2927,6 +2934,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !harbourBuildingColumnAt(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isEconomicMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
       !isPotsdamerMinistryReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
+      !isBikiniReplacementCell(worldXAbs(xIdx) - cell / 2, worldZAbs(zIdx) - cell / 2, cell) &&
+      !isGedaechtniskircheReplacementCell(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isLeipzigerMallPassageColumn(worldXAbs(xIdx), worldZAbs(zIdx), cell / 2) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.52 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.52/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.53 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.53/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.52** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.53** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.53 refines the Kaiser Wilhelm Memorial Church and Bikini Berlin.
+The ruin gains hollow masonry detail, the modern church its blue glass lattice,
+and Bikini its mapped terraces, recessed storey, coloured facade and glazing.
+All five visual modes retain dedicated, texture-free geometry.
+[Sources and checks](docs/release-v1.0.53-review.md).
+
+Version 1.0.53 verfeinert die Gedächtniskirche und Bikini Berlin: hohle
+Turmruine, feine blaue Glasraster, gestaffelte Dachterrassen und die gegliederte
+Fassade mit zurückgesetztem Zwischengeschoss.
 
 Version 1.0.52 reduces memory retained across mobile mode switches and removes
 redundant framebuffer and water-effect work. City geometry, effects, drawing

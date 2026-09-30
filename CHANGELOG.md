@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.53
+
+- Refine the Kaiser Wilhelm Memorial Church's hollow broken crown, Romanesque masonry, clocks and correctly aligned blue concrete-glass grids.
+- Replace Bikini Berlin's generic tall envelope with all 103 mapped parts, preserving terraces, stairs, rooflights and pilotis; add coloured facade bands, slender frames and dotted lettering.
+- Add separate block-native recognition geometry and retain complete drawn detail on mobile. Keep v1.0.52 stability changes, prior city geometry and the 93-stop catalogue.
+
 ## v1.0.52
 
 - Step 10: retire old drawn-mode shader programs on mobile mode transitions, while preserving every material, texture, geometry and navigation state.

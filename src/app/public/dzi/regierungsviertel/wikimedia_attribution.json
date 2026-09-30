@@ -3844,6 +3844,42 @@
       "credit": "Jörg Zägel, 2009 / Wikimedia Commons",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "bikini_berlin_v153",
+      "title": "File:Bikini-Haus, 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bikini-Haus,_2024_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bahnfrend",
+      "credit": "Bahnfrend / CC BY-SA 4.0",
+      "description": "Street-facing sign, long concrete facade, glazed recess and roof-edge proportions; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bikini_berlin_v153",
+      "title": "File:Bikini-Haus Fassade 160605 AW.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bikini-Haus_Fassade_160605_AW.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Alice Wiegand",
+      "credit": "© Alice Wiegand / CC-BY-SA 4.0 (via Wikimedia Commons)",
+      "description": "Pale concrete frame, muted green panels and repetitive recessed glazing; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v153",
+      "title": "File:Kaiser-Wilhelm-Gedächtniskirche Sommer 2024 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kaiser-Wilhelm-Ged%C3%A4chtniskirche_Sommer_2024_2.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Hwyrd",
+      "credit": "Hwyrd / CC BY-SA 4.0",
+      "description": "Weathered Romanesque ruin, clocks, open arches, broken crown and blue-glazed modern ensemble; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

@@ -1,10 +1,11 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v151.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v153.json";
 
-// Synchronous v151 measurements must equal cooperative construction below.
-// The former inline v149 baseline remains frozen in the adjacent v149 fixture.
+// Synchronous v153 measurements must equal cooperative construction below.
+// The v149 and v151 baselines remain frozen in their adjacent fixtures.
+// v153 adds the source-bound Bikini and Gedächtniskirche native models.
 // Complete source replacements and native source-cell ownership are verified
 // independently; all unrelated model hashes retain their earlier fixtures.
 for (const [profile, expected] of Object.entries(baseline)) {

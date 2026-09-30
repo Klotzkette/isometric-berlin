@@ -488,11 +488,28 @@ only; the official ensemble description supplies the surviving 71 m height
 from the original 113 m tower, and no photograph, crop or texture is bundled.
 The neighbouring 53.3 m, six-sided bell tower keeps its 12 m diameter, dense
 blue concrete-glass grid, broad bell-chamber band and gold 5.3 m pole / 1.8 m
-cross hierarchy from the official building description. The four merged City
-West groups use 11 renderables / 25,816 vertices in full and 11 / 16,739 in the
-coarse-pointer mobile profile, within fixed 26,100 / 16,900-vertex caps. Mobile
-retains 17 rows on the principal Europa-Center facades while coarsening
-secondary faces and mullions.
+cross hierarchy from the official building description. The v1.0.53 City West
+groups use 12 renderables / 64,144 stored vertices / 1,167,162 geometry bytes,
+with identical complete static detail on desktop and mobile. All eight church
+faces and six bell-tower faces carry aligned blue concrete-glass cells, with
+separate blue night emission. Four gold clocks, layered portal arches, masonry
+courses and a hollow fractured crown refine the ruin. Its exact source
+low-wing footprint remains, and the lower arch is open in both drawn geometry
+and pedestrian collision. Minecraft substitutes one independent
+7,922-instance block batch for the five-building ensemble. See
+[the church source contract](gedaechtniskirche-v153.md).
+
+Bikini Berlin replaces only its two matching generic source prisms with all
+103 mapped building parts, including their actual heights, setbacks, roof
+holes and external stairs. The three upper facade bands, recessed glass
+storey, gold frames, lettering, zoo-side glazing and planted roof remain
+texture-free. Drawn geometry uses 3 renderables / 25,758 stored vertices /
+3,935 instances / 685,718 geometry and instance bytes; native Minecraft uses
+2 renderables / 7,965 stored vertices / 21,371 instances / 1,743,959 bytes.
+Native replacement is restricted to 660 exclusively owned raster cells;
+29 cells sharing neighbouring building contributions remain. The source
+contract records this accounting and the explicit stair cutout in
+[Bikini Berlin recognition](bikini-berlin-v153.md).
 Friedrichstadt-Palast likewise receives its documented main body, taller stage
 tower, projecting foyer, broad stairs, concrete fins and two-storey coloured
 concrete-glass fields. The exact Tränenpalast outline remains separate from the

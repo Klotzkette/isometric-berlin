@@ -194,6 +194,7 @@ import { createFederalStateRepresentations, SACHSEN_ANHALT_FACADE_IDS } from "./
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
 import { LEIPZIGER_SOURCE_PRISM_IDS } from "./leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_REPLACEMENT_IDS } from "./potsdamerMinistryProfile";
+import { BIKINI_REPLACEMENT_IDS } from "./bikiniProfile";
 import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -913,6 +914,10 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...BIKINI_REPLACEMENT_IDS,
+  // Both complete church towers are reconstructed at their original OSM
+  // anchors; these former solid extrusions close the ruin's actual openings.
+  "15218372", "15218373",
   ...LEIPZIGER_SOURCE_PRISM_IDS, ...POTSDAMER_MINISTRY_REPLACEMENT_IDS,
   ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS, ...ALEXANDER_CIVIC_PRISM_IDS,
   ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,

@@ -17,6 +17,20 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Kaiser-Wilhelm-Gedächtniskirche and Bikini Berlin (v1.0.53):** the
+  church ensemble retains OSM ways `15218371`–`15218375` and its documented
+  71 m ruined tower, 20.5 m octagonal church and 53.3 m hexagonal bell tower.
+  Bikini Berlin retains all 103 mapped OSM building parts under current way
+  `364457341`; earlier display prisms `64457341` and `-5419303` remain
+  recorded beside the refined model. Local facade grids, masonry, clock and
+  crown subdivisions are procedural display interpretations, not surveys.
+  External photographs by Hwyrd, Bahnfrend and Alice Wiegand (CC BY-SA 4.0)
+  guide material and recognition detail. Their individual credits are mirrored
+  in both Wikimedia manifests and the [reference catalogue](references/wikimedia/README.md).
+  No photograph, crop or photographic texture is bundled or loaded.
+  See [church source distinctions](docs/gedaechtniskirche-v153.md) and
+  [Bikini Berlin source distinctions](docs/bikini-berlin-v153.md).
+
 - **Potsdamer / Leipziger Platz and Wilhelmstraße (v1.0.51):** complete
   official LoD2 wall/roof sheets retain the Mall, Voßpalais, plaza perimeter,
   old/new Environment Ministry, Forum tower, Haus Huth and Hyatt envelopes.

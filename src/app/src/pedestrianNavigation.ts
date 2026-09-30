@@ -1,3 +1,6 @@
+import { CITY_WEST_PROFILE } from "./CityWestDetails";
+import { gedaechtniskircheRuinSolidAt } from "./MinecraftGedaechtniskirche";
+import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
 import { SCHLOSS_EAST_NAVIGATION_BOUNDS, schlossEastNavigationGroundAt } from "./schlossEastNavigation";
 import { DHM_PARTS, DHM_PRISM_IDS, dhmPartBaseAt, dhmPartRoofAt } from "./dhmProfile";
 import { eastCivicSourceForPrism, eastCivicPartBaseAt, eastCivicPartRoofAt, EAST_CIVIC_LOGGIA_POSTS } from "./eastCivicProfile";
@@ -10,6 +13,7 @@ import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendar
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
 import { LEIPZIGER_SOURCE_PARTS, leipzigerSourceRoofAt, leipzigerPartSolidBase } from "./leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "./potsdamerMinistrySourceProfile";
+import { BIKINI_DISPLAY_PARTS, BIKINI_REPLACEMENT_IDS, BIKINI_SOURCE } from "./bikiniProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
 import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
 import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
@@ -612,6 +616,49 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (building.id === "15218373") {
+      // The former solid nine-metre OSM prism closed the photographed arch.
+      // Index its represented central piers/upper core, plus every retained
+      // source-wing polygon at its own physical height (including the lintel).
+      if (!replacedParents.has("gedaechtniskirche-ruin")) {
+        replacedParents.add("gedaechtniskirche-ruin");
+        const ruin = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+        const [x, z] = ruin.centerWorldM;
+        const radius = Math.hypot(ruin.footprintM[0] / 2, ruin.footprintM[1] / 2) + 1;
+        addObstacle(index, {
+          kind: "circle", sourceId: "15218373-authored-open-ruin", x, z, radius,
+          minX: x - radius, maxX: x + radius, minZ: z - radius, maxZ: z + radius,
+          minY: CITY_WEST_PROFILE.groundY,
+          maxY: CITY_WEST_PROFILE.groundY + ruin.heightM,
+          solidAt: gedaechtniskircheRuinSolidAt,
+        });
+        index.buildingCount += 1;
+        for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
+          addPolygonObstacle(index, wing.ring, [], wing.baseY, wing.topY, wing.id, 1);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (BIKINI_REPLACEMENT_IDS.has(building.id)) {
+      if (!replacedParents.has("bikini")) {
+        replacedParents.add("bikini");
+        for (const part of BIKINI_DISPLAY_PARTS) {
+          if (part.kind === "steps") {
+            for (const step of part.steps) addPolygonObstacle(index, step.ring, [],
+              BIKINI_SOURCE.groundY + step.bottom, BIKINI_SOURCE.groundY + step.top,
+              part.id, 1);
+          } else {
+            const bottom = part.kind === "roof" ? Math.max(part.bottom, part.top - .12) : part.bottom;
+            addPolygonObstacle(index, part.ring, part.holes,
+              BIKINI_SOURCE.groundY + bottom, BIKINI_SOURCE.groundY + part.top,
+              part.id, 1);
+          }
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     const leipzigerPart = leipzigerParts.get(building.id);
     if (leipzigerPart) {
       // Roof-only canopies stay open underneath; a thin roof is not a solid

@@ -1,11 +1,15 @@
+import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
   BufferGeometry,
   CylinderGeometry,
+  Float32BufferAttribute,
   EdgesGeometry,
   Group,
   SphereGeometry,
+  ShapeUtils,
+  Vector2,
   TorusGeometry,
 } from "three";
 
@@ -204,6 +208,7 @@ export const CITY_WEST_PROFILE = {
       centerWorldM: [-2472.803, 1523.451] as const,
       diameterM: 12,
       facadeSides: 6,
+      lattice: { columnsPerFace: 9, rows: 80, jointM: 0.14 },
       finial: {
         crossHeightM: 1.8,
         poleLengthM: 5.3,
@@ -220,6 +225,10 @@ export const CITY_WEST_PROFILE = {
       centerWorldM: [-2534.667, 1498.637] as const,
       diameterM: 35,
       heightM: 20.5,
+      facadeSides: 8,
+      lattice: { columnsPerFace: 20, rows: 29, jointM: 0.16 },
+      recognitionGeometry:
+        "eight correctly aligned faces of near-square concrete cells with blue and sparse red/green/gold glazing, corner steel posts, flat roof and bronze entrance doors; local subdivisions are not a pane survey",
       sourceBuildingId: "OSM-way-15218371",
     },
     foyerCenterWorldM: [-2565.322, 1490.536] as const,
@@ -248,7 +257,11 @@ export const CITY_WEST_PROFILE = {
         springHeightM: 11,
       },
       recognitionGeometry:
-        "open lower arch, gold clock, triple belfry arches, corner buttresses and turrets, and a green-grey jagged crown",
+        "open lower arch with three archivolts, four gold clocks, masonry courses, blind arcade, belfry columns, corner buttresses and turrets, and a hollow eight-sided green-grey jagged crown",
+      crownWallCount: 8,
+      clockFaceCount: 4,
+      facadeDetailStatus:
+        "procedural masonry and Romanesque subdivisions cross-checked against Hwyrd 2024 Commons photographs; not a stone-by-stone survey",
       rotationY: (79.93 * Math.PI) / 180,
       sourceBuildingId: "OSM-way-15218373",
     },
@@ -259,6 +272,8 @@ export const CITY_WEST_PROFILE = {
       "https://www.gedaechtniskirche-berlin.de/gebaeude/architektur",
       "https://www.gedaechtniskirche-berlin.de/geschichte/das-kirchen-ensemble/gebaeude-1895-1963/der-glockenturm",
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040472",
+      "https://www.gedaechtniskirche-berlin.de/geschichte/spenden/das-blaue-glas",
+      "https://commons.wikimedia.org/wiki/File:Kaiser-Wilhelm-Ged%C3%A4chtniskirche_Sommer_2024_2.jpg",
       "https://www.openstreetmap.org/way/15218371",
       "https://www.openstreetmap.org/way/15218372",
       "https://www.openstreetmap.org/way/15218373",
@@ -304,8 +319,16 @@ export const CITY_WEST_SOURCE_URLS = [
 ] as const;
 
 export const CITY_WEST_RENDER_BUDGET = {
-  full: { maxRenderables: 12, maxVertices: 26_100 },
-  mobile: { maxRenderables: 12, maxVertices: 26_100 },
+  full: {
+    maxRenderables: 12,
+    maxVertices: 65_000,
+    maxGeometryBytes: 1_180_000,
+  },
+  mobile: {
+    maxRenderables: 12,
+    maxVertices: 65_000,
+    maxGeometryBytes: 1_180_000,
+  },
 } as const;
 
 function pushGeometry(
@@ -433,39 +456,6 @@ function addLocalFacadeArch(
   geometry.rotateY(rotationY);
   geometry.translate(x, centerY, z);
   pushGeometry(builder, geometry, color, inked);
-}
-
-function addLocalBrokenBox(
-  builder: Builder,
-  color: number,
-  center: readonly [number, number],
-  rotationY: number,
-  localX: number,
-  centerY: number,
-  localZ: number,
-  sizeX: number,
-  sizeY: number,
-  sizeZ: number,
-  topSlopeM: number,
-  rotationZ: number,
-): void {
-  const [x, z] = localPoint(center, rotationY, localX, localZ);
-  const geometry = new BoxGeometry(sizeX, sizeY, sizeZ);
-  const positions = geometry.getAttribute("position");
-  for (let index = 0; index < positions.count; index += 1) {
-    if (positions.getY(index) <= 0) continue;
-    const normalizedX = positions.getX(index) / (sizeX / 2);
-    positions.setY(
-      index,
-      positions.getY(index) + normalizedX * topSlopeM,
-    );
-  }
-  positions.needsUpdate = true;
-  geometry.computeVertexNormals();
-  if (rotationZ !== 0) geometry.rotateZ(rotationZ);
-  geometry.rotateY(rotationY);
-  geometry.translate(x, centerY, z);
-  pushGeometry(builder, geometry, color);
 }
 
 function addAllianzRoofWordmark(builder: Builder): void {
@@ -1777,13 +1767,17 @@ function addOldChurchTower(
 
   const clock = profile.clock;
   const clockRadiusM = clock.diameterM / 2;
-  const clockFaceZ = depthM / 2 - 0.52;
-  for (const face of [-1, 1]) {
+  for (const [clockYaw, face, clockFaceZ] of [
+    [profile.rotationY, -1, depthM / 2 - 0.52],
+    [profile.rotationY, 1, depthM / 2 - 0.52],
+    [profile.rotationY + Math.PI / 2, -1, 10.45],
+    [profile.rotationY + Math.PI / 2, 1, 10.45],
+  ] as const) {
     addLocalFacadeDisc(
       builder,
       STONE_SHADOW,
       center,
-      profile.rotationY,
+      clockYaw,
       0,
       GROUND_Y + clock.centerHeightM,
       face * (clockFaceZ + 0.22),
@@ -1796,7 +1790,7 @@ function addOldChurchTower(
       builder,
       CLOCK_GOLD,
       center,
-      profile.rotationY,
+      clockYaw,
       0,
       GROUND_Y + clock.centerHeightM,
       face * (clockFaceZ + 0.5),
@@ -1813,18 +1807,14 @@ function addOldChurchTower(
       Math.PI,
     );
     lowerClockRing.rotateZ(Math.PI);
-    lowerClockRing.rotateY(profile.rotationY);
+    lowerClockRing.rotateY(clockYaw);
     const [ringX, ringZ] = localPoint(
       center,
-      profile.rotationY,
+      clockYaw,
       0,
       face * (clockFaceZ + 0.5),
     );
-    lowerClockRing.translate(
-      ringX,
-      GROUND_Y + clock.centerHeightM,
-      ringZ,
-    );
+    lowerClockRing.translate(ringX, GROUND_Y + clock.centerHeightM, ringZ);
     pushGeometry(builder, lowerClockRing, CLOCK_GOLD, false);
 
     const markerRadiusM = clockRadiusM - 0.85;
@@ -1835,11 +1825,9 @@ function addOldChurchTower(
         builder,
         CLOCK_GOLD,
         center,
-        profile.rotationY,
+        clockYaw,
         Math.sin(angle) * markerRadiusM,
-        GROUND_Y +
-          clock.centerHeightM +
-          Math.cos(angle) * markerRadiusM,
+        GROUND_Y + clock.centerHeightM + Math.cos(angle) * markerRadiusM,
         face * (clockFaceZ + 0.66),
         0.2,
         markerLengthM,
@@ -1856,11 +1844,9 @@ function addOldChurchTower(
         builder,
         CLOCK_GOLD,
         center,
-        profile.rotationY,
+        clockYaw,
         (Math.sin(angle) * lengthM) / 2,
-        GROUND_Y +
-          clock.centerHeightM +
-          (Math.cos(angle) * lengthM) / 2,
+        GROUND_Y + clock.centerHeightM + (Math.cos(angle) * lengthM) / 2,
         face * (clockFaceZ + 0.69),
         widthM,
         lengthM,
@@ -1873,7 +1859,7 @@ function addOldChurchTower(
       builder,
       CLOCK_GOLD,
       center,
-      profile.rotationY,
+      clockYaw,
       0,
       GROUND_Y + clock.centerHeightM,
       face * (clockFaceZ + 0.72),
@@ -1971,58 +1957,374 @@ function addOldChurchTower(
     );
   }
 
-  const crownShards = [
-    [-5.3, -2.6, 4.6, 12.48, 4.7, -0.015],
-    [-0.2, -3.5, 4.5, 9.8, 4.1, 0.08],
-    [5.1, -1.7, 4.2, 7.8, 4.3, -0.11],
-    [-3.2, 3.1, 4.1, 8.2, 3.8, 0.09],
-    [3.6, 3.2, 4.4, 5.2, 3.7, -0.08],
-  ] as const;
-  const shardCount = detailProfile === "mobile" ? 4 : crownShards.length;
-  for (const [
-    shardIndex,
-    [localX, localZ, sizeX, heightM, sizeZ, rotationZ],
-  ] of crownShards.slice(0, shardCount).entries()) {
-    const stoneHeightM = heightM * 0.56;
-    const patinaHeightM = heightM - stoneHeightM;
-    addLocalBox(
+  // The broken spire is a wall shell with an empty centre, not five filled
+  // rectangular stacks. Its irregular silhouette still ends exactly at 71 m.
+  const crownHeights = [71, 68.3, 64.5, 66.1, 62.9, 64.2, 65.5, 69.1];
+  const crownRadius = 8.1;
+  for (let side = 0; side < profile.crownWallCount; side += 1) {
+    const a = (side * Math.PI * 2) / profile.crownWallCount + Math.PI / 8;
+    const b = ((side + 1) * Math.PI * 2) / profile.crownWallCount + Math.PI / 8;
+    const ha = crownHeights[side],
+      hb = crownHeights[(side + 1) % crownHeights.length];
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const quad = (
+      corners: readonly (readonly [number, number, number])[],
+    ): void => {
+      const index = positions.length / 3;
+      for (const [x, y, z] of corners) {
+        const [wx, wz] = localPoint(center, profile.rotationY, x, z);
+        positions.push(wx, GROUND_Y + y, wz);
+      }
+      indices.push(index, index + 1, index + 2, index, index + 2, index + 3);
+    };
+    const point = (
+      angle: number,
+      height: number,
+      radius: number,
+    ): readonly [number, number, number] => [
+      Math.cos(angle) * radius,
+      height,
+      Math.sin(angle) * radius,
+    ];
+    const lowA = point(a, 58.65, crownRadius),
+      lowB = point(b, 58.65, crownRadius);
+    const topA = point(a, ha, crownRadius * 0.62),
+      topB = point(b, hb, crownRadius * 0.62);
+    const innerA = point(a, ha - 0.15, crownRadius * 0.62 - 0.7),
+      innerB = point(b, hb - 0.15, crownRadius * 0.62 - 0.7);
+    quad([lowB, lowA, topA, topB]);
+    quad([
+      point(a, 58.65, crownRadius - 0.7),
+      point(b, 58.65, crownRadius - 0.7),
+      innerB,
+      innerA,
+    ]);
+    quad([topA, innerA, innerB, topB]);
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geometry.setIndex(indices);
+    pushGeometry(
       builder,
-      RUIN_STONE,
-      center,
-      profile.rotationY,
-      localX,
-      GROUND_Y + 58.55 + stoneHeightM / 2,
-      localZ,
-      sizeX,
-      stoneHeightM,
-      sizeZ,
-      rotationZ,
+      geometry,
+      side % 3 === 0 ? RUIN_LIGHT : PATINA_GREEN,
+      true,
     );
-    const topSlopeM =
-      (shardIndex % 2 === 0 ? 1 : -1) * (0.42 + shardIndex * 0.08);
-    addLocalBrokenBox(
+  }
+
+  // Masonry courses and local patches are abstract recognition subdivisions,
+  // not an invented stone-by-stone scan of the war-damaged sandstone.
+  for (const face of [-1, 1]) {
+    for (let course = 0; course < 18; course += 1) {
+      const y = 1.1 + course * 2.25;
+      for (const side of [-1, 1]) {
+        const lower = y < 20;
+        const u = side * (lower ? 10.8 : 6.9);
+        addLocalBox(
+          builder,
+          course % 3 === 0 ? RUIN_LIGHT : RUIN_ACCENT,
+          center,
+          profile.rotationY,
+          u,
+          GROUND_Y + y,
+          face * (lower ? facadeZ + 0.08 : 8.28),
+          lower ? 8.0 : 6.3,
+          0.13,
+          0.1,
+          0,
+          false,
+        );
+        if (course % 2 === 0)
+          addLocalBox(
+            builder,
+            RUIN_LIGHT,
+            center,
+            profile.rotationY,
+            u + side * 1.2,
+            GROUND_Y + y + 0.65,
+            face * (lower ? facadeZ + 0.09 : 8.29),
+            2.0,
+            0.72,
+            0.12,
+            0,
+            false,
+          );
+      }
+    }
+    // Three concentric archivolts frame the retained traversable portal.
+    for (const radius of [5.85, 6.55]) {
+      addLocalFacadeArch(
+        builder,
+        RUIN_ACCENT,
+        center,
+        profile.rotationY,
+        0,
+        GROUND_Y + portal.springHeightM,
+        face * (facadeZ + 0.26),
+        radius,
+        0.18,
+        20,
+        false,
+      );
+    }
+    for (const u of [-11.2, 11.2]) {
+      addLocalBox(
+        builder,
+        STONE_SHADOW,
+        center,
+        profile.rotationY,
+        u,
+        GROUND_Y + 12.4,
+        face * (facadeZ + 0.18),
+        2.35,
+        4.4,
+        0.16,
+        0,
+        false,
+      );
+      addLocalFacadeDisc(
+        builder,
+        STONE_SHADOW,
+        center,
+        profile.rotationY,
+        u,
+        GROUND_Y + 14.6,
+        face * (facadeZ + 0.19),
+        1.17,
+        0.16,
+        14,
+        false,
+      );
+      addLocalFacadeArch(
+        builder,
+        RUIN_LIGHT,
+        center,
+        profile.rotationY,
+        u,
+        GROUND_Y + 14.6,
+        face * (facadeZ + 0.28),
+        1.35,
+        0.19,
+        14,
+        false,
+      );
+    }
+    // Closely spaced short arches below the belfry, and slender belfry jambs.
+    for (let bay = 0; bay < 7; bay += 1) {
+      const u = -8.4 + bay * 2.8;
+      addLocalBox(
+        builder,
+        STONE_SHADOW,
+        center,
+        profile.rotationY,
+        u,
+        GROUND_Y + 41,
+        face * 8.5,
+        1.2,
+        1.15,
+        0.14,
+        0,
+        false,
+      );
+      addLocalFacadeArch(
+        builder,
+        RUIN_LIGHT,
+        center,
+        profile.rotationY,
+        u,
+        GROUND_Y + 41.55,
+        face * 8.64,
+        0.7,
+        0.16,
+        8,
+        false,
+      );
+    }
+    for (const u of [-5.4, 0, 5.4]) {
+      for (const direction of [-1, 1]) {
+        addLocalBox(
+          builder,
+          RUIN_LIGHT,
+          center,
+          profile.rotationY,
+          u + direction * 1.55,
+          GROUND_Y + 49.7,
+          face * 8.66,
+          0.36,
+          6.1,
+          0.3,
+          0,
+          false,
+        );
+        addLocalBox(
+          builder,
+          RUIN_LIGHT,
+          center,
+          profile.rotationY,
+          u + direction * 1.55,
+          GROUND_Y + 52.5,
+          face * 8.7,
+          0.65,
+          0.45,
+          0.4,
+          0,
+          false,
+        );
+      }
+    }
+  }
+}
+
+/** One indexed quad per glass cell; the continuous concrete skin supplies
+ * the joints without thousands of boxes or per-window scene objects. */
+function addEiermannGlassLattice(
+  builder: Builder,
+  glass: Builder,
+  profile: {
+    centerWorldM: readonly [number, number];
+    diameterM: number;
+    heightM: number;
+    facadeSides: number;
+    lattice: { columnsPerFace: number; rows: number; jointM: number };
+  },
+  groundY: number,
+  isBellTower: boolean,
+): void {
+  const radius = profile.diameterM / 2;
+  const apothem = radius * Math.cos(Math.PI / profile.facadeSides);
+  const faceWidth = 2 * radius * Math.sin(Math.PI / profile.facadeSides);
+  const { columnsPerFace, rows, jointM } = profile.lattice;
+  const pitchX = faceWidth / columnsPerFace;
+  const pitchY = (profile.heightM - 0.8) / rows;
+  const palette = [
+    KWG_BLUE,
+    0x345777,
+    0x173967,
+    0x4c6583,
+    0x7b474a,
+    0x547263,
+    0xa38e59,
+  ];
+  const positions = palette.map(() => [] as number[]);
+  const indices = palette.map(() => [] as number[]);
+  addCylinder(
+    builder,
+    KWG_GRID,
+    profile.centerWorldM[0],
+    groundY + (profile.heightM - 0.34) / 2,
+    profile.centerWorldM[1],
+    radius,
+    profile.heightM - 0.34,
+    profile.facadeSides,
+  );
+  for (let face = 0; face < profile.facadeSides; face += 1) {
+    const theta = ((face + 0.5) * Math.PI * 2) / profile.facadeSides;
+    const normalX = Math.sin(theta),
+      normalZ = Math.cos(theta);
+    const tangentX = Math.cos(theta),
+      tangentZ = -Math.sin(theta);
+    for (let row = 0; row < rows; row += 1) {
+      const y = groundY + 0.4 + (row + 0.5) * pitchY;
+      if (
+        isBellTower &&
+        Math.abs(
+          y -
+            groundY -
+            CITY_WEST_PROFILE.gedaechtniskirche.bellTower
+              .bellChamberBandCenterHeightM,
+        ) < 1.1
+      )
+        continue;
+      for (let column = 0; column < columnsPerFace; column += 1) {
+        // Concrete lower register around the entrance remains visibly distinct.
+        if (!isBellTower && row < 2) continue;
+        const seed = face * 127 + row * 23 + column * 41;
+        const tone = seed % 67 === 0 ? 4 + (seed % 3) : seed % 4;
+        const vertex = positions[tone].length / 3;
+        const u = -faceWidth / 2 + (column + 0.5) * pitchX;
+        for (const [du, dy] of [
+          [-1, -1],
+          [1, -1],
+          [1, 1],
+          [-1, 1],
+        ]) {
+          const across = u + (du * (pitchX - jointM)) / 2;
+          positions[tone].push(
+            profile.centerWorldM[0] +
+              normalX * (apothem + 0.025) +
+              tangentX * across,
+            y + (dy * (pitchY - jointM)) / 2,
+            profile.centerWorldM[1] +
+              normalZ * (apothem + 0.025) +
+              tangentZ * across,
+          );
+        }
+        indices[tone].push(
+          vertex,
+          vertex + 1,
+          vertex + 2,
+          vertex,
+          vertex + 2,
+          vertex + 3,
+        );
+      }
+    }
+    // The projecting round steel supports belong at polygon vertices.
+    const corner = (face * Math.PI * 2) / profile.facadeSides;
+    addCylinder(
       builder,
-      PATINA_GREEN,
-      center,
-      profile.rotationY,
-      localX,
-      GROUND_Y +
-        58.55 +
-        stoneHeightM +
-        patinaHeightM / 2 -
-        Math.abs(topSlopeM),
-      localZ,
-      sizeX * 0.88,
-      patinaHeightM,
-      sizeZ * 0.9,
-      topSlopeM,
-      rotationZ,
+      0x5e6568,
+      profile.centerWorldM[0] + Math.sin(corner) * radius,
+      groundY + profile.heightM / 2,
+      profile.centerWorldM[1] + Math.cos(corner) * radius,
+      isBellTower ? 0.16 : 0.22,
+      profile.heightM,
+      6,
     );
+  }
+  for (let tone = 0; tone < palette.length; tone += 1) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(positions[tone], 3),
+    );
+    geometry.setIndex(indices[tone]);
+    pushGeometry(glass, geometry, palette[tone], false, true);
+  }
+  addCylinder(
+    builder,
+    0x555e62,
+    profile.centerWorldM[0],
+    groundY + profile.heightM - 0.16,
+    profile.centerWorldM[1],
+    radius + 0.08,
+    0.32,
+    profile.facadeSides,
+  );
+}
+
+function addRetainedChurchWings(builder: Builder): void {
+  for (const part of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
+    const ring = part.ring.map(([x, z]) => new Vector2(x, z));
+    if (!ShapeUtils.isClockWise(ring)) ring.reverse();
+    const positions: number[] = [], indices: number[] = [];
+    for (const vertex of ring) positions.push(vertex.x, part.topY, vertex.y);
+    for (const [a,b,c] of ShapeUtils.triangulateShape(ring, [])) indices.push(a,c,b);
+    for (let i=0;i<ring.length;i+=1) {
+      const a=ring[i], b=ring[(i+1)%ring.length], n=positions.length/3;
+      positions.push(a.x,part.baseY,a.y,b.x,part.baseY,b.y,b.x,part.topY,b.y,a.x,part.topY,a.y);
+      indices.push(n,n+1,n+2,n,n+2,n+3);
+    }
+    const geometry=new BufferGeometry();
+    geometry.setAttribute("position",new Float32BufferAttribute(positions,3));
+    geometry.setIndex(indices);
+    pushGeometry(builder,geometry,RUIN_STONE,true);
   }
 }
 
 function addGedaechtniskirche(
   builder: Builder,
+  glass: Builder,
   detailProfile: CityWestDetailProfile,
 ): void {
   const profile = CITY_WEST_PROFILE.gedaechtniskirche;
@@ -2039,107 +2341,69 @@ function addGedaechtniskirche(
     false,
   );
   addOldChurchTower(builder, detailProfile);
+  addRetainedChurchWings(builder);
 
   const church = profile.church;
   const churchGround = GROUND_Y + profile.podiumHeightM;
-  addCylinder(
+  addEiermannGlassLattice(builder, glass, church, churchGround, false);
+  // Main bronze door group faces the old tower: three separate leaves below
+  // the concrete glass field and a thin cantilevered shelter.
+  const entranceTheta = Math.PI / 2 - Math.PI / 8;
+  const doorCenter: readonly [number, number] = [
+    church.centerWorldM[0] +
+      Math.sin(entranceTheta) *
+        ((church.diameterM / 2) * Math.cos(Math.PI / 8) + 0.1),
+    church.centerWorldM[1] +
+      Math.cos(entranceTheta) *
+        ((church.diameterM / 2) * Math.cos(Math.PI / 8) + 0.1),
+  ];
+  for (const offset of [-1.65, 0, 1.65]) {
+    addLocalBox(
+      builder,
+      BRONZE,
+      doorCenter,
+      entranceTheta,
+      offset,
+      churchGround + 1.9,
+      0.08,
+      1.52,
+      3.5,
+      0.24,
+      0,
+      false,
+    );
+    addLocalBox(
+      builder,
+      0xbaaa82,
+      doorCenter,
+      entranceTheta,
+      offset + 0.52,
+      churchGround + 1.6,
+      0.22,
+      0.09,
+      0.55,
+      0.12,
+      0,
+      false,
+    );
+  }
+  addLocalBox(
     builder,
-    KWG_BLUE,
-    church.centerWorldM[0],
-    churchGround + church.heightM / 2,
-    church.centerWorldM[1],
-    church.diameterM / 2,
-    church.heightM,
-    8,
+    0x666963,
+    doorCenter,
+    entranceTheta,
+    0,
+    churchGround + 3.95,
+    0.8,
+    6.1,
+    0.22,
+    2.25,
+    0,
+    false,
   );
-  const churchBands = detailProfile === "mobile" ? 4 : 7;
-  for (let level = 1; level < churchBands; level += 1) {
-    addCylinder(
-      builder,
-      CONCRETE,
-      church.centerWorldM[0],
-      churchGround + (level * church.heightM) / churchBands,
-      church.centerWorldM[1],
-      church.diameterM / 2 + 0.18,
-      0.28,
-      8,
-    );
-  }
-  const churchRibs = detailProfile === "mobile" ? 4 : 8;
-  for (let index = 0; index < churchRibs; index += 1) {
-    const angle = (index * Math.PI * 2) / churchRibs + Math.PI / 8;
-    addCylinder(
-      builder,
-      CONCRETE,
-      church.centerWorldM[0] + Math.cos(angle) * (church.diameterM / 2),
-      churchGround + church.heightM / 2,
-      church.centerWorldM[1] + Math.sin(angle) * (church.diameterM / 2),
-      0.32,
-      church.heightM,
-      6,
-    );
-  }
-
   const bell = profile.bellTower;
   const bellRadiusM = bell.diameterM / 2;
-  addCylinder(
-    builder,
-    KWG_BLUE,
-    bell.centerWorldM[0],
-    churchGround + bell.heightM / 2,
-    bell.centerWorldM[1],
-    bellRadiusM,
-    bell.heightM,
-    bell.facadeSides,
-  );
-  const bellBands = detailProfile === "mobile" ? 18 : 38;
-  for (let level = 1; level < bellBands; level += 1) {
-    addCylinder(
-      builder,
-      KWG_GRID,
-      bell.centerWorldM[0],
-      churchGround + (level * bell.heightM) / bellBands,
-      bell.centerWorldM[1],
-      bellRadiusM + 0.12,
-      0.22,
-      bell.facadeSides,
-    );
-  }
-  const bellApothemM = bellRadiusM * Math.cos(Math.PI / bell.facadeSides);
-  const bellColumnsPerFace = detailProfile === "mobile" ? 4 : 7;
-  for (let face = 0; face < bell.facadeSides; face += 1) {
-    const normalAngle =
-      Math.PI / bell.facadeSides +
-      (face * Math.PI * 2) / bell.facadeSides;
-    const normalX = Math.cos(normalAngle);
-    const normalZ = Math.sin(normalAngle);
-    const tangentX = -normalZ;
-    const tangentZ = normalX;
-    for (let column = 0; column < bellColumnsPerFace; column += 1) {
-      const acrossM =
-        -bellRadiusM * 0.44 +
-        (column * bellRadiusM * 0.88) /
-          Math.max(1, bellColumnsPerFace - 1);
-      addRotatedBox(
-        builder,
-        KWG_GRID,
-        bell.centerWorldM[0] +
-          normalX * (bellApothemM + 0.11) +
-          tangentX * acrossM,
-        churchGround + bell.heightM / 2,
-        bell.centerWorldM[1] +
-          normalZ * (bellApothemM + 0.11) +
-          tangentZ * acrossM,
-        0.2,
-        bell.heightM - 1.1,
-        0.24,
-        0,
-        -normalAngle - Math.PI / 2,
-        0,
-        false,
-      );
-    }
-  }
+  addEiermannGlassLattice(builder, glass, bell, churchGround, true);
   addCylinder(
     builder,
     0x5f6262,
@@ -2154,43 +2418,12 @@ function addGedaechtniskirche(
     builder,
     KWG_GRID,
     bell.centerWorldM[0],
-    churchGround + bell.heightM - 0.24,
+    churchGround + bell.heightM - 0.32,
     bell.centerWorldM[1],
     bellRadiusM + 0.16,
-    0.48,
+    0.3,
     bell.facadeSides,
   );
-  if (detailProfile === "full") {
-    const glassFlecks = [
-      [0, 11, 0x90454d],
-      [1, 18, 0x56795c],
-      [2, 25, 0xc0a64e],
-      [3, 39, 0x8f3f4c],
-      [4, 45, 0x4f745c],
-      [5, 49, 0xbca44c],
-    ] as const;
-    for (const [face, heightM, color] of glassFlecks) {
-      const normalAngle =
-        Math.PI / bell.facadeSides +
-        (face * Math.PI * 2) / bell.facadeSides;
-      addRotatedBox(
-        builder,
-        color,
-        bell.centerWorldM[0] +
-          Math.cos(normalAngle) * (bellApothemM + 0.24),
-        churchGround + heightM,
-        bell.centerWorldM[1] +
-          Math.sin(normalAngle) * (bellApothemM + 0.24),
-        0.65,
-        0.9,
-        0.18,
-        0,
-        -normalAngle - Math.PI / 2,
-        0,
-        false,
-      );
-    }
-  }
   const crossBaseY = churchGround + bell.heightM;
   addCylinder(
     builder,
@@ -2534,15 +2767,11 @@ export function createCityWestDetails(
   addEuropaCenter(towers, detailProfile);
   addAllianzHaus(towers, detailProfile);
   addKranzlerEck(towers, detailProfile);
-  const towerBatch = finishBatch(
-    towers,
-    "City West towers and Kranzler Eck",
-    {
-      allianzHaus: CITY_WEST_PROFILE.allianzHaus,
-      europaCenter: CITY_WEST_PROFILE.europaCenter,
-      kranzlerEck: CITY_WEST_PROFILE.kranzlerEck,
-    },
-  );
+  const towerBatch = finishBatch(towers, "City West towers and Kranzler Eck", {
+    allianzHaus: CITY_WEST_PROFILE.allianzHaus,
+    europaCenter: CITY_WEST_PROFILE.europaCenter,
+    kranzlerEck: CITY_WEST_PROFILE.kranzlerEck,
+  });
   if (towerBatch) group.add(towerBatch);
 
   const station = createBuilder();
@@ -2553,7 +2782,8 @@ export function createCityWestDetails(
   if (stationBatch) group.add(stationBatch);
 
   const breitscheid = createBuilder();
-  addGedaechtniskirche(breitscheid, detailProfile);
+  const churchGlass = createBuilder();
+  addGedaechtniskirche(breitscheid, churchGlass, detailProfile);
   addBreitscheidplatz(breitscheid, detailProfile);
   const breitscheidBatch = finishBatch(
     breitscheid,
@@ -2563,7 +2793,15 @@ export function createCityWestDetails(
       gedaechtniskirche: CITY_WEST_PROFILE.gedaechtniskirche,
     },
   );
-  if (breitscheidBatch) group.add(breitscheidBatch);
+  if (breitscheidBatch) {
+    const glazing = finishDrawnGroup(churchGlass, {
+      name: "Gedächtniskirche blue concrete-glass cells",
+      lampEmissive: 0x234bad,
+      lampEmissiveIntensity: 0.6,
+    });
+    if (glazing) breitscheidBatch.add(glazing);
+    group.add(breitscheidBatch);
+  }
 
   const urania = createBuilder();
   addUrania(urania, detailProfile);

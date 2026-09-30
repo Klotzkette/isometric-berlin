@@ -16,6 +16,20 @@ colour metadata where a local thumbnail exists. Records marked
 `external_visual_QA_reference_attribution_only` have no bundled photograph.
 Keep attribution when using any listed reference.
 
+## Gedächtniskirche and Bikini Berlin (v1.0.53)
+
+These three photographs were inspected as external visual references only.
+No photograph, crop or photographic texture is bundled or loaded. The original
+OSM anchors and building parts control placement; local facade and ruin detail
+remain procedural display interpretations. All three files are
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+| Photograph | Author / credit | Used for |
+| --- | --- | --- |
+| [Kaiser-Wilhelm-Gedächtniskirche Sommer 2024 2.jpg](https://commons.wikimedia.org/wiki/File:Kaiser-Wilhelm-Ged%C3%A4chtniskirche_Sommer_2024_2.jpg) | Hwyrd | 24 July 2024 ruin masonry, clock, open arches, broken crown and blue-glazed ensemble |
+| [Bikini-Haus, 2024 (01).jpg](https://commons.wikimedia.org/wiki/File:Bikini-Haus,_2024_(01).jpg) | Bahnfrend | 4 August 2024 street sign, concrete frame, glazed recess and roof edge |
+| [Bikini-Haus Fassade 160605 AW.jpg](https://commons.wikimedia.org/wiki/File:Bikini-Haus_Fassade_160605_AW.jpg) | © Alice Wiegand / CC-BY-SA 4.0 (via Wikimedia Commons) | 5 June 2016 pale concrete, muted green panels and recessed glazing |
+
 ## Attribution
 
 | Landmark | File | Author / credit | License |

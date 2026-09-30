@@ -816,6 +816,28 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gedaechtniskirche_v153",
+      "anchor_source": "Retained OSM ways 15218371, 15218372, 15218373, 15218374 and 15218375; institutional building accounts and a licensed external photograph",
+      "geometry_ref": "src/app/src/cityWestDetails.ts#CITY_WEST_PROFILE.gedaechtniskirche",
+      "documentation_ref": "docs/gedaechtniskirche-v153.md",
+      "conflicts": [
+        "The mapped bell-tower prism height is 53.5 m; retain the established institutional 53.3 m body height in the display profile. Fine masonry, clock, arch and honeycomb subdivisions are procedural recognition detail, not a stone or pane inventory. The permanent ruined crown stays open; temporary photographic scaffolding is not inferred as current structure."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bikini_berlin_v153",
+      "anchor_source": "Current attributed OSM way 364457341 and all 103 tagged component ways/relations, including relation 5419303; earlier display prisms 64457341 and -5419303 remain retained; institutional architecture accounts and licensed external photographs",
+      "geometry_ref": "src/app/src/bikiniSource.json",
+      "documentation_ref": "docs/bikini-berlin-v153.md",
+      "conflicts": [
+        "The committed LoD2 extract has no parts for this building. Preserve the two previous OSM display prisms beside the complete mapped component record. Height/min_height and roof-hole conflicts remain explicit in the source provenance; facade spacing, colour and recognition members are procedural display details."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

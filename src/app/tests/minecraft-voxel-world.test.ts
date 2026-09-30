@@ -173,7 +173,10 @@ describe("true voxel Minecraft world", () => {
     // including the retained former OSM-height footprints in that ownership.
     // v151 source replacements open former shared faces while retaining every
     // mixed neighbor cell; this exposes 1,365 additional generic panes.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_560_111);
+    // v153 replaces 660 exclusively owned Bikini cells and 39 church cells.
+    // Independent local pane counting is 1,826 before / 936 after replacement
+    // (890 fewer generic panes); all authored facade detail is supplied separately.
+    expect(instanced("Voxel facade windows", world).count).toBe(1_559_221);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -193,9 +196,11 @@ describe("true voxel Minecraft world", () => {
     // Charité's152-part replacement requires optional sourcePrisms, so it is
     // deliberately absent from these payload-only fallback totals.
     // v151 replaces only safe ministry/Potsdamer and open Mall passage cells.
-    expect(instanced("Voxel building columns", world).count).toBe(1_431_980);
+    // v153: 699 owned source columns yield to the two complete native models,
+    // exactly 2,097 full stack instances or 699 mobile instances.
+    expect(instanced("Voxel building columns", world).count).toBe(1_429_883);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      523_776,
+      523_077,
     );
 
     const landmarks = world.getObjectByName(

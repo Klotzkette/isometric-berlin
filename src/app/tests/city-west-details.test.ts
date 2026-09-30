@@ -4,6 +4,7 @@ import {
   Color,
   Raycaster,
   Vector3,
+  type Mesh,
   type BufferGeometry,
   type Object3D,
 } from "three";
@@ -15,6 +16,17 @@ import {
   createCityWestDetails,
 } from "../src/CityWestDetails";
 import { createExpandedCityDetails } from "../src/ExpandedCityDetails";
+
+import {
+  GEDAECHTNISKIRCHE_RETAINED_WINGS,
+  GEDAECHTNISKIRCHE_RETAINED_WING_AREA_M2,
+} from "../src/gedaechtniskircheSourceParts";
+import {
+  createMinecraftGedaechtniskirche,
+  GEDAECHTNISKIRCHE_MINECRAFT_REPLACEMENT_IDS,
+  isGedaechtniskircheReplacementCell,
+  gedaechtniskircheRuinSolidAt,
+} from "../src/MinecraftGedaechtniskirche";
 
 function geometryBudget(root: Object3D): {
   renderables: number;
@@ -84,12 +96,11 @@ describe("City West and Urania recognition details", () => {
     expect(CITY_WEST_PROFILE.europaCenter.officeFloorCount).toBe(21);
     expect(CITY_WEST_PROFILE.europaCenter.curtainWall.storeyRows).toBe(21);
     expect(
-      CITY_WEST_PROFILE.europaCenter.curtainWall
-        .mobileLongFaceStoreyRows,
+      CITY_WEST_PROFILE.europaCenter.curtainWall.mobileLongFaceStoreyRows,
     ).toBe(17);
-    expect(
-      CITY_WEST_PROFILE.europaCenter.curtainWall.geometryStatus,
-    ).toContain("no facade photograph or texture");
+    expect(CITY_WEST_PROFILE.europaCenter.curtainWall.geometryStatus).toContain(
+      "no facade photograph or texture",
+    );
     expect(
       CITY_WEST_PROFILE.europaCenter.breitscheidplatzFrontage.sourcePartId,
     ).toBe("OSM-way-26408381");
@@ -103,12 +114,9 @@ describe("City West and Urania recognition details", () => {
       CITY_WEST_PROFILE.europaCenter.breitscheidplatzFrontage.officeStoreys,
     ).toBe(3);
     expect(
-      CITY_WEST_PROFILE.europaCenter.breitscheidplatzFrontage.roofSigns
-        .texts,
+      CITY_WEST_PROFILE.europaCenter.breitscheidplatzFrontage.roofSigns.texts,
     ).toEqual(["RBB", "94.3"]);
-    expect(
-      CITY_WEST_PROFILE.europaCenter.roofStar.rotationsPerMinute,
-    ).toBe(2);
+    expect(CITY_WEST_PROFILE.europaCenter.roofStar.rotationsPerMinute).toBe(2);
 
     expect(CITY_WEST_PROFILE.allianzHaus.sourceTowerPartId).toBe(
       "OSM-way-363431228",
@@ -120,20 +128,15 @@ describe("City West and Urania recognition details", () => {
     expect(CITY_WEST_PROFILE.allianzHaus.lowWingFloorCount).toBe(6);
     expect(CITY_WEST_PROFILE.allianzHaus.heightStatus).toContain("inferred");
     expect(CITY_WEST_PROFILE.allianzHaus.roofWordmark.text).toBe("ALLIANZ");
-    expect(
-      CITY_WEST_PROFILE.allianzHaus.roofWordmark.geometryStatus,
-    ).toContain("no font, image, or texture");
+    expect(CITY_WEST_PROFILE.allianzHaus.roofWordmark.geometryStatus).toContain(
+      "no font, image, or texture",
+    );
 
     expect(CITY_WEST_PROFILE.kranzlerEck.sourceRotundaPartId).toBe(
       "OSM-way-474593825",
     );
-    expect(CITY_WEST_PROFILE.kranzlerEck.rotundaDiameterM).toBeCloseTo(
-      16.9,
-      2,
-    );
-    expect(CITY_WEST_PROFILE.urania.sourceBuildingId).toBe(
-      "OSM-way-11687794",
-    );
+    expect(CITY_WEST_PROFILE.kranzlerEck.rotundaDiameterM).toBeCloseTo(16.9, 2);
+    expect(CITY_WEST_PROFILE.urania.sourceBuildingId).toBe("OSM-way-11687794");
     expect(CITY_WEST_PROFILE.urania.rearVolumeStatus).toContain(
       "no component survey",
     );
@@ -142,10 +145,7 @@ describe("City West and Urania recognition details", () => {
   test("derives the Allianz tower axis without mirroring the OSM ring", () => {
     const profile = CITY_WEST_PROFILE.allianzHaus;
     const [[startX, startZ], [endX, endZ]] = profile.sourceAxisWorldM;
-    const projectedAxisRotation = -Math.atan2(
-      endZ - startZ,
-      endX - startX,
-    );
+    const projectedAxisRotation = -Math.atan2(endZ - startZ, endX - startX);
 
     expect(profile.centerWorldM).toEqual([-2809.432, 1748.781]);
     expect(profile.towerFootprintM).toEqual([45.457, 17.317]);
@@ -158,18 +158,17 @@ describe("City West and Urania recognition details", () => {
     const station = CITY_WEST_PROFILE.bahnhofZoo;
     expect(station.longDistanceHall.heightAboveViaductM).toBe(14);
     expect(station.sBahnHall.heightAboveViaductM).toBe(9.6);
-    expect(station.longDistanceHall.sourceBuildingId).toBe(
-      "OSM-way-96955257",
-    );
+    expect(station.longDistanceHall.sourceBuildingId).toBe("OSM-way-96955257");
     expect(station.sBahnHall.sourceBuildingId).toBe("OSM-way-20145539");
     expect(station.longDistanceHall.centerWorldM).toEqual([
       -2660.478, 1186.912,
     ]);
     expect(station.longDistanceHall.lengthM).toBeCloseTo(257.65, 2);
     expect(station.longDistanceHall.widthM).toBeCloseTo(71.61, 2);
-    expect(
-      (station.longDistanceHall.rotationY * 180) / Math.PI,
-    ).toBeCloseTo(61.26, 2);
+    expect((station.longDistanceHall.rotationY * 180) / Math.PI).toBeCloseTo(
+      61.26,
+      2,
+    );
     expect(station.longDistanceHall.footprintStatus).toContain(
       "projected OSM outer ring",
     );
@@ -245,17 +244,141 @@ describe("City West and Urania recognition details", () => {
       portalEndZ - portalStartZ,
     ).normalize();
     const portalRay = new Raycaster(
-      new Vector3(
-        portalStartX,
-        CITY_WEST_PROFILE.groundY + 4,
-        portalStartZ,
-      ),
+      new Vector3(portalStartX, CITY_WEST_PROFILE.groundY + 4, portalStartZ),
       portalDirection,
       0,
       24,
     );
     ensemble!.updateMatrixWorld(true);
     expect(portalRay.intersectObject(ensemble!, true)).toHaveLength(0);
+  });
+
+  test("keeps dense square glass cells on the actual octagonal and hexagonal planes", () => {
+    const root = createCityWestDetails("mobile");
+    const glass = root.getObjectByName(
+      "Gedächtniskirche blue concrete-glass cells lamps",
+    ) as Mesh;
+    expect(glass).toBeDefined();
+    const position = glass.geometry.getAttribute("position");
+    expect(position.count).toBe(33_696);
+    const church = CITY_WEST_PROFILE.gedaechtniskirche.church;
+    const bell = CITY_WEST_PROFILE.gedaechtniskirche.bellTower;
+    const facesSeen = new Set<string>();
+    for (let vertex = 0; vertex < position.count; vertex += 4) {
+      let x = 0,
+        z = 0;
+      for (let corner = 0; corner < 4; corner += 1) {
+        x += position.getX(vertex + corner) / 4;
+        z += position.getZ(vertex + corner) / 4;
+      }
+      const building =
+        Math.abs(x - church.centerWorldM[0]) < 20 ? church : bell;
+      const apothem =
+        (building.diameterM / 2) * Math.cos(Math.PI / building.facadeSides) +
+        0.025;
+      const dx = x - building.centerWorldM[0],
+        dz = z - building.centerWorldM[1];
+      let face = -1;
+      for (let side = 0; side < building.facadeSides; side += 1) {
+        const theta = ((side + 0.5) * Math.PI * 2) / building.facadeSides;
+        if (
+          Math.abs(dx * Math.sin(theta) + dz * Math.cos(theta) - apothem) <
+          0.001
+        )
+          face = side;
+      }
+      expect(face).toBeGreaterThanOrEqual(0);
+      facesSeen.add(`${building.facadeSides}:${face}`);
+      const width = Math.hypot(
+        position.getX(vertex + 1) - position.getX(vertex),
+        position.getZ(vertex + 1) - position.getZ(vertex),
+      );
+      const height = position.getY(vertex + 2) - position.getY(vertex + 1);
+      expect(width / height).toBeGreaterThan(0.9);
+      expect(width / height).toBeLessThan(1.1);
+    }
+    expect(facesSeen.size).toBe(14);
+    expect(glass.userData.nightMaterial.userData.nightEmissive).toBe(0x234bad);
+  });
+
+  test("retains a hollow broken crown rather than a filled tower cap", () => {
+    const root = createCityWestDetails();
+    root.updateMatrixWorld(true);
+    const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+    expect(profile.clockFaceCount).toBe(4);
+    expect(profile.crownWallCount).toBe(8);
+    const centreRay = new Raycaster(
+      new Vector3(
+        profile.centerWorldM[0],
+        GROUND_TOP(),
+        profile.centerWorldM[1],
+      ),
+      new Vector3(0, -1, 0),
+      0,
+      11,
+    );
+    expect(centreRay.intersectObject(root, true)).toHaveLength(0);
+    function GROUND_TOP(): number {
+      return CITY_WEST_PROFILE.groundY + 71.1;
+    }
+  });
+
+  test("provides one bounded native Minecraft reading with a clear lower portal", () => {
+    const root = createMinecraftGedaechtniskirche();
+    root.updateMatrixWorld(true);
+    expect(root.children).toHaveLength(1);
+    expect(root.userData.instanceCount).toBeLessThanOrEqual(
+      root.userData.instanceBudget,
+    );
+    expect(root.userData.instanceCount).toBe(7_922);
+    expect(GEDAECHTNISKIRCHE_MINECRAFT_REPLACEMENT_IDS).toHaveLength(5);
+    expect(isGedaechtniskircheReplacementCell(-2472, 1521)).toBe(true);
+    expect(isGedaechtniskircheReplacementCell(-2495, 1511)).toBe(true);
+    expect(isGedaechtniskircheReplacementCell(-2450, 1500)).toBe(false);
+    const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+    const a = localPoint(profile.centerWorldM, profile.rotationY, 0, -11);
+    const b = localPoint(profile.centerWorldM, profile.rotationY, 0, 11);
+    const ray = new Raycaster(
+      new Vector3(a[0], CITY_WEST_PROFILE.groundY + 4, a[1]),
+      new Vector3(b[0] - a[0], 0, b[1] - a[1]).normalize(),
+      0,
+      22,
+    );
+    expect(ray.intersectObject(root, true)).toHaveLength(0);
+    expect(
+      new Box3().setFromObject(root).max.y - CITY_WEST_PROFILE.groundY,
+    ).toBeCloseTo(71, 3);
+  });
+
+  test("retains the measured low-wing envelope and uses the empty portal for collision", () => {
+    let area = 0;
+    for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
+      let signed = 0;
+      for (let i = 0; i < wing.ring.length; i += 1) {
+        const a = wing.ring[i],
+          b = wing.ring[(i + 1) % wing.ring.length];
+        signed += a[0] * b[1] - b[0] * a[1];
+      }
+      area += Math.abs(signed) / 2;
+      expect([5.2, 14.0]).toContain(wing.baseY);
+      expect(wing.topY).toBe(14.2);
+    }
+    expect(area).toBeCloseTo(GEDAECHTNISKIRCHE_RETAINED_WING_AREA_M2, 5);
+    expect(area).toBeCloseTo(112.9650867, 5);
+    const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+    const centre = profile.centerWorldM;
+    expect(gedaechtniskircheRuinSolidAt(centre[0], 9.2, centre[1], 0.42)).toBe(
+      false,
+    );
+    const pier = localPoint(centre, profile.rotationY, 10, 0);
+    expect(gedaechtniskircheRuinSolidAt(pier[0], 9.2, pier[1], 0.42)).toBe(
+      true,
+    );
+    expect(gedaechtniskircheRuinSolidAt(centre[0], 25, centre[1], 0.42)).toBe(
+      true,
+    );
+    const native = createMinecraftGedaechtniskirche();
+    expect((native.children[0] as Mesh).material.vertexColors).toBe(false);
   });
 
   test("renders the Europa-Center curtain wall, frontage and three-spoke star", () => {
@@ -270,9 +393,7 @@ describe("City West and Urania recognition details", () => {
     expect(profile.roofStar.geometryStatus).toContain("three radial spokes");
 
     const details = createCityWestDetails("full");
-    const towers = details.getObjectByName(
-      "City West towers and Kranzler Eck",
-    );
+    const towers = details.getObjectByName("City West towers and Kranzler Eck");
     expect(towers).toBeDefined();
     const bounds = new Box3().setFromObject(towers!);
     expect(bounds.max.y - CITY_WEST_PROFILE.groundY).toBeCloseTo(103, 1);
