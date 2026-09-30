@@ -35,7 +35,8 @@ import { markArchitecturalAccentInk } from "./architecturalInk";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import { createLenneOak, isLenneOakTree } from "./LenneOak";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { partitionStaticSpatialInstances } from "./staticSpatialInstances";
+import { partitionStaticSpatialInstancesSteps } from "./staticSpatialInstances";
+import { completeCooperatively } from "./cooperativeWork";
 import {
   inPotsdamerPanoramaLandscape,
   POTSDAMER_PANORAMA_LANDSCAPE,
@@ -513,6 +514,60 @@ type Transform = {
   scale?: [number, number, number];
 };
 
+/** Construction-only records: doubles retain the exact authored arithmetic. */
+interface TransformCollection {
+  readonly length: number;
+  push(transform: Transform): void;
+  forEach(visit: (transform: Transform, index: number) => void): void;
+}
+
+/**
+ * Mobile tree construction must not keep hundreds of thousands of objects and
+ * nested arrays beside their final GPU buffers. Fixed pages avoid resize copies;
+ * each page is released as its exact transforms enter the final instance mesh.
+ */
+class PackedTransforms implements TransformCollection {
+  private readonly pages: Array<Float64Array | undefined> = [];
+  private count = 0;
+  private consumed = false;
+  private static readonly pageEntries = 256;
+  get length(): number { return this.count; }
+
+  push(transform: Transform): void {
+    if (this.consumed) throw new Error("Packed transforms were already consumed");
+    const pageIndex = Math.floor(this.count / PackedTransforms.pageEntries);
+    const page = this.pages[pageIndex] ??=
+      new Float64Array(PackedTransforms.pageEntries * 10);
+    const offset = (this.count % PackedTransforms.pageEntries) * 10;
+    page.set(transform.position, offset);
+    page.set(transform.rotation ?? [0, 0, 0], offset + 3);
+    page.set(transform.scale ?? [1, 1, 1], offset + 6);
+    page[offset + 9] = transform.color ?? Number.NaN;
+    this.count += 1;
+  }
+
+  forEach(visit: (transform: Transform, index: number) => void): void {
+    if (this.consumed) throw new Error("Packed transforms were already consumed");
+    this.consumed = true;
+    for (let pageIndex = 0; pageIndex < this.pages.length; pageIndex += 1) {
+      const page = this.pages[pageIndex]!;
+      const first = pageIndex * PackedTransforms.pageEntries;
+      const count = Math.min(PackedTransforms.pageEntries, this.count - first);
+      for (let entry = 0; entry < count; entry += 1) {
+        const offset = entry * 10;
+        visit({
+          position: [page[offset], page[offset + 1], page[offset + 2]],
+          rotation: [page[offset + 3], page[offset + 4], page[offset + 5]],
+          scale: [page[offset + 6], page[offset + 7], page[offset + 8]],
+          color: Number.isNaN(page[offset + 9]) ? undefined : page[offset + 9],
+        }, first + entry);
+      }
+      this.pages[pageIndex] = undefined;
+    }
+    this.pages.length = 0;
+  }
+}
+
 type TreeCrownCutaway = {
   focusName: string;
   radiusM: number;
@@ -746,7 +801,7 @@ function instanced(
   name: string,
   geometry: BufferGeometry,
   surface: MeshBasicMaterial | MeshStandardMaterial,
-  transforms: Transform[],
+  transforms: TransformCollection,
 ): InstancedMesh {
   const mesh = new InstancedMesh(geometry, surface, transforms.length);
   mesh.name = name;
@@ -951,43 +1006,45 @@ function addPaths(
   }
 }
 
-function addTrees(
+function* addTreesSteps(
   group: Group,
   trees: ParkTree[],
   cutaway: TreeCrownCutaway | null,
   includeSettledDetail: boolean,
-): number {
-  const trunks: Transform[] = [];
-  const branches: Transform[] = [];
-  const airyCrowns: Transform[][] = [[], [], []];
-  const cutawayAiryCrowns: Transform[][] = [[], [], []];
-  const crowns: Transform[][] = [[], [], []];
-  const cutawayCrowns: Transform[][] = [[], [], []];
-  const columnarCrowns: Transform[][] = [[], [], []];
-  const cutawayColumnarCrowns: Transform[][] = [[], [], []];
-  const coniferCrowns: Transform[][] = [[], [], []];
-  const cutawayConiferCrowns: Transform[][] = [[], [], []];
-  const denseCrowns: Transform[][] = [[], [], []];
-  const cutawayDenseCrowns: Transform[][] = [[], [], []];
-  const firCrowns: Transform[][] = [[], [], []];
-  const cutawayFirCrowns: Transform[][] = [[], [], []];
-  const oakCrowns: Transform[][] = [[], [], []];
-  const cutawayOakCrowns: Transform[][] = [[], [], []];
-  const pineCrowns: Transform[][] = [[], [], []];
-  const cutawayPineCrowns: Transform[][] = [[], [], []];
-  const shrubCrowns: Transform[][] = [[], [], []];
-  const cutawayShrubCrowns: Transform[][] = [[], [], []];
-  const spreadingCrowns: Transform[][] = [[], [], []];
-  const cutawaySpreadingCrowns: Transform[][] = [[], [], []];
-  const vaseCrowns: Transform[][] = [[], [], []];
-  const cutawayVaseCrowns: Transform[][] = [[], [], []];
-  const willowCrowns: Transform[][] = [[], [], []];
-  const cutawayWillowCrowns: Transform[][] = [[], [], []];
-  const settledCrowns: Transform[][] = [[], [], []];
-  const settledCutawayCrowns: Transform[][] = [[], [], []];
-  const snowCaps: Transform[] = [];
-  const cutawaySnowCaps: Transform[] = [];
-  const lobedCrownTargets: Record<LobedTreeForm, Transform[][]> = {
+  packedScratch: boolean,
+): Generator<void, number> {
+  const scratch = (): TransformCollection => packedScratch ? new PackedTransforms() : [];
+  const trunks: TransformCollection = scratch();
+  const branches: TransformCollection = scratch();
+  const airyCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayAiryCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const crowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const columnarCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayColumnarCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const coniferCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayConiferCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const denseCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayDenseCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const firCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayFirCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const oakCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayOakCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const pineCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayPineCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const shrubCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayShrubCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const spreadingCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawaySpreadingCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const vaseCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayVaseCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const willowCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const cutawayWillowCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const settledCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const settledCutawayCrowns: TransformCollection[] = [scratch(), scratch(), scratch()];
+  const snowCaps: TransformCollection = scratch();
+  const cutawaySnowCaps: TransformCollection = scratch();
+  const lobedCrownTargets: Record<LobedTreeForm, TransformCollection[]> = {
     airy: airyCrowns,
     broadleaf: crowns,
     columnar: columnarCrowns,
@@ -996,7 +1053,7 @@ function addTrees(
     spreading: spreadingCrowns,
     vase: vaseCrowns,
   };
-  const cutawayLobedCrownTargets: Record<LobedTreeForm, Transform[][]> = {
+  const cutawayLobedCrownTargets: Record<LobedTreeForm, TransformCollection[]> = {
     airy: cutawayAiryCrowns,
     broadleaf: cutawayCrowns,
     columnar: cutawayColumnarCrowns,
@@ -1020,7 +1077,9 @@ function addTrees(
     vase: 0,
     willow: 0,
   };
+  let treeIndex = 0;
   for (const tree of trees) {
+    if (packedScratch && treeIndex++ % 128 === 0) yield;
     const [x, y, z] = tree.position;
     const form = treePresentationForm(tree);
     const foliageColor = treeFoliageTone(tree);
@@ -1258,6 +1317,7 @@ function addTrees(
       branches,
     ),
   );
+  yield;
   // Fresh but still light foliage separates individual source trees without
   // turning the Tiergarten into one heavy green mass around the ivory city.
   crowns.forEach((transforms, index) => {
@@ -1286,8 +1346,8 @@ function addTrees(
     }
   });
   const addSourceFormCrowns = (
-    transforms: Transform[][],
-    cutawayTransforms: Transform[][],
+    transforms: TransformCollection[],
+    cutawayTransforms: TransformCollection[],
     family: string,
     formColors: readonly number[],
     geometry: () => BufferGeometry,
@@ -1321,6 +1381,7 @@ function addTrees(
       group.add(mesh);
     });
   };
+  yield;
   addSourceFormCrowns(
     airyCrowns,
     cutawayAiryCrowns,
@@ -1328,6 +1389,7 @@ function addTrees(
     [0xa8cf91, 0xb7dca0, 0x98c182],
     () => new IcosahedronGeometry(1, 0),
   );
+  yield;
   addSourceFormCrowns(
     columnarCrowns,
     cutawayColumnarCrowns,
@@ -1335,6 +1397,7 @@ function addTrees(
     [0x6f9e65, 0x80ad73, 0x608f59],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     coniferCrowns,
     cutawayConiferCrowns,
@@ -1342,6 +1405,7 @@ function addTrees(
     [0x6fa36b, 0x7eb175, 0x628f60],
     () => new ConeGeometry(1, 1, 8),
   );
+  yield;
   addSourceFormCrowns(
     denseCrowns,
     cutawayDenseCrowns,
@@ -1349,6 +1413,7 @@ function addTrees(
     [0x6f9f5e, 0x7fae6c, 0x638f54],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     firCrowns,
     cutawayFirCrowns,
@@ -1356,6 +1421,7 @@ function addTrees(
     [0x567f5d, 0x638e67, 0x486f52],
     () => new ConeGeometry(1, 1, 9),
   );
+  yield;
   addSourceFormCrowns(
     pineCrowns,
     cutawayPineCrowns,
@@ -1363,6 +1429,7 @@ function addTrees(
     [0x648a61, 0x73996b, 0x557b58],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     oakCrowns,
     cutawayOakCrowns,
@@ -1370,6 +1437,7 @@ function addTrees(
     [0x76a85e, 0x86b76c, 0x679653],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     willowCrowns,
     cutawayWillowCrowns,
@@ -1377,6 +1445,7 @@ function addTrees(
     [0x8fb879, 0xa0c68a, 0x7ca76d],
     () => new ConeGeometry(1, 1, 10, 2),
   );
+  yield;
   addSourceFormCrowns(
     shrubCrowns,
     cutawayShrubCrowns,
@@ -1384,6 +1453,7 @@ function addTrees(
     [0x8ebd74, 0x9bc984, 0x80ad68],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     spreadingCrowns,
     cutawaySpreadingCrowns,
@@ -1391,6 +1461,7 @@ function addTrees(
     [0x89b978, 0x9bc98a, 0x78a969],
     () => new IcosahedronGeometry(1, 1),
   );
+  yield;
   addSourceFormCrowns(
     vaseCrowns,
     cutawayVaseCrowns,
@@ -1398,7 +1469,7 @@ function addTrees(
     [0x82b46d, 0x93c17d, 0x73a35f],
     () => new IcosahedronGeometry(1, 1),
   );
-  const addSnowCaps = (transforms: Transform[], focusCutaway: boolean) => {
+  const addSnowCaps = (transforms: TransformCollection, focusCutaway: boolean) => {
     if (transforms.length === 0) {
       return;
     }
@@ -1420,7 +1491,7 @@ function addTrees(
   addSnowCaps(cutawaySnowCaps, true);
   let settledDetailFaces = 0;
   const addSettledCrownInstances = (
-    transforms: Transform[],
+    transforms: TransformCollection,
     index: number,
     focusCutaway: boolean,
   ) => {
@@ -2614,11 +2685,43 @@ export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
 ): Group {
+  const steps = createParkDetailsSteps(payload, options, false);
+  for (;;) {
+    const next = steps.next();
+    if (next.done) return next.value;
+  }
+}
+
+/**
+ * Same full scene with bounded mobile construction scratch and task boundaries.
+ * The caller owns the unpublished onRoot scene and must dispose it on failure.
+ * Cancellation rejects with AbortError before any subsequent construction step.
+ */
+export function createParkDetailsCooperative(
+  payload: ParkDetailsPayload,
+  options: ParkDetailOptions,
+  construction: Parameters<typeof completeCooperatively<Group>>[1] & {
+    onRoot: (root: Group) => void;
+  },
+): Promise<Group> {
+  return completeCooperatively(
+    createParkDetailsSteps(payload, options, true, construction.onRoot),
+    construction,
+  );
+}
+
+function* createParkDetailsSteps(
+  payload: ParkDetailsPayload,
+  options: ParkDetailOptions,
+  packedScratch: boolean,
+  onRoot?: (root: Group) => void,
+): Generator<void, Group> {
   if (payload.schema_version < 1 || payload.schema_version > 7) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
+  onRoot?.(group);
   const detailProfile = staticModelDetailProfile(options.detailProfile);
   const insideTunnelApproach = options.tunnel
     ? createTunnelPortalApproachTester(options.tunnel)
@@ -2684,18 +2787,21 @@ export function createParkDetails(
     detailProfile === "full",
     options.pathTerrainAt,
   );
+  yield;
   if (detailProfile === "mobile") {
     addMobileTrees(group, genericTrees);
     group.userData.detailProfile = "mobile";
     group.userData.settledOfficialTreeDetailFaces = 0;
   } else {
-    group.userData.settledOfficialTreeDetailFaces = addTrees(
+    group.userData.settledOfficialTreeDetailFaces = yield* addTreesSteps(
       group,
       genericTrees,
       treeCrownCutaway(payload.playgrounds),
       options.settledDetail ?? true,
+      packedScratch,
     );
   }
+  yield;
   if (lenneOak) {
     group.add(createLenneOak(lenneOak, detailProfile));
     const formCounts = group.userData.treePresentationForms as
@@ -2712,11 +2818,14 @@ export function createParkDetails(
     insideTunnelApproach,
     detailProfile === "full",
   );
+  yield;
   addStreetLights(group, streetLights, detailProfile === "full");
+  yield;
   group.userData.wallStoneCount =
     detailProfile === "mobile"
       ? addMobileWallTraces(group, wallTraces)
       : addWallTraces(group, wallTraces);
+  yield;
   group.userData.eggCount =
     detailProfile === "mobile" ? 0 : addHiddenEasterEggs(group, trees);
   if (detailProfile === "mobile") {
@@ -2724,7 +2833,9 @@ export function createParkDetails(
   } else {
     addPlaygrounds(group, payload.playgrounds);
   }
-  return freezeStaticSceneTransforms(partitionStaticSpatialInstances(group));
+  yield;
+  yield* partitionStaticSpatialInstancesSteps(group);
+  return freezeStaticSceneTransforms(group);
 }
 
 export function setParkDetailsFocus(group: Group, name: string): void {

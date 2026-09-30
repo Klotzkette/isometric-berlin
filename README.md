@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.55 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.55/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.56 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.56/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.55** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.56** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.56 reduces mobile startup memory: nearby GPU preparation instead of
+whole-city uploads, compact temporary park data and cancellable construction.
+All geometry, detail, resolution and viewing distance remain unchanged.
+[Measurements and checks](docs/mobile-startup-stability-v156.md).
+
+Version 1.0.56 reduziert die Speicherspitzen beim mobilen Start: Grafikdaten
+werden vorausschauend im Blickfeld vorbereitet, Parkdetails mit kompakteren
+Zwischendaten schrittweise aufgebaut. Alle Details und die Bildqualität bleiben
+erhalten; der Desktop-Ladeweg bleibt unverändert.
 
 Version 1.0.55 adds source-bound historic university buildings east of
 Luisenstraße, further Charité masonry detail and the Fernsehturm entrance

@@ -225,6 +225,7 @@ import {
   type ParkDetailsPayload,
   type ParkPathTerrainAt,
   createParkDetails,
+  createParkDetailsCooperative,
   parkDetailFocusDistance,
   setParkDetailsFocus,
   setParkSnowPresentation,
@@ -6050,7 +6051,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // Warm exact offscreen buffers in separate short tasks. A camera pan
       // should encounter GPU-resident geometry instead of triggering its
       // first upload. The helper draws no vertices and preserves the canvas.
-      runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera);
+      runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, {
+        viewLocal: coarsePointer,
+      });
       let gpuWarmupTimer: number | null = null;
       runtime.scheduleGpuWarmup = () => {
         if (disposed || document.hidden || !activeRef.current ||
@@ -7583,6 +7586,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           stabilizedRecovered = stabilized.recovered;
           if (stabilizedRecovered) resetTouchGesture();
         }
+        // Mobile preparation follows the current view with a generous margin.
+        // A dormant offscreen queue wakes on rotation/flight without loading
+        // every distant city buffer during the first seconds after startup.
+        runtime.gpuWarmup?.refreshView();
+        runtime.scheduleGpuWarmup?.();
         updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
         const movingFlagCount =
           stability.animateWind && civicFlagsVisible
@@ -8343,7 +8351,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               void fetchJsonWithRetry<ParkDetailsPayload>(parkUrl, {
                 signal: loadController.signal,
               })
-                .then((payload) => {
+                .then(async (payload) => {
                   if (runtime.disposed) {
                     return;
                   }
@@ -8354,44 +8362,81 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     deferredDetailsStarted = false;
                     return;
                   }
-                  if (runtime.pedestrian.environment) {
-                    addPedestrianParkObstacles(
-                      runtime.pedestrian.environment,
-                      payload,
-                      runtime.tunnelPortalCourse,
-                    );
-                  }
-                  const details = createParkDetails(payload, {
+                  const options = {
                     pathTerrainAt: runtime.districtPathTerrainAt,
-                    detailProfile: runtime.coarsePointer ? "mobile" : "full",
+                    detailProfile: runtime.coarsePointer ? "mobile" as const : "full" as const,
                     settledDetail: !runtime.coarsePointer,
                     tunnel: manifest.tiergartentunnel ?? null,
-                  });
-                  runtime.parkDetails.removeFromParent();
-                  runtime.parkDetails = details;
-                  const voxelMode = voxelModeActive(runtime);
-                  details.visible = !runtime.underside && !voxelMode;
-                  setParkDetailsFocus(details, selectedRef.current);
-                  scene.add(details);
-                  applyLightingToRoot(
-                    details,
-                    runtime.lightingMode,
-                    runtime.nightLightsOn,
-                  );
-                  if (runtime.lightingMode === "minecraft" && !voxelMode) {
-                    // Only the smooth fallback needs toon clones. A completed
-                    // voxel world keeps this large deferred layer hidden, so
-                    // cloning thousands of its materials would waste mobile
-                    // memory without producing a pixel.
-                    setMinecraftMaterialPresentation(
-                      details,
-                      runtime.minecraftMaterialState,
-                      true,
-                    );
+                  };
+                  let staging: Group | null = null;
+                  let details: Group;
+                  const constructionCancelled = () => runtime.disposed || loadController.signal.aborted ||
+                    document.hidden || !isoWorldIntentActive(runtime);
+                  try {
+                    details = runtime.coarsePointer
+                      ? await createParkDetailsCooperative(payload, options, {
+                          yieldTask: yieldStartupWork,
+                          isCancelled: constructionCancelled,
+                          onRoot: (root) => { staging = root; },
+                        })
+                      : createParkDetails(payload, options);
+                    // Recheck after the promise boundary, before touching the
+                    // scene or collision index of a possibly retired runtime.
+                    if (runtime.coarsePointer && constructionCancelled()) {
+                      throw new DOMException("Park construction cancelled", "AbortError");
+                    }
+                  } catch (error: unknown) {
+                    if (staging) disposeObject3D(runtime, staging);
+                    // Hidden/cancelled work owns no published park resources.
+                    // Resume through the existing visibility/mode lifecycle.
+                    deferredDetailsStarted = false;
+                    throw error;
                   }
-                  setEnvironmentalPresentation(runtime);
-                  collectFarZoomAntiFlickerTargets(runtime);
-                  invalidateScenePresentation(runtime);
+                  const previousDetails = runtime.parkDetails;
+                  const previousParent = previousDetails.parent;
+                  let published = false;
+                  try {
+                    previousDetails.removeFromParent();
+                    runtime.parkDetails = details;
+                    const voxelMode = voxelModeActive(runtime);
+                    details.visible = !runtime.underside && !voxelMode;
+                    setParkDetailsFocus(details, selectedRef.current);
+                    scene.add(details);
+                    applyLightingToRoot(
+                      details,
+                      runtime.lightingMode,
+                      runtime.nightLightsOn,
+                    );
+                    if (runtime.lightingMode === "minecraft" && !voxelMode) {
+                      // Only the smooth fallback needs toon clones. A completed
+                      // voxel world keeps this large deferred layer hidden, so
+                      // cloning thousands of its materials would waste mobile
+                      // memory without producing a pixel.
+                      setMinecraftMaterialPresentation(
+                        details,
+                        runtime.minecraftMaterialState,
+                        true,
+                      );
+                    }
+                    setEnvironmentalPresentation(runtime);
+                    collectFarZoomAntiFlickerTargets(runtime);
+                    invalidateScenePresentation(runtime);
+                    if (runtime.pedestrian.environment) {
+                      addPedestrianParkObstacles(
+                        runtime.pedestrian.environment,
+                        payload,
+                        runtime.tunnelPortalCourse,
+                      );
+                    }
+                    published = true;
+                  } finally {
+                    if (!published) {
+                      runtime.parkDetails = previousDetails;
+                      previousParent?.add(previousDetails);
+                      disposeObject3D(runtime, details);
+                      deferredDetailsStarted = false;
+                    }
+                  }
                 })
                 .catch((error: unknown) => {
                   if (

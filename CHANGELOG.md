@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.56
+
+- Step 10: limit mobile GPU prewarming to a generous camera-view margin instead of uploading the entire offscreen city immediately after startup; ordinary rendering and full model eligibility remain unchanged.
+- Construct mobile park detail cooperatively with exact Float64 scratch pages; release temporary instance collections and retired spatial-partition sources earlier. Preserve every final geometry and material buffer.
+- Cancel unpublished park work on backgrounding, renderer disposal or world-family changes; recheck cancellation before atomic scene publication. Desktop construction, visual quality, resolution and draw distance remain unchanged.
+
 ## v1.0.55
 
 - Step 10: extend the historic Charité and university treatment east of Luisenstraße to the two anatomy institutes, Humboldt Graduate School, Tieranatomisches Theater and adjoining veterinary buildings; retain previous source records and west-side detail.

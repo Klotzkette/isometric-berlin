@@ -51,13 +51,13 @@ function canPartition(mesh: InstancedMesh, minimumCount: number): boolean {
  * Transparent batches retain their original draw order. Custom render hooks,
  * morphs and geometry-level instance attributes require their own partitioner.
  */
-export function partitionStaticSpatialInstances<T extends Object3D>(
+export function* partitionStaticSpatialInstancesSteps<T extends Object3D>(
   root: T,
   { cellM = STATIC_INSTANCE_CELL_M, minimumCount = STATIC_INSTANCE_PARTITION_MIN_COUNT }: {
     cellM?: number;
     minimumCount?: number;
   } = {},
-): T {
+): Generator<void, T> {
   if (!Number.isFinite(cellM) || cellM <= 0 || !Number.isFinite(minimumCount) || minimumCount < 1) {
     throw new Error("Static instance partition requires positive cell size and count");
   }
@@ -68,64 +68,82 @@ export function partitionStaticSpatialInstances<T extends Object3D>(
     }
   });
   const matrix = new Matrix4();
-  for (const source of candidates) {
-    const cells = new Map<string, number[]>();
-    for (let index = 0; index < source.count; index += 1) {
-      const offset = index * 16;
-      const x = source.instanceMatrix.array[offset + 12];
-      const z = source.instanceMatrix.array[offset + 14];
-      const key = `${Math.floor(x / cellM)},${Math.floor(z / cellM)}`;
-      const entries = cells.get(key);
-      if (entries) entries.push(index);
-      else cells.set(key, [index]);
-    }
-    if (cells.size < 2) continue;
-    // A Group would replace the inherited renderer groupOrder. An Object3D
-    // wrapper retains the exact original opaque ordering contract instead.
-    const container = new Object3D();
-    copyObjectState(container, source);
-    for (const [cell, indices] of cells) {
-      const batch = new InstancedMesh(source.geometry, source.material, indices.length);
-      batch.name = `${source.name} [cell ${cell}]`;
-      batch.layers.mask = source.layers.mask;
-      batch.castShadow = source.castShadow;
-      batch.receiveShadow = source.receiveShadow;
-      batch.renderOrder = source.renderOrder;
-      batch.visible = source.visible;
-      batch.userData = { ...source.userData };
-      batch.userData.staticSpatialCell = cell;
-      batch.userData.staticSpatialSourceName = source.name;
-      for (let index = 0; index < indices.length; index += 1) {
-        source.getMatrixAt(indices[index], matrix);
-        batch.setMatrixAt(index, matrix);
-      }
-      if (source.instanceColor) {
-        const values = source.instanceColor.array.slice(0, indices.length * source.instanceColor.itemSize);
-        for (let index = 0; index < indices.length; index += 1) {
-          const offset = indices[index] * source.instanceColor.itemSize;
-          values.set(source.instanceColor.array.subarray(offset, offset + source.instanceColor.itemSize),
-            index * source.instanceColor.itemSize);
-        }
-        batch.instanceColor = new InstancedBufferAttribute(values, source.instanceColor.itemSize,
-          source.instanceColor.normalized, source.instanceColor.meshPerAttribute);
-        batch.instanceColor.setUsage(source.instanceColor.usage);
-        batch.instanceColor.gpuType = source.instanceColor.gpuType;
-        batch.instanceColor.needsUpdate = true;
-      }
-      batch.instanceMatrix.setUsage(source.instanceMatrix.usage);
-      batch.instanceMatrix.needsUpdate = true;
-      // Box-derived spheres conservatively include rotated, nonuniformly scaled
-      // and sheared instances, rather than assuming a sphere's max-axis scale.
-      batch.computeBoundingBox();
-      batch.boundingSphere = batch.boundingBox!.getBoundingSphere(new Sphere());
-      container.add(batch);
-    }
-    const parent = source.parent!;
-    const index = parent.children.indexOf(source);
-    parent.remove(source);
-    parent.add(container);
-    parent.children.splice(parent.children.indexOf(container), 1);
-    parent.children.splice(index, 0, container);
+  while (candidates.length) {
+    partitionSource(candidates.shift()!, cellM, matrix);
+    // Neither the candidate queue nor this generator retains the detached source.
+    yield;
   }
   return root;
+}
+
+function partitionSource(source: InstancedMesh, cellM: number, matrix: Matrix4): void {
+  const cells = new Map<string, number[]>();
+  for (let index = 0; index < source.count; index += 1) {
+    const offset = index * 16;
+    const x = source.instanceMatrix.array[offset + 12];
+    const z = source.instanceMatrix.array[offset + 14];
+    const key = `${Math.floor(x / cellM)},${Math.floor(z / cellM)}`;
+    const entries = cells.get(key);
+    if (entries) entries.push(index);
+    else cells.set(key, [index]);
+  }
+  if (cells.size < 2) return;
+  // A Group would replace the inherited renderer groupOrder. An Object3D
+  // wrapper retains the exact original opaque ordering contract instead.
+  const container = new Object3D();
+  copyObjectState(container, source);
+  for (const [cell, indices] of cells) {
+    const batch = new InstancedMesh(source.geometry, source.material, indices.length);
+    batch.name = `${source.name} [cell ${cell}]`;
+    batch.layers.mask = source.layers.mask;
+    batch.castShadow = source.castShadow;
+    batch.receiveShadow = source.receiveShadow;
+    batch.renderOrder = source.renderOrder;
+    batch.visible = source.visible;
+    batch.userData = { ...source.userData };
+    batch.userData.staticSpatialCell = cell;
+    batch.userData.staticSpatialSourceName = source.name;
+    for (let index = 0; index < indices.length; index += 1) {
+      source.getMatrixAt(indices[index], matrix);
+      batch.setMatrixAt(index, matrix);
+    }
+    if (source.instanceColor) {
+      const values = source.instanceColor.array.slice(0, indices.length * source.instanceColor.itemSize);
+      for (let index = 0; index < indices.length; index += 1) {
+        const offset = indices[index] * source.instanceColor.itemSize;
+        values.set(source.instanceColor.array.subarray(offset, offset + source.instanceColor.itemSize),
+          index * source.instanceColor.itemSize);
+      }
+      batch.instanceColor = new InstancedBufferAttribute(values, source.instanceColor.itemSize,
+        source.instanceColor.normalized, source.instanceColor.meshPerAttribute);
+      batch.instanceColor.setUsage(source.instanceColor.usage);
+      batch.instanceColor.gpuType = source.instanceColor.gpuType;
+      batch.instanceColor.needsUpdate = true;
+    }
+    batch.instanceMatrix.setUsage(source.instanceMatrix.usage);
+    batch.instanceMatrix.needsUpdate = true;
+    // Box-derived spheres conservatively include rotated, nonuniformly scaled
+    // and sheared instances, rather than assuming a sphere's max-axis scale.
+    batch.computeBoundingBox();
+    batch.boundingSphere = batch.boundingBox!.getBoundingSphere(new Sphere());
+    container.add(batch);
+  }
+  const parent = source.parent!;
+  const index = parent.children.indexOf(source);
+  parent.remove(source);
+  parent.add(container);
+  parent.children.splice(parent.children.indexOf(container), 1);
+  parent.children.splice(index, 0, container);
+}
+
+/** Synchronous callers retain their original construction and output contract. */
+export function partitionStaticSpatialInstances<T extends Object3D>(
+  root: T,
+  options: { cellM?: number; minimumCount?: number } = {},
+): T {
+  const steps = partitionStaticSpatialInstancesSteps(root, options);
+  for (;;) {
+    const next = steps.next();
+    if (next.done) return next.value;
+  }
 }

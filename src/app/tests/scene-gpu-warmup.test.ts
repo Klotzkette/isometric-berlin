@@ -3,20 +3,23 @@ import {
   BoxGeometry, BufferAttribute, BufferGeometry, Color, DirectionalLight,
   Frustum, Group, InstancedMesh, Line, LineBasicMaterial, LineSegments,
   Matrix4, Mesh, MeshBasicMaterial,
-  OrthographicCamera, Scene, Vector4, WebGLRenderTarget,
+  OrthographicCamera, PerspectiveCamera, Scene, Vector4, WebGLRenderTarget,
   type Camera, type Object3D, type WebGLRenderer,
 } from "three";
 import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
 import { WebGLGeometries } from "three/src/renderers/webgl/WebGLGeometries.js";
 import { WebGLObjects } from "three/src/renderers/webgl/WebGLObjects.js";
-import { createSceneGpuWarmup, GPU_WARMUP_MAX_BYTES, GPU_WARMUP_MAX_OBJECTS } from "../src/sceneGpuWarmup";
+import {
+  createSceneGpuWarmup, GPU_WARMUP_MAX_BYTES, GPU_WARMUP_MAX_OBJECTS,
+  GPU_WARMUP_MAX_VIEW_CANDIDATES, type SceneGpuWarmupOptions,
+} from "../src/sceneGpuWarmup";
 import { retireSceneMaterialPrograms } from "../src/sceneMaterialPrograms";
 import {
   isInkDrawSuppressed, registerInkDrawObject, updateInkDrawVisibility,
 } from "../src/inkDrawVisibility";
 
 /** Real Three buffer backend, counting GL uploads; no browser/GPU speed claim. */
-function host(scene: Scene, camera: Camera) {
+function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {}) {
   const uploads: ArrayBufferView[] = [];
   const updates: ArrayBufferView[] = [];
   let nextBuffer = 0;
@@ -92,7 +95,7 @@ function host(scene: Scene, camera: Camera) {
       visit(root); calls.push(call);
     },
   };
-  const warmup = createSceneGpuWarmup(renderer as unknown as WebGLRenderer, scene, camera);
+  const warmup = createSceneGpuWarmup(renderer as unknown as WebGLRenderer, scene, camera, options);
   const state = () => ({ target, cube, mip, viewport: viewport.toArray(), scissor: scissor.toArray(), scissorTest,
     shadow: { ...renderer.shadowMap }, background: scene.background });
   return { renderer, warmup, uploads, updates, calls, state, events,
@@ -109,6 +112,188 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("mobile preparation keeps a generous view margin and leaves distant buffers dormant", () => {
+    const { scene, camera } = fixture();
+    const visible = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const margin = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    margin.position.set(8, 8, 0);
+    const distant = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    distant.position.x = 1000;
+    const uncullable = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    uncullable.position.x = 2000;
+    uncullable.frustumCulled = false;
+    const beyondFar = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    beyondFar.position.z = -200;
+    scene.add(visible, margin, distant, uncullable, beyondFar);
+    const original = distant.onAfterRender;
+    const geometries = scene.children.map((object) => (object as Mesh).geometry);
+    const arrays = geometries.map((geometry) => geometry.getAttribute("position").array.slice());
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(3);
+    expect(h.calls.at(-1)?.objects).toEqual([visible, margin, uncullable]);
+    expect(h.calls.at(-1)?.vertices).toBe(0);
+    expect(h.uploads).not.toContain(distant.geometry.getAttribute("position").array);
+    expect(h.uploads).not.toContain(beyondFar.geometry.getAttribute("position").array);
+    expect(h.warmup.pending).toBeFalse();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      h.warmup.refreshView();
+      expect(h.warmup.pending).toBeFalse();
+      expect(h.warmup.warmNext()).toBe(0);
+    }
+    expect(h.calls).toHaveLength(1);
+    expect(distant.onAfterRender).not.toBe(original);
+    expect(scene.children).toHaveLength(5);
+    geometries.forEach((geometry, index) => {
+      expect(geometry.getAttribute("position").array).toEqual(arrays[index]);
+      expect(geometry.drawRange).toEqual({ start: 0, count: Infinity });
+    });
+    h.warmup.dispose();
+    expect(distant.onAfterRender).toBe(original);
+  });
+
+  test("mobile movement prepares dormant instances exactly once before their first ordinary view", () => {
+    const { scene, camera } = fixture();
+    const parent = new Group(); parent.position.x = 500;
+    const mesh = new InstancedMesh(new BoxGeometry(2, 2, 2), new MeshBasicMaterial(), 1);
+    mesh.setMatrixAt(0, new Matrix4().makeTranslation(500, 0, 0));
+    mesh.setColorAt(0, new Color("red"));
+    parent.add(mesh); scene.add(parent);
+    const matrices = mesh.instanceMatrix.array.slice();
+    const colors = mesh.instanceColor!.array.slice();
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.uploads).toHaveLength(0);
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+    h.warmup.refreshView();
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.warmup.pending).toBeFalse();
+    for (const array of [mesh.geometry.index!.array, mesh.geometry.getAttribute("position").array,
+      mesh.instanceMatrix.array, mesh.instanceColor!.array]) {
+      expect(h.uploads.filter((value) => value === array)).toHaveLength(1);
+    }
+    const uploadCount = h.uploads.length;
+    h.renderer.render(scene, camera);
+    expect(h.calls.at(-1)?.vertices).toBe(36);
+    expect(h.uploads).toHaveLength(uploadCount);
+    expect(h.updates).toHaveLength(0);
+    expect(mesh.instanceMatrix.array).toEqual(matrices);
+    expect(mesh.instanceColor!.array).toEqual(colors);
+    h.warmup.dispose();
+  });
+
+  test("ordinary mobile rendering never waits for dormant preparation or a motion notification", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    mesh.position.x = 1000; scene.add(mesh);
+    const after = mesh.onAfterRender;
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(h.warmup.pending).toBeFalse();
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+    h.renderer.render(scene, camera);
+    expect(h.calls.at(-1)?.objects).toEqual([mesh]);
+    expect(h.calls.at(-1)?.vertices).toBe(36);
+    expect(h.uploads).toContain(mesh.geometry.getAttribute("position").array);
+    expect(mesh.onAfterRender).toBe(after);
+    h.warmup.refreshView();
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("mobile candidate checks are bounded and movement cannot starve the queue tail", () => {
+    const { scene, camera } = fixture();
+    const shared = new BoxGeometry(); const material = new MeshBasicMaterial();
+    for (let index = 0; index < GPU_WARMUP_MAX_VIEW_CANDIDATES; index++) {
+      const object = new Mesh(shared, material); object.position.x = -1000; scene.add(object);
+    }
+    const tail = new Mesh(new BoxGeometry(), material); tail.position.x = 1000; scene.add(tail);
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.uploads).toHaveLength(0);
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+    h.warmup.refreshView();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([tail]);
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("mobile projection changes wake dormant buffers while preserving perspective depth limits", () => {
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(30, 1, 1, 100);
+    camera.position.z = 10; camera.lookAt(0, 0, 0);
+    const side = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); side.position.x = 8;
+    const behind = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); behind.position.z = 20;
+    scene.add(side, behind);
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene); expect(h.warmup.warmNext()).toBe(0);
+    expect(h.warmup.pending).toBeFalse();
+    camera.fov = 60; camera.updateProjectionMatrix();
+    h.warmup.refreshView();
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([side]);
+    expect(h.uploads).not.toContain(behind.geometry.getAttribute("position").array);
+    expect(h.warmup.pending).toBeFalse();
+    h.warmup.dispose();
+  });
+
+  test("dormant mobile candidates survive material retirement, context restoration and new arrivals", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); mesh.position.x = 1000;
+    scene.add(mesh);
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(h.warmup.pending).toBeFalse();
+    for (let retirement = 0; retirement < 2; retirement++) {
+      expect(retireSceneMaterialPrograms(scene)).toBe(1);
+      h.warmup.enqueue(scene);
+      expect(h.warmup.warmNext()).toBe(0);
+      expect(h.warmup.pending).toBeFalse();
+    }
+    const arrival = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(arrival);
+    h.warmup.enqueue(arrival); expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([arrival]);
+    h.contextLost = true;
+    h.warmup.refreshView(); expect(h.warmup.pending).toBeFalse();
+    h.contextLost = false;
+    h.events.dispatchEvent(new Event("webglcontextrestored"));
+    expect(h.warmup.warmNext()).toBe(1);
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+    h.warmup.refreshView(); expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.objects).toEqual([mesh]);
+    const uploads = h.uploads.length;
+    retireSceneMaterialPrograms(scene); h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.uploads).toHaveLength(uploads);
+    h.warmup.dispose();
+  });
+
+  test("mobile eviction removes dormant candidates and their callback without waking them later", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); mesh.position.x = 1000;
+    scene.add(mesh);
+    const after = mesh.onAfterRender;
+    const h = host(scene, camera, { viewLocal: true });
+    h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(mesh.onAfterRender).not.toBe(after);
+    h.warmup.release(mesh); mesh.removeFromParent(); mesh.geometry.dispose(); mesh.material.dispose();
+    expect(mesh.onAfterRender).toBe(after);
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+    h.warmup.refreshView();
+    expect(h.warmup.pending).toBeFalse(); expect(h.warmup.warmNext()).toBe(0);
+    expect(h.uploads).toHaveLength(0);
+    h.warmup.dispose();
+  });
+
   test("prepares suppressed ink and keeps it resident through exact-zero fade transitions", () => {
     const { scene, camera } = fixture();
     const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
