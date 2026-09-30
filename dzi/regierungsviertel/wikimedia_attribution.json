@@ -3607,6 +3607,100 @@
       "description": "Distinct bronze equestrian combat group, anatomical pose and Ionic capital close-up; external visual reference only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "fernsehturm",
+      "title": "File:Berliner Fernsehturm - Kugel.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Fernsehturm_-_Kugel.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Raimond Spekking",
+      "credit": "© Raimond Spekking / CC BY-SA 4.0 (via Wikimedia Commons)",
+      "description": "Inspected stainless pyramidal shell, paired window belts, maintenance collars, open radio cage, dishes and red-white mast; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "fernsehturm",
+      "title": "File:The Pope's Revenge.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:The_Pope%27s_Revenge.jpg",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Tobi85",
+      "credit": "Tobi85 / public domain (PD-self), Wikimedia Commons",
+      "description": "Inspected 16 August 2009 photograph of the surface-confined cruciform sunlight reflection and steel facet/grid arrangement; external visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neptunbrunnen",
+      "title": "File:At Berlin 2024 201.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AAt_Berlin_2024_201.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Photograph by Mike Peel (www.mikepeel.net).",
+      "credit": "Photograph by Mike Peel (www.mikepeel.net). / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "marx_engels_forum",
+      "title": "File:Denkmal für Karl Marx und Friedrich Engels.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ADenkmal_f%C3%BCr_Karl_Marx_und_Friedrich_Engels.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Josef Streichholz",
+      "credit": "Josef Streichholz / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin-Rotes Rathaus-04-Fernsehturm-2017-gje.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Rotes_Rathaus-04-Fernsehturm-2017-gje.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Gerd Eichmann",
+      "credit": "Gerd Eichmann / CC BY-SA 4.0",
+      "landmark_id": "rotes_rathaus",
+      "description": "External inspected visual reference for Rotes Rathaus facade and tower",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin-Rotes Rathaus-14-Turm-2017-gje.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Rotes_Rathaus-14-Turm-2017-gje.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Gerd Eichmann",
+      "credit": "Gerd Eichmann / CC BY-SA 4.0",
+      "landmark_id": "rotes_rathaus",
+      "description": "External inspected visual reference for Rotes Rathaus facade and tower",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:St. Marienkirche, Berlin-Mitte, Turm, 160213, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:St._Marienkirche,_Berlin-Mitte,_Turm,_160213,_ako.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY 4.0",
+      "landmark_id": "marienkirche",
+      "description": "External inspected visual reference for St. Marienkirche nave, masonry, copper clock stage and open lantern",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Marienkirche B-Mitte 03-2014.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Marienkirche_B-Mitte_03-2014.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "A.Savin",
+      "credit": "A.Savin / CC BY-SA 3.0",
+      "landmark_id": "marienkirche",
+      "description": "External inspected visual reference for St. Marienkirche nave, masonry, copper clock stage and open lantern",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
