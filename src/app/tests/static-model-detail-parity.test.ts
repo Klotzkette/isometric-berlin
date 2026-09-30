@@ -11,6 +11,7 @@ import hashes from "./fixtures/static-model-full-hashes-v141.json";
 import overridesV148 from "./fixtures/static-model-full-overrides-v148.json";
 import overridesV151 from "./fixtures/static-model-full-overrides-v151.json";
 import overridesV153 from "./fixtures/static-model-full-overrides-v153.json";
+import overridesV154 from "./fixtures/static-model-full-overrides-v154.json";
 import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
@@ -77,7 +78,9 @@ describe("all devices retain the full authored static city detail", () => {
       // fixtures remain frozen; every unrelated model keeps its previous hash.
       // v153 refines only the requested Gedächtniskirche ensemble. Its new
       // full/mobile hashes were measured independently; older fixtures stay frozen.
-      const override = overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v154 corrects the same church's silhouette and actual openings; exact
+      // deduplication changes storage without removing any authored surface.
+      const override = overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

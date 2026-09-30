@@ -1,3 +1,5 @@
+import { addGedaechtniskircheRuin } from "./GedaechtniskircheRuin";
+import { GEDAECHTNISKIRCHE_RUIN_PROFILE } from "./gedaechtniskircheRuinProfile";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
@@ -38,15 +40,12 @@ const EUROPA_SIGN_RED = 0xc83d39;
 const ALUMINIUM = 0xcbd0cb;
 const TRAVERTINE = 0xd8c6a5;
 const SANDSTONE = 0xb99a72;
-const RUIN_STONE = 0x716a62;
+const RUIN_STONE = 0x999387;
 const RUIN_LIGHT = 0x92877a;
-const RUIN_ACCENT = 0x5b5751;
 const STONE_SHADOW = 0x3d3832;
 const CONCRETE = 0x777b7d;
 const KWG_BLUE = 0x24425a;
 const KWG_GRID = 0x8a8d89;
-const CLOCK_GOLD = 0xd1ad4a;
-const PATINA_GREEN = 0x63847e;
 const BRONZE = 0x66503b;
 const GRANITE_RED = 0x9d4c3f;
 const WATER = 0x5cacc1;
@@ -233,38 +232,7 @@ export const CITY_WEST_PROFILE = {
     },
     foyerCenterWorldM: [-2565.322, 1490.536] as const,
     foyerSourceBuildingId: "OSM-way-15218374",
-    oldTower: {
-      belfryArchesPerLongFace: 3,
-      brokenCrown: {
-        maxHeightM: 71,
-        patinaColor: "green-grey",
-        status:
-          "asymmetric procedural silhouette cross-checked against the supplied street photograph; no photograph or texture is bundled",
-      },
-      centerWorldM: [-2495.572, 1507.709] as const,
-      clock: {
-        centerHeightM: 36.4,
-        diameterM: 7.2,
-        hourMarkers: 12,
-      },
-      footprintM: [31, 18] as const,
-      heightM: 71,
-      originalHeightM: 113,
-      portal: {
-        archRadiusM: 5.25,
-        clearWidthM: 10.5,
-        openThrough: true,
-        springHeightM: 11,
-      },
-      recognitionGeometry:
-        "open lower arch with three archivolts, four gold clocks, masonry courses, blind arcade, belfry columns, corner buttresses and turrets, and a hollow eight-sided green-grey jagged crown",
-      crownWallCount: 8,
-      clockFaceCount: 4,
-      facadeDetailStatus:
-        "procedural masonry and Romanesque subdivisions cross-checked against Hwyrd 2024 Commons photographs; not a stone-by-stone survey",
-      rotationY: (79.93 * Math.PI) / 180,
-      sourceBuildingId: "OSM-way-15218373",
-    },
+    oldTower: GEDAECHTNISKIRCHE_RUIN_PROFILE,
     podiumAreaM2: 4120,
     podiumHeightM: 0.8,
     sources: [
@@ -321,13 +289,13 @@ export const CITY_WEST_SOURCE_URLS = [
 export const CITY_WEST_RENDER_BUDGET = {
   full: {
     maxRenderables: 12,
-    maxVertices: 65_000,
-    maxGeometryBytes: 1_180_000,
+    maxVertices: 120_000,
+    maxGeometryBytes: 2_600_000,
   },
   mobile: {
     maxRenderables: 12,
-    maxVertices: 65_000,
-    maxGeometryBytes: 1_180_000,
+    maxVertices: 120_000,
+    maxGeometryBytes: 2_600_000,
   },
 } as const;
 
@@ -415,47 +383,6 @@ function addLocalBox(
     inked,
     lamp,
   );
-}
-
-function addLocalFacadeDisc(
-  builder: Builder,
-  color: number,
-  center: readonly [number, number],
-  rotationY: number,
-  localX: number,
-  centerY: number,
-  localZ: number,
-  radius: number,
-  depth: number,
-  segments: number,
-  inked = true,
-): void {
-  const [x, z] = localPoint(center, rotationY, localX, localZ);
-  const geometry = new CylinderGeometry(radius, radius, depth, segments);
-  geometry.rotateX(Math.PI / 2);
-  geometry.rotateY(rotationY);
-  geometry.translate(x, centerY, z);
-  pushGeometry(builder, geometry, color, inked);
-}
-
-function addLocalFacadeArch(
-  builder: Builder,
-  color: number,
-  center: readonly [number, number],
-  rotationY: number,
-  localX: number,
-  centerY: number,
-  localZ: number,
-  radius: number,
-  tube: number,
-  segments: number,
-  inked = true,
-): void {
-  const [x, z] = localPoint(center, rotationY, localX, localZ);
-  const geometry = new TorusGeometry(radius, tube, 4, segments, Math.PI);
-  geometry.rotateY(rotationY);
-  geometry.translate(x, centerY, z);
-  pushGeometry(builder, geometry, color, inked);
 }
 
 function addAllianzRoofWordmark(builder: Builder): void {
@@ -1641,540 +1568,6 @@ function addFacadeGridBox(
   });
 }
 
-function addOldChurchTower(
-  builder: Builder,
-  detailProfile: CityWestDetailProfile,
-): void {
-  const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
-  const center = profile.centerWorldM;
-  const [widthM, depthM] = profile.footprintM;
-  const portal = profile.portal;
-  const portalSideMassM = (widthM - portal.clearWidthM) / 2;
-  const portalSideCenterM = portal.clearWidthM / 2 + portalSideMassM / 2;
-  const facadeZ = depthM / 2 + 0.2;
-
-  // The lower ruin is assembled around the opening, leaving a continuous
-  // empty volume through the tower instead of painting an arch on a solid box.
-  for (const side of [-1, 1]) {
-    addLocalBox(
-      builder,
-      RUIN_STONE,
-      center,
-      profile.rotationY,
-      side * portalSideCenterM,
-      GROUND_Y + 10,
-      0,
-      portalSideMassM,
-      20,
-      depthM,
-    );
-  }
-  addLocalBox(
-    builder,
-    RUIN_STONE,
-    center,
-    profile.rotationY,
-    0,
-    GROUND_Y + 18.1,
-    0,
-    widthM,
-    3.8,
-    depthM,
-  );
-  for (const face of [-1, 1]) {
-    addLocalFacadeArch(
-      builder,
-      RUIN_LIGHT,
-      center,
-      profile.rotationY,
-      0,
-      GROUND_Y + portal.springHeightM,
-      face * facadeZ,
-      portal.archRadiusM,
-      0.68,
-      detailProfile === "mobile" ? 10 : 16,
-    );
-    for (const side of [-1, 1]) {
-      addLocalBox(
-        builder,
-        RUIN_LIGHT,
-        center,
-        profile.rotationY,
-        side * (portal.clearWidthM / 2 + 0.32),
-        GROUND_Y + portal.springHeightM / 2,
-        face * (facadeZ + 0.02),
-        0.64,
-        portal.springHeightM,
-        0.34,
-        0,
-        false,
-      );
-    }
-  }
-
-  // Layered cornices, the clock shaft and corner buttresses restore the
-  // heavy Romanesque mass visible below the shattered belfry.
-  for (const [heightM, sizeX, sizeZ] of [
-    [20.4, 32.6, 19.5],
-    [23.1, 23.2, 17.7],
-    [42.9, 24.4, 18.2],
-    [58.2, 24.8, 18.4],
-  ] as const) {
-    addLocalBox(
-      builder,
-      heightM === 58.2 ? RUIN_ACCENT : RUIN_LIGHT,
-      center,
-      profile.rotationY,
-      0,
-      GROUND_Y + heightM,
-      0,
-      sizeX,
-      0.9,
-      sizeZ,
-    );
-  }
-  addLocalBox(
-    builder,
-    RUIN_STONE,
-    center,
-    profile.rotationY,
-    0,
-    GROUND_Y + 31.5,
-    0,
-    21,
-    22,
-    16.4,
-  );
-  for (const [localX, localZ] of [
-    [-11.2, -7.3],
-    [11.2, -7.3],
-    [-11.2, 7.3],
-    [11.2, 7.3],
-  ] as const) {
-    addLocalBox(
-      builder,
-      RUIN_ACCENT,
-      center,
-      profile.rotationY,
-      localX,
-      GROUND_Y + 32.2,
-      localZ,
-      2.3,
-      23.5,
-      2.4,
-    );
-  }
-
-  const clock = profile.clock;
-  const clockRadiusM = clock.diameterM / 2;
-  for (const [clockYaw, face, clockFaceZ] of [
-    [profile.rotationY, -1, depthM / 2 - 0.52],
-    [profile.rotationY, 1, depthM / 2 - 0.52],
-    [profile.rotationY + Math.PI / 2, -1, 10.45],
-    [profile.rotationY + Math.PI / 2, 1, 10.45],
-  ] as const) {
-    addLocalFacadeDisc(
-      builder,
-      STONE_SHADOW,
-      center,
-      clockYaw,
-      0,
-      GROUND_Y + clock.centerHeightM,
-      face * (clockFaceZ + 0.22),
-      clockRadiusM - 0.28,
-      0.34,
-      detailProfile === "mobile" ? 16 : 24,
-      false,
-    );
-    addLocalFacadeArch(
-      builder,
-      CLOCK_GOLD,
-      center,
-      clockYaw,
-      0,
-      GROUND_Y + clock.centerHeightM,
-      face * (clockFaceZ + 0.5),
-      clockRadiusM - 0.32,
-      0.32,
-      detailProfile === "mobile" ? 16 : 24,
-      false,
-    );
-    const lowerClockRing = new TorusGeometry(
-      clockRadiusM - 0.32,
-      0.32,
-      4,
-      detailProfile === "mobile" ? 16 : 24,
-      Math.PI,
-    );
-    lowerClockRing.rotateZ(Math.PI);
-    lowerClockRing.rotateY(clockYaw);
-    const [ringX, ringZ] = localPoint(
-      center,
-      clockYaw,
-      0,
-      face * (clockFaceZ + 0.5),
-    );
-    lowerClockRing.translate(ringX, GROUND_Y + clock.centerHeightM, ringZ);
-    pushGeometry(builder, lowerClockRing, CLOCK_GOLD, false);
-
-    const markerRadiusM = clockRadiusM - 0.85;
-    for (let marker = 0; marker < clock.hourMarkers; marker += 1) {
-      const angle = (marker * Math.PI * 2) / clock.hourMarkers;
-      const markerLengthM = marker % 3 === 0 ? 0.76 : 0.52;
-      addLocalBox(
-        builder,
-        CLOCK_GOLD,
-        center,
-        clockYaw,
-        Math.sin(angle) * markerRadiusM,
-        GROUND_Y + clock.centerHeightM + Math.cos(angle) * markerRadiusM,
-        face * (clockFaceZ + 0.66),
-        0.2,
-        markerLengthM,
-        0.18,
-        -angle,
-        false,
-      );
-    }
-    for (const [angle, lengthM, widthM] of [
-      [-0.92, 2.15, 0.26],
-      [0.3, 2.72, 0.18],
-    ] as const) {
-      addLocalBox(
-        builder,
-        CLOCK_GOLD,
-        center,
-        clockYaw,
-        (Math.sin(angle) * lengthM) / 2,
-        GROUND_Y + clock.centerHeightM + (Math.cos(angle) * lengthM) / 2,
-        face * (clockFaceZ + 0.69),
-        widthM,
-        lengthM,
-        0.2,
-        -angle,
-        false,
-      );
-    }
-    addLocalFacadeDisc(
-      builder,
-      CLOCK_GOLD,
-      center,
-      clockYaw,
-      0,
-      GROUND_Y + clock.centerHeightM,
-      face * (clockFaceZ + 0.72),
-      0.34,
-      0.2,
-      10,
-      false,
-    );
-  }
-
-  addLocalBox(
-    builder,
-    RUIN_STONE,
-    center,
-    profile.rotationY,
-    0,
-    GROUND_Y + 50.7,
-    0,
-    22.8,
-    15.2,
-    16.6,
-  );
-  for (const face of [-1, 1]) {
-    for (const localX of [-5.4, 0, 5.4]) {
-      addLocalBox(
-        builder,
-        STONE_SHADOW,
-        center,
-        profile.rotationY,
-        localX,
-        GROUND_Y + 49.7,
-        face * 8.42,
-        2.75,
-        6.2,
-        0.28,
-        0,
-        false,
-      );
-      addLocalFacadeDisc(
-        builder,
-        STONE_SHADOW,
-        center,
-        profile.rotationY,
-        localX,
-        GROUND_Y + 52.75,
-        face * 8.43,
-        1.38,
-        0.3,
-        12,
-        false,
-      );
-      addLocalFacadeArch(
-        builder,
-        RUIN_LIGHT,
-        center,
-        profile.rotationY,
-        localX,
-        GROUND_Y + 52.75,
-        face * 8.63,
-        1.58,
-        0.24,
-        10,
-        false,
-      );
-    }
-  }
-
-  for (const [localX, localZ] of [
-    [-11.4, -7.5],
-    [11.4, -7.5],
-    [-11.4, 7.5],
-    [11.4, 7.5],
-  ] as const) {
-    const [x, z] = localPoint(center, profile.rotationY, localX, localZ);
-    addCylinder(
-      builder,
-      RUIN_STONE,
-      x,
-      GROUND_Y + 50.5,
-      z,
-      1.45,
-      11,
-      detailProfile === "mobile" ? 6 : 8,
-    );
-    addCone(
-      builder,
-      PATINA_GREEN,
-      x,
-      GROUND_Y + 57.1,
-      z,
-      1.75,
-      2.3,
-      detailProfile === "mobile" ? 6 : 8,
-      false,
-    );
-  }
-
-  // The broken spire is a wall shell with an empty centre, not five filled
-  // rectangular stacks. Its irregular silhouette still ends exactly at 71 m.
-  const crownHeights = [71, 68.3, 64.5, 66.1, 62.9, 64.2, 65.5, 69.1];
-  const crownRadius = 8.1;
-  for (let side = 0; side < profile.crownWallCount; side += 1) {
-    const a = (side * Math.PI * 2) / profile.crownWallCount + Math.PI / 8;
-    const b = ((side + 1) * Math.PI * 2) / profile.crownWallCount + Math.PI / 8;
-    const ha = crownHeights[side],
-      hb = crownHeights[(side + 1) % crownHeights.length];
-    const positions: number[] = [];
-    const indices: number[] = [];
-    const quad = (
-      corners: readonly (readonly [number, number, number])[],
-    ): void => {
-      const index = positions.length / 3;
-      for (const [x, y, z] of corners) {
-        const [wx, wz] = localPoint(center, profile.rotationY, x, z);
-        positions.push(wx, GROUND_Y + y, wz);
-      }
-      indices.push(index, index + 1, index + 2, index, index + 2, index + 3);
-    };
-    const point = (
-      angle: number,
-      height: number,
-      radius: number,
-    ): readonly [number, number, number] => [
-      Math.cos(angle) * radius,
-      height,
-      Math.sin(angle) * radius,
-    ];
-    const lowA = point(a, 58.65, crownRadius),
-      lowB = point(b, 58.65, crownRadius);
-    const topA = point(a, ha, crownRadius * 0.62),
-      topB = point(b, hb, crownRadius * 0.62);
-    const innerA = point(a, ha - 0.15, crownRadius * 0.62 - 0.7),
-      innerB = point(b, hb - 0.15, crownRadius * 0.62 - 0.7);
-    quad([lowB, lowA, topA, topB]);
-    quad([
-      point(a, 58.65, crownRadius - 0.7),
-      point(b, 58.65, crownRadius - 0.7),
-      innerB,
-      innerA,
-    ]);
-    quad([topA, innerA, innerB, topB]);
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-    geometry.setIndex(indices);
-    pushGeometry(
-      builder,
-      geometry,
-      side % 3 === 0 ? RUIN_LIGHT : PATINA_GREEN,
-      true,
-    );
-  }
-
-  // Masonry courses and local patches are abstract recognition subdivisions,
-  // not an invented stone-by-stone scan of the war-damaged sandstone.
-  for (const face of [-1, 1]) {
-    for (let course = 0; course < 18; course += 1) {
-      const y = 1.1 + course * 2.25;
-      for (const side of [-1, 1]) {
-        const lower = y < 20;
-        const u = side * (lower ? 10.8 : 6.9);
-        addLocalBox(
-          builder,
-          course % 3 === 0 ? RUIN_LIGHT : RUIN_ACCENT,
-          center,
-          profile.rotationY,
-          u,
-          GROUND_Y + y,
-          face * (lower ? facadeZ + 0.08 : 8.28),
-          lower ? 8.0 : 6.3,
-          0.13,
-          0.1,
-          0,
-          false,
-        );
-        if (course % 2 === 0)
-          addLocalBox(
-            builder,
-            RUIN_LIGHT,
-            center,
-            profile.rotationY,
-            u + side * 1.2,
-            GROUND_Y + y + 0.65,
-            face * (lower ? facadeZ + 0.09 : 8.29),
-            2.0,
-            0.72,
-            0.12,
-            0,
-            false,
-          );
-      }
-    }
-    // Three concentric archivolts frame the retained traversable portal.
-    for (const radius of [5.85, 6.55]) {
-      addLocalFacadeArch(
-        builder,
-        RUIN_ACCENT,
-        center,
-        profile.rotationY,
-        0,
-        GROUND_Y + portal.springHeightM,
-        face * (facadeZ + 0.26),
-        radius,
-        0.18,
-        20,
-        false,
-      );
-    }
-    for (const u of [-11.2, 11.2]) {
-      addLocalBox(
-        builder,
-        STONE_SHADOW,
-        center,
-        profile.rotationY,
-        u,
-        GROUND_Y + 12.4,
-        face * (facadeZ + 0.18),
-        2.35,
-        4.4,
-        0.16,
-        0,
-        false,
-      );
-      addLocalFacadeDisc(
-        builder,
-        STONE_SHADOW,
-        center,
-        profile.rotationY,
-        u,
-        GROUND_Y + 14.6,
-        face * (facadeZ + 0.19),
-        1.17,
-        0.16,
-        14,
-        false,
-      );
-      addLocalFacadeArch(
-        builder,
-        RUIN_LIGHT,
-        center,
-        profile.rotationY,
-        u,
-        GROUND_Y + 14.6,
-        face * (facadeZ + 0.28),
-        1.35,
-        0.19,
-        14,
-        false,
-      );
-    }
-    // Closely spaced short arches below the belfry, and slender belfry jambs.
-    for (let bay = 0; bay < 7; bay += 1) {
-      const u = -8.4 + bay * 2.8;
-      addLocalBox(
-        builder,
-        STONE_SHADOW,
-        center,
-        profile.rotationY,
-        u,
-        GROUND_Y + 41,
-        face * 8.5,
-        1.2,
-        1.15,
-        0.14,
-        0,
-        false,
-      );
-      addLocalFacadeArch(
-        builder,
-        RUIN_LIGHT,
-        center,
-        profile.rotationY,
-        u,
-        GROUND_Y + 41.55,
-        face * 8.64,
-        0.7,
-        0.16,
-        8,
-        false,
-      );
-    }
-    for (const u of [-5.4, 0, 5.4]) {
-      for (const direction of [-1, 1]) {
-        addLocalBox(
-          builder,
-          RUIN_LIGHT,
-          center,
-          profile.rotationY,
-          u + direction * 1.55,
-          GROUND_Y + 49.7,
-          face * 8.66,
-          0.36,
-          6.1,
-          0.3,
-          0,
-          false,
-        );
-        addLocalBox(
-          builder,
-          RUIN_LIGHT,
-          center,
-          profile.rotationY,
-          u + direction * 1.55,
-          GROUND_Y + 52.5,
-          face * 8.7,
-          0.65,
-          0.45,
-          0.4,
-          0,
-          false,
-        );
-      }
-    }
-  }
-}
-
 /** One indexed quad per glass cell; the continuous concrete skin supplies
  * the joints without thousands of boxes or per-window scene objects. */
 function addEiermannGlassLattice(
@@ -2198,12 +1591,12 @@ function addEiermannGlassLattice(
   const pitchY = (profile.heightM - 0.8) / rows;
   const palette = [
     KWG_BLUE,
-    0x345777,
-    0x173967,
-    0x4c6583,
-    0x7b474a,
-    0x547263,
-    0xa38e59,
+    0x46565b,
+    0x334448,
+    0x5a676b,
+    0x685456,
+    0x566561,
+    0x8b8266,
   ];
   const positions = palette.map(() => [] as number[]);
   const indices = palette.map(() => [] as number[]);
@@ -2340,7 +1733,7 @@ function addGedaechtniskirche(
     0.05,
     false,
   );
-  addOldChurchTower(builder, detailProfile);
+  addGedaechtniskircheRuin(builder);
   addRetainedChurchWings(builder);
 
   const church = profile.church;

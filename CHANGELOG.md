@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.54
+
+- Step 10: rebuild the Gedächtniskirche ruin with its open octagonal upper storey, differentiated Romanesque arches, asymmetric side spires and tall hollow copper stump.
+- Distinguish the raised western circular breach from the damaged eastern nave arch; retain small accessible ground-level hall entrances. Refine gables, clock tracery, stonework, apse facades and subdued daytime concrete glass.
+- Synchronise block-native geometry and radius-aware collision. Preserve exact source wings, all unrelated model hashes, the 93-stop catalogue and full mobile drawn detail.
+
 ## v1.0.53
 
 - Refine the Kaiser Wilhelm Memorial Church's hollow broken crown, Romanesque masonry, clocks and correctly aligned blue concrete-glass grids.

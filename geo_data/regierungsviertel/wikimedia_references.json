@@ -5508,6 +5508,78 @@
       "description": "Weathered Romanesque ruin, clocks, open arches, broken crown and blue-glazed modern ensemble; external visual reference only.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:.00 0699 Baudenkmal Kaiser-Wilhelm-Gedächtniskirche in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:.00_0699_Baudenkmal_Kaiser-Wilhelm-Ged%C3%A4chtniskirche_in_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "W. Bulach",
+      "credit": "W. Bulach / CC BY-SA 4.0",
+      "description": "Opposite oblique view of steep copper shell, standing seams, stepped fracture and belfry openings. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:00 1503 Berlin - Kaiser-Wilhelm-Gedächtniskirche.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:00_1503_Berlin_-_Kaiser-Wilhelm-Ged%C3%A4chtniskirche.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "W. Bulach",
+      "credit": "W. Bulach / CC BY-SA 4.0",
+      "description": "Southeast full-height ruined tower; open octagonal belfry, gables, southern side spire, clock stage and raised broken nave arches. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:Berlin 20171030-08 Kaiser-Wilhelm-Gedächtniskirche.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_20171030-08_Kaiser-Wilhelm-Ged%C3%A4chtniskirche.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Pymouss",
+      "credit": "Pymouss / CC BY-SA 4.0",
+      "description": "West/northwest ruin face, former rose opening, gables, shorter damaged turret cap and projecting apse. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:Berlin 20171030-10 Kaiser-Wilhelm-Gedächtniskirche.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_20171030-10_Kaiser-Wilhelm-Ged%C3%A4chtniskirche.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Pymouss",
+      "credit": "Pymouss / CC BY-SA 4.0",
+      "description": "Eastern cut vault, damaged masonry depth and stacked openings. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:2021-07-19 Kaiser-Wilhelm-Gedächtniskirche Berlin 06.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_Kaiser-Wilhelm-Ged%C3%A4chtniskirche_Berlin_06.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Geoprofi Lars",
+      "credit": "Geoprofi Lars / CC BY-SA 4.0",
+      "description": "East-side stacked openings, rough broken arches and differentiated brick and stone. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gedaechtniskirche_v154",
+      "title": "File:2021-07-19 Kaiser-Wilhelm-Gedächtniskirche Berlin 07.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_Kaiser-Wilhelm-Ged%C3%A4chtniskirche_Berlin_07.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Geoprofi Lars",
+      "credit": "Geoprofi Lars / CC BY-SA 4.0",
+      "description": "Low curved glazed shop insertion; inspected as church context rather than as a source for the main tower silhouette. External visual reference only.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

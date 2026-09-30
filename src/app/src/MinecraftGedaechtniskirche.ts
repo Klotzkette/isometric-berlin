@@ -9,6 +9,7 @@ import {
 } from "three";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
 import { CITY_WEST_PROFILE } from "./CityWestDetails";
+import { GEDAECHTNISKIRCHE_RUIN_PROFILE as RUIN } from "./gedaechtniskircheRuinProfile";
 
 const PROFILE = CITY_WEST_PROFILE.gedaechtniskirche;
 const GROUND = CITY_WEST_PROFILE.groundY;
@@ -127,7 +128,108 @@ export function isGedaechtniskircheAuthoredRuinPoint(
   return Math.abs(u) <= 15.5 && Math.abs(v) <= 9;
 }
 
-/** Physical collision for the represented core; leave the lower arch empty. */
+/** Match the represented door and elevated circular breach, with body clearance. */
+function ruinFacadeOpening(
+  u: number,
+  h: number,
+  radius = 0,
+  east = false,
+): boolean {
+  const door = RUIN.portal;
+  return (
+    (h >= -radius &&
+      Math.hypot(u, Math.max(0, h - door.springHeightM)) + radius <
+        door.archRadiusM) ||
+    (east
+      ? h > RUIN.eastBreach.bottomHeightM + radius &&
+        Math.hypot(u, Math.max(0, h - RUIN.eastBreach.springHeightM)) + radius <
+          RUIN.eastBreach.radiusM
+      : Math.hypot(u, h - RUIN.roseBreach.centerHeightM) + radius <
+        RUIN.roseBreach.radiusM)
+  );
+}
+
+function gableWindow(u: number, h: number, side = false, radius = 0): boolean {
+  if (side)
+    return (
+      Math.hypot(u, h - 27.6) + radius < 1.25 ||
+      (h > 24 + radius &&
+        [-3.3, 3.3].some(
+          (axis) => Math.hypot(u - axis, Math.max(0, h - 25.6)) + radius < 0.95,
+        ))
+    );
+  return (
+    Math.hypot(u, h - 29) + radius < 1 ||
+    (h > 24 + radius &&
+      [-5, 0, 5].some(
+        (axis) =>
+          Math.hypot(u - axis, Math.max(0, h - (axis === 0 ? 26.1 : 26))) +
+            radius <
+          (axis === 0 ? 1.1 : 1.25),
+      ))
+  );
+}
+function eastGableHeight(u: number): number {
+  return Math.abs(u) < 4.8
+    ? 23
+    : Math.abs(u) < 7.2
+      ? 25.7
+      : Math.abs(u) < 8.7
+        ? 26.9
+        : 28.4;
+}
+
+function belfryOpening(
+  side: number,
+  u: number,
+  h: number,
+  radius = 0,
+): boolean {
+  if (side % 2 === 0)
+    return (
+      (h > 44.2 + radius &&
+        [-1.5, 1.5].some(
+          (axis) => Math.hypot(u - axis, Math.max(0, h - 51.4)) + radius < 1.18,
+        )) ||
+      Math.hypot(u, h - 54) + radius < 1
+    );
+  // Conservative three-lobed clearance, matching the authored trefoil.
+  return (
+    h > 44.2 + radius &&
+    ((h <= 51.3 && Math.abs(u) + radius < 2.5) ||
+      Math.hypot(u, h - 53.5) + radius < 1.5 ||
+      [-1.5, 1.5].some(
+        (axis) => Math.hypot(u - axis, h - 51.6) + radius < 1.02,
+      ))
+  );
+}
+
+function crownOutline(side: number): readonly (readonly [number, number])[] {
+  const width = 2 * RUIN.crownRadiusM * Math.sin(Math.PI / 8);
+  const top = RUIN.crownTopHeightsM[side],
+    topR = RUIN.crownTopHeightsM[(side + 1) % 8] - 0.45;
+  return [
+    [-width / 2, RUIN.crownBaseHeightM],
+    [width / 2, RUIN.crownBaseHeightM],
+    [width / 2, topR],
+    [width * 0.12, topR],
+    [width * 0.12, top],
+    [0, top],
+    [-width * 0.1, top],
+    [-width * 0.1, top - 0.8],
+    [-width / 2, top - 0.8],
+  ];
+}
+function crownDormer(side: number, u: number, h: number, radius = 0): boolean {
+  return (
+    RUIN.crownTopHeightsM[side] > 65 &&
+    h > 61.3 + radius &&
+    Math.hypot(u, Math.max(0, h - 62.7)) + radius < 0.55
+  );
+}
+
+/** Solid masonry only: the hall, high circular breach, bell openings and
+ * broken crown remain voids rather than closed collision envelopes. */
 export function gedaechtniskircheRuinSolidAt(
   x: number,
   y: number,
@@ -146,13 +248,136 @@ export function gedaechtniskircheRuinSolidAt(
     Math.abs(v) <= depth / 2 + radius &&
     h >= bottom - radius &&
     h <= top + radius;
-  if (inside(31, 18, 0, 16.2))
-    return Math.abs(u) + radius >= PROFILE.oldTower.portal.clearWidthM / 2;
-  return (
-    inside(31, 18, 16.2, 20) ||
-    inside(21, 16.4, 20, 43) ||
-    inside(22.8, 16.6, 43, 58.5)
-  );
+  if (inside(31, 18, 0, 23)) {
+    if (Math.abs(u) >= 14.4 - radius && Math.abs(v) <= 8.5 + radius)
+      return true;
+    if (
+      Math.abs(v) >= 8.3 - radius &&
+      Math.abs(v) <= 8.95 + radius &&
+      !ruinFacadeOpening(u, h, radius, v > 0)
+    )
+      return true;
+    if (
+      Math.abs(u) <= 14.5 + radius &&
+      Math.abs(v) <= 8 + radius &&
+      h >= 7.675 - radius &&
+      h <= 8.125 + radius
+    )
+      return true;
+  }
+  if (inside(21, 16.4, 31, 40.5)) return true;
+  if (inside(21, 16.4, 23, 31) && Math.abs(u) >= 9.6 - radius) return true;
+  if (Math.abs(u) <= 10.5 + radius && h >= 23 - radius) {
+    if (
+      v >= 8.3 - radius &&
+      v <= 8.95 + radius &&
+      h <= eastGableHeight(u) + radius
+    )
+      return true;
+    if (
+      v <= -8.3 + radius &&
+      v >= -8.95 - radius &&
+      h <= 32 - (Math.abs(u) * 9) / 10.5 + radius &&
+      !gableWindow(u, h, false, radius)
+    )
+      return true;
+  }
+  if (
+    Math.abs(u) >= 15 - radius &&
+    Math.abs(u) <= 15.65 + radius &&
+    Math.abs(v) <= 8.9 + radius &&
+    h >= 23 - radius &&
+    h <= 30.3 - (Math.abs(v) * 7.3) / 8.9 + radius &&
+    !gableWindow(v, h, true, radius)
+  )
+    return true;
+  for (const xx of [-9.7, 9.7])
+    for (const zz of [-7.6, 7.6]) {
+      const d = Math.hypot(u - xx, v - zz);
+      if (h >= 26 - radius && h <= 33 + radius && d < 1.1 + radius) return true;
+      if (
+        h >= 33 - radius &&
+        h <= 37 + radius &&
+        d < (1.5 * (37 - h)) / 4 + radius
+      )
+        return true;
+    }
+  for (const turret of RUIN.sideTurrets) {
+    const d = Math.hypot(
+      u - turret.centerLocalM[0],
+      v - turret.centerLocalM[1],
+    );
+    if (h >= -radius && h <= turret.roofTopM + radius) {
+      const r =
+        h <= turret.shaftTopM
+          ? turret.radiusM
+          : 0.12 +
+            (turret.radiusM + 0.18) *
+              Math.max(
+                0,
+                (turret.roofTopM - h) / (turret.roofTopM - turret.shaftTopM),
+              );
+      if (d <= r + radius) return true;
+    }
+    if (
+      h > turret.roofTopM &&
+      h <= turret.crossTopM + radius &&
+      d < 0.3 + radius
+    )
+      return true;
+  }
+  const apothem = RUIN.belfry.radiusM * Math.cos(Math.PI / 8);
+  const halfWidth = RUIN.belfry.radiusM * Math.sin(Math.PI / 8);
+  for (let side = 0; side < 8; side += 1) {
+    const angle = (side * Math.PI) / 4;
+    const tangent = u * Math.cos(angle) - v * Math.sin(angle);
+    const normal = u * Math.sin(angle) + v * Math.cos(angle);
+    if (
+      h >= 40 - radius &&
+      h <= 43.5 + radius &&
+      Math.abs(tangent) <= halfWidth + radius &&
+      normal >= apothem - 0.5 - radius &&
+      normal <= apothem + 0.15 + radius
+    )
+      return true;
+    if (
+      h >= 43.7 - radius &&
+      h <= RUIN.belfry.gableHeightM + radius &&
+      Math.abs(tangent) <= halfWidth + radius &&
+      normal >= apothem - 0.65 - radius &&
+      normal <= apothem + radius
+    ) {
+      const top =
+        RUIN.belfry.eavesHeightM +
+        (RUIN.belfry.gableHeightM - RUIN.belfry.eavesHeightM) *
+          (1 - Math.min(1, Math.abs(tangent) / halfWidth));
+      if (h <= top + radius && !belfryOpening(side, tangent, h, radius))
+        return true;
+    }
+    const crownNormal =
+      RUIN.crownRadiusM * Math.cos(Math.PI / 8) -
+      0.11 * (h - RUIN.crownBaseHeightM);
+    if (Math.abs(normal - crownNormal - 0.095) > 0.095 + radius * 1.007)
+      continue;
+    const crownApothem = RUIN.crownRadiusM * Math.cos(Math.PI / 8);
+    const widthScale = crownNormal / crownApothem;
+    if (widthScale <= 0) continue;
+    const parameterU = tangent / widthScale;
+    const parameterRadius = radius / widthScale;
+    const ring = crownOutline(side);
+    const onFace =
+      pointInWing(parameterU, h, ring) ||
+      (radius > 0 &&
+        [
+          [parameterRadius, 0],
+          [-parameterRadius, 0],
+          [0, radius],
+          [0, -radius],
+        ].some(([du, dh]) => pointInWing(parameterU + du, h + dh, ring)));
+    if (onFace && !crownDormer(side, parameterU, h, parameterRadius))
+      return true;
+  }
+  return false;
 }
 
 function pointInWing(
@@ -211,43 +436,44 @@ export function createMinecraftGedaechtniskirche(): Group {
       color,
     });
   };
-  const ruin = PROFILE.oldTower;
+  const ruin = RUIN;
+  // Keep the retained low-wing colours unchanged; refined ruin stone has its
+  // own palette, so source parts and the modern ensemble keep their buffers.
   const stone = 0x847a69,
-    pale = 0xa69b85,
+    pale = 0xa69b85;
+  const ruinStone = 0xaaa292,
+    ruinPale = 0xc0b8a7,
     shadow = 0x45423c,
-    patina = 0x63847e;
+    patina = 0x6e8076;
+  const stoneColor = (row: number, col: number): number =>
+    (row * 7 + col * 11) % 13 === 0
+      ? 0x8d867b
+      : (row * 7 + col * 11) % 5 === 0
+        ? ruinPale
+        : ruinStone;
   const shell = (
     width: number,
     depth: number,
     bottom: number,
     top: number,
-    opening: boolean,
+    openings = false,
   ): void => {
     for (let face = 0; face < 4; face += 1) {
       const yaw = ruin.rotationY + (face * Math.PI) / 2;
       const length = face % 2 === 0 ? width : depth;
-      const distance = (face % 2 === 0 ? depth : width) / 2;
-      const columns = Math.ceil(length / 1.8),
-        rows = Math.ceil((top - bottom) / 1.8);
+      const thickness = face % 2 === 0 ? 0.65 : 1.1;
+      const distance =
+        (face % 2 === 0 ? depth : width) / 2 - (face % 2 === 0 ? 0.375 : 0.55);
+      const columns = Math.ceil(length),
+        rows = Math.ceil(top - bottom);
       for (let row = 0; row < rows; row += 1)
         for (let col = 0; col < columns; col += 1) {
           const u = -length / 2 + ((col + 0.5) * length) / columns;
           const y = bottom + ((row + 0.5) * (top - bottom)) / rows;
           if (
-            opening &&
+            openings &&
             face % 2 === 0 &&
-            Math.abs(u) < ruin.portal.clearWidthM / 2 &&
-            y <
-              ruin.portal.springHeightM +
-                Math.sqrt(Math.max(0, ruin.portal.archRadiusM ** 2 - u * u))
-          )
-            continue;
-          if (
-            bottom > 42 &&
-            face % 2 === 0 &&
-            y > 46.5 &&
-            y < 53.8 &&
-            [-5.4, 0, 5.4].some((axis) => Math.abs(u - axis) < 1.3)
+            ruinFacadeOpening(u, y, 0, face === 0)
           )
             continue;
           box(
@@ -258,24 +484,137 @@ export function createMinecraftGedaechtniskirche(): Group {
             distance,
             length / columns,
             (top - bottom) / rows,
-            1.0,
-            (row * 7 + col * 11) % 9 === 0 ? pale : stone,
+            thickness,
+            stoneColor(row, col),
           );
         }
     }
   };
-  shell(31, 18, 0, 20, true);
-  shell(21, 16.4, 20, 43, false);
-  shell(22.8, 16.6, 43, 58.5, false);
+  shell(31, 18, 0, 23, true);
+  shell(21, 16.4, 31, 40.5);
+  for (const side of [-1, 1])
+    box(
+      ruin.centerWorldM,
+      ruin.rotationY,
+      side * 10.05,
+      27,
+      0,
+      0.9,
+      8,
+      16.4,
+      ruinStone,
+    );
+  box(ruin.centerWorldM, ruin.rotationY, 0, 7.9, 0, 29, 0.45, 16, ruinStone);
+  // Tall, stepped Romanesque gables over the circular breaches.
+  for (const side of [-1, 1]) {
+    for (let segment = 0; segment <= 16; segment += 1) {
+      const angle = (segment * Math.PI) / 16;
+      box(
+        ruin.centerWorldM,
+        ruin.rotationY,
+        Math.cos(angle) * 1.95,
+        ruin.portal.springHeightM + Math.sin(angle) * 1.95,
+        side * 9.13,
+        0.42,
+        0.42,
+        0.45,
+        ruinPale,
+      );
+    }
+    for (const u of [-1.95, 1.95])
+      box(
+        ruin.centerWorldM,
+        ruin.rotationY,
+        u,
+        ruin.portal.springHeightM / 2,
+        side * 9.13,
+        0.42,
+        ruin.portal.springHeightM,
+        0.45,
+        ruinPale,
+      );
+    for (let row = 0; row < 18; row += 1) {
+      const y = 23 + (row + 0.5) * 0.5;
+      for (let col = 0; col < 42; col += 1) {
+        const u = -10.5 + (col + 0.5) * 0.5;
+        const top =
+          side > 0 ? eastGableHeight(u) : 32 - (Math.abs(u) * 9) / 10.5;
+        if (y > top || (side < 0 && gableWindow(u, y))) continue;
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY,
+          u,
+          y,
+          side * 8.625,
+          0.5,
+          0.5,
+          0.65,
+          stoneColor(row, col),
+        );
+      }
+    }
+    const count = side > 0 ? 23 : 44;
+    for (let segment = 0; segment < count; segment += 1) {
+      const angle =
+        (segment * Math.PI * (side > 0 ? 1 : 2)) / (count - (side > 0 ? 1 : 0));
+      box(
+        ruin.centerWorldM,
+        ruin.rotationY,
+        Math.cos(angle) * 6.18,
+        (side > 0
+          ? ruin.eastBreach.springHeightM
+          : ruin.roseBreach.centerHeightM) +
+          Math.sin(angle) * 6.18,
+        side * 9.1,
+        0.7,
+        0.7,
+        0.7,
+        segment % 5 === 0 ? ruinStone : ruinPale,
+      );
+    }
+    if (side > 0)
+      for (const u of [-6.18, 6.18])
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY,
+          u,
+          12.75,
+          9.1,
+          0.7,
+          8.5,
+          0.7,
+          ruinPale,
+        );
+    // Independent north/south transept gables.
+    for (let row = 0; row < 15; row += 1)
+      for (let col = 0; col < 36; col += 1) {
+        const u = -8.9 + ((col + 0.5) * 17.8) / 36,
+          y = 23 + (row + 0.5) * 0.5;
+        if (y > 30.3 - (Math.abs(u) * 7.3) / 8.9 || gableWindow(u, y, true))
+          continue;
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY + (side * Math.PI) / 2,
+          u,
+          y,
+          15.325,
+          17.8 / 36,
+          0.5,
+          0.65,
+          stoneColor(row, col),
+        );
+      }
+  }
+
   for (const [y, w, d] of [
-    [20.4, 32.6, 19.5],
-    [23.1, 23.2, 17.7],
-    [42.9, 24.4, 18.2],
-    [58.2, 24.8, 18.4],
+    [23, 32.3, 19.2],
+    [31, 22.3, 17.7],
+    [40.1, 22.4, 17.8],
+    [43.2, 23, 18.4],
   ]) {
     for (let face = 0; face < 4; face += 1) {
-      const length = face % 2 === 0 ? w : d;
-      const n = Math.ceil(length / 3);
+      const length = face % 2 === 0 ? w : d,
+        n = Math.ceil(length / 2);
       for (let i = 0; i < n; i += 1)
         box(
           ruin.centerWorldM,
@@ -284,26 +623,30 @@ export function createMinecraftGedaechtniskirche(): Group {
           y,
           (face % 2 === 0 ? d : w) / 2,
           length / n,
-          0.8,
-          0.65,
-          pale,
+          0.55,
+          0.7,
+          ruinPale,
         );
     }
   }
   for (let face = 0; face < 4; face += 1) {
     const yaw = ruin.rotationY + (face * Math.PI) / 2,
       depth = face % 2 === 0 ? 8.65 : 10.9;
-    box(
-      ruin.centerWorldM,
-      yaw,
-      0,
-      ruin.clock.centerHeightM,
-      depth,
-      6.1,
-      6.1,
-      0.35,
-      shadow,
-    );
+    // Square-block disc outline, gold hours and hands, without a texture.
+    for (let x = -3; x <= 3; x += 1)
+      for (let y = -3; y <= 3; y += 1)
+        if (x * x + y * y <= 10)
+          box(
+            ruin.centerWorldM,
+            yaw,
+            x,
+            ruin.clock.centerHeightM + y,
+            depth,
+            1,
+            1,
+            0.35,
+            shadow,
+          );
     for (let mark = 0; mark < 24; mark += 1) {
       const angle = (mark * Math.PI) / 12;
       box(
@@ -312,8 +655,8 @@ export function createMinecraftGedaechtniskirche(): Group {
         Math.sin(angle) * 3.3,
         ruin.clock.centerHeightM + Math.cos(angle) * 3.3,
         depth + 0.25,
-        0.62,
-        0.62,
+        0.55,
+        0.55,
         0.22,
         0xd1ad4a,
       );
@@ -332,37 +675,199 @@ export function createMinecraftGedaechtniskirche(): Group {
     box(
       ruin.centerWorldM,
       yaw,
-      -1.0,
+      -1,
       ruin.clock.centerHeightM,
       depth + 0.3,
-      2.0,
+      2,
       0.28,
       0.2,
       0xd1ad4a,
     );
-  }
-  const heights = [71, 68.3, 64.5, 66.1, 62.9, 64.2, 65.5, 69.1];
-  for (let side = 0; side < 8; side += 1) {
-    const a = ((side + 0.5) * Math.PI) / 4;
-    const top = heights[side],
-      rows = Math.ceil((top - 58.6) / 1.1);
-    for (let row = 0; row < rows; row += 1) {
-      const h = (top - 58.6) / rows,
-        y = 58.6 + (row + 0.5) * h;
-      const r = 7.5 - ((y - 58.6) / 12.4) * 2.2;
+    for (let bay = -3; bay <= 3; bay += 1) {
+      const u = bay * 2.7;
+      box(ruin.centerWorldM, yaw, u, 41.5, depth + 0.05, 1.4, 1.8, 0.3, shadow);
       box(
         ruin.centerWorldM,
-        ruin.rotationY + Math.PI / 2 - a,
-        0,
-        y,
-        r,
-        5.6,
-        h,
-        0.85,
-        row < 2 ? stone : patina,
+        yaw,
+        u - 0.9,
+        41.5,
+        depth + 0.3,
+        0.35,
+        2.2,
+        0.45,
+        ruinPale,
       );
     }
   }
+  for (const x of [-9.7, 9.7])
+    for (const z of [-7.6, 7.6]) {
+      const center = [
+        ruin.centerWorldM[0] +
+          x * Math.cos(ruin.rotationY) +
+          z * Math.sin(ruin.rotationY),
+        ruin.centerWorldM[1] -
+          x * Math.sin(ruin.rotationY) +
+          z * Math.cos(ruin.rotationY),
+      ] as const;
+      for (let face = 0; face < 8; face += 1) {
+        const a = (face * Math.PI) / 4;
+        for (let y = 26.5; y < 33; y += 1)
+          box(center, ruin.rotationY + a, 0, y, 1.05, 0.9, 1, 0.3, ruinStone);
+        for (let row = 0; row < 4; row += 1) {
+          const r = 1.5 * (1 - (row + 0.5) / 4);
+          box(
+            center,
+            ruin.rotationY + a,
+            0,
+            33.5 + row,
+            r * Math.cos(Math.PI / 8),
+            2 * r * Math.sin(Math.PI / 8),
+            1,
+            0.3,
+            ruinPale,
+          );
+        }
+      }
+    }
+  // Eight real open bell faces, their gables, and a steep hollow broken crown.
+  for (let side = 0; side < 8; side += 1) {
+    const a = (side * Math.PI) / 4;
+    const apothem = ruin.belfry.radiusM * Math.cos(Math.PI / 8);
+    const halfWidth = ruin.belfry.radiusM * Math.sin(Math.PI / 8);
+    const cols = 15,
+      rowCount = 37;
+    for (let row = 0; row < rowCount; row += 1)
+      for (let col = 0; col < cols; col += 1) {
+        const u = -halfWidth + ((col + 0.5) * 2 * halfWidth) / cols;
+        const y = 40 + (row + 0.5) * 0.5;
+        const top =
+          ruin.belfry.eavesHeightM +
+          (ruin.belfry.gableHeightM - ruin.belfry.eavesHeightM) *
+            (1 - Math.abs(u) / halfWidth);
+        if (y > top || belfryOpening(side, u, y)) continue;
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY + a,
+          u,
+          y,
+          apothem - 0.325,
+          (2 * halfWidth) / cols,
+          0.5,
+          0.65,
+          stoneColor(row, col),
+        );
+      }
+    for (let col = 0; col < cols; col += 1) {
+      const u = -halfWidth + ((col + 0.5) * 2 * halfWidth) / cols;
+      for (const y of [39.8, 43, 43.6])
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY + a,
+          u,
+          y,
+          apothem + 0.2,
+          (2 * halfWidth) / cols,
+          0.4,
+          0.85,
+          ruinPale,
+        );
+    }
+    const outline = crownOutline(side);
+    const base = ruin.crownBaseHeightM;
+    const top = Math.max(...outline.map((p) => p[1]));
+    const width = 2 * ruin.crownRadiusM * Math.sin(Math.PI / 8);
+    const rows = Math.ceil((top - base) / 0.75);
+    for (let row = 0; row < rows; row += 1) {
+      const h = (top - base) / rows;
+      const y = base + (row + 0.5) * h;
+      for (let col = 0; col < 12; col += 1) {
+        const u = -width / 2 + ((col + 0.5) * width) / 12;
+        if (!pointInWing(u, y, outline) || crownDormer(side, u, y)) continue;
+        const apothem = ruin.crownRadiusM * Math.cos(Math.PI / 8);
+        const radialInset = 0.11 * (y - base);
+        const widthScale = (apothem - radialInset) / apothem;
+        box(
+          ruin.centerWorldM,
+          ruin.rotationY + a,
+          u * widthScale,
+          y,
+          apothem - radialInset + 0.095,
+          (width / 12) * widthScale,
+          h,
+          0.24,
+          (row + col + side) % 6 === 0 ? 0x8b9484 : patina,
+        );
+      }
+    }
+  }
+  for (const turret of ruin.sideTurrets) {
+    const center = [
+      ruin.centerWorldM[0] +
+        turret.centerLocalM[0] * Math.cos(ruin.rotationY) +
+        turret.centerLocalM[1] * Math.sin(ruin.rotationY),
+      ruin.centerWorldM[1] -
+        turret.centerLocalM[0] * Math.sin(ruin.rotationY) +
+        turret.centerLocalM[1] * Math.cos(ruin.rotationY),
+    ] as const;
+    for (let face = 0; face < 8; face += 1) {
+      const a = ((face + 0.5) * Math.PI) / 4;
+      for (let y = 0; y < turret.shaftTopM; y += 1.5) {
+        const h = Math.min(1.5, turret.shaftTopM - y);
+        box(
+          center,
+          ruin.rotationY + a,
+          0,
+          y + h / 2,
+          turret.radiusM * Math.cos(Math.PI / 8),
+          2 * turret.radiusM * Math.sin(Math.PI / 8),
+          h,
+          0.65,
+          y > 27 && face % 2 === 0 ? shadow : ruinStone,
+        );
+      }
+      const rows = Math.ceil(turret.roofTopM - turret.shaftTopM);
+      for (let row = 0; row < rows; row += 1) {
+        const h = (turret.roofTopM - turret.shaftTopM) / rows;
+        const r = turret.radiusM * (1 - (row + 0.5) / rows);
+        box(
+          center,
+          ruin.rotationY + a,
+          0,
+          turret.shaftTopM + (row + 0.5) * h,
+          r * Math.cos(Math.PI / 8),
+          Math.max(0.2, 2 * r * Math.sin(Math.PI / 8)),
+          h,
+          0.6,
+          ruinPale,
+        );
+      }
+    }
+    if (turret.crossTopM > turret.roofTopM) {
+      box(
+        center,
+        ruin.rotationY,
+        0,
+        (turret.crossTopM + turret.roofTopM) / 2,
+        0,
+        0.4,
+        turret.crossTopM - turret.roofTopM,
+        0.4,
+        ruinPale,
+      );
+      box(
+        center,
+        ruin.rotationY,
+        0,
+        turret.crossTopM - 0.7,
+        0,
+        1.5,
+        0.35,
+        0.4,
+        ruinPale,
+      );
+    }
+  }
+  const ruinInstanceCount = blocks.length;
   const modern = (
     p: typeof PROFILE.church | typeof PROFILE.bellTower,
   ): void => {
@@ -556,7 +1061,8 @@ export function createMinecraftGedaechtniskirche(): Group {
     sourceProfile: PROFILE,
     textureFree: true,
     drawCallBudget: 1,
-    instanceBudget: 8_100,
+    instanceBudget: 17_000,
+    ruinInstanceCount,
     instanceCount: blocks.length,
     sourceReplacementIds: GEDAECHTNISKIRCHE_MINECRAFT_REPLACEMENT_IDS,
   };

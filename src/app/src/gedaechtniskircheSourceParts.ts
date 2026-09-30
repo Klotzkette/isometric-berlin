@@ -1,7 +1,8 @@
 /** Exact committed OSM way 15218373 low wings outside the authored central
  * ruin rectangle. Clipped locally with Shapely; source envelope retained.
- * The narrow source strip crossing the documented open arch is kept as an
- * overhead lintel/roof, preserving its plan/top without closing the passage. */
+ * The narrow source strip crossing the authored visitor entrance is kept as an
+ * overhead lintel/roof, preserving its plan/top without closing that game
+ * passage. This is not a survey of the real memorial hall interior. */
 export const GEDAECHTNISKIRCHE_RETAINED_WINGS = [
   {
     id: "15218373-retained-wing-0",

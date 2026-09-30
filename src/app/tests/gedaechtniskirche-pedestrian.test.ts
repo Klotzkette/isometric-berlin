@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { PrismPayload } from "../src/IsometricCityWorld";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import { CITY_WEST_PROFILE } from "../src/CityWestDetails";
+import { gedaechtniskircheRuinSolidAt } from "../src/MinecraftGedaechtniskirche";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "../src/gedaechtniskircheSourceParts";
 import {
   compilePedestrianObstacles,
@@ -100,19 +101,66 @@ describe("Gedächtniskirche source-preserving pedestrian passage", () => {
     expect(once.obstacleCount).toBe(4);
   });
 
-  test("blocks real side piers, the upper core and the low apse while leaving the passage empty", () => {
-    for (const u of [-10, 10]) {
+  test("blocks wall shells, the upper core and the low apse while leaving the memorial hall empty", () => {
+    for (const u of [-15, 15]) {
       const [x, z] = local(u, 0);
       expect(pedestrianPointIsBlocked(x, z, 6, obstacles)).toBe(true);
     }
     const [x, z] = local(0, 0);
     expect(pedestrianPointIsBlocked(x, z, 6, obstacles)).toBe(false);
-    expect(pedestrianPointIsBlocked(x, z, 22, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(x, z, 35, obstacles)).toBe(true);
     expect(pedestrianPointIsBlocked(-2498, 1530, 6, obstacles)).toBe(true);
     const [outsideX, outsideZ] = local(18, 0);
     expect(pedestrianPointIsBlocked(outsideX, outsideZ, 6, obstacles)).toBe(
       false,
     );
+  });
+
+  test("the small door and raised circular breach keep radius-aware clearance", () => {
+    const g = CITY_WEST_PROFILE.groundY;
+    const solid = (u: number, v: number, h: number, r = 0): boolean => {
+      const [x, z] = local(u, v);
+      return gedaechtniskircheRuinSolidAt(x, g + h, z, r);
+    };
+    for (const v of [-8.6, 8.6]) {
+      expect(solid(0, v, 2, 0.35)).toBe(false);
+      expect(solid(1.4, v, 2, 0.35)).toBe(true);
+      expect(solid(0, v, 4.7, 0.2)).toBe(true);
+      expect(solid(0, v, 16.4, 0.35)).toBe(false);
+      expect(solid(5.6, v, 16.4, 0.35)).toBe(true);
+      expect(solid(0, v, 10, 0.2)).toBe(v < 0);
+    }
+    expect(solid(0, 0, 7.9)).toBe(true);
+    expect(solid(0, 0, 17)).toBe(false);
+    expect(solid(0, -8.6, 25, 0.2)).toBe(false);
+    expect(solid(2.8, -8.6, 25, 0.2)).toBe(true);
+    expect(solid(0, 0, 27, 0.2)).toBe(false);
+  });
+
+  test("bell arches and the broken crown stay hollow while represented piers are solid", () => {
+    const g = CITY_WEST_PROFILE.groundY;
+    const solid = (u: number, v: number, h: number, r = 0): boolean => {
+      const [x, z] = local(u, v);
+      return gedaechtniskircheRuinSolidAt(x, g + h, z, r);
+    };
+    const apothem = 10.3 * Math.cos(Math.PI / 8);
+    expect(solid(0, 0, 49)).toBe(false);
+    expect(solid(1.5, apothem - 0.3, 49, 0.3)).toBe(false);
+    expect(solid(0, apothem - 0.3, 49, 0.1)).toBe(true);
+    expect(solid(3.5, apothem - 0.3, 49, 0.1)).toBe(true);
+    expect(solid(0, 0, 66)).toBe(false);
+    const crown = 9.1 * Math.cos(Math.PI / 8) - 0.11 * (66 - 55.4);
+    expect(solid(0, crown + 0.09, 66, 0.1)).toBe(true);
+    expect(solid(0, crown + 1, 66, 0.1)).toBe(false);
+    const cornerRadius =
+      (9.1 * Math.cos(Math.PI / 8) - 0.11 * (60 - 55.4)) /
+      Math.cos(Math.PI / 8);
+    for (let side = 0; side < 8; side += 1) {
+      const a = ((side + 0.5) * Math.PI) / 4;
+      expect(
+        solid(Math.sin(a) * cornerRadius, Math.cos(a) * cornerRadius, 60, 0.05),
+      ).toBe(true);
+    }
   });
 
   for (const mode of modes)

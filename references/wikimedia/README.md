@@ -16,6 +16,15 @@ colour metadata where a local thumbnail exists. Records marked
 `external_visual_QA_reference_attribution_only` have no bundled photograph.
 Keep attribution when using any listed reference.
 
+## Gedächtniskirche critical visual audit (v1.0.54)
+
+Six additional photographs by W. Bulach, Pymouss and Geoprofi Lars were
+inspected against the previous Hwyrd reference. All are CC BY-SA 4.0 and
+remain external references only. The [audit and individual credit table](../../docs/gedaechtniskirche-visual-audit-v154.md#freely-licensed-photographs-actually-inspected)
+record opposing views, the upper opening hierarchy, asymmetric side towers,
+west gables, former rose window and eastern cut vault. Both manifests retain
+the individual file URLs and authors. No photo, crop or texture is bundled.
+
 ## Gedächtniskirche and Bikini Berlin (v1.0.53)
 
 These three photographs were inspected as external visual references only.

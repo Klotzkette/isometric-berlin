@@ -1,0 +1,11 @@
+{
+  "CityWestDetails": {
+    "hash": "875b2f0a18c790ff56eaa059719cc111593d6e81847076c55bb2ae607dff4bf5",
+    "budget": {
+      "bytes": 2434560,
+      "draws": 12,
+      "instances": 0,
+      "vertices": 113516
+    }
+  }
+}

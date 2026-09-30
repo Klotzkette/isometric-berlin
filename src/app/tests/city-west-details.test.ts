@@ -31,17 +31,27 @@ import {
 function geometryBudget(root: Object3D): {
   renderables: number;
   vertices: number;
+  geometryBytes: number;
 } {
   let renderables = 0;
   let vertices = 0;
+  const buffers = new Set<ArrayBufferLike>();
   root.traverse((object) => {
     const geometry = (object as Object3D & { geometry?: BufferGeometry })
       .geometry;
     if (!geometry) return;
     renderables += 1;
     vertices += geometry.getAttribute("position")?.count ?? 0;
+    for (const attribute of Object.values(geometry.attributes)) {
+      buffers.add(attribute.array.buffer);
+    }
+    if (geometry.index) buffers.add(geometry.index.array.buffer);
   });
-  return { renderables, vertices };
+  return {
+    renderables,
+    vertices,
+    geometryBytes: [...buffers].reduce((sum, buffer) => sum + buffer.byteLength, 0),
+  };
 }
 
 function hasGeometryColor(root: Object3D, color: number): boolean {
@@ -80,6 +90,26 @@ function localPoint(
     center[0] + cosine * localX + sine * localZ,
     center[1] - sine * localX + cosine * localZ,
   ];
+}
+
+function ruinRay(
+  localX: number,
+  height: number,
+  localZ: number,
+  endX: number,
+  endZ: number,
+): Raycaster {
+  const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+  const a = localPoint(profile.centerWorldM, profile.rotationY, localX, localZ);
+  const b = localPoint(profile.centerWorldM, profile.rotationY, endX, endZ);
+  const ray = new Raycaster(
+    new Vector3(a[0], CITY_WEST_PROFILE.groundY + height, a[1]),
+    new Vector3(b[0] - a[0], 0, b[1] - a[1]).normalize(),
+    0,
+    Math.hypot(b[0] - a[0], b[1] - a[1]),
+  );
+  ray.params.Line.threshold = 0.01;
+  return ray;
 }
 
 describe("City West and Urania recognition details", () => {
@@ -192,13 +222,12 @@ describe("City West and Urania recognition details", () => {
     expect(profile.oldTower.heightM).toBe(71);
     expect(profile.oldTower.originalHeightM).toBe(113);
     expect(profile.oldTower.portal.openThrough).toBe(true);
-    expect(profile.oldTower.portal.clearWidthM).toBe(10.5);
+    expect(profile.oldTower.portal.clearWidthM).toBe(3.2);
     expect(profile.oldTower.clock.hourMarkers).toBe(12);
-    expect(profile.oldTower.belfryArchesPerLongFace).toBe(3);
+    expect(profile.oldTower.belfryArchesPerLongFace).toBe(2);
+    expect(profile.oldTower.belfry.sides).toBe(8);
     expect(profile.oldTower.brokenCrown.patinaColor).toBe("green-grey");
-    expect(profile.oldTower.brokenCrown.status).toContain(
-      "no photograph or texture",
-    );
+    expect(profile.oldTower.facadeDetailStatus).toContain("not a stone-by-stone");
     expect(profile.church.diameterM).toBe(35);
     expect(profile.church.heightM).toBe(20.5);
     expect(profile.bellTower.diameterM).toBe(12);
@@ -223,7 +252,7 @@ describe("City West and Urania recognition details", () => {
       CITY_WEST_PROFILE.breitscheidplatz.fountainCenterWorldM[0],
     );
     expect(hasGeometryColor(ensemble!, 0xd1ad4a)).toBe(true);
-    expect(hasGeometryColor(ensemble!, 0x63847e)).toBe(true);
+    expect(hasGeometryColor(ensemble!, 0x657e79)).toBe(true);
     expect(hasGeometryColor(ensemble!, 0x8a8d89)).toBe(true);
 
     const [portalStartX, portalStartZ] = localPoint(
@@ -251,6 +280,71 @@ describe("City West and Urania recognition details", () => {
     );
     ensemble!.updateMatrixWorld(true);
     expect(portalRay.intersectObject(ensemble!, true)).toHaveLength(0);
+  });
+
+  test("separates narrow hall entrances from the raised ruined openings", () => {
+    const root = createCityWestDetails("full");
+    const ensemble = root.getObjectByName(
+      "Gedächtniskirche and Breitscheidplatz ensemble",
+    )!;
+    root.updateMatrixWorld(true);
+    // A person can enter the surviving hall. The former oversized ten-metre
+    // ground tunnel must remain solid at both flanks of this real doorway.
+    expect(ruinRay(0, 2, -11, 0, 11).intersectObject(ensemble, true)).toHaveLength(0);
+    for (const side of [-1, 1]) {
+      expect(
+        ruinRay(side * 4, 2, -11, side * 4, -7).intersectObject(ensemble, true).length,
+      ).toBeGreaterThan(0);
+    }
+    // Circular west breach and rough east arch have visible depth above the
+    // memorial hall. Test each face locally so far walls cannot mask a cap.
+    expect(ruinRay(0, 17.3, -11, 0, -6).intersectObject(ensemble, true)).toHaveLength(0);
+    expect(ruinRay(0, 17.3, 11, 0, 6).intersectObject(ensemble, true)).toHaveLength(0);
+    // The former nave arch starts lower than the west rose opening. Identical
+    // circular holes painted on both facades would erase this real asymmetry.
+    expect(ruinRay(0, 9.3, 11, 0, 6).intersectObject(ensemble, true)).toHaveLength(0);
+    expect(ruinRay(0, 9.3, -11, 0, -6).intersectObject(ensemble, true).length).toBeGreaterThan(0);
+  });
+
+  test("has eight genuinely open belfry faces with solid supporting piers", () => {
+    const root = createCityWestDetails();
+    const ensemble = root.getObjectByName(
+      "Gedächtniskirche and Breitscheidplatz ensemble",
+    )!;
+    root.updateMatrixWorld(true);
+    const belfry = CITY_WEST_PROFILE.gedaechtniskirche.oldTower.belfry;
+    const width = 2 * belfry.radiusM * Math.sin(Math.PI / 8);
+    for (let face = 0; face < 8; face += 1) {
+      const yaw = face * Math.PI / 4;
+      const projected = (u: number, r: number): readonly [number, number] => [
+        u * Math.cos(yaw) + r * Math.sin(yaw),
+        r * Math.cos(yaw) - u * Math.sin(yaw),
+      ];
+      const openingU = face % 2 === 0 ? 1.5 : 0;
+      const a = projected(openingU, 12), b = projected(openingU, 8);
+      expect(ruinRay(a[0], 49, a[1], b[0], b[1]).intersectObject(ensemble, true)).toHaveLength(0);
+      const c = projected(width / 2 - 0.45, 12), d = projected(width / 2 - 0.45, 8);
+      expect(ruinRay(c[0], 49, c[1], d[0], d[1]).intersectObject(ensemble, true).length).toBeGreaterThan(0);
+    }
+  });
+
+  test("preserves the unequal northwest and southwest subsidiary spires", () => {
+    const root = createCityWestDetails();
+    root.updateMatrixWorld(true);
+    const profile = CITY_WEST_PROFILE.gedaechtniskirche.oldTower;
+    const [tall, short] = profile.sideTurrets;
+    expect(tall.centerLocalM[0]).toBeLessThan(0);
+    expect(short.centerLocalM[0]).toBeGreaterThan(0);
+    expect(tall.centerLocalM[1]).toBeLessThan(0);
+    expect(short.centerLocalM[1]).toBeLessThan(0);
+    expect(tall.crossTopM - short.crossTopM).toBeGreaterThan(10);
+    for (const turret of profile.sideTurrets) {
+      const [x,z] = localPoint(profile.centerWorldM, profile.rotationY, ...turret.centerLocalM);
+      const ray = new Raycaster(new Vector3(x, 5.2 + 60, z), new Vector3(0,-1,0), 0, 30);
+      const hits = ray.intersectObject(root, true);
+      expect(hits.length).toBeGreaterThan(0);
+      expect(hits[0].point.y - 5.2).toBeCloseTo(turret.crossTopM, 2);
+    }
   });
 
   test("keeps dense square glass cells on the actual octagonal and hexagonal planes", () => {
@@ -330,7 +424,7 @@ describe("City West and Urania recognition details", () => {
     expect(root.userData.instanceCount).toBeLessThanOrEqual(
       root.userData.instanceBudget,
     );
-    expect(root.userData.instanceCount).toBe(7_922);
+    expect(root.userData.instanceCount).toBe(15_632);
     expect(GEDAECHTNISKIRCHE_MINECRAFT_REPLACEMENT_IDS).toHaveLength(5);
     expect(isGedaechtniskircheReplacementCell(-2472, 1521)).toBe(true);
     expect(isGedaechtniskircheReplacementCell(-2495, 1511)).toBe(true);
@@ -350,7 +444,7 @@ describe("City West and Urania recognition details", () => {
     ).toBeCloseTo(71, 3);
   });
 
-  test("retains the measured low-wing envelope and uses the empty portal for collision", () => {
+  test("retains the measured low-wing envelope and collides with hall walls only", () => {
     let area = 0;
     for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
       let signed = 0;
@@ -370,11 +464,11 @@ describe("City West and Urania recognition details", () => {
     expect(gedaechtniskircheRuinSolidAt(centre[0], 9.2, centre[1], 0.42)).toBe(
       false,
     );
-    const pier = localPoint(centre, profile.rotationY, 10, 0);
+    const pier = localPoint(centre, profile.rotationY, 14.95, 0);
     expect(gedaechtniskircheRuinSolidAt(pier[0], 9.2, pier[1], 0.42)).toBe(
       true,
     );
-    expect(gedaechtniskircheRuinSolidAt(centre[0], 25, centre[1], 0.42)).toBe(
+    expect(gedaechtniskircheRuinSolidAt(centre[0], 41.6, centre[1], 0.42)).toBe(
       true,
     );
     const native = createMinecraftGedaechtniskirche();
@@ -423,6 +517,12 @@ describe("City West and Urania recognition details", () => {
     );
     expect(mobileBudget.vertices).toBeLessThanOrEqual(
       CITY_WEST_RENDER_BUDGET.mobile.maxVertices,
+    );
+    expect(fullBudget.geometryBytes).toBeLessThanOrEqual(
+      CITY_WEST_RENDER_BUDGET.full.maxGeometryBytes,
+    );
+    expect(mobileBudget.geometryBytes).toBeLessThanOrEqual(
+      CITY_WEST_RENDER_BUDGET.mobile.maxGeometryBytes,
     );
     expect(mobileBudget).toEqual(fullBudget);
   });

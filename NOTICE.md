@@ -17,6 +17,18 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Gedächtniskirche visual correction (v1.0.54):** opposing freely licensed
+  reference photographs by W. Bulach, Pymouss and Geoprofi Lars (CC BY-SA 4.0),
+  alongside the retained Hwyrd reference, establish the open octagonal
+  belfry, gabled upper faces, stepped copper fracture, unequal west-side
+  turrets, circular west opening and elevated eastern ruin arches. Existing
+  OSM identities, source-wing plans and published ensemble heights remain
+  the anchors. Unpublished intermediate dimensions and individual masonry
+  details remain procedural display estimates. All six additional inspected
+  files have individual credits in both Wikimedia manifests and the
+  [visual audit](docs/gedaechtniskirche-visual-audit-v154.md). No photograph,
+  crop or photographic texture is bundled or loaded.
+
 - **Kaiser-Wilhelm-Gedächtniskirche and Bikini Berlin (v1.0.53):** the
   church ensemble retains OSM ways `15218371`–`15218375` and its documented
   71 m ruined tower, 20.5 m octagonal church and 53.3 m hexagonal bell tower.

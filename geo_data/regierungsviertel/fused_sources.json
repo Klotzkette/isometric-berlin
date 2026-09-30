@@ -838,6 +838,17 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "gedaechtniskirche_v154",
+      "anchor_source": "Retained OSM ways 15218371–15218375 and published institutional heights; primary conservation accounts and seven inspected freely licensed external photographs",
+      "geometry_ref": "src/app/src/CityWestDetails.ts#CITY_WEST_PROFILE.gedaechtniskirche",
+      "documentation_ref": "docs/gedaechtniskirche-visual-audit-v154.md",
+      "conflicts": [
+        "The v153 rectangular upper tower and broad ground-level through-arch were procedural misreadings. Licensed opposing views establish an open octagonal gabled belfry, asymmetric west-side turrets, west rose opening and elevated eastern ruined arches. Local heights and detailed masonry remain display estimates; official 71 m overall height and complete source-wing plans remain retained."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [
