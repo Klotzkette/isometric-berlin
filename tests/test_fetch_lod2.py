@@ -11,8 +11,10 @@ from shapely.geometry import box
 from isometric_berlin.data import fetch_lod2 as lod2
 
 
-def test_tiles_for_regierungsviertel_bounds_are_minimal() -> None:
-  bounds = Path("geo_data/regierungsviertel/bounds.geojson")
+def test_tiles_for_preserved_v158_regierungsviertel_bounds_are_minimal() -> None:
+  # This exact inventory belongs to the retained detailed city. The approved
+  # v159 surrounding outline extension has a larger, separately tested scope.
+  bounds = Path("geo_data/regierungsviertel/bounds-v158.geojson")
   tiles = lod2.tiles_for_bounds(bounds)
   assert [tile.tile_id for tile in tiles] == [
     "385_5817",

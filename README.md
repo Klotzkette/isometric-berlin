@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.58 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.58/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.59 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.59/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,20 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.58** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.59** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.59 adds source-bound outline districts across all of Moabit and
+Prenzlauer Berg, and finite extensions through Joachim-Friedrich-Straße,
+Schöneberg, Karl-Marx-Allee/Frankfurter Tor and Schlesisches Tor. Existing
+city detail stays intact. The new rudimentary massing and mapped streets load
+in small independent chunks, with separate native Minecraft geometry.
+[Scope, data and verification](docs/surrounding-city-v159.md).
+
+Version 1.0.59 erweitert Berlin mit einfachen, quellengebundenen Umrissen:
+Moabit und Prenzlauer Berg vollständig, dazu Charlottenburg/Wilmersdorf,
+Schöneberg, Karl-Marx-Allee und Schlesisches Tor. Die bisherigen Details
+bleiben erhalten; neue Stadtteile werden abschnittsweise geladen.
 
 Version 1.0.58 fixes the reproduced mobile far/near graphics failure, retires
 offscreen GPU copies and removes unused data from the background worker.

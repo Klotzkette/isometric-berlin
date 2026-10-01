@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.59
+
+- Steps 1/3/10: expand the owner-approved scope from 31.285 to 81.457 km², retaining the exact previous polygon and every existing detailed city source. Add all of official Moabit/Prenzlauer Berg and finite western, southern and eastern outline lobes.
+- Derive rudimentary outer building massing from Berlin LoD2 and additive OSM footprints, with actual mapped roads, paths and waterways. Keep display height/width estimates explicit.
+- Stream independently disposable 512 m chunks with packed centimetre coordinates, one merged surface mesh, optional ink and a separate native Minecraft representation. Preserve mobile residency safeguards.
+- Extend flight and walking bounds, safe building/water navigation and the walking minimap into the new districts without changing the 93-stop tour or original map projection.
+- Clear published navigation references during renderer disposal so a mobile world-family rebuild does not retain the previous family's minimap geometry.
+
 ## v1.0.58
 
 - Step 10: losslessly interleave static vertex streams on mobile to reduce graphics-buffer handles after reproducing a WebKit GPU resource-accounting crash during far/near travel.

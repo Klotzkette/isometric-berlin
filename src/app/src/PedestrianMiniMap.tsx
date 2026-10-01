@@ -15,7 +15,10 @@ import {
   miniMapCardinalRotationDegrees,
   miniMapHeadingRotationDegrees,
   worldToReferenceMapPoint,
+  miniMapScale,
+  REFERENCE_MAP_TRANSFORM,
 } from "./pedestrianMiniMapProjection";
+import type { SurroundingPolygon } from "./SurroundingCityGeometry";
 import { normalizeRotation, rotationDistance } from "./viewerGestures";
 
 export type PedestrianMiniMapOrientation = {
@@ -136,6 +139,41 @@ export const PedestrianMiniMap = forwardRef<
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
     context.drawImage(image, -imagePoint.x, -imagePoint.y);
+    // Reuse the nearby streamed source outlines, with the original map's exact
+    // projection. No second city image, fetch queue or copied geometry on mobile.
+    if (pose.surroundingTiles?.length) {
+      const scale = miniMapScale(REFERENCE_MAP_TRANSFORM);
+      const origin = worldToReferenceMapPoint(0, 0);
+      context.translate(origin.x - imagePoint.x, origin.y - imagePoint.y);
+      context.scale(scale, scale);
+      const reach = Math.hypot(width, height) / (MAP_ZOOM * scale);
+      for (const tile of pose.surroundingTiles) {
+        const [west, north, east, south] = tile.bounds;
+        if (east < pose.x - reach || west > pose.x + reach ||
+            south < pose.z - reach || north > pose.z + reach) continue;
+        context.save();
+        context.translate(tile.origin[0], tile.origin[2]);
+        const fill = (polygons: readonly SurroundingPolygon[], color: string) => {
+          context.fillStyle = color;
+          for (const polygon of polygons) {
+            context.beginPath();
+            for (const ring of [polygon.ring, ...polygon.holes]) {
+              ring.forEach(([x, z], index) => {
+                if (index === 0) context.moveTo(x, z);
+                else context.lineTo(x, z);
+              });
+              context.closePath();
+            }
+            context.fill("evenodd");
+          }
+        };
+        fill(tile.nav.ground, "#e8e2d3");
+        fill(tile.nav.water, "#91bbc4");
+        fill(tile.nav.roads ?? [], "#c5bfb4");
+        fill(tile.nav.buildings, "#a39b8d");
+        context.restore();
+      }
+    }
     context.restore();
   }, [imageReady, northUpRotation, orientationDegrees, pose]);
 

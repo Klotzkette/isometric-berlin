@@ -22,7 +22,7 @@ def test_bounds_preserve_previous_city_and_include_all_eight_source_parts():
     load_bounds_polygon(ROOT / "geo_data/regierungsviertel/bounds-task13.geojson")
   )
   new = project_to_berlin(
-    load_bounds_polygon(ROOT / "geo_data/regierungsviertel/bounds.geojson")
+    load_bounds_polygon(ROOT / "geo_data/regierungsviertel/bounds-v158.geojson")
   )
   assert new.is_valid and new.geom_type == "Polygon" and not new.interiors
   assert old.difference(new.buffer(0.0001)).area == 0

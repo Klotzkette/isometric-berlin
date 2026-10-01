@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "bounds_revision": "v1.0.59",
+  "coordinate_system": "EPSG:25833; output bounds CRS84",
+  "builder": "scripts/build_surrounding_bounds.py",
+  "previous_bounds": "bounds-v158.geojson",
+  "previous_bounds_sha256": "6f29b4673894eab28957aec493d2da6f51e6efded4f79fea4134dfe5b76c30cf",
+  "official_boundaries": "surrounding-district-boundaries.geojson",
+  "official_boundaries_sha256": "2f0266fec92a0a66a7beb3c40b7e8db15d681bc8e1c8d05d9cd67858255bd3b7",
+  "official_source": {
+    "publisher": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+    "dataset_url": "https://daten.berlin.de/datensaetze/alkis-berlin-ortsteile-wfs-61bd3084",
+    "service_url": "https://gdi.berlin.de/services/wfs/alkis_ortsteile",
+    "request": {
+      "service": "WFS",
+      "request": "GetFeature",
+      "version": "2.0.0",
+      "typeNames": "alkis_ortsteile:ortsteile",
+      "outputFormat": "application/json",
+      "srsName": "EPSG:25833"
+    },
+    "retrieved_date": "2026-10-01",
+    "licence": "dl-de/zero-2-0",
+    "licence_url": "https://www.govdata.de/dl-de/zero-2-0",
+    "selection": "Exact complete Moabit and Prenzlauer Berg official polygons only; no geometry simplification."
+  },
+  "official_districts": [
+    {
+      "name": "Moabit",
+      "area_m2": 7705502.109
+    },
+    {
+      "name": "Prenzlauer Berg",
+      "area_m2": 11073294.488
+    }
+  ],
+  "presentation_lobes_crs84": {
+    "city_west": [
+      13.282,
+      52.485,
+      13.36,
+      52.53
+    ],
+    "northern_schoeneberg": [
+      13.337,
+      52.48,
+      13.407,
+      52.503
+    ],
+    "alexanderplatz_karl_marx_allee_schlesisches_tor": [
+      13.395,
+      52.493,
+      13.457,
+      52.541
+    ],
+    "northern_connection": [
+      13.365,
+      52.52,
+      13.425,
+      52.553
+    ]
+  },
+  "bounds_epsg25833": [
+    383341.702,
+    5815620.314,
+    396333.836,
+    5824374.355
+  ],
+  "previous_area_m2": 31285059.186,
+  "new_area_m2": 81456979.438,
+  "added_area_m2": 50171920.252,
+  "tour_place_count": 93,
+  "interpretation": "Stalinallee is interpreted as the present Karl-Marx-Allee through Frankfurter Tor. Charlottenburg/Wilmersdorf and Schöneberg are partial finite lobes; only Moabit and Prenzlauer Berg are complete districts.",
+  "historical_name_source": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085137",
+  "preservation": "Existing source geometry, overview projection and original terrain grid are unchanged. Added outline geometry is a separate source-bound layer."
+}

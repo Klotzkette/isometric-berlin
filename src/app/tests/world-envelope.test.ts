@@ -12,13 +12,13 @@ import {
 } from "../src/worldEnvelope";
 
 describe("shared presentation envelope", () => {
-  test("encloses the task-13 additional 500 m source hull", () => {
-    // Bounds project to E385602.60..391910.58 / N5817089.12..5823617.37.
+  test("encloses the complete v159 surrounding-city source hull", () => {
+    // Bounds project to E383341.70..396333.84 / N5815620.31..5824374.36.
     // World coordinates are rounded outward to whole decametres.
-    expect(DATA_WEST_M).toBe(-3900);
-    expect(DATA_EAST_M).toBe(2420);
-    expect(DATA_NORTH_M).toBe(-3620);
-    expect(DATA_SOUTH_M).toBe(2920);
+    expect(DATA_WEST_M).toBe(-6160);
+    expect(DATA_EAST_M).toBe(6840);
+    expect(DATA_NORTH_M).toBe(-4380);
+    expect(DATA_SOUTH_M).toBe(4380);
   });
 
   test("rings the hull on all four sides without a corner gap", () => {
@@ -46,7 +46,7 @@ describe("shared presentation envelope", () => {
       Math.max(Math.abs(bounds.minX), Math.abs(bounds.maxX)),
       Math.max(Math.abs(bounds.minZ), Math.abs(bounds.maxZ)),
     );
-    expect(VISIBLE_RADIUS_M).toBe(6450);
+    expect(VISIBLE_RADIUS_M).toBe(9250);
     expect(VISIBLE_RADIUS_M).toBeGreaterThanOrEqual(corner);
   });
 });

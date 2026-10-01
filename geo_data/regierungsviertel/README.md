@@ -1,6 +1,7 @@
 # Geo data — Regierungsviertel
 
-Derived, clipped geodata for the task-13 Berlin scene. Raw
+Derived, clipped geodata for the retained detailed Berlin scene and the
+owner-approved v1.0.59 surrounding outline districts. Raw
 city-wide dumps do **not** belong here; raw downloads and large source
 archives stay under gitignored `raw/` paths as described in
 [`docs/data.md`](../../docs/data.md).
@@ -28,7 +29,10 @@ and [museums](../../docs/museums-v147.md), plus
 
 | File | Purpose |
 |---|---|
-| `bounds.geojson` | Exact task-13 scene polygon: an additional 500 m projected buffer around the task-12 source hull. |
+| `bounds.geojson` | v1.0.59: 81.457 km², complete official Moabit/Prenzlauer Berg and finite connecting lobes; see `docs/bounds.md`. |
+| `bounds-v158.geojson` | Exact previous detailed-city polygon, preserved byte-for-byte. |
+| `surrounding-district-boundaries.geojson` | Official ALKIS Moabit and Prenzlauer Berg boundary evidence, EPSG:25833. |
+| `surrounding-bounds-manifest.json` | Reproducible scope, source licences and area accounting. |
 | `overview_bounds.geojson` | Matching task-13 polygon used for the regenerated overview, DZI and prism-tone projection. |
 | `landmarks.geojson` | QA/navigation landmarks used by the renderer and viewer. |
 | `landmark_alignment.json` | Machine-readable landmark alignment report. |

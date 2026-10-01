@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.58"
+PACKAGE_VERSION = "1.0.59"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset(
@@ -61,9 +61,11 @@ REQUIRED_PACKAGE_FILES = (
   "mesh/regierungsviertel/park-details.json",
   "mesh/regierungsviertel/street-details.json",
   "mesh/regierungsviertel/surface-polygons.json",
+  "mesh/surrounding-berlin-v159/manifest.json",
 )
 CACHEABLE_SUFFIXES = {
   ".css",
+  ".gz",
   ".jpg",
   ".json",
   ".js",
@@ -577,6 +579,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "rail_lines": mesh_root / "rail-lines.json",
     "street_details": mesh_root / "street-details.json",
     "surface_source": mesh_root / "surface-polygons.json",
+    "surrounding_city": package_dir / "mesh/surrounding-berlin-v159/manifest.json",
     "start_page": package_dir / "START-HERE.html",
   }
   missing = [label for label, path in asset_paths.items() if not path.exists()]

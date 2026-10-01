@@ -208,8 +208,6 @@ import { isNorthernHumboldthafenReplacementCell } from "./HumboldthafenSources";
 import {
   AXIS_FROM,
   AXIS_TO,
-  DATA_EAST_M,
-  EXTRAPOLATED_MARGIN_M,
   PRESENTATION_FLOOR_Y_M,
   VISIBLE_RADIUS_M,
   extrapolatedEnvelopeBounds,
@@ -1429,39 +1427,6 @@ function addTiledBand(
   }
 }
 
-function addBlockRoad(
-  blocks: ExtrapolatedBlock[],
-  from: readonly [number, number],
-  to: readonly [number, number],
-  widthM: number,
-): void {
-  const cellM = 4;
-  const dx = to[0] - from[0];
-  const dz = to[1] - from[1];
-  const length = Math.hypot(dx, dz);
-  const ux = dx / length;
-  const uz = dz / length;
-  const nx = -uz;
-  const nz = ux;
-  const alongCount = Math.ceil(length / cellM);
-  const acrossCount = Math.ceil(widthM / cellM);
-  for (let along = 0; along < alongCount; along += 1) {
-    const distance = Math.min(length, along * cellM + cellM / 2);
-    for (let across = 0; across < acrossCount; across += 1) {
-      const lateral = (across + 0.5) * cellM - (acrossCount * cellM) / 2;
-      blocks.push({
-        color: (along + across) % 7 === 0 ? 0x40515c : 0x202923,
-        position: [
-          from[0] + ux * distance + nx * lateral,
-          0.9,
-          from[1] + uz * distance + nz * lateral,
-        ],
-        size: [cellM, 2.8, cellM],
-      });
-    }
-  }
-}
-
 /**
  * Block counterpart of the versioned drawn surround. The official voxel
  * payload remains untouched; everything outside its grid is explicitly
@@ -1491,15 +1456,8 @@ export function createMinecraftExtrapolatedWorld(): Group {
     addTiledBand(groundBlocks, band, index);
   });
 
-  addBlockRoad(
-    groundBlocks,
-    [DATA_EAST_M, AXIS_FROM[1]],
-    [DATA_EAST_M + EXTRAPOLATED_MARGIN_M, AXIS_FROM[1]],
-    40,
-  );
-
   const ground = instancedBoxes(
-    "Voxel extrapolated ground and roads",
+    "Voxel extrapolated ground",
     groundBlocks.length,
   );
   for (const block of groundBlocks) {

@@ -16,6 +16,9 @@ import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { interleaveStaticGeometry } from "./interleaveStaticGeometry";
+import { createSurroundingCity, type SurroundingCity, type SurroundingNavigationTile } from "./SurroundingCity";
+import { surroundingScopeGroundAt } from "./surroundingCityScope";
+import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
@@ -580,6 +583,7 @@ export type PedestrianPose = {
   insideTunnel: boolean;
   x: number;
   z: number;
+  surroundingTiles?: readonly SurroundingNavigationTile[];
 };
 
 type ThreeViewerProps = {
@@ -725,6 +729,7 @@ type Runtime = {
   gpuWarmup?: SceneGpuWarmup;
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
+  surroundingCity?: SurroundingCity;
   scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
@@ -1500,7 +1505,49 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
     return;
   }
   runtime.presentationReady = true;
+  startSurroundingCity(runtime);
   runtime.notifyPresentationReady();
+}
+
+/** The small outline extension starts only after the existing city is usable. */
+function startSurroundingCity(runtime: Runtime): void {
+  if (runtime.disposed || runtime.surroundingCity) return;
+  const city = createSurroundingCity({
+    manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
+    camera: runtime.camera,
+    mode: runtime.lightingMode,
+    signal: runtime.loadSignal,
+    onAttach: (root) => {
+      setIsoNightPresentation(root, runtime.lightingMode === "night",
+        runtime.nightLightsOn, runtime.lightingMode);
+      runtime.gpuResidency?.enqueue(root);
+      runtime.geometryResidency?.enqueue(root);
+      runtime.gpuWarmup?.enqueue(root);
+      runtime.scheduleGpuWarmup?.();
+    },
+    onRelease: root => disposeObject3D(runtime, root),
+    onChange: () => {
+      runtime.renderInvalidated = true;
+    },
+    onError: message => console.warn("Berlin surroundings:", message),
+  });
+  runtime.surroundingCity = city;
+  city.root.visible = !runtime.underside;
+  runtime.scene.add(city.root);
+}
+
+function surroundingPedestrianExtension(runtime: Runtime) {
+  return {
+    bounds: { minX: DATA_WEST_M, maxX: DATA_EAST_M,
+      minZ: DATA_NORTH_M, maxZ: DATA_SOUTH_M },
+    groundAt: (x: number, z: number) => {
+      const knownGround = surroundingScopeGroundAt(x, z);
+      return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
+    },
+    solidAt: (x: number, y: number, z: number, radius?: number) =>
+      runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false,
+    waterAt: (x: number, z: number) => runtime.surroundingCity?.waterAt(x, z) ?? false,
+  };
 }
 
 function setSurfacePresentation(
@@ -1511,6 +1558,7 @@ function setSurfacePresentation(
   // the presentation switch metadata-only avoids retaining duplicate meshes
   // during interaction or after an idle timeout.
   const startupStatus = currentStartupPresentationStatus(runtime);
+  if (runtime.surroundingCity) runtime.surroundingCity.root.visible = !runtime.underside;
   setParkSettledDetail(runtime.parkDetails, false);
   const surfaceQuality =
     startupStatus === "pending"
@@ -2148,6 +2196,7 @@ function setSceneLighting(
   invalidateScenePresentation(runtime);
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
+  runtime.surroundingCity?.setMode(mode);
   const isNight = mode === "night";
   const isMoonlit = isNight && !lightsOn;
   const isMinecraft = mode === "minecraft";
@@ -2368,7 +2417,7 @@ function setSceneLighting(
       releaseMinecraftMaterialBindings(root, runtime.minecraftMaterialState);
     }
     for (const child of runtime.scene.children) {
-      if (!hiddenHeavyRoots.has(child)) {
+      if (!hiddenHeavyRoots.has(child) && child !== runtime.surroundingCity?.root) {
         setMinecraftMaterialPresentation(
           child,
           runtime.minecraftMaterialState,
@@ -2462,6 +2511,10 @@ function setSceneLighting(
   if (runtime.isoWorld) {
     setIsoNightPresentation(runtime.isoWorld, isNight, lightsOn, mode);
     setBismarckMoltkeSnow(runtime.isoWorld, isSnowstorm);
+  }
+  if (runtime.surroundingCity) {
+    runtime.surroundingCity.root.visible = !runtime.underside;
+    setIsoNightPresentation(runtime.surroundingCity.root, isNight, lightsOn, mode);
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -3468,6 +3521,7 @@ function ensureIsoWorld(
           surfaces,
           runtime.tunnelPortalCourse,
           prisms,
+          surroundingPedestrianExtension(runtime),
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
         const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
@@ -4183,6 +4237,7 @@ function ensureVoxelWorld(
           { water: [] },
           runtime.tunnelPortalCourse,
           prisms,
+          surroundingPedestrianExtension(runtime),
         );
         provisionalEnvironment.visualMode = () => runtime.lightingMode;
         const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
@@ -5178,6 +5233,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         insideTunnel: state.insideTunnel,
         x: state.x,
         z: state.z,
+        surroundingTiles: runtime.surroundingCity?.navigationTiles,
       });
     };
 
@@ -7180,6 +7236,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         if (disposed || runtime.worldFailureReported) return;
         runtime.worldFailureReported = true;
+        runtime.surroundingCity?.dispose();
         window.cancelAnimationFrame(frame);
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         gpuWarmupTimer = null;
@@ -7199,6 +7256,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             "WebGL-Kontext verloren; lade die Seite neu, um die isometrische 3D-Ansicht wieder zu öffnen.",
           );
         } finally {
+          pedestrianPoseEmissionRef.current.active = false;
+          onPedestrianPoseChangeRef.current(null);
           disposed = true;
           runtime.disposed = true;
         }
@@ -7557,6 +7616,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // when this settled view does not need another rendered frame.
           runtime.gpuResidency?.refresh(timestamp);
           runtime.geometryResidency?.refresh(timestamp);
+          runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
           return;
         }
         lastEvaluationAt = timestamp;
@@ -7636,6 +7696,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // Retire only old offscreen GPU copies; the exact scene stays intact.
         runtime.gpuResidency?.refresh(timestamp);
         runtime.geometryResidency?.refresh(timestamp);
+        runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
         runtime.gpuWarmup?.refreshView();
         runtime.scheduleGpuWarmup?.();
         updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
@@ -8613,6 +8674,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       return () => {
         disposed = true;
         runtime.disposed = true;
+        // Minimap poses own resident navigation references. Saved navigation is
+        // numeric and separate, so release the old family before rebuilding it.
+        pedestrianPoseEmissionRef.current.active = false;
+        onPedestrianPoseChangeRef.current(null);
+        runtime.surroundingCity?.dispose();
+        runtime.surroundingCity = undefined;
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         runtime.gpuWarmup?.dispose();
         runtime.gpuWarmup = undefined;

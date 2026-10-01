@@ -17,6 +17,22 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Bounded surrounding-city outlines (v1.0.59):** 85 official Berlin LoD2
+  kilometre tiles supply 37,556 parent footprints and vertical source
+  envelopes outside the retained v1.0.58 city. The Geofabrik Berlin extract
+  dated 29 September 2026 supplies additional uncovered OSM building outlines,
+  mapped road courses, water, parks and rail. Source hashes, tile URLs and
+  feature identities accompany the small independently loaded chunks.
+  ALKIS Ortsteile establish the complete Moabit and Prenzlauer Berg boundary
+  additions; the other requested connecting areas are explicitly versioned
+  presentation lobes. LoD2 and ALKIS use dl-de/zero-2-0; OSM uses ODbL 1.0.
+  Flat outer terrain, untagged road widths, untagged OSM building heights and
+  the neutral palette are labelled display estimates. The new buildings are
+  intentionally simple massing, with a separate two-metre block interpretation
+  in Minecraft. This does not replace or simplify any existing central-city
+  model, street, shoreline or landmark. No photograph or texture is added.
+  See the [bounded source and reproduction contract](docs/data.md#surrounding-city-outlines-v1059).
+
 - **Eastern Charité / university campus and Fernsehturm pavilions (v1.0.55):**
   Berlin LoD2 source identities, outlines and roof evidence anchor the added
   anatomy institutes, Humboldt Graduate School and veterinary campus buildings.

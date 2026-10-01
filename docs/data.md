@@ -6,6 +6,95 @@ kept per feature / per tile. No source is treated as a replacement
 for another. If sources disagree, the conflict is recorded; it is
 **not** silently resolved by dropping a source.
 
+## Surrounding city outlines (v1.0.59)
+
+The owner's 1 October 2026 extension adds complete Moabit and Prenzlauer Berg,
+the Alexanderplatz surroundings and Karl-Marx-Allee toward Frankfurter Tor,
+western Charlottenburg/Wilmersdorf through Joachim-Friedrich-Straße, the
+southward Schöneberg connection and the corridor to Schlesisches Tor. The
+versioned 81.457 km² polygon is an explicit finite presentation scope; this is
+not an unrestricted whole-Berlin download or an enlargement of the 93-place
+tour. `bounds-v158.geojson` retains the complete prior 31.285 km² polygon.
+The new runtime layer is the exact difference of these polygons. Every
+existing inner-city source payload and detailed model retains its ownership.
+
+The supplement combines these permitted sources:
+
+- Official [ALKIS Ortsteile](https://gdi.berlin.de/services/wfs/alkis_ortsteile)
+  provide the complete Moabit and Prenzlauer Berg district boundaries,
+  licensed dl-de/zero-2-0. Other lobes are labelled owner-requested presentation
+  bounds, not administrative boundaries.
+- All 85 [Berlin LoD2 kilometre tiles](https://gdi.berlin.de/data/a_lod2/atom/)
+  intersecting the new area were acquired. Their 325,347,648 raw ZIP bytes
+  remain gitignored. The derived outer layer retains 37,556 official parent
+  footprints, including courtyards, and their original vertical envelopes.
+  The parent envelope is deliberately simple massing, not a claim to reproduce
+  every roof plane or part. Every source tile URL and SHA-256 is in the chunk
+  manifest. The licence is dl-de/zero-2-0.
+- [Geofabrik's Berlin extract dated 29 September 2026](https://download.geofabrik.de/europe/germany/berlin-260929.osm.pbf)
+  supplies exact mapped road courses, water/park polygons, rail and 3,217
+  additional uncovered OSM building outlines. The raw 99,553,027-byte PBF
+  remains gitignored. It contains OSM data through 2026-09-29T20:22:51Z,
+  licensed ODbL 1.0. Complete OSM source identities, street names and width
+  evidence are retained in `source-inventory.json.gz` beside the runtime chunks.
+
+Official footprints take precedence where an OSM building's representative
+point is already covered, matching the existing fallback policy; otherwise
+OSM contributes the uncovered portion. OSM building heights rank explicit
+metres before tagged floor counts and finally class-based display estimates.
+The published height source distinguishes these cases. Mapped road courses
+retain their vertices with rounded buffer joins. Explicit widths and lane
+counts precede labelled class-width estimates. Tunnels are excluded from the
+at-grade outline layer; mapped bridges retain their crossings, and elevated
+building parts do not erase the street beneath them.
+
+The new outer terrain is a deliberately flat display plane at viewer `y=3 m`;
+water retains the inner city's `y=-1.15 m` datum, with simple bank side faces
+only along mapped shores. Islands and the water beneath bridges remain open.
+Roof and wall colours are neutral illustrative sRGB swatches, converted to
+linear vertex colours; they are not facade surveys. Drawn geometry is stored
+at centimetre precision. Minecraft has a separate two-metre block reading,
+with open courtyards and no invisible solid voxel interiors. There are no
+photographs, textures, generated facade details or reductions to the existing
+central-city models.
+
+Minecraft payloads omit the unused ink buffer: the native renderer consumes
+only their block-face mesh. Every mesh, colour, index and navigation value is
+unchanged by that lossless packaging reduction.
+
+`scripts/build_surrounding_outlines.py` performs source clipping, polygon
+unions, courtyard-aware triangulation and mode-specific preparation offline.
+Near-coplanar land surfaces are partitioned in rail/path/road/park priority
+instead of retaining overlapping plates that could flicker in a distant view.
+Their original navigation and source footprints remain intact.
+Independently loadable 512 m chunks contain indexed unsigned-16-bit centimetre
+positions, byte colours, navigation footprints and source identities. Their
+JSON envelopes are compressed losslessly using deterministic gzip (`mtime=0`).
+Only the compressed assets are shipped, with both compressed and decoded byte
+limits in the small manifest. The viewer fetches the current representation
+serially and releases old chunks; it never imports the full new source JSON
+or both mode families at startup. The complete mapped courses remain eligible
+for display after eviction.
+
+Reproduce the derived assets after placing the source PBF in the ignored raw
+directory and the manifest-listed LoD2 ZIPs in `raw/lod2`:
+
+```bash
+uv run python scripts/build_surrounding_outlines.py \
+  --bounds geo_data/regierungsviertel/bounds.geojson \
+  --core geo_data/regierungsviertel/bounds-v158.geojson \
+  --pbf geo_data/regierungsviertel/raw/outer-v159/berlin-260929.osm.pbf
+```
+
+The generator caches official parent outlines and resolved surface unions under
+the ignored raw directory; the keys include the complete scope, source archive
+hashes and source-ownership policy version. Repeated builds do not need to parse
+the same CityGML or recompute whole-area road junctions again. The rare GEOS
+triangulation fallback uses Three's already-installed Earcut through `bun`,
+with an independent source-coverage area check. Output lives in
+`src/app/public/mesh/surrounding-berlin-v159/` and remains portable under the
+viewer’s relative base URL.
+
 ## Permitted sources
 
 | ID | Source | Role | License |

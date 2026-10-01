@@ -12,6 +12,7 @@ import struct
 import tarfile
 import tomllib
 import zipfile
+import zlib
 from collections import Counter
 from collections.abc import Callable
 from pathlib import Path, PurePosixPath
@@ -47,10 +48,10 @@ SURFACE_PLATE_MAGIC = b"ISOPLT01"
 SURFACE_PLATE_HEADER_BYTES = 32
 SURFACE_PLATE_SCHEMA_VERSION = 1
 SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
-# The retired photographic scene was the dominant package cost. Keep enough
-# room for complete procedural source JSON while preventing
-# that legacy payload from silently returning.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 120 * 1024 * 1024
+# v159 explicitly expands the source area from 31.3 to 81.5 km². The additional
+# independently streamed outlines ship losslessly compressed. This finite new
+# ceiling permits those assets; existing checks still reject legacy photo tiles.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 215 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -1829,6 +1830,46 @@ def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[s
   return failures
 
 
+def surrounding_city_failures(site: Path) -> list[str]:
+  """Every external outline chunk must be delivered, in both world families."""
+  folder = site / "mesh/surrounding-berlin-v159"
+  failures: list[str] = []
+  try:
+    manifest = json.loads((folder / "manifest.json").read_text())
+    assert manifest["schemaVersion"] == 1 and manifest["chunks"]
+    for chunk in manifest["chunks"]:
+      for family in ("drawn", "minecraft"):
+        asset = chunk[family]
+        name = asset["url"]
+        if Path(name).name != name:
+          raise ValueError("non-local outline chunk path")
+        path = folder / name
+        data = path.read_bytes()
+        if (
+          len(data) != asset["bytes"]
+          or hashlib.sha256(data).hexdigest() != asset["sha256"]
+        ):
+          failures.append(f"Outline chunk differs from manifest: {path}")
+        if len(data) > MAX_REPOSITORY_BINARY_BYTES:
+          failures.append(f"Outline chunk exceeds individual asset budget: {path}")
+        if (
+          asset.get("encoding") != "gzip"
+          or len(gzip.decompress(data)) != asset["decodedBytes"]
+        ):
+          failures.append(f"Invalid losslessly packed outline chunk: {path}")
+  except (
+    OSError,
+    EOFError,
+    ValueError,
+    TypeError,
+    KeyError,
+    AssertionError,
+    zlib.error,
+  ) as exc:
+    failures.append(f"Incomplete surrounding-city package {folder}: {exc}")
+  return failures
+
+
 def collect_failures(
   root: Path = ROOT,
   *,
@@ -1959,6 +2000,7 @@ def collect_failures(
         failures.append(f"Invalid packaged Tiergartentunnel payload: {exc}")
     packaged_mesh = package_dir / "mesh" / "regierungsviertel"
     failures.extend(webgl_scene_failures(packaged_mesh))
+    failures.extend(surrounding_city_failures(package_dir))
   elif require_package_zip or require_static_tarball:
     failures.append(f"Missing extracted package directory: {package_dir}")
 

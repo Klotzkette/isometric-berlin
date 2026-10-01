@@ -41,7 +41,7 @@ agent. See §9.
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
-Its presentation radius is 6,450 m. Never generate or bundle geometry outside
+Its presentation radius is 9,250 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
@@ -49,6 +49,14 @@ Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing
 93-place tour and detailed city must remain intact. This narrow extension is
 not authorization for an unbounded whole-city rebuild.
+The owner-requested v1.0.59 extension adds rudimentary source-bound outlines
+throughout Moabit and Prenzlauer Berg, plus the finite City West/Wilmersdorf,
+Schöneberg, Karl-Marx-Allee through Frankfurter Tor and Schlesisches Tor lobes
+documented in `docs/bounds.md`. The previous detailed scope is archived as
+`bounds-v158.geojson`; its full geometry, source data and 93-place tour stay
+intact. Only the new outer districts use the explicitly requested simpler
+representation. Their external 512 m chunks must preserve bounded mobile
+loading, native Minecraft geometry and source/estimate provenance.
 The owner-requested v1.0.49 refinement adds the detailed Fernsehturm, Rotes
 Rathaus, St. Marienkirche, Marx-Engels monument, mapped Forum trees and
 Neptunbrunnen within this same bounds polygon. Keep existing station outlines

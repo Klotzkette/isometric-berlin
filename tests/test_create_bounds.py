@@ -75,9 +75,9 @@ def test_outer_ring_and_properties() -> None:
   assert cb.validate_ring(ring) == []
   props = cb.bounds_properties(fc)
   assert props["name"] == (
-    "Regierungsviertel bounds — v1.0.48 eastern outline extension"
+    "Central Berlin bounds — v1.0.59 surrounding outline extension"
   )
-  assert "Complete retained task-13" in props["description"]
+  assert "Complete retained v158 city and task-13" in props["description"]
   assert "No previous area is removed" in props["source"]
 
 

@@ -226,6 +226,8 @@ export type PedestrianObstacleIndex = {
 
 export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
+  /** Independently streamed, source-clipped outer districts; never replace core terrain. */
+  extension?: PedestrianExtension;
   /** Source-bound represented bridge decks override water only within their span. */
   bridgeGroundAt?: (x: number, z: number) => number | null;
   groundAt: (x: number, z: number) => number | null;
@@ -271,6 +273,13 @@ export type PedestrianEnvironment = {
     groundYHint?: number,
   ) => PedestrianGround | null;
   water: PedestrianWaterRegion[];
+};
+
+export type PedestrianExtension = {
+  bounds: PedestrianBounds;
+  groundAt: (x: number, z: number) => number | null;
+  solidAt: (x: number, y: number, z: number, radius?: number) => boolean;
+  waterAt: (x: number, z: number) => boolean;
 };
 
 export type PedestrianGround = {
@@ -1527,9 +1536,13 @@ export function pedestrianPointIsBlocked(
     | "parkTreeSolidAt"
     | "protectedVolumeAt"
     | "walkableInteriorAt"
+    | "extension"
   >,
 ): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  if (access?.extension && pedestrianBodyTouchesInteriorSolid(
+    x, z, bodyBottomY, access.extension.solidAt,
+  )) return true;
   if (
     access?.protectedVolumeAt &&
     pedestrianBodyTouchesProtectedVolume(
@@ -1675,6 +1688,7 @@ export function createPedestrianEnvironment(
   surfaces: Pick<SurfacePayload, "water">,
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
+  extension?: PedestrianExtension,
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
@@ -1695,7 +1709,15 @@ export function createPedestrianEnvironment(
   // their own original grid. Original terrain heights inside that grid stay exact.
   const easternExtension = prisms?.buildings.some(b => DHM_PRISM_IDS.has(b.id)) === true;
   if (easternExtension) bounds.maxX = Math.max(bounds.maxX, SCHLOSS_EAST_NAVIGATION_BOUNDS.maxX);
+  if (extension) {
+    bounds.minX = Math.min(bounds.minX, extension.bounds.minX);
+    bounds.minZ = Math.min(bounds.minZ, extension.bounds.minZ);
+    bounds.maxX = Math.max(bounds.maxX, extension.bounds.maxX);
+    bounds.maxZ = Math.max(bounds.maxZ, extension.bounds.maxZ);
+  }
   const surfaceGroundAt = (x: number, z: number): number | null => {
+    const outerGround = extension?.groundAt(x, z);
+    if (outerGround !== null && outerGround !== undefined) return outerGround;
     const xOffset = x / cell - minXIndex;
     const zOffset = z / cell - minZIndex;
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
@@ -1787,6 +1809,7 @@ export function createPedestrianEnvironment(
   };
   const environment: PedestrianEnvironment = {
     bounds,
+    extension,
     groundAt: surfaceGroundAt,
     resolveGround,
     water: compilePedestrianWater(surfaces),
@@ -1843,7 +1866,8 @@ function pedestrianGroundIsWater(
   if (typeof bridgeY === "number" && Math.abs(ground.y - bridgeY) < 0.05) {
     return false;
   }
-  return pedestrianPointIsWater(x, z, environment.water);
+  return environment.extension?.waterAt(x, z) === true ||
+    pedestrianPointIsWater(x, z, environment.water);
 }
 
 const PEDESTRIAN_SPAWN_VIEW_CLEARANCE_M = 10;

@@ -7052,8 +7052,8 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
  * x -658. The task-09 bounds now fetch real LoD2, OSM parkland and official
  * tree/lamp points out to x -2873, so all of that invented content has been
  * removed rather than drawn on top of measured geometry. What remains is
- * genuinely beyond the data: flat tone plates, cartographic ruling and the
- * Unter-den-Linden stub continuing east off the extract.
+ * beyond the data: flat tone plates only. The v159 mapped street extension
+ * replaces the former invented eastward Unter-den-Linden stub.
  */
 export function createExtrapolatedMargin(): Group {
   const group = new Group();
@@ -7107,9 +7107,7 @@ export function createExtrapolatedMargin(): Group {
   );
   // "Umkreis ausweiten": a calm paper-pale margin carries the map on every
   // side — the drawing fades into light ground instead of a void. No
-  // buildings are invented; Unter den Linden continues east from the Gate as
-  // a drawn axis.
-  const MARGIN = EXTRAPOLATED_MARGIN_M;
+  // buildings or streets are invented outside the mapped polygon.
   const marginBands = extrapolatedMarginBands();
   const MARGIN_TONES = [0xe6ece1, 0xebf0e6];
   marginBands.forEach(([cx, cz, sx, sz], index) => {
@@ -7125,20 +7123,6 @@ export function createExtrapolatedMargin(): Group {
   // model, which is the opposite of the calm paper the margin is for
   // ("drumherum … ist so ein schwarzes Quadratgitter. Das kann bitte weg").
   // The margin carries its two quiet paper tones and nothing else.
-  // Unter den Linden, continuing east from Pariser Platz off the extract.
-  addPart(
-    boxTriangles(
-      DATA_EAST_M + MARGIN / 2,
-      GROUND_TOP - 1.35,
-      292,
-      [1, 0],
-      MARGIN,
-      3,
-      40,
-    ),
-    ISO_GROUND_SHADES.asphalt[0],
-    false,
-  );
   const marginBody = mergeGeometries(bodyGeometries, false);
   if (marginBody) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });

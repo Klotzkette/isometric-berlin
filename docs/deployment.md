@@ -13,6 +13,13 @@ time and waits for attachment before continuing.
 Runtime needs no AI service, API key or backend. Vite uses relative paths, so the directory can be served from a
 subpath or static host.
 
+v1.0.59 additionally ships 260 external 512 m tiles of source-bound outer-city
+outlines, with separate drawn and Minecraft gzip packets. These load only for
+the current camera and remain inside the expanded versioned polygon. They are
+part of both the hosted viewer and the downloadable package; do not omit the
+`mesh/surrounding-berlin-v159/` directory when publishing. See
+[surrounding-city-v159.md](surrounding-city-v159.md) for provenance and QA.
+
 The same build is public at
 [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/).
 The GitHub release ZIP linked at the top of `README.md` is the supported

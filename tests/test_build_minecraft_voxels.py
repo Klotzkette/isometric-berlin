@@ -25,7 +25,9 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/minecraft-voxels.json")
 SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
-BOUNDS = Path("geo_data/regierungsviertel/bounds.geojson")
+# This unchanged canonical grid belongs to the retained task-13 source hull.
+# v159 surrounding outlines have separate geometry and coverage contracts.
+BOUNDS = Path("geo_data/regierungsviertel/bounds-task13.geojson")
 CELL_AREA_M2 = 4.0 * 4.0
 CELL_M = 4.0
 GROUND_CONTEXT = Path("src/app/public/mesh/regierungsviertel/ground-context.json")

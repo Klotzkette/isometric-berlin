@@ -244,6 +244,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "mesh/regierungsviertel/rail-lines.json": b"{}",
     "mesh/regierungsviertel/street-details.json": b"{}",
     "mesh/regierungsviertel/surface-polygons.json": b'{"roads":[]}',
+    "mesh/surrounding-berlin-v159/manifest.json": b'{"schemaVersion":1}',
   }
   for relative, data in files.items():
     path = tmp_path / relative

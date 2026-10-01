@@ -1,21 +1,20 @@
-// Owner-approved task-13 source hull, rounded outward to whole decametres in
-// scene world metres. It is the second exact EPSG:25833 500 m outward buffer,
-// this time around the complete task-12 polygon. Current OSM and context
-// buildings span this hull. The extrapolated paper margin starts outside it.
-export const DATA_WEST_M = -3900;
-export const DATA_EAST_M = 2420;
-export const DATA_NORTH_M = -3620;
-export const DATA_SOUTH_M = 2920;
+// Owner-approved v159 outline scope, rounded outward to whole decametres.
+// The full existing city remains in its original coordinate frame; additional
+// source-bound context covers Moabit, Prenzlauer Berg and four finite lobes.
+// These rectangular extrema are a presentation envelope, not the data polygon.
+export const DATA_WEST_M = -6160;
+export const DATA_EAST_M = 6840;
+export const DATA_NORTH_M = -4380;
+export const DATA_SOUTH_M = 4380;
 
 // Width of the blank paper ring that carries the drawing past the surveyed
 // hull, so a maximum-altitude flight fades into light ground instead of a
-// void. It invents no content: flat tone plates plus cartographic ruling.
-// The task-13 source hull adds real mapped context instead of more blank paper.
-// At 790 m every rectangular corner remains inside the versioned 6,450 m
+// void. It invents no content: only flat tone plates outside the source bounds.
+// At 790 m every rectangular corner remains inside the versioned 9,250 m
 // visible radius while retaining a broad clean fade past the last feature.
 export const EXTRAPOLATED_MARGIN_M = 790;
 
-export const VISIBLE_RADIUS_M = 6450;
+export const VISIBLE_RADIUS_M = 9250;
 
 // Presentation-only backing planes must sit below every authored underground
 // structure. The Tiergartentunnel road reaches about -8.5 m; older -5.5/-8 m
