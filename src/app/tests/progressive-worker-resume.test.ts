@@ -76,7 +76,7 @@ function workerHost(profile: "full" | "mobile") {
     MAX_TRANSFERRED_BATCHES_IN_FLIGHT: 4, WATER_TOP_Y: 0,
     mobileDetailWorker: undefined, latestMobileView: undefined,
     smoothGroundTopSampler: () => () => 0,
-    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
+    createIsometricCityCore: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
       _surfaces: unknown, options: { buildings: PrismBuilding[] }) => {
       buildingSources.push(options.buildings.map((building) => building.id));
       return new Group();

@@ -1,7 +1,8 @@
+import { interleaveStaticGeometry } from "../../src/interleaveStaticGeometry";
 import { retainedBuildingDetailIds } from "../../src/buildingDetailResidency";
 import ts from "typescript";
 import {
-  Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
+  Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
   type Object3D,
 } from "three";
 import { setIsoNightPresentation } from "../../src/IsometricCityWorld";
@@ -75,7 +76,8 @@ export function progressiveCoverageHost(
   let worker = createWorker();
   const document = { hidden: false };
   const bindings = {
-    Group, InstancedMesh, LineSegments, Material, Mesh, Texture,
+    interleaveStaticGeometry,
+    Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
     setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts, retainedBuildingDetailIds,
     buildingDetailViewPoints: () => [],
     progressiveWorldStopPolicy,

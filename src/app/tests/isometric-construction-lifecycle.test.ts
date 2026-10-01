@@ -1,8 +1,9 @@
+import { interleaveStaticGeometry } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
-  BoxGeometry, Group, InstancedMesh, LineSegments, Material, Mesh,
-  MeshBasicMaterial, Scene, Texture,
+  BoxGeometry, Group, InstancedMesh, Line, LineSegments, Material, Mesh,
+  MeshBasicMaterial, Points, Scene, Texture,
 } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { compactStaticGeometrySteps } from "../src/compactStaticGeometry";
@@ -101,7 +102,8 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     },
   };
   const bindings = {
-    Group, Mesh, InstancedMesh, LineSegments, Material, Texture,
+    interleaveStaticGeometry,
+    Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     createSchwellenraumTowerSteam: () => model("Tower rose steam").children[0],
     updateSchwellenraumTowerSteam: () => {},
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,

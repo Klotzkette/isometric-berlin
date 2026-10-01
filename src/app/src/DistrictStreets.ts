@@ -24,9 +24,12 @@ export type StreetSource = {
 };
 
 const streets = source as unknown as StreetSource;
-const elevatedPaths = new Set(streets.elevated_path_ids);
+// Keep source ownership lazy: helpers used by the building Worker must not
+// instantiate and retain this main-scene street payload in a second realm.
+let elevatedPaths: Set<string> | undefined;
 
 export function districtPathMayFollowTerrain(id: string): boolean {
+  elevatedPaths ??= new Set(streets.elevated_path_ids);
   return !elevatedPaths.has(id.replace(/^way[/:]/, "").split(":")[0]);
 }
 export const DISTRICT_STREET_LIFT_M = 0.18;

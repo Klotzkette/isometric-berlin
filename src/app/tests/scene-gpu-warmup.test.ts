@@ -14,6 +14,7 @@ import {
   GPU_WARMUP_MAX_VIEW_CANDIDATES, type SceneGpuWarmupOptions,
 } from "../src/sceneGpuWarmup";
 import { retireSceneMaterialPrograms } from "../src/sceneMaterialPrograms";
+import { createSceneGpuResidency, MOBILE_GPU_RESIDENCY_SCAN_LIMIT } from "../src/sceneGpuResidency";
 import {
   isInkDrawSuppressed, registerInkDrawObject, updateInkDrawVisibility,
 } from "../src/inkDrawVisibility";
@@ -22,6 +23,7 @@ import {
 function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {}) {
   const uploads: ArrayBufferView[] = [];
   const updates: ArrayBufferView[] = [];
+  const deleted: unknown[] = [];
   let nextBuffer = 0;
   const gl = {
     ARRAY_BUFFER: 34962, ELEMENT_ARRAY_BUFFER: 34963, FLOAT: 5126,
@@ -29,7 +31,7 @@ function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {})
     createBuffer: () => ({ id: nextBuffer++ }), bindBuffer: () => {},
     bufferData: (_target: number, array: ArrayBufferView) => uploads.push(array),
     bufferSubData: (_target: number, _offset: number, array: ArrayBufferView) => updates.push(array),
-    deleteBuffer: () => {},
+    deleteBuffer: (buffer: unknown) => { deleted.push(buffer); },
   };
   const info = { render: { frame: 0 }, memory: { geometries: 0 } };
   const attributes = WebGLAttributes(gl);
@@ -98,7 +100,7 @@ function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {})
   const warmup = createSceneGpuWarmup(renderer as unknown as WebGLRenderer, scene, camera, options);
   const state = () => ({ target, cube, mip, viewport: viewport.toArray(), scissor: scissor.toArray(), scissorTest,
     shadow: { ...renderer.shadowMap }, background: scene.background });
-  return { renderer, warmup, uploads, updates, calls, state, events,
+  return { renderer, warmup, uploads, updates, deleted, calls, state, events,
     set fail(value: boolean) { fail = value; },
     set contextLost(value: boolean) { contextLost = value; },
     set onRender(value: (() => void) | undefined) { onRender = value; } };
@@ -720,5 +722,101 @@ describe("offscreen GPU residency without geometry changes", () => {
     const renderObject = source.slice(source.indexOf("function renderObject( object"), source.indexOf("function getProgram"));
     expect(renderObject.indexOf("_this.renderBufferDirect")).toBeGreaterThan(0);
     expect(renderObject.lastIndexOf("_this.renderBufferDirect")).toBeLessThan(renderObject.indexOf("object.onAfterRender("));
+  });
+});
+
+describe("lossless mobile GPU instance residency", () => {
+  test("retires only off-view owned GPU attributes and exactly restores them on return", () => {
+    const { scene, camera } = fixture();
+    const geometry = new BoxGeometry(); const material = new MeshBasicMaterial();
+    const near = new InstancedMesh(geometry, material, 1);
+    const far = new InstancedMesh(geometry, material, 2); far.position.x = 1000;
+    far.setColorAt(0, new Color("red")); scene.add(near, far);
+    const matrix = far.instanceMatrix.array.slice(); const colors = far.instanceColor!.array.slice();
+    const positions = geometry.getAttribute("position").array.slice();
+    const h = host(scene, camera);
+    let now = 0; const evicted: InstancedMesh[] = [];
+    const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
+      { budgetBytes: 0, graceMs: 50, now: () => now, onEvict: mesh => evicted.push(mesh) });
+    resident.enqueue(scene); h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(resident.residentBytes).toBe(near.instanceMatrix.array.byteLength +
+      far.instanceMatrix.array.byteLength + far.instanceColor!.array.byteLength);
+    expect(resident.refresh()).toBe(0);
+    now = 100; expect(resident.refresh()).toBe(1); expect(evicted).toEqual([far]);
+    expect(h.deleted).toHaveLength(2);
+    expect(resident.residentBytes).toBe(near.instanceMatrix.array.byteLength);
+    expect(scene.children).toEqual([near, far]); expect(far.visible).toBeTrue();
+    expect(far.instanceMatrix.array).toEqual(matrix); expect(far.instanceColor!.array).toEqual(colors);
+    expect(geometry.getAttribute("position").array).toEqual(positions);
+    const previousUploads = h.uploads.length;
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0); h.renderer.render(scene, camera);
+    expect(h.uploads.length - previousUploads).toBe(2);
+    expect(h.calls.at(-1)?.vertices).toBe(72);
+    expect(resident.residentBytes).toBe(64 + 128 + 24);
+    h.warmup.dispose(); resident.dispose();
+  });
+
+  test("evicted mobile instances stay dormant until the expanded view returns", () => {
+    const { scene, camera } = fixture();
+    const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 1);
+    scene.add(mesh); const after = mesh.onAfterRender; let now = 0;
+    const h = host(scene, camera, { viewLocal: true });
+    const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
+      { budgetBytes: 0, graceMs: 0, now: () => now, onEvict: object => h.warmup.enqueue(object) });
+    resident.enqueue(scene); h.warmup.enqueue(scene); h.renderer.render(scene, camera);
+    expect(resident.residentBytes).toBe(64);
+    camera.position.x = 1000; camera.lookAt(1000, 0, 0); now = 100;
+    expect(resident.refresh()).toBe(1); expect(h.warmup.warmNext()).toBe(0);
+    expect(h.warmup.pending).toBeFalse(); expect(resident.residentBytes).toBe(0);
+    camera.position.x = 0; camera.lookAt(0, 0, 0); now = 200;
+    h.warmup.refreshView(); expect(h.warmup.warmNext()).toBe(1);
+    expect(resident.residentBytes).toBe(64); expect(resident.refresh()).toBe(0);
+    retireSceneMaterialPrograms(scene); h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(resident.residentBytes).toBe(64);
+    h.warmup.dispose(); resident.dispose(); expect(mesh.onAfterRender).toBe(after);
+  });
+
+  test("protects shared instance attributes, expanded margins and uncullable objects", () => {
+    const { scene, camera } = fixture(); const geometry = new BoxGeometry(); const material = new MeshBasicMaterial();
+    const near = new InstancedMesh(geometry, material, 1);
+    const shared = new InstancedMesh(geometry, material, 1); shared.instanceMatrix = near.instanceMatrix; shared.position.x = 1000;
+    const margin = new InstancedMesh(geometry, material, 1); margin.position.x = 8;
+    const uncullable = new InstancedMesh(geometry, material, 1); uncullable.position.x = 1000; uncullable.frustumCulled = false;
+    scene.add(near, shared, margin, uncullable); const h = host(scene, camera);
+    const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
+      { budgetBytes: 0, graceMs: 0, now: () => 0 });
+    resident.enqueue(scene); h.warmup.enqueue(scene); h.warmup.warmNext();
+    expect(resident.refresh(100)).toBe(0); expect(h.deleted).toHaveLength(0);
+    h.warmup.dispose(); resident.dispose();
+  });
+
+  test("bounds each scan, respects its cadence and releases detached observers immediately", () => {
+    const { scene, camera } = fixture(); const geometry = new BoxGeometry(); const material = new MeshBasicMaterial();
+    for (let index = 0; index < MOBILE_GPU_RESIDENCY_SCAN_LIMIT + 3; index++) {
+      const mesh = new InstancedMesh(geometry, material, 1); mesh.position.x = 1000; scene.add(mesh);
+    }
+    const h = host(scene, camera);
+    const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
+      { budgetBytes: 0, graceMs: 0, now: () => 0 });
+    resident.enqueue(scene); h.warmup.enqueue(scene); while (h.warmup.pending) h.warmup.warmNext();
+    expect(resident.refresh(100)).toBe(MOBILE_GPU_RESIDENCY_SCAN_LIMIT);
+    expect(resident.refresh(110)).toBe(0);
+    expect(resident.refresh(200)).toBe(3); expect(resident.residentBytes).toBe(0);
+    h.warmup.release(scene); resident.release(scene); scene.clear();
+    expect(resident.refresh(300)).toBe(0);
+    h.warmup.dispose(); resident.dispose();
+  });
+
+  test("external resource disposal resets residency without changing scene ownership", () => {
+    const { scene, camera } = fixture();
+    const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 1); scene.add(mesh);
+    const h = host(scene, camera);
+    const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera, { budgetBytes: 0 });
+    resident.enqueue(scene); h.warmup.enqueue(scene); h.warmup.warmNext(); expect(resident.residentBytes).toBe(64);
+    mesh.dispose(); expect(resident.residentBytes).toBe(0);
+    h.renderer.render(scene, camera); expect(resident.residentBytes).toBe(64);
+    h.contextLost = true; expect(resident.refresh(Infinity)).toBe(0);
+    h.warmup.dispose(); resident.dispose(); expect(resident.residentBytes).toBe(0);
+    expect(scene.children).toEqual([mesh]);
   });
 });

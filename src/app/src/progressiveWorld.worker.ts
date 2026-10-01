@@ -3,7 +3,7 @@ import { compactStaticGeometry } from "./compactStaticGeometry";
 import { createRestoredRoadSurfaceBatches } from "./restoredRoadSurfaces";
 
 import {
-  createIsometricCity,
+  createIsometricCityCore,
   createSmoothSurfaces,
   type PrismPayload,
   type SurfacePayload,
@@ -256,7 +256,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     build: async (id) => {
       const startedAt = performance.now();
       const buildings = batches.read(id);
-      const root = createIsometricCity(prisms, null, null, null, {
+      const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
       });
       buildings.length = 0;

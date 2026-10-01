@@ -5,11 +5,13 @@ import {
   InstancedBufferAttribute,
   InstancedMesh,
   InterleavedBufferAttribute,
+  Line,
   LineSegments,
   Material,
   MaterialLoader,
   Mesh,
   Object3D,
+  Points,
   Sphere,
   Vector3,
 } from "three";
@@ -114,7 +116,7 @@ export function objectMaterialsIncludingTransferredAlternates(
   object: Object3D,
 ): Material[] {
   const materials = new Set<Material>();
-  if (object instanceof Mesh || object instanceof LineSegments) {
+  if (object instanceof Mesh || object instanceof Line || object instanceof Points) {
     const assigned = Array.isArray(object.material)
       ? object.material
       : [object.material];

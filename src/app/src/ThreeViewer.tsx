@@ -15,6 +15,7 @@ import { createBehren42Architecture } from "./Behren42Architecture";
 import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
+import { interleaveStaticGeometry } from "./interleaveStaticGeometry";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
@@ -31,6 +32,8 @@ import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
 import { worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
+import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
+import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
 import { retireSceneMaterialPrograms } from "./sceneMaterialPrograms";
 import { registerInkDrawObject, registerInkShaderWrapper, restoreInkDrawVisibility, updateInkDrawVisibility } from "./inkDrawVisibility";
 import {
@@ -72,6 +75,7 @@ import {
   Group,
   HemisphereLight,
   InstancedMesh,
+  Line,
   LineBasicMaterial,
   LineSegments,
   Material,
@@ -84,6 +88,7 @@ import {
   Object3D,
   PerspectiveCamera,
   PCFShadowMap,
+  Points,
   Raycaster,
   RingGeometry,
   Scene,
@@ -718,6 +723,8 @@ type Runtime = {
   snowstorm: Snowstorm;
   renderer: WebGLRenderer;
   gpuWarmup?: SceneGpuWarmup;
+  gpuResidency?: SceneGpuResidency;
+  geometryResidency?: SceneGeometryGpuResidency;
   scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
@@ -834,10 +841,9 @@ function ensureSchwellenraumContent(runtime: Runtime): boolean {
   runtime.schwellenraumPariserPlatzLoop = pariserPlatzEntityLoopFromRoot(
     runtime.schwellenraumPraesentation,
   );
-  adoptSchwellenraumRoot(
-    runtime.schwellenraumInteriors,
-    createSchwellenraumInteriors(),
-  );
+  const interiors = createSchwellenraumInteriors();
+  if (runtime.coarsePointer) interleaveStaticGeometry(interiors);
+  adoptSchwellenraumRoot(runtime.schwellenraumInteriors, interiors);
   runtime.schwellenraumContentReady = true;
   runSchwellenraumWorldDetailsInstaller(runtime);
   applyLightingToRoot(
@@ -1738,6 +1744,8 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.berlinerEnsembleRoofSignElapsedSeconds,
   );
   assignStableInkRenderOrder(runtime.inkLineObjects);
+  runtime.gpuResidency?.enqueue(runtime.scene);
+  runtime.geometryResidency?.enqueue(runtime.scene);
   runtime.gpuWarmup?.enqueue(runtime.scene);
   runtime.scheduleGpuWarmup?.();
 }
@@ -2460,6 +2468,11 @@ function setSceneLighting(
     setUnderwaterPresentation(runtime, true);
   }
   setEnvironmentalPresentation(runtime);
+  runtime.gpuResidency?.enqueue(runtime.scene);
+  runtime.geometryResidency?.enqueue(runtime.scene);
+  // Retire hidden/previous-view copies before the newly selected mode uploads.
+  runtime.gpuResidency?.refresh(performance.now(), true);
+  runtime.geometryResidency?.refresh(performance.now(), true);
   runtime.gpuWarmup?.enqueue(runtime.scene);
   runtime.scheduleGpuWarmup?.();
 }
@@ -3080,11 +3093,14 @@ function attachProgressiveWorldMessage(
     runtime.nightLightsOn,
     runtime.lightingMode,
   );
+  if (runtime.coarsePointer) interleaveStaticGeometry(object);
   object.userData.progressiveWorldBatch = true;
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
+  runtime.gpuResidency?.enqueue(object);
+  runtime.geometryResidency?.enqueue(object);
   runtime.gpuWarmup?.enqueue(object);
   runtime.scheduleGpuWarmup?.();
   appendFarZoomAntiFlickerTargets(runtime, object);
@@ -3917,6 +3933,10 @@ function ensureIsoWorld(
         }
         yield* compactStaticGeometrySteps(isoWorld);
         yield* compactStaticGeometrySteps(provisionalIsoAddons!);
+        if (runtime.coarsePointer) {
+          interleaveStaticGeometry(isoWorld);
+          interleaveStaticGeometry(provisionalIsoAddons!);
+        }
         return isoWorld;
       })(), {
         yieldTask: yieldStartupWork,
@@ -4979,6 +4999,8 @@ function setOrbitAngles(
 
 function disposeObject3D(runtime: Runtime, root: Object3D): void {
   runtime.gpuWarmup?.release(root);
+  runtime.geometryResidency?.release(root);
+  runtime.gpuResidency?.release(root);
   releaseMinecraftMaterialBindings(root, runtime.minecraftMaterialState);
   const geometries = new Set<Mesh["geometry"]>();
   const materials = new Set<Material>();
@@ -4988,7 +5010,7 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
     if (object === runtime.schwellenraumTowerSteam) {
       runtime.schwellenraumTowerSteam = null;
     }
-    if (!(object instanceof Mesh) && !(object instanceof LineSegments)) {
+    if (!(object instanceof Mesh) && !(object instanceof Line) && !(object instanceof Points)) {
       return;
     }
     if (object instanceof InstancedMesh) {
@@ -5759,6 +5781,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       try {
         renderer = new WebGLRenderer({
           antialias: webglMemoryProfile.antialias,
+          // Geometry uses the composer's own depth attachment. The canvas
+          // receives only the final fullscreen SMAA image and needs no depth.
+          depth: false,
           powerPreference: "high-performance",
           // The viewer intentionally stops drawing once a still scene is
           // settled. Safari/iOS may discard an unpreserved WebGL backbuffer;
@@ -6058,12 +6083,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underwater: false,
       };
       runtimeRef.current = runtime;
-      // Warm exact offscreen buffers in separate short tasks. A camera pan
-      // should encounter GPU-resident geometry instead of triggering its
-      // first upload. The helper draws no vertices and preserves the canvas.
-      runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, {
-        viewLocal: coarsePointer,
-      });
+      // Mobile uploads the unchanged scene through ordinary rendering. Static
+      // vertex streams share exact interleaved buffers, and previous offscreen
+      // GPU copies can be retired while their authored CPU data stays intact.
+      if (coarsePointer) {
+        interleaveStaticGeometry(scene);
+        runtime.gpuResidency = createSceneGpuResidency(renderer, camera);
+        runtime.geometryResidency = createSceneGeometryGpuResidency(renderer, camera);
+        runtime.gpuResidency.enqueue(scene);
+        runtime.geometryResidency.enqueue(scene);
+      } else {
+        runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera);
+      }
       let gpuWarmupTimer: number | null = null;
       runtime.scheduleGpuWarmup = () => {
         if (disposed || document.hidden || !activeRef.current ||
@@ -7153,6 +7184,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         gpuWarmupTimer = null;
         runtime.gpuWarmup?.dispose();
+        runtime.geometryResidency?.dispose();
+        runtime.gpuResidency?.dispose();
         runtime.scheduleGpuWarmup = undefined;
         loadController.abort();
         cancelScheduledProgressiveWorld(runtime);
@@ -7520,6 +7553,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           !continuousInputActive &&
           timestamp - lastEvaluationAt < passiveFrameIntervalMs
         ) {
+          // The offscreen grace period may expire after input stops, even
+          // when this settled view does not need another rendered frame.
+          runtime.gpuResidency?.refresh(timestamp);
+          runtime.geometryResidency?.refresh(timestamp);
           return;
         }
         lastEvaluationAt = timestamp;
@@ -7596,9 +7633,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           stabilizedRecovered = stabilized.recovered;
           if (stabilizedRecovered) resetTouchGesture();
         }
-        // Mobile preparation follows the current view with a generous margin.
-        // A dormant offscreen queue wakes on rotation/flight without loading
-        // every distant city buffer during the first seconds after startup.
+        // Retire only old offscreen GPU copies; the exact scene stays intact.
+        runtime.gpuResidency?.refresh(timestamp);
+        runtime.geometryResidency?.refresh(timestamp);
         runtime.gpuWarmup?.refreshView();
         runtime.scheduleGpuWarmup?.();
         updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
@@ -7929,6 +7966,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.civicDetails);
+          runtime.gpuResidency?.enqueue(runtime.civicDetails);
+          runtime.geometryResidency?.enqueue(runtime.civicDetails);
           updateWindFlags(
             runtime.civicDetails,
             runtime.schwellenraumFlagElapsedSeconds,
@@ -7955,6 +7995,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.centralDetails);
+          runtime.gpuResidency?.enqueue(runtime.centralDetails);
+          runtime.geometryResidency?.enqueue(runtime.centralDetails);
           setBerlinerEnsemblePublicArtSnow(
             runtime.centralDetails,
             runtime.lightingMode === "snowstorm",
@@ -8128,7 +8171,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const model = createArchitecturalSignature(signature);
             if (model) {
               markAuthoredFlatUnlit(model);
+              if (runtime.coarsePointer) {
+                model.traverse(compactStaticGeometry);
+                interleaveStaticGeometry(model);
+              }
               runtime.signatures.add(model);
+              runtime.gpuResidency?.enqueue(model);
+              runtime.geometryResidency?.enqueue(model);
             }
             const focusCamera = focusCameraForSignature(signature);
             if (focusCamera) {
@@ -8237,6 +8286,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.monuments);
           // The monuments arrive independently of the drawn-world/park
           // builders. Register their thin guard, offerings and bench slats
           // immediately so a cold Minecraft start receives the same stable
@@ -8276,6 +8326,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.lightingMode,
               runtime.nightLightsOn,
             );
+            if (runtime.coarsePointer) interleaveStaticGeometry(tillaDurieux);
             if (runtime.lightingMode === "minecraft") {
               setMinecraftMaterialPresentation(
                 tillaDurieux,
@@ -8295,6 +8346,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.culturalDetails);
           // Cultural details arrive after the initial anti-flicker scan. Add
           // the thin storefront mullions, lettering and Adlon facade accents
           // immediately so late-loaded close detail remains stable at range.
@@ -8417,6 +8469,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                       runtime.lightingMode,
                       runtime.nightLightsOn,
                     );
+                    if (runtime.coarsePointer) interleaveStaticGeometry(details);
                     if (runtime.lightingMode === "minecraft" && !voxelMode) {
                       // Only the smooth fallback needs toon clones. A completed
                       // voxel world keeps this large deferred layer hidden, so
@@ -8479,7 +8532,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           };
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.tunnel);
           scene.add(runtime.tunnel);
+          runtime.gpuResidency?.enqueue(runtime.tunnel);
+          runtime.geometryResidency?.enqueue(runtime.tunnel);
           runtime.tunnelPortals.removeFromParent();
           runtime.tunnelPortals = createTunnelPortals(
             manifest.tiergartentunnel,
@@ -8499,6 +8555,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
+          runtime.gpuResidency?.enqueue(runtime.tunnelPortals);
+          runtime.geometryResidency?.enqueue(runtime.tunnelPortals);
           runtime.tunnelPortalInteriorVisible = isTunnelPortalFocus(
             selectedRef.current,
           );
@@ -8513,6 +8571,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          if (runtime.coarsePointer) interleaveStaticGeometry(runtime.tunnelPortals);
           runtime.reportWorldFailure = () => {
             if (runtime.disposed || runtime.worldFailureReported) {
               return;
@@ -8557,6 +8616,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         runtime.gpuWarmup?.dispose();
         runtime.gpuWarmup = undefined;
+        runtime.geometryResidency?.dispose();
+        runtime.gpuResidency?.dispose();
+        runtime.gpuResidency = undefined;
+        runtime.geometryResidency = undefined;
         runtime.scheduleGpuWarmup = undefined;
         loadController.abort();
         cancelScheduledProgressiveWorld(runtime);

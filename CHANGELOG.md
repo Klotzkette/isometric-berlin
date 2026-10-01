@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.58
+
+- Step 10: losslessly interleave static vertex streams on mobile to reduce graphics-buffer handles after reproducing a WebKit GPU resource-accounting crash during far/near travel.
+- Retire old offscreen geometry and instance GPU copies under bounded residency policies; retain identical CPU geometry, materials, viewing distance and eligibility for immediate reupload. Use ordinary full-detail uploads without speculative mobile zero-draw passes.
+- Split the progressive building constructor from recognition context and lazily initialise street membership, removing unused district-street data from the worker bundle without changing any building output.
+- Remove the unused canvas depth attachment and explicitly dispose point/line resources, including snow particles. Preserve the depth-enabled city render target and identical antialiasing.
+
 ## v1.0.57
 
 - Step 10: refine ULAP’s retained historic stair, mapped backless light benches, gravel grove and current quarter facades from open-data footprints and licensed references. Preserve the unresolved local height-source conflict explicitly.

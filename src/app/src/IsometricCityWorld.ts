@@ -11615,7 +11615,12 @@ function addBasinsAndSunkenWalls(
   return levelOf;
 }
 
-export function createIsometricCity(
+/**
+ * Exact terrain/building construction shared with the progressive worker.
+ * The public wrapper alone appends recognition context, allowing its unused
+ * constructors and dependencies to be pruned from the Worker bundle.
+ */
+export function createIsometricCityCore(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
   tunnel?: TunnelPortalCourseInput | null,
@@ -13115,6 +13120,18 @@ export function createIsometricCity(
     }
   }
   freezeStaticSceneTransforms(group);
+
+  return group;
+}
+
+export function createIsometricCity(
+  prisms: PrismPayload,
+  ground: VoxelPayload | null,
+  tunnel?: TunnelPortalCourseInput | null,
+  surfaces?: SurfacePayload | null,
+  options: IsometricCityBuildOptions = {},
+): Group {
+  const group = createIsometricCityCore(prisms, ground, tunnel, surfaces, options);
   if (options.includeContext !== false) {
     group.add(createPresentationBackdrop());
     group.add(createExtrapolatedMargin());

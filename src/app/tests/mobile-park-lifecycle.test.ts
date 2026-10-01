@@ -1,7 +1,8 @@
+import { interleaveStaticGeometry } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
-  BufferGeometry, Group, InstancedMesh, LineSegments, Material, Mesh, Scene, Texture,
+  BufferGeometry, Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Scene, Texture,
 } from "three";
 import {
   createParkDetails, createParkDetailsCooperative, setParkDetailsFocus,
@@ -90,7 +91,8 @@ function host(options: {
     }
   };
   const bindings = {
-    Group, Mesh, InstancedMesh, LineSegments, Material, Texture,
+    interleaveStaticGeometry,
+    Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     runtime, scene, document, loadController,
     manifest: { park_details: { file: "park.json" }, tiergartentunnel: null },
     window: { requestIdleCallback: (callback: () => void) => { idleTasks.push(callback); return idleTasks.length; } },
