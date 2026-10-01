@@ -20,6 +20,10 @@ import { pointInUnterDenLindenEntranceRegion } from "./unterDenLindenEntrancesPr
 import { PALACES_UDL_PRISM_IDS } from "./palacesUdlProfile";
 import { JAMES_SIMON_PRISM_IDS } from "./jamesSimonProfile";
 import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
+import { restoreHbfNorthRailGroundOwnership } from "./HbfNorthRailGroundOwnership";
+import { pointInHbfNorthRailCut } from "./HbfNorthApproachProfile";
+import { hbfNorthRailParkSurfaces } from "./HbfNorthRailSurfaces";
+import { createHbfNorthApproach } from "./HbfNorthApproach";
 import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
@@ -61,6 +65,10 @@ import { BOELL_STIFTUNG_IDS, BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_PRISM_TONES, 
 import { FRIEDRICHSTADT_PALAST_PRISM_ID } from "./FriedrichstadtPalastDetails";
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
 import { createMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
+import { createConcertHalls } from "./ConcertHalls";
+import { CONCERT_HALL_PRISM_IDS } from "./concertHallsProfile";
+import { createKulturforumMuseums } from "./KulturforumMuseums";
+import { KULTURFORUM_MUSEUM_IDS } from "./kulturforumMuseumsProfile";
 import { MUSIC_MUSEUM_IDS, MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
 import { createParliamentArchitecture } from "./ParliamentArchitecture";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
@@ -314,6 +322,8 @@ export type IsometricCityBuildOptions = {
   buildings?: readonly PrismBuilding[];
   /** Add the one-off presentation/recognition models only to the base batch. */
   includeContext?: boolean;
+  /** The interactive viewer builds these exact models in separate cancellable stages. */
+  includeKulturforumAndNorthRail?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -947,6 +957,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ECONOMIC_MINISTRY_SOURCE_IDS,
   ...DB_TOWER_PRISM_IDS,
   ...MUSIC_MUSEUM_IDS,
+  ...CONCERT_HALL_PRISM_IDS,
+  ...KULTURFORUM_MUSEUM_IDS,
   ...DOM_ALTES_PRISM_IDS,
   ...MUSEUM_TRIAD_PRISM_IDS,
   ...ADMIRALSPALAST_IDS,
@@ -10046,7 +10058,7 @@ export function createSmoothSurfaces(
   // Parkland lawns first: they sit just above the rasterised grass so
   // the 4 m steps disappear under a smooth sage plate.
   const lawns = buildPlate(
-    surfaces.parks.filter(
+    surfaces.parks.flatMap(hbfNorthRailParkSurfaces).filter(
       (entry) => entry.kind !== "garden" && !isTillaDurieuxLawn(entry) && !isSpreebogenParkSurface(entry),
     ),
     terrainAt ? 0.06 : bankY + 0.08,
@@ -12970,6 +12982,7 @@ export function createIsometricCityCore(
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);
+    restoreHbfNorthRailGroundOwnership(slabs, ground);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
@@ -13038,7 +13051,7 @@ export function createIsometricCityCore(
     const kerbs = createKerbLines(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
-      (x, z) => pointInBrandenburgApproach(x, z) || Boolean(insideTunnelApproach?.(x, z)),
+      (x, z) => pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
     );
     if (kerbs) {
       group.add(kerbs);
@@ -13130,6 +13143,17 @@ export function createIsometricCity(
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    if (options.includeKulturforumAndNorthRail !== false) {
+      group.add(createConcertHalls());
+      group.add(createKulturforumMuseums());
+      if (ground) {
+        const sample = smoothGroundTopSampler(ground);
+        group.add(createHbfNorthApproach((x, z) => sample(
+          x / ground.cell_m - ground.grid.min_x_idx,
+          z / ground.cell_m - ground.grid.min_z_idx,
+        )));
+      }
+    }
     group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
     group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));

@@ -4,9 +4,13 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Object3D,
   Raycaster,
   Vector3,
 } from "three";
+import { createConcertHalls } from "../src/ConcertHalls";
+import { CONCERT_HALL_PROFILE } from "../src/concertHallsProfile";
+import { createKulturforumMuseums } from "../src/KulturforumMuseums";
 
 import {
   AMANO_GRAND_CENTRAL_PROFILE,
@@ -171,6 +175,7 @@ describe("task-10 expanded city recognition details", () => {
 
   test("anchors the Kulturforum buildings independently from entrance POIs", () => {
     const details = createExpandedCityDetails(landmarks);
+    details.add(createConcertHalls(), createKulturforumMuseums());
     expect(details.userData.kulturforum).toEqual(KULTURFORUM_PROFILE);
     expect(KULTURFORUM_PROFILE.gemaldegalerie.centerWorldM).toEqual([
       -473.956, 1138.208,
@@ -183,13 +188,11 @@ describe("task-10 expanded city recognition details", () => {
     expect(KULTURFORUM_PROFILE.philharmonie.mainSourcePartId).toBe(
       "DEBE3DTtXzEkeXsu",
     );
-    expect(KULTURFORUM_PROFILE.philharmonie.facadeBayCount).toBe(11);
-    expect(KULTURFORUM_PROFILE.philharmonie.mainEntrance.widthM).toBe(23.5);
+    expect(CONCERT_HALL_PROFILE.mainEntrances[0].osmNode).toBe(247854384);
     expect(KULTURFORUM_PROFILE.kammermusiksaal.mainSourcePartId).toBe(
       "DEBE3DbyaJ0e8oAr",
     );
-    expect(KULTURFORUM_PROFILE.kammermusiksaal.facadeBayCount).toBe(9);
-    expect(KULTURFORUM_PROFILE.kammermusiksaal.mainEntrance.widthM).toBe(18);
+    expect(CONCERT_HALL_PROFILE.mainEntrances[1].osmNode).toBe(3100521550);
     expect(KULTURFORUM_PROFILE.gemaldegalerie.piazzettaEntrance.widthM).toBe(19.2);
     expect(KULTURFORUM_PROFILE.kunstbibliothek.sharedEntrance.widthM).toBe(15.5);
     expect(KULTURFORUM_PROFILE.kunstgewerbemuseum.piazzettaEntrance.widthM).toBe(15.2);
@@ -206,7 +209,7 @@ describe("task-10 expanded city recognition details", () => {
       "KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT",
     ]) {
       const sign = details.getObjectByName(`${label} entrance lettering`) as Mesh;
-      expect(sign).toBeInstanceOf(Mesh);
+      expect(sign).toBeInstanceOf(Object3D);
       expect(sign.userData.kulturforumEntrance).toBeTrue();
     }
   });

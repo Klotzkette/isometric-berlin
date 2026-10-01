@@ -45,6 +45,9 @@ import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_PROFILE, friedric
 import { SOVIET_MEMORIAL_PRISM_IDS } from "./SovietMemorialSource";
 import { ROSENGARTEN_PERGOLA_PRISM_ID } from "./rosengartenProfile";
 import { musicMuseumPart, musicMuseumPartRoofHeightAt, musicMuseumDisplayTop } from "./museumLenneProfile";
+import { CONCERT_HALL_PRISM_IDS, CONCERT_HALL_SOURCE_BOUNDS, concertHallRoofAt } from "./concertHallsProfile";
+import { KULTURFORUM_MUSEUM_IDS, kulturforumMuseumRoofHeightAt } from "./kulturforumMuseumsProfile";
+import { hbfNorthRailGroundAt } from "./HbfNorthApproachProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
@@ -195,6 +198,8 @@ export type PedestrianPolygonObstacle = PedestrianObstacleBase & {
   ring: PedestrianRing;
   /** Source-bound display roof when a documented source height is unusable. */
   topAt?: (x: number, z: number) => number | null;
+  /** Open canopy undersides can differ between drawn sheets and native slabs. */
+  bottomAt?: () => number;
 };
 
 export type PedestrianSegmentObstacle = PedestrianObstacleBase & {
@@ -543,6 +548,7 @@ function addPolygonObstacle(
   sourceId?: string,
   coordinateScale = 1,
   topAt?: PedestrianPolygonObstacle["topAt"],
+  bottomAt?: PedestrianPolygonObstacle["bottomAt"],
 ): void {
   if (
     ring.length < 3 ||
@@ -579,6 +585,7 @@ function addPolygonObstacle(
     ring,
     sourceId,
     topAt,
+    bottomAt,
   });
 }
 
@@ -965,6 +972,27 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, building.ring, building.holes ?? [], building.y0_dm / 10,
         building.id === BELLEVUE_OFFICE_ID ? BELLEVUE_PROFILE.office.top + 0.5 : sourceTop + 0.2,
         building.id, 0.1, (x, z) => bellevueRoofTopAt(x, z, building.id) ?? sourceTop);
+      index.buildingCount += 1;
+      continue;
+    }
+    if (KULTURFORUM_MUSEUM_IDS.has(building.id)) {
+      addPolygonObstacle(index, building.ring, building.holes ?? [],
+        building.y0_dm / 10, (building.y0_dm + building.h_dm) / 10, building.id, 0.1,
+        (x, z) => kulturforumMuseumRoofHeightAt(building.id, x, z, visualMode() === "minecraft"));
+      index.buildingCount += 1;
+      continue;
+    }
+    if (CONCERT_HALL_PRISM_IDS.has(building.id)) {
+      // Use the actual tent/folded roof planes instead of the former flat cap.
+      const sourcePart = CONCERT_HALL_SOURCE_BOUNDS.find(({ part }) => part.shortId === building.id)!;
+      const part = sourcePart.part;
+      const nativeBase = part.solidBaseY > part.groundY
+        ? Math.floor((part.solidBaseY - part.groundY) / 2) * 2 + part.groundY
+        : part.solidBaseY;
+      addPolygonObstacle(index, building.ring, building.holes ?? [],
+        Math.min(nativeBase, part.solidBaseY), sourcePart.topY + 2, building.id, 0.1,
+        (x, z) => concertHallRoofAt(x, z, visualMode() === "minecraft"),
+        () => visualMode() === "minecraft" ? nativeBase : part.solidBaseY);
       index.buildingCount += 1;
       continue;
     }
@@ -1575,8 +1603,10 @@ export function pedestrianPointIsBlocked(
   const nearbyObstacles = obstacles.cells.get(key);
   if (!nearbyObstacles) return false;
   for (const obstacle of nearbyObstacles) {
+    const bottomY = obstacle.kind === "polygon"
+      ? obstacle.bottomAt?.() ?? obstacle.minY : obstacle.minY;
     if (
-      bodyTopY <= obstacle.minY + 0.02 ||
+      bodyTopY <= bottomY + 0.02 ||
       bodyBottomY >= obstacle.maxY - 0.02 ||
       x < obstacle.minX - PEDESTRIAN_BODY_RADIUS_M ||
       x > obstacle.maxX + PEDESTRIAN_BODY_RADIUS_M ||
@@ -1723,6 +1753,8 @@ export function createPedestrianEnvironment(
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
       return easternExtension ? schlossEastNavigationGroundAt(x, z, environment.visualMode?.() ?? "day") : null;
     }
+    const railCutY = hbfNorthRailGroundAt(x, z);
+    if (railCutY !== null) return railCutY;
     const terrain = spreebogenTerrainYAt(x,z,smoothGround(xOffset, zOffset));
     const site = topographySiteSurfaceAt(x, z);
     return site === null ? terrain : Math.max(terrain, site);

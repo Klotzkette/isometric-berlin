@@ -3374,122 +3374,8 @@ function fixedWorldPoint(world: readonly [number, number]): Vector3 {
 }
 
 function addKulturforumMuseums(builder: Builder): void {
-  const galleryProfile = KULTURFORUM_PROFILE.gemaldegalerie;
-  const gallery = fixedWorldPoint(galleryProfile.centerWorldM);
-  const galleryRotation = galleryProfile.rotationY;
-  // The gallery's two long courtyard wings and connecting heads follow the
-  // full named LoD2 envelope rather than the entrance POI used by navigation.
-  for (const localZ of [-31, 31]) {
-    addLocalBox(
-      builder,
-      KULTURFORUM_STONE,
-      gallery,
-      0,
-      gallery.y + 9.2,
-      localZ,
-      129,
-      18.4,
-      27,
-      galleryRotation,
-    );
-    addLocalBox(
-      builder,
-      KULTURFORUM_STONE_LIGHT,
-      gallery,
-      0,
-      gallery.y + 18.7,
-      localZ,
-      131,
-      0.8,
-      29,
-      galleryRotation,
-    );
-  }
-  for (const localX of [-55, 55]) {
-    addLocalBox(
-      builder,
-      0xddd3c1,
-      gallery,
-      localX,
-      gallery.y + 8.7,
-      0,
-      21,
-      17.4,
-      42,
-      galleryRotation,
-    );
-  }
-  // Shallow roof lights and pale stone expansion joints preserve the calm,
-  // low museum profile while making the two long roof bars legible up close.
-  for (let localX = -57; localX <= 57; localX += 9.5) {
-    for (const localZ of [-31, 31]) {
-      addLocalBox(
-        builder,
-        localX % 19 === 0 ? 0x91aaab : KULTURFORUM_SHADOW,
-        gallery,
-        localX,
-        gallery.y + 19.22,
-        localZ,
-        0.34,
-        0.24,
-        23.6,
-        galleryRotation,
-        false,
-      );
-    }
-  }
-  // Calm, repeated stone bays and recessed dark glazing make the long facade
-  // read as the 1998 museum instead of one anonymous cream block.
-  for (let localX = -57; localX <= 57; localX += 6) {
-    for (const localZ of [-44.7, 44.7]) {
-      addLocalLampBox(
-        builder,
-        0x78999a,
-        gallery,
-        localX,
-        gallery.y + 10.2,
-        localZ,
-        3.5,
-        4.9,
-        0.18,
-        galleryRotation,
-      );
-      addLocalBox(
-        builder,
-        0xc7baa3,
-        gallery,
-        localX,
-        gallery.y + 13.1,
-        localZ + Math.sign(localZ) * 0.12,
-        0.18,
-        10.8,
-        0.2,
-        galleryRotation,
-        false,
-      );
-    }
-  }
-  for (let localZ = -15; localZ <= 15; localZ += 6) {
-    for (const localX of [-65.7, 65.7]) {
-      addLocalBox(
-        builder,
-        0x78999a,
-        gallery,
-        localX,
-        gallery.y + 10.2,
-        localZ,
-        0.18,
-        4.9,
-        3.5,
-        galleryRotation,
-        false,
-      );
-    }
-  }
-  addKulturforumGlazedEntrance(
-    builder, gallery, galleryRotation, galleryProfile.piazzettaEntrance, "local-x", 1,
-  );
-
+  // The Gemäldegalerie and Kunstgewerbemuseum now use complete official
+  // shells and source-edge facades in KulturforumMuseums; keep this shared wing.
   const copperProfile = KULTURFORUM_PROFILE.kunstbibliothek;
   const copper = fixedWorldPoint(copperProfile.centerWorldM);
   addLocalBox(
@@ -3549,72 +3435,6 @@ function addKulturforumMuseums(builder: Builder): void {
     builder, copper, copperProfile.rotationY, copperProfile.sharedEntrance, "local-z", -1,
   );
 
-  const craftProfile = KULTURFORUM_PROFILE.kunstgewerbemuseum;
-  const craft = fixedWorldPoint(craftProfile.centerWorldM);
-  // Gutbrod's museum steps down toward the Piazzetta in angular terraces.
-  for (const [localX, localZ, width, depth, height] of [
-    [-17, 12, 43, 56, 18.8],
-    [22, -8, 31, 49, 15.2],
-    [8, 25, 56, 20, 11.4],
-  ] as const) {
-    addLocalBox(
-      builder,
-      0xd9cfbd,
-      craft,
-      localX,
-      craft.y + height / 2,
-      localZ,
-      width,
-      height,
-      depth,
-      craftProfile.rotationY,
-    );
-    addLocalBox(
-      builder,
-      KULTURFORUM_STONE_LIGHT,
-      craft,
-      localX,
-      craft.y + height + 0.25,
-      localZ,
-      width + 0.7,
-      0.5,
-      depth + 0.7,
-      craftProfile.rotationY,
-    );
-  }
-  for (let index = -3; index <= 3; index += 1) {
-    addLocalLampBox(
-      builder,
-      0x708c8e,
-      craft,
-      index * 7.2,
-      craft.y + 7.2,
-      -33,
-      4.4,
-      5.8,
-      0.2,
-      craftProfile.rotationY,
-    );
-  }
-  for (const level of [4.2, 9.4, 14.6]) {
-    addLocalBox(
-      builder,
-      KULTURFORUM_SHADOW,
-      craft,
-      -17,
-      craft.y + level,
-      -16.2,
-      42,
-      0.18,
-      0.22,
-      craftProfile.rotationY,
-      false,
-    );
-  }
-  addKulturforumGlazedEntrance(
-    builder, craft, craftProfile.rotationY, craftProfile.piazzettaEntrance, "local-z", 1,
-  );
-
   const piazzettaProfile = KULTURFORUM_PROFILE.piazzetta;
   const piazzetta = fixedWorldPoint(piazzettaProfile.centerWorldM);
   addRamp(
@@ -3651,164 +3471,24 @@ function addKulturforumMuseums(builder: Builder): void {
   }
 }
 
-function addKulturforumConcertBuildings(builder: Builder): void {
-  const philProfile = KULTURFORUM_PROFILE.philharmonie;
-  const phil = fixedWorldPoint(philProfile.centerWorldM);
-  for (let index = -5; index <= 5; index += 1) {
-    addLocalLampBox(
-      builder,
-      0x506b6d,
-      phil,
-      index * 7.2,
-      phil.y + 7.7,
-      -35.2,
-      4.3,
-      5.1,
-      0.18,
-      philProfile.rotationY,
-    );
-  }
-  for (let bay = 0; bay <= philProfile.facadeBayCount; bay += 1) {
-    addLocalBox(
-      builder,
-      0xb99142,
-      phil,
-      -39.6 + (79.2 * bay) / philProfile.facadeBayCount,
-      phil.y + 8.2,
-      -35.35,
-      0.22,
-      11.8,
-      0.24,
-      philProfile.rotationY,
-      false,
-    );
-  }
-  for (let band = 0; band < philProfile.facadeBandCount; band += 1) {
-    addLocalBox(
-      builder,
-      band === philProfile.facadeBandCount - 1 ? 0xe0bd61 : 0xc79b43,
-      phil,
-      0,
-      phil.y + 3.2 + band * 3.35,
-      -35.42,
-      82.8,
-      band === philProfile.facadeBandCount - 1 ? 0.34 : 0.17,
-      0.26,
-      philProfile.rotationY,
-      false,
-    );
-  }
-  // A short, rising gold register follows the faceted lower crown without
-  // replacing the seven-part LoD2 roof or its existing radial seam pass.
-  for (
-    let cue = 0;
-    cue < philProfile.roofFacetCueCount;
-    cue += 1
-  ) {
-    const localX = -34 + (68 * cue) / (philProfile.roofFacetCueCount - 1);
-    addLocalBox(
-      builder,
-      cue % 2 === 0 ? 0xd7ab4d : 0xb78c3e,
-      phil,
-      localX,
-      phil.y + 19.1 + (cue % 3) * 0.75,
-      -31.5 + Math.abs(cue - 4) * 0.42,
-      5.8,
-      0.22,
-      0.36,
-      philProfile.rotationY,
-      false,
-    );
-  }
-  addKulturforumGlazedEntrance(
-    builder, phil, philProfile.rotationY, philProfile.mainEntrance, "local-z", -1,
-  );
-
-  const chamberProfile = KULTURFORUM_PROFILE.kammermusiksaal;
-  const chamber = fixedWorldPoint(chamberProfile.centerWorldM);
-  for (let index = -4; index <= 4; index += 1) {
-    addLocalLampBox(
-      builder,
-      0x536d6f,
-      chamber,
-      index * 7,
-      chamber.y + 7.5,
-      30.7,
-      4.2,
-      5,
-      0.18,
-      chamberProfile.rotationY,
-    );
-  }
-  for (let bay = 0; bay <= chamberProfile.facadeBayCount; bay += 1) {
-    addLocalBox(
-      builder,
-      0xb58d3e,
-      chamber,
-      -28 + (56 * bay) / chamberProfile.facadeBayCount,
-      chamber.y + 8.1,
-      30.82,
-      0.21,
-      11.2,
-      0.24,
-      chamberProfile.rotationY,
-      false,
-    );
-  }
-  for (let band = 0; band < chamberProfile.facadeBandCount; band += 1) {
-    addLocalBox(
-      builder,
-      band === chamberProfile.facadeBandCount - 1 ? 0xdfbd67 : 0xc49a49,
-      chamber,
-      0,
-      chamber.y + 3.25 + band * 3.2,
-      30.9,
-      60.8,
-      band === chamberProfile.facadeBandCount - 1 ? 0.34 : 0.17,
-      0.25,
-      chamberProfile.rotationY,
-      false,
-    );
-  }
-  for (
-    let cue = 0;
-    cue < chamberProfile.roofFacetCueCount;
-    cue += 1
-  ) {
-    const localX = -24 + (48 * cue) / (chamberProfile.roofFacetCueCount - 1);
-    addLocalBox(
-      builder,
-      cue % 2 === 0 ? 0xd6ae59 : 0xb88e43,
-      chamber,
-      localX,
-      chamber.y + 18.1 + (cue % 2) * 0.8,
-      27.8 - Math.abs(cue - 3) * 0.32,
-      5.4,
-      0.22,
-      0.34,
-      chamberProfile.rotationY,
-      false,
-    );
-  }
-  addKulturforumGlazedEntrance(
-    builder, chamber, chamberProfile.rotationY, chamberProfile.mainEntrance, "local-z", 1,
-  );
+function addKulturforumConcertBuildings(_builder: Builder): void {
+  // v1.0.60: ConcertHalls now renders all 25 official exterior shells, their
+  // actual tent roofs and wall-clipped gold joints. The former approximate
+  // planes, roof bars and misplaced north/south doors are replaced by that
+  // source-preserving layer and the two OSM-anchored western entrances.
 }
 
 function addKulturforumEntranceLettering(group: Group): void {
   const specifications = [
-    ["PHILHARMONIE", KULTURFORUM_PROFILE.philharmonie, KULTURFORUM_PROFILE.philharmonie.mainEntrance, "local-z", -1, 14.5],
-    ["KAMMERMUSIKSAAL", KULTURFORUM_PROFILE.kammermusiksaal, KULTURFORUM_PROFILE.kammermusiksaal.mainEntrance, "local-z", 1, 14.5],
-    ["GEMÄLDEGALERIE", KULTURFORUM_PROFILE.gemaldegalerie, KULTURFORUM_PROFILE.gemaldegalerie.piazzettaEntrance, "local-x", 1, 13.5],
-    ["KUNSTGEWERBEMUSEUM", KULTURFORUM_PROFILE.kunstgewerbemuseum, KULTURFORUM_PROFILE.kunstgewerbemuseum.piazzettaEntrance, "local-z", 1, 14.8],
     ["KUNSTBIBLIOTHEK · KUPFERSTICHKABINETT", KULTURFORUM_PROFILE.kunstbibliothek, KULTURFORUM_PROFILE.kunstbibliothek.sharedEntrance, "local-z", -1, 24],
   ] as const;
-  for (const [text, profile, entrance, face, outward, width] of specifications) {
+  // The concert halls and the other museums now own their source-bound signs.
+  for (const [text, profile, entrance, _face, outward, width] of specifications) {
     const origin = fixedWorldPoint(profile.centerWorldM);
     const normalOffset = outward * 0.18;
     const [offsetX, offsetZ] = rotatedLocalOffset(
-      entrance.localX + (face === "local-x" ? normalOffset : 0),
-      entrance.localZ + (face === "local-z" ? normalOffset : 0),
+      entrance.localX,
+      entrance.localZ + normalOffset,
       profile.rotationY,
     );
     const sign = createLetterSign(
@@ -3816,7 +3496,7 @@ function addKulturforumEntranceLettering(group: Group): void {
       width,
       0.72,
       new Vector3(origin.x + offsetX, origin.y + entrance.heightM + 0.22, origin.z + offsetZ),
-      profile.rotationY + (face === "local-x" ? Math.PI / 2 : outward < 0 ? Math.PI : 0),
+      profile.rotationY + (outward < 0 ? Math.PI : 0),
       "#cdb35e",
       "#283235",
     );

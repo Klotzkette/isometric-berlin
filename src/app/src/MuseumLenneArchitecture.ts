@@ -1,6 +1,6 @@
 import {
   BoxGeometry, BufferGeometry, CircleGeometry, Color, Float32BufferAttribute,
-  Group, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial,
+  Group, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, RingGeometry,
   Vector3,
 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
@@ -192,6 +192,15 @@ function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, opti
       const u = entrance.length * .5;
       emit(entrance, u, hall.y0_dm / 10 + 1.65, entrance.length * .92, 3.3, .16, .24, C.glass, "museum entry glazing");
       for (const du of [-3.4, 0, 3.4]) emit(entrance, u + du, 5.95, .16, 3.3, .23, .35, C.silver, "museum entry mullion");
+      // Praefcke's CC BY photograph shows leaf divisions, a transom and slim
+      // silver pulls below the open source canopy. Keep every member outside
+      // the retained wall, and entirely below the source rooflet silhouette.
+      for (const du of [-5.2, -1.7, 1.7, 5.2])
+        emit(entrance, u + du, 5.65, .075, 2.65, .18, .42, C.silver, "museum door leaf division", false);
+      for (const y of [4.42, 6.98, 7.54])
+        emit(entrance, u, y, entrance.length * .92, .085, .18, .45, C.silver, "museum door transom", false);
+      for (const du of [-.2, .2, -3.6, -3.2, 3.2, 3.6])
+        emit(entrance, u + du, 5.65, .045, .62, .14, .56, C.silver, "museum door handle", false);
       // The separate exact K0003U6g source roof supplies the 8.053 m entrance canopy.
       for(const line of letteringStrokePaths("MUSIKINSTRUMENTEN-MUSEUM",.3))for(let i=1;i<line.length;i++){
         const a=line[i-1],b=line[i],d=Math.hypot(b[0]-a[0],b[1]-a[1]),steps=Math.max(1,Math.ceil(d/.055));
@@ -229,6 +238,18 @@ function plan(payload: { buildings: readonly PrismBuilding[] } | undefined, opti
         const oval = new CircleGeometry(1, mobile ? 20 : 32).scale(1.15, 1.7, 1).rotateY(Math.atan2(ovalWall.nx,ovalWall.nz));
         const p = at(ovalWall,u,12.2,.36); oval.translate(...p); paintGeometry(oval,C.glass); curved.parts.push(oval);
         for (let l = -2; l <= 2; l++) emit(ovalWall,u,12.2+l*.45,2.15*Math.sqrt(1-(l/3.5)**2),.075,.14,.43,C.silver,"museum oval grille",false);
+      }
+      // A narrow bright rim preserves the two characteristic oval cuts, with
+      // a block-native stepped surround in Minecraft rather than a smooth double.
+      if (minecraft) {
+        for (let i = 0; i < 20; i++) {
+          const angle = i / 20 * Math.PI * 2;
+          emit(ovalWall, u + Math.cos(angle) * 1.2, 12.2 + Math.sin(angle) * 1.75,
+            .18, .2, .15, .46, C.silver, "museum oval metal rim", false);
+        }
+      } else {
+        const rim = new RingGeometry(.98, 1.06, 48).scale(1.15, 1.7, 1).rotateY(Math.atan2(ovalWall.nx, ovalWall.nz));
+        rim.translate(...at(ovalWall, u, 12.2, .46)); paintGeometry(rim, C.silver); curved.parts.push(rim);
       }
     }
     curved.parts.forEach(g => g.userData.rooflightCount = 14);

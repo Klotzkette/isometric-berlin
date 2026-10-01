@@ -4109,6 +4109,126 @@
       "description": "Opposing inward whitewashed brick-wall face and park/guard-house relation; text not reproduced",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "concert_halls",
+      "title": "File:Kammermusiksaal.Philharmonie.Berlin.Detail.Fassade.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kammermusiksaal.Philharmonie.Berlin.Detail.Fassade.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Membeth",
+      "credit": "Membeth / CC0",
+      "description": "v1.0.60 non-bundled visual reference: silver-grey tent roofs, gold vertically jointed cladding, white low foyers and framed main-entrance glazing. Metric geometry exclusively official Berlin LoD2/OSM.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "concert_halls",
+      "title": "File:Philharmonie, Berlin, 170518, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Philharmonie,_Berlin,_170518,_ako.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng / CC BY-SA 4.0",
+      "description": "v1.0.60 non-bundled visual reference: silver-grey tent roofs, gold vertically jointed cladding, white low foyers and framed main-entrance glazing. Metric geometry exclusively official Berlin LoD2/OSM.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "concert_halls",
+      "title": "File:Philharmonie und Kammermusiksaal Berlin - von oben.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Philharmonie_und_Kammermusiksaal_Berlin_-_von_oben.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Raimond Spekking / CC BY-SA 4.0",
+      "description": "v1.0.60 non-bundled visual reference: silver-grey tent roofs, gold vertically jointed cladding, white low foyers and framed main-entrance glazing. Metric geometry exclusively official Berlin LoD2/OSM.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hauptbahnhof_north_approach",
+      "title": "File:I09 094 Nord-Süd-Fernbahntunnel, Nordportal.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:I09_094_Nord-S%C3%BCd-Fernbahntunnel,_Nordportal.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Falk2",
+      "credit": "Falk2 / CC BY-SA 3.0",
+      "description": "Open northern mainline tunnel mouth, concrete wing walls and catenary; dimensions remain display estimates.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hauptbahnhof_north_approach",
+      "title": "File:I09 096 Nord-Süd-Fernbahntunnel, Nordportal.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:I09_096_Nord-S%C3%BCd-Fernbahntunnel,_Nordportal.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Falk2",
+      "credit": "Falk2 / CC BY-SA 3.0",
+      "description": "Open northern mainline tunnel mouth, concrete wing walls and catenary; dimensions remain display estimates.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "concert_halls",
+      "title": "File:Kammermusiksaal.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kammermusiksaal.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Renya66",
+      "credit": "Renya66 / CC BY-SA 4.0",
+      "description": "v1.0.60 inspected visual reference: chamber west entrance open white canopy, recessed glazed doors, inclined foyer glass and white stair tower. No image bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "concert_halls",
+      "title": "File:Philharmonie Berlin Kammermusiksaal 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Philharmonie_Berlin_Kammermusiksaal_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "description": "v1.0.60 inspected visual reference: chamber west entrance open white canopy, recessed glazed doors, inclined foyer glass and white stair tower. No image bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "kunstgewerbemuseum",
+      "title": "File:Kunstgewerbemuseum Berlin Kulturforum entrance.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kunstgewerbemuseum_Berlin_Kulturforum_entrance.jpg",
+      "artist": "Marsupium",
+      "credit": "Marsupium / CC0-1.0",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "description": "Brick/concrete fields, silver metal and glazed recessed visitor entrance; 2016 reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "gemaeldegalerie",
+      "title": "File:Gemäldegalerie am Kulturforum Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Gem%C3%A4ldegalerie_am_Kulturforum_Berlin.JPG",
+      "artist": "Oursana",
+      "credit": "Oursana / CC0-1.0",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "description": "Pale jointed shared entrance wall and framed tall glass; 2015 reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "gemaeldegalerie",
+      "title": "File:TiergartenSigismundstraße-2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TiergartenSigismundstra%C3%9Fe-2.jpg",
+      "artist": "Fridolin freudenfett / Peter Kuley",
+      "credit": "Fridolin freudenfett / Peter Kuley / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "description": "Gallery street facade: rusticated base and stone-filled blind upper windows; 2011 reference only"
     }
   ]
 }

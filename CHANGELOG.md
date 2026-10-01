@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.60
+
+- Step 10: restore Philharmonie and Kammermusiksaal's complete official wall and shaped roof surfaces, silver roof material, gold panel joints and source-anchored foyer entrances.
+- Refine Musikinstrumenten-Museum entrances and oval window rims while retaining its complete roofs; replace coarse Kunstgewerbemuseum and Gemäldegalerie display boxes with retained source shells, distinct facade materials and corrected absolute roof heights.
+- Add the mapped northern Hauptbahnhof railway cuts, open tunnel mouths, retaining walls and Döberitzer Grünzug paths. Preserve exact terrain outside the cuts and keep unmeasured grades explicitly approximate.
+- Match roof and terrain navigation to the revised surfaces; retain full mobile drawn detail, separate native Minecraft models and existing mobile memory safeguards.
+
 ## v1.0.59
 
 - Steps 1/3/10: expand the owner-approved scope from 31.285 to 81.457 km², retaining the exact previous polygon and every existing detailed city source. Add all of official Moabit/Prenzlauer Berg and finite western, southern and eastern outline lobes.

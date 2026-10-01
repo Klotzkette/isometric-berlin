@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { LineSegments, Mesh } from "three";
+import { Group, LineSegments, Mesh, Object3D } from "three";
 
 import {
   createLetteringTexture,
@@ -7,6 +7,8 @@ import {
   letteringStrokePaths,
 } from "../src/drawnLettering";
 import { createExpandedCityDetails } from "../src/ExpandedCityDetails";
+import { createConcertHalls } from "../src/ConcertHalls";
+import { createKulturforumMuseums } from "../src/KulturforumMuseums";
 
 const KULTURFORUM_ENTRANCE_LABELS = [
   "PHILHARMONIE",
@@ -116,11 +118,13 @@ describe("shared drawn alphabet", () => {
     ).json() as { landmarks: Parameters<typeof createExpandedCityDetails>[0] };
     expect(manifest.landmarks.length).toBeGreaterThan(0);
     for (const detailProfile of ["full", "mobile"] as const) {
-      const details = createExpandedCityDetails(manifest.landmarks, { detailProfile });
+      const details = new Group();
+      details.add(createExpandedCityDetails(manifest.landmarks, { detailProfile }));
+      details.add(createConcertHalls(), createKulturforumMuseums());
       try {
         for (const label of KULTURFORUM_ENTRANCE_LABELS) {
           const sign = details.getObjectByName(`${label} entrance lettering`);
-          expect(sign).toBeInstanceOf(Mesh);
+          expect(sign).toBeInstanceOf(Object3D);
           expect(sign?.userData.lettering).toBe(label);
           expect(sign?.userData.kulturforumEntrance).toBeTrue();
         }

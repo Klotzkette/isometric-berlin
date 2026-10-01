@@ -3474,6 +3474,9 @@ function ensureIsoWorld(
   const ulapDetails = import("./UlapPark");
   const ulapQuarterDetails = import("./UlapQuarter");
   const moabitHouseDetails = import("./MoabitGuardHouses");
+  const concertDetails = import("./ConcertHalls");
+  const kulturforumMuseumDetails = import("./KulturforumMuseums");
+  const northRailDetails = import("./HbfNorthApproach");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3491,8 +3494,11 @@ function ensureIsoWorld(
     udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
     towerDetails, alexanderCivicDetails, alexanderPublicDetails,
     leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails, bikiniDetails, ulapDetails, ulapQuarterDetails, moabitHouseDetails,
+    concertDetails,
+    kulturforumMuseumDetails,
+    northRailDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3734,6 +3740,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            includeKulturforumAndNorthRail: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             retainRasterAsphalt: false,
@@ -3765,9 +3772,15 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(moabitHouses.createMoabitGuardHouses());
         isoWorld.add(ulapQuarter.createUlapQuarter());
+        yield;
+        isoWorld.add(concert.createConcertHalls());
+        yield;
+        isoWorld.add(kulturforumMuseums.createKulturforumMuseums());
         if (ground) {
           const sample = smoothGroundTopSampler(ground);
           isoWorld.add(ulap.createUlapPark((x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
+          yield;
+          isoWorld.add(northRail.createHbfNorthApproach((x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
         }
         yield;
         isoWorld.add(createGorkiBuilding());

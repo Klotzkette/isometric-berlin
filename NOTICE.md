@@ -17,6 +17,21 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Kulturforum and northern railway (v1.0.60):** Berlin LoD2 supplies the
+  retained complete concert-hall and museum shells. OpenStreetMap anchors the
+  entrances, rail courses, tunnel mouths, Döberitzer Grünzug and its paths.
+  Grün Berlin distinguishes the opened green corridor from later works.
+  Photographs by Membeth (CC0), Ansgar Koreng, Raimond Spekking and Renya66
+  (CC BY-SA 4.0), and Manfred Brückels (CC BY-SA 3.0) guide concert-hall
+  materials and recognition details. Museum references are by Marsupium and
+  Oursana (CC0) and Fridolin freudenfett / Peter Kuley (CC BY-SA 3.0);
+  Falk2 (CC BY-SA 3.0) guides the open northern mainline portal.
+  Per-file credits are mirrored in the Wikimedia manifests. Rail grades,
+  structural member sizes and fine facade subdivisions remain display
+  estimates. Original sources and exact terrain outside the railway cuts are
+  retained. No photograph or photographic texture is bundled or loaded.
+  See the [source and release review](docs/release-v1.0.60-review.md).
+
 - **Bounded surrounding-city outlines (v1.0.59):** 85 official Berlin LoD2
   kilometre tiles supply 37,556 parent footprints and vertical source
   envelopes outside the retained v1.0.58 city. The Geofabrik Berlin extract

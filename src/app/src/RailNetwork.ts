@@ -1,3 +1,4 @@
+import { HBF_NORTH_APPROACH_SOURCE } from './HbfNorthApproachProfile';
 import { HBF_BEARING_SUPPORT_PROFILE, isHbfBearingSupport, planHbfBearingSupport } from "./HauptbahnhofBearingSupports";
 /**
  * The aboveground railway: the Stadtbahn viaduct east and west of the
@@ -387,16 +388,20 @@ export function createRailNetwork(
     addTrack(builder, path, () => deckRailTop);
   }
 
-  for (const surface of payload.embankment) {
-    addPlate(builder, surface, BALLAST_TONE, BALLAST_LIFT_M, sample);
+  for (const [index, surface] of payload.embankment.entries()) {
+    const replacements=HBF_NORTH_APPROACH_SOURCE.rail_surface_replacements as Record<string,RailSurface[]>;
+    for(const part of replacements[String(index)] ?? [surface])addPlate(builder, part, BALLAST_TONE, BALLAST_LIFT_M, sample);
   }
-  for (const path of payload.embankment_tracks) {
+  const replacements=HBF_NORTH_APPROACH_SOURCE.rail_track_replacements as Record<string,number[][][]>;
+  for (const [index, original] of payload.embankment_tracks.entries()) {
+   for(const path of replacements[String(index)] ?? [original]){
     addTrack(builder, path, (x, z) => {
       const foot = sample(x, z);
       return foot === null
         ? null
         : foot + BALLAST_LIFT_M + payload.rail_top_over_deck_m;
     });
+   }
   }
 
   if (builder.parts.length === 0) {

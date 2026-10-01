@@ -849,6 +849,39 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "concert_halls_v160",
+      "anchor_source": "Retained official Berlin LoD2 walls, roofs and both entrance canopies; OSM entrance nodes; freely licensed reference photographs",
+      "geometry_ref": "src/app/src/data/concertHallsSource.json",
+      "documentation_ref": "docs/concert-halls-v160.md",
+      "conflicts": [
+        "Former flat gold roof caps and broad misplaced facade screens conflicted with source roof planes and reference photographs. Complete official surfaces now own the listed source identities. The thin entrance-canopy source envelope must remain open beneath its retained roof; fine facade subdivisions remain display estimates."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "kulturforum_museums_v160",
+      "anchor_source": "Three complete official LoD2 museum bodies, existing fifteen-part Musikinstrumenten-Museum; official architecture descriptions, DOP and licensed references",
+      "geometry_ref": "src/app/src/kulturforumMuseumsSource.json",
+      "documentation_ref": "docs/kulturforum-museums-v160.md",
+      "conflicts": [
+        "Former display boxes added basement height above street level and used generic materials. Retain source data, interpret absolute NHN roof heights, restore referenced rooflights and material distinctions; source-flat Kunstgewerbemuseum roof remains explicitly coarse."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "hbf_north_approach_v160",
+      "anchor_source": "Current OSM portal transitions, retaining walls, rail tracks, park, paths and benches; official DOP and Grün Berlin; licensed portal references",
+      "geometry_ref": "src/app/src/data/hbfNorthApproachSources.json",
+      "documentation_ref": "docs/hbf-north-approach-v160.md",
+      "conflicts": [
+        "Generic at-grade rails and raster terrain closed the real northern open cuts. Replace only the bounded source-aligned approach, retain exact outside terrain and old rail fragments. Vertical grades, missing east wall offset and member dimensions are labelled presentation estimates, not an engineering survey."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

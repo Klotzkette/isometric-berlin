@@ -56,6 +56,8 @@ import { isPalacesUdlReplacementColumn } from "./palacesUdlProfile";
 import { createMinecraftJamesSimonArchitecture } from "./JamesSimonArchitecture";
 import { isJamesSimonReplacementColumn } from "./jamesSimonProfile";
 import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
+import { restoreHbfNorthRailGroundOwnership } from "./HbfNorthRailGroundOwnership";
+import { createHbfNorthApproach } from "./HbfNorthApproach";
 import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
@@ -105,6 +107,10 @@ import { createMinecraftSovietMemorial } from "./MinecraftSovietMemorial";
 import { createComposerMemorialMinecraft } from "./MusicComposerMemorial";
 import { createMinecraftMuseumLenneArchitecture } from "./MuseumLenneArchitecture";
 import { musicMuseumReplacementColumn } from "./museumLenneProfile";
+import { createMinecraftConcertHalls } from "./ConcertHalls";
+import { concertHallSourceColumn } from "./concertHallsProfile";
+import { createMinecraftKulturforumMuseums } from "./KulturforumMuseums";
+import { kulturforumMuseumReplacementColumn } from "./kulturforumMuseumsProfile";
 import { createMinecraftHbfBearingSupports } from "./HauptbahnhofBearingSupports";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
@@ -2722,7 +2728,12 @@ export function* buildMinecraftVoxelWorldSteps(
       skipBridgeAtWorld: (x, z) => isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
     });
   restoreJamesSimonGroundOwnership(groundSlabs, payload);
+  restoreHbfNorthRailGroundOwnership(groundSlabs, payload);
   group.add(groundSlabs);
+  yield;
+  group.add(createHbfNorthApproach((x, z) => parkGround(
+    x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx,
+  ), true));
   yield;
   group.add(createMinecraftSpreebogenPark(payload, { mobileLike: mobileDetail }));
   yield;
@@ -2839,6 +2850,10 @@ export function* buildMinecraftVoxelWorldSteps(
 
   group.add(createMinecraftHbfBearingSupports(worldGroundSampler(payload)));
   group.add(createMinecraftMuseumLenneArchitecture(options.sourcePrisms ? { buildings: options.sourcePrisms.map(p => ({...p,class:0})) } : undefined, {voxels:payload,mobileLike:options.detailProfile === "mobile"}));
+  yield;
+  group.add(createMinecraftConcertHalls());
+  yield;
+  group.add(createMinecraftKulturforumMuseums());
   group.add(createLuisenCorridorArchitecture({ sourcePrisms: options.sourcePrisms, minecraft: true, mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftBoellStiftungArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftBundesratArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2908,6 +2923,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !isGedaechtniskircheReplacementCell(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !isLeipzigerMallPassageColumn(worldXAbs(xIdx), worldZAbs(zIdx), cell / 2) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
+      !concertHallSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell / 2) &&
+      !kulturforumMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
