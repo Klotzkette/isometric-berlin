@@ -21,6 +21,7 @@ type Snapshot = readonly unknown[];
 type GpuResource = BufferGeometry | Material | InstancedMesh;
 
 export type SceneGpuWarmup = {
+  /** Register new/reinserted subtrees, including lights below hidden ancestors. */
   enqueue: (root: Object3D) => void;
   /** Wake dormant mobile candidates only when the view or projection changes. */
   refreshView: () => void;
@@ -109,6 +110,16 @@ export function createSceneGpuWarmup(
   let observedFrame = -1;
   let observedContext: Snapshot = [];
   let disposed = false;
+  // Shader variants depend on a small light rig, not the thousands of city
+  // meshes. Discover lights only when ownership changes; current ancestry and
+  // layers are still checked at every context snapshot below.
+  const knownLights = new Set<Object3D>();
+  const discoverLights = (root: Object3D): void => {
+    root.traverse(object => {
+      if ((object as Object3D & { isLight?: boolean }).isLight) knownLights.add(object);
+    });
+  };
+  discoverLights(scene);
 
   const refreshView = (): void => {
     if (disposed || !options.viewLocal) return;
@@ -147,11 +158,17 @@ export function createSceneGpuWarmup(
 
   const context = (): Snapshot => {
     const lights: unknown[] = [];
-    scene.traverseVisible((object) => {
-      if ((object as Object3D & { isLight?: boolean }).isLight && object.layers.test(camera.layers)) {
-        lights.push(object.type, object.castShadow);
+    for (const object of knownLights) {
+      if (!object.layers.test(camera.layers)) continue;
+      for (let parent: Object3D | null = object; parent; parent = parent.parent) {
+        if (!parent.visible) break;
+        if (parent === scene) {
+          // Three tests the light's layer, but does not inherit parent layers.
+          lights.push(object.type, object.castShadow);
+          break;
+        }
       }
-    });
+    }
     return [scene.fog, scene.environment, scene.overrideMaterial,
       renderer.shadowMap.enabled, renderer.shadowMap.type,
       renderer.localClippingEnabled, renderer.clippingPlanes.length,
@@ -237,6 +254,8 @@ export function createSceneGpuWarmup(
     // Enqueue also marks authored visibility/material changes. Reconsider
     // already queued objects even when the camera itself has not moved.
     viewCandidatesRemaining = queue.length;
+    discoverLights(root);
+    observedFrame = -1;
     const state = context();
     root.traverseVisible((object) => {
       if (!renderable(object) || !active(object, scene, camera)) return;
@@ -256,7 +275,9 @@ export function createSceneGpuWarmup(
   };
 
   const release = (root: Object3D): void => {
+    observedFrame = -1;
     root.traverse((object) => {
+      knownLights.delete(object);
       if (!renderable(object)) return;
       warmed.delete(object);
       queued.delete(object);
@@ -418,6 +439,7 @@ export function createSceneGpuWarmup(
       for (const object of renderHooks.keys()) restoreRenderHook(object);
       for (const [resource, listener] of watched) (resource as BufferGeometry).removeEventListener("dispose", listener);
       watched.clear();
+      knownLights.clear();
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
       target.dispose();
     },

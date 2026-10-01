@@ -1,6 +1,6 @@
 import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Line, Points } from "three";
 import {
-  createSurroundingCityChunk, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
+  createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
 } from "./SurroundingCityGeometry";
 import type { VisualMode } from "./visualMode";
@@ -258,10 +258,14 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         try {
           const data = await fetchJsonBounded(fetcher, new URL(asset.url, options.manifestUrl), task.signal, asset.bytes + 64, asset);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
-          const entry = createSurroundingCityChunk(data as SurroundingCityChunk, descriptor.id, minecraft);
+          const entry = await createSurroundingCityChunkCooperatively(
+            data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
+          );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.
-          if (disposed || familyRevision !== revision) { release(entry.root); unpublished = null; continue; }
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) {
+            release(entry.root); unpublished = null; continue;
+          }
           options.onAttach?.(entry.root, mode);
           if (disposed || familyRevision !== revision) { release(entry.root); unpublished = null; continue; }
           residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now() });

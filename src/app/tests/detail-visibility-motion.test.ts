@@ -12,6 +12,7 @@ import {
 } from "../src/MinecraftVisibility";
 import { createSonyCenterSurroundings } from "../src/SonyCenterSurroundings";
 import { createWilhelmStresemannDetails } from "../src/WilhelmStresemannDetails";
+import { isEuropaCenterStarTarget, updateEuropaCenterStars } from "../src/CityWestDetails";
 
 const source = await Bun.file(
   process.env.DETAIL_VISIBILITY_REFERENCE ?? new URL("../src/ThreeViewer.tsx", import.meta.url),
@@ -47,6 +48,8 @@ const bindings = {
   // object-visibility contract; collection and frame decisions run unchanged.
   isBerlinerEnsembleRoofSignTarget: () => false,
   updateBerlinerEnsembleRoofSign: () => {},
+  isEuropaCenterStarTarget,
+  updateEuropaCenterStars,
   assignStableInkRenderOrder: () => {},
   stabilizeInkLineMaterial: (material: LineBasicMaterial) => {
     material.transparent = true;
@@ -73,6 +76,7 @@ function host() {
     farZoomAntiFlickerViewportHeightPx: Number.NaN,
     farZoomAntiFlickerCameraPosition: new Vector3(Number.NaN, Number.NaN, Number.NaN),
     berlinerEnsembleRoofSignTargets: [], berlinerEnsembleRoofSignElapsedSeconds: 0,
+    europaCenterStarTargets: [], europaCenterStarElapsedSeconds: 0,
   };
   return {
     runtime,

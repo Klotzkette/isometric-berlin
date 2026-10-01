@@ -53,6 +53,23 @@ def test_orbit_path_is_closed_and_independent_of_event_rate() -> None:
     assert 395 <= y <= 505
 
 
+def test_touch_orbit_scales_desktop_path_inside_the_phone_viewport() -> None:
+  viewport = profile.TOUCH_VIEWPORT
+  assert viewport == (390, 844)
+  assert profile.pointer_position(0, 6, viewport) == (195, 422)
+  assert profile.pointer_position(6, 6, viewport) == pytest.approx((195, 422))
+  assert profile.pointer_position(7, 6, viewport) == pytest.approx((195, 422))
+  for step in range(601):
+    desktop = profile.pointer_position(step / 100, 6)
+    phone = profile.pointer_position(step / 100, 6, viewport)
+    assert 0 < phone[0] < viewport[0]
+    assert 0 < phone[1] < viewport[1]
+    assert phone == pytest.approx((desktop[0] * 390 / 1440, desktop[1] * 844 / 900))
+  assert profile.pointer_position(1.5, 6, viewport) == pytest.approx(
+    profile.pointer_position(3, 12, viewport)
+  )
+
+
 def test_panorama_exercises_far_view_without_exceeding_viewer_camera_limit() -> None:
   import math
 

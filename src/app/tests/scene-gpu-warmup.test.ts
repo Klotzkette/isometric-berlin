@@ -1,9 +1,9 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, Color, DirectionalLight,
   Frustum, Group, InstancedMesh, Line, LineBasicMaterial, LineSegments,
   Matrix4, Mesh, MeshBasicMaterial,
-  OrthographicCamera, PerspectiveCamera, Scene, Vector4, WebGLRenderTarget,
+  OrthographicCamera, PerspectiveCamera, PointLight, Scene, Vector4, WebGLRenderTarget,
   type Camera, type Object3D, type WebGLRenderer,
 } from "three";
 import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
@@ -709,6 +709,72 @@ describe("offscreen GPU residency without geometry changes", () => {
     expect(h.warmup.warmNext()).toBe(1); expect(h.warmup.pending).toBeFalse();
     expect(h.calls.every((call) => call.vertices === 0)).toBeTrue();
     h.warmup.dispose();
+  });
+
+  test("light context follows hidden ancestors, own layers and shadow flags without a city scan", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const light = new DirectionalLight(), initiallyHidden = new Group();
+    initiallyHidden.visible = false; initiallyHidden.add(light); scene.add(mesh, initiallyHidden);
+    const h = host(scene, camera);
+    const prepare = () => { h.warmup.enqueue(mesh); expect(h.warmup.warmNext()).toBe(1); };
+    const unchanged = () => { h.warmup.enqueue(mesh); expect(h.warmup.pending).toBeFalse(); };
+    const cityScan = spyOn(scene, "traverseVisible");
+    try {
+      prepare(); unchanged();
+      initiallyHidden.visible = true; prepare();
+      light.castShadow = true; prepare();
+      light.layers.set(2); prepare();
+      light.castShadow = false; unchanged(); // Inactive light cannot change the shader variant.
+      light.layers.set(0); prepare();
+      initiallyHidden.layers.set(3); unchanged(); // Parent layers are not inherited by lights.
+      initiallyHidden.visible = false; prepare();
+      initiallyHidden.visible = true; prepare();
+      expect(cityScan).not.toHaveBeenCalled();
+    } finally { cityScan.mockRestore(); h.warmup.dispose(); }
+  });
+
+  test("new, released, detached and reparented light subtrees keep exact context ownership", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(mesh);
+    const h = host(scene, camera);
+    const prepare = () => { h.warmup.enqueue(mesh); expect(h.warmup.warmNext()).toBe(1); };
+    const unchanged = () => { h.warmup.enqueue(mesh); expect(h.warmup.pending).toBeFalse(); };
+    prepare();
+    const rig = new Group(), light = new PointLight(); rig.add(light); scene.add(rig);
+    h.warmup.enqueue(rig); prepare(); unchanged();
+    const hidden = new Group(); hidden.visible = false; scene.add(hidden);
+    hidden.add(light); prepare();
+    rig.add(light); prepare();
+    scene.remove(rig); prepare(); // A cached light outside this scene is inactive.
+    scene.add(rig); prepare();
+    h.warmup.release(rig); scene.remove(rig); prepare(); unchanged();
+    // Reinsertions notify enqueue just like newly published districts.
+    scene.add(rig); h.warmup.enqueue(rig); prepare();
+    h.warmup.release(rig); scene.remove(rig); prepare();
+    const replacement = new Group(); replacement.add(new DirectionalLight()); scene.add(replacement);
+    h.warmup.enqueue(replacement); prepare();
+    h.warmup.dispose();
+  });
+
+  test("ordinary upload observation does not traverse all city nodes to rediscover lights", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(mesh, new DirectionalLight());
+    const initialScan = spyOn(scene, "traverse");
+    const h = host(scene, camera);
+    expect(initialScan).toHaveBeenCalledTimes(1);
+    initialScan.mockClear();
+    const visibleScan = spyOn(scene, "traverseVisible");
+    try {
+      for (let frame = 0; frame < 3; frame++) {
+        mesh.geometry.getAttribute("position").needsUpdate = true;
+        h.warmup.enqueue(mesh); h.renderer.render(scene, camera);
+        expect(h.warmup.pending).toBeFalse();
+      }
+      expect(initialScan).not.toHaveBeenCalled();
+      expect(visibleScan).not.toHaveBeenCalled();
+      h.warmup.enqueue(mesh); expect(h.warmup.pending).toBeFalse();
+    } finally { initialScan.mockRestore(); visibleScan.mockRestore(); h.warmup.dispose(); }
   });
 
   test("installed Three keeps upload/program/index preparation ahead of zero-count drawing", async () => {

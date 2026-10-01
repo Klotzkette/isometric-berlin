@@ -402,7 +402,7 @@ describe("idle-frame anti-flicker contract", () => {
 
   test("does not clone or reveal deferred park details behind voxels", () => {
     const deferredPark = viewerSource.slice(
-      viewerSource.indexOf("const details = createParkDetails("),
+      viewerSource.indexOf("const options = {\n                    pathTerrainAt: runtime.districtPathTerrainAt"),
       viewerSource.indexOf("runtime.tunnel = createTunnel("),
     );
     expect(deferredPark).toContain("const voxelMode = voxelModeActive(runtime)");
@@ -413,8 +413,8 @@ describe("idle-frame anti-flicker contract", () => {
       'runtime.lightingMode === "minecraft" &&',
     );
     expect(deferredPark).toContain("!voxelMode");
-    expect(deferredPark).toContain(
-      'detailProfile: runtime.coarsePointer ? "mobile" : "full"',
+    expect(deferredPark).toMatch(
+      /detailProfile: runtime\.coarsePointer \? "mobile"(?: as const)? : "full"/,
     );
     expect(viewerSource).toContain("releaseMinecraftMaterialBindings(");
     expect(viewerSource).toContain("const hiddenHeavyRoots");

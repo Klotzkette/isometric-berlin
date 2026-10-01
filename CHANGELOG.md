@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.62 — Lossless viewer performance
+
+- Batch the same immutable park instances more efficiently and share identical
+  primitive vertices without changing triangle order, colours or source detail.
+- Reuse static landmark transforms while retaining animated flags and normal
+  parent transform propagation.
+- Prepare desktop GPU resources around the view during input pauses and avoid
+  repeated whole-scene light scans. Preserve the mobile memory safeguards.
+- Decode and assemble surrounding-city packets in cancellable, bounded work
+  slices; publish only complete geometry belonging to the current view/mode.
+- Split deferred park-path construction into interruptible steps and accelerate
+  exact district-boundary checks without moving or simplifying any path.
+- Preserve all data files, geometry coverage, resolution, viewing distance,
+  lighting, animation and movement settings. See the measured performance review.
+
 ## v1.0.61 — City West and Karl-Marx-Allee
 
 - Refine the source-bound Zoofenster/Waldorf Astoria and Upper West silhouettes

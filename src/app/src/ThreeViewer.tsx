@@ -5983,6 +5983,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(marker);
       const signatures = new Group();
       signatures.name = "Dimensioned architectural signatures";
+      // This fixed identity wrapper must not force all immutable landmark
+      // descendants to recompute their world matrices on every render pass.
+      signatures.matrixAutoUpdate = false;
       scene.add(signatures);
       const potsdamerTrafficTower = createPotsdamerTrafficTower(undefined, { mobileLike: coarsePointer });
       signatures.add(potsdamerTrafficTower);
@@ -6185,15 +6188,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.gpuResidency.enqueue(scene);
         runtime.geometryResidency.enqueue(scene);
       } else {
-        runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera);
+        runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, { viewLocal: true });
       }
       let gpuWarmupTimer: number | null = null;
+      let gpuWarmupInteractionUntil = 0;
       runtime.scheduleGpuWarmup = () => {
         if (disposed || document.hidden || !activeRef.current ||
           gpuWarmupTimer !== null || !runtime.gpuWarmup?.pending) return;
         gpuWarmupTimer = window.setTimeout(() => {
           gpuWarmupTimer = null;
           if (disposed || document.hidden || !activeRef.current) return;
+          // Ordinary rendering always uploads visible data. Speculative
+          // preparation should use pauses, not compete with a held joystick.
+          if (performance.now() < gpuWarmupInteractionUntil || browserInputPending()) {
+            runtime.scheduleGpuWarmup?.();
+            return;
+          }
           try {
             runtime.gpuWarmup?.warmNext();
           } catch (error: unknown) {
@@ -7606,6 +7616,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               Math.abs(pedestrianInput.turn) > 1e-6 ||
               Math.abs(pedestrianInput.look) > 1e-6 ||
               runtime.pedestrian.state?.grounded === false));
+        if (continuousInputActive) gpuWarmupInteractionUntil = timestamp + 80;
         let passiveFrameIntervalMs = Number.POSITIVE_INFINITY;
         const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&
           isBerlinerEnsembleRoofSignOnScreen(runtime.europaCenterStarTargets, camera, europaStarScreenScratch);

@@ -36,6 +36,7 @@ import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionP
 import { createLenneOak, isLenneOakTree } from "./LenneOak";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { partitionStaticSpatialInstancesSteps } from "./staticSpatialInstances";
+import { indexGeometryExactly } from "./exactGeometryIndex";
 import { completeCooperatively } from "./cooperativeWork";
 import {
   inPotsdamerPanoramaLandscape,
@@ -583,8 +584,17 @@ export type ParkDetailOptions = {
   pathTerrainAt?: ParkPathTerrainAt;
   detailProfile?: ParkDetailProfile;
   settledDetail?: boolean;
+  /** Immutable batching only: all authored instances retain exact matrices/colors. */
+  spatialCellM?: number;
+  /** Construction audit override; the default retains all attribute bits/order. */
+  exactPrimitiveIndex?: boolean;
   tunnel?: TunnelPortalPayload | null;
 };
+
+// Wider cells amortize driver submissions in the isometric panorama. Their
+// conservative bounds still cull offscreen batches; no instance or detail is
+// removed, and touch/pointer devices use the same complete authored geometry.
+export const PARK_STATIC_INSTANCE_CELL_M = 512;
 
 const UP = new Vector3(0, 1, 0);
 const PATH_STYLE: Record<string, { color: number; width: number }> = {
@@ -877,6 +887,19 @@ export function createPathGeometry(
   width: number | ((path: ParkPath) => number),
   terrainAt?: ParkPathTerrainAt,
 ): BufferGeometry {
+  const steps = createPathGeometrySteps(paths, width, terrainAt);
+  for (;;) {
+    const next = steps.next();
+    if (next.done) return next.value;
+  }
+}
+
+/** Same ribbon buffers/order, with pauses before allocating GPU resources. */
+function* createPathGeometrySteps(
+  paths: ParkPath[],
+  width: number | ((path: ParkPath) => number),
+  terrainAt?: ParkPathTerrainAt,
+): Generator<void, BufferGeometry> {
   const positions: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
@@ -950,6 +973,9 @@ export function createPathGeometry(
         distanceAlong,
         resolvedWidth / 2,
       );
+      // Terrain sampling can include exact source-polygon tests. Bound that
+      // work even for a long individual path, not only between material sets.
+      if ((index + 1) % 64 === 0) yield;
     }
     for (let index = 0; index < points.length - 1; index += 1) {
       const left = offset + index * 2;
@@ -958,6 +984,7 @@ export function createPathGeometry(
       const nextRight = left + 3;
       indices.push(left, right, nextRight, left, nextRight, nextLeft);
     }
+    yield;
   }
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
@@ -969,19 +996,21 @@ export function createPathGeometry(
   return geometry;
 }
 
-function addPaths(
+function* addPathsSteps(
   group: Group,
   paths: ParkPath[],
   encodedWidthScaleM: number,
   includeTextures = true,
   pathTerrainAt?: ParkPathTerrainAt,
-): void {
+): Generator<void> {
   const byKind = new Map<string, ParkPath[]>();
+  let grouped = 0;
   for (const path of paths) {
     const kind = path.m ? `material:${path.m}` : pathCategory(path.kind);
     const entries = byKind.get(kind);
     if (entries) entries.push(path);
     else byKind.set(kind, [path]);
+    if (++grouped % 256 === 0) yield;
   }
   for (const [kind, entries] of byKind) {
     const materialCode = kind.startsWith("material:")
@@ -990,19 +1019,21 @@ function addPaths(
     const resolvedCode =
       materialCode ?? SEMANTIC_PATH_MATERIAL[kind] ?? "g";
     const materialStyle = PATH_MATERIAL_STYLE[resolvedCode];
-    const pathMaterial = parkPathMaterial(resolvedCode, includeTextures);
-    const mesh = new Mesh(
-      createPathGeometry(entries, (path) =>
+    const geometry = yield* createPathGeometrySteps(
+      entries,
+      (path) =>
         path.w
           ? path.w * encodedWidthScaleM
           : PATH_STYLE[pathCategory(path.kind)].width,
-        pathTerrainAt,
-      ),
-      pathMaterial,
+      pathTerrainAt,
     );
+    // No yield between resource allocation and attaching the mesh: on
+    // cancellation the caller owns every created resource through this root.
+    const mesh = new Mesh(geometry, parkPathMaterial(resolvedCode, includeTextures));
     mesh.name = `Berlin park ${materialStyle?.label ?? kind} batched path ribbons`;
     mesh.receiveShadow = true;
     group.add(mesh);
+    yield;
   }
 }
 
@@ -2780,7 +2811,7 @@ function* createParkDetailsSteps(
     signatureTreeCount: lenneOak ? 1 : 0,
     treeCount: trees.length,
   };
-  addPaths(
+  yield* addPathsSteps(
     group,
     payload.paths,
     payload.schema_version >= 7 ? 0.01 : 0.1,
@@ -2834,7 +2865,20 @@ function* createParkDetailsSteps(
     addPlaygrounds(group, payload.playgrounds);
   }
   yield;
-  yield* partitionStaticSpatialInstancesSteps(group);
+  if (options.exactPrimitiveIndex !== false) {
+    const indexed = new Set<BufferGeometry>();
+    group.traverse(object => {
+      if (!(object instanceof InstancedMesh) || indexed.has(object.geometry)) return;
+      // Only static instanced primitives are changed. Exact indexing merges
+      // byte-identical complete vertex records, retaining normals, UV seams,
+      // triangle order and bounds while allowing post-transform vertex reuse.
+      indexed.add(object.geometry);
+      indexGeometryExactly(object.geometry);
+    });
+  }
+  yield* partitionStaticSpatialInstancesSteps(group, {
+    cellM: options.spatialCellM ?? PARK_STATIC_INSTANCE_CELL_M,
+  });
   return freezeStaticSceneTransforms(group);
 }
 

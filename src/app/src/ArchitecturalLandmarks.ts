@@ -49,6 +49,7 @@ import { QUADRIGA_DIMENSIONS, createQuadriga } from "./Quadriga";
 import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS } from "./HeroArchitectureEvidence";
 import { createDedicationTexture } from "./reichstagInscription";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
+import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import {
   HAUPTBAHNHOF_ACCESS,
   hauptbahnhofDoorOpeningAt,
@@ -7204,6 +7205,55 @@ function pointAtDistance(
   return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t };
 }
 
+export const HAUPTBAHNHOF_TRACK_REPEAT_NAMES = [
+  "Hauptbahnhof upper-level rail",
+  "Hauptbahnhof upper platform",
+  "Hauptbahnhof east-west elevated track deck",
+] as const;
+export const HAUPTBAHNHOF_TRACK_INSTANCE_CELL_M = 48;
+
+/** Batch only constructor-owned, identical opaque track boxes; ink stays intact. */
+export function instanceHauptbahnhofTrackRepeats(group: Group): void {
+  const names = new Set<string>(HAUPTBAHNHOF_TRACK_REPEAT_NAMES);
+  const cells = new Map<string, Mesh<BoxGeometry, MeshStandardMaterial>[]>();
+  for (const object of group.children) {
+    if (!(object instanceof Mesh) || object instanceof InstancedMesh ||
+        !names.has(object.name) || !(object.geometry instanceof BoxGeometry) ||
+        !(object.material instanceof MeshStandardMaterial) || object.material.transparent ||
+        object.children.length || Object.keys(object.userData).length) continue;
+    const key = [object.name, Math.floor(object.position.x / HAUPTBAHNHOF_TRACK_INSTANCE_CELL_M),
+      object.material.uuid, JSON.stringify(object.geometry.parameters),
+      object.castShadow, object.receiveShadow, object.visible, object.layers.mask,
+      object.renderOrder, object.frustumCulled].join("|");
+    const cell = cells.get(key) ?? [];
+    cell.push(object as Mesh<BoxGeometry, MeshStandardMaterial>);
+    cells.set(key, cell);
+  }
+  for (const objects of cells.values()) {
+    if (objects.length < 2) continue;
+    const first = objects[0];
+    const batch = new InstancedMesh(first.geometry, first.material, objects.length);
+    batch.name = first.name;
+    batch.castShadow = first.castShadow;
+    batch.receiveShadow = first.receiveShadow;
+    batch.visible = first.visible;
+    batch.layers.mask = first.layers.mask;
+    batch.renderOrder = first.renderOrder;
+    batch.frustumCulled = first.frustumCulled;
+    batch.userData.stationTrackSourceParts = objects.length;
+    objects.forEach((object, index) => {
+      object.updateMatrix();
+      batch.setMatrixAt(index, object.matrix);
+      group.remove(object);
+      if (object.geometry !== first.geometry) object.geometry.dispose();
+    });
+    batch.instanceMatrix.needsUpdate = true;
+    batch.computeBoundingBox();
+    batch.computeBoundingSphere();
+    group.add(batch);
+  }
+}
+
 function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const group = new Group();
   group.name = "Metre-scale Berlin Hauptbahnhof recognition model";
@@ -7520,6 +7570,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     signature.north_south_hall_length_m,
     signature.office_bridge_height_m,
   );
+  instanceHauptbahnhofTrackRepeats(group);
   return group;
 }
 
@@ -8302,22 +8353,40 @@ function createBrandenburgGateModel(
 export function createArchitecturalSignature(
   signature: ArchitecturalSignature,
 ): Group | null {
+  let model: Group;
   switch (signature.id) {
     case "reichstag-dome":
-      return createOfficialReichstagDome(signature as ReichstagDomeSignature);
+      model = createOfficialReichstagDome(signature as ReichstagDomeSignature);
+      break;
     case "reichstag-model":
-      return createReichstagModel(signature as ReichstagModelSignature);
+      model = createReichstagModel(signature as ReichstagModelSignature);
+      break;
     case "bundeskanzleramt-model":
-      return createChancelleryModel(signature as ChancelleryModelSignature);
+      model = createChancelleryModel(signature as ChancelleryModelSignature);
+      break;
     case "hauptbahnhof-model":
-      return createHauptbahnhofModel(signature as HauptbahnhofModelSignature);
+      model = createHauptbahnhofModel(signature as HauptbahnhofModelSignature);
+      break;
     case "brandenburger-tor-model":
-      return createBrandenburgGateModel(
+      model = createBrandenburgGateModel(
         signature as BrandenburgGateModelSignature,
       );
+      break;
     default:
       return null;
   }
+  // These source-anchored poses are immutable after construction. Wind updates
+  // cloth vertices/instance matrices and Quadriga mode changes repaint colours;
+  // neither needs to recompose every station column and facade each frame.
+  // Keep the marked cloth nodes dynamic, and retain ordinary world-matrix
+  // propagation when a caller moves a parent or attaches a later animated child.
+  freezeStaticSceneTransforms(model);
+  model.traverse((object) => {
+    if (object.userData.windFlag || object.userData.windFlagInstances) {
+      object.matrixAutoUpdate = true;
+    }
+  });
+  return model;
 }
 
 export function focusCameraForSignature(

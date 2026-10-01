@@ -1,7 +1,7 @@
 import {
-  BufferAttribute, BufferGeometry, DoubleSide, Group, InterleavedBuffer,
+  Box3, BufferAttribute, BufferGeometry, DoubleSide, Group, InterleavedBuffer,
   InterleavedBufferAttribute, LineBasicMaterial, LineSegments, Mesh,
-  MeshBasicMaterial, MeshStandardMaterial,
+  Material, MeshBasicMaterial, MeshStandardMaterial, Sphere, Vector3,
 } from "three";
 import { markArchitecturalAccentInk, markArchitecturalInk } from "./architecturalInk";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -75,21 +75,60 @@ function encodedBytes(encoded: string, multiple: number): number {
   return count;
 }
 
-function binary(encoded: string, multiple: number): ArrayBuffer {
-  if (typeof encoded !== "string" || encoded.length > 16 * 1024 * 1024) {
-    throw new Error("Surrounding-city binary exceeds the bounded chunk size");
+// One checkpoint handles at most 48 KiB of decoded bytes / 4,096 vertices.
+// Both public builders consume this same iterator, so yielding never changes
+// packet topology, colours, bounds, navigation or the final buffer ownership.
+const DECODE_BASE64_CHARACTERS = 65_536;
+const VERTEX_SLICE = 4_096;
+const INDEX_SLICE = 16_384;
+
+function* binary(encoded: string, multiple: number): Generator<void, ArrayBuffer> {
+  const bytes = new Uint8Array(encodedBytes(encoded, multiple));
+  let offset = 0;
+  for (let start = 0; start < encoded.length; start += DECODE_BASE64_CHARACTERS) {
+    const value = atob(encoded.slice(start, start + DECODE_BASE64_CHARACTERS));
+    for (let i = 0; i < value.length; i++) bytes[offset++] = value.charCodeAt(i);
+    yield;
   }
-  const value = atob(encoded);
-  if (value.length % multiple !== 0) throw new Error("Invalid surrounding-city binary alignment");
-  const bytes = new Uint8Array(value.length);
-  for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i);
+  if (offset !== bytes.length) throw new Error("Invalid surrounding-city binary alignment");
   return bytes.buffer;
 }
 
-function geometryBounds(geometry: BufferGeometry): void {
+function* geometryBounds(geometry: BufferGeometry): Generator<void> {
   geometry.userData.exactIndexPending = false;
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
+  const position = geometry.getAttribute("position");
+  const bounds = new Box3(), point = new Vector3();
+  for (let start = 0; start < position.count; start += VERTEX_SLICE) {
+    const end = Math.min(start + VERTEX_SLICE, position.count);
+    for (let i = start; i < end; i++) bounds.expandByPoint(point.fromBufferAttribute(position, i));
+    yield;
+  }
+  const sphere = new Sphere();
+  bounds.getCenter(sphere.center);
+  let radiusSquared = 0;
+  for (let start = 0; start < position.count; start += VERTEX_SLICE) {
+    const end = Math.min(start + VERTEX_SLICE, position.count);
+    for (let i = start; i < end; i++) {
+      point.fromBufferAttribute(position, i);
+      radiusSquared = Math.max(radiusSquared, sphere.center.distanceToSquared(point));
+    }
+    yield;
+  }
+  sphere.radius = Math.sqrt(radiusSquared);
+  geometry.boundingBox = bounds;
+  geometry.boundingSphere = sphere;
+}
+
+function disposeUnpublishedChunk(root: Group): void {
+  const materials = new Set<Material>();
+  root.traverse(object => {
+    if (!(object instanceof Mesh || object instanceof LineSegments)) return;
+    object.geometry.dispose();
+    for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material);
+    for (const value of Object.values(object.userData)) if (value instanceof Material) materials.add(value);
+  });
+  for (const material of materials) material.dispose();
+  root.clear();
 }
 
 /**
@@ -98,11 +137,11 @@ function geometryBounds(geometry: BufferGeometry): void {
  * (byte * 257 is exact). Every tile uses one vertex/index pair and at most one
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
-export function createSurroundingCityChunk(
+function* buildSurroundingCityChunk(
   chunk: SurroundingCityChunk,
   id: string,
   minecraft = false,
-): SurroundingChunkGeometry {
+): Generator<void, SurroundingChunkGeometry> {
   if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
       chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
       !Array.isArray(chunk.meshes) || chunk.meshes.length > 16 ||
@@ -117,118 +156,177 @@ export function createSurroundingCityChunk(
   root.userData.unsurveyedGround = true;
   root.userData.nativeMinecraft = minecraft;
 
-  // Validate counts before allocating the aggregate destination. Decoding is
-  // deliberately serial: the largest temporary is one bounded source stream.
-  let vertexCount = 0, indexCount = 0;
-  for (const part of chunk.meshes) {
-    if (part.positionType !== "u16cm" || typeof part.positions !== "string" ||
-        typeof part.colors !== "string" || typeof part.indices !== "string") {
-      throw new Error("Invalid surrounding-city mesh encoding");
-    }
-    const positionBytes = encodedBytes(part.positions, 6);
-    const colorBytes = encodedBytes(part.colors, 3);
-    const indexBytes = encodedBytes(part.indices, 12);
-    const count = positionBytes / 6;
-    if (colorBytes !== count * 3) throw new Error("Surrounding-city colour count differs from positions");
-    vertexCount += count;
-    indexCount += indexBytes / 4;
-    if (vertexCount > MAX_VERTEX_COUNT || indexCount > MAX_INDEX_COUNT) {
-      throw new Error("Surrounding-city geometry exceeds the bounded tile budget");
-    }
-  }
-  const vertices = new Uint16Array(vertexCount * 6);
-  // Most outline tiles fit the native 16-bit index range. Preserve every
-  // source index while avoiding four-byte indices where two are sufficient.
-  // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
-  const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
-  let vertexOffset = 0, indexOffset = 0;
-  for (const part of chunk.meshes) {
-    const positions = new Uint16Array(binary(part.positions, 6));
-    const colors = new Uint8Array(binary(part.colors, 3));
-    const sourceIndices = new Uint32Array(binary(part.indices, 12));
-    const count = positions.length / 3;
-    for (let i = 0; i < count; i++) {
-      const at = (vertexOffset + i) * 6, from = i * 3;
-      vertices[at] = positions[from];
-      vertices[at + 1] = positions[from + 1];
-      vertices[at + 2] = positions[from + 2];
-      vertices[at + 3] = colors[from] * 257;
-      vertices[at + 4] = colors[from + 1] * 257;
-      vertices[at + 5] = colors[from + 2] * 257;
-    }
-    for (let i = 0; i < sourceIndices.length; i++) {
-      if (sourceIndices[i] >= count) throw new Error("Surrounding-city index exceeds the source mesh");
-      indices[indexOffset + i] = vertexOffset + sourceIndices[i];
-    }
-    vertexOffset += count;
-    indexOffset += sourceIndices.length;
-  }
-  let geometryBytes = vertices.byteLength + indices.byteLength;
-  let bufferCount = 0;
-  const linePositions = chunk.lines?.positions && !minecraft
-    ? new Uint16Array(binary(chunk.lines.positions, 12)) : null;
-  if (linePositions && linePositions.length / 3 > MAX_VERTEX_COUNT) {
-    throw new Error("Surrounding-city ink exceeds the tile budget");
-  }
-  const lineColors = linePositions && chunk.lines?.colors
-    ? new Uint8Array(binary(chunk.lines.colors, 3)) : null;
-  if (lineColors && lineColors.length !== linePositions!.length) {
-    throw new Error("Surrounding-city ink colour count differs from positions");
-  }
-  if (vertexCount && indexCount) {
-    const geometry = new BufferGeometry();
-    const data = new InterleavedBuffer(vertices, 6);
-    geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0, false));
-    geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
-    geometry.setIndex(new BufferAttribute(indices, 1));
-    geometryBounds(geometry);
-    const nightMaterial = new MeshStandardMaterial({
-      vertexColors: true, flatShading: true, roughness: 1, metalness: 0, side: DoubleSide,
-    });
-    const dayMaterial = minecraft ? nightMaterial : new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
-    const body = new Mesh(geometry, dayMaterial);
-    body.name = `${root.name} mapped surfaces and massing`;
-    body.scale.setScalar(0.01);
-    body.userData.dayMaterial = dayMaterial;
-    body.userData.nightMaterial = nightMaterial;
-    body.userData.surroundingCity = true;
-    root.add(body);
-    bufferCount += 2;
-  }
-  if (linePositions) {
-    const positions = linePositions;
-    if (positions.length) {
-      const geometry = new BufferGeometry();
-      if (lineColors) {
-        const values = new Uint16Array(positions.length * 2);
-        for (let i = 0; i < positions.length / 3; i++) {
-          for (let component = 0; component < 3; component++) {
-            values[i * 6 + component] = positions[i * 3 + component];
-            values[i * 6 + component + 3] = lineColors[i * 3 + component] * 257;
-          }
-        }
-        const data = new InterleavedBuffer(values, 6);
-        geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0));
-        geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
-        geometryBytes += values.byteLength;
-      } else {
-        geometry.setAttribute("position", new BufferAttribute(positions, 3));
-        geometryBytes += positions.byteLength;
+  let completed = false;
+  try {
+    // Validate counts before allocating the aggregate destination. Decoding is
+    // deliberately serial: the largest temporary is one bounded source stream.
+    let vertexCount = 0, indexCount = 0;
+    for (const part of chunk.meshes) {
+      if (part.positionType !== "u16cm" || typeof part.positions !== "string" ||
+          typeof part.colors !== "string" || typeof part.indices !== "string") {
+        throw new Error("Invalid surrounding-city mesh encoding");
       }
-      geometryBounds(geometry);
-      const material = lineColors
-        ? markArchitecturalAccentInk(new LineBasicMaterial({ vertexColors: true }), 0xffffff, "silhouette")
-        : markArchitecturalInk(new LineBasicMaterial(), "silhouette");
-      const ink = new LineSegments(geometry, material);
-      ink.name = `${root.name} ink lines`;
-      ink.scale.setScalar(0.01);
-      ink.renderOrder = 2;
-      root.add(ink);
-      bufferCount++;
+      const positionBytes = encodedBytes(part.positions, 6);
+      const colorBytes = encodedBytes(part.colors, 3);
+      const indexBytes = encodedBytes(part.indices, 12);
+      const count = positionBytes / 6;
+      if (colorBytes !== count * 3) throw new Error("Surrounding-city colour count differs from positions");
+      vertexCount += count;
+      indexCount += indexBytes / 4;
+      if (vertexCount > MAX_VERTEX_COUNT || indexCount > MAX_INDEX_COUNT) {
+        throw new Error("Surrounding-city geometry exceeds the bounded tile budget");
+      }
     }
+    const vertices = new Uint16Array(vertexCount * 6);
+    // Most outline tiles fit the native 16-bit index range. Preserve every
+    // source index while avoiding four-byte indices where two are sufficient.
+    // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
+    const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
+    let vertexOffset = 0, indexOffset = 0;
+    for (const part of chunk.meshes) {
+      const positions = new Uint16Array(yield* binary(part.positions, 6));
+      const colors = new Uint8Array(yield* binary(part.colors, 3));
+      const sourceIndices = new Uint32Array(yield* binary(part.indices, 12));
+      const count = positions.length / 3;
+      for (let i = 0; i < count; i++) {
+        const at = (vertexOffset + i) * 6, from = i * 3;
+        vertices[at] = positions[from];
+        vertices[at + 1] = positions[from + 1];
+        vertices[at + 2] = positions[from + 2];
+        vertices[at + 3] = colors[from] * 257;
+        vertices[at + 4] = colors[from + 1] * 257;
+        vertices[at + 5] = colors[from + 2] * 257;
+        if ((i + 1) % VERTEX_SLICE === 0) yield;
+      }
+      for (let i = 0; i < sourceIndices.length; i++) {
+        if (sourceIndices[i] >= count) throw new Error("Surrounding-city index exceeds the source mesh");
+        indices[indexOffset + i] = vertexOffset + sourceIndices[i];
+        if ((i + 1) % INDEX_SLICE === 0) yield;
+      }
+      vertexOffset += count;
+      indexOffset += sourceIndices.length;
+    }
+    let geometryBytes = vertices.byteLength + indices.byteLength;
+    let bufferCount = 0;
+    const linePositions = chunk.lines?.positions && !minecraft
+      ? new Uint16Array(yield* binary(chunk.lines.positions, 12)) : null;
+    if (linePositions && linePositions.length / 3 > MAX_VERTEX_COUNT) {
+      throw new Error("Surrounding-city ink exceeds the tile budget");
+    }
+    const lineColors = linePositions && chunk.lines?.colors
+      ? new Uint8Array(yield* binary(chunk.lines.colors, 3)) : null;
+    if (lineColors && lineColors.length !== linePositions!.length) {
+      throw new Error("Surrounding-city ink colour count differs from positions");
+    }
+    if (vertexCount && indexCount) {
+      const geometry = new BufferGeometry();
+      const data = new InterleavedBuffer(vertices, 6);
+      geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0, false));
+      geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
+      geometry.setIndex(new BufferAttribute(indices, 1));
+      const nightMaterial = new MeshStandardMaterial({
+        vertexColors: true, flatShading: true, roughness: 1, metalness: 0, side: DoubleSide,
+      });
+      const dayMaterial = minecraft ? nightMaterial : new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
+      const body = new Mesh(geometry, dayMaterial);
+      body.name = `${root.name} mapped surfaces and massing`;
+      body.scale.setScalar(0.01);
+      body.userData.dayMaterial = dayMaterial;
+      body.userData.nightMaterial = nightMaterial;
+      body.userData.surroundingCity = true;
+      root.add(body);
+      yield* geometryBounds(geometry);
+      bufferCount += 2;
+    }
+    if (linePositions) {
+      const positions = linePositions;
+      if (positions.length) {
+        const geometry = new BufferGeometry();
+        if (lineColors) {
+          const values = new Uint16Array(positions.length * 2);
+          for (let i = 0; i < positions.length / 3; i++) {
+            for (let component = 0; component < 3; component++) {
+              values[i * 6 + component] = positions[i * 3 + component];
+              values[i * 6 + component + 3] = lineColors[i * 3 + component] * 257;
+            }
+            if ((i + 1) % VERTEX_SLICE === 0) yield;
+          }
+          const data = new InterleavedBuffer(values, 6);
+          geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0));
+          geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
+          geometryBytes += values.byteLength;
+        } else {
+          geometry.setAttribute("position", new BufferAttribute(positions, 3));
+          geometryBytes += positions.byteLength;
+        }
+        const material = lineColors
+          ? markArchitecturalAccentInk(new LineBasicMaterial({ vertexColors: true }), 0xffffff, "silhouette")
+          : markArchitecturalInk(new LineBasicMaterial(), "silhouette");
+        const ink = new LineSegments(geometry, material);
+        ink.name = `${root.name} ink lines`;
+        ink.scale.setScalar(0.01);
+        ink.renderOrder = 2;
+        root.add(ink);
+        yield* geometryBounds(geometry);
+        bufferCount++;
+      }
+    }
+    const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
+      nav: chunk.nav, origin: chunk.origin };
+    completed = true;
+    return result;
+  } finally {
+    // A cancelled camera load or an invalid later stream must not retain an
+    // unfinished mesh/material family. Nothing is added to the scene until done.
+    if (!completed) disposeUnpublishedChunk(root);
   }
-  return { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-    nav: chunk.nav, origin: chunk.origin };
+}
+
+export function createSurroundingCityChunk(
+  chunk: SurroundingCityChunk, id: string, minecraft = false,
+): SurroundingChunkGeometry {
+  const iterator = buildSurroundingCityChunk(chunk, id, minecraft);
+  let next = iterator.next();
+  while (!next.done) next = iterator.next();
+  return next.value;
+}
+
+export type SurroundingChunkSchedule = {
+  signal?: AbortSignal;
+  budgetMs?: number;
+  now?: () => number;
+  yield?: () => Promise<void>;
+};
+
+function yieldSurroundingTask(): Promise<void> {
+  const scheduler = (globalThis as typeof globalThis & { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  if (scheduler?.yield) return scheduler.yield();
+  return new Promise(resolve => setTimeout(resolve, 0));
+}
+
+/** Cooperative loading retains the complete synchronous geometry contract. */
+export async function createSurroundingCityChunkCooperatively(
+  chunk: SurroundingCityChunk, id: string, minecraft = false,
+  schedule: SurroundingChunkSchedule = {},
+): Promise<SurroundingChunkGeometry> {
+  const now = schedule.now ?? (() => performance.now());
+  const yieldTask = schedule.yield ?? yieldSurroundingTask;
+  const budget = Math.max(0, schedule.budgetMs ?? 3);
+  const iterator = buildSurroundingCityChunk(chunk, id, minecraft);
+  let started = now();
+  try {
+    while (true) {
+      if (schedule.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      const next = iterator.next();
+      if (next.done) return next.value;
+      if (now() - started >= budget) {
+        await yieldTask();
+        started = now();
+      }
+    }
+  } finally {
+    iterator.return(undefined as never);
+  }
 }
 
 export function surroundingRingContains(ring: readonly number[][], x: number, z: number): boolean {

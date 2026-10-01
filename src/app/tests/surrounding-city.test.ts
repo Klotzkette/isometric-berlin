@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
-import { InterleavedBufferAttribute, LineSegments, Mesh, OrthographicCamera, Vector3 } from "three";
+import { expect, spyOn, test } from "bun:test";
+import { BufferGeometry, Material, InterleavedBufferAttribute, LineSegments, Mesh, OrthographicCamera, Vector3 } from "three";
 import {
-  createSurroundingCityChunk, surroundingBuildingSolidAt,
+  createSurroundingCityChunk, createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt,
   type SurroundingCityChunk, type SurroundingNavigation,
 } from "../src/SurroundingCityGeometry";
 import {
@@ -331,4 +331,82 @@ test("disposing during a manifest retry clears the timer and settles ready", asy
   await new Promise(resolve => setTimeout(resolve, 2));
   city.dispose(); await city.ready;
   expect(attempts).toBe(1); expect(city.manifest).toBeNull();
+});
+
+
+test("cooperative chunk loading preserves exact buffers, source navigation and THREE bounds", async () => {
+  const chunk = sample();
+  const positions = new Uint16Array(24_576 * 3), colors = new Uint8Array(positions.length);
+  for (let i = 0; i < positions.length; i++) { positions[i] = i * 37 % 60_001; colors[i] = i % 256; }
+  chunk.meshes.push({ kind: "building", positionType: "u16cm", positions: encode(positions),
+    colors: encode(colors), indices: encode(Uint32Array.from({ length: 24_576 }, (_, i) => i)) });
+  chunk.lines = { positions: encode(positions), colors: encode(colors) };
+  for (const minecraft of [false, true]) {
+    const synchronous = createSurroundingCityChunk(chunk, "exact", minecraft);
+    let yields = 0;
+    const cooperative = await createSurroundingCityChunkCooperatively(chunk, "exact", minecraft,
+      { budgetMs: 0, yield: async () => { yields++; } });
+    expect(yields).toBeGreaterThan(20);
+    expect(cooperative.nav).toBe(chunk.nav);
+    expect(cooperative.geometryBytes).toBe(synchronous.geometryBytes);
+    expect(cooperative.bufferCount).toBe(synchronous.bufferCount);
+    expect(cooperative.root.children).toHaveLength(synchronous.root.children.length);
+    for (let i = 0; i < cooperative.root.children.length; i++) {
+      const mesh = cooperative.root.children[i] as Mesh;
+      const expected = synchronous.root.children[i] as Mesh;
+      const position = mesh.geometry.getAttribute("position") as InterleavedBufferAttribute;
+      const reference = expected.geometry.getAttribute("position") as InterleavedBufferAttribute;
+      expect(position.data.array).toEqual(reference.data.array);
+      expect(mesh.geometry.index?.array).toEqual(expected.geometry.index?.array);
+      expect(mesh.geometry.boundingBox).toEqual(expected.geometry.boundingBox);
+      expect(mesh.geometry.boundingSphere).toEqual(expected.geometry.boundingSphere);
+      // Independently compare the cooperative bounds to THREE's original full scans.
+      expected.geometry.computeBoundingBox(); expected.geometry.computeBoundingSphere();
+      expect(mesh.geometry.boundingBox).toEqual(expected.geometry.boundingBox);
+      expect(mesh.geometry.boundingSphere).toEqual(expected.geometry.boundingSphere);
+      expect(mesh.matrixAutoUpdate).toBeFalse();
+      expect(mesh.matrix).toEqual(expected.matrix);
+    }
+    disposeSurroundingCityRoot(synchronous.root); disposeSurroundingCityRoot(cooperative.root);
+  }
+});
+
+test("cooperative work yields by elapsed budget instead of a timer for every stream", async () => {
+  let yields = 0, clock = 0;
+  const result = await createSurroundingCityChunkCooperatively(sample(), "budget", false,
+    { budgetMs: 3, now: () => ++clock, yield: async () => { yields++; } });
+  expect(yields).toBe(2);
+  disposeSurroundingCityRoot(result.root);
+  yields = 0;
+  const fast = await createSurroundingCityChunkCooperatively(sample(), "fast", false,
+    { budgetMs: 3, now: () => 0, yield: async () => { yields++; } });
+  expect(yields).toBe(0);
+  disposeSurroundingCityRoot(fast.root);
+});
+
+test("cancelling during cooperative decode rejects before any chunk can be published", async () => {
+  const controller = new AbortController(); let yields = 0;
+  await expect(createSurroundingCityChunkCooperatively(sample(), "cancelled", false,
+    { signal: controller.signal, budgetMs: 0, yield: async () => { yields++; controller.abort(); } }))
+    .rejects.toMatchObject({ name: "AbortError" });
+  expect(yields).toBe(1);
+  await expect(createSurroundingCityChunkCooperatively(sample(), "already cancelled", false,
+    { signal: controller.signal, yield: async () => { throw new Error("must not yield"); } }))
+    .rejects.toMatchObject({ name: "AbortError" });
+});
+
+
+test("cancellation disposes meshes and both lighting materials already prepared before publication", async () => {
+  for (const stopAt of [5, 7]) {
+    const controller = new AbortController(); let yields = 0;
+    const geometryDisposal = spyOn(BufferGeometry.prototype, "dispose");
+    const materialDisposal = spyOn(Material.prototype, "dispose");
+    try {
+      await expect(createSurroundingCityChunkCooperatively(sample(), "cancel prepared bounds", false,
+        { signal: controller.signal, budgetMs: 0, yield: async () => { if (++yields === stopAt) controller.abort(); } }))
+        .rejects.toMatchObject({ name: "AbortError" });
+      expect(geometryDisposal).toHaveBeenCalledTimes(stopAt === 5 ? 1 : 2);
+      expect(materialDisposal).toHaveBeenCalledTimes(stopAt === 5 ? 2 : 3);
+    } finally { geometryDisposal.mockRestore(); materialDisposal.mockRestore(); }
+  }
 });

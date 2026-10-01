@@ -1,8 +1,11 @@
-"""Profile repeatable desktop motion without changing production viewer code.
+"""Profile repeatable desktop or touch-profile motion without changing viewer code.
 
 uv run --with playwright python scripts/profile_viewer_motion.py URL --output /tmp/motion.json
 Add --profile to save a Chrome DevTools .cpuprofile per location. --duration
 sets each of the idle, pointer-orbit and W-flight phases (default 6 seconds).
+Add --touch for a 390x844, DPR 3 mobile browser profile with the pointer path
+scaled from the identical desktop trajectory. This remains a desktop Chrome
+measurement, not a physical-phone or native touch-gesture benchmark.
 Run one browser profile at a time on the same machine, power mode and display.
 renderer.render duration measures CPU submission, not asynchronous GPU time.
 Every renderer.render call is sampled before the next compositor pass resets
@@ -20,6 +23,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+DESKTOP_VIEWPORT = (1440, 900)
+TOUCH_VIEWPORT = (390, 844)
 
 LOCATIONS = {
   "kanzleramt": {
@@ -194,17 +200,28 @@ def seed(page: Any, pose: dict[str, Any]) -> None:
   )
 
 
-def pointer_position(elapsed: float, duration: float) -> tuple[float, float]:
-  """Two closed orbit loops through identical pixel coordinates each run."""
+def pointer_position(
+  elapsed: float, duration: float, viewport: tuple[int, int] = DESKTOP_VIEWPORT
+) -> tuple[float, float]:
+  """Two closed loops preserving the same normalized viewport coordinates."""
   angle = min(1.0, elapsed / duration) * math.tau * 2
-  return 720 + 130 * math.sin(angle), 450 + 55 * math.sin(angle * 2)
+  x = 720 + 130 * math.sin(angle)
+  y = 450 + 55 * math.sin(angle * 2)
+  if viewport == DESKTOP_VIEWPORT:
+    return x, y
+  return x * viewport[0] / DESKTOP_VIEWPORT[0], y * viewport[1] / DESKTOP_VIEWPORT[1]
 
 
-def perform_motion(page: Any, name: str, duration: float) -> dict[str, Any]:
+def perform_motion(
+  page: Any,
+  name: str,
+  duration: float,
+  viewport: tuple[int, int] = DESKTOP_VIEWPORT,
+) -> dict[str, Any]:
   events = 0
   gaps: list[float] = []
   if name == "orbit":
-    page.mouse.move(720, 450)
+    page.mouse.move(*pointer_position(0, duration, viewport))
     page.mouse.down()
   elif name == "flight":
     # Focus the existing canvas without a camera-changing click.
@@ -215,7 +232,7 @@ def perform_motion(page: Any, name: str, duration: float) -> dict[str, Any]:
   try:
     while (elapsed := time.monotonic() - start) < duration:
       if name == "orbit":
-        page.mouse.move(*pointer_position(elapsed, duration))
+        page.mouse.move(*pointer_position(elapsed, duration, viewport))
         current = time.monotonic()
         gaps.append((current - previous) * 1000)
         previous = current
@@ -224,7 +241,7 @@ def perform_motion(page: Any, name: str, duration: float) -> dict[str, Any]:
         min(1000 / 60, max(0, duration - (time.monotonic() - start)) * 1000)
       )
     if name == "orbit":
-      page.mouse.move(*pointer_position(duration, duration))
+      page.mouse.move(*pointer_position(duration, duration, viewport))
   finally:
     if name == "orbit":
       page.mouse.up()
@@ -273,14 +290,19 @@ def summarize(
 def run(args: argparse.Namespace) -> None:
   from playwright.sync_api import sync_playwright
 
+  viewport = TOUCH_VIEWPORT if args.touch else DESKTOP_VIEWPORT
+  device_scale_factor = 3 if args.touch else 1
   report: dict[str, Any] = {
     "schemaVersion": 1,
     "recordedAt": datetime.now(UTC).isoformat(),
     "host": platform.platform(),
     "url": args.url,
     "configuration": {
-      "viewport": [1440, 900],
-      "deviceScaleFactor": 1,
+      "viewport": list(viewport),
+      "deviceScaleFactor": device_scale_factor,
+      "touch": args.touch,
+      "hasTouch": args.touch,
+      "isMobile": args.touch,
       "headless": not args.headed,
       "durationPerPhaseSeconds": args.duration,
       "settleSeconds": args.settle,
@@ -292,6 +314,8 @@ def run(args: argparse.Namespace) -> None:
       "Draw calls and triangles include every compositor pass, not only its final pass.",
       "JS heap and WebGL resource counts are not total browser/process RAM.",
       "Compare on the same hardware, power state and browser; profiling adds overhead.",
+      "A touch profile measures desktop Chrome with a mobile viewport/DPR, not a physical phone.",
+      "Orbit uses scaled mouse events and flight uses W; this does not benchmark native touch gestures.",
     ],
     "locations": [],
   }
@@ -302,10 +326,10 @@ def run(args: argparse.Namespace) -> None:
     try:
       for name in args.locations:
         context = browser.new_context(
-          viewport={"width": 1440, "height": 900},
-          device_scale_factor=1,
-          has_touch=False,
-          is_mobile=False,
+          viewport={"width": viewport[0], "height": viewport[1]},
+          device_scale_factor=device_scale_factor,
+          has_touch=args.touch,
+          is_mobile=args.touch,
         )
         context.add_init_script(f"window.__motionRuntime = {RUNTIME_PROBE};")
         page = context.new_page()
@@ -342,7 +366,7 @@ def run(args: argparse.Namespace) -> None:
             page.wait_for_timeout(args.settle * 1000)
             before = metrics(session)
             page.evaluate("name => window.__motionProfile.begin(name)", phase_name)
-            inputs = perform_motion(page, phase_name, args.duration)
+            inputs = perform_motion(page, phase_name, args.duration, viewport)
             phase = page.evaluate("window.__motionProfile.end()")
             phase["input"] = inputs
             phase["cdpMetricsBefore"] = before
@@ -393,6 +417,9 @@ def main() -> None:
   parser.add_argument("--timeout", type=float, default=120)
   parser.add_argument("--output", type=Path, required=True)
   parser.add_argument("--profile", action="store_true")
+  parser.add_argument(
+    "--touch", action="store_true", help="Use the 390x844, DPR 3 mobile browser profile"
+  )
   parser.add_argument("--headed", action="store_true")
   parser.add_argument(
     "--locations",

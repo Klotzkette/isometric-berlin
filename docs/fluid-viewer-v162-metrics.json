@@ -1,0 +1,347 @@
+{
+  "desktopBefore": {
+    "host": "macOS-26.5.2-arm64-arm-64bit",
+    "chromeVersion": "154.0.8037.59",
+    "configuration": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "deviceScaleFactor": 1,
+      "headless": true,
+      "durationPerPhaseSeconds": 5.0,
+      "settleSeconds": 5.0,
+      "cacheDisabled": true,
+      "cpuProfile": true
+    },
+    "locations": [
+      {
+        "name": "kanzleramt",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 7.9,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 4300
+          },
+          {
+            "name": "orbit",
+            "rafHz": 58.4,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 6.91,
+            "longTaskCount": 1,
+            "longTaskMaxMs": 164,
+            "drawCallsP95": 6373
+          },
+          {
+            "name": "flight",
+            "rafHz": 56.0,
+            "rafP95Ms": 33.3,
+            "meanRenderSubmissionMsPerRaf": 7.29,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 3876
+          }
+        ]
+      },
+      {
+        "name": "panorama",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 37.9,
+            "rafP95Ms": 50,
+            "meanRenderSubmissionMsPerRaf": 20.49,
+            "longTaskCount": 16,
+            "longTaskMaxMs": 54,
+            "drawCallsP95": 13302
+          },
+          {
+            "name": "orbit",
+            "rafHz": 23.9,
+            "rafP95Ms": 66.7,
+            "meanRenderSubmissionMsPerRaf": 38.09,
+            "longTaskCount": 37,
+            "longTaskMaxMs": 63,
+            "drawCallsP95": 13833
+          },
+          {
+            "name": "flight",
+            "rafHz": 49.7,
+            "rafP95Ms": 50,
+            "meanRenderSubmissionMsPerRaf": 10.04,
+            "longTaskCount": 6,
+            "longTaskMaxMs": 55,
+            "drawCallsP95": 10701
+          }
+        ]
+      }
+    ]
+  },
+  "desktopAfter": {
+    "host": "macOS-26.5.2-arm64-arm-64bit",
+    "chromeVersion": "154.0.8037.59",
+    "configuration": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "deviceScaleFactor": 1,
+      "touch": false,
+      "hasTouch": false,
+      "isMobile": false,
+      "headless": true,
+      "durationPerPhaseSeconds": 5.0,
+      "settleSeconds": 5.0,
+      "cacheDisabled": true,
+      "cpuProfile": true
+    },
+    "locations": [
+      {
+        "name": "kanzleramt",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 2.97,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 2717
+          },
+          {
+            "name": "orbit",
+            "rafHz": 58.6,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 6.14,
+            "longTaskCount": 2,
+            "longTaskMaxMs": 147,
+            "drawCallsP95": 4383
+          },
+          {
+            "name": "flight",
+            "rafHz": 59.4,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 5.65,
+            "longTaskCount": 1,
+            "longTaskMaxMs": 51,
+            "drawCallsP95": 2506
+          }
+        ]
+      },
+      {
+        "name": "panorama",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 54.6,
+            "rafP95Ms": 33.3,
+            "meanRenderSubmissionMsPerRaf": 11.74,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 8677
+          },
+          {
+            "name": "orbit",
+            "rafHz": 43.6,
+            "rafP95Ms": 33.4,
+            "meanRenderSubmissionMsPerRaf": 18.79,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 9028
+          },
+          {
+            "name": "flight",
+            "rafHz": 54.0,
+            "rafP95Ms": 33.3,
+            "meanRenderSubmissionMsPerRaf": 8.51,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 7902
+          }
+        ]
+      }
+    ]
+  },
+  "mobileProfileBefore": {
+    "host": "macOS-26.5.2-arm64-arm-64bit",
+    "chromeVersion": "154.0.8037.59",
+    "configuration": {
+      "viewport": [
+        390,
+        844
+      ],
+      "deviceScaleFactor": 3,
+      "touch": true,
+      "hasTouch": true,
+      "isMobile": true,
+      "headless": true,
+      "durationPerPhaseSeconds": 5.0,
+      "settleSeconds": 5.0,
+      "cacheDisabled": true,
+      "cpuProfile": true
+    },
+    "locations": [
+      {
+        "name": "kanzleramt",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 18.3,
+            "rafP95Ms": 66.6,
+            "meanRenderSubmissionMsPerRaf": 2.25,
+            "longTaskCount": 6,
+            "longTaskMaxMs": 3017,
+            "drawCallsP95": 789
+          },
+          {
+            "name": "orbit",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 4.48,
+            "longTaskCount": 1,
+            "longTaskMaxMs": 125,
+            "drawCallsP95": 2554
+          },
+          {
+            "name": "flight",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 5.5,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 1980
+          }
+        ]
+      },
+      {
+        "name": "panorama",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 20.7,
+            "rafP95Ms": 33.3,
+            "meanRenderSubmissionMsPerRaf": 6.62,
+            "longTaskCount": 4,
+            "longTaskMaxMs": 3028,
+            "drawCallsP95": 4344
+          },
+          {
+            "name": "orbit",
+            "rafHz": 58.2,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 8.94,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 7798
+          },
+          {
+            "name": "flight",
+            "rafHz": 57.8,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 7.21,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 5989
+          }
+        ]
+      }
+    ]
+  },
+  "mobileProfileAfter": {
+    "host": "macOS-26.5.2-arm64-arm-64bit",
+    "chromeVersion": "154.0.8037.59",
+    "configuration": {
+      "viewport": [
+        390,
+        844
+      ],
+      "deviceScaleFactor": 3,
+      "touch": true,
+      "hasTouch": true,
+      "isMobile": true,
+      "headless": true,
+      "durationPerPhaseSeconds": 5.0,
+      "settleSeconds": 5.0,
+      "cacheDisabled": true,
+      "cpuProfile": true
+    },
+    "locations": [
+      {
+        "name": "kanzleramt",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 55.8,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 0.14,
+            "longTaskCount": 4,
+            "longTaskMaxMs": 125,
+            "drawCallsP95": 0
+          },
+          {
+            "name": "orbit",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 3.81,
+            "longTaskCount": 1,
+            "longTaskMaxMs": 131,
+            "drawCallsP95": 1778
+          },
+          {
+            "name": "flight",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 4.56,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 1356
+          }
+        ]
+      },
+      {
+        "name": "panorama",
+        "errors": [],
+        "phases": [
+          {
+            "name": "idle",
+            "rafHz": 55.2,
+            "rafP95Ms": 16.8,
+            "meanRenderSubmissionMsPerRaf": 3.49,
+            "longTaskCount": 5,
+            "longTaskMaxMs": 118,
+            "drawCallsP95": 4768
+          },
+          {
+            "name": "orbit",
+            "rafHz": 60.0,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 8.02,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 5619
+          },
+          {
+            "name": "flight",
+            "rafHz": 59.8,
+            "rafP95Ms": 16.7,
+            "meanRenderSubmissionMsPerRaf": 6.17,
+            "longTaskCount": 0,
+            "longTaskMaxMs": null,
+            "drawCallsP95": 4483
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -131,7 +131,9 @@ function host(options: {
       expect(runtime.parkDetails).toBe(previous);
       expect(staged.every(root => root.parent === null)).toBe(true);
       watch();
-      if (options.interrupt && !options.atCompletion && yields === 2) interrupt();
+      // Path sampling now yields before its first geometry/material exists.
+      // Exercise actual resource cleanup as soon as a completed batch attaches.
+      if (options.interrupt && !options.atCompletion && resources.size > 0) interrupt();
     },
     addPedestrianParkObstacles: () => { obstacleWrites++; },
     setParkDetailsFocus,

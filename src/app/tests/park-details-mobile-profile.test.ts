@@ -35,16 +35,16 @@ type ParkGeometryBudget = {
 };
 
 const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
-  geometryBytes: 6_428_830,
+  geometryBytes: 6_209_918,
   instanceBytes: 33_793_136,
   instances: 450_029,
-  instancedMeshes: 5_373,
+  instancedMeshes: 1_722,
   mappedMaterials: 9,
-  meshes: 6_753,
-  objects: 7_173,
+  meshes: 3_102,
+  objects: 3_522,
   transparentMaterials: 1,
   triangles: 125_921,
-  vertices: 172_864,
+  vertices: 165_423,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
