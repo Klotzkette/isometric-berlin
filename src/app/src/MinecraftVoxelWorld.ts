@@ -82,6 +82,9 @@ import { isMuseumTriadReplacementColumn } from "./museumTriadProfile";
 import { createMinecraftFriedrichstrasseArchitecture } from "./FriedrichstrasseArchitecture";
 import { admiralspalastSourceColumnAt, FRIEDRICHSTRASSE_ARCHITECTURE_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_TONES } from "./friedrichstrasseArchitectureProfile";
 import { createEuropacityArchitecture } from "./EuropacityArchitecture";
+import { createMinecraftEuropaCenter } from "./CityWestDetails";
+import { createMinecraftBreitscheidTowers } from "./BreitscheidTowers";
+import { breitscheidTowerSourceColumn } from "./breitscheidTowersProfile";
 import { EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
 import { createMinecraftFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
 import { fiftyHertzSourceColumnAt, FIFTY_HERTZ_PRISM_TONES } from "./fiftyHertzProfile";
@@ -2763,6 +2766,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftGedaechtniskirche());
   yield;
+  group.add(createMinecraftEuropaCenter());
+  yield;
+  group.add(createMinecraftBreitscheidTowers());
+  yield;
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   yield;
@@ -2925,6 +2932,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !concertHallSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell / 2) &&
       !kulturforumMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
+      !breitscheidTowerSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&

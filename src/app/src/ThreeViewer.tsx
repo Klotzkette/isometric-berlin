@@ -144,6 +144,7 @@ import {
   berlinerEnsemblePublicArtSolidAt,
   setBerlinerEnsemblePublicArtSnow,
 } from "./BerlinerEnsembleMemorials";
+import { isEuropaCenterStarTarget, updateEuropaCenterStars } from "./CityWestDetails";
 import {
   type BerlinerEnsembleRoofSignMotionDecision,
   type BerlinerEnsembleRoofSignMotionOptions,
@@ -699,6 +700,9 @@ type Runtime = {
   berlinerEnsembleRoofSignElapsedSeconds: number;
   berlinerEnsembleRoofSignLastFrameAt: number;
   berlinerEnsembleRoofSignTargets: Object3D[];
+  europaCenterStarTargets: Object3D[];
+  europaCenterStarElapsedSeconds: number;
+  europaCenterStarLastFrameAt: number;
   schwellenraumFlagElapsedSeconds: number;
   schwellenraumLastFlagFrameAt: number;
   schwellenraumLastPariserPlatzFrameAt: number;
@@ -1768,6 +1772,7 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.fineDetailObjects = [];
   runtime.microDetailObjects = [];
   runtime.berlinerEnsembleRoofSignTargets = [];
+  runtime.europaCenterStarTargets = [];
   runtime.inkLineObjects = [];
   const roots: Array<Object3D | null> = [
     runtime.isoWorld,
@@ -1791,6 +1796,7 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.berlinerEnsembleRoofSignTargets,
     runtime.berlinerEnsembleRoofSignElapsedSeconds,
   );
+  updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
   assignStableInkRenderOrder(runtime.inkLineObjects);
   runtime.gpuResidency?.enqueue(runtime.scene);
   runtime.geometryResidency?.enqueue(runtime.scene);
@@ -1837,6 +1843,7 @@ function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
     if (isBerlinerEnsembleRoofSignTarget(object)) {
       runtime.berlinerEnsembleRoofSignTargets.push(object);
     }
+    if (isEuropaCenterStarTarget(object)) runtime.europaCenterStarTargets.push(object);
   });
   invalidateFarZoomAntiFlickerCache(runtime);
 }
@@ -1850,6 +1857,7 @@ function forgetFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
   runtime.fineDetailObjects = runtime.fineDetailObjects.filter((target) => !retired.has(target.object));
   runtime.microDetailObjects = runtime.microDetailObjects.filter((target) => !retired.has(target.object));
   runtime.berlinerEnsembleRoofSignTargets = runtime.berlinerEnsembleRoofSignTargets.filter((object) => !retired.has(object));
+  runtime.europaCenterStarTargets = runtime.europaCenterStarTargets.filter((object) => !retired.has(object));
   invalidateFarZoomAntiFlickerCache(runtime);
 }
 
@@ -3477,6 +3485,7 @@ function ensureIsoWorld(
   const concertDetails = import("./ConcertHalls");
   const kulturforumMuseumDetails = import("./KulturforumMuseums");
   const northRailDetails = import("./HbfNorthApproach");
+  const breitscheidDetails = import("./BreitscheidTowers");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3497,8 +3506,9 @@ function ensureIsoWorld(
     concertDetails,
     kulturforumMuseumDetails,
     northRailDetails,
+    breitscheidDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3741,6 +3751,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             includeKulturforumAndNorthRail: false,
+            includeBreitscheidTowers: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             retainRasterAsphalt: false,
@@ -3769,6 +3780,8 @@ function ensureIsoWorld(
         isoWorld.add(potsdamerMinistry.createPotsdamerMinistryArchitecture());
         yield;
         isoWorld.add(bikini.createBikiniBerlin());
+        yield;
+        isoWorld.add(breitscheid.createBreitscheidTowers());
         yield;
         isoWorld.add(moabitHouses.createMoabitGuardHouses());
         isoWorld.add(ulapQuarter.createUlapQuarter());
@@ -4335,6 +4348,12 @@ function ensureVoxelWorld(
       runtime.scene.add(provisionalMinecraftMobs.group);
       if (provisionalBridges) runtime.signatures.add(provisionalBridges);
       registerBerlinerEnsembleRoofSignTargets(runtime, provisionalVoxelWorld);
+      provisionalVoxelWorld.traverse((object) => {
+        if (isEuropaCenterStarTarget(object) && !runtime.europaCenterStarTargets.includes(object)) {
+          runtime.europaCenterStarTargets.push(object);
+        }
+      });
+      updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, 3);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
@@ -4418,6 +4437,7 @@ function ensureVoxelWorld(
         if (runtime.voxelWorld === provisionalVoxelWorld) {
           runtime.voxelWorld = null;
         }
+        forgetFarZoomAntiFlickerTargets(runtime, provisionalVoxelWorld);
         disposeObject3D(runtime, provisionalVoxelWorld);
         provisionalVoxelWorld = null;
       }
@@ -6055,6 +6075,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         berlinerEnsembleRoofSignElapsedSeconds: 0.9,
         berlinerEnsembleRoofSignLastFrameAt: 0,
         berlinerEnsembleRoofSignTargets: [],
+        europaCenterStarTargets: [],
+        europaCenterStarElapsedSeconds: 0.9,
+        europaCenterStarLastFrameAt: 0,
         schwellenraumFlagElapsedSeconds: 0.9,
         schwellenraumLastFlagFrameAt: 0,
         schwellenraumLastPariserPlatzFrameAt: 0,
@@ -7107,6 +7130,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         } else {
           runtime.scheduleGpuWarmup?.();
           runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
+          runtime.europaCenterStarLastFrameAt = performance.now();
           runtime.schwellenraumLastPariserPlatzFrameAt = performance.now();
           runtime.schwellenraumLastWaterFrameAt = performance.now();
           runtime.schwellenraumLastTowerSteamFrameAt = performance.now();
@@ -7418,6 +7442,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return true;
       };
       const roofSignScreenScratch = new Vector3();
+      const europaStarScreenScratch = new Vector3();
       const civicFlagScreenScratch = createCivicWindFlagScreenScratch();
       const pariserPlatzLoopScreenScratch =
         createPariserPlatzLoopScreenScratch();
@@ -7582,13 +7607,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               Math.abs(pedestrianInput.look) > 1e-6 ||
               runtime.pedestrian.state?.grounded === false));
         let passiveFrameIntervalMs = Number.POSITIVE_INFINITY;
+        const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&
+          isBerlinerEnsembleRoofSignOnScreen(runtime.europaCenterStarTargets, camera, europaStarScreenScratch);
+        if (!europaStarOnScreen) runtime.europaCenterStarLastFrameAt = timestamp;
         if (ordinaryEnvironmentVisible) {
           passiveFrameIntervalMs = Math.min(
             passiveFrameIntervalMs,
             ordinaryEnvironmentFrameIntervalMs,
           );
         }
-        if (civicFlagsVisible || (
+        if (europaStarOnScreen || civicFlagsVisible || (
           !reducedMotion &&
           !runtime.underside &&
           runtime.fineDetailVisible &&
@@ -7778,6 +7806,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           roofSignMotionOptions,
           roofSignMotionScratch,
         );
+        const europaStarMotion = europaStarOnScreen &&
+          timestamp - runtime.europaCenterStarLastFrameAt + Number.EPSILON * 1_000 >= flagFrameIntervalMs;
         const ordinaryEnvironmentMotion =
           ordinaryEnvironmentVisible &&
           timestamp - lastOrdinaryEnvironmentFrameAt >=
@@ -7788,6 +7818,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           schwellenraumMotion.animateWaterLight ||
           schwellenraumMotion.animateTowerSteam ||
           ordinaryEnvironmentMotion ||
+          europaStarMotion ||
           roofSignMotion.environmentalMotion;
 
         // A still camera must let Minecraft settle to one calm frame instead
@@ -7989,6 +8020,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.berlinerEnsembleRoofSignElapsedSeconds,
           );
           runtime.berlinerEnsembleRoofSignLastFrameAt = timestamp;
+        }
+        if (europaStarMotion) {
+          runtime.europaCenterStarElapsedSeconds += Math.min(0.25,
+            Math.max(0, timestamp - runtime.europaCenterStarLastFrameAt) / 1_000);
+          updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
+          runtime.europaCenterStarLastFrameAt = timestamp;
         }
         if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();

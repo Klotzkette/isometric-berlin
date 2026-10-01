@@ -69,6 +69,8 @@ import { createConcertHalls } from "./ConcertHalls";
 import { CONCERT_HALL_PRISM_IDS } from "./concertHallsProfile";
 import { createKulturforumMuseums } from "./KulturforumMuseums";
 import { KULTURFORUM_MUSEUM_IDS } from "./kulturforumMuseumsProfile";
+import { BREITSCHEID_TOWER_PRISM_IDS } from "./breitscheidTowersProfile";
+import { createBreitscheidTowers } from "./BreitscheidTowers";
 import { MUSIC_MUSEUM_IDS, MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
 import { createParliamentArchitecture } from "./ParliamentArchitecture";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
@@ -324,6 +326,7 @@ export type IsometricCityBuildOptions = {
   includeContext?: boolean;
   /** The interactive viewer builds these exact models in separate cancellable stages. */
   includeKulturforumAndNorthRail?: boolean;
+  includeBreitscheidTowers?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -959,6 +962,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...MUSIC_MUSEUM_IDS,
   ...CONCERT_HALL_PRISM_IDS,
   ...KULTURFORUM_MUSEUM_IDS,
+  ...BREITSCHEID_TOWER_PRISM_IDS,
   ...DOM_ALTES_PRISM_IDS,
   ...MUSEUM_TRIAD_PRISM_IDS,
   ...ADMIRALSPALAST_IDS,
@@ -13143,6 +13147,7 @@ export function createIsometricCity(
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
+    if (options.includeBreitscheidTowers !== false) group.add(createBreitscheidTowers());
     if (options.includeKulturforumAndNorthRail !== false) {
       group.add(createConcertHalls());
       group.add(createKulturforumMuseums());

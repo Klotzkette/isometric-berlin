@@ -1,3 +1,4 @@
+import { BREITSCHEID_TOWER_PRISM_IDS, BREITSCHEID_TOWER_SOURCE_BOUNDS, breitscheidTowerRoofAt } from "./breitscheidTowersProfile";
 import { CITY_WEST_PROFILE } from "./CityWestDetails";
 import { gedaechtniskircheRuinSolidAt } from "./MinecraftGedaechtniskirche";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
@@ -654,6 +655,19 @@ export function compilePedestrianObstacles(
         for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
           addPolygonObstacle(index, wing.ring, [], wing.baseY, wing.topY, wing.id, 1);
           index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (BREITSCHEID_TOWER_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("breitscheid-towers")) {
+        replacedParents.add("breitscheid-towers");
+        for (const { part, topY } of BREITSCHEID_TOWER_SOURCE_BOUNDS) {
+          for (const ring of part.rings) {
+            addPolygonObstacle(index, ring, [], part.groundY, topY + 2, part.id, 1,
+              (x, z) => breitscheidTowerRoofAt(x, z, visualMode() === "minecraft"));
+            index.buildingCount += 1;
+          }
         }
       }
       continue;

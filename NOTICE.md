@@ -17,6 +17,20 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **City West and Karl-Marx-Allee (v1.0.61):** official Berlin LoD2 and retained
+  OpenStreetMap identities anchor the refined tower and avenue geometry.
+  The Europa-Center operator documents its ten-metre rotating star; LANGHOF
+  and Hofmann Naturstein document the contrasting Upper West and Zoofenster
+  facade materials. Europa-Center photographs by Manfred Brückels
+  (CC BY-SA 3.0) and Ole Neitzel (CC BY-SA 4.0), and a view of both Breitscheidplatz
+  towers by Fridolin freudenfett (CC BY-SA 4.0), guide procedural recognition
+  detail. Karl-Marx-Allee references by H.Helmlechner (CC BY-SA 4.0) and
+  Colin Smith (CC BY-SA 2.0) distinguish the domed and stepped tower pairs. Individual credits are mirrored in the Wikimedia manifests.
+  Fine facade subdivisions remain display interpretations. Existing source
+  records and unrelated geometry are retained; no photographic texture is
+  bundled or loaded. See the [release/source review](docs/release-v1.0.61-review.md).
+
+
 - **Kulturforum and northern railway (v1.0.60):** Berlin LoD2 supplies the
   retained complete concert-hall and museum shells. OpenStreetMap anchors the
   entrances, rail courses, tunnel mouths, Döberitzer Grünzug and its paths.

@@ -4,6 +4,7 @@ import { createIsometricCity, type PrismPayload } from '../src/IsometricCityWorl
 import { createConcertHalls } from '../src/ConcertHalls';
 import { createKulturforumMuseums } from '../src/KulturforumMuseums';
 import { createHbfNorthApproach } from '../src/HbfNorthApproach';
+import { createBreitscheidTowers } from '../src/BreitscheidTowers';
 import type { VoxelPayload } from '../src/MinecraftVoxelWorld';
 
 const prisms: PrismPayload = { schema_version: 1, classes: [], buildings: [] };
@@ -17,6 +18,7 @@ const names = [
   'Philharmonie and Kammermusiksaal exact source surfaces',
   'Kulturforum museums source architecture',
   'Hauptbahnhof north rail portals and Döberitzer Grünzug',
+  'Zoofenster and Upper West exact source architecture',
 ];
 function counts(root: Object3D): number[] {
   return names.map(name => {
@@ -35,12 +37,12 @@ function dispose(root: Object3D): void {
 
 test('standalone and staged construction each retain exactly one complete new model', () => {
   const standalone = createIsometricCity(prisms, ground);
-  expect(counts(standalone)).toEqual([1, 1, 1]);
+  expect(counts(standalone)).toEqual([1, 1, 1, 1]);
   dispose(standalone);
 
-  const staged = createIsometricCity(prisms, ground, null, null, { includeKulturforumAndNorthRail: false });
-  expect(counts(staged)).toEqual([0, 0, 0]);
-  staged.add(createConcertHalls(), createKulturforumMuseums(), createHbfNorthApproach(() => 5.2));
-  expect(counts(staged)).toEqual([1, 1, 1]);
+  const staged = createIsometricCity(prisms, ground, null, null, { includeKulturforumAndNorthRail: false, includeBreitscheidTowers: false });
+  expect(counts(staged)).toEqual([0, 0, 0, 0]);
+  staged.add(createConcertHalls(), createKulturforumMuseums(), createHbfNorthApproach(() => 5.2), createBreitscheidTowers());
+  expect(counts(staged)).toEqual([1, 1, 1, 1]);
   dispose(staged);
 }, 30_000);

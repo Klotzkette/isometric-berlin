@@ -4,6 +4,11 @@ import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
+  Color,
+  InstancedMesh,
+  MeshStandardMaterial,
+  Object3D,
+  StaticDrawUsage,
   BufferGeometry,
   CylinderGeometry,
   Float32BufferAttribute,
@@ -55,8 +60,8 @@ const URANIA_RED = 0xb73332;
  * Survey and source profile for the City-West recognition layer.
  *
  * Coordinates are OSM rings transformed to the viewer's EPSG:25833 frame:
- * world_x=easting-389500, world_z=5820000-northing.  Berlin's LoD2 extract
- * does not cover these individual building parts, so current OSM outlines
+ * world_x=easting-389500, world_z=5820000-northing.  The shipped central-city LoD2/prism payload
+ * does not contain these individual tower parts, so committed OSM outlines
  * provide the horizontal anchors and the cited official descriptions provide
  * the architectural hierarchy.  Only the Allianz presentation height and the
  * Urania rear volume are proportion-based inferences; both are called out.
@@ -80,11 +85,12 @@ export const CITY_WEST_PROFILE = {
     towerHeightM: 86,
     curtainWall: {
       baseHeightM: 8,
-      longFaceMullionBays: 18,
+      longFaceMullionBays: 22,
       mobileLongFaceStoreyRows: 17,
       mobileShortFaceStoreyRows: 9,
-      shortFaceMullionBays: 6,
+      shortFaceMullionBays: 8,
       storeyRows: 21,
+      spandrelHeightM: 1.5,
       geometryStatus:
         "four code-built dark-glass faces with equal grey spandrel rows, aluminium mullions and a recessed concrete entrance base; no facade photograph or texture",
     },
@@ -108,7 +114,7 @@ export const CITY_WEST_PROFILE = {
       centerOffsetM: [7.5, 0] as const,
       rotationsPerMinute: 2,
       geometryStatus:
-        "ten-metre outer diameter with one central hub, three radial spokes, dark roof cradle and adjacent mast; static recognition pose in the viewer",
+        "ten-metre outer diameter with three radial spokes tapered to the rim, dark roof cradle and adjacent mast; continuous vertical-axis rotation in every mode",
     },
     sources: [
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096462",
@@ -118,6 +124,8 @@ export const CITY_WEST_PROFILE = {
       "https://www.openstreetmap.org/way/1054276972",
       "https://www.openstreetmap.org/way/26408382",
       "https://www.openstreetmap.org/way/26408381",
+      "https://commons.wikimedia.org/wiki/File:Berlin_Europa_Center_1.jpg",
+      "https://commons.wikimedia.org/wiki/File:190829_Europa-Center_vom_Breitscheidplatz_aus_gesehen.jpg",
     ] as const,
   },
   allianzHaus: {
@@ -288,12 +296,12 @@ export const CITY_WEST_SOURCE_URLS = [
 
 export const CITY_WEST_RENDER_BUDGET = {
   full: {
-    maxRenderables: 12,
+    maxRenderables: 13,
     maxVertices: 120_000,
     maxGeometryBytes: 2_600_000,
   },
   mobile: {
-    maxRenderables: 12,
+    maxRenderables: 13,
     maxVertices: 120_000,
     maxGeometryBytes: 2_600_000,
   },
@@ -629,7 +637,7 @@ function addEuropaCurtainWall(
     detailProfile === "mobile" ? 9 : wall.longFaceMullionBays;
   const shortBays =
     detailProfile === "mobile" ? 3 : wall.shortFaceMullionBays;
-  const spandrelHeightM = detailProfile === "mobile" ? 0.72 : 0.58;
+  const spandrelHeightM = wall.spandrelHeightM;
 
   for (const side of [-1, 1]) {
     const localZ = side * (depthM / 2 + 0.14);
@@ -649,7 +657,7 @@ function addEuropaCurtainWall(
         false,
       );
     }
-    for (let storey = 1; storey < longStoreyRows; storey += 1) {
+    for (let storey = 0; storey < longStoreyRows; storey += 1) {
       addLocalBox(
         builder,
         EUROPA_SPANDREL,
@@ -658,7 +666,7 @@ function addEuropaCurtainWall(
         0,
         GROUND_Y +
           wall.baseHeightM +
-          (storey * wallHeightM) / longStoreyRows,
+          (storey * wallHeightM) / longStoreyRows + spandrelHeightM / 2,
         localZ,
         lengthM + 0.18,
         spandrelHeightM,
@@ -687,7 +695,7 @@ function addEuropaCurtainWall(
         false,
       );
     }
-    for (let storey = 1; storey < shortStoreyRows; storey += 1) {
+    for (let storey = 0; storey < shortStoreyRows; storey += 1) {
       addLocalBox(
         builder,
         EUROPA_SPANDREL,
@@ -696,7 +704,7 @@ function addEuropaCurtainWall(
         localX,
         GROUND_Y +
           wall.baseHeightM +
-          (storey * wallHeightM) / shortStoreyRows,
+          (storey * wallHeightM) / shortStoreyRows + spandrelHeightM / 2,
         0,
         0.32,
         spandrelHeightM,
@@ -1075,10 +1083,7 @@ function addEuropaFrontage(
   addEuropaRoofSigns(builder);
 }
 
-function addEuropaRoofStar(
-  builder: Builder,
-  detailProfile: CityWestDetailProfile,
-): void {
+function addEuropaRoofStar(builder: Builder): Group {
   const profile = CITY_WEST_PROFILE.europaCenter;
   const [starLocalX, starLocalZ] = profile.roofStar.centerOffsetM;
   const [starX, starZ] = localPoint(
@@ -1090,8 +1095,6 @@ function addEuropaRoofStar(
   const roofY = GROUND_Y + profile.towerHeightM;
   const starCenterY =
     GROUND_Y + profile.overallHeightM - profile.starDiameterM / 2;
-  const tubeRadiusM = 0.34;
-  const ringRadiusM = profile.starDiameterM / 2 - tubeRadiusM;
   const supportTopY = starCenterY - profile.starDiameterM / 2 + 1.1;
 
   addLocalBox(
@@ -1140,45 +1143,6 @@ function addEuropaRoofStar(
     false,
   );
 
-  const ring = new TorusGeometry(
-    ringRadiusM,
-    tubeRadiusM,
-    4,
-    detailProfile === "mobile" ? 20 : 32,
-  );
-  ring.rotateY(profile.rotationY);
-  ring.translate(starX, starCenterY, starZ);
-  pushGeometry(builder, ring, 0xf2eee0, false, true);
-
-  const spokeLengthM = ringRadiusM - tubeRadiusM;
-  for (let spoke = 0; spoke < 3; spoke += 1) {
-    const angle = Math.PI / 2 + (spoke * Math.PI * 2) / 3;
-    const [x, z] = localPoint(
-      profile.centerWorldM,
-      profile.rotationY,
-      starLocalX + (Math.cos(angle) * spokeLengthM) / 2,
-      starLocalZ,
-    );
-    addRotatedBox(
-      builder,
-      0xf2eee0,
-      x,
-      starCenterY + (Math.sin(angle) * spokeLengthM) / 2,
-      z,
-      spokeLengthM,
-      0.38,
-      0.4,
-      0,
-      profile.rotationY,
-      angle,
-      false,
-      true,
-    );
-  }
-  const hub = new SphereGeometry(0.58, detailProfile === "mobile" ? 6 : 8, 5);
-  hub.translate(starX, starCenterY, starZ);
-  pushGeometry(builder, hub, 0xf2eee0, false, true);
-
   const [antennaX, antennaZ] = localPoint(
     profile.centerWorldM,
     profile.rotationY,
@@ -1196,15 +1160,241 @@ function addEuropaRoofStar(
     6,
     false,
   );
+  return createEuropaCenterStar(false, [starX, starCenterY, starZ]);
 }
 
 function addEuropaCenter(
   builder: Builder,
   detailProfile: CityWestDetailProfile,
-): void {
+): Group {
   addEuropaCurtainWall(builder, detailProfile);
   addEuropaFrontage(builder, detailProfile);
-  addEuropaRoofStar(builder, detailProfile);
+  return addEuropaRoofStar(builder);
+}
+
+type EuropaBlock = {
+  x: number; y: number; z: number;
+  w: number; h: number; d: number;
+  color: number;
+};
+
+function europaBlockBatch(blocks: EuropaBlock[], name: string): InstancedMesh {
+  const mesh = new InstancedMesh(
+    new BoxGeometry(1, 1, 1),
+    new MeshStandardMaterial({ roughness: 1, metalness: 0, flatShading: true }),
+    blocks.length,
+  );
+  const transform = new Object3D();
+  const color = new Color();
+  blocks.forEach((block, index) => {
+    transform.position.set(block.x, block.y, block.z);
+    transform.scale.set(block.w, block.h, block.d);
+    transform.updateMatrix();
+    mesh.setMatrixAt(index, transform.matrix);
+    mesh.setColorAt(index, color.setHex(block.color));
+  });
+  mesh.instanceMatrix.setUsage(StaticDrawUsage);
+  mesh.computeBoundingBox();
+  mesh.computeBoundingSphere();
+  mesh.name = name;
+  mesh.userData.blockNative = true;
+  mesh.userData.textureFree = true;
+  mesh.userData.instanceCount = blocks.length;
+  return mesh;
+}
+
+/** Local geometry; only its single parent transform changes during rotation. */
+function createEuropaCenterStar(
+  blockNative: boolean,
+  centre: readonly [number, number, number],
+): Group {
+  const pivot = new Group();
+  pivot.name = blockNative
+    ? "Minecraft Europa-Center rotating Mercedes star"
+    : "Europa-Center rotating Mercedes star";
+  pivot.position.set(...centre);
+  pivot.rotation.y = CITY_WEST_PROFILE.europaCenter.rotationY;
+  pivot.userData = {
+    europaCenterStarPivot: true,
+    centreWorld: [...centre],
+    blockNative,
+    textureFree: true,
+    periodSeconds: 30,
+  };
+  if (blockNative) {
+    // An independent voxel silhouette; no torus, triangle or curved mesh is
+    // shared with the drawn representation. Adjacent cells are de-duplicated.
+    const cells = new Map<string, EuropaBlock>();
+    const cellM = 0.4;
+    const add = (x: number, y: number): void => {
+      const ix = Math.round(x / cellM), iy = Math.round(y / cellM);
+      cells.set(`${ix}:${iy}`, {
+        x: ix * cellM, y: iy * cellM, z: 0,
+        w: cellM, h: cellM, d: cellM, color: 0xf2eee0,
+      });
+    };
+    for (let step = 0; step < 120; step += 1) {
+      const angle = step * Math.PI * 2 / 120;
+      add(Math.cos(angle) * 4.8, Math.sin(angle) * 4.8);
+    }
+    for (let spoke = 0; spoke < 3; spoke += 1) {
+      const angle = Math.PI / 2 + spoke * Math.PI * 2 / 3;
+      for (let step = 0; step <= 12; step += 1) {
+        const distance = step * cellM;
+        const halfWidth = 0.55 * (1 - distance / 4.8);
+        for (const width of [-halfWidth, 0, halfWidth]) {
+          add(Math.cos(angle) * distance - Math.sin(angle) * width,
+            Math.sin(angle) * distance + Math.cos(angle) * width);
+        }
+      }
+    }
+    pivot.add(europaBlockBatch([...cells.values()], "Voxel Mercedes ring and three tapered arms"));
+  } else {
+    const builder = createBuilder();
+    // The real sign uses broad tapered arms, rather than three round sticks.
+    const ring = new TorusGeometry(4.76, 0.24, 4, 64);
+    pushGeometry(builder, ring, 0xf2eee0, false, true);
+    for (let spoke = 0; spoke < 3; spoke += 1) {
+      const angle = Math.PI / 2 + spoke * Math.PI * 2 / 3;
+      const c = Math.cos(angle), s = Math.sin(angle);
+      const outline = [[0, -0.58], [4.72, 0], [0, 0.58]];
+      const positions: number[] = [];
+      const point = (index: number, z: number): number[] => {
+        const [x, y] = outline[index];
+        return [x * c - y * s, x * s + y * c, z];
+      };
+      for (const z of [-0.2, 0.2]) {
+        const order = z < 0 ? [0, 2, 1] : [0, 1, 2];
+        for (const index of order) positions.push(...point(index, z));
+      }
+      for (let side = 0; side < 3; side += 1) {
+        const next = (side + 1) % 3;
+        for (const [index, z] of [[side, -0.2], [next, -0.2], [next, 0.2],
+          [side, -0.2], [next, 0.2], [side, 0.2]]) positions.push(...point(index, z));
+      }
+      const geometry = new BufferGeometry();
+      geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+      // Match the indexed ring for the shared drawn geometry merge.
+      geometry.setIndex(Array.from({ length: positions.length / 3 }, (_, index) => index));
+      pushGeometry(builder, geometry, 0xf2eee0, false, true);
+    }
+    const star = finishDrawnGroup(builder, {
+      name: "Europa-Center silver Mercedes ring and tapered arms",
+      lampEmissive: 0xf5f3e6,
+      lampEmissiveIntensity: 1.1,
+    });
+    if (star) pivot.add(star);
+  }
+  return pivot;
+}
+
+export function isEuropaCenterStarTarget(object: Object3D): boolean {
+  return object.userData.europaCenterStarPivot === true;
+}
+
+/** Caller owns visibility/frame gating; no timer, allocation or scene traversal. */
+export function updateEuropaCenterStars(
+  targets: readonly Object3D[],
+  elapsedSeconds: number,
+): void {
+  if (!Number.isFinite(elapsedSeconds)) return;
+  const turn = ((elapsedSeconds % 30) + 30) % 30;
+  const yaw = CITY_WEST_PROFILE.europaCenter.rotationY + turn * Math.PI * 2 / 30;
+  for (const pivot of targets) {
+    pivot.rotation.y = yaw;
+    pivot.updateMatrix();
+  }
+}
+
+/**
+ * Block-native tower, raised western office band and rotating roof sign.
+ * The full mapped complex/podium (source prism 54276972) remains untouched:
+ * this adds the two higher building parts absent from the central payload.
+ */
+export function createMinecraftEuropaCenter(): Group {
+  const p = CITY_WEST_PROFILE.europaCenter;
+  const group = new Group();
+  group.name = "Minecraft Europa-Center tower and Breitscheidplatz frontage";
+  group.position.set(p.centerWorldM[0], GROUND_Y, p.centerWorldM[1]);
+  group.rotation.y = p.rotationY;
+  const blocks: EuropaBlock[] = [];
+  const box = (x: number, y: number, z: number, w: number, h: number, d: number, color: number): void => {
+    blocks.push({ x, y, z, w, h, d, color });
+  };
+  const [width, depth] = p.towerFootprintM;
+  const wall = p.curtainWall;
+  // Only exterior surface strips, no thousands of concealed fill voxels.
+  // Every one of the 21 window rows remains present on mobile as on desktop.
+  const floorHeight = (p.towerHeightM - wall.baseHeightM) / wall.storeyRows;
+  for (let floor = 0; floor < wall.storeyRows; floor += 1) {
+    const bottom = wall.baseHeightM + floor * floorHeight;
+    for (const side of [-1, 1]) {
+      box(0, bottom + wall.spandrelHeightM / 2, side * depth / 2,
+        width, wall.spandrelHeightM, 0.45, EUROPA_SPANDREL);
+      box(side * width / 2, bottom + wall.spandrelHeightM / 2, 0,
+        0.45, wall.spandrelHeightM, depth, EUROPA_SPANDREL);
+      for (let bay = 0; bay < wall.longFaceMullionBays; bay += 1) {
+        box(-width / 2 + (bay + 0.5) * width / wall.longFaceMullionBays,
+          bottom + (floorHeight + wall.spandrelHeightM) / 2, side * depth / 2,
+          width / wall.longFaceMullionBays - 0.18, floorHeight - wall.spandrelHeightM,
+          0.4, EUROPA_GLASS);
+      }
+      for (let bay = 0; bay < wall.shortFaceMullionBays; bay += 1) {
+        box(side * width / 2, bottom + (floorHeight + wall.spandrelHeightM) / 2,
+          -depth / 2 + (bay + 0.5) * depth / wall.shortFaceMullionBays,
+          0.4, floorHeight - wall.spandrelHeightM,
+          depth / wall.shortFaceMullionBays - 0.18, EUROPA_GLASS);
+      }
+    }
+  }
+  for (const side of [-1, 1]) {
+    for (let bay = 0; bay <= wall.longFaceMullionBays; bay += 1)
+      box(-width / 2 + bay * width / wall.longFaceMullionBays, 47,
+        side * (depth / 2 + 0.1), 0.18, 78, 0.45, EUROPA_MULLION);
+    for (let bay = 0; bay <= wall.shortFaceMullionBays; bay += 1)
+      box(side * (width / 2 + 0.1), 47,
+        -depth / 2 + bay * depth / wall.shortFaceMullionBays,
+        0.45, 78, 0.18, EUROPA_MULLION);
+  }
+  box(0, 85.72, 0, width + 0.7, 0.56, depth + 0.7, EUROPA_SPANDREL);
+  const frontage = p.breitscheidplatzFrontage;
+  const [fx, fz] = frontage.centerOffsetM;
+  const [fw, fd] = frontage.footprintM;
+  box(fx, 13.5, fz, fw + 2.1, 9, fd, EUROPA_PODIUM_GLASS);
+  for (const side of [-1, 1]) {
+    for (let floor = 1; floor < 3; floor += 1)
+      box(fx + side * ((fw + 2.1) / 2 + 0.12), 7.2 + floor * 3.6, fz,
+        0.45, 0.5, fd, EUROPA_SPANDREL);
+    for (let bay = 0; bay <= 20; bay += 1)
+      box(fx + side * ((fw + 2.1) / 2 + 0.12), 13.5, fz - fd / 2 + bay * fd / 20,
+        0.45, 9, 0.22, EUROPA_MULLION);
+  }
+  box(fx, 18.28, fz, fw + 2.6, 0.56, fd + 0.5, EUROPA_SPANDREL);
+  const [sx, sz] = p.roofStar.centerOffsetM;
+  box(sx, 86.34, sz, 4.2, 0.68, 2.5, STONE_SHADOW);
+  for (const dx of [-1.35, 1.35]) box(sx + dx, 90.05, sz, 0.58, 8.1, 0.58, EUROPA_SPANDREL);
+  box(sx, 94.1, sz, 3.3, 0.4, 0.45, EUROPA_SPANDREL);
+  const [ax, az] = p.roofStar.antennaOffsetM;
+  box(ax, 92.4, az, 0.3, 12.8, 0.3, EUROPA_SPANDREL);
+  const facade = europaBlockBatch(blocks, "Voxel Europa-Center facade and roof supports");
+  group.add(facade);
+  const [starX, starZ] = localPoint(p.centerWorldM, p.rotationY, sx, sz);
+  const star = createEuropaCenterStar(true, [starX, GROUND_Y + 98, starZ]);
+  // Keep the native pivot in world coordinates like the drawn pivot: the
+  // returned wrapper has no transform, and its static child owns the OSM yaw.
+  const root = new Group();
+  root.name = "Minecraft Europa-Center recognition details";
+  root.add(group, star);
+  root.userData = {
+    sourceProfile: p,
+    preservedSourcePrismIds: ["54276972"],
+    drawCallBudget: 2,
+    instanceBudget: 1_800,
+    instanceCount: blocks.length + (star.children[0] as InstancedMesh).count,
+    blockNative: true,
+    textureFree: true,
+  };
+  return root;
 }
 
 function addAllianzHaus(
@@ -2154,10 +2344,10 @@ export function createCityWestDetails(
   group.userData.profile = CITY_WEST_PROFILE;
   group.userData.sourceUrls = CITY_WEST_SOURCE_URLS;
   group.userData.batchPolicy =
-    "all facade grids, signs, and ornaments are merged into four local drawn batches";
+    "all facade grids, signs, and ornaments are merged into four local drawn batches; one independent star pivot rotates without rebuilding geometry";
 
   const towers = createBuilder();
-  addEuropaCenter(towers, detailProfile);
+  const europaStar = addEuropaCenter(towers, detailProfile);
   addAllianzHaus(towers, detailProfile);
   addKranzlerEck(towers, detailProfile);
   const towerBatch = finishBatch(towers, "City West towers and Kranzler Eck", {
@@ -2165,7 +2355,10 @@ export function createCityWestDetails(
     europaCenter: CITY_WEST_PROFILE.europaCenter,
     kranzlerEck: CITY_WEST_PROFILE.kranzlerEck,
   });
-  if (towerBatch) group.add(towerBatch);
+  if (towerBatch) {
+    towerBatch.add(europaStar);
+    group.add(towerBatch);
+  }
 
   const station = createBuilder();
   addBahnhofZoo(station, detailProfile);

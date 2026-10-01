@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.61 — City West and Karl-Marx-Allee
+
+- Refine the source-bound Zoofenster/Waldorf Astoria and Upper West silhouettes
+  and distinct limestone/white facade articulation at Breitscheidplatz.
+- Refine the historic Karl-Marx-Allee frontage and both Strausberger Platz and
+  Frankfurter Tor tower pairs in bounded, independently streamed city chunks.
+- Separate the Europa-Center roof star from static geometry and rotate its
+  drawn and block-native forms through the existing viewer frame scheduler.
+- Retain all unrelated city geometry, source records, mobile static detail,
+  the existing boundary and 93-place tour.
+
 ## v1.0.60
 
 - Step 10: restore Philharmonie and Kammermusiksaal's complete official wall and shaped roof surfaces, silver roof material, gold panel joints and source-anchored foyer entrances.

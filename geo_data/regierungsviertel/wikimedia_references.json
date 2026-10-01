@@ -5857,6 +5857,66 @@
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
       "description": "Gallery street facade: rusticated base and stone-filled blind upper windows; 2011 reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "europa-center",
+      "title": "File:Berlin_Europa_Center_1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Europa_Center_1.jpg",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "description": "Europa-Center facade and rotating rooftop star; external recognition reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "europa-center",
+      "title": "File:190829_Europa-Center_vom_Breitscheidplatz_aus_gesehen.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:190829_Europa-Center_vom_Breitscheidplatz_aus_gesehen.jpg",
+      "artist": "Ole Neitzel",
+      "credit": "Ole Neitzel / CC BY-SA 4.0",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "description": "Europa-Center facade and rotating rooftop star; external recognition reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "breitscheid-towers",
+      "title": "File:Charlottenburg Upper West und Zoofenster.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburg_Upper_West_und_Zoofenster.jpg",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "description": "Both Breitscheidplatz tower facades from the Kantstrasse entrance; external recognition reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "karl-marx-allee",
+      "title": "File:Berlin_Frankfurter_Tor_01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Frankfurter_Tor_01.jpg",
+      "artist": "H.Helmlechner",
+      "credit": "H.Helmlechner / CC BY-SA 4.0",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "description": "Historic avenue tower architecture, colour and facade hierarchy; external recognition reference only"
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "karl-marx-allee",
+      "title": "File:Strausberger_Platz_-_Haus_Berlin_-_geo.hlipp.de_-_31758.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Strausberger_Platz_-_Haus_Berlin_-_geo.hlipp.de_-_31758.jpg",
+      "artist": "Colin Smith",
+      "credit": "Colin Smith / CC BY-SA 2.0",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "description": "Historic avenue tower architecture, colour and facade hierarchy; external recognition reference only"
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

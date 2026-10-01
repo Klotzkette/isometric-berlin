@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import {
   Box3,
   Color,
@@ -14,7 +15,11 @@ import {
   CITY_WEST_RENDER_BUDGET,
   CITY_WEST_SOURCE_URLS,
   createCityWestDetails,
+  createMinecraftEuropaCenter,
+  isEuropaCenterStarTarget,
+  updateEuropaCenterStars,
 } from "../src/CityWestDetails";
+import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { createExpandedCityDetails } from "../src/ExpandedCityDetails";
 
 import {
@@ -76,6 +81,18 @@ function hasGeometryColor(root: Object3D, color: number): boolean {
     }
   });
   return found;
+}
+
+function geometryDigest(root: Object3D): string {
+  const hash = createHash("sha256");
+  root.traverse((object) => {
+    const geometry = (object as Mesh).geometry;
+    if (!geometry) return;
+    for (const attribute of Object.values(geometry.attributes))
+      hash.update(new Uint8Array(attribute.array.buffer));
+    if (geometry.index) hash.update(new Uint8Array(geometry.index.array.buffer));
+  });
+  return hash.digest("hex");
 }
 
 function localPoint(
@@ -495,6 +512,79 @@ describe("City West and Urania recognition details", () => {
     expect(hasGeometryColor(towers!, 0x666d6b)).toBe(true);
     expect(hasGeometryColor(towers!, 0x477b80)).toBe(true);
     expect(hasGeometryColor(towers!, 0xc83d39)).toBe(true);
+  });
+
+  test("rotates each mode's own star around its mast even after transform freezing", () => {
+    for (const root of [createCityWestDetails(), createMinecraftEuropaCenter()]) {
+      const targets: Object3D[] = [];
+      root.traverse((object) => {
+        if (isEuropaCenterStarTarget(object)) targets.push(object);
+      });
+      expect(targets).toHaveLength(1);
+      const star = targets[0];
+      const centre = star.position.clone();
+      const originalBuffers: ArrayBufferLike[] = [];
+      root.traverse((object) => {
+        const geometry = (object as Mesh).geometry;
+        if (geometry) for (const attribute of Object.values(geometry.attributes))
+          originalBuffers.push(attribute.array.buffer);
+      });
+      const originalDigest = geometryDigest(root);
+      freezeStaticSceneTransforms(root);
+      expect(star.matrixAutoUpdate).toBe(false);
+      updateEuropaCenterStars(targets, 0);
+      const originalMatrix = star.matrix.clone();
+      updateEuropaCenterStars(targets, 7.5);
+      expect(star.rotation.y).toBeCloseTo(CITY_WEST_PROFILE.europaCenter.rotationY + Math.PI / 2);
+      expect(star.matrix.equals(originalMatrix)).toBe(false);
+      expect(star.position.equals(centre)).toBe(true);
+      root.updateMatrixWorld(true);
+      expect(new Vector3().setFromMatrixPosition(star.matrixWorld).distanceTo(centre)).toBeLessThan(1e-8);
+      updateEuropaCenterStars(targets, 30);
+      expect(star.matrix.equals(originalMatrix)).toBe(true);
+      for (let frame = 0; frame < 1000; frame += 1)
+        updateEuropaCenterStars(targets, frame / 60);
+      expect(geometryDigest(root)).toBe(originalDigest);
+      const currentBuffers: ArrayBufferLike[] = [];
+      root.traverse((object) => {
+        const geometry = (object as Mesh).geometry;
+        if (geometry) for (const attribute of Object.values(geometry.attributes))
+          currentBuffers.push(attribute.array.buffer);
+      });
+      expect(currentBuffers).toHaveLength(originalBuffers.length);
+      currentBuffers.forEach((buffer, index) => expect(buffer).toBe(originalBuffers[index]));
+      expect(star.userData.centreWorld).toEqual(centre.toArray());
+    }
+  });
+
+  test("adds bounded native Europa surfaces without deleting the full mapped podium", () => {
+    const root = createMinecraftEuropaCenter();
+    const budget = geometryBudget(root);
+    expect(budget.renderables).toBe(2);
+    expect(root.userData.instanceCount).toBeLessThanOrEqual(root.userData.instanceBudget);
+    expect(root.userData.preservedSourcePrismIds).toEqual(["54276972"]);
+    expect(CITY_WEST_PROFILE.europaCenter.curtainWall.longFaceMullionBays).toBe(22);
+    expect(CITY_WEST_PROFILE.europaCenter.curtainWall.spandrelHeightM).toBe(1.5);
+    root.traverse((object) => {
+      const mesh = object as Mesh;
+      if (!mesh.geometry) return;
+      expect(mesh.geometry.type).toBe("BoxGeometry");
+      expect(mesh.userData.blockNative).toBe(true);
+      expect(mesh.userData.textureFree).toBe(true);
+    });
+    const bounds = new Box3().setFromObject(root);
+    expect(bounds.max.y).toBeCloseTo(CITY_WEST_PROFILE.groundY + 103, 3);
+  });
+
+  test("retains every non-Europa ensemble byte-for-byte and the full mobile geometry", () => {
+    const root = createCityWestDetails();
+    // Frozen v1.0.60 source geometry; this task owns only Europa-Center.
+    for (const [name, digest] of [
+      ["Bahnhof Zoo steel-glass halls", "53f341968805478a4f82a415f4ebd2bf8a71faa6bc3a31bee9ad69ad167da956"],
+      ["Gedächtniskirche and Breitscheidplatz ensemble", "a7a96bb7f4fe4578fc3ad9d9cce6526cc8c35baf57ec8c17c20ecb389b71a41a"],
+      ["Urania mirrored entrance ensemble", "91401346bb807c600ca0b5297af29afd899bb35a6c1f77543d182676e5256f76"],
+    ]) expect(geometryDigest(root.getObjectByName(name)!)).toBe(digest);
+    expect(geometryDigest(createCityWestDetails("mobile"))).toBe(geometryDigest(root));
   });
 
   test("merges ornament into four batches within full and mobile budgets", () => {

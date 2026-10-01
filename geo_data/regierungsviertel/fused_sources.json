@@ -882,6 +882,40 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "breitscheid_towers_v161",
+      "anchor_source": "Berlin LoD2 tile386_5818: complete thirty parts of DEBE04YY500002VL and DEBE00YY1JF00008; original OSM ways315777905 and474901812 retained",
+      "geometry_ref": "src/app/src/data/breitscheidTowersSource.json",
+      "documentation_ref": "docs/breitscheid-towers-v161.md",
+      "conflicts": [
+        "The two prior maximum-height OSM extrusions hid lower stepped wings. Replace exactly those display prisms/height-matched columns with all measured parts. Align each principal source datum to existing street ground; keep relative part elevations. Fine facade subdivision is a display interpretation."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "europa_center_v161",
+      "anchor_source": "Retained OSM complex1054276972, tower26408382 and frontage26408381; operator dimensions and rotation rate; licensed external references",
+      "geometry_ref": "src/app/src/CityWestDetails.ts",
+      "documentation_ref": "docs/europa-center-v161.md",
+      "conflicts": [
+        "Original packaged OSM complex is a low podium only. Retain it whole; add higher native tower/frontage. Facade bays and component depths are visual display proportions. Rotate only the independent10m star at two turns per minute."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "karl_marx_allee_v161",
+      "anchor_source": "41 explicitly enumerated Berlin LoD2 parents with185 original parts; retained existing outer-city footprints and OSM tower identities; LDA09085171/09085179 and licensed exterior views",
+      "geometry_ref": "geo_data/regierungsviertel/karl-marx-allee-v161.json",
+      "documentation_ref": "docs/karl-marx-allee-v161.md",
+      "audit_ref": "geo_data/regierungsviertel/karl-marx-allee-v161-audit.json",
+      "conflicts": [
+        "Five existing outer chunks previously extruded full parent polygons to their highest roof. Replace only exactly owned geometry with stepped source parts; preserve every unowned triangle and navigation footprint. Coarse Frankfurter Tor roof envelopes hide real round colonnades/copper cupolas; documented reference-shaped cupolas substitute only that explicit coarse roof conflict. Fine facade details are display interpretations."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
     }
   ],
   "features": [

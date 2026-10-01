@@ -477,7 +477,7 @@ height. OSM part `26408381` anchors the separate 69.41 x 18.30 m
 Breitscheidplatz frontage: two opaque base storeys support three turquoise
 glass office storeys, cantilevered edges and code-built red `RBB` / `94.3`
 roof signs. The two supplied photographs bound colour, facade hierarchy,
-sign position and the static star pose only; no photograph, logo file, font or
+sign position and the star structure only; no photograph, logo file, font or
 texture is bundled or loaded.
 The Gedächtniskirche ruin now reads as weathered masonry rather than a generic
 tower block: a genuinely empty lower arch crosses the complete footprint, the
@@ -1725,3 +1725,18 @@ The existing city, streets, 93-place tour and bounds are unchanged.
 
 Sources, preservation rules and validation are in
 [the v1.0.51 review](release-v1.0.51-review.md).
+
+## City West and Karl-Marx-Allee refinement (v1.0.61)
+
+The Europa-Center star now turns in all five visual modes through cached
+pivots in the existing viewer scheduler. Hidden tabs, offscreen targets and
+reduced-motion preferences avoid unnecessary animation. Native rollback also
+unregisters its pivot before geometry disposal. The complex/podium remains.
+
+Zoofenster and Upper West replace exactly two coarse OSM extrusions with all
+thirty official source parts and their distinct limestone/white-metal facades.
+The interactive viewer constructs the new layer once in a cancellable stage;
+the standalone city builder supplies the same layer by default. Native
+Minecraft has a separate surface-only block batch. Full/mobile drawn detail
+is identical. Karl-Marx-Allee detail is precomputed inside bounded existing
+outer-city chunks. See [v1.0.61 verification](release-v1.0.61-review.md).

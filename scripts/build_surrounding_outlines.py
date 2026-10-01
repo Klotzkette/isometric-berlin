@@ -507,8 +507,14 @@ def chunk_payload(
   surfaces: dict[str, BaseGeometry],
   *,
   minecraft: bool,
+  replaced_source_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
-  """Produce one independent mode-specific chunk; no hidden neighbour dependency."""
+  """Produce a chunk; exact named refinements may provide their own shell/nav.
+
+  Replacements never alter the source records, terrain, roads or other buildings.
+  The refining offline exporter must append the complete replacement and its
+  navigation before publishing. Default exports remain byte-identical.
+  """
   minx, minz, _, _ = tile.bounds
   mesh = PackedMesh(minx, minz)
   nav_buildings = []
@@ -562,6 +568,8 @@ def chunk_payload(
       geometry, WATER_Y if kind == "water" else GROUND_Y + level, COLORS[kind]
     )
   for record in buildings:
+    if record["sourceId"] in replaced_source_ids:
+      continue
     geometry = polygonal(record["geometry"].intersection(tile))
     if minecraft:
       geometry = native_polygon(geometry).intersection(ground)
