@@ -202,3 +202,25 @@ def test_refined_packets_keep_loader_limits_and_every_audited_chunk() -> None:
       for mesh in payload["meshes"]:
         assert len(base64.b64decode(mesh["positions"])) // 6 <= 400_000
         assert len(base64.b64decode(mesh["indices"])) // 4 <= 2_400_000
+
+
+def test_additive_sash_detail_keeps_full_source_walls_and_roofs(
+  exporter, source
+) -> None:
+  """New glazing subdivisions never replace measured geometry or native cells."""
+  for building in source["buildings"]:
+    detail, _ = exporter.building_detail(building)
+    roles = {role for _, _, role in detail.triangles}
+    if "window glazing" not in roles:
+      continue
+    assert roles >= {"window transom", "window lintel", "sill shadow"}
+    old_detail = exporter.Detail()
+    old_detail.triangles = [
+      t
+      for t in detail.triangles
+      if t[2] not in {"window transom", "window lintel", "sill shadow"}
+    ]
+    assert (
+      exporter.native_detail(detail).triangles
+      == exporter.native_detail(old_detail).triangles
+    )

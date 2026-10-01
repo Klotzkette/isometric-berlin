@@ -4289,6 +4289,127 @@
       "license": "CC BY-SA 2.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
       "description": "Historic avenue tower architecture, colour and facade hierarchy; external recognition reference only"
+    },
+    {
+      "landmark_id": "kadewe",
+      "title": "File:KaDeWe front.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:KaDeWe_front.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Gellerj; perspective correction Arch2all",
+      "credit": "Gellerj / CC BY-SA 3.0; perspective correction Arch2all",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "wittenbergplatz",
+      "title": "File:U-Bahnhof Wittenbergplatz 0686.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:U-Bahnhof_Wittenbergplatz_0686.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Dosseman",
+      "credit": "Dosseman / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "wittenbergplatz_memorial",
+      "title": "File:Gedenktafel Wittenbergplatz (Schön) Orte des Schreckens.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Gedenktafel_Wittenbergplatz_(Sch%C3%B6n)_Orte_des_Schreckens.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "OTFW, Berlin",
+      "credit": "OTFW, Berlin / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ernst_reuter_platz",
+      "title": "File:Brunnen Berlin-Charlottenburg, Ernst-Reuter-Platz, 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Brunnen_Berlin-Charlottenburg,_Ernst-Reuter-Platz,_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "strausberger_platz",
+      "title": "File:Schwebender Ring.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schwebender_Ring.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Lukas Beck",
+      "credit": "Lukas Beck / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexanderplatz_fountain",
+      "title": "File:Brunnen der Voelkerfreundschaft Berlin 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Brunnen_der_Voelkerfreundschaft_Berlin_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brückels",
+      "credit": "Manfred Brückels / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "weltzeituhr",
+      "title": "File:Weltzeituhr 2.png",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Weltzeituhr_2.png",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Enrico Mevius",
+      "credit": "Enrico Mevius / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hackesche_hoefe",
+      "title": "File:Berlin-mitte-hacke-hof1-osten.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-mitte-hacke-hof1-osten.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Bgabel",
+      "credit": "Bgabel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hackesche_hoefe",
+      "title": "File:Berlin-Mitte-hacke-hoefe-aussen.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte-hacke-hoefe-aussen.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Bgabel",
+      "credit": "Bgabel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "rosenthaler_platz",
+      "title": "File:Mitte Rosenthaler Platz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Rosenthaler_Platz.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hackescher_markt",
+      "title": "File:Hackescher Markt November 2013.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hackescher_Markt_November_2013.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Arild Vågen",
+      "credit": "Arild Vågen / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

@@ -1,3 +1,5 @@
+import { hackescherHoefePassageAt } from "./hackescherMarktV163Profile";
+import { eastSquaresV163SolidAt } from "./eastSquaresV163Profile";
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
 import { alexanderPublicRealmSolidAt, alexanderPublicRealmSupportHeightAt } from "./alexanderPublicRealmProfile";
 import { fernsehturmPavilionSolidAt, fernsehturmPavilionSupportHeightAt } from "./fernsehturmPavilionProfile";
@@ -1549,7 +1551,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
-      runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false,
+      eastSquaresV163SolidAt(x,z,y,radius) || (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) => runtime.surroundingCity?.waterAt(x, z) ?? false,
   };
 }
@@ -3486,6 +3488,9 @@ function ensureIsoWorld(
   const kulturforumMuseumDetails = import("./KulturforumMuseums");
   const northRailDetails = import("./HbfNorthApproach");
   const breitscheidDetails = import("./BreitscheidTowers");
+  const westSquaresDetails = import("./WestSquaresV163");
+  const eastSquaresDetails = import("./EastSquaresV163");
+  const hackescherDetails = import("./HackescherMarktV163");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3506,9 +3511,9 @@ function ensureIsoWorld(
     concertDetails,
     kulturforumMuseumDetails,
     northRailDetails,
-    breitscheidDetails,
+    breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3559,7 +3564,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3782,6 +3787,12 @@ function ensureIsoWorld(
         isoWorld.add(bikini.createBikiniBerlin());
         yield;
         isoWorld.add(breitscheid.createBreitscheidTowers());
+        yield;
+        isoWorld.add(westSquares.createWestSquaresV163());
+        yield;
+        isoWorld.add(eastSquares.createEastSquaresV163());
+        yield;
+        isoWorld.add(hackescher.createHackescherMarktV163());
         yield;
         isoWorld.add(moabitHouses.createMoabitGuardHouses());
         isoWorld.add(ulapQuarter.createUlapQuarter());
@@ -4278,7 +4289,7 @@ function ensureVoxelWorld(
           palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
           musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
-          sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+          hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return false;

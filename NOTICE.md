@@ -17,6 +17,25 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Berlin squares and City West streets (v1.0.63):** Berlin LoD2 supplies
+  retained building surfaces and OpenStreetMap supplies current feature,
+  street, basin and access identities. Official operator, artist and heritage
+  descriptions guide independently authored recognition detail. New external
+  Wikimedia references are by Lukas Beck (CC BY-SA 4.0), Manfred Brückels
+  and Enrico Mevius (CC BY-SA 3.0) for the eastern fountains/clock; Gellerj
+  with perspective correction by Arch2all (CC BY-SA 3.0), Dosseman
+  (CC BY-SA 4.0), OTFW, Berlin and Manfred Brückels (CC BY-SA 3.0) for
+  KaDeWe, Wittenbergplatz and Ernst-Reuter-Platz; and Bgabel, Arild Vågen
+  (CC BY-SA 3.0) and Fridolin freudenfett (CC BY-SA 4.0) for Hackescher Markt,
+  the Hackesche Höfe and Rosenthaler Platz. All eleven per-file records are
+  mirrored in the source and public Wikimedia manifests. They remain
+  reference-only: no photographic pixels, font or texture are bundled.
+  The displayed intact Schwebender Ring is a documented reconstruction choice,
+  not a claim about the active 2026 construction site. Facade subdivisions,
+  fountain jets and the KaDeWe glass-roof proportions remain display estimates.
+  See the [source and release review](docs/release-v1.0.63-review.md).
+
+
 - **City West and Karl-Marx-Allee (v1.0.61):** official Berlin LoD2 and retained
   OpenStreetMap identities anchor the refined tower and avenue geometry.
   The Europa-Center operator documents its ten-metre rotating star; LANGHOF

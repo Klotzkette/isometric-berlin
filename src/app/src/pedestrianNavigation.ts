@@ -1,3 +1,5 @@
+import { HACKESCHER_MARKT_V163_PRISM_IDS, HACKESCHER_MARKT_V163_PARTS, hackescherMarktRoofAt } from "./hackescherMarktV163Profile";
+import { WEST_SQUARES_V163_PRISM_IDS, WEST_SQUARES_V163_SOURCE_BOUNDS, westSquaresV163RoofAt } from "./westSquaresV163Profile";
 import { BREITSCHEID_TOWER_PRISM_IDS, BREITSCHEID_TOWER_SOURCE_BOUNDS, breitscheidTowerRoofAt } from "./breitscheidTowersProfile";
 import { CITY_WEST_PROFILE } from "./CityWestDetails";
 import { gedaechtniskircheRuinSolidAt } from "./MinecraftGedaechtniskirche";
@@ -654,6 +656,28 @@ export function compilePedestrianObstacles(
         index.buildingCount += 1;
         for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
           addPolygonObstacle(index, wing.ring, [], wing.baseY, wing.topY, wing.id, 1);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (HACKESCHER_MARKT_V163_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("hackescher-markt-v163")) {
+        replacedParents.add("hackescher-markt-v163");
+        for (const part of HACKESCHER_MARKT_V163_PARTS) {
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1,
+            (x,z) => hackescherMarktRoofAt(x,z,visualMode() === "minecraft"));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (WEST_SQUARES_V163_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("west-squares-v163")) {
+        replacedParents.add("west-squares-v163");
+        for (const { part, topY } of WEST_SQUARES_V163_SOURCE_BOUNDS) for (const ring of part.rings) {
+          addPolygonObstacle(index, ring, [], part.groundY, topY + 2, part.id, 1,
+            (x,z) => westSquaresV163RoofAt(x,z,visualMode() === "minecraft"));
           index.buildingCount += 1;
         }
       }

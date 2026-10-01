@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.0.63 — Berlin squares and street fronts
+
+- Refine Karl-Marx-Allee facade trim while preserving every previous coloured
+  source triangle, and add Fritz Kühn’s Schwebender Ring with its open supports,
+  copper relief plates and fountain arrangement at Strausberger Platz.
+- Add the source-anchored Urania-Weltzeituhr and Brunnen der Völkerfreundschaft
+  at Alexanderplatz with separate block-native forms and open approaches.
+- Refine Hackescher Markt, its station and the Hackesche Höfe from retained
+  source parts, open courts and mapped passages; refine eleven source-bound
+  Rosenthaler Platz parents with the correctly identified Circus Hostel.
+- Add Ernst-Reuter-Platz’s two basins, mapped island and Telefunken tower,
+  Wittenbergplatz’s station building and memorial sign, and KaDeWe’s measured
+  building body with entrance, facade rhythm and an explicit glass-roof estimate.
+- Refine Kurfürstendamm, Uhlandstraße, Fasanenstraße and Meinekestraße within
+  existing bounds: 360 outer LoD2 parents/1,484 parts, 324 retained core fronts,
+  source-aligned sidewalks and curbs, all prepared in bounded streaming packets.
+- Keep the v1.0.62 loading/residency safeguards, full drawn detail on touch and
+  pointer devices, separate Minecraft geometry, unchanged bounds and 93-place tour.
+  Source conflicts and non-surveyed subdivisions are recorded in the review.
+
 ## v1.0.62 — Lossless viewer performance
 
 - Batch the same immutable park instances more efficiently and share identical

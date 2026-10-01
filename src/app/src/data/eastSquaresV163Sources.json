@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "frame": "EPSG:25833 x=easting-389500, z=5820000-northing",
+  "osmLicense": "ODbL-1.0",
+  "osmSources": [
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/map?bbox=13.410,52.520,13.415,52.524",
+      "sha256": "8d7e56ddb5cccdb8b5d2f04faf1648ffc77a85121b00497d3489674c43985973"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/map?bbox=13.427,52.518,13.431,52.521",
+      "sha256": "ddd1e8f1cc24fd74aab9524dbeb3c18c9da6cff2af22ec49129ec528c738e9a4"
+    }
+  ],
+  "features": {
+    "friendship": {
+      "osmKey": "way/52564405",
+      "name": "Brunnen der Völkerfreundschaft",
+      "centerXZ": [
+        2811.462,
+        -285.791
+      ],
+      "outlineXZ": [
+        [
+          2804.439,
+          -294.283
+        ],
+        [
+          2807.546,
+          -296.095
+        ],
+        [
+          2811.078,
+          -296.797
+        ],
+        [
+          2814.726,
+          -296.316
+        ],
+        [
+          2818.015,
+          -294.652
+        ],
+        [
+          2820.577,
+          -292.014
+        ],
+        [
+          2822.119,
+          -288.687
+        ],
+        [
+          2822.48,
+          -285.029
+        ],
+        [
+          2821.614,
+          -281.454
+        ],
+        [
+          2819.625,
+          -278.371
+        ],
+        [
+          2816.725,
+          -276.109
+        ],
+        [
+          2813.319,
+          -274.937
+        ],
+        [
+          2809.721,
+          -274.916
+        ],
+        [
+          2806.305,
+          -276.06
+        ],
+        [
+          2803.441,
+          -278.226
+        ],
+        [
+          2801.422,
+          -281.208
+        ],
+        [
+          2800.48,
+          -284.667
+        ],
+        [
+          2800.702,
+          -288.256
+        ],
+        [
+          2802.071,
+          -291.576
+        ],
+        [
+          2804.439,
+          -294.283
+        ]
+      ],
+      "groundY": 3,
+      "groundStatus": "existing outer-city display ground, not survey elevation",
+      "osmHeightTag": null
+    },
+    "worldClock": {
+      "osmKey": "way/417529567",
+      "name": "Urania-Weltzeituhr",
+      "centerXZ": [
+        2845.618,
+        -188.915
+      ],
+      "outlineXZ": [
+        [
+          2844.003,
+          -186.222
+        ],
+        [
+          2843.21,
+          -186.895
+        ],
+        [
+          2842.687,
+          -187.786
+        ],
+        [
+          2842.471,
+          -188.792
+        ],
+        [
+          2842.602,
+          -189.813
+        ],
+        [
+          2843.064,
+          -190.749
+        ],
+        [
+          2843.793,
+          -191.478
+        ],
+        [
+          2844.726,
+          -191.925
+        ],
+        [
+          2845.753,
+          -192.047
+        ],
+        [
+          2846.767,
+          -191.836
+        ],
+        [
+          2847.658,
+          -191.304
+        ],
+        [
+          2848.326,
+          -190.511
+        ],
+        [
+          2848.699,
+          -189.557
+        ],
+        [
+          2848.737,
+          -188.521
+        ],
+        [
+          2848.444,
+          -187.526
+        ],
+        [
+          2847.835,
+          -186.694
+        ],
+        [
+          2846.994,
+          -186.089
+        ],
+        [
+          2846.003,
+          -185.799
+        ],
+        [
+          2844.965,
+          -185.844
+        ],
+        [
+          2844.003,
+          -186.222
+        ]
+      ],
+      "groundY": 3,
+      "groundStatus": "existing outer-city display ground, not survey elevation",
+      "osmHeightTag": "0"
+    },
+    "floatingRing": {
+      "osmKey": "way/24240866",
+      "name": "Schwebender Ring",
+      "centerXZ": [
+        3855.672,
+        125.001
+      ],
+      "outlineXZ": [
+        [
+          3870.324,
+          124.021
+        ],
+        [
+          3870.009,
+          128.176
+        ],
+        [
+          3868.533,
+          132.083
+        ],
+        [
+          3866.01,
+          135.411
+        ],
+        [
+          3862.65,
+          137.886
+        ],
+        [
+          3858.729,
+          139.325
+        ],
+        [
+          3854.555,
+          139.613
+        ],
+        [
+          3850.475,
+          138.7
+        ],
+        [
+          3846.819,
+          136.685
+        ],
+        [
+          3843.877,
+          133.727
+        ],
+        [
+          3841.886,
+          130.056
+        ],
+        [
+          3841.018,
+          125.976
+        ],
+        [
+          3841.333,
+          121.821
+        ],
+        [
+          3842.816,
+          117.926
+        ],
+        [
+          3845.332,
+          114.598
+        ],
+        [
+          3848.692,
+          112.111
+        ],
+        [
+          3852.613,
+          110.672
+        ],
+        [
+          3856.787,
+          110.396
+        ],
+        [
+          3860.867,
+          111.297
+        ],
+        [
+          3864.529,
+          113.313
+        ],
+        [
+          3867.472,
+          116.281
+        ],
+        [
+          3869.456,
+          119.941
+        ],
+        [
+          3870.324,
+          124.021
+        ]
+      ],
+      "groundY": 3,
+      "groundStatus": "existing outer-city display ground, not survey elevation",
+      "osmHeightTag": null
+    }
+  },
+  "facts": {
+    "floatingRing": {
+      "artist": "Fritz Kühn",
+      "architect": "Heinz Graffunder",
+      "ringDiameterM": 10.5,
+      "copperPanels": 16,
+      "panelHeightM": 2.5,
+      "panelWidthM": 1.5,
+      "outerJets": 43,
+      "maximumCentralJetM": 18,
+      "url": "https://fritz-kuehn-gesellschaft.de/fritzkuehn/skulpturen/"
+    },
+    "friendship": {
+      "artist": "Walter Womacka",
+      "execution": "Hans-Joachim Kunsch",
+      "bowlCount": 17,
+      "basinCount": 2,
+      "basinDiameterM": 23,
+      "heightM": 6.2,
+      "urls": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09060092",
+        "https://www.berlin.de/tourismus/insidertipps/5336515-2339440-brunnen-in-berlin-top-10.html"
+      ]
+    },
+    "worldClock": {
+      "designer": "Erich John",
+      "zoneFaces": 24,
+      "heightM": 10,
+      "columnHeightM": 2.7,
+      "columnDiameterM": 1.5,
+      "urls": [
+        "https://www.berlin.de/sehenswuerdigkeiten/3561749-3558930-weltzeituhr.html",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020854",
+        "https://de.wikipedia.org/wiki/Weltzeituhr_(Alexanderplatz)"
+      ]
+    }
+  },
+  "conflicts": [
+    "Schwebender Ring is shown intact as explicitly requested, not as the current construction site. Berlin announced dismantling in June 2024 and planned reopening in 2027: https://www.berlin.de/sen/stadtentwicklung/quartiersentwicklung/staedtebaufoerderung/nachhaltige-erneuerung/aktuell/artikel.1453454.php",
+    "Urania OSM building=roof height=0 is a mapped canopy identity, not a measured total height. The open 10m clock is represented with its single column, never an occupied closed building.",
+    "Friendship OSM mapped water outline is retained exactly; published 23m includes the outer basin edge. Inner basin, bowl sizes/heights and frieze motifs are procedural recognition proportions, not a per-part survey."
+  ],
+  "photographs": [
+    {
+      "fileTitle": "File:Schwebender Ring.jpg",
+      "author": "Lukas Beck",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Schwebender_Ring.jpg"
+    },
+    {
+      "fileTitle": "File:Brunnen der Voelkerfreundschaft Berlin 1.jpg",
+      "author": "Manfred Brückels",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brunnen_der_Voelkerfreundschaft_Berlin_1.jpg"
+    },
+    {
+      "fileTitle": "File:Weltzeituhr 2.png",
+      "author": "Enrico Mevius",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Weltzeituhr_2.png"
+    }
+  ],
+  "photographsBundled": false,
+  "geometryPolicy": "OSM measured horizontal anchors and basin outlines, published structural counts and dimensions, procedural intermediate subdivisions; texture-free; same drawn detail on touch and pointer"
+}

@@ -1,0 +1,363 @@
+{
+  "release": "1.0.63",
+  "date": "2026-10-01",
+  "scope": "Production build on host; iPhone 13 WebKit and Pixel 5 Chrome browser profiles are not physical-device tests. Buffer bytes exclude textures, framebuffer and driver allocations. No universal FPS or crash-free guarantee.",
+  "reports": {
+    "desktopChrome": {
+      "engine": "chromium",
+      "touch": false,
+      "errors": [],
+      "peakWebGLBufferBytes": 266389753,
+      "samples": [
+        {
+          "mode": "day",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 168626859,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "friendship-fountain",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 177849427,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "floating-ring",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 190596034,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "karl-marx-allee",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 210091048,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "hackescher-markt",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 201195707,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 211074095,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "endell-court",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 228087294,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "rosenthaler-platz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 229228404,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "ernst-reuter-platz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 209215228,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 256035973,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "kadewe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 246831859,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "kudamm-fasanen",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 254064836,
+          "allNewModelsPresentExactlyOnce": true
+        }
+      ]
+    },
+    "mobileWebKit": {
+      "engine": "webkit",
+      "touch": true,
+      "errors": [],
+      "peakWebGLBufferBytes": 104064571,
+      "samples": [
+        {
+          "mode": "day",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 77204879,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 90751657,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 92898779,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 83917207,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 103255395,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 97920405,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "minecraft",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 86623370,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "minecraft",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 74674396,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "minecraft",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 96008607,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "night",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 76868751,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "night",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 92844817,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "night",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 94654277,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "snowstorm",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 83942203,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "snowstorm",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 103294207,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "snowstorm",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 97945401,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 83700239,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 103255359,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 97920369,
+          "allNewModelsPresentExactlyOnce": true
+        }
+      ]
+    },
+    "mobileChrome": {
+      "engine": "chromium",
+      "touch": true,
+      "errors": [],
+      "peakWebGLBufferBytes": 103344777,
+      "samples": [
+        {
+          "mode": "day",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 74824533,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 90484297,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "day",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 92027455,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "world-clock",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 80946911,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "hackesche-hoefe",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 102709839,
+          "allNewModelsPresentExactlyOnce": true
+        },
+        {
+          "mode": "schwellenraum",
+          "view": "wittenbergplatz",
+          "ready": true,
+          "contextLost": false,
+          "lost": 0,
+          "bufferBytes": 97011885,
+          "allNewModelsPresentExactlyOnce": true
+        }
+      ]
+    }
+  },
+  "finalClockLetteringCheck": {
+    "engine": "chromium",
+    "errors": [],
+    "views": [
+      "world-clock"
+    ],
+    "ready": true
+  }
+}

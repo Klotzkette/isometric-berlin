@@ -51,7 +51,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v159 explicitly expands the source area from 31.3 to 81.5 km². The additional
 # independently streamed outlines ship losslessly compressed. This finite new
 # ceiling permits those assets; existing checks still reject legacy photo tiles.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 215 * 1024 * 1024
+# v163 adds bounded source streets and named squares inside the same polygon.
+# The measured complete offline package is 225.7 MiB; this 230 MiB archive
+# ceiling does not change live packet, decode or GPU residency budgets.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 230 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

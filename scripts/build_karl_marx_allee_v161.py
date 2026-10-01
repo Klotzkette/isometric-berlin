@@ -292,6 +292,11 @@ def wall_details(
       pane(u, y, 1.16, 1.73, PALETTE["glass"], 0.095, "window glazing")
       pane(u, y, 0.075, 1.72, PALETTE["frame"], 0.12, "window mullion")
       pane(u, y - 0.88, 1.55, 0.11, PALETTE["cream"], 0.14, "stone window sill")
+      # Additive v163 reading: fine photographed sash transoms and recessed
+      # lintel/shadow lines, clipped to the same measured wall polygon.
+      pane(u, y + 0.29, 1.16, 0.065, PALETTE["frame"], 0.125, "window transom")
+      pane(u, y + 1.08, 1.52, 0.095, PALETTE["cream"], 0.15, "window lintel")
+      pane(u, y - 1.01, 1.48, 0.055, PALETTE["stone"], 0.10, "sill shadow")
   for y, h in [(GROUND_Y + 4.35, 0.26), (y1 - 0.33, 0.24), (y1 - 0.65, 0.12)]:
     for part in getattr(
       poly.intersection(LineString([(u0, y), (u1, y)])),
@@ -553,6 +558,9 @@ def native_detail(detail: Detail) -> Detail:
   for triangle, color, role in detail.triangles:
     if role in {
       "window surround",
+      "window transom",
+      "window lintel",
+      "sill shadow",
       "window mullion",
       "stone window sill",
       "shopfront reveal",
@@ -780,7 +788,7 @@ def publish(
       descriptor["id"], entry["drawn"]["bytes"], entry["minecraft"]["bytes"], flush=True
     )
   manifest["source"]["karlMarxAllee"] = {
-    "version": "1.0.61",
+    "version": "1.0.63",
     "sourceIds": sorted(PARENT_IDS),
     "sourceEvidence": "geo_data/regierungsviertel/karl-marx-allee-v161.json",
     "policy": "Exact LoD2 part roofs replace only 41 named outer parent envelopes. Texture-free reference-derived facades and two explicitly approximate Frankfurter Tor cupolas. Existing other city surfaces and all unowned triangles remain unchanged. Full drawn detail identical on mobile. Source-data originals retained.",

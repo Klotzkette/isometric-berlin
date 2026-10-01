@@ -1,3 +1,5 @@
+import { HACKESCHER_MARKT_V163_PRISM_IDS } from "./hackescherMarktV163Profile";
+import { WEST_SQUARES_V163_PRISM_IDS } from "./westSquaresV163Profile";
 import { ULAP_QUARTER_IDS } from "./ulapQuarterProfile";
 import { MOABIT_GUARD_HOUSE_IDS, moabitGuardHouseRoofCode } from "./moabitGuardHouseProfile";
 import { MOABIT_PRISON_PORTAL_PRISM_IDS } from "./MoabitPrisonMemorialPark";
@@ -963,6 +965,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...CONCERT_HALL_PRISM_IDS,
   ...KULTURFORUM_MUSEUM_IDS,
   ...BREITSCHEID_TOWER_PRISM_IDS,
+  ...WEST_SQUARES_V163_PRISM_IDS,
+  ...HACKESCHER_MARKT_V163_PRISM_IDS,
   ...DOM_ALTES_PRISM_IDS,
   ...MUSEUM_TRIAD_PRISM_IDS,
   ...ADMIRALSPALAST_IDS,

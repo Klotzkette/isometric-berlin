@@ -1,3 +1,8 @@
+import { createMinecraftWestSquaresV163 } from "./WestSquaresV163";
+import { createMinecraftEastSquaresV163 } from "./EastSquaresV163";
+import { createMinecraftHackescherMarktV163 } from "./HackescherMarktV163";
+import { hackescherMarktSourceColumn } from "./hackescherMarktV163Profile";
+import { westSquaresV163SourceColumn } from "./westSquaresV163Profile";
 import { createMinecraftUlapQuarter } from "./UlapQuarter";
 import { isUlapQuarterColumn } from "./ulapQuarterProfile";
 import { createUlapPark } from "./UlapPark";
@@ -2770,6 +2775,12 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBreitscheidTowers());
   yield;
+  group.add(createMinecraftWestSquaresV163());
+  yield;
+  group.add(createMinecraftEastSquaresV163());
+  yield;
+  group.add(createMinecraftHackescherMarktV163());
+  yield;
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
   yield;
@@ -2933,6 +2944,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !concertHallSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell / 2) &&
       !kulturforumMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !breitscheidTowerSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !westSquaresV163SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !hackescherMarktSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&

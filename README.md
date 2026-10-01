@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.62 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.62/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.63 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.63/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.62** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.63** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.63 refines the fountains at Strausberger Platz and Alexanderplatz,
+the Weltzeituhr, Hackescher Markt/Höfe, Rosenthaler Platz, Ernst-Reuter-Platz,
+Wittenbergplatz and KaDeWe. Named City West street fronts, sidewalks and curbs
+receive bounded source-aligned detail. [Sources and review](docs/release-v1.0.63-review.md).
+
+Version 1.0.63 verfeinert die Brunnen am Strausberger Platz und Alexanderplatz,
+die Weltzeituhr, Hackeschen Markt/Höfe, Rosenthaler Platz, Ernst-Reuter-Platz,
+Wittenbergplatz und KaDeWe. Am Ku’damm sowie an Uhland-, Fasanen- und Meinekestraße
+kommen Fassadendetails, Gehwege und Bordsteine innerhalb des bestehenden Gebiets hinzu.
 
 Version 1.0.62 optimizes rendering and incremental loading while preserving all
 source geometry, facade detail, resolution and viewing distance.

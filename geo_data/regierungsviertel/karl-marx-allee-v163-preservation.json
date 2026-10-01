@@ -1,0 +1,35 @@
+{
+  "comparedAgainst": "v1.0.62",
+  "chunks": [
+    {
+      "chunk": "7_0",
+      "oldTrianglesPreserved": 49898,
+      "addedTriangles": 24985,
+      "navigationUnchanged": true
+    },
+    {
+      "chunk": "8_0",
+      "oldTrianglesPreserved": 66740,
+      "addedTriangles": 37559,
+      "navigationUnchanged": true
+    },
+    {
+      "chunk": "9_0",
+      "oldTrianglesPreserved": 56824,
+      "addedTriangles": 29345,
+      "navigationUnchanged": true
+    },
+    {
+      "chunk": "10_0",
+      "oldTrianglesPreserved": 58926,
+      "addedTriangles": 23151,
+      "navigationUnchanged": true
+    },
+    {
+      "chunk": "10_1",
+      "oldTrianglesPreserved": 21089,
+      "addedTriangles": 1098,
+      "navigationUnchanged": true
+    }
+  ]
+}
