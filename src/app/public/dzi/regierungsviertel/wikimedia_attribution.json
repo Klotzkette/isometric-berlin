@@ -4018,6 +4018,97 @@
       "credit": "Bernd Czyborra (Schibo) / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "ulap_park",
+      "title": "File:ULAP Freitreppe.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:ULAP_Freitreppe.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "S. Wetzel",
+      "credit": "S. Wetzel / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ulap_park",
+      "title": "File:ULAP Treppe zu Alt-Moabit.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:ULAP_Treppe_zu_Alt-Moabit.jpg",
+      "license": "Public domain (PD-self)",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Ulf Heinsohn",
+      "credit": "Ulf Heinsohn / Public domain (PD-self)",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ulap_urania_hall",
+      "title": "File:Invalidenstraße 58 (Berlin-Moabit).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Invalidenstraße_58_(Berlin-Moabit).jpg",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Bodo Kubrak",
+      "credit": "Bodo Kubrak / CC0 1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_prison_memorial",
+      "title": "File:Lehrter Gefängnis Häuser.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Lehrter_Gef%C3%A4ngnis_H%C3%A4user.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Berlin Brewer",
+      "credit": "Berlin Brewer / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_prison_memorial",
+      "title": "File:Geschichtspark Blick von der Zelle auf Beamtenhaus.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Geschichtspark_Blick_von_der_Zelle_auf_Beamtenhaus.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Assenmacher",
+      "credit": "Assenmacher / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_prison_memorial",
+      "title": "File:Geschichtspark Ehemaliges Zellengefängnis Moabit Berlin 14.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_14.jpg",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer / CC0-1.0",
+      "description": "Invalidenstraße cantilevered concrete portal and lower opposite jamb; the open presentation keeps through-passage",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_prison_memorial",
+      "title": "File:Geschichtspark Ehemaliges Zellengefängnis Moabit Berlin 17.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_17.jpg",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer / CC0-1.0",
+      "description": "Northern brick wall with inward whitewashed memorial band; text not reproduced",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_prison_memorial",
+      "title": "File:Geschichtspark Ehemaliges Zellengefängnis Moabit Berlin 18.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_18.jpg",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer / CC0-1.0",
+      "description": "Opposing inward whitewashed brick-wall face and park/guard-house relation; text not reproduced",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

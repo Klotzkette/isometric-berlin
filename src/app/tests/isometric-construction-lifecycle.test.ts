@@ -72,6 +72,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     return group;
   }
   const modules = {
+    "./UlapQuarter": { createUlapQuarter: () => model("ULAP quarter") },
+    "./MoabitGuardHouses": { createMoabitGuardHouses: () => model("Moabit officers houses") },
+    "./UlapPark": { createUlapPark: () => model("ULAP park") },
     "./BikiniBerlin": { createBikiniBerlin: () => model("Bikini source architecture") },
     "./LeipzigerPlatzSourceShells": { createLeipzigerPlatzSourceShells: () => model("Leipziger source shells") },
     "./LeipzigerPerimeterFacades": { createLeipzigerPerimeterFacades: () => model("Leipziger perimeter facades") },
@@ -182,7 +185,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(35); // Source-bound Mall/ministry/Bikini models publish with their world.
+  expect(h.built).toHaveLength(37); // Source-bound quarter and officers’ house addons publish with their world.
   expect(h.runtime.isoWorld?.getObjectByName("Leipziger source shells")).toBeDefined();
   expect(h.runtime.isoWorld?.getObjectByName("Potsdamer ministry architecture")).toBeDefined();
   expect(h.runtime.isoWorld?.getObjectByName("Bikini source architecture")).toBeDefined();

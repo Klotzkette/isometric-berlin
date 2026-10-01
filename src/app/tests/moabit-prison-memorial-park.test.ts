@@ -6,6 +6,7 @@ import {
   Material,
   Matrix4,
   Mesh,
+  Raycaster,
   Vector3,
 } from "three";
 
@@ -244,11 +245,11 @@ describe("source-bound Moabit prison memorial park", () => {
     const mobile = createMoabitPrisonMemorialPark("mobile");
     expect(moabitPrisonMemorialRenderStats(full)).toEqual({
       renderables: 5,
-      renderedVertices: 7_818,
+      renderedVertices: 20_466,
     });
     expect(moabitPrisonMemorialRenderStats(mobile)).toEqual({
       renderables: 5,
-      renderedVertices: 7_818,
+      renderedVertices: 20_466,
     });
     full.traverse((object) => {
       if (!(object instanceof Mesh) && !(object instanceof LineSegments)) return;
@@ -366,8 +367,8 @@ describe("source-bound Moabit prison memorial park", () => {
     const full = createMoabitPrisonMemorialParkMinecraft("full");
     const mobile = createMoabitPrisonMemorialParkMinecraft("mobile");
     expect(full).toBeInstanceOf(InstancedMesh);
-    expect(full.count).toBe(3_882);
-    expect(mobile.count).toBe(2_093);
+    expect(full.count).toBe(4_040);
+    expect(mobile.count).toBe(2_273);
     expect(full.userData.exactOneBatch).toBe(true);
     expect(full.userData.blockNative).toBe(true);
     expect(full.userData.smoothGeometryExcluded).toBe(true);
@@ -449,6 +450,48 @@ describe("source-bound Moabit prison memorial park", () => {
         ).toBeFalse();
       }
     }
+  });
+
+  test("keeps the two path-proven wall portals traversable in geometry and collision", () => {
+    const profile = MOABIT_PRISON_MEMORIAL_PROFILE;
+    expect(profile.preservedWallPathsWorldM.reduce((count, path) => count + path.length - 1, 0)).toBe(19);
+    const representations = [createMoabitPrisonMemorialPark("full"),
+      createMoabitPrisonMemorialParkMinecraft("full"),
+      createMoabitPrisonMemorialParkMinecraft("mobile")];
+    for (const root of representations) root.updateMatrixWorld(true);
+    for (const portal of profile.mappedPortals) {
+      const normal = new Vector3(Math.sin(portal.rotationY), 0, Math.cos(portal.rotationY));
+      const axis = new Vector3(Math.cos(portal.rotationY), 0, -Math.sin(portal.rotationY));
+      for (const offset of [-0.65, 0, 0.65]) {
+        const center = new Vector3(...portal.worldM).addScaledVector(axis, offset);
+        center.y += 1.2;
+        for (let along = -2; along <= 2; along += 0.25) {
+          const point = center.clone().addScaledVector(normal, along);
+          expect(moabitPrisonMemorialSolidAt(point.x, point.y, point.z, 0.25)).toBeFalse();
+        }
+        for (const root of representations) {
+          const ray = new Raycaster(center.clone().addScaledVector(normal, -2), normal, 0, 4);
+          expect(ray.intersectObject(root, true).filter((hit) => hit.object instanceof Mesh),
+            `${portal.name} ${root.name} portal blocked`).toHaveLength(0);
+        }
+      }
+      const beam = new Vector3(...portal.worldM);
+      expect(moabitPrisonMemorialSolidAt(beam.x, beam.y + 3.02, beam.z)).toBeTrue();
+    }
+  });
+
+  test("retains the source circle and labels cell hedges separately from administration beech", () => {
+    const profile = MOABIT_PRISON_MEMORIAL_PROFILE;
+    expect(profile.panopticonCourt.osmKey).toBe("way/4676004");
+    expect(profile.panopticonCourt.ringWorldM).toHaveLength(16);
+    expect(profile.cellHedge.species).toBe("hornbeam");
+    expect(profile.cellHedge.divisionPositionsLocalXM).toHaveLength(12);
+    expect(profile.cellHedge.centralPassageWidthM).toBe(2);
+    expect(profile.interpretiveReading).toContain("blood-beech administration");
+    const lastDivision = profile.cellHedge.divisionPositionsLocalXM.at(-1)!;
+    expect(lastDivision + 0.34).toBeLessThan(profile.walkInCell.wingAHedgeEndLocalXM);
+    expect(profile.panopticonCourt.ringWorldM.every(([x, , z]) =>
+      pointInPolygon([x, z], profile.parkRingWorldM))).toBeTrue();
   });
 
   test("uses a close recognition focus and keeps an explicit whole-site overview", () => {

@@ -1208,3 +1208,20 @@ individual reference credits are listed in the
 [Fernsehturm record](docs/fernsehturm-detail-v149.md),
 [Rathaus and Marienkirche record](docs/alexander-civic-v149.md) and
 [Forum and fountain record](docs/alexander-public-realm-v149.md).
+
+### ULAP and Moabit refinement (v1.0.57)
+
+OpenStreetMap park, bench, stair and building anchors: ODbL 1.0. Existing
+Berlin LoD2 envelopes and source roof planes: dl-de/zero-2-0. Historical and
+material facts checked against Berlin LDA entries 09050274 and 09050426,
+Berlin park descriptions and Rehwaldt Landschaftsarchitekten’s ULAP page.
+External image references only; no photograph or landscape plan is bundled:
+S. Wetzel, ULAP Freitreppe (CC BY-SA 4.0); Ulf Heinsohn, ULAP Treppe zu
+Alt-Moabit (public domain); Bodo Kubrak, Invalidenstraße 58 (CC0); Berlin Brewer,
+Lehrter Gefängnis Häuser (CC BY-SA 4.0); Assenmacher, Geschichtspark Blick von
+der Zelle auf Beamtenhaus (CC BY-SA 3.0); Singlespeedfahrer, Moabit park views
+Berlin 14/17/18 (CC0). Exact URLs/licenses are retained in the mirrored
+Wikimedia manifests and docs/ulap-v157-sources.md, docs/moabit-park-v157.md and
+docs/moabit-guard-houses-v157.md. Facade rhythm, bench dimensions and stair
+width/subdivisions remain display estimates; the coarse ULAP terrain-height
+conflict is documented, with no speculative shared terrain deformation.

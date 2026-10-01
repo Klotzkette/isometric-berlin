@@ -1,6 +1,7 @@
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry,
+  Float32BufferAttribute,
   BufferGeometry,
   Color,
   ConeGeometry,
@@ -33,6 +34,9 @@ const BRICK_MORTAR = 0xd0a990;
 const CONCRETE = 0xb7b4ad;
 const CONCRETE_DARK = 0x85837e;
 const BLOOD_BEECH = 0x654f48;
+const HORNBEAM = 0x64804a;
+const COURT_GRAVEL = 0xc6bca7;
+const WALL_WHITEWASH = 0xe0e0d8;
 const JUNIPER = 0x425d47;
 const SNOW = 0xeef3f1;
 
@@ -166,6 +170,61 @@ const ROOT_WORLD_M = [
 
 const WALL_THICKNESS_M = 0.82;
 
+// Wall way 53178124 includes the entrance nodes in its continuous polyline.
+// The crossing OSM paths, not an arbitrary break in the historic wall source,
+// identify the present-day openings. Clear widths are display estimates.
+const MAPPED_PORTALS = Object.freeze([
+  { name: "Invalidenstraße", worldM: [-314.456, 6.208, -799.185] as const,
+    rotationY: 0.442, clearWidthM: 2.8,
+    pathWayIds: ["418943514", "418943516"] as const },
+  { name: "Minna-Cauer-Straße", worldM: [-271.402, 5.189, -924.456] as const,
+    rotationY: 2.03, clearWidthM: 2.8,
+    pathWayIds: ["1395160076", "4676002"] as const },
+] as const);
+const LOWEST_MEMORIAL_GROUND_Y = Math.min(SOURCE_PROFILE.groundY,
+  ...MAPPED_PORTALS.map((portal) => portal.worldM[1]));
+
+// Exact delivered OSM path 4676004 ring, including its DGM-draped Y values.
+// Only the existing circular court's interior is filled: no park-wide plate,
+// path replacement or new lawn boundary is introduced.
+const PANOPTICON_COURT_RING_WORLD_M = Object.freeze([
+  [-359.04, 6.531, -890.61], [-356.69, 6.52, -891.32],
+  [-351.95, 6.508, -890.74], [-349.91, 6.483, -889.52],
+  [-347.46, 6.469, -886.4], [-346.73, 6.44, -883.88],
+  [-347.25, 6.443, -879.62], [-349.51, 6.48, -876.34],
+  [-351.44, 6.479, -875.01], [-354.79, 6.47, -874.11],
+  [-356.99, 6.471, -874.24], [-361.18, 6.459, -876.34],
+  [-362.79, 6.48, -878.29], [-364.04, 6.531, -882.51],
+  [-363.7, 6.542, -885.18], [-362.54, 6.535, -887.63],
+] as const);
+// The delivered ground-context sampler is 6.5 m throughout this court, and
+// the retained lawn plate sits 0.06 m above it. Preserve source path heights
+// while lifting this thin finish clear of that rendered ground surface.
+const COURT_TERRAIN_PLATEAU_Y_M = 6.5;
+const COURT_FINISH_CLEARANCE_M = 0.12;
+
+export const MOABIT_PRISON_PORTAL_PRISM_IDS: ReadonlySet<string> = new Set([
+  "pF0000BJ", "pF0000BI",
+]);
+const PORTAL_SOURCE_PRISM_RINGS_WORLD_M = Object.freeze([
+  [[-316.1, -798.1], [-317.8, -801.8], [-314.9, -803.2], [-313.2, -799.5]],
+  [[-314.6, -795], [-316.1, -798.1], [-313.2, -799.5], [-311.7, -796.4]],
+] as const);
+
+/** Only the two closed source gate envelopes are replaced by an open frame. */
+export function isMoabitPrisonPortalVoxelColumn(x: number, z: number): boolean {
+  if (x < -317.8 || x > -311.7 || z < -803.2 || z > -795) return false;
+  return PORTAL_SOURCE_PRISM_RINGS_WORLD_M.some((ring) => pointInRing(x, z, ring));
+}
+
+const CELL_HEDGE_DIVISIONS = Object.freeze(
+  Array.from({ length: 12 }, (_, index) => 8.2 + index * 3.8),
+);
+
+// The white memorial band appears on the inward face of the northern wall
+// remnants in the permitted 2023 photographs. No quotation is reproduced.
+const WHITEWASH_WALL_SEGMENTS = [[0, 12], [1, 0], [1, 1]] as const;
+
 const PANOPTICON_RING_WORLD_M = Object.freeze([
   [-354.9489354522, -886.064263956],
   [-352.6483113688, -881.56105179],
@@ -262,6 +321,25 @@ export const MOABIT_PRISON_MEMORIAL_PROFILE = Object.freeze({
   worldM: ROOT_WORLD_M,
   currentParkOpened: 2006,
   currentInterpretiveWingCount: 4,
+  mappedPortals: MAPPED_PORTALS,
+  panopticonCourt: Object.freeze({
+    osmKey: "way/4676004",
+    ringWorldM: PANOPTICON_COURT_RING_WORLD_M,
+    surface: "compacted gravel within the retained circular OSM path",
+    rendererTerrainPlateauYM: COURT_TERRAIN_PLATEAU_Y_M,
+    finishClearanceM: COURT_FINISH_CLEARANCE_M,
+  }),
+  openPortalSourceReplacement: Object.freeze({
+    sourcePrismIds: Object.freeze([...MOABIT_PRISON_PORTAL_PRISM_IDS]),
+    sourceRingsWorldM: PORTAL_SOURCE_PRISM_RINGS_WORLD_M,
+    reason: "two retained LoD2 cuboids close the actual gate passage; only their display and solid collision are replaced by the open concrete portal",
+  }),
+  cellHedge: Object.freeze({
+    species: "hornbeam",
+    divisionPositionsLocalXM: CELL_HEDGE_DIVISIONS,
+    centralPassageWidthM: 2,
+    geometryStatus: "published planted cell rhythm; local division spacing is a display estimate",
+  }),
   historicalPrisonWingCount: 5,
   reconstructedCellCount: 0,
   reconstructedBuildingCount: 0,
@@ -331,7 +409,7 @@ export const MOABIT_PRISON_MEMORIAL_PROFILE = Object.freeze({
       "retain the explicit OSM value for way 105495351; use the Berlin-published general height for wall ways without a source height and label those values as presentation rather than per-segment survey",
   }),
   interpretiveReading:
-    "four current wing traces, the exact OSM open concrete panopticon cube, three exercise-yard traces and blood-beech planting; the exact LoD2/OSM walk-in cell remains source-owned outside this module",
+    "four current wing traces, hornbeam cell divisions, the exact OSM open concrete panopticon cube and circular court, three exercise-yard traces and blood-beech administration planting; the exact LoD2/OSM walk-in cell remains source-owned outside this module",
   geometryStatus:
     "exact OSM park/wall plan with the official present-day interpretive programme; brick coursing and all uncited local display dimensions are non-surveyed recognition geometry",
   focus: Object.freeze({
@@ -365,6 +443,13 @@ export const MOABIT_PRISON_MEMORIAL_PROFILE = Object.freeze({
     "https://www.openstreetmap.org/way/195086492",
     "https://www.openstreetmap.org/node/2310445137",
     "https://www.openstreetmap.org/node/5772396362",
+    "https://www.openstreetmap.org/way/4676004",
+    ...MAPPED_PORTALS.flatMap((portal) =>
+      portal.pathWayIds.map((id) => `https://www.openstreetmap.org/way/${id}`),
+    ),
+    "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_14.jpg",
+    "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_17.jpg",
+    "https://commons.wikimedia.org/wiki/File:Geschichtspark_Ehemaliges_Zellengef%C3%A4ngnis_Moabit_Berlin_18.jpg",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050274",
     "https://www.berlin.de/justizvollzug/anstalten/jva-moabit/die-anstalt/historie/",
     "https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1649119.php",
@@ -586,6 +671,84 @@ function wallHeightForPath(pathIndex: number): number {
     : MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallHeightM;
 }
 
+/** Cut present access openings without changing the source wall polylines. */
+function wallSegmentsOutsidePortals(start: Point2, end: Point2): Array<readonly [Point2, Point2]> {
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const length = Math.hypot(dx, dz);
+  if (length < 0.05) return [];
+  let intervals: Array<readonly [number, number]> = [[0, 1]];
+  for (const portal of MAPPED_PORTALS) {
+    const amount = ((portal.worldM[0] - start[0]) * dx +
+      (portal.worldM[2] - start[1]) * dz) / (length * length);
+    const lineDistance = Math.abs((portal.worldM[0] - start[0]) * dz -
+      (portal.worldM[2] - start[1]) * dx) / length;
+    if (lineDistance > 0.15) continue;
+    const half = (portal.clearWidthM / 2 + 0.035) / length;
+    intervals = intervals.flatMap(([low, high]) => {
+      if (amount + half <= low || amount - half >= high) return [[low, high] as const];
+      const remaining: Array<readonly [number, number]> = [];
+      if (amount - half > low) remaining.push([low, amount - half]);
+      if (amount + half < high) remaining.push([amount + half, high]);
+      return remaining;
+    });
+  }
+  return intervals.map(([low, high]) => [
+    [start[0] + dx * low, start[1] + dz * low],
+    [start[0] + dx * high, start[1] + dz * high],
+  ] as const);
+}
+
+const DISPLAY_WALL_SEGMENTS = SOURCE_PROFILE.preservedWallPathsWorldM.map((path) =>
+  path.slice(0, -1).map((start, index) => wallSegmentsOutsidePortals(start, path[index + 1])),
+);
+
+function whitewashFaceSegments(offsetM = 0.444): Array<readonly [Point2, Point2]> {
+  return WHITEWASH_WALL_SEGMENTS.flatMap(([path, index]) =>
+    DISPLAY_WALL_SEGMENTS[path][index].map(([start, end]) => {
+      const dx = end[0] - start[0];
+      const dz = end[1] - start[1];
+      const length = Math.hypot(dx, dz);
+      const nx = -dz / length;
+      const nz = dx / length;
+      const towardPark = (ROOT_WORLD_M[0] - (start[0] + end[0]) / 2) * nx +
+        (ROOT_WORLD_M[2] - (start[1] + end[1]) / 2) * nz;
+      const offset = (towardPark > 0 ? 1 : -1) * offsetM;
+      return [[start[0] + nx * offset, start[1] + nz * offset],
+        [end[0] + nx * offset, end[1] + nz * offset]] as const;
+    }),
+  );
+}
+
+const WHITEWASH_FACES = whitewashFaceSegments();
+const WHITEWASH_NATIVE_FACES = whitewashFaceSegments(0.483);
+
+function addMappedPortals(structure: Builder, snow: Builder): void {
+  for (const portal of MAPPED_PORTALS) {
+    const [x, z] = localPoint([portal.worldM[0], portal.worldM[2]]);
+    const baseY = portal.worldM[1] - ROOT_WORLD_M[1];
+    const axisX = Math.cos(portal.rotationY);
+    const axisZ = -Math.sin(portal.rotationY);
+    // The concrete frame is deliberately open in the walking presentation.
+    // A cantilever stops short of its lower opposite jamb, as photographed.
+    for (const side of [-1, 1]) {
+      const height = side === -1 ? 3.1 : 2.65;
+      addBox(structure, CONCRETE,
+        [x + side * axisX * 1.59, baseY + height / 2, z + side * axisZ * 1.59],
+        [0.36, height, 1.04], portal.rotationY, true);
+      addBox(snow, SNOW,
+        [x + side * axisX * 1.59, baseY + height + 0.035, z + side * axisZ * 1.59],
+        [0.42, 0.07, 1.1], portal.rotationY);
+    }
+    addBox(structure, CONCRETE_DARK,
+      [x - axisX * 0.1, baseY + 3.02, z - axisZ * 0.1],
+      [3.36, 0.28, 1.04], portal.rotationY, true);
+    addBox(snow, SNOW,
+      [x - axisX * 0.1, baseY + 3.195, z - axisZ * 0.1],
+      [3.4, 0.07, 1.1], portal.rotationY);
+  }
+}
+
 function addPreservedRedBrickWalls(
   structure: Builder,
   mortar: Builder,
@@ -602,8 +765,7 @@ function addPreservedRedBrickWalls(
       MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallPathsWorldM[pathIndex];
     const wallHeightM = wallHeightForPath(pathIndex);
     for (let index = 0; index < path.length - 1; index += 1) {
-      const start = path[index];
-      const end = path[index + 1];
+      for (const [start, end] of DISPLAY_WALL_SEGMENTS[pathIndex][index]) {
       addSegment(
         structure,
         RED_BRICK,
@@ -648,6 +810,21 @@ function addPreservedRedBrickWalls(
           WALL_THICKNESS_M + 0.025,
         );
       }
+      // Sparse alternating head joints make the retained wall read as brick
+      // at eye level without creating thousands of individual brick solids.
+      const length = Math.hypot(end[0] - start[0], end[1] - start[1]);
+      const rotationY = -Math.atan2(end[1] - start[1], end[0] - start[0]);
+      for (let row = 0; row < 2; row += 1) {
+        for (let along = 0.9 + row * 0.9; along < length - 0.3; along += 1.8) {
+          const amount = along / length;
+          const [x, z] = localPoint([
+            start[0] + (end[0] - start[0]) * amount,
+            start[1] + (end[1] - start[1]) * amount,
+          ]);
+          addBox(mortar, BRICK_MORTAR, [x, 1.25 + row * 2, z],
+            [0.028, 0.47, WALL_THICKNESS_M + 0.025], rotationY);
+        }
+      }
       addSegment(
         snow,
         SNOW,
@@ -657,6 +834,7 @@ function addPreservedRedBrickWalls(
         0.09,
         WALL_THICKNESS_M + 0.17,
       );
+      }
     }
   }
 }
@@ -705,6 +883,46 @@ function addInformationArtwork(builder: Builder): void {
     rotationY,
     true,
   );
+}
+
+function addPanopticonCourt(builder: Builder): void {
+  const ring = PANOPTICON_COURT_RING_WORLD_M;
+  const center = ring.reduce((sum, point) =>
+    [sum[0] + point[0] / ring.length,
+      sum[1] + point[1] / ring.length,
+      sum[2] + point[2] / ring.length], [0, 0, 0]);
+  const positions: number[] = [];
+  for (let index = 0; index < ring.length; index += 1) {
+    const start = ring[index];
+    const end = ring[(index + 1) % ring.length];
+    for (const point of [center, end, start]) {
+      positions.push(point[0] - ROOT_WORLD_M[0],
+        Math.max(point[1], COURT_TERRAIN_PLATEAU_Y_M) - ROOT_WORLD_M[1] + COURT_FINISH_CLEARANCE_M,
+        point[2] - ROOT_WORLD_M[2]);
+    }
+  }
+  const surface = new BufferGeometry();
+  surface.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  surface.setIndex(Array.from({ length: positions.length / 3 }, (_, index) => index));
+  surface.computeVertexNormals();
+  addGeometry(builder, surface, COURT_GRAVEL);
+}
+
+function addHornbeamCellDivisions(builder: Builder, snow: Builder): void {
+  // Explicit present-day planted cells, not reconstructed prison rooms.
+  // Keep a two-metre central passage and the source-owned cell approach open.
+  for (const x of CELL_HEDGE_DIVISIONS) {
+    for (const side of [-1, 1]) {
+      addPlanBox(builder, HORNBEAM, x, 1.15, side * 2.25,
+        0.68, 2.3, 2.5);
+      addPlanBox(snow, SNOW, x, 2.335, side * 2.25,
+        0.7, 0.07, 2.52);
+    }
+  }
+  for (const side of [-1, 1]) {
+    addPlanBox(snow, SNOW, WING_A_HEDGE_END_LOCAL_X_M / 2, 2.335,
+      side * 3.4, WING_A_HEDGE_END_LOCAL_X_M, 0.07, 1.27);
+  }
 }
 
 function addWingTrace(
@@ -805,12 +1023,12 @@ function addInterpretivePlan(
     );
   }
 
-  // Wing A: blood-beech hedges mark the cell rhythm. The single concrete cell
+  // Wing A: hornbeam hedges mark the cell rhythm. The single concrete cell
   // remains open at the path end, as required by the official park key.
   for (const side of [-1, 1]) {
     addPlanBox(
       builder,
-      BLOOD_BEECH,
+      HORNBEAM,
       WING_A_HEDGE_END_LOCAL_X_M / 2,
       1.15,
       side * 3.4,
@@ -905,9 +1123,15 @@ export function createMoabitPrisonMemorialPark(
   const interpretive = createBuilder();
   const snow = createBuilder();
   addPreservedRedBrickWalls(structure, mortar, snow, detailProfile);
+  for (const [start, end] of WHITEWASH_FACES) {
+    addSegment(structure, WALL_WHITEWASH, start, end, 1.08, 1.6, 0.025);
+  }
+  addMappedPortals(structure, snow);
   addPanopticonCube(structure, snow);
   addInformationArtwork(structure);
   addInterpretivePlan(interpretive, detailProfile);
+  addPanopticonCourt(interpretive);
+  addHornbeamCellDivisions(interpretive, snow);
   root.add(
     finishLayer(structure, MOABIT_PRISON_MEMORIAL_STRUCTURAL_LAYER_NAME, {
       alwaysOnStructuralDetail: true,
@@ -1079,7 +1303,7 @@ export function moabitPrisonMemorialSolidAt(
   if (![x, y, z, radiusM].every(Number.isFinite)) return false;
   const padding = Math.max(0, radiusM);
   const localY = y - MOABIT_PRISON_MEMORIAL_PROFILE.groundY;
-  if (localY < -padding) return false;
+  if (y < LOWEST_MEMORIAL_GROUND_Y - padding) return false;
 
   const wallRadiusSquared = (WALL_THICKNESS_M / 2 + padding) ** 2;
   for (
@@ -1092,13 +1316,27 @@ export function moabitPrisonMemorialSolidAt(
       const path =
         MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallPathsWorldM[pathIndex];
       for (let index = 0; index < path.length - 1; index += 1) {
-        if (
-          squaredDistanceToSegment(x, z, path[index], path[index + 1]) <=
-          wallRadiusSquared
-        ) {
-          return true;
+        for (const [start, end] of DISPLAY_WALL_SEGMENTS[pathIndex][index]) {
+          if (squaredDistanceToSegment(x, z, start, end) <= wallRadiusSquared) {
+            return true;
+          }
         }
       }
+    }
+  }
+
+  for (const portal of MAPPED_PORTALS) {
+    const dx = x - portal.worldM[0];
+    const dz = z - portal.worldM[2];
+    const portalY = y - portal.worldM[1];
+    const localX = dx * Math.cos(portal.rotationY) - dz * Math.sin(portal.rotationY);
+    const localZ = dx * Math.sin(portal.rotationY) + dz * Math.cos(portal.rotationY);
+    if (Math.abs(localZ) > 0.52 + padding || portalY < -padding) continue;
+    if (portalY <= 3.16 + padding && portalY >= 2.88 - padding &&
+        Math.abs(localX + 0.1) <= 1.68 + padding) return true;
+    for (const side of [-1, 1]) {
+      if (portalY <= (side === -1 ? 3.1 : 2.65) + padding &&
+          Math.abs(localX - side * 1.59) <= 0.18 + padding) return true;
     }
   }
 
@@ -1293,15 +1531,64 @@ function createMinecraftBlocks(
     const path =
       MOABIT_PRISON_MEMORIAL_PROFILE.preservedWallPathsWorldM[pathIndex];
     for (let index = 0; index < path.length - 1; index += 1) {
+      for (const [start, end] of DISPLAY_WALL_SEGMENTS[pathIndex][index]) {
       pushWorldSegmentBlocks(
         blocks,
-        path[index],
-        path[index + 1],
+        start,
+        end,
         wallHeightForPath(pathIndex),
         0.92,
         [RED_BRICK, RED_BRICK_LIGHT, RED_BRICK_DARK],
         blockSize,
       );
+      }
+    }
+  }
+
+  for (const portal of MAPPED_PORTALS) {
+    const [x, z] = localPoint([portal.worldM[0], portal.worldM[2]]);
+    const baseY = portal.worldM[1] - ROOT_WORLD_M[1];
+    const axisX = Math.cos(portal.rotationY);
+    const axisZ = -Math.sin(portal.rotationY);
+    for (const side of [-1, 1]) {
+      const height = side === -1 ? 3.1 : 2.65;
+      for (let level = 0; level < 4; level += 1) {
+        pushBlock(blocks,
+          [x + side * axisX * 1.59, baseY + height * (level + 0.5) / 4,
+            z + side * axisZ * 1.59],
+          [0.36, height / 4, 1.04], CONCRETE, portal.rotationY);
+      }
+    }
+    pushBlock(blocks, [x - axisX * 0.1, baseY + 3.02, z - axisZ * 0.1],
+      [3.36, 0.28, 1.04], CONCRETE_DARK, portal.rotationY);
+  }
+
+  for (const [start, end] of WHITEWASH_NATIVE_FACES) {
+    const dx = end[0] - start[0];
+    const dz = end[1] - start[1];
+    // Source wall blocks are 0.92 m thick, so expose this skin just beyond
+    // their inside face instead of letting the existing native wall hide it.
+    const offsetX = (start[0] + end[0]) / 2 - ROOT_WORLD_M[0];
+    const offsetZ = (start[1] + end[1]) / 2 - ROOT_WORLD_M[2];
+    pushBlock(blocks, [offsetX, 1.08, offsetZ],
+      [Math.hypot(dx, dz), 1.6, 0.025], WALL_WHITEWASH, -Math.atan2(dz, dx));
+  }
+
+  const courtRing = PANOPTICON_COURT_RING_WORLD_M.map((point) =>
+    [point[0], point[2]] as const);
+  const courtMinX = Math.min(...courtRing.map(([x]) => x));
+  const courtMaxX = Math.max(...courtRing.map(([x]) => x));
+  const courtMinZ = Math.min(...courtRing.map(([, z]) => z));
+  const courtMaxZ = Math.max(...courtRing.map(([, z]) => z));
+  for (let x = courtMinX + 0.6; x < courtMaxX; x += 1.2) {
+    for (let z = courtMinZ + 0.6; z < courtMaxZ; z += 1.2) {
+      // Interior surface blocks never extend beyond the exact retained path.
+      if (![[-0.6, -0.6], [0.6, -0.6], [0.6, 0.6], [-0.6, 0.6]]
+        .every(([dx, dz]) => pointInRing(x + dx, z + dz, courtRing))) continue;
+      pushBlock(blocks, [x - ROOT_WORLD_M[0],
+        COURT_TERRAIN_PLATEAU_Y_M - ROOT_WORLD_M[1] + COURT_FINISH_CLEARANCE_M - 0.04,
+        z - ROOT_WORLD_M[2]],
+        [1.2, 0.08, 1.2], COURT_GRAVEL);
     }
   }
 
@@ -1327,7 +1614,7 @@ function createMinecraftBlocks(
       [0, side * 3.4],
       [WING_A_HEDGE_END_LOCAL_X_M, side * 3.4],
       blockSize / 2,
-      BLOOD_BEECH,
+      HORNBEAM,
       blockSize,
     );
     if (detailProfile === "full") {
@@ -1336,9 +1623,19 @@ function createMinecraftBlocks(
         [0, side * 3.4],
         [WING_A_HEDGE_END_LOCAL_X_M, side * 3.4],
         blockSize * 1.5,
-        BLOOD_BEECH,
+        HORNBEAM,
         blockSize,
       );
+    }
+  }
+
+  for (const x of CELL_HEDGE_DIVISIONS) {
+    for (const side of [-1, 1]) {
+      for (let row = 0; row < 2; row += 1) {
+        const [worldX, worldZ] = planOffset(x, side * 2.25);
+        pushBlock(blocks, [worldX, 0.575 + row * 1.15, worldZ],
+          [0.68, 1.15, 2.5], HORNBEAM, SOURCE_PROFILE.rotationY);
+      }
     }
   }
 

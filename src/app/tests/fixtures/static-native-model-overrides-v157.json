@@ -1,0 +1,20 @@
+{
+  "MoabitPrisonMemorialPark/full": {
+    "hash": "7e127c23c657603dd28a7c3edcb87e263c01aeb68a14752db50a0589510a8567",
+    "budget": {
+      "bytes": 307880,
+      "draws": 1,
+      "instances": 4040,
+      "vertices": 24
+    }
+  },
+  "MoabitPrisonMemorialPark/mobile": {
+    "hash": "e250d609e79e31694d29fd8e3b85c9081d3c3ad50e33216ea42e6099785db853",
+    "budget": {
+      "bytes": 173588,
+      "draws": 1,
+      "instances": 2273,
+      "vertices": 24
+    }
+  }
+}

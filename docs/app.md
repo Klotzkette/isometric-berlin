@@ -1204,9 +1204,9 @@ outside plaque at OSM node `3841135547` remains an independent street detail.
 
 Day, Night, Snowstorm and Schwellenraum share the texture-free drawn root;
 Minecraft hides it and uses one block-native batch. Full Smooth is fixed at 5
-renderables / 7,818 rendered vertices and mobile Smooth at 5 / 5,448.
-Minecraft uses one batch with 3,882 blocks / 93,168 rendered instance vertices
-in full and 2,093 / 50,232 on mobile. Snow changes only exposed caps. Ordinary
+renderables / 20,466 stored vertices, identical on pointer and touch.
+Minecraft uses one batch with 4,040 blocks / 96,960 rendered instance vertices
+in full and 2,273 / 54,552 on mobile. Snow changes only exposed caps. Ordinary
 walking collision uses seven ±0.42 m body samples with the analytical memorial
 test at zero added radius; it follows the represented wall, retained-cell and
 Panoptikum solids while leaving the three mapped entrance gaps and cell

@@ -1,12 +1,11 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v155.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v157.json";
 
-// Synchronous v155 measurements must equal cooperative construction below.
-// Earlier fixtures remain frozen. v155 adds the east Charité families and
-// tower-foot pavilions, and finishes the existing church detail. Independent
-// source preservation, full/mobile parity and per-model tests cover each change.
+// Synchronous v157 measurements must equal cooperative construction below.
+// Earlier fixtures stay frozen; v157 refines only ULAP and Moabit ownership.
+// Source retention and full/mobile detail are independently tested per model.
 for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

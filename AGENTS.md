@@ -519,8 +519,8 @@ isometric-berlin/
   four segments of OSM way `105495351` retain their explicit 4 m height and the
   other 15 use Berlin's published general 5 m wall height only as a display
   value, not as per-segment survey evidence. Full Smooth presentation is frozen
-  at 5 renderables / 7,818 rendered vertices on both pointer and touch;
-  Minecraft is one batch with 3,882 / 2,093 blocks and 93,168 / 50,232 rendered
+  at 5 renderables / 20,466 stored vertices on both pointer and touch;
+  Minecraft is one batch with 4,040 / 2,273 blocks and 96,960 / 54,552 rendered
   instance vertices for full / mobile. The exact Panoptikum and retained LoD2
   cell do not replace or duplicate source park, lawn, path, tree or cell
   geometry. Ordinary collision keeps the three mapped entrance gaps and cell

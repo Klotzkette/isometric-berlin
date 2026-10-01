@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import overridesV148 from "./fixtures/static-native-model-overrides-v148.json";
+import overridesV157 from "./fixtures/static-native-model-overrides-v157.json";
 import overrides from "./fixtures/static-native-model-overrides-v147.json";
 import baseline from "./fixtures/static-native-models-v141.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
@@ -11,7 +12,7 @@ describe("static-detail restoration preserves the existing native Minecraft mode
       const module = await import(`../src/${entry[0]}.ts`);
       const root = createNativeAuditModel(module, entry, profile);
       expect(staticGeometryAudit(root)).toEqual(
-        overridesV148[`${entry[0]}/${profile}` as keyof typeof overridesV148] ?? overrides[`${entry[0]}/${profile}` as keyof typeof overrides] ?? baseline[`${entry[0]}/${profile}` as keyof typeof baseline],
+        overridesV157[`${entry[0]}/${profile}` as keyof typeof overridesV157] ?? overridesV148[`${entry[0]}/${profile}` as keyof typeof overridesV148] ?? overrides[`${entry[0]}/${profile}` as keyof typeof overrides] ?? baseline[`${entry[0]}/${profile}` as keyof typeof baseline],
       );
       disposeStaticAudit(root);
     });

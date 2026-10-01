@@ -1,0 +1,794 @@
+{
+  "sourceUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=13.3635,52.5225,13.3665,52.5238",
+  "license": "ODbL-1.0",
+  "retrieved": "2026-10-01",
+  "parkId": 4791783,
+  "parkRing": [
+    [
+      -368.698,
+      -437.391
+    ],
+    [
+      -471.357,
+      -460.581
+    ],
+    [
+      -491.615,
+      -469.386
+    ],
+    [
+      -454.86,
+      -494.881
+    ],
+    [
+      -407.0,
+      -524.599
+    ],
+    [
+      -365.023,
+      -552.347
+    ],
+    [
+      -368.698,
+      -437.391
+    ]
+  ],
+  "benches": [
+    {
+      "id": 3659325001,
+      "position": [
+        -395.068,
+        -508.416
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.457
+    },
+    {
+      "id": 3659325002,
+      "position": [
+        -415.71,
+        -506.858
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.393
+    },
+    {
+      "id": 3659325003,
+      "position": [
+        -427.711,
+        -494.8
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.445
+    },
+    {
+      "id": 3659325004,
+      "position": [
+        -395.586,
+        -485.538
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.31
+    },
+    {
+      "id": 3659325005,
+      "position": [
+        -372.012,
+        -532.92
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.6
+    },
+    {
+      "id": 11750006489,
+      "position": [
+        -369.576,
+        -544.282
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.604
+    },
+    {
+      "id": 11750006490,
+      "position": [
+        -380.538,
+        -536.173
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.587
+    },
+    {
+      "id": 11750006491,
+      "position": [
+        -373.173,
+        -512.215
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.593
+    },
+    {
+      "id": 11750006492,
+      "position": [
+        -378.766,
+        -523.325
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.558
+    },
+    {
+      "id": 11750006493,
+      "position": [
+        -386.274,
+        -505.88
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.499
+    },
+    {
+      "id": 11750006494,
+      "position": [
+        -393.686,
+        -522.973
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.498
+    },
+    {
+      "id": 11750006495,
+      "position": [
+        -402.899,
+        -521.357
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.485
+    },
+    {
+      "id": 11750006496,
+      "position": [
+        -412.843,
+        -512.657
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.429
+    },
+    {
+      "id": 11750006497,
+      "position": [
+        -404.329,
+        -503.774
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.374
+    },
+    {
+      "id": 11750006498,
+      "position": [
+        -406.604,
+        -494.444
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.315
+    },
+    {
+      "id": 11750006499,
+      "position": [
+        -411.046,
+        -485.621
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.3
+    },
+    {
+      "id": 11750006500,
+      "position": [
+        -380.113,
+        -494.412
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.506
+    },
+    {
+      "id": 11750006501,
+      "position": [
+        -372.196,
+        -489.426
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.549
+    },
+    {
+      "id": 11750006502,
+      "position": [
+        -384.183,
+        -476.544
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.231
+    },
+    {
+      "id": 11750006503,
+      "position": [
+        -373.22,
+        -464.278
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.225
+    },
+    {
+      "id": 11750006504,
+      "position": [
+        -400.233,
+        -466.726
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.276
+    },
+    {
+      "id": 11750006505,
+      "position": [
+        -402.218,
+        -480.38
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.295
+    },
+    {
+      "id": 11750006506,
+      "position": [
+        -444.475,
+        -493.355
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.746
+    },
+    {
+      "id": 11750006507,
+      "position": [
+        -371.336,
+        -456.345
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.177
+    },
+    {
+      "id": 11750006508,
+      "position": [
+        -385.018,
+        -454.942
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.194
+    },
+    {
+      "id": 11750006509,
+      "position": [
+        -367.946,
+        -525.139
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.6
+    },
+    {
+      "id": 11750006510,
+      "position": [
+        -398.504,
+        -457.072
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.278
+    },
+    {
+      "id": 11750006511,
+      "position": [
+        -376.497,
+        -481.745
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.37
+    },
+    {
+      "id": 11750006512,
+      "position": [
+        -427.97,
+        -507.97
+      ],
+      "tags": {
+        "amenity": "bench",
+        "backrest": "no",
+        "check_date": "2021-05-15"
+      },
+      "terrainY": 4.45
+    },
+    {
+      "id": 12917583798,
+      "position": [
+        -442.319,
+        -473.198
+      ],
+      "tags": {
+        "amenity": "bench",
+        "armrest": "no",
+        "backrest": "no",
+        "material": "concrete"
+      },
+      "terrainY": 4.786
+    },
+    {
+      "id": 12956905452,
+      "position": [
+        -427.047,
+        -470.782
+      ],
+      "tags": {
+        "amenity": "bench",
+        "armrest": "no",
+        "backrest": "no",
+        "material": "concrete"
+      },
+      "terrainY": 4.495
+    }
+  ],
+  "stairsAndLandings": [
+    {
+      "id": 342098481,
+      "points": [
+        [
+          -484.341,
+          -477.945
+        ],
+        [
+          -487.263,
+          -476.008
+        ]
+      ],
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "10",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 342098512,
+      "points": [
+        [
+          -488.676,
+          -475.072
+        ],
+        [
+          -491.852,
+          -472.974
+        ]
+      ],
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "11",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 985355687,
+      "points": [
+        [
+          -434.658,
+          -466.515
+        ],
+        [
+          -438.414,
+          -461.604
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "steps",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "step_count": "5",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 1395945051,
+      "points": [
+        [
+          -424.98,
+          -479.048
+        ],
+        [
+          -428.56,
+          -474.433
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "steps",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "step_count": "5",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 1395945052,
+      "points": [
+        [
+          -428.56,
+          -474.433
+        ],
+        [
+          -429.958,
+          -472.629
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "footway",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "step_count": "2",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 1395945053,
+      "points": [
+        [
+          -429.958,
+          -472.629
+        ],
+        [
+          -433.405,
+          -468.178
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "steps",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "step_count": "4",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 1395945054,
+      "points": [
+        [
+          -433.405,
+          -468.178
+        ],
+        [
+          -434.098,
+          -467.259
+        ],
+        [
+          -434.658,
+          -466.515
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "footway",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "step_count": "2",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "id": 1395945055,
+      "points": [
+        [
+          -434.098,
+          -467.259
+        ],
+        [
+          -442.733,
+          -474.409
+        ]
+      ],
+      "tags": {
+        "highway": "footway"
+      }
+    },
+    {
+      "id": 342098505,
+      "points": [
+        [
+          -487.263,
+          -476.008
+        ],
+        [
+          -488.676,
+          -475.072
+        ]
+      ],
+      "tags": {
+        "highway": "footway",
+        "lit": "yes",
+        "smoothness": "good",
+        "surface": "paving_stones"
+      }
+    },
+    {
+      "id": 361460040,
+      "points": [
+        [
+          -438.414,
+          -461.604
+        ],
+        [
+          -445.705,
+          -452.844
+        ]
+      ],
+      "tags": {
+        "handrail": "no",
+        "highway": "footway",
+        "incline": "up",
+        "lit": "no",
+        "ramp": "no",
+        "smoothness": "good",
+        "step_count": "11",
+        "surface": "paving_stones"
+      }
+    }
+  ],
+  "terrainSource": "retained ground-context.json bilinear 16m grid; stair rise flattened relative to published ~4m embankment",
+  "stairTrees": {
+    "source": "verbatim fingerprints from committed park-details.json; existing trees only",
+    "records": [
+      {
+        "position": [
+          -440.82,
+          4.792,
+          -486.03
+        ],
+        "trunkRadius": 0.05
+      },
+      {
+        "position": [
+          -434.08,
+          4.525,
+          -474.78
+        ],
+        "trunkRadius": 0.137
+      },
+      {
+        "position": [
+          -439.01,
+          4.721,
+          -478.99
+        ],
+        "trunkRadius": 0.264
+      },
+      {
+        "position": [
+          -442.55,
+          5.404,
+          -471.96
+        ],
+        "trunkRadius": 0.236
+      },
+      {
+        "position": [
+          -434.05,
+          4.535,
+          -473.43
+        ],
+        "trunkRadius": 0.127
+      },
+      {
+        "position": [
+          -440.72,
+          6.717,
+          -466.24
+        ],
+        "trunkRadius": 0.259
+      },
+      {
+        "position": [
+          -450.29,
+          5.48,
+          -469.86
+        ],
+        "trunkRadius": 0.275
+      },
+      {
+        "position": [
+          -456.27,
+          6.688,
+          -463.91
+        ],
+        "trunkRadius": 0.146
+      },
+      {
+        "position": [
+          -454.6,
+          3.936,
+          -458.85
+        ],
+        "trunkRadius": 0.517
+      },
+      {
+        "position": [
+          -451.95,
+          3.943,
+          -462.61
+        ],
+        "trunkRadius": 0.105
+      },
+      {
+        "position": [
+          -440.31,
+          6.862,
+          -465.8
+        ],
+        "trunkRadius": 0.105
+      },
+      {
+        "position": [
+          -434.24,
+          4.525,
+          -474.6
+        ],
+        "trunkRadius": 0.081
+      },
+      {
+        "position": [
+          -432.79,
+          4.549,
+          -473.73
+        ],
+        "trunkRadius": 0.084
+      },
+      {
+        "position": [
+          -441.82,
+          5.415,
+          -471.51
+        ],
+        "trunkRadius": 0.134
+      },
+      {
+        "position": [
+          -445.41,
+          5.393,
+          -473.96
+        ],
+        "trunkRadius": 0.359
+      }
+    ]
+  }
+}

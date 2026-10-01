@@ -1,3 +1,6 @@
+import { ULAP_QUARTER_IDS } from "./ulapQuarterProfile";
+import { MOABIT_GUARD_HOUSE_IDS, moabitGuardHouseRoofCode } from "./moabitGuardHouseProfile";
+import { MOABIT_PRISON_PORTAL_PRISM_IDS } from "./MoabitPrisonMemorialPark";
 import { DHM_PRISM_IDS } from "./dhmProfile";
 import { ALEXANDER_CIVIC_PRISM_IDS } from "./alexanderCivicProfile";
 import { EAST_CIVIC_PRISM_IDS } from "./eastCivicProfile";
@@ -914,6 +917,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // The two mapped gate envelopes are replaced by an open concrete portal.
+  ...MOABIT_PRISON_PORTAL_PRISM_IDS,
   // The complete source-outline theatre model restores the two-storey body,
   // round lecture hall and dome above the source's coarse 3m lower extrusion.
   ...CHARITE_THEATRE_REPLACEMENT_IDS,
@@ -1669,7 +1674,7 @@ export function createDistantBuildingShells(
     }
     let roofTriangles: Float32Array | null = null;
     const roofCode = HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) ? 1000 : economicMinistryRoofCode(
-      building.id, historicChariteRoofCode(building.id, building.roof ?? 0));
+      building.id, moabitGuardHouseRoofCode(building.id, historicChariteRoofCode(building.id, building.roof ?? 0)));
     // Never span an open source court with the fitted rectangular roof helper.
     if (!isGlass && !(building.holes?.length) &&
       [ROOF_GABLED, ROOF_HIPPED, ROOF_TENT, ROOF_SHED].includes(roofCode)) {
@@ -2586,6 +2591,8 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...MOABIT_GUARD_HOUSE_IDS,
+  ...ULAP_QUARTER_IDS,
   ...CHARITE_HISTORIC_FACADE_IDS,
   ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
@@ -2619,6 +2626,8 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...MOABIT_GUARD_HOUSE_IDS,
+  ...ULAP_QUARTER_IDS,
   ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
@@ -11796,7 +11805,7 @@ export function createIsometricCity(
     let roofRect: ReturnType<typeof fitRectangle> = null;
     const roofCode = HUMBOLDTHAFEN_BUILDING_IDS.has(building.id) ? 1000 : economicMinistryRoofCode(
       building.id,
-      historicChariteRoofCode(building.id, building.roof ?? 0),
+      moabitGuardHouseRoofCode(building.id, historicChariteRoofCode(building.id, building.roof ?? 0)),
     );
     if (building.id === CHARITE_ALTHOFF_TOWER_ID) {
       bodyHeight = Math.max(

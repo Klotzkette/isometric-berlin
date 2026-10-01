@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.57
+
+- Step 10: refine ULAP’s retained historic stair, mapped backless light benches, gravel grove and current quarter facades from open-data footprints and licensed references. Preserve the unresolved local height-source conflict explicitly.
+- Restore the Moabit memorial park’s source-proven Invalidenstraße and Minna-Cauer-Straße entrance passages; enrich hornbeam cell divisions, circular court, brickwork and inner-wall whitewash. Preserve all 19 source wall traces.
+- Detail the three surviving officers’ houses at Lehrter Straße 5B–5D with windowless park faces, exterior windows, brickwork, attic corbels and separate native Minecraft surfaces.
+- Retain all full drawn detail on mobile and the v1.0.56 startup-memory safeguards.
+
 ## v1.0.56
 
 - Step 10: limit mobile GPU prewarming to a generous camera-view margin instead of uploading the entire offscreen city immediately after startup; ordinary rendering and full model eligibility remain unchanged.

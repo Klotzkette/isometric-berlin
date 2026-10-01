@@ -27,6 +27,7 @@ import { JAMES_SIMON_SOURCE, JAMES_SIMON_PRISM_IDS, jamesSimonRoofAt } from "./j
 import { schlossNaturkundeSourceForPrism, schlossNaturkundePartRoofAt } from "./schlossNaturkundeProfile";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { BERLIN_JUNCTION_PRISM_IDS } from "./BerlinJunction";
+import { MOABIT_PRISON_PORTAL_PRISM_IDS } from "./MoabitPrisonMemorialPark";
 import { DB_TOWER_PRISM_IDS, DB_TOWER_SOURCE, dbTowerDisplayY, dbTowerRoofAt } from "./dbTowerProfile";
 import { DOM_ALTES_SOURCE, DOM_PROFILE, museumDisplayY, domRoofAt, altesRoofAt } from "./domAltesMuseumProfile";
 import { DOM_ALTES_PRISM_IDS } from "./domAltesMuseumIds";
@@ -686,6 +687,7 @@ export function compilePedestrianObstacles(
       continue;
     }
     if (BERLIN_JUNCTION_PRISM_IDS.has(building.id)) continue;
+    if (MOABIT_PRISON_PORTAL_PRISM_IDS.has(building.id)) continue;
     if (SONY_CENTER_ROOF_PRISM_IDS.has(building.id)) continue;
     if (BISMARCK_MOLTKE_PRISM_IDS.has(building.id)) continue;
     if (SOVIET_MEMORIAL_PRISM_IDS.has(building.id)) continue;

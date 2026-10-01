@@ -1,3 +1,5 @@
+import { ULAP_QUARTER_PARTS } from "../src/ulapQuarterProfile";
+import { MOABIT_GUARD_HOUSE_SOURCE } from "../src/moabitGuardHouseProfile";
 import { describe, expect, test } from "bun:test";
 import { LEIPZIGER_SOURCE_PROFILES } from "../src/leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
@@ -751,7 +753,9 @@ describe("ligne-claire fenestration", () => {
     // dedicated model tests verify the visible replacement detail and roofs.
     const replacedWallCounts: Record<string, number> = {};
     for (const prism of [...LEIPZIGER_SOURCE_PROFILES.flatMap(p => p.previous_display_prisms),
-      ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(p => p.previousDisplayPrisms)]) {
+      ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(p => p.previousDisplayPrisms),
+      ...ULAP_QUARTER_PARTS.map(p => p.viewerPrism),
+      ...MOABIT_GUARD_HOUSE_SOURCE.houses.flatMap(h => h.parts.map(p => p.previous_prism))]) {
       for (const wall of facadeWallsOf(prism)) {
         const zone = plazaFacadeDetailZoneForWall(wall);
         if (zone) replacedWallCounts[zone.name] = (replacedWallCounts[zone.name] ?? 0) + 1;
@@ -770,11 +774,12 @@ describe("ligne-claire fenestration", () => {
       detailedWallCounts["Großer Tiergarten-Parkrand"],
     ).toBeGreaterThan(250);
     // Eight harbour fronts moved to the dedicated source-bound
-    // Humboldthafen and Heidestrasse facade models; 100 generic station walls remain.
+    // Humboldthafen/Heidestrasse models; v157 ULAP fronts now also have
+    // dedicated source detail, counted together with the remaining ordinary pass.
     expect(
-      detailedWallCounts.Europaplatz +
-        detailedWallCounts.Washingtonplatz +
-        detailedWallCounts["Hauptbahnhof-Umfeld"],
+      retained("Europaplatz") +
+        retained("Washingtonplatz") +
+        retained("Hauptbahnhof-Umfeld"),
     ).toBeGreaterThanOrEqual(100);
     expect(axes.userData.plazaFacadeDetails.heroFacadesExcluded).toBe(true);
     expect(axes.userData.plazaFacadeDetails.extraRenderables).toBe(0);

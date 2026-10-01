@@ -3402,6 +3402,9 @@ function ensureIsoWorld(
   const potsdamerMinistryDetails = import("./PotsdamerMinistryArchitecture");
   const leipzigerPerimeterDetails = import("./LeipzigerPerimeterFacades");
   const bikiniDetails = import("./BikiniBerlin");
+  const ulapDetails = import("./UlapPark");
+  const ulapQuarterDetails = import("./UlapQuarter");
+  const moabitHouseDetails = import("./MoabitGuardHouses");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3418,9 +3421,9 @@ function ensureIsoWorld(
     komischeOperDetails,
     udlEntrances, civicEastDetails, dhmDetails, embassyDetails, eastOutlines, eastStreets,
     towerDetails, alexanderCivicDetails, alexanderPublicDetails,
-    leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails, bikiniDetails,
+    leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails, bikiniDetails, ulapDetails, ulapQuarterDetails, moabitHouseDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3689,6 +3692,13 @@ function ensureIsoWorld(
         isoWorld.add(potsdamerMinistry.createPotsdamerMinistryArchitecture());
         yield;
         isoWorld.add(bikini.createBikiniBerlin());
+        yield;
+        isoWorld.add(moabitHouses.createMoabitGuardHouses());
+        isoWorld.add(ulapQuarter.createUlapQuarter());
+        if (ground) {
+          const sample = smoothGroundTopSampler(ground);
+          isoWorld.add(ulap.createUlapPark((x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
+        }
         yield;
         isoWorld.add(createGorkiBuilding());
         yield;

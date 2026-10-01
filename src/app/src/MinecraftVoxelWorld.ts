@@ -1,3 +1,8 @@
+import { createMinecraftUlapQuarter } from "./UlapQuarter";
+import { isUlapQuarterColumn } from "./ulapQuarterProfile";
+import { createUlapPark } from "./UlapPark";
+import { createMinecraftMoabitGuardHouses } from "./MoabitGuardHouses";
+import { isMoabitGuardHouseColumn } from "./moabitGuardHouseProfile";
 import { createAlterDessauerMonument } from "./AlterDessauerMonument";
 import { createMinecraftWilhelmStresemannDetails } from "./WilhelmStresemannDetails";
 import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
@@ -189,7 +194,7 @@ import {
   wagnerMemorialVoxelReplacementAt,
 } from "./WagnerMemorial";
 import { berlinJunctionReplacesSourceColumn } from "./BerlinJunction";
-import { createMoabitPrisonMemorialParkMinecraft } from "./MoabitPrisonMemorialPark";
+import { createMoabitPrisonMemorialParkMinecraft, isMoabitPrisonPortalVoxelColumn } from "./MoabitPrisonMemorialPark";
 import { createWeidendammerBridgeMinecraft } from "./WeidendammerBridgeDetails";
 import {
   SOCIAL_COURT_PROFILE,
@@ -821,6 +826,9 @@ export function isCompleteRecognitionVoxelColumn(
   z: number,
 ): boolean {
   return (
+    isUlapQuarterColumn(x, z) ||
+    isMoabitPrisonPortalVoxelColumn(x, z) ||
+    isMoabitGuardHouseColumn(x, z) ||
     isMinecraftArchitecturalReplacementColumn(x, z) ||
     isMinecraftTipiReplacementColumn(x, z) ||
     isSpreeRecognitionReplacementColumn(x, z) ||
@@ -2779,6 +2787,10 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftPotsdamerMinistryArchitecture());
   yield;
   group.add(createBikiniBerlin(true));
+  yield;
+  group.add(createMinecraftMoabitGuardHouses());
+  group.add(createMinecraftUlapQuarter());
+  group.add(createUlapPark((x, z) => parkGround(x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx), true));
   yield;
   group.add(createMinecraftGedaechtniskirche());
   yield;
