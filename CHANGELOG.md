@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.0.66 — North Mitte, City West and Moabit
+
+- Refine Park Inn, Alexander north, Schönhauser Tor and the bounded Mitte
+  street fronts with complete source parts and richer facade articulation.
+- Add mapped parks, Jandorf, St. Elisabeth and Heine; retain source paths,
+  boundaries and individually mapped cemetery features.
+- Refine FÜRST, Savignyplatz, Kant Kino, Zoo Palast, KOSMOS and DKB Upbeat.
+- Refine Kriminalgericht/JVA Moabit and Lesser-Ury housing, including exterior
+  window bars and open source courtyards.
+- Preserve prior source detail and bounded mobile streaming. Keep separate
+  native Minecraft forms and document uncertain names and visual estimates.
+
+## v1.0.65 — Zoo and City West
+
+- Refine Zoo station, Schleusenkrug, the mapped Zoo grounds, Amerika Haus,
+  Bikini Berlin, Huthmacher-Haus, Kranzler Eck and Tauentzienstraße.
+- Keep complete measured source geometry, bounded mobile loading and separate
+  native Minecraft forms. See the v1.0.65 release review for evidence and QA.
+
 ## v1.0.64 — Neuer See and Siegessäule approaches
 
 - Refine Café am Neuen See’s current source building parts and glazed event

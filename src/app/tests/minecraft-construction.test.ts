@@ -2,12 +2,12 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v165.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v166.json";
 
-// Synchronous v165 measurements must equal cooperative construction below.
-// Earlier fixtures remain frozen. This cumulative baseline also includes the
-// intervening Kulturforum/north-rail, Breitscheid and v163 district additions;
-// v165 adds the complete Zoo / City West owners and refined Bikini terrace.
+// Synchronous v166 measurements must equal cooperative construction below.
+// Earlier fixtures remain frozen. This cumulative baseline retains the v165
+// world and adds the bounded Alexander-Nord, City West, Moabit, Mitte, KOSMOS
+// and Upbeat refinements measured after their production models were frozen.
 // It proves construction-path equality, not historical appearance preservation.
 // Source retention and full/mobile detail are independently tested per model.
 for (const [profile, expected] of Object.entries(baseline)) {

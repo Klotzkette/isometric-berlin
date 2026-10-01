@@ -1,3 +1,8 @@
+import { KOSMOS_V166_PARTS, kosmosV166RoofAt } from "./kosmosV166Profile";
+import { ALEXANDER_NORTH_V166_PRISM_IDS, ALEXANDER_NORTH_V166_PARTS, alexanderNorthV166RoofAt } from "./alexanderNorthV166Profile";
+import { CITYWEST_CINEMAS_V166_PRISM_IDS, CITYWEST_CINEMAS_V166_PARTS, cityWestCinemasV166RoofAt } from "./cityWestCinemasV166Profile";
+import { MOABIT_JUSTICE_V166_PRISM_IDS, MOABIT_JUSTICE_V166_PARTS, moabitJusticeV166RoofAt } from "./moabitJusticeV166Profile";
+import { MITTE_HERITAGE_V166_PRISM_IDS, MITTE_HERITAGE_V166_PARTS, mitteHeritageV166RoofAt } from "./mitteHeritageV166Profile";
 import { ZOO_GROUNDS_V165_PRISM_IDS, ZOO_GROUNDS_V165_PARTS, zooGroundsV165RoofAt } from "./zooGroundsV165Profile";
 import { KRANZLER_V165_PRISM_IDS, KRANZLER_V165_PARTS, kranzlerV165RoofAt } from "./kranzlerV165Profile";
 import { ZOO_STATION_V165_PRISM_IDS, ZOO_STATION_V165_PARTS, zooStationV165RoofAt } from "./zooStationV165Profile";
@@ -644,6 +649,7 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
     if (building.id === "15218373") {
       // The former solid nine-metre OSM prism closed the photographed arch.
       // Index its represented central piers/upper core, plus every retained
@@ -1261,6 +1267,30 @@ export function compilePedestrianObstacles(
   if (prisms.buildings.some(b => KOMISCHE_OPER_SOURCE_IDS.has(b.id))) {
     for (const wall of UNTER_DEN_LINDEN_ENTRANCE_BARRIERS) {
       addSegmentObstacle(index, wall.a, wall.b, wall.radius, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y - UNTER_DEN_LINDEN_ENTRANCE_DESCENT_M, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y + 1.1);
+    }
+  }
+  // Register all complete new source parts once, including parents absent from
+  // the old clipped prism catalogue; synthetic/partial test worlds stay local.
+  if (prisms.buildings.some(b => ALEXANDER_NORTH_V166_PRISM_IDS.has(b.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(b.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(b.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(b.id))) {
+    for (const part of ALEXANDER_NORTH_V166_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1, (x,z) => alexanderNorthV166RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+    for (const part of CITYWEST_CINEMAS_V166_PARTS) for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => cityWestCinemasV166RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+    for (const part of KOSMOS_V166_PARTS) for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => kosmosV166RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+    for (const part of MOABIT_JUSTICE_V166_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1, (x,z) => moabitJusticeV166RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+    for (const part of MITTE_HERITAGE_V166_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1, (x,z) => mitteHeritageV166RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
     }
   }
   return index;

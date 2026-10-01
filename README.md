@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.65 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.65/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.66 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.66/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.65** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.66** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.66 refines north Alexanderplatz, historical Mitte streets and parks,
+City West cinemas/Savignyplatz, Upbeat, and the Moabit court/prison ensemble.
+Complete source roofs and courts remain intact, with separate native Minecraft
+models and source-bound facades. [Sources and review](docs/release-v1.0.66-review.md).
+
+Version 1.0.66 ergänzt Details nördlich des Alexanderplatzes, an historischen
+Straßen und Parks in Mitte, an Kinos und am Savignyplatz, am Upbeat sowie am
+Kriminalgericht und der JVA Moabit. Vorhandene Geometrie bleibt erhalten.
 
 Version 1.0.65 refines Bahnhof Zoo and Amerika Haus, Schleusenkrug and the
 mapped Zoo grounds, Kranzler Eck, Bikini Berlin and the Huthmacher skyline.

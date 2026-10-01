@@ -1,0 +1,20 @@
+{
+  "MuseumLenneArchitecture/full": {
+    "hash": "af7e8ee6ce344b3b5fd7380b30fd64f85948688edb766f8fd243ef998fc5f70c",
+    "budget": {
+      "bytes": 937424,
+      "draws": 1,
+      "instances": 12326,
+      "vertices": 24
+    }
+  },
+  "MuseumLenneArchitecture/mobile": {
+    "hash": "f5df93b0c693d750a28318ff73eac0b344a58f645b6bdbef5c6b92d12f970b62",
+    "budget": {
+      "bytes": 934384,
+      "draws": 1,
+      "instances": 12286,
+      "vertices": 24
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "verified": "2026-10-01",
+  "identity": {
+    "kantKino": {
+      "osmNode": 312618622,
+      "osmBuildingRelation": 104701,
+      "lod2Parent": "DEBE04YY50002Xuw",
+      "heritageId": "09096234"
+    },
+    "zooPalast": {
+      "osmWay": 23010077,
+      "lod2Parent": "DEBE00YY1EZ0000h",
+      "heritageId": "09040473,T,002"
+    },
+    "savignyplatz": {
+      "osmPlaceWay": 492760729,
+      "osmParkRelation": 5462503,
+      "osmPathRelation": 5462504
+    },
+    "fuerst": {
+      "osmWay": 623444790,
+      "lod2Parent": "DEBE04YY500004MZ",
+      "identityStatus": "Existing mapped FÜRST / former Kudamm-Karree at Kurfürstendamm 206–209. The user term Ku’damm-Tower is ambiguous; no proposed Karstadt tower is inferred."
+    }
+  },
+  "primaryReferences": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096234",
+      "facts": "Kantstraße 54, cinema in rear wing; five central colossal pilasters and flanking balconies."
+    },
+    {
+      "url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/kultur-und-wissenschaft/kinos/artikel.157853.php",
+      "facts": "Zoo Palast, light yellow ceramic cladding, trapezoidal cinema with low projecting shop corners."
+    },
+    {
+      "url": "https://www.berlin.de/landesdenkmalamt/denkmale/aus-der-praxis-erkennen-und-erhalten/oeffentliche-anlagen/zoo-palast-641132.php",
+      "facts": "Listed cinema within Zentrum am Zoo, original street facade retained, subordinate rear additions."
+    },
+    {
+      "url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/freiflaechen/plaetze/artikel.156595.php",
+      "facts": "Savignyplatz divided by Kantstraße, Erwin Barth garden layout with sitting arbours and perennial beds; restored in 1987."
+    },
+    {
+      "url": "https://www.fuerstberlin.com/",
+      "facts": "Existing Kudamm-Karree redevelopment, removed tower plinth, horizontal and vertical facade articulation; current works are separate from historical survey."
+    },
+    {
+      "url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/aktuelles/city-west-blog/2026/artikel.1715237.php",
+      "facts": "September 2026 municipal description still identifies an active construction site and 23-storey tower."
+    }
+  ],
+  "references": [
+    {
+      "landmark_id": "kant_kino",
+      "title": "File:CharlottenburgKantKino.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:CharlottenburgKantKino.JPG",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "savignyplatz",
+      "title": "File:Charlottenburg Savignyplatz 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburg_Savignyplatz_01.jpg",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "zoo_palast",
+      "title": "File:Zoo Palast frontal 02-2014.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Zoo_Palast_frontal_02-2014.jpg",
+      "artist": "A.Savin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "A.Savin / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "conflicts": [
+    {
+      "feature": "FÜRST",
+      "attribute": "current construction and survey date",
+      "decision": "Retain complete official measured snapshot and source roof levels. Facade grid is a procedural recognition estimate. No claimed completed 2026 state or planned extra storeys."
+    },
+    {
+      "feature": "Savigny station viaduct",
+      "decision": "Exclude complete rail parents DEBE04AL36G0001U and DEBE04AL36G0001n from this building pass; existing rail/station representation retains ownership."
+    }
+  ]
+}

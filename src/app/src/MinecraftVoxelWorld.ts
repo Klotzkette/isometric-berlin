@@ -1,3 +1,13 @@
+import { createMinecraftKosmosV166 } from "./KosmosV166";
+import { upbeatV166NativeAccents } from "./upbeatV166Details";
+import { createMinecraftAlexanderNorthV166 } from "./AlexanderNorthV166";
+import { alexanderNorthV166SourceColumn } from "./alexanderNorthV166Profile";
+import { createMinecraftCityWestCinemasV166 } from "./CityWestCinemasV166";
+import { cityWestCinemasV166SourceColumn } from "./cityWestCinemasV166Profile";
+import { createMinecraftMoabitJusticeV166 } from "./MoabitJusticeV166";
+import { moabitJusticeV166SourceColumn } from "./moabitJusticeV166Profile";
+import { createMinecraftMitteHeritageV166 } from "./MitteHeritageV166";
+import { mitteHeritageV166SourceColumn } from "./mitteHeritageV166Profile";
 import { createMinecraftZooGroundsV165 } from "./ZooGroundsV165";
 import { zooGroundsV165SourceColumn } from "./zooGroundsV165Profile";
 import { createMinecraftKranzlerV165 } from "./KranzlerV165";
@@ -2485,17 +2495,18 @@ export function createMinecraftUpbeatRecognition(): InstancedMesh {
       const cellIndex =
         Math.round((x - minimumX) / cellM) + Math.round((z - minimumZ) / cellM);
       blocks.push({
-        color: cellIndex % 5 === 0 ? 0x72c5d2 : 0xa4dfe2,
+        color: cellIndex % 5 === 0 ? 0x5c7780 : 0x81979b,
         position: [x, profile.groundY + bodyHeight / 2, z],
         size: [cellM - 0.12, bodyHeight, cellM - 0.12],
       });
       blocks.push({
-        color: cellIndex % 4 === 0 ? 0xd4d4b7 : 0xf3efd0,
+        color: cellIndex % 4 === 0 ? 0xbcc0b3 : 0xd5d4c6,
         position: [x, top - 0.5, z],
         size: [cellM - 0.08, 1, cellM - 0.08],
       });
     }
   }
+  blocks.push(...upbeatV166NativeAccents());
   const writer = instancedBoxes("Voxel Upbeat Europacity", blocks.length);
   for (const block of blocks) {
     writer.write(
@@ -2934,6 +2945,16 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftCafeNeuerSeeV164());
   yield;
+  group.add(createMinecraftAlexanderNorthV166());
+  yield;
+  group.add(createMinecraftCityWestCinemasV166());
+  yield;
+  group.add(createMinecraftMoabitJusticeV166());
+  yield;
+  group.add(createMinecraftMitteHeritageV166());
+  yield;
+  group.add(createMinecraftKosmosV166());
+  yield;
   group.add(createMinecraftZooGroundsV165());
   yield;
   group.add(createMinecraftKranzlerV165());
@@ -3111,6 +3132,10 @@ export function* buildMinecraftVoxelWorldSteps(
       !hackescherMarktSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !moabitJusticeV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !mitteHeritageV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !kranzlerV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !zooGroundsV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !zooStationV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

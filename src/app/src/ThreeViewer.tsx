@@ -3496,6 +3496,12 @@ function ensureIsoWorld(
   const cafeNeuerSeeDetails = import("./CafeNeuerSeeV164");
   const spanishEmbassyDetails = import("./SpanishEmbassyV164");
   const gatehouseDetails = import("./GrosserSternGatehousesV164");
+  const upbeatV166Details = import("./UpbeatV166FacadeDetails");
+  const alexanderNorthV166Details = import("./AlexanderNorthV166");
+  const cityWestCinemasV166Details = import("./CityWestCinemasV166");
+  const moabitJusticeV166Details = import("./MoabitJusticeV166");
+  const mitteHeritageV166Details = import("./MitteHeritageV166");
+  const kosmosV166Details = import("./KosmosV166");
   const zooGroundsDetails = import("./ZooGroundsV165");
   const kranzlerDetails = import("./KranzlerV165");
   const zooStationDetails = import("./ZooStationV165");
@@ -3521,9 +3527,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3772,6 +3778,7 @@ function ensureIsoWorld(
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
+            includeCityRefinementsV166: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             retainRasterAsphalt: false,
@@ -3810,6 +3817,18 @@ function ensureIsoWorld(
         isoWorld.add(hackescher.createHackescherMarktV163());
         yield;
         isoWorld.add(cafeNeuerSee.createCafeNeuerSeeV164());
+        yield;
+        isoWorld.add(upbeatV166.createUpbeatV166FacadeDetails());
+        yield;
+        isoWorld.add(alexanderNorthV166.createAlexanderNorthV166());
+        yield;
+        isoWorld.add(cityWestCinemasV166.createCityWestCinemasV166());
+        yield;
+        isoWorld.add(moabitJusticeV166.createMoabitJusticeV166());
+        yield;
+        isoWorld.add(mitteHeritageV166.createMitteHeritageV166());
+        yield;
+        isoWorld.add(kosmosV166.createKosmosV166());
         yield;
         isoWorld.add(zooGrounds.createZooGroundsV165());
         yield;

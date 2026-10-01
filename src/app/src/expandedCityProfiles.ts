@@ -735,7 +735,8 @@ export const EUROPACITY_PROFILE = {
   upbeat: {
     centerWorldM: [-676.632229, -1973.543399] as const,
     completedState:
-      "facade complete; DKB handover scheduled for March 2026",
+      "completed and handed over to DKB on 5 August 2026; headquarters opening announced for 13 October 2026",
+    completionSource: "https://www.caimmo.com/de/presse/news/artikel/ca-immo-schliesst-berliner-projektentwicklung-upbeat-ab-und-uebergibt-gebaeude-an-die-dkb/",
     facadeBayPitchM: 1.45,
     facadeMaterial:
       "fine vertically fluted champagne-silver anodised aluminium over floor-to-ceiling glazing",

@@ -1,0 +1,33 @@
+{
+  "verified": "2026-10-01",
+  "osmWayId": "1214009386",
+  "handover": "2026-08-05",
+  "announcedOpening": "2026-10-13",
+  "completionSource": "https://www.caimmo.com/de/presse/news/artikel/ca-immo-schliesst-berliner-projektentwicklung-upbeat-ab-und-uebergibt-gebaeude-an-die-dkb/",
+  "facadeSource": "https://kleihues.com/news-aktuell/upbeat-fertigstellung-der-fassade/",
+  "references": [
+    {
+      "landmark_id": "dkb_upbeat",
+      "title": "File:Berlin 20260711 Upbeat 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_20260711_Upbeat_01.jpg",
+      "artist": "NutzerAusBerlin",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "NutzerAusBerlin / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "dkb_upbeat",
+      "title": "File:Berlin 20260711 Upbeat 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_20260711_Upbeat_02.jpg",
+      "artist": "NutzerAusBerlin",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "NutzerAusBerlin / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "detailStatus": "Fine aluminium fluting, dark top-of-window spandrels, lower terrace rails and entry frames are procedural subdivisions of the retained footprint/tier surfaces. Heights, number of tiers, source footprint and terrain datum are unchanged."
+}

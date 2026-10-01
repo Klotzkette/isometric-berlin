@@ -1,0 +1,82 @@
+{
+  "verified": "2026-10-02",
+  "identity": {
+    "actualName": "KOSMOS",
+    "formerName": "Kino Kosmos",
+    "currentUse": "event venue / conference centre",
+    "address": "Karl-Marx-Allee 131A",
+    "osmWayId": "606479961",
+    "monumentId": "09085140",
+    "userPhrase": "Kino der Kosmonauten",
+    "match": "likely but unconfirmed; not asserted as an actual place name"
+  },
+  "factualSources": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085140",
+      "role": "Primary heritage inventory",
+      "facts": [
+        "Kino Kosmos at Karl-Marx-Allee 131A",
+        "Low foyer around egg-shaped auditorium",
+        "Glazed foyer front and pale ceramic/silicate panels",
+        "1959 design and 1960–1962 construction period; architect collective Josef Kaiser and Herbert Aust"
+      ]
+    },
+    {
+      "url": "https://www.berlin.de/ost-west-ost-kulturbahnhoefe/en/history-walk/artikel.1604459.en.php",
+      "role": "Primary Berlin interpretation",
+      "facts": [
+        "Former cinema; other uses since 2005",
+        "Rear-widening frontage and egg-shaped auditorium"
+      ]
+    },
+    {
+      "url": "https://www.kosmos-berlin.de/",
+      "role": "Current operator",
+      "facts": [
+        "Current event and conference venue",
+        "Operator homepage history claims a 1961 opening; construction dates follow official heritage inventory instead"
+      ]
+    }
+  ],
+  "visualReferences": [
+    {
+      "title": "File:Kosmos Kino, Berlin-msu-2021-352-.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kosmos_Kino,_Berlin-msu-2021-352-.jpg",
+      "artist": "Matthias Süßen",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Kosmos Kino, Berlin-msu-2021-352-.jpg — Matthias Süßen (matthias-suessen.de), CC BY-SA 4.0, Wikimedia Commons. Inspected visual reference only; no image pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "sourceHierarchy": "Official LoD2 controls all geometry; OSM supplies exact current identity and footprint conflict evidence. Primary historic and operator facts are distinct from estimated fine facade subdivisions. Photo is external reference only.",
+  "estimatedDetail": [
+    "Glazing subdivisions and small pull handles",
+    "Procedural ceramic pattern and approximate palette",
+    "Auditorium horizontal masonry joints",
+    "Authored KOSMOS strokes on left ceramic panel"
+  ],
+  "sourceCoverage": {
+    "parents": 3,
+    "parts": 8,
+    "boundaryPolygons": 265,
+    "tile": "394_5819",
+    "sharedDatumNHN": 37.785,
+    "outerGroundY": 3
+  },
+  "budgets": {
+    "drawnBatches": 2,
+    "drawnBytes": 159936,
+    "facadeInstances": 1158,
+    "nativeBatches": 1,
+    "nativeBlocks": 3840,
+    "nativeBytes": 292488
+  },
+  "exclusions": [
+    "No proposed building",
+    "No active cinema claim",
+    "No temporary canopy or event marketing imagery inferred as permanent architecture",
+    "No copied photograph, logo artwork or texture"
+  ]
+}

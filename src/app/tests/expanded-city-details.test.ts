@@ -751,7 +751,7 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.upbeat.heightM).toBe(82);
     expect(profile.upbeat.facadeBayPitchM).toBe(1.45);
     expect(profile.upbeat.facadeMaterial).toContain("anodised aluminium");
-    expect(profile.upbeat.completedState).toContain("March 2026");
+    expect(profile.upbeat.completedState).toContain("5 August 2026");
     expect(profile.upbeat.groundY).toBeCloseTo(2.92, 2);
     expect(profile.upbeat.terrainDgm1).toEqual({
       dhhn2016MedianM: 32.92,

@@ -1,3 +1,13 @@
+import { createKosmosV166 } from "./KosmosV166";
+import { createUpbeatV166FacadeDetails } from "./UpbeatV166FacadeDetails";
+import { createAlexanderNorthV166 } from "./AlexanderNorthV166";
+import { ALEXANDER_NORTH_V166_PRISM_IDS } from "./alexanderNorthV166Profile";
+import { createCityWestCinemasV166 } from "./CityWestCinemasV166";
+import { CITYWEST_CINEMAS_V166_PRISM_IDS } from "./cityWestCinemasV166Profile";
+import { createMoabitJusticeV166 } from "./MoabitJusticeV166";
+import { MOABIT_JUSTICE_V166_PRISM_IDS } from "./moabitJusticeV166Profile";
+import { createMitteHeritageV166 } from "./MitteHeritageV166";
+import { MITTE_HERITAGE_V166_PRISM_IDS } from "./mitteHeritageV166Profile";
 import { createKranzlerV165 } from "./KranzlerV165";
 import { createZooStationV165 } from "./ZooStationV165";
 import { createZooGroundsV165 } from "./ZooGroundsV165";
@@ -342,6 +352,7 @@ export type IsometricCityBuildOptions = {
   includeKulturforumAndNorthRail?: boolean;
   includeBreitscheidTowers?: boolean;
   includeCityWestV165?: boolean;
+  includeCityRefinementsV166?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -982,6 +993,10 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...HACKESCHER_MARKT_V163_PRISM_IDS,
   ...GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS,
   ...CAFE_NEUER_SEE_V164_PRISM_IDS,
+  ...ALEXANDER_NORTH_V166_PRISM_IDS,
+  ...CITYWEST_CINEMAS_V166_PRISM_IDS,
+  ...MOABIT_JUSTICE_V166_PRISM_IDS,
+  ...MITTE_HERITAGE_V166_PRISM_IDS,
   ...KRANZLER_V165_PRISM_IDS,
   ...ZOO_GROUNDS_V165_PRISM_IDS,
   ...ZOO_STATION_V165_PRISM_IDS,
@@ -13177,6 +13192,7 @@ export function createIsometricCity(
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     if (options.includeBreitscheidTowers !== false) group.add(createBreitscheidTowers());
+    if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(),createKosmosV166());
     if (options.includeCityWestV165 !== false) group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus());
     if (options.includeKulturforumAndNorthRail !== false) {
       group.add(createConcertHalls());

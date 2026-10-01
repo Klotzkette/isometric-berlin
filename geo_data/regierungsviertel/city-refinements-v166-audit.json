@@ -1,0 +1,896 @@
+{
+  "version": "1.0.66",
+  "ownerCount": 478,
+  "chunks": [
+    {
+      "id": "-9_2",
+      "sourceIds": [
+        "DEBE04YY50002Xuw"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "ef2f1ed6f20de6af68874681b3f1c432af84b93c054637297e74935b18449371",
+          "removedTriangles": 96,
+          "addedTriangles": 0,
+          "preservedTriangles": 17800
+        },
+        "minecraft": {
+          "oldSha256": "45bf816895ca06a4296ca938a9057f5f0cb0977449266a8c9d322057c5fd014b",
+          "removedTriangles": 234,
+          "addedTriangles": 0,
+          "preservedTriangles": 37210
+        }
+      }
+    },
+    {
+      "id": "2_-5",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": "d415c23836d145f2778b9685717fb319a95d886d248ef9ecc5affe03dd0046d1",
+          "removedTriangles": 0,
+          "addedTriangles": 776,
+          "preservedTriangles": 3316
+        },
+        "minecraft": {
+          "oldSha256": "d3660e724595d6e57ba08def446751442832c92aadf4717843d1b5e87063fef4",
+          "removedTriangles": 0,
+          "addedTriangles": 1842,
+          "preservedTriangles": 9434
+        }
+      }
+    },
+    {
+      "id": "2_-4",
+      "sourceIds": [
+        "DEBE01YYK00000Al"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "7a685f684d902a8e0d79d5f4505ce8315ddf92cd2cf97786d005828b07cf56ab",
+          "removedTriangles": 25,
+          "addedTriangles": 16069,
+          "preservedTriangles": 1763
+        },
+        "minecraft": {
+          "oldSha256": "abad04a52d036fc51345efe4b02dc3e7c5f0b1dbb1d31f7ee86cba142d206d5f",
+          "removedTriangles": 55,
+          "addedTriangles": 38985,
+          "preservedTriangles": 4837
+        }
+      }
+    },
+    {
+      "id": "3_-4",
+      "sourceIds": [
+        "DEBE01YYK00000AU",
+        "DEBE01YYK00001Lg",
+        "DEBE01YYK00002sP",
+        "DEBE01YYK00004fp",
+        "DEBE01YYK00005jp",
+        "DEBE01YYK000075D",
+        "DEBE01YYK00007XX",
+        "DEBE01YYK00009Vp",
+        "DEBE01YYK0000D4G",
+        "DEBE01YYK0000DLZ",
+        "DEBE01YYK0000DX3",
+        "DEBE01YYK0000Dcz",
+        "DEBE01YYK0000Dia",
+        "DEBE01YYK0000ERp",
+        "DEBE01YYK0001x3d",
+        "DEBE01YYK0001y4n"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "8480dc02af5be8a56d45b3bd7c63b7e2dbfb8baafd369cd0f227a47152e362f5",
+          "removedTriangles": 647,
+          "addedTriangles": 5389,
+          "preservedTriangles": 24124
+        },
+        "minecraft": {
+          "oldSha256": "7252ba13c5d301fd9ea315e4a240ba38bc16da609e1fb32051c1b8dcfebb9a4e",
+          "removedTriangles": 1585,
+          "addedTriangles": 23839,
+          "preservedTriangles": 64552
+        }
+      }
+    },
+    {
+      "id": "3_-3",
+      "sourceIds": [
+        "DEBE00YY2830004o",
+        "DEBE00YY2830004p",
+        "DEBE00YYl90000Ds",
+        "DEBE00YYwq00002T",
+        "DEBE00YYwq00002U",
+        "DEBE00YYwq00002V",
+        "DEBE00YYwq00002Y",
+        "DEBE00YYwq00002Z",
+        "DEBE00YYwq00002b",
+        "DEBE00YYwq000038",
+        "DEBE01AL3GB0001Z",
+        "DEBE01YYK00000AU",
+        "DEBE01YYK00000vW",
+        "DEBE01YYK000011e",
+        "DEBE01YYK00001Lg",
+        "DEBE01YYK00001SY",
+        "DEBE01YYK00001V0",
+        "DEBE01YYK00001Y6",
+        "DEBE01YYK000039i",
+        "DEBE01YYK00003UA",
+        "DEBE01YYK00003r1",
+        "DEBE01YYK000045z",
+        "DEBE01YYK000049V",
+        "DEBE01YYK00004oN",
+        "DEBE01YYK00004uA",
+        "DEBE01YYK00005LB",
+        "DEBE01YYK00005Ln",
+        "DEBE01YYK00005Ol",
+        "DEBE01YYK00005VH",
+        "DEBE01YYK00005wJ",
+        "DEBE01YYK00006JC",
+        "DEBE01YYK00006kP",
+        "DEBE01YYK00007G9",
+        "DEBE01YYK00007I6",
+        "DEBE01YYK00008PY",
+        "DEBE01YYK00008jb",
+        "DEBE01YYK00008pN",
+        "DEBE01YYK000099B",
+        "DEBE01YYK00009LS",
+        "DEBE01YYK0000A7w",
+        "DEBE01YYK0000ABB",
+        "DEBE01YYK0000ANA",
+        "DEBE01YYK0000ATF",
+        "DEBE01YYK0000AcZ",
+        "DEBE01YYK0000BOt",
+        "DEBE01YYK0000BYp",
+        "DEBE01YYK0000Bqu",
+        "DEBE01YYK0000C5m",
+        "DEBE01YYK0000C6R",
+        "DEBE01YYK0000CGp",
+        "DEBE01YYK0000Ct4",
+        "DEBE01YYK0000D1O",
+        "DEBE01YYK0000D4G",
+        "DEBE01YYK0000D6q",
+        "DEBE01YYK0000Dia",
+        "DEBE01YYK0000Dxi",
+        "DEBE01YYK0000EVW",
+        "DEBE01YYK0000Ek9",
+        "DEBE01YYK0000EsW",
+        "DEBE01YYK0000Exo",
+        "DEBE01YYK0000Eyh",
+        "DEBE01YYK0000FGN",
+        "DEBE01YYK0001x34",
+        "DEBE01YYK0001xG0",
+        "DEBE01YYK0001xN4",
+        "DEBE01YYK0001xOB",
+        "DEBE01YYK0001xSp",
+        "DEBE01YYK0001xcU",
+        "DEBE01YYK0001xeP",
+        "DEBE01YYK0001xk0",
+        "DEBE01YYK0001xkn",
+        "DEBE01YYK0001xsW",
+        "DEBE01YYK0001xtM",
+        "DEBE01YYK0001xvP",
+        "DEBE01YYK0001xy1",
+        "DEBE01YYK0001xy9",
+        "DEBE01YYK0001yCD",
+        "DEBE01YYK0001yQ4",
+        "DEBE01YYK0001yRL",
+        "DEBE01YYK0001ySD",
+        "DEBE01YYK0001yU1",
+        "DEBE01YYK0001yeG",
+        "DEBE01YYK0001ylO",
+        "DEBE01YYK0001ywY",
+        "DEBE01YYK0001yxd",
+        "DEBE01YYK0001z0l"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "4b790b1301e722409d2ab967084f2f2662cd1248680d5eac099c2f29b4bca21a",
+          "removedTriangles": 2308,
+          "addedTriangles": 45047,
+          "preservedTriangles": 21817
+        },
+        "minecraft": {
+          "oldSha256": "dfeae609b7c89069c675527f57b14f103084a42779968abf7ebe7dfbfcb861d7",
+          "removedTriangles": 3860,
+          "addedTriangles": 149904,
+          "preservedTriangles": 40846
+        }
+      }
+    },
+    {
+      "id": "3_-2",
+      "sourceIds": [
+        "DEBE00YY2380007j",
+        "DEBE01YYK00001V0",
+        "DEBE01YYK00002BW",
+        "DEBE01YYK00004a4",
+        "DEBE01YYK00005LB",
+        "DEBE01YYK00005bR",
+        "DEBE01YYK000075k",
+        "DEBE01YYK00009Wo",
+        "DEBE01YYK0000AVw",
+        "DEBE01YYK0000Ab9",
+        "DEBE01YYK0000Bov",
+        "DEBE01YYK0000CLK",
+        "DEBE01YYK0000D1O",
+        "DEBE01YYK0000DIh",
+        "DEBE01YYK0000Dn2",
+        "DEBE01YYK0000Exo",
+        "DEBE01YYK0001x9F",
+        "DEBE01YYK0001yT5",
+        "DEBE01YYK0001yhW"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "35757b06be8e1979d1808e832ea9b22a24ba9636aae039a40c08cbdaed67676c",
+          "removedTriangles": 485,
+          "addedTriangles": 58170,
+          "preservedTriangles": 707
+        },
+        "minecraft": {
+          "oldSha256": "e0a3c3d2c6ead0688d58aac942339cc1a188516e25b7d494159b9c714a7ddb91",
+          "removedTriangles": 933,
+          "addedTriangles": 163310,
+          "preservedTriangles": 1836
+        }
+      }
+    },
+    {
+      "id": "4_-4",
+      "sourceIds": [
+        "DEBE01YYK0000Bd4"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "3fe41f54e3c03ace7dbd42c1ef93d87db46ac88fb6de6374f5dbfa0f3ff0f659",
+          "removedTriangles": 10,
+          "addedTriangles": 0,
+          "preservedTriangles": 20889
+        },
+        "minecraft": {
+          "oldSha256": "dccdad0974e816d16954f198068e6f78b61ec3cb76fae92f2b370fb3e6ec743a",
+          "removedTriangles": 43,
+          "addedTriangles": 0,
+          "preservedTriangles": 68665
+        }
+      }
+    },
+    {
+      "id": "4_-3",
+      "sourceIds": [
+        "DEBE00YYTD000034",
+        "DEBE01AL1qc0000B",
+        "DEBE01AL3P70000I",
+        "DEBE01YYK00000oI",
+        "DEBE01YYK00000yJ",
+        "DEBE01YYK00001Y6",
+        "DEBE01YYK00001fK",
+        "DEBE01YYK00001uL",
+        "DEBE01YYK00001xQ",
+        "DEBE01YYK000029N",
+        "DEBE01YYK00002Lf",
+        "DEBE01YYK00002XY",
+        "DEBE01YYK00002jn",
+        "DEBE01YYK00003Lz",
+        "DEBE01YYK00003Vu",
+        "DEBE01YYK00003YT",
+        "DEBE01YYK00003Yf",
+        "DEBE01YYK00003bW",
+        "DEBE01YYK00004B8",
+        "DEBE01YYK00004OP",
+        "DEBE01YYK00004P4",
+        "DEBE01YYK00004nI",
+        "DEBE01YYK000052Y",
+        "DEBE01YYK0000594",
+        "DEBE01YYK00005Jd",
+        "DEBE01YYK00005XN",
+        "DEBE01YYK00005cf",
+        "DEBE01YYK00005dG",
+        "DEBE01YYK00005pM",
+        "DEBE01YYK000068U",
+        "DEBE01YYK00006IE",
+        "DEBE01YYK00006Lb",
+        "DEBE01YYK00006Ln",
+        "DEBE01YYK00007AP",
+        "DEBE01YYK00007Fx",
+        "DEBE01YYK00007Nh",
+        "DEBE01YYK00007R6",
+        "DEBE01YYK0000875",
+        "DEBE01YYK00008F0",
+        "DEBE01YYK00008VR",
+        "DEBE01YYK00008kp",
+        "DEBE01YYK000096k",
+        "DEBE01YYK000097V",
+        "DEBE01YYK00009As",
+        "DEBE01YYK00009P8",
+        "DEBE01YYK00009jE",
+        "DEBE01YYK00009jM",
+        "DEBE01YYK00009ll",
+        "DEBE01YYK00009z0",
+        "DEBE01YYK0000A80",
+        "DEBE01YYK0000ASw",
+        "DEBE01YYK0000AXR",
+        "DEBE01YYK0000AZO",
+        "DEBE01YYK0000AZg",
+        "DEBE01YYK0000Afc",
+        "DEBE01YYK0000Afo",
+        "DEBE01YYK0000Agc",
+        "DEBE01YYK0000Auw",
+        "DEBE01YYK0000BEd",
+        "DEBE01YYK0000BFe",
+        "DEBE01YYK0000BaA",
+        "DEBE01YYK0000BfF",
+        "DEBE01YYK0000Bxf",
+        "DEBE01YYK0000CHi",
+        "DEBE01YYK0000CYH",
+        "DEBE01YYK0000CkT",
+        "DEBE01YYK0000Cl1",
+        "DEBE01YYK0000Cp9",
+        "DEBE01YYK0000CtC",
+        "DEBE01YYK0000CvO",
+        "DEBE01YYK0000D5j",
+        "DEBE01YYK0000D6q",
+        "DEBE01YYK0000Djb",
+        "DEBE01YYK0000E67",
+        "DEBE01YYK0000Egu",
+        "DEBE01YYK0000EhB",
+        "DEBE01YYK0000Ek9",
+        "DEBE01YYK0000Enl",
+        "DEBE01YYK0000FAn",
+        "DEBE01YYK0000FDb",
+        "DEBE01YYK0001wzk",
+        "DEBE01YYK0001x0a",
+        "DEBE01YYK0001x4S",
+        "DEBE01YYK0001x5e",
+        "DEBE01YYK0001x7u",
+        "DEBE01YYK0001xAT",
+        "DEBE01YYK0001xOE",
+        "DEBE01YYK0001xUd",
+        "DEBE01YYK0001xV9",
+        "DEBE01YYK0001xWC",
+        "DEBE01YYK0001xin",
+        "DEBE01YYK0001xkF",
+        "DEBE01YYK0001xpY",
+        "DEBE01YYK0001xvp",
+        "DEBE01YYK0001xvt",
+        "DEBE01YYK0001xyb",
+        "DEBE01YYK0001y2A",
+        "DEBE01YYK0001y5z",
+        "DEBE01YYK0001yDA",
+        "DEBE01YYK0001yNn",
+        "DEBE01YYK0001yfy",
+        "DEBE01YYK0001yol",
+        "DEBE01YYK0001z3O",
+        "DEBE01YYK0001zCQ",
+        "DEBE01YYK0001zCg"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "19381489418309969bc9e33b1a88ff05b35d5c93ae7933c67aacb9dff9e4de60",
+          "removedTriangles": 3424,
+          "addedTriangles": 27475,
+          "preservedTriangles": 32979
+        },
+        "minecraft": {
+          "oldSha256": "12f523b8f077893c6a876be5b90006c022c086c715daf399a01912cddd933412",
+          "removedTriangles": 6970,
+          "addedTriangles": 138172,
+          "preservedTriangles": 78981
+        }
+      }
+    },
+    {
+      "id": "4_-2",
+      "sourceIds": [
+        "DEBE00YY1vl0006R",
+        "DEBE00YY23Y0002k",
+        "DEBE00YY23Y00035",
+        "DEBE00YY23Y0004J",
+        "DEBE00YY24k0000Q",
+        "DEBE00YY24k0000z",
+        "DEBE01AL2vU0002K",
+        "DEBE01AL2vU0002P",
+        "DEBE01AL2vU0002s",
+        "DEBE01AL49I00006",
+        "DEBE01AL4VR0000g",
+        "DEBE01AL4VR0000h",
+        "DEBE01AL4VR0000m",
+        "DEBE01AL4VR00015",
+        "DEBE01AL4VR00017",
+        "DEBE01YYK00000n3",
+        "DEBE01YYK00000pP",
+        "DEBE01YYK00000so",
+        "DEBE01YYK00000vx",
+        "DEBE01YYK00000wQ",
+        "DEBE01YYK000011F",
+        "DEBE01YYK00001HS",
+        "DEBE01YYK00001I6",
+        "DEBE01YYK00001Jl",
+        "DEBE01YYK00001W1",
+        "DEBE01YYK00001aa",
+        "DEBE01YYK00001fK",
+        "DEBE01YYK00001ma",
+        "DEBE01YYK00001oY",
+        "DEBE01YYK00001pU",
+        "DEBE01YYK00001qe",
+        "DEBE01YYK00002BW",
+        "DEBE01YYK00002C7",
+        "DEBE01YYK00002Lf",
+        "DEBE01YYK00002Nx",
+        "DEBE01YYK00002VL",
+        "DEBE01YYK00002Wo",
+        "DEBE01YYK00002Xo",
+        "DEBE01YYK00002eK",
+        "DEBE01YYK00002eX",
+        "DEBE01YYK00002jn",
+        "DEBE01YYK00002o5",
+        "DEBE01YYK00002ta",
+        "DEBE01YYK00003Aq",
+        "DEBE01YYK00003GT",
+        "DEBE01YYK00003MB",
+        "DEBE01YYK00003PK",
+        "DEBE01YYK00003YT",
+        "DEBE01YYK00003pt",
+        "DEBE01YYK00003qH",
+        "DEBE01YYK00003uu",
+        "DEBE01YYK000044F",
+        "DEBE01YYK000044o",
+        "DEBE01YYK000048Y",
+        "DEBE01YYK00004B8",
+        "DEBE01YYK00004JU",
+        "DEBE01YYK00004P4",
+        "DEBE01YYK00004Sc",
+        "DEBE01YYK00004VF",
+        "DEBE01YYK00004a4",
+        "DEBE01YYK00004fJ",
+        "DEBE01YYK00004fR",
+        "DEBE01YYK00004lA",
+        "DEBE01YYK00004zt",
+        "DEBE01YYK000050m",
+        "DEBE01YYK000052U",
+        "DEBE01YYK000052Y",
+        "DEBE01YYK00005C7",
+        "DEBE01YYK00005Ll",
+        "DEBE01YYK00005MO",
+        "DEBE01YYK00005P0",
+        "DEBE01YYK00005Si",
+        "DEBE01YYK00005cf",
+        "DEBE01YYK00005ep",
+        "DEBE01YYK00005hu",
+        "DEBE01YYK00005kM",
+        "DEBE01YYK00005m5",
+        "DEBE01YYK00005mk",
+        "DEBE01YYK00005nV",
+        "DEBE01YYK00005qQ",
+        "DEBE01YYK000060d",
+        "DEBE01YYK000069c",
+        "DEBE01YYK00006CT",
+        "DEBE01YYK00006Dy",
+        "DEBE01YYK00006Lb",
+        "DEBE01YYK00006TG",
+        "DEBE01YYK00006ai",
+        "DEBE01YYK00006cP",
+        "DEBE01YYK00006ea",
+        "DEBE01YYK00006l1",
+        "DEBE01YYK00006n2",
+        "DEBE01YYK00006uf",
+        "DEBE01YYK00006xD",
+        "DEBE01YYK00006yO",
+        "DEBE01YYK000071J",
+        "DEBE01YYK00007PI",
+        "DEBE01YYK00007RX",
+        "DEBE01YYK00007Xf",
+        "DEBE01YYK00007fq",
+        "DEBE01YYK00007ls",
+        "DEBE01YYK00007m3",
+        "DEBE01YYK00007qN",
+        "DEBE01YYK00007un",
+        "DEBE01YYK000086j",
+        "DEBE01YYK00008Lu",
+        "DEBE01YYK00008Xb",
+        "DEBE01YYK00008ea",
+        "DEBE01YYK00008eg",
+        "DEBE01YYK00008fH",
+        "DEBE01YYK00008gG",
+        "DEBE01YYK00008lM",
+        "DEBE01YYK00008v3",
+        "DEBE01YYK00008v5",
+        "DEBE01YYK00008zg",
+        "DEBE01YYK000097r",
+        "DEBE01YYK00009FL",
+        "DEBE01YYK00009Gu",
+        "DEBE01YYK00009eH",
+        "DEBE01YYK00009kf",
+        "DEBE01YYK00009tU",
+        "DEBE01YYK00009yX",
+        "DEBE01YYK00009zM",
+        "DEBE01YYK0000A1T",
+        "DEBE01YYK0000APm",
+        "DEBE01YYK0000ASw",
+        "DEBE01YYK0000AXR",
+        "DEBE01YYK0000AY6",
+        "DEBE01YYK0000AbW",
+        "DEBE01YYK0000AkK",
+        "DEBE01YYK0000Alc",
+        "DEBE01YYK0000Aw3",
+        "DEBE01YYK0000B0o",
+        "DEBE01YYK0000BFe",
+        "DEBE01YYK0000BFm",
+        "DEBE01YYK0000BLF",
+        "DEBE01YYK0000BMU",
+        "DEBE01YYK0000BTz",
+        "DEBE01YYK0000BgG",
+        "DEBE01YYK0000Bmn",
+        "DEBE01YYK0000Btk",
+        "DEBE01YYK0000Bxf",
+        "DEBE01YYK0000Bz2",
+        "DEBE01YYK0000C0A",
+        "DEBE01YYK0000C0b",
+        "DEBE01YYK0000C4b",
+        "DEBE01YYK0000C52",
+        "DEBE01YYK0000C5A",
+        "DEBE01YYK0000CAF",
+        "DEBE01YYK0000CHG",
+        "DEBE01YYK0000CHi",
+        "DEBE01YYK0000CNf",
+        "DEBE01YYK0000ChP",
+        "DEBE01YYK0000CiK",
+        "DEBE01YYK0000Cl1",
+        "DEBE01YYK0000Cp9",
+        "DEBE01YYK0000Cq0",
+        "DEBE01YYK0000CqS",
+        "DEBE01YYK0000CsX",
+        "DEBE01YYK0000CtT",
+        "DEBE01YYK0000Cug",
+        "DEBE01YYK0000Cun",
+        "DEBE01YYK0000Cx0",
+        "DEBE01YYK0000D5j",
+        "DEBE01YYK0000D8k",
+        "DEBE01YYK0000DCJ",
+        "DEBE01YYK0000DHy",
+        "DEBE01YYK0000Ddh",
+        "DEBE01YYK0000Dgd",
+        "DEBE01YYK0000DhB",
+        "DEBE01YYK0000Dk0",
+        "DEBE01YYK0000Dkn",
+        "DEBE01YYK0000Dms",
+        "DEBE01YYK0000Do5",
+        "DEBE01YYK0000Dof",
+        "DEBE01YYK0000DyS",
+        "DEBE01YYK0000E07",
+        "DEBE01YYK0000EDm",
+        "DEBE01YYK0000ESy",
+        "DEBE01YYK0000Ebo",
+        "DEBE01YYK0000Ekz",
+        "DEBE01YYK0000Ez9",
+        "DEBE01YYK0000FAb",
+        "DEBE01YYK0000FGH",
+        "DEBE01YYK0000FPD",
+        "DEBE01YYK0001x30",
+        "DEBE01YYK0001x5e",
+        "DEBE01YYK0001x8T",
+        "DEBE01YYK0001xCu",
+        "DEBE01YYK0001xEK",
+        "DEBE01YYK0001xFk",
+        "DEBE01YYK0001xG6",
+        "DEBE01YYK0001xHJ",
+        "DEBE01YYK0001xI2",
+        "DEBE01YYK0001xKt",
+        "DEBE01YYK0001xNq",
+        "DEBE01YYK0001xPj",
+        "DEBE01YYK0001xYQ",
+        "DEBE01YYK0001xf4",
+        "DEBE01YYK0001xgP",
+        "DEBE01YYK0001xkJ",
+        "DEBE01YYK0001xmp",
+        "DEBE01YYK0001xnm",
+        "DEBE01YYK0001xx2",
+        "DEBE01YYK0001yJ2",
+        "DEBE01YYK0001yMf",
+        "DEBE01YYK0001yNJ",
+        "DEBE01YYK0001yXU",
+        "DEBE01YYK0001ykc",
+        "DEBE01YYK0001ymp",
+        "DEBE01YYK0001yoj",
+        "DEBE01YYK0001yp1",
+        "DEBE01YYK0001yqZ",
+        "DEBE01YYK0001yqt",
+        "DEBE01YYK0001yws",
+        "DEBE01YYK0001z75",
+        "DEBE01YYK0001zDr",
+        "DEBE01YYK0001zEV",
+        "DEBE01YYK0001zEj"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "7a30ee94130e4e1335e987eefd545f7f7f8a6b282d593e19051569e279403efa",
+          "removedTriangles": 10025,
+          "addedTriangles": 77151,
+          "preservedTriangles": 13078
+        },
+        "minecraft": {
+          "oldSha256": "bed5df3470cf2edb8ea8834f589c15260861b23dd2a07c49cf3138bfb3c7e96c",
+          "removedTriangles": 19656,
+          "addedTriangles": 402297,
+          "preservedTriangles": 34179
+        }
+      }
+    },
+    {
+      "id": "4_-1",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": "f3442fb6341e6eb67924cf013ea5e6f3c056e0a8b87630600b2956d917ea0d0a",
+          "removedTriangles": 0,
+          "addedTriangles": 1946,
+          "preservedTriangles": 3910
+        },
+        "minecraft": {
+          "oldSha256": "3afe9bd0768f39f67f2c2399451f61a737153838aabc7a3405dad584c1fff77f",
+          "removedTriangles": 0,
+          "addedTriangles": 3950,
+          "preservedTriangles": 8516
+        }
+      }
+    },
+    {
+      "id": "5_-3",
+      "sourceIds": [
+        "DEBE01YYK00006IE",
+        "DEBE01YYK00008nO",
+        "DEBE01YYK0000C0A",
+        "DEBE03YY600005ZV",
+        "DEBE03YY600008OF",
+        "DEBE03YY60001rCa",
+        "DEBE03YY60001rs1"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "da27cafbb6a2ac6174621ef46b4bbe5ebeecb31f548c49508d167f73ecdf19e5",
+          "removedTriangles": 505,
+          "addedTriangles": 1707,
+          "preservedTriangles": 21909
+        },
+        "minecraft": {
+          "oldSha256": "431ef5e080752bae5b9ae1fac4d95b680c9d9b74703acf60c723c797346c7717",
+          "removedTriangles": 686,
+          "addedTriangles": 7243,
+          "preservedTriangles": 70219
+        }
+      }
+    },
+    {
+      "id": "5_-2",
+      "sourceIds": [
+        "DEBE00YY2A80000B",
+        "DEBE01AL4zH0000E",
+        "DEBE01AL4zH0000F",
+        "DEBE01YYK00000qp",
+        "DEBE01YYK000019l",
+        "DEBE01YYK00001OH",
+        "DEBE01YYK00001YG",
+        "DEBE01YYK00001wo",
+        "DEBE01YYK00002Nx",
+        "DEBE01YYK000039V",
+        "DEBE01YYK00003AL",
+        "DEBE01YYK00003ru",
+        "DEBE01YYK000043T",
+        "DEBE01YYK00004Eo",
+        "DEBE01YYK00004qj",
+        "DEBE01YYK000059o",
+        "DEBE01YYK00005LN",
+        "DEBE01YYK00005O5",
+        "DEBE01YYK00005RU",
+        "DEBE01YYK00005vN",
+        "DEBE01YYK00006VJ",
+        "DEBE01YYK00006eK",
+        "DEBE01YYK00007L1",
+        "DEBE01YYK00007TW",
+        "DEBE01YYK00008nO",
+        "DEBE01YYK00008s5",
+        "DEBE01YYK00009Uu",
+        "DEBE01YYK00009bU",
+        "DEBE01YYK00009gZ",
+        "DEBE01YYK00009o3",
+        "DEBE01YYK0000AEe",
+        "DEBE01YYK0000AWd",
+        "DEBE01YYK0000AaG",
+        "DEBE01YYK0000Acx",
+        "DEBE01YYK0000BPA",
+        "DEBE01YYK0000C0A",
+        "DEBE01YYK0000C48",
+        "DEBE01YYK0000Cdg",
+        "DEBE01YYK0000D0J",
+        "DEBE01YYK0000D8Z",
+        "DEBE01YYK0000DSC",
+        "DEBE01YYK0001uk1",
+        "DEBE01YYK0001xOr",
+        "DEBE01YYK0001xTd",
+        "DEBE01YYK0001y9p",
+        "DEBE01YYK0001yAk",
+        "DEBE01YYK0001yFB",
+        "DEBE01YYK0001yGn",
+        "DEBE01YYK0001yc2",
+        "DEBE01YYK0001yl9",
+        "DEBE01YYK0001z1K",
+        "DEBE01YYK0001z3y",
+        "DEBE01YYK0001z4S",
+        "DEBE03YY60000BLX"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "2af7a5bcf5b39a2f971f9e4d3e8f541bd50125056a1ae96918bc9f7e4fa0227c",
+          "removedTriangles": 3017,
+          "addedTriangles": 18842,
+          "preservedTriangles": 18229
+        },
+        "minecraft": {
+          "oldSha256": "4c70e6ebd317c38d3c9a7bd751299ab1973a842d1c31b5968ba5b181ccada8c4",
+          "removedTriangles": 9807,
+          "addedTriangles": 100556,
+          "preservedTriangles": 55329
+        }
+      }
+    },
+    {
+      "id": "5_-1",
+      "sourceIds": [
+        "DEBE01ALcj000001",
+        "DEBE01YYK000023G",
+        "OSM-way-1335157930"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "e4774034974b5a7e3ecadb3c0fe157bbaa1f768303ba3f9e0ab231d3542fcec6",
+          "removedTriangles": 258,
+          "addedTriangles": 0,
+          "preservedTriangles": 9252
+        },
+        "minecraft": {
+          "oldSha256": "3a73bc0d9ee6ef84712c7f7f226c842d15bd1ff150fc0222ebb95df983885e07",
+          "removedTriangles": 999,
+          "addedTriangles": 0,
+          "preservedTriangles": 35374
+        }
+      }
+    },
+    {
+      "id": "6_-2",
+      "sourceIds": [
+        "DEBE01YYK0001uk1"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "a586002bb4aa9040140857d9cd42426afcc4cc8f4bef87f13c8fe10d6974315f",
+          "removedTriangles": 5,
+          "addedTriangles": 0,
+          "preservedTriangles": 13139
+        },
+        "minecraft": {
+          "oldSha256": "8d80b64106751ff11146f4ff74d6df4c3d38867ac4a522c4ca454e2a72491214",
+          "removedTriangles": 0,
+          "addedTriangles": 0,
+          "preservedTriangles": 52868
+        }
+      }
+    },
+    {
+      "id": "10_0",
+      "sourceIds": [
+        "DEBE02YY200002kP",
+        "DEBE02YY200004oA",
+        "DEBE02YY20001he2"
+      ],
+      "modes": {
+        "drawn": {
+          "oldSha256": "83836f54cd207167b415c5f7ef38ce7e005221d1295f0facd0791532871fb303",
+          "removedTriangles": 402,
+          "addedTriangles": 0,
+          "preservedTriangles": 81675
+        },
+        "minecraft": {
+          "oldSha256": "453df8468fa378bc7e23cb7bf715f5b68b1baec3969928748c77c3833b33d308",
+          "removedTriangles": 1020,
+          "addedTriangles": 0,
+          "preservedTriangles": 119174
+        }
+      }
+    },
+    {
+      "id": "1_-4",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 48,
+          "preservedTriangles": 0
+        },
+        "minecraft": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 36,
+          "preservedTriangles": 0
+        }
+      }
+    },
+    {
+      "id": "2_-3",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 1171,
+          "preservedTriangles": 0
+        },
+        "minecraft": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 2681,
+          "preservedTriangles": 0
+        }
+      }
+    },
+    {
+      "id": "2_-2",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 69225,
+          "preservedTriangles": 0
+        },
+        "minecraft": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 171041,
+          "preservedTriangles": 0
+        }
+      }
+    },
+    {
+      "id": "2_-1",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 6212,
+          "preservedTriangles": 0
+        },
+        "minecraft": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 12915,
+          "preservedTriangles": 0
+        }
+      }
+    },
+    {
+      "id": "3_-1",
+      "sourceIds": [],
+      "modes": {
+        "drawn": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 9498,
+          "preservedTriangles": 0
+        },
+        "minecraft": {
+          "oldSha256": null,
+          "removedTriangles": 0,
+          "addedTriangles": 21876,
+          "preservedTriangles": 0
+        }
+      }
+    }
+  ],
+  "unownedTriangleLoss": 0,
+  "unownedNavigationLoss": 0
+}
