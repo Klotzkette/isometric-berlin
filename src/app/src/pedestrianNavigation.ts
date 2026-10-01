@@ -1,3 +1,7 @@
+import { ZOO_GROUNDS_V165_PRISM_IDS, ZOO_GROUNDS_V165_PARTS, zooGroundsV165RoofAt } from "./zooGroundsV165Profile";
+import { KRANZLER_V165_PRISM_IDS, KRANZLER_V165_PARTS, kranzlerV165RoofAt } from "./kranzlerV165Profile";
+import { ZOO_STATION_V165_PRISM_IDS, ZOO_STATION_V165_PARTS, zooStationV165RoofAt } from "./zooStationV165Profile";
+import { HUTHMACHER_PRISM_IDS, HUTHMACHER_SOURCE_BOUNDS, huthmacherRoofAt } from "./huthmacherProfile";
 import { CAFE_NEUER_SEE_V164_PRISM_IDS, CAFE_NEUER_SEE_V164_PARTS, cafeNeuerSeeRoofAt } from "./cafeNeuerSeeV164Profile";
 import { SPANISH_EMBASSY_V164_PRISM_IDS, SPANISH_EMBASSY_V164_SOURCE_BOUNDS, spanishEmbassyV164RoofAt } from "./spanishEmbassyV164Profile";
 import { GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS, GROSSER_STERN_GATEHOUSES_V164_PARTS, grosserSternGatehouseRoofAt, grosserSternGatehouseFloorAt } from "./grosserSternGatehousesV164Profile";
@@ -660,6 +664,54 @@ export function compilePedestrianObstacles(
         for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
           addPolygonObstacle(index, wing.ring, [], wing.baseY, wing.topY, wing.id, 1);
           index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (ZOO_GROUNDS_V165_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("ZOO_GROUNDS_V165")) {
+        replacedParents.add("ZOO_GROUNDS_V165");
+        for (const part of ZOO_GROUNDS_V165_PARTS) {
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1,
+            (x,z) => zooGroundsV165RoofAt(x,z,visualMode() === "minecraft"));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (KRANZLER_V165_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("KRANZLER_V165")) {
+        replacedParents.add("KRANZLER_V165");
+        for (const part of KRANZLER_V165_PARTS) {
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1,
+            (x,z) => kranzlerV165RoofAt(x,z,visualMode() === "minecraft"));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (ZOO_STATION_V165_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("ZOO_STATION_V165")) {
+        replacedParents.add("ZOO_STATION_V165");
+        for (const part of ZOO_STATION_V165_PARTS) {
+          part.rings.forEach((ring, i) => {
+            addPolygonObstacle(index, ring, part.holes[i], part.groundY, part.topY + 2, part.id, 1,
+              (x,z) => zooStationV165RoofAt(x,z,visualMode() === "minecraft"));
+            index.buildingCount += 1;
+          });
+        }
+      }
+      continue;
+    }
+    if (HUTHMACHER_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("HUTHMACHER")) {
+        replacedParents.add("HUTHMACHER");
+        for (const part of HUTHMACHER_SOURCE_BOUNDS.map(b=>b.part)) {
+          part.rings.forEach(ring => {
+            addPolygonObstacle(index, ring, [], part.groundY, part.topY + 2, part.id, 1,
+              (x,z) => huthmacherRoofAt(x,z,visualMode() === "minecraft"));
+            index.buildingCount += 1;
+          });
         }
       }
       continue;

@@ -17,6 +17,17 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Zoo and City West (v1.0.65):** Complete Berlin LoD2 buildings and retained
+  OSM identities anchor Bahnhof Zoo, Amerika Haus, Kranzler Eck, Huthmacher-Haus,
+  Schleusenkrug and the Zoo grounds. OSM supplies platform courses, paths,
+  habitat boundaries and ponds. The Zoo's proprietary visitor map is not
+  traced or bundled. Thin facades, hall glazing, furniture and habitat rock
+  relief are documented procedural estimates. Freely licensed reference
+  photographs are individually credited in both Wikimedia manifests and remain
+  reference-only. Earlier city geometry and street packets are preserved;
+  only explicitly identified coarse owners are replaced by complete source
+  models. See [release review](docs/release-v1.0.65-review.md).
+
 - **Neuer See, Spanish Embassy and Siegessäule gatehouses (v1.0.64):**
   Berlin LoD2 supplies retained building geometry, OpenStreetMap anchors the
   café site, lake, pier and children's sandpits, and official Berlin DOP spring

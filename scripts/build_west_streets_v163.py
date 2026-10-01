@@ -72,10 +72,10 @@ def read_bounds() -> tuple[Any, Any]:
   )
 
 
-def extract_source() -> dict[str, Any]:
+def extract_source(names: tuple[str, ...] = NAMES) -> dict[str, Any]:
   """Capture permitted source identities and actual rings; no inferred wings."""
   bounds, core = read_bounds()
-  names_sql = ",".join(f"'{name}'" for name in NAMES)
+  names_sql = ",".join(f"'{name}'" for name in names)
   lines = gpd.read_file(
     RAW / "candidate.gpkg", layer="lines", where=f"name IN ({names_sql})"
   ).to_crs(25833)
@@ -414,6 +414,8 @@ def street_detail(
     (core, core_roads, 5.2),
   ):
     local_zone = zone.intersection(scope)
+    if local_zone.is_empty:
+      continue
     asphalt = polygonal(asphalt.intersection(local_zone.buffer(6)))
     if native:
       asphalt = native_polygon(asphalt)
@@ -483,7 +485,17 @@ def partition_detail(detail: Detail) -> dict[tuple[int, int], Detail]:
   return output
 
 
-def publish(output: Path, source_path: Path = SOURCE) -> dict[str, Any]:
+def publish(
+  output: Path,
+  source_path: Path = SOURCE,
+  *,
+  mesh_kind: str = "city-west-street-fronts-v163",
+  source_key: str = "westStreetsV163",
+  version: str = "1.0.63",
+  patch_name: str = "west-streets-manifest-patch.json",
+  audit_path: Path = AUDIT,
+  names: tuple[str, ...] = NAMES,
+) -> dict[str, Any]:
   """Write isolated packets and a descriptor patch; shared manifest is read-only."""
   output.mkdir(parents=True, exist_ok=True)
   source = json.loads(source_path.read_text())
@@ -607,10 +619,14 @@ def publish(output: Path, source_path: Path = SOURCE) -> dict[str, Any]:
             "groundY": GROUND_Y,
           },
         }
+      # Additive later passes own only their distinct mesh kind. Rebuilding that
+      # pass is idempotent and preserves every earlier source packet layer.
+      if source_key != "westStreetsV163":
+        payload["meshes"] = [m for m in payload["meshes"] if m["kind"] != mesh_kind]
       retained = mesh_signature(payload)
       mesh = packed_detail(partitioned[mode].get((ix, iz), Detail()), tile)
       if mesh:
-        mesh["kind"] = "city-west-street-fronts-v163"
+        mesh["kind"] = mesh_kind
         payload["meshes"].append(mesh)
       for nav in navigation:
         if nav["sourceId"] not in owned:
@@ -673,16 +689,16 @@ def publish(output: Path, source_path: Path = SOURCE) -> dict[str, Any]:
       flush=True,
     )
   policy = {
-    "version": "1.0.63",
+    "version": version,
     "sourceIds": sorted(identities),
-    "sourceEvidence": str(SOURCE.relative_to(ROOT)),
+    "sourceEvidence": str(source_path.relative_to(ROOT)),
     "policy": source["displayEstimates"],
-    "streets": list(NAMES),
+    "streets": list(names),
     "corePrisms": len(source["corePrisms"]),
   }
   write_json(
-    output / "west-streets-manifest-patch.json",
-    {"chunks": patch, "source": {"westStreetsV163": policy}},
+    output / patch_name,
+    {"chunks": patch, "source": {source_key: policy}},
   )
   result = {
     "sourceParents": len(identities),
@@ -693,7 +709,7 @@ def publish(output: Path, source_path: Path = SOURCE) -> dict[str, Any]:
     "chunks": audit,
     "sourceSha256": hashlib.sha256(source_path.read_bytes()).hexdigest(),
   }
-  write_json(AUDIT, result)
+  write_json(audit_path, result)
   return result
 
 

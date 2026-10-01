@@ -1506,223 +1506,6 @@ function addAllianzHaus(
   }
 }
 
-function addKranzlerEck(
-  builder: Builder,
-  detailProfile: CityWestDetailProfile,
-): void {
-  const profile = CITY_WEST_PROFILE.kranzlerEck;
-  const [lengthM, depthM] = profile.glassTowerFootprintM;
-  // A shallow overlay corrects the generic sixty-metre prism into the narrow,
-  // Helmut-Jahn glass wedge without introducing a second free-standing tower.
-  addBox(
-    builder,
-    0x516e78,
-    profile.glassTowerCenterWorldM[0],
-    GROUND_Y + profile.glassTowerHeightM / 2,
-    profile.glassTowerCenterWorldM[1],
-    lengthM,
-    profile.glassTowerHeightM,
-    depthM,
-    profile.glassTowerRotationY,
-  );
-  addLongFacadeFrames(builder, {
-    center: profile.glassTowerCenterWorldM,
-    color: 0xb8c6c7,
-    depthM,
-    groundY: GROUND_Y,
-    heightM: profile.glassTowerHeightM,
-    horizontalCount: detailProfile === "mobile" ? 6 : 16,
-    lengthM,
-    rotationY: profile.glassTowerRotationY,
-    verticalCount: detailProfile === "mobile" ? 7 : 13,
-  });
-
-  const rotunda = profile.rotundaCenterWorldM;
-  addBox(
-    builder,
-    0xe2ded2,
-    rotunda[0] - 3,
-    GROUND_Y + 4,
-    rotunda[1] + 2,
-    30,
-    8,
-    24,
-    -0.08,
-  );
-  addCylinder(
-    builder,
-    0xf0eadc,
-    rotunda[0],
-    GROUND_Y + 10.2,
-    rotunda[1],
-    profile.rotundaDiameterM / 2,
-    4.4,
-    detailProfile === "mobile" ? 16 : 24,
-  );
-  const awningPanels = detailProfile === "mobile" ? 12 : 20;
-  for (let index = 0; index < awningPanels; index += 1) {
-    const angle = (index * Math.PI * 2) / awningPanels;
-    const radius = profile.rotundaDiameterM / 2 + 0.08;
-    addBox(
-      builder,
-      index % 2 === 0 ? 0xc93632 : 0xf3eee1,
-      rotunda[0] + Math.cos(angle) * radius,
-      GROUND_Y + 10.25,
-      rotunda[1] + Math.sin(angle) * radius,
-      (Math.PI * profile.rotundaDiameterM) / awningPanels + 0.08,
-      2.2,
-      0.26,
-      -angle,
-      false,
-    );
-  }
-  addCylinder(
-    builder,
-    0xc93632,
-    rotunda[0],
-    GROUND_Y + 12.7,
-    rotunda[1],
-    profile.rotundaDiameterM / 2 + 0.45,
-    0.55,
-    detailProfile === "mobile" ? 16 : 24,
-  );
-}
-
-function addStationHall(
-  builder: Builder,
-  options: {
-    center: readonly [number, number];
-    detailProfile: CityWestDetailProfile;
-    hallHeightM: number;
-    lengthM: number;
-    rotationY: number;
-    widthM: number;
-  },
-): void {
-  const profile = CITY_WEST_PROFILE.bahnhofZoo;
-  const {
-    center,
-    detailProfile,
-    hallHeightM,
-    lengthM,
-    rotationY,
-    widthM,
-  } = options;
-  addBox(
-    builder,
-    TRAVERTINE,
-    center[0],
-    GROUND_Y + profile.viaductHeightM / 2,
-    center[1],
-    lengthM,
-    profile.viaductHeightM,
-    widthM - 3,
-    rotationY,
-  );
-  addBox(
-    builder,
-    GLASS_BLUE,
-    center[0],
-    GROUND_Y + profile.viaductHeightM + hallHeightM / 2,
-    center[1],
-    lengthM,
-    hallHeightM,
-    widthM,
-    rotationY,
-  );
-  addLongFacadeFrames(builder, {
-    center,
-    color: ALUMINIUM,
-    depthM: widthM,
-    groundY: GROUND_Y + profile.viaductHeightM,
-    heightM: hallHeightM,
-    horizontalCount: detailProfile === "mobile" ? 2 : 4,
-    lengthM,
-    rotationY,
-    verticalCount: detailProfile === "mobile" ? 8 : 16,
-  });
-  const viaductBays = detailProfile === "mobile" ? 7 : 13;
-  for (const side of [-1, 1]) {
-    for (let bay = 0; bay < viaductBays; bay += 1) {
-      const [x, z] = localPoint(
-        center,
-        rotationY,
-        -lengthM / 2 + ((bay + 0.5) * lengthM) / viaductBays,
-        side * ((widthM - 3) / 2 + 0.13),
-      );
-      addBox(
-        builder,
-        STONE_SHADOW,
-        x,
-        GROUND_Y + profile.viaductHeightM * 0.48,
-        z,
-        (lengthM / viaductBays) * 0.62,
-        profile.viaductHeightM * 0.58,
-        0.28,
-        rotationY,
-        false,
-      );
-    }
-  }
-}
-
-function addBahnhofZoo(
-  builder: Builder,
-  detailProfile: CityWestDetailProfile,
-): void {
-  const profile = CITY_WEST_PROFILE.bahnhofZoo;
-  addStationHall(builder, {
-    center: profile.longDistanceHall.centerWorldM,
-    detailProfile,
-    hallHeightM: profile.longDistanceHall.heightAboveViaductM,
-    lengthM: profile.longDistanceHall.lengthM,
-    rotationY: profile.longDistanceHall.rotationY,
-    widthM: profile.longDistanceHall.widthM,
-  });
-  addStationHall(builder, {
-    center: profile.sBahnHall.centerWorldM,
-    detailProfile,
-    hallHeightM: profile.sBahnHall.heightAboveViaductM,
-    lengthM: profile.sBahnHall.lengthM,
-    rotationY: profile.sBahnHall.rotationY,
-    widthM: profile.sBahnHall.widthM,
-  });
-
-  const terrace = profile.terraceCenterWorldM;
-  addBox(
-    builder,
-    GLASS_BLUE,
-    terrace[0],
-    GROUND_Y + 11.5,
-    terrace[1],
-    68,
-    6,
-    16,
-    profile.terraceRotationY,
-  );
-  const columnCount = detailProfile === "mobile" ? 5 : 9;
-  for (let index = 0; index < columnCount; index += 1) {
-    const [x, z] = localPoint(
-      terrace,
-      profile.terraceRotationY,
-      -30 + (index * 60) / (columnCount - 1),
-      0,
-    );
-    addCylinder(builder, ALUMINIUM, x, GROUND_Y + 4.3, z, 0.32, 8.6, 6);
-  }
-  addBox(
-    builder,
-    0xd8d7cf,
-    terrace[0],
-    GROUND_Y + 15,
-    terrace[1],
-    72,
-    0.45,
-    18,
-    profile.terraceRotationY,
-  );
-}
-
 function addFacadeGridBox(
   builder: Builder,
   options: {
@@ -2344,28 +2127,19 @@ export function createCityWestDetails(
   group.userData.profile = CITY_WEST_PROFILE;
   group.userData.sourceUrls = CITY_WEST_SOURCE_URLS;
   group.userData.batchPolicy =
-    "all facade grids, signs, and ornaments are merged into four local drawn batches; one independent star pivot rotates without rebuilding geometry";
+    "all facade grids, signs, and ornaments are merged into three local drawn batches; measured Zoo halls and Kranzler are separate source owners; one independent star pivot rotates without rebuilding geometry";
 
   const towers = createBuilder();
   const europaStar = addEuropaCenter(towers, detailProfile);
   addAllianzHaus(towers, detailProfile);
-  addKranzlerEck(towers, detailProfile);
-  const towerBatch = finishBatch(towers, "City West towers and Kranzler Eck", {
+  const towerBatch = finishBatch(towers, "City West Europa Center and Allianz towers", {
     allianzHaus: CITY_WEST_PROFILE.allianzHaus,
     europaCenter: CITY_WEST_PROFILE.europaCenter,
-    kranzlerEck: CITY_WEST_PROFILE.kranzlerEck,
   });
   if (towerBatch) {
     towerBatch.add(europaStar);
     group.add(towerBatch);
   }
-
-  const station = createBuilder();
-  addBahnhofZoo(station, detailProfile);
-  const stationBatch = finishBatch(station, "Bahnhof Zoo steel-glass halls", {
-    bahnhofZoo: CITY_WEST_PROFILE.bahnhofZoo,
-  });
-  if (stationBatch) group.add(stationBatch);
 
   const breitscheid = createBuilder();
   const churchGlass = createBuilder();

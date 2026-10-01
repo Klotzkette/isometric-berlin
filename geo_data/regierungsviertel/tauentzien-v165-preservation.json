@@ -1,0 +1,26 @@
+{
+  "-5_2": {
+    "drawn": {
+      "meshes": "9b2988e6f1adde7ac6ec6128203d2f5e03a56ef95febc29a05df5dd77cccbcb1",
+      "nav": "27f6677f2423ff1b6d7f9317d03b7a856acb8fcfbda20d07a502c7113f36290a"
+    },
+    "minecraft": {
+      "meshes": "fe50d7d240da56ceb8e606a58a405fe0a6cf7e1030a0fcffbf6bceb179c0a66f",
+      "nav": "27f6677f2423ff1b6d7f9317d03b7a856acb8fcfbda20d07a502c7113f36290a"
+    }
+  },
+  "-5_3": {
+    "drawn": {
+      "meshes": "ecbd36e2dcd941bef8eec346106b934eb89a1bdad20a3bd1a8c1c1bb17e08de1",
+      "nav": "27f6677f2423ff1b6d7f9317d03b7a856acb8fcfbda20d07a502c7113f36290a"
+    },
+    "minecraft": {
+      "meshes": "20341feeeb888d31405f480d7166eab692e23371b40a4ad5f50078a98494a0b6",
+      "nav": "27f6677f2423ff1b6d7f9317d03b7a856acb8fcfbda20d07a502c7113f36290a"
+    }
+  },
+  "-4_3": {
+    "drawn": null,
+    "minecraft": null
+  }
+}

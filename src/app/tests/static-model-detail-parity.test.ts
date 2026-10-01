@@ -14,6 +14,7 @@ import overridesV153 from "./fixtures/static-model-full-overrides-v153.json";
 import overridesV154 from "./fixtures/static-model-full-overrides-v154.json";
 import overridesV155 from "./fixtures/static-model-full-overrides-v155.json";
 import overridesV157 from "./fixtures/static-model-full-overrides-v157.json";
+import overridesV165 from "./fixtures/static-model-full-overrides-v165.json";
 import overridesV164 from "./fixtures/static-model-full-overrides-v164.json";
 import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
@@ -92,7 +93,8 @@ describe("all devices retain the full authored static city detail", () => {
       // and runtime dependencies are byte-identical to HEAD; no v164 geometry
       // change is accepted here. Keep every earlier fixture frozen. See the
       // independent source/hash audit in docs/static-model-v164-baseline.md.
-      const override = overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v165 replaces only the old Zoo/Kranzler authoring with complete separate source models.
+      const override = overridesV165[name as keyof typeof overridesV165] ?? overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

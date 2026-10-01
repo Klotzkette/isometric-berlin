@@ -1,3 +1,11 @@
+import { createMinecraftZooGroundsV165 } from "./ZooGroundsV165";
+import { zooGroundsV165SourceColumn } from "./zooGroundsV165Profile";
+import { createMinecraftKranzlerV165 } from "./KranzlerV165";
+import { kranzlerV165SourceColumn } from "./kranzlerV165Profile";
+import { createMinecraftZooStationV165 } from "./ZooStationV165";
+import { zooStationV165SourceColumn } from "./zooStationV165Profile";
+import { createMinecraftHuthmacherHaus } from "./HuthmacherHaus";
+import { huthmacherSourceColumn } from "./huthmacherProfile";
 import { createMinecraftCafeNeuerSeeV164 } from "./CafeNeuerSeeV164";
 import { cafeNeuerSeeSourceColumn } from "./cafeNeuerSeeV164Profile";
 import { createMinecraftSpanishEmbassyV164 } from "./SpanishEmbassyV164";
@@ -2926,6 +2934,14 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftCafeNeuerSeeV164());
   yield;
+  group.add(createMinecraftZooGroundsV165());
+  yield;
+  group.add(createMinecraftKranzlerV165());
+  yield;
+  group.add(createMinecraftZooStationV165());
+  yield;
+  group.add(createMinecraftHuthmacherHaus());
+  yield;
   group.add(createMinecraftSpanishEmbassyV164({ mobileLike: mobileDetail }));
   yield;
   group.add(createMinecraftSpreeMuseumDetails());
@@ -3095,6 +3111,11 @@ export function* buildMinecraftVoxelWorldSteps(
       !hackescherMarktSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !kranzlerV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !zooGroundsV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !zooStationV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !huthmacherSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+
       !spanishEmbassyV164SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&

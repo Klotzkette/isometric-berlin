@@ -1,0 +1,792 @@
+{
+  "version": "1.0.65",
+  "date": "2026-10-01",
+  "productionBuild": true,
+  "limitations": "Host-emulated browser profiles, not physical iOS or Android hardware. Buffer byte counts exclude textures, framebuffers and driver allocation.",
+  "runs": [
+    {
+      "label": "desktop-final",
+      "engine": "chromium",
+      "touch": false,
+      "samples": [
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "schleusenkrug",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 224307737,
+            "peak": 224307737,
+            "handles": 14145,
+            "peakHandles": 14145,
+            "uploads": 14148,
+            "deletes": 3,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "birdhouse",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 249166418,
+            "peak": 249166418,
+            "handles": 14519,
+            "peakHandles": 14519,
+            "uploads": 14557,
+            "deletes": 38,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "rocks",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 255513478,
+            "peak": 255513478,
+            "handles": 15339,
+            "peakHandles": 15339,
+            "uploads": 15384,
+            "deletes": 45,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 292259174,
+            "peak": 292259174,
+            "handles": 18208,
+            "peakHandles": 18208,
+            "uploads": 18526,
+            "deletes": 318,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "station-side",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 306129878,
+            "peak": 321160172,
+            "handles": 19497,
+            "peakHandles": 19635,
+            "uploads": 20015,
+            "deletes": 518,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "amerika-haus",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 311620727,
+            "peak": 321160172,
+            "handles": 19936,
+            "peakHandles": 19974,
+            "uploads": 20569,
+            "deletes": 633,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "huthmacher",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 312477186,
+            "peak": 321160172,
+            "handles": 19986,
+            "peakHandles": 19989,
+            "uploads": 20629,
+            "deletes": 643,
+            "lost": 0
+          }
+        }
+      ],
+      "errors": [],
+      "eachModelExactlyOnce": true
+    },
+    {
+      "label": "desktop-schleusenkrug-final",
+      "engine": "chromium",
+      "touch": false,
+      "samples": [
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "schleusenkrug-low",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 181751993,
+            "peak": 181751993,
+            "handles": 6650,
+            "peakHandles": 6650,
+            "uploads": 6656,
+            "deletes": 6,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "schleusenkrug-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 175072531,
+            "peak": 186868772,
+            "handles": 7194,
+            "peakHandles": 7239,
+            "uploads": 7293,
+            "deletes": 99,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "schleusenkrug-garden",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 303904922,
+            "peak": 303904922,
+            "handles": 16999,
+            "peakHandles": 16999,
+            "uploads": 17141,
+            "deletes": 142,
+            "lost": 0
+          }
+        }
+      ],
+      "errors": [],
+      "eachModelExactlyOnce": true
+    },
+    {
+      "label": "mobile-webkit-iphone13-profile",
+      "engine": "webkit",
+      "touch": true,
+      "samples": [
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 85258125,
+            "peak": 87211156,
+            "handles": 1157,
+            "peakHandles": 1758,
+            "uploads": 2493,
+            "deletes": 1336,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 183860859,
+            "peak": 183860859,
+            "handles": 6949,
+            "peakHandles": 6949,
+            "uploads": 8796,
+            "deletes": 1847,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 86368834,
+            "peak": 184054269,
+            "handles": 611,
+            "peakHandles": 6955,
+            "uploads": 8957,
+            "deletes": 8346,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 90984302,
+            "peak": 184054269,
+            "handles": 800,
+            "peakHandles": 6955,
+            "uploads": 9321,
+            "deletes": 8521,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88852909,
+            "peak": 184054269,
+            "handles": 1240,
+            "peakHandles": 6955,
+            "uploads": 10225,
+            "deletes": 8985,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 192811311,
+            "peak": 192811311,
+            "handles": 7559,
+            "peakHandles": 7559,
+            "uploads": 17135,
+            "deletes": 9576,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88280520,
+            "peak": 192811311,
+            "handles": 619,
+            "peakHandles": 7559,
+            "uploads": 17282,
+            "deletes": 16663,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 90984338,
+            "peak": 192811311,
+            "handles": 801,
+            "peakHandles": 7559,
+            "uploads": 17639,
+            "deletes": 16838,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "minecraft",
+          "visit": 2,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 86577380,
+            "peak": 192811311,
+            "handles": 340,
+            "peakHandles": 7559,
+            "uploads": 18038,
+            "deletes": 17698,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "minecraft",
+          "visit": 2,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 161579123,
+            "peak": 192811311,
+            "handles": 1203,
+            "peakHandles": 7559,
+            "uploads": 18955,
+            "deletes": 17752,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "minecraft",
+          "visit": 2,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 106340078,
+            "peak": 192811311,
+            "handles": 343,
+            "peakHandles": 7559,
+            "uploads": 18997,
+            "deletes": 18654,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "minecraft",
+          "visit": 2,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 85423846,
+            "peak": 192811311,
+            "handles": 343,
+            "peakHandles": 7559,
+            "uploads": 19042,
+            "deletes": 18699,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "night",
+          "visit": 3,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 86602613,
+            "peak": 192811311,
+            "handles": 1207,
+            "peakHandles": 7559,
+            "uploads": 20563,
+            "deletes": 19356,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "night",
+          "visit": 3,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 185376939,
+            "peak": 192811311,
+            "handles": 7022,
+            "peakHandles": 7559,
+            "uploads": 26887,
+            "deletes": 19865,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "night",
+          "visit": 3,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88649742,
+            "peak": 192811311,
+            "handles": 698,
+            "peakHandles": 7559,
+            "uploads": 27054,
+            "deletes": 26356,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "night",
+          "visit": 3,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 93486370,
+            "peak": 192811311,
+            "handles": 887,
+            "peakHandles": 7559,
+            "uploads": 27434,
+            "deletes": 26547,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "snowstorm",
+          "visit": 4,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88967905,
+            "peak": 192811311,
+            "handles": 1275,
+            "peakHandles": 7559,
+            "uploads": 28385,
+            "deletes": 27110,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "snowstorm",
+          "visit": 4,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 193363403,
+            "peak": 193363403,
+            "handles": 7346,
+            "peakHandles": 7559,
+            "uploads": 35060,
+            "deletes": 27714,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "snowstorm",
+          "visit": 4,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88329412,
+            "peak": 193363403,
+            "handles": 640,
+            "peakHandles": 7559,
+            "uploads": 35210,
+            "deletes": 34570,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "snowstorm",
+          "visit": 4,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 91052750,
+            "peak": 193363403,
+            "handles": 828,
+            "peakHandles": 7559,
+            "uploads": 35577,
+            "deletes": 34749,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 5,
+          "view": "condor",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88852873,
+            "peak": 193363403,
+            "handles": 1239,
+            "peakHandles": 7559,
+            "uploads": 36480,
+            "deletes": 35241,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 5,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 192765927,
+            "peak": 193363403,
+            "handles": 7220,
+            "peakHandles": 7559,
+            "uploads": 43059,
+            "deletes": 35839,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 5,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 88280484,
+            "peak": 193363403,
+            "handles": 618,
+            "peakHandles": 7559,
+            "uploads": 43206,
+            "deletes": 42588,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 5,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 90984302,
+            "peak": 193363403,
+            "handles": 800,
+            "peakHandles": 7559,
+            "uploads": 43563,
+            "deletes": 42763,
+            "lost": 0
+          }
+        }
+      ],
+      "errors": [],
+      "eachModelExactlyOnce": true
+    },
+    {
+      "label": "mobile-chrome-pixel5-profile",
+      "engine": "chromium",
+      "touch": true,
+      "samples": [
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 189906289,
+            "peak": 189906289,
+            "handles": 6982,
+            "peakHandles": 6982,
+            "uploads": 7027,
+            "deletes": 45,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 85646500,
+            "peak": 190172455,
+            "handles": 587,
+            "peakHandles": 6990,
+            "uploads": 7174,
+            "deletes": 6587,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "day",
+          "visit": 0,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 90507372,
+            "peak": 190172455,
+            "handles": 782,
+            "peakHandles": 6990,
+            "uploads": 7532,
+            "deletes": 6750,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "zoo-overview",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 179440504,
+            "peak": 190172455,
+            "handles": 7030,
+            "peakHandles": 7030,
+            "uploads": 14147,
+            "deletes": 7117,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "station-interior",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 86777864,
+            "peak": 190172455,
+            "handles": 614,
+            "peakHandles": 7030,
+            "uploads": 14297,
+            "deletes": 13683,
+            "lost": 0
+          }
+        },
+        {
+          "mode": "schwellenraum",
+          "visit": 1,
+          "view": "kranzler",
+          "ready": true,
+          "lost": 0,
+          "contextLost": false,
+          "buffers": {
+            "bytes": 90331480,
+            "peak": 190172455,
+            "handles": 783,
+            "peakHandles": 7030,
+            "uploads": 14643,
+            "deletes": 13860,
+            "lost": 0
+          }
+        }
+      ],
+      "errors": [],
+      "eachModelExactlyOnce": true
+    }
+  ],
+  "freshPackagedStartup": [
+    {
+      "event": "result",
+      "success": true,
+      "url": "http://127.0.0.1:8766/",
+      "engine": "chromium",
+      "channel": "chrome",
+      "touch": false,
+      "elapsedSeconds": 10.39,
+      "failure": null,
+      "state": {
+        "ready": true,
+        "canvasVisible": true,
+        "curtain": false,
+        "progress": null,
+        "error": null
+      },
+      "counts": {
+        "responses": 169,
+        "pageErrors": 0,
+        "consoleErrors": 0,
+        "consoleAdvisories": 0,
+        "failedCriticalRequests": 0
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "consoleAdvisories": [],
+      "failedCriticalRequests": [],
+      "screenshot": null
+    },
+    {
+      "event": "result",
+      "success": true,
+      "url": "http://127.0.0.1:8766/",
+      "engine": "webkit",
+      "channel": null,
+      "touch": true,
+      "elapsedSeconds": 10.81,
+      "failure": null,
+      "state": {
+        "ready": true,
+        "canvasVisible": true,
+        "curtain": false,
+        "progress": null,
+        "error": null
+      },
+      "counts": {
+        "responses": 121,
+        "pageErrors": 0,
+        "consoleErrors": 0,
+        "consoleAdvisories": 0,
+        "failedCriticalRequests": 0
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "consoleAdvisories": [],
+      "failedCriticalRequests": [],
+      "screenshot": null
+    }
+  ],
+  "resolvedFindings": [
+    "Retired exact opaque condor/marsh-bird LoD2 envelope owners only after installing full transparent source shells and height-matched cage structures.",
+    "Corrected Amerika Haus sign orientation and retained exact-footprint interior floors; rear and end source walls remain opaque.",
+    "Excluded the already-detailed Ged\u00e4chtniskirche source owner from the generic Tauentzien facade overlay.",
+    "Initial Schleusenkrug photo camera was inside a preserved tree canopy. Final ground/garden/overhead views change only the test camera; every source tree remains.",
+    "A near-horizontal exploratory test camera hit the existing above-ground look clamp. Replaced its pose with a supported angle; production movement unchanged."
+  ],
+  "independentReview": "No blocking source preservation, duplicate owner, navigation, cancellation/disposal or attribution issue found."
+}

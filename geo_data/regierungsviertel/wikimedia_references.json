@@ -6137,6 +6137,142 @@
       "credit": "Paul Korecky / CC BY-SA 2.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "kranzler-v165",
+      "title": "File:Cafe Kranzler Berlin Kurfuerstendamm.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Cafe_Kranzler_Berlin_Kurfuerstendamm.jpg",
+      "artist": "Times",
+      "credit": "Times / Wikimedia Commons / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "description": "2009 reference for rotunda awning, gold/white railings, fine tower glazing and travertine; no photo pixels or historical shop tenant logos used."
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "bikini-skyline-v165",
+      "title": "File:Charlottenburg Bikinihaus Terrasse-001.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburg_Bikinihaus_Terrasse-001.JPG",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / Wikimedia Commons / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "description": "Observed zoo-facing timber handrail and fine dark metal balustrade; no photo pixels used."
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "bikini-skyline-v165",
+      "title": "File:Charlottenburg Bikinihaus Terrasse-002.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburg_Bikinihaus_Terrasse-002.JPG",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / Wikimedia Commons / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "description": "Observed pale zoo-side spandrels, slim gold operable leaves and roof-terrace glazing; no photo pixels used."
+    },
+    {
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "landmark_id": "bikini-skyline-v165",
+      "title": "File:Charlottenburg Hardenbergplatz Huthmacher-Haus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburg_Hardenbergplatz_Huthmacher-Haus.jpg",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / Wikimedia Commons / CC BY-SA 4.0",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "description": "Observed pale aluminium panel grid and horizontal ribbon-window architecture. Temporary advertisements deliberately omitted."
+    },
+    {
+      "landmark_id": "amerikahaus",
+      "title": "File:C-O Berlin im Amerika Haus-2575.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:C-O_Berlin_im_Amerika_Haus-2575.jpg",
+      "artist": "Raimond Spekking",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Raimond Spekking / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahnhof_zoo",
+      "title": "File:Bahnhof Berlin Zoologischer Garten Berliner Stadtbahn Hardenbergplatz Foto 2007 Wolfgang Pehlemann IMG4621.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bahnhof_Berlin_Zoologischer_Garten_Berliner_Stadtbahn_Hardenbergplatz_Foto_2007_Wolfgang_Pehlemann_IMG4621.jpg",
+      "artist": "Wolfgang Pehlemann",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Wolfgang Pehlemann / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahnhof_zoo",
+      "title": "File:2021-07-19 Bahnhof Berlin-Zoologischer Garten 03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_Bahnhof_Berlin-Zoologischer_Garten_03.jpg",
+      "artist": "Geoprofi Lars",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Geoprofi Lars / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "bahnhof_zoo",
+      "title": "File:Bahnhof Berlin Zoologischer Garten - interior.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bahnhof_Berlin_Zoologischer_Garten_-_interior.jpg",
+      "artist": "Sylwia Botev / Fundacja Nomos",
+      "license": "CC BY 3.0 PL",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/pl/",
+      "credit": "Sylwia Botev / Fundacja Nomos / CC BY 3.0 PL",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schleusenkrug",
+      "title": "File:Schleusenkrug in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Schleusenkrug_in_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Bjørn Erik Pedersen",
+      "credit": "Bjørn Erik Pedersen / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schleusenkrug",
+      "title": "File:TiergartenSchleusenkrug-1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TiergartenSchleusenkrug-1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "zoo_birdhouse",
+      "title": "File:Welt-der-vögel-zoo-berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Welt-der-v%C3%B6gel-zoo-berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Anszu",
+      "credit": "Anszu / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "zoo_climbing_rocks",
+      "title": "File:Zoo Berlin - Steinbock (Mountain Goat) - geo.hlipp.de - 40696.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Zoo_Berlin_-_Steinbock_%28Mountain_Goat%29_-_geo.hlipp.de_-_40696.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "artist": "Colin Smith",
+      "credit": "Colin Smith / CC BY-SA 2.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

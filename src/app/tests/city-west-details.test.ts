@@ -224,14 +224,9 @@ describe("City West and Urania recognition details", () => {
     expect(station.sBahnHall.widthM).toBeCloseTo(21.87, 2);
 
     const details = createCityWestDetails("full");
-    const halls = details.getObjectByName("Bahnhof Zoo steel-glass halls");
-    expect(halls).toBeDefined();
-    const bounds = new Box3().setFromObject(halls!);
-    expect(bounds.min.x).toBeCloseTo(-2793.37, 1);
-    expect(bounds.max.x).toBeCloseTo(-2566.9, 1);
-    expect(bounds.min.z).toBeCloseTo(1056.61, 1);
-    expect(bounds.max.z).toBeCloseTo(1374.24, 1);
-    expect(bounds.max.y - CITY_WEST_PROFILE.groundY).toBeCloseTo(22, 1);
+    expect(details.getObjectByName("Bahnhof Zoo steel-glass halls")).toBeUndefined();
+    // ZooStationV165 owns the complete surveyed halls, entries and platforms.
+
   });
 
   test("reconstructs the five-part church ensemble and plaza landmark", () => {
@@ -504,7 +499,7 @@ describe("City West and Urania recognition details", () => {
     expect(profile.roofStar.geometryStatus).toContain("three radial spokes");
 
     const details = createCityWestDetails("full");
-    const towers = details.getObjectByName("City West towers and Kranzler Eck");
+    const towers = details.getObjectByName("City West Europa Center and Allianz towers");
     expect(towers).toBeDefined();
     const bounds = new Box3().setFromObject(towers!);
     expect(bounds.max.y - CITY_WEST_PROFILE.groundY).toBeCloseTo(103, 1);
@@ -578,21 +573,20 @@ describe("City West and Urania recognition details", () => {
 
   test("retains every non-Europa ensemble byte-for-byte and the full mobile geometry", () => {
     const root = createCityWestDetails();
-    // Frozen v1.0.60 source geometry; this task owns only Europa-Center.
+    // Unrelated church and Urania stay frozen; station and Kranzler have v165 source owners.
     for (const [name, digest] of [
-      ["Bahnhof Zoo steel-glass halls", "53f341968805478a4f82a415f4ebd2bf8a71faa6bc3a31bee9ad69ad167da956"],
       ["Gedächtniskirche and Breitscheidplatz ensemble", "a7a96bb7f4fe4578fc3ad9d9cce6526cc8c35baf57ec8c17c20ecb389b71a41a"],
       ["Urania mirrored entrance ensemble", "91401346bb807c600ca0b5297af29afd899bb35a6c1f77543d182676e5256f76"],
     ]) expect(geometryDigest(root.getObjectByName(name)!)).toBe(digest);
     expect(geometryDigest(createCityWestDetails("mobile"))).toBe(geometryDigest(root));
   });
 
-  test("merges ornament into four batches within full and mobile budgets", () => {
+  test("merges ornament into three batches within full and mobile budgets", () => {
     const full = createCityWestDetails("full");
     const mobile = createCityWestDetails("mobile");
-    expect(full.children).toHaveLength(4);
-    expect(mobile.children).toHaveLength(4);
-    expect(full.userData.batchPolicy).toContain("merged into four");
+    expect(full.children).toHaveLength(3);
+    expect(mobile.children).toHaveLength(3);
+    expect(full.userData.batchPolicy).toContain("merged into three");
 
     const fullBudget = geometryBudget(full);
     const mobileBudget = geometryBudget(mobile);

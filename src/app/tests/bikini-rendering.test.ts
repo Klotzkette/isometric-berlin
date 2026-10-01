@@ -127,13 +127,22 @@ describe("Bikini Berlin source rendering and walking", () => {
     const smooth = resources(drawn), block = resources(native);
     expect(smooth.renderables).toBe(3);
     expect(smooth.vertices).toBeLessThanOrEqual(32_000);
-    expect(smooth.instances).toBeLessThanOrEqual(4_100);
+    // Added v165 terrace blades / timber caps and mapped glass-roof frames.
+    expect(smooth.instances).toBeLessThanOrEqual(6_000);
     expect(smooth.bytes).toBeLessThan(850_000);
     expect(block.renderables).toBe(2);
     expect(block.vertices).toBeLessThanOrEqual(9_000);
-    expect(block.instances).toBeLessThanOrEqual(22_000);
-    expect(block.bytes).toBeLessThan(1_850_000);
+    expect(block.instances).toBeLessThanOrEqual(24_000);
+    expect(block.bytes).toBeLessThan(1_950_000);
     expect(native.userData.nativeMinecraft).toBe(true);
+  });
+
+  test("the photographed terrace balustrade and glazing frames stay in both styles", () => {
+    for (const root of [drawn, native]) {
+      expect(root.userData.recognitionFeatures).toEqual({ terraceRailFields: 223, glassRoofFrames: 126 });
+    }
+    expect(drawn.userData.detailInstances).toBe(5835);
+    expect(native.userData.detailInstances).toBe(23271);
   });
 
   test("native ownership removes every exclusive column and preserves every shared one", () => {

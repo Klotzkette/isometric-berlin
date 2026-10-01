@@ -1,3 +1,4 @@
+import { zooStationV165PassageAt, zooStationV165SolidAt, zooStationV165FloorAt } from "./zooStationV165Profile";
 import { grosserSternGatehousePassageAt, grosserSternGatehouseSolidAt } from "./grosserSternGatehousesV164Profile";
 import { hackescherHoefePassageAt } from "./hackescherMarktV163Profile";
 import { eastSquaresV163SolidAt } from "./eastSquaresV163Profile";
@@ -3495,6 +3496,10 @@ function ensureIsoWorld(
   const cafeNeuerSeeDetails = import("./CafeNeuerSeeV164");
   const spanishEmbassyDetails = import("./SpanishEmbassyV164");
   const gatehouseDetails = import("./GrosserSternGatehousesV164");
+  const zooGroundsDetails = import("./ZooGroundsV165");
+  const kranzlerDetails = import("./KranzlerV165");
+  const zooStationDetails = import("./ZooStationV165");
+  const huthmacherDetails = import("./HuthmacherHaus");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3516,9 +3521,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3569,7 +3574,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3587,6 +3592,7 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            zooStationV165SolidAt(x, y, z, radius) ||
             grosserSternGatehouseSolidAt(x, y, z, radius) ||
             fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
@@ -3632,6 +3638,8 @@ function ensureIsoWorld(
           );
         };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
+          if (zooFloor !== null) return zooFloor;
           const pavilionFloor = fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2);
           if (pavilionFloor !== null) return pavilionFloor;
           const alexanderFloor = alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2);
@@ -3763,6 +3771,7 @@ function ensureIsoWorld(
             buildings: initialBuildings,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
+            includeCityWestV165: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             retainRasterAsphalt: false,
@@ -3801,6 +3810,14 @@ function ensureIsoWorld(
         isoWorld.add(hackescher.createHackescherMarktV163());
         yield;
         isoWorld.add(cafeNeuerSee.createCafeNeuerSeeV164());
+        yield;
+        isoWorld.add(zooGrounds.createZooGroundsV165());
+        yield;
+        isoWorld.add(kranzler.createKranzlerV165());
+        yield;
+        isoWorld.add(zooStation.createZooStationV165());
+        yield;
+        isoWorld.add(huthmacher.createHuthmacherHaus());
         yield;
         isoWorld.add(spanishEmbassy.createSpanishEmbassyV164());
         yield;
@@ -4301,12 +4318,13 @@ function ensureVoxelWorld(
           palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
           musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
-          grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+          zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return false;
           }
           return (
+            zooStationV165SolidAt(x, y, z, radius) ||
             grosserSternGatehouseSolidAt(x, y, z, radius) ||
             fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
@@ -4337,6 +4355,7 @@ function ensureVoxelWorld(
           );
         };
         provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
+          zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
           fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
           alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
           unterDenLindenEntranceFloorAt(x,z) ??

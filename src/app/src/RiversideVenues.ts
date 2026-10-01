@@ -308,6 +308,7 @@ export function createRiversideVenues(
     // dense generic table grid/hedge obstructed the actual garden footways.
     // Keep every other garden and the original payload unchanged.
     if (garden.name === "Café am Neuen See" && garden.x_dm === -18672 && garden.z_dm === 8823) continue;
+    if (garden.name === "Schleusenkrug" && garden.x_dm === -24437 && garden.z_dm === 7978) continue;
     const y = sample(garden.x_dm / 10, garden.z_dm / 10);
     if (y === null) {
       continue;

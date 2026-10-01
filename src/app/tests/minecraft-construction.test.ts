@@ -2,12 +2,12 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v164.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v165.json";
 
-// Synchronous v164 measurements must equal cooperative construction below.
+// Synchronous v165 measurements must equal cooperative construction below.
 // Earlier fixtures remain frozen. This cumulative baseline also includes the
 // intervening Kulturforum/north-rail, Breitscheid and v163 district additions;
-// v164 adds Café am Neuen See, the complete Spanish Embassy and four gatehouses.
+// v165 adds the complete Zoo / City West owners and refined Bikini terrace.
 // It proves construction-path equality, not historical appearance preservation.
 // Source retention and full/mobile detail are independently tested per model.
 for (const [profile, expected] of Object.entries(baseline)) {

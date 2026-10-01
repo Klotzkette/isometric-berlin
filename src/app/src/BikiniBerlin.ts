@@ -14,7 +14,8 @@ type Edge = { a: number[]; b: number[]; length: number; yaw: number; nx: number;
 const C = { concrete: 0xc7c4b5, cream: 0xdad4bb, sand: 0xb8ad90, amber: 0xaaa080,
   black: 0x303735, white: 0xdadbd1, grey: 0x92968e, gold: 0xa79c7e,
   glass: 0x78918d, blue: 0x648892, dark: 0x374440, roof: 0x848780,
-  terrace: 0xb5b3a4, grass: 0x798967, plant: 0x64815a };
+  terrace: 0xb5b3a4, grass: 0x798967, plant: 0x64815a,
+  rail: 0x46514b, handrail: 0xb29669, frame: 0x7f9082 };
 const UP = new Vector3(0, 1, 0);
 const ground = BIKINI_SOURCE.groundY;
 
@@ -83,9 +84,17 @@ function terraceRails(details: Details): void {
         contains(part.ring, p[0], p[2]) && !part.holes.some(h => contains(h, p[0], p[2])));
       const stair = BIKINI_SOURCE.parts.some(part => part.kind === "steps" && contains(part.ring, p[0], p[2]));
       if (obstructed || stair) continue;
-      details.face(e, u, 8.03, pitch, .07, C.grey, -.18, .08);
-      details.face(e, u - pitch / 2, 7.56, .07, 1.02, C.grey, -.18, .08);
-      details.face(e, u, 7.40, pitch, .06, C.grey, -.18, .07);
+      // Observed zoo-side rail: narrow dark mesh blades below a broad timber
+      // handrail, following every mapped bend rather than a straight parapet.
+      details.face(e, u, 8.03, pitch, .09, C.handrail, -.18, .30);
+      details.face(e, u - pitch / 2, 7.56, .085, 1.02, C.rail, -.18, .10);
+      details.face(e, u, 7.12, pitch, .065, C.rail, -.18, .09);
+      const blades = Math.max(2, Math.ceil(pitch / .28));
+      for (let j = 0; j < blades; j++) {
+        details.face(e, u - pitch / 2 + (j + .5) * pitch / blades,
+          7.58, details.native ? .11 : .045, .84, C.rail, -.18, .10);
+      }
+      details.record("terraceRailFields");
     }
   }
 }
@@ -114,9 +123,11 @@ function zooGlazing(details: Details): void {
 class Details {
   matrices: number[] = [];
   colors: number[] = [];
+  features: Record<string, number> = {};
   private matrix = new Matrix4();
   private color = new Color();
   constructor(readonly native: boolean) {}
+  record(feature: string): void { this.features[feature] = (this.features[feature] ?? 0) + 1; }
   box(p: P, size: P, color: number, yaw = 0): void {
     this.matrix.compose(new Vector3(...p), new Quaternion().setFromAxisAngle(UP, yaw), new Vector3(...size));
     this.matrices.push(...this.matrix.elements); this.color.setHex(color).toArray(this.colors, this.colors.length);
@@ -136,6 +147,7 @@ class Details {
     mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true, nativeMinecraft: this.native };
     mesh.computeBoundingBox(); mesh.computeBoundingSphere(); root.add(mesh);
     root.userData.detailInstances = mesh.count;
+    root.userData.recognitionFeatures = this.features;
   }
 }
 
@@ -161,7 +173,7 @@ function facade(details: Details, part: Part): void {
       for (let floor = 0; floor < 3; floor++) {
         const low = 10 + floor * 3;
         const palette = [C.sand, C.black, C.white];
-        details.face(edge, edge.length / 2, low + .45, edge.length, .82, street ? palette[floor] : C.grey, .16, .20);
+        details.face(edge, edge.length / 2, low + .45, edge.length, .82, street ? palette[floor] : C.white, .16, .20);
         details.face(edge, edge.length / 2, low + 2.82, edge.length + .05, .16, C.cream, .23, .28);
         for (let bay = 0; bay < bayCount; bay++) {
           const u = (bay + .5) * pitch;
@@ -170,6 +182,12 @@ function facade(details: Details, part: Part): void {
           for (const offset of [-.5, -.27, .27, .5]) details.face(edge, u + pitch * offset, low + 1.8, .085, 1.96, C.gold, .29, .12);
           details.face(edge, u, low + 2.28, pitch * .53, .075, C.white, .31);
           details.face(edge, u, low + .89, pitch - .12, .065, C.gold, .28);
+          if (!street) {
+            // Zoo elevation has the restored narrow gold operable leaves
+            // beside larger panes, clearly visible from the roof terrace.
+            details.face(edge, u + pitch * .35, low + 1.8, .16, 1.78, C.gold, .30, .12);
+            details.face(edge, u + pitch * .35, low + 1.8, .055, 1.62, C.dark, .38, .08);
+          }
         }
       }
       details.face(edge, edge.length / 2, 19.10, edge.length + .36, .23, C.cream, .1, .6);
@@ -181,6 +199,44 @@ function facade(details: Details, part: Part): void {
     } else if (part.top <= 8 && part.ring.length > 4 && edge.length > 8) {
       // Retain the glass-flecked folded lower walls as fine horizontal reveals.
       for (let y = part.bottom + .8; y < part.top; y += .65) details.face(edge, edge.length / 2, y, edge.length, .065, C.grey, .13, .12);
+    }
+  }
+}
+
+/** Frames are clipped to each mapped roof polygon; glass openings stay open. */
+function roofGlazingFrames(details: Details): void {
+  for (const part of BIKINI_SOURCE.parts) {
+    if (part.roofMaterial !== "glass") continue;
+    const perimeter = edges(part.ring);
+    const long = [...perimeter].sort((a, b) => b.length - a.length)[0];
+    if (!long || long.length < 3) continue;
+    const dx = (long.b[0] - long.a[0]) / long.length, dz = (long.b[1] - long.a[1]) / long.length;
+    const points = part.ring.map(([x, z]) => [(x - long.a[0]) * dx + (z - long.a[1]) * dz,
+      -(x - long.a[0]) * dz + (z - long.a[1]) * dx]);
+    const min = Math.min(...points.map(p => p[0])), max = Math.max(...points.map(p => p[0]));
+    for (const e of perimeter) {
+      details.face(e, e.length / 2, part.top + .04, e.length, .10, C.frame, -.045, .095);
+      details.record("glassRoofFrames");
+    }
+    // Parallel bars terminate exactly at the irregular source glazing edge.
+    for (let u = min + 1.1; u < max; u += 2.4) {
+      const cuts: number[] = [];
+      for (let i = 0; i < points.length - 1; i++) {
+        const a = points[i], b = points[i + 1];
+        if ((a[0] <= u && b[0] > u) || (b[0] <= u && a[0] > u)) {
+          cuts.push(a[1] + (b[1] - a[1]) * (u - a[0]) / (b[0] - a[0]));
+        }
+      }
+      cuts.sort((a, b) => a - b);
+      for (let i = 0; i + 1 < cuts.length; i += 2) {
+        const width = cuts[i + 1] - cuts[i];
+        if (width < .20) continue;
+        const v = (cuts[i + 1] + cuts[i]) / 2;
+        details.box([long.a[0] + dx * u - dz * v, ground + part.top + .045,
+          long.a[1] + dz * u + dx * v], [width, .10, details.native ? .18 : .085],
+        C.frame, -Math.atan2(dx, -dz));
+        details.record("glassRoofFrames");
+      }
     }
   }
 }
@@ -255,6 +311,7 @@ export function createBikiniBerlin(native = false): Group {
   if (street) dottedSign(detail, street, "BIKINI BERLIN", 16, 5.2, street.length * .58);
   terraceRails(detail);
   zooGlazing(detail);
+  roofGlazingFrames(detail);
   for (const mesh of [makeMesh(body, false), makeMesh(glass, true)]) if (mesh) root.add(mesh);
   detail.finish(root);
   return freezeStaticSceneTransforms(root);
