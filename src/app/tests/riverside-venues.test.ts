@@ -20,6 +20,12 @@ const ground = voxelPayload as unknown as VoxelPayload;
 describe("Capital Beach and the beer gardens", () => {
   const venues = createRiversideVenues(street, ground)!;
 
+  test("the exact Neuer See site has a single dedicated furniture owner", () => {
+    const cafe=street.beer_gardens!.find(entry=>entry.name==="Café am Neuen See")!;
+    expect(createRiversideVenues({beer_gardens:[cafe]},ground)).toBeNull();
+    expect(createRiversideVenues({beer_gardens:[{...cafe,name:"Unrelated garden"}]},ground)).not.toBeNull();
+  });
+
   test("Capital Beach is the one bar OSM has only a node for", () => {
     const bars = street.riverside_bars!;
     expect(bars.map((entry) => entry.name)).toEqual(["Capital Beach"]);

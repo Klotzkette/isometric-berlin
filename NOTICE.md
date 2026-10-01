@@ -17,6 +17,24 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Neuer See, Spanish Embassy and Siegessäule gatehouses (v1.0.64):**
+  Berlin LoD2 supplies retained building geometry, OpenStreetMap anchors the
+  café site, lake, pier and children's sandpits, and official Berlin DOP spring
+  2025 supports local alignment and the explicitly recorded toilet-height
+  conflict. Official operator and heritage descriptions guide recognition
+  detail. Inspected Commons references supply additive material and facade
+  cues, with every photographer and licence mirrored in the source and public
+  Wikimedia manifests. Café references are by Lear 21 and Fridolin freudenfett
+  (CC BY-SA 4.0) and Schlaier (public-domain dedication). Embassy references are
+  by Marek Śliwecki (CC BY-SA 4.0) and Sargoth (public domain); gatehouse
+  references are by Me677 (public domain) and Paul Korecky (CC BY-SA 2.0).
+  All photographs remain
+  reference-only; no photographic pixels, crops, fonts or textures are bundled.
+  Seasonal furniture, boats and canopies, fine facade subdivisions and the
+  one-storey toilet display height are documented estimates. Existing city
+  detail and full mobile drawn geometry remain intact. See the
+  [source and release review](docs/release-v1.0.64-review.md).
+
 - **Berlin squares and City West streets (v1.0.63):** Berlin LoD2 supplies
   retained building surfaces and OpenStreetMap supplies current feature,
   street, basin and access identities. Official operator, artist and heritage

@@ -141,7 +141,7 @@ export const GROSSER_STERN_TUNNEL_HOUSES_PROFILE = Object.freeze({
   referenceUrl:
     "https://www.architektur-bildarchiv.de/image/Siegess%C3%A4ule-Berlin-27250.html",
   geometryStatus:
-    "four OSM-footprint-centred two-level civic gatehouses with mapped hipped roofs; portico, pediment and tunnel-mouth subdivisions are reference-bounded presentation geometry",
+    "historical metadata only; rendered once by GrosserSternGatehousesV164 with eight exact LoD2 footprints, square stone piers, open porticoes and descending stairs",
 });
 
 export {
@@ -4362,83 +4362,6 @@ function addCharlottenburgerTor(
   }
 }
 
-function addTemplePediment(
-  builder: Builder,
-  origin: Vector3,
-  centerY: number,
-  facadeZ: number,
-  width: number,
-  height: number,
-  depth: number,
-  rotationY: number,
-): void {
-  const shape = new Shape();
-  shape.moveTo(-width / 2, 0);
-  shape.lineTo(width / 2, 0);
-  shape.lineTo(0, height);
-  shape.closePath();
-  const geometry = new ExtrudeGeometry(shape, { bevelEnabled: false, depth });
-  geometry.translate(0, 0, -depth / 2);
-  const [offsetX, offsetZ] = rotatedLocalOffset(0, facadeZ, rotationY);
-  transformGeometry(
-    geometry,
-    origin.x + offsetX,
-    centerY,
-    origin.z + offsetZ,
-    rotationY,
-  );
-  addCustomGeometry(builder, geometry, SANDSTONE);
-}
-
-function addGrosserSternTunnelHouses(
-  builder: Builder,
-  byName: Map<string, ExpandedLandmark>,
-): void {
-  if (!byName.has("Siegessäule")) return;
-  const centers = GROSSER_STERN_TUNNEL_HOUSES_PROFILE.centersWorldM;
-  for (let index = 0; index < centers.length; index += 1) {
-    const [x, z] = centers[index];
-    const groundY = 5.245;
-    const origin = new Vector3(x, groundY, z);
-    const northHouse = index === 0 || index === 3;
-    const facadeSide = northHouse ? 1 : -1;
-    const rotation = -0.145;
-    addLocalBox(builder, SANDSTONE, origin, 0, groundY + 2.65, 0,
-      9.2, 5.3, 14.8, rotation);
-    addLocalBox(builder, 0xa99f89, origin, 0, groundY + 5.45, 0,
-      9.8, 0.55, 15.4, rotation);
-    // Recessed dark opening makes the real descent into the pedestrian
-    // tunnel readable instead of suggesting an occupied pavilion.
-    addLocalBox(builder, 0x31383a, origin, 0, groundY + 2.0, facadeSide * 7.46,
-      3.7, 3.5, 0.16, rotation, false);
-    for (const localX of [-3.1, -1.05, 1.05, 3.1]) {
-      const [offsetX, offsetZ] = rotatedLocalOffset(
-        localX,
-        facadeSide * 8.0,
-        rotation,
-      );
-      addCylinder(builder, SANDSTONE, origin.x + offsetX, groundY + 3.25,
-        origin.z + offsetZ, 0.38, 4.7, 10);
-    }
-    addLocalBox(builder, SANDSTONE, origin, 0, groundY + 5.6, facadeSide * 8.0,
-      9.8, 0.7, 1.5, rotation);
-    addTemplePediment(builder, origin, groundY + 5.88, facadeSide * 8.0,
-      9.8, 2.25, 1.45, rotation);
-    const roof = new CylinderGeometry(0.34, 1, 2.0, 4);
-    roof.rotateY(Math.PI / 4);
-    roof.scale(9.9 / Math.SQRT2, 1, 15.5 / Math.SQRT2);
-    roof.rotateY(rotation);
-    roof.translate(x, groundY + 7.05, z);
-    addCustomGeometry(builder, roof, 0x6f6d66);
-    // Shallow stair flight immediately before each portal.
-    for (let step = 0; step < 4; step += 1) {
-      addLocalBox(builder, 0x8c8980, origin, 0, groundY + 0.08 - step * 0.08,
-        facadeSide * (8.35 + step * 0.75), 5.0 + step * 0.45, 0.16,
-        1.4, rotation, false);
-    }
-  }
-}
-
 function createWeltBalloonEnvelopeTexture(): Texture | null {
   if (typeof document === "undefined") return null;
   const word = createLetteringTexture({
@@ -4701,53 +4624,6 @@ function createWeltBalloon(
   });
   if (mechanics) group.add(mechanics);
   return group;
-}
-
-function addCivicAccents(
-  builder: Builder,
-  byName: Map<string, ExpandedLandmark>,
-): void {
-  const spanish = anchor(byName, "Spanische Botschaft");
-  if (spanish) {
-    addBox(
-      builder,
-      SANDSTONE,
-      spanish.x,
-      spanish.y + 9.5,
-      spanish.z + 14,
-      46,
-      1.2,
-      1.1,
-      0.12,
-    );
-    addBox(
-      builder,
-      0x9e2928,
-      spanish.x - 2,
-      spanish.y + 15.5,
-      spanish.z + 14,
-      8,
-      1.1,
-      1.3,
-      0.12,
-    );
-  }
-  const cafe = anchor(byName, "Café am Neuen See");
-  if (cafe) {
-    for (let index = 0; index < 7; index += 1) {
-      addBox(
-        builder,
-        index % 2 ? 0xb84335 : 0xe1d39b,
-        cafe.x + 38 + index * 5,
-        cafe.y + 0.45,
-        cafe.z - 18 + (index % 3) * 5,
-        3.8,
-        0.55,
-        1.2,
-        0.35 + index * 0.1,
-      );
-    }
-  }
 }
 
 function addAmanoGrandCentral(
@@ -5677,8 +5553,6 @@ export function createExpandedCityDetails(
   }
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
-  addGrosserSternTunnelHouses(builder, byName);
-  addCivicAccents(builder, byName);
   addAmanoGrandCentral(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);
   addFunboxPark(builder, byName);

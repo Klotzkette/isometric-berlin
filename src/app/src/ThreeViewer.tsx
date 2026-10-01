@@ -1,3 +1,4 @@
+import { grosserSternGatehousePassageAt, grosserSternGatehouseSolidAt } from "./grosserSternGatehousesV164Profile";
 import { hackescherHoefePassageAt } from "./hackescherMarktV163Profile";
 import { eastSquaresV163SolidAt } from "./eastSquaresV163Profile";
 import { createGendarmenmarktShells } from "./GendarmenmarktShells";
@@ -3491,6 +3492,9 @@ function ensureIsoWorld(
   const westSquaresDetails = import("./WestSquaresV163");
   const eastSquaresDetails = import("./EastSquaresV163");
   const hackescherDetails = import("./HackescherMarktV163");
+  const cafeNeuerSeeDetails = import("./CafeNeuerSeeV164");
+  const spanishEmbassyDetails = import("./SpanishEmbassyV164");
+  const gatehouseDetails = import("./GrosserSternGatehousesV164");
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -3512,8 +3516,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3564,7 +3569,7 @@ function ensureIsoWorld(
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return true;
           }
-          return hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+          return grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
             y,
@@ -3582,6 +3587,7 @@ function ensureIsoWorld(
             return false;
           }
           if (
+            grosserSternGatehouseSolidAt(x, y, z, radius) ||
             fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
@@ -3793,6 +3799,12 @@ function ensureIsoWorld(
         isoWorld.add(eastSquares.createEastSquaresV163());
         yield;
         isoWorld.add(hackescher.createHackescherMarktV163());
+        yield;
+        isoWorld.add(cafeNeuerSee.createCafeNeuerSeeV164());
+        yield;
+        isoWorld.add(spanishEmbassy.createSpanishEmbassyV164());
+        yield;
+        isoWorld.add(gatehouses.createGrosserSternGatehousesV164());
         yield;
         isoWorld.add(moabitHouses.createMoabitGuardHouses());
         isoWorld.add(ulapQuarter.createUlapQuarter());
@@ -4289,12 +4301,13 @@ function ensureVoxelWorld(
           palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
           musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
           nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
-          hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+          grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
           if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
             return false;
           }
           return (
+            grosserSternGatehouseSolidAt(x, y, z, radius) ||
             fernsehturmPavilionSolidAt(x, z, y, radius) ||
             alexanderPublicRealmSolidAt(x, z, y, radius) ||
             friedrichMonumentSolidAt(x, z, y, 0) ||
@@ -8730,6 +8743,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           } else {
             ensureIsoWorld(runtime, onWarningRef.current);
           }
+          // A warm native-to-drawn remount can finish its progressive world
+          // before secondary setup installs the real park starter. Recheck now
+          // so that early completion cannot leave the optional park unstarted;
+          // the starter still waits for any active progressive construction.
+          runtime.startDeferredDetails();
           setModelMaterialState(runtime, runtime.underside);
         })
         .catch((error: unknown) => {

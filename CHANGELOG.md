@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.0.64 — Neuer See and Siegessäule approaches
+
+- Refine Café am Neuen See’s current source building parts and glazed event
+  hall; add the mapped waterfront deck and pier, open rowing boats, garden
+  seating, sandpit play areas and explicitly approximate seasonal canopies.
+- Resolve the two small toilet buildings’ anomalous approximately thirty-metre
+  LoD2 heights against their mapped single-storey use and official aerial
+  evidence. Keep the original source surfaces and record the height estimate.
+- Refine the Spanish Embassy’s source-bound stone facades, entrance hierarchy,
+  roof and window detail, with a separate block-native representation.
+- Refine the Siegessäule pedestrian tunnel gatehouses with their actual
+  pavilion footprints, stone architecture and open entrance approaches.
+- Close a mobile mode-change initialization race that could leave optional
+  park details unstarted after returning from Minecraft to a drawn mode.
+- Preserve existing city detail, source coverage, roads, shoreline, viewing
+  distance and movement. All four drawn modes retain the same full static
+  detail on pointer and touch; Minecraft stays independently modelled.
+  Source conflicts and seasonal display estimates are documented in the review.
+
 ## v1.0.63 — Berlin squares and street fronts
 
 - Refine Karl-Marx-Allee facade trim while preserving every previous coloured

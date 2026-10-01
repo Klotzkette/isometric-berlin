@@ -1,3 +1,4 @@
+import { createGrosserSternGatehousesV164 } from "../src/GrosserSternGatehousesV164";
 import { describe, expect, test } from "bun:test";
 import {
   Box3,
@@ -165,7 +166,7 @@ describe("task-10 expanded city recognition details", () => {
       GROSSER_STERN_TUNNEL_HOUSES_PROFILE,
     );
     expect(GROSSER_STERN_TUNNEL_HOUSES_PROFILE.osmKeys).toHaveLength(4);
-    const bounds = new Box3().setFromObject(tunnelHouses);
+    const bounds = new Box3().setFromObject(createGrosserSternGatehousesV164());
     expect(bounds.min.x).toBeLessThan(-1584);
     expect(bounds.max.x).toBeGreaterThan(-1334);
     expect(bounds.min.z).toBeLessThan(404);

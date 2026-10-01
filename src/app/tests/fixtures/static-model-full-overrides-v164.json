@@ -1,0 +1,20 @@
+{
+  "CityWestDetails": {
+    "hash": "978b7f1d77809f2a4ac206d727f26439a0c33b9f2304578644270e04318c3591",
+    "budget": {
+      "bytes": 2469414,
+      "draws": 13,
+      "instances": 0,
+      "vertices": 115250
+    }
+  },
+  "MuseumLenneArchitecture": {
+    "hash": "64a8b7bfecf5b09c5e76efe59ddb7b735da44715a153de53f5055be6cb32d0d5",
+    "budget": {
+      "bytes": 900924,
+      "draws": 2,
+      "instances": 11262,
+      "vertices": 2568
+    }
+  }
+}

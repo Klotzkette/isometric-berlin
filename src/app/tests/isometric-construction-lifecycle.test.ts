@@ -73,6 +73,16 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     return group;
   }
   const modules = {
+    "./ConcertHalls": { createConcertHalls: () => model("Kulturforum concert halls") },
+    "./KulturforumMuseums": { createKulturforumMuseums: () => model("Kulturforum museums") },
+    "./HbfNorthApproach": { createHbfNorthApproach: () => model("Hbf northern railway approach") },
+    "./BreitscheidTowers": { createBreitscheidTowers: () => model("Breitscheid towers") },
+    "./WestSquaresV163": { createWestSquaresV163: () => model("West squares v163") },
+    "./EastSquaresV163": { createEastSquaresV163: () => model("East squares v163") },
+    "./HackescherMarktV163": { createHackescherMarktV163: () => model("Hackescher Markt v163") },
+    "./CafeNeuerSeeV164": { createCafeNeuerSeeV164: () => model("Cafe Neuer See v164") },
+    "./SpanishEmbassyV164": { createSpanishEmbassyV164: () => model("Spanish embassy v164") },
+    "./GrosserSternGatehousesV164": { createGrosserSternGatehousesV164: () => model("Grosser Stern gatehouses v164") },
     "./UlapQuarter": { createUlapQuarter: () => model("ULAP quarter") },
     "./MoabitGuardHouses": { createMoabitGuardHouses: () => model("Moabit officers houses") },
     "./UlapPark": { createUlapPark: () => model("ULAP park") },
@@ -101,6 +111,8 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       createGendarmenmarktPerimeterFacades: () => model("Gendarmenmarkt perimeter facades"),
     },
   };
+  const expectedImports = [...declarations[0].matchAll(/loadAddon\("([^"]+)"\)/g)].map(match => match[1]);
+  expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
     interleaveStaticGeometry,
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
@@ -125,7 +137,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       }
       if (taskCount === options.modeAtTask) runtime.lightingMode = "minecraft";
     },
-    loadAddon: (path: keyof typeof modules) => Promise.resolve(modules[path]),
+    loadAddon: (path: keyof typeof modules) => {
+      if (!modules[path]) throw new Error(`Missing lifecycle fixture for production addon ${path}`);
+      return Promise.resolve(modules[path]);
+    },
     fetchPrismPayload: async () => ({ buildings: [] }),
     fetchGroundPayload: async () => null, fetchStreetPayload: async () => null,
     fetchSurfacePayload: async () => null, fetchRailPayload: async () => null,
@@ -187,7 +202,27 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
 test("drawn construction publishes all staged geometry at the current pose", async () => {
   const h = host(); await h.finished;
   expect(h.taskCount).toBeGreaterThan(6);
-  expect(h.built).toHaveLength(37); // Source-bound quarter and officers’ house addons publish with their world.
+  // Explicit names check ownership and duplicate construction, rather than a
+  // magic total which could hide a missing recent source-bound layer.
+  const expectedNames = [
+    "core", "drawn bridge structures", "Gendarmenmarkt shells", "Gendarmenmarkt architecture",
+    "Gendarmenmarkt perimeter shells", "Gendarmenmarkt perimeter facades",
+    "Leipziger source shells", "Leipziger perimeter facades", "Potsdamer ministry architecture",
+    "Bikini source architecture", "Breitscheid towers", "West squares v163", "East squares v163",
+    "Hackescher Markt v163", "Cafe Neuer See v164", "Spanish embassy v164", "Grosser Stern gatehouses v164",
+    "Moabit officers houses", "ULAP quarter", "Kulturforum concert halls", "Kulturforum museums",
+    "Gorki building", "GRIPS and Hansaplatz court", "Gymnasium Tiergarten Neubau",
+    "Behrenstrasse 42 architecture", "Neue Wache", "Schloss and Naturkunde shells",
+    "Schloss and Naturkunde facades", "Bebelplatz shells", "coverage", "Komische Oper", "East civic",
+    "DHM", "Russian embassy source", "East outlines", "Detailed Fernsehturm", "Tower rose steam",
+    "Alexander civic", "Alexander public realm", "U-Bahn entrances", "Eastern palais",
+    "James-Simon", "Spree", "Unter den Linden", "Abgeordnetenhaus", "Gropius Bau",
+  ];
+  expect(h.built.map(mesh => mesh.name).sort()).toEqual([...expectedNames].sort());
+  for (const name of expectedNames) {
+    const owner = name === "drawn bridge structures" ? h.runtime.signatures : h.runtime.isoWorld;
+    expect(owner?.getObjectByName(name)).toBeDefined();
+  }
   expect(h.runtime.isoWorld?.getObjectByName("Leipziger source shells")).toBeDefined();
   expect(h.runtime.isoWorld?.getObjectByName("Potsdamer ministry architecture")).toBeDefined();
   expect(h.runtime.isoWorld?.getObjectByName("Bikini source architecture")).toBeDefined();
@@ -298,3 +333,27 @@ test("world release clears the published steam pointer and disposes its buffers 
   expect(h.disposed.get(steam)).toBe(1);
   expect(materialDisposals).toBe(1);
 });
+
+// Cancellation is exercised at each added v160–v164 constructor boundary.
+// Every fixture owns a real tiny buffer but no full architectural model runs.
+for (const [stop, next] of [
+  ["Breitscheid towers", "West squares v163"],
+  ["West squares v163", "East squares v163"],
+  ["East squares v163", "Hackescher Markt v163"],
+  ["Hackescher Markt v163", "Cafe Neuer See v164"],
+  ["Cafe Neuer See v164", "Spanish embassy v164"],
+  ["Spanish embassy v164", "Grosser Stern gatehouses v164"],
+  ["Grosser Stern gatehouses v164", "Moabit officers houses"],
+  ["Kulturforum concert halls", "Kulturforum museums"],
+  ["Kulturforum museums", "Gorki building"],
+]) {
+  test(`cancellation after ${stop} frees its owned buffers before ${next}`, async () => {
+    const h = host({ stopAfterModel: stop }); await h.finished;
+    expect(h.built.some(mesh => mesh.name === stop)).toBeTrue();
+    expect(h.built.some(mesh => mesh.name === next)).toBeFalse();
+    expect(h.runtime.isoWorld).toBeNull();
+    expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+    expect(h.runtime.signatures.children).toEqual([h.existing, h.concurrent]);
+    expect(h.ready).toBe(0); expect(h.reported).toBe(0); expect(h.warnings).toHaveLength(0);
+  });
+}

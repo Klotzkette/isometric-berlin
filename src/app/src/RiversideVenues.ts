@@ -304,6 +304,10 @@ export function createRiversideVenues(
   const sample = worldGroundSampler(ground);
   const builder: Builder = createBuilder();
   for (const garden of gardens) {
+    // This exact mapped site is now owned by CafeNeuerSeeV164. Its old
+    // dense generic table grid/hedge obstructed the actual garden footways.
+    // Keep every other garden and the original payload unchanged.
+    if (garden.name === "Café am Neuen See" && garden.x_dm === -18672 && garden.z_dm === 8823) continue;
     const y = sample(garden.x_dm / 10, garden.z_dm / 10);
     if (y === null) {
       continue;

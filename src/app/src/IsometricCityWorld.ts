@@ -1,3 +1,7 @@
+import { CAFE_NEUER_SEE_V164_PRISM_IDS } from "./cafeNeuerSeeV164Profile";
+import { SPANISH_EMBASSY_V164_PRISM_IDS } from "./spanishEmbassyV164Profile";
+import { GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS } from "./grosserSternGatehousesV164Profile";
+import { cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./MinecraftVoxelWorld";
 import { HACKESCHER_MARKT_V163_PRISM_IDS } from "./hackescherMarktV163Profile";
 import { WEST_SQUARES_V163_PRISM_IDS } from "./westSquaresV163Profile";
 import { ULAP_QUARTER_IDS } from "./ulapQuarterProfile";
@@ -967,6 +971,9 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...BREITSCHEID_TOWER_PRISM_IDS,
   ...WEST_SQUARES_V163_PRISM_IDS,
   ...HACKESCHER_MARKT_V163_PRISM_IDS,
+  ...GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS,
+  ...CAFE_NEUER_SEE_V164_PRISM_IDS,
+  ...SPANISH_EMBASSY_V164_PRISM_IDS,
   ...DOM_ALTES_PRISM_IDS,
   ...MUSEUM_TRIAD_PRISM_IDS,
   ...ADMIRALSPALAST_IDS,
@@ -10031,6 +10038,10 @@ export function createSmoothSurfaces(
       // modes. Normals are therefore dead transfer/GPU data once draping is
       // complete, and deleting them does not alter any rendered pixel.
       geometry.deleteAttribute("normal");
+      if (followTerrain) {
+        const opened = cutGrosserSternGatehouseGroundSurface(geometry);
+        if (opened !== geometry) { geometry.dispose(); geometry = opened; }
+      }
       return geometry;
     };
     if (pretriangulated) {
@@ -12991,6 +13002,7 @@ export function createIsometricCityCore(
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);
     restoreHbfNorthRailGroundOwnership(slabs, ground);
+    restoreGrosserSternGatehouseGroundOwnership(slabs);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen

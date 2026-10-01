@@ -2,15 +2,16 @@ import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial,
-  LineSegments, Mesh, MeshBasicMaterial,
+  LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3,
 } from "three";
 import { markArchitecturalInk } from "../src/architecturalInk";
-import { smoothGroundTopSampler, type VoxelPayload } from "../src/MinecraftVoxelWorld";
+import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "../src/MinecraftVoxelWorld";
 import { spreebogenTerrainYAt } from "../src/spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { indexGeometryExactly } from "../src/exactGeometryIndex";
 import type { RestoredRoadBatch, RestoredRoadManifest } from "../src/restoredRoadSurfaces";
+import { GROSSER_STERN_GATEHOUSES_V164_PROFILE, gatehouseV164World } from "../src/grosserSternGatehousesV164Profile";
 
 // Execute the real production functions while isolating the bundler's ?url
 // import. Network is injected, so this does not install process-wide mocks.
@@ -21,7 +22,7 @@ const compiled = ts.transpileModule(functions.join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
 }).outputText;
 
-function host(fetcher: (url: string) => Promise<unknown> = async () => { throw new Error("Unexpected fetch"); }, indexer: (geometry: BufferGeometry) => unknown = indexGeometryExactly) {
+function host(fetcher: (url: string) => Promise<unknown> = async () => { throw new Error("Unexpected fetch"); }, indexer: (geometry: BufferGeometry) => unknown = indexGeometryExactly, cutter = cutGrosserSternGatehouseGroundSurface) {
   const decodeSizes: number[] = [];
   const bindings = {
     TextDecoder: class extends TextDecoder {
@@ -31,8 +32,8 @@ function host(fetcher: (url: string) => Promise<unknown> = async () => { throw n
       }
     },
     exports: {}, BufferAttribute, BufferGeometry, DoubleSide, Group,
-    LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, markArchitecturalInk,
-    smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms,
+    LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3, markArchitecturalInk,
+    smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter,
     roadDataUrl: "./assets/restored-road-fixture.ndjson.txt", fetch: fetcher,
     RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes,
   };
@@ -128,6 +129,48 @@ describe("restored exact road runtime", () => {
     expect(object.geometry.boundingSphere!.radius).toBeGreaterThan(0);
     expect(object.matrixAutoUpdate).toBeFalse();
     expect((object.material as MeshBasicMaterial).color.getHex()).toBe(0xc4c5c0);
+  });
+
+  test("deferred production paving cannot cap the four descending gatehouse stairs", async () => {
+    const runtime = host(), uncutRuntime = host(undefined, undefined, g => g);
+    const wanted = new Set(["restored-paving--4-0", "restored-paving--3-0"]);
+    const batches: RestoredRoadBatch[] = [];
+    for await (const line of runtime.roadLines(Bun.file(new URL("../src/data/restoredRoadSurfaces.ndjson.txt", import.meta.url)).stream())) {
+      const record = JSON.parse(line);
+      if (wanted.has(record.id)) batches.push(record);
+    }
+    expect(batches).toHaveLength(2);
+    let originalCapCount = 0;
+    for (const batch of batches) {
+      const before = uncutRuntime.createRestoredRoadBatch(batch, () => 5.2);
+      const after = runtime.createRestoredRoadBatch(batch, () => 5.2);
+      const oldGeometry = (before.children[0] as Mesh).geometry, geometry = (after.children[0] as Mesh).geometry;
+      const sourcePositions = oldGeometry.getAttribute("position");
+      if(batch.id === "restored-paving--4-0")expect(geometry.userData.gatehouseGroundApertures).toBeTrue();
+      // Every original vertex is retained, and complete triangles away from the
+      // small well neighbourhoods retain their exact original index triples.
+      expect(Array.from(geometry.getAttribute("position").array).slice(0,sourcePositions.array.length)).toEqual(Array.from(sourcePositions.array));
+      const triangles = new Set<string>();
+      for(let i=0;i<geometry.index!.count;i+=3) triangles.add(Array.from(geometry.index!.array.slice(i,i+3)).join(","));
+      for(let i=0;i<oldGeometry.index!.count;i+=3){
+        const ids=Array.from(oldGeometry.index!.array.slice(i,i+3));
+        const xs=ids.map(id=>sourcePositions.getX(id)),zs=ids.map(id=>sourcePositions.getZ(id));
+        if(Math.max(...xs)<-1590||Math.min(...xs)>-1330||Math.max(...zs)<399||Math.min(...zs)>512)expect(triangles.has(ids.join(","))).toBeTrue();
+      }
+      before.updateMatrixWorld(true);after.updateMatrixWorld(true);
+      const down=(root:Group,x:number,z:number)=>new Raycaster(new Vector3(x,10,z),new Vector3(0,-1,0),0,10).intersectObject(root,true);
+      for(const h of GROSSER_STERN_GATEHOUSES_V164_PROFILE){
+        const at=gatehouseV164World(h,0,0,0);
+        originalCapCount += Number(down(before,at[0],at[2]).length>0);
+        expect(down(after,at[0],at[2])).toHaveLength(0);
+        for(const u of [-2.60,2.60]){
+          const p=gatehouseV164World(h,u,0,0),old=down(before,p[0],p[2]),current=down(after,p[0],p[2]);
+          expect(current.length>0).toBe(old.length>0);
+          if(old.length)expect(current[0].point.y).toBeCloseTo(5.3,5);
+        }
+      }
+    }
+    expect(originalCapCount).toBeGreaterThan(0);
   });
 
   test("keeps exact curb upstands and ink along supplied source segments", () => {

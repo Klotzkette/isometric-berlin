@@ -1,10 +1,14 @@
 import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v157.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v164.json";
 
-// Synchronous v157 measurements must equal cooperative construction below.
-// Earlier fixtures stay frozen; v157 refines only ULAP and Moabit ownership.
+// Synchronous v164 measurements must equal cooperative construction below.
+// Earlier fixtures remain frozen. This cumulative baseline also includes the
+// intervening Kulturforum/north-rail, Breitscheid and v163 district additions;
+// v164 adds Café am Neuen See, the complete Spanish Embassy and four gatehouses.
+// It proves construction-path equality, not historical appearance preservation.
 // Source retention and full/mobile detail are independently tested per model.
 for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
@@ -28,10 +32,11 @@ test("the viewer owns partial buffers before yielding and publishes only the com
   const source = await Bun.file(
     new URL("../src/ThreeViewer.tsx", import.meta.url),
   ).text();
-  const loader = source.slice(
-    source.indexOf("function ensureVoxelWorld("),
-    source.indexOf("function ensureVoxelWorld(") + 12000,
-  );
+  // Follow the actual declaration boundary: added model navigation must not
+  // silently truncate the loader before its rollback/disposal branch.
+  const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const loader = parsed.statements.find(node =>
+    ts.isFunctionDeclaration(node) && node.name?.text === "ensureVoxelWorld")!.getText(parsed);
   const owned = loader.indexOf("provisionalVoxelWorld = new Group()");
   const run = loader.indexOf("await completeCooperatively(");
   const publish = loader.indexOf("runtime.voxelWorld = provisionalVoxelWorld");

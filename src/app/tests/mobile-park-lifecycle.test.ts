@@ -17,10 +17,24 @@ const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const dispose = parsed.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "disposeObject3D");
 if (!dispose) throw new Error("Missing production park disposal");
+const attach = parsed.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "attachProgressiveWorldMessage") as ts.FunctionDeclaration | undefined;
+const settled = attach?.body?.statements.find(node => ts.isIfStatement(node) && node.expression.getText(parsed) === 'message.type === "settled"');
+if (!settled) throw new Error("Missing production progressive settled handler");
 const beginning = source.indexOf("let deferredDetailsStarted = false;");
 const ending = source.indexOf("runtime.tunnel = createTunnel", beginning);
 if (beginning < 0 || ending < 0) throw new Error("Missing production deferred park lifecycle");
-const compiled = ts.transpileModule(`${dispose.getText(parsed)}\n${source.slice(beginning, ending)}`, {
+const terminalBeginning = source.indexOf('// The requested world was started immediately after manifest', ending);
+const terminalEnding = source.indexOf('setModelMaterialState(runtime, runtime.underside);', terminalBeginning);
+if (terminalBeginning < 0 || terminalEnding < 0) throw new Error("Missing terminal secondary setup calls");
+const compiled = ts.transpileModule(`
+  ${dispose.getText(parsed)}
+  function installStarter() { ${source.slice(beginning, ending)} }
+  function deliverSettled() {
+    const message = { type: "settled", viewRevision: runtime.mobileBuildingViewRevision };
+    ${settled.getText(parsed)}
+  }
+  function completeSecondarySetup() { ${source.slice(terminalBeginning, terminalEnding)} }
+`, {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
 
@@ -41,6 +55,7 @@ function host(options: {
   interrupt?: Interruption;
   atCompletion?: boolean;
   failPresentation?: boolean;
+  deferStarterInstallation?: boolean;
 } = {}) {
   const scene = new Scene();
   const previous = new Group();
@@ -57,14 +72,18 @@ function host(options: {
   let fetches = 0;
   let obstacleWrites = 0;
   let interrupted = false;
+  let emptyStarterCalls = 0;
+  let isoEnsureCalls = 0;
+  let voxelEnsureCalls = 0;
   const runtime = {
     coarsePointer: options.mobile !== false, disposed: false, lightingMode: "day",
-    progressiveWorldState: "complete", progressiveWorldInput: undefined,
+    progressiveWorldState: options.deferStarterInstallation ? "loading" : "complete", progressiveWorldInput: undefined,
+    mobileBuildingViewRevision: 0, isoWorldState: "ready",
     progressiveWorldStartCancel: undefined, districtPathTerrainAt: undefined,
     sceneRootUrl: new URL("https://test.invalid/mesh/"), parkDetails: previous,
     pedestrian: { environment: {} }, tunnelPortalCourse: null, underside: false,
     nightLightsOn: true, minecraftMaterialState: createMinecraftMaterialState(),
-    startDeferredDetails: () => {}, gpuWarmup: { release: () => {} },
+    startDeferredDetails: () => { emptyStarterCalls++; }, gpuWarmup: { release: () => {} },
   };
   const watch = () => {
     for (const root of staged) root.traverse(object => {
@@ -94,6 +113,11 @@ function host(options: {
     interleaveStaticGeometry,
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     runtime, scene, document, loadController,
+    lightingModeRef: { get current() { return runtime.lightingMode; } },
+    ensureIsoWorld: () => { expect(runtime.isoWorldState).toBe("ready"); isoEnsureCalls++; },
+    ensureVoxelWorld: () => { voxelEnsureCalls++; },
+    releaseBuiltWorldPayloads: () => {},
+    performance: { clearMarks: () => {}, mark: () => {} },
     manifest: { park_details: { file: "park.json" }, tiergartentunnel: null },
     window: { requestIdleCallback: (callback: () => void) => { idleTasks.push(callback); return idleTasks.length; } },
     selectedRef: { current: "test sight" },
@@ -143,17 +167,27 @@ function host(options: {
     invalidateScenePresentation: () => {},
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
   };
-  const disposeScene = new Function(...Object.keys(bindings), `${compiled}; return () => disposeObject3D(runtime, scene);`)(...Object.values(bindings));
+  const lifecycle = new Function(...Object.keys(bindings), `${compiled}; return {
+    installStarter, deliverSettled, completeSecondarySetup,
+    dispose: () => disposeObject3D(runtime, scene),
+  };`)(...Object.values(bindings));
+  if (!options.deferStarterInstallation) lifecycle.installStarter();
+  const flushTasks = async () => {
+    while (idleTasks.length) idleTasks.shift()!();
+    await pending.at(-1);
+  };
   return {
     runtime, scene, previous, document, staged, warnings, resources,
     get yields() { return yields; }, get fetches() { return fetches; },
     get obstacleWrites() { return obstacleWrites; },
-    async start() {
-      runtime.startDeferredDetails();
-      while (idleTasks.length) idleTasks.shift()!();
-      await pending.at(-1);
-    },
-    dispose: () => { watch(); disposeScene(); },
+    get emptyStarterCalls() { return emptyStarterCalls; },
+    get isoEnsureCalls() { return isoEnsureCalls; },
+    get voxelEnsureCalls() { return voxelEnsureCalls; },
+    installStarter: () => lifecycle.installStarter(),
+    async settle() { lifecycle.deliverSettled(); await flushTasks(); },
+    async completeSecondarySetup() { lifecycle.completeSecondarySetup(); await flushTasks(); },
+    async start() { runtime.startDeferredDetails(); await flushTasks(); },
+    dispose: () => { watch(); lifecycle.dispose(); },
   };
 }
 
@@ -233,5 +267,67 @@ test("desktop park loading retains its synchronous construction path", async () 
   expect(h.runtime.parkDetails.parent).toBe(h.scene);
   expect(h.obstacleWrites).toBe(1);
   expect(h.warnings).toHaveLength(0);
+  h.dispose();
+});
+
+
+test("warm native-to-drawn remount recovers a settled signal sent before park starter installation", async () => {
+  const h = host({ deferStarterInstallation: true });
+  h.runtime.lightingMode = "night";
+  // Cached world completion arrives while secondary cultural setup still owns
+  // the initial no-op. Neither ready notification nor ensureIsoWorld retries it.
+  await h.settle();
+  expect(h.runtime.progressiveWorldState).toBe("complete");
+  expect(h.emptyStarterCalls).toBe(1);
+  expect(h.fetches).toBe(0);
+  h.installStarter();
+  expect(h.fetches).toBe(0);
+  await h.completeSecondarySetup();
+  expect(h.isoEnsureCalls).toBe(1);
+  expect(h.voxelEnsureCalls).toBe(0);
+  expect(h.fetches).toBe(1);
+  expect(h.staged).toHaveLength(1);
+  expect(h.runtime.parkDetails).toBe(h.staged[0]);
+  expect(h.scene.children).toEqual([h.staged[0]]);
+  expect(h.obstacleWrites).toBe(1);
+  // Repeated completion and normal mode/visibility triggers cannot duplicate it.
+  await h.completeSecondarySetup();
+  await h.settle();
+  await h.start();
+  expect(h.fetches).toBe(1);
+  expect(h.obstacleWrites).toBe(1);
+  expect(h.warnings).toHaveLength(0);
+  h.dispose();
+});
+
+test("terminal secondary setup still waits while progressive mobile construction is active", async () => {
+  const h = host({ deferStarterInstallation: true });
+  h.runtime.lightingMode = "night";
+  h.installStarter();
+  await h.completeSecondarySetup();
+  expect(h.isoEnsureCalls).toBe(1);
+  expect(h.runtime.progressiveWorldState).toBe("loading");
+  expect(h.fetches).toBe(0);
+  expect(h.staged).toHaveLength(0);
+  expect(h.runtime.parkDetails).toBe(h.previous);
+  await h.settle();
+  expect(h.fetches).toBe(1);
+  expect(h.obstacleWrites).toBe(1);
+  expect(h.runtime.parkDetails).toBe(h.staged[0]);
+  expect(h.warnings).toHaveLength(0);
+  h.dispose();
+});
+
+test("terminal secondary setup does not allocate a drawn park for native Minecraft", async () => {
+  const h = host({ deferStarterInstallation: true });
+  h.runtime.lightingMode = "minecraft";
+  h.runtime.progressiveWorldState = "complete";
+  h.installStarter();
+  await h.completeSecondarySetup();
+  expect(h.voxelEnsureCalls).toBe(1);
+  expect(h.isoEnsureCalls).toBe(0);
+  expect(h.fetches).toBe(0);
+  expect(h.staged).toHaveLength(0);
+  expect(h.runtime.parkDetails).toBe(h.previous);
   h.dispose();
 });

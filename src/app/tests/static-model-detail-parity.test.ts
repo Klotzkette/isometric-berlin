@@ -14,6 +14,7 @@ import overridesV153 from "./fixtures/static-model-full-overrides-v153.json";
 import overridesV154 from "./fixtures/static-model-full-overrides-v154.json";
 import overridesV155 from "./fixtures/static-model-full-overrides-v155.json";
 import overridesV157 from "./fixtures/static-model-full-overrides-v157.json";
+import overridesV164 from "./fixtures/static-model-full-overrides-v164.json";
 import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
@@ -86,7 +87,12 @@ describe("all devices retain the full authored static city detail", () => {
       // all earlier fixtures remain frozen and unrelated hashes still match.
       // v157 refines the requested Moabit memorial park and opens two mapped
       // entrances previously closed by its continuous source-wall polyline.
-      const override = overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v164 records the already-released v160 MuseumLenneArchitecture and v161
+      // CityWestDetails additions omitted from this older audit. Their factories
+      // and runtime dependencies are byte-identical to HEAD; no v164 geometry
+      // change is accepted here. Keep every earlier fixture frozen. See the
+      // independent source/hash audit in docs/static-model-v164-baseline.md.
+      const override = overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

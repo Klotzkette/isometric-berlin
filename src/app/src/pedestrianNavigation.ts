@@ -1,3 +1,6 @@
+import { CAFE_NEUER_SEE_V164_PRISM_IDS, CAFE_NEUER_SEE_V164_PARTS, cafeNeuerSeeRoofAt } from "./cafeNeuerSeeV164Profile";
+import { SPANISH_EMBASSY_V164_PRISM_IDS, SPANISH_EMBASSY_V164_SOURCE_BOUNDS, spanishEmbassyV164RoofAt } from "./spanishEmbassyV164Profile";
+import { GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS, GROSSER_STERN_GATEHOUSES_V164_PARTS, grosserSternGatehouseRoofAt, grosserSternGatehouseFloorAt } from "./grosserSternGatehousesV164Profile";
 import { HACKESCHER_MARKT_V163_PRISM_IDS, HACKESCHER_MARKT_V163_PARTS, hackescherMarktRoofAt } from "./hackescherMarktV163Profile";
 import { WEST_SQUARES_V163_PRISM_IDS, WEST_SQUARES_V163_SOURCE_BOUNDS, westSquaresV163RoofAt } from "./westSquaresV163Profile";
 import { BREITSCHEID_TOWER_PRISM_IDS, BREITSCHEID_TOWER_SOURCE_BOUNDS, breitscheidTowerRoofAt } from "./breitscheidTowersProfile";
@@ -656,6 +659,46 @@ export function compilePedestrianObstacles(
         index.buildingCount += 1;
         for (const wing of GEDAECHTNISKIRCHE_RETAINED_WINGS) {
           addPolygonObstacle(index, wing.ring, [], wing.baseY, wing.topY, wing.id, 1);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (CAFE_NEUER_SEE_V164_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("cafe-neuer-see-v164")) {
+        replacedParents.add("cafe-neuer-see-v164");
+        for (const part of CAFE_NEUER_SEE_V164_PARTS) {
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m,
+            part.top_y_m + 2, part.id, 1,
+            (x, z) => cafeNeuerSeeRoofAt(x, z, visualMode() === "minecraft"));
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (SPANISH_EMBASSY_V164_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("spanish-embassy-v164")) {
+        replacedParents.add("spanish-embassy-v164");
+        for (const { part, topY } of SPANISH_EMBASSY_V164_SOURCE_BOUNDS) {
+          part.rings.forEach((ring, ringIndex) => {
+            addPolygonObstacle(index, ring, part.holes[ringIndex], part.groundY,
+              topY + 2, part.id, 1,
+              (x, z) => spanishEmbassyV164RoofAt(x, z, visualMode() === "minecraft"));
+            index.buildingCount += 1;
+          });
+        }
+      }
+      continue;
+    }
+    if (GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS.has(building.id)) {
+      if (!replacedParents.has("grosser-stern-gatehouses-v164")) {
+        replacedParents.add("grosser-stern-gatehouses-v164");
+        for (const part of GROSSER_STERN_GATEHOUSES_V164_PARTS) {
+          // The source-bound envelope includes the stair well. ThreeViewer's
+          // matching passage and solid callbacks retain the actual open hall.
+          addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m - 3.1,
+            part.top_y_m + .3, part.id, 1,
+            (x, z) => grosserSternGatehouseRoofAt(x, z, visualMode() === "minecraft"));
           index.buildingCount += 1;
         }
       }
@@ -1783,7 +1826,14 @@ export function createPedestrianEnvironment(
     bounds.maxX = Math.max(bounds.maxX, extension.bounds.maxX);
     bounds.maxZ = Math.max(bounds.maxZ, extension.bounds.maxZ);
   }
+  // Keep synthetic or partial environments outside this authored source scope.
+  const gatehousesPresent = prisms?.buildings.some(b =>
+    GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS.has(b.id)) === true;
   const surfaceGroundAt = (x: number, z: number): number | null => {
+    if (gatehousesPresent) {
+      const stairY = grosserSternGatehouseFloorAt(x, z);
+      if (stairY !== null) return stairY;
+    }
     const outerGround = extension?.groundAt(x, z);
     if (outerGround !== null && outerGround !== undefined) return outerGround;
     const xOffset = x / cell - minXIndex;

@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
 import roadDataUrl from "./data/restoredRoadSurfaces.ndjson.txt?url";
 import { markArchitecturalInk } from "./architecturalInk";
-import { smoothGroundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { indexGeometryExactly } from "./exactGeometryIndex";
@@ -46,9 +46,16 @@ export function createRestoredRoadBatch(batch: RestoredRoadBatch, terrainAt: (x:
       const x = xz[i*2], z = xz[i*2+1];
       positions.set([x, terrainAt(x,z) + lift, z], i*3);
     }
-    const g = geometry(positions);
+    let g = geometry(positions);
     g.setIndex(new BufferAttribute(new Uint32Array(bytes(batch.indices!)), 1));
     indexGeometryExactly(g);
+    // Deferred pretriangulated roads bypass createSmoothSurfaces. Apply the
+    // identical four stair apertures here too, without touching other batches.
+    const bounds = g.boundingBox!;
+    if (bounds.max.x > -1590 && bounds.min.x < -1330 && bounds.max.z > 399 && bounds.min.z < 512) {
+      const opened = cutGrosserSternGatehouseGroundSurface(g);
+      if (opened !== g) { g.dispose(); g = opened; }
+    }
     mesh(g, batch.kind === "asphalt" ? "smooth carriageways" : "smooth paved paths",
       batch.kind === "asphalt" ? 0xc4c5c0 : 0xdcd8cc,
       batch.kind === "asphalt" ? 0x171c24 : 0x1b222b);

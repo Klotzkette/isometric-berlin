@@ -23,6 +23,7 @@ import {
 } from "three";
 
 import type { VisualMode } from "./visualMode";
+import { cutGrosserSternGatehouseGroundSurface } from "./MinecraftVoxelWorld";
 
 const SNOW_RADIUS_M = 360;
 const SNOW_HEIGHT_M = 260;
@@ -259,13 +260,21 @@ function createSettledSnow(): Group {
     transparent: true,
   });
   blanketMaterial.toneMapped = false;
-  const blanket = new Mesh(new CircleGeometry(3_600, 96), blanketMaterial);
+  // Bake the original circle placement before applying the same exact stair
+  // apertures as ground and restored paving. This unlit, untextured plane needs
+  // positions only; its original outer vertices and outside triangles remain.
+  const sourceBlanket = new CircleGeometry(3_600, 96);
+  sourceBlanket.deleteAttribute("normal");
+  sourceBlanket.deleteAttribute("uv");
+  sourceBlanket.rotateX(-Math.PI / 2);
+  sourceBlanket.translate(-735, 5.72, -355);
+  const blanketGeometry = cutGrosserSternGatehouseGroundSurface(sourceBlanket);
+  if (blanketGeometry !== sourceBlanket) sourceBlanket.dispose();
+  const blanket = new Mesh(blanketGeometry, blanketMaterial);
   blanket.name = "Continuous deep snow cover across the expanded city";
   // The drawn-ground extrusion tops vary between roughly 4.8 and 5.5 m;
   // this shallow cover sits just above them and deliberately buries the
   // lowest kerbs, as deep city snow should, without clipping doors/windows.
-  blanket.position.set(-735, 5.72, -355);
-  blanket.rotation.x = -Math.PI / 2;
   blanket.receiveShadow = true;
   blanket.renderOrder = 3;
   group.add(blanket);

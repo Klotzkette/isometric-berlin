@@ -1,0 +1,1278 @@
+{
+  "version": "1.0.64",
+  "physicalDeviceTest": false,
+  "resolvedFindings": [
+    "Deferred paving covered gatehouse stairs; same exact aperture clipping applied.",
+    "Mobile native-to-drawn startup could finish before deferred park starter installation; final setup now triggers existing guarded starter.",
+    "Global snow blanket covered stairs; exact apertures preserve all outside coverage."
+  ],
+  "runs": [
+    {
+      "engine": "chromium",
+      "touch": false,
+      "samples": [
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 203507360,
+            "peak": 203507360,
+            "handles": 11319,
+            "peakHandles": 11319,
+            "uploads": 11332,
+            "deletes": 13,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 78,
+          "contextLost": false,
+          "view": "cafe-overview",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 292229726,
+            "peak": 292229726,
+            "handles": 15252,
+            "peakHandles": 15252,
+            "uploads": 15330,
+            "deletes": 78,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 89,
+          "contextLost": false,
+          "view": "cafe-lakeside",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 277960587,
+            "peak": 293128032,
+            "handles": 16675,
+            "peakHandles": 16675,
+            "uploads": 16843,
+            "deletes": 168,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 89,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 254663099,
+            "peak": 293128032,
+            "handles": 17262,
+            "peakHandles": 17343,
+            "uploads": 17793,
+            "deletes": 531,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 90,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 273231832,
+            "peak": 293128032,
+            "handles": 19154,
+            "peakHandles": 19154,
+            "uploads": 19835,
+            "deletes": 681,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 90,
+          "contextLost": false,
+          "view": "gatehouse-nw",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 278938581,
+            "peak": 293128032,
+            "handles": 19582,
+            "peakHandles": 19603,
+            "uploads": 20298,
+            "deletes": 716,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 90,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 264673594,
+            "peak": 293128032,
+            "handles": 19517,
+            "peakHandles": 19603,
+            "uploads": 20316,
+            "deletes": 799,
+            "lost": 0
+          },
+          "instanceResidentBytes": null,
+          "instanceResidentBuffers": null,
+          "geometryResidentBuffers": null,
+          "speculativeWarmup": true,
+          "programs": 89,
+          "contextLost": false,
+          "view": "gatehouses-east",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "touch": true,
+      "samples": [
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 159057271,
+            "peak": 159057271,
+            "handles": 4755,
+            "peakHandles": 4755,
+            "uploads": 4758,
+            "deletes": 3,
+            "lost": 0
+          },
+          "instanceResidentBytes": 43288884,
+          "instanceResidentBuffers": 1240,
+          "geometryResidentBuffers": 3513,
+          "speculativeWarmup": false,
+          "programs": 66,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85532722,
+            "peak": 159057271,
+            "handles": 909,
+            "peakHandles": 4755,
+            "uploads": 5090,
+            "deletes": 4181,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10361376,
+          "instanceResidentBuffers": 204,
+          "geometryResidentBuffers": 703,
+          "speculativeWarmup": false,
+          "programs": 67,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85399227,
+            "peak": 159057271,
+            "handles": 1595,
+            "peakHandles": 4755,
+            "uploads": 6146,
+            "deletes": 4551,
+            "lost": 0
+          },
+          "instanceResidentBytes": 14870200,
+          "instanceResidentBuffers": 486,
+          "geometryResidentBuffers": 1107,
+          "speculativeWarmup": false,
+          "programs": 67,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 157783094,
+            "peak": 159057271,
+            "handles": 5105,
+            "peakHandles": 5105,
+            "uploads": 10553,
+            "deletes": 5448,
+            "lost": 0
+          },
+          "instanceResidentBytes": 44318028,
+          "instanceResidentBuffers": 1283,
+          "geometryResidentBuffers": 3820,
+          "speculativeWarmup": false,
+          "programs": 87,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 86739658,
+            "peak": 159057271,
+            "handles": 957,
+            "peakHandles": 5105,
+            "uploads": 10927,
+            "deletes": 9970,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10361376,
+          "instanceResidentBuffers": 204,
+          "geometryResidentBuffers": 751,
+          "speculativeWarmup": false,
+          "programs": 88,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85016901,
+            "peak": 159057271,
+            "handles": 1588,
+            "peakHandles": 5105,
+            "uploads": 11975,
+            "deletes": 10387,
+            "lost": 0
+          },
+          "instanceResidentBytes": 14870200,
+          "instanceResidentBuffers": 486,
+          "geometryResidentBuffers": 1100,
+          "speculativeWarmup": false,
+          "programs": 88,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "minecraft",
+          "lost": 0,
+          "buffers": {
+            "bytes": 153408054,
+            "peak": 159057271,
+            "handles": 914,
+            "peakHandles": 5105,
+            "uploads": 12903,
+            "deletes": 11989,
+            "lost": 0
+          },
+          "instanceResidentBytes": 90410588,
+          "instanceResidentBuffers": 208,
+          "geometryResidentBuffers": 704,
+          "speculativeWarmup": false,
+          "programs": 27,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 2,
+          "models": [
+            {
+              "name": "Cafe am Neuen See independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Grosser Stern independent native gatehouses",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "minecraft",
+          "lost": 0,
+          "buffers": {
+            "bytes": 81426822,
+            "peak": 159057271,
+            "handles": 337,
+            "peakHandles": 5105,
+            "uploads": 12958,
+            "deletes": 12621,
+            "lost": 0
+          },
+          "instanceResidentBytes": 63351504,
+          "instanceResidentBuffers": 70,
+          "geometryResidentBuffers": 265,
+          "speculativeWarmup": false,
+          "programs": 27,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 2,
+          "models": [
+            {
+              "name": "Cafe am Neuen See independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Grosser Stern independent native gatehouses",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "minecraft",
+          "lost": 0,
+          "buffers": {
+            "bytes": 69676088,
+            "peak": 159057271,
+            "handles": 295,
+            "peakHandles": 5105,
+            "uploads": 12981,
+            "deletes": 12686,
+            "lost": 0
+          },
+          "instanceResidentBytes": 63023792,
+          "instanceResidentBuffers": 64,
+          "geometryResidentBuffers": 229,
+          "speculativeWarmup": false,
+          "programs": 27,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 2,
+          "models": [
+            {
+              "name": "Cafe am Neuen See independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft independent native blocks",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Grosser Stern independent native gatehouses",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "night",
+          "lost": 0,
+          "buffers": {
+            "bytes": 153478706,
+            "peak": 159057271,
+            "handles": 4615,
+            "peakHandles": 5105,
+            "uploads": 18292,
+            "deletes": 13677,
+            "lost": 0
+          },
+          "instanceResidentBytes": 45960584,
+          "instanceResidentBuffers": 1303,
+          "geometryResidentBuffers": 3310,
+          "speculativeWarmup": false,
+          "programs": 69,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 3,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "night",
+          "lost": 0,
+          "buffers": {
+            "bytes": 87503574,
+            "peak": 159057271,
+            "handles": 988,
+            "peakHandles": 5105,
+            "uploads": 18636,
+            "deletes": 17648,
+            "lost": 0
+          },
+          "instanceResidentBytes": 12327928,
+          "instanceResidentBuffers": 243,
+          "geometryResidentBuffers": 743,
+          "speculativeWarmup": false,
+          "programs": 70,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 3,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "night",
+          "lost": 0,
+          "buffers": {
+            "bytes": 87196361,
+            "peak": 159057271,
+            "handles": 1678,
+            "peakHandles": 5105,
+            "uploads": 19712,
+            "deletes": 18034,
+            "lost": 0
+          },
+          "instanceResidentBytes": 16814104,
+          "instanceResidentBuffers": 529,
+          "geometryResidentBuffers": 1147,
+          "speculativeWarmup": false,
+          "programs": 70,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 3,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "snowstorm",
+          "lost": 0,
+          "buffers": {
+            "bytes": 163659825,
+            "peak": 163659825,
+            "handles": 4907,
+            "peakHandles": 4907,
+            "uploads": 4969,
+            "deletes": 62,
+            "lost": 0
+          },
+          "instanceResidentBytes": 43828916,
+          "instanceResidentBuffers": 1280,
+          "geometryResidentBuffers": 3625,
+          "speculativeWarmup": false,
+          "programs": 68,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 4,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "snowstorm",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85633930,
+            "peak": 163659825,
+            "handles": 938,
+            "peakHandles": 4907,
+            "uploads": 5310,
+            "deletes": 4372,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10435104,
+          "instanceResidentBuffers": 217,
+          "geometryResidentBuffers": 719,
+          "speculativeWarmup": false,
+          "programs": 69,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 4,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "snowstorm",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85715155,
+            "peak": 163659825,
+            "handles": 1641,
+            "peakHandles": 4907,
+            "uploads": 6392,
+            "deletes": 4751,
+            "lost": 0
+          },
+          "instanceResidentBytes": 15156728,
+          "instanceResidentBuffers": 513,
+          "geometryResidentBuffers": 1126,
+          "speculativeWarmup": false,
+          "programs": 69,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 4,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 157447226,
+            "peak": 163659825,
+            "handles": 4781,
+            "peakHandles": 4907,
+            "uploads": 10475,
+            "deletes": 5694,
+            "lost": 0
+          },
+          "instanceResidentBytes": 44314676,
+          "instanceResidentBuffers": 1270,
+          "geometryResidentBuffers": 3509,
+          "speculativeWarmup": false,
+          "programs": 62,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 5,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 86738854,
+            "peak": 163659825,
+            "handles": 953,
+            "peakHandles": 4907,
+            "uploads": 10849,
+            "deletes": 9896,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10361376,
+          "instanceResidentBuffers": 204,
+          "geometryResidentBuffers": 747,
+          "speculativeWarmup": false,
+          "programs": 63,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 5,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 85016865,
+            "peak": 163659825,
+            "handles": 1587,
+            "peakHandles": 4907,
+            "uploads": 11897,
+            "deletes": 10310,
+            "lost": 0
+          },
+          "instanceResidentBytes": 14870200,
+          "instanceResidentBuffers": 486,
+          "geometryResidentBuffers": 1099,
+          "speculativeWarmup": false,
+          "programs": 63,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 5,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "verificationNote": "Day, Schwellenraum, Minecraft and Night checked after park startup fix; Snowstorm and return to Day checked after the exact snow-aperture correction."
+    },
+    {
+      "engine": "chromium",
+      "touch": true,
+      "samples": [
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 151379881,
+            "peak": 151907106,
+            "handles": 4644,
+            "peakHandles": 4644,
+            "uploads": 4647,
+            "deletes": 3,
+            "lost": 0
+          },
+          "instanceResidentBytes": 42837976,
+          "instanceResidentBuffers": 1202,
+          "geometryResidentBuffers": 3440,
+          "speculativeWarmup": false,
+          "programs": 66,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 83218844,
+            "peak": 151907106,
+            "handles": 884,
+            "peakHandles": 4650,
+            "uploads": 4965,
+            "deletes": 4081,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10348988,
+          "instanceResidentBuffers": 198,
+          "geometryResidentBuffers": 684,
+          "speculativeWarmup": false,
+          "programs": 67,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "day",
+          "lost": 0,
+          "buffers": {
+            "bytes": 84859737,
+            "peak": 151907106,
+            "handles": 1561,
+            "peakHandles": 4650,
+            "uploads": 5987,
+            "deletes": 4426,
+            "lost": 0
+          },
+          "instanceResidentBytes": 14744192,
+          "instanceResidentBuffers": 474,
+          "geometryResidentBuffers": 1085,
+          "speculativeWarmup": false,
+          "programs": 67,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 0,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 155145538,
+            "peak": 155145538,
+            "handles": 4932,
+            "peakHandles": 4932,
+            "uploads": 10239,
+            "deletes": 5307,
+            "lost": 0
+          },
+          "instanceResidentBytes": 43735488,
+          "instanceResidentBuffers": 1225,
+          "geometryResidentBuffers": 3705,
+          "speculativeWarmup": false,
+          "programs": 87,
+          "contextLost": false,
+          "view": "cafe-garden",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 84425780,
+            "peak": 155145538,
+            "handles": 932,
+            "peakHandles": 4932,
+            "uploads": 10593,
+            "deletes": 9661,
+            "lost": 0
+          },
+          "instanceResidentBytes": 10348988,
+          "instanceResidentBuffers": 198,
+          "geometryResidentBuffers": 732,
+          "speculativeWarmup": false,
+          "programs": 88,
+          "contextLost": false,
+          "view": "embassy-front",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "ready": true,
+          "mode": "schwellenraum",
+          "lost": 0,
+          "buffers": {
+            "bytes": 84477411,
+            "peak": 155145538,
+            "handles": 1554,
+            "peakHandles": 4932,
+            "uploads": 11607,
+            "deletes": 10053,
+            "lost": 0
+          },
+          "instanceResidentBytes": 14744192,
+          "instanceResidentBuffers": 474,
+          "geometryResidentBuffers": 1078,
+          "speculativeWarmup": false,
+          "programs": 88,
+          "contextLost": false,
+          "stairFloor": {
+            "y": 2.889999933540821,
+            "name": ""
+          },
+          "view": "gatehouse-stairs",
+          "visit": 1,
+          "models": [
+            {
+              "name": "Cafe am Neuen See measured roofs and lakeside garden",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Spanische Botschaft complete source architecture",
+              "visible": true,
+              "count": 1
+            },
+            {
+              "name": "Four measured Grosser Stern gatehouses with square piers",
+              "visible": true,
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

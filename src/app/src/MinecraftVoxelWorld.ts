@@ -1,3 +1,10 @@
+import { createMinecraftCafeNeuerSeeV164 } from "./CafeNeuerSeeV164";
+import { cafeNeuerSeeSourceColumn } from "./cafeNeuerSeeV164Profile";
+import { createMinecraftSpanishEmbassyV164 } from "./SpanishEmbassyV164";
+import { spanishEmbassyV164SourceColumn } from "./spanishEmbassyV164Profile";
+import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createMinecraftGrosserSternGatehousesV164 } from "./GrosserSternGatehousesV164";
+import { GROSSER_STERN_GATEHOUSES_V164_GROUND_CUTS, grosserSternGatehouseSourceColumn } from "./grosserSternGatehousesV164Profile";
 import { createMinecraftWestSquaresV163 } from "./WestSquaresV163";
 import { createMinecraftEastSquaresV163 } from "./EastSquaresV163";
 import { createMinecraftHackescherMarktV163 } from "./HackescherMarktV163";
@@ -146,6 +153,10 @@ import {
 import { applyMinecraftColumnDetail } from "./MinecraftColumnDetail";
 import {
   BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  Float32BufferAttribute,
+  Mesh,
   Color,
   DoubleSide,
   Group,
@@ -2671,6 +2682,135 @@ export function createMinecraftFunboxRecognition(): InstancedMesh {
   return writer.mesh;
 }
 
+type GatehouseGroundPoint = [number, number, number];
+type GatehouseGroundPolygon = GatehouseGroundPoint[];
+const gatehouseGroundCuts = GROSSER_STERN_GATEHOUSES_V164_GROUND_CUTS.map(ring => {
+  const area = ring.reduce((sum,a,i) => { const b=ring[(i+1)%ring.length]; return sum+a[0]*b[1]-b[0]*a[1]; },0);
+  const orientation = Math.sign(area);
+  return { ring, minX:Math.min(...ring.map(p=>p[0])), maxX:Math.max(...ring.map(p=>p[0])),
+    minZ:Math.min(...ring.map(p=>p[1])), maxZ:Math.max(...ring.map(p=>p[1])),
+    planes:ring.map((a,i)=>{const b=ring[(i+1)%ring.length];return (p:GatehouseGroundPoint) => orientation*((b[0]-a[0])*(p[2]-a[1])-(b[1]-a[1])*(p[0]-a[0]));}) };
+});
+function gatehousePolygonArea(p: GatehouseGroundPolygon): number {
+  if(p.length<3)return 0;
+  // Relative coordinates avoid cancellation at the large metric city coordinates.
+  const a=p[0];let sum=0;for(let i=1;i+1<p.length;i++)sum+=(p[i][0]-a[0])*(p[i+1][2]-a[2])-(p[i+1][0]-a[0])*(p[i][2]-a[2]);
+  return Math.abs(sum)/2;
+}
+function clipGatehouseGroundPlane(poly:GatehouseGroundPolygon, distance:(p:GatehouseGroundPoint)=>number):GatehouseGroundPolygon {
+  const result:GatehouseGroundPolygon=[];
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i],b=poly[(i+1)%poly.length],da=distance(a),db=distance(b);
+    if(da>=0)result.push(a);
+    if((da>=0)!==(db>=0)){const t=da/(da-db);result.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]);}
+  }
+  return result;
+}
+/** Subtract only the four rotated interior stair wells, retaining height interpolation. */
+function gatehouseGroundComplement(poly:GatehouseGroundPolygon):GatehouseGroundPolygon[]|null {
+  const minX=Math.min(...poly.map(p=>p[0])),maxX=Math.max(...poly.map(p=>p[0]));
+  const minZ=Math.min(...poly.map(p=>p[2])),maxZ=Math.max(...poly.map(p=>p[2]));
+  let pieces=[poly],changed=false;
+  for(const cut of gatehouseGroundCuts){
+    if(maxX<=cut.minX||minX>=cut.maxX||maxZ<=cut.minZ||minZ>=cut.maxZ)continue;
+    const next:GatehouseGroundPolygon[]=[];
+    for(const piece of pieces){
+      let inside=piece;for(const plane of cut.planes)inside=clipGatehouseGroundPlane(inside,plane);
+      if(gatehousePolygonArea(inside)<1e-9){next.push(piece);continue;}
+      changed=true;inside=piece;
+      for(const plane of cut.planes){
+        const outside=clipGatehouseGroundPlane(inside,p=>-plane(p));
+        if(gatehousePolygonArea(outside)>1e-9)next.push(outside);
+        inside=clipGatehouseGroundPlane(inside,plane);
+        if(inside.length<3)break;
+      }
+    }
+    pieces=next;
+  }
+  return changed?pieces:null;
+}
+
+/**
+ * Exact triangle complement for draped park/path plates. Original indexed vertices
+ * and all unaffected index triples are retained; only the few touched triangles
+ * gain boundary vertices. This avoids expanding a whole city plate into triangle
+ * soup or removing a four-metre ground cell around a narrow rotated stair well.
+ */
+export function cutGrosserSternGatehouseGroundSurface(source:BufferGeometry):BufferGeometry {
+  const attribute=source.getAttribute("position"),p=attribute.array;
+  const index=source.getIndex(),indices=index?.array,count=indices?.length??attribute.count;
+  const changes=new Map<number,number[]>();let addedValues=0;
+  for(let i=0;i<count;i+=3){
+    const ia=(indices?indices[i]:i)*3,ib=(indices?indices[i+1]:i+1)*3,ic=(indices?indices[i+2]:i+2)*3;
+    const minX=Math.min(p[ia],p[ib],p[ic]),maxX=Math.max(p[ia],p[ib],p[ic]);
+    if(maxX < -1590 || minX > -1330)continue;
+    const minZ=Math.min(p[ia+2],p[ib+2],p[ic+2]),maxZ=Math.max(p[ia+2],p[ib+2],p[ic+2]);
+    if(maxZ < 399 || minZ > 512 || !gatehouseGroundCuts.some(c=>maxX>c.minX&&minX<c.maxX&&maxZ>c.minZ&&minZ<c.maxZ))continue;
+    const pieces=gatehouseGroundComplement([[p[ia],p[ia+1],p[ia+2]],[p[ib],p[ib+1],p[ib+2]],[p[ic],p[ic+1],p[ic+2]]]);
+    if(!pieces)continue;
+    const replacement:number[]=[];
+    for(const piece of pieces)for(let j=1;j+1<piece.length;j++)if(gatehousePolygonArea([piece[0],piece[j],piece[j+1]])>1e-9)replacement.push(...piece[0],...piece[j],...piece[j+1]);
+    changes.set(i,replacement);addedValues+=replacement.length;
+  }
+  if(!changes.size)return source;
+  const positions=new Float32Array(p.length+addedValues);positions.set(p);
+  const IndexArray=positions.length/3>65535?Uint32Array:Uint16Array;
+  const outputIndices=new IndexArray(count-changes.size*3+addedValues/3);let added=p.length,cursor=0;
+  for(let i=0;i<count;i+=3){
+    const replacement=changes.get(i);
+    if(replacement===undefined){outputIndices[cursor++]=indices?indices[i]:i;outputIndices[cursor++]=indices?indices[i+1]:i+1;outputIndices[cursor++]=indices?indices[i+2]:i+2;continue;}
+    positions.set(replacement,added);for(let k=0;k<replacement.length;k+=3)outputIndices[cursor++]=(added+k)/3;added+=replacement.length;
+  }
+  const geometry=new BufferGeometry();geometry.setAttribute("position",new Float32BufferAttribute(positions,3));geometry.setIndex(new BufferAttribute(outputIndices,1));
+  geometry.userData={...source.userData,gatehouseGroundApertures:true,gatehouseChangedTriangles:changes.size};
+  geometry.computeBoundingBox();geometry.computeBoundingSphere();return geometry;
+}
+
+/**
+ * Preserve each original terrain run's exact colour, top and bottom outside the
+ * small rotated wells. Removed instances are replaced by their full extruded
+ * complement; previously authored ground exclusions and unrelated children stay.
+ */
+export function restoreGrosserSternGatehouseGroundOwnership(slabs:InstancedMesh):void {
+  const oldMatrices=slabs.instanceMatrix.array,oldColors=slabs.instanceColor?.array;
+  const changed=new Map<number,GatehouseGroundPolygon[]>();
+  for(let i=0;i<slabs.count;i++){
+    const m=i*16,x=oldMatrices[m+12],z=oldMatrices[m+14],hx=oldMatrices[m]/2,hz=oldMatrices[m+10]/2;
+    if(x+hx< -1590||x-hx> -1330||z+hz<399||z-hz>512)continue;
+    const y=oldMatrices[m+13]+oldMatrices[m+5]/2;
+    const pieces=gatehouseGroundComplement([[x-hx,y,z-hz],[x+hx,y,z-hz],[x+hx,y,z+hz],[x-hx,y,z+hz]]);
+    if(pieces)changed.set(i,pieces);
+  }
+  if(!changed.size)return;
+  const matrices=new Float32Array((slabs.count-changed.size)*16),colors=oldColors?new Float32Array((slabs.count-changed.size)*3):null;
+  const positions:number[]=[],paints:number[]=[];let cursor=0;
+  for(let i=0;i<slabs.count;i++){
+    const pieces=changed.get(i);
+    if(!pieces){matrices.set(oldMatrices.subarray(i*16,i*16+16),cursor*16);if(colors&&oldColors)colors.set(oldColors.subarray(i*3,i*3+3),cursor*3);cursor++;continue;}
+    const bottom=oldMatrices[i*16+13]-oldMatrices[i*16+5]/2,color=oldColors?oldColors.subarray(i*3,i*3+3):[1,1,1];
+    const triangle=(a:GatehouseGroundPoint,b:GatehouseGroundPoint,c:GatehouseGroundPoint):void=>{positions.push(...a,...b,...c);paints.push(...color,...color,...color);};
+    for(const piece of pieces){
+      for(let j=1;j+1<piece.length;j++){
+        triangle(piece[0],piece[j+1],piece[j]);
+        triangle([piece[0][0],bottom,piece[0][2]],[piece[j][0],bottom,piece[j][2]],[piece[j+1][0],bottom,piece[j+1][2]]);
+      }
+      for(let j=0;j<piece.length;j++){
+        const a=piece[j],b=piece[(j+1)%piece.length],aa:GatehouseGroundPoint=[a[0],bottom,a[2]],bb:GatehouseGroundPoint=[b[0],bottom,b[2]];
+        triangle(a,b,bb);triangle(a,bb,aa);
+      }
+    }
+  }
+  slabs.instanceMatrix=new InstancedBufferAttribute(matrices,16);if(colors)slabs.instanceColor=new InstancedBufferAttribute(colors,3);slabs.count=cursor;slabs.boundingBox=null;slabs.boundingSphere=null;
+  const sourceMaterial=Array.isArray(slabs.material)?slabs.material[0]:slabs.material;
+  const day=(slabs.userData.dayMaterial??sourceMaterial).clone() as MeshBasicMaterial;
+  const night=(slabs.userData.nightMaterial??sourceMaterial).clone() as MeshBasicMaterial;
+  day.vertexColors=true;night.vertexColors=true;day.side=DoubleSide;night.side=DoubleSide;
+  const geometry=new BufferGeometry();geometry.setAttribute("position",new Float32BufferAttribute(positions,3));geometry.setAttribute("color",new Float32BufferAttribute(paints,3));geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
+  const mesh=new Mesh(geometry,day);mesh.name="Exact terrain complements outside four Grosser Stern stair wells";
+  mesh.userData={dayMaterial:day,nightMaterial:night,gatehouseGroundOwnership:true,affectedRuns:changed.size,textureFree:true};
+  slabs.add(freezeStaticSceneTransforms(mesh));
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -2737,6 +2877,7 @@ export function* buildMinecraftVoxelWorldSteps(
     });
   restoreJamesSimonGroundOwnership(groundSlabs, payload);
   restoreHbfNorthRailGroundOwnership(groundSlabs, payload);
+  restoreGrosserSternGatehouseGroundOwnership(groundSlabs);
   group.add(groundSlabs);
   yield;
   group.add(createHbfNorthApproach((x, z) => parkGround(
@@ -2780,6 +2921,12 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftEastSquaresV163());
   yield;
   group.add(createMinecraftHackescherMarktV163());
+  yield;
+  group.add(createMinecraftGrosserSternGatehousesV164(mobileDetail));
+  yield;
+  group.add(createMinecraftCafeNeuerSeeV164());
+  yield;
+  group.add(createMinecraftSpanishEmbassyV164({ mobileLike: mobileDetail }));
   yield;
   group.add(createMinecraftSpreeMuseumDetails());
   group.add(createMinecraftUnterDenLindenDetails());
@@ -2946,6 +3093,9 @@ export function* buildMinecraftVoxelWorldSteps(
       !breitscheidTowerSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !westSquaresV163SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !hackescherMarktSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !spanishEmbassyV164SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !boellStiftungLowColumnContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !friedrichstadtPalastContains(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !fiftyHertzSourceColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
