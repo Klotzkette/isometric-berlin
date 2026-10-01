@@ -30,9 +30,11 @@ REQUIRED_PACKAGE_FILES = (
   "mesh/regierungsviertel/park-details.json",
   "mesh/regierungsviertel/street-details.json",
   "mesh/regierungsviertel/surface-polygons.json",
+  "mesh/surrounding-berlin-v159/manifest.json",
 )
 CACHEABLE_SUFFIXES = {
   ".css",
+  ".gz",
   ".jpg",
   ".json",
   ".js",
