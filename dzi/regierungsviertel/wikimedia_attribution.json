@@ -4410,6 +4410,105 @@
       "credit": "Arild Vågen / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "cafe_neuer_see",
+      "title": "File:Café am Neuen See.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Caf%C3%A9_am_Neuen_See.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Lear 21",
+      "credit": "Lear 21 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "cafe_neuer_see",
+      "title": "File:Cafe am Neuen See Großer Tiergarten Berlin 2.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Cafe_am_Neuen_See_Gro%C3%9Fer_Tiergarten_Berlin_2.JPG",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Schlaier",
+      "credit": "Schlaier / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "cafe_neuer_see",
+      "title": "File:Tiergarten Café am Neuen See.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Tiergarten_Caf%C3%A9_am_Neuen_See.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "cafe_neuer_see",
+      "title": "File:Berlin Tiergarten Neuer See 3.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Tiergarten_Neuer_See_3.jpg",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Schlaier",
+      "credit": "Schlaier / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "cafe_neuer_see",
+      "title": "File:Berlin Tiergarten Neuer See 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Tiergarten_Neuer_See_2.jpg",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Schlaier",
+      "credit": "Schlaier / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spanische_botschaft",
+      "title": "File:Berlin - Spanische Botschaft.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Spanische_Botschaft.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Marek Śliwecki",
+      "credit": "Marek Śliwecki / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spanische_botschaft",
+      "title": "File:SpanishEmbassyBerlinDetailCoatofArms.png",
+      "page_url": "https://commons.wikimedia.org/wiki/File:SpanishEmbassyBerlinDetailCoatofArms.png",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "artist": "Sargoth",
+      "credit": "Sargoth / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grosser_stern_gatehouses",
+      "title": "File:Victorycolumnsubwayentrance.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Victorycolumnsubwayentrance.jpg",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/File:Victorycolumnsubwayentrance.jpg#Licensing",
+      "artist": "Me677",
+      "credit": "Me677 / public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "grosser_stern_gatehouses",
+      "title": "File:2018-08-04 DE Berlin-Mitte, Großer Tiergarten, Großer Stern (49488995837).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2018-08-04_DE_Berlin-Mitte,_Gro%C3%9Fer_Tiergarten,_Gro%C3%9Fer_Stern_(49488995837).jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "artist": "Paul Korecky",
+      "credit": "Paul Korecky / CC BY-SA 2.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
