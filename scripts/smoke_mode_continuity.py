@@ -25,6 +25,7 @@ LABELS = {
   "night": "Night",
   "snowstorm": "Snowstorm",
   "schwellenraum": "Schwellenraum",
+  "flood": "Flooded Berlin",
 }
 FLIGHT_POSE = {
   "position": [712.375, 153.625, 618.875],

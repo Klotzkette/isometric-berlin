@@ -21,6 +21,7 @@ import {
   Uint8BufferAttribute,
   Vector3,
 } from "three";
+import type { VisualMode } from "./visualMode";
 
 import {
   createBuilder,
@@ -172,7 +173,7 @@ export const WAGNER_MEMORIAL_PROFILE = Object.freeze({
 });
 
 export function wagnerMemorialFocusForMode(
-  mode: "day" | "minecraft" | "night" | "schwellenraum" | "snowstorm",
+  mode: VisualMode,
 ):
   | typeof WAGNER_MEMORIAL_PROFILE.focus
   | typeof WAGNER_MEMORIAL_PROFILE.minecraftFocus {

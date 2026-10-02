@@ -499,6 +499,12 @@ describe("source-bound Moabit prison memorial park", () => {
     expect(moabitPrisonMemorialFocusForMode("day").distanceM).toBe(128);
     expect(moabitPrisonMemorialFocusForMode("minecraft").distanceM).toBe(142);
     expect(moabitPrisonMemorialDetailFocusForMode("day").distanceM).toBe(128);
+    expect(moabitPrisonMemorialFocusForMode("flood")).toBe(
+      moabitPrisonMemorialFocusForMode("day"),
+    );
+    expect(moabitPrisonMemorialSiteFocusForMode("flood")).toBe(
+      moabitPrisonMemorialSiteFocusForMode("day"),
+    );
     expect(
       moabitPrisonMemorialDetailFocusForMode("minecraft").distanceM,
     ).toBe(142);

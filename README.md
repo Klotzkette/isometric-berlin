@@ -6,15 +6,15 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.69 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.69/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.70 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.70/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
 The downloadable viewer is the built React + Three.js app from `src/app/`.
-It always presents the isometric 3D city, in Day, Night, Snowstorm, Minecraft or
-Schwellenraum, on modern desktop, phone and tablet browsers. No AI model, Google
+It always presents the isometric 3D city, in Day, Night, Snowstorm, Minecraft,
+Schwellenraum or Flooded Berlin, on modern desktop, phone and tablet browsers. No AI model, Google
 key or paid service is needed at runtime. GitHub Pages and the release ZIP use
 the same viewer and all required local assets.
 
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.69** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.70** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.70 adds **Flooded Berlin / Versunken**: the complete Day city under
+a fictional, animated flood about three metres above ordinary street level.
+Flowing water and broken foam crests use one texture-free mesh; every existing
+building and camera position stays intact. [Review](docs/release-v1.0.70-review.md).
+
+Version 1.0.70 ergänzt **Versunken**: Berlin unter etwa drei Metern Hochwasser,
+mit bewegter Strömung und Schaumkronen. Die normale Stadt bleibt vollständig
+erhalten; der Moduswechsel behält Blickrichtung und Standort bei.
 
 Version 1.0.69 audits the complete pre-2001 Mitte district and refines previously
 plain building families with official walls, roof planes, courtyards and bounded

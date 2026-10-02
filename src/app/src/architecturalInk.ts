@@ -23,6 +23,12 @@ export const ARCHITECTURAL_INK_PALETTE: Record<
     detail: 0x7b766e,
     micro: 0x918a80,
   },
+  // Flood adds its water layer over the unchanged Day drawing.
+  flood: {
+    silhouette: 0x68645e,
+    detail: 0x7b766e,
+    micro: 0x918a80,
+  },
   night: {
     silhouette: 0x9eb3cc,
     detail: 0x8197b1,
@@ -56,6 +62,7 @@ function storedRole(material: LineBasicMaterial): ArchitecturalInkRole {
 
 const ACCENT_BLEND: Record<VisualMode, number> = {
   day: 0,
+  flood: 0,
   night: 0.72,
   minecraft: 0.8,
   snowstorm: 0.58,

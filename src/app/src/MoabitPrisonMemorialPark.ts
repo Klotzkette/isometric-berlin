@@ -1,4 +1,5 @@
 import { staticModelDetailProfile } from "./staticModelDetail";
+import type { VisualMode } from "./visualMode";
 import {
   BoxGeometry,
   Float32BufferAttribute,
@@ -23,7 +24,7 @@ import {
 } from "./drawnKit";
 
 type Point2 = readonly [number, number];
-type Mode = "day" | "minecraft" | "night" | "schwellenraum" | "snowstorm";
+type Mode = VisualMode;
 export type MoabitPrisonMemorialDetailProfile = "full" | "mobile";
 
 const PARK_TRACE_GREEN = 0x729961;

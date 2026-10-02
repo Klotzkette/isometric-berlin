@@ -299,6 +299,13 @@ describe("Weidendammer Bruecke source-bound close details", () => {
     setWeidendammerBridgePresentation(scene, "minecraft");
     expect(smooth.visible).toBeFalse();
     expect(minecraft.visible).toBeTrue();
+    setWeidendammerBridgePresentation(scene, "flood");
+    expect(smooth.visible).toBeTrue();
+    expect(minecraft.visible).toBeFalse();
+    expect(structure.material).toBe(dayMaterial);
+    expect(
+      smooth.getObjectByName(WEIDENDAMMER_BRIDGE_SNOW_LAYER_NAME)?.visible,
+    ).toBeFalse();
   });
 
   test("relights the material selected by the real Day to Night bridge sequence immediately", () => {

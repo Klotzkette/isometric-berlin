@@ -50,6 +50,7 @@ import {
   Sun,
   Volume2,
   VolumeX,
+  Waves,
   X,
 } from "lucide-react";
 import {
@@ -1930,7 +1931,9 @@ export function App() {
               ? copy.snowstorm
               : next === "schwellenraum"
                 ? copy.schwellenraum
-                : copy.day,
+                : next === "flood"
+                  ? copy.flood
+                  : copy.day,
       );
     },
     [
@@ -2983,6 +2986,7 @@ export function App() {
               {lightingMode === "minecraft" ? " · Voxel" : ""}
               {lightingMode === "snowstorm" ? " · Snow" : ""}
               {lightingMode === "schwellenraum" ? " · Schwellenraum" : ""}
+              {lightingMode === "flood" ? ` · ${copy.flood}` : ""}
             </small>
           </span>
         </button>
@@ -3085,6 +3089,15 @@ export function App() {
               onClick={() => selectVisualMode("schwellenraum")}
             >
               <Sparkles size={18} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={copy.flood}
+              aria-pressed={lightingMode === "flood"}
+              title={copy.flood}
+              onClick={() => selectVisualMode("flood")}
+            >
+              <Waves size={18} aria-hidden="true" />
             </button>
           </div>
           <button
@@ -3930,6 +3943,17 @@ export function App() {
             >
               <Sparkles size={20} aria-hidden="true" />
               <span>Schwellen<wbr />raum</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "flood"}
+              onClick={() => {
+                selectVisualMode("flood");
+                setMobileSheet(null);
+              }}
+            >
+              <Waves size={20} aria-hidden="true" />
+              <span>{copy.flood}</span>
             </button>
           </div>
           {supportsNightLightsToggle(lightingMode) ? (

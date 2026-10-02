@@ -3,7 +3,8 @@ export type VisualMode =
   | "night"
   | "minecraft"
   | "snowstorm"
-  | "schwellenraum";
+  | "schwellenraum"
+  | "flood";
 
 export function isVisualMode(value: string | null): value is VisualMode {
   return (
@@ -11,7 +12,8 @@ export function isVisualMode(value: string | null): value is VisualMode {
     value === "night" ||
     value === "minecraft" ||
     value === "snowstorm" ||
-    value === "schwellenraum"
+    value === "schwellenraum" ||
+    value === "flood"
   );
 }
 

@@ -2209,7 +2209,7 @@ button:active:not(:disabled) {
 
   .mobile-visual-mode-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
     margin-bottom: 8px;
     padding-bottom: 8px;
@@ -2422,6 +2422,10 @@ button:active:not(:disabled) {
     max-height: calc(
       100dvh - 60px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
     );
+  }
+
+  .mobile-visual-mode-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .landmark-rail {

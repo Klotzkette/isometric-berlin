@@ -114,6 +114,7 @@ const DE = {
   snowfallOn: "Schneefall einschalten",
   snowstorm: "Schneesturm",
   schwellenraum: "Schwellenraum",
+  flood: "Versunken",
   startTour: "Sehenswürdigkeiten-Tour starten",
   stopTour: "Tour pausieren",
   threeD: "Freie 3D-Ansicht",
@@ -127,7 +128,7 @@ const DE = {
   underside: "Untersicht",
   viewTransform: "Ansicht drehen und neigen",
   visualModes:
-    "Darstellung: Tag, Nacht, Minecraft, Schneesturm oder Schwellenraum",
+    "Darstellung: Tag, Nacht, Minecraft, Schneesturm, Schwellenraum oder Versunken",
   westUp: "West oben",
   zoomIn: "Vergrößern",
   zoomOut: "Verkleinern",
@@ -247,6 +248,7 @@ const EN: Record<CopyKey, string> = {
   snowfallOn: "Turn snowfall on",
   snowstorm: "Snowstorm",
   schwellenraum: "Schwellenraum",
+  flood: "Flooded Berlin",
   startTour: "Start sights tour",
   stopTour: "Pause tour",
   threeD: "Free 3D view",
@@ -260,7 +262,7 @@ const EN: Record<CopyKey, string> = {
   underside: "Underside",
   viewTransform: "Rotate and tilt view",
   visualModes:
-    "Appearance: day, night, Minecraft, snowstorm, or Schwellenraum",
+    "Appearance: day, night, Minecraft, snowstorm, Schwellenraum, or Flooded Berlin",
   westUp: "West up",
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",

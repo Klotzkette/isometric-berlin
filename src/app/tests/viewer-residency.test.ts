@@ -20,6 +20,7 @@ const drawnModes: VisualMode[] = [
   "night",
   "snowstorm",
   "schwellenraum",
+  "flood",
 ];
 
 describe("mobile ThreeViewer residency", () => {
@@ -53,6 +54,15 @@ describe("mobile ThreeViewer residency", () => {
       expect(threeViewerWorldFamily(mode, true)).toBe("persistent");
       expect(mobileWorldFamilyChanges("minecraft", mode, true)).toBeFalse();
     }
+  });
+
+  test("flood transitions reuse drawn geometry and retain the Minecraft remount contract", () => {
+    for (const drawnMode of drawnModes) {
+      expect(mobileWorldFamilyChanges(drawnMode, "flood", false)).toBeFalse();
+      expect(mobileWorldFamilyChanges("flood", drawnMode, false)).toBeFalse();
+    }
+    expect(mobileWorldFamilyChanges("minecraft", "flood", false)).toBeTrue();
+    expect(mobileWorldFamilyChanges("flood", "minecraft", false)).toBeTrue();
   });
 
   test("restarts once before exposing explicit recovery actions", () => {

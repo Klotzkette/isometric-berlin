@@ -56,6 +56,14 @@ const ROUTE_COLORS: Record<
     subway: 0x668baa,
     u5: 0xc99b32,
   },
+  flood: {
+    mainline: 0xa36d55,
+    north_south_sbahn: 0x4f9975,
+    north_south_sbahn_service: 0x77a58b,
+    s_bahn: 0x75a66d,
+    subway: 0x668baa,
+    u5: 0xc99b32,
+  },
   minecraft: {
     mainline: 0xa76142,
     north_south_sbahn: 0x3d9a62,
@@ -92,6 +100,7 @@ const ROUTE_COLORS: Record<
 
 const STRUCTURE_COLORS: Record<VisualMode, number> = {
   day: 0x5d625e,
+  flood: 0x5d625e,
   minecraft: 0x566158,
   night: 0xa9c7d3,
   snowstorm: 0x69777a,
@@ -100,6 +109,7 @@ const STRUCTURE_COLORS: Record<VisualMode, number> = {
 
 const PLATFORM_COLORS: Record<VisualMode, number> = {
   day: 0xe7dfcb,
+  flood: 0xe7dfcb,
   minecraft: 0xd8caa9,
   night: 0x66747d,
   snowstorm: 0xe7e6df,
@@ -108,6 +118,7 @@ const PLATFORM_COLORS: Record<VisualMode, number> = {
 
 const PLATFORM_FASCIA_COLORS: Record<VisualMode, number> = {
   day: 0xc8bda8,
+  flood: 0xc8bda8,
   minecraft: 0xb7a482,
   night: 0x4e5b63,
   snowstorm: 0xcbd0cd,

@@ -36,6 +36,7 @@ describe("mode-only recognition details", () => {
       "night",
       "minecraft",
       "schwellenraum",
+      "flood",
     ] as const) {
       setModeOnlyDetails(root, mode);
       expect(snow.visible).toBeFalse();
@@ -44,5 +45,18 @@ describe("mode-only recognition details", () => {
     expect(snow.visible).toBeTrue();
     setModeOnlyDetails(root, "day");
     expect(snow.visible).toBeFalse();
+  });
+
+  test("hides a flood-only layer on leaving flood without replacing its geometry", () => {
+    const root = new Group();
+    const flood = new Group();
+    flood.userData.visualModeOnly = "flood";
+    const ordinary = new Group();
+    root.add(flood, ordinary);
+    for (const mode of ["flood", "night", "flood", "day"] as const) {
+      setModeOnlyDetails(root, mode);
+      expect(flood.visible).toBe(mode === "flood");
+      expect(ordinary.visible).toBeTrue();
+    }
   });
 });

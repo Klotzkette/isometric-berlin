@@ -16,7 +16,7 @@ Off-centre orange-knob grips start neutral on mouse, touch and pen; see
 
 React + TypeScript + Vite + Three.js, managed with `bun`, presents one
 isometric 3D city from procedural Berlin LoD2/OSM geometry. The city loads
-progressively and remains freely navigable above and below ground in all five
+progressively and remains freely navigable above and below ground in all six
 visual modes. Since v1.0.28, every entry point opens this same renderer;
 legacy `?view=map` links also open 3D.
 
@@ -39,6 +39,28 @@ OSM + Geoportal Berlin minimum:
 
 When Google Photorealistic 3D Tiles are enabled (opt-in), additionally
 show the Google attribution required by the Google Maps Platform Terms.
+
+## Flooded Berlin (v1.0.70)
+
+The **Versunken / Flooded Berlin** mode (`?theme=flood`) reuses the complete
+Day city with its exact colours and geometry. A fictional horizontal water
+table at world y=7.2 m sits about 3 m above typical central streets. Local
+terrain naturally changes the depth; this is an imagined setting, not a
+hydrological forecast. The exact existing 81.457 km² scope clips the water.
+
+One lazy, opaque depth-tested mesh adds gentle ±0.24 m broad swells, advected
+ripples and broken foam ribbons. All motion is procedural; no texture, particle
+field, reflection buffer or second city is allocated. Derivative filtering
+suppresses distant ripple shimmer. Geometry is shared across touch and desktop
+at 925,650 bytes. Idle water requests at most 24 frames/s; navigation uses the
+existing active cadence. Reduced motion freezes it, hidden pages pause it, and
+leaving the mode hides it. Re-entry reuses the same bounded mesh.
+
+Camera, walking state and position survive mode changes. The water is not a
+new walking floor or teleport target; the existing underwater presentation
+uses the raised level while keeping tunnel and explicit cutaway exceptions.
+All source buildings, roads, shorelines and details remain resident/eligible
+under their unchanged loading policy.
 
 ## Lossless contour construction
 
@@ -164,7 +186,7 @@ closed and leaves the safe-area-aware bottom controls accessible.
 
 ## Language, visual modes, and sound
 
-The toolbar exposes direct Day, Night, Minecraft, Snowstorm and Schwellenraum
+The toolbar exposes direct Day, Night, Minecraft, Snowstorm, Schwellenraum and Flooded Berlin
 buttons. `M` enters or leaves Minecraft independently; the other visual modes
 are available directly in the mode menu. A fullscreen control uses the native
 API on
@@ -178,7 +200,7 @@ lower particle budget on coarse pointers. Precipitation is hidden automatically 
 views. Schwellenraum preserves the visitor's rain preference but disables the
 weather control and precipitation so its geometry remains still.
 
-Across Day, Night, Minecraft, Snowstorm and Schwellenraum, exactly nine
+Across all six visual modes, exactly nine
 official civic flags use one deterministic, low-amplitude wind field: three
 German and one European flag on the Reichstag, German and European protocol
 flags at the Chancellery, the Flag of Unity, the Swiss Embassy flag and the

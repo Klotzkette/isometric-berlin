@@ -24,10 +24,10 @@ import {
   type Object3DEventMap,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import type { VisualMode } from "./visualMode";
 
 export type WeidendammerBridgeDetailProfile = "full" | "mobile";
-export type WeidendammerBridgeMode =
-  "day" | "minecraft" | "night" | "schwellenraum" | "snowstorm";
+export type WeidendammerBridgeMode = VisualMode;
 
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];

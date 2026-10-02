@@ -116,6 +116,7 @@ describe("source-bound Richard-Wagner-Denkmal", () => {
       "night",
       "snowstorm",
       "schwellenraum",
+      "flood",
     ] as const) {
       expect(wagnerMemorialFocusForMode(mode)).toBe(
         WAGNER_MEMORIAL_PROFILE.focus,

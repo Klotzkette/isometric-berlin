@@ -10,7 +10,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import type { VisualMode } from "./visualMode";
+import { isVisualMode, type VisualMode } from "./visualMode";
 
 export type SnowBox = {
   position: readonly [number, number, number];
@@ -119,13 +119,7 @@ export function createSnowAccents({
 export function setModeOnlyDetails(root: Group, mode: VisualMode): void {
   root.traverse((object) => {
     const only = object.userData.visualModeOnly;
-    if (
-      only === "day" ||
-      only === "night" ||
-      only === "minecraft" ||
-      only === "snowstorm" ||
-      only === "schwellenraum"
-    ) {
+    if (isVisualMode(only)) {
       object.visible = only === mode;
     }
   });

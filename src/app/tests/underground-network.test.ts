@@ -109,7 +109,7 @@ describe("the mapped underground passenger cutaway", () => {
     expect(shafts.userData.verticalGeometry).toContain("not surveyed");
   });
 
-  test("changes its restrained route palette losslessly in all five modes", () => {
+  test("changes its restrained route palette losslessly in all six modes", () => {
     const group = createUndergroundNetwork(rail)!;
     const u5 = group.getObjectByName("underground u5 track beds") as Mesh;
     const drawObjects: Array<Mesh | LineSegments> = [];
@@ -125,6 +125,7 @@ describe("the mapped underground passenger cutaway", () => {
       "minecraft",
       "snowstorm",
       "schwellenraum",
+      "flood",
     ];
 
     for (const mode of modes) {
@@ -139,6 +140,7 @@ describe("the mapped underground passenger cutaway", () => {
         >;
         expect(Object.keys(palette).sort()).toEqual([...modes].sort());
         expect(material.color.getHex()).toBe(palette[mode]);
+        expect(palette.flood).toBe(palette.day);
       }
       expect(drawObjects.map((object) => object.geometry)).toEqual(geometries);
       expect(group.visible).toBe(true);

@@ -135,6 +135,15 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(lights.renderOrder).toBeGreaterThan(casing.renderOrder);
   });
 
+  test("uses the optional flood table without fogging dry land or tunnels", () => {
+    const view = { cameraY: 6, insideTunnel: false, underside: false };
+    expect(shouldUseUnderwaterPresentation(view)).toBe(false);
+    expect(shouldUseUnderwaterPresentation({ ...view, waterLevelY: 7.2 })).toBe(true);
+    expect(shouldUseUnderwaterPresentation({ ...view, cameraY: 8, waterLevelY: 7.2 })).toBe(false);
+    expect(shouldUseUnderwaterPresentation({ ...view, insideTunnel: true, waterLevelY: 7.2 })).toBe(false);
+    expect(shouldUseUnderwaterPresentation({ ...view, underside: true, waterLevelY: 7.2 })).toBe(false);
+  });
+
   test("does not hide the underside cutaway behind underwater fog", () => {
     expect(
       shouldUseUnderwaterPresentation({

@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.70 — Flooded Berlin
+
+- Step 10: add the Day-based **Versunken / Flooded Berlin** mode to desktop,
+  mobile and shareable `?theme=flood` links. Preserve camera and walking state.
+- Add one bounded, texture-free flood surface over the exact existing city
+  polygon: approximately three metres above typical streets, moving swells,
+  currents and antialiased foam. Keep every source model and normal colour.
+- Lazy allocation below 1 MiB, reusable geometry, paused hidden-tab motion and
+  reduced-motion support; no extra city, textures or reflection target.
+
 ## v1.0.69 — Complete Alt-Mitte building refinement
 
 - Audit the complete pre-2001 Mitte building scope against the official district

@@ -1,3 +1,4 @@
+import { createFloodWater, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, FLOOD_WATER_LEVEL_M, type FloodWater } from "./FloodWater";
 import { preloadAltMitteNativeV169Source } from "./AltMitteNativeCoreV169";
 import { zooStationV165PassageAt, zooStationV165SolidAt, zooStationV165FloorAt } from "./zooStationV165Profile";
 import { grosserSternGatehousePassageAt, grosserSternGatehouseSolidAt } from "./grosserSternGatehousesV164Profile";
@@ -670,6 +671,9 @@ type Runtime = {
   composer: EffectComposer;
   culturalDetails: Group;
   disposed: boolean;
+  floodWater: FloodWater | null;
+  floodElapsedSeconds: number;
+  floodLastFrameAt: number;
   focusCameraByName: Map<string, FocusCamera>;
   hemisphere: HemisphereLight;
   interactionUntil: number;
@@ -1380,6 +1384,14 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.underwater ||
     runtime.pedestrian.state?.insideTunnel === true ||
     runtime.cameraInsideTunnel;
+  const floodVisible = runtime.lightingMode === "flood" && !runtime.underside;
+  if (floodVisible && !runtime.floodWater) {
+    runtime.floodWater = createFloodWater();
+    runtime.scene.add(runtime.floodWater);
+  }
+  const floodChanged = !!runtime.floodWater && runtime.floodWater.visible !== floodVisible;
+  if (runtime.floodWater) runtime.floodWater.visible = floodVisible;
+  if (floodChanged) runtime.floodLastFrameAt = performance.now();
   const rainChanged = setRainPresentation(runtime.rain, {
     enabled: runtime.precipitationEnabled,
     mode: runtime.lightingMode,
@@ -1442,6 +1454,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     interiorsVisible,
   );
   if (
+    floodChanged ||
     rainChanged ||
     mobsChanged ||
     lootBoxesChanged ||
@@ -1459,12 +1472,14 @@ export function shouldUseUnderwaterPresentation({
   cameraY,
   insideTunnel,
   underside,
+  waterLevelY = WATER_LEVEL_Y,
 }: {
   cameraY: number;
   insideTunnel: boolean;
   underside: boolean;
+  waterLevelY?: number;
 }): boolean {
-  return cameraY < WATER_LEVEL_Y - 0.2 && !insideTunnel && !underside;
+  return cameraY < waterLevelY - 0.2 && !insideTunnel && !underside;
 }
 
 function setUnderwaterPresentation(
@@ -1672,7 +1687,7 @@ export function applyMaterialLighting(
   if (isDrawn) {
     setFlatUnlit(
       material,
-      mode === "day" || mode === "snowstorm" || mode === "schwellenraum",
+      mode === "day" || mode === "flood" || mode === "snowstorm" || mode === "schwellenraum",
     );
     // Flat-kind facades restore their stored flat tone as the albedo in every
     // mode; vertex-kind facades keep the neutral white multiplier set at load
@@ -2763,6 +2778,7 @@ function restoreWorldPresentationAfterRollback(
 function isoModeActive(runtime: Runtime): boolean {
   return (
     (runtime.lightingMode === "day" ||
+      runtime.lightingMode === "flood" ||
       runtime.lightingMode === "night" ||
       runtime.lightingMode === "snowstorm" ||
       runtime.lightingMode === "schwellenraum") &&
@@ -5419,6 +5435,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       if (
         (lightingMode === "day" ||
+          lightingMode === "flood" ||
           lightingMode === "night" ||
           lightingMode === "snowstorm" ||
           lightingMode === "schwellenraum") &&
@@ -6136,6 +6153,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls,
         culturalDetails,
         disposed: false,
+        floodWater: null,
+        floodElapsedSeconds: 0,
+        floodLastFrameAt: 0,
         focusCameraByName: new Map(),
         hemisphere,
         interactionUntil: 0,
@@ -7605,6 +7625,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         environmentalMotion: false,
       };
       const underwaterPresentationOptions = {
+        waterLevelY: WATER_LEVEL_Y,
         cameraY: 0,
         insideTunnel: false,
         underside: false,
@@ -7684,6 +7705,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!towerSteamOnScreen) {
           runtime.schwellenraumLastTowerSteamFrameAt = timestamp;
         }
+        const floodAnimating = runtime.floodWater?.visible === true && !reducedMotion;
+        if (!floodAnimating) runtime.floodLastFrameAt = timestamp;
+        const floodFrameDue = floodAnimating &&
+          timestamp - runtime.floodLastFrameAt >= FLOOD_FRAME_INTERVAL_MS;
         const rainVisible = runtime.rain.group.visible;
         const snowVisible = snowfallAnimationActive(runtime.snowstorm);
         const minecraftEnvironmentVisible =
@@ -7717,7 +7742,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               Math.abs(pedestrianInput.look) > 1e-6 ||
               runtime.pedestrian.state?.grounded === false));
         if (continuousInputActive) gpuWarmupInteractionUntil = timestamp + 80;
-        let passiveFrameIntervalMs = Number.POSITIVE_INFINITY;
+        let passiveFrameIntervalMs = floodAnimating
+          ? FLOOD_FRAME_INTERVAL_MS : Number.POSITIVE_INFINITY;
         const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&
           isBerlinerEnsembleRoofSignOnScreen(runtime.europaCenterStarTargets, camera, europaStarScreenScratch);
         if (!europaStarOnScreen) runtime.europaCenterStarLastFrameAt = timestamp;
@@ -7924,6 +7950,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp - lastOrdinaryEnvironmentFrameAt >=
             ordinaryEnvironmentFrameIntervalMs;
         const environmentalMotion =
+          floodFrameDue ||
           schwellenraumMotion.animateFlags ||
           schwellenraumMotion.animatePariserPlatzEntities ||
           schwellenraumMotion.animateWaterLight ||
@@ -8035,6 +8062,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         }
+        underwaterPresentationOptions.waterLevelY = runtime.lightingMode === "flood"
+          ? FLOOD_WATER_LEVEL_M : WATER_LEVEL_Y;
         underwaterPresentationOptions.cameraY = camera.position.y;
         underwaterPresentationOptions.insideTunnel =
           physicallyInsideTunnel || framedPortal;
@@ -8043,6 +8072,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime,
           shouldUseUnderwaterPresentation(underwaterPresentationOptions),
         );
+        if (floodAnimating && runtime.floodWater) {
+          // Bound resumption after a hidden tab or loading stall; never catch up.
+          runtime.floodElapsedSeconds += Math.min(0.1, Math.max(0,
+            (timestamp - runtime.floodLastFrameAt) / 1000));
+          runtime.floodLastFrameAt = timestamp;
+          updateFloodWater(runtime.floodWater, runtime.floodElapsedSeconds);
+        }
         if (ordinaryEnvironmentMotion) {
           const ordinaryDtSeconds = Number.isFinite(
             lastOrdinaryEnvironmentFrameAt,

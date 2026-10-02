@@ -65,13 +65,17 @@ and distinguish current source evidence from future landscape plans.
 **Owner quality-preservation policy (v1.0.41):** Performance work must not remove
 visible source geometry, roads, paths, shorelines, facade details or monuments.
 Retaining source files while omitting their rendered layers is a quality loss.
-The four drawn modes use the existing full static model detail on both touch
+The drawn modes use the existing full static model detail on both touch
 and pointer devices. Use exact indexing, instancing, offline preparation,
 bounded transfers and cancellation to reduce memory instead. Camera-following
 building residency must leave every source part eligible for exact refinement
 and preserve its full source envelope before refinement and before eviction.
 The explicitly requested Minecraft tree reduction and existing separate native
-Minecraft geometry remain independent. Keep source-area/ownership accounting
+Minecraft geometry remain independent.
+The owner-requested v1.0.70 Flooded Berlin mode reuses the complete Day city.
+Its fictional horizontal water table is clipped to the existing bounds, with
+no expanded geography, removed detail or second city copy. Preserve its lazy
+texture-free water surface and exact camera/walking continuity. Keep source-area/ownership accounting
 and visual checks at Invalidenpark, Otto-Weidt-Platz and Spree/Hauptbahnhof;
 never restore coarse raster substitutes as the finished drawn presentation.
 
