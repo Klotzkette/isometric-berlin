@@ -1,0 +1,37 @@
+{
+  "historicalBaseline": "minecraft-payload-only-v169.json",
+  "reason": "Only the two Bernauer Straße OSM fallback bodies yield to their complete source models. Existing ground and Moabit batches remain byte-identical.",
+  "sourceColumnsByPrism": [
+    {
+      "id": "53333454",
+      "count": 33,
+      "sha256": "7b8d94cdf78e1cbcb39e0eab0949b9efc8052d5eb784318d54f7ac799f24a68f"
+    },
+    {
+      "id": "45664094",
+      "count": 31,
+      "sha256": "dca02fa81597ef6b1921aefb06db433db9cf7462f660553c8b56f431aa267eb6"
+    }
+  ],
+  "removedSourceColumns": 64,
+  "retainedNeighbourColumns": [[318, -454, 52, 172, 3]],
+  "panes": { "removed": 192, "exposed": 6, "netRemoved": 186 },
+  "removedColumnInstances": { "full": 192, "mobile": 64 },
+  "full": {
+    "Voxel facade windows": {
+      "count": 1343583,
+      "sha256": "11686980037cf2479e5bdf9c2ae26ee736c80bd98a6ff977f198a36cca0d0392"
+    },
+    "Voxel building columns": {
+      "count": 1203456,
+      "sha256": "1cb46b35dd995f069b97b6746e8c8a82dec4f3e3147e9ab75bbe337780634560"
+    }
+  },
+  "mobile": {
+    "Voxel facade windows": null,
+    "Voxel building columns": {
+      "count": 443047,
+      "sha256": "cbda65d432851ed1d73521b812992107f4454cbc9acbcc4787b0e09a2a046b6a"
+    }
+  }
+}

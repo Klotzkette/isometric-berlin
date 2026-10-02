@@ -1797,3 +1797,10 @@ the standalone city builder supplies the same layer by default. Native
 Minecraft has a separate surface-only block batch. Full/mobile drawn detail
 is identical. Karl-Marx-Allee detail is precomputed inside bounded existing
 outer-city chunks. See [v1.0.61 verification](release-v1.0.61-review.md).
+
+## North Mitte landmark detail, v1.0.74
+
+BND, Bernauer Straße and Zionskirche add bounded, batched recognition geometry
+in every mode, with separate native Minecraft meshes and identical touch and
+pointer static detail. The Weinberg playground correction changes only its
+source-clipped rubber area. See [review](release-v1.0.74-review.md).

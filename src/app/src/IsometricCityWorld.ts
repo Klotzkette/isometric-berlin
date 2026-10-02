@@ -1,3 +1,4 @@
+import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
 import { ALT_MITTE_V169_PRISM_IDS } from "./altMitteV169Ownership";
 import { createTuWaterV168 } from "./TuWaterV168";
@@ -1012,6 +1013,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...TACHELES_V167_PRISM_IDS,
   ...TEEHAUS_RUIN_V168_PRISM_IDS,
   ...TU_WATER_V168_PRISM_IDS,
+  ...BERLIN_WALL_MEMORIAL_V174_PRISM_IDS,
   ...ALT_MITTE_V169_PRISM_IDS,
   ...ALEXANDER_NORTH_V166_PRISM_IDS,
   ...CITYWEST_CINEMAS_V166_PRISM_IDS,

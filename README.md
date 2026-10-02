@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.73 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.73/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.74 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.74/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.73** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.74** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.74 refines the **BND headquarters, Berlin Wall Memorial on
+Bernauer Straße, Zionskirche and the blue Weinbergspark playground surface**.
+Source geometry and earlier city details remain preserved; reference-based
+ornament and unresolved source discrepancies are documented separately.
+[Sources and verification](docs/release-v1.0.74-review.md).
+
+Version 1.0.74 verfeinert die **BND-Zentrale, die Mauergedenkstätte an der
+Bernauer Straße und die Zionskirche**. Der Weinbergspielplatz erhält seine
+belegte blaue Gummifläche; die Sandbereiche bleiben erhalten. Bestehende
+Stadtdetails bleiben bestehen, Annäherungen sind dokumentiert.
 
 Version 1.0.73 adds **3 m / 6 m / 21 m** water-level buttons in Flooded Berlin,
 on desktop and in the mobile mode menu. The same animated water mesh moves

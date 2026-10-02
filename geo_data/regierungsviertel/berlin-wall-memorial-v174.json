@@ -1,0 +1,8411 @@
+{
+  "schemaVersion": 1,
+  "state": "present-day memorial, preserved and reconstructed national monument distinguished from open public landscape",
+  "retrieved": "2026-10-02",
+  "osmTimestamp": "2026-09-29T20:22:51Z",
+  "osmLicense": "ODbL-1.0",
+  "lod2License": "dl-de/zero-2-0",
+  "lod2SourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5821.zip",
+  "lod2Sha256": "dcc6852d4747e59b6f0dd7578aa67cbc5bc12b4585dcfd671adb61da2598c528",
+  "osmFeatures": {
+    "126462840": {
+      "osmKey": "way/126462840",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "126462840",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1525.8795,
+            -2005.0259
+          ],
+          [
+            1525.2429,
+            -2003.8606
+          ],
+          [
+            1505.3081,
+            -1985.2873
+          ],
+          [
+            1503.8917,
+            -1984.4508
+          ]
+        ]
+      }
+    },
+    "446637389": {
+      "osmKey": "way/446637389",
+      "role": "rear-remnant",
+      "tags": {
+        "description:de": "Hinterlandmauer",
+        "description:en": "inner wall",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Plattenwand der ehemaligen \"Vorfeldsicherung\"",
+        "ref:lda": "09040270,T,003",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "446637389",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1226.2673,
+            -1552.6326
+          ],
+          [
+            1188.8251,
+            -1527.8192
+          ],
+          [
+            1204.4836,
+            -1507.9071
+          ]
+        ]
+      }
+    },
+    "1504490302": {
+      "osmKey": "way/1504490302",
+      "role": "rear-remnant",
+      "tags": {
+        "description:de": "Hinterlandmauer",
+        "description:en": "inner wall",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Berliner Mauer, Abschnitt Gartenstraße",
+        "ref:lda": "09040270,T,004",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "1504490302",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1284.0278,
+            -1582.0894
+          ],
+          [
+            1302.962,
+            -1573.3435
+          ],
+          [
+            1387.787,
+            -1534.152
+          ]
+        ]
+      }
+    },
+    "1504490305": {
+      "osmKey": "way/1504490305",
+      "role": "rear-remnant",
+      "tags": {
+        "description:de": "Hinterlandmauer",
+        "description:en": "inner wall",
+        "height": "3.60",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Abschnitte der Plattenwand der ehemaligen \"Vorfeldsicherung\"",
+        "ref:lda": "09040270,T,002",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "1504490305",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1438.9039,
+            -1810.9379
+          ],
+          [
+            1402.5773,
+            -1767.2367
+          ]
+        ]
+      }
+    },
+    "1504490306": {
+      "osmKey": "way/1504490306",
+      "role": "rear-remnant",
+      "tags": {
+        "description:de": "Hinterlandmauer",
+        "description:en": "inner wall",
+        "height": "3.60",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Abschnitte der Plattenwand der ehemaligen \"Vorfeldsicherung\"",
+        "ref:lda": "09040270,T,002",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "1504490306",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1444.2407,
+            -1817.184
+          ],
+          [
+            1485.6733,
+            -1867.1591
+          ]
+        ]
+      }
+    },
+    "1504490312": {
+      "osmKey": "way/1504490312",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "1504490312",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1189.1253,
+            -1625.4358
+          ],
+          [
+            1188.9236,
+            -1625.2178
+          ],
+          [
+            1185.6873,
+            -1618.8582
+          ],
+          [
+            1185.6092,
+            -1618.7042
+          ],
+          [
+            1183.1426,
+            -1613.9966
+          ],
+          [
+            1158.5382,
+            -1567.2534
+          ],
+          [
+            1158.4692,
+            -1566.8988
+          ]
+        ]
+      }
+    },
+    "1504490313": {
+      "osmKey": "way/1504490313",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "1504490313",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1238.6928,
+            -1697.9723
+          ],
+          [
+            1238.4313,
+            -1697.8112
+          ],
+          [
+            1227.7305,
+            -1683.228
+          ],
+          [
+            1227.6286,
+            -1682.9187
+          ]
+        ]
+      }
+    },
+    "1504490314": {
+      "osmKey": "way/1504490314",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "1504490314",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1270.8007,
+            -1742.8904
+          ],
+          [
+            1270.7247,
+            -1742.5249
+          ],
+          [
+            1263.8286,
+            -1733.6208
+          ],
+          [
+            1262.1655,
+            -1731.4658
+          ],
+          [
+            1261.8636,
+            -1731.3167
+          ]
+        ]
+      }
+    },
+    "1504490317": {
+      "osmKey": "way/1504490317",
+      "role": "front-wall",
+      "tags": {
+        "height": "3.60",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Abschnitt der ehemaligen innerstädtischen Grenzanlage...",
+        "ref:lda": "09040270,T,001",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "1504490317",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1261.8636,
+            -1731.3167
+          ],
+          [
+            1260.6855,
+            -1729.6071
+          ],
+          [
+            1238.6928,
+            -1697.9723
+          ]
+        ]
+      }
+    },
+    "1504490311": {
+      "osmKey": "way/1504490311",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "1504490311",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1493.4279,
+            -1974.6578
+          ],
+          [
+            1492.3997,
+            -1973.2786
+          ],
+          [
+            1476.1915,
+            -1957.2152
+          ],
+          [
+            1474.8245,
+            -1956.4667
+          ]
+        ]
+      }
+    },
+    "53257439": {
+      "osmKey": "way/53257439",
+      "role": "steel-endpoint",
+      "tags": {
+        "height": "7",
+        "material": "metal",
+        "osm_id": "53257439",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1314.5983,
+            -1710.1771
+          ],
+          [
+            1304.5786,
+            -1717.6002
+          ],
+          [
+            1301.2476,
+            -1720.067
+          ],
+          [
+            1300.7732,
+            -1720.4002
+          ],
+          [
+            1300.0848,
+            -1720.8718
+          ],
+          [
+            1290.8963,
+            -1727.8313
+          ],
+          [
+            1288.5539,
+            -1729.5973
+          ],
+          [
+            1270.8007,
+            -1742.8904
+          ],
+          [
+            1268.3908,
+            -1744.669
+          ]
+        ]
+      }
+    },
+    "1504490315": {
+      "osmKey": "way/1504490315",
+      "role": "front-wall",
+      "tags": {
+        "height": "3.60",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Abschnitt der ehemaligen innerstädtischen Grenzanlage...",
+        "ref:lda": "09040270,T,001",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "1504490315",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1309.5562,
+            -1793.814
+          ],
+          [
+            1303.7355,
+            -1788.0907
+          ],
+          [
+            1270.8007,
+            -1742.8904
+          ]
+        ]
+      }
+    },
+    "129029469": {
+      "osmKey": "way/129029469",
+      "role": "signal-fence-remnant",
+      "tags": {
+        "description": "ehemaliger Grenzsignalzaun",
+        "height": "3",
+        "historic": "yes",
+        "ruins": "yes",
+        "osm_id": "129029469",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1300.0848,
+            -1720.8718
+          ],
+          [
+            1338.2717,
+            -1772.7765
+          ]
+        ]
+      }
+    },
+    "129028211": {
+      "osmKey": "way/129028211",
+      "role": "rear-wall",
+      "tags": {
+        "description": "ehemalige Hinterlandsicherungsmauer",
+        "height": "3",
+        "material": "concrete",
+        "osm_id": "129028211",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1301.2476,
+            -1720.067
+          ],
+          [
+            1338.8724,
+            -1772.3291
+          ]
+        ]
+      }
+    },
+    "126462918": {
+      "osmKey": "way/126462918",
+      "role": "steel-endpoint",
+      "tags": {
+        "height": "7",
+        "material": "metal",
+        "osm_id": "126462918",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1305.8426,
+            -1796.7678
+          ],
+          [
+            1309.5562,
+            -1793.814
+          ],
+          [
+            1328.0337,
+            -1780.4492
+          ],
+          [
+            1338.2717,
+            -1772.7765
+          ],
+          [
+            1338.8724,
+            -1772.3291
+          ],
+          [
+            1342.728,
+            -1769.6504
+          ]
+        ]
+      }
+    },
+    "1080303188": {
+      "osmKey": "way/1080303188",
+      "role": "current-steel-markers",
+      "tags": {
+        "description:de": "vertikale Eisenstangen als Symbol für die Berliner Mauer",
+        "description:en": "vertical iron bars as a symbol of the Berlin Wall",
+        "fence_type": "bars",
+        "osm_id": "1080303188",
+        "barrier": "fence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1461.8645,
+            -1943.6692
+          ],
+          [
+            1460.6064,
+            -1941.7165
+          ],
+          [
+            1406.0699,
+            -1888.9291
+          ],
+          [
+            1404.1143,
+            -1887.6485
+          ]
+        ]
+      }
+    },
+    "446637038": {
+      "osmKey": "way/446637038",
+      "role": "rear-remnant",
+      "tags": {
+        "description:de": "Hinterlandmauer",
+        "description:en": "inner wall",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "historic": "wall",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Plattenwand der ehemaligen \"Vorfeldsicherung\"",
+        "ref:lda": "09040270,T,003",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "446637038",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1232.4873,
+            -1548.2541
+          ],
+          [
+            1233.5891,
+            -1548.9751
+          ],
+          [
+            1270.8414,
+            -1573.5037
+          ],
+          [
+            1279.9714,
+            -1579.4202
+          ],
+          [
+            1284.0278,
+            -1582.0894
+          ]
+        ]
+      }
+    },
+    "446637390": {
+      "osmKey": "way/446637390",
+      "role": "rear-remnant",
+      "tags": {
+        "historic": "citywalls",
+        "osm_id": "446637390",
+        "name": "Hinterlandmauer",
+        "barrier": "wall"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1258.5361,
+            -1659.1388
+          ],
+          [
+            1255.9633,
+            -1655.4462
+          ],
+          [
+            1238.2059,
+            -1629.9484
+          ]
+        ]
+      }
+    },
+    "446637042": {
+      "osmKey": "way/446637042",
+      "role": "preserved-patrol-path",
+      "tags": {
+        "access": "no",
+        "description": "Kolonnenweg",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "lda:criteria": "Baudenkmal",
+        "name:lda": "Teilobjekt Abschnitt der ehemaligen innerstädtischen Grenzanlage...",
+        "ref:lda": "09040270,T,001",
+        "start_date": "1961",
+        "wikidata": "Q5086",
+        "wikipedia": "en:Berlin Wall",
+        "osm_id": "446637042",
+        "highway": "path"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            1291.335,
+            -1731.0708
+          ],
+          [
+            1325.1919,
+            -1776.2507
+          ]
+        ]
+      }
+    },
+    "158945354": {
+      "osmKey": "way/158945354",
+      "role": "mapped-building-or-enclosure",
+      "tags": {
+        "description": "Beobachtungsturm BT 9",
+        "disused": "yes",
+        "height": "10",
+        "material": "concrete",
+        "roof:material": "concrete",
+        "roof:shape": "flat",
+        "tower:type": "watchtower",
+        "osm_way_id": "158945354",
+        "building": "tower",
+        "historic": "yes",
+        "man_made": "tower"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1329.1877,
+                -1774.3811
+              ],
+              [
+                1331.176,
+                -1772.8679
+              ],
+              [
+                1332.6224,
+                -1774.7385
+              ],
+              [
+                1330.6343,
+                -1776.2628
+              ],
+              [
+                1329.1877,
+                -1774.3811
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "45664093": {
+      "osmKey": "way/45664093",
+      "role": "mapped-building-or-enclosure",
+      "tags": {
+        "description": "Rekonstruktion des Grenzstreifens",
+        "memorial": "sculpture",
+        "surface": "sand",
+        "osm_way_id": "45664093",
+        "historic": "memorial"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1338.8724,
+                -1772.3291
+              ],
+              [
+                1338.2717,
+                -1772.7765
+              ],
+              [
+                1328.0337,
+                -1780.4492
+              ],
+              [
+                1309.5608,
+                -1793.7138
+              ],
+              [
+                1303.7885,
+                -1788.0339
+              ],
+              [
+                1270.8007,
+                -1742.8904
+              ],
+              [
+                1288.5539,
+                -1729.5973
+              ],
+              [
+                1290.8963,
+                -1727.8313
+              ],
+              [
+                1300.0848,
+                -1720.8718
+              ],
+              [
+                1300.7732,
+                -1720.4002
+              ],
+              [
+                1301.2476,
+                -1720.067
+              ],
+              [
+                1338.8724,
+                -1772.3291
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "45664094": {
+      "osmKey": "way/45664094",
+      "role": "mapped-building-or-enclosure",
+      "tags": {
+        "addr:city": "Berlin",
+        "addr:country": "DE",
+        "addr:housenumber": "111",
+        "addr:postcode": "13355",
+        "addr:street": "Bernauer Straße",
+        "addr:suburb": "Gesundbrunnen",
+        "building:levels": "4",
+        "check_date": "2024-09-03",
+        "email": "info@stiftung-berliner-mauer.de",
+        "fee": "no",
+        "museum": "history",
+        "name:en": "Berlin Wall Memorial Documentation Center",
+        "name:it": "Memoriale del Muro di Berlino (Centro di Documentazione)",
+        "opening_hours": "Tu-Su 10:00-18:00",
+        "phone": "+49 30 213085123",
+        "roof:shape": "flat",
+        "website": "https://www.berliner-mauer-gedenkstaette.de/",
+        "wheelchair": "limited",
+        "wikidata": "Q76632437",
+        "osm_way_id": "45664094",
+        "name": "Gedenkstätte Berliner Mauer (Dokumentationszentrum)",
+        "building": "civic",
+        "tourism": "museum"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1263.0801,
+                -1777.3137
+              ],
+              [
+                1257.9717,
+                -1781.0109
+              ],
+              [
+                1257.2857,
+                -1780.0692
+              ],
+              [
+                1257.0184,
+                -1780.2532
+              ],
+              [
+                1257.7114,
+                -1781.2058
+              ],
+              [
+                1252.6296,
+                -1784.8801
+              ],
+              [
+                1251.9504,
+                -1783.9383
+              ],
+              [
+                1251.6622,
+                -1784.1005
+              ],
+              [
+                1269.1426,
+                -1808.158
+              ],
+              [
+                1269.6838,
+                -1807.7787
+              ],
+              [
+                1271.9645,
+                -1810.8547
+              ],
+              [
+                1272.1851,
+                -1810.7051
+              ],
+              [
+                1273.4313,
+                -1812.4243
+              ],
+              [
+                1273.0507,
+                -1812.6999
+              ],
+              [
+                1276.1462,
+                -1817.0151
+              ],
+              [
+                1276.547,
+                -1817.34
+              ],
+              [
+                1277.0076,
+                -1817.6079
+              ],
+              [
+                1277.5069,
+                -1817.7859
+              ],
+              [
+                1278.0311,
+                -1817.8633
+              ],
+              [
+                1278.5596,
+                -1817.8292
+              ],
+              [
+                1279.0723,
+                -1817.6954
+              ],
+              [
+                1279.5489,
+                -1817.4622
+              ],
+              [
+                1279.9695,
+                -1817.1523
+              ],
+              [
+                1280.3202,
+                -1816.7551
+              ],
+              [
+                1280.5881,
+                -1816.2928
+              ],
+              [
+                1280.7603,
+                -1815.7994
+              ],
+              [
+                1280.8368,
+                -1815.2747
+              ],
+              [
+                1280.8046,
+                -1814.7413
+              ],
+              [
+                1280.6711,
+                -1814.2324
+              ],
+              [
+                1280.4429,
+                -1813.7367
+              ],
+              [
+                1277.4112,
+                -1809.5424
+              ],
+              [
+                1277.0305,
+                -1809.818
+              ],
+              [
+                1275.7911,
+                -1808.0986
+              ],
+              [
+                1276.0248,
+                -1807.9265
+              ],
+              [
+                1276.5725,
+                -1807.5359
+              ],
+              [
+                1280.0032,
+                -1812.2777
+              ],
+              [
+                1285.5237,
+                -1808.193
+              ],
+              [
+                1269.0517,
+                -1785.5374
+              ],
+              [
+                1267.576,
+                -1786.6052
+              ],
+              [
+                1265.8959,
+                -1784.2947
+              ],
+              [
+                1267.3714,
+                -1783.2158
+              ],
+              [
+                1263.0801,
+                -1777.3137
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "45664095": {
+      "osmKey": "way/45664095",
+      "role": "mapped-building-or-enclosure",
+      "tags": {
+        "addr:city": "Berlin",
+        "addr:country": "DE",
+        "addr:housenumber": "8",
+        "addr:postcode": "10115",
+        "addr:street": "Bernauer Straße",
+        "addr:suburb": "Mitte",
+        "architect": "Peter Sassenroth, Rudolf Reitermann",
+        "building:architecture": "postmodern",
+        "building:colour": "brown",
+        "building:levels": "1",
+        "building:material": "wood;rammed_earth",
+        "contact:website": "https://gemeinde-versoehnung.de/",
+        "deanery": "Kirchenkreis Berlin Nord-Ost",
+        "denomination": "protestant",
+        "description": "Denkmalschutz für Fundamente und Untergeschoßreste der Versöhnungskirche",
+        "diocese": "Evangelische Kirche Berlin-Brandenburg-schlesische Oberlausitz",
+        "height": "8 m",
+        "heritage": "4",
+        "heritage:operator": "lda",
+        "image": "http://commons.wikimedia.org/wiki/File:Versoehnungskapelle_1.jpg",
+        "lda:inscription_date": "2010",
+        "name:en": "Chapel of Reconciliation",
+        "name:it": "Cappella della Conciliazione",
+        "ref:lda": "09020113",
+        "religion": "christian",
+        "roof:material": "wood",
+        "toilets:wheelchair": "no",
+        "wheelchair": "yes",
+        "wheelchair:description": "Das rollstuhlgerechte WC befindet sich im Gemeindehaus ca. 600 Meter entfehrnt.",
+        "wikidata": "Q1728467",
+        "wikimedia_commons": "Category:Versöhnungskapelle (Berlin)",
+        "wikipedia": "de:Kapelle der Versöhnung",
+        "osm_way_id": "45664095",
+        "name": "Kapelle der Versöhnung",
+        "amenity": "place_of_worship",
+        "building": "chapel"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1422.9045,
+                -1843.2531
+              ],
+              [
+                1420.8768,
+                -1846.9593
+              ],
+              [
+                1419.8751,
+                -1850.1196
+              ],
+              [
+                1419.5957,
+                -1854.6326
+              ],
+              [
+                1419.8681,
+                -1856.8075
+              ],
+              [
+                1420.2713,
+                -1858.4566
+              ],
+              [
+                1421.2339,
+                -1859.9374
+              ],
+              [
+                1422.2552,
+                -1860.7047
+              ],
+              [
+                1423.5271,
+                -1861.1437
+              ],
+              [
+                1425.6213,
+                -1861.0302
+              ],
+              [
+                1428.7919,
+                -1860.5034
+              ],
+              [
+                1431.25,
+                -1859.6696
+              ],
+              [
+                1434.4576,
+                -1858.0625
+              ],
+              [
+                1437.0196,
+                -1856.1026
+              ],
+              [
+                1439.3943,
+                -1853.6573
+              ],
+              [
+                1440.293,
+                -1852.2685
+              ],
+              [
+                1440.7952,
+                -1850.1431
+              ],
+              [
+                1440.8356,
+                -1847.9945
+              ],
+              [
+                1439.9796,
+                -1845.2094
+              ],
+              [
+                1438.8679,
+                -1843.4315
+              ],
+              [
+                1437.1426,
+                -1841.5226
+              ],
+              [
+                1435.5205,
+                -1840.2902
+              ],
+              [
+                1432.2525,
+                -1838.883
+              ],
+              [
+                1428.981,
+                -1838.8447
+              ],
+              [
+                1426.3131,
+                -1840.0058
+              ],
+              [
+                1422.9045,
+                -1843.2531
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "53333454": {
+      "osmKey": "way/53333454",
+      "role": "mapped-building-or-enclosure",
+      "tags": {
+        "addr:city": "Berlin",
+        "addr:country": "DE",
+        "addr:housenumber": "119",
+        "addr:postcode": "13355",
+        "addr:street": "Bernauer Straße",
+        "addr:suburb": "Gesundbrunnen",
+        "check_date": "2025-03-16",
+        "check_date:opening_hours": "2023-02-19",
+        "fee": "no",
+        "name:de": "Gedenkstätte Berliner Mauer (Besucherzentrum)",
+        "name:en": "Berlin Wall Memorial",
+        "name:zh": "柏林圍牆紀念館",
+        "opening_hours": "Mo off; Tu-Su 10:00-18:00",
+        "toilets": "yes",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes",
+        "osm_way_id": "53333454",
+        "name": "Gedenkstätte Berliner Mauer (Besucherzentrum)",
+        "building": "civic",
+        "tourism": "museum"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1107.5114,
+                -1635.104
+              ],
+              [
+                1120.1122,
+                -1644.804
+              ],
+              [
+                1124.2685,
+                -1647.9938
+              ],
+              [
+                1137.6646,
+                -1636.8005
+              ],
+              [
+                1134.4334,
+                -1629.7621
+              ],
+              [
+                1128.7837,
+                -1617.4364
+              ],
+              [
+                1117.9108,
+                -1622.5088
+              ],
+              [
+                1111.1078,
+                -1625.6875
+              ],
+              [
+                1112.8177,
+                -1629.021
+              ],
+              [
+                1107.5114,
+                -1635.104
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "746066862": {
+      "osmKey": "node/746066862",
+      "role": "window-of-remembrance",
+      "tags": {
+        "description": "Das Fenster des Gedenkens erinnert an die Menschen, die an der Mauer bei einem Fluchtversuch oder im Zusammenhang mit dem Grenzregime erschossen wurden oder tödlich verunglückten.",
+        "historic": "memorial",
+        "image": "http://commons.wikimedia.org/wiki/File:Fenster-des-Gedenkens-Berlin.jpg",
+        "memorial": "sculpture",
+        "name:ru": "Окно памяти",
+        "start_date": "2010",
+        "wheelchair": "yes",
+        "osm_id": "746066862",
+        "name": "Fenster des Gedenkens"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1227.0835,
+          -1657.8935
+        ]
+      }
+    }
+  },
+  "officialParts": [
+    {
+      "id": "DEBE3DIe1Qe0W75J",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 17.022,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ad3e0d75-ae6f-484d-b7b3-b944a85e8cf3",
+          "rings": [
+            [
+              [
+                1272.851,
+                17.015,
+                -1790.836
+              ],
+              [
+                1269.021,
+                17.011,
+                -1785.565
+              ],
+              [
+                1269.021,
+                5.385,
+                -1785.565
+              ],
+              [
+                1272.851,
+                5.385,
+                -1790.836
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_39741faa-d650-469c-8cd7-ba33bf653c0d",
+          "rings": [
+            [
+              [
+                1278.401,
+                17.022,
+                -1798.473
+              ],
+              [
+                1277.442,
+                17.021,
+                -1797.153
+              ],
+              [
+                1277.442,
+                5.385,
+                -1797.153
+              ],
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_fe54e116-a291-4ed9-a3a7-59dcab511789",
+          "rings": [
+            [
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1277.442,
+                5.385,
+                -1797.153
+              ],
+              [
+                1272.851,
+                5.385,
+                -1790.836
+              ],
+              [
+                1269.021,
+                5.385,
+                -1785.565
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_9cb8d84a-28d2-414b-b562-0c24fc09664f",
+          "rings": [
+            [
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ],
+              [
+                1278.401,
+                17.022,
+                -1798.473
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_895d273c-fccf-4c26-b8f1-d9b1726f1078",
+          "rings": [
+            [
+              [
+                1269.021,
+                17.011,
+                -1785.565
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1269.021,
+                5.385,
+                -1785.565
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2914dc71-67b0-4d44-b009-d01b308d6be2",
+          "rings": [
+            [
+              [
+                1277.442,
+                17.021,
+                -1797.153
+              ],
+              [
+                1272.851,
+                17.015,
+                -1790.836
+              ],
+              [
+                1272.851,
+                5.385,
+                -1790.836
+              ],
+              [
+                1277.442,
+                5.385,
+                -1797.153
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_6c0d14d4-1edc-43c0-9996-26635ec83d70",
+          "rings": [
+            [
+              [
+                1269.021,
+                17.011,
+                -1785.565
+              ],
+              [
+                1272.851,
+                17.015,
+                -1790.836
+              ],
+              [
+                1277.442,
+                17.021,
+                -1797.153
+              ],
+              [
+                1278.401,
+                17.022,
+                -1798.473
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_a050033c-ab47-4950-917a-7aae94f67f77",
+          "rings": [
+            [
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ],
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_26afb2fb-fa83-4f0d-b251-c30cc4f49b1d",
+          "rings": [
+            [
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DzocpCXYjql",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 22.144,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ef962b8e-edfc-4138-80af-87b7591b51cb",
+          "rings": [
+            [
+              [
+                1252.383,
+                19.436,
+                -1785.064
+              ],
+              [
+                1253.276,
+                19.455,
+                -1786.277
+              ],
+              [
+                1253.276,
+                5.385,
+                -1786.277
+              ],
+              [
+                1252.383,
+                5.385,
+                -1785.064
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_2ef97471-d46b-4c50-b51c-cf203a8e4502",
+          "rings": [
+            [
+              [
+                1263.046,
+                19.444,
+                -1777.343
+              ],
+              [
+                1263.918,
+                19.444,
+                -1778.542
+              ],
+              [
+                1264.498,
+                19.444,
+                -1779.341
+              ],
+              [
+                1262.772,
+                22.129,
+                -1779.068
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_a21be108-3e2d-43e7-bd1b-0010bb49c3b3",
+          "rings": [
+            [
+              [
+                1257.038,
+                16.899,
+                -1780.25
+              ],
+              [
+                1257.73,
+                19.443,
+                -1781.194
+              ],
+              [
+                1257.73,
+                5.385,
+                -1781.194
+              ],
+              [
+                1257.038,
+                5.385,
+                -1780.25
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_c195d14c-533e-4e59-b189-bd4a7735dd0c",
+          "rings": [
+            [
+              [
+                1263.046,
+                19.444,
+                -1777.343
+              ],
+              [
+                1257.971,
+                19.437,
+                -1781.016
+              ],
+              [
+                1257.971,
+                5.385,
+                -1781.016
+              ],
+              [
+                1263.046,
+                5.385,
+                -1777.343
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_8840b677-c139-4484-8e80-300dfcba29ec",
+          "rings": [
+            [
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ],
+              [
+                1264.498,
+                19.444,
+                -1779.341
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_27685662-5c80-4899-8218-814b1d07e798",
+          "rings": [
+            [
+              [
+                1263.918,
+                19.444,
+                -1778.542
+              ],
+              [
+                1263.046,
+                19.444,
+                -1777.343
+              ],
+              [
+                1263.046,
+                5.385,
+                -1777.343
+              ],
+              [
+                1263.918,
+                5.385,
+                -1778.542
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2476a03d-c936-4641-bff9-7f1e5a88f6b3",
+          "rings": [
+            [
+              [
+                1257.28,
+                16.898,
+                -1780.074
+              ],
+              [
+                1257.038,
+                16.899,
+                -1780.25
+              ],
+              [
+                1257.038,
+                5.385,
+                -1780.25
+              ],
+              [
+                1257.28,
+                5.385,
+                -1780.074
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f5c29b50-b7ee-473f-a1a7-1079ac2ad562",
+          "rings": [
+            [
+              [
+                1253.276,
+                19.455,
+                -1786.277
+              ],
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ],
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1253.276,
+                5.385,
+                -1786.277
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_c615a937-bbb5-4c6a-b867-f96556264db0",
+          "rings": [
+            [
+              [
+                1252.383,
+                19.436,
+                -1785.064
+              ],
+              [
+                1251.685,
+                16.845,
+                -1784.098
+              ],
+              [
+                1251.942,
+                16.9,
+                -1783.943
+              ],
+              [
+                1252.63,
+                19.444,
+                -1784.89
+              ],
+              [
+                1257.73,
+                19.443,
+                -1781.194
+              ],
+              [
+                1257.038,
+                16.899,
+                -1780.25
+              ],
+              [
+                1257.28,
+                16.898,
+                -1780.074
+              ],
+              [
+                1257.971,
+                19.437,
+                -1781.016
+              ],
+              [
+                1263.046,
+                19.444,
+                -1777.343
+              ],
+              [
+                1262.772,
+                22.129,
+                -1779.068
+              ],
+              [
+                1254.125,
+                22.144,
+                -1785.341
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_a9fd9eea-484c-47a1-a292-744de856b47e",
+          "rings": [
+            [
+              [
+                1264.498,
+                19.444,
+                -1779.341
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ],
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ],
+              [
+                1254.125,
+                22.144,
+                -1785.341
+              ],
+              [
+                1262.772,
+                22.129,
+                -1779.068
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_150102cc-ec9a-4ee9-8252-755cd0aaf5d2",
+          "rings": [
+            [
+              [
+                1257.971,
+                5.385,
+                -1781.016
+              ],
+              [
+                1257.28,
+                5.385,
+                -1780.074
+              ],
+              [
+                1257.038,
+                5.385,
+                -1780.25
+              ],
+              [
+                1257.73,
+                5.385,
+                -1781.194
+              ],
+              [
+                1252.63,
+                5.385,
+                -1784.89
+              ],
+              [
+                1251.942,
+                5.385,
+                -1783.943
+              ],
+              [
+                1251.685,
+                5.385,
+                -1784.098
+              ],
+              [
+                1252.383,
+                5.385,
+                -1785.064
+              ],
+              [
+                1253.276,
+                5.385,
+                -1786.277
+              ],
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1263.918,
+                5.385,
+                -1778.542
+              ],
+              [
+                1263.046,
+                5.385,
+                -1777.343
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_4c7ef049-f47f-43b2-9349-2070d616c972",
+          "rings": [
+            [
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ],
+              [
+                1253.276,
+                19.455,
+                -1786.277
+              ],
+              [
+                1252.383,
+                19.436,
+                -1785.064
+              ],
+              [
+                1254.125,
+                22.144,
+                -1785.341
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_82845f05-8809-4939-a373-142b13ae4bae",
+          "rings": [
+            [
+              [
+                1257.73,
+                19.443,
+                -1781.194
+              ],
+              [
+                1252.63,
+                19.444,
+                -1784.89
+              ],
+              [
+                1252.63,
+                5.385,
+                -1784.89
+              ],
+              [
+                1257.73,
+                5.385,
+                -1781.194
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_b1e23de3-5837-4ecd-a5b3-b27fc6c4c8d4",
+          "rings": [
+            [
+              [
+                1257.971,
+                19.437,
+                -1781.016
+              ],
+              [
+                1257.28,
+                16.898,
+                -1780.074
+              ],
+              [
+                1257.28,
+                5.385,
+                -1780.074
+              ],
+              [
+                1257.971,
+                5.385,
+                -1781.016
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_61fb4a82-51ef-4f31-aeac-7e3cb0208994",
+          "rings": [
+            [
+              [
+                1251.685,
+                16.845,
+                -1784.098
+              ],
+              [
+                1252.383,
+                19.436,
+                -1785.064
+              ],
+              [
+                1252.383,
+                5.385,
+                -1785.064
+              ],
+              [
+                1251.685,
+                5.385,
+                -1784.098
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_273796b3-dc44-4c9d-8794-0f456a245837",
+          "rings": [
+            [
+              [
+                1252.63,
+                19.444,
+                -1784.89
+              ],
+              [
+                1251.942,
+                16.9,
+                -1783.943
+              ],
+              [
+                1251.942,
+                5.385,
+                -1783.943
+              ],
+              [
+                1252.63,
+                5.385,
+                -1784.89
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_e9afa36b-b5a7-4ec5-898a-a88bb407f8ae",
+          "rings": [
+            [
+              [
+                1251.942,
+                16.9,
+                -1783.943
+              ],
+              [
+                1251.685,
+                16.845,
+                -1784.098
+              ],
+              [
+                1251.685,
+                5.385,
+                -1784.098
+              ],
+              [
+                1251.942,
+                5.385,
+                -1783.943
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_c720186a-b549-43d4-bbdd-c04cf19e05c2",
+          "rings": [
+            [
+              [
+                1264.498,
+                19.444,
+                -1779.341
+              ],
+              [
+                1263.918,
+                19.444,
+                -1778.542
+              ],
+              [
+                1263.918,
+                5.385,
+                -1778.542
+              ],
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_d6a0f453-6dd9-4a50-ae39-792fd1e2ec8f",
+          "rings": [
+            [
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_fd804b11-9f5e-4235-924f-fdf632f28368",
+          "rings": [
+            [
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ],
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DZIzN6ndzIF",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 19.128,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_1909f58c-3add-426b-a433-427682f2cdc5",
+          "rings": [
+            [
+              [
+                1267.321,
+                19.128,
+                -1783.225
+              ],
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ],
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1267.321,
+                5.385,
+                -1783.225
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ec360a8f-abd5-412a-b0ff-fbf1825bda9f",
+          "rings": [
+            [
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ],
+              [
+                1267.321,
+                19.128,
+                -1783.225
+              ],
+              [
+                1267.321,
+                5.385,
+                -1783.225
+              ],
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_8c407033-ff55-4500-bcd6-31551397abba",
+          "rings": [
+            [
+              [
+                1267.321,
+                19.128,
+                -1783.225
+              ],
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_32be4d1a-5859-49a4-8809-a0221cb97037",
+          "rings": [
+            [
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ],
+              [
+                1267.321,
+                5.385,
+                -1783.225
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_fe3315f4-0a0d-4d3c-b854-69d02454c729",
+          "rings": [
+            [
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_2e0c5acf-28af-47fd-af86-6907244eaa4b",
+          "rings": [
+            [
+              [
+                1264.498,
+                5.385,
+                -1779.341
+              ],
+              [
+                1264.498,
+                19.128,
+                -1779.341
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DFBUV0a3Yvy",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 18.96,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_b0f2c1f8-84f3-4d57-a789-d3534609660e",
+          "rings": [
+            [
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ],
+              [
+                1276.928,
+                18.96,
+                -1799.525
+              ],
+              [
+                1267.692,
+                18.96,
+                -1806.121
+              ],
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f15e077e-9a3f-43ab-8a4c-7b76eb37ac7e",
+          "rings": [
+            [
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ],
+              [
+                1267.692,
+                18.96,
+                -1806.121
+              ],
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ],
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2519ae1f-07c7-4f50-915b-e17f7bb964a2",
+          "rings": [
+            [
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ],
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1267.692,
+                18.96,
+                -1806.121
+              ],
+              [
+                1276.928,
+                18.96,
+                -1799.525
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_4f1832a2-b2ee-4761-916a-f641e4b52ec7",
+          "rings": [
+            [
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ],
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_57883e1b-fb84-4e28-babd-71e4e251d618",
+          "rings": [
+            [
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ],
+              [
+                1276.928,
+                18.96,
+                -1799.525
+              ],
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_b67260c2-4c41-4950-a0f5-20334da2b525",
+          "rings": [
+            [
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ],
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ],
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_18829318-1070-4d72-89a0-754d3b37d8a8",
+          "rings": [
+            [
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ],
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_cb5660a3-5009-4f25-a599-10ef9106ff5e",
+          "rings": [
+            [
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DP0mSFkiBpw",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 16.682,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_8777f259-bce4-43db-bf0b-ced8648ff4da",
+          "rings": [
+            [
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ],
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ],
+              [
+                1273.897,
+                16.677,
+                -1803.795
+              ],
+              [
+                1279.383,
+                16.677,
+                -1799.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_25637aab-7834-4e53-aa51-c66a6ed84c02",
+          "rings": [
+            [
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1268.719,
+                16.677,
+                -1807.542
+              ],
+              [
+                1268.719,
+                5.385,
+                -1807.542
+              ],
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_df6c6a05-8fbc-40bb-ba97-3a144d19c494",
+          "rings": [
+            [
+              [
+                1273.906,
+                16.682,
+                -1803.808
+              ],
+              [
+                1273.897,
+                16.677,
+                -1803.795
+              ],
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ],
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_469576a0-79c0-46a4-99bb-f755ff542e30",
+          "rings": [
+            [
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_a25bbfa0-0805-4645-bc98-b882a675eebe",
+          "rings": [
+            [
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ],
+              [
+                1268.719,
+                5.385,
+                -1807.542
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ],
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_d5165148-7c3c-4e6d-b3e5-85165b51f681",
+          "rings": [
+            [
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ],
+              [
+                1279.383,
+                16.677,
+                -1799.825
+              ],
+              [
+                1273.897,
+                16.677,
+                -1803.795
+              ],
+              [
+                1273.906,
+                16.682,
+                -1803.808
+              ],
+              [
+                1268.719,
+                16.677,
+                -1807.542
+              ],
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_6928ec9f-29d7-4c78-b349-f6990f65641f",
+          "rings": [
+            [
+              [
+                1268.719,
+                16.677,
+                -1807.542
+              ],
+              [
+                1273.906,
+                16.682,
+                -1803.808
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ],
+              [
+                1268.719,
+                5.385,
+                -1807.542
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_aa1c4137-2631-4e3f-883b-89193b4d742a",
+          "rings": [
+            [
+              [
+                1279.383,
+                16.677,
+                -1799.825
+              ],
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ],
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_758b8bae-03dd-4753-bd33-80bf887ae343",
+          "rings": [
+            [
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1278.401,
+                5.385,
+                -1798.473
+              ],
+              [
+                1278.401,
+                16.147,
+                -1798.473
+              ],
+              [
+                1277.115,
+                16.144,
+                -1799.391
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_d15afb5e-7927-406f-9e22-25deb03534da",
+          "rings": [
+            [
+              [
+                1267.692,
+                16.12,
+                -1806.121
+              ],
+              [
+                1267.692,
+                5.385,
+                -1806.121
+              ],
+              [
+                1276.928,
+                5.385,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.016,
+                -1799.525
+              ],
+              [
+                1276.928,
+                16.143,
+                -1799.525
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_ff843b13-75f1-459f-a115-fa69f2b6758e",
+          "rings": [
+            [
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ],
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DcOobw3rsxA",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 13.759,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_d584bf73-1c9f-4c9d-b3d3-5d7d54f06df9",
+          "rings": [
+            [
+              [
+                1285.479,
+                13.759,
+                -1808.214
+              ],
+              [
+                1285.086,
+                13.759,
+                -1808.49
+              ],
+              [
+                1280.008,
+                13.759,
+                -1812.246
+              ],
+              [
+                1276.576,
+                13.759,
+                -1807.501
+              ],
+              [
+                1273.906,
+                13.759,
+                -1803.808
+              ],
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ],
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ],
+              [
+                1283.54,
+                13.759,
+                -1805.546
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_b96c8579-af20-42bc-b616-2e8ac2a030ad",
+          "rings": [
+            [
+              [
+                1285.086,
+                13.759,
+                -1808.49
+              ],
+              [
+                1285.479,
+                13.759,
+                -1808.214
+              ],
+              [
+                1285.479,
+                5.385,
+                -1808.214
+              ],
+              [
+                1285.086,
+                5.385,
+                -1808.49
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_501021c0-ce85-4540-a7c8-376eb3e3973b",
+          "rings": [
+            [
+              [
+                1283.54,
+                13.759,
+                -1805.546
+              ],
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1283.54,
+                5.385,
+                -1805.546
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_3485627d-3235-4d89-90a7-1963328e3cbe",
+          "rings": [
+            [
+              [
+                1280.008,
+                13.759,
+                -1812.246
+              ],
+              [
+                1285.086,
+                13.759,
+                -1808.49
+              ],
+              [
+                1285.086,
+                5.385,
+                -1808.49
+              ],
+              [
+                1280.008,
+                5.385,
+                -1812.246
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2da1431d-896d-4702-a7ce-e80178779a6d",
+          "rings": [
+            [
+              [
+                1285.479,
+                13.759,
+                -1808.214
+              ],
+              [
+                1283.54,
+                13.759,
+                -1805.546
+              ],
+              [
+                1283.54,
+                5.385,
+                -1805.546
+              ],
+              [
+                1285.479,
+                5.385,
+                -1808.214
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_be85b831-6244-44bb-9c27-d0ec58900251",
+          "rings": [
+            [
+              [
+                1276.576,
+                13.759,
+                -1807.501
+              ],
+              [
+                1280.008,
+                13.759,
+                -1812.246
+              ],
+              [
+                1280.008,
+                5.385,
+                -1812.246
+              ],
+              [
+                1276.576,
+                5.385,
+                -1807.501
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_266fa13d-8611-4ced-9c1f-b71d06e22a3c",
+          "rings": [
+            [
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ],
+              [
+                1273.906,
+                13.759,
+                -1803.808
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ],
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_b945f1cf-9d23-4e3d-9b93-8500f9e008c1",
+          "rings": [
+            [
+              [
+                1273.906,
+                13.759,
+                -1803.808
+              ],
+              [
+                1276.576,
+                13.759,
+                -1807.501
+              ],
+              [
+                1276.576,
+                5.385,
+                -1807.501
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_d9683f5c-b87e-4a1b-9774-0490a7a8c052",
+          "rings": [
+            [
+              [
+                1283.54,
+                5.385,
+                -1805.546
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ],
+              [
+                1273.906,
+                5.385,
+                -1803.808
+              ],
+              [
+                1276.576,
+                5.385,
+                -1807.501
+              ],
+              [
+                1280.008,
+                5.385,
+                -1812.246
+              ],
+              [
+                1285.086,
+                5.385,
+                -1808.49
+              ],
+              [
+                1285.479,
+                5.385,
+                -1808.214
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_e94298ee-b571-4a0d-8f0d-608d009cb438",
+          "rings": [
+            [
+              [
+                1273.897,
+                5.385,
+                -1803.795
+              ],
+              [
+                1279.383,
+                5.385,
+                -1799.825
+              ],
+              [
+                1279.383,
+                13.759,
+                -1799.825
+              ],
+              [
+                1273.897,
+                13.759,
+                -1803.795
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DdfSlnCFZW2",
+      "parentId": "DEBE01YYK0003tZM",
+      "role": "documentation-center",
+      "groundY": 5.385,
+      "topY": 21.762,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_3b2155e5-aab3-4f77-954f-baa76e68e328",
+          "rings": [
+            [
+              [
+                1267.571,
+                21.762,
+                -1786.615
+              ],
+              [
+                1265.877,
+                21.762,
+                -1784.278
+              ],
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ],
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ],
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0d6baeec-da05-420b-925b-534549b58c54",
+          "rings": [
+            [
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ],
+              [
+                1263.024,
+                21.762,
+                -1780.412
+              ],
+              [
+                1253.851,
+                21.762,
+                -1787.076
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_92c929ef-8eee-4134-8cc5-2dbd830b1a4b",
+          "rings": [
+            [
+              [
+                1257.558,
+                21.762,
+                -1792.175
+              ],
+              [
+                1258.39,
+                21.762,
+                -1793.319
+              ],
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ],
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ],
+              [
+                1257.558,
+                5.385,
+                -1792.175
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_818daeb2-fd31-4445-a3dd-1e5d4b64f1cb",
+          "rings": [
+            [
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1257.558,
+                5.385,
+                -1792.175
+              ],
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_675c69ec-aa34-4489-822c-4165710a00e0",
+          "rings": [
+            [
+              [
+                1253.851,
+                21.762,
+                -1787.076
+              ],
+              [
+                1257.558,
+                21.762,
+                -1792.175
+              ],
+              [
+                1257.558,
+                5.385,
+                -1792.175
+              ],
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_47f768a3-ea80-42e0-b160-32721606b7a7",
+          "rings": [
+            [
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ],
+              [
+                1265.877,
+                21.762,
+                -1784.278
+              ],
+              [
+                1263.024,
+                21.762,
+                -1780.412
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_b0591bb1-8d45-4db8-a71e-769d98ad5c82",
+          "rings": [
+            [
+              [
+                1263.024,
+                21.762,
+                -1780.412
+              ],
+              [
+                1265.877,
+                21.762,
+                -1784.278
+              ],
+              [
+                1267.571,
+                21.762,
+                -1786.615
+              ],
+              [
+                1258.39,
+                21.762,
+                -1793.319
+              ],
+              [
+                1257.558,
+                21.762,
+                -1792.175
+              ],
+              [
+                1253.851,
+                21.762,
+                -1787.076
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_b5721161-3fbe-4e19-964b-0107506ca373",
+          "rings": [
+            [
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ],
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ],
+              [
+                1258.39,
+                21.762,
+                -1793.319
+              ],
+              [
+                1267.571,
+                21.762,
+                -1786.615
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_658bde80-0bef-46f9-b622-07aa43d5d34a",
+          "rings": [
+            [
+              [
+                1267.571,
+                18.96,
+                -1786.615
+              ],
+              [
+                1267.571,
+                16.017,
+                -1786.615
+              ],
+              [
+                1267.571,
+                5.385,
+                -1786.615
+              ],
+              [
+                1258.39,
+                5.385,
+                -1793.319
+              ],
+              [
+                1258.39,
+                18.96,
+                -1793.319
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_05a55494-d7e4-45ce-a0f0-6b35331fb393",
+          "rings": [
+            [
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1265.877,
+                5.385,
+                -1784.278
+              ],
+              [
+                1265.877,
+                18.834,
+                -1784.278
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_25f93c59-0991-45b7-b267-0f7090c3da10",
+          "rings": [
+            [
+              [
+                1253.851,
+                5.385,
+                -1787.076
+              ],
+              [
+                1263.024,
+                5.385,
+                -1780.412
+              ],
+              [
+                1263.024,
+                18.828,
+                -1780.412
+              ],
+              [
+                1263.024,
+                19.444,
+                -1780.412
+              ],
+              [
+                1253.851,
+                19.444,
+                -1787.076
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DUuwexgpggF",
+      "parentId": "DEBE01YYK0003tGE",
+      "role": "viewing-tower",
+      "groundY": 6.349,
+      "topY": 25.567,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_fdd26b5d-d5c3-4f8b-8565-d88c75afeff4",
+          "rings": [
+            [
+              [
+                1280.812,
+                25.567,
+                -1815.44
+              ],
+              [
+                1280.819,
+                25.567,
+                -1814.942
+              ],
+              [
+                1280.819,
+                6.349,
+                -1814.942
+              ],
+              [
+                1280.812,
+                6.349,
+                -1815.44
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_4cc30aa0-50db-4811-abac-7c46256f8f27",
+          "rings": [
+            [
+              [
+                1280.301,
+                25.567,
+                -1813.557
+              ],
+              [
+                1277.407,
+                25.567,
+                -1809.549
+              ],
+              [
+                1277.407,
+                6.349,
+                -1809.549
+              ],
+              [
+                1280.301,
+                6.349,
+                -1813.557
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_d46b437a-65d9-44d7-8125-2d3c918076d1",
+          "rings": [
+            [
+              [
+                1280.256,
+                25.567,
+                -1816.81
+              ],
+              [
+                1280.526,
+                25.567,
+                -1816.39
+              ],
+              [
+                1280.526,
+                6.349,
+                -1816.39
+              ],
+              [
+                1280.256,
+                6.349,
+                -1816.81
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0add65ba-326c-428e-8417-9be09b0920fe",
+          "rings": [
+            [
+              [
+                1279.914,
+                25.567,
+                -1817.172
+              ],
+              [
+                1280.256,
+                25.567,
+                -1816.81
+              ],
+              [
+                1280.256,
+                6.349,
+                -1816.81
+              ],
+              [
+                1279.914,
+                6.349,
+                -1817.172
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_5df03b18-5319-44a1-8443-6dc6f4d54f8c",
+          "rings": [
+            [
+              [
+                1280.559,
+                6.349,
+                -1813.984
+              ],
+              [
+                1280.301,
+                6.349,
+                -1813.557
+              ],
+              [
+                1277.407,
+                6.349,
+                -1809.549
+              ],
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1273.068,
+                6.349,
+                -1812.694
+              ],
+              [
+                1275.949,
+                6.349,
+                -1816.705
+              ],
+              [
+                1276.32,
+                6.349,
+                -1817.127
+              ],
+              [
+                1276.77,
+                6.349,
+                -1817.463
+              ],
+              [
+                1277.28,
+                6.349,
+                -1817.697
+              ],
+              [
+                1277.828,
+                6.349,
+                -1817.821
+              ],
+              [
+                1278.389,
+                6.349,
+                -1817.828
+              ],
+              [
+                1278.94,
+                6.349,
+                -1817.718
+              ],
+              [
+                1279.456,
+                6.349,
+                -1817.496
+              ],
+              [
+                1279.914,
+                6.349,
+                -1817.172
+              ],
+              [
+                1280.256,
+                6.349,
+                -1816.81
+              ],
+              [
+                1280.526,
+                6.349,
+                -1816.39
+              ],
+              [
+                1280.713,
+                6.349,
+                -1815.928
+              ],
+              [
+                1280.812,
+                6.349,
+                -1815.44
+              ],
+              [
+                1280.819,
+                6.349,
+                -1814.942
+              ],
+              [
+                1280.733,
+                6.349,
+                -1814.45
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_cd2c51ff-bed1-4ec5-8d69-482f6ecd829e",
+          "rings": [
+            [
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ],
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ],
+              [
+                1277.026,
+                25.567,
+                -1809.825
+              ],
+              [
+                1275.998,
+                25.567,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_680fb436-2b45-449b-88b8-90ba2615a535",
+          "rings": [
+            [
+              [
+                1279.456,
+                25.567,
+                -1817.496
+              ],
+              [
+                1279.914,
+                25.567,
+                -1817.172
+              ],
+              [
+                1279.914,
+                6.349,
+                -1817.172
+              ],
+              [
+                1279.456,
+                6.349,
+                -1817.496
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2a05369a-ebb6-4dd9-b525-6078ca56254c",
+          "rings": [
+            [
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1276.145,
+                25.567,
+                -1810.772
+              ],
+              [
+                1274.623,
+                25.567,
+                -1811.876
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_e7e0db60-b446-4944-9193-7ec4373dbd2f",
+          "rings": [
+            [
+              [
+                1273.068,
+                25.567,
+                -1812.694
+              ],
+              [
+                1275.949,
+                25.567,
+                -1816.705
+              ],
+              [
+                1275.949,
+                6.349,
+                -1816.705
+              ],
+              [
+                1273.068,
+                6.349,
+                -1812.694
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0e352235-f5ca-4d69-9c6a-1d112e582910",
+          "rings": [
+            [
+              [
+                1276.32,
+                25.567,
+                -1817.127
+              ],
+              [
+                1276.77,
+                25.567,
+                -1817.463
+              ],
+              [
+                1276.77,
+                6.349,
+                -1817.463
+              ],
+              [
+                1276.32,
+                6.349,
+                -1817.127
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2a05bbd3-2514-43b0-b96b-01f86e1e558f",
+          "rings": [
+            [
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1274.623,
+                25.567,
+                -1811.876
+              ],
+              [
+                1274.477,
+                25.567,
+                -1811.673
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_c988f847-3805-4ccc-bb2c-a9ccbeb1d07f",
+          "rings": [
+            [
+              [
+                1280.733,
+                25.567,
+                -1814.45
+              ],
+              [
+                1280.559,
+                25.567,
+                -1813.984
+              ],
+              [
+                1280.559,
+                6.349,
+                -1813.984
+              ],
+              [
+                1280.733,
+                6.349,
+                -1814.45
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_eaab3acc-75dd-4242-94b7-528c2ebb84ec",
+          "rings": [
+            [
+              [
+                1275.949,
+                25.567,
+                -1816.705
+              ],
+              [
+                1276.32,
+                25.567,
+                -1817.127
+              ],
+              [
+                1276.32,
+                6.349,
+                -1817.127
+              ],
+              [
+                1275.949,
+                6.349,
+                -1816.705
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_eaa59c7d-3f27-4c1a-8cc1-1320c0594924",
+          "rings": [
+            [
+              [
+                1278.389,
+                25.567,
+                -1817.828
+              ],
+              [
+                1278.94,
+                25.567,
+                -1817.718
+              ],
+              [
+                1278.94,
+                6.349,
+                -1817.718
+              ],
+              [
+                1278.389,
+                6.349,
+                -1817.828
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_589c21b0-25fe-4131-a7ee-95f0d8b0b6c0",
+          "rings": [
+            [
+              [
+                1276.77,
+                25.567,
+                -1817.463
+              ],
+              [
+                1277.28,
+                25.567,
+                -1817.697
+              ],
+              [
+                1277.28,
+                6.349,
+                -1817.697
+              ],
+              [
+                1276.77,
+                6.349,
+                -1817.463
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_d175273c-be13-4bd6-bad1-a93aae2cc730",
+          "rings": [
+            [
+              [
+                1280.526,
+                25.567,
+                -1816.39
+              ],
+              [
+                1280.713,
+                25.567,
+                -1815.928
+              ],
+              [
+                1280.713,
+                6.349,
+                -1815.928
+              ],
+              [
+                1280.526,
+                6.349,
+                -1816.39
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_07af0e8d-3864-4da4-9d31-6d5be4b53052",
+          "rings": [
+            [
+              [
+                1273.449,
+                25.567,
+                -1812.418
+              ],
+              [
+                1273.068,
+                25.567,
+                -1812.694
+              ],
+              [
+                1273.068,
+                6.349,
+                -1812.694
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ea58b469-ba7c-4c8a-adb3-e24604ccf305",
+          "rings": [
+            [
+              [
+                1280.819,
+                25.567,
+                -1814.942
+              ],
+              [
+                1280.733,
+                25.567,
+                -1814.45
+              ],
+              [
+                1280.733,
+                6.349,
+                -1814.45
+              ],
+              [
+                1280.819,
+                6.349,
+                -1814.942
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_c57c5504-55c8-41d6-b2d8-85e117532cb2",
+          "rings": [
+            [
+              [
+                1277.28,
+                25.567,
+                -1817.697
+              ],
+              [
+                1277.828,
+                25.567,
+                -1817.821
+              ],
+              [
+                1277.828,
+                6.349,
+                -1817.821
+              ],
+              [
+                1277.28,
+                6.349,
+                -1817.697
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_e8870a53-5ea1-4c38-9f26-9cb9a41106e6",
+          "rings": [
+            [
+              [
+                1280.713,
+                25.567,
+                -1815.928
+              ],
+              [
+                1280.812,
+                25.567,
+                -1815.44
+              ],
+              [
+                1280.812,
+                6.349,
+                -1815.44
+              ],
+              [
+                1280.713,
+                6.349,
+                -1815.928
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_503d9442-8625-4ac7-8a8b-72e9ec52f1b0",
+          "rings": [
+            [
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ],
+              [
+                1274.477,
+                25.567,
+                -1811.673
+              ],
+              [
+                1273.449,
+                25.567,
+                -1812.418
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_aa1b5ca2-7248-406e-9481-33bb4bd876b6",
+          "rings": [
+            [
+              [
+                1277.407,
+                25.567,
+                -1809.549
+              ],
+              [
+                1277.026,
+                25.567,
+                -1809.825
+              ],
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ],
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ],
+              [
+                1277.407,
+                6.349,
+                -1809.549
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_3deb9695-22a0-4e49-8b12-9bfa4264beea",
+          "rings": [
+            [
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ],
+              [
+                1275.998,
+                25.567,
+                -1810.57
+              ],
+              [
+                1276.145,
+                25.567,
+                -1810.772
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_137b993c-63e7-452d-bbf0-81a84526a338",
+          "rings": [
+            [
+              [
+                1277.828,
+                25.567,
+                -1817.821
+              ],
+              [
+                1278.389,
+                25.567,
+                -1817.828
+              ],
+              [
+                1278.389,
+                6.349,
+                -1817.828
+              ],
+              [
+                1277.828,
+                6.349,
+                -1817.821
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0b571393-de9e-4da6-8d83-78ddf91270c5",
+          "rings": [
+            [
+              [
+                1278.94,
+                25.567,
+                -1817.718
+              ],
+              [
+                1279.456,
+                25.567,
+                -1817.496
+              ],
+              [
+                1279.456,
+                6.349,
+                -1817.496
+              ],
+              [
+                1278.94,
+                6.349,
+                -1817.718
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_4698e753-d3dc-4849-b30b-75923df8e8f9",
+          "rings": [
+            [
+              [
+                1280.733,
+                25.567,
+                -1814.45
+              ],
+              [
+                1280.819,
+                25.567,
+                -1814.942
+              ],
+              [
+                1280.812,
+                25.567,
+                -1815.44
+              ],
+              [
+                1280.713,
+                25.567,
+                -1815.928
+              ],
+              [
+                1280.526,
+                25.567,
+                -1816.39
+              ],
+              [
+                1280.256,
+                25.567,
+                -1816.81
+              ],
+              [
+                1279.914,
+                25.567,
+                -1817.172
+              ],
+              [
+                1279.456,
+                25.567,
+                -1817.496
+              ],
+              [
+                1278.94,
+                25.567,
+                -1817.718
+              ],
+              [
+                1278.389,
+                25.567,
+                -1817.828
+              ],
+              [
+                1277.828,
+                25.567,
+                -1817.821
+              ],
+              [
+                1277.28,
+                25.567,
+                -1817.697
+              ],
+              [
+                1276.77,
+                25.567,
+                -1817.463
+              ],
+              [
+                1276.32,
+                25.567,
+                -1817.127
+              ],
+              [
+                1275.949,
+                25.567,
+                -1816.705
+              ],
+              [
+                1273.068,
+                25.567,
+                -1812.694
+              ],
+              [
+                1273.449,
+                25.567,
+                -1812.418
+              ],
+              [
+                1274.477,
+                25.567,
+                -1811.673
+              ],
+              [
+                1274.623,
+                25.567,
+                -1811.876
+              ],
+              [
+                1276.145,
+                25.567,
+                -1810.772
+              ],
+              [
+                1275.998,
+                25.567,
+                -1810.57
+              ],
+              [
+                1277.026,
+                25.567,
+                -1809.825
+              ],
+              [
+                1277.407,
+                25.567,
+                -1809.549
+              ],
+              [
+                1280.301,
+                25.567,
+                -1813.557
+              ],
+              [
+                1280.559,
+                25.567,
+                -1813.984
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f4adffae-9e1c-456b-a355-0c7ba202b07e",
+          "rings": [
+            [
+              [
+                1280.559,
+                25.567,
+                -1813.984
+              ],
+              [
+                1280.301,
+                25.567,
+                -1813.557
+              ],
+              [
+                1280.301,
+                6.349,
+                -1813.557
+              ],
+              [
+                1280.559,
+                6.349,
+                -1813.984
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_b0529ea5-55c1-4345-aace-78146dd53bf1",
+          "rings": [
+            [
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_1339b009-765f-4472-a938-889cb88eb0f1",
+          "rings": [
+            [
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ],
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_13fb0853-7171-45ce-bb33-5723bf15b495",
+          "rings": [
+            [
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_5c0116de-beb2-47f3-b7ac-30a03297b28c",
+          "rings": [
+            [
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_123e654c-33d7-4a2f-9437-249c4b53496e",
+          "rings": [
+            [
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DDwiIXwBybz",
+      "parentId": "DEBE01YYK0003tGE",
+      "role": "viewing-tower",
+      "groundY": 6.349,
+      "topY": 9.554,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_8a596ab2-8ea4-41c3-9140-2e56569fe3bf",
+          "rings": [
+            [
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_17bf34bc-e809-44af-ac7f-7bcad0a6aa85",
+          "rings": [
+            [
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_e732b55f-4042-4d60-8647-f45a9d1233d7",
+          "rings": [
+            [
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_a7a6ed01-9b55-4b14-a6a2-5629cf89fcec",
+          "rings": [
+            [
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_3bf402d0-f97e-48c0-9ecf-2783a54e3977",
+          "rings": [
+            [
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_3ab14177-203b-45a9-aaa9-70e05b8bd7e6",
+          "rings": [
+            [
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_6a3c4318-63e8-4df3-867a-e25667186f2d",
+          "rings": [
+            [
+              [
+                1276.145,
+                6.349,
+                -1810.772
+              ],
+              [
+                1274.623,
+                6.349,
+                -1811.876
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_5b423390-5313-426f-88dc-772e1a83851c",
+          "rings": [
+            [
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DSdFPqNkfxG",
+      "parentId": "DEBE01YYK0003tGE",
+      "role": "viewing-tower",
+      "groundY": 6.349,
+      "topY": 14.296,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_cb7fcb3b-71bc-4589-a61d-49e094823048",
+          "rings": [
+            [
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1274.736,
+                14.296,
+                -1808.832
+              ],
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2d4c2ca7-79ac-4866-b218-66328d59fe5c",
+          "rings": [
+            [
+              [
+                1275.774,
+                14.296,
+                -1808.081
+              ],
+              [
+                1276.576,
+                14.296,
+                -1807.501
+              ],
+              [
+                1276.576,
+                6.349,
+                -1807.501
+              ],
+              [
+                1275.774,
+                6.349,
+                -1808.081
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_bd6b22ed-3121-4554-97cd-079b7c834ea7",
+          "rings": [
+            [
+              [
+                1272.184,
+                14.296,
+                -1810.678
+              ],
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1272.184,
+                6.349,
+                -1810.678
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f6d631c0-53e1-408a-a378-ea844cf39544",
+          "rings": [
+            [
+              [
+                1273.906,
+                14.296,
+                -1803.808
+              ],
+              [
+                1268.719,
+                14.296,
+                -1807.542
+              ],
+              [
+                1268.719,
+                6.349,
+                -1807.542
+              ],
+              [
+                1273.906,
+                6.349,
+                -1803.808
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_7b38fccf-6260-49f0-8d9f-285bb51496ef",
+          "rings": [
+            [
+              [
+                1268.719,
+                6.349,
+                -1807.542
+              ],
+              [
+                1269.146,
+                6.349,
+                -1808.132
+              ],
+              [
+                1269.684,
+                6.349,
+                -1807.744
+              ],
+              [
+                1271.973,
+                6.349,
+                -1810.831
+              ],
+              [
+                1272.184,
+                6.349,
+                -1810.678
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ],
+              [
+                1275.774,
+                6.349,
+                -1808.081
+              ],
+              [
+                1276.576,
+                6.349,
+                -1807.501
+              ],
+              [
+                1273.906,
+                6.349,
+                -1803.808
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_03389e8a-c681-42eb-977d-e28d92b01707",
+          "rings": [
+            [
+              [
+                1269.146,
+                14.296,
+                -1808.132
+              ],
+              [
+                1269.684,
+                14.296,
+                -1807.744
+              ],
+              [
+                1269.684,
+                6.349,
+                -1807.744
+              ],
+              [
+                1269.146,
+                6.349,
+                -1808.132
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_63940dc7-71dd-458c-aa8a-78b182901626",
+          "rings": [
+            [
+              [
+                1276.576,
+                14.296,
+                -1807.501
+              ],
+              [
+                1273.906,
+                14.296,
+                -1803.808
+              ],
+              [
+                1273.906,
+                6.349,
+                -1803.808
+              ],
+              [
+                1276.576,
+                6.349,
+                -1807.501
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_15a94c0f-11e1-46b2-867d-7ff3e286c67c",
+          "rings": [
+            [
+              [
+                1268.719,
+                14.296,
+                -1807.542
+              ],
+              [
+                1269.146,
+                14.296,
+                -1808.132
+              ],
+              [
+                1269.146,
+                6.349,
+                -1808.132
+              ],
+              [
+                1268.719,
+                6.349,
+                -1807.542
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ef838463-4574-4325-978a-177b7dbae273",
+          "rings": [
+            [
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ],
+              [
+                1275.774,
+                14.296,
+                -1808.081
+              ],
+              [
+                1275.774,
+                6.349,
+                -1808.081
+              ],
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_5d770a2e-1b6f-4b1e-8fe7-d9ec4025d62d",
+          "rings": [
+            [
+              [
+                1273.906,
+                14.296,
+                -1803.808
+              ],
+              [
+                1276.576,
+                14.296,
+                -1807.501
+              ],
+              [
+                1275.774,
+                14.296,
+                -1808.081
+              ],
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ],
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ],
+              [
+                1274.736,
+                14.296,
+                -1808.832
+              ],
+              [
+                1273.213,
+                14.296,
+                -1809.934
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ],
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ],
+              [
+                1272.184,
+                14.296,
+                -1810.678
+              ],
+              [
+                1271.973,
+                14.296,
+                -1810.831
+              ],
+              [
+                1269.684,
+                14.296,
+                -1807.744
+              ],
+              [
+                1269.146,
+                14.296,
+                -1808.132
+              ],
+              [
+                1268.719,
+                14.296,
+                -1807.542
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_85a8f15b-1a54-4754-b2e7-7405ae9bf0c5",
+          "rings": [
+            [
+              [
+                1269.684,
+                14.296,
+                -1807.744
+              ],
+              [
+                1271.973,
+                14.296,
+                -1810.831
+              ],
+              [
+                1271.973,
+                6.349,
+                -1810.831
+              ],
+              [
+                1269.684,
+                6.349,
+                -1807.744
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_a30b3fc3-155e-439e-8b16-2f71436fbb93",
+          "rings": [
+            [
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ],
+              [
+                1273.213,
+                14.296,
+                -1809.934
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_5f69b301-8076-44f2-bd2a-77043d0ebc7d",
+          "rings": [
+            [
+              [
+                1271.973,
+                14.296,
+                -1810.831
+              ],
+              [
+                1272.184,
+                14.296,
+                -1810.678
+              ],
+              [
+                1272.184,
+                6.349,
+                -1810.678
+              ],
+              [
+                1271.973,
+                6.349,
+                -1810.831
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_d81f2e06-5259-4f79-93a8-4d8a963eaff7",
+          "rings": [
+            [
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1273.213,
+                14.296,
+                -1809.934
+              ],
+              [
+                1274.736,
+                14.296,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_f1a491d1-2984-488d-9b06-0d181dc5b742",
+          "rings": [
+            [
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_b3a1b2d0-9630-43c6-9d39-a495740f6f4f",
+          "rings": [
+            [
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_79a78899-fb6b-4ed1-9e60-02f4a8e3bfed",
+          "rings": [
+            [
+              [
+                1274.477,
+                6.349,
+                -1811.673
+              ],
+              [
+                1273.449,
+                6.349,
+                -1812.418
+              ],
+              [
+                1273.449,
+                14.296,
+                -1812.418
+              ],
+              [
+                1274.477,
+                14.296,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_bf928c24-6680-463c-a0d1-89ff1b9dbb0c",
+          "rings": [
+            [
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1274.736,
+                6.349,
+                -1808.832
+              ],
+              [
+                1273.213,
+                6.349,
+                -1809.934
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_b30974aa-ded1-419b-97eb-ade8bd38e11a",
+          "rings": [
+            [
+              [
+                1277.026,
+                6.349,
+                -1809.825
+              ],
+              [
+                1275.998,
+                6.349,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                14.296,
+                -1810.57
+              ],
+              [
+                1277.026,
+                14.296,
+                -1809.825
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DNRkiVnaaGo",
+      "parentId": "DEBE01YYK0003yxD",
+      "role": "visitor-center",
+      "groundY": 5.204,
+      "topY": 12.965,
+      "sourceDatumNHN": 35.302,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_65c3195b-eae2-431a-b021-7df29ebe583d",
+          "rings": [
+            [
+              [
+                1137.648,
+                12.965,
+                -1636.65
+              ],
+              [
+                1134.271,
+                12.965,
+                -1629.465
+              ],
+              [
+                1134.271,
+                5.204,
+                -1629.465
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ],
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_4d42ea32-fedc-43af-b39e-c6d8cfa88cbf",
+          "rings": [
+            [
+              [
+                1110.877,
+                12.965,
+                -1625.45
+              ],
+              [
+                1112.535,
+                12.965,
+                -1628.978
+              ],
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ],
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ],
+              [
+                1110.877,
+                5.204,
+                -1625.45
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ffd8f1dc-77cc-40b4-bb44-5431d1b42c89",
+          "rings": [
+            [
+              [
+                1134.271,
+                12.965,
+                -1629.465
+              ],
+              [
+                1128.508,
+                12.965,
+                -1617.185
+              ],
+              [
+                1128.508,
+                5.204,
+                -1617.185
+              ],
+              [
+                1134.271,
+                5.204,
+                -1629.465
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_7cfeb418-a5ae-4b7a-b160-3662403c4d77",
+          "rings": [
+            [
+              [
+                1117.824,
+                12.965,
+                -1622.188
+              ],
+              [
+                1110.877,
+                12.965,
+                -1625.45
+              ],
+              [
+                1110.877,
+                5.204,
+                -1625.45
+              ],
+              [
+                1117.824,
+                5.204,
+                -1622.188
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_ff5b4d97-3695-4ab3-a427-71a981c31dfe",
+          "rings": [
+            [
+              [
+                1134.271,
+                12.965,
+                -1629.465
+              ],
+              [
+                1137.648,
+                12.965,
+                -1636.65
+              ],
+              [
+                1120.037,
+                12.965,
+                -1644.944
+              ],
+              [
+                1112.535,
+                12.965,
+                -1628.978
+              ],
+              [
+                1110.877,
+                12.965,
+                -1625.45
+              ],
+              [
+                1117.824,
+                12.965,
+                -1622.188
+              ],
+              [
+                1128.508,
+                12.965,
+                -1617.185
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_1e12dbbe-cc9d-4081-8ab7-90b48172d0b0",
+          "rings": [
+            [
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ],
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ],
+              [
+                1120.037,
+                12.965,
+                -1644.944
+              ],
+              [
+                1137.648,
+                12.965,
+                -1636.65
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_3b329af5-bf12-4574-9dde-30d494e5507b",
+          "rings": [
+            [
+              [
+                1128.508,
+                5.204,
+                -1617.185
+              ],
+              [
+                1117.824,
+                5.204,
+                -1622.188
+              ],
+              [
+                1110.877,
+                5.204,
+                -1625.45
+              ],
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ],
+              [
+                1134.271,
+                5.204,
+                -1629.465
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_060cfd92-bb83-4aa2-9e2d-24f787f32bae",
+          "rings": [
+            [
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ],
+              [
+                1112.535,
+                12.965,
+                -1628.978
+              ],
+              [
+                1120.037,
+                12.965,
+                -1644.944
+              ],
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_4908732e-7909-46f8-8061-5b773a606979",
+          "rings": [
+            [
+              [
+                1128.508,
+                12.965,
+                -1617.185
+              ],
+              [
+                1117.824,
+                12.965,
+                -1622.188
+              ],
+              [
+                1117.824,
+                5.204,
+                -1622.188
+              ],
+              [
+                1128.508,
+                5.204,
+                -1617.185
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_666a66f5-2a0d-46fc-8939-d023266a0e94",
+          "rings": [
+            [
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_d23a2f96-164a-48d0-8723-c4f829115833",
+          "rings": [
+            [
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ],
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DTnxW0VM5sD",
+      "parentId": "DEBE01YYK0003yxD",
+      "role": "visitor-center",
+      "groundY": 5.204,
+      "topY": 9.629,
+      "sourceDatumNHN": 35.302,
+      "surfaces": [
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_828f3f7d-2ef9-4bb6-b07d-3a5b76c49f7f",
+          "rings": [
+            [
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1124.178,
+                5.204,
+                -1648.165
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_45dc2934-2776-4700-8c37-720de9e16f48",
+          "rings": [
+            [
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ],
+              [
+                1124.178,
+                9.092,
+                -1648.165
+              ],
+              [
+                1124.178,
+                5.204,
+                -1648.165
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_f36ab869-0261-4733-8aaa-80bcdc726df3",
+          "rings": [
+            [
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ],
+              [
+                1124.178,
+                9.092,
+                -1648.165
+              ],
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_17c0aa3e-532d-4918-a224-efd8b6c4a566",
+          "rings": [
+            [
+              [
+                1124.178,
+                9.092,
+                -1648.165
+              ],
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ],
+              [
+                1124.178,
+                5.204,
+                -1648.165
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_36f26c3d-55fa-488a-8d37-a5c135d19163",
+          "rings": [
+            [
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1137.648,
+                5.204,
+                -1636.65
+              ],
+              [
+                1137.648,
+                9.629,
+                -1636.65
+              ],
+              [
+                1120.037,
+                9.629,
+                -1644.944
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DFdCsHhE85H",
+      "parentId": "DEBE01YYK0003yxD",
+      "role": "visitor-center",
+      "groundY": 5.204,
+      "topY": 9.385,
+      "sourceDatumNHN": 35.302,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f040bb48-4ce6-4e99-a086-0358936154cd",
+          "rings": [
+            [
+              [
+                1107.634,
+                9.385,
+                -1635.291
+              ],
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1107.634,
+                5.204,
+                -1635.291
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_1c0b5eae-8bea-4e1a-943e-6844573a92e4",
+          "rings": [
+            [
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ],
+              [
+                1107.634,
+                9.385,
+                -1635.291
+              ],
+              [
+                1107.634,
+                5.204,
+                -1635.291
+              ],
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_9d9f9b4a-9885-4918-a47a-445266e4e073",
+          "rings": [
+            [
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1107.634,
+                9.385,
+                -1635.291
+              ],
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_918b1ec9-e60c-4120-99df-3410a638812c",
+          "rings": [
+            [
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ],
+              [
+                1107.634,
+                5.204,
+                -1635.291
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_4d43ce6e-fdee-41a8-ba39-abebd43fca05",
+          "rings": [
+            [
+              [
+                1112.534,
+                5.204,
+                -1628.978
+              ],
+              [
+                1120.037,
+                5.204,
+                -1644.944
+              ],
+              [
+                1120.037,
+                9.385,
+                -1644.944
+              ],
+              [
+                1112.534,
+                9.385,
+                -1628.978
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DWUo3d0eFLW",
+      "parentId": "DEBE00YY2hR0005R",
+      "role": "viewing-tower",
+      "groundY": 6.363,
+      "topY": 9.524,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_bd7c9397-adf0-4ba0-b14e-704e29aa16cb",
+          "rings": [
+            [
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ],
+              [
+                1277.407,
+                9.524,
+                -1809.549
+              ],
+              [
+                1277.407,
+                6.363,
+                -1809.549
+              ],
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_4c2c62fb-c525-4ed6-bbcc-f3e7e492d686",
+          "rings": [
+            [
+              [
+                1277.407,
+                9.524,
+                -1809.549
+              ],
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ],
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ],
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0d4d25f8-4e85-4dc9-9b44-fe8b60580ac7",
+          "rings": [
+            [
+              [
+                1277.407,
+                9.524,
+                -1809.549
+              ],
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ],
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1277.407,
+                6.363,
+                -1809.549
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_ce49e31a-1c10-4500-9aa7-7e627745802f",
+          "rings": [
+            [
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ],
+              [
+                1277.407,
+                6.363,
+                -1809.549
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_5a14315a-be29-4529-8b3c-ba407ce948d7",
+          "rings": [
+            [
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ],
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_8d34572b-3fd0-4e3e-8c8d-b8dbd307e4b3",
+          "rings": [
+            [
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ],
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ],
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DROvqc43xtQ",
+      "parentId": "DEBE00YY2hR0005R",
+      "role": "viewing-tower",
+      "groundY": 6.363,
+      "topY": 25.739,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_b24eaa1f-f448-42a2-b0ab-86df4bfe06c1",
+          "rings": [
+            [
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ],
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ],
+              [
+                1273.449,
+                25.739,
+                -1812.418
+              ],
+              [
+                1272.184,
+                25.739,
+                -1810.678
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_a5da5b00-e816-4324-aa61-155b035fb5d5",
+          "rings": [
+            [
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ],
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ],
+              [
+                1269.684,
+                25.739,
+                -1807.744
+              ],
+              [
+                1269.571,
+                25.739,
+                -1807.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_64a06083-93a0-4755-a61d-e56febb48caa",
+          "rings": [
+            [
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1273.068,
+                6.363,
+                -1812.694
+              ],
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ],
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_e2fcfce1-dad3-4739-83f8-90cc694d3588",
+          "rings": [
+            [
+              [
+                1273.068,
+                25.739,
+                -1812.694
+              ],
+              [
+                1273.449,
+                25.739,
+                -1812.418
+              ],
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ],
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ],
+              [
+                1273.068,
+                6.363,
+                -1812.694
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_891de66f-ed79-4063-98fa-664a63b8c940",
+          "rings": [
+            [
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ],
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ],
+              [
+                1271.973,
+                25.739,
+                -1810.831
+              ],
+              [
+                1269.684,
+                25.739,
+                -1807.744
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_114d2ae9-fb6e-4494-b136-b0ebe7f96274",
+          "rings": [
+            [
+              [
+                1269.571,
+                25.739,
+                -1807.825
+              ],
+              [
+                1273.068,
+                25.739,
+                -1812.694
+              ],
+              [
+                1273.068,
+                6.363,
+                -1812.694
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_bc84ed61-da9b-4108-986d-1b15dadae93b",
+          "rings": [
+            [
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ],
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ],
+              [
+                1272.184,
+                25.739,
+                -1810.678
+              ],
+              [
+                1271.973,
+                25.739,
+                -1810.831
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_f5593ab6-f9e1-4463-adee-6b83255fcb0f",
+          "rings": [
+            [
+              [
+                1272.184,
+                25.739,
+                -1810.678
+              ],
+              [
+                1273.449,
+                25.739,
+                -1812.418
+              ],
+              [
+                1273.068,
+                25.739,
+                -1812.694
+              ],
+              [
+                1269.571,
+                25.739,
+                -1807.825
+              ],
+              [
+                1269.684,
+                25.739,
+                -1807.744
+              ],
+              [
+                1271.973,
+                25.739,
+                -1810.831
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_16da52a9-1869-41b9-94cc-b57cf482b9d6",
+          "rings": [
+            [
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ],
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_7d114e3a-f222-4a34-b226-941332582017",
+          "rings": [
+            [
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_47bb9bc6-d689-456c-aa96-d9838578c214",
+          "rings": [
+            [
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ],
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ],
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_939d44ad-b13c-4eb6-80dd-d6ce364c7dee",
+          "rings": [
+            [
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ],
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ],
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ],
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DvvwyHicQ8z",
+      "parentId": "DEBE00YY2hR0005R",
+      "role": "viewing-tower",
+      "groundY": 6.363,
+      "topY": 9.554,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_ed515260-761e-46d0-85a4-f4f063526ab5",
+          "rings": [
+            [
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_c16c2605-44e9-495a-a1a0-6be1a92a4b3a",
+          "rings": [
+            [
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ],
+              [
+                1274.623,
+                6.363,
+                -1811.876
+              ],
+              [
+                1276.145,
+                6.363,
+                -1810.772
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_625d0aaf-d359-4faf-9ed2-da18bc5f7a3e",
+          "rings": [
+            [
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1276.145,
+                6.363,
+                -1810.772
+              ],
+              [
+                1274.623,
+                6.363,
+                -1811.876
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_4cc72430-f0d7-4db4-86c2-cff4acdabfca",
+          "rings": [
+            [
+              [
+                1276.145,
+                9.554,
+                -1810.772
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ],
+              [
+                1276.145,
+                6.363,
+                -1810.772
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_188ab03c-84bf-48e7-b457-cdf52c324708",
+          "rings": [
+            [
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.623,
+                9.554,
+                -1811.876
+              ],
+              [
+                1274.623,
+                6.363,
+                -1811.876
+              ],
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_0c201015-a500-4fcf-b83e-095607d3e7e0",
+          "rings": [
+            [
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_ca48f2c6-3f52-421f-a8ff-862f494f6528",
+          "rings": [
+            [
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ],
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_1e8f3aad-cee2-441d-a626-2663437ebf1d",
+          "rings": [
+            [
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DGpD0gywPeN",
+      "parentId": "DEBE00YY2hR0005R",
+      "role": "viewing-tower",
+      "groundY": 6.363,
+      "topY": 25.644,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_e366f0e8-75b3-4743-9977-9d4acd1436e8",
+          "rings": [
+            [
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ],
+              [
+                1272.469,
+                6.363,
+                -1802.711
+              ],
+              [
+                1268.125,
+                6.363,
+                -1805.812
+              ],
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_8293de52-27ec-42c1-a854-18e52f681f1e",
+          "rings": [
+            [
+              [
+                1268.125,
+                25.644,
+                -1805.812
+              ],
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ],
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ],
+              [
+                1268.125,
+                6.363,
+                -1805.812
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_8a5c4081-6860-442a-9eaa-749ff952a4bd",
+          "rings": [
+            [
+              [
+                1272.469,
+                25.643,
+                -1802.711
+              ],
+              [
+                1268.125,
+                25.644,
+                -1805.812
+              ],
+              [
+                1268.125,
+                6.363,
+                -1805.812
+              ],
+              [
+                1272.469,
+                6.363,
+                -1802.711
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_5d559104-3917-47ff-898e-76ec43aee103",
+          "rings": [
+            [
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ],
+              [
+                1268.125,
+                25.644,
+                -1805.812
+              ],
+              [
+                1272.469,
+                25.643,
+                -1802.711
+              ],
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_2d164a5f-71bb-4c09-beb6-0eee0e2283da",
+          "rings": [
+            [
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ],
+              [
+                1272.469,
+                25.643,
+                -1802.711
+              ],
+              [
+                1272.469,
+                6.363,
+                -1802.711
+              ],
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_4811b891-38c3-4fab-9557-d7630596206b",
+          "rings": [
+            [
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ],
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ],
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ],
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEBE3DKJ3CjU1nzg",
+      "parentId": "DEBE00YY2hR0005R",
+      "role": "viewing-tower",
+      "groundY": 6.363,
+      "topY": 25.602,
+      "sourceDatumNHN": 36.556,
+      "surfaces": [
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_f4f1ade9-4cd1-4ed4-8eaf-9eec9ffda1b9",
+          "rings": [
+            [
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ],
+              [
+                1274.477,
+                25.602,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ],
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_3e1a433a-6949-44af-a67e-fb1c501ef368",
+          "rings": [
+            [
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1273.213,
+                25.602,
+                -1809.934
+              ],
+              [
+                1274.736,
+                25.602,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_183a8016-50db-4262-a913-3c8c889d35ec",
+          "rings": [
+            [
+              [
+                1275.998,
+                25.602,
+                -1810.57
+              ],
+              [
+                1277.026,
+                25.602,
+                -1809.825
+              ],
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ],
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ],
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_19b6e90b-bd2c-4729-bdc0-0495c138ba0e",
+          "rings": [
+            [
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ],
+              [
+                1274.477,
+                25.602,
+                -1811.673
+              ],
+              [
+                1273.213,
+                25.602,
+                -1809.934
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_64ddb130-4eee-4727-8cad-e61f7addbe27",
+          "rings": [
+            [
+              [
+                1269.147,
+                25.602,
+                -1807.234
+              ],
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ],
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_ed2d0b35-7971-40b9-adb3-c0619cc0b7f3",
+          "rings": [
+            [
+              [
+                1276.15,
+                25.602,
+                -1807.809
+              ],
+              [
+                1273.482,
+                25.602,
+                -1804.113
+              ],
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ],
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ],
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "GroundSurface",
+          "sourcePolygonId": "UUID_ba920a61-ac1f-406f-ac4a-338a61651667",
+          "rings": [
+            [
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ],
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ],
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ],
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ],
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ],
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_0cc67f97-7676-40d4-bb52-b2740e1a4477",
+          "rings": [
+            [
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ],
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ],
+              [
+                1275.774,
+                25.602,
+                -1808.081
+              ],
+              [
+                1276.15,
+                25.602,
+                -1807.809
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_e3bd77ee-6680-4c21-80e5-c1fcbc254d43",
+          "rings": [
+            [
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ],
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ],
+              [
+                1277.026,
+                25.602,
+                -1809.825
+              ],
+              [
+                1275.774,
+                25.602,
+                -1808.081
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_22697748-e23d-406f-bc29-61f7a0f19084",
+          "rings": [
+            [
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ],
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ],
+              [
+                1273.482,
+                25.602,
+                -1804.113
+              ],
+              [
+                1269.147,
+                25.602,
+                -1807.234
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "WallSurface",
+          "sourcePolygonId": "UUID_c2cb1530-5b14-4f99-b6ef-98385021f370",
+          "rings": [
+            [
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1274.736,
+                25.602,
+                -1808.832
+              ],
+              [
+                1275.998,
+                25.602,
+                -1810.57
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "RoofSurface",
+          "sourcePolygonId": "UUID_853ae485-cffa-4327-9474-5d7c90c0d733",
+          "rings": [
+            [
+              [
+                1273.482,
+                25.602,
+                -1804.113
+              ],
+              [
+                1276.15,
+                25.602,
+                -1807.809
+              ],
+              [
+                1275.774,
+                25.602,
+                -1808.081
+              ],
+              [
+                1277.026,
+                25.602,
+                -1809.825
+              ],
+              [
+                1275.998,
+                25.602,
+                -1810.57
+              ],
+              [
+                1274.736,
+                25.602,
+                -1808.832
+              ],
+              [
+                1273.213,
+                25.602,
+                -1809.934
+              ],
+              [
+                1274.477,
+                25.602,
+                -1811.673
+              ],
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ],
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ],
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ],
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ],
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ],
+              [
+                1269.147,
+                25.602,
+                -1807.234
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_3d3196f2-4bd1-45d7-b116-c1a01d284a71",
+          "rings": [
+            [
+              [
+                1273.449,
+                6.363,
+                -1812.418
+              ],
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ],
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ],
+              [
+                1273.449,
+                25.602,
+                -1812.418
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_0f50b73d-198c-40bb-af76-026eecf53457",
+          "rings": [
+            [
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ],
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_5ba70809-8182-4361-b5ba-526d0db9f67d",
+          "rings": [
+            [
+              [
+                1272.184,
+                6.363,
+                -1810.678
+              ],
+              [
+                1271.973,
+                6.363,
+                -1810.831
+              ],
+              [
+                1271.973,
+                25.602,
+                -1810.831
+              ],
+              [
+                1272.184,
+                25.602,
+                -1810.678
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_bbdb2dad-122a-47f5-a060-39b9604b8b40",
+          "rings": [
+            [
+              [
+                1276.15,
+                9.524,
+                -1807.809
+              ],
+              [
+                1276.15,
+                6.363,
+                -1807.809
+              ],
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_2411545d-4ff5-499f-86ee-59b14a4799a1",
+          "rings": [
+            [
+              [
+                1269.684,
+                6.363,
+                -1807.744
+              ],
+              [
+                1269.571,
+                6.363,
+                -1807.825
+              ],
+              [
+                1269.571,
+                25.602,
+                -1807.825
+              ],
+              [
+                1269.684,
+                25.602,
+                -1807.744
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_b382a083-54c2-4f3a-a588-73307d39669e",
+          "rings": [
+            [
+              [
+                1275.998,
+                9.554,
+                -1810.57
+              ],
+              [
+                1275.998,
+                6.363,
+                -1810.57
+              ],
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_577c11cf-44d9-473e-9c76-8a1227e0b21b",
+          "rings": [
+            [
+              [
+                1269.147,
+                25.535,
+                -1807.234
+              ],
+              [
+                1269.147,
+                6.363,
+                -1807.234
+              ],
+              [
+                1273.482,
+                6.363,
+                -1804.113
+              ],
+              [
+                1273.482,
+                25.535,
+                -1804.113
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_342f04ba-4bab-4717-baf1-8d7880564d89",
+          "rings": [
+            [
+              [
+                1274.736,
+                9.554,
+                -1808.832
+              ],
+              [
+                1274.736,
+                6.363,
+                -1808.832
+              ],
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_2a617857-1384-4d84-b6d4-ea9047287285",
+          "rings": [
+            [
+              [
+                1275.774,
+                9.524,
+                -1808.081
+              ],
+              [
+                1275.774,
+                6.363,
+                -1808.081
+              ],
+              [
+                1277.026,
+                6.363,
+                -1809.825
+              ],
+              [
+                1277.026,
+                9.524,
+                -1809.825
+              ]
+            ]
+          ]
+        },
+        {
+          "kind": "ClosureSurface",
+          "sourcePolygonId": "UUID_2fb2ea8b-2026-43d0-be5f-c89c35194a3b",
+          "rings": [
+            [
+              [
+                1273.213,
+                9.554,
+                -1809.934
+              ],
+              [
+                1273.213,
+                6.363,
+                -1809.934
+              ],
+              [
+                1274.477,
+                6.363,
+                -1811.673
+              ],
+              [
+                1274.477,
+                9.554,
+                -1811.673
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "officialPublicSources": [
+    "https://www.stiftung-berliner-mauer.de/en/berlin-wall-memorial/visit/map",
+    "https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/bernauer-strasse-648145.php",
+    "https://www.berlin.de/sen/stadtentwicklung/staedtebau/einzelprojekte/gedenkstaette-berliner-mauer/",
+    "https://www.zhn-architekten.de/referenzen/nationale-gedenkstaette-berliner-mauer/",
+    "https://gemeinde-versoehnung.de/kapelle/",
+    "https://www.onarchitektur.de/gedenkstaette-berline-mauer.html?cid=77&file=files%2Fonarki%2FPDFs%2FMauer.pdf",
+    "https://sinai.de/sites/default/files/pdf/veroeffentlichung/1110_Deutsche_Bauzeitung_GBM.pdf"
+  ],
+  "preservedExistingParents": [
+    "DEBE01YYK000003x",
+    "DEBE01YYK0001yOL"
+  ],
+  "replacedFallbackPrisms": [
+    {
+      "id": "53333454",
+      "ring": [
+        [
+          11075,
+          -16351
+        ],
+        [
+          11243,
+          -16480
+        ],
+        [
+          11377,
+          -16368
+        ],
+        [
+          11288,
+          -16174
+        ],
+        [
+          11111,
+          -16257
+        ],
+        [
+          11128,
+          -16290
+        ]
+      ],
+      "holes": [],
+      "y0_dm": 52,
+      "h_dm": 90,
+      "class": 0,
+      "roof": 9999,
+      "tone": [
+        88,
+        102,
+        94
+      ]
+    },
+    {
+      "id": "45664094",
+      "ring": [
+        [
+          12580,
+          -17810
+        ],
+        [
+          12573,
+          -17801
+        ],
+        [
+          12570,
+          -17803
+        ],
+        [
+          12577,
+          -17812
+        ],
+        [
+          12526,
+          -17849
+        ],
+        [
+          12520,
+          -17839
+        ],
+        [
+          12517,
+          -17841
+        ],
+        [
+          12691,
+          -18082
+        ],
+        [
+          12697,
+          -18078
+        ],
+        [
+          12720,
+          -18109
+        ],
+        [
+          12722,
+          -18107
+        ],
+        [
+          12734,
+          -18124
+        ],
+        [
+          12731,
+          -18127
+        ],
+        [
+          12761,
+          -18170
+        ],
+        [
+          12770,
+          -18176
+        ],
+        [
+          12780,
+          -18179
+        ],
+        [
+          12795,
+          -18175
+        ],
+        [
+          12803,
+          -18168
+        ],
+        [
+          12808,
+          -18158
+        ],
+        [
+          12807,
+          -18142
+        ],
+        [
+          12774,
+          -18095
+        ],
+        [
+          12770,
+          -18098
+        ],
+        [
+          12758,
+          -18081
+        ],
+        [
+          12766,
+          -18075
+        ],
+        [
+          12800,
+          -18123
+        ],
+        [
+          12855,
+          -18082
+        ],
+        [
+          12691,
+          -17855
+        ],
+        [
+          12676,
+          -17866
+        ],
+        [
+          12659,
+          -17843
+        ],
+        [
+          12674,
+          -17832
+        ],
+        [
+          12631,
+          -17773
+        ]
+      ],
+      "holes": [],
+      "y0_dm": 52,
+      "h_dm": 120,
+      "class": 0,
+      "roof": 1000,
+      "tone": [
+        88,
+        102,
+        94
+      ]
+    }
+  ],
+  "sourceConflicts": [
+    "LDA calls the preserved section 64 m; Foundation calls the enclosing monument 70 m. Exact OSM geometry is retained, never stretched to either published round figure.",
+    "OSM tower height is 10 m; authoritative retained LoD2 BT9 height is 9.278 m. Existing complete LoD2 envelope remains unchanged.",
+    "OSM chapel height is 8 m; retained LoD2 is 9.907 m. Added 7.6 m timber lamellae are a display fit and do not replace its measured roof.",
+    "Two original museum OSM fallback prisms estimate 12/9 m; complete 18-part official museum/view-tower/visitor source supersedes only those two envelopes.",
+    "Signal fence is tagged ruins=yes; only post remnants are shown, not a new intact electric fence."
+  ],
+  "displayEstimates": "wall thickness, panel joints, coping radius, marker spacing, facade windows, timber lamellae, mesh subdivisions, three whip-light display positions, patrol slab widths, and remembrance niche grid; no survey claim",
+  "copyrightPolicy": "factual text only; no photograph, protected landscape plan, text inscription or portrait is traced, bundled or loaded",
+  "roles": {
+    "front-wall": 4,
+    "concrete-panel-joint": 470,
+    "rear-wall": 1,
+    "rear-remnant": 12,
+    "signal-fence-remnant": 24,
+    "steel-endpoint": 13,
+    "endpoint-inner-stainless": 13,
+    "patrol-concrete-wheel-track": 2,
+    "patrol-slab-joints": 76,
+    "preserved-whip-light-pole": 3,
+    "preserved-whip-light-arm": 3,
+    "preserved-whip-light-head": 3,
+    "current-steel-markers": 642,
+    "enclosed-preserved-sand": 1,
+    "official-documentation-center-WallSurface": 42,
+    "official-documentation-center-RoofSurface": 10,
+    "official-documentation-center-ClosureSurface": 16,
+    "museum-window-field": 173,
+    "museum-window-mullion": 173,
+    "official-viewing-tower-WallSurface": 61,
+    "official-viewing-tower-RoofSurface": 8,
+    "official-viewing-tower-ClosureSurface": 36,
+    "viewing-tower-steel-mesh": 200,
+    "official-visitor-center-WallSurface": 11,
+    "official-visitor-center-RoofSurface": 3,
+    "official-visitor-center-ClosureSurface": 4,
+    "BT9-observation-glazing": 4,
+    "chapel-timber-lamella": 217,
+    "window-of-remembrance": 1,
+    "schematic-empty-remembrance-niche": 72
+  },
+  "counts": {
+    "officialParts": 18,
+    "boxes": 2106,
+    "caps": 4,
+    "surfaceTriangles": 500,
+    "nativeBlocks": 11007,
+    "collisionSolids": 697
+  },
+  "runtimeBytes": {
+    "decoded": 758324,
+    "gzipEquivalent": 98130
+  }
+}

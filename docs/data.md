@@ -1027,3 +1027,12 @@ not taken as proof that work has finished. Both Commons manifests retain their
 463-record prefix and append 12 inspected free references. The single extra
 geometry-only companion packet preserves decoded-memory limits and never
 participates in ground/water navigation lookup.
+
+## North Mitte recognition sources, v1.0.74
+
+The [BND](bnd-headquarters-v174.md), [Bernauer Straße memorial](berlin-wall-memorial-v174.md),
+[Zionskirche](zionskirche-v174.md) and [Weinberg playground](weinberg-playground-v174.md)
+records distinguish retained LoD2/OSM geometry, published architecture facts,
+inspected freely licensed photo references and estimated small subdivisions.
+The playground rubber boundary uses the official 2025 orthophoto; mapped sand,
+pitches and source-cut paths are excluded from the material correction.

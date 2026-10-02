@@ -1,3 +1,6 @@
+import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS, BERLIN_WALL_MEMORIAL_V174_BUILDINGS, BERLIN_WALL_MEMORIAL_V174_SOLIDS, BERLIN_WALL_MEMORIAL_V174_POSTS, berlinWallMemorialV174RoofAt } from "./berlinWallMemorialV174Profile";
+import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskircheV174RoofAt } from "./zionskircheV174Profile";
+import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
 import { TEEHAUS_RUIN_V168_PRISM_IDS, TEEHAUS_RUIN_V168_WALLS } from "./teehausRuinV168Profile";
@@ -655,7 +658,7 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
-    if (ALT_MITTE_V169_PRISM_IDS.has(building.id)) continue;
+    if (ALT_MITTE_V169_PRISM_IDS.has(building.id) || BERLIN_WALL_MEMORIAL_V174_PRISM_IDS.has(building.id)) continue;
     if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
     if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
@@ -1283,9 +1286,26 @@ export function compilePedestrianObstacles(
     // Preserve every complete source part, including newly supplied parents;
     // ring holes remain walkable and the roof follows the active representation.
     const roofAt = (x: number, z: number) => altMitteV169RoofAt(x, z, visualMode() === "minecraft");
+    const [zx, zz] = ZIONSKIRCHE_V174_TOWER_CENTER;
+    addPolygonObstacle(index, ZIONSKIRCHE_V174_TOWER_RING.map(([x,z]) => [zx + (x-zx)*1.04, zz + (z-zz)*1.04]), [], 50.88, 72, "zionskirche-v174-spire", 1, (x,z) => zionskircheV174RoofAt(x,z,visualMode() === "minecraft"));
+    for (const part of BND_HEADQUARTERS_V174_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
+    }
     for (const part of ALT_MITTE_V169_PARTS) {
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, roofAt);
       index.buildingCount += 1;
+    }
+  }
+  if (prisms.buildings.some(b => BERLIN_WALL_MEMORIAL_V174_PRISM_IDS.has(b.id))) {
+    for (const part of BERLIN_WALL_MEMORIAL_V174_BUILDINGS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.sourceId, 1, (x,z) => berlinWallMemorialV174RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+    for (const [i, solid] of BERLIN_WALL_MEMORIAL_V174_SOLIDS.entries()) {
+      addPolygonObstacle(index, solid.ring, [], solid.y0, solid.y1, `bernauer-wall-v174-${i}`, 1);
+    }
+    for (const [i, [x,z,h,top]] of BERLIN_WALL_MEMORIAL_V174_POSTS.entries()) {
+      addPolygonObstacle(index, [[x-h,z-h],[x+h,z-h],[x+h,z+h],[x-h,z+h]], [], 5.2, top, `bernauer-post-v174-${i}`, 1);
     }
   }
   if (prisms.buildings.some(b => TU_WATER_V168_PRISM_IDS.has(b.id))) {

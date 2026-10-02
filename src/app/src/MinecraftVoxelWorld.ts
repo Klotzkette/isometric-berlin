@@ -1,3 +1,8 @@
+import { createMinecraftBerlinWallMemorialV174 } from "./BerlinWallMemorialV174";
+import { berlinWallMemorialV174SourceColumn } from "./berlinWallMemorialV174Profile";
+import { createMinecraftZionskircheV174 } from "./ZionskircheV174";
+import { createMinecraftBndHeadquartersV174 } from "./BndHeadquartersV174";
+import { createMinecraftWeinbergPlaygroundV174 } from "./WeinbergPlaygroundV174";
 import { buildMinecraftAltMitteCoreV169Steps, assertAltMitteNativeV169SourceReady } from "./AltMitteNativeCoreV169";
 import { altMitteV169SourceColumn } from "./altMitteV169Profile";
 import { createMinecraftTuWaterV168 } from "./TuWaterV168";
@@ -2981,6 +2986,14 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftTuWaterV168());
   yield;
+  group.add(createMinecraftBndHeadquartersV174());
+  yield;
+  group.add(createMinecraftWeinbergPlaygroundV174());
+  yield;
+  group.add(createMinecraftZionskircheV174());
+  yield;
+  group.add(createMinecraftBerlinWallMemorialV174());
+  yield;
   group.add(yield* buildMinecraftAltMitteCoreV169Steps());
   yield;
 
@@ -3163,6 +3176,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !neueSynagogeV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !altMitteV169SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !berlinWallMemorialV174SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tuWaterV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !teehausRuinV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tachelesV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

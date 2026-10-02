@@ -17,6 +17,21 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **BND, Bernauer Straße, Zionskirche and Weinbergspark (v1.0.74):**
+  Retained Berlin LoD2 and OSM geometry anchor the headquarters, church and
+  present-day memorial. Complete official museum surfaces replace exactly two
+  older estimated OSM envelopes. The missing BND upper hierarchy and church
+  spire use published architecture facts; height-source conflicts and local
+  ornament estimates are documented. The playground material boundary uses
+  the official Berlin spring-2025 orthophoto (dl-de/zero-2.0), clipped to retain
+  mapped sandpits, pitches and paths. Reference photographs by Jan Kleihues /
+  Stefan Müller (CC BY-SA 4.0), Olaf Kosinsky (CC BY-SA 3.0 DE), Ansgar Koreng
+  (CC BY 3.0 DE), Roland Arhelger and Traktorminze (CC BY-SA 4.0) are individually
+  credited in both Wikimedia manifests. No photographs or plan images are
+  bundled. Existing source packets and all unrelated details remain unchanged.
+  See [sources and verification](docs/release-v1.0.74-review.md).
+
+
 - **Zoo and City West (v1.0.65):** Complete Berlin LoD2 buildings and retained
   OSM identities anchor Bahnhof Zoo, Amerika Haus, Kranzler Eck, Huthmacher-Haus,
   Schleusenkrug and the Zoo grounds. OSM supplies platform courses, paths,

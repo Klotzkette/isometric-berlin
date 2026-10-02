@@ -1,6 +1,15 @@
 import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
-import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v169.json";
+import historicalPayloadBaseline from "./fixtures/minecraft-payload-only-v169.json";
+import bernauerPayloadDelta from "./fixtures/minecraft-payload-only-v174-delta.json";
+import { auditBernauerNativeDelta } from "./helpers/bernauerNativeDelta";
+import bernauerNavigation from "../src/data/berlinWallMemorialV174Navigation.json";
+import { berlinWallMemorialV174SourceColumn } from "../src/berlinWallMemorialV174Profile";
+
+const currentPayloadBaseline = {
+  full: { ...historicalPayloadBaseline.full, ...bernauerPayloadDelta.full },
+  mobile: { ...historicalPayloadBaseline.mobile, ...bernauerPayloadDelta.mobile },
+};
 
 import {
   Box3,
@@ -106,6 +115,48 @@ describe("true voxel Minecraft world", () => {
     detailProfile: "mobile",
   });
 
+  test("v174 replaces exactly two Bernauer fallback bodies and preserves unrelated native buffers", () => {
+    const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, bernauerNavigation.legacyPrisms);
+    expect(audit.sourceColumnsByPrism).toEqual(bernauerPayloadDelta.sourceColumnsByPrism);
+    expect(audit.removedColumns).toHaveLength(bernauerPayloadDelta.removedSourceColumns);
+    expect(audit.retainedNeighbourColumns).toEqual(bernauerPayloadDelta.retainedNeighbourColumns);
+    expect(audit.panes).toEqual(bernauerPayloadDelta.panes);
+    expect(audit.removedColumnInstances).toEqual(bernauerPayloadDelta.removedColumnInstances);
+    const productionRemoved = buildingColumns.filter(([x, z, base, top]) =>
+      berlinWallMemorialV174SourceColumn((x + 0.5) * payload.cell_m, (z + 0.5) * payload.cell_m, base / 10, top / 10));
+    const serialized = (columns: typeof buildingColumns) => columns.map((row) => JSON.stringify(row)).sort();
+    expect(serialized(productionRemoved)).toEqual(serialized(audit.removedColumns));
+    // The local independent face count applies to ordinary window-bearing
+    // columns, outside every historic hero's separate facade ownership.
+    for (const [x, z, , , classId] of audit.localColumns) {
+      expect(payload.classes[classId]).not.toBe("wall");
+      for (const [dx, dz] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        expect(voxelRecognitionAreaAt(
+          (x + 0.5) * payload.cell_m + dx * (payload.cell_m / 2 + 0.08),
+          (z + 0.5) * payload.cell_m + dz * (payload.cell_m / 2 + 0.08),
+        )).toBeNull();
+      }
+    }
+    expect(currentPayloadBaseline.full["Voxel facade windows"].count).toBe(
+      historicalPayloadBaseline.full["Voxel facade windows"].count - audit.panes.netRemoved,
+    );
+    for (const [profile, root] of [["full", world], ["mobile", mobileWorld]] as const) {
+      expect(currentPayloadBaseline[profile]["Voxel building columns"].count).toBe(
+        historicalPayloadBaseline[profile]["Voxel building columns"].count - audit.removedColumnInstances[profile],
+      );
+      for (const [name, expected] of Object.entries(currentPayloadBaseline[profile])) {
+        if (expected === null) {
+          expect(root.getObjectByName(name)).toBeUndefined();
+          continue;
+        }
+        const mesh = instanced(name, root);
+        const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
+        if (mesh.instanceColor) hash.update(mesh.instanceColor.array);
+        expect({ count: mesh.count, sha256: hash.digest("hex") }).toEqual(expected);
+      }
+    }
+  });
+
   test("Bebelplatz replaces exactly the source columns under the four complete models", () => {
     const removed = buildingColumns.filter(([x,z]) => isBebelplatzBuildingReplacementColumn(
       (x + 0.5) * payload.cell_m, (z + 0.5) * payload.cell_m));
@@ -183,6 +234,8 @@ describe("true voxel Minecraft world", () => {
     // (890 fewer generic panes); all authored facade detail is supplied separately.
     // v169 removes only exact owned generic columns; their complete native
     // envelopes and facades are supplied by the resident/streamed source layers.
+    // v174 replaces 64 Bernauer fallback cells: 192 old panes disappear and
+    // six neighboring panes become exposed, independently audited above.
     expect(instanced("Voxel facade windows", world).count).toBe(
       currentPayloadBaseline.full["Voxel facade windows"].count,
     );
