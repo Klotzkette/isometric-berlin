@@ -1,3 +1,6 @@
+import { NEUE_SYNAGOGE_V167_PRISM_IDS, NEUE_SYNAGOGE_V167_SOURCE_BOUNDS, neueSynagogeV167RoofAt } from "./neueSynagogeV167Profile";
+import { TACHELES_V167_PRISM_IDS, TACHELES_V167_PARTS, tachelesV167RoofAt } from "./tachelesV167Profile";
+import { monbijouBathV167WaterAt } from "./monbijouBathV167Profile";
 import { KOSMOS_V166_PARTS, kosmosV166RoofAt } from "./kosmosV166Profile";
 import { ALEXANDER_NORTH_V166_PRISM_IDS, ALEXANDER_NORTH_V166_PARTS, alexanderNorthV166RoofAt } from "./alexanderNorthV166Profile";
 import { CITYWEST_CINEMAS_V166_PRISM_IDS, CITYWEST_CINEMAS_V166_PARTS, cityWestCinemasV166RoofAt } from "./cityWestCinemasV166Profile";
@@ -649,6 +652,7 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
     if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
     if (building.id === "15218373") {
       // The former solid nine-metre OSM prism closed the photographed arch.
@@ -1271,6 +1275,16 @@ export function compilePedestrianObstacles(
   }
   // Register all complete new source parts once, including parents absent from
   // the old clipped prism catalogue; synthetic/partial test worlds stay local.
+  if (prisms.buildings.some(b => NEUE_SYNAGOGE_V167_PRISM_IDS.has(b.id))) {
+    for (const bound of NEUE_SYNAGOGE_V167_SOURCE_BOUNDS) for (const polygon of bound.part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, bound.part.groundY, bound.topY + 2, bound.part.id, 1, (x,z) => neueSynagogeV167RoofAt(x,z,visualMode() === "minecraft"));
+    }
+  }
+  if (prisms.buildings.some(b => TACHELES_V167_PRISM_IDS.has(b.id))) {
+    for (const part of TACHELES_V167_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => tachelesV167RoofAt(x,z,visualMode() === "minecraft"));
+    }
+  }
   if (prisms.buildings.some(b => ALEXANDER_NORTH_V166_PRISM_IDS.has(b.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(b.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(b.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(b.id))) {
     for (const part of ALEXANDER_NORTH_V166_PARTS) {
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.id, 1, (x,z) => alexanderNorthV166RoofAt(x,z,visualMode() === "minecraft"));
@@ -2068,7 +2082,7 @@ function pedestrianGroundIsWater(
   if (typeof bridgeY === "number" && Math.abs(ground.y - bridgeY) < 0.05) {
     return false;
   }
-  return environment.extension?.waterAt(x, z) === true ||
+  return monbijouBathV167WaterAt(x,z) || environment.extension?.waterAt(x, z) === true ||
     pedestrianPointIsWater(x, z, environment.water);
 }
 

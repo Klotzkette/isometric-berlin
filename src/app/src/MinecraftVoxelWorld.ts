@@ -1,3 +1,8 @@
+import { neueSynagogeV167SourceColumn } from "./neueSynagogeV167Profile";
+import { tachelesV167SourceColumn } from "./tachelesV167Profile";
+import { createMinecraftNeueSynagogeV167 } from "./NeueSynagogeV167";
+import { createMinecraftTachelesV167 } from "./TachelesV167";
+import { createMinecraftMonbijouBathV167 } from "./MonbijouBathV167";
 import { createMinecraftKosmosV166 } from "./KosmosV166";
 import { upbeatV166NativeAccents } from "./upbeatV166Details";
 import { createMinecraftAlexanderNorthV166 } from "./AlexanderNorthV166";
@@ -2955,6 +2960,13 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftKosmosV166());
   yield;
+  group.add(createMinecraftNeueSynagogeV167());
+  yield;
+  group.add(createMinecraftTachelesV167());
+  yield;
+  group.add(createMinecraftMonbijouBathV167());
+  yield;
+
   group.add(createMinecraftZooGroundsV165());
   yield;
   group.add(createMinecraftKranzlerV165());
@@ -3132,6 +3144,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !hackescherMarktSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !neueSynagogeV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !tachelesV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !moabitJusticeV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

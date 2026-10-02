@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.66 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.66/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.67 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.67/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.66** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.67** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.67 refines both Oranienstraße and Oranienburger Straße, including
+Tacheles, the Neue Synagoge, Kinderbad Monbijou and the Kreuzberg corridor
+through Rio-Reiser-Platz, Mariannenplatz and Görlitzer Bahnhof.
+[Sources and review](docs/release-v1.0.67-review.md).
+
+Version 1.0.67 verfeinert beide Oranienstraßen mit Tacheles, Neuer Synagoge,
+Kinderbad Monbijou sowie dem Bereich Rio-Reiser-Platz, Mariannenplatz und
+Görlitzer Bahnhof. Vorhandene Stadtgeometrie und mobile Ladegrenzen bleiben
+bewahrt; neue Fassadendetails sind quellengebunden und als Schätzungen markiert.
 
 Version 1.0.66 refines north Alexanderplatz, historical Mitte streets and parks,
 City West cinemas/Savignyplatz, Upbeat, and the Moabit court/prison ensemble.

@@ -1,3 +1,8 @@
+import { NEUE_SYNAGOGE_V167_PRISM_IDS } from "./neueSynagogeV167Profile";
+import { TACHELES_V167_PRISM_IDS } from "./tachelesV167Profile";
+import { createNeueSynagogeV167 } from "./NeueSynagogeV167";
+import { createTachelesV167 } from "./TachelesV167";
+import { createMonbijouBathV167 } from "./MonbijouBathV167";
 import { createKosmosV166 } from "./KosmosV166";
 import { createUpbeatV166FacadeDetails } from "./UpbeatV166FacadeDetails";
 import { createAlexanderNorthV166 } from "./AlexanderNorthV166";
@@ -353,6 +358,7 @@ export type IsometricCityBuildOptions = {
   includeBreitscheidTowers?: boolean;
   includeCityWestV165?: boolean;
   includeCityRefinementsV166?: boolean;
+  includeOranienV167?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -993,6 +999,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...HACKESCHER_MARKT_V163_PRISM_IDS,
   ...GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS,
   ...CAFE_NEUER_SEE_V164_PRISM_IDS,
+  ...NEUE_SYNAGOGE_V167_PRISM_IDS,
+  ...TACHELES_V167_PRISM_IDS,
   ...ALEXANDER_NORTH_V166_PRISM_IDS,
   ...CITYWEST_CINEMAS_V166_PRISM_IDS,
   ...MOABIT_JUSTICE_V166_PRISM_IDS,
@@ -13192,6 +13200,7 @@ export function createIsometricCity(
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     if (options.includeBreitscheidTowers !== false) group.add(createBreitscheidTowers());
+    if (options.includeOranienV167 !== false) group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167());
     if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(),createKosmosV166());
     if (options.includeCityWestV165 !== false) group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus());
     if (options.includeKulturforumAndNorthRail !== false) {

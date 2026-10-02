@@ -1318,3 +1318,13 @@ Wikimedia manifests and docs/ulap-v157-sources.md, docs/moabit-park-v157.md and
 docs/moabit-guard-houses-v157.md. Facade rhythm, bench dimensions and stair
 width/subdivisions remain display estimates; the coarse ULAP terrain-height
 conflict is documented, with no speculative shared terrain deformation.
+
+### Oranien corridors (v1.0.67)
+
+OSM dated street courses, pool outlines and named anchors remain ODbL 1.0.
+Complete official Berlin LoD2 source parts and the inspected DOP2025
+orthophoto are dl-de/zero-2-0. The bath raster is local QA evidence only,
+not a distributed texture. Per-file free-photo attribution for Neue Synagoge
+and Tacheles is recorded in both Wikimedia manifests. Fine ornament,
+non-surveyed current roof corrections and paving subdivisions are documented
+display estimates. See [release source review](docs/release-v1.0.67-review.md).

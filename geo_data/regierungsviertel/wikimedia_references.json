@@ -6454,6 +6454,128 @@
       "credit": "Kosmos Kino, Berlin-msu-2021-352-.jpg — Matthias Süßen (matthias-suessen.de), CC BY-SA 4.0, Wikimedia Commons. Inspected visual reference only; no image pixels bundled.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin-Mitte, the New Synagogue, shot from the dome of the Berlin Cathedral.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_the_New_Synagogue,_shot_from_the_dome_of_the_Berlin_Cathedral.JPG",
+      "artist": "Dguendel",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "credit": "File:Berlin-Mitte, the New Synagogue, shot from the dome of the Berlin Cathedral.JPG — Dguendel, CC BY 3.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Facade of Neue Synagoge - New Synagogue - Eastern Berlin - Germany.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Facade_of_Neue_Synagoge_-_New_Synagogue_-_Eastern_Berlin_-_Germany.jpg",
+      "artist": "Adam Jones, Ph.D.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "credit": "File:Facade of Neue Synagoge - New Synagogue - Eastern Berlin - Germany.jpg — Adam Jones, Ph.D., CC BY-SA 3.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Neue Synagoge, Berlin, Kuppel, 140525, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Neue_Synagoge,_Berlin,_Kuppel,_140525,_ako.jpg",
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "credit": "File:Neue Synagoge, Berlin, Kuppel, 140525, ako.jpg — Ansgar Koreng, CC BY-SA 4.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fotografiska_berlin",
+      "title": "File:Mitte Oranienburger Straße Am Tacheles.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Oranienburger_Stra%C3%9Fe_Am_Tacheles.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "inspection_date": "2026-10-02",
+      "visual_reference": "current full street facade and low rooftop silhouette"
+    },
+    {
+      "landmark_id": "tacheles_fotografiska_berlin",
+      "title": "File:Mitte Oranienburger Straße Am Tacheles-001.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Oranienburger_Stra%C3%9Fe_Am_Tacheles-001.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "inspection_date": "2026-10-02",
+      "visual_reference": "arched glazing, stone rustication and museum entrance"
+    },
+    {
+      "landmark_id": "tacheles_fotografiska_berlin",
+      "title": "File:Mitte Oranienburger Straße Am Tacheles-003.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Oranienburger_Stra%C3%9Fe_Am_Tacheles-003.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "inspection_date": "2026-10-02",
+      "visual_reference": "current courtyard glazing and exposed former floor edges"
+    },
+    {
+      "landmark_id": "tacheles_fotografiska_berlin",
+      "title": "File:Mitte Oranienburger Straße Am Tacheles-004.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Oranienburger_Stra%C3%9Fe_Am_Tacheles-004.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "inspection_date": "2026-10-02",
+      "visual_reference": "verified open east passage, high bridge and low current roof"
+    },
+    {
+      "title": "File:Berlin-kreuzberg bethanien 20050420 p1020601.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-kreuzberg_bethanien_20050420_p1020601.jpg",
+      "artist": "Georg Slickers",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Berlin-kreuzberg bethanien 20050420 p1020601.jpg — Georg Slickers, CC BY-SA 3.0 (via Wikimedia Commons). Inspected external visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin, Kreuzberg, Oranienstrasse 40-41, Geschaeftshaus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Oranienstrasse_40-41,_Geschaeftshaus.jpg",
+      "artist": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Berlin, Kreuzberg, Oranienstrasse 40-41, Geschaeftshaus.jpg — Jörg Zägel, CC BY-SA 3.0 (via Wikimedia Commons). Inspected external visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:St.-Thomas-Kirche - Berlin - Portalansicht 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:St.-Thomas-Kirche_-_Berlin_-_Portalansicht_2.jpg",
+      "artist": "Raimond Spekking",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "St.-Thomas-Kirche - Berlin - Portalansicht 2.jpg — Raimond Spekking, CC BY-SA 4.0 (via Wikimedia Commons). Inspected external visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:St.-Thomas-Kirche - Berlin - Kuppel.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:St.-Thomas-Kirche_-_Berlin_-_Kuppel.jpg",
+      "artist": "Raimond Spekking",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "St.-Thomas-Kirche - Berlin - Kuppel.jpg — Raimond Spekking, CC BY-SA 4.0 (via Wikimedia Commons). Inspected external visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

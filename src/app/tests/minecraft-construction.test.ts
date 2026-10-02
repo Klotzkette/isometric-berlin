@@ -2,12 +2,11 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v166.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v167.json";
 
-// Synchronous v166 measurements must equal cooperative construction below.
-// Earlier fixtures remain frozen. This cumulative baseline retains the v165
-// world and adds the bounded Alexander-Nord, City West, Moabit, Mitte, KOSMOS
-// and Upbeat refinements measured after their production models were frozen.
+// Synchronous v167 measurements must equal cooperative construction below.
+// Earlier fixtures remain frozen. This cumulative baseline retains the v166
+// world and adds the Neue Synagoge, Tacheles and Kinderbad Monbijou refinements measured after their production models were frozen.
 // It proves construction-path equality, not historical appearance preservation.
 // Source retention and full/mobile detail are independently tested per model.
 for (const [profile, expected] of Object.entries(baseline)) {

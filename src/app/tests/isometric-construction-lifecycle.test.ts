@@ -81,6 +81,19 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./EastSquaresV163": { createEastSquaresV163: () => model("East squares v163") },
     "./HackescherMarktV163": { createHackescherMarktV163: () => model("Hackescher Markt v163") },
     "./CafeNeuerSeeV164": { createCafeNeuerSeeV164: () => model("Cafe Neuer See v164") },
+    "./UpbeatV166FacadeDetails": { createUpbeatV166FacadeDetails: () => model("Upbeat facade v166") },
+    "./AlexanderNorthV166": { createAlexanderNorthV166: () => model("Alexander north v166") },
+    "./CityWestCinemasV166": { createCityWestCinemasV166: () => model("City West cinemas v166") },
+    "./MoabitJusticeV166": { createMoabitJusticeV166: () => model("Moabit justice v166") },
+    "./MitteHeritageV166": { createMitteHeritageV166: () => model("Mitte heritage v166") },
+    "./KosmosV166": { createKosmosV166: () => model("Kosmos v166") },
+    "./NeueSynagogeV167": { createNeueSynagogeV167: () => model("Neue Synagoge v167") },
+    "./TachelesV167": { createTachelesV167: () => model("Tacheles v167") },
+    "./MonbijouBathV167": { createMonbijouBathV167: () => model("Monbijou bath v167") },
+    "./ZooGroundsV165": { createZooGroundsV165: () => model("Zoo grounds v165") },
+    "./KranzlerV165": { createKranzlerV165: () => model("Kranzler v165") },
+    "./ZooStationV165": { createZooStationV165: () => model("Zoo station v165") },
+    "./HuthmacherHaus": { createHuthmacherHaus: () => model("Huthmacher house v165") },
     "./SpanishEmbassyV164": { createSpanishEmbassyV164: () => model("Spanish embassy v164") },
     "./GrosserSternGatehousesV164": { createGrosserSternGatehousesV164: () => model("Grosser Stern gatehouses v164") },
     "./UlapQuarter": { createUlapQuarter: () => model("ULAP quarter") },
@@ -209,7 +222,13 @@ test("drawn construction publishes all staged geometry at the current pose", asy
     "Gendarmenmarkt perimeter shells", "Gendarmenmarkt perimeter facades",
     "Leipziger source shells", "Leipziger perimeter facades", "Potsdamer ministry architecture",
     "Bikini source architecture", "Breitscheid towers", "West squares v163", "East squares v163",
-    "Hackescher Markt v163", "Cafe Neuer See v164", "Spanish embassy v164", "Grosser Stern gatehouses v164",
+    "Hackescher Markt v163", "Cafe Neuer See v164",
+    "Upbeat facade v166", "Alexander north v166", "City West cinemas v166",
+    "Moabit justice v166", "Mitte heritage v166", "Kosmos v166",
+    "Neue Synagoge v167", "Tacheles v167", "Monbijou bath v167",
+    "Zoo grounds v165", "Kranzler v165", "Zoo station v165",
+    "Huthmacher house v165",
+    "Spanish embassy v164", "Grosser Stern gatehouses v164",
     "Moabit officers houses", "ULAP quarter", "Kulturforum concert halls", "Kulturforum museums",
     "Gorki building", "GRIPS and Hansaplatz court", "Gymnasium Tiergarten Neubau",
     "Behrenstrasse 42 architecture", "Neue Wache", "Schloss and Naturkunde shells",
@@ -219,6 +238,18 @@ test("drawn construction publishes all staged geometry at the current pose", asy
     "James-Simon", "Spree", "Unter den Linden", "Abgeordnetenhaus", "Gropius Bau",
   ];
   expect(h.built.map(mesh => mesh.name).sort()).toEqual([...expectedNames].sort());
+  // Pin the actual construction order as well as complete ownership. Existing
+  // stages retain their relative order around the v165–v167 additions.
+  const heroStageOrder = [
+    "Breitscheid towers", "West squares v163", "East squares v163",
+    "Hackescher Markt v163", "Cafe Neuer See v164", "Upbeat facade v166",
+    "Alexander north v166", "City West cinemas v166", "Moabit justice v166",
+    "Mitte heritage v166", "Kosmos v166", "Neue Synagoge v167",
+    "Tacheles v167", "Monbijou bath v167", "Zoo grounds v165",
+    "Kranzler v165", "Zoo station v165", "Huthmacher house v165",
+    "Spanish embassy v164", "Grosser Stern gatehouses v164",
+  ];
+  expect(h.built.map(mesh => mesh.name).filter(name => heroStageOrder.includes(name))).toEqual(heroStageOrder);
   for (const name of expectedNames) {
     const owner = name === "drawn bridge structures" ? h.runtime.signatures : h.runtime.isoWorld;
     expect(owner?.getObjectByName(name)).toBeDefined();
@@ -334,14 +365,27 @@ test("world release clears the published steam pointer and disposes its buffers 
   expect(materialDisposals).toBe(1);
 });
 
-// Cancellation is exercised at each added v160–v164 constructor boundary.
+// Cancellation is exercised at each added v160–v167 constructor boundary.
 // Every fixture owns a real tiny buffer but no full architectural model runs.
 for (const [stop, next] of [
   ["Breitscheid towers", "West squares v163"],
   ["West squares v163", "East squares v163"],
   ["East squares v163", "Hackescher Markt v163"],
   ["Hackescher Markt v163", "Cafe Neuer See v164"],
-  ["Cafe Neuer See v164", "Spanish embassy v164"],
+  ["Cafe Neuer See v164", "Upbeat facade v166"],
+  ["Upbeat facade v166", "Alexander north v166"],
+  ["Alexander north v166", "City West cinemas v166"],
+  ["City West cinemas v166", "Moabit justice v166"],
+  ["Moabit justice v166", "Mitte heritage v166"],
+  ["Mitte heritage v166", "Kosmos v166"],
+  ["Kosmos v166", "Neue Synagoge v167"],
+  ["Neue Synagoge v167", "Tacheles v167"],
+  ["Tacheles v167", "Monbijou bath v167"],
+  ["Monbijou bath v167", "Zoo grounds v165"],
+  ["Zoo grounds v165", "Kranzler v165"],
+  ["Kranzler v165", "Zoo station v165"],
+  ["Zoo station v165", "Huthmacher house v165"],
+  ["Huthmacher house v165", "Spanish embassy v164"],
   ["Spanish embassy v164", "Grosser Stern gatehouses v164"],
   ["Grosser Stern gatehouses v164", "Moabit officers houses"],
   ["Kulturforum concert halls", "Kulturforum museums"],

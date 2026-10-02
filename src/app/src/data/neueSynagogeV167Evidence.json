@@ -1,0 +1,143 @@
+{
+  "verified": "2026-10-02",
+  "identity": {
+    "actualName": "Neue Synagoge / Centrum Judaicum",
+    "address": "Oranienburger Straße 28–30",
+    "osmWayId": "24054915",
+    "monumentId": "09080249",
+    "currentBuilding": "Preserved front complex, museum/archive and synagogue; former large rear prayer hall is absent"
+  },
+  "factualSources": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080249",
+      "role": "Primary heritage inventory",
+      "facts": [
+        "1857 design, 1859–1866 construction; Eduard Knoblauch and Friedrich August Stüler",
+        "Three horseshoe entrance arches, coloured brick and terracotta facade",
+        "Projecting square tower bases, octagonal crowned upper stages, large ribbed dome above twelve-sided vestibule",
+        "Main prayer hall bomb-damaged in 1943 and demolished in 1958; preserved front reconstructed from 1988, reopened May 1995",
+        "Current rear glazed wall overlooks the traced former hall, not a rebuilt historical auditorium"
+      ]
+    },
+    {
+      "url": "https://centrumjudaicum.de/neue-synagoge-berlin-von-1866-bis-heute/",
+      "role": "Current operator historical account",
+      "facts": [
+        "Present preserved building and Centrum Judaicum history",
+        "Do not reconstruct the destroyed rear prayer hall"
+      ]
+    },
+    {
+      "url": "https://jg-berlin.org/religion/synagogen-in-berlin/synagoge-oranienburger-strasse/",
+      "role": "Primary Jewish community description",
+      "facts": [
+        "Describes a 50 m high golden dome; approximate published overall height, not a new survey",
+        "Oranienburger Straße synagogue reopened on 7 May 1995"
+      ]
+    },
+    {
+      "url": "https://centrumjudaicum.de/shared-history-project-2/",
+      "role": "Current operator interpretive history",
+      "facts": [
+        "Gold-trimmed cupola and surviving restored section; museum and archive"
+      ]
+    }
+  ],
+  "visualReferences": [
+    {
+      "title": "File:Berlin-Mitte, the New Synagogue, shot from the dome of the Berlin Cathedral.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_the_New_Synagogue,_shot_from_the_dome_of_the_Berlin_Cathedral.JPG",
+      "artist": "Dguendel",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "credit": "File:Berlin-Mitte, the New Synagogue, shot from the dome of the Berlin Cathedral.JPG — Dguendel, CC BY 3.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Facade of Neue Synagoge - New Synagogue - Eastern Berlin - Germany.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Facade_of_Neue_Synagoge_-_New_Synagogue_-_Eastern_Berlin_-_Germany.jpg",
+      "artist": "Adam Jones, Ph.D.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "credit": "File:Facade of Neue Synagoge - New Synagogue - Eastern Berlin - Germany.jpg — Adam Jones, Ph.D., CC BY-SA 3.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Neue Synagoge, Berlin, Kuppel, 140525, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Neue_Synagoge,_Berlin,_Kuppel,_140525,_ako.jpg",
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "credit": "File:Neue Synagoge, Berlin, Kuppel, 140525, ako.jpg — Ansgar Koreng, CC BY-SA 4.0, Wikimedia Commons. Inspected external visual reference only; no photo pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "sourceHierarchy": "LoD2 controls all original surface geometry and exact footprint. OSM supplies current identity and its separate complete footprint. Current upper right tower, enclosing crowns and ornament are explicitly estimated additive hero geometry informed by primary heritage facts and inspected free photographs. Source surfaces remain rendered; no historical rear hall is invented.",
+  "sourceCoverage": {
+    "parents": 1,
+    "parts": 4,
+    "boundaryPolygons": 127,
+    "tile": "391_5820",
+    "sourceGroundNHN": 34.144,
+    "worldGroundY": 5.2,
+    "originalPrismIds": [
+      "24054915"
+    ],
+    "previousV166Owners": [
+      {
+        "type": "corePrismFacade",
+        "id": "24054915",
+        "record": "geo_data/regierungsviertel/mitte-streets-v166.json.corePrisms[283]",
+        "policy": "Exact facade instance subtraction; no v166 LoD2 parent owned"
+      }
+    ],
+    "outerPacketOwners": []
+  },
+  "geometryConflicts": {
+    "officialFootprintAreaM2": 1054.851302,
+    "osmFootprintAreaM2": 1052.143693,
+    "osmOnlyAreaM2": 0.068411,
+    "officialOnlyAreaM2": 2.77602,
+    "mainSourceHeightM": 44.469,
+    "mainAuthoredOverallHeightM": 50.0,
+    "leftSourceHeightM": 32.923,
+    "rightSourceHeightM": 3.143,
+    "resolution": "Retain all measured polygons; add current twin upper crowns and gilded dome as explicitly estimated hero geometry. Primary Jewish community describes approximately 50 m overall. Source footprint is unchanged; demolished rear prayer hall is not reconstructed."
+  },
+  "estimatedDetail": [
+    "Main crown profile enclosing every measured upper source vertex; dark roof panels, 24 gilded rib fields, pointed arches and roundels",
+    "Missing upper right octagonal tower reconstructed on its exact low survey footprint to match the visible left tower; original low source part remains intact",
+    "Twin small domes and three ball/Star of David finials; approximately 50 m overall main finial height",
+    "Window/portal recess colours, double arch trim, paired triple lancets, cornice/dentil/terracotta-rosette distribution and approximate palette",
+    "Empty framed historic inscription band: no invented lettering or reproduced quotation",
+    "Independent 1 m native source skin and 0.5 m facade/roof-rib cells; small native facade offset beyond the source block skin"
+  ],
+  "budgets": {
+    "drawnBatches": 3,
+    "drawnBytes": 1613524,
+    "facadeInstances": 1243,
+    "ribAndArchInstances": 11841,
+    "nativeBatches": 1,
+    "nativeBlocks": 16731,
+    "nativeBytes": 1272204,
+    "touchDrawnMatchesPointer": true
+  },
+  "exclusions": [
+    "No destroyed historical prayer-hall reconstruction",
+    "No photographic pixels, crops, textures, traced relief or copied font",
+    "No inferred dome visitor access or interior exhibition layout",
+    "No broad-radius generic building suppression; exactly one previous core prism owner"
+  ],
+  "validation": {
+    "pythonTests": 4,
+    "bunTests": 4,
+    "bunAssertions": 55049,
+    "pythonSourceChecks": "127 original polygon IDs/rings and every wall/roof area compared with raw official archive",
+    "crownChecks": "Enclosing profile checked against all original upper crown vertices; original low right part unchanged",
+    "nativeChecks": "Independent single orthogonal cube batch, every .5 m navigation cell queried, full/touch parity",
+    "visualPreview": "Standalone orthographic projection and integrated production front/roof screenshots inspected. Discovered legacy Mitte-v166 prism facade 24054915 overlapping the new frontage; central packet integration removes that exact former facade owner."
+  }
+}

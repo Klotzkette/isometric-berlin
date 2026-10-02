@@ -1,0 +1,223 @@
+{
+  "source": "OSM Berlin 2026-09-29; Berliner Bäder-Betriebe; official DOP2025",
+  "operator": "https://www.berlinerbaeder.de/baeder/detail/kinderbad-monbijou/",
+  "dopUrl": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+  "dopRequest": {
+    "SERVICE": "WMS",
+    "VERSION": "1.3.0",
+    "REQUEST": "GetMap",
+    "LAYERS": "dop_2025",
+    "CRS": "EPSG:25833",
+    "BBOX": "391160,5820330,391290,5820440",
+    "WIDTH": 1300,
+    "HEIGHT": 1100
+  },
+  "dopSha256": "57f58ab3787793af3ffda03f14188e8c653134e81ef3fb727092aeadc27b6bba",
+  "dopLicense": "dl-de/zero-2-0",
+  "accuracy": "Original OSM rings retained exactly. DOP2025 confirms asymmetric main pool, smaller wading basin and west changing buildings. Paving boundary picked from orthophoto (approximate); coping width, colours and slab divisions are display estimates.",
+  "rendering": "Summer presentation, opaque water. Surface offsets above the shared scene ground preserve existing city plates; depths are operator facts, not a new terrain excavation. No invented historic equipment, lane markings, furniture or texture.",
+  "preservation": "Both existing surveyed building parents (six parts), all old paths, trees and fences remain in MitteHeritageV166 unchanged.",
+  "pools": [
+    {
+      "id": "30876915",
+      "tags": {
+        "contact:website": "https://www.berlinerbaeder.de/baeder/kinderbad-monbijou/",
+        "operator": "Berliner Bäder-Betriebe",
+        "wheelchair": "limited",
+        "osm_way_id": "30876915",
+        "name": "Kinderbad Monbijou",
+        "leisure": "sports_centre",
+        "sport": "swimming"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1695.5872619022848,
+              -429.8031814182177
+            ],
+            [
+              1694.1872676374624,
+              -426.3624644642696
+            ],
+            [
+              1692.3997666566283,
+              -421.06091468874365
+            ],
+            [
+              1685.8462073071278,
+              -405.31626619864255
+            ],
+            [
+              1684.6276654552203,
+              -402.40564633440226
+            ],
+            [
+              1684.1210328944726,
+              -401.29301259480417
+            ],
+            [
+              1676.03696487844,
+              -383.568282478489
+            ],
+            [
+              1674.5240867956309,
+              -380.24135540332645
+            ],
+            [
+              1672.304973847582,
+              -375.3722539059818
+            ],
+            [
+              1671.2591297519393,
+              -370.1543777352199
+            ],
+            [
+              1669.8543865770916,
+              -363.1418001567945
+            ],
+            [
+              1696.1951163150952,
+              -354.82277957256883
+            ],
+            [
+              1697.0432263182593,
+              -353.8914700327441
+            ],
+            [
+              1741.0994705756311,
+              -339.45952243357897
+            ],
+            [
+              1758.0309417220997,
+              -343.89066108781844
+            ],
+            [
+              1770.2654835864669,
+              -347.10195231996477
+            ],
+            [
+              1779.9200957458233,
+              -370.767496580258
+            ],
+            [
+              1772.0820110325585,
+              -373.8903392739594
+            ],
+            [
+              1772.80660259031,
+              -375.95511849503964
+            ],
+            [
+              1754.4184468793683,
+              -383.25142249278724
+            ],
+            [
+              1753.1669731667498,
+              -383.74657396413386
+            ],
+            [
+              1750.637136977166,
+              -384.748602649197
+            ],
+            [
+              1739.5626091809245,
+              -389.1451567756012
+            ],
+            [
+              1746.6284600300132,
+              -407.1819145344198
+            ],
+            [
+              1747.2474600409041,
+              -408.7705470295623
+            ],
+            [
+              1695.5872619022848,
+              -429.8031814182177
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "51167567",
+      "tags": {
+        "wheelchair": "limited",
+        "osm_way_id": "51167567",
+        "leisure": "swimming_pool"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1718.8376807322493,
+              -387.4912395151332
+            ],
+            [
+              1719.756880473229,
+              -376.62137591000646
+            ],
+            [
+              1727.5084283049218,
+              -376.32678964547813
+            ],
+            [
+              1729.7926649184083,
+              -386.88068919442594
+            ],
+            [
+              1718.8376807322493,
+              -387.4912395151332
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "30876932",
+      "tags": {
+        "wheelchair": "limited",
+        "osm_way_id": "30876932",
+        "leisure": "swimming_pool"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1707.3478133932222,
+              -404.04847358353436
+            ],
+            [
+              1705.9397384683252,
+              -395.3556882319972
+            ],
+            [
+              1718.3918415251537,
+              -393.08721655607224
+            ],
+            [
+              1718.4346679853043,
+              -390.1263140272349
+            ],
+            [
+              1730.1096177390427,
+              -389.23270785529166
+            ],
+            [
+              1732.4927534695016,
+              -403.3229997586459
+            ],
+            [
+              1707.3478133932222,
+              -404.04847358353436
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

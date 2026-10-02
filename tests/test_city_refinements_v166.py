@@ -36,6 +36,20 @@ def read(path: Path) -> Any:
   return json.loads(path.read_text())
 
 
+def v166_packet_bytes(path: Path) -> bytes:
+  """Keep this historical ownership proof frozen once v167 refines its packets.
+
+  The next release has its own strict comparison to v166, including the two
+  Tacheles facade owners. Do not reinterpret v166's counts as v167 counts.
+  """
+  manifest = read(PACKETS / "manifest.json")
+  if "oranienRefinementsV167" not in manifest["source"]:
+    return path.read_bytes()
+  return subprocess.check_output(
+    ["git", "show", f"v1.0.66:{path.relative_to(ROOT)}"], cwd=ROOT
+  )
+
+
 def canonical(value: Any) -> str:
   return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
@@ -137,7 +151,7 @@ def expected_owners() -> set[str]:
 def test_manifest_registers_new_interior_street_chunks_and_exact_source_packages(
   release,
 ):
-  manifest = read(PACKETS / "manifest.json")
+  manifest = json.loads(v166_packet_bytes(PACKETS / "manifest.json"))
   audit = read(ROOT / "geo_data/regierungsviertel/city-refinements-v166-audit.json")
   street_audit = read(ROOT / "geo_data/regierungsviertel/mitte-streets-v166-audit.json")
   descriptors = {p["id"]: p for p in manifest["chunks"]}
@@ -193,7 +207,7 @@ def belongs_to_source(key: bytes, by_top: dict, lines: bool = False) -> bool:
 def test_final_packets_preserve_unowned_surfaces_navigation_and_all_street_leaf_parts(
   release,
 ):
-  manifest = read(PACKETS / "manifest.json")
+  manifest = json.loads(v166_packet_bytes(PACKETS / "manifest.json"))
   descriptors = {p["id"]: p for p in manifest["chunks"]}
   audit = read(ROOT / "geo_data/regierungsviertel/city-refinements-v166-audit.json")
   source = read(ROOT / "geo_data/regierungsviertel/mitte-streets-v166.json")
@@ -212,7 +226,7 @@ def test_final_packets_preserve_unowned_surfaces_navigation_and_all_street_leaf_
   for entry in audit["chunks"]:
     descriptor = descriptors[entry["id"]]
     for mode, measurements in entry["modes"].items():
-      packed = (PACKETS / descriptor[mode]["url"]).read_bytes()
+      packed = v166_packet_bytes(PACKETS / descriptor[mode]["url"])
       raw = gzip.decompress(packed)
       assert len(packed) == descriptor[mode]["bytes"]
       assert len(raw) == descriptor[mode]["decodedBytes"]
