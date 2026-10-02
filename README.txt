@@ -1,4 +1,4 @@
-Isometric Berlin - Regierungsviertel 1.0.69
+Isometric Berlin - Regierungsviertel 1.0.70
 
 DEUTSCH
 
