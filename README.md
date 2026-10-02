@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.68 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.68/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.69 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.69/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.68** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.69** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.69 audits the complete pre-2001 Mitte district and refines previously
+plain building families with official walls, roof planes, courtyards and bounded
+facade detail. Existing dedicated models, transparent buildings and their
+colours remain preserved. Window rhythms without individual evidence remain
+labelled display estimates. [Sources and scope](docs/alt-mitte-v169-scope.md).
+
+Version 1.0.69 ergänzt die Gebäude im gesamten alten Bezirk Mitte anhand der
+amtlichen Gebäudeformen: Dächer, Innenhöfe und Fassaden werden genauer.
+Bestehende Einzelmodelle, Glasfassaden und Farben bleiben erhalten. Nicht einzeln
+belegte Fensteraufteilungen sind weiterhin ausdrücklich Annäherungen.
 
 Version 1.0.68 refines the Scheunenviertel, HU main building, TU Berlin and
 Umlauftank 2 on Schleuseninsel, and depicts the English Garden Teehaus as its

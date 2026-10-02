@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import { Color, InstancedMesh, LineSegments, Matrix4, MeshStandardMaterial, ShaderLib } from "three";
 import {
@@ -11,8 +12,11 @@ import {
   type BuildingAttributes,
 } from "../src/buildingAttributes";
 import { applyMinecraftColumnDetail } from "../src/MinecraftColumnDetail";
-import { createIsometricCity, type PrismPayload } from "../src/IsometricCityWorld";
+import { createIsometricCity, PRISM_SUPPRESSED_IDS, type PrismPayload } from "../src/IsometricCityWorld";
 import { buildColumnToneLookup, createMinecraftVoxelWorld, type ColumnToneLookup, type VoxelPayload } from "../src/MinecraftVoxelWorld";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 const attributes: BuildingAttributes = {
   osm: "way/fixture",
@@ -88,10 +92,13 @@ describe("source-separated ordinary building details", () => {
   });
 
   test("mapped glass walls cannot flatten a retained pitched roof", () => {
-    // Use an ordinary mapped glass building; the BahnTower now has its own source mesh.
-    expect(mappedGlazing(buildingAttributes("19869019"))).toBe(true);
+    // The former 19869019 control now owns a complete v169 source shell.
+    // Keep testing the generic path with unowned mapped-glass way/424351837.
+    const id = "24351837";
+    expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(false);
+    expect(mappedGlazing(buildingAttributes(id))).toBe(true);
     const city = createIsometricCity({ schema_version: 1, classes: ["concrete"], buildings: [{
-      id: "19869019", class: 0, h_dm: 180, y0_dm: 40, roof: 2100,
+      id, class: 0, h_dm: 180, y0_dm: 40, roof: 2100,
       ring: [[35000, 20000], [35160, 20000], [35160, 20080], [35000, 20080]],
     }] }, null, null, null, { includeContext: false });
     expect(city.getObjectByName("LoD2 prism buildings")).toBeDefined();

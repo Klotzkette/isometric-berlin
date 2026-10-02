@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import {describe,expect,test} from 'bun:test';
 import {BoxGeometry,Group,InstancedMesh,Matrix4,Mesh,MeshBasicMaterial,Raycaster,Vector3} from 'three';
 import {createFriedrichstrasseArchitecture,type FriedrichstrasseBlock,friedrichstrassePrismContains} from '../src/FriedrichstrasseArchitecture';
@@ -6,6 +7,10 @@ import {createIsometricCity,type PrismPayload} from '../src/IsometricCityWorld';
 import prismJson from '../public/mesh/regierungsviertel/lod2-prisms.json';
 import voxels from '../public/mesh/regierungsviertel/minecraft-voxels.json';
 import {buildColumnToneLookup,createMinecraftVoxelWorld,decodeVoxelBuildingColumns,voxelRecognitionAreaAt,type VoxelPayload} from '../src/MinecraftVoxelWorld';
+import {altMitteV169SourceColumn} from '../src/altMitteV169Profile';
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 const source=prismJson as unknown as PrismPayload;
 const nearby=source.buildings.filter(p=>p.ring.some(a=>a[0]>8000&&a[0]<12800&&a[1]>-4600&&a[1]<-1500));
 function detail(minecraft=false,mobileLike=false):Group{return createFriedrichstrasseArchitecture({minecraft,mobileLike,sourcePrisms:source.buildings,voxels,diagnostics:true});}
@@ -48,7 +53,9 @@ describe('Friedrichstrasse source-bound architecture',()=>{
  test('real source ownership suppresses only the dedicated Minecraft generic window grid',()=>{
   const lookup=buildColumnToneLookup(source),columns=decodeVoxelBuildingColumns(voxels as unknown as VoxelPayload);
   const owned=columns.find(([x,z,lo,hi])=>{const xx=(x+.5)*4,zz=(z+.5)*4,id=lookup.sourceIdAt?.(xx,zz);return id&&FRIEDRICHSTRASSE_ARCHITECTURE_IDS.has(id)&&!ADMIRALSPALAST_IDS.has(id)&&!voxelRecognitionAreaAt(xx,zz)&&hi-lo>100;})!;
-  const control=columns.find(([x,z,lo,hi])=>{const xx=(x+.5)*4,zz=(z+.5)*4,id=lookup.sourceIdAt?.(xx,zz);return xx>800&&xx<1280&&zz> -460&&zz< -150&&id&&!FRIEDRICHSTRASSE_ARCHITECTURE_IDS.has(id)&&!voxelRecognitionAreaAt(xx,zz)&&hi-lo>100;})!;
+  // A v169-owned neighbor now has its own complete source shell. The control
+  // must remain a generic column to test Friedrichstrasse's window ownership.
+  const control=columns.find(([x,z,lo,hi])=>{const xx=(x+.5)*4,zz=(z+.5)*4,id=lookup.sourceIdAt?.(xx,zz);return xx>800&&xx<1280&&zz> -460&&zz< -150&&id&&!FRIEDRICHSTRASSE_ARCHITECTURE_IDS.has(id)&&!voxelRecognitionAreaAt(xx,zz)&&hi-lo>100&&!altMitteV169SourceColumn(xx,zz,lo/10,hi/10);})!;
   expect(owned).toBeDefined();expect(control).toBeDefined();expect(lookup.sourceIdAt?.((owned[0]+.5)*4,(owned[1]+.5)*4)).toBe('YCHo1QS2');
   const fixture={...voxels,building_rows:undefined,buildings:[owned,control],ground_rows:[],tree_rows:[],trees:[]} as unknown as VoxelPayload;
   const baseline=createMinecraftVoxelWorld(fixture),refined=createMinecraftVoxelWorld(fixture,lookup),before=baseline.getObjectByName('Voxel facade windows') as InstancedMesh,after=refined.getObjectByName('Voxel facade windows') as InstancedMesh;

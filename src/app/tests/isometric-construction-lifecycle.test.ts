@@ -93,6 +93,12 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./HumboldtMainV168Details": { createHumboldtMainV168Details: () => model("HU detail v168") },
     "./TeehausRuinV168": { createTeehausRuinV168: () => model("Teehaus ruin v168") },
     "./TuWaterV168": { createTuWaterV168: () => model("TU water v168") },
+    "./AltMitteDrawnCoreV169": {
+      buildAltMitteCoreV169Steps: function* () {
+        yield;
+        return model("Alt-Mitte resident core v169");
+      },
+    },
     "./ZooGroundsV165": { createZooGroundsV165: () => model("Zoo grounds v165") },
     "./KranzlerV165": { createKranzlerV165: () => model("Kranzler v165") },
     "./ZooStationV165": { createZooStationV165: () => model("Zoo station v165") },
@@ -165,7 +171,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     splitProgressiveBuildings: () => ({ initial: [], remaining: [], omitted: [] }),
     buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
-    createIsometricCity: () => { const city = model("core"); city.add(model("drawn bridge structures")); return city; },
+    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean }) => {
+      expect(buildOptions.includeAltMitteCoreV169).toBe(false);
+      const city = model("core"); city.add(model("drawn bridge structures")); return city;
+    },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
     createSchlossNaturkundeShells: () => model("Schloss and Naturkunde shells"),
     createSchlossNaturkundeFacades: () => model("Schloss and Naturkunde facades"),
@@ -228,7 +237,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
     "Hackescher Markt v163", "Cafe Neuer See v164",
     "Upbeat facade v166", "Alexander north v166", "City West cinemas v166",
     "Moabit justice v166", "Mitte heritage v166", "Kosmos v166",
-    "Neue Synagoge v167", "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168",
+    "Neue Synagoge v167", "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168", "Alt-Mitte resident core v169",
     "Zoo grounds v165", "Kranzler v165", "Zoo station v165",
     "Huthmacher house v165",
     "Spanish embassy v164", "Grosser Stern gatehouses v164",
@@ -248,7 +257,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
     "Hackescher Markt v163", "Cafe Neuer See v164", "Upbeat facade v166",
     "Alexander north v166", "City West cinemas v166", "Moabit justice v166",
     "Mitte heritage v166", "Kosmos v166", "Neue Synagoge v167",
-    "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168", "Zoo grounds v165",
+    "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168", "Alt-Mitte resident core v169", "Zoo grounds v165",
     "Kranzler v165", "Zoo station v165", "Huthmacher house v165",
     "Spanish embassy v164", "Grosser Stern gatehouses v164",
   ];
@@ -387,7 +396,8 @@ for (const [stop, next] of [
   ["Monbijou bath v167", "HU detail v168"],
   ["HU detail v168", "Teehaus ruin v168"],
   ["Teehaus ruin v168", "TU water v168"],
-  ["TU water v168", "Zoo grounds v165"],
+  ["TU water v168", "Alt-Mitte resident core v169"],
+  ["Alt-Mitte resident core v169", "Zoo grounds v165"],
   ["Zoo grounds v165", "Kranzler v165"],
   ["Kranzler v165", "Zoo station v165"],
   ["Zoo station v165", "Huthmacher house v165"],
@@ -407,3 +417,16 @@ for (const [stop, next] of [
     expect(h.ready).toBe(0); expect(h.reported).toBe(0); expect(h.warnings).toHaveLength(0);
   });
 }
+
+
+test("Alt-Mitte resident core is staged once before publication and cancelled ownership is released", async () => {
+  const h = host({ stopAfterModel: "Alt-Mitte resident core v169" });
+  await h.finished;
+  expect(h.built.filter(mesh => mesh.name === "Alt-Mitte resident core v169")).toHaveLength(1);
+  expect(h.built.some(mesh => mesh.name === "Zoo grounds v165")).toBeFalse();
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.ready).toBe(0);
+  expect(h.reported).toBe(0);
+  expect(h.warnings).toHaveLength(0);
+});

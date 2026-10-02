@@ -1,3 +1,4 @@
+import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
 import { TEEHAUS_RUIN_V168_PRISM_IDS, TEEHAUS_RUIN_V168_WALLS } from "./teehausRuinV168Profile";
 import { NEUE_SYNAGOGE_V167_PRISM_IDS, NEUE_SYNAGOGE_V167_SOURCE_BOUNDS, neueSynagogeV167RoofAt } from "./neueSynagogeV167Profile";
@@ -654,6 +655,7 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (ALT_MITTE_V169_PRISM_IDS.has(building.id)) continue;
     if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
     if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
@@ -1274,6 +1276,16 @@ export function compilePedestrianObstacles(
   if (prisms.buildings.some(b => KOMISCHE_OPER_SOURCE_IDS.has(b.id))) {
     for (const wall of UNTER_DEN_LINDEN_ENTRANCE_BARRIERS) {
       addSegmentObstacle(index, wall.a, wall.b, wall.radius, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y - UNTER_DEN_LINDEN_ENTRANCE_DESCENT_M, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y + 1.1);
+    }
+  }
+  if (prisms.buildings.some(b => ALT_MITTE_V169_PRISM_IDS.has(b.id))) {
+    prepareAltMitteV169Navigation();
+    // Preserve every complete source part, including newly supplied parents;
+    // ring holes remain walkable and the roof follows the active representation.
+    const roofAt = (x: number, z: number) => altMitteV169RoofAt(x, z, visualMode() === "minecraft");
+    for (const part of ALT_MITTE_V169_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, roofAt);
+      index.buildingCount += 1;
     }
   }
   if (prisms.buildings.some(b => TU_WATER_V168_PRISM_IDS.has(b.id))) {

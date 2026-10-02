@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Matrix4, Mesh, Raycaster, Vector3 } from "three";
 import {
@@ -17,6 +18,9 @@ import {
   isCompleteRecognitionVoxelColumn, smoothGroundTopSampler, type VoxelPayload,
 } from "../src/MinecraftVoxelWorld";
 import { compilePedestrianObstacles, pedestrianPointIsBlocked } from "../src/pedestrianNavigation";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const rawVoxels = await Bun.file(new URL("../public/mesh/regierungsviertel/minecraft-voxels.json", import.meta.url)).json() as VoxelPayload;

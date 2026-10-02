@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry,
@@ -22,6 +23,9 @@ import {
   createMinecraftVoxelWorld,
 } from "../src/MinecraftVoxelWorld";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 const integrationFixture: VoxelPayload = {
   schema_version: 2,

@@ -1,3 +1,5 @@
+import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
+import { ALT_MITTE_V169_PRISM_IDS } from "./altMitteV169Ownership";
 import { createTuWaterV168 } from "./TuWaterV168";
 import { TU_WATER_V168_PRISM_IDS } from "./tuWaterV168Profile";
 import { createTeehausRuinV168 } from "./TeehausRuinV168";
@@ -365,6 +367,7 @@ export type IsometricCityBuildOptions = {
   includeCityRefinementsV166?: boolean;
   includeOranienV167?: boolean;
   includeUniversitiesV168?: boolean;
+  includeAltMitteCoreV169?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -1009,6 +1012,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...TACHELES_V167_PRISM_IDS,
   ...TEEHAUS_RUIN_V168_PRISM_IDS,
   ...TU_WATER_V168_PRISM_IDS,
+  ...ALT_MITTE_V169_PRISM_IDS,
   ...ALEXANDER_NORTH_V166_PRISM_IDS,
   ...CITYWEST_CINEMAS_V166_PRISM_IDS,
   ...MOABIT_JUSTICE_V166_PRISM_IDS,
@@ -13209,6 +13213,7 @@ export function createIsometricCity(
     group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     if (options.includeBreitscheidTowers !== false) group.add(createBreitscheidTowers());
     if (options.includeOranienV167 !== false) group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167());
+    if (options.includeAltMitteCoreV169 !== false) group.add(createAltMitteCoreV169());
     if (options.includeUniversitiesV168 !== false) group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168());
     if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(),createKosmosV166());
     if (options.includeCityWestV165 !== false) group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus());

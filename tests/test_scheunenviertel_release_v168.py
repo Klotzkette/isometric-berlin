@@ -32,8 +32,20 @@ PACKETS = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
 KIND = "scheunenviertel-v168"
 
 
+def v168_packet_bytes(path: Path) -> bytes:
+  """Freeze the v168 proof after v169; current packets have a strict v169 audit."""
+  current = json.loads((PACKETS / "manifest.json").read_text())
+  if "altMitteV169" not in current.get("source", {}):
+    return path.read_bytes()
+  return subprocess.check_output(
+    ["git", "show", f"v1.0.68:{path.relative_to(ROOT)}"], cwd=ROOT
+  )
+
+
 def read(path: Path) -> dict:
-  return json.loads(path.read_text())
+  return json.loads(
+    v168_packet_bytes(path) if PACKETS in path.parents else path.read_bytes()
+  )
 
 
 def old_bytes(path: Path) -> bytes:
@@ -67,13 +79,13 @@ def test_final_owners_preserve_all_unowned_geometry_and_source_navigation() -> N
     if identity not in changes:
       assert d == old_descriptors[identity]
       for mode in ("drawn", "minecraft"):
-        assert (PACKETS / d[mode]["url"]).read_bytes() == old_bytes(
+        assert v168_packet_bytes(PACKETS / d[mode]["url"]) == old_bytes(
           PACKETS / d[mode]["url"]
         )
       continue
     entry = next(e for e in audit["chunks"] if e["id"] == identity)
     for mode in ("drawn", "minecraft"):
-      blob = (PACKETS / d[mode]["url"]).read_bytes()
+      blob = v168_packet_bytes(PACKETS / d[mode]["url"])
       raw = gzip.decompress(blob)
       assert hashlib.sha256(blob).hexdigest() == d[mode]["sha256"]
       assert len(blob) == d[mode]["bytes"] and len(raw) == d[mode]["decodedBytes"]

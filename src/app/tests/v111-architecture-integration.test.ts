@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import { Color, Group, InstancedMesh, Matrix4 } from "three";
 import groundData from "../public/mesh/regierungsviertel/ground-context.json";
@@ -11,6 +12,9 @@ import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
 import { dbTowerRoofAt } from "../src/dbTowerProfile";
 import { MUSIC_MUSEUM_IDS, musicMuseumPart, musicMuseumDisplayTop } from "../src/museumLenneProfile";
 import { isSpreebogenParkSurface, isSpreebogenRasterReplacementAt, spreebogenTerrainYAt, spreebogenPromenadeYAt, spreebogenWalkSurfaceAt, LUDWIG_ERHARD_UFER_WORLD_M } from "../src/spreebogenBankProfile";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 const ground = groundData as unknown as VoxelPayload;
 const prisms = prismData as unknown as PrismPayload;
 const matrix = new Matrix4();

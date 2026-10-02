@@ -1,3 +1,5 @@
+import { buildMinecraftAltMitteCoreV169Steps, assertAltMitteNativeV169SourceReady } from "./AltMitteNativeCoreV169";
+import { altMitteV169SourceColumn } from "./altMitteV169Profile";
 import { createMinecraftTuWaterV168 } from "./TuWaterV168";
 import { tuWaterV168SourceColumn } from "./tuWaterV168Profile";
 import { createMinecraftTeehausRuinV168 } from "./TeehausRuinV168";
@@ -2840,6 +2842,7 @@ export function restoreGrosserSternGatehouseGroundOwnership(slabs:InstancedMesh)
   slabs.add(freezeStaticSceneTransforms(mesh));
 }
 
+/** Standalone callers first await preloadAltMitteNativeV169Source(). */
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -2865,6 +2868,7 @@ export function* buildMinecraftVoxelWorldSteps(
   tunnel?: TunnelPortalCourseInput | null,
   options: MinecraftVoxelWorldOptions = {},
 ): Generator<void, Group> {
+  assertAltMitteNativeV169SourceReady();
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
   const mobileDetail = options.detailProfile === "mobile";
   const cell = payload.cell_m;
@@ -2976,6 +2980,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftTeehausRuinV168());
   yield;
   group.add(createMinecraftTuWaterV168());
+  yield;
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps());
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -3156,6 +3162,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !neueSynagogeV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !altMitteV169SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tuWaterV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !teehausRuinV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tachelesV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

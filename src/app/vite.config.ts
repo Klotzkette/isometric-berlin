@@ -3,6 +3,19 @@ import react from "@vitejs/plugin-react";
 
 export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
 
+/** Each offline-bounded packet remains one output asset; grouping the complete
+ * mode would recreate a tens-of-megabytes JavaScript payload. */
+export function altMitteV169ManualChunk(moduleId: string): string | undefined {
+  const match = moduleId
+    .replaceAll("\\", "/")
+    .match(
+      /\/data\/altMitteV169(Drawn|Native|Navigation)\/(packet-\d+)\.json(?:\?.*)?$/,
+    );
+  return match
+    ? `alt-mitte-v169-${match[1].toLowerCase()}-${match[2]}`
+    : undefined;
+}
+
 /**
  * Guard the synchronous app shell, including all of its static JS imports.
  * Three.js stays deliberately dynamic and is therefore excluded from this
@@ -55,6 +68,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(moduleId) {
+          const altMittePacket = altMitteV169ManualChunk(moduleId);
+          if (altMittePacket) return altMittePacket;
           const normalizedModuleId = moduleId.replaceAll("\\", "/");
           if (
             normalizedModuleId.includes("/node_modules/react/") ||

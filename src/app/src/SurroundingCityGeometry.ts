@@ -137,7 +137,7 @@ function disposeUnpublishedChunk(root: Group): void {
  * (byte * 257 is exact). Every tile uses one vertex/index pair and at most one
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
-function* buildSurroundingCityChunk(
+export function* buildSurroundingCityChunk(
   chunk: SurroundingCityChunk,
   id: string,
   minecraft = false,
@@ -155,6 +155,7 @@ function* buildSurroundingCityChunk(
   root.userData.sourceGeometry = "Geoportal Berlin LoD2 and OpenStreetMap; rudimentary mapped outline extension";
   root.userData.unsurveyedGround = true;
   root.userData.nativeMinecraft = minecraft;
+  root.userData.sourceKinds = [...new Set(chunk.meshes.map(part => part.kind))];
 
   let completed = false;
   try {

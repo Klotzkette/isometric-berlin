@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "./AltMitteNativeCoreV169";
 import { zooStationV165PassageAt, zooStationV165SolidAt, zooStationV165FloorAt } from "./zooStationV165Profile";
 import { grosserSternGatehousePassageAt, grosserSternGatehouseSolidAt } from "./grosserSternGatehousesV164Profile";
 import { hackescherHoefePassageAt } from "./hackescherMarktV163Profile";
@@ -3508,6 +3509,7 @@ function ensureIsoWorld(
   const humboldtMainV168Details = import("./HumboldtMainV168Details");
   const teehausRuinV168Details = import("./TeehausRuinV168");
   const tuWaterV168Details = import("./TuWaterV168");
+  const altMitteCoreV169Details = import("./AltMitteDrawnCoreV169");
 
   const zooGroundsDetails = import("./ZooGroundsV165");
   const kranzlerDetails = import("./KranzlerV165");
@@ -3534,9 +3536,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3788,6 +3790,7 @@ function ensureIsoWorld(
             includeCityRefinementsV166: false,
             includeOranienV167: false,
             includeUniversitiesV168: false,
+            includeAltMitteCoreV169: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             retainRasterAsphalt: false,
@@ -3850,6 +3853,10 @@ function ensureIsoWorld(
         isoWorld.add(teehausRuinV168.createTeehausRuinV168());
         yield;
         isoWorld.add(tuWaterV168.createTuWaterV168());
+        yield;
+        // Complete source envelopes stay resident before the first interactive
+        // frame. Only additional facade detail uses camera-following residency.
+        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps());
         yield;
 
         isoWorld.add(zooGrounds.createZooGroundsV165());
@@ -4266,7 +4273,7 @@ function ensureVoxelWorld(
     return;
   }
   runtime.voxelWorldState = "loading";
-  runtime.reportCoreProgress(0, 3);
+  runtime.reportCoreProgress(0, 4);
   let loadedParts = 0;
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
     try {
@@ -4274,7 +4281,7 @@ function ensureVoxelWorld(
     } finally {
       loadedParts += 1;
       if (voxelWorldIntentActive(runtime)) {
-        runtime.reportCoreProgress(loadedParts, 3);
+        runtime.reportCoreProgress(loadedParts, 4);
       }
     }
   };
@@ -4299,6 +4306,15 @@ function ensureVoxelWorld(
       // in flight. Do not turn that quick switch into a synchronous multi-
       // million-instance allocation hidden behind Day; a later Minecraft
       // entry retries immediately from the fulfilled fetch promises.
+      if (!voxelWorldIntentActive(runtime)) {
+        runtime.voxelWorldState = "idle";
+        return;
+      }
+      // Native source packets are large and are irrelevant to a Day visit.
+      // Preload only after confirming intent, then recheck after the await:
+      // imports may finish after a mode switch or context retirement.
+      await tracked(preloadAltMitteNativeV169Source());
+      if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
       if (!voxelWorldIntentActive(runtime)) {
         runtime.voxelWorldState = "idle";
         return;
@@ -4439,7 +4455,7 @@ function ensureVoxelWorld(
       });
       updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
       loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, 3);
+      runtime.reportCoreProgress(loadedParts, 4);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalEnvironment) {
         runtime.pedestrian.environment = provisionalEnvironment;

@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Matrix4, Mesh } from "three";
 
@@ -21,6 +22,9 @@ import {
   compilePedestrianObstacles,
   pedestrianPointIsBlocked,
 } from "../src/pedestrianNavigation";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const retainedPrism = source.buildings.find(({ id }) => id === "K0003UOE")!;

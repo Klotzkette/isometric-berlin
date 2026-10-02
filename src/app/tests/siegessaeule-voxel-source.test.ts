@@ -1,9 +1,13 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Matrix4 } from "three";
 import { createMinecraftVoxelWorld, decodeVoxelBuildingColumns, type VoxelPayload } from "../src/MinecraftVoxelWorld";
 import { isSiegessaeuleSourceVoxelColumn, SIEGESSAEULE_SOURCE } from "../src/SiegessaeuleSource";
 import prisms from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxels from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 describe("Siegessäule's exact coarse-source replacement", () => {
   test("pins only the existing three source identities and their actual socle outline", () => {

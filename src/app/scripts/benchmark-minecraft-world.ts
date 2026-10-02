@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { createHash } from "node:crypto";
 import { Group, InstancedMesh, Mesh } from "three";
 import {
@@ -23,6 +24,7 @@ const detailProfile: MinecraftVoxelDetailProfile = process.argv.includes(
 const reference = process.env.MINECRAFT_REFERENCE_MODULE
   ? await import(process.env.MINECRAFT_REFERENCE_MODULE)
   : null;
+if (!reference) await preloadAltMitteNativeV169Source();
 const started = performance.now();
 const tones = (reference?.buildColumnToneLookup ?? buildColumnToneLookup)(prisms);
 const lookupMs = performance.now() - started;

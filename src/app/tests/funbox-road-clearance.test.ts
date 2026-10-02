@@ -1,3 +1,4 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, test } from "bun:test";
@@ -16,6 +17,9 @@ import {
   decodeVoxelBuildingColumns,
   type VoxelPayload,
 } from "../src/MinecraftVoxelWorld";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 type Point2 = readonly [number, number];
 type EncodedPoint2 = readonly [number, number];

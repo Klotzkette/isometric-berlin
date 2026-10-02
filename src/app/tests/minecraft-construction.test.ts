@@ -2,11 +2,11 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v168.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v169.json";
 
-// Synchronous v168 measurements must equal cooperative construction below.
-// Earlier fixtures remain frozen. This cumulative fixture includes the HU/TU
-// and requested Teehaus ruin after exact previous-owner suppression. It proves
+// Synchronous v169 measurements must equal cooperative construction below.
+// Earlier fixtures remain frozen. The complete resident Alt-Mitte shells replace
+// only their exact source-owned old columns. This cumulative fixture proves
 // construction-path equality; separate source audits prove prior detail retention.
 for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {

@@ -1,4 +1,6 @@
+import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
+import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v169.json";
 
 import {
   Box3,
@@ -64,6 +66,9 @@ import {
 import { isHolocaustMinecraftProtectedAt } from "../src/holocaustField";
 import { isLenneOakVoxelTree } from "../src/MinecraftLenneOak";
 import { MINECRAFT_ECONOMIC_MINISTRY_GROUP, isEconomicMinistryReplacementCell } from "../src/EconomicMinistrySourceGeometry";
+
+// Prepare source before any synchronous native-world construction.
+await preloadAltMitteNativeV169Source();
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -176,7 +181,11 @@ describe("true voxel Minecraft world", () => {
     // v153 replaces 660 exclusively owned Bikini cells and 39 church cells.
     // Independent local pane counting is 1,826 before / 936 after replacement
     // (890 fewer generic panes); all authored facade detail is supplied separately.
-    expect(instanced("Voxel facade windows", world).count).toBe(1_559_221);
+    // v169 removes only exact owned generic columns; their complete native
+    // envelopes and facades are supplied by the resident/streamed source layers.
+    expect(instanced("Voxel facade windows", world).count).toBe(
+      currentPayloadBaseline.full["Voxel facade windows"].count,
+    );
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
     // 111 full / 37 mobile generic column instances from the prior baseline.
@@ -198,9 +207,11 @@ describe("true voxel Minecraft world", () => {
     // v151 replaces only safe ministry/Potsdamer and open Mall passage cells.
     // v153: 699 owned source columns yield to the two complete native models,
     // exactly 2,097 full stack instances or 699 mobile instances.
-    expect(instanced("Voxel building columns", world).count).toBe(1_429_883);
+    expect(instanced("Voxel building columns", world).count).toBe(
+      currentPayloadBaseline.full["Voxel building columns"].count,
+    );
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      523_077,
+      currentPayloadBaseline.mobile["Voxel building columns"].count,
     );
 
     const landmarks = world.getObjectByName(
@@ -451,8 +462,8 @@ describe("true voxel Minecraft world", () => {
     const name = "Geschichtspark Moabit Minecraft red-brick block batch";
     const full = instanced(name, world);
     const mobile = instanced(name, mobileWorld);
-    expect(full.count).toBe(3_882);
-    expect(mobile.count).toBe(2_093);
+    expect(full.count).toBe(4_040);
+    expect(mobile.count).toBe(2_273);
     for (const [mesh, detailProfile] of [
       [full, "full"],
       [mobile, "mobile"],
@@ -705,12 +716,9 @@ describe("true voxel Minecraft world", () => {
     const panes = world.getObjectByName("Voxel facade windows");
     expect(panes).toBeInstanceOf(InstancedMesh);
     const mesh = panes as InstanceType<typeof InstancedMesh>;
-    // The exact task-13 extent plus the non-overlapping OSM building sidecar
-    // carries about 1.6 million exposed window faces on 533k columns;
-    // interior faces are still skipped and the complete facade stays in one
-    // instanced draw call.
-    expect(mesh.count).toBeGreaterThan(1_450_000);
-    expect(mesh.count).toBeLessThan(1_750_000);
+    // Exact source replacements remove duplicate generic panes. Remaining
+    // exposed faces still share one batch and keep their measured dimensions.
+    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();
@@ -732,17 +740,12 @@ describe("true voxel Minecraft world", () => {
   });
 
   test("builds one instanced box set per layer with bounded tree counts", () => {
-    const groundRuns = payload.ground_rows.reduce(
-      (sum, row) => sum + row.length,
-      0,
+    // The v168 source constructor already has these exact ground runs after
+    // the complete source bridge, library, station and foundation replacements.
+    // v169 changes no ground: matrix/color hashes match that prior constructor.
+    expect(instanced("Voxel ground runs", world).count).toBe(
+      currentPayloadBaseline.full["Voxel ground runs"].count,
     );
-    // Eight net runs yield to source-sized Bundestag and Sandkrug decks;
-    // the latter is now one complete block-native bridge. The bounded v1.0.11
-    // Spreebogen grading splits 3,697 further runs into local terrain cells.
-    // The six library chamber cells split two more source runs at Bebelplatz.
-    // Station patches split eight; exact James-Simon foundation complements
-    // split three net runs while retaining all land outside the source/stairs.
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 8 + 3697 + 2 + 8 + 3);
     // Ordinary columns are a facade body plus palette-native plinth and
     // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;

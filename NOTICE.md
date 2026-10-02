@@ -1345,3 +1345,15 @@ reference estimates, distinct from measured envelopes. The Teehaus condition
 is dated to the documented post-fire photographs, not an asserted completion
 of the 2026 clearing works. Original industrial and pre-fire source geometry
 remains in evidence with explicit, limited replacement decisions.
+
+## v1.0.69 — Altbezirk Mitte
+
+The complete pre-merger Mitte building pass uses Berlin LoD2 and ALKIS boundary
+data (dl-de/zero-2-0), together with OpenStreetMap footprints and material tags
+(ODbL 1.0). The documented 2008 transfer of a small unbuilt embankment is retained
+as a historical boundary qualification. Existing building colours, transparent
+models and individual landmark detail keep their prior source credits.
+New window rhythms and untagged materials are procedural display estimates,
+not surveyed facade detail. No new photograph or texture is distributed.
+See the [boundary audit](docs/alt-mitte-v169-scope.md) and
+[source inventory](docs/alt-mitte-v169-sources.md).

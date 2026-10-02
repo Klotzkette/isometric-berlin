@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.69 — Complete Alt-Mitte building refinement
+
+- Audit the complete pre-2001 Mitte building scope against the official district
+  boundary and the documented 310 m² embankment addition of 2008.
+- Refine 8,374 previously generic official building families with complete
+  source parts, measured roof planes, open courtyards and source-edge ink.
+- Retain existing dedicated models, transparent buildings and inherited facade
+  colours. Supplement exposed walls with explicitly estimated window rhythms.
+- Keep source envelopes resident before interaction; split external geometry
+  into bounded packets and index roof/navigation queries spatially.
+- Preserve every unrelated existing street, shoreline, detail packet and
+  navigation owner through an independent release-to-release audit.
+
 ## v1.0.66 — North Mitte, City West and Moabit
 
 - Refine Park Inn, Alexander north, Schönhauser Tor and the bounded Mitte

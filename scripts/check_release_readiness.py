@@ -56,9 +56,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v166 adds bounded Mitte/Moabit/City West source models and street packets.
 # v167 adds the finite Oranien corridors, synagogue, Tacheles and Monbijou pools.
 # v168 adds full Scheunenviertel source families, HU/TU and the Teehaus ruin.
-# The final built site is 302.0 MiB; this finite 310 MiB offline ceiling changes
+# v169 adds 8,374 complete official Alt-Mitte source families and OSM facades,
+# including separate full drawn/native geometry in bounded modules/packets.
+# The final built site is 452.0 MiB; this finite 465 MiB offline ceiling changes
 # neither live packet/decode/GPU residency budgets nor source-detail policy.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 310 * 1024 * 1024
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 465 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

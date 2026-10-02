@@ -1,0 +1,887 @@
+{
+  "boundary": {
+    "path": "geo_data/regierungsviertel/alt-mitte-v169-boundary.geojson",
+    "fileSha256": "41584f41bdd3f884b3015808697a1847e3a734f3f07cfff7298e113afdcf0ca9",
+    "geometryWkbSha256": "1b71fbecce4d3cfa03b7126d2c96cb85582a307dcd2bdcff0ebb87b1cf958bb6",
+    "areaM2": 10673801.728383454,
+    "bounds25833": [
+      389163.254,
+      5818283.27,
+      393423.341,
+      5822347.553
+    ],
+    "viewerBounds": [
+      -336.74599999998463,
+      -2347.5530000003055,
+      3923.341000000015,
+      1716.730000000447
+    ],
+    "valid": true,
+    "selectionStatus": "frozen_conservative_pre2001_building_selection",
+    "source": {
+      "publisher": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+      "dataset_url": "https://daten.berlin.de/datensaetze/alkis-berlin-ortsteile-wfs-61bd3084",
+      "service_url": "https://gdi.berlin.de/services/wfs/alkis_ortsteile",
+      "request": {
+        "service": "WFS",
+        "request": "GetFeature",
+        "version": "2.0.0",
+        "typeNames": "alkis_ortsteile:ortsteile",
+        "outputFormat": "application/json",
+        "srsName": "EPSG:25833",
+        "CQL_FILTER": "nam='Mitte'"
+      },
+      "retrieved_date": "2026-10-02",
+      "licence": "dl-de/zero-2-0",
+      "licence_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "response_sha256": "4a6f6dd91194cff0a9bba790002a9ad4f062651550167efc7fb27cdf616405f8",
+      "selection": "Conservative building-selection scope for pre-2001 Bezirk Mitte: unchanged complete current official Ortsteil Mitte geometry. Includes the documented 310 m² addition at Schillingbrücke effective 2008-09-28; no historical line is reconstructed or claimed survey-exact.",
+      "status": "frozen_conservative_pre2001_building_selection",
+      "scope_version": "alt-mitte-v169",
+      "historical_scope": {
+        "requested": "Bezirk Mitte immediately before the 2001 merger (Alt-Mitte)",
+        "merger_date": "2001-01-01",
+        "merger_effect": "Former Bezirk Mitte became Ortsteil Mitte; the merger removed internal boundaries without redrawing the merged districts external boundaries.",
+        "identity_source_url": "https://www.berlin.de/ba-mitte/ueber-den-bezirk/ortsteile/mitte/",
+        "merger_source_url": "https://www.berlin.de/gutachterausschuss/service/glossar/artikel.156764.php",
+        "post2001_changes": [
+          {
+            "effective_date": "2008-09-28",
+            "direction": "added_to_mitte",
+            "area_m2": 310,
+            "parcel_at_change": "Gemarkung Friedrichshain, Flur 19, Flurstück 442",
+            "location": "Southwest Spree bank immediately northwest of Schillingbrücke",
+            "source_url": "https://pardok.parlament-berlin.de/starweb/adis/citat/VT/16/vo/vo16-128.pdf",
+            "source_pages": [
+              3,
+              7
+            ],
+            "official_publication_url": "https://www.berlin.de/sen/justiz/service/gesetze-und-verordnungen/2008/mdb-senatsverwaltungen-justiz-gesetz-undverordnungsblatt2008-heft_24.pdf",
+            "publication_date": "2008-09-27",
+            "map_observation": "Anlage 1 shows the affected embankment triangle outside the hatched building footprints; this is a visual map observation, not a modern cadastral parcel reconstruction.",
+            "geometry_treatment": "Retain the addition in the selection polygon as an explicit conservative allowance. The exact historical parcel geometry is not reconstructed from the raster map."
+          }
+        ],
+        "later_mitte_changes_outside_alt_mitte": [
+          {
+            "year": 2017,
+            "area": "Mauerpark / Gemarkung Wedding",
+            "source_url": "https://www.parlament-berlin.de/ados/18/IIIPlen/vorgang/verordnungen/vo18-036.pdf"
+          },
+          {
+            "year": 2022,
+            "area": "Kurfürstenstraße / former Bezirk Tiergarten",
+            "source_url": "https://www.berlin.de/sen/justiz/service/gesetze-und-verordnungen/2022/ausgabe_nr._15_vom_12.3.2022_s._89-96.pdf"
+          }
+        ],
+        "uncertainty": "Current ALKIS precision is preserved. The 2000 cadastral boundary is not represented survey-exactly: the confirmed later 310 m² addition remains included, and later cadastral coordinate maintenance is not reversed. Do not label this file as a recovered historical survey.",
+        "selection_policy": "Include complete building families with positive footprint intersection; do not clip their parts or surfaces to the scope line."
+      }
+    },
+    "geometryWkbSha256Method": "SHA-256 of unary_union([original GeoJSON geometry]).wkb; dissolves the one-element MultiPolygon wrapper without changing coordinates."
+  },
+  "method": "Positive footprint intersection area > 1e-6 m²; invalid rings make_valid in memory only; canonical core owner = parent_building_id or building_id. Counts describe cached current-scope representation, not full authoritative source denominator. All comparisons in EPSG:25833 or equivalent viewer frame. No ZIP parse or rendering.",
+  "releaseBounds": {
+    "coversBoundaryExactly": true,
+    "boundaryOutsideReleaseM2": 0.0,
+    "boundaryInsideCoreM2": 6646005.725409066,
+    "boundaryOutsideCoreM2": 4027796.002974384,
+    "releaseFileSha256": "cc93f63bb8ff0bc2bc2f036bf7c4e939bac4bf65e9e6c751761b7fcbd5e27e2c"
+  },
+  "coreLod2": {
+    "sourceRows": 17091,
+    "selectedParts": 8505,
+    "selectedCanonicalParents": 4839,
+    "selectedStandaloneRecords": 3969,
+    "selectedPartRecords": 4536,
+    "parentsWhoseCachedUnionRepresentativePointInside": 4826,
+    "parentsWhoseCachedUnionFullyCovered": 4823,
+    "parentIdsSha256": "37e31505f64a125e72a7001b130e8eeaf00bce7c4d4c21e03b3ff446bf4415e3",
+    "partsIdsSha256": "6267e954281f7be596718913c22a2fab21060ae94767b87b57ff45624e51e6c0"
+  },
+  "coreOsm": {
+    "selectedRecords": 2247,
+    "selectedOwners": 2247,
+    "ownersSha256": "efa2cce5daea0525886acb7503482650f86da01036b7236ae0fb3b8fcb2b1d5d"
+  },
+  "deliveredCorePrisms": {
+    "selected": 10710,
+    "mappedLod2Parts": 8464,
+    "mappedLod2Parents": 4818,
+    "mappedOsm": 2244,
+    "unknownIds": [],
+    "explicitlySuppressedPartIds": 320,
+    "explicitlySuppressedLod2Parts": 251,
+    "explicitlySuppressedLod2ParentsTouched": 66,
+    "explicitlySuppressedOsm": 69,
+    "selectedGpkgLod2PartIdsWithoutSelectedPrism": [
+      "1800006O",
+      "1800006Q",
+      "1Yq0005I",
+      "1Yq0005K",
+      "1Yq0005M",
+      "1Yq0005O",
+      "1Yq0005Q",
+      "1Yq0005R",
+      "1Yq0005S",
+      "1Yq0005T",
+      "1Yq0005U",
+      "1Yq0005W",
+      "1Yq0005X",
+      "1Yq0005Y",
+      "1Yq0005a",
+      "1Yq0005c",
+      "1Yq0005e",
+      "2rR0003m",
+      "2rR0003n",
+      "3oUQZSiF",
+      "4EOH6AkO",
+      "4lQRpzfu",
+      "5fFvOWkj",
+      "6rPynJpY",
+      "9XBhicuG",
+      "AeZ5nroI",
+      "J0x6VpET",
+      "J4Xmauhy",
+      "JvjGge26",
+      "JyPISa37",
+      "K0001x7G",
+      "K0001xDO",
+      "K0001xFR",
+      "K0001xnY",
+      "K0001yQP",
+      "K0001yYR",
+      "K0001ygE",
+      "M2rgMwV9",
+      "MBPsCUaK",
+      "Nt5FFdcG",
+      "Pt86yDBV",
+      "UTpfyOsW",
+      "VnDeIRZM",
+      "fllaWAhY",
+      "gAwitON0",
+      "noShgenW",
+      "oyF1vgKz",
+      "qQgjpUtR",
+      "rNZZDZKr",
+      "riS67XbF",
+      "u65NW4eb",
+      "x6nw8hWT",
+      "zloAlkKQ"
+    ],
+    "selectedGpkgOsmIdsWithoutSelectedPrism": [
+      "30739581",
+      "90601858",
+      "90739569"
+    ],
+    "invalidPrismRingsEvaluated": 68,
+    "invalidSelectedPrismIds": [
+      "11aIv7ud",
+      "2KbmBKhJ",
+      "44qFkOzq",
+      "6fN35UR5",
+      "E4AJcxZA",
+      "EKEhXPrF",
+      "ElQHTFfs",
+      "GDlTCgsi",
+      "H1fcpzly",
+      "JwvuyAcQ",
+      "KYfNX0HC",
+      "QzTNrCw6",
+      "S4lVS79h",
+      "WTKkR2FA",
+      "YcGcSXRl",
+      "YlHkC5nw",
+      "ipNVPKQY",
+      "n7k8YqbR",
+      "ngOcKvE1",
+      "olaVKPoL",
+      "pDAcIPY1",
+      "raSqaKuS"
+    ],
+    "note": "Suppression includes complete models and partial component replacements; touched parents are not a full-detail count. Additional geometric station/office suppression is not included. All delivered prisms remain partition-eligible in both runtime profiles.",
+    "selectedUniqueIds": 10708,
+    "selectedDuplicateIds": {
+      "K0000Aqm": 2,
+      "85972952": 2
+    },
+    "selectedGpkgLod2IdsAbsentEntirePrismInventory": [
+      "1800006O",
+      "1800006Q",
+      "1Yq0005I",
+      "1Yq0005K",
+      "1Yq0005M",
+      "1Yq0005O",
+      "1Yq0005Q",
+      "1Yq0005R",
+      "1Yq0005S",
+      "1Yq0005T",
+      "1Yq0005U",
+      "1Yq0005W",
+      "1Yq0005X",
+      "1Yq0005Y",
+      "1Yq0005a",
+      "1Yq0005c",
+      "1Yq0005e",
+      "2rR0003m",
+      "2rR0003n",
+      "3oUQZSiF",
+      "4EOH6AkO",
+      "4lQRpzfu",
+      "5fFvOWkj",
+      "9XBhicuG",
+      "AeZ5nroI",
+      "J0x6VpET",
+      "J4Xmauhy",
+      "JvjGge26",
+      "JyPISa37",
+      "K0001x7G",
+      "K0001xDO",
+      "K0001xFR",
+      "K0001xnY",
+      "K0001yQP",
+      "K0001yYR",
+      "K0001ygE",
+      "Nt5FFdcG",
+      "UTpfyOsW",
+      "VnDeIRZM",
+      "fllaWAhY",
+      "noShgenW",
+      "oyF1vgKz",
+      "qQgjpUtR",
+      "rNZZDZKr",
+      "riS67XbF",
+      "u65NW4eb",
+      "x6nw8hWT",
+      "zloAlkKQ"
+    ],
+    "selectedGpkgLod2IdsPresentButSimplifiedOutsideBoundary": [
+      "6rPynJpY",
+      "M2rgMwV9",
+      "MBPsCUaK",
+      "Pt86yDBV",
+      "gAwitON0"
+    ],
+    "selectedGpkgOsmIdsAbsentEntirePrismInventory": [
+      "30739581",
+      "90601858",
+      "90739569"
+    ],
+    "selectedGpkgOsmIdsPresentButSimplifiedOutsideBoundary": []
+  },
+  "outerCached": {
+    "owners": 5446,
+    "lod2": 5322,
+    "osm": 124,
+    "sortedNewlineIdsSha256": "6110b9b799c056836b1dbf51c017a9548f3987f25f4bcea13e8a26296d3954a0",
+    "fullyCoveredCachedFootprints": 5416,
+    "representativePointInside": 5423,
+    "officialCoreOwnerOverlap": 0,
+    "movedFullOwnerContracts": {
+      "owners": 814,
+      "lod2": 812,
+      "osm": 2,
+      "sortedNewlineIdsSha256": "ada61aa379b5eae668afb46afe8c56f0b0347d132a28ed746fe3be81a6806bff"
+    },
+    "streamedFullSourceContracts": {
+      "owners": 778,
+      "lod2": 777,
+      "osm": 1,
+      "sortedNewlineIdsSha256": "c4b2693966d0b771489ff9c435edfe81cb4cb6dbaf15014ff06858a95b9de4a2"
+    },
+    "dedicatedMovedOwnersOutsideStreamedContracts": {
+      "owners": 36,
+      "lod2": 35,
+      "osm": 1,
+      "sortedNewlineIdsSha256": "ad7b4f702981f63e6b0a9ae809b4dd9701a2815d480062fcb89c75e56fd0ec98"
+    },
+    "coarseByExcludingMovedContracts": {
+      "owners": 4632,
+      "lod2": 4510,
+      "osm": 122,
+      "sortedNewlineIdsSha256": "06fd9fa9fb6da15d41f8cd6c7603e11de8686340c7e50adf3d63c3f430797abf"
+    },
+    "movedGroups": {
+      "karlMarxAllee": {
+        "owners": 0,
+        "lod2": 0,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "westStreetsV163": {
+        "owners": 0,
+        "lod2": 0,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rosenthalerPlatz": {
+        "owners": 12,
+        "lod2": 11,
+        "osm": 1,
+        "sortedNewlineIdsSha256": "f3a790655a331198a51322e169af8d76587bb8f0dd3f555b91b960ee9f2d9d9d"
+      },
+      "mitteStreetsV166": {
+        "owners": 435,
+        "lod2": 435,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "e8c723f32850ece61c58e1e5c056fe83f0f4528e51fe47e379f68751569352d3"
+      },
+      "cityRefinementsV166": {
+        "owners": 471,
+        "lod2": 470,
+        "osm": 1,
+        "sortedNewlineIdsSha256": "75d64e0185ed682346632e6e986cfe0e2a918a7b980bc742fd1ece85afd1e41b"
+      },
+      "oranienCorridorsV167": {
+        "owners": 0,
+        "lod2": 0,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "oranienRefinementsV167": {
+        "owners": 0,
+        "lod2": 0,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scheunenviertelV168": {
+        "owners": 331,
+        "lod2": 331,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "f539ead46ee9edc90ce898df238b0d95f48a1dbd5e046fde1d95ad1f27a92c84"
+      },
+      "scheunenRefinementsV168": {
+        "owners": 331,
+        "lod2": 331,
+        "osm": 0,
+        "sortedNewlineIdsSha256": "f539ead46ee9edc90ce898df238b0d95f48a1dbd5e046fde1d95ad1f27a92c84"
+      }
+    }
+  },
+  "currentDrawnPackets": {
+    "intersectingChunksRead": 37,
+    "coarseNavigationOwners": {
+      "owners": 4677,
+      "lod2": 4555,
+      "osm": 122,
+      "sortedNewlineIdsSha256": "7160025836050d8c8461a5a64e545d1d52fc01df30c849b8626d7cea2a01ae23"
+    },
+    "leafNavigationOwners": {
+      "owners": 780,
+      "lod2": 780,
+      "osm": 0,
+      "sortedNewlineIdsSha256": "bbd214efaf9a3acbde7f1dc9eb1b2098593373391f3e9492e89b0f6dc658206c"
+    },
+    "coarseAndLeafOverlap": [],
+    "expectedCoarseOwnersAbsent": [],
+    "unexpectedCoarseOwners": [
+      "DEBE02YY400006Aa",
+      "DEBE02YY400006Y3",
+      "DEBE02YY400007G5",
+      "DEBE02YY400007Y5",
+      "DEBE02YY40000Ata",
+      "DEBE02YY40000C3S",
+      "DEBE02YY40000Eo3",
+      "DEBE02YY40001ITW",
+      "DEBE03AL47c0008Q",
+      "DEBE03YY600000Pm",
+      "DEBE03YY600001lm",
+      "DEBE03YY60000278",
+      "DEBE03YY6000038V",
+      "DEBE03YY600003aJ",
+      "DEBE03YY600003fn",
+      "DEBE03YY600003nA",
+      "DEBE03YY600004t3",
+      "DEBE03YY6000054L",
+      "DEBE03YY600005Cp",
+      "DEBE03YY600005SU",
+      "DEBE03YY600006Hw",
+      "DEBE03YY600006hL",
+      "DEBE03YY600006k5",
+      "DEBE03YY600007B9",
+      "DEBE03YY600007GF",
+      "DEBE03YY600007wg",
+      "DEBE03YY600008Gq",
+      "DEBE03YY600008Lk",
+      "DEBE03YY600009Ko",
+      "DEBE03YY600009dx",
+      "DEBE03YY600009hU",
+      "DEBE03YY600009mY",
+      "DEBE03YY60000AON",
+      "DEBE03YY60000ATs",
+      "DEBE03YY60000Alx",
+      "DEBE03YY60000Axr",
+      "DEBE03YY60000B3N",
+      "DEBE03YY60000BIj",
+      "DEBE03YY60000Brk",
+      "DEBE03YY60000CBp",
+      "DEBE03YY60000CEb",
+      "DEBE03YY60000CIE",
+      "DEBE03YY60000DTx",
+      "DEBE03YY60000Ddi",
+      "DEBE03YY60000DkU"
+    ],
+    "movedOwnersStillCoarse": [],
+    "streamedOwnersWithoutIntersectingLeafNavigation": [
+      "OSM-way-417529567"
+    ],
+    "leafOwnersOutsideCachedSelection": [
+      "DEBE02YY400003rW",
+      "DEBE02YY400007Pr",
+      "DEBE03YY600005ZV"
+    ],
+    "movedGlobalOwnersWithoutPacketNav": {
+      "owners": 37,
+      "lod2": 35,
+      "osm": 2,
+      "sortedNewlineIdsSha256": "c50145ec9e2d55679c6bf0b3f4b255ce8fcbf270df250c4565df3c89df34743f"
+    },
+    "boundaryRoundingExtras": [
+      {
+        "id": "DEBE02YY400003rW",
+        "intersectionM2": 0.021174855512936838,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0063009274694710085
+      },
+      {
+        "id": "DEBE02YY400006Aa",
+        "intersectionM2": 0.012395147610242746,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005830951883087126
+      },
+      {
+        "id": "DEBE02YY400006Y3",
+        "intersectionM2": 0.00671312477393401,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403124079369347
+      },
+      {
+        "id": "DEBE02YY400007G5",
+        "intersectionM2": 0.07128597684214506,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006827270574477066
+      },
+      {
+        "id": "DEBE02YY400007Pr",
+        "intersectionM2": 0.011236204077069425,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403124446611724
+      },
+      {
+        "id": "DEBE02YY400007Y5",
+        "intersectionM2": 0.004666388420146309,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0056568542398727426
+      },
+      {
+        "id": "DEBE02YY40000Ata",
+        "intersectionM2": 0.035624534684079445,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403124149536714
+      },
+      {
+        "id": "DEBE02YY40000C3S",
+        "intersectionM2": 0.004052301500720837,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.007071067666998547
+      },
+      {
+        "id": "DEBE02YY40000Eo3",
+        "intersectionM2": 0.003710414394692861,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.00490484307912575
+      },
+      {
+        "id": "DEBE02YY40001ITW",
+        "intersectionM2": 0.01047736143302759,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006824001800022573
+      },
+      {
+        "id": "DEBE03AL47c0008Q",
+        "intersectionM2": 0.04001280514103376,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0064031241780865954
+      },
+      {
+        "id": "DEBE03YY600000Pm",
+        "intersectionM2": 0.01619482931046898,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006948804737733197
+      },
+      {
+        "id": "DEBE03YY600001lm",
+        "intersectionM2": 0.033141048434023664,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006380768579833825
+      },
+      {
+        "id": "DEBE03YY60000278",
+        "intersectionM2": 0.0748321577272632,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.007071067622382801
+      },
+      {
+        "id": "DEBE03YY6000038V",
+        "intersectionM2": 0.058673316403438806,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005557393348644895
+      },
+      {
+        "id": "DEBE03YY600003aJ",
+        "intersectionM2": 0.0043267290591105,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005077118711771838
+      },
+      {
+        "id": "DEBE03YY600003fn",
+        "intersectionM2": 0.008459613331525867,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006760324110139284
+      },
+      {
+        "id": "DEBE03YY600003nA",
+        "intersectionM2": 0.01536474590287264,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.004416374409703172
+      },
+      {
+        "id": "DEBE03YY600004t3",
+        "intersectionM2": 0.0033415488217561204,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005385164504273763
+      },
+      {
+        "id": "DEBE03YY6000054L",
+        "intersectionM2": 0.027443796273129633,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.00707106779883607
+      },
+      {
+        "id": "DEBE03YY600005Cp",
+        "intersectionM2": 0.00020801709690474967,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403123979089669
+      },
+      {
+        "id": "DEBE03YY600005SU",
+        "intersectionM2": 0.006773860427238846,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.00529279145247658
+      },
+      {
+        "id": "DEBE03YY600005ZV",
+        "intersectionM2": 0.02545901478813115,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006498362475026477
+      },
+      {
+        "id": "DEBE03YY600006Hw",
+        "intersectionM2": 0.053792851876040444,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005862722609064028
+      },
+      {
+        "id": "DEBE03YY600006hL",
+        "intersectionM2": 0.010704624903539937,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005830951680043998
+      },
+      {
+        "id": "DEBE03YY600006k5",
+        "intersectionM2": 0.020125939550722616,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.00500000018255378
+      },
+      {
+        "id": "DEBE03YY600007B9",
+        "intersectionM2": 0.0065030993762525725,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006602409431569903
+      },
+      {
+        "id": "DEBE03YY600007GF",
+        "intersectionM2": 0.03022192952198079,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403123940206433
+      },
+      {
+        "id": "DEBE03YY600007wg",
+        "intersectionM2": 0.015307044000413675,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005379618613944235
+      },
+      {
+        "id": "DEBE03YY600008Gq",
+        "intersectionM2": 0.0029146350222272587,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005830951935183463
+      },
+      {
+        "id": "DEBE03YY600008Lk",
+        "intersectionM2": 0.020522777614635036,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005795956277030264
+      },
+      {
+        "id": "DEBE03YY600009Ko",
+        "intersectionM2": 0.002856945239371234,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005385164691698255
+      },
+      {
+        "id": "DEBE03YY600009dx",
+        "intersectionM2": 0.04212927469617158,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.004472136067356994
+      },
+      {
+        "id": "DEBE03YY600009hU",
+        "intersectionM2": 0.0007249600451407659,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006719899954066064
+      },
+      {
+        "id": "DEBE03YY600009mY",
+        "intersectionM2": 0.0013079519952196742,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.004325205855217738
+      },
+      {
+        "id": "DEBE03YY60000AON",
+        "intersectionM2": 0.01644197387808448,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.004999999989831849
+      },
+      {
+        "id": "DEBE03YY60000ATs",
+        "intersectionM2": 0.01310603309865487,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005385164911676083
+      },
+      {
+        "id": "DEBE03YY60000Alx",
+        "intersectionM2": 0.009276516871712525,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.00561854564560503
+      },
+      {
+        "id": "DEBE03YY60000Axr",
+        "intersectionM2": 0.04796214560797505,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.006403123948728786
+      },
+      {
+        "id": "DEBE03YY60000B3N",
+        "intersectionM2": 0.0054050469632409,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0053399457946772455
+      },
+      {
+        "id": "DEBE03YY60000BIj",
+        "intersectionM2": 0.045774642734468685,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0049999995901544025
+      },
+      {
+        "id": "DEBE03YY60000Brk",
+        "intersectionM2": 0.005147862241577976,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 1.7925358609377688
+      },
+      {
+        "id": "DEBE03YY60000CBp",
+        "intersectionM2": 0.03646218175381932,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.0070236708260725846
+      },
+      {
+        "id": "DEBE03YY60000CEb",
+        "intersectionM2": 0.005194003658846742,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005352162891974856
+      },
+      {
+        "id": "DEBE03YY60000CIE",
+        "intersectionM2": 0.031612541338922995,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005656854412708522
+      },
+      {
+        "id": "DEBE03YY60000DTx",
+        "intersectionM2": 0.022667280034111573,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005099019406898175
+      },
+      {
+        "id": "DEBE03YY60000Ddi",
+        "intersectionM2": 0.04225161614024434,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005830951818181176
+      },
+      {
+        "id": "DEBE03YY60000DkU",
+        "intersectionM2": 0.0039024379405532814,
+        "originalIntersectionM2": 0.0,
+        "originalDistanceM": 0.0,
+        "maxNavDistanceFromOriginalM": 0.005961590887374206
+      }
+    ]
+  },
+  "coreStreetOverlayRecords": {
+    "bySource": {
+      "west-streets-v163": {
+        "corePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        },
+        "retainedDetailedCorePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        }
+      },
+      "tauentzien-v165": {
+        "corePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        },
+        "retainedDetailedCorePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        }
+      },
+      "mitte-streets-v166": {
+        "corePrisms": {
+          "parts": 507,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 507,
+          "explicitSuppressedOverlap": [
+            "19283679",
+            "24054915",
+            "40754304"
+          ]
+        },
+        "retainedDetailedCorePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        }
+      },
+      "oranien-corridors-v167": {
+        "corePrisms": {
+          "parts": 0,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 0,
+          "explicitSuppressedOverlap": []
+        },
+        "retainedDetailedCorePrisms": {
+          "parts": 125,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 125,
+          "explicitSuppressedOverlap": []
+        }
+      },
+      "scheunenviertel-v168": {
+        "corePrisms": {
+          "parts": 58,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 58,
+          "explicitSuppressedOverlap": []
+        },
+        "retainedDetailedCorePrisms": {
+          "parts": 7,
+          "mappedLod2Parts": 0,
+          "mappedLod2ParentsTouched": 0,
+          "mappedOsmParts": 7,
+          "explicitSuppressedOverlap": []
+        }
+      }
+    },
+    "unionPartIds": 565,
+    "unionLod2ParentsTouched": 0,
+    "note": "Source records include retained earlier overlays. v167 explicitly removes Tacheles and synagogue v166 facade contributions; runtime suppression overlap flags stale source records. Overlay is not full LoD2 roof/surface restoration.",
+    "unionExplicitlySuppressedIds": [
+      "19283679",
+      "24054915",
+      "40754304"
+    ],
+    "unsuppressedUnionPartIds": 562
+  },
+  "baselineRelease": "v1.0.68",
+  "baselinePurpose": "Pre-refinement inventory only. Counts must not be interpreted as the final complete official LoD2 source denominator or the resulting v1.0.69 release coverage.",
+  "scopeHistoricalAllowance": {
+    "areaM2": 310,
+    "direction": "addition_to_Mitte_in_2008",
+    "preservedInSelection": true,
+    "sourceUrl": "https://pardok.parlament-berlin.de/starweb/adis/citat/VT/16/vo/vo16-128.pdf",
+    "sourcePages": [
+      3,
+      7
+    ]
+  }
+}
