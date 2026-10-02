@@ -1,5 +1,12 @@
 # Web viewer
 
+The v1.0.72 cold-start changes defer large source-array decoding and native-only
+navigation, remove temporary geometry copies and keep unused model data out of
+the progressive worker. Complete geometry and rendering settings are unchanged.
+See [memory measurements and verification](release-v1.0.72-review.md) and run
+`uv run --with playwright python scripts/smoke_cold_start.py URL` to check a
+fresh mobile-profile load, including its first 45 seconds.
+
 The v1.0.11 [BahnTower](db-tower-refinement.md),
 [Musikinstrumentenmuseum](music-museum-correction-v111.md) and
 [Spreebogen bank](spreebogen-bank-refinement.md) use source-bound replacement

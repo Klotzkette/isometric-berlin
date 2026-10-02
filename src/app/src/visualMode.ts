@@ -26,3 +26,14 @@ export function isVisualMode(value: string | null): value is VisualMode {
 export function resolveInitialVisualMode(themeParam: string | null): VisualMode {
   return isVisualMode(themeParam) ? themeParam : "day";
 }
+
+/** Match collision/roof queries to the world that has actually been published. */
+export function publishedNavigationMode(
+  requestedMode: VisualMode,
+  nativeWorldReady: boolean,
+): VisualMode {
+  // Desktop retains its complete drawn world during an asynchronous native
+  // preload. Its navigation must not query native-only data before that world
+  // is ready, including when the preload is cancelled or fails.
+  return requestedMode === "minecraft" && !nativeWorldReady ? "day" : requestedMode;
+}

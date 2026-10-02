@@ -1,5 +1,5 @@
 import {
-  BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group,
+  BoxGeometry, BufferGeometry, Color, DoubleSide, BufferAttribute, Group,
   InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
   MeshStandardMaterial, Vector3,
 } from "three";
@@ -8,13 +8,13 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const TU_WATER_V168_GROUP = "TU Berlin complete main building and Schleuseninsel Umlauftank 2";
 export const TU_WATER_V168_NATIVE_GROUP = "TU Berlin and Umlauftank 2 independent native blocks";
-export const TU_WATER_V168_RENDER_BUDGET = Object.freeze({
+export const TU_WATER_V168_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   sourceParents: source.parents.length, sourceParts: source.sourceParts.length,
   facadeInstances: source.facadeBoxes.length,
   nativeSourceRuns: source.nativeRows.length,
   nativeDetailInstances: source.nativeDetailRows.length,
   drawnBatches: 2, nativeBatches: 2,
-});
+}))();
 type Surface = { color: number; triangles: number[][][] };
 
 function surfacesMesh(surfaces: Surface[]): Mesh {
@@ -28,8 +28,8 @@ function surfacesMesh(surfaces: Surface[]): Mesh {
     }
   }
   const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new BufferAttribute(colors, 3));
   geometry.computeVertexNormals(); geometry.computeBoundingBox(); geometry.computeBoundingSphere();
   const day = new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
   const night = new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: .89, flatShading: true });

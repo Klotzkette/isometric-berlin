@@ -1,5 +1,5 @@
 import {
-  BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group,
+  BoxGeometry, BufferGeometry, Color, DoubleSide, BufferAttribute, Group,
   InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
   MeshStandardMaterial, Vector3,
 } from "three";
@@ -9,18 +9,18 @@ import { letteringStrokePaths } from "./drawnLettering";
 
 export const CITYWEST_CINEMAS_V166_GROUP = "City West cinemas Savignyplatz and surveyed FÜRST architecture";
 export const CITYWEST_CINEMAS_V166_NATIVE_GROUP = "City West cinemas Savignyplatz and FÜRST native blocks";
-export const CITYWEST_CINEMAS_V166_RENDER_BUDGET = Object.freeze({
+export const CITYWEST_CINEMAS_V166_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   parents: source.parents.length, parts: source.parts.length,
-  facadeInstances: source.facadeBoxes.length, nativeSourceBlocks: source.nativeBlocks.length,
+  facadeInstances: source.facadeBoxes.length, get nativeSourceBlocks() { return source.nativeBlocks.length; },
   drawnBatches: 3, nativeBatches: 1,
-});
+}))();
 
 type Surface = {color:number;triangles:number[][][]};
 function surfacesMesh(surfaces: Surface[]): Mesh {
   const count=surfaces.reduce((n,s)=>n+s.triangles.length*9,0);
   const positions=new Float32Array(count),colors=new Float32Array(count),color=new Color();let offset=0;
   for(const s of surfaces){color.setHex(s.color);for(const t of s.triangles)for(const p of t){positions.set(p,offset);colors.set([color.r,color.g,color.b],offset);offset+=3;}}
-  const geometry=new BufferGeometry();geometry.setAttribute("position",new Float32BufferAttribute(positions,3));geometry.setAttribute("color",new Float32BufferAttribute(colors,3));geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
+  const geometry=new BufferGeometry();geometry.setAttribute("position",new BufferAttribute(positions,3));geometry.setAttribute("color",new BufferAttribute(colors,3));geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
   const day=new MeshBasicMaterial({vertexColors:true,side:DoubleSide});
   const night=new MeshStandardMaterial({vertexColors:true,side:DoubleSide,roughness:.89,flatShading:true});
   const mesh=new Mesh(geometry,day);mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true};return mesh;

@@ -8,11 +8,11 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const HUMBOLDT_MAIN_V168_GROUP = "HU main building additive facade ornament";
 export const HUMBOLDT_MAIN_V168_NATIVE_GROUP = "HU main building independent native ornament";
-export const HUMBOLDT_MAIN_V168_RENDER_BUDGET = Object.freeze({
+export const HUMBOLDT_MAIN_V168_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   drawnBatches: 3, nativeBatches: 1,
   boxes: source.boxes.length, rods: source.rods.length, reliefInstances: source.beads.length,
-  nativeBoxes: source.nativeBoxes.length, replacedOwners: 0,
-});
+  get nativeBoxes() { return source.nativeBoxes.length; }, replacedOwners: 0,
+}))();
 
 type Kind = "box" | "rod" | "relief" | "native";
 function batch(rows: readonly number[][], kind: Kind): InstancedMesh {

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.71 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.71/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.72 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.72/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,20 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.71** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.72** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.72 targets mobile cold-start memory: large source arrays and
+native-only navigation load on demand, constructors avoid duplicate arrays,
+and the background
+worker no longer imports unused building source graphs. Complete geometry,
+materials, view distance and image resolution remain unchanged.
+[Cold-start review and limits](docs/release-v1.0.72-review.md).
+
+Version 1.0.72 reduziert die Speicherlast beim mobilen Kaltstart: unbenötigte
+Alt-Mitte-Minecraft-Daten bleiben zunächst ungeladen; große Zahlenlisten werden
+erst bei Bedarf entpackt und doppelte Zwischenpuffer entfallen. Sämtliche Geometrien, Materialien, Sichtweiten und Auflösung bleiben
+erhalten.
 
 Version 1.0.71 reduces avoidable rendering and memory work in every mode.
 Desktop now retires unused offscreen GPU copies, fixed city containers avoid

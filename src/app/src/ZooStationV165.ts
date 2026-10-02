@@ -1,5 +1,5 @@
 import {
-  BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group,
+  BoxGeometry, BufferGeometry, Color, DoubleSide, BufferAttribute, Group,
   InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
   MeshStandardMaterial, Quaternion, Vector3,
 } from "three";
@@ -9,12 +9,12 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const ZOO_STATION_V165_GROUP = "Bahnhof Zoo transparent source halls and Amerika Haus";
 export const ZOO_STATION_V165_NATIVE_GROUP = "Bahnhof Zoo and Amerika Haus independent native blocks";
-export const ZOO_STATION_V165_PROFILE = Object.freeze({
+export const ZOO_STATION_V165_PROFILE = /* @__PURE__ */ (() => Object.freeze({
   stationHeritageId: "09040500", amerikaHeritageId: "09096192",
   trackCount: 6, platformCount: 3, sourcePartCount: 21,
   references: ["https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040500", "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096192", "https://www.bahnhof.de/berlin-zoologischer-garten", "https://co-berlin.org/en/about-us"],
   sourceStatus: source.sourceStatus,
-});
+}))();
 type Row = number[];
 const steel = 0x434f4c;
 function pair(glass = false) {
@@ -35,7 +35,7 @@ function sourceMesh(glass: boolean): Mesh {
   const surfaces=source.surfaces.filter(s=>(s.material==="glass")===glass);
   const size=surfaces.reduce((sum,s)=>sum+s.triangles.length*9,0),positions=new Float32Array(size),colors=new Float32Array(size),color=new Color();let k=0;
   for(const s of surfaces){color.setHex(s.color);for(const t of s.triangles)for(const p of t){positions.set(p,k);colors.set([color.r,color.g,color.b],k);k+=3;}}
-  const geometry=new BufferGeometry();geometry.setAttribute("position",new Float32BufferAttribute(positions,3));geometry.setAttribute("color",new Float32BufferAttribute(colors,3));geometry.computeBoundingBox();geometry.computeBoundingSphere();
+  const geometry=new BufferGeometry();geometry.setAttribute("position",new BufferAttribute(positions,3));geometry.setAttribute("color",new BufferAttribute(colors,3));geometry.computeBoundingBox();geometry.computeBoundingSphere();
   const {day,night}=pair(glass);day.vertexColors=true;night.vertexColors=true;
   const mesh=new Mesh(geometry,day);mesh.name=glass?"Zoo hall transparent source curtain walls":"All measured opaque roofs stone and three mapped platforms";
   mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,glass};return mesh;

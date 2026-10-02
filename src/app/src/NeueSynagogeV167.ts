@@ -1,6 +1,6 @@
 import {
   BoxGeometry, BufferGeometry, Color, CylinderGeometry, DoubleSide,
-  Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh,
+  BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh,
   Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3,
 } from "three";
 import source from "./data/neueSynagogeV167Source.json";
@@ -8,12 +8,12 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const NEUE_SYNAGOGE_V167_GROUP = "Neue Synagoge preserved building and gilded crowns";
 export const NEUE_SYNAGOGE_V167_NATIVE_GROUP = "Neue Synagoge independent native blocks";
-export const NEUE_SYNAGOGE_V167_RENDER_BUDGET = Object.freeze({
+export const NEUE_SYNAGOGE_V167_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   parents: source.parents.length, parts: source.parts.length,
   sourceBoundaryPolygons: source.surfaces.length,
   facadeInstances: source.facadeBoxes.length, ribAndArchInstances: source.detailRods.length,
-  nativeBlocks: source.nativeBlocks.length, drawnBatches: 3, nativeBatches: 1,
-});
+  get nativeBlocks() { return source.nativeBlocks.length; }, drawnBatches: 3, nativeBatches: 1,
+}))();
 
 type Surface = { color: number; triangles: number[][][] };
 function surfacesMesh(surfaces: readonly Surface[]): Mesh {
@@ -27,8 +27,8 @@ function surfacesMesh(surfaces: readonly Surface[]): Mesh {
     }
   }
   const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new BufferAttribute(colors, 3));
   geometry.computeVertexNormals(); geometry.computeBoundingBox(); geometry.computeBoundingSphere();
   const day = new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
   const night = new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: .84, flatShading: true });

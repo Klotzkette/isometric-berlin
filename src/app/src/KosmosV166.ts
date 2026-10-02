@@ -9,11 +9,11 @@ import { letteringStrokePaths } from "./drawnLettering";
 
 export const KOSMOS_V166_GROUP = "KOSMOS former cinema and current event venue";
 export const KOSMOS_V166_NATIVE_GROUP = "KOSMOS event venue native blocks";
-export const KOSMOS_V166_RENDER_BUDGET = Object.freeze({
+export const KOSMOS_V166_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   parents: source.parents.length, parts: source.parts.length,
-  facadeInstances: source.facadeBoxes.length, nativeSourceBlocks: source.nativeBlocks.length,
+  facadeInstances: source.facadeBoxes.length, get nativeSourceBlocks() { return source.nativeBlocks.length; },
   drawnBatches: 2, nativeBatches: 1,
-});
+}))();
 
 type Surface = {color:number;triangles:number[][][]};
 function surfacesMesh(surfaces: Surface[]): Mesh {

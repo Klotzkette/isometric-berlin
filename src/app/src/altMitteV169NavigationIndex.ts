@@ -57,63 +57,93 @@ function indexBounds(
  * The injectable constructor also permits exact ownership/courtyard fixtures. */
 export function createAltMitteV169NavigationIndex(
   data: AltMitteV169Navigation,
+  options: { lazy?: boolean } = {},
 ) {
-  const columns = data.legacyPrisms.map((p) => ({
-    prism: p,
-    base: p.y0_dm / 10,
-    top: p.y0_dm / 10 + Math.ceil(p.h_dm / 40) * 4,
-    tier: ROOF_TIERS.has(p.roof),
-  }));
-  const columnIndex = new Map<string, number[]>();
-  for (let i = 0; i < columns.length; i++) {
-    let x0 = Infinity,
-      z0 = Infinity,
-      x1 = -Infinity,
-      z1 = -Infinity;
-    for (const [x, z] of columns[i].prism.ring) {
-      x0 = Math.min(x0, x / 10);
-      x1 = Math.max(x1, x / 10);
-      z0 = Math.min(z0, z / 10);
-      z1 = Math.max(z1, z / 10);
+  const buildColumns = () => {
+    const columns = data.legacyPrisms.map((p) => ({
+      prism: p,
+      base: p.y0_dm / 10,
+      top: p.y0_dm / 10 + Math.ceil(p.h_dm / 40) * 4,
+      tier: ROOF_TIERS.has(p.roof),
+    }));
+    const columnIndex = new Map<string, number[]>();
+    for (let i = 0; i < columns.length; i++) {
+      let x0 = Infinity,
+        z0 = Infinity,
+        x1 = -Infinity,
+        z1 = -Infinity;
+      for (const [x, z] of columns[i].prism.ring) {
+        x0 = Math.min(x0, x / 10);
+        x1 = Math.max(x1, x / 10);
+        z0 = Math.min(z0, z / 10);
+        z1 = Math.max(z1, z / 10);
+      }
+      if ([x0, z0, x1, z1].every(Number.isFinite))
+        indexBounds(columnIndex, i, x0, z0, x1, z1);
     }
-    if ([x0, z0, x1, z1].every(Number.isFinite))
-      indexBounds(columnIndex, i, x0, z0, x1, z1);
-  }
-  const triangles = data.roofTriangles.map(([a, b, c]) => ({
-    a,
-    b,
-    c,
-    d: (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2]),
-    x0: Math.min(a[0], b[0], c[0]),
-    x1: Math.max(a[0], b[0], c[0]),
-    z0: Math.min(a[2], b[2], c[2]),
-    z1: Math.max(a[2], b[2], c[2]),
-  }));
-  const roofIndex = new Map<string, number[]>();
-  for (let i = 0; i < triangles.length; i++) {
-    const t = triangles[i];
-    if (Math.abs(t.d) < 1e-8) continue;
-    indexBounds(
-      roofIndex,
-      i,
-      t.x0 - EPSILON,
-      t.z0 - EPSILON,
-      t.x1 + EPSILON,
-      t.z1 + EPSILON,
-    );
-  }
-  const nativeRoof = new Map<string, number>();
-  for (const [x, z, y] of data.nativeRoofCells) {
-    const address = key(x, z),
-      previous = nativeRoof.get(address);
-    nativeRoof.set(address, previous === undefined ? y : Math.max(previous, y));
-  }
-  const nativeSpans = data.nativeRoofSpans ?? [];
-  const nativeSpanIndex = new Map<string, number[]>();
-  for (let i = 0; i < nativeSpans.length; i++) {
-    const [x0, z0, x1, z1] = nativeSpans[i];
-    if (x1 > x0 && z1 > z0)
-      indexBounds(nativeSpanIndex, i, x0, z0, x1 - 1, z1 - 1);
+    return {
+      columns,
+      columnIndex,
+      prismIds: new Set(data.legacyPrisms.map((p) => p.id)),
+    };
+  };
+  const buildDrawnRoofs = () => {
+    const triangles = data.roofTriangles.map(([a, b, c]) => ({
+      a,
+      b,
+      c,
+      d: (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2]),
+      x0: Math.min(a[0], b[0], c[0]),
+      x1: Math.max(a[0], b[0], c[0]),
+      z0: Math.min(a[2], b[2], c[2]),
+      z1: Math.max(a[2], b[2], c[2]),
+    }));
+    const roofIndex = new Map<string, number[]>();
+    for (let i = 0; i < triangles.length; i++) {
+      const t = triangles[i];
+      if (Math.abs(t.d) < 1e-8) continue;
+      indexBounds(
+        roofIndex,
+        i,
+        t.x0 - EPSILON,
+        t.z0 - EPSILON,
+        t.x1 + EPSILON,
+        t.z1 + EPSILON,
+      );
+    }
+    return { triangles, roofIndex };
+  };
+  const buildNativeRoofs = () => {
+    const nativeRoof = new Map<string, number>();
+    for (const [x, z, y] of data.nativeRoofCells) {
+      const address = key(x, z),
+        previous = nativeRoof.get(address);
+      nativeRoof.set(
+        address,
+        previous === undefined ? y : Math.max(previous, y),
+      );
+    }
+    const nativeSpans = data.nativeRoofSpans ?? [];
+    const nativeSpanIndex = new Map<string, number[]>();
+    for (let i = 0; i < nativeSpans.length; i++) {
+      const [x0, z0, x1, z1] = nativeSpans[i];
+      if (x1 > x0 && z1 > z0)
+        indexBounds(nativeSpanIndex, i, x0, z0, x1 - 1, z1 - 1);
+    }
+    return { nativeRoof, nativeSpans, nativeSpanIndex };
+  };
+  let columnState: ReturnType<typeof buildColumns> | undefined;
+  let drawnState: ReturnType<typeof buildDrawnRoofs> | undefined;
+  let nativeState: ReturnType<typeof buildNativeRoofs> | undefined;
+  const prepareColumns = () => (columnState ??= buildColumns());
+  const prepareDrawnRoofs = () => (drawnState ??= buildDrawnRoofs());
+  const prepareNativeRoofs = () => (nativeState ??= buildNativeRoofs());
+  // Existing injectable callers retain eager semantics; the viewer opts into
+  // representation-local preparation before publishing its first frame.
+  if (!options.lazy) {
+    prepareColumns();
+    prepareDrawnRoofs();
+    prepareNativeRoofs();
   }
   const sourceColumn = (
     x: number,
@@ -128,6 +158,7 @@ export function createAltMitteV169NavigationIndex(
       !Number.isFinite(top)
     )
       return false;
+    const { columns, columnIndex } = prepareColumns();
     const candidates = columnIndex.get(
       key(
         Math.floor(x / ALT_MITTE_V169_INDEX_CELL_M),
@@ -155,6 +186,7 @@ export function createAltMitteV169NavigationIndex(
   const roofAt = (x: number, z: number, native = false): number | null => {
     if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
     if (native) {
+      const { nativeRoof, nativeSpans, nativeSpanIndex } = prepareNativeRoofs();
       const cellX = Math.floor(x),
         cellZ = Math.floor(z);
       let highest = nativeRoof.get(key(cellX, cellZ)) ?? null;
@@ -172,6 +204,7 @@ export function createAltMitteV169NavigationIndex(
         }
       return highest;
     }
+    const { triangles, roofIndex } = prepareDrawnRoofs();
     const candidates = roofIndex.get(
       key(
         Math.floor(x / ALT_MITTE_V169_INDEX_CELL_M),
@@ -201,7 +234,14 @@ export function createAltMitteV169NavigationIndex(
   return {
     sourceColumn,
     roofAt,
-    prismIds: new Set(data.legacyPrisms.map((p) => p.id)),
+    prepareDrawnRoofs,
+    prepareNative: () => {
+      prepareColumns();
+      prepareNativeRoofs();
+    },
+    get prismIds() {
+      return prepareColumns().prismIds;
+    },
     parts: data.parts,
   };
 }

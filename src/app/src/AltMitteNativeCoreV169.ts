@@ -3,6 +3,7 @@ import {
   createAltMitteCoreV169FromSource,
   type AltMitteCoreV169Source,
 } from "./AltMitteCoreV169";
+import { preloadAltMitteV169NativeNavigation } from "./altMitteV169Profile";
 
 let payload: AltMitteCoreV169Source | undefined;
 let loading: Promise<void> | undefined;
@@ -11,8 +12,11 @@ let loading: Promise<void> | undefined;
 export function preloadAltMitteNativeV169Source(): Promise<void> {
   if (payload) return Promise.resolve();
   if (!loading) {
-    loading = import("./data/altMitteNativeV169Data")
-      .then((module) => {
+    loading = Promise.all([
+      import("./data/altMitteNativeV169Data"),
+      preloadAltMitteV169NativeNavigation(),
+    ])
+      .then(([module]) => {
         const source = module.default as unknown as AltMitteCoreV169Source;
         if (
           source.schemaVersion !== 1 ||

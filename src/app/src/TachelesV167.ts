@@ -9,13 +9,13 @@ import { letteringStrokePaths } from "./drawnLettering";
 
 export const TACHELES_V167_GROUP = "Tacheles Fotografiska current measured historic envelope";
 export const TACHELES_V167_NATIVE_GROUP = "Tacheles Fotografiska independent native blocks";
-export const TACHELES_V167_RENDER_BUDGET = Object.freeze({
+export const TACHELES_V167_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   sourceParents: source.parents.length, sourceParts: source.sourceParts.length,
   facadeInstances: source.facadeBoxes.length,
   nativeSourceRuns: source.nativeRows.length,
   nativeDetailInstances: source.nativeDetailRows.length,
   drawnBatches: 2, nativeBatches: 2,
-});
+}))();
 type Surface = { color: number; triangles: number[][][] };
 
 function surfacesMesh(surfaces: Surface[]): Mesh {

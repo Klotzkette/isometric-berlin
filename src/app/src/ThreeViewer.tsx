@@ -485,7 +485,7 @@ import {
   wheelNavigationIntent,
   wheelZoomFactor,
 } from "./viewerGestures";
-import type { VisualMode } from "./visualMode";
+import { publishedNavigationMode, type VisualMode } from "./visualMode";
 import {
   createMinecraftMaterialState,
   disposeMinecraftMaterialState,
@@ -3599,7 +3599,8 @@ function ensureIsoWorld(
         );
         provisionalPedestrianEnvironment = pedestrianEnvironment;
         const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
-        pedestrianEnvironment.visualMode = () => runtime.lightingMode;
+        pedestrianEnvironment.visualMode = () =>
+          publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
         pedestrianEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(
             ground.cell_m,
@@ -4390,7 +4391,8 @@ function ensureVoxelWorld(
           prisms,
           surroundingPedestrianExtension(runtime),
         );
-        provisionalEnvironment.visualMode = () => runtime.lightingMode;
+        provisionalEnvironment.visualMode = () =>
+          publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
         const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
         provisionalEnvironment.parkTreeSolidAt =
           createPedestrianParkTreeSolidTester(

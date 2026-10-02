@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.72 — Lower mobile cold-start memory
+
+- Decode large source arrays only on field access, retaining exact source values.
+- Defer native-only Alt-Mitte navigation and unused roof/collision indexes.
+- Keep navigation aligned with the published city during asynchronous mode changes.
+- Stop unused model metadata from pulling complete building sources into the worker.
+- Decode street geometry directly into final buffers and reuse completed model arrays.
+- Add a repeatable cold-start memory/load regression check.
+- Preserve exact geometry, source data, materials, view distance and resolution.
+
 ## v1.0.71 — Runtime stability without reduced detail
 
 - Retire unused offscreen GPU copies on desktop as well as mobile, retaining
