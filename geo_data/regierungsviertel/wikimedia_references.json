@@ -6774,6 +6774,26 @@
       "credit": "File:Volkspark spielplatz 2024.jpg — Traktorminze, CC BY-SA 4.0, Wikimedia Commons. Inspected external visual reference; no photographic pixels bundled.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "title": "File:Bars Kastanienallee Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bars_Kastanienallee_Berlin.jpg",
+      "artist": "Oh-Berlin.com",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "File:Bars Kastanienallee Berlin.jpg — Oh-Berlin.com, CC BY 2.0, Wikimedia Commons. Photograph taken 22 February 2011. Inspected external visual reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Zionskirchplatz, Berlin-Mitte, 160328, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Zionskirchplatz,_Berlin-Mitte,_160328,_ako.jpg",
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "credit": "File:Zionskirchplatz, Berlin-Mitte, 160328, ako.jpg — Ansgar Koreng / CC BY-SA 3.0 (DE), Wikimedia Commons. Photograph taken 28 March 2016. Inspected external visual reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

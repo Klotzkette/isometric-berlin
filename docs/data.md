@@ -1,5 +1,9 @@
 # Data — Additive Source Fusion
 
+The v1.0.75 [four Zionskirchplatz frontages](zionskirchplatz-v175.md) add bounded
+source-plane detail, with unchanged city geometry and equal mobile detail.
+
+
 This project uses **additive data fusion**, per owner policy. Every
 permitted source contributes; the best evidence from each source is
 kept per feature / per tile. No source is treated as a replacement

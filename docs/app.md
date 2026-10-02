@@ -1,5 +1,9 @@
 # Web viewer
 
+The v1.0.75 [four Zionskirchplatz frontages](zionskirchplatz-v175.md) add bounded
+source-plane detail, with unchanged city geometry and equal mobile detail.
+
+
 The v1.0.72 cold-start changes defer large source-array decoding and native-only
 navigation, remove temporary geometry copies and keep unused model data out of
 the progressive worker. Complete geometry and rendering settings are unchanged.

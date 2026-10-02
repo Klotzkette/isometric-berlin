@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "scope": "Only four existing buildings; selected publicly visible street faces.",
+  "visualReferences": [
+    {
+      "title": "File:Bars Kastanienallee Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bars_Kastanienallee_Berlin.jpg",
+      "artist": "Oh-Berlin.com",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "File:Bars Kastanienallee Berlin.jpg \u2014 Oh-Berlin.com, CC BY 2.0, Wikimedia Commons. Photograph taken 22 February 2011. Inspected external visual reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Zionskirchplatz, Berlin-Mitte, 160328, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Zionskirchplatz,_Berlin-Mitte,_160328,_ako.jpg",
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "credit": "File:Zionskirchplatz, Berlin-Mitte, 160328, ako.jpg \u2014 Ansgar Koreng / CC BY-SA 3.0 (DE), Wikimedia Commons. Photograph taken 28 March 2016. Inspected external visual reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "primarySources": [
+    "https://nautaberlin.com/impressum",
+    "https://www.aapka.de/",
+    "https://www.w-der-imbiss.de/"
+  ],
+  "uncertainty": "Photographic colours, bay subdivisions and heights of ornament are display estimates. The 103 mark and yellow awning are an explicitly requested historical 2011 cafe cue, not current tenant signage. No interior, current shop inventory or facade survey is asserted.",
+  "buildings": [
+    {
+      "parentId": "DEBE01YYK0000CIk",
+      "osmWayId": "28987958",
+      "address": "Kastanienallee 49",
+      "paint": 14279387,
+      "base": 12636869,
+      "awning": 12095555,
+      "upperRows": 4,
+      "smallAttic": true,
+      "faces": [
+        {
+          "sourcePolygonId": "UUID_68884d96-2cd6-454c-aa75-cf09e0b13a9b",
+          "bays": 6,
+          "shops": true,
+          "balconyBays": [
+            1
+          ],
+          "historic103": [
+            4
+          ]
+        },
+        {
+          "sourcePolygonId": "UUID_04097b42-0bf4-4f4d-b4cc-8d9012a4c2ab",
+          "bays": 5,
+          "shops": true
+        },
+        {
+          "sourcePolygonId": "UUID_a893c0bd-09c0-4618-8e67-7b302fc735ab",
+          "bays": 1,
+          "shops": true
+        }
+      ]
+    },
+    {
+      "parentId": "DEBE01YYK00005G6",
+      "osmWayId": "29097995",
+      "address": "Kastanienallee 50",
+      "paint": 14406845,
+      "base": 13611674,
+      "shopFrame": 11439710,
+      "awning": 12345911,
+      "upperRows": 4,
+      "smallAttic": true,
+      "faces": [
+        {
+          "sourcePolygonId": "UUID_8c8095a6-a469-4b33-be4e-980cbf176b67",
+          "bays": 2,
+          "shops": true
+        },
+        {
+          "sourcePolygonId": "UUID_26361a29-2ddb-4ff1-8a09-b729214cdca0",
+          "bays": 3,
+          "shops": true
+        },
+        {
+          "sourcePolygonId": "UUID_c624c05d-9866-422b-9fe3-90f3ce8e2d36",
+          "bays": 4,
+          "shops": true
+        }
+      ]
+    },
+    {
+      "parentId": "DEBE01YYK0000C4w",
+      "osmWayId": "27764546",
+      "address": "Zionskirchstra\u00dfe 21",
+      "paint": 15065036,
+      "base": 13869444,
+      "baseHeight": 6.3,
+      "upperRows": 4,
+      "smallAttic": true,
+      "rusticated": true,
+      "faces": [
+        {
+          "sourcePolygonId": "UUID_0938ca63-de48-43d7-b3a1-e4aa3159e615",
+          "bays": 4,
+          "balconyBays": [
+            1
+          ]
+        },
+        {
+          "sourcePolygonId": "UUID_9b23450d-2f64-4b56-9631-1e54f3fc85b2",
+          "bays": 2,
+          "maxFacadeY": 23.53
+        },
+        {
+          "sourcePolygonId": "UUID_1dc36778-b375-43e6-a199-20410245f246",
+          "bays": 2,
+          "maxFacadeY": 23.53
+        }
+      ]
+    },
+    {
+      "parentId": "DEBE01YYK00008CV",
+      "osmWayId": "42112366",
+      "address": "Zionskirchstra\u00dfe 22/24",
+      "paint": 13078151,
+      "base": 11108472,
+      "upperRows": 5,
+      "smallAttic": true,
+      "faces": [
+        {
+          "sourcePolygonId": "UUID_3e121dde-97b3-435f-b3e8-c657d9083efb",
+          "bays": 6
+        },
+        {
+          "sourcePolygonId": "UUID_7d11cd5b-9873-40a6-8e28-c604806768ba",
+          "bays": 5
+        }
+      ]
+    }
+  ]
+}

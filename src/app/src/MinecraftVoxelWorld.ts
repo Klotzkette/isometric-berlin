@@ -1,3 +1,4 @@
+import { createMinecraftZionskirchplatzV175 } from "./ZionskirchplatzV175";
 import { createMinecraftBerlinWallMemorialV174 } from "./BerlinWallMemorialV174";
 import { berlinWallMemorialV174SourceColumn } from "./berlinWallMemorialV174Profile";
 import { createMinecraftZionskircheV174 } from "./ZionskircheV174";
@@ -2989,6 +2990,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftBndHeadquartersV174());
   yield;
   group.add(createMinecraftWeinbergPlaygroundV174());
+  yield;
+  group.add(createMinecraftZionskirchplatzV175());
   yield;
   group.add(createMinecraftZionskircheV174());
   yield;

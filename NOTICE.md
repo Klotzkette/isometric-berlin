@@ -17,6 +17,15 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Four Zionskirchplatz frontages (v1.0.75):** The retained Berlin LoD2/OSM
+  owners receive thin, source-bound facade details. Two external references,
+  Oh-Berlin.com's 2011 corner photograph (CC BY 2.0) and Ansgar Koreng's 2016
+  panorama (CC BY-SA 3.0 DE), guide independently authored colours and
+  subdivisions. Both are credited in both Wikimedia manifests; no photo pixels
+  are bundled. The old Café 103 mark is explicitly historical. See
+  [scope and sources](docs/zionskirchplatz-v175.md).
+
+
 - **BND, Bernauer Straße, Zionskirche and Weinbergspark (v1.0.74):**
   Retained Berlin LoD2 and OSM geometry anchor the headquarters, church and
   present-day memorial. Complete official museum surfaces replace exactly two
