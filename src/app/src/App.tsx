@@ -131,6 +131,7 @@ import {
   initialLanguage,
 } from "./localization";
 import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
+import { DEFAULT_FLOOD_DEPTH, FLOOD_DEPTHS, type FloodDepth } from "./floodDepth";
 import {
   isNightLightsOnByUser,
   rememberNightLightsOn,
@@ -797,6 +798,7 @@ export function App() {
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialLightingMode);
   const lightingModeRef = useRef<VisualMode>(lightingMode);
+  const [floodDepth, setFloodDepth] = useState<FloodDepth>(DEFAULT_FLOOD_DEPTH);
   // "Licht an/aus": persisted like mute (nightLighting.ts), independent of
   // the visual mode itself. Only night reads it — day/minecraft ignore it
   // entirely, see resolveNightLightsOn.
@@ -2882,6 +2884,7 @@ export function App() {
                   isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
                 }
                 lightingMode={lightingMode}
+                floodDepth={floodDepth}
                 nightLightsOn={resolveNightLightsOn(
                   lightingMode,
                   nightLightsOn,
@@ -3100,6 +3103,26 @@ export function App() {
               <Waves size={18} aria-hidden="true" />
             </button>
           </div>
+          {lightingMode === "flood" ? (
+            <div
+              className="flood-depth-control flood-depth-control--desktop"
+              role="group"
+              aria-label={copy.waterLevel}
+            >
+              <span>{copy.waterLevel}</span>
+              {FLOOD_DEPTHS.map((depth) => (
+                <button
+                  key={depth}
+                  type="button"
+                  aria-label={`${copy.waterLevel}: ${depth} m`}
+                  aria-pressed={floodDepth === depth}
+                  onClick={() => setFloodDepth(depth)}
+                >
+                  {depth} m
+                </button>
+              ))}
+            </div>
+          ) : null}
           <button
             type="button"
             className="weather-toggle"
@@ -3947,15 +3970,32 @@ export function App() {
             <button
               type="button"
               aria-pressed={lightingMode === "flood"}
-              onClick={() => {
-                selectVisualMode("flood");
-                setMobileSheet(null);
-              }}
+              onClick={() => selectVisualMode("flood")}
             >
               <Waves size={20} aria-hidden="true" />
               <span>{copy.flood}</span>
             </button>
           </div>
+          {lightingMode === "flood" ? (
+            <div
+              className="flood-depth-control mobile-flood-depth-control"
+              role="group"
+              aria-label={copy.waterLevel}
+            >
+              <span>{copy.waterLevel}</span>
+              {FLOOD_DEPTHS.map((depth) => (
+                <button
+                  key={depth}
+                  type="button"
+                  aria-label={`${copy.waterLevel}: ${depth} m`}
+                  aria-pressed={floodDepth === depth}
+                  onClick={() => setFloodDepth(depth)}
+                >
+                  {depth} m
+                </button>
+              ))}
+            </div>
+          ) : null}
           {supportsNightLightsToggle(lightingMode) ? (
             <button
               type="button"

@@ -1,6 +1,7 @@
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { captureAboveWaterAppearance, restoreAboveWaterAppearance, setAboveWaterFog, type AboveWaterAppearance } from "./underwaterAppearance";
-import { createFloodWater, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, FLOOD_WATER_LEVEL_M, type FloodWater } from "./FloodWater";
+import { createFloodWater, setFloodWaterDepth, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, type FloodWater } from "./FloodWater";
+import { DEFAULT_FLOOD_DEPTH, floodWaterLevel, type FloodDepth } from "./floodDepth";
 import { preloadAltMitteNativeV169Source } from "./AltMitteNativeCoreV169";
 import { zooStationV165PassageAt, zooStationV165SolidAt, zooStationV165FloorAt } from "./zooStationV165Profile";
 import { grosserSternGatehousePassageAt, grosserSternGatehouseSolidAt } from "./grosserSternGatehousesV164Profile";
@@ -599,6 +600,7 @@ type ThreeViewerProps = {
   active: boolean;
   canvasAriaLabel: string;
   lightingMode: LightingMode;
+  floodDepth?: FloodDepth;
   // Only meaningful while lightingMode === "night"; day/minecraft ignore it.
   // See nightLighting.ts for the persisted preference this mirrors.
   nightLightsOn: boolean;
@@ -674,6 +676,7 @@ type Runtime = {
   culturalDetails: Group;
   disposed: boolean;
   floodWater: FloodWater | null;
+  floodDepth: FloodDepth;
   floodElapsedSeconds: number;
   floodLastFrameAt: number;
   focusCameraByName: Map<string, FocusCamera>;
@@ -1389,7 +1392,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.cameraInsideTunnel;
   const floodVisible = runtime.lightingMode === "flood" && !runtime.underside;
   if (floodVisible && !runtime.floodWater) {
-    runtime.floodWater = createFloodWater();
+    runtime.floodWater = createFloodWater(runtime.floodDepth);
     runtime.scene.add(runtime.floodWater);
   }
   const floodChanged = !!runtime.floodWater && runtime.floodWater.visible !== floodVisible;
@@ -5283,6 +5286,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       active,
       canvasAriaLabel,
       lightingMode,
+      floodDepth = DEFAULT_FLOOD_DEPTH,
       nightLightsOn,
       pedestrianMode,
       precipitationEnabled,
@@ -5318,6 +5322,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       ...PEDESTRIAN_IDLE_INPUT,
     });
     const lightingModeRef = useRef(lightingMode);
+    const floodDepthRef = useRef(floodDepth);
     const pedestrianModeRef = useRef(pedestrianMode);
     const nightLightsOnRef = useRef(nightLightsOn);
     const precipitationEnabledRef = useRef(precipitationEnabled);
@@ -5474,6 +5479,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
+
+    useEffect(() => {
+      floodDepthRef.current = floodDepth;
+      const runtime = runtimeRef.current;
+      if (!runtime) return;
+      runtime.floodDepth = floodDepth;
+      if (runtime.floodWater) setFloodWaterDepth(runtime.floodWater, floodDepth);
+      invalidateScenePresentation(runtime);
+    }, [floodDepth]);
 
     useEffect(() => {
       precipitationEnabledRef.current = precipitationEnabled;
@@ -6163,6 +6177,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         culturalDetails,
         disposed: false,
         floodWater: null,
+        floodDepth: floodDepthRef.current,
         floodElapsedSeconds: 0,
         floodLastFrameAt: 0,
         focusCameraByName: new Map(),
@@ -8072,7 +8087,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           notifyView(runtime, onViewChangeRef.current);
         }
         underwaterPresentationOptions.waterLevelY = runtime.lightingMode === "flood"
-          ? FLOOD_WATER_LEVEL_M : WATER_LEVEL_Y;
+          ? floodWaterLevel(runtime.floodDepth) : WATER_LEVEL_Y;
         underwaterPresentationOptions.cameraY = camera.position.y;
         underwaterPresentationOptions.insideTunnel =
           physicallyInsideTunnel || framedPortal;

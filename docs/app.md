@@ -51,7 +51,12 @@ show the Google attribution required by the Google Maps Platform Terms.
 
 The **Versunken / Flooded Berlin** mode (`?theme=flood`) reuses the complete
 Day city with its exact colours and geometry. A fictional horizontal water
-table at world y=7.2 m sits about 3 m above typical central streets. Local
+table defaults to world y=7.2 m, about 3 m above typical central streets.
+Since v1.0.73, the desktop controls and mobile mode sheet offer 3, 6 or 21 m
+above the same street datum (world y=7.2, 10.2 or 25.2 m). This choice survives
+mode changes within the session. It moves the same mesh without replacing
+geometry, material or buffers; shader view vectors and underwater presentation
+use the raised world level. The camera and walking position stay fixed. Local
 terrain naturally changes the depth; this is an imagined setting, not a
 hydrological forecast. The exact existing 81.457 km² scope clips the water.
 

@@ -1,11 +1,12 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { DoubleSide, Mesh, Raycaster, Vector3 } from "three";
+import { Box3, DoubleSide, Mesh, Raycaster, Vector3 } from "three";
 
 import {
   createFloodWater, FLOOD_FRAME_INTERVAL_MS, FLOOD_WATER_LEVEL_M,
-  FLOOD_WATER_MAX_SWELL_M, updateFloodWater,
+  FLOOD_WATER_MAX_SWELL_M, setFloodWaterDepth, updateFloodWater,
 } from "../src/FloodWater";
+import { FLOOD_DEPTHS, floodWaterLevel } from "../src/floodDepth";
 import sourceScope from "../src/data/surroundingCityScope.json";
 
 type Ring = readonly (readonly number[])[];
@@ -64,6 +65,36 @@ afterAll(() => {
 });
 
 describe("bounded, additive flooded Berlin water", () => {
+  test("raises the same full surface to 3, 6 and 21 metres without new GPU resources", () => {
+    const mesh = createFloodWater(21);
+    const geometry = mesh.geometry, material = mesh.material;
+    const positions = geometry.getAttribute("position");
+    const buffer = positions.array, indices = geometry.index!.array;
+    const snapshot = buffer.slice(), indexSnapshot = indices.slice();
+    const shaderVersion = material.version;
+    updateFloodWater(mesh, 12);
+    for (const depth of [...FLOOD_DEPTHS, 6, 21, 3] as const) {
+      setFloodWaterDepth(mesh, depth);
+      expect(mesh.geometry).toBe(geometry);
+      expect(mesh.material).toBe(material);
+      expect(geometry.getAttribute("position")).toBe(positions);
+      expect(positions.array).toBe(buffer);
+      expect(geometry.index!.array).toBe(indices);
+      expect(material.version).toBe(shaderVersion);
+      expect(material.uniforms.time.value).toBe(12);
+      const point = new Vector3().fromBufferAttribute(positions, 0);
+      mesh.localToWorld(point);
+      expect(point.y).toBeCloseTo(4.2 + depth, 5);
+      const bounds = new Box3().copy(geometry.boundingBox!).applyMatrix4(mesh.matrixWorld);
+      expect(bounds.min.y).toBeCloseTo(floodWaterLevel(depth) - FLOOD_WATER_MAX_SWELL_M, 5);
+      expect(bounds.max.y).toBeCloseTo(floodWaterLevel(depth) + FLOOD_WATER_MAX_SWELL_M, 5);
+    }
+    expect(mesh.position.y).toBe(0);
+    expect(buffer).toEqual(snapshot);
+    expect(indices).toEqual(indexSnapshot);
+    geometry.dispose(); material.dispose();
+  });
+
   test("preserves every published v1.0.70 surface vertex and triangle byte-for-byte", () => {
     const hash = createHash("sha256");
     for (const attribute of Object.values(geometry.attributes)) {

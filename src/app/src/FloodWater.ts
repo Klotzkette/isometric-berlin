@@ -3,11 +3,12 @@ import {
   Shape, ShapeGeometry,
 } from "three";
 import scope from "./data/surroundingCityScope.json";
+import { DEFAULT_FLOOD_DEPTH, floodWaterLevel, type FloodDepth } from "./floodDepth";
 
 /** Fictional flood: about 3 m above the central city's ~4.2 m street datum.
  * One horizontal water table, not terrain-shaped water or a flood prediction.
  */
-export const FLOOD_WATER_LEVEL_M = 7.2;
+export const FLOOD_WATER_LEVEL_M = floodWaterLevel(DEFAULT_FLOOD_DEPTH);
 export const FLOOD_WATER_MAX_SWELL_M = 0.24;
 export const FLOOD_WATER_NAME = "Flood water — Versunkenes Berlin";
 export const FLOOD_FRAME_INTERVAL_MS = 1000 / 24;
@@ -27,7 +28,7 @@ ${SWELLS}
 void main() {
   vec3 p = position;
   p.y += swell(p.xz, time);
-  waterPosition = p;
+  waterPosition = (modelMatrix * vec4(p, 1.0)).xyz;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }
 `;
@@ -122,7 +123,7 @@ function waterGeometry(): BufferGeometry {
 export type FloodWater = Mesh<BufferGeometry, ShaderMaterial>;
 
 /** One lazily created draw call; opaque depth preserves building silhouettes. */
-export function createFloodWater(): FloodWater {
+export function createFloodWater(depth: FloodDepth = DEFAULT_FLOOD_DEPTH): FloodWater {
   const mesh = new Mesh(waterGeometry(), new ShaderMaterial({
     uniforms: { time: { value: 0 } }, vertexShader: VERTEX, fragmentShader: FRAGMENT,
     side: DoubleSide, toneMapped: false, depthWrite: true,
@@ -132,7 +133,15 @@ export function createFloodWater(): FloodWater {
   mesh.userData.fictionalPresentation = "Horizontal flood table; not a hazard map";
   // Water is presentation, not an extra walking floor/click-teleport target.
   mesh.raycast = () => {};
+  setFloodWaterDepth(mesh, depth);
   return mesh;
+}
+
+/** Move the existing table without allocating buffers or recompiling shaders. */
+export function setFloodWaterDepth(water: FloodWater, depth: FloodDepth): void {
+  water.position.y = floodWaterLevel(depth) - FLOOD_WATER_LEVEL_M;
+  water.updateMatrix();
+  water.updateMatrixWorld(true);
 }
 
 /** Absolute active time is supplied by the viewer; hidden tabs never catch up. */
