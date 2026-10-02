@@ -4,6 +4,7 @@ import {
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
 } from "./SurroundingCityGeometry";
 import type { VisualMode } from "./visualMode";
+import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -211,6 +212,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const root = new Group();
   root.name = "Mapped surrounding Berlin outline districts";
   root.userData.surroundingCity = true;
+  // This container never moves. Re-composing its identity each render would
+  // force matrixWorld multiplication across every frozen resident district.
+  freezeStaticSceneTransform(root);
   const fetcher = options.fetch ?? fetch;
   const now = options.now ?? (() => performance.now());
   const retireMs = options.retireMs ?? SURROUNDING_CITY_RETIRE_MS;

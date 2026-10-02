@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.71 — Runtime stability without reduced detail
+
+- Retire unused offscreen GPU copies on desktop as well as mobile, retaining
+  the exact authored CPU buffers and every visible model. Reset instance
+  residency accounting correctly after context loss.
+- Restore above-water lighting directly when surfacing, without repeatedly
+  traversing, relighting and re-enqueuing the complete city. Preserve cutaway
+  fog and real mode changes.
+- Avoid forced world-matrix recalculation below fixed city containers and
+  use constant-time upload queue removal; keep child animations unchanged.
+- Avoid redundant Day/Flood shader retirement and temporary water-edge strings.
+  Keep geometry, materials, resolution, viewing distance and water effects.
+
 ## v1.0.70 — Flooded Berlin
 
 - Step 10: add the Day-based **Versunken / Flooded Berlin** mode to desktop,

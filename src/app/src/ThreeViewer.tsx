@@ -1,3 +1,5 @@
+import { freezeStaticSceneTransform } from "./staticSceneTransforms";
+import { captureAboveWaterAppearance, restoreAboveWaterAppearance, setAboveWaterFog, type AboveWaterAppearance } from "./underwaterAppearance";
 import { createFloodWater, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, FLOOD_WATER_LEVEL_M, type FloodWater } from "./FloodWater";
 import { preloadAltMitteNativeV169Source } from "./AltMitteNativeCoreV169";
 import { zooStationV165PassageAt, zooStationV165SolidAt, zooStationV165FloorAt } from "./zooStationV165Profile";
@@ -815,6 +817,7 @@ type Runtime = {
   underside: boolean;
   undergroundNetwork: Group;
   underwater: boolean;
+  aboveWaterAppearance: AboveWaterAppearance | null;
 };
 
 function createDeferredSchwellenraumRoot(name: string): Group {
@@ -822,7 +825,7 @@ function createDeferredSchwellenraumRoot(name: string): Group {
   root.name = name;
   root.visible = false;
   root.userData.schwellenraumDeferred = true;
-  return root;
+  return freezeStaticSceneTransform(root);
 }
 
 function adoptSchwellenraumRoot(target: Group, source: Group): void {
@@ -1491,6 +1494,9 @@ function setUnderwaterPresentation(
   }
   runtime.underwater = underwater;
   if (underwater) {
+    runtime.aboveWaterAppearance = captureAboveWaterAppearance(
+      runtime.scene, runtime.renderer, runtime.hemisphere,
+    );
     const deep = new Color(UNDERWATER_COLOR);
     runtime.scene.background = deep;
     runtime.renderer.setClearColor(deep, 1);
@@ -1499,9 +1505,13 @@ function setUnderwaterPresentation(
     // a straight linear scale, not a curve shift.
     runtime.renderer.toneMappingExposure = 0.82;
     runtime.hemisphere.intensity = 0.9;
-  } else {
-    setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
+  } else if (runtime.aboveWaterAppearance) {
+    restoreAboveWaterAppearance(runtime.aboveWaterAppearance,
+      runtime.scene, runtime.renderer, runtime.hemisphere);
+    runtime.aboveWaterAppearance = null;
   }
+  // Fog/ambient changes do not alter the fixed shadow-casting geometry.
+  runtime.renderInvalidated = true;
   setEnvironmentalPresentation(runtime);
 }
 
@@ -2210,7 +2220,9 @@ function setSceneLighting(
   // Keep only the current drawn mode's GPU shader cache on phones. Material
   // instances, their textures/uniforms and every geometry buffer stay intact;
   // the existing bounded warmup rebuilds the target mode's programs as needed.
-  if (runtime.coarsePointer && runtime.lightingMode !== mode &&
+  const sharesDayMaterials = (runtime.lightingMode === "day" || runtime.lightingMode === "flood") &&
+    (mode === "day" || mode === "flood");
+  if (runtime.coarsePointer && runtime.lightingMode !== mode && !sharesDayMaterials &&
       runtime.lightingMode !== "minecraft" && mode !== "minecraft") {
     retireSceneMaterialPrograms(runtime.scene);
   }
@@ -5012,13 +5024,8 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
   invalidateScenePresentation(runtime);
   const fogRange = presentationFogRange(runtime.lightingMode, underside);
-  const fogColor =
-    runtime.scene.background instanceof Color
-      ? runtime.scene.background.getHex()
-      : 0xdcf3f9;
-  runtime.scene.fog = fogRange
-    ? new Fog(fogColor, fogRange.near, fogRange.far)
-    : null;
+  setAboveWaterFog(runtime.scene,
+    runtime.underwater ? runtime.aboveWaterAppearance : null, fogRange);
   if (underside) {
     runtime.marker.visible = false;
   }
@@ -6296,18 +6303,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underside: false,
         undergroundNetwork,
         underwater: false,
+        aboveWaterAppearance: null,
       };
       runtimeRef.current = runtime;
-      // Mobile uploads the unchanged scene through ordinary rendering. Static
-      // vertex streams share exact interleaved buffers, and previous offscreen
-      // GPU copies can be retired while their authored CPU data stays intact.
-      if (coarsePointer) {
-        interleaveStaticGeometry(scene);
-        runtime.gpuResidency = createSceneGpuResidency(renderer, camera);
-        runtime.geometryResidency = createSceneGeometryGpuResidency(renderer, camera);
-        runtime.gpuResidency.enqueue(scene);
-        runtime.geometryResidency.enqueue(scene);
-      } else {
+      // Every device retires only unused offscreen GPU copies. The identical
+      // CPU arrays remain available for the next draw; visible detail is never
+      // budget-capped. Install observers before desktop speculative warmup.
+      if (coarsePointer) interleaveStaticGeometry(scene);
+      runtime.gpuResidency = createSceneGpuResidency(renderer, camera);
+      runtime.geometryResidency = createSceneGeometryGpuResidency(renderer, camera);
+      runtime.gpuResidency.enqueue(scene);
+      runtime.geometryResidency.enqueue(scene);
+      if (!coarsePointer) {
         runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, { viewLocal: true });
       }
       let gpuWarmupTimer: number | null = null;
@@ -8218,6 +8225,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
           runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
           markAuthoredFlatUnlit(runtime.civicDetails);
+          freezeStaticSceneTransform(runtime.civicDetails);
           scene.add(runtime.civicDetails);
           applyLightingToRoot(
             runtime.civicDetails,
@@ -8247,6 +8255,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,
           );
+          freezeStaticSceneTransform(runtime.centralDetails);
           scene.add(runtime.centralDetails);
           applyLightingToRoot(
             runtime.centralDetails,
@@ -8536,6 +8545,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",
           );
+          freezeStaticSceneTransform(runtime.monuments);
           scene.add(runtime.monuments);
           runtime.openingDetailReady = true;
           notifyPresentationReadyWhenPossible(runtime);
@@ -8594,6 +8604,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           }
           runtime.culturalDetails.add(expandedDetails);
+          freezeStaticSceneTransform(runtime.culturalDetails);
           scene.add(runtime.culturalDetails);
           setStarbucksPariserPlatzSnow(
             runtime.culturalDetails,

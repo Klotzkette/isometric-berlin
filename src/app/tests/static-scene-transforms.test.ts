@@ -1,9 +1,52 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Scene, Vector3 } from "three";
-import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
+import { freezeStaticSceneTransform, freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { deserializeTransferredObject3D, serializeObject3DForTransfer } from "../src/transferableObject3D";
 
 describe("immutable scene transforms", () => {
+  test("a fixed container skips descendant world multiplication while preserving animated children", () => {
+    const scene = new Scene();
+    scene.matrixAutoUpdate = false;
+    const container = new Group();
+    container.position.set(17, 2, -5);
+    const fixed = freezeStaticSceneTransforms(new Group());
+    fixed.matrix.makeTranslation(3, 4, 5);
+    const animated = new Group();
+    container.add(fixed, animated);
+    freezeStaticSceneTransform(container);
+    scene.add(container);
+    scene.updateMatrixWorld();
+    const expected = fixed.matrixWorld.clone();
+    const multiply = spyOn(fixed.matrixWorld, "multiplyMatrices");
+    try {
+      for (let frame = 0; frame < 120; frame++) {
+        animated.position.x = frame;
+        scene.updateMatrixWorld();
+      }
+      expect(multiply).not.toHaveBeenCalled();
+      expect(fixed.matrixWorld.equals(expected)).toBeTrue();
+      expect(animated.matrixAutoUpdate).toBeTrue();
+      expect(animated.matrixWorld.elements[12]).toBe(136);
+
+      const later = new Group();
+      later.position.set(7, 8, 9);
+      freezeStaticSceneTransforms(later);
+      container.add(later);
+      scene.updateMatrixWorld();
+      expect(later.matrixWorld.elements.slice(12, 15)).toEqual([24, 10, 4]);
+
+      const movingParent = new Group();
+      movingParent.position.x = 12;
+      scene.add(movingParent);
+      movingParent.add(container);
+      scene.updateMatrixWorld();
+      expect(multiply).toHaveBeenCalledTimes(1);
+      expect(fixed.matrixWorld.elements[12]).toBe(expected.elements[12] + 12);
+    } finally {
+      multiply.mockRestore();
+    }
+  });
+
   test("retains exact local poses, parent motion and late animated children", () => {
     const scene = new Scene();
     scene.matrixAutoUpdate = false;

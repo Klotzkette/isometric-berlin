@@ -1,5 +1,5 @@
 import { expect, spyOn, test } from "bun:test";
-import { BufferGeometry, Material, InterleavedBufferAttribute, LineSegments, Mesh, OrthographicCamera, Vector3 } from "three";
+import { BufferGeometry, Material, InterleavedBufferAttribute, LineSegments, Mesh, OrthographicCamera, Scene, Vector3 } from "three";
 import {
   createSurroundingCityChunk, createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt,
   type SurroundingCityChunk, type SurroundingNavigation,
@@ -57,6 +57,29 @@ function sourceFetch(calls: string[] = []): typeof fetch {
     return response(path.endsWith("manifest.json") ? manifest() : sample(path.endsWith("2048.json") ? 2048 : 0));
   }) as typeof fetch;
 }
+
+test("streamed city leaves unchanged world transforms cached across rendered frames", async () => {
+  const city = createSurroundingCity({
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    camera: camera(), fetch: sourceFetch(),
+  });
+  try {
+    await city.ready;
+    await until(() => city.residentChunkCount > 0 && !city.pending);
+    const scene = new Scene();
+    scene.matrixAutoUpdate = false;
+    scene.add(city.root);
+    scene.updateMatrixWorld();
+    const child = city.root.children[0].children[0];
+    const expected = child.matrixWorld.clone();
+    const multiply = spyOn(child.matrixWorld, "multiplyMatrices");
+    try {
+      for (let frame = 0; frame < 120; frame++) scene.updateMatrixWorld();
+      expect(multiply).not.toHaveBeenCalled();
+      expect(child.matrixWorld.equals(expected)).toBeTrue();
+    } finally { multiply.mockRestore(); }
+  } finally { city.dispose(); }
+});
 
 test("centimetre geometry preserves exact topology, colour, world coordinates and at most three GL buffers", () => {
   const result = createSurroundingCityChunk(sample(2048), "first");

@@ -106,8 +106,8 @@ export function createSceneGpuResidency(
         resident: false, bytes: attributes.reduce((sum, attribute) => sum + attribute.array.byteLength, 0),
         lastUse: -Infinity, active: true,
       };
-      entry.wrapped = function (this: InstancedMesh, ...args) {
-        if (!disposed && entry.active && args[0] === renderer) {
+      entry.wrapped = function (this: InstancedMesh, drawingRenderer, scene, drawingCamera, geometry, material, group) {
+        if (!disposed && entry.active && drawingRenderer === renderer) {
           if (observedFrame !== renderer.info.render.frame) {
             observedFrame = renderer.info.render.frame;
             observedAt = clock();
@@ -120,7 +120,7 @@ export function createSceneGpuResidency(
           }
           entry.lastUse = observedAt;
         }
-        entry.original.apply(this, args);
+        entry.original.call(this, drawingRenderer, scene, drawingCamera, geometry, material, group);
       };
       registerInkRenderObserver(entry.original, entry.wrapped);
       object.onAfterRender = entry.wrapped;
@@ -198,6 +198,17 @@ export function createSceneGpuResidency(
     }
     return evicted;
   };
+  const contextLost = (): void => {
+    // WebGL has dropped every handle. Keep the exact CPU arrays and ownership
+    // registrations, but do not count the old context as current residency.
+    // The restored renderer's frame counter restarts; invalidate its cached
+    // timestamp too, so a first restored draw receives the full grace period.
+    for (const entry of entries.values()) forgetUpload(entry);
+    observedFrame = -1;
+    lastScan = -Infinity;
+    haveCleanupPose = false;
+  };
+  renderer.domElement?.addEventListener("webglcontextlost", contextLost);
   return {
     enqueue, release, refresh,
     get residentBytes() { return residentBytes; },
@@ -209,6 +220,7 @@ export function createSceneGpuResidency(
       scan.length = 0;
       attributeOwners.clear();
       residentAttributes.clear();
+      renderer.domElement?.removeEventListener("webglcontextlost", contextLost);
     },
   };
 }

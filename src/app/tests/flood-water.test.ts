@@ -1,4 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { DoubleSide, Mesh, Raycaster, Vector3 } from "three";
 
 import {
@@ -63,6 +64,16 @@ afterAll(() => {
 });
 
 describe("bounded, additive flooded Berlin water", () => {
+  test("preserves every published v1.0.70 surface vertex and triangle byte-for-byte", () => {
+    const hash = createHash("sha256");
+    for (const attribute of Object.values(geometry.attributes)) {
+      hash.update(new Uint8Array(attribute.array.buffer, attribute.array.byteOffset,
+        attribute.array.byteLength));
+    }
+    hash.update(new Uint8Array(indices.buffer, indices.byteOffset, indices.byteLength));
+    expect(hash.digest("hex")).toBe("1a1d3ca8c6a7ce17a94a47da17bbf5c748f99c11e0197f13028f8f4a832a2ce7");
+  });
+
   test("covers exactly the approved polygon union, including the core hole filled once", () => {
     const expectedArea = sourcePolygons.reduce((sum, polygon) =>
       sum + ringArea(polygon.ring) - polygon.holes.reduce((n, hole) => n + ringArea(hole), 0), 0);

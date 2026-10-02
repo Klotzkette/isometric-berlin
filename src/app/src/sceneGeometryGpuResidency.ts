@@ -207,16 +207,16 @@ export function createSceneGeometryGpuResidency(
       const owner: Owner = {
         object, entry, active: true, original: object.onAfterRender, wrapped: object.onAfterRender,
       };
-      owner.wrapped = function (this: Renderable, ...args) {
-        if (!disposed && owner.active && args[0] === renderer &&
-            args[3] === owner.entry.geometry && object.geometry === owner.entry.geometry) {
+      owner.wrapped = function (this: Renderable, drawingRenderer, scene, drawingCamera, geometry, material, group) {
+        if (!disposed && owner.active && drawingRenderer === renderer &&
+            geometry === owner.entry.geometry && object.geometry === owner.entry.geometry) {
           if (observedFrame !== renderer.info.render.frame) {
             observedFrame = renderer.info.render.frame;
             observedAt = clock();
           }
-          observedUpload(owner.entry, "wireframe" in args[4] && args[4].wireframe === true);
+          observedUpload(owner.entry, "wireframe" in material && material.wireframe === true);
         }
-        owner.original.apply(this, args);
+        owner.original.call(this, drawingRenderer, scene, drawingCamera, geometry, material, group);
       };
       registerInkRenderObserver(owner.original, owner.wrapped);
       object.onAfterRender = owner.wrapped;

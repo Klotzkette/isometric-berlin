@@ -32,7 +32,7 @@ import { createMinecraftCafeNeuerSeeV164 } from "./CafeNeuerSeeV164";
 import { cafeNeuerSeeSourceColumn } from "./cafeNeuerSeeV164Profile";
 import { createMinecraftSpanishEmbassyV164 } from "./SpanishEmbassyV164";
 import { spanishEmbassyV164SourceColumn } from "./spanishEmbassyV164Profile";
-import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { freezeStaticSceneTransform, freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createMinecraftGrosserSternGatehousesV164 } from "./GrosserSternGatehousesV164";
 import { GROSSER_STERN_GATEHOUSES_V164_GROUND_CUTS, grosserSternGatehouseSourceColumn } from "./grosserSternGatehousesV164Profile";
 import { createMinecraftWestSquaresV163 } from "./WestSquaresV163";
@@ -3614,5 +3614,7 @@ export function* buildMinecraftVoxelWorldSteps(
       child.frustumCulled = false;
     }
   }
-  return group;
+  // Only the world container is fixed: descendants retain flag/sign motion.
+  // Its former per-frame identity update also invalidated every frozen model.
+  return freezeStaticSceneTransform(group);
 }

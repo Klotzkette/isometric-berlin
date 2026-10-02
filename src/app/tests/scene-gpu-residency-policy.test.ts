@@ -30,8 +30,12 @@ function policyHost(options: { budgetBytes?: number; budgetBuffers?: number; gra
   const scene = new Scene();
   const camera = new OrthographicCamera(-5, 5, 5, -5, 0.1, 1000);
   camera.position.z = 10; camera.lookAt(0, 0, 0);
-  const renderer = { info: { render: { frame: 1 } }, getContext: () => ({ isContextLost: () => false }) } as unknown as WebGLRenderer;
-  const residency = createSceneGpuResidency(renderer, camera, { now: () => 0, ...options });
+  const events = new EventTarget();
+  let time = 0;
+  let contextLost = false;
+  const renderer = { domElement: events, info: { render: { frame: 1 } },
+    getContext: () => ({ isContextLost: () => contextLost }) } as unknown as WebGLRenderer;
+  const residency = createSceneGpuResidency(renderer, camera, { now: () => time, ...options });
   const create = (x: number, z = 0) => {
     const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 1);
     mesh.position.set(x, 0, z); scene.add(mesh); return mesh;
@@ -42,7 +46,9 @@ function policyHost(options: { budgetBytes?: number; budgetBuffers?: number; gra
       if (object instanceof InstancedMesh) object.onAfterRender(renderer, scene, camera, object.geometry, object.material, null);
     });
   };
-  return { scene, camera, residency, renderer, create, observe };
+  return { scene, camera, residency, renderer, create, observe, events,
+    set time(value: number) { time = value; },
+    set contextLost(value: boolean) { contextLost = value; } };
 }
 
 test("small instance buffers trigger handle pressure while byte usage stays low, respecting grace/cadence/work bounds", () => {
@@ -117,4 +123,31 @@ test("mode publication can immediately retire hidden and offview instances with 
   expect(hidden.visible).toBeFalse(); expect(outside.visible).toBeTrue();
   expect(h.residency.refresh(2, true)).toBe(0);
   h.residency.dispose();
+});
+
+test("context loss forgets old GPU handles and restored draws receive a fresh grace period", () => {
+  const h = policyHost({ budgetBytes: 0 });
+  const mesh = h.create(1000);
+  const original = mesh.instanceMatrix.array;
+  h.observe();
+  expect(h.residency.residentBytes).toBe(64);
+  expect(h.residency.residentBuffers).toBe(1);
+  h.contextLost = true;
+  h.events.dispatchEvent(new Event("webglcontextlost"));
+  expect(h.residency.residentBytes).toBe(0);
+  expect(h.residency.residentBuffers).toBe(0);
+  expect(h.residency.refresh(8000, true)).toBe(0);
+  h.contextLost = false;
+  h.time = 9000;
+  // The restored renderer may reuse the prior observed frame number.
+  h.observe();
+  expect(h.residency.residentBytes).toBe(64);
+  expect(h.residency.residentBuffers).toBe(1);
+  expect(h.residency.refresh(9100)).toBe(0);
+  expect(h.residency.refresh(11001)).toBe(1);
+  expect(mesh.instanceMatrix.array).toBe(original);
+  expect(mesh.visible).toBeTrue();
+  h.residency.dispose();
+  h.events.dispatchEvent(new Event("webglcontextlost"));
+  expect(h.residency.residentBuffers).toBe(0);
 });

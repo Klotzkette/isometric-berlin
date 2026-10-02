@@ -15,6 +15,7 @@ import {
 } from "../src/sceneGpuWarmup";
 import { retireSceneMaterialPrograms } from "../src/sceneMaterialPrograms";
 import { createSceneGpuResidency, MOBILE_GPU_RESIDENCY_SCAN_LIMIT } from "../src/sceneGpuResidency";
+import { createSceneGeometryGpuResidency } from "../src/sceneGeometryGpuResidency";
 import {
   isInkDrawSuppressed, registerInkDrawObject, updateInkDrawVisibility,
 } from "../src/inkDrawVisibility";
@@ -792,6 +793,53 @@ describe("offscreen GPU residency without geometry changes", () => {
 });
 
 describe("lossless mobile GPU instance residency", () => {
+  test("desktop preparation and both residency observers retire inactive worlds without changing their source arrays", () => {
+    const { scene, camera } = fixture();
+    const drawn = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 1);
+    const native = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 2);
+    native.visible = false;
+    scene.add(drawn, native);
+    const originals = [drawn, native].map(mesh => ({
+      matrix: mesh.instanceMatrix.array,
+      position: mesh.geometry.getAttribute("position").array,
+      material: mesh.material,
+      after: mesh.onAfterRender,
+    }));
+    const h = host(scene, camera, { viewLocal: true });
+    const renderer = h.renderer as unknown as WebGLRenderer;
+    const instances = createSceneGpuResidency(renderer, camera, { now: () => 0 });
+    const geometries = createSceneGeometryGpuResidency(renderer, camera, { now: () => 0 });
+    instances.enqueue(scene); geometries.enqueue(scene);
+    h.warmup.enqueue(scene); h.renderer.render(scene, camera);
+    expect(instances.residentBytes).toBe(64);
+    expect(geometries.residentBuffers).toBe(4);
+    for (let transition = 0; transition < 6; transition++) {
+      const visible = transition % 2 === 0 ? native : drawn;
+      drawn.visible = visible === drawn;
+      native.visible = visible === native;
+      expect(instances.refresh(transition, true)).toBe(1);
+      expect(geometries.refresh(transition, true)).toBe(1);
+      expect(instances.residentBuffers).toBe(0);
+      expect(geometries.residentBuffers).toBe(0);
+      const before = h.uploads.length;
+      h.warmup.enqueue(scene);
+      expect(h.warmup.warmNext()).toBe(1);
+      h.renderer.render(scene, camera);
+      expect(h.uploads.length - before).toBe(5);
+      expect(h.calls.at(-1)?.vertices).toBe(36 * visible.count);
+      expect(instances.residentBytes).toBe(visible.instanceMatrix.array.byteLength);
+      expect(geometries.residentBuffers).toBe(4);
+      [drawn, native].forEach((mesh, index) => {
+        expect(mesh.instanceMatrix.array).toBe(originals[index].matrix);
+        expect(mesh.geometry.getAttribute("position").array).toBe(originals[index].position);
+        expect(mesh.material).toBe(originals[index].material);
+      });
+    }
+    h.warmup.dispose(); geometries.dispose(); instances.dispose();
+    expect(drawn.onAfterRender).toBe(originals[0].after);
+    expect(native.onAfterRender).toBe(originals[1].after);
+  });
+
   test("retires only off-view owned GPU attributes and exactly restores them on return", () => {
     const { scene, camera } = fixture();
     const geometry = new BoxGeometry(); const material = new MeshBasicMaterial();

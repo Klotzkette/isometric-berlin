@@ -82,7 +82,7 @@ function waterGeometry(): BufferGeometry {
   for (let i = 0; i < xy.count; i++) vertices.push(xy.getX(i), FLOOD_WATER_LEVEL_M, xy.getY(i));
   const pending = Array.from(outline.index!.array);
   const indices: number[] = [];
-  const midpoints = new Map<string, number>();
+  const midpoints = new Map<number, number>();
   const lengthSquared = (a: number, b: number): number =>
     (vertices[a * 3] - vertices[b * 3]) ** 2 +
     (vertices[a * 3 + 2] - vertices[b * 3 + 2]) ** 2;
@@ -93,7 +93,11 @@ function waterGeometry(): BufferGeometry {
     const ab = lengthSquared(a, b), bc = lengthSquared(b, c), ca = lengthSquared(c, a);
     if (Math.max(ab, bc, ca) <= 96 ** 2) { indices.push(a, b, c); continue; }
     const [u, v, w] = ab >= bc && ab >= ca ? [a, b, c] : bc >= ca ? [b, c, a] : [c, a, b];
-    const key = u < v ? `${u}:${v}` : `${v}:${u}`;
+    // Triangular pairing gives the same unordered edge a unique integer key.
+    // The bounded mesh has < 45,000 vertices, far below the 2^53 precision
+    // limit; avoid tens of thousands of temporary edge strings at mode entry.
+    const hi = Math.max(u, v), lo = Math.min(u, v);
+    const key = hi * (hi + 1) / 2 + lo;
     let m = midpoints.get(key);
     if (m === undefined) {
       m = vertices.length / 3;

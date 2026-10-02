@@ -4,6 +4,7 @@ import {
   type Camera, type Object3D, type Scene, type WebGLRenderer,
 } from "three";
 import { isInkDrawSuppressed, registerInkRenderObserver } from "./inkDrawVisibility";
+import { SceneGpuWarmupQueue } from "./sceneGpuWarmupQueue";
 
 // Spatial park cells share geometry and carry small instance buffers. Keep
 // the byte ceiling, but amortize scene traversal over more of these tiny draws.
@@ -91,8 +92,7 @@ export function createSceneGpuWarmup(
   let warmed = new WeakMap<Renderable, Snapshot>();
   const epochs = new WeakMap<GpuResource, number>();
   const watched = new Map<GpuResource, () => void>();
-  const queued = new Set<Renderable>();
-  const queue: Renderable[] = [];
+  const queue = new SceneGpuWarmupQueue<Renderable>();
   const preparationFrustum = new Frustum();
   const expandedProjection = new Matrix4();
   const viewProjection = new Matrix4();
@@ -102,7 +102,6 @@ export function createSceneGpuWarmup(
   // A far candidate remains queued but does not keep a timer alive after the
   // current view has considered it. Movement restarts one bounded scan, using
   // the same rotating queue so continuous movement cannot starve later items.
-  let viewCandidatesRemaining = 0;
   const renderHooks = new Map<Renderable, {
     original: Renderable["onAfterRender"];
     wrapped: Renderable["onAfterRender"];
@@ -136,7 +135,7 @@ export function createSceneGpuWarmup(
     viewProjection.multiplyMatrices(expandedProjection, camera.matrixWorldInverse);
     preparationFrustum.setFromProjectionMatrix(viewProjection, camera.coordinateSystem);
     viewInitialized = true;
-    viewCandidatesRemaining = queue.length;
+    queue.refreshView();
   };
 
   const withinPreparationView = (object: Renderable): boolean => {
@@ -203,10 +202,9 @@ export function createSceneGpuWarmup(
     const original = object.onAfterRender;
     const seenMaterials = new Set<Material>();
     let seenSnapshot: Snapshot | undefined;
-    const wrapped: Renderable["onAfterRender"] = function (this: Renderable, ...args) {
-      const [drawingRenderer, drawingScene, drawingCamera, geometry, material] = args;
+    const wrapped: Renderable["onAfterRender"] = function (this: Renderable, drawingRenderer, drawingScene, drawingCamera, geometry, material, group) {
       const ordinary = drawingRenderer === renderer && drawingScene === scene &&
-        drawingCamera === camera && queued.has(object);
+        drawingCamera === camera && queue.has(object);
       let current: Snapshot | undefined;
       if (ordinary) {
         // A real render has already uploaded the buffers and compiled this
@@ -222,7 +220,7 @@ export function createSceneGpuWarmup(
         }
         seenMaterials.add(material);
       }
-      original.apply(this, args);
+      original.call(this, drawingRenderer, drawingScene, drawingCamera, geometry, material, group);
       if (!current || geometry !== object.geometry ||
           !same(current, snapshot(object, observedContext))) return;
       const list = materials(object);
@@ -235,12 +233,7 @@ export function createSceneGpuWarmup(
         : list;
       if (!expected.filter((item) => item && authoredMaterialVisible(item)).every((item) => seenMaterials.has(item))) return;
       warmed.set(object, current);
-      queued.delete(object);
-      const index = queue.indexOf(object);
-      if (index >= 0) {
-        if (index < viewCandidatesRemaining) viewCandidatesRemaining--;
-        queue.splice(index, 1);
-      }
+      queue.delete(object);
       restoreRenderHook(object);
     };
     registerInkRenderObserver(original, wrapped);
@@ -253,7 +246,7 @@ export function createSceneGpuWarmup(
     refreshView();
     // Enqueue also marks authored visibility/material changes. Reconsider
     // already queued objects even when the camera itself has not moved.
-    viewCandidatesRemaining = queue.length;
+    queue.refreshView();
     discoverLights(root);
     observedFrame = -1;
     const state = context();
@@ -266,10 +259,8 @@ export function createSceneGpuWarmup(
       // A mode transition can retire materials while this object is already
       // queued. Their dispose observers are one-shot, so restore them even
       // when no additional queue entry is needed.
-      if (queued.has(object)) return;
-      queued.add(object);
-      queue.push(object);
-      viewCandidatesRemaining++;
+      if (queue.has(object)) return;
+      queue.add(object);
       observeOrdinaryUpload(object);
     });
   };
@@ -280,20 +271,9 @@ export function createSceneGpuWarmup(
       knownLights.delete(object);
       if (!renderable(object)) return;
       warmed.delete(object);
-      queued.delete(object);
+      queue.delete(object);
       restoreRenderHook(object);
     });
-    // A disposed district must not wait for another warmup task (which may
-    // be suspended in a hidden tab) before its attribute arrays can be freed.
-    let retained = 0;
-    let pendingRetained = 0;
-    for (let index = 0; index < queue.length; index++) {
-      const object = queue[index];
-      if (index < viewCandidatesRemaining && queued.has(object)) pendingRetained++;
-      if (queued.has(object)) queue[retained++] = object;
-    }
-    queue.length = retained;
-    viewCandidatesRemaining = pendingRetained;
   };
 
   const onContextRestored = (): void => {
@@ -311,19 +291,17 @@ export function createSceneGpuWarmup(
     let considered = 0;
     const state = context();
     while (queue.length && selected.length < GPU_WARMUP_MAX_OBJECTS &&
-        (!options.viewLocal || (viewCandidatesRemaining > 0 &&
+        (!options.viewLocal || (queue.pendingCount > 0 &&
           considered < GPU_WARMUP_MAX_VIEW_CANDIDATES))) {
-      const object = queue[0];
+      const object = queue.first!;
       considered++;
       if (!active(object, scene, camera) || same(warmed.get(object), snapshot(object, state))) {
-        queue.shift(); queued.delete(object);
-        viewCandidatesRemaining = Math.max(0, viewCandidatesRemaining - 1);
+        queue.delete(object);
         restoreRenderHook(object);
         continue;
       }
       if (!withinPreparationView(object)) {
-        queue.shift(); queue.push(object);
-        viewCandidatesRemaining--;
+        queue.rotate(object);
         continue;
       }
       const newBuffers = new Set(attributes(object).map((attribute) => attribute.array.buffer)
@@ -332,8 +310,7 @@ export function createSceneGpuWarmup(
       // Existing large buffers are indivisible. Warm one alone rather than
       // split/copy authored buffers or silently skip its exact geometry.
       if (selected.length && bytes + additionalBytes > GPU_WARMUP_MAX_BYTES) break;
-      queue.shift(); queued.delete(object);
-      viewCandidatesRemaining = Math.max(0, viewCandidatesRemaining - 1);
+      queue.delete(object);
       restoreRenderHook(object);
       selected.push(object);
       bytes += additionalBytes;
@@ -429,13 +406,11 @@ export function createSceneGpuWarmup(
     release,
     warmNext,
     get pending() { return !disposed && queue.length > 0 &&
-      (!options.viewLocal || viewCandidatesRemaining > 0) && !renderer.getContext().isContextLost(); },
+      (!options.viewLocal || queue.pendingCount > 0) && !renderer.getContext().isContextLost(); },
     dispose: () => {
       if (disposed) return;
       disposed = true;
-      queue.length = 0;
-      viewCandidatesRemaining = 0;
-      queued.clear();
+      queue.clear();
       for (const object of renderHooks.keys()) restoreRenderHook(object);
       for (const [resource, listener] of watched) (resource as BufferGeometry).removeEventListener("dispose", listener);
       watched.clear();

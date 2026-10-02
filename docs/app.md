@@ -62,6 +62,29 @@ uses the raised level while keeping tunnel and explicit cutaway exceptions.
 All source buildings, roads, shorelines and details remain resident/eligible
 under their unchanged loading policy.
 
+## Runtime stability (v1.0.71)
+
+Desktop now uses the same exact GPU residency accounting as touch: old,
+offscreen instance and geometry buffers may be released, while their authored
+CPU arrays stay intact for identical re-upload. The working-set budget never
+hides visible geometry. Observers are installed before desktop warmup and
+released in reverse order; context loss resets their accounting.
+
+Upload candidates use a constant-time removable queue instead of repeated
+array searches and shifts. Fixed scene containers stop invalidating world
+matrices below them; animated descendants still update normally. Day and Flood
+share the same materials, so their mobile transition no longer retires all
+city shader programs unnecessarily.
+
+Surfacing restores the exact prior background, fog, exposure and hemisphere
+light directly. It no longer traverses and re-enqueues the entire city.
+Cutaway changes update the saved above-water fog while submerged, and actual
+lighting-mode changes refresh the snapshot. Water subdivision uses integer
+edge keys with byte-identical geometry. No shader, animation cadence, detail,
+viewing distance, resolution, source coverage or material has been reduced.
+See [the release review](release-v1.0.71-review.md) for measured results and
+physical-device testing limits.
+
 ## Lossless contour construction
 
 Cold switches between the drawn and voxel families keep the last presented
