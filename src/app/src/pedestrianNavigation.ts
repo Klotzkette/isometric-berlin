@@ -1,3 +1,5 @@
+import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
+import { TEEHAUS_RUIN_V168_PRISM_IDS, TEEHAUS_RUIN_V168_WALLS } from "./teehausRuinV168Profile";
 import { NEUE_SYNAGOGE_V167_PRISM_IDS, NEUE_SYNAGOGE_V167_SOURCE_BOUNDS, neueSynagogeV167RoofAt } from "./neueSynagogeV167Profile";
 import { TACHELES_V167_PRISM_IDS, TACHELES_V167_PARTS, tachelesV167RoofAt } from "./tachelesV167Profile";
 import { monbijouBathV167WaterAt } from "./monbijouBathV167Profile";
@@ -652,6 +654,7 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
     if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
     if (building.id === "15218373") {
@@ -1271,6 +1274,20 @@ export function compilePedestrianObstacles(
   if (prisms.buildings.some(b => KOMISCHE_OPER_SOURCE_IDS.has(b.id))) {
     for (const wall of UNTER_DEN_LINDEN_ENTRANCE_BARRIERS) {
       addSegmentObstacle(index, wall.a, wall.b, wall.radius, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y - UNTER_DEN_LINDEN_ENTRANCE_DESCENT_M, UNTER_DEN_LINDEN_ENTRANCE_SURFACE_Y + 1.1);
+    }
+  }
+  if (prisms.buildings.some(b => TU_WATER_V168_PRISM_IDS.has(b.id))) {
+    addObstacle(index, {
+      kind: "circle", ...TU_WATER_V168_STRUCTURE,
+      solidAt: (x,y,z,radius=0) => tuWaterV168StructureSolidAt(x,z,y,visualMode() === "minecraft",radius),
+    });
+    for (const part of TU_WATER_V168_PARTS) {
+      addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => tuWaterV168RoofAt(x,z,visualMode() === "minecraft"));
+    }
+  }
+  if (prisms.buildings.some(b => TEEHAUS_RUIN_V168_PRISM_IDS.has(b.id))) {
+    for (const wall of TEEHAUS_RUIN_V168_WALLS) {
+      addPolygonObstacle(index, wall.ring, [], wall.groundY, wall.topY, wall.id, 1);
     }
   }
   // Register all complete new source parts once, including parents absent from

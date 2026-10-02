@@ -1020,63 +1020,9 @@ function addSquareDetails(
     }
   }
 
-  // Current Teehaus state: a low, partly roofless 1952 garden pavilion after
-  // the documented 2024 fire, not an invented intact reconstruction.
-  const teaHouse = { x: -1582.0, z: 175.1 };
-  const ground = groundAt(teaHouse.x, teaHouse.z);
-  addBox(
-    builder,
-    IVORY,
-    teaHouse.x,
-    ground + 1.65,
-    teaHouse.z,
-    24,
-    3.3,
-    11,
-    0.08,
-  );
-  addBox(
-    builder,
-    0x4d5658,
-    teaHouse.x,
-    ground + 1.75,
-    teaHouse.z + 5.62,
-    18,
-    2.1,
-    0.2,
-    0.08,
-    false,
-  );
-  // Open roof frame communicates the current loss of the roof without a dark
-  // floating slab above the English Garden.
-  for (const side of [-1, 1]) {
-    addBox(
-      builder,
-      SANDSTONE_LIGHT,
-      teaHouse.x,
-      ground + 3.65,
-      teaHouse.z + side * 4.9,
-      24,
-      0.22,
-      0.22,
-      0.08,
-      false,
-    );
-  }
-  for (let bay = -5; bay <= 5; bay += 1) {
-    addBox(
-      builder,
-      SANDSTONE_LIGHT,
-      teaHouse.x + bay * 2.1,
-      ground + 3.65,
-      teaHouse.z,
-      0.18,
-      0.18,
-      10,
-      0.08,
-      false,
-    );
-  }
+  // Teehaus is owned by TeehausRuinV168 at its surveyed footprint.
+  // The former offset solid pavilion is retained in the v1.0.67 history.
+
 }
 
 function addBatch(
@@ -1166,7 +1112,6 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   addSquareDetails(squares, groundAt);
   addBatch(root, "Leipziger Platz and English Garden fine details", squares, [
     "Leipziger Platz subway entrances",
-    "Teehaus im Englischen Garten",
   ]);
   addSmallWaterBatch(root, smallWater);
 

@@ -2,13 +2,12 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v167.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v168.json";
 
-// Synchronous v167 measurements must equal cooperative construction below.
-// Earlier fixtures remain frozen. This cumulative baseline retains the v166
-// world and adds the Neue Synagoge, Tacheles and Kinderbad Monbijou refinements measured after their production models were frozen.
-// It proves construction-path equality, not historical appearance preservation.
-// Source retention and full/mobile detail are independently tested per model.
+// Synchronous v168 measurements must equal cooperative construction below.
+// Earlier fixtures remain frozen. This cumulative fixture includes the HU/TU
+// and requested Teehaus ruin after exact previous-owner suppression. It proves
+// construction-path equality; separate source audits prove prior detail retention.
 for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

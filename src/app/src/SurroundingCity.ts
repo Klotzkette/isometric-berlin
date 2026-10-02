@@ -14,6 +14,8 @@ export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number };
 export type SurroundingChunkDescriptor = {
   id: string;
+  /** Lossless geometry-only transfer split; navigation belongs to this primary. */
+  detailCompanionOf?: string;
   bounds: [number, number, number, number];
   drawn: Asset;
   minecraft: Asset;
@@ -91,6 +93,14 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
       throw new Error("Invalid surrounding-city tile descriptor");
     }
     ids.add(chunk.id);
+  }
+  for (const chunk of manifest.chunks) {
+    if (chunk.detailCompanionOf === undefined) continue;
+    const primary = manifest.chunks.find(p => p.id === chunk.detailCompanionOf);
+    if (!primary || primary === chunk || primary.detailCompanionOf !== undefined ||
+        !primary.bounds.every((value, index) => value === chunk.bounds[index])) {
+      throw new Error("Invalid surrounding-city detail companion");
+    }
   }
   return manifest;
 }
@@ -223,7 +233,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const activeView = (): boolean => root.visible &&
     (typeof document === "undefined" || document.visibilityState !== "hidden");
   const updateNavigation = (): void => {
-    navigationTiles = Array.from(residents.values(), entry => ({
+    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf).map(entry => ({
       origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
     }));
   };
@@ -360,6 +370,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
 
   const at = (x: number, z: number): Resident | undefined => {
     for (const entry of residents.values()) {
+      // A detail companion can finish before a failed primary retries. Its
+      // intentionally empty navigation must never mask the later ground/water.
+      if (entry.descriptor.detailCompanionOf) continue;
       const b = entry.descriptor.bounds;
       if (x >= b[0] && z >= b[1] && x < b[2] && z < b[3]) return entry;
     }

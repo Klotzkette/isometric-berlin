@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import gzip
 import hashlib
 import json
@@ -54,9 +55,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v163 adds bounded source streets and named squares inside the same polygon.
 # v166 adds bounded Mitte/Moabit/City West source models and street packets.
 # v167 adds the finite Oranien corridors, synagogue, Tacheles and Monbijou pools.
-# The final built site is 278.8 MiB; this finite 285 MiB offline ceiling changes
+# v168 adds full Scheunenviertel source families, HU/TU and the Teehaus ruin.
+# The final built site is 302.0 MiB; this finite 310 MiB offline ceiling changes
 # neither live packet/decode/GPU residency budgets nor source-detail policy.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 285 * 1024 * 1024
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 310 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -1857,11 +1859,37 @@ def surrounding_city_failures(site: Path) -> list[str]:
           failures.append(f"Outline chunk differs from manifest: {path}")
         if len(data) > MAX_REPOSITORY_BINARY_BYTES:
           failures.append(f"Outline chunk exceeds individual asset budget: {path}")
+        raw = gzip.decompress(data)
         if (
           asset.get("encoding") != "gzip"
-          or len(gzip.decompress(data)) != asset["decodedBytes"]
+          or len(raw) != asset["decodedBytes"]
+          or len(raw) > 12 * 1024 * 1024
         ):
           failures.append(f"Invalid losslessly packed outline chunk: {path}")
+        payload = json.loads(raw)
+        vertices = sum(
+          len(base64.b64decode(m["positions"], validate=True)) // 6
+          for m in payload["meshes"]
+        )
+        indices = sum(
+          len(base64.b64decode(m["indices"], validate=True)) // 4
+          for m in payload["meshes"]
+        )
+        line_vertices = (
+          len(
+            base64.b64decode(
+              payload.get("lines", {}).get("positions", ""), validate=True
+            )
+          )
+          // 6
+        )
+        if (
+          vertices > 400_000
+          or indices > 2_400_000
+          or line_vertices > 400_000
+          or len(payload["meshes"]) > 16
+        ):
+          failures.append(f"Outline chunk exceeds renderer geometry budget: {path}")
   except (
     OSError,
     EOFError,

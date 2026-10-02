@@ -1,3 +1,8 @@
+import { createMinecraftTuWaterV168 } from "./TuWaterV168";
+import { tuWaterV168SourceColumn } from "./tuWaterV168Profile";
+import { createMinecraftTeehausRuinV168 } from "./TeehausRuinV168";
+import { createMinecraftHumboldtMainV168Details } from "./HumboldtMainV168Details";
+import { teehausRuinV168SourceColumn } from "./teehausRuinV168Profile";
 import { neueSynagogeV167SourceColumn } from "./neueSynagogeV167Profile";
 import { tachelesV167SourceColumn } from "./tachelesV167Profile";
 import { createMinecraftNeueSynagogeV167 } from "./NeueSynagogeV167";
@@ -2966,6 +2971,12 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftMonbijouBathV167());
   yield;
+  group.add(createMinecraftHumboldtMainV168Details());
+  yield;
+  group.add(createMinecraftTeehausRuinV168());
+  yield;
+  group.add(createMinecraftTuWaterV168());
+  yield;
 
   group.add(createMinecraftZooGroundsV165());
   yield;
@@ -3145,6 +3156,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !grosserSternGatehouseSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cafeNeuerSeeSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !neueSynagogeV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !tuWaterV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !teehausRuinV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tachelesV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

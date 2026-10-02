@@ -31,8 +31,20 @@ KIND = "oranien-corridors-v167"
 OLD_FRONT = "mitte-street-fronts-v166"
 
 
+def v167_packet_bytes(path):
+  """Freeze this historical proof; v168 has its own strict published audit."""
+  current = json.loads((PACKETS / "manifest.json").read_text())
+  if "scheunenRefinementsV168" not in current.get("source", {}):
+    return path.read_bytes()
+  return subprocess.check_output(
+    ["git", "show", f"v1.0.67:{path.relative_to(ROOT)}"], cwd=ROOT
+  )
+
+
 def read(path):
-  return json.loads(path.read_text())
+  return json.loads(
+    v167_packet_bytes(path) if PACKETS in path.parents else path.read_bytes()
+  )
 
 
 def old_bytes(path):
@@ -69,13 +81,13 @@ def test_final_owners_preserve_all_unowned_geometry_and_source_navigation():
     if identity not in changes:
       assert d == old_descriptors[identity]
       for mode in ("drawn", "minecraft"):
-        assert (PACKETS / d[mode]["url"]).read_bytes() == old_bytes(
+        assert v167_packet_bytes(PACKETS / d[mode]["url"]) == old_bytes(
           PACKETS / d[mode]["url"]
         )
       continue
     entry = next(e for e in audit["chunks"] if e["id"] == identity)
     for mode in ("drawn", "minecraft"):
-      blob = (PACKETS / d[mode]["url"]).read_bytes()
+      blob = v167_packet_bytes(PACKETS / d[mode]["url"])
       raw = gzip.decompress(blob)
       assert hashlib.sha256(blob).hexdigest() == d[mode]["sha256"]
       assert len(blob) == d[mode]["bytes"] and len(raw) == d[mode]["decodedBytes"]

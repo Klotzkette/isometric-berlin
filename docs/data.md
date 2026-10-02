@@ -1012,3 +1012,18 @@ parts are excluded from historic decoration, not removed from the city. Six
 older Ruska parts retain geometry while correcting identity and facade reading.
 Facades are photograph-proportioned procedural hints, not measured individual
 windows. See the two v1.0.46 source documents for addresses and evidence.
+
+### Step 10 v1.0.68: Scheunenviertel, universities and Teehaus
+
+[Source/quality review](release-v1.0.68-review.md). The existing coverage polygon,
+source priority and tour remain unchanged. Scheunenviertel adds complete
+measured families in a finite street ring and shallow source-bound front/court
+details; historical packet geometry is audited against v1.0.67. HU ornament
+is additive. TU and VWS retain every original leaf and document the limited
+industrial-envelope correction required for the open Umlauftank. The Teehaus
+uses the surveyed footprint and documented December 2025 fire damage; all 90
+old boundary polygons remain evidence. Clearing announced in April 2026 is
+not taken as proof that work has finished. Both Commons manifests retain their
+463-record prefix and append 12 inspected free references. The single extra
+geometry-only companion packet preserves decoded-memory limits and never
+participates in ground/water navigation lookup.

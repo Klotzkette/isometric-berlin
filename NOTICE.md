@@ -1328,3 +1328,20 @@ not a distributed texture. Per-file free-photo attribution for Neue Synagoge
 and Tacheles is recorded in both Wikimedia manifests. Fine ornament,
 non-surveyed current roof corrections and paving subdivisions are documented
 display estimates. See [release source review](docs/release-v1.0.67-review.md).
+
+## v1.0.68 — Scheunenviertel, HU/TU and Teehaus ruin
+
+The step-10 source/detail refinements are documented in
+[the v1.0.68 review](docs/release-v1.0.68-review.md),
+[Scheunenviertel](docs/scheunenviertel-v168.md),
+[HU main building](docs/humboldt-main-v168.md),
+[TU and Umlauftank 2](docs/tu-water-v168.md), and
+[Teehaus post-fire ruin](docs/teehaus-ruin-v168.md).
+Berlin LoD2 and OSM retain their existing licences. Twelve additional free
+Commons photographs are credited individually in both attribution manifests;
+all previous credits remain. Photographs are external references only and no
+image pixels are distributed in the model. Facade and damage details are
+reference estimates, distinct from measured envelopes. The Teehaus condition
+is dated to the documented post-fire photographs, not an asserted completion
+of the 2026 clearing works. Original industrial and pre-fire source geometry
+remains in evidence with explicit, limited replacement decisions.

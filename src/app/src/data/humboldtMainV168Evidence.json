@@ -1,0 +1,107 @@
+{
+  "verified": "2026-10-02",
+  "identity": {
+    "name": "Humboldt-Universität main building",
+    "address": "Unter den Linden 6",
+    "osmRelation": "6647",
+    "lod2Parent": "DEBE01YYK0000Cm9",
+    "monumentId": "09095954,T",
+    "distinctFrom": "Humboldt Forum / Berliner Schloss"
+  },
+  "factualSources": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095954,T",
+      "role": "Primary Berlin heritage inventory",
+      "facts": [
+        "17-axis main body with five-axis central projection and six fluted Corinthian columns; pilasters behind them",
+        "Wing fronts repeat a simplified pilaster order",
+        "Rusticated base, fine plaster joints, arched principal-floor windows with botanical garlands and keystone heads",
+        "Postwar replica central roof figures and relocated additions on side projections; no new sculptural count inferred"
+      ]
+    },
+    {
+      "url": "https://agnes.hu-berlin.de/lupo/rds?k_gebaeude.gebid=52&menu_open=n&menuid=&moduleCall=webInfo&publishConfFile=webInfoGeb&publishSubDir=gebaeude&state=verpublish&status=init&subitem=editfacilities&topitem=departments&vmfile=no",
+      "role": "Current HU official building directory",
+      "facts": [
+        "Universitäts-Hauptgebäude UL 6; Unter den Linden 6, Berlin-Mitte"
+      ]
+    },
+    {
+      "url": "https://www2.hu-berlin.de/architekturen-der-wissenschaft/",
+      "role": "HU architectural history project",
+      "facts": [
+        "Restored portal bore the Humboldt Universität name in October 1951; pre-existing model inscription is retained unchanged"
+      ]
+    }
+  ],
+  "visualReferences": [
+    {
+      "title": "File:Frontansicht des Hauptgebäudes der Humboldt-Universität in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Frontansicht_des_Hauptgeb%C3%A4udes_der_Humboldt-Universit%C3%A4t_in_Berlin.jpg",
+      "artist": "Christian Wolf (www.c-w-design.de)",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "credit": "Frontansicht des Hauptgebäudes der Humboldt-Universität in Berlin.jpg — Christian Wolf (www.c-w-design.de), CC BY-SA 3.0 Germany, Wikimedia Commons. Inspected external reference only; no photo pixels bundled."
+    }
+  ],
+  "sourcePreservation": {
+    "parent": "DEBE01YYK0000Cm9",
+    "sourceParts": 1,
+    "boundaryPolygons": 95,
+    "courtyardHoles": 1,
+    "groundY": -1.245,
+    "sourceRoofY": 25.018,
+    "sourceArchive": {
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip",
+      "sha256": "11cb7bb8868c9f6d7838c7fb5823c35b32317a4998fd9e86bc0fca14a86b6f3f"
+    },
+    "existingSourceFacadeFiles": [
+      {
+        "path": "src/app/src/bebelplatzBuildingSource.json",
+        "sha256": "2c1394812cde1e92a8ca983176865e002f601a3f8e5f397c56a5aa9a2866ee53"
+      },
+      {
+        "path": "src/app/src/BebelplatzFacades.ts",
+        "sha256": "2dfb5cfaf6ff6024ac57fe514e0595d5d15a9baf2af4044d005440d0dee40738"
+      },
+      {
+        "path": "src/app/src/BebelplatzBuildingShells.ts",
+        "sha256": "296529fa17c496ced2eab2f90661128ae9cb49fb3fedbfbf093cea9b5b279005"
+      }
+    ],
+    "newReplacedOwners": [],
+    "newCollisionSolids": [],
+    "newRoofPlanes": []
+  },
+  "newDetail": [
+    "Six existing column shafts receive shallow tapered flute shadow strips; no shaft or column is duplicated",
+    "Two bounded acanthus/volute tiers articulate existing capitals; rear pilasters are aligned with existing columns",
+    "Finer cornice dentils, upper plaster joints, fanlight bars and sill brackets follow eleven exact measured facade planes",
+    "Central arch keystones and procedural botanical swags supplement existing wing keystone heads",
+    "Small turned baluster bellies refine existing square spindles; robe folds supplement existing roof figures without new figures",
+    "Two main entrance leaves receive recessed panels and paired handles, retaining existing glazing/transom/frame and open forecourt"
+  ],
+  "accuracy": "All local relief dimensions, leaf arrangements, fluting count and pane subdivisions are procedural estimates. Measured source walls, roof, open court and previous complete geometry remain unchanged. Free image is visual QA only; no photographic pixel, colour sample, protected font or relief tracing is copied.",
+  "native": "Independent orthogonal ornament batch; fine plaster grooves remain a drawn surface cue while native geometry emphasizes capitals, garlands, doors and balustrades. No smooth overlay survives in Minecraft.",
+  "budgets": {
+    "drawnBatches": 3,
+    "drawnBytes": 345200,
+    "boxes": 2264,
+    "rods": 883,
+    "reliefInstances": 1355,
+    "nativeBatches": 1,
+    "nativeBoxes": 2481,
+    "nativeBytes": 189204,
+    "fullDrawnTouchParity": true
+  },
+  "validation": {
+    "pythonTests": 4,
+    "focusedBunTests": 14,
+    "focusedBunAssertions": 30028,
+    "preservation": "Exact SHA256 comparison of prior complete source/shell/facade files; existing Bebelplatz facade and source-shell suites also pass",
+    "native": "Every new native instance has an orthogonal matrix and bounded dimensions",
+    "navigation": "No new ground obstruction or roof support; original measured navigation is authoritative"
+  }
+}

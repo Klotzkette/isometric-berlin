@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import gzip
 import hashlib
 import importlib.util
@@ -17,6 +18,43 @@ from types import ModuleType
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.mark.parametrize(
+  "vertices_per_mesh, rejected", [(199_999, False), (200_001, True)]
+)
+def test_outline_release_checks_aggregate_renderer_budget(
+  tmp_path: Path,
+  vertices_per_mesh: int,
+  rejected: bool,
+) -> None:
+  checker = load_script_module(
+    "readiness_outline_budget", "scripts/check_release_readiness.py"
+  )
+  folder = tmp_path / "mesh/surrounding-berlin-v159"
+  folder.mkdir(parents=True)
+  mesh = {
+    "positions": base64.b64encode(bytes(vertices_per_mesh * 6)).decode(),
+    "indices": "",
+  }
+  raw = json.dumps({"meshes": [mesh, mesh]}).encode()
+  data = gzip.compress(raw)
+  (folder / "tile.json.gz").write_bytes(data)
+  asset = {
+    "url": "tile.json.gz",
+    "bytes": len(data),
+    "decodedBytes": len(raw),
+    "encoding": "gzip",
+    "sha256": hashlib.sha256(data).hexdigest(),
+  }
+  (folder / "manifest.json").write_text(
+    json.dumps({"schemaVersion": 1, "chunks": [{"drawn": asset, "minecraft": asset}]})
+  )
+  failures = checker.surrounding_city_failures(tmp_path)
+  assert bool(failures) == rejected
+  assert all("renderer geometry budget" in failure for failure in failures)
+
+
 VALID_START_HERE_HTML = """<!doctype html><html lang="de"><body>
 <h1>Lokal starten</h1><p lang="en">Start locally</p>
 OPEN-3D-MAC.command OPEN-3D-WINDOWS.bat sh start-linux.sh python3 serve-local.py

@@ -90,6 +90,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./NeueSynagogeV167": { createNeueSynagogeV167: () => model("Neue Synagoge v167") },
     "./TachelesV167": { createTachelesV167: () => model("Tacheles v167") },
     "./MonbijouBathV167": { createMonbijouBathV167: () => model("Monbijou bath v167") },
+    "./HumboldtMainV168Details": { createHumboldtMainV168Details: () => model("HU detail v168") },
+    "./TeehausRuinV168": { createTeehausRuinV168: () => model("Teehaus ruin v168") },
+    "./TuWaterV168": { createTuWaterV168: () => model("TU water v168") },
     "./ZooGroundsV165": { createZooGroundsV165: () => model("Zoo grounds v165") },
     "./KranzlerV165": { createKranzlerV165: () => model("Kranzler v165") },
     "./ZooStationV165": { createZooStationV165: () => model("Zoo station v165") },
@@ -225,7 +228,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
     "Hackescher Markt v163", "Cafe Neuer See v164",
     "Upbeat facade v166", "Alexander north v166", "City West cinemas v166",
     "Moabit justice v166", "Mitte heritage v166", "Kosmos v166",
-    "Neue Synagoge v167", "Tacheles v167", "Monbijou bath v167",
+    "Neue Synagoge v167", "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168",
     "Zoo grounds v165", "Kranzler v165", "Zoo station v165",
     "Huthmacher house v165",
     "Spanish embassy v164", "Grosser Stern gatehouses v164",
@@ -239,13 +242,13 @@ test("drawn construction publishes all staged geometry at the current pose", asy
   ];
   expect(h.built.map(mesh => mesh.name).sort()).toEqual([...expectedNames].sort());
   // Pin the actual construction order as well as complete ownership. Existing
-  // stages retain their relative order around the v165–v167 additions.
+  // stages retain their relative order around the v165–v168 additions.
   const heroStageOrder = [
     "Breitscheid towers", "West squares v163", "East squares v163",
     "Hackescher Markt v163", "Cafe Neuer See v164", "Upbeat facade v166",
     "Alexander north v166", "City West cinemas v166", "Moabit justice v166",
     "Mitte heritage v166", "Kosmos v166", "Neue Synagoge v167",
-    "Tacheles v167", "Monbijou bath v167", "Zoo grounds v165",
+    "Tacheles v167", "Monbijou bath v167", "HU detail v168", "Teehaus ruin v168", "TU water v168", "Zoo grounds v165",
     "Kranzler v165", "Zoo station v165", "Huthmacher house v165",
     "Spanish embassy v164", "Grosser Stern gatehouses v164",
   ];
@@ -365,7 +368,7 @@ test("world release clears the published steam pointer and disposes its buffers 
   expect(materialDisposals).toBe(1);
 });
 
-// Cancellation is exercised at each added v160–v167 constructor boundary.
+// Cancellation is exercised at each added v160–v168 constructor boundary.
 // Every fixture owns a real tiny buffer but no full architectural model runs.
 for (const [stop, next] of [
   ["Breitscheid towers", "West squares v163"],
@@ -381,7 +384,10 @@ for (const [stop, next] of [
   ["Kosmos v166", "Neue Synagoge v167"],
   ["Neue Synagoge v167", "Tacheles v167"],
   ["Tacheles v167", "Monbijou bath v167"],
-  ["Monbijou bath v167", "Zoo grounds v165"],
+  ["Monbijou bath v167", "HU detail v168"],
+  ["HU detail v168", "Teehaus ruin v168"],
+  ["Teehaus ruin v168", "TU water v168"],
+  ["TU water v168", "Zoo grounds v165"],
   ["Zoo grounds v165", "Kranzler v165"],
   ["Kranzler v165", "Zoo station v165"],
   ["Zoo station v165", "Huthmacher house v165"],
