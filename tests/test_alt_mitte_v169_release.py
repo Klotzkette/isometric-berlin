@@ -1,7 +1,10 @@
-"""Published v169 evidence: old ownership survives and every new leaf is present.
+"""Historical v169 ownership plus live source-sheet and navigation coverage.
 
-These tests read the actual committed runtime assets, never candidate packets.
-Source-sheet coverage is checked independently of the facade/model authoring.
+The v169 flat-ground replacement accounting is frozen at v175, before the
+explicitly requested v176 terrain placement. The live leaf/palette proof below
+checks every actual current source sheet at its rigid source-parent elevation.
+The v176 packet tests separately audit the complete terrain transformation
+against v175, including retained older details and terrain XZ coverage.
 """
 
 from __future__ import annotations
@@ -99,9 +102,15 @@ def source_proof_parts(record):
   ]
 
 
-def packet(descriptor, mode):
+def packet(descriptor, mode, *, historical=False):
   spec = descriptor[mode]
-  blob = (PACKETS / spec["url"]).read_bytes()
+  blob = (
+    subprocess.check_output(
+      ["git", "show", f"v1.0.75:{(PACKETS / spec['url']).relative_to(ROOT)}"], cwd=ROOT
+    )
+    if historical
+    else (PACKETS / spec["url"]).read_bytes()
+  )
   raw = gzip.decompress(blob)
   assert len(blob) == spec["bytes"] <= 5 * 1024 * 1024
   assert len(raw) == spec["decodedBytes"] <= 12 * 1024 * 1024
@@ -175,8 +184,22 @@ def release():
   return manifest, previous, audit, source
 
 
-def test_all_baseline_packets_and_unowned_triangle_colours_navigation_survive(release):
+def test_v169_historical_replacement_preserved_all_prior_ownership(release):
   manifest, previous, audit, source = release
+  terrain_release = (
+    ROOT / "geo_data/regierungsviertel/weinberg-v176/packet-audit.json"
+  ).exists()
+  if terrain_release:
+    manifest = json.loads(
+      subprocess.check_output(
+        ["git", "show", f"v1.0.75:{(PACKETS / 'manifest.json').relative_to(ROOT)}"],
+        cwd=ROOT,
+      )
+    )
+
+  def checked_packet(descriptor, mode):
+    return packet(descriptor, mode, historical=terrain_release)
+
   old = {d["id"]: d for d in previous["chunks"]}
   current = {d["id"]: d for d in manifest["chunks"]}
   changes = {c["id"]: c for c in audit["chunks"]}
@@ -201,13 +224,20 @@ def test_all_baseline_packets_and_unowned_triangle_colours_navigation_survive(re
     if identity not in changes and not is_new_companion:
       assert descriptor == old[identity]
       for mode in ("drawn", "minecraft"):
-        blob = (PACKETS / descriptor[mode]["url"]).read_bytes()
+        asset_path = PACKETS / descriptor[mode]["url"]
+        blob = (
+          subprocess.check_output(
+            ["git", "show", f"v1.0.75:{asset_path.relative_to(ROOT)}"], cwd=ROOT
+          )
+          if terrain_release
+          else asset_path.read_bytes()
+        )
         assert blob == old_bytes(PACKETS / old[identity][mode]["url"])
       continue
     if is_new_companion:
       assert descriptor["bounds"] == current[primary]["bounds"]
       for mode in ("drawn", "minecraft"):
-        after = packet(descriptor, mode)
+        after = checked_packet(descriptor, mode)
         assert all(m["kind"] == KIND for m in after["meshes"])
         assert all(
           after["nav"][k] == []
@@ -216,7 +246,7 @@ def test_all_baseline_packets_and_unowned_triangle_colours_navigation_survive(re
       continue
     entry = changes[identity]
     for mode in ("drawn", "minecraft"):
-      after = packet(descriptor, mode)
+      after = checked_packet(descriptor, mode)
       before = (
         json.loads(gzip.decompress(old_bytes(PACKETS / old[identity][mode]["url"])))
         if identity in old
@@ -235,7 +265,7 @@ def test_all_baseline_packets_and_unowned_triangle_colours_navigation_survive(re
       if identity in old:
         assert after["origin"] == before["origin"], "Retained geometry frame changed"
       companions = [
-        packet(d, mode)
+        checked_packet(d, mode)
         for name, d in current.items()
         if name not in old and d.get("detailCompanionOf") == identity
       ]
@@ -293,7 +323,7 @@ def test_all_baseline_packets_and_unowned_triangle_colours_navigation_survive(re
   assert audit["unownedTriangleLoss"] == audit["unownedNavigationLoss"] == 0
 
 
-def position_keys(meshes, origin, include_colors=False):
+def position_keys(meshes, origin, include_colors=False, y_offset=0):
   """Only the new source proof ignores palette; baseline proof includes colours."""
   result = Counter()
   for mesh in meshes:
@@ -303,6 +333,7 @@ def position_keys(meshes, origin, include_colors=False):
       .astype("<i4")
     )
     points += np.rint(np.asarray(origin) * 100).astype("<i4")
+    points[:, 1] += round(y_offset * 100)
     if include_colors:
       colors = np.frombuffer(base64.b64decode(mesh["colors"]), "u1").reshape(-1, 3)
       points = np.column_stack((points, colors.astype("<i4")))
@@ -377,6 +408,7 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
     identity = f"{round(ox / 512)}_{round(oz / 512)}"
     assert identity not in core_origin_y or core_origin_y[identity] == oy
     core_origin_y[identity] = oy
+  terrain_offsets = read(DATA / "weinbergBuildingOffsetsV176.json")["offsets"]
   expected_nav = {}
   expected_prisms = {}
   refined = set()
@@ -430,6 +462,7 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
                   origin_y=origin_y,
                 ),
                 origin,
+                y_offset=terrain_offsets.get(record["id"], 0),
               )
             )
             if coloured.triangles:
@@ -442,6 +475,7 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
                   ),
                   origin,
                   include_colors=True,
+                  y_offset=terrain_offsets.get(record["id"], 0),
                 )
               )
   assert refined == {b["id"] for b in audit["buildings"]}
@@ -528,23 +562,43 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
           [[(x + ox, z + oz) for x, z in h] for h in n["holes"]],
         )
         actual_nav[mode][key].append(
-          (shapely.make_valid(p), 3 + n["minHeight"], 3 + n["height"])
+          (
+            shapely.make_valid(p),
+            3 + n["minHeight"] + n.get("groundOffset", 0),
+            3 + n["height"] + n.get("groundOffset", 0),
+          )
         )
+  missing_sheets = []
   for target, cells in expected_shells.items():
     for identity, expected in cells.items():
-      assert not expected - available[target][identity], (
-        target,
-        identity,
-        "source wall/roof/closure sheet missing",
-      )
+      missing = expected - available[target][identity]
+      if missing:
+        missing_sheets.append(
+          (
+            target,
+            identity,
+            "source wall/roof/closure sheet missing",
+            sum(missing.values()),
+            [
+              np.frombuffer(key, "<i4").reshape(3, 3).tolist()
+              for key in list(missing)[:8]
+            ],
+          )
+        )
   assert any(expected_palette["core"].values()), "No inherited core appearance checked"
   for target, cells in expected_palette.items():
     for identity, expected in cells.items():
-      assert not expected - available_palette[target][identity], (
-        target,
-        identity,
-        "inherited source wall/roof colour missing",
-      )
+      missing = expected - available_palette[target][identity]
+      if missing:
+        missing_sheets.append(
+          (
+            target,
+            identity,
+            "inherited source wall/roof colour missing",
+            sum(missing.values()),
+          )
+        )
+  assert not missing_sheets, missing_sheets
   for key, (target, part) in expected_nav.items():
     expected = unary_union(
       [
@@ -570,7 +624,8 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
         default=part["groundY"],
       )
       assert all(
-        abs(lo - source_ground) < 0.011 and abs(hi - part["topY"]) < 0.011
+        abs(lo - source_ground - terrain_offsets.get(key[0], 0)) < 0.011
+        and abs(hi - part["topY"] - terrain_offsets.get(key[0], 0)) < 0.011
         for _, lo, hi in rows
       )
 

@@ -1381,3 +1381,11 @@ New window rhythms and untagged materials are procedural display estimates,
 not surveyed facade detail. No new photograph or texture is distributed.
 See the [boundary audit](docs/alt-mitte-v169-scope.md) and
 [source inventory](docs/alt-mitte-v169-sources.md).
+
+## v1.0.76 — Weinbergspark terrain
+
+Local elevation uses Geoportal Berlin's ATKIS DGM1 (dl-de/zero-2-0), in
+DHHN2016 / NHN. The original 1 m source and its 10 m derived subset are
+documented in the [terrain evidence](geo_data/regierungsviertel/weinberg-v176/README.md).
+The bounded transition apron is presentation geometry, not a surveyed slope
+outside the corrected area. Existing LoD2, OSM and reference credits remain.

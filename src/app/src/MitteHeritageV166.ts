@@ -2,10 +2,20 @@ import { BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute,
 import source from "./data/mitteHeritageV166Source.json";
 import { createMitteHeritageOrnamentRows } from "./MitteHeritageOrnamentsV166";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { drapeTerrainTriangle, terrainGroundAt } from "./weinbergTerrainV176";
+import { localTerrainIntersects, nativeTerrainGroundRows } from "./weinbergLocalModelTerrainV176";
+import { mitteHeritageV166BuildingOffsetAt, mitteHeritageV166PartOffset } from "./mitteHeritageV166Profile";
 type P=[number,number,number];
 type Tri={color:number;triangles:number[][][]};
 export const MITTE_HERITAGE_V166_GROUP="Mitte parks cemeteries and measured historical buildings";
 export const MITTE_HERITAGE_V166_NATIVE_GROUP="Mitte heritage independent native blocks";
+/** Fixed levels shared with the bounded source-water packet adaptation. */
+export function mitteHeritageV166WaterLevel(x:number,z:number,color:number):number|undefined {
+  if(color!==6001307)return undefined;
+  if(x>=1961&&x<=2003&&z>=-1459&&z<=-1400)return 6.315;
+  if(x>=2123&&x<=2143&&z>=-1424&&z<=-1392)return 12.415;
+  return undefined;
+}
 function boxBatch(rows: readonly number[][]): InstancedMesh {
   const g=new BoxGeometry(1,1,1);g.deleteAttribute("uv");
   const day=new MeshBasicMaterial({color:0xffffff});
@@ -76,13 +86,13 @@ class Garden {
 
 function landscape(d:Garden):void {
   for(const p of source.props){
-    const t=p.tags as unknown as Record<string,string>,x=p.x,y=p.y,z=p.z;
+    const t=p.tags as unknown as Record<string,string>,x=p.x,y=terrainGroundAt(p.x,p.z,p.y,d.native),z=p.z;
     if(t.amenity==="bench"){
       const deg=Number(t.direction),yaw=Number.isFinite(deg)?deg*Math.PI/180:0;
       d.box(0x7e7255,x,y+.52,z,1.8,.12,.55,yaw);
       for(const dx of[-.65,.65])d.box(0x4c5650,x+dx,y+.25,z,.1,.5,.45);
       for(const h of[.85,1.1])d.box(0x8a795c,x,y+h,z+.23,1.8,.14,.08,yaw);
-    }else if(t.natural==="tree"&&y===3){
+    }else if(t.natural==="tree"&&p.y===3){
       // Inner parks retain their official tree layer; only the outer extension
       // receives these extra OSM anchors. No full/mobile drawn reduction.
       if(d.native&&Number(p.id)%3!==0)continue;
@@ -116,13 +126,24 @@ function landscape(d:Garden):void {
   for(const f of source.barriers){
     const t=f.tags as unknown as Record<string,string>,height=Math.min(4,Math.max(.5,Number(t.height)|| (t.barrier==="wall"?1.9:1.1)));
     for(let i=1;i<f.line.length;i++){
-      const a=f.line[i-1],b=f.line[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]);if(len<.1)continue;
-      // Each segment's source endpoint carries the same existing scene datum.
-      const y=f.groundY,yaw=Math.atan2(a[1]-b[1],b[0]-a[0]);
+      const start=f.line[i-1],end=f.line[i],length=Math.hypot(end[0]-start[0],end[1]-start[1]);if(length<.1)continue;
+      // Keep every mapped segment. Local short sections follow the hill while
+      // native wall/hedge pieces remain orthogonal, as before.
+      const local=localTerrainIntersects(Math.min(start[0],end[0]),Math.min(start[1],end[1]),Math.max(start[0],end[0]),Math.max(start[1],end[1]));
+      const sections=local?Math.max(1,Math.ceil(length/2)):1;
+      for(let section=0;section<sections;section++){
+      const a=sections===1?start:[start[0]+(end[0]-start[0])*section/sections,start[1]+(end[1]-start[1])*section/sections];
+      const b=sections===1?end:[start[0]+(end[0]-start[0])*(section+1)/sections,start[1]+(end[1]-start[1])*(section+1)/sections],len=length/sections;
+      const y=terrainGroundAt((a[0]+b[0])/2,(a[1]+b[1])/2,f.groundY,d.native),yaw=Math.atan2(a[1]-b[1],b[0]-a[0]);
       if(t.barrier==="wall"||t.barrier==="hedge")d.box(t.barrier==="wall"?0x9b8370:0x5b7d51,(a[0]+b[0])/2,y+height/2,(a[1]+b[1])/2,len,height,.32,yaw);
       else{
-        for(const h of[.3,height])d.line(0x505b52,[a[0],y+h,a[1]],[b[0],y+h,b[1]],.045);
-        const n=Math.ceil(len/1.8);for(let j=0;j<n;j++)d.box(0x4d584f,a[0]+(b[0]-a[0])*j/n,y+height/2,a[1]+(b[1]-a[1])*j/n,.075,height,.075);
+        const ay=d.native?y:terrainGroundAt(a[0],a[1],f.groundY),by=d.native?y:terrainGroundAt(b[0],b[1],f.groundY);
+        for(const h of[.3,height])d.line(0x505b52,[a[0],ay+h,a[1]],[b[0],by+h,b[1]],.045);
+        const n=Math.ceil(len/1.8);for(let j=0;j<n;j++){
+          const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n;
+          d.box(0x4d584f,x,terrainGroundAt(x,z,f.groundY,d.native)+height/2,z,.075,height,.075);
+        }
+      }
       }
     }
   }
@@ -130,13 +151,46 @@ function landscape(d:Garden):void {
 function create(native:boolean):Group {
   const root=new Group();root.name=native?MITTE_HERITAGE_V166_NATIVE_GROUP:MITTE_HERITAGE_V166_GROUP;
   root.userData={textureFree:true,blockNative:native,keepInMinecraft:native,fullStaticDetailOnTouch:true,sourceGeometryRetained:true,sourcePartIds:source.parts.map(p=>p.id)};
-  if(native){root.add(boxBatch([...source.nativeRows,...source.groundRuns].map(([x,y,z,w,h,d,c])=>[x,y,z,w,h,d,0,c])));}
-  else{root.add(triangles(source.surfaces),triangles(source.groundSurfaces),boxBatch(source.facadeBoxes));}
+  const facades=source.facadeBoxes.map(r=>{
+    const offset=mitteHeritageV166BuildingOffsetAt(r[0],r[2]);
+    return offset===0?r:[r[0],r[1]+offset,...r.slice(2)];
+  });
+  if(native){
+    const buildings:number[][]=[];
+    for(const row of source.nativeRows){
+      const [x,y,z,w,h,d,c]=row;
+      if(!localTerrainIntersects(x-w/2,z-d/2,x+w/2,z+d/2)){buildings.push(row);continue;}
+      // Lossless source runs can straddle adjacent parents. Split only when
+      // their rigid offsets differ, keeping exactly the original occupied cells.
+      let start=0,offset=mitteHeritageV166BuildingOffsetAt(x-w/2+.5,z);
+      for(let i=1;i<=w;i++){
+        const next=i<w?mitteHeritageV166BuildingOffsetAt(x-w/2+i+.5,z):NaN;
+        if(next===offset)continue;
+        buildings.push([x-w/2+(start+i)/2,y+offset,z,i-start,h,d,c]);
+        start=i;offset=next;
+      }
+    }
+    root.add(boxBatch([...buildings,...nativeTerrainGroundRows(source.groundRuns,mitteHeritageV166WaterLevel)].map(([x,y,z,w,h,d,c])=>[x,y,z,w,h,d,0,c])));
+  }
+  else{
+    const buildings=source.surfaces.map(sheet=>{
+      const offset=mitteHeritageV166PartOffset(sheet.partId);
+      return offset===0?sheet:{...sheet,triangles:sheet.triangles.map(t=>t.map(p=>[p[0],p[1]+offset,p[2]]))};
+    });
+    const ground=source.groundSurfaces.map(sheet=>{
+      const anchor=sheet.triangles[0][0],water=sheet.kind==="mapped water"?mitteHeritageV166WaterLevel(anchor[0],anchor[2],sheet.color):undefined;
+      if(water!==undefined)return {...sheet,triangles:sheet.triangles.map(t=>t.map(p=>[p[0],water,p[2]]))};
+      return sheet.triangles.some(t=>localTerrainIntersects(
+        Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[2])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[2]))
+      ))?{...sheet,triangles:sheet.triangles.flatMap(drapeTerrainTriangle)}:sheet;
+    });
+    root.add(triangles(buildings),triangles(ground),boxBatch(facades));
+  }
   const props=new Garden(native);landscape(props);
   const ornaments=createMitteHeritageOrnamentRows(native);props.boxes.push(...ornaments.boxes);props.sheets.push(...ornaments.surfaces);
   // Paint exact source-clipped window subdivision in the native reading,
   // using independent unrotated pieces, with no smooth wall double.
-  if(native)for(const r of source.facadeBoxes)props.box(r[7],r[0],r[1],r[2],r[3],r[4],r[5],r[6]);
+  if(native)for(const r of facades)props.box(r[7],r[0],r[1],r[2],r[3],r[4],r[5],r[6]);
   root.add(boxBatch(props.boxes));if(props.sheets.length)root.add(triangles(props.sheets));
   return freezeStaticSceneTransforms(root);
 }

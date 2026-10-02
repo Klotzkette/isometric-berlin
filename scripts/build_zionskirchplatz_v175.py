@@ -16,6 +16,7 @@ import numpy as np
 from build_breitscheid_towers_v161 import normal_of, triangles_for
 from build_zionskirche_v174 import native_blocks
 from shapely.geometry import Polygon, box
+from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "src/app/src/data"
@@ -34,6 +35,9 @@ def make_payloads() -> tuple[dict, dict, dict]:
   retained = []
   for selection in profile["buildings"]:
     record = owners[selection["parentId"]]
+    footprint = unary_union(
+      [Polygon(p["ring"], p.get("holes", [])) for p in record["footprintPolygons"]]
+    )
     retained.append(
       {
         "parentId": record["id"],
@@ -44,6 +48,12 @@ def make_payloads() -> tuple[dict, dict, dict]:
           s["kind"] == "RoofSurface" for p in record["parts"] for s in p["surfaces"]
         ),
         "groundY": record["groundY"],
+        "groundNHN": record["groundNHN"],
+        "terrainAnchor": [
+          round(footprint.centroid.x, 3),
+          round(footprint.centroid.y, 3),
+        ],
+        "footprintPolygons": record["footprintPolygons"],
       }
     )
     for face in selection["faces"]:

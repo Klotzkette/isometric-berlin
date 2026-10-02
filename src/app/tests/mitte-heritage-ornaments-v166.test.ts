@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createMitteHeritageOrnamentRows, MITTE_HERITAGE_ORNAMENT_V166_PROFILE as profile } from "../src/MitteHeritageOrnamentsV166";
+import { terrainGroundAt } from "../src/weinbergTerrainV176";
+import { mitteHeritageV166ParentOffset } from "../src/mitteHeritageV166Profile";
 
 function contains(row: number[], x: number, y: number, z: number): boolean {
   const [cx, cy, cz, w, h, d, yaw] = row, dx = x - cx, dz = z - cz;
@@ -29,16 +31,17 @@ describe("source-bound Heine, Elisabeth and Jandorf exterior ornaments", () => {
   });
   test("seated bronze has an open stool, spread legs, relief stone plinth and head", () => {
     const { heine } = profile;
-    const at = (u: number, y: number, v: number): [number, number, number] => [heine.x - Math.cos(heine.yaw) * u + Math.sin(heine.yaw) * v, y, heine.z + Math.sin(heine.yaw) * u + Math.cos(heine.yaw) * v];
+    const lift=terrainGroundAt(heine.x,heine.z,heine.groundY)-heine.groundY;
+    const at = (u: number, y: number, v: number, native=false): [number, number, number] => [heine.x - Math.cos(heine.yaw) * u + Math.sin(heine.yaw) * v, y+terrainGroundAt(heine.x,heine.z,heine.groundY,native)-heine.groundY, heine.z + Math.sin(heine.yaw) * u + Math.cos(heine.yaw) * v];
     const drawn = createMitteHeritageOrnamentRows(false);
     const heineBoxes = drawn.boxes.filter(r => Math.abs(r[0] - heine.x) < 3);
     expect(heineBoxes.filter(r => r[3] === .065 && r[4] === .56 && r[5] === .065)).toHaveLength(4);
     expect(heineBoxes.some(r => contains(r, ...at(0, 3.4, 0)))).toBe(true);
     const points = drawn.surfaces.flatMap(s => s.triangles.flat()).filter(p => Math.abs(p[0] - heine.x) < 3);
-    expect(Math.max(...points.map(p => p[1]))).toBeCloseTo(6.38, 6);
+    expect(Math.max(...points.map(p => p[1]))).toBeCloseTo(6.38+lift, 6);
     for (const native of [false, true]) {
       const rows = createMitteHeritageOrnamentRows(native);
-      expect(rows.boxes.some(r => contains(r, ...at(0, 4.65, .31)))).toBe(false);
+      expect(rows.boxes.some(r => contains(r, ...at(0, 4.65, .31,native)))).toBe(false);
     }
     expect(heine.osmNode).toBe("1884384977");
   });
@@ -55,17 +58,18 @@ describe("source-bound Heine, Elisabeth and Jandorf exterior ornaments", () => {
   });
   test("Jandorf uses the correct curved source corner, bounded crown and 37 round street window heads", () => {
     const j = profile.jandorf, drawn = createMitteHeritageOrnamentRows(false);
+    const lift=mitteHeritageV166ParentOffset(j.parentId);
     expect(j.osmWay).toBe("33791235");
     expect(j.parentId).toBe("DEBE01YYK0000Dia");
     expect(j.mainPartId).toBe("DEBE3Dqh9NPHTUx9");
     expect(j.cornerX).toBeCloseTo(1916.027, 3);
     const arches = drawn.surfaces.filter(s => s.color === 0x526560 && s.triangles.length === 11);
     expect(arches).toHaveLength(37);
-    expect(arches.every(s => s.triangles.flat().every(p => p[1] >= 18.829 && p[1] < 19.65))).toBe(true);
-    const crown = drawn.surfaces.flatMap(s => s.triangles.flat()).filter(p => p[1] > j.sourceRidgeY);
+    expect(arches.every(s => s.triangles.flat().every(p => p[1] >= 18.829+lift && p[1] < 19.65+lift))).toBe(true);
+    const crown = drawn.surfaces.flatMap(s => s.triangles.flat()).filter(p => p[1] > j.sourceRidgeY+lift);
     expect(crown.length).toBeGreaterThan(500);
     expect(crown.every(p => Math.hypot(p[0] - j.cornerX, p[2] - j.cornerZ) < 3.15)).toBe(true);
-    expect(Math.max(...crown.map(p => p[1]))).toBeCloseTo(43.4, 5);
-    expect(drawn.boxes.some(r => r[0] === j.cornerX && r[2] === j.cornerZ && r[1] + r[4] / 2 === j.crownTopY)).toBe(true);
+    expect(Math.max(...crown.map(p => p[1]))).toBeCloseTo(43.4+lift, 5);
+    expect(drawn.boxes.some(r => r[0] === j.cornerX && r[2] === j.cornerZ && Math.abs(r[1] + r[4] / 2-j.crownTopY-lift)<1e-8)).toBe(true);
   });
 });

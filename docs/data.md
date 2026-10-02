@@ -1040,3 +1040,12 @@ records distinguish retained LoD2/OSM geometry, published architecture facts,
 inspected freely licensed photo references and estimated small subdivisions.
 The playground rubber boundary uses the official 2025 orthophoto; mapped sand,
 pitches and source-cut paths are excluded from the material correction.
+
+## Weinbergspark terrain, v1.0.76
+
+The [bounded official DGM extract](../geo_data/regierungsviertel/weinberg-v176/README.md)
+adds the real Weinbergsweg-to-Zionskirche rise. Bare-earth terrain and LoD2
+building ground remain distinct sources: terrain is interpolated on a 10 m
+grid, while each complete building receives one source-bound translation.
+The [release contract](release-v1.0.76-review.md) documents the finite display
+apron and matching native terraces. No source facade or roof is simplified.

@@ -58,6 +58,25 @@ function sourceFetch(calls: string[] = []): typeof fetch {
   }) as typeof fetch;
 }
 
+test("updated terrain revalidates the manifest and separates cached packet revisions", async () => {
+  const calls: {url: URL; cache?: RequestCache}[] = [];
+  const source = manifest(), digest = "a".repeat(64);
+  source.chunks.forEach(chunk => { chunk.drawn.sha256 = digest; });
+  const city = createSurroundingCity({
+    manifestUrl: new URL("https://example.test/manifest.json"), camera: camera(),
+    fetch: (async (input: URL | RequestInfo, init?: RequestInit) => {
+      const url = new URL(String(input)); calls.push({url, cache:init?.cache});
+      return response(url.pathname.endsWith("manifest.json") ? source : sample());
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready;
+    await until(() => city.residentChunkCount > 0 && !city.pending);
+    expect(calls[0].cache).toBe("no-cache");
+    expect(calls.slice(1).every(call => call.url.searchParams.get("v") === digest)).toBe(true);
+  } finally { city.dispose(); }
+});
+
 test("streamed city leaves unchanged world transforms cached across rendered frames", async () => {
   const city = createSurroundingCity({
     manifestUrl: new URL("https://example.test/manifest.json"),

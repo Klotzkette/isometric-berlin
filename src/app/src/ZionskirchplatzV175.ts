@@ -7,6 +7,23 @@ import drawn from "./data/zionskirchplatzV175Drawn.json";
 import native from "./data/zionskirchplatzV175Native.json";
 import evidence from "./data/zionskirchplatzV175Evidence.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { buildingTerrainOffset } from "./weinbergTerrainV176";
+
+const owners=evidence.retainedOwners.map(owner=>({...owner,
+  offset:buildingTerrainOffset(owner.parentId,owner.terrainAnchor[0],owner.terrainAnchor[1],owner.groundY),
+}));
+/** The overlay's source planes lie just outside each retained footprint. */
+export function zionskirchplatzV175TerrainOffsetAt(x:number,z:number):number {
+  let distance=Infinity,offset=0;
+  for(const owner of owners) for(const polygon of owner.footprintPolygons) for(let i=0;i<polygon.ring.length;i++){
+    const a=polygon.ring[i],b=polygon.ring[(i+1)%polygon.ring.length];
+    const dx=b[0]-a[0],dz=b[1]-a[1],length2=dx*dx+dz*dz;
+    const t=length2?Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/length2)):0;
+    const d=(x-a[0]-t*dx)**2+(z-a[1]-t*dz)**2;
+    if(d<distance){distance=d;offset=owner.offset;}
+  }
+  return offset;
+}
 
 function materials(vertexColors = false) {
   return {
@@ -27,8 +44,10 @@ function create(nativeMode: boolean): Group {
     let offset = 0;
     for (const surface of drawn.surfaces) {
       color.setHex(surface.color);
+      const anchor=surface.triangles[0][0];
+      const lift=zionskirchplatzV175TerrainOffsetAt(anchor[0],anchor[2]);
       for (const triangle of surface.triangles) for (const point of triangle) {
-        positions.set(point, offset); color.toArray(colors, offset); offset += 3;
+        positions.set([point[0],point[1]+lift,point[2]], offset); color.toArray(colors, offset); offset += 3;
       }
     }
     const geometry = new BufferGeometry();
@@ -51,7 +70,7 @@ function create(nativeMode: boolean): Group {
   rows.forEach((row, i) => {
     if (nativeMode) matrix.makeScale(row[4], row[6], row[7]);
     else matrix.makeRotationY(row[6]).scale(scale.set(row[3], row[4], row[5]));
-    matrix.setPosition(row[0], row[1], row[2]).toArray(matrices, i * 16);
+    matrix.setPosition(row[0], row[1]+zionskirchplatzV175TerrainOffsetAt(row[0],row[2]), row[2]).toArray(matrices, i * 16);
     color.setHex(row[nativeMode ? 3 : 7]).toArray(colors, i * 3);
   });
   mesh.count = rows.length;

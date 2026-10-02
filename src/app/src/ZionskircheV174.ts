@@ -7,7 +7,7 @@ import drawn from "./data/zionskircheV174Drawn.json";
 import native from "./data/zionskircheV174Native.json";
 import evidence from "./data/zionskircheV174Evidence.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { registerZionskircheV174NativeRoof, ZIONSKIRCHE_V174_PROFILE } from "./zionskircheV174Profile";
+import { registerZionskircheV174NativeRoof, ZIONSKIRCHE_V174_PROFILE, ZIONSKIRCHE_V174_TERRAIN_OFFSET } from "./zionskircheV174Profile";
 
 export const ZIONSKIRCHE_V174_GROUP = "Zionskirche additive Romanesque facade and 67 m masonry spire";
 export const ZIONSKIRCHE_V174_NATIVE_GROUP = "Zionskirche independent native facade and tall masonry spire";
@@ -84,6 +84,7 @@ function instances(rows: readonly number[][], kind: "box" | "rod" | "native"): I
 /** Identical complete static detail on touch and pointer; existing source stays. */
 export function createZionskircheV174(_options: { mobileLike?: boolean } = {}): Group {
   const root = new Group(); root.name = ZIONSKIRCHE_V174_GROUP;
+  root.position.y = ZIONSKIRCHE_V174_TERRAIN_OFFSET;
   root.userData = { northMitteV174: "zion", textureFree: true, additiveOnly: true, fullStaticDetailOnTouch: true,
     sourceEnvelopeRetained: true, sourceShellDuplicated: false,
     sourceParentId: ZIONSKIRCHE_V174_PROFILE.parentId,
@@ -99,6 +100,7 @@ export function createZionskircheV174(_options: { mobileLike?: boolean } = {}): 
 /** Native source skin stays beneath the independent orthogonal facade overlay. */
 export function createMinecraftZionskircheV174(_options: { mobileLike?: boolean } = {}): Group {
   const root = new Group(); root.name = ZIONSKIRCHE_V174_NATIVE_GROUP;
+  root.position.y = ZIONSKIRCHE_V174_TERRAIN_OFFSET;
   root.userData = { northMitteV174: "zion", textureFree: true, nativeMinecraft: true, blockNative: true,
     keepInMinecraft: true, additiveOnly: true, noHiddenSolidInfill: true,
     sourceEnvelopeRetained: true, sourceShellDuplicated: false,

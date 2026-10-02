@@ -5,6 +5,7 @@ import {
 } from "./SurroundingCityGeometry";
 import type { VisualMode } from "./visualMode";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
+import { terrainGroundAt } from "./weinbergTerrainV176";
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -12,7 +13,7 @@ export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 
-type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number };
+type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number; sha256?: string };
 export type SurroundingChunkDescriptor = {
   id: string;
   /** Lossless geometry-only transfer split; navigation belongs to this primary. */
@@ -73,6 +74,7 @@ function assetValid(asset: Asset): boolean {
   return !!asset && typeof asset.url === "string" && asset.url.length < 256 &&
     !/^(?:[a-z]+:|\/|\\)|(?:^|\/)\.\.(?:\/|$)/i.test(asset.url) &&
     Number.isSafeInteger(asset.bytes) && asset.bytes > 0 && asset.bytes <= SURROUNDING_CITY_MAX_CHUNK_BYTES &&
+    (asset.sha256 === undefined || /^[0-9a-f]{64}$/.test(asset.sha256)) &&
     (asset.encoding === undefined || (asset.encoding === "gzip" &&
       Number.isSafeInteger(asset.decodedBytes) && asset.decodedBytes! > 0 &&
       asset.decodedBytes! <= SURROUNDING_CITY_MAX_CHUNK_BYTES));
@@ -109,7 +111,9 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
 async function fetchJsonBounded(
   fetcher: typeof fetch, url: URL, signal: AbortSignal, limit: number, asset?: Asset,
 ): Promise<unknown> {
-  const response = await fetcher(url, { signal });
+  // Manifests are mutable; content fingerprints isolate updated terrain packets
+  // from an older immutable browser cache without discarding reusable city data.
+  const response = await fetcher(url, { signal, ...(asset ? {} : { cache: "no-cache" as const }) });
   if (!response.ok || !response.body) throw new Error(`Surrounding-city data HTTP ${response.status}`);
   let source: ReadableStream<Uint8Array> = response.body;
   const decodedLimit = asset?.encoding === "gzip" ? asset.decodedBytes! : limit;
@@ -270,7 +274,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         active = { id: descriptor.id, controller: task };
         let unpublished: Group | null = null;
         try {
-          const data = await fetchJsonBounded(fetcher, new URL(asset.url, options.manifestUrl), task.signal, asset.bytes + 64, asset);
+          const assetUrl = new URL(asset.url, options.manifestUrl);
+          if (asset.sha256) assetUrl.searchParams.set("v", asset.sha256);
+          const data = await fetchJsonBounded(fetcher, assetUrl, task.signal, asset.bytes + 64, asset);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const entry = await createSurroundingCityChunkCooperatively(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
@@ -400,11 +406,11 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     groundAt(x, z) {
       if (!manifest || !manifest.footprint.some(p => surroundingPolygonContains(p, x, z))) return null;
       const entry = at(x, z);
-      if (!entry) return manifest.groundY;
+      if (!entry) return terrainGroundAt(x, z, manifest.groundY, mode === "minecraft");
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
       if (!entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return null;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));
-      return entry.nav.groundY + (road ? 0.09 : 0);
+      return terrainGroundAt(x, z, entry.nav.groundY, mode === "minecraft") + (road ? 0.09 : 0);
     },
     solidAt(x, y, z, radius = 0) {
       for (const entry of residents.values()) {

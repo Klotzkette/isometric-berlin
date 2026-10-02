@@ -1,4 +1,8 @@
-/** Small eager contract only. Geometry arrays live in the lazy model module. */
+import { buildingTerrainOffset } from "./weinbergTerrainV176";
+
+export const ZIONSKIRCHE_V174_TERRAIN_OFFSET = buildingTerrainOffset("DEBE01YYK0000014", 2231.897, -1706.217, 3);
+
+/** Original authoring datum stays explicit. Geometry arrays live in the lazy model module. */
 export const ZIONSKIRCHE_V174_PROFILE = Object.freeze({
   name: "Zionskirche",
   osmWayId: "27685450",
@@ -7,6 +11,8 @@ export const ZIONSKIRCHE_V174_PROFILE = Object.freeze({
   sourcePartIds: ["DEBE3DMTn7l5hBAe", "DEBE3DbSb0cJwbVg", "DEBE3DwWmZ1lKvwB", "DEBE3Dj5UEZckkkC"],
   sourceBounds: [2213.382, -1730.738, 2248.243, -1675.879],
   groundY: 3,
+  terrainOffsetY: ZIONSKIRCHE_V174_TERRAIN_OFFSET,
+  displayGroundY: 3 + ZIONSKIRCHE_V174_TERRAIN_OFFSET,
   sourceGroundNHN: 53.332,
   sourceTowerHeightM: 48.126,
   sourceTowerTopY: 51.126,
@@ -39,7 +45,7 @@ export function registerZionskircheV174NativeRoof(blocks: readonly number[][]): 
     for (let ix = Math.floor((x - width / 2) * 4); ix < Math.ceil((x + width / 2) * 4); ix++) {
       for (let iz = Math.floor((z - depth / 2) * 4); iz < Math.ceil((z + depth / 2) * 4); iz++) {
         const key = `${ix},${iz}`;
-        roofs.set(key, Math.max(roofs.get(key) ?? -Infinity, y + height / 2));
+        roofs.set(key, Math.max(roofs.get(key) ?? -Infinity, y + height / 2 + ZIONSKIRCHE_V174_TERRAIN_OFFSET));
       }
     }
   }
@@ -59,8 +65,8 @@ export function zionskircheV174RoofAt(x: number, z: number, minecraft = false): 
     scale = Math.max(scale, (nx * (x - cx) + nz * (z - cz)) / (nx * (a[0] - cx) + nz * (a[1] - cz)));
   }
   if (scale > 1.04) return null;
-  if (Math.abs(x - cx) <= .08 && Math.abs(z - cz) <= .08) return 70;
-  if (Math.abs(x - cx) <= .60 && Math.abs(z - cz) <= .08) return 69.6;
+  if (Math.abs(x - cx) <= .08 && Math.abs(z - cz) <= .08) return 70 + ZIONSKIRCHE_V174_TERRAIN_OFFSET;
+  if (Math.abs(x - cx) <= .60 && Math.abs(z - cz) <= .08) return 69.6 + ZIONSKIRCHE_V174_TERRAIN_OFFSET;
   let roof: number | null = null;
   for (let i = 1; i < layers.length; i++) {
     const [ya, ra] = layers[i - 1], [yb, rb] = layers[i];
@@ -69,5 +75,5 @@ export function zionskircheV174RoofAt(x: number, z: number, minecraft = false): 
       roof = Math.max(roof ?? -Infinity, y);
     }
   }
-  return roof;
+  return roof === null ? null : roof + ZIONSKIRCHE_V174_TERRAIN_OFFSET;
 }

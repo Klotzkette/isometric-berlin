@@ -242,7 +242,7 @@ def test_final_owners_preserve_all_unowned_geometry_and_source_navigation():
   assert audit["unownedTriangleLoss"] == audit["unownedNavigationLoss"] == 0
 
 
-def test_new_credits_append_and_old_pool_context_stays_byte_identical():
+def test_new_credits_append_and_old_pool_sources_stay_byte_identical():
   for filename in [
     "geo_data/regierungsviertel/wikimedia_references.json",
     "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json",
@@ -250,9 +250,11 @@ def test_new_credits_append_and_old_pool_context_stays_byte_identical():
     path = ROOT / filename
     old = json.loads(old_bytes(path))["records"]
     assert read(path)["records"][: len(old)] == old
+  # v176 intentionally adapts the renderer to local terrain. Its unchanged
+  # Monbijou ground is checked on the actual rendered geometry in the
+  # weinberg-local-models-v176 Bun suite; immutable source data stays exact.
   for filename in [
     "src/app/src/data/mitteHeritageV166Source.json",
-    "src/app/src/MitteHeritageV166.ts",
     "geo_data/regierungsviertel/bounds.geojson",
   ]:
     path = ROOT / filename

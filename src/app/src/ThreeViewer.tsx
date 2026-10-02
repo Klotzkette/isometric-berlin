@@ -1578,7 +1578,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: DATA_WEST_M, maxX: DATA_EAST_M,
       minZ: DATA_NORTH_M, maxZ: DATA_SOUTH_M },
     groundAt: (x: number, z: number) => {
-      const knownGround = surroundingScopeGroundAt(x, z);
+      const knownGround = surroundingScopeGroundAt(x, z, runtime.lightingMode === "minecraft");
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>

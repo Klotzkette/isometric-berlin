@@ -1,4 +1,6 @@
 import { Vector3 } from "three";
+import { terrainGroundAt } from "./weinbergTerrainV176";
+import { mitteHeritageV166ParentOffset } from "./mitteHeritageV166Profile";
 
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
@@ -295,7 +297,18 @@ function jandorf(g: Detail): void {
 
 /** Additive rows only: existing LoD2 roofs, walls and generic facade owners stay intact. */
 export function createMitteHeritageOrnamentRows(native: boolean): MitteHeritageOrnamentRows {
-  const detail = new Detail(native);
-  heine(detail); elisabeth(detail); jandorf(detail);
-  return detail.finish();
+  const result: MitteHeritageOrnamentRows = { boxes: [], surfaces: [] };
+  const h=MITTE_HERITAGE_ORNAMENT_V166_PROFILE.heine;
+  const authors: [((detail: Detail)=>void),number][] = [
+    [heine,terrainGroundAt(h.x,h.z,h.groundY,native)-h.groundY],
+    [elisabeth,mitteHeritageV166ParentOffset("DEBE01YYK00000AU")],
+    [jandorf,mitteHeritageV166ParentOffset(MITTE_HERITAGE_ORNAMENT_V166_PROFILE.jandorf.parentId)],
+  ];
+  for(const [author,offset] of authors){
+    const detail=new Detail(native);author(detail);
+    const rows=detail.finish();
+    result.boxes.push(...rows.boxes.map(r=>[r[0],r[1]+offset,...r.slice(2)]));
+    result.surfaces.push(...rows.surfaces.map(s=>({...s,triangles:s.triangles.map(t=>t.map(p=>[p[0],p[1]+offset,p[2]]))})));
+  }
+  return result;
 }

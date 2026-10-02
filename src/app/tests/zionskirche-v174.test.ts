@@ -3,7 +3,7 @@ import { readFileSync, statSync } from "node:fs";
 import { Box3, InstancedMesh, Mesh, Texture } from "three";
 import { createMinecraftZionskircheV174, createZionskircheV174,
   ZIONSKIRCHE_V174_RENDER_BUDGET } from "../src/ZionskircheV174";
-import { ZIONSKIRCHE_V174_PROFILE, ZIONSKIRCHE_V174_TOWER_CENTER,
+import { ZIONSKIRCHE_V174_PROFILE, ZIONSKIRCHE_V174_TOWER_CENTER, ZIONSKIRCHE_V174_TERRAIN_OFFSET,
   ZIONSKIRCHE_V174_TOWER_RING, zionskircheV174RoofAt } from "../src/zionskircheV174Profile";
 import drawn from "../src/data/zionskircheV174Drawn.json";
 import native from "../src/data/zionskircheV174Native.json";
@@ -57,8 +57,8 @@ test("all drawn profiles retain the complete bounded texture-free model", () => 
     }
   }
   const bounds = new Box3().setFromObject(a);
-  expect(bounds.max.y).toBeCloseTo(70, 4);
-  expect(bounds.min.y).toBeGreaterThan(2.7);
+  expect(bounds.max.y).toBeCloseTo(70 + ZIONSKIRCHE_V174_TERRAIN_OFFSET, 4);
+  expect(bounds.min.y).toBeGreaterThan(2.7 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
   expect(total).toBeLessThan(1_600_000);
   expect((a.children[1] as InstancedMesh).count).toBe(ZIONSKIRCHE_V174_RENDER_BUDGET.facadeInstances);
   expect((a.children[2] as InstancedMesh).count).toBe(ZIONSKIRCHE_V174_RENDER_BUDGET.detailInstances);
@@ -82,7 +82,7 @@ test("native reading retains arches clocks galleries and a 67 m stepped spire", 
     expect(m[i * 16]).toBe(m[i * 16 + 10]);
   }
   const bounds = new Box3().setFromObject(a);
-  expect(bounds.max.y).toBe(70);
+  expect(bounds.max.y).toBe(70 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
   console.log({ zionskircheNativeBytes: bytes(x), blocks: x.count, batches: 1 });
 });
 
@@ -103,15 +103,15 @@ test("native column compression retains distinct occupied cells without filling 
 
 test("additive roof query stays on the spire and agrees with upper native solids", () => {
   const [cx, cz] = ZIONSKIRCHE_V174_TOWER_CENTER;
-  expect(zionskircheV174RoofAt(cx, cz)).toBe(70);
-  expect(zionskircheV174RoofAt(cx + 3, cz)).toBeGreaterThan(53);
-  expect(zionskircheV174RoofAt(cx + 3, cz)).toBeLessThan(61);
+  expect(zionskircheV174RoofAt(cx, cz)).toBe(70 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
+  expect(zionskircheV174RoofAt(cx + 3, cz)).toBeGreaterThan(53 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
+  expect(zionskircheV174RoofAt(cx + 3, cz)).toBeLessThan(61 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
   expect(zionskircheV174RoofAt(2228, -1718)).toBeNull();
   expect(zionskircheV174RoofAt(cx + 8, cz)).toBeNull();
   createMinecraftZionskircheV174();
   for (const [x, y, z, , , role, height] of native.blocks) {
     if (role < 9) continue;
-    expect(zionskircheV174RoofAt(x, z, true)!).toBeGreaterThanOrEqual(y + height / 2);
+    expect(zionskircheV174RoofAt(x, z, true)!).toBeGreaterThanOrEqual(y + height / 2 + ZIONSKIRCHE_V174_TERRAIN_OFFSET);
   }
   expect(zionskircheV174RoofAt(2228, -1718, true)).toBeNull();
 });

@@ -1,5 +1,6 @@
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS, BERLIN_WALL_MEMORIAL_V174_BUILDINGS, BERLIN_WALL_MEMORIAL_V174_SOLIDS, BERLIN_WALL_MEMORIAL_V174_POSTS, berlinWallMemorialV174RoofAt } from "./berlinWallMemorialV174Profile";
 import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskircheV174RoofAt } from "./zionskircheV174Profile";
+import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
@@ -1287,7 +1288,8 @@ export function compilePedestrianObstacles(
     // ring holes remain walkable and the roof follows the active representation.
     const roofAt = (x: number, z: number) => altMitteV169RoofAt(x, z, visualMode() === "minecraft");
     const [zx, zz] = ZIONSKIRCHE_V174_TOWER_CENTER;
-    addPolygonObstacle(index, ZIONSKIRCHE_V174_TOWER_RING.map(([x,z]) => [zx + (x-zx)*1.04, zz + (z-zz)*1.04]), [], 50.88, 72, "zionskirche-v174-spire", 1, (x,z) => zionskircheV174RoofAt(x,z,visualMode() === "minecraft"));
+    const zionLift = buildingTerrainOffset("DEBE01YYK0000014", zx, zz);
+    addPolygonObstacle(index, ZIONSKIRCHE_V174_TOWER_RING.map(([x,z]) => [zx + (x-zx)*1.04, zz + (z-zz)*1.04]), [], 50.88 + zionLift, 72 + zionLift, "zionskirche-v174-spire", 1, (x,z) => zionskircheV174RoofAt(x,z,visualMode() === "minecraft"));
     for (const part of BND_HEADQUARTERS_V174_PARTS) {
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
     }

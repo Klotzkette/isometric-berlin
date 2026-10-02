@@ -9,6 +9,8 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
   height: number; minHeight: number; sourceId: string;
+  /** Rigid DGM placement of this complete source building; heights stay relative. */
+  groundOffset?: number;
 };
 export type SurroundingNavigation = {
   ground: SurroundingPolygon[];
@@ -63,7 +65,8 @@ function validNavigation(value: SurroundingNavigation): boolean {
     [value.ground, value.water, value.buildings, value.roads ?? [], value.bridges ?? []]
       .every(polygons => Array.isArray(polygons) && polygons.length <= 20_000 && polygons.every(validSurroundingPolygon)) &&
     value.buildings.every(building => Number.isFinite(building.height) && Number.isFinite(building.minHeight) &&
-      building.height >= building.minHeight && typeof building.sourceId === "string");
+      building.height >= building.minHeight && typeof building.sourceId === "string" &&
+      (building.groundOffset === undefined || Number.isFinite(building.groundOffset)));
 }
 
 function encodedBytes(encoded: string, multiple: number): number {
@@ -376,7 +379,8 @@ export function surroundingBuildingSolidAt(
   nav: SurroundingNavigation, x: number, y: number, z: number, radius = 0,
 ): boolean {
   return nav.buildings.some(building => {
-    if (y < nav.groundY + building.minHeight || y > nav.groundY + building.height) return false;
+    const ground = nav.groundY + (building.groundOffset ?? 0);
+    if (y < ground + building.minHeight || y > ground + building.height) return false;
     const [west, north, east, south] = boundsOf(building);
     if (x + radius < west || x - radius > east || z + radius < north || z - radius > south) return false;
     if (surroundingPolygonContains(building, x, z)) return true;

@@ -1,6 +1,8 @@
 import { BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
 import source from "./data/weinbergPlaygroundV174Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { drapeTerrainTriangle } from "./weinbergTerrainV176";
+import { nativeTerrainGroundRows } from "./weinbergLocalModelTerrainV176";
 
 export const WEINBERG_PLAYGROUND_V174_GROUP = "Weinbergspark blue rubber play surface";
 export const WEINBERG_PLAYGROUND_V174_NATIVE_GROUP = "Weinbergspark blue rubber independent native surface";
@@ -16,12 +18,13 @@ function create(native: boolean): Group {
   if (native) {
     const geometry = new BoxGeometry(1,1,1); geometry.deleteAttribute("uv");
     const blocks = new InstancedMesh(geometry,day,0), matrix = new Matrix4();
-    const matrices = new Float32Array(source.nativeRows.length*16), colors = new Float32Array(source.nativeRows.length*3);
-    source.nativeRows.forEach(([x,y,z,w,h,d,c],i) => {
+    const rows = nativeTerrainGroundRows(source.nativeRows);
+    const matrices = new Float32Array(rows.length*16), colors = new Float32Array(rows.length*3);
+    rows.forEach(([x,y,z,w,h,d,c],i) => {
       matrix.makeScale(w,h,d).setPosition(new Vector3(x,y,z)).toArray(matrices,i*16);
       color.setHex(c).toArray(colors,i*3);
     });
-    blocks.count = source.nativeRows.length;
+    blocks.count = rows.length;
     blocks.instanceMatrix = new InstancedBufferAttribute(matrices,16);
     blocks.instanceColor = new InstancedBufferAttribute(colors,3);
     blocks.computeBoundingBox(); blocks.computeBoundingSphere(); mesh=blocks;
@@ -29,7 +32,7 @@ function create(native: boolean): Group {
     const positions:number[]=[], colors:number[]=[];
     for (const sheet of source.surfaces) {
       color.setHex(sheet.color);
-      for (const triangle of sheet.triangles) for (const point of triangle) {
+      for (const sourceTriangle of sheet.triangles) for (const triangle of drapeTerrainTriangle(sourceTriangle)) for (const point of triangle) {
         positions.push(...point); colors.push(color.r,color.g,color.b);
       }
     }
