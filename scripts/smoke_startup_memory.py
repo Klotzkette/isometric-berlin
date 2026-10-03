@@ -3,7 +3,8 @@
 Run with uv run --with playwright python. Chrome records live and post-GC JS
 heap/backing storage. WebGL counters exclude textures/driver allocations;
 phone browser profiles cannot certify physical phone RAM limits. Samples use
-an empty HTTP cache in a fresh context, with 25 seconds after presentation.
+an empty HTTP cache in a fresh context, timed from the explicit startup choice,
+with 25 seconds after presentation. Earlier auto-start builds time navigation.
 """
 
 import argparse
@@ -14,7 +15,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from playwright.sync_api import sync_playwright
 from smoke_mobile_memory import BUFFER_PROBE, READ_STATE
-from smoke_mode_continuity import PROBE
+from smoke_mode_continuity import PROBE, launch_startup_mode
 
 
 def main() -> None:
@@ -73,6 +74,10 @@ def main() -> None:
         wait_until="domcontentloaded",
         timeout=120000,
       )
+      launched_at = launch_startup_mode(page, a.mode)
+      if launched_at is not None:
+        report["chooserSeconds"] = launched_at - start
+        start = launched_at
 
       while time.monotonic() - start < 130:
         state = page.evaluate(READ_STATE)

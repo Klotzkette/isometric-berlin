@@ -1,5 +1,6 @@
 import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
+import { StartupModeSelection } from "./StartupModeSelection";
 import {
   ArrowDown,
   ArrowLeft,
@@ -283,10 +284,8 @@ function resolveCssAssetUrl(path: string): string {
   }
 }
 
-// Day mode is the active visual mode on every (re)load. An explicit
-// `?theme=` query parameter is still honoured as a deliberate request, but
-// the previously-selected mode is never restored from localStorage — a
-// reload always starts in Day. (Music-mute persistence is unaffected.)
+// Preselect Day, or the explicit theme link, in the startup chooser.
+// No world is loaded until the visitor confirms their selection.
 function initialLightingMode(): VisualMode {
   try {
     const requested = new URLSearchParams(window.location.search).get("theme");
@@ -733,6 +732,33 @@ function HoldControlButton({
 }
 
 export function App() {
+  const [initialMode, setInitialMode] = useState<VisualMode | null>(null);
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  // Mount the entire viewer only after Start. This also gates its global input
+  // handlers and gesture-triggered audio, not just the lazy renderer import.
+  if (initialMode === null) {
+    return (
+      <StartupModeSelection
+        initialMode={initialLightingMode()}
+        language={language}
+        onLanguageChange={setLanguage}
+        onStart={setInitialMode}
+        backdropUrl={resolveCssAssetUrl(assetPath("dzi/regierungsviertel/startup-map.jpg"))}
+      />
+    );
+  }
+  return <ViewerApp initialMode={initialMode} initialViewerLanguage={language} />;
+}
+
+function ViewerApp({ initialMode, initialViewerLanguage }: {
+  initialMode: VisualMode;
+  initialViewerLanguage: Language;
+}) {
   const appShellRef = useRef<HTMLElement | null>(null);
 
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
@@ -791,19 +817,20 @@ export function App() {
     INITIAL_SIMULATION_START.automatic ? INITIAL_SIMULATION_START.name : null,
   );
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [language, setLanguage] = useState<Language>(initialViewerLanguage);
   const copy = UI_COPY[language];
   const [status, setStatus] = useState(copy.loadingCity);
 
   const [lightingMode, setLightingMode] =
-    useState<VisualMode>(initialLightingMode);
+    useState<VisualMode>(initialMode);
   const lightingModeRef = useRef<VisualMode>(lightingMode);
   const [floodDepth, setFloodDepth] = useState<FloodDepth>(DEFAULT_FLOOD_DEPTH);
+  // Night startup always lights the city; later toggles remain persisted.
   // "Licht an/aus": persisted like mute (nightLighting.ts), independent of
   // the visual mode itself. Only night reads it — day/minecraft ignore it
   // entirely, see resolveNightLightsOn.
   const [nightLightsOn, setNightLightsOn] = useState<boolean>(
-    isNightLightsOnByUser,
+    () => initialMode === "night" || isNightLightsOnByUser(),
   );
   const [rainEnabled, setRainEnabled] = useState(false);
   // Snowfall has its own preference so switching back to Day/Night/Minecraft/

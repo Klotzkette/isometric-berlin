@@ -376,8 +376,20 @@ The ordinary Day/Night/Snow/Schwellenraum cold start reads only the procedural
 LoD2, terrain and bounded surface JSON needed by that world; the complete
 Minecraft instances remain lazy. Retired GLBs and the pretriangulated road
 plate are absent from the repository, build and offline package.
-The first HTML response contains a small attributed startup plate. React then
-loads the Three.js viewer as a separate chunk. No alternate map engine is
+The first HTML response contains a small attributed startup plate. Since
+v1.0.78, React next shows a lightweight mode chooser on every visit and reload.
+Day is preselected unless an explicit valid `?theme=` link selects another mode.
+Only **Start Berlin** mounts the viewer and requests its lazy Three.js chunk and
+city assets. Mode cards alone create neither a 3D scene nor an audio context.
+The chooser supports German/English, keyboard radio navigation and scrolling on
+small or landscape phone screens. Minecraft remains a sixth option alongside
+Day, Night, Snow, Schwellenraum and Underwater.
+
+Night startup explicitly enables city lights even after a previously stored
+lights-off preference. Snow starts with its existing full snowstorm enabled;
+Underwater starts at 3 metres. Subsequent in-view controls behave as before.
+Audio activation waits for the first interaction inside the mounted viewer.
+The sight/deep-link selection survives this gate. No alternate map engine is
 installed or loaded. A production-build guard caps the synchronous JavaScript graph at 400 KiB
 uncompressed. Since v0.72.3, a version-scoped preload listener is registered
 before React can request that lazy chunk. If an already-open tab references a

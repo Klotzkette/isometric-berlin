@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import time
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -128,7 +129,28 @@ def assert_pose(actual: dict[str, Any], expected: dict[str, Any]) -> None:
       near(actual[key], expected[key], key)
 
 
+def launch_startup_mode(page: Any, mode: str, timeout: float = 120) -> float | None:
+  """Cross the explicit startup gate once; return its monotonic launch time.
+
+  Waiting for either surface also supports earlier auto-start builds and avoids
+  mistaking React's initial empty root for a viewer that has already launched.
+  Existing mode transitions never re-select or restart their running viewer.
+  """
+  page.wait_for_function(
+    "() => document.querySelector('.startup-mode-selection, .three-viewer')",
+    timeout=timeout * 1000,
+  )
+  chooser = page.locator(".startup-mode-selection")
+  if not chooser.is_visible():
+    return None
+  chooser.locator(f'input[name="startup-mode"][value="{mode}"]').locator("..").click()
+  launched_at = time.monotonic()
+  chooser.locator(".startup-launch").click()
+  return launched_at
+
+
 def wait_ready(page: Any, mode: str, timeout: float) -> dict[str, Any]:
+  launch_startup_mode(page, mode, timeout)
   page.wait_for_function(
     "mode => {const r = window.__readModeContinuity?.(); "
     "return r?.mode === mode && r.ready;}",

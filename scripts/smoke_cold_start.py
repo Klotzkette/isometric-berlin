@@ -9,6 +9,8 @@ cover the main JavaScript realm, not workers or total process RAM. GPU counters
 measure actual WebGL buffer allocations, excluding textures and driver memory.
 Optional --collect-garbage runs only after the unmodified observation window.
 The JSON report and exit status fail on incomplete loading, recovery or errors.
+When the startup chooser is present, Day is selected through its visible controls
+and the load observation window begins at Start; its earlier sample is retained.
 """
 
 from __future__ import annotations
@@ -280,6 +282,24 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         )
         began = time.monotonic()
         await page.goto(report["url"], wait_until="commit")
+        await page.locator(".startup-mode-selection, .three-viewer").first.wait_for(
+          state="visible"
+        )
+        if await page.locator(".startup-mode-selection").is_visible():
+          # This probe has always measured Day, including its completion checks.
+          # Use the same chooser interaction as a visitor, without a URL bypass.
+          await (
+            page.locator(".startup-mode-option")
+            .filter(has=page.locator('input[name="startup-mode"][value="day"]'))
+            .click()
+          )
+          report["selectionSample"] = await sample()
+          report["documentStartupSeconds"] = round(time.monotonic() - began, 3)
+          report["timingOrigin"] = "Start button"
+          began = time.monotonic()
+          await page.locator(".startup-launch").click()
+        else:
+          report["timingOrigin"] = "Document navigation"
         while time.monotonic() - began < args.duration:
           started = time.monotonic()
           state = await sample()

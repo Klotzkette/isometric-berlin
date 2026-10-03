@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.77 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.77/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.78 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.78/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,16 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.77** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.78** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.78 adds a mode chooser before the 3D city loads, on every visit.
+Night starts with lights on, Snow with active snowfall and Underwater at 3 metres.
+Minecraft remains available. [Verification](docs/release-v1.0.78-review.md).
+
+Version 1.0.78 zeigt bei jedem Start eine Modusauswahl vor dem Laden der
+3D-Stadt: Nacht mit Licht, Schnee mit Schneetreiben, Unterwasser mit drei Metern
+Wasserstand. Auch Minecraft bleibt auswählbar.
 
 Version 1.0.77 releases consumed loading data, removes duplicate packed city
 strings and bounds decoding and preparation work. Geometry, facade details,
