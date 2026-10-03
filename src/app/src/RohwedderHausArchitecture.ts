@@ -1,6 +1,7 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { preparePrismContainment } from "./preparedPrismContainment";
 import { letteringStrokePaths } from "./drawnLettering";
 import { ROHWEDDER_HAUS_SOURCE as S, ROHWEDDER_HAUS_GROUP, MINECRAFT_ROHWEDDER_HAUS_GROUP, ROHWEDDER_HAUS_IDS, ROHWEDDER_HAUS_PROFILE, rohwedderPrismContains } from "./rohwedderHausProfile";
 
@@ -73,14 +74,15 @@ function voxelClearance(payload?: Voxels): (w: Wall, u: number, width: number, y
 
 export function planRohwedderHaus(payload?: { buildings: readonly SourcePrism[] }, options: RohwedderOptions = {}): RohwedderBlock[] {
   const parts = S.buildings as SourcePrism[], blocks: RohwedderBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, clearance = voxelClearance(options.voxels);
-  const nearby = (payload?.buildings ?? [...parts, ...S.occluders]).filter(p => p.ring.some(([x, z]) => x >= 6880 && x <= 9200 && z >= 10150 && z <= 13000));
+  const nearby = (payload?.buildings ?? [...parts, ...S.occluders]).filter(p => p.ring.some(([x, z]) => x >= 6880 && x <= 9200 && z >= 10150 && z <= 13000)).map(p => ({ p, contains: preparePrismContainment(p) }));
   const walls = rohwedderHausWalls(parts);
   const hidden = (w: Wall, u: number, y: number, width: number, height: number, out: number) => {
-    const others = nearby.filter(p => p.id !== w.part.id && y + height / 2 >= p.y0_dm / 10 && y - height / 2 <= (p.y0_dm + p.h_dm) / 10);
-    return [-.48, 0, .48].some(du => [-.45, 0, .45].some(dy => [.01, out].some(d => {
-      const p = at(w, u + du * width, y + dy * height, d);
-      return others.some(q => p[1] >= q.y0_dm / 10 && p[1] <= (q.y0_dm + q.h_dm) / 10 && rohwedderPrismContains(q, p[0], p[2]));
-    })));
+    const others = nearby.filter(({ p }) => p.id !== w.part.id && y + height / 2 >= p.y0_dm / 10 && y - height / 2 <= (p.y0_dm + p.h_dm) / 10);
+    const ys = [-.45, 0, .45].map(dy => y + dy * height);
+    return [-.48, 0, .48].some(du => [.01, out].some(d => {
+      const p = at(w, u + du * width, y, d);
+      return others.some(q => ys.some(py => py >= q.p.y0_dm / 10 && py <= (q.p.y0_dm + q.p.h_dm) / 10) && q.contains(p[0], p[2]));
+    }));
   };
   let push = 0;
   const emit = (w: Wall, u: number, y: number, width: number, height: number, depth: number, out: number, color: number, role: string, glass = false, roll = 0) => {

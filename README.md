@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.76 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.76/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.77 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.77/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.76** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.77** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.77 releases consumed loading data, removes duplicate packed city
+strings and bounds decoding and preparation work. Geometry, facade details,
+materials, resolution and view distance remain unchanged.
+[Verification](docs/release-v1.0.77-review.md).
+
+Version 1.0.77 gibt verbrauchte Ladedaten frei und vermeidet doppelte
+Stadtpakete sowie unnötige Arbeit beim Aufbau. Geometrie, Fassadendetails,
+Materialien, Auflösung und Sichtweite bleiben erhalten.
 
 Version 1.0.76 adds the **real uphill terrain from Weinbergsweg through
 Weinbergspark to Zionskirche**, using the official Berlin DGM. Buildings move

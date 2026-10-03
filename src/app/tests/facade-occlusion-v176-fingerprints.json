@@ -1,0 +1,66 @@
+[
+  {
+    "name": "europacity",
+    "minecraft": false,
+    "mobileLike": false,
+    "count": 82545,
+    "blockHash": "15cc72e503b74955a7c345b1edc6d78f15ee64425cb66559b72465f94be7ea8e",
+    "geometryHash": "2543d9cd446270ac62c257414e658c53f9c12b243f3303c11b5916a4480f4c32"
+  },
+  {
+    "name": "europacity",
+    "minecraft": false,
+    "mobileLike": true,
+    "count": 82545,
+    "blockHash": "15cc72e503b74955a7c345b1edc6d78f15ee64425cb66559b72465f94be7ea8e",
+    "geometryHash": "2543d9cd446270ac62c257414e658c53f9c12b243f3303c11b5916a4480f4c32"
+  },
+  {
+    "name": "europacity",
+    "minecraft": true,
+    "mobileLike": false,
+    "count": 43181,
+    "blockHash": "e933ece4781fe6970cec6d84a821333382b5a1cf9f62fbe9887ca6619e16e6f9",
+    "geometryHash": "ae7c3900a068d1d0c540398f76fdce62974460b6b6d0269c6ccf73243d43929f"
+  },
+  {
+    "name": "europacity",
+    "minecraft": true,
+    "mobileLike": true,
+    "count": 31751,
+    "blockHash": "1258446b74e563743b8047416209ce76059dda038e2d91fa3c1d0d80b2ac211f",
+    "geometryHash": "84051caf03b62180c45d661a91175136f53285175677fdd0faad6ea6cb0c1d89"
+  },
+  {
+    "name": "rohwedder",
+    "minecraft": false,
+    "mobileLike": false,
+    "count": 29272,
+    "blockHash": "e812ad0babb7796cdb976a86e8f76440e11b914d274a7ea62a5c3e27dee56274",
+    "geometryHash": "8199fa2b3c93899228ffce50ad4e7f1a27c00d2b6504fd7afb42a1ec750c7adb"
+  },
+  {
+    "name": "rohwedder",
+    "minecraft": false,
+    "mobileLike": true,
+    "count": 29272,
+    "blockHash": "e812ad0babb7796cdb976a86e8f76440e11b914d274a7ea62a5c3e27dee56274",
+    "geometryHash": "8199fa2b3c93899228ffce50ad4e7f1a27c00d2b6504fd7afb42a1ec750c7adb"
+  },
+  {
+    "name": "rohwedder",
+    "minecraft": true,
+    "mobileLike": false,
+    "count": 16105,
+    "blockHash": "b07633eafdff74a324a1a84fe49cc676630943b8045c20f0d3443da3067b3c1d",
+    "geometryHash": "987f433a691fb32d6204931bd0cb8f61a257b3779e968561f4b049136f297cc9"
+  },
+  {
+    "name": "rohwedder",
+    "minecraft": true,
+    "mobileLike": true,
+    "count": 11307,
+    "blockHash": "8b3ab1aeefbe18e09e596ea442f728b743208661895784e92c68a404ce3386f9",
+    "geometryHash": "129b1f1d22ea14e38b128b2d4373883262e3284db5130cde8c5efe5ccc7d0a3f"
+  }
+]

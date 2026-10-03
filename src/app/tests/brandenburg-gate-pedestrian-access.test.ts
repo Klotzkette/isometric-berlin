@@ -248,11 +248,11 @@ describe("Brandenburg Gate pedestrian access", () => {
 
   test("wires the shared access policy into warm and cold-start worlds", () => {
     const isoBuilder = viewerSource.slice(
-      viewerSource.indexOf("function ensureIsoWorld"),
-      viewerSource.indexOf("function ensureVoxelWorld"),
+      viewerSource.indexOf("function prepareIsoNavigation"),
+      viewerSource.indexOf("function prepareVoxelNavigation"),
     );
     const voxelBuilder = viewerSource.slice(
-      viewerSource.indexOf("function ensureVoxelWorld"),
+      viewerSource.indexOf("function prepareVoxelNavigation"),
       viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
     );
     expect(isoBuilder).toContain("visualModeWalkableInteriorAt(");

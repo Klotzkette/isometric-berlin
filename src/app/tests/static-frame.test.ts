@@ -254,7 +254,7 @@ describe("idle-frame anti-flicker contract", () => {
     expect(isoLoader).toContain("!isoWorldIntentActive(runtime)");
     expect(isoLoader).toContain('runtime.isoWorldState = "idle"');
     expect(isoLoader.indexOf("!isoWorldIntentActive(runtime)")).toBeLessThan(
-      isoLoader.indexOf("createSchwellenraumMemorialProtectionIndex"),
+      isoLoader.indexOf("prepareIsoNavigation("),
     );
     const inactiveIsoFailure = isoLoader.lastIndexOf(
       "!isoWorldIntentActive(runtime)",

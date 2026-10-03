@@ -1,6 +1,7 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshStandardMaterial } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { preparePrismContainment } from "./preparedPrismContainment";
 import { EUROPACITY_ARCHITECTURE_SOURCE as S, EUROPACITY_ARCHITECTURE_GROUP, MINECRAFT_EUROPACITY_ARCHITECTURE_GROUP, EUROPACITY_ARCHITECTURE_EVIDENCE } from "./europacityArchitectureProfile";
 type Point = readonly [number, number];
 type Triple = [number, number, number];
@@ -103,16 +104,19 @@ export function planEuropacityArchitecture(options: EuropacityOptions = {}): Eur
   const blocks: EuropacityBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const parts = S.prisms as unknown as PrismBuilding[], byId = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));
   const bound = (p: EuropacitySourcePrism) => ({ p, x0: Math.min(...p.ring.map(a => a[0])) / 10, x1: Math.max(...p.ring.map(a => a[0])) / 10, z0: Math.min(...p.ring.map(a => a[1])) / 10, z1: Math.max(...p.ring.map(a => a[1])) / 10 });
-  const nearbyParts = (options.sourcePrisms ?? parts).map(bound).filter(b => b.x1 >= -725 && b.x0 <= -50 && b.z1 >= -1960 && b.z0 <= -880);
+  const nearbyParts = (options.sourcePrisms ?? parts).map(bound).filter(b => b.x1 >= -725 && b.x0 <= -50 && b.z1 >= -1960 && b.z0 <= -880).map(b => ({ ...b, contains: preparePrismContainment(b.p) }));
   for (const w of europacityArchitectureWalls()) {
     const profile = byId.get(w.part.id)!, style = profile.style;
     const base = w.part.y0_dm / 10, top = (S.facadeTops as Record<string, number>)[w.part.id], span = top - base;
     if (span < 8 || w.length < 2.2) continue;
     const neighbours = nearbyParts.filter(q => q.p.id !== w.part.id && q.x1 >= w.a[0] - w.length - 4 && q.x0 <= w.a[0] + w.length + 4 && q.z1 >= w.a[1] - w.length - 4 && q.z0 <= w.a[1] + w.length + 4);
     const hidden = (u: number, y: number, width: number, height: number, out: number) => {
-      for (const du of [-width * .47, 0, width * .47]) for (const dy of [-height * .45, 0, height * .45]) for (const d of [.015, out]) {
-        const p = at(w, u + du, y + dy, d);
-        if (neighbours.some(q => p[0] >= q.x0 && p[0] <= q.x1 && p[2] >= q.z0 && p[2] <= q.z1 && p[1] >= q.p.y0_dm / 10 && p[1] < (q.p.y0_dm + q.p.h_dm) / 10 && europacityPrismContains(q.p, p[0], p[2]))) return true;
+      // The footprint is independent of height: retain all three original
+      // vertical probes, but test each horizontal point only once per prism.
+      const ys = [y - height * .45, y, y + height * .45];
+      for (const du of [-width * .47, 0, width * .47]) for (const d of [.015, out]) {
+        const p = at(w, u + du, y, d);
+        if (neighbours.some(q => p[0] >= q.x0 && p[0] <= q.x1 && p[2] >= q.z0 && p[2] <= q.z1 && ys.some(py => py >= q.p.y0_dm / 10 && py < (q.p.y0_dm + q.p.h_dm) / 10) && q.contains(p[0], p[2]))) return true;
       }
       return false;
     };

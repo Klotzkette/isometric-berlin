@@ -78,23 +78,59 @@ function encodedBytes(encoded: string, multiple: number): number {
   return count;
 }
 
-// One checkpoint handles at most 48 KiB of decoded bytes / 4,096 vertices.
+// A decode checkpoint handles at most 48 KiB; bounds scans use 4,096 vertices.
 // Both public builders consume this same iterator, so yielding never changes
 // packet topology, colours, bounds, navigation or the final buffer ownership.
 const DECODE_BASE64_CHARACTERS = 65_536;
 const VERTEX_SLICE = 4_096;
-const INDEX_SLICE = 16_384;
 
-function* binary(encoded: string, multiple: number): Generator<void, ArrayBuffer> {
-  const bytes = new Uint8Array(encodedBytes(encoded, multiple));
+/** Decode one bounded stream slice directly into its final destination. No full
+ * positions, colours or source-index copy overlaps the resident GPU/CPU arrays.
+ * Native base64 decoding is optional; older Safari/Android use the same bytes. */
+function* binarySlices(encoded: string, multiple: number): Generator<Uint8Array> {
+  const count = encodedBytes(encoded, multiple);
   let offset = 0;
+  const fromBase64 = (Uint8Array as typeof Uint8Array & {
+    fromBase64?: (value: string) => Uint8Array;
+  }).fromBase64;
   for (let start = 0; start < encoded.length; start += DECODE_BASE64_CHARACTERS) {
-    const value = atob(encoded.slice(start, start + DECODE_BASE64_CHARACTERS));
-    for (let i = 0; i < value.length; i++) bytes[offset++] = value.charCodeAt(i);
+    const text = encoded.slice(start, start + DECODE_BASE64_CHARACTERS);
+    let bytes: Uint8Array;
+    if (fromBase64) bytes = fromBase64(text);
+    else {
+      const value = atob(text);
+      bytes = new Uint8Array(value.length);
+      for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i);
+    }
+    offset += bytes.length;
+    if (bytes.length % multiple !== 0 || offset > count)
+      throw new Error("Invalid surrounding-city binary alignment");
+    yield bytes;
+  }
+  if (offset !== count) throw new Error("Invalid surrounding-city binary alignment");
+}
+
+function* interleavedPositions(encoded: string, values: Uint16Array,
+  vertexOffset: number, stride: number): Generator<void> {
+  let to = vertexOffset * stride;
+  for (const bytes of binarySlices(encoded, 6)) {
+    const source = new Uint16Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 2);
+    for (let i = 0; i < source.length; i += 3, to += stride) {
+      values[to] = source[i]; values[to + 1] = source[i + 1]; values[to + 2] = source[i + 2];
+    }
     yield;
   }
-  if (offset !== bytes.length) throw new Error("Invalid surrounding-city binary alignment");
-  return bytes.buffer;
+}
+
+function* interleavedColors(encoded: string, values: Uint16Array,
+  vertexOffset: number): Generator<void> {
+  let to = vertexOffset * 6 + 3;
+  for (const bytes of binarySlices(encoded, 3)) {
+    for (let i = 0; i < bytes.length; i += 3, to += 6) {
+      values[to] = bytes[i] * 257; values[to + 1] = bytes[i + 1] * 257; values[to + 2] = bytes[i + 2] * 257;
+    }
+    yield;
+  }
 }
 
 function* geometryBounds(geometry: BufferGeometry): Generator<void> {
@@ -188,38 +224,31 @@ export function* buildSurroundingCityChunk(
     const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     let vertexOffset = 0, indexOffset = 0;
     for (const part of chunk.meshes) {
-      const positions = new Uint16Array(yield* binary(part.positions, 6));
-      const colors = new Uint8Array(yield* binary(part.colors, 3));
-      const sourceIndices = new Uint32Array(yield* binary(part.indices, 12));
-      const count = positions.length / 3;
-      for (let i = 0; i < count; i++) {
-        const at = (vertexOffset + i) * 6, from = i * 3;
-        vertices[at] = positions[from];
-        vertices[at + 1] = positions[from + 1];
-        vertices[at + 2] = positions[from + 2];
-        vertices[at + 3] = colors[from] * 257;
-        vertices[at + 4] = colors[from + 1] * 257;
-        vertices[at + 5] = colors[from + 2] * 257;
-        if ((i + 1) % VERTEX_SLICE === 0) yield;
-      }
-      for (let i = 0; i < sourceIndices.length; i++) {
-        if (sourceIndices[i] >= count) throw new Error("Surrounding-city index exceeds the source mesh");
-        indices[indexOffset + i] = vertexOffset + sourceIndices[i];
-        if ((i + 1) % INDEX_SLICE === 0) yield;
+      const count = encodedBytes(part.positions, 6) / 6;
+      yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
+      yield* interleavedColors(part.colors, vertices, vertexOffset);
+      let written = 0;
+      for (const bytes of binarySlices(part.indices, 12)) {
+        const source = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+        for (let i = 0; i < source.length; i++) {
+          if (source[i] >= count) throw new Error("Surrounding-city index exceeds the source mesh");
+          indices[indexOffset + written + i] = vertexOffset + source[i];
+        }
+        written += source.length;
+        yield;
       }
       vertexOffset += count;
-      indexOffset += sourceIndices.length;
+      indexOffset += written;
     }
     let geometryBytes = vertices.byteLength + indices.byteLength;
     let bufferCount = 0;
-    const linePositions = chunk.lines?.positions && !minecraft
-      ? new Uint16Array(yield* binary(chunk.lines.positions, 12)) : null;
-    if (linePositions && linePositions.length / 3 > MAX_VERTEX_COUNT) {
+    const lines = chunk.lines?.positions && !minecraft ? chunk.lines : null;
+    const lineCount = lines ? encodedBytes(lines.positions, 12) / 6 : 0;
+    if (lineCount > MAX_VERTEX_COUNT) {
       throw new Error("Surrounding-city ink exceeds the tile budget");
     }
-    const lineColors = linePositions && chunk.lines?.colors
-      ? new Uint8Array(yield* binary(chunk.lines.colors, 3)) : null;
-    if (lineColors && lineColors.length !== linePositions!.length) {
+    const hasLineColors = !!lines?.colors;
+    if (hasLineColors && encodedBytes(lines!.colors!, 3) !== lineCount * 3) {
       throw new Error("Surrounding-city ink colour count differs from positions");
     }
     if (vertexCount && indexCount) {
@@ -242,38 +271,29 @@ export function* buildSurroundingCityChunk(
       yield* geometryBounds(geometry);
       bufferCount += 2;
     }
-    if (linePositions) {
-      const positions = linePositions;
-      if (positions.length) {
-        const geometry = new BufferGeometry();
-        if (lineColors) {
-          const values = new Uint16Array(positions.length * 2);
-          for (let i = 0; i < positions.length / 3; i++) {
-            for (let component = 0; component < 3; component++) {
-              values[i * 6 + component] = positions[i * 3 + component];
-              values[i * 6 + component + 3] = lineColors[i * 3 + component] * 257;
-            }
-            if ((i + 1) % VERTEX_SLICE === 0) yield;
-          }
-          const data = new InterleavedBuffer(values, 6);
-          geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0));
-          geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
-          geometryBytes += values.byteLength;
-        } else {
-          geometry.setAttribute("position", new BufferAttribute(positions, 3));
-          geometryBytes += positions.byteLength;
-        }
-        const material = lineColors
-          ? markArchitecturalAccentInk(new LineBasicMaterial({ vertexColors: true }), 0xffffff, "silhouette")
-          : markArchitecturalInk(new LineBasicMaterial(), "silhouette");
-        const ink = new LineSegments(geometry, material);
-        ink.name = `${root.name} ink lines`;
-        ink.scale.setScalar(0.01);
-        ink.renderOrder = 2;
-        root.add(ink);
-        yield* geometryBounds(geometry);
-        bufferCount++;
-      }
+    if (lines && lineCount) {
+      const geometry = new BufferGeometry();
+      const values = new Uint16Array(lineCount * (hasLineColors ? 6 : 3));
+      // Attach ownership before the first decode checkpoint so cancellation
+      // disposes this unpublished geometry/material as well as the mesh.
+      if (hasLineColors) {
+        const data = new InterleavedBuffer(values, 6);
+        geometry.setAttribute("position", new InterleavedBufferAttribute(data, 3, 0));
+        geometry.setAttribute("color", new InterleavedBufferAttribute(data, 3, 3, true));
+      } else geometry.setAttribute("position", new BufferAttribute(values, 3));
+      const material = hasLineColors
+        ? markArchitecturalAccentInk(new LineBasicMaterial({ vertexColors: true }), 0xffffff, "silhouette")
+        : markArchitecturalInk(new LineBasicMaterial(), "silhouette");
+      const ink = new LineSegments(geometry, material);
+      ink.name = `${root.name} ink lines`;
+      ink.scale.setScalar(0.01);
+      ink.renderOrder = 2;
+      root.add(ink);
+      yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
+      if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
+      geometryBytes += values.byteLength;
+      yield* geometryBounds(geometry);
+      bufferCount++;
     }
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
       nav: chunk.nav, origin: chunk.origin };

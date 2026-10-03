@@ -449,7 +449,7 @@ describe("progressive exact-world scheduling", () => {
     expect(built.surfacePayloadPromise).toBeUndefined();
     expect(built.railPayloadPromise).toBeUndefined();
     expect(built.voxelPayloadPromise).toBe(payload);
-    expect(built.prismPayloadPromise).toBe(payload);
+    expect(built.prismPayloadPromise).toBeUndefined();
 
     built.voxelWorld = new Group();
     releaseBuiltWorldPayloads(built);

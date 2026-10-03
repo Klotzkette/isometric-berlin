@@ -258,12 +258,12 @@ test("a failed park publication restores the previous root and frees the staged 
   h.dispose();
 });
 
-test("desktop park loading retains its synchronous construction path", async () => {
+test("desktop park loading yields while publishing the same complete park", async () => {
   const h = host({ mobile: false });
   await h.start();
-  expect(h.yields).toBe(0);
-  expect(h.staged).toHaveLength(0);
-  expect(h.runtime.parkDetails).not.toBe(h.previous);
+  expect(h.yields).toBeGreaterThan(5);
+  expect(h.staged).toHaveLength(1);
+  expect(h.runtime.parkDetails).toBe(h.staged[0]);
   expect(h.runtime.parkDetails.parent).toBe(h.scene);
   expect(h.obstacleWrites).toBe(1);
   expect(h.warnings).toHaveLength(0);

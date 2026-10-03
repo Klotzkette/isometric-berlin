@@ -2,6 +2,7 @@ import type { Plugin } from "vite";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
+const PACKED_PACKET_JSON = /\/data\/altMitteV169(?:Drawn|Native)\/packet-\d+\.json$/;
 const DATA_JSON = /\/src\/app\/src\/data\/.+\.json$/;
 const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
 
@@ -64,6 +65,11 @@ export function transformLosslessJsonData(
     return undefined;
   }
   const data: unknown = JSON.parse(source.replace(/^\uFEFF/, ""));
+  // These packets contain a handful of objects and already-packed base64
+  // strings, not huge numeric arrays. Wrapping them in JSON.parse would retain
+  // both the encoded JSON text and another copy of every base64 string after
+  // the first read. Direct literals share the original string constants.
+  const packedPacket = PACKED_PACKET_JSON.test(id.replaceAll("\\", "/"));
   if (Array.isArray(data)) {
     return {
       code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(source.replace(/^\uFEFF/, ""))});`,
@@ -80,7 +86,7 @@ export function transformLosslessJsonData(
     const json = exactJson(value);
     const field = `__field${index}`;
     const property = `[${JSON.stringify(key)}]`;
-    if (Array.isArray(value) && json.length >= thresholdBytes) {
+    if (!packedPacket && Array.isArray(value) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
@@ -115,7 +121,7 @@ export function transformLosslessJsonData(
     // Export aliases may be reserved words, but bindings above never are.
     if (key !== "default" && EXPORT_NAME.test(key)) exports.push(`${field} as ${key}`);
   }
-  if (lazyFields === 0) return undefined;
+  if (lazyFields === 0 && !packedPacket) return undefined;
   return {
     code: `${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,

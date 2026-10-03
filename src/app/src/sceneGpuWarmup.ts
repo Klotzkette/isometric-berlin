@@ -320,6 +320,7 @@ export function createSceneGpuWarmup(
 
     const selectedSet = new Set(selected);
     const layers = new Map<Renderable, number>();
+    const hiddenBranches: Object3D[] = [];
     const culling = new Map<Renderable, boolean>();
     const ranges = new Map<BufferGeometry, { start: number; count: number }>();
     const temporarilyVisible = new Set<Material>();
@@ -333,15 +334,33 @@ export function createSceneGpuWarmup(
     const shadowNeedsUpdate = renderer.shadowMap.needsUpdate;
     const background = scene.background;
     try {
-      scene.traverse((object) => {
-        if (!renderable(object)) return;
-        if (!selectedSet.has(object)) {
+      // A tiny upload batch must not repeatedly visit the complete city.
+      // Keep the exact ancestor paths and light rig, then suspend unrelated
+      // branches for this synchronous, zero-vertex preparation render only.
+      // Renderer layer masks alone still descend every child of those branches.
+      const retained = new Set<Object3D>([scene]);
+      const retainAncestors = (object: Object3D): void => {
+        const path: Object3D[] = [];
+        let parent: Object3D | null = object;
+        for (; parent && !retained.has(parent); parent = parent.parent) path.push(parent);
+        // Detached cached lights and a camera outside the scene need no mask.
+        if (parent) for (const ancestor of path) retained.add(ancestor);
+      };
+      for (const object of selected) retainAncestors(object);
+      for (const light of knownLights) retainAncestors(light);
+      retainAncestors(camera);
+      for (const object of retained) {
+        if (renderable(object) && !selectedSet.has(object)) {
           layers.set(object, object.layers.mask);
-          // Layers filter this renderable without hiding selected children
-          // or lights beneath a mesh ancestor.
+          // Renderable ancestors may themselves contain a selected mesh/light.
           object.layers.mask = 0;
         }
-      });
+        for (const child of object.children) {
+          if (!child.visible || retained.has(child)) continue;
+          child.visible = false;
+          hiddenBranches.push(child);
+        }
+      }
       for (const object of selected) {
         const geometry: BufferGeometry = object.geometry;
         // Zero-alpha ink keeps its buffers resident even while its ordinary
@@ -384,6 +403,7 @@ export function createSceneGpuWarmup(
       renderer.render(scene, preparationCamera);
     } finally {
       for (const material of temporarilyVisible) material.visible = false;
+      for (const object of hiddenBranches) object.visible = true;
       for (const [object, mask] of layers) object.layers.mask = mask;
       for (const [object, frustumCulled] of culling) object.frustumCulled = frustumCulled;
       for (const [geometry, range] of ranges) geometry.setDrawRange(range.start, range.count);

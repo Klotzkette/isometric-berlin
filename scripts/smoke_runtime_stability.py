@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from smoke_flood_mode import READ_FLOOD, flood_url, validate_water
+from smoke_flood_mode import FLOOD_BUFFER_PROBE, READ_FLOOD, flood_url, validate_water
 from smoke_mobile_memory import BUFFER_PROBE, READ_STATE, validate_sample
 from smoke_mode_continuity import (
   PROBE,
@@ -184,7 +184,7 @@ def run(args: argparse.Namespace) -> None:
         else {"viewport": {"width": 1365, "height": 900}}
       )
     )
-    for probe in (PROBE, BUFFER_PROBE, SOURCE_PROBE):
+    for probe in (PROBE, BUFFER_PROBE, FLOOD_BUFFER_PROBE, SOURCE_PROBE):
       context.add_init_script(probe)
     page = context.new_page()
     page.on("pageerror", lambda error: report["errors"].append(str(error)))

@@ -8,8 +8,8 @@ import { losslessJsonData, transformLosslessJsonData } from "../losslessJsonData
 
 const ID = "/project/src/app/src/data/example.json";
 
-function evaluateModule(source: string, threshold = 64 * 1024) {
-  const result = transformLosslessJsonData(source, ID, threshold);
+function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
+  const result = transformLosslessJsonData(source, id, threshold);
   if (!result) throw new Error("Expected transformed source");
   const script = result.code.replace(/export \{ ([^\n]*) \};/, (_match, aliases: string) => {
     const properties = aliases.split(", ").filter(Boolean).map((alias) => {
@@ -68,7 +68,7 @@ describe("lossless lazy source JSON", () => {
       const path = join(root, relative);
       const source = await readFile(path, "utf8");
       if (!transformLosslessJsonData(source, path)) continue;
-      const { data } = evaluateModule(source);
+      const { data } = evaluateModule(source, 64 * 1024, path);
       const actual = new Bun.CryptoHasher("sha256").update(JSON.stringify(data)).digest("hex");
       const expected = new Bun.CryptoHasher("sha256").update(JSON.stringify(JSON.parse(source))).digest("hex");
       expect(actual, relative).toBe(expected);

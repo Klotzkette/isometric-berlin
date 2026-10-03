@@ -9,7 +9,10 @@ import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometr
 const payload = parkDetailsJson as unknown as ParkDetailsPayload;
 const options = { detailProfile: "mobile" as const, settledDetail: false };
 
-test("cooperative mobile park construction preserves every production buffer and material", async () => {
+test.each([
+  { detailProfile: "mobile" as const, settledDetail: false },
+  { detailProfile: "full" as const, settledDetail: true },
+])("cooperative $detailProfile park construction preserves every production buffer and material", async (options) => {
   let expected;
   let metadata;
   {

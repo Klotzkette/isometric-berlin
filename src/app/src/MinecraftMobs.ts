@@ -113,7 +113,9 @@ const MOB_DISPLAY_SCALE = 2.2;
 
 const WALKABLE_GROUND = new Set(["grass", "concrete", "plazaBrick"]);
 
-function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {
+type VoxelGridShape = Pick<VoxelPayload, "cell_m" | "grid">;
+
+function cellIndex(payload: VoxelGridShape, x: number, z: number): number | null {
   const xOffset = Math.floor(x / payload.cell_m) - payload.grid.min_x_idx;
   const zOffset = Math.floor(z / payload.cell_m) - payload.grid.min_z_idx;
   if (
@@ -191,6 +193,44 @@ function buildWalkableGrid(
     }
   });
   return { ground: walkable, trees: treeCells };
+}
+
+/** Keep only the compiled occupancy and grid shape, never the source city rows. */
+function createWalkabilityQuery(
+  grid: VoxelGridShape,
+  walkability: ReturnType<typeof buildWalkableGrid>,
+): (x: number, z: number) => boolean {
+  return (x, z) => {
+    if (isHolocaustMinecraftProtectedAt(x, z)) {
+      return false;
+    }
+    const index = cellIndex(grid, x, z);
+    if (index === null || walkability.ground[index] !== 1) {
+      return false;
+    }
+    // Voxel crowns overhang their source cell. Keep an 8 m clearing around
+    // every official tree so figures remain visible rather than walking
+    // inside trunks and leaf cubes. The compact occupancy grid makes this
+    // cheaper than expanding all 23k tree cells during mode startup.
+    const centerX = index % grid.grid.cols;
+    const centerZ = Math.floor(index / grid.grid.cols);
+    for (let dz = -2; dz <= 2; dz += 1) {
+      for (let dx = -2; dx <= 2; dx += 1) {
+        const xOffset = centerX + dx;
+        const zOffset = centerZ + dz;
+        if (
+          xOffset >= 0 &&
+          zOffset >= 0 &&
+          xOffset < grid.grid.cols &&
+          zOffset < grid.grid.rows &&
+          walkability.trees[zOffset * grid.grid.cols + xOffset] === 1
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
 }
 
 export function nearestMinecraftWalkable(
@@ -418,38 +458,12 @@ export function createMinecraftMobs(
   castShadows: boolean,
   detailProfile: MinecraftMobDetailProfile = "full",
 ): MinecraftMobField {
-  const walkability = buildWalkableGrid(payload, detailProfile);
-  const isWalkable = (x: number, z: number): boolean => {
-    if (isHolocaustMinecraftProtectedAt(x, z)) {
-      return false;
-    }
-    const index = cellIndex(payload, x, z);
-    if (index === null || walkability.ground[index] !== 1) {
-      return false;
-    }
-    // Voxel crowns overhang their source cell. Keep an 8 m clearing around
-    // every official tree so figures remain visible rather than walking
-    // inside trunks and leaf cubes. The compact occupancy grid makes this
-    // cheaper than expanding all 23k tree cells during mode startup.
-    const centerX = index % payload.grid.cols;
-    const centerZ = Math.floor(index / payload.grid.cols);
-    for (let dz = -2; dz <= 2; dz += 1) {
-      for (let dx = -2; dx <= 2; dx += 1) {
-        const xOffset = centerX + dx;
-        const zOffset = centerZ + dz;
-        if (
-          xOffset >= 0 &&
-          zOffset >= 0 &&
-          xOffset < payload.grid.cols &&
-          zOffset < payload.grid.rows &&
-          walkability.trees[zOffset * payload.grid.cols + xOffset] === 1
-        ) {
-          return false;
-        }
-      }
-    }
-    return true;
-  };
+  // An inner closure reading payload.grid retained the whole parsed voxel
+  // city after geometry construction. A separate factory severs that scope.
+  const isWalkable = createWalkabilityQuery(
+    { cell_m: payload.cell_m, grid: payload.grid },
+    buildWalkableGrid(payload, detailProfile),
+  );
   const budget = MINECRAFT_MOB_BUDGETS[detailProfile];
   // Allocate once; spawning only activates slots, never new geometry or agents.
   const mobs: MobState[] = [];

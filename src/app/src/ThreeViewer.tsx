@@ -242,7 +242,6 @@ import { createSpreebogenPark, createSpreebogenLawnGroundAt } from "./Spreebogen
 import {
   type ParkDetailsPayload,
   type ParkPathTerrainAt,
-  createParkDetails,
   createParkDetailsCooperative,
   parkDetailFocusDistance,
   setParkDetailsFocus,
@@ -2902,12 +2901,10 @@ export function releaseBuiltWorldPayloads(
   if (runtime.voxelWorld) {
     delete runtime.voxelPayloadPromise;
   }
-  // A persistent desktop runtime still needs prism colours until its second
-  // world is built. A family-keyed touch runtime never builds both families.
-  if (
-    runtime.coarsePointer ||
-    (runtime.isoWorld !== null && runtime.voxelWorld !== null)
-  ) {
+  // A later family switch can read the unchanged HTTP-cached source again.
+  // Do not pin its parsed object graph throughout a single-family visit.
+  // An in-flight constructor already owns its own reference to the promise.
+  if (runtime.isoWorld !== null || runtime.voxelWorld !== null) {
     delete runtime.prismPayloadPromise;
   }
 }
@@ -3459,6 +3456,187 @@ function applyProgressiveWorldMode(
   }
 }
 
+const completedPedestrianWater = (): void => undefined;
+
+/** Keep long-lived navigation callbacks out of the asynchronous construction
+ * scope. Otherwise their shared lexical context pins the consumed JSON payloads
+ * and generator inputs even after the fulfilled request promises are released. */
+function prepareIsoNavigation(
+  runtime: Runtime,
+  ground: VoxelPayload,
+  surfaces: SurfacePayload,
+  prisms: PrismPayload,
+  monuments: StreetDetailsPayload["monuments"],
+): { environment: PedestrianEnvironment; installWorldDetails: () => void } {
+  const memorialProtection = createSchwellenraumMemorialProtectionIndex(monuments);
+  const pedestrianEnvironment = createPedestrianEnvironment(
+    ground,
+    surfaces,
+    runtime.tunnelPortalCourse,
+    prisms,
+    surroundingPedestrianExtension(runtime),
+  );
+  const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
+  pedestrianEnvironment.visualMode = () =>
+    publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
+  pedestrianEnvironment.parkTreeSolidAt =
+    createPedestrianParkTreeSolidTester(
+      ground.cell_m,
+      runtime.coarsePointer ? "mobile" : "full",
+      () => voxelModeActive(runtime),
+    );
+  const ardRoofCollision = createArdHauptstadtstudioRoofCollision(prisms);
+  const historicParkBridgeCollision =
+    createHistoricParkBridgeCollision(ground);
+  const staticPropSolidAt = createSchwellenraumStaticPropCollision(
+    pedestrianEnvironment.groundAt,
+    memorialProtection,
+  );
+  pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+    if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+      return true;
+    }
+    return zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+      runtime.lightingMode,
+      x,
+      y,
+      z,
+      sourceId,
+    );
+  };
+  pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
+    runtime.tunnelInteriorAt?.(x, y, z) !== true &&
+    runtime.lightingMode === "schwellenraum" &&
+    (schwellenraumProtectedAt(x, y, z) ||
+      schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
+  pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+      return false;
+    }
+    if (
+      zooStationV165SolidAt(x, y, z, radius) ||
+      grosserSternGatehouseSolidAt(x, y, z, radius) ||
+      fernsehturmPavilionSolidAt(x, z, y, radius) ||
+      alexanderPublicRealmSolidAt(x, z, y, radius) ||
+      friedrichMonumentSolidAt(x, z, y, 0) ||
+      palacesUdlSupportSolidAt(x,z,y,0) ||
+      jamesSimonExtraSolidAt(x,y,z,radius) ||
+      schillerMonumentSolidAt(x, y, z, radius) ||
+      weidendammerBridgeSolidAt(x, y, z, radius) ||
+      berlinJunctionSolidAt(x, y, z, radius) ||
+      gripsHansaplatzSolidAt(x, y, z, radius) ||
+      handMitUhrSolidAt(x, y, z, radius) ||
+      neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
+      csdAttackMemorialSolidAt(x, y, z, radius) ||
+      berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
+      tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+      sovietMemorialSolidAt(x,y,z,radius) ||
+      bismarckMoltkeSolidAt(x,y,z,radius) ||
+      fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
+      nationalgaleriePorticoSolidAt(x,z,y) ||
+      domAltesExtraSolidAt(x,y,z,radius) ||
+      // pedestrianPointIsBlocked already supplies seven capsule body
+      // samples; do not expand these analytical memorials a second time.
+      wagnerMemorialSolidAt(x, y, z, 0) ||
+      moabitPrisonMemorialSolidAt(x, y, z, 0) ||
+      invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
+      hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0)
+    ) {
+      return true;
+    }
+    if (runtime.lightingMode === "schwellenraum") {
+      return (
+        schwellenraumInteriorSolidAt(x, y, z, radius) ||
+        staticPropSolidAt(x, y, z, radius) ||
+        federalStateRepresentationSolidAt(x, y, z, radius) ||
+        reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
+        historicParkBridgeCollision.solidAt(x, y, z, radius) ||
+        ardRoofCollision?.solidAt(x, y, z, radius) === true
+      );
+    }
+    return (
+      minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+      minecraftHeroSolidAt(x, y, z, radius)
+    );
+  };
+  pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
+    if (zooFloor !== null) return zooFloor;
+    const pavilionFloor = fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2);
+    if (pavilionFloor !== null) return pavilionFloor;
+    const alexanderFloor = alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2);
+    if (alexanderFloor !== null) return alexanderFloor;
+    const udlFloor = unterDenLindenEntranceFloorAt(x,z);
+    if (udlFloor !== null) return udlFloor;
+    const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
+    if (wacheFloor !== null) return wacheFloor;
+    const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
+    if (promenade !== null) return promenade;
+    const parkLawn = spreebogenLawnGroundAt(x,z);
+    if (parkLawn !== null) return parkLawn;
+    const jamesFloor = jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    if (jamesFloor !== null) return jamesFloor;
+    const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    if (altesFloor !== null) return altesFloor;
+    const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
+    if (museumFloor !== null) return museumFloor;
+    const memorialFloor = sovietMemorialGroundAt(x,z);
+    if (memorialFloor !== null) return memorialFloor;
+    const stationFloor = hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY);
+    if (stationFloor !== null) return stationFloor;
+    if (minecraftHeroCollisionEnabled(runtime.lightingMode)) {
+      return minecraftHeroGroundAt(x, z);
+    }
+    if (runtime.lightingMode !== "schwellenraum") {
+      return null;
+    }
+    const hint = Number.isFinite(currentGroundY)
+      ? currentGroundY!
+      : (pedestrianEnvironment.groundAt(x, z) ?? 0);
+    return schwellenraumInteriorGroundAt(x, z, hint);
+  };
+  const terrainSample = smoothGroundTopSampler(ground);
+  const { cell_m: terrainCell, grid: { min_x_idx: terrainMinX, min_z_idx: terrainMinZ } } = ground;
+  const unterDenLindenMedianSamples =
+    deriveUnterDenLindenMedianSamples(surfaces);
+  const installWorldDetails = () => {
+    installSchwellenraumStaticProps(
+      runtime.schwellenraumPraesentation,
+      pedestrianEnvironment.groundAt,
+    );
+    installUnterDenLindenMedianSamples(
+      runtime.schwellenraumPraesentation,
+      unterDenLindenMedianSamples,
+      (x, z) =>
+        terrainSample(
+          x / terrainCell - terrainMinX,
+          z / terrainCell - terrainMinZ,
+        ),
+    );
+    if (
+      setSchwellenraumDatenSchutz(
+        runtime.schwellenraumPraesentation,
+        memorialProtection,
+      )
+    ) {
+      invalidateScenePresentation(runtime);
+    }
+  };
+  return { environment: pedestrianEnvironment, installWorldDetails };
+}
+
+function prepareDistrictPathTerrain(
+  ground: VoxelPayload,
+  tunnel: Runtime["tunnelPortalCourse"],
+): ParkPathTerrainAt {
+  const roadTerrainAt = districtStreetTerrainSampler(ground);
+  const portalAt = tunnel ? createTunnelPortalApproachTester(tunnel) : null;
+  return (path, x, z, sourceY) =>
+    path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
+    pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
+      ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
+}
+
 function ensureIsoWorld(
   runtime: Runtime,
   warn: (message: string) => void,
@@ -3594,164 +3772,10 @@ function ensureIsoWorld(
       let pendingWorldDetailsInstaller: (() => void) | null = null;
       let pendingPathTerrainAt: ParkPathTerrainAt | undefined;
       let pendingTrafficSignals: Group | null | undefined;
-      const memorialProtection = createSchwellenraumMemorialProtectionIndex(
-        street?.monuments,
-      );
       if (ground && surfaces) {
-        const pedestrianEnvironment = createPedestrianEnvironment(
-          ground,
-          surfaces,
-          runtime.tunnelPortalCourse,
-          prisms,
-          surroundingPedestrianExtension(runtime),
-        );
-        provisionalPedestrianEnvironment = pedestrianEnvironment;
-        const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
-        pedestrianEnvironment.visualMode = () =>
-          publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
-        pedestrianEnvironment.parkTreeSolidAt =
-          createPedestrianParkTreeSolidTester(
-            ground.cell_m,
-            runtime.coarsePointer ? "mobile" : "full",
-            () => voxelModeActive(runtime),
-          );
-        const ardRoofCollision = createArdHauptstadtstudioRoofCollision(prisms);
-        const historicParkBridgeCollision =
-          createHistoricParkBridgeCollision(ground);
-        const staticPropSolidAt = createSchwellenraumStaticPropCollision(
-          pedestrianEnvironment.groundAt,
-          memorialProtection,
-        );
-        pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
-          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
-            return true;
-          }
-          return zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
-            runtime.lightingMode,
-            x,
-            y,
-            z,
-            sourceId,
-          );
-        };
-        pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
-          runtime.tunnelInteriorAt?.(x, y, z) !== true &&
-          runtime.lightingMode === "schwellenraum" &&
-          (schwellenraumProtectedAt(x, y, z) ||
-            schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
-        pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
-          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
-            return false;
-          }
-          if (
-            zooStationV165SolidAt(x, y, z, radius) ||
-            grosserSternGatehouseSolidAt(x, y, z, radius) ||
-            fernsehturmPavilionSolidAt(x, z, y, radius) ||
-            alexanderPublicRealmSolidAt(x, z, y, radius) ||
-            friedrichMonumentSolidAt(x, z, y, 0) ||
-            palacesUdlSupportSolidAt(x,z,y,0) ||
-            jamesSimonExtraSolidAt(x,y,z,radius) ||
-            schillerMonumentSolidAt(x, y, z, radius) ||
-            weidendammerBridgeSolidAt(x, y, z, radius) ||
-            berlinJunctionSolidAt(x, y, z, radius) ||
-            gripsHansaplatzSolidAt(x, y, z, radius) ||
-            handMitUhrSolidAt(x, y, z, radius) ||
-            neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
-            csdAttackMemorialSolidAt(x, y, z, radius) ||
-            berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
-            tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
-            sovietMemorialSolidAt(x,y,z,radius) ||
-            bismarckMoltkeSolidAt(x,y,z,radius) ||
-            fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
-            nationalgaleriePorticoSolidAt(x,z,y) ||
-            domAltesExtraSolidAt(x,y,z,radius) ||
-            // pedestrianPointIsBlocked already supplies seven capsule body
-            // samples; do not expand these analytical memorials a second time.
-            wagnerMemorialSolidAt(x, y, z, 0) ||
-            moabitPrisonMemorialSolidAt(x, y, z, 0) ||
-            invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
-            hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0)
-          ) {
-            return true;
-          }
-          if (runtime.lightingMode === "schwellenraum") {
-            return (
-              schwellenraumInteriorSolidAt(x, y, z, radius) ||
-              staticPropSolidAt(x, y, z, radius) ||
-              federalStateRepresentationSolidAt(x, y, z, radius) ||
-              reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
-              historicParkBridgeCollision.solidAt(x, y, z, radius) ||
-              ardRoofCollision?.solidAt(x, y, z, radius) === true
-            );
-          }
-          return (
-            minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-            minecraftHeroSolidAt(x, y, z, radius)
-          );
-        };
-        pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
-          const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
-          if (zooFloor !== null) return zooFloor;
-          const pavilionFloor = fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2);
-          if (pavilionFloor !== null) return pavilionFloor;
-          const alexanderFloor = alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2);
-          if (alexanderFloor !== null) return alexanderFloor;
-          const udlFloor = unterDenLindenEntranceFloorAt(x,z);
-          if (udlFloor !== null) return udlFloor;
-          const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
-          if (wacheFloor !== null) return wacheFloor;
-          const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
-          if (promenade !== null) return promenade;
-          const parkLawn = spreebogenLawnGroundAt(x,z);
-          if (parkLawn !== null) return parkLawn;
-          const jamesFloor = jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
-          if (jamesFloor !== null) return jamesFloor;
-          const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
-          if (altesFloor !== null) return altesFloor;
-          const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
-          if (museumFloor !== null) return museumFloor;
-          const memorialFloor = sovietMemorialGroundAt(x,z);
-          if (memorialFloor !== null) return memorialFloor;
-          const stationFloor = hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY);
-          if (stationFloor !== null) return stationFloor;
-          if (minecraftHeroCollisionEnabled(runtime.lightingMode)) {
-            return minecraftHeroGroundAt(x, z);
-          }
-          if (runtime.lightingMode !== "schwellenraum") {
-            return null;
-          }
-          const hint = Number.isFinite(currentGroundY)
-            ? currentGroundY!
-            : (pedestrianEnvironment.groundAt(x, z) ?? 0);
-          return schwellenraumInteriorGroundAt(x, z, hint);
-        };
-        const terrainSample = smoothGroundTopSampler(ground);
-        const { cell_m: terrainCell, grid: { min_x_idx: terrainMinX, min_z_idx: terrainMinZ } } = ground;
-        const unterDenLindenMedianSamples =
-          deriveUnterDenLindenMedianSamples(surfaces);
-        pendingWorldDetailsInstaller = () => {
-          installSchwellenraumStaticProps(
-            runtime.schwellenraumPraesentation,
-            pedestrianEnvironment.groundAt,
-          );
-          installUnterDenLindenMedianSamples(
-            runtime.schwellenraumPraesentation,
-            unterDenLindenMedianSamples,
-            (x, z) =>
-              terrainSample(
-                x / terrainCell - terrainMinX,
-                z / terrainCell - terrainMinZ,
-              ),
-          );
-          if (
-            setSchwellenraumDatenSchutz(
-              runtime.schwellenraumPraesentation,
-              memorialProtection,
-            )
-          ) {
-            invalidateScenePresentation(runtime);
-          }
-        };
+        const navigation = prepareIsoNavigation(runtime, ground, surfaces, prisms, street?.monuments);
+        provisionalPedestrianEnvironment = navigation.environment;
+        pendingWorldDetailsInstaller = navigation.installWorldDetails;
       }
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -3958,13 +3982,7 @@ function ensureIsoWorld(
           yield;
           isoWorld.add(createHedwigCathedral(ground));
           yield;
-          const roadTerrainAt = districtStreetTerrainSampler(ground);
-          const portalAt = runtime.tunnelPortalCourse
-            ? createTunnelPortalApproachTester(runtime.tunnelPortalCourse) : null;
-          pendingPathTerrainAt = (path, x, z, sourceY) =>
-            path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
-            pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
-              ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
+          pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
         isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
         yield;
@@ -4207,7 +4225,7 @@ function ensureIsoWorld(
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalPedestrianEnvironment) {
         runtime.pedestrian.environment = provisionalPedestrianEnvironment;
-        runtime.ensurePedestrianWater = () => undefined;
+        runtime.ensurePedestrianWater = completedPedestrianWater;
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
         }
@@ -4306,6 +4324,114 @@ function ensureIsoWorld(
  * Idempotent and called both on mode switches and at scene init, so a fresh
  * `?theme=minecraft` load gets blocks too.
  */
+/** Native navigation must not retain the world constructor's async context. */
+function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms: PrismPayload): PedestrianEnvironment {
+  const environment = createPedestrianEnvironment(
+    payload,
+    { water: [] },
+    runtime.tunnelPortalCourse,
+    prisms,
+    surroundingPedestrianExtension(runtime),
+  );
+  environment.visualMode = () =>
+    publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
+  const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
+  environment.parkTreeSolidAt =
+    createPedestrianParkTreeSolidTester(
+      payload.cell_m,
+      runtime.coarsePointer ? "mobile" : "full",
+      () => voxelModeActive(runtime),
+    );
+  environment.walkableInteriorAt = (x, y, z, sourceId) =>
+    runtime.tunnelInteriorAt?.(x, y, z) === true ||
+    palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
+    musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
+    nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
+    zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+  environment.interiorSolidAt = (x, y, z, radius) => {
+    if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
+      return false;
+    }
+    return (
+      zooStationV165SolidAt(x, y, z, radius) ||
+      grosserSternGatehouseSolidAt(x, y, z, radius) ||
+      fernsehturmPavilionSolidAt(x, z, y, radius) ||
+      alexanderPublicRealmSolidAt(x, z, y, radius) ||
+      friedrichMonumentSolidAt(x, z, y, 0) ||
+      palacesUdlSupportSolidAt(x,z,y,0) ||
+      jamesSimonExtraSolidAt(x,y,z,radius) ||
+      schillerMonumentSolidAt(x, y, z, radius) ||
+      weidendammerBridgeSolidAt(x, y, z, radius) ||
+      berlinJunctionSolidAt(x, y, z, radius) ||
+      gripsHansaplatzSolidAt(x, y, z, radius) ||
+      handMitUhrSolidAt(x, y, z, radius) ||
+      neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
+      csdAttackMemorialSolidAt(x, y, z, radius) ||
+      berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
+      tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+      sovietMemorialSolidAt(x,y,z,radius) ||
+      bismarckMoltkeSolidAt(x,y,z,radius) ||
+      fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
+      nationalgaleriePorticoSolidAt(x,z,y) ||
+      domAltesExtraSolidAt(x,y,z,radius) ||
+      // The navigation sampler already carries the capsule radius.
+      wagnerMemorialSolidAt(x, y, z, 0) ||
+      moabitPrisonMemorialSolidAt(x, y, z, 0) ||
+      invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
+      hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0) ||
+      (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+        minecraftHeroSolidAt(x, y, z, radius))
+    );
+  };
+  environment.interiorGroundAt = (x, z, currentGroundY) =>
+    zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
+    fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
+    alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
+    unterDenLindenEntranceFloorAt(x,z) ??
+    neueWacheGroundAt(x,z,currentGroundY) ??
+    spreebogenWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
+    spreebogenLawnGroundAt(x,z) ??
+    jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
+    domAltesExtraGroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
+    nationalgalerieWalkSurfaceAt(x,z) ??
+    sovietMemorialGroundAt(x,z) ??
+    hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
+    (minecraftHeroCollisionEnabled(runtime.lightingMode)
+      ? minecraftHeroGroundAt(x, z)
+      : null);
+  return environment;
+}
+
+function createDeferredPedestrianWater(runtime: Runtime, environment: PedestrianEnvironment): () => void {
+  let waterRequestStarted = false;
+  return () => {
+    if (
+      waterRequestStarted ||
+      runtime.disposed ||
+      runtime.pedestrian.environment !== environment
+    ) {
+      return;
+    }
+    waterRequestStarted = true;
+    const surfacePayloadPromise = fetchSurfacePayload(runtime);
+    void surfacePayloadPromise
+      .then((surfaces) => {
+        if (
+          !runtime.disposed &&
+          runtime.pedestrian.environment === environment
+        ) {
+          environment.water = compilePedestrianWater(surfaces);
+        }
+      })
+      // Building, portal and terrain collision are already live; only
+      // the solid shoreline waits for a later drawn-world retry.
+      .catch(() => undefined)
+      .finally(() => {
+        releaseCompiledSurfacePayload(runtime, surfacePayloadPromise);
+      });
+  };
+}
+
 function ensureVoxelWorld(
   runtime: Runtime,
   warn: (message: string) => void,
@@ -4402,79 +4528,7 @@ function ensureVoxelWorld(
       // only the water polygons in the background; block presentation stays
       // on the existing fast voxel+prism critical path.
       if (prisms && runtime.pedestrian.environment === null) {
-        provisionalEnvironment = createPedestrianEnvironment(
-          payload,
-          { water: [] },
-          runtime.tunnelPortalCourse,
-          prisms,
-          surroundingPedestrianExtension(runtime),
-        );
-        provisionalEnvironment.visualMode = () =>
-          publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
-        const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
-        provisionalEnvironment.parkTreeSolidAt =
-          createPedestrianParkTreeSolidTester(
-            payload.cell_m,
-            runtime.coarsePointer ? "mobile" : "full",
-            () => voxelModeActive(runtime),
-          );
-        provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
-          runtime.tunnelInteriorAt?.(x, y, z) === true ||
-          palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
-          musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
-          nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
-          zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
-        provisionalEnvironment.interiorSolidAt = (x, y, z, radius) => {
-          if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
-            return false;
-          }
-          return (
-            zooStationV165SolidAt(x, y, z, radius) ||
-            grosserSternGatehouseSolidAt(x, y, z, radius) ||
-            fernsehturmPavilionSolidAt(x, z, y, radius) ||
-            alexanderPublicRealmSolidAt(x, z, y, radius) ||
-            friedrichMonumentSolidAt(x, z, y, 0) ||
-            palacesUdlSupportSolidAt(x,z,y,0) ||
-            jamesSimonExtraSolidAt(x,y,z,radius) ||
-            schillerMonumentSolidAt(x, y, z, radius) ||
-            weidendammerBridgeSolidAt(x, y, z, radius) ||
-            berlinJunctionSolidAt(x, y, z, radius) ||
-            gripsHansaplatzSolidAt(x, y, z, radius) ||
-            handMitUhrSolidAt(x, y, z, radius) ||
-            neueWacheSolidAt(x, y, z, radius, runtime.lightingMode === "minecraft") ||
-            csdAttackMemorialSolidAt(x, y, z, radius) ||
-            berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
-            tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
-            sovietMemorialSolidAt(x,y,z,radius) ||
-            bismarckMoltkeSolidAt(x,y,z,radius) ||
-            fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
-            nationalgaleriePorticoSolidAt(x,z,y) ||
-            domAltesExtraSolidAt(x,y,z,radius) ||
-            // The navigation sampler already carries the capsule radius.
-            wagnerMemorialSolidAt(x, y, z, 0) ||
-            moabitPrisonMemorialSolidAt(x, y, z, 0) ||
-            invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
-            hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0) ||
-            (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-              minecraftHeroSolidAt(x, y, z, radius))
-          );
-        };
-        provisionalEnvironment.interiorGroundAt = (x, z, currentGroundY) =>
-          zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
-          fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
-          alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
-          unterDenLindenEntranceFloorAt(x,z) ??
-          neueWacheGroundAt(x,z,currentGroundY) ??
-          spreebogenWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
-          spreebogenLawnGroundAt(x,z) ??
-          jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
-          domAltesExtraGroundAt(x,z,currentGroundY ?? provisionalEnvironment?.groundAt(x,z) ?? 0) ??
-          nationalgalerieWalkSurfaceAt(x,z) ??
-          sovietMemorialGroundAt(x,z) ??
-          hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
-          (minecraftHeroCollisionEnabled(runtime.lightingMode)
-            ? minecraftHeroGroundAt(x, z)
-            : null);
+        provisionalEnvironment = prepareVoxelNavigation(runtime, payload, prisms);
       }
 
       // Commit only after every expensive constructor succeeds. Anything
@@ -4507,34 +4561,7 @@ function ensureVoxelWorld(
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalEnvironment) {
         runtime.pedestrian.environment = provisionalEnvironment;
-        const environment = provisionalEnvironment;
-        let waterRequestStarted = false;
-        runtime.ensurePedestrianWater = () => {
-          if (
-            waterRequestStarted ||
-            runtime.disposed ||
-            runtime.pedestrian.environment !== environment
-          ) {
-            return;
-          }
-          waterRequestStarted = true;
-          const surfacePayloadPromise = fetchSurfacePayload(runtime);
-          void surfacePayloadPromise
-            .then((surfaces) => {
-              if (
-                !runtime.disposed &&
-                runtime.pedestrian.environment === environment
-              ) {
-                environment.water = compilePedestrianWater(surfaces);
-              }
-            })
-            // Building, portal and terrain collision are already live; only
-            // the solid shoreline waits for a later drawn-world retry.
-            .catch(() => undefined)
-            .finally(() => {
-              releaseCompiledSurfacePayload(runtime, surfacePayloadPromise);
-            });
-        };
+        runtime.ensurePedestrianWater = createDeferredPedestrianWater(runtime, provisionalEnvironment);
         if (runtime.pedestrian.requested) {
           runtime.ensurePedestrianWater();
           activatePedestrianMode(runtime);
@@ -8734,18 +8761,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   let staging: Group | null = null;
                   let details: Group;
                   const constructionCancelled = () => runtime.disposed || loadController.signal.aborted ||
-                    document.hidden || !isoWorldIntentActive(runtime);
+                    (runtime.coarsePointer && (document.hidden || !isoWorldIntentActive(runtime)));
                   try {
-                    details = runtime.coarsePointer
-                      ? await createParkDetailsCooperative(payload, options, {
-                          yieldTask: yieldStartupWork,
-                          isCancelled: constructionCancelled,
-                          onRoot: (root) => { staging = root; },
-                        })
-                      : createParkDetails(payload, options);
+                    // Both input profiles keep their exact original options.
+                    // Packed scratch and task boundaries also prevent desktop
+                    // startup from building the whole park in one blocking task.
+                    details = await createParkDetailsCooperative(payload, options, {
+                      yieldTask: yieldStartupWork,
+                      isCancelled: constructionCancelled,
+                      onRoot: (root) => { staging = root; },
+                    });
                     // Recheck after the promise boundary, before touching the
                     // scene or collision index of a possibly retired runtime.
-                    if (runtime.coarsePointer && constructionCancelled()) {
+                    if (constructionCancelled()) {
                       throw new DOMException("Park construction cancelled", "AbortError");
                     }
                   } catch (error: unknown) {

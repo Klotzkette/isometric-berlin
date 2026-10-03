@@ -47,6 +47,39 @@ const compactWalkabilityFixture: VoxelPayload = {
 };
 
 describe("Minecraft roaming mobs", () => {
+  test("live navigation releases the original city payload and source rows after compiling occupancy", async () => {
+    const { field, refs } = (() => {
+      const source = structuredClone(compactWalkabilityFixture);
+      return {
+        field: createMinecraftMobs(source, false, "mobile"),
+        refs: [source, source.ground_rows, source.building_rows!, source.tree_rows!]
+          .map(value => new WeakRef(value)),
+      };
+    })();
+    // Weak targets survive their creation job. Cross task boundaries before
+    // collecting, while the complete live mob field remains strongly owned.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      Bun.gc(true);
+    }
+    expect(refs.every(ref => ref.deref() === undefined)).toBeTrue();
+    // Exact compiled buildings, open ground, grid boundaries and height remain.
+    expect(field.isWalkable(2, 2)).toBeTrue();
+    expect(field.isWalkable(6, 2)).toBeFalse();
+    expect(field.isWalkable(10, 2)).toBeFalse();
+    expect(field.isWalkable(14, 2)).toBeTrue();
+    expect(field.isWalkable(2, 10)).toBeFalse();
+    expect(field.isWalkable(14, 10)).toBeTrue();
+    expect(field.isWalkable(16, 10)).toBeFalse();
+    expect(field.isWalkable(-1, 2)).toBeFalse();
+    expect(field.groundAt(2, 2)).toBe(0);
+    expect(field.groundAt(16, 2)).toBeNull();
+    expect(field.parts).toHaveLength(250);
+    field.mesh.dispose();
+    field.mesh.geometry.dispose();
+    field.mesh.material.dispose();
+  });
+
   test("builds a richer mix of creepers, skeletons and zombies in one draw call", () => {
     const field = createMinecraftMobs(payload, false);
 

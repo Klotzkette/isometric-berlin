@@ -48,7 +48,7 @@ function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {})
   let fail = false;
   let contextLost = false;
   let onRender: (() => void) | undefined;
-  const calls: { objects: Array<Mesh | Line>; vertices: number; cameraId: number }[] = [];
+  const calls: { objects: Array<Mesh | Line>; vertices: number; cameraId: number; visited: number }[] = [];
   const events = new EventTarget();
   const renderer = {
     info,
@@ -74,8 +74,9 @@ function host(scene: Scene, camera: Camera, options: SceneGpuWarmupOptions = {})
       info.render.frame++;
       root.updateMatrixWorld(true); view.updateMatrixWorld(true);
       const frustum = new Frustum().setFromProjectionMatrix(new Matrix4().multiplyMatrices(view.projectionMatrix, view.matrixWorldInverse));
-      const call = { objects: [] as Array<Mesh | Line>, vertices: 0, cameraId: view.id };
+      const call = { objects: [] as Array<Mesh | Line>, vertices: 0, cameraId: view.id, visited: 0 };
       const visit = (object: Object3D) => {
+        call.visited++;
         if (!object.visible) return;
         if ((object instanceof Mesh || object instanceof Line) && object.layers.test(view.layers) && (!object.frustumCulled || frustum.intersectsObject(object))) {
           objects.update(object);
@@ -115,6 +116,74 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("a small preparation batch skips unrelated city branches and restores their exact live hierarchy", () => {
+    const { scene, camera } = fixture();
+    const activeDistrict = new Group(), otherDistrict = new Group();
+    const selected = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const geometry = new BoxGeometry(), material = new MeshBasicMaterial();
+    const distant = Array.from({ length: 4000 }, () => new Mesh(geometry, material));
+    for (const mesh of distant) mesh.position.x = 1000;
+    otherDistrict.add(...distant); activeDistrict.add(selected);
+    const lightAncestor = new Mesh(geometry, material), light = new DirectionalLight();
+    lightAncestor.position.x = 1000; lightAncestor.add(light);
+    const hidden = new Group(); hidden.visible = false;
+    scene.add(activeDistrict, otherDistrict, lightAncestor, hidden);
+    const h = host(scene, camera, { viewLocal: true });
+    const originalChildren = [...scene.children];
+    h.warmup.enqueue(scene);
+    const scan = spyOn(scene, "traverse");
+    h.onRender = () => {
+      expect(otherDistrict.visible).toBeFalse();
+      expect(activeDistrict.visible).toBeTrue();
+      expect(lightAncestor.visible).toBeTrue();
+      expect(lightAncestor.layers.mask).toBe(0);
+      expect(light.visible).toBeTrue();
+      expect(hidden.visible).toBeFalse();
+      expect(selected.parent).toBe(activeDistrict);
+    };
+    try {
+      expect(h.warmup.warmNext()).toBe(1);
+      expect(scan).not.toHaveBeenCalled();
+      expect(h.calls.at(-1)?.visited).toBeLessThan(10);
+      expect(h.calls.at(-1)?.objects).toEqual([selected]);
+      expect(h.uploads).not.toContain(geometry.getAttribute("position").array);
+      expect(scene.children).toEqual(originalChildren);
+      expect(otherDistrict.children).toEqual(distant);
+      expect(otherDistrict.visible).toBeTrue();
+      expect(hidden.visible).toBeFalse();
+      expect(lightAncestor.layers.mask).toBe(1);
+      // The next actual view still sees every authored object without waiting
+      // for a preparation tick or changing geometry/visibility permanently.
+      h.onRender = undefined;
+      camera.position.x = 1000; camera.lookAt(1000, 0, 0);
+      h.renderer.render(scene, camera);
+      expect(h.calls.at(-1)?.objects).toHaveLength(4001);
+      expect(h.calls.at(-1)?.vertices).toBe(4001 * 36);
+    } finally { scan.mockRestore(); h.warmup.dispose(); }
+  });
+
+  test("failed preparation restores every suspended branch and never changes detached light owners", () => {
+    const { scene, camera } = fixture();
+    const selected = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const other = new Group(), hidden = new Group(); hidden.visible = false;
+    other.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
+    const detached = new Group(), light = new DirectionalLight(), sibling = new Group();
+    detached.add(light, sibling); scene.add(selected, other, hidden, detached);
+    const h = host(scene, camera); h.warmup.enqueue(selected);
+    detached.removeFromParent();
+    h.onRender = () => {
+      expect(other.visible).toBeFalse();
+      expect(sibling.visible).toBeTrue();
+    };
+    h.fail = true;
+    expect(() => h.warmup.warmNext()).toThrow("injected render failure");
+    expect(other.visible).toBeTrue();
+    expect(hidden.visible).toBeFalse();
+    expect(sibling.visible).toBeTrue();
+    expect(selected.geometry.drawRange.count).toBe(Infinity);
+    h.warmup.dispose();
+  });
+
   test("mobile preparation keeps a generous view margin and leaves distant buffers dormant", () => {
     const { scene, camera } = fixture();
     const visible = new Mesh(new BoxGeometry(), new MeshBasicMaterial());

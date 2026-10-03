@@ -638,40 +638,27 @@ describe("Minecraft hero navigation", () => {
       viewerSource.indexOf("function ensureVoxelWorld"),
       viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
     );
-    expect(voxelBuilder).toContain("createPedestrianEnvironment(");
-    expect(voxelBuilder).toContain(
-      "runtime.pedestrian.environment = provisionalEnvironment",
+    const navigationFactory = viewerSource.slice(
+      viewerSource.indexOf("function prepareVoxelNavigation("),
+      viewerSource.indexOf("function createDeferredPedestrianWater("),
     );
-    expect(
-      voxelBuilder.indexOf(
-        "runtime.pedestrian.environment = provisionalEnvironment",
-      ),
-    ).toBeLessThan(
-      voxelBuilder.indexOf(
-        "const surfacePayloadPromise = fetchSurfacePayload(runtime)",
-      ),
+    const waterFactory = viewerSource.slice(
+      viewerSource.indexOf("function createDeferredPedestrianWater("),
+      viewerSource.indexOf("function ensureVoxelWorld("),
     );
-    const waterLoader = voxelBuilder.indexOf(
-      "runtime.ensurePedestrianWater = () =>",
+    expect(navigationFactory).toContain("createPedestrianEnvironment(");
+    expect(voxelBuilder).toContain("prepareVoxelNavigation(runtime, payload, prisms)");
+    const publish = voxelBuilder.indexOf("runtime.pedestrian.environment = provisionalEnvironment");
+    const waterLoader = voxelBuilder.indexOf("runtime.ensurePedestrianWater = createDeferredPedestrianWater(runtime, provisionalEnvironment)");
+    const requestedWater = voxelBuilder.indexOf("runtime.ensurePedestrianWater();", waterLoader);
+    expect(publish).toBeGreaterThan(-1);
+    expect(waterLoader).toBeGreaterThan(publish);
+    expect(requestedWater).toBeGreaterThan(waterLoader);
+    expect(voxelBuilder).not.toContain("fetchSurfacePayload(runtime)");
+    expect(waterFactory.indexOf("return () =>")).toBeLessThan(
+      waterFactory.indexOf("const surfacePayloadPromise = fetchSurfacePayload(runtime)"),
     );
-    const waterFetch = voxelBuilder.indexOf(
-      "const surfacePayloadPromise = fetchSurfacePayload(runtime)",
-    );
-    const requestedWater = voxelBuilder.indexOf(
-      "runtime.ensurePedestrianWater();",
-      waterLoader,
-    );
-    expect(waterLoader).toBeGreaterThan(-1);
-    expect(waterFetch).toBeGreaterThan(waterLoader);
-    expect(requestedWater).toBeGreaterThan(waterFetch);
-    expect(
-      voxelBuilder.slice(
-        voxelBuilder.indexOf(
-          "runtime.scene.add(provisionalMinecraftMobs.group)",
-        ),
-        waterLoader,
-      ),
-    ).not.toContain("fetchSurfacePayload(runtime)");
+    expect(waterFactory).toContain("runtime.pedestrian.environment !== environment");
     expect(voxelBuilder).toContain(
       "pedestrianSnapshot = capturePedestrianAttachment(runtime)",
     );

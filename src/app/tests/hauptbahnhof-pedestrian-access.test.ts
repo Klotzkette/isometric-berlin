@@ -158,8 +158,8 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
 
   test("warm and cold worlds install the same source, floor and physical-solid policy", async () => {
     const viewer = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
-    const warm = viewer.slice(viewer.indexOf("function ensureIsoWorld"), viewer.indexOf("function ensureVoxelWorld"));
-    const cold = viewer.slice(viewer.indexOf("function ensureVoxelWorld"), viewer.indexOf("const PHOTO_FOV_DEGREES"));
+    const warm = viewer.slice(viewer.indexOf("function prepareIsoNavigation"), viewer.indexOf("function prepareVoxelNavigation"));
+    const cold = viewer.slice(viewer.indexOf("function prepareVoxelNavigation"), viewer.indexOf("const PHOTO_FOV_DEGREES"));
     for (const builder of [warm, cold]) {
       expect(builder).toContain("visualModeWalkableInteriorAt(");
       expect(builder).toContain("hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY)");

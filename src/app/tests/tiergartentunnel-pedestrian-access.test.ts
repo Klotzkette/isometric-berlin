@@ -152,11 +152,11 @@ describe("Tiergartentunnel pedestrian access", () => {
 
   test("gives the tunnel corridor priority in warm and cold world builders", () => {
     const isoBuilder = viewerSource.slice(
-      viewerSource.indexOf("function ensureIsoWorld"),
-      viewerSource.indexOf("function ensureVoxelWorld"),
+      viewerSource.indexOf("function prepareIsoNavigation"),
+      viewerSource.indexOf("function prepareVoxelNavigation"),
     );
     const voxelBuilder = viewerSource.slice(
-      viewerSource.indexOf("function ensureVoxelWorld"),
+      viewerSource.indexOf("function prepareVoxelNavigation"),
       viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
     );
     for (const builder of [isoBuilder, voxelBuilder]) {
