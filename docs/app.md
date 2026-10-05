@@ -1820,3 +1820,16 @@ BND, Bernauer Straße and Zionskirche add bounded, batched recognition geometry
 in every mode, with separate native Minecraft meshes and identical touch and
 pointer static detail. The Weinberg playground correction changes only its
 source-clipped rubber area. See [review](release-v1.0.74-review.md).
+
+## Sparse outer Berlin outlines, v1.0.79
+
+An independent, explicitly bounded overlay adds the requested outer routes and
+landmark envelopes as one-pixel lines. It loads after the first city presentation
+and uses one static line batch (177,264 bytes of position data) plus one recessed
+paper batch. Mode changes recolour the existing objects; Minecraft enables an
+extra paper ring in the same buffer because its original backdrop is smaller.
+The paper extension never overlaps existing backing planes. Navigation bounds
+and the far clipping plane cover the new finite scope. Existing city assets,
+details, resolution, tour, controls and startup selection remain unchanged.
+See [sources](outer-thin-outlines-v179-sources.md) and
+[review](release-v1.0.79-review.md).

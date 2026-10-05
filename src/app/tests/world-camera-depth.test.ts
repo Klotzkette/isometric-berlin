@@ -48,7 +48,7 @@ describe("complete-city camera depth", () => {
     expect(correctedProjection.z).toBeGreaterThan(-1);
     expect(correctedProjection.z).toBeLessThan(1);
     expect(camera.near).toBe(0.25);
-    expect(camera.far).toBe(25_000);
+    expect(camera.far).toBe(32_000);
   });
 
   test("contains every delivered roof corner from every extreme target at maximum orbit", () => {
@@ -84,9 +84,9 @@ describe("complete-city camera depth", () => {
     // (far - near) / far when the near plane and point distance are fixed.
     const depthStepRatio = ((newFar - near) / newFar) / ((16_000 - near) / 16_000);
     expect(depthStepRatio).toBeGreaterThanOrEqual(1);
-    expect(depthStepRatio).toBeLessThan(1.000_006);
-    expect(worldCameraFarM(2_600)).toBe(21_000);
-    expect(worldCameraFarM(0)).toBe(18_000);
+    expect(depthStepRatio).toBeLessThan(1.000_008);
+    expect(worldCameraFarM(2_600)).toBe(28_000);
+    expect(worldCameraFarM(0)).toBe(25_000);
   });
 
   test("keeps the full added scope visible from opposite navigation corners", async () => {

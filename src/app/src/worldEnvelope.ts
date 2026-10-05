@@ -22,6 +22,12 @@ export const VISIBLE_RADIUS_M = 9250;
 // like grass or paper roofing the descending carriageway.
 export const PRESENTATION_FLOOR_Y_M = -24;
 
+// Existing 16 km drawn backdrop, shared with sparse outline extensions so
+// coplanar paper surfaces never overlap. Minecraft uses the smaller envelope.
+export const PRESENTATION_BACKDROP_BOUNDS = {
+  minX: -8220, maxX: 7780, minZ: -7790, maxZ: 8210,
+};
+
 // Straße des 17. Juni from Pariser Platz to the Großer Stern. Both endpoints
 // are surveyed positions (the Großer Stern centre is EPSG:25833 E388041 /
 // N5819544), used by the Siegessäule recognition model.

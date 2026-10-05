@@ -1,4 +1,4 @@
-import { extrapolatedEnvelopeBounds } from "./worldEnvelope";
+import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 
 const MIN_WORLD_CAMERA_FAR_M = 16_000;
 const FAR_PLANE_ROUNDING_M = 1_000;
@@ -17,12 +17,12 @@ const WORLD_VERTICAL_CLIPPING_SPAN_M = 1_000;
  * presentation envelope; its diagonal plus the maximum orbit distance bounds
  * camera-to-city distance by the triangle inequality.
  *
- * With the v159 scope the existing 16-degree / 6,551 m orbit needs 25,000 m.
- * Keep the near plane unchanged: increasing the far plane from 16 to 25 km
- * changes relative depth precision by less than 0.0006% at 0.25 m near.
+ * The v179 hairline extension needs 32,000 m at the full isometric orbit.
+ * Keep the near plane unchanged: increasing the far plane from 16 to 32 km
+ * changes relative depth precision by less than 0.0008% at 0.25 m near.
  */
 export function worldCameraFarM(maxOrbitDistanceM: number): number {
-  const envelope = extrapolatedEnvelopeBounds();
+  const envelope = outlineNavigationEnvelopeBounds();
   const cityDiagonal = Math.hypot(
     envelope.maxX - envelope.minX,
     envelope.maxZ - envelope.minZ,

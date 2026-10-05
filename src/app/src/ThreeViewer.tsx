@@ -747,6 +747,7 @@ type Runtime = {
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
   surroundingCity?: SurroundingCity;
+  outerThinOutlines?: Group;
   scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
@@ -1570,6 +1571,16 @@ function startSurroundingCity(runtime: Runtime): void {
   runtime.surroundingCity = city;
   city.root.visible = !runtime.underside;
   runtime.scene.add(city.root);
+  void import("./OuterThinOutlines").then(({ createOuterThinOutlines }) => {
+    if (runtime.disposed || runtime.loadSignal.aborted) return;
+    const outlines = createOuterThinOutlines(runtime.lightingMode);
+    runtime.outerThinOutlines = outlines;
+    outlines.visible = !runtime.underside;
+    runtime.scene.add(outlines);
+    runtime.renderInvalidated = true;
+  }).catch(error => {
+    if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Berlin outline supplement:", error);
+  });
 }
 
 function surroundingPedestrianExtension(runtime: Runtime) {
@@ -1595,6 +1606,7 @@ function setSurfacePresentation(
   // during interaction or after an idle timeout.
   const startupStatus = currentStartupPresentationStatus(runtime);
   if (runtime.surroundingCity) runtime.surroundingCity.root.visible = !runtime.underside;
+  if (runtime.outerThinOutlines) runtime.outerThinOutlines.visible = !runtime.underside;
   setParkSettledDetail(runtime.parkDetails, false);
   const surfaceQuality =
     startupStatus === "pending"
@@ -2557,6 +2569,10 @@ function setSceneLighting(
   if (runtime.surroundingCity) {
     runtime.surroundingCity.root.visible = !runtime.underside;
     setIsoNightPresentation(runtime.surroundingCity.root, isNight, lightsOn, mode);
+  }
+  if (runtime.outerThinOutlines) {
+    runtime.outerThinOutlines.visible = !runtime.underside;
+    runtime.outerThinOutlines.userData.setMode(mode);
   }
   if (runtime.underwater) {
     runtime.underwater = false;

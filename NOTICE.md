@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Thin outer outlines (v1.0.79):** exact OpenStreetMap routes and footprints
+  from the retained Geofabrik Berlin extract, ODbL-1.0. Messe Berlin, the Berlin
+  Senate and the Kreisel developer supply published envelope heights; unmapped
+  vertical subdivisions remain labelled display estimates. No photographs or
+  textures are bundled. See [sources](docs/outer-thin-outlines-v179-sources.md).
+
 - **Four Zionskirchplatz frontages (v1.0.75):** The retained Berlin LoD2/OSM
   owners receive thin, source-bound facade details. Two external references,
   Oh-Berlin.com's 2011 corner photograph (CC BY 2.0) and Ansgar Koreng's 2016

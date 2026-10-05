@@ -163,3 +163,14 @@ new fetcher and generated extension clips back to the current approved geometry.
 Historical generators must use their versioned source scope when reproducing
 older payloads; expanding the current presentation never implies rebuilding or
 coarsening the existing city.
+
+## Owner-requested v1.0.79 hairline supplement
+
+`bounds-outline-v179.geojson` is the independent finite corridor/landmark scope
+for the 5 October request: 40 m buffers around retained mapped routes and 20 m
+around requested footprints, with a small Funkturm display envelope. This is
+explicitly a line-only overlay. The original `bounds.geojson`, source terrain,
+existing city assets and 93-place tour are unchanged. Camera reach and recessed
+blank backing extend to its extrema; the empty surroundings gain no invented
+buildings. Routes are projected at display-ground height, not surveyed rail or
+road grades. See [sources](outer-thin-outlines-v179-sources.md).

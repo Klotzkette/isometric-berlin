@@ -680,14 +680,14 @@ describe("pan momentum glide", () => {
 
 describe("visible-radius contract (v159 surrounding-city source expansion)", () => {
   test("flight bounds are exactly the published envelope", async () => {
-    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } =
-      await import("../src/worldEnvelope");
+    const { VISIBLE_RADIUS_M } = await import("../src/worldEnvelope");
+    const { outlineNavigationEnvelopeBounds } = await import("../src/outlineNavigationEnvelope");
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } =
       await import("../src/cameraNavigation");
     expect(VISIBLE_RADIUS_M).toBe(9250);
     // The camera may travel to the paper edge but not past it, so the two
     // constants can never drift apart in a later areal run.
-    const envelope = extrapolatedEnvelopeBounds();
+    const envelope = outlineNavigationEnvelopeBounds();
     expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.x).toBe(envelope.minX);
     expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x).toBe(envelope.maxX);
     expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z).toBe(envelope.minZ);

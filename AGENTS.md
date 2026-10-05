@@ -44,6 +44,14 @@ in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/boun
 Its presentation radius is 9,250 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
+The owner-requested v1.0.79 supplement explicitly permits only sparse hairlines
+outside that detailed-city polygon, within `bounds-outline-v179.geojson`.
+Its independent OSM routes and landmark outlines cover A100, the AVUS through
+Spanische Allee, Schloßstraße, Ringbahn, Funkturm/ICC, Tempelhof, Kreisel and
+Gesundbrunnen/Südkreuz/Westkreuz. It changes neither the 81.457 km² detailed
+source footprint nor the 93-place tour. Camera reach and recessed blank paper
+extend only to this finite overlay; no surrounding district rebuild is implied.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

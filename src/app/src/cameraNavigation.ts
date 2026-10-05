@@ -1,6 +1,6 @@
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 
-import { extrapolatedEnvelopeBounds } from "./worldEnvelope";
+import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 
 export {
   heldNavigationInput,
@@ -34,7 +34,7 @@ export type CameraRigStabilizationScratch = {
   result: CameraRigStabilization;
 };
 
-const presentationEnvelope = extrapolatedEnvelopeBounds();
+const presentationEnvelope = outlineNavigationEnvelopeBounds();
 
 export const NAVIGATION_STEP_DISTANCE_RATIO = 0.11;
 export const NAVIGATION_STEP_MIN_M = 7;

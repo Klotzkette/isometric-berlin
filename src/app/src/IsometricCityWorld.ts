@@ -280,6 +280,7 @@ import {
   DATA_SOUTH_M,
   DATA_WEST_M,
   EXTRAPOLATED_MARGIN_M,
+  PRESENTATION_BACKDROP_BOUNDS,
   PRESENTATION_FLOOR_Y_M,
   VISIBLE_RADIUS_M,
   extrapolatedEnvelopeBounds,
@@ -7764,13 +7765,14 @@ export function createSiegessaeule(): Group {
  * that the stage contains surveyed roads, buildings or vegetation.
  */
 function createPresentationBackdrop(): Mesh {
-  const geometry = new PlaneGeometry(16_000, 16_000);
+  const bounds = PRESENTATION_BACKDROP_BOUNDS;
+  const geometry = new PlaneGeometry(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ);
   geometry.rotateX(-Math.PI / 2);
   const dayMaterial = new MeshBasicMaterial({ color: 0xe9efe4 });
   const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
   const backdrop = new Mesh(geometry, dayMaterial);
   backdrop.name = "presentation paper backdrop";
-  backdrop.position.set(-220, PRESENTATION_FLOOR_Y_M, 210);
+  backdrop.position.set((bounds.minX + bounds.maxX) / 2, PRESENTATION_FLOOR_Y_M, (bounds.minZ + bounds.maxZ) / 2);
   backdrop.receiveShadow = false;
   backdrop.userData.dayMaterial = dayMaterial;
   backdrop.userData.nightMaterial = nightMaterial;
