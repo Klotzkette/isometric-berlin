@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Outer connections and Ringbahn stations (v1.0.80):** The retained OSM
+  extract supplies exact street and station outlines (ODbL-1.0); available
+  Berlin LoD2 evidence supplies source heights (dl-de/zero-2-0). Inferred road
+  widths, unsourced envelope heights and added Kreisel frame divisions remain
+  explicitly labelled display estimates. No photograph or texture is bundled.
+  See [connectors](docs/outer-connectors-v180-sources.md) and
+  [stations](docs/ring-stations-v180-sources.md).
+
 - **Thin outer outlines (v1.0.79):** exact OpenStreetMap routes and footprints
   from the retained Geofabrik Berlin extract, ODbL-1.0. Messe Berlin, the Berlin
   Senate and the Kreisel developer supply published envelope heights; unmapped

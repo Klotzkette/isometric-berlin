@@ -52,6 +52,13 @@ Gesundbrunnen/Südkreuz/Westkreuz. It changes neither the 81.457 km² detailed
 source footprint nor the 93-place tour. Camera reach and recessed blank paper
 extend only to this finite overlay; no surrounding district rebuild is implied.
 
+The owner's 6 October v1.0.80 request additionally permits narrow street links
+from Funkturm/ICC to the existing City West and from Steglitzer Kreisel to the
+existing Schöneberg, with nearby street-facing building outlines, modest Kreisel
+framing/podium outlines and all 27 Ringbahn station outlines. This additive
+scope is recorded in `bounds-outline-v180.geojson`. Keep the v179 routes,
+original detailed-city polygon and all existing source geometry unchanged.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

@@ -174,3 +174,17 @@ existing city assets and 93-place tour are unchanged. Camera reach and recessed
 blank backing extend to its extrema; the empty surroundings gain no invented
 buildings. Routes are projected at display-ground height, not surveyed rail or
 road grades. See [sources](outer-thin-outlines-v179-sources.md).
+
+## Owner-requested v1.0.80 connections and ring stations
+
+The 6 October request adds narrow source-bound street connections between the
+Funkturm/ICC and existing City West, and between Steglitzer Kreisel and existing
+Schöneberg, with the adjacent front-row building outlines. The supplement also
+includes all 27 Ringbahn station footprints and modest Kreisel framing/podium
+outlines. `bounds-outline-v180.geojson` includes the unchanged v179 supplement
+and these finite additions; `bounds-outline-v179.geojson` remains archived.
+The original detailed polygon, street meshes and building data stay unchanged.
+Exact street centre-lines retain their vertices; parallel border strokes use
+tagged widths or explicitly estimated display widths. They are not an official
+curb survey. See [connector evidence](outer-connectors-v180-sources.md) and
+[ring station evidence](ring-stations-v180-sources.md).

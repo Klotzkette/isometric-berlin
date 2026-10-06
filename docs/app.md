@@ -1833,3 +1833,15 @@ and the far clipping plane cover the new finite scope. Existing city assets,
 details, resolution, tour, controls and startup selection remain unchanged.
 See [sources](outer-thin-outlines-v179-sources.md) and
 [review](release-v1.0.79-review.md).
+
+The v1.0.80 supplement adds narrowly bounded street connections, adjacent
+building wires and all 27 ring-station outlines. It shares a single position
+buffer across two line batches plus the retained paper batch. The faint rail
+batch is a cartographic overlay, so existing halls and road bridges do not
+erase the requested complete ring from view. Street/building wires continue
+to respect ordinary depth occlusion. No source coordinates are shifted.
+Mapped centre-lines are retained; thin parallel road borders are based on
+tagged or explicitly estimated widths. Existing detailed-city assets and every
+v179 line segment remain intact. The Kreisel gains a few vertical frame lines
+and mapped low-rise context, with no solid infill or texture. See the
+[v1.0.80 review](release-v1.0.80-review.md).

@@ -5,20 +5,33 @@ import { outlineNavigationEnvelopeBounds } from "../src/outlineNavigationEnvelop
 import data from "../src/data/outerThinOutlines.json";
 import { PRESENTATION_BACKDROP_BOUNDS, extrapolatedEnvelopeBounds } from "../src/worldEnvelope";
 
-test("thin outer context uses two bounded batches and never solid landmark bodies", () => {
+test("thin outer context shares one bounded position buffer and never solid landmark bodies", () => {
   const root = createOuterThinOutlines("day");
-  expect(root.children).toHaveLength(2);
+  expect(root.children).toHaveLength(3);
   const lines = root.children[0] as LineSegments;
   expect(lines.isLineSegments).toBeTrue();
-  expect(lines.geometry.getAttribute("position").array.byteLength).toBeLessThan(200_000);
+  expect(lines.geometry.getAttribute("position").array.byteLength).toBeLessThan(1_000_000);
   expect((lines.material as any).linewidth).toBe(1);
   expect(root.children[1] instanceof Mesh).toBeTrue();
   expect(root.children[1].name).not.toContain("building");
   const positions = lines.geometry.getAttribute("position");
+  const rail = root.children[2] as LineSegments;
+  expect(rail.geometry.getAttribute("position")).toBe(positions);
+  expect((rail.material as any).depthTest).toBeFalse();
+  expect((lines.material as any).depthTest).toBeTrue();
+  expect(rail.geometry.index!.count + lines.geometry.index!.count).toBe(positions.count);
+  expect(positions.array.byteLength + rail.geometry.index!.array.byteLength + lines.geometry.index!.array.byteLength).toBeLessThan(1_000_000);
+  const railVertices = new Set(Array.from(rail.geometry.index!.array));
+  for (const feature of data.features) {
+    const isRail = feature.kind === "rail" || feature.kind.startsWith("station-");
+    for (let v = feature.firstVertex; v < feature.firstVertex + feature.vertexCount; v++) {
+      expect(railVertices.has(v)).toBe(isRail);
+    }
+  }
   for (const mode of ["night", "snowstorm", "schwellenraum", "flood", "minecraft", "day"]) {
     root.userData.setMode(mode);
     expect(lines.geometry.getAttribute("position")).toBe(positions);
-    expect(root.children).toHaveLength(2);
+    expect(root.children).toHaveLength(3);
     expect((lines.material as any).map).toBeNull();
     const paper = (root.children[1] as Mesh).geometry;
     const vertices = paper.getAttribute("position");
