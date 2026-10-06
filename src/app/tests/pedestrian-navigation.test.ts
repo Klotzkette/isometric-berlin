@@ -218,6 +218,49 @@ describe("pedestrian navigation", () => {
     );
   });
 
+  test("joystick boost cannot multiply sprint or fast run and rejects invalid speed", () => {
+    const start = createPedestrianState(environment);
+    for (const [movementSpeedMultiplier, sprint, fastRun, expectedMultiplier] of [
+      [3, false, false, 3],
+      [3, true, false, 4],
+      [3, true, true, 8],
+      [100, false, false, 3],
+      [Number.NaN, false, false, 1],
+    ] as const) {
+      const result = stepPedestrian(start,
+        { forward: 1, strafe: 1, look: 0, turn: 0, sprint, fastRun, movementSpeedMultiplier },
+        0.1, environment);
+      expect(Math.hypot(result.state.x - start.x, result.state.z - start.z))
+        .toBeCloseTo(13 * 0.1 * expectedMultiplier, 8);
+    }
+  });
+
+  test("boosted held movement cannot cross a thin wall or shoreline", () => {
+    const thinWall = compilePedestrianObstacles({ buildings: [{
+      id: "boost-wall", class: 0, h_dm: 120, y0_dm: 40,
+      ring: [[0, -100], [2, -100], [2, 100], [0, 100], [0, -100]],
+      holes: [],
+    }] });
+    const water = compilePedestrianWater({ water: [{
+      kind: "pond", name: "boost shore", area_m2: 100,
+      ring: [[0, -100], [100, -100], [100, 100], [0, 100], [0, -100]],
+      holes: [],
+    }] });
+    for (const obstacles of [true, false]) {
+      const bounded = { ...environment, obstacles: obstacles ? thinWall : undefined, water: obstacles ? [] : water };
+      let state = createPedestrianState(bounded, { x: -2, z: 0, yaw: Math.PI / 2 });
+      for (let frame = 0; frame < 30; frame++) {
+        const result = stepPedestrian(state,
+          { forward: 1, strafe: 0, look: 0, turn: 0, sprint: false, movementSpeedMultiplier: 3 },
+          0.1, bounded);
+        expect(result.respawned).toBeFalse();
+        state = result.state;
+      }
+      expect(state.x).toBeLessThan(obstacles ? -PEDESTRIAN_BODY_RADIUS_M : 0);
+      expect(state.groundY).toBe(environment.groundAt(state.x, state.z));
+    }
+  });
+
   test("triple activation adds a distinct eight-times fast-run layer", () => {
     const start = createPedestrianState(environment);
     const result = stepPedestrian(

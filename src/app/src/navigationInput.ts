@@ -6,6 +6,7 @@ export type HeldNavigationInput = {
 
 export type PedestrianInput = {
   fastRun?: boolean;
+  movementSpeedMultiplier?: number;
   forward: number;
   look: number;
   sprint: boolean;

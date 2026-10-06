@@ -8,6 +8,13 @@ on release; there is no acceleration delay. The existing four-times sprint,
 eight-times fast run, jump apex limits and 22 cm collision substeps remain.
 All five visual modes use the same movement solver.
 
+Holding the orange joystick at its outer edge now smoothly reaches a bounded
+three-times rate, 39 m/s, after one second. A stationary held finger is enough.
+Moving inward restores the proportional normal rate; releasing stops movement.
+Explicit sprint and fast run take precedence at their existing 52/104 m/s
+rates, so the boost never multiplies them. The 22 cm collision substeps and
+shoreline/solid checks remain unchanged. See [joystick behavior](desktop-joystick.md).
+
 ## Bridge crossings
 
 The original OSM water polygons correctly continue underneath bridges. The

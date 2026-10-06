@@ -45,10 +45,11 @@ describe("shared desktop and mobile movement joystick", () => {
 
     for (const walking of [false, true]) {
       const flightInputRef = { current: new Vector3() };
+      const flightSpeedMultiplierRef = { current: 1 };
       const orbitInputRef = { current: new Vector2(0.2, -0.3) };
       const pedestrianInputRef = { current: { ...PEDESTRIAN_IDLE_INPUT } };
       const handle = evaluateArrow(viewer, viewerArrow, {
-        MathUtils, flightInputRef, orbitInputRef, pedestrianInputRef,
+        MathUtils, flightInputRef, flightSpeedMultiplierRef, orbitInputRef, pedestrianInputRef,
         runtimeRef: { current: { pedestrian: { enabled: walking } } },
         markSurfaceInteraction: () => {},
       });

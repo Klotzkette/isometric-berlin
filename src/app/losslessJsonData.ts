@@ -6,6 +6,35 @@ const PACKED_PACKET_JSON = /\/data\/altMitteV169(?:Drawn|Native)\/packet-\d+\.js
 const DATA_JSON = /\/src\/app\/src\/data\/.+\.json$/;
 const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
 
+/** Audited constructor inputs, never mutated or retained by their render roots.
+ * Do not extend by filename pattern: navigation and mutable source caches have
+ * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
+export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "districtStreets.json": ["curbs_m", "markings_m"],
+  "schlossEastStreets.json": ["curbs_m"],
+  "bndHeadquartersV174Source.json": ["surfaces", "boxes", "nativeBoxes"],
+  "moabitJusticeV166Source.json": ["surfaces", "facadeBoxes", "nativeRuns", "nativeBarWindows"],
+  "tuWaterV168Source.json": ["surfaces", "facadeBoxes", "nativeRows", "nativeDetailRows"],
+  "alexanderNorthV166Source.json": ["surfaces", "facadeBoxes", "nativeRuns"],
+  "mitteHeritageV166Source.json": ["surfaces", "facadeBoxes", "nativeRows", "groundSurfaces", "groundRuns"],
+  "zooGroundsV165Source.json": ["surfaces", "facadeBoxes", "nativeRows", "groundSurfaces", "groundRuns"],
+  "hackescherMarktV163Source.json": ["surfaces", "facadeBoxes", "nativeBlocks"],
+  "cityWestCinemasV166Source.json": ["surfaces", "facadeBoxes", "nativeBlocks"],
+  "neueSynagogeV167Source.json": ["detailRods", "authoredSurfaces", "nativeBlocks"],
+  "zooStationV165Source.json": ["surfaces", "beams", "boxes", "nativeBlocks"],
+  "zionskircheV174Drawn.json": ["surfaces", "detailRods"],
+  "breitscheidTowersSource.json": ["facadeBoxes", "nativeBlocks"],
+  "kranzlerV165Source.json": ["facadeBoxes"],
+  "outerThinOutlines.json": ["positions"],
+};
+
+// These arrays contain only a few records of already-packed base64 strings.
+// Direct literals avoid a second retained copy inside a JSON.parse literal.
+const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "districtStreets.json": ["surfaces"],
+  "schlossEastStreets.json": ["surfaces"],
+};
+
 /** JSON.stringify normally changes -0 and non-finite parsed JSON numbers. */
 function exactJson(value: unknown): string {
   const ordinary = JSON.stringify(value);
@@ -51,7 +80,10 @@ export type LosslessJsonTransform = {
  *
  * Named exports use pure initializers so the bundler can remove unused ones;
  * an actually imported named array and its default-object field share one
- * cached value. This plugin is scoped to the application's source payloads:
+ * cached value. Audited, read-only construction fields use weak caches so their
+ * consumed object graphs can be collected; their exact encoded values remain
+ * available for reconstruction. Unsupported WeakRef uses the strong cache.
+ * This plugin is scoped to the application's source payloads:
  * their consumers read fields and mutate returned arrays, but do not inspect
  * property descriptors or replace sealed/frozen fields. Lazy fields expose
  * accessors, so descriptor-sensitive objects are outside this contract.
@@ -69,7 +101,12 @@ export function transformLosslessJsonData(
   // strings, not huge numeric arrays. Wrapping them in JSON.parse would retain
   // both the encoded JSON text and another copy of every base64 string after
   // the first read. Direct literals share the original string constants.
-  const packedPacket = PACKED_PACKET_JSON.test(id.replaceAll("\\", "/"));
+  const normalizedId = id.replaceAll("\\", "/");
+  const packedPacket = PACKED_PACKET_JSON.test(normalizedId);
+  // Require the direct data directory as well as the complete audited filename.
+  const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
+  const weakFields = READONLY_CONSTRUCTION_JSON_FIELDS[sourceName] ?? [];
+  const packedFields = PACKED_SOURCE_JSON_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
     return {
       code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(source.replace(/^\uFEFF/, ""))});`,
@@ -86,22 +123,43 @@ export function transformLosslessJsonData(
     const json = exactJson(value);
     const field = `__field${index}`;
     const property = `[${JSON.stringify(key)}]`;
-    if (!packedPacket && Array.isArray(value) && json.length >= thresholdBytes) {
+    if (!packedPacket && !packedFields.includes(key) && Array.isArray(value) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
       const read = `__read${index}`;
-      declarations.push(
-        `let ${cache}, ${loaded} = false;`,
-        `function ${read}() {`,
-        `  if (!${loaded}) {`,
-        `    ${cache} = JSON.parse(${JSON.stringify(json)});`,
-        `    ${loaded} = true;`,
-        "  }",
-        `  return ${cache};`,
-        "}",
-        `const ${field} = /* @__PURE__ */ ${read}();`,
-      );
+      if (weakFields.includes(key)) {
+        const weak = `__weak${index}`;
+        declarations.push(
+          `let ${cache}, ${weak}, ${loaded} = false;`,
+          `function ${read}() {`,
+          // A setter is an explicit ownership transfer and always stays strong.
+          `  if (${loaded}) return ${cache};`,
+          `  let value = ${weak}?.deref();`,
+          "  if (value === undefined) {",
+          `    value = JSON.parse(${JSON.stringify(json)});`,
+          `    if (typeof WeakRef === "function") ${weak} = new WeakRef(value);`,
+          `    else { ${cache} = value; ${loaded} = true; }`,
+          "  }",
+          "  return value;",
+          "}",
+          // Only a genuinely imported named export should retain this value.
+          // Production tree shaking removes this initializer for default reads.
+          `const ${field} = /* @__PURE__ */ ${read}();`,
+        );
+      } else {
+        declarations.push(
+          `let ${cache}, ${loaded} = false;`,
+          `function ${read}() {`,
+          `  if (!${loaded}) {`,
+          `    ${cache} = JSON.parse(${JSON.stringify(json)});`,
+          `    ${loaded} = true;`,
+          "  }",
+          `  return ${cache};`,
+          "}",
+          `const ${field} = /* @__PURE__ */ ${read}();`,
+        );
+      }
       properties.push(
         `get ${property}() { return ${read}(); }`,
         [
@@ -121,7 +179,7 @@ export function transformLosslessJsonData(
     // Export aliases may be reserved words, but bindings above never are.
     if (key !== "default" && EXPORT_NAME.test(key)) exports.push(`${field} as ${key}`);
   }
-  if (lazyFields === 0 && !packedPacket) return undefined;
+  if (lazyFields === 0 && !packedPacket && !packedFields.length) return undefined;
   return {
     code: `${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,

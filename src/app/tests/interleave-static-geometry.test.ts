@@ -8,7 +8,7 @@ import {
 } from "three";
 import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
 import { WebGLGeometries } from "three/src/renderers/webgl/WebGLGeometries.js";
-import { interleaveStaticGeometry, STATIC_INTERLEAVE_MAX_BYTES } from "../src/interleaveStaticGeometry";
+import { interleaveStaticGeometry, interleaveStaticGeometrySteps, STATIC_INTERLEAVE_MAX_BYTES } from "../src/interleaveStaticGeometry";
 
 function fixture(): BufferGeometry {
   const geometry = new BufferGeometry().copy(new BoxGeometry());
@@ -145,4 +145,19 @@ test("audited curved stock geometry preserves every vertex/index bit", () => {
   const dynamic = new SphereGeometry();
   (dynamic.getAttribute("position") as BufferAttribute).setUsage(DynamicDrawUsage);
   expect(interleaveStaticGeometry(new Mesh(dynamic, new MeshBasicMaterial())).geometries).toBe(0);
+});
+
+test("large unpublished roots yield, retain exact output, and can cancel without further allocation", () => {
+  const root = new Group();
+  for (let i = 0; i < 260; i++) root.add(new Mesh(fixture(), new MeshBasicMaterial()));
+  const before = root.children.map(mesh => bits((mesh as Mesh).geometry));
+  const steps = interleaveStaticGeometrySteps(root);
+  expect(steps.next().done).toBeFalse();
+  const firstPacked = root.children.filter(mesh => (mesh as Mesh).geometry.getAttribute("position") instanceof InterleavedBufferAttribute).length;
+  expect(firstPacked).toBe(127); // Root itself occupies one traversal slot.
+  steps.return({ geometries: 0, savedBuffers: 0, bytes: 0 });
+  expect(root.children.filter(mesh => (mesh as Mesh).geometry.getAttribute("position") instanceof InterleavedBufferAttribute)).toHaveLength(firstPacked);
+  const result = interleaveStaticGeometry(root);
+  expect(result.geometries).toBe(260 - firstPacked);
+  expect(root.children.map(mesh => bits((mesh as Mesh).geometry))).toEqual(before);
 });

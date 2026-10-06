@@ -6,6 +6,21 @@ left/right to strafe. It flies in camera mode and walks in pedestrian mode.
 Walking retains the existing terrain, water and solid-object checks in every
 visual mode.
 
+Holding the outer 10% of travel now adds a bounded speed boost. The existing
+speed responds immediately; after 250 ms at the edge, a smooth 750 ms ramp
+reaches three times that speed. The thumb can remain completely still:
+animation frames advance the ramp, then the viewer retains the final input
+without further pointer events or joystick animation callbacks. Returning
+inside the edge restores normal proportional speed immediately. Release,
+cancellation, capture loss, a mode change, blur, page hiding or unmount cancels
+the ramp and clears movement. This uses refs and does not animate React state.
+
+At a 200 m camera-to-target distance, held-edge flight increases from 540 to
+1,620 m/s; normal walking increases from 13 to 39 m/s. Explicit sprint and
+fast run retain their 52/104 m/s rates and do not multiply with the edge boost.
+Camera bounds, above-ground protection and pedestrian collision substeps stay
+active. Mouse, touch and pen share the same behavior.
+
 In v1.0.10, grabbing any point inside the orange knob starts neutral (40 px
 normally, 48 px for coarse pointers; the actual size is sampled at pointer-down).
 The drag origin follows that initial grip, so grabbing the right edge and
@@ -56,6 +71,11 @@ OrbitControls dependency and synthetic event targets. It reproduces the old
 foreign-pointer camera flip and checks event isolation, a moving pad rectangle,
 neutral/full input, pointer lifecycle and mouse double-click/mobile tap behavior. This is an
 automated touch-event regression test, not validation on physical iPhone hardware.
+The held-pointer regression also executes the actual viewer adapter and flight
+frame step at 30, 60 and 120 Hz. It holds the edge without further pointer moves,
+checks sustained full-speed distance and immediate stopping, and retains finite
+camera bounds. Walking tests verify the 39 m/s rate, sprint precedence and solid
+wall/shoreline protection.
 
 In v1.0.3, mouse jump requires two completed clicks and touch/pen jump requires
 one completed tap. The pad also accepts keyboard focus; Space jumps after

@@ -433,6 +433,10 @@ function viewUrlFor(
 
 const JOYSTICK_RADIUS_PX = 44;
 const JOYSTICK_DEAD_ZONE_PX = 4;
+const JOYSTICK_FAST_EDGE_STRENGTH = 0.9;
+const JOYSTICK_FAST_EDGE_DELAY_MS = 250;
+const JOYSTICK_FAST_EDGE_RAMP_MS = 750;
+const JOYSTICK_FAST_EDGE_MULTIPLIER = 3;
 
 function FlightJoystick({
   disabled,
@@ -445,16 +449,42 @@ function FlightJoystick({
   label: string;
   resetKey: string;
   onJump?: () => void;
-  onInput: (horizontal: number, vertical: number) => void;
+  onInput: (horizontal: number, vertical: number, speedMultiplier?: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
   const knobRef = useRef<HTMLSpanElement | null>(null);
   const originRef = useRef<{ x: number; y: number } | null>(null);
   const pointerIdRef = useRef<number | null>(null);
+  const heldInputRef = useRef({ horizontal: 0, vertical: 0 });
+  const edgeHeldSinceRef = useRef<number | null>(null);
+  const boostFrameRef = useRef<number | null>(null);
   const tapStateRef = useRef(createJoystickTapState());
   const inputRef = useRef(onInput);
   inputRef.current = onInput;
   const jumpEnabled = onJump !== undefined;
+
+  // A stationary held finger produces no pointermove events. Advance only
+  // this short speed ramp on animation frames; the viewer retains the final
+  // input until release. Refs avoid React renders during the ramp.
+  const speedMultiplier = (now: number) => {
+    const started = edgeHeldSinceRef.current;
+    if (started === null) return 1;
+    const progress = Math.max(0, Math.min(1,
+      (now - started - JOYSTICK_FAST_EDGE_DELAY_MS) / JOYSTICK_FAST_EDGE_RAMP_MS,
+    ));
+    const eased = progress * progress * (3 - 2 * progress);
+    return 1 + eased * (JOYSTICK_FAST_EDGE_MULTIPLIER - 1);
+  };
+  const advanceEdgeHold = useCallback((now: number) => {
+    boostFrameRef.current = null;
+    if (pointerIdRef.current === null || edgeHeldSinceRef.current === null) return;
+    const held = heldInputRef.current;
+    const multiplier = speedMultiplier(now);
+    inputRef.current(held.horizontal, held.vertical, multiplier);
+    if (multiplier < JOYSTICK_FAST_EDGE_MULTIPLIER) {
+      boostFrameRef.current = window.requestAnimationFrame(advanceEdgeHold);
+    }
+  }, []);
 
   const pointerSample = (
     event: ReactPointerEvent<HTMLDivElement>,
@@ -491,14 +521,34 @@ function FlightJoystick({
         (JOYSTICK_RADIUS_PX - JOYSTICK_DEAD_ZONE_PX),
       ));
       const inputScale = length > 0 ? strength / length : 0;
-      inputRef.current(dx * inputScale, -dy * inputScale);
+      const now = performance.now();
+      if (strength >= JOYSTICK_FAST_EDGE_STRENGTH) {
+        if (edgeHeldSinceRef.current === null) edgeHeldSinceRef.current = now;
+        if (boostFrameRef.current === null && speedMultiplier(now) < JOYSTICK_FAST_EDGE_MULTIPLIER) {
+          boostFrameRef.current = window.requestAnimationFrame(advanceEdgeHold);
+        }
+      } else {
+        edgeHeldSinceRef.current = null;
+        if (boostFrameRef.current !== null) {
+          window.cancelAnimationFrame(boostFrameRef.current);
+          boostFrameRef.current = null;
+        }
+      }
+      heldInputRef.current.horizontal = dx * inputScale;
+      heldInputRef.current.vertical = -dy * inputScale;
+      inputRef.current(dx * inputScale, -dy * inputScale, speedMultiplier(now));
     },
-    [],
+    [advanceEdgeHold],
   );
 
   const release = useCallback(() => {
     pointerIdRef.current = null;
     originRef.current = null;
+    edgeHeldSinceRef.current = null;
+    if (boostFrameRef.current !== null) {
+      window.cancelAnimationFrame(boostFrameRef.current);
+      boostFrameRef.current = null;
+    }
     if (knobRef.current) {
       knobRef.current.style.transform = "translate(0px, 0px)";
     }
@@ -535,8 +585,7 @@ function FlightJoystick({
       window.removeEventListener("pointerdown", otherPointer, true);
       document.removeEventListener("visibilitychange", visibility);
       cancelJoystickTap(tapStateRef.current);
-      pointerIdRef.current = null;
-      inputRef.current(0, 0);
+      release();
     };
   }, [release]);
 
@@ -1769,11 +1818,11 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   );
 
   const setFlightInput = useCallback(
-    (strafe: number, forward: number, vertical: number) => {
+    (strafe: number, forward: number, vertical: number, speedMultiplier = 1) => {
       if (strafe !== 0 || forward !== 0 || vertical !== 0) {
         setIsTouring(false);
       }
-      threeViewerRef.current?.setFlightInput(strafe, forward, vertical);
+      threeViewerRef.current?.setFlightInput(strafe, forward, vertical, speedMultiplier);
     },
     [],
   );
@@ -3404,16 +3453,16 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: ziehen zum Laufen; kurz tippen oder mit der Maus doppelklicken zum Springen. Leertaste springt ebenfalls"
-                  : "Walking joystick: drag to move; tap or mouse double-click to jump. Space also jumps"
+                  ? "Geh-Joystick: ziehen zum Laufen, am Rand halten zum schnellen Laufen; kurz tippen oder mit der Maus doppelklicken zum Springen. Leertaste springt ebenfalls"
+                  : "Walking joystick: drag to move, hold at the edge to run faster; tap or mouse double-click to jump. Space also jumps"
                 : language === "de"
-                  ? "Flug-Joystick: ziehen zum Vorwärts-, Rückwärts- und Seitwärtsfliegen"
-                  : "Flight joystick: drag to fly forward, backward or sideways"
+                  ? "Flug-Joystick: ziehen zum Vorwärts-, Rückwärts- und Seitwärtsfliegen; am Rand halten zum schnellen Fliegen"
+                  : "Flight joystick: drag to fly forward, backward or sideways; hold at the edge to fly faster"
             }
             onJump={
               isPedestrianMode ? () => triggerPedestrianJump() : undefined
             }
-            onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
+            onInput={(strafe, forward, speedMultiplier) => setFlightInput(strafe, forward, 0, speedMultiplier)}
           />
         </div>
       ) : null}
@@ -4511,11 +4560,11 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
-                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Kurzer Touch-Tipp oder Maus-Doppelklick springt; Leertaste ebenfalls. Im Bild ziehen zum Umsehen"
-                        : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Die WASD-Knöpfe können ebenfalls gedrückt gehalten werden"
+                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Am Rand halten wird bis zu dreimal schneller. Kurzer Touch-Tipp oder Maus-Doppelklick springt; Leertaste ebenfalls. Im Bild ziehen zum Umsehen"
+                        : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Am Rand halten wird bis zu dreimal schneller. Die WASD-Knöpfe können ebenfalls gedrückt gehalten werden"
                       : isPedestrianMode
-                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. A short touch tap or mouse double-click jumps; so does Space. Drag the view to look around"
-                        : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. The WASD buttons also move continuously while held"}
+                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. Hold at the edge for up to three times the speed. A short touch tap or mouse double-click jumps; so does Space. Drag the view to look around"
+                        : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. Hold at the edge for up to three times the speed. The WASD buttons also move continuously while held"}
                   </dd>
                 </div>
               <div>

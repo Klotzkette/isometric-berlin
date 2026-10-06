@@ -24,7 +24,7 @@ import { createBehren42Architecture } from "./Behren42Architecture";
 import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
-import { interleaveStaticGeometry } from "./interleaveStaticGeometry";
+import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "./interleaveStaticGeometry";
 import { createSurroundingCity, type SurroundingCity, type SurroundingNavigationTile } from "./SurroundingCity";
 import { surroundingScopeGroundAt } from "./surroundingCityScope";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
@@ -628,7 +628,7 @@ export type ThreeViewerHandle = {
   reset: () => void;
   rotateBy: (degrees: number) => void;
   setAzimuth: (degrees: number) => void;
-  setFlightInput: (strafe: number, forward: number, vertical: number) => void;
+  setFlightInput: (strafe: number, forward: number, vertical: number, speedMultiplier?: number) => void;
   setOrbitInput: (horizontal: number, vertical: number) => void;
   setPanInput: (horizontal: number, vertical: number) => void;
   setPedestrianMode: (enabled: boolean) => boolean;
@@ -4183,8 +4183,8 @@ function ensureIsoWorld(
         yield* compactStaticGeometrySteps(isoWorld);
         yield* compactStaticGeometrySteps(provisionalIsoAddons!);
         if (runtime.coarsePointer) {
-          interleaveStaticGeometry(isoWorld);
-          interleaveStaticGeometry(provisionalIsoAddons!);
+          yield* interleaveStaticGeometrySteps(isoWorld);
+          yield* interleaveStaticGeometrySteps(provisionalIsoAddons!);
         }
         return isoWorld;
       })(), {
@@ -5371,6 +5371,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
     const flightInputRef = useRef(new Vector3());
+    const flightSpeedMultiplierRef = useRef(1);
     // Desktop arrows/buttons use screen-plane pan, while Alt/Option and the
     // orbit joystick feed a separate angular input. Keeping these distinct
     // preserves direct movement without turning key-repeat into camera jumps.
@@ -5812,13 +5813,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           notifyView(runtime, onViewChangeRef.current);
         },
-        setFlightInput: (strafe, forward, vertical) => {
+        setFlightInput: (strafe, forward, vertical, speedMultiplier = 1) => {
           const runtime = runtimeRef.current;
+          const movementSpeedMultiplier = MathUtils.clamp(
+            Number.isFinite(speedMultiplier) ? speedMultiplier : 1, 1, 3,
+          );
+          flightSpeedMultiplierRef.current = movementSpeedMultiplier;
           if (runtime?.pedestrian.enabled) {
             pedestrianInputRef.current = {
               ...pedestrianInputRef.current,
               forward: MathUtils.clamp(forward, -1, 1),
               strafe: MathUtils.clamp(strafe, -1, 1),
+              movementSpeedMultiplier,
             };
             flightInputRef.current.set(0, 0, 0);
             if (Math.abs(strafe) > 1e-6 || Math.abs(forward) > 1e-6) {
@@ -7590,8 +7596,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         right.crossVectors(heading, camera.up).normalize();
         move
           .copy(heading)
-          .multiplyScalar(input.z * speed * dtSeconds)
-          .addScaledVector(right, input.x * speed * dtSeconds);
+          .multiplyScalar(input.z * speed * dtSeconds * flightSpeedMultiplierRef.current)
+          .addScaledVector(right, input.x * speed * dtSeconds * flightSpeedMultiplierRef.current);
         move.y += input.y * verticalSpeed * dtSeconds;
         applyBoundedCameraRigTranslation(runtime, move);
         markSurfaceInteraction(runtime, 220);

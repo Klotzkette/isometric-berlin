@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { PerspectiveCamera, TOUCH, Vector3 } from "three";
+import { MathUtils, PerspectiveCamera, TOUCH, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import ts from "typescript";
 import {
@@ -9,7 +9,13 @@ import {
   endJoystickTap,
   moveJoystickTap,
 } from "../src/joystickGestures";
-import { isPedestrianSprintDoubleActivation } from "../src/pedestrianNavigation";
+import {
+  createPedestrianState, isPedestrianSprintDoubleActivation,
+  PEDESTRIAN_IDLE_INPUT, stepPedestrian,
+} from "../src/pedestrianNavigation";
+import { continuousFlightSpeeds, REGIERUNGSVIERTEL_FLIGHT_BOUNDS } from "../src/cameraNavigation";
+import { minecraftHeroCollisionEnabled } from "../src/minecraftHeroNavigation";
+import { constrainSurfaceCameraRig } from "../src/surfaceCameraNavigation";
 
 // Exercise the shipped React handlers, not a second implementation of their
 // movement/gesture logic. The tiny host below supplies hooks, refs and bubbling
@@ -51,7 +57,7 @@ type Props = {
   disabled: boolean;
   resetKey: string;
   label: string;
-  onInput: (x: number, y: number) => void;
+  onInput: (x: number, y: number, speedMultiplier?: number) => void;
   onJump?: () => void;
 };
 type Tree = { props: Record<string, any>; children: Tree[] };
@@ -83,15 +89,29 @@ function nativePointer(type: string, options: PointerOptions = {}): Event {
 
 function joystickHost(overrides: Partial<Props> = {}) {
   const document = Object.assign(new EventTarget(), { hidden: false });
-  const window = new EventTarget();
+  const frames = new Map<number, FrameRequestCallback>();
+  let nextFrame = 0;
+  const window = Object.assign(new EventTarget(), {
+    requestAnimationFrame: (callback: FrameRequestCallback) => {
+      frames.set(++nextFrame, callback);
+      return nextFrame;
+    },
+    cancelAnimationFrame: (id: number) => { frames.delete(id); },
+  });
   const pad = new ElementHost(document);
   const knob = new ElementHost(document);
   knob.rect = { left: 58, top: 544, width: 40, height: 40 };
   pad.child = knob;
   const values: [number, number][] = [];
+  const speeds: number[] = [];
   const props: Props = {
     disabled: false, resetKey: "day", label: "Joystick",
-    onInput: (x, y) => values.push([x, y]), ...overrides,
+    ...overrides,
+    onInput: (x, y, speed = 1) => {
+      values.push([x, y]);
+      speeds.push(speed);
+      overrides.onInput?.(x, y, speed);
+    },
   };
   const hooks: Hook[] = [];
   let nowMs = 1_000;
@@ -140,6 +160,7 @@ function joystickHost(overrides: Partial<Props> = {}) {
   };
   render();
   values.length = 0;
+  speeds.length = 0;
   const handlers: Record<string, string> = {
     pointerdown: "onPointerDown", pointermove: "onPointerMove",
     pointerup: "onPointerUp", pointercancel: "onPointerCancel",
@@ -166,7 +187,81 @@ function joystickHost(overrides: Partial<Props> = {}) {
   return {
     document, window, pad, knob, values, render, emit,
     lastInput: () => values.at(-1),
+    lastSpeed: () => speeds.at(-1),
+    pendingFrames: () => frames.size,
+    frame: (at: number) => {
+      nowMs = at;
+      const callbacks = [...frames.values()];
+      frames.clear();
+      callbacks.forEach((callback) => callback(at));
+    },
     unmount: () => hooks.forEach((hook) => hook.cleanup?.()),
+  };
+}
+
+// Connect the actual component to the actual viewer adapter and frame step.
+// Only the scene is a small fixture; speed and held-input logic are not copied.
+const viewerSource = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
+const viewerAst = ts.createSourceFile("ThreeViewer.tsx", viewerSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+function viewerNode(predicate: (node: ts.Node) => boolean): ts.Node {
+  let found: ts.Node | undefined;
+  const visit = (node: ts.Node) => {
+    if (predicate(node)) found ??= node;
+    ts.forEachChild(node, visit);
+  };
+  visit(viewerAst);
+  if (!found) throw new Error("Viewer navigation node missing");
+  return found;
+}
+function executeViewer(source: string, bindings: Record<string, unknown>): any {
+  const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  return new Function(...Object.keys(bindings), compiled)(...Object.values(bindings));
+}
+function heldMovementRig(walking = false) {
+  const camera = new PerspectiveCamera(39);
+  camera.position.set(0, 100, 2_200);
+  const controls = { target: new Vector3(0, 80, 2_200 - Math.sqrt(200 ** 2 - 20 ** 2)) };
+  camera.lookAt(controls.target);
+  const environment = { bounds: { minX: -1000, maxX: 1000, minZ: -1000, maxZ: 1000 }, groundAt: () => 4, water: [] };
+  let pedestrian = createPedestrianState(environment, { x: 0, z: 0, yaw: 0 });
+  const runtime = {
+    camera, controls, lightingMode: "day",
+    pedestrian: { enabled: walking, environment: null },
+    navigationScratch: {
+      delta: new Vector3(), heading: new Vector3(), right: new Vector3(),
+      boundedTarget: new Vector3(), boundedRequest: new Vector3(),
+    },
+  };
+  const flightInputRef = { current: new Vector3() };
+  const flightSpeedMultiplierRef = { current: 1 };
+  const pedestrianInputRef = { current: { ...PEDESTRIAN_IDLE_INPUT } };
+  const adapter = viewerNode((node) => ts.isPropertyAssignment(node) && node.name.getText(viewerAst) === "setFlightInput") as ts.PropertyAssignment;
+  const setInput = executeViewer(`return (${adapter.initializer.getText(viewerAst)});`, {
+    MathUtils, runtimeRef: { current: runtime }, flightInputRef,
+    flightSpeedMultiplierRef, pedestrianInputRef, markSurfaceInteraction: () => {},
+  });
+  const bounded = viewerNode((node) => ts.isFunctionDeclaration(node) && node.name?.text === "applyBoundedCameraRigTranslation");
+  const applyBoundedCameraRigTranslation = executeViewer(`${bounded.getText(viewerAst)}; return applyBoundedCameraRigTranslation;`, {
+    REGIERUNGSVIERTEL_FLIGHT_BOUNDS, minecraftHeroCollisionEnabled,
+  });
+  const frameStep = viewerNode((node) => ts.isVariableDeclaration(node) && node.name.getText(viewerAst) === "applyContinuousFlight") as ts.VariableDeclaration;
+  const fly = executeViewer(`let wasFlying = false; return (${frameStep.initializer!.getText(viewerAst)});`, {
+    camera, controls, runtime, flightInputRef, flightSpeedMultiplierRef,
+    continuousFlightSpeeds, flightSpeedScratch: { horizontal: 0, vertical: 0 },
+    applyBoundedCameraRigTranslation, markSurfaceInteraction: () => {},
+    notifyView: () => {}, onViewChangeRef: { current: () => {} },
+  });
+  return {
+    camera, controls,
+    onInput: (strafe: number, forward: number, speed = 1) => setInput(strafe, forward, 0, speed),
+    pedestrian: () => pedestrian,
+    frame: (dt: number) => {
+      if (walking) pedestrian = stepPedestrian(pedestrian, pedestrianInputRef.current, dt, environment).state;
+      else {
+        fly(dt);
+        constrainSurfaceCameraRig(camera, controls.target, environment.groundAt);
+      }
+    },
   };
 }
 
@@ -185,6 +280,98 @@ function orbitRig(document: EventTarget) {
 }
 
 describe("iPhone joystick gesture ownership and stability", () => {
+  for (const fps of [30, 60, 120]) {
+    test(`stationary held edge accelerates and keeps flying at 3x without pointer moves (${fps} Hz)`, () => {
+      const rig = heldMovementRig();
+      const host = joystickHost({ onInput: rig.onInput });
+      const offset = rig.camera.position.clone().sub(rig.controls.target);
+      try {
+        host.emit("pointerdown", { at: 1_000 });
+        host.emit("pointermove", { y: 520, at: 1_000 });
+        expect(host.lastInput()).toEqual([0, 1]);
+        expect(host.lastSpeed()).toBe(1);
+        for (let frame = 1; frame <= fps; frame++) {
+          host.frame(1_000 + frame * 1_000 / fps);
+          rig.frame(1 / fps);
+        }
+        expect(host.lastSpeed()).toBe(3);
+        expect(host.pendingFrames()).toBe(0);
+        const atFullSpeed = rig.camera.position.clone();
+        const inputCalls = host.values.length;
+        // Three more seconds hold the same thumb coordinate, with no new
+        // input callbacks at all once the short ramp has finished.
+        for (let frame = 1; frame <= 3 * fps; frame++) {
+          host.frame(2_000 + frame * 1_000 / fps);
+          rig.frame(1 / fps);
+        }
+        expect(host.values.length).toBe(inputCalls);
+        expect(rig.camera.position.distanceTo(atFullSpeed)).toBeCloseTo(3 * 1_620, 6);
+        expect(rig.camera.position.clone().sub(rig.controls.target).distanceTo(offset)).toBeLessThan(1e-9);
+        expect(rig.camera.position.y).toBe(100);
+        expect(host.pad.rectReads).toBe(1);
+        host.emit("pointerup", { y: 520, at: 5_000 });
+        const stopped = rig.camera.position.clone();
+        host.frame(6_000); rig.frame(1 / fps);
+        expect(rig.camera.position.equals(stopped)).toBeTrue();
+        expect(host.lastSpeed()).toBe(1);
+      } finally { host.unmount(); }
+    });
+  }
+
+  test("edge acceleration uses elapsed time; precision input and a fresh gesture reset the boost", () => {
+    const host = joystickHost();
+    try {
+      host.emit("pointerdown", { y: 520, at: 1_000 });
+      host.frame(1_250);
+      expect(host.lastSpeed()).toBe(1);
+      host.frame(1_625);
+      expect(host.lastSpeed()).toBe(2);
+      host.frame(2_000);
+      expect(host.lastSpeed()).toBe(3);
+      host.emit("pointermove", { y: 534, at: 2_100 });
+      expect(host.lastInput()![1]).toBeCloseTo(0.65);
+      expect(host.lastSpeed()).toBe(1);
+      expect(host.pendingFrames()).toBe(0);
+      host.frame(10_000);
+      expect(host.lastSpeed()).toBe(1);
+      host.emit("pointermove", { y: 520, at: 10_000 });
+      expect(host.lastSpeed()).toBe(1);
+      host.frame(11_000);
+      expect(host.lastSpeed()).toBe(3);
+    } finally { host.unmount(); }
+    expect(host.pendingFrames()).toBe(0);
+  });
+
+  test("stationary walking edge reaches 39 m/s and release stops immediately", () => {
+    const rig = heldMovementRig(true);
+    const host = joystickHost({ onInput: rig.onInput });
+    try {
+      host.emit("pointerdown", { y: 520, at: 1_000 });
+      host.frame(2_000);
+      const start = rig.pedestrian();
+      for (let frame = 0; frame < 120; frame++) rig.frame(1 / 60);
+      expect(Math.hypot(rig.pedestrian().x - start.x, rig.pedestrian().z - start.z)).toBeCloseTo(78, 6);
+      expect(rig.pedestrian().yaw).toBe(start.yaw);
+      expect(rig.pedestrian().pitch).toBe(start.pitch);
+      host.emit("pointerup", { y: 520, at: 4_000 });
+      const stopped = rig.pedestrian();
+      rig.frame(1 / 60);
+      expect(rig.pedestrian()).toBe(stopped);
+    } finally { host.unmount(); }
+  });
+
+  test("boosted flight retains the finite city boundary", () => {
+    const rig = heldMovementRig();
+    const host = joystickHost({ onInput: rig.onInput });
+    try {
+      host.emit("pointerdown", { y: 520, at: 1_000 });
+      host.frame(2_000);
+      for (let frame = 0; frame < 600; frame++) rig.frame(1 / 60);
+      expect(rig.controls.target.z).toBe(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z);
+      expect(rig.camera.position.y).toBe(100);
+    } finally { host.unmount(); }
+  });
+
   test("the outer edge of the larger coarse-pointer knob also starts neutral", () => {
     const host = joystickHost();
     try {
@@ -375,10 +562,15 @@ describe("iPhone joystick gesture ownership and stability", () => {
     const host = joystickHost();
     try {
       for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
-        host.emit("pointerdown", { y: 520 });
+        host.emit("pointerdown", { y: 520, at: 1_000 });
+        host.frame(1_625);
         expect(host.lastInput()![1]).toBe(1);
+        expect(host.lastSpeed()).toBe(2);
         host.emit(type);
         expect(host.lastInput()).toEqual([0, 0]);
+        expect(host.pendingFrames()).toBe(0);
+        host.frame(2_000);
+        expect(host.lastSpeed()).toBe(1);
         expect(host.knob.style.transform).toBe("translate(0px, 0px)");
         host.emit("pointermove", { y: 520 });
         expect(host.lastInput()).toEqual([0, 0]);
@@ -389,6 +581,13 @@ describe("iPhone joystick gesture ownership and stability", () => {
       host.emit("pointerdown", { y: 520 });
       host.window.dispatchEvent(new Event("blur"));
       expect(host.lastInput()).toEqual([0, 0]);
+      expect(host.pendingFrames()).toBe(0);
+      host.emit("pointerdown", { y: 520 });
+      host.document.hidden = true;
+      host.document.dispatchEvent(new Event("visibilitychange"));
+      expect(host.lastInput()).toEqual([0, 0]);
+      expect(host.pendingFrames()).toBe(0);
+      host.document.hidden = false;
       host.emit("pointerdown", { y: 520 });
       host.render({ disabled: true });
       expect(host.lastInput()).toEqual([0, 0]);

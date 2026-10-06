@@ -2594,11 +2594,15 @@ export function stepPedestrian(
 
   const speed =
     PEDESTRIAN_WALK_SPEED_MPS *
-    (input.fastRun
-      ? PEDESTRIAN_FAST_RUN_MULTIPLIER
-      : input.sprint
-        ? PEDESTRIAN_SPRINT_MULTIPLIER
-        : 1);
+    Math.max(
+      clamp(Number.isFinite(input.movementSpeedMultiplier)
+        ? input.movementSpeedMultiplier! : 1, 1, 3),
+      input.fastRun
+        ? PEDESTRIAN_FAST_RUN_MULTIPLIER
+        : input.sprint
+          ? PEDESTRIAN_SPRINT_MULTIPLIER
+          : 1,
+    );
   const distance = speed * dt;
   const requestedDx =
     (Math.sin(nextYaw) * forward + Math.cos(nextYaw) * strafe) * distance;
