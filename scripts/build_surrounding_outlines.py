@@ -595,6 +595,7 @@ def chunk_payload(
         "minHeight": round(low - GROUND_Y, 2),
         "sourceId": record["sourceId"],
         "heightSource": record["heightSource"],
+        **({"partId": record["partId"]} if record.get("partId") else {}),
       }
       for polygon in navigation_polygons(geometry, minx, minz)
     )

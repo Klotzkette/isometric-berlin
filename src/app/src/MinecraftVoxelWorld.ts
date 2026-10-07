@@ -111,6 +111,7 @@ import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFaca
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
+import { parkReliefGroundSlices } from "./parkReliefGroundRunsV182";
 import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
 import { createMinecraftKonradAdenauerHaus, konradAdenauerFootprintContains } from "./KonradAdenauerHaus";
 import { createBebelplatzMemorial } from "./BebelplatzMemorial";
@@ -1312,6 +1313,8 @@ function* createGroundSlabsSteps(
     skipBridgeAtWorld?: (x: number, z: number) => boolean;
     skipAtWorld?: (x: number, z: number) => boolean;
     skipWater?: boolean;
+    /** Corrected core park only; other run transforms and paint remain exact. */
+    parkRelief?: "drawn" | "native";
     /** Display grading only; canonical terrain samplers remain unchanged. */
     terrainOverride?: {
       bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
@@ -1417,7 +1420,25 @@ function* createGroundSlabsSteps(
     else if (ungradedStart < xStart + run) gradedRuns.push({ ...entry, ...originalShade, xStart: ungradedStart, run: xStart + run - ungradedStart, topY: originalTop });
   }
   const finalRuns: GroundRunBuffer | typeof gradedRuns = override ? gradedRuns : visibleRuns;
-  const ground = instancedBoxes(name, finalRuns.length, options?.emissive, true);
+  const reliefOptions = options?.parkRelief ? {
+    cell, minXIndex: min_x_idx, minZIndex: min_z_idx,
+    strideCells: payload.ground_height.stride_cells, mode: options.parkRelief,
+    nearest: groundTopY, smooth: smoothGroundTopSampler(payload),
+  } : null;
+  const slicesFor = (classId: number, run: number, xStart: number, zOffset: number) =>
+    reliefOptions && !["water", "pond", "basin", "bridge"].includes(payload.classes[classId])
+      ? parkReliefGroundSlices(xStart, run, zOffset, reliefOptions) : null;
+  let reliefExtra = 0;
+  const countRelief = (classId: number, run: number, xStart: number, zOffset: number) => {
+    const slices = slicesFor(classId, run, xStart, zOffset);
+    if (slices) reliefExtra += slices.length - 1;
+  };
+  if (reliefOptions) {
+    if (finalRuns instanceof GroundRunBuffer) finalRuns.forEach(countRelief);
+    else for (const entry of finalRuns) countRelief(entry.classId, entry.run, entry.xStart, entry.zOffset);
+  }
+  const ground = instancedBoxes(name, finalRuns.length + reliefExtra, options?.emissive, true);
+  ground.mesh.userData.parkReliefAdditionalRuns = reliefExtra;
   ground.mesh.userData.gradedPromenadeCells = gradedCells;
   ground.mesh.userData.skippedByWorldPredicateCells =
     skippedByWorldPredicateCells;
@@ -1446,9 +1467,16 @@ function* createGroundSlabsSteps(
     size.set(run * cell, slabHeight, cell);
     ground.write(center, size, shadeFor(shades, shadeXStart ?? xStart, zOffset, shadeRun ?? run, shade));
   };
-  if (finalRuns instanceof GroundRunBuffer) finalRuns.forEach(writeRun);
+  const writeWithRelief = (classId: number, run: number, xStart: number, zOffset: number,
+    overriddenTop?: number, shadeXStart?: number, shadeRun?: number) => {
+    const slices = slicesFor(classId, run, xStart, zOffset);
+    if (!slices) { writeRun(classId, run, xStart, zOffset, overriddenTop, shadeXStart, shadeRun); return; }
+    for (const slice of slices) writeRun(classId, slice.run, slice.xStart, zOffset,
+      slice.topY, shadeXStart ?? xStart, shadeRun ?? run);
+  };
+  if (finalRuns instanceof GroundRunBuffer) finalRuns.forEach(writeWithRelief);
   else for (const entry of finalRuns) {
-    writeRun(entry.classId, entry.run, entry.xStart, entry.zOffset,
+    writeWithRelief(entry.classId, entry.run, entry.xStart, entry.zOffset,
       entry.topY, entry.shadeXStart, entry.shadeRun);
   }
   return ground.mesh;
@@ -2893,6 +2921,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftExtrapolatedWorld());
   yield;
   const groundSlabs = yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
+      parkRelief: "native",
       terrainOverride: {
         bounds: SPREEBOGEN_BANK_BOUNDS,
         // Leave the native paving surface visible above its terrain backing.

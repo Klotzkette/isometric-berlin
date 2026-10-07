@@ -828,6 +828,58 @@ def _git_blob_hash(raw: bytes) -> str:
   return hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
 
 
+def _verified_park_relief_v182_files() -> set[str]:
+  """Allow later hill placement only with complete old-face/ink receipts.
+
+  The v176 city remains the baseline. The later park operation uses v181,
+  so also prove that its input was byte-identical to the older unaffected
+  packet; naming a file in an audit alone cannot exempt it from preservation.
+  """
+  audit = json.loads(
+    (ROOT / "geo_data/regierungsviertel/park-relief-v182-audit.json").read_bytes()
+  )
+  assert audit["baseline"] == "v1.0.81"
+  files = set()
+  for row in audit["outer"]:
+    path = ROOT / row["file"]
+    assert path.parent == PACKETS and row["file"] not in files
+    files.add(row["file"])
+    raw = subprocess.check_output(
+      ["git", "show", f"{audit['baseline']}:{row['file']}"], cwd=ROOT
+    )
+    assert hashlib.sha256(raw).hexdigest() == row["baseSha256"]
+    assert raw == _baseline(path)
+    before, after = _payload(raw, path), _payload(path.read_bytes(), path)
+    assert {k: v for k, v in before.items() if k not in {"meshes", "lines", "nav"}} == {
+      k: v for k, v in after.items() if k not in {"meshes", "lines", "nav"}
+    }
+    assert len(before["meshes"]) == len(after["meshes"]) == len(row["meshes"])
+    for source, current, receipt in zip(
+      before["meshes"], after["meshes"], row["meshes"], strict=True
+    ):
+      _verify_mesh_receipts(
+        source,
+        [current],
+        before["origin"],
+        {"kind": source["kind"], **receipt},
+        ".minecraft." in path.name,
+      )
+    if before.get("lines", {}).get("positions"):
+      _verify_ink_receipts(
+        before["lines"], after["lines"], before["origin"], row["lines"]
+      )
+    else:
+      assert before.get("lines") == after.get("lines")
+    assert {k: v for k, v in before["nav"].items() if k != "buildings"} == {
+      k: v for k, v in after["nav"].items() if k != "buildings"
+    }
+    for a, b in zip(before["nav"]["buildings"], after["nav"]["buildings"], strict=True):
+      assert {k: v for k, v in a.items() if k != "groundOffset"} == {
+        k: v for k, v in b.items() if k != "groundOffset"
+      }
+  return files
+
+
 def test_current_packet_manifests_and_untouched_assets_match_release(
   current_terrain_audit: dict,
 ) -> None:
@@ -838,7 +890,18 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   descriptors = {entry["id"]: entry for entry in after["chunks"]}
   assert len(descriptors) == len(after["chunks"])
   assert old_descriptors.keys() <= descriptors.keys()
-  audited_files = {row["file"] for row in current_terrain_audit["packets"]}
+  relief_files = _verified_park_relief_v182_files()
+  relief_ids = {Path(name).name.split(".")[0] for name in relief_files}
+  supplement = json.loads(
+    (ROOT / "geo_data/regierungsviertel/ring-city-v182-manifest.json").read_bytes()
+  )
+  ring_descriptors = {entry["id"]: entry for entry in supplement["chunks"]}
+  assert ring_descriptors and not (ring_descriptors.keys() & old_descriptors.keys())
+  assert all(identity.startswith("ring182-") for identity in ring_descriptors)
+  assert ring_descriptors.keys() <= descriptors.keys()
+  audited_files = {
+    row["file"] for row in current_terrain_audit["packets"]
+  } | relief_files
   emitted = {
     name
     for row in current_terrain_audit["packets"]
@@ -850,12 +913,14 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   for identity, descriptor in descriptors.items():
     if identity in old_descriptors:
       previous = old_descriptors[identity]
-      if identity not in audited_outer:
+      if identity not in audited_outer | relief_ids:
         assert descriptor == previous
       else:
         assert {
           k: v for k, v in descriptor.items() if k not in {"drawn", "minecraft"}
         } == {k: v for k, v in previous.items() if k not in {"drawn", "minecraft"}}
+    elif identity in ring_descriptors:
+      assert descriptor == ring_descriptors[identity]
     else:
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
@@ -875,7 +940,11 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
       packet = json.loads(decoded)
       assert packet["id"] == identity
       _packet_limits(packet)
-      if identity not in old_descriptors and str(path.relative_to(ROOT)) not in emitted:
+      if (
+        identity not in old_descriptors
+        and identity not in ring_descriptors
+        and str(path.relative_to(ROOT)) not in emitted
+      ):
         assert packet["meshes"] == []
         assert not packet.get("lines", {}).get("positions")
         assert all(

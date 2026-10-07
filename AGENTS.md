@@ -59,6 +59,19 @@ framing/podium outlines and all 27 Ringbahn station outlines. This additive
 scope is recorded in `bounds-outline-v180.geojson`. Keep the v179 routes,
 original detailed-city polygon and all existing source geometry unchanged.
 
+The owner's 7 October v1.0.82 request additionally permits source-bound simple
+building masses and streets inside the mapped Ringbahn course and a 100 m
+EPSG:25833 buffer, plus the finite Steglitz, Theodor-Heuss-Platz/rbb and Estrel
+lobes recorded in `bounds-ring-v182.geojson` and `docs/ring-city-v182.md`.
+This independent 95.968 km² presentation scope adds only the 24.437 km² outside
+the existing city; `bounds.geojson`, its 81.457 km² detailed source footprint,
+all earlier detail and the 93-place tour remain unchanged. Keep actual parks,
+water, courtyards, rail yards and unbuilt land open rather than inventing houses.
+Use retained OSM and official LoD2 owners, label missing-height/width estimates,
+and preserve bounded serial chunk delivery. Complete named Steglitz hero models
+may replace only their documented matching new generic owners/overlap in
+`steglitz-v182-exclusions.geojson`; retain the complete source inventory.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

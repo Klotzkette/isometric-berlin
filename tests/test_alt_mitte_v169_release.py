@@ -639,7 +639,24 @@ def test_previous_authored_source_and_navigation_assets_remain_byte_exact():
   for name in names:
     path = ROOT / name
     if path.suffix == ".json" and ("Source" in path.name or "Navigation" in path.name):
-      assert path.read_bytes() == old_bytes(path), name
+      actual, expected = path.read_bytes(), old_bytes(path)
+      if path.name == "schlossEastNavigation.json":
+        # V182 updates the input fingerprint after measured park relief; the
+        # authored east-side navigation itself must remain byte-identical.
+        old_hash = json.loads(expected)["source_sha256"]["ground-context.json"]
+        new_hash = json.loads(actual)["source_sha256"]["ground-context.json"]
+        ground = ROOT / "src/app/public/mesh/regierungsviertel/ground-context.json"
+        assert new_hash == hashlib.sha256(ground.read_bytes()).hexdigest()
+        audit = json.loads(
+          (ROOT / "geo_data/regierungsviertel/park-relief-v182-audit.json").read_bytes()
+        )
+        receipt = next(
+          row for row in audit["core"] if row["file"] == str(ground.relative_to(ROOT))
+        )
+        assert receipt["baseSha256"] == old_hash
+        assert actual.count(new_hash.encode()) == 1
+        actual = actual.replace(new_hash.encode(), old_hash.encode())
+      assert actual == expected, name
 
 
 def test_existing_transparent_families_are_retained_instead_of_opaque_replacement(

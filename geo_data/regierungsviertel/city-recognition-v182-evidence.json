@@ -1,0 +1,772 @@
+{
+  "tiles": [
+    {
+      "file": "LoD2_382_5818.zip",
+      "sha256": "fbaf14d3e9ef0252670d70e59d2826d7fa9d87dc14c9a8475e77e190ecbd1cf3",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_382_5818.zip"
+    },
+    {
+      "file": "LoD2_382_5819.zip",
+      "sha256": "6bbd2fddcb3b1c366aa372748c181195307b9e39797e9adce4d84c0686a0a19c",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_382_5819.zip"
+    },
+    {
+      "file": "LoD2_383_5818.zip",
+      "sha256": "21dfc308b0a57641e3a26ae1c39d32252273cc842070d283ce758d27181c7334",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_383_5818.zip"
+    },
+    {
+      "file": "LoD2_383_5819.zip",
+      "sha256": "8600b7a0fffcdd22f7c4fee9c7ddb58ec20c4bc74d58cf2a6d26eaefe90754bc",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_383_5819.zip"
+    },
+    {
+      "file": "LoD2_385_5819.zip",
+      "sha256": "0ae1bf4888fc97038c2593ef293640e6a535256030b42830ba3e21a43f1e49b8",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_385_5819.zip"
+    },
+    {
+      "file": "LoD2_387_5820.zip",
+      "sha256": "5ac7bcdc0d4fb3ccad64a59daefc118cfe2ff884ab4035426c76b0da7a851e41",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_387_5820.zip"
+    },
+    {
+      "file": "LoD2_391_5819.zip",
+      "sha256": "8936aadae40bdd1531c00cd2d726c8bc5214c8cf783eec0d0b72c8d5d3b8768f",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_391_5819.zip"
+    },
+    {
+      "file": "LoD2_392_5819.zip",
+      "sha256": "2ee22ab8f9780e47100d332771d11ad72f8eaaa4b06168ad398819f5092282fc",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5819.zip"
+    },
+    {
+      "file": "LoD2_392_5820.zip",
+      "sha256": "46782da57be6dc321226307b1292ee334f6c30770f7930f61831b0931a2c4c8b",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5820.zip"
+    },
+    {
+      "file": "LoD2_393_5820.zip",
+      "sha256": "e986f18b742c09dc51c376033c4fd4c8f0c6fb68ba364b179bb6555f95b6dda3",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_393_5820.zip"
+    },
+    {
+      "file": "LoD2_395_5814.zip",
+      "sha256": "9bef5c9e746b2ad06158646d8d070310a31601821420b5fdea72c601ffbeed3e",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_395_5814.zip"
+    }
+  ],
+  "targets": {
+    "Staatsoper Unter den Linden": [
+      "opera-mitte",
+      [
+        "way/15976892"
+      ]
+    ],
+    "Rathaus Tiergarten": [
+      "multipolygons",
+      [
+        "way/311048538"
+      ]
+    ],
+    "Rathaus Mitte": [
+      "multipolygons",
+      [
+        "way/24271931"
+      ]
+    ],
+    "Altes Stadthaus": [
+      "multipolygons",
+      [
+        "relation/23745"
+      ]
+    ],
+    "Schillertheater": [
+      "multipolygons",
+      [
+        "way/367502474"
+      ]
+    ],
+    "Deutsche Oper Berlin": [
+      "oper",
+      [
+        "relation/13408555"
+      ]
+    ],
+    "rbb Fernsehzentrum": [
+      "rbb",
+      [
+        "relation/3215"
+      ]
+    ],
+    "Haus des Rundfunks": [
+      "rbb",
+      [
+        "relation/3216"
+      ]
+    ],
+    "Estrel Hotel": [
+      "estrel",
+      [
+        "way/47037005",
+        "way/365566557",
+        "way/365566565",
+        "way/365568381",
+        "way/365569349",
+        "way/365569350"
+      ]
+    ]
+  },
+  "features": [
+    {
+      "name": "rbb Fernsehzentrum",
+      "parentId": "DEBE04YY500004sB",
+      "partIds": [
+        "DEBE04YY500004sB"
+      ],
+      "tile": "LoD2_382_5818.zip",
+      "groundY": 3.0,
+      "groundNHN": 52.859,
+      "heightM": 22.496000000000002,
+      "osmIds": [
+        "relation/3215"
+      ],
+      "firstSegment": 0,
+      "segmentCount": 2195,
+      "firstBox": 0,
+      "boxCount": 729
+    },
+    {
+      "name": "Haus des Rundfunks",
+      "parentId": "DEBE04YY500004eY",
+      "partIds": [
+        "DEBE04YY500004eY",
+        null,
+        "DEBE3DvDQToIzP3d",
+        null,
+        "DEBE3Dc6D78g04g7",
+        null,
+        "DEBE3DjC4MgAPx1R",
+        null,
+        "DEBE3DQt53P2c4Ca"
+      ],
+      "tile": "LoD2_382_5818.zip",
+      "groundY": 3.0,
+      "groundNHN": 52.934,
+      "heightM": 19.191000000000003,
+      "osmIds": [
+        "relation/3216"
+      ],
+      "firstSegment": 2195,
+      "segmentCount": 753,
+      "firstBox": 729,
+      "boxCount": 152
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY50000AFQ",
+      "partIds": [
+        "DEBE04YY50000AFQ"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 33.68,
+      "heightM": 24.235999999999997,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 2948,
+      "segmentCount": 162,
+      "firstBox": 881,
+      "boxCount": 72
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY500002rh",
+      "partIds": [
+        "DEBE04YY500002rh",
+        null,
+        "DEBE3DOSwsB36DSi",
+        null,
+        "DEBE3DdabGg1NXUf",
+        null,
+        "DEBE3DeexggQvgsu"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 33.434,
+      "heightM": 14.535000000000004,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 3110,
+      "segmentCount": 201,
+      "firstBox": 953,
+      "boxCount": 51
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY50002c4j",
+      "partIds": [
+        "DEBE04YY50002c4j"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 33.753,
+      "heightM": 4.459000000000003,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 3311,
+      "segmentCount": 15,
+      "firstBox": 1004,
+      "boxCount": 0
+    },
+    {
+      "name": "Deutsche Oper Berlin",
+      "parentId": "DEBE04YY500002EM",
+      "partIds": [
+        "DEBE04YY500002EM",
+        null,
+        "DEBE3DduuWmq5Xwa",
+        null,
+        "DEBE3DvmhIg1JScj",
+        null,
+        "DEBE3Dk0lopVJ94R",
+        null,
+        "DEBE3DJUwBxtCo2m",
+        null,
+        "DEBE3DywD55HthtR",
+        null,
+        "DEBE3DjnvdhjRDs8",
+        null,
+        "DEBE3DXhQWgua7dd",
+        null,
+        "DEBE3DVG3tNWW6OE",
+        null,
+        "DEBE3DOQ54eq3UXp",
+        null,
+        "DEBE3DxCFDhOtGiA",
+        null,
+        "DEBE3DQsr3rM2vgl",
+        null,
+        "DEBE3DEEGqODUt85",
+        null,
+        "DEBE3DOhFPS07YCU",
+        null,
+        "DEBE3DNhEGFSzetC",
+        null,
+        "DEBE3DYFNLYTGzVc",
+        null,
+        "DEBE3DG9EpkhnjKl",
+        null,
+        "DEBE3DGbhdga9hRB",
+        null,
+        "DEBE3Dx79svadeCq",
+        null,
+        "DEBE3DlBFF4GM4q6",
+        null,
+        "DEBE3DELqaAUzUH9",
+        null,
+        "DEBE3DWxXfnqVTWb",
+        null,
+        "DEBE3DDhHHETv4He",
+        null,
+        "DEBE3DaITEtFQ0SA",
+        null,
+        "DEBE3DIQFx5ZC6ux",
+        null,
+        "DEBE3DhcngeCQumC",
+        null,
+        "DEBE3DpRBRPJw65C",
+        null,
+        "DEBE3DDNIgFj0EjJ",
+        null,
+        "DEBE3DLsy4fXTBAk",
+        null,
+        "DEBE3Dq1S8bT27bg",
+        null,
+        "DEBE3DiT5Bbbfc1p",
+        null,
+        "DEBE3DosV9voFaoK",
+        null,
+        "DEBE3DVf4BL9N9P8",
+        null,
+        "DEBE3DGq8QVZtY8O",
+        null,
+        "DEBE3DAYTtS2LRYW",
+        null,
+        "DEBE3Dg2F75W9er0",
+        null,
+        "DEBE3DxONjiqayst",
+        null,
+        "DEBE3DZ5fQv6KKsQ",
+        null,
+        "DEBE3Dbq0x8jJ7Cn",
+        null,
+        "DEBE3DXk31JDhfGo"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 3.0,
+      "groundNHN": 33.771,
+      "heightM": 38.983000000000004,
+      "osmIds": [
+        "relation/13408555"
+      ],
+      "firstSegment": 3326,
+      "segmentCount": 1793,
+      "firstBox": 1004,
+      "boxCount": 536
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY50000Hs3",
+      "partIds": [
+        "DEBE04YY50000Hs3"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 32.39,
+      "heightM": 7.625,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 5119,
+      "segmentCount": 24,
+      "firstBox": 1540,
+      "boxCount": 6
+    },
+    {
+      "name": "Deutsche Oper Berlin",
+      "parentId": "DEBE04YY50002cf0",
+      "partIds": [
+        "DEBE04YY50002cf0"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 3.0,
+      "groundNHN": 36.498,
+      "heightM": 3.7660000000000053,
+      "osmIds": [
+        "relation/13408555"
+      ],
+      "firstSegment": 5143,
+      "segmentCount": 19,
+      "firstBox": 1546,
+      "boxCount": 2
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY50000Me5",
+      "partIds": [
+        "DEBE04YY50000Me5",
+        null,
+        "DEBE3DAYm0oezSdA",
+        null,
+        "DEBE3DAgvdRoEEVp"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 34.074,
+      "heightM": 23.806000000000004,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 5162,
+      "segmentCount": 115,
+      "firstBox": 1548,
+      "boxCount": 42
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY50000Nl0",
+      "partIds": [
+        "DEBE04YY50000Nl0",
+        null,
+        "DEBE3DUfe5JtdLhK",
+        null,
+        "DEBE3Djzo6mLvhWt",
+        null,
+        "DEBE3DnSszhqJPe8",
+        null,
+        "DEBE3DeF99g4FLWL",
+        null,
+        "DEBE3DgHFy00kUJK",
+        null,
+        "DEBE3DZJUmmmrlPj"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 34.09,
+      "heightM": 19.767999999999994,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 5277,
+      "segmentCount": 159,
+      "firstBox": 1590,
+      "boxCount": 29
+    },
+    {
+      "name": "Schillertheater",
+      "parentId": "DEBE04YY500004Vq",
+      "partIds": [
+        "DEBE04YY500004Vq",
+        null,
+        "DEBE3DBpuAfWG3jv",
+        null,
+        "DEBE3DvKFZCbolAl",
+        null,
+        "DEBE3DtttYtKa6zF",
+        null,
+        "DEBE3DuXmJ3Dtaap",
+        null,
+        "DEBE3DwKcPrYra0k",
+        null,
+        "DEBE3DIMGNfy2a4v",
+        null,
+        "DEBE3DnAaigizmLp",
+        null,
+        "DEBE3DS5DGQ6bnFj",
+        null,
+        "DEBE3DsYbSm82ZUU",
+        null,
+        "DEBE3Dv49QliJyiC",
+        null,
+        "DEBE3DlkvbNnWHKf",
+        null,
+        "DEBE3DnpiJ2ydEwX",
+        null,
+        "DEBE3DUZ1ljKeaWG",
+        null,
+        "DEBE3DNU8xACZzwS",
+        null,
+        "DEBE3DaVOHlcWQMi",
+        null,
+        "DEBE3DCUeFZdOCA6",
+        null,
+        "DEBE3DGm9M1fG0ZW"
+      ],
+      "tile": "LoD2_385_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 31.576,
+      "heightM": 37.517999999999994,
+      "osmIds": [
+        "way/367502474"
+      ],
+      "firstSegment": 5436,
+      "segmentCount": 711,
+      "firstBox": 1619,
+      "boxCount": 153
+    },
+    {
+      "name": "Rathaus Tiergarten",
+      "parentId": "DEBE01YYK0002O8g",
+      "partIds": [
+        "DEBE01YYK0002O8g",
+        null,
+        "DEBE3DvGTq05gkyv",
+        null,
+        "DEBE3Dayqc0k0FEa",
+        null,
+        "DEBE3DYJj6IliGWN",
+        null,
+        "DEBE3DxQUEt451DE"
+      ],
+      "tile": "LoD2_387_5820.zip",
+      "groundY": 5.2,
+      "groundNHN": 30.826,
+      "heightM": 33.413999999999994,
+      "osmIds": [
+        "way/311048538"
+      ],
+      "firstSegment": 6147,
+      "segmentCount": 1057,
+      "firstBox": 1772,
+      "boxCount": 456
+    },
+    {
+      "name": "Staatsoper Unter den Linden",
+      "parentId": "DEBE01YYK0000Bw5",
+      "partIds": [
+        "DEBE01YYK0000Bw5",
+        null,
+        "DEBE3DvMyVld2CWF",
+        null,
+        "DEBE3DGPCT541Z3R",
+        null,
+        "DEBE3DW9MfeQXluR",
+        null,
+        "DEBE3DOwOZucTYVO",
+        null,
+        "DEBE3DJytvpUPxhp",
+        null,
+        "DEBE3DYclIYAcNJJ",
+        null,
+        "DEBE3DLbfbCNMLnQ",
+        null,
+        "DEBE3DzafWYL81en",
+        null,
+        "DEBE3Dya1EOZlnys",
+        null,
+        "DEBE3DyA4hFuGJHE",
+        null,
+        "DEBE3DVEM5AEJphZ"
+      ],
+      "tile": "LoD2_391_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 31.637,
+      "heightM": 35.941,
+      "osmIds": [
+        "way/15976892"
+      ],
+      "firstSegment": 7204,
+      "segmentCount": 698,
+      "firstBox": 2228,
+      "boxCount": 220
+    },
+    {
+      "name": "Staatsoper Unter den Linden",
+      "parentId": "DEBE00YY1P700099",
+      "partIds": [
+        "DEBE00YY1P700099"
+      ],
+      "tile": "LoD2_391_5819.zip",
+      "groundY": 5.2,
+      "groundNHN": 34.24,
+      "heightM": 3.0519999999999996,
+      "osmIds": [
+        "way/15976892"
+      ],
+      "firstSegment": 7902,
+      "segmentCount": 24,
+      "firstBox": 2448,
+      "boxCount": 0
+    },
+    {
+      "name": "Altes Stadthaus",
+      "parentId": "DEBE01YYK00005yc",
+      "partIds": [
+        "DEBE01YYK00005yc"
+      ],
+      "tile": "LoD2_392_5819.zip",
+      "groundY": 3.0,
+      "groundNHN": 32.491,
+      "heightM": 27.534,
+      "osmIds": [
+        "relation/23745"
+      ],
+      "firstSegment": 7926,
+      "segmentCount": 2529,
+      "firstBox": 2448,
+      "boxCount": 1116
+    },
+    {
+      "name": "Rathaus Mitte",
+      "parentId": "DEBE00YY1N5000D5",
+      "partIds": [
+        "DEBE00YY1N5000D5",
+        null,
+        "DEBE3DQG3Xpq2Z0b",
+        null,
+        "DEBE3Ds88cmha6iG",
+        null,
+        "DEBE3DcIqwmwjZAJ",
+        null,
+        "DEBE3Dt6d08u50fL",
+        null,
+        "DEBE3DQe9p6noh7z",
+        null,
+        "DEBE3DWhNU2jfc7n",
+        null,
+        "DEBE3DqXfSSfZQxz",
+        null,
+        "DEBE3DMzzhDZrT7B",
+        null,
+        "DEBE3DeEPClTmjAu",
+        null,
+        "DEBE3DNpfoJzvBY4",
+        null,
+        "DEBE3DEpfAEwSQMF",
+        null,
+        "DEBE3DK2EoQwrWUD"
+      ],
+      "tile": "LoD2_392_5820.zip",
+      "groundY": 3.0,
+      "groundNHN": 33.226,
+      "heightM": 50.42400000000001,
+      "osmIds": [
+        "way/24271931"
+      ],
+      "firstSegment": 10455,
+      "segmentCount": 3472,
+      "firstBox": 3564,
+      "boxCount": 1485
+    },
+    {
+      "name": "Rathaus Mitte",
+      "parentId": "DEBE01YYK00002tM",
+      "partIds": [
+        "DEBE01YYK00002tM",
+        null,
+        "DEBE3DjBWeGWXV1N",
+        null,
+        "DEBE3DOdqy0gprz1",
+        null,
+        "DEBE3DsLcbf8pauv",
+        null,
+        "DEBE3Da5K8L1znlg",
+        null,
+        "DEBE3Dx4cn5QfqaE"
+      ],
+      "tile": "LoD2_392_5820.zip",
+      "groundY": 3.0,
+      "groundNHN": 33.112,
+      "heightM": 50.388,
+      "osmIds": [
+        "way/24271931"
+      ],
+      "firstSegment": 13927,
+      "segmentCount": 1862,
+      "firstBox": 5049,
+      "boxCount": 779
+    },
+    {
+      "name": "Rathaus Mitte",
+      "parentId": "DEBE01YYK0001xY1",
+      "partIds": [
+        "DEBE01YYK0001xY1",
+        null,
+        "DEBE3DhDDvjvd3uL",
+        null,
+        "DEBE3DYqYvCarOi4",
+        null,
+        "DEBE3DusdLfNLYin"
+      ],
+      "tile": "LoD2_392_5820.zip",
+      "groundY": 3.0,
+      "groundNHN": 34.972,
+      "heightM": 6.548000000000002,
+      "osmIds": [
+        "way/24271931"
+      ],
+      "firstSegment": 15789,
+      "segmentCount": 80,
+      "firstBox": 5828,
+      "boxCount": 15
+    },
+    {
+      "name": "Rathaus Mitte",
+      "parentId": "DEBE01YYK0001ycj",
+      "partIds": [
+        "DEBE01YYK0001ycj"
+      ],
+      "tile": "LoD2_393_5820.zip",
+      "groundY": 3.0,
+      "groundNHN": 36.542,
+      "heightM": 25.222,
+      "osmIds": [
+        "way/24271931"
+      ],
+      "firstSegment": 15869,
+      "segmentCount": 75,
+      "firstBox": 5843,
+      "boxCount": 14
+    },
+    {
+      "name": "Estrel Hotel",
+      "parentId": "DEBE08YYF00000k0",
+      "partIds": [
+        "DEBE08YYF00000k0",
+        null,
+        "DEBE3DNWxqkzgnJ2",
+        null,
+        "DEBE3DgHAxnfKwCS",
+        null,
+        "DEBE3DMsjQ1ZdvGr",
+        null,
+        "DEBE3DFFGYPPBMoc",
+        null,
+        "DEBE3Deug53UDVXo",
+        null,
+        "DEBE3DO932qzDLlb",
+        null,
+        "DEBE3DdOwO0amMMC",
+        null,
+        "DEBE3DhUammMeGOw",
+        null,
+        "DEBE3DwXbJkMC2Vy",
+        null,
+        "DEBE3DUolkSMoIcq",
+        null,
+        "DEBE3DAeHA8q0i1a",
+        null,
+        "DEBE3DGfNzWDKpTZ",
+        null,
+        "DEBE3DX0UaTd6cjP",
+        null,
+        "DEBE3DIL58YbeZmi",
+        null,
+        "DEBE3DidlJey1Iu6",
+        null,
+        "DEBE3DgXpFxGH6Vk",
+        null,
+        "DEBE3DUUAvEl2J5S",
+        null,
+        "DEBE3DV7uOV1A7Gx",
+        null,
+        "DEBE3DzZcRzrCpdE",
+        null,
+        "DEBE3DaVaxEIsM0n",
+        null,
+        "DEBE3DO2aLHidmCW",
+        null,
+        "DEBE3DCn04XQ7j4D",
+        null,
+        "DEBE3DqHSljvCiC2",
+        null,
+        "DEBE3DBnqiNrClRh",
+        null,
+        "DEBE3DwPhWputU62"
+      ],
+      "tile": "LoD2_395_5814.zip",
+      "groundY": 3.0,
+      "groundNHN": 33.088,
+      "heightM": 62.392999999999994,
+      "osmIds": [
+        "way/47037005",
+        "way/365566557",
+        "way/365566565",
+        "way/365568381",
+        "way/365569349",
+        "way/365569350"
+      ],
+      "firstSegment": 15944,
+      "segmentCount": 3938,
+      "firstBox": 5857,
+      "boxCount": 1494
+    }
+  ],
+  "policy": "Additive source edges and shallow window skins only; complete earlier city is retained. No photo, texture, new solid shell or hidden mass.",
+  "facadeStatus": "Procedural, non-surveyed window/band rhythm clipped to exact official source wall polygons. No unsupported inscriptions or logos.",
+  "sourceConflicts": [
+    {
+      "name": "Altes Stadthaus",
+      "sourceParentHeightM": 27.53,
+      "publishedTowerHeightM": 80,
+      "displayCentre": [
+        2676,
+        317.5
+      ],
+      "policy": "Source body retained; official DOP locates the omitted western tower. Drum/dome/figure subdivisions are estimated thin recognition outlines."
+    },
+    {
+      "name": "rbb Fernsehzentrum",
+      "sourceParentHeightM": 22.5,
+      "displayTowerHeightsM": [
+        55.5,
+        58.8
+      ],
+      "policy": "Source body retained. Operator describes two raised slabs with 13/14 storeys; DOP gives alignment. Height and local plan divisions are display estimates, not measured LoD2."
+    }
+  ]
+}

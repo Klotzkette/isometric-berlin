@@ -384,7 +384,11 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       // intentionally empty navigation must never mask the later ground/water.
       if (entry.descriptor.detailCompanionOf) continue;
       const b = entry.descriptor.bounds;
-      if (x >= b[0] && z >= b[1] && x < b[2] && z < b[3]) return entry;
+      if (x < b[0] || z < b[1] || x >= b[2] || z >= b[3]) continue;
+      // Additive scopes can share a tile rectangle while owning disjoint land.
+      // A retained partial tile must not mask the new tile's ground or water.
+      const lx = x - entry.origin[0], lz = z - entry.origin[2];
+      if (entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return entry;
     }
     return undefined;
   };

@@ -1,4 +1,5 @@
 import scope from "./data/surroundingCityScope.json";
+import ringScope from "./data/ringCityScopeV182.json";
 import { surroundingPolygonContains } from "./SurroundingCityGeometry";
 import { terrainGroundAt } from "./weinbergTerrainV176";
 
@@ -9,6 +10,7 @@ import { terrainGroundAt } from "./weinbergTerrainV176";
  */
 export function surroundingScopeGroundAt(x: number, z: number, native = false): number | null {
   if (surroundingPolygonContains(scope.core, x, z)) return null;
-  return scope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z))
+  return (scope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||
+    ringScope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)))
     ? terrainGroundAt(x, z, scope.groundY, native) : null;
 }

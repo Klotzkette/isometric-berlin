@@ -1,6 +1,7 @@
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS, BERLIN_WALL_MEMORIAL_V174_BUILDINGS, BERLIN_WALL_MEMORIAL_V174_SOLIDS, BERLIN_WALL_MEMORIAL_V174_POSTS, berlinWallMemorialV174RoofAt } from "./berlinWallMemorialV174Profile";
 import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskircheV174RoofAt } from "./zionskircheV174Profile";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
+import { STEGLITZ_V182_PARTS, steglitzV182RoofAt } from "./steglitzV182Profile";
 import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
@@ -1323,6 +1324,10 @@ export function compilePedestrianObstacles(
     for (const wall of TEEHAUS_RUIN_V168_WALLS) {
       addPolygonObstacle(index, wall.ring, [], wall.groundY, wall.topY, wall.id, 1);
     }
+  }
+  for (const part of STEGLITZ_V182_PARTS) {
+    addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2,
+      part.id, 1, (x,z) => steglitzV182RoofAt(x,z,visualMode() === "minecraft"));
   }
   // Register all complete new source parts once, including parents absent from
   // the old clipped prism catalogue; synthetic/partial test worlds stay local.

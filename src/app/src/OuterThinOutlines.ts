@@ -3,9 +3,13 @@ import data from "./data/outerThinOutlines.json";
 import { extrapolatedEnvelopeBounds, PRESENTATION_BACKDROP_BOUNDS, PRESENTATION_FLOOR_Y_M } from "./worldEnvelope";
 import type { VisualMode } from "./visualMode";
 import { terrainGroundAt } from "./weinbergTerrainV176";
+import { createOutlineLandmarksV182 } from "./OutlineLandmarksV182";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
-export function createOuterThinOutlines(mode: VisualMode): Group {
+export function createOuterThinOutlines(
+  mode: VisualMode,
+  beforeLandmarkRelease?: (root: Group) => void,
+): Group {
   const root = new Group();
   root.name = "Connected outer Berlin hairline outlines v180";
   root.userData = { outlineOnly: true, textureFree: true, features: data.features };
@@ -66,7 +70,10 @@ export function createOuterThinOutlines(mode: VisualMode): Group {
   rail.userData.cartographicOverlay = true;
   rail.renderOrder = 100;
   root.add(rail);
+  const landmarks = createOutlineLandmarksV182(mode, beforeLandmarkRelease);
+  root.add(landmarks);
   root.userData.setMode = (next: VisualMode) => {
+    landmarks.userData.setMode(next);
     paperGeometry.setDrawRange(0, next === "minecraft" ? paper.length / 3 : drawnPaperVertices);
     ink.color.setHex(next === "night" ? 0xa6bbce : next === "snowstorm" ? 0x647782 : 0x64716b);
     ink.opacity = next === "night" ? 0.82 : 0.68;

@@ -1,3 +1,4 @@
+import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
 import { ALT_MITTE_V169_PRISM_IDS } from "./altMitteV169Ownership";
@@ -10075,6 +10076,10 @@ export function createSmoothSurfaces(
       geometry.rotateX(-Math.PI / 2);
       geometry.translate(0, y, 0);
       if (followTerrain && terrainAt) {
+        // The new steep park hill needs local four-metre edges. The unchanged
+        // 64m city-wide tessellation remains sufficient on the old terrain.
+        const refined = refineCoreParkReliefSurface(geometry);
+        if (refined !== geometry) { geometry.dispose(); geometry = refined; }
         // `y` becomes the LIFT above the ground rather than an absolute
         // height, so a carriageway climbs with the street it lies in.
         const position = geometry.getAttribute("position");
@@ -13027,6 +13032,7 @@ export function createIsometricCityCore(
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
       {
+        parkRelief: "drawn",
         emissive: 0x000000,
         // Smooth OSM road polygons below replace this coarse class in the
         // drawn modes. Minecraft calls createGroundSlabs without this filter

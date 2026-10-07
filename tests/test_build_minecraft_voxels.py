@@ -153,7 +153,18 @@ def test_reichstag_area_has_tall_columns(payload: dict) -> None:
 
 def test_tree_blocks_are_plausible(payload: dict) -> None:
   grid = payload["grid"]
-  trees = _tree_blocks(payload)
+  from relief_receipts_v182 import restore_recorded_altitudes
+
+  # v182 puts the complete unchanged tree inventory on measured park relief.
+  # Reverse only audited Y values and verify the entire old inventory hash
+  # before applying the historical flat-city band.
+  retained = {
+    **payload,
+    "tree_rows": restore_recorded_altitudes(
+      payload["tree_rows"], "minecraft-voxels.json"
+    ),
+  }
+  trees = _tree_blocks(retained)
   assert len(trees) > 1_000
   x_lo, x_hi = grid["min_x_idx"], grid["min_x_idx"] + grid["cols"]
   z_lo, z_hi = grid["min_z_idx"], grid["min_z_idx"] + grid["rows"]
@@ -173,12 +184,14 @@ def test_tree_blocks_are_plausible(payload: dict) -> None:
 
 
 def test_ground_height_grid_matches_terrain_band(payload: dict) -> None:
+  from relief_receipts_v182 import restore_recorded_altitudes
+
   grid = payload["grid"]
   ground_height = payload["ground_height"]
   stride = ground_height["stride_cells"]
   assert ground_height["cols"] * stride >= grid["cols"]
   assert ground_height["rows"] * stride >= grid["rows"]
-  values = ground_height["y_dm"]
+  values = restore_recorded_altitudes(ground_height, "ground-context.json")["y_dm"]
   assert len(values) == ground_height["cols"] * ground_height["rows"]
   assert all(-10 <= value <= 80 for value in values)
 

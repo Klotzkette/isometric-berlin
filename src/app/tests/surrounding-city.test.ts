@@ -58,6 +58,37 @@ function sourceFetch(calls: string[] = []): typeof fetch {
   }) as typeof fetch;
 }
 
+test("disjoint additive scopes sharing one tile rectangle retain both ground and water ownership", async () => {
+  const left = sample(), right = sample();
+  left.nav.ground = [rectangle(0, 0, 256, 512)];
+  left.nav.water = []; left.nav.roads = [];
+  right.nav.ground = [rectangle(256, 0, 512, 512)];
+  right.nav.roads = [rectangle(280, 0, 290, 512)];
+  const source: SurroundingCityManifest = {
+    schemaVersion: 1, groundY: 3, footprint: [rectangle(0, 0, 512, 512)],
+    chunks: [left, right].map((payload, index) => ({
+      id: `scope-${index}`, bounds: [0, 0, 512, 512],
+      drawn: { url: `${index}.json`, bytes: JSON.stringify(payload).length },
+      minecraft: { url: `${index}.json`, bytes: JSON.stringify(payload).length },
+    })),
+  };
+  const city = createSurroundingCity({
+    manifestUrl: new URL("https://example.test/manifest.json"), camera: camera(),
+    fetch: (async (input: URL | RequestInfo) => {
+      const path = new URL(String(input)).pathname;
+      return response(path.endsWith("manifest.json") ? source : path.endsWith("0.json") ? left : right);
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready;
+    await until(() => city.residentChunkCount === 2 && !city.pending);
+    expect(city.groundAt(100, 200)).toBe(3);
+    expect(city.groundAt(285, 200)).toBeCloseTo(3.09, 10);
+    expect(city.waterAt(350, 350)).toBe(true);
+    expect(city.waterAt(100, 350)).toBe(false);
+  } finally { city.dispose(); }
+});
+
 test("updated terrain revalidates the manifest and separates cached packet revisions", async () => {
   const calls: {url: URL; cache?: RequestCache}[] = [];
   const source = manifest(), digest = "a".repeat(64);

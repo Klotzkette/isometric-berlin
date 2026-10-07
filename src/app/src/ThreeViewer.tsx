@@ -1,3 +1,4 @@
+import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { captureAboveWaterAppearance, restoreAboveWaterAppearance, setAboveWaterFog, type AboveWaterAppearance } from "./underwaterAppearance";
 import { createFloodWater, setFloodWaterDepth, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, type FloodWater } from "./FloodWater";
@@ -243,6 +244,7 @@ import {
   type ParkDetailsPayload,
   type ParkPathTerrainAt,
   createParkDetailsCooperative,
+  createCoreParkPathTerrainSampler,
   parkDetailFocusDistance,
   setParkDetailsFocus,
   setParkSnowPresentation,
@@ -1573,10 +1575,19 @@ function startSurroundingCity(runtime: Runtime): void {
   runtime.scene.add(city.root);
   void import("./OuterThinOutlines").then(({ createOuterThinOutlines }) => {
     if (runtime.disposed || runtime.loadSignal.aborted) return;
-    const outlines = createOuterThinOutlines(runtime.lightingMode);
+    const outlines = createOuterThinOutlines(runtime.lightingMode, previous => {
+      runtime.gpuWarmup?.release(previous);
+      runtime.geometryResidency?.release(previous);
+      runtime.gpuResidency?.release(previous);
+      releaseMinecraftMaterialBindings(previous, runtime.minecraftMaterialState);
+    });
     runtime.outerThinOutlines = outlines;
     outlines.visible = !runtime.underside;
     runtime.scene.add(outlines);
+    runtime.gpuResidency?.enqueue(outlines);
+    runtime.geometryResidency?.enqueue(outlines);
+    runtime.gpuWarmup?.enqueue(outlines);
+    runtime.scheduleGpuWarmup?.();
     runtime.renderInvalidated = true;
   }).catch(error => {
     if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Berlin outline supplement:", error);
@@ -1584,9 +1595,10 @@ function startSurroundingCity(runtime: Runtime): void {
 }
 
 function surroundingPedestrianExtension(runtime: Runtime) {
+  const outlineBounds = outlineNavigationEnvelopeBounds();
   return {
-    bounds: { minX: DATA_WEST_M, maxX: DATA_EAST_M,
-      minZ: DATA_NORTH_M, maxZ: DATA_SOUTH_M },
+    bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
+      minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
       const knownGround = surroundingScopeGroundAt(x, z, runtime.lightingMode === "minecraft");
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
@@ -3646,11 +3658,15 @@ function prepareDistrictPathTerrain(
   tunnel: Runtime["tunnelPortalCourse"],
 ): ParkPathTerrainAt {
   const roadTerrainAt = districtStreetTerrainSampler(ground);
+  const parkTerrainAt = createCoreParkPathTerrainSampler(roadTerrainAt);
   const portalAt = tunnel ? createTunnelPortalApproachTester(tunnel) : null;
-  return (path, x, z, sourceY) =>
-    path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
+  return (path, x, z, sourceY) => {
+    const parkY = parkTerrainAt(path, x, z, sourceY);
+    if (parkY !== sourceY && districtPathMayFollowTerrain(path.id) && !portalAt?.(x, z)) return parkY;
+    return path.kind !== "steps" && districtPathMayFollowTerrain(path.id) &&
     pointInDistrictStreetScope(x, z) && !portalAt?.(x, z)
       ? Math.max(sourceY, roadTerrainAt(x, z)) : sourceY;
+  };
 }
 
 function ensureIsoWorld(

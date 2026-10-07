@@ -188,3 +188,33 @@ Exact street centre-lines retain their vertices; parallel border strokes use
 tagged widths or explicitly estimated display widths. They are not an official
 curb survey. See [connector evidence](outer-connectors-v180-sources.md) and
 [ring station evidence](ring-stations-v180-sources.md).
+
+## Owner-requested v1.0.82 Ringbahn interior and finite outer sites
+
+The 7 October request authorizes simple source-bound urban massing throughout
+the Ringbahn interior and roughly one block outside it.
+`bounds-ring-v182.geojson` retains all 1,182 vertices of the existing closed OSM
+S41 course: its 87.351 km² interior receives a 100 m buffer in EPSG:25833.
+Three explicitly requested presentation lobes complete the finite scope:
+
+| Presentation scope | West | South | East | North |
+| --- | ---: | ---: | ---: | ---: |
+| Schloßstraße, Steglitzer Kreisel and Gymnasium Steglitz | 13.312 | 52.451 | 13.340 | 52.471 |
+| Theodor-Heuss-Platz and rbb | 13.269 | 52.505 | 13.277 | 52.512 |
+| Estrel surroundings | 13.455 | 52.470 | 13.462 | 52.476 |
+
+The independent union is **95.968 km²**; its difference from the existing city
+is **24.437 km²**. These are presentation boundaries, not administrative
+districts. The original `bounds.geojson`, its **81.457 km²** detailed footprint,
+earlier source geometry and the 93-place tour remain unchanged. Actual parks,
+water, courtyards, railway land and other mapped open space stay open; the
+request to fill the city does not authorize invented buildings.
+
+The retained 29 September 2026 OSM extract supplies street/path courses and
+building footprints; available official Berlin LoD2 supplies measured vertical
+envelopes. Missing heights and road widths remain labelled display estimates.
+Only named new generic shells covered by complete Steglitz hero models are
+replaced, with exact ownership/overlap recorded and source evidence retained.
+The additive 512 m packets use the existing bounded serial delivery queue.
+See [scope, source inventory and delivery evidence](ring-city-v182.md) and
+[Steglitz model ownership](steglitz-v182.md).

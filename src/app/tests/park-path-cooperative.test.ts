@@ -16,14 +16,16 @@ const pathPayload: ParkDetailsPayload = {
 const terrainAt: ParkPathTerrainAt = (path, x, z, y) =>
   y + (path.kind === "steps" ? 0 : (x + 2 * z) / 1e5);
 
-// Captured before introducing path construction yields. Includes every shipped
-// path, all material/texture bytes, normals, UVs, indices and non-flat terrain.
+// Full v182 buffers after the separately audited park Y placement and bounded
+// Humboldthain chord subdivision. park-path-relief-v182.test.ts proves retained
+// endpoints/XZ traces and unchanged inputs in every other district. The 6,752
+// added vertices are terrain samples, not replacement or simplified routes.
 const originalProductionPathAudit = {
-  hash: "17c5343aaf3fbbd9255bf12fee53c9733305d20f4699fbb0d25986ce295e26d0",
-  budget: { bytes: 3233924, draws: 11, instances: 0, vertices: 86200 },
+  hash: "39292f01ec8781b84a9cdc3a2d1b29d896c172a52d56a8a60d235cc16dd28366",
+  budget: { bytes: 3490500, draws: 11, instances: 0, vertices: 92952 },
 };
 
-test("synchronous and cooperative paths preserve the pre-yield production buffers", async () => {
+test("synchronous and cooperative paths preserve the complete v182 production buffers", async () => {
   const synchronous = createParkDetails(pathPayload, { pathTerrainAt: terrainAt });
   expect(staticGeometryAudit(synchronous)).toEqual(originalProductionPathAudit);
   let tasks = 0;

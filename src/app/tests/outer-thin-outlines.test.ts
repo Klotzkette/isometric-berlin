@@ -5,9 +5,9 @@ import { outlineNavigationEnvelopeBounds } from "../src/outlineNavigationEnvelop
 import data from "../src/data/outerThinOutlines.json";
 import { PRESENTATION_BACKDROP_BOUNDS, extrapolatedEnvelopeBounds } from "../src/worldEnvelope";
 
-test("thin outer context shares one bounded position buffer and never solid landmark bodies", () => {
+test("thin outer context retains its bounded hairlines beside the requested v182 landmarks", () => {
   const root = createOuterThinOutlines("day");
-  expect(root.children).toHaveLength(3);
+  expect(root.children).toHaveLength(4);
   const lines = root.children[0] as LineSegments;
   expect(lines.isLineSegments).toBeTrue();
   expect(lines.geometry.getAttribute("position").array.byteLength).toBeLessThan(1_000_000);
@@ -31,7 +31,7 @@ test("thin outer context shares one bounded position buffer and never solid land
   for (const mode of ["night", "snowstorm", "schwellenraum", "flood", "minecraft", "day"]) {
     root.userData.setMode(mode);
     expect(lines.geometry.getAttribute("position")).toBe(positions);
-    expect(root.children).toHaveLength(3);
+    expect(root.children).toHaveLength(4);
     expect((lines.material as any).map).toBeNull();
     const paper = (root.children[1] as Mesh).geometry;
     const vertices = paper.getAttribute("position");
@@ -43,9 +43,11 @@ test("thin outer context shares one bounded position buffer and never solid land
         Math.max(...zs) <= existing.minZ || Math.min(...zs) >= existing.maxZ).toBeTrue();
     }
   }
-  for (const child of root.children as (LineSegments | Mesh)[]) {
-    child.geometry.dispose(); (child.material as any).dispose();
-  }
+  root.traverse(object => {
+    const child = object as Mesh;
+    child.geometry?.dispose();
+    if (child.material) (child.material as any).dispose();
+  });
 });
 
 test("every source vertex including the AVUS end fits the camera envelope", () => {

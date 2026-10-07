@@ -1090,6 +1090,35 @@ def test_zip_package_failures_accepts_complete_zip(tmp_path: Path) -> None:
   assert release_readiness.zip_package_failures(tmp_path) == []
 
 
+@pytest.mark.parametrize("kind", ["zip", "tar"])
+def test_offline_budget_still_rejects_one_byte_over_limit(
+  tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str
+) -> None:
+  checker = load_script_module(
+    f"check_release_readiness_budget_{kind}", "scripts/check_release_readiness.py"
+  )
+  (tmp_path / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n', encoding="utf-8"
+  )
+  if kind == "zip":
+    path = write_minimal_package_zip(tmp_path, checker)
+    with zipfile.ZipFile(path) as archive:
+      size = sum(member.file_size for member in archive.infolist())
+    check = checker.zip_package_failures
+  else:
+    path = write_minimal_static_tarball(tmp_path, checker)
+    with tarfile.open(path, "r:gz") as archive:
+      size = sum(member.size for member in archive if member.isfile())
+    check = checker.static_tarball_failures
+  # Scale the fixture ceiling, not the release data. The new archive allowance
+  # remains a real inclusive bound for both distribution formats.
+  monkeypatch.setattr(checker, "MAX_PACKAGE_UNCOMPRESSED_BYTES", size)
+  assert check(tmp_path) == []
+  monkeypatch.setattr(checker, "MAX_PACKAGE_UNCOMPRESSED_BYTES", size - 1)
+  failures = check(tmp_path)
+  assert len(failures) == 1 and "extracted budget" in failures[0]
+
+
 def test_zip_package_failures_require_street_details(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_zip_street_details",

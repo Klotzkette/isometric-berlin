@@ -58,9 +58,12 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v168 adds full Scheunenviertel source families, HU/TU and the Teehaus ruin.
 # v169 adds 8,374 complete official Alt-Mitte source families and OSM facades,
 # including separate full drawn/native geometry in bounded modules/packets.
-# The final built site is 452.0 MiB; this finite 465 MiB offline ceiling changes
-# neither live packet/decode/GPU residency budgets nor source-detail policy.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 465 * 1024 * 1024
+# Owner-approved v182 adds 50,942,796 bytes of independent Ringbahn packets and
+# inventory, plus measured landmarks and localized DGM terrain. The complete
+# extracted release is 542,897,262 bytes (517.75 MiB); the finite 525 MiB ceiling
+# leaves 7.25 MiB headroom. See docs/ring-city-v182.md. This archive-only allowance
+# changes no live packet/decode/GPU residency budget or source-detail policy.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 525 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

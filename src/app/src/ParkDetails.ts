@@ -38,6 +38,8 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { partitionStaticSpatialInstancesSteps } from "./staticSpatialInstances";
 import { indexGeometryExactly } from "./exactGeometryIndex";
 import { completeCooperatively } from "./cooperativeWork";
+import { coreParkReliefContains } from "./parkReliefV182";
+import parkRelief from "./data/parkReliefV182.json";
 import {
   inPotsdamerPanoramaLandscape,
   POTSDAMER_PANORAMA_LANDSCAPE,
@@ -882,6 +884,66 @@ export function smoothParkPathPoints(path: ParkPath): Vector3[] {
   return smoothed;
 }
 
+const humboldthainSupport = parkRelief.profiles.find(profile => profile.name === "Volkspark Humboldthain")!.support;
+
+/** Refine only the hill interval of existing chords; keep their exact XZ trace. */
+export function refineCoreParkPathPoints(points: Vector3[]): Vector3[] {
+  if (points.length < 2) return points;
+  const [west, north, east, south] = humboldthainSupport;
+  const refined = [points[0]];
+  for (let index = 1; index < points.length; index++) {
+    const a = points[index - 1], b = points[index];
+    let start = 0, end = 1;
+    for (const [origin, delta, low, high] of [
+      [a.x, b.x - a.x, west - 16, east + 16],
+      [a.z, b.z - a.z, north - 16, south + 16],
+    ]) {
+      if (delta === 0) {
+        if (origin < low || origin > high) { start = 1; end = 0; break; }
+      } else {
+        const t0 = (low - origin) / delta, t1 = (high - origin) / delta;
+        start = Math.max(start, Math.min(t0, t1));
+        end = Math.min(end, Math.max(t0, t1));
+      }
+    }
+    if (end > start) {
+      const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) * (end - start) / 2));
+      if (start > 0) refined.push(a.clone().lerp(b, start));
+      for (let step = 1; step <= steps; step++) {
+        const t = start + (end - start) * step / steps;
+        if (t < 1) refined.push(a.clone().lerp(b, t));
+      }
+    }
+    refined.push(b);
+  }
+  return refined.length === points.length ? points : refined;
+}
+
+/** Source points already carry the hill placement. Retain their tiny authored
+ * clearance while sampling the hill between them, including stair paths. */
+export function createCoreParkPathTerrainSampler(
+  groundAt: (x: number, z: number) => number,
+): ParkPathTerrainAt {
+  const offsets = new WeakMap<ParkPath, number>();
+  return (path, x, z, sourceY) => {
+    if (!coreParkReliefContains(x, z)) return sourceY;
+    let offset = offsets.get(path);
+    if (offset === undefined) {
+      const clearances = path.points
+        .filter(point => coreParkReliefContains(point[0], point[2]))
+        .map(point => point[1] - groundAt(point[0], point[2]))
+        .sort((a, b) => a - b);
+      // A crossing with both source ends outside the finite hill still uses
+      // its original endpoint clearance; no extra terrain source is retained.
+      const first = path.points[0];
+      offset = clearances.length ? clearances[Math.floor(clearances.length / 2)]
+        : first[1] - groundAt(first[0], first[2]);
+      offsets.set(path, offset);
+    }
+    return groundAt(x, z) + offset;
+  };
+}
+
 export function createPathGeometry(
   paths: ParkPath[],
   width: number | ((path: ParkPath) => number),
@@ -905,14 +967,14 @@ function* createPathGeometrySteps(
   const indices: number[] = [];
   for (const path of paths) {
     const resolvedWidth = typeof width === "number" ? width : width(path);
-    const points = smoothParkPathPoints(path).filter(
+    const points = refineCoreParkPathPoints(smoothParkPathPoints(path).filter(
       (point, index, entries) =>
         index === 0 ||
         Math.hypot(
           point.x - entries[index - 1].x,
           point.z - entries[index - 1].z,
         ) >= 0.05,
-    );
+    ));
     if (points.length < 2) continue;
     const offset = positions.length / 3;
     const halfWidth = resolvedWidth / 2;

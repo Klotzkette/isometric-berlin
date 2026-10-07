@@ -17,6 +17,20 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Ringbahn neighbourhoods, Steglitz and civic outlines (v1.0.82):** The retained
+  29 September 2026 Geofabrik Berlin extract supplies OpenStreetMap footprints
+  and road/path courses (ODbL-1.0); official Berlin LoD2 supplies measured
+  building surfaces and envelopes (dl-de/zero-2-0). Official Berlin spring-2025
+  orthophotography is visual QA only. Published operator, heritage and artwork
+  records guide recognition details; unmeasured facade/scaffold subdivisions,
+  missing heights and widths remain labelled display estimates. The owner's
+  Kreisel photographs remain reference-only. Colin Smith's *Rathaus Steglitz
+  (Steglitz Town Hall)* photograph is credited under CC BY-SA 2.0 in both
+  Wikimedia manifests. No photographic pixels or textures are bundled.
+  See [ring scope and sources](docs/ring-city-v182.md),
+  [Steglitz evidence](docs/steglitz-v182.md) and
+  [civic recognition evidence](docs/city-recognition-v182.md).
+
 - **Outer connections and Ringbahn stations (v1.0.80):** The retained OSM
   extract supplies exact street and station outlines (ODbL-1.0); available
   Berlin LoD2 evidence supplies source heights (dl-de/zero-2-0). Inferred road
