@@ -5302,6 +5302,88 @@
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false,
       "usage_note": "Three independent square basin rims and central jets; no measured dimensions"
+    },
+    {
+      "title": "File:Haus des Reisens, 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Haus_des_Reisens,_2024_(01).jpg",
+      "artist": "Bahnfrend",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Bahnfrend, Haus des Reisens, 2024 (01), 3 August 2024, Wikimedia Commons, CC BY-SA 4.0. Inspected externally for the aluminium curtain-wall grid, horizontal spandrels and concave concrete podium eaves; independently authored procedural members, no photographic pixels, artwork tracing, tenant logo, crop or image texture bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "suhrkamp",
+      "title": "File:Suhrkamp Verlag 2019 Querformat.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Suhrkamp_Verlag_2019_Querformat.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "New York-air",
+      "credit": "New York-air, 2019-10-07 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Silver aluminium bands, narrow Torstraße glazing and western concrete stair core. The temporary 2019 construction fence is not represented."
+    },
+    {
+      "landmark_id": "pfefferberg",
+      "title": "File:Berlin-Mitte, Prenzlauer Berg, Schönhauser Allee, Terassenabschluß der Brauerei Pfefferberg 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_Prenzlauer_Berg,_Schönhauser_Allee,_Terassenabschluß_der_Brauerei_Pfefferberg_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Carl Ha",
+      "credit": "Carl Ha, 2025-06-29 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Dated terrace frontage, pale pilasters and cornice. The present coarse shell is not misrepresented as a complete open-colonnade reconstruction."
+    },
+    {
+      "landmark_id": "pfefferberg",
+      "title": "File:Berlin-Mitte, Prenzlauer Berg, Schönhauser Allee, Terassenabschluß der Brauerei Pfefferberg 10.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_Prenzlauer_Berg,_Schönhauser_Allee,_Terassenabschluß_der_Brauerei_Pfefferberg_10.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Carl Ha",
+      "credit": "Carl Ha, 2025-06-29 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Identification and limitation check: ornate fountain/mosaic and graffiti are not reproduced."
+    },
+    {
+      "landmark_id": "pfefferberg",
+      "title": "File:Prenzlauer Berg Pfefferberg-001.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Prenzlauer_Berg_Pfefferberg-001.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett, 2014-02-28 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Dated hall reference: tall dark-framed openings, pale peach plaster and profiled eaves. Seasonal objects and sculpture are not reproduced."
+    },
+    {
+      "landmark_id": "volksbuehne_v189",
+      "title": "File:Berlin-Volksbuehne am Rosa-Luxemburg-Platz-08-2016-gje.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Volksbuehne_am_Rosa-Luxemburg-Platz-08-2016-gje.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gerd Eichmann",
+      "credit": "Gerd Eichmann, 12 March 2016 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "use": "Inspected frontal photograph: curved limestone facade, six columns, five tall foyer fields, lettering, banner placement and flat steel wheel silhouette. Independent procedural geometry; no pixels bundled. Historical OST and temporary posters are not reproduced."
+    },
+    {
+      "landmark_id": "raeuberrad_v189",
+      "title": "File:Berlin Rosa-Luxemburg-Platz lub 2025-11-29 img03 Räuberrad.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Rosa-Luxemburg-Platz_lub_2025-11-29_img03_R%C3%A4uberrad.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "artist": "Lukas Beck",
+      "credit": "Lukas Beck, 29 November 2025 / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "use": "Inspected rear close view: six open sectors, broad flat steel ring/spokes, two slanting legs and both feet pointing in the same direction; dark rust-brown material. No copied graffiti, stickers, pixels or texture."
     }
   ]
 }
