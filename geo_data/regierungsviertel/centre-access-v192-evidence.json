@@ -1,0 +1,134 @@
+{
+  "version": "v1.0.92",
+  "pipelineStep": 10,
+  "scope": "Three existing station entrance fittings within Pariser/Potsdamer squares; no street/building/source regeneration.",
+  "sourcePreservation": [
+    {
+      "path": "src/app/src/CentralCivicDetails.ts",
+      "sha256": "be30022597bca9d5f05572b80c9ea474bb4aa404b9ef9a3d7fc936e4f15fb6af"
+    },
+    {
+      "path": "src/app/src/ExpandedCityDetails.ts",
+      "sha256": "e084337c45d6000ba7d0402c05e395122f993ec7e0347741f662667fd0e8775a"
+    },
+    {
+      "path": "src/app/src/expandedCityProfiles.ts",
+      "sha256": "6cda698748f9d80437ef27cd81d1f7ed6052c4b9f2f8a337524ff33b902075c0"
+    },
+    {
+      "path": "src/app/src/PariserPlatzArchitecture.ts",
+      "sha256": "aa57a73f062cbfc549ab4fb20db671cbbffc15862bb4cdd22a2a1fabc40eaf05"
+    },
+    {
+      "path": "src/app/src/PotsdamerMinistryArchitecture.ts",
+      "sha256": "ea363dc9b556331ee7bcd09ccb3a661629c9d1013cb0f4865798c3953a139f75"
+    }
+  ],
+  "anchors": {
+    "pariser": {
+      "worldM": [
+        576.06,
+        4.8,
+        286.37
+      ],
+      "yawRad": 0.087,
+      "basis": "Retained CentralCivicDetails authored OSM entrance anchor; no new plan claim."
+    },
+    "potsdamerNorth": {
+      "owner": "DEBE01YYK0002SCt",
+      "osmNode": "2491824683"
+    },
+    "potsdamerSouth": {
+      "owner": "DEBE01YYK0000BRX",
+      "osmNode": "1576240058"
+    }
+  },
+  "interpretiveDetails": "Glass edge profiles/clamps, rail posts, U/name/DB signs are code-native display-fit recognition detail. No survey dimensions or traced photo geometry; all prior panes, source envelopes, roof grids and stairs retained. Old U55 reference is only material/system evidence; no obsolete U55 route label copied.",
+  "visualReferences": [
+    {
+      "landmark_id": "pariser-access-v192",
+      "title": "File:U-Bahnhof Brandenburger Tor, entrance 07-2011 (ubt-31).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AU-Bahnhof_Brandenburger_Tor%2C_entrance_07-2011_%28ubt-31%29.jpg",
+      "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/U-Bahnhof_Brandenburger_Tor%2C_entrance_07-2011_%28ubt-31%29.jpg/960px-U-Bahnhof_Brandenburger_Tor%2C_entrance_07-2011_%28ubt-31%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "width": 640,
+      "height": 480,
+      "mime": "image/jpeg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Tomasz Sienicki [user: tsca , mail: tomasz.sienicki at gmail.com]",
+      "credit": "Photograph by Tomasz Sienicki ( Own work )",
+      "description": "Berlin, Germany, 2011"
+    },
+    {
+      "landmark_id": "pariser-access-sign-v192",
+      "title": "File:U-Bahn Berlin Brandenburger Tor Eingang.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AU-Bahn_Berlin_Brandenburger_Tor_Eingang.jpg",
+      "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/U-Bahn_Berlin_Brandenburger_Tor_Eingang.jpg/960px-U-Bahn_Berlin_Brandenburger_Tor_Eingang.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "width": 640,
+      "height": 853,
+      "mime": "image/jpeg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "artist": "thorbengeyer from Berlin",
+      "credit": "U-Bhf. Brandenburger Tor",
+      "description": "Schild am Eingang des Berliner U-Bahnhofes Brandenburger Tor"
+    },
+    {
+      "landmark_id": "potsdamer_platz_station",
+      "title": "File:Nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin-1785.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AN%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg",
+      "thumbnail_path": "potsdamer_platz_station_01_file-nordlicher-eingang-zum-bahnhof-potsdamer-platz-berlin-1785-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/N%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg/960px-N%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work",
+      "description": "nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin",
+      "dominant_colours": [
+        "#c4baab",
+        "#afa697",
+        "#908981",
+        "#766f6a",
+        "#666463",
+        "#414143"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "potsdamer_platz_station",
+      "title": "File:Südlicher Eingang zum Bahnhof Potsdamer Platz-1746.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AS%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg",
+      "thumbnail_path": "potsdamer_platz_station_02_file-sudlicher-eingang-zum-bahnhof-potsdamer-platz-1746-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/S%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg/960px-S%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work",
+      "description": "Südlicher Eingang zum Bahnhof Potsdamer Platz, Berlin",
+      "dominant_colours": [
+        "#c8c3bd",
+        "#b9aa9d",
+        "#899fb3",
+        "#867e76",
+        "#696f74",
+        "#4b4845"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    }
+  ],
+  "referencePixelsBundled": false,
+  "runtimeTextures": false,
+  "budgetMeasured": {
+    "drawn": {
+      "drawCalls": 3,
+      "instances": 403,
+      "bufferBytes": 32572
+    },
+    "minecraft": {
+      "drawCalls": 3,
+      "blocks": 1200,
+      "bufferBytes": 93144
+    }
+  },
+  "fullStaticDetailOnTouch": true
+}

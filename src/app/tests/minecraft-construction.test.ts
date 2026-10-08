@@ -2,13 +2,16 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v190.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v192.json";
 
-// Independently measured synchronous v190 geometry must equal cooperative
+// Independently measured synchronous v192 geometry must equal cooperative
 // construction below (both profiles were compared byte-for-byte by SHA-256).
-// Earlier fixtures remain frozen. The complete resident Alt-Mitte shells replace
-// only their exact source-owned old columns. This cumulative fixture proves
-// construction-path equality; separate source audits prove prior detail retention.
+// Earlier fixtures remain frozen. Restoring only the three edited native modules
+// from v191 reproduces the v190 fixture exactly in both profiles. The v192 delta
+// is +32 government / +294 Zoo instances, minus two exact canopy columns and
+// four net facade panes (full only). See docs/minecraft-construction-v192.md.
+// This cumulative fixture proves construction-path equality; separate source
+// audits prove prior detail retention.
 for (const [profile, expected] of Object.entries(baseline)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(

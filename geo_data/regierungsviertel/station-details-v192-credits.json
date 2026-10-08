@@ -1,0 +1,25 @@
+{
+  "source": "Wikimedia Commons, reference-only inspection 2026-10-08",
+  "records": [
+    {
+      "title": "File:S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:S-Bahnsteig_Bahnhof_Berlin-Alexanderplatz_2023.jpg",
+      "artist": "Sebastian Wallroth",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Sebastian Wallroth, S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023, 29 September 2023, Wikimedia Commons, CC BY 4.0. Inspected 8 October 2026 for longitudinal barrel-roof members, hanging lights and blue platform signs; independently authored geometric detail, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_U-Bahnhof_Zoologischer_Garten_Berlin_01.jpg",
+      "artist": "Geoprofi Lars",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Geoprofi Lars, 2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01, 19 July 2021, Wikimedia Commons, CC BY-SA 4.0. Inspected 8 October 2026 for transparent gabled canopy, stone posts, rose-grey framing, glass railings and separate U/U2/U9 plaques; independently authored geometry, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ]
+}

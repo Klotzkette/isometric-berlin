@@ -34,6 +34,10 @@ import {
   MINECRAFT_PALETTE,
 } from "./visual-modes/minecraft/palette";
 import { invalidenfriedhofVoxelReplacementAt } from "./InvalidenfriedhofDetails";
+import {
+  chancelleryLoggiaMembersV192,
+  hauptbahnhofNativePortalMembersV192,
+} from "./GovernmentApproachesV192";
 
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];
@@ -986,6 +990,9 @@ function createChancelleryBlocks(
   const plan = newPlan();
   const cube = profile.cube;
   const [cubeX, cubeZ] = cube.offsetLocal;
+  for (const member of chancelleryLoggiaMembersV192(cubeX, cubeZ, cube.widthM, true)) {
+    pushLocalBlock(plan, frame, member.role, member.position, member.size, member.color);
+  }
 
   // Six overscale courses per pylon establish the Kanzleramt as a white
   // Minecraft monument before any window cue is visible.
@@ -1201,6 +1208,17 @@ function createHauptbahnhofBlocks(
 
   const eastWest = profile.eastWestRoof;
   const northSouth = profile.northSouthHall;
+  for (const side of [-1, 1]) {
+    const entrance = profile.entrances.northSouth;
+    for (const member of hauptbahnhofNativePortalMembersV192(
+      side * entrance.endLocalZ,
+      profile.publicFloorTopLocalY,
+      entrance.clearHeightM,
+      entrance.clearHalfWidthM,
+    )) {
+      pushLocalBlock(plan, frame, member.role, member.position, member.size, member.color);
+    }
+  }
   const eastWestWallTopY =
     eastWest.baseY +
     eastWest.riseM * Math.sqrt(1 - (18 / (eastWest.widthM / 2)) ** 2) -

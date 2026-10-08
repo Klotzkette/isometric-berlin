@@ -56,6 +56,11 @@ import {
 } from "./HauptbahnhofAccessProfile";
 
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits } from "./ChancelleryEntranceProfile";
+import {
+  chancelleryLoggiaMembersV192,
+  createApproachMemberBatchV192,
+  hauptbahnhofPortalMembersV192,
+} from "./GovernmentApproachesV192";
 
 export type FocusCamera = {
   azimuth_degrees: number;
@@ -4016,6 +4021,14 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   addChancelleryStreetEntrance(group, signature);
   for (const child of group.children.slice(entranceStart)) child.position.y += CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - signature.anchor_world[1];
   addChancelleryDocumentedDetail(group, signature);
+  group.add(createApproachMemberBatchV192(
+    "Chancellery v192 loggia metalwork",
+    chancelleryLoggiaMembersV192(
+      signature.cube_offset_world[0],
+      signature.cube_offset_world[2],
+      signature.cube_width_m,
+    ),
+  ));
   const forecourtStart = group.children.length;
   addChancelleryForecourt(group, signature);
   addChancelleryPolice(group, signature);
@@ -6426,6 +6439,10 @@ function addStationHallEntranceFacade(
     frame,
     [{ position: [0, 1.5, outward * foyer.foyerInnerLocalZ] }],
   );
+  group.add(createApproachMemberBatchV192(
+    "Hauptbahnhof v192 portal metalwork",
+    hauptbahnhofPortalMembersV192(z),
+  ));
 }
 
 function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {

@@ -1,0 +1,80 @@
+{
+  "removedColumns": [
+    [
+      -661,
+      335,
+      52,
+      92,
+      3
+    ],
+    [
+      -660,
+      335,
+      52,
+      92,
+      3
+    ]
+  ],
+  "localColumns": [
+    [
+      -662,
+      334,
+      52,
+      172,
+      3
+    ],
+    [
+      -661,
+      334,
+      52,
+      172,
+      3
+    ],
+    [
+      -661,
+      335,
+      52,
+      92,
+      3
+    ],
+    [
+      -660,
+      335,
+      52,
+      92,
+      3
+    ]
+  ],
+  "retainedNeighbourColumns": [
+    [
+      -662,
+      334,
+      52,
+      172,
+      3
+    ],
+    [
+      -661,
+      334,
+      52,
+      172,
+      3
+    ]
+  ],
+  "sourceColumnsByPrism": [
+    {
+      "id": "57658318",
+      "count": 2,
+      "sha256": "ef4c4cc35e344f0b70ea67d7f0cf64deea0cbcde1f676de30843db61846ea72a"
+    }
+  ],
+  "panes": {
+    "removed": 5,
+    "exposed": 1,
+    "netRemoved": 4
+  },
+  "removedColumnInstances": {
+    "full": 2,
+    "mobile": 2
+  }
+}

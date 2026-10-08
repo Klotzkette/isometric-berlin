@@ -6,6 +6,7 @@ import {
 import source from "./data/zooStationV165Source.json";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createZooEntranceDetailsV192 } from "./StationDetailsV192";
 
 export const ZOO_STATION_V165_GROUP = "Bahnhof Zoo transparent source halls and Amerika Haus";
 export const ZOO_STATION_V165_NATIVE_GROUP = "Bahnhof Zoo and Amerika Haus independent native blocks";
@@ -115,6 +116,7 @@ function create(native:boolean):Group{
     group.add(sourceMesh(false),sourceMesh(true));
     const members=instanced(boxes,beams,false,false);members.name="Zoo steel glazing grid sleepers stairs and Amerika Haus mosaic";group.add(members);
   }
+  group.add(createZooEntranceDetailsV192(native));
   group.userData={...ZOO_STATION_V165_PROFILE,detailProfile:"full",nativeMinecraft:native,textureFree:true,staticDetailParity:true};freezeStaticSceneTransforms(group);return group;
 }
 export function createZooStationV165(_options?:{detailProfile?:"full"|"mobile"}):Group{return create(false);}

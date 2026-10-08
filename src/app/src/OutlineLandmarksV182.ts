@@ -28,6 +28,7 @@ import { createNorthSitesV190 } from "./NorthSitesV190";
 import { createMinecraftNorthSitesV190 } from "./MinecraftNorthSitesV190";
 import { createGrunewaldLandmarksV190 } from "./GrunewaldLandmarksV190";
 import { createRailStationsV190 } from "./RailStationsV190";
+import { createCentreAccessV192 } from "./CentreAccessV192";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -81,6 +82,7 @@ export function createOutlineLandmarksV182(
       root.add(nextNative ? createMinecraftNorthSitesV190() : createNorthSitesV190());
       root.add(createGrunewaldLandmarksV190(nextNative));
       root.add(createRailStationsV190(nextNative));
+      root.add(createCentreAccessV192(nextNative));
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }

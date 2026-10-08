@@ -17,6 +17,15 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Central approaches and station details (v1.0.92):** Existing Berlin LoD2
+  (dl-de/zero-2-0) and OSM (ODbL-1.0) envelopes and anchors remain the metric
+  basis. Small portal, railing, sign and roof-member subdivisions are documented
+  reference-guided display estimates. The exact coarse Zoo entrance canopy owner
+  is retained in evidence and replaced only by its open source-bound model.
+  Freely licensed photographs remain external references, individually credited
+  in both Wikimedia manifests; no photographic pixels are distributed.
+  See [scope and verification](docs/release-v1.0.92-review.md).
+
 - **Rail, northern neighbourhoods and Grunewald (v1.0.90):** Retained OpenStreetMap
   routes, administrative boundaries, buildings and public-space geometry (ODbL-1.0)
   combine with official Berlin LoD2 and DGM1 (dl-de/zero-2-0). Source-derived heights

@@ -10,7 +10,8 @@ const ground=await Bun.file(new URL("../public/mesh/regierungsviertel/ground-con
 describe("Zoo station public circulation",()=>{
  it("replaces exact old source owners by complete parts and resolves both roof readings",()=>{
   let mode:VisualMode="day";const index=compilePedestrianObstacles(prisms,()=>mode),objects=[...new Set([...index.cells.values()].flat())];
-  expect(index.buildingCount).toBe(nav.parts.reduce((n,p)=>n+p.rings.length,0));
+  expect(index.buildingCount).toBe(nav.parts.reduce((n,p)=>n+p.rings.length,0)+1);
+  expect(objects.filter(o=>o.sourceId==="OSM-way-157658318-open-canopy").length).toBe(1);
   for(const p of nav.legacyPrisms)expect(objects.some(o=>o.sourceId===p.id)).toBe(false);
   const part=objects.find(o=>o.sourceId==="DEBE3Da0o45DZ0Ie")!;
   for(const m of ["day","minecraft"] as const){mode=m;if(part.kind==="polygon")expect(part.topAt?.(-2660,1190)).toBe(zooStationV165RoofAt(-2660,1190,m==="minecraft"));}

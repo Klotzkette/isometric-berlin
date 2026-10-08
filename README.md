@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.91 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.91/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.92 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.92/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.91** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.92** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.92 refines selected station approaches and architectural fittings around
+Hauptbahnhof, the Chancellery, Brandenburg Gate, Potsdamer Platz, Alexanderplatz
+and Bahnhof Zoo. Existing source models remain; small unsurveyed members are
+explicitly documented display estimates.
+[Sources and verification](docs/release-v1.0.92-review.md).
+
+Version 1.0.92 verfeinert ausgewählte Bahnhofszugänge und kleine Architekturdetails
+am Hauptbahnhof, Kanzleramt, Brandenburger Tor, Potsdamer Platz, Alexanderplatz
+und Bahnhof Zoo. Bestehende Stadtmodelle bleiben erhalten; nicht vermessene
+Kleinteile sind als gestalterische Näherungen dokumentiert.
 
 Version 1.0.91 moves the full source and license notices into an on-demand menu dialog.
 Version 1.0.91 zeigt Quellen und Lizenzen auf Wunsch über das Menü statt direkt auf dem Startbildschirm.

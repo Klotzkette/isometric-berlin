@@ -20,8 +20,9 @@ describe("v183 Alexander architecture and station hall contracts", () => {
   });
   test("drawn geometry keeps opaque roofs, transparent glass and open truss members at a bounded budget", () => {
     const a = createAlexanderStationsV183(), m = meshes(a), instances = m.filter(o => o instanceof InstancedMesh) as InstancedMesh[];
-    expect(m.length).toBe(6);
-    expect(instances.length).toBe(1);
+    expect(m.length).toBe(7);
+    expect(instances.length).toBe(2);
+    expect(instances[1].userData.roles).toContain("Alexander-longitudinal-purlin");
     expect(instances[0].count).toBeLessThan(14000);
     const glass = m.find(o => o.userData.glass)!;
     expect((glass.material as MeshBasicMaterial).opacity).toBeLessThan(.2);
@@ -35,9 +36,9 @@ describe("v183 Alexander architecture and station hall contracts", () => {
     console.log("v183 smooth", { draws: m.length, instances: a.userData.instanceCount });
     dispose(a); dispose(mobile);
   });
-  test("native uses two orthogonal surface batches with genuine transparent glazing", () => {
+  test("native uses three orthogonal surface batches with genuine transparent glazing", () => {
     const a = createMinecraftAlexanderStationsV183(), m = meshes(a), matrix = new Matrix4();
-    expect(m.length).toBe(2);
+    expect(m.length).toBe(3);
     expect(a.userData.instanceCount).toBeLessThan(90000);
     for (const mesh of m as InstancedMesh[]) {
       expect(mesh.userData.blockNative).toBe(true);

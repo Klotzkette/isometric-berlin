@@ -1,0 +1,60 @@
+{
+  "scope": "Step 10; Alexanderplatz hall/ALEXA letters and exact Zoo U entrance O canopy owner 57658318 only",
+  "retained_payload_sha256": {
+    "src/app/src/data/zooStationV165Source.json": "87fdadccdb4a0051190523c59e73756ffba45db405c1c7eb51b06b65f7d274a7",
+    "src/app/src/data/zooStationV165Navigation.json": "1dbdc7fd5c4ab8efc0a50b2098f112e1705241997a2f2b8712c2367fac1387c2",
+    "src/app/src/data/alexanderStationsV183Source.json": "51016a4ac8e3562c7fa3f53931663b017b94588b82245239c331f309a4900366",
+    "src/app/src/data/alexanderStationsV183Navigation.json": "f83864e12084934381ac3390873c9beda23cbe0199997d23bf0fc2f7a5ebd2e6"
+  },
+  "official_references": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011324",
+      "fact": "Round-arched hall, glazed ends/sides, four tracks and two island platforms; retained existing geometry."
+    },
+    {
+      "url": "https://sbahn.berlin/fahren/bahnhofsuebersicht/alexanderplatz/",
+      "fact": "Official station name and interchange; no dynamic timetable invented."
+    },
+    {
+      "url": "https://sbahn.berlin/fahren/bahnhofsuebersicht/zoologischer-garten/",
+      "fact": "Official Zoologischer Garten station identity and U2/U9 access functions."
+    }
+  ],
+  "source_receipt": "src/app/src/data/stationDetailsV192.json",
+  "photos": [
+    {
+      "title": "File:S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:S-Bahnsteig_Bahnhof_Berlin-Alexanderplatz_2023.jpg",
+      "artist": "Sebastian Wallroth",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Sebastian Wallroth, S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023, 29 September 2023, Wikimedia Commons, CC BY 4.0. Inspected 8 October 2026 for longitudinal barrel-roof members, hanging lights and blue platform signs; independently authored geometric detail, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_U-Bahnhof_Zoologischer_Garten_Berlin_01.jpg",
+      "artist": "Geoprofi Lars",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Geoprofi Lars, 2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01, 19 July 2021, Wikimedia Commons, CC BY-SA 4.0. Inspected 8 October 2026 for transparent gabled canopy, stone posts, rose-grey framing, glass railings and separate U/U2/U9 plaques; independently authored geometry, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "substitution": {
+    "old_owner": "57658318",
+    "original_osm_way": "157658318",
+    "new_owner": "OSM-way-157658318-open-canopy",
+    "policy": "Only the exact mapped roof owner is substituted. Complete old prism record remains in receipt and original core payload. All other buildings including overlapping source -3652421 remain. Native masking requires both matching footprint and original base/quantized height."
+  },
+  "display_estimates": [
+    "Zoo 2.35m eave height within mapped 3m roof envelope, member/post dimensions and spacing, railing width, plaques.",
+    "Alex longitudinal purlin layout and lamp positions; existing sign boards retained with fit-to-board geometric text."
+  ],
+  "limitations": [
+    "Underground U-Bahn route, terrain and controller are unchanged; visible entrance canopy and guards only.",
+    "No reconstructed literal facade window survey or timetable; no photo/font textures."
+  ]
+}

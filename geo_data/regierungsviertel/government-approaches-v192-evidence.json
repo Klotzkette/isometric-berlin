@@ -1,0 +1,107 @@
+{
+  "version": "1.0.92",
+  "scope": "Step 10; bounded additive metalwork at existing Hauptbahnhof public portals and Chancellery round-opening loggias only. No change to surrounding source buildings, streets, water, gardens, navigation or resident budgets.",
+  "sourceGeometry": {
+    "scene": "src/app/public/mesh/regierungsviertel/scene.json",
+    "sceneSha256": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+    "stationAccess": "src/app/src/HauptbahnhofAccessProfile.ts",
+    "stationAccessSha256": "5eed62af51a2b225dcbc8f810e706828cb0e249cd73836054da61ee363e62ea2",
+    "stationPortalClearWidthM": 2.3,
+    "stationPortalClearHeightM": 4.9,
+    "stationPortalPairsPerSide": 6,
+    "chancelleryExistingBalconySpanM": 29,
+    "chancelleryAddedDetailYLocal": [
+      10.5575,
+      12.6775
+    ]
+  },
+  "primaryAccounts": [
+    {
+      "url": "https://www.bahnhof.de/downloads/station-plans/1071.pdf",
+      "role": "Rechecked 2026-10-08: Washingtonplatz and Europaplatz public exits; does not measure portal sections."
+    },
+    {
+      "url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040",
+      "role": "Rechecked 2026-10-08: official building identity and Schultes/Frank authorship. Not a per-member dimensional survey."
+    }
+  ],
+  "visualReferenceRecords": [
+    {
+      "manifest": "geo_data/regierungsviertel/wikimedia_references.json",
+      "recordTitle": "File:Berlin Hauptbahnhof, Ansicht vom Washingtonplatz.jpg",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof%2C_Ansicht_vom_Washingtonplatz.jpg",
+      "license": "CC BY-SA 4.0",
+      "artist": "JoachimKohlerBremen",
+      "retainedThumbnailSha256": "19bd12ce08b1760e26a0f882e4465bc77727e8ebc7eb3ef2ace60a958205761f",
+      "role": "Existing individually credited free visual reference; no image pixels newly bundled or used as textures."
+    },
+    {
+      "manifest": "geo_data/regierungsviertel/wikimedia_references.json",
+      "recordTitle": "File:A Schultes Bundeskanzleramt side detail1.JPG",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File%3AA_Schultes_Bundeskanzleramt_side_detail1.JPG",
+      "license": "CC BY-SA 3.0",
+      "artist": "Junction35",
+      "retainedThumbnailSha256": "9a8e11ef7ad3cdf6486e3c0df513e30661be7b361dda0f7d89bf8e975ae36df8",
+      "role": "Existing individually credited free visual reference; no image pixels newly bundled or used as textures."
+    },
+    {
+      "manifest": "geo_data/regierungsviertel/wikimedia_references.json",
+      "recordTitle": "File:B Bundeskanzleramt 2.JPG",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File%3AB_Bundeskanzleramt_2.JPG",
+      "license": "CC BY-SA 3.0",
+      "artist": "Warburg",
+      "retainedThumbnailSha256": "d3ebfe4f2acd6000b482e606e97d87cb32e87dfd2afb8e424e75b466eabec2d6",
+      "role": "Existing individually credited free visual reference; no image pixels newly bundled or used as textures."
+    }
+  ],
+  "interpretationLimits": [
+    "Header, jamb and metal sections are unsurveyed display dimensions; original entrance aperture dimensions and both model frames remain authoritative.",
+    "Only the existing displayed sill above local 10.5m is accented; no new hole is cut into the masonry below it.",
+    "Dated exterior photos establish architectural form, not current maintenance/security arrangements.",
+    "Minecraft retains its old broad entrance, approximate profile and stepped shell; added thick bars use its fixed palette.",
+    "All smooth geometry stays equally detailed on desktop/mobile. No photography, shaders, animation, storage budgets or public geodata are added or changed."
+  ],
+  "budget": {
+    "drawn": {
+      "drawCalls": 3,
+      "instances": 62,
+      "bufferBytes": 7232
+    },
+    "native": {
+      "extraDrawCalls": 0,
+      "authoredMembers": 12,
+      "postSplitInstances": 32,
+      "extraInstanceBufferBytes": 2432
+    }
+  },
+  "cameraPoses": [
+    {
+      "name": "Washingtonplatz portals",
+      "position": [
+        -75.333,
+        13.575,
+        -571.9043
+      ],
+      "target": [
+        -86.4837,
+        7.775,
+        -599.7549
+      ],
+      "fov": 38
+    },
+    {
+      "name": "Chancellery east round opening",
+      "position": [
+        -77.9283,
+        24.554,
+        -114.477
+      ],
+      "target": [
+        -125.8542,
+        13.354,
+        -143.5612
+      ],
+      "fov": 38
+    }
+  ]
+}

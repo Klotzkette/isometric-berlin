@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.92 — Central approaches and station detail
+
+- Refine the existing open Hauptbahnhof portals and Chancellery loggia metalwork.
+- Add bounded glass frames, signs and railing supports at Pariser/Potsdamer station entrances.
+- Add Alexanderplatz hall framing, lights and station names; correct facade lettering alignment.
+- Replace exactly the mapped coarse Zoo U-Bahn canopy owner with its open glass-roof reading.
+- Preserve source inventories, previous city detail, native Minecraft counterparts and existing loading budgets.
+
 ## v1.0.91 — Source notices on demand
 
 - Move complete source/license notices from the boot screen, mode-selection footer and viewer overlay into an accessible Sources & licenses dialog.

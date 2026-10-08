@@ -123,8 +123,9 @@ describe("block-native Berlin architectural signatures", () => {
     // v1.0.4 removes the unsupported library drum (72 wall blocks and
     // nine roof-cap blocks). The separate source-bound parliament batch
     // owns its shallow roof crown and the restored source library body.
+    // v1.0.92 adds 24 loggia and eight entrance-frame blocks to existing batches.
     expect(meshes.map(({ count }) => count)).toEqual([
-      489, 666, 2_699, 349, 695, 56, 444,
+      489, 690, 2_707, 349, 695, 56, 444,
     ]);
   });
 

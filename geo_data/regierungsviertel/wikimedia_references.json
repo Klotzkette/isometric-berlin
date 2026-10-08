@@ -7120,6 +7120,52 @@
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false,
       "usage_note": "Non-bundled visual reference: concrete, glazing and roof-edge material."
+    },
+    {
+      "landmark_id": "pariser-access-v192",
+      "title": "File:U-Bahnhof Brandenburger Tor, entrance 07-2011 (ubt-31).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AU-Bahnhof_Brandenburger_Tor%2C_entrance_07-2011_%28ubt-31%29.jpg",
+      "artist": "Tomasz Sienicki [user: tsca , mail: tomasz.sienicki at gmail.com]",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "credit": "Photograph by Tomasz Sienicki ( Own work )",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Non-bundled visual reference: Pariser Platz entrance framing and U station signs; small member dimensions are display estimates."
+    },
+    {
+      "landmark_id": "pariser-access-sign-v192",
+      "title": "File:U-Bahn Berlin Brandenburger Tor Eingang.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AU-Bahn_Berlin_Brandenburger_Tor_Eingang.jpg",
+      "artist": "thorbengeyer from Berlin",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "credit": "U-Bhf. Brandenburger Tor",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Non-bundled visual reference: Pariser Platz entrance framing and U station signs; small member dimensions are display estimates."
+    },
+    {
+      "landmark_id": "station-details-v192",
+      "title": "File:S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:S-Bahnsteig_Bahnhof_Berlin-Alexanderplatz_2023.jpg",
+      "artist": "Sebastian Wallroth",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Sebastian Wallroth, S-Bahnsteig Bahnhof Berlin-Alexanderplatz 2023, 29 September 2023, Wikimedia Commons, CC BY 4.0. Inspected 8 October 2026 for longitudinal barrel-roof members, hanging lights and blue platform signs; independently authored geometric detail, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "station-details-v192",
+      "title": "File:2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-07-19_U-Bahnhof_Zoologischer_Garten_Berlin_01.jpg",
+      "artist": "Geoprofi Lars",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Geoprofi Lars, 2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01, 19 July 2021, Wikimedia Commons, CC BY-SA 4.0. Inspected 8 October 2026 for transparent gabled canopy, stone posts, rose-grey framing, glass railings and separate U/U2/U9 plaques; independently authored geometry, no photograph or pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

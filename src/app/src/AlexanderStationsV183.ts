@@ -9,6 +9,7 @@ import { appendVoxelEnvelope, sourceMesh } from "./BebelplatzBuildingShells";
 import { bebelplatzPartContains, type BebelplatzSourcePart } from "./bebelplatzBuildingProfile";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createAlexanderStationDetailsV192, stationFacadeLetteringPointV192 } from "./StationDetailsV192";
 
 export const ALEXANDER_STATIONS_V183_GROUP = "Alexanderplatz Behrens Alexa Lehrer and transparent station halls";
 export const ALEXANDER_STATIONS_V183_NATIVE_GROUP = "Alexanderplatz and station halls independent native surfaces";
@@ -52,8 +53,8 @@ class Builder {
   }
   text(a: Axis, label: string, y: number, height: number, color: number, out = .30): void {
     // A geometric alphabet; no font, photograph or texture is created.
-    const paths = letteringStrokePaths(label, height), width = Math.max(...paths.flat().map(p => p[0]));
-    const reverse = a.dx < 0, point = (p: number[]): P => at(a, a.length / 2 + (reverse ? -1 : 1) * (p[0] - width / 2), y + p[1], out);
+    const paths = letteringStrokePaths(label, height);
+    const point = (p: number[]): P => stationFacadeLetteringPointV192(a,p,y,out);
     for (const path of paths) for (let i = 1; i < path.length; i++) this.beam(point(path[i - 1]), point(path[i]), height * .095, color, "identity-lettering");
   }
 }
@@ -291,10 +292,11 @@ function create(native: boolean): Group {
   friedrichstrasse(b);
   if (!native) { root.add(sheetMesh(roof, false), sheetMesh(glass, true)); }
   root.add(batch(b.rows, native)); if (b.glass.length) root.add(batch(b.glass, native, true));
+  const hallDetails=createAlexanderStationDetailsV192(native);root.add(hallDetails);
   root.userData = { textureFree: true, fullStaticDetailOnTouch: true, sourceGeometryRetained: true, blockNative: native,
     keepInMinecraft: native, surfaceOnly: true, hiddenSolidInfill: false, stationRailMouthsOpen: true,
     photographsBundled: false, sourceParents: source.profiles.map(p => p.parentId),
-    instanceCount: b.rows.length + b.glass.length, sourceConflicts: source.conflicts };
+    instanceCount: b.rows.length + b.glass.length + hallDetails.userData.instanceCount, sourceConflicts: source.conflicts };
   return freezeStaticSceneTransforms(root);
 }
 export function createAlexanderStationsV183(_mobileLike = false): Group { return create(false); }

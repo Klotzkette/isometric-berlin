@@ -6,9 +6,16 @@ import { auditBernauerNativeDelta } from "./helpers/bernauerNativeDelta";
 import bernauerNavigation from "../src/data/berlinWallMemorialV174Navigation.json";
 import { berlinWallMemorialV174SourceColumn } from "../src/berlinWallMemorialV174Profile";
 
-import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v183.json";
+import preCanopyPayloadBaseline from "./fixtures/minecraft-payload-only-v183.json";
+import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v192.json";
+import canopyPayloadDelta from "./fixtures/minecraft-payload-only-v192-delta.json";
+import stationDetailsV192 from "../src/data/stationDetailsV192.json";
+import oldZooNavigation from "../src/data/zooStationV165Navigation.json";
+import { zooStationV165SourceColumn } from "../src/zooStationV165Profile";
 // Frozen historical Bernauer audit stays independent of later park terrain and
-// the exact eight-envelope Nationalgalerie substitution.
+// the exact eight-envelope Nationalgalerie substitution. The v183 snapshot is
+// also immutable: only the two independently audited Zoo canopy columns and
+// their four net visible facade panes differ in the v192 payload buffers.
 const bernauerBaseline = {
   full: { ...historicalPayloadBaseline.full, ...bernauerPayloadDelta.full },
   mobile: { ...historicalPayloadBaseline.mobile, ...bernauerPayloadDelta.mobile },
@@ -118,7 +125,7 @@ describe("true voxel Minecraft world", () => {
     detailProfile: "mobile",
   });
 
-  test("v174 keeps its exact Bernauer audit and v183 preserves the current payload buffers", () => {
+  test("historical Bernauer and v183 buffers permit only the exact v192 Zoo canopy substitution", () => {
     const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, bernauerNavigation.legacyPrisms);
     expect(audit.sourceColumnsByPrism).toEqual(bernauerPayloadDelta.sourceColumnsByPrism);
     expect(audit.removedColumns).toHaveLength(bernauerPayloadDelta.removedSourceColumns);
@@ -143,10 +150,37 @@ describe("true voxel Minecraft world", () => {
     expect(bernauerBaseline.full["Voxel facade windows"].count).toBe(
       historicalPayloadBaseline.full["Voxel facade windows"].count - audit.panes.netRemoved,
     );
+    const canopy = auditBernauerNativeDelta(buildingColumns, payload.cell_m, [stationDetailsV192.zoo.legacyPrism]);
+    expect(canopy).toEqual(canopyPayloadDelta);
+    expect(canopy.removedColumns).toEqual([[-661, 335, 52, 92, 3], [-660, 335, 52, 92, 3]]);
+    expect(canopy.panes).toEqual({ removed: 5, exposed: 1, netRemoved: 4 });
+    const oldZoo = auditBernauerNativeDelta(buildingColumns, payload.cell_m, oldZooNavigation.legacyPrisms);
+    const actualZooColumns = buildingColumns.filter(([x,z,base,top]) =>
+      zooStationV165SourceColumn((x+.5)*payload.cell_m, (z+.5)*payload.cell_m, base/10, top/10));
+    // Existing station parts overlap; ownership is their exact union, so one
+    // source column shared by two old parts still disappears only once.
+    expect(serialized(actualZooColumns)).toEqual([...new Set(serialized([
+      ...oldZoo.removedColumns, ...canopy.removedColumns,
+    ]))].sort());
+    // Independent local pane enumeration applies only to ordinary source
+    // columns; none of the two cells or adjacent faces belong to a hero facade.
+    for (const [x,z,,,classId] of canopy.localColumns) {
+      expect(payload.classes[classId]).not.toBe("wall");
+      for (const [dx,dz] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]) {
+        expect(voxelRecognitionAreaAt((x+.5)*payload.cell_m+dx*(payload.cell_m/2+.08),
+          (z+.5)*payload.cell_m+dz*(payload.cell_m/2+.08))).toBeNull();
+      }
+    }
+    expect(currentPayloadBaseline.full["Voxel facade windows"].count).toBe(
+      preCanopyPayloadBaseline.full["Voxel facade windows"].count - canopy.panes.netRemoved);
     for (const [profile, root] of [["full", world], ["mobile", mobileWorld]] as const) {
       expect(bernauerBaseline[profile]["Voxel building columns"].count).toBe(
         historicalPayloadBaseline[profile]["Voxel building columns"].count - audit.removedColumnInstances[profile],
       );
+      expect(currentPayloadBaseline[profile]["Voxel building columns"].count).toBe(
+        preCanopyPayloadBaseline[profile]["Voxel building columns"].count - canopy.removedColumnInstances[profile]);
+      for (const name of ["Voxel ground runs", "Geschichtspark Moabit Minecraft red-brick block batch"] as const)
+        expect(currentPayloadBaseline[profile][name]).toEqual(preCanopyPayloadBaseline[profile][name]);
       for (const [name, expected] of Object.entries(currentPayloadBaseline[profile])) {
         if (expected === null) {
           expect(root.getObjectByName(name)).toBeUndefined();
