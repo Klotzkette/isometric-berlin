@@ -5585,6 +5585,119 @@
       "credit": "Andreas Praefcke / CC BY 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "title": "File:Schloss Pfaueninsel Nordosten.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASchloss_Pfaueninsel_Nordosten.jpg",
+      "artist": "Bautsch",
+      "license": "Public domain",
+      "license_url": "",
+      "landmark_id": "pfaueninsel_v194",
+      "credit": "Bautsch / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Schloss Tegel1.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASchloss_Tegel1.JPG",
+      "artist": "Lienhard Schulz",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "landmark_id": "tegel_v194",
+      "credit": "Lienhard Schulz / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Borsig-Villa Reiherwerder.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABorsig-Villa_Reiherwerder.jpg",
+      "artist": "Jcornelius",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "landmark_id": "borsig_v194",
+      "credit": "Jcornelius / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Nationaldenkmal für die Befreiungskriege (1813-15), Viktoriapark, Berlin-Kreuzberg.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Nationaldenkmal_f%C3%BCr_die_Befreiungskriege_(1813-15)%2C_Viktoriapark%2C_Berlin-Kreuzberg.jpg",
+      "artist": "Neuköllner",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Nationaldenkmal für die Befreiungskriege (1813-15), Viktoriapark, Berlin-Kreuzberg.jpg — Neuköllner, CC BY-SA 4.0, Wikimedia Commons. External proportion/material reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "9549a4a2f77f2adf6938ed685a1e6a40928ddcb14178723df8594badc6e6dca7",
+      "landmark_id": "viktoriapark_v194"
+    },
+    {
+      "title": "File:Wasserfall in Viktoriapark.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Wasserfall_in_Viktoriapark.jpg",
+      "artist": "Michal Lichota (Lakkot)",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Wasserfall in Viktoriapark.jpg — Michal Lichota (Lakkot), CC BY-SA 4.0, Wikimedia Commons. External proportion/material reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "0f926bae772db81bd8bebff3d09110d8638296fa881ae242a556efdb1c191a99",
+      "landmark_id": "viktoriapark_v194"
+    },
+    {
+      "title": "File:Kreuzberg Berlin Nationaldenkmal 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kreuzberg_Berlin_Nationaldenkmal_2.jpg",
+      "artist": "Manfred Brückels",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Kreuzberg Berlin Nationaldenkmal 2.jpg — Manfred Brückels, CC BY-SA 3.0, Wikimedia Commons. External proportion/material reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "16d68caa3e4b077257c401019f9b2cbe1eccaf1ac490496cdf2c4adc900c7f96",
+      "landmark_id": "viktoriapark_v194"
+    },
+    {
+      "title": "File:Flughafen Tegel Tower und Hauptgebäude.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Flughafen_Tegel_Tower_und_Hauptgeb%C3%A4ude.jpg",
+      "artist": "Hans Knips",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "landmark_id": "tegel-airport_v194",
+      "credit": "Hans Knips / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:TempelhofExterior.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TempelhofExterior.jpg",
+      "artist": "AlanFord",
+      "license": "Public domain",
+      "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "landmark_id": "tempelhof-airport_v194",
+      "credit": "AlanFord / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:FlughafenTempelhofBerlin-2026-09-msu--0440.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:FlughafenTempelhofBerlin-2026-09-msu--0440.jpg",
+      "artist": "Matthias Süßen",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "landmark_id": "tempelhof-airport_v194",
+      "credit": "Matthias Süßen / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin - Flughafen Tempelhof - 2016.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Flughafen_Tempelhof_-_2016.jpg",
+      "artist": "Avda",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "landmark_id": "tempelhof-airport_v194",
+      "credit": "Avda / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
