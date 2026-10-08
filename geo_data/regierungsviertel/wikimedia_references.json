@@ -7166,6 +7166,53 @@
       "credit": "Geoprofi Lars, 2021-07-19 U-Bahnhof Zoologischer Garten Berlin 01, 19 July 2021, Wikimedia Commons, CC BY-SA 4.0. Inspected 8 October 2026 for transparent gabled canopy, stone posts, rose-grey framing, glass railings and separate U/U2/U9 plaques; independently authored geometry, no photograph or pixels bundled.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "zionskirchplatz_v193",
+      "title": "File:Mitte Zionskirchplatz-003.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-003.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-003.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "c1bcbe4a7b50c51e903d40f4932d242ed1366871715a6176c5372521ba9172ed"
+    },
+    {
+      "landmark_id": "zionskirchplatz_v193",
+      "title": "File:Mitte Zionskirchplatz-004.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-004.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-004.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "92342064aaa9c9b33eff3c38e0de3e5aa4f9a2acdb8d39ed265eb425653f5ac4"
+    },
+    {
+      "landmark_id": "zionskirchplatz_v193",
+      "title": "File:Mitte Zionskirchplatz.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "192448039ee8bc8dd3ca450826cd32752a3dc6a996374ee347267deb23f5790f"
+    },
+    {
+      "landmark_id": "arkonaplatz_v193",
+      "title": "File:Berlin Arkonaplatz Flohmarkt.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Arkonaplatz_Flohmarkt.jpg",
+      "artist": "Andreas Praefcke",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Andreas Praefcke / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

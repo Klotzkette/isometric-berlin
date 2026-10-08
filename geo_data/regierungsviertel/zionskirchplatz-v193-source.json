@@ -1,0 +1,387 @@
+{
+  "schemaVersion": 1,
+  "osmSquare": {
+    "wayId": "50436070",
+    "source": "https://download.geofabrik.de/europe/germany/berlin-260929.osm.pbf",
+    "license": "ODbL-1.0",
+    "worldGeometry": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [
+          [
+            [
+              2261.6153402391355,
+              -1751.3370148511603
+            ],
+            [
+              2259.803637444973,
+              -1753.179750942625
+            ],
+            [
+              2258.3412051536725,
+              -1754.2469585202634
+            ],
+            [
+              2256.7060207646573,
+              -1755.1733276955783
+            ],
+            [
+              2254.976765262196,
+              -1755.8347148774192
+            ],
+            [
+              2252.8506984288106,
+              -1756.3490912793204
+            ],
+            [
+              2252.530076305731,
+              -1754.431103574112
+            ],
+            [
+              2225.6891743809683,
+              -1759.1530987778679
+            ],
+            [
+              2226.0316296230303,
+              -1761.137367877178
+            ],
+            [
+              2216.7710082496633,
+              -1762.7443019319326
+            ],
+            [
+              2215.071135403763,
+              -1762.8931828644127
+            ],
+            [
+              2213.582634000457,
+              -1762.781452995725
+            ],
+            [
+              2212.2267166511156,
+              -1762.2216855445877
+            ],
+            [
+              2208.30591108324,
+              -1758.9033738477156
+            ],
+            [
+              2209.5545307061984,
+              -1757.373520997353
+            ],
+            [
+              2188.847516159003,
+              -1740.6172385988757
+            ],
+            [
+              2187.5238014589995,
+              -1742.1265031956136
+            ],
+            [
+              2184.706826010486,
+              -1739.629483689554
+            ],
+            [
+              2184.0592330531217,
+              -1738.5755619248375
+            ],
+            [
+              2183.709566155041,
+              -1737.4927923306823
+            ],
+            [
+              2183.500002095476,
+              -1735.9952003918588
+            ],
+            [
+              2184.845137262426,
+              -1729.9342625001445
+            ],
+            [
+              2187.180555204279,
+              -1730.2943065799773
+            ],
+            [
+              2205.5866186700296,
+              -1647.0307867722586
+            ],
+            [
+              2203.6343129990855,
+              -1646.5064700376242
+            ],
+            [
+              2204.0143266434316,
+              -1644.9735786626115
+            ],
+            [
+              2204.838639461552,
+              -1643.5866445535794
+            ],
+            [
+              2206.4563830184634,
+              -1641.8705839812756
+            ],
+            [
+              2207.7416207154747,
+              -1641.0743448417634
+            ],
+            [
+              2209.2344058686867,
+              -1640.1511107459664
+            ],
+            [
+              2211.249327589292,
+              -1638.904752952978
+            ],
+            [
+              2279.1560493393335,
+              -1654.6619131909683
+            ],
+            [
+              2281.534340530052,
+              -1657.880852399394
+            ],
+            [
+              2282.2214479503455,
+              -1659.8018669346347
+            ],
+            [
+              2282.576957710029,
+              -1661.7635952597484
+            ],
+            [
+              2282.59929241176,
+              -1663.387733278796
+            ],
+            [
+              2281.9331893348135,
+              -1666.4069154318422
+            ],
+            [
+              2280.0303440018906,
+              -1665.9704962568358
+            ],
+            [
+              2265.656734558288,
+              -1730.650429991074
+            ],
+            [
+              2267.6000041427324,
+              -1731.074821348302
+            ],
+            [
+              2266.580638050509,
+              -1735.9156193723902
+            ],
+            [
+              2264.603459052043,
+              -1735.4919782830402
+            ],
+            [
+              2262.639767571178,
+              -1744.2705798428506
+            ],
+            [
+              2264.56317730766,
+              -1744.7176642110571
+            ],
+            [
+              2264.0753385691787,
+              -1746.8983368435875
+            ],
+            [
+              2262.7985112093156,
+              -1749.6083263531327
+            ],
+            [
+              2261.6153402391355,
+              -1751.3370148511603
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "styles": {
+    "DEBE01YYK000063B": {
+      "side": "west",
+      "paint": 14276285,
+      "base": 11973536,
+      "levels": 5,
+      "approxBays": 6
+    },
+    "DEBE01YYK00007G1": {
+      "side": "south",
+      "paint": 14997950,
+      "base": 12890771,
+      "levels": 5,
+      "approxBays": 6
+    },
+    "DEBE01YYK0000C4w": {
+      "side": "northwest",
+      "paint": 15065036,
+      "base": 13870980,
+      "levels": 5,
+      "approxBays": 3
+    },
+    "DEBE01YYK0000DY3": {
+      "side": "east",
+      "paint": 13949646,
+      "base": 11844526,
+      "levels": 5,
+      "approxBays": 4
+    },
+    "DEBE01YYK00007Vw": {
+      "side": "north",
+      "paint": 15063992,
+      "base": 11172200,
+      "levels": 6,
+      "approxBays": 5
+    },
+    "DEBE01YYK00003cl": {
+      "side": "south",
+      "paint": 13620421,
+      "base": 11515302,
+      "levels": 5,
+      "approxBays": 5
+    },
+    "DEBE01YYK00004H7": {
+      "side": "south",
+      "paint": 14999763,
+      "base": 13090990,
+      "levels": 5,
+      "approxBays": 1
+    },
+    "DEBE01YYK00002Ih": {
+      "side": "east",
+      "paint": 14737102,
+      "base": 12763821,
+      "levels": 5,
+      "approxBays": 5
+    },
+    "DEBE01YYK0000BUt": {
+      "side": "south",
+      "paint": 14270144,
+      "base": 12492192,
+      "levels": 5,
+      "approxBays": 5
+    },
+    "DEBE01YYK00005Nd": {
+      "side": "west",
+      "paint": 13618876,
+      "base": 12039071,
+      "levels": 5,
+      "approxBays": 4
+    },
+    "DEBE01YYK00002wP": {
+      "side": "east",
+      "paint": 14212301,
+      "base": 12437175,
+      "levels": 5,
+      "approxBays": 6
+    },
+    "DEBE01YYK0000COw": {
+      "side": "east",
+      "paint": 13228508,
+      "base": 11715782,
+      "levels": 5,
+      "approxBays": 6
+    },
+    "DEBE01YYK00004Ag": {
+      "side": "west",
+      "paint": 14532790,
+      "base": 13346718,
+      "levels": 5,
+      "approxBays": 4
+    },
+    "DEBE01YYK00007Mw": {
+      "side": "northwest",
+      "paint": 15131601,
+      "base": 9916227,
+      "levels": 6,
+      "approxBays": 6
+    },
+    "DEBE01YYK0000Bri": {
+      "side": "north",
+      "paint": 14999501,
+      "base": 12170403,
+      "levels": 5,
+      "approxBays": 5
+    },
+    "DEBE01YYK00005G6": {
+      "side": "south",
+      "paint": 14405821,
+      "base": 13612442,
+      "levels": 5,
+      "approxBays": 5
+    },
+    "DEBE01YYK00001cF": {
+      "side": "west",
+      "paint": 15000014,
+      "base": 12894378,
+      "levels": 5,
+      "approxBays": 4
+    },
+    "DEBE01YYK00007yQ": {
+      "side": "north",
+      "paint": 15263191,
+      "base": 13223864,
+      "levels": 5,
+      "approxBays": 4
+    },
+    "DEBE01YYK00008CV": {
+      "side": "west",
+      "paint": 13078151,
+      "base": 11108216,
+      "levels": 6,
+      "approxBays": 6
+    },
+    "DEBE01YYK0000CIk": {
+      "side": "east-corner-upper",
+      "paint": 14279387,
+      "base": 12636869,
+      "levels": 5,
+      "approxBays": 3
+    }
+  },
+  "existingReferenceTitles": [
+    "File:Zionskirchplatz, Berlin-Mitte, 160328, ako.jpg",
+    "File:Bars Kastanienallee Berlin.jpg"
+  ],
+  "newReferences": [
+    {
+      "title": "File:Mitte Zionskirchplatz-003.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-003.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-003.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "c1bcbe4a7b50c51e903d40f4932d242ed1366871715a6176c5372521ba9172ed"
+    },
+    {
+      "title": "File:Mitte Zionskirchplatz-004.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-004.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-004.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "92342064aaa9c9b33eff3c38e0de3e5aa4f9a2acdb8d39ed265eb425653f5ac4"
+    },
+    {
+      "title": "File:Mitte Zionskirchplatz.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "192448039ee8bc8dd3ca450826cd32752a3dc6a996374ee347267deb23f5790f"
+    }
+  ],
+  "interpretation": "Muted plaster families and window subdivisions estimated from dated freely licensed references. No current tenant inventory, precise facade survey or exact contemporary repainting claim."
+}

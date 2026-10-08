@@ -1,0 +1,27 @@
+{
+  "step": 10,
+  "sourceDate": "2026-09-29",
+  "license": "ODbL-1.0",
+  "sources": {
+    "geo_data/regierungsviertel/raw/outer-v159/candidate.gpkg": "9e243f63d57051083dc8be77574582f5f8d4405082d4d87bcef2a07be8e75d8b",
+    "geo_data/regierungsviertel/raw/outer-v159/berlin-260929.osm.pbf": "9d193d9003e35f9a00c2a52553452946aab4d46467f1465364455e36e6a568a9"
+  },
+  "counts": {
+    "sourceTrees": 129,
+    "missingTreesAdded": 129,
+    "benches": 16,
+    "beds": 2,
+    "stalls": 15,
+    "pavingAreaM2": 1884.1036740736458,
+    "nativePavingTiles": 7111
+  },
+  "marketClearanceM": 1.25,
+  "treeClearanceM": 2,
+  "marketPolicy": "Representative Sunday market, not live occupancy. Stall positions, dimensions, stock and canopy choices are procedural estimates inside the mapped central paved strip. All source footways keep at least 2.5m clear drawn corridors (at least 2.0m after conservative native block rounding); lawns/playground and existing source vertices remain untouched.",
+  "treePolicy": "Exact mapped nodes; untagged heights/crowns are modest display estimates. Native retains a stable half-density subset only under the owner-requested Minecraft tree reduction. Complete source nodes remain inventoried.",
+  "pavingPolicy": "The prior generic green ground incorrectly filled the paved central market strip. Add only convexHull(park14583948) minus complete park, clipped to four exact park-endpoint vertices, minus actual grass/flowerbed/playground polygons and estimated 0.65m trunk apertures. Existing mapped path surfaces remain intact above this warm-gray sheet. Native uses fully contained 0.5m tiles, no broad square slab.",
+  "factSources": [
+    "https://www.berlin.de/special/shopping/flohmaerkte/1998213-1724959-flohmarkt-am-arkonaplatz.html",
+    "https://www.flohmarkt-arkonaplatz.de/oeffnungszeiten"
+  ]
+}

@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Zionskirchplatz and Arkonaplatz (v1.0.93):** Retained Berlin LoD2 walls and
+  DGM terrain (dl-de/zero-2-0) combine with OSM streets, paths and public-space
+  anchors (ODbL-1.0). Facade subdivisions, material colours and representative
+  flea-market fittings are documented display estimates. Existing source
+  geometry and earlier frontage details remain. Free photographs are external
+  visual references, individually credited in both Wikimedia manifests; no
+  photograph or photographic texture ships. See [scope and verification](docs/release-v1.0.93-review.md).
+
 - **Central approaches and station details (v1.0.92):** Existing Berlin LoD2
   (dl-de/zero-2-0) and OSM (ODbL-1.0) envelopes and anchors remain the metric
   basis. Small portal, railing, sign and roof-member subdivisions are documented

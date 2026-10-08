@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.93 — Zionskirchplatz and Arkonaplatz
+
+- Audit the complete Zionskirchplatz frontage and refine source-bound facade colours, window divisions, cornices and ground floors.
+- Add mapped Arkonaplatz public-space recognition with an illustrative Sunday flea market.
+- Retain previous city geometry, terrain, all existing detail and complete mobile/drawn quality, with separate native Minecraft forms.
+
 ## v1.0.92 — Central approaches and station detail
 
 - Refine the existing open Hauptbahnhof portals and Chancellery loggia metalwork.

@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "title": "File:Mitte Zionskirchplatz-003.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-003.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-003.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "c1bcbe4a7b50c51e903d40f4932d242ed1366871715a6176c5372521ba9172ed"
+    },
+    {
+      "title": "File:Mitte Zionskirchplatz-004.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz-004.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz-004.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "92342064aaa9c9b33eff3c38e0de3e5aa4f9a2acdb8d39ed265eb425653f5ac4"
+    },
+    {
+      "title": "File:Mitte Zionskirchplatz.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Zionskirchplatz.JPG",
+      "artist": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "File:Mitte Zionskirchplatz.JPG — Fridolin freudenfett, CC BY-SA 4.0, Wikimedia Commons. Photograph taken 18 October 2014. External colour/facade reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "192448039ee8bc8dd3ca450826cd32752a3dc6a996374ee347267deb23f5790f"
+    }
+  ]
+}

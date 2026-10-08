@@ -29,6 +29,8 @@ import { createMinecraftNorthSitesV190 } from "./MinecraftNorthSitesV190";
 import { createGrunewaldLandmarksV190 } from "./GrunewaldLandmarksV190";
 import { createRailStationsV190 } from "./RailStationsV190";
 import { createCentreAccessV192 } from "./CentreAccessV192";
+import { createZionskirchplatzV193 } from "./ZionskirchplatzV193";
+import { createArkonaplatzV193 } from "./ArkonaplatzV193";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -83,6 +85,8 @@ export function createOutlineLandmarksV182(
       root.add(createGrunewaldLandmarksV190(nextNative));
       root.add(createRailStationsV190(nextNative));
       root.add(createCentreAccessV192(nextNative));
+      root.add(createZionskirchplatzV193(nextNative));
+      root.add(createArkonaplatzV193(nextNative));
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }
