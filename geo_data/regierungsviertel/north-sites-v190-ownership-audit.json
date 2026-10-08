@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "sourceIds": [
+    "DEBE03YY6000008c",
+    "DEBE03YY600000VR",
+    "DEBE03YY600000nb",
+    "DEBE03YY600002Jl",
+    "DEBE03YY6000035j",
+    "DEBE03YY600004Vp",
+    "DEBE03YY600005dx",
+    "DEBE03YY6000071O",
+    "DEBE03YY6000076A",
+    "DEBE03YY600007ek",
+    "DEBE03YY600008Ch",
+    "DEBE03YY600008DB",
+    "DEBE03YY600009O1",
+    "DEBE03YY60000Bln",
+    "DEBE03YY60000BrY",
+    "DEBE03YY60000Btt",
+    "DEBE03YY60000CCq",
+    "DEBE03YY60000CPf",
+    "DEBE03YY60000Cp0",
+    "DEBE03YY60000Cyi",
+    "DEBE03YY60000DO4",
+    "DEBE03YY60001rDa",
+    "DEBE03YY60001rJZ",
+    "DEBE03YY60001rPn",
+    "DEBE03YY60001rSi",
+    "DEBE03YY60001riE",
+    "DEBE03YY60001rix"
+  ],
+  "chunks": [
+    {
+      "id": "5_-5",
+      "modes": {
+        "drawn": {
+          "sourceIds": [
+            "DEBE03YY600000VR",
+            "DEBE03YY600000nb",
+            "DEBE03YY600002Jl",
+            "DEBE03YY6000035j",
+            "DEBE03YY600004Vp",
+            "DEBE03YY6000071O",
+            "DEBE03YY6000076A",
+            "DEBE03YY600007ek",
+            "DEBE03YY600008Ch",
+            "DEBE03YY600008DB",
+            "DEBE03YY600009O1",
+            "DEBE03YY60000Bln",
+            "DEBE03YY60000BrY",
+            "DEBE03YY60000Btt",
+            "DEBE03YY60000CCq",
+            "DEBE03YY60000CPf",
+            "DEBE03YY60000Cp0",
+            "DEBE03YY60000Cyi",
+            "DEBE03YY60000DO4",
+            "DEBE03YY60001rSi"
+          ],
+          "oldSha256": "0f82600ff07564ddd50db3283f9df3af735db711e02afe25681c9ed187e270ae",
+          "newSha256": "22e121f1fff4bb0ace100f64f1febb965654bf9173ebdd4b4d0e102da7add4fc",
+          "removedOwnerTriangles": 779,
+          "preservedTriangles": 20311,
+          "removedOwnerInkSegments": 273,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        },
+        "minecraft": {
+          "sourceIds": [
+            "DEBE03YY600000VR",
+            "DEBE03YY600000nb",
+            "DEBE03YY600002Jl",
+            "DEBE03YY6000035j",
+            "DEBE03YY600004Vp",
+            "DEBE03YY6000071O",
+            "DEBE03YY6000076A",
+            "DEBE03YY600007ek",
+            "DEBE03YY600008Ch",
+            "DEBE03YY600008DB",
+            "DEBE03YY600009O1",
+            "DEBE03YY60000Bln",
+            "DEBE03YY60000BrY",
+            "DEBE03YY60000Btt",
+            "DEBE03YY60000CCq",
+            "DEBE03YY60000CPf",
+            "DEBE03YY60000Cp0",
+            "DEBE03YY60000Cyi",
+            "DEBE03YY60000DO4",
+            "DEBE03YY60001rSi"
+          ],
+          "oldSha256": "63a403da01aa39663aacf2bb35bafa1feb41eda28ce3884c2e32a7968b4e3dc5",
+          "newSha256": "fcd012e0e1ba03d965d24778b59265a5f9cb76ac85d49c7cb2009ea06ef5e7be",
+          "removedOwnerTriangles": 2480,
+          "preservedTriangles": 55686,
+          "removedOwnerInkSegments": 0,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        }
+      }
+    },
+    {
+      "id": "5_-4",
+      "modes": {
+        "drawn": {
+          "sourceIds": [
+            "DEBE03YY600005dx",
+            "DEBE03YY60001rDa",
+            "DEBE03YY60001rJZ",
+            "DEBE03YY60001rPn",
+            "DEBE03YY60001riE",
+            "DEBE03YY60001rix"
+          ],
+          "oldSha256": "efc4d9b9bff2944c94ec736bfbafee7f5e8562c70367439bf3c4d6ef7a2bf194",
+          "newSha256": "1e6916da4e63d94b1ef1458a9926aa0302b7e5fff2b8b3e3ff8e1bc308eeb23c",
+          "removedOwnerTriangles": 108,
+          "preservedTriangles": 14824,
+          "removedOwnerInkSegments": 40,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        },
+        "minecraft": {
+          "sourceIds": [
+            "DEBE03YY600005dx",
+            "DEBE03YY60001rDa",
+            "DEBE03YY60001rJZ",
+            "DEBE03YY60001rPn",
+            "DEBE03YY60001riE",
+            "DEBE03YY60001rix"
+          ],
+          "oldSha256": "78eaea035e7f4d64331615b2ee2e4ccae9af7d04eecc7bd97d9c11d012ef21e0",
+          "newSha256": "ea1e9adeed412f519798487b99e8704722fa1b0c0e3621e93a6548a53607e60c",
+          "removedOwnerTriangles": 195,
+          "preservedTriangles": 47388,
+          "removedOwnerInkSegments": 0,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        }
+      }
+    },
+    {
+      "id": "5_-3",
+      "modes": {
+        "drawn": {
+          "sourceIds": [
+            "DEBE03YY6000008c"
+          ],
+          "oldSha256": "3ca31ad5f0f0d6844274de8d906f125250e67f4282d0ed62264aac187f2d0417",
+          "newSha256": "14ea090660a3c51e588e01f9a66e6782810fbd5b06d55aba338caf6b1c5ef018",
+          "removedOwnerTriangles": 10,
+          "preservedTriangles": 25826,
+          "removedOwnerInkSegments": 4,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        },
+        "minecraft": {
+          "sourceIds": [
+            "DEBE03YY6000008c"
+          ],
+          "oldSha256": "779dc1aff968ef8de029573339f93f95647b1e1f707528d9bb2ff3d7f034b9ec",
+          "newSha256": "744222bec42f609956e4d1b7688f8d9936bbf1bf6d43caa93a206fd86b510698",
+          "removedOwnerTriangles": 67,
+          "preservedTriangles": 78992,
+          "removedOwnerInkSegments": 0,
+          "allNavigationUnchanged": true,
+          "unrelatedGeometryPreserved": true
+        }
+      }
+    }
+  ],
+  "allNavigationUnchanged": true,
+  "unrelatedGeometryPreserved": true,
+  "policy": "Only exact current coarse-owner triangle/ink multisets are substituted; all original source and v185 accents retained. No other payload or ground rebuilt."
+}

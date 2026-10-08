@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "landmark_id": "teutoburger-platzhaus",
+      "title": "File:141102 Platzhaus Teutoburger Platz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:141102_Platzhaus_Teutoburger_Platz.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Ansgar Koreng; perspective/post-processing Hubertl",
+      "credit": "Ansgar Koreng; perspective/post-processing Hubertl, 2014-11-02 / 2015-01 / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Reference only: brick, dark tiled hip roof, brown eaves and barred arched openings. Graffiti, signs and people not reproduced."
+    },
+    {
+      "landmark_id": "weissensee-trauerhalle",
+      "title": "File:Berlin-Weissensee Jewish cemetery entrance.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Weissensee_Jewish_cemetery_entrance.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Mazbln",
+      "credit": "Mazbln, 2005-10-09 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Reference only: warm yellow brick, grey hip roofs and round-headed entrance/window rhythm. Inscriptions not reproduced; dimensions remain authoritative LoD2, opening subdivisions approximate."
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "version": "1.0.90",
+  "ownerIds": [
+    "OSM-way-110639235",
+    "OSM-way-1228253162",
+    "OSM-way-1228253163",
+    "OSM-way-463652072"
+  ],
+  "chunks": [
+    {
+      "id": "ring182-12_3",
+      "modes": {
+        "drawn": {
+          "oldSha256": "2b2c644c867b1b20db53c27d5d7acd86f16efdd6f1a8e9e8ac1c63335dfa9a10",
+          "newSha256": "c289a70f5e08508935cd4f747df6677350b5b75185ffbcac6a811fc7734bde3f",
+          "removedTriangles": 80,
+          "preservedTriangles": 13258,
+          "removedSourceInkSegments": 29,
+          "replacementNavigationCount": 18
+        },
+        "minecraft": {
+          "oldSha256": "5025e3179b5bf61e87f638a5dfd8e9df6e2ce1c29fc97b268ea5876784ad2bc6",
+          "newSha256": "873b792609ea6aafc9f3699b951be286dada793bd84de158e0ee668301e4df48",
+          "removedTriangles": 1483,
+          "preservedTriangles": 45625,
+          "removedSourceInkSegments": 0,
+          "replacementNavigationCount": 18
+        }
+      },
+      "descriptor": {
+        "id": "ring182-12_3",
+        "bounds": [
+          6144.0,
+          1536.0,
+          6656.0,
+          2048.0
+        ],
+        "buildingCount": 163,
+        "drawn": {
+          "url": "ring182-12_3.drawn.json.gz",
+          "bytes": 186015,
+          "decodedBytes": 567934,
+          "encoding": "gzip",
+          "sha256": "c289a70f5e08508935cd4f747df6677350b5b75185ffbcac6a811fc7734bde3f"
+        },
+        "minecraft": {
+          "url": "ring182-12_3.minecraft.json.gz",
+          "bytes": 407942,
+          "decodedBytes": 1553100,
+          "encoding": "gzip",
+          "sha256": "873b792609ea6aafc9f3699b951be286dada793bd84de158e0ee668301e4df48"
+        }
+      }
+    },
+    {
+      "id": "ring182-13_3",
+      "modes": {
+        "drawn": {
+          "oldSha256": "1d74e6dc92d56e7434be42d2562efd4109b03a618fb1755054fdcecaa2591320",
+          "newSha256": "e0b9a0dd0635a58ac052ff83f8d217cc31ffa172e358101093ddc5daa245f2e7",
+          "removedTriangles": 8,
+          "preservedTriangles": 2797,
+          "removedSourceInkSegments": 3,
+          "replacementNavigationCount": 9
+        },
+        "minecraft": {
+          "oldSha256": "c72c918b295d915c2cba86ffbb1c98d9173408553c7d771bbd564439e476e7a3",
+          "newSha256": "1c97d708619089157c79476b9cca1f4940bed11959324af0f28cd38abe487ea9",
+          "removedTriangles": 67,
+          "preservedTriangles": 10995,
+          "removedSourceInkSegments": 0,
+          "replacementNavigationCount": 9
+        }
+      },
+      "descriptor": {
+        "id": "ring182-13_3",
+        "bounds": [
+          6656.0,
+          1536.0,
+          7168.0,
+          2048.0
+        ],
+        "buildingCount": 21,
+        "drawn": {
+          "url": "ring182-13_3.drawn.json.gz",
+          "bytes": 41473,
+          "decodedBytes": 118104,
+          "encoding": "gzip",
+          "sha256": "e0b9a0dd0635a58ac052ff83f8d217cc31ffa172e358101093ddc5daa245f2e7"
+        },
+        "minecraft": {
+          "url": "ring182-13_3.minecraft.json.gz",
+          "bytes": 99774,
+          "decodedBytes": 366542,
+          "encoding": "gzip",
+          "sha256": "1c97d708619089157c79476b9cca1f4940bed11959324af0f28cd38abe487ea9"
+        }
+      }
+    }
+  ],
+  "unrelatedGeometryPreserved": true,
+  "district188Unchanged": "The existing v188 selector excludes every non-DEBE source; no generic facade companion belongs to these four OSM owners.",
+  "sourceInventoryRetained": "rail-stations-v190-evidence.json",
+  "policy": "Only the exact four named OSM proxy source triangle/colour multisets and their exact roof ink are replaced by open station geometry. All unowned geometry and surface/navigation data remain.",
+  "removedSourceRecords": [
+    {
+      "sourceId": "OSM-way-110639235",
+      "height": 6.0,
+      "minHeight": 0.0,
+      "heightSource": "osm:building:levels",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                6561.3363135744585,
+                1953.6674535386264
+              ],
+              [
+                6561.8143168176175,
+                1950.339427064173
+              ],
+              [
+                6566.2964885190595,
+                1919.2560314172879
+              ],
+              [
+                6574.108373528405,
+                1886.4517638497055
+              ],
+              [
+                6582.925762388972,
+                1855.5381796117872
+              ],
+              [
+                6596.018075489614,
+                1821.2324053617194
+              ],
+              [
+                6639.981868798612,
+                1835.7618119278923
+              ],
+              [
+                6598.309148897883,
+                1966.5022369166836
+              ],
+              [
+                6561.3363135744585,
+                1953.6674535386264
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "sourceId": "OSM-way-463652072",
+      "height": 3.0,
+      "minHeight": 0.0,
+      "heightSource": "display_fallback:building=roof",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                6640.444286524085,
+                1836.0497924955562
+              ],
+              [
+                6661.089829120436,
+                1842.295704628341
+              ],
+              [
+                6656.658560378826,
+                1864.2781901443377
+              ],
+              [
+                6654.306370123872,
+                1874.3429795736447
+              ],
+              [
+                6649.217498872953,
+                1894.0304464893416
+              ],
+              [
+                6646.890126944636,
+                1902.2820237185806
+              ],
+              [
+                6642.166697690263,
+                1916.2578432234004
+              ],
+              [
+                6638.07616283244,
+                1928.2441743230447
+              ],
+              [
+                6632.8837080464,
+                1941.9207382937893
+              ],
+              [
+                6630.503700294939,
+                1948.1682954989374
+              ],
+              [
+                6619.334012799198,
+                1973.4573630914092
+              ],
+              [
+                6598.680563609232,
+                1966.5991290528327
+              ],
+              [
+                6640.444286524085,
+                1836.0497924955562
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "sourceId": "OSM-way-1228253163",
+      "height": 3.0,
+      "minHeight": 0.0,
+      "heightSource": "display_fallback:building=roof",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                6570.306232251343,
+                1901.4818892981857
+              ],
+              [
+                6511.994657823874,
+                1882.4524803413078
+              ],
+              [
+                6516.9359734928,
+                1867.824891324155
+              ],
+              [
+                6574.100878747355,
+                1886.4849865529686
+              ],
+              [
+                6570.306232251343,
+                1901.4818892981857
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "sourceId": "OSM-way-1228253162",
+      "height": 3.0,
+      "minHeight": 0.0,
+      "heightSource": "display_fallback:building=roof",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                6577.148702259001,
+                1875.6449496056885
+              ],
+              [
+                6520.208665143116,
+                1857.9132161689922
+              ],
+              [
+                6525.627967486216,
+                1841.2372257821262
+              ],
+              [
+                6549.741550789797,
+                1850.7618291815743
+              ],
+              [
+                6578.013858892722,
+                1860.463520671241
+              ],
+              [
+                6581.2109191804775,
+                1861.4771301513538
+              ],
+              [
+                6577.148702259001,
+                1875.6449496056885
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

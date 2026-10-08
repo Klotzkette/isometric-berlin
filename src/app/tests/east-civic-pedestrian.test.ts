@@ -17,6 +17,7 @@ import {
   RUSSIAN_EMBASSY_SOURCE_DY, russianEmbassyRoofAt,
 } from "../src/RussianEmbassySourceGeometry";
 import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE as TV } from "../src/schlossEastProfile";
+import { ALEXANDER_STATIONS_V183_HALL_PART_IDS } from "../src/alexanderStationsV183Profile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const replaced = new Set([...EAST_CIVIC_PRISM_IDS, ...DHM_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS]);
@@ -47,10 +48,16 @@ describe("v148 civic source pedestrian integration", () => {
     const expected = [
       ...EAST_CIVIC_SOURCES.flatMap(p => p.parts).filter(p => p.top_y_m > eastCivicPartBaseAt(p)), ...DHM_PARTS,
       ...RUSSIAN_EMBASSY_SOURCE_PARTS,
-      ...SCHLOSS_EAST_PARTS.filter(p => !TV.sourcePartIds.includes(p.id)),
+      ...SCHLOSS_EAST_PARTS.filter(p => !TV.sourcePartIds.includes(p.id) && !ALEXANDER_STATIONS_V183_HALL_PART_IDS.has(p.id)),
       ...ALEXANDER_CIVIC_SOURCES.find(s => s.key === "marien")!.parts.filter(p => !MARIEN_TOWER_PART_IDS.has(p.id)),
     ];
-    expect(polygons.filter(p => p.topAt).map(p => p.sourceId).sort()).toEqual(expected.map(p => p.id).sort());
+    // Independently registered outer source landmarks remain in partial test
+    // worlds too. Their exact baseline joins the local civic replacements;
+    // the former closed Jannowitz hall is represented by its open solids.
+    const baseline = compilePedestrianObstacles({ buildings: [] });
+    const baselinePolygons = [...new Set([...baseline.cells.values()].flat())].filter((p): p is PedestrianPolygonObstacle => p.kind === "polygon");
+    const expectedIds = new Set([...baselinePolygons.filter(p => p.topAt).map(p => p.sourceId), ...expected.map(p => p.id)]);
+    expect(polygons.filter(p => p.topAt).map(p => p.sourceId).sort()).toEqual([...expectedIds].sort());
     for (const id of replaced) expect(indexed.has(id)).toBeFalse();
     expect(indexed.has("aa-loggia-post-0")).toBeTrue();
     expect(indexed.has("aa-loggia-post-1")).toBeTrue();

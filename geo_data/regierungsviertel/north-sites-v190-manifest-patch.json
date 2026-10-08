@@ -1,0 +1,75 @@
+{
+  "chunks": [
+    {
+      "id": "5_-5",
+      "bounds": [
+        2560.0,
+        -2560.0,
+        3072.0,
+        -2048.0
+      ],
+      "buildingCount": 351,
+      "drawn": {
+        "url": "5_-5.drawn.json.gz",
+        "bytes": 280602,
+        "decodedBytes": 908488,
+        "encoding": "gzip",
+        "sha256": "22e121f1fff4bb0ace100f64f1febb965654bf9173ebdd4b4d0e102da7add4fc"
+      },
+      "minecraft": {
+        "url": "5_-5.minecraft.json.gz",
+        "bytes": 487029,
+        "decodedBytes": 1894814,
+        "encoding": "gzip",
+        "sha256": "fcd012e0e1ba03d965d24778b59265a5f9cb76ac85d49c7cb2009ea06ef5e7be"
+      }
+    },
+    {
+      "id": "5_-4",
+      "bounds": [
+        2560.0,
+        -2048.0,
+        3072.0,
+        -1536.0
+      ],
+      "buildingCount": 264,
+      "drawn": {
+        "url": "5_-4.drawn.json.gz",
+        "bytes": 217069,
+        "decodedBytes": 701423,
+        "encoding": "gzip",
+        "sha256": "1e6916da4e63d94b1ef1458a9926aa0302b7e5fff2b8b3e3ff8e1bc308eeb23c"
+      },
+      "minecraft": {
+        "url": "5_-4.minecraft.json.gz",
+        "bytes": 424551,
+        "decodedBytes": 1629437,
+        "encoding": "gzip",
+        "sha256": "ea1e9adeed412f519798487b99e8704722fa1b0c0e3621e93a6548a53607e60c"
+      }
+    },
+    {
+      "id": "5_-3",
+      "bounds": [
+        2560,
+        -1536,
+        3072,
+        -1024
+      ],
+      "drawn": {
+        "url": "5_-3.drawn.json.gz",
+        "encoding": "gzip",
+        "bytes": 369373,
+        "decodedBytes": 1171510,
+        "sha256": "14ea090660a3c51e588e01f9a66e6782810fbd5b06d55aba338caf6b1c5ef018"
+      },
+      "minecraft": {
+        "url": "5_-3.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 659264,
+        "decodedBytes": 2618665,
+        "sha256": "744222bec42f609956e4d1b7688f8d9936bbf1bf6d43caa93a206fd86b510698"
+      }
+    }
+  ]
+}

@@ -9,6 +9,19 @@ const MAX_ISOMETRIC_ORBIT_M =
   (2_600 * Math.tan((39 * Math.PI) / 360)) /
   Math.tan((16 * Math.PI) / 360);
 
+// Source-driven required reach: opposite permitted navigation corners plus
+// the documented 1 km vertical clipping allowance. Retain a tight upper bound
+// of one rounding kilometre, so an unnecessarily large far plane still fails.
+function expectMinimalCompleteReach(orbit: number): void {
+  const bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS;
+  const cornerDistance = new Vector3(bounds.max.x, 1000, bounds.max.z)
+    .distanceTo(new Vector3(bounds.min.x, 0, bounds.min.z));
+  const far = worldCameraFarM(orbit);
+  expect(far).toBeGreaterThanOrEqual(cornerDistance + orbit);
+  expect(far).toBeLessThan(cornerDistance + orbit + 1000);
+  expect(far % 1000).toBe(0);
+}
+
 const payload = (await Bun.file(
   new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url),
 ).json()) as PrismPayload;
@@ -48,7 +61,7 @@ describe("complete-city camera depth", () => {
     expect(correctedProjection.z).toBeGreaterThan(-1);
     expect(correctedProjection.z).toBeLessThan(1);
     expect(camera.near).toBe(0.25);
-    expect(camera.far).toBe(32_000);
+    expectMinimalCompleteReach(MAX_ISOMETRIC_ORBIT_M);
   });
 
   test("contains every delivered roof corner from every extreme target at maximum orbit", () => {
@@ -84,9 +97,11 @@ describe("complete-city camera depth", () => {
     // (far - near) / far when the near plane and point distance are fixed.
     const depthStepRatio = ((newFar - near) / newFar) / ((16_000 - near) / 16_000);
     expect(depthStepRatio).toBeGreaterThanOrEqual(1);
-    expect(depthStepRatio).toBeLessThan(1.000_008);
-    expect(worldCameraFarM(2_600)).toBe(28_000);
-    expect(worldCameraFarM(0)).toBe(25_000);
+    // The delivered outskirts/northern scope now requires 54 km. Even this
+    // complete reach changes local depth resolution by less than 0.0012%.
+    expect(depthStepRatio).toBeLessThan(1.000_012);
+    expectMinimalCompleteReach(2_600);
+    expectMinimalCompleteReach(0);
   });
 
   test("keeps the full added scope visible from opposite navigation corners", async () => {

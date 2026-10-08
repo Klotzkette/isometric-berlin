@@ -55,6 +55,44 @@ def test_outline_release_checks_aggregate_renderer_budget(
   assert all("renderer geometry budget" in failure for failure in failures)
 
 
+@pytest.mark.parametrize(
+  "name, rejected",
+  [
+    ("grunewald-v190/tile.json.gz", False),
+    ("../tile.json.gz", True),
+    ("/tile.json.gz", True),
+    ("https://example.com/tile.json.gz", True),
+    ("sub/../tile.json.gz", True),
+    ("sub/%2e%2e/tile.json.gz", True),
+    ("sub//tile.json.gz", True),
+  ],
+)
+def test_outline_companions_allow_only_contained_local_paths(
+  tmp_path: Path, name: str, rejected: bool
+):
+  checker = load_script_module(
+    "readiness_companion_paths", "scripts/check_release_readiness.py"
+  )
+  folder = tmp_path / "mesh/surrounding-berlin-v159"
+  (folder / "grunewald-v190").mkdir(parents=True)
+  raw = json.dumps({"meshes": []}).encode()
+  data = gzip.compress(raw)
+  (folder / "grunewald-v190/tile.json.gz").write_bytes(data)
+  asset = {
+    "url": name,
+    "bytes": len(data),
+    "decodedBytes": len(raw),
+    "encoding": "gzip",
+    "sha256": hashlib.sha256(data).hexdigest(),
+  }
+  (folder / "manifest.json").write_text(
+    json.dumps({"schemaVersion": 1, "chunks": [{"drawn": asset, "minecraft": asset}]})
+  )
+  failures = checker.surrounding_city_failures(tmp_path)
+  assert bool(failures) == rejected
+  assert all("non-local outline chunk path" in error for error in failures)
+
+
 VALID_START_HERE_HTML = """<!doctype html><html lang="de"><body>
 <h1>Lokal starten</h1><p lang="en">Start locally</p>
 OPEN-3D-MAC.command OPEN-3D-WINDOWS.bat sh start-linux.sh python3 serve-local.py

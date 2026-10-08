@@ -1,0 +1,68 @@
+{
+  "sourceSha256": "9d193d9003e35f9a00c2a52553452946aab4d46467f1465364455e36e6a568a9",
+  "license": "ODbL-1.0",
+  "sourceFeatures": [
+    {
+      "id": "OSM-way-24165917",
+      "tags": {
+        "image": "https://commons.wikimedia.org/wiki/File:Gesundbrunnen_Humboldthain_Rosengarten.jpg",
+        "wikidata": "Q140621410",
+        "wikimedia_commons": "Category:Volkspark Humboldthain Rosengarten",
+        "osm_way_id": "24165917",
+        "name": "Humboldthain Rosengarten",
+        "leisure": "garden"
+      }
+    },
+    {
+      "id": "OSM-way-26763667",
+      "tags": {
+        "alt_name": "Bunkeranlage Humboldthain",
+        "bunker_type": "gun_emplacement",
+        "image": "http://commons.wikimedia.org/wiki/File:Berlin_Humboldthain_Aussichtspunkte_Bunker.jpg",
+        "name:de": "Flakturm Humboldthain",
+        "name:en": "Flak Towers at Humboldthain Park",
+        "name:es": "La torre antiaérea Humboldthain",
+        "ruins": "yes",
+        "start_date": "1942",
+        "wheelchair": "no",
+        "wikidata": "Q118220217",
+        "wikimedia_commons": "Category:Flakturm Volkspark Humboldthain",
+        "wikipedia": "de:Flakturm Humboldthain",
+        "osm_way_id": "26763667",
+        "name": "Flakturm Humboldthain",
+        "building": "bunker",
+        "historic": "yes",
+        "military": "bunker",
+        "sport": "climbing"
+      }
+    },
+    {
+      "id": "OSM-way-450882982",
+      "tags": {
+        "contact:website": "https://www.berlin.de/sehenswuerdigkeiten/3559814-3558930-maerchenbrunnen.html",
+        "name:fr": "Fontaine des contes de fée",
+        "opening_hours": "Mo-Fr 08:00-22:00; Sa,Su,PH 09:00-22:00",
+        "wheelchair": "no",
+        "wikidata": "Q871941",
+        "wikimedia_commons": "Category:Märchenbrunnen (Berlin-Friedrichshain)",
+        "wikipedia": "de:Märchenbrunnen im Volkspark Friedrichshain",
+        "osm_way_id": "450882982",
+        "name": "Märchenbrunnen",
+        "tourism": "attraction"
+      }
+    }
+  ],
+  "counts": {
+    "parks": 2,
+    "benches": 227,
+    "edges": 357,
+    "basins": 7,
+    "woodlandTrees": 156
+  },
+  "policy": "Exact retained OSM nodes/rings; previous complete park geometry and DGM preserved. Bench orientation when untagged, railing dimensions, material tones and vertical detail are explicit display estimates. Woodland crowns are illustrative 22m sampling strictly inside mapped woods, clear of mapped paths/water/buildings/trees; native uses half that density. Bunker envelope y13.4–55.4 retains the v182 source conflict; no imaginary museum interior.",
+  "references": [
+    "https://www.berliner-unterwelten.de/fuehrungen/oeffentliche-fuehrungen/vom-flakturm-zum-truemmerberg.html",
+    "https://www.berlin.de/landesdenkmalamt/aktivitaeten/artikel.1506986.php",
+    "https://commons.wikimedia.org/wiki/File:Berlin_Humboldthain_Aussichtspunkte_Bunker.jpg"
+  ]
+}

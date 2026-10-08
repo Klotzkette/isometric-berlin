@@ -69,7 +69,12 @@ function packet(buildings: PrismBuilding[], index: number): Extract<ProgressiveW
 function fixture(mobile = true) {
   // Small actual source footprints keep lifecycle tests fast while exercising
   // real LoD2 generation and transferred building materials.
-  const buildings = [10000, 10010, 10100, 10200].map((index) => payload.buildings[index]);
+  // Fixed source identities, not catalogue offsets that can later point at
+  // deliberately replaced hero bodies. These four convex, hole-free source
+  // roofs remain visible in both preview and exact generic construction.
+  const sourceIds = ["1gG00048", "2ic0010I", "3kx0000q", "3jN0000r"];
+  const buildings = sourceIds.map(id => payload.buildings.find(b => b.id === id)!);
+  expect(buildings.map(b => b.id)).toEqual(sourceIds);
   expect(buildings.every(representable)).toBeTrue();
   const partition = { initial: [], remaining: [[buildings[0]], [buildings[1]]], omitted: buildings.slice(2) };
   const world = new Group();

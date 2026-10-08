@@ -17,6 +17,17 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Rail, northern neighbourhoods and Grunewald (v1.0.90):** Retained OpenStreetMap
+  routes, administrative boundaries, buildings and public-space geometry (ODbL-1.0)
+  combine with official Berlin LoD2 and DGM1 (dl-de/zero-2-0). Source-derived heights
+  are distinct from approximate station grades, untagged facade subdivisions and
+  unnamed cemetery markers. Only audited exact coarse owners are replaced by
+  complete named source models; terrain corrections retain source plan vertices.
+  External freely licensed photographs are individually credited in both Wikimedia
+  manifests, with no pixels bundled. See [northern coverage](docs/north-city-v190.md),
+  [northern sites](docs/north-sites-v190.md), [parks](docs/park-sites-v190.md) and
+  [release review](docs/release-v1.0.90-review.md).
+
 - **Volksbühne, Suhrkamp, Pfefferberg and Alexanderplatz (v1.0.89):** Retained
   Berlin LoD2 source sheets (dl-de/zero-2-0) and OpenStreetMap identities
   (ODbL-1.0) anchor bounded architectural additions and the Räuberrad's exact
@@ -1483,3 +1494,12 @@ DHHN2016 / NHN. The original 1 m source and its 10 m derived subset are
 documented in the [terrain evidence](geo_data/regierungsviertel/weinberg-v176/README.md).
 The bounded transition apron is presentation geometry, not a surveyed slope
 outside the corrected area. Existing LoD2, OSM and reference credits remain.
+
+Additional v1.0.90 external geometry references (no photographic pixels bundled):
+
+- [File:S-Bahn Berlin Westkreuz Stadtbahn.JPG](https://commons.wikimedia.org/wiki/File:S-Bahn_Berlin_Westkreuz_Stadtbahn.JPG) — Jcornelius (Cornelius Kibelka) / CC BY-SA 3.0.
+- [File:Bahnhof Sudkreuz Bahnsteig oben von W.jpg](https://commons.wikimedia.org/wiki/File:Bahnhof_Sudkreuz_Bahnsteig_oben_von_W.jpg) — Bukk / CC BY-SA 3.0.
+- [File:Berlin S-Bahn Bhf Ostkreuz (S41 1246).jpg](https://commons.wikimedia.org/wiki/File:Berlin_S-Bahn_Bhf_Ostkreuz_(S41_1246).jpg) — Michael.F.H.Barth / CC BY-SA 4.0.
+- [File:Berlin - S-Bahnhof Ostkreuz - Neue Ringbahnhalle - Stand 04 2012 (6942355756).jpg](https://commons.wikimedia.org/wiki/File:Berlin_-_S-Bahnhof_Ostkreuz_-_Neue_Ringbahnhalle_-_Stand_04_2012_(6942355756).jpg) — IngolfBLN / CC BY-SA 2.0.
+- [Grunewaldturm-01-Frontansicht.jpg](https://commons.wikimedia.org/wiki/File:Grunewaldturm-01-Frontansicht.jpg) — Muck / CC BY-SA 4.0.
+- [2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg](https://commons.wikimedia.org/wiki/File:2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg) — Gunnar Klack / CC BY-SA 4.0.

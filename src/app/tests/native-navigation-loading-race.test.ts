@@ -6,10 +6,12 @@ import { publishedNavigationMode, type VisualMode } from "../src/visualMode";
 const viewer = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 const parsed = ts.createSourceFile("ThreeViewer.tsx", viewer, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const modeCallbacks: string[] = [];
+const callbackOwners: string[] = [];
 function visit(node: ts.Node): void {
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-      ts.isArrowFunction(node.right) && /^(pedestrianEnvironment|provisionalEnvironment)\.visualMode$/.test(node.left.getText(parsed))) {
+      ts.isArrowFunction(node.right) && /^(pedestrianEnvironment|environment)\.visualMode$/.test(node.left.getText(parsed))) {
     modeCallbacks.push(node.right.getText(parsed));
+    callbackOwners.push(node.left.getText(parsed));
   }
   ts.forEachChild(node, visit);
 }
@@ -23,6 +25,7 @@ test("navigation preserves every drawn mode and activates native queries only af
   expect(publishedNavigationMode("minecraft", false)).toBe("day");
   expect(publishedNavigationMode("minecraft", true)).toBe("minecraft");
   expect(modeCallbacks).toHaveLength(2);
+  expect(callbackOwners).toEqual(["pedestrianEnvironment.visualMode", "environment.visualMode"]);
 });
 
 for (const fails of [false, true]) {

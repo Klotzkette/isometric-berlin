@@ -26,6 +26,7 @@ import {
   type PedestrianPolygonObstacle,
 } from "../src/pedestrianNavigation";
 import navigation from "../src/data/berlinWallMemorialV174Navigation.json";
+import { persistentPedestrianSourceIds } from "./helpers/persistentPedestrianSources";
 
 describe("Bernauer present-day memorial", () => {
   test("same complete static drawn detail for pointer and touch", () => {
@@ -94,6 +95,7 @@ describe("Bernauer present-day memorial", () => {
     const polygons = unique.filter((o): o is PedestrianPolygonObstacle => o.kind === "polygon");
     const byId = new Map(polygons.map(o => [o.sourceId, o]));
     const expectedIds = new Set([
+      ...persistentPedestrianSourceIds,
       ...BERLIN_WALL_MEMORIAL_V174_BUILDINGS.map(p => p.sourceId),
       ...BERLIN_WALL_MEMORIAL_V174_SOLIDS.map((_, i) => `bernauer-wall-v174-${i}`),
       ...BERLIN_WALL_MEMORIAL_V174_POSTS.map((_, i) => `bernauer-post-v174-${i}`),
@@ -133,7 +135,9 @@ describe("Bernauer present-day memorial", () => {
     // The public lawn and route do not become a broad invisible obstacle.
     expect(pedestrianPointIsBlocked(1250, -1660, 5.2, index)).toBeFalse();
     const unrelated = compilePedestrianObstacles({ buildings: [] });
-    expect(unrelated.obstacleCount).toBe(0);
-    expect(unrelated.cells.size).toBe(0);
+    const unrelatedIds = new Set([...unrelated.cells.values()].flat().map(o => o.sourceId));
+    expect(unrelatedIds).toEqual(persistentPedestrianSourceIds);
+    expect(unrelated.obstacleCount).toBe(persistentPedestrianSourceIds.size);
+    for (const id of expectedIds) if (!persistentPedestrianSourceIds.has(id)) expect(unrelatedIds.has(id)).toBeFalse();
   });
 });

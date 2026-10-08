@@ -2,10 +2,11 @@ import scope from "./data/surroundingCityScope.json";
 import ringScope from "./data/ringCityScopeV182.json";
 import coverageScope from "./data/cityCoverageScopeV183.json";
 import outskirts from "./data/outskirtsScopeV187.json";
+import northCity from "./data/northCityScopeV190.json";
 import { surroundingPolygonContains } from "./SurroundingCityGeometry";
 import { terrainGroundAt } from "./weinbergTerrainV176";
 
-const outskirtsPolygons = outskirts.footprint.map(polygon => {
+const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint].map(polygon => {
   let minX=Infinity, minZ=Infinity, maxX=-Infinity, maxZ=-Infinity;
   for(const [x,z] of polygon.ring) {minX=Math.min(minX,x);minZ=Math.min(minZ,z);maxX=Math.max(maxX,x);maxZ=Math.max(maxZ,z);}
   return {polygon,minX,minZ,maxX,maxZ};

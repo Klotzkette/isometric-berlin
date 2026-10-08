@@ -5,6 +5,7 @@ import type { VisualMode } from "./visualMode";
 import { terrainGroundAt } from "./weinbergTerrainV176";
 import { createOutlineLandmarksV182 } from "./OutlineLandmarksV182";
 import outskirts from "./data/outskirtsScopeV187.json";
+import northCity from "./data/northCityScopeV190.json";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
 export function createOuterThinOutlines(
@@ -36,8 +37,8 @@ export function createOuterThinOutlines(
   // Extend only the recessed blank paper, never cover the existing city.
   const old = extrapolatedEnvelopeBounds();
   const backdrop = PRESENTATION_BACKDROP_BOUNDS;
-  const west=Math.min(data.bounds[0],outskirts.bounds[0]), north=Math.min(data.bounds[1],outskirts.bounds[1]);
-  const east=Math.max(data.bounds[2],outskirts.bounds[2]), south=Math.max(data.bounds[3],outskirts.bounds[3]);
+  const west=Math.min(data.bounds[0],outskirts.bounds[0],northCity.bounds[0]), north=Math.min(data.bounds[1],outskirts.bounds[1],northCity.bounds[1]);
+  const east=Math.max(data.bounds[2],outskirts.bounds[2],northCity.bounds[2]), south=Math.max(data.bounds[3],outskirts.bounds[3],northCity.bounds[3]);
   const minX = Math.min(west - 200, backdrop.minX), maxX = Math.max(east + 200, backdrop.maxX);
   const minZ = Math.min(north - 200, backdrop.minZ), maxZ = Math.max(south + 200, backdrop.maxZ);
   const paper: number[] = [];

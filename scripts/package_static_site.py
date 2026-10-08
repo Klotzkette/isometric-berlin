@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.89"
+PACKAGE_VERSION = "1.0.90"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset(
@@ -594,7 +594,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "start_page_mode": "3d-launch-guide",
     "full_3d_start_page": "index.html",
     "uses_google_content": False,
-    "scope": "Berlin Regierungsviertel bounds only",
+    "scope": "Versioned Berlin city coverage, including the explicitly bounded northern and Grunewald additions",
     "render_mode": "procedural LoD2/OpenStreetMap isometric city",
     "controls": [
       "mouse-pan",

@@ -14,8 +14,9 @@ from typing import Any
 
 import numpy as np
 import pytest
+from packet_receipts_v190 import assert_retained_descriptor, audited_v190_changes
 from shapely import make_valid
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point, Polygon, shape
 from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,7 +89,7 @@ def test_scope_subtracts_exact_old_union_and_reaches_requested_places() -> None:
 
 
 def test_v186_descriptors_packets_and_bounds_remain_byte_exact() -> None:
-  """Appending the new queue entries must never rewrite a previous city asset."""
+  """Only exact, named v190 owner/terrain receipts can change prior city bytes."""
   path = PUBLIC / "manifest.json"
   old = json.loads(
     subprocess.check_output(
@@ -96,16 +97,14 @@ def test_v186_descriptors_packets_and_bounds_remain_byte_exact() -> None:
     )
   )
   current = load(path)
-  assert current["chunks"][: len(old["chunks"])] == old["chunks"]
+  changes, _ = audited_v190_changes()
+  assert [c["id"] for c in current["chunks"][: len(old["chunks"])]] == [
+    c["id"] for c in old["chunks"]
+  ]
+  for before, after in zip(old["chunks"], current["chunks"], strict=False):
+    assert_retained_descriptor(before, after, changes)
   assert current["footprint"][: len(old["footprint"])] == old["footprint"]
   assert current["source"] == old["source"]
-  for chunk in old["chunks"]:
-    for mode in ("drawn", "minecraft"):
-      asset = chunk[mode]
-      assert (
-        hashlib.sha256((PUBLIC / asset["url"]).read_bytes()).hexdigest()
-        == asset["sha256"]
-      )
   for name in (
     "bounds.geojson",
     "bounds-ring-v182.geojson",
@@ -128,6 +127,8 @@ def packet_audit() -> dict[str, Any]:
   nav_records, sources, chunks = [], set(), set()
   hero = builder.exclusions()[0]
   forest_triangles = {"drawn": 0, "minecraft": 0}
+  _, companions = audited_v190_changes()
+  companion_ids = {c["id"] for c in companions}
   for chunk in manifest["chunks"]:
     assert chunk["id"].startswith("outer187-")
     assert chunk["id"] not in chunks
@@ -135,7 +136,16 @@ def packet_audit() -> dict[str, Any]:
     for mode in ("drawn", "minecraft"):
       packet = read_packet(chunk[mode])
       assert packet["id"] == chunk["id"]
-      assert packet["nav"]["ground"]
+      if chunk["id"] in companion_ids:
+        assert all(
+          not packet["nav"].get(k)
+          for k in ["ground", "buildings", "water", "roads", "bridges"]
+        )
+        assert chunk["detailCompanionOf"] in chunks or any(
+          c["id"] == chunk["detailCompanionOf"] for c in manifest["chunks"]
+        )
+      else:
+        assert packet["nav"]["ground"]
       assert len(packet["origin"]) == 3
       if mode == "minecraft":
         assert "lines" not in packet
@@ -192,7 +202,10 @@ def test_new_packets_keep_bounded_buffers_and_source_receipts(
 ) -> None:
   """Both representations have valid data and all source owners remain auditable."""
   manifest = packet_audit["manifest"]
-  assert len(manifest["chunks"]) == 822
+  _, companions = audited_v190_changes()
+  assert len(manifest["chunks"]) == 822 + len(
+    [c for c in companions if c["detailCompanionOf"].startswith("outer187-")]
+  )
   assert len(packet_audit["sources"]) > 40_000
   assert min(packet_audit["forestTriangles"].values()) > 100_000
   asset = manifest["source"]["inventory"]
@@ -252,10 +265,23 @@ def water_at(lon: float, lat: float, manifest: dict[str, Any]) -> bool:
   """Probe rendered horizontal water triangles, not just navigation labels."""
   e, n = builder.PROJECT(lon, lat)
   x, z = e - 389500, 5820000 - n
+  relief = load(DATA / "grunewald-terrain-v190.json")
+  placement = load(DATA / "grunewald-v190-packet-audit.json")
+  elevated_ids = {d["id"] for d in placement["replacementDescriptors"]}
+  elevated_ids.update(d["id"] for d in placement["extraDescriptors"])
+  water_color = builder.exporter.linear_rgb_bytes(
+    np.asarray(builder.exporter.COLORS["water"])
+  )
   for chunk in manifest["chunks"]:
     a, b, c, d = chunk["bounds"]
     if not (a <= x <= c and b <= z <= d):
       continue
+    expected_level = -1.15
+    if chunk["id"] in elevated_ids:
+      for lake in relief["lakes"] + relief["additionalWater"]:
+        if shape(lake["geometry"]).covers(Point(x, z)):
+          expected_level = lake["waterY"]
+          break
     packet = read_packet(chunk["drawn"])
     origin = np.asarray(packet["origin"])
     for mesh in packet["meshes"]:
@@ -266,7 +292,14 @@ def water_at(lon: float, lat: float, manifest: dict[str, Any]) -> bool:
       )
       indices = np.frombuffer(base64.b64decode(mesh["indices"]), dtype="<u4")
       triangles = positions[indices].reshape(-1, 3, 3)
-      flat_water = triangles[np.all(abs(triangles[:, :, 1] + 1.15) < 0.001, axis=1)]
+      colors = np.frombuffer(base64.b64decode(mesh["colors"]), dtype=np.uint8).reshape(
+        -1, 3
+      )
+      triangle_colors = colors[indices].reshape(-1, 3, 3)
+      flat_water = triangles[
+        np.all(abs(triangles[:, :, 1] - expected_level) < 0.001, axis=1)
+        & np.all(triangle_colors == water_color, axis=(1, 2))
+      ]
       for triangle in flat_water:
         if Polygon(triangle[:, [0, 2]]).covers(Point(x, z)):
           return True
@@ -286,3 +319,177 @@ def test_lakes_render_continuously_but_do_not_fill_mapped_islands() -> None:
   # Interior source representative locations of ways431335432 / relation16653908.
   for lon, lat in [(13.1283, 52.4353), (13.1697, 52.4475)]:
     assert not water_at(lon, lat, manifest), (lon, lat)
+
+
+def test_v190_changes_only_receipted_v189_packets_and_named_new_cells() -> None:
+  """Every pre-v190 descriptor is frozen unless an exact source receipt owns it."""
+  manifest_path = PUBLIC / "manifest.json"
+  before = json.loads(
+    subprocess.check_output(
+      ["git", "show", f"v1.0.89:{manifest_path.relative_to(ROOT)}"], cwd=ROOT
+    )
+  )
+  after = load(manifest_path)
+  changes, companions = audited_v190_changes()
+  assert [c["id"] for c in after["chunks"][: len(before["chunks"])]] == [
+    c["id"] for c in before["chunks"]
+  ]
+  for old, new in zip(before["chunks"], after["chunks"], strict=False):
+    assert_retained_descriptor(old, new, changes)
+  assert after["footprint"][: len(before["footprint"])] == before["footprint"]
+  assert after["source"] == before["source"]
+  additions = after["chunks"][len(before["chunks"]) :]
+  north = load(DATA / "north-city-v190-manifest.json")["chunks"]
+  assert {c["id"] for c in additions} == {c["id"] for c in north + companions}
+  current_by_id = {c["id"]: c for c in after["chunks"]}
+  for expected in north + companions:
+    assert current_by_id[expected["id"]] == expected
+  for companion in companions:
+    parent = current_by_id[companion["detailCompanionOf"]]
+    assert companion["bounds"] == parent["bounds"]
+    for mode in ["drawn", "minecraft"]:
+      packet = read_packet(companion[mode])
+      assert all(
+        not packet["nav"].get(k)
+        for k in ["ground", "buildings", "water", "roads", "bridges"]
+      )
+  # The v187 subset is not a loophole: its originals remain in the same order,
+  # and every appended geometry-only companion must be in the finite receipt.
+  old_subset = json.loads(
+    subprocess.check_output(
+      [
+        "git",
+        "show",
+        "v1.0.89:geo_data/regierungsviertel/outskirts-v187-manifest.json",
+      ],
+      cwd=ROOT,
+    )
+  )
+  current_subset = load(DATA / "outskirts-v187-manifest.json")
+  assert len(old_subset["chunks"]) == 822
+  subset_companions = [
+    c for c in companions if c["detailCompanionOf"].startswith("outer187-")
+  ]
+  assert len(current_subset["chunks"]) == 822 + len(subset_companions)
+  for old, new in zip(old_subset["chunks"], current_subset["chunks"], strict=False):
+    assert_retained_descriptor(old, new, changes)
+  assert current_subset["chunks"][822:] == subset_companions
+  for key in ["source", "bounds", "footprint"]:
+    assert current_subset[key] == old_subset[key]
+
+
+def test_connected_havel_keeps_one_datum_across_relief_and_packet_boundaries() -> None:
+  """A partial terrain operation must not introduce steps in connected Havel water."""
+  import math
+
+  from shapely.geometry import LineString
+
+  relief = load(DATA / "grunewald-terrain-v190.json")
+  havel = next(
+    lake
+    for lake in relief["additionalWater"]
+    if lake["sourceId"] == "OSM-relation-4578498"
+  )
+  geometry = shape(havel["geometry"])
+  field = load(ROOT / "src/app/src/data/grunewaldTerrainV190.json")
+  west, north, _, south = field["profiles"][0]["support"]
+  cuts = [west, math.floor(west / 512) * 512]
+  probes = []
+  for cut in cuts:
+    crossings = geometry.intersection(LineString([(cut, north), (cut, south)]))
+    segments = list(crossings.geoms) if hasattr(crossings, "geoms") else [crossings]
+    count = 0
+    for segment in segments:
+      if segment.geom_type != "LineString" or segment.length < 32:
+        continue
+      p = segment.interpolate(0.5, normalized=True)
+      pair = [(cut - 8, p.y), (cut + 8, p.y)]
+      assert all(geometry.covers(Point(x, z)) for x, z in pair)
+      probes.extend(pair)
+      count += 1
+    assert count >= 2, "Probe both actual Havel crossings, not an incidental pond"
+  baseline = json.loads(
+    subprocess.check_output(
+      [
+        "git",
+        "show",
+        "v1.0.89:src/app/public/mesh/surrounding-berlin-v159/manifest.json",
+      ],
+      cwd=ROOT,
+    )
+  )
+  expected = baseline["waterY"]
+  connected_ids = {
+    "OSM-relation-4578498",
+    "OSM-way-4436463",
+    "OSM-way-20447324",
+    "OSM-way-157043658",
+    "OSM-way-158521683",
+  }
+  connected = [
+    lake for lake in relief["additionalWater"] if lake["sourceId"] in connected_ids
+  ]
+  assert {lake["sourceId"] for lake in connected} == connected_ids
+  assert all(lake["waterY"] == expected for lake in connected)
+  assert all(
+    lake["baselineRelease"] == "v1.0.89"
+    and lake["baselineWaterY"] == expected
+    and lake["baselineWaterTriangles"] > 0
+    and lake["displayWaterPolicy"] == "retain-connected-v189-plane"
+    and isinstance(lake["measuredWaterY"], (int, float))
+    for lake in connected
+  )
+  manifest = load(DATA / "outskirts-v187-manifest.json")
+  checks = relief["connectedWaterBoundaryChecks"]
+  assert {c["sourceId"] for c in checks} == connected_ids - {"OSM-way-157043658"}
+  by_id = {d["id"]: d for d in manifest["chunks"]}
+  source_geometry = {lake["sourceId"]: shape(lake["geometry"]) for lake in connected}
+  for check in checks:
+    assert check["waterY"] == expected
+    assert check["insidePacket"] != check["outsidePacket"]
+    for side in ("inside", "outside"):
+      x, z = check[side + "Point"]
+      a, b, c, d = by_id[check[side + "Packet"]]["bounds"]
+      assert a <= x <= c and b <= z <= d
+      assert source_geometry[check["sourceId"]].covers(Point(x, z))
+      probes.append((x, z))
+  water_color = builder.exporter.linear_rgb_bytes(
+    np.asarray(builder.exporter.COLORS["water"])
+  )
+  decoded = {}
+  for mode in ("drawn", "minecraft"):
+    for x, z in probes:
+      levels = set()
+      for desc in manifest["chunks"]:
+        a, b, c, d = desc["bounds"]
+        if not (a <= x <= c and b <= z <= d):
+          continue
+        key = (desc["id"], mode)
+        if key not in decoded:
+          decoded[key] = read_packet(desc[mode])
+        packet = decoded[key]
+        for mesh in packet["meshes"]:
+          if mesh["kind"] != "city":
+            continue
+          pos = (
+            np.frombuffer(base64.b64decode(mesh["positions"]), dtype="<u2").reshape(
+              -1, 3
+            )
+            / 100
+            + packet["origin"]
+          )
+          colors = np.frombuffer(
+            base64.b64decode(mesh["colors"]), dtype=np.uint8
+          ).reshape(-1, 3)
+          ix = np.frombuffer(base64.b64decode(mesh["indices"]), dtype="<u4").reshape(
+            -1, 3
+          )
+          tri = pos[ix]
+          water = tri[
+            np.all(colors[ix] == water_color, axis=(1, 2))
+            & (np.ptp(tri[:, :, 1], axis=1) < 0.001)
+          ]
+          for triangle in water:
+            if Polygon(triangle[:, [0, 2]]).covers(Point(x, z)):
+              levels.add(round(float(triangle[0, 1]), 2))
+      assert levels == {expected}, (mode, x, z, levels)

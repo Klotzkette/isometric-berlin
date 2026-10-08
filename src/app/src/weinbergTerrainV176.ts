@@ -2,6 +2,7 @@ import profile from "./data/weinbergTerrainV176.json";
 import buildings from "./data/weinbergBuildingOffsetsV176.json";
 import basinData from "./data/weinbergBasinsV176.json";
 import { parkReliefAt } from "./parkReliefV182";
+import { grunewaldGroundAt } from "./grunewaldTerrainV190";
 
 type Point = readonly number[];
 type P = [number, number, number];
@@ -34,7 +35,7 @@ export function terrainWeight(x: number, z: number): number {
 
 export function terrainGroundAt(x: number, z: number, baseline = 3, native = false): number {
   const height = baseline + (native ? nativeTerrainOffset(x, z) : terrainOffset(x, z)) + (3 - baseline) * terrainWeight(x, z);
-  if (x <= west || x >= east || z <= north || z >= south) return parkReliefAt(x, z, height, native);
+  if (x <= west || x >= east || z <= north || z >= south) return grunewaldGroundAt(x, z, parkReliefAt(x, z, height, native), native);
   for (const basin of basinData.basins) {
     if (inRing(x, z, basin.ring) && !basin.holes.some(hole => inRing(x, z, hole))) return basin.floorY;
   }

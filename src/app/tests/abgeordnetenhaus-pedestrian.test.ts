@@ -1,8 +1,5 @@
-import { PALACES_UDL_SOURCES } from "../src/palacesUdlProfile";
+import { persistentPedestrianSourceIds } from "./helpers/persistentPedestrianSources";
 import { ALEXANDER_CIVIC_SOURCES, MARIEN_TOWER_PART_IDS } from "../src/alexanderCivicProfile";
-import { JAMES_SIMON_SOURCE } from "../src/jamesSimonProfile";
-import { KOMISCHE_OPER_SOURCE_PART } from "../src/KomischeOperSourceGeometry";
-import { FIFTY_HERTZ_IDS } from "../src/fiftyHertzProfile";
 import { describe, expect, test } from "bun:test";
 import type { PrismPayload } from "../src/IsometricCityWorld";
 import {
@@ -17,30 +14,10 @@ import {
   stepPedestrian, type PedestrianEnvironment, type PedestrianPolygonObstacle,
 } from "../src/pedestrianNavigation";
 import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess";
-import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "../src/parliamentArchitectureProfile";
-import { BUNDESRAT_MAIN_ID } from "../src/bundesratProfile";
-import { BELLEVUE_IDS } from "../src/bellevueProfile";
-import { ADMIRALSPALAST_IDS } from "../src/friedrichstrasseArchitectureProfile";
-import { MUSEUM_TRIAD_SOURCES } from "../src/museumTriadProfile";
-import { DOM_ALTES_SOURCE } from "../src/domAltesMuseumProfile";
-import { MUSIC_MUSEUM_IDS } from "../src/museumLenneProfile";
-import { DB_TOWER_PRISM_IDS } from "../src/dbTowerIds";
-import { ECONOMIC_MINISTRY_SOURCE_IDS } from "../src/EconomicMinistrySourceGeometry";
-import { BEBELPLATZ_BUILDING_SOURCES } from "../src/bebelplatzBuildingProfile";
-import { SCHLOSS_NATURKUNDE_SOURCES } from "../src/schlossNaturkundeProfile";
-import { GENDARMENMARKT_PERIMETER_BUILDINGS } from "../src/gendarmenmarktPerimeterProfile";
-import { GENDARMENMARKT_SOURCES } from "../src/gendarmenmarktProfile";
-import { GORKI_BUILDING_SOURCE } from "../src/gorkiBuildingProfile";
-import { BEHREN42_SOURCE } from "../src/Behren42Profile";
-import { NEUE_WACHE_PRISM_IDS } from "../src/neueWacheProfile";
-import { GRIPS_HANSAPLATZ_PRISM_IDS } from "../src/gripsHansaplatzProfile";
-import { GYMNASIUM_NEUBAU_PRISM_IDS } from "../src/gymnasiumTiergartenProfile";
 import { EAST_CIVIC_SOURCES } from "../src/eastCivicProfile";
 import { DHM_PARTS } from "../src/dhmProfile";
 import { RUSSIAN_EMBASSY_SOURCE_PARTS } from "../src/RussianEmbassySourceGeometry";
 import { SCHLOSS_EAST_PARTS, FERNSEHTURM_PROFILE } from "../src/schlossEastProfile";
-import { LEIPZIGER_SOURCE_PARTS } from "../src/leipzigerPlatzSourceProfile";
-import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const source = payload.buildings.find(({ id }) => id === profile.mainPrismId)!;
@@ -105,40 +82,21 @@ describe("Abgeordnetenhaus source-plan pedestrian heights", () => {
     expect(tower[0].kind).toBe("circle");
     if (tower[0].kind === "circle") expect(tower[0].solidAt).toBeDefined();
     for (const id of FERNSEHTURM_PROFILE.sourcePartIds) expect(indexed.has(id)).toBeFalse();
-    expect([...indexed.values()].filter((obstacle) => obstacle.topAt).map((obstacle) => obstacle.sourceId).sort())
-      .toEqual([
-        ...civicParts.filter(p => p.id !== buriedSlab.id).map(p => p.id),
-        ...DHM_PARTS.map(p => p.id),
-        ...RUSSIAN_EMBASSY_SOURCE_PARTS.map(p => p.id),
-        ...eastOutlineParts.map(p => p.id),
-        ...marienRoofs.map(p => p.id),
-        ...LEIPZIGER_SOURCE_PARTS.map(p => p.id),
-        ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(b => b.officialParts.map(p => p.id)),
-        ...PALACES_UDL_SOURCES.flatMap(s=>s.parts.map(p=>p.id)),
-        ...JAMES_SIMON_SOURCE.parts.map(p=>p.id),
-        KOMISCHE_OPER_SOURCE_PART.id,
-        ...BELLEVUE_IDS,
-        ...FIFTY_HERTZ_IDS,
-        profile.mainPrismId,
-        "RVRCWHeT",
-        "FqL2azIz",
-        ...MUSIC_MUSEUM_IDS,
-        ...DB_TOWER_PRISM_IDS,
-        ...ECONOMIC_MINISTRY_SOURCE_IDS,
-        "24314976",
-        BUNDESRAT_MAIN_ID,
-        JAKOB_KAISER_EAST_UPPER_PROFILE.displayPrismId,
-        ...ADMIRALSPALAST_IDS,
-        ...MUSEUM_TRIAD_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
-        ...BEBELPLATZ_BUILDING_SOURCES.flatMap(({ parts }) => parts.map(({ id }) => id)),
-        ...[...SCHLOSS_NATURKUNDE_SOURCES, ...GENDARMENMARKT_SOURCES, GORKI_BUILDING_SOURCE, BEHREN42_SOURCE]
-          .flatMap(({ parts }) => parts.map(({ id }) => id)),
-        ...GENDARMENMARKT_PERIMETER_BUILDINGS.flatMap(b => b.officialParts.map(p => p.id)),
-        ...NEUE_WACHE_PRISM_IDS,
-        ...GRIPS_HANSAPLATZ_PRISM_IDS,
-        ...GYMNASIUM_NEUBAU_PRISM_IDS,
-        ...[DOM_ALTES_SOURCE.dom, DOM_ALTES_SOURCE.altes].flatMap(({ parts }) => parts.map(({ id }) => id)),
-      ].sort());
+    // This contract is local to the retained source body and its six annexes.
+    // Complete unrelated source families have their own ownership tests; a
+    // citywide historical callback list becomes stale as those families grow.
+    const local = compilePedestrianObstacles({ buildings: payload.buildings.filter(p => p.id === profile.mainPrismId || annexIds.includes(p.id)) });
+    const localPolygons = [...new Set([...local.cells.values()].flat())].filter((p): p is PedestrianPolygonObstacle => p.kind === "polygon");
+    expect(localPolygons.map(p => p.sourceId).sort()).toEqual([...persistentPedestrianSourceIds, profile.mainPrismId, ...annexIds].sort());
+    expect(localPolygons.filter(p => p.topAt).map(p => p.sourceId).sort()).toEqual([...persistentPedestrianSourceIds, profile.mainPrismId].sort());
+    for (const part of localPolygons.filter(p => !persistentPedestrianSourceIds.has(p.sourceId))) {
+      const complete = indexed.get(part.sourceId)!;
+      expect(part.ring).toBe(complete.ring);
+      expect(part.holes).toBe(complete.holes);
+      expect(part.minY).toBe(complete.minY);
+      expect(part.maxY).toBe(complete.maxY);
+      expect(part.topAt).toBe(complete.topAt);
+    }
   });
 
   test("blocks the new wall height, follows local roof height and keeps source courts open in every mode", () => {

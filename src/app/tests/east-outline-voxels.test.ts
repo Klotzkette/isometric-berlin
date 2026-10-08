@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Raycaster, Vector3 } from "three";
+import { Color, InstancedMesh, Raycaster, Vector3 } from "three";
 import data from "../src/eastOutlineVoxelData.json";
 import { createSchlossEastOutlines } from "../src/SchlossEastOutlines";
 import { SCHLOSS_EAST_SOURCE as source, SCHLOSS_EAST_PROFILE_KEYS,
@@ -7,25 +7,49 @@ import { SCHLOSS_EAST_SOURCE as source, SCHLOSS_EAST_PROFILE_KEYS,
   FERNSEHTURM_PROFILE as TV, fernsehturmOutlineSolidAt } from "../src/schlossEastProfile";
 import { buildEastOutlineVoxels } from "../scripts/build-east-outline-voxels";
 import { createFernsehturmOutlineMesh } from "../src/FernsehturmOutlineGeometry";
+import { ALEXANDER_STATIONS_V183_HALL_PART_IDS } from "../src/alexanderStationsV183Profile";
 
-function instanceHash(mesh: InstancedMesh): string {
+function arrayHash(matrix: Float32Array, color: Float32Array): string {
   const hash = new Bun.CryptoHasher("sha256");
-  hash.update(new Uint8Array(mesh.instanceMatrix.array.buffer));
-  hash.update(new Uint8Array(mesh.instanceColor!.array.buffer));
+  hash.update(new Uint8Array(matrix.buffer));
+  hash.update(new Uint8Array(color.buffer));
   return hash.digest("hex");
 }
 
+// Independently reconstruct the unchanged historical prepared buffers. Their
+// existing hash remains authoritative; v183 delegates only one exact range.
+const antennaCount = Math.ceil((FERNSEHTURM_ANTENNA.top - FERNSEHTURM_ANTENNA.base) / 2);
+const originalMatrices = new Float32Array((data.cell_count + antennaCount) * 16);
+const originalColors = new Float32Array((data.cell_count + antennaCount) * 3);
+const color = new Color();
+const put = (i: number, x: number, y: number, z: number, hex: number) => {
+  for (const diagonal of [0, 5, 10, 15]) originalMatrices[i * 16 + diagonal] = 1;
+  originalMatrices.set([x, y, z], i * 16 + 12);
+  color.setHex(hex).toArray(originalColors, i * 3);
+};
+for (let i = 0; i < data.cell_count; i++) {
+  const [x, y, z, c] = data.cells_i32.slice(i * 4, i * 4 + 4), cell = data.sampling.cell_m;
+  put(i, x * cell + cell / 2, y * cell + cell / 2, z * cell + cell / 2, data.palette[c]);
+}
+for (let i = 0; i < antennaCount; i++) {
+  const mast = FERNSEHTURM_ANTENNA, y = mast.base + i * 2;
+  put(data.cell_count + i, mast.x, Math.min(y + 1, mast.top - 1), mast.z,
+    Math.floor((y - mast.base) / 10) % 2 ? 0xd4d6cb : 0xa36254);
+}
+
 describe("lossless offline eastern outline surface cache", () => {
-  test("v149 delegates tower and Rathaus while retaining both complete station parts", () => {
+  test("v183 delegates the exact station hall while retaining the complete station base", () => {
     const keys = ["stationBase", "stationHall"] as const;
     const drawn = createSchlossEastOutlines(false, keys);
-    expect(drawn.userData.sourcePartCount).toBe(2);
-    expect(drawn.children.length).toBe(4);
+    expect(drawn.userData.sourcePartCount).toBe(source.profiles.stationBase.parts.length);
+    expect(drawn.userData.profiles).toEqual(["stationBase"]);
+    expect(drawn.children.length).toBe(2);
+    expect(source.profiles.stationHall.parts.every(p => ALEXANDER_STATIONS_V183_HALL_PART_IDS.has(p.id))).toBeTrue();
     expect(drawn.children.every(child => child.name.includes("Alexanderplatz station"))).toBeTrue();
     const all = createSchlossEastOutlines(true).children[0] as InstancedMesh;
     const station = createSchlossEastOutlines(true, keys).children[0] as InstancedMesh;
     const first = data.profiles.find(p => p.key === "stationBase")!.first_cell;
-    expect(station.count).toBe(6575);
+    expect(station.count).toBe(data.profiles.find(p => p.key === "stationBase")!.added_cells);
     expect(station.instanceMatrix.array).toEqual(all.instanceMatrix.array.slice(first*16, (first+station.count)*16));
     expect(station.instanceColor!.array).toEqual(all.instanceColor!.array.slice(first*3, (first+station.count)*3));
   });
@@ -82,11 +106,17 @@ describe("lossless offline eastern outline surface cache", () => {
     const root = createSchlossEastOutlines(true), mesh = root.children[0] as InstancedMesh;
     expect(root.children.length).toBe(1);
     expect(mesh instanceof InstancedMesh).toBeTrue();
-    expect(mesh.count).toBe(data.cell_count + Math.ceil((FERNSEHTURM_ANTENNA.top - FERNSEHTURM_ANTENNA.base) / 2));
-    expect(mesh.count).toBe(21069);
-    expect(instanceHash(mesh)).toBe("a952a714d2b317e0447c3f1609834a0fd0cb715d76888c7045feda6ac73312ce");
+    const hall = data.profiles.find(p => p.key === "stationHall")!;
+    expect(arrayHash(originalMatrices, originalColors)).toBe("a952a714d2b317e0447c3f1609834a0fd0cb715d76888c7045feda6ac73312ce");
+    expect(mesh.count).toBe(data.cell_count - hall.added_cells + antennaCount);
+    const retained = (buffer: Float32Array, stride: number) => new Float32Array([
+      ...buffer.subarray(0, hall.first_cell * stride),
+      ...buffer.subarray((hall.first_cell + hall.added_cells) * stride),
+    ]);
+    expect(mesh.instanceMatrix.array).toEqual(retained(originalMatrices, 16));
+    expect(mesh.instanceColor!.array).toEqual(retained(originalColors, 3));
     expect(mesh.geometry.attributes.position.count).toBe(24);
-    expect(mesh.instanceMatrix.array.byteLength + mesh.instanceColor!.array.byteLength).toBe(1601244);
+    expect(mesh.instanceMatrix.array.byteLength + mesh.instanceColor!.array.byteLength).toBe(mesh.count * 19 * 4);
     expect(root.userData.hiddenSolidInfill).toBeFalse();
   });
 });

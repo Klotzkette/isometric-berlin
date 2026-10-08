@@ -62,7 +62,7 @@ def settle_outer(page: Any) -> None:
   """Wait for the existing serial queue and its reversal retirement window."""
   page.wait_for_function(
     "() => {const c=window.__modeContinuityRuntime()?.surroundingCity;"
-    "return c?.manifest && !c.pending;}",
+    "return c?.manifest && !c.pending && !!window.__modeContinuityRuntime()?.outerThinOutlines;}",
     timeout=60_000,
   )
   page.wait_for_timeout(2100)

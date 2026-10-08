@@ -16,6 +16,13 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import shapely
+from packet_receipts_v190 import (
+  assert_retained_descriptor,
+  audited_v190_changes,
+  baseline_v189,
+  predecessor_v190,
+  v190_additions,
+)
 from shapely.geometry import MultiPoint, Polygon
 from shapely.ops import unary_union
 from station_receipts_v183 import baseline as station_baseline
@@ -787,7 +794,7 @@ def test_current_packets_preserve_every_source_face_and_ink_segment(
     output_paths = [ROOT / name for name in row.get("outputFiles", [row["file"]])]
     assert output_paths[0] == path
     for output_path in output_paths:
-      raw = output_path.read_bytes()
+      raw = predecessor_v190(output_path)
       if output_path == path:
         assert hashlib.sha256(raw).hexdigest() == row["sha256"], row["file"]
       packet = _payload(raw, output_path)
@@ -899,6 +906,8 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   assert len(descriptors) == len(after["chunks"])
   assert old_descriptors.keys() <= descriptors.keys()
   station_rows, station_files = verified_station_replacements()
+  v190_changes, _ = audited_v190_changes()
+  additions = v190_additions()
   relief_files = _verified_park_relief_v182_files(station_files)
   relief_ids = {Path(name).name.split(".")[0] for name in relief_files}
   # This later operation starts at v182. These exact packets were untouched
@@ -906,7 +915,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   for name in station_files - relief_files:
     assert station_baseline(ROOT / name) == _baseline(ROOT / name)
   supplement = json.loads(
-    (ROOT / "geo_data/regierungsviertel/ring-city-v182-manifest.json").read_bytes()
+    baseline_v189(ROOT / "geo_data/regierungsviertel/ring-city-v182-manifest.json")
   )
   ring_descriptors = {entry["id"]: entry for entry in supplement["chunks"]}
   assert ring_descriptors and not (ring_descriptors.keys() & old_descriptors.keys())
@@ -923,7 +932,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   assert all(identity.startswith("city183-") for identity in city_descriptors)
   assert city_descriptors.keys() <= descriptors.keys()
   outskirts_supplement = json.loads(
-    (ROOT / "geo_data/regierungsviertel/outskirts-v187-manifest.json").read_bytes()
+    baseline_v189(ROOT / "geo_data/regierungsviertel/outskirts-v187-manifest.json")
   )
   outskirts_descriptors = {
     entry["id"]: entry for entry in outskirts_supplement["chunks"]
@@ -961,6 +970,10 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
     {row["file"] for row in current_terrain_audit["packets"]}
     | relief_files
     | station_files
+    | {
+      str((PACKETS / f"{identity}.{mode}.json.gz").relative_to(ROOT))
+      for identity, mode in v190_changes
+    }
   )
   emitted = {
     name
@@ -974,21 +987,29 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
     if identity in old_descriptors:
       previous = old_descriptors[identity]
       if identity not in audited_outer | relief_ids | station_rows.keys():
-        assert descriptor == previous
+        assert_retained_descriptor(previous, descriptor, v190_changes)
       else:
         assert {
           k: v for k, v in descriptor.items() if k not in {"drawn", "minecraft"}
         } == {k: v for k, v in previous.items() if k not in {"drawn", "minecraft"}}
     elif identity in ring_descriptors:
-      assert descriptor == ring_descriptors[identity]
+      assert_retained_descriptor(ring_descriptors[identity], descriptor, v190_changes)
     elif identity in city_descriptors:
-      assert descriptor == city_descriptors[identity]
+      assert_retained_descriptor(city_descriptors[identity], descriptor, v190_changes)
     elif identity in outskirts_descriptors:
-      assert descriptor == outskirts_descriptors[identity]
+      assert_retained_descriptor(
+        outskirts_descriptors[identity], descriptor, v190_changes
+      )
     elif identity in district_descriptors:
       assert descriptor == district_descriptors[identity]
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
+    elif identity in additions:
+      assert descriptor == additions[identity]
+      if descriptor.get("detailCompanionOf"):
+        assert (
+          descriptor["bounds"] == descriptors[descriptor["detailCompanionOf"]]["bounds"]
+        )
     else:
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
@@ -1014,6 +1035,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
         and identity not in city_descriptors
         and identity not in outskirts_descriptors
         and identity not in district_descriptors
+        and identity not in additions
         and str(path.relative_to(ROOT)) not in emitted
       ):
         assert packet["meshes"] == []

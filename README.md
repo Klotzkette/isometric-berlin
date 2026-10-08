@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.89 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.89/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.90 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.90/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.89** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.90** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.90 refines Ringbahn/Stadtbahn stations, the northern parks and cemeteries,
+Teutoburger Platz, Kulturbrauerei and Kastanienallee. Source-bound streets and buildings
+extend through Ortsteil Pankow and Weißensee. Grunewald receives measured terrain,
+level lakes, the Brücke-Museum and the Grunewaldturm on Karlsberg.
+[Sources and verification](docs/release-v1.0.90-review.md).
+
+Version 1.0.90 ergänzt Stadtbahn und Ringbahn, nördliche Parks und Friedhöfe,
+Teutoburger Platz, Kulturbrauerei und Kastanienallee. Die Stadt reicht nun mit
+quellenbasierten Umrissen bis Pankow und Weißensee; Grunewald bekommt messdatenbasierte
+Höhen, ebene Seen sowie Brücke-Museum und Grunewaldturm auf dem Karlsberg.
 
 Version 1.0.89 refines the Volksbühne and its Räuberrad, Suhrkamp and Pfefferberg,
 with a restrained additional Alexanderplatz pass. Existing source models stay

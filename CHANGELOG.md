@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.90 — Rail, northern neighbourhoods and Grunewald
+
+- Refine all Ring/Stadtbahn station identities and the major interchange structures.
+- Add finite Pankow–Weißensee streets and buildings, retaining all prior coverage.
+- Refine both Jewish cemeteries, Platzhaus, Kulturbrauerei and Kastanienallee.
+- Add park furniture, mapped basin edges and Humboldthain viewing-platform detail.
+- Add source-derived Grunewald relief, level lake surfaces, Brücke-Museum and Grunewaldturm.
+- Keep complete detail on mobile and desktop, serial loading and existing memory budgets.
+
 ## v1.0.89 — Volksbühne, Suhrkamp and Pfefferberg
 
 - Refine the Volksbühne's curved entrance front and the separate Räuberrad

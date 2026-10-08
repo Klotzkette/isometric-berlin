@@ -127,7 +127,13 @@ describe("source-bound Spree museum and restaurant", () => {
     for (const [x, z] of [[1162, -382], ...courtCentres])
       expect(pedestrianPointIsBlocked(x, z, 5, obstacles)).toBeFalse();
     const ids = new Set([...obstacles.cells.values()].flat().map((o) => o.kind === "polygon" ? o.sourceId : ""));
-    expect(ids.size).toBe(12);
+    // Complete outer landmarks are registered independently of the selected
+    // core prisms. Verify those exact baseline owners plus all twelve Spree
+    // parts, rather than mistaking unrelated represented geometry for doubles.
+    const baseline = compilePedestrianObstacles({ buildings: [] });
+    const expectedIds = new Set([...baseline.cells.values()].flat().map((o) => o.kind === "polygon" ? o.sourceId : ""));
+    for (const part of [...BODE_SOURCE.parts, ...GRILL_SOURCE.parts]) expectedIds.add(part.id);
+    expect([...ids].sort()).toEqual([...expectedIds].sort());
     expect(sourcePartBounds(BODE_MAIN)[0]).toBeGreaterThan(1534);
   });
 });

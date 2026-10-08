@@ -1,5 +1,12 @@
 # Data — Additive Source Fusion
 
+The v1.0.90 [northern coverage](north-city-v190.md) adds the exact finite Pankow–
+Prenzlauer Berg–Weißensee scope outside all older coverage. [Northern sites](north-sites-v190.md),
+[park details](park-sites-v190.md), [rail refinements](rail-stations-v190.md) and
+[Grunewald relief](grunewald-v190.md) use
+separate complete-source and geometry-preservation receipts. See the
+[release review](release-v1.0.90-review.md).
+
 The v1.0.75 [four Zionskirchplatz frontages](zionskirchplatz-v175.md) add bounded
 source-plane detail, with unchanged city geometry and equal mobile detail.
 

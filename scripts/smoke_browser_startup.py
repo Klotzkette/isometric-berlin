@@ -98,7 +98,11 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
       message.type == "warning"
       and "AudioContext was not allowed to start" in message.text
     )
-    if observing and (message.type == "error" or autoplay_warning):
+    scene_warning = message.type == "warning" and message.text.startswith(
+      ("Berlin outline supplement:", "Berlin surroundings:")
+    )
+
+    if observing and (message.type == "error" or autoplay_warning or scene_warning):
       # React/runtime catches can log exceptions without emitting pageerror.
       entries = (
         console_advisories if message.text in CONSOLE_ADVISORIES else console_errors

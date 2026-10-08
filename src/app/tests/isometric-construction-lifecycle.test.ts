@@ -1,4 +1,4 @@
-import { interleaveStaticGeometry } from "../src/interleaveStaticGeometry";
+import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
@@ -142,6 +142,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
     interleaveStaticGeometry,
+    interleaveStaticGeometrySteps,
     completedPedestrianWater: () => {},
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     createSchwellenraumTowerSteam: () => model("Tower rose steam").children[0],

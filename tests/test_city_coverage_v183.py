@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from packet_receipts_v190 import assert_retained_descriptor, audited_v190_changes
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 from station_receipts_v183 import verified_station_replacements
@@ -57,21 +58,28 @@ def test_v182_packets_survive_except_replayed_exact_station_owner_replacements()
   )
   current = json.loads(path.read_bytes())
   station_rows, _ = verified_station_replacements()
+  changes, _ = audited_v190_changes()
   for previous, actual in zip(
     old["chunks"], current["chunks"][: len(old["chunks"])], strict=True
   ):
     expected = copy.deepcopy(previous)
     for mode in station_rows.get(previous["id"], {}).get("modes", {}):
       expected[mode] = actual[mode]
-    assert actual == expected
+    assert_retained_descriptor(expected, actual, changes)
   assert current["footprint"][: len(old["footprint"])] == old["footprint"]
   for chunk in old["chunks"]:
     for mode in ("drawn", "minecraft"):
       asset = chunk[mode]
       receipt = station_rows.get(chunk["id"], {}).get("modes", {}).get(mode)
-      assert hashlib.sha256(
-        (builder.PUBLIC / asset["url"]).read_bytes()
-      ).hexdigest() == (receipt["newSha256"] if receipt else asset["sha256"])
+      expected_sha = receipt["newSha256"] if receipt else asset["sha256"]
+      if (chunk["id"], mode) in changes:
+        before_sha, after_sha = changes[(chunk["id"], mode)]
+        assert before_sha == expected_sha
+        expected_sha = after_sha
+      assert (
+        hashlib.sha256((builder.PUBLIC / asset["url"]).read_bytes()).hexdigest()
+        == expected_sha
+      )
   for filename in ("bounds.geojson", "bounds-ring-v182.geojson"):
     path = builder.DATA / filename
     assert path.read_bytes() == subprocess.check_output(

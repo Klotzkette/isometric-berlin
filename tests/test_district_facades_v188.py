@@ -8,6 +8,12 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np
+from packet_receipts_v190 import (
+  assert_retained_descriptor,
+  audited_v190_changes,
+  baseline_v189,
+  v190_additions,
+)
 from shapely.affinity import affine_transform, translate
 from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.ops import nearest_points
@@ -31,19 +37,43 @@ MANIFEST = read(OUT / "manifest.json")
 def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   old = EVIDENCE["oldDescriptors"]
   assert len(old) == 1369
-  assert [
-    c for c in MANIFEST["chunks"] if not c["id"].startswith("district188-")
-  ] == old
-  for descriptor in old:
-    for family in ["drawn", "minecraft"]:
-      asset = descriptor[family]
-      raw = (OUT / asset["url"]).read_bytes()
-      assert len(raw) == asset["bytes"]
-      assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
-  # Includes complete prior footprint/boundary, source manifests and releases.
+  changes, _ = audited_v190_changes()
+  additions = v190_additions()
+  retained = [
+    c
+    for c in MANIFEST["chunks"]
+    if not c["id"].startswith("district188-") and c["id"] not in additions
+  ]
+  assert [d["id"] for d in retained] == [d["id"] for d in old]
+  for previous, current in zip(old, retained, strict=True):
+    assert_retained_descriptor(previous, current, changes)
+  assert {d["id"]: d for d in MANIFEST["chunks"] if d["id"] in additions} == additions
+  # Old metadata remains exact; only the explicitly appended north footprint
+  # and its union bounds extend the original spatial coverage.
+  previous_manifest = json.loads(baseline_v189(OUT / "manifest.json"))
+  north = read(GEO / "north-city-v190-manifest.json")
   for key, expected in EVIDENCE["oldManifestFieldSha256"].items():
-    raw = json.dumps(MANIFEST[key], sort_keys=True, separators=(",", ":")).encode()
+    value = (
+      previous_manifest[key]
+      if key in {"bounds", "footprint", "outskirtsV187"}
+      else MANIFEST[key]
+    )
+    raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     assert hashlib.sha256(raw).hexdigest() == expected
+  assert MANIFEST["outskirtsV187"] == {
+    **previous_manifest["outskirtsV187"],
+    "chunkCount": previous_manifest["outskirtsV187"]["chunkCount"]
+    + sum(
+      d.get("detailCompanionOf", "").startswith("outer187-") for d in additions.values()
+    ),
+  }
+  assert MANIFEST["footprint"] == previous_manifest["footprint"] + north["footprint"]
+  assert MANIFEST["bounds"] == [
+    min(previous_manifest["bounds"][0], north["bounds"][0]),
+    min(previous_manifest["bounds"][1], north["bounds"][1]),
+    max(previous_manifest["bounds"][2], north["bounds"][2]),
+    max(previous_manifest["bounds"][3], north["bounds"][3]),
+  ]
 
 
 def test_selected_fronts_keep_actual_original_wall_triangles_and_owner() -> None:

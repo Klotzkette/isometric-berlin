@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "landmark_id": "humboldthain-v190",
+      "title": "File:Berlin Humboldthain Aussichtspunkte Bunker.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Humboldthain_Aussichtspunkte_Bunker.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "artist": "Andreas Praefcke",
+      "credit": "Andreas Praefcke, April 2009 / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Dated reference inspected for paired polygonal viewing platforms, concrete edges and metal railings. Independent procedural geometry; no photographic pixels bundled."
+    }
+  ]
+}

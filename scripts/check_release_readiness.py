@@ -71,7 +71,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # source-bound landmarks. Extracted package: 703,310,513 bytes (670.73 MiB).
 # 680 MiB gives 9.27 MiB archive headroom; per-packet, decode and resident GPU
 # limits remain unchanged. See docs/outskirts-v187.md.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 680 * 1024 * 1024
+# v190 adds the explicitly requested 13.584 km² northern coverage and sampled
+# Grunewald terrain, retaining all older source geometry. The complete package
+# measures about 802.1 MiB; 810 MiB allows under 8 MiB of archive headroom.
+# This changes no live fetch/decode, geometry-residency or rendering limit.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 810 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -1861,9 +1865,17 @@ def surrounding_city_failures(site: Path) -> list[str]:
       for family in ("drawn", "minecraft"):
         asset = chunk[family]
         name = asset["url"]
-        if Path(name).name != name:
+        # Lossless detail companions may live in a bounded subdirectory.
+        # Reject external URLs, traversal and ambiguous path spellings.
+        if (
+          not isinstance(name, str)
+          or not re.fullmatch(r"[A-Za-z0-9_./-]+", name)
+          or any(part in {"", ".", ".."} for part in name.split("/"))
+        ):
           raise ValueError("non-local outline chunk path")
         path = folder / name
+        if not path.resolve().is_relative_to(folder.resolve()):
+          raise ValueError("non-local outline chunk path")
         data = path.read_bytes()
         if (
           len(data) != asset["bytes"]

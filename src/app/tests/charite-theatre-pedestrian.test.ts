@@ -27,7 +27,10 @@ describe("Tieranatomisches Theater source-bound walking heights", () => {
     const entries = [
       ...new Set([...index.cells.values()].flat()),
     ] as PedestrianPolygonObstacle[];
-    expect(entries).toHaveLength(2);
+    const baseline = compilePedestrianObstacles({ buildings: [] });
+    const expectedIds = new Set([...baseline.cells.values()].flat().map(e => e.sourceId));
+    for (const id of P.sourceIds) expectedIds.add(id);
+    expect(entries.map(e => e.sourceId).sort()).toEqual([...expectedIds].sort());
     for (const id of P.sourceIds) {
       const entry = entries.find((e) => e.sourceId === id)!;
       const part = chariteTheatreSourceForPrism(id)!;

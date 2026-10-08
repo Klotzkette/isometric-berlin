@@ -96,6 +96,15 @@ within mapped woods away from water, paths and buildings. Reuse bounded serial
 chunk delivery without expanding resident CPU/GPU budgets. This finite request
 does not permit unrelated citywide generation.
 
+The owner's v1.0.90 request additionally permits the three exact OSM Ortsteile
+Pankow, Prenzlauer Berg and Weißensee in `bounds-north-v190.geojson`, subtracting
+all earlier coverage (13.584 km² new). This is not the entire Bezirk Pankow.
+Keep source rings and all prior details, bounded serial delivery and unchanged
+resident budgets. Complete named rail/cemetery/brewery/Grunewald owners may replace
+only their documented exact coarse owners. Grunewald relief may change altitudes
+and subdivide surface triangles while retaining all source XZ vertices; see the
+versioned preservation receipts. Other sites and the 93-place tour remain intact.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

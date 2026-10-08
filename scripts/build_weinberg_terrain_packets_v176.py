@@ -378,6 +378,7 @@ def elevate_mesh(
   *,
   minecraft: bool = False,
   water_at: Callable[[np.ndarray], float | None] | None = None,
+  bank_transform: Callable[[np.ndarray, float, bool], list[np.ndarray]] | None = None,
 ) -> tuple[dict, dict]:
   """Retain source triangles/colours; translate owners and drape only ground.
 
@@ -452,6 +453,14 @@ def elevate_mesh(
         offset = water - points[0, 1]
         counts["waterTriangles"] += 1
       else:
+        if bank_transform is not None:
+          pieces = bank_transform(points, water, minecraft)
+          for piece in pieces:
+            add(piece, col, preserve=True)
+          changed = True
+          counts["bankTriangles"] += 1
+          receipt(source_index, "bank", 0, output_start)
+          continue
         # Existing vertical shoreline sheets keep their complete XZ trace.
         points[:, 1] = [
           water if y < 0 else max(water, y + sample_offset(x, z)) for x, y, z in points
