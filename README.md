@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.84 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.84/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.85 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.85/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.84** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.85** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.85 gently refines five schools, the Ackerhalle, northern neighbourhoods,
+Otto-Weidt-Platz, Rosenthaler Platz and the Richardplatz/Görlitzer Park corridors.
+Small source-bound facade, street, seating and planting additions preserve all
+existing city geometry. [Sources and checks](docs/release-v1.0.85-review.md).
+
+Version 1.0.85 verfeinert fünf Schulen, Ackerhalle, nördliche Kieze, Otto-Weidt-Platz,
+Rosenthaler Platz und die Straßenzüge bei Richardplatz und Görlitzer Park. Kleine
+Fassaden-, Straßen- und Parkergänzungen erhalten sämtliche bisherigen Modelle.
 
 Version 1.0.84 adds restrained plaster/stone colour variation to generic city
 buildings and a softer blue-grey window register. Existing source colours,

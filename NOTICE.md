@@ -17,6 +17,16 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Schools and neighbourhood accents (v1.0.85):** Existing Berlin LoD2/terrain
+  (dl-de/zero-2-0) and retained OSM ways/owners (ODbL-1.0) anchor the small
+  additions. Unsurveyed facade/seat/plant sections remain display estimates;
+  original source models and packets remain intact. Andreas Praefcke's May 2008
+  *Berlin Markthalle VI Fassade Ackerstrasse 2.jpg* (CC BY 3.0) is an external
+  reference only, credited in both Wikimedia manifests. No photographic pixels
+  are bundled. See [schools](docs/schools-v185.md),
+  [public places](docs/public-places-v185.md), [north](docs/north-v185.md) and
+  [southern streets](docs/south-kiez-v185.md).
+
 - **Southern city and architectural refinement (v1.0.83):** Retained OSM
   footprints/roads (ODbL-1.0), Berlin LoD2 and DGM1 (dl-de/zero-2-0) supply
   bounded geometry and relief. Official museum, court, heritage and artist

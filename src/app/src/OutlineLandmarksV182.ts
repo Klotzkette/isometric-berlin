@@ -8,6 +8,11 @@ import { createAlexanderStationsV183, createMinecraftAlexanderStationsV183 } fro
 import { createSpreeLandmarksV183 } from "./SpreeLandmarksV183";
 import { createScheunenFacadesV183 } from "./ScheunenFacadesV183";
 import { createMinecraftScheunenFacadesV183 } from "./MinecraftScheunenFacadesV183";
+import { createSchoolsV185 } from "./SchoolsV185";
+import { createPublicPlacesV185 } from "./PublicPlacesV185";
+import { createNorthV185 } from "./NorthV185";
+import { createSouthKiezV185 } from "./SouthKiezV185";
+import { createMinecraftSouthKiezV185 } from "./MinecraftSouthKiezV185";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -45,6 +50,10 @@ export function createOutlineLandmarksV182(
       root.add(nextNative ? createMinecraftAlexanderStationsV183() : createAlexanderStationsV183());
       root.add(createSpreeLandmarksV183(nextNative));
       root.add(nextNative ? createMinecraftScheunenFacadesV183() : createScheunenFacadesV183());
+      root.add(createSchoolsV185(nextNative));
+      root.add(createPublicPlacesV185(nextNative));
+      root.add(createNorthV185(nextNative));
+      root.add(nextNative ? createMinecraftSouthKiezV185() : createSouthKiezV185());
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }
