@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.97 — Faster exact city assembly and Linden corridor frontages
+
+- Remove per-packet frame delays when the viewer is idle; keep separate cancellable attachment tasks and existing input safeguards.
+- Let building and surface producers await their own acknowledgements, with one packet per producer and unchanged final barriers.
+- Reuse exact facade-occlusion calculations locally; complete production geometry remains bit-identical.
+- Add source-bound facade recognition for previously generic frontages between Brandenburg Gate and Friedrichstraße.
+- Preserve all previous source detail, modes, coverage, viewing distance and residency budgets.
+
 ## v1.0.96 — Viewer stability and source-memory lifetime
 
 - Restrict one-shot deployment recovery to the initial renderer import; late module failures preserve the running viewer.

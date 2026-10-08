@@ -1,0 +1,95 @@
+{
+  "baselineCommit": "462e39d82b83bd53ef7e759d241ad097c33ac1dc",
+  "sourceParts": 29818,
+  "sourceHash": "047e11d3c83c4075c73d33dc173b7e65ac1e7b7215e0994675a2548e3995141b",
+  "cases": {
+    "charite/drawn/full": {
+      "records": 63122,
+      "recordHash": "5b6ed910feffef181462776bfe158a2fbfcd3a5ed558087db3561cf8f3d20906",
+      "hash": "14b20e0935790f7345758e3ede999af301eb9f95021ba51572c67eb33f8d159a",
+      "budget": {
+        "bytes": 5332936,
+        "draws": 4,
+        "instances": 65863,
+        "vertices": 9105
+      }
+    },
+    "harbour/drawn/full": {
+      "records": 14856,
+      "recordHash": "0f71d561d8caff53a054b9ca0e4f7f161b7a9dd6a0d08e77b79627c96dd857be",
+      "hash": "3a0f4bf9379bebadee43a7ddaa5ab9fcd756cee03f94cb72e6dc9fd4b4504f24",
+      "budget": {
+        "bytes": 4078932,
+        "draws": 2,
+        "instances": 0,
+        "vertices": 200828
+      }
+    },
+    "charite/drawn/mobile": {
+      "records": 63122,
+      "recordHash": "5b6ed910feffef181462776bfe158a2fbfcd3a5ed558087db3561cf8f3d20906",
+      "hash": "14b20e0935790f7345758e3ede999af301eb9f95021ba51572c67eb33f8d159a",
+      "budget": {
+        "bytes": 5332936,
+        "draws": 4,
+        "instances": 65863,
+        "vertices": 9105
+      }
+    },
+    "harbour/drawn/mobile": {
+      "records": 14856,
+      "recordHash": "0f71d561d8caff53a054b9ca0e4f7f161b7a9dd6a0d08e77b79627c96dd857be",
+      "hash": "3a0f4bf9379bebadee43a7ddaa5ab9fcd756cee03f94cb72e6dc9fd4b4504f24",
+      "budget": {
+        "bytes": 4078932,
+        "draws": 2,
+        "instances": 0,
+        "vertices": 200828
+      }
+    },
+    "charite/native/full": {
+      "records": 24151,
+      "recordHash": "0a27e740c5a5781ef605246bb6be285d461f71dd4e07789ab2201c74e4624999",
+      "hash": "385f24ec943919faf0a7b34e62367f2a48b711e7745fd16f3ac55a4711f990fa",
+      "budget": {
+        "bytes": 8328110,
+        "draws": 6,
+        "instances": 30440,
+        "vertices": 202465
+      }
+    },
+    "harbour/native/full": {
+      "records": 13440,
+      "recordHash": "88788a817d8f4083dabeed386e5d98a3ae5b00483bb3ab8c9168ed41b91bf58c",
+      "hash": "bc8a904617de8568fe1d71bda151542a1bf6da9cd9e8c5569a1642e4270fa9e7",
+      "budget": {
+        "bytes": 1029051,
+        "draws": 2,
+        "instances": 13440,
+        "vertices": 383
+      }
+    },
+    "charite/native/mobile": {
+      "records": 24151,
+      "recordHash": "0a27e740c5a5781ef605246bb6be285d461f71dd4e07789ab2201c74e4624999",
+      "hash": "385f24ec943919faf0a7b34e62367f2a48b711e7745fd16f3ac55a4711f990fa",
+      "budget": {
+        "bytes": 8328110,
+        "draws": 6,
+        "instances": 30440,
+        "vertices": 202465
+      }
+    },
+    "harbour/native/mobile": {
+      "records": 12980,
+      "recordHash": "204bf91fe6f73f7c32dc221f5f5195ce1e5d4b9cbd7a2fc09f2bd1f49e6312f0",
+      "hash": "9e73fd549ca5067e219533e7f1889596abcb7af2219b70538993f3814d4f7667",
+      "budget": {
+        "bytes": 994091,
+        "draws": 2,
+        "instances": 12980,
+        "vertices": 383
+      }
+    }
+  }
+}

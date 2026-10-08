@@ -1,0 +1,508 @@
+{
+  "schemaVersion": 1,
+  "retrieved": "2026-10-09",
+  "scope": "Selected presently generic source-owned fronts on both sides of the Pariser Platz–Friedrichstraße corridor and immediately adjoining streets; no whole-neighbourhood coverage claim.",
+  "interpretation": "Source footprint, wall contour and vertical datum are measured LoD2. Named materials/compositional features are evidenced by linked public text. RGB colour, detailed window dimensions, floor heights, profile thickness and entrance bay placement are explicitly display estimates; no survey, tenancy or accessibility claim. No photographic pixels or visual photo reference used. Source roofs, courts, authored landmarks and navigation remain unchanged.",
+  "protectedSuffixes": [
+    "03En",
+    "01vY",
+    "0A6r",
+    "01KP",
+    "06ot",
+    "05TM",
+    "05Hq",
+    "01vQ",
+    "09wl",
+    "01Ih",
+    "02Es",
+    "01Gn"
+  ],
+  "excluded": "UDL62–68: old Wiratex building demolished; no obsolete facade reconstruction. UDL39/41: insufficient current facade evidence. No invented address-wide treatment of rear courts.",
+  "buildings": [
+    {
+      "parentId": "DEBE01YYK00001Jp",
+      "label": "Unter den Linden 74",
+      "style": "modern",
+      "levels": 6,
+      "baseHeightEstimate": 6.7,
+      "bayPitchEstimate": 3.0,
+      "streets": [
+        "Unter den Linden"
+      ],
+      "sources": [
+        "https://german-architects.com/nl/deubzer-konig-architekten-gmbh-berlin/project/unter-den-linden-74",
+        "https://pardok.parlament-berlin.de/starweb/adis/citat/VT/13/DruckSachen/d3962.pdf"
+      ],
+      "sourceFacts": "Completed 2001; design describes large lower display windows and fine steel/glass profiles. Pale mineral facade is design intent, not verified as-built stone.",
+      "paint": 14342350,
+      "base": 12697265,
+      "trim": 7238254,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK00005PJ",
+      "label": "Matthias-Erzberger-Haus, Unter den Linden 71",
+      "style": "classical",
+      "levels": 5,
+      "baseHeightEstimate": 4.4,
+      "bayPitchEstimate": 3.1,
+      "streets": [
+        "Unter den Linden",
+        "Wilhelmstraße"
+      ],
+      "sources": [
+        "https://www.bundestag.de/besuche/architektur/gebaeude/udl71/udl71-198794"
+      ],
+      "sourceFacts": "Rebuilt 1993–94 as restrained neoclassical facade on retained skeleton; proportional rhythm and pale warm colour are model estimates.",
+      "paint": 13946556,
+      "base": 12564128,
+      "trim": 12301470,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK00004mj",
+      "label": "Geschäftshaus Friedländer, Unter den Linden 67",
+      "style": "friedlaender",
+      "levels": 5,
+      "baseHeightEstimate": 5.1,
+      "bayPitchEstimate": 3.5,
+      "streets": [
+        "Unter den Linden"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075013"
+      ],
+      "sourceFacts": "Five storeys, high shop base, belt cornice, one-axis side projections and pilasters. Colour and precise bay measurements are estimates.",
+      "paint": 13617078,
+      "base": 12167825,
+      "trim": 12826784,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK000046j",
+      "label": "Otto-Wels-Haus, Unter den Linden 48–56",
+      "style": "otto",
+      "levels": 6,
+      "baseHeightEstimate": 7.0,
+      "bayPitchEstimate": 3.25,
+      "streets": [
+        "Unter den Linden",
+        "Schadowstraße",
+        "Neustädtische Kirchstraße",
+        "Mittelstraße"
+      ],
+      "sources": [
+        "https://www.bundestag.de/besuche/architektur/gebaeude/udl50/udl50-198798"
+      ],
+      "sourceFacts": "Current 1992–97 Italian-neoclassical composition, two-storey retail base. Local OSM pale facade colour retained; exact pitches estimated.",
+      "paint": 15132131,
+      "base": 12895164,
+      "trim": 13881540,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK0000D1e",
+      "label": "Wagon-Lit, Unter den Linden 40 / Mittelstraße 43",
+      "style": "wagon",
+      "levels": 5,
+      "baseHeightEstimate": 5.6,
+      "bayPitchEstimate": 3.3,
+      "streets": [
+        "Unter den Linden",
+        "Mittelstraße"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030019"
+      ],
+      "sourceFacts": "Seven-axis dressed-stone avenue facade, tall round arches, giant pilasters, frieze and cornice. Mittelstraße repeats a simpler composition.",
+      "paint": 13352356,
+      "base": 11970190,
+      "trim": 14734523,
+      "documentedMainBays": 7
+    },
+    {
+      "parentId": "DEBE01YYK00006Zy",
+      "label": "Zollernhof, Unter den Linden 36–38",
+      "style": "zollern",
+      "levels": 5,
+      "baseHeightEstimate": 5.4,
+      "bayPitchEstimate": 4.2,
+      "streets": [
+        "Unter den Linden"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030018",
+        "https://wandstein-restaurierungen.de/referenzen/",
+        "https://bildhauerei-in-berlin.de/bildwerk/zdf-hauptstadtstudio-10526/"
+      ],
+      "sourceFacts": "Twelve-axis limestone composition, full-height piers, paired upper windows and attic. Two six-axis halves; no sculpture reconstruction.",
+      "paint": 12237226,
+      "base": 10855313,
+      "trim": 13289397,
+      "documentedMainBays": 12
+    },
+    {
+      "parentId": "DEBE01YYK0000BWA",
+      "label": "Unter den Linden 32–34, street facade",
+      "style": "natural",
+      "levels": 6,
+      "baseHeightEstimate": 4.8,
+      "bayPitchEstimate": 3.3,
+      "streets": [
+        "Unter den Linden"
+      ],
+      "sources": [
+        "https://tchobanvoss.de/de/projects/geschaeftshaus-unter-den-linden-32-34"
+      ],
+      "sourceFacts": "Existing street facade natural-stone cladding renewed; step-free main entry. Gold/black courtyard addition explicitly excluded.",
+      "paint": 13945530,
+      "base": 12103065,
+      "trim": 14143164,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK00006UP",
+      "label": "Kaiserhöfe, Unter den Linden 26 / 28–30",
+      "style": "kaiser",
+      "levels": 5,
+      "baseHeightEstimate": 5.4,
+      "bayPitchEstimate": 4.0,
+      "streets": [
+        "Unter den Linden",
+        "Mittelstraße"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075015",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075016"
+      ],
+      "sourceFacts": "26: Muschelkalk, rusticated base and giant pilasters; 28–30: five-axis dressed-stone front, three central axes and column order. Mittelstraße ornament partly lost; use simpler returns.",
+      "paint": 12893611,
+      "base": 11115910,
+      "trim": 13946297,
+      "documentedMainBays": 0,
+      "subfronts": [
+        {
+          "osmWayId": "56179619",
+          "style": "daimler",
+          "worldGeometry": {
+            "type": "MultiPolygon",
+            "coordinates": [
+              [
+                [
+                  [
+                    1118.681258946017,
+                    210.92890793085098
+                  ],
+                  [
+                    1098.0894511720398,
+                    212.57214119285345
+                  ],
+                  [
+                    1096.1376954533043,
+                    212.72884438093752
+                  ],
+                  [
+                    1092.3606532376725,
+                    167.26581757795066
+                  ],
+                  [
+                    1090.1986054613371,
+                    137.02813692763448
+                  ],
+                  [
+                    1114.1515068248264,
+                    135.02603406831622
+                  ],
+                  [
+                    1115.106504841824,
+                    146.9762291526422
+                  ],
+                  [
+                    1115.203545016353,
+                    148.10229145083576
+                  ],
+                  [
+                    1114.6595132921939,
+                    148.1457799039781
+                  ],
+                  [
+                    1114.6907836232567,
+                    148.5693298894912
+                  ],
+                  [
+                    1113.8952147606178,
+                    148.6294559845701
+                  ],
+                  [
+                    1114.0502459694399,
+                    150.50236761476845
+                  ],
+                  [
+                    1101.8367867491324,
+                    151.47588554304093
+                  ],
+                  [
+                    1103.0380349152256,
+                    166.3804175807163
+                  ],
+                  [
+                    1107.3292416061158,
+                    166.03115454223007
+                  ],
+                  [
+                    1107.0695652668364,
+                    162.76494615338743
+                  ],
+                  [
+                    1114.781269169529,
+                    162.14711308199912
+                  ],
+                  [
+                    1115.010425191489,
+                    164.95640464965254
+                  ],
+                  [
+                    1115.9767696978524,
+                    177.00700114294887
+                  ],
+                  [
+                    1116.199391061149,
+                    179.80501892510802
+                  ],
+                  [
+                    1108.5419391119503,
+                    180.42406685557216
+                  ],
+                  [
+                    1108.3251133531448,
+                    177.6706887120381
+                  ],
+                  [
+                    1104.9385258555994,
+                    177.9400085909292
+                  ],
+                  [
+                    1106.0961966463365,
+                    192.36507537495345
+                  ],
+                  [
+                    1117.1196607070742,
+                    191.48737250082195
+                  ],
+                  [
+                    1117.3856345243985,
+                    194.77597589232028
+                  ],
+                  [
+                    1118.681258946017,
+                    210.92890793085098
+                  ]
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "osmWayId": "56179624",
+          "style": "kaiser",
+          "worldGeometry": {
+            "type": "MultiPolygon",
+            "coordinates": [
+              [
+                [
+                  [
+                    1141.489912189485,
+                    209.11253179144114
+                  ],
+                  [
+                    1121.245149435359,
+                    210.7190996259451
+                  ],
+                  [
+                    1118.681258946017,
+                    210.92890793085098
+                  ],
+                  [
+                    1117.3856345243985,
+                    194.77597589232028
+                  ],
+                  [
+                    1119.657019294682,
+                    194.59301940258592
+                  ],
+                  [
+                    1123.2609833893366,
+                    194.31741556990892
+                  ],
+                  [
+                    1121.8387761126505,
+                    176.5370176145807
+                  ],
+                  [
+                    1118.1189846461639,
+                    176.8322886126116
+                  ],
+                  [
+                    1115.9767696978524,
+                    177.00700114294887
+                  ],
+                  [
+                    1115.010425191489,
+                    164.95640464965254
+                  ],
+                  [
+                    1117.0302584521705,
+                    164.79008730128407
+                  ],
+                  [
+                    1123.0756907049217,
+                    164.31307149585336
+                  ],
+                  [
+                    1121.6484528770088,
+                    146.45466619636863
+                  ],
+                  [
+                    1116.330513804336,
+                    146.88116047345102
+                  ],
+                  [
+                    1115.106504841824,
+                    146.9762291526422
+                  ],
+                  [
+                    1114.1515068248264,
+                    135.02603406831622
+                  ],
+                  [
+                    1115.152109454153,
+                    134.90372101590037
+                  ],
+                  [
+                    1133.3970986398635,
+                    133.46396149229258
+                  ],
+                  [
+                    1135.4304878008552,
+                    133.29793973173946
+                  ],
+                  [
+                    1139.4685590759036,
+                    183.8075862415135
+                  ],
+                  [
+                    1141.489912189485,
+                    209.11253179144114
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "parentId": "DEBE01YYK00004F9",
+      "label": "Haus der Schweiz, Unter den Linden 24 / Friedrichstraße 155–156",
+      "style": "swiss",
+      "levels": 6,
+      "baseHeightEstimate": 4.9,
+      "bayPitchEstimate": 3.4,
+      "streets": [
+        "Unter den Linden",
+        "Friedrichstraße"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030017"
+      ],
+      "sourceFacts": "Smooth Muschelkalk cladding, simple grid, upper window bands and elevated ground-floor round-arch passage. Slab colours and proportions estimated.",
+      "paint": 14142664,
+      "base": 12498603,
+      "trim": 13551543,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK0000Amq",
+      "label": "Friedrichstraße 154 / Mittelstraße 55, Topas Arkade",
+      "style": "topas",
+      "levels": 5,
+      "baseHeightEstimate": 4.5,
+      "bayPitchEstimate": 3.3,
+      "streets": [
+        "Friedrichstraße"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095982",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030017"
+      ],
+      "sourceFacts": "Three-part pier facade with emphasized side axes, later roof addition and pedestrian arcade. Removed historic ornament is not reconstructed.",
+      "paint": 13222317,
+      "base": 11708046,
+      "trim": 14076853,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK0000Bc9",
+      "label": "Upper Eastside, Friedrichstraße 88–89 / Unter den Linden 14–16",
+      "style": "upper",
+      "levels": 5,
+      "baseHeightEstimate": 7.1,
+      "bayPitchEstimate": 3.3,
+      "streets": [
+        "Unter den Linden",
+        "Friedrichstraße",
+        "Mittelstraße"
+      ],
+      "sources": [
+        "https://www.gmp.de/de/projekte/560/upper-eastside-berlin-buro-wohn-und-geschaftshaus"
+      ],
+      "sourceFacts": "Several travertines and burnished architectural bronze; two-storey commercial base and regular upper storeys. Five constituent houses; keep source planes distinct. Source roof/setbacks unchanged.",
+      "paint": 14011314,
+      "base": 12497048,
+      "trim": 7958101,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK00003zi",
+      "label": "Westin Grand, Unter den Linden 37 / Friedrichstraße 157–164",
+      "style": "westin",
+      "levels": 7,
+      "baseHeightEstimate": 5.1,
+      "bayPitchEstimate": 3.4,
+      "streets": [
+        "Unter den Linden",
+        "Friedrichstraße",
+        "Behrenstraße"
+      ],
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040297"
+      ],
+      "sourceFacts": "Multi-part facade with arcades, pilasters and cornices. Sandstone specifically documented on piers of the rebuilt avenue wing; other pale wall colour is model interpretation.",
+      "paint": 14472647,
+      "base": 13088408,
+      "trim": 13153679,
+      "documentedMainBays": 0
+    },
+    {
+      "parentId": "DEBE01YYK00002o1",
+      "label": "Schadowhaus, Schadowstraße 10–11",
+      "style": "schadow",
+      "levels": 3,
+      "baseHeightEstimate": 3.6,
+      "bayPitchEstimate": 3.1,
+      "streets": [
+        "Schadowstraße"
+      ],
+      "rhythmStreet": "Schadowstraße",
+      "sources": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065050",
+        "https://bildhauerei-in-berlin.de/bildwerk/schadowhaus-10828/"
+      ],
+      "sourceFacts": "Three-storey seven-axis plaster front; outer risalits, rusticated surface, continuous courses and eave frieze. North portal versus south blind gateway. Later wings and courtyard buildings not reconstructed.",
+      "paint": 14275005,
+      "base": 12762536,
+      "trim": 15063754,
+      "documentedMainBays": 7
+    }
+  ]
+}

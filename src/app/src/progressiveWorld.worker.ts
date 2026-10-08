@@ -33,7 +33,6 @@ type WorkerScope = {
 const workerScope = self as unknown as WorkerScope;
 const attachedBatchResolvers = new Map<string, () => void>();
 const attachedBatchPromises = new Map<string, Promise<void>>();
-const MAX_TRANSFERRED_BATCHES_IN_FLIGHT = 4;
 let mobileDetailWorker: BuildingDetailWorker | undefined;
 let latestMobileView: Extract<ProgressiveWorldWorkerMessage, { type: "detail-view" }> | undefined;
 
@@ -78,9 +77,10 @@ async function postBatch(
   // graph immediately instead of retaining thousands of empty BufferAttribute
   // wrappers until a later pressure-triggered GC cycle.
   root.clear();
-  if (attachedBatchPromises.size >= MAX_TRANSFERRED_BATCHES_IN_FLIGHT) {
-    await Promise.race(attachedBatchPromises.values());
-  }
+  // Each of the two serial producers waits only for its own attachment. A
+  // delayed surface ACK must not stall the building lane (or vice versa).
+  // This bounds transfers to one packet per lane and two packets in total.
+  await attached;
 }
 
 async function waitForAttachedBatches(): Promise<void> {
@@ -170,9 +170,6 @@ async function buildSurfaceFamilies(
       { excludeDistrictMarkings: true },
     );
     await postBatch(root, "surfaces", id, startedAt);
-    // One surface and at most one building packet may coexist in flight.
-    // The next construction waits for their acknowledged viewer attachment.
-    await waitForAttachedBatches();
   };
   const postSurface = async (
     family: Parameters<typeof surfaceFamilyPayload>[1],
@@ -213,7 +210,6 @@ async function buildSurfaceFamilies(
   let roadStartedAt = performance.now();
   for await (const { id, root } of createRestoredRoadSurfaceBatches(ground, completedBatchIds)) {
     await postBatch(root, "surfaces", id, roadStartedAt);
-    await waitForAttachedBatches();
     await yieldWorker();
     roadStartedAt = performance.now();
   }
@@ -262,7 +258,6 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       buildings.length = 0;
       await postBatch(root, "buildings", id, startedAt,
         id.replace("buildings-", "buildings-preview-"));
-      await waitForAttachedBatches();
       await yieldWorker();
     },
     settled: (viewRevision) => { settledRevision = viewRevision; publishSettled(); },

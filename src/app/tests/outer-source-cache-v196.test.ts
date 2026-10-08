@@ -17,6 +17,7 @@ const fields: Record<string, string[]> = {
   "airportsV194.json": ["surfaces", "boxes"],
   "teufelsbergStationV195.json": ["surfaces", "lines"],
   "westLakesV194.json": ["sites"],
+  "lindenCorridorV197.json": ["surfaces", "boxes", "blocks"],
 };
 const excluded: Record<string, string[]> = {
   "airportsV194.json": ["blocks", "navigation"],
@@ -49,6 +50,7 @@ async function compile(): Promise<string> {
     ["AirportsV194", "createAirportsV194"],
     ["TeufelsbergStationV195", "createTeufelsbergStationV195"],
     ["WestLakesV194", "createWestLakesV194"],
+    ["LindenCorridorV197", "createLindenCorridorV197"],
   ];
   for (const [file, ...names] of factories) imports.push(`import { ${names.join(",")} } from ${JSON.stringify(join(app, file + ".ts"))};`);
   const entry = join(directory, "entry.js");
@@ -58,7 +60,7 @@ window.fixture = { sources: {${files.map((file, index) => `${JSON.stringify(file
   native => native ? createMinecraftEastLandmarksV187() : createEastLandmarksV187(),
   createSouthWestLandmarksV187,
   native => native ? createMinecraftNorthSitesV190() : createNorthSitesV190(),
-  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194
+  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197
 ] };`);
   try {
     const result = await build({ configFile: false, root: directory, publicDir: false, logLevel: "silent",
@@ -117,7 +119,7 @@ function renderDigest(root: Group): string {
   return result;
 }
 
-describe("v196 outer construction source ownership", () => {
+describe("v196 outer construction source ownership and v197 Linden supplement", () => {
   test("only audited geometry inputs are weak; real factories preserve all render values across collection", async () => {
     for (const [file, names] of Object.entries(fields)) expect(READONLY_CONSTRUCTION_JSON_FIELDS[file]).toEqual(names);
     for (const [file, names] of Object.entries(excluded)) for (const name of names)

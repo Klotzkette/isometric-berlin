@@ -37,6 +37,7 @@ function workerHost(profile: "full" | "mobile") {
   let autoAckBuildings = true;
   let heldSurface: string | undefined;
   let maxPendingTransfers = 0;
+  const maxPendingByKind = { buildings: 0, surfaces: 0 };
   let sourceFetches = 0;
   const waiters = new Set<() => void>();
   const prisms: PrismPayload = {
@@ -61,6 +62,12 @@ function workerHost(profile: "full" | "mobile") {
     postMessage: (message: ProgressiveWorldWorkerOutput) => {
       messages.push(message);
       maxPendingTransfers = Math.max(maxPendingTransfers, attachedBatchPromises.size);
+      for (const kind of ["buildings", "surfaces"] as const) {
+        const pending = [...attachedBatchPromises.keys()].filter(id =>
+          messages.some(entry => entry.type === "batch" && entry.id === id && entry.kind === kind),
+        ).length;
+        maxPendingByKind[kind] = Math.max(maxPendingByKind[kind], pending);
+      }
       if (message.type === "batch" && (message.kind === "buildings" ? autoAckBuildings : message.id !== heldSurface)) {
         workerScope.onmessage!({ data: { type: "batch-attached", id: message.id } });
       }
@@ -73,7 +80,7 @@ function workerHost(profile: "full" | "mobile") {
     buildingDetailDistricts, selectBuildingDetailDistricts,
     splitProgressiveBuildings, splitParkSurfaceFamily, surfaceFamilyPayload,
     serializeObject3DForTransfer, compactStaticGeometry, attachedBatchResolvers, attachedBatchPromises,
-    MAX_TRANSFERRED_BATCHES_IN_FLIGHT: 4, WATER_TOP_Y: 0,
+    WATER_TOP_Y: 0,
     mobileDetailWorker: undefined, latestMobileView: undefined,
     smoothGroundTopSampler: () => () => 0,
     createIsometricCityCore: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
@@ -139,9 +146,10 @@ function workerHost(profile: "full" | "mobile") {
   const buildingBatches = () => batches().filter(message => message.kind === "buildings");
   return {
     messages, buildingSources, surfaceSources, surfaces, roadIds, roadBuilds, attachedBatchPromises, attachedBatchResolvers,
-    districts, defaultWanted, start, view, batches, buildingBatches, waitFor,
+    districts, defaultWanted, start, view, batches, buildingBatches, waitFor, maxPendingByKind,
     ack: (id: string) => workerScope.onmessage!({ data: { type: "batch-attached", id } }),
     holdBuildingAcknowledgements: () => { autoAckBuildings = false; },
+    resumeBuildingAcknowledgements: () => { autoAckBuildings = true; },
     holdSurfaceAcknowledgement: (id: string) => { heldSurface = id; },
     get buildingBuilds() { return buildingSources.length; },
     get surfaceBuilds() { return surfaceSources.length; },
@@ -209,6 +217,77 @@ describe("complete source detail and resumable worker surfaces", () => {
       host.ack(held);
       await started;
       expect(host.messages.at(-1)).toMatchObject({ type: "settled", viewRevision: 0 });
+    });
+
+    test(`${profile}: a delayed surface ACK does not gate the building lane`, async () => {
+      const host = workerHost(profile);
+      const held = profile === "full" ? "surface-water" : "surface-parks-1";
+      expect(host.defaultWanted.length).toBeGreaterThan(1);
+      host.holdSurfaceAcknowledgement(held);
+      const started = host.start();
+      await host.waitFor(() => host.batches().some(message => message.id === held));
+      await host.waitFor(() => host.buildingBatches().length === host.defaultWanted.length);
+      expect(host.buildingBatches().map(message => message.id)).toEqual(host.defaultWanted);
+      expect(host.batches().filter(message => message.kind === "surfaces").map(message => message.id)).toEqual([held]);
+      expect([...host.attachedBatchPromises.keys()]).toEqual([held]);
+      expect(host.messages.some(message => message.type === "settled")).toBeFalse();
+      expect(host.maxPendingTransfers).toBe(2);
+      expect(host.maxPendingByKind).toEqual({ buildings: 1, surfaces: 1 });
+      host.ack(held);
+      await started;
+      expect(host.messages.at(-1)).toMatchObject({ type: "settled", viewRevision: 0 });
+      expect(host.attachedBatchPromises.size).toBe(0);
+      expect(host.attachedBatchResolvers.size).toBe(0);
+    });
+
+    test(`${profile}: a delayed building ACK does not gate the surface lane`, async () => {
+      const host = workerHost(profile);
+      host.holdBuildingAcknowledgements();
+      const started = host.start();
+      await host.waitFor(() => host.batches().some(message => message.id === host.roadIds.at(-1)));
+      expect(host.buildingBatches().map(message => message.id)).toEqual([host.defaultWanted[0]]);
+      expect(host.surfaceBuilds).toBe(profile === "mobile" ? 7 : 8);
+      expect(host.roadBuilds).toEqual(host.roadIds);
+      expect([...host.attachedBatchPromises.keys()]).toEqual([host.defaultWanted[0]]);
+      expect(host.messages.some(message => message.type === "settled")).toBeFalse();
+      expect(host.maxPendingTransfers).toBe(2);
+      expect(host.maxPendingByKind).toEqual({ buildings: 1, surfaces: 1 });
+      host.resumeBuildingAcknowledgements();
+      host.ack(host.defaultWanted[0]);
+      await started;
+      expect(host.buildingBatches().map(message => message.id)).toEqual(host.defaultWanted);
+      expect(host.messages.at(-1)).toMatchObject({ type: "settled", viewRevision: 0 });
+      expect(host.attachedBatchPromises.size).toBe(0);
+      expect(host.attachedBatchResolvers.size).toBe(0);
+    });
+
+    test(`${profile}: unknown and duplicate ACKs cannot release another pending packet`, async () => {
+      const host = workerHost(profile);
+      const held = profile === "full" ? "surface-water" : "surface-parks-1";
+      const [first, second] = host.defaultWanted;
+      expect(second).toBeDefined();
+      host.holdBuildingAcknowledgements();
+      host.holdSurfaceAcknowledgement(held);
+      const started = host.start();
+      await host.waitFor(() => host.attachedBatchPromises.size === 2);
+      host.ack("unknown-batch");
+      expect([...host.attachedBatchPromises.keys()].sort()).toEqual([first, held].sort());
+      host.ack(first);
+      await host.waitFor(() => host.buildingBatches().length === 2);
+      expect(host.buildingBatches().map(message => message.id)).toEqual([first, second]);
+      host.ack(first);
+      expect([...host.attachedBatchPromises.keys()].sort()).toEqual([second, held].sort());
+      expect([...host.attachedBatchResolvers.keys()].sort()).toEqual([second, held].sort());
+      expect(host.surfaceBuilds).toBe(1);
+      expect(host.messages.some(message => message.type === "settled")).toBeFalse();
+      host.resumeBuildingAcknowledgements();
+      host.ack(second);
+      host.ack(held);
+      await started;
+      expect(host.maxPendingTransfers).toBe(2);
+      expect(host.maxPendingByKind).toEqual({ buildings: 1, surfaces: 1 });
+      expect(host.attachedBatchPromises.size).toBe(0);
+      expect(host.attachedBatchResolvers.size).toBe(0);
     });
 
     test(`${profile}: the live worker reaches previously unselected districts and returns without source refetch`, async () => {

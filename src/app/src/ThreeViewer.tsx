@@ -3309,9 +3309,13 @@ function scheduleProgressiveAttachment(
   const interactionActiveNow =
     performance.now() < runtime.interactionUntil || browserInputPending();
   if (critical || !interactionActiveNow || remainingMs === 0) {
+    // Every packet still gets its own cancellable browser task. An idle
+    // viewer needs no extra frame delay for each of hundreds of small road
+    // packets; the worker's per-lane acknowledgement bounds construction.
+    // Keep the existing spacing when busy input has exhausted its deadline.
     const handle = window.setTimeout(
       () => run(Number.POSITIVE_INFINITY),
-      critical ? 0 : 16,
+      critical || !interactionActiveNow ? 0 : 16,
     );
     cancel = () => {
       cancelled = true;

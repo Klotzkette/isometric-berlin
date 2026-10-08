@@ -4,6 +4,21 @@ import { progressiveAttachmentHost } from "./helpers/progressiveAttachmentHost";
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 
 describe("production progressive attachment scheduling", () => {
+  test("idle road packets advance in separate tasks without one forced frame each", () => {
+    const host = progressiveAttachmentHost(source, { inputPending: false });
+    host.runtime.interactionUntil = 0;
+    for (let i = 0; i < 400; i++) host.add(`restored-paving-${i}`);
+    // A task may commit only one packet; no synchronous queue drain or larger
+    // in-flight window is introduced to make the full street layer faster.
+    expect(host.attached).toHaveLength(0);
+    for (let i = 0; i < 400; i++) {
+      expect(host.runNext()).toBeTrue();
+      expect(host.attached).toHaveLength(i + 1);
+      expect(host.attached[i].id).toBe(`restored-paving-${i}`);
+    }
+    expect(host.attached.at(-1)?.at).toBeLessThan(400 * 16);
+  });
+
   test("queued batches keep their original deadline while input stays busy", () => {
     const host = progressiveAttachmentHost(source);
     for (let i = 0; i < 18; i++) host.add(`exact-${i}`);

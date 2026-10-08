@@ -48,7 +48,19 @@ const STONE = 0xe7e3d6, FIN = 0xf0eee2, GLASS = 0x38565d, JOINT = 0xbbbdb6, ROOF
 export function planHumboldthafenBuildingDetails(prisms?: readonly HarbourPrism[], minecraft = false, mobileLike = false): Block[] {
   mobileLike = minecraft && mobileLike;
   const parts = selectPrisms(prisms), blocks: Block[] = [];
-  const occupied = (p: HarbourPrism, x: number, z: number, y: number) => parts.some(q => q !== p && q.y0_dm / 10 <= y && (q.y0_dm + q.h_dm) / 10 > y && harbourPrismContains(q, x, z));
+  // These bounds live only for this plan. Keep the original decimetre ring
+  // arithmetic, including exact courtyard and boundary crossing decisions.
+  const indexed = parts.map(part => ({ part,
+    minX: Math.min(...part.ring.map(p => p[0])), maxX: Math.max(...part.ring.map(p => p[0])),
+    minZ: Math.min(...part.ring.map(p => p[1])), maxZ: Math.max(...part.ring.map(p => p[1])),
+    bottom: part.y0_dm / 10, top: (part.y0_dm + part.h_dm) / 10,
+  }));
+  const occupied = (p: HarbourPrism, x: number, z: number, y: number, candidates = indexed) => {
+    const xdm = x * 10, zdm = z * 10;
+    return candidates.some(q => q.part !== p && q.bottom <= y && q.top > y &&
+      xdm >= q.minX && xdm <= q.maxX && zdm >= q.minZ && zdm <= q.maxZ &&
+      inRing(q.part.ring, xdm, zdm) && !(q.part.holes ?? []).some(h => inRing(h, xdm, zdm)));
+  };
   for (const p of parts) {
     const eins = HUMBOLDTHAFEN_EINS_IDS.has(p.id), base = eins ? Math.max(p.y0_dm / 10,5.1) : p.y0_dm / 10, top = (p.y0_dm + p.h_dm) / 10;
     if (p.h_dm < 12) continue;
@@ -60,8 +72,24 @@ export function planHumboldthafenBuildingDetails(prisms?: readonly HarbourPrism[
         const ux = dx / length, uz = dz / length, yaw = -Math.atan2(uz, ux);
         let nx = -uz, nz = ux;
         if (harbourPrismContains(p, ax + dx / 2 + nx * .12, az + dz / 2 + nz * .12)) { nx *= -1; nz *= -1; }
+        const sx = (ax + nx * .18) * 10, sz = (az + nz * .18) * 10;
+        const ex = (ax + ux * length + nx * .18) * 10, ez = (az + uz * length + nz * .18) * 10;
+        let minX = Math.min(sx, ex), maxX = Math.max(sx, ex), minZ = Math.min(sz, ez), maxZ = Math.max(sz, ez);
+        const wallNeighbours = () => indexed.filter(q => q.part !== p &&
+          q.maxX >= minX && q.minX <= maxX && q.maxZ >= minZ && q.minZ <= maxZ);
+        let candidates = wallNeighbours();
         const emit = (along: number, y: number, w: number, h: number, depth: number, offset: number, color: number, role: string) => {
-          if (h <= .02 || w <= .02 || occupied(p, ax + ux * along + nx * .18, az + uz * along + nz * .18, y)) return;
+          if (h <= .02 || w <= .02) return;
+          const x = ax + ux * along + nx * .18, z = az + uz * along + nz * .18;
+          const xdm = x * 10, zdm = z * 10;
+          // An exceptional fitting beyond a wall endpoint must expand the
+          // candidate set, never silently omit a source obstruction.
+          if (xdm < minX || xdm > maxX || zdm < minZ || zdm > maxZ) {
+            minX = Math.min(minX, xdm); maxX = Math.max(maxX, xdm);
+            minZ = Math.min(minZ, zdm); maxZ = Math.max(maxZ, zdm);
+            candidates = wallNeighbours();
+          }
+          if (occupied(p, x, z, y, candidates)) return;
           blocks.push({ position: [ax + ux * along + nx * offset, y, az + uz * along + nz * offset], size: [w, h, depth], yaw, color, role, sourceId: p.id, normal: [nx,nz] });
         };
         const bays = Math.max(1, Math.round(length / (eins ? (minecraft ? 3.8 : 2.5) : 4.2))), pitch = length / bays;

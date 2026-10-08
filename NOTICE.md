@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Linden corridor frontages (v1.0.97):** Retained Berlin LoD2 walls and
+  OpenStreetMap street/owner identities anchor the bounded architectural
+  additions. Heritage, parliamentary and architect descriptions guide material
+  and facade recognition. Unsurveyed opening positions remain documented
+  display estimates; all previous source geometry stays intact. No new
+  photograph or photographic texture is distributed. See the
+  [release evidence](docs/release-v1.0.97-review.md).
+
 - **Teufelsberg and Drachenberg (v1.0.95):** Berlin DGM1 and LoD2
   (dl-de/zero-2-0) anchor terrain and measured station envelopes; OpenStreetMap
   (ODbL-1.0) supplies source plans and the open plateau. Radome recognition is

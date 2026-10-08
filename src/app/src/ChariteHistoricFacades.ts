@@ -3,7 +3,7 @@ import {
   Matrix4, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3,
 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
-import { chariteContainsRing, chariteRingWalls, CHARITE_VIROLOGY_IDS, type ChariteFacadeWall } from "./HistoricChariteCampus";
+import { chariteRingWalls, CHARITE_VIROLOGY_IDS, type ChariteFacadeWall } from "./HistoricChariteCampus";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createMinecraftChariteHistoricShells } from "./MinecraftChariteHistoricShells";
 import { createChariteAnatomicalTheatre } from "./ChariteAnatomicalTheatre";
@@ -31,24 +31,65 @@ export function chariteHistoricFacadeTop(part: Part): number {
 function point(wall: ChariteFacadeWall, u: number, y: number, out: number): Point {
   return [wall.x1 + wall.dirX * u + wall.nx * out, y, wall.z1 + wall.dirZ * u + wall.nz * out];
 }
+/** Same crossing arithmetic as chariteContainsRing, with one-time conversion. */
+function containsPreparedRing(ring: number[][], x: number, z: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [ax, az] = ring[i], [bx, bz] = ring[j];
+    if ((az > z) !== (bz > z) && x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
+  }
+  return inside;
+}
 /** All adjoining source parts participate, including modern campus buildings. */
 export function chariteHistoricFacadeExposure(parts: readonly Part[]): (
   part: Part, wall: ChariteFacadeWall, u: number, y: number, width?: number, height?: number,
 ) => boolean {
-  const indexed = parts.map(part => ({ part,
+  const indexed = parts.map(part => ({ id: part.id,
     minX: Math.min(...part.ring.map(p => p[0])) / 10,
     maxX: Math.max(...part.ring.map(p => p[0])) / 10,
     minZ: Math.min(...part.ring.map(p => p[1])) / 10,
     maxZ: Math.max(...part.ring.map(p => p[1])) / 10,
+    bottom: part.y0_dm / 10,
+    top: (part.y0_dm + part.h_dm) / 10,
+    ring: part.ring.map(([x, z]) => [x / 10, z / 10]),
+    holes: (part.holes ?? []).map(hole => hole.map(([x, z]) => [x / 10, z / 10])),
   }));
+  // Construction-local only: a wall's many courses share the same neighbours.
+  // The query envelope grows for openings beyond either end, rather than
+  // assuming that every caller's u/width stays inside the source wall.
+  const wallCandidates = new WeakMap<ChariteFacadeWall, {
+    id: string; minX: number; maxX: number; minZ: number; maxZ: number;
+    parts: typeof indexed;
+  }>();
   return (part, wall, u, y, width = 0, height = 0) => {
+    let candidates = wallCandidates.get(wall);
+    if (!candidates || candidates.id !== part.id) {
+      const [ax, , az] = point(wall, 0, 0, .38);
+      const [bx, , bz] = point(wall, wall.length, 0, .38);
+      candidates = { id: part.id,
+        minX: Math.min(ax, bx), maxX: Math.max(ax, bx),
+        minZ: Math.min(az, bz), maxZ: Math.max(az, bz), parts: [],
+      };
+      const bounds = candidates;
+      candidates.parts = indexed.filter(other => other.id !== part.id &&
+        other.maxX >= bounds.minX && other.minX <= bounds.maxX &&
+        other.maxZ >= bounds.minZ && other.minZ <= bounds.maxZ);
+      wallCandidates.set(wall, candidates);
+    }
     for (const du of [-width / 2, 0, width / 2]) for (const dy of [-height / 2, height / 2]) {
       const [x, yy, z] = point(wall, u + du, y + dy, .38);
-      if (indexed.some(({ part: other, minX, maxX, minZ, maxZ }) => other.id !== part.id &&
+      if (x < candidates.minX || x > candidates.maxX || z < candidates.minZ || z > candidates.maxZ) {
+        candidates.minX = Math.min(candidates.minX, x); candidates.maxX = Math.max(candidates.maxX, x);
+        candidates.minZ = Math.min(candidates.minZ, z); candidates.maxZ = Math.max(candidates.maxZ, z);
+        const bounds = candidates;
+        candidates.parts = indexed.filter(other => other.id !== part.id &&
+          other.maxX >= bounds.minX && other.minX <= bounds.maxX &&
+          other.maxZ >= bounds.minZ && other.minZ <= bounds.maxZ);
+      }
+      if (candidates.parts.some(({ minX, maxX, minZ, maxZ, bottom, top, ring, holes }) =>
         x >= minX && x <= maxX && z >= minZ && z <= maxZ &&
-        yy >= other.y0_dm / 10 && yy <= (other.y0_dm + other.h_dm) / 10 &&
-        chariteContainsRing(other.ring, x, z) &&
-        !(other.holes ?? []).some(hole => chariteContainsRing(hole, x, z)))) return false;
+        yy >= bottom && yy <= top && containsPreparedRing(ring, x, z) &&
+        !holes.some(hole => containsPreparedRing(hole, x, z)))) return false;
     }
     return true;
   };
