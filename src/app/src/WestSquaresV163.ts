@@ -8,6 +8,7 @@ import { addBox, addCylinder, createBuilder, finishDrawnGroup, paintGeometry } f
 import { letteringLayout, letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import source from "./data/westSquaresV163Source.json";
+import refinement from "./data/westSquaresV188Detail.json";
 
 export const WEST_SQUARES_V163_PROFILE = {
   groundY: 5.2,
@@ -18,6 +19,14 @@ export const WEST_SQUARES_V163_PROFILE = {
   ernstReuter: { fountainWays: ["4598245", "42023136"], smallJets: 41, mainJetHeightM: 15 },
   geometryStatus: "Complete retained official surfaces; fine windows, lettering, roof/entrance subdivisions and jet/bench locations are display interpretations. Mapped footprints remain metric anchors.",
 } as const;
+export const WEST_SQUARES_V188_PROFILE = Object.freeze({
+  roofSource: "Geoportal Berlin DOP2025; dimensions are procedural display estimates",
+  glassHall: { width: 70, depth: 26, rise: 6.2, baseY: 35.7, centerDepth: 30 },
+  pavingOwners: refinement.paving.map(p => p.id),
+  roadOwners: refinement.roadIds,
+  retainedSourceHashes: refinement.sourceHashes,
+  maxNativeBlocks: 40500,
+});
 export const WEST_SQUARES_V163_GROUP = "Ernst-Reuter-Platz Wittenbergplatz and KaDeWe source detail";
 export const WEST_SQUARES_V163_NATIVE_GROUP = "West squares independent native blocks";
 
@@ -31,7 +40,10 @@ function batch(rows: readonly number[][], blocks = false): InstancedMesh {
     if (blocks) m.makeScale(2, 2, 2);
     else { m.makeRotationY(r[6]); m.scale(new Vector3(r[3], r[4], r[5])); }
     m.setPosition(r[0], r[1], r[2]); m.toArray(matrices, i * 16);
-    c.setHex(r[blocks ? 3 : 7]).toArray(colors, i * 3);
+    // The old brown flat KaDeWe roof was a palette fallback, not measured
+    // material. DOP2025 distinguishes its grey service deck from tiled edges.
+    const color = r[blocks ? 3 : 7];
+    c.setHex(blocks && color === 0x8F6659 ? 0xA4AAA3 : blocks && color === 0xB9AA96 ? 0xC3BDAF : color).toArray(colors, i * 3);
   });
   mesh.count = rows.length; mesh.instanceMatrix = new InstancedBufferAttribute(matrices, 16);
   mesh.instanceColor = new InstancedBufferAttribute(colors, 3);
@@ -130,6 +142,12 @@ function publicSpace(native:boolean):Group {
   for(const b of source.benches){const [x,z]=b.position;erp.box(0x837455,x,5.83,z,2.4,.14,.56,.04);for(const u of [-.8,.8])erp.box(0x8F9186,x+u,5.55,z,.18,.48,.42);}
   root.add(erp.finish("Ernst-Reuter mapped lawns paving two basins and 41 small jets"));
   const w=new PublicRealm(native), p=WEST_SQUARES_V163_PROFILE.station;
+  if (native) w.blocks.push(...refinement.nativePaving);
+  else for (const area of [...refinement.paving, ...refinement.roads])
+    for (const polygon of area.polygons) w.polygon(polygon, area.y, area.color);
+  // Exact mapped paving holes keep lawns, station and fountain sites open.
+  // The retained road buffers get one continuous asphalt skin, above the old
+  // fragmented substrate; every original street and path remains in the scene.
   const point=(x:number,y:number,z:number)=>[p.center[0]+Math.cos(p.yaw)*x+Math.sin(p.yaw)*z,y,p.center[1]-Math.sin(p.yaw)*x+Math.cos(p.yaw)*z];
   const localBox=(c:number,x:number,y:number,z:number,sx:number,sy:number,sz:number)=>{const q=point(x,y,z);w.box(c,q[0],q[1],q[2],sx,sy,sz,p.yaw);};
   // Source shell retains its cruciform plan and roof geometry. Entrance relief is additive.
@@ -143,6 +161,30 @@ function publicSpace(native:boolean):Group {
     const a=point(-5.55,13.42,side*17.36),b=point(0,14.65,side*17.36),c=point(5.55,13.42,side*17.36);
     w.line(0xC6C4B7,a,b,.42);w.line(0xC6C4B7,b,c,.42);
   }
+  // Source-bound stone plinths, window heads and dark metal cross frames.
+  // Positions reuse the source-clipped v163 windows; no new opening survey.
+  const stationFootprints = source.parts.filter(part => part.name === "Wittenbergplatz pavilion");
+  for (const row of source.facadeBoxes) {
+    if (row[8] !== 1 || !stationFootprints.some(part => part.rings.some(ring => {
+      const xs=ring.map(p=>p[0]),zs=ring.map(p=>p[1]);
+      return row[0]>=Math.min(...xs)-.3 && row[0]<=Math.max(...xs)+.3 && row[2]>=Math.min(...zs)-.3 && row[2]<=Math.max(...zs)+.3;
+    }))) continue;
+    const [x,y,z,width,height,,yaw] = row;
+    for(const sign of [-1,1]) w.box(0xB8B6A7,x,y+sign*(height/2+.16),z,width+.30,.18,.23,yaw);
+    const ax=Math.cos(yaw)*(width/2-.15),az=-Math.sin(yaw)*(width/2-.15);
+    const outward=(x-p.center[0])*Math.sin(yaw)+(z-p.center[1])*Math.cos(yaw)>0?1:-1;
+    const fx=x+Math.sin(yaw)*outward*.14,fz=z+Math.cos(yaw)*outward*.14;
+    w.line(0x70816C,[fx-ax,y-height/2+.12,fz-az],[fx+ax,y+height/2-.12,fz+az],.065);
+    w.line(0x70816C,[fx-ax,y+height/2-.12,fz-az],[fx+ax,y-height/2+.12,fz+az],.065);
+  }
+  for(const side of [-1,1]) {
+    for(const x of [-5,-1.68,1.68,5]) {
+      localBox(0xCBC8B8,x,5.62,side*17.3,.92,.56,.96);
+      localBox(0xD9D7CA,x,12.6,side*17.3,.90,.35,.94);
+    }
+    // Thin source-facing landing bands preserve the open three-door entrance.
+    for(const depth of [17.85,18.15,18.45]) localBox(0xBCBAAB,0,5.35,side*depth,10.5,.10,.25);
+  }
   const memorial=WEST_SQUARES_V163_PROFILE.memorial,[mx,mz]=memorial.position,myaw=memorial.yaw;
   const mp=(u:number,y:number,depth=0)=>[mx+Math.cos(myaw)*u+Math.sin(myaw)*depth,y,mz-Math.sin(myaw)*u+Math.cos(myaw)*depth];
   for(const u of [-.81,.81]){const q=mp(u,7.25);w.cylinder(0x858C85,q[0],q[1],q[2],.055,4.1);}
@@ -153,6 +195,51 @@ function publicSpace(native:boolean):Group {
   const k=new PublicRealm(native), kx=-2084.6,kz=1826.7,kyaw=-.598;
   const kp=(u:number,y:number,d:number)=>[kx+Math.cos(kyaw)*u+Math.sin(kyaw)*d,y,kz-Math.sin(kyaw)*u+Math.cos(kyaw)*d];
   const kb=(color:number,u:number,y:number,d:number,sx:number,sy:number,sz:number)=>{const p=kp(u,y,d);k.box(color,p[0],p[1],p[2],sx,sy,sz,kyaw);};
+  // The complete flat source roof remains below the DOP2025-supported roof
+  // organisation. Exact footprint collar; slope and hall sections are estimates.
+  const roofCells = new Map<string, number[]>();
+  const roofCell = (p:number[],color:number) => {
+    const x=Math.floor(p[0]/2)*2+1,z=Math.floor(p[2]/2)*2+1,y=Math.round(p[1]*2)/2;
+    const key=`${x}:${z}`,previous=roofCells.get(key);
+    if(!previous || y>=previous[1]) roofCells.set(key,[x,y,z,2,.5,2,0,color]);
+  };
+  for(const triangle of refinement.roofCollar) {
+    const [a,b,c]=triangle.points;
+    if(native) {
+      const steps=Math.ceil(Math.max(Math.hypot(...b.map((v,i)=>v-a[i])),Math.hypot(...c.map((v,i)=>v-a[i])))/2);
+      for(let i=0;i<=steps;i++)for(let j=0;j<=steps-i;j++)
+        roofCell(a.map((v,axis)=>v+(b[axis]-v)*i/steps+(c[axis]-v)*j/steps),triangle.color);
+    } else {
+      const geometry=new BufferGeometry().setAttribute("position",new Float32BufferAttribute([...a,...b,...c],3));
+      geometry.setIndex([0,1,2]);paintGeometry(geometry,triangle.color);k.builder.parts.push(geometry);
+    }
+  }
+  for(const {row} of refinement.facadeBands) {
+    const [x,y,z,width,height,depth,yaw,color]=row;
+    if(native) {
+      const count=Math.ceil(width/2);
+      for(let i=0;i<count;i++) {
+        const u=(i+.5)*width/count-width/2;
+        k.blocks.push([x+Math.cos(yaw)*u,y,z-Math.sin(yaw)*u,Math.min(2,width),height,Math.max(.65,depth),0,color]);
+      }
+    } else k.box(color,x,y,z,width,height,depth,yaw);
+  }
+  const hall=WEST_SQUARES_V188_PROFILE.glassHall;
+  const hp=(u:number,a:number)=>kp(u,hall.baseY+Math.sin(a)*hall.rise,hall.centerDepth+Math.cos(a)*hall.depth/2);
+  for(let i=0;i<24;i++) {
+    const a=i*Math.PI/24,b=(i+1)*Math.PI/24;
+    if(native) for(let u=-hall.width/2;u<=hall.width/2;u+=2) roofCell(hp(u,(a+b)/2),0x7F9C9F);
+    else {
+      const left=hp(-hall.width/2,a),right=hp(hall.width/2,a),nextLeft=hp(-hall.width/2,b),nextRight=hp(hall.width/2,b);
+      const geometry=new BufferGeometry().setAttribute("position",new Float32BufferAttribute([...left,...right,...nextLeft,...nextLeft,...right,...nextRight],3));
+      geometry.setIndex([0,1,2,3,4,5]);paintGeometry(geometry,i%3===0?0x8FA7A8:0x789396);k.builder.parts.push(geometry);
+    }
+    if(!native) {
+      for(const u of [-35,-25,-15,-5,5,15,25,35]) k.line(0xC5CEBF,hp(u,a),hp(u,b),.14);
+      if(i%4===0) k.line(0xC5CEBF,hp(-35,a),hp(35,a),.14);
+    }
+  }
+  if(native) k.blocks.push(...roofCells.values());
   // KaDeWe's flat LoD2 envelope lacks the glazed roof vault. Its geometric
   // recognition cap is an explicitly non-surveyed addition, not substituted source.
   const radius=8.2, base=32.8, depth=19;
@@ -183,14 +270,14 @@ export function createWestSquaresV163(_options:{mobileLike?:boolean}={}):Group {
     const ids=new Set(source.parts.filter(p=>p.parentId===building.id).map(p=>p.id));
     const parts:BufferGeometry[]=[];
     for(const s of source.surfaces) if(ids.has(s.partId)) {
-      const g=new BufferGeometry().setAttribute("position",new Float32BufferAttribute(s.triangles.flat(2),3));paintGeometry(g,s.color);parts.push(g);
+      const g=new BufferGeometry().setAttribute("position",new Float32BufferAttribute(s.triangles.flat(2),3));paintGeometry(g,building.name === "KaDeWe" ? (s.kind === "RoofSurface" ? 0xA4AAA3 : 0xC3BDAF) : s.color);parts.push(g);
     }
     const g=mergeGeometries(parts,false)!;parts.forEach(p=>p.dispose());
     const day=new MeshBasicMaterial({vertexColors:true,side:DoubleSide}),night=new MeshStandardMaterial({vertexColors:true,side:DoubleSide,roughness:.9,flatShading:true});
     const mesh=new Mesh(g,day);mesh.name=building.name+" complete official LoD2 surfaces";mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true};root.add(mesh);
   }
   const details=batch(source.facadeBoxes);details.name="West-square source-clipped facade windows and mullions";root.add(details);
-  root.add(publicSpace(false));root.userData.sourcePartIds=source.parts.map(p=>p.id);
+  root.add(publicSpace(false));root.userData.v188Refinement=WEST_SQUARES_V188_PROFILE;root.userData.sourcePartIds=source.parts.map(p=>p.id);
   freezeStaticSceneTransforms(root);return root;
 }
 export function createMinecraftWestSquaresV163(_options:{mobileLike?:boolean}={}):Group {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { BufferAttribute, Color, Group, LineDashedMaterial, LineSegments, MaterialLoader, Mesh, ShaderLib } from "three";
+import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
 import { buildingAttributes, type BuildingAttributes } from "../src/buildingAttributes";
 import {
   createDistantBuildingShells,
@@ -72,7 +73,8 @@ describe("bounded ordinary facade presentation", () => {
   });
 
   test("the retained mapped six-storey rhythm gains head registers without changing its building mesh", () => {
-    const part = sourcePart("aJudVUG4"), original = JSON.stringify(part);
+    // The old aJudVUG4 owner moved into the complete Alt-Mitte model in v169.
+    const part = sourcePart("t8SNoRdm"), original = JSON.stringify(part);
     const local = build(part, "detailed");
     const outside = build({ ...part, ring: part.ring.map(([x, z]) => [x + 20000, z + 20000]) }, "detailed");
     try {
@@ -180,13 +182,13 @@ describe("bounded ordinary facade presentation", () => {
 
   for (const pass of ["distant", "detailed"] as const) {
     test(`${pass} factory gives mapped colour and material priority over the old drawn sample`, () => {
-      for (const id of ["K0000APP", "YFvyF7Oj", "1x80YnFI"]) {
+      // Exercise current generic owners; the old Mitte fixtures now have
+      // dedicated measured geometry and intentionally emit no generic body.
+      for (const id of ["K0002N0W", "YFvyF7Oj"]) {
         const part = sourcePart(id);
         const original = JSON.stringify(part);
         expect(urbanFacadeScope(part)).toBeTrue();
-        if (id === "1x80YnFI") {
-          expect(buildingAttributes(id)?.tags).toEqual({ "building:material": "plaster" });
-        }
+        expect(buildingAttributes(id)?.tags["building:material"]).toBeDefined();
         const first = build(part, pass);
         const otherSample = build({ ...part, tone: [210, 40, 20] }, pass);
         try {
@@ -217,6 +219,13 @@ describe("bounded ordinary facade presentation", () => {
     for (const [id, pass, vertices, draws, hash] of baselines) {
       const { group, body } = build(sourcePart(id), pass);
       try {
+        if (ALT_MITTE_V169_PRISM_IDS.has(id)) {
+          // v169 transferred these exact owners to full measured models.
+          // They must not reappear as duplicate old display prisms. Source
+          // preservation is audited in test_alt_mitte_v186_audit.py.
+          expect(body).toBeUndefined();
+          continue;
+        }
         const position = body.geometry.getAttribute("position") as BufferAttribute;
         expect(position.count).toBe(vertices);
         expect(digest(position)).toBe(hash);

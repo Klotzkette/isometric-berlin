@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.87 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.87/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.88 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.88/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,21 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.87** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.88** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.88 gently refines generic street facades in the covered parts of
+Kreuzberg, Moabit, Tiergarten, Wedding, Charlottenburg, Schöneberg and
+Friedrichshain. KaDeWe, Tauentzienstraße, Wittenbergplatz, Urania and Lützowplatz
+receive source-bound recognition detail. Existing city geometry is retained;
+unsurveyed window subdivisions remain documented display estimates.
+[Sources and verification](docs/release-v1.0.88-review.md).
+
+Version 1.0.88 verfeinert Straßenfassaden in den bereits erfassten Teilen von
+Kreuzberg, Moabit, Tiergarten, Wedding, Charlottenburg, Schöneberg und
+Friedrichshain. KaDeWe, Tauentzienstraße, Wittenbergplatz, Urania und Lützowplatz
+erhalten gezielte Details. Alle bisherigen Stadtmodelle bleiben erhalten;
+nicht vermessene Fensterteilungen sind weiterhin als Näherungen dokumentiert.
 
 Version 1.0.87 adds finite western, southwestern and eastern outlines: Olympiapark
 and Spandau, Dahlem and Mexikoplatz, Grunewald/Wannsee, Köpenick/Müggelsee and

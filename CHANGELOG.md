@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.88 — District facades and western squares
+
+- Add restrained source-bound facade recognition in the existing covered
+  parts of seven requested districts, retaining all older city geometry.
+- Refine KaDeWe and Wittenbergplatz with mapped public space and clearer
+  architectural detail; retain Tauentzienstraße's existing street owners.
+- Refine Urania and Lützowplatz using official building and mapped garden
+  evidence, with separate native Minecraft presentation.
+- Preserve bounded loading, residency limits, resolution and viewing distance.
+  Unsurveyed small details remain explicit display estimates.
+
 ## v1.0.72 — Lower mobile cold-start memory
 
 - Decode large source arrays only on field access, retaining exact source values.

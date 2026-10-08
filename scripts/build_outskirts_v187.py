@@ -208,16 +208,38 @@ def exclusions() -> tuple[Any, set[str]]:
 
 
 def merge_manifest(previous: dict, supplement: dict) -> dict:
-  """Append independent packets without changing a single previous descriptor."""
+  """Replace this release in place while retaining later independent entries."""
   result = copy.deepcopy(previous)
-  old = result.pop("outskirtsV187", None)
+  old = result.get("outskirtsV187")
   if old:
-    result["chunks"] = [c for c in result["chunks"] if not c["id"].startswith(PREFIX)]
-    start = old["retainedFootprintCount"]
-    del result["footprint"][start : start + old["footprintCount"]]
-  retained = len(result["footprint"])
-  result["chunks"].extend(supplement["chunks"])
-  result["footprint"].extend(supplement["footprint"])
+    replacements = {c["id"]: copy.deepcopy(c) for c in supplement["chunks"]}
+    own_positions = [
+      i for i, c in enumerate(result["chunks"]) if c["id"].startswith(PREFIX)
+    ]
+    if own_positions:
+      chunks = []
+      for i, chunk in enumerate(result["chunks"]):
+        if chunk["id"].startswith(PREFIX):
+          replacement = replacements.pop(chunk["id"], None)
+          if replacement is not None:
+            chunks.append(replacement)
+        else:
+          chunks.append(chunk)
+        # New own packets belong at the end of the existing own range, not
+        # after a later release's independently appended companions.
+        if i == own_positions[-1]:
+          chunks.extend(replacements.values())
+      result["chunks"] = chunks
+    else:
+      result["chunks"].extend(replacements.values())
+    retained = old["retainedFootprintCount"]
+    result["footprint"][retained : retained + old["footprintCount"]] = copy.deepcopy(
+      supplement["footprint"]
+    )
+  else:
+    retained = len(result["footprint"])
+    result["chunks"].extend(copy.deepcopy(supplement["chunks"]))
+    result["footprint"].extend(copy.deepcopy(supplement["footprint"]))
   result["bounds"] = [
     min(previous["bounds"][i], supplement["bounds"][i])
     if i < 2

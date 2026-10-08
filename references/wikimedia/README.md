@@ -524,3 +524,13 @@ External visual references only; no image or texture is bundled.
 - [File:Ehrenhof und Lehrgebäude der Veterinärmedizinischen Fakultät der Humboldt-Universität Berlin.JPG](https://commons.wikimedia.org/wiki/File:Ehrenhof_und_Lehrgeb%C3%A4ude_der_Veterin%C3%A4rmedizinischen_Fakult%C3%A4t_der_Humboldt-Universit%C3%A4t_Berlin.JPG) — Kvikk / CC BY-SA 3.0.
 - [File:Anatomie Charite.jpg](https://commons.wikimedia.org/wiki/File:Anatomie_Charite.jpg) — Immanuel Giel / Public domain.
 - [File:Charité CCM, Philippstraße 11.jpg](https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Philippstra%C3%9Fe_11.jpg) — Bernd Czyborra (Schibo) / CC BY-SA 4.0.
+
+### v1.0.88 — Urania and Lützowplatz
+
+External visual references only, with no bundled image pixels. The three full
+credit records are mirrored in the source and shipped Wikimedia manifests:
+UraniaeV, *Gebäude der Urania Berlin .jpg* (2019, CC BY-SA 4.0);
+Roy Zuo, *(20240407) Berlin 12.jpg* (2024, CC BY-SA 4.0, dated scaffold
+condition only); Singlespeedfahrer, *Fountain Lützowplatz Eberhard Fink
+Berlin-Tiergarten.jpg* (2022, CC0). Exact file and licence URLs and their
+source/display roles are in [the evidence review](../../docs/urania-luetzow-v188.md).

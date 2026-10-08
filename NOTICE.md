@@ -17,6 +17,19 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **District facades and western squares (v1.0.88):** Retained Berlin LoD2,
+  ALKIS district boundaries and DOP2025 (dl-de/zero-2-0), together with
+  OpenStreetMap street, building and garden geometry (ODbL-1.0), anchor the
+  bounded refinements. Generic window rhythms, small roof/facade members and
+  basin dimensions are documented display estimates. All previous city
+  packets and attributions remain. UraniaeV's 2019 Urania photograph and
+  Roy Zuo's dated 2024 condition reference (CC BY-SA 4.0), and
+  Singlespeedfahrer's 2022 Lützowplatz fountain photograph (CC0), are credited
+  individually in both Wikimedia manifests. No photographic pixels are
+  distributed. See [district facades](docs/district-facades-v188.md),
+  [western squares](docs/west-squares-v188.md) and
+  [Urania/Lützowplatz](docs/urania-luetzow-v188.md).
+
 - **Finite outskirts and landmark recognition (v1.0.87):** The retained
   29 September 2026 Geofabrik Berlin extract supplies exact OSM building,
   street, water, woodland and Tierpark feature courses (ODbL-1.0). Berlin LoD2

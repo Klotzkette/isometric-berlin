@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { createHash } from 'node:crypto';
 import { Box3, InstancedMesh, Mesh, Vector3 } from 'three';
-import { createWestSquaresV163, createMinecraftWestSquaresV163, WEST_SQUARES_V163_PROFILE } from '../src/WestSquaresV163';
+import { createWestSquaresV163, createMinecraftWestSquaresV163, WEST_SQUARES_V163_PROFILE, WEST_SQUARES_V188_PROFILE } from '../src/WestSquaresV163';
 import source from '../src/data/westSquaresV163Source.json';
 import navigation from '../src/data/westSquaresV163Navigation.json';
 
@@ -38,7 +38,7 @@ describe('source-bound West squares',()=>{
   it('uses only bounded native block batches and no smooth Minecraft duplicate',()=>{
     const root=createMinecraftWestSquaresV163();let batches=0,blocks=0;
     root.traverse(o=>{if(o instanceof Mesh){expect(o).toBeInstanceOf(InstancedMesh);expect(o.userData.blockNative).toBe(true);expect(o.geometry.type).toBe('BoxGeometry');batches++;blocks+=(o as InstancedMesh).count;}});
-    expect(batches).toBe(4);expect(blocks).toBeLessThan(36000);
+    expect(batches).toBe(4);expect(blocks).toBeLessThan(WEST_SQUARES_V188_PROFILE.maxNativeBlocks);
   });
   it('stays texture-free and freezes complete static transforms with seven drawn batches',()=>{
     const root=createWestSquaresV163();let calls=0;

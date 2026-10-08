@@ -935,6 +935,28 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   )
   assert all(identity.startswith("outer187-") for identity in outskirts_descriptors)
   assert outskirts_descriptors.keys() <= descriptors.keys()
+  district_evidence = json.loads(
+    gzip.decompress(
+      (
+        ROOT / "geo_data/regierungsviertel/district-facades-v188-evidence.json.gz"
+      ).read_bytes()
+    )
+  )
+  district_descriptors = {
+    entry["id"]: entry for entry in district_evidence["companions"]
+  }
+  assert len(district_descriptors) == 153
+  assert not (
+    district_descriptors.keys()
+    & (
+      old_descriptors.keys()
+      | ring_descriptors.keys()
+      | city_descriptors.keys()
+      | outskirts_descriptors.keys()
+    )
+  )
+  assert all(identity.startswith("district188-") for identity in district_descriptors)
+  assert district_descriptors.keys() <= descriptors.keys()
   audited_files = (
     {row["file"] for row in current_terrain_audit["packets"]}
     | relief_files
@@ -963,6 +985,10 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
       assert descriptor == city_descriptors[identity]
     elif identity in outskirts_descriptors:
       assert descriptor == outskirts_descriptors[identity]
+    elif identity in district_descriptors:
+      assert descriptor == district_descriptors[identity]
+      parent = descriptors[descriptor["detailCompanionOf"]]
+      assert descriptor["bounds"] == parent["bounds"]
     else:
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
@@ -987,6 +1013,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
         and identity not in ring_descriptors
         and identity not in city_descriptors
         and identity not in outskirts_descriptors
+        and identity not in district_descriptors
         and str(path.relative_to(ROOT)) not in emitted
       ):
         assert packet["meshes"] == []

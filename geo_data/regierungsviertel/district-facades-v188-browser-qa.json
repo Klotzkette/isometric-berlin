@@ -1,0 +1,571 @@
+{
+  "release": "1.0.88",
+  "note": "Local production build; Chrome desktop and WebKit with iPhone 13 profile. This is engine/profile QA, not physical-phone RAM or performance validation.",
+  "desktop": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 177994706,
+          "peak": 331553412,
+          "handles": 1820,
+          "peakHandles": 4604,
+          "uploads": 5874,
+          "deletes": 4054,
+          "lost": 0
+        },
+        "instanceResidentBytes": 15951276,
+        "instanceResidentBuffers": 144,
+        "geometryResidentBuffers": 1553,
+        "speculativeWarmup": true,
+        "programs": 59,
+        "contextLost": false,
+        "residentChunks": 435,
+        "outerBytes": 64634466,
+        "manifestChunks": 1522,
+        "camera": [
+          -2036,
+          76.99999999999999,
+          1725
+        ],
+        "view": "kadewe"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 210635165,
+          "peak": 331553412,
+          "handles": 3051,
+          "peakHandles": 4604,
+          "uploads": 8194,
+          "deletes": 5143,
+          "lost": 0
+        },
+        "instanceResidentBytes": 23072280,
+        "instanceResidentBuffers": 490,
+        "geometryResidentBuffers": 2443,
+        "speculativeWarmup": true,
+        "programs": 61,
+        "contextLost": false,
+        "residentChunks": 370,
+        "outerBytes": 49459170,
+        "manifestChunks": 1522,
+        "camera": [
+          -1832,
+          89.00000000000003,
+          1927
+        ],
+        "view": "wittenbergplatz"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 237468068,
+          "peak": 331553412,
+          "handles": 5535,
+          "peakHandles": 5535,
+          "uploads": 11353,
+          "deletes": 5818,
+          "lost": 0
+        },
+        "instanceResidentBytes": 43950468,
+        "instanceResidentBuffers": 1380,
+        "geometryResidentBuffers": 4053,
+        "speculativeWarmup": true,
+        "programs": 62,
+        "contextLost": false,
+        "residentChunks": 149,
+        "outerBytes": 25587192,
+        "manifestChunks": 1522,
+        "camera": [
+          -2245,
+          103,
+          1945
+        ],
+        "view": "tauentzien"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 567194088,
+          "peak": 567194088,
+          "handles": 19785,
+          "peakHandles": 19785,
+          "uploads": 28267,
+          "deletes": 8482,
+          "lost": 0
+        },
+        "instanceResidentBytes": 98690872,
+        "instanceResidentBuffers": 3452,
+        "geometryResidentBuffers": 16320,
+        "speculativeWarmup": true,
+        "programs": 94,
+        "contextLost": false,
+        "residentChunks": 343,
+        "outerBytes": 247758108,
+        "manifestChunks": 1522,
+        "camera": [
+          -1730,
+          67.99999999999999,
+          1995
+        ],
+        "view": "urania"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 234623264,
+          "peak": 567194088,
+          "handles": 5708,
+          "peakHandles": 19785,
+          "uploads": 30348,
+          "deletes": 24640,
+          "lost": 0
+        },
+        "instanceResidentBytes": 45629088,
+        "instanceResidentBuffers": 1538,
+        "geometryResidentBuffers": 4165,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 169,
+        "outerBytes": 24903600,
+        "manifestChunks": 1522,
+        "camera": [
+          -1261.0904575621244,
+          100,
+          1657.7872598394758
+        ],
+        "view": "luetzowplatz"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 134609717,
+          "peak": 567194088,
+          "handles": 1333,
+          "peakHandles": 19785,
+          "uploads": 30506,
+          "deletes": 29173,
+          "lost": 0
+        },
+        "instanceResidentBytes": 13153184,
+        "instanceResidentBuffers": 186,
+        "geometryResidentBuffers": 1024,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 57,
+        "outerBytes": 5778288,
+        "manifestChunks": 1522,
+        "camera": [
+          -2261.5665074849967,
+          100,
+          -776.5841664923355
+        ],
+        "view": "moabit"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 115717989,
+          "peak": 567194088,
+          "handles": 941,
+          "peakHandles": 19785,
+          "uploads": 30849,
+          "deletes": 29908,
+          "lost": 0
+        },
+        "instanceResidentBytes": 12882852,
+        "instanceResidentBuffers": 120,
+        "geometryResidentBuffers": 698,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 3,
+        "outerBytes": 15900,
+        "manifestChunks": 1522,
+        "camera": [
+          -644.262399251922,
+          100,
+          -2954.0134316217154
+        ],
+        "view": "wedding"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 128761998,
+          "peak": 567194088,
+          "handles": 901,
+          "peakHandles": 19785,
+          "uploads": 31297,
+          "deletes": 30396,
+          "lost": 0
+        },
+        "instanceResidentBytes": 13099452,
+        "instanceResidentBuffers": 32,
+        "geometryResidentBuffers": 746,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 161,
+        "outerBytes": 25747830,
+        "manifestChunks": 1522,
+        "camera": [
+          -4363.9385643446585,
+          100,
+          1466.8942250311375
+        ],
+        "view": "charlottenburg"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 247822199,
+          "peak": 567194088,
+          "handles": 4199,
+          "peakHandles": 19785,
+          "uploads": 34602,
+          "deletes": 30403,
+          "lost": 0
+        },
+        "instanceResidentBytes": 32529988,
+        "instanceResidentBuffers": 1114,
+        "geometryResidentBuffers": 3076,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 307,
+        "outerBytes": 59089086,
+        "manifestChunks": 1522,
+        "camera": [
+          -1139.1726331355164,
+          100,
+          3577.892867916263
+        ],
+        "view": "schoeneberg"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 436629678,
+          "peak": 567194088,
+          "handles": 15587,
+          "peakHandles": 19785,
+          "uploads": 46095,
+          "deletes": 30508,
+          "lost": 0
+        },
+        "instanceResidentBytes": 92245880,
+        "instanceResidentBuffers": 3480,
+        "geometryResidentBuffers": 12105,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 322,
+        "outerBytes": 112008132,
+        "manifestChunks": 1522,
+        "camera": [
+          1540.0950903566554,
+          100,
+          3449.055431292392
+        ],
+        "view": "kreuzberg"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 497866716,
+          "peak": 567194088,
+          "handles": 14143,
+          "peakHandles": 19785,
+          "uploads": 47150,
+          "deletes": 33007,
+          "lost": 0
+        },
+        "instanceResidentBytes": 100541624,
+        "instanceResidentBuffers": 3308,
+        "geometryResidentBuffers": 10832,
+        "speculativeWarmup": true,
+        "programs": 94,
+        "contextLost": false,
+        "residentChunks": 235,
+        "outerBytes": 182884632,
+        "manifestChunks": 1522,
+        "camera": [
+          6071.798921600275,
+          100,
+          1166.5391741702333
+        ],
+        "view": "friedrichshain"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 278135731,
+          "peak": 567194088,
+          "handles": 9032,
+          "peakHandles": 19785,
+          "uploads": 48226,
+          "deletes": 39194,
+          "lost": 0
+        },
+        "instanceResidentBytes": 65916332,
+        "instanceResidentBuffers": 2234,
+        "geometryResidentBuffers": 6795,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 175,
+        "outerBytes": 25696488,
+        "manifestChunks": 1522,
+        "camera": [
+          -584.563809862535,
+          100,
+          1887.952286570333
+        ],
+        "view": "tiergarten"
+      }
+    ],
+    "errors": [],
+    "mobile": false,
+    "before": false,
+    "success": true
+  },
+  "mobile": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 144853946,
+          "peak": 233167465,
+          "handles": 984,
+          "peakHandles": 2320,
+          "uploads": 2913,
+          "deletes": 1929,
+          "lost": 0
+        },
+        "instanceResidentBytes": 14394872,
+        "instanceResidentBuffers": 86,
+        "geometryResidentBuffers": 896,
+        "speculativeWarmup": false,
+        "programs": 54,
+        "contextLost": false,
+        "residentChunks": 184,
+        "outerBytes": 43558332,
+        "manifestChunks": 1522,
+        "camera": [
+          -2036,
+          77.00000000000003,
+          1725
+        ],
+        "view": "kadewe"
+      },
+      {
+        "ready": true,
+        "mode": "night",
+        "lost": 0,
+        "buffers": {
+          "bytes": 170037343,
+          "peak": 233167465,
+          "handles": 1603,
+          "peakHandles": 2320,
+          "uploads": 4065,
+          "deletes": 2462,
+          "lost": 0
+        },
+        "instanceResidentBytes": 23279408,
+        "instanceResidentBuffers": 285,
+        "geometryResidentBuffers": 1316,
+        "speculativeWarmup": false,
+        "programs": 34,
+        "contextLost": false,
+        "residentChunks": 191,
+        "outerBytes": 33763074,
+        "manifestChunks": 1522,
+        "camera": [
+          -1832,
+          89.00000000000003,
+          1927
+        ],
+        "view": "wittenbergplatz"
+      },
+      {
+        "ready": true,
+        "mode": "schwellenraum",
+        "lost": 0,
+        "buffers": {
+          "bytes": 150399817,
+          "peak": 233167465,
+          "handles": 1648,
+          "peakHandles": 2320,
+          "uploads": 4842,
+          "deletes": 3194,
+          "lost": 0
+        },
+        "instanceResidentBytes": 22262192,
+        "instanceResidentBuffers": 448,
+        "geometryResidentBuffers": 1198,
+        "speculativeWarmup": false,
+        "programs": 39,
+        "contextLost": false,
+        "residentChunks": 59,
+        "outerBytes": 9487386,
+        "manifestChunks": 1522,
+        "camera": [
+          -2245,
+          103,
+          1945
+        ],
+        "view": "tauentzien"
+      },
+      {
+        "ready": true,
+        "mode": "snowstorm",
+        "lost": 0,
+        "buffers": {
+          "bytes": 383676534,
+          "peak": 383676534,
+          "handles": 6580,
+          "peakHandles": 6580,
+          "uploads": 10989,
+          "deletes": 4409,
+          "lost": 0
+        },
+        "instanceResidentBytes": 62914756,
+        "instanceResidentBuffers": 1587,
+        "geometryResidentBuffers": 4991,
+        "speculativeWarmup": false,
+        "programs": 75,
+        "contextLost": false,
+        "residentChunks": 153,
+        "outerBytes": 187854990,
+        "manifestChunks": 1522,
+        "camera": [
+          -1730,
+          67.99999999999999,
+          1995
+        ],
+        "view": "urania"
+      },
+      {
+        "ready": true,
+        "mode": "flood",
+        "lost": 0,
+        "buffers": {
+          "bytes": 142381095,
+          "peak": 383727412,
+          "handles": 2016,
+          "peakHandles": 6580,
+          "uploads": 12398,
+          "deletes": 10382,
+          "lost": 0
+        },
+        "instanceResidentBytes": 22026920,
+        "instanceResidentBuffers": 666,
+        "geometryResidentBuffers": 1348,
+        "speculativeWarmup": false,
+        "programs": 74,
+        "contextLost": false,
+        "residentChunks": 51,
+        "outerBytes": 4940742,
+        "manifestChunks": 1522,
+        "camera": [
+          -1261.0904575621244,
+          100,
+          1657.7872598394758
+        ],
+        "view": "luetzowplatz"
+      },
+      {
+        "ready": true,
+        "mode": "minecraft",
+        "lost": 0,
+        "buffers": {
+          "bytes": 118692910,
+          "peak": 383727412,
+          "handles": 1308,
+          "peakHandles": 6580,
+          "uploads": 13706,
+          "deletes": 12398,
+          "lost": 0
+        },
+        "instanceResidentBytes": 95408448,
+        "instanceResidentBuffers": 226,
+        "geometryResidentBuffers": 1080,
+        "speculativeWarmup": false,
+        "programs": 36,
+        "contextLost": false,
+        "residentChunks": 81,
+        "outerBytes": 17188710,
+        "manifestChunks": 1522,
+        "camera": [
+          1540.0950903566554,
+          100,
+          3449.055431292392
+        ],
+        "view": "kreuzberg"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 158661268,
+          "peak": 383727412,
+          "handles": 2100,
+          "peakHandles": 6580,
+          "uploads": 19869,
+          "deletes": 17769,
+          "lost": 0
+        },
+        "instanceResidentBytes": 26972016,
+        "instanceResidentBuffers": 792,
+        "geometryResidentBuffers": 1306,
+        "speculativeWarmup": false,
+        "programs": 60,
+        "contextLost": false,
+        "residentChunks": 140,
+        "outerBytes": 32045070,
+        "manifestChunks": 1522,
+        "camera": [
+          -1139.1726331355164,
+          100,
+          3577.892867916263
+        ],
+        "view": "schoeneberg"
+      }
+    ],
+    "errors": [],
+    "mobile": true,
+    "before": false,
+    "success": true
+  }
+}

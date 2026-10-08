@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "landmark_id": "urania",
+      "title": "File:Gebäude der Urania Berlin .jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Gebäude_der_Urania_Berlin_.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "UraniaeV",
+      "credit": "UraniaeV, 2019-05-08 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Permanent facade hierarchy; code-authored dimensions remain display estimates"
+    },
+    {
+      "landmark_id": "urania",
+      "title": "File:(20240407) Berlin 12.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:(20240407)_Berlin_12.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Roy Zuo",
+      "credit": "Roy Zuo, 2024-04-07 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Dated temporary-scaffold conflict only; no assertion of current scaffold"
+    },
+    {
+      "landmark_id": "luetzowplatz",
+      "title": "File:Fountain Lützowplatz Eberhard Fink Berlin-Tiergarten.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Fountain_Lützowplatz_Eberhard_Fink_Berlin-Tiergarten.jpg",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer, 2022-09-05 / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Three independent square basin rims and central jets; no measured dimensions"
+    }
+  ]
+}
