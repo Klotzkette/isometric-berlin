@@ -5384,6 +5384,114 @@
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false,
       "use": "Inspected rear close view: six open sectors, broad flat steel ring/spokes, two slanting legs and both feet pointing in the same direction; dark rust-brown material. No copied graffiti, stickers, pixels or texture."
+    },
+    {
+      "landmark_id": "humboldthain-v190",
+      "title": "File:Berlin Humboldthain Aussichtspunkte Bunker.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Humboldthain_Aussichtspunkte_Bunker.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "artist": "Andreas Praefcke",
+      "credit": "Andreas Praefcke, April 2009 / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Dated reference inspected for paired polygonal viewing platforms, concrete edges and metal railings. Independent procedural geometry; no photographic pixels bundled."
+    },
+    {
+      "landmark_id": "teutoburger-platzhaus",
+      "title": "File:141102 Platzhaus Teutoburger Platz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:141102_Platzhaus_Teutoburger_Platz.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Ansgar Koreng; perspective/post-processing Hubertl",
+      "credit": "Ansgar Koreng; perspective/post-processing Hubertl, 2014-11-02 / 2015-01 / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Reference only: brick, dark tiled hip roof, brown eaves and barred arched openings. Graffiti, signs and people not reproduced."
+    },
+    {
+      "landmark_id": "weissensee-trauerhalle",
+      "title": "File:Berlin-Weissensee Jewish cemetery entrance.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Weissensee_Jewish_cemetery_entrance.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Mazbln",
+      "credit": "Mazbln, 2005-10-09 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Reference only: warm yellow brick, grey hip roofs and round-headed entrance/window rhythm. Inscriptions not reproduced; dimensions remain authoritative LoD2, opening subdivisions approximate."
+    },
+    {
+      "landmark_id": "westkreuz-v190",
+      "title": "File:S-Bahn Berlin Westkreuz Stadtbahn.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:S-Bahn_Berlin_Westkreuz_Stadtbahn.JPG",
+      "artist": "Jcornelius (Cornelius Kibelka)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Jcornelius (Cornelius Kibelka) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Lower platform canopy underside, dark fascia, steel columns and brackets. Inspected for independent texture-free procedural interpretation; no photographic pixels bundled."
+    },
+    {
+      "landmark_id": "suedkreuz-v190",
+      "title": "File:Bahnhof Sudkreuz Bahnsteig oben von W.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bahnhof_Sudkreuz_Bahnsteig_oben_von_W.jpg",
+      "artist": "Bukk",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Bukk / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Upper transverse hall: shallow roof framing, gray columns and glazed side structure. Inspected for independent texture-free procedural interpretation; no photographic pixels bundled."
+    },
+    {
+      "landmark_id": "ostkreuz-v190",
+      "title": "File:Berlin S-Bahn Bhf Ostkreuz (S41 1246).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_S-Bahn_Bhf_Ostkreuz_(S41_1246).jpg",
+      "artist": "Michael.F.H.Barth",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Michael.F.H.Barth / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "2021 east-side view: shallow barrel roof, glazed hall and open railway end below upper end glazing; adjacent lower canopy. Inspected for independent texture-free procedural interpretation; no photographic pixels bundled."
+    },
+    {
+      "landmark_id": "ostkreuz-v190",
+      "title": "File:Berlin - S-Bahnhof Ostkreuz - Neue Ringbahnhalle - Stand 04 2012 (6942355756).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_S-Bahnhof_Ostkreuz_-_Neue_Ringbahnhalle_-_Stand_04_2012_(6942355756).jpg",
+      "artist": "IngolfBLN",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "credit": "IngolfBLN / CC BY-SA 2.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "2012 interior: curved exposed steel rafters, transverse bays, side glazing and unobstructed platform volume. Inspected for independent texture-free procedural interpretation; no photographic pixels bundled."
+    },
+    {
+      "landmark_id": "grunewald-v190",
+      "title": "Grunewaldturm-01-Frontansicht.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Grunewaldturm-01-Frontansicht.jpg",
+      "artist": "Muck",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Muck / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Non-bundled visual reference: brick, open gallery, spire and pointed arches."
+    },
+    {
+      "landmark_id": "grunewald-v190",
+      "title": "2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg",
+      "artist": "Gunnar Klack",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "usage_note": "Non-bundled visual reference: concrete, glazing and roof-edge material."
     }
   ]
 }

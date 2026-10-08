@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.89",
+  "package_version": "1.0.90",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
   "uses_google_content": false,
-  "scope": "Berlin Regierungsviertel bounds only",
+  "scope": "Versioned Berlin city coverage, including the explicitly bounded northern and Grunewald additions",
   "render_mode": "procedural LoD2/OpenStreetMap isometric city",
   "controls": [
     "mouse-pan",
@@ -91,8 +91,8 @@
     },
     "wikimedia_attribution": {
       "path": "dzi/regierungsviertel/wikimedia_attribution.json",
-      "bytes": 272966,
-      "sha256": "b7034dd22ec3a2d4e5839b3cce10805735a9d6a5764774903ba08e10840a4be2"
+      "bytes": 279324,
+      "sha256": "b91ab6ca22b5785d5400ceffe4c582b0955f9c07420131f1c18578f61f51ca6d"
     },
     "webgl_scene": {
       "path": "mesh/regierungsviertel/scene.json",
@@ -136,8 +136,8 @@
     },
     "surrounding_city": {
       "path": "mesh/surrounding-berlin-v159/manifest.json",
-      "bytes": 1286503,
-      "sha256": "4416ba8a7ff4097be395901464e2832f55eeee272f41ccfbf1bedcab7f8f05b5"
+      "bytes": 1391385,
+      "sha256": "5f41976799645d58bc6b04a3c22856f7f87e63feb925c4d54c8c936678d81773"
     },
     "start_page": {
       "path": "START-HERE.html",
