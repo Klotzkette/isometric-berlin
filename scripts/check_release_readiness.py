@@ -67,7 +67,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # plus bounded recognition modules and relief metadata. Measured extracted
 # package: 561,874,058 bytes (535.84 MiB); 540 MiB leaves 4.16 MiB headroom.
 # This affects only the downloadable archive, never live rendering budgets.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 540 * 1024 * 1024
+# v187 adds the explicitly requested finite outskirts/lakes and independent
+# source-bound landmarks. Extracted package: 703,310,513 bytes (670.73 MiB).
+# 680 MiB gives 9.27 MiB archive headroom; per-packet, decode and resident GPU
+# limits remain unchanged. See docs/outskirts-v187.md.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 680 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

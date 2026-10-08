@@ -922,6 +922,19 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   )
   assert all(identity.startswith("city183-") for identity in city_descriptors)
   assert city_descriptors.keys() <= descriptors.keys()
+  outskirts_supplement = json.loads(
+    (ROOT / "geo_data/regierungsviertel/outskirts-v187-manifest.json").read_bytes()
+  )
+  outskirts_descriptors = {
+    entry["id"]: entry for entry in outskirts_supplement["chunks"]
+  }
+  assert len(outskirts_descriptors) == 822
+  assert not (
+    outskirts_descriptors.keys()
+    & (old_descriptors.keys() | ring_descriptors.keys() | city_descriptors.keys())
+  )
+  assert all(identity.startswith("outer187-") for identity in outskirts_descriptors)
+  assert outskirts_descriptors.keys() <= descriptors.keys()
   audited_files = (
     {row["file"] for row in current_terrain_audit["packets"]}
     | relief_files
@@ -948,6 +961,8 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
       assert descriptor == ring_descriptors[identity]
     elif identity in city_descriptors:
       assert descriptor == city_descriptors[identity]
+    elif identity in outskirts_descriptors:
+      assert descriptor == outskirts_descriptors[identity]
     else:
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
@@ -971,6 +986,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
         identity not in old_descriptors
         and identity not in ring_descriptors
         and identity not in city_descriptors
+        and identity not in outskirts_descriptors
         and str(path.relative_to(ROOT)) not in emitted
       ):
         assert packet["meshes"] == []

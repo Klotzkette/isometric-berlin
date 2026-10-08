@@ -84,6 +84,18 @@ bounded official DGM field. Other named courts, facades, sculpture and gallery
 changes are bounded recognition refinements with explicit measured/estimated
 provenance, not authorization for an unbounded detail expansion.
 
+The owner's 8 October v1.0.87 request permits the finite west/southwest/east
+extension recorded in `bounds-outskirts-v187.geojson`: Olympic site, Spandau
+and Citadel, Dahlem/Zehlendorf through Mexikoplatz, the Grunewald and mapped
+Wannsee/Havel shores, plus mapped eastern links to Tierpark, Köpenick and
+Müggelsee. Existing scopes are subtracted exactly. Keep full source vertices,
+all older packets and 93 tour stops; new ordinary buildings remain simple
+source-bound outlines. Named new hero models may own only their documented
+exact footprints. Woodland crowns are explicitly illustrative, placed strictly
+within mapped woods away from water, paths and buildings. Reuse bounded serial
+chunk delivery without expanding resident CPU/GPU budgets. This finite request
+does not permit unrelated citywide generation.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

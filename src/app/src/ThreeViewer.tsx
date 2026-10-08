@@ -1,4 +1,5 @@
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
+import { westernStadiumGroundYV187 } from "./westernStadiumGroundV187";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { captureAboveWaterAppearance, restoreAboveWaterAppearance, setAboveWaterFog, type AboveWaterAppearance } from "./underwaterAppearance";
 import { createFloodWater, setFloodWaterDepth, updateFloodWater, FLOOD_FRAME_INTERVAL_MS, type FloodWater } from "./FloodWater";
@@ -1600,6 +1601,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
       minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
+      const stadiumGround = westernStadiumGroundYV187(x, z);
+      if (stadiumGround !== undefined) return stadiumGround;
       const knownGround = surroundingScopeGroundAt(x, z, runtime.lightingMode === "minecraft");
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },

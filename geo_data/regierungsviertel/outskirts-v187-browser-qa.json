@@ -1,0 +1,863 @@
+{
+  "desktop": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 36230324,
+          "peak": 329131526,
+          "handles": 767,
+          "peakHandles": 4306,
+          "uploads": 4766,
+          "deletes": 3999,
+          "lost": 0
+        },
+        "instanceResidentBytes": 12018732,
+        "instanceResidentBuffers": 40,
+        "geometryResidentBuffers": 604,
+        "speculativeWarmup": true,
+        "programs": 55,
+        "contextLost": false,
+        "residentChunks": 144,
+        "outerBytes": 16882224,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -6122.999999999999,
+          240,
+          1610
+        ],
+        "view": "funkturm"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 17091308,
+          "peak": 329131526,
+          "handles": 618,
+          "peakHandles": 4306,
+          "uploads": 4766,
+          "deletes": 4148,
+          "lost": 0
+        },
+        "instanceResidentBytes": 748996,
+        "instanceResidentBuffers": 30,
+        "geometryResidentBuffers": 465,
+        "speculativeWarmup": true,
+        "programs": 55,
+        "contextLost": false,
+        "residentChunks": 86,
+        "outerBytes": 10195302,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -8660,
+          249.99999999999997,
+          550
+        ],
+        "view": "olympia"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 11769618,
+          "peak": 329131526,
+          "handles": 573,
+          "peakHandles": 4306,
+          "uploads": 4769,
+          "deletes": 4196,
+          "lost": 0
+        },
+        "instanceResidentBytes": 688880,
+        "instanceResidentBuffers": 24,
+        "geometryResidentBuffers": 426,
+        "speculativeWarmup": true,
+        "programs": 55,
+        "contextLost": false,
+        "residentChunks": 85,
+        "outerBytes": 9775626,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -9270,
+          160,
+          525
+        ],
+        "view": "glockenturm"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 6315986,
+          "peak": 329131526,
+          "handles": 350,
+          "peakHandles": 4306,
+          "uploads": 4769,
+          "deletes": 4419,
+          "lost": 0
+        },
+        "instanceResidentBytes": 622456,
+        "instanceResidentBuffers": 12,
+        "geometryResidentBuffers": 215,
+        "speculativeWarmup": true,
+        "programs": 55,
+        "contextLost": false,
+        "residentChunks": 20,
+        "outerBytes": 4245354,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -10499.999999999998,
+          240.00000000000003,
+          -2350.0000000000005
+        ],
+        "view": "zitadelle"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 49168970,
+          "peak": 329131526,
+          "handles": 1563,
+          "peakHandles": 4306,
+          "uploads": 5982,
+          "deletes": 4419,
+          "lost": 0
+        },
+        "instanceResidentBytes": 3699088,
+        "instanceResidentBuffers": 120,
+        "geometryResidentBuffers": 1320,
+        "speculativeWarmup": true,
+        "programs": 56,
+        "contextLost": false,
+        "residentChunks": 396,
+        "outerBytes": 33238740,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -5459.999999999999,
+          229.99999999999997,
+          7610
+        ],
+        "view": "fu"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 29405484,
+          "peak": 329131526,
+          "handles": 1138,
+          "peakHandles": 4306,
+          "uploads": 5982,
+          "deletes": 4844,
+          "lost": 0
+        },
+        "instanceResidentBytes": 1413920,
+        "instanceResidentBuffers": 26,
+        "geometryResidentBuffers": 989,
+        "speculativeWarmup": true,
+        "programs": 56,
+        "contextLost": false,
+        "residentChunks": 350,
+        "outerBytes": 27075972,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -5740,
+          200.00000000000009,
+          6900
+        ],
+        "view": "dahlem"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 18199134,
+          "peak": 329131526,
+          "handles": 1132,
+          "peakHandles": 4306,
+          "uploads": 6383,
+          "deletes": 5251,
+          "lost": 0
+        },
+        "instanceResidentBytes": 753860,
+        "instanceResidentBuffers": 22,
+        "geometryResidentBuffers": 987,
+        "speculativeWarmup": true,
+        "programs": 56,
+        "contextLost": false,
+        "residentChunks": 300,
+        "outerBytes": 15990504,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -9440,
+          165,
+          9080
+        ],
+        "view": "mexiko"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 285722583,
+          "peak": 329131526,
+          "handles": 8416,
+          "peakHandles": 8416,
+          "uploads": 14059,
+          "deletes": 5643,
+          "lost": 0
+        },
+        "instanceResidentBytes": 57552600,
+        "instanceResidentBuffers": 1961,
+        "geometryResidentBuffers": 6451,
+        "speculativeWarmup": true,
+        "programs": 65,
+        "contextLost": false,
+        "residentChunks": 425,
+        "outerBytes": 66231042,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -3450.0000000000005,
+          215.00000000000003,
+          7220.000000000001
+        ],
+        "view": "steglitz"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 15997894,
+          "peak": 329131526,
+          "handles": 740,
+          "peakHandles": 8416,
+          "uploads": 14181,
+          "deletes": 13441,
+          "lost": 0
+        },
+        "instanceResidentBytes": 1311624,
+        "instanceResidentBuffers": 32,
+        "geometryResidentBuffers": 585,
+        "speculativeWarmup": true,
+        "programs": 65,
+        "contextLost": false,
+        "residentChunks": 142,
+        "outerBytes": 7756866,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -7746.000000000002,
+          900,
+          4817
+        ],
+        "view": "grunewald"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 4468008,
+          "peak": 329131526,
+          "handles": 629,
+          "peakHandles": 8416,
+          "uploads": 14511,
+          "deletes": 13882,
+          "lost": 0
+        },
+        "instanceResidentBytes": 609536,
+        "instanceResidentBuffers": 10,
+        "geometryResidentBuffers": 496,
+        "speculativeWarmup": true,
+        "programs": 65,
+        "contextLost": false,
+        "residentChunks": 168,
+        "outerBytes": 3332652,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -12969.999999999998,
+          1300,
+          9973.999999999995
+        ],
+        "view": "wannsee"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 176723171,
+          "peak": 329131526,
+          "handles": 9909,
+          "peakHandles": 9909,
+          "uploads": 24138,
+          "deletes": 14229,
+          "lost": 0
+        },
+        "instanceResidentBytes": 40813888,
+        "instanceResidentBuffers": 1385,
+        "geometryResidentBuffers": 8407,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 33,
+        "outerBytes": 4518012,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          10660,
+          350.00000000000006,
+          2109.999999999999
+        ],
+        "view": "tierpark"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 544999788,
+          "peak": 544999788,
+          "handles": 15599,
+          "peakHandles": 15599,
+          "uploads": 29839,
+          "deletes": 14240,
+          "lost": 0
+        },
+        "instanceResidentBytes": 96096804,
+        "instanceResidentBuffers": 3197,
+        "geometryResidentBuffers": 12293,
+        "speculativeWarmup": true,
+        "programs": 94,
+        "contextLost": false,
+        "residentChunks": 446,
+        "outerBytes": 273408126,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          11220,
+          155,
+          2560
+        ],
+        "view": "brehm"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 578236167,
+          "peak": 578236167,
+          "handles": 15977,
+          "peakHandles": 15977,
+          "uploads": 30252,
+          "deletes": 14275,
+          "lost": 0
+        },
+        "instanceResidentBytes": 96334836,
+        "instanceResidentBuffers": 3201,
+        "geometryResidentBuffers": 12667,
+        "speculativeWarmup": true,
+        "programs": 94,
+        "contextLost": false,
+        "residentChunks": 1015,
+        "outerBytes": 358423860,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          13760,
+          204.99999999999997,
+          8880
+        ],
+        "view": "koepenick"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 320066145,
+          "peak": 578236167,
+          "handles": 15150,
+          "peakHandles": 15977,
+          "uploads": 30412,
+          "deletes": 15262,
+          "lost": 0
+        },
+        "instanceResidentBytes": 96334836,
+        "instanceResidentBuffers": 3201,
+        "geometryResidentBuffers": 11840,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 89,
+        "outerBytes": 4283094,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          19493,
+          1400,
+          10370
+        ],
+        "view": "mueggelsee"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 260000508,
+          "peak": 578236167,
+          "handles": 10308,
+          "peakHandles": 15977,
+          "uploads": 31162,
+          "deletes": 20854,
+          "lost": 0
+        },
+        "instanceResidentBytes": 72027880,
+        "instanceResidentBuffers": 1971,
+        "geometryResidentBuffers": 8220,
+        "speculativeWarmup": true,
+        "programs": 93,
+        "contextLost": false,
+        "residentChunks": 10,
+        "outerBytes": 19361718,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -900,
+          350,
+          300
+        ],
+        "view": "core"
+      }
+    ],
+    "errors": [],
+    "mobile": false,
+    "success": true
+  },
+  "mobileWebKitIPhone13Profile": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 15565318,
+          "peak": 231815905,
+          "handles": 354,
+          "peakHandles": 2278,
+          "uploads": 2476,
+          "deletes": 2122,
+          "lost": 0
+        },
+        "instanceResidentBytes": 1311396,
+        "instanceResidentBuffers": 28,
+        "geometryResidentBuffers": 324,
+        "speculativeWarmup": false,
+        "programs": 52,
+        "contextLost": false,
+        "residentChunks": 49,
+        "outerBytes": 7945842,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -8660,
+          249.99999999999997,
+          550
+        ],
+        "view": "olympia"
+      },
+      {
+        "ready": true,
+        "mode": "night",
+        "lost": 0,
+        "buffers": {
+          "bytes": 27553412,
+          "peak": 231815905,
+          "handles": 759,
+          "peakHandles": 2278,
+          "uploads": 2912,
+          "deletes": 2153,
+          "lost": 0
+        },
+        "instanceResidentBytes": 4060772,
+        "instanceResidentBuffers": 70,
+        "geometryResidentBuffers": 687,
+        "speculativeWarmup": false,
+        "programs": 19,
+        "contextLost": false,
+        "residentChunks": 215,
+        "outerBytes": 18842874,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -5459.999999999999,
+          229.99999999999997,
+          7610
+        ],
+        "view": "fu"
+      },
+      {
+        "ready": true,
+        "mode": "schwellenraum",
+        "lost": 0,
+        "buffers": {
+          "bytes": 97349264,
+          "peak": 231815905,
+          "handles": 400,
+          "peakHandles": 2278,
+          "uploads": 3157,
+          "deletes": 2757,
+          "lost": 0
+        },
+        "instanceResidentBytes": 12151580,
+        "instanceResidentBuffers": 32,
+        "geometryResidentBuffers": 366,
+        "speculativeWarmup": false,
+        "programs": 30,
+        "contextLost": false,
+        "residentChunks": 19,
+        "outerBytes": 2736396,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          10660,
+          350.00000000000006,
+          2109.999999999999
+        ],
+        "view": "tierpark"
+      },
+      {
+        "ready": true,
+        "mode": "snowstorm",
+        "lost": 0,
+        "buffers": {
+          "bytes": 5951176,
+          "peak": 231815905,
+          "handles": 524,
+          "peakHandles": 2278,
+          "uploads": 3538,
+          "deletes": 3014,
+          "lost": 0
+        },
+        "instanceResidentBytes": 620612,
+        "instanceResidentBuffers": 14,
+        "geometryResidentBuffers": 508,
+        "speculativeWarmup": false,
+        "programs": 26,
+        "contextLost": false,
+        "residentChunks": 152,
+        "outerBytes": 4667652,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -9440,
+          165,
+          9080
+        ],
+        "view": "mexiko"
+      },
+      {
+        "ready": true,
+        "mode": "flood",
+        "lost": 0,
+        "buffers": {
+          "bytes": 2859870,
+          "peak": 231815905,
+          "handles": 313,
+          "peakHandles": 2278,
+          "uploads": 3669,
+          "deletes": 3356,
+          "lost": 0
+        },
+        "instanceResidentBytes": 609536,
+        "instanceResidentBuffers": 10,
+        "geometryResidentBuffers": 301,
+        "speculativeWarmup": false,
+        "programs": 15,
+        "contextLost": false,
+        "residentChunks": 68,
+        "outerBytes": 1307436,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -12969.999999999998,
+          1300,
+          9973.999999999995
+        ],
+        "view": "wannsee"
+      },
+      {
+        "ready": true,
+        "mode": "minecraft",
+        "lost": 0,
+        "buffers": {
+          "bytes": 64603986,
+          "peak": 231815905,
+          "handles": 299,
+          "peakHandles": 2278,
+          "uploads": 4078,
+          "deletes": 3779,
+          "lost": 0
+        },
+        "instanceResidentBytes": 55746944,
+        "instanceResidentBuffers": 62,
+        "geometryResidentBuffers": 235,
+        "speculativeWarmup": false,
+        "programs": 13,
+        "contextLost": false,
+        "residentChunks": 14,
+        "outerBytes": 8452344,
+        "manifestChunks": 1369,
+        "landmarkObjects": 48,
+        "camera": [
+          -10499.999999999998,
+          240.00000000000003,
+          -2350.0000000000005
+        ],
+        "view": "zitadelle"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 152698953,
+          "peak": 231815905,
+          "handles": 2831,
+          "peakHandles": 2831,
+          "uploads": 6959,
+          "deletes": 4128,
+          "lost": 0
+        },
+        "instanceResidentBytes": 33869252,
+        "instanceResidentBuffers": 681,
+        "geometryResidentBuffers": 2148,
+        "speculativeWarmup": false,
+        "programs": 51,
+        "contextLost": false,
+        "residentChunks": 6,
+        "outerBytes": 8413398,
+        "manifestChunks": 1369,
+        "landmarkObjects": 61,
+        "camera": [
+          -900,
+          350,
+          300
+        ],
+        "view": "core"
+      }
+    ],
+    "errors": [],
+    "mobile": true,
+    "success": true
+  },
+  "stadiumWalking": {
+    "states": [
+      {
+        "runtime": 1,
+        "mode": "day",
+        "ready": true,
+        "position": [
+          -8963,
+          -10.866999999999999,
+          262
+        ],
+        "target": [
+          -8963,
+          -12.564749375254339,
+          255.20900249898267
+        ],
+        "fov": 66,
+        "near": 0.08,
+        "underside": false,
+        "enabled": true,
+        "requested": true,
+        "pedestrian": {
+          "grounded": true,
+          "groundLayer": "surface",
+          "groundY": -12.667,
+          "insideTunnel": false,
+          "jumpOffset": 0,
+          "pitch": -0.24497866312686553,
+          "verticalVelocity": 0,
+          "x": -8963,
+          "yaw": 0,
+          "z": 262
+        },
+        "savedPosition": [
+          -8963,
+          -8.667000000000005,
+          262
+        ],
+        "savedTarget": [
+          -8963,
+          -11.667000000000009,
+          250.00000000000006
+        ],
+        "savedFov": 39,
+        "savedNear": 0.25,
+        "voxelAttached": false
+      },
+      {
+        "runtime": 1,
+        "mode": "day",
+        "ready": true,
+        "position": [
+          -8959.416953056449,
+          -10.866999999999999,
+          257.3584736286812
+        ],
+        "target": [
+          -8953.57230781599,
+          -12.564749375254339,
+          253.90047289530727
+        ],
+        "fov": 66,
+        "near": 0.08,
+        "underside": false,
+        "enabled": true,
+        "requested": true,
+        "pedestrian": {
+          "grounded": true,
+          "groundLayer": "surface",
+          "groundY": -12.667,
+          "insideTunnel": false,
+          "jumpOffset": 0,
+          "pitch": -0.24497866312686553,
+          "verticalVelocity": 0,
+          "x": -8959.416953056449,
+          "yaw": 1.0365370801254175,
+          "z": 257.3584736286812
+        },
+        "savedPosition": [
+          -8963,
+          -8.667000000000005,
+          262
+        ],
+        "savedTarget": [
+          -8963,
+          -11.667000000000009,
+          250.00000000000006
+        ],
+        "savedFov": 39,
+        "savedNear": 0.25,
+        "voxelAttached": false
+      },
+      {
+        "runtime": 1,
+        "mode": "minecraft",
+        "ready": true,
+        "position": [
+          -8959.416953056449,
+          -10.866999999999999,
+          257.3584736286812
+        ],
+        "target": [
+          -8953.57230781599,
+          -12.564749375254339,
+          253.90047289530727
+        ],
+        "fov": 66,
+        "near": 0.08,
+        "underside": false,
+        "enabled": true,
+        "requested": true,
+        "pedestrian": {
+          "grounded": true,
+          "groundLayer": "surface",
+          "groundY": -12.667,
+          "insideTunnel": false,
+          "jumpOffset": 0,
+          "pitch": -0.24497866312686553,
+          "verticalVelocity": 0,
+          "x": -8959.416953056449,
+          "yaw": 1.0365370801254175,
+          "z": 257.3584736286812
+        },
+        "savedPosition": [
+          -8963,
+          -8.667000000000005,
+          262
+        ],
+        "savedTarget": [
+          -8963,
+          -11.667000000000009,
+          250.00000000000006
+        ],
+        "savedFov": 39,
+        "savedNear": 0.25,
+        "voxelAttached": true
+      },
+      {
+        "runtime": 1,
+        "mode": "day",
+        "ready": true,
+        "position": [
+          -8959.416953056449,
+          -10.866999999999999,
+          257.3584736286812
+        ],
+        "target": [
+          -8953.57230781599,
+          -12.564749375254339,
+          253.90047289530727
+        ],
+        "fov": 66,
+        "near": 0.08,
+        "underside": false,
+        "enabled": true,
+        "requested": true,
+        "pedestrian": {
+          "grounded": true,
+          "groundLayer": "surface",
+          "groundY": -12.667,
+          "insideTunnel": false,
+          "jumpOffset": 0,
+          "pitch": -0.24497866312686553,
+          "verticalVelocity": 0,
+          "x": -8959.416953056449,
+          "yaw": 1.0365370801254175,
+          "z": 257.3584736286812
+        },
+        "savedPosition": [
+          -8963,
+          -8.667000000000005,
+          262
+        ],
+        "savedTarget": [
+          -8963,
+          -11.667000000000009,
+          250.00000000000006
+        ],
+        "savedFov": 39,
+        "savedNear": 0.25,
+        "voxelAttached": true
+      }
+    ],
+    "errors": [],
+    "success": true
+  },
+  "limitations": "Browser profiles are not physical phone RAM tests. Counters cover WebGL buffers, not total browser or driver memory."
+}

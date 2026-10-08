@@ -408,9 +408,13 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       options.onChange?.();
     },
     groundAt(x, z) {
-      if (!manifest || !manifest.footprint.some(p => surroundingPolygonContains(p, x, z))) return null;
       const entry = at(x, z);
-      if (!entry) return terrainGroundAt(x, z, manifest.groundY, mode === "minecraft");
+      // A resident tile already verified exact source-ground membership. Avoid
+      // walking the full larger city's shoreline inventory for every step.
+      if (!entry) {
+        if (!manifest || !manifest.footprint.some(p => surroundingPolygonContains(p, x, z))) return null;
+        return terrainGroundAt(x, z, manifest.groundY, mode === "minecraft");
+      }
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
       if (!entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return null;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));

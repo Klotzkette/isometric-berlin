@@ -17,6 +17,20 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Finite outskirts and landmark recognition (v1.0.87):** The retained
+  29 September 2026 Geofabrik Berlin extract supplies exact OSM building,
+  street, water, woodland and Tierpark feature courses (ODbL-1.0). Berlin LoD2
+  supplies known measured building parts and envelopes (dl-de/zero-2-0).
+  Operator, university, district and heritage accounts guide independently
+  authored recognition. Unmeasured facade divisions, structural annotations,
+  generic outer terrain and woodland-tree placement remain documented display
+  estimates. Source conflicts retain their original profiles and explicit
+  treatment; all prior city packets remain. No new photograph, protected site
+  plan or image texture is distributed. See [coverage](docs/outskirts-v187.md),
+  [western landmarks](docs/west-landmarks-v187.md),
+  [southwest landmarks](docs/southwest-landmarks-v187.md) and
+  [Tierpark/Köpenick](docs/east-landmarks-v187.md).
+
 - **Alt-Mitte facade review (v1.0.86):** The complete retained ALKIS/LoD2 and
   OSM catalogue anchors the former-district selection and source wall edges.
   All previous sources remain. Small profiles and window light/shadow are

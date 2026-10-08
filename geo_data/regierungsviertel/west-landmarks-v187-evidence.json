@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "owners": [
+    {
+      "name": "Preussenturm",
+      "parentId": "DEBE04YY500008Cu",
+      "osmIds": [
+        "way/48983461"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -31.011,
+      "sourcePartIds": [
+        "DEBE3DPcBWzhW5Qv",
+        "DEBE3DP1JcPdWSRM",
+        "DEBE3DcTvc3F3W2R"
+      ],
+      "sourceSurfaces": 79
+    },
+    {
+      "name": "Bayernturm",
+      "parentId": "DEBE04YY500006Fm",
+      "osmIds": [
+        "way/48983460"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -30.986,
+      "sourcePartIds": [
+        "DEBE3DiCLsC240uM",
+        "DEBE3DkcxFrUg9VN",
+        "DEBE3DSFRKCpAt95"
+      ],
+      "sourceSurfaces": 86
+    },
+    {
+      "name": "Olympiastadion",
+      "parentId": "DEBE04AL5LX00002",
+      "osmIds": [
+        "way/24296022"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -33.45,
+      "sourcePartIds": [
+        "DEBE3DI4LfQfz2qP",
+        "DEBE3DaAD9ie2JNc",
+        "DEBE3DVn37IaaPRV"
+      ],
+      "sourceSurfaces": 1904
+    },
+    {
+      "name": "Olympiastadion",
+      "parentId": "DEBE04AL5LX00003",
+      "osmIds": [
+        "way/24296022"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -33.45,
+      "sourcePartIds": [
+        "DEBE04AL5LX00003"
+      ],
+      "sourceSurfaces": 2565
+    },
+    {
+      "name": "Olympiastadion",
+      "parentId": "DEBE04AL5LX00004",
+      "osmIds": [
+        "way/24296022"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -33.45,
+      "sourcePartIds": [
+        "DEBE04AL5LX00004"
+      ],
+      "sourceSurfaces": 316
+    },
+    {
+      "name": "Glockenturm",
+      "parentId": "DEBE04YY500001If",
+      "osmIds": [
+        "way/48983459"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_380_5819.zip",
+      "sourceSha256": "bcbeb4539bdf7c0e4ce11ebc1d27d661dbeb9ec4d039ea8ad181647f783e3975",
+      "offsetY": -34.676,
+      "sourcePartIds": [
+        "DEBE04YY500001If"
+      ],
+      "sourceSurfaces": 5
+    },
+    {
+      "name": "Juliusturm",
+      "parentId": "DEBE05YYY0000FBI",
+      "osmIds": [
+        "way/25867264"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_378_5822.zip",
+      "sourceSha256": "d9cfc74232ac41285e1a28819138ab088639a449e36ae93315dfd06db7029848",
+      "offsetY": 0.613,
+      "sourcePartIds": [
+        "DEBE3DxggMNkbS71",
+        "DEBE3DHd68O2dOEK"
+      ],
+      "sourceSurfaces": 55
+    },
+    {
+      "name": "Palas",
+      "parentId": "DEBE05YYY000031N",
+      "osmIds": [
+        "way/25867257"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_378_5822.zip",
+      "sourceSha256": "d9cfc74232ac41285e1a28819138ab088639a449e36ae93315dfd06db7029848",
+      "offsetY": 0.554,
+      "sourcePartIds": [
+        "DEBE05YYY000031N"
+      ],
+      "sourceSurfaces": 32
+    },
+    {
+      "name": "Torhaus",
+      "parentId": "DEBE05YYY00006av",
+      "osmIds": [
+        "way/84502073"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_378_5822.zip",
+      "sourceSha256": "d9cfc74232ac41285e1a28819138ab088639a449e36ae93315dfd06db7029848",
+      "offsetY": 1.834,
+      "sourcePartIds": [
+        "DEBE3Dp0ht6WfyYL",
+        "DEBE3DcQ3qCzsHSz",
+        "DEBE3DbDWkojf3DF",
+        "DEBE3DtWdc8QJ7Z7",
+        "DEBE3DYUK0WWhMRq",
+        "DEBE3Dhz44D7EQ9c",
+        "DEBE3DaVK9zcyYcF"
+      ],
+      "sourceSurfaces": 84
+    },
+    {
+      "name": "Torhaus",
+      "parentId": "DEBE05YYY0000Ppa",
+      "osmIds": [
+        "way/84502073"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_378_5822.zip",
+      "sourceSha256": "d9cfc74232ac41285e1a28819138ab088639a449e36ae93315dfd06db7029848",
+      "offsetY": 0.476,
+      "sourcePartIds": [
+        "DEBE05YYY0000Ppa"
+      ],
+      "sourceSurfaces": 22
+    },
+    {
+      "name": "Funkturm open lattice source conflict",
+      "parentId": "DEBE04YY500006Zr",
+      "osmIds": [
+        "way/30926247"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_383_5818.zip",
+      "sourceSha256": "21dfc308b0a57641e3a26ae1c39d32252273cc842070d283ce758d27181c7334",
+      "offsetY": -19.615,
+      "sourcePartIds": [
+        "DEBE04YY500006Zr"
+      ],
+      "sourceSurfaces": 21
+    },
+    {
+      "name": "Funkturm open lattice source conflict",
+      "parentId": "DEBE04YY50002bpq",
+      "osmIds": [
+        "way/30926247"
+      ],
+      "sourceUrl": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_383_5818.zip",
+      "sourceSha256": "21dfc308b0a57641e3a26ae1c39d32252273cc842070d283ce758d27181c7334",
+      "offsetY": -19.894,
+      "sourcePartIds": [
+        "DEBE04YY50002bpq"
+      ],
+      "sourceSurfaces": 8
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.messe-berlin.de/de/veranstalter/locations/funkturm/fakten",
+      "facts": "Restaurant55m, observation126m, glass lift"
+    },
+    {
+      "url": "https://www.messe-berlin.de/de/presse/pressemitteilungen/news_21504.html",
+      "facts": "Total147m"
+    },
+    {
+      "url": "https://olympiastadion.berlin/en/facts-figures/",
+      "facts": "Published dimensions, 136columns, sunken pitch, roof and Marathon opening"
+    },
+    {
+      "url": "https://olympiastadion.berlin/de/geschichte/",
+      "facts": "Roof remains open toward the western Marathon gate"
+    },
+    {
+      "url": "https://www.berlin.de/sehenswuerdigkeiten/3561753-3558930-glockenturm.html",
+      "facts": "Reconstructed tower77.17m, platform and bell chamber"
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040530",
+      "facts": "Axial Olympic site, pylons, Langemarckhalle and Maifeld"
+    },
+    {
+      "url": "https://www.berlin.de/ba-spandau/ueber-den-bezirk/tourismus/sehenswertes/artikel.288536.php",
+      "facts": "Four-bastion fortress,30m Julius tower, Palas and gate"
+    }
+  ],
+  "conflicts": [
+    {
+      "name": "Olympiastadion enclosing ground owner",
+      "parentId": "DEBE04AL5LX00004",
+      "sourceAreaM2": 56125.991,
+      "policy": "The newly imported LoD2 owner is a closed 3m-high plate across the documented sunken infield. Its complete profile remains in the source receipt; active representation keeps its exact exterior outline as a6m circulation rim at plaza ground, allowing the real infield and open western passage. Measured roof sheets remain unchanged. Coarse canopy-to-ground wall extrusions are trimmed to their top0.85m fascia; published colonnade/post counts guide the open structural reading below."
+    },
+    {
+      "name": "Glockenturm",
+      "publishedHeightM": 77.17,
+      "sourceShaftHeightM": 74.866,
+      "policy": "Keep source height and plan; different base datum. Coarse cuboid belfry upper12m opened into estimated chamber/pier silhouette, full original source retained."
+    },
+    {
+      "name": "Funkturm generic opaque shafts",
+      "parentIds": [
+        "DEBE04YY500006Zr",
+        "DEBE04YY50002bpq"
+      ],
+      "policy": "These newly introduced generic enclosing masses hide the existing open147m lattice and its decks. Transfer exact complete source footprints to the retained v179/v182 and refined v187 model; original source profiles remain archived. No old source packet or tower detail removed."
+    }
+  ],
+  "estimates": "Truss sections, floor glazing, belfry subdivisions, seating and castle-wall/crown detail are display interpretation, not a facade or landscape survey.",
+  "stadium": {
+    "sourcePitchNHN": 50.783,
+    "plazaDatumNHN": 67.0,
+    "pitchY": -12.667,
+    "seatingRows": 36,
+    "marathonOpeningM": 24.65,
+    "status": "Exact LoD2 outer ground cutout and OSM athletic plan, retained full LoD2 shells. Common67m plaza datum and blue seat terraces are bounded display estimates; not individual seat survey."
+  },
+  "gatewaySourcePolicy": "Preussenturm and Bayernturm keep all three measured parts, including low3m wings. LoD2 measured shafts32.418/32.479m take precedence over unsurveyed OSM36m tag; other four pylons retain their mapped36m display height.",
+  "budgets": {
+    "groups": 12,
+    "triangles": 44077,
+    "boxes": 281,
+    "rods": 1950,
+    "nativeBlocks": 32005
+  }
+}

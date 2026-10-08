@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.86 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.86/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.87 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.87/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,22 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.86** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.87** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.87 adds finite western, southwestern and eastern outlines: Olympiapark
+and Spandau, Dahlem and Mexikoplatz, Grunewald/Wannsee, Köpenick/Müggelsee and
+Tierpark Friedrichsfelde. Funkturm, named campus and landmark models gain
+source-bound recognition details. Previous city geometry remains unchanged;
+ordinary outer terrain and unsurveyed details remain documented estimates.
+[Scope, sources and limits](docs/outskirts-v187.md).
+
+Version 1.0.87 ergänzt begrenzte Stadtbereiche und Verbindungen im Westen,
+Südwesten und Osten: Olympiapark und Spandau, Dahlem und Mexikoplatz,
+Grunewald/Wannsee sowie Köpenick/Müggelsee und den Tierpark Friedrichsfelde.
+Funkturm und ausgewählte Bauwerke werden genauer erkennbar. Alle bisherigen
+Stadtdetails bleiben erhalten; Gelände und nicht vermessene Ergänzungen der
+neuen Außenbereiche sind als Näherungen dokumentiert.
 
 Version 1.0.86 audits the complete former Mitte district inventory and gently
 refines existing window relief and source-bound street-facing building edges.

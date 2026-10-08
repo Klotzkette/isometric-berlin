@@ -74,11 +74,21 @@ def merge_manifest(previous: dict, supplement: dict) -> dict:
   result = copy.deepcopy(previous)
   old = result.pop("cityCoverageV183", None)
   if old:
+    insertion = next(
+      i for i, c in enumerate(result["chunks"]) if c["id"].startswith(PREFIX)
+    )
     result["chunks"] = [c for c in result["chunks"] if not c["id"].startswith(PREFIX)]
-    result["footprint"] = result["footprint"][: old["retainedFootprintCount"]]
-  retained = len(result["footprint"])
-  result["chunks"].extend(supplement["chunks"])
-  result["footprint"].extend(supplement["footprint"])
+    retained = old["retainedFootprintCount"]
+    # Later owner-approved areas follow this immutable v183 scope. Re-publishing
+    # v183 must preserve them and the established descriptor ordering.
+    result["chunks"][insertion:insertion] = supplement["chunks"]
+    result["footprint"][retained : retained + len(supplement["footprint"])] = (
+      supplement["footprint"]
+    )
+  else:
+    retained = len(result["footprint"])
+    result["chunks"].extend(supplement["chunks"])
+    result["footprint"].extend(supplement["footprint"])
   result["bounds"] = [
     min(previous["bounds"][0], supplement["bounds"][0]),
     min(previous["bounds"][1], supplement["bounds"][1]),
