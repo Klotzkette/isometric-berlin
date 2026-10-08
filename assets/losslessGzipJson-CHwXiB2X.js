@@ -1,0 +1,1 @@
+import{Bt as e}from"./three-engine-CougnZfz.js";function t(t){let n=atob(t),r=new Uint8Array(n.length);for(let e=0;e<n.length;e++)r[e]=n.charCodeAt(e);return JSON.parse(new TextDecoder().decode(e(r)))}export{t};
