@@ -35,6 +35,9 @@ import { createTegelMotorwayV194 } from "./TegelMotorwayV194";
 import { createViktoriaparkV194 } from "./ViktoriaparkV194";
 import { createAirportsV194 } from "./AirportsV194";
 import { createWestLakesV194 } from "./WestLakesV194";
+import { createDrachenbergKitesV195 } from "./DrachenbergKitesV195";
+import { createTeufelsbergStationV195 } from "./TeufelsbergStationV195";
+import { createDrachenbergLawnV195 } from "./DrachenbergLawnV195";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -45,6 +48,9 @@ export function createOutlineLandmarksV182(
   const root = new Group();
   root.name = "Berlin outline landmark additions v182";
   let native: boolean | undefined;
+  let kites: Group | undefined;
+  root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
+    kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
   root.userData.setMode = (mode: VisualMode) => {
     const nextNative = mode === "minecraft";
     if (native !== nextNative) {
@@ -95,6 +101,10 @@ export function createOutlineLandmarksV182(
       root.add(createViktoriaparkV194(nextNative));
       root.add(createAirportsV194(nextNative));
       root.add(createWestLakesV194(nextNative));
+      root.add(createTeufelsbergStationV195(nextNative));
+      root.add(createDrachenbergLawnV195(nextNative));
+      kites = createDrachenbergKitesV195(nextNative);
+      root.add(kites);
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }

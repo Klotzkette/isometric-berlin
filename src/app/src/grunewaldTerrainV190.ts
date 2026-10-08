@@ -1,3 +1,4 @@
+import { teufelsbergTerrainOffsetV195 } from "./teufelsbergTerrainV195";
 import field from "./data/grunewaldTerrainV190.json";
 
 type Profile = { support: number[]; stepM: number; offsets: number[][] };
@@ -13,6 +14,8 @@ function sample(profile: Profile, x: number, z: number): number {
 
 /** Same measured piecewise planes and native8m terraces as prepared packets. */
 export function grunewaldTerrainOffset(x: number, z: number, native = false): number {
+  const refined = teufelsbergTerrainOffsetV195(x,z,native);
+  if (refined !== null) return refined;
   if (native) { x = Math.floor(x/8)*8+4; z = Math.floor(z/8)*8+4; }
   for (let i = field.profiles.length-1; i > 0; i--) {
     const profile = field.profiles[i], [west,north,east,south] = profile.support;

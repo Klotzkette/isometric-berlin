@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.94 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.94/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.95 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.95/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,18 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.94** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.95** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.95 refines Teufelsberg and Drachenberg against official elevation
+samples, adds the former listening station's distinctive towers and radomes,
+and four illustrative kite fliers with colourful, gently moving kites.
+[Sources and verification](docs/release-v1.0.95-review.md).
+
+Version 1.0.95 verfeinert Teufelsberg und Drachenberg anhand amtlicher
+Höhendaten. Die Abhöranlage erhält ihre charakteristischen Türme und Radome;
+vier dargestellte Drachensteiger lassen bunte Drachen mit langen Leinen und
+bewegten Schleifenschwänzen steigen.
 
 Version 1.0.94 refines Kreuzberg's measured hill, monument and waterfall,
 Tempelhof and Tegel's former airport buildings, and adds bounded Tegel/A111,

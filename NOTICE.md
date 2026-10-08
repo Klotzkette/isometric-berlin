@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Teufelsberg and Drachenberg (v1.0.95):** Berlin DGM1 and LoD2
+  (dl-de/zero-2-0) anchor terrain and measured station envelopes; OpenStreetMap
+  (ODbL-1.0) supplies source plans and the open plateau. Radome recognition is
+  explicitly distinguished from coarse measured roof proxies. The four people,
+  kite patterns, wind and ribbon motion are original illustrative additions,
+  not surveyed current occupancy. External free visual references retain their
+  individual credits. See [scope and verification](docs/release-v1.0.95-review.md).
+
 - **Kreuzberg, airports and western lakes (v1.0.94):** Retained Berlin LoD2
   and DGM terrain (dl-de/zero-2-0), together with full OpenStreetMap source
   routes, shores, islands and building footprints (ODbL-1.0). Dedicated

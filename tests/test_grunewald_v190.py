@@ -138,7 +138,9 @@ def test_staged_or_published_packets_keep_budgets_and_full_triangle_accounting()
       path = stage / asset["url"]
       if not path.exists():
         path = public / asset["url"]
-      zipped = path.read_bytes()
+      from packet_receipts_v195 import historical_v190_asset
+
+      zipped = historical_v190_asset(d, mode)
       raw = gzip.decompress(zipped)
       assert len(zipped) == asset["bytes"] < 650_000
       assert len(raw) == asset["decodedBytes"] < 2_600_000

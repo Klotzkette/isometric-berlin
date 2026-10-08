@@ -1603,6 +1603,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     groundAt: (x: number, z: number) => {
       const stadiumGround = westernStadiumGroundYV187(x, z);
       if (stadiumGround !== undefined) return stadiumGround;
+      const addedGround = runtime.outerThinOutlines?.userData.groundAt?.(x, z) ?? null;
+      if (addedGround !== null) return addedGround;
       const knownGround = surroundingScopeGroundAt(x, z, runtime.lightingMode === "minecraft");
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
@@ -7773,6 +7775,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.coarsePointer,
         );
         const documentHidden = document.visibilityState === "hidden";
+        const outlineMotion = runtime.outerThinOutlines?.visible &&
+          (runtime.outerThinOutlines.userData.update?.(timestamp, camera, reducedMotion) ?? false);
         // Run before the passive-frame early return: a signal boundary must
         // wake a still view. Keep invalidation until the actual render so a
         // cadence limit cannot swallow the one changed phase.
@@ -7855,6 +7859,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (continuousInputActive) gpuWarmupInteractionUntil = timestamp + 80;
         let passiveFrameIntervalMs = floodAnimating
           ? FLOOD_FRAME_INTERVAL_MS : Number.POSITIVE_INFINITY;
+        // Kite cloth needs a cadenced redraw, not a new city shadow atlas or
+        // a simulated input event that would continually defer GPU warmup.
+        if (outlineMotion) passiveFrameIntervalMs = 0;
         const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&
           isBerlinerEnsembleRoofSignOnScreen(runtime.europaCenterStarTargets, camera, europaStarScreenScratch);
         if (!europaStarOnScreen) runtime.europaCenterStarLastFrameAt = timestamp;
@@ -8061,6 +8068,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp - lastOrdinaryEnvironmentFrameAt >=
             ordinaryEnvironmentFrameIntervalMs;
         const environmentalMotion =
+          outlineMotion ||
           floodFrameDue ||
           schwellenraumMotion.animateFlags ||
           schwellenraumMotion.animatePariserPlatzEntities ||

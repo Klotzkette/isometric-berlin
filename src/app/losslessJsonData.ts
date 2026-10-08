@@ -1,4 +1,6 @@
 import type { Plugin } from "vite";
+import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -42,6 +44,15 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "districtStreets.json": ["surfaces"],
   "schlossEastStreets.json": ["surfaces"],
 };
+
+// Exact JSON bytes, decoded only by the existing lazy field readers. Keep this
+// explicit: compression must not alter array ownership or eagerly load modes.
+const GZIP_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "teufelsbergStationV195.json": ["surfaces", "lines", "boxes", "blocks"],
+  "teufelsbergTerrainV195.json": ["profiles"],
+  "grunewaldTerrainV190.json": ["profiles"],
+};
+const GZIP_DECODER = fileURLToPath(new URL("./src/losslessGzipJson.ts", import.meta.url));
 
 /** JSON.stringify normally changes -0 and non-finite parsed JSON numbers. */
 function exactJson(value: unknown): string {
@@ -115,6 +126,7 @@ export function transformLosslessJsonData(
   const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
   const weakFields = READONLY_CONSTRUCTION_JSON_FIELDS[sourceName] ?? [];
   const packedFields = PACKED_SOURCE_JSON_FIELDS[sourceName] ?? [];
+  const gzipFields = GZIP_SOURCE_JSON_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
     return {
       code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(source.replace(/^\uFEFF/, ""))});`,
@@ -127,6 +139,7 @@ export function transformLosslessJsonData(
   const exports: string[] = [];
   const properties: string[] = [];
   let lazyFields = 0;
+  let gzipUsed = false;
   for (const [index, [key, value]] of Object.entries(data).entries()) {
     const json = exactJson(value);
     const field = `__field${index}`;
@@ -136,6 +149,14 @@ export function transformLosslessJsonData(
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
       const read = `__read${index}`;
+      let decode = `JSON.parse(${JSON.stringify(json)})`;
+      if (gzipFields.includes(key)) {
+        const packed = gzipSync(json, { level: 9 }).toString("base64");
+        if (packed.length < json.length) {
+          decode = `__decodeLosslessGzip(${JSON.stringify(packed)})`;
+          gzipUsed = true;
+        }
+      }
       if (weakFields.includes(key)) {
         const weak = `__weak${index}`;
         declarations.push(
@@ -145,7 +166,7 @@ export function transformLosslessJsonData(
           `  if (${loaded}) return ${cache};`,
           `  let value = ${weak}?.deref();`,
           "  if (value === undefined) {",
-          `    value = JSON.parse(${JSON.stringify(json)});`,
+          `    value = ${decode};`,
           `    if (typeof WeakRef === "function") ${weak} = new WeakRef(value);`,
           `    else { ${cache} = value; ${loaded} = true; }`,
           "  }",
@@ -160,7 +181,7 @@ export function transformLosslessJsonData(
           `let ${cache}, ${loaded} = false;`,
           `function ${read}() {`,
           `  if (!${loaded}) {`,
-          `    ${cache} = JSON.parse(${JSON.stringify(json)});`,
+          `    ${cache} = ${decode};`,
           `    ${loaded} = true;`,
           "  }",
           `  return ${cache};`,
@@ -189,7 +210,7 @@ export function transformLosslessJsonData(
   }
   if (lazyFields === 0 && !packedPacket && !packedFields.length) return undefined;
   return {
-    code: `${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
+    code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,
     moduleType: "js",
   };

@@ -9,6 +9,8 @@ import northCity from "./data/northCityScopeV190.json";
 import named from "./data/namedScopeV194.json";
 import { airportsV194SolidAt, airportsV194NativeSolidAt } from "./airportsV194Navigation";
 import { westLakesV194WaterAt, westLakesV194SolidAt } from "./westLakesV194Navigation";
+import { teufelsbergStationV195SolidAt } from "./teufelsbergStationV195Navigation";
+import { drachenbergLawnGroundAtV195 } from "./DrachenbergLawnV195";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
 export function createOuterThinOutlines(
@@ -22,9 +24,12 @@ export function createOuterThinOutlines(
   // Keep detailed navigation in this lazy supplement, out of the startup bundle.
   root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
     (activeMode === "minecraft" ? airportsV194NativeSolidAt : airportsV194SolidAt)(x, y, z, radius) ||
-    westLakesV194SolidAt(x, y, z, radius, activeMode === "minecraft");
+    westLakesV194SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    teufelsbergStationV195SolidAt(x, y, z, radius, activeMode === "minecraft");
   root.userData.waterAt = (x: number, z: number) =>
     westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null;
+  root.userData.groundAt = (x: number, z: number) =>
+    drachenbergLawnGroundAtV195(x, z, activeMode === "minecraft");
   const positions = new Float32Array(data.positions);
   for (let i = 0; i < positions.length; i += 3) {
     positions[i + 1] += terrainGroundAt(positions[i], positions[i + 2], 3, false) - 3;
@@ -85,6 +90,8 @@ export function createOuterThinOutlines(
   root.add(rail);
   const landmarks = createOutlineLandmarksV182(mode, beforeLandmarkRelease);
   root.add(landmarks);
+  root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
+    root.visible && landmarks.userData.update(timestamp, camera, reducedMotion);
   root.userData.setMode = (next: VisualMode) => {
     landmarks.userData.setMode(next);
     activeMode = next;

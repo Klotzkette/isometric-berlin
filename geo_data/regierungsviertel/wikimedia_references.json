@@ -7326,6 +7326,51 @@
       "credit": "Avda / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "teufelsberg-station-v195",
+      "title": "Aufgelassene Station am Teufelsberg in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Aufgelassene_Station_am_Teufelsberg_in_Berlin.jpg",
+      "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Aufgelassene_Station_am_Teufelsberg_in_Berlin.jpg/960px-Aufgelassene_Station_am_Teufelsberg_in_Berlin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "width": 5984,
+      "height": 3376,
+      "mime": "image/jpeg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Besserwisser123",
+      "credit": "Own work",
+      "description": "Aufgelassene Station am Teufelsberg in Berlin",
+      "use": "External visual reference only: five radome silhouette, main tower open frame, spherical panel rhythm and material colours. No photo pixels or street-art copies bundled."
+    },
+    {
+      "landmark_id": "teufelsberg-station-v195",
+      "title": "Teufelsberg-Berlin-msu-2023-0I9A-3442-.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Teufelsberg-Berlin-msu-2023-0I9A-3442-.jpg",
+      "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Teufelsberg-Berlin-msu-2023-0I9A-3442-.jpg/960px-Teufelsberg-Berlin-msu-2023-0I9A-3442-.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "width": 5985,
+      "height": 3990,
+      "mime": "image/jpeg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Matthias Süßen",
+      "credit": "Own work",
+      "description": "Teufelsberg listening station",
+      "use": "External visual reference only: five radome silhouette, main tower open frame, spherical panel rhythm and material colours. No photo pixels or street-art copies bundled."
+    },
+    {
+      "landmark_id": "teufelsberg-station-v195",
+      "title": "Teufelsberg during sunset from Drachenberg in Berlin 2024-03-08 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Teufelsberg_during_sunset_from_Drachenberg_in_Berlin_2024-03-08_01.jpg",
+      "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Teufelsberg_during_sunset_from_Drachenberg_in_Berlin_2024-03-08_01.jpg/960px-Teufelsberg_during_sunset_from_Drachenberg_in_Berlin_2024-03-08_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "width": 8368,
+      "height": 5584,
+      "mime": "image/jpeg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Leonhard Lenz",
+      "credit": "Own work",
+      "description": "Tower on the Teufelsberg seen from the Drachenberg in Berlin.",
+      "use": "External visual reference only: five radome silhouette, main tower open frame, spherical panel rhythm and material colours. No photo pixels or street-art copies bundled."
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

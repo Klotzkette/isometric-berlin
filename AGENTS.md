@@ -115,6 +115,19 @@ and the 93-place tour. Only documented exact coarse owners may be substituted
 with their complete source sheets. No rectangular district fill, new runtime
 residency budget or reduced mobile quality is authorized by this supplement.
 
+The owner's v1.0.95 request additionally permits a bounded finer official-DGM
+reading of Teufelsberg and Drachenberg within the existing Grunewald coverage,
+the former listening station with source-bound tower/radome recognition, and
+four illustrative kite fliers on the mapped Drachenberg lawn. Preserve source
+XZ courses, unrelated detail and the 93-place tour. Only named station proxies
+may be replaced by documented complete source owners; altitude refinements must
+retain independently verifiable earlier terrain checkpoints. Kite motion shares
+the existing frame loop, bounded reusable buffers and offscreen/reduced-motion
+controls; it must not rebuild the city shadow atlas or raise residency budgets.
+The exact missing portion of mapped Drachenberg lawn way `15700939` may be
+added as a bounded ground supplement; the earlier wooded-area coverage omitted
+this part of the requested hill. Existing surfaces and paths remain intact.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

@@ -1,0 +1,107 @@
+{
+  "sourceSha256": "6c240b51eb29389d69bc3e88f7d320868d6df04370da1b201a9f05ce59070a57",
+  "parents": [
+    "DEBE04YY50003LxK",
+    "DEBE04YY50003R0E",
+    "DEBE04YY500039hM",
+    "DEBE04YY50003C8V",
+    "DEBE04YY50003EXf",
+    "DEBE04YY50003TaW"
+  ],
+  "sourceParts": 31,
+  "sourcePolygons": 528,
+  "radomeCorrections": [
+    {
+      "part": "DEBE04YY50003LxK",
+      "name": "jambalaya",
+      "centre": [
+        -9020.994820785101,
+        94.9069999999995,
+        2236.457792430083
+      ],
+      "radius": 2.623000000000502,
+      "baseY": 93.3,
+      "topY": 97.53
+    },
+    {
+      "part": "DEBE3Do1612aobdn",
+      "name": "southwest-roof",
+      "centre": [
+        -8950.277816336727,
+        108.16599999999978,
+        2131.254947311996
+      ],
+      "radius": 8.356000000000222,
+      "baseY": 101.763,
+      "topY": 116.522
+    },
+    {
+      "part": "DEBE3Dzgko2S0Kvv",
+      "name": "search",
+      "centre": [
+        -8999.402491585513,
+        102.84899999999979,
+        2204.2531215436056
+      ],
+      "radius": 7.626000000000204,
+      "baseY": 97.7,
+      "topY": 110.475
+    },
+    {
+      "part": "DEBE3DmU6tU10EOy",
+      "name": "central",
+      "centre": [
+        -8938.435690461178,
+        133.38949999999997,
+        2115.1152786892762
+      ],
+      "radius": 8.34050000000002,
+      "baseY": 129.2,
+      "topY": 141.73
+    },
+    {
+      "part": "DEBE3DG1NfRpQ1id",
+      "name": "northeast-roof",
+      "centre": [
+        -8919.040027655914,
+        108.26349999999962,
+        2110.771196456196
+      ],
+      "radius": 8.296500000000378,
+      "baseY": 101.763,
+      "topY": 116.56
+    }
+  ],
+  "replacedOwners": [
+    "OSM-way-76127530",
+    "OSM-way-119731062",
+    "OSM-way-132725795",
+    "OSM-way-132726415",
+    "OSM-way-132726416",
+    "OSM-way-132725799",
+    "OSM-way-132725804",
+    "OSM-way-165636821",
+    "OSM-way-132725788",
+    "OSM-way-135767667",
+    "OSM-way-132725808",
+    "OSM-way-92007059",
+    "OSM-way-132725787",
+    "OSM-way-132725793",
+    "OSM-way-132725792",
+    "OSM-way-132725791",
+    "OSM-way-132726413",
+    "OSM-way-76127891",
+    "OSM-way-165637940",
+    "OSM-way-165637941",
+    "OSM-way-269298187",
+    "OSM-way-269298197",
+    "OSM-way-1443745217"
+  ],
+  "counts": {
+    "triangles": 5866,
+    "lines": 4264,
+    "boxes": 800,
+    "nativeBlocks": 3029
+  },
+  "displayEstimates": "Panel topology, spherical cap curvature, intermediate platform/cap base heights, core and member sections, material shades and remnant cladding are bounded display estimates. Source centres, maximum heights and all other measured sheets remain authoritative."
+}

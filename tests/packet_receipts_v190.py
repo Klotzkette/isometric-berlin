@@ -135,6 +135,22 @@ def audited_v190_changes() -> tuple[dict, list]:
     else:
       assert previous[key[0]][key[1]]["sha256"] == before
       changes[key] = (before, after)
+  # Local v195 refinement starts at the exact immutable v194 output of these
+  # same families. Companions retain their identity and strict geometry budget.
+  from packet_receipts_v195 import audited_v195_changes
+
+  next_changes, next_companions = audited_v195_changes()
+  companion_by_id = {d["id"]: d for d in companions}
+  for key, (before, after) in next_changes.items():
+    if key[0] in companion_by_id:
+      assert companion_by_id[key[0]][key[1]]["sha256"] == before
+    else:
+      original, intermediate = changes[key]
+      assert intermediate == before
+      changes[key] = (original, after)
+  replacements = {d["id"]: d for d in next_companions}
+  assert set(replacements) <= set(companion_by_id)
+  companions = [replacements.get(d["id"], d) for d in companions]
   return changes, companions
 
 

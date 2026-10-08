@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.95 — Teufelsberg and Drachenberg
+
+- Refine both hills against official terrain samples while retaining existing source detail.
+- Add the former Teufelsberg listening station with distinct towers and radomes.
+- Add four Drachenberg kite fliers, six visible tethers and colourful moving ribbon tails.
+- Keep animation bounded and inactive offscreen, in hidden views and with reduced motion.
+- Restore the exact omitted Drachenberg lawn and crossing path with matching walking heights.
+- Losslessly compress six lazy model/terrain arrays, retaining exact values and the existing download-size limit.
+
 ## v1.0.94 — Kreuzberg, airports, Tegel and western lakes
 
 - Correct the Kreuzberg cascade against retained terrain and refine the Nationaldenkmal.
