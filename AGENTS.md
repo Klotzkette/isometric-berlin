@@ -72,6 +72,18 @@ and preserve bounded serial chunk delivery. Complete named Steglitz hero models
 may replace only their documented matching new generic owners/overlap in
 `steglitz-v182-exclusions.geojson`; retain the complete source inventory.
 
+The owner's 7 October v1.0.83 request additionally permits the finite southern
+Steglitz–Schöneberg–Südkreuz infill, Charlottenburg-palace and Treptowers/Molecule
+Man context recorded in `bounds-city-v183.geojson` and `docs/city-coverage-v183.md`.
+Only the 10.048 km² outside earlier scopes is added. Existing terrain, source
+inventories and the tour remain retained. The named v183 station/department-store
+models may substitute only their audited exact prior generic owners, with their
+complete source sheets retained in the dedicated models; unrelated packets and
+park/water/courtyard voids must remain intact. Fritz-Schloß-Park receives its own
+bounded official DGM field. Other named courts, facades, sculpture and gallery
+changes are bounded recognition refinements with explicit measured/estimated
+provenance, not authorization for an unbounded detail expansion.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

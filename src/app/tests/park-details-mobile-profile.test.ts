@@ -15,6 +15,7 @@ import {
   createParkDetails,
   decodeTrees,
   smoothParkPathPoints,
+  refineCoreParkPathPoints,
 } from "../src/ParkDetails";
 
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
@@ -34,7 +35,7 @@ type ParkGeometryBudget = {
   vertices: number;
 };
 
-const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+const FULL_BUDGET_BEFORE_MEASURED_HILLS: ParkGeometryBudget = {
   geometryBytes: 6_209_918,
   instanceBytes: 33_793_136,
   instances: 450_029,
@@ -45,6 +46,15 @@ const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
   transparentMaterials: 1,
   triangles: 125_921,
   vertices: 165_423,
+};
+
+// Keep the old inventory budget and add only audited collinear hill samples:
+// v182 Humboldthain +6,752 vertices /256,576 B; v183 Fritz +4,756 /180,728 B.
+const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+  ...FULL_BUDGET_BEFORE_MEASURED_HILLS,
+  geometryBytes: FULL_BUDGET_BEFORE_MEASURED_HILLS.geometryBytes + 256_576 + 180_728,
+  triangles: FULL_BUDGET_BEFORE_MEASURED_HILLS.triangles + 6_752 + 4_756,
+  vertices: FULL_BUDGET_BEFORE_MEASURED_HILLS.vertices + 6_752 + 4_756,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
@@ -181,8 +191,8 @@ describe("coarse-pointer ParkDetails profile", () => {
 
     const paths = mobile.children.filter(child => child.name.endsWith("batched path ribbons")) as Mesh[];
     const expectedPathVertices = payload.paths.reduce((sum, path) => {
-      const points = smoothParkPathPoints(path).filter((point, index, entries) =>
-        index === 0 || Math.hypot(point.x - entries[index - 1].x, point.z - entries[index - 1].z) >= 0.05);
+      const points = refineCoreParkPathPoints(smoothParkPathPoints(path).filter((point, index, entries) =>
+        index === 0 || Math.hypot(point.x - entries[index - 1].x, point.z - entries[index - 1].z) >= 0.05));
       return sum + (points.length >= 2 ? points.length * 2 : 0);
     }, 0);
     expect(paths.reduce((sum, mesh) => sum + mesh.geometry.getAttribute("position").count, 0)).toBe(expectedPathVertices);

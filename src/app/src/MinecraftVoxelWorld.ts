@@ -1,3 +1,4 @@
+import { nationalgalerieV183Column } from "./neueNationalgalerieV183Profile";
 import { createMinecraftZionskirchplatzV175 } from "./ZionskirchplatzV175";
 import { createMinecraftBerlinWallMemorialV174 } from "./BerlinWallMemorialV174";
 import { berlinWallMemorialV174SourceColumn } from "./berlinWallMemorialV174Profile";
@@ -20,6 +21,7 @@ import { createMinecraftKosmosV166 } from "./KosmosV166";
 import { upbeatV166NativeAccents } from "./upbeatV166Details";
 import { createMinecraftAlexanderNorthV166 } from "./AlexanderNorthV166";
 import { alexanderNorthV166SourceColumn } from "./alexanderNorthV166Profile";
+import { alexanderStationsV183SourceColumn } from "./alexanderStationsV183Profile";
 import { createMinecraftCityWestCinemasV166 } from "./CityWestCinemasV166";
 import { cityWestCinemasV166SourceColumn } from "./cityWestCinemasV166Profile";
 import { createMinecraftMoabitJusticeV166 } from "./MoabitJusticeV166";
@@ -886,6 +888,7 @@ export function isCompleteRecognitionVoxelColumn(
   z: number,
 ): boolean {
   return (
+    nationalgalerieV183Column(x, z) ||
     isUlapQuarterColumn(x, z) ||
     isMoabitPrisonPortalVoxelColumn(x, z) ||
     isMoabitGuardHouseColumn(x, z) ||
@@ -3213,6 +3216,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !teehausRuinV168SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !tachelesV167SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !alexanderStationsV183SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !moabitJusticeV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !mitteHeritageV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

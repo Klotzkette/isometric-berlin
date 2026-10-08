@@ -5,6 +5,10 @@ explicitly requested v176 terrain placement. The live leaf/palette proof below
 checks every actual current source sheet at its rigid source-parent elevation.
 The v176 packet tests separately audit the complete terrain transformation
 against v175, including retained older details and terrain XZ coverage.
+The four bounded v183 owner substitutions are replayed byte-for-byte from v182
+before this older proof reads that immutable intermediate stage. Their complete
+source sheets and navigation are checked against v169 in the separate v183
+source test, while viewer tests exercise the replacement meshes and open halls.
 """
 
 from __future__ import annotations
@@ -23,6 +27,8 @@ import pytest
 import shapely
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
+from station_receipts_v183 import baseline as station_baseline
+from station_receipts_v183 import verified_station_replacements
 from test_city_refinements_v166 import (
   belongs_to_source,
   canonical,
@@ -102,13 +108,15 @@ def source_proof_parts(record):
   ]
 
 
-def packet(descriptor, mode, *, historical=False):
+def packet(descriptor, mode, *, historical=False, station_checkpoint=False):
   spec = descriptor[mode]
   blob = (
     subprocess.check_output(
       ["git", "show", f"v1.0.75:{(PACKETS / spec['url']).relative_to(ROOT)}"], cwd=ROOT
     )
     if historical
+    else station_baseline(PACKETS / spec["url"])
+    if station_checkpoint
     else (PACKETS / spec["url"]).read_bytes()
   )
   raw = gzip.decompress(blob)
@@ -385,6 +393,11 @@ def frozen_drawn_shade(points, rgb):
 
 def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(release):
   manifest, _, audit, source = release
+  station_rows, _ = verified_station_replacements()
+  station_checkpoint = {
+    c["id"]: c
+    for c in json.loads(station_baseline(PACKETS / "manifest.json"))["chunks"]
+  }
   core_drawn = read(DATA / "altMitteDrawnV169Source.json")
   core_native = read(DATA / "altMitteNativeV169Source.json")
   navigation = navigation_records()
@@ -544,6 +557,10 @@ def test_every_new_source_leaf_has_published_sheets_and_complete_navigation(rele
       continue
     for mode in ("drawn", "minecraft"):
       value = packet(descriptor, mode)
+      if mode in station_rows.get(descriptor["id"], {}).get("modes", {}):
+        value = packet(
+          station_checkpoint[descriptor["id"]], mode, station_checkpoint=True
+        )
       ox, _, oz = value["origin"]
       identity = descriptor.get("detailCompanionOf", descriptor["id"])
       if mode == "drawn":

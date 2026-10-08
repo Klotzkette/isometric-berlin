@@ -18,7 +18,9 @@ export function createSchlossEastOutlines(
   minecraft = false,
   profiles: readonly (typeof SCHLOSS_EAST_PROFILE_KEYS)[number][] = SCHLOSS_EAST_PROFILE_KEYS,
 ): Group {
-  const selected = new Set(profiles);
+  // v183 owns the same measured hall as a round barrel, transparent end
+  // aprons and open ribs. Its original source and the low station base remain.
+  const selected = new Set<(typeof SCHLOSS_EAST_PROFILE_KEYS)[number]>(profiles.filter(key => key !== "stationHall"));
   const hasTower = selected.has("fernsehturm");
   const root = new Group(); root.name = minecraft ? `Block-native ${SCHLOSS_EAST_GROUP_NAME}` : SCHLOSS_EAST_GROUP_NAME;
   root.userData = { textureFree: true, outlineOnly: true, originalSourceRetained: true,

@@ -98,7 +98,10 @@ describe("Gedächtniskirche source-preserving pedestrian passage", () => {
     const twice = compilePedestrianObstacles({ buildings: [source, source] });
     expect(twice.obstacleCount).toBe(once.obstacleCount);
     expect(twice.buildingCount).toBe(once.buildingCount);
-    expect(once.obstacleCount).toBe(4);
+    // Source-independent outer-city solids are present in every world. The
+    // church still contributes exactly its authored core and three wings.
+    const context = compilePedestrianObstacles({ buildings: [] });
+    expect(once.obstacleCount - context.obstacleCount).toBe(4);
   });
 
   test("blocks wall shells, the upper core and the low apse while leaving the memorial hall empty", () => {

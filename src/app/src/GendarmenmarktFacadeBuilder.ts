@@ -52,7 +52,7 @@ export class GendarmenmarktFacadeBuilder {
   private readonly size = new Vector3();
   private readonly rotation = new Quaternion();
 
-  constructor(readonly minecraft: boolean) {}
+  constructor(readonly minecraft: boolean, private readonly sillUndercut = false) {}
 
   box(position: Point, size: Point, color: number, yaw = 0, kind: Kind = "stone"): void {
     this.add(position, size, color, this.rotation.setFromAxisAngle(UP, yaw), kind);
@@ -102,6 +102,10 @@ export class GendarmenmarktFacadeBuilder {
       }
     } else this.face(edge, u, y, width, height, .12, glass, out, arched ? segmental ? "segmental-glass" : "arched-glass" : "glass");
     this.face(edge, u, y - height / 2 - .08, width + .30, .16, .32, trim, out + .06);
+    // A narrow recessed drip edge makes the source-aligned sill read in the
+    // unlit drawn modes too. Section/colour are display estimates (v183).
+    if (this.sillUndercut) this.face(edge, u, y - height / 2 - .18, width + .18, .045, .10,
+      0x79786e, out + .025);
     for (const side of [-1, 1]) this.face(edge, u + side * (width / 2 + .065),
       y - (arched ? height * rise / 2 : 0), .13, arched ? height * (1 - rise) : height, .18, trim, out + .03);
     if (arched) {

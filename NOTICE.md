@@ -17,6 +17,16 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Southern city and architectural refinement (v1.0.83):** Retained OSM
+  footprints/roads (ODbL-1.0), Berlin LoD2 and DGM1 (dl-de/zero-2-0) supply
+  bounded geometry and relief. Official museum, court, heritage and artist
+  descriptions guide recognition. Source disagreements and unmeasured facade,
+  roof and sculpture subdivisions remain explicitly documented estimates.
+  Freely licensed external reference photographs are credited in both Wikimedia
+  manifests; no new photographic pixels are shipped. See
+  [coverage](docs/city-coverage-v183.md), [courts](docs/justice-palace-v183.md),
+  [gallery and sculpture](docs/spree-nationalgalerie-v183.md).
+
 - **Ringbahn neighbourhoods, Steglitz and civic outlines (v1.0.82):** The retained
   29 September 2026 Geofabrik Berlin extract supplies OpenStreetMap footprints
   and road/path courses (ODbL-1.0); official Berlin LoD2 supplies measured

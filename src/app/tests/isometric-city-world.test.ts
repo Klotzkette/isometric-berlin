@@ -3,6 +3,9 @@ import { MOABIT_GUARD_HOUSE_SOURCE } from "../src/moabitGuardHouseProfile";
 import { describe, expect, test } from "bun:test";
 import { LEIPZIGER_SOURCE_PROFILES } from "../src/leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
+import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
+import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile";
+import { buildingAttributes, mappedStoreyProfile } from "../src/buildingAttributes";
 
 import {
   Box3,
@@ -755,6 +758,7 @@ describe("ligne-claire fenestration", () => {
     for (const prism of [...LEIPZIGER_SOURCE_PROFILES.flatMap(p => p.previous_display_prisms),
       ...POTSDAMER_MINISTRY_BUILDINGS.flatMap(p => p.previousDisplayPrisms),
       ...ULAP_QUARTER_PARTS.map(p => p.viewerPrism),
+      ...payload.buildings.filter(p => ALT_MITTE_V169_PRISM_IDS.has(p.id)),
       ...MOABIT_GUARD_HOUSE_SOURCE.houses.flatMap(h => h.parts.map(p => p.previous_prism))]) {
       for (const wall of facadeWallsOf(prism)) {
         const zone = plazaFacadeDetailZoneForWall(wall);
@@ -762,16 +766,16 @@ describe("ligne-claire fenestration", () => {
       }
     }
     const retained = (zone: string) => detailedWallCounts[zone] + (replacedWallCounts[zone] ?? 0);
-    expect(detailedWallCounts["Pariser Platz"]).toBeGreaterThan(100);
+    expect(retained("Pariser Platz")).toBeGreaterThan(100);
     expect(retained("Leipziger Platz")).toBeGreaterThan(200);
     // v1.0.11 moves ten BahnTower walls to its dedicated source facade;
     // v151 transfers a subset of those 238 qualifying walls to complete source models.
     expect(retained("Potsdamer Platz")).toBeGreaterThanOrEqual(238);
     expect(retained("Tilla-Durieux-Park")).toBeGreaterThan(200);
     expect(retained("Stresemannstraße")).toBeGreaterThan(150);
-    expect(detailedWallCounts["Wilhelmstraße"]).toBeGreaterThan(300);
+    expect(retained("Wilhelmstraße")).toBeGreaterThan(300);
     expect(
-      detailedWallCounts["Großer Tiergarten-Parkrand"],
+      retained("Großer Tiergarten-Parkrand"),
     ).toBeGreaterThan(250);
     // Eight harbour fronts moved to the dedicated source-bound
     // Humboldthafen/Heidestrasse models; v157 ULAP fronts now also have
@@ -798,8 +802,18 @@ describe("ligne-claire fenestration", () => {
     expect(attributeBytes - FACADE_AXIS_V07231_ATTRIBUTE_BYTES).toBeLessThanOrEqual(
       BUILDING_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES,
     );
-    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts).toBeGreaterThan(24_000);
-    expect(axes.userData.buildingDetailCoverage.mappedStoreyParts).toBeGreaterThan(9_500);
+    // The full source-backed Alt-Mitte models own their former generic
+    // facades since v169. v183 moves exactly eight former generic gallery
+    // envelopes to the open steel/glass model (separately geometry-tested).
+    const altMitteOwners = payload.buildings.filter(p => ALT_MITTE_V169_PRISM_IDS.has(p.id));
+    const galleryOwners = payload.buildings.filter(p => NATIONALGALERIE_V183_IDS.has(p.id));
+    expect(altMitteOwners).toHaveLength(5_427);
+    expect(galleryOwners).toHaveLength(8);
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length).toBe(21_896);
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(24_000);
+    const transferredStoreys = altMitteOwners.filter(p => mappedStoreyProfile(buildingAttributes(p.id), p.h_dm / 10));
+    expect(transferredStoreys).toHaveLength(1_550);
+    expect(axes.userData.buildingDetailCoverage.mappedStoreyParts + transferredStoreys.length).toBeGreaterThan(9_500);
     expect(axes.userData.buildingDetailCoverage.extraRenderables).toBe(0);
   });
 

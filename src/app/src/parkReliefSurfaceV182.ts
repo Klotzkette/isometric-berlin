@@ -1,7 +1,9 @@
 import { BufferAttribute, BufferGeometry } from "three";
-import relief from "./data/parkReliefV182.json";
+import { coreParkReliefSupports } from "./parkReliefV182";
 
-const bounds = relief.profiles.find(p => p.name === "Volkspark Humboldthain")!.support;
+const intersects = (xs: number[], zs: number[]) => coreParkReliefSupports.some(bounds =>
+  Math.max(...xs) >= bounds[0] - 16 && Math.min(...xs) <= bounds[2] + 16 &&
+  Math.max(...zs) >= bounds[1] - 16 && Math.min(...zs) <= bounds[3] + 16);
 
 /** Refine only hill triangles; all old vertices and outside faces remain exact. */
 export function refineCoreParkReliefSurface(source: BufferGeometry): BufferGeometry {
@@ -11,10 +13,8 @@ export function refineCoreParkReliefSurface(source: BufferGeometry): BufferGeome
   const affected = new Set<number>();
   for (let i = 0; i < count; i += 3) {
     const a = at(i), b = at(i + 1), c = at(i + 2);
-    if (Math.max(position.getX(a), position.getX(b), position.getX(c)) < bounds[0] - 16 ||
-        Math.min(position.getX(a), position.getX(b), position.getX(c)) > bounds[2] + 16 ||
-        Math.max(position.getZ(a), position.getZ(b), position.getZ(c)) < bounds[1] - 16 ||
-        Math.min(position.getZ(a), position.getZ(b), position.getZ(c)) > bounds[3] + 16) continue;
+    if (!intersects([position.getX(a), position.getX(b), position.getX(c)],
+      [position.getZ(a), position.getZ(b), position.getZ(c)])) continue;
     affected.add(i);
   }
   if (!affected.size) return source;
@@ -36,8 +36,7 @@ export function refineCoreParkReliefSurface(source: BufferGeometry): BufferGeome
     while (stack.length) {
       const t = stack.pop()!;
       const xs = t.map(n => points[n * 3]), zs = t.map(n => points[n * 3 + 2]);
-      if (Math.max(...xs) < bounds[0] - 16 || Math.min(...xs) > bounds[2] + 16 ||
-          Math.max(...zs) < bounds[1] - 16 || Math.min(...zs) > bounds[3] + 16) {
+      if (!intersects(xs, zs)) {
         faces.push(...t); continue;
       }
       const lengths = [0, 1, 2].map(j => (xs[j] - xs[(j + 1) % 3]) ** 2 + (zs[j] - zs[(j + 1) % 3]) ** 2);

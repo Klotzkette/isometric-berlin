@@ -1,8 +1,15 @@
 import relief from "./data/parkReliefV182.json";
+import fritz from "./data/parkReliefV183.json";
+
+const profiles = [...relief.profiles, ...fritz.profiles];
+export const coreParkReliefSupports = [
+  relief.profiles.find(p => p.name === "Volkspark Humboldthain")!.support,
+  ...fritz.profiles.map(p => p.support),
+];
 
 /** Same 10m official DGM triangles as the offline park packet splitter. */
 export function parkReliefAt(x: number, z: number, baseline = 3, native = false): number {
-  for (const profile of relief.profiles) {
+  for (const profile of profiles) {
     const [west, north, east, south] = profile.support;
     if (x <= west || x >= east || z <= north || z >= south) continue;
     if (native) { x = Math.floor(x / 4) * 4 + 2; z = Math.floor(z / 4) * 4 + 2; }
@@ -18,7 +25,7 @@ export function parkReliefAt(x: number, z: number, baseline = 3, native = false)
   return baseline;
 }
 
-const coreRelief = relief.profiles.find(p => p.name === "Volkspark Humboldthain")!.support;
 export function coreParkReliefContains(x: number, z: number): boolean {
-  return x >= coreRelief[0] - 16 && x <= coreRelief[2] + 16 && z >= coreRelief[1] - 16 && z <= coreRelief[3] + 16;
+  return coreParkReliefSupports.some(support => x >= support[0] - 16 && x <= support[2] + 16 &&
+    z >= support[1] - 16 && z <= support[3] + 16);
 }

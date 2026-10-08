@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from relief_receipts_v183 import restore_v183_altitudes
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -16,6 +18,7 @@ def digest(value: object) -> str:
 
 def restore_recorded_altitudes(value: object, filename: str) -> object:
   """Reject any unrecorded change; don't widen the old global height bounds."""
+  value = restore_v183_altitudes(value, filename)
   receipts = json.loads(
     (ROOT / "geo_data/regierungsviertel/derived-provenance-v182.json").read_bytes()
   )["altitudeReceipts"]

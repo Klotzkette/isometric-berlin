@@ -18,7 +18,11 @@ describe("v164 measured architecture pedestrian integration",()=>{
     let mode:VisualMode="day";
     const index=compilePedestrianObstacles(prisms,()=>mode);
     const objects=[...new Set([...index.cells.values()].flat())];
-    expect(index.buildingCount).toBe(18);expect(objects).toHaveLength(18);
+    const context=compilePedestrianObstacles({buildings:[]},()=>mode);
+    const contextIds=new Set([...context.cells.values()].flat().map(o=>o.sourceId));
+    expect(index.buildingCount).toBe(18);
+    expect(objects.filter(o=>!contextIds.has(o.sourceId))).toHaveLength(18);
+    expect(objects.filter(o=>contextIds.has(o.sourceId))).toHaveLength(context.obstacleCount);
     for(const p of prisms.buildings)expect(objects.some(o=>o.sourceId===p.id)).toBe(false);
     for(const part of cafe.parts){const obstacle=objects.find(o=>o.sourceId===part.id);expect(obstacle?.kind).toBe("polygon");if(obstacle?.kind==='polygon')expect(obstacle.holes).toEqual(part.holes);}
     const ca=objects.find(o=>o.sourceId===cafe.parts[0].id)!;
@@ -29,7 +33,7 @@ describe("v164 measured architecture pedestrian integration",()=>{
       if(sp.kind==='polygon')expect(sp.topAt?.(sx,sz)).toBe(spanishEmbassyV164RoofAt(sx,sz,m==='minecraft'));
     }
     const unrelated=compilePedestrianObstacles({buildings:[{id:"unrelated",ring:[[0,0],[20,0],[20,20],[0,20]],holes:[],y0_dm:52,h_dm:40,class:0}]});
-    expect(unrelated.buildingCount).toBe(1);expect(unrelated.obstacleCount).toBe(1);
+    expect(unrelated.buildingCount).toBe(1);expect(unrelated.obstacleCount-context.obstacleCount).toBe(1);
   });
   test("each descending stair takes precedence over the former ground surface",()=>{
     const env=createPedestrianEnvironment(ground,{water:[]},null,prisms);

@@ -218,3 +218,11 @@ replaced, with exact ownership/overlap recorded and source evidence retained.
 The additive 512 m packets use the existing bounded serial delivery queue.
 See [scope, source inventory and delivery evidence](ring-city-v182.md) and
 [Steglitz model ownership](steglitz-v182.md).
+
+## v1.0.83 bounded southern and landmark context
+
+The owner explicitly requested the remaining Steglitz–Schöneberg–Südkreuz
+connection and Charlottenburg palace/Treptowers context. `bounds-city-v183.geojson`
+records the finite addition (10.048 km² outside the retained scopes). See
+[coverage and exact inventory](city-coverage-v183.md); this does not fill real
+parks, rivers, courtyards or railway grounds with invented buildings.

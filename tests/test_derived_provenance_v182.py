@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 from relief_receipts_v182 import digest, restore_recorded_altitudes
+from relief_receipts_v183 import restore_v183_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 RECEIPTS = json.loads(
@@ -15,7 +16,9 @@ RECEIPTS = json.loads(
 def test_provenance_refresh_has_no_geometry_changes_from_v181() -> None:
   assert len(RECEIPTS["tables"]) == 6
   for receipt in RECEIPTS["tables"]:
-    current = json.loads((ROOT / receipt["file"]).read_bytes())
+    current = restore_v183_metadata(
+      json.loads((ROOT / receipt["file"]).read_bytes()), receipt["file"]
+    )
     previous = json.loads(
       subprocess.check_output(
         ["git", "show", f"v1.0.81:{receipt['file']}"],

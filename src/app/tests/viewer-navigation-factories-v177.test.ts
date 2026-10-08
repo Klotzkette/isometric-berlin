@@ -81,6 +81,7 @@ for (const native of [false, true]) {
 test("district path factory keeps steps, portals, out-of-scope paths and original higher surfaces", () => {
   const prepare = factory("prepareDistrictPathTerrain", {
     districtStreetTerrainSampler: () => () => 12,
+    createCoreParkPathTerrainSampler: () => (_path: unknown, _x: number, _z: number, sourceY: number) => sourceY,
     createTunnelPortalApproachTester: () => (_x: number, z: number) => z === 0,
     districtPathMayFollowTerrain: (id: string) => id === "mapped",
     pointInDistrictStreetScope: (x: number) => x > 0,

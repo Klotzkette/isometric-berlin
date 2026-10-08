@@ -63,7 +63,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # extracted release is 542,897,262 bytes (517.75 MiB); the finite 525 MiB ceiling
 # leaves 7.25 MiB headroom. See docs/ring-city-v182.md. This archive-only allowance
 # changes no live packet/decode/GPU residency budget or source-detail policy.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 525 * 1024 * 1024
+# v183 adds 13,839,006 bytes of finite southern-city source packets/inventory
+# plus bounded recognition modules and relief metadata. Measured extracted
+# package: 561,874,058 bytes (535.84 MiB); 540 MiB leaves 4.16 MiB headroom.
+# This affects only the downloadable archive, never live rendering budgets.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 540 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

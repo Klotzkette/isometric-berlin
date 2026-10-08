@@ -6804,6 +6804,86 @@
       "credit": "Colin Smith, Rathaus Steglitz (Steglitz Town Hall), 1 August 2012, Wikimedia Commons / Geograph Deutschland. CC BY-SA 2.0. External visual QA for red brick, roof and upper lantern/needle; no photographic pixels bundled.",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin Schloss Charlottenburg Gartenseite.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Schloss_Charlottenburg_Gartenseite.JPG",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Berlin_Schloss_Charlottenburg_Gartenseite.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "artist": "Times",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "landmark_id": "justice-palace-v183",
+      "use": "External visual reference, inspected at 960px; no pixels bundled",
+      "downloaded": false,
+      "inspected": "2026-10-07"
+    },
+    {
+      "title": "File:Landgericht Berlin Tegeler Weg.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Landgericht_Berlin_Tegeler_Weg.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/be/Landgericht_Berlin_Tegeler_Weg.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "artist": "Gerd Fahrenhorst",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "landmark_id": "justice-palace-v183",
+      "use": "External visual reference, inspected at 960px; no pixels bundled",
+      "downloaded": false,
+      "inspected": "2026-10-07"
+    },
+    {
+      "title": "File:Littenstraße Amtsgericht rechte Seite 0516.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Littenstra%C3%9Fe_Amtsgericht_rechte_Seite_0516.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Littenstra%C3%9Fe_Amtsgericht_rechte_Seite_0516.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "artist": "Dosseman",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "landmark_id": "justice-palace-v183",
+      "use": "External visual reference, inspected at 960px; no pixels bundled",
+      "downloaded": false,
+      "inspected": "2026-10-07"
+    },
+    {
+      "title": "File:Turmstr B-Moabit Kriminalgericht 07-2014.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Turmstr_B-Moabit_Kriminalgericht_07-2014.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Turmstr_B-Moabit_Kriminalgericht_07-2014.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "artist": "A.Savin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "landmark_id": "justice-palace-v183",
+      "use": "External visual reference, inspected at 960px; no pixels bundled",
+      "downloaded": false,
+      "inspected": "2026-10-07"
+    },
+    {
+      "title": "File:Molecule-Man-sculpture-Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Molecule-Man-sculpture-Berlin.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Molecule-Man-sculpture-Berlin.jpg",
+      "artist": "KK nationsonline (Klaus Kästle)",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "landmark_id": "molecule-man-v183",
+      "use": "External visual reference inspected at 960px; no pixels bundled",
+      "downloaded": false,
+      "inspected": "2026-10-07"
+    },
+    {
+      "title": "File:Berlin - Berolinahaus (3).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Berolinahaus_(3).jpg",
+      "artist": "Fred Romero",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "Fred Romero, Berlin - Berolinahaus, 17 August 2016, Wikimedia Commons / Flickr, CC BY 2.0. Paired office windows, limestone grid, glazed gallery and open roof rail guide independently authored geometry; no pixels or textures bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin - Haus des Lehrers.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Haus_des_Lehrers.jpg",
+      "artist": "Fred Romero",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "Fred Romero, Berlin - Haus des Lehrers, 17 August 2016, Wikimedia Commons / Flickr, CC BY 2.0. Hermann Henselmann's building and Walter Womacka's Unser Leben frieze inform the curtain-wall and broad colour-band reading. Mural detail is an independently authored coarse colour rhythm, not a photograph, traced figure or image reproduction.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

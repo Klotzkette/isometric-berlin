@@ -3,12 +3,14 @@ import { Color, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, Raycaster,
 import {
   createDistantBuildingShells, createIsometricCity, setIsoNightPresentation,
   ROOF_GABLED, ROOF_HIPPED, ROOF_SHED, ROOF_TENT,
-  type PrismBuilding, type PrismPayload,
+  type PrismBuilding, type PrismPayload, PRISM_SUPPRESSED_IDS,
 } from "../src/IsometricCityWorld";
 import { deserializeTransferredObject3D, serializeObject3DForTransfer } from "../src/transferableObject3D";
 import { resolveHumboldthafenPrism } from "../src/humboldthafenCourtyardProfile";
 import { potsdamerPanoramaMaterialFor } from "../src/potsdamerPanoramaPalette";
 import { HUMBOLDTHAFEN_BUILDING_IDS } from "../src/HumboldthafenBuildings";
+import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
+import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile";
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const fixture = (changes: Partial<PrismBuilding> = {}): PrismBuilding => ({
@@ -137,8 +139,22 @@ describe("complete distant building source envelopes", () => {
       triangles += mesh.geometry.index!.count / 3;
       mesh.geometry.dispose();
     }
-    expect(visible).toBeGreaterThan(28_000);
-    expect(courtyards).toBeGreaterThan(600);
+    // Alt-Mitte's 5,427 prior generic owners now live in its complete source
+    // packets. v183 additionally transfers exactly eight Nationalgalerie
+    // envelopes to the open hall model. Neither transfer deletes source parts.
+    expect(source.buildings).toHaveLength(29_818);
+    const altMitteOwners = source.buildings.filter(b => ALT_MITTE_V169_PRISM_IDS.has(b.id));
+    const galleryOwners = source.buildings.filter(b => NATIONALGALERIE_V183_IDS.has(b.id));
+    expect(altMitteOwners).toHaveLength(5_427);
+    expect(galleryOwners).toHaveLength(8);
+    expect(visible + galleryOwners.length).toBe(23_576); // b8dfab9 exact baseline
+    expect(visible + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(28_000);
+    // Other individually tested complete models also own source courtyards
+    // (e.g. the parliament, Ministry and Moabit families).
+    const dedicatedCourts = source.buildings.filter(b => PRISM_SUPPRESSED_IDS.has(b.id))
+      .reduce((sum, b) => sum + (b.holes?.length ?? 0), 0);
+    expect(courtyards).toBe(496);
+    expect(courtyards + dedicatedCourts).toBeGreaterThan(600);
     expect(retained).toBeLessThan(30 * 1024 * 1024);
     expect(vertices).toBeLessThan(1_300_000);
     expect(triangles).toBeLessThan(800_000);

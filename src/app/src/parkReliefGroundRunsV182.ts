@@ -1,6 +1,13 @@
-import relief from "./data/parkReliefV182.json";
+import { coreParkReliefSupports } from "./parkReliefV182";
+import fritz from "./data/parkReliefV183.json";
 
-const support = relief.profiles.find(profile => profile.name === "Volkspark Humboldthain")!.support;
+/** Exact v182 nearest ground samples around the new hill, before raising it. */
+export function originalFritzGroundAt(x: number, z: number, fallback: number): number {
+  const source = fritz.originalGround;
+  const col = Math.floor((x - source.origin[0]) / source.stepM);
+  const row = Math.floor((z - source.origin[1]) / source.stepM);
+  return source.yDm[row]?.[col] === undefined ? fallback : source.yDm[row][col] / 10;
+}
 // Every retained v1.0.81 run intersecting this support and its 16 m apron had
 // precisely this midpoint altitude. Keep it on unsplit/outside portions.
 export const PARK_RELIEF_ORIGINAL_CORE_Y = 5.2;
@@ -19,7 +26,14 @@ export function parkReliefGroundSlices(
   const { cell, minXIndex, minZIndex, strideCells } = options;
   const apron = cell * strideCells;
   const z = (minZIndex + zOffset + .5) * cell;
-  if (z < support[1] - apron || z > support[3] + apron) return null;
+  const support = coreParkReliefSupports.find(bounds => z >= bounds[1] - apron && z <= bounds[3] + apron &&
+    (minXIndex + xStart + run) * cell >= bounds[0] - apron &&
+    (minXIndex + xStart) * cell <= bounds[2] + apron);
+  if (!support) return null;
+  const isFritz = support === coreParkReliefSupports[1];
+  const oldTop = isFritz ? originalFritzGroundAt(
+    (minXIndex + xStart + run / 2) * cell, (minZIndex + zOffset) * cell,
+    options.nearest(xStart + run / 2, zOffset)) : PARK_RELIEF_ORIGINAL_CORE_Y;
   const first = Math.max(xStart, Math.ceil((support[0] - apron) / cell - minXIndex - .5));
   const end = Math.min(xStart + run, Math.floor((support[2] + apron) / cell - minXIndex - .5) + 1);
   if (first >= end) return null;
@@ -30,7 +44,7 @@ export function parkReliefGroundSlices(
     if (last && last.xStart + last.run === x && last.topY === y) last.run += count;
     else result.push({ xStart: x, run: count, topY: y });
   };
-  append(xStart, first - xStart, PARK_RELIEF_ORIGINAL_CORE_Y);
+  append(xStart, first - xStart, oldTop);
   for (let x = first; x < end; x++) {
     let y = options.nearest(x + .5, zOffset + .5);
     if (options.mode === "drawn") {
@@ -38,11 +52,11 @@ export function parkReliefGroundSlices(
         options.smooth(x, zOffset + 1), options.smooth(x + 1, zOffset + 1)];
       // Exact vector lawns/paths cover the backing. Its flat four-metre top
       // must never cut through the continuously sloping visible surface.
-      y = corners.every(v => Math.abs(v - PARK_RELIEF_ORIGINAL_CORE_Y) < 1e-8)
+      y = !isFritz && corners.every(v => Math.abs(v - PARK_RELIEF_ORIGINAL_CORE_Y) < 1e-8)
         ? PARK_RELIEF_ORIGINAL_CORE_Y : Math.min(...corners) - .2;
     }
     append(x, 1, y);
   }
-  append(end, xStart + run - end, PARK_RELIEF_ORIGINAL_CORE_Y);
+  append(end, xStart + run - end, oldTop);
   return result;
 }

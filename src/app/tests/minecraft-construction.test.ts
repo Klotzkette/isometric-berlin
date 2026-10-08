@@ -2,9 +2,9 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import baseline from "./fixtures/minecraft-world-synchronous-v169.json";
+import baseline from "./fixtures/minecraft-world-synchronous-v183.json";
 
-// Synchronous v169 measurements must equal cooperative construction below.
+// Synchronous v183 measurements must equal cooperative construction below.
 // Earlier fixtures remain frozen. The complete resident Alt-Mitte shells replace
 // only their exact source-owned old columns. This cumulative fixture proves
 // construction-path equality; separate source audits prove prior detail retention.

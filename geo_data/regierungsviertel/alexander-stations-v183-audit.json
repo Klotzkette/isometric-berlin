@@ -1,0 +1,162 @@
+{
+  "sourceIds": [
+    "DEBE00YY1TF0003o",
+    "DEBE01YYK00001Xy",
+    "DEBE01YYK00002iS",
+    "DEBE01YYK00003SW"
+  ],
+  "retainedCoreFacadeOwner": "DEBE01YYK00001QK",
+  "chunks": [
+    {
+      "id": "5_-1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "fe0741cbab026743e1b349e9200043bce836f325bc5eaba519fc10d483c86933",
+          "removedTriangles": 11026,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 90634,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "22a27e63a593c44276d7c1f8a41238c6aab83a668c3f345a7196f5eeb83497d1"
+        },
+        "minecraft": {
+          "oldSha256": "e337e8561770ade360f0cfec903497a6119e4a851c137144f39bdd9a59c660dc",
+          "removedTriangles": 12770,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 87781,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "5a2522cadfb4754dee24cdc5aeef8f37e2aa93a6b59916dc958baa98eb0bf419"
+        }
+      }
+    },
+    {
+      "id": "5_0",
+      "modes": {
+        "drawn": {
+          "oldSha256": "6a097b6c118db166fdb250b141920a63eca66a01d65abae9134eaf95a22c7fb1",
+          "removedTriangles": 5009,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 129082,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "6f725ee2d5b3c72eacd5cb535217ecd41ff3eca52a415255a5b6b935a98aaa62"
+        },
+        "minecraft": {
+          "oldSha256": "eacc5267be31194a6f2d89115c4e2580c06554b9ef16bd8dfc197a8e1d688c23",
+          "removedTriangles": 4336,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 120464,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "f329ed0770d887dcbe43adf5b129df2b3262899f001c7937ea5f61141ba88aa3"
+        }
+      }
+    },
+    {
+      "id": "6_-1",
+      "modes": {
+        "minecraft": {
+          "oldSha256": "52aa42a4c39a1c0a51c9d49875f5ea049feb4961663b0fd7464d6c68f022f08d",
+          "removedTriangles": 2,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 139740,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "710b20bee6428793545ff8e77bc28dcb1f4044933e8cb8e49c413ecb9f9fdd48"
+        }
+      }
+    },
+    {
+      "id": "6_0",
+      "modes": {
+        "drawn": {
+          "oldSha256": "157ee5084510fbc0012eb3c3abb52c38c1d07bbe752fb6e4019c78bb01572ecf",
+          "removedTriangles": 1842,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 119696,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "04236262dc7a773d06fb987de1220b2d70b2d7be1f704f5b9ebebc4e8124c480"
+        },
+        "minecraft": {
+          "oldSha256": "6da3cabec473d3004628365e03c05bd961173453df66518c7f888a5d4671daa4",
+          "removedTriangles": 1732,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 154682,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "295f56b066f456dd83b51e7839ca8da70d18f1d75963e7d0c17c33f107813435"
+        }
+      }
+    },
+    {
+      "id": "6_1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "925324158b58c4ae76d4506f43a6012197006ba079e90d9480fdb468fd84fa1a",
+          "removedTriangles": 1451,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 124955,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "9ea49f29b98da74d000badb5198cc9b18febbc0e626ef60964b8005b1b5ab7c3"
+        },
+        "minecraft": {
+          "oldSha256": "0f4234ba9c69fae88ae85235d6e5104573800985dc204b7317ee67274a1a3dd8",
+          "removedTriangles": 3912,
+          "removedSourceInkSegments": 0,
+          "preservedTriangles": 161546,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "e94bebbe27c8989dd68408f588b9ecb1a89c57b8286d95fbb7e417eafb75b56f"
+        }
+      }
+    },
+    {
+      "id": "5_-1-alt-mitte-v169-1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "295a76bcf29aa898bb1e4845a1a123d5e3ef5c44a7314013e437c8bc22c3efba",
+          "removedTriangles": 0,
+          "removedSourceInkSegments": 400,
+          "preservedTriangles": 0,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "a6d31c64bbd0afcba53b20db3149189efb2f28272605bee914cea95679ba8b1d"
+        }
+      }
+    },
+    {
+      "id": "5_0-alt-mitte-v169-1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "611e4eb0c70db02513a062967e8b5a9797eecf5431379a1b9cb5e2360388a32b",
+          "removedTriangles": 0,
+          "removedSourceInkSegments": 187,
+          "preservedTriangles": 0,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "31d2d36757fd60d41af549e7245a66ab4604ad9bd220ac7766dfeb40662a142b"
+        }
+      }
+    },
+    {
+      "id": "6_0-alt-mitte-v169-1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "2984ff3d9cf454cc3de943c9b40c7be5574b84dc586ef5b0444543342c8a352c",
+          "removedTriangles": 0,
+          "removedSourceInkSegments": 83,
+          "preservedTriangles": 0,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "93ed1bdc78e5e18f9a4c76feeba65903492f116623a5de5b691ce3ed283f685e"
+        }
+      }
+    },
+    {
+      "id": "6_1-alt-mitte-v169-1",
+      "modes": {
+        "drawn": {
+          "oldSha256": "83ba098541009a141c65fb7783a2a0e60bbbdf85964f38196c3d6f0a3aadeb93",
+          "removedTriangles": 0,
+          "removedSourceInkSegments": 140,
+          "preservedTriangles": 0,
+          "unrelatedGeometryPreserved": true,
+          "newSha256": "436735e076baebda92b8ba92ed0c37369148dc61a8c4e0de2ee20cb3c8b63d0a"
+        }
+      }
+    }
+  ],
+  "unrelatedGeometryPreserved": true,
+  "originalSourceRetained": "src/app/src/data/alexanderStationsV183Source.json"
+}

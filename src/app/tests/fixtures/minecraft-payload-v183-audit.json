@@ -1,0 +1,70 @@
+{
+  "priorCommit": "b8dfab9",
+  "method": "Independent synchronous payload-only construction in detached v1.0.82 worktree versus current v183; old v169/v174 fixtures remain unchanged.",
+  "sourceProofs": [
+    "tests/test_park_relief_v183.py",
+    "tests/test_park_relief_v182.py",
+    "src/app/tests/spree-nationalgalerie-v183.test.ts"
+  ],
+  "changes": {
+    "full": {
+      "Voxel ground runs": {
+        "before": {
+          "count": 181843,
+          "sha256": "bb242ced2b580ec93a336e719000674e69f9d13c6ae38f15cde0bbc768d39414"
+        },
+        "after": {
+          "count": 185228,
+          "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+        },
+        "countDelta": 3385
+      },
+      "Voxel facade windows": {
+        "before": {
+          "count": 1343607,
+          "sha256": "ae5c059af5c93a38ad9583536340703058251e2b2fab18b746cee74f9e1f9efe"
+        },
+        "after": {
+          "count": 1342584,
+          "sha256": "a1483454f043115058d7fb6ddcd922f0b2a808da25978386645883cdb47f831a"
+        },
+        "countDelta": -1023
+      },
+      "Voxel building columns": {
+        "before": {
+          "count": 1203456,
+          "sha256": "76d4755909155ef1db29b3b6b8f8f08a179167bd9642deb182523aa152cb0777"
+        },
+        "after": {
+          "count": 1202338,
+          "sha256": "eafaad62f181ccff360b204c889fafd99154aa786773909bc60efb2a6d30ed27"
+        },
+        "countDelta": -1118
+      }
+    },
+    "mobile": {
+      "Voxel ground runs": {
+        "before": {
+          "count": 181843,
+          "sha256": "bb242ced2b580ec93a336e719000674e69f9d13c6ae38f15cde0bbc768d39414"
+        },
+        "after": {
+          "count": 185228,
+          "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+        },
+        "countDelta": 3385
+      },
+      "Voxel building columns": {
+        "before": {
+          "count": 443047,
+          "sha256": "53ef65707f4f31bc849f94bf2515d69c84a81aa2416fa3997fc926b1fc7dd9c1"
+        },
+        "after": {
+          "count": 442540,
+          "sha256": "2f799b8b0e7d0fba8ed2aba38376be11fb64f8f4ba58842f5110765616f7efb3"
+        },
+        "countDelta": -507
+      }
+    }
+  }
+}

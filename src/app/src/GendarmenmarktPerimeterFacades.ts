@@ -72,6 +72,9 @@ function groundStorefront(b: Builder, edge: Edge, style: Style, top: number): vo
     } else b.window(edge, u, base + h * .48, pitch * .72, h * .8, style.trim, style.frame,
       style.glass, style.kind === "historic", .34);
     if (!b.minecraft) b.face(edge, u, base + h * .25, .09, h * .4, .1, style.frame, .48);
+    // Thin lower transoms differentiate the already-authored storefront frames
+    // without declaring a new door, entrance permission or tenant (v183).
+    b.face(edge, u, base + .65, pitch * .68, .10, .13, style.frame, .45);
   }
   b.face(edge, l / 2, top, l, .26, .45, style.trim, .31);
 }
@@ -305,9 +308,9 @@ export function createGendarmenmarktPerimeterFacades(minecraft = false): Group {
   const root = new Group();
   root.name = minecraft ? MINECRAFT_GENDARMENMARKT_PERIMETER_GROUP_NAME : GENDARMENMARKT_PERIMETER_GROUP_NAME;
   root.userData = { sourceBound: true, textureFree: true, fullAndMobileIdentical: true,
-    blockNative: minecraft, keepInMinecraft: minecraft, facadeOnly: true, photographsBundled: false };
+    blockNative: minecraft, keepInMinecraft: minecraft, facadeOnly: true, photographsBundled: false, refinementV183: "Recessed sill drip edges and storefront lower transoms on existing source facades" };
   for (const building of source.buildings) {
-    const style = gendarmenmarktFacadeStyle(building.key), builder = new Builder(minecraft);
+    const style = gendarmenmarktFacadeStyle(building.key), builder = new Builder(minecraft, true);
     const fronts = building.streetFronts.filter(edge => length(edge) > (building.key === "einstein" ? .29 : 1.7) && edge.wallTopY - edge.wallBaseY > 2.0);
     if (fronts.length === 0) continue;
     const base = Math.min(...fronts.map(edge => edge.wallBaseY));

@@ -29,6 +29,11 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "steglitzV182Source.json": ["surfaces", "boxes", "rods"],
   "steglitzV182Native.json": ["boxes"],
   "cityRecognitionV182.json": ["segments", "boxes"],
+  "justicePalaceV183.json": ["segments", "boxes", "roofTriangles"],
+  "justicePalaceV183Native.json": ["nativeRows"],
+  "scheunenFacadesV183.json": ["boxes"],
+  "scheunenFacadesV183Native.json": ["nativeRows"],
+  "alexanderStationsV183Source.json": ["profiles"],
 };
 
 // These arrays contain only a few records of already-packed base64 strings.

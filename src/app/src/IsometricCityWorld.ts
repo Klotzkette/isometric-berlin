@@ -1,3 +1,4 @@
+import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
@@ -974,6 +975,7 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...NATIONALGALERIE_V183_IDS,
   // The two mapped gate envelopes are replaced by an open concrete portal.
   ...MOABIT_PRISON_PORTAL_PRISM_IDS,
   // The complete source-outline theatre model restores the two-storey body,

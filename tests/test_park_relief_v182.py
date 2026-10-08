@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+from relief_receipts_v183 import restore_v183_altitudes
 
 from scripts.build_park_relief_v182 import original, sample
 
@@ -33,7 +34,12 @@ def test_core_geometry_and_old_sample_receipts_survive() -> None:
     path = ROOT / entry["file"]
     before = json.loads(original(path))
     after = json.loads(path.read_bytes())
-    heights = after["ground_height"]["y_dm"][:]
+    # Both payload families carry this identical terrain field; its strict
+    # field digest is recorded by the core-ground receipt, independently of
+    # the native tree-row receipt associated with minecraft-voxels.json.
+    heights = restore_v183_altitudes(after["ground_height"], "ground-context.json")[
+      "y_dm"
+    ][:]
     for index, old, new in entry["changedSamples"]:
       assert heights[index] == new
       heights[index] = old

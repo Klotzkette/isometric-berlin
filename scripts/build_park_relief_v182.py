@@ -69,7 +69,9 @@ def build_profiles() -> dict:
   parks = gpd.read_file(
     ROOT / "geo_data/regierungsviertel/raw/outer-v159/candidate.gpkg",
     layer="multipolygons",
-    where="name IN ('Viktoriapark','Volkspark Humboldthain','Volkspark Friedrichshain')",
+    where="name IN ("
+    + ",".join("'" + name.replace("'", "''") + "'" for name in NAMES)
+    + ")",
   ).to_crs(25833)
   specs, codes = [], set()
   for name in NAMES:
@@ -212,7 +214,7 @@ def patch_core(profiles: list[dict]) -> list[dict]:
   return audit
 
 
-def patch_core_objects(profiles: list[dict]) -> dict:
+def patch_core_objects(profiles: list[dict], audit_path: Path | None = None) -> dict:
   """Keep trees, paths and whole building parents attached to the new ground."""
   from shapely import STRtree
 
@@ -341,9 +343,9 @@ def patch_core_objects(profiles: list[dict]) -> dict:
     "placedParkCoordinates": prop_count,
     "bunkerConflict": "OSM way26763667 previously used a generic9m height at flat5.2m. The surviving north-half outline now has a42m display envelope from y13.4 to55.4, consistent with operator dimensions and the official DGM top. These are not surveyed building dimensions; the previous source is retained in v1.0.81 and the receipt above.",
   }
-  (ROOT / "geo_data/regierungsviertel/park-relief-v182-object-audit.json").write_bytes(
-    encode(report)
-  )
+  (
+    audit_path or ROOT / "geo_data/regierungsviertel/park-relief-v182-object-audit.json"
+  ).write_bytes(encode(report))
   return report
 
 

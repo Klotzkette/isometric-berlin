@@ -18,6 +18,7 @@ import { DOM_ALTES_ARTWORK_KEYS } from "../src/domAltesMuseumIds";
 import { ALTES_EQUESTRIAN_GROUPS } from "../src/domAltesMuseumProfile";
 import { PRISM_SUPPRESSED_IDS, setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { ALEXANDER_PUBLIC_REALM_OSM_KEYS } from "../src/alexanderPublicRealmProfile";
+import { BERLIN_WALL_MEMORIAL_V174_ARTWORK_KEYS } from "../src/berlinWallMemorialV174Profile";
 import { isCompleteRecognitionVoxelColumn } from "../src/MinecraftVoxelWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
@@ -312,7 +313,10 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     const alexanderOwned = externallyModelledKeys.filter(key => ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(key));
     expect(alexanderOwned).toEqual(["way/895523112"]);
     expect(renderedKeys).not.toContain("way/895523112");
-    expect(renderedKeys.length + alexanderOwned.length).toBeGreaterThanOrEqual(1_400);
+    // v174 also moved the Bernauer Straße work into its dedicated model.
+    const wallOwned = externallyModelledKeys.filter(key => BERLIN_WALL_MEMORIAL_V174_ARTWORK_KEYS.has(key));
+    expect(wallOwned).toHaveLength(1);
+    expect(renderedKeys.length + alexanderOwned.length + wallOwned.length).toBeGreaterThanOrEqual(1_400);
     expect(externallyModelledKeys).toContain("node/262455591");
     expect(renderedKeys).not.toContain("node/262455591");
     expect(externallyModelledKeys.length).toBeGreaterThan(0);

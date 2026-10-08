@@ -38,8 +38,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { partitionStaticSpatialInstancesSteps } from "./staticSpatialInstances";
 import { indexGeometryExactly } from "./exactGeometryIndex";
 import { completeCooperatively } from "./cooperativeWork";
-import { coreParkReliefContains } from "./parkReliefV182";
-import parkRelief from "./data/parkReliefV182.json";
+import { coreParkReliefContains, coreParkReliefSupports } from "./parkReliefV182";
 import {
   inPotsdamerPanoramaLandscape,
   POTSDAMER_PANORAMA_LANDSCAPE,
@@ -884,12 +883,14 @@ export function smoothParkPathPoints(path: ParkPath): Vector3[] {
   return smoothed;
 }
 
-const humboldthainSupport = parkRelief.profiles.find(profile => profile.name === "Volkspark Humboldthain")!.support;
-
 /** Refine only the hill interval of existing chords; keep their exact XZ trace. */
 export function refineCoreParkPathPoints(points: Vector3[]): Vector3[] {
+  return coreParkReliefSupports.reduce((result, support) => refineParkPathInterval(result, support), points);
+}
+
+function refineParkPathInterval(points: Vector3[], support: number[]): Vector3[] {
   if (points.length < 2) return points;
-  const [west, north, east, south] = humboldthainSupport;
+  const [west, north, east, south] = support;
   const refined = [points[0]];
   for (let index = 1; index < points.length; index++) {
     const a = points[index - 1], b = points[index];

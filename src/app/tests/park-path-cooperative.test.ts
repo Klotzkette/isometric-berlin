@@ -20,12 +20,22 @@ const terrainAt: ParkPathTerrainAt = (path, x, z, y) =>
 // Humboldthain chord subdivision. park-path-relief-v182.test.ts proves retained
 // endpoints/XZ traces and unchanged inputs in every other district. The 6,752
 // added vertices are terrain samples, not replacement or simplified routes.
-const originalProductionPathAudit = {
+const productionPathAuditV182 = {
   hash: "39292f01ec8781b84a9cdc3a2d1b29d896c172a52d56a8a60d235cc16dd28366",
   budget: { bytes: 3490500, draws: 11, instances: 0, vertices: 92952 },
 };
 
-test("synchronous and cooperative paths preserve the complete v182 production buffers", async () => {
+// The independent v183 receipts retain every v182 XZ anchor and inventory item.
+// Fritz-Schloss-Park adds 4,756 collinear path samples / 180,728 bytes, with
+// unchanged materials and draw calls; synchronous/cooperative output is exact.
+const originalProductionPathAudit = {
+  hash: "d58f1a97cb6cfacad63e88b39f42cf7f3622caa6aa80fcae59957f53e1478e1a",
+  budget: { ...productionPathAuditV182.budget,
+    bytes: productionPathAuditV182.budget.bytes + 180_728,
+    vertices: productionPathAuditV182.budget.vertices + 4_756 },
+};
+
+test("synchronous and cooperative paths preserve the complete v183 production buffers", async () => {
   const synchronous = createParkDetails(pathPayload, { pathTerrainAt: terrainAt });
   expect(staticGeometryAudit(synchronous)).toEqual(originalProductionPathAudit);
   let tasks = 0;

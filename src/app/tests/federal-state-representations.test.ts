@@ -9,6 +9,7 @@ import {
 } from "three";
 
 import { createExpandedCityDetails } from "../src/ExpandedCityDetails";
+import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
 import {
   FEDERAL_STATE_REPRESENTATION_FALLBACK_SUPPRESSION_IDS,
   FEDERAL_STATE_REPRESENTATION_SOURCE_REGISTRY,
@@ -161,7 +162,11 @@ describe("federal-state representations", () => {
     for (const id of FEDERAL_STATE_REPRESENTATION_FALLBACK_SUPPRESSION_IDS) {
       expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
     }
-    expect(PRISM_SUPPRESSED_IDS.has("15792001")).toBe(false);
+    // v169 owns this unrelated old OSM shell; it is not a federal-state
+    // suppression. Its complete source model is tested in the Alt-Mitte suite.
+    expect(FEDERAL_STATE_REPRESENTATION_FALLBACK_SUPPRESSION_IDS).not.toContain("15792001");
+    expect(ALT_MITTE_V169_PRISM_IDS.has("15792001")).toBe(true);
+    expect(PRISM_SUPPRESSED_IDS.has("15792001")).toBe(true);
   });
 
   test("builds 13 inspectable, metrically placed recognition groups", () => {

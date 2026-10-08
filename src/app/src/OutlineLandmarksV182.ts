@@ -1,6 +1,13 @@
 import { BufferGeometry, Group, Material, Mesh } from "three";
 import { createSteglitzV182, createMinecraftSteglitzV182 } from "./SteglitzV182";
 import { createCityRecognitionV182 } from "./CityRecognitionV182";
+import { createJusticePalaceV183 } from "./JusticePalaceV183";
+import { createMinecraftJusticePalaceV183 } from "./MinecraftJusticePalaceV183";
+import { createNeueNationalgalerieV183 } from "./NeueNationalgalerieV183";
+import { createAlexanderStationsV183, createMinecraftAlexanderStationsV183 } from "./AlexanderStationsV183";
+import { createSpreeLandmarksV183 } from "./SpreeLandmarksV183";
+import { createScheunenFacadesV183 } from "./ScheunenFacadesV183";
+import { createMinecraftScheunenFacadesV183 } from "./MinecraftScheunenFacadesV183";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -33,6 +40,12 @@ export function createOutlineLandmarksV182(
       for (const material of materials) material.dispose();
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
       root.add(createCityRecognitionV182(nextNative));
+      root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
+      root.add(createNeueNationalgalerieV183(nextNative));
+      root.add(nextNative ? createMinecraftAlexanderStationsV183() : createAlexanderStationsV183());
+      root.add(createSpreeLandmarksV183(nextNative));
+      root.add(nextNative ? createMinecraftScheunenFacadesV183() : createScheunenFacadesV183());
+      for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }
     root.traverse(object => {

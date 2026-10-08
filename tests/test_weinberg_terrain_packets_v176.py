@@ -18,6 +18,8 @@ import pytest
 import shapely
 from shapely.geometry import MultiPoint, Polygon
 from shapely.ops import unary_union
+from station_receipts_v183 import baseline as station_baseline
+from station_receipts_v183 import verified_station_replacements
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -828,7 +830,7 @@ def _git_blob_hash(raw: bytes) -> str:
   return hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
 
 
-def _verified_park_relief_v182_files() -> set[str]:
+def _verified_park_relief_v182_files(station_files: set[str]) -> set[str]:
   """Allow later hill placement only with complete old-face/ink receipts.
 
   The v176 city remains the baseline. The later park operation uses v181,
@@ -849,7 +851,13 @@ def _verified_park_relief_v182_files() -> set[str]:
     )
     assert hashlib.sha256(raw).hexdigest() == row["baseSha256"]
     assert raw == _baseline(path)
-    before, after = _payload(raw, path), _payload(path.read_bytes(), path)
+    # A later exact owner substitution touches two already elevated source
+    # triangles in 6_-1. Its independent replay starts from this v182 result,
+    # so prove the older hill transformation against that immutable checkpoint.
+    current = (
+      station_baseline(path) if row["file"] in station_files else path.read_bytes()
+    )
+    before, after = _payload(raw, path), _payload(current, path)
     assert {k: v for k, v in before.items() if k not in {"meshes", "lines", "nav"}} == {
       k: v for k, v in after.items() if k not in {"meshes", "lines", "nav"}
     }
@@ -890,8 +898,13 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   descriptors = {entry["id"]: entry for entry in after["chunks"]}
   assert len(descriptors) == len(after["chunks"])
   assert old_descriptors.keys() <= descriptors.keys()
-  relief_files = _verified_park_relief_v182_files()
+  station_rows, station_files = verified_station_replacements()
+  relief_files = _verified_park_relief_v182_files(station_files)
   relief_ids = {Path(name).name.split(".")[0] for name in relief_files}
+  # This later operation starts at v182. These exact packets were untouched
+  # since the older Weinberg baseline, so the two preservation proofs chain.
+  for name in station_files - relief_files:
+    assert station_baseline(ROOT / name) == _baseline(ROOT / name)
   supplement = json.loads(
     (ROOT / "geo_data/regierungsviertel/ring-city-v182-manifest.json").read_bytes()
   )
@@ -899,9 +912,21 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   assert ring_descriptors and not (ring_descriptors.keys() & old_descriptors.keys())
   assert all(identity.startswith("ring182-") for identity in ring_descriptors)
   assert ring_descriptors.keys() <= descriptors.keys()
-  audited_files = {
-    row["file"] for row in current_terrain_audit["packets"]
-  } | relief_files
+  city_supplement = json.loads(
+    (ROOT / "geo_data/regierungsviertel/city-coverage-v183-manifest.json").read_bytes()
+  )
+  city_descriptors = {entry["id"]: entry for entry in city_supplement["chunks"]}
+  assert len(city_descriptors) == 67
+  assert not (
+    city_descriptors.keys() & (old_descriptors.keys() | ring_descriptors.keys())
+  )
+  assert all(identity.startswith("city183-") for identity in city_descriptors)
+  assert city_descriptors.keys() <= descriptors.keys()
+  audited_files = (
+    {row["file"] for row in current_terrain_audit["packets"]}
+    | relief_files
+    | station_files
+  )
   emitted = {
     name
     for row in current_terrain_audit["packets"]
@@ -913,7 +938,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   for identity, descriptor in descriptors.items():
     if identity in old_descriptors:
       previous = old_descriptors[identity]
-      if identity not in audited_outer | relief_ids:
+      if identity not in audited_outer | relief_ids | station_rows.keys():
         assert descriptor == previous
       else:
         assert {
@@ -921,6 +946,8 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
         } == {k: v for k, v in previous.items() if k not in {"drawn", "minecraft"}}
     elif identity in ring_descriptors:
       assert descriptor == ring_descriptors[identity]
+    elif identity in city_descriptors:
+      assert descriptor == city_descriptors[identity]
     else:
       parent = descriptors[descriptor["detailCompanionOf"]]
       assert descriptor["bounds"] == parent["bounds"]
@@ -943,6 +970,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
       if (
         identity not in old_descriptors
         and identity not in ring_descriptors
+        and identity not in city_descriptors
         and str(path.relative_to(ROOT)) not in emitted
       ):
         assert packet["meshes"] == []

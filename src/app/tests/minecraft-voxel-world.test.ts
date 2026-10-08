@@ -6,7 +6,10 @@ import { auditBernauerNativeDelta } from "./helpers/bernauerNativeDelta";
 import bernauerNavigation from "../src/data/berlinWallMemorialV174Navigation.json";
 import { berlinWallMemorialV174SourceColumn } from "../src/berlinWallMemorialV174Profile";
 
-const currentPayloadBaseline = {
+import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v183.json";
+// Frozen historical Bernauer audit stays independent of later park terrain and
+// the exact eight-envelope Nationalgalerie substitution.
+const bernauerBaseline = {
   full: { ...historicalPayloadBaseline.full, ...bernauerPayloadDelta.full },
   mobile: { ...historicalPayloadBaseline.mobile, ...bernauerPayloadDelta.mobile },
 };
@@ -115,7 +118,7 @@ describe("true voxel Minecraft world", () => {
     detailProfile: "mobile",
   });
 
-  test("v174 replaces exactly two Bernauer fallback bodies and preserves unrelated native buffers", () => {
+  test("v174 keeps its exact Bernauer audit and v183 preserves the current payload buffers", () => {
     const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, bernauerNavigation.legacyPrisms);
     expect(audit.sourceColumnsByPrism).toEqual(bernauerPayloadDelta.sourceColumnsByPrism);
     expect(audit.removedColumns).toHaveLength(bernauerPayloadDelta.removedSourceColumns);
@@ -137,11 +140,11 @@ describe("true voxel Minecraft world", () => {
         )).toBeNull();
       }
     }
-    expect(currentPayloadBaseline.full["Voxel facade windows"].count).toBe(
+    expect(bernauerBaseline.full["Voxel facade windows"].count).toBe(
       historicalPayloadBaseline.full["Voxel facade windows"].count - audit.panes.netRemoved,
     );
     for (const [profile, root] of [["full", world], ["mobile", mobileWorld]] as const) {
-      expect(currentPayloadBaseline[profile]["Voxel building columns"].count).toBe(
+      expect(bernauerBaseline[profile]["Voxel building columns"].count).toBe(
         historicalPayloadBaseline[profile]["Voxel building columns"].count - audit.removedColumnInstances[profile],
       );
       for (const [name, expected] of Object.entries(currentPayloadBaseline[profile])) {

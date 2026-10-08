@@ -1,0 +1,25 @@
+{
+  "source": "Wikimedia Commons, reference-only inspection on 2026-10-07",
+  "records": [
+    {
+      "title": "File:Berlin - Berolinahaus (3).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Berolinahaus_(3).jpg",
+      "artist": "Fred Romero",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "Fred Romero, Berlin - Berolinahaus, 17 August 2016, Wikimedia Commons / Flickr, CC BY 2.0. Paired office windows, limestone grid, glazed gallery and open roof rail guide independently authored geometry; no pixels or textures bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "title": "File:Berlin - Haus des Lehrers.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Haus_des_Lehrers.jpg",
+      "artist": "Fred Romero",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "Fred Romero, Berlin - Haus des Lehrers, 17 August 2016, Wikimedia Commons / Flickr, CC BY 2.0. Hermann Henselmann's building and Walter Womacka's Unser Leben frieze inform the curtain-wall and broad colour-band reading. Mural detail is an independently authored coarse colour rhythm, not a photograph, traced figure or image reproduction.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ]
+}

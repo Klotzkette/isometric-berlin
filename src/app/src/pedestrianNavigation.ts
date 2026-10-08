@@ -11,6 +11,7 @@ import { TACHELES_V167_PRISM_IDS, TACHELES_V167_PARTS, tachelesV167RoofAt } from
 import { monbijouBathV167WaterAt } from "./monbijouBathV167Profile";
 import { KOSMOS_V166_PARTS, kosmosV166RoofAt } from "./kosmosV166Profile";
 import { ALEXANDER_NORTH_V166_PRISM_IDS, ALEXANDER_NORTH_V166_PARTS, alexanderNorthV166RoofAt } from "./alexanderNorthV166Profile";
+import { ALEXANDER_STATIONS_V183_BUILDING_PARTS, ALEXANDER_STATIONS_V183_HALL_PART_IDS, ALEXANDER_STATIONS_V183_HALL_SOLIDS } from "./alexanderStationsV183Profile";
 import { CITYWEST_CINEMAS_V166_PRISM_IDS, CITYWEST_CINEMAS_V166_PARTS, cityWestCinemasV166RoofAt } from "./cityWestCinemasV166Profile";
 import { MOABIT_JUSTICE_V166_PRISM_IDS, MOABIT_JUSTICE_V166_PARTS, moabitJusticeV166RoofAt } from "./moabitJusticeV166Profile";
 import { MITTE_HERITAGE_V166_PRISM_IDS, MITTE_HERITAGE_V166_PARTS, mitteHeritageV166RoofAt } from "./mitteHeritageV166Profile";
@@ -1217,6 +1218,7 @@ export function compilePedestrianObstacles(
   }
   if (prisms.buildings.some(b => DHM_PRISM_IDS.has(b.id))) {
     for (const part of SCHLOSS_EAST_PARTS) {
+      if (ALEXANDER_STATIONS_V183_HALL_PART_IDS.has(part.id)) continue;
       if (FERNSEHTURM_PROFILE.sourcePartIds.includes(part.id) ||
           ALEXANDER_CIVIC_PARTS.some(p => p.id === part.id)) continue;
       addPolygonObstacle(index,part.ring,part.holes,part.ground_y_m,part.top_y_m,part.id,1,
@@ -1328,6 +1330,12 @@ export function compilePedestrianObstacles(
   for (const part of STEGLITZ_V182_PARTS) {
     addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2,
       part.id, 1, (x,z) => steglitzV182RoofAt(x,z,visualMode() === "minecraft"));
+  }
+  // The four outer replacements use their complete source bodies; halls use
+  // only represented platforms/deck/piers, retaining real transverse openings.
+  for (const part of [...ALEXANDER_STATIONS_V183_BUILDING_PARTS, ...ALEXANDER_STATIONS_V183_HALL_SOLIDS]) {
+    addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m,
+      part.id, 1, () => part.top_y_m);
   }
   // Register all complete new source parts once, including parents absent from
   // the old clipped prism catalogue; synthetic/partial test worlds stay local.
