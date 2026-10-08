@@ -346,8 +346,9 @@ def explicit_actions(page: Any, touch: bool, timeout: float) -> None:
     assert_pose(wait_ready(page, mode, timeout), expected)
   # Recovery is a real user control; on this open pavement the recent safe
   # checkpoint should keep the player in the immediate neighbourhood.
-  if touch and page.locator(".attribution.is-expanded").is_visible():
-    page.locator(".attribution-toggle").tap()
+  if page.locator(".sources-dialog").is_visible():
+    page.keyboard.press("Escape")
+    page.locator(".sources-dialog").wait_for(state="hidden")
   recovery = page.locator(".navigation-recovery-button")
   recovery.tap() if touch else recovery.click()
   page.wait_for_timeout(700)

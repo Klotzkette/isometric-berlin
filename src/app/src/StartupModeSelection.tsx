@@ -1,5 +1,6 @@
-import { CloudSnow, Moon, Sparkles, Sun, Waves } from "lucide-react";
+import { CloudSnow, Info, Moon, Sparkles, Sun, Waves } from "lucide-react";
 import { useState, type CSSProperties } from "react";
+import { SourcesDialog } from "./SourcesDialog";
 import type { Language } from "./localization";
 import type { VisualMode } from "./visualMode";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
@@ -21,6 +22,8 @@ export function StartupModeSelection({ initialMode, language, onLanguageChange, 
   backdropUrl: string;
 }) {
   const [mode, setMode] = useState(initialMode);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const sourcesLabel = language === "de" ? "Quellen & Lizenzen" : "Sources & licenses";
   return (
     <main className="startup-mode-selection" style={{
       "--viewer-static-backdrop-image": `url(${JSON.stringify(backdropUrl)})`,
@@ -50,7 +53,11 @@ export function StartupModeSelection({ initialMode, language, onLanguageChange, 
         <button className="startup-launch" type="submit">{language === "de" ? "Berlin starten" : "Start Berlin"}<span aria-hidden="true"> →</span></button>
         <p className="startup-selection-note">{language === "de" ? "Du kannst den Modus später jederzeit wechseln." : "You can switch modes at any time while exploring."}</p>
       </form>
-      <footer className="startup-selection-credit">© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia</footer>
+      <button type="button" className="sources-trigger startup-sources-trigger"
+        aria-label={sourcesLabel} aria-haspopup="dialog" onClick={() => setSourcesOpen(true)}>
+        <Info size={16} aria-hidden="true" /><span>{sourcesLabel}</span>
+      </button>
+      {sourcesOpen ? <SourcesDialog language={language} onClose={() => setSourcesOpen(false)} /> : null}
     </main>
   );
 }

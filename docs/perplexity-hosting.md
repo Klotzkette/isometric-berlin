@@ -50,19 +50,24 @@ app. `START-HERE.html` is a file-safe launch guide: it shows platform-specific
 instructions when double-clicked and redirects to `index.html` over HTTP,
 retaining query and hash. It contains no second renderer.
 
-## Attribution overlay
+## Source credits in the menu
 
 The OSM + Geoportal Berlin attribution string from
 [`../NOTICE.md`](../NOTICE.md), together with the required visual-reference
-credits, stays hard-coded in the viewer chrome. Do not strip it during hosting
-or packaging. Source geometry and licensing requirements are unchanged.
+credits, remains built into the viewer's **Quellen & Lizenzen / Sources & licenses**
+menu. The owner requested a clear initial screen: neither the boot screen nor
+the viewer opens the credits automatically. The complete panel is available
+from the start screen, desktop toolbar and mobile menu. Do not strip the
+notices or packaged per-file credits during hosting or packaging. Source
+geometry and licensing requirements are unchanged.
 
 ## Deploy checklist for a Perplexity agent
 
 1. Clone the repository and run `uv sync`; run `bun install` under `src/app/`.
 2. Run `cd src/app && bun run build` against the committed runtime assets.
 3. Serve `src/app/dist/` over HTTP and verify that the full isometric scene
-   loads, controls respond, all five visual modes work and attribution is visible.
+   loads, controls respond, all visual modes work and the source menu opens the
+   complete credits.
 4. Confirm that asset URLs remain relative and no flat-map tile requests occur.
 5. Deploy the complete `src/app/dist/` to the requested static-site target.
 6. Repeat the load, movement, mode-switch and attribution checks on the public

@@ -1308,8 +1308,14 @@ and mirrored in the packaged viewer attribution manifest.
 
 ## Required attribution
 
-Any public-facing deliverable (web viewer, exported PNGs in a published
-gallery, video clips, etc.) **must** display, at minimum:
+The web viewer retains the complete credits below in its built-in
+**Quellen & Lizenzen / Sources & licenses** panel, available from the start
+screen, desktop toolbar and mobile menu. As explicitly requested by the owner,
+the initial screen and viewer do not open this panel automatically. All per-file
+notices and licence records remain packaged unchanged.
+
+Exported PNGs in a published gallery, video clips and other standalone
+public-facing deliverables must display, at minimum:
 
 > © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
 
@@ -1324,7 +1330,8 @@ visual derivative, or published reference plate, also include the
 relevant per-file Wikimedia attribution and license notices from
 `geo_data/regierungsviertel/wikimedia_references.json`.
 
-When the Kindertransport memorial reconstruction is displayed, also display:
+When the Kindertransport memorial reconstruction is displayed, retain this
+credit in the viewer's source panel or visibly on standalone exports:
 
 > Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
 

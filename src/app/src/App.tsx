@@ -1,6 +1,7 @@
 import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
 import { StartupModeSelection } from "./StartupModeSelection";
+import { SourcesDialog } from "./SourcesDialog";
 import {
   ArrowDown,
   ArrowLeft,
@@ -218,9 +219,6 @@ const LazyThreeViewer = lazy(loadThreeViewerComponent);
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
-
-const ATTRIBUTION =
-  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)";
 
 const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Berlin Hauptbahnhof": "Hauptbahnhof",
@@ -922,16 +920,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     x: number;
     y: number;
   } | null>(null);
-  const [isAttributionOpen, setIsAttributionOpen] = useState(() => {
-    try {
-      const seen = window.sessionStorage.getItem(
-        "isometric-berlin.attributionSeen",
-      );
-      return seen !== "true";
-    } catch {
-      return true;
-    }
-  });
+  const [isAttributionOpen, setIsAttributionOpen] = useState(false);
   const [isCompactLayout, setIsCompactLayout] = useState(
     () => window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches,
   );
@@ -1715,20 +1704,6 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
 
   useEffect(() => {
     try {
-      window.sessionStorage.setItem("isometric-berlin.attributionSeen", "true");
-    } catch {
-      // Source attribution remains visible when session storage is unavailable.
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isCompactLayout && (isLandmarkRailOpen || mobileSheet !== null)) {
-      setIsAttributionOpen(false);
-    }
-  }, [isCompactLayout, isLandmarkRailOpen, mobileSheet]);
-
-  useEffect(() => {
-    try {
       window.localStorage.setItem(
         CONTROL_DOCK_SIDE_STORAGE_KEY,
         controlDockSide,
@@ -2355,6 +2330,23 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     setIsRepositoryOpen(true);
   }, []);
 
+  const openSources = () => {
+    setIsTouring(false);
+    setMobileSheet(null);
+    if (isCompactLayout) setIsLandmarkRailOpen(false);
+    setIsHelpOpen(false);
+    setIsRepositoryOpen(false);
+    setIsAttributionOpen(true);
+  };
+
+  const closeSources = () => {
+    setIsAttributionOpen(false);
+    if (isCompactLayout) {
+      window.requestAnimationFrame(() =>
+        document.querySelector<HTMLButtonElement>(".mobile-overflow")?.focus());
+    }
+  };
+
   const closeRepository = useCallback(() => {
     setIsRepositoryOpen(false);
   }, []);
@@ -2464,10 +2456,12 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
 
         setIsHelpOpen(false);
         setIsRepositoryOpen(false);
+        setIsAttributionOpen(false);
         setMobileSheet(null);
         setIsTouring(false);
         return;
       }
+      if (isAttributionOpen) return;
       if (event.target instanceof HTMLElement) {
         const tagName = event.target.tagName.toLowerCase();
         const isTextEntry =
@@ -2746,6 +2740,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     focusLandmarkByOffset,
     goHome,
     isHelpOpen,
+    isAttributionOpen,
     isPedestrianMode,
     isReady,
     isRepositoryOpen,
@@ -2776,7 +2771,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     setFlightInput(0, 0, 0);
     setPanInput(0, 0);
     setOrbitInput(0, 0);
-  }, [isHelpOpen, isRepositoryOpen, isPedestrianMode, isReady,
+  }, [isHelpOpen, isRepositoryOpen, isAttributionOpen, isPedestrianMode, isReady,
     setFlightInput, setPanInput, setOrbitInput]);
 
   useEffect(() => {
@@ -3365,6 +3360,11 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
             onClick={() => setIsHelpOpen((open) => !open)}
           >
             <Keyboard size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className="sources-trigger"
+            aria-label={copy.dataOpen} title={copy.dataOpen}
+            aria-haspopup="dialog" onClick={openSources}>
+            <Info size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -4220,6 +4220,11 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
               <Keyboard size={20} aria-hidden="true" />
               <span>{copy.help}</span>
             </button>
+            <button type="button" className="sources-trigger" aria-label={copy.dataOpen}
+              aria-haspopup="dialog" onClick={openSources}>
+              <Info size={20} aria-hidden="true" />
+              <span>{copy.dataOpen}</span>
+            </button>
             <button type="button" onClick={openRepository}>
               <Github size={20} aria-hidden="true" />
               <span>{copy.repository}</span>
@@ -4683,33 +4688,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         </div>
       ) : null}
 
-      <footer
-        className={
-          isAttributionOpen ? "attribution is-expanded" : "attribution"
-        }
-      >
-        <button
-          type="button"
-          className="attribution-toggle"
-          aria-label={isAttributionOpen ? copy.dataClose : copy.dataOpen}
-          aria-expanded={isAttributionOpen}
-          onClick={() => {
-            if (isCompactLayout && !isAttributionOpen) {
-              setIsLandmarkRailOpen(false);
-              setMobileSheet(null);
-            }
-            setIsAttributionOpen((open) => !open);
-          }}
-        >
-          <Info size={18} aria-hidden="true" />
-        </button>
-        <span className="attribution-copy">
-          <span>
-            {ATTRIBUTION}
-          </span>
-          <span>{status}</span>
-        </span>
-      </footer>
+      {isAttributionOpen ? <SourcesDialog language={language} onClose={closeSources} /> : null}
     </main>
   );
 }

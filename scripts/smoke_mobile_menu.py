@@ -147,16 +147,37 @@ def check_scroll(page: Page, chromium: bool) -> None:
 
 
 def check_first_visit_navigation(page: Page, screenshots: Path | None) -> None:
-  attribution = page.locator(".attribution-toggle")
-  assert attribution.get_attribute("aria-expanded") == "true", (
-    "A fresh visitor must see source credits, including under React StrictMode"
+  sources = page.locator(".sources-dialog")
+  assert not sources.is_visible(), (
+    "A fresh visitor must not see automatic source credits"
   )
-  assert page.locator(".attribution-copy").is_visible()
   opener = page.locator(".mobile-overflow")
   for width, height in ((390, 664), (568, 320)):
     page.set_viewport_size({"width": width, "height": height})
-    if attribution.get_attribute("aria-expanded") != "true":
-      attribution.tap()
+    opener.tap()
+    source_button = page.locator(".mobile-overflow-grid").get_by_role(
+      "button", name="Quellen & Lizenzen", exact=True
+    )
+    source_button.scroll_into_view_if_needed()
+    state = source_button.evaluate(BUTTON_STATE)
+    assert state["inside"] and state["hittable"], state
+    source_button.tap()
+    sources.wait_for(state="visible")
+    assert page.locator(".mobile-overflow-grid").count() == 0
+    credits = sources.locator(".sources-attribution")
+    assert credits.is_visible()
+    text = credits.inner_text()
+    for credit in (
+      "© OpenStreetMap contributors",
+      "Geoportal Berlin (dl-de/zero-2-0)",
+      "Wikimedia Commons/Wikipedia",
+      "Kindertransport visual references: © Pauline Ahrens, 2021",
+      "Bildhauerei in Berlin (CC BY 4.0)",
+    ):
+      assert credit in text
+    sources.get_by_role("button", name="Quellen schließen", exact=True).tap()
+    sources.wait_for(state="hidden")
+
     opener.tap()
     page.locator(".mobile-overflow-grid").get_by_role(
       "button", name="Sehenswürdigkeiten", exact=True
@@ -164,14 +185,9 @@ def check_first_visit_navigation(page: Page, screenshots: Path | None) -> None:
     rail = page.locator(".landmark-rail")
     sight = rail.get_by_role("button", name="Sehenswürdigkeit: Siegessäule", exact=True)
     sight.scroll_into_view_if_needed()
-    assert attribution.get_attribute("aria-expanded") == "false"
+    assert not sources.is_visible()
     state = sight.evaluate(BUTTON_STATE)
     assert state["inside"] and state["hittable"], state
-    rail_box, credit_box = rail.bounding_box(), attribution.bounding_box()
-    assert rail_box and credit_box
-    assert rail_box["y"] + rail_box["height"] <= credit_box["y"], (
-      "The source-credit toggle must not cover the landmark list"
-    )
     if screenshots:
       screenshots.mkdir(parents=True, exist_ok=True)
       page.screenshot(path=str(screenshots / f"landmarks-{width}x{height}.png"))
@@ -184,9 +200,13 @@ def check_first_visit_navigation(page: Page, screenshots: Path | None) -> None:
       "button", name="Sehenswürdigkeiten", exact=True
     ).tap()
     rail.wait_for()
-    attribution.tap()
-    assert attribution.get_attribute("aria-expanded") == "true"
+    opener.tap()
+    source_button.scroll_into_view_if_needed()
+    source_button.tap()
+    sources.wait_for(state="visible")
     assert rail.count() == 0, "Opening source credits must close the compact rail"
+    page.keyboard.press("Escape")
+    sources.wait_for(state="hidden")
     emit(event="first-visit-navigation-passed", width=width, height=height)
 
 
@@ -285,7 +305,7 @@ def run(url: str, engine: str, screenshots: Path | None) -> None:
     page.reload()
     start_day_viewer(page)
     page.locator(".mobile-overflow").wait_for()
-    assert page.locator(".attribution-toggle").get_attribute("aria-expanded") == "false"
+    assert not page.locator(".sources-dialog").is_visible()
     browser.close()
   emit(event="passed", engine=engine, layouts=len(VIEWPORTS), modes=len(MODES))
 

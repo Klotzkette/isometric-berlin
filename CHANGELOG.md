@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.91 — Source notices on demand
+
+- Move complete source/license notices from the boot screen, mode-selection footer and viewer overlay into an accessible Sources & licenses dialog.
+- Keep notices available from the start screen, desktop toolbar and mobile menu, including packaged per-file credits; preserve all rendering and source geometry.
+
 ## v1.0.90 — Rail, northern neighbourhoods and Grunewald
 
 - Refine all Ring/Stadtbahn station identities and the major interchange structures.

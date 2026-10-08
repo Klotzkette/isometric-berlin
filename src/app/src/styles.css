@@ -343,7 +343,27 @@ button:active:not(:disabled) {
 
 .startup-launch:hover { background: #263c30; }
 .startup-selection-note { margin: 12px 0 0; text-align: center; font-size: 11px; line-height: 1.5; color: #5e6b61; }
-.startup-selection-credit { flex-shrink: 0; margin-top: 20px; text-align: center; font-size: 10px; line-height: 1.5; }
+.startup-sources-trigger {
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+  min-height: 44px; margin-top: 12px; padding: 8px 12px;
+  border: 0; border-radius: 8px; background: transparent;
+  color: #46534b; font: inherit; font-size: 12px; cursor: pointer;
+}
+.startup-sources-trigger:focus-visible { outline: 3px solid #a37335; outline-offset: 3px; }
+.sources-dialog {
+  width: min(620px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px); margin: auto; padding: 0;
+  overflow: auto; border: 1px solid rgba(245, 239, 228, 0.25);
+  border-radius: 12px; color: #f5efe4; background: #202925;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+}
+.sources-dialog::backdrop { background: rgba(12, 16, 15, 0.72); }
+.sources-dialog .reference-header button { min-width: 44px; min-height: 44px; }
+.sources-content { padding: 12px 20px 20px; font-size: 14px; line-height: 1.6; }
+.sources-attribution { margin: 0 0 16px; }
+.sources-content ul { margin: 0; padding-left: 20px; }
+.sources-content li + li { margin-top: 12px; }
+.sources-content a { color: #f1c58d; text-underline-offset: 3px; overflow-wrap: anywhere; }
 
 @media (max-width: 440px) {
   .startup-mode-grid { grid-template-columns: 1fr; gap: 7px; }

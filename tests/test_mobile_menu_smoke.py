@@ -85,12 +85,14 @@ def test_incorrect_selected_mode_fails(menu_probe: Any) -> None:
     menu_probe.check()
 
 
-def test_first_visit_cannot_silently_skip_expanded_source_credits(
+def test_first_visit_rejects_automatically_expanded_source_credits(
   menu_probe: Any,
 ) -> None:
-  attribution = SimpleNamespace(get_attribute=lambda _name: "false")
+  attribution = SimpleNamespace(is_visible=lambda: True)
   page = SimpleNamespace(locator=lambda _selector: attribution)
-  with pytest.raises(AssertionError, match="fresh visitor must see source credits"):
+  with pytest.raises(
+    AssertionError, match="fresh visitor must not see automatic source credits"
+  ):
     menu_probe.first_visit(page, None)
 
 

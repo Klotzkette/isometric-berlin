@@ -361,8 +361,12 @@ Additional Google constraints (non-negotiable):
 
 ### Mandatory attribution
 
-Every public-facing artefact (the viewer, exported PNGs in a published
-gallery, video clips, social previews) **must** display, at minimum:
+Every public-facing artefact must retain the complete source notices. Per the
+owner's explicit UI request, the web viewer presents these through the built-in
+**Quellen & Lizenzen / Sources & licenses** menu on the start screen and in the
+desktop/mobile controls. Keep the panel closed initially; do not restore an
+automatic credit overlay on the boot screen or viewer. Exported PNGs in a
+published gallery, video clips and social previews must display, at minimum:
 
 > © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
 
@@ -372,8 +376,9 @@ append the appropriate Google attribution per their terms. See
 
 When Wikimedia Commons / Wikipedia media was directly used for visual
 references, texture cues, published reference plates, or derived
-material colours, include the visible Wikimedia visual-reference notice
-and keep the per-file credits packaged with the artefact.
+material colours, include the Wikimedia visual-reference notice in that same
+viewer panel (or visibly on exported artefacts), and keep the per-file credits
+packaged with the artefact.
 
 When the official Berlin 3D Mesh is displayed, append:
 
@@ -542,8 +547,8 @@ isometric-berlin/
 - Complete committed procedural 3D payloads under `src/app/public/mesh/`;
   keep the walking minimap, startup image, landmark metadata and credits.
 - A working static viewer (`bun run build`) under `src/app/dist/`
-  that pans/zooms cleanly, shows the required attribution overlay
-  (including Google attribution if Google content was used), and
+  that pans/zooms cleanly, makes the complete required attribution available
+  through its built-in source menu (including applicable Google attribution), and
   renders all 93 catalogued sights in the same coordinate frame.
 - All four shipped landmark payloads remain synchronised at 93 records; the
   alignment audit passes 41 relative-placement contracts and preserves the
@@ -669,9 +674,10 @@ static hosts, including Perplexity:
   `cd src/app && bun install && bun run build`, then deploy
   `src/app/dist/`. Make sure that command sequence always works from
   a clean clone.
-- Attribution overlay (§4) must be hard-coded in the viewer chrome,
-  not in a separate footer file that could be stripped during
-  deployment.
+- The complete source-credit panel (§4) must be built into the viewer and
+  reachable from the start screen, desktop toolbar and mobile menu. Keep all
+  notices packaged rather than in a separate footer file that could be stripped
+  during deployment; do not open the panel automatically.
 
 ## 10. How to behave as an agent in this repo
 

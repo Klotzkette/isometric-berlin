@@ -17,6 +17,9 @@ const navigationInputSource = await Bun.file(
 const indexSource = await Bun.file(
   new URL("../index.html", import.meta.url),
 ).text();
+const sourcesDialogSource = await Bun.file(
+  new URL("../src/SourcesDialog.tsx", import.meta.url),
+).text();
 const boundarySource = await Bun.file(
   new URL("../src/ThreeViewerErrorBoundary.tsx", import.meta.url),
 ).text();
@@ -67,9 +70,11 @@ describe("progressive viewer startup", () => {
     });
   });
 
-  test("paints an attributed shell before React", () => {
+  test("paints a clean shell before React and retains the source credits in the app", () => {
     expect(indexSource).toContain('class="boot-shell"');
-    expect(indexSource).toContain("© OpenStreetMap contributors");
+    expect(indexSource).not.toContain("© OpenStreetMap contributors");
+    expect(sourcesDialogSource).toContain("© OpenStreetMap contributors");
+    expect(sourcesDialogSource).toContain("Kindertransport visual references: © Pauline Ahrens, 2021");
     expect(appSource).not.toContain("useLayoutEffect");
   });
 });
