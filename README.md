@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.85 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.85/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.86 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.86/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.85** · hosted viewer and a
+**Status:** Public open-data project · **Local v1.0.86** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.86 audits the complete former Mitte district inventory and gently
+refines existing window relief and source-bound street-facing building edges.
+Individual models, source geometry, courtyard holes and viewing distances remain.
+Window subdivisions remain documented estimates where no facade survey exists.
+[Scope and complete inventory](docs/alt-mitte-v186-audit.md).
+
+Version 1.0.86 prüft den gesamten Gebäudebestand des alten Bezirks Mitte und
+verfeinert Fensterwirkung sowie straßenseitige Gebäudekanten behutsam.
+Individuelle Modelle, Quellgeometrie, Innenhöfe und Sichtweiten bleiben erhalten.
+Ohne vermessene Fassadendaten bleiben Fensterteilungen dokumentierte Näherungen.
 
 Version 1.0.85 gently refines five schools, the Ackerhalle, northern neighbourhoods,
 Otto-Weidt-Platz, Rosenthaler Platz and the Richardplatz/Görlitzer Park corridors.

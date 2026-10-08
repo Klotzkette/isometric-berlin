@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Alt-Mitte facade review (v1.0.86):** The complete retained ALKIS/LoD2 and
+  OSM catalogue anchors the former-district selection and source wall edges.
+  All previous sources remain. Small profiles and window light/shadow are
+  procedural display interpretation, not newly surveyed windows or ornament.
+  No additional imagery is distributed. See [inventory and limits](docs/alt-mitte-v186-audit.md).
+
 - **Schools and neighbourhood accents (v1.0.85):** Existing Berlin LoD2/terrain
   (dl-de/zero-2-0) and retained OSM ways/owners (ODbL-1.0) anchor the small
   additions. Unsurveyed facade/seat/plant sections remain display estimates;

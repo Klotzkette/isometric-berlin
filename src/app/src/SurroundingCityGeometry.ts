@@ -6,6 +6,7 @@ import {
 import { markArchitecturalAccentInk, markArchitecturalInk } from "./architecturalInk";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
+import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
@@ -242,6 +243,12 @@ export function* buildSurroundingCityChunk(
         }
         written += source.length;
         yield;
+      }
+      // The v169 core resident packets contain source shells only. Refine the
+      // existing streamed drawn window recipes; never add a second facade.
+      if (!minecraft && !id.startsWith("alt-mitte-v169-") && part.kind === "alt-mitte-v169") {
+        const shaded = yield* shadeAltMitteFacadeV186(vertices, indices, indexOffset, written);
+        root.userData.altMitteWindowRelief = (root.userData.altMitteWindowRelief ?? 0) + shaded;
       }
       vertexOffset += count;
       indexOffset += written;

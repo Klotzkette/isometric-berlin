@@ -13,6 +13,8 @@ import { createPublicPlacesV185 } from "./PublicPlacesV185";
 import { createNorthV185 } from "./NorthV185";
 import { createSouthKiezV185 } from "./SouthKiezV185";
 import { createMinecraftSouthKiezV185 } from "./MinecraftSouthKiezV185";
+import { createAltMitteEdgesV186 } from "./AltMitteEdgesV186";
+import { createMinecraftAltMitteEdgesV186 } from "./MinecraftAltMitteEdgesV186";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -54,6 +56,7 @@ export function createOutlineLandmarksV182(
       root.add(createPublicPlacesV185(nextNative));
       root.add(createNorthV185(nextNative));
       root.add(nextNative ? createMinecraftSouthKiezV185() : createSouthKiezV185());
+      root.add(nextNative ? createMinecraftAltMitteEdgesV186() : createAltMitteEdgesV186());
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }
