@@ -229,7 +229,7 @@ describe("bounded ordinary facade presentation", () => {
     }
   });
 
-  test("keeps out-of-scope and authored hero colour buffers identical to v1.0.34", () => {
+  test("colours generic buildings beyond the former scope while retaining authored hero colours", () => {
     const outside: PrismBuilding = {
       id: "urban-outside-fixture", class: 0, y0_dm: 40, h_dm: 180, roof: 1000,
       tone: [150, 170, 160],
@@ -246,7 +246,11 @@ describe("bounded ordinary facade presentation", () => {
     ] as const) {
       const { group, body } = build(part, pass);
       try {
-        expect(digest(body.geometry.getAttribute("color") as BufferAttribute)).toBe(hash);
+        const actual = digest(body.geometry.getAttribute("color") as BufferAttribute);
+        // v1.0.84 explicitly extends generic colour variation across the city;
+        // the earlier geographic colour freeze still applies to authored heroes.
+        if (part === outside) expect(actual).not.toBe(hash);
+        else expect(actual).toBe(hash);
       } finally {
         dispose(group);
       }

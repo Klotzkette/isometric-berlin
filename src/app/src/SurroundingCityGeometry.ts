@@ -5,6 +5,7 @@ import {
 } from "three";
 import { markArchitecturalAccentInk, markArchitecturalInk } from "./architecturalInk";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
@@ -123,11 +124,14 @@ function* interleavedPositions(encoded: string, values: Uint16Array,
 }
 
 function* interleavedColors(encoded: string, values: Uint16Array,
-  vertexOffset: number): Generator<void> {
+  vertexOffset: number, owners?: SurroundingColourOwners): Generator<void> {
   let to = vertexOffset * 6 + 3;
   for (const bytes of binarySlices(encoded, 3)) {
     for (let i = 0; i < bytes.length; i += 3, to += 6) {
-      values[to] = bytes[i] * 257; values[to + 1] = bytes[i + 1] * 257; values[to + 2] = bytes[i + 2] * 257;
+      const tone = owners && surroundingGenericColour(owners, values[to - 3], values[to - 1], bytes[i], bytes[i + 1], bytes[i + 2]);
+      values[to] = (tone?.[0] ?? bytes[i]) * 257;
+      values[to + 1] = (tone?.[1] ?? bytes[i + 1]) * 257;
+      values[to + 2] = (tone?.[2] ?? bytes[i + 2]) * 257;
     }
     yield;
   }
@@ -222,11 +226,13 @@ export function* buildSurroundingCityChunk(
     // source index while avoiding four-byte indices where two are sufficient.
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
     const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
+    const colourOwners = chunk.meshes.some(part => part.kind === "city")
+      ? yield* surroundingColourOwners(chunk.nav.buildings) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     for (const part of chunk.meshes) {
       const count = encodedBytes(part.positions, 6) / 6;
       yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
-      yield* interleavedColors(part.colors, vertices, vertexOffset);
+      yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined);
       let written = 0;
       for (const bytes of binarySlices(part.indices, 12)) {
         const source = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);

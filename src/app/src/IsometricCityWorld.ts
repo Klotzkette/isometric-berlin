@@ -1,4 +1,5 @@
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
+import { GENERIC_FACADE_SWATCHES, genericFacadeTone } from "./cityColourV184";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
@@ -1505,7 +1506,7 @@ export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
 // Flat drawn facade tones per building class, with deterministic
 // per-building jitter between shades (quantised paint, no gradients).
 const FACADE_SHADES: Record<string, readonly number[]> = {
-  concrete: [0xf5efe3, 0xeee7d8, 0xf9f5ed, 0xe9dfcb],
+  concrete: GENERIC_FACADE_SWATCHES,
   glass: [0xc5e3e8, 0xd9eff2, 0xb9d9e2],
 };
 const FALLBACK_FACADE: readonly number[] = FACADE_SHADES.concrete;
@@ -1645,11 +1646,14 @@ function facadeColorFor(
   // Retain the per-part Step-8 illustration sample where no stronger source
   // attribute exists; this colour is not a surveyed facade observation.
   if (building.tone) {
-    if (urban) return urbanIllustrationToneInto(building.tone, target);
-    return cleanedToneInto(building.tone, target).lerp(
-      IVORY,
-      SOURCE_FACADE_IVORY_BLEND,
-    );
+    if (urban) urbanIllustrationToneInto(building.tone, target);
+    else cleanedToneInto(building.tone, target).lerp(IVORY, SOURCE_FACADE_IVORY_BLEND);
+    // Only neutral, unmeasured illustration samples need a little distinction.
+    // Source colours and bespoke models returned above stay untouched.
+    if (mappedFacadeTone(attributes) === undefined &&
+        Math.max(...building.tone) - Math.min(...building.tone) < 24)
+      target.lerp(genericFacadeTone(building.id), 0.38);
+    return target;
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -12726,7 +12730,7 @@ export function createIsometricCityCore(
     );
     const axes = new LineSegments(
       geometry,
-      markArchitecturalInk(
+      markArchitecturalAccentInk(
         new LineDashedMaterial({
           dashSize: ISO_FACADE_WINDOW_DASH_M,
           gapSize: ISO_FACADE_WINDOW_GAP_M,
@@ -12734,6 +12738,7 @@ export function createIsometricCityCore(
           scale: 0.01,
           transparent: true,
         }),
+        0x819c9f,
         "micro",
       ),
     );
