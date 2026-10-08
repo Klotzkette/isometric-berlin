@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.95 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.95/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.96 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.96/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.95** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.96** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.96 prevents late module-loading errors from restarting an active viewer, reduces retained source memory losslessly, and defers native lake collision data until it is needed. [Stability verification](docs/viewer-stability-v196.md).
+
+Version 1.0.96 verhindert, dass Fehler beim Nachladen den laufenden Viewer zur Startseite zurücksetzen. Quelldaten benötigen weniger Speicher, bei unveränderter Darstellung und vollständigen Details.
 
 Version 1.0.95 refines Teufelsberg and Drachenberg against official elevation
 samples, adds the former listening station's distinctive towers and radomes,

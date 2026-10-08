@@ -2,7 +2,7 @@ const PRELOAD_RECOVERY_KEY_PREFIX =
   "isometric-berlin.preload-recovery";
 export const PRELOAD_RECOVERY_URL_PARAM = "ib-preload-recovery";
 
-type RecoveryStorage = Pick<Storage, "getItem" | "removeItem" | "setItem">;
+type RecoveryStorage = Pick<Storage, "getItem" | "setItem">;
 type RecoveryUrlState = {
   getHref: () => string;
   replaceHref: (href: string) => void;
@@ -18,6 +18,32 @@ export type PreloadRecoveryOptions = {
 
 export function preloadRecoveryKey(version: string): string {
   return `${PRELOAD_RECOVERY_KEY_PREFIX}:${version}`;
+}
+
+let initialViewerImportsPending = 0;
+
+/** Only the initial renderer import may replace the entire document. */
+export async function withInitialViewerPreloadRecovery<T>(
+  load: () => Promise<T>,
+): Promise<T> {
+  initialViewerImportsPending += 1;
+  try {
+    return await load();
+  } finally {
+    initialViewerImportsPending -= 1;
+  }
+}
+
+function isModuleTransportFailure(event: Event): boolean {
+  const payload = (event as Event & { payload?: unknown }).payload;
+  if (!payload || typeof payload !== "object" || !("message" in payload)) {
+    return false;
+  }
+  // Vite forwards both failed chunk requests and arbitrary module evaluation
+  // errors here. A syntax/constructor error is not fixed by reloading. These
+  // are the transport messages used by Chromium, Safari, Firefox and Vite CSS.
+  return typeof payload.message === "string" &&
+    /^(?:Failed to fetch dynamically imported module\b|Importing a module script failed\b|error loading dynamically imported module\b|Unable to preload CSS for\b)/i.test(payload.message);
 }
 
 function browserSessionStorage(): RecoveryStorage | null {
@@ -97,30 +123,12 @@ function persistUrlGuard(
   }
 }
 
-function clearUrlGuard(
-  urlState: RecoveryUrlState | null,
-  version: string,
-): void {
-  try {
-    if (!urlState) {
-      return;
-    }
-    const url = new URL(urlState.getHref());
-    if (url.searchParams.get(PRELOAD_RECOVERY_URL_PARAM) !== version) {
-      return;
-    }
-    url.searchParams.delete(PRELOAD_RECOVERY_URL_PARAM);
-    urlState.replaceHref(url.href);
-  } catch {
-    // A successful module import must never fail because URL cleanup did.
-  }
-}
-
 /**
  * Vite emits this event when a deployment removes a chunk that an already
- * open document still references. Reload exactly once per release/session so
- * that the browser can acquire the current HTML manifest; subsequent failures
- * are deliberately allowed to reach the visible 3D error boundary.
+ * open document still references. Only a failed initial renderer import may
+ * reload, once per release/session. Later city/detail imports belong to their
+ * callers' error handling and must not discard a running viewer. A successful
+ * early import must not erase the durable guard for subsequent documents.
  */
 export function installPreloadErrorRecovery(
   options: PreloadRecoveryOptions,
@@ -148,6 +156,8 @@ export function installPreloadErrorRecovery(
 
   const recover = (event: Event): void => {
     if (
+      initialViewerImportsPending === 0 ||
+      !isModuleTransportFailure(event) ||
       reloadRequestedForDocument ||
       readGuard(storage, key) === options.version ||
       readUrlGuard(urlState) === options.version
@@ -155,7 +165,7 @@ export function installPreloadErrorRecovery(
       return;
     }
     reloadRequestedForDocument = true;
-    // sessionStorage is the invisible normal path. Only expose a temporary
+    // sessionStorage is the invisible normal path. Only expose a version-bound
     // URL marker when storage cannot be written and read back reliably; this
     // marker survives the reload in the same tab without changing the route,
     // other query parameters or hash.
@@ -175,18 +185,4 @@ export function installPreloadErrorRecovery(
 
   eventTarget.addEventListener("vite:preloadError", recover);
   return () => eventTarget.removeEventListener("vite:preloadError", recover);
-}
-
-/** Clear the one-shot deployment guard only after the lazy 3D module loads. */
-export function clearPreloadRecoveryGuard(
-  version: string,
-  storage: RecoveryStorage | null = browserSessionStorage(),
-  urlState: RecoveryUrlState | null = browserUrlState(),
-): void {
-  try {
-    storage?.removeItem(preloadRecoveryKey(version));
-  } catch {
-    // Successful loading is enough; blocked storage never harms the viewer.
-  }
-  clearUrlGuard(urlState, version);
 }

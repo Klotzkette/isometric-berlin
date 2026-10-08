@@ -8937,8 +8937,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
-          runtime.gpuResidency?.enqueue(runtime.tunnelPortals);
-          runtime.geometryResidency?.enqueue(runtime.tunnelPortals);
           runtime.tunnelPortalInteriorVisible = isTunnelPortalFocus(
             selectedRef.current,
           );
@@ -8954,6 +8952,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.nightLightsOn,
           );
           if (runtime.coarsePointer) interleaveStaticGeometry(runtime.tunnelPortals);
+          // Register the final storage only; offscreen portals must not pin
+          // the superseded arrays from before interleaving until their first draw.
+          runtime.gpuResidency?.enqueue(runtime.tunnelPortals);
+          runtime.geometryResidency?.enqueue(runtime.tunnelPortals);
           runtime.reportWorldFailure = () => {
             if (runtime.disposed || runtime.worldFailureReported) {
               return;

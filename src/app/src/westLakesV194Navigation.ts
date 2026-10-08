@@ -24,15 +24,29 @@ export function westLakesV194WaterAt(x: number, z: number, minecraft = false): n
 import native from "./data/westLakesV194Native.json";
 const buildings = source.buildings.map(building => {
   const points = building.polygons.flatMap(p => p[0]);
-  const nativeBoxes = native.sites.find(site => site.key === building.key)?.boxes ?? [];
   return { ...building,
     bounds: [Math.min(...points.map(p => p[0])), Math.min(...points.map(p => p[1])),
       Math.max(...points.map(p => p[0])), Math.max(...points.map(p => p[1]))],
-    nativeBoxes,
-    nativeMinY: Math.min(...nativeBoxes.map(r => r[1] - r[4] / 2)),
-    nativeMaxY: Math.max(...nativeBoxes.map(r => r[1] + r[4] / 2)),
   };
 });
+
+type NativeBuilding = { boxes: number[][]; minY: number; maxY: number };
+const nativeBuildings = new Map<string, NativeBuilding>();
+
+/** A Day footprint query must not materialize native lake geometry. */
+function nativeBuilding(key: string): NativeBuilding {
+  const cached = nativeBuildings.get(key);
+  if (cached) return cached;
+  const boxes = native.sites.find(site => site.key === key)?.boxes ?? [];
+  let minY = Infinity, maxY = -Infinity;
+  for (const row of boxes) {
+    minY = Math.min(minY, row[1] - row[4] / 2);
+    maxY = Math.max(maxY, row[1] + row[4] / 2);
+  }
+  const result = { boxes, minY, maxY };
+  nativeBuildings.set(key, result);
+  return result;
+}
 
 function touchesRing(x: number, z: number, radius: number, ring: readonly number[][]): boolean {
   if (radius <= 0) return false;
@@ -50,14 +64,15 @@ export function westLakesV194SolidAt(x: number, y: number, z: number, radius = 0
   for (const building of buildings) {
     const b = building.bounds, pad = radius + (minecraft ? 1.5 : 0);
     if (x < b[0] - pad || x > b[2] + pad || z < b[1] - pad || z > b[3] + pad) continue;
-    if (y < (minecraft ? building.nativeMinY : building.groundY) || y > (minecraft ? building.nativeMaxY : building.topY)) continue;
     if (minecraft) {
-      for (const r of building.nativeBoxes) {
+      const native = nativeBuilding(building.key);
+      if (y < native.minY || y > native.maxY) continue;
+      for (const r of native.boxes) {
         if (Math.abs(x - r[0]) <= r[3] / 2 + radius && Math.abs(z - r[2]) <= r[5] / 2 + radius && Math.abs(y - r[1]) <= r[4] / 2) return true;
       }
       continue;
     }
-    if (y > building.topY) continue;
+    if (y < building.groundY || y > building.topY) continue;
     for (const polygon of building.polygons) {
       if (touchesRing(x, z, radius, polygon[0])) return true;
       if (!ringContains(x, z, polygon[0])) continue;

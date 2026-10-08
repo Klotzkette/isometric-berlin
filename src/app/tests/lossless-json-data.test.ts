@@ -62,18 +62,22 @@ describe("lossless lazy source JSON", () => {
     expect(transformLosslessJsonData(large, ID.replaceAll("/", "\\"))).toBeDefined();
   });
 
-  test("gzip retains exact JSON semantics and is limited to audited fields", () => {
+  test("gzip retains exact JSON semantics without changing field ownership", () => {
     const rows = '[-0,1e400,-1e400,"Drachen ä 🪁",{"__proto__":42}]';
     const input = `{"profiles":[${Array(2000).fill(rows).join(",")}],"other":[${Array(2000).fill(rows).join(",")}]}`;
     const id = ID.replace("example.json", "teufelsbergTerrainV195.json");
     const result = transformLosslessJsonData(input, id)!;
     expect(result.code).toContain("__decodeLosslessGzip(");
-    expect(result.code).toContain("JSON.parse(");
     const { data, named } = evaluateModule(input, 64 * 1024, id);
     expect(data).toEqual(JSON.parse(input));
     expect(named.profiles).toBe(data.profiles);
     expect(Object.is((data.profiles as number[][])[0][0], -0)).toBeTrue();
-    expect(transformLosslessJsonData(input, ID)!.code).not.toContain("__decodeLosslessGzip");
+    const ordinary = evaluateModule(input, 64 * 1024, ID);
+    expect(ordinary.data).toEqual(JSON.parse(input));
+    const mutable = ordinary.data.other as number[][];
+    mutable[0][0] = 196;
+    expect((ordinary.data.other as number[][])[0][0]).toBe(196);
+    expect(ordinary.data.other).toBe(mutable);
   });
 
   test("round-trips every transformed committed source payload without a changed value", async () => {

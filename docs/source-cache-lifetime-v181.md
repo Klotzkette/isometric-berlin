@@ -77,3 +77,57 @@ replacement ownership, frozen assignment and the unsupported-WeakRef fallback.
 The existing complete-source round-trip suite checks every transformed payload.
 Actual reclamation and release-level memory changes require browser profiling;
 the deterministic reference stub only tests cache behavior, not GC timing.
+
+## v196: newer outer-landmark construction graphs
+
+The following additional exact fields were audited across all production
+importers and their batch helpers. They contain 16,992,963 compact JSON bytes,
+484,003 arrays and 25,022 objects in the current sources. These are source-graph
+sizes, not a claim about browser memory savings. They were already lazy, but
+previously stayed strongly cached after their first construction read. Switching
+between drawn and native styles could therefore retain both parsed graphs after
+the old render buffers had been released.
+
+| Source JSON | Newly weak constructor fields | Audited production consumers |
+| --- | --- | --- |
+| `westLandmarksV187.json` | `groups` | `WesternLandmarksV187.ts` |
+| `eastLandmarksV187.json`, `eastLandmarksV187Native.json` | `cells` | `EastLandmarksV187.ts`, `MinecraftEastLandmarksV187.ts`, `eastLandmarksV187Batches.ts` |
+| `southWestLandmarksV187.json`, `southWestLandmarksV187Native.json` | `sites` | `SouthWestLandmarksV187.ts` |
+| `northSitesV190.json`, `northSitesV190Native.json` | `cells` | `NorthSitesV190.ts`, `MinecraftNorthSitesV190.ts`, `eastLandmarksV187Batches.ts` |
+| `airportsV194.json` | `surfaces`, `boxes` | `AirportsV194.ts` |
+| `teufelsbergStationV195.json` | `surfaces`, `lines` | `TeufelsbergStationV195.ts` |
+| `westLakesV194.json` | `sites` | `WestLakesV194.ts` |
+
+The factories and `justicePalaceV183Boxes` copy positions, colours, indices,
+normals and instance transforms into final typed attributes. Filtered lists and
+construction loops do not escape through callbacks. Western scene metadata
+retains only each small `anchor` array; Southwest and drawn West Lakes retain
+only small `owners` arrays. Those arrays have no parent back-reference and do
+not keep their site's geometry or the top-level field alive. North-site owner
+metadata is a separate top-level field and keeps its original ownership.
+
+The exclusions are intentional. `teufelsbergStationV195Navigation.ts` reads
+`boxes` and `blocks` for live collision queries; `airportsV194Navigation.ts`
+indexes and reads `navigation` and `blocks`. `westLakesV194Navigation.ts`
+retains native building boxes from `westLakesV194Native.json.sites` after an
+actual nearby Minecraft collision query. Those
+fields, terrain profiles, source inventories and every other unlisted field
+keep strong caches. Geometry reconstruction must never make a navigation
+query repeatedly decompress a source graph.
+
+West Lakes previously read the whole native sites array at module import,
+including its water positions, indices and colours, merely to prepare collision
+boxes. The native building lookup now initializes on the first nearby native
+collision query; Day, drawn water and distant native queries do not read that
+array. The same original boxes and height extrema are cached, with no copies or
+new approximation. `west-lakes-navigation-lazy.test.ts` checks zero native-site
+decodes for those earlier queries and collision at all 1,793 original box
+centres, plus retained opening/outside checks.
+
+`outer-source-cache-v196.test.ts` bundles these real factories with the
+production transform. It compares complete geometry attributes, indices,
+instance matrices/colours, transforms, materials and culling bounds against
+the strong-cache fallback through drawn/native/drawn construction, with
+deterministic collection between builds. It also verifies exact field
+reconstruction and the explicit live-navigation exclusions. No source data,
+draw count, render distance, representation or model detail changes.

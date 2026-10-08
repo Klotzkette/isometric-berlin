@@ -1,5 +1,4 @@
-import { clearPreloadRecoveryGuard } from "./preloadRecovery";
-import { PROJECT_VERSION } from "./projectMetadata";
+import { withInitialViewerPreloadRecovery } from "./preloadRecovery";
 
 export type LazyThreeViewerModule = {
   default: typeof import("./ThreeViewer").ThreeViewer;
@@ -13,7 +12,8 @@ export type LazyThreeViewerModule = {
 export async function loadThreeViewerComponent(): Promise<
   LazyThreeViewerModule
 > {
-  const module = await import("./ThreeViewer");
-  clearPreloadRecoveryGuard(PROJECT_VERSION);
+  const module = await withInitialViewerPreloadRecovery(
+    () => import("./ThreeViewer"),
+  );
   return { default: module.ThreeViewer };
 }

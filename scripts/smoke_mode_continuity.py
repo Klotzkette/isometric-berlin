@@ -55,6 +55,25 @@ PROBE = """(() => {
     }
     return null;
   };
+  window.__modeContinuityInitialFocusApplied = () => {
+    const el = document.querySelector('.app-shell');
+    if (!el) return false;
+    const key = Object.keys(el).find(k => k.startsWith('__reactFiber'));
+    for (let f = el[key]; f; f = f.return) {
+      for (let h = f.memoizedState; h; h = h.next) {
+        // Identify ViewerApp's existing initialFocusAppliedRef by its two
+        // structural neighbours, not a minified component name/hook index:
+        // landmarkButtonsRef, two timers, then activeThreeViewerKeyRef.
+        const applied = h.memoizedState?.current;
+        const landmarks = h.next?.memoizedState?.current;
+        const viewerKey = h.next?.next?.next?.next?.memoizedState?.current;
+        if (typeof applied === 'boolean' && landmarks instanceof Map &&
+            typeof viewerKey === 'string' &&
+            /^(persistent|mobile-drawn|mobile-voxel)-\\d+$/.test(viewerKey)) return applied;
+      }
+    }
+    return false;
+  };
   window.__readModeContinuity = () => {
     const r = window.__modeContinuityRuntime();
     if (!r) return null;
@@ -62,6 +81,8 @@ PROBE = """(() => {
     const p = r.pedestrian;
     return {
       runtime: ids.get(r), mode: r.lightingMode, ready: r.presentationReady,
+      initialFocusApplied: window.__modeContinuityInitialFocusApplied(),
+      presented: Boolean(document.querySelector('.three-viewer.is-active.is-presentation-ready')),
       position: r.camera.position.toArray(), target: r.controls.target.toArray(),
       fov: r.camera.fov, near: r.camera.near, underside: r.underside,
       enabled: p.enabled, requested: p.requested,
@@ -160,7 +181,7 @@ def wait_ready(page: Any, mode: str, timeout: float) -> dict[str, Any]:
   launch_startup_mode(page, mode, timeout)
   page.wait_for_function(
     "mode => {const r = window.__readModeContinuity?.(); "
-    "return r?.mode === mode && r.ready;}",
+    "return r?.mode === mode && r.ready && r.presented && r.initialFocusApplied;}",
     arg=mode,
     timeout=timeout * 1000,
   )

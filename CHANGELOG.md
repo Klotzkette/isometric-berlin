@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.96 — Viewer stability and source-memory lifetime
+
+- Restrict one-shot deployment recovery to the initial renderer import; late module failures preserve the running viewer.
+- Compress large lazy JSON fields losslessly without changing their source values or ownership.
+- Release audited constructor-only source graphs after use and defer native lake collision source reads.
+- Register tunnel portal GPU residency after final buffer preparation.
+- Preserve all authored geometry, colours, resolution, view distance and navigation speed.
+
 ## v1.0.95 — Teufelsberg and Drachenberg
 
 - Refine both hills against official terrain samples while retaining existing source detail.

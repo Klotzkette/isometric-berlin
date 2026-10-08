@@ -36,6 +36,16 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "scheunenFacadesV183.json": ["boxes"],
   "scheunenFacadesV183Native.json": ["nativeRows"],
   "alexanderStationsV183Source.json": ["profiles"],
+  "westLandmarksV187.json": ["groups"],
+  "eastLandmarksV187.json": ["cells"],
+  "eastLandmarksV187Native.json": ["cells"],
+  "southWestLandmarksV187.json": ["sites"],
+  "southWestLandmarksV187Native.json": ["sites"],
+  "northSitesV190.json": ["cells"],
+  "northSitesV190Native.json": ["cells"],
+  "airportsV194.json": ["surfaces", "boxes"],
+  "teufelsbergStationV195.json": ["surfaces", "lines"],
+  "westLakesV194.json": ["sites"],
 };
 
 // These arrays contain only a few records of already-packed base64 strings.
@@ -45,13 +55,8 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "schlossEastStreets.json": ["surfaces"],
 };
 
-// Exact JSON bytes, decoded only by the existing lazy field readers. Keep this
-// explicit: compression must not alter array ownership or eagerly load modes.
-const GZIP_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
-  "teufelsbergStationV195.json": ["surfaces", "lines", "boxes", "blocks"],
-  "teufelsbergTerrainV195.json": ["profiles"],
-  "grunewaldTerrainV190.json": ["profiles"],
-};
+// Encode existing lazy fields only. Their cache/ownership policy is independent
+// of compression; packed base64 fields above keep their direct-literal path.
 const GZIP_DECODER = fileURLToPath(new URL("./src/losslessGzipJson.ts", import.meta.url));
 
 /** JSON.stringify normally changes -0 and non-finite parsed JSON numbers. */
@@ -126,7 +131,6 @@ export function transformLosslessJsonData(
   const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
   const weakFields = READONLY_CONSTRUCTION_JSON_FIELDS[sourceName] ?? [];
   const packedFields = PACKED_SOURCE_JSON_FIELDS[sourceName] ?? [];
-  const gzipFields = GZIP_SOURCE_JSON_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
     return {
       code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(source.replace(/^\uFEFF/, ""))});`,
@@ -150,9 +154,10 @@ export function transformLosslessJsonData(
       const loaded = `__loaded${index}`;
       const read = `__read${index}`;
       let decode = `JSON.parse(${JSON.stringify(json)})`;
-      if (gzipFields.includes(key)) {
+      {
         const packed = gzipSync(json, { level: 9 }).toString("base64");
-        if (packed.length < json.length) {
+        // Avoid decode work for poorly compressible data. No values change.
+        if (packed.length < json.length * 0.8) {
           decode = `__decodeLosslessGzip(${JSON.stringify(packed)})`;
           gzipUsed = true;
         }
