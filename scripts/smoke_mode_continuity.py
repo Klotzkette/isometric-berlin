@@ -129,7 +129,9 @@ def assert_pose(actual: dict[str, Any], expected: dict[str, Any]) -> None:
       near(actual[key], expected[key], key)
 
 
-def launch_startup_mode(page: Any, mode: str, timeout: float = 120) -> float | None:
+def launch_startup_mode(
+  page: Any, mode: str, timeout: float = 120, *, touch: bool = False
+) -> float | None:
   """Cross the explicit startup gate once; return its monotonic launch time.
 
   Waiting for either surface also supports earlier auto-start builds and avoids
@@ -143,9 +145,14 @@ def launch_startup_mode(page: Any, mode: str, timeout: float = 120) -> float | N
   chooser = page.locator(".startup-mode-selection")
   if not chooser.is_visible():
     return None
-  chooser.locator(f'input[name="startup-mode"][value="{mode}"]').locator("..").click()
+  option = chooser.locator(f'input[name="startup-mode"][value="{mode}"]')
+  # Preserve the selected option: startup needs only its actual launch gesture.
+  if not option.is_checked():
+    label = option.locator("..")
+    label.tap() if touch else label.click()
   launched_at = time.monotonic()
-  chooser.locator(".startup-launch").click()
+  launch = chooser.locator(".startup-launch")
+  launch.tap() if touch else launch.click()
   return launched_at
 
 

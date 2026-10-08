@@ -31,6 +31,7 @@ def smoke_harness(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Any:
   api.sync_playwright = lambda: None
   monkeypatch.setitem(sys.modules, "playwright", ModuleType("playwright"))
   monkeypatch.setitem(sys.modules, "playwright.sync_api", api)
+  monkeypatch.syspath_prepend(str(SCRIPT.parent))
   spec = importlib.util.spec_from_file_location("startup_smoke_test", SCRIPT)
   assert spec is not None and spec.loader is not None
   module = importlib.util.module_from_spec(spec)
@@ -51,6 +52,10 @@ def smoke_harness(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Any:
       self.events: list[tuple[str, Any]] = []
       self.states = [READY]
       self.screenshots: list[str] = []
+      self.chooser_visible = True
+      self.selected_mode = "day"
+      self.gestures: list[tuple[str, str]] = []
+      self.launch_events: list[tuple[str, Any]] = []
 
     def on(self, event: str, callback: Any) -> None:
       self.callbacks[event] = callback
@@ -59,6 +64,44 @@ def smoke_harness(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Any:
       self.emit_state()
       for event, payload in self.events:
         self.callbacks[event](payload)
+
+    def wait_for_function(self, expression: str, *, timeout: float) -> None:
+      assert ".startup-mode-selection, .three-viewer" in expression
+      assert 0 < timeout <= 5000
+
+    def locator(self, selector: str) -> Any:
+      page = self
+
+      class Locator:
+        def __init__(self, current: str) -> None:
+          self.current = current
+
+        def locator(self, child: str) -> Locator:
+          return self if child == ".." else Locator(child)
+
+        def is_visible(self) -> bool:
+          return page.chooser_visible
+
+        def is_checked(self) -> bool:
+          return page.selected_mode == "day"
+
+        def gesture(self, kind: str) -> None:
+          page.gestures.append((kind, self.current))
+          if self.current == ".startup-launch":
+            page.chooser_visible = False
+            for event, payload in page.launch_events:
+              page.callbacks[event](payload)
+          else:
+            assert self.current == 'input[name="startup-mode"][value="day"]'
+            page.selected_mode = "day"
+
+        def click(self) -> None:
+          self.gesture("click")
+
+        def tap(self) -> None:
+          self.gesture("tap")
+
+      return Locator(selector)
 
     def add_init_script(self, script: str) -> None:
       assert "setInterval" in script
@@ -199,3 +242,39 @@ def test_exact_webkit_viewport_advisory_is_reported_without_failure(
   assert result["success"] is True
   assert result["counts"]["consoleErrors"] == 0
   assert result["counts"]["consoleAdvisories"] == 1
+
+
+def test_startup_gate_receives_exactly_one_real_launch_then_passive_observation(
+  smoke_harness: Any,
+) -> None:
+  result = smoke_harness.run()
+  assert result["success"] is True
+  assert smoke_harness.page.gestures == [("click", ".startup-launch")]
+  assert result["elapsedSeconds"] >= 3
+
+
+def test_touch_startup_selects_day_with_taps_only_when_required(
+  smoke_harness: Any,
+) -> None:
+  smoke_harness.args.touch = True
+  smoke_harness.page.selected_mode = "night"
+  assert smoke_harness.run()["success"] is True
+  assert smoke_harness.page.gestures == [
+    ("tap", 'input[name="startup-mode"][value="day"]'),
+    ("tap", ".startup-launch"),
+  ]
+
+
+def test_already_started_viewer_gets_no_extra_activation(smoke_harness: Any) -> None:
+  smoke_harness.page.chooser_visible = False
+  assert smoke_harness.run()["success"] is True
+  assert smoke_harness.page.gestures == []
+
+
+def test_error_triggered_by_actual_launch_is_still_observed(smoke_harness: Any) -> None:
+  smoke_harness.page.launch_events = [
+    ("console", SimpleNamespace(type="error", text="launch failed", location={}))
+  ]
+  result = smoke_harness.run()
+  assert result["success"] is False
+  assert result["consoleErrors"][0]["text"] == "launch failed"

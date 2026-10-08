@@ -49,12 +49,16 @@ uv run --with playwright python scripts/smoke_browser_startup.py http://127.0.0.
 For a WebKit check, install its test browser with
 `uv run --with playwright playwright install webkit`, then use `--engine webkit`
 instead of `--channel chrome`. Repeat against the public URL after deployment.
-The script checks the active canvas's presentation-ready state and absence of
-the startup curtain, then observes three further seconds. Caught runtime errors
+The script selects Day only when needed and presses the actual start button
+(with a real tap in the touch profile). It then checks the active canvas's
+presentation-ready state and absence of the startup curtain, and observes three
+further seconds. Caught runtime errors
 logged through `console.error` are failures, as are Chrome's blocked
 AudioContext warning, page errors, critical network failures and the visible
-recovery panel. A page timer observes the scene without granting automation
-user activation; Chromium runs with strict autoplay enforcement. Touch
+recovery panel. Error and network listeners are active before navigation,
+including the start selection. After the required start gesture, a page timer
+observes the scene without further automation user activation; Chromium runs
+with strict autoplay enforcement. Touch
 emulation does not establish physical iPhone GPU compatibility.
 
 The mobile interaction gate must also run against a production package, with
@@ -65,8 +69,16 @@ uv run --with playwright python scripts/smoke_mobile_menu.py http://127.0.0.1:87
 uv run --with playwright python scripts/smoke_mobile_menu.py http://127.0.0.1:8766/ --engine webkit
 ```
 
-It exercises the bottom-left mode opener and all five modes across narrow,
-portrait, landscape and tablet viewports. The streaming regressions additionally
+It passes the startup selection with real taps on first visit and after reload,
+then exercises the bottom-left mode opener and all six modes, including
+Versunken / Flooded Berlin, across narrow,
+portrait, landscape and tablet viewports. Its real-tap transition cycle also
+checks Minecraft → Versunken → Tag and the selected state after each change.
+Versunken intentionally keeps the sheet open for its 3, 6 and 21 m depth
+controls. The gate checks their visible, unobstructed touch targets and exclusive
+pressed state, taps 6 m → 21 m → 3 m, then closes the sheet explicitly. The other
+five modes must still close the sheet themselves.
+The streaming regressions additionally
 exercise changing routes, bounded district residency, transfer acknowledgements,
 pause/resume and restoring source envelopes before eviction. Browser travel
 checks must stay within the delivered source area: the outer paper margin

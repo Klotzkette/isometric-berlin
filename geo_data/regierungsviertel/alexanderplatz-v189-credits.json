@@ -1,0 +1,15 @@
+{
+  "source": "Wikimedia Commons, reference-only inspection on 2026-10-08",
+  "records": [
+    {
+      "title": "File:Haus des Reisens, 2024 (01).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Haus_des_Reisens,_2024_(01).jpg",
+      "artist": "Bahnfrend",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Bahnfrend, Haus des Reisens, 2024 (01), 3 August 2024, Wikimedia Commons, CC BY-SA 4.0. Inspected externally for the aluminium curtain-wall grid, horizontal spandrels and concave concrete podium eaves; independently authored procedural members, no photographic pixels, artwork tracing, tenant logo, crop or image texture bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ]
+}

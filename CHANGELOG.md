@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.89 — Volksbühne, Suhrkamp and Pfefferberg
+
+- Refine the Volksbühne's curved entrance front and the separate Räuberrad
+  sculpture at its mapped location.
+- Add bounded source-bound recognition to Suhrkamp and Pfefferberg, and a
+  restrained facade and podium-eave pass at Haus des Reisens, Alexanderplatz.
+- Preserve existing city sources, mode continuity and rendering budgets;
+  small unmeasured subdivisions remain documented display estimates.
+
 ## v1.0.88 — District facades and western squares
 
 - Add restrained source-bound facade recognition in the existing covered

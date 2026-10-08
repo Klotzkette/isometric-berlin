@@ -22,6 +22,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from playwright.sync_api import ConsoleMessage, Request, Response, sync_playwright
+from smoke_mode_continuity import launch_startup_mode
 
 CRITICAL_RESOURCE_TYPES = {"document", "script", "stylesheet", "xhr", "fetch"}
 CONSOLE_ADVISORIES = {
@@ -159,6 +160,10 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
       )
       page.goto(
         args.url, wait_until="domcontentloaded", timeout=min(args.timeout, 45) * 1000
+      )
+      # Cross the real start gate once; observation afterwards sends no gestures.
+      launch_startup_mode(
+        page, "day", max(0.001, deadline - time.monotonic()), touch=args.touch
       )
       next_progress = started
       ready_since: float | None = None

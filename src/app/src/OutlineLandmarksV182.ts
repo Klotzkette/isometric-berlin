@@ -20,6 +20,9 @@ import { createSouthWestLandmarksV187 } from "./SouthWestLandmarksV187";
 import { createEastLandmarksV187 } from "./EastLandmarksV187";
 import { createMinecraftEastLandmarksV187 } from "./MinecraftEastLandmarksV187";
 import { createUraniaLuetzowV188 } from "./UraniaLuetzowV188";
+import { createVolksbuehneV189 } from "./VolksbuehneV189";
+import { createSuhrkampPfefferbergV189 } from "./SuhrkampPfefferbergV189";
+import { createAlexanderplatzV189 } from "./AlexanderplatzV189";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -66,6 +69,9 @@ export function createOutlineLandmarksV182(
       root.add(createSouthWestLandmarksV187(nextNative));
       root.add(nextNative ? createMinecraftEastLandmarksV187() : createEastLandmarksV187());
       root.add(createUraniaLuetzowV188(nextNative));
+      root.add(createVolksbuehneV189(nextNative));
+      root.add(createSuhrkampPfefferbergV189(nextNative));
+      root.add(createAlexanderplatzV189(nextNative));
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }

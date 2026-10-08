@@ -17,6 +17,19 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Volksbühne, Suhrkamp, Pfefferberg and Alexanderplatz (v1.0.89):** Retained
+  Berlin LoD2 source sheets (dl-de/zero-2-0) and OpenStreetMap identities
+  (ODbL-1.0) anchor bounded architectural additions and the Räuberrad's exact
+  mapped position. Heritage/operator accounts guide recognition; unmeasured
+  facade subdivisions, colours and sculpture proportions are documented
+  interpretations. External freely licensed references by Gerd Eichmann,
+  Lukas Beck, New York-air, Carl Ha, Fridolin freudenfett and Bahnfrend are
+  individually credited in both Wikimedia manifests. Photographs remain
+  reference-only; no photographic pixels or textures ship. Existing source
+  models and public-space courses remain intact. See [Volksbühne](docs/volksbuehne-v189.md),
+  [Suhrkamp/Pfefferberg](docs/suhrkamp-pfefferberg-v189.md) and
+  [Alexanderplatz](docs/alexanderplatz-v189.md).
+
 - **District facades and western squares (v1.0.88):** Retained Berlin LoD2,
   ALKIS district boundaries and DOP2025 (dl-de/zero-2-0), together with
   OpenStreetMap street, building and garden geometry (ODbL-1.0), anchor the

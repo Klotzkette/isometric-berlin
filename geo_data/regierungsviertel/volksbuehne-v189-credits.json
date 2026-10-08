@@ -1,0 +1,26 @@
+[
+  {
+    "landmark_id": "volksbuehne_v189",
+    "title": "File:Berlin-Volksbuehne am Rosa-Luxemburg-Platz-08-2016-gje.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Volksbuehne_am_Rosa-Luxemburg-Platz-08-2016-gje.jpg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "artist": "Gerd Eichmann",
+    "credit": "Gerd Eichmann, 12 March 2016 / CC BY-SA 4.0",
+    "role": "external_visual_QA_reference_attribution_only",
+    "photo_bundled": false,
+    "use": "Inspected frontal photograph: curved limestone facade, six columns, five tall foyer fields, lettering, banner placement and flat steel wheel silhouette. Independent procedural geometry; no pixels bundled. Historical OST and temporary posters are not reproduced."
+  },
+  {
+    "landmark_id": "raeuberrad_v189",
+    "title": "File:Berlin Rosa-Luxemburg-Platz lub 2025-11-29 img03 Räuberrad.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Rosa-Luxemburg-Platz_lub_2025-11-29_img03_R%C3%A4uberrad.jpg",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "artist": "Lukas Beck",
+    "credit": "Lukas Beck, 29 November 2025 / CC BY 4.0",
+    "role": "external_visual_QA_reference_attribution_only",
+    "photo_bundled": false,
+    "use": "Inspected rear close view: six open sectors, broad flat steel ring/spokes, two slanting legs and both feet pointing in the same direction; dark rust-brown material. No copied graffiti, stickers, pixels or texture."
+  }
+]

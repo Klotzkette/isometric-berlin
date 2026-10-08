@@ -1,0 +1,725 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.89",
+  "preservedManifestSha256": "4416ba8a7ff4097be395901464e2832f55eeee272f41ccfbf1bedcab7f8f05b5",
+  "preservedDescriptors": 1522,
+  "preservedPacketFiles": 3044,
+  "desktop": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 158026060,
+          "peak": 331672194,
+          "handles": 806,
+          "peakHandles": 4498,
+          "uploads": 4626,
+          "deletes": 3820,
+          "lost": 0
+        },
+        "instanceResidentBytes": 18387772,
+        "instanceResidentBuffers": 79,
+        "geometryResidentBuffers": 604,
+        "speculativeWarmup": true,
+        "programs": 56,
+        "contextLost": false,
+        "residentChunks": 59,
+        "outerBytes": 50421282,
+        "manifestChunks": 1522,
+        "camera": [
+          2690,
+          26.999999999999996,
+          -694
+        ],
+        "view": "volksbuehne"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 157293196,
+          "peak": 331672194,
+          "handles": 803,
+          "peakHandles": 4498,
+          "uploads": 4626,
+          "deletes": 3823,
+          "lost": 0
+        },
+        "instanceResidentBytes": 18387772,
+        "instanceResidentBuffers": 79,
+        "geometryResidentBuffers": 601,
+        "speculativeWarmup": true,
+        "programs": 56,
+        "contextLost": false,
+        "residentChunks": 58,
+        "outerBytes": 49688418,
+        "manifestChunks": 1522,
+        "camera": [
+          2726,
+          7,
+          -761
+        ],
+        "view": "wheel"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 273532430,
+          "peak": 331672194,
+          "handles": 6264,
+          "peakHandles": 6264,
+          "uploads": 10210,
+          "deletes": 3946,
+          "lost": 0
+        },
+        "instanceResidentBytes": 47460568,
+        "instanceResidentBuffers": 1192,
+        "geometryResidentBuffers": 4953,
+        "speculativeWarmup": true,
+        "programs": 64,
+        "contextLost": false,
+        "residentChunks": 73,
+        "outerBytes": 84403122,
+        "manifestChunks": 1522,
+        "camera": [
+          2775,
+          68,
+          -865.9999999999998
+        ],
+        "view": "suhrkamp"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 119990166,
+          "peak": 331672194,
+          "handles": 628,
+          "peakHandles": 6264,
+          "uploads": 10318,
+          "deletes": 9690,
+          "lost": 0
+        },
+        "instanceResidentBytes": 13569816,
+        "instanceResidentBuffers": 42,
+        "geometryResidentBuffers": 463,
+        "speculativeWarmup": true,
+        "programs": 64,
+        "contextLost": false,
+        "residentChunks": 43,
+        "outerBytes": 21663384,
+        "manifestChunks": 1522,
+        "camera": [
+          2600,
+          65,
+          -1230
+        ],
+        "view": "pfefferberg"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 332649832,
+          "peak": 332649832,
+          "handles": 9167,
+          "peakHandles": 9167,
+          "uploads": 18982,
+          "deletes": 9815,
+          "lost": 0
+        },
+        "instanceResidentBytes": 58211196,
+        "instanceResidentBuffers": 1822,
+        "geometryResidentBuffers": 7230,
+        "speculativeWarmup": true,
+        "programs": 73,
+        "contextLost": false,
+        "residentChunks": 114,
+        "outerBytes": 124694400,
+        "manifestChunks": 1522,
+        "camera": [
+          2952.603127690789,
+          100,
+          -89.43091407511386
+        ],
+        "view": "alexanderplatz"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 117942038,
+          "peak": 332649832,
+          "handles": 687,
+          "peakHandles": 9167,
+          "uploads": 19166,
+          "deletes": 18479,
+          "lost": 0
+        },
+        "instanceResidentBytes": 16399372,
+        "instanceResidentBuffers": 50,
+        "geometryResidentBuffers": 514,
+        "speculativeWarmup": true,
+        "programs": 73,
+        "contextLost": false,
+        "residentChunks": 72,
+        "outerBytes": 34125672,
+        "manifestChunks": 1522,
+        "camera": [
+          2959.9999999999995,
+          95,
+          -289.99999999999994
+        ],
+        "view": "hausreisen"
+      }
+    ],
+    "errors": [],
+    "mobile": false,
+    "before": false,
+    "success": true
+  },
+  "mobileWebKitIPhone13Profile": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 114125966,
+          "peak": 233318329,
+          "handles": 444,
+          "peakHandles": 2330,
+          "uploads": 2433,
+          "deletes": 1989,
+          "lost": 0
+        },
+        "instanceResidentBytes": 16308716,
+        "instanceResidentBuffers": 45,
+        "geometryResidentBuffers": 397,
+        "speculativeWarmup": false,
+        "programs": 53,
+        "contextLost": false,
+        "residentChunks": 28,
+        "outerBytes": 25170012,
+        "manifestChunks": 1522,
+        "camera": [
+          2690,
+          26.999999999999996,
+          -694
+        ],
+        "view": "volksbuehne"
+      },
+      {
+        "ready": true,
+        "mode": "night",
+        "lost": 0,
+        "buffers": {
+          "bytes": 114978002,
+          "peak": 233318329,
+          "handles": 520,
+          "peakHandles": 2330,
+          "uploads": 2529,
+          "deletes": 2009,
+          "lost": 0
+        },
+        "instanceResidentBytes": 17158092,
+        "instanceResidentBuffers": 83,
+        "geometryResidentBuffers": 435,
+        "speculativeWarmup": false,
+        "programs": 27,
+        "contextLost": false,
+        "residentChunks": 28,
+        "outerBytes": 25170012,
+        "manifestChunks": 1522,
+        "camera": [
+          2726,
+          7,
+          -761
+        ],
+        "view": "wheel"
+      },
+      {
+        "ready": true,
+        "mode": "schwellenraum",
+        "lost": 0,
+        "buffers": {
+          "bytes": 174370839,
+          "peak": 233318329,
+          "handles": 1086,
+          "peakHandles": 2330,
+          "uploads": 3274,
+          "deletes": 2188,
+          "lost": 0
+        },
+        "instanceResidentBytes": 19238732,
+        "instanceResidentBuffers": 192,
+        "geometryResidentBuffers": 892,
+        "speculativeWarmup": false,
+        "programs": 37,
+        "contextLost": false,
+        "residentChunks": 43,
+        "outerBytes": 55243890,
+        "manifestChunks": 1522,
+        "camera": [
+          2775,
+          68,
+          -865.9999999999998
+        ],
+        "view": "suhrkamp"
+      },
+      {
+        "ready": true,
+        "mode": "snowstorm",
+        "lost": 0,
+        "buffers": {
+          "bytes": 114820356,
+          "peak": 233318329,
+          "handles": 427,
+          "peakHandles": 2330,
+          "uploads": 3379,
+          "deletes": 2952,
+          "lost": 0
+        },
+        "instanceResidentBytes": 13858368,
+        "instanceResidentBuffers": 36,
+        "geometryResidentBuffers": 389,
+        "speculativeWarmup": false,
+        "programs": 31,
+        "contextLost": false,
+        "residentChunks": 27,
+        "outerBytes": 15930756,
+        "manifestChunks": 1522,
+        "camera": [
+          2600,
+          65.00000000000003,
+          -1230
+        ],
+        "view": "pfefferberg"
+      },
+      {
+        "ready": true,
+        "mode": "flood",
+        "lost": 0,
+        "buffers": {
+          "bytes": 230892368,
+          "peak": 233318329,
+          "handles": 2042,
+          "peakHandles": 2330,
+          "uploads": 5079,
+          "deletes": 3037,
+          "lost": 0
+        },
+        "instanceResidentBytes": 26393604,
+        "instanceResidentBuffers": 490,
+        "geometryResidentBuffers": 1550,
+        "speculativeWarmup": false,
+        "programs": 32,
+        "contextLost": false,
+        "residentChunks": 56,
+        "outerBytes": 95620254,
+        "manifestChunks": 1522,
+        "camera": [
+          2952.603127690789,
+          100,
+          -89.43091407511386
+        ],
+        "view": "alexanderplatz"
+      },
+      {
+        "ready": true,
+        "mode": "minecraft",
+        "lost": 0,
+        "buffers": {
+          "bytes": 112671826,
+          "peak": 233318329,
+          "handles": 394,
+          "peakHandles": 2330,
+          "uploads": 5727,
+          "deletes": 5333,
+          "lost": 0
+        },
+        "instanceResidentBytes": 68117160,
+        "instanceResidentBuffers": 84,
+        "geometryResidentBuffers": 308,
+        "speculativeWarmup": false,
+        "programs": 20,
+        "contextLost": false,
+        "residentChunks": 34,
+        "outerBytes": 39510276,
+        "manifestChunks": 1522,
+        "camera": [
+          2959.9999999999995,
+          95,
+          -289.99999999999994
+        ],
+        "view": "hausreisen"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 114109082,
+          "peak": 233318329,
+          "handles": 439,
+          "peakHandles": 2330,
+          "uploads": 6324,
+          "deletes": 5885,
+          "lost": 0
+        },
+        "instanceResidentBytes": 16306284,
+        "instanceResidentBuffers": 43,
+        "geometryResidentBuffers": 394,
+        "speculativeWarmup": false,
+        "programs": 26,
+        "contextLost": false,
+        "residentChunks": 28,
+        "outerBytes": 25170012,
+        "manifestChunks": 1522,
+        "camera": [
+          2690,
+          26.999999999999996,
+          -694
+        ],
+        "view": "volksbuehne"
+      }
+    ],
+    "errors": [],
+    "mobile": true,
+    "before": false,
+    "success": true
+  },
+  "limitations": [
+    "Browser profiles do not establish physical phone RAM limits.",
+    "WebGL buffer counters exclude textures and browser/driver overhead."
+  ],
+  "finalCloseViews": {
+    "samples": [
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 426441816,
+          "peak": 428636358,
+          "handles": 8169,
+          "peakHandles": 8169,
+          "uploads": 9228,
+          "deletes": 1059,
+          "lost": 0
+        },
+        "instanceResidentBytes": 57487752,
+        "instanceResidentBuffers": 1584,
+        "geometryResidentBuffers": 6469,
+        "speculativeWarmup": true,
+        "programs": 71,
+        "contextLost": false,
+        "residentChunks": 566,
+        "outerBytes": 219390336,
+        "manifestChunks": 1522,
+        "camera": [
+          2697,
+          23.999999999999996,
+          -1030
+        ],
+        "view": "suhrkamp-near"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 133416306,
+          "peak": 428636358,
+          "handles": 706,
+          "peakHandles": 8179,
+          "uploads": 9402,
+          "deletes": 8696,
+          "lost": 0
+        },
+        "instanceResidentBytes": 16391024,
+        "instanceResidentBuffers": 55,
+        "geometryResidentBuffers": 528,
+        "speculativeWarmup": true,
+        "programs": 71,
+        "contextLost": false,
+        "residentChunks": 61,
+        "outerBytes": 34726182,
+        "manifestChunks": 1522,
+        "camera": [
+          3040,
+          23.999999999999993,
+          -325
+        ],
+        "view": "hausreisen-near"
+      },
+      {
+        "ready": true,
+        "mode": "day",
+        "lost": 0,
+        "buffers": {
+          "bytes": 146937634,
+          "peak": 428636358,
+          "handles": 796,
+          "peakHandles": 8179,
+          "uploads": 9544,
+          "deletes": 8748,
+          "lost": 0
+        },
+        "instanceResidentBytes": 17757732,
+        "instanceResidentBuffers": 85,
+        "geometryResidentBuffers": 588,
+        "speculativeWarmup": true,
+        "programs": 71,
+        "contextLost": false,
+        "residentChunks": 58,
+        "outerBytes": 49927902,
+        "manifestChunks": 1522,
+        "camera": [
+          2710,
+          34.999999999999986,
+          -725
+        ],
+        "view": "volksbuehne-near"
+      }
+    ],
+    "errors": [],
+    "mobile": false,
+    "before": false,
+    "success": true
+  },
+  "startupGates": {
+    "chrome": {
+      "event": "result",
+      "success": true,
+      "url": "http://127.0.0.1:8773/",
+      "engine": "chromium",
+      "channel": "chrome",
+      "touch": false,
+      "elapsedSeconds": 9.56,
+      "failure": null,
+      "state": {
+        "ready": true,
+        "canvasVisible": true,
+        "curtain": false,
+        "progress": null,
+        "error": null
+      },
+      "counts": {
+        "responses": 283,
+        "pageErrors": 0,
+        "consoleErrors": 0,
+        "consoleAdvisories": 0,
+        "failedCriticalRequests": 0
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "consoleAdvisories": [],
+      "failedCriticalRequests": [],
+      "screenshot": null
+    },
+    "webkit": {
+      "event": "result",
+      "success": true,
+      "url": "http://127.0.0.1:8773/",
+      "engine": "webkit",
+      "channel": null,
+      "touch": true,
+      "elapsedSeconds": 11.81,
+      "failure": null,
+      "state": {
+        "ready": true,
+        "canvasVisible": true,
+        "curtain": false,
+        "progress": null,
+        "error": null
+      },
+      "counts": {
+        "responses": 312,
+        "pageErrors": 0,
+        "consoleErrors": 0,
+        "consoleAdvisories": 0,
+        "failedCriticalRequests": 0
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "consoleAdvisories": [],
+      "failedCriticalRequests": [],
+      "screenshot": null
+    }
+  },
+  "mobileMenuGates": {
+    "chrome": [
+      {
+        "event": "first-visit-navigation-passed",
+        "width": 390,
+        "height": 664
+      },
+      {
+        "event": "first-visit-navigation-passed",
+        "width": 568,
+        "height": 320
+      },
+      {
+        "event": "layout-passed",
+        "engine": "chromium",
+        "width": 390,
+        "height": 664
+      },
+      {
+        "event": "layout-passed",
+        "engine": "chromium",
+        "width": 320,
+        "height": 568
+      },
+      {
+        "event": "layout-passed",
+        "engine": "chromium",
+        "width": 844,
+        "height": 390
+      },
+      {
+        "event": "layout-passed",
+        "engine": "chromium",
+        "width": 568,
+        "height": 320
+      },
+      {
+        "event": "layout-passed",
+        "engine": "chromium",
+        "width": 1024,
+        "height": 768
+      },
+      {
+        "event": "hidden-chrome-menu-passed",
+        "engine": "chromium"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Nacht"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Schneesturm"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Schwellenraum"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Minecraft"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Versunken"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "chromium",
+        "mode": "Tag"
+      },
+      {
+        "event": "passed",
+        "engine": "chromium",
+        "layouts": 5,
+        "modes": 6
+      }
+    ],
+    "webkit": [
+      {
+        "event": "first-visit-navigation-passed",
+        "width": 390,
+        "height": 664
+      },
+      {
+        "event": "first-visit-navigation-passed",
+        "width": 568,
+        "height": 320
+      },
+      {
+        "event": "layout-passed",
+        "engine": "webkit",
+        "width": 390,
+        "height": 664
+      },
+      {
+        "event": "layout-passed",
+        "engine": "webkit",
+        "width": 320,
+        "height": 568
+      },
+      {
+        "event": "layout-passed",
+        "engine": "webkit",
+        "width": 844,
+        "height": 390
+      },
+      {
+        "event": "layout-passed",
+        "engine": "webkit",
+        "width": 568,
+        "height": 320
+      },
+      {
+        "event": "layout-passed",
+        "engine": "webkit",
+        "width": 1024,
+        "height": 768
+      },
+      {
+        "event": "hidden-chrome-menu-passed",
+        "engine": "webkit"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Nacht"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Schneesturm"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Schwellenraum"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Minecraft"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Versunken"
+      },
+      {
+        "event": "mode-passed",
+        "engine": "webkit",
+        "mode": "Tag"
+      },
+      {
+        "event": "passed",
+        "engine": "webkit",
+        "layouts": 5,
+        "modes": 6
+      }
+    ]
+  }
+}

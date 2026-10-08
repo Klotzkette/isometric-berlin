@@ -534,3 +534,14 @@ Roy Zuo, *(20240407) Berlin 12.jpg* (2024, CC BY-SA 4.0, dated scaffold
 condition only); Singlespeedfahrer, *Fountain Lützowplatz Eberhard Fink
 Berlin-Tiergarten.jpg* (2022, CC0). Exact file and licence URLs and their
 source/display roles are in [the evidence review](../../docs/urania-luetzow-v188.md).
+
+## v1.0.89 external references
+
+Seven inspected photographs guide independently authored architectural and
+sculpture recognition: Gerd Eichmann's Volksbühne (CC BY-SA 4.0), Lukas Beck's
+Räuberrad (CC BY 4.0), New York-air's Suhrkamp (CC BY-SA 4.0), two Pfefferberg
+terrace views by Carl Ha (CC BY-SA 4.0), Fridolin freudenfett's Pfefferberg
+courtyard (CC BY-SA 3.0), and Bahnfrend's Haus des Reisens (CC BY-SA 4.0).
+All exact file URLs and per-file credits are retained in both Wikimedia
+manifests. No photographic pixels are bundled. See
+[the release source review](../../docs/release-v1.0.89-review.md).
