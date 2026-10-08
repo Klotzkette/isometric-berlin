@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.82",
+  "package_version": "1.0.83",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -91,8 +91,8 @@
     },
     "wikimedia_attribution": {
       "path": "dzi/regierungsviertel/wikimedia_attribution.json",
-      "bytes": 260573,
-      "sha256": "4405a149d056355174729248c002c3bca9d1532555f67d9833a7c3fe5cf042a8"
+      "bytes": 265343,
+      "sha256": "dc3243b97fff0a1481a88fdb4d509bd85e2a09174559995040176a32d1526d66"
     },
     "webgl_scene": {
       "path": "mesh/regierungsviertel/scene.json",
@@ -101,23 +101,23 @@
     },
     "ground_context": {
       "path": "mesh/regierungsviertel/ground-context.json",
-      "bytes": 2329393,
-      "sha256": "78bf45dc22338b2f558adc3af3a2d8ef239820c8d065321f482cc7090734c863"
+      "bytes": 2329667,
+      "sha256": "810798aacd7051ac8f3d8c910fdc086c097c013503df1b9038e62ebe34fe5f3b"
     },
     "lod2_prisms": {
       "path": "mesh/regierungsviertel/lod2-prisms.json",
       "bytes": 6308725,
-      "sha256": "d11b81fbb4032440442266b658b290bb3f8df2e65950a16df5cbf1764339da94"
+      "sha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e"
     },
     "minecraft_voxels": {
       "path": "mesh/regierungsviertel/minecraft-voxels.json",
-      "bytes": 5595356,
-      "sha256": "7fbbb87fc307a6c748d2f48edc05ac2c940aa80d5d82de889f8c4a023ffbc3c5"
+      "bytes": 5596288,
+      "sha256": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce"
     },
     "park_details": {
       "path": "mesh/regierungsviertel/park-details.json",
-      "bytes": 6107641,
-      "sha256": "915d9419d3a8679aeda18823c5c3d35f855624323a4ace2882e5dbc09cc38db2"
+      "bytes": 6107835,
+      "sha256": "13a3c88c62cc589b113d9147721ecd74390a6533bd0ea649678b436454cdec27"
     },
     "rail_lines": {
       "path": "mesh/regierungsviertel/rail-lines.json",
@@ -136,8 +136,8 @@
     },
     "surrounding_city": {
       "path": "mesh/surrounding-berlin-v159/manifest.json",
-      "bytes": 504289,
-      "sha256": "bdc01426471154f99ccdd4351add98cb85fbb63df15910319b881cc7373720b8"
+      "bytes": 546655,
+      "sha256": "3702d3088bc4ca087ab4b75ad1cd2230636118645f08b1c11020242804e35583"
     },
     "start_page": {
       "path": "START-HERE.html",
