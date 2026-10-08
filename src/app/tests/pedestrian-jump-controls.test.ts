@@ -65,7 +65,7 @@ describe("walking keyboard focus and jump routing", () => {
       const keyDown = bind(app, "handleKeyDown", {
         HTMLElement: FocusTarget, isReservedBrowserChord, isPedestrianJumpKey,
         isPedestrianMode: true, viewerMode: "three", isReferenceOpen: false,
-        isHelpOpen: false, isRepositoryOpen: false, isReady: true,
+        isHelpOpen: false, isRepositoryOpen: false, isAttributionOpen: false, isReady: true,
         performance: { now: () => now }, lastPedestrianJumpActivationAtRef: { current: 0 },
         isPedestrianHighJumpDoubleActivation, triggerPedestrianJump: (higher: boolean) => jumps.push(higher),
       });
@@ -122,6 +122,7 @@ describe("hover keyboard height and movement routing", () => {
       isPedestrianMode: false,
       isHelpOpen: false,
       isRepositoryOpen: false,
+      isAttributionOpen: false,
       isReady: true,
       navigationKey,
       heldFlightKeysRef,
