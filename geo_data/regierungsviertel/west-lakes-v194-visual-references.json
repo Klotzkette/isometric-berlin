@@ -1,0 +1,44 @@
+[
+  {
+    "landmark_id": "pfaueninsel",
+    "title": "File:Schloss Pfaueninsel Nordosten.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File%3ASchloss_Pfaueninsel_Nordosten.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Schloss_Pfaueninsel_Nordosten.jpg/960px-Schloss_Pfaueninsel_Nordosten.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 640,
+    "height": 480,
+    "mime": "image/jpeg",
+    "license": "Public domain",
+    "license_url": "",
+    "artist": "Bautsch",
+    "credit": "photo by Bautsch",
+    "description": "Castle on the Pfaueninsel in Berlin , Germany."
+  },
+  {
+    "landmark_id": "tegel",
+    "title": "File:Schloss Tegel1.JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File%3ASchloss_Tegel1.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Schloss_Tegel1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "width": 640,
+    "height": 480,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "artist": "Lienhard Schulz",
+    "credit": "Own work",
+    "description": "Palace Tegel, Humboldt\u2019s family property in Berlin, reconstructed by en:Karl Friedrich Schinkel 1820\u20131824"
+  },
+  {
+    "landmark_id": "borsig",
+    "title": "File:Borsig-Villa Reiherwerder.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File%3ABorsig-Villa_Reiherwerder.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Borsig-Villa_Reiherwerder.jpg/960px-Borsig-Villa_Reiherwerder.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 640,
+    "height": 479,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "artist": "Jcornelius",
+    "credit": "Own work",
+    "description": "Borsig-Villa Reiherwerder, Berlin-Tegel"
+  }
+]

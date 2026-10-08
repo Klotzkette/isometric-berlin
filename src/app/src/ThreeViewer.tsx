@@ -1607,8 +1607,12 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
-      eastSquaresV163SolidAt(x,z,y,radius) || (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
-    waterAt: (x: number, z: number) => runtime.surroundingCity?.waterAt(x, z) ?? false,
+      eastSquaresV163SolidAt(x,z,y,radius) ||
+      (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
+      (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
+    waterAt: (x: number, z: number) =>
+      (runtime.outerThinOutlines?.userData.waterAt?.(x, z) ?? false) ||
+      (runtime.surroundingCity?.waterAt(x, z) ?? false),
   };
 }
 

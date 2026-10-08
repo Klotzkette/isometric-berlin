@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+from packet_receipts_v194 import audited_v194_changes, baseline_v193
 from relief_receipts_v183 import restore_v183_altitudes
 
 from scripts.build_park_relief_v182 import original, sample
@@ -59,10 +60,15 @@ def test_all_outer_triangles_accounted_for_and_navigation_keeps_every_ring() -> 
   report = json.loads(
     (ROOT / "geo_data/regierungsviertel/park-relief-v182-audit.json").read_bytes()
   )
+  # Prove this old altitude-only operation against the immutable predecessor
+  # where later exact source-owner substitutions are independently verified.
+  changes = audited_v194_changes()
   for entry in report["outer"]:
     path = ROOT / entry["file"]
     before = json.loads(gzip.decompress(original(path)))
-    after = json.loads(gzip.decompress(path.read_bytes()))
+    cell, mode, _, _ = path.name.split(".")
+    retained = baseline_v193(path) if (cell, mode) in changes else path.read_bytes()
+    after = json.loads(gzip.decompress(retained))
     assert len(before["meshes"]) == len(after["meshes"])
     for receipt in entry["meshes"]:
       assert (

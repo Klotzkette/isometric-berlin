@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Kreuzberg, airports and western lakes (v1.0.94):** Retained Berlin LoD2
+  and DGM terrain (dl-de/zero-2-0), together with full OpenStreetMap source
+  routes, shores, islands and building footprints (ODbL-1.0). Dedicated
+  architectural fittings and unsurveyed road widths are recognition estimates.
+  Existing source credits remain available; no photographic pixels are used
+  as scene textures. See [the release evidence](docs/release-v1.0.94-review.md).
+
 - **Zionskirchplatz and Arkonaplatz (v1.0.93):** Retained Berlin LoD2 walls and
   DGM terrain (dl-de/zero-2-0) combine with OSM streets, paths and public-space
   anchors (ODbL-1.0). Facade subdivisions, material colours and representative

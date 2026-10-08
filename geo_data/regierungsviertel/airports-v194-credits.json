@@ -1,0 +1,62 @@
+[
+  {
+    "landmark_id": "tegel-airport",
+    "title": "File:Flughafen Tegel Tower und Hauptgebäude.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Flughafen_Tegel_Tower_und_Hauptgeb%C3%A4ude.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Flughafen_Tegel_Tower_und_Hauptgeb%C3%A4ude.jpg/960px-Flughafen_Tegel_Tower_und_Hauptgeb%C3%A4ude.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 960,
+    "height": 644,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "artist": "Hans Knips",
+    "credit": "Own work",
+    "description": "Berlin Tegel Airport, Germany",
+    "use": "Inspected external visual reference only; no photographic pixels bundled. Dated historical terminal appearance, not live construction condition."
+  },
+  {
+    "landmark_id": "tempelhof-airport",
+    "title": "File:TempelhofExterior.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:TempelhofExterior.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/TempelhofExterior.jpg/960px-TempelhofExterior.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 960,
+    "height": 660,
+    "mime": "image/jpeg",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "artist": "AlanFord",
+    "credit": "en.wikipedia.org: 23:23, 9. Jun. 2006 . . AlanFord . . 2816×2112 (1.503.202 Bytes) (The exterior of Tempelhof International Airport, Berlin, Germany. Photo taken by Alan Ford, 2006-04-22.)",
+    "description": "the entrance to Tempelhof International Airport",
+    "use": "Inspected external visual reference only; no photographic pixels bundled. Dated historical terminal appearance, not live construction condition."
+  },
+  {
+    "landmark_id": "tempelhof-airport",
+    "title": "File:FlughafenTempelhofBerlin-2026-09-msu--0440.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:FlughafenTempelhofBerlin-2026-09-msu--0440.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/FlughafenTempelhofBerlin-2026-09-msu--0440.jpg/960px-FlughafenTempelhofBerlin-2026-09-msu--0440.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 960,
+    "height": 1440,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "artist": "Matthias Süßen",
+    "credit": "Own work",
+    "description": "Hangars am Flughafen Berlin Tempelhof",
+    "use": "Inspected external visual reference only; no photographic pixels bundled. Dated historical terminal appearance, not live construction condition."
+  },
+  {
+    "landmark_id": "tempelhof-airport",
+    "title": "File:Berlin - Flughafen Tempelhof - 2016.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Flughafen_Tempelhof_-_2016.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Berlin_-_Flughafen_Tempelhof_-_2016.jpg/960px-Berlin_-_Flughafen_Tempelhof_-_2016.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 960,
+    "height": 640,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "artist": "Avda",
+    "credit": "Own work",
+    "description": "Aerial view of airport Tempelhof in 2016",
+    "use": "Inspected external visual reference only; no photographic pixels bundled. Dated historical terminal appearance, not live construction condition."
+  }
+]

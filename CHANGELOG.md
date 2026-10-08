@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.94 — Kreuzberg, airports, Tegel and western lakes
+
+- Correct the Kreuzberg cascade against retained terrain and refine the Nationaldenkmal.
+- Refine complete Tempelhof source roofs and add Tegel terminal/runway recognition.
+- Add bounded A111 routes through Tegel, complete western lake outlines and named lakeside landmarks.
+- Preserve unrelated city detail, full drawn mobile quality and existing loading budgets.
+
 ## v1.0.93 — Zionskirchplatz and Arkonaplatz
 
 - Audit the complete Zionskirchplatz frontage and refine source-bound facade colours, window divisions, cornices and ground floors.

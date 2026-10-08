@@ -105,6 +105,16 @@ only their documented exact coarse owners. Grunewald relief may change altitudes
 and subdivide surface triangles while retaining all source XZ vertices; see the
 versioned preservation receipts. Other sites and the 93-place tour remain intact.
 
+The owner's v1.0.94 request permits the finite named supplement recorded in
+`bounds-named-v194.geojson`: Tegel's former airport and runways, the A111 through
+Tegel to the northern Berlin source boundary, Tegeler See with Schloss Tegel and
+Villa Borsig, complete Wannsee and Pfaueninsel. Tempelhof and Viktoriapark are
+refined within existing scopes. Preserve full mapped shore rings and holes,
+the official existing Kreuzberg elevation field, all unrelated city geometry
+and the 93-place tour. Only documented exact coarse owners may be substituted
+with their complete source sheets. No rectangular district fill, new runtime
+residency budget or reduced mobile quality is authorized by this supplement.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

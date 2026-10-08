@@ -31,6 +31,10 @@ import { createRailStationsV190 } from "./RailStationsV190";
 import { createCentreAccessV192 } from "./CentreAccessV192";
 import { createZionskirchplatzV193 } from "./ZionskirchplatzV193";
 import { createArkonaplatzV193 } from "./ArkonaplatzV193";
+import { createTegelMotorwayV194 } from "./TegelMotorwayV194";
+import { createViktoriaparkV194 } from "./ViktoriaparkV194";
+import { createAirportsV194 } from "./AirportsV194";
+import { createWestLakesV194 } from "./WestLakesV194";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -87,6 +91,10 @@ export function createOutlineLandmarksV182(
       root.add(createCentreAccessV192(nextNative));
       root.add(createZionskirchplatzV193(nextNative));
       root.add(createArkonaplatzV193(nextNative));
+      root.add(createTegelMotorwayV194(nextNative));
+      root.add(createViktoriaparkV194(nextNative));
+      root.add(createAirportsV194(nextNative));
+      root.add(createWestLakesV194(nextNative));
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }

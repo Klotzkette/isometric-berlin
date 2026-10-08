@@ -858,11 +858,11 @@ def _verified_park_relief_v182_files(station_files: set[str]) -> set[str]:
     )
     assert hashlib.sha256(raw).hexdigest() == row["baseSha256"]
     assert raw == _baseline(path)
-    # A later exact owner substitution touches two already elevated source
-    # triangles in 6_-1. Its independent replay starts from this v182 result,
-    # so prove the older hill transformation against that immutable checkpoint.
+    # Later station and v194 park-owner substitutions retain independently
+    # verified immutable checkpoints. Prove this older relief operation against
+    # its own full result, then the exact later transitions through their chains.
     current = (
-      station_baseline(path) if row["file"] in station_files else path.read_bytes()
+      station_baseline(path) if row["file"] in station_files else predecessor_v190(path)
     )
     before, after = _payload(raw, path), _payload(current, path)
     assert {k: v for k, v in before.items() if k not in {"meshes", "lines", "nav"}} == {

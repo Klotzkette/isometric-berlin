@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "baseRelease": "v1.0.93",
+  "id": "1_6",
+  "owner": "DEBE02YY400001Vu",
+  "sourceSha256": "bff31720823b0bb6b2421c747685c56f9ec6e954770d0982bede1d2df9a89fe1",
+  "terrainSha256": "c680e99cd15e61d5a10b0b38b9fa53854473fbe5891e58bd50023075f0f188ff",
+  "policy": "Only the exact lifted coarse monument owner is replaced by its full source shell. Only water Y changes; all source water XZ triangles, colours, other triangles, every navigation ring, trees and terrain survive.",
+  "basins": [
+    {
+      "id": "way/31791743",
+      "displayY": 6.83
+    },
+    {
+      "id": "relation/544767",
+      "displayY": 30.95
+    },
+    {
+      "id": "way/171168191",
+      "displayY": 6.94
+    }
+  ],
+  "modes": {
+    "drawn": {
+      "oldSha256": "419eee0cdb7ad80239628773ba320a11dbf332955128ce689c0544574ceae00a",
+      "newSha256": "c47ef8dd3edf7d1dfb1804c036431ed5c0de4fc777eae57d670b536a3c126527",
+      "removedOwnerTriangles": 22,
+      "removedOwnerInkSegments": 8,
+      "waterTriangles": 508,
+      "changedWaterTriangles": 508,
+      "preservedTriangles": 61486,
+      "preservedTrianglesSha256": "843fd5c1d1bd592e97b12337feadcb62bef1db3743e1dc3d10d903f3895d49d4",
+      "sourceWaterXzSha256": "ea5b3a40e14d4222a5ac7f2ae45537fe0eb95c435bc0f3905e0b62f56ae9ecd2",
+      "allNavigationUnchanged": true,
+      "oldDescriptor": {
+        "url": "1_6.drawn.json.gz",
+        "bytes": 636340,
+        "decodedBytes": 1917596,
+        "encoding": "gzip",
+        "sha256": "419eee0cdb7ad80239628773ba320a11dbf332955128ce689c0544574ceae00a"
+      },
+      "newDescriptor": {
+        "url": "1_6.drawn.json.gz",
+        "bytes": 636675,
+        "decodedBytes": 1916764,
+        "encoding": "gzip",
+        "sha256": "c47ef8dd3edf7d1dfb1804c036431ed5c0de4fc777eae57d670b536a3c126527"
+      }
+    },
+    "minecraft": {
+      "oldSha256": "de42cd403ceafc740a5b2cae2bcae1d4e88102c4412159fe63a4ade821699d9c",
+      "newSha256": "4d707a0b4f34e42de9b78bd65f946fd931ce4b59dd8730b5d412fc97778e359f",
+      "removedOwnerTriangles": 181,
+      "removedOwnerInkSegments": 0,
+      "waterTriangles": 349,
+      "changedWaterTriangles": 305,
+      "preservedTriangles": 158593,
+      "preservedTrianglesSha256": "5f6203d76aacbabf945e9fce0f96e3dcfb535c95a46c186acad8231d5ba30e1c",
+      "sourceWaterXzSha256": "c2b58350480beda2b2876cccfea56150baa7cfec0e225a4273cf3d114845d0dd",
+      "allNavigationUnchanged": true,
+      "oldDescriptor": {
+        "url": "1_6.minecraft.json.gz",
+        "bytes": 1233594,
+        "decodedBytes": 4236573,
+        "encoding": "gzip",
+        "sha256": "de42cd403ceafc740a5b2cae2bcae1d4e88102c4412159fe63a4ade821699d9c"
+      },
+      "newDescriptor": {
+        "url": "1_6.minecraft.json.gz",
+        "bytes": 1233589,
+        "decodedBytes": 4234013,
+        "encoding": "gzip",
+        "sha256": "4d707a0b4f34e42de9b78bd65f946fd931ce4b59dd8730b5d412fc97778e359f"
+      }
+    }
+  }
+}

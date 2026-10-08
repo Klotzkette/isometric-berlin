@@ -123,6 +123,18 @@ def audited_v190_changes() -> tuple[dict, list]:
     assert before != after
   verify_subtractions_v190(north["chunks"], set(north["sourceIds"]), north=True)
   verify_subtractions_v190(rail["chunks"], set(rail["ownerIds"]), north=False)
+  # Chain only independently verified v194 owner/water transitions through
+  # the unchanged v189 checkpoint; never rewrite earlier baseline hashes.
+  from packet_receipts_v194 import audited_v194_changes
+
+  for key, (before, after) in audited_v194_changes().items():
+    if key in changes:
+      original, intermediate = changes[key]
+      assert intermediate == before
+      changes[key] = (original, after)
+    else:
+      assert previous[key[0]][key[1]]["sha256"] == before
+      changes[key] = (before, after)
   return changes, companions
 
 
@@ -154,6 +166,16 @@ def assert_retained_descriptor(old: dict, current: dict, changes: dict) -> None:
         # the named owner subtraction must shrink both existing representations.
         assert len(raw) < before["bytes"] == 659_567
         assert decoded_bytes < before["decodedBytes"] == 2_620_565
+      elif (old["id"], mode) == ("1_6", "minecraft"):
+        # Already oversized in v193; exact owner subtraction and water-only
+        # datum correction shrink both representations, verified independently.
+        assert len(raw) <= before["bytes"] == 1_233_594
+        assert decoded_bytes <= before["decodedBytes"] == 4_236_573
+      elif (old["id"], mode) == ("1_7", "minecraft"):
+        # The unchanged v159 predecessor already exceeded the transfer target;
+        # v194 removes only the independently verified Tempelhof owner faces.
+        assert len(raw) < before["bytes"] == 684_576
+        assert decoded_bytes < before["decodedBytes"] == 2_471_379
       else:
         assert len(raw) < 650_000 and decoded_bytes < 2_600_000
 

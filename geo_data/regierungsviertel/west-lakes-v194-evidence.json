@@ -1,0 +1,116 @@
+{
+  "version": "1.0.94",
+  "sourceSha256": "595a2af3b4ad8e850750523335f8b9916f6bce35ebe23f5e79f21fdba47cc46c",
+  "sourceInventory": {
+    "tegel-water": {
+      "id": "relation/451908",
+      "areaM2": 3819336.223422,
+      "rings": 8,
+      "vertices": 1313
+    },
+    "kleiner-wannsee": {
+      "id": "way/4423275",
+      "areaM2": 191545.244172,
+      "rings": 1,
+      "vertices": 244
+    },
+    "grosser-wannsee": {
+      "id": "way/4436463",
+      "areaM2": 1422558.038605,
+      "rings": 1,
+      "vertices": 332
+    },
+    "villa-borsig": {
+      "id": "way/22529932",
+      "areaM2": 908.568478,
+      "rings": 1,
+      "vertices": 29
+    },
+    "pfaueninsel": {
+      "id": "way/25179280",
+      "areaM2": 679446.77999,
+      "rings": 1,
+      "vertices": 757
+    },
+    "havel-pfaueninsel": {
+      "id": "relation/173239",
+      "areaM2": 3377555.345048,
+      "rings": 3,
+      "vertices": 1158
+    },
+    "schloss-tegel": {
+      "id": "way/24448740",
+      "areaM2": 471.874976,
+      "rings": 1,
+      "vertices": 21
+    },
+    "schloss-pfaueninsel": {
+      "id": "way/25014562",
+      "areaM2": 221.065476,
+      "rings": 1,
+      "vertices": 94
+    },
+    "havel-wannsee": {
+      "id": "relation/4578498",
+      "areaM2": 7629621.152574,
+      "rings": 4,
+      "vertices": 837
+    },
+    "pfaueninsel-part-1540816649": {
+      "id": "way/1540816649",
+      "areaM2": 1.017947,
+      "rings": 1,
+      "vertices": 6
+    },
+    "pfaueninsel-part-1543022894": {
+      "id": "way/1543022894",
+      "areaM2": 1.115314,
+      "rings": 1,
+      "vertices": 7
+    },
+    "pfaueninsel-part-1543260963": {
+      "id": "way/1543260963",
+      "areaM2": 0.685894,
+      "rings": 1,
+      "vertices": 6
+    }
+  },
+  "newWaterAreaM2": {
+    "tegel-water": 3819336.223422,
+    "kleiner-wannsee": 7643.539693
+  },
+  "newLandAreaM2": {
+    "tegel-water": 844866.708526,
+    "pfaueninsel": 500241.687106,
+    "schloss-tegel-context": 6882.670717,
+    "villa-borsig-context": 6763.461386
+  },
+  "waterY": -1.15,
+  "wannseePartitionAudit": {
+    "grosser-wannsee": {
+      "completeAreaM2": 1422558.0386047629,
+      "missingPriorScopeM2": 0.0
+    },
+    "havel-pfaueninsel": {
+      "completeAreaM2": 3377555.34504789,
+      "missingPriorScopeM2": 0.0
+    },
+    "havel-wannsee": {
+      "completeAreaM2": 7629621.152573545,
+      "missingPriorScopeM2": 0.0
+    }
+  },
+  "geometryPolicy": "Complete OSM rings retained; additions only outside v187. No prior packet edits. Native 2m horizontal water/land terraces, 1m exterior building blocks. No hidden solid infill.",
+  "heightProvenance": "OSM footprints exact; Schloss Tegel source 3 levels. All vertical silhouettes/roof/window dimensions are photo-informed display estimates (no cached LoD2 tile/owner available); Pfauen source height13 itself estimated. Flat existing world datum3m, no invented terrain relief.",
+  "creditsPath": "west-lakes-v194-visual-references.json",
+  "westLakesV194.json": {
+    "bytes": 510072,
+    "triangles": 9462,
+    "boxes": 720
+  },
+  "westLakesV194Native.json": {
+    "bytes": 2007547,
+    "triangles": 41595,
+    "boxes": 1793
+  }
+}
