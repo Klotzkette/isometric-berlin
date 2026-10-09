@@ -5901,6 +5901,34 @@
       "photo_bundled": false,
       "referenceImageSha256": "eef0d336da65dd48bf17b255d1385ac6437dbb13f120ef4226a341b3893f9007",
       "landmark_id": "funkturm_v199"
+    },
+    {
+      "landmark_id": "wuhlheide_v201",
+      "title": "File:BerlinWuhlheide-2014.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:BerlinWuhlheide-2014.JPG",
+      "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/BerlinWuhlheide-2014.JPG",
+      "artist": "Lugnuts",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "BerlinWuhlheide-2014.JPG — Lugnuts, CC BY-SA 3.0, Wikimedia Commons. External visual recognition reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Visual recognition only: four white tensile peaks, inclined steel legs, open stage and curved backless bench rows; no tracing, sampling or embedded image.",
+      "photo_bundled": false,
+      "referenceImageSha256": "e842e5348a92f1e9a3a2aef0b52d89e0372ea31ac674915991f9c57821d46466"
+    },
+    {
+      "landmark_id": "wuhlheide_v201",
+      "title": "File:Wuhlheide Konzert Green Day 2022-06-01 Bild 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Wuhlheide_Konzert_Green_Day_2022-06-01_Bild_1.jpg",
+      "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Wuhlheide_Konzert_Green_Day_2022-06-01_Bild_1.jpg/960px-Wuhlheide_Konzert_Green_Day_2022-06-01_Bild_1.jpg",
+      "artist": "Strubbl",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Wuhlheide Konzert Green Day 2022-06-01 Bild 1.jpg — Strubbl, CC BY-SA 4.0, Wikimedia Commons. External visual recognition reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "2022 corroboration of current roof silhouette and exposed spectator slopes; no photographic texture.",
+      "photo_bundled": false,
+      "referenceImageSha256": "2db6d116c20eb14806dfda543bd820ca421e79b443b7e8ee270788ab7d4b07a9"
     }
   ]
 }
