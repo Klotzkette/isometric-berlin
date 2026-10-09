@@ -151,6 +151,23 @@ remnants may be removed by exact ID. Keep unrelated packets and all older
 geometric detail. Cemetery markers beyond mapped grave nodes are explicitly
 illustrative and restricted to mapped sectors; do not invent named graves.
 
+The owner's v1.0.100 clarification explicitly permits Alt- and
+Neu-Hohenschönhausen, Oberschöneweide, Niederschönhausen and Adlershof,
+plus initial source-bound outlines of Grünheide (Mark), BER airport and
+the A10 Berliner Ring. Document finite versioned scopes and subtract prior
+coverage before adding district geometry. The regional ring is a narrow mapped
+route, not permission to fill its entire interior. Keep source vertices, all
+earlier city detail, the 93-place tour and existing runtime residency budgets.
+Unsurveyed heights and cartographic widths remain explicit display estimates.
+The same request additionally authorizes a thin complete Berlin state-boundary
+outline and a thin red historically sourced Berlin Wall course. These are
+cartographic lines, not new filled territory or invented wall structures.
+Bounded refinements at Heckmannhöfe, Delivery Hero headquarters, the former
+HU barracks on Geschwister-Scholl-Straße, the HU main building/courtyard and
+Bebelplatz stay within previous coverage. A false construction at
+Oranienburger-/Tucholskystraße may be corrected only after identifying its
+exact erroneous owner and preserving all unrelated buildings and road geometry.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

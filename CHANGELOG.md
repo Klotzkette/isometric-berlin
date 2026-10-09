@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.100 — Regional outlines, Berlin boundary and central courtyards
+
+- Add 199 source-bound outline cells across five explicitly named Ortsteile, keeping all earlier packet bytes and runtime residency limits unchanged.
+- Add finite BER and Grünheide outlines and both mapped A10 carriageway rings; extend navigation and the local walking minimap to their exact scopes.
+- Trace the official Berlin state boundary and the historical 1989 Vorderlandmauer with restrained hairlines, preserving every source vertex and documented gaps.
+- Correct the underground Oranienburger Straße station falsely extruded above the street. Refine Heckmannhöfe, Delivery Hero, HU barracks, HU courtyard and Bebelplatz within existing coverage.
+- Keep constructor data collectible and preserve all six modes, source provenance and the 93-stop tour.
+- [Sources and verification](docs/release-v1.0.100-review.md).
+
 ## v1.0.99 — Funkturm, ICC and Grunewald-Forst
 
 - Refine the Funkturm’s foundations, restaurant canopy, stairs and upper fittings.

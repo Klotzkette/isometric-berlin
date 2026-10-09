@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "step": 10,
+  "version": "v200",
+  "interpretation": "All source coordinates and roof forms are measured LoD2. Architectural material families and functional identity follow the cited primary sources. RGB values, bay spacing, storey placement, frame thickness, mortar courses, door locations and shallow relief are proportional presentation estimates, not surveyed apertures. No new court enclosure, fictitious tower, door opening cut, or land expansion.",
+  "primarySources": [
+    {
+      "url": "https://www.deliveryhero.com/imprint/",
+      "facts": "Head office Oranienburger Straße 70; delivery address Ziegelstraße 23."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035281",
+      "facts": "Historic Fernsprechamt Tucholskystraße 6–14: Felix Gentzen 1926; varied fired clinker, vertical wall piers, layered clay-plate ornament."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020488",
+      "facts": "Oranienburger Straße 70/Tucholskystraße 16: postwar Institute for Postal and Telecommunications, 1958–1963. Its material and exact bay count are not textually established; neutral existing palette retained as an estimate."
+    },
+    {
+      "url": "https://www.forum-museumsinsel.de/fernsprechamt/",
+      "facts": "The historic telephone building and later corner extension are distinct construction phases."
+    },
+    {
+      "url": "https://heckmannhoefe.de/historie/",
+      "facts": "Three courts, housing at the first and last, commercial activities in the middle and ground floors. Open passage between Oranienburger Straße and Auguststraße; site address Oranienburger Straße 32."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080251",
+      "facts": "Oranienburger Straße 32: protected residential building and coach house; no surveyed opening or color schedule supplied."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035042",
+      "facts": "Auguststraße 9/Tucholskystraße 34: plaster courses and cornices, terracotta-colored frieze, sandstone/terracotta restoration colors; rounded stair projection on courtyard side."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075018",
+      "facts": "Kaiser Alexander Garde Grenadier barracks, Geschwister-Scholl-Straße 7/8, built 1898–1902. Brick with sandstone/plaster and projecting facade sections. Eastern tower retains its pyramid and small corner towers; western tower reconstructed more simply. No mirroring of eastern ornaments to the west."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095954",
+      "facts": "Former Prince Heinrich palace, now HU main building. Existing modeled Linden front and wings remain intact. Only the previously undecorated north garden-facing source walls receive restrained frames/courses."
+    },
+    {
+      "url": "https://www.openstreetmap.org/way/205728152",
+      "facts": "Existing Bebelplatz measured plaza boundary, surface=sett. New sparse joint lines are an estimated texture-free readability treatment within this unchanged boundary; the memorial exclusion remains open."
+    }
+  ],
+  "buildings": [
+    {
+      "parentId": "DEBE01YYK00004EC",
+      "site": "delivery-hero",
+      "style": "postwar",
+      "levelsEstimate": 5,
+      "bayPitchEstimate": 3.7,
+      "paint": 13158075,
+      "trim": 14078661,
+      "roof": 7366498,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK0000C4T",
+      "site": "delivery-hero",
+      "style": "clinker",
+      "levelsEstimate": 5,
+      "bayPitchEstimate": 3.25,
+      "paint": 10710358,
+      "trim": 12028265,
+      "roof": 7562328,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK00008Om",
+      "site": "hu-barracks",
+      "style": "barracks-west",
+      "levelsEstimate": 4,
+      "bayPitchEstimate": 3.6,
+      "paint": 12823433,
+      "trim": 14602679,
+      "roof": 9789257,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK00004Qe",
+      "site": "hu-barracks",
+      "style": "barracks-west",
+      "levelsEstimate": 4,
+      "bayPitchEstimate": 3.6,
+      "paint": 12165766,
+      "trim": 14536885,
+      "roof": 9789257,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK00006Bw",
+      "site": "hu-barracks",
+      "style": "barracks-west",
+      "levelsEstimate": 4,
+      "bayPitchEstimate": 3.6,
+      "paint": 12823433,
+      "trim": 14602679,
+      "roof": 9789257,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK00002p7",
+      "site": "hu-barracks",
+      "style": "barracks-east",
+      "levelsEstimate": 3,
+      "bayPitchEstimate": 3.8,
+      "paint": 12756359,
+      "trim": 14536368,
+      "roof": 9789257,
+      "selection": "exposed"
+    },
+    {
+      "parentId": "DEBE01YYK0000BdM",
+      "site": "heckmann",
+      "style": "house",
+      "levelsEstimate": 4,
+      "bayPitchEstimate": 3.6,
+      "paint": 14140584,
+      "trim": 15195589,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK00001Gd",
+      "site": "heckmann",
+      "style": "coach",
+      "levelsEstimate": 2,
+      "bayPitchEstimate": 3.4,
+      "paint": 12105124,
+      "trim": 14537916,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK00004Hv",
+      "site": "heckmann",
+      "style": "coach",
+      "levelsEstimate": 2,
+      "bayPitchEstimate": 3.4,
+      "paint": 13153690,
+      "trim": 14799801,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK000025l",
+      "site": "heckmann",
+      "style": "coach",
+      "levelsEstimate": 2,
+      "bayPitchEstimate": 3.4,
+      "paint": 12302758,
+      "trim": 14603708,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK0000Epg",
+      "site": "heckmann",
+      "style": "coach",
+      "levelsEstimate": 2,
+      "bayPitchEstimate": 3.4,
+      "paint": 12759702,
+      "trim": 14536631,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK00005xT",
+      "site": "heckmann",
+      "style": "coach",
+      "levelsEstimate": 2,
+      "bayPitchEstimate": 3.4,
+      "paint": 12168339,
+      "trim": 14536631,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK00005n7",
+      "site": "heckmann",
+      "style": "august",
+      "levelsEstimate": 4,
+      "bayPitchEstimate": 3.5,
+      "paint": 13678993,
+      "trim": 15062454,
+      "roof": 7890263,
+      "selection": "heckmann"
+    },
+    {
+      "parentId": "DEBE01YYK0000Cm9",
+      "site": "hu-main",
+      "style": "palace-court",
+      "levelsEstimate": 3,
+      "bayPitchEstimate": 4.4,
+      "paint": 14275522,
+      "trim": 15130575,
+      "roof": 6708568,
+      "selection": "hu-garden"
+    }
+  ],
+  "heckmannSite": {
+    "osmWayId": "80339681",
+    "geometry": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [
+          [
+            [
+              1532.7473025224172,
+              -648.9666415210813
+            ],
+            [
+              1543.716162177967,
+              -669.442251172848
+            ],
+            [
+              1553.4868598439498,
+              -683.6574164256454
+            ],
+            [
+              1581.4539356298628,
+              -725.6541509078816
+            ],
+            [
+              1575.619842664688,
+              -732.7943508885801
+            ],
+            [
+              1564.689384129888,
+              -755.8269531112164
+            ],
+            [
+              1576.3891913424013,
+              -761.8871795181185
+            ],
+            [
+              1574.3961299877847,
+              -766.8721951432526
+            ],
+            [
+              1568.5386650857981,
+              -783.0263268519193
+            ],
+            [
+              1556.1650035779458,
+              -786.0278980182484
+            ],
+            [
+              1552.8897598114563,
+              -777.3099238546565
+            ],
+            [
+              1514.6596474283724,
+              -656.5910394163802
+            ],
+            [
+              1532.7473025224172,
+              -648.9666415210813
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "huGardenSelection": [
+    [
+      1460,
+      12
+    ],
+    [
+      1535,
+      5
+    ],
+    [
+      1544,
+      107
+    ],
+    [
+      1468,
+      114
+    ]
+  ]
+}

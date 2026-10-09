@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np
+from packet_additions_v200 import audited_v200_additions
 from packet_receipts_v190 import (
   assert_retained_descriptor,
   audited_v190_changes,
@@ -38,7 +39,7 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   old = EVIDENCE["oldDescriptors"]
   assert len(old) == 1369
   changes, _ = audited_v190_changes()
-  additions = v190_additions()
+  additions = {**v190_additions(), **audited_v200_additions()}
   retained = [
     c
     for c in MANIFEST["chunks"]
@@ -52,6 +53,7 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   # and its union bounds extend the original spatial coverage.
   previous_manifest = json.loads(baseline_v189(OUT / "manifest.json"))
   north = read(GEO / "north-city-v190-manifest.json")
+  east = read(GEO / "east-city-v200-manifest.json")
   for key, expected in EVIDENCE["oldManifestFieldSha256"].items():
     value = (
       previous_manifest[key]
@@ -67,12 +69,15 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
       d.get("detailCompanionOf", "").startswith("outer187-") for d in additions.values()
     ),
   }
-  assert MANIFEST["footprint"] == previous_manifest["footprint"] + north["footprint"]
+  assert (
+    MANIFEST["footprint"]
+    == previous_manifest["footprint"] + north["footprint"] + east["footprint"]
+  )
   assert MANIFEST["bounds"] == [
-    min(previous_manifest["bounds"][0], north["bounds"][0]),
-    min(previous_manifest["bounds"][1], north["bounds"][1]),
-    max(previous_manifest["bounds"][2], north["bounds"][2]),
-    max(previous_manifest["bounds"][3], north["bounds"][3]),
+    min(previous_manifest["bounds"][0], north["bounds"][0], east["bounds"][0]),
+    min(previous_manifest["bounds"][1], north["bounds"][1], east["bounds"][1]),
+    max(previous_manifest["bounds"][2], north["bounds"][2], east["bounds"][2]),
+    max(previous_manifest["bounds"][3], north["bounds"][3], east["bounds"][3]),
   ]
 
 

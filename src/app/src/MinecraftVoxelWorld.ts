@@ -1,3 +1,5 @@
+import { isCentralSitesV200ReplacedColumn } from "./centralSitesV200ReplacementProfile";
+import { isCentralSitesV200FalseColumn } from "./centralSitesV200Profile";
 import { nationalgalerieV183Column } from "./neueNationalgalerieV183Profile";
 import { createMinecraftZionskirchplatzV175 } from "./ZionskirchplatzV175";
 import { createMinecraftBerlinWallMemorialV174 } from "./BerlinWallMemorialV174";
@@ -3175,6 +3177,8 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (!(
+      !isCentralSitesV200FalseColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !isCentralSitesV200ReplacedColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !berlinJunctionReplacesSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !rosengartenPergolaVoxelReplacementAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !wagnerMemorialVoxelReplacementAt(

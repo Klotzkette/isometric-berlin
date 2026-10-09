@@ -596,6 +596,7 @@ export type PedestrianPose = {
   x: number;
   z: number;
   surroundingTiles?: readonly SurroundingNavigationTile[];
+  outlineTiles?: readonly SurroundingNavigationTile[];
 };
 
 type ThreeViewerProps = {
@@ -1876,7 +1877,10 @@ function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
   root.traverse((object) => {
     if (
       object instanceof LineSegments &&
-      object.material instanceof LineBasicMaterial
+      object.material instanceof LineBasicMaterial &&
+      // These two explicit map annotations must retain their authored depth
+      // and opacity, rather than adopting close architectural-ink fading.
+      object.userData.berlinBoundariesV200 !== true
     ) {
       stabilizeInkLineMaterial(object.material);
       registerInkDrawObject(object);
@@ -5485,6 +5489,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         x: state.x,
         z: state.z,
         surroundingTiles: runtime.surroundingCity?.navigationTiles,
+        outlineTiles: runtime.outerThinOutlines?.userData.navigationTiles,
       });
     };
 

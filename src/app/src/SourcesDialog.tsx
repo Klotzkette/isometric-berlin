@@ -35,6 +35,9 @@ export function SourcesDialog({ language, onClose }: {
       </header>
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
+        <p>{language === "de"
+          ? "Dünne graugrüne Linie: heutige Landesgrenze Berlins. Rote Linie: amtlich kartierter Verlauf der Grenzanlagen von 1989, einschließlich der belegten Unterwasserabschnitte; keine parzellengenaue Vermessung."
+          : "Thin grey-green line: present Berlin state boundary. Red line: officially mapped 1989 border installations, including documented underwater sections; not a cadastral survey."}</p>
         <ul>
           <li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap · ODbL</a></li>
           <li><a href="https://www.govdata.de/dl-de/zero-2-0" target="_blank" rel="noreferrer">Geoportal Berlin · dl-de/zero-2-0</a></li>

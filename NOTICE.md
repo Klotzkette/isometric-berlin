@@ -1568,3 +1568,15 @@ explicit visual estimates. New freely reusable Commons appearance references
 are listed individually in both Wikimedia manifests; no photo texture is
 bundled. See `docs/icc-v199.md`, `docs/cemetery-grunewald-v199.md` and the
 v1.0.99 release review for source roles and limitations.
+
+### v1.0.100 district and regional outlines
+
+The five new Ortsteile use Berlin LoD2 (Geoportal Berlin, dl-de/zero-2-0) and
+retained OpenStreetMap geometry (OSM contributors, ODbL-1.0). BER, Grünheide
+(Mark) and A10 use bounded OSM source extracts. Heights without source evidence
+and narrow route-strip widths are explicitly documented display estimates.
+The current state boundary uses the official ALKIS Landesgrenze; the red Wall
+trace uses the official Vorderlandmauer mapping from the 25 April 1989 aerial
+survey, both Geoportal Berlin, dl-de/zero-2-0. The historic layer is preliminary,
+not cadastral survey precision. Source vertices and recorded gaps are retained.
+See the v1.0.100 release review and linked source documentation.

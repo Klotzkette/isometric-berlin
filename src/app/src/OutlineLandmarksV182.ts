@@ -45,6 +45,9 @@ import { createNorthParksV198 } from "./NorthParksV198";
 import { createIccV199 } from "./IccV199";
 import { createFunkturmV199 } from "./FunkturmV199";
 import { createCemeteryGrunewaldV199 } from "./CemeteryGrunewaldV199";
+import { createCentralSitesV200 } from "./CentralSitesV200";
+import { createBerlinBoundariesV200 } from "./BerlinBoundariesV200";
+import { createRegionOutlinesV200 } from "./RegionOutlinesV200";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -117,6 +120,9 @@ export function createOutlineLandmarksV182(
       root.add(createIccV199(nextNative));
       root.add(createFunkturmV199(nextNative));
       root.add(createCemeteryGrunewaldV199(nextNative));
+      root.add(createCentralSitesV200(nextNative));
+      root.add(createRegionOutlinesV200(nextNative));
+      root.add(createBerlinBoundariesV200(nextNative));
       kites = createDrachenbergKitesV195(nextNative);
       root.add(kites);
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;

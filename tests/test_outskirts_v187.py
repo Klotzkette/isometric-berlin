@@ -14,6 +14,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+from packet_additions_v200 import audited_v200_additions
 from packet_receipts_v190 import assert_retained_descriptor, audited_v190_changes
 from shapely import make_valid
 from shapely.geometry import Point, Polygon, shape
@@ -340,9 +341,10 @@ def test_v190_changes_only_receipted_v189_packets_and_named_new_cells() -> None:
   assert after["source"] == before["source"]
   additions = after["chunks"][len(before["chunks"]) :]
   north = load(DATA / "north-city-v190-manifest.json")["chunks"]
-  assert {c["id"] for c in additions} == {c["id"] for c in north + companions}
+  east = list(audited_v200_additions().values())
+  assert {c["id"] for c in additions} == {c["id"] for c in north + companions + east}
   current_by_id = {c["id"]: c for c in after["chunks"]}
-  for expected in north + companions:
+  for expected in north + companions + east:
     assert current_by_id[expected["id"]] == expected
   for companion in companions:
     parent = current_by_id[companion["detailCompanionOf"]]

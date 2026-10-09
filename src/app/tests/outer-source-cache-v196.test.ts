@@ -25,6 +25,10 @@ const fields: Record<string, string[]> = {
   "northParksV198Native0.json": ["cells"],
   "northParksV198Native1.json": ["cells"],
   "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
+  "centralSitesV200.json": ["surfaces", "boxes", "blocks"],
+  "berlinBoundariesV200.json": ["stateXz", "stateSegments", "wallXz", "wallSegments"],
+  "regionOutlinesV200.json": ["groups"],
+  "regionOutlinesV200Native.json": ["groups"],
   "iccV199.json": ["sites"],
   "iccV199Native.json": ["sites"],
   "funkturmV199.json": ["groups"],
@@ -67,6 +71,9 @@ async function compile(): Promise<string> {
     ["TegelSpandauV198", "createTegelSpandauV198"],
     ["NorthParksV198", "createNorthParksV198"],
     ["EastParksV198", "createEastParksV198"],
+    ["CentralSitesV200", "createCentralSitesV200"],
+    ["BerlinBoundariesV200", "createBerlinBoundariesV200"],
+    ["RegionOutlinesV200", "createRegionOutlinesV200"],
     ["IccV199", "createIccV199"],
     ["FunkturmV199", "createFunkturmV199"],
     ["CemeteryGrunewaldV199", "createCemeteryGrunewaldV199"],
@@ -79,7 +86,7 @@ window.fixture = { sources: {${files.map((file, index) => `${JSON.stringify(file
   native => native ? createMinecraftEastLandmarksV187() : createEastLandmarksV187(),
   createSouthWestLandmarksV187,
   native => native ? createMinecraftNorthSitesV190() : createNorthSitesV190(),
-  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198, createIccV199, createFunkturmV199, createCemeteryGrunewaldV199
+  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198, createIccV199, createFunkturmV199, createCemeteryGrunewaldV199, createRegionOutlinesV200, createBerlinBoundariesV200, createCentralSitesV200
 ] };`);
   try {
     const result = await build({ configFile: false, root: directory, publicDir: false, logLevel: "silent",
@@ -138,7 +145,7 @@ function renderDigest(root: Group): string {
   return result;
 }
 
-describe("v196–v199 outer construction source ownership", () => {
+describe("v196–v200 outer construction source ownership", () => {
   test("only audited geometry inputs are weak; real factories preserve all render values across collection", async () => {
     for (const [file, names] of Object.entries(fields)) expect(READONLY_CONSTRUCTION_JSON_FIELDS[file]).toEqual(names);
     for (const [file, names] of Object.entries(excluded)) for (const name of names)

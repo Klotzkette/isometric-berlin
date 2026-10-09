@@ -1,3 +1,6 @@
+import { centralSitesV200NavigationForPrism, centralSitesV200RoofAt } from "./centralSitesV200Navigation";
+import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200ReplacementProfile";
+import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS, BERLIN_WALL_MEMORIAL_V174_BUILDINGS, BERLIN_WALL_MEMORIAL_V174_SOLIDS, BERLIN_WALL_MEMORIAL_V174_POSTS, berlinWallMemorialV174RoofAt } from "./berlinWallMemorialV174Profile";
 import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskircheV174RoofAt } from "./zionskircheV174Profile";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
@@ -661,6 +664,19 @@ export function compilePedestrianObstacles(
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
+    if (CENTRAL_SITES_V200_FALSE_PRISM_IDS.has(building.id)) continue;
+    for (const part of centralSitesV200NavigationForPrism(building.id)) {
+      const key = `central-v200-${part.id}`;
+      if (replacedParents.has(key)) continue;
+      replacedParents.add(key);
+      for (const polygon of part.polygons) {
+        addPolygonObstacle(index, polygon.ring, polygon.holes,
+          part.groundY + part.lift, part.topY + part.lift + 2, part.id, 1,
+          centralSitesV200RoofAt);
+        index.buildingCount += 1;
+      }
+    }
+    if (CENTRAL_SITES_V200_REPLACED_PRISM_IDS.has(building.id)) continue;
     if (ALT_MITTE_V169_PRISM_IDS.has(building.id) || BERLIN_WALL_MEMORIAL_V174_PRISM_IDS.has(building.id)) continue;
     if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;

@@ -1,3 +1,5 @@
+import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200ReplacementProfile";
+import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
 import { GENERIC_FACADE_SWATCHES, genericFacadeTone } from "./cityColourV184";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
@@ -976,6 +978,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Underground S-Bahn footprint was incorrectly extruded across the street.
+  ...CENTRAL_SITES_V200_FALSE_PRISM_IDS,
+  ...CENTRAL_SITES_V200_REPLACED_PRISM_IDS,
   ...NATIONALGALERIE_V183_IDS,
   // The two mapped gate envelopes are replaced by an open concrete portal.
   ...MOABIT_PRISON_PORTAL_PRISM_IDS,

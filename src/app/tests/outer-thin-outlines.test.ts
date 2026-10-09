@@ -19,13 +19,22 @@ test("thin outer context retains its bounded hairlines beside the requested v182
   expect(rail.geometry.getAttribute("position")).toBe(positions);
   expect((rail.material as any).depthTest).toBeFalse();
   expect((lines.material as any).depthTest).toBeTrue();
-  expect(rail.geometry.index!.count + lines.geometry.index!.count).toBe(positions.count);
+  // v199's measured ICC owns only the former ICC wire envelope. Its old
+  // skyway cannot remain above the corrected source bridge. All other source
+  // vertices still belong to exactly one retained line index.
+  const retiredIcc = data.features.filter(feature => feature.name === "ICC");
+  expect(retiredIcc).toHaveLength(1);
+  expect(rail.geometry.index!.count + lines.geometry.index!.count).toBe(
+    positions.count - retiredIcc[0].vertexCount);
+  expect(root.getObjectByName("ICC Berlin measured shell and high-tech facade v199")).toBeDefined();
   expect(positions.array.byteLength + rail.geometry.index!.array.byteLength + lines.geometry.index!.array.byteLength).toBeLessThan(1_000_000);
   const railVertices = new Set(Array.from(rail.geometry.index!.array));
+  const streetVertices = new Set(Array.from(lines.geometry.index!.array));
   for (const feature of data.features) {
     const isRail = feature.kind === "rail" || feature.kind.startsWith("station-");
     for (let v = feature.firstVertex; v < feature.firstVertex + feature.vertexCount; v++) {
       expect(railVertices.has(v)).toBe(isRail);
+      expect(streetVertices.has(v)).toBe(!isRail && feature.name !== "ICC");
     }
   }
   for (const mode of ["night", "snowstorm", "schwellenraum", "flood", "minecraft", "day"]) {

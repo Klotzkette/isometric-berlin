@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 import {
-  BoxGeometry, Group, InstancedMesh, LineBasicMaterial, LineSegments,
+  BoxGeometry, BufferGeometry, Group, InstancedMesh, LineBasicMaterial, LineSegments,
   Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3,
 } from "three";
 import * as inkDrawVisibility from "../src/inkDrawVisibility";
@@ -13,6 +13,7 @@ import {
 import { createSonyCenterSurroundings } from "../src/SonyCenterSurroundings";
 import { createWilhelmStresemannDetails } from "../src/WilhelmStresemannDetails";
 import { isEuropaCenterStarTarget, updateEuropaCenterStars } from "../src/CityWestDetails";
+import { createBerlinBoundariesV200 } from "../src/BerlinBoundariesV200";
 
 const source = await Bun.file(
   process.env.DETAIL_VISIBILITY_REFERENCE ?? new URL("../src/ThreeViewer.tsx", import.meta.url),
@@ -53,6 +54,7 @@ const bindings = {
   assignStableInkRenderOrder: () => {},
   stabilizeInkLineMaterial: (material: LineBasicMaterial) => {
     material.transparent = true;
+    material.depthTest = true;
     material.depthWrite = false;
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
@@ -98,6 +100,41 @@ function detail(name = "Bertolt Brecht seated figure and installation fine detai
 }
 
 describe("existing detail during actual viewer camera motion", () => {
+  test("only new Berlin boundary annotations bypass architectural ink depth and far-zoom fading", () => {
+    const run = host();
+    const boundaries = createBerlinBoundariesV200(false);
+    const annotations = boundaries.children as LineSegments<BufferGeometry, LineBasicMaterial>[];
+    // An older cartographic line deliberately keeps its previous registration.
+    const retained = new LineSegments(new BufferGeometry(), new LineBasicMaterial({opacity:.42,depthTest:false}));
+    retained.userData.cartographicOverlay = true;
+    run.runtime.isoWorld.add(boundaries, retained);
+    run.collect();
+    expect(run.runtime.inkLineObjects).toEqual([retained]);
+    expect(run.runtime.inkLineMaterials.size).toBe(1);
+    expect(retained.material.depthTest).toBeTrue();
+    for (const distance of [50, 500, 30_000, 60]) {
+      run.runtime.camera.position.set(0, distance, 0);
+      run.update(new Vector3());
+      for (const [index, line] of annotations.entries()) {
+        expect(line.material.depthTest).toBeFalse();
+        expect(line.material.opacity).toBe(index === 0 ? .40 : .64);
+        expect(line.material.visible).toBeTrue();
+        expect(run.runtime.inkLineMaterials.has(line.material)).toBeFalse();
+      }
+    }
+    // Remount collection and the incremental district path both use the same
+    // real collector, so a world-family change cannot quietly restore the bug.
+    run.forget(boundaries);
+    run.append(boundaries);
+    run.collect();
+    expect(run.runtime.inkLineObjects).toEqual([retained]);
+    for (const line of annotations) {
+      expect(line.material.depthTest).toBeFalse();
+      line.geometry.dispose();line.material.dispose();
+    }
+    retained.geometry.dispose();retained.material.dispose();
+  });
+
   test("a pure pan at identical orbit radius reveals close ornament in the same frame", () => {
     const run = host();
     const object = detail();

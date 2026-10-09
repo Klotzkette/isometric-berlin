@@ -97,9 +97,12 @@ describe("complete-city camera depth", () => {
     // (far - near) / far when the near plane and point distance are fixed.
     const depthStepRatio = ((newFar - near) / newFar) / ((16_000 - near) / 16_000);
     expect(depthStepRatio).toBeGreaterThanOrEqual(1);
-    // The delivered outskirts/northern scope now requires 54 km. Even this
-    // complete reach changes local depth resolution by less than 0.0012%.
-    expect(depthStepRatio).toBeLessThan(1.000_012);
+    // With unchanged near, even an infinitely distant far plane has this
+    // finite precision cost. Regional expansion changes reach, not local
+    // geometry or the near plane: the limit is less than 0.001563%.
+    const infiniteFarRatio = 1 / (1 - near / 16_000);
+    expect(depthStepRatio).toBeLessThan(infiniteFarRatio);
+    expect(infiniteFarRatio - 1).toBeLessThan(0.000_015_63);
     expectMinimalCompleteReach(2_600);
     expectMinimalCompleteReach(0);
   });

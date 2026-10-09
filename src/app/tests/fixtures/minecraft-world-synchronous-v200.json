@@ -1,0 +1,16 @@
+{
+  "full": {
+    "detailProfile": "full",
+    "instances": 4404273,
+    "renderables": 350,
+    "bufferBytes": 382952554,
+    "sha256": "13ec120f40162a9bb4743414607e833ba56d033b0453d4a0ca0569eb7acd1682"
+  },
+  "mobile": {
+    "detailProfile": "mobile",
+    "instances": 2033897,
+    "renderables": 348,
+    "bufferBytes": 202354522,
+    "sha256": "43f4074657a7d046672db031cb450a25bde1152bbaa4bddf476e76e662f585ac"
+  }
+}
