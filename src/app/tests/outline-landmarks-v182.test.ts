@@ -113,9 +113,10 @@ test("mode families release residency owners, alternate materials and instance b
       root.userData.setMode(mode);
       expect(previous.every(child => child.parent === null)).toBeTrue();
       expect(counts.every(record => record.disposed === 1)).toBeTrue();
-      // The drawn Tor belongs to ExpandedCityDetails; its separate native
-      // replacement participates in this lazy family and the same disposal.
-      expect(root.children).toHaveLength(familyCount + (mode === "minecraft" ? 1 : 0));
+      // Drawn Tor and Bendlerblock belong to ExpandedCityDetails; their
+      // separate native replacements share this family and disposal lifecycle.
+      expect(root.children).toHaveLength(familyCount + (mode === "minecraft" ? 2 : 0));
+      expect(root.children.filter(child => child.userData.bendlerblockV202)).toHaveLength(mode === "minecraft" ? 1 : 0);
       expect(root.children.filter(child => child.userData.charlottenburgerTor)).toHaveLength(mode === "minecraft" ? 1 : 0);
       activeFamilyCount = root.children.length;
       expect(root.children.every(child => child.userData.nativeMinecraft === (mode === "minecraft"))).toBeTrue();

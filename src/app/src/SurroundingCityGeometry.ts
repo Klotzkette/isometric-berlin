@@ -1,3 +1,4 @@
+import { replacePanoramaFacadeV202 } from "./panoramaFacadeV202";
 import {
   Box3, BufferAttribute, BufferGeometry, DoubleSide, Group, InterleavedBuffer,
   InterleavedBufferAttribute, LineBasicMaterial, LineSegments, Mesh,
@@ -244,6 +245,8 @@ export function* buildSurroundingCityChunk(
         written += source.length;
         yield;
       }
+      const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
+      if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
       if (!minecraft && !id.startsWith("alt-mitte-v169-") && part.kind === "alt-mitte-v169") {

@@ -8,13 +8,17 @@ import { berlinWallMemorialV174SourceColumn } from "../src/berlinWallMemorialV17
 
 import preCanopyPayloadBaseline from "./fixtures/minecraft-payload-only-v183.json";
 import preCentralPayloadBaseline from "./fixtures/minecraft-payload-only-v192.json";
-import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v200.json";
+import previousV202Baseline from "./fixtures/minecraft-payload-only-v200.json";
+import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v202.json";
+import ownerDeltaV202 from "./fixtures/minecraft-payload-only-v202-delta.json";
+import bendlerNavV202 from "../src/data/bendlerblockV202Navigation.json";
+import panoramaSourceV202 from "../src/pergamonPanoramaV202Source.json";
 import centralPayloadDelta from "./fixtures/minecraft-payload-only-v200-delta.json";
 import centralCorrection from "../src/data/centralSitesV200Correction.json";
 import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 import { isCentralSitesV200FalseColumn } from "../src/centralSitesV200Profile";
 import { isCentralSitesV200ReplacedColumn } from "../src/centralSitesV200ReplacementProfile";
-import { decodedInstance, replayLegacyInstanceHash } from "./helpers/instanceBufferReplay";
+import { decodedInstance, replayLegacyInstanceHash, restoreLegacyInstances } from "./helpers/instanceBufferReplay";
 import canopyPayloadDelta from "./fixtures/minecraft-payload-only-v192-delta.json";
 import stationDetailsV192 from "../src/data/stationDetailsV192.json";
 import oldZooNavigation from "../src/data/zooStationV165Navigation.json";
@@ -203,6 +207,24 @@ describe("true voxel Minecraft world", () => {
     }
   });
 
+  test("v202 replacements preserve every retained byte and only transfer their exact source columns",()=>{
+    const owned=new Map([...bendlerNavV202.columns,...panoramaSourceV202.native_replacement_columns].map(([x,z,lo,hi])=>[`${x},${z}`,[lo,hi]]));
+    expect(owned.size).toBe(840);
+    for(const [profile,root] of [["full",world],["mobile",mobileWorld]] as const)
+      for(const [name,change] of Object.entries(ownerDeltaV202.profiles[profile])){
+        expect(replayLegacyInstanceHash(instanced(name,root),change)).toBe(previousV202Baseline[profile][name as keyof typeof previousV202Baseline[typeof profile]]!.sha256);
+        const panes=name==="Voxel facade windows";
+        for(const [kind,records] of [["removed",change.removed],["added",change.added]] as const)
+          for(const record of records){
+            const m=decodedInstance(record),x=Math.round((m[12]-(panes?m[8]*2.08:0))/4-.5)*4+2,z=Math.round((m[14]-(panes?m[10]*2.08:0))/4-.5)*4+2,key=`${x},${z}`;
+            if(kind==="removed"){
+              expect(owned.has(key)).toBeTrue();const [lo,hi]=owned.get(key)!;
+              expect(m[13]).toBeGreaterThanOrEqual(lo);expect(m[13]).toBeLessThanOrEqual(hi);
+            }else{expect(panes).toBeTrue();expect(owned.has(key)).toBeFalse();expect(owned.has(`${x+m[8]*4},${z+m[10]*4}`)).toBeTrue();}
+          }
+      }
+  });
+
   test("v200 payload-only changes replay every unchanged byte into the frozen v192 hashes", async () => {
     for (const [path, sha256] of Object.entries(centralPayloadDelta.inputSha256)) {
       const file = new Uint8Array(await Bun.file(new URL(`../${path}`, import.meta.url)).arrayBuffer());
@@ -229,8 +251,10 @@ describe("true voxel Minecraft world", () => {
         ? ["Voxel building columns","Voxel facade windows"] : ["Voxel building columns"]);
       for (const [name,legacy] of Object.entries(preCentralPayloadBaseline[profile])) {
         const change = changes[name as keyof typeof changes];
-        if (!change) { expect(currentPayloadBaseline[profile][name as keyof typeof currentPayloadBaseline[typeof profile]]).toEqual(legacy); continue; }
-        expect(replayLegacyInstanceHash(instanced(name,root),change)).toBe(legacy!.sha256);
+        if (!change) { expect(previousV202Baseline[profile][name as keyof typeof previousV202Baseline[typeof profile]]).toEqual(legacy); continue; }
+        const following=(ownerDeltaV202.profiles[profile] as Record<string,any>)[name];
+        const prior=following?restoreLegacyInstances(instanced(name,root),following):instanced(name,root);
+        expect(replayLegacyInstanceHash(prior,change)).toBe(legacy!.sha256);
         const panes=name==="Voxel facade windows", layerHeights=new Map<string,number>();
         expect(change.removed.length).toBe(panes ? audit.panes.removed : audit.removedColumnInstances[profile]);
         expect(change.added.length).toBe(panes ? audit.panes.exposed : 0);

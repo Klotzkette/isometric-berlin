@@ -55,6 +55,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "northParksV198Native0.json": ["cells"],
   "northParksV198Native1.json": ["cells"],
   "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
+  "librariesV202.json": ["surfaces", "boxes", "blocks"],
+  "bendlerblockV202.json": ["surfaces", "boxes", "blocks"],
   "centralSitesV200.json": ["surfaces", "boxes", "blocks"],
   "charlottenburgerTorV201.json": ["boxes"],
   "wuhlheideV201.json": ["sites"],

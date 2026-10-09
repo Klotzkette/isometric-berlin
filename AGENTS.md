@@ -168,6 +168,14 @@ Bebelplatz stay within previous coverage. A false construction at
 Oranienburger-/Tucholskystraße may be corrected only after identifying its
 exact erroneous owner and preserving all unrelated buildings and road geometry.
 
+The owner's v1.0.102 request authorizes bounded refinement of James-Simon-Galerie,
+the Pergamon Panorama, both Staatsbibliothek buildings and the Bendlerblock with
+its memorial court. Complete documented source families may replace precisely
+identified coarse owners; evidence, source coordinates, unrelated packets and
+existing runtime residency/quality limits must remain intact. This adds no tour
+stop or district scope. Photograph-derived aperture and facade proportions remain
+explicit presentation estimates, separate from measured geometry.
+
 The owner's v1.0.101 correction permits measured, bounded terrain refinement
 at Waldbühne, the Olympic site and the Wuhlheide amphitheatre within their
 existing coverage. Preserve original source XZ courses, details and every

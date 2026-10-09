@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.101 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.101/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.102 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.102/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,19 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.101** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.102** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.102 refines James-Simon-Galerie and its open entrance stairs, restores
+the Pergamon Panorama rotunda, and adds source-bound facade detail to both
+Staatsbibliothek buildings. The Bendlerblock gains its complete measured building
+families and a corrected, accessible memorial court. Existing city packets and
+runtime quality/residency limits stay unchanged.
+[Sources and verification](docs/release-v1.0.102-review.md).
+
+Version 1.0.102 verfeinert James-Simon-Galerie, Pergamon-Panorama und beide
+Staatsbibliotheken. Der Bendlerblock erhält seine vollständigen vermessenen
+Gebäudeteile und den korrigierten Ehrenhof mit offenen Durchgängen.
 
 Version 1.0.101 corrects the measured terrain at Waldbühne, the Olympic site
 and the Wuhlheide amphitheatre, including the sunken arenas and their surrounding

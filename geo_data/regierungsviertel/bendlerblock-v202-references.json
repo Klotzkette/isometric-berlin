@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "landmark_id": "bendlerblock_v202",
+      "title": "File:Innenhof Bendlerblock.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Innenhof_Bendlerblock.jpg",
+      "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Innenhof_Bendlerblock.jpg",
+      "artist": "Michael Klemm",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "File:Innenhof Bendlerblock.jpg — Michael Klemm, CC BY-SA 3.0, Wikimedia Commons. External visual recognition reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Source-bound facade character and the memorial court, trees, bound figure and ground sculptures. Proportional interpretation, not a component survey.",
+      "photo_bundled": false,
+      "referenceImageSha256": "5f34af2d1c3ae56d473d38137a339df59a57c75b632472bbaadad0ff313e1bce"
+    },
+    {
+      "landmark_id": "bendlerblock_v202",
+      "title": "File:Bendlerblock Statue August 2009.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bendlerblock_Statue_August_2009.jpg",
+      "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Bendlerblock_Statue_August_2009.jpg/960px-Bendlerblock_Statue_August_2009.jpg",
+      "artist": "Stefan Kemmerling (Kemmi.1)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "File:Bendlerblock Statue August 2009.jpg — Stefan Kemmerling (Kemmi.1), CC BY-SA 3.0, Wikimedia Commons. External visual recognition reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Source-bound facade character and the memorial court, trees, bound figure and ground sculptures. Proportional interpretation, not a component survey.",
+      "photo_bundled": false,
+      "referenceImageSha256": "cb83325252ab72b7c57632c7167f5e6fb899f79dad424c232db1675b7b91a05e"
+    },
+    {
+      "landmark_id": "bendlerblock_v202",
+      "title": "File:Berlin, Tiergarten, Reichpietschufer, Bendler-Block 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Tiergarten,_Reichpietschufer,_Bendler-Block_02.jpg",
+      "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Berlin%2C_Tiergarten%2C_Reichpietschufer%2C_Bendler-Block_02.jpg",
+      "artist": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "File:Berlin, Tiergarten, Reichpietschufer, Bendler-Block 02.jpg — Jörg Zägel, CC BY-SA 3.0, Wikimedia Commons. External visual recognition reference; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Source-bound facade character and the memorial court, trees, bound figure and ground sculptures. Proportional interpretation, not a component survey.",
+      "photo_bundled": false,
+      "referenceImageSha256": "f79ee6ed957e50edf08def78bf94dac954ec88c51fad72c80e6a07212ca912e3"
+    }
+  ]
+}

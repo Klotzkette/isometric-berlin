@@ -1588,3 +1588,11 @@ trace uses the official Vorderlandmauer mapping from the 25 April 1989 aerial
 survey, both Geoportal Berlin, dl-de/zero-2-0. The historic layer is preliminary,
 not cadastral survey precision. Source vertices and recorded gaps are retained.
 See the v1.0.100 release review and linked source documentation.
+
+Step 10 v202 / v1.0.102 museum, library and Bendlerblock refinements:
+Berlin LoD2 (dl-de/zero-2-0) and retained OpenStreetMap geometry (ODbL-1.0)
+anchor all source families. Free Commons reference photographs are individually
+credited in geo_data/regierungsviertel/wikimedia_references.json and the viewer
+attribution manifest; no photo pixels are embedded in these models.
+The museum/library documentation and docs/release-v1.0.102-review.md distinguish
+measured envelopes from proportional architectural presentation.

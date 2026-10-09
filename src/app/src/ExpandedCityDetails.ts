@@ -1,3 +1,4 @@
+import { createBendlerblockV202 } from "./BendlerblockV202";
 import { appendCharlottenburgerTorV201 } from "./CharlottenburgerTorV201";
 import { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
 import { createAlterDessauerMonument } from "./AlterDessauerMonument";
@@ -5296,7 +5297,7 @@ export function createExpandedCityDetails(
   });
   if (bodies) group.add(bodies);
   addKulturforumEntranceLettering(group);
-  group.add(createBendlerblockDetails(options.detailProfile ?? "full"));
+  group.add(createBendlerblockV202());
   group.add(createDiplomaticAndRobertKochDetails(options.detailProfile ?? "full"));
   if (byName.has(SOCIAL_COURT_PROFILE.name)) {
     group.add(createSocialCourtDetails(options.detailProfile ?? "full"));

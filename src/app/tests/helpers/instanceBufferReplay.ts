@@ -57,3 +57,22 @@ export function replayLegacyInstanceHash(mesh: InstancedMesh, delta: InstanceBuf
   }
   return hash.digest("hex");
 }
+
+/** Test-only reconstruction of the preceding frozen buffer for chained audits.
+ * Production never allocates this copy. All added records are checked first. */
+export function restoreLegacyInstances(mesh: InstancedMesh, delta: InstanceBufferDelta): InstancedMesh {
+  replayLegacyInstanceHash(mesh,delta);
+  const restored: Record<string,unknown>={count:delta.beforeCount};
+  for(const [key,width,offset] of [['instanceMatrix',16,0],['instanceColor',3,16]] as const){
+    const live=mesh[key]!.array, output=new Float32Array(delta.beforeCount*width);
+    let old=0,next=0,r=0,a=0;
+    while(old<delta.beforeCount||next<delta.afterCount){
+      if(delta.removed[r]?.index===old){output.set(decodedInstance(delta.removed[r++]).subarray(offset,offset+width),old++*width);continue;}
+      if(delta.added[a]?.index===next){next++;a++;continue;}
+      const count=Math.min((delta.removed[r]?.index??delta.beforeCount)-old,(delta.added[a]?.index??delta.afterCount)-next);
+      expect(count).toBeGreaterThan(0);output.set(live.subarray(next*width,(next+count)*width),old*width);old+=count;next+=count;
+    }
+    restored[key]={array:output};
+  }
+  return restored as unknown as InstancedMesh;
+}

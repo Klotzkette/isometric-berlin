@@ -8,6 +8,8 @@ import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile"
 import stationDetailsV192 from "../src/data/stationDetailsV192.json";
 import centralCorrection from "../src/data/centralSitesV200Correction.json";
 import centralReplacement from "../src/data/centralSitesV200Replacement.json";
+import bendlerV202 from "../src/data/bendlerblockV202Evidence.json";
+import panoramaV202 from "../src/pergamonPanoramaV202Source.json";
 import { buildingAttributes, mappedStoreyProfile } from "../src/buildingAttributes";
 
 import {
@@ -812,11 +814,12 @@ describe("ligne-claire fenestration", () => {
     const galleryOwners = payload.buildings.filter(p => NATIONALGALERIE_V183_IDS.has(p.id));
     expect(altMitteOwners).toHaveLength(5_427);
     expect(galleryOwners).toHaveLength(8);
-    // Seven later exact owners moved to complete source models; retain the
+    // Seventeen later exact owners moved to complete source models; retain the
     // historical total and verify their original payloads, not a lower target.
     const laterOwners = [stationDetailsV192.zoo.legacyPrism, centralCorrection.retainedPrism,
-      ...centralReplacement.replacements.map(p => p.legacyPrism)];
-    expect(new Set(laterOwners.map(p => p.id)).size).toBe(7);
+      ...centralReplacement.replacements.map(p => p.legacyPrism),
+      ...bendlerV202.previousOwners, panoramaV202.previous_display_prism];
+    expect(new Set(laterOwners.map(p => p.id)).size).toBe(17);
     for (const owner of laterOwners) {
       expect(payload.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
       expect(PRISM_SUPPRESSED_IDS.has(owner.id)).toBeTrue();

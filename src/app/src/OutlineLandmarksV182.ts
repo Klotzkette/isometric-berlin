@@ -51,6 +51,9 @@ import { createRegionOutlinesV200 } from "./RegionOutlinesV200";
 import { createMinecraftCharlottenburgerTorV201 } from "./MinecraftCharlottenburgerTorV201";
 import { createWuhlheideV201 } from "./WuhlheideV201";
 import { createWaldbuehneV201 } from "./WaldbuehneV201";
+import { createLibrariesV202 } from "./LibrariesV202";
+import { createPergamonPanoramaV202 } from "./PergamonPanoramaV202";
+import { createBendlerblockV202 } from "./BendlerblockV202";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -124,6 +127,9 @@ export function createOutlineLandmarksV182(
       root.add(createFunkturmV199(nextNative));
       root.add(createCemeteryGrunewaldV199(nextNative));
       root.add(createCentralSitesV200(nextNative));
+      root.add(createLibrariesV202(nextNative));
+      root.add(createPergamonPanoramaV202({ minecraft: nextNative }));
+      if (nextNative) root.add(createBendlerblockV202(true));
       root.add(createRegionOutlinesV200(nextNative));
       root.add(createBerlinBoundariesV200(nextNative));
       if (nextNative) root.add(createMinecraftCharlottenburgerTorV201());

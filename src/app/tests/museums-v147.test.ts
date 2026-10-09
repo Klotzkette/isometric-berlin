@@ -1,4 +1,5 @@
 import overridesV148 from "./fixtures/museums-v148-overrides.json";
+import overridesV202 from "./fixtures/museums-v202-overrides.json";
 import {describe,expect,test} from 'bun:test';
 import {Box3,BoxGeometry,Color,Group,InstancedMesh,Matrix4,Mesh,MeshBasicMaterial,MeshStandardMaterial,Raycaster,Vector3} from 'three';
 import {createJamesSimonArchitecture} from '../src/JamesSimonArchitecture';
@@ -22,7 +23,7 @@ describe('museum source-preserving refinement v1.0.47',()=>{
   const ring=S.parts.find(p=>p.id==='DEBE3DetH0pbh00c')!.ring;expect(ring).toHaveLength(19);
  });
  test('upper colonnade is visibly open through to recessed glass and physically traversable',()=>{
-  const root=createJamesSimonArchitecture();root.updateMatrixWorld(true);const p=jamesSimonWorld(55.6,14,3),q=jamesSimonWorld(55.6,14,-10),dir=new Vector3(...q).sub(new Vector3(...p)).normalize();const hit=new Raycaster(new Vector3(...p),dir).intersectObject(root,true)[0];expect(hit).toBeDefined();expect(hit.distance).toBeGreaterThan(7.8);expect(hit.distance).toBeLessThan(8.6);
+  const root=createJamesSimonArchitecture();root.updateMatrixWorld(true);const p=jamesSimonWorld(55,14,3),q=jamesSimonWorld(55,14,-10),dir=new Vector3(...q).sub(new Vector3(...p)).normalize();const hit=new Raycaster(new Vector3(...p),dir).intersectObject(root,true)[0];expect(hit).toBeDefined();expect(hit.distance).toBeGreaterThan(7.8);expect(hit.distance).toBeLessThan(8.6);
   const gap=jamesSimonWorld(55.6,14,-2);expect(jamesSimonTerraceVoidAt(...gap,'DEBE3DetH0pbh00c')).toBeTrue();expect(jamesSimonExtraSolidAt(...gap)).toBeFalse();const column=jamesSimonWorld(54.4,14,0);expect(jamesSimonExtraSolidAt(...column)).toBeTrue();expect(jamesSimonWalkSurfaceAt(gap[0],gap[2],10.41)).toBe(10.41);expect(jamesSimonTerraceVoidAt(...gap,'unrelated')).toBeFalse();
  });
  test('low colonnade roofs retain source height above open post intervals',()=>{
@@ -64,8 +65,8 @@ describe('museum source-preserving refinement v1.0.47',()=>{
   expect(MUSEUMS_V147_BUDGETS.current.dom).toEqual({bytes:876008,draws:14,instances:6830,vertices:230336});
   expect(MUSEUMS_V147_BUDGETS.current.domMC).toEqual({bytes:1210720,draws:1,instances:15922,vertices:382128});
   const rows={dom:createDomAltesMuseum(),domMC:createDomAltesMuseum({minecraft:true}),triad:createMuseumTriadArchitecture(),triadMC:createMuseumTriadArchitecture({minecraft:true}),spree:createSpreeMuseumDetails(),spreeMC:createMinecraftSpreeMuseumDetails(),james:createJamesSimonArchitecture(),jamesMC:createJamesSimonArchitecture({minecraft:true})};
-  for(const [name,root] of Object.entries(rows))expect(budget(root)).toEqual(overridesV148[name as keyof typeof overridesV148] ?? MUSEUMS_V147_BUDGETS.current[name as keyof typeof rows]);
+  for(const [name,root] of Object.entries(rows))expect(budget(root)).toEqual(overridesV202[name as keyof typeof overridesV202] ?? overridesV148[name as keyof typeof overridesV148] ?? MUSEUMS_V147_BUDGETS.current[name as keyof typeof rows]);
   expect(budget(createJamesSimonArchitecture({mobileLike:true}))).toEqual(budget(rows.james));expect(budget(createDomAltesMuseum({mobileLike:true}))).toEqual(budget(rows.dom));expect(budget(createMuseumTriadArchitecture({mobileLike:true}))).toEqual(budget(rows.triad));
-  const native=createJamesSimonArchitecture({minecraft:true,mobileLike:true});expect(native.children).toHaveLength(1);expect(native.children[0]).toBeInstanceOf(InstancedMesh);expect((native.children[0] as InstancedMesh).count).toBeLessThan(2200);expect(JAMES_SIMON_PROFILE.catalogueAddition).toBeFalse();
+  const native=createJamesSimonArchitecture({minecraft:true,mobileLike:true});expect(native.children).toHaveLength(1);expect(native.children[0]).toBeInstanceOf(InstancedMesh);expect((native.children[0] as InstancedMesh).count).toBe(overridesV202.jamesMC.instances);expect(JAMES_SIMON_PROFILE.catalogueAddition).toBeFalse();
  });
 });

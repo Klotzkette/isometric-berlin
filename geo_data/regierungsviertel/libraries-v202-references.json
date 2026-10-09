@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "inspectedDate": "2026-10-09",
+  "records": [
+    {
+      "landmark_id": "staatsbibliothek_unter_den_linden",
+      "title": "File:2023-04-21-Staatsbibliothek-Unter-den-Linden-Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2023-04-21-Staatsbibliothek-Unter-den-Linden-Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_date": "2023-04-21",
+      "inspection_note": "Ehrenhof facade: four monumental columns, central tall arched window, stone courses and alternating window heads."
+    },
+    {
+      "landmark_id": "staatsbibliothek_unter_den_linden",
+      "title": "File:Berlin Stabi UdL Fassade im Innenhof.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Stabi_UdL_Fassade_im_Innenhof.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/by/3.0/",
+      "artist": "Andreas Praefcke",
+      "credit": "Andreas Praefcke / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_date": "2008-05",
+      "inspection_note": "Close court portico: shaft/base/capital hierarchy, pediment and glazing bars; historic colour reference only."
+    },
+    {
+      "landmark_id": "staatsbibliothek_potsdamer_strasse",
+      "title": "File:Staatsbibliothek-zu-Berlin-Potsdamer-Str-Berlin-Tiergarten-03-2017b.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Staatsbibliothek-zu-Berlin-Potsdamer-Str-Berlin-Tiergarten-03-2017b.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_date": "2017-03-30",
+      "inspection_note": "Mostly blind gold book-stack envelope, vertical metal joints, lower glazing bands; no invented upper curtain wall."
+    },
+    {
+      "landmark_id": "staatsbibliothek_potsdamer_strasse",
+      "title": "File:Berlin-Staatsbibliothek-von Neue Nationalgalerie-02-2023-gje.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Staatsbibliothek-von_Neue_Nationalgalerie-02-2023-gje.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/by/4.0/",
+      "artist": "Gerd Eichmann",
+      "credit": "Gerd Eichmann / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_date": "2023-07-28",
+      "inspection_note": "Lower pale public wings, narrow vertical glazing fins and sawtooth/skylight silhouette under gold magazine."
+    },
+    {
+      "landmark_id": "staatsbibliothek_potsdamer_strasse",
+      "title": "File:Blick vom Kollhoff-Tower am Potsdamer Platz 2005-07-27 um 11-30-26.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Blick_vom_Kollhoff-Tower_am_Potsdamer_Platz_2005-07-27_um_11-30-26.jpg",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Nylki",
+      "credit": "Nylki / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "reference_date": "2005-07-27",
+      "inspection_note": "Historical rooftop form reference only: stepped high magazine, low daylight roof landscape and separate neighbouring theatre."
+    }
+  ],
+  "geometrySources": [
+    "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip",
+    "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5818.zip"
+  ],
+  "osmIdentities": [
+    "https://www.openstreetmap.org/relation/180594",
+    "https://www.openstreetmap.org/relation/9261463"
+  ],
+  "factualSources": [
+    "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/haus-unter-den-linden/baugeschichte",
+    "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte/",
+    "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/kunstobjekte"
+  ]
+}

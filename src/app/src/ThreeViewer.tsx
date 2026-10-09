@@ -1,3 +1,5 @@
+import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
+import { pergamonPanoramaV202PassageAt, pergamonPanoramaV202SolidAt, pergamonPanoramaV202GroundAt } from "./pergamonPanoramaV202Profile";
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 import { westernStadiumGroundYV187 } from "./westernStadiumGroundV187";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
@@ -3541,7 +3543,7 @@ function prepareIsoNavigation(
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
       return true;
     }
-    return zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
+    return zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || bendlerblockV202PassageAt(x,y,z,sourceId) || pergamonPanoramaV202PassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) || musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) || nationalgaleriePorticoWalkableAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(
       runtime.lightingMode,
       x,
       y,
@@ -3565,6 +3567,7 @@ function prepareIsoNavigation(
       alexanderPublicRealmSolidAt(x, z, y, radius) ||
       friedrichMonumentSolidAt(x, z, y, 0) ||
       palacesUdlSupportSolidAt(x,z,y,0) ||
+      pergamonPanoramaV202SolidAt(x,y,z,radius) ||
       jamesSimonExtraSolidAt(x,y,z,radius) ||
       schillerMonumentSolidAt(x, y, z, radius) ||
       weidendammerBridgeSolidAt(x, y, z, radius) ||
@@ -3619,6 +3622,10 @@ function prepareIsoNavigation(
     if (promenade !== null) return promenade;
     const parkLawn = spreebogenLawnGroundAt(x,z);
     if (parkLawn !== null) return parkLawn;
+    const bendlerFloor = bendlerblockV202GroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    if (bendlerFloor !== null) return bendlerFloor;
+    const panoramaFloor = pergamonPanoramaV202GroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    if (panoramaFloor !== null) return panoramaFloor;
     const jamesFloor = jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
     if (jamesFloor !== null) return jamesFloor;
     const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
@@ -4393,7 +4400,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   environment.walkableInteriorAt = (x, y, z, sourceId) =>
     runtime.tunnelInteriorAt?.(x, y, z) === true ||
-    palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
+    bendlerblockV202PassageAt(x,y,z,sourceId) || pergamonPanoramaV202PassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
     musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
@@ -4408,6 +4415,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       alexanderPublicRealmSolidAt(x, z, y, radius) ||
       friedrichMonumentSolidAt(x, z, y, 0) ||
       palacesUdlSupportSolidAt(x,z,y,0) ||
+      pergamonPanoramaV202SolidAt(x,y,z,radius) ||
       jamesSimonExtraSolidAt(x,y,z,radius) ||
       schillerMonumentSolidAt(x, y, z, radius) ||
       weidendammerBridgeSolidAt(x, y, z, radius) ||
@@ -4440,6 +4448,8 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     neueWacheGroundAt(x,z,currentGroundY) ??
     spreebogenWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
     spreebogenLawnGroundAt(x,z) ??
+    bendlerblockV202GroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
+    pergamonPanoramaV202GroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
     jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
     domAltesExtraGroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
     nationalgalerieWalkSurfaceAt(x,z) ??

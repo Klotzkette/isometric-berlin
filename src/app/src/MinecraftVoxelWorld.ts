@@ -1,3 +1,5 @@
+import { isBendlerblockV202ReplacedColumn } from "./bendlerblockV202Profile";
+import { isPergamonPanoramaV202ReplacementColumn } from "./pergamonPanoramaV202Profile";
 import { isCentralSitesV200ReplacedColumn } from "./centralSitesV200ReplacementProfile";
 import { isCentralSitesV200FalseColumn } from "./centralSitesV200Profile";
 import { nationalgalerieV183Column } from "./neueNationalgalerieV183Profile";
@@ -3179,6 +3181,8 @@ export function* buildMinecraftVoxelWorldSteps(
     if (!(
       !isCentralSitesV200FalseColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isCentralSitesV200ReplacedColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !isBendlerblockV202ReplacedColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !isPergamonPanoramaV202ReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !berlinJunctionReplacesSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
       !rosengartenPergolaVoxelReplacementAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !wagnerMemorialVoxelReplacementAt(

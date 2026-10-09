@@ -1,3 +1,5 @@
+import { BENDLERBLOCK_V202_PRISM_IDS } from "./bendlerblockV202Profile";
+import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
 import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200ReplacementProfile";
 import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
@@ -981,6 +983,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // Underground S-Bahn footprint was incorrectly extruded across the street.
   ...CENTRAL_SITES_V200_FALSE_PRISM_IDS,
   ...CENTRAL_SITES_V200_REPLACED_PRISM_IDS,
+  ...BENDLERBLOCK_V202_PRISM_IDS,
+  ...PERGAMON_PANORAMA_V202_IDS,
   ...NATIONALGALERIE_V183_IDS,
   // The two mapped gate envelopes are replaced by an open concrete portal.
   ...MOABIT_PRISON_PORTAL_PRISM_IDS,

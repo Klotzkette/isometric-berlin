@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.102 — Museums, libraries and Bendlerblock
+
+- Refine James-Simon-Galerie columns, glazed foyer and three-flight entrance stair.
+- Restore the mapped Pergamon Panorama cylinder and connected exhibition hall.
+- Add bounded facade, Ehrenhof, glazing and roof articulation to both Staatsbibliothek buildings.
+- Restore complete Bendlerblock source families, mapped court passages and the German Resistance memorial.
+- Preserve all unrelated city packets, geometry, modes and runtime budgets.
+- [Sources and verification](docs/release-v1.0.102-review.md).
+
 ## v1.0.101 — Sunken venues and Charlottenburger Tor
 
 - Refine bounded official terrain at Waldbühne, the Olympic site and Wuhlheide, moving source grounds and complete owners consistently.

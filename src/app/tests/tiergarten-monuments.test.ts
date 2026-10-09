@@ -229,6 +229,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
   });
 
+  test("Bendlerblock figure and plaque retain source protection without generic doubles",()=>{
+    for(const key of ["node/7197479254","node/595339119"]){
+      expect(monuments.userData.externallyModelledSourceKeys).toContain(key);
+      expect(monuments.userData.protectedExternallyModelledSourceKeys).toContain(key);
+      expect(monuments.userData.protectedRenderedSourceKeys).not.toContain(key);
+    }
+  });
+
   test("delegates exactly the two mapped ML-20 guns without dropping their source protection",()=>{
     for(const key of ["node/489765078","node/489766052"]) {
       expect(monuments.userData.externallyModelledSourceKeys).toContain(key);
@@ -316,7 +324,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     // v174 also moved the Bernauer Straße work into its dedicated model.
     const wallOwned = externallyModelledKeys.filter(key => BERLIN_WALL_MEMORIAL_V174_ARTWORK_KEYS.has(key));
     expect(wallOwned).toHaveLength(1);
-    expect(renderedKeys.length + alexanderOwned.length + wallOwned.length).toBeGreaterThanOrEqual(1_400);
+    const bendlerOwned = externallyModelledKeys.filter(key => ["node/7197479254","node/595339119"].includes(key));
+    expect(bendlerOwned).toHaveLength(2);
+    expect(renderedKeys.length + alexanderOwned.length + wallOwned.length + bendlerOwned.length).toBeGreaterThanOrEqual(1_400);
     expect(externallyModelledKeys).toContain("node/262455591");
     expect(renderedKeys).not.toContain("node/262455591");
     expect(externallyModelledKeys.length).toBeGreaterThan(0);
