@@ -7,6 +7,7 @@ const phase = process.argv.find((arg) => arg.startsWith("--phase="))?.slice(8) ?
 if (!["legacy", "station", "current"].includes(phase)) throw new Error("Unknown audit phase");
 const profile = process.argv.includes("--mobile") ? "mobile" : "full";
 const writeBuffers = process.argv.includes("--write-buffers");
+const payloadOnly = process.argv.includes("--payload-only");
 const prefix = process.env.V200_AUDIT_PREFIX ?? `/tmp/v200-native-${phase}-${profile}`;
 const benchmark = fileURLToPath(new URL("./benchmark-minecraft-world.ts", import.meta.url));
 const predicates = [
@@ -27,7 +28,13 @@ plugin({
       return { contents, loader: "ts" };
     });
     build.onLoad({ filter: /\/benchmark-minecraft-world\.ts$/ }, (args) => {
-      const contents = readFileSync(args.path, "utf8") + `
+      let contents = readFileSync(args.path, "utf8");
+      if (payloadOnly) {
+        const original = "      tones,\n      scene.tiergartentunnel,\n      { detailProfile, sourcePrisms: prisms.buildings },";
+        if (contents.split(original).length !== 2) throw new Error("Expected one synchronous constructor");
+        contents = contents.replace(original, "      null,\n      null,\n      { detailProfile },");
+      }
+      contents += `
 // Capture independent per-mesh hashes and the two potentially changed batches.
 const objectReceipts = [];
 const pendingWrites = [];
@@ -48,6 +55,7 @@ world.traverse((object) => {
     geometrySha256: geometryHash.digest("hex"),
   };
   if (object instanceof InstancedMesh) {
+    const payloadHash = createHash("sha256");
     meshHash.update(JSON.stringify([object.count, object.instanceMatrix.count]));
     for (const key of ["instanceMatrix", "instanceColor"]) {
       const attribute = object[key];
@@ -57,12 +65,14 @@ world.traverse((object) => {
       item[key + "Sha256"] = createHash("sha256").update(bytes).digest("hex");
       item[key + "Bytes"] = bytes.byteLength;
       meshHash.update(bytes);
+      payloadHash.update(bytes);
       if (${writeBuffers} && ["Voxel building columns", "Voxel facade windows"].includes(object.name)) {
         const path = ${JSON.stringify(prefix)} + "-" + object.name.replaceAll(" ", "_") + "-" + key + ".bin";
         item[key + "Path"] = path;
         pendingWrites.push(Bun.write(path, bytes));
       }
     }
+    item.payloadSha256 = payloadHash.digest("hex");
   }
   item.sha256 = meshHash.digest("hex");
   objectReceipts.push(item);

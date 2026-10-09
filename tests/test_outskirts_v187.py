@@ -250,12 +250,18 @@ def test_all_hero_parts_retain_exact_new_scope_footprints_and_vertical_envelopes
       continue
     rows = [row for row in packet_audit["heroNav"] if row.get("partId") == part["id"]]
     assert rows, part["id"]
-    assert all(abs(row["height"] - (part["topY"] - 3)) < 0.02 for row in rows), part[
-      "id"
-    ]
-    assert all(abs(row["minHeight"] - (part["groundY"] - 3)) < 0.02 for row in rows), (
-      part["id"]
-    )
+    from build_olympic_terrain_v201 import OLYMPIC_OFFSETS
+    from packet_receipts_v201 import audited_v201_changes
+
+    shift = OLYMPIC_OFFSETS.get(part["owner"], 0) if family == "west" else 0
+    if shift:
+      audited_v201_changes()  # Complete old source, same footprint/span, measured datum.
+    assert all(
+      abs(row["height"] - (part["topY"] + shift - 3)) < 0.02 for row in rows
+    ), part["id"]
+    assert all(
+      abs(row["minHeight"] - (part["groundY"] + shift - 3)) < 0.02 for row in rows
+    ), part["id"]
     actual = unary_union([row["geometry"] for row in rows])
     assert actual.symmetric_difference(original).area < original.length * 0.02, part[
       "id"

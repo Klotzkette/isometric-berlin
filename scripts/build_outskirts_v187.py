@@ -302,6 +302,37 @@ def make_payload(hero, forest_world, stadium_cutout, selected_trees):
         "DEBE04YY500001II",  # ICC complete source main owner
         "DEBE04YY500004dG",  # ICC garage source owner
         "DEBE04YY500006BE",  # ICC entrance annex source owner
+        "DEBE04AL5LX00002",  # v201: complete Olympic stadium owners
+        "DEBE04AL5LX00003",
+        "DEBE04AL5LX00004",
+        "DEBE04YY500008Cu",  # Olympic entrance pylons
+        "DEBE04YY500006Fm",
+        "DEBE04YY500001If",  # Olympic Glockenturm
+        # v201: original sloping seating sheets and open stage now owned
+        # by WaldbuehneV201; full LoD2/OSM records stay in the source receipt.
+        "DEBE04AL2ua0002k",
+        "DEBE04AL2ua0002l",
+        "DEBE04AL2ua0002m",
+        "DEBE04AL2ua0002n",
+        "DEBE04AL2ua0002o",
+        "DEBE04AL2ua0002p",
+        "DEBE04AL2ua00034",
+        "DEBE04AL2ua00036",
+        "DEBE04AL2ua00038",
+        "DEBE04AL2ua00039",
+        "DEBE04AL2ua0003B",
+        "DEBE04AL2ua0003e",
+        "DEBE04AL2ua0003h",
+        "DEBE04AL2ua0003i",
+        "DEBE04AL2ua0003j",
+        "DEBE04AL2ua0003k",
+        "DEBE04AL2ua0003n",
+        "DEBE04AL2ua0003s",
+        "DEBE04AL2ua0003w",
+        "DEBE04AL2ua0003x",
+        "DEBE04AL2ua0004V",
+        "DEBE04YY500002GT",
+        "OSM-way-767528490",
       }:
         continue
       g = exporter.polygonal(b["geometry"].difference(hero))

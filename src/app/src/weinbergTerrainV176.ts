@@ -3,6 +3,8 @@ import buildings from "./data/weinbergBuildingOffsetsV176.json";
 import basinData from "./data/weinbergBasinsV176.json";
 import { parkReliefAt } from "./parkReliefV182";
 import { grunewaldGroundAt } from "./grunewaldTerrainV190";
+import { olympicTerrainOffsetV201 } from "./olympicTerrainV201";
+import { wuhlheideTerrainOffsetV201 } from "./wuhlheideTerrainV201";
 
 type Point = readonly number[];
 type P = [number, number, number];
@@ -35,7 +37,14 @@ export function terrainWeight(x: number, z: number): number {
 
 export function terrainGroundAt(x: number, z: number, baseline = 3, native = false): number {
   const height = baseline + (native ? nativeTerrainOffset(x, z) : terrainOffset(x, z)) + (3 - baseline) * terrainWeight(x, z);
-  if (x <= west || x >= east || z <= north || z >= south) return grunewaldGroundAt(x, z, parkReliefAt(x, z, height, native), native);
+  if (x <= west || x >= east || z <= north || z >= south) {
+    // These bounded DGM fields include their transition to the earlier terrain.
+    // They replace its local offset rather than adding a second hill to it.
+    const amphitheatreOffset = olympicTerrainOffsetV201(x, z, native)
+      ?? wuhlheideTerrainOffsetV201(x, z, native);
+    if (amphitheatreOffset !== null) return height + amphitheatreOffset;
+    return grunewaldGroundAt(x, z, parkReliefAt(x, z, height, native), native);
+  }
   for (const basin of basinData.basins) {
     if (inRing(x, z, basin.ring) && !basin.holes.some(hole => inRing(x, z, hole))) return basin.floorY;
   }

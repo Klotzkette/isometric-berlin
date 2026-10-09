@@ -1,3 +1,4 @@
+import { olympicStadiumYV201 } from "./olympicLandmarkPlacementV201";
 import source from "./data/westernStadiumV187Navigation.json";
 
 type Ring = readonly (readonly number[])[];
@@ -19,7 +20,7 @@ const gap = source.marathonOpening.type === "Polygon"
   : source.marathonOpening.coordinates as unknown as Ring[][];
 
 /** Only this exact ground opening: undefined leaves the existing terrain policy. */
-export function westernStadiumGroundYV187(x: number, z: number): number | undefined {
+function previousStadiumGround(x: number, z: number): number | undefined {
   const b = source.bounds;
   if (x < b[0] || x > b[2] || z < b[1] || z > b[3]) return undefined;
   if (!cutout.some(p => inPolygon(x, z, p))) return undefined;
@@ -42,4 +43,10 @@ export function westernStadiumGroundYV187(x: number, z: number): number | undefi
   const s = source.seating;
   const row = Math.floor((nearest - s.firstOffsetM) / s.rowDepthM);
   return row >= 0 && row < s.rows ? source.pitchY + s.firstRiseM + (row + 1) * s.risePerRowM : source.pitchY;
+}
+
+/** Identical measured arena remap to the retained visible floor and rows. */
+export function westernStadiumGroundYV187(x:number,z:number):number|undefined {
+  if(!Number.isFinite(x)||!Number.isFinite(z))return undefined;
+  const y=previousStadiumGround(x,z);return y===undefined ? undefined : olympicStadiumYV201(y);
 }

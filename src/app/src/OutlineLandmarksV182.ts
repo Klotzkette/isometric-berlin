@@ -48,6 +48,9 @@ import { createCemeteryGrunewaldV199 } from "./CemeteryGrunewaldV199";
 import { createCentralSitesV200 } from "./CentralSitesV200";
 import { createBerlinBoundariesV200 } from "./BerlinBoundariesV200";
 import { createRegionOutlinesV200 } from "./RegionOutlinesV200";
+import { createMinecraftCharlottenburgerTorV201 } from "./MinecraftCharlottenburgerTorV201";
+import { createWuhlheideV201 } from "./WuhlheideV201";
+import { createWaldbuehneV201 } from "./WaldbuehneV201";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -123,6 +126,9 @@ export function createOutlineLandmarksV182(
       root.add(createCentralSitesV200(nextNative));
       root.add(createRegionOutlinesV200(nextNative));
       root.add(createBerlinBoundariesV200(nextNative));
+      if (nextNative) root.add(createMinecraftCharlottenburgerTorV201());
+      root.add(createWuhlheideV201(nextNative));
+      root.add(createWaldbuehneV201(nextNative));
       kites = createDrachenbergKitesV195(nextNative);
       root.add(kites);
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;

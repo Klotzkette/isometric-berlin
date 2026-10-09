@@ -1,0 +1,13 @@
+{
+  "release": "v1.0.100",
+  "hashes": {
+    "parts": "535be92dc8a4cb742b79af2527e1c885cd3df85e2fcf5cd8e03fafa66d6742a5",
+    "edges": "a40d0269f025638ea8bebcd0022af49a5233f7af5b60673f14f88347ebc3ed4e",
+    "lamps": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "counts": {
+    "parts": 58,
+    "edges": 36,
+    "lamps": 0
+  }
+}

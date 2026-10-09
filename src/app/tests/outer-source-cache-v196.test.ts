@@ -8,6 +8,7 @@ import { losslessJsonData, READONLY_CONSTRUCTION_JSON_FIELDS } from "../lossless
 
 const fields: Record<string, string[]> = {
   "westLandmarksV187.json": ["groups"],
+  "olympicGroundsV201.json": ["groups", "gatewayOffsets"],
   "eastLandmarksV187.json": ["cells"],
   "eastLandmarksV187Native.json": ["cells"],
   "southWestLandmarksV187.json": ["sites"],
@@ -26,6 +27,11 @@ const fields: Record<string, string[]> = {
   "northParksV198Native1.json": ["cells"],
   "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
   "centralSitesV200.json": ["surfaces", "boxes", "blocks"],
+  "charlottenburgerTorV201.json": ["boxes"],
+  "wuhlheideV201.json": ["sites"],
+  "wuhlheideV201Native.json": ["sites"],
+  "waldbuehneV201.json": ["sites"],
+  "waldbuehneV201Native.json": ["sites"],
   "berlinBoundariesV200.json": ["stateXz", "stateSegments", "wallXz", "wallSegments"],
   "regionOutlinesV200.json": ["groups"],
   "regionOutlinesV200Native.json": ["groups"],
@@ -72,6 +78,9 @@ async function compile(): Promise<string> {
     ["NorthParksV198", "createNorthParksV198"],
     ["EastParksV198", "createEastParksV198"],
     ["CentralSitesV200", "createCentralSitesV200"],
+    ["MinecraftCharlottenburgerTorV201", "createMinecraftCharlottenburgerTorV201"],
+    ["WuhlheideV201", "createWuhlheideV201"],
+    ["WaldbuehneV201", "createWaldbuehneV201"],
     ["BerlinBoundariesV200", "createBerlinBoundariesV200"],
     ["RegionOutlinesV200", "createRegionOutlinesV200"],
     ["IccV199", "createIccV199"],
@@ -86,7 +95,7 @@ window.fixture = { sources: {${files.map((file, index) => `${JSON.stringify(file
   native => native ? createMinecraftEastLandmarksV187() : createEastLandmarksV187(),
   createSouthWestLandmarksV187,
   native => native ? createMinecraftNorthSitesV190() : createNorthSitesV190(),
-  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198, createIccV199, createFunkturmV199, createCemeteryGrunewaldV199, createRegionOutlinesV200, createBerlinBoundariesV200, createCentralSitesV200
+  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198, createIccV199, createFunkturmV199, createCemeteryGrunewaldV199, createRegionOutlinesV200, createBerlinBoundariesV200, createCentralSitesV200, createMinecraftCharlottenburgerTorV201, createWuhlheideV201, createWaldbuehneV201
 ] };`);
   try {
     const result = await build({ configFile: false, root: directory, publicDir: false, logLevel: "silent",

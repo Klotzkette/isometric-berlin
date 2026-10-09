@@ -4,6 +4,7 @@ import * as tu from '../src/TuWaterV168.ts';
 import * as cinema from '../src/CityWestCinemasV166.ts';
 import * as synagogue from '../src/NeueSynagogeV167.ts';
 import * as zoo from '../src/ZooStationV165.ts';
+import { createZooEntranceDetailsV192 } from '../src/StationDetailsV192.ts';
 // Exact v1.0.71 geometry, instance, transform, draw-range and visibility digest.
 const PUBLISHED = [
   {
@@ -86,10 +87,28 @@ for (const [name,factory,options] of [
  ['zoo',zoo.createZooStationV165,{}],['zoo-mobile',zoo.createZooStationV165,{detailProfile:'mobile'}],['zoo-native',zoo.createMinecraftZooStationV165,{}],
 ] as const) {
  test(`published ${name} attributes survive buffer adoption byte for byte`, () => {
- const hash=createHash('sha256');let bytes=0,calls=0;
  const root=factory(options as any);
+ // The mapped U-entrance was added in v192. Verify it independently, then
+ // compare every pre-existing station buffer to the immutable v171 digest.
+ const additions = name.startsWith('zoo')
+   ? root.children.filter(o => o.name === 'Hardenbergplatz mapped U entrance O v192') : [];
+ if (name.startsWith('zoo')) {
+   expect(additions).toHaveLength(1);
+   const reference = createZooEntranceDetailsV192(name.endsWith('-native'));
+   expect(digest(additions[0])).toEqual(digest(reference));
+   reference.traverse((o:any)=>{o.geometry?.dispose();for(const m of new Set([o.material,o.userData.dayMaterial,o.userData.nightMaterial]))if(m&&!Array.isArray(m))m.dispose();});
+ }
+ const omitted = new Set<any>();
+ for (const addition of additions) addition.traverse(o=>omitted.add(o));
+ expect({name,...digest(root, omitted)}).toEqual(PUBLISHED.find(row=>row.name===name));
+ root.traverse((o:any)=>{if(o.geometry)o.geometry.dispose();for(const m of new Set([o.material,o.userData.dayMaterial,o.userData.nightMaterial]))if(m&&!Array.isArray(m))m.dispose();});
+ });
+}
+
+function digest(root:any, omitted = new Set<any>()) {
+ const hash=createHash('sha256');let bytes=0,calls=0;
  root.traverse((o:any)=>{
-  if(!o.geometry)return;calls++;
+  if(!o.geometry || omitted.has(o))return;calls++;
   hash.update(JSON.stringify({name:o.name,drawRange:o.geometry.drawRange,groups:o.geometry.groups,matrix:o.matrix.toArray(),visible:o.visible}));
   for(const [attribute,a] of Object.entries({...o.geometry.attributes,index:o.geometry.index,instanceMatrix:o.instanceMatrix,instanceColor:o.instanceColor}) as any){
    if(!a)continue;
@@ -97,7 +116,5 @@ for (const [name,factory,options] of [
    const data=new Uint8Array(a.array.buffer,a.array.byteOffset,a.array.byteLength);hash.update(data);bytes+=data.byteLength;
   }
  });
- expect({name,calls,bytes,hash:hash.digest('hex')}).toEqual(PUBLISHED.find(row=>row.name===name));
- root.traverse((o:any)=>{if(o.geometry)o.geometry.dispose();for(const m of new Set([o.material,o.userData.dayMaterial,o.userData.nightMaterial]))if(m&&!Array.isArray(m))m.dispose();});
- });
+ return {calls,bytes,hash:hash.digest('hex')};
 }

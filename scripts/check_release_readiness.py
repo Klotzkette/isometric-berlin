@@ -75,7 +75,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Grunewald terrain, retaining all older source geometry. The complete package
 # measures about 802.1 MiB; 810 MiB allows under 8 MiB of archive headroom.
 # This changes no live fetch/decode, geometry-residency or rendering limit.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 810 * 1024 * 1024
+# v201 refines the bounded Olympic/Wuhlheide terrain with full source detail.
+# Streamed packets add exactly 20,899,692 bytes; the final extracted package is
+# 861,014,450 bytes (821.13 MiB). 824 MiB leaves 2.87 MiB archive headroom.
+# This is only an on-disk archive ceiling; live packet/decoded/GPU limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 824 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import field from "../src/data/teufelsbergTerrainV195.json";
 import { grunewaldTerrainOffset } from "../src/grunewaldTerrainV190";
 import { teufelsbergTerrainOffsetV195 } from "../src/teufelsbergTerrainV195";
+import { olympicTerrainOffsetV201 } from "../src/olympicTerrainV201";
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
 
 test("the earlier measured field retains its independent v1.0.94 hash", () => {
@@ -88,8 +89,10 @@ test("outside the local support earlier terrain and unrelated walking datums rem
   ]) {
     expect(teufelsbergTerrainOffsetV195(x, z)).toBeNull();
     expect(grunewaldTerrainOffset(x, z)).toBeCloseTo(drawn, 8);
-    expect(terrainGroundAt(x, z)).toBeCloseTo(3 + drawn, 8);
-    expect(terrainGroundAt(x, z, 3, true)).toBeCloseTo(3 + native, 8);
+    // v201 explicitly refines the Olympic apron at the one northern checkpoint;
+    // the old Grunewald field itself remains pinned to its independent values.
+    expect(terrainGroundAt(x, z)).toBeCloseTo(3 + (olympicTerrainOffsetV201(x,z) ?? drawn), 8);
+    expect(terrainGroundAt(x, z, 3, true)).toBeCloseTo(3 + (olympicTerrainOffsetV201(x,z,true) ?? native), 8);
   }
   expect(terrainGroundAt(2132.98, -1408.45)).toBe(12.4);
   expect(terrainGroundAt(0, 0, 5.245)).toBe(5.245);

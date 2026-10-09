@@ -1,3 +1,5 @@
+import { appendCharlottenburgerTorV201 } from "./CharlottenburgerTorV201";
+import { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
 import { createAlterDessauerMonument } from "./AlterDessauerMonument";
 import { createKonradAdenauerHaus } from "./KonradAdenauerHaus";
 import { POTSDAMER_PANORAMA_LANDSCAPE } from "./potsdamerPanoramaPalette";
@@ -111,16 +113,7 @@ export type ExpandedCityDetailsOptions = {
   detailProfile?: MoabitPrisonMemorialDetailProfile;
 };
 
-export const CHARLOTTENBURGER_TOR_PROFILE = Object.freeze({
-  centerWorldM: [-2731.136, 568.211] as const,
-  roadOpeningM: 34,
-  wingCount: 2,
-  columnCountPerWing: 4,
-  sourceUrl:
-    "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/artikel.1368662.php",
-  geometryStatus:
-    "landmark-centred and road-axis-aligned; 34 m post-1937 opening is published, local colonnade and sculpture subdivisions are bounded presentation fits",
-});
+export { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
 
 export const GROSSER_STERN_TUNNEL_HOUSES_PROFILE = Object.freeze({
   architect: "Johannes Huntemüller",
@@ -4097,63 +4090,9 @@ function addAnhalterBahnhof(
   );
 }
 
-function addCharlottenburgerTor(
-  builder: Builder,
-  byName: Map<string, ExpandedLandmark>,
-): void {
+function addCharlottenburgerTor(builder: Builder, byName: Map<string, ExpandedLandmark>): void {
   const point = anchor(byName, "Charlottenburger Tor");
-  if (!point) return;
-  const rotation = 0.087;
-  for (const side of [-1, 1]) {
-    const wingZ = side * (CHARLOTTENBURGER_TOR_PROFILE.roadOpeningM / 2 + 3.2);
-    // Schaede's two gate wings are colonnades north and south of the road,
-    // rather than the two tower blocks formerly placed along its centreline.
-    for (const localX of [-11.2, 11.2]) {
-      addLocalBox(builder, SANDSTONE, point, localX, point.y + 8.6, wingZ,
-        4.3, 17.2, 5.6, rotation);
-      addLocalBox(builder, 0xa79a80, point, localX, point.y + 18.3, wingZ,
-        5.2, 2.2, 6.3, rotation);
-    }
-    for (const localX of [-6.6, -2.2, 2.2, 6.6]) {
-      const [offsetX, offsetZ] = rotatedLocalOffset(localX, wingZ, rotation);
-      addCylinder(builder, SANDSTONE, point.x + offsetX, point.y + 9.0,
-        point.z + offsetZ, 0.72, 14.4, 12);
-      addLocalBox(builder, 0xb4aa91, point, localX, point.y + 2.0, wingZ,
-        1.75, 0.7, 1.75, rotation);
-      addLocalBox(builder, 0xb4aa91, point, localX, point.y + 16.1, wingZ,
-        1.6, 0.65, 1.6, rotation);
-    }
-    addLocalBox(builder, SANDSTONE, point, 0, point.y + 17.15, wingZ,
-      26.8, 1.8, 6.0, rotation);
-    addLocalBox(builder, 0xa89b82, point, 0, point.y + 19.45, wingZ,
-      28.2, 2.8, 6.5, rotation);
-    for (const localX of [-8, -4, 0, 4, 8]) {
-      addLocalBox(builder, 0x958970, point, localX, point.y + 19.45,
-        wingZ + side * 3.31, 1.45, 0.62, 0.16, rotation, false);
-    }
-    // Friedrich I and Sophie Charlotte on the Tiergarten-facing side.
-    const statueX = side < 0 ? -11.2 : 11.2;
-    const [statueOffsetX, statueOffsetZ] = rotatedLocalOffset(
-      statueX,
-      wingZ - side * 3.45,
-      rotation,
-    );
-    addCylinder(builder, BRONZE, point.x + statueOffsetX, point.y + 8.0,
-      point.z + statueOffsetZ, 1.2, 3.8, 10);
-    addCone(builder, BRONZE, point.x + statueOffsetX, point.y + 11.0,
-      point.z + statueOffsetZ, 1.35, 3.1, 10);
-    addCylinder(builder, BRONZE, point.x + statueOffsetX, point.y + 13.0,
-      point.z + statueOffsetZ, 0.62, 1.2, 10);
-    // The high end pylons and their allegorical bronze groups replace the
-    // previous single cones.
-    addLocalBox(builder, SANDSTONE, point, -statueX, point.y + 22.0, wingZ,
-      4.5, 3.2, 4.7, rotation);
-    const [crownX, crownZ] = rotatedLocalOffset(-statueX, wingZ, rotation);
-    for (const crownSide of [-1, 1]) {
-      addCone(builder, BRONZE, point.x + crownX + crownSide * 1.0,
-        point.y + 25.1, point.z + crownZ, 0.72, 2.4, 8);
-    }
-  }
+  if (point) appendCharlottenburgerTorV201(builder, point);
 }
 
 function createWeltBalloonEnvelopeTexture(): Texture | null {

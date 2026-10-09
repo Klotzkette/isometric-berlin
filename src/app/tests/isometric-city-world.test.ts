@@ -5,6 +5,9 @@ import { LEIPZIGER_SOURCE_PROFILES } from "../src/leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
 import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
 import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile";
+import stationDetailsV192 from "../src/data/stationDetailsV192.json";
+import centralCorrection from "../src/data/centralSitesV200Correction.json";
+import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 import { buildingAttributes, mappedStoreyProfile } from "../src/buildingAttributes";
 
 import {
@@ -809,7 +812,18 @@ describe("ligne-claire fenestration", () => {
     const galleryOwners = payload.buildings.filter(p => NATIONALGALERIE_V183_IDS.has(p.id));
     expect(altMitteOwners).toHaveLength(5_427);
     expect(galleryOwners).toHaveLength(8);
-    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length).toBe(21_896);
+    // Seven later exact owners moved to complete source models; retain the
+    // historical total and verify their original payloads, not a lower target.
+    const laterOwners = [stationDetailsV192.zoo.legacyPrism, centralCorrection.retainedPrism,
+      ...centralReplacement.replacements.map(p => p.legacyPrism)];
+    expect(new Set(laterOwners.map(p => p.id)).size).toBe(7);
+    for (const owner of laterOwners) {
+      expect(payload.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
+      expect(PRISM_SUPPRESSED_IDS.has(owner.id)).toBeTrue();
+      expect(ALT_MITTE_V169_PRISM_IDS.has(owner.id)).toBeFalse();
+      expect(NATIONALGALERIE_V183_IDS.has(owner.id)).toBeFalse();
+    }
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length + laterOwners.length).toBe(21_896);
     expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(24_000);
     const transferredStoreys = altMitteOwners.filter(p => mappedStoreyProfile(buildingAttributes(p.id), p.h_dm / 10));
     expect(transferredStoreys).toHaveLength(1_550);

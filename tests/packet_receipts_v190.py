@@ -164,6 +164,28 @@ def audited_v190_changes() -> tuple[dict, list]:
     else:
       assert previous[key[0]][key[1]]["sha256"] == before
       changes[key] = (before, after)
+  # v201 starts at immutable v100 bytes. Its independently replayed terrain
+  # changes may update old companions or append bounded geometry-only pieces.
+  from packet_receipts_v201 import audited_v201_changes
+
+  next_changes, next_companions, _ = audited_v201_changes()
+  companion_by_id = {d["id"]: d for d in companions}
+  for key, (before, after) in next_changes.items():
+    if key[0] in companion_by_id:
+      assert companion_by_id[key[0]][key[1]]["sha256"] == before
+    elif key[0] in previous:
+      original, intermediate = changes.get(key, (before, before))
+      assert intermediate == before
+      if key not in changes:
+        assert previous[key[0]][key[1]]["sha256"] == before
+      changes[key] = (original, after)
+    else:
+      # Those four new v200 cells are checked by their own append contract.
+      assert key[0].startswith("east200-")
+  replacement_by_id = {d["id"]: d for d in next_companions}
+  companions = [replacement_by_id.get(d["id"], d) for d in companions] + [
+    d for d in next_companions if d["id"] not in companion_by_id
+  ]
   return changes, companions
 
 
@@ -174,6 +196,14 @@ def assert_retained_descriptor(old: dict, current: dict, changes: dict) -> None:
   _, counts = audited_v199_changes()
   if old["id"] in counts:
     before, after = counts[old["id"]]
+    assert old["buildingCount"] in (before, after)
+    assert current["buildingCount"] == after
+    old = {**old, "buildingCount": after}
+  from packet_receipts_v201 import audited_v201_changes
+
+  _, _, new_counts = audited_v201_changes()
+  if old["id"] in new_counts:
+    before, after = new_counts[old["id"]]
     assert old["buildingCount"] in (before, after)
     assert current["buildingCount"] == after
     old = {**old, "buildingCount": after}

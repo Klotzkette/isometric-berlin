@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.101 — Sunken venues and Charlottenburger Tor
+
+- Refine bounded official terrain at Waldbühne, the Olympic site and Wuhlheide, moving source grounds and complete owners consistently.
+- Restore the raised Olympic plateau and open amphitheatre bowls with matching navigation.
+- Correct the two Charlottenburger Tor wings against mapped source plans while retaining architectural detail.
+- Preserve all unrelated city geometry, source evidence and existing runtime budgets.
+- [Sources and verification](docs/release-v1.0.101-review.md).
+
 ## v1.0.100 — Regional outlines, Berlin boundary and central courtyards
 
 - Add 199 source-bound outline cells across five explicitly named Ortsteile, keeping all earlier packet bytes and runtime residency limits unchanged.

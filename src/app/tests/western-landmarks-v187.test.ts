@@ -3,6 +3,8 @@ import { InstancedMesh, Mesh } from "three";
 import { createWesternLandmarksV187, createMinecraftWesternLandmarksV187 } from "../src/WesternLandmarksV187";
 import { westernStadiumGroundYV187 } from "../src/westernStadiumGroundV187";
 import source from "../src/data/westLandmarksV187.json";
+import terrainGrounds from "../src/data/olympicGroundsV201.json";
+const activeGroups=source.groups.map(g=>terrainGrounds.groups.find(p=>p.name===g.name)??g);
 
 describe("western source-bound landmarks v187", () => {
   test("only the selected mode owns geometry; final-count buffers and frozen spatial groups", () => {
@@ -27,15 +29,15 @@ describe("western source-bound landmarks v187", () => {
         }
       });
       expect(calls).toBeLessThanOrEqual(26);
-      expect(instances).toBe(native ? source.groups.reduce((n,g)=>n+g.native.length,0) : source.groups.reduce((n,g)=>n+g.boxes.length+g.rods.length,0));
-      expect(vertices).toBe(native ? 0 : source.groups.reduce((n,g)=>n+g.surfaces.reduce((v,s)=>v+s.triangles.length*3,0),0));
+      expect(instances).toBe(native ? activeGroups.reduce((n,g)=>n+g.native.length,0) : activeGroups.reduce((n,g)=>n+g.boxes.length+g.rods.length,0));
+      expect(vertices).toBe(native ? 0 : activeGroups.reduce((n,g)=>n+g.surfaces.reduce((v,s)=>v+s.triangles.length*3,0),0));
       root.traverse(object => { if (object instanceof Mesh) { object.geometry.dispose(); for (const m of Array.isArray(object.material) ? object.material : [object.material]) m.dispose(); } });
     }
   });
   test("walking can reach the source-height pitch while outside terrain stays unchanged", () => {
-    expect(westernStadiumGroundYV187(-8963,262)).toBeCloseTo(-12.667,3);
+    expect(westernStadiumGroundYV187(-8963,262)).toBeCloseTo(23.05,3);
     expect(westernStadiumGroundYV187(0,0)).toBeUndefined();
     expect(westernStadiumGroundYV187(-9200,400)).toBeUndefined();
-    expect(westernStadiumGroundYV187(-8963,200)).toBeLessThan(3.55);
+    expect(westernStadiumGroundYV187(-8963,200)).toBeLessThan(37.0);
   });
 });

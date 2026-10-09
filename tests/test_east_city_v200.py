@@ -9,6 +9,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pytest
+from packet_receipts_v201 import predecessor_v201
 from shapely import from_wkb, make_valid
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
@@ -40,7 +41,7 @@ def source(manifest):
 @pytest.fixture(scope="module")
 def drawn(manifest):
   return [
-    json.loads(gzip.decompress((PUBLIC / c["drawn"]["url"]).read_bytes()))
+    json.loads(gzip.decompress(predecessor_v201(PUBLIC / c["drawn"]["url"])))
     for c in manifest["chunks"]
   ]
 
@@ -112,7 +113,7 @@ def test_all_packets_fit_unchanged_serial_limits_and_have_both_readings(manifest
     assert descriptor["drawn"]["sha256"] != descriptor["minecraft"]["sha256"]
     for mode in ("drawn", "minecraft"):
       asset = descriptor[mode]
-      packed = (PUBLIC / asset["url"]).read_bytes()
+      packed = predecessor_v201(PUBLIC / asset["url"])
       assert len(packed) == asset["bytes"] < 650_000
       assert hashlib.sha256(packed).hexdigest() == asset["sha256"]
       raw = gzip.decompress(packed)

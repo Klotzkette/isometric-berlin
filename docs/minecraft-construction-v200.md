@@ -82,3 +82,35 @@ heights, all 102 station pane positions, adjacency of every exposed Heckmann
 neighbour pane and byte-accounting. The construction regression compares the
 cooperative path against the new synchronous fixture. These are CPU geometry
 checks; they make no device-FPS or peak-browser-memory claim.
+
+## Payload-only regression chain (completed during v201 validation)
+
+The historical `minecraft-voxel-world.test.ts` also constructs the world without
+the optional tone lookup, tunnel or source-prism inputs. Its independent v192
+baseline had not been linked to the v200 correction. Isolated counterfactual
+captures now reproduce that frozen baseline exactly with only the two v200
+predicates disabled. No old fixture or production geometry is changed.
+
+For this constructor, independent enumeration of the same six retained source
+footprints gives 128 replaced columns, 362 full / 128 mobile layer instances,
+424 removed panes and 154 newly exposed neighbour panes (net −270). The pane
+counts differ from the source-prism-assisted constructor above because their
+storey spacing differs; neither fixture substitutes for the other.
+
+`minecraft-payload-only-v200-delta.json` stores only those changed records with
+their original indices and exact Float32 bits. The regression reconstructs the
+**unchanged v192 SHA256** directly from live buffers and these source-checked
+records, preserving every retained matrix/color byte and its order without
+constructing another world. The current snapshot is checked separately. The
+seven later distant-shell owners are similarly linked individually: the v192
+Zoo canopy, one v200 underground-station correction and five complete Heckmann
+models. The earlier envelope and courtyard totals remain the asserted baseline.
+
+To reproduce the compact receipt, capture `legacy` and `current` for both
+profiles with `--payload-only --write-buffers`, setting `V200_AUDIT_PREFIX` to
+`/tmp/v200-payload-<phase>-<profile>` for each run, then execute:
+
+```sh
+bun scripts/audit-central-sites-v200-payload.ts /tmp/v200-payload
+bun run test tests/minecraft-voxel-world.test.ts tests/distant-building-envelopes.test.ts
+```

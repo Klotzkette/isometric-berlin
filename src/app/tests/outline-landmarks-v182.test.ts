@@ -61,8 +61,9 @@ test("mode families release residency owners, alternate materials and instance b
   const warmup = createSceneGpuWarmup(renderer, scene, camera);
   let releases = 0;
   let originals = new Map<Mesh | Line, Mesh["onAfterRender"]>();
+  let activeFamilyCount = 0;
   const root = createOutlineLandmarksV182("day", previous => {
-    expect(previous.children).toHaveLength(familyCount); // Still traversable at release.
+    expect(previous.children).toHaveLength(activeFamilyCount); // Still traversable at release.
     warmup.release(previous);
     geometry.release(previous);
     instances.release(previous);
@@ -75,6 +76,7 @@ test("mode families release residency owners, alternate materials and instance b
   // Later source-bound families join this same lifecycle; capture the actual
   // inventory rather than freezing the original seven v182 additions.
   const familyCount = root.children.length;
+  activeFamilyCount = familyCount;
   expect(familyCount).toBeGreaterThan(0);
   scene.add(root);
   const register = () => {
@@ -111,7 +113,11 @@ test("mode families release residency owners, alternate materials and instance b
       root.userData.setMode(mode);
       expect(previous.every(child => child.parent === null)).toBeTrue();
       expect(counts.every(record => record.disposed === 1)).toBeTrue();
-      expect(root.children).toHaveLength(familyCount);
+      // The drawn Tor belongs to ExpandedCityDetails; its separate native
+      // replacement participates in this lazy family and the same disposal.
+      expect(root.children).toHaveLength(familyCount + (mode === "minecraft" ? 1 : 0));
+      expect(root.children.filter(child => child.userData.charlottenburgerTor)).toHaveLength(mode === "minecraft" ? 1 : 0);
+      activeFamilyCount = root.children.length;
       expect(root.children.every(child => child.userData.nativeMinecraft === (mode === "minecraft"))).toBeTrue();
       if (mode === "day") expect(signature(root)).toEqual(daySignature);
       else if (nativeSignature) expect(signature(root)).toEqual(nativeSignature);

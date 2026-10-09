@@ -26,7 +26,9 @@ def load(path: Path) -> dict:
 
 
 def verified_asset(path: Path, asset: dict) -> bytes:
-  raw = path.read_bytes()
+  from packet_receipts_v201 import predecessor_v201
+
+  raw = predecessor_v201(path) if path.is_relative_to(PUBLIC) else path.read_bytes()
   assert digest(raw) == asset["sha256"], path
   assert len(raw) == asset["bytes"] < 650_000
   assert len(gzip.decompress(raw)) == asset["decodedBytes"] < 2_600_000
@@ -187,7 +189,9 @@ def audited_v195_changes() -> tuple[dict, list]:
 def historical_v190_asset(descriptor: dict, mode: str) -> bytes:
   """Keep original v190 tests exact even after explicitly audited v195 refinements."""
   asset = descriptor[mode]
-  raw = (PUBLIC / asset["url"]).read_bytes()
+  from packet_receipts_v201 import predecessor_v201
+
+  raw = predecessor_v201(PUBLIC / asset["url"])
   if digest(raw) == asset["sha256"]:
     return raw
   from packet_receipts_v199 import audited_v199_changes

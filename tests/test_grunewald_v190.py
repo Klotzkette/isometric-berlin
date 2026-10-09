@@ -176,13 +176,11 @@ def test_original_source_navigation_and_forest_shape_are_preserved() -> None:
   receipt = terrain.read_receipt()
   descriptors = {d["id"]: d for d in receipt["replacementDescriptors"]}
   all_descriptors = [*descriptors.values(), *receipt["extraDescriptors"]]
-  stage = terrain.RAW / "packets"
 
   def packet(d: dict, mode: str) -> dict:
-    path = stage / d[mode]["url"]
-    if not path.exists():
-      path = terrain.PUBLIC / d[mode]["url"]
-    return json.loads(gzip.decompress(path.read_bytes()))
+    from packet_receipts_v195 import historical_v190_asset
+
+    return json.loads(gzip.decompress(historical_v190_asset(d, mode)))
 
   def triangles(p: dict) -> np.ndarray:
     meshes = [m for m in p["meshes"] if m["kind"] == "outskirts-v187-forest"]

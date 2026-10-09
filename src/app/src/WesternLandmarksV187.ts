@@ -4,6 +4,8 @@ import {
   MeshStandardMaterial, Quaternion, Vector3,
 } from "three";
 import data from "./data/westLandmarksV187.json";
+import grounds from "./data/olympicGroundsV201.json";
+import { olympicStadiumYV201, OLYMPIC_GLOCKENTURM_DATUM_V201 } from "./olympicLandmarkPlacementV201";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 type Landmark = (typeof data.groups)[number];
@@ -13,10 +15,14 @@ function surfaces(item: Landmark): Mesh {
   const length = item.surfaces.reduce((sum, s) => sum + s.triangles.length * 9, 0);
   const positions = new Float32Array(length), colors = new Float32Array(length), tint = new Color();
   let offset = 0;
-  for (const s of item.surfaces) {
+  for (let surfaceIndex=0;surfaceIndex<item.surfaces.length;surfaceIndex++) {
+    const s=item.surfaces[surfaceIndex];
+    const dy=item.name==="Olympic gateway pylons" ? grounds.gatewayOffsets.surfaces[surfaceIndex] : 0;
     tint.setHex(s.color);
     for (const t of s.triangles) for (const p of t) {
-      positions.set(p, offset); tint.toArray(colors, offset); offset += 3;
+      positions.set(p, offset);
+      positions[offset+1]=item.name==="Olympiastadion" ? olympicStadiumYV201(p[1]) : p[1]+dy;
+      tint.toArray(colors, offset); offset += 3;
     }
   }
   const geometry = new BufferGeometry();
@@ -42,15 +48,22 @@ function details(item: Landmark, native: boolean): InstancedMesh {
   const matrices = new Float32Array(count * 16), colors = new Float32Array(count * 3);
   const matrix = new Matrix4(), tint = new Color(), scale = new Vector3();
   rows.forEach((r, i) => {
-    if (native) matrix.makeScale(r[3], r[4], r[5]);
-    else { matrix.makeRotationY(r[6]); matrix.scale(scale.set(r[3], r[4], r[5])); }
-    matrix.setPosition(r[0], r[1], r[2]); matrix.toArray(matrices, i * 16);
+    let y=r[1],height=r[4];
+    if(item.name==="Olympiastadion"){
+      const low=olympicStadiumYV201(y-height/2),high=olympicStadiumYV201(y+height/2);
+      y=(low+high)/2;height=high-low;
+    } else if(item.name==="Olympic gateway pylons"&&native)y+=grounds.gatewayOffsets.native[i];
+    if (native) matrix.makeScale(r[3], height, r[5]);
+    else { matrix.makeRotationY(r[6]); matrix.scale(scale.set(r[3], height, r[5])); }
+    matrix.setPosition(r[0], y, r[2]); matrix.toArray(matrices, i * 16);
     tint.setHex(r[native ? 6 : 7]).toArray(colors, i * 3);
   });
   const a = new Vector3(), b = new Vector3(), up = new Vector3(0, 1, 0);
   const direction = new Vector3(), rotation = new Quaternion();
   rods.forEach((r, i) => {
-    a.fromArray(r); b.fromArray(r, 3); direction.subVectors(b, a);
+    a.fromArray(r); b.fromArray(r, 3);
+    if(item.name==="Olympiastadion"){a.y=olympicStadiumYV201(a.y);b.y=olympicStadiumYV201(b.y);}
+    direction.subVectors(b, a);
     const length = direction.length(); rotation.setFromUnitVectors(up, direction.normalize());
     matrix.compose(a.add(b).multiplyScalar(.5), rotation, scale.set(r[6], length, r[6]));
     matrix.toArray(matrices, (rows.length + i) * 16);
@@ -71,11 +84,13 @@ function create(native: boolean): Group {
   root.userData = { westLandmarksV187: true, textureFree: true, fullStaticDetailOnTouch: true,
     nativeMinecraft: native, blockNative: native, keepInMinecraft: native,
     completeSourceOwners: true, photographedPixelsBundled: false };
-  for (const item of data.groups) {
+  for (const oldItem of data.groups) {
+    const item=(oldItem.name.startsWith("Olympiapark") ? grounds.groups.find(g=>g.name===oldItem.name)! : oldItem) as Landmark;
     const cell = new Group(); cell.name = item.name;
     cell.userData = { westLandmarksV187: true, anchor: item.anchor, keepInMinecraft: native };
     if (!native && item.surfaces.length) cell.add(surfaces(item));
     if (native ? item.native.length : item.boxes.length + item.rods.length) cell.add(details(item, native));
+    if(item.name==="Glockenturm")cell.position.y=OLYMPIC_GLOCKENTURM_DATUM_V201;
     root.add(cell);
   }
   return freezeStaticSceneTransforms(root);

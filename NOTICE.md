@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Sunken venues and Charlottenburger Tor (v1.0.101):** Official Berlin DGM1
+  and retained LoD2 geometry (dl-de/zero-2-0), mapped OpenStreetMap site/wing
+  boundaries (ODbL-1.0), and cited heritage/operator descriptions anchor the
+  bounded corrections. Ground interpolation, transition aprons and unsurveyed
+  seating or roof fittings remain documented display interpretations. Existing
+  architectural detail and unrelated terrain are retained. See the
+  [release evidence](docs/release-v1.0.101-review.md).
+
 - **Named parks, Panke, Tegel, Spandau and Köpenick (v1.0.98):** Retained
   OpenStreetMap geometry (ODbL-1.0), official Berlin LoD2 and DGM1
   (dl-de/zero-2-0), and cited heritage/operator descriptions supply the source

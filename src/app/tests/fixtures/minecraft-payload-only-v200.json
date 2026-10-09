@@ -1,0 +1,35 @@
+{
+  "full": {
+    "Voxel ground runs": {
+      "count": 185228,
+      "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+    },
+    "Voxel facade windows": {
+      "count": 1342310,
+      "sha256": "8fbf8b113073324e4e131d38738a974399e6739e99f9d9ed81d9404b413a6657"
+    },
+    "Voxel building columns": {
+      "count": 1201974,
+      "sha256": "613668eb418f8080412df02fd2b22e1b7123acda51ff99706e161f27f2bdf7f7"
+    },
+    "Geschichtspark Moabit Minecraft red-brick block batch": {
+      "count": 4040,
+      "sha256": "26940be5caf4fec32643c7a33a12207a48ceabbb795a9e125f355ce7196a7018"
+    }
+  },
+  "mobile": {
+    "Voxel ground runs": {
+      "count": 185228,
+      "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+    },
+    "Voxel facade windows": null,
+    "Voxel building columns": {
+      "count": 442410,
+      "sha256": "a6bae241355e46eded377ba7a47c4d500fbb19b06dfc0ecfbd10380c8baaa7b6"
+    },
+    "Geschichtspark Moabit Minecraft red-brick block batch": {
+      "count": 2273,
+      "sha256": "5ca6c0de8264e19bfd6402077cc4835938e0a0eca6edef3eae927b46fd204d16"
+    }
+  }
+}

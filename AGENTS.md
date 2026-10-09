@@ -168,6 +168,17 @@ Bebelplatz stay within previous coverage. A false construction at
 Oranienburger-/Tucholskystraße may be corrected only after identifying its
 exact erroneous owner and preserving all unrelated buildings and road geometry.
 
+The owner's v1.0.101 correction permits measured, bounded terrain refinement
+at Waldbühne, the Olympic site and the Wuhlheide amphitheatre within their
+existing coverage. Preserve original source XZ courses, details and every
+unrelated terrain field; move surrounding paths, trees and complete building
+owners consistently with the corrected ground. Sunken venues must retain their
+real open bowls and matching walking heights. Exact false proxies may be
+replaced only with source receipts. The Charlottenburger Tor's two wings may
+receive a documented orientation/placement correction while retaining their
+architectural detail. Keep the existing 93-place tour, packet/residency limits
+and full drawn detail on both touch and pointer devices.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

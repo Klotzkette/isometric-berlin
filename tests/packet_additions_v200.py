@@ -23,6 +23,14 @@ def audited_v200_additions() -> dict:
   )
   old = json.loads(old_bytes)
   current = json.loads(path.read_bytes())
+  from packet_receipts_v201 import audited_v201_changes
+  from packet_receipts_v201 import baseline as baseline_v200
+
+  audited_v201_changes()
+  # Keep the v199→v200 append contract against its immutable released result;
+  # the separately replayed v201 proof validates every final replacement.
+  published = current
+  current = json.loads(baseline_v200(path))
   evidence = json.loads((GEO / "east-city-v200-evidence.json").read_bytes())
   supplement = json.loads((GEO / "east-city-v200-manifest.json").read_bytes())
   assert evidence["baselineRelease"] == "v1.0.99"
@@ -53,7 +61,7 @@ def audited_v200_additions() -> dict:
 
   # Immutable previous descriptor hashes are checked against actual public bytes,
   # so retaining old metadata alone cannot conceal removed or altered detail.
-  for chunk in current["chunks"]:
+  for chunk in published["chunks"]:
     for mode in ("drawn", "minecraft"):
       asset = chunk[mode]
       raw = (PUBLIC / asset["url"]).read_bytes()
@@ -68,4 +76,5 @@ def audited_v200_additions() -> dict:
   raw = (PUBLIC / asset["url"]).read_bytes()
   assert len(raw) == asset["bytes"]
   assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
-  return added
+  final = {c["id"]: c for c in published["chunks"]}
+  return {identity: final[identity] for identity in added}

@@ -11,6 +11,9 @@ import { potsdamerPanoramaMaterialFor } from "../src/potsdamerPanoramaPalette";
 import { HUMBOLDTHAFEN_BUILDING_IDS } from "../src/HumboldthafenBuildings";
 import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
 import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile";
+import stationDetailsV192 from "../src/data/stationDetailsV192.json";
+import centralCorrection from "../src/data/centralSitesV200Correction.json";
+import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const fixture = (changes: Partial<PrismBuilding> = {}): PrismBuilding => ({
@@ -147,13 +150,33 @@ describe("complete distant building source envelopes", () => {
     const galleryOwners = source.buildings.filter(b => NATIONALGALERIE_V183_IDS.has(b.id));
     expect(altMitteOwners).toHaveLength(5_427);
     expect(galleryOwners).toHaveLength(8);
-    expect(visible + galleryOwners.length).toBe(23_576); // b8dfab9 exact baseline
+    // Preserve the b8dfab9 baseline rather than accepting a lower city count:
+    // one v192 Zoo canopy and exactly six documented v200 owners now have
+    // complete source replacements (the station itself is underground).
+    const laterOwners = [stationDetailsV192.zoo.legacyPrism,
+      centralCorrection.retainedPrism, ...centralReplacement.replacements.map(p => p.legacyPrism)];
+    expect(laterOwners.map(p => p.id).sort()).toEqual([
+      stationDetailsV192.zoo.legacyPrism.id, "98956069", "-5759915", "80339718", "86993630", "86993613", "86993634",
+    ].sort());
+    expect(new Set(laterOwners.map(p => p.id)).size).toBe(7);
+    for (const owner of laterOwners) {
+      expect(source.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
+      expect(ALT_MITTE_V169_PRISM_IDS.has(owner.id)).toBe(false);
+      expect(NATIONALGALERIE_V183_IDS.has(owner.id)).toBe(false);
+      expect(PRISM_SUPPRESSED_IDS.has(owner.id)).toBe(true);
+      expect(createDistantBuildingShells(source, [owner]).userData.visibleBuildingCount).toBe(0);
+      // Geometry-equivalent foreign IDs still render: no area-wide suppression.
+      const control = createDistantBuildingShells(source, [{ ...owner, id: `control-${owner.id}` }]);
+      expect(control.userData.visibleBuildingCount).toBe(1);
+      for (const child of control.children) if (child instanceof Mesh) child.geometry.dispose();
+    }
+    expect(visible + galleryOwners.length + laterOwners.length).toBe(23_576);
     expect(visible + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(28_000);
     // Other individually tested complete models also own source courtyards
     // (e.g. the parliament, Ministry and Moabit families).
     const dedicatedCourts = source.buildings.filter(b => PRISM_SUPPRESSED_IDS.has(b.id))
       .reduce((sum, b) => sum + (b.holes?.length ?? 0), 0);
-    expect(courtyards).toBe(496);
+    expect(courtyards + laterOwners.reduce((sum, owner) => sum + owner.holes.length, 0)).toBe(496);
     expect(courtyards + dedicatedCourts).toBeGreaterThan(600);
     expect(retained).toBeLessThan(30 * 1024 * 1024);
     expect(vertices).toBeLessThan(1_300_000);

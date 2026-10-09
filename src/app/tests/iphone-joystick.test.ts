@@ -363,6 +363,11 @@ describe("iPhone joystick gesture ownership and stability", () => {
   test("boosted flight retains the finite city boundary", () => {
     const rig = heldMovementRig();
     const host = joystickHost({ onInput: rig.onInput });
+    // Start near the current finite edge: the v200 regional extension enlarged
+    // the world, so a fixed ten seconds from the city centre no longer reaches it.
+    const offset = REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z + 100 - rig.controls.target.z;
+    rig.camera.position.z += offset;
+    rig.controls.target.z += offset;
     try {
       host.emit("pointerdown", { y: 520, at: 1_000 });
       host.frame(2_000);

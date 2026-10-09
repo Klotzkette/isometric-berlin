@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.100 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.100/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.101 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.101/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.100** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.101** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.101 corrects the measured terrain at Waldbühne, the Olympic site
+and the Wuhlheide amphitheatre, including the sunken arenas and their surrounding
+approaches. Charlottenburger Tor follows its mapped wing alignment.
+[Sources and verification](docs/release-v1.0.101-review.md).
+
+Version 1.0.101 korrigiert die Geländeformen an Waldbühne, Olympiastadion und
+Wuhlheide samt abgesenkten Arenen und angrenzenden Wegen. Die beiden Flügel des
+Charlottenburger Tors folgen ihren kartierten Grundrissen.
 
 Version 1.0.100 adds source-bound outlines through Adlershof, Niederschönhausen,
 Alt-/Neu-Hohenschönhausen and Oberschöneweide, with initial BER, Grünheide and A10

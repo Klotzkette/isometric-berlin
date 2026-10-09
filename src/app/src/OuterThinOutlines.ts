@@ -16,6 +16,9 @@ import { drachenbergLawnGroundAtV195 } from "./DrachenbergLawnV195";
 import { iccV199SolidAt } from "./iccV199Navigation";
 import { regionalV200NavigationTiles, regionalV200SolidAt, regionalV200WaterAt } from "./RegionOutlinesV200";
 import { cemeteryGrunewaldV199SolidAt } from "./cemeteryGrunewaldV199Navigation";
+import { charlottenburgerTorV201SolidAt } from "./charlottenburgerTorV201Navigation";
+import { wuhlheideGroundAt, wuhlheideSolidAt } from "./wuhlheideV201Navigation";
+import { waldbuehneGroundAt, waldbuehneSolidAt } from "./waldbuehneV201Navigation";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
 export function createOuterThinOutlines(
@@ -35,6 +38,9 @@ export function createOuterThinOutlines(
     iccV199SolidAt(x, y, z, radius) ||
     cemeteryGrunewaldV199SolidAt(x, y, z, radius, activeMode === "minecraft") ||
     eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    charlottenburgerTorV201SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    wuhlheideSolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    waldbuehneSolidAt(x, y, z, radius, activeMode === "minecraft") ||
     regionalV200SolidAt(x, y, z, radius);
   root.userData.waterAt = (x: number, z: number) =>
     tegelSpandauV198WaterAt(x, z, activeMode === "minecraft") !== null ||
@@ -43,6 +49,8 @@ export function createOuterThinOutlines(
     westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null ||
     regionalV200WaterAt(x, z);
   root.userData.groundAt = (x: number, z: number) =>
+    waldbuehneGroundAt(x, z, activeMode === "minecraft") ??
+    wuhlheideGroundAt(x, z, activeMode === "minecraft") ??
     tegelSpandauV198GroundAt(x, z, activeMode === "minecraft") ??
     northParksV198GroundAt(x, z, activeMode === "minecraft") ??
     eastParksV198GroundAt(x, z) ??

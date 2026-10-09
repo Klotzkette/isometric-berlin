@@ -7,7 +7,14 @@ import bernauerNavigation from "../src/data/berlinWallMemorialV174Navigation.jso
 import { berlinWallMemorialV174SourceColumn } from "../src/berlinWallMemorialV174Profile";
 
 import preCanopyPayloadBaseline from "./fixtures/minecraft-payload-only-v183.json";
-import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v192.json";
+import preCentralPayloadBaseline from "./fixtures/minecraft-payload-only-v192.json";
+import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v200.json";
+import centralPayloadDelta from "./fixtures/minecraft-payload-only-v200-delta.json";
+import centralCorrection from "../src/data/centralSitesV200Correction.json";
+import centralReplacement from "../src/data/centralSitesV200Replacement.json";
+import { isCentralSitesV200FalseColumn } from "../src/centralSitesV200Profile";
+import { isCentralSitesV200ReplacedColumn } from "../src/centralSitesV200ReplacementProfile";
+import { decodedInstance, replayLegacyInstanceHash } from "./helpers/instanceBufferReplay";
 import canopyPayloadDelta from "./fixtures/minecraft-payload-only-v192-delta.json";
 import stationDetailsV192 from "../src/data/stationDetailsV192.json";
 import oldZooNavigation from "../src/data/zooStationV165Navigation.json";
@@ -16,6 +23,8 @@ import { zooStationV165SourceColumn } from "../src/zooStationV165Profile";
 // the exact eight-envelope Nationalgalerie substitution. The v183 snapshot is
 // also immutable: only the two independently audited Zoo canopy columns and
 // their four net visible facade panes differ in the v192 payload buffers.
+// The separate v200 replay below keeps every retained matrix/color byte and
+// original order, while allowing only six exact source-bound substitutions.
 const bernauerBaseline = {
   full: { ...historicalPayloadBaseline.full, ...bernauerPayloadDelta.full },
   mobile: { ...historicalPayloadBaseline.mobile, ...bernauerPayloadDelta.mobile },
@@ -125,7 +134,7 @@ describe("true voxel Minecraft world", () => {
     detailProfile: "mobile",
   });
 
-  test("historical Bernauer and v183 buffers permit only the exact v192 Zoo canopy substitution", () => {
+  test("historical Bernauer, v183 and v192 buffers retain their exact substitution chain", () => {
     const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, bernauerNavigation.legacyPrisms);
     expect(audit.sourceColumnsByPrism).toEqual(bernauerPayloadDelta.sourceColumnsByPrism);
     expect(audit.removedColumns).toHaveLength(bernauerPayloadDelta.removedSourceColumns);
@@ -171,16 +180,16 @@ describe("true voxel Minecraft world", () => {
           (z+.5)*payload.cell_m+dz*(payload.cell_m/2+.08))).toBeNull();
       }
     }
-    expect(currentPayloadBaseline.full["Voxel facade windows"].count).toBe(
+    expect(preCentralPayloadBaseline.full["Voxel facade windows"].count).toBe(
       preCanopyPayloadBaseline.full["Voxel facade windows"].count - canopy.panes.netRemoved);
     for (const [profile, root] of [["full", world], ["mobile", mobileWorld]] as const) {
       expect(bernauerBaseline[profile]["Voxel building columns"].count).toBe(
         historicalPayloadBaseline[profile]["Voxel building columns"].count - audit.removedColumnInstances[profile],
       );
-      expect(currentPayloadBaseline[profile]["Voxel building columns"].count).toBe(
+      expect(preCentralPayloadBaseline[profile]["Voxel building columns"].count).toBe(
         preCanopyPayloadBaseline[profile]["Voxel building columns"].count - canopy.removedColumnInstances[profile]);
       for (const name of ["Voxel ground runs", "Geschichtspark Moabit Minecraft red-brick block batch"] as const)
-        expect(currentPayloadBaseline[profile][name]).toEqual(preCanopyPayloadBaseline[profile][name]);
+        expect(preCentralPayloadBaseline[profile][name]).toEqual(preCanopyPayloadBaseline[profile][name]);
       for (const [name, expected] of Object.entries(currentPayloadBaseline[profile])) {
         if (expected === null) {
           expect(root.getObjectByName(name)).toBeUndefined();
@@ -190,6 +199,67 @@ describe("true voxel Minecraft world", () => {
         const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
         if (mesh.instanceColor) hash.update(mesh.instanceColor.array);
         expect({ count: mesh.count, sha256: hash.digest("hex") }).toEqual(expected);
+      }
+    }
+  });
+
+  test("v200 payload-only changes replay every unchanged byte into the frozen v192 hashes", async () => {
+    for (const [path, sha256] of Object.entries(centralPayloadDelta.inputSha256)) {
+      const file = new Uint8Array(await Bun.file(new URL(`../${path}`, import.meta.url)).arrayBuffer());
+      expect(new Bun.CryptoHasher("sha256").update(file).digest("hex")).toBe(sha256);
+    }
+    const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, [
+      centralCorrection.retainedPrism, ...centralReplacement.replacements.map(p => p.legacyPrism),
+    ]);
+    expect(audit.removedColumns).toHaveLength(128);
+    expect(audit.sourceColumnsByPrism.map(p => [p.id,p.count])).toEqual([
+      ["98956069",29],["-5759915",60],["80339718",9],["86993630",9],["86993613",4],["86993634",17],
+    ]);
+    expect(audit.panes).toEqual({removed:424,exposed:154,netRemoved:270});
+    expect(audit.removedColumnInstances).toEqual({full:362,mobile:128});
+    const selected = buildingColumns.filter(([x,z,lo,hi]) =>
+      isCentralSitesV200FalseColumn((x+.5)*4,(z+.5)*4,lo/10,hi/10) ||
+      isCentralSitesV200ReplacedColumn((x+.5)*4,(z+.5)*4,lo/10,hi/10));
+    expect(selected.map(row => JSON.stringify(row)).sort())
+      .toEqual(audit.removedColumns.map(row => JSON.stringify(row)).sort());
+    const owned = new Map(audit.removedColumns.map(([x,z,lo,hi]) => [`${(x+.5)*4},${(z+.5)*4}`,[lo/10,hi/10]]));
+    for (const [profile,root] of [["full",world],["mobile",mobileWorld]] as const) {
+      const changes = centralPayloadDelta.profiles[profile];
+      expect(Object.keys(changes).sort()).toEqual(profile === "full"
+        ? ["Voxel building columns","Voxel facade windows"] : ["Voxel building columns"]);
+      for (const [name,legacy] of Object.entries(preCentralPayloadBaseline[profile])) {
+        const change = changes[name as keyof typeof changes];
+        if (!change) { expect(currentPayloadBaseline[profile][name as keyof typeof currentPayloadBaseline[typeof profile]]).toEqual(legacy); continue; }
+        expect(replayLegacyInstanceHash(instanced(name,root),change)).toBe(legacy!.sha256);
+        const panes=name==="Voxel facade windows", layerHeights=new Map<string,number>();
+        expect(change.removed.length).toBe(panes ? audit.panes.removed : audit.removedColumnInstances[profile]);
+        expect(change.added.length).toBe(panes ? audit.panes.exposed : 0);
+        for (const [kind,records] of [["removed",change.removed],["added",change.added]] as const)
+          for (const record of records) {
+            const m=decodedInstance(record);
+            const rawX=m[12]-(panes?m[8]*2.08:0),rawZ=m[14]-(panes?m[10]*2.08:0);
+            const x=Math.round(rawX/4-.5)*4+2,z=Math.round(rawZ/4-.5)*4+2,key=`${x},${z}`;
+            expect(Math.abs(rawX-x)).toBeLessThan(.0001);
+            expect(Math.abs(rawZ-z)).toBeLessThan(.0001);
+            if(kind==="added") {
+              expect(panes).toBe(true); expect(owned.has(key)).toBe(false);
+              expect(owned.has(`${x+m[8]*4},${z+m[10]*4}`)).toBe(true);
+            } else {
+              expect(owned.has(key)).toBe(true);
+              const [lo,hi]=owned.get(key)!;
+              expect(m[13]).toBeGreaterThanOrEqual(lo); expect(m[13]).toBeLessThanOrEqual(hi);
+              if(!panes) {
+                expect(m[0]).toBe(4); expect(m[10]).toBe(4);
+                layerHeights.set(key,(layerHeights.get(key)??0)+m[5]);
+              }
+            }
+          }
+        if(!panes) {
+          expect(layerHeights.size).toBe(owned.size);
+          for(const [key,height] of layerHeights) {
+            const [lo,hi]=owned.get(key)!; expect(height).toBeCloseTo(hi-lo,5);
+          }
+        }
       }
     }
   });
