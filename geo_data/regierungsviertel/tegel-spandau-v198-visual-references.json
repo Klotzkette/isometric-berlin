@@ -1,0 +1,44 @@
+[
+  {
+    "landmark_id": "tegel",
+    "title": "File:Schloss Tegel1.JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File%3ASchloss_Tegel1.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Schloss_Tegel1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "width": 640,
+    "height": 480,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "artist": "Lienhard Schulz",
+    "credit": "Own work",
+    "description": "Palace Tegel, Humboldt’s family property in Berlin, reconstructed by en:Karl Friedrich Schinkel 1820–1824"
+  },
+  {
+    "landmark_id": "zitadelle-spandau",
+    "title": "File:Berlin Spandau Zitadelle Eingang.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Spandau_Zitadelle_Eingang.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Berlin_Spandau_Zitadelle_Eingang.jpg/960px-Berlin_Spandau_Zitadelle_Eingang.jpg",
+    "width": 960,
+    "height": 720,
+    "mime": "image/jpeg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "artist": "Oberlausitzerin64",
+    "credit": "Own work",
+    "description": "South-facing Torhaus: red brick, pale quoins and plinth, five upper bays, balcony, arched heraldic field. Visual reference only, not texture or metric source."
+  },
+  {
+    "landmark_id": "tegeler-hafenbruecke",
+    "title": "File:20240819 Tegeler Hafenbrücke 01.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:20240819_Tegeler_Hafenbrücke_01.jpg",
+    "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/20240819_Tegeler_Hafenbr%C3%BCcke_01.jpg/960px-20240819_Tegeler_Hafenbr%C3%BCcke_01.jpg",
+    "width": 960,
+    "height": 641,
+    "mime": "image/jpeg",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "artist": "Flocci Nivis",
+    "credit": "Own work",
+    "description": "Tegeler Hafenbrücke red steel through-truss: curved upper chord, hangers, diagonal panels, open pedestrian deck. Visual reference only, not texture or metric source."
+  }
+]

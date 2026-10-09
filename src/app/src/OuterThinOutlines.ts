@@ -7,6 +7,11 @@ import { createOutlineLandmarksV182 } from "./OutlineLandmarksV182";
 import outskirts from "./data/outskirtsScopeV187.json";
 import northCity from "./data/northCityScopeV190.json";
 import named from "./data/namedScopeV194.json";
+import parks from "./data/namedScopeV198.json";
+import { tegelSpandauV198GroundAt, tegelSpandauV198WaterAt } from "./tegelSpandauV198Navigation";
+import { northParksV198GroundAt, northParksV198SolidAt, northParksV198WaterAt } from "./northParksV198Navigation";
+import { eastParksV198GroundAt } from "./eastParksV198Ground";
+import { eastParksV198SolidAt, eastParksV198WaterAt } from "./eastParksV198Navigation";
 import { airportsV194SolidAt, airportsV194NativeSolidAt } from "./airportsV194Navigation";
 import { westLakesV194WaterAt, westLakesV194SolidAt } from "./westLakesV194Navigation";
 import { teufelsbergStationV195SolidAt } from "./teufelsbergStationV195Navigation";
@@ -25,10 +30,18 @@ export function createOuterThinOutlines(
   root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
     (activeMode === "minecraft" ? airportsV194NativeSolidAt : airportsV194SolidAt)(x, y, z, radius) ||
     westLakesV194SolidAt(x, y, z, radius, activeMode === "minecraft") ||
-    teufelsbergStationV195SolidAt(x, y, z, radius, activeMode === "minecraft");
+    teufelsbergStationV195SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    northParksV198SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft");
   root.userData.waterAt = (x: number, z: number) =>
+    tegelSpandauV198WaterAt(x, z, activeMode === "minecraft") !== null ||
+    northParksV198WaterAt(x, z, activeMode === "minecraft") !== null ||
+    eastParksV198WaterAt(x, z, activeMode === "minecraft") !== null ||
     westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null;
   root.userData.groundAt = (x: number, z: number) =>
+    tegelSpandauV198GroundAt(x, z, activeMode === "minecraft") ??
+    northParksV198GroundAt(x, z, activeMode === "minecraft") ??
+    eastParksV198GroundAt(x, z) ??
     drachenbergLawnGroundAtV195(x, z, activeMode === "minecraft");
   const positions = new Float32Array(data.positions);
   for (let i = 0; i < positions.length; i += 3) {
@@ -52,8 +65,8 @@ export function createOuterThinOutlines(
   // Extend only the recessed blank paper, never cover the existing city.
   const old = extrapolatedEnvelopeBounds();
   const backdrop = PRESENTATION_BACKDROP_BOUNDS;
-  const west=Math.min(data.bounds[0],outskirts.bounds[0],northCity.bounds[0], named.bounds[0]), north=Math.min(data.bounds[1],outskirts.bounds[1],northCity.bounds[1], named.bounds[1]);
-  const east=Math.max(data.bounds[2],outskirts.bounds[2],northCity.bounds[2], named.bounds[2]), south=Math.max(data.bounds[3],outskirts.bounds[3],northCity.bounds[3], named.bounds[3]);
+  const west=Math.min(data.bounds[0],outskirts.bounds[0],northCity.bounds[0], named.bounds[0], parks.bounds[0]), north=Math.min(data.bounds[1],outskirts.bounds[1],northCity.bounds[1], named.bounds[1], parks.bounds[1]);
+  const east=Math.max(data.bounds[2],outskirts.bounds[2],northCity.bounds[2], named.bounds[2], parks.bounds[2]), south=Math.max(data.bounds[3],outskirts.bounds[3],northCity.bounds[3], named.bounds[3], parks.bounds[3]);
   const minX = Math.min(west - 200, backdrop.minX), maxX = Math.max(east + 200, backdrop.maxX);
   const minZ = Math.min(north - 200, backdrop.minZ), maxZ = Math.max(south + 200, backdrop.maxZ);
   const paper: number[] = [];

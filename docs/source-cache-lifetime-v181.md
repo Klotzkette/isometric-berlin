@@ -131,3 +131,26 @@ the strong-cache fallback through drawn/native/drawn construction, with
 deterministic collection between builds. It also verifies exact field
 reconstruction and the explicit live-navigation exclusions. No source data,
 draw count, render distance, representation or model detail changes.
+
+## v198: park refinements and exact roof-coordinate storage
+
+The following constructor-only fields use the same audited weak-cache contract:
+
+| Source JSON | Fields | Consumer |
+| --- | --- | --- |
+| `tegelSpandauV198.json`, `tegelSpandauV198Native.json` | `sites` | `TegelSpandauV198.ts` |
+| `northParksV198Drawn0.json`, `northParksV198Drawn1.json`, `northParksV198Native0.json`, `northParksV198Native1.json` | `cells` | `NorthParksV198.ts` |
+| `eastParksV198.json` | `grounds`, `trees`, `paths`, `facades`, `buildings` | `EastParksV198.ts` |
+
+Only fields over the existing 64 KiB threshold participate. Navigation imports
+separate compact terrain, footprint, collision and water payloads. Factories
+copy all positions, colours and instance transforms into typed buffers; no
+large source graph is retained in scene callbacks. The production cache test
+reconstructs drawn/native/drawn styles and compares complete buffer/material
+fingerprints after simulated collection.
+
+Root-array JSON modules may now retain gzip/base64 source instead of the raw
+JSON string when that encoding is smaller. Their eager parsing, strong mutable
+array identity and every numeric value are unchanged. The Alt-Mitte roof
+navigation arrays have an independent Float64 encoding and typed spatial index;
+see `viewer-stability-v198.md`. Neither optimization alters render geometry.

@@ -24,6 +24,8 @@ export type AltMitteV169Navigation = {
   legacyPrisms: readonly LegacyPrism[];
   parts: readonly AltMitteV169Part[];
   roofTriangles: readonly (readonly (readonly number[])[])[];
+  /** Same ordered xyz coordinates, packed without rounding or quantization. */
+  roofTriangleCoordinates?: Float64Array;
   nativeRoofCells: readonly (readonly number[])[];
   /** Lossless unions of 1m cells; x1/z1 are exclusive integer boundaries. */
   nativeRoofSpans?: readonly (readonly number[])[];
@@ -88,30 +90,44 @@ export function createAltMitteV169NavigationIndex(
     };
   };
   const buildDrawnRoofs = () => {
-    const triangles = data.roofTriangles.map(([a, b, c]) => ({
-      a,
-      b,
-      c,
-      d: (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2]),
-      x0: Math.min(a[0], b[0], c[0]),
-      x1: Math.max(a[0], b[0], c[0]),
-      z0: Math.min(a[2], b[2], c[2]),
-      z1: Math.max(a[2], b[2], c[2]),
-    }));
+    // Keep one contiguous double buffer instead of 300,116 nested triangle/
+    // vertex arrays and 75,029 derived records. The arithmetic below retains
+    // the original operation order and every source bit.
+    let coordinates = data.roofTriangleCoordinates;
+    if (!coordinates) {
+      const source = data.roofTriangles;
+      coordinates = new Float64Array(source.length * 9);
+      for (let i = 0; i < source.length; i++)
+        for (let vertex = 0; vertex < 3; vertex++)
+          for (let axis = 0; axis < 3; axis++)
+            coordinates[i * 9 + vertex * 3 + axis] = source[i][vertex][axis];
+    }
+    if (coordinates.length % 9 !== 0) throw new Error("Incomplete navigation roof triangle");
+    const count = coordinates.length / 9;
+    const bounds = new Float64Array(count * 5);
     const roofIndex = new Map<string, number[]>();
-    for (let i = 0; i < triangles.length; i++) {
-      const t = triangles[i];
-      if (Math.abs(t.d) < 1e-8) continue;
+    for (let i = 0; i < count; i++) {
+      const j = i * 9, k = i * 5;
+      const ax = coordinates[j], az = coordinates[j + 2];
+      const bx = coordinates[j + 3], bz = coordinates[j + 5];
+      const cx = coordinates[j + 6], cz = coordinates[j + 8];
+      const d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz);
+      bounds[k] = d;
+      bounds[k + 1] = Math.min(ax, bx, cx);
+      bounds[k + 2] = Math.max(ax, bx, cx);
+      bounds[k + 3] = Math.min(az, bz, cz);
+      bounds[k + 4] = Math.max(az, bz, cz);
+      if (Math.abs(d) < 1e-8) continue;
       indexBounds(
         roofIndex,
         i,
-        t.x0 - EPSILON,
-        t.z0 - EPSILON,
-        t.x1 + EPSILON,
-        t.z1 + EPSILON,
+        bounds[k + 1] - EPSILON,
+        bounds[k + 3] - EPSILON,
+        bounds[k + 2] + EPSILON,
+        bounds[k + 4] + EPSILON,
       );
     }
-    return { triangles, roofIndex };
+    return { coordinates, bounds, roofIndex };
   };
   const buildNativeRoofs = () => {
     const nativeRoof = new Map<string, number>();
@@ -204,7 +220,7 @@ export function createAltMitteV169NavigationIndex(
         }
       return highest;
     }
-    const { triangles, roofIndex } = prepareDrawnRoofs();
+    const { coordinates, bounds, roofIndex } = prepareDrawnRoofs();
     const candidates = roofIndex.get(
       key(
         Math.floor(x / ALT_MITTE_V169_INDEX_CELL_M),
@@ -214,7 +230,9 @@ export function createAltMitteV169NavigationIndex(
     if (!candidates) return null;
     let highest: number | null = null;
     for (const i of candidates) {
-      const { a, b, c, d, x0, x1, z0, z1 } = triangles[i];
+      const j = i * 9, k = i * 5;
+      const d = bounds[k], x0 = bounds[k + 1], x1 = bounds[k + 2];
+      const z0 = bounds[k + 3], z1 = bounds[k + 4];
       if (
         x < x0 - EPSILON ||
         x > x1 + EPSILON ||
@@ -222,10 +240,13 @@ export function createAltMitteV169NavigationIndex(
         z > z1 + EPSILON
       )
         continue;
-      const u = ((b[2] - c[2]) * (x - c[0]) + (c[0] - b[0]) * (z - c[2])) / d;
-      const v = ((c[2] - a[2]) * (x - c[0]) + (a[0] - c[0]) * (z - c[2])) / d;
+      const ax = coordinates[j], az = coordinates[j + 2];
+      const bx = coordinates[j + 3], bz = coordinates[j + 5];
+      const cx = coordinates[j + 6], cz = coordinates[j + 8];
+      const u = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d;
+      const v = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d;
       if (u >= -EPSILON && v >= -EPSILON && u + v <= 1 + EPSILON) {
-        const y = u * a[1] + v * b[1] + (1 - u - v) * c[1];
+        const y = u * coordinates[j + 1] + v * coordinates[j + 4] + (1 - u - v) * coordinates[j + 7];
         highest = highest === null ? y : Math.max(highest, y);
       }
     }

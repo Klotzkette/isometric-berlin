@@ -18,6 +18,13 @@ const fields: Record<string, string[]> = {
   "teufelsbergStationV195.json": ["surfaces", "lines"],
   "westLakesV194.json": ["sites"],
   "lindenCorridorV197.json": ["surfaces", "boxes", "blocks"],
+  "tegelSpandauV198.json": ["sites"],
+  "tegelSpandauV198Native.json": ["sites"],
+  "northParksV198Drawn0.json": ["cells"],
+  "northParksV198Drawn1.json": ["cells"],
+  "northParksV198Native0.json": ["cells"],
+  "northParksV198Native1.json": ["cells"],
+  "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
 };
 const excluded: Record<string, string[]> = {
   "airportsV194.json": ["blocks", "navigation"],
@@ -51,6 +58,9 @@ async function compile(): Promise<string> {
     ["TeufelsbergStationV195", "createTeufelsbergStationV195"],
     ["WestLakesV194", "createWestLakesV194"],
     ["LindenCorridorV197", "createLindenCorridorV197"],
+    ["TegelSpandauV198", "createTegelSpandauV198"],
+    ["NorthParksV198", "createNorthParksV198"],
+    ["EastParksV198", "createEastParksV198"],
   ];
   for (const [file, ...names] of factories) imports.push(`import { ${names.join(",")} } from ${JSON.stringify(join(app, file + ".ts"))};`);
   const entry = join(directory, "entry.js");
@@ -60,7 +70,7 @@ window.fixture = { sources: {${files.map((file, index) => `${JSON.stringify(file
   native => native ? createMinecraftEastLandmarksV187() : createEastLandmarksV187(),
   createSouthWestLandmarksV187,
   native => native ? createMinecraftNorthSitesV190() : createNorthSitesV190(),
-  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197
+  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198
 ] };`);
   try {
     const result = await build({ configFile: false, root: directory, publicDir: false, logLevel: "silent",
@@ -119,7 +129,7 @@ function renderDigest(root: Group): string {
   return result;
 }
 
-describe("v196 outer construction source ownership and v197 Linden supplement", () => {
+describe("v196–v198 outer construction source ownership", () => {
   test("only audited geometry inputs are weak; real factories preserve all render values across collection", async () => {
     for (const [file, names] of Object.entries(fields)) expect(READONLY_CONSTRUCTION_JSON_FIELDS[file]).toEqual(names);
     for (const [file, names] of Object.entries(excluded)) for (const name of names)
@@ -129,7 +139,8 @@ describe("v196 outer construction source ownership and v197 Linden supplement", 
     for (const [file, names] of Object.entries(fields)) for (const name of names) {
       const source = weak.sources[file], original = source[name], checksum = hashValue(original);
       CollectableReference.collect();
-      expect(source[name]).not.toBe(original);
+      if (JSON.stringify(original).length >= 64 * 1024) expect(source[name]).not.toBe(original);
+      else expect(source[name]).toBe(original); // small inline fields retain identity
       expect(hashValue(source[name])).toBe(checksum);
     }
     for (const [file, names] of Object.entries(excluded)) for (const name of names) {

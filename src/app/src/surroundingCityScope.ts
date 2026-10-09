@@ -4,10 +4,14 @@ import coverageScope from "./data/cityCoverageScopeV183.json";
 import outskirts from "./data/outskirtsScopeV187.json";
 import northCity from "./data/northCityScopeV190.json";
 import named from "./data/namedScopeV194.json";
+import parks from "./data/namedScopeV198.json";
 import { surroundingPolygonContains } from "./SurroundingCityGeometry";
 import { terrainGroundAt } from "./weinbergTerrainV176";
+import { northParksV198GroundAt } from "./northParksV198Navigation";
+import { eastParksV198GroundAt } from "./eastParksV198Ground";
+import { tegelSpandauV198GroundAt } from "./tegelSpandauV198Navigation";
 
-const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...named.footprint].map(polygon => {
+const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...named.footprint,...parks.footprint].map(polygon => {
   let minX=Infinity, minZ=Infinity, maxX=-Infinity, maxZ=-Infinity;
   for(const [x,z] of polygon.ring) {minX=Math.min(minX,x);minZ=Math.min(minZ,z);maxX=Math.max(maxX,x);maxZ=Math.max(maxZ,z);}
   return {polygon,minX,minZ,maxX,maxZ};
@@ -19,6 +23,9 @@ const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...name
  * The small source scope contains no building, road or render geometry.
  */
 export function surroundingScopeGroundAt(x: number, z: number, native = false): number | null {
+  const namedGround = northParksV198GroundAt(x, z, native) ??
+    eastParksV198GroundAt(x, z) ?? tegelSpandauV198GroundAt(x, z, native);
+  if (namedGround !== null) return namedGround;
   if (surroundingPolygonContains(scope.core, x, z)) return null;
   return (scope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||
     ringScope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||

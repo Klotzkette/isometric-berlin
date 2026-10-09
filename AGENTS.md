@@ -128,6 +128,19 @@ The exact missing portion of mapped Drachenberg lawn way `15700939` may be
 added as a bounded ground supplement; the earlier wooded-area coverage omitted
 this part of the requested hill. Existing surfaces and paths remain intact.
 
+The owner's v1.0.98 request permits the finite named supplement in
+`bounds-named-v198.geojson`: Schlosspark Schönhausen, Schönholzer Heide and its
+Soviet cemetery, mapped Berlin Panke strips and adjacent street context,
+Treptower Park with its Soviet memorial, and the exact Tegeler Hafenbrücke.
+Other Tegel, Spandau and Köpenick refinements remain in prior coverage. Keep
+the distinction between channelled and natural Panke banks, measured terrain
+and documented display estimates. Ground/context additions must be clipped to
+the new-only footprint; exact documented erroneous proxies may be corrected
+without changing unrelated source geometry. No broad district rectangle,
+new runtime residency budget, reduced detail or change to the 93-place tour
+is authorized. The ambiguous additional place name “Oberschönhausen” does not
+authorize an inferred expansion to Hohenschönhausen or Oberschöneweide.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

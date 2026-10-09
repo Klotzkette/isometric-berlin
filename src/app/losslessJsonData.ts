@@ -47,6 +47,13 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "teufelsbergStationV195.json": ["surfaces", "lines"],
   "westLakesV194.json": ["sites"],
   "lindenCorridorV197.json": ["surfaces", "boxes", "blocks"],
+  "tegelSpandauV198.json": ["sites"],
+  "tegelSpandauV198Native.json": ["sites"],
+  "northParksV198Drawn0.json": ["cells"],
+  "northParksV198Drawn1.json": ["cells"],
+  "northParksV198Native0.json": ["cells"],
+  "northParksV198Native1.json": ["cells"],
+  "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
 };
 
 // These arrays contain only a few records of already-packed base64 strings.
@@ -133,8 +140,17 @@ export function transformLosslessJsonData(
   const weakFields = READONLY_CONSTRUCTION_JSON_FIELDS[sourceName] ?? [];
   const packedFields = PACKED_SOURCE_JSON_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
+    const original = source.replace(/^\uFEFF/, "");
+    const packed = gzipSync(original, { level: 9 }).toString("base64");
+    // Root-array navigation packets retain their normal eager import/identity.
+    // Compress only their source literal, never their live mutable values.
+    if (packed.length < original.length * 0.8) return {
+      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\nexport default /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});`,
+      map: null,
+      moduleType: "js",
+    };
     return {
-      code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(source.replace(/^\uFEFF/, ""))});`,
+      code: `export default /* @__PURE__ */ JSON.parse(${JSON.stringify(original)});`,
       map: null,
       moduleType: "js",
     };

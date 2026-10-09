@@ -1,0 +1,212 @@
+{
+  "anchors": [
+    {
+      "kind": "wind-relief",
+      "tower": 0,
+      "wall": [
+        [
+          -6255.125994376161,
+          -8639.7141303496
+        ],
+        [
+          -6260.7302929509315,
+          -8640.282116878778
+        ]
+      ],
+      "center": [
+        -6257.914027204986,
+        14.86,
+        -8640.137410101679
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 0,
+      "wall": [
+        [
+          -6260.7302929509315,
+          -8640.282116878778
+        ],
+        [
+          -6261.21195554256,
+          -8635.441626326181
+        ]
+      ],
+      "center": [
+        -6261.110436237147,
+        14.86,
+        -8637.875734117779
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 1,
+      "wall": [
+        [
+          -6263.2909617116675,
+          -8615.092874716967
+        ],
+        [
+          -6263.816064453451,
+          -8609.852798667736
+        ]
+      ],
+      "center": [
+        -6263.692815403717,
+        14.86,
+        -8612.486796037616
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 1,
+      "wall": [
+        [
+          -6263.816064453451,
+          -8609.852798667736
+        ],
+        [
+          -6258.151972875134,
+          -8609.285241842452
+        ]
+      ],
+      "center": [
+        -6260.997977130894,
+        14.86,
+        -8609.42971784589
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 2,
+      "wall": [
+        [
+          -6246.67382699484,
+          -8608.029693215154
+        ],
+        [
+          -6246.18460738915,
+          -8612.903389243409
+        ]
+      ],
+      "center": [
+        -6246.289917230528,
+        14.86,
+        -8610.452558356359
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 2,
+      "wall": [
+        [
+          -6249.965803714231,
+          -8608.355875628122
+        ],
+        [
+          -6246.67382699484,
+          -8608.029693215154
+        ]
+      ],
+      "center": [
+        -6248.333619525927,
+        14.86,
+        -8608.053466637948
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 3,
+      "wall": [
+        [
+          -6244.159576223465,
+          -8633.832115061581
+        ],
+        [
+          -6243.6954639910255,
+          -8638.506099384278
+        ]
+      ],
+      "center": [
+        -6243.788205236358,
+        14.86,
+        -8636.155273685785
+      ]
+    },
+    {
+      "kind": "wind-relief",
+      "tower": 3,
+      "wall": [
+        [
+          -6243.6954639910255,
+          -8638.506099384278
+        ],
+        [
+          -6246.86856895925,
+          -8638.823305649423
+        ]
+      ],
+      "center": [
+        -6245.268090485154,
+        14.86,
+        -8638.804008176472
+      ]
+    },
+    {
+      "kind": "bridge",
+      "axis": [
+        [
+          -6639.58518825908,
+          -8072.731802741997
+        ],
+        [
+          -6571.303982094396,
+          -8018.056622872129
+        ]
+      ],
+      "deckY": 3.14,
+      "lengthM": 87.47398704247132,
+      "clearWidthM": 3.55,
+      "archRiseEstimateM": 6.35
+    },
+    {
+      "kind": "gate-front",
+      "sourcePart": "DEBE3DaVK9zcyYcF",
+      "wall": [
+        [
+          -10738.918,
+          -2612.245
+        ],
+        [
+          -10721.815,
+          -2615.539
+        ]
+      ],
+      "center": [
+        -10730.343805349266,
+        10,
+        -2613.774165570277
+      ]
+    }
+  ],
+  "sourceFile": "tegel-spandau-v198-source.json",
+  "sourceSha256": "0e6a05135a28bd25f4da4e1aca97634c2843c4c98abd846477521ede8dfbfc70",
+  "estimatePolicy": "All untagged member widths, arch rise, vertical levels, facade ornament and colours are reference-informed procedural recognition estimates. Exact old source sheets/footprints/shore rings remain unchanged; no claim of surveyed architectural ornament.",
+  "preservedInputs": {
+    "src/app/src/data/westLandmarksV187.json": "fee331567f15b39f45edd8bf9668fbb0f139a423b974bd682bfb4e6428f3aca2",
+    "geo_data/regierungsviertel/west-landmarks-v187-source.json": "25911e93e905139ad40bed622175576e1237d1f0081cc8ea176cd15e43e63110",
+    "geo_data/regierungsviertel/west-lakes-v194-source.geojson": "595a2af3b4ad8e850750523335f8b9916f6bce35ebe23f5e79f21fdba47cc46c"
+  },
+  "counts": {
+    "drawn": {
+      "boxes": 117,
+      "rods": 767,
+      "triangles": 43
+    },
+    "native": {
+      "boxes": 7861,
+      "rods": 0,
+      "triangles": 104
+    }
+  }
+}

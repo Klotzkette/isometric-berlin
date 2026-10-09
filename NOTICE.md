@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Named parks, Panke, Tegel, Spandau and Köpenick (v1.0.98):** Retained
+  OpenStreetMap geometry (ODbL-1.0), official Berlin LoD2 and DGM1
+  (dl-de/zero-2-0), and cited heritage/operator descriptions supply the source
+  basis. Sculpture, facade fittings and unsurveyed dimensions are documented
+  recognition estimates. Full previous evidence remains; the erroneous Tegel
+  shore patch has a bounded correction receipt. See
+  [the release evidence](docs/release-v1.0.98-review.md).
+
 - **Linden corridor frontages (v1.0.97):** Retained Berlin LoD2 walls and
   OpenStreetMap street/owner identities anchor the bounded architectural
   additions. Heritage, parliamentary and architect descriptions guide material

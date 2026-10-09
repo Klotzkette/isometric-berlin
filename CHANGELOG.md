@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.98 — Exact navigation storage and named parks
+
+- Store all 75,029 Alt-Mitte navigation roof triangles as exact IEEE-754
+  doubles in contiguous buffers, removing redundant nested object graphs.
+  Roof interpolation, all source coordinates, detail, resolution and visibility
+  remain unchanged. Large root-array source literals use lossless gzip.
+- Add bounded source-grounded Panke, Schlosspark Schönhausen, Schönholzer Heide
+  and cemetery, Treptower Park and Soviet memorial refinements, plus restrained
+  Köpenick, Tegel and Spandau details. Scope follows named mapped polygons.
+- Correct the documented erroneous Tegel shore patch at Sechserbrücke against
+  the actual water boundary, retaining original evidence and unrelated surfaces.
+- Verification and limitations: [release review](docs/release-v1.0.98-review.md).
+
 ## v1.0.97 — Faster exact city assembly and Linden corridor frontages
 
 - Remove per-packet frame delays when the viewer is idle; keep separate cancellable attachment tasks and existing input safeguards.

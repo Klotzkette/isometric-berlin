@@ -39,6 +39,9 @@ import { createDrachenbergKitesV195 } from "./DrachenbergKitesV195";
 import { createTeufelsbergStationV195 } from "./TeufelsbergStationV195";
 import { createDrachenbergLawnV195 } from "./DrachenbergLawnV195";
 import { createLindenCorridorV197 } from "./LindenCorridorV197";
+import { createTegelSpandauV198 } from "./TegelSpandauV198";
+import { createEastParksV198 } from "./EastParksV198";
+import { createNorthParksV198 } from "./NorthParksV198";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -105,6 +108,9 @@ export function createOutlineLandmarksV182(
       root.add(createTeufelsbergStationV195(nextNative));
       root.add(createDrachenbergLawnV195(nextNative));
       root.add(createLindenCorridorV197(nextNative));
+      root.add(createTegelSpandauV198(nextNative));
+      root.add(createEastParksV198(nextNative));
+      root.add(createNorthParksV198(nextNative));
       kites = createDrachenbergKitesV195(nextNative);
       root.add(kites);
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;

@@ -491,3 +491,8 @@ def main():
 
 if __name__ == "__main__":
   main()
+  # v198 keeps the exact later harbour-mouth water correction after a rebuild.
+  if (GEO / "tegel-spandau-v198-source.json").exists():
+    from repair_tegel_shore_v198 import repair
+
+    repair()
