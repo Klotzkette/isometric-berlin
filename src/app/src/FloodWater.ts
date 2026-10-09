@@ -35,8 +35,27 @@ void main() {
 
 const FRAGMENT = `
 uniform float time;
+uniform float pergamonReveal;
 varying vec3 waterPosition;
 void main() {
+  // Cut only water fragments whose viewing ray continues through the exhibit.
+  // A vertical hole crops the altar at 21 m under an oblique camera (parallax).
+  if (pergamonReveal > 0.5) {
+    mat2 rotate = mat2(cos(0.655), sin(0.655), -sin(0.655), cos(0.655));
+    vec2 local = rotate * (waterPosition.xz - vec2(1819.5, -184.0));
+    vec3 direction = waterPosition - cameraPosition;
+    vec2 localDirection = rotate * direction.xz;
+    vec3 ray = vec3(localDirection.x, direction.y, localDirection.y);
+    vec3 inverseRay = mix(vec3(-1.0), vec3(1.0), step(vec3(0.0), ray))
+                    / max(abs(ray), vec3(0.000001));
+    vec3 origin = vec3(local.x, waterPosition.y, local.y);
+    vec3 first = (vec3(-61.0, 4.15, -94.5) - origin) * inverseRay;
+    vec3 last = (vec3(-40.0, 17.0, -57.3) - origin) * inverseRay;
+    vec3 entry = min(first, last), exitPoint = max(first, last);
+    float nearPoint = max(entry.x, max(entry.y, entry.z));
+    float farPoint = min(exitPoint.x, min(exitPoint.y, exitPoint.z));
+    if (farPoint >= max(nearPoint, 0.0)) discard;
+  }
   // World-anchored, advected streaks: no texture, reflection target, particles
   // or screen-space noise. Derivative filtering prevents far-view shimmer.
   vec2 p = waterPosition.xz;
@@ -125,7 +144,7 @@ export type FloodWater = Mesh<BufferGeometry, ShaderMaterial>;
 /** One lazily created draw call; opaque depth preserves building silhouettes. */
 export function createFloodWater(depth: FloodDepth = DEFAULT_FLOOD_DEPTH): FloodWater {
   const mesh = new Mesh(waterGeometry(), new ShaderMaterial({
-    uniforms: { time: { value: 0 } }, vertexShader: VERTEX, fragmentShader: FRAGMENT,
+    uniforms: { time: { value: 0 }, pergamonReveal: { value: 0 } }, vertexShader: VERTEX, fragmentShader: FRAGMENT,
     side: DoubleSide, toneMapped: false, depthWrite: true,
   }));
   mesh.name = FLOOD_WATER_NAME;

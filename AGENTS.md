@@ -168,6 +168,14 @@ Bebelplatz stay within previous coverage. A false construction at
 Oranienburger-/Tucholskystraße may be corrected only after identifying its
 exact erroneous owner and preserving all unrelated buildings and road geometry.
 
+The owner's v1.0.104 request permits a reversible click/tap reveal at
+Pergamonmuseum: the full source exterior is hidden temporarily, sparse main
+contours remain, and a white procedural Berlin west-front altar is shown.
+Closing restores every original triangle and detail. Preserve neighbour museums,
+all source sheets and existing runtime budgets; load the bounded altar only on
+request and retain selection across mobile mode-family remounts. This interaction
+is an explicit exception to ordinary exterior visibility, not a data deletion.
+
 The owner's v1.0.102 request authorizes bounded refinement of James-Simon-Galerie,
 the Pergamon Panorama, both Staatsbibliothek buildings and the Bendlerblock with
 its memorial court. Complete documented source families may replace precisely

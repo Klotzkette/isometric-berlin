@@ -6108,6 +6108,17 @@
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false,
       "inspected_on": "2026-10-09"
+    },
+    {
+      "landmark_id": "pergamon_altar",
+      "title": "File:Berlin - Pergamonmuseum - Altar 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Pergamonmuseum_-_Altar_02.jpg",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5/",
+      "artist": "Lestat (Jan Mehlich)",
+      "credit": "Lestat (Jan Mehlich), 2007 / CC BY-SA 2.5",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

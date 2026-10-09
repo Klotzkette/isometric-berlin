@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.104 — Reveal the Pergamon Altar
+
+- Click/tap Pergamonmuseum in every mode to reveal a granular white west-front reconstruction and 36 fine museum contour lines; click again to restore the exterior.
+- Lazy 494 KB texture-free exhibit, gesture cancellation, reduced-motion support and retained state across mobile mode-family changes.
+- Exact pre-change exterior geometry hashes retained in every profile; neighbours and city/source budgets unchanged.
+- Bounded flood cutaway keeps the altar visible at 3, 6 and 21 m.
+- [Evidence, interpretation limits and validation](docs/pergamon-altar-v204.md).
+
 ## v1.0.103 — Lower startup memory without changing the city
 
 - Keep immutable geometry and static placement buffers in lossless CPU storage; GPU precision and every rendered detail remain unchanged.

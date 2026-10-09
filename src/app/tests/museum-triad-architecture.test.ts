@@ -162,7 +162,7 @@ describe("source-bound Museum Island triad", () => {
         const root = createMuseumTriadArchitecture({ mobileLike, minecraft });
         root.updateMatrixWorld(true);
         const m = metrics(root);
-        expect(m.calls).toBe(minecraft ? 1 : 3);
+        expect(m.calls).toBe(minecraft ? 2 : 6);
         expect(m.instances).toBeLessThan(minecraft ? 23000 : 8500);
         expect(m.bytes).toBeLessThan(minecraft ? 1800000 : 800000);
         expect(new Box3().setFromObject(root).max.y).toBeLessThan(45.1);

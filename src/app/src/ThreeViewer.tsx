@@ -1,3 +1,5 @@
+import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
+import { PergamonRevealGesture } from "./pergamonRevealGesture";
 import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
 import { pergamonPanoramaV202PassageAt, pergamonPanoramaV202SolidAt, pergamonPanoramaV202GroundAt } from "./pergamonPanoramaV202Profile";
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
@@ -617,6 +619,8 @@ type ThreeViewerProps = {
   selectedLandmark: string;
   openingLandmark?: string | null;
   initialNavigation?: NavigationSnapshot | null;
+  pergamonRevealed?: boolean;
+  onPergamonRevealChange?: (revealed: boolean) => void;
   onError: (message: string) => void;
   onPedestrianPoseChange: (pose: PedestrianPose | null) => void;
   onPedestrianRespawn: () => void;
@@ -672,6 +676,7 @@ type ProgressiveWorldQueuedMessage = {
 };
 
 type Runtime = {
+  pergamonReveal?: PergamonReveal;
   camera: PerspectiveCamera;
   centralDetails: Group;
   cityStaffage: Group;
@@ -1392,6 +1397,7 @@ function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
 }
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
+  runtime.pergamonReveal?.sync();
   const obstructed =
     runtime.underside ||
     runtime.underwater ||
@@ -1403,7 +1409,10 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.scene.add(runtime.floodWater);
   }
   const floodChanged = !!runtime.floodWater && runtime.floodWater.visible !== floodVisible;
-  if (runtime.floodWater) runtime.floodWater.visible = floodVisible;
+  if (runtime.floodWater) {
+    runtime.floodWater.visible = floodVisible;
+    runtime.floodWater.material.uniforms.pergamonReveal.value = runtime.pergamonReveal?.revealed ? 1 : 0;
+  }
   if (floodChanged) runtime.floodLastFrameAt = performance.now();
   const rainChanged = setRainPresentation(runtime.rain, {
     enabled: runtime.precipitationEnabled,
@@ -5466,6 +5475,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       selectedLandmark,
       openingLandmark = null,
       initialNavigation = null,
+      pergamonRevealed = false,
+      onPergamonRevealChange,
       onError,
       onPedestrianPoseChange,
       onPedestrianRespawn,
@@ -6501,6 +6512,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         aboveWaterAppearance: null,
       };
       runtimeRef.current = runtime;
+      runtime.pergamonReveal = createPergamonReveal({
+        scene, camera, canvas: renderer.domElement, reducedMotion,
+        initiallyRevealed: pergamonRevealed, onChange: onPergamonRevealChange,
+        invalidate: () => { setEnvironmentalPresentation(runtime); invalidateScenePresentation(runtime); },
+        disposeObject: (root) => disposeObject3D(runtime, root),
+        onError: (error) => {
+          console.warn("Pergamon altar could not be opened", error);
+          onWarningRef.current("Pergamon altar could not be opened. Please try again.");
+        },
+      });
+      const pergamonGesture = new PergamonRevealGesture();
       // Every device retires only unused offscreen GPU copies. The identical
       // CPU arrays remain available for the next draw; visible detail is never
       // budget-capped. Install observers before desktop speculative warmup.
@@ -6993,6 +7015,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wheelEndNotifyAt = now + 180;
       };
       const onPointerDown = (event: PointerEvent) => {
+        pergamonGesture.down(event.pointerId, event.clientX, event.clientY,
+          performance.now(), event.button === 0 && event.isPrimary);
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (runtime.pedestrian.enabled) {
@@ -7038,7 +7062,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastPedestrianTap = null;
-        if (event.pointerType === "touch" && touchPoints.size === 0) {
+        if (event.pointerType === "touch" && touchPoints.size === 0 &&
+            !runtime.pergamonReveal?.hit(event.clientX, event.clientY)) {
           const now = performance.now();
           if (
             now - lastViewerTapAt < 340 &&
@@ -7246,6 +7271,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return true;
       };
       const onPointerMove = (event: PointerEvent) => {
+        pergamonGesture.move(event.pointerId, event.clientX, event.clientY);
         if (
           runtime.pedestrian.enabled &&
           pedestrianLookPointer?.id === event.pointerId &&
@@ -7294,6 +7320,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         markSurfaceInteraction(runtime);
       };
       const onPointerUp = (event: PointerEvent) => {
+        const museumTap = event.type !== "pointercancel" &&
+          pergamonGesture.up(event.pointerId, event.clientX, event.clientY, performance.now()) &&
+          runtime.pergamonReveal?.tap(event.clientX, event.clientY);
+        if (museumTap) lastPedestrianTap = null;
         if (pedestrianLookPointer?.id === event.pointerId) {
           const finishedPointer = pedestrianLookPointer;
           pedestrianLookPointer = null;
@@ -7308,7 +7338,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           if (
             finishedPointer.pointerType === "touch" &&
-            !finishedPointer.cancelled
+            !finishedPointer.cancelled && !museumTap
           ) {
             const endedAt = performance.now();
             const tap: PedestrianTouchTap = {
@@ -7413,6 +7443,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         });
       };
       const resetTouchGesture = () => {
+        pergamonGesture.cancel();
         // Never retain the first half of a pedestrian double-tap across a
         // hidden tab, mode transition or cancelled browser gesture.
         lastPedestrianTap = null;
@@ -7509,6 +7540,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         event.preventDefault();
+        if (runtime.pergamonReveal?.hit(event.clientX, event.clientY)) return;
         renderer.domElement.focus({ preventScroll: true });
         if (runtime.pedestrian.enabled) {
           // A touch double-tap is the jump gesture. Ignore the synthetic
@@ -7538,6 +7570,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.domElement.addEventListener("pointerdown", onPointerDown, true);
       renderer.domElement.addEventListener("pointermove", onPointerMove, true);
       const onPointerCancel = (event: PointerEvent) => {
+        pergamonGesture.cancel();
         // A cancelled gesture (iOS system gesture) must not hand out
         // flick momentum — zero the sampled velocity first.
         panVelocity.x = 0;
@@ -7846,6 +7879,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           lastAnimateAt = timestamp;
           return;
         }
+        // The unlit exhibit fade has no changing shadow casters.
+        if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
         runtime.scheduleGpuWarmup?.();
         if (timestamp >= wheelEndNotifyAt) {
           wheelEndNotifyAt = Number.POSITIVE_INFINITY;
@@ -9094,6 +9129,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       return () => {
         disposed = true;
         runtime.disposed = true;
+        runtime.pergamonReveal?.dispose();
+        runtime.pergamonReveal = undefined;
         // Minimap poses own resident navigation references. Saved navigation is
         // numeric and separate, so release the old family before rebuilding it.
         pedestrianPoseEmissionRef.current.active = false;

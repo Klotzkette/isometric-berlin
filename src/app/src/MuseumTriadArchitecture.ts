@@ -33,6 +33,7 @@ import type { SourcePart } from "./spreeRecognitionProfile";
 type P = [number, number, number];
 type V = [number, number];
 type Kind = "box" | "column";
+export const PERGAMON_EXTERIOR_NAME = "Pergamonmuseum reversible exterior";
 const LIGHT = 0xd8cdb8,
   DARK = 0x998b76,
   GLASS = 0x526b72,
@@ -40,20 +41,22 @@ const LIGHT = 0xd8cdb8,
   GREEN = 0x57796b;
 const TONES = [0xb3ac99, 0xc5bca9, 0xc9ad8c];
 class Builder {
-  batches = new Map<Kind, { matrix: number[]; color: number }[]>();
+  pergamon = false;
+  batches = new Map<`${Kind}:${boolean}`, { matrix: number[]; color: number }[]>();
   constructor(
     readonly minecraft: boolean,
     readonly mobile: boolean,
   ) {}
   add(kind: Kind, p: P, s: P, color: number, q = new Quaternion()): void {
-    const a = this.batches.get(kind) ?? [];
+    const key = `${kind}:${this.pergamon}` as const;
+    const a = this.batches.get(key) ?? [];
     a.push({
       matrix: new Matrix4()
         .compose(new Vector3(...p), q, new Vector3(...s))
         .toArray(),
       color,
     });
-    this.batches.set(kind, a);
+    this.batches.set(key, a);
   }
   box(p: P, s: P, color: number, yaw = 0): void {
     this.add(
@@ -122,12 +125,15 @@ function setMaterials(mesh: Mesh, pair: ReturnType<typeof materialPair>): void {
   mesh.userData.moonlitMaterial = pair[1];
   mesh.userData.textureFree = true;
 }
-function finish(builder: Builder, root: Group): void {
-  for (const [kind, rows] of builder.batches) {
-    const g =
+function finish(builder: Builder, root: Group, pergamon: Group): void {
+  const geometries = new Map<string, BufferGeometry>();
+  for (const [key, rows] of builder.batches) {
+    const [kind, owner] = key.split(":");
+    const g = geometries.get(kind) ?? (
       kind === "box"
         ? new BoxGeometry(1, 1, 1)
-        : new CylinderGeometry(0.46, 0.5, 1, builder.mobile ? 8 : 12);
+        : new CylinderGeometry(0.46, 0.5, 1, builder.mobile ? 8 : 12));
+    geometries.set(kind, g);
     g.deleteAttribute("uv");
     const pair = materialPair();
     const mesh = new InstancedMesh(g, pair[0], 0),
@@ -145,7 +151,7 @@ function finish(builder: Builder, root: Group): void {
     setMaterials(mesh, pair);
     mesh.computeBoundingSphere();
     mesh.computeBoundingBox();
-    root.add(mesh);
+    (owner === "true" ? pergamon : root).add(mesh);
   }
 }
 function ng(u: number, y: number, v: number): P {
@@ -154,11 +160,12 @@ function ng(u: number, y: number, v: number): P {
     s = Math.sin(f.yaw);
   return [f.x + c * u + s * v, y, f.z - s * u + c * v];
 }
-function surfaceMesh(): Mesh {
+function surfaceMesh(pergamon: boolean): Mesh {
   const positions: number[] = [],
     colors: number[] = [];
   const tint = new Color();
   MUSEUM_TRIAD_SOURCES.forEach((source, which) => {
+    if ((which === 0) !== pergamon) return;
     for (const part of source.parts)
       for (const s of part.surfaces ?? []) {
         const ring = s.rings[0],
@@ -300,6 +307,7 @@ function facadeRuns(
 function facades(b: Builder): void {
   MUSEUM_TRIAD_SOURCES.forEach((source, which) =>
     facadeRuns(source.parts, (a, end, n, part) => {
+      b.pergamon = which === 0;
       const l = Math.hypot(end[0] - a[0], end[1] - a[1]),
         yaw = -Math.atan2(end[1] - a[1], end[0] - a[0]);
       const at = (u: number, y: number, o = 0.16): P => [
@@ -416,6 +424,7 @@ function ngColumn(b: Builder, u: number, v: number): void {
         ngBox(b, u + s * 0.58, 28.95, v + t * 0.58, 0.42, 0.8, 0.42, 0xbda282);
 }
 function refinementsV147(b: Builder): void {
+  b.pergamon = false;
   // Fluting is shared by the open front, long sides and apsis.
   const columns:V[]=[];for(let i=0;i<8;i++)columns.push([-15+i*4.14,32.3]);
   for(const side of[-1,1])for(let i=0;i<14;i++)columns.push([side<0?-16.58:15.3,25.9-i*4.25]);
@@ -431,6 +440,7 @@ function refinementsV147(b: Builder): void {
     const u=5.2+(i+.5)*18.5/12,y=ya+(yb-ya)*(i+.5)/12;ngBox(b,side*u,y-.4,v,1.48,.68,.31,0xc7ad8b);
     for(let j=0;j<8;j++){const a=j*Math.PI/4;ngBox(b,side*u+.18*Math.cos(a),y-.4+.18*Math.sin(a),v+.19,.08,.08,.06,0x9b836a);}
   }
+  b.pergamon = true;
   // Pergamon: Ionic volutes, upper blind panels and dentils.
   for(const [u,v]of[[-154.45,-112.95],[-151.55,-34.15]]){
     for(let i=0;i<6;i++)for(const sign of[-1,1]){const vv=v+(i-2.5)*4.8+sign*.64;
@@ -451,6 +461,7 @@ function figure(b: Builder, p: P, h: number, color: number): void {
     );
 }
 function nationalgalerie(b: Builder): void {
+  b.pergamon = false;
   for (let i = 0; i < 8; i++) ngColumn(b, -15.0 + i * 4.14, 32.3);
   for (const side of [-1, 1])
     for (let i = 0; i < 14; i++)
@@ -573,6 +584,7 @@ function nationalgalerie(b: Builder): void {
       );
 }
 function museumFronts(b: Builder): void {
+  b.pergamon = false;
   // Three tall bays articulate both ends of the Neues Museum's cross hall.
   for (const [u, sign] of [
     [-97.4, -1],
@@ -617,6 +629,7 @@ function museumFronts(b: Builder): void {
         LIGHT,
       );
   }
+  b.pergamon = true;
   // Six Ionic half-columns on each projecting western Pergamon pavilion.
   // All local dimensions are display subdivisions of the source frontage.
   for (const [u, v] of [
@@ -671,6 +684,7 @@ function museumFronts(b: Builder): void {
 function roofDetails(b: Builder): void {
   for (const [which, source] of MUSEUM_TRIAD_SOURCES.entries())
     for (const part of source.parts) {
+      b.pergamon = which === 0;
       for (const surface of part.surfaces) {
         if (surface.kind !== "RoofSurface") continue;
         const r = surface.rings[0];
@@ -688,6 +702,7 @@ function roofDetails(b: Builder): void {
           }
       }
     }
+  b.pergamon = false;
   const ngPart = MUSEUM_TRIAD_SOURCES[2].parts[0];
   for (let i = 0; i < (b.mobile ? 12 : 24); i++) {
     const v = -28 + (i * 57) / (b.mobile ? 11 : 23);
@@ -728,6 +743,7 @@ function roofDetails(b: Builder): void {
 function nativeEnvelope(b: Builder): void {
   const cell = b.mobile ? 3.6 : 2.6;
   MUSEUM_TRIAD_SOURCES.forEach((source, which) => {
+    b.pergamon = which === 0;
     // Thin, source-aligned facade courses keep windows on their exterior skin.
     // Only roofs use the coarse world grid; there is no hidden volume fill.
     facadeRuns(source.parts, (a, end, n, part) => {
@@ -804,14 +820,21 @@ export function createMuseumTriadArchitecture(
     keepInMinecraft: b.minecraft,
     mobileLike: b.mobile,
   };
+  const pergamon = new Group();
+  pergamon.name = PERGAMON_EXTERIOR_NAME;
+  pergamon.userData.pergamonExterior = true;
+  root.add(pergamon);
   if (b.minecraft) nativeEnvelope(b);
-  else root.add(surfaceMesh());
+  else {
+    pergamon.add(surfaceMesh(true));
+    root.add(surfaceMesh(false));
+  }
   facades(b);
   nationalgalerie(b);
   museumFronts(b);
   roofDetails(b);
   refinementsV147(b);
-  finish(b, root);
+  finish(b, root, pergamon);
   return freezeStaticSceneTransforms(root);
 }
 export function createMinecraftMuseumTriadArchitecture(

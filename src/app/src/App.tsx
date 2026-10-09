@@ -807,6 +807,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   initialViewerLanguage: Language;
 }) {
   const appShellRef = useRef<HTMLElement | null>(null);
+  const [pergamonRevealed, setPergamonRevealed] = useState(false);
 
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   const ambientStartAttemptRef = useRef(0);
@@ -2967,6 +2968,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
                 initialNavigation={retainedNavigationRef.current}
+                pergamonRevealed={pergamonRevealed}
+                onPergamonRevealChange={setPergamonRevealed}
                 onReady={() => {
                   if (
                     activeThreeViewerKeyRef.current !==

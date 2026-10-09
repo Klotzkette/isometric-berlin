@@ -1596,3 +1596,12 @@ credited in geo_data/regierungsviertel/wikimedia_references.json and the viewer
 attribution manifest; no photo pixels are embedded in these models.
 The museum/library documentation and docs/release-v1.0.102-review.md distinguish
 measured envelopes from proportional architectural presentation.
+
+## Pergamon Altar reveal (v1.0.104)
+
+Procedural west-front interpretation. Visual reference: Lestat (Jan Mehlich),
+[Berlin – Pergamonmuseum – Altar 02](https://commons.wikimedia.org/wiki/File:Berlin_-_Pergamonmuseum_-_Altar_02.jpg),
+2007, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/). Photograph
+not bundled or used as a texture. Reference attribution is included in the viewer
+source panel. Architecture and scope references and display estimates are recorded
+in [pergamon-altar-v204.md](docs/pergamon-altar-v204.md). No museum scan is redistributed.
