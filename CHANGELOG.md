@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.103 — Lower startup memory without changing the city
+
+- Keep immutable geometry and static placement buffers in lossless CPU storage; GPU precision and every rendered detail remain unchanged.
+- Bound construction and transfer work through CPU preparation, release owned temporary buffers and avoid retaining arrays in GPU warmup metadata.
+- Build outline landmark families cooperatively with cancellation and complete rollback.
+- Preserve all source assets, 1,891 city cells, six modes, tour stops and rendering budgets.
+- [Validation and limits](docs/release-v1.0.103-review.md).
+
 ## v1.0.102 — Museums, libraries and Bendlerblock
 
 - Refine James-Simon-Galerie columns, glazed foyer and three-flight entrance stair.

@@ -5,6 +5,7 @@ import {
 } from "three";
 import { isInkDrawSuppressed, registerInkRenderObserver } from "./inkDrawVisibility";
 import { SceneGpuWarmupQueue } from "./sceneGpuWarmupQueue";
+import { staticStorageInfo } from "./losslessStaticStorage";
 
 // Spatial park cells share geometry and carry small instance buffers. Keep
 // the byte ceiling, but amortize scene traversal over more of these tiny draws.
@@ -183,7 +184,7 @@ export function createSceneGpuWarmup(
     }
     for (const attribute of attributes(object)) {
       const buffer = "data" in attribute ? attribute.data : attribute;
-      values.push(attribute, buffer, buffer.version, buffer.array);
+      values.push(attribute, buffer, buffer.version, staticStorageInfo(buffer).arrayIdentity);
     }
     return values;
   };
@@ -286,7 +287,7 @@ export function createSceneGpuWarmup(
     if (disposed || queue.length === 0 || renderer.getContext().isContextLost()) return 0;
     refreshView();
     const selected: Renderable[] = [];
-    const selectedBuffers = new Set<ArrayBufferLike>();
+    const selectedBuffers = new Set<object>();
     let bytes = 0;
     let considered = 0;
     const state = context();
@@ -304,9 +305,13 @@ export function createSceneGpuWarmup(
         queue.rotate(object);
         continue;
       }
-      const newBuffers = new Set(attributes(object).map((attribute) => attribute.array.buffer)
-        .filter((buffer) => !selectedBuffers.has(buffer)));
-      const additionalBytes = [...newBuffers].reduce((total, buffer) => total + buffer.byteLength, 0);
+      const newBuffers = new Map<object, number>();
+      for (const attribute of attributes(object)) {
+        const storage = "data" in attribute ? attribute.data : attribute;
+        const info = staticStorageInfo(storage);
+        if (!selectedBuffers.has(info.bufferIdentity)) newBuffers.set(info.bufferIdentity, info.bufferBytes);
+      }
+      const additionalBytes = [...newBuffers.values()].reduce((total, size) => total + size, 0);
       // Existing large buffers are indivisible. Warm one alone rather than
       // split/copy authored buffers or silently skip its exact geometry.
       if (selected.length && bytes + additionalBytes > GPU_WARMUP_MAX_BYTES) break;
@@ -314,7 +319,7 @@ export function createSceneGpuWarmup(
       restoreRenderHook(object);
       selected.push(object);
       bytes += additionalBytes;
-      for (const buffer of newBuffers) selectedBuffers.add(buffer);
+      for (const buffer of newBuffers.keys()) selectedBuffers.add(buffer);
     }
     if (selected.length === 0) return 0;
 

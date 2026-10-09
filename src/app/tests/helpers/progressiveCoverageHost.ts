@@ -36,6 +36,7 @@ export function progressiveCoverageHost(
   source: string,
   isoWorld: Group,
   coarsePointer = true,
+  deferBacking = false,
 ) {
   const names = [
     "cancelScheduledProgressiveAttachment", "clearProgressiveAttachmentQueue",
@@ -75,7 +76,9 @@ export function progressiveCoverageHost(
   });
   let worker = createWorker();
   const document = { hidden: false };
+  const pendingBacking: Array<() => void> = [];
   const bindings = {
+    parkCompletedGeometry: () => ({ then: (ready: () => void) => { if (deferBacking) pendingBacking.push(ready); else ready(); } }),
     interleaveStaticGeometry,
     Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
     setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts, retainedBuildingDetailIds,
@@ -143,6 +146,7 @@ export function progressiveCoverageHost(
   const warn = (message: string) => { warnings.push(message); };
   return {
     runtime, warnings, acknowledged, builds, views, document,
+    finishBacking: () => { for (const ready of pendingBacking.splice(0)) ready(); },
     get worker() { return worker; },
     get terminated() { return terminated; },
     get deferredStarts() { return deferredStarts; },

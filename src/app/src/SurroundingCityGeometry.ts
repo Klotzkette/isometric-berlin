@@ -1,3 +1,4 @@
+import { parkStaticGeometrySteps } from "./losslessStaticStorage";
 import { replacePanoramaFacadeV202 } from "./panoramaFacadeV202";
 import {
   Box3, BufferAttribute, BufferGeometry, DoubleSide, Group, InterleavedBuffer,
@@ -186,6 +187,7 @@ export function* buildSurroundingCityChunk(
   chunk: SurroundingCityChunk,
   id: string,
   minecraft = false,
+  parkBacking = false,
 ): Generator<void, SurroundingChunkGeometry> {
   if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
       chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
@@ -311,6 +313,8 @@ export function* buildSurroundingCityChunk(
       yield* geometryBounds(geometry);
       bufferCount++;
     }
+    // These fresh per-tile arrays are owned only by this unpublished root.
+    if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
       nav: chunk.nav, origin: chunk.origin };
     completed = true;
@@ -352,7 +356,7 @@ export async function createSurroundingCityChunkCooperatively(
   const now = schedule.now ?? (() => performance.now());
   const yieldTask = schedule.yield ?? yieldSurroundingTask;
   const budget = Math.max(0, schedule.budgetMs ?? 3);
-  const iterator = buildSurroundingCityChunk(chunk, id, minecraft);
+  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, true);
   let started = now();
   try {
     while (true) {

@@ -1,3 +1,4 @@
+import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { BufferAttribute, BufferGeometry, StaticDrawUsage } from "three";
 
 /** Bound transient integer scratch to at most 12 MiB per geometry. */
@@ -116,66 +117,74 @@ export function indexGeometryExactly(geometry: BufferGeometry): ExactGeometryInd
   // At most 70% occupancy even for a geometry with no duplicate vertices.
   let capacity = 8;
   while (capacity < originalVertexCount / 0.7) capacity *= 2;
-  const table = new Uint32Array(capacity);
-  const remap = new Uint32Array(originalVertexCount);
-  const mask = capacity - 1;
-  let uniqueCount = 0;
-  for (let vertex = 0; vertex < originalVertexCount; vertex++) {
-    let slot = hashVertex(views, vertex) & mask;
-    while (table[slot] !== 0 && !equalVertex(views, vertex, table[slot] - 1)) {
-      slot = (slot + 1) & mask;
-    }
-    if (table[slot] === 0) {
-      table[slot] = vertex + 1;
-      remap[vertex] = uniqueCount++;
-      // Unique count can only increase. Stop before allocating output when
-      // even the smallest possible index cannot provide an actual saving.
-      if (uniqueCount * vertexBytes + indexCount * 2 >= originalBytes) return unchanged;
-    } else {
-      remap[vertex] = remap[table[slot] - 1];
-    }
-  }
-  const indexBytes = uniqueCount <= 65535 ? 2 : 4;
-  const indexedBytes = uniqueCount * vertexBytes + indexCount * indexBytes;
-  if (indexedBytes >= originalBytes) return unchanged;
-
-  const indices = indexBytes === 2 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
-  for (let i = 0; i < indexCount; i++) {
-    const oldVertex = geometry.index ? geometry.index.getX(i) : i;
-    if (!Number.isInteger(oldVertex) || oldVertex < 0 || oldVertex >= originalVertexCount) {
-      return unchanged;
-    }
-    indices[i] = remap[oldVertex];
-  }
-  const replacements: Array<[string, BufferAttribute]> = [];
-  for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
-    const [name] = entries[entryIndex];
-    const entry = views[entryIndex];
-    const original = entry.attribute;
-    const ArrayType = original.array.constructor as { new(length: number): BufferAttribute["array"] };
-    const values = new ArrayType(uniqueCount * original.itemSize);
-    const bytes = new Uint8Array(values.buffer, values.byteOffset, values.byteLength);
-    let next = 0;
+  let table: Uint32Array<ArrayBuffer> | undefined;
+  let remap: Uint32Array<ArrayBuffer> | undefined;
+  try {
+    table = new Uint32Array(capacity);
+    remap = new Uint32Array(originalVertexCount);
+    const mask = capacity - 1;
+    let uniqueCount = 0;
     for (let vertex = 0; vertex < originalVertexCount; vertex++) {
-      if (remap[vertex] !== next) continue;
-      bytes.set(entry.bytes.subarray(vertex * entry.stride, (vertex + 1) * entry.stride), next * entry.stride);
-      next++;
+      let slot = hashVertex(views, vertex) & mask;
+      while (table[slot] !== 0 && !equalVertex(views, vertex, table[slot] - 1)) {
+        slot = (slot + 1) & mask;
+      }
+      if (table[slot] === 0) {
+        table[slot] = vertex + 1;
+        remap[vertex] = uniqueCount++;
+        // Unique count can only increase. Stop before allocating output when
+        // even the smallest possible index cannot provide an actual saving.
+        if (uniqueCount * vertexBytes + indexCount * 2 >= originalBytes) return unchanged;
+      } else {
+        remap[vertex] = remap[table[slot] - 1];
+      }
     }
-    const attribute = new BufferAttribute(values, original.itemSize, original.normalized);
-    attribute.name = original.name;
-    attribute.gpuType = original.gpuType;
-    attribute.setUsage(original.usage);
-    replacements.push([name, attribute]);
+    const indexBytes = uniqueCount <= 65535 ? 2 : 4;
+    const indexedBytes = uniqueCount * vertexBytes + indexCount * indexBytes;
+    if (indexedBytes >= originalBytes) return unchanged;
+
+    const indices = indexBytes === 2 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
+    for (let i = 0; i < indexCount; i++) {
+      const oldVertex = geometry.index ? geometry.index.getX(i) : i;
+      if (!Number.isInteger(oldVertex) || oldVertex < 0 || oldVertex >= originalVertexCount) {
+        return unchanged;
+      }
+      indices[i] = remap[oldVertex];
+    }
+    const replacements: Array<[string, BufferAttribute]> = [];
+    for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
+      const [name] = entries[entryIndex];
+      const entry = views[entryIndex];
+      const original = entry.attribute;
+      const ArrayType = original.array.constructor as { new(length: number): BufferAttribute["array"] };
+      const values = new ArrayType(uniqueCount * original.itemSize);
+      const bytes = new Uint8Array(values.buffer, values.byteOffset, values.byteLength);
+      let next = 0;
+      for (let vertex = 0; vertex < originalVertexCount; vertex++) {
+        if (remap[vertex] !== next) continue;
+        bytes.set(entry.bytes.subarray(vertex * entry.stride, (vertex + 1) * entry.stride), next * entry.stride);
+        next++;
+      }
+      const attribute = new BufferAttribute(values, original.itemSize, original.normalized);
+      attribute.name = original.name;
+      attribute.gpuType = original.gpuType;
+      attribute.setUsage(original.usage);
+      replacements.push([name, attribute]);
+    }
+    for (const [name, attribute] of replacements) geometry.setAttribute(name, attribute);
+    const index = new BufferAttribute(indices, 1);
+    if (geometry.index) {
+      index.name = geometry.index.name;
+      index.gpuType = geometry.index.gpuType;
+    }
+    geometry.setIndex(index);
+    return {
+      changed: true, originalBytes, indexedBytes, savedBytes: originalBytes - indexedBytes,
+      originalVertexCount, vertexCount: uniqueCount,
+    };
+  } finally {
+    // Neither scratch lookup escapes; original and replacement attributes do.
+    releaseScratchBuffer(table?.buffer);
+    releaseScratchBuffer(remap?.buffer);
   }
-  for (const [name, attribute] of replacements) geometry.setAttribute(name, attribute);
-  const index = new BufferAttribute(indices, 1);
-  if (geometry.index) {
-    index.name = geometry.index.name;
-    index.gpuType = geometry.index.gpuType;
-  }
-  geometry.setIndex(index);
-  return {
-    changed: true, originalBytes, indexedBytes, savedBytes: originalBytes - indexedBytes,
-    originalVertexCount, vertexCount: uniqueCount,
-  };
 }

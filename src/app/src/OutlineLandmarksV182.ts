@@ -57,86 +57,123 @@ import { createBendlerblockV202 } from "./BendlerblockV202";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
-export function createOutlineLandmarksV182(
+export function* createOutlineLandmarksV182Steps(
   initialMode: VisualMode,
   beforeRelease?: (root: Group) => void,
-): Group {
+): Generator<void, Group> {
   const root = new Group();
   root.name = "Berlin outline landmark additions v182";
   let native: boolean | undefined;
   let kites: Group | undefined;
   root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
     kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
-  root.userData.setMode = (mode: VisualMode) => {
+  function* setModeSteps(mode: VisualMode): Generator<void> {
     const nextNative = mode === "minecraft";
     if (native !== nextNative) {
       // Disposal releases GPU handles, but the viewer's residency/warmup maps
       // intentionally retain CPU owners for re-upload. Unregister the old
       // family while all its children are still reachable, before rebuilding.
       if (root.children.length) beforeRelease?.(root);
-      const geometries = new Set<BufferGeometry>(), materials = new Set<Material>();
-      root.traverse(object => {
-        const mesh = object as Mesh;
-        if (mesh.geometry) geometries.add(mesh.geometry);
-        for (const value of [mesh.material, object.userData.dayMaterial, object.userData.nightMaterial]) {
-          for (const material of Array.isArray(value) ? value : [value]) if (material instanceof Material) materials.add(material);
-        }
-        // Three retains per-instance GPU attributes separately from geometry.
-        if ((mesh as Mesh & { isInstancedMesh?: boolean }).isInstancedMesh) (mesh as Mesh & { dispose(): void }).dispose();
-      });
-      root.clear();
-      for (const geometry of geometries) geometry.dispose();
-      for (const material of materials) material.dispose();
+      disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
+      yield;
       root.add(createCityRecognitionV182(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
+      yield;
       root.add(createNeueNationalgalerieV183(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftAlexanderStationsV183() : createAlexanderStationsV183());
+      yield;
       root.add(createSpreeLandmarksV183(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftScheunenFacadesV183() : createScheunenFacadesV183());
+      yield;
       root.add(createSchoolsV185(nextNative));
+      yield;
       root.add(createPublicPlacesV185(nextNative));
+      yield;
       root.add(createNorthV185(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftSouthKiezV185() : createSouthKiezV185());
+      yield;
       root.add(nextNative ? createMinecraftAltMitteEdgesV186() : createAltMitteEdgesV186());
+      yield;
       root.add(nextNative ? createMinecraftWesternLandmarksV187() : createWesternLandmarksV187());
+      yield;
       root.add(createSouthWestLandmarksV187(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftEastLandmarksV187() : createEastLandmarksV187());
+      yield;
       root.add(createUraniaLuetzowV188(nextNative));
+      yield;
       root.add(createVolksbuehneV189(nextNative));
+      yield;
       root.add(createSuhrkampPfefferbergV189(nextNative));
+      yield;
       root.add(createAlexanderplatzV189(nextNative));
+      yield;
       root.add(createParkSitesV190(nextNative));
+      yield;
       root.add(nextNative ? createMinecraftNorthSitesV190() : createNorthSitesV190());
+      yield;
       root.add(createGrunewaldLandmarksV190(nextNative));
+      yield;
       root.add(createRailStationsV190(nextNative));
+      yield;
       root.add(createCentreAccessV192(nextNative));
+      yield;
       root.add(createZionskirchplatzV193(nextNative));
+      yield;
       root.add(createArkonaplatzV193(nextNative));
+      yield;
       root.add(createTegelMotorwayV194(nextNative));
+      yield;
       root.add(createViktoriaparkV194(nextNative));
+      yield;
       root.add(createAirportsV194(nextNative));
+      yield;
       root.add(createWestLakesV194(nextNative));
+      yield;
       root.add(createTeufelsbergStationV195(nextNative));
+      yield;
       root.add(createDrachenbergLawnV195(nextNative));
+      yield;
       root.add(createLindenCorridorV197(nextNative));
+      yield;
       root.add(createTegelSpandauV198(nextNative));
+      yield;
       root.add(createEastParksV198(nextNative));
+      yield;
       root.add(createNorthParksV198(nextNative));
+      yield;
       root.add(createIccV199(nextNative));
+      yield;
       root.add(createFunkturmV199(nextNative));
+      yield;
       root.add(createCemeteryGrunewaldV199(nextNative));
+      yield;
       root.add(createCentralSitesV200(nextNative));
+      yield;
       root.add(createLibrariesV202(nextNative));
+      yield;
       root.add(createPergamonPanoramaV202({ minecraft: nextNative }));
+      yield;
       if (nextNative) root.add(createBendlerblockV202(true));
+      yield;
       root.add(createRegionOutlinesV200(nextNative));
+      yield;
       root.add(createBerlinBoundariesV200(nextNative));
+      yield;
       if (nextNative) root.add(createMinecraftCharlottenburgerTorV201());
+      yield;
       root.add(createWuhlheideV201(nextNative));
+      yield;
       root.add(createWaldbuehneV201(nextNative));
+      yield;
       kites = createDrachenbergKitesV195(nextNative);
       root.add(kites);
+      yield;
       for (const child of root.children) child.userData.nativeMinecraft = nextNative;
       native = nextNative;
     }
@@ -145,7 +182,41 @@ export function createOutlineLandmarksV182(
       const material = object.userData[mode === "night" ? "nightMaterial" : "dayMaterial"];
       if (material) mesh.material = material;
     });
+  }
+  root.userData.setMode = (mode: VisualMode) => {
+    for (const _step of setModeSteps(mode)) { /* Existing synchronous mode API. */ }
   };
-  root.userData.setMode(initialMode);
-  return root;
+  let completed = false;
+  try {
+    yield* setModeSteps(initialMode);
+    completed = true;
+    return root;
+  } finally {
+    if (!completed) disposeOutlineConstruction(root);
+  }
+}
+
+/** Release unpublished partial work as well as completed mode families. */
+export function disposeOutlineConstruction(root: Group): void {
+  const geometries = new Set<BufferGeometry>(), materials = new Set<Material>();
+  root.traverse(object => {
+    const mesh = object as Mesh;
+    if (mesh.geometry) geometries.add(mesh.geometry);
+    for (const value of [mesh.material, object.userData.dayMaterial, object.userData.nightMaterial]) {
+      for (const material of Array.isArray(value) ? value : [value]) if (material instanceof Material) materials.add(material);
+    }
+    // Three retains per-instance GPU attributes separately from geometry.
+    if ((mesh as Mesh & { isInstancedMesh?: boolean }).isInstancedMesh) (mesh as Mesh & { dispose(): void }).dispose();
+  });
+  root.clear();
+  for (const geometry of geometries) geometry.dispose();
+  for (const material of materials) material.dispose();
+}
+
+/** Synchronous callers keep identical geometry and ordering. */
+export function createOutlineLandmarksV182(initialMode: VisualMode, beforeRelease?: (root: Group) => void): Group {
+  const steps = createOutlineLandmarksV182Steps(initialMode, beforeRelease);
+  let next = steps.next();
+  while (!next.done) next = steps.next();
+  return next.value;
 }

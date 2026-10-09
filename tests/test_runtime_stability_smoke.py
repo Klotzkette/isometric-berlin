@@ -43,7 +43,7 @@ def sources() -> list[dict]:
       "parents": 2,
       "chunks": 1,
       "bufferCount": 3,
-      "arrayIdentity": "same-arrays",
+      "arrayContent": "same-byte-digests",
       "sourceGpuDisposals": 0,
     },
     {"family": "native", "count": 0, "visible": False},
@@ -85,7 +85,7 @@ def test_mobile_family_remount_is_required_but_desktop_keeps_its_runtime() -> No
 
 
 @pytest.mark.parametrize(
-  "field", ["uuid", "triangles", "bytes", "arrayIdentity", "chunks"]
+  "field", ["uuid", "triangles", "bytes", "arrayContent", "chunks"]
 )
 def test_source_loss_or_recreation_fails_even_with_live_gpu_buffers(
   sources: list[dict], field: str
@@ -144,6 +144,6 @@ def test_reclamation_needs_both_real_gl_deletion_and_preserved_same_runtime_sour
   after["pose"]["runtime"] = 2
   assert reclamation_evidence([before, after]) == []
   after["pose"]["runtime"] = 1
-  after["source"]["arrayIdentity"] = "replacement-arrays"
+  after["source"]["arrayContent"] = "replacement-arrays"
   with pytest.raises(AssertionError):
     reclamation_evidence([before, after])

@@ -33,6 +33,7 @@ import { createSurroundingCity, type SurroundingCity, type SurroundingNavigation
 import { surroundingScopeGroundAt } from "./surroundingCityScope";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
+import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
@@ -1577,14 +1578,26 @@ function startSurroundingCity(runtime: Runtime): void {
   runtime.surroundingCity = city;
   city.root.visible = !runtime.underside;
   runtime.scene.add(city.root);
-  void import("./OuterThinOutlines").then(({ createOuterThinOutlines }) => {
+  void import("./OuterThinOutlines").then(async ({ createOuterThinOutlinesSteps }) => {
     if (runtime.disposed || runtime.loadSignal.aborted) return;
-    const outlines = createOuterThinOutlines(runtime.lightingMode, previous => {
+    const outlines = await completeCooperatively(createOuterThinOutlinesSteps(runtime.lightingMode, previous => {
       runtime.gpuWarmup?.release(previous);
       runtime.geometryResidency?.release(previous);
       runtime.gpuResidency?.release(previous);
       releaseMinecraftMaterialBindings(previous, runtime.minecraftMaterialState);
+    }), {
+      // WeakRef constructor inputs cannot be collected within the same job.
+      // One family per real task bounds that temporary source retention.
+      budgetMs: 0,
+      yieldTask: yieldStartupWork,
+      isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
     });
+    if (runtime.disposed || runtime.loadSignal.aborted) {
+      disposeObject3D(runtime, outlines);
+      return;
+    }
+    // Drawn mode changes during construction select the latest materials.
+    outlines.userData.setMode(runtime.lightingMode);
     runtime.outerThinOutlines = outlines;
     outlines.visible = !runtime.underside;
     runtime.scene.add(outlines);
@@ -1592,10 +1605,45 @@ function startSurroundingCity(runtime: Runtime): void {
     runtime.geometryResidency?.enqueue(outlines);
     runtime.gpuWarmup?.enqueue(outlines);
     runtime.scheduleGpuWarmup?.();
+    parkCompletedGeometry(runtime, outlines);
     runtime.renderInvalidated = true;
   }).catch(error => {
     if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Berlin outline supplement:", error);
   });
+}
+
+/** Serial, cancellable CPU storage work; never holds several decode jobs. */
+const geometryParkingQueues = new WeakMap<Runtime, { roots: Array<{ root: Object3D; resolve: () => void }>; running: boolean }>();
+function parkCompletedGeometry(runtime: Runtime, root: Object3D): Promise<void> {
+  let queue = geometryParkingQueues.get(runtime);
+  if (!queue) geometryParkingQueues.set(runtime, queue = { roots: [], running: false });
+  const done = new Promise<void>(resolve => queue.roots.push({ root, resolve }));
+  if (queue.running) return done;
+  queue.running = true;
+  void (async () => {
+    try {
+      // onAttach registers a chunk immediately before its parent adds it.
+      await yieldStartupWork();
+      while (queue.roots.length && !runtime.disposed && !runtime.loadSignal.aborted) {
+        const task = queue.roots.shift()!;
+        try {
+          // A camera turn may have already retired this complete chunk.
+          if (task.root.parent) await completeCooperatively(parkStaticGeometrySteps(task.root,
+            task.root.userData.progressiveWorldBatch === true), {
+            budgetMs: 4, yieldTask: yieldStartupWork,
+            isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
+          });
+        } finally { task.resolve(); }
+      }
+    } catch (error) {
+      if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Geometry backing storage:", error);
+    } finally {
+      for (const task of queue.roots) task.resolve();
+      queue.roots.length = 0;
+      queue.running = false;
+    }
+  })();
+  return done;
 }
 
 function surroundingPedestrianExtension(runtime: Runtime) {
@@ -3231,10 +3279,18 @@ function attachProgressiveWorldMessage(
     runtime.lightingMode,
   );
   if (runtime.coarsePointer) interleaveStaticGeometry(object);
+  // The worker's completed terrain/road batches have finished all draping.
+  // Their presentation changes materials, never these vertex/index arrays.
+  if (message.kind === "surfaces") object.traverse(child => {
+    if (child instanceof Mesh || child instanceof Line || child instanceof Points) {
+      child.geometry.userData.losslessStaticBacking = true;
+    }
+  });
   object.userData.progressiveWorldBatch = true;
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
+  const backingReady = parkCompletedGeometry(runtime, object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
   runtime.gpuResidency?.enqueue(object);
   runtime.geometryResidency?.enqueue(object);
@@ -3253,10 +3309,15 @@ function attachProgressiveWorldMessage(
     setEnvironmentalPresentation(runtime);
   }
   invalidateScenePresentation(runtime);
-  const acknowledged = tryProgressiveWorkerOperation(() =>
-    worker.postMessage({ id: message.id, type: "batch-attached" }),
-  );
-  if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
+  // Keep the existing two worker lanes bounded through CPU compaction too.
+  // The complete batch is already visible; ACK permits the next allocation.
+  void backingReady.then(() => {
+    if (runtime.disposed || worker !== runtime.progressiveWorldWorker) return;
+    const acknowledged = tryProgressiveWorkerOperation(() =>
+      worker.postMessage({ id: message.id, type: "batch-attached" }),
+    );
+    if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
+  });
 }
 
 function scheduleProgressiveAttachment(
@@ -4226,6 +4287,11 @@ function ensureIsoWorld(
           yield* interleaveStaticGeometrySteps(isoWorld);
           yield* interleaveStaticGeometrySteps(provisionalIsoAddons!);
         }
+        yield* parkStaticGeometrySteps(isoWorld);
+        yield* parkStaticGeometrySteps(provisionalIsoAddons!);
+        // Authored architecture uses fixed instance placements. Moving props
+        // and particle effects live in their separate runtime roots.
+        yield* parkStaticInstancesSteps(isoWorld);
         return isoWorld;
       })(), {
         yieldTask: yieldStartupWork,
@@ -4601,6 +4667,10 @@ function ensureVoxelWorld(
         );
       }
       provisionalVoxelWorld.add(createRosengartenMinecraft());
+      await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
+        yieldTask: yieldStartupWork,
+        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+      });
       runtime.voxelWorld = provisionalVoxelWorld;
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
@@ -8842,6 +8912,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                       yieldTask: yieldStartupWork,
                       isCancelled: constructionCancelled,
                       onRoot: (root) => { staging = root; },
+                    });
+                    await completeCooperatively(parkStaticInstancesSteps(details), {
+                      yieldTask: yieldStartupWork, isCancelled: constructionCancelled,
                     });
                     // Recheck after the promise boundary, before touching the
                     // scene or collision index of a possibly retired runtime.

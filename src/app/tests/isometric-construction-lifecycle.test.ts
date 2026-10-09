@@ -1,3 +1,4 @@
+import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "../src/losslessStaticStorage";
 import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
 import ts from "typescript";
@@ -141,6 +142,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   const expectedImports = [...declarations[0].matchAll(/loadAddon\("([^"]+)"\)/g)].map(match => match[1]);
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
+    parkStaticGeometrySteps, parkStaticInstancesSteps,
     interleaveStaticGeometry,
     interleaveStaticGeometrySteps,
     completedPedestrianWater: () => {},

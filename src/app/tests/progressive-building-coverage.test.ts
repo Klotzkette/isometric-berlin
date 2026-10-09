@@ -152,6 +152,22 @@ describe("complete buildings before worker refinement", () => {
 });
 
 describe("production preview replacement lifecycle", () => {
+  test("complete geometry appears before CPU acknowledgement and a retired worker gets no late ACK", () => {
+    for (const retire of [false,true]) {
+      const world = new Group();
+      const host = progressiveCoverageHost(viewerSource, world, true, true);
+      const source = payload.buildings.find(b => b.id === "1gG00048")!;
+      try {
+        host.attach(packet([source],0));
+        expect(world.children.some(n=>n.userData.progressiveWorldBatchId === "buildings-1")).toBe(true);
+        expect(host.acknowledged).toHaveLength(0);
+        if (retire) host.pause();
+        host.finishBacking();
+        expect(host.acknowledged).toEqual(retire ? [] : ["buildings-1"]);
+      } finally { host.dispose(); }
+    }
+  });
+
   test("a settled district set ignores priority-only reordering while unfinished detail still reprioritizes", () => {
     const buildings: PrismBuilding[] = Array.from({ length: 3 }, (_, index) => ({
       id: `ordering-fixture-${index}`, class: 0, h_dm: 100, y0_dm: 0,

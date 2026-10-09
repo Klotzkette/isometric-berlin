@@ -1,3 +1,5 @@
+import { completeCooperatively } from "../src/cooperativeWork";
+import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "../src/losslessStaticStorage";
 import { interleaveStaticGeometry } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
 import ts from "typescript";
@@ -110,6 +112,7 @@ function host(options: {
     }
   };
   const bindings = {
+    parkStaticGeometrySteps, parkStaticInstancesSteps, completeCooperatively,
     interleaveStaticGeometry,
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     runtime, scene, document, loadController,

@@ -40,31 +40,34 @@ ROUTE = (
 )
 
 # Only the permanently resident source envelopes are compared. Streamed facade
-# packets may correctly leave/re-enter the scene, so their array identity is
-# deliberately outside this invariant. No source array is copied by the probe.
+# packets may correctly leave/re-enter the scene, so their array content is
+# deliberately outside this invariant. Hashes compare the exact bytes even after lossless CPU rehydration.
 SOURCE_PROBE = """(() => {
   const runtimes=new WeakMap();
-  window.__runtimeStabilitySource=()=>{
+  window.__runtimeStabilitySource=async()=>{
     const r=window.__modeContinuityRuntime();if(!r)return null;
     let state=runtimes.get(r);
-    if(!state){state={roots:new WeakMap(),buffers:new WeakMap(),next:0};runtimes.set(r,state);}
+    if(!state){state={roots:new WeakMap(),hashes:new WeakMap()};runtimes.set(r,state);}
     const visible=n=>{while(n){if(!n.visible)return false;n=n.parent;}return true;};
     const names=['Alt-Mitte complete resident source envelopes','Alt-Mitte complete resident native source envelopes'];
-    const found=names.map(()=>[]);
-    r.scene.traverse(n=>{const i=names.indexOf(n.name);if(i>=0)found[i].push(n);});
-    return found.map((list,i)=>{
+    const results=[];
+    for(let i=0;i<names.length;i++){
+      const list=[];r.scene.traverse(n=>{if(n.name===names[i])list.push(n);});
       const root=list[0];
-      if(!root)return {family:i===1?'native':'drawn',count:0,visible:false};
+      if(!root){results.push({family:i===1?'native':'drawn',count:0,visible:false});continue;}
       let record=state.roots.get(root);
-      if(!record){record={watched:new WeakSet(),disposals:0};state.roots.set(root,record);}
+      if(!record){record={disposals:0,watched:new WeakSet()};state.roots.set(root,record);}
       let triangles=0,renderables=0,bytes=0;
-      const buffers=new Set(),signature=[];
+      const buffers=new Set(),signature=[],pending=[];
       const add=(key,attribute)=>{
         const array=attribute?.data?.array??attribute?.array;if(!array)return;
-        const buffer=array.buffer;
-        if(!state.buffers.has(buffer))state.buffers.set(buffer,++state.next);
-        if(!buffers.has(buffer)){buffers.add(buffer);bytes+=buffer.byteLength;}
-        signature.push([key,state.buffers.get(buffer),array.byteOffset,array.byteLength]);
+        if(!buffers.has(array.buffer)){buffers.add(array.buffer);bytes+=array.buffer.byteLength;}
+        const entry=[key,array.constructor.name,array.byteOffset,array.byteLength,null];
+        const cached=state.hashes.get(array);
+        // WebCrypto copies the bytes synchronously before the next task can
+        // retire an exclusively owned decoded backing buffer.
+        const digest=cached ? null : crypto.subtle.digest('SHA-256',new Uint8Array(array.buffer,array.byteOffset,array.byteLength));
+        signature.push(entry);pending.push([entry,array,cached,digest]);
       };
       root.traverse(n=>{
         if(!n.geometry)return;
@@ -77,13 +80,23 @@ SOURCE_PROBE = """(() => {
         for(const [key,attribute]of Object.entries(g.attributes))add(key,attribute);
         add('index',g.index);
       });
-      return {family:i===1?'native':'drawn',count:list.length,visible:visible(root),
+      // Compare actual byte content after lossless rehydration, not allocation identity.
+      // The root/geometry UUIDs still catch hidden replacement or reconstruction.
+      for(const [entry,array,cached,digest] of pending){
+        let hash=cached;
+        if(!hash){
+          hash=Array.from(new Uint8Array(await digest),v=>v.toString(16).padStart(2,'0')).join('');state.hashes.set(array,hash);
+        }
+        entry[4]=hash;
+      }
+      results.push({family:i===1?'native':'drawn',count:list.length,visible:visible(root),
         uuid:root.uuid,triangles,renderables,bytes,bufferCount:buffers.size,
         declaredBytes:root.userData.geometryBytes,
         parents:root.userData.sourceParents?.length??0,
         chunks:root.userData.sourceChunkIds?.length??0,
-        sourceGpuDisposals:record.disposals,arrayIdentity:JSON.stringify(signature)};
-    });
+        sourceGpuDisposals:record.disposals,arrayContent:JSON.stringify(signature)});
+    }
+    return results;
   };
 })();"""
 
@@ -126,7 +139,7 @@ def validate_source(
       "bufferCount",
       "parents",
       "chunks",
-      "arrayIdentity",
+      "arrayContent",
     ):
       assert active[field] == baseline[field], {"changed": field, "source": active}
   return active
@@ -144,7 +157,7 @@ def reclamation_evidence(samples: list[dict[str, Any]]) -> list[dict[str, Any]]:
       retired = source["sourceGpuDisposals"] - before["source"]["sourceGpuDisposals"]
       deleted = sample["buffers"]["deletes"] - before["buffers"]["deletes"]
       if retired > 0 and deleted > 0:
-        assert source["arrayIdentity"] == before["source"]["arrayIdentity"], sample
+        assert source["arrayContent"] == before["source"]["arrayContent"], sample
         evidence.append(
           {
             "runtime": key[0],
