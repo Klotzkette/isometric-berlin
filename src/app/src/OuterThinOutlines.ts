@@ -16,6 +16,8 @@ import { airportsV194SolidAt, airportsV194NativeSolidAt } from "./airportsV194Na
 import { westLakesV194WaterAt, westLakesV194SolidAt } from "./westLakesV194Navigation";
 import { teufelsbergStationV195SolidAt } from "./teufelsbergStationV195Navigation";
 import { drachenbergLawnGroundAtV195 } from "./DrachenbergLawnV195";
+import { iccV199SolidAt } from "./iccV199Navigation";
+import { cemeteryGrunewaldV199SolidAt } from "./cemeteryGrunewaldV199Navigation";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
 export function createOuterThinOutlines(
@@ -32,6 +34,8 @@ export function createOuterThinOutlines(
     westLakesV194SolidAt(x, y, z, radius, activeMode === "minecraft") ||
     teufelsbergStationV195SolidAt(x, y, z, radius, activeMode === "minecraft") ||
     northParksV198SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+    iccV199SolidAt(x, y, z, radius) ||
+    cemeteryGrunewaldV199SolidAt(x, y, z, radius, activeMode === "minecraft") ||
     eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft");
   root.userData.waterAt = (x: number, z: number) =>
     tegelSpandauV198WaterAt(x, z, activeMode === "minecraft") !== null ||
@@ -50,6 +54,9 @@ export function createOuterThinOutlines(
   const positionAttribute = new BufferAttribute(positions, 3);
   const streetIndices: number[] = [], railIndices: number[] = [];
   for (const feature of data.features) {
+    // The full v199 measured ICC owns this exact older coarse wire envelope.
+    // Its former 39.5m skyway lines would float above the corrected bridge.
+    if (feature.name === "ICC") continue;
     const target = feature.kind === "rail" || feature.kind.startsWith("station-") ? railIndices : streetIndices;
     for (let v = feature.firstVertex; v < feature.firstVertex + feature.vertexCount; v++) target.push(v);
   }

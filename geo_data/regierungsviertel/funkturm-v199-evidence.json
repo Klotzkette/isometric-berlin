@@ -1,0 +1,33 @@
+{
+  "version": "1.0.99",
+  "anchorOwner": "way/30926247",
+  "anchor": [
+    -6367.441457240318,
+    3.55,
+    1395.842678597197
+  ],
+  "operatorLevelsM": {
+    "restaurant": 55,
+    "observation": 126,
+    "tip": 147
+  },
+  "preservedInputs": {
+    "geo_data/regierungsviertel/outer-thin-outlines-v179.json": "43ef5d0d01e0778a40cc51432b8c412827554a6e63212db794c1d6f5949f1ea6",
+    "src/app/src/data/cityRecognitionV182.json": "c28fc857987ad0ebb04b094bd226c9a666e9717207f2b0ab6d0eb04da2c695b8",
+    "src/app/src/data/westLandmarksV187.json": "fee331567f15b39f45edd8bf9668fbb0f139a423b974bd682bfb4e6428f3aca2",
+    "geo_data/regierungsviertel/west-landmarks-v187-source.json": "25911e93e905139ad40bed622175576e1237d1f0081cc8ea176cd15e43e63110"
+  },
+  "counts": {
+    "drawn": {
+      "boxes": 974,
+      "rods": 505,
+      "indices": 800
+    },
+    "native": {
+      "boxes": 4186,
+      "rods": 0,
+      "indices": 0
+    }
+  },
+  "displayEstimates": "All local fittings, member sections, tread count, kitchen dimensions, glazing splay and canopy width are photo-informed procedural readings; original operator height profile and all previous geometry remain unchanged."
+}

@@ -190,6 +190,18 @@ def historical_v190_asset(descriptor: dict, mode: str) -> bytes:
   raw = (PUBLIC / asset["url"]).read_bytes()
   if digest(raw) == asset["sha256"]:
     return raw
+  from packet_receipts_v199 import audited_v199_changes
+  from packet_receipts_v199 import baseline as baseline_v198
+
+  next_changes, _ = audited_v199_changes()
+  key = descriptor["id"], mode
+  if key in next_changes:
+    before, after = next_changes[key]
+    assert digest(raw) == after
+    raw = baseline_v198(PUBLIC / asset["url"])
+    assert digest(raw) == before
+    if digest(raw) == asset["sha256"]:
+      return raw
   changes, _ = audited_v195_changes()
   assert changes[descriptor["id"], mode] == (asset["sha256"], digest(raw))
   old = baseline(PUBLIC / asset["url"])

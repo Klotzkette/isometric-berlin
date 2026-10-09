@@ -36,6 +36,11 @@ LOBES = {
 }
 PREFIX = "ring182-"
 PARTS = DATA / "ring-kreisel-parts-v182.json"
+# v199 complete ICC owners have independent measured shells and part navigation.
+# No polygon-based subtraction is authorized for any unrelated neighbouring owner.
+ICC_V199_COMPLETE_OWNERS = frozenset(
+  {"DEBE04YY500001II", "DEBE04YY500004dG", "DEBE04YY500006BE"}
+)
 
 
 def measured_parts() -> dict[str, list[dict[str, Any]]]:
@@ -182,6 +187,7 @@ def hero_ownership() -> tuple[set[str], Any]:
     ]
     if identity
   }
+  owned_ids.update(ICC_V199_COMPLETE_OWNERS)
   ownership = exporter.world(
     unary_union(
       [transform(PROJECT, shape(feature["geometry"])) for feature in heroes["features"]]
@@ -323,7 +329,16 @@ def build(*, publish: bool = False) -> dict[str, Any]:
       (DATA / "steglitz-v182-exclusions.geojson").read_bytes()
     ).hexdigest(),
     "exactSourceIds": sorted(owned_ids),
-    "policy": "Complete named source owners use SteglitzV182 hero shells; only overlapping area is clipped from other footprints. Source records stay retained in evidence.",
+    "completeOwnerSupplements": [
+      {
+        "source": "icc-v199-source.json.gz",
+        "sha256": hashlib.sha256(
+          (DATA / "icc-v199-source.json.gz").read_bytes()
+        ).hexdigest(),
+        "ownerIds": sorted(ICC_V199_COMPLETE_OWNERS),
+      }
+    ],
+    "policy": "SteglitzV182 owns its documented footprints; ICCV199 replaces only three named LoD2 identities with complete measured ICC shells and part navigation. No ICC-area clipping affects neighbouring owners. Source records stay retained in evidence.",
   }
   supplement["source"]["partHeightRefinement"] = part_refinement_evidence()
   for chunk in supplement["chunks"]:

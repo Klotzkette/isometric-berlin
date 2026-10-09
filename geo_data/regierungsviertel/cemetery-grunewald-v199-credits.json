@@ -1,0 +1,38 @@
+{
+  "records": [
+    {
+      "title": "File:2006-07-24 Friedhof Grunewald-Forst Portal.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2006-07-24_Friedhof_Grunewald-Forst_Portal.jpg",
+      "artist": "Axel Mauruszat",
+      "license": "Attribution",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:Attribution",
+      "credit": "File:2006-07-24 Friedhof Grunewald-Forst Portal.jpg — Axel Mauruszat, Attribution, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "cfcc276e4b2dc2c14b36086408cf5b355c447d0231b936ef54f2d7a5e3ac974b"
+    },
+    {
+      "title": "File:2006-07-24 Friedhof Grunewald-Forst Grabmal Nico.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2006-07-24_Friedhof_Grunewald-Forst_Grabmal_Nico.jpg",
+      "artist": "Axel Mauruszat",
+      "license": "Attribution",
+      "license_url": "https://commons.wikimedia.org/wiki/Template:Attribution",
+      "credit": "File:2006-07-24 Friedhof Grunewald-Forst Grabmal Nico.jpg — Axel Mauruszat, Attribution, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "ffbdc5ccc41aef39d39f97735876466d63d25e359390fbcdcedc80c69ee59da1"
+    },
+    {
+      "title": "File:Ein Brief an Nico.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Ein_Brief_an_Nico.JPG",
+      "artist": "SK49 (Jürgen Schuschke)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "File:Ein Brief an Nico.JPG — SK49 (Jürgen Schuschke), CC BY 3.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false,
+      "retainedReferenceSha256": "d935767b9d1247079166d30b37615ba9ef61a948c113cc91c28d7f6887135f72"
+    }
+  ],
+  "licenseConflict": "visitBerlin labels Ein Brief an Nico as CC BY-SA3.0; original Commons metadata says CC BY3.0, used here. Axel Mauruszat explicitly permits all purposes with attribution."
+}

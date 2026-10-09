@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.98 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.98/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.99 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.99/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.98** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.99** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.99 refines the Funkturm, ICC and Friedhof Grunewald-Forst with Nico’s grave. Existing city detail, modes and residency budgets stay intact. [Sources and verification](docs/release-v1.0.99-review.md).
+
+Version 1.0.99 verfeinert Funkturm, ICC und den Friedhof Grunewald-Forst mit Nicos Grab. Bisherige Stadtdetails, Modi und Speichergrenzen bleiben erhalten.
 
 Version 1.0.98 reduces navigation-memory overhead without changing roof precision or render detail, and refines the Panke, northern parks, Treptower memorial, Tegel, Spandau and Köpenick. [Sources and verification](docs/release-v1.0.98-review.md).
 

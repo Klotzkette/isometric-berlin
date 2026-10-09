@@ -1558,3 +1558,13 @@ Additional v1.0.90 external geometry references (no photographic pixels bundled)
 - [File:Berlin - S-Bahnhof Ostkreuz - Neue Ringbahnhalle - Stand 04 2012 (6942355756).jpg](https://commons.wikimedia.org/wiki/File:Berlin_-_S-Bahnhof_Ostkreuz_-_Neue_Ringbahnhalle_-_Stand_04_2012_(6942355756).jpg) — IngolfBLN / CC BY-SA 2.0.
 - [Grunewaldturm-01-Frontansicht.jpg](https://commons.wikimedia.org/wiki/File:Grunewaldturm-01-Frontansicht.jpg) — Muck / CC BY-SA 4.0.
 - [2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg](https://commons.wikimedia.org/wiki/File:2021-05-26-Bruecke-Museum-Berlin-Dahlem-Bussardsteig-Werner-Duettmann-A.jpg) — Gunnar Klack / CC BY-SA 4.0.
+
+### v1.0.99 Funkturm, ICC and Grunewald-Forst
+
+The three named refinements use retained OSM anchors (ODbL) and Berlin official
+LoD2/DGM data (dl-de/zero-2-0). Exact source sheets and scoped correction receipts
+remain in the repository. Small facade, member and grave-detail dimensions are
+explicit visual estimates. New freely reusable Commons appearance references
+are listed individually in both Wikimedia manifests; no photo texture is
+bundled. See `docs/icc-v199.md`, `docs/cemetery-grunewald-v199.md` and the
+v1.0.99 release review for source roles and limitations.

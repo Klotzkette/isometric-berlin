@@ -1,0 +1,76 @@
+{
+  "records": [
+    {
+      "title": "File:Berlin Funkturm 2026-04-01 img01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Funkturm_2026-04-01_img01.jpg",
+      "artist": "LarsMueller",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "Berlin Funkturm 2026-04-01 img01.jpg — LarsMueller, CC0 1.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Open stairs and central lift separation",
+      "photo_bundled": false,
+      "referenceImageSha256": "e6fb8728ed18806e824bc259fdef26fd9bc58cb7559150d0c50bf39956212fda"
+    },
+    {
+      "title": "File:Berlin Funkturm 2026-04-01 img02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Funkturm_2026-04-01_img02.jpg",
+      "artist": "LarsMueller",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "Berlin Funkturm 2026-04-01 img02.jpg — LarsMueller, CC0 1.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Restaurant lower kitchen and canopy proportions",
+      "photo_bundled": false,
+      "referenceImageSha256": "b0ddcb95e128febcaeadb98785ddf103bb333373d785bd718894c3d435052b0f"
+    },
+    {
+      "title": "File:Funkturm mittlere Aussichtsplattform+ Restaurant.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Funkturm_mittlere_Aussichtsplattform%2B_Restaurant.jpg",
+      "artist": "Schelbypicture",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Funkturm mittlere Aussichtsplattform+ Restaurant.jpg — Schelbypicture, CC BY-SA 4.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Inclined restaurant glazing, pale cantilever rim and window rhythm",
+      "photo_bundled": false,
+      "referenceImageSha256": "bec945c7407ac7479703e6be916052376059df48fff0ef73b7e1eb645b68e5aa"
+    },
+    {
+      "title": "File:Berliner Funkturm one of the four feet apel.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Funkturm_one_of_the_four_feet_apel.JPG",
+      "artist": "Denis Apel",
+      "license": "CC BY-SA 2.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/de/",
+      "credit": "Berliner Funkturm one of the four feet apel.JPG — Denis Apel, CC BY-SA 2.0 DE, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Steel bearing plates and pale porcelain supports",
+      "photo_bundled": false,
+      "referenceImageSha256": "241f903c4a62bac677cb18de4b5732684e0b2899a01cf7b6d7af875e0d6918b1"
+    },
+    {
+      "title": "File:Berlin Funkturm 2026-04-01 img03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Funkturm_2026-04-01_img03.jpg",
+      "artist": "LarsMueller",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "Berlin Funkturm 2026-04-01 img03.jpg — LarsMueller, CC0 1.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Upper platform railing and mast aerial arrangement",
+      "photo_bundled": false,
+      "referenceImageSha256": "ea2625cc8304f3aeee3cd1df3845dcda1f38b5597e138488ecfddd260940c4b4"
+    },
+    {
+      "title": "File:Berlin Funkturm 2026-04-01 img04.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Funkturm_2026-04-01_img04.jpg",
+      "artist": "LarsMueller",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "Berlin Funkturm 2026-04-01 img04.jpg — LarsMueller, CC0 1.0, Wikimedia Commons. External visual reference only; no photographic pixels bundled.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "usedFor": "Foot foundation and visible steel bearing",
+      "photo_bundled": false,
+      "referenceImageSha256": "eef0d336da65dd48bf17b255d1385ac6437dbb13f120ef4226a341b3893f9007"
+    }
+  ]
+}

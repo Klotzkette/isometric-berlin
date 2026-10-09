@@ -154,3 +154,14 @@ JSON string when that encoding is smaller. Their eager parsing, strong mutable
 array identity and every numeric value are unchanged. The Alt-Mitte roof
 navigation arrays have an independent Float64 encoding and typed spatial index;
 see `viewer-stability-v198.md`. Neither optimization alters render geometry.
+
+## v1.0.99 named western details
+
+Audited constructor-only fields: iccV199.json/sites, iccV199Native.json/sites,
+funkturmV199.json/groups, funkturmV199Native.json/groups,
+cemeteryGrunewaldV199Drawn.json/positions,colors,boxes and
+cemeteryGrunewaldV199Native.json/boxes. Factories copy into final typed buffers
+and retain no source arrays in closures or userData. Small separate collision
+metadata remains strong. The production-bundler reconstruction test covers all
+three factories in drawn/native/drawn order after simulated cache collection.
+Existing byte/residency limits and old source policies are unchanged.

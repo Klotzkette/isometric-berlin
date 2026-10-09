@@ -141,6 +141,16 @@ new runtime residency budget, reduced detail or change to the 93-place tour
 is authorized. The ambiguous additional place name “Oberschönhausen” does not
 authorize an inferred expansion to Hohenschönhausen or Oberschöneweide.
 
+The owner's v1.0.99 request permits the bounded Funkturm/ICC and
+Friedhof Grunewald-Forst refinements within existing coverage. The three exact
+ICC LoD2 owners and the older ICC wire envelope may be replaced only by their
+complete source-bound model with original sheets retained. The source's false
+solid skyway arm is corrected at its exact footprint with documented height
+estimates and open road clearance. Two already-transferred Funkturm proxy
+remnants may be removed by exact ID. Keep unrelated packets and all older
+geometric detail. Cemetery markers beyond mapped grave nodes are explicitly
+illustrative and restricted to mapped sectors; do not invent named graves.
+
 The owner-requested v1.0.48 east lobe adds only initial outlines of Bahnhof
 Alexanderplatz, Fernsehturm and Rotes Rathaus and their mapped street links.
 The complete task-13 bounds remain in `bounds-task13.geojson`; the existing

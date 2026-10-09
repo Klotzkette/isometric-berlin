@@ -25,6 +25,12 @@ const fields: Record<string, string[]> = {
   "northParksV198Native0.json": ["cells"],
   "northParksV198Native1.json": ["cells"],
   "eastParksV198.json": ["grounds", "trees", "paths", "facades", "buildings"],
+  "iccV199.json": ["sites"],
+  "iccV199Native.json": ["sites"],
+  "funkturmV199.json": ["groups"],
+  "funkturmV199Native.json": ["groups"],
+  "cemeteryGrunewaldV199Drawn.json": ["positions", "colors", "boxes"],
+  "cemeteryGrunewaldV199Native.json": ["boxes"],
 };
 const excluded: Record<string, string[]> = {
   "airportsV194.json": ["blocks", "navigation"],
@@ -61,6 +67,9 @@ async function compile(): Promise<string> {
     ["TegelSpandauV198", "createTegelSpandauV198"],
     ["NorthParksV198", "createNorthParksV198"],
     ["EastParksV198", "createEastParksV198"],
+    ["IccV199", "createIccV199"],
+    ["FunkturmV199", "createFunkturmV199"],
+    ["CemeteryGrunewaldV199", "createCemeteryGrunewaldV199"],
   ];
   for (const [file, ...names] of factories) imports.push(`import { ${names.join(",")} } from ${JSON.stringify(join(app, file + ".ts"))};`);
   const entry = join(directory, "entry.js");
@@ -70,7 +79,7 @@ window.fixture = { sources: {${files.map((file, index) => `${JSON.stringify(file
   native => native ? createMinecraftEastLandmarksV187() : createEastLandmarksV187(),
   createSouthWestLandmarksV187,
   native => native ? createMinecraftNorthSitesV190() : createNorthSitesV190(),
-  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198
+  createAirportsV194, createTeufelsbergStationV195, createWestLakesV194, createLindenCorridorV197, createTegelSpandauV198, createNorthParksV198, createEastParksV198, createIccV199, createFunkturmV199, createCemeteryGrunewaldV199
 ] };`);
   try {
     const result = await build({ configFile: false, root: directory, publicDir: false, logLevel: "silent",
@@ -129,7 +138,7 @@ function renderDigest(root: Group): string {
   return result;
 }
 
-describe("v196–v198 outer construction source ownership", () => {
+describe("v196–v199 outer construction source ownership", () => {
   test("only audited geometry inputs are weak; real factories preserve all render values across collection", async () => {
     for (const [file, names] of Object.entries(fields)) expect(READONLY_CONSTRUCTION_JSON_FIELDS[file]).toEqual(names);
     for (const [file, names] of Object.entries(excluded)) for (const name of names)

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.99 — Funkturm, ICC and Grunewald-Forst
+
+- Refine the Funkturm’s foundations, restaurant canopy, stairs and upper fittings.
+- Replace only exact ICC generic owners with their full measured shells and bounded high-tech facade recognition.
+- Add the mapped Grunewald-Forst cemetery, open entrance, paths and Nico’s grave.
+- Remove two documented spurious Funkturm wall remnants; retain unrelated city geometry and all previous visual quality.
+- Keep constructor data collectible and existing rendering/residency limits unchanged.
+- [Sources and verification](docs/release-v1.0.99-review.md).
+
 ## v1.0.98 — Exact navigation storage and named parks
 
 - Store all 75,029 Alt-Mitte navigation roof triangles as exact IEEE-754

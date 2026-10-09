@@ -1,0 +1,20 @@
+# ICC owner transfer, v1.0.99
+
+The complete ICC model now owns three retained Berlin LoD2 parents: main building `DEBE04YY500001II` (44 leaf parts), garage `DEBE04YY500004dG` (one part), and adjoining Messe building/connection `DEBE04YY500006BE` (four parts). The full source sheets are in `icc-v199-source.json.gz`; `iccV199Navigation.json` covers their 49 source parts with 50 navigation volumes because the exact western skyway arm is separated from its main-building part. The OSM ICC alias `way/4706588` has no matching current generic packet owner and is not suppressed by an unverified alias rule.
+
+The old ordinary-building representation existed in exactly two packet families. `ring182--13_2` contained the Ringbahn-scope eastern strip of the main parent; `outer187--13_3` contained the garage parent. The third parent had no matching old generic packet body. Central LoD2 prisms are unaffected. The original outer cartographic hairline data remain; only the obsolete ICC envelope is no longer drawn over its complete replacement.
+
+The source part `DEBE3DnZRDDQCO1P` incorrectly extrudes the western Messedamm connection from the ground to the main roof. The documented photographic interpretation preserves its exact source plan vertices and splits only that arm from the main body. The skyway top is displayed at 19.895 m, aligned to the measured western hall after its display-datum adjustment. Its underside is displayed at 8.5 m: approximately 4.95 m above the 3.55 m display ground. This clearance is an estimate, not a surveyed measurement. Navigation keeps all original part footprints and holes; the two split volumes have disjoint interiors and their union exactly equals the original footprint. All 671 original source surfaces remain in the source and surface receipt, alongside the documented corrected display geometry.
+
+`scripts/integrate_icc_v199.py` replays each exact owner from its retained `raw/ring-v182/resolved-outlines.gpkg` or `raw/outskirts-v187/resolved-outlines.gpkg` source record, against its original scope and tile. It compares the complete encoded triangle/colour multiset, then subtracts only the independently reproduced body and source roof ink. All non-owner triangles and all road, water, bridge and ground navigation remain unchanged. The complete original packets are committed in `icc-v199-packet-checkpoint.json.gz`, with replacement counts, original/new descriptors, source records and remaining-geometry hashes in `icc-v199-packet-audit.json`.
+
+| Family | Removed drawn triangles | Removed native triangles | Old owner moved to complete model |
+|---|---:|---:|---|
+| `ring182--13_2` | 447 | 484 | `DEBE04YY500001II` |
+| `outer187--13_3` | 178 | 367 | `DEBE04YY500004dG` |
+
+The bounded integration was published together with the independent Funkturm `outer187--13_2` repair. That third family removes only eight drawn remnant triangles and six line segments from its already transferred owner; its native packet is byte-identical. See `funkturm-v199-packet-repair.json`. Only these three descriptors changed in the public and prepared family manifests. Prepared packet caches were synchronized, and all six mode descriptors were checked against compressed and decoded bytes and SHA256. No source inventory or unrelated descriptor changed.
+
+The ring and outskirts builders keep explicit three-parent ICC exclusions so a later regeneration cannot restore the coarse ICC bodies over the complete model. They do not use a broad ICC bounding box or clip neighbouring buildings. Runtime part navigation is supplied by the ICC integration, not by a retained parent-height column.
+
+Validation: the ICC correction tests verify complete source-part navigation, future owner selection, exact remaining triangle/colour hashes, source-ink subtraction and all unrelated navigation. The combined ICC/Funkturm focused Python run passed six tests. Ruff passed for the edited ICC scripts/test. The main model's separate visual/source interpretation, including the elevated Messedamm connection, remains documented by its own surface receipt and model evidence.

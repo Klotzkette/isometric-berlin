@@ -151,11 +151,32 @@ def audited_v190_changes() -> tuple[dict, list]:
   replacements = {d["id"]: d for d in next_companions}
   assert set(replacements) <= set(companion_by_id)
   companions = [replacements.get(d["id"], d) for d in companions]
+  # Exact v199 transfers start at their immutable v198 checkpoint; verify full
+  # source-owner replay before extending any earlier preservation exception.
+  from packet_receipts_v199 import audited_v199_changes
+
+  next_changes, _ = audited_v199_changes()
+  for key, (before, after) in next_changes.items():
+    if key in changes:
+      original, intermediate = changes[key]
+      assert intermediate == before
+      changes[key] = (original, after)
+    else:
+      assert previous[key[0]][key[1]]["sha256"] == before
+      changes[key] = (before, after)
   return changes, companions
 
 
 def assert_retained_descriptor(old: dict, current: dict, changes: dict) -> None:
   """Metadata, URLs and geometry placement survive; only receipted bytes change."""
+  from packet_receipts_v199 import audited_v199_changes
+
+  _, counts = audited_v199_changes()
+  if old["id"] in counts:
+    before, after = counts[old["id"]]
+    assert old["buildingCount"] in (before, after)
+    assert current["buildingCount"] == after
+    old = {**old, "buildingCount": after}
   assert {k: v for k, v in old.items() if k not in {"drawn", "minecraft"}} == {
     k: v for k, v in current.items() if k not in {"drawn", "minecraft"}
   }

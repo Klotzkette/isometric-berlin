@@ -292,6 +292,18 @@ def make_payload(hero, forest_world, stadium_cutout, selected_trees):
     # display area now owned by the separately supplied complete hero geometry.
     records = []
     for b in buildings:
+      # v199: these complete owners already belong to dedicated open/surface
+      # models. Geographic reprojection of their exact footprints leaves tiny
+      # numerical slivers whose extrusion resurrects full-height opaque walls.
+      # Keep all source records, but never redraw those fully transferred IDs.
+      if b["sourceId"] in {
+        "DEBE04YY500006Zr",  # Funkturm shaft
+        "DEBE04YY50002bpq",  # Funkturm restaurant envelope
+        "DEBE04YY500001II",  # ICC complete source main owner
+        "DEBE04YY500004dG",  # ICC garage source owner
+        "DEBE04YY500006BE",  # ICC entrance annex source owner
+      }:
+        continue
       g = exporter.polygonal(b["geometry"].difference(hero))
       if not g.is_empty:
         records.append({**b, "geometry": g})

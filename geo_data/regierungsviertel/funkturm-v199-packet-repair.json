@@ -1,0 +1,163 @@
+{
+  "version": "1.0.99",
+  "chunk": "outer187--13_2",
+  "ownerIds": [
+    "DEBE04YY500006Zr",
+    "DEBE04YY50002bpq"
+  ],
+  "sourceProfiles": "west-landmarks-v187-source.json",
+  "policy": "Remove only remnants of already fully transferred exact Funkturm owners; source sheets, all unrelated triangles and all positions/colors retained. Never filter by broad bbox.",
+  "modes": {
+    "drawn": {
+      "archive": "funkturm-v199-original-outer187--13_2-drawn.json.gz",
+      "archiveSha256": "457e282e3c119008c4f4d7813d6f0c4f1b36ca190bc8299040d1d38116a67b0e",
+      "stagedPath": "geo_data/regierungsviertel/raw/funkturm-v199/packets/outer187--13_2.drawn.json.gz",
+      "descriptor": {
+        "url": "outer187--13_2.drawn.json.gz",
+        "bytes": 116364,
+        "decodedBytes": 363433,
+        "encoding": "gzip",
+        "sha256": "9c836c31c10f7a191ae06857dc9fa84cbb09217824d05c5638d4434154f2151b"
+      },
+      "removedTriangles": [
+        {
+          "mesh": 0,
+          "triangle": 8572,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8573,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8574,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8575,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8576,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8577,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8578,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "mesh": 0,
+          "triangle": 8579,
+          "sourceId": "DEBE04YY50002bpq"
+        }
+      ],
+      "removedLines": [
+        {
+          "segment": 455,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "segment": 456,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "segment": 457,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "segment": 458,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "segment": 459,
+          "sourceId": "DEBE04YY50002bpq"
+        },
+        {
+          "segment": 460,
+          "sourceId": "DEBE04YY50002bpq"
+        }
+      ],
+      "removedNavigation": [
+        {
+          "ring": [
+            [
+              281.54,
+              360.99
+            ],
+            [
+              281.54,
+              360.99
+            ],
+            [
+              299.2,
+              365.38
+            ],
+            [
+              281.54,
+              360.99
+            ]
+          ],
+          "holes": [],
+          "height": 59.82,
+          "minHeight": 0.0,
+          "sourceId": "DEBE04YY50002bpq",
+          "heightSource": "Berlin LoD2 parent vertical envelope"
+        },
+        {
+          "ring": [
+            [
+              277.45,
+              378.61
+            ],
+            [
+              277.45,
+              378.61
+            ],
+            [
+              280.44,
+              365.74
+            ],
+            [
+              277.45,
+              378.61
+            ]
+          ],
+          "holes": [],
+          "height": 59.82,
+          "minHeight": 0.0,
+          "sourceId": "DEBE04YY50002bpq",
+          "heightSource": "Berlin LoD2 parent vertical envelope"
+        }
+      ],
+      "retainedPositionColorBuffers": true,
+      "otherNavPreserved": true
+    },
+    "minecraft": {
+      "archive": "funkturm-v199-original-outer187--13_2-minecraft.json.gz",
+      "archiveSha256": "389b32f3a73815bbd3cb84d753be021832a2ee39423e402e0e06b2a9c5b4d585",
+      "stagedPath": "geo_data/regierungsviertel/raw/funkturm-v199/packets/outer187--13_2.minecraft.json.gz",
+      "descriptor": {
+        "url": "outer187--13_2.minecraft.json.gz",
+        "bytes": 185861,
+        "decodedBytes": 660982,
+        "encoding": "gzip",
+        "sha256": "389b32f3a73815bbd3cb84d753be021832a2ee39423e402e0e06b2a9c5b4d585"
+      },
+      "removedTriangles": [],
+      "removedLines": [],
+      "removedNavigation": [],
+      "retainedPositionColorBuffers": true,
+      "otherNavPreserved": true
+    }
+  }
+}
