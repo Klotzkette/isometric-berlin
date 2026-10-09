@@ -5743,6 +5743,28 @@
       "credit": "Own work",
       "description": "Tower on the Teufelsberg seen from the Drachenberg in Berlin.",
       "use": "External visual reference only: five radome silhouette, main tower open frame, spherical panel rhythm and material colours. No photo pixels or street-art copies bundled."
+    },
+    {
+      "landmark_id": "zitadelle-spandau",
+      "title": "File:Berlin Spandau Zitadelle Eingang.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Spandau_Zitadelle_Eingang.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Oberlausitzerin64",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "tegeler-hafenbruecke",
+      "title": "File:20240819 Tegeler Hafenbrücke 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20240819_Tegeler_Hafenbrücke_01.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "artist": "Flocci Nivis",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
