@@ -1,3 +1,4 @@
+import uraniaV206 from "../../../geo_data/regierungsviertel/urania-arc-v206-source.json";
 import { ULAP_QUARTER_PARTS } from "../src/ulapQuarterProfile";
 import { MOABIT_GUARD_HOUSE_SOURCE } from "../src/moabitGuardHouseProfile";
 import { describe, expect, test } from "bun:test";
@@ -814,12 +815,12 @@ describe("ligne-claire fenestration", () => {
     const galleryOwners = payload.buildings.filter(p => NATIONALGALERIE_V183_IDS.has(p.id));
     expect(altMitteOwners).toHaveLength(5_427);
     expect(galleryOwners).toHaveLength(8);
-    // Seventeen later exact owners moved to complete source models; retain the
+    // Eighteen later exact owners (including Urania v206) moved to complete source models; retain the
     // historical total and verify their original payloads, not a lower target.
     const laterOwners = [stationDetailsV192.zoo.legacyPrism, centralCorrection.retainedPrism,
       ...centralReplacement.replacements.map(p => p.legacyPrism),
-      ...bendlerV202.previousOwners, panoramaV202.previous_display_prism];
-    expect(new Set(laterOwners.map(p => p.id)).size).toBe(17);
+      ...bendlerV202.previousOwners, panoramaV202.previous_display_prism, uraniaV206.legacyReplacement.prismRecord];
+    expect(new Set(laterOwners.map(p => p.id)).size).toBe(18);
     for (const owner of laterOwners) {
       expect(payload.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
       expect(PRISM_SUPPRESSED_IDS.has(owner.id)).toBeTrue();

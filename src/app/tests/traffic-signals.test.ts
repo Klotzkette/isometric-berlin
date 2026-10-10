@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { Group, InstancedMesh, Matrix4 } from "three";
+import { Group, InstancedMesh, Matrix4, PerspectiveCamera } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
@@ -12,7 +12,9 @@ import {
   lampsLit,
   signalPhase,
   updateTrafficSignals,
+  updateVisibleTrafficSignals,
 } from "../src/TrafficSignals";
+import { withAltMitteTrafficV206, altMitteSignalPayloadV206 } from "../src/AltMitteTransportV206";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 
@@ -20,6 +22,73 @@ const street = streetDetails as unknown as StreetDetailsPayload;
 const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("task 07: animated OSM traffic signals", () => {
+  test("visible phases wake a still view, with bounded checks and no offscreen uploads", () => {
+    const group = createTrafficSignals({ ...street, traffic_signals_dm: [[0, 0]],
+      traffic_signal_placements: undefined }, ground)!;
+    const camera = new PerspectiveCamera(60, 1, 0.1, 100);
+    const y = (group.userData.signalCentres as Float32Array)[1];
+    camera.position.set(0, y, 20); camera.lookAt(0, y, 0);
+    const lamps = group.getObjectByName("traffic signal lamps") as InstancedMesh;
+    expect(updateVisibleTrafficSignals(group, camera, 0, false)).toBe(true);
+    const initialVersion = lamps.instanceColor!.version;
+    expect(updateVisibleTrafficSignals(group, camera, 200, false)).toBe(false);
+    expect(lamps.instanceColor!.version).toBe(initialVersion);
+    expect(updateVisibleTrafficSignals(group, camera, 21_000, false)).toBe(true);
+    expect(group.userData.lastBuckets[0]).toBe(1);
+    expect(updateVisibleTrafficSignals(group, camera, 22_500, false)).toBe(true);
+    expect(group.userData.lastBuckets[0]).toBe(2);
+    camera.lookAt(0, y, 40);
+    const version = lamps.instanceColor!.version;
+    expect(updateVisibleTrafficSignals(group, camera, 44_500, false)).toBe(false);
+    expect(lamps.instanceColor!.version).toBe(version);
+    camera.lookAt(0, y, 0);
+    expect(updateVisibleTrafficSignals(group, camera, 45_000, false)).toBe(true);
+    expect(group.userData.lastBuckets[0]).toBe(0);
+    // User toggles bypass the cadence; they must not wait for the next tick.
+    expect(updateVisibleTrafficSignals(group, camera, 45_001, false, false)).toBe(true);
+    expect(group.userData.lastBuckets[0]).toBe(-2);
+    expect(updateVisibleTrafficSignals(group, camera, 45_002, true, true)).toBe(true);
+    expect(group.userData.lastBuckets[0]).toBe(2);
+    const parent = new Group(); parent.add(group); parent.visible = false;
+    expect(updateVisibleTrafficSignals(group, camera, 90_000, false)).toBe(false);
+    expect(group.userData.lastBuckets[0]).toBe(2);
+  });
+
+  test("Alt-Mitte keeps all old signals and adds grounded, oriented, hooded heads", () => {
+    const merged = withAltMitteTrafficV206(street);
+    expect(merged.traffic_signal_placements).toHaveLength(1496);
+    const group = createTrafficSignals(merged, ground)!;
+    const poles = group.getObjectByName("traffic signal poles") as InstancedMesh;
+    const hoods = group.getObjectByName("traffic signal visor hoods v206") as InstancedMesh;
+    expect(poles.count).toBe(1496);
+    expect(hoods.count).toBe(430 * 5);
+    const nativePayload = altMitteSignalPayloadV206();
+    const native = createTrafficSignals(nativePayload, null, { native: true })!;
+    expect((native.getObjectByName("traffic signal poles") as InstancedMesh).count).toBe(430);
+    const heads = native.getObjectByName("traffic signal heads") as InstancedMesh;
+    const matrix = new Matrix4();
+    for (let i = 0; i < heads.count; i++) {
+      heads.getMatrixAt(i, matrix);
+      for (const j of [0, 2, 8, 10]) expect(Math.abs(matrix.elements[j] - Math.round(matrix.elements[j]))).toBeLessThan(1e-6);
+      expect(matrix.elements[13]).toBeGreaterThan(nativePayload.traffic_signal_placements![i].native_ground_y_m!);
+    }
+    // A heading points the shallow lit face along +Z after yaw; the back is black.
+    const one = { ...nativePayload, traffic_signal_placements: [{ ...nativePayload.traffic_signal_placements![0], heading_rad: Math.PI / 2 }],
+      traffic_signals_dm: [nativePayload.traffic_signals_dm[0]] };
+    const oriented = createTrafficSignals(one, null)!;
+    const lamp = oriented.getObjectByName("traffic signal lamps") as InstancedMesh;
+    lamp.getMatrixAt(0, matrix);
+    expect(matrix.elements[12]).toBeCloseTo(one.traffic_signal_placements[0].position_dm[0] / 10 + .18, 3);
+    expect(matrix.elements[14]).toBeCloseTo(one.traffic_signal_placements[0].position_dm[1] / 10, 3);
+    for (const item of [group, native, oriented]) item.traverse(object => {
+      const mesh = object as InstancedMesh;
+      if (mesh.geometry) mesh.geometry.dispose();
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of materials) material?.dispose();
+      if (mesh.isInstancedMesh) mesh.dispose();
+    });
+  });
+
   test("the payload carries every surveyed signal inside bounds", () => {
     expect(street.schema_version).toBe(7);
     expect(street.traffic_signals_dm.length).toBe(1_328);

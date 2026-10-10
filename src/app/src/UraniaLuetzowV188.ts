@@ -137,7 +137,8 @@ function garden(rows: Rows, native: boolean): void {
   }
 }
 
-function roof(): Mesh {
+/** Exact original roof buffers, also reused by the complete v206 owner. */
+export function createUraniaSourceRoofV188(): Mesh {
   const ring = source.urania.highRoof.slice(0, -1);
   const contour = ring.map(p => new Vector2(p[0], p[2]));
   const indices = ShapeUtils.triangulateShape(contour, []).flatMap(t => [t[0], t[2], t[1]]);
@@ -154,7 +155,7 @@ function roof(): Mesh {
 }
 
 /** Independent local bounds keep both sites cheap to cull; prior owners stay. */
-export function createUraniaLuetzowV188(minecraft = false): Group {
+export function createUraniaLuetzowV188(minecraft = false, includeUrania = true): Group {
   const root = new Group();
   root.name = URANIA_LUETZOW_V188_GROUP;
   root.userData = { additiveOnly: true, sourceGeometryRetained: true, textureFree: true,
@@ -163,6 +164,7 @@ export function createUraniaLuetzowV188(minecraft = false): Group {
     sourceParentIds: [source.urania.id], basinSourceIds: source.fountains.map(f => f.id),
     sourceStatus: source.displayStatus };
   for (const site of ["urania", "luetzowplatz"]) {
+    if (site === "urania" && !includeUrania) continue;
     const rows: Rows = [];
     if (site === "urania") urania(rows, minecraft); else garden(rows, minecraft);
     const mesh = justicePalaceV183Boxes(rows, minecraft);
@@ -170,6 +172,6 @@ export function createUraniaLuetzowV188(minecraft = false): Group {
     mesh.userData.site = site;
     root.add(mesh);
   }
-  if (!minecraft) root.add(roof());
+  if (!minecraft && includeUrania) root.add(createUraniaSourceRoofV188());
   return freezeStaticSceneTransforms(root);
 }

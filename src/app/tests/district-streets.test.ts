@@ -15,6 +15,9 @@ import {
   smoothGroundTopSampler,
   type VoxelPayload,
 } from "../src/MinecraftVoxelWorld";
+import corrections from "../src/data/altMitteTransportCorrectionsV206.json";
+import { geometryPreservationV206 } from "./helpers/geometryPreservationV206";
+import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
 import { createDistrictStreets } from "../src/DistrictStreets";
 
 const ground = groundJson as unknown as VoxelPayload;
@@ -54,6 +57,17 @@ describe("bounded District streets in the drawn city", () => {
   let streets: Group;
   beforeAll(() => {
     streets = createDistrictStreets(ground);
+  });
+
+  test("v206 corrects only documented false stripes, preserving every street surface and edge", () => {
+    const corrected = createDistrictStreets(ground, new Set(corrections.suppressedMarkingIndices));
+    try {
+      const before = geometryPreservationV206(streets), after = geometryPreservationV206(corrected);
+      const paintKey = 'District lane markings';
+      expect(after.filter(record => !record.key.includes(paintKey))).toEqual(before.filter(record => !record.key.includes(paintKey)));
+      expect(after.find(record => record.key.includes(paintKey))!.bytes).toBeLessThan(before.find(record => record.key.includes(paintKey))!.bytes);
+      expect(corrections.corrections).toHaveLength(corrections.suppressedMarkingIndices.length);
+    } finally { disposeStaticAudit(corrected); }
   });
 
   test("retains continuous carriageways, mapped walkways and real kerb faces", () => {

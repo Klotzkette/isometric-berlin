@@ -121,4 +121,15 @@ describe("audited constructor source cache ownership", () => {
       expect(code).not.toContain("JSON.parse");
     }
   });
+
+  test("packed Alt-Mitte complements retain one literal per field without a second JSON copy", async () => {
+    const source = { cells_u32: "AbCD".repeat(20000), triangles_f32: "EfGH".repeat(20000) };
+    const code = await compilePayload("altMitteGroundSeamsV206.json", source);
+    const result = execute(code);
+    expect(result.window.fixture).toEqual(source);
+    expect(result.parses).toBe(0);
+    expect(code).not.toContain("JSON.parse");
+    expect(code.split(source.cells_u32)).toHaveLength(2);
+    expect(code.split(source.triangles_f32)).toHaveLength(2);
+  });
 });

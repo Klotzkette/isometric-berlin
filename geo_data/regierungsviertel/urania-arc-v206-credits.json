@@ -1,0 +1,35 @@
+{
+  "primaryFacts": [
+    {
+      "title": "Bogen 124,5 Grad / Arc 124,5°",
+      "author": "Susanne Kähler and Jörg Kuhn / Bildhauerei in Berlin",
+      "url": "https://bildhauerei-in-berlin.de/bildwerk/bogen-1245-grad-5325/",
+      "accessDate": "2026-10-10",
+      "usage": "Artist, 1987 date, black-painted COR-TEN steel, approximate 40 m span, maximum 21 m taller Kleiststraße end; factual reference only"
+    },
+    {
+      "title": "Empfehlungen des Beratungsausschusses Kunst 2019",
+      "author": "Land Berlin",
+      "url": "https://www.berlin.de/sen/kultur/foerderung/foerderprogramme/kunst-im-stadtraum-und-kunst-am-bau/2019_empfehlungen_bak.pdf",
+      "accessDate": "2026-10-10",
+      "usage": "Confirms the artwork at the An der Urania median; factual reference only"
+    },
+    {
+      "title": "Die Urania Berlin",
+      "author": "Urania Berlin e.V.",
+      "url": "https://www.urania.de/urania-berlin/",
+      "accessDate": "2026-10-10",
+      "usage": "Identity and address at An der Urania 17; official site distinguishes older building and 1962 extension"
+    }
+  ],
+  "retainedGeometry": [
+    {"owner": "DEBE07YY900005Dq", "source": "Geoportal Berlin LoD2, LoD2_387_5818.zip", "license": "dl-de/zero-2-0", "usage": "All 21 original source sheets retained from v188"},
+    {"owner": "OSM way 11687794, node 1239899685, way 26722368", "source": "© OpenStreetMap contributors", "license": "ODbL-1.0", "usage": "Building identity, artwork locator and median geometry from retained 2026-09-29 data"}
+  ],
+  "ownerPhotographs": {
+    "usage": "Two project-owner supplied photographs, referenced by filename and SHA256 in the source receipt; pixels neither embedded nor redistributed",
+    "photoBundled": false,
+    "newTexture": false
+  },
+  "newExternalImageAttributionRecords": []
+}

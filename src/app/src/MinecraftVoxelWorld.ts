@@ -1,3 +1,4 @@
+import { uraniaArcV206SourceColumn } from "./uraniaArcV206Navigation";
 import { isBendlerblockV202ReplacedColumn } from "./bendlerblockV202Profile";
 import { isPergamonPanoramaV202ReplacementColumn } from "./pergamonPanoramaV202Profile";
 import { isCentralSitesV200ReplacedColumn } from "./centralSitesV200ReplacementProfile";
@@ -3179,6 +3180,7 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (!(
+      !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isCentralSitesV200FalseColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isCentralSitesV200ReplacedColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isBendlerblockV202ReplacedColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

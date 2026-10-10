@@ -79,7 +79,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Streamed packets add exactly 20,899,692 bytes; the final extracted package is
 # 861,014,450 bytes (821.13 MiB). 824 MiB leaves 2.87 MiB archive headroom.
 # This is only an on-disk archive ceiling; live packet/decoded/GPU limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 824 * 1024 * 1024
+# v206 source-tagged street paint and Urania add bounded static data.
+# Complete extracted package: 868,322,114 bytes (828.10 MiB); 829 MiB leaves
+# 0.90 MiB headroom without changing any live residency or source-detail limit.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 829 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

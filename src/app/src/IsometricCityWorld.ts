@@ -256,6 +256,7 @@ import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
 import { SONY_CENTER_ROOF_PRISM_IDS } from "./sonyCenterRoofSource";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { restoreDrawnWaterBoundary } from "./drawnWaterBoundary";
+import { restoreAltMitteGroundSeamsV206 } from "./AltMitteGroundSeamsV206";
 import { SPREE_RECOGNITION_PRISM_IDS } from "./spreeRecognitionIds";
 import {
   SANDKRUG_OSM_DECK,
@@ -980,6 +981,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Complete measured Urania shell and photograph-derived recessed frontage v206.
+  "11687794",
   // Underground S-Bahn footprint was incorrectly extruded across the street.
   ...CENTRAL_SITES_V200_FALSE_PRISM_IDS,
   ...CENTRAL_SITES_V200_REPLACED_PRISM_IDS,
@@ -13078,6 +13081,7 @@ export function createIsometricCityCore(
     restoreHbfNorthRailGroundOwnership(slabs, ground);
     restoreGrosserSternGatehouseGroundOwnership(slabs);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
+    restoreAltMitteGroundSeamsV206(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface

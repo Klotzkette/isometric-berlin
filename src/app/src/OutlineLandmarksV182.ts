@@ -57,6 +57,9 @@ import { createBendlerblockV202 } from "./BendlerblockV202";
 import { createKudammTreesV205 } from "./KudammTreesV205";
 import { createWesternMotorwaysV205 } from "./WesternMotorwaysV205";
 import { createReligiousSitesV205 } from "./ReligiousSitesV205";
+import { createUraniaArcV206 } from "./UraniaArcV206";
+import { createAltMitteTransportV206, altMitteSignalPayloadV206 } from "./AltMitteTransportV206";
+import { createTrafficSignals, updateVisibleTrafficSignals } from "./TrafficSignals";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -68,8 +71,11 @@ export function* createOutlineLandmarksV182Steps(
   root.name = "Berlin outline landmark additions v182";
   let native: boolean | undefined;
   let kites: Group | undefined;
+  let nativeSignals: Group | null | undefined;
   root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
     kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
+  root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
+    nativeSignals ? updateVisibleTrafficSignals(nativeSignals, camera, timestamp, reducedMotion, lightsOn) : false;
   function* setModeSteps(mode: VisualMode): Generator<void> {
     const nextNative = mode === "minecraft";
     if (native !== nextNative) {
@@ -114,7 +120,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(nextNative ? createMinecraftEastLandmarksV187() : createEastLandmarksV187());
       yield;
-      root.add(createUraniaLuetzowV188(nextNative));
+      root.add(createUraniaLuetzowV188(nextNative, false));
       yield;
       root.add(createVolksbuehneV189(nextNative));
       yield;
@@ -179,6 +185,13 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createWuhlheideV201(nextNative));
       yield;
       root.add(createWaldbuehneV201(nextNative));
+      yield;
+      root.add(createUraniaArcV206(nextNative));
+      yield;
+      root.add(createAltMitteTransportV206(nextNative));
+      yield;
+      nativeSignals = nextNative ? createTrafficSignals(altMitteSignalPayloadV206(), null, { native: true }) : undefined;
+      if (nativeSignals) root.add(nativeSignals);
       yield;
       kites = createDrachenbergKitesV195(nextNative);
       root.add(kites);

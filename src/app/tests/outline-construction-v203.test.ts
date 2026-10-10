@@ -4,16 +4,19 @@ import { completeCooperatively } from "../src/cooperativeWork";
 import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { createOuterThinOutlinesSteps } from "../src/OuterThinOutlines";
 import baseline from "./fixtures/outline-landmarks-v203-baseline.json";
-import synchronous from "./fixtures/outline-landmarks-v205-synchronous.json";
+import synchronous from "./fixtures/outline-landmarks-v206-synchronous.json";
 import preserved from "./fixtures/outline-landmarks-v204-preserved-layout.json";
+import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
+import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "./helpers/geometryPreservationV206";
 
-// A read-only cca429f constructor capture exactly reproduced the unchanged
-// v203 fixture. Its layout contains no substitute geometry: this test hashes
-// every old byte directly from the new tree, trimming only appended Ring
-// matrix/color suffixes. New v205 geometry also matches independent synchronous
-// captures from scripts/audit-outline-v205-baselines.ts.
-for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v205 synchronous and retains every old render-buffer byte and transform`, async () => {
+// Immutable v205 construction reproduces the complete unchanged v203 hash,
+// then derives this exact Urania-only complement. Every remaining old byte
+// is read from the live tree, trimming only the v205 Ring instance suffixes.
+// urania-preservation-v206 independently verifies the moved source roof and
+// every complete v205 object outside that substitution. New geometry matches
+// independent synchronous captures from scripts/audit-preservation-v206.ts.
+for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v206 synchronous and retains the exact audited old geometry`, async () => {
   let tasks = 0;
   const root = await completeCooperatively(createOutlineLandmarksV182Steps(mode), {
     budgetMs: 0, isCancelled: () => false,
@@ -22,7 +25,10 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
   try {
     expect(tasks).toBeGreaterThanOrEqual(synchronous[mode].families);
     expect(outlineSignature(root)).toEqual(synchronous[mode]);
-    expect(preservedOutlineSignature(root, preserved[mode])).toEqual(baseline[mode]);
+    expect(retained[mode].complete).toEqual(baseline[mode]);
+    expect(retained[mode].substitutedKeys).toEqual(outlineUraniaSubstitutionKeysV206(mode));
+    expect(preservedOutlineSignature(root, retainedOutlineManifestV206(preserved[mode], mode)))
+      .toEqual(retained[mode].retained);
   } finally { disposeOutlineConstruction(root); }
 });
 

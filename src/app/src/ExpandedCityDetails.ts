@@ -5380,7 +5380,7 @@ export function createExpandedCityDetails(
 
   group.add(createKonradAdenauerHaus());
 
-  group.add(createCityWestDetails(options.detailProfile ?? "full"));
+  group.add(createCityWestDetails(options.detailProfile ?? "full", false));
 
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is

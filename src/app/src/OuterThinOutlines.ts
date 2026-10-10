@@ -122,6 +122,8 @@ export function* createOuterThinOutlinesSteps(
     root.add(landmarks);
     root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
       root.visible && landmarks.userData.update(timestamp, camera, reducedMotion);
+    root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
+      root.visible && landmarks.userData.updateTrafficSignals(timestamp, camera, reducedMotion, lightsOn);
     root.userData.setMode = (next: VisualMode) => {
       landmarks.userData.setMode(next);
       activeMode = next;

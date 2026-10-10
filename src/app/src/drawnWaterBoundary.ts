@@ -8,6 +8,8 @@ export type DrawnWaterBoundaryData = {
   grid: { min_x_idx: number; min_z_idx: number; cols: number; rows: number };
   source_sha256: string; ground_sha256: string;
   cells_u32: string; triangles_f32: string; edges_f32: string;
+  /** Optional exact source-run spans; legacy water/foundation records stay 1 cell. */
+  spans_u32?: string; tops_f32?: string;
 };
 const RECORD_SIZE = 6;
 
@@ -29,7 +31,11 @@ export function createDrawnWaterBoundaryCellTester(
 ): (x: number, z: number) => boolean {
   if (!matchesGround(ground, data)) return () => false;
   const cells = new Uint32Array(decode(data.cells_u32)), keys = new Set<number>();
-  for (let i = 0; i < cells.length; i += RECORD_SIZE) keys.add(cells[i + 1] * data.grid.cols + cells[i]);
+  const spans = data.spans_u32 ? new Uint32Array(decode(data.spans_u32)) : null;
+  for (let i = 0; i < cells.length; i += RECORD_SIZE) {
+    const width = spans?.[i / RECORD_SIZE] ?? 1;
+    for (let offset = 0; offset < width; offset++) keys.add(cells[i + 1] * data.grid.cols + cells[i] + offset);
+  }
   return (x, z) => {
     const col = Math.floor(x / data.cell_m) - data.grid.min_x_idx;
     const row = Math.floor(z / data.cell_m) - data.grid.min_z_idx;
@@ -47,6 +53,8 @@ export function restoreDrawnWaterBoundary(
 ): void {
   if (!matchesGround(ground, data) || !slabs.count) return;
   const cells = new Uint32Array(decode(data.cells_u32));
+  const spans = data.spans_u32 ? new Uint32Array(decode(data.spans_u32)) : null;
+  const tops = data.tops_f32 ? new Float32Array(decode(data.tops_f32)) : null;
   const rows = new Map<number, number[]>();
   for (let i = 0; i < cells.length; i += RECORD_SIZE) {
     const row = rows.get(cells[i + 1]) ?? [];
@@ -74,13 +82,18 @@ export function restoreDrawnWaterBoundary(
     for (let i = lowerBound(row, xStart); i < row.length; i++) {
       const record = row[i], x = cells[record];
       if (x >= xStart + span) break;
+      const width = spans?.[record / RECORD_SIZE] ?? 1;
+      // A prior authored exclusion may have split this source host. Never
+      // restore any missing cell, or change a differently graded source run.
+      if (x + width > xStart + span || (tops && Math.abs(tops[record / RECORD_SIZE] -
+        (originalMatrices[offset + 13] + originalMatrices[offset + 5] / 2)) > 0.00002)) continue;
       if (x > from) plain(from, x - from);
-      cut(record); from = x + 1;
+      cut(record); from = x + width;
     }
     if (from < xStart + span) plain(from, xStart + span - from);
   };
   let newCount = 0, affected = 0;
-  for (let i = 0; i < oldCount; i++) visit(i, () => newCount++, () => affected++);
+  for (let i = 0; i < oldCount; i++) visit(i, () => newCount++, record => affected += spans?.[record / RECORD_SIZE] ?? 1);
   if (!affected) return;
   const matrices = new Float32Array(newCount * 16), colors = originalColors ? new Float32Array(newCount * 3) : null;
   const tiles = new Map<string, Array<readonly [number, number]>>();

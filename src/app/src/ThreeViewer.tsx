@@ -440,7 +440,10 @@ import {
   type StreetDetailsPayload,
   createTrafficSignals,
   updateTrafficSignals,
+  updateVisibleTrafficSignals,
 } from "./TrafficSignals";
+import altMitteTransportCorrectionsV206 from "./data/altMitteTransportCorrectionsV206.json";
+import { withAltMitteTrafficV206 } from "./AltMitteTransportV206";
 import { createFuelStations } from "./FuelStations";
 import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
@@ -2542,8 +2545,8 @@ function setSceneLighting(
   if (runtime.trafficSignals) {
     updateTrafficSignals(
       runtime.trafficSignals,
-      0,
-      false,
+      performance.now() / 1000,
+      runtime.reducedMotion,
       mode !== "night" || lightsOn,
     );
   }
@@ -4104,7 +4107,7 @@ function ensureIsoWorld(
         isoWorld.add(createBebelplatzBuildingShells());
         yield;
         if (ground) {
-          isoWorld.add(createDistrictStreets(ground));
+          isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
           yield;
           isoWorld.add(createSpreeRailings(ground));
           yield;
@@ -4168,7 +4171,7 @@ function ensureIsoWorld(
         if (ground && street) {
           // Task 07: the real OSM traffic signals join the drawn city, so
           // they inherit its day/night/voxel/underside visibility.
-          const signals = createTrafficSignals(street, ground);
+          const signals = createTrafficSignals(withAltMitteTrafficV206(street), ground);
           if (signals) {
             isoWorld.add(signals);
             pendingTrafficSignals = signals;
@@ -7908,6 +7911,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const documentHidden = document.visibilityState === "hidden";
         const outlineMotion = runtime.outerThinOutlines?.visible &&
           (runtime.outerThinOutlines.userData.update?.(timestamp, camera, reducedMotion) ?? false);
+        if (!runtime.underside && !documentHidden &&
+            runtime.outerThinOutlines?.userData.updateTrafficSignals?.(timestamp, camera,
+              reducedMotion, runtime.lightingMode !== "night" || runtime.nightLightsOn)) {
+          runtime.renderInvalidated = true;
+        }
+        if (runtime.trafficSignals && !runtime.underside && !documentHidden &&
+            updateVisibleTrafficSignals(runtime.trafficSignals, camera, timestamp,
+              reducedMotion, runtime.lightingMode !== "night" || runtime.nightLightsOn)) {
+          // Signal colours do not change shadow casters or the city atlas.
+          runtime.renderInvalidated = true;
+        }
         // Run before the passive-frame early return: a signal boundary must
         // wake a still view. Keep invalidation until the actual render so a
         // cadence limit cannot swallow the one changed phase.

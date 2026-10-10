@@ -1,0 +1,37 @@
+{
+  "day": {
+    "complete": {
+      "sha256": "6dbc99adc4e2c9e089acdc575e0a0b66fe715c995d0f2e085f47efa11e4c238e",
+      "objects": 575,
+      "bytes": 40673611,
+      "families": 47
+    },
+    "retained": {
+      "sha256": "345d2d115e2df0c6580f3f7ea2e80c1d2560cb9e925b761b81e6b50a7f1f653f",
+      "objects": 573,
+      "bytes": 40646577,
+      "families": 47
+    },
+    "substitutedKeys": [
+      "[\"Group\",\"Berlin outline landmark additions v182\"]/[\"Group\",\"Urania and Luetzowplatz source refinements v188\"]:0/[\"Mesh\",\"Urania measured upper walls, mirror joints and yellow sign\"]:0",
+      "[\"Group\",\"Berlin outline landmark additions v182\"]/[\"Group\",\"Urania and Luetzowplatz source refinements v188\"]:0/[\"Mesh\",\"Urania exact higher official roof ring\"]:0"
+    ]
+  },
+  "minecraft": {
+    "complete": {
+      "sha256": "c134adb39eff75be4b820f063f5726eca813fe1f6a137b89bfea08688e47e797",
+      "objects": 459,
+      "bytes": 68635820,
+      "families": 49
+    },
+    "retained": {
+      "sha256": "baef47b20597c04df1d0ec7451c63af9c3c390e03c01e191184170a14e027d39",
+      "objects": 458,
+      "bytes": 68489176,
+      "families": 49
+    },
+    "substitutedKeys": [
+      "[\"Group\",\"Berlin outline landmark additions v182\"]/[\"Group\",\"Urania and Luetzowplatz source refinements v188\"]:0/[\"Mesh\",\"Urania measured upper walls, mirror joints and yellow sign\"]:0"
+    ]
+  }
+}

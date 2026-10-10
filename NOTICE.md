@@ -1616,3 +1616,18 @@ Procedural west-front interpretation. Visual reference: Lestat (Jan Mehlich),
 not bundled or used as a texture. Reference attribution is included in the viewer
 source panel. Architecture and scope references and display estimates are recorded
 in [pergamon-altar-v204.md](docs/pergamon-altar-v204.md). No museum scan is redistributed.
+
+
+## Old Mitte roads and Urania (v1.0.106)
+
+OpenStreetMap contributors (ODbL-1.0), via the retained 29 September 2026
+Geofabrik Berlin extract, supply explicit crossing styles, road-marking courses,
+lanes and signal anchors. The frozen historical Mitte polygon excludes Wedding
+and Tiergarten. Cartographic marking widths, missing traffic direction and the
+animated signal phase schedule are display estimates, not live traffic data.
+Berlin LoD2 (dl-de/zero-2-0) supplies Urania's complete measured envelope and
+retained original roof. The owner's two October 2026 photographs guide the
+procedural facade/sign and Arc de 124.5° refinement; no photograph or texture
+is included. The public-art inventory supplies the arc's anchor and published
+span/height; section dimensions and facade apertures remain documented estimates.
+See [scope, source records and preservation](docs/refinements-v206.md).

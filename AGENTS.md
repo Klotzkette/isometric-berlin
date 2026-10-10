@@ -188,6 +188,18 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.106 request permits source-bound road markings, documented
+crossing styles and traffic-signal refinements throughout the frozen old Mitte
+boundary, excluding Wedding and Tiergarten. Source-clipped coarse grass may be
+corrected only where it wrongly occludes these retained exact roads/pavements;
+preserve its exterior surface and all unrelated terrain. Preserve all prior road geometry;
+do not turn unclassified crossings into zebra crossings. The supplied Urania
+photos additionally authorize correction of its exact inaccurate authored
+proxies, preserving complete measured building sheets and unrelated City West
+details, and a source-bound Arc de 124.5° interpretation. Photographs remain
+reference-only. Keep all mobile detail, bounded instancing and existing city
+residency limits. This request adds no district coverage or tour stops.
+
 The owner's v1.0.102 request authorizes bounded refinement of James-Simon-Galerie,
 the Pergamon Panorama, both Staatsbibliothek buildings and the Bendlerblock with
 its memorial court. Complete documented source families may replace precisely

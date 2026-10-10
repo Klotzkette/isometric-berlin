@@ -1,3 +1,4 @@
+import { URANIA_ARC_V206_PRISM_ID, URANIA_ARC_V206_NAVIGATION_PARTS } from "./uraniaArcV206Navigation";
 import { PERGAMON_PANORAMA_V202_IDS, PERGAMON_PANORAMA_V202_SOURCE, pergamonPanoramaV202RoofAt } from "./pergamonPanoramaV202Profile";
 import { BENDLERBLOCK_V202_PRISM_IDS, BENDLERBLOCK_V202_PARTS, bendlerblockV202RoofAt } from "./bendlerblockV202Profile";
 import { centralSitesV200NavigationForPrism, centralSitesV200RoofAt } from "./centralSitesV200Navigation";
@@ -667,6 +668,14 @@ export function compilePedestrianObstacles(
   for (const sourceBuilding of prisms.buildings) {
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (CENTRAL_SITES_V200_FALSE_PRISM_IDS.has(building.id)) continue;
+    if (building.id === URANIA_ARC_V206_PRISM_ID) {
+      for (const part of URANIA_ARC_V206_NAVIGATION_PARTS) {
+        addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY,
+          part.id, 1, () => part.topY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
     if (PERGAMON_PANORAMA_V202_IDS.has(building.id)) {
       addPolygonObstacle(index, PERGAMON_PANORAMA_V202_SOURCE.ring, [], 4.9, 37.4,
         building.id, 1, pergamonPanoramaV202RoofAt);

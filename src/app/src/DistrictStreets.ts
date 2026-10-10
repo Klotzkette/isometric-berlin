@@ -100,11 +100,11 @@ function geometry(positions: number[] | Float32Array): BufferGeometry {
  * on both pointer profiles. No whole-city polygon union, Worker round trip,
  * lower-detail replacement or camera-dependent disappearance is necessary.
  */
-export function createDistrictStreets(ground: VoxelPayload): Group {
-  return createSourceStreetSurfaces(ground, streets, "District streets and roadside paths");
+export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set()): Group {
+  return createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings);
 }
 
-export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string): Group {
+export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string, excludedMarkings: ReadonlySet<number> = new Set()): Group {
   const group = new Group();
   group.name = name;
   group.userData.sourceGeometry = streets.source;
@@ -184,7 +184,8 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   };
   addLines("District kerb ink", ink, 0x6d756b, 0x11171c);
   const markings: number[] = [];
-  for (const marking of streets.markings_m) {
+  for (const [markingIndex, marking] of streets.markings_m.entries()) {
+    if (excludedMarkings.has(markingIndex)) continue;
     const line = marking.points;
     const lanes = Math.round(marking.lanes ?? 2);
     if (lanes < 2) continue;

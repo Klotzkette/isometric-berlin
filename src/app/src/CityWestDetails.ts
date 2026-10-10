@@ -2118,6 +2118,7 @@ function finishBatch(
 
 export function createCityWestDetails(
   detailProfile: CityWestDetailProfile = "full",
+  includeUrania = true,
 ): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
@@ -2163,12 +2164,16 @@ export function createCityWestDetails(
     group.add(breitscheidBatch);
   }
 
-  const urania = createBuilder();
-  addUrania(urania, detailProfile);
-  const uraniaBatch = finishBatch(urania, "Urania mirrored entrance ensemble", {
-    urania: CITY_WEST_PROFILE.urania,
-  });
-  if (uraniaBatch) group.add(uraniaBatch);
+  // v206 replaces only this documented proportional proxy. Keep its original
+  // recipe available for exact historical comparisons; all other batches stay.
+  if (includeUrania) {
+    const urania = createBuilder();
+    addUrania(urania, detailProfile);
+    const uraniaBatch = finishBatch(urania, "Urania mirrored entrance ensemble", {
+      urania: CITY_WEST_PROFILE.urania,
+    });
+    if (uraniaBatch) group.add(uraniaBatch);
+  }
 
   return group;
 }

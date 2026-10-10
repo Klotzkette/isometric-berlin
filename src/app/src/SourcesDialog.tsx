@@ -38,6 +38,9 @@ export function SourcesDialog({ language, onClose }: {
         <p>{language === "de"
           ? "Dünne graugrüne Linie: heutige Landesgrenze Berlins. Rote Linie: amtlich kartierter Verlauf der Grenzanlagen von 1989, einschließlich der belegten Unterwasserabschnitte; keine parzellengenaue Vermessung."
           : "Thin grey-green line: present Berlin state boundary. Red line: officially mapped 1989 border installations, including documented underwater sections; not a cadastral survey."}</p>
+        <p>{language === "de"
+          ? "Straßen im alten Mitte: Markierungen und Ampelpunkte aus OpenStreetMap. Ampelphasen und nicht vermessene Detailmaße sind illustrative Darstellungen. Urania und Bogen: amtliche Gebäudedaten und bereitgestellte Referenzfotos; keine Fototexturen."
+          : "Old Mitte streets: OpenStreetMap markings and signal anchors. Signal phases and unsurveyed detail dimensions are illustrative. Urania and arc: official building data and supplied reference photographs; no photographic textures."}</p>
         <ul>
           <li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap · ODbL</a></li>
           <li><a href="https://www.govdata.de/dl-de/zero-2-0" target="_blank" rel="noreferrer">Geoportal Berlin · dl-de/zero-2-0</a></li>

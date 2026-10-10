@@ -11,6 +11,10 @@ import preCentralPayloadBaseline from "./fixtures/minecraft-payload-only-v192.js
 import previousV202Baseline from "./fixtures/minecraft-payload-only-v200.json";
 import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v202.json";
 import ownerDeltaV202 from "./fixtures/minecraft-payload-only-v202-delta.json";
+import ownerDeltaV206 from "./fixtures/minecraft-payload-only-v206-delta.json";
+import uraniaReceiptV206 from "../../../geo_data/regierungsviertel/urania-arc-v206-source.json";
+import uraniaNavigationV206 from "../src/data/uraniaArcV206Navigation.json";
+import { uraniaArcV206SourceColumn } from "../src/uraniaArcV206Navigation";
 import bendlerNavV202 from "../src/data/bendlerblockV202Navigation.json";
 import panoramaSourceV202 from "../src/pergamonPanoramaV202Source.json";
 import centralPayloadDelta from "./fixtures/minecraft-payload-only-v200-delta.json";
@@ -18,7 +22,7 @@ import centralCorrection from "../src/data/centralSitesV200Correction.json";
 import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 import { isCentralSitesV200FalseColumn } from "../src/centralSitesV200Profile";
 import { isCentralSitesV200ReplacedColumn } from "../src/centralSitesV200ReplacementProfile";
-import { decodedInstance, replayLegacyInstanceHash, restoreLegacyInstances } from "./helpers/instanceBufferReplay";
+import { decodedInstance, replayLegacyInstanceHash, restoreLegacyInstances, type InstanceBufferDelta } from "./helpers/instanceBufferReplay";
 import canopyPayloadDelta from "./fixtures/minecraft-payload-only-v192-delta.json";
 import stationDetailsV192 from "../src/data/stationDetailsV192.json";
 import oldZooNavigation from "../src/data/zooStationV165Navigation.json";
@@ -132,10 +136,76 @@ function instanced(
   return mesh as InstancedMesh;
 }
 
+function uraniaDelta(profile: "full" | "mobile", name: string): InstanceBufferDelta | undefined {
+  return (ownerDeltaV206.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
+}
+
+function beforeUrania(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
+  const delta = uraniaDelta(profile, name);
+  return delta ? restoreLegacyInstances(mesh, delta) : mesh;
+}
+
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
   const mobileWorld = createMinecraftVoxelWorld(payload, null, null, {
     detailProfile: "mobile",
+  });
+
+  test("v206 restores only the exact 86 Urania source tuples into every frozen v202 hash", async () => {
+    for (const [path, sha256] of Object.entries(ownerDeltaV206.inputSha256)) {
+      const file = new Uint8Array(await Bun.file(new URL(`../${path}`, import.meta.url)).arrayBuffer());
+      expect(new Bun.CryptoHasher("sha256").update(file).digest("hex")).toBe(sha256);
+    }
+    const audit = auditBernauerNativeDelta(buildingColumns, payload.cell_m, [uraniaReceiptV206.legacyReplacement.prismRecord]);
+    expect(ownerDeltaV206.sourceOwner).toBe("11687794");
+    expect(audit.removedColumns).toEqual(ownerDeltaV206.sourceColumns);
+    expect(audit.removedColumns).toEqual(uraniaNavigationV206.legacyVoxelColumns);
+    expect(audit.removedColumns).toHaveLength(86);
+    expect(audit.panes).toEqual({ removed: 144, exposed: 12, netRemoved: 132 });
+    expect(audit.removedColumnInstances).toEqual({ full: 258, mobile: 86 });
+    expect(buildingColumns.filter(([x,z,lo,hi]) => uraniaArcV206SourceColumn(
+      (x+.5)*4, (z+.5)*4, lo/10, hi/10))).toEqual(audit.removedColumns);
+    const owned = new Map(audit.removedColumns.map(([x,z,lo,hi]) => [`${(x+.5)*4},${(z+.5)*4}`, [lo/10,hi/10]]));
+    expect(owned.has("-1610,1898")).toBeFalse(); // Independent adjacent owner 33654713.
+    for (const [profile, root] of [["full",world],["mobile",mobileWorld]] as const) {
+      const changes = ownerDeltaV206.profiles[profile] as Record<string, InstanceBufferDelta>;
+      expect(Object.keys(changes).sort()).toEqual(profile === "full"
+        ? ["Voxel building columns", "Voxel facade windows"] : ["Voxel building columns"]);
+      for (const [name, change] of Object.entries(changes)) {
+        const old = currentPayloadBaseline[profile][name as keyof typeof currentPayloadBaseline[typeof profile]]!;
+        expect(change.beforeCount).toBe(old.count);
+        expect(replayLegacyInstanceHash(instanced(name, root), change)).toBe(old.sha256);
+        const panes = name === "Voxel facade windows", heights = new Map<string, number>();
+        expect(change.removed).toHaveLength(panes ? audit.panes.removed : audit.removedColumnInstances[profile]);
+        expect(change.added).toHaveLength(panes ? audit.panes.exposed : 0);
+        for (const [kind, records] of [["removed",change.removed],["added",change.added]] as const)
+          for (const record of records) {
+            const m = decodedInstance(record);
+            const rawX = m[12] - (panes ? m[8]*2.08 : 0), rawZ = m[14] - (panes ? m[10]*2.08 : 0);
+            const x = Math.round(rawX/4-.5)*4+2, z = Math.round(rawZ/4-.5)*4+2, key = `${x},${z}`;
+            expect(Math.abs(rawX-x)).toBeLessThan(.0001);
+            expect(Math.abs(rawZ-z)).toBeLessThan(.0001);
+            if (kind === "added") {
+              expect(panes).toBeTrue(); expect(owned.has(key)).toBeFalse();
+              expect(owned.has(`${x+m[8]*4},${z+m[10]*4}`)).toBeTrue();
+            } else {
+              expect(owned.has(key)).toBeTrue();
+              const [lo,hi] = owned.get(key)!;
+              expect(m[13]).toBeGreaterThanOrEqual(lo); expect(m[13]).toBeLessThanOrEqual(hi);
+              if (!panes) {
+                expect(m[0]).toBe(4); expect(m[10]).toBe(4);
+                heights.set(key, (heights.get(key) ?? 0) + m[5]);
+              }
+            }
+          }
+        if (!panes) {
+          expect(heights.size).toBe(86);
+          for (const [key, height] of heights) {
+            const [lo,hi] = owned.get(key)!; expect(height).toBeCloseTo(hi-lo, 5);
+          }
+        }
+      }
+    }
   });
 
   test("historical Bernauer, v183 and v192 buffers retain their exact substitution chain", () => {
@@ -200,6 +270,11 @@ describe("true voxel Minecraft world", () => {
           continue;
         }
         const mesh = instanced(name, root);
+        const delta = uraniaDelta(profile, name);
+        if (delta) {
+          expect({ count: delta.beforeCount, sha256: replayLegacyInstanceHash(mesh, delta) }).toEqual(expected);
+          continue;
+        }
         const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
         if (mesh.instanceColor) hash.update(mesh.instanceColor.array);
         expect({ count: mesh.count, sha256: hash.digest("hex") }).toEqual(expected);
@@ -212,7 +287,7 @@ describe("true voxel Minecraft world", () => {
     expect(owned.size).toBe(840);
     for(const [profile,root] of [["full",world],["mobile",mobileWorld]] as const)
       for(const [name,change] of Object.entries(ownerDeltaV202.profiles[profile])){
-        expect(replayLegacyInstanceHash(instanced(name,root),change)).toBe(previousV202Baseline[profile][name as keyof typeof previousV202Baseline[typeof profile]]!.sha256);
+        expect(replayLegacyInstanceHash(beforeUrania(instanced(name,root),profile,name),change)).toBe(previousV202Baseline[profile][name as keyof typeof previousV202Baseline[typeof profile]]!.sha256);
         const panes=name==="Voxel facade windows";
         for(const [kind,records] of [["removed",change.removed],["added",change.added]] as const)
           for(const record of records){
@@ -253,7 +328,8 @@ describe("true voxel Minecraft world", () => {
         const change = changes[name as keyof typeof changes];
         if (!change) { expect(previousV202Baseline[profile][name as keyof typeof previousV202Baseline[typeof profile]]).toEqual(legacy); continue; }
         const following=(ownerDeltaV202.profiles[profile] as Record<string,any>)[name];
-        const prior=following?restoreLegacyInstances(instanced(name,root),following):instanced(name,root);
+        const beforeV206=beforeUrania(instanced(name,root),profile,name);
+        const prior=following?restoreLegacyInstances(beforeV206,following):beforeV206;
         expect(replayLegacyInstanceHash(prior,change)).toBe(legacy!.sha256);
         const panes=name==="Voxel facade windows", layerHeights=new Map<string,number>();
         expect(change.removed.length).toBe(panes ? audit.panes.removed : audit.removedColumnInstances[profile]);
@@ -368,7 +444,7 @@ describe("true voxel Minecraft world", () => {
     // v174 replaces 64 Bernauer fallback cells: 192 old panes disappear and
     // six neighboring panes become exposed, independently audited above.
     expect(instanced("Voxel facade windows", world).count).toBe(
-      currentPayloadBaseline.full["Voxel facade windows"].count,
+      currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12,
     );
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
@@ -392,10 +468,10 @@ describe("true voxel Minecraft world", () => {
     // v153: 699 owned source columns yield to the two complete native models,
     // exactly 2,097 full stack instances or 699 mobile instances.
     expect(instanced("Voxel building columns", world).count).toBe(
-      currentPayloadBaseline.full["Voxel building columns"].count,
+      currentPayloadBaseline.full["Voxel building columns"].count - 86 * 3,
     );
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      currentPayloadBaseline.mobile["Voxel building columns"].count,
+      currentPayloadBaseline.mobile["Voxel building columns"].count - 86,
     );
 
     const landmarks = world.getObjectByName(
@@ -902,7 +978,7 @@ describe("true voxel Minecraft world", () => {
     const mesh = panes as InstanceType<typeof InstancedMesh>;
     // Exact source replacements remove duplicate generic panes. Remaining
     // exposed faces still share one batch and keep their measured dimensions.
-    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count);
+    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();

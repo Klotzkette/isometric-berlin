@@ -69,6 +69,9 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "westernMotorwaysV205.json": ["groups"],
   "schoolsPlacesV205.json": ["schools", "places"],
   "religiousSitesV205.json": ["sites"],
+  // Constructor-only v206 paint/model arrays; signal and terrain metadata remain stable.
+  "altMitteTransportV206.json": ["cells"],
+  "uraniaArcV206.json": ["sites"],
   "iccV199.json": ["sites"],
   "iccV199Native.json": ["sites"],
   "funkturmV199.json": ["groups"],
@@ -82,6 +85,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
 const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "districtStreets.json": ["surfaces"],
   "schlossEastStreets.json": ["surfaces"],
+  // Already-packed ground complements: share each base64 literal once.
+  "altMitteGroundSeamsV206.json": ["cells_u32", "spans_u32", "tops_f32", "triangles_f32", "edges_f32"],
 };
 
 // Encode existing lazy fields only. Their cache/ownership policy is independent

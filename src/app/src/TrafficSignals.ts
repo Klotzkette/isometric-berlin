@@ -2,11 +2,14 @@ import {
   BoxGeometry,
   Color,
   CylinderGeometry,
+  Frustum,
   Group,
   InstancedMesh,
   Matrix4,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Vector3,
+  type Camera,
 } from "three";
 
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
@@ -32,6 +35,11 @@ export type TrafficSignalPlacement = {
   source_dm: [number, number];
   source_on_carriageway?: boolean;
   source_requires_relocation?: boolean;
+  /** Scoped v206 road-tangent heading; never a surveyed live signal state. */
+  heading_rad?: number;
+  ground_y_m?: number;
+  native_ground_y_m?: number;
+  refined_v206?: boolean;
 };
 
 export type StreetDetailsPayload = {
@@ -152,9 +160,10 @@ export function lampsLit(phase: 0 | 1 | 2 | 3): [boolean, boolean, boolean] {
 
 export function createTrafficSignals(
   street: StreetDetailsPayload,
-  ground: VoxelPayload,
+  ground: VoxelPayload | null,
+  options: { native?: boolean } = {},
 ): Group | null {
-  const sample = worldGroundSampler(ground);
+  const sample = ground ? worldGroundSampler(ground) : () => null;
   const placements =
     street.traffic_signal_placements?.length === street.traffic_signals_dm.length
       ? street.traffic_signal_placements
@@ -176,6 +185,7 @@ export function createTrafficSignals(
     y: number;
     yaw: number;
     z: number;
+    refined: boolean;
   }> = [];
   for (const placement of placements) {
     const [xDm, zDm] = placement.position_dm;
@@ -185,8 +195,9 @@ export function createTrafficSignals(
     const sourceX = sourceXDm / 10;
     const sourceZ = sourceZDm / 10;
     const sampledTarget = sample(x, z);
-    const y = sampledTarget ?? sample(sourceX, sourceZ);
-    if (y === null) {
+    const explicitGround = options.native ? placement.native_ground_y_m : placement.ground_y_m;
+    const y = explicitGround ?? sampledTarget ?? sample(sourceX, sourceZ);
+    if (y === null || !Number.isFinite(y)) {
       continue;
     }
     // Phase stays tied to the surveyed OSM source, not the display offset.
@@ -195,10 +206,11 @@ export function createTrafficSignals(
         (SIGNAL_CYCLE_SECONDS * 10)) / 10;
     const towardRoadX = sourceX - x;
     const towardRoadZ = sourceZ - z;
-    const yaw =
+    const sourceYaw = placement.heading_rad ?? (
       Math.hypot(towardRoadX, towardRoadZ) > 0.05
         ? Math.atan2(towardRoadX, towardRoadZ)
-        : 0;
+        : 0);
+    const yaw = options.native ? Math.round(sourceYaw / (Math.PI / 2)) * Math.PI / 2 : sourceYaw;
     placed.push({
       island: placement.placement === "verified_island",
       phase,
@@ -207,6 +219,7 @@ export function createTrafficSignals(
       y,
       yaw,
       z,
+      refined: placement.refined_v206 === true,
     });
   }
   if (placed.length === 0) {
@@ -236,12 +249,18 @@ export function createTrafficSignals(
   lamps.name = "traffic signal lamps";
   const islandCount = placed.filter((signal) => signal.island).length;
   const islandBases = new InstancedMesh(
-    new CylinderGeometry(0.72, 0.72, 0.12, 8),
+    options.native ? new BoxGeometry(1.44, 0.12, 1.44) : new CylinderGeometry(0.72, 0.72, 0.12, 8),
     new MeshStandardMaterial({ color: 0xb8b7ae, roughness: 1 }),
     islandCount,
   );
   islandBases.name = "traffic signal verified island bases";
   const color = new Color();
+  const scale = new Vector3();
+  const refinedCount = placed.filter(signal => signal.refined).length;
+  const hoods = refinedCount ? new InstancedMesh(new BoxGeometry(1, 1, 1),
+    new MeshBasicMaterial({ color: 0x24282a }), refinedCount * 5) : null;
+  if (hoods) hoods.name = "traffic signal visor hoods v206";
+  let hoodIndex = 0;
   let islandIndex = 0;
   placed.forEach((signal, index) => {
     const lift = signal.island ? 0.12 : 0;
@@ -257,13 +276,28 @@ export function createTrafficSignals(
     heads.setMatrixAt(index, matrix);
     for (let lamp = 0; lamp < 3; lamp += 1) {
       matrix.makeRotationY(signal.yaw);
+      if (signal.refined) matrix.scale(scale.set(1, 1, 0.06 / 0.34));
       matrix.setPosition(
-        signal.x,
+        signal.x + (signal.refined ? Math.sin(signal.yaw) * 0.18 : 0),
         signal.y + lift + LAMP_TOP_M - lamp * LAMP_SPACING_M,
-        signal.z,
+        signal.z + (signal.refined ? Math.cos(signal.yaw) * 0.18 : 0),
       );
       lamps.setMatrixAt(index * 3 + lamp, matrix);
       lamps.setColorAt(index * 3 + lamp, color.setHex(LAMP_OFF[lamp]));
+      if (signal.refined && hoods) {
+        matrix.makeRotationY(signal.yaw).scale(scale.set(0.28, 0.05, 0.26));
+        matrix.setPosition(signal.x + Math.sin(signal.yaw) * 0.22,
+          signal.y + lift + LAMP_TOP_M - lamp * LAMP_SPACING_M + 0.14,
+          signal.z + Math.cos(signal.yaw) * 0.22);
+        hoods.setMatrixAt(hoodIndex++, matrix);
+      }
+    }
+    if (signal.refined && hoods) for (const side of [-1, 1]) {
+      matrix.makeRotationY(signal.yaw).scale(scale.set(0.05, 1.03, 0.2));
+      matrix.setPosition(signal.x + Math.cos(signal.yaw) * side * 0.205 + Math.sin(signal.yaw) * 0.2,
+        signal.y + lift + LAMP_TOP_M - LAMP_SPACING_M,
+        signal.z - Math.sin(signal.yaw) * side * 0.205 + Math.cos(signal.yaw) * 0.2);
+      hoods.setMatrixAt(hoodIndex++, matrix);
     }
     if (signal.island) {
       matrix.identity();
@@ -276,6 +310,11 @@ export function createTrafficSignals(
     mesh.instanceMatrix.needsUpdate = true;
     mesh.frustumCulled = false;
     group.add(mesh);
+  }
+  if (hoods) {
+    hoods.instanceMatrix.needsUpdate = true;
+    hoods.computeBoundingBox(); hoods.computeBoundingSphere();
+    group.add(hoods);
   }
   if (islandCount > 0) {
     islandBases.instanceMatrix.needsUpdate = true;
@@ -291,6 +330,8 @@ export function createTrafficSignals(
   group.userData.phases = new Float32Array(placed.map((s) => s.phase));
   group.userData.lastBuckets = new Int8Array(placed.length).fill(-1);
   group.userData.sourceDm = placed.map((signal) => signal.sourceDm);
+  group.userData.signalCentres = new Float32Array(placed.flatMap(signal =>
+    [signal.x, signal.y + LAMP_TOP_M - LAMP_SPACING_M, signal.z]));
   return group;
 }
 
@@ -303,16 +344,18 @@ export function updateTrafficSignals(
   seconds: number,
   reducedMotion: boolean,
   lightsOn = true,
-): void {
+  visible?: (index: number) => boolean,
+): boolean {
   const lamps = group.getObjectByName("traffic signal lamps");
   if (!(lamps instanceof InstancedMesh) || !lamps.instanceColor) {
-    return;
+    return false;
   }
   const phases = group.userData.phases as Float32Array;
   const lastBuckets = group.userData.lastBuckets as Int8Array;
-  const color = new Color();
+  const color = group.userData.signalUpdateColor ??= new Color();
   let dirty = false;
   for (let index = 0; index < phases.length; index += 1) {
+    if (visible && !visible(index)) continue;
     // "Ampeln gedimmt/aus": moonlight still runs the phase clock (so the
     // junction resumes exactly where it should the moment lights come back
     // on) but every lamp renders off regardless of phase, matching every
@@ -333,4 +376,29 @@ export function updateTrafficSignals(
   if (dirty) {
     lamps.instanceColor.needsUpdate = true;
   }
+  return dirty;
+}
+
+/** At most four checks/second; only visible phase changes wake a still view. */
+export function updateVisibleTrafficSignals(
+  group: Group, camera: Camera, timestamp: number,
+  reducedMotion: boolean, lightsOn = true,
+): boolean {
+  for (let ancestor: Group | import("three").Object3D | null = group;
+    ancestor; ancestor = ancestor.parent) if (!ancestor.visible) return false;
+  const state = group.userData.signalFrameState ??= {
+    at: Number.NEGATIVE_INFINITY,
+    reducedMotion, lightsOn,
+    matrix: new Matrix4(), frustum: new Frustum(), point: new Vector3(),
+  };
+  if (timestamp >= state.at && timestamp - state.at < 250 &&
+      state.reducedMotion === reducedMotion && state.lightsOn === lightsOn) return false;
+  state.at = timestamp; state.reducedMotion = reducedMotion; state.lightsOn = lightsOn;
+  camera.updateMatrixWorld(); group.updateWorldMatrix(true, false);
+  state.matrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+    .multiply(group.matrixWorld);
+  state.frustum.setFromProjectionMatrix(state.matrix);
+  const centres = group.userData.signalCentres as Float32Array;
+  return updateTrafficSignals(group, timestamp / 1000, reducedMotion, lightsOn,
+    index => state.frustum.containsPoint(state.point.fromArray(centres, index * 3)));
 }

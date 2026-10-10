@@ -114,10 +114,12 @@ test("mode families release residency owners, alternate materials and instance b
       expect(previous.every(child => child.parent === null)).toBeTrue();
       expect(counts.every(record => record.disposed === 1)).toBeTrue();
       // Drawn Tor and Bendlerblock belong to ExpandedCityDetails; their
-      // separate native replacements share this family and disposal lifecycle.
-      expect(root.children).toHaveLength(familyCount + (mode === "minecraft" ? 2 : 0));
+      // separate native replacements and v206 scoped signals share this lifecycle.
+      expect(root.children).toHaveLength(familyCount + (mode === "minecraft" ? 3 : 0));
       expect(root.children.filter(child => child.userData.bendlerblockV202)).toHaveLength(mode === "minecraft" ? 1 : 0);
       expect(root.children.filter(child => child.userData.charlottenburgerTor)).toHaveLength(mode === "minecraft" ? 1 : 0);
+      const signals = root.getObjectByName("traffic signal poles") as InstancedMesh | undefined;
+      expect(signals?.count ?? 0).toBe(mode === "minecraft" ? 430 : 0);
       activeFamilyCount = root.children.length;
       expect(root.children.every(child => child.userData.nativeMinecraft === (mode === "minecraft"))).toBeTrue();
       if (mode === "day") expect(signature(root)).toEqual(daySignature);

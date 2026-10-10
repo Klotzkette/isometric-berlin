@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 import baseline from "./fixtures/minecraft-world-synchronous-v204.json";
+import current from "./fixtures/minecraft-world-synchronous-v206.json";
+import urania from "../src/data/uraniaArcV206Navigation.json";
 import historical from "./fixtures/minecraft-world-synchronous-v200.json";
 import audit from "./fixtures/minecraft-world-v204-baseline-audit.json";
 import bendlerblock from "../src/data/bendlerblockV202Navigation.json";
@@ -46,7 +48,20 @@ test("v204 fixture has an exact historical counterfactual and bounded owner-tran
     expect(proof.current.renderables - proof.legacy.renderables).toBe(1);
   }
 });
-for (const [profile, expected] of Object.entries(baseline)) {
+test("v206 synchronous construction transfers only the independently audited Urania coarse owner", () => {
+  expect(urania.legacyVoxelColumns).toHaveLength(86);
+  for (const profile of ["full", "mobile"] as const) {
+    // The independent minecraft-payload-only-v206 receipt restores every old
+    // instance byte: full loses 258 columns +144 panes, exposes 12 neighbour
+    // panes; mobile transfers exactly 86 coarse columns. Earlier hashes stay.
+    const removed = profile === "full" ? 258 + 144 - 12 : 86;
+    expect(current[profile].instances).toBe(baseline[profile].instances - removed);
+    expect(current[profile].bufferBytes).toBe(baseline[profile].bufferBytes - removed * 76);
+    expect(current[profile].renderables).toBe(baseline[profile].renderables);
+  }
+});
+
+for (const [profile, expected] of Object.entries(current)) {
   test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
     const script = fileURLToPath(
       new URL("../scripts/benchmark-minecraft-world.ts", import.meta.url),
