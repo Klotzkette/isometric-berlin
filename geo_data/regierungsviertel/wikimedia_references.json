@@ -7868,6 +7868,61 @@
       "credit": "Ceddyfresse / Public domain",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_bettenhochhaus",
+      "title": "File:Charité Bettenhochhaus Berlin 2021-04-29 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_Bettenhochhaus_Berlin_2021-04-29_02.jpg",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Leonhard Lenz",
+      "credit": "Leonhard Lenz / CC0-1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "charite_bettenhochhaus",
+      "title": "File:Charité Bettenhochhaus Berlin 2021-04-29 05.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_Bettenhochhaus_Berlin_2021-04-29_05.jpg",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Leonhard Lenz",
+      "credit": "Leonhard Lenz / CC0-1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "research_ministry_kapelle_ufer",
+      "title": "File:Mitte Kapelle-Ufer BMBF.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "research_ministry_kapelle_ufer",
+      "title": "File:Mitte Kapelle-Ufer BMBF-002.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF-002.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "research_ministry_kapelle_ufer",
+      "title": "File:Mitte Kapelle-Ufer BMBF-003.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF-003.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

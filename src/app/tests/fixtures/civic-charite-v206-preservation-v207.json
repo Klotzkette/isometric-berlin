@@ -1,0 +1,817 @@
+{
+  "baseline": {
+    "commit": "6bd9693555e6ffb4350375c3fda49cb586c69614",
+    "withoutChariteFacade": false,
+    "sourceSha256": {
+      "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+      "src/app/public/mesh/regierungsviertel/scene.json": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+      "src/app/src/CentralCivicDetails.ts": "be30022597bca9d5f05572b80c9ea474bb4aa404b9ef9a3d7fc936e4f15fb6af",
+      "src/app/src/IsometricCityWorld.ts": "e8d843d8a85778fafcd33b8a3f2bf6437a415a46e39758bd8a0ff7407a7d069d"
+    },
+    "ministryName": "Bundesministerium f\u00fcr Forschung, Technologie und Raumfahrt",
+    "educationName": "Bundesministerium f\u00fcr Bildung, Familie, Senioren, Frauen und Jugend",
+    "chariteIds": [
+      "7b3ZwNAB",
+      "7zddOe6j",
+      "979qTCbp",
+      "CNtAYPkO",
+      "DQZmfONt",
+      "FurjqyeB",
+      "NDxiQ2xg",
+      "OVVpwBo2",
+      "RE3bNP55",
+      "SgItUCXH",
+      "Sorg80ps",
+      "X4o3aH3m",
+      "ZSiiyE0H",
+      "aOZAupOd",
+      "jwLw3UEy",
+      "zq8O5Jct"
+    ],
+    "chariteSourceSha256": "51447929cd1c6a2a7b122f778a395306a2c6dbc7f71ac997f604d4b7b24eea8c",
+    "bridgeId": "L2e097lj",
+    "civic": {
+      "full": {
+        "complete": {
+          "hash": "a860e7eddab951c5b630b14f8671058cfe065ec383e25645acee96c392e4a998",
+          "budget": {
+            "bytes": 6097170,
+            "draws": 75,
+            "instances": 17564,
+            "vertices": 258061
+          }
+        },
+        "retainedWithoutMinistry": {
+          "hash": "b62edce97a9880ffbaad62500a2ee75e77a279c215329f630f79c8718811ff63",
+          "budget": {
+            "bytes": 6075588,
+            "draws": 75,
+            "instances": 17564,
+            "vertices": 256891
+          }
+        },
+        "ministryRecipe": {
+          "hash": "04afdcdf826a5f1b55ec7f7060065f6dd1251e4e22cb7723ec9e3ca38d03ca2b",
+          "budget": {
+            "bytes": 19638,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 1170
+          }
+        },
+        "educationRecipe": {
+          "hash": "8ad58fb00b7338e2278196b065e11051336baf53e40eb51ad86bdf5f0ae10be9",
+          "budget": {
+            "bytes": 3600,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 240
+          }
+        }
+      },
+      "mobile": {
+        "complete": {
+          "hash": "eb9ac793061ddb7cfc17e83fcc07d4588491b99ffdabd6077ad5d0c5df57231d",
+          "budget": {
+            "bytes": 5966830,
+            "draws": 75,
+            "instances": 15849,
+            "vertices": 258061
+          }
+        },
+        "retainedWithoutMinistry": {
+          "hash": "882d35ea5550148d07dc6d89b12f9a30ce6030cf9e5664244c358aad102c4abd",
+          "budget": {
+            "bytes": 5945248,
+            "draws": 75,
+            "instances": 15849,
+            "vertices": 256891
+          }
+        },
+        "ministryRecipe": {
+          "hash": "04afdcdf826a5f1b55ec7f7060065f6dd1251e4e22cb7723ec9e3ca38d03ca2b",
+          "budget": {
+            "bytes": 19638,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 1170
+          }
+        },
+        "educationRecipe": {
+          "hash": "8ad58fb00b7338e2278196b065e11051336baf53e40eb51ad86bdf5f0ae10be9",
+          "budget": {
+            "bytes": 3600,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 240
+          }
+        }
+      }
+    },
+    "charite": {
+      "full": {
+        "complete": {
+          "hash": "bd5dc41eca533d8c1e18a497665edf5f02c60eba5d2f077844eded0c54a076a1",
+          "budget": {
+            "bytes": 580360,
+            "draws": 5,
+            "instances": 5620,
+            "vertices": 10746
+          }
+        },
+        "byOwner": {
+          "7b3ZwNAB": {
+            "hash": "c14ae3f7abca9004f93601628a2ccf6d04bd436fad55c35f41abee7d48e115b0",
+            "budget": {
+              "bytes": 33822,
+              "draws": 5,
+              "instances": 338,
+              "vertices": 554
+            }
+          },
+          "CNtAYPkO": {
+            "hash": "479fec3fd4e32ba4be500ffd8da96d3aa240e278a07070d64e9967d588b2c87d",
+            "budget": {
+              "bytes": 53480,
+              "draws": 5,
+              "instances": 555,
+              "vertices": 784
+            }
+          },
+          "OVVpwBo2": {
+            "hash": "aa993f98326b806847b5fa47a6ecbf7bcc5d365e827da31d5f6248ef6298ef6f",
+            "budget": {
+              "bytes": 33486,
+              "draws": 5,
+              "instances": 286,
+              "vertices": 814
+            }
+          },
+          "Sorg80ps": {
+            "hash": "a5d13aaf87db4ba39ededd52d86d79b5b67d5ae4e8288a3daafd2709e738a65f",
+            "budget": {
+              "bytes": 87704,
+              "draws": 5,
+              "instances": 995,
+              "vertices": 840
+            }
+          },
+          "aOZAupOd": {
+            "hash": "24d99d123617c2c2cc3e83001fcaa364a96e62437b46615d1c2e32679c451927",
+            "budget": {
+              "bytes": 13730,
+              "draws": 5,
+              "instances": 105,
+              "vertices": 388
+            }
+          },
+          "zq8O5Jct": {
+            "hash": "779573d7e06e917becc87f28b8d597d3c94609d4bd9a888e35ebb69f333ca344",
+            "budget": {
+              "bytes": 29968,
+              "draws": 5,
+              "instances": 253,
+              "vertices": 744
+            }
+          },
+          "NDxiQ2xg": {
+            "hash": "a7efa5899ed5f32db9101ed388c1ea7a9a7fc0c28e333286a0d097231af78ca7",
+            "budget": {
+              "bytes": 9576,
+              "draws": 5,
+              "instances": 41,
+              "vertices": 440
+            }
+          },
+          "DQZmfONt": {
+            "hash": "bde1737dc2cda9cf0f7ddb61e12bd5303751e07f944424624f4f796bf6924f11",
+            "budget": {
+              "bytes": 34806,
+              "draws": 5,
+              "instances": 303,
+              "vertices": 816
+            }
+          },
+          "ZSiiyE0H": {
+            "hash": "6e8089dfcdcd1dac6b3739e59082d77b15e5b3358b9e4b2c722eedd9eea69fa1",
+            "budget": {
+              "bytes": 14338,
+              "draws": 5,
+              "instances": 113,
+              "vertices": 388
+            }
+          },
+          "FurjqyeB": {
+            "hash": "2488eca13952a0f196cbef630630e86fce5aebd9eb33d98e1c5ae82942fbf417",
+            "budget": {
+              "bytes": 31494,
+              "draws": 5,
+              "instances": 307,
+              "vertices": 556
+            }
+          },
+          "SgItUCXH": {
+            "hash": "c1b1b60202594247037e1bda41645901eaa3c1b631d3dd5431f8d4df0de3544b",
+            "budget": {
+              "bytes": 53784,
+              "draws": 5,
+              "instances": 559,
+              "vertices": 784
+            }
+          },
+          "7zddOe6j": {
+            "hash": "0c0216be7251ff9044e7e51a73fc3d6c896fa5a754304983485dd26f81b4e500",
+            "budget": {
+              "bytes": 67288,
+              "draws": 5,
+              "instances": 733,
+              "vertices": 804
+            }
+          },
+          "979qTCbp": {
+            "hash": "55b50a95ce034f2cd8d53307903268af0d8d0ac876f7ecd99fc47f81fa099bc4",
+            "budget": {
+              "bytes": 31716,
+              "draws": 5,
+              "instances": 276,
+              "vertices": 744
+            }
+          },
+          "jwLw3UEy": {
+            "hash": "58caceec7bd11b812fdba66581553bfacd6058276d5c901ea4fb0ef491436487",
+            "budget": {
+              "bytes": 27536,
+              "draws": 5,
+              "instances": 221,
+              "vertices": 744
+            }
+          },
+          "X4o3aH3m": {
+            "hash": "4c795ca898f7cec6d0bc461fa502cab5569e8a809b3f13e766d440a6beb28fe0",
+            "budget": {
+              "bytes": 30484,
+              "draws": 5,
+              "instances": 262,
+              "vertices": 732
+            }
+          },
+          "RE3bNP55": {
+            "hash": "205bbff7f1ede7e7826ba160ddedc3a8a6cee549473188d15aedd18f7d53d846",
+            "budget": {
+              "bytes": 31348,
+              "draws": 5,
+              "instances": 273,
+              "vertices": 734
+            }
+          }
+        },
+        "bridge": {
+          "hash": "b615efa0209aef03caa0bfa8f3ad7dd5615b10afdad7b6124c5e5a7ed3af8e8c",
+          "budget": {
+            "bytes": 1260,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 96
+          }
+        },
+        "foreignIdsSameGeometry": {
+          "hash": "cde3f400a76ac79a80f2b2ace80334a9ef94e7f497e28104b36e912f9697f698",
+          "budget": {
+            "bytes": 122472,
+            "draws": 4,
+            "instances": 67,
+            "vertices": 8332
+          }
+        }
+      },
+      "mobile": {
+        "complete": {
+          "hash": "bd5dc41eca533d8c1e18a497665edf5f02c60eba5d2f077844eded0c54a076a1",
+          "budget": {
+            "bytes": 580360,
+            "draws": 5,
+            "instances": 5620,
+            "vertices": 10746
+          }
+        },
+        "byOwner": {
+          "7b3ZwNAB": {
+            "hash": "c14ae3f7abca9004f93601628a2ccf6d04bd436fad55c35f41abee7d48e115b0",
+            "budget": {
+              "bytes": 33822,
+              "draws": 5,
+              "instances": 338,
+              "vertices": 554
+            }
+          },
+          "CNtAYPkO": {
+            "hash": "479fec3fd4e32ba4be500ffd8da96d3aa240e278a07070d64e9967d588b2c87d",
+            "budget": {
+              "bytes": 53480,
+              "draws": 5,
+              "instances": 555,
+              "vertices": 784
+            }
+          },
+          "OVVpwBo2": {
+            "hash": "aa993f98326b806847b5fa47a6ecbf7bcc5d365e827da31d5f6248ef6298ef6f",
+            "budget": {
+              "bytes": 33486,
+              "draws": 5,
+              "instances": 286,
+              "vertices": 814
+            }
+          },
+          "Sorg80ps": {
+            "hash": "a5d13aaf87db4ba39ededd52d86d79b5b67d5ae4e8288a3daafd2709e738a65f",
+            "budget": {
+              "bytes": 87704,
+              "draws": 5,
+              "instances": 995,
+              "vertices": 840
+            }
+          },
+          "aOZAupOd": {
+            "hash": "24d99d123617c2c2cc3e83001fcaa364a96e62437b46615d1c2e32679c451927",
+            "budget": {
+              "bytes": 13730,
+              "draws": 5,
+              "instances": 105,
+              "vertices": 388
+            }
+          },
+          "zq8O5Jct": {
+            "hash": "779573d7e06e917becc87f28b8d597d3c94609d4bd9a888e35ebb69f333ca344",
+            "budget": {
+              "bytes": 29968,
+              "draws": 5,
+              "instances": 253,
+              "vertices": 744
+            }
+          },
+          "NDxiQ2xg": {
+            "hash": "a7efa5899ed5f32db9101ed388c1ea7a9a7fc0c28e333286a0d097231af78ca7",
+            "budget": {
+              "bytes": 9576,
+              "draws": 5,
+              "instances": 41,
+              "vertices": 440
+            }
+          },
+          "DQZmfONt": {
+            "hash": "bde1737dc2cda9cf0f7ddb61e12bd5303751e07f944424624f4f796bf6924f11",
+            "budget": {
+              "bytes": 34806,
+              "draws": 5,
+              "instances": 303,
+              "vertices": 816
+            }
+          },
+          "ZSiiyE0H": {
+            "hash": "6e8089dfcdcd1dac6b3739e59082d77b15e5b3358b9e4b2c722eedd9eea69fa1",
+            "budget": {
+              "bytes": 14338,
+              "draws": 5,
+              "instances": 113,
+              "vertices": 388
+            }
+          },
+          "FurjqyeB": {
+            "hash": "2488eca13952a0f196cbef630630e86fce5aebd9eb33d98e1c5ae82942fbf417",
+            "budget": {
+              "bytes": 31494,
+              "draws": 5,
+              "instances": 307,
+              "vertices": 556
+            }
+          },
+          "SgItUCXH": {
+            "hash": "c1b1b60202594247037e1bda41645901eaa3c1b631d3dd5431f8d4df0de3544b",
+            "budget": {
+              "bytes": 53784,
+              "draws": 5,
+              "instances": 559,
+              "vertices": 784
+            }
+          },
+          "7zddOe6j": {
+            "hash": "0c0216be7251ff9044e7e51a73fc3d6c896fa5a754304983485dd26f81b4e500",
+            "budget": {
+              "bytes": 67288,
+              "draws": 5,
+              "instances": 733,
+              "vertices": 804
+            }
+          },
+          "979qTCbp": {
+            "hash": "55b50a95ce034f2cd8d53307903268af0d8d0ac876f7ecd99fc47f81fa099bc4",
+            "budget": {
+              "bytes": 31716,
+              "draws": 5,
+              "instances": 276,
+              "vertices": 744
+            }
+          },
+          "jwLw3UEy": {
+            "hash": "58caceec7bd11b812fdba66581553bfacd6058276d5c901ea4fb0ef491436487",
+            "budget": {
+              "bytes": 27536,
+              "draws": 5,
+              "instances": 221,
+              "vertices": 744
+            }
+          },
+          "X4o3aH3m": {
+            "hash": "4c795ca898f7cec6d0bc461fa502cab5569e8a809b3f13e766d440a6beb28fe0",
+            "budget": {
+              "bytes": 30484,
+              "draws": 5,
+              "instances": 262,
+              "vertices": 732
+            }
+          },
+          "RE3bNP55": {
+            "hash": "205bbff7f1ede7e7826ba160ddedc3a8a6cee549473188d15aedd18f7d53d846",
+            "budget": {
+              "bytes": 31348,
+              "draws": 5,
+              "instances": 273,
+              "vertices": 734
+            }
+          }
+        },
+        "bridge": {
+          "hash": "b615efa0209aef03caa0bfa8f3ad7dd5615b10afdad7b6124c5e5a7ed3af8e8c",
+          "budget": {
+            "bytes": 1260,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 96
+          }
+        },
+        "foreignIdsSameGeometry": {
+          "hash": "cde3f400a76ac79a80f2b2ace80334a9ef94e7f497e28104b36e912f9697f698",
+          "budget": {
+            "bytes": 122472,
+            "draws": 4,
+            "instances": 67,
+            "vertices": 8332
+          }
+        }
+      }
+    }
+  },
+  "retainedChariteWithoutInferredFacade": {
+    "full": {
+      "complete": {
+        "hash": "a85a5187e7b510f67568adfa7b88a2bf91f1079d169d5f64d37e98937f3004d0",
+        "budget": {
+          "bytes": 76248,
+          "draws": 2,
+          "instances": 0,
+          "vertices": 5400
+        }
+      },
+      "byOwner": {
+        "7b3ZwNAB": {
+          "hash": "108e0d40665f32f1c8ef78bf6d822fe92143f2dbf071027ffda8b137e2d7581f",
+          "budget": {
+            "bytes": 3114,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 216
+          }
+        },
+        "CNtAYPkO": {
+          "hash": "98c8d63a2fb9454787aaeee7d838380d0669759cf3691340ffa014a05f694dea",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "OVVpwBo2": {
+          "hash": "30fa525d123433c8023f55f17f6d5c8f8805f88e05468a41432dea2e6f385386",
+          "budget": {
+            "bytes": 6084,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 432
+          }
+        },
+        "Sorg80ps": {
+          "hash": "6967d20e90c10e1b68ac45f7e518153e13f42971b7671477ad56eed1d1416bc0",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "aOZAupOd": {
+          "hash": "07457abaa699cd46b67551c4a5b92aaf75c31feee75b4a8fa61df59f8720484c",
+          "budget": {
+            "bytes": 2214,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 156
+          }
+        },
+        "zq8O5Jct": {
+          "hash": "e4e74e7df6990a092bdc64d19739a456be9d244973ae90eb39eb4a6964609513",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "NDxiQ2xg": {
+          "hash": "e62e99f2a870477adb64c2bce4cdda6f1bddfe618f7d3345ca0218cb7bb6445e",
+          "budget": {
+            "bytes": 3204,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 228
+          }
+        },
+        "DQZmfONt": {
+          "hash": "81bc7e08a7cbea1c28971c271dbcf8828616d571bcef5e77ba61f3ae0ac63d6f",
+          "budget": {
+            "bytes": 6084,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 432
+          }
+        },
+        "ZSiiyE0H": {
+          "hash": "32bb032fc94b2fb412a34cbdf41276ac4fce8e9fe1b0170ce07bfa9e8d6caa60",
+          "budget": {
+            "bytes": 2214,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 156
+          }
+        },
+        "FurjqyeB": {
+          "hash": "c4ecffdc9fdc15dbc80dcc85050c65af624142d77de5fef5776328dc36beb070",
+          "budget": {
+            "bytes": 3114,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 216
+          }
+        },
+        "SgItUCXH": {
+          "hash": "4aa9b9907ffe0ec86361249a1bc478bc0790665a9e44fd54d68d26402964747e",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "7zddOe6j": {
+          "hash": "542c9fd4616e2cd63e14c2951ab5942608ffa36737deadcf2e20a4b6e92be08d",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "979qTCbp": {
+          "hash": "99573a5c45b8c6f4f73dda4703d2a9252633d56524ff4062ba6641c7470b6629",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "jwLw3UEy": {
+          "hash": "1f166715d3517be2f746908a22821d275af2a443987e598031a6c97aa324bfe6",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "X4o3aH3m": {
+          "hash": "87fb1ab804fd53a277306d72917e5f3dc65953ce1d2ece0f789ff29802f58913",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "RE3bNP55": {
+          "hash": "ea4c239fdcd839d83515d123b04aff97064fd86168ea45a3c51ccc3c80d1d663",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        }
+      },
+      "bridge": {
+        "hash": "b615efa0209aef03caa0bfa8f3ad7dd5615b10afdad7b6124c5e5a7ed3af8e8c",
+        "budget": {
+          "bytes": 1260,
+          "draws": 3,
+          "instances": 0,
+          "vertices": 96
+        }
+      },
+      "foreignIdsSameGeometry": {
+        "hash": "cde3f400a76ac79a80f2b2ace80334a9ef94e7f497e28104b36e912f9697f698",
+        "budget": {
+          "bytes": 122472,
+          "draws": 4,
+          "instances": 67,
+          "vertices": 8332
+        }
+      }
+    },
+    "mobile": {
+      "complete": {
+        "hash": "a85a5187e7b510f67568adfa7b88a2bf91f1079d169d5f64d37e98937f3004d0",
+        "budget": {
+          "bytes": 76248,
+          "draws": 2,
+          "instances": 0,
+          "vertices": 5400
+        }
+      },
+      "byOwner": {
+        "7b3ZwNAB": {
+          "hash": "108e0d40665f32f1c8ef78bf6d822fe92143f2dbf071027ffda8b137e2d7581f",
+          "budget": {
+            "bytes": 3114,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 216
+          }
+        },
+        "CNtAYPkO": {
+          "hash": "98c8d63a2fb9454787aaeee7d838380d0669759cf3691340ffa014a05f694dea",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "OVVpwBo2": {
+          "hash": "30fa525d123433c8023f55f17f6d5c8f8805f88e05468a41432dea2e6f385386",
+          "budget": {
+            "bytes": 6084,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 432
+          }
+        },
+        "Sorg80ps": {
+          "hash": "6967d20e90c10e1b68ac45f7e518153e13f42971b7671477ad56eed1d1416bc0",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "aOZAupOd": {
+          "hash": "07457abaa699cd46b67551c4a5b92aaf75c31feee75b4a8fa61df59f8720484c",
+          "budget": {
+            "bytes": 2214,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 156
+          }
+        },
+        "zq8O5Jct": {
+          "hash": "e4e74e7df6990a092bdc64d19739a456be9d244973ae90eb39eb4a6964609513",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "NDxiQ2xg": {
+          "hash": "e62e99f2a870477adb64c2bce4cdda6f1bddfe618f7d3345ca0218cb7bb6445e",
+          "budget": {
+            "bytes": 3204,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 228
+          }
+        },
+        "DQZmfONt": {
+          "hash": "81bc7e08a7cbea1c28971c271dbcf8828616d571bcef5e77ba61f3ae0ac63d6f",
+          "budget": {
+            "bytes": 6084,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 432
+          }
+        },
+        "ZSiiyE0H": {
+          "hash": "32bb032fc94b2fb412a34cbdf41276ac4fce8e9fe1b0170ce07bfa9e8d6caa60",
+          "budget": {
+            "bytes": 2214,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 156
+          }
+        },
+        "FurjqyeB": {
+          "hash": "c4ecffdc9fdc15dbc80dcc85050c65af624142d77de5fef5776328dc36beb070",
+          "budget": {
+            "bytes": 3114,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 216
+          }
+        },
+        "SgItUCXH": {
+          "hash": "4aa9b9907ffe0ec86361249a1bc478bc0790665a9e44fd54d68d26402964747e",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "7zddOe6j": {
+          "hash": "542c9fd4616e2cd63e14c2951ab5942608ffa36737deadcf2e20a4b6e92be08d",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "979qTCbp": {
+          "hash": "99573a5c45b8c6f4f73dda4703d2a9252633d56524ff4062ba6641c7470b6629",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "jwLw3UEy": {
+          "hash": "1f166715d3517be2f746908a22821d275af2a443987e598031a6c97aa324bfe6",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "X4o3aH3m": {
+          "hash": "87fb1ab804fd53a277306d72917e5f3dc65953ce1d2ece0f789ff29802f58913",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        },
+        "RE3bNP55": {
+          "hash": "ea4c239fdcd839d83515d123b04aff97064fd86168ea45a3c51ccc3c80d1d663",
+          "budget": {
+            "bytes": 5580,
+            "draws": 2,
+            "instances": 0,
+            "vertices": 396
+          }
+        }
+      },
+      "bridge": {
+        "hash": "b615efa0209aef03caa0bfa8f3ad7dd5615b10afdad7b6124c5e5a7ed3af8e8c",
+        "budget": {
+          "bytes": 1260,
+          "draws": 3,
+          "instances": 0,
+          "vertices": 96
+        }
+      },
+      "foreignIdsSameGeometry": {
+        "hash": "cde3f400a76ac79a80f2b2ace80334a9ef94e7f497e28104b36e912f9697f698",
+        "budget": {
+          "bytes": 122472,
+          "draws": 4,
+          "instances": 67,
+          "vertices": 8332
+        }
+      }
+    }
+  },
+  "transformation": "Only disable the 16-ID base-panel recipe and early-continue its inferred pane/axis branch; no generic fallback. Source bodies, roof geometry/ink, the separate bridge and same-footprint foreign-ID controls remain."
+}

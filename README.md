@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.106 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.106/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.107 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.107/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.106** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.107** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.107 refines the Charité hospital tower and the modern federal ministry at Kapelle-Ufer 1 using measured building parts and referenced facade details. [Sources and verification](docs/refinements-v207.md).
+
+Version 1.0.107 verfeinert das Charité-Bettenhochhaus und den modernen Ministeriumsbau am Kapelle-Ufer 1 anhand vermessener Gebäudeteile und belegter Fassadenmerkmale.
 
 Version 1.0.106 adds source-tagged road markings, classified crossings and refined traffic signals inside old Mitte (excluding Wedding and Tiergarten). Urania receives its measured envelope, recessed glass entrance, yellow/magenta lettering and the curved Arc de 124.5°. [Sources and verification](docs/refinements-v206.md).
 

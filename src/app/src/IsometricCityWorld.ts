@@ -365,6 +365,8 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
+  /** v207 replaces only the inferred tower facade; source shells/ink remain. */
+  includeLegacyChariteFacade?: boolean;
   detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
@@ -12043,7 +12045,7 @@ export function createIsometricCityCore(
     bakeFacadeColor(geometry, color, capTone, capY,
       hasUpperStoreys ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined);
     bodyGeometries.push(geometry);
-    if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
+    if (options.includeLegacyChariteFacade !== false && CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
       const baseHeight = Math.min(
         bodyHeight,
         CHARITE_BETTENHOCHHAUS_PROFILE.baseStoreys *
@@ -12149,7 +12151,8 @@ export function createIsometricCityCore(
     // buildings (Reichstag) keep their separately referenced real windows.
     if (
       totalHeight >= WINDOW_MIN_BUILDING_M &&
-      !WINDOWS_SUPPRESSED_IDS.has(building.id)
+      !WINDOWS_SUPPRESSED_IDS.has(building.id) &&
+      !(options.includeLegacyChariteFacade === false && CHARITE_BETTENHOCHHAUS_IDS.has(building.id))
     ) {
       const ringMeters2 = building.ring.map(
         ([x, z]) => [x / 10, z / 10] as [number, number],

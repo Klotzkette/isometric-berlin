@@ -2026,12 +2026,13 @@ function addFuturium(
 function addGreenFederalCampus(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
+  includeLegacyResearchMinistry: boolean,
 ): void {
   const point = anchor(
     byName,
     "Bundesministerium für Forschung, Technologie und Raumfahrt",
   );
-  if (point) {
+  if (point && includeLegacyResearchMinistry) {
     localBox(builder, LIGHT_GREEN, point, 0, 0.22, 10, 76, 0.32, 44, 0.06);
     for (let bay = 0; bay < 13; bay += 1) {
       localLampBox(
@@ -4686,6 +4687,7 @@ function addSigns(
 export function createCentralCivicDetails(
   landmarks: CentralCivicLandmark[],
   detailProfile: PalaceDetailProfile = "full",
+  options: { includeLegacyResearchMinistry?: boolean } = {},
 ): Group {
   const group = new Group();
   group.name = "Task-11 central transit and civic recognition details";
@@ -4784,7 +4786,7 @@ export function createCentralCivicDetails(
   addHauptbahnhofTransit(builder, byName);
   addOggiAndTaxis(builder, byName);
   addFuturium(builder, byName);
-  addGreenFederalCampus(builder, byName);
+  addGreenFederalCampus(builder, byName, options.includeLegacyResearchMinistry !== false);
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
   addPariserPlatzDetails(builder, pariserPlatzWaterBuilder);

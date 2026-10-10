@@ -72,6 +72,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   // Constructor-only v206 paint/model arrays; signal and terrain metadata remain stable.
   "altMitteTransportV206.json": ["cells"],
   "uraniaArcV206.json": ["sites"],
+  "chariteBettenhausV207.json": ["boxes", "nativeBlocks", "nightBoxes", "nightNativeBlocks"],
+  "ministrySpreeV207.json": ["surfaces", "boxes", "blocks"],
   "iccV199.json": ["sites"],
   "iccV199Native.json": ["sites"],
   "funkturmV199.json": ["groups"],

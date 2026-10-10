@@ -1617,6 +1617,7 @@ function startSurroundingCity(runtime: Runtime): void {
     }
     // Drawn mode changes during construction select the latest materials.
     outlines.userData.setMode(runtime.lightingMode);
+    applyRefinedCivicLightingV207(outlines, runtime.lightingMode, runtime.nightLightsOn);
     runtime.outerThinOutlines = outlines;
     outlines.visible = !runtime.underside;
     runtime.scene.add(outlines);
@@ -2227,6 +2228,18 @@ function updateFarZoomAntiFlicker(
   return changed;
 }
 
+/** Relight only the two v207 additions; older outline material recipes stay intact. */
+function applyRefinedCivicLightingV207(root: Object3D, mode: LightingMode, lightsOn: boolean): void {
+  for (const name of [
+    "Charité Bettenhochhaus facade and rooftop identity v207",
+    "Kapelle-Ufer ministry green architecture v207",
+    "Kapelle-Ufer ministry green architecture v207 native",
+  ]) {
+    const family = root.getObjectByName(name);
+    if (family) applyLightingToRoot(family, mode, lightsOn);
+  }
+}
+
 export function applyLightingToRoot(
   root: Object3D,
   mode: LightingMode,
@@ -2667,6 +2680,7 @@ function setSceneLighting(
   if (runtime.outerThinOutlines) {
     runtime.outerThinOutlines.visible = !runtime.underside;
     runtime.outerThinOutlines.userData.setMode(mode);
+    applyRefinedCivicLightingV207(runtime.outerThinOutlines, mode, lightsOn);
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -3981,6 +3995,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            includeLegacyChariteFacade: false,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
@@ -8508,6 +8523,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
             runtime.coarsePointer ? "mobile" : "full",
+            { includeLegacyResearchMinistry: false },
           );
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,

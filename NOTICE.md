@@ -1631,3 +1631,14 @@ procedural facade/sign and Arc de 124.5° refinement; no photograph or texture
 is included. The public-art inventory supplies the arc's anchor and published
 span/height; section dimensions and facade apertures remain documented estimates.
 See [scope, source records and preservation](docs/refinements-v206.md).
+
+
+## Charité Bettenhochhaus and Kapelle-Ufer ministry (v1.0.107)
+
+Retained Berlin LoD2 (Geoportal Berlin, dl-de/zero-2-0) and OpenStreetMap
+contributors (ODbL-1.0) anchor the two refinements. Facade rhythm, colors and
+small architectural subdivisions are reference-guided display estimates. The
+per-image Commons credits are included in the viewer attribution menu; no
+reference photograph is bundled or used as a texture. Existing source geometry
+and all unrelated details are preserved. See [scope and independent preservation
+receipts](docs/refinements-v207.md).

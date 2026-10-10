@@ -188,6 +188,16 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.107 request permits bounded refinements of the Charité
+Bettenhochhaus and the modern federal research ministry at Kapelle-Ufer 1.
+Use retained measured parts and source-supported facade recognition; preserve
+all unrelated campus, ministry, ground and street detail. Only precisely
+identified inaccurate authored proxies may be superseded with documented source
+owners. Keep full drawn detail on mobile and desktop, separate native geometry,
+all existing residency budgets and the 93-place tour. This adds no district
+coverage. The location describes the former BMBF/current research and space
+ministry, not by itself the former Reichsluftfahrtministerium on Wilhelmstraße.
+
 The owner's v1.0.106 request permits source-bound road markings, documented
 crossing styles and traffic-signal refinements throughout the frozen old Mitte
 boundary, excluding Wedding and Tiergarten. Source-clipped coarse grass may be

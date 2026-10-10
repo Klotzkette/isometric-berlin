@@ -254,6 +254,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       const buildings = batches.read(id);
       const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
+        includeLegacyChariteFacade: false,
       });
       buildings.length = 0;
       await postBatch(root, "buildings", id, startedAt,

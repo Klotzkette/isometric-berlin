@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "site": "Kapelle-Ufer 1, former Bundesministerium für Bildung und Forschung (BMBF), current Bundesministerium für Forschung, Technologie und Raumfahrt",
+  "checked": "2026-10-10",
+  "geometry": {
+    "parentId": "DEBE01YYK00005iG",
+    "porticoId": "DEBE01YYK0001xGY",
+    "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+    "license": "dl-de/zero-2-0",
+    "osmIdentity": "https://www.openstreetmap.org/way/1302352107",
+    "osmLicense": "ODbL-1.0",
+    "receipt": "src/app/src/data/ministrySpreeV207Evidence.json"
+  },
+  "primaryDescriptions": [
+    {
+      "url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-forschung-technologie-und-raumfahrt",
+      "publisher": "Bundesregierung",
+      "use": "Current ministry name and Berlin address Kapelle-Ufer 1. Text facts only."
+    },
+    {
+      "url": "https://www.heinlewischer.de/projekte/detail/bundesministerium-fuer-bildung-und-forschung-berlin-neubau-verwaltungsgebaeude/",
+      "publisher": "Heinle Wischer",
+      "use": "Architect and client identity, August 2014 completion, continuous cornice, regular facade, staged entrance and integrated roof/facade photovoltaics. Text facts only; the architect's photographs and plans are not reproduced."
+    }
+  ],
+  "visualReferences": [
+    {
+      "file": "Mitte Kapelle-Ufer BMBF.JPG",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF.JPG",
+      "author": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "captured": "2016-04-09",
+      "use": "Reference-only green-grey stone, six storeys, vertical full-height upper windows and narrow pale/green panels. Procedural interpretation; no pixels bundled."
+    },
+    {
+      "file": "Mitte Kapelle-Ufer BMBF-002.JPG",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF-002.JPG",
+      "author": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "captured": "2016-04-09",
+      "use": "Reference-only river facade rhythm, thin horizontal floor joints and bronze surrounds at the lower storey. Procedural interpretation; no pixels bundled."
+    },
+    {
+      "file": "Mitte Kapelle-Ufer BMBF-003.JPG",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mitte_Kapelle-Ufer_BMBF-003.JPG",
+      "author": "Fridolin freudenfett",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "captured": "2016-04-09",
+      "use": "Reference-only low central entrance glazing, rectilinear green piers and dark roof technical screens. No poster, writing, photograph or photographic texture reproduced."
+    }
+  ]
+}
