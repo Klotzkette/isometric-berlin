@@ -188,6 +188,13 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's subsequent v1.0.112 request permits faster background construction
+while flying high, preserving all visual/source quality. A bounded two-packet
+transport prefetch may overlap the foreground request; reserve at most 4 MiB,
+including HTTP-decoded sizes. Keep JSON/geometry decoding and publication serial,
+all source bytes/topology and resident budgets unchanged, and cancel obsolete
+work on view/family/disposal changes. See `docs/high-flight-v212.md`.
+
 The owner's subsequent v1.0.111 request permits a restrained presentation pass
 across the entire already covered city. Generic material families, retained
 colour/material tags and existing facade contrast may be refined without new

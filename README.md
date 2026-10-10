@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.111 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.111/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.112 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.112/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.111** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.112** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.112 overlaps small upcoming city-packet downloads with the current build, reducing serial network waits at wide/high flight views. A fixed 4 MiB prefetch allowance and one-at-a-time decoding preserve the complete models and existing residency rules. [Scope and verification](docs/high-flight-v212.md).
+
+Version 1.0.112 lädt die nächsten kleinen Stadtpakete bereits während des aktuellen Aufbaus. Eine feste Grenze von 4 MiB für die Vorausladung und weiterhin einzeln aufgebaute Modelle verkürzen Wartezeiten bei weiter Sicht, ohne Details zu reduzieren.
 
 Version 1.0.111 gives ordinary buildings throughout the existing city clearer plaster/stone colour families and source-height shading. Retained material and colour tags take precedence more consistently; all existing geometry and bespoke landmark details remain. [Scope and verification](docs/city-polish-v211.md).
 

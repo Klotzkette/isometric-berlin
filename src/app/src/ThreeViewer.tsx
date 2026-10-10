@@ -3291,6 +3291,19 @@ function attachProgressiveWorldMessage(
     return;
   }
 
+  if (runtime.isoWorld && ((runtime.mobileBuildingWanted && message.kind === "buildings" &&
+      !runtime.mobileBuildingWanted.includes(message.id)) ||
+      runtime.progressiveWorldBatches.some((batch) => batch.userData.progressiveWorldBatchId === message.id))) {
+    // The camera moved while this district was building. Its complete source
+    // envelope (or an already attached exact batch) is still visible. Decline
+    // the transfer before allocating Three objects or arrays; no scene/GPU
+    // resources exist to dispose, and ACK still unblocks the bounded worker.
+    const acknowledged = tryProgressiveWorkerOperation(() =>
+      worker.postMessage({ id: message.id, type: "batch-attached" }),
+    );
+    if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
+    return;
+  }
   let object: Object3D;
   try {
     object = deserializeTransferredObject3D(message.object);
@@ -3301,18 +3314,6 @@ function attachProgressiveWorldMessage(
   if (!(object instanceof Group) || !runtime.isoWorld) {
     disposeObject3D(runtime, object);
     failProgressiveWorld(runtime, worker, warn);
-    return;
-  }
-  if ((runtime.mobileBuildingWanted && message.kind === "buildings" &&
-      !runtime.mobileBuildingWanted.includes(message.id)) ||
-      runtime.progressiveWorldBatches.some((batch) => batch.userData.progressiveWorldBatchId === message.id)) {
-    // The camera moved while this district was building. Its complete source
-    // envelope is already visible; discard obsolete detail and unblock the worker.
-    disposeObject3D(runtime, object);
-    const acknowledged = tryProgressiveWorkerOperation(() =>
-      worker.postMessage({ id: message.id, type: "batch-attached" }),
-    );
-    if (!acknowledged.ok) failProgressiveWorld(runtime, worker, warn);
     return;
   }
   // Materialise against the mode active at ATTACH time. Day ↔ Night ↔ Snow

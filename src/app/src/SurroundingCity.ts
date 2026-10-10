@@ -12,6 +12,10 @@ export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
+// At most two upcoming packets overlap the one foreground fetch/decode. Reserve
+// the decoded size too: HTTP Content-Encoding may already inflate a response.
+export const SURROUNDING_CITY_PREFETCH_BYTES = 4 * 1024 * 1024;
+export const SURROUNDING_CITY_PREFETCH_COUNT = 2;
 
 type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number; sha256?: string };
 export type SurroundingChunkDescriptor = {
@@ -115,11 +119,17 @@ async function fetchJsonBounded(
   // from an older immutable browser cache without discarding reusable city data.
   const response = await fetcher(url, { signal, ...(asset ? {} : { cache: "no-cache" as const }) });
   if (!response.ok || !response.body) throw new Error(`Surrounding-city data HTTP ${response.status}`);
-  let source: ReadableStream<Uint8Array> = response.body;
+  return readJsonBounded(response.body, response.headers, signal, limit, asset);
+}
+
+async function readJsonBounded(
+  input: ReadableStream<Uint8Array>, headers: Headers, signal: AbortSignal, limit: number, asset?: Asset,
+): Promise<unknown> {
+  let source = input;
   const decodedLimit = asset?.encoding === "gzip" ? asset.decodedBytes! : limit;
   // Fetch already removes an HTTP Content-Encoding. Static hosts normally
   // serve .json.gz as an opaque file, but must not be decompressed twice.
-  const transportDecoded = response.headers.get("content-encoding")?.toLowerCase()
+  const transportDecoded = headers.get("content-encoding")?.toLowerCase()
     .split(",").some(value => value.trim() === "gzip");
   if (asset?.encoding === "gzip" && !transportDecoded) {
     let packedLength = 0;
@@ -143,6 +153,7 @@ async function fetchJsonBounded(
       let offset = 0;
       try {
         while (true) {
+          if (signal.aborted) throw new DOMException("Aborted", "AbortError");
           const next = await packedReader.read();
           if (next.done) break;
           packed.set(next.value, offset); offset += next.value.byteLength;
@@ -163,6 +174,7 @@ async function fetchJsonBounded(
   let length = 0, text = "";
   try {
     while (true) {
+      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
       const next = await reader.read();
       if (next.done) break;
       length += next.value.byteLength;
@@ -170,12 +182,62 @@ async function fetchJsonBounded(
       text += decoder.decode(next.value, { stream: true });
     }
     text += decoder.decode();
+    if (signal.aborted) throw new DOMException("Aborted", "AbortError");
     if (asset?.encoding === "gzip" && length !== decodedLimit) throw new Error("Surrounding-city decoded response is incomplete");
     return JSON.parse(text) as unknown;
   } finally {
     await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
+}
+
+type BufferedPacket = { bytes: Uint8Array; headers: Headers };
+type PrefetchResult = { packet: BufferedPacket; error?: never } | { packet?: never; error: unknown };
+type Prefetch = { controller: AbortController; reservedBytes: number; result: Promise<PrefetchResult> | null };
+const packetUrl = (asset: Asset, manifestUrl: URL): URL => {
+  const url = new URL(asset.url, manifestUrl);
+  if (asset.sha256) url.searchParams.set("v", asset.sha256);
+  return url;
+};
+const prefetchReservation = (asset: Asset): number => Math.max(asset.bytes + 64,
+  asset.encoding === "gzip" ? asset.decodedBytes! : 0);
+
+/** Retain only bounded transport bytes. JSON and geometry are still decoded
+ * one at a time, and no visited-city cache survives publication/eviction. */
+async function bufferPacket(fetcher: typeof fetch, url: URL, signal: AbortSignal, asset: Asset): Promise<BufferedPacket> {
+  const response = await fetcher(url, { signal });
+  if (!response.ok || !response.body) throw new Error(`Surrounding-city data HTTP ${response.status}`);
+  const transportDecoded = response.headers.get("content-encoding")?.toLowerCase()
+    .split(",").some(value => value.trim() === "gzip");
+  const limit = asset.encoding === "gzip"
+    ? transportDecoded ? asset.decodedBytes! : asset.bytes : asset.bytes + 64;
+  const bytes = new Uint8Array(limit);
+  const reader = response.body.getReader();
+  let length = 0;
+  try {
+    while (true) {
+      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+      const next = await reader.read();
+      if (next.done) break;
+      if (length + next.value.byteLength > limit) throw new Error("Surrounding-city response exceeds its declared bounded size");
+      bytes.set(next.value, length); length += next.value.byteLength;
+    }
+    if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+    if (asset.encoding === "gzip" && length !== limit) throw new Error("Surrounding-city compressed response is incomplete");
+    return { bytes: bytes.subarray(0, length), headers: response.headers };
+  } finally { await reader.cancel().catch(() => undefined); reader.releaseLock(); }
+}
+
+async function consumePrefetch(job: Prefetch, signal: AbortSignal, asset: Asset): Promise<unknown> {
+  const result = await job.result!;
+  job.result = null;
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+  if (!result.packet) throw result.error;
+  const { bytes, headers } = result.packet;
+  // A stream view avoids Response(arrayBuffer)'s extra copy. The existing
+  // decompression/validation path consumes these exact source bytes.
+  const source = new ReadableStream<Uint8Array>({ start(stream) { stream.enqueue(bytes); stream.close(); } });
+  return readJsonBounded(source, headers, signal, asset.bytes + 64, asset);
 }
 
 /** Default for unit/standalone use; the viewer supplies its residency-aware disposer. */
@@ -207,7 +269,7 @@ function retryDelay(milliseconds: number, signal: AbortSignal): Promise<boolean>
 }
 
 /**
- * One compact outline family, one in-flight network/decode job, no visited-city
+ * One compact outline family, one decode with bounded transport prefetch, no visited-city
  * JSON cache. Visible tiles are never dropped to meet a quota: only offscreen
  * tiles expire, with an expanded frustum and short reversal grace. The small
  * coarse source has no fine LoD work and remains eligible at any zoom distance.
@@ -228,6 +290,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const residents = new Map<string, Resident>();
   const failedAt = new Map<string, number>();
   const desired = new Set<string>();
+  let previousDesired: Set<string> | null = null;
+  let hasScanned = false;
+  const prefetches = new Map<string, Prefetch>();
+  let prefetchedBytes = 0;
   const projection = new Matrix4(), matrix = new Matrix4(), frustum = new Frustum();
   const box = new Box3(), cameraPosition = new Vector3();
   let manifest: SurroundingCityManifest | null = null;
@@ -259,6 +325,35 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const report = (error: unknown): void => {
     options.onError?.(error instanceof Error ? error.message : String(error));
   };
+  const takePrefetch = (id: string): Prefetch | undefined => {
+    const job = prefetches.get(id);
+    if (job) { prefetches.delete(id); prefetchedBytes -= job.reservedBytes; }
+    return job;
+  };
+  const cancelPrefetches = (all = false): void => {
+    for (const [id, job] of prefetches) if (all || !desired.has(id)) {
+      job.controller.abort(); takePrefetch(id); job.result = null;
+    }
+  };
+  const fillPrefetches = (): void => {
+    if (disposed || !activeView()) return;
+    for (const descriptor of queue) {
+      if (prefetches.size >= SURROUNDING_CITY_PREFETCH_COUNT) break;
+      if (descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
+          (previousDesired && !previousDesired.has(descriptor.id)) ||
+          !desired.has(descriptor.id) || now() - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) continue;
+      const asset = mode === "minecraft" ? descriptor.minecraft : descriptor.drawn;
+      const reservedBytes = prefetchReservation(asset);
+      if (prefetchedBytes + reservedBytes > SURROUNDING_CITY_PREFETCH_BYTES) continue;
+      const task = new AbortController();
+      const job: Prefetch = { controller: task, reservedBytes, result: null };
+      // Handle rejection immediately, even if a camera turn discards this job
+      // before it is promoted to the foreground. Aborted bytes are never cached.
+      job.result = bufferPacket(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset)
+        .then(packet => ({ packet }), error => ({ error }));
+      prefetches.set(descriptor.id, job); prefetchedBytes += reservedBytes;
+    }
+  };
   const pump = async (): Promise<void> => {
     if (disposed || processing || !manifest || !activeView()) return;
     processing = true;
@@ -270,13 +365,15 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         const familyRevision = revision;
         const minecraft = mode === "minecraft";
         const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
-        const task = new AbortController();
+        const prefetched = takePrefetch(descriptor.id);
+        const task = prefetched?.controller ?? new AbortController();
         active = { id: descriptor.id, controller: task };
         let unpublished: Group | null = null;
         try {
-          const assetUrl = new URL(asset.url, options.manifestUrl);
-          if (asset.sha256) assetUrl.searchParams.set("v", asset.sha256);
-          const data = await fetchJsonBounded(fetcher, assetUrl, task.signal, asset.bytes + 64, asset);
+          const loading = prefetched ? consumePrefetch(prefetched, task.signal, asset)
+            : fetchJsonBounded(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset.bytes + 64, asset);
+          fillPrefetches();
+          const data = await loading;
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const entry = await createSurroundingCityChunkCooperatively(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
@@ -314,7 +411,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const refresh = (timestamp = now(), nextFocus?: { x: number; z: number }): void => {
     if (nextFocus) focus = nextFocus;
     if (disposed || !manifest || timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
-    if (!activeView()) { active?.controller.abort(); queue = []; lastScan = -Infinity; return; }
+    if (!activeView()) { active?.controller.abort(); cancelPrefetches(true); queue = []; lastScan = -Infinity; return; }
     lastScan = timestamp;
     options.camera.updateMatrixWorld();
     options.camera.getWorldPosition(cameraPosition);
@@ -323,6 +420,11 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     projection.elements[5] /= 1.18;
     matrix.multiplyMatrices(projection, options.camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(matrix);
+    // The foreground follows new views immediately. Speculation after a camera
+    // move waits one scan for continuing visibility, avoiding packets glimpsed
+    // only during a fast turn. The initial view can prefetch immediately.
+    if (hasScanned) previousDesired = new Set(desired);
+    hasScanned = true;
     desired.clear();
     queue = [];
     for (const descriptor of manifest.chunks) {
@@ -340,6 +442,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     const from = focus ?? cameraPosition;
     queue.sort((a, b) => distanceSquared(a.bounds, from.x, from.z) - distanceSquared(b.bounds, from.x, from.z));
     if (active && !desired.has(active.id)) active.controller.abort();
+    cancelPrefetches();
+    if (processing) fillPrefetches();
     let changed = false;
     for (const [id, entry] of residents) {
       if (!desired.has(id) && (timestamp - entry.lastWanted >= retireMs || geometryBytes > budget)) {
@@ -355,8 +459,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     disposed = true;
     controller.abort();
     active?.controller.abort();
+    cancelPrefetches(true);
     queue = [];
-    desired.clear(); failedAt.clear();
+    desired.clear(); previousDesired = null; failedAt.clear();
     for (const id of residents.keys()) evict(id);
     manifest = null;
     options.signal?.removeEventListener("abort", dispose);
@@ -401,6 +506,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       if (!changedFamily) return;
       revision++;
       active?.controller.abort();
+      cancelPrefetches(true);
       for (const id of residents.keys()) evict(id);
       failedAt.clear();
       lastScan = -Infinity;

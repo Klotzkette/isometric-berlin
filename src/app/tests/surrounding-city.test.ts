@@ -6,6 +6,7 @@ import {
 } from "../src/SurroundingCityGeometry";
 import {
   createSurroundingCity, disposeSurroundingCityRoot, validateSurroundingManifest,
+  SURROUNDING_CITY_PREFETCH_BYTES,
   type SurroundingCityManifest,
 } from "../src/SurroundingCity";
 
@@ -253,7 +254,7 @@ test("moving to a new district releases old geometry and navigation, then reload
   expect(city.residentChunkCount).toBe(0); expect(city.navigationTiles).toHaveLength(0);
 });
 
-test("only one fetch/decode is active even with multiple visible chunks and mode changes", async () => {
+test("bounded overlapping transfers discard the former family on mode changes", async () => {
   const view = camera(1280, 4000);
   let releaseFetch: (() => void) | undefined, active = 0, peak = 0;
   const calls: string[] = [];
@@ -270,11 +271,11 @@ test("only one fetch/decode is active even with multiple visible chunks and mode
     } finally { active--; }
   }) as typeof fetch;
   const city = createSurroundingCity({ camera: view, manifestUrl: new URL("https://example.test/manifest.json"), fetch: fetcher });
-  await city.ready; await until(() => calls.length === 1);
-  expect(city.residentChunkCount).toBe(0); expect(peak).toBe(1);
+  await city.ready; await until(() => calls.length === 2);
+  expect(city.residentChunkCount).toBe(0); expect(peak).toBe(2);
   city.setMode("minecraft"); releaseFetch?.();
   await until(() => !city.pending);
-  expect(peak).toBe(1);
+  expect(peak).toBeLessThanOrEqual(3);
   expect(city.residentChunkCount).toBe(2);
   expect(city.root.children.every(child => child.userData.nativeMinecraft === true)).toBeTrue();
   expect(calls.filter(path => path.includes("minecraft"))).toHaveLength(2);
@@ -311,13 +312,15 @@ test("retirement budgets never remove a tile that is still in the wide visible v
   city.dispose();
 });
 
-async function compressedCity(options: { fallback?: boolean; decodedHeader?: boolean; declaredDelta?: number } = {}) {
+async function compressedCity(options: { fallback?: boolean; decodedHeader?: boolean; declaredDelta?: number; prefetch?: boolean } = {}) {
   const payload = JSON.stringify(sample());
   const packed = Bun.gzipSync(payload);
   const data = manifest();
   data.chunks = [data.chunks[0]];
   data.chunks[0].drawn = { url: "0.drawn.json.gz", bytes: packed.byteLength,
     encoding: "gzip", decodedBytes: new TextEncoder().encode(payload).byteLength + (options.declaredDelta ?? 0) };
+  if (options.prefetch) data.chunks.push({ ...data.chunks[0], id: "prefetched-gzip",
+    drawn: { ...data.chunks[0].drawn, url: "prefetched.drawn.json.gz" } });
   const errors: string[] = [];
   const original = globalThis.DecompressionStream;
   if (options.fallback) Object.defineProperty(globalThis, "DecompressionStream", { value: undefined, configurable: true });
@@ -481,5 +484,183 @@ test("cancellation disposes meshes and both lighting materials already prepared 
       expect(geometryDisposal).toHaveBeenCalledTimes(stopAt === 5 ? 1 : 2);
       expect(materialDisposal).toHaveBeenCalledTimes(stopAt === 5 ? 2 : 3);
     } finally { geometryDisposal.mockRestore(); materialDisposal.mockRestore(); }
+  }
+});
+
+
+function broadManifest(count = 6): SurroundingCityManifest {
+  const base = manifest();
+  base.chunks = Array.from({ length: count }, (_, index) => ({
+    ...base.chunks[0], id: `wide-${index}`, bounds: [index * 512, 0, (index + 1) * 512, 512],
+    drawn: { url: `${index}.json`, bytes: JSON.stringify(sample(index * 512)).length },
+    minecraft: { url: `${index}.json`, bytes: JSON.stringify(sample(index * 512)).length },
+  }));
+  return base;
+}
+
+test("three requests overlap while publication keeps exact focused-first geometry", async () => {
+  const source = broadManifest(), requested: number[] = [], published: string[] = [];
+  const gates = new Map<number, () => void>();
+  const city = createSurroundingCity({ camera: camera(256, 8000),
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    onAttach: root => published.push(root.name),
+    fetch: (async (input: URL | RequestInfo) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      const id = Number(path.slice(1).split(".")[0]); requested.push(id);
+      if (id < 3) await new Promise<void>(resolve => gates.set(id, resolve));
+      return response(sample(id * 512));
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready; await until(() => gates.size === 3);
+    expect(requested).toEqual([0, 1, 2]);
+    gates.get(2)!(); gates.get(1)!();
+    await new Promise(resolve => setTimeout(resolve, 12));
+    expect(published).toHaveLength(0); expect(requested).toHaveLength(3);
+    gates.get(0)!(); await until(() => !city.pending);
+    expect(city.residentChunkCount).toBe(6);
+    for (let i = 0; i < 6; i++) {
+      const actual = city.root.children[i];
+      const exact = createSurroundingCityChunk(sample(i * 512), `wide-${i}`);
+      expect(actual.name).toBe(exact.root.name);
+      for (let child = 0; child < actual.children.length; child++) {
+        const a = (actual.children[child] as Mesh).geometry;
+        const b = (exact.root.children[child] as Mesh).geometry;
+        const av = a.getAttribute("position"), bv = b.getAttribute("position");
+        expect(av instanceof InterleavedBufferAttribute ? av.data.array : av.array)
+          .toEqual(bv instanceof InterleavedBufferAttribute ? bv.data.array : bv.array);
+        expect(a.index?.array).toEqual(b.index?.array);
+      }
+      disposeSurroundingCityRoot(exact.root);
+    }
+  } finally { for (const release of gates.values()) release(); city.dispose(); }
+});
+
+test("new camera regions load immediately but prefetch only after continuing visibility", async () => {
+  const source = broadManifest(), view = camera(-10000, 8000), calls: number[] = [];
+  const gates = new Map<number, () => void>();
+  let clock = 0;
+  const city = createSurroundingCity({ camera: view, now: () => clock,
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    fetch: (async (input: URL | RequestInfo) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      const id = Number(path.slice(1).split(".")[0]); calls.push(id);
+      if (id < 3) await new Promise<void>(resolve => gates.set(id, resolve));
+      return response(sample(id * 512));
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready;
+    expect(calls).toEqual([]);
+    view.position.set(256, 500, 256); view.lookAt(256, 0, 256);
+    clock = 300; city.refresh(clock);
+    await until(() => calls.length > 0);
+    expect(calls).toEqual([0]);
+    clock = 600; city.refresh(clock);
+    await until(() => gates.size === 3);
+    expect(calls).toEqual([0, 1, 2]);
+    for (const release of gates.values()) release();
+    await until(() => !city.pending);
+    expect(city.residentChunkCount).toBe(6);
+  } finally { city.dispose(); for (const release of gates.values()) release(); }
+});
+
+test("prefetch reserves worst-case bytes and ignores extraneous uncompressed decodedBytes", async () => {
+  const source = broadManifest(5), calls: number[] = [], releases: (() => void)[] = [];
+  const declared = Math.floor(SURROUNDING_CITY_PREFETCH_BYTES * .6);
+  for (const d of source.chunks) Object.assign(d.drawn, { bytes: declared, decodedBytes: "not-used" });
+  const city = createSurroundingCity({ camera: camera(256, 8000),
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    fetch: (async (input: URL | RequestInfo, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      calls.push(Number(path.slice(1).split(".")[0]));
+      await new Promise<void>(resolve => {
+        releases.push(resolve); init?.signal?.addEventListener("abort", resolve, { once: true });
+      });
+      return response(sample());
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready; await until(() => calls.length === 2);
+    await new Promise(resolve => setTimeout(resolve, 12));
+    // Foreground is separate; two 2.4 MiB reservations cannot enter the 4 MiB pool.
+    expect(calls).toEqual([0, 1]);
+  } finally { city.dispose(); for (const release of releases) release(); }
+  await until(() => !city.pending);
+  expect(city.residentChunkCount).toBe(0);
+});
+
+test("oversized gzip candidates stay serial even when compressed bytes are small", async () => {
+  const source = broadManifest(2), calls: string[] = [], releases: (() => void)[] = [];
+  source.chunks[1].drawn = { url: "1.json.gz", bytes: 100,
+    encoding: "gzip", decodedBytes: SURROUNDING_CITY_PREFETCH_BYTES + 1 };
+  const city = createSurroundingCity({ camera: camera(256, 8000),
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    fetch: (async (input: URL | RequestInfo, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      calls.push(path);
+      await new Promise<void>(resolve => {
+        releases.push(resolve); init?.signal?.addEventListener("abort", resolve, { once: true });
+      });
+      return response(sample());
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready;
+    await new Promise(resolve => setTimeout(resolve, 12));
+    expect(calls).toEqual(["/0.json"]);
+  } finally { city.dispose(); for (const release of releases) release(); }
+  await until(() => !city.pending);
+});
+
+test("a camera turn aborts all old prefetched responses and ignores their late arrival", async () => {
+  const view = camera(256, 8000), source = broadManifest(), stale: AbortSignal[] = [];
+  const releases: (() => void)[] = [], errors: string[] = [];
+  let clock = 0;
+  const city = createSurroundingCity({ camera: view, now: () => clock,
+    manifestUrl: new URL("https://example.test/manifest.json"), onError: message => errors.push(message),
+    fetch: (async (input: URL | RequestInfo, init?: RequestInit) => {
+      if (String(input).endsWith("manifest.json")) return response(source);
+      stale.push(init!.signal!);
+      // Deliberately emulate a source which finishes despite cancellation.
+      await new Promise<void>(resolve => releases.push(resolve));
+      return response(sample());
+    }) as typeof fetch,
+  });
+  await city.ready; await until(() => stale.length === 3);
+  view.position.x = 50_000; view.lookAt(50_000, 0, 256); clock = 1000;
+  city.refresh(clock);
+  expect(stale.every(signal => signal.aborted)).toBeTrue();
+  for (const release of releases) release();
+  await until(() => !city.pending);
+  expect(city.residentChunkCount).toBe(0); expect(city.residentGeometryBytes).toBe(0);
+  expect(errors).toEqual([]); city.dispose();
+});
+
+
+test("prefetched gzip keeps identical geometry in streaming, fallback and HTTP-decoded paths", async () => {
+  for (const flags of [{}, { fallback: true }, { decodedHeader: true }]) {
+    const { city, errors } = await compressedCity({ ...flags, prefetch: true });
+    try {
+      expect(errors).toEqual([]);
+      expect(city.residentChunkCount).toBe(2);
+      expect(city.residentGeometryBytes).toBe(108);
+      expect(city.residentBufferCount).toBe(6);
+    } finally { city.dispose(); }
+  }
+});
+
+test("malformed prefetched gzip never publishes incomplete geometry", async () => {
+  for (const flags of [{}, { fallback: true }, { decodedHeader: true }]) {
+    const { city, errors } = await compressedCity({ ...flags, prefetch: true, declaredDelta: -5 });
+    try {
+      expect(errors).toHaveLength(2);
+      expect(city.residentChunkCount).toBe(0);
+      expect(city.residentGeometryBytes).toBe(0);
+    } finally { city.dispose(); }
   }
 });
