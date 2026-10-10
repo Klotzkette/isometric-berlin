@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-10",
+  "scope": "Five retained source parents on the northern Linden/Friedrichstrasse corridor; no new geographical coverage.",
+  "sourceTile": "geo_data/regierungsviertel/alt-mitte-v169/source-390_5819-00.json.gz",
+  "owners": [
+    {
+      "id": "DEBE01YYK00001vQ",
+      "name": "Hungarian Embassy",
+      "facts": "Adam Sylvester; grey-yellow polygranite with green glazed ceramic details. Two lower representational floors and offices above. Present building, not the demolished earlier embassy.",
+      "urls": [
+        "https://ungarische-botschaft.de/ang/neubau.html",
+        "https://www.openstreetmap.org/way/24246511"
+      ]
+    },
+    {
+      "id": "DEBE01YYK00009j0",
+      "name": "ARD Hauptstadtstudio",
+      "facts": "Ortner & Ortner, 1999. Refine retained curved Spree frontage with blue glazing, narrow frames and precast joints. Existing authored envelope and equipment remain.",
+      "urls": [
+        "https://ortner-ortner.com/de/baukunst/projekte/kultur/ard-hauptstadtstudio-berlin",
+        "https://www.openstreetmap.org/way/24246741"
+      ]
+    },
+    {
+      "id": "DEBE01YYK00002Es",
+      "name": "Dussmann KulturKaufhaus",
+      "facts": "Friedrichstrasse 90; visible street frontage is west of the retained source building, not the east-facing party wall used by its older profile. Repeated upper windows, red facade accents, lower glass arcades and DUSSMANN lettering follow the credited street photo.",
+      "urls": [
+        "https://www.kulturkaufhaus.de/de/service/anfahrt",
+        "https://www.kulturkaufhaus.de/de/kulturkaufhaus/ueber",
+        "https://www.openstreetmap.org/way/32898110"
+      ]
+    },
+    {
+      "id": "DEBE01YYK00004tt",
+      "name": "Helene-Weber-Haus",
+      "facts": "Bundestag building Dorotheenstrasse 88; source-bound streetfront bands and muted stone framing. Exact aperture dimensions and palette are display estimates.",
+      "urls": [
+        "https://www.bundestag.de/webarchiv/textarchiv/2017/kw34-weber-selbert-515162",
+        "https://www.bundestag.de/besuche/kunst/zeitgenoessische_kuenstler/werner-941266"
+      ]
+    },
+    {
+      "id": "DEBE01YYK00002Lh",
+      "name": "Neustaedtische Kirchstrasse 15",
+      "facts": "Seat of the Parliamentary Commissioner for the Armed Forces. Source-bound streetfront bands and restrained window framing; no claim to an architectural survey.",
+      "urls": [
+        "https://www.bundestag.de/services/faq/beflaggung-247010"
+      ]
+    }
+  ],
+  "estimates": "LoD2 wall/roof rings and datum are measured. Fine pane counts/subdivisions, colour values, ceramic widths, joints, sign dimensions, flag dimensions and night-lit selection are source-guided display estimates. No interior survey or new navigation barriers. Native fittings are proportionate axis-aligned readings fitted outside both retained raster layers.",
+  "visualReferences": [
+    {
+      "title": "Berlin, Mitte, Unter den Linden 76, Botschaft von Ungarn 01.jpg",
+      "artist": "Jörg Zägel; perspective/colour edit by Szilas",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_76,_Botschaft_von_Ungarn_01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "Western and avenue fronts, broader lower apertures, denser upper glazing, ceramic trim and glazed corner.",
+      "geometryStatus": "Reference-only; no photograph or texture bundled."
+    },
+    {
+      "title": "Dussmann Das Kulturkaufhaus in Berlin (2026).jpg",
+      "artist": "JoachimKohler-HB",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:Dussmann_Das_Kulturkaufhaus_in_Berlin_(2026).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "Real Friedrichstrasse street front, lower arcade, upper windows, red accents and lettering.",
+      "geometryStatus": "Existing credited reference, inspected again; no photograph or texture bundled."
+    },
+    {
+      "title": "ARD-Hauptstadtstudio (aus Nordwesten).jpg",
+      "artist": "Standardizer",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:ARD-Hauptstadtstudio_(aus_Nordwesten).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "Curved north-west frontage, blue glazing and concrete rhythm.",
+      "geometryStatus": "Existing credited reference, inspected again; no photograph or texture bundled."
+    },
+    {
+      "title": "ARD-Hauptstadtstudio, Berlin-Mitte, Fassade, 170117, ako.jpg",
+      "artist": "Ansgar Koreng",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:ARD-Hauptstadtstudio,_Berlin-Mitte,_Fassade,_170117,_ako.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "role": "Flush fixed glazing, thin frames and precast joints.",
+      "geometryStatus": "Existing credited reference, inspected again; no photograph or texture bundled."
+    }
+  ]
+}

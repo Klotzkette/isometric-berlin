@@ -4,7 +4,7 @@ import { completeCooperatively } from "../src/cooperativeWork";
 import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { createOuterThinOutlinesSteps } from "../src/OuterThinOutlines";
 import baseline from "./fixtures/outline-landmarks-v203-baseline.json";
-import synchronous from "./fixtures/outline-landmarks-v207-synchronous.json";
+import synchronous from "./fixtures/outline-landmarks-v208-synchronous.json";
 import preserved from "./fixtures/outline-landmarks-v204-preserved-layout.json";
 import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
@@ -15,9 +15,9 @@ import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "
 // is read from the live tree, trimming only the v205 Ring instance suffixes.
 // urania-preservation-v206 independently verifies the moved source roof and
 // every complete v205 object outside that substitution. New geometry matches
-// independent synchronous captures from scripts/audit-outline-v207.ts; the
-// separate v207 preservation suite checks every complete v206 buffer as well.
-for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v207 synchronous and retains the exact audited old geometry`, async () => {
+// independent synchronous captures from scripts/audit-outline-v208.ts; the
+// separate v207/v208 preservation suites checks every complete v206 buffer as well.
+for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v208 synchronous and retains the exact audited old geometry`, async () => {
   let tasks = 0;
   const root = await completeCooperatively(createOutlineLandmarksV182Steps(mode), {
     budgetMs: 0, isCancelled: () => false,

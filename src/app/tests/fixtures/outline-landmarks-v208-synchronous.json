@@ -1,0 +1,14 @@
+{
+  "day": {
+    "sha256": "f63bbb48770c6330edec6bfd44b31d44759d72107f47d9d53356a867a7358084",
+    "objects": 743,
+    "bytes": 47030415,
+    "families": 57
+  },
+  "minecraft": {
+    "sha256": "99daa160402f982ddd05105e19c73bf5f7fe5a368caf1a26b3a1684b5a7a005f",
+    "objects": 611,
+    "bytes": 81069792,
+    "families": 60
+  }
+}

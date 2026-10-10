@@ -3312,7 +3312,7 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
   addAdlonForecourtPhotoDetails(builder);
 }
 
-function addWilhelmstrasseEmbassies(builder: Builder): void {
+function addWilhelmstrasseEmbassies(builder: Builder, includeLegacyHungarianFacade: boolean): void {
   // British Embassy, Michael Wilford: measured LoD2 body retained. Only the
   // unmistakable Wilhelmstrasse screen and its projecting collage are added.
   const british = new Vector3(
@@ -3389,6 +3389,7 @@ function addWilhelmstrasseEmbassies(builder: Builder): void {
     -0.275,
   );
 
+  if (!includeLegacyHungarianFacade) return;
   // Hungarian Embassy, Adam Sylvester: the exact LoD2 envelope is dressed
   // with its yellow-grey Hungarian limestone, glass base and glazed corner.
   const hungary = new Vector3(...EMBASSY_DETAIL_PROFILES.hungary.anchorWorld);
@@ -4687,7 +4688,7 @@ function addSigns(
 export function createCentralCivicDetails(
   landmarks: CentralCivicLandmark[],
   detailProfile: PalaceDetailProfile = "full",
-  options: { includeLegacyResearchMinistry?: boolean } = {},
+  options: { includeLegacyResearchMinistry?: boolean; includeLegacyHungarianFacade?: boolean } = {},
 ): Group {
   const group = new Group();
   group.name = "Task-11 central transit and civic recognition details";
@@ -4790,7 +4791,7 @@ export function createCentralCivicDetails(
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
   addPariserPlatzDetails(builder, pariserPlatzWaterBuilder);
-  addWilhelmstrasseEmbassies(builder);
+  addWilhelmstrasseEmbassies(builder, options.includeLegacyHungarianFacade !== false);
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);

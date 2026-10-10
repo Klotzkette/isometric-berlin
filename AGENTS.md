@@ -188,6 +188,17 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.108 request permits bounded, source-bound facade refinement
+between Brandenburg Gate, Dussmann and Friedrichstraße station: the Hungarian
+and Russian embassies, ARD Hauptstadtstudio, Aeroflot architectural identity,
+BMAS Wilhelmstraße campus and Quartier 206. Only the documented Hungarian
+proxy facade/six coarse envelopes, Aeroflot facade recipe and Quartier 206 facade
+recipe may yield to verified replacements. The complete Hungarian measured
+sheets belong to required city construction, never optional deferred loading.
+Retain all unrelated shells, facade details, navigation and source receipts.
+Keep full mobile detail, independent native models and unchanged city budgets,
+coverage and the 93-place tour. See `docs/refinements-v208.md`.
+
 The owner's v1.0.107 request permits bounded refinements of the Charité
 Bettenhochhaus and the modern federal research ministry at Kapelle-Ufer 1.
 Use retained measured parts and source-supported facade recognition; preserve

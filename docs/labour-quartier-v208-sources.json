@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "site": "BMAS Berlin campus and Quartier206, Friedrichstraße71–74",
+  "checked": "2026-10-10",
+  "geometry": {
+    "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip",
+    "license": "dl-de/zero-2-0",
+    "osmIdentity": "https://www.openstreetmap.org/way/1351208381",
+    "osmLicense": "ODbL-1.0",
+    "receipt": "src/app/src/data/labourQuartierV208Evidence.json"
+  },
+  "primaryDescriptions": [
+    {
+      "url": "https://bmas.de/DE/Service/Kontakt/Kontaktformular/kontaktformular.html",
+      "publisher": "BMAS",
+      "use": "Current Berlin office Wilhelmstraße49 and visitor service Regine-Hildebrandt-Haus, Wilhelmstraße50. No guessed detached addresses added."
+    },
+    {
+      "url": "https://bmas.de/DE/Ministerium/Zu-Gast-im-BMAS/Hauptgebaeude/hauptgebaeude.html",
+      "publisher": "BMAS",
+      "use": "Four-storey main office wing and restoration history."
+    },
+    {
+      "url": "https://www.bmas.de/DE/Ministerium/Zu-Gast-im-BMAS/Ritterschaftsbank/ritterschaftsbank.html",
+      "publisher": "BMAS",
+      "use": "Historic Ritterschaftsbank, Florentine Renaissance architecture and restoration as part of the campus."
+    },
+    {
+      "url": "https://bmas.de/DE/Ministerium/Zu-Gast-im-BMAS/Suederweiterung/suederweiterung.html",
+      "publisher": "BMAS",
+      "use": "Southern extension beside the bank, Kleihues/Hensel and open courtyard ensemble."
+    },
+    {
+      "url": "https://www.bmas.de/DE/Ministerium/Zu-Gast-im-BMAS/Regine-Hildebrandt-Haus/regine-hildebrandt-haus.html",
+      "publisher": "BMAS",
+      "use": "Named Regine-Hildebrandt-Haus, occupied in2020."
+    },
+    {
+      "url": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/regine-hildebrandt-haus",
+      "publisher": "Bundesamt für Bauwesen und Raumordnung",
+      "use": "Six-storey new office building, pale stone punched facade and glass connector."
+    },
+    {
+      "url": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/hauptbau-ehem-reichsministerium-fur-volksaufklarung-und-propaganda",
+      "publisher": "Bundesamt für Bauwesen und Raumordnung",
+      "use": "Main wing, Muschelkalk and four-storey office architecture."
+    },
+    {
+      "url": "https://www.bundesregierung.de/breg-de/schwerpunkte/gebaeude-mit-geschichte-465282",
+      "publisher": "Bundesregierung",
+      "use": "Kleisthaus Mauerstraße53 and former bank historical campus identities."
+    }
+  ],
+  "visualReferences": [
+    {
+      "file": "Berlin, Mitte, Friedrichstrasse 71-74, Quartier 206.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Friedrichstrasse_71-74,_Quartier_206.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2010-06-17",
+      "use": "Reference only; no pixels bundled. Limestone and dark window ribbons, measured projecting oriel family, deep cornice and tall corner glazing. Colour and small-member proportions are procedural estimates."
+    },
+    {
+      "file": "Berlin, Mitte, Mauerstrasse, Bundessozialministerium.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mauerstrasse,_Bundessozialministerium.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2010-04-23",
+      "use": "Reference only; no pixels bundled. Muschelkalk main facade, four storeys, paired windows, upper window hoods and tall framed portals on the Mauerstraße risalit."
+    },
+    {
+      "file": "Berlin, Mitte, Mauerstraße, Kleisthaus.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mauerstra%C3%9Fe,_Kleisthaus.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2009-07-31",
+      "use": "Reference only; no pixels bundled. Rusticated base, colossal pilasters, capitals and dentilled cornice."
+    },
+    {
+      "file": "Berlin, Mitte, Mohrenstraße 65, Neubau Bundesministerium für Arbeit und Soziales.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mohrenstra%C3%9Fe_65,_Neubau_Bundesministerium_f%C3%BCr_Arbeit_und_Soziales.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2009-07-31",
+      "use": "Reference only; no pixels bundled. Pale punched-window southern addition, fine floor bands and cream roller blinds."
+    },
+    {
+      "file": "Berlin, Mitte, Wilhelmstrasse, Haupteingang Bundessozialministerium.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Wilhelmstrasse,_Haupteingang_Bundessozialministerium.jpg",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2010-06-17",
+      "use": "Reference only; no pixels bundled. Muschelkalk main facade, four storeys, paired windows, upper window hoods and tall framed portals on the Mauerstraße risalit."
+    },
+    {
+      "file": "Berlin, Mitte, Zietenplatz, Ritterschaftsdirektion 02.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Zietenplatz,_Ritterschaftsdirektion_02.jpg",
+      "author": "Beek100",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "captured": "2009-06-14",
+      "use": "Reference only; no pixels bundled. Rusticated Renaissance bank, two round-headed window levels, rectangular middle windows, small paired attic windows and dentilled eaves."
+    }
+  ]
+}

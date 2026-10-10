@@ -303,7 +303,7 @@ function finishBlocks(builder: BlockBuilder, root: Group): void {
   root.add(mesh);
 }
 
-export function createMinecraftUnterDenLindenDetails(): Group {
+export function createMinecraftUnterDenLindenDetails(options: { includeLegacyAeroflot?: boolean } = {}): Group {
   const group = new Group();
   group.name = MINECRAFT_UNTER_DEN_LINDEN_GROUP_NAME;
   group.userData = {
@@ -315,7 +315,7 @@ export function createMinecraftUnterDenLindenDetails(): Group {
   const builder = new BlockBuilder();
   addBritishEmbassy(builder);
   addRussianEmbassy(builder);
-  addAeroflot(builder);
+  if (options.includeLegacyAeroflot !== false) addAeroflot(builder);
   addEinstein(builder);
   addDussmann(builder);
   addKomischeOper(builder);

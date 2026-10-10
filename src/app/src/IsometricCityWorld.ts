@@ -1,4 +1,5 @@
 import { BENDLERBLOCK_V202_PRISM_IDS } from "./bendlerblockV202Profile";
+import { HUNGARIAN_EMBASSY_V208_PROXY_IDS } from "./hungarianEmbassyOwnershipV208";
 import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
 import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200ReplacementProfile";
 import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
@@ -367,6 +368,8 @@ export type IsometricCityBuildOptions = {
   bridgeStructures?: boolean;
   /** v207 replaces only the inferred tower facade; source shells/ink remain. */
   includeLegacyChariteFacade?: boolean;
+  /** v208 installs complete measured Hungarian sheets instead of six extrusions. */
+  includeLegacyHungarianEnvelope?: boolean;
   detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
@@ -11885,6 +11888,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.includeLegacyHungarianEnvelope === false && HUNGARIAN_EMBASSY_V208_PROXY_IDS.has(sourceBuilding.id)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (!isRenderablePrismBuilding(building)) {
       continue;

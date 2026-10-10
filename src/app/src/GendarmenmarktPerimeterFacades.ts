@@ -304,12 +304,16 @@ function specialEntrance(b: Builder, building: Building, style: Style): void {
 }
 
 /** All four drawn modes use this same source-bound, frozen, texture-free layer. */
-export function createGendarmenmarktPerimeterFacades(minecraft = false): Group {
+export function createGendarmenmarktPerimeterFacades(
+  minecraft = false,
+  options: { includeLegacyQuartier206Facade?: boolean } = {},
+): Group {
   const root = new Group();
   root.name = minecraft ? MINECRAFT_GENDARMENMARKT_PERIMETER_GROUP_NAME : GENDARMENMARKT_PERIMETER_GROUP_NAME;
   root.userData = { sourceBound: true, textureFree: true, fullAndMobileIdentical: true,
     blockNative: minecraft, keepInMinecraft: minecraft, facadeOnly: true, photographsBundled: false, refinementV183: "Recessed sill drip edges and storefront lower transoms on existing source facades" };
   for (const building of source.buildings) {
+    if (building.key === "quartier206" && options.includeLegacyQuartier206Facade === false) continue;
     const style = gendarmenmarktFacadeStyle(building.key), builder = new Builder(minecraft, true);
     const fronts = building.streetFronts.filter(edge => length(edge) > (building.key === "einstein" ? .29 : 1.7) && edge.wallTopY - edge.wallBaseY > 2.0);
     if (fronts.length === 0) continue;

@@ -82,7 +82,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v206 source-tagged street paint and Urania add bounded static data.
 # Complete extracted package: 868,322,114 bytes (828.10 MiB); 829 MiB leaves
 # 0.90 MiB headroom without changing any live residency or source-detail limit.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 829 * 1024 * 1024
+# v208 adds the owner-requested, source-bound western Linden/BMAS/Q206 facades.
+# Complete extracted package is 869,345,199 bytes (829.07 MiB), 0.58 MiB above
+# v207. A finite 830 MiB archive-only cap leaves 0.93 MiB; no resident, packet,
+# GPU, source-detail or mobile budget changes. See docs/refinements-v208.md.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 830 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

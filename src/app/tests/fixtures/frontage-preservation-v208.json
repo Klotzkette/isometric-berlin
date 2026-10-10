@@ -1,0 +1,336 @@
+{
+  "baseline": {
+    "commit": "edcde0e7d05552d1e8900c9c87e1da9b40e02f76",
+    "complement": false,
+    "sourceSha256": {
+      "src/app/public/mesh/regierungsviertel/scene.json": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+      "src/app/src/CentralCivicDetails.ts": "81281be33329c1ebc68378838b8c9047f62fa6e6589381ceaa6a3debb4bc1686",
+      "src/app/src/GendarmenmarktPerimeterFacades.ts": "1c1798979795981ff20a80a25a6c70264e4b4ec5332cbf1d260dc9fc158863e8",
+      "src/app/src/UnterDenLindenDetails.ts": "99a2c30512d4f86ff60df16f2e77f55ffd4edb4e0f9311bc0d94357ce779a38c",
+      "src/app/src/MinecraftUnterDenLindenDetails.ts": "82c06530ef7c430c7617e3e76f3518210f2c34b5a35a0d43ff5997e41b69bf20",
+      "src/app/src/IsometricCityWorld.ts": "6bb5a252f5f33ef79804dd715d87e0165ba3d28cd32d9ba8dc40f1ad892331b3",
+      "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e"
+    },
+    "civic": {
+      "full": {
+        "hash": "b62edce97a9880ffbaad62500a2ee75e77a279c215329f630f79c8718811ff63",
+        "budget": {
+          "bytes": 6075588,
+          "draws": 75,
+          "instances": 17564,
+          "vertices": 256891
+        }
+      },
+      "mobile": {
+        "hash": "882d35ea5550148d07dc6d89b12f9a30ce6030cf9e5664244c358aad102c4abd",
+        "budget": {
+          "bytes": 5945248,
+          "draws": 75,
+          "instances": 15849,
+          "vertices": 256891
+        }
+      }
+    },
+    "gendarmenmarkt": {
+      "day": {
+        "hash": "5c0e3dd847c7cd4970451813486df16d683ef8414c26c875d89ff891550a6e84",
+        "budget": {
+          "bytes": 2440688,
+          "draws": 41,
+          "instances": 31364,
+          "vertices": 2328
+        }
+      },
+      "minecraft": {
+        "hash": "cc44f2edafa398c676598d6507db58681e54c41427075fc230e41cb679f933ee",
+        "budget": {
+          "bytes": 1845236,
+          "draws": 32,
+          "instances": 24143,
+          "vertices": 384
+        }
+      }
+    },
+    "linden": {
+      "day": {
+        "hash": "5f9b51b249a0ff88a29b0505e131ff0b7e33fd85201bd3f77d8dc6d6dcb8d71d",
+        "budget": {
+          "bytes": 284460,
+          "draws": 13,
+          "instances": 3711,
+          "vertices": 88
+        }
+      },
+      "minecraft": {
+        "hash": "1f2c991f4eae8e670f0618de03d3c3ff6611e1dcc21ac22e405d2de0e52dc913",
+        "budget": {
+          "bytes": 48984,
+          "draws": 1,
+          "instances": 636,
+          "vertices": 24
+        }
+      }
+    },
+    "hungary": {
+      "ids": [
+        "YDxshLdM",
+        "cyb33NJD",
+        "dVaNVYh5",
+        "dxdP8ZV2",
+        "j66nu4dr",
+        "mN0gGHof"
+      ],
+      "sourceSha256": "ee61a2d85e6ebf2cef5725795da1c5e2e1f2cc9711a3c8dd4d8078b38599ee0e",
+      "complete": {
+        "hash": "191c82be8fd34495efe81299227196aa2c46ba96e9495ea4a46a9ed9c544bb0b",
+        "budget": {
+          "bytes": 39954,
+          "draws": 4,
+          "instances": 31,
+          "vertices": 2662
+        }
+      },
+      "empty": {
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "budget": {
+          "bytes": 0,
+          "draws": 0,
+          "instances": 0,
+          "vertices": 0
+        }
+      },
+      "byOwner": {
+        "YDxshLdM": {
+          "hash": "ab905fade6672789f3c6ace75be65fb695a719daf3653454459b2cd486673e3e",
+          "budget": {
+            "bytes": 3896,
+            "draws": 4,
+            "instances": 1,
+            "vertices": 266
+          }
+        },
+        "cyb33NJD": {
+          "hash": "3ce09ad3d28c88ddf38e8b7761383aa1a3d183837257fc2ccae6b2b04e3cd23c",
+          "budget": {
+            "bytes": 7408,
+            "draws": 4,
+            "instances": 6,
+            "vertices": 488
+          }
+        },
+        "dxdP8ZV2": {
+          "hash": "8ad4e78c759a942c2c4efab3792806b95d34b9e17c319d691f8ab0a8fd276580",
+          "budget": {
+            "bytes": 8584,
+            "draws": 4,
+            "instances": 4,
+            "vertices": 582
+          }
+        },
+        "mN0gGHof": {
+          "hash": "d006aa14c98c654b8d3dc0d06b2189cd037667231b07796e93445a58a1697f81",
+          "budget": {
+            "bytes": 4624,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 326
+          }
+        },
+        "dVaNVYh5": {
+          "hash": "5948394618a7db09567ad1efa5a3aaaf90c6cb9666a3870f75d48399ca08f43a",
+          "budget": {
+            "bytes": 8182,
+            "draws": 4,
+            "instances": 20,
+            "vertices": 466
+          }
+        },
+        "j66nu4dr": {
+          "hash": "e9cde30cd6c8d8fe3ccc2d1b65f48377ed6d6048f710859e7778b8e2db32716d",
+          "budget": {
+            "bytes": 7680,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 546
+          }
+        }
+      },
+      "foreignIdsSameGeometry": {
+        "hash": "76eb9bec8fdb6ad1452419a09124346df46807c0bafe47b7caf81e321dbb05b7",
+        "budget": {
+          "bytes": 39422,
+          "draws": 4,
+          "instances": 24,
+          "vertices": 2662
+        }
+      }
+    }
+  },
+  "retained": {
+    "commit": "edcde0e7d05552d1e8900c9c87e1da9b40e02f76",
+    "complement": true,
+    "sourceSha256": {
+      "src/app/public/mesh/regierungsviertel/scene.json": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+      "src/app/src/CentralCivicDetails.ts": "81281be33329c1ebc68378838b8c9047f62fa6e6589381ceaa6a3debb4bc1686",
+      "src/app/src/GendarmenmarktPerimeterFacades.ts": "1c1798979795981ff20a80a25a6c70264e4b4ec5332cbf1d260dc9fc158863e8",
+      "src/app/src/UnterDenLindenDetails.ts": "99a2c30512d4f86ff60df16f2e77f55ffd4edb4e0f9311bc0d94357ce779a38c",
+      "src/app/src/MinecraftUnterDenLindenDetails.ts": "82c06530ef7c430c7617e3e76f3518210f2c34b5a35a0d43ff5997e41b69bf20",
+      "src/app/src/IsometricCityWorld.ts": "6bb5a252f5f33ef79804dd715d87e0165ba3d28cd32d9ba8dc40f1ad892331b3",
+      "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e"
+    },
+    "civic": {
+      "full": {
+        "hash": "59dde5101cc41451710c5066b409e6db791749ff90f8a5de73feab707817fcc4",
+        "budget": {
+          "bytes": 6009204,
+          "draws": 75,
+          "instances": 17564,
+          "vertices": 252891
+        }
+      },
+      "mobile": {
+        "hash": "525b41aae83ce0054e10c99815f7a0da791cae479030c82bd4303cbbd34b9104",
+        "budget": {
+          "bytes": 5878864,
+          "draws": 75,
+          "instances": 15849,
+          "vertices": 252891
+        }
+      }
+    },
+    "gendarmenmarkt": {
+      "day": {
+        "hash": "8282c4f5fc952c1fe4915bbf39641fe4cb46ec6179be23a1014879ef2240f37a",
+        "budget": {
+          "bytes": 2341392,
+          "draws": 39,
+          "instances": 30066,
+          "vertices": 2304
+        }
+      },
+      "minecraft": {
+        "hash": "24ac32e7d1e8b4c64499bc10cb1c872ea964504c73646e13dee8a21eac8e4d4f",
+        "budget": {
+          "bytes": 1749588,
+          "draws": 30,
+          "instances": 22893,
+          "vertices": 360
+        }
+      }
+    },
+    "linden": {
+      "day": {
+        "hash": "c43f8eef2b7488fd7e044c2e8ae971ca4ba5141ec27326d87de6408edbc28e11",
+        "budget": {
+          "bytes": 259000,
+          "draws": 11,
+          "instances": 3376,
+          "vertices": 88
+        }
+      },
+      "minecraft": {
+        "hash": "af7aaeca7757319b79520dbf0582fd3b8471ad051c2e642183a0906c5728ce8b",
+        "budget": {
+          "bytes": 44804,
+          "draws": 1,
+          "instances": 581,
+          "vertices": 24
+        }
+      }
+    },
+    "hungary": {
+      "ids": [
+        "YDxshLdM",
+        "cyb33NJD",
+        "dVaNVYh5",
+        "dxdP8ZV2",
+        "j66nu4dr",
+        "mN0gGHof"
+      ],
+      "sourceSha256": "ee61a2d85e6ebf2cef5725795da1c5e2e1f2cc9711a3c8dd4d8078b38599ee0e",
+      "complete": {
+        "hash": "191c82be8fd34495efe81299227196aa2c46ba96e9495ea4a46a9ed9c544bb0b",
+        "budget": {
+          "bytes": 39954,
+          "draws": 4,
+          "instances": 31,
+          "vertices": 2662
+        }
+      },
+      "empty": {
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "budget": {
+          "bytes": 0,
+          "draws": 0,
+          "instances": 0,
+          "vertices": 0
+        }
+      },
+      "byOwner": {
+        "YDxshLdM": {
+          "hash": "ab905fade6672789f3c6ace75be65fb695a719daf3653454459b2cd486673e3e",
+          "budget": {
+            "bytes": 3896,
+            "draws": 4,
+            "instances": 1,
+            "vertices": 266
+          }
+        },
+        "cyb33NJD": {
+          "hash": "3ce09ad3d28c88ddf38e8b7761383aa1a3d183837257fc2ccae6b2b04e3cd23c",
+          "budget": {
+            "bytes": 7408,
+            "draws": 4,
+            "instances": 6,
+            "vertices": 488
+          }
+        },
+        "dxdP8ZV2": {
+          "hash": "8ad4e78c759a942c2c4efab3792806b95d34b9e17c319d691f8ab0a8fd276580",
+          "budget": {
+            "bytes": 8584,
+            "draws": 4,
+            "instances": 4,
+            "vertices": 582
+          }
+        },
+        "mN0gGHof": {
+          "hash": "d006aa14c98c654b8d3dc0d06b2189cd037667231b07796e93445a58a1697f81",
+          "budget": {
+            "bytes": 4624,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 326
+          }
+        },
+        "dVaNVYh5": {
+          "hash": "5948394618a7db09567ad1efa5a3aaaf90c6cb9666a3870f75d48399ca08f43a",
+          "budget": {
+            "bytes": 8182,
+            "draws": 4,
+            "instances": 20,
+            "vertices": 466
+          }
+        },
+        "j66nu4dr": {
+          "hash": "e9cde30cd6c8d8fe3ccc2d1b65f48377ed6d6048f710859e7778b8e2db32716d",
+          "budget": {
+            "bytes": 7680,
+            "draws": 3,
+            "instances": 0,
+            "vertices": 546
+          }
+        }
+      },
+      "foreignIdsSameGeometry": {
+        "hash": "76eb9bec8fdb6ad1452419a09124346df46807c0bafe47b7caf81e321dbb05b7",
+        "budget": {
+          "bytes": 39422,
+          "draws": 4,
+          "instances": 24,
+          "vertices": 2662
+        }
+      }
+    }
+  }
+}

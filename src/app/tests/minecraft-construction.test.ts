@@ -3,7 +3,10 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 import baseline from "./fixtures/minecraft-world-synchronous-v204.json";
-import current from "./fixtures/minecraft-world-synchronous-v206.json";
+import v206 from "./fixtures/minecraft-world-synchronous-v206.json";
+import current from "./fixtures/minecraft-world-synchronous-v208.json";
+import audit208 from "./fixtures/minecraft-world-v208-baseline-audit.json";
+import frontage208 from "./fixtures/frontage-preservation-v208.json";
 import urania from "../src/data/uraniaArcV206Navigation.json";
 import historical from "./fixtures/minecraft-world-synchronous-v200.json";
 import audit from "./fixtures/minecraft-world-v204-baseline-audit.json";
@@ -55,9 +58,40 @@ test("v206 synchronous construction transfers only the independently audited Ura
     // instance byte: full loses 258 columns +144 panes, exposes 12 neighbour
     // panes; mobile transfers exactly 86 coarse columns. Earlier hashes stay.
     const removed = profile === "full" ? 258 + 144 - 12 : 86;
-    expect(current[profile].instances).toBe(baseline[profile].instances - removed);
-    expect(current[profile].bufferBytes).toBe(baseline[profile].bufferBytes - removed * 76);
-    expect(current[profile].renderables).toBe(baseline[profile].renderables);
+    expect(v206[profile].instances).toBe(baseline[profile].instances - removed);
+    expect(v206[profile].bufferBytes).toBe(baseline[profile].bufferBytes - removed * 76);
+    expect(v206[profile].renderables).toBe(baseline[profile].renderables);
+  }
+});
+
+test("v208 whole-world change is exactly the immutable v107 Aeroflot and Quartier206 facade complement", async () => {
+  expect(audit208.releasedBase).toBe("edcde0e7d05552d1e8900c9c87e1da9b40e02f76");
+  expect(audit208.historicalBaseline).toBe("minecraft-world-synchronous-v206.json");
+  expect(Object.keys(audit208.sourceSha256)).toHaveLength(559);
+  for (const path of ["src/app/src/MinecraftUnterDenLindenDetails.ts", "src/app/src/GendarmenmarktPerimeterFacades.ts"] as const)
+    expect(audit208.sourceSha256[path]).toBe(frontage208.baseline.sourceSha256[path]);
+  // The complete voxel columns, source roofs and ground dataset remain byte-identical.
+  for (const name of ["minecraft-voxels.json", "lod2-prisms.json", "scene.json"] as const) {
+    const path = `src/app/public/mesh/regierungsviertel/${name}` as const;
+    const bytes = await Bun.file(new URL(`../../../${path}`, import.meta.url)).arrayBuffer();
+    expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(audit208.sourceSha256[path]);
+  }
+  for (const profile of ["full", "mobile"] as const) {
+    const proof = audit208.profiles[profile];
+    expect(proof.legacy).toEqual(v206[profile]);
+    expect(proof.current).toEqual(current[profile]);
+    expect(proof.unchangedMeshCount).toBe(profile === "full" ? 348 : 346);
+    expect(proof.beforeChanged.map(r => [r.name, r.instances])).toEqual([
+      ["Unter den Linden native facade blocks box", 636], ["Quartier 206 stone", 1169], ["Quartier 206 glass", 81],
+    ]);
+    expect(proof.afterChanged.map(r => [r.name, r.instances])).toEqual([["Unter den Linden native facade blocks box", 581]]);
+    expect(proof.legacy.instances - proof.current.instances).toBe(55 + 1169 + 81);
+    expect(proof.legacy.bufferBytes - proof.current.bufferBytes).toBe(99828);
+    expect(proof.legacy.renderables - proof.current.renderables).toBe(2);
+    // Independent small-factory capture agrees with the complete-world delta.
+    const removed = frontage208.baseline.gendarmenmarkt.minecraft.budget.instances - frontage208.retained.gendarmenmarkt.minecraft.budget.instances
+      + frontage208.baseline.linden.minecraft.budget.instances - frontage208.retained.linden.minecraft.budget.instances;
+    expect(removed).toBe(proof.legacy.instances - proof.current.instances);
   }
 });
 

@@ -1642,3 +1642,17 @@ per-image Commons credits are included in the viewer attribution menu; no
 reference photograph is bundled or used as a texture. Existing source geometry
 and all unrelated details are preserved. See [scope and independent preservation
 receipts](docs/refinements-v207.md).
+
+
+## Western Linden, BMAS and Quartier 206 (v1.0.108)
+
+Retained Berlin LoD2 (Geoportal Berlin, dl-de/zero-2-0) supplies complete measured
+building sheets and frontage edges; existing OpenStreetMap contributors' data
+remains ODbL-1.0. Window subdivisions, material colours, entrance and decorative
+proportions are reference-guided interpretations, not surveyed openings.
+The Hungarian Embassy reference is by Jörg Zägel, with perspective/colour edit
+by Szilas, CC BY-SA 3.0. Its per-file credit is in both attribution manifests.
+BMAS references by Jörg Zägel and Beek100 (CC BY-SA 3.0) are also individually
+credited. Existing Dussmann, ARD, Russian Embassy and Aeroflot references are reused with
+their retained credits. No reference photographs or textures are bundled.
+See [scope, sources and independent preservation](docs/refinements-v208.md).

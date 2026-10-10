@@ -3048,14 +3048,14 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSpanishEmbassyV164({ mobileLike: mobileDetail }));
   yield;
   group.add(createMinecraftSpreeMuseumDetails());
-  group.add(createMinecraftUnterDenLindenDetails());
+  group.add(createMinecraftUnterDenLindenDetails({ includeLegacyAeroflot: false }));
   yield;
   group.add(createMinecraftGendarmenmarktShells());
   group.add(createMinecraftGendarmenmarktArchitecture());
   yield;
   group.add(createMinecraftGendarmenmarktPerimeterShells());
   yield;
-  group.add(createGendarmenmarktPerimeterFacades(true));
+  group.add(createGendarmenmarktPerimeterFacades(true, { includeLegacyQuartier206Facade: false }));
   group.add(createNeueWache(true));
   group.add(createGorkiBuilding(true));
   group.add(createGripsHansaplatz(true));

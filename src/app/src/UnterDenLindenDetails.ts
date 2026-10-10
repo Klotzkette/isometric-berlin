@@ -594,7 +594,7 @@ type BuildingSpec = {
   structure: DetailBuilder;
 };
 
-export function createUnterDenLindenDetails(): Group {
+export function createUnterDenLindenDetails(options: { includeLegacyAeroflot?: boolean } = {}): Group {
   const group = new Group();
   group.name = UNTER_DEN_LINDEN_DETAILS_GROUP_NAME;
   group.userData = {
@@ -627,7 +627,7 @@ export function createUnterDenLindenDetails(): Group {
     { name: "Komische Oper source-bound facade", structure: new DetailBuilder(), fine: new DetailBuilder() },
   ];
   addRussianEmbassy(specs[0].structure, specs[0].fine);
-  addAeroflot(specs[1].structure, specs[1].fine);
+  if (options.includeLegacyAeroflot !== false) addAeroflot(specs[1].structure, specs[1].fine);
   addEinstein(specs[2].structure, specs[2].fine);
   addDussmann(specs[3].structure, specs[3].fine);
   addKomischeOper(specs[4].structure, specs[4].fine);

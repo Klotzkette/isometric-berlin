@@ -2228,12 +2228,14 @@ function updateFarZoomAntiFlicker(
   return changed;
 }
 
-/** Relight only the two v207 additions; older outline material recipes stay intact. */
+/** Relight scoped civic/frontage additions; older outline material recipes stay intact. */
 function applyRefinedCivicLightingV207(root: Object3D, mode: LightingMode, lightsOn: boolean): void {
   for (const name of [
     "Charité Bettenhochhaus facade and rooftop identity v207",
     "Kapelle-Ufer ministry green architecture v207",
     "Kapelle-Ufer ministry green architecture v207 native",
+    "Northern Linden corridor architecture v208",
+    "Northern Linden corridor architecture v208 native",
   ]) {
     const family = root.getObjectByName(name);
     if (family) applyLightingToRoot(family, mode, lightsOn);
@@ -3824,6 +3826,7 @@ function ensureIsoWorld(
   // core viewer parse; these small modules download beside the five data files.
   const spreeDetails = import("./SpreeMuseumDetails");
   const unterDenLindenDetails = import("./UnterDenLindenDetails");
+  const northCorridorDetails = import("./NorthCorridorV208");
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
   const perimeterDetails = import("./GendarmenmarktPerimeterShells");
@@ -3900,9 +3903,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208]) => {
       if (runtime.disposed) {
         return;
       }
@@ -3996,6 +3999,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
+            includeLegacyHungarianEnvelope: false,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
@@ -4012,6 +4016,10 @@ function ensureIsoWorld(
           },
         );
         provisionalIsoWorld = isoWorld;
+        // A complete measured Hungarian envelope replaces six exact proxies.
+        // Attach it in the required transaction before publishing the city;
+        // optional facade imports must never leave a source-building hole.
+        isoWorld.add(northCorridorV208.createHungarianEnvelopeV208());
         yield* compactStaticGeometrySteps(isoWorld);
         const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
         if (initialWater) isoWorld.add(initialWater);
@@ -4022,7 +4030,7 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(perimeter.createGendarmenmarktPerimeterShells());
         yield;
-        isoWorld.add(perimeter.createGendarmenmarktPerimeterFacades());
+        isoWorld.add(perimeter.createGendarmenmarktPerimeterFacades(false, { includeLegacyQuartier206Facade: false }));
         yield;
         isoWorld.add(leipziger.createLeipzigerPlatzSourceShells());
         yield;
@@ -4166,7 +4174,7 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(spree.createSpreeMuseumDetails());
         yield;
-        isoWorld.add(unterDenLinden.createUnterDenLindenDetails());
+        isoWorld.add(unterDenLinden.createUnterDenLindenDetails({ includeLegacyAeroflot: false }));
         yield;
         const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
         isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
@@ -8523,7 +8531,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
             runtime.coarsePointer ? "mobile" : "full",
-            { includeLegacyResearchMinistry: false },
+            { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false },
           );
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,

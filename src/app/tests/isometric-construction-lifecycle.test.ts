@@ -29,7 +29,7 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; initialWater?: boolean } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; initialWater?: boolean } = {}) {
   const built: Mesh[] = [];
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
@@ -132,6 +132,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./UnterDenLindenEntrances": { createUnterDenLindenEntrances: () => model("U-Bahn entrances") },
     "./SpreeMuseumDetails": { createSpreeMuseumDetails: () => model("Spree") },
     "./UnterDenLindenDetails": { createUnterDenLindenDetails: () => model("Unter den Linden") },
+    "./NorthCorridorV208": { createHungarianEnvelopeV208: () => model("Complete Hungarian measured envelope v208") },
     "./AbgeordnetenhausDetails": { createAbgeordnetenhausDetails: () => model("Abgeordnetenhaus") },
     "./GropiusBauDetails": { createGropiusBauDetails: () => model("Gropius Bau") },
     "./GendarmenmarktPerimeterShells": {
@@ -169,6 +170,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       if (taskCount === options.modeAtTask) runtime.lightingMode = "minecraft";
     },
     loadAddon: (path: keyof typeof modules) => {
+      if (options.failHungarianImport && path === "./NorthCorridorV208") return Promise.reject(new Error("Hungarian envelope import failed"));
       if (!modules[path]) throw new Error(`Missing lifecycle fixture for production addon ${path}`);
       return Promise.resolve(modules[path]);
     },
@@ -239,7 +241,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
   // Explicit names check ownership and duplicate construction, rather than a
   // magic total which could hide a missing recent source-bound layer.
   const expectedNames = [
-    "core", "drawn bridge structures", "Gendarmenmarkt shells", "Gendarmenmarkt architecture",
+    "core", "drawn bridge structures", "Complete Hungarian measured envelope v208", "Gendarmenmarkt shells", "Gendarmenmarkt architecture",
     "Gendarmenmarkt perimeter shells", "Gendarmenmarkt perimeter facades",
     "Leipziger source shells", "Leipziger perimeter facades", "Potsdamer ministry architecture",
     "Bikini source architecture", "Breitscheid towers", "West squares v163", "East squares v163",
@@ -445,4 +447,27 @@ test("Alt-Mitte resident core is staged once before publication and cancelled ow
   expect(h.ready).toBe(0);
   expect(h.reported).toBe(0);
   expect(h.warnings).toHaveLength(0);
+});
+
+
+test("required Hungarian source replacement is owned and disposed before any optional facade phase", async () => {
+  const h = host({ stopAfterModel: "Complete Hungarian measured envelope v208" });
+  await h.finished;
+  expect(h.built.map(mesh => mesh.name)).toEqual(["core", "drawn bridge structures", "Complete Hungarian measured envelope v208"]);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual([1, 1, 1]);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.ready).toBe(0);
+});
+
+test("a failed required Hungarian import cannot publish a city with an empty embassy site", async () => {
+  const h = host({ failHungarianImport: true });
+  await h.finished;
+  expect(h.built).toHaveLength(0);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.isoWorldState).toBe("failed");
+  // This hook also reports terminal failure; it does not imply a published city.
+  expect(h.ready).toBe(1);
+  expect(h.reported).toBe(1);
+  expect(h.warnings).toHaveLength(1);
+  expect(h.runtime.signatures.children).toEqual([h.existing]);
 });

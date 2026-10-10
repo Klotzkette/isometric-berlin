@@ -7923,6 +7923,72 @@
       "credit": "Fridolin freudenfett / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "hungarian_embassy",
+      "title": "File:Berlin, Mitte, Unter den Linden 76, Botschaft von Ungarn 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Unter_den_Linden_76,_Botschaft_von_Ungarn_01.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel; perspective/colour edit by Szilas",
+      "credit": "Jörg Zägel; edit Szilas / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "labour_quartier_v208",
+      "title": "File:Berlin, Mitte, Mauerstrasse, Bundessozialministerium.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mauerstrasse,_Bundessozialministerium.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "labour_quartier_v208",
+      "title": "File:Berlin, Mitte, Mauerstraße, Kleisthaus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mauerstra%C3%9Fe,_Kleisthaus.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "labour_quartier_v208",
+      "title": "File:Berlin, Mitte, Mohrenstraße 65, Neubau Bundesministerium für Arbeit und Soziales.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Mohrenstra%C3%9Fe_65,_Neubau_Bundesministerium_f%C3%BCr_Arbeit_und_Soziales.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "labour_quartier_v208",
+      "title": "File:Berlin, Mitte, Wilhelmstrasse, Haupteingang Bundessozialministerium.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Wilhelmstrasse,_Haupteingang_Bundessozialministerium.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "labour_quartier_v208",
+      "title": "File:Berlin, Mitte, Zietenplatz, Ritterschaftsdirektion 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Zietenplatz,_Ritterschaftsdirektion_02.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Beek100",
+      "credit": "Beek100 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"
