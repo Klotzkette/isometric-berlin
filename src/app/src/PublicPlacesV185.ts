@@ -1,3 +1,4 @@
+import { appendSchoolPlaceV205 } from "./schoolsPlacesV205Batches";
 import { Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from "three";
 import drawn from "./data/publicPlacesV185.json";
 import native from "./data/publicPlacesV185Native.json";
@@ -49,5 +50,6 @@ export function createPublicPlacesV185(minecraft = false): Group {
   }
   mesh.name="Measured facade profiles, terracotta portal strokes and mapped stone seats";
   root.add(mesh);
+  appendSchoolPlaceV205(root, "places", minecraft);
   return freezeStaticSceneTransforms(root);
 }

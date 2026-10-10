@@ -49,7 +49,7 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
-import { worldCameraFarM } from "./worldCameraDepth";
+import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
 import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
@@ -1407,6 +1407,13 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
   if (floodVisible && !runtime.floodWater) {
     runtime.floodWater = createFloodWater(runtime.floodDepth);
     runtime.scene.add(runtime.floodWater);
+    const water = runtime.floodWater;
+    void import("./FloodExtensionV205").then(({loadFloodExtensionV205}) =>
+      loadFloodExtensionV205(water, runtime.loadSignal)).then(attached => {
+        if (attached && !runtime.disposed) runtime.renderInvalidated = true;
+      }).catch(error => {
+        if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Berlin flood extent:", error);
+      });
   }
   const floodChanged = !!runtime.floodWater && runtime.floodWater.visible !== floodVisible;
   if (runtime.floodWater) {
@@ -2639,7 +2646,7 @@ function setSceneLighting(
       .sub(runtime.controls.target)
       .multiplyScalar(scale);
     runtime.controls.maxDistance =
-      2600 * fovDollyScale(DEFAULT_FOV_DEGREES, targetFov);
+      WORLD_ORBIT_BASE_DISTANCE_M * fovDollyScale(DEFAULT_FOV_DEGREES, targetFov);
     runtime.controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
     runtime.camera.position.copy(runtime.controls.target).add(offset);
     runtime.camera.far = worldCameraFarM(runtime.controls.maxDistance);
@@ -6264,7 +6271,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 
-      const camera = new PerspectiveCamera(39, 1, 0.25, worldCameraFarM(2600));
+      const camera = new PerspectiveCamera(39, 1, 0.25, worldCameraFarM(WORLD_ORBIT_BASE_DISTANCE_M));
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
       // One compact byte target is enough for the authored flat palette. The
       // final SMAA pass below owns edge smoothing on every device, avoiding
@@ -6299,7 +6306,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.zoomSpeed = 1.38;
       controls.panSpeed = 1.5;
       controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
-      controls.maxDistance = 2600;
+      controls.maxDistance = WORLD_ORBIT_BASE_DISTANCE_M;
       controls.minPolarAngle = 0.06;
       controls.maxPolarAngle = Math.PI - 0.06;
       controls.screenSpacePanning = true;

@@ -186,6 +186,17 @@ def audited_v190_changes() -> tuple[dict, list]:
   companions = [replacement_by_id.get(d["id"], d) for d in companions] + [
     d for d in next_companions if d["id"] not in companion_by_id
   ]
+  # Only the independently replayed v205 exact-owner transfer may extend this
+  # final descriptor chain. Earlier v201 checks still see their exact v104 bytes.
+  from packet_receipts_v205 import audited_v205_changes
+
+  next_changes, _ = audited_v205_changes()
+  for key, (before, after) in next_changes.items():
+    original, intermediate = changes.get(key, (before, before))
+    assert intermediate == before
+    if key not in changes:
+      assert previous[key[0]][key[1]]["sha256"] == before
+    changes[key] = (original, after)
   return changes, companions
 
 

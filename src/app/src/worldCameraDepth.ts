@@ -1,5 +1,8 @@
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 
+/** 50% more orbit reach, with unchanged city residency and render detail. */
+export const WORLD_ORBIT_BASE_DISTANCE_M = 3_900;
+
 const MIN_WORLD_CAMERA_FAR_M = 16_000;
 const FAR_PLANE_ROUNDING_M = 1_000;
 

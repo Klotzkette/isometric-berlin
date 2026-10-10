@@ -1,0 +1,547 @@
+{
+  "sourceStatus": "Exact OSM circular rings; photograph-guided details and missing heights are display estimates.",
+  "sehitlikPart": [
+    {
+      "site": "sehitlik",
+      "osmId": "14114110",
+      "wayId": null,
+      "tags": {
+        "building:levels": "2",
+        "building:part": "mosque",
+        "height": "12"
+      },
+      "area": 246.04362425256735,
+      "center": [
+        2502.5608594782952,
+        4222.432943326118
+      ],
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                2508.1477322977735,
+                4210.5595291517675
+              ],
+              [
+                2508.7990166920936,
+                4209.984113367274
+              ],
+              [
+                2510.8761896526557,
+                4212.221966212615
+              ],
+              [
+                2509.017402623256,
+                4213.95030745212
+              ],
+              [
+                2514.2732611501124,
+                4219.618651543744
+              ],
+              [
+                2512.088952484599,
+                4221.629141172394
+              ],
+              [
+                2514.7849136590376,
+                4224.45924629271
+              ],
+              [
+                2511.89278913819,
+                4227.1440551579
+              ],
+              [
+                2513.6143042899203,
+                4228.873338436708
+              ],
+              [
+                2508.2777962399996,
+                4233.963497758843
+              ],
+              [
+                2506.5662553054863,
+                4232.08977492433
+              ],
+              [
+                2503.701773719862,
+                4234.752932961099
+              ],
+              [
+                2503.0517336344346,
+                4234.037587095983
+              ],
+              [
+                2501.088033525506,
+                4231.891249900684
+              ],
+              [
+                2499.387866729521,
+                4233.511805910617
+              ],
+              [
+                2498.922860982304,
+                4233.957792839967
+              ],
+              [
+                2498.4253294252558,
+                4233.41271709092
+              ],
+              [
+                2493.6005679389928,
+                4228.221204387024
+              ],
+              [
+                2491.734978364315,
+                4229.94938965328
+              ],
+              [
+                2489.677687484247,
+                4227.734221578576
+              ],
+              [
+                2491.543277013465,
+                4226.006037091836
+              ],
+              [
+                2489.280136697227,
+                4223.574913081713
+              ],
+              [
+                2494.3153560953797,
+                4218.900983470492
+              ],
+              [
+                2499.6979274799232,
+                4213.878618566319
+              ],
+              [
+                2504.6831447418663,
+                4209.314852693118
+              ],
+              [
+                2506.906277330243,
+                4211.711706196889
+              ],
+              [
+                2508.1477322977735,
+                4210.5595291517675
+              ]
+            ],
+            [
+              [
+                2490.630003850325,
+                4227.988871894777
+              ],
+              [
+                2490.63833191758,
+                4227.610720710829
+              ],
+              [
+                2490.7683990448713,
+                4227.257505575195
+              ],
+              [
+                2490.992308393528,
+                4226.961994571611
+              ],
+              [
+                2491.3369769970304,
+                4226.735907962546
+              ],
+              [
+                2491.739820743038,
+                4226.644632375799
+              ],
+              [
+                2492.1533061873633,
+                4226.687120967545
+              ],
+              [
+                2492.5228644540184,
+                4226.873299473897
+              ],
+              [
+                2492.808487405069,
+                4227.168904350139
+              ],
+              [
+                2492.9767124350765,
+                4227.550943700597
+              ],
+              [
+                2493.0016022238997,
+                4227.96320889052
+              ],
+              [
+                2492.8841364884865,
+                4228.361211549491
+              ],
+              [
+                2492.6391208852874,
+                4228.689640284516
+              ],
+              [
+                2492.3354401477845,
+                4228.905502162874
+              ],
+              [
+                2491.9730942876195,
+                4229.008797171526
+              ],
+              [
+                2491.599616821157,
+                4229.000572125427
+              ],
+              [
+                2491.2489602697315,
+                4228.8815747555345
+              ],
+              [
+                2490.948286651983,
+                4228.652403256856
+              ],
+              [
+                2490.737604144262,
+                4228.3473212029785
+              ],
+              [
+                2490.630003850325,
+                4227.988871894777
+              ]
+            ],
+            [
+              [
+                2499.4107795296586,
+                4219.513931360096
+              ],
+              [
+                2500.145266395877,
+                4218.862456476316
+              ],
+              [
+                2500.965335238725,
+                4218.3352684583515
+              ],
+              [
+                2501.857405120856,
+                4217.932068198919
+              ],
+              [
+                2502.8006148062996,
+                4217.674651252106
+              ],
+              [
+                2503.768047349411,
+                4217.551297371276
+              ],
+              [
+                2504.7458769476507,
+                4217.572829581797
+              ],
+              [
+                2505.713487327681,
+                4217.749921388924
+              ],
+              [
+                2506.6374159764964,
+                4218.059580975212
+              ],
+              [
+                2507.5038370882394,
+                4218.512631414458
+              ],
+              [
+                2508.299904466956,
+                4219.07540740259
+              ],
+              [
+                2508.998211297905,
+                4219.758432978764
+              ],
+              [
+                2509.585666422732,
+                4220.5391649520025
+              ],
+              [
+                2510.0557242388604,
+                4221.406331745908
+              ],
+              [
+                2510.3887479394325,
+                4222.326118551195
+              ],
+              [
+                2510.5781918680295,
+                4223.287253782153
+              ],
+              [
+                2510.6247906415956,
+                4224.256371173076
+              ],
+              [
+                2510.528544175846,
+                4225.2334707304835
+              ],
+              [
+                2510.28339658631,
+                4226.185036640614
+              ],
+              [
+                2509.9036634801887,
+                4227.078001647256
+              ],
+              [
+                2509.389344794443,
+                4227.912365717813
+              ],
+              [
+                2508.761301775812,
+                4228.6663331901655
+              ],
+              [
+                2508.0270596093033,
+                4229.3066872656345
+              ],
+              [
+                2507.206989801256,
+                4229.833876468241
+              ],
+              [
+                2506.3149182859343,
+                4230.237077717669
+              ],
+              [
+                2505.3714615233475,
+                4230.505617460236
+              ],
+              [
+                2504.397480908083,
+                4230.617700061761
+              ],
+              [
+                2503.4196487078443,
+                4230.5961678167805
+              ],
+              [
+                2502.458581421699,
+                4230.430347218178
+              ],
+              [
+                2501.534895554534,
+                4230.10956478212
+              ],
+              [
+                2500.661437428673,
+                4229.667485876009
+              ],
+              [
+                2499.872404516733,
+                4229.093736107461
+              ],
+              [
+                2499.174097507843,
+                4228.410709242336
+              ],
+              [
+                2498.57985248405,
+                4227.629826484248
+              ],
+              [
+                2498.1165864936775,
+                4226.7628081180155
+              ],
+              [
+                2497.7835647143656,
+                4225.843020458706
+              ],
+              [
+                2497.5938782181474,
+                4224.893006801605
+              ],
+              [
+                2497.540736434574,
+                4223.912617621943
+              ],
+              [
+                2497.643775973702,
+                4222.935667823069
+              ],
+              [
+                2497.8886809815303,
+                4221.995224604383
+              ],
+              [
+                2498.2686608916265,
+                4221.091138403863
+              ],
+              [
+                2498.776190372475,
+                4220.256625941023
+              ],
+              [
+                2499.4107795296586,
+                4219.513931360096
+              ]
+            ],
+            [
+              [
+                2507.559253689833,
+                4212.293586472981
+              ],
+              [
+                2507.5675804949715,
+                4211.915435270406
+              ],
+              [
+                2507.6976460374426,
+                4211.562219698913
+              ],
+              [
+                2507.9215536785196,
+                4211.2667079353705
+              ],
+              [
+                2508.2730108746327,
+                4211.040769683197
+              ],
+              [
+                2508.6758529863437,
+                4210.949492721818
+              ],
+              [
+                2509.0825467234245,
+                4210.991830382496
+              ],
+              [
+                2509.4521043719724,
+                4211.178007623181
+              ],
+              [
+                2509.73772734066,
+                4211.473611518741
+              ],
+              [
+                2509.9059530599043,
+                4211.8556502871215
+              ],
+              [
+                2509.9308441120666,
+                4212.267915382981
+              ],
+              [
+                2509.8133800658397,
+                4212.665918431245
+              ],
+              [
+                2509.568366347812,
+                4212.994347996078
+              ],
+              [
+                2509.264687322371,
+                4213.21021090541
+              ],
+              [
+                2508.902343001624,
+                4213.313507148065
+              ],
+              [
+                2508.5288667471614,
+                4213.305283375084
+              ],
+              [
+                2508.178210970538,
+                4213.186287203804
+              ],
+              [
+                2507.8775376019184,
+                4212.957116735168
+              ],
+              [
+                2507.6668547970476,
+                4212.652035407722
+              ],
+              [
+                2507.559253689833,
+                4212.293586472981
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "visualReferences": [
+    {
+      "title": "File:Berlin, Kreuzberg, Marheinekeplatz, Passions-Kirche.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Marheinekeplatz,_Passions-Kirche.jpg",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Berlin%2C_Kreuzberg%2C_Marheinekeplatz%2C_Passions-Kirche.jpg/500px-Berlin%2C_Kreuzberg%2C_Marheinekeplatz%2C_Passions-Kirche.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Jörg Zägel",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "date": "2011-03-22",
+      "path": "/tmp/v205-religious-references/Berlin, Kreuzberg, Marheinekeplatz, Passions-Kirche.jpg"
+    },
+    {
+      "title": "File:Berlin Friedrichshain Samariterkirche.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin_Friedrichshain_Samariterkirche.JPG",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Berlin_Friedrichshain_Samariterkirche.JPG/500px-Berlin_Friedrichshain_Samariterkirche.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Kvikk",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "date": "2013-03-02 15:09:43",
+      "path": "/tmp/v205-religious-references/Berlin Friedrichshain Samariterkirche.JPG"
+    },
+    {
+      "title": "File:Berlin Gethsemanekirche.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin_Gethsemanekirche.jpg",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Berlin_Gethsemanekirche.jpg/500px-Berlin_Gethsemanekirche.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Fischchen",
+      "license": "CC BY-SA 2.0 de",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en",
+      "date": "2007-08-04",
+      "path": "/tmp/v205-religious-references/Berlin Gethsemanekirche.jpg"
+    },
+    {
+      "title": "File:Berlin Synagoge Rykestrasse Suedseite.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin_Synagoge_Rykestrasse_Suedseite.JPG",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Berlin_Synagoge_Rykestrasse_Suedseite.JPG/500px-Berlin_Synagoge_Rykestrasse_Suedseite.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Mazbln",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "date": "2007-09-09",
+      "path": "/tmp/v205-religious-references/Berlin Synagoge Rykestrasse Suedseite.JPG"
+    },
+    {
+      "title": "File:Berlin Synagoge Rykestrasse Westseite.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin_Synagoge_Rykestrasse_Westseite.JPG",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Berlin_Synagoge_Rykestrasse_Westseite.JPG/500px-Berlin_Synagoge_Rykestrasse_Westseite.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Mazbln",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "date": "2007-09-09",
+      "path": "/tmp/v205-religious-references/Berlin Synagoge Rykestrasse Westseite.JPG"
+    },
+    {
+      "title": "File:Sehitlik-Moschee in Berlin, 2012.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Sehitlik-Moschee_in_Berlin,_2012.jpg",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Sehitlik-Moschee_in_Berlin%2C_2012.jpg/500px-Sehitlik-Moschee_in_Berlin%2C_2012.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Avda",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "date": "2012-03-20",
+      "path": "/tmp/v205-religious-references/Sehitlik-Moschee in Berlin, 2012.jpg"
+    },
+    {
+      "title": "File:Wilmersdorfer Moschee Frontalansicht.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Wilmersdorfer_Moschee_Frontalansicht.jpg",
+      "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Wilmersdorfer_Moschee_Frontalansicht.jpg/500px-Wilmersdorfer_Moschee_Frontalansicht.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "author": "Ceddyfresse",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "date": "2009-04-10",
+      "path": "/tmp/v205-religious-references/Wilmersdorfer Moschee Frontalansicht.jpg"
+    }
+  ]
+}

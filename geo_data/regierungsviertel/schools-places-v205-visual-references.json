@@ -1,0 +1,83 @@
+{
+  "records": [
+    {
+      "landmark_id": "gymnasium_steglitz",
+      "title": "File:120518-Gymnasium-Steglitz-Heesestraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:120518-Gymnasium-Steglitz-Heesestra%C3%9Fe.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Muns",
+      "credit": "Muns / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kastanienbaum_grundschule",
+      "title": "File:Berlin, Mitte, Gipsstrasse 23A, Kastanienbaum-Grundschule.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Gipsstrasse_23A,_Kastanienbaum-Grundschule.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berlin_metropolitan_school",
+      "title": "File:Berlin Metropolitan School.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Metropolitan_School.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Metropolitan School",
+      "credit": "Metropolitan School / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "john_lennon_gymnasium",
+      "title": "File:Berlin Mitte Zehdenicker Straße 17 (09080444).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Zehdenicker_Stra%C3%9Fe_17_(09080444).JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Kvikk",
+      "credit": "Kvikk / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "be_smart_academy",
+      "title": "File:Torstrasse Berlin 23.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Torstrasse_Berlin_23.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Angela Monika Arnold, Berlin",
+      "credit": "Angela Monika Arnold, Berlin / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_tiergarten",
+      "title": "File:Hansaviertel Altonaer Straße Gymnasium Tiergarten.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hansaviertel_Altonaer_Stra%C3%9Fe_Gymnasium_Tiergarten.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "rosenthaler_platz",
+      "title": "File:Mitte Rosenthaler Platz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Mitte_Rosenthaler_Platz.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    }
+  ],
+  "checked": "2026-10-10",
+  "policy": "Freely licensed photographic references only; no photographic pixels or textures shipped."
+}

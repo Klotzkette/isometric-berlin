@@ -7736,6 +7736,138 @@
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false,
       "inspected_on": "2026-10-09"
+    },
+    {
+      "landmark_id": "gymnasium_steglitz",
+      "title": "File:120518-Gymnasium-Steglitz-Heesestraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:120518-Gymnasium-Steglitz-Heesestra%C3%9Fe.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Muns",
+      "credit": "Muns / CC BY 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kastanienbaum_grundschule",
+      "title": "File:Berlin, Mitte, Gipsstrasse 23A, Kastanienbaum-Grundschule.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Gipsstrasse_23A,_Kastanienbaum-Grundschule.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berlin_metropolitan_school",
+      "title": "File:Berlin Metropolitan School.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Metropolitan_School.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Metropolitan School",
+      "credit": "Metropolitan School / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "john_lennon_gymnasium",
+      "title": "File:Berlin Mitte Zehdenicker Straße 17 (09080444).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Zehdenicker_Stra%C3%9Fe_17_(09080444).JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Kvikk",
+      "credit": "Kvikk / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "be_smart_academy",
+      "title": "File:Torstrasse Berlin 23.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Torstrasse_Berlin_23.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Angela Monika Arnold, Berlin",
+      "credit": "Angela Monika Arnold, Berlin / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Berlin, Kreuzberg, Marheinekeplatz, Passions-Kirche.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Marheinekeplatz,_Passions-Kirche.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Berlin Friedrichshain Samariterkirche.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Friedrichshain_Samariterkirche.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Kvikk",
+      "credit": "Kvikk / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Berlin Gethsemanekirche.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Gethsemanekirche.jpg",
+      "license": "CC BY-SA 2.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en",
+      "artist": "Fischchen",
+      "credit": "Fischchen / CC BY-SA 2.0 de",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Berlin Synagoge Rykestrasse Suedseite.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Synagoge_Rykestrasse_Suedseite.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Mazbln",
+      "credit": "Mazbln / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Berlin Synagoge Rykestrasse Westseite.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Synagoge_Rykestrasse_Westseite.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Mazbln",
+      "credit": "Mazbln / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Sehitlik-Moschee in Berlin, 2012.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Sehitlik-Moschee_in_Berlin,_2012.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Avda",
+      "credit": "Avda / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "religious_sites_v205",
+      "title": "File:Wilmersdorfer Moschee Frontalansicht.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Wilmersdorfer_Moschee_Frontalansicht.jpg",
+      "license": "Public domain",
+      "license_url": null,
+      "artist": "Ceddyfresse",
+      "credit": "Ceddyfresse / Public domain",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

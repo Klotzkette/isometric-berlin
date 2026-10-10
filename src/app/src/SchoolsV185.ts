@@ -1,3 +1,4 @@
+import { appendSchoolPlaceV205 } from "./schoolsPlacesV205Batches";
 import { Group } from "three";
 import source from "./data/schoolsV185.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -26,5 +27,6 @@ export function createSchoolsV185(minecraft = false): Group {
     mesh.userData.sourceOwner = school.owner;
     root.add(mesh);
   }
+  appendSchoolPlaceV205(root, "schools", minecraft);
   return freezeStaticSceneTransforms(root);
 }

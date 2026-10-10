@@ -1,0 +1,6 @@
+{
+  "MuseumTriadArchitecture": {
+    "hash": "b13cac1344a056c848fbb0b1787b158191fe57d13bca3fb52389ffd9e5e1e60a",
+    "budget": { "bytes": 732060, "draws": 6, "instances": 8256, "vertices": 2929 }
+  }
+}

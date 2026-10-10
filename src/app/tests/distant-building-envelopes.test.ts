@@ -14,6 +14,8 @@ import { NATIONALGALERIE_V183_IDS } from "../src/neueNationalgalerieV183Profile"
 import stationDetailsV192 from "../src/data/stationDetailsV192.json";
 import centralCorrection from "../src/data/centralSitesV200Correction.json";
 import centralReplacement from "../src/data/centralSitesV200Replacement.json";
+import bendlerblock from "../src/data/bendlerblockV202Evidence.json";
+import panorama from "../src/pergamonPanoramaV202Source.json";
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const fixture = (changes: Partial<PrismBuilding> = {}): PrismBuilding => ({
@@ -153,12 +155,16 @@ describe("complete distant building source envelopes", () => {
     // Preserve the b8dfab9 baseline rather than accepting a lower city count:
     // one v192 Zoo canopy and exactly six documented v200 owners now have
     // complete source replacements (the station itself is underground).
+    // v202 additionally transfers exactly nine Bendlerblock owners and the
+    // Panorama owner; add them back to the same frozen baseline, not a lower count.
     const laterOwners = [stationDetailsV192.zoo.legacyPrism,
-      centralCorrection.retainedPrism, ...centralReplacement.replacements.map(p => p.legacyPrism)];
+      centralCorrection.retainedPrism, ...centralReplacement.replacements.map(p => p.legacyPrism),
+      ...bendlerblock.previousOwners, panorama.previous_display_prism];
     expect(laterOwners.map(p => p.id).sort()).toEqual([
       stationDetailsV192.zoo.legacyPrism.id, "98956069", "-5759915", "80339718", "86993630", "86993613", "86993634",
+      "-7903504", "velffOVN", "eTv6rMSm", "lSPuB8DI", "dT0GhZDa", "8ITOvSLQ", "mdWef52O", "OcEXDDwu", "w0KNc7fU", "35493631",
     ].sort());
-    expect(new Set(laterOwners.map(p => p.id)).size).toBe(7);
+    expect(new Set(laterOwners.map(p => p.id)).size).toBe(17);
     for (const owner of laterOwners) {
       expect(source.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
       expect(ALT_MITTE_V169_PRISM_IDS.has(owner.id)).toBe(false);

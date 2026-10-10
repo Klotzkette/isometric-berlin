@@ -575,7 +575,9 @@ def _olympic(
 def audited_v201_changes() -> tuple[dict, list, dict]:
   """Check exact source geometry, full current manifest and both finite patches."""
   old_manifest = json.loads(baseline(PUBLIC / "manifest.json"))
-  current_manifest = load(PUBLIC / "manifest.json")
+  from packet_receipts_v205 import predecessor_v205
+
+  current_manifest = json.loads(predecessor_v205(PUBLIC / "manifest.json"))
   old = {d["id"]: d for d in old_manifest["chunks"]}
   current = {d["id"]: d for d in current_manifest["chunks"]}
   olympic = load(GEO / "olympic-v201-packet-audit.json")
@@ -611,7 +613,7 @@ def audited_v201_changes() -> tuple[dict, list, dict]:
   # Unchanged rows must retain actual old bytes, not merely immutable metadata.
   for d in current.values():
     for mode in ("drawn", "minecraft"):
-      raw = (PUBLIC / d[mode]["url"]).read_bytes()
+      raw = predecessor_v205(PUBLIC / d[mode]["url"])
       assert len(raw) == d[mode]["bytes"] and digest(raw) == d[mode]["sha256"]
   a, companions = _olympic(olympic, old, intermediate, checkpoints)
   b, counts = _wuhl(wuhl, old, current)
@@ -639,7 +641,9 @@ def prior_asset_index() -> dict:
 
 def predecessor_v201(path: Path) -> bytes:
   """Only verified v201 changes may expose their immutable v100 checkpoint."""
-  current = path.read_bytes()
+  from packet_receipts_v205 import predecessor_v205
+
+  current = predecessor_v205(path)
   match = prior_asset_index().get(path)
   if match is None:
     return current

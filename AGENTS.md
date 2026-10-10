@@ -176,6 +176,18 @@ all source sheets and existing runtime budgets; load the bounded altar only on
 request and retain selection across mobile mode-family remounts. This interaction
 is an explicit exception to ordinary exterior visibility, not a data deletion.
 
+The owner's v1.0.105 request permits a 50% larger orbit reach and additive
+animated flooding over the complete official Berlin state area plus existing
+approved presentation footprints. Preserve the original water and all scene
+data, with unchanged city residency budgets. Named schools, Rosenthaler Platz,
+Choriner Höfe, be smart academy (Torstraße 134), selected significant religious
+sites, BER, Ringbahn stations, western motorways and Kurfürstendamm may receive
+bounded source-bound refinements. Complete retained LoD2 parts may replace only
+the documented exact erroneous coarse religious-site owners. Keep unrelated
+geometry, navigation, sources and 93 tour stops intact. New boulevard trees
+must follow official points and exclude existing trees. This is not permission
+for an unrelated district rebuild. See `docs/refinements-v205.md`.
+
 The owner's v1.0.102 request authorizes bounded refinement of James-Simon-Galerie,
 the Pergamon Panorama, both Staatsbibliothek buildings and the Bendlerblock with
 its memorial court. Complete documented source families may replace precisely

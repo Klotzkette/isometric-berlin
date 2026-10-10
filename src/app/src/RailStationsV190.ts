@@ -4,6 +4,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import source from "./data/railStationsV190.json";
+import refinements from "./data/ringStationDetailsV205.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringLayout, letteringStrokePaths } from "./drawnLettering";
@@ -74,7 +75,7 @@ function nativePlatform(rows: Rows, p: Platform): void {
     }
   }
 }
-function platformGeometry(p: Platform): BufferGeometry {
+function platformGeometry(p: Pick<Platform, "rings" | "y">): BufferGeometry {
   const shape = new Shape(p.rings[0].map(([x, z]) => new Vector2(x, -z)));
   shape.holes = p.rings.slice(1).map(r => new Path(r.map(([x, z]) => new Vector2(x, -z))));
   const geometry = new ShapeGeometry(shape);
@@ -196,6 +197,37 @@ export function createRailStationsV190(native = false): Group {
           if (contains(roof.rings, ...a) && contains(roof.rings, ...b))
             beam(rows, native, a, b, roof.y + .12, .13, .20, C.steel);
         }
+      }
+    }
+    const extra = refinements.stations.find(s => s.name === station.name);
+    if (extra) {
+      group.userData.ringRefinementV205 = true;
+      for (const marker of extra.markers) {
+        const { x, z, y } = marker;
+        const dx = native ? 1 : marker.dx, dz = native ? 0 : marker.dz, yaw = -Math.atan2(dz, dx);
+        box(rows, native, x, y + 1.55, z, .10, 3.1, .10, 0, C.steel);
+        box(rows, native, x, y + 3, z, .78, .78, .16, yaw, C.green);
+        // Block-drawn S on both faces. No glyph/texture dependency and no mark
+        // on a regional platform: generation requires light_rail=yes.
+        for (const side of [-1, 1]) {
+          const face = .11;
+          for (const offset of [-.22, 0, .22]) box(rows, native, x - dz * face * side, y + 3 + offset,
+            z + dx * face * side, .39, .065, .035, yaw, C.cream);
+          for (const sign of [-1, 1]) box(rows, native, x + dx * sign * side * .18 - dz * face * side, y + 3 - sign * .11,
+            z + dz * sign * side * .18 + dx * face * side, .065, .22, .035, yaw, C.cream);
+        }
+      }
+      const roofs: BufferGeometry[] = [];
+      for (const canopy of extra.canopies) {
+        if (native) rows.push(...canopy.native); else roofs.push(platformGeometry({ rings: canopy.rings, y: canopy.y }));
+      }
+      if (roofs.length) {
+        const geometry = mergeGeometries(roofs, false)!; roofs.forEach(g => g.dispose());
+        const day = new MeshBasicMaterial({ color: 0x909c96, side: DoubleSide });
+        const night = new MeshStandardMaterial({ color: 0x909c96, side: DoubleSide, roughness: .9 });
+        const mesh = new Mesh(geometry, day); mesh.name = `${station.name} source-only missing canopy planes v205`;
+        mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true, sourceIds: extra.canopies.map(c => c.id) };
+        group.add(mesh);
       }
     }
     if (caps.length) {

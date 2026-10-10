@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { LineSegments, Material } from "three";
+import { LineSegments, Material, Mesh } from "three";
 import {
   createRegionOutlinesV200, regionalV200NavigationTiles,
   regionalV200SolidAt, regionalV200WaterAt,
@@ -8,24 +8,26 @@ import drawn from "../src/data/regionOutlinesV200.json";
 import nativeSource from "../src/data/regionOutlinesV200Native.json";
 
 function release(root: ReturnType<typeof createRegionOutlinesV200>): void {
-  for (const object of root.children) {
+  root.traverse(object => {
+    if (!(object instanceof LineSegments) && !(object instanceof Mesh)) return;
     const line = object as LineSegments;
     for (const material of new Set([line.material, line.userData.dayMaterial, line.userData.nightMaterial])) {
       if (material instanceof Material) material.dispose();
     }
     line.geometry.dispose();
-  }
+  });
 }
 
-test("each regional family is static, independently constructed and bounded to fourteen draw calls", () => {
+test("each regional family preserves fourteen exact batches plus the bounded BER refinement", () => {
   for (const native of [false, true]) {
     const root = createRegionOutlinesV200(native);
     const source = native ? nativeSource : drawn;
     let bytes = 0;
-    expect(root.children.length).toBe(14);
+    expect(root.children.length).toBe(15);
+    expect(root.children[14].name).toContain("BER Willy Brandt");
     expect(root.userData.fullStaticDetailOnTouch).toBe(true);
     expect(root.userData.blockNative).toBe(native);
-    for (let b = 0; b < root.children.length; b++) {
+    for (let b = 0; b < 14; b++) {
       const line = root.children[b] as LineSegments;
       expect(line).toBeInstanceOf(LineSegments);
       expect(line.matrixAutoUpdate).toBe(false);

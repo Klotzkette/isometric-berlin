@@ -1,0 +1,10 @@
+{
+  "MuseumTriadArchitecture/full": {
+    "hash": "499dae00b6b9d6878954e30990839710eede0e64d1aa8509f6c2721e34bad19b",
+    "budget": { "bytes": 1581676, "draws": 2, "instances": 20803, "vertices": 24 }
+  },
+  "MuseumTriadArchitecture/mobile": {
+    "hash": "60ad725ed1db905dd4e84051007bbe32fe360d987501e694dac4b467be2f13e6",
+    "budget": { "bytes": 920172, "draws": 2, "instances": 12099, "vertices": 24 }
+  }
+}

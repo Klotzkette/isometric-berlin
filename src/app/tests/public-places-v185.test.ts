@@ -6,7 +6,7 @@ test("small source-bound additions have finite buffers and an independent native
   for(const native of [false,true]) {
     const root=createPublicPlacesV185(native);
     expect(root.userData.sourceGeometryRetained).toBe(true);
-    expect(root.children.length).toBe(1);
+    expect(root.children.filter(o => !o.userData.schoolPlaceV205).length).toBe(1);
     const mesh=root.children[0] as InstancedMesh;
     expect(mesh.count).toBeLessThan(native?1900:400);
     expect(mesh.geometry.getAttribute("uv")).toBeUndefined();

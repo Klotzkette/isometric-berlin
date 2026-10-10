@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "releasedBase": "cca429f4",
+  "historicalBaseline": "minecraft-world-synchronous-v200.json",
+  "method": "Independent synchronous v204 constructors; exact immutable v200 full-world hashes reproduced by disabling only two v202 column-signature predicates, loading pre-v202 JamesSimonArchitecture/jamesSimonProfile, and pre-v204 MuseumTriadArchitecture through a read-only Bun onLoad hook. No runtime file is rewritten; no previous fixture is changed. All other ordered per-mesh byte hashes are exact. The existing pergamon-exterior-v203 fixture independently verifies unordered exact instance and triangle preservation across the museum split.",
+  "profiles": {
+    "full": {
+      "legacy": {
+        "detailProfile": "full",
+        "instances": 4404273,
+        "renderables": 350,
+        "bufferBytes": 382952554,
+        "sha256": "13ec120f40162a9bb4743414607e833ba56d033b0453d4a0ca0569eb7acd1682"
+      },
+      "current": {
+        "detailProfile": "full",
+        "instances": 4399167,
+        "renderables": 351,
+        "bufferBytes": 382564498,
+        "sha256": "26f83b682d118c125e068fb11ec2abb76dc6db310a80924dc87bfe7fbd2bced7"
+      },
+      "unchangedMeshCount": 346,
+      "unchangedOrderedMeshSha256": "b951383e8c9bf67c2823d673d8df979a21585510c47515b2a496f246bfb97005",
+      "beforeChanged": [
+        {
+          "name": "James-Simon single native block batch",
+          "instances": 2499,
+          "sha256": "5e36df3ac8d91036922a58c5680f323be7a2b087aa32e74be932a5916190bfd8"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 20803,
+          "sha256": "2ce603afe054995b73f15f24ffdf48ac2751e4ddeec3e81b8b9a9e7c96e27842"
+        },
+        {
+          "name": "Voxel building columns",
+          "instances": 1194829,
+          "sha256": "0339e2ee853d9ca2d6bec075ba93ed72e5d03709276530b19e36543e6f867c6c"
+        },
+        {
+          "name": "Voxel facade windows",
+          "instances": 1493761,
+          "sha256": "618b76259e91824cda17919fd3cb2645b8f7dfe14eadb0f9a8b9717f2b226926"
+        }
+      ],
+      "afterChanged": [
+        {
+          "name": "James-Simon single native block batch",
+          "instances": 2610,
+          "sha256": "46b97968158f6830323dcf95037d60318d91138e25e2bc9021a8538aadb39ceb"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 9675,
+          "sha256": "d0c54a7cd3be88701be3b05b72823bbbe4029f9e40dd269f6c8e0fc92e2388da"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 11128,
+          "sha256": "a0c52e567d330add4444013f56793c448d724b1b554a7bdacc94f0a8ba8a6a28"
+        },
+        {
+          "name": "Voxel building columns",
+          "instances": 1192309,
+          "sha256": "32a22998facf61dd8f51ebeb0266d7978c8ea498d76d8727c626d83527d3501a"
+        },
+        {
+          "name": "Voxel facade windows",
+          "instances": 1491064,
+          "sha256": "683c6425a51a70f5f5c08b398c8fc60de29b2bb3f1894550e41441be0a54dbd9"
+        }
+      ]
+    },
+    "mobile": {
+      "legacy": {
+        "detailProfile": "mobile",
+        "instances": 2033897,
+        "renderables": 348,
+        "bufferBytes": 202354522,
+        "sha256": "43f4074657a7d046672db031cb450a25bde1152bbaa4bddf476e76e662f585ac"
+      },
+      "current": {
+        "detailProfile": "mobile",
+        "instances": 2033168,
+        "renderables": 349,
+        "bufferBytes": 202299118,
+        "sha256": "0945b1a4179ee9cc671629da341ee48c979ce86319c4f3cf3b747354aecd7d68"
+      },
+      "unchangedMeshCount": 345,
+      "unchangedOrderedMeshSha256": "b1e5ffb070266c8ce1ff83049f755100a2d831b86fde72235f75b77f5d0291c1",
+      "beforeChanged": [
+        {
+          "name": "James-Simon single native block batch",
+          "instances": 2499,
+          "sha256": "5e36df3ac8d91036922a58c5680f323be7a2b087aa32e74be932a5916190bfd8"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 12099,
+          "sha256": "48e7ad22089b1da036cbf5819a7882e44dcab4f4a7996fa992330cbb2c8fdc12"
+        },
+        {
+          "name": "Voxel building columns",
+          "instances": 458578,
+          "sha256": "d9ad51bdd4deee2304355613bc0f59c740efe41c37ac01908f792846c4378e96"
+        }
+      ],
+      "afterChanged": [
+        {
+          "name": "James-Simon single native block batch",
+          "instances": 2610,
+          "sha256": "46b97968158f6830323dcf95037d60318d91138e25e2bc9021a8538aadb39ceb"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 5603,
+          "sha256": "d490079b289a4c5e3dc12a29828d8e9b3f67041d148d83d881dbe9c11cc6b254"
+        },
+        {
+          "name": "Museum triad native blocks box",
+          "instances": 6496,
+          "sha256": "31f8a96a052a5ed5121e0750c3d9be3fa81c1890d8c7609d8ebaff434dfdb37d"
+        },
+        {
+          "name": "Voxel building columns",
+          "instances": 457738,
+          "sha256": "43924171f1ddc5ed681dc2b7d23400924afbcf9ece2d8e726a848e43f28136dc"
+        }
+      ]
+    }
+  },
+  "sourceSha256": {
+    "src/app/src/MinecraftVoxelWorld.ts": "26098e192b90fd9df1c78fd6a27a1c9db4c2499a71d665f216b678dc93665dcf",
+    "src/app/src/MuseumTriadArchitecture.ts": "5b1ef5a75dc16774c733f75eb857904735040aa1bc46db3be8ef89996affe622",
+    "src/app/src/JamesSimonArchitecture.ts": "ddabf60bcef615fc797fe86a848ad48bc370c0c19047399be6df7c35c66d8e58",
+    "src/app/src/jamesSimonProfile.ts": "3690e05ef672da47ec932690e47cb04bb752a737d9d0736e4891c446fbb8f743",
+    "src/app/src/data/bendlerblockV202Navigation.json": "0608959d23fb96aaf015a4be321d123efa775ba0976f248d24cd89a85b2bb798",
+    "src/app/src/pergamonPanoramaV202Source.json": "45c1c8cee3a5063c4743475e6b339ecc8cc43c7f4ef2f67aff778f97e6703c9b"
+  }
+}

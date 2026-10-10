@@ -23,10 +23,16 @@ float swell(vec2 p, float t) {
 
 const VERTEX = `
 uniform float time;
+#ifdef FLOOD_GRID
+attribute vec2 floodOffset;
+#endif
 varying vec3 waterPosition;
 ${SWELLS}
 void main() {
   vec3 p = position;
+  #ifdef FLOOD_GRID
+  p.xz += floodOffset;
+  #endif
   p.y += swell(p.xz, time);
   waterPosition = (modelMatrix * vec4(p, 1.0)).xyz;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);

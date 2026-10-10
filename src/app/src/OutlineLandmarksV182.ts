@@ -54,6 +54,9 @@ import { createWaldbuehneV201 } from "./WaldbuehneV201";
 import { createLibrariesV202 } from "./LibrariesV202";
 import { createPergamonPanoramaV202 } from "./PergamonPanoramaV202";
 import { createBendlerblockV202 } from "./BendlerblockV202";
+import { createKudammTreesV205 } from "./KudammTreesV205";
+import { createWesternMotorwaysV205 } from "./WesternMotorwaysV205";
+import { createReligiousSitesV205 } from "./ReligiousSitesV205";
 import type { VisualMode } from "./visualMode";
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -92,6 +95,12 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createSchoolsV185(nextNative));
       yield;
       root.add(createPublicPlacesV185(nextNative));
+      yield;
+      root.add(createKudammTreesV205(nextNative));
+      yield;
+      root.add(createWesternMotorwaysV205(nextNative));
+      yield;
+      root.add(createReligiousSitesV205(nextNative));
       yield;
       root.add(createNorthV185(nextNative));
       yield;

@@ -1597,6 +1597,17 @@ attribution manifest; no photo pixels are embedded in these models.
 The museum/library documentation and docs/release-v1.0.102-review.md distinguish
 measured envelopes from proportional architectural presentation.
 
+## Schools, religious sites, transport and flood extent (v1.0.105)
+
+The complete flood domain uses the retained official Berlin ALKIS state boundary
+and the previously documented scope polygons (Geoportal Berlin, dl-de/zero-2-0).
+Additional Kurfürstendamm trees use the official Berlin street-tree catalogue,
+retrieved 10 October 2026, under the same licence. LoD2 sheets and exact OSM
+footprints continue to anchor named architectural and transport refinements.
+Per-file freely licensed visual-reference credits remain in the packaged
+Wikimedia attribution menu; no photograph or photographic texture is shipped.
+See `docs/refinements-v205.md` and its linked site-specific provenance records.
+
 ## Pergamon Altar reveal (v1.0.104)
 
 Procedural west-front interpretation. Visual reference: Lestat (Jan Mehlich),

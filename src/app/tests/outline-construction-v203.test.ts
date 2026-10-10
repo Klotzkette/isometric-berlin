@@ -1,38 +1,28 @@
 import { expect, spyOn, test } from "bun:test";
-import { createHash } from "node:crypto";
-import { BufferGeometry, InstancedMesh, Material, type Object3D } from "three";
+import { BufferGeometry, InstancedMesh, Material } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { createOuterThinOutlinesSteps } from "../src/OuterThinOutlines";
 import baseline from "./fixtures/outline-landmarks-v203-baseline.json";
+import synchronous from "./fixtures/outline-landmarks-v205-synchronous.json";
+import preserved from "./fixtures/outline-landmarks-v204-preserved-layout.json";
+import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
 
-function signature(root: Object3D) {
-  const hash = createHash("sha256"); let objects = 0, bytes = 0;
-  root.traverse((n: any) => {
-    objects++;
-    hash.update(JSON.stringify([n.name,n.type,n.visible,n.matrix.elements,n.position.toArray(),n.rotation.toArray(),n.scale.toArray(),n.renderOrder,n.frustumCulled,n.count??null]));
-    const attrs = Object.entries(n.geometry?.attributes ?? {});
-    if (n.geometry?.index) attrs.push(["index", n.geometry.index]);
-    if (n.instanceMatrix) attrs.push(["instanceMatrix", n.instanceMatrix]);
-    if (n.instanceColor) attrs.push(["instanceColor", n.instanceColor]);
-    for (const [name, a] of attrs as any) {
-      hash.update(JSON.stringify([name, a.itemSize, a.normalized, a.count]));
-      const data = new Uint8Array(a.array.buffer, a.array.byteOffset, a.array.byteLength);
-      hash.update(data); bytes += data.byteLength;
-    }
-  });
-  return { sha256: hash.digest("hex"), objects, bytes, families: root.children.length };
-}
-
-for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction preserves every v1.0.102 render-buffer byte and transform`, async () => {
+// A read-only cca429f constructor capture exactly reproduced the unchanged
+// v203 fixture. Its layout contains no substitute geometry: this test hashes
+// every old byte directly from the new tree, trimming only appended Ring
+// matrix/color suffixes. New v205 geometry also matches independent synchronous
+// captures from scripts/audit-outline-v205-baselines.ts.
+for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v205 synchronous and retains every old render-buffer byte and transform`, async () => {
   let tasks = 0;
   const root = await completeCooperatively(createOutlineLandmarksV182Steps(mode), {
     budgetMs: 0, isCancelled: () => false,
     yieldTask: async () => { tasks++; await new Promise(resolve => setTimeout(resolve, 0)); },
   });
   try {
-    expect(tasks).toBeGreaterThanOrEqual(baseline[mode].families);
-    expect(signature(root)).toEqual(baseline[mode]);
+    expect(tasks).toBeGreaterThanOrEqual(synchronous[mode].families);
+    expect(outlineSignature(root)).toEqual(synchronous[mode]);
+    expect(preservedOutlineSignature(root, preserved[mode])).toEqual(baseline[mode]);
   } finally { disposeOutlineConstruction(root); }
 });
 

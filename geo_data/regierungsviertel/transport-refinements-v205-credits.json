@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "sourceAttribution": "© OpenStreetMap contributors · ODbL 1.0; existing Geoportal Berlin building-model notice retained",
+  "osmSource": "https://www.openstreetmap.org/copyright",
+  "retainedInputs": ["ber-v205-parts-source.json", "motorway-v205-lanes-source.json", "region-outlines-v200-source.json.gz", "outer-thin-outlines-v179.json", "src/app/src/data/railStationsV190.json"],
+  "primaryReferences": [
+    {"url": "https://corporate.berlin-airport.de/en/company-media/berlin-brandenburg-airport/flughafenanlagen.html", "use": "Active terminals, T5 closure, hall and colonnades; factual reference only"},
+    {"url": "https://ber.berlin-airport.de/de/orientierung/terminals.html", "use": "Passenger operations at T1/T2; factual reference only"},
+    {"url": "https://corporate.berlin-airport.de/de/unternehmen-presse/presseportal/pressemitteilungen/2024-10-01-slb-umbenennung.html", "use": "Runway designators 06L/24R and 06R/24L; factual reference only"},
+    {"url": "https://sbahn.berlin/aktuelles/artikel/150-jahre-ringbahn-was-fuer-ein-jubilaeum/", "use": "27 Ring stations; factual reference only"},
+    {"url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/aktuell/presseinformationen/S-Bahn-Halt-in-Wedding-voraussichtlich-wieder-ab-Anfang-Februar-13715742", "use": "Uncertainty about final 2026 replacement roof, so no guessed new roof"},
+    {"url": "https://www.deges.de/projekte/projekt/ersatzneubau-und-fahrbahnsanierung-der-rudolf-wissell-bruecke-auf-der-autobahn-a-100/", "use": "Construction context; no project visualization copied"}
+  ],
+  "checkedDate": "2026-10-10",
+  "visualReferenceFiles": [],
+  "texturesUsed": false
+}

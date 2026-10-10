@@ -3,10 +3,10 @@ import { PerspectiveCamera, Vector3 } from "three";
 
 import { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } from "../src/cameraNavigation";
 import type { PrismPayload } from "../src/IsometricCityWorld";
-import { worldCameraFarM } from "../src/worldCameraDepth";
+import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "../src/worldCameraDepth";
 
 const MAX_ISOMETRIC_ORBIT_M =
-  (2_600 * Math.tan((39 * Math.PI) / 360)) /
+  (WORLD_ORBIT_BASE_DISTANCE_M * Math.tan((39 * Math.PI) / 360)) /
   Math.tan((16 * Math.PI) / 360);
 
 // Source-driven required reach: opposite permitted navigation corners plus
