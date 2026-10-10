@@ -6432,6 +6432,149 @@
       "date": "2005-08-19",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "wedding_sites_v210",
+      "title": "2005 Heß-Eisstadion.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2005_He%C3%9F-Eisstadion.jpg",
+      "license": "CC BY-SA 2.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/de/",
+      "artist": "Angela Monika Arnold",
+      "credit": "Angela Monika Arnold / CC BY-SA 2.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "wedding_sites_v210",
+      "title": "Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neukoelln_places_v210",
+      "title": "Berlin, Kreuzberg, Hasenheide 1-6, Karstadt.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Hasenheide_1-6,_Karstadt.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neukoelln_places_v210",
+      "title": "Richardplatz 28 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Richardplatz_28_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Frank schubert",
+      "credit": "Frank schubert / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neukoelln_places_v210",
+      "title": "Richardplatz 22 1.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Richardplatz_22_1.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Frank schubert",
+      "credit": "Frank schubert / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neukoelln_places_v210",
+      "title": "Evangelische Bethlehemskirche (Rixdorfer Dorfkirche) am Richardplatz in Berlin-Neukölln.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Evangelische_Bethlehemskirche_(Rixdorfer_Dorfkirche)_am_Richardplatz_in_Berlin-Neuk%C3%B6lln.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Neuköllner",
+      "credit": "Neuköllner / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "neukoelln_places_v210",
+      "title": "Hermannplatz3 Berlin Neukoelln.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Hermannplatz3_Berlin_Neukoelln.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Lienhard Schulz",
+      "credit": "Lienhard Schulz / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:Berlin_Theodor-Heuss-Platz_blauer_Obelisk.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Theodor-Heuss-Platz_blauer_Obelisk.jpg",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "artist": "Clemensfranz",
+      "credit": "Clemensfranz / CC BY 2.5",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:Berlin_rbb_Gebaeudekomplex.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_rbb_Gebaeudekomplex.jpg",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "artist": "Eva K. / Eva K.",
+      "credit": "Eva K. / Eva K. / CC BY-SA 2.5",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:Berlin_Rbb_tv_center.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Rbb_tv_center.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Dabbelju",
+      "credit": "Dabbelju / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:WestendMasurenalleeHausdesRundfunks1.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:WestendMasurenalleeHausdesRundfunks1.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:Berlin-Wilmersdorf,_Haus_Ruhrstra%C3%9Fe_2_(Versicherungsgeb%C3%A4ude).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Wilmersdorf,_Haus_Ruhrstra%C3%9Fe_2_(Versicherungsgeb%C3%A4ude).JPG",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Dguendel",
+      "credit": "Dguendel / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "west_civic_v210",
+      "title": "File:Westf%C3%A4lische_Stra%C3%9Fe_89A-90_Berlin-Wilmersdorf.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Westf%C3%A4lische_Stra%C3%9Fe_89A-90_Berlin-Wilmersdorf.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Bodo Kubrak",
+      "credit": "Bodo Kubrak / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
