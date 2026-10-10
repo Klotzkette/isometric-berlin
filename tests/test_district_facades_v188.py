@@ -1,6 +1,7 @@
 """Independent source ownership, old-city preservation and packet bounds."""
 
 import base64
+import copy
 import gzip
 import hashlib
 import json
@@ -8,6 +9,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np
+import pytest
 from packet_additions_v200 import audited_v200_additions
 from packet_receipts_v190 import (
   assert_retained_descriptor,
@@ -15,6 +17,7 @@ from packet_receipts_v190 import (
   baseline_v189,
   v190_additions,
 )
+from packet_receipts_v205 import audited_v209_additions, normalize_v209_additions
 from shapely.affinity import affine_transform, translate
 from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.ops import nearest_points
@@ -40,6 +43,10 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   assert len(old) == 1369
   changes, _ = audited_v190_changes()
   additions = {**v190_additions(), **audited_v200_additions()}
+  # Only the independently audited, exact v209 append may be excluded here.
+  kiez = audited_v209_additions()
+  assert not set(kiez).intersection(additions)
+  additions.update(kiez)
   retained = [
     c
     for c in MANIFEST["chunks"]
@@ -79,6 +86,27 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
     max(previous_manifest["bounds"][2], north["bounds"][2], east["bounds"][2]),
     max(previous_manifest["bounds"][3], north["bounds"][3], east["bounds"][3]),
   ]
+
+
+@pytest.mark.parametrize(
+  "change", ["old_asset", "footprint", "metadata", "missing", "extra", "renamed"]
+)
+def test_v209_normalization_cannot_hide_prior_city_or_unreceipted_changes(change):
+  forged = copy.deepcopy(MANIFEST)
+  if change == "old_asset":
+    forged["chunks"][0]["drawn"]["sha256"] = "0" * 64
+  elif change == "footprint":
+    forged["footprint"] = forged["footprint"][:-1]
+  elif change == "metadata":
+    forged["kiezFacadesV209"]["counts"]["windows"] += 1
+  elif change == "missing":
+    forged["chunks"].pop()
+  elif change == "extra":
+    forged["chunks"].append({**forged["chunks"][-1], "id": "kiez209-unreceipted"})
+  else:
+    forged["chunks"][-1]["id"] = "kiez209-unreceipted"
+  with pytest.raises(AssertionError):
+    normalize_v209_additions(forged, lambda path: path.read_bytes())
 
 
 def test_selected_fronts_keep_actual_original_wall_triangles_and_owner() -> None:

@@ -1,0 +1,17 @@
+{
+  "version": "1.0.109",
+  "pipelineStep": 10,
+  "reviewed": "2026-10-10",
+  "primaryReferences": [
+    {"url":"https://www.berlin.de/justizvollzug/anstalten/jva-tegel/die-anstalt/", "role":"Current site identity: JVA Tegel, distinct from JVA Moabit and the former Lehrter prison memorial."},
+    {"url":"https://www.berlin.de/justizvollzug/anstalten/", "role":"Official Tegel identity and Seidelstrasse 39 address; public exterior setting."},
+    {"url":"https://www.stasimuseum.de/kontakt.htm", "role":"Stasimuseum at Normannenstrasse 20, Haus 1, on the former MfS headquarters campus in Lichtenberg."},
+    {"url":"https://www.berlin.de/museum/3109393-2926344-stasimuseum-forschungs-und-gedenkstaette.html", "role":"Former ministry headquarters and museum identity; distinct from Hohenschoenhausen."},
+    {"url":"https://www.stiftung-hsh.de/themen/inklusive-angebote", "role":"Memorial operator confirms the preserved former detention site and buildings; public architectural exterior only."}
+  ],
+  "visualReferences": [
+    {"title":"Tegel Seidelstraße JVA.JPG", "url":"https://commons.wikimedia.org/wiki/File:Tegel_Seidelstra%C3%9Fe_JVA.JPG", "author":"Fridolin freudenfett (Peter Kuley)", "license":"CC BY-SA 4.0", "licenseUrl":"https://creativecommons.org/licenses/by-sa/4.0/", "date":"2014-08-17", "observations":"Brick and pale-framed exterior buildings, pitched roofs, distinct perimeter wall and publicly visible church towers. Material colours and small members are display estimates.", "use":"External reference only; no photo, crop, texture or pixels bundled."},
+    {"title":"Haus 1, Stasi-Museum u Gedenkstätte 2015-11-01 ama fe.JPG", "url":"https://commons.wikimedia.org/wiki/File:Haus_1,_Stasi-Museum_u_Gedenkst%C3%A4tte_2015-11-01_ama_fe.JPG", "author":"Monika Angela Arnold, Berlin (44Pinguine)", "license":"CC BY-SA 3.0", "licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/", "date":"2015-11-01", "observations":"Haus 1 grey-brown wall fields, pale gold vertical window frames, repeated white/gold transoms, recessed upper floor and separate entrance canopy; metric envelope remains LoD2.", "use":"External reference only; free CC BY-SA 3.0 option selected from explicit multiple licensing. No image pixels bundled."},
+    {"title":"Stasi prison - Gedänkstätte Berlin Hohenschönhausen IMG 7895.jpg", "url":"https://commons.wikimedia.org/wiki/File:Stasi_prison_-_Ged%C3%A4nkst%C3%A4tte_Berlin_Hohensch%C3%B6nhausen_IMG_7895.jpg", "author":"Bjoertvedt", "license":"CC BY-SA 4.0", "licenseUrl":"https://creativecommons.org/licenses/by-sa/4.0/", "date":"2018-10-04", "observations":"Light window frames, exterior bars and pale plaster/brick material changes on preserved memorial buildings. Public exterior only, no cells or operational security systems.", "use":"External reference only; no photo, crop, texture or pixels bundled."}
+  ]
+}

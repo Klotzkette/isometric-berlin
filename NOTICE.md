@@ -1656,3 +1656,16 @@ BMAS references by Jörg Zägel and Beek100 (CC BY-SA 3.0) are also individually
 credited. Existing Dussmann, ARD, Russian Embassy and Aeroflot references are reused with
 their retained credits. No reference photographs or textures are bundled.
 See [scope, sources and independent preservation](docs/refinements-v208.md).
+
+
+## Kiez, prison memorials, Volksbühne and Orankesee (v1.0.109)
+
+Retained OpenStreetMap geometry (OSM contributors, ODbL-1.0) anchors the exact
+sites, shoreline and mapped public fittings. Berlin LoD2 supplies complete
+building sheets; official Berlin bDOM 2025 samples and DOP 2025 guide the
+Volksbühne upper volumes (Geoportal Berlin, dl-de/zero-2-0). Original source
+sheets and exact replacement receipts remain available. Generic facade aperture
+spacing, small perimeter members, colours and the low Platzhaus height are
+explicit presentation estimates rather than surveyed detail. New free Commons
+reference photographs are individually credited in both Wikimedia manifests;
+no photograph or texture is bundled. See [source roles and preservation](docs/refinements-v209.md).

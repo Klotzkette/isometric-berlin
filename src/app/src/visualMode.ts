@@ -20,8 +20,8 @@ export function isVisualMode(value: string | null): value is VisualMode {
 /**
  * Resolve the preselected visual mode in the fresh-page chooser. Day is
  * always the default; only an explicit, valid `?theme=` request overrides
- * it. The previously-selected mode is deliberately never restored, so a
- * reload preselects Day. The chooser still requires explicit confirmation.
+ * it. The previously-selected mode is deliberately never restored. Valid
+ * theme links now start directly; ordinary visits still show the chooser.
  */
 export function resolveInitialVisualMode(themeParam: string | null): VisualMode {
   return isVisualMode(themeParam) ? themeParam : "day";

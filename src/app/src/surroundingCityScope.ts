@@ -12,6 +12,7 @@ import { terrainGroundAt } from "./weinbergTerrainV176";
 import { northParksV198GroundAt } from "./northParksV198Navigation";
 import { eastParksV198GroundAt } from "./eastParksV198Ground";
 import { tegelSpandauV198GroundAt } from "./tegelSpandauV198Navigation";
+import { prisonsMemorialsV209GroundAt } from "./prisonsMemorialsV209Navigation";
 
 const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...named.footprint,...parks.footprint,
   ...eastCity.footprint,...regional.footprint].map(polygon => {
@@ -27,7 +28,8 @@ const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...name
  */
 export function surroundingScopeGroundAt(x: number, z: number, native = false): number | null {
   const namedGround = northParksV198GroundAt(x, z, native) ??
-    eastParksV198GroundAt(x, z) ?? tegelSpandauV198GroundAt(x, z, native);
+    eastParksV198GroundAt(x, z) ?? tegelSpandauV198GroundAt(x, z, native) ??
+    prisonsMemorialsV209GroundAt(x, z);
   if (namedGround !== null) return namedGround;
   if (surroundingPolygonContains(scope.core, x, z)) return null;
   return (scope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||

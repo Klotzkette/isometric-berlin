@@ -86,7 +86,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Complete extracted package is 869,345,199 bytes (829.07 MiB), 0.58 MiB above
 # v207. A finite 830 MiB archive-only cap leaves 0.93 MiB; no resident, packet,
 # GPU, source-detail or mobile budget changes. See docs/refinements-v208.md.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 830 * 1024 * 1024
+# v209 adds the three requested sites, Orankesee and fourteen Kiez companions.
+# The complete local package is 831.47 MiB including launcher metadata. A finite
+# 833 MiB archive-only ceiling retains every old asset; all live limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 833 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

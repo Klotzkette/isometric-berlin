@@ -25,6 +25,21 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
 }
 
 describe("lossless lazy source JSON", () => {
+  test("audited nested model packets stay lossless and weak without changing ordinary objects", () => {
+    const id = "/project/src/app/src/data/volksbuehneEnvelopeV209.json";
+    const model = { vertices: [[1.25, -0.375, 42.254, 120, 130, 140]], indices: [0, 0, 0] };
+    const source = JSON.stringify({ owner: "exact-source", drawn: model, native: model });
+    const compiled = transformLosslessJsonData(source, id, 4)!;
+    expect(compiled.code).toContain('new WeakRef(value)');
+    expect(compiled.code).toContain('get ["drawn"]');
+    expect(compiled.code).toContain('get ["native"]');
+    const { data, named } = evaluateModule(source, 4, id);
+    expect(data).toEqual(JSON.parse(source));
+    expect(named.drawn).toBe(data.drawn);
+    expect(data.native).toEqual(model);
+    expect(transformLosslessJsonData(source, ID, 4)).toBeUndefined();
+  });
+
   test("preserves numbers, Unicode, escaping, own __proto__ and export identity", () => {
     const input = '{"rows":[[-0,1e400,-1e400,1.7976931348623157e308,5e-324],"\\u0000isometric-json-number\\u00000","ä\\n\\\\\\\"  "],"nested":{"__proto__":{"safe":true}},"__proto__":[1,2,3],"class":[4,5,6],"with-hyphen":[7,8,9],"default":[10,11,12]}';
     const expected = JSON.parse(input);

@@ -1,5 +1,6 @@
 import { parkStaticGeometrySteps } from "./losslessStaticStorage";
 import { replacePanoramaFacadeV202 } from "./panoramaFacadeV202";
+import { siteNavigationV209, transferSiteLinesV209, transferSiteTrianglesV209 } from "./siteOwnershipV209";
 import {
   Box3, BufferAttribute, BufferGeometry, DoubleSide, Group, InterleavedBuffer,
   InterleavedBufferAttribute, LineBasicMaterial, LineSegments, Mesh,
@@ -249,6 +250,8 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
+      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset);
+      if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
       if (!minecraft && !id.startsWith("alt-mitte-v169-") && part.kind === "alt-mitte-v169") {
@@ -309,6 +312,7 @@ export function* buildSurroundingCityChunk(
       root.add(ink);
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
+      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
@@ -316,7 +320,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: chunk.nav, origin: chunk.origin };
+      nav: siteNavigationV209(id, chunk.nav), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

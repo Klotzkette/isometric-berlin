@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import copy
 import gzip
 import hashlib
@@ -30,6 +31,22 @@ OWNERS = {
   "DEBE04YY50003Ue3",
 }
 IDS = {"-9_6", "3_6", "5_-7", "6_-7", "6_-4", "ring182-12_0", "ring182-4_8"}
+KIEZ_V209_PARENTS = (
+  "-8_-3",
+  "-7_-4",
+  "-7_-3",
+  "-6_-4",
+  "-6_-3",
+  "-5_-4",
+  "-5_-3",
+  "-4_-4",
+  "-4_-3",
+  "5_-5",
+  "5_-4",
+  "6_-6",
+  "6_-5",
+  "6_-4",
+)
 
 
 def digest(data: bytes) -> str:
@@ -52,6 +69,140 @@ def verify_asset(data: bytes, asset: dict) -> dict:
   raw = gzip.decompress(data)
   assert len(raw) == asset["decodedBytes"] < 2_600_000
   return json.loads(raw)
+
+
+def normalize_v209_additions(current_manifest: dict, read_asset) -> tuple[dict, dict]:
+  """Remove only a proven finite append; every v108 field remains byte-bound.
+
+  v205-v208 share the same manifest. Runtime-only named-owner transfers do not
+  authorize any packet rewrite here, including the Helmholtz source envelopes.
+  """
+  if "kiezFacadesV209" not in current_manifest:
+    assert not any(c["id"].startswith("kiez209-") for c in current_manifest["chunks"])
+    return current_manifest, {}
+
+  previous = json.loads(
+    subprocess.check_output(
+      ["git", "show", f"v1.0.108:{(PUBLIC / 'manifest.json').relative_to(ROOT)}"],
+      cwd=ROOT,
+    )
+  )
+  patch = json.loads((GEO / "kiez-facades-v209-manifest-patch.json").read_bytes())
+  evidence_bytes = (GEO / "kiez-facades-v209-evidence.json.gz").read_bytes()
+  evidence = json.loads(gzip.decompress(evidence_bytes))
+  assert set(patch) == {"chunks", "kiezFacadesV209"}
+  assert patch["chunks"] == evidence["companions"]
+  assert evidence["oldDescriptors"] == previous["chunks"]
+  assert evidence["oldManifestFieldSha256"] == {
+    key: digest(json.dumps(value, sort_keys=True, separators=(",", ":")).encode())
+    for key, value in previous.items()
+    if key != "chunks"
+  }
+  assert evidence["schemaVersion"] == 1
+  assert evidence["contextSha256"] == digest(
+    (GEO / "kiez-facades-v209-context.json.gz").read_bytes()
+  )
+  assert read_asset(PUBLIC / "kiez-facades-v209-evidence.json.gz") == evidence_bytes
+  assert patch["kiezFacadesV209"] == {
+    "policy": (
+      "All eligible ordinary source frontages throughout the exact Moabit Ortsteil, "
+      "plus finite named Weinbergsweg/Kastanienallee, Kollwitzkiez and Helmholtzplatz "
+      "street corridors. Existing v188 panes remain; add sills and fine crossbars. "
+      "Previously blank generic street walls gain estimated windows and base/eave "
+      "courses. No owner quota, courtyard windows, shop names or measured aperture "
+      "claim. Authored owners and recorded material/colour remain protected. Core "
+      "facade axes receive a separate bounded ink-only refinement. No new geography, "
+      "navigation ownership, replacement, residency limit or mobile quality tier."
+    ),
+    "chunks": 14,
+    "counts": {
+      "scannedOwners": 2129,
+      "protectedOwners": 858,
+      "fronts_Moabit": 264,
+      "windows": 8790,
+      "retainedV188Fronts": 264,
+      "nativeWindows": 2243,
+      "drawnVertices": 92172,
+      "drawnGeometryBytes": 1382580,
+      "drawnTransferBytes": 563110,
+      "minecraftVertices": 13408,
+      "minecraftGeometryBytes": 201120,
+      "minecraftTransferBytes": 73499,
+      "fronts_Weinbergsweg / Kastanienallee": 19,
+      "fronts_Kollwitzkiez": 190,
+      "fronts_Helmholtzplatz": 102,
+    },
+    "evidence": "kiez-facades-v209-evidence.json.gz",
+  }
+  assert evidence["policy"] == patch["kiezFacadesV209"]["policy"]
+  assert evidence["counts"] == patch["kiezFacadesV209"]["counts"]
+  assert [c["id"] for c in patch["chunks"]] == [
+    "kiez209-" + parent for parent in KIEZ_V209_PARENTS
+  ]
+  additions = {c["id"]: c for c in patch["chunks"]}
+  old = {c["id"]: c for c in previous["chunks"]}
+  assert not additions.keys() & old.keys()
+  assert len(old) == len(previous["chunks"]) == 1891
+  assert current_manifest == {
+    **previous,
+    "chunks": previous["chunks"] + patch["chunks"],
+    "kiezFacadesV209": patch["kiezFacadesV209"],
+  }
+  assert len(current_manifest["chunks"]) == 1905 <= 2048
+  assert len(packed_json(current_manifest)) < 2 * 1024**2
+
+  totals = Counter()
+  for parent, descriptor in zip(KIEZ_V209_PARENTS, patch["chunks"], strict=True):
+    assert set(descriptor) == {
+      "id",
+      "detailCompanionOf",
+      "bounds",
+      "drawn",
+      "minecraft",
+    }
+    assert descriptor["detailCompanionOf"] == parent
+    assert descriptor["bounds"] == old[parent]["bounds"]
+    for mode in ("drawn", "minecraft"):
+      asset = descriptor[mode]
+      assert set(asset) == {"url", "encoding", "bytes", "decodedBytes", "sha256"}
+      assert asset["url"] == f"{descriptor['id']}.{mode}.json.gz"
+      assert asset["encoding"] == "gzip"
+      payload = verify_asset(read_asset(PUBLIC / asset["url"]), asset)
+      assert set(payload) == {"id", "schemaVersion", "origin", "meshes", "nav"}
+      assert payload["id"] == descriptor["id"] and payload["schemaVersion"] == 1
+      assert payload["origin"] == [
+        descriptor["bounds"][0],
+        -10,
+        descriptor["bounds"][1],
+      ]
+      assert payload["nav"] == {
+        "groundY": 3,
+        "ground": [],
+        "water": [],
+        "buildings": [],
+      }
+      assert len(payload["meshes"]) == 1
+      mesh = payload["meshes"][0]
+      assert set(mesh) == {"kind", "positionType", "positions", "colors", "indices"}
+      assert mesh["kind"] == "kiez-facades-v209" and mesh["positionType"] == "u16cm"
+      lengths = {
+        key: len(base64.b64decode(mesh[key]))
+        for key in ("positions", "colors", "indices")
+      }
+      assert lengths["positions"] % 6 == lengths["indices"] % 12 == 0
+      assert lengths["colors"] * 2 == lengths["positions"]
+      totals[mode + "Vertices"] += lengths["positions"] // 6
+      totals[mode + "GeometryBytes"] += sum(lengths.values())
+      totals[mode + "TransferBytes"] += asset["bytes"]
+  assert totals == {key: evidence["counts"][key] for key in totals}
+  return previous, additions
+
+
+@lru_cache(maxsize=1)
+def audited_v209_additions() -> dict:
+  current = json.loads((PUBLIC / "manifest.json").read_bytes())
+  _, additions = normalize_v209_additions(current, lambda path: path.read_bytes())
+  return additions
 
 
 def primitive_sha(counter: Counter) -> str:
@@ -102,7 +253,8 @@ def audit(receipt: dict, current_manifest: dict, read_asset) -> tuple[dict, dict
     "receipt": "geo_data/regierungsviertel/religious-sites-v205-packet-patch.json",
     "policy": "Only exact coarse owners transferred to complete retained LoD2 + documented recognition model; unrelated packet primitives and navigation retained.",
   }
-  assert current_manifest == expected
+  normalized_manifest, _ = normalize_v209_additions(current_manifest, read_asset)
+  assert normalized_manifest == expected
   assert len(packed_json(current_manifest)) < 2 * 1024**2
   records = receipt["sourceRecords"]
   assert Counter(r["sourceId"] for r in records) == Counter(OWNERS)

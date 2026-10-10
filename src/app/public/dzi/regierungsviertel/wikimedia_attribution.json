@@ -6372,6 +6372,66 @@
       "credit": "Beek100 / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "jva_tegel_v209",
+      "title": "File:Tegel Seidelstraße JVA.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Tegel_Seidelstra%C3%9Fe_JVA.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 4.0",
+      "date": "2014-08-17",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "stasi_headquarters_normannenstrasse_v209",
+      "title": "File:Haus 1, Stasi-Museum u Gedenkstätte 2015-11-01 ama fe.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Haus_1,_Stasi-Museum_u_Gedenkst%C3%A4tte_2015-11-01_ama_fe.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Monika Angela Arnold, Berlin (44Pinguine)",
+      "credit": "Monika Angela Arnold, Berlin (44Pinguine) / CC BY-SA 3.0",
+      "date": "2015-11-01",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hohenschoenhausen_memorial_v209",
+      "title": "File:Stasi prison - Gedänkstätte Berlin Hohenschönhausen IMG 7895.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Stasi_prison_-_Ged%C3%A4nkst%C3%A4tte_Berlin_Hohensch%C3%B6nhausen_IMG_7895.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Bjoertvedt",
+      "credit": "Bjoertvedt / CC BY-SA 4.0",
+      "date": "2018-10-04",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "helmholtz_kiezkind_v209",
+      "title": "File:Helmholtzplatz Trafohaus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Helmholtzplatz_Trafohaus.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Mazbln",
+      "credit": "Mazbln / CC BY-SA 3.0",
+      "date": "2005-08-19",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "helmholtz_platzhaus_v209",
+      "title": "File:Helmholtzplatz Mitte.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Helmholtzplatz_Mitte.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Mazbln",
+      "credit": "Mazbln / CC BY-SA 3.0",
+      "date": "2005-08-19",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

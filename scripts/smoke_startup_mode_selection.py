@@ -216,13 +216,14 @@ def run_case(
   )
   prefix = output / f"{engine}-{mode}" if output else None
   try:
-    # Day without a theme also proves the ordinary default is only preselected.
+    # Plain visits keep the explicit chooser; valid theme links have their own
+    # direct-entry smoke test since v209.
     page.goto(
-      startup_url(url, None if mode == "day" else mode),
+      startup_url(url, None),
       wait_until="domcontentloaded",
     )
     report["gate"] = assert_gate(page, requests)
-    assert page.locator(f'input[value="{mode}"]').is_checked()
+    assert page.locator('input[value="day"]').is_checked()
     assert page.get_by_role("button", name=re.compile("Start Berlin")).is_visible()
     assert_controls_reachable(page)
     if prefix:
@@ -262,7 +263,7 @@ def run_case(
     refresh_started = True
     page.reload(wait_until="domcontentloaded")
     report["refreshGate"] = assert_gate(page, requests)
-    assert page.locator(f'input[value="{mode}"]').is_checked()
+    assert page.locator('input[value="day"]').is_checked()
     if mode == "day":
       page.goto(startup_url(url, None, "de"), wait_until="domcontentloaded")
       report["germanGate"] = assert_gate(page, requests)

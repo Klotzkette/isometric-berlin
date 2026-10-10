@@ -24,6 +24,7 @@ from packet_receipts_v190 import (
   predecessor_v190,
   v190_additions,
 )
+from packet_receipts_v205 import audited_v209_additions
 from shapely.geometry import MultiPoint, Polygon
 from shapely.ops import unary_union
 from station_receipts_v183 import baseline as station_baseline
@@ -912,6 +913,9 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   east_additions = audited_v200_additions()
   assert not additions.keys() & east_additions.keys()
   additions = {**additions, **east_additions}
+  kiez_additions = audited_v209_additions()
+  assert not additions.keys() & kiez_additions.keys()
+  additions = {**additions, **kiez_additions}
   relief_files = _verified_park_relief_v182_files(station_files)
   relief_ids = {Path(name).name.split(".")[0] for name in relief_files}
   # This later operation starts at v182. These exact packets were untouched

@@ -33,6 +33,8 @@ import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "./interleaveStaticGeometry";
 import { createSurroundingCity, type SurroundingCity, type SurroundingNavigationTile } from "./SurroundingCity";
 import { surroundingScopeGroundAt } from "./surroundingCityScope";
+import { prisonsMemorialsV209SolidAt } from "./prisonsMemorialsV209Navigation";
+import { volksbuehneV209SolidAt } from "./volksbuehneV209Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
@@ -1681,6 +1683,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
       eastSquaresV163SolidAt(x,z,y,radius) ||
+      prisonsMemorialsV209SolidAt(x,y,z,radius) ||
+      volksbuehneV209SolidAt(x,y,z,radius) ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) =>
@@ -3827,6 +3831,7 @@ function ensureIsoWorld(
   const spreeDetails = import("./SpreeMuseumDetails");
   const unterDenLindenDetails = import("./UnterDenLindenDetails");
   const northCorridorDetails = import("./NorthCorridorV208");
+  const requiredSites = import("./RequiredSiteEnvelopesV209");
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
   const perimeterDetails = import("./GendarmenmarktPerimeterShells");
@@ -3903,9 +3908,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4020,6 +4025,8 @@ function ensureIsoWorld(
         // Attach it in the required transaction before publishing the city;
         // optional facade imports must never leave a source-building hole.
         isoWorld.add(northCorridorV208.createHungarianEnvelopeV208());
+        yield;
+        yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);
         yield* compactStaticGeometrySteps(isoWorld);
         const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
         if (initialWater) isoWorld.add(initialWater);
@@ -4659,6 +4666,12 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
+      const sitesV209 = await import("./RequiredSiteEnvelopesV209");
+      if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
+      if (!voxelWorldIntentActive(runtime)) {
+        runtime.voxelWorldState = "idle";
+        return;
+      }
       provisionalVoxelWorld = new Group();
       await completeCooperatively(
         buildMinecraftVoxelWorldSteps(
@@ -4708,6 +4721,10 @@ function ensureVoxelWorld(
           payload, runtime.coarsePointer ? "mobile" : "full",
         );
       }
+      await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
+        yieldTask: yieldStartupWork,
+        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+      });
       provisionalVoxelWorld.add(createRosengartenMinecraft());
       await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
         yieldTask: yieldStartupWork,

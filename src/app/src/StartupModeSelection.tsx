@@ -1,6 +1,7 @@
-import { CloudSnow, Info, Moon, Sparkles, Sun, Waves } from "lucide-react";
+import { CloudSnow, Copy, Info, Link, Moon, Sparkles, Sun, Waves } from "lucide-react";
 import { useState, type CSSProperties } from "react";
 import { SourcesDialog } from "./SourcesDialog";
+import { modeLinkFor } from "./modeLinks";
 import type { Language } from "./localization";
 import type { VisualMode } from "./visualMode";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
@@ -23,6 +24,9 @@ export function StartupModeSelection({ initialMode, language, onLanguageChange, 
 }) {
   const [mode, setMode] = useState(initialMode);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [copyResult, setCopyResult] = useState<{ url: string; copied: boolean } | null>(null);
+  const modeUrl = typeof window === "undefined" ? "" : modeLinkFor(window.location.href, mode, language);
+  const modeName = choices.find((choice) => choice.mode === mode)![language][0];
   const sourcesLabel = language === "de" ? "Quellen & Lizenzen" : "Sources & licenses";
   return (
     <main className="startup-mode-selection" style={{
@@ -50,6 +54,32 @@ export function StartupModeSelection({ initialMode, language, onLanguageChange, 
             ))}
           </div>
         </fieldset>
+        <div className="startup-mode-sharing">
+          <a href={modeUrl} aria-label={language === "de" ? `${modeName} direkt öffnen` : `Open ${modeName} directly`}>
+            <Link size={16} aria-hidden="true" />{language === "de" ? "Direktlink" : "Direct link"}
+          </a>
+          <button type="button" onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(modeUrl);
+              setCopyResult({ url: modeUrl, copied: true });
+            } catch {
+              setCopyResult({ url: modeUrl, copied: false });
+            }
+          }}>
+            <Copy size={16} aria-hidden="true" />{language === "de" ? "Link kopieren" : "Copy link"}
+          </button>
+        </div>
+        <p className="startup-share-status" role="status">
+          {copyResult?.url === modeUrl && copyResult.copied
+            ? (language === "de" ? `Link für ${modeName} kopiert.` : `${modeName} link copied.`)
+            : (language === "de" ? `Teile ${modeName}: Der Link startet direkt in diesem Modus.` : `Share ${modeName}: this link starts directly in this mode.`)}
+        </p>
+        {copyResult?.url === modeUrl && !copyResult.copied ? (
+          <label className="startup-share-fallback">
+            {language === "de" ? "Link auswählen und kopieren:" : "Select and copy this link:"}
+            <input readOnly type="url" value={modeUrl} onFocus={(event) => event.currentTarget.select()} onClick={(event) => event.currentTarget.select()} />
+          </label>
+        ) : null}
         <button className="startup-launch" type="submit">{language === "de" ? "Berlin starten" : "Start Berlin"}<span aria-hidden="true"> →</span></button>
         <p className="startup-selection-note">{language === "de" ? "Du kannst den Modus später jederzeit wechseln." : "You can switch modes at any time while exploring."}</p>
       </form>

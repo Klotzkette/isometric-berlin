@@ -342,6 +342,18 @@ button:active:not(:disabled) {
 }
 
 .startup-launch:hover { background: #263c30; }
+.startup-mode-sharing { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.startup-mode-sharing a, .startup-mode-sharing button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  flex: 1; min-height: 44px; padding: 8px 12px; box-sizing: border-box;
+  border: 1px solid #d9ddcf; border-radius: 9px; background: transparent;
+  color: #35473e; font: inherit; font-size: 13px; text-decoration: none; cursor: pointer;
+}
+.startup-mode-sharing a:hover, .startup-mode-sharing button:hover { background: #eee1c8; }
+.startup-mode-sharing :focus-visible, .startup-share-fallback input:focus-visible { outline: 3px solid #a37335; outline-offset: 3px; }
+.startup-share-status { margin: 8px 0 0; color: #5e6b61; font-size: 11px; line-height: 1.5; }
+.startup-share-fallback { display: block; margin-top: 8px; font-size: 12px; }
+.startup-share-fallback input { width: 100%; min-height: 44px; margin-top: 4px; box-sizing: border-box; font: inherit; }
 .startup-selection-note { margin: 12px 0 0; text-align: center; font-size: 11px; line-height: 1.5; color: #5e6b61; }
 .startup-sources-trigger {
   display: flex; align-items: center; gap: 7px; flex-shrink: 0;

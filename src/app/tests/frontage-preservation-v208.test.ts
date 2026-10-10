@@ -68,7 +68,7 @@ test("the measured Hungarian replacement is required before publishing the drawn
   const worker = await Bun.file(new URL("../src/progressiveWorld.worker.ts", import.meta.url)).text();
   expect(viewer).toContain('const northCorridorDetails = import("./NorthCorridorV208")');
   expect(viewer).toContain('zionFrontagesV175Details, northCorridorDetails,');
-  expect(viewer).toContain('zionFrontagesV175, northCorridorV208]) =>');
+  expect(viewer).toContain('zionFrontagesV175, northCorridorV208, sitesV209]) =>');
   const replacement = viewer.indexOf('isoWorld.add(northCorridorV208.createHungarianEnvelopeV208())');
   expect(replacement).toBeGreaterThan(viewer.indexOf('provisionalIsoWorld = isoWorld;'));
   expect(replacement).toBeLessThan(viewer.indexOf('yield* compactStaticGeometrySteps(isoWorld)', replacement));

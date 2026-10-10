@@ -1,6 +1,7 @@
 import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
 import { StartupModeSelection } from "./StartupModeSelection";
+import { directStartupMode } from "./modeLinks";
 import { SourcesDialog } from "./SourcesDialog";
 import {
   ArrowDown,
@@ -282,8 +283,7 @@ function resolveCssAssetUrl(path: string): string {
   }
 }
 
-// Preselect Day, or the explicit theme link, in the startup chooser.
-// No world is loaded until the visitor confirms their selection.
+// An ordinary visit preselects Day; a valid theme link starts that mode directly.
 function initialLightingMode(): VisualMode {
   try {
     const requested = new URLSearchParams(window.location.search).get("theme");
@@ -417,6 +417,7 @@ function rotationFromHashValue(value: string | null): number | null {
 function viewUrlFor(
   landmark: Landmark,
   rotation: number,
+  mode: VisualMode,
 ): string {
   const params = new URLSearchParams();
   const orientation = ORIENTATIONS.find((candidate) =>
@@ -425,6 +426,7 @@ function viewUrlFor(
   params.set("landmark", sightSlug(landmark.name));
   params.set("view", orientation?.short ?? `${Math.round(rotation)}deg`);
   const url = new URL(window.location.href);
+  url.searchParams.set("theme", mode);
   url.hash = "";
   return `${url.toString()}#${params}`;
 }
@@ -779,15 +781,17 @@ function HoldControlButton({
 }
 
 export function App() {
-  const [initialMode, setInitialMode] = useState<VisualMode | null>(null);
+  const [initialMode, setInitialMode] = useState<VisualMode | null>(() =>
+    typeof window === "undefined" ? null : directStartupMode(window.location.search),
+  );
   const [language, setLanguage] = useState<Language>(initialLanguage);
 
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
-  // Mount the entire viewer only after Start. This also gates its global input
-  // handlers and gesture-triggered audio, not just the lazy renderer import.
+  // A plain visit waits for Start; a deliberate theme link already selects the
+  // viewer. Audio still waits for the existing user-gesture activation handlers.
   if (initialMode === null) {
     return (
       <StartupModeSelection
@@ -1882,7 +1886,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     if (!selectedLandmark) {
       return;
     }
-    const url = viewUrlFor(selectedLandmark, rotation);
+    const url = viewUrlFor(selectedLandmark, rotation, lightingMode);
     window.history.replaceState(null, "", url);
     try {
       await navigator.clipboard.writeText(url);
@@ -1896,7 +1900,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
           : "View link in address bar",
       );
     }
-  }, [language, rotation, selectedLandmark]);
+  }, [language, rotation, selectedLandmark, lightingMode]);
 
   const toggleTour = useCallback(() => {
     if (!canNavigateLandmarks) {

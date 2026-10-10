@@ -17,6 +17,9 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: both v207 addit
       "Russian Embassy and Aeroflot architectural refinements v208",
       "BMAS campus and Quartier 206 architecture v208",
     ]) names.add(name + (mode === "minecraft" ? " native" : ""));
+    names.add("Tegel and two distinct Stasi memorial sites v209 exterior details" + (mode === "minecraft" ? " native" : ""));
+    names.add("Helmholtzplatz community and cafe facades v209" + (mode === "minecraft" ? " native" : ""));
+    names.add("Exact Orankesee shore and mapped public lido fittings v209");
     const originalChildren = [...root.children];
     const added = originalChildren.filter(child => names.has(child.name));
     expect(added.map(child => child.name).sort()).toEqual([...names].sort());

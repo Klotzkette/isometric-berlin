@@ -77,6 +77,11 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "northCorridorV208.json": ["surfaces", "boxes", "blocks", "nightBoxes", "nightBlocks"],
   "embassiesV208.json": ["boxes", "blocks", "cylinders"],
   "labourQuartierV208.json": ["surfaces", "boxes", "blocks"],
+  "prisonsMemorialsV209.json": ["boxes", "blocks"],
+  "prisonsMemorialsV209Envelopes.json": ["surfaces", "ground", "envelopeBlocks"],
+  "volksbuehneEnvelopeV209.json": ["drawn", "native"],
+  "kiezFacadesV209.json": ["surfaces", "shellBlocks", "boxes", "blocks"],
+  "orankeseeV209.json": ["shoreline", "sand", "features"],
   "iccV199.json": ["sites"],
   "iccV199Native.json": ["sites"],
   "funkturmV199.json": ["groups"],
@@ -196,7 +201,11 @@ export function transformLosslessJsonData(
     const json = exactJson(value);
     const field = `__field${index}`;
     const property = `[${JSON.stringify(key)}]`;
-    if (!packedPacket && !packedFields.includes(key) && Array.isArray(value) && json.length >= thresholdBytes) {
+    // Explicitly audited construction objects (for example separate drawn/native
+    // packed models) own arrays too. Keep only those opted-in objects weak;
+    // ordinary object and navigation identity remains eager and unchanged.
+    const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
+    if (!packedPacket && !packedFields.includes(key) && (Array.isArray(value) || constructionObject) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;

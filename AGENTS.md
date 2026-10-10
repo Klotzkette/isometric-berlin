@@ -188,6 +188,27 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.109 request permits the three exact sites in
+`bounds-prisons-memorials-v209.geojson`: JVA Tegel, the former Stasi headquarters
+in Lichtenberg and the Hohenschönhausen memorial. Only their mapped new-only
+footprints extend prior coverage. Source-bound perimeters, public exterior
+architecture and complete measured building families remain distinct from
+JVA Moabit. Exact old owners may yield only to required complete replacements
+with immutable packet receipts. Preserve all unrelated geometry and details.
+The request also permits Orankesee shore/lido fittings inside its bounded mapped
+site; its exact lake contour may cut only the obsolete artificial presentation
+margin that incorrectly covers existing water. Preserve the complete source water
+and surrounding margin. Moabit and Weinbergsweg/Kastanienallee/Kollwitzkiez/Helmholtzplatz facade
+refinements inside existing coverage; and both distinct Helmholtzplatz houses.
+Their documented inaccurate Platzhaus roof may be corrected consistently in
+geometry and navigation while retaining its source XZ and original sheets.
+Volksbühne retains its complete earlier body, facade and Räuberrad, with upper
+volumes from official bDOM evidence and independently clipped roof footprints.
+Keep full drawn mobile quality, separate native models, unchanged resident
+budgets and the 93-place tour. Explicit `theme` links may enter all six modes
+directly; the plain entry keeps its chooser and every mode remains switchable.
+See `docs/refinements-v209.md` and its linked source/preservation records.
+
 The owner's v1.0.108 request permits bounded, source-bound facade refinement
 between Brandenburg Gate, Dussmann and Friedrichstraße station: the Hungarian
 and Russian embassies, ARD Hauptstadtstudio, Aeroflot architectural identity,
