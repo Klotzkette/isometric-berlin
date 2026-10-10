@@ -90,24 +90,28 @@ export function altMitteSignalPayloadV206(): StreetDetailsPayload {
   };
 }
 
-function nativeRows(runs: readonly PaintRow[]): number[][] {
+function nativeRows(runs: readonly PaintRow[], heightAt = altMittePaintHeightV206): number[][] {
   // Offline pixels were checked with their full square footprint against the
   // source road and district. Each lossless run stops at native terrain steps.
   return runs.map(([ix, iz, count, yellow]) => {
     const x = (ix + count / 2) * GRID, z = (iz + 0.5) * GRID;
-    return [x, z, count * GRID, GRID, 0, yellow, altMittePaintHeightV206(x, z, true)];
+    return [x, z, count * GRID, GRID, 0, yellow, heightAt(x, z, true)];
   });
 }
 
 /** Fixed, independently culled 512m paint batches; identical on touch/pointer. */
-export function createAltMitteTransportV206(native = false): Group {
+export function createAltMitteTransportV206(
+  native = false,
+  payload: Pick<typeof source, "source" | "cells"> & { counts: Record<string, unknown> } = source,
+  heightAt = altMittePaintHeightV206,
+): Group {
   const root = new Group();
   root.name = "Source-tagged Alt-Mitte crossings and street paint v206";
-  root.userData.source = source.source;
+  root.userData.source = payload.source;
   root.userData.native = native;
-  root.userData.sourceCounts = source.counts;
-  for (const cell of source.cells) {
-    const rows: readonly PaintRow[] = native ? nativeRows(cell.nativeRuns) : cell.rows;
+  root.userData.sourceCounts = payload.counts;
+  for (const cell of payload.cells) {
+    const rows: readonly PaintRow[] = native ? nativeRows(cell.nativeRuns, heightAt) : cell.rows;
     const count = rows.length;
     const positions = new Float32Array(count * 12);
     const colors = new Uint8Array(count * 12);
@@ -121,7 +125,7 @@ export function createAltMitteTransportV206(native = false): Group {
         const px = x + c * u - s * v, pz = z + s * u + c * v;
         const offset = i * 12 + j * 3;
         positions[offset] = px;
-        positions[offset + 1] = native ? row[6] : altMittePaintHeightV206(px, pz);
+        positions[offset + 1] = native ? row[6] : heightAt(px, pz);
         positions[offset + 2] = pz;
         colors[offset] = 235; colors[offset + 1] = yellow ? 166 : 232; colors[offset + 2] = yellow ? 20 : 217;
       }

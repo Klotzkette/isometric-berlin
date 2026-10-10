@@ -67,6 +67,11 @@ import { createPrisonsMemorialsV209 } from "./PrisonsMemorialsV209";
 import { createKiezFacadesV209 } from "./KiezFacadesV209";
 import { createVolksbuehneOrankeseeV209 } from "./VolksbuehneOrankeseeV209";
 import { createAltMitteTransportV206, altMitteSignalPayloadV206 } from "./AltMitteTransportV206";
+import { createBoulevardTransportV210 } from "./BoulevardTransportV210";
+import { createWestCivicV210 } from "./WestCivicV210";
+import { createWeddingSitesV210 } from "./WeddingSitesV210";
+import { createNeukoellnPlacesV210 } from "./NeukoellnPlacesV210";
+import { transferNeukoellnLegacyV185V210 } from "./neukoellnLegacyV185TransferV210";
 import { createTrafficSignals, updateVisibleTrafficSignals } from "./TrafficSignals";
 import type { VisualMode } from "./visualMode";
 
@@ -94,7 +99,7 @@ export function* createOutlineLandmarksV182Steps(
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
       yield;
-      root.add(createCityRecognitionV182(nextNative));
+      root.add(createCityRecognitionV182(nextNative, false));
       yield;
       root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
       yield;
@@ -118,7 +123,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createNorthV185(nextNative));
       yield;
-      root.add(nextNative ? createMinecraftSouthKiezV185() : createSouthKiezV185());
+      root.add(transferNeukoellnLegacyV185V210(nextNative ? createMinecraftSouthKiezV185() : createSouthKiezV185(), nextNative));
       yield;
       root.add(nextNative ? createMinecraftAltMitteEdgesV186() : createAltMitteEdgesV186());
       yield;
@@ -213,6 +218,14 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createUraniaArcV206(nextNative));
       yield;
       root.add(createAltMitteTransportV206(nextNative));
+      yield;
+      root.add(createBoulevardTransportV210(nextNative));
+      yield;
+      root.add(createWestCivicV210(nextNative));
+      yield;
+      root.add(createWeddingSitesV210(nextNative));
+      yield;
+      root.add(createNeukoellnPlacesV210(nextNative));
       yield;
       nativeSignals = nextNative ? createTrafficSignals(altMitteSignalPayloadV206(), null, { native: true }) : undefined;
       if (nativeSignals) root.add(nativeSignals);

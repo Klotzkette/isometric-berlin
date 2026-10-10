@@ -35,6 +35,9 @@ import { createSurroundingCity, type SurroundingCity, type SurroundingNavigation
 import { surroundingScopeGroundAt } from "./surroundingCityScope";
 import { prisonsMemorialsV209SolidAt } from "./prisonsMemorialsV209Navigation";
 import { volksbuehneV209SolidAt } from "./volksbuehneV209Navigation";
+import { westCivicSolidAtV210 } from "./westCivicNavigationV210";
+import { weddingSitesV210SolidAt } from "./weddingSitesV210Navigation";
+import { neukoellnV210SolidAt } from "./neukoellnPlacesV210Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
@@ -1685,6 +1688,9 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       eastSquaresV163SolidAt(x,z,y,radius) ||
       prisonsMemorialsV209SolidAt(x,y,z,radius) ||
       volksbuehneV209SolidAt(x,y,z,radius) ||
+      westCivicSolidAtV210(x,y,z,radius) ||
+      weddingSitesV210SolidAt(x,y,z,radius) ||
+      neukoellnV210SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) =>

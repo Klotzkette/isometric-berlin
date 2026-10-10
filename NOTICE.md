@@ -1669,3 +1669,39 @@ spacing, small perimeter members, colours and the low Platzhaus height are
 explicit presentation estimates rather than surveyed detail. New free Commons
 reference photographs are individually credited in both Wikimedia manifests;
 no photograph or texture is bundled. See [source roles and preservation](docs/refinements-v209.md).
+
+## Civic sites, Wedding and Neukölln — v1.0.110
+
+The four named boulevard corridors retain full OSM source courses (Geofabrik
+Berlin, 2026-09-29, ODbL 1.0); only positively tagged road paint is interpreted.
+The same snapshot supplies the bounded Theodor-Heuss-Platz park, paths, trees
+and immediate carriageways, filling an older context gap. All previous street
+surfaces/details remain. Building sheets, DOP alignment and bDOM heights use
+Geoportal Berlin, dl-de/zero-2-0. Widths, facade subdivisions
+and artwork recognition outside measured data remain documented estimates.
+
+Hella Santarossa's **Blauer Obelisk / Glasnost (1995)** is interpreted with seven
+blue glass tiers; it is distinct from the square's Ewige Flamme. Hermannplatz's
+**Das tanzende Paar** is a simplified interpretation of Joachim Schmettau's
+1985 work; factual description: Jörg Kuhn/Susanne Kähler, Bildhauerei in Berlin.
+Reference photographs remain external; no pixels, image crops or textures
+are bundled. The following additional free visual references are credited in
+the viewer's packaged Wikimedia notice:
+
+- [2005 Heß-Eisstadion.jpg](https://commons.wikimedia.org/wiki/File:2005_He%C3%9F-Eisstadion.jpg) — Angela Monika Arnold / CC BY-SA 2.0 DE.
+- [Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg](https://commons.wikimedia.org/wiki/File:Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg) — Gunnar Klack / CC BY-SA 4.0.
+- [Berlin, Kreuzberg, Hasenheide 1-6, Karstadt.jpg](https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Hasenheide_1-6,_Karstadt.jpg) — Jörg Zägel / CC BY-SA 3.0.
+- [Richardplatz 28 1.jpg](https://commons.wikimedia.org/wiki/File:Richardplatz_28_1.jpg) — Frank schubert / CC BY-SA 3.0.
+- [Richardplatz 22 1.JPG](https://commons.wikimedia.org/wiki/File:Richardplatz_22_1.JPG) — Frank schubert / CC BY-SA 3.0.
+- [Evangelische Bethlehemskirche (Rixdorfer Dorfkirche) am Richardplatz in Berlin-Neukölln.jpg](https://commons.wikimedia.org/wiki/File:Evangelische_Bethlehemskirche_(Rixdorfer_Dorfkirche)_am_Richardplatz_in_Berlin-Neuk%C3%B6lln.jpg) — Neuköllner / CC BY-SA 4.0.
+- [Hermannplatz3 Berlin Neukoelln.JPG](https://commons.wikimedia.org/wiki/File:Hermannplatz3_Berlin_Neukoelln.JPG) — Lienhard Schulz / CC BY-SA 3.0.
+- [File:Berlin_Theodor-Heuss-Platz_blauer_Obelisk.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Theodor-Heuss-Platz_blauer_Obelisk.jpg) — Clemensfranz / CC BY 2.5.
+- [File:Berlin_rbb_Gebaeudekomplex.jpg](https://commons.wikimedia.org/wiki/File:Berlin_rbb_Gebaeudekomplex.jpg) — Eva K. / Eva K. / CC BY-SA 2.5.
+- [File:Berlin_Rbb_tv_center.jpg](https://commons.wikimedia.org/wiki/File:Berlin_Rbb_tv_center.jpg) — Dabbelju / CC BY-SA 3.0.
+- [File:WestendMasurenalleeHausdesRundfunks1.JPG](https://commons.wikimedia.org/wiki/File:WestendMasurenalleeHausdesRundfunks1.JPG) — Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0.
+- [File:Berlin-Wilmersdorf,_Haus_Ruhrstra%C3%9Fe_2_(Versicherungsgeb%C3%A4ude).JPG](https://commons.wikimedia.org/wiki/File:Berlin-Wilmersdorf,_Haus_Ruhrstra%C3%9Fe_2_(Versicherungsgeb%C3%A4ude).JPG) — Dguendel / CC BY 4.0.
+- [File:Westf%C3%A4lische_Stra%C3%9Fe_89A-90_Berlin-Wilmersdorf.jpg](https://commons.wikimedia.org/wiki/File:Westf%C3%A4lische_Stra%C3%9Fe_89A-90_Berlin-Wilmersdorf.jpg) — Bodo Kubrak / CC0.
+
+Detailed source/estimate/ownership records: `docs/boulevard-transport-v210.md`,
+`docs/west-civic-v210.md`, `docs/wedding-sites-v210.md` and
+`docs/neukoelln-places-v210.md`.

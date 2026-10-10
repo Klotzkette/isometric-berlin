@@ -188,6 +188,21 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's 10 October v1.0.110 request permits bounded recognition refinements
+at Theodor-Heuss-Platz (the seven-tier blue glass obelisk and its bounded mapped
+square, park, paths and immediately surrounding carriageways), rbb Fernsehzentrum
+and Haus des Rundfunks, DRV Bund Ruhrstraße 2, Erika-Heß-Eisstadion, the Bayer /
+former Schering Nordhafen campus, Richardplatz, Hermannplatz and the current
+Karstadt building. Existing measured owners remain complete; only documented
+exact inaccurate authored estimates/proxies may yield to required complete
+replacements. Preserve all unrelated source geometry and detail. Curbs and
+positively source-tagged markings on Kurfürstendamm, Friedrichstraße,
+Karl-Marx-Allee and Karl-Marx-Straße remain within earlier approved coverage.
+Keep previous street layers, open intersections, full drawn mobile quality,
+separate native geometry, unchanged city residency budgets and 93 tour stops.
+No district expansion or invented historical/future Karstadt towers is implied.
+See `docs/refinements-v210.md` and its linked source/preservation records.
+
 The owner's v1.0.109 request permits the three exact sites in
 `bounds-prisons-memorials-v209.geojson`: JVA Tegel, the former Stasi headquarters
 in Lichtenberg and the Hohenschönhausen memorial. Only their mapped new-only

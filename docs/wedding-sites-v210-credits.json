@@ -1,0 +1,86 @@
+{
+  "sources": [
+    {
+      "title": "2005 Heß-Eisstadion.jpg",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:2005_He%C3%9F-Eisstadion.jpg",
+      "author": "Angela Monika Arnold",
+      "date": "2005-11",
+      "license": "CC BY-SA 2.0 DE",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/de/",
+      "use": "External reference for five concrete roof pylons, suspended steel rods and glazed hall. No photo pixels bundled or used as a texture.",
+      "referenceSha256": "ff377b5eaf8184da5339866d0cd81c78b63bd46379a0afdf7bfa8d265507da1c",
+      "referenceImageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/2005_He%C3%9F-Eisstadion.jpg/960px-2005_He%C3%9F-Eisstadion.jpg"
+    },
+    {
+      "title": "Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg",
+      "pageUrl": "https://commons.wikimedia.org/wiki/File:Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg",
+      "author": "Gunnar Klack",
+      "date": "2017-08-02",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "use": "External reference for pale Bayer/Schering concrete core, blue-grey glazing, mullions and horizontal floor rhythm. No photo pixels bundled or used as a texture.",
+      "referenceSha256": "023213ea2e8fa52b7b8b3656547b93dc061be8b8a6e2c7b48bb9a2621a5a2eef",
+      "referenceImageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg/960px-Bayer-Hochhaus-ehem-Schering-Muellerstr-Berlin-Wedding-08-2017.jpg"
+    }
+  ],
+  "retrieved": "2026-10-10",
+  "factualReferences": [
+    "https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2025/pressemitteilung.1601945.php",
+    "https://www.bayer.com/de-de/deutschland/standorte/berlin-startseite"
+  ],
+  "officialGeodata": [
+    {
+      "name": "Berlin LoD2",
+      "license": "dl-de/zero-2-0",
+      "urls": [
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_388_5822.zip",
+        "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5822.zip"
+      ]
+    },
+    {
+      "name": "Berlin bDOM 2025",
+      "url": "https://gdi.berlin.de/services/wms/bdom",
+      "layer": "b_bdom",
+      "license": "dl-de/zero-2-0",
+      "retainedSamples": 216
+    },
+    {
+      "name": "Berlin DOP 2025 spring",
+      "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "layer": "dop_2025",
+      "license": "dl-de/zero-2-0",
+      "crops": [
+        {
+          "crs": "EPSG:25833",
+          "bbox": [
+            388810,
+            5821940,
+            389530,
+            5822660
+          ],
+          "width": 1024,
+          "height": 1024,
+          "sha256": "13ea724f17c55d08617d09b126b94210d55aa1d623c9184c81495f3064e264f9"
+        },
+        {
+          "crs": "EPSG:25833",
+          "bbox": [
+            389390,
+            5821980,
+            389500,
+            5822130
+          ],
+          "width": 704,
+          "height": 960,
+          "sha256": "74235235ac6fbf3fe7aca162b3e882da2c9c6734e64c49f322fe063d4995cdfe"
+        }
+      ]
+    },
+    {
+      "name": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "url": "https://www.openstreetmap.org/copyright",
+      "retainedPbf": "berlin-260929.osm.pbf"
+    }
+  ]
+}

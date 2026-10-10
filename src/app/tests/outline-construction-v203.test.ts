@@ -1,10 +1,11 @@
+import { restoreOutlineEstimatesV210 } from "./helpers/outlinePreservationV210";
 import { expect, spyOn, test } from "bun:test";
 import { BufferGeometry, InstancedMesh, Material } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { createOuterThinOutlinesSteps } from "../src/OuterThinOutlines";
 import baseline from "./fixtures/outline-landmarks-v203-baseline.json";
-import synchronous from "./fixtures/outline-landmarks-v209-synchronous.json";
+import synchronous from "./fixtures/outline-landmarks-v210-synchronous.json";
 import preserved from "./fixtures/outline-landmarks-v204-preserved-layout.json";
 import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
@@ -15,9 +16,9 @@ import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "
 // is read from the live tree, trimming only the v205 Ring instance suffixes.
 // urania-preservation-v206 independently verifies the moved source roof and
 // every complete v205 object outside that substitution. New geometry matches
-// independent synchronous captures from scripts/audit-outline-v209.ts; the
+// independent synchronous captures from scripts/audit-outline-v210.ts; the
 // separate v207/v209 preservation suites checks every complete v206 buffer as well.
-for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v209 synchronous and retains the exact audited old geometry`, async () => {
+for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v210 synchronous and retains the exact audited old geometry`, async () => {
   let tasks = 0;
   const root = await completeCooperatively(createOutlineLandmarksV182Steps(mode), {
     budgetMs: 0, isCancelled: () => false,
@@ -28,8 +29,10 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
     expect(outlineSignature(root)).toEqual(synchronous[mode]);
     expect(retained[mode].complete).toEqual(baseline[mode]);
     expect(retained[mode].substitutedKeys).toEqual(outlineUraniaSubstitutionKeysV206(mode));
-    expect(preservedOutlineSignature(root, retainedOutlineManifestV206(preserved[mode], mode)))
-      .toEqual(retained[mode].retained);
+    const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
+    try { expect(preservedOutlineSignature(root, retainedOutlineManifestV206(preserved[mode], mode)))
+      .toEqual(retained[mode].retained); }
+    finally { cleanupV210(); }
   } finally { disposeOutlineConstruction(root); }
 });
 

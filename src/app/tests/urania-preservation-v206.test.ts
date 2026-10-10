@@ -1,3 +1,4 @@
+import { restoreOutlineEstimatesV210 } from "./helpers/outlinePreservationV210";
 import { expect, test } from "bun:test";
 import { createCityWestDetails } from "../src/CityWestDetails";
 import { createUraniaLuetzowV188 } from "../src/UraniaLuetzowV188";
@@ -75,6 +76,7 @@ test("the migrated Urania roof retains its complete immutable v205 render-buffer
 
 for (const mode of ["day", "minecraft"] as const) test(`${mode} integrated v206 retains every other complete v205 Outline object`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
   try {
     const before = baseline[mode].outline.records;
     const retired = new Set(outlineUraniaSubstitutionKeysV206(mode));
@@ -87,5 +89,5 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} integrated v206 
     // Additions have their own source/geometry tests and full synchronous
     // signature; the preservation test must not count them as old geometry.
     expect(next.length).toBeGreaterThan(before.length);
-  } finally { disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); disposeOutlineConstruction(root); }
 });

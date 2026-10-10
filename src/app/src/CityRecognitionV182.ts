@@ -4,13 +4,14 @@ import {
   Matrix4, MeshBasicMaterial, MeshStandardMaterial, Vector3,
 } from "three";
 import source from "./data/cityRecognitionV182.json";
+import { keepCivicBoxV182V210, keepCivicSegmentV182V210 } from "./westCivicPreviousV210";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const CITY_RECOGNITION_V182_GROUP = "Measured civic and theatre recognition v182";
 export const CITY_RECOGNITION_V182_NATIVE_GROUP = "Native civic and theatre recognition v182";
 
 /** A small additive skin. Earlier building owners, courts and detail stay intact. */
-export function createCityRecognitionV182(minecraft = false): Group {
+export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true): Group {
   const root = new Group();
   root.name = minecraft ? CITY_RECOGNITION_V182_NATIVE_GROUP : CITY_RECOGNITION_V182_GROUP;
   root.userData = {
@@ -20,10 +21,12 @@ export function createCityRecognitionV182(minecraft = false): Group {
     sourceConflicts: source.sourceConflicts,
     facadeStatus: "Thin procedural subdivisions on official source wall planes; not a facade survey",
   };
-  const positions = new Float32Array(source.segments.length * 6);
+  const segments = includeSupersededEstimates ? source.segments : source.segments.filter(keepCivicSegmentV182V210);
+  const boxes = includeSupersededEstimates ? source.boxes : source.boxes.filter(keepCivicBoxV182V210);
+  const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(positions.length);
   const color = new Color();
-  source.segments.forEach((s, i) => {
+  segments.forEach((s, i) => {
     positions.set(s.slice(0, 6), i * 6);
     color.setHex(s[6]);
     color.toArray(colors, i * 6); color.toArray(colors, i * 6 + 3);
@@ -41,9 +44,9 @@ export function createCityRecognitionV182(minecraft = false): Group {
   const day = new MeshBasicMaterial({ color: 0xffffff });
   const night = new MeshStandardMaterial({ color: 0xffffff, roughness: .82, flatShading: true });
   const detail = new InstancedMesh(cube, day, 0), matrix = new Matrix4();
-  const matrices = new Float32Array(source.boxes.length * 16);
-  const tints = new Float32Array(source.boxes.length * 3);
-  source.boxes.forEach((r, i) => {
+  const matrices = new Float32Array(boxes.length * 16);
+  const tints = new Float32Array(boxes.length * 3);
+  boxes.forEach((r, i) => {
     const c = Math.abs(Math.cos(r[6])), s = Math.abs(Math.sin(r[6]));
     if (minecraft) {
       // Only a facade skin: axis-aligned native panels, never hidden solid fill.
@@ -54,7 +57,7 @@ export function createCityRecognitionV182(minecraft = false): Group {
     matrix.setPosition(r[0], r[1], r[2]); matrix.toArray(matrices, i * 16);
     color.setHex(r[7]).toArray(tints, i * 3);
   });
-  detail.count = source.boxes.length;
+  detail.count = boxes.length;
   detail.instanceMatrix = new InstancedBufferAttribute(matrices, 16);
   detail.instanceColor = new InstancedBufferAttribute(tints, 3);
   detail.name = "Bounded facade windows, blue glass cube stack and Funkturm decks";

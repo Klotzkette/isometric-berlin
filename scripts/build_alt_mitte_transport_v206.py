@@ -203,10 +203,22 @@ def road_near(point: Point, roads: list[dict], index: STRtree) -> dict | None:
   )
 
 
-def build() -> None:
+def build(
+  *,
+  source_path: Path = SOURCE,
+  output_path: Path = OUT,
+  ground_path: Path = GROUND_OUT,
+  corrections_path: Path = CORRECTIONS_OUT,
+  evidence_path: Path = EVIDENCE,
+  boundary_path: Path = BOUNDARY,
+  scope: Any = None,
+  version: str = "v206",
+  include_signals: bool = True,
+  interior_junction_clearance_m: float = 0,
+) -> None:
   """Generate compact paint strips and scoped source-based signal metadata."""
-  source = json.loads(SOURCE.read_text())
-  scope = boundary()
+  source = json.loads(source_path.read_text())
+  scope = boundary() if scope is None else scope
   ground = json.loads(
     (ROOT / "src/app/public/mesh/regierungsviertel/ground-context.json").read_text()
   )
@@ -225,7 +237,7 @@ def build() -> None:
   )
   scope_source = json.loads((APP / "surroundingCityScope.json").read_text())
   write(
-    GROUND_OUT,
+    ground_path,
     {
       "step": step,
       "origin": [origin_x + min_col * step, origin_z + min_row * step],
@@ -252,6 +264,47 @@ def build() -> None:
     and at_grade(f["tags"])
   ]
   road_index = STRtree([r["geometry"] for r in roads])
+  # v210 opt-in only: a source-connected vertex is a junction when its
+  # original at-grade ways have at least three distinct outgoing neighbours.
+  # Ordinary OSM way splits and geometric overpasses are not junctions.
+  junction_neighbours: dict[tuple, set] = defaultdict(set)
+  lane_junction_masks: dict[str, Any] = {}
+  junction_receipts = []
+  if interior_junction_clearance_m > 0:
+    for road in roads:
+      points = list(road["geometry"].coords)
+      for a, b in zip(points, points[1:]):
+        junction_neighbours[a].add(b)
+        junction_neighbours[b].add(a)
+    for road in roads:
+      masks = []
+      half = road_width_m(road["tags"]) / 2 + 1
+      for x, z in list(road["geometry"].coords)[1:-1]:
+        if len(junction_neighbours[(x, z)]) < 3:
+          continue
+        tx, tz = tangent(road["geometry"], Point(x, z))
+        masks.append(
+          Polygon(
+            [
+              (x + tx * u - tz * v, z + tz * u + tx * v)
+              for u, v in [
+                (-interior_junction_clearance_m, -half),
+                (interior_junction_clearance_m, -half),
+                (interior_junction_clearance_m, half),
+                (-interior_junction_clearance_m, half),
+              ]
+            ]
+          )
+        )
+        junction_receipts.append(
+          {
+            "key": road["key"],
+            "position": [x, z],
+            "neighbours": len(junction_neighbours[(x, z)]),
+          }
+        )
+      if masks:
+        lane_junction_masks[road["key"]] = unary_union(masks)
   road_bands = [
     smooth_road_line(r["geometry"]).buffer(road_width_m(r["tags"]) / 2, cap_style=2)
     for r in roads
@@ -265,7 +318,11 @@ def build() -> None:
   skipped: Counter[str] = Counter()
 
   def strips(
-    line: Any, width: float, colour: int = 0, dash: tuple[float, float] | None = None
+    line: Any,
+    width: float,
+    colour: int = 0,
+    dash: tuple[float, float] | None = None,
+    excluded: Any = None,
   ) -> None:
     for part in line_parts(line):
       offset = 0.0
@@ -299,7 +356,12 @@ def build() -> None:
                 (a[0] + unit[0] * hi, a[1] + unit[1] * hi),
               ]
             ).buffer(width / 2, cap_style=2)
-            if not scope.covers(ribbon) or not carriageways.covers(ribbon):
+            if (
+              not scope.covers(ribbon)
+              or not carriageways.covers(ribbon)
+              or excluded is not None
+              and excluded.intersects(ribbon)
+            ):
               continue
             paint.append(
               [
@@ -414,7 +476,7 @@ def build() -> None:
         }
       )
   write(
-    CORRECTIONS_OUT,
+    corrections_path,
     {
       "districtStreetsSha256": digest(OLD_STREETS),
       "suppressedMarkingIndices": [r["markingIndex"] for r in superseded],
@@ -444,7 +506,11 @@ def build() -> None:
       for part in line_parts(shifted):
         if part.length > 8:
           trimmed = shapely.ops.substring(part, 4, part.length - 4)
-          strips(trimmed.intersection(scope), 0.14, dash=(3, 6))
+          excluded = lane_junction_masks.get(road["key"])
+          clipped = trimmed.intersection(scope)
+          if excluded is not None:
+            clipped = clipped.difference(excluded)
+          strips(clipped, 0.14, dash=(3, 6), excluded=excluded)
     if len(paint) > before:
       owners.append(
         {
@@ -503,7 +569,9 @@ def build() -> None:
   signal_features = [
     f
     for f in features
-    if f["tags"].get("highway") == "traffic_signals" and scope.contains(f["geometry"])
+    if include_signals
+    and f["tags"].get("highway") == "traffic_signals"
+    and scope.contains(f["geometry"])
   ]
   records = []
   for f in roads + [f for f in signal_features if f["key"] not in old_by_key]:
@@ -599,6 +667,13 @@ def build() -> None:
             continue
           if restriction is not None and not restriction.covers(pixel):
             continue
+          excluded = (
+            lane_junction_masks.get(owner["key"])
+            if owner["kind"] == "lane_dividers"
+            else None
+          )
+          if excluded is not None and excluded.intersects(pixel):
+            continue
           # Break runs at every possible 4m native-terrain step and at the
           # exact core/outer ownership seam, so every run has one ground Y.
           native_pixels[(iz, int(yellow), int(core.contains(Point(px, pz))))].add(ix)
@@ -628,7 +703,7 @@ def build() -> None:
     "skipped": dict(skipped),
   }
   write(
-    OUT,
+    output_path,
     {
       "schema": 1,
       "source": "OSM Geofabrik Berlin 2026-09-29, ODbL-1.0; frozen pre-2001 Alt-Mitte selection",
@@ -642,15 +717,23 @@ def build() -> None:
     },
   )
   write(
-    EVIDENCE,
+    evidence_path,
     {
       "step": 10,
-      "version": "v206",
+      "version": version,
+      **(
+        {
+          "interiorJunctionClearanceM": interior_junction_clearance_m,
+          "interiorJunctions": junction_receipts,
+        }
+        if interior_junction_clearance_m > 0
+        else {}
+      ),
       "inputSha256": {
         str(p.relative_to(ROOT)): digest(p)
         for p in (
-          BOUNDARY,
-          SOURCE,
+          boundary_path,
+          source_path,
           OLD_STREETS,
           OLD_SIGNALS,
           ROOT / "src/app/public/mesh/regierungsviertel/ground-context.json",

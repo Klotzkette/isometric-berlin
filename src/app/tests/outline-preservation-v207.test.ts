@@ -1,3 +1,4 @@
+import { outlineAdditionsV210, restoreOutlineEstimatesV210 } from "./helpers/outlinePreservationV210";
 import { expect, test } from "bun:test";
 import { createOutlineLandmarksV182, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { outlineSignature } from "./helpers/outlineConstructionSignature";
@@ -5,6 +6,7 @@ import released from "./fixtures/outline-landmarks-v206-synchronous.json";
 
 for (const mode of ["day", "minecraft"] as const) test(`${mode}: both v207 additions retain every complete v206 outline byte`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
   try {
     const names = new Set([
       "Charité Bettenhochhaus facade and rooftop identity v207",
@@ -20,6 +22,7 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: both v207 addit
     names.add("Tegel and two distinct Stasi memorial sites v209 exterior details" + (mode === "minecraft" ? " native" : ""));
     names.add("Helmholtzplatz community and cafe facades v209" + (mode === "minecraft" ? " native" : ""));
     names.add("Exact Orankesee shore and mapped public lido fittings v209");
+    for (const name of outlineAdditionsV210(mode)) names.add(name);
     const originalChildren = [...root.children];
     const added = originalChildren.filter(child => names.has(child.name));
     expect(added.map(child => child.name).sort()).toEqual([...names].sort());
@@ -30,5 +33,5 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: both v207 addit
     root.children = originalChildren.filter(child => !added.includes(child));
     try { expect(outlineSignature(root)).toEqual(released[mode]); }
     finally { root.children = originalChildren; }
-  } finally { disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); disposeOutlineConstruction(root); }
 });
