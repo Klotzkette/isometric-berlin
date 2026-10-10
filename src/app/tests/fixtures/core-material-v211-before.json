@@ -1,0 +1,126 @@
+{
+  "drawn": {
+    "ilN3ccbn:distant": {
+      "geometry": "3723232778b5fa16a8de42cc5be130c138849129c0fa70943a9aa0bf3b109087",
+      "colours": "3805db2ac616490a602568d78b56917bb8a63a7a5f49115a2ef89f002cf0cc34",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "ilN3ccbn:detailed": {
+      "geometry": "fee680ed5554ff7ac361c2f462d08e394897ea9d9ff77605f0ec65cfbff968de",
+      "colours": "2e7bbcde800cf63a73e937ca16d0b31a5f1caf1a9e13bc620414516ab92524c7",
+      "bytes": 7148,
+      "bufferRecords": 3
+    },
+    "gi6ByK1f:distant": {
+      "geometry": "e6e86620917ece95a7660ff612137596175e961335fcd834f13e14808a494ebd",
+      "colours": "e43d5ab5f1a6f597f87122d093ca95407d3e8ced683027079fbd6c4980d433d3",
+      "bytes": 780,
+      "bufferRecords": 1
+    },
+    "gi6ByK1f:detailed": {
+      "geometry": "c534c1a7dcf267aae9e00c6abb6680cee6190df131a29d9e8730b51842ac2228",
+      "colours": "3f8425b1b4a50432c1c4d9b7e29cb7ad35bef2a5e86802e3512726d1adc17cad",
+      "bytes": 6518,
+      "bufferRecords": 5
+    },
+    "Ht000054:distant": {
+      "geometry": "9a5159ec9c9a729538c690eaa238083cd7f850da3a58babe34e1e79ca47d7ed4",
+      "colours": "bb630596e843fef1b58edce016f8fd37b9857d696ec1bf80a75bc01cd5546615",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "Ht000054:detailed": {
+      "geometry": "21c8645f4961799c597ec0ab99d9e97226a94290bf0acf5e4f8a3fe9cac37a0a",
+      "colours": "3588f7e13ef31f6c1e1840f33eada953f90d17861c3989aedfa9d98b97bef498",
+      "bytes": 5092,
+      "bufferRecords": 3
+    },
+    "E397kXL5:distant": {
+      "geometry": "6d5f55237dc69d418d834312a1f4356072f4a06ca90f17dbbb4d981a5a3fa730",
+      "colours": "bc6394fa6692f28d38da71c4d3f722b42bb0d3efd5967f7e4f80b412c7f5ec88",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "E397kXL5:detailed": {
+      "geometry": "37ce1055869cd0a9f01a1690b407da90f934cc0162477e6ce4e2c5661361679c",
+      "colours": "2ac0d95cf5becc91713c064040ad20e2c62d2f121fbc3db8cf37a4b78b68fb83",
+      "bytes": 7048,
+      "bufferRecords": 5
+    },
+    "10895838:distant": {
+      "geometry": "08192613addfede7057bb2075f038b380b143366553b1af0ffc03d5a96f2edf4",
+      "colours": "eb6a4a1b050c35eb3289729560d13c7d4fda7f0e8dbb463e975e9eaad2eecf1a",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "10895838:detailed": {
+      "geometry": "86fd016ca2a9c62e566d9b739721e1e5e35330798063c2f972d6d4102c818651",
+      "colours": "33ecc21130668dd89f2ddb3e12db41a6951805f57fba38abb6b381e87ab52084",
+      "bytes": 5692,
+      "bufferRecords": 3
+    },
+    "gCPv6VJo:distant": {
+      "geometry": "08192613addfede7057bb2075f038b380b143366553b1af0ffc03d5a96f2edf4",
+      "colours": "1d063dc17b503b7cfcd2ba37592b2625c7bc93c95f10590f4783a3b50687bc54",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "gCPv6VJo:detailed": {
+      "geometry": "13a5c322fdcf6815e7bc6d96a3f1dba6a29bbe585b672f9b2d792d753cae3cb4",
+      "colours": "2065821f09b6c19047e825e5828df028be4d94b5a72eeb2e735cc45821adbb59",
+      "bytes": 42540,
+      "bufferRecords": 3
+    },
+    "99MFTlRq:distant": {
+      "geometry": "08192613addfede7057bb2075f038b380b143366553b1af0ffc03d5a96f2edf4",
+      "colours": "1429495198072515a1f1c88edcca8f4e992f8c8a25598bd64c9f0f0153e27514",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "99MFTlRq:detailed": {
+      "geometry": "86fd016ca2a9c62e566d9b739721e1e5e35330798063c2f972d6d4102c818651",
+      "colours": "6b1879db3ce954369e61f6a4bcaffa68bd6255753f385f714aefc2bfeb9632a8",
+      "bytes": 5692,
+      "bufferRecords": 3
+    },
+    "v211-neutral:distant": {
+      "geometry": "08192613addfede7057bb2075f038b380b143366553b1af0ffc03d5a96f2edf4",
+      "colours": "a97daeea9e8dc4c667e35382f3eb160d76914e806ab4e1bc8e8b63525ccd8c2b",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "v211-neutral:detailed": {
+      "geometry": "86fd016ca2a9c62e566d9b739721e1e5e35330798063c2f972d6d4102c818651",
+      "colours": "4016fd377f68ea44977a90b7432ac4a39491aadaa9cbd2cdc00e69097eb35a80",
+      "bytes": 5692,
+      "bufferRecords": 3
+    },
+    "v211-coloured:distant": {
+      "geometry": "08192613addfede7057bb2075f038b380b143366553b1af0ffc03d5a96f2edf4",
+      "colours": "1209951dad7b0a2f0a80ff420322673becd88badec98442b46235a113e6d8b8f",
+      "bytes": 420,
+      "bufferRecords": 1
+    },
+    "v211-coloured:detailed": {
+      "geometry": "86fd016ca2a9c62e566d9b739721e1e5e35330798063c2f972d6d4102c818651",
+      "colours": "ee4f0a12e0f7d9a00e63e0e7badf4fb9d37a7a012e49c6e1a729da6e2fdbc09f",
+      "bytes": 5692,
+      "bufferRecords": 3
+    }
+  },
+  "native": {
+    "full": {
+      "geometry": "381d286c07c1e6e6cd8ad9b8b2d6019a244550089e2823ef76b03eeda3ce3a2c",
+      "colours": "d6c1082184c2a6673ebe463443d7552f54f6f595ece0ffc098cf467ca061b4ca",
+      "bytes": 173364460,
+      "bufferRecords": 556
+    },
+    "mobile": {
+      "geometry": "0c585cc75b080bd0e7ae1a4abd4196156e570bc7fa1fa64b82f7219e1606d396",
+      "colours": "0742d9c08f9e83c45999e2ee5f0359a5941c340a3c7a313ca954d18d002b0fd9",
+      "bytes": 167735160,
+      "bufferRecords": 552
+    }
+  }
+}

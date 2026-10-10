@@ -38,7 +38,8 @@ test("only generic city wall/roof colours at uniquely owned source corners chang
   const chunk = fixture(), source = JSON.stringify(chunk), colors = vertexColours(chunk);
   expect(colors[0]).not.toEqual(WALL);
   expect(colors[1]).not.toEqual(ROOF);
-  expect(colors[2]).toEqual(colors[0]); // Courtyard follows its source owner.
+  // Courtyard keeps its owner's paint, with the v211 source-height wash.
+  expect(colors[2].every((channel, i) => channel > colors[0][i])).toBeTrue();
   expect(colors[3]).toEqual(AUTHORED);
   expect(colors[4]).toEqual(WALL); // No source-corner ownership.
   expect(JSON.stringify(chunk)).toBe(source);
@@ -49,10 +50,63 @@ test("only generic city wall/roof colours at uniquely owned source corners chang
 test("source palette survives chunk origins, native mode and repeated source parts", () => {
   const expected = vertexColours(fixture());
   expect(vertexColours(fixture(20))).toEqual(expected);
-  expect(vertexColours(fixture(), true)).toEqual(expected);
+  const native = vertexColours(fixture(), true);
+  expect(native.slice(3, 5)).toEqual(expected.slice(3, 5)); // Authored / unowned.
+  expect(native[5]).toEqual(native[0]);
+  expect(expected[5]).toEqual(expected[0]);
+  expect(native[1]).toEqual(expected[1]); // Roof tone unchanged between modes.
+  expect(native[0]).toEqual(native[2]); // Native keeps its flat block material.
+  expect(native[0].every((channel, i) => channel > expected[0][i] && channel <= expected[2][i])).toBeTrue();
   const repeated = fixture();
   repeated.nav.buildings.push(structuredClone(repeated.nav.buildings[0]));
   expect(vertexColours(repeated)).toEqual(expected);
+});
+
+test("v211 grounding follows source ground, elevated parts and terrain offsets", () => {
+  const expected = vertexColours(fixture());
+  for (const [groundDelta, terrainOffset, originDelta, minHeight] of [
+    [7, 0, 0, 0], [0, 8, 0, 0], [0, 0, 6, 0], [0, 0, 0, 4], [5, 7, 4, 2],
+  ]) {
+    const chunk = fixture();
+    chunk.nav.groundY += groundDelta;
+    chunk.origin[1] += originDelta;
+    chunk.nav.buildings[0].groundOffset = terrainOffset;
+    chunk.nav.buildings[0].minHeight += minHeight;
+    chunk.nav.buildings[0].height += minHeight;
+    const positions = new Uint16Array(Uint8Array.from(Buffer.from(chunk.meshes[0].positions, "base64")).buffer);
+    for (let i = 1; i < positions.length; i += 3) positions[i] += (groundDelta + terrainOffset + minHeight - originDelta) * 100;
+    chunk.meshes[0].positions = encode(positions);
+    expect(vertexColours(chunk)).toEqual(expected);
+  }
+});
+
+test("ambiguous vertical parts retain flat paint independent of order", () => {
+  const chunk = fixture(), other = structuredClone(chunk.nav.buildings[0]);
+  other.height += 7;
+  chunk.nav.buildings.push(other);
+  const expected = vertexColours(chunk);
+  expect(expected[0]).toEqual(expected[2]);
+  expect(expected).toEqual(vertexColours(chunk, true));
+  chunk.nav.buildings.reverse();
+  expect(vertexColours(chunk)).toEqual(expected);
+});
+
+test("conflicting heights disable the whole source wash with only one shared corner", () => {
+  const chunk = fixture(), original = structuredClone(chunk.nav.buildings[0]);
+  chunk.nav.buildings.push({ ...original, height: original.height + 7,
+    ring: [[0, 0], [4, 0], [4, 1], [0, 1]], holes: [] });
+  // A later matching part cannot re-enable the first part's wash.
+  chunk.nav.buildings.push(structuredClone(original));
+  const source = JSON.stringify(chunk), expected = vertexColours(chunk, true);
+  expect(expected[0]).not.toEqual(WALL); // Keep the source palette.
+  expect(expected[0]).toEqual(expected[2]); // Shared base / unshared court top.
+  expect(expected[0]).toEqual(expected[5]); // Unshared exterior base.
+  expect(vertexColours(chunk)).toEqual(expected);
+  expect(JSON.stringify(chunk)).toBe(source);
+  chunk.nav.buildings = [chunk.nav.buildings[1], original, structuredClone(original)];
+  expect(vertexColours(chunk)).toEqual(expected);
+  chunk.nav.buildings.reverse();
+  expect(vertexColours(chunk)).toEqual(expected);
 });
 
 test("shared corners retain original colours regardless of source order", () => {

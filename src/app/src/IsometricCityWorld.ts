@@ -130,8 +130,6 @@ import { GROPIUS_BAU_PRISM_TONES, GROPIUS_BAU_PRISM_ROOF_TONES } from "./gropius
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import {
   buildingAttributes,
-  mappedColor,
-  mappedFacadeTone,
   mappedGlazing,
   mappedRoofTone,
   mappedStoreyProfile,
@@ -1611,6 +1609,17 @@ export const PLACE_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 104 * 1024;
 // City-wide source envelope ink + two mapped floor-head registers per wall.
 export const BUILDING_DETAIL_ATTRIBUTE_DELTA_BUDGET_BYTES = 8 * 1024 * 1024;
 
+/** Neutral, unmeasured core samples keep continuous lightness instead of the
+ * old three-level ivory floor. This is display paint, never source evidence. */
+function neutralCoreIllustrationToneInto(tone: [number, number, number], target: Color): Color {
+  const r = tone[0] / 255, g = tone[1] / 255, b = tone[2] / 255;
+  const luma = .2126 * r + .7152 * g + .0722 * b;
+  const lightness = Math.min(.96, Math.max(luma, .72 + .1 * luma));
+  const scale = .66 * lightness / Math.max(luma, .02);
+  const channel = (value: number) => Math.min(1, Math.max(0, lightness + (value - luma) * scale));
+  return target.setRGB(channel(r), channel(g), channel(b)).lerp(IVORY, .24);
+}
+
 function facadeColorFor(
   building: PrismBuilding,
   classes: string[],
@@ -1654,21 +1663,22 @@ function facadeColorFor(
   }
   const attributes = buildingAttributes(building.id);
   const urban = urbanFacadeScope(building);
-  const recordedTone = urban ? urbanMappedFacadeTone(attributes) :
-    mappedColor(attributes?.tags["building:colour"]) ??
-    (building.tone ? undefined : mappedFacadeTone(attributes));
+  // This resolver reads existing tags only. Extending colour priority must
+  // not extend urbanFacadeScope, which also controls actual facade geometry.
+  const recordedTone = urbanMappedFacadeTone(attributes);
   if (recordedTone !== undefined) {
     return target.setHex(recordedTone).lerp(IVORY, urban ? 0.04 : 0.12);
   }
   // Retain the per-part Step-8 illustration sample where no stronger source
   // attribute exists; this colour is not a surveyed facade observation.
   if (building.tone) {
+    const neutral = Math.max(...building.tone) - Math.min(...building.tone) < 24;
     if (urban) urbanIllustrationToneInto(building.tone, target);
+    else if (neutral) neutralCoreIllustrationToneInto(building.tone, target);
     else cleanedToneInto(building.tone, target).lerp(IVORY, SOURCE_FACADE_IVORY_BLEND);
     // Only neutral, unmeasured illustration samples need a little distinction.
     // Source colours and bespoke models returned above stay untouched.
-    if (mappedFacadeTone(attributes) === undefined &&
-        Math.max(...building.tone) - Math.min(...building.tone) < 24)
+    if (neutral)
       target.lerp(genericFacadeTone(building.id), 0.38);
     return target;
   }

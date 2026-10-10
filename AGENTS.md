@@ -188,6 +188,14 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's subsequent v1.0.111 request permits a restrained presentation pass
+across the entire already covered city. Generic material families, retained
+colour/material tags and existing facade contrast may be refined without new
+coverage or inferred site-specific architecture. Preserve all source geometry,
+existing windows/details, individually authored material priorities, native
+models, resident budgets and 93 tour stops. Do not globalise geographic switches
+that also control geometry. See `docs/city-polish-v211.md`.
+
 The owner's 10 October v1.0.110 request permits bounded recognition refinements
 at Theodor-Heuss-Platz (the seven-tier blue glass obelisk and its bounded mapped
 square, park, paths and immediately surrounding carriageways), rbb Fernsehzentrum

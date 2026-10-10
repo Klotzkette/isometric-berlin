@@ -187,8 +187,6 @@ import { inPotsdamerPanoramaLandscape, POTSDAMER_PANORAMA_LANDSCAPE, potsdamerPa
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
   buildingAttributes,
-  mappedColor,
-  mappedFacadeTone,
   mappedRoofTone,
   mappedStoreyProfile,
   type BuildingAttributes,
@@ -1166,9 +1164,9 @@ export function buildColumnToneLookup(prisms: {
     const chariteTone = building.id ? CHARITE_HISTORIC_FACADE_TONES[building.id] ??
       (CHARITE_VIROLOGY_IDS.has(building.id) ? HISTORIC_CHARITE_TONES.virologyFacade : undefined) : undefined;
     const wilhelmTones = building.id ? WILHELM_REFINEMENT_PRISM_TONES.get(building.id) : undefined;
-    const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? (urban ? urbanMappedFacadeTone(attributes) :
-      mappedColor(attributes?.tags["building:colour"]) ??
-      (building.tone ? undefined : mappedFacadeTone(attributes)));
+    // Resolve retained CSS colours/materials for every core owner, after all
+    // existing authored priorities. The bounded roof path below is unchanged.
+    const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? urbanMappedFacadeTone(attributes);
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
       continue;
     }

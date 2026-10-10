@@ -1,0 +1,67 @@
+{
+  "releasedBase": "563028bdb0bc0e22a789edc5c3fa59f21028b1c9",
+  "method": "Independent synchronous full/mobile construction; before loads the two unmodified core modules from the released Git commit via a temporary Bun onLoad hook. Every other dependency and all source datasets stay identical. Non-colour digest is the existing coreMaterialV211 snapshot, including every attribute/index/matrix and metadata.",
+  "historicalBaseline": "minecraft-world-synchronous-v208.json",
+  "beforeSourceSha256": {
+    "src/app/src/MinecraftVoxelWorld.ts": "d36b04be2560033cbecf15a41fc3841fb8fa658d9a765ac78e0dd64504a49d16",
+    "src/app/src/IsometricCityWorld.ts": "f94008a6fa7213235e75889e5ab08a6cf536d546ba6ae674a65527e09b21db1e"
+  },
+  "currentSourceSha256": {
+    "src/app/src/MinecraftVoxelWorld.ts": "8141f58686d975bcaad0d0490249e75b33044dc6606cdbf47ec2afd50ddd6f7c",
+    "src/app/src/IsometricCityWorld.ts": "ea315337de1e962902912ea0fcb068d58d0492e7e14082e21ca4a76b45dfb442"
+  },
+  "profiles": {
+    "full": {
+      "before": {
+        "detailProfile": "full",
+        "instances": 4397472,
+        "renderables": 349,
+        "bufferBytes": 382435030,
+        "sha256": "fbfc358bef2b7895afe2216ad09e1797026b372097751db181d6b5427a3233e7"
+      },
+      "current": {
+        "detailProfile": "full",
+        "instances": 4397472,
+        "renderables": 349,
+        "bufferBytes": 382435030,
+        "sha256": "6d7658a9e17e0bb715927e419a3b72269c70db21bef5598b240bae1305006995"
+      },
+      "beforeNonColourSha256": "2a0d9a8a1ce214daae3aad0694913e0bdb372432af2097f67eb7bd900635d994",
+      "currentNonColourSha256": "2a0d9a8a1ce214daae3aad0694913e0bdb372432af2097f67eb7bd900635d994",
+      "unchangedMeshCount": 348,
+      "changedColourMeshes": [
+        {
+          "name": "Voxel building columns",
+          "beforeColours": "4643ed702c04808f6815567999e80dedf9048c7e3f4b0e0ce9754cfa3f44e433",
+          "currentColours": "cab26cf784b229f02252ea4fc5b86e70adff052a06736211db30e200c705cda6"
+        }
+      ]
+    },
+    "mobile": {
+      "before": {
+        "detailProfile": "mobile",
+        "instances": 2031777,
+        "renderables": 347,
+        "bufferBytes": 202192754,
+        "sha256": "9b6ed768e3817407394be835f701291378bc8126f3e257b600f865250038fd40"
+      },
+      "current": {
+        "detailProfile": "mobile",
+        "instances": 2031777,
+        "renderables": 347,
+        "bufferBytes": 202192754,
+        "sha256": "5d2c4e8f61c21eea76551508125ea1491f3cd627f775dec6313660ffaac4184e"
+      },
+      "beforeNonColourSha256": "39dbec6a1c40e9284bed6f1a9d6558e5f5b69f987c7f5af9b62f269b615cb4d3",
+      "currentNonColourSha256": "39dbec6a1c40e9284bed6f1a9d6558e5f5b69f987c7f5af9b62f269b615cb4d3",
+      "unchangedMeshCount": 346,
+      "changedColourMeshes": [
+        {
+          "name": "Voxel building columns",
+          "beforeColours": "9721cebe8f35fb6d7c50d0e06cc3cb9dcd755966dc9c4091bd492f08b1c3c9fb",
+          "currentColours": "878aaeee8227f5a32ce5f9b4bec17cd155ac07b04cdf6dce2034bb84b3e3b190"
+        }
+      ]
+    }
+  }
+}

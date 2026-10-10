@@ -4,7 +4,9 @@ import ts from "typescript";
 
 import baseline from "./fixtures/minecraft-world-synchronous-v204.json";
 import v206 from "./fixtures/minecraft-world-synchronous-v206.json";
-import current from "./fixtures/minecraft-world-synchronous-v208.json";
+import v208 from "./fixtures/minecraft-world-synchronous-v208.json";
+import current from "./fixtures/minecraft-world-synchronous-v211.json";
+import audit211 from "./fixtures/minecraft-world-v211-colour-audit.json";
 import audit208 from "./fixtures/minecraft-world-v208-baseline-audit.json";
 import frontage208 from "./fixtures/frontage-preservation-v208.json";
 import urania from "../src/data/uraniaArcV206Navigation.json";
@@ -79,7 +81,7 @@ test("v208 whole-world change is exactly the immutable v107 Aeroflot and Quartie
   for (const profile of ["full", "mobile"] as const) {
     const proof = audit208.profiles[profile];
     expect(proof.legacy).toEqual(v206[profile]);
-    expect(proof.current).toEqual(current[profile]);
+    expect(proof.current).toEqual(v208[profile]);
     expect(proof.unchangedMeshCount).toBe(profile === "full" ? 348 : 346);
     expect(proof.beforeChanged.map(r => [r.name, r.instances])).toEqual([
       ["Unter den Linden native facade blocks box", 636], ["Quartier 206 stone", 1169], ["Quartier 206 glass", 81],
@@ -92,6 +94,26 @@ test("v208 whole-world change is exactly the immutable v107 Aeroflot and Quartie
     const removed = frontage208.baseline.gendarmenmarkt.minecraft.budget.instances - frontage208.retained.gendarmenmarkt.minecraft.budget.instances
       + frontage208.baseline.linden.minecraft.budget.instances - frontage208.retained.linden.minecraft.budget.instances;
     expect(removed).toBe(proof.legacy.instances - proof.current.instances);
+  }
+});
+
+test("v211 changes only existing column colour values with every non-colour world buffer retained", () => {
+  expect(audit211.releasedBase).toBe("563028bdb0bc0e22a789edc5c3fa59f21028b1c9");
+  expect(audit211.historicalBaseline).toBe("minecraft-world-synchronous-v208.json");
+  expect(Object.keys(audit211.beforeSourceSha256).sort()).toEqual([
+    "src/app/src/IsometricCityWorld.ts", "src/app/src/MinecraftVoxelWorld.ts",
+  ]);
+  for (const profile of ["full", "mobile"] as const) {
+    const proof = audit211.profiles[profile];
+    expect(proof.before).toEqual(v208[profile]);
+    expect(proof.current).toEqual(current[profile]);
+    expect(proof.beforeNonColourSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(proof.currentNonColourSha256).toBe(proof.beforeNonColourSha256);
+    expect(proof.changedColourMeshes.map(row => row.name)).toEqual(["Voxel building columns"]);
+    expect(proof.changedColourMeshes[0].beforeColours).not.toBe(proof.changedColourMeshes[0].currentColours);
+    expect(proof.unchangedMeshCount).toBe(v208[profile].renderables - 1);
+    for (const key of ["instances", "renderables", "bufferBytes"] as const)
+      expect(current[profile][key]).toBe(v208[profile][key]);
   }
 });
 

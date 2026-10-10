@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Citywide presentation (v1.0.111):** Existing Berlin LoD2 envelopes
+  (dl-de/zero-2-0) and retained OpenStreetMap colour/material attributes
+  (ODbL-1.0) remain the source basis. Generic plaster/stone palettes and
+  height-relative light are illustration choices, not a new facade survey.
+  No new photographs, textures or geographic data are bundled. See
+  [scope and verification](docs/city-polish-v211.md).
+
 - **Sunken venues and Charlottenburger Tor (v1.0.101):** Official Berlin DGM1
   and retained LoD2 geometry (dl-de/zero-2-0), mapped OpenStreetMap site/wing
   boundaries (ODbL-1.0), and cited heritage/operator descriptions anchor the
