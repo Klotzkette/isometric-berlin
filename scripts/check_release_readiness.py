@@ -89,7 +89,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v209 adds the three requested sites, Orankesee and fourteen Kiez companions.
 # The complete local package is 831.47 MiB including launcher metadata. A finite
 # 833 MiB archive-only ceiling retains every old asset; all live limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 833 * 1024 * 1024
+# v213 adds immutable source-surface appearance receipts for old Mitte.
+# Complete package: 874,993,964 bytes (834.459 MiB). A finite 835 MiB archive-only
+# ceiling leaves 0.541 MiB; source assets and all live residency limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 835 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

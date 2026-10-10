@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.112 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.112/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.113 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.113/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.112** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.113** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.113 corrects ordinary old-Mitte building appearance using exact retained source wall/roof planes and strictly associated material tags. It preserves source geometry and individually authored buildings. This is not a photographic survey of every facade. [Scope and evidence](docs/alt-mitte-appearance-v213.md).
+
+Version 1.0.113 macht die tatsächlichen Dach- und Wandformen gewöhnlicher Häuser im alten Mitte deutlicher und nutzt eindeutig zugeordnete Materialangaben. Vermessene Baukörper und individuell ausgearbeitete Gebäude bleiben erhalten. Nicht belegte Fensteranordnungen bleiben als Näherungen dokumentiert.
 
 Version 1.0.112 overlaps small upcoming city-packet downloads with the current build, reducing serial network waits at wide/high flight views. A fixed 4 MiB prefetch allowance and one-at-a-time decoding preserve the complete models and existing residency rules. [Scope and verification](docs/high-flight-v212.md).
 

@@ -188,6 +188,15 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's subsequent v1.0.113 request permits a source-bound appearance review
+of ordinary buildings throughout the frozen old-Mitte selection, excluding
+Wedding and Tiergarten. Correct generic inherited paint only where exact source
+surface ownership and role are established, use unambiguous mapped materials,
+and make measured roof/wall articulation legible. Authored buildings, original
+packets, topology, courts and prior refinements remain protected. Unsurveyed
+window arrangements must not be described as individually verified facades.
+See `docs/alt-mitte-appearance-v213.md`.
+
 The owner's subsequent v1.0.112 request permits faster background construction
 while flying high, preserving all visual/source quality. A bounded two-packet
 transport prefetch may overlap the foreground request; reserve at most 4 MiB,

@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Old-Mitte source-surface appearance (v1.0.113):** Retained Geoportal Berlin
+  LoD2 wall and roof planes (dl-de/zero-2-0) and strictly associated OpenStreetMap
+  material/colour attributes (ODbL-1.0) guide the bounded appearance correction.
+  Directional light and untagged material separation are graphic interpretations;
+  existing generic windows are not claimed as surveyed openings. No new imagery
+  is distributed. See [evidence and limits](docs/alt-mitte-appearance-v213.md).
+
 - **Citywide presentation (v1.0.111):** Existing Berlin LoD2 envelopes
   (dl-de/zero-2-0) and retained OpenStreetMap colour/material attributes
   (ODbL-1.0) remain the source basis. Generic plaster/stone palettes and

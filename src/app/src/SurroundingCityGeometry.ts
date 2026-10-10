@@ -10,6 +10,7 @@ import { markArchitecturalAccentInk, markArchitecturalInk } from "./architectura
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
 import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
+import { applyAltMitteAppearanceV213 } from "./altMitteAppearanceV213";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
@@ -236,7 +237,7 @@ export function* buildSurroundingCityChunk(
     const colourOwners = chunk.meshes.some(part => part.kind === "city")
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1]) : undefined;
     let vertexOffset = 0, indexOffset = 0;
-    for (const part of chunk.meshes) {
+    for (const [meshIndex, part] of chunk.meshes.entries()) {
       const count = encodedBytes(part.positions, 6) / 6;
       yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
       yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined, !minecraft);
@@ -260,6 +261,8 @@ export function* buildSurroundingCityChunk(
         const shaded = yield* shadeAltMitteFacadeV186(vertices, indices, indexOffset, written);
         root.userData.altMitteWindowRelief = (root.userData.altMitteWindowRelief ?? 0) + shaded;
       }
+      const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
       vertexOffset += count;
       indexOffset += written;
     }
