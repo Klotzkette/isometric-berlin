@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "references": [
+    {
+      "title": "File:Berlin-WZB-2007.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin-WZB-2007.jpg",
+      "author": "Coenen",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "usage": "External architectural visual reference only; no image or texture bundled."
+    },
+    {
+      "title": "File:2012-10-09-Wissenschaftszentrum-Berlin-fuer-Sozialforschung.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:2012-10-09-Wissenschaftszentrum-Berlin-fuer-Sozialforschung.jpg",
+      "author": "Gunnar Klack",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "usage": "External architectural visual reference only; no image or texture bundled."
+    },
+    {
+      "title": "File:Potsdamer Platz Linkstraße Daimler Quartier 9171.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_Linkstra%C3%9Fe_Daimler_Quartier_9171.jpg",
+      "author": "Dosseman",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "usage": "External architectural visual reference only; no image or texture bundled."
+    },
+    {
+      "title": "File:Potsdamer Platz Linkstraße Daimler Quartier 9172.jpg",
+      "url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_Linkstra%C3%9Fe_Daimler_Quartier_9172.jpg",
+      "author": "Dosseman",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "usage": "External architectural visual reference only; no image or texture bundled."
+    }
+  ]
+}

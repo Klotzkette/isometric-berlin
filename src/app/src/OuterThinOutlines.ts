@@ -120,8 +120,8 @@ export function* createOuterThinOutlinesSteps(
     yield; // End the source-position decode task before preparing landmark families.
     const landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease);
     root.add(landmarks);
-    root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
-      root.visible && landmarks.userData.update(timestamp, camera, reducedMotion);
+    root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) =>
+      root.visible && landmarks.userData.update(timestamp, camera, reducedMotion, floodLevel);
     root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
       root.visible && landmarks.userData.updateTrafficSignals(timestamp, camera, reducedMotion, lightsOn);
     root.userData.setMode = (next: VisualMode) => {

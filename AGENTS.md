@@ -188,6 +188,16 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.114 request permits bounded refinements at Bundeswehrkrankenhaus
+Berlin and its mapped canal-side helipad, with an original red rescue helicopter
+illustrating a twenty-metre approach, landing and departure. This is not a real
+operator's livery or operational flight procedure. Gendarmenmarkt, BND-adjacent
+housing, WZB and the two park-side Potsdamer office blocks may gain source-bound
+facade fittings. Preserve all measured owners and earlier details, equal drawn
+mobile detail and existing residency limits. Motion uses the shared frame loop,
+reusable bounded buffers and pause/offscreen controls. This adds no coverage or
+tour stop. See `docs/refinements-v214.md`.
+
 The owner's subsequent v1.0.113 request permits a source-bound appearance review
 of ordinary buildings throughout the frozen old-Mitte selection, excluding
 Wedding and Tiergarten. Correct generic inherited paint only where exact source

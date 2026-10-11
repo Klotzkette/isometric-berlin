@@ -6575,6 +6575,62 @@
       "credit": "Bodo Kubrak / CC0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "bundeswehr_hospital_v214",
+      "title": "File:Berlin Bundeswehrkrankenhaus Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Bundeswehrkrankenhaus_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Marek Śliwecki",
+      "credit": "Marek Śliwecki / CC BY-SA 4.0",
+      "date": "2017-05-25",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_context_v214",
+      "title": "File:Berlin-WZB-2007.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-WZB-2007.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Coenen",
+      "credit": "Coenen / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_context_v214",
+      "title": "File:2012-10-09-Wissenschaftszentrum-Berlin-fuer-Sozialforschung.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:2012-10-09-Wissenschaftszentrum-Berlin-fuer-Sozialforschung.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_context_v214",
+      "title": "File:Potsdamer Platz Linkstraße Daimler Quartier 9171.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_Linkstra%C3%9Fe_Daimler_Quartier_9171.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dosseman",
+      "credit": "Dosseman / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_context_v214",
+      "title": "File:Potsdamer Platz Linkstraße Daimler Quartier 9172.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Potsdamer_Platz_Linkstra%C3%9Fe_Daimler_Quartier_9172.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dosseman",
+      "credit": "Dosseman / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

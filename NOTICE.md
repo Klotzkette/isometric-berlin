@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Hospital and neighbourhood refinements (v1.0.114):** Retained Berlin LoD2
+  (dl-de/zero-2-0), OpenStreetMap (ODbL-1.0), cited hospital/architect accounts
+  and individually credited free photographs anchor the bounded additions.
+  Unsurveyed facade fittings remain recognition estimates. The red medical
+  helicopter and repeatable flight are original requested illustrations, not
+  actual operator branding or a real flight procedure. No photographic textures
+  ship. See [scope and source records](docs/refinements-v214.md).
+
 - **Old-Mitte source-surface appearance (v1.0.113):** Retained Geoportal Berlin
   LoD2 wall and roof planes (dl-de/zero-2-0) and strictly associated OpenStreetMap
   material/colour attributes (ODbL-1.0) guide the bounded appearance correction.

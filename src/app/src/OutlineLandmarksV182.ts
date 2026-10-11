@@ -74,6 +74,10 @@ import { createNeukoellnPlacesV210 } from "./NeukoellnPlacesV210";
 import { transferNeukoellnLegacyV185V210 } from "./neukoellnLegacyV185TransferV210";
 import { createTrafficSignals, updateVisibleTrafficSignals } from "./TrafficSignals";
 import type { VisualMode } from "./visualMode";
+import { createBundeswehrHospitalV214, BUNDESWEHR_HELIPAD_V214 } from "./BundeswehrHospitalV214";
+import { createRescueHelicopterV214 } from "./RescueHelicopterV214";
+import { createGendarmenBndContextV214 } from "./GendarmenBndContextV214";
+import { createPotsdamerContextV214 } from "./PotsdamerContextV214";
 
 /** One representation at a time, including when the surrounding mode changes. */
 export function* createOutlineLandmarksV182Steps(
@@ -84,9 +88,13 @@ export function* createOutlineLandmarksV182Steps(
   root.name = "Berlin outline landmark additions v182";
   let native: boolean | undefined;
   let kites: Group | undefined;
+  let helicopter: Group | undefined;
   let nativeSignals: Group | null | undefined;
-  root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false) =>
-    kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
+  root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) => {
+    const kiteChanged = kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
+    const helicopterChanged = helicopter?.userData.update(timestamp, camera, reducedMotion, floodLevel) ?? false;
+    return kiteChanged || helicopterChanged;
+  };
   root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
     nativeSignals ? updateVisibleTrafficSignals(nativeSignals, camera, timestamp, reducedMotion, lightsOn) : false;
   function* setModeSteps(mode: VisualMode): Generator<void> {
@@ -226,6 +234,15 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createWeddingSitesV210(nextNative));
       yield;
       root.add(createNeukoellnPlacesV210(nextNative));
+      yield;
+      root.add(createBundeswehrHospitalV214(nextNative));
+      yield;
+      root.add(createGendarmenBndContextV214(nextNative));
+      yield;
+      root.add(createPotsdamerContextV214(nextNative));
+      yield;
+      helicopter = createRescueHelicopterV214(BUNDESWEHR_HELIPAD_V214, nextNative);
+      root.add(helicopter);
       yield;
       nativeSignals = nextNative ? createTrafficSignals(altMitteSignalPayloadV206(), null, { native: true }) : undefined;
       if (nativeSignals) root.add(nativeSignals);

@@ -7957,7 +7957,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         );
         const documentHidden = document.visibilityState === "hidden";
         const outlineMotion = runtime.outerThinOutlines?.visible &&
-          (runtime.outerThinOutlines.userData.update?.(timestamp, camera, reducedMotion) ?? false);
+          (runtime.outerThinOutlines.userData.update?.(timestamp, camera,
+            reducedMotion || documentHidden || runtime.underside,
+            runtime.lightingMode === "flood" ? floodWaterLevel(runtime.floodDepth) : undefined) ?? false);
         if (!runtime.underside && !documentHidden &&
             runtime.outerThinOutlines?.userData.updateTrafficSignals?.(timestamp, camera,
               reducedMotion, runtime.lightingMode !== "night" || runtime.nightLightsOn)) {
@@ -8051,7 +8053,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (continuousInputActive) gpuWarmupInteractionUntil = timestamp + 80;
         let passiveFrameIntervalMs = floodAnimating
           ? FLOOD_FRAME_INTERVAL_MS : Number.POSITIVE_INFINITY;
-        // Kite cloth needs a cadenced redraw, not a new city shadow atlas or
+        // Kite cloth and the rescue helicopter need a cadenced redraw, not a new city shadow atlas or
         // a simulated input event that would continually defer GPU warmup.
         if (outlineMotion) passiveFrameIntervalMs = 0;
         const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&

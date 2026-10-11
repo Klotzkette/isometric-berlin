@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.113 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.113/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.114 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.114/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.113** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.114** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.114 refines Bundeswehrkrankenhaus and its canal-side helipad, with an animated red rescue helicopter. Selected surrounding houses at Gendarmenmarkt, the BND, Neue Nationalgalerie and Potsdamer Platz gain source-bound facade details. All previous measured geometry stays intact. [Scope and evidence](docs/refinements-v214.md).
+
+Version 1.0.114 ergänzt das Bundeswehrkrankenhaus und seinen Landeplatz am Kanal samt rotem Rettungshubschrauber mit Landeanflug und drehenden Rotoren. Ausgewählte Nachbarhäuser am Gendarmenmarkt, BND, an der Neuen Nationalgalerie und am Potsdamer Platz erhalten genauere Fassadendetails.
 
 Version 1.0.113 corrects ordinary old-Mitte building appearance using exact retained source wall/roof planes and strictly associated material tags. It preserves source geometry and individually authored buildings. This is not a photographic survey of every facade. [Scope and evidence](docs/alt-mitte-appearance-v213.md).
 
