@@ -1,3 +1,5 @@
+import hospital from "./data/bundeswehrHospitalV215Ownership.json";
+import springer from "./data/springerV215Ownership.json";
 import theatre from "./data/volksbuehneOwnershipV209.json";
 import helmholtz from "./data/kiezSitesOwnershipV209.json";
 import prisons from "./data/prisonsMemorialsOwnershipV209.json";
@@ -7,8 +9,8 @@ import { transferPrisonsNavigationV209 } from "./prisonsNavigationTransferV209";
 import { transferNeukoellnNavigationV210 } from "./neukoellnPlacesV210Navigation";
 import type { SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
-const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records];
-const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords];
+const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records];
+const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords];
 
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,

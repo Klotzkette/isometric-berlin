@@ -1,3 +1,5 @@
+import hospitalCorrection from "./data/bundeswehrHospitalV215Drawn.json";
+import springerCorrection from "./data/springerV215Drawn.json";
 import source from "./data/altMitteDrawnV169Data";
 import {
   buildAltMitteCoreV169Steps as buildCore,
@@ -5,7 +7,7 @@ import {
   type AltMitteCoreV169Source,
 } from "./AltMitteCoreV169";
 
-const payload = source as unknown as AltMitteCoreV169Source;
+const payload = /*#__PURE__*/ (() => ({ ...source, hospitalCorrection, springerCorrection }))() as unknown as AltMitteCoreV169Source;
 /** All drawn modes and input profiles use the identical measured envelope. */
 export function createAltMitteCoreV169(
   _options: { mobileLike?: boolean } = {},

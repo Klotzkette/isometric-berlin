@@ -188,6 +188,18 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.115 correction request permits correction of the specifically
+identified inaccurate pointed roof on the modern Bundeswehrkrankenhaus ward,
+and source-bound recognition of the immediate homes at the Günter Litfin
+memorial. Evidence must distinguish the modern ward from historic pavilion
+roofs. Retain original source sheets and document any exact obsolete proxy
+substitution; preserve all unrelated walls, roofs, earlier fittings, helipad
+and helicopter, full drawn mobile detail and existing residency limits.
+The additional new-build is provisionally identified as the Zentrales
+Springergebäude at Golda-Meir-Steg from its named OSM owner and primary
+manufacturer photographs. This stated assumption permits bounded recognition
+detail; retain and audit the differing OSM and LoD2 footprints.
+
 The owner's v1.0.114 request permits bounded refinements at Bundeswehrkrankenhaus
 Berlin and its mapped canal-side helipad, with an original red rescue helicopter
 illustrating a twenty-metre approach, landing and departure. This is not a real

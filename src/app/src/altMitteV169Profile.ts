@@ -1,3 +1,5 @@
+import { correctedHospitalRoofAtV215, BUNDESWEHR_HOSPITAL_V215_PART, BUNDESWEHR_HOSPITAL_V215_ROOF_Y } from "./bundeswehrHospitalV215Profile";
+import { correctedSpringerPartsV215, correctedSpringerRoofAtV215 } from "./springerV215Profile";
 import source from "./data/altMitteV169DrawnNavigationData";
 import {
   createAltMitteV169NavigationIndex,
@@ -71,7 +73,7 @@ export function preloadAltMitteV169NativeNavigation(): Promise<void> {
 // progressive worker, which imports only unrelated ground helpers through
 // MinecraftVoxelWorld, can discard the navigation payload together with it.
 export const ALT_MITTE_V169_PARTS = /* @__PURE__ */ (() =>
-  navigationData.parts)();
+  correctedSpringerPartsV215(navigationData.parts.map(part => part.id === BUNDESWEHR_HOSPITAL_V215_PART ? { ...part, topY: BUNDESWEHR_HOSPITAL_V215_ROOF_Y } : part)))();
 export function altMitteV169SourceColumn(
   x: number,
   z: number,
@@ -85,5 +87,6 @@ export function altMitteV169RoofAt(
   z: number,
   native = false,
 ): number | null {
-  return preparedNavigation().roofAt(x, z, native);
+  return correctedSpringerRoofAtV215(x, z, native,
+    correctedHospitalRoofAtV215(x, z, native, preparedNavigation().roofAt(x, z, native)));
 }

@@ -17,6 +17,8 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Hospital and Kieler Eck correction (v1.0.115):** Retained Berlin LoD2, official DOP/bDOM and mapped OpenStreetMap identities anchor the bounded roof and facade corrections. Original source records remain retained; obsolete roof interpretations are replaced only at explicitly identified owners. Public architectural references guide estimated facade details. See [scope and source records](docs/refinements-v215.md).
+
 - **Hospital and neighbourhood refinements (v1.0.114):** Retained Berlin LoD2
   (dl-de/zero-2-0), OpenStreetMap (ODbL-1.0), cited hospital/architect accounts
   and individually credited free photographs anchor the bounded additions.

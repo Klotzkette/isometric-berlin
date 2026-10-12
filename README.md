@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.114 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.114/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.115 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.115/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.114** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.115** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.115 corrects the modern Bundeswehrkrankenhaus ward roof using official aerial and height evidence, refines the three immediate residential neighbours at the Günter Litfin memorial and models the current Springergebäude by Golda-Meir-Steg. The hospital helipad, helicopter and unrelated surrounding details stay intact. [Scope and evidence](docs/refinements-v215.md).
+
+Version 1.0.115 korrigiert das Dach des modernen Bettenhauses am Bundeswehrkrankenhaus, verfeinert die drei direkten Wohnhaus-Nachbarn der Gedenkstätte Günter Litfin und bildet das heutige Springergebäude am Golda-Meir-Steg ab. Landeplatz, Hubschrauber und übrige Umgebungsdetails bleiben erhalten.
 
 Version 1.0.114 refines Bundeswehrkrankenhaus and its canal-side helipad, with an animated red rescue helicopter. Selected surrounding houses at Gendarmenmarkt, the BND, Neue Nationalgalerie and Potsdamer Platz gain source-bound facade details. All previous measured geometry stays intact. [Scope and evidence](docs/refinements-v214.md).
 

@@ -78,6 +78,7 @@ import { createBundeswehrHospitalV214, BUNDESWEHR_HELIPAD_V214 } from "./Bundesw
 import { createRescueHelicopterV214 } from "./RescueHelicopterV214";
 import { createGendarmenBndContextV214 } from "./GendarmenBndContextV214";
 import { createPotsdamerContextV214 } from "./PotsdamerContextV214";
+import { createLitfinNeighboursV215 } from "./LitfinNeighboursV215";
 
 /** One representation at a time, including when the surrounding mode changes. */
 export function* createOutlineLandmarksV182Steps(
@@ -236,6 +237,8 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createNeukoellnPlacesV210(nextNative));
       yield;
       root.add(createBundeswehrHospitalV214(nextNative));
+      yield;
+      root.add(createLitfinNeighboursV215(nextNative));
       yield;
       root.add(createGendarmenBndContextV214(nextNative));
       yield;

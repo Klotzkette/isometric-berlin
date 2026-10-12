@@ -16,6 +16,9 @@ export type AltMitteCoreV169Source = {
   drawnChunks: { id: string; packet: SurroundingCityChunk }[];
   minecraftChunks: { id: string; packet: SurroundingCityChunk }[];
   sourceParents: unknown[];
+  /** Required audited correction, constructed before the world is published. */
+  hospitalCorrection?: SurroundingCityChunk;
+  springerCorrection?: SurroundingCityChunk;
 };
 
 /** Unpublished exact shells yield within decoding. Returning early unwinds both
@@ -26,6 +29,10 @@ export function* buildAltMitteCoreV169Steps(
 ): Generator<void, Group> {
   if (payload.schemaVersion !== 1 || !Array.isArray(payload.sourceParents))
     throw new Error("Invalid Alt-Mitte core source");
+  if (payload.sourceParents.includes("DEBE01YYK0000365") && !payload.hospitalCorrection)
+    throw new Error("The audited hospital roof correction is required with its source owner");
+  if (payload.sourceParents.includes("DEBE01YYK0000Eik") && !payload.springerCorrection)
+    throw new Error("The current Springer building is required with its predecessor owner");
   const chunks = native ? payload.minecraftChunks : payload.drawnChunks;
   if (!Array.isArray(chunks)) throw new Error("Invalid Alt-Mitte core chunks");
   const root = new Group();
@@ -57,6 +64,26 @@ export function* buildAltMitteCoreV169Steps(
       root.add(decoded.root);
       geometryBytes += decoded.geometryBytes;
       bufferCount += decoded.bufferCount;
+      yield;
+    }
+    if (payload.hospitalCorrection) {
+      const id = "hospital-roof-v215";
+      const correction = yield* buildSurroundingCityChunk(payload.hospitalCorrection, id, native);
+      correction.root.name = "Bundeswehrkrankenhaus modern flat roof and technical storey v215";
+      correction.root.userData.sourceEnvelopeResident = true;
+      correction.root.userData.hospitalRoofV215 = true;
+      root.add(correction.root); ids.add(id);
+      geometryBytes += correction.geometryBytes; bufferCount += correction.bufferCount;
+      yield;
+    }
+    if (payload.springerCorrection) {
+      const id = "springer-current-v215";
+      const correction = yield* buildSurroundingCityChunk(payload.springerCorrection, id, native);
+      correction.root.name = "Zentrales Springergebäude current OSM envelope v215";
+      correction.root.userData.sourceEnvelopeResident = true;
+      correction.root.userData.springerV215 = true;
+      root.add(correction.root); ids.add(id);
+      geometryBytes += correction.geometryBytes; bufferCount += correction.bufferCount;
       yield;
     }
     root.userData = {

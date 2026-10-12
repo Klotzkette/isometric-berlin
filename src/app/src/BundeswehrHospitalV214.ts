@@ -3,6 +3,7 @@ import {
   InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
   MeshStandardMaterial,
 } from "three";
+import { correctedHospitalFittingsV215 } from "./bundeswehrHospitalV215Profile";
 import data from "./data/bundeswehrHospitalV214.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
@@ -28,7 +29,7 @@ export function createBundeswehrHospitalV214(native = false): Group {
     nativeMinecraft: native, blockNative: native, keepInMinecraft: native,
     sourceReceipt: "bundeswehr-hospital-v214-source.json", newScopeArea: 0,
     sourceBodiesSuppressed: 0, helipadWay: "51804908" };
-  const rows = native ? data.blocks : data.boxes;
+  const rows = correctedHospitalFittingsV215(native ? data.blocks : data.boxes, native);
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const normals = geometry.getAttribute("normal"), shades = new Float32Array(normals.count * 3);
   for (let i = 0; i < normals.count; i++) {
