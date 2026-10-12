@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.116 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.116/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.117 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.117/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.116** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.117** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.117 adds a photo-informed Cattelan NIGHT exhibition inside the walkable Neue Nationalgalerie, with pink exterior lettering and compact sculptural recognitions. Existing ordinary facade colours and glazing receive a restrained citywide presentation pass. [Scope and validation](docs/cattelan-v217.md).
+
+Version 1.0.117 ergänzt die begehbare Neue Nationalgalerie um eine nach den bereitgestellten Fotos angedeutete Cattelan-Ausstellung mit rosa Außenschriftzug und den wichtigsten Skulpturen. Vorhandene gewöhnliche Fassaden und Fenster erhalten klarere Farb- und Glastöne.
 
 Version 1.0.116 refines the LEGOLAND entrance at Sony Center with a glazed pavilion, door frames, signs and the current six-metre yellow, multicoloured brick giraffe at its outdoor approach. [Sources and validation](docs/legoland-v216.md).
 

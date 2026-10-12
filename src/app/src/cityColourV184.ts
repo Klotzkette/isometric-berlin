@@ -2,11 +2,12 @@ import { Color } from "three";
 
 // Restrained plaster/stone display families, not surveyed facade colours.
 // Explicit material/colour sources and individually authored buildings win.
-// v211 keeps all eight IDs in the same family while separating warm plaster,
-// cool stone and muted mineral pigments a little more clearly at street scale.
+// v217 keeps all eight existing family assignments. A little less white in
+// these illustration swatches makes ordinary streets legible alongside the
+// individually researched buildings; it is not new per-house colour evidence.
 export const GENERIC_FACADE_SWATCHES = [
-  0xe2ceb0, 0xd4bba0, 0xe9dfc8, 0xbcc8b6,
-  0xd8b7aa, 0xb7cccf, 0xd6c18f, 0xd1cfc3,
+  0xddc29e, 0xcba989, 0xe9dcc0, 0xafc0a7,
+  0xd4a596, 0xa8c4cb, 0xd2b679, 0xc6c6b8,
 ] as const;
 const tones = GENERIC_FACADE_SWATCHES.map(value => new Color(value));
 

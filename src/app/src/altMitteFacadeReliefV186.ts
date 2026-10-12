@@ -12,7 +12,10 @@ const linear = (rgb: Rgb, shade = 1): Rgb => rgb.map(value => {
 }) as [number, number, number];
 const definitions: { source: Rgb; width: number; height: number; top: Rgb; bottom: Rgb }[] = [
   { source: [221,216,200], width: 152, height: 203, top: [233,227,209], bottom: [176,175,161] },
-  { source: [82,108,115], width: 125, height: 179, top: [66,91,101], bottom: [113,138,144] },
+  // v217: upper glass catches the cool sky, lower glass stays muted. This
+  // light wash changes only the exact existing estimated pane recipe, not
+  // surveyed openings, authored glazing, frames, sills or their source colours.
+  { source: [82,108,115], width: 125, height: 179, top: [147,174,183], bottom: [100,124,127] },
   { source: [91,92,87], width: 7.5, height: 178, top: [140,146,137], bottom: [106,117,110] },
   { source: [221,216,200], width: 163, height: 11, top: [234,226,205], bottom: [148,153,141] },
 ];

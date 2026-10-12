@@ -41,6 +41,12 @@ test("only existing Alt-Mitte window recipes gain relief; geometry and source pa
     }
     expect((drawn.root.children[0] as Mesh).geometry.index!.array).toEqual((native.root.children[0] as Mesh).geometry.index!.array);
     expect(Array.from(changed.slice(3,6))).not.toEqual(Array.from(changed.slice(15,18)));
+    // The retained ordinary pane has a sky-lit upper edge, rather than a
+    // dark hole. Its four vertices, source role and directional shade persist.
+    const paneLow = Array.from(changed.slice(4 * 6 + 3, 4 * 6 + 6));
+    const paneHigh = Array.from(changed.slice(6 * 6 + 3, 6 * 6 + 6));
+    for (let channel = 0; channel < 3; channel++) expect(paneHigh[channel]).toBeGreaterThan(paneLow[channel]);
+    expect(paneHigh[2]).toBeGreaterThan(paneHigh[0]);
     expect(JSON.stringify(chunk)).toBe(original);
     chunk.meshes[0].kind="authored-model";
     const protectedModel=createSurroundingCityChunk(chunk,"2_-1");

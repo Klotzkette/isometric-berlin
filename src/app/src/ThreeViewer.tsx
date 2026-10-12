@@ -20,6 +20,7 @@ import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile";
 import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
 import { jamesSimonTerraceVoidAt, jamesSimonExtraSolidAt, jamesSimonWalkSurfaceAt } from "./jamesSimonProfile";
+import { configureNeueNationalgalerieObstaclesV217, neueNationalgalerieWalkableAtV217, neueNationalgalerieGroundAtV217, neueNationalgalerieSolidAtV217 } from "./neueNationalgalerieWalkV217";
 import { schillerMonumentSolidAt } from "./schillerMonumentProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
@@ -3631,6 +3632,7 @@ function prepareIsoNavigation(
     surroundingPedestrianExtension(runtime),
   );
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
+  configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
   pedestrianEnvironment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
   pedestrianEnvironment.parkTreeSolidAt =
@@ -3647,6 +3649,7 @@ function prepareIsoNavigation(
     memorialProtection,
   );
   pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+    if (neueNationalgalerieWalkableAtV217(x, y, z, sourceId)) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
       return true;
     }
@@ -3668,6 +3671,7 @@ function prepareIsoNavigation(
       return false;
     }
     if (
+      neueNationalgalerieSolidAtV217(x, y, z, radius) ||
       zooStationV165SolidAt(x, y, z, radius) ||
       grosserSternGatehouseSolidAt(x, y, z, radius) ||
       fernsehturmPavilionSolidAt(x, z, y, radius) ||
@@ -3715,6 +3719,8 @@ function prepareIsoNavigation(
     );
   };
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const neueFloor = neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0);
+    if (neueFloor !== null) return neueFloor;
     const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
     if (zooFloor !== null) return zooFloor;
     const pavilionFloor = fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2);
@@ -4514,6 +4520,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
+  configureNeueNationalgalerieObstaclesV217(environment.obstacles);
   environment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       payload.cell_m,
@@ -4521,6 +4528,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       () => voxelModeActive(runtime),
     );
   environment.walkableInteriorAt = (x, y, z, sourceId) =>
+    neueNationalgalerieWalkableAtV217(x, y, z, sourceId) ||
     runtime.tunnelInteriorAt?.(x, y, z) === true ||
     bendlerblockV202PassageAt(x,y,z,sourceId) || pergamonPanoramaV202PassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
     musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
@@ -4531,6 +4539,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       return false;
     }
     return (
+      neueNationalgalerieSolidAtV217(x, y, z, radius) ||
       zooStationV165SolidAt(x, y, z, radius) ||
       grosserSternGatehouseSolidAt(x, y, z, radius) ||
       fernsehturmPavilionSolidAt(x, z, y, radius) ||
@@ -4563,6 +4572,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   };
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0) ??
     zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
     fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
     alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??

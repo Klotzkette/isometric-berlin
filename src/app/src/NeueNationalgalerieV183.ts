@@ -3,17 +3,18 @@ import { GendarmenmarktFacadeBuilder as Builder } from "./GendarmenmarktFacadeBu
 import { NATIONALGALERIE_V183 as P } from "./neueNationalgalerieV183Profile";
 import source from "./data/neueNationalgalerieV183Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createCattelanExhibitionV217 } from "./CattelanExhibitionV217";
 
 /** Source-centred open hall. Native slabs are scanline runs, never hidden fill. */
 export function createNeueNationalgalerieV183(native = false) {
   const b = new Builder(native), c = Math.cos(P.yaw), s = Math.sin(P.yaw);
   const point = (x: number, y: number, z: number): [number, number, number] =>
     [P.center[0] + c * x + s * z, y, P.center[1] - s * x + c * z];
-  const box = (x: number, y: number, z: number, w: number, h: number, d: number, color: number, glass = false) => {
+  const box = (x: number, y: number, z: number, w: number, h: number, d: number, color: number, glass = false, nativePitch = .9) => {
     if (!native) { b.box(point(x, y, z), [w, h, d], color, P.yaw, glass ? "glass" : "stone"); return; }
     const corners = [[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]].map(([a,e])=>point(x+a,y,z+e));
     const lo = Math.min(...corners.map(p=>p[2])), hi = Math.max(...corners.map(p=>p[2]));
-    const rows = Math.max(1, Math.ceil((hi-lo)/.9)), depth = (hi-lo)/rows;
+    const rows = Math.max(1, Math.ceil((hi-lo)/nativePitch)), depth = (hi-lo)/rows;
     for(let row=0;row<rows;row++) {
       const rz=lo+(row+.5)*depth, xs:number[]=[];
       for(let j=0;j<4;j++){const a=corners[j],e=corners[(j+1)%4];
@@ -42,22 +43,35 @@ export function createNeueNationalgalerieV183(native = false) {
     box(x,top-.07,z,.55,.14,.55,0x080c0d);
   }
   for(const side of [-1,1]){
-    box(0,P.floorY+P.columnHeight/2,side*25.2,50.4,P.columnHeight-.22,.10,0x92b7bd,true);
-    box(side*25.2,P.floorY+P.columnHeight/2,0,.10,P.columnHeight-.22,50.4,0x92b7bd,true);
+    // Actual openings below 3 m: keep the glazed lintels and every upper pane.
+    for(const x of [-13.95,13.95])box(x,P.floorY+1.5,side*25.2,22.5,3,.10,0x92b7bd,true);
+    box(0,P.floorY+(P.columnHeight+3)/2,side*25.2,50.4,P.columnHeight-3-.22,.10,0x92b7bd,true);
+    if(side===-1)box(side*25.2,P.floorY+P.columnHeight/2,0,.10,P.columnHeight-.22,50.4,0x92b7bd,true);
+    else {
+      for(const [z,d] of [[-17.1,16.2],[0,10.8],[17.1,16.2]])box(25.2,P.floorY+1.5,z,.10,3,d,0x92b7bd,true);
+      box(25.2,P.floorY+(P.columnHeight+3)/2,0,.10,P.columnHeight-3-.22,50.4,0x92b7bd,true);
+      for(const z of [-9,-5.4,5.4,9])box(25.26,P.floorY+1.5,z,.15,3,.12,0x182021);
+      for(const z of [-7.2,7.2])box(25.26,P.floorY+3,z,.2,.12,3.6,0x182021);
+    }
     for(let u=-25.2;u<=25.2001;u+=P.grid){
-      box(u,P.floorY+P.columnHeight/2,side*25.26,.11,P.columnHeight,.18,0x182021);
-      box(side*25.26,P.floorY+P.columnHeight/2,u,.18,P.columnHeight,.11,0x182021);
+      const zDoor=Math.abs(u)<2.7, xDoor=side===1&&(Math.abs(u-7.2)<1.8||Math.abs(u+7.2)<1.8);
+      box(u,P.floorY+(P.columnHeight+(zDoor?3:0))/2,side*25.26,.11,P.columnHeight-(zDoor?3:0),.18,0x182021);
+      box(side*25.26,P.floorY+(P.columnHeight+(xDoor?3:0))/2,u,.18,P.columnHeight-(xDoor?3:0),.11,0x182021);
     }
     for(const y of [P.floorY+.05,top-.15]){
-      box(0,y,side*25.26,50.5,.12,.2,0x182021);box(side*25.26,y,0,.2,.12,50.5,0x182021);
+      if(y<P.floorY+1){
+        for(const x of [-13.95,13.95])box(x,y,side*25.26,22.5,.12,.2,0x182021);
+        if(side===1)for(const [z,d] of [[-17.1,16.2],[0,10.8],[17.1,16.2]])box(25.26,y,z,.2,.12,d,0x182021);
+        else box(side*25.26,y,0,.2,.12,50.5,0x182021);
+      }else {box(0,y,side*25.26,50.5,.12,.2,0x182021);box(side*25.26,y,0,.2,.12,50.5,0x182021);}
     }
   }
   // Door leaves, rails and handles remain legible through the glazing.
-  for(const side of [-1,1])for(const u of [-1.8,0,1.8]) {
+  for(const side of [-1,1])for(const u of [-2.7,2.7]) {
     box(u,P.floorY+1.5,side*25.4,.10,3,.12,0x182021);
-    box(u+.6,P.floorY+1.2,side*25.48,.08,.65,.10,0x565f5e);
+    box(u+Math.sign(u)*.06,P.floorY+1.2,side*25.48,.08,.65,.10,0x565f5e);
   }
-  for(let i=0;i<22;i++)box(0,5.305+i*.21,61.26-i*.33,30,.21,.66,0xb8b4aa);
+  for(let i=0;i<22;i++)box(0,5.305+i*.21,61.26-i*.33,30,.21,.66,0xb8b4aa,false,.12);
   const root=b.finish(native?"Nationalgalerie native open pavilion v183":"Nationalgalerie open steel and glass pavilion v183");
   if(!native){
     const outline=new Shape();ring.forEach(([x,z],i)=>i?outline.lineTo(x,-z):outline.moveTo(x,-z));outline.closePath();
@@ -70,5 +84,6 @@ export function createNeueNationalgalerieV183(native = false) {
     mesh.renderOrder=2;
   });
   root.userData={...root.userData,columnCount:8,roofWidthM:P.roofWidth,sourceIds:source.parts.map(p=>p.id),transparentHall:true,estimatedVerticalSubdivisions:true};
+  root.add(createCattelanExhibitionV217(native));
   return freezeStaticSceneTransforms(root);
 }

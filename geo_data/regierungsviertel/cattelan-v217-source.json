@@ -1,0 +1,134 @@
+{
+  "exhibition": "Maurizio Cattelan. NIGHT",
+  "dates": [
+    "2026-09-10",
+    "2027-03-07"
+  ],
+  "officialReference": "https://www.smb.museum/en/museums-institutions/neue-nationalgalerie/exhibitions/detail/maurizio-cattelan-night/",
+  "readAt": "2026-10-13",
+  "artworksCredit": "Maurizio Cattelan",
+  "geometryStatus": "Original simplified photo-informed vectors; room layout, proportions and fine details are display estimates, not survey or scan",
+  "buildingAnchor": "retained neueNationalgalerieV183Source.json, Geoportal Berlin dl-de/zero-2-0",
+  "referenceFiles": [
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "1-Photo-1.jpg",
+      "sha256": "1c5fda2803a6068e1dac704b76c0f1eb298138c0043bdd0e635e19b547d5b344",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "10-Photo-10.jpg",
+      "sha256": "9a3fdffb2fe471412505ae7bdf77a17217d633bbd0f334accdd4b127a81e8a5a",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "2-Photo-2.jpg",
+      "sha256": "ce6d296921d2f563d942e39b7d0b78c7e05eba7737faeaabd6ebbef3fe84cdd3",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "3-Photo-3.jpg",
+      "sha256": "c659be03293247a9d29b1df8881cc7898b539b15c7775844af60354f4a3aea63",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "4-Photo-4.jpg",
+      "sha256": "459442ee0ca2d3e589adce03e4346e0e59d82f4780f376ec25c8140b05a1e1c5",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "5-Photo-5.jpg",
+      "sha256": "c4ecb6ef71bc38f5b0c1a4f2c05cb64c28bda8e19a4aa6490dcfae022eae8bb9",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "6-Photo-6.jpg",
+      "sha256": "1a82217dc472a3fe26943f9195c55e37855060d675c43a37bf8e7a4a663e3809",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "7-Photo-7.jpg",
+      "sha256": "8382185a376585a70f6fc8db1ad78aa811c4a5551e0e55fee78450aefc704481",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "8-Photo-8.jpg",
+      "sha256": "5fbec5e006438c0936b449c2edaef35aa43f3fc7adc3f6392aa807ff9eba7159",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "DEA4C0D0-7D8E-4D40-B5E2-B271FEA0D4FA",
+      "name": "9-Photo-9.jpg",
+      "sha256": "eaaefcf7ee0fc52acbcd5a2721b7be8b9447635266dfece096f3f6f1503cd856",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "1-Photo-1.jpg",
+      "sha256": "154c93eeedd24b97d0da131ac9490fdc04127867ab39abb031cf5fad2a092a39",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "10-Photo-10.jpg",
+      "sha256": "2ed17d21058a4cc031e66487d94edf9cd609c98f0059e2096abd5cf198045be2",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "2-Photo-2.jpg",
+      "sha256": "5d96080d0b01c122177180343a9597fd80550f694101b34a584ee6efe8355e73",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "3-Photo-3.jpg",
+      "sha256": "3d95e5d687b564214fe705d2256d60f4d8dcabcfe2794adf82d6e68b57c2a445",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "4-Photo-4.jpg",
+      "sha256": "04e3e4680a0beb63f297dd210e43028846aa08e5e92dc080fc8275d13b985feb",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "5-IMG_3079.mov",
+      "sha256": "7d86241bcd21f99e3d62612f0cdeed7f7b7298f09c6534f90d28cb23d8e0ac19",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "6-Photo-6.jpg",
+      "sha256": "eb820b44209f8e558b927bf9cfe0a653a5d97fe8b8bfab669c717811803b0122",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "7-Photo-7.jpg",
+      "sha256": "2f0dc9620eadade9a420d9e4f23007e15c15e57b0fe6900374862af31eec726b",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "8-Photo-8.jpg",
+      "sha256": "4490f6ebfd443a785d0b0998a87601320bfb7faefd817476c573ac8e8a91cc85",
+      "bundled": false
+    },
+    {
+      "attachmentBatch": "1D5A76BD-22C7-48A0-B8C1-E246C8B2BEBE",
+      "name": "9-Photo-9.jpg",
+      "sha256": "bb0c2af426fd06016c1973ebc325ca818de2db3d234a592a9c3ae56d4494d56c",
+      "bundled": false
+    }
+  ]
+}

@@ -188,6 +188,15 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.117 request permits a bounded owner-photo interpretation of the
+Cattelan NIGHT exhibition outside and inside Neue Nationalgalerie. Keep the
+measured pavilion/terrace, fit photo-derived furniture and art as labelled display
+estimates, retain equal drawn mobile detail, separate native models and bounded
+texture-free batches. Exact owner navigation may be corrected to permit the
+represented stairs, floor and door openings. A restrained citywide ordinary
+material/glazing pass preserves all source colours, geometry and authored details.
+No new coverage, residency budget or tour stops. See `docs/cattelan-v217.md`.
+
 The owner's v1.0.116 request permits a bounded LEGOLAND entry and yellow LEGO
 sculpture refinement at Sony Center. Correct the old indoor-POI placement using
 DOP/photo alignment, retaining that OSM identity and every measured building.
