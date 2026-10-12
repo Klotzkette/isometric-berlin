@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.115 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.115/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.116 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.116/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.115** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.116** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.116 refines the LEGOLAND entrance at Sony Center with a glazed pavilion, door frames, signs and the current six-metre yellow, multicoloured brick giraffe at its outdoor approach. [Sources and validation](docs/legoland-v216.md).
+
+Version 1.0.116 ergänzt den LEGOLAND-Eingang am Sony Center mit Glaspavillon, Türen, Schildern und der heutigen sechs Meter hohen gelben LEGO-Giraffe mit bunten Flecken am tatsächlichen Außenzugang.
 
 Version 1.0.115 corrects the modern Bundeswehrkrankenhaus ward roof using official aerial and height evidence, refines the three immediate residential neighbours at the Günter Litfin memorial and models the current Springergebäude by Golda-Meir-Steg. The hospital helipad, helicopter and unrelated surrounding details stay intact. [Scope and evidence](docs/refinements-v215.md).
 

@@ -8105,6 +8105,28 @@
       "credit": "Dosseman / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "legoland_v216",
+      "title": "File:Lego Giraffe (Mai 2022) Legoland Discovery Centre Berlin 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALego_Giraffe_%28Mai_2022%29_Legoland_Discovery_Centre_Berlin_01.jpg",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer / CC0 1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "legoland_v216",
+      "title": "File:Lego Giraffe (Mai 2022) Legoland Discovery Centre Berlin 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALego_Giraffe_%28Mai_2022%29_Legoland_Discovery_Centre_Berlin_02.jpg",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Singlespeedfahrer",
+      "credit": "Singlespeedfahrer / CC0 1.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

@@ -247,6 +247,7 @@ import {
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
 import { createMinecraftBrechtMemorial } from "./BerlinerEnsembleMemorials";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
+import { createLegolandEntranceV216 } from "./LegolandEntranceV216";
 import { createMinecraftSonyCenterSurroundings } from "./SonyCenterSurroundings";
 import { createMinecraftSpreeMuseumDetails } from "./MinecraftSpreeMuseumDetails";
 import { createMinecraftUnterDenLindenDetails } from "./MinecraftUnterDenLindenDetails";
@@ -2968,6 +2969,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftSonyCenterSurroundings());
+  group.add(createLegolandEntranceV216(true));
   group.add(createMinecraftWilhelmStresemannDetails());
   yield;
   group.add(createAlterDessauerMonument(true));

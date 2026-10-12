@@ -1,0 +1,61 @@
+{
+  "baseline": "v1.0.115 / 85e07023",
+  "scope": "LEGOLAND Sony Center street approach only",
+  "retainedAttractionPoi": {
+    "osm": "node/429567552",
+    "world": [
+      17.884,
+      4.12,
+      1023.63
+    ],
+    "interpretation": "underground attraction identity, not outdoor sculpture placement"
+  },
+  "alignment": {
+    "crs": "EPSG:25833",
+    "worldOrigin": [
+      389500,
+      5820000
+    ],
+    "dopUrl": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+    "layer": "dop_2025",
+    "bbox": [
+      389530,
+      5818930,
+      389600,
+      5818995
+    ],
+    "license": "dl-de/zero-2-0",
+    "giraffeWorld": [
+      61.3,
+      5.18,
+      1053.3
+    ],
+    "pavilionWorld": [
+      65,
+      5.18,
+      1039.8
+    ],
+    "status": "DOP/photo alignment estimates, not surveyed corners or elevations",
+    "terrain": "Retained 16 m field samples: giraffe 4.908m, pavilion 4.958m; Existing broad grass runs reach 5.1m here. Apron top5.16m clears them by6cm; feet/pavilion sit5.18m."
+  },
+  "retainedPrismIds": [
+    "buyDLWGH",
+    "ORetJTt6",
+    "uFYFanhj"
+  ],
+  "sourcePacketSha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+  "references": [
+    "https://www.legolanddiscoverycentre.com/berlin/plane-deinen-besuch/vor-deinem-besuch/anfahrt/",
+    "https://www.legolanddiscoverycentre.com/berlin/plane-deinen-besuch/informationen/fragen-und-antworten/",
+    "https://commons.wikimedia.org/wiki/File:Lego_Giraffe_(Mai_2022)_Legoland_Discovery_Centre_Berlin_01.jpg",
+    "https://commons.wikimedia.org/wiki/File:Lego_Giraffe_(Mai_2022)_Legoland_Discovery_Centre_Berlin_02.jpg",
+    "https://www.kinokompendium.de/legoland_kino_berlin.htm"
+  ],
+  "notes": [
+    "2012 brown-spotted giraffe replaced in 2022; current model uses yellow/rainbow silhouette.",
+    "Shop lift left of Lindenbraeu in Forum is distinct from requested main entry.",
+    "Only authored obsolete CulturalLandmarks giraffe replaced. Every measured source owner retained.",
+    "Door dimensions, internal arrangement, materials and individual brick/spot positions are recognition estimates. Photographs and DOP not bundled.",
+    "Bounded concave sett apron follows DOP/photos and mapped sett footway 779525528; original ground and source path retained. Apron boundary is estimated; no surrounding plaza rebuild."
+  ]
+}

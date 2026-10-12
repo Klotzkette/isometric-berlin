@@ -17,6 +17,8 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **LEGOLAND entrance (v1.0.116):** OpenStreetMap attraction identity (ODbL-1.0), retained Berlin LoD2 and DOP 2025 (dl-de/zero-2-0), operator directions and the credited July 2022 Commons photographs by Singlespeedfahrer (CC0 1.0) guide the procedural entry and current giraffe. No imagery is bundled. LEGO/LEGOLAND names identify the depicted place; this independent model is not endorsed by the operator. See [source and estimate record](docs/legoland-v216.md).
+
 - **Hospital and Kieler Eck correction (v1.0.115):** Retained Berlin LoD2, official DOP/bDOM and mapped OpenStreetMap identities anchor the bounded roof and facade corrections. Original source records remain retained; obsolete roof interpretations are replaced only at explicitly identified owners. Public architectural references guide estimated facade details. See [scope and source records](docs/refinements-v215.md).
 
 - **Hospital and neighbourhood refinements (v1.0.114):** Retained Berlin LoD2
