@@ -6653,6 +6653,50 @@
       "credit": "Singlespeedfahrer / CC0 1.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "kalkscheune_v218",
+      "title": "File:Berlin, Mitte, Kalkscheunenstrasse 4-5, Clubhouse Hostel Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Kalkscheunenstrasse_4-5,_Clubhouse_Hostel_Berlin.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2010-04-12 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kalkscheune_v218",
+      "title": "File:Berlin Kalkscheune.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Kalkscheune.jpg",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "artist": "Ansgar Koreng",
+      "credit": "Ansgar Koreng, 2014-10-03 / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "reinhardt19_v218",
+      "title": "File:Berlin, Mitte, Reinhardtstrasse 19, Mietshaus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Reinhardtstrasse_19,_Mietshaus.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2010-04-25 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ensemble_neighbours_v218",
+      "title": "File:20230630 xl 0818-Koepjohannsche Stiftung, Wohn-und Geschäftshaus Schiffbauerdamm 8, Albrechtstraße 13-14.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20230630_xl_0818-Koepjohannsche_Stiftung,_Wohn-und_Geschäftshaus_Schiffbauerdamm_8,_Albrechtstraße_13-14.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Molgreen",
+      "credit": "Molgreen, 2023-06-30 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
