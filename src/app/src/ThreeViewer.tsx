@@ -3299,6 +3299,9 @@ function attachProgressiveWorldMessage(
 ): void {
   if (message.type === "settled") {
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
+    // This receipt follows every surface ACK. Keep that ownership fact with
+    // this drawn world so a resumed worker need not reload its finished terrain.
+    if (runtime.progressiveWorldInput) runtime.progressiveWorldInput.surfacesComplete = true;
     runtime.progressiveWorldState = "complete";
     releaseBuiltWorldPayloads(runtime);
     invalidateScenePresentation(runtime);
@@ -4743,6 +4746,17 @@ function ensureVoxelWorld(
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
+      // Finish source-bound matrix corrections, then retire the complete
+      // immutable backing before navigation and companion fields allocate.
+      await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
+        yieldTask: yieldStartupWork,
+        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+      });
+      provisionalVoxelWorld.add(createRosengartenMinecraft());
+      await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
+        yieldTask: yieldStartupWork,
+        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+      });
       pedestrianSnapshot = capturePedestrianAttachment(runtime);
       provisionalMinecraftMobs = createMinecraftMobs(
         payload,
@@ -4775,15 +4789,6 @@ function ensureVoxelWorld(
           payload, runtime.coarsePointer ? "mobile" : "full",
         );
       }
-      await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
-        yieldTask: yieldStartupWork,
-        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
-      });
-      provisionalVoxelWorld.add(createRosengartenMinecraft());
-      await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
-        yieldTask: yieldStartupWork,
-        isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
-      });
       runtime.voxelWorld = provisionalVoxelWorld;
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;

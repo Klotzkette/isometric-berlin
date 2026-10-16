@@ -250,10 +250,12 @@ describe("production preview replacement lifecycle", () => {
       const revision = host.runtime.mobileBuildingViewRevision!;
       host.attach({ type: "settled", viewRevision: revision - 1 });
       expect(host.runtime.progressiveWorldState).toBe("loading");
+      expect(host.runtime.progressiveWorldInput?.surfacesComplete).not.toBeTrue();
       host.attach({ type: "settled", viewRevision: revision });
       expect(host.runtime.progressiveWorldState).toBe("complete");
       expect(host.terminated).toBe(0);
       expect(host.runtime.progressiveWorldInput).toBeDefined();
+      expect(host.runtime.progressiveWorldInput?.surfacesComplete).toBeTrue();
       host.view(0, 8000, 3000);
       host.attach(packet(partition.remaining[0], 0));
       expect(coverage.children[1].visible).toBeFalse();

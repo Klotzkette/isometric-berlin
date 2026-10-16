@@ -188,6 +188,13 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.124 request remains in Step 10: reduce running memory pressure
+without lowering visual quality. Retire exclusive decoded geometry only after
+successful synchronous GPU upload; reuse surfaces only after their acknowledged
+settled receipt for the same retained world. Finish native site corrections and
+lossless matrix parking before navigation allocates. Preserve geometry, source data,
+resolution, draw distance and residency budgets. See `docs/live-memory-v224.md`.
+
 The owner's v1.0.123 correction remains in Step 10: ordinary entry floats above
 Neue Nationalgalerie at its existing catalogue flight framing; walking is opt-in.
 Keep the minimap and navigation HUD unmounted until the real scene is ready.

@@ -45,6 +45,8 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
   let maxPendingTransfers = 0;
   const maxPendingByKind = { buildings: 0, surfaces: 0 };
   let sourceFetches = 0;
+  const fetchedSources: string[] = [];
+  let roadLoads = 0;
   const waiters = new Set<() => void>();
   const prisms: PrismPayload = {
     schema_version: 1, classes: ["building"],
@@ -103,6 +105,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
       return new Group();
     },
     createRestoredRoadSurfaceBatches: async function* (ground: VoxelPayload, completed: ReadonlySet<string>) {
+      roadLoads++;
       roadGround = ground;
       for (const id of roadIds) {
         if (completed.has(id)) continue;
@@ -111,6 +114,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
       }
     },
     fetch: async (url: string) => {
+      fetchedSources.push(url);
       if (url === "prisms") sourceFetches += 1;
       return {
         ok: true,
@@ -155,10 +159,10 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
       waiters.add(wake);
     });
   }
-  async function start(completedBatchIds: string[] = []): Promise<void> {
+  async function start(completedBatchIds: string[] = [], surfacesComplete = false): Promise<void> {
     const common = {
       type: "build" as const, initialBuildingCount: 1, prismUrl: "prisms",
-      groundUrl: "ground", surfacesUrl: "surfaces", completedBatchIds,
+      groundUrl: "ground", surfacesUrl: "surfaces", completedBatchIds, surfacesComplete,
     };
     await build(profile === "mobile" ? { ...common, detailProfile: profile } : {
       ...common, detailProfile: profile, tunnel: null,
@@ -171,7 +175,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
   const batches = () => messages.filter(message => message.type === "batch");
   const buildingBatches = () => batches().filter(message => message.kind === "buildings");
   return {
-    messages, buildingSources, surfaceSources, surfaceTerrain, surfaces, roadIds, roadBuilds, attachedBatchPromises, attachedBatchResolvers,
+    messages, buildingSources, surfaceSources, surfaceTerrain, surfaces, roadIds, roadBuilds, fetchedSources, attachedBatchPromises, attachedBatchResolvers,
     districts, defaultWanted, start, view, batches, buildingBatches, waitFor, maxPendingByKind,
     ack: (id: string) => workerScope.onmessage!({ data: { type: "batch-attached", id } }),
     holdBuildingAcknowledgements: () => { autoAckBuildings = false; },
@@ -180,6 +184,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
     get buildingBuilds() { return buildingSources.length; },
     get surfaceBuilds() { return surfaceSources.length; },
     get sourceFetches() { return sourceFetches; },
+    get roadLoads() { return roadLoads; },
     get maxPendingTransfers() { return maxPendingTransfers; },
     get parsedGround() { return parsedGround; },
     get roadGround() { return roadGround; },
@@ -196,6 +201,28 @@ async function runWorker(profile: "full" | "mobile", retained: string[] = []) {
 
 describe("complete source detail and resumable worker surfaces", () => {
   for (const profile of ["mobile", "full"] as const) {
+    test(`${profile}: resuming a settled surface world decodes only missing buildings`, async () => {
+      const initial = await runWorker(profile);
+      const retainedSurfaces = initial.batches().filter(batch => batch.kind === "surfaces").map(batch => batch.id);
+      const resumed = workerHost(profile);
+      resumed.holdBuildingAcknowledgements();
+      const started = resumed.start(retainedSurfaces, true);
+      await resumed.waitFor(() => resumed.buildingBatches().length === 1);
+      expect(resumed.fetchedSources).toEqual(["prisms"]);
+      expect(resumed.surfaceBuilds).toBe(0);
+      expect(resumed.roadLoads).toBe(0);
+      expect(resumed.messages.some(message => message.type === "settled")).toBeFalse();
+      resumed.resumeBuildingAcknowledgements();
+      resumed.ack(resumed.buildingBatches()[0].id);
+      await started;
+      expect(resumed.buildingSources).toEqual(initial.buildingSources);
+      expect(resumed.batches().map(batch => batch.id)).toEqual(initial.buildingBatches().map(batch => batch.id));
+      expect(resumed.fetchedSources).toEqual(["prisms"]);
+      expect(resumed.surfaceBuilds).toBe(0);
+      expect(resumed.roadLoads).toBe(0);
+      expect(resumed.messages.at(-1)).toMatchObject({ type: "settled", viewRevision: 0 });
+    });
+
     for (const resumed of [false, true]) test(`${profile}: ${resumed ? "resumed" : "initial"} surfaces release unused raster rows before parsing or waiting for attachment`, async () => {
       const ground: VoxelPayload = {
         schema_version: 2, cell_m: 4, classes: ["lawn"], water_top_y_m: 0.75,

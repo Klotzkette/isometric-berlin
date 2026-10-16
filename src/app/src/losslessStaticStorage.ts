@@ -65,6 +65,21 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
   ArrayType: { new(buffer: ArrayBuffer): Values }, byteLength: number, ownsBuffer: boolean): void {
   storageInfo.set(storage, staticStorageInfo(storage));
   let retirement: ReturnType<typeof setTimeout> | undefined;
+  const retire = (): void => {
+    if (retirement !== undefined) clearTimeout(retirement);
+    retirement = undefined;
+    const decoded = weak.deref();
+    if (decoded) releaseScratchBuffer(decoded.buffer as ArrayBuffer);
+  };
+  const originalUpload = storage.onUploadCallback;
+  const uploaded = (): void => {
+    originalUpload.call(storage);
+    // Three has synchronously copied this exclusive backing to WebGL. Retire
+    // it before another upload restores its backing in the same render job.
+    // CPU-only readers retain the ordinary end-of-job retirement below.
+    retire();
+  };
+  if (ownsBuffer) storage.onUploadCallback = uploaded;
   const read = (): Values => {
     let values = weak.deref();
     if (!values || values.byteLength !== byteLength) {
@@ -75,17 +90,12 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
       values = new ArrayType(raw.buffer);
       weak = new WeakRef(values);
     }
-    if (ownsBuffer && retirement === undefined) retirement = setTimeout(() => {
-      retirement = undefined;
-      // Only explicit exclusive owners opt in. All synchronous readers/upload
-      // calls have returned; future reads rehydrate from the unchanged bytes.
-      const decoded = weak.deref();
-      if (decoded) releaseScratchBuffer(decoded.buffer as ArrayBuffer);
-    }, 0);
+    if (ownsBuffer && retirement === undefined) retirement = setTimeout(retire, 0);
     return values;
   };
   const writable = (values: Values): void => {
     if (retirement !== undefined) clearTimeout(retirement);
+    if (storage.onUploadCallback === uploaded) storage.onUploadCallback = originalUpload;
     storageInfo.delete(storage);
     Object.defineProperty(storage, "array", { value: values, writable: true, configurable: true, enumerable: true });
     delete (storage as unknown as { needsUpdate?: boolean }).needsUpdate;

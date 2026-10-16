@@ -111,6 +111,8 @@ const DESKTOP_PLACE_DETAIL_ZONES = PLAZA_FACADE_DETAIL_ZONES.filter((zone) =>
 type ProgressiveWorldWorkerInputBase = {
   /** Attached scene batches survive suspension and must not be rebuilt. */
   completedBatchIds?: readonly string[];
+  /** A settled receipt confirms all surfaces are attached to this retained world. */
+  surfacesComplete?: boolean;
   initialBuildingCount: number;
   groundUrl: string;
   surfacesUrl: string;

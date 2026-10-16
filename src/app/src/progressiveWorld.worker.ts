@@ -277,7 +277,9 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     view.retainedBatchIds, view.viewRevision,
   );
   try {
-    await buildSurfaceFamilies(input, completedBatchIds);
+    // Retained surface geometry never expires with camera-selected buildings.
+    // A settled world needs no repeated JSON/road decoding after suspension.
+    if (!input.surfacesComplete) await buildSurfaceFamilies(input, completedBatchIds);
     surfacesReady = true;
     publishSettled();
   } catch (error) {
