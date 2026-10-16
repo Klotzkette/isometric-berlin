@@ -1,5 +1,6 @@
 import { Frustum, InstancedMesh, Matrix4, Quaternion, Vector3, type Camera, type Object3D, type WebGLRenderer } from "three";
 import { registerInkRenderObserver } from "./inkDrawVisibility";
+import { staticStorageInfo } from "./losslessStaticStorage";
 
 export const MOBILE_INSTANCE_GPU_BUDGET_BYTES = 48 * 1024 * 1024;
 export const MOBILE_INSTANCE_GPU_BUDGET_BUFFERS = 2_500;
@@ -103,7 +104,7 @@ export function createSceneGpuResidency(
       const entry: Entry = {
         mesh: object, original: object.onAfterRender, wrapped: object.onAfterRender,
         onDispose: () => forgetUpload(entry), attributes,
-        resident: false, bytes: attributes.reduce((sum, attribute) => sum + attribute.array.byteLength, 0),
+        resident: false, bytes: attributes.reduce((sum, attribute) => sum + staticStorageInfo(attribute).byteLength, 0),
         lastUse: -Infinity, active: true,
       };
       entry.wrapped = function (this: InstancedMesh, drawingRenderer, scene, drawingCamera, geometry, material, group) {

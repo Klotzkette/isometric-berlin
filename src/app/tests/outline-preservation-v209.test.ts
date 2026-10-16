@@ -3,9 +3,12 @@ import { expect, test } from "bun:test";
 import { createOutlineLandmarksV182, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { outlineSignature } from "./helpers/outlineConstructionSignature";
 import released from "./fixtures/outline-landmarks-v208-synchronous.json";
+import receipt from "./fixtures/outline-historical-gallery-v222.json";
+import { projectPostV210OutlineForTest } from "./helpers/outlineGalleryPreservationV222";
 
-for (const mode of ["day", "minecraft"] as const) test(`${mode}: every complete v208 outline byte survives the three v209 additions`, () => {
+for (const mode of ["day", "minecraft"] as const) test(`${mode}: v208 outlines survive v209 with the independently receipted gallery successor`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const restoreLater = projectPostV210OutlineForTest(root, mode);
   const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
   try {
     const names = new Set([
@@ -19,7 +22,11 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: every complete 
     expect(added.map(child => child.name).sort()).toEqual([...names].sort());
     expect(original.length).toBe(released[mode].families + names.size);
     root.children = original.filter(child => !added.includes(child));
-    try { expect(outlineSignature(root)).toEqual(released[mode]); }
+    // The immutable v121 control with only the pre-v217 gallery factory
+    // reproduces the original v208 hash. Its accepted gallery successor is
+    // independently captured, and pinned in full by the helper above.
+    expect(receipt.historical[mode].v208).toEqual(released[mode]);
+    try { expect(outlineSignature(root)).toEqual(receipt.current[mode].v208); }
     finally { root.children = original; }
-  } finally { cleanupV210(); disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); restoreLater(); disposeOutlineConstruction(root); }
 });

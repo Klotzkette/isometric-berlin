@@ -188,6 +188,13 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.122 request remains within Step 10: improve running stability
+without lowering visual quality, repair walking recovery and hurdle jumps, enable
+orange-joystick double/triple taps, and descend smoothly from flight to walking.
+Preserve all source geometry, textures, draw distance, resolution and residency
+budgets. Recover temporary WebGL loss in the existing runtime before the bounded
+clean-restart fallback. See `docs/runtime-stability-v222.md`.
+
 The owner's v1.0.121 request permits photo-guided procedural recognition of
 Alexander Calder's Têtes et Queue and Henry Moore's Archer at their exact
 retained OSM terrace anchors outside Neue Nationalgalerie. Only the documented

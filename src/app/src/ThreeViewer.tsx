@@ -1,3 +1,4 @@
+import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
 import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
@@ -812,6 +813,7 @@ type Runtime = {
   reportWorldFailure: () => void;
   ensurePedestrianWater: () => void;
   worldFailureReported: boolean;
+  contextLost: boolean;
   reportCoreProgress: (loaded: number, total: number) => void;
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
@@ -1581,6 +1583,7 @@ function currentStartupPresentationStatus(
 function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
   if (
     runtime.disposed ||
+    runtime.contextLost ||
     runtime.presentationReady ||
     !runtime.openingDetailReady ||
     !startupCurtainMayOpen(currentStartupPresentationStatus(runtime))
@@ -1607,6 +1610,7 @@ function startSurroundingCity(runtime: Runtime): void {
     camera: runtime.camera,
     mode: runtime.lightingMode,
     signal: runtime.loadSignal,
+    isActive: () => !runtime.contextLost,
     onAttach: (root) => {
       setIsoNightPresentation(root, runtime.lightingMode === "night",
         runtime.nightLightsOn, runtime.lightingMode);
@@ -3495,6 +3499,7 @@ function startProgressiveWorld(
   const input = runtime.progressiveWorldInput;
   if (
     runtime.disposed ||
+    runtime.contextLost ||
     document.hidden ||
     !isoWorldIntentActive(runtime) ||
     !input ||
@@ -3561,6 +3566,7 @@ function scheduleProgressiveWorld(
 ): void {
   if (
     runtime.disposed ||
+    runtime.contextLost ||
     document.hidden ||
     !isoWorldIntentActive(runtime) ||
     !runtime.progressiveWorldInput ||
@@ -6563,6 +6569,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         ensurePedestrianWater: () => undefined,
         worldFailureReported: false,
+        contextLost: false,
         progressiveWorldBatches: [],
         progressiveWorldMessages: [],
         progressiveWorldState: "idle",
@@ -6639,11 +6646,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let gpuWarmupTimer: number | null = null;
       let gpuWarmupInteractionUntil = 0;
       runtime.scheduleGpuWarmup = () => {
-        if (disposed || document.hidden || !activeRef.current ||
+        if (disposed || runtime.contextLost || document.hidden || !activeRef.current ||
           gpuWarmupTimer !== null || !runtime.gpuWarmup?.pending) return;
         gpuWarmupTimer = window.setTimeout(() => {
           gpuWarmupTimer = null;
-          if (disposed || document.hidden || !activeRef.current) return;
+          if (disposed || runtime.contextLost || document.hidden || !activeRef.current) return;
           // Ordinary rendering always uploads visible data. Speculative
           // preparation should use pauses, not compete with a held joystick.
           if (performance.now() < gpuWarmupInteractionUntil || browserInputPending()) {
@@ -7585,7 +7592,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         notifyView(runtime, onViewChangeRef.current);
       };
       const onVisibilityChange = () => {
-        if (document.hidden) {
+        if (document.hidden || runtime.contextLost) {
           if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
           gpuWarmupTimer = null;
           resetTouchGesture();
@@ -7742,37 +7749,48 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       resizeObserver.observe(host);
       resize();
 
-      const onContextLost = (event: Event) => {
-        event.preventDefault();
-        if (disposed || runtime.worldFailureReported) return;
-        runtime.worldFailureReported = true;
-        runtime.surroundingCity?.dispose();
-        window.cancelAnimationFrame(frame);
-        if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
-        gpuWarmupTimer = null;
-        runtime.gpuWarmup?.dispose();
-        runtime.geometryResidency?.dispose();
-        runtime.gpuResidency?.dispose();
-        runtime.scheduleGpuWarmup = undefined;
-        loadController.abort();
-        cancelScheduledProgressiveWorld(runtime);
-        runtime.progressiveWorldWorker?.terminate();
-        runtime.progressiveWorldWorker = undefined;
-        clearProgressiveAttachmentQueue(runtime);
-        try {
-          // App captures the small navigation snapshot before disposal makes
-          // this runtime unavailable. React cleanup still releases all buffers.
-          onErrorRef.current(
-            "WebGL-Kontext verloren; lade die Seite neu, um die isometrische 3D-Ansicht wieder zu öffnen.",
-          );
-        } finally {
-          pedestrianPoseEmissionRef.current.active = false;
-          onPedestrianPoseChangeRef.current(null);
-          disposed = true;
-          runtime.disposed = true;
-        }
-      };
+      const contextRecovery = createViewerContextRecovery({
+        pause: () => {
+          if (disposed) return;
+          runtime.contextLost = true;
+          // Keep the scene, navigation and immutable backing. A second city
+          // during a GPU reset would amplify the memory peak that caused it.
+          onVisibilityChange();
+          runtime.surroundingCity?.refresh();
+          flightInputRef.current.set(0, 0, 0);
+          panInputRef.current.set(0, 0);
+          orbitInputRef.current.set(0, 0);
+          pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+          runtime.cancelPanGlide?.();
+        },
+        resume: () => {
+          if (disposed || runtime.worldFailureReported) return;
+          runtime.contextLost = false;
+          lastAnimateAt = Number.NEGATIVE_INFINITY;
+          lastRenderedAt = Number.NEGATIVE_INFINITY;
+          lastEvaluationAt = Number.NEGATIVE_INFINITY;
+          lastOrdinaryEnvironmentFrameAt = Number.NEGATIVE_INFINITY;
+          runtime.renderInvalidated = true;
+          runtime.shadowInvalidated = true;
+          renderer.shadowMap.needsUpdate = true;
+          // Three's own restored listener has already recreated its GL state.
+          // Ordinary visible draws restore the original buffers on demand.
+          resize(true);
+          onVisibilityChange();
+          runtime.startDeferredDetails();
+          runtime.surroundingCity?.refresh();
+          notifyPresentationReadyWhenPossible(runtime);
+        },
+        fail: () => {
+          if (disposed || runtime.worldFailureReported) return;
+          runtime.worldFailureReported = true;
+          onErrorRef.current("Die Grafik konnte nicht wiederhergestellt werden. Die Ansicht wird an derselben Position neu aufgebaut.");
+        },
+      });
+      const onContextLost = (event: Event) => contextRecovery.lost(event);
+      const onContextRestored = () => contextRecovery.restored();
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+      renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
 
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
@@ -7981,7 +7999,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         frame = window.requestAnimationFrame(animate);
-        if (!activeRef.current || document.hidden) {
+        if (!activeRef.current || document.hidden || runtime.contextLost) {
           // Hidden mobile tabs must not advance navigation or GPU work when
           // a browser still supplies occasional animation frames.
           lastAnimateAt = timestamp;
@@ -9007,7 +9025,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           let deferredDetailsStarted = false;
           runtime.startDeferredDetails = () => {
-            if (deferredDetailsStarted || !manifest.park_details?.file) {
+            if (runtime.contextLost || deferredDetailsStarted || !manifest.park_details?.file) {
               return;
             }
             if (
@@ -9237,6 +9255,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         });
 
       return () => {
+        contextRecovery.dispose();
         disposed = true;
         runtime.disposed = true;
         runtime.pergamonReveal?.dispose();
@@ -9301,6 +9320,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         window.removeEventListener("pagehide", onPageHide);
         window.removeEventListener("pageshow", onPageShow);
         document.removeEventListener("visibilitychange", onVisibilityChange);
+        renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
         controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("change", onControlsChange);
         controls.removeEventListener("end", onControlsEnd);

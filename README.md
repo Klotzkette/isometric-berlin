@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.121 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.121/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.122 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.122/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.121** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.122** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.121 adds Alexander Calder’s *Têtes et Queue* and Henry Moore’s *Archer* at their mapped terrace positions outside Neue Nationalgalerie. The former oversized Archer proxy is replaced; the walking start and all existing city details remain. [Sources and validation](docs/nationalgalerie-sculptures-v221.md).
+Version 1.0.122 retains the current city and position through recoverable graphics resets, avoids unpacking hidden instance buffers for bookkeeping, and improves walking: double/triple joystick taps jump, lower clear ground is available to Get unstuck, and flight-to-walk descends smoothly. [Validation and limits](docs/runtime-stability-v222.md).
 
-Version 1.0.121 ergänzt Calders *Têtes et Queue* und Moores *Bogenschützen* an ihren kartierten Standorten auf der Terrasse. Die alte Ring-Andeutung des Bogenschützen wird ersetzt; Gehstart und übrige Stadtdetails bleiben erhalten.
+Version 1.0.122 erhält Stadt und Position bei behebbaren Grafik-Aussetzern und spart unnötiges Entpacken unsichtbarer Gebäudeteile. Doppel-/Dreifachtipp auf den Joystick springt, „Freikommen“ findet auch tiefer gelegene Auswege und der Wechsel zum Gehen lässt die Figur sanft absinken.
 
 Version 1.0.120 starts ordinary visits on foot at the Neue Nationalgalerie intersection, with Day preselected. The museum terrace and stairs have matching solid support and walking collision. Explicit place and mode links remain available. [Scope and validation](docs/gallery-start-v220.md).
 

@@ -1,6 +1,40 @@
 import { expect, test } from "bun:test";
-import { BoxGeometry, DataTexture, InstancedMesh, MeshBasicMaterial, OrthographicCamera, Scene, type WebGLRenderer } from "three";
+import { BoxGeometry, DataTexture, InstancedBufferAttribute, InstancedMesh, MeshBasicMaterial, OrthographicCamera, Scene, type WebGLRenderer } from "three";
 import { createSceneGpuResidency } from "../src/sceneGpuResidency";
+import { parkStaticAttribute } from "../src/losslessStaticStorage";
+
+test("registration counts parked instance storage without restoring its CPU backing", () => {
+  const h = policyHost();
+  const mesh = new InstancedMesh(new BoxGeometry(), new MeshBasicMaterial(), 2048);
+  mesh.instanceColor = new InstancedBufferAttribute(new Float32Array(2048 * 3).fill(0.5), 3);
+  h.scene.add(mesh);
+  const matrix = mesh.instanceMatrix;
+  const original = matrix.array;
+  const expected = original.slice();
+  const expectedBytes = original.byteLength + mesh.instanceColor.array.byteLength;
+  for (const _ of parkStaticAttribute(matrix, true)) { /* Complete the construction-only parking. */ }
+  expect(original.byteLength).toBe(0);
+  const descriptor = Object.getOwnPropertyDescriptor(matrix, "array")!;
+  expect(descriptor.get).toBeDefined();
+  let reads = 0;
+  Object.defineProperty(matrix, "array", {
+    ...descriptor,
+    get() { reads++; return descriptor.get!.call(this); },
+  });
+  h.residency.enqueue(h.scene);
+  expect(reads).toBe(0);
+  expect(h.residency.residentBytes).toBe(0);
+  mesh.onAfterRender(h.renderer, h.scene, h.camera, mesh.geometry, mesh.material, null);
+  expect(reads).toBe(0);
+  expect(h.residency.residentBytes).toBe(expectedBytes);
+  expect(h.residency.residentBuffers).toBe(2);
+  expect(mesh.instanceMatrix).toBe(matrix);
+  expect(matrix.array).toEqual(expected);
+  h.residency.release(mesh);
+  expect(h.residency.residentBytes).toBe(0);
+  expect(h.residency.residentBuffers).toBe(0);
+  h.residency.dispose();
+});
 
 test("GPU eviction never destroys an authored instance morph texture", () => {
   const scene = new Scene();

@@ -433,7 +433,7 @@ function FlightJoystick({
   disabled: boolean;
   label: string;
   resetKey: string;
-  onJump?: () => void;
+  onJump?: (higher: boolean) => void;
   onInput: (horizontal: number, vertical: number, speedMultiplier?: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
@@ -647,13 +647,12 @@ function FlightJoystick({
         if (pointerIdRef.current === event.pointerId) {
           const jump = endJoystickTap(
             tapStateRef.current, pointerSample(event),
-            event.pointerType === "mouse" ? "double" : "single",
           );
           release();
           if (event.currentTarget.hasPointerCapture(event.pointerId)) {
             event.currentTarget.releasePointerCapture(event.pointerId);
           }
-          if (jump) onJump?.();
+          if (jump !== null) onJump?.(jump === "high");
         }
       }}
       onPointerCancel={(event) => {
@@ -2108,9 +2107,9 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       setIsThreeReady(false);
       setIsThreeUnderside(navigation?.underside ?? false);
 
-      // A lost mobile context commonly recovers once the old canvas and all
-      // of its CPU/GPU allocations are actually destroyed. Remount exactly
-      // once per world family; a persistent failure offers an explicit reload.
+      // Temporary GPU loss is restored in-place by ThreeViewer. If that
+      // times out, or world construction fails, release the old allocations
+      // and remount once per family; persistent failure offers explicit reload.
       if (
         viewerRuntimeFailureDecision(
           threeViewerAutoRecoveryUsedRef.current,
@@ -3445,14 +3444,14 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: ziehen zum Laufen, am Rand halten zum schnellen Laufen; kurz tippen oder mit der Maus doppelklicken zum Springen. Leertaste springt ebenfalls"
-                  : "Walking joystick: drag to move, hold at the edge to run faster; tap or mouse double-click to jump. Space also jumps"
+                  ? "Geh-Joystick: ziehen zum Laufen, am Rand halten zum schnellen Laufen; zweimal kurz tippen zum Springen, dreimal zum höheren Sprung. Leertaste springt ebenfalls"
+                  : "Walking joystick: drag to move, hold at the edge to run faster; tap twice to jump, three times to jump higher. Space also jumps"
                 : language === "de"
                   ? "Flug-Joystick: ziehen zum Vorwärts-, Rückwärts- und Seitwärtsfliegen; am Rand halten zum schnellen Fliegen"
                   : "Flight joystick: drag to fly forward, backward or sideways; hold at the edge to fly faster"
             }
             onJump={
-              isPedestrianMode ? () => triggerPedestrianJump() : undefined
+              isPedestrianMode ? (higher) => triggerPedestrianJump(higher) : undefined
             }
             onInput={(strafe, forward, speedMultiplier) => setFlightInput(strafe, forward, 0, speedMultiplier)}
           />
@@ -3482,7 +3481,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
           className="pedestrian-jump-button"
           aria-label={copy.pedestrianJump}
           title={`${copy.pedestrianJump} (Space · ${
-            language === "de" ? "Tipp / Doppelklick" : "tap / double-click"
+            language === "de" ? "einmal drücken" : "press once"
           })`}
           onClick={() => triggerPedestrianJump()}
         >
@@ -4557,10 +4556,10 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                   <dd>
                     {language === "de"
                       ? isPedestrianMode
-                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Am Rand halten wird bis zu dreimal schneller. Kurzer Touch-Tipp oder Maus-Doppelklick springt; Leertaste ebenfalls. Im Bild ziehen zum Umsehen"
+                        ? "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts gehen. Am Rand halten wird bis zu dreimal schneller. Zweimal kurz tippen springt, dreimal springt höher; im Sprung ziehen zum Weiterlaufen. Leertaste springt ebenfalls. Im Bild ziehen zum Umsehen"
                         : "Am orangefarbenen Joystick mit Maus oder Finger ziehen: vorwärts, rückwärts und seitwärts fliegen. Am Rand halten wird bis zu dreimal schneller. Die WASD-Knöpfe können ebenfalls gedrückt gehalten werden"
                       : isPedestrianMode
-                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. Hold at the edge for up to three times the speed. A short touch tap or mouse double-click jumps; so does Space. Drag the view to look around"
+                        ? "Drag the orange joystick with a mouse or finger to walk forward, backward or sideways. Hold at the edge for up to three times the speed. Tap twice to jump, three times to jump higher; drag during the jump to keep moving. Space also jumps. Drag the view to look around"
                         : "Drag the orange joystick with a mouse or finger to fly forward, backward or sideways. Hold at the edge for up to three times the speed. The WASD buttons also move continuously while held"}
                   </dd>
                 </div>
@@ -4670,8 +4669,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
             <p className="help-hint">
               {isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Pfeile drehen den Blick: nach oben schaut nach oben. Leertaste springt, zweimal Leertaste springt höher; Sprungknopf, kurzer Joystick-Tipp und Maus-Doppelklick auf den Joystick springen normal. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
-                    : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Arrow keys turn the view: Up looks up. Space jumps; double Space jumps higher, while the jump button, a short joystick tap or a mouse double-click on the joystick perform a normal jump. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
+                    ? "Spaziergang: WASD bewegt, Maus oder ein Finger bewegt den Kopf, das Mausrad läuft vor und zurück. Pfeile drehen den Blick: nach oben schaut nach oben. Leertaste springt, zweimal Leertaste springt höher. Am orangefarbenen Joystick zweimal kurz tippen zum Springen, dreimal zum höheren Sprung; danach ziehen zum Weiterlaufen. Der Sprungknopf springt beim ersten Drücken. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser ist eine feste Ufergrenze und setzt dich niemals zurück."
+                    : "Walk: WASD moves, the mouse or one finger moves your head, and the mouse wheel walks forward and back. Arrow keys turn the view: Up looks up. Space jumps; double Space jumps higher. Tap the orange joystick twice to jump or three times to jump higher, then drag to keep moving. The jump button jumps on one press. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water is a solid shoreline and never resets your position."
                   : language === "de"
                     ? "3D: W/S fliegt vorwärts/rückwärts, A/D seitwärts nach links/rechts. ↑/↓ schaut nach oben/unten, ←/→ schwenkt nach links/rechts. Leertaste steigt, Shift sinkt, auch während der Bewegung. Das Mausrad zoomt am Zeiger. Mit linker Maustaste ziehen: Blick folgt der Maus, nach oben ist oben. Rechte Maustaste oder Shift + Ziehen verschiebt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; drei Finger steuern Drehung und Neigung bis unter das Gelände."
                     : "3D: W/S flies forward/backward, A/D strafes left/right. ↑/↓ looks up/down, ←/→ turns left/right. Space rises and Shift descends, also while moving. The mouse wheel zooms at the pointer. Left-drag looks in the drag direction: upward looks up. Right-drag or Shift-drag pans. On touchscreens, two fingers swipe and pinch; three fingers control orbit and tilt into the underside."}

@@ -44,6 +44,8 @@ export type SurroundingCityOptions = {
   camera: Camera;
   mode?: VisualMode;
   signal?: AbortSignal;
+  /** Pause requests during a renderer reset, retaining all resident packets. */
+  isActive?: () => boolean;
   /** Runs before first publication: register residency and apply current lighting. */
   onAttach?: (root: Group, mode: VisualMode) => void;
   /** Unregister residency and dispose geometry/materials; controller removes it first. */
@@ -304,7 +306,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   let geometryBytes = 0, bufferCount = 0, lastScan = -Infinity;
   let focus: { x: number; z: number } | undefined;
   let navigationTiles: SurroundingNavigationTile[] = [];
-  const activeView = (): boolean => root.visible &&
+  const activeView = (): boolean => root.visible && options.isActive?.() !== false &&
     (typeof document === "undefined" || document.visibilityState !== "hidden");
   const updateNavigation = (): void => {
     navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf).map(entry => ({
@@ -410,8 +412,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
 
   const refresh = (timestamp = now(), nextFocus?: { x: number; z: number }): void => {
     if (nextFocus) focus = nextFocus;
-    if (disposed || !manifest || timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
+    if (disposed || !manifest) return;
     if (!activeView()) { active?.controller.abort(); cancelPrefetches(true); queue = []; lastScan = -Infinity; return; }
+    if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
     lastScan = timestamp;
     options.camera.updateMatrixWorld();
     options.camera.getWorldPosition(cameraPosition);

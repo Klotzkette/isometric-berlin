@@ -3,9 +3,12 @@ import { expect, test } from "bun:test";
 import { createOutlineLandmarksV182, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { outlineSignature } from "./helpers/outlineConstructionSignature";
 import released from "./fixtures/outline-landmarks-v207-synchronous.json";
+import receipt from "./fixtures/outline-historical-gallery-v222.json";
+import { projectPostV210OutlineForTest } from "./helpers/outlineGalleryPreservationV222";
 
-for (const mode of ["day", "minecraft"] as const) test(`${mode}: every complete v207 outline byte survives the three v208 additions`, () => {
+for (const mode of ["day", "minecraft"] as const) test(`${mode}: v207 outlines survive v208 with the independently receipted gallery successor`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const restoreLater = projectPostV210OutlineForTest(root, mode);
   const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
   try {
     const names = new Set([
@@ -22,7 +25,8 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: every complete 
     expect(added.map(child => child.name).sort()).toEqual([...names].sort());
     expect(original.length).toBe(released[mode].families + names.size);
     root.children = original.filter(child => !added.includes(child));
-    try { expect(outlineSignature(root)).toEqual(released[mode]); }
+    expect(receipt.historical[mode].v207).toEqual(released[mode]);
+    try { expect(outlineSignature(root)).toEqual(receipt.current[mode].v207); }
     finally { root.children = original; }
-  } finally { cleanupV210(); disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); restoreLater(); disposeOutlineConstruction(root); }
 });

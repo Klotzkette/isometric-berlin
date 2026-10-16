@@ -18,7 +18,10 @@ type JoystickTap = {
   pointerType: string;
   x: number;
   y: number;
+  count: 1 | 2;
 };
+
+export type JoystickJumpActivation = "normal" | "high" | null;
 
 export type JoystickTapState = {
   active: (JoystickPointerSample & { maxTravelPx: number }) | null;
@@ -71,43 +74,47 @@ export function moveJoystickTap(
   );
 }
 
-/** Activate on release only: one touch tap or two completed mouse clicks. */
+/** Two completed taps launch; a third upgrades the same jump. Drags never count. */
 export function endJoystickTap(
   state: JoystickTapState,
   sample: JoystickPointerSample,
-  activation: "single" | "double" = "double",
-): boolean {
+): JoystickJumpActivation {
   const active = state.active;
-  if (!active || active.pointerId !== sample.pointerId) return false;
+  if (!active || active.pointerId !== sample.pointerId) return null;
   moveJoystickTap(state, sample);
-  if (!state.active) return false;
+  if (!state.active) return null;
   state.active = null;
   const duration = sample.at - active.at;
   if (
-    duration < 0 ||
+    sample.button !== 0 || duration < 0 ||
     duration > JOYSTICK_TAP_MAX_DURATION_MS ||
     active.maxTravelPx > JOYSTICK_TAP_MAX_TRAVEL_PX
   ) {
     state.previous = null;
-    return false;
-  }
-  if (activation === "single") {
-    state.previous = null;
-    return true;
+    return null;
   }
   const completed: JoystickTap = {
     at: sample.at,
     pointerType: sample.pointerType,
     x: sample.x,
     y: sample.y,
+    count: 1,
   };
   const previous = state.previous;
   const elapsed = previous ? completed.at - previous.at : -1;
-  const doubleTap = previous !== null &&
+  const continuesSequence = previous !== null &&
     previous.pointerType === completed.pointerType &&
     elapsed >= 0 && elapsed <= JOYSTICK_DOUBLE_TAP_MS &&
     Math.hypot(completed.x - previous.x, completed.y - previous.y) <=
       JOYSTICK_DOUBLE_TAP_RADIUS_PX;
-  state.previous = doubleTap ? null : completed;
-  return doubleTap;
+  if (!continuesSequence) {
+    state.previous = completed;
+    return null;
+  }
+  if (previous.count === 2) {
+    state.previous = null;
+    return "high";
+  }
+  state.previous = { ...completed, count: 2 };
+  return "normal";
 }

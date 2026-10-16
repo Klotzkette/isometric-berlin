@@ -84,7 +84,7 @@ describe("shared desktop and mobile movement joystick", () => {
     const control = appText.slice(appText.indexOf("function FlightJoystick("), appText.indexOf("function HoldControlButton("));
     expect(control).toContain("inputRef.current(0, 0)");
     expect(control).toContain("[disabled, resetKey, jumpEnabled, release]");
-    expect(control).toContain('event.pointerType === "mouse" ? "double" : "single"');
+    expect(control).toContain('if (jump !== null) onJump?.(jump === "high")');
     expect(control).toContain('window.addEventListener("blur", reset)');
     expect(control).toContain('document.addEventListener("visibilitychange", visibility)');
     for (const event of ["onPointerUp", "onPointerCancel", "onLostPointerCapture"]) {
@@ -95,7 +95,7 @@ describe("shared desktop and mobile movement joystick", () => {
     const pad = appText.slice(padStart, appText.indexOf("<PedestrianMiniMap", padStart));
     expect(pad).toContain("resetKey={lightingMode}");
     expect(pad).toContain("onJump={");
-    expect(pad).toContain("isPedestrianMode ? () => triggerPedestrianJump() : undefined");
+    expect(pad).toContain("isPedestrianMode ? (higher) => triggerPedestrianJump(higher) : undefined");
     expect(pad).not.toContain("setOrbitInput");
   });
 

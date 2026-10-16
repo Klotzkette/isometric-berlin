@@ -8,6 +8,7 @@ import baseline from "./fixtures/geometry-v205-preservation-v206.json";
 import released from "./fixtures/outline-landmarks-v205-synchronous.json";
 import { geometryPreservationV206, outlineUraniaSubstitutionKeysV206 } from "./helpers/geometryPreservationV206";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { acceptedGalleryRecordsV220, projectPostV210OutlineForTest } from "./helpers/outlineGalleryPreservationV222";
 
 test("v206 preservation starts from both unchanged v205 full signatures", () => {
   for (const mode of ["day", "minecraft"] as const) {
@@ -74,8 +75,9 @@ test("the migrated Urania roof retains its complete immutable v205 render-buffer
   } finally { disposeStaticAudit(root); }
 });
 
-for (const mode of ["day", "minecraft"] as const) test(`${mode} integrated v206 retains every other complete v205 Outline object`, () => {
+for (const mode of ["day", "minecraft"] as const) test(`${mode} integrated v206 retains every other v205 object with the receipted gallery changes`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const restoreLater = projectPostV210OutlineForTest(root, mode);
   const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
   try {
     const before = baseline[mode].outline.records;
@@ -83,11 +85,16 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} integrated v206 
     const next = geometryPreservationV206(root), currentKeys = new Set(next.map(record => record.key));
     expect(before.filter(record => retired.has(record.key))).toHaveLength(mode === "day" ? 2 : 1);
     for (const key of retired) expect(currentKeys.has(key)).toBeFalse();
-    const retained = before.filter(record => !retired.has(record.key));
+    const gallery = acceptedGalleryRecordsV220(mode);
+    expect(before.filter(record => gallery.has(record.key))).toHaveLength(2);
+    // Keep the v205 fixture frozen. Only the exact stone/glass records use the
+    // independently captured accepted door/stair receipt; every old key remains.
+    const retained = before.filter(record => !retired.has(record.key))
+      .map(record => gallery.get(record.key) ?? record);
     const retainedKeys = new Set(retained.map(record => record.key));
     expect(next.filter(record => retainedKeys.has(record.key))).toEqual(retained);
     // Additions have their own source/geometry tests and full synchronous
     // signature; the preservation test must not count them as old geometry.
     expect(next.length).toBeGreaterThan(before.length);
-  } finally { cleanupV210(); disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); restoreLater(); disposeOutlineConstruction(root); }
 });

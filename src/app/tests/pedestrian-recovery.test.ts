@@ -127,7 +127,9 @@ describe("explicit pedestrian recovery", () => {
     const result = recoverPedestrian(stuck, blocked, createPedestrianRecoveryHistory());
     expect(result).toEqual({ recovered: false, source: "none", state: stuck });
     expect(result.state).toBe(stuck);
-    expect(groundQueries).toBeLessThanOrEqual(12 * 24);
+    // Same-level search plus one bounded lower-surface pass; the latter also
+    // checks that the destination is not an unrelated underground floor.
+    expect(groundQueries).toBeLessThanOrEqual(3 * 12 * 24);
   });
 
   test("limits the trail and ignores airborne, blocked and unchanged samples", () => {

@@ -145,6 +145,8 @@ export const PEDESTRIAN_VIEW_DISTANCE_M = 7;
 export const PEDESTRIAN_BODY_RADIUS_M = 0.42;
 export const PEDESTRIAN_COLLISION_CELL_M = 24;
 export const PEDESTRIAN_COLLISION_STEP_M = 0.22;
+export const PEDESTRIAN_FLIGHT_DESCENT_GRAVITY_MPS2 = 6;
+export const PEDESTRIAN_FLIGHT_DESCENT_SPEED_MPS = 18;
 
 /** Pariser Platz, east of the Brandenburg Gate, in the viewer's metric frame. */
 export const PEDESTRIAN_RESPAWN = {
@@ -155,11 +157,15 @@ export const PEDESTRIAN_RESPAWN = {
 } as const;
 
 export type PedestrianState = {
+  /** A flight-to-walk handover keeps its initial eye position and eases down. */
+  descentFromFlight?: boolean;
   grounded: boolean;
   groundLayer: "surface" | "tunnel";
   groundY: number;
   insideTunnel: boolean;
   jumpOffset: number;
+  /** Takeoff altitude keeps a double jump's apex stable across changed support. */
+  jumpOriginY?: number;
   pitch: number;
   verticalVelocity: number;
   x: number;
@@ -2363,12 +2369,15 @@ export function createPedestrianState(
     : null;
   const spawn = clear?.spawn ?? initialSpawn;
   const resolvedGround = clear?.ground ?? initialGround;
+  const descentOffset = keepVerticalDrop && Number.isFinite(requestedSpawn.groundYHint)
+    ? Math.max(0, requestedSpawn.groundYHint! - (resolvedGround?.y ?? 4)) : 0;
   return {
-    grounded: true,
+    ...(descentOffset > .02 ? { descentFromFlight: true } : {}),
+    grounded: descentOffset <= .02,
     groundLayer: resolvedGround?.layer ?? "surface",
     groundY: resolvedGround?.y ?? 4,
     insideTunnel: resolvedGround?.insideTunnel ?? false,
-    jumpOffset: 0,
+    jumpOffset: descentOffset > .02 ? descentOffset : 0,
     pitch: clamp(
       "pitch" in spawn && typeof spawn.pitch === "number" ? spawn.pitch : 0,
       -PEDESTRIAN_MAX_PITCH_RAD,
@@ -2429,20 +2438,22 @@ export function jumpPedestrian(
     return {
       ...state,
       grounded: false,
+      jumpOriginY: state.groundY,
       verticalVelocity: Math.sqrt(2 * PEDESTRIAN_GRAVITY_MPS2 * apex),
     };
   }
+  const heightAboveTakeoff = state.groundY + state.jumpOffset - (state.jumpOriginY ?? state.groundY);
   if (
     !higher ||
     state.verticalVelocity <= 0 ||
-    state.jumpOffset >= PEDESTRIAN_HIGH_JUMP_APEX_M
+    heightAboveTakeoff >= PEDESTRIAN_HIGH_JUMP_APEX_M
   ) {
     return state;
   }
   const boostedVelocity = Math.sqrt(
     2 *
       PEDESTRIAN_GRAVITY_MPS2 *
-      (PEDESTRIAN_HIGH_JUMP_APEX_M - state.jumpOffset),
+      (PEDESTRIAN_HIGH_JUMP_APEX_M - heightAboveTakeoff),
   );
   if (boostedVelocity <= state.verticalVelocity) {
     return state;
@@ -2470,6 +2481,7 @@ function pedestrianRecoveryGround(
   x: number,
   z: number,
   groundYHint = state.groundY,
+  allowSurfaceDescent = false,
 ): PedestrianGround | null {
   const radius = PEDESTRIAN_BODY_RADIUS_M;
   if (
@@ -2480,11 +2492,16 @@ function pedestrianRecoveryGround(
   const ground = resolvePedestrianGround(
     environment, x, z, state.groundLayer, groundYHint,
   );
-  // Never exchange a tunnel for its overlying road or switch station floors.
+  // First keep the same level. Explicit recovery can subsequently descend to
+  // clear above-ground support, but cannot promote a tunnel to the road above
+  // it or choose a different below-ground station floor.
+  const lowerSurface = allowSurfaceDescent && state.groundLayer === "surface" && !state.insideTunnel
+    && ground !== null && ground.y <= state.groundY + 1.5
+    && ground.y >= (environment.groundAt(x, z) ?? Number.POSITIVE_INFINITY) - .75;
   if (
     !ground || !Number.isFinite(ground.y) || ground.layer !== state.groundLayer ||
-    Math.abs(ground.y - groundYHint) > 1.5 ||
-    Math.abs(ground.y - state.groundY) > 1.5 ||
+    (!lowerSurface && (Math.abs(ground.y - groundYHint) > 1.5 ||
+      Math.abs(ground.y - state.groundY) > 1.5)) ||
     pedestrianPointIsBlocked(
       x, z, ground.y, environment.obstacles, environment,
     )
@@ -2524,6 +2541,7 @@ function pedestrianRecoveryHasExit(
   z: number,
   ground: PedestrianGround,
   firstAngle: number,
+  allowSurfaceDescent = false,
 ): boolean {
   // Check a swept two-metre exit, not just an unoccupied but isolated capsule.
   // This runs only on an explicit recovery request, never in the render loop.
@@ -2536,6 +2554,7 @@ function pedestrianRecoveryHasExit(
         x + Math.cos(angle) * step * 0.2,
         z + Math.sin(angle) * step * 0.2,
         ground.y,
+        allowSurfaceDescent,
       )) {
         clear = false;
         break;
@@ -2565,6 +2584,7 @@ export function recoverPedestrian(
     const recoveredState: PedestrianState = {
       ...state,
       grounded: true,
+      descentFromFlight: false,
       groundLayer: ground.layer,
       groundY: ground.y,
       insideTunnel: ground.insideTunnel,
@@ -2597,14 +2617,17 @@ export function recoverPedestrian(
     return finish(checkpoint.x, checkpoint.z, ground, "checkpoint");
   }
   const backwards = state.yaw + Math.PI / 2;
-  for (const radius of [2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, PEDESTRIAN_RECOVERY_RADIUS_M]) {
-    for (let direction = 0; direction < 24; direction += 1) {
-      const angle = backwards + direction * Math.PI / 12;
-      const x = state.x + Math.cos(angle) * radius;
-      const z = state.z + Math.sin(angle) * radius;
-      const ground = pedestrianRecoveryGround(state, environment, x, z);
-      if (!ground || !pedestrianRecoveryHasExit(state, environment, x, z, ground, angle)) continue;
-      return finish(x, z, ground, "nearby");
+  for (const allowSurfaceDescent of [false, true]) {
+    if (allowSurfaceDescent && (state.groundLayer !== "surface" || state.insideTunnel)) break;
+    for (const radius of [2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, PEDESTRIAN_RECOVERY_RADIUS_M]) {
+      for (let direction = 0; direction < 24; direction += 1) {
+        const angle = backwards + direction * Math.PI / 12;
+        const x = state.x + Math.cos(angle) * radius;
+        const z = state.z + Math.sin(angle) * radius;
+        const ground = pedestrianRecoveryGround(state, environment, x, z, state.groundY, allowSurfaceDescent);
+        if (!ground || !pedestrianRecoveryHasExit(state, environment, x, z, ground, angle, allowSurfaceDescent)) continue;
+        return finish(x, z, ground, "nearby");
+      }
     }
   }
   return { recovered: false, source: "none", state };
@@ -2635,18 +2658,21 @@ export function stepPedestrian(
   const forward = rawForward / inputLength;
   const strafe = rawStrafe / inputLength;
 
-  let jumpOffset = state.jumpOffset;
+  // Airborne height is absolute. Reusing the same ground-relative jumpOffset
+  // after crossing a stair, parapet or roof used to teleport the visitor up or
+  // down with that support, and prevented reliable landings on low obstacles.
+  const previousFootY = state.groundY + state.jumpOffset;
+  let footY = previousFootY;
   let verticalVelocity = state.verticalVelocity;
   let grounded = state.grounded;
   if (!grounded) {
-    jumpOffset +=
-      verticalVelocity * dt - (PEDESTRIAN_GRAVITY_MPS2 * dt * dt) / 2;
-    verticalVelocity -= PEDESTRIAN_GRAVITY_MPS2 * dt;
-    if (jumpOffset <= 0 && verticalVelocity <= 0) {
-      jumpOffset = 0;
-      verticalVelocity = 0;
-      grounded = true;
-    }
+    const gravity = state.descentFromFlight
+      ? PEDESTRIAN_FLIGHT_DESCENT_GRAVITY_MPS2 : PEDESTRIAN_GRAVITY_MPS2;
+    const nextVelocity = state.descentFromFlight
+      ? Math.max(-PEDESTRIAN_FLIGHT_DESCENT_SPEED_MPS, verticalVelocity - gravity * dt)
+      : verticalVelocity - gravity * dt;
+    footY += (verticalVelocity + nextVelocity) * dt / 2;
+    verticalVelocity = nextVelocity;
   }
 
   const speed =
@@ -2676,25 +2702,41 @@ export function stepPedestrian(
   let z = state.z;
   // A style switch can change a block deck by a metre. Merely waiting or
   // looking must not relocate the visitor; resolve support when they move.
-  let currentGround =
-    (movementLength > 0 ? resolvePedestrianGround(
+  const resolvedSupport = movementLength > 0 || !state.grounded ? resolvePedestrianGround(
       environment,
       x,
       z,
       state.groundLayer,
-      state.groundY,
-    ) : null) ??
-    ({
+      previousFootY,
+    ) : null;
+  let currentGround = resolvedSupport && (state.grounded || resolvedSupport.y <= previousFootY + .05)
+    ? resolvedSupport : ({
       insideTunnel: state.insideTunnel,
       layer: state.groundLayer,
       y: state.groundY,
     } as const);
+  if (grounded) footY = currentGround.y;
+  else if (footY <= currentGround.y && verticalVelocity <= 0) {
+    footY = currentGround.y; verticalVelocity = 0; grounded = true;
+  }
+  // Sweep ascending feet/head through thin overhead solids as well as testing
+  // horizontal movement; a jump cannot pass through a ceiling between frames.
+  if (!grounded && footY > previousFootY && !pedestrianPointIsBlocked(
+    x, z, previousFootY, environment.obstacles, environment,
+  )) {
+    const rise = footY - previousFootY, samples = Math.ceil(rise / PEDESTRIAN_COLLISION_STEP_M);
+    for (let sample = 1; sample <= samples; sample++) {
+      if (!pedestrianPointIsBlocked(x, z, previousFootY + rise * sample / samples, environment.obstacles, environment)) continue;
+      footY = previousFootY + rise * (sample - 1) / samples;
+      verticalVelocity = 0; break;
+    }
+  }
   let currentBlocked =
     movementLength > 0 &&
     pedestrianPointIsBlocked(
       x,
       z,
-      currentGround.y + jumpOffset,
+      footY,
       environment.obstacles,
       environment,
     );
@@ -2716,22 +2758,27 @@ export function stepPedestrian(
       candidateX,
       candidateZ,
       currentGround.layer,
-      currentGround.y,
+      Math.max(footY, previousFootY),
     );
     if (ground === null) {
       return null;
     }
+    // Existing ground/bridge/station/stair callbacks retain their standing
+    // path policy. Only airborne movement must keep its absolute altitude.
+    if (!grounded && ground.y > footY + .05
+      && !(verticalVelocity <= 0 && ground.y <= previousFootY + .05)) return null;
+    const candidateFootY = grounded ? ground.y : Math.max(footY, ground.y);
     if (
       currentBlocked && environment.protectedVolumeAt &&
       pedestrianBodyTouchesProtectedVolume(
-        candidateX, candidateZ, ground.y + jumpOffset,
+        candidateX, candidateZ, candidateFootY,
         environment.protectedVolumeAt,
       )
     ) return null;
     const candidateBlocked = pedestrianPointIsBlocked(
       candidateX,
       candidateZ,
-      ground.y + jumpOffset,
+      candidateFootY,
       environment.obstacles,
       environment,
     );
@@ -2758,6 +2805,10 @@ export function stepPedestrian(
     candidateZ: number,
     ground: PedestrianGround,
   ): void => {
+    if (grounded) footY = ground.y;
+    if (verticalVelocity <= 0 && footY <= ground.y) {
+      footY = ground.y; verticalVelocity = 0; grounded = true;
+    }
     x = candidateX;
     z = candidateZ;
     currentGround = ground;
@@ -2795,6 +2846,7 @@ export function stepPedestrian(
   const groundY = currentGround.y;
   const groundLayer = currentGround.layer;
   const insideTunnel = currentGround.insideTunnel;
+  const jumpOffset = Math.max(0, footY - groundY);
 
   // An already wet position may advance toward dry ground over several frames.
   // Rejecting every intermediate wet frame permanently trapped slow movement
@@ -2818,6 +2870,8 @@ export function stepPedestrian(
     changed: true,
     respawned: false,
     state: {
+      ...(state.descentFromFlight && !grounded ? { descentFromFlight: true } : {}),
+      ...(state.jumpOriginY !== undefined && !grounded ? { jumpOriginY: state.jumpOriginY } : {}),
       grounded,
       groundLayer,
       groundY,

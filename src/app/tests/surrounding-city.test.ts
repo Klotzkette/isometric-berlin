@@ -664,3 +664,26 @@ test("malformed prefetched gzip never publishes incomplete geometry", async () =
     } finally { city.dispose(); }
   }
 });
+
+test("renderer suspension retains resident packets and resumes requests with unchanged geometry", async () => {
+  let active = true;
+  let clock = 0;
+  const view = camera(), calls: string[] = [];
+  const city = createSurroundingCity({ manifestUrl: new URL("https://example.test/manifest.json"),
+    camera: view, fetch: sourceFetch(calls), isActive: () => active, now: () => clock });
+  try {
+    await city.ready;
+    await until(() => city.residentChunkCount > 0 && !city.pending);
+    const first = city.root.children[0], bytes = city.residentGeometryBytes;
+    const count = calls.length;
+    active = false;
+    view.position.x += 2048; view.updateMatrixWorld(); clock = 5000; city.refresh(clock);
+    await new Promise(resolve => setTimeout(resolve, 30));
+    expect(calls.length).toBe(count);
+    expect(city.root.children[0]).toBe(first);
+    expect(city.residentGeometryBytes).toBe(bytes);
+    active = true; clock = 6000; city.refresh(clock);
+    await until(() => calls.length > count && !city.pending);
+    expect(city.groundAt(2200, 200)).toBe(3);
+  } finally { city.dispose(); }
+});

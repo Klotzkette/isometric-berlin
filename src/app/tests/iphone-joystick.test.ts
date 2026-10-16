@@ -58,7 +58,7 @@ type Props = {
   resetKey: string;
   label: string;
   onInput: (x: number, y: number, speedMultiplier?: number) => void;
-  onJump?: () => void;
+  onJump?: (higher: boolean) => void;
 };
 type Tree = { props: Record<string, any>; children: Tree[] };
 type Hook = { value?: any; deps?: unknown[]; cleanup?: () => void };
@@ -601,27 +601,78 @@ describe("iPhone joystick gesture ownership and stability", () => {
     } finally { host.unmount(); }
   });
 
-  test("one completed touch tap jumps, but a hold or returning drag cannot", () => {
-    let jumps = 0;
-    const host = joystickHost({ onJump: () => { jumps += 1; } });
+  for (const pointerType of ["touch", "pen", "mouse"]) {
+    test(`${pointerType}: completed double tap jumps, triple tap upgrades and the next drag keeps moving`, () => {
+      const jumps: boolean[] = [];
+      const host = joystickHost({ onJump: higher => { jumps.push(higher); } });
+      try {
+        for (let tap = 0; tap < 3; tap++) {
+          const at = 1_000 + tap * 200;
+          host.emit("pointerdown", { pointerType, at });
+          expect(jumps).toEqual(tap < 2 ? [] : [false]);
+          host.emit("pointerup", { pointerType, at: at + 60 });
+          host.emit("lostpointercapture", { pointerType, at: at + 61 });
+          expect(jumps).toEqual(tap === 0 ? [] : tap === 1 ? [false] : [false, true]);
+          expect(host.lastInput()).toEqual([0, 0]);
+          expect(host.pad.captures.size).toBe(0);
+        }
+        host.emit("pointerdown", { pointerType, at: 1_600 });
+        host.emit("pointermove", { pointerType, y: 520, at: 1_630 });
+        expect(host.lastInput()).toEqual([0, 1]);
+        host.frame(2_630);
+        expect(host.lastSpeed()).toBe(3);
+        expect(host.lastInput()).toEqual([0, 1]);
+        host.emit("pointerup", { pointerType, y: 520, at: 2_700 });
+        expect(host.lastInput()).toEqual([0, 0]);
+        expect(jumps).toEqual([false, true]);
+      } finally { host.unmount(); }
+    });
+  }
+
+  test("holds, returning drags and cancelled capture cannot become a tap or an upgrade", () => {
+    const jumps: boolean[] = [];
+    const host = joystickHost({ onJump: higher => { jumps.push(higher); } });
     try {
       host.emit("pointerdown", { at: 1_000 });
-      expect(jumps).toBe(0);
       host.emit("pointerup", { at: 1_060 });
-      host.emit("lostpointercapture", { at: 1_061 });
-      expect(jumps).toBe(1);
-      expect(host.lastInput()).toEqual([0, 0]);
       host.emit("pointerdown", { at: 1_200 });
       host.emit("pointermove", { at: 1_230, y: 520 });
       host.emit("pointermove", { at: 1_250 });
       host.emit("pointerup", { at: 1_270 });
-      expect(jumps).toBe(1);
-      host.emit("pointerdown", { at: 2_000 });
-      host.emit("pointerup", { at: 2_500 });
-      expect(jumps).toBe(1);
-      host.emit("pointerdown", { pointerType: "pen", at: 3_000 });
-      host.emit("pointerup", { pointerType: "pen", at: 3_060 });
-      expect(jumps).toBe(2);
+      expect(jumps).toEqual([]);
+      host.emit("pointerdown", { at: 1_400 });
+      host.emit("pointerup", { at: 1_900 });
+      expect(jumps).toEqual([]);
+      for (const at of [2_000, 2_200]) {
+        host.emit("pointerdown", { at }); host.emit("pointerup", { at: at + 60 });
+      }
+      expect(jumps).toEqual([false]);
+      host.emit("pointerdown", { at: 2_400 });
+      host.emit("lostpointercapture", { at: 2_410 });
+      host.emit("pointerup", { at: 2_460 });
+      host.emit("pointerdown", { at: 2_600 });
+      host.emit("pointerup", { at: 2_660 });
+      expect(jumps).toEqual([false]);
+      expect(host.lastInput()).toEqual([0, 0]);
     } finally { host.unmount(); }
+  });
+
+  test("mode reset, disabling, outside touch and blur discard an incomplete jump sequence", () => {
+    for (const reset of ["mode", "disabled", "outside", "blur"]) {
+      const jumps: boolean[] = [];
+      const host = joystickHost({ onJump: higher => { jumps.push(higher); } });
+      try {
+        host.emit("pointerdown", { at: 1_000 });
+        host.emit("pointerup", { at: 1_060 });
+        if (reset === "mode") host.render({ resetKey: "night" });
+        if (reset === "disabled") { host.render({ disabled: true }); host.render({ disabled: false }); }
+        if (reset === "outside") host.window.dispatchEvent(nativePointer("pointerdown", { id: 2, at: 1_100 }));
+        if (reset === "blur") host.window.dispatchEvent(new Event("blur"));
+        host.emit("pointerdown", { at: 1_200 });
+        host.emit("pointerup", { at: 1_260 });
+        expect(jumps).toEqual([]);
+        expect(host.lastInput()).toEqual([0, 0]);
+      } finally { host.unmount(); }
+    }
   });
 });

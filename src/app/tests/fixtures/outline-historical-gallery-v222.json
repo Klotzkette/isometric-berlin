@@ -1,0 +1,92 @@
+{
+  "releasedBase": "aa9a58cea59a0a00c50eacab12dc75362b88e239",
+  "historicalGalleryCommit": "6e58dc7a14780239b7dd2157203800deca2cce38",
+  "galleryModule": "src/app/src/NeueNationalgalerieV183.ts",
+  "historicalGallerySourceSha256": "5d35da0eed81dafc9f8a7284bc2ad494b10c48108a7bc83f610e4755f15c88ea",
+  "releasedGallerySourceSha256": "2985c7fa7b4547828f703951ec74840cd290551af7425d176426e7b10e1bb845",
+  "method": "Two independent Bun processes load every runtime TypeScript module from immutable v1.0.121. The historical control substitutes only the pre-v217 gallery factory and must reproduce all frozen v207/v208/v209 signatures in both modes. Both runs apply the existing exact v210 estimate restoration and omit the same named later v210/v214/v215 roots; the current run additionally detaches exactly the v221 sculpture child. Current gallery and omitted later roots are independently pinned by the unchanged v220 receipt in each test. No historical fixture or runtime source is changed.",
+  "historical": {
+    "day": {
+      "v207": {
+        "sha256": "4d87cdd4f53219077141327dac2999f6c10468db37c9b3acc90aa51452b97721",
+        "objects": 733,
+        "bytes": 45720687,
+        "families": 54
+      },
+      "v208": {
+        "sha256": "f63bbb48770c6330edec6bfd44b31d44759d72107f47d9d53356a867a7358084",
+        "objects": 743,
+        "bytes": 47030415,
+        "families": 57
+      },
+      "v209": {
+        "sha256": "2c93bfe52e7f51a8fb59eed33fd7424cee931a6776350a59651fcbdb43cbc076",
+        "objects": 752,
+        "bytes": 49696271,
+        "families": 60
+      }
+    },
+    "minecraft": {
+      "v207": {
+        "sha256": "c3d9312755051102bb2666650e5efa36521f93d0a5a9fb4eb789656b988cd172",
+        "objects": 604,
+        "bytes": 78133192,
+        "families": 57
+      },
+      "v208": {
+        "sha256": "99daa160402f982ddd05105e19c73bf5f7fe5a368caf1a26b3a1684b5a7a005f",
+        "objects": 611,
+        "bytes": 81069792,
+        "families": 60
+      },
+      "v209": {
+        "sha256": "193e713165b642f5f5145d0c5c16e94e31dfd0e5e99f079b0896aff2dc308ebd",
+        "objects": 620,
+        "bytes": 85130248,
+        "families": 63
+      }
+    }
+  },
+  "current": {
+    "day": {
+      "v207": {
+        "sha256": "de38a2616844222334975c4a4e09ca4de3ac2edd5035feadc4ccc7e3adc0620b",
+        "objects": 755,
+        "bytes": 46012967,
+        "families": 54
+      },
+      "v208": {
+        "sha256": "65c634aae2735d5d27e517a6df87b6280750a29be2e27d7312a2c1b451ed137e",
+        "objects": 765,
+        "bytes": 47322695,
+        "families": 57
+      },
+      "v209": {
+        "sha256": "8d01215cd15667e63a3f5ddd451437b5190f9688f869007f16d636e6c128d9ff",
+        "objects": 774,
+        "bytes": 49988551,
+        "families": 60
+      }
+    },
+    "minecraft": {
+      "v207": {
+        "sha256": "d6916dc67be19c6f4133590eec748b43d3a6cf657a0557da232762bdfd640cb5",
+        "objects": 621,
+        "bytes": 78623828,
+        "families": 57
+      },
+      "v208": {
+        "sha256": "90cb15b03081c86e7c3b7d5f56b781f6f04be426c7c33ca254aebb7407144c51",
+        "objects": 628,
+        "bytes": 81560428,
+        "families": 60
+      },
+      "v209": {
+        "sha256": "d5b596501adc0c84ff0f17de3fd336f3224228c4eee23133822df83b2b6c14f3",
+        "objects": 637,
+        "bytes": 85620884,
+        "families": 63
+      }
+    }
+  }
+}

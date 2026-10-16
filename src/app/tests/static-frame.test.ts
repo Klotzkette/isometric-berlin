@@ -434,8 +434,8 @@ describe("idle-frame anti-flicker contract", () => {
 
   test("never allocates the retired photographic shell during recovery", () => {
     const recovery = viewerSource.slice(
-      viewerSource.indexOf("runtime.reportWorldFailure = () =>"),
-      viewerSource.indexOf("runtime.reportWorldFailure = () =>") + 900,
+      viewerSource.indexOf("reportWorldFailure: () => {"),
+      viewerSource.indexOf("reportWorldFailure: () => {") + 900,
     );
     expect(recovery).toContain("runtime.worldFailureReported");
     expect(recovery).toContain("prozedurale 3D-Welt");
