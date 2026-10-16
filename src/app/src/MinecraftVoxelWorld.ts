@@ -1,6 +1,7 @@
 import { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, GROUND_SLAB_M, WATER_TOP_Y, CLASS_SHADES, FALLBACK_SHADES, shadeFor, voxelMaterial, type InstanceWriter, instancedBoxes, allocateUnwrittenInstances, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, finishSteps, createGroundSlabsSteps, type GatehouseGroundPoint, type GatehouseGroundPolygon, gatehouseGroundCuts, gatehousePolygonArea, clipGatehouseGroundPlane, gatehouseGroundComplement, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 export { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, WATER_TOP_Y, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
+import { createTownhallCoreColumnTesterV227 } from "./townhallCorePreviousV227";
 import { uraniaArcV206SourceColumn } from "./uraniaArcV206Navigation";
 import { isBendlerblockV202ReplacedColumn } from "./bendlerblockV202Profile";
 import { isPergamonPanoramaV202ReplacementColumn } from "./pergamonPanoramaV202Profile";
@@ -291,6 +292,8 @@ import {
 
 export type MinecraftVoxelWorldOptions = {
   sourcePrisms?: readonly SonyRoofSourcePrism[];
+  /** Required complete v227 shells replace only exact original native columns. */
+  includeLegacyTownhallEnvelopes?: boolean;
   /**
    * `mobile` keeps the surveyed envelopes and authored landmarks while
    * dropping city-wide decorative micro-detail and redundant generic layers.
@@ -2567,12 +2570,15 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
   yield;
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
+  const townhallColumnAt = options.includeLegacyTownhallEnvelopes === false
+    ? createTownhallCoreColumnTesterV227(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   let visitedColumns = 0;
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (!(
       !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isCentralSitesV200FalseColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

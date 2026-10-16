@@ -4,12 +4,12 @@ import audit from "../fixtures/outline-preservation-v220-audit.json";
 import { detachNationalgalerieSculpturesV221 } from "./nationalgalerieSculpturesV221";
 import { outlineSignature } from "./outlineConstructionSignature";
 import { staticGeometryAudit } from "./staticGeometryAudit";
-import { projectOutlineV226ForTest } from "./outlinePreservationV226";
+import { projectOutlineV227ForTest } from "./outlinePreservationV227";
 
 /** Pin accepted later detail before projecting the earlier outline inventory. */
 export function projectPostV210OutlineForTest(root: Group, mode: "day" | "minecraft"): () => void {
   const support = audit.modes[mode];
-  const restoreV225 = projectOutlineV226ForTest(root, mode);
+  const restoreV225 = projectOutlineV227ForTest(root, mode);
   const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
   const children = [...root.children];
   try {

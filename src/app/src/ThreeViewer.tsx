@@ -42,6 +42,7 @@ import { westCivicSolidAtV210 } from "./westCivicNavigationV210";
 import { weddingSitesV210SolidAt } from "./weddingSitesV210Navigation";
 import { neukoellnV210SolidAt } from "./neukoellnPlacesV210Navigation";
 import { arenaStationV225GroundAt, arenaStationV225SolidAt } from "./arenaStationV225Navigation";
+import { districtTownhallV227GroundAt, districtTownhallV227SolidAt, districtTownhallV227TerrainAt } from "./districtTownhallV227Navigation";
 import { steglitzMotorwayV226GroundAt, steglitzMotorwayV226SolidAt } from "./steglitzMotorwayV226Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
@@ -1709,6 +1710,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
       minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
+      const townhallGround = districtTownhallV227TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      if (townhallGround !== null) return townhallGround;
       const stadiumGround = westernStadiumGroundYV187(x, z);
       if (stadiumGround !== undefined) return stadiumGround;
       const addedGround = runtime.outerThinOutlines?.userData.groundAt?.(x, z) ?? null;
@@ -1724,6 +1727,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       weddingSitesV210SolidAt(x,y,z,radius) ||
       neukoellnV210SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       arenaStationV225SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      districtTownhallV227SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       steglitzMotorwayV226SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
@@ -3668,6 +3672,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
+    { replaceTownhallPrisms: true },
   );
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
@@ -3757,6 +3762,8 @@ function prepareIsoNavigation(
     );
   };
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const townhallFloor = districtTownhallV227GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (townhallFloor !== null) return townhallFloor;
     const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (motorwayFloor !== null) return motorwayFloor;
     const arenaStationFloor = arenaStationV225GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4060,6 +4067,7 @@ function ensureIsoWorld(
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
             includeLegacyHungarianEnvelope: false,
+            includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
@@ -4205,7 +4213,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4558,6 +4566,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
+    { replaceTownhallPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4614,6 +4623,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   };
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    districtTownhallV227GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0) ??
@@ -4749,6 +4759,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
+            includeLegacyTownhallEnvelopes: false,
           },
         ),
         {

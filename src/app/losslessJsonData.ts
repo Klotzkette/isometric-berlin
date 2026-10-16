@@ -13,6 +13,9 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "arenaStationV225Envelopes.json": ["surfaces", "blocks"],
+  "townhallV227Profile.json": ["sites"],
+  "townhallV227Envelopes.json": ["sites"],
+  "townhallV227Native.json": ["sites"],
   "boulevardTransportV210.json": ["cells"],
   "boulevardCurbsV210.json": ["segments", "nativeRuns"],
   "weddingSitesV210.json": ["boxes", "blocks"],

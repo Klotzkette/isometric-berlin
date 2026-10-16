@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **District town halls (v1.0.127):** The 23 pre-2001 borough sites include
+  the twelve present main administrative seats. Identity and architectural cues
+  use official Berlin district/heritage records. Building geometry uses retained
+  Berlin LoD2 and OpenStreetMap; unmeasured fallback heights, colors and facade
+  subdivisions remain display estimates. No photographic textures are used.
+  See [site inventory and primary sources](docs/townhall-inventory-v227.md) and
+  [scope and validation](docs/refinements-v227.md).
 - **Kreuzberg, Friedrichshain, A103 and old-Mitte pavements (v1.0.126):**
   Retained official ALKIS district boundaries and Berlin LoD2 buildings
   (dl-de/zero-2-0), together with retained OpenStreetMap road, pavement and

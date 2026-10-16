@@ -188,6 +188,16 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.127 request permits source-bound recognition of the town halls
+of all 23 pre-2001 boroughs and the present 12 boroughs' main administrative
+buildings. This authorizes only their exact named building/site envelopes where
+outside earlier coverage, not surrounding district fill. Preserve measured
+sources, unrelated geometry, existing authored detail, full drawn mobile quality,
+separate native interpretation, the 93-stop tour and v124 residency/lifetime
+budgets. Any exact obsolete proxy transfer needs an independently verified
+receipt and a complete required replacement; unsurveyed facade subdivisions
+remain documented display estimates. Current and former sites remain distinct.
+
 The owner's v1.0.126 request permits restrained refinement of existing ordinary
 houses in Kreuzberg and Friedrichshain, the existing Steglitz A103 corridor,
 and source-supported pavements in the frozen old-Mitte selection. Preserve

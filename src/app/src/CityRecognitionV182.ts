@@ -5,13 +5,14 @@ import {
 } from "three";
 import source from "./data/cityRecognitionV182.json";
 import { keepCivicBoxV182V210, keepCivicSegmentV182V210 } from "./westCivicPreviousV210";
+import { keepTownhallBoxV182V227, keepTownhallSegmentV182V227 } from "./townhallPreviousV227";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const CITY_RECOGNITION_V182_GROUP = "Measured civic and theatre recognition v182";
 export const CITY_RECOGNITION_V182_NATIVE_GROUP = "Native civic and theatre recognition v182";
 
 /** A small additive skin. Earlier building owners, courts and detail stay intact. */
-export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true): Group {
+export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true, replaceTownhallEstimates = false): Group {
   const root = new Group();
   root.name = minecraft ? CITY_RECOGNITION_V182_NATIVE_GROUP : CITY_RECOGNITION_V182_GROUP;
   root.userData = {
@@ -21,8 +22,11 @@ export function createCityRecognitionV182(minecraft = false, includeSupersededEs
     sourceConflicts: source.sourceConflicts,
     facadeStatus: "Thin procedural subdivisions on official source wall planes; not a facade survey",
   };
-  const segments = includeSupersededEstimates ? source.segments : source.segments.filter(keepCivicSegmentV182V210);
-  const boxes = includeSupersededEstimates ? source.boxes : source.boxes.filter(keepCivicBoxV182V210);
+  // Both receipts address original row indices. Never filter successively.
+  const segments = includeSupersededEstimates ? source.segments : source.segments.filter((row, index) =>
+    keepCivicSegmentV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallSegmentV182V227(row, index)));
+  const boxes = includeSupersededEstimates ? source.boxes : source.boxes.filter((row, index) =>
+    keepCivicBoxV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallBoxV182V227(row, index)));
   const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(positions.length);
   const color = new Color();

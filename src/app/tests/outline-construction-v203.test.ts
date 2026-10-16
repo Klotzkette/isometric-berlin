@@ -12,7 +12,7 @@ import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
 import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "./helpers/geometryPreservationV206";
 import { detachNationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
-import { projectOutlineV226ForTest } from "./helpers/outlinePreservationV226";
+import { projectOutlineV227ForTest } from "./helpers/outlinePreservationV227";
 
 // The frozen v203/v206 receipt retains the exact Urania substitution and
 // bounded Ring suffix rules. The v220 pre-v217-gallery control reproduces
@@ -25,7 +25,7 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
     budgetMs: 0, isCancelled: () => false,
     yieldTask: async () => { tasks++; await new Promise(resolve => setTimeout(resolve, 0)); },
   });
-  const restoreV225 = projectOutlineV226ForTest(root, mode);
+  const restoreV225 = projectOutlineV227ForTest(root, mode);
   const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
   try {
     expect(tasks).toBeGreaterThanOrEqual(synchronous[mode].families);

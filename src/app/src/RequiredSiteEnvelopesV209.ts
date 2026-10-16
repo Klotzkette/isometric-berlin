@@ -7,6 +7,8 @@ import { createWestCivicEnvelopesV210 } from "./WestCivicV210";
 import { createWeddingSitesEnvelopesV210 } from "./WeddingSitesV210";
 import { createNeukoellnEnvelopesV210 } from "./NeukoellnPlacesV210";
 import { createArenaStationEnvelopesV225 } from "./ArenaStationV225";
+import { createDistrictTownhallsV227 } from "./DistrictTownhallsV227";
+import { createDistrictTownhallEnvelopesV227 } from "./DistrictTownhallEnvelopesV227";
 
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
@@ -26,5 +28,9 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createNeukoellnEnvelopesV210(native));
   yield;
   root.add(createArenaStationEnvelopesV225(native));
+  yield;
+  root.add(createDistrictTownhallEnvelopesV227(native));
+  yield;
+  root.add(createDistrictTownhallsV227(native));
   yield;
 }

@@ -1,4 +1,5 @@
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
+import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
 import { BENDLERBLOCK_V202_PRISM_IDS } from "./bendlerblockV202Profile";
 import { HUNGARIAN_EMBASSY_V208_PROXY_IDS } from "./hungarianEmbassyOwnershipV208";
 import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
@@ -370,6 +371,8 @@ export type IsometricCityBuildOptions = {
   includeLegacyChariteFacade?: boolean;
   /** v208 installs complete measured Hungarian sheets instead of six extrusions. */
   includeLegacyHungarianEnvelope?: boolean;
+  /** Required complete v227 shells replace only the exact receipted originals. */
+  includeLegacyTownhallEnvelopes?: boolean;
   detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
@@ -1746,10 +1749,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
+  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
-  const visible = buildings.map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
+  const visible = buildings.filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
+    .map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
   group.userData.representation = "indexed source footprints, open courts and source-code roofs";
@@ -11908,6 +11913,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;
     if (options.includeLegacyHungarianEnvelope === false && HUNGARIAN_EMBASSY_V208_PROXY_IDS.has(sourceBuilding.id)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (!isRenderablePrismBuilding(building)) {

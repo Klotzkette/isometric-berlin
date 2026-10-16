@@ -17,14 +17,15 @@ const COVERAGE_NAME = "Startup complete building coverage";
 export function createProgressiveBuildingCoverage(
   prisms: PrismPayload,
   partition: ReturnType<typeof splitProgressiveBuildings>,
+  options: { includeLegacyTownhallEnvelopes?: boolean } = {},
 ): Group {
   const coverage = new Group();
   coverage.name = COVERAGE_NAME;
-  const distant = createDistantBuildingShells(prisms, partition.omitted);
+  const distant = createDistantBuildingShells(prisms, partition.omitted, options);
   distant.name = "Permanent distant building coverage";
   coverage.add(distant);
   partition.remaining.forEach((buildings, index) => {
-    const preview = createDistantBuildingShells(prisms, buildings);
+    const preview = createDistantBuildingShells(prisms, buildings, options);
     preview.name = `Building refinement fallback ${index + 1}`;
     preview.userData.progressiveBuildingPreviewId = `buildings-preview-${index + 1}`;
     coverage.add(preview);

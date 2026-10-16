@@ -36,6 +36,9 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Rathäuser der 23 früheren Bezirke und die heutigen zwölf Hauptsitze: amtliche Berliner Gebäude- und Denkmalquellen sowie OpenStreetMap. Nicht vermessene Höhen und Fassadendetails bleiben vereinfachte Annäherungen."
+          : "Town halls of the 23 former boroughs and today's twelve main seats: official Berlin building and heritage records and OpenStreetMap. Unsurveyed heights and facade details remain simplified estimates."}</p>
+        <p>{language === "de"
           ? "Wohnhäuser, Uber Arena und S-Bahnhof Warschauer Straße: vorhandene amtliche Gebäudeformen und OpenStreetMap-Daten. Nicht vermessene Fassaden- und Tragwerksdetails sind vereinfachte Annäherungen; keine Fototexturen."
           : "District houses, Uber Arena and Warschauer Straße S-Bahn station: retained official building geometry and OpenStreetMap data. Unsurveyed facade and structural details are simplified estimates; no photographic textures."}</p>
         <p>{language === "de"

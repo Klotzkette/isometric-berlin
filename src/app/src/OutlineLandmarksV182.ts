@@ -111,7 +111,7 @@ export function* createOutlineLandmarksV182Steps(
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
       yield;
-      root.add(createCityRecognitionV182(nextNative, false));
+      root.add(createCityRecognitionV182(nextNative, false, true));
       yield;
       root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
       yield;

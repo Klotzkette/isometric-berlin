@@ -1,4 +1,5 @@
 import { URANIA_ARC_V206_PRISM_ID, URANIA_ARC_V206_NAVIGATION_PARTS } from "./uraniaArcV206Navigation";
+import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
 import { PERGAMON_PANORAMA_V202_IDS, PERGAMON_PANORAMA_V202_SOURCE, pergamonPanoramaV202RoofAt } from "./pergamonPanoramaV202Profile";
 import { BENDLERBLOCK_V202_PRISM_IDS, BENDLERBLOCK_V202_PARTS, bendlerblockV202RoofAt } from "./bendlerblockV202Profile";
 import { centralSitesV200NavigationForPrism, centralSitesV200RoofAt } from "./centralSitesV200Navigation";
@@ -665,6 +666,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
+  options: { replaceTownhallPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
@@ -672,6 +674,7 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (options.replaceTownhallPrisms && isTownhallCorePrismV227(sourceBuilding)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (CENTRAL_SITES_V200_FALSE_PRISM_IDS.has(building.id)) continue;
     if (building.id === URANIA_ARC_V206_PRISM_ID) {
@@ -2010,6 +2013,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
+  options: { replaceTownhallPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
@@ -2145,7 +2149,7 @@ export function createPedestrianEnvironment(
     water: compilePedestrianWater(surfaces),
   };
   environment.obstacles = prisms ? compilePedestrianObstacles(
-    prisms, () => environment.visualMode?.() ?? "day",
+    prisms, () => environment.visualMode?.() ?? "day", options,
   ) : undefined;
   environment.bridgeGroundAt = createPedestrianBridgeGround(
     ground,
