@@ -6697,6 +6697,17 @@
       "credit": "Molgreen, 2023-06-30 / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "albrecht12_v219",
+      "title": "File:Berlin-Mitte Albrechtstraße 12.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte_Albrechtstra%C3%9Fe_12.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Kvikk",
+      "credit": "Kvikk, 2012-04-30 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
