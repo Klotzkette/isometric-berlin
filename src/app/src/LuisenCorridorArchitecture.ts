@@ -1,7 +1,7 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshStandardMaterial } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { LUISEN_CORRIDOR_SOURCE as S, LUISEN_CORRIDOR_GROUP, MINECRAFT_LUISEN_CORRIDOR_GROUP, LUISEN_CORRIDOR_EVIDENCE, LUISEN_STREET_REFINEMENTS_V218, REINHARDT19_STREET_EAVES_V218 } from "./luisenCorridorProfile";
+import { LUISEN_CORRIDOR_SOURCE as S, LUISEN_CORRIDOR_GROUP, MINECRAFT_LUISEN_CORRIDOR_GROUP, LUISEN_CORRIDOR_EVIDENCE, LUISEN_STREET_REFINEMENTS_V218, LUISEN_STREET_REFINEMENTS_V219, REINHARDT19_STREET_EAVES_V218 } from "./luisenCorridorProfile";
 
 type Point = readonly [number, number];
 type Triple = [number, number, number];
@@ -143,6 +143,7 @@ export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
     const refinement = w.street ? LUISEN_STREET_REFINEMENTS_V218.find(r => r.sourceId === w.part.id && Math.abs(r.a[0] - w.a[0]) < .001 && Math.abs(r.a[1] - w.a[1]) < .001) : undefined;
     const reinhardt = refinement?.kind === "reinhardt19" ? refinement : undefined;
     const schumann = refinement?.kind === "schumann19" ? refinement : undefined;
+    const moriCorner = w.street && LUISEN_STREET_REFINEMENTS_V219.some(r => r.sourceId === w.part.id && Math.abs(r.a[0] - w.a[0]) < .001 && Math.abs(r.a[1] - w.a[1]) < .001);
     const floors = Math.max(1, Math.min(profile.floors, Math.floor(span / 2.65)));
     const pitch = (reinhardt ? Math.min(top, REINHARDT19_STREET_EAVES_V218) - usableBase : span) / floors;
     const bays = reinhardt?.bays ?? Math.max(1, Math.round(w.length / (style === "louvres" ? 2.55 : mc ? 4.3 : w.street ? 3.2 : 4)));
@@ -151,6 +152,21 @@ export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
     for (let i = 0; i < bays; i++) {
       const u = (i + .5) * step;
       for (let f = 0; f < floors; f++) {
+        if (moriCorner && f > 0) {
+          // The inspected photograph shows a blank first upper corner and
+          // two brick-striped fields above it, not three glazed windows.
+          // Only this exact obsolete generic recipe yields; retain the source
+          // wedge, the existing ground shop and every adjacent facade edge.
+          const y = usableBase + (f + .52) * pitch, fieldHeight = pitch * .82;
+          sharedPush = bayClearance(u, step, y, pitch);
+          if (f >= 2) {
+            const bands = mc ? 8 : 16;
+            for (let band = 0; band < bands; band++) emit(u, y - fieldHeight / 2 + (band + .5) * fieldHeight / bands,
+              step * .62, fieldHeight / bands, .10, .17, band % 2 ? 0xbba47b : 0x925c48, "Mori39 brick corner band");
+          }
+          emit(u, usableBase + f * pitch, step + .015, f < 3 ? .24 : .17, .16, .1, 0xbcb7a7, "Mori39 plain corner belt");
+          continue;
+        }
         const entrance = !!reinhardt && f === 0 && i === reinhardt.entranceBay;
         const cornerGlazing = !!schumann && f >= 2 && i === (schumann.corner === "start" ? 0 : bays - 1);
         const y = entrance ? usableBase + pitch * .45 : usableBase + (f + .52) * pitch;
@@ -228,7 +244,7 @@ export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
       }
       sharedPush = bayClearance(u, step, top - .25, .5);
       emit(u, top - .12, step + .015, .24, .27, .17, historic ? FRAME : 0xb8c0bb, "continuous eaves course");
-      if (historic && w.street && !reinhardt && !mobile && !mc) for (let d = 0; d < 3; d++) emit(u + (d - 1) * step / 3, top - .48, .18, .28, .28, .23, FRAME, "eaves dentil");
+      if (historic && w.street && !reinhardt && !moriCorner && !mobile && !mc) for (let d = 0; d < 3; d++) emit(u + (d - 1) * step / 3, top - .48, .18, .28, .28, .23, FRAME, "eaves dentil");
       if (style === "balconies" && w.street && !mc) for (let f = 0; f < floors; f++) emit(u + step / 2 - .02, usableBase + (f + .5) * pitch, .035, pitch - .15, .035, .07, 0x899590, "grey cladding seam");
     }
   }

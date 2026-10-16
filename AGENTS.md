@@ -188,6 +188,11 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's continuation in v1.0.119 permits two further exact facade-edge
+corrections at Albrechtstraße 12 and Luisenstraße 39, preserving the complete
+complement of v1.0.118 facade details and all source geometry. See
+`docs/theatre-corners-v219.md`. No coverage or budget expansion.
+
 The owner's v1.0.118 request permits a bounded refinement of the existing
 building surroundings of Berliner Ensemble, Heinrich-Böll-Stiftung, Deutsches
 Theater and Friedrichstadt-Palast. Preserve source footprints, holes, measured

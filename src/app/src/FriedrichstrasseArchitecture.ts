@@ -1,7 +1,7 @@
 import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Vector2 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from "./friedrichstrasseArchitectureProfile";
+import { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ALBRECHT_CORNER_V219, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from "./friedrichstrasseArchitectureProfile";
 type Point = readonly [number, number];
 type Triple = [number, number, number];
 export type FriedrichstrasseSourcePrism = Pick<PrismBuilding, "id" | "ring" | "holes" | "y0_dm" | "h_dm">;
@@ -127,6 +127,40 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
     // The street portico is authored once across its source's deliberately
     // segmented half-column outline, not repeated once per tiny source edge.
     if (wall.part.id === "K00002ap" && wall.nx < -.6) continue;
+    const corner = ALBRECHT_CORNER_V219;
+    if (wall.part.id === corner.sourceId && Math.hypot(wall.a[0] - corner.start[0], wall.a[1] - corner.start[1]) < .02) {
+      // Kvikk's photograph: two broad divided windows in one plain projecting
+      // corner, with a single terrace above. No repetitive individual balconies
+      // or ornamental window hoods on this exact face. Roof/body stay measured.
+      const pitch = span / 5, step = wall.length / 2, plaster = 0xe3ddc6;
+      for (let i = 0; i < 2; i++) {
+        const u = (i + .5) * step;
+        for (let f = 0; f < 5; f++) {
+          const y = base + (f + .5) * pitch, ground = f === 0, terrace = f === 4;
+          const width = step * (ground ? .75 : .66), height = pitch * (terrace ? .49 : .68);
+          const out = f > 0 && f < 4 ? .55 : .20;
+          push = mc ? voxel(wall, u, step, y, pitch) : 0;
+          // Thin material fields preserve the openings and the retained envelope.
+          for (const side of [-1, 1]) emit(u + side * (step + width) / 4, y, (step - width) / 2, pitch - .025, .06, out - .10, plaster, "v219 Albrecht corner plaster pier");
+          for (const side of [-1, 1]) emit(u, y + side * (pitch + height) / 4, width, (pitch - height) / 2 - .025, .06, out - .10, plaster, "v219 Albrecht corner plain spandrel");
+          emit(u, y, width, height, .07, out, ground ? 0x47544f : 0x708483, "v219 Albrecht corner glazing", true);
+          const frame = ground ? 0x414d48 : 0xf0eddf;
+          for (const side of [-1, 1]) emit(u + side * width / 2, y, .10, height + .12, .09, out + .06, frame, "v219 Albrecht corner window frame");
+          emit(u, y - height / 2, width + .20, .12, .18, out + .10, frame, "v219 Albrecht corner sill");
+          for (const side of [-1, 1]) emit(u + side * width / 6, y, .075, height, .07, out + .065, frame, "v219 Albrecht corner triple division");
+          emit(u, y + height * .25, width, .075, .07, out + .065, frame, "v219 Albrecht corner fanlight");
+          if (f === 1 || terrace) {
+            const yy = base + f * pitch + (terrace ? .35 : .06);
+            emit(u, yy, step, terrace ? .70 : .20, terrace ? .22 : .16, terrace ? .68 : .60, plaster, terrace ? "v219 Albrecht single terrace parapet" : "v219 Albrecht corner base course");
+            if (terrace) emit(u, yy + .37, step, .08, .26, .68, 0x62665a, "v219 Albrecht terrace coping");
+          }
+        }
+        push = mc ? voxel(wall, u, step, top - .2, .4) : 0;
+        emit(u, top - .13, step, .24, .22, .19, plaster, "v219 Albrecht corner eaves");
+      }
+      push = 0;
+      continue;
+    }
     const courtFront = ENSEMBLE_NEIGHBOUR_REFINEMENT_V218.neuesHausFront;
     if (wall.part.id === courtFront.sourceId && Math.hypot(wall.a[0] - courtFront.start[0], wall.a[1] - courtFront.start[1]) < .02) {
       // The operator's current courtyard photograph shows a golden modular

@@ -4,11 +4,12 @@ import { planFriedrichstrasseArchitecture } from "../src/FriedrichstrasseArchite
 import { ENSEMBLE_NEIGHBOUR_REFINEMENT_V218 as profile, FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as source } from "../src/friedrichstrasseArchitectureProfile";
 
 describe("v218 Berliner Ensemble neighbours", () => {
-  test("retains every previous detail outside the one corrected Neues Haus owner", () => {
-    const retained = planFriedrichstrasseArchitecture().filter(b => b.sourceId !== profile.neuesHausFront.sourceId && !b.role.startsWith("v218 "));
-    // Captured from the pre-change plan, independent of the new recipes.
+  test("retains previous detail outside the documented Neues Haus and v219 corner corrections", () => {
+    const retained = planFriedrichstrasseArchitecture().filter(b => b.sourceId !== profile.neuesHausFront.sourceId && !b.role.startsWith("v218 ") && !(b.sourceId === "adrXN9LM" && Math.abs(b.normal[0] - .664363838829922) < 1e-8 && Math.abs(b.normal[1] - .7474093186836577) < 1e-8));
+    // Re-captured before v219 from immutable v118, excluding only its one
+    // corrected face. The dedicated v219 test freezes the complete complement.
     expect(createHash("sha256").update(JSON.stringify(retained)).digest("hex"))
-      .toBe("f3ceec33c94c85b7904a3b507626b4b28fc89ea3ef73cf7ffc60d4a4fb15677c");
+      .toBe("1d65fa9b2d6383581aa89c76dcc1c90ba6a1a8727a7b98559f62be9d065e10af");
   });
 
   test("keeps full drawn detail on touch and restricts additions to named owners", () => {

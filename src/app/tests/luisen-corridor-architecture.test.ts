@@ -53,7 +53,7 @@ describe("Luisenstraße and Reinhardtstraße source-bound facade refinement", ()
 
   test("complete neighbouring source context removes hidden partywall panes without changing source geometry", () => {
     const before = JSON.stringify(S.prisms), root = detail(), plan = root.userData.blocks as LuisenBlock[];
-    const panes = plan.filter(b => b.glass); expect(panes).toHaveLength(3155);
+    const panes = plan.filter(b => b.glass); expect(panes).toHaveLength(3152);
     for (const b of panes) {
       const [x, y, z] = b.position;
       const occluder = nearby.find(q => q.p.id !== b.sourceId && x >= q.x0 && x <= q.x1 && z >= q.z0 && z <= q.z1 && y >= q.p.y0_dm / 10 && y < (q.p.y0_dm + q.p.h_dm) / 10 && luisenPrismContains(q.p, x, z));
@@ -131,8 +131,8 @@ describe("Luisenstraße and Reinhardtstraße source-bound facade refinement", ()
         expect(Array.from(mesh.instanceColor!.array).every(Number.isFinite)).toBeTrue();
       }
       const bytes = [...arrays].reduce((sum, a) => sum + a.byteLength, 0);
-      expect(count).toBe(minecraft ? 11_295 : 24_015);
-      expect(bytes).toBe(minecraft ? 859_068 : 1_825_788);
+      expect(count).toBe(minecraft ? 11_293 : 24_020);
+      expect(bytes).toBe(minecraft ? 858_916 : 1_826_168);
       expect(bytes).toBeLessThan(minecraft ? 860_000 : 1_840_000);
       expect(root.userData).toMatchObject({ textureFree: true, runtimeAssets: [], sourcePartCount: 120 });
     }

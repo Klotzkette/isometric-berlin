@@ -1,0 +1,38 @@
+{
+  "FriedrichstrasseArchitecture/full": {
+    "hash": "dba1d764d32aafbd9d3f669d5fe1340f852d21753e8673dcb77e1ea561db10a8",
+    "budget": {
+      "bytes": 1791816,
+      "draws": 2,
+      "instances": 23568,
+      "vertices": 24
+    }
+  },
+  "FriedrichstrasseArchitecture/mobile": {
+    "hash": "23eb6a718d357a11754cd45a7a529b9773f139611011d529300fbab19d6c795e",
+    "budget": {
+      "bytes": 1537520,
+      "draws": 2,
+      "instances": 20222,
+      "vertices": 24
+    }
+  },
+  "LuisenCorridorArchitecture/full": {
+    "hash": "fd3955156dba79ea9bfe8f9726ac0ae217e69753206b796906944387d55febe1",
+    "budget": {
+      "bytes": 1200460,
+      "draws": 2,
+      "instances": 15787,
+      "vertices": 24
+    }
+  },
+  "LuisenCorridorArchitecture/mobile": {
+    "hash": "fd3955156dba79ea9bfe8f9726ac0ae217e69753206b796906944387d55febe1",
+    "budget": {
+      "bytes": 1200460,
+      "draws": 2,
+      "instances": 15787,
+      "vertices": 24
+    }
+  }
+}

@@ -5,6 +5,14 @@ export const ADMIRALSPALAST_IDS: ReadonlySet<string> = new Set(source.profiles[0
 export const FRIEDRICHSTRASSE_ARCHITECTURE_GROUP = "Friedrichstrasse and Schiffbauerdamm architecture";
 export const MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP = "Minecraft Friedrichstrasse and Schiffbauerdamm architecture";
 export const FRIEDRICHSTRASSE_ARCHITECTURE_TONES: Readonly<Record<string, number>> = Object.fromEntries(source.profiles.flatMap(p => p.ids.map(id => [id, p.tone])));
+/** Exact southeast chamfer, Albrechtstraße 12; all other source faces remain intact. */
+export const ALBRECHT_CORNER_V219 = {
+  sourceId: "adrXN9LM", start: [930.5, -212.4], end: [924.2, -206.8],
+  normal: [.664363838829922, .7474093186836577],
+  identity: "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095847",
+  photo: "https://commons.wikimedia.org/wiki/File:Berlin-Mitte_Albrechtstra%C3%9Fe_12.JPG",
+  estimates: "Two-axis pale projecting corner, divided windows and single upper terrace from Kvikk's 2012 photo; fitting dimensions are unsurveyed recognition estimates. Measured body and roof unchanged.",
+} as const;
 /** v218 recognition is restricted to photographed street faces and one court face. */
 export const ENSEMBLE_NEIGHBOUR_REFINEMENT_V218 = {
   frontages: ["schiff5", "schiff67", "schiff8", "schiff12"],
@@ -23,6 +31,7 @@ export const FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE = {
   detail: "Source-bound facade recognition: granite Doric half-columns and limestone relief registers, terracotta court, SpreeDreieck vertical double facade, Melia punched stone facade, individual Schiffbauerdamm plaster and historic frontages. Local bay sizes and relief silhouettes are non-surveyed estimates.",
   sources: [source.source_url, "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065048", "https://www.reckersarchitekten.de/referenzen/kulturbauten/admiralspalast.html", "https://feldhaus.de/en/projekte/spree-dreieck/", "https://www.mbbm-bso.com/de/projekt/?id=M66484", "https://www.berliner-ensemble.de/node/386"],
   neighboursV218: ENSEMBLE_NEIGHBOUR_REFINEMENT_V218,
+  cornerV219: ALBRECHT_CORNER_V219,
 } as const;
 export function friedrichstrasseInRing(ring: readonly (readonly number[])[], x: number, z: number): boolean {
   let inside = false;

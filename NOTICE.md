@@ -17,6 +17,8 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Theatre neighbourhood corners (v1.0.119):** Retained Berlin LoD2 and heritage identities anchor two exact facade corrections. Kvikk’s Albrechtstraße 12 photograph (30 April 2012, CC BY-SA 3.0) and the already credited Jörg Zägel Mori-Ôgai photograph guide original procedural recognition details. No imagery is bundled. See [references and estimates](docs/theatre-corners-v219.md).
+
 - **Cattelan exhibition (v1.0.117):** Owner-supplied October 2026 photographs and video guide original simplified procedural representations of Maurizio Cattelan’s NIGHT exhibition. Artworks remain © Maurizio Cattelan; this independent scene is not a scan or official exhibition reconstruction. No photographs, video, portraits or font assets are bundled. Retained Berlin LoD2 anchors the building. See [sources and estimates](docs/cattelan-v217.md).
 
 - **LEGOLAND entrance (v1.0.116):** OpenStreetMap attraction identity (ODbL-1.0), retained Berlin LoD2 and DOP 2025 (dl-de/zero-2-0), operator directions and the credited July 2022 Commons photographs by Singlespeedfahrer (CC0 1.0) guide the procedural entry and current giraffe. No imagery is bundled. LEGO/LEGOLAND names identify the depicted place; this independent model is not endorsed by the operator. See [source and estimate record](docs/legoland-v216.md).

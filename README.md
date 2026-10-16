@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.118 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.118/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.119 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.119/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.118** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.119** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.119 corrects two photographed corners: the pale two-axis Albrechtstraße 12 frontage near Berliner Ensemble and the striped brick corner at the Mori-Ôgai memorial on Luisenstraße. Measured geometry and all other facade details remain unchanged. [Scope and verification](docs/theatre-corners-v219.md).
+
+Version 1.0.119 präzisiert zwei fotografisch belegte Hausecken: Albrechtstraße 12 und die Mori-Ôgai-Gedenkstätte an der Luisenstraße. Die übrigen Fassadendetails und alle vermessenen Baukörper bleiben erhalten.
 
 Version 1.0.118 refines the neighbouring street fronts around Berliner Ensemble, Deutsches Theater, Heinrich-Böll-Stiftung and Friedrichstadt-Palast. It adds the Neues Haus golden courtyard facade, differentiated Albrechtstraße brickwork, Reinhardtstraße portals and source-bound Kalkscheune windows and lettering. All measured building and roof geometry stays intact. [Scope and validation](docs/theatre-neighbourhoods-v218.md).
 

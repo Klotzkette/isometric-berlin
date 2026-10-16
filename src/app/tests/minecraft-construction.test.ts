@@ -6,9 +6,12 @@ import baseline from "./fixtures/minecraft-world-synchronous-v204.json";
 import v206 from "./fixtures/minecraft-world-synchronous-v206.json";
 import v208 from "./fixtures/minecraft-world-synchronous-v208.json";
 import v211 from "./fixtures/minecraft-world-synchronous-v211.json";
-import current from "./fixtures/minecraft-world-synchronous-v218.json";
+import v218 from "./fixtures/minecraft-world-synchronous-v218.json";
+import current from "./fixtures/minecraft-world-synchronous-v219.json";
 import native218 from "./fixtures/core-material-native-v218.json";
+import native219 from "./fixtures/core-material-native-v219.json";
 import audit218 from "./fixtures/minecraft-world-v218-baseline-audit.json";
+import audit219 from "./fixtures/minecraft-world-v219-baseline-audit.json";
 import audit211 from "./fixtures/minecraft-world-v211-colour-audit.json";
 import audit208 from "./fixtures/minecraft-world-v208-baseline-audit.json";
 import frontage208 from "./fixtures/frontage-preservation-v208.json";
@@ -129,7 +132,7 @@ test("v218 whole-world receipt isolates the four refined facade meshes and one a
   const changed = ["Luisen corridor masonry and metal details", "Luisen corridor framed glazing", "Friedrichstrasse masonry and metal", "Friedrichstrasse facade glazing"];
   for (const profile of ["full", "mobile"] as const) {
     const { world, core } = audit218.profiles[profile];
-    expect(world.current).toEqual(current[profile]);
+    expect(world.current).toEqual(v218[profile]);
     expect(core.current).toEqual(native218[profile]);
     expect(world.unchangedObjectCount).toBe(profile === "full" ? 353 : 351);
     expect(core.unchangedObjectCount).toBe(profile === "full" ? 340 : 338);
@@ -152,6 +155,46 @@ test("v218 whole-world receipt isolates the four refined facade meshes and one a
         expect(core.current.bufferRecords - core.before.bufferRecords).toBe(2);
       }
     }
+  }
+});
+
+test("v219 exactly reproduces v118 and changes only the Albrechtstraße and Mori-Ôgai facade families", () => {
+  expect(audit219.releasedBase).toBe("c6f7f9d4937d7689ef5b44aa98c98ab80121e96e");
+  expect(audit219.historicalWorldBaseline).toBe("minecraft-world-synchronous-v218.json");
+  expect(audit219.historicalCoreBaseline).toBe("core-material-native-v218.json");
+  expect(audit219.sourceSha256).toEqual(audit218.sourceSha256);
+  const sources = [
+    "src/app/src/FriedrichstrasseArchitecture.ts", "src/app/src/LuisenCorridorArchitecture.ts",
+    "src/app/src/friedrichstrasseArchitectureProfile.ts", "src/app/src/luisenCorridorProfile.ts",
+  ];
+  expect(Object.keys(audit219.beforeSourceSha256).sort()).toEqual(sources);
+  expect(Object.keys(audit219.currentSourceSha256).sort()).toEqual(sources);
+  for (const [path, digest] of Object.entries(audit219.beforeSourceSha256))
+    expect(digest).toBe(audit218.currentSourceSha256[path as keyof typeof audit218.currentSourceSha256]);
+  const changed = ["Luisen corridor masonry and metal details", "Luisen corridor framed glazing", "Friedrichstrasse masonry and metal", "Friedrichstrasse facade glazing"];
+  for (const profile of ["full", "mobile"] as const) {
+    const { world, core } = audit219.profiles[profile];
+    expect(world.before).toEqual(v218[profile]);
+    expect(world.current).toEqual(current[profile]);
+    expect(core.before).toEqual(native218[profile]);
+    expect(core.current).toEqual(native219[profile]);
+    expect(world.unchangedObjectCount).toBe(profile === "full" ? 354 : 352);
+    expect(core.unchangedObjectCount).toBe(profile === "full" ? 341 : 339);
+    for (const [family, proof] of [["world", world], ["core", core]] as const) {
+      expect(proof.beforeUnchangedSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(proof.currentUnchangedSha256).toBe(proof.beforeUnchangedSha256);
+      expect(proof.beforeChanged).toEqual(audit218.profiles[profile][family].afterChanged.filter(row => changed.includes(row.name)));
+      expect(proof.beforeChanged.map(row => row.name)).toEqual(changed);
+      expect(proof.afterChanged.map(row => row.name)).toEqual(changed);
+      expect(proof.afterChanged.map((row, i) => row.instances - proof.beforeChanged[i].instances)).toEqual([1, -3, 58, 0]);
+      expect(proof.afterChanged.map((row, i) => row.bytes - proof.beforeChanged[i].bytes)).toEqual([76, -228, 4408, 0]);
+      for (const [i, row] of proof.afterChanged.entries()) expect(row.sha256).not.toBe(proof.beforeChanged[i].sha256);
+    }
+    expect(world.current.instances - world.before.instances).toBe(56);
+    expect(world.current.bufferBytes - world.before.bufferBytes).toBe(56 * 76);
+    expect(world.current.renderables).toBe(world.before.renderables);
+    expect(core.current.bytes - core.before.bytes).toBe(56 * 76);
+    expect(core.current.bufferRecords).toBe(core.before.bufferRecords);
   }
 });
 

@@ -1,0 +1,531 @@
+{
+  "releasedBase": "c6f7f9d4937d7689ef5b44aa98c98ab80121e96e",
+  "historicalWorldBaseline": "minecraft-world-synchronous-v218.json",
+  "historicalCoreBaseline": "core-material-native-v218.json",
+  "method": "Independent synchronous full/mobile world, core and static captures of immutable release v1.0.118 and v219. Test-only Bun onLoad restores only the four git-diff runtime modules from the release; no working-tree source is rewritten. Historical v218 snapshots are reproduced exactly. Objects are matched by ordered identity and complete buffer digests, preserving duplicates. Only the two facade families change; all other object records match byte-for-byte. Per-object digests include identity, matrix, all attributes, indices and instance arrays. Static hashes additionally include materials and world transforms. All historical fixtures remain frozen.",
+  "sourceSha256": {
+    "src/app/public/mesh/regierungsviertel/minecraft-voxels.json": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+    "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/app/public/mesh/regierungsviertel/scene.json": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4"
+  },
+  "beforeSourceSha256": {
+    "src/app/src/FriedrichstrasseArchitecture.ts": "9a5558bfd617716d51e08b3b7d080e900faae7b50a0a9365b922bdc818999f73",
+    "src/app/src/friedrichstrasseArchitectureProfile.ts": "a10dfbe9f77a429d079637cd4dbb6b159c73fb66c8960ac64dab5ae149007276",
+    "src/app/src/LuisenCorridorArchitecture.ts": "7ed5a687083f56b2c029ff395f1418fa31dc1e29ab3b615664f52b4f58b70587",
+    "src/app/src/luisenCorridorProfile.ts": "614543932f1623b43a89a3a7de1f136475617831e96d7e93ed78ca2be737dfba"
+  },
+  "currentSourceSha256": {
+    "src/app/src/FriedrichstrasseArchitecture.ts": "9a24dcf4ae403028212da3b8b96b897d6c900bc33b10fb6528a53a2995b07df1",
+    "src/app/src/friedrichstrasseArchitectureProfile.ts": "5286059216b6bd799267f73435cbfbbf94cc1b0c1d90a432471fc599cdf3ecf5",
+    "src/app/src/LuisenCorridorArchitecture.ts": "d4b84dc3077906fa4cea08aca3a6b4194352de0678903767a760de91e1342a95",
+    "src/app/src/luisenCorridorProfile.ts": "1e72ad1725300da0bd062fb6ee185a74504322b62cce7a214ce7b3edb4ad98b4"
+  },
+  "profiles": {
+    "full": {
+      "world": {
+        "before": {
+          "detailProfile": "full",
+          "instances": 4407907,
+          "renderables": 357,
+          "bufferBytes": 383466788,
+          "sha256": "aee2cf6ab03439dfea85185f43921445554a08855a7c5f6296f0f7b96dc0cb87"
+        },
+        "current": {
+          "detailProfile": "full",
+          "instances": 4407963,
+          "renderables": 357,
+          "bufferBytes": 383471044,
+          "sha256": "8e21726d2f08594dcd42181198a430eb68fb612c4bcb2931144ce1bd5acfdb52"
+        },
+        "unchangedObjectCount": 354,
+        "beforeUnchangedSha256": "eedf3a06983e838968eb3de50c961bffa64aca3e445be901e36b8c5d99e37a01",
+        "currentUnchangedSha256": "eedf3a06983e838968eb3de50c961bffa64aca3e445be901e36b8c5d99e37a01",
+        "beforeChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 9013,
+            "bytes": 685636,
+            "sha256": "51244787c4fc07166d7b5fbe914f7c542c44e42d24b6381188d0ab3aa50b972c",
+            "geometry": "5ea8a8d3e63fd3a10a6594fde5518412197731588b4e6901c102838e446b2289",
+            "colours": "23185f8398467fef47d69178cdae994a17dd03dec90c2e8a33efcf2dc7c3d5ea"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 2282,
+            "bytes": 174080,
+            "sha256": "fe0221d0ec2681773147ac34df95f1ee826b615a6bece61e3bebafd51697fcac",
+            "geometry": "e26a3b8e5b0b662c07aecb1c9b6c6d48c490190345f31046183dad1169e22215",
+            "colours": "83f00c8ba96b87f7d27199c31cea7c9060ee3a42016071b5929b169e8790494e"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 20133,
+            "bytes": 1530756,
+            "sha256": "85600f5ece94319c66baa26b8b5aebd20c5a0e6aff292a35a733df25673d8436",
+            "geometry": "63eac629e5f35e2079fdc8ddf0f51768c87c665e6e669c5358cdd763e5d7ed58",
+            "colours": "fa5f2f43b39595511ddd25173faf71dbe3baaf650bc7da41eedec72d37d4ebc6"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 2778,
+            "bytes": 211776,
+            "sha256": "09b7c85b543591ed505c5e9a87647f825e4aff3be82c8f7146e9cf1bb4e91773",
+            "geometry": "167dc6abac0bb10cb88901bf33963ad3fe3cf8c3be6ba9be8e0a08f7873ba290",
+            "colours": "ce474c5a3dffa36323a538570be6e5c60a2cefb7c1049769e56570182854fa8d"
+          }
+        ],
+        "afterChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 9014,
+            "bytes": 685712,
+            "sha256": "b9d4adef262a29fd7f54e263d1e69936487983768a1cb029348f238eb02e137e",
+            "geometry": "fe95f598c794c6110a734264c0682ac7dff91201e7be603b3486da4c5a02202d",
+            "colours": "305478f437babd2ffeb8d43fbc583b808d80e36454e81c2c21ee690924a622e3"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 2279,
+            "bytes": 173852,
+            "sha256": "a4d10f8fba9df557b9214de2c6bd3d01335740f502935baad15ff1db891b5ea3",
+            "geometry": "7c5beb139c9810649195673dcdd125bfdc167a8f5681d4d0f838b31b34668a7d",
+            "colours": "ac89dc01a32222ded4664c9479baf9d72504e59c084d198686ef9298d9f3dc61"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 20191,
+            "bytes": 1535164,
+            "sha256": "b2a8c60bd032c57d4a02c8ee7cb37c263d74ffd93a315a97ba7d4714cc425f2a",
+            "geometry": "3b6c05a6d69988256a89f7ec22db2e7ab1c612410ecdfc88ada743d0e9a0130d",
+            "colours": "2c34c25b6965b0b5444966442002614dea320645622a9b8f9962ab597d5f707f"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 2778,
+            "bytes": 211776,
+            "sha256": "a569766a7ca48e48959274a989c9377ac0259bd8523ecf27fb176e9b6c153721",
+            "geometry": "cf45d40b0bcadd53da760a91949d33b9d5f1389a397f590c7d3460ce2c5c3c3e",
+            "colours": "36c889c927f7b6fade0c5e6990bc015636ac0a7897a582ce10953c221cb830d3"
+          }
+        ]
+      },
+      "core": {
+        "before": {
+          "geometry": "edaad2f1b13507baf1f80b8110af39901d588e1614160309d58cbce3d534b951",
+          "colours": "6bbac073cb9d4d4f024dbdfcf446b917a56eb1948eb77d3d141faa15dff79a1c",
+          "bytes": 174556262,
+          "bufferRecords": 569
+        },
+        "current": {
+          "geometry": "84d650a1bd16310654f6182c9968aec43caf33640d5724892d177b77d6f94ac8",
+          "colours": "fb1bfd96b34ea8c8b489ea58674d336fc6af610994efe8b1d80d60b444252138",
+          "bytes": 174560518,
+          "bufferRecords": 569
+        },
+        "unchangedObjectCount": 341,
+        "beforeUnchangedSha256": "edea143047c789d05136273704d457cf19e81969d792ed25ce98c3b005476776",
+        "currentUnchangedSha256": "edea143047c789d05136273704d457cf19e81969d792ed25ce98c3b005476776",
+        "beforeChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 12362,
+            "bytes": 940160,
+            "sha256": "3284eb24e43d13b0a91150bffbe936a7313f4ad893bfb2dae5de5f430364e907",
+            "geometry": "b01ec115220c48f2a296a72f2ed033d8334b4ee83f97b418fee13bc2d1d4d37d",
+            "colours": "823315fa784dd054bce70540c37044470bd902d40674674b33348a5bd20d5135"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 3427,
+            "bytes": 261100,
+            "sha256": "2213448a0fcd4a39d6a636b62d81c4de3679d65be1d30a5849544cddda76495b",
+            "geometry": "ca2dbaf09cef703a4503f90eb0a7f1d2af18e5640874dae91261d9ebf4881cdf",
+            "colours": "d038a8254a699512b3537796bcdef198fb46aa58688a2dca7a0dcb2b4da40bcf"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 20496,
+            "bytes": 1558344,
+            "sha256": "df63103b0aa77fadfab6134910018e41fa0b1125766db4551423455cae1b837f",
+            "geometry": "9489e63a39ac28cdc9d52ea4339464e19e80aeb3c69be7540220637442c0e18a",
+            "colours": "83e9752f54f69ccde43dcae0087b625796ea498b01842252c01d236360dbc9fb"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 3014,
+            "bytes": 229712,
+            "sha256": "96cd7ee0a132f2d4c838791bdafc7a40122e051aeb0703594be82c33c1b6ac8a",
+            "geometry": "85bb39ba4aab3ece1c4d099f1455e6fe7b395b185ffc7d91d528a80ff6aa18e1",
+            "colours": "6004df9e4474317fb25040179a678219f6eb45b7308e03d30d7603d63b00274a"
+          }
+        ],
+        "afterChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 12363,
+            "bytes": 940236,
+            "sha256": "72521d0a7b7a05d445c1a8e619a55285aeb7136892f95ab180edd7551c774f6c",
+            "geometry": "f8b3dc111ab039013c6895246e9dd39141669433d7dc8422bc3396e74627af30",
+            "colours": "ccfe0dfc2bc4d084a62c9f2140b594653d88d43c4761e39d18fba627ebe105eb"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 3424,
+            "bytes": 260872,
+            "sha256": "75ecac6d617604a5919f48474d0375f7356d41c020227bb4c2bd595ce51fcad0",
+            "geometry": "a58efbe7369d1a96b36e4f1c9d4d942f9550bde38a9a6af4c1d51c2af5d41c50",
+            "colours": "2d68dbd7b60c32754685ac3c92c2a673029e5a4aa8f3fe515e42482a9a50d459"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 20554,
+            "bytes": 1562752,
+            "sha256": "771560f5905c232c62474ff8b7e0fa3f28aa0080fa1e39db55c0ab1cb2623eaa",
+            "geometry": "401c2f58be1f1d9b60b735598ce250699b885d1f859fad0ea287dd2c90ec3642",
+            "colours": "b97a86d0f1d8476fc4038a11b345ee0cb7c9f4347c9b7b35affc3d3afa7c35c6"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 3014,
+            "bytes": 229712,
+            "sha256": "8925c4f524b6490b45fc7de9d160793c284cbb9cff109a31be7b27d6b160fadd",
+            "geometry": "adfcea7498aff976d21572f5a6693b9a04344789353d1f523d12e2f4f3931089",
+            "colours": "6e8aa937f2901bf49b9561828351cd192579eea7a80fb187adacc7f8abf84116"
+          }
+        ]
+      }
+    },
+    "mobile": {
+      "world": {
+        "before": {
+          "detailProfile": "mobile",
+          "instances": 2042212,
+          "renderables": 355,
+          "bufferBytes": 203224512,
+          "sha256": "11d5035b7c5a8390a823fca634715d872d996796cee858bf3f85128a7ea0ed2e"
+        },
+        "current": {
+          "detailProfile": "mobile",
+          "instances": 2042268,
+          "renderables": 355,
+          "bufferBytes": 203228768,
+          "sha256": "544fc80f87db4f6e087ab5337cfa14e985dae5b361cdb2f3f3b701377db3593a"
+        },
+        "unchangedObjectCount": 352,
+        "beforeUnchangedSha256": "663b354696c24a464f6f86d1714b0e505a55e9d3e57f42cf52e77dc4a9d49c6b",
+        "currentUnchangedSha256": "663b354696c24a464f6f86d1714b0e505a55e9d3e57f42cf52e77dc4a9d49c6b",
+        "beforeChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 9013,
+            "bytes": 685636,
+            "sha256": "51244787c4fc07166d7b5fbe914f7c542c44e42d24b6381188d0ab3aa50b972c",
+            "geometry": "5ea8a8d3e63fd3a10a6594fde5518412197731588b4e6901c102838e446b2289",
+            "colours": "23185f8398467fef47d69178cdae994a17dd03dec90c2e8a33efcf2dc7c3d5ea"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 2282,
+            "bytes": 174080,
+            "sha256": "fe0221d0ec2681773147ac34df95f1ee826b615a6bece61e3bebafd51697fcac",
+            "geometry": "e26a3b8e5b0b662c07aecb1c9b6c6d48c490190345f31046183dad1169e22215",
+            "colours": "83f00c8ba96b87f7d27199c31cea7c9060ee3a42016071b5929b169e8790494e"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 16787,
+            "bytes": 1276460,
+            "sha256": "c2fdfbb5a35bf03d98d2f82f46e2b2beef705eb80149d182dca269d29242d727",
+            "geometry": "dc5a763841f3f401a6b657a2fd72953fa1b1680fbf095f85d55cf8c3916dda46",
+            "colours": "e155e12a6e260f37bfec4531ddd36f3f28c774aa841e737de073559e0f6145aa"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 2778,
+            "bytes": 211776,
+            "sha256": "09b7c85b543591ed505c5e9a87647f825e4aff3be82c8f7146e9cf1bb4e91773",
+            "geometry": "167dc6abac0bb10cb88901bf33963ad3fe3cf8c3be6ba9be8e0a08f7873ba290",
+            "colours": "ce474c5a3dffa36323a538570be6e5c60a2cefb7c1049769e56570182854fa8d"
+          }
+        ],
+        "afterChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 9014,
+            "bytes": 685712,
+            "sha256": "b9d4adef262a29fd7f54e263d1e69936487983768a1cb029348f238eb02e137e",
+            "geometry": "fe95f598c794c6110a734264c0682ac7dff91201e7be603b3486da4c5a02202d",
+            "colours": "305478f437babd2ffeb8d43fbc583b808d80e36454e81c2c21ee690924a622e3"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 2279,
+            "bytes": 173852,
+            "sha256": "a4d10f8fba9df557b9214de2c6bd3d01335740f502935baad15ff1db891b5ea3",
+            "geometry": "7c5beb139c9810649195673dcdd125bfdc167a8f5681d4d0f838b31b34668a7d",
+            "colours": "ac89dc01a32222ded4664c9479baf9d72504e59c084d198686ef9298d9f3dc61"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 16845,
+            "bytes": 1280868,
+            "sha256": "3434a5a33986897d69bdccd9c0da0b67d31750acd72776436c2115c596fa32ff",
+            "geometry": "8ac8d9352c89c6921d245addb45c86f5403bcd6eeabd2e2f3f3b59eb733aafba",
+            "colours": "e01d3ec41bda8f956784751f5f55266a4c91929473a763c1f0a443b486819b8b"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 2778,
+            "bytes": 211776,
+            "sha256": "a569766a7ca48e48959274a989c9377ac0259bd8523ecf27fb176e9b6c153721",
+            "geometry": "cf45d40b0bcadd53da760a91949d33b9d5f1389a397f590c7d3460ce2c5c3c3e",
+            "colours": "36c889c927f7b6fade0c5e6990bc015636ac0a7897a582ce10953c221cb830d3"
+          }
+        ]
+      },
+      "core": {
+        "before": {
+          "geometry": "a4bcfd5c1d91421368a2baa75c92cea049a2352020b3a5c15cb808f10ed605cb",
+          "colours": "e19e0447a7c4c7ef16ad428f963e4fbb54b2300274b34d61b60b34c671b759f5",
+          "bytes": 168926962,
+          "bufferRecords": 565
+        },
+        "current": {
+          "geometry": "c6f8bc7a3a83b3dd47e7238ee5c86c35338a80addd1ba2449b7945ae853f9bc0",
+          "colours": "53dc1c48cb5ddc4a11fc6fa2c6b2720ef534a894ef62b2f5107f6758817764a5",
+          "bytes": 168931218,
+          "bufferRecords": 565
+        },
+        "unchangedObjectCount": 339,
+        "beforeUnchangedSha256": "b7c7ba967ed3414f3d67d5b35cca818b8ee311e4870ca247602385b9fe918a2c",
+        "currentUnchangedSha256": "b7c7ba967ed3414f3d67d5b35cca818b8ee311e4870ca247602385b9fe918a2c",
+        "beforeChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 12362,
+            "bytes": 940160,
+            "sha256": "3284eb24e43d13b0a91150bffbe936a7313f4ad893bfb2dae5de5f430364e907",
+            "geometry": "b01ec115220c48f2a296a72f2ed033d8334b4ee83f97b418fee13bc2d1d4d37d",
+            "colours": "823315fa784dd054bce70540c37044470bd902d40674674b33348a5bd20d5135"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 3427,
+            "bytes": 261100,
+            "sha256": "2213448a0fcd4a39d6a636b62d81c4de3679d65be1d30a5849544cddda76495b",
+            "geometry": "ca2dbaf09cef703a4503f90eb0a7f1d2af18e5640874dae91261d9ebf4881cdf",
+            "colours": "d038a8254a699512b3537796bcdef198fb46aa58688a2dca7a0dcb2b4da40bcf"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 17150,
+            "bytes": 1304048,
+            "sha256": "f9d9cde93c64287fd3852b84e8b24d197b99d4334bbfee0e74e8c170ad3a8180",
+            "geometry": "2a17db9fb196fb635a129cddb5572257b9c5ecf864109349f65f9fc09c133ae4",
+            "colours": "916628c7e413d185dbc262187f908ae34a250bfaf3fb165b963c3955fb30b9ff"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 3014,
+            "bytes": 229712,
+            "sha256": "96cd7ee0a132f2d4c838791bdafc7a40122e051aeb0703594be82c33c1b6ac8a",
+            "geometry": "85bb39ba4aab3ece1c4d099f1455e6fe7b395b185ffc7d91d528a80ff6aa18e1",
+            "colours": "6004df9e4474317fb25040179a678219f6eb45b7308e03d30d7603d63b00274a"
+          }
+        ],
+        "afterChanged": [
+          {
+            "name": "Luisen corridor masonry and metal details",
+            "instances": 12363,
+            "bytes": 940236,
+            "sha256": "72521d0a7b7a05d445c1a8e619a55285aeb7136892f95ab180edd7551c774f6c",
+            "geometry": "f8b3dc111ab039013c6895246e9dd39141669433d7dc8422bc3396e74627af30",
+            "colours": "ccfe0dfc2bc4d084a62c9f2140b594653d88d43c4761e39d18fba627ebe105eb"
+          },
+          {
+            "name": "Luisen corridor framed glazing",
+            "instances": 3424,
+            "bytes": 260872,
+            "sha256": "75ecac6d617604a5919f48474d0375f7356d41c020227bb4c2bd595ce51fcad0",
+            "geometry": "a58efbe7369d1a96b36e4f1c9d4d942f9550bde38a9a6af4c1d51c2af5d41c50",
+            "colours": "2d68dbd7b60c32754685ac3c92c2a673029e5a4aa8f3fe515e42482a9a50d459"
+          },
+          {
+            "name": "Friedrichstrasse masonry and metal",
+            "instances": 17208,
+            "bytes": 1308456,
+            "sha256": "4fb0298bd1d266f230e3ca8e8849e90ffe1ed23d8f4ddc19c0e08310d8fca1ee",
+            "geometry": "0f4489130dc7983947dff7afd094b6310d3f28c1a20f523773a96cc42966f281",
+            "colours": "ffda73c2de35f677a139cfbedbcf8fae9031e7d2a387dc5ef84fed728a370a7c"
+          },
+          {
+            "name": "Friedrichstrasse facade glazing",
+            "instances": 3014,
+            "bytes": 229712,
+            "sha256": "8925c4f524b6490b45fc7de9d160793c284cbb9cff109a31be7b27d6b160fadd",
+            "geometry": "adfcea7498aff976d21572f5a6693b9a04344789353d1f523d12e2f4f3931089",
+            "colours": "6e8aa937f2901bf49b9561828351cd192579eea7a80fb187adacc7f8abf84116"
+          }
+        ]
+      }
+    }
+  },
+  "static": {
+    "drawn": {
+      "before": {
+        "FriedrichstrasseArchitecture/full": {
+          "hash": "44e4ce531a020f1ebdbc2462d14fa3c08ad686f09d382fd0badb176ef4e636c2",
+          "budget": {
+            "bytes": 1691472,
+            "draws": 3,
+            "instances": 21540,
+            "vertices": 1518
+          }
+        },
+        "FriedrichstrasseArchitecture/mobile": {
+          "hash": "44e4ce531a020f1ebdbc2462d14fa3c08ad686f09d382fd0badb176ef4e636c2",
+          "budget": {
+            "bytes": 1691472,
+            "draws": 3,
+            "instances": 21540,
+            "vertices": 1518
+          }
+        },
+        "LuisenCorridorArchitecture/full": {
+          "hash": "fa88f47fff6657c8fa62d4be617c4816614f9b811ed3c48b11eb43d68baed7bc",
+          "budget": {
+            "bytes": 2153804,
+            "draws": 2,
+            "instances": 28331,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/mobile": {
+          "hash": "fa88f47fff6657c8fa62d4be617c4816614f9b811ed3c48b11eb43d68baed7bc",
+          "budget": {
+            "bytes": 2153804,
+            "draws": 2,
+            "instances": 28331,
+            "vertices": 24
+          }
+        }
+      },
+      "current": {
+        "FriedrichstrasseArchitecture/full": {
+          "hash": "c812ffd8d91f4131aa3310eae220beffd28c9fdac905c29f372f0997c5e5e66a",
+          "budget": {
+            "bytes": 1694360,
+            "draws": 3,
+            "instances": 21578,
+            "vertices": 1518
+          }
+        },
+        "FriedrichstrasseArchitecture/mobile": {
+          "hash": "c812ffd8d91f4131aa3310eae220beffd28c9fdac905c29f372f0997c5e5e66a",
+          "budget": {
+            "bytes": 1694360,
+            "draws": 3,
+            "instances": 21578,
+            "vertices": 1518
+          }
+        },
+        "LuisenCorridorArchitecture/full": {
+          "hash": "f50c06efafd5b78406ebbe4d6e7b86ee9c329c40a278db92ccd0c7e3920eba05",
+          "budget": {
+            "bytes": 2154184,
+            "draws": 2,
+            "instances": 28336,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/mobile": {
+          "hash": "f50c06efafd5b78406ebbe4d6e7b86ee9c329c40a278db92ccd0c7e3920eba05",
+          "budget": {
+            "bytes": 2154184,
+            "draws": 2,
+            "instances": 28336,
+            "vertices": 24
+          }
+        }
+      }
+    },
+    "native": {
+      "before": {
+        "FriedrichstrasseArchitecture/full": {
+          "hash": "05e4df2cc54c3b84efa668c3e8c14825e8db3358140bb5b4e3e39e186b0d7415",
+          "budget": {
+            "bytes": 1787408,
+            "draws": 2,
+            "instances": 23510,
+            "vertices": 24
+          }
+        },
+        "FriedrichstrasseArchitecture/mobile": {
+          "hash": "37c9cae319954788b00ca7d8b5e561bec8ab61869fbbf1eefe70dabea470e86a",
+          "budget": {
+            "bytes": 1533112,
+            "draws": 2,
+            "instances": 20164,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/full": {
+          "hash": "bce76379d3f0b067bed80be2780d3df50897fbb2715c500f0a34c6532a348e69",
+          "budget": {
+            "bytes": 1200612,
+            "draws": 2,
+            "instances": 15789,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/mobile": {
+          "hash": "bce76379d3f0b067bed80be2780d3df50897fbb2715c500f0a34c6532a348e69",
+          "budget": {
+            "bytes": 1200612,
+            "draws": 2,
+            "instances": 15789,
+            "vertices": 24
+          }
+        }
+      },
+      "current": {
+        "FriedrichstrasseArchitecture/full": {
+          "hash": "dba1d764d32aafbd9d3f669d5fe1340f852d21753e8673dcb77e1ea561db10a8",
+          "budget": {
+            "bytes": 1791816,
+            "draws": 2,
+            "instances": 23568,
+            "vertices": 24
+          }
+        },
+        "FriedrichstrasseArchitecture/mobile": {
+          "hash": "23eb6a718d357a11754cd45a7a529b9773f139611011d529300fbab19d6c795e",
+          "budget": {
+            "bytes": 1537520,
+            "draws": 2,
+            "instances": 20222,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/full": {
+          "hash": "fd3955156dba79ea9bfe8f9726ac0ae217e69753206b796906944387d55febe1",
+          "budget": {
+            "bytes": 1200460,
+            "draws": 2,
+            "instances": 15787,
+            "vertices": 24
+          }
+        },
+        "LuisenCorridorArchitecture/mobile": {
+          "hash": "fd3955156dba79ea9bfe8f9726ac0ae217e69753206b796906944387d55febe1",
+          "budget": {
+            "bytes": 1200460,
+            "draws": 2,
+            "instances": 15787,
+            "vertices": 24
+          }
+        }
+      }
+    }
+  }
+}

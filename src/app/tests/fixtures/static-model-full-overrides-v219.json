@@ -1,0 +1,20 @@
+{
+  "FriedrichstrasseArchitecture": {
+    "hash": "c812ffd8d91f4131aa3310eae220beffd28c9fdac905c29f372f0997c5e5e66a",
+    "budget": {
+      "bytes": 1694360,
+      "draws": 3,
+      "instances": 21578,
+      "vertices": 1518
+    }
+  },
+  "LuisenCorridorArchitecture": {
+    "hash": "f50c06efafd5b78406ebbe4d6e7b86ee9c329c40a278db92ccd0c7e3920eba05",
+    "budget": {
+      "bytes": 2154184,
+      "draws": 2,
+      "instances": 28336,
+      "vertices": 24
+    }
+  }
+}

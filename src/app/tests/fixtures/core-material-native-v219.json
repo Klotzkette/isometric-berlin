@@ -1,0 +1,14 @@
+{
+  "full": {
+    "geometry": "84d650a1bd16310654f6182c9968aec43caf33640d5724892d177b77d6f94ac8",
+    "colours": "fb1bfd96b34ea8c8b489ea58674d336fc6af610994efe8b1d80d60b444252138",
+    "bytes": 174560518,
+    "bufferRecords": 569
+  },
+  "mobile": {
+    "geometry": "c6f8bc7a3a83b3dd47e7238ee5c86c35338a80addd1ba2449b7945ae853f9bc0",
+    "colours": "53dc1c48cb5ddc4a11fc6fa2c6b2720ef534a894ef62b2f5107f6758817764a5",
+    "bytes": 168931218,
+    "bufferRecords": 565
+  }
+}

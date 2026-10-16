@@ -20,6 +20,8 @@ import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import overridesV204 from "./fixtures/static-model-full-overrides-v204.json";
 import overridesV218 from "./fixtures/static-model-full-overrides-v218.json";
+import overridesV219 from "./fixtures/static-model-full-overrides-v219.json";
+import auditV219 from "./fixtures/minecraft-world-v219-baseline-audit.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
 
 const profileEntries = [
@@ -47,6 +49,22 @@ const moduleNames: Record<string, string> = {
 };
 
 describe("all devices retain the full authored static city detail", () => {
+  test("v219 drawn overrides reproduce v218 and are limited to the two corrected corner families", () => {
+    expect(Object.keys(overridesV219)).toEqual(["FriedrichstrasseArchitecture", "LuisenCorridorArchitecture"]);
+    for (const name of Object.keys(overridesV219) as (keyof typeof overridesV219)[]) {
+      for (const profile of ["full", "mobile"] as const) {
+        const key = `${name}/${profile}` as const;
+        expect(auditV219.static.drawn.before[key]).toEqual(overridesV218[name]);
+        expect(auditV219.static.drawn.current[key]).toEqual(overridesV219[name]);
+      }
+      const before = overridesV218[name].budget, current = overridesV219[name].budget;
+      const delta = name === "FriedrichstrasseArchitecture" ? 38 : 5;
+      expect(current.instances - before.instances).toBe(delta);
+      expect(current.bytes - before.bytes).toBe(delta * 76);
+      expect(current.draws).toBe(before.draws);
+      expect(current.vertices).toBe(before.vertices);
+    }
+  });
   test("Lenné-Eiche retains the full bark, foliage, plaque and snow geometry on touch", () => {
     const payload = parkDetails as unknown as ParkDetailsPayload;
     const tree = decodeTrees(payload.trees, payload.tree_vocabulary).find(isLenneOakTree)!;
@@ -102,7 +120,9 @@ describe("all devices retain the full authored static city detail", () => {
       // the separately executed HEAD factories reproduce their frozen v141 hashes.
       // Dedicated owner/edge tests guard the bounded replacements; touch still
       // matches every full vertex below, and all earlier fixtures stay frozen.
-      const override = overridesV218[name as keyof typeof overridesV218] ?? overridesV204[name as keyof typeof overridesV204] ?? overridesV165[name as keyof typeof overridesV165] ?? overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v219 changes only the exact Albrechtstraße 12 and Mori-Ôgai corners;
+      // independent v118 factories reproduce v218 before these bounded edits.
+      const override = overridesV219[name as keyof typeof overridesV219] ?? overridesV218[name as keyof typeof overridesV218] ?? overridesV204[name as keyof typeof overridesV204] ?? overridesV165[name as keyof typeof overridesV165] ?? overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

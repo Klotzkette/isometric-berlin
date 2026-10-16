@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { Color, InstancedMesh, Mesh } from "three";
 import before from "./fixtures/core-material-v211-before.json";
-import native218 from "./fixtures/core-material-native-v218.json";
+import native219 from "./fixtures/core-material-native-v219.json";
 import { buildingAttributes, mappedRoofTone } from "../src/buildingAttributes";
 import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
@@ -101,8 +101,8 @@ test("actual native factories retain all full/mobile matrices, indices, caps and
     const root = nativeV211(profile);
     try {
       // The full factory includes later authored buildings. Its current exact
-      // snapshot is audited against release v117; the v211 fixture stays frozen.
-      const actual = snapshotV211(root), previous = native218[profile];
+      // snapshot is audited against release v118; all historical fixtures stay frozen.
+      const actual = snapshotV211(root), previous = native219[profile];
       expect({ ...actual, colours: previous.colours }).toEqual(previous);
       const mesh = root.getObjectByName("Voxel building columns") as InstancedMesh;
       const lookup = buildColumnToneLookup({ buildings: nativeIdsV211.map(fixtureV211) });
