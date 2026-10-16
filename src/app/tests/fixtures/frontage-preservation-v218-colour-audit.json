@@ -1,0 +1,60 @@
+{
+  "releaseCommit": "1db721153e44af4965bcabc80bf56eb4c7f0fe75",
+  "historicalCommit": "edcde0e7d05552d1e8900c9c87e1da9b40e02f76",
+  "historicalReceiptSha256": "2b81d62d045b4eb7e9f07db9ed47ce48258522338b746c0eb65d617d2ab526ec",
+  "reason": "The v211 and v217 generic facade swatches change only the LoD2 prism buildings vertex-paint buffer for the six synthetic foreign IDs. Their original v107 palette exactly reproduces the historical receipt; all geometry, other attributes, material settings, transforms and budgets remain unchanged. See docs/city-polish-v211.md and docs/city-polish-v217.md.",
+  "method": "Bun onLoad supplies every imported src/app/src TypeScript/JSON file from immutable release v117 via git show. Two counterfactuals replace only cityColourV184.ts with the v107 or pre-v217 blob. Live v218 is separately audited. Geometry/material audit zeros only the LoD2 prism buildings color attribute, retaining its layout and all other submitted data.",
+  "sourceSha256": {
+    "releasedCore": "ea315337de1e962902912ea0fcb068d58d0492e7e14082e21ca4a76b45dfb442",
+    "historicalPalette": "2c72ec7961d7da64b2ae25a5702c185ac266de3c764bd9903eae2adf060140a5",
+    "preV217Palette": "ba2968f57a5116baed743096cf36d4c0760cf96a0f5b2ac6bc1febffbbe9e767",
+    "releasedPalette": "2134c73b5166d3f7ce69513d631a9a614bb996fcbbcb2ae24d345ab776d7f979"
+  },
+  "controls": {
+    "historicalPalette": {
+      "hash": "76eb9bec8fdb6ad1452419a09124346df46807c0bafe47b7caf81e321dbb05b7",
+      "budget": {
+        "bytes": 39422,
+        "draws": 4,
+        "instances": 24,
+        "vertices": 2662
+      }
+    },
+    "preV217Palette": {
+      "hash": "00abd788d2800854b8da72cec1814242ccd0e2781749532085609c92799754b8",
+      "budget": {
+        "bytes": 39422,
+        "draws": 4,
+        "instances": 24,
+        "vertices": 2662
+      }
+    },
+    "released": {
+      "hash": "b8559c9c33e1a88560106fc51f132148d667b82fd072cf91700535b9866dcafe",
+      "budget": {
+        "bytes": 39422,
+        "draws": 4,
+        "instances": 24,
+        "vertices": 2662
+      }
+    },
+    "current": {
+      "hash": "b8559c9c33e1a88560106fc51f132148d667b82fd072cf91700535b9866dcafe",
+      "budget": {
+        "bytes": 39422,
+        "draws": 4,
+        "instances": 24,
+        "vertices": 2662
+      }
+    }
+  },
+  "geometryAndMaterials": {
+    "hash": "4bcec50663d12b6d56ee077a05d2fd568eb9fdf17d6d95c158a35a1ea95535a3",
+    "budget": {
+      "bytes": 39422,
+      "draws": 4,
+      "instances": 24,
+      "vertices": 2662
+    }
+  }
+}

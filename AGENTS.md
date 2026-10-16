@@ -188,6 +188,13 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.118 request permits a bounded refinement of the existing
+building surroundings of Berliner Ensemble, Heinrich-Böll-Stiftung, Deutsches
+Theater and Friedrichstadt-Palast. Preserve source footprints, holes, measured
+roofs/heights, dedicated landmark ownership and full mobile detail. Use verified
+architectural references for local street-facing recognition; record estimated
+subdivisions. No new tour stops, coverage, textures or residency budget.
+
 The owner's v1.0.117 request permits a bounded owner-photo interpretation of the
 Cattelan NIGHT exhibition outside and inside Neue Nationalgalerie. Keep the
 measured pavilion/terrace, fit photo-derived furniture and art as labelled display

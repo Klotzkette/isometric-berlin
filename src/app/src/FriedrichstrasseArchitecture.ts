@@ -1,7 +1,7 @@
 import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Vector2 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from "./friedrichstrasseArchitectureProfile";
+import { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from "./friedrichstrasseArchitectureProfile";
 type Point = readonly [number, number];
 type Triple = [number, number, number];
 export type FriedrichstrasseSourcePrism = Pick<PrismBuilding, "id" | "ring" | "holes" | "y0_dm" | "h_dm">;
@@ -118,8 +118,8 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
     const dx = v - u, dy = yy - y, n = mc ? Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / .45)) : 1;
     for (let i = 0; i < n; i++) emit(u + dx * (i + .5) / n, y + dy * (i + .5) / n, mc ? Math.max(thickness, Math.abs(dx) / n) : Math.hypot(dx, dy), mc ? Math.max(thickness, Math.abs(dy) / n) : thickness, .10, out, color, role, false, mc ? 0 : Math.atan2(dy, dx));
   };
-  const sign = (text: string, u: number, y: number, cap: number, out: number, color: number) => {
-    for (const path of letteringStrokePaths(text, cap)) for (let i = 1; i < path.length; i++) line(u + path[i-1][0], y + path[i-1][1], u + path[i][0], y + path[i][1], Math.max(.045, cap * .09), out, color, `lettering ${text}`);
+  const sign = (text: string, u: number, y: number, cap: number, out: number, color: number, direction = 1) => {
+    for (const path of letteringStrokePaths(text, cap)) for (let i = 1; i < path.length; i++) line(u + direction * path[i-1][0], y + path[i-1][1], u + direction * path[i][0], y + path[i][1], Math.max(.045, cap * .09), out, color, `lettering ${text}`);
   };
   for (wall of friedrichstrasseArchitectureWalls()) {
     const profile = profiles.get(wall.part.id)!, style = profile.style, base = wall.part.y0_dm / 10, top = (S.facadeTops as Record<string, number>)[wall.part.id], span = top - base;
@@ -127,10 +127,38 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
     // The street portico is authored once across its source's deliberately
     // segmented half-column outline, not repeated once per tiny source edge.
     if (wall.part.id === "K00002ap" && wall.nx < -.6) continue;
+    const courtFront = ENSEMBLE_NEIGHBOUR_REFINEMENT_V218.neuesHausFront;
+    if (wall.part.id === courtFront.sourceId && Math.hypot(wall.a[0] - courtFront.start[0], wall.a[1] - courtFront.start[1]) < .02) {
+      // The operator's current courtyard photograph shows a golden modular
+      // screen, not the former generic three-storey punched-window grid.
+      // Only this exact face changes; the measured envelope/roof stay intact.
+      const columns = 9, step = wall.length / columns, sill = base + 2.55, height = top - sill;
+      for (let i = 0; i < columns; i++) {
+        const u = (i + .5) * step;
+        push = mc ? voxel(wall, u, step, (sill + top) / 2, height) : 0;
+        emit(u, (sill + top) / 2, step - .035, height, .08, .20, 0xc9ad73, "Neues Haus golden screen field", true);
+        for (let j = 1; j < 10; j++) emit(i * step + j * step / 10, (sill + top) / 2, .035, height, .035, .26, 0xb69b66, "Neues Haus screen rib");
+        for (let f = 0; f <= 3; f++) emit(u, sill + height * f / 3, step, .055, .07, .29, 0xd8d1b4, "Neues Haus horizontal panel joint");
+        emit(i * step + .035, (sill + top) / 2, .065, height, .09, .30, 0x6c7167, "Neues Haus vertical panel joint");
+        push = mc ? voxel(wall, u, step, base + 1.25, 2.5) : 0;
+        emit(u, base + 1.25, step - .12, 2.45, .08, .20, 0x596b68, "Neues Haus recessed foyer glazing", true);
+        emit(i * step + .07, base + 1.25, .14, 2.5, .16, .27, DARK, "Neues Haus foyer jamb");
+      }
+      // Outward-readable geometric lettering, not a font or copied logo asset.
+      const u = wall.length - 3.2;
+      push = mc ? voxel(wall, u, 5.8, top - 1.5, 3) : 0;
+      sign("NEUES", u, top - 1.8, .8, .40, 0xf3f0dc, -1);
+      sign("HAUS", u, top - 2.8, .8, .40, 0xf3f0dc, -1);
+      emit(u, top - .60, 4.8, .15, .12, .40, 0xf3f0dc, "Neues Haus sign rule");
+      push = 0;
+      continue;
+    }
     const curvedGlass = style === "vertical-glass", court = style === "admiral" && wall.part.id === "K00002uV" && wall.nx < -.5;
     const floors = curvedGlass ? 10 : style === "hotel-stone" ? Math.min(9, Math.max(2, Math.round(span / 3.4))) : style === "admiral" ? 5 : Math.min(profile.floors, Math.max(2, Math.round(span / 3.4)));
     const pitch = span / floors, bayPitch = curvedGlass ? (mc ? 2.7 : mobile ? 2.2 : 1.55) : style === "hotel-stone" ? 3.2 : 3.9;
     const bays = Math.max(1, Math.round(wall.length / bayPitch)), step = wall.length / bays;
+    const refined = wall.street && wall.length > 4.5 && (ENSEMBLE_NEIGHBOUR_REFINEMENT_V218.frontages as readonly string[]).includes(profile.key);
+    const albrechtBrick = refined && profile.key === "schiff8" && wall.nx < -.75;
     if (wall.length < (curvedGlass ? .8 : 2.3)) continue;
     for (let i = 0; i < bays; i++) {
       const u = (i + .5) * step;
@@ -138,6 +166,30 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
         const y = base + (f + .5) * pitch, shop = f === 0 && wall.street, width = step * (curvedGlass ? .82 : shop ? .76 : .44), h = pitch * (curvedGlass ? .69 : .67);
         push = mc && !ADMIRALSPALAST_IDS.has(wall.part.id) ? voxel(wall, u, step, y, pitch) : 0;
         if ([-width*.48,0,width*.48].some(du => hidden(wall,u+du,y,.3+push))) continue;
+        if (refined) {
+          // No random decoration: the plain 5/6–7 fronts keep restrained shop
+          // lintels, while the photographed stone/ochre fronts gain bands.
+          if (f === 0 || profile.key === "schiff8" || profile.key === "schiff12") {
+            emit(u, base + (f + 1) * pitch - .14, step, .16, .17, .12, profile.key === "schiff12" ? 0xdfc59b : 0xcbbda4, "v218 photographed stringcourse");
+          }
+          if (shop) {
+            for (const side of [-1, 1]) emit(u + side * width * .5, y, .13, h, .09, .31, profile.key === "schiff12" ? 0x775139 : 0x6f746b, "v218 ground-floor shopfront frame");
+            emit(u, y + h * .28, width, .095, .09, .31, profile.key === "schiff12" ? 0x775139 : 0x6f746b, "v218 shop fanlight transom");
+          }
+          if (albrechtBrick && f > 0) {
+            for (const side of [-1, 1]) emit(u + side * (step + width + .30) / 4, y, Math.max(.05, (step - width - .30) / 2), pitch - .23, .035, .025, 0xa66c5c, "v218 Albrechtstrasse red brick pier");
+            emit(u, y - h / 2 - .30, width + .28, .25, .06, .10, 0xa66c5c, "v218 Albrechtstrasse brick spandrel");
+            if (f === 2) {
+              line(u - width * .65, y + h / 2 + .35, u, y + h / 2 + .82, .14, .35, 0xb7a68c, "v218 Albrechtstrasse triangular window hood");
+              line(u, y + h / 2 + .82, u + width * .65, y + h / 2 + .35, .14, .35, 0xb7a68c, "v218 Albrechtstrasse triangular window hood");
+            }
+          }
+          if (profile.key === "schiff12" && f > 1 && f < floors - 1) {
+            const panelY = base + f * pitch + .28, pw = Math.min(1.05, width * .65);
+            for (const side of [-1, 1]) emit(u + side * pw / 2, panelY, .055, .44, .055, .13, 0xd3b68a, "v218 ochre recessed-panel outline");
+            for (const side of [-1, 1]) emit(u, panelY + side * .22, pw, .055, .055, .13, 0xd3b68a, "v218 ochre recessed-panel outline");
+          }
+        }
         emit(u, y, width, h, .08, .17, curvedGlass ? 0x607b83 : GLASS, court ? "court window glazing" : "exposed window glazing", true);
         if (curvedGlass) {
           emit(u - step / 2 + .1, y, .14, pitch, .32, .22, 0x939799, "continuous aluminium double-facade fin");

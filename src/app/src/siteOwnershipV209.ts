@@ -7,6 +7,7 @@ import neukoelln from "./data/neukoellnPlacesV210Ownership.json";
 import { transferExactPacketLines, transferExactPacketTriangles } from "./exactPacketTransfer";
 import { transferPrisonsNavigationV209 } from "./prisonsNavigationTransferV209";
 import { transferNeukoellnNavigationV210 } from "./neukoellnPlacesV210Navigation";
+import { transferKalkscheuneFacadeV218 } from "./kalkscheuneOwnershipV218";
 import type { SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
 const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records];
@@ -15,7 +16,8 @@ const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.li
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
   part: SurroundingPackedMesh, indices: Uint16Array | Uint32Array, offset: number): Generator<void, number> {
-  return yield* transferExactPacketTriangles(triangles, tile, native, part, indices, offset);
+  const sites = yield* transferExactPacketTriangles(triangles, tile, native, part, indices, offset);
+  return sites + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset));
 }
 export function* transferSiteLinesV209(tile: string, part: SurroundingPackedLines,
   values: Uint16Array, stride: number): Generator<void, number> {

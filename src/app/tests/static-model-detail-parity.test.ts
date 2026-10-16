@@ -19,6 +19,7 @@ import overridesV164 from "./fixtures/static-model-full-overrides-v164.json";
 import overridesV147 from "./fixtures/static-model-full-overrides-v147.json";
 import overridesV146 from "./fixtures/static-model-full-overrides-v146.json";
 import overridesV204 from "./fixtures/static-model-full-overrides-v204.json";
+import overridesV218 from "./fixtures/static-model-full-overrides-v218.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
 
 const profileEntries = [
@@ -97,7 +98,11 @@ describe("all devices retain the full authored static city detail", () => {
       // v165 replaces only the old Zoo/Kranzler authoring with complete separate source models.
       // v204 only partitions MuseumTriad by owner; independent unordered
       // triangles/instance snapshots in pergamon-reveal.test.ts remain exact.
-      const override = overridesV204[name as keyof typeof overridesV204] ?? overridesV165[name as keyof typeof overridesV165] ?? overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
+      // v218 accepts only the photographed Ensemble/Luisen frontage refinements;
+      // the separately executed HEAD factories reproduce their frozen v141 hashes.
+      // Dedicated owner/edge tests guard the bounded replacements; touch still
+      // matches every full vertex below, and all earlier fixtures stay frozen.
+      const override = overridesV218[name as keyof typeof overridesV218] ?? overridesV204[name as keyof typeof overridesV204] ?? overridesV165[name as keyof typeof overridesV165] ?? overridesV164[name as keyof typeof overridesV164] ?? overridesV157[name as keyof typeof overridesV157] ?? overridesV155[name as keyof typeof overridesV155] ?? overridesV154[name as keyof typeof overridesV154] ?? overridesV153[name as keyof typeof overridesV153] ?? overridesV151[name as keyof typeof overridesV151] ?? overridesV148[name as keyof typeof overridesV148] ?? overridesV147[name as keyof typeof overridesV147] ?? overridesV146[name as keyof typeof overridesV146];
       const baseline = override?.budget ?? budgets[name as keyof typeof budgets];
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.

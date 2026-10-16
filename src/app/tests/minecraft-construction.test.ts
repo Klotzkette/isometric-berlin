@@ -5,7 +5,10 @@ import ts from "typescript";
 import baseline from "./fixtures/minecraft-world-synchronous-v204.json";
 import v206 from "./fixtures/minecraft-world-synchronous-v206.json";
 import v208 from "./fixtures/minecraft-world-synchronous-v208.json";
-import current from "./fixtures/minecraft-world-synchronous-v211.json";
+import v211 from "./fixtures/minecraft-world-synchronous-v211.json";
+import current from "./fixtures/minecraft-world-synchronous-v218.json";
+import native218 from "./fixtures/core-material-native-v218.json";
+import audit218 from "./fixtures/minecraft-world-v218-baseline-audit.json";
 import audit211 from "./fixtures/minecraft-world-v211-colour-audit.json";
 import audit208 from "./fixtures/minecraft-world-v208-baseline-audit.json";
 import frontage208 from "./fixtures/frontage-preservation-v208.json";
@@ -106,14 +109,49 @@ test("v211 changes only existing column colour values with every non-colour worl
   for (const profile of ["full", "mobile"] as const) {
     const proof = audit211.profiles[profile];
     expect(proof.before).toEqual(v208[profile]);
-    expect(proof.current).toEqual(current[profile]);
+    expect(proof.current).toEqual(v211[profile]);
     expect(proof.beforeNonColourSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(proof.currentNonColourSha256).toBe(proof.beforeNonColourSha256);
     expect(proof.changedColourMeshes.map(row => row.name)).toEqual(["Voxel building columns"]);
     expect(proof.changedColourMeshes[0].beforeColours).not.toBe(proof.changedColourMeshes[0].currentColours);
     expect(proof.unchangedMeshCount).toBe(v208[profile].renderables - 1);
     for (const key of ["instances", "renderables", "bufferBytes"] as const)
-      expect(current[profile][key]).toBe(v208[profile][key]);
+      expect(v211[profile][key]).toBe(v208[profile][key]);
+  }
+});
+
+test("v218 whole-world receipt isolates the four refined facade meshes and one additive Kalkscheune batch from v117", async () => {
+  expect(audit218.releasedBase).toBe("1db721153e44af4965bcabc80bf56eb4c7f0fe75");
+  for (const [path, hash] of Object.entries(audit218.sourceSha256)) {
+    const bytes = await Bun.file(new URL(`../../../${path}`, import.meta.url)).arrayBuffer();
+    expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(hash);
+  }
+  const changed = ["Luisen corridor masonry and metal details", "Luisen corridor framed glazing", "Friedrichstrasse masonry and metal", "Friedrichstrasse facade glazing"];
+  for (const profile of ["full", "mobile"] as const) {
+    const { world, core } = audit218.profiles[profile];
+    expect(world.current).toEqual(current[profile]);
+    expect(core.current).toEqual(native218[profile]);
+    expect(world.unchangedObjectCount).toBe(profile === "full" ? 353 : 351);
+    expect(core.unchangedObjectCount).toBe(profile === "full" ? 340 : 338);
+    for (const [family, proof] of [["world", world], ["core", core]] as const) {
+      expect(proof.beforeChanged.map(row => row.name)).toEqual(changed);
+      expect(proof.afterChanged.map(row => row.name)).toEqual([
+        ...changed.slice(0, 2), "Kalkscheune plaster, divided windows, factory glazing and sign", ...changed.slice(2),
+      ]);
+      const sum = (rows: typeof proof.beforeChanged, key: "instances" | "bytes") => rows.reduce((n, row) => n + row[key], 0);
+      const instanceDelta = sum(proof.afterChanged, "instances") - sum(proof.beforeChanged, "instances");
+      const byteDelta = sum(proof.afterChanged, "bytes") - sum(proof.beforeChanged, "bytes");
+      expect(instanceDelta).toBe(family === "world" ? 8407 : 8377);
+      expect(byteDelta).toBe(instanceDelta * 76 + 648); // one new shared cube
+      if (family === "world") {
+        expect(world.current.instances - world.before.instances).toBe(instanceDelta);
+        expect(world.current.bufferBytes - world.before.bufferBytes).toBe(byteDelta);
+        expect(world.current.renderables - world.before.renderables).toBe(1);
+      } else {
+        expect(core.current.bytes - core.before.bytes).toBe(byteDelta);
+        expect(core.current.bufferRecords - core.before.bufferRecords).toBe(2);
+      }
+    }
   }
 });
 

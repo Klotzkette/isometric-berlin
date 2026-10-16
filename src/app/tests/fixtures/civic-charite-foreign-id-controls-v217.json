@@ -1,0 +1,27 @@
+{
+  "commit": "1db721153e44af4965bcabc80bf56eb4c7f0fe75",
+  "sourceSha256": "cefb782437d79aa34f5aa333e4b752042c0a4c50ef899a0dae3954097e63426c",
+  "paletteSourceSha256": "2134c73b5166d3f7ce69513d631a9a614bb996fcbbcb2ae24d345ab776d7f979",
+  "historicalPaletteSourceSha256": "2c72ec7961d7da64b2ae25a5702c185ac266de3c764bd9903eae2adf060140a5",
+  "provenance": "Captured from immutable v217 commit by loading all 590 imported runtime source modules from git. Both full/mobile profiles and both includeLegacyChariteFacade values return these exact receipts. Replacing only cityColourV184.ts with its immutable v206 version reproduces the unchanged historical foreignIdsSameGeometry receipts, including every budget field. The v218 working tree independently matches these v217 captures.",
+  "foreignIdsSameGeometry": {
+    "full": {
+      "hash": "b30eca0ff5099f6f6540dc5b5f30b943f08da89b398430b956f706b52e2f433a",
+      "budget": {
+        "bytes": 122472,
+        "draws": 4,
+        "instances": 67,
+        "vertices": 8332
+      }
+    },
+    "mobile": {
+      "hash": "b30eca0ff5099f6f6540dc5b5f30b943f08da89b398430b956f706b52e2f433a",
+      "budget": {
+        "bytes": 122472,
+        "draws": 4,
+        "instances": 67,
+        "vertices": 8332
+      }
+    }
+  }
+}

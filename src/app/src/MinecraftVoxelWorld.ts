@@ -1,3 +1,4 @@
+import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
 import { uraniaArcV206SourceColumn } from "./uraniaArcV206Navigation";
 import { isBendlerblockV202ReplacedColumn } from "./bendlerblockV202Profile";
 import { isPergamonPanoramaV202ReplacementColumn } from "./pergamonPanoramaV202Profile";
@@ -3139,6 +3140,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftKulturforumMuseums());
   group.add(createLuisenCorridorArchitecture({ sourcePrisms: options.sourcePrisms, minecraft: true, mobileLike: options.detailProfile === "mobile", voxels: payload }));
+  group.add(createKalkscheuneFacadesV218(true));
   group.add(createMinecraftBoellStiftungArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftBundesratArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftRohwedderHausArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));

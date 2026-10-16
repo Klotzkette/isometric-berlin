@@ -10,7 +10,9 @@ function factory(name: string, overrides: Record<string, unknown>) {
   const visit = (node: ts.Node) => {
     if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
       const key = node.expression.text;
-      bindings[key] = /(?:FloorAt|GroundAt|SurfaceAt|HeightAt)$/.test(key) ? () => null : () => false;
+      // Version-suffixed height samplers (e.g. GroundAtV217) still return
+      // null outside their site; false would stop the nullish ground chain.
+      bindings[key] = /(?:FloorAt|GroundAt|SurfaceAt|HeightAt)(?:V\d+)?$/.test(key) ? () => null : () => false;
     }
     ts.forEachChild(node, visit);
   };

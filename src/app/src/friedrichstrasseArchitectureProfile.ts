@@ -5,10 +5,24 @@ export const ADMIRALSPALAST_IDS: ReadonlySet<string> = new Set(source.profiles[0
 export const FRIEDRICHSTRASSE_ARCHITECTURE_GROUP = "Friedrichstrasse and Schiffbauerdamm architecture";
 export const MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP = "Minecraft Friedrichstrasse and Schiffbauerdamm architecture";
 export const FRIEDRICHSTRASSE_ARCHITECTURE_TONES: Readonly<Record<string, number>> = Object.fromEntries(source.profiles.flatMap(p => p.ids.map(id => [id, p.tone])));
+/** v218 recognition is restricted to photographed street faces and one court face. */
+export const ENSEMBLE_NEIGHBOUR_REFINEMENT_V218 = {
+  frontages: ["schiff5", "schiff67", "schiff8", "schiff12"],
+  neuesHausFront: { sourceId: "YCHo1QS2", start: [974.6, -373.6], end: [953.2, -363.5] },
+  photoReferences: [
+    "https://commons.wikimedia.org/wiki/File:Berlin-Mitte,_H%C3%A4user_Schiffbauerdamm_6-8.JPG",
+    "https://commons.wikimedia.org/wiki/File:141209_Schiffbauerdamm_12_Berlin-Mitte.jpg",
+    "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Schiffbauerdamm_5,_Mietshaus.jpg",
+    "https://commons.wikimedia.org/wiki/File:20230630_xl_0818-Koepjohannsche_Stiftung,_Wohn-und_Gesch%C3%A4ftshaus_Schiffbauerdamm_8,_Albrechtstra%C3%9Fe_13-14.jpg",
+    "https://www.berliner-ensemble.de/node/386",
+  ],
+  estimates: "Facade member sizes, mesh spacing and sign placement are photo-derived display subdivisions, not surveyed measurements. All source bodies and roofs are retained.",
+} as const;
 export const FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE = {
   geometry: "52 exact delivered LoD2 prisms. Admiralspalast additionally uses its three official March 2026 wall and roof surfaces, translated only to each committed ground datum. Other source bodies and roofs remain unchanged.",
   detail: "Source-bound facade recognition: granite Doric half-columns and limestone relief registers, terracotta court, SpreeDreieck vertical double facade, Melia punched stone facade, individual Schiffbauerdamm plaster and historic frontages. Local bay sizes and relief silhouettes are non-surveyed estimates.",
   sources: [source.source_url, "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065048", "https://www.reckersarchitekten.de/referenzen/kulturbauten/admiralspalast.html", "https://feldhaus.de/en/projekte/spree-dreieck/", "https://www.mbbm-bso.com/de/projekt/?id=M66484", "https://www.berliner-ensemble.de/node/386"],
+  neighboursV218: ENSEMBLE_NEIGHBOUR_REFINEMENT_V218,
 } as const;
 export function friedrichstrasseInRing(ring: readonly (readonly number[])[], x: number, z: number): boolean {
   let inside = false;

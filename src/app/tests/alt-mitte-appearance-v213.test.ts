@@ -131,10 +131,12 @@ test("real drawn/native resident and streamed packets apply compiled receipts wi
   const source = appearance as AltMitteAppearanceSourceV213;
   for (const native of [false, true]) for (const resident of [true, false]) {
     const mode = native ? "minecraft" : "drawn";
-    const key = Object.keys(source.packets).find(value => value.startsWith(`${mode}:`) &&
-      value.startsWith(`${mode}:alt-mitte-v169-`) === resident);
-    expect(key).toBeDefined();
-    const tile = key!.slice(key!.indexOf(":") + 1), chunk = realPacket(key!);
+    // Pin independent samples: the first resident packet (-1_-4) now has
+    // legitimate hospital/Springer ownership transfers added in v215.
+    const tile = resident ? "alt-mitte-v169--1_-3-piece-0" : native ? "6_0" : "2_-4";
+    const key = `${mode}:${tile}`;
+    expect(source.packets[key]).toBeDefined();
+    const chunk = realPacket(key);
     const immutable = Bun.hash(JSON.stringify(chunk));
     // Preserve the resident/streamed v186 distinction, but use no v213 receipt.
     const original = createSurroundingCityChunk(chunk, `${resident ? "alt-mitte-v169-" : ""}unbound-appearance-v213`, native);

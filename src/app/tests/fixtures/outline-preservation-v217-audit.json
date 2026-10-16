@@ -1,0 +1,321 @@
+{
+  "provenance": {
+    "runtimeCommit": "1db721153e44af4965bcabc80bf56eb4c7f0fe75",
+    "previousCommit": "6e58dc7a14780239b7dd2157203800deca2cce38",
+    "changedModule": "src/app/src/NeueNationalgalerieV183.ts",
+    "previousModuleSha256": "5d35da0eed81dafc9f8a7284bc2ad494b10c48108a7bc83f610e4755f15c88ea",
+    "releasedModuleSha256": "14735a9f08c62bb74d0ba9b743d11df56c2a74b32c45b9bae10a967b96f024a9",
+    "reason": "Released v117 Cattelan exhibition and represented gallery door/stair openings documented in docs/cattelan-v217.md. Five separate v214/v215 root additions were also absent from the v207 test exclusion inventory.",
+    "control": "Every loaded runtime TypeScript module came from runtimeCommit; unchanged tracked JSON inputs were retained. Replacing only changedModule by its previousCommit source reproduces both immutable v206 full signatures after the existing exact v210 restoration and declared later-root exclusions. The complement excluding the one gallery family is byte-identical in both runs. No runtime or historical fixture was edited."
+  },
+  "modes": {
+    "day": {
+      "historicalControl": {
+        "sha256": "2a07968f35992e9f8ad82c67e1e695dd9e45ecc0d52d19d8fca90dacce9ac01a",
+        "objects": 726,
+        "bytes": 44241335,
+        "families": 52
+      },
+      "complete": {
+        "sha256": "ebb603b73653b54c4e59ca3c87424238b668c0bfbe9126adbfab2a6a1e972705",
+        "objects": 748,
+        "bytes": 44533615,
+        "families": 52
+      },
+      "unaffected": {
+        "sha256": "a9ebc9b26dcefd900e3d8a8005f2c0933d79746ffc4bb5e593b69595d439acfb",
+        "objects": 722,
+        "bytes": 44222411,
+        "families": 51
+      },
+      "galleryName": "Nationalgalerie open steel and glass pavilion v183",
+      "previousGallery": {
+        "sha256": "1dd845eb0c9acdb86cac8780d3f902f950cce735ce4bf2d8b504985a1663db8d",
+        "objects": 4,
+        "bytes": 18924,
+        "families": 3
+      },
+      "gallery": {
+        "sha256": "b0336e2d220721618cec8fe8aabb741bd9ed7cee48d14fde604712a65f552da8",
+        "objects": 26,
+        "bytes": 311204,
+        "families": 4
+      },
+      "additions": [
+        {
+          "name": "Charité Bettenhochhaus facade and rooftop identity v207",
+          "sha256": "d17a95568a77a628a8743583999ae29815e4dfdbdd7877a85d3828f46bd177e5",
+          "objects": 3,
+          "bytes": 364196,
+          "families": 2
+        },
+        {
+          "name": "Kapelle-Ufer ministry green architecture v207",
+          "sha256": "77fbf9c9a1d4dbb2fde6ebf0ccd9d551f55b00305a6ca5f19480008f1fd45739",
+          "objects": 4,
+          "bytes": 1115156,
+          "families": 3
+        },
+        {
+          "name": "Northern Linden corridor architecture v208",
+          "sha256": "e7834b8ad57167df5f558cff310492ad4b5a5eef7e4dd5675f0ee2a19d8d7c63",
+          "objects": 4,
+          "bytes": 161204,
+          "families": 3
+        },
+        {
+          "name": "Russian Embassy and Aeroflot architectural refinements v208",
+          "sha256": "dea729f0d16780342ea87b17697352f18ddfb6317e27b8e6de66d87cd1f35244",
+          "objects": 3,
+          "bytes": 379920,
+          "families": 2
+        },
+        {
+          "name": "BMAS campus and Quartier 206 architecture v208",
+          "sha256": "4df7b2ea5c23c229c592ebd8ab47a15845cdb6642f9b1a9dbe2f4dfaa97e3db7",
+          "objects": 3,
+          "bytes": 768604,
+          "families": 2
+        },
+        {
+          "name": "Tegel and two distinct Stasi memorial sites v209 exterior details",
+          "sha256": "3c5719ebd730ab41fe06282140d8270b13b6bc8eab949d3d322ab44da831d3bb",
+          "objects": 4,
+          "bytes": 2560360,
+          "families": 3
+        },
+        {
+          "name": "Helmholtzplatz community and cafe facades v209",
+          "sha256": "22c3af0cbe043f147813377c785d5e5d09661dec57aaf3d91f622e01b2c2f1a1",
+          "objects": 2,
+          "bytes": 9616,
+          "families": 1
+        },
+        {
+          "name": "Exact Orankesee shore and mapped public lido fittings v209",
+          "sha256": "f225fd5b5797158cb6a9b76e3c5a2026dd3b94a3ed4a54ce14d98a6665dae351",
+          "objects": 3,
+          "bytes": 95880,
+          "families": 2
+        },
+        {
+          "name": "Source-bound boulevard paint and curbs v210",
+          "sha256": "9be8a87fdf3f68105ae3d94493092cf971cb37d017e406e47f69a4fe408d0950",
+          "objects": 37,
+          "bytes": 855888,
+          "families": 36
+        },
+        {
+          "name": "Westend and DRV civic recognition v210 optional facades",
+          "sha256": "788f29d478d90039945aa9e82c0bc26ca9125f544a67dd05e91d89750e170926",
+          "objects": 8,
+          "bytes": 538084,
+          "families": 3
+        },
+        {
+          "name": "Wedding stadium and source-bound Bayer campus v210 exterior detail",
+          "sha256": "883db9438c6db3192c7997d81c8b8b7749a51793331b0b77ff8e5ff68b65b0b9",
+          "objects": 3,
+          "bytes": 1220836,
+          "families": 2
+        },
+        {
+          "name": "Richardplatz and Hermannplatz current architecture v210",
+          "sha256": "dea6d5eea783eaf89393be6ed652e927769151970cc58366aa6281b9b94153be",
+          "objects": 2,
+          "bytes": 141172,
+          "families": 1
+        },
+        {
+          "name": "Bundeswehrkrankenhaus source facade and helipad v214",
+          "sha256": "f65c4e2ea3fb94cffca71cf69bfbef6dbcd82370d12711e51701ffe62dace6bb",
+          "objects": 3,
+          "bytes": 507572,
+          "families": 2
+        },
+        {
+          "name": "Litfin neighbours v215",
+          "sha256": "734a0029528b473979754403adbf30fc336f4f470c37f1040dc1149d1de1bd21",
+          "objects": 3,
+          "bytes": 136264,
+          "families": 2
+        },
+        {
+          "name": "Gendarmenmarkt and BND neighbours v214",
+          "sha256": "91c6fba2a1455f8ab143eb68f42bbf06f52147c3376d2385ff5a0009b4e3e02a",
+          "objects": 3,
+          "bytes": 212956,
+          "families": 2
+        },
+        {
+          "name": "WZB and Potsdamer park-side source facade accents v214",
+          "sha256": "0353a190470506bbd773ee162f502e8faf7d8e9561772f0d56e9513ebdfe5774",
+          "objects": 2,
+          "bytes": 69732,
+          "families": 1
+        },
+        {
+          "name": "Red rescue helicopter landing at Bundeswehrkrankenhaus v214",
+          "sha256": "cfd623d358bdf33aded97aec8383482502b6fd646ec28c096645c5a5c3f70802",
+          "objects": 2,
+          "bytes": 105984,
+          "families": 1
+        }
+      ]
+    },
+    "minecraft": {
+      "historicalControl": {
+        "sha256": "d33925740c2def0459c2ec6bb970aa551501e31dffd5049e6ecf7d83309c3158",
+        "objects": 598,
+        "bytes": 76218612,
+        "families": 55
+      },
+      "complete": {
+        "sha256": "3d10d5fe7fe23cd97a51506ce94496b752291e3190ddf6adfc893429f662ac44",
+        "objects": 615,
+        "bytes": 76709248,
+        "families": 55
+      },
+      "unaffected": {
+        "sha256": "f2056e0c47f731074f43c31e1616fe17f85424e2412336ec703060d576d945af",
+        "objects": 595,
+        "bytes": 76014852,
+        "families": 54
+      },
+      "galleryName": "Nationalgalerie native open pavilion v183",
+      "previousGallery": {
+        "sha256": "b79e846894438a951695934394cae3768d457331ddeb3c61cfb2031bef6dacfc",
+        "objects": 3,
+        "bytes": 203760,
+        "families": 2
+      },
+      "gallery": {
+        "sha256": "56581b3780d9ee518ec3bc6e00357d64529554f8e4e890b22479bd2e89688bc8",
+        "objects": 20,
+        "bytes": 694396,
+        "families": 3
+      },
+      "additions": [
+        {
+          "name": "Charité Bettenhochhaus facade and rooftop identity v207",
+          "sha256": "c9ff76585753c30d4664090adad605529040c86f13a3d789155f93e182d170b5",
+          "objects": 3,
+          "bytes": 565368,
+          "families": 2
+        },
+        {
+          "name": "Kapelle-Ufer ministry green architecture v207 native",
+          "sha256": "5a2be4ff4ced91849f2847f7e08af769ca72ab189c998aee88377fd84cba2650",
+          "objects": 3,
+          "bytes": 1349212,
+          "families": 2
+        },
+        {
+          "name": "Northern Linden corridor architecture v208 native",
+          "sha256": "1124cc30ee4a06c1c97030b0808d9ddac3468c494bf47f03a370695a9713b787",
+          "objects": 3,
+          "bytes": 311344,
+          "families": 2
+        },
+        {
+          "name": "Russian Embassy and Aeroflot architectural refinements v208 native",
+          "sha256": "5f6cd812b1f620a813b6020513cb1fb9c8acba9b45a93f6053fc683fc52b6bf0",
+          "objects": 2,
+          "bytes": 1256304,
+          "families": 1
+        },
+        {
+          "name": "BMAS campus and Quartier 206 architecture v208 native",
+          "sha256": "423d7209cc8a8536b3586aa1cf1f5987887e327f6210775079d1f35eecdbd6a9",
+          "objects": 2,
+          "bytes": 1368952,
+          "families": 1
+        },
+        {
+          "name": "Tegel and two distinct Stasi memorial sites v209 exterior details native",
+          "sha256": "a198f91949aedcd77417f7b5af669a0eb176cf52397f59f4a717562fdb8cf9f7",
+          "objects": 4,
+          "bytes": 3421136,
+          "families": 3
+        },
+        {
+          "name": "Helmholtzplatz community and cafe facades v209 native",
+          "sha256": "ef4349e0d6a91a83da91fab1f71d48a26a63d7a459293a7d7542585905782020",
+          "objects": 2,
+          "bytes": 24208,
+          "families": 1
+        },
+        {
+          "name": "Exact Orankesee shore and mapped public lido fittings v209",
+          "sha256": "f5383d16f78f8d3806f68d27d6670b083b6071f557cfa0a5e6e6183b756d3dac",
+          "objects": 3,
+          "bytes": 615112,
+          "families": 2
+        },
+        {
+          "name": "Source-bound boulevard paint and curbs v210 native",
+          "sha256": "95dfe653ebaf385d523b91865a0ea76e849ec2d3a104f31368fbf47e886be9cf",
+          "objects": 37,
+          "bytes": 1332608,
+          "families": 36
+        },
+        {
+          "name": "Westend and DRV civic recognition v210 optional facades native",
+          "sha256": "822bb309eb1fd0a8e5e83f32becca82a03f2f49c34adf9c9aba60f36ff0a23df",
+          "objects": 8,
+          "bytes": 845032,
+          "families": 3
+        },
+        {
+          "name": "Wedding stadium and source-bound Bayer campus v210 exterior detail native",
+          "sha256": "295c06961102a0db1d10579de891ecb74ee0384b495b3b89e6de480190cb9d0a",
+          "objects": 3,
+          "bytes": 2956220,
+          "families": 2
+        },
+        {
+          "name": "Richardplatz and Hermannplatz current architecture v210 native",
+          "sha256": "1a457c168b2e21d61beaa91a51b0e1234fcad38836f44681723271eb48797b2c",
+          "objects": 2,
+          "bytes": 434988,
+          "families": 1
+        },
+        {
+          "name": "Bundeswehrkrankenhaus source facade and helipad v214 native",
+          "sha256": "8a8fd0516cc233ed956c3e18d5b03ce9bf8aeff5f77122592233fa48d7db5943",
+          "objects": 2,
+          "bytes": 713284,
+          "families": 1
+        },
+        {
+          "name": "Litfin neighbours v215 native",
+          "sha256": "e54bfef964d962971775f64792ad7102fdc017cf799b0f24165b6893fb173cf5",
+          "objects": 2,
+          "bytes": 1017300,
+          "families": 1
+        },
+        {
+          "name": "Gendarmenmarkt and BND neighbours v214 native",
+          "sha256": "e098825cbb5d089709a2d8e5741d80ef945013eb85edb645551ea89c9ce2eea4",
+          "objects": 3,
+          "bytes": 1024484,
+          "families": 2
+        },
+        {
+          "name": "WZB and Potsdamer park-side source facade accents v214 native",
+          "sha256": "60f28e2476be7351547d6a2752350ac1faa58ec16fd2e89ba8c0251453595d5e",
+          "objects": 2,
+          "bytes": 369476,
+          "families": 1
+        },
+        {
+          "name": "Red rescue helicopter landing at Bundeswehrkrankenhaus v214",
+          "sha256": "5231ce57048d6c0c858852f804c5300cffb5c8cac3f1fe48074e3b0f3049b7a6",
+          "objects": 2,
+          "bytes": 37152,
+          "families": 1
+        }
+      ]
+    }
+  }
+}

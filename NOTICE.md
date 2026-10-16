@@ -1733,3 +1733,10 @@ the viewer's packaged Wikimedia notice:
 Detailed source/estimate/ownership records: `docs/boulevard-transport-v210.md`,
 `docs/west-civic-v210.md`, `docs/wedding-sites-v210.md` and
 `docs/neukoelln-places-v210.md`.
+
+Theatre-neighbourhood v218 visual references (photographs not bundled):
+Jörg Zägel: Kalkscheunenstraße 4–5 (2010-04-12) and Reinhardtstraße 19
+(2010-04-25), CC BY-SA 3.0; Ansgar Koreng: Berlin Kalkscheune (2014-10-03),
+CC BY-SA 3.0 DE; Molgreen: Albrechtstraße 13–14 / Schiffbauerdamm 8
+(2023-06-30), CC BY-SA 4.0. Exact file pages/licenses are in the Wikimedia
+attribution manifests. Source geometry remains Geoportal Berlin LoD2.

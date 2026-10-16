@@ -1,7 +1,7 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshStandardMaterial } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { LUISEN_CORRIDOR_SOURCE as S, LUISEN_CORRIDOR_GROUP, MINECRAFT_LUISEN_CORRIDOR_GROUP, LUISEN_CORRIDOR_EVIDENCE } from "./luisenCorridorProfile";
+import { LUISEN_CORRIDOR_SOURCE as S, LUISEN_CORRIDOR_GROUP, MINECRAFT_LUISEN_CORRIDOR_GROUP, LUISEN_CORRIDOR_EVIDENCE, LUISEN_STREET_REFINEMENTS_V218, REINHARDT19_STREET_EAVES_V218 } from "./luisenCorridorProfile";
 
 type Point = readonly [number, number];
 type Triple = [number, number, number];
@@ -140,29 +140,61 @@ export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
     };
     const style = profile.style;
     const historic = ["historic", "stucco", "mori", "cafe", "patent"].includes(style);
+    const refinement = w.street ? LUISEN_STREET_REFINEMENTS_V218.find(r => r.sourceId === w.part.id && Math.abs(r.a[0] - w.a[0]) < .001 && Math.abs(r.a[1] - w.a[1]) < .001) : undefined;
+    const reinhardt = refinement?.kind === "reinhardt19" ? refinement : undefined;
+    const schumann = refinement?.kind === "schumann19" ? refinement : undefined;
     const floors = Math.max(1, Math.min(profile.floors, Math.floor(span / 2.65)));
-    const pitch = span / floors;
-    const bays = Math.max(1, Math.round(w.length / (style === "louvres" ? 2.55 : mc ? 4.3 : w.street ? 3.2 : 4)));
+    const pitch = (reinhardt ? Math.min(top, REINHARDT19_STREET_EAVES_V218) - usableBase : span) / floors;
+    const bays = reinhardt?.bays ?? Math.max(1, Math.round(w.length / (style === "louvres" ? 2.55 : mc ? 4.3 : w.street ? 3.2 : 4)));
     const step = w.length / bays;
     // Split long floor bands into real exposed wall intervals: no bands through neighbours.
     for (let i = 0; i < bays; i++) {
       const u = (i + .5) * step;
       for (let f = 0; f < floors; f++) {
-        const y = usableBase + (f + .52) * pitch;
-        const shop = w.street && f === 0 && style !== "patent";
-        const width = Math.min(step * (shop || style === "louvres" || style === "stone-grid" ? .79 : .48), shop ? 3.5 : 2.8);
-        const height = pitch * (shop ? .76 : .60);
+        const entrance = !!reinhardt && f === 0 && i === reinhardt.entranceBay;
+        const cornerGlazing = !!schumann && f >= 2 && i === (schumann.corner === "start" ? 0 : bays - 1);
+        const y = entrance ? usableBase + pitch * .45 : usableBase + (f + .52) * pitch;
+        const shop = w.street && f === 0 && style !== "patent" && !(reinhardt?.entranceBay === 4 && i === 0);
+        const width = Math.min(step * (cornerGlazing ? .86 : shop || style === "louvres" || style === "stone-grid" ? .79 : .48), shop ? 3.5 : 2.8);
+        const height = pitch * (entrance ? .90 : cornerGlazing ? .83 : shop ? .76 : .60);
         sharedPush = bayClearance(u, Math.max(width + .7, step), y, pitch);
         emit(u, y, width + .24, height + .22, .12, .11, historic ? 0xc9c3b2 : DARK, "window reveal");
-        emit(u, y, width, height, .08, .205, GLASS, shop ? "street shop glazing" : "window glazing", true);
+        emit(u, y, width, height, .08, .205, GLASS, entrance ? "Reinhardt19 entrance glazing" : cornerGlazing ? "Schumann19 corner bay glazing" : shop ? "street shop glazing" : "window glazing", true);
         emit(u, y - height / 2 - .08, width + .36, .15, .32, .22, FRAME, "projecting sill");
         if (!mc) {
           emit(u, y, .065, height, .08, .26, FRAME, "vertical window mullion");
           if (!mobile || w.street) emit(u, y + height * .16, width, .065, .08, .26, FRAME, "cross window transom");
         }
-        if (historic && w.street) {
+        // No elaborate individual cornices on the photographed plain 1840
+        // front: retain thin window frames and the stronger horizontal courses.
+        if (historic && w.street && !reinhardt) {
           for (const side of [-1, 1]) emit(u + side * (width / 2 + .10), y, .14, height + .28, .18, .18, FRAME, "stucco window surround");
           emit(u, y + height / 2 + .16, width + .35, .16, .24, .2, FRAME, "window cornice");
+        }
+        if (entrance) {
+          for (const side of [-1, 1]) {
+            emit(u + side * (width / 2 + .10), y, .18, height, .23, .24, FRAME, "Reinhardt19 portal jamb");
+            emit(u + side * width * .25, usableBase + height * .31, width * .44, height * .57, .06, .285, 0x576263, "Reinhardt19 panelled door leaf");
+          }
+          emit(u, y, mc ? .14 : .065, height, .07, .32, 0x929a95, "Reinhardt19 door meeting stile");
+          // Shallow segmental lintel is a rectangular block interpretation,
+          // not a smooth native arch or an alteration of the source wall.
+          const lintelBlocks = mc ? 3 : 7;
+          for (let a = 0; a < lintelBlocks; a++) {
+            const t = (a + .5) / lintelBlocks * 2 - 1;
+            emit(u + t * (width / 2 + .08), usableBase + height + .08 + .15 * (1 - t * t), (width + .25) / lintelBlocks + .015, .16, .24, .24, FRAME, "Reinhardt19 segmental portal lintel");
+          }
+        }
+        if (cornerGlazing) {
+          for (const side of [-1, 1]) emit(u + side * (width / 2 + .08), y, mc ? .20 : .12, height + .13, .20, .27, FRAME, "Schumann19 corner bay metal post");
+          emit(u, y - height / 2 - .14, width + .29, .22, .21, .27, FRAME, "Schumann19 corner bay metal spandrel");
+        }
+        if (reinhardt && f === 0 && i < bays - 1) {
+          // Horizontal base-joint cues stop in masonry between openings.
+          const gap = step * .18, jointU = u + step / 2, joints = mc ? 2 : 5;
+          sharedPush = bayClearance(jointU, gap, y, pitch);
+          for (let joint = 0; joint < joints; joint++) emit(jointU, usableBase + pitch * (joint + 1) / (joints + 1), gap, mc ? .08 : .035, .06, .15, 0x96978c, "Reinhardt19 rusticated base joint");
+          sharedPush = bayClearance(u, Math.max(width + .7, step), y, pitch);
         }
         if (style === "louvres" && w.street && f > 0) {
           const louvers = mc ? 2 : mobile ? 4 : 7;
@@ -191,11 +223,12 @@ export function planLuisenCorridor(options: LuisenOptions = {}): LuisenBlock[] {
           }
           emit(u, y - height / 2 - .30, width + .6, .22, .42, .31, 0xd7c6a6, "Patentamt sculpted ledge");
         }
-        if (f > 0) emit(u, usableBase + f * pitch, step + .015, historic ? .17 : .24, .16, .1, historic ? 0xbcb7a7 : 0xbcc1ba, "storey course");
+        if (f > 0) emit(u, usableBase + f * pitch, step + .015, reinhardt && (f === 1 || f === 3) ? .30 : historic ? .17 : .24, reinhardt ? .23 : .16, reinhardt ? .17 : .1, historic ? 0xbcb7a7 : 0xbcc1ba, "storey course");
+        if (schumann && f > 0 && i % 3 === 1) emit(u, y - height / 2 + .71, Math.min(3.1, step * .94), mc ? .15 : .07, .15, 1.18, 0x697572, "Schumann19 balcony metal handrail");
       }
       sharedPush = bayClearance(u, step, top - .25, .5);
       emit(u, top - .12, step + .015, .24, .27, .17, historic ? FRAME : 0xb8c0bb, "continuous eaves course");
-      if (historic && w.street && !mobile && !mc) for (let d = 0; d < 3; d++) emit(u + (d - 1) * step / 3, top - .48, .18, .28, .28, .23, FRAME, "eaves dentil");
+      if (historic && w.street && !reinhardt && !mobile && !mc) for (let d = 0; d < 3; d++) emit(u + (d - 1) * step / 3, top - .48, .18, .28, .28, .23, FRAME, "eaves dentil");
       if (style === "balconies" && w.street && !mc) for (let f = 0; f < floors; f++) emit(u + step / 2 - .02, usableBase + (f + .5) * pitch, .035, pitch - .15, .035, .07, 0x899590, "grey cladding seam");
     }
   }

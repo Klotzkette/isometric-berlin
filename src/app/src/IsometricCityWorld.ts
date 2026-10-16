@@ -1,3 +1,4 @@
+import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
 import { BENDLERBLOCK_V202_PRISM_IDS } from "./bendlerblockV202Profile";
 import { HUNGARIAN_EMBASSY_V208_PROXY_IDS } from "./hungarianEmbassyOwnershipV208";
 import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
@@ -13277,6 +13278,7 @@ export function createIsometricCity(
     }
     group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
+  group.add(createKalkscheuneFacadesV218(false));
     group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
