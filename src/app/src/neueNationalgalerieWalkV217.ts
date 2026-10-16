@@ -1,12 +1,15 @@
-import source from "./data/neueNationalgalerieV183Source.json";
-import { NATIONALGALERIE_V183 as P, NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
+import { NATIONALGALERIE_V183 as P, NATIONALGALERIE_V183_IDS, NATIONALGALERIE_TERRACE_RING_V183 as terraceRing } from "./neueNationalgalerieV183Profile";
 import { pointInWorldRing } from "./chancelleryExtensionProfile";
 import type { PedestrianObstacleIndex } from "./pedestrianNavigation";
 
 const c = Math.cos(P.yaw), s = Math.sin(P.yaw);
-const terrace = source.parts.find(p => p.id === "MSMgX8rD")!;
-const terraceRing = terrace.ring.map(([x, z]) => [x / 10, z / 10] as const);
 const soffitY = P.floorY + P.columnHeight;
+const localTerrace = terraceRing.map(([x, z]) => [c * (x - P.center[0]) - s * (z - P.center[1]),
+  s * (x - P.center[0]) + c * (z - P.center[1])]);
+const supportBounds = {
+  minU: Math.min(-15, ...localTerrace.map(p => p[0])), maxU: Math.max(15, ...localTerrace.map(p => p[0])),
+  minV: Math.min(54, ...localTerrace.map(p => p[1])), maxV: Math.max(61.59, ...localTerrace.map(p => p[1])),
+};
 
 /** Small shared layout: x/z and sizes are local metres; bottoms sit on floorY. */
 export const NNG_ROOM_WALLS_V217 = [
@@ -55,8 +58,27 @@ export function neueNationalgalerieWalkableAtV217(x: number, y: number, z: numbe
 }
 
 export function neueNationalgalerieSolidAtV217(x: number, y: number, z: number, radius = 0): boolean {
-  if (y < P.floorY - .05 || y >= soffitY) return false;
+  if (y < P.groundY - .05 || y >= soffitY) return false;
   const [u, v] = neueNationalgalerieLocalV217(x, z);
+  if (y < P.floorY - .05) {
+    if (u < supportBounds.minU - radius || u > supportBounds.maxU + radius ||
+        v < supportBounds.minV - radius || v > supportBounds.maxV + radius) return false;
+    if (pointInWorldRing(x, z, terraceRing)) return true;
+    // Match the source polygon, including its recessed corner, rather than a
+    // rectangular museum envelope. Radius applies once at the capsule centre.
+    if (radius > 0) for (let i = 0; i < terraceRing.length; i++) {
+      const a = terraceRing[i], b = terraceRing[(i + 1) % terraceRing.length];
+      const dx = b[0] - a[0], dz = b[1] - a[1];
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz)));
+      if ((x - a[0] - t * dx) ** 2 + (z - a[1] - t * dz) ** 2 < radius * radius) return true;
+    }
+    if (Math.abs(u) < 15 + radius) for (let i = 0; i < 22; i++) {
+      // The existing .52 m ground resolver allowance keeps adjoining .21 m
+      // risers climbable while the higher supporting mass blocks side entry.
+      if (Math.abs(v - (61.26 - i * .33)) < .33 + radius && y < 5.41 + i * .21 - .52) return true;
+    }
+    return false;
+  }
   if (Math.abs(u) > 33 + radius || Math.abs(v) > 33 + radius) return false;
   const box = (bx: number, bz: number, w: number, d: number, h: number) =>
     y < P.floorY + h && Math.abs(u - bx) < w / 2 + radius && Math.abs(v - bz) < d / 2 + radius;

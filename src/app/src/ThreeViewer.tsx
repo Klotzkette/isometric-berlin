@@ -21,6 +21,7 @@ import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile"
 import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
 import { jamesSimonTerraceVoidAt, jamesSimonExtraSolidAt, jamesSimonWalkSurfaceAt } from "./jamesSimonProfile";
 import { configureNeueNationalgalerieObstaclesV217, neueNationalgalerieWalkableAtV217, neueNationalgalerieGroundAtV217, neueNationalgalerieSolidAtV217 } from "./neueNationalgalerieWalkV217";
+import { GALLERY_STARTUP_V220 } from "./galleryStartupV220";
 import { schillerMonumentSolidAt } from "./schillerMonumentProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
@@ -628,6 +629,7 @@ type ThreeViewerProps = {
   selectedLandmark: string;
   openingLandmark?: string | null;
   initialNavigation?: NavigationSnapshot | null;
+  initialWalkingStart?: boolean;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
   onError: (message: string) => void;
@@ -758,6 +760,8 @@ type Runtime = {
   presentationReady: boolean;
   navigationRestored: boolean;
   openingDetailReady: boolean;
+  openingGalleryRequired: boolean;
+  openingWalkingPending: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
   reducedMotion: boolean;
@@ -1257,6 +1261,16 @@ function activatePedestrianMode(runtime: Runtime): boolean {
     applyPedestrianCamera(runtime);
     return true;
   }
+  if (runtime.openingWalkingPending) {
+    // Orbit limits/lens preparation may have dolly-adjusted the provisional
+    // camera while the ground loaded. Resolve the arrival once against the
+    // complete walking environment, before capturing its return pose.
+    runtime.camera.position.fromArray(GALLERY_STARTUP_V220.position);
+    runtime.controls.target.fromArray(GALLERY_STARTUP_V220.target);
+    runtime.camera.lookAt(runtime.controls.target);
+    runtime.camera.updateMatrixWorld();
+    runtime.openingWalkingPending = false;
+  }
   if (!runtime.pedestrian.enabled) {
     runtime.pedestrian.savedPose = captureCameraPose(
       runtime.camera,
@@ -1573,6 +1587,13 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
   ) {
     return;
   }
+  // The new walking arrival faces this museum immediately. Construct its
+  // existing single owner before revealing the view, rather than showing an
+  // empty terrace and then adding a second temporary building.
+  if (runtime.openingGalleryRequired && !runtime.outerThinOutlines) {
+    startSurroundingCity(runtime);
+    return;
+  }
   runtime.presentationReady = true;
   startSurroundingCity(runtime);
   runtime.notifyPresentationReady();
@@ -1633,8 +1654,12 @@ function startSurroundingCity(runtime: Runtime): void {
     runtime.scheduleGpuWarmup?.();
     parkCompletedGeometry(runtime, outlines);
     runtime.renderInvalidated = true;
+    notifyPresentationReadyWhenPossible(runtime);
   }).catch(error => {
-    if (!runtime.disposed && !runtime.loadSignal.aborted) console.warn("Berlin outline supplement:", error);
+    if (!runtime.disposed && !runtime.loadSignal.aborted) {
+      console.warn("Berlin outline supplement:", error);
+      if (runtime.openingGalleryRequired && !runtime.presentationReady) runtime.reportWorldFailure();
+    }
   });
 }
 
@@ -5542,6 +5567,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       selectedLandmark,
       openingLandmark = null,
       initialNavigation = null,
+      initialWalkingStart = false,
       pergamonRevealed = false,
       onPergamonRevealChange,
       onError,
@@ -5558,6 +5584,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const selectedRef = useRef(selectedLandmark);
     const openingLandmarkRef = useRef(openingLandmark);
     const initialNavigationRef = useRef(initialNavigation);
+    const initialWalkingStartRef = useRef(initialWalkingStart);
     const activeRef = useRef(active);
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
@@ -6514,6 +6541,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         presentationReady: false,
         navigationRestored: false,
         openingDetailReady: initialNavigationRef.current !== null || openingLandmarkRef.current !== "Berliner Philharmonie",
+        openingGalleryRequired: initialWalkingStartRef.current && initialNavigationRef.current === null,
+        openingWalkingPending: initialWalkingStartRef.current && initialNavigationRef.current === null,
         notifyPresentationReady: () => {
           if (disposed) {
             return;
@@ -6525,7 +6554,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         reducedMotion,
         precipitationEnabled: precipitationEnabledRef.current,
         loadSignal: loadController.signal,
-        reportWorldFailure: () => undefined,
+        reportWorldFailure: () => {
+          if (runtime.disposed || runtime.worldFailureReported) return;
+          runtime.worldFailureReported = true;
+          onErrorRef.current(
+            "Die prozedurale 3D-Welt konnte nicht stabil geladen werden.",
+          );
+        },
         ensurePedestrianWater: () => undefined,
         worldFailureReported: false,
         progressiveWorldBatches: [],
@@ -6643,6 +6678,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         setEnvironmentalPresentation(runtime);
         applyPedestrianCamera(runtime);
         notifyView(runtime, onViewChangeRef.current);
+      } else if (initialWalkingStartRef.current) {
+        runtime.camera.position.fromArray(GALLERY_STARTUP_V220.position);
+        runtime.controls.target.fromArray(GALLERY_STARTUP_V220.target);
+        runtime.camera.lookAt(runtime.controls.target);
+        runtime.camera.updateMatrixWorld();
+        runtime.marker.visible = false;
       }
 
       type TouchPoint = { x: number; y: number };
@@ -8518,7 +8559,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           // Frame the chosen arrival before construction/streaming starts,
           // so the first visible city and the first detail districts agree.
-          if (!initialNavigationRef.current && openingLandmarkRef.current === selectedRef.current) {
+          if (!initialNavigationRef.current && !initialWalkingStartRef.current && openingLandmarkRef.current === selectedRef.current) {
             focusLandmark(selectedRef.current, true, true);
           }
           // World payloads are the first visible content. Start them as soon
@@ -9164,21 +9205,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // the superseded arrays from before interleaving until their first draw.
           runtime.gpuResidency?.enqueue(runtime.tunnelPortals);
           runtime.geometryResidency?.enqueue(runtime.tunnelPortals);
-          runtime.reportWorldFailure = () => {
-            if (runtime.disposed || runtime.worldFailureReported) {
-              return;
-            }
-            // One clean renderer remount and the explicit 2D view are safer
-            // recovery paths than allocating the retired 174 MiB GLB scene.
-            runtime.worldFailureReported = true;
-            onErrorRef.current(
-              "Die prozedurale 3D-Welt konnte nicht stabil geladen werden.",
-            );
-          };
-
           // Automatic arrivals were framed before world construction. Do not
           // snap a visitor back after secondary details finish loading.
-          if (!initialNavigationRef.current && openingLandmarkRef.current !== selectedRef.current) {
+          if (!initialNavigationRef.current && !initialWalkingStartRef.current && openingLandmarkRef.current !== selectedRef.current) {
             focusLandmark(selectedRef.current, true);
           }
           // The requested world was started immediately after manifest

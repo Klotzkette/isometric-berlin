@@ -5,20 +5,19 @@ import { completeCooperatively } from "../src/cooperativeWork";
 import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "../src/OutlineLandmarksV182";
 import { createOuterThinOutlinesSteps } from "../src/OuterThinOutlines";
 import baseline from "./fixtures/outline-landmarks-v203-baseline.json";
-import synchronous from "./fixtures/outline-landmarks-v210-synchronous.json";
+import synchronous from "./fixtures/outline-landmarks-v220-synchronous.json";
+import supportV220 from "./fixtures/outline-preservation-v220-audit.json";
 import preserved from "./fixtures/outline-landmarks-v204-preserved-layout.json";
 import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
 import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "./helpers/geometryPreservationV206";
 
-// Immutable v205 construction reproduces the complete unchanged v203 hash,
-// then derives this exact Urania-only complement. Every remaining old byte
-// is read from the live tree, trimming only the v205 Ring instance suffixes.
-// urania-preservation-v206 independently verifies the moved source roof and
-// every complete v205 object outside that substitution. New geometry matches
-// independent synchronous captures from scripts/audit-outline-v210.ts; the
-// separate v207/v209 preservation suites checks every complete v206 buffer as well.
-for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v210 synchronous and retains the exact audited old geometry`, async () => {
+// The frozen v203/v206 receipt retains the exact Urania substitution and
+// bounded Ring suffix rules. The v220 pre-v217-gallery control reproduces
+// that whole retained signature before deriving its two-buffer gallery
+// complement. Every remaining old byte is read live below. Independent
+// v119/current captures also pin every current outline node in the v207 suite.
+for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative construction matches v220 synchronous and retains the exact audited old geometry`, async () => {
   let tasks = 0;
   const root = await completeCooperatively(createOutlineLandmarksV182Steps(mode), {
     budgetMs: 0, isCancelled: () => false,
@@ -30,8 +29,24 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
     expect(retained[mode].complete).toEqual(baseline[mode]);
     expect(retained[mode].substitutedKeys).toEqual(outlineUraniaSubstitutionKeysV206(mode));
     const cleanupV210 = restoreOutlineEstimatesV210(root, mode);
-    try { expect(preservedOutlineSignature(root, retainedOutlineManifestV206(preserved[mode], mode)))
-      .toEqual(retained[mode].retained); }
+    try {
+      const proof = supportV220.modes[mode].retention;
+      // The independent pre-v217-gallery control reproduces the complete
+      // frozen retained signature before deriving this exact two-buffer
+      // complement. The current full gallery is pinned in the v207 suite.
+      expect(proof.historicalControl).toEqual(retained[mode].retained);
+      expect(proof.currentUnaffected).toEqual(proof.historicalUnaffected);
+      const manifest = retainedOutlineManifestV206(preserved[mode], mode);
+      const galleryName = supportV220.modes[mode].before.projected.galleryName;
+      const prefix = `["Group","Berlin outline landmark additions v182"]/["Group","${galleryName}"]:0`;
+      expect(proof.previouslyChangedGalleryKeys).toEqual(["stone", "glass"].map(kind =>
+        `${prefix}/["Mesh","${galleryName} ${kind}"]:0`));
+      const removed = new Set(proof.previouslyChangedGalleryKeys);
+      expect(manifest.nodes.filter(node => removed.has(node.key))).toHaveLength(2);
+      expect(preservedOutlineSignature(root, {
+        ...manifest, nodes: manifest.nodes.filter(node => !removed.has(node.key)),
+      })).toEqual(proof.currentUnaffected);
+    }
     finally { cleanupV210(); }
   } finally { disposeOutlineConstruction(root); }
 });

@@ -1006,7 +1006,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "camera-following bounded building detail": "buildingDetailProfile(detailProfile).batchSize",
     "exact roads without protruding raster asphalt": "retainRasterAsphalt: false",
     "startup work yielding": "await yieldStartupWork();",
-    "procedural failure reporting": "runtime.reportWorldFailure = () => {",
     "settled-only official-tree detail gate": (
       "setParkSettledDetail(runtime.parkDetails, false)"
     ),
@@ -1042,6 +1041,24 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for label, snippet in required_viewer_snippets.items()
     if snippet not in viewer
   ]
+  # Required gallery construction can fail before secondary setup finishes.
+  # The live error callback now belongs to Runtime's initializer, so check its
+  # guarded reporting body rather than requiring the former late assignment.
+  failure_callback = re.search(
+    r"reportWorldFailure:\s*\(\)\s*=>\s*\{(.*?)\n\s*\},",
+    viewer,
+    re.DOTALL,
+  )
+  failure_body = " ".join(failure_callback.group(1).split()) if failure_callback else ""
+  if not all(
+    snippet in failure_body
+    for snippet in (
+      "if (runtime.disposed || runtime.worldFailureReported) return;",
+      "runtime.worldFailureReported = true;",
+      "onErrorRef.current(",
+    )
+  ):
+    failures.append(f"True-3D viewer lacks procedural failure reporting: {viewer_path}")
   required_render_quality_snippets = {
     "uncapped interaction cadence": "ACTIVE_MOTION_FRAME_INTERVAL_MS = 0",
     "stable 1.75x desktop quality": "STABLE_DESKTOP_PIXEL_RATIO_CAP = 1.75",

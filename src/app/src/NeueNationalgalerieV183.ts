@@ -1,6 +1,6 @@
 import { ExtrudeGeometry, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, Shape } from "three";
 import { GendarmenmarktFacadeBuilder as Builder } from "./GendarmenmarktFacadeBuilder";
-import { NATIONALGALERIE_V183 as P } from "./neueNationalgalerieV183Profile";
+import { NATIONALGALERIE_V183 as P, NATIONALGALERIE_TERRACE_RING_V183 } from "./neueNationalgalerieV183Profile";
 import source from "./data/neueNationalgalerieV183Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createCattelanExhibitionV217 } from "./CattelanExhibitionV217";
@@ -23,13 +23,12 @@ export function createNeueNationalgalerieV183(native = false) {
     }
   };
   // Original terrace envelope, retained as its polygon rather than a larger square.
-  const terrace=source.parts.find(p=>p.id==="MSMgX8rD")!;
-  const ring=terrace.ring.map(p=>[p[0]/10,p[1]/10]);
+  const ring=NATIONALGALERIE_TERRACE_RING_V183;
   const minZ=Math.min(...ring.map(p=>p[1])),maxZ=Math.max(...ring.map(p=>p[1]));
   const step=.9;
   if(native)for(let z=minZ;z<maxZ;z+=step){const depth=Math.min(step,maxZ-z),mid=z+depth/2,xs:number[]=[];
     for(let i=0;i<ring.length;i++){const a=ring[i],e=ring[(i+1)%ring.length];if((a[1]>mid)!==(e[1]>mid))xs.push(a[0]+(e[0]-a[0])*(mid-a[1])/(e[1]-a[1]));}
-    xs.sort((a,e)=>a-e);for(let i=0;i+1<xs.length;i+=2)b.box([(xs[i]+xs[i+1])/2,7.5,mid],[xs[i+1]-xs[i],4.6,depth],0xb4b0a5);
+    xs.sort((a,e)=>a-e);for(let i=0;i+1<xs.length;i+=2)b.box([(xs[i]+xs[i+1])/2,(P.groundY+P.terraceTopY)/2,mid],[xs[i+1]-xs[i],P.terraceTopY-P.groundY,depth],0xb4b0a5);
   }
   const top=P.floorY+P.columnHeight;
   box(0,top+P.roofThickness/2,0,P.roofWidth,P.roofThickness,P.roofWidth,0x13191a);
@@ -71,11 +70,16 @@ export function createNeueNationalgalerieV183(native = false) {
     box(u,P.floorY+1.5,side*25.4,.10,3,.12,0x182021);
     box(u+Math.sign(u)*.06,P.floorY+1.2,side*25.48,.08,.65,.10,0x565f5e);
   }
-  for(let i=0;i<22;i++)box(0,5.305+i*.21,61.26-i*.33,30,.21,.66,0xb8b4aa,false,.12);
+  // Keep all original tread tops and XZ; carry each riser down to the source
+  // ground instead of leaving elevated thin plates with a walk-through void.
+  for(let i=0;i<22;i++){
+    const treadTop=5.41+i*.21;
+    box(0,(P.groundY+treadTop)/2,61.26-i*.33,30,treadTop-P.groundY,.66,0xb8b4aa,false,.12);
+  }
   const root=b.finish(native?"Nationalgalerie native open pavilion v183":"Nationalgalerie open steel and glass pavilion v183");
   if(!native){
     const outline=new Shape();ring.forEach(([x,z],i)=>i?outline.lineTo(x,-z):outline.moveTo(x,-z));outline.closePath();
-    const geometry=new ExtrudeGeometry(outline,{depth:4.6,bevelEnabled:false});geometry.rotateX(-Math.PI/2);geometry.translate(0,5.2,0);geometry.deleteAttribute("uv");
+    const geometry=new ExtrudeGeometry(outline,{depth:P.terraceTopY-P.groundY,bevelEnabled:false});geometry.rotateX(-Math.PI/2);geometry.translate(0,P.groundY,0);geometry.deleteAttribute("uv");
     const day=new MeshBasicMaterial({color:0xb4b0a5}),night=new MeshStandardMaterial({color:0xb4b0a5,roughness:.95,flatShading:true});
     const mesh=new Mesh(geometry,day);mesh.name="Exact retained Nationalgalerie terrace footprint";mesh.userData={dayMaterial:day,nightMaterial:night};root.add(mesh);
   }

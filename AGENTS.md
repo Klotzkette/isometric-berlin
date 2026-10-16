@@ -188,6 +188,14 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.120 request permits a default walking arrival on the mapped
+pavement at Potsdamer Straße/Reichpietschufer in front of Neue Nationalgalerie,
+with Day preselected and explicit place/theme links preserved. Correct the
+exact authored stair support and podium collision without lowering the measured
+pavilion or changing its footprint, exhibition, doors, or existing city detail.
+The 93-place tour and residency limits remain unchanged. See
+`docs/gallery-start-v220.md`.
+
 The owner's continuation in v1.0.119 permits two further exact facade-edge
 corrections at Albrechtstraße 12 and Luisenstraße 39, preserving the complete
 complement of v1.0.118 facade details and all source geometry. See

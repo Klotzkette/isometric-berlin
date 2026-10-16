@@ -1514,6 +1514,44 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
   )
 
 
+@pytest.mark.parametrize(
+  "missing",
+  [
+    "reportWorldFailure: () => {",
+    "if (runtime.disposed || runtime.worldFailureReported) return;",
+    "runtime.worldFailureReported = true;",
+    "onErrorRef.current(",
+  ],
+)
+def test_procedural_failure_reporting_requires_live_guarded_initializer(
+  monkeypatch: pytest.MonkeyPatch,
+  missing: str,
+) -> None:
+  checker = load_script_module(
+    "readiness_early_world_failure", "scripts/check_release_readiness.py"
+  )
+  viewer_path = ROOT / "src/app/src/ThreeViewer.tsx"
+  original_read = Path.read_text
+  viewer = original_read(viewer_path, encoding="utf-8")
+  start = viewer.index("reportWorldFailure: () => {")
+  end = viewer.index("\n        },", start)
+  callback = viewer[start:end]
+  assert missing in callback
+  assert checker.webgl_viewer_source_failures(ROOT) == []
+
+  def read_without_live_reporting(path: Path, *args, **kwargs) -> str:
+    content = original_read(path, *args, **kwargs)
+    if path == viewer_path:
+      return content.replace(callback, callback.replace(missing, "missing", 1), 1)
+    return content
+
+  monkeypatch.setattr(Path, "read_text", read_without_live_reporting)
+  assert any(
+    "lacks procedural failure reporting" in failure
+    for failure in checker.webgl_viewer_source_failures(ROOT)
+  )
+
+
 def test_object_animation_clock_does_not_weaken_world_quality_guard(
   monkeypatch: pytest.MonkeyPatch,
 ) -> None:

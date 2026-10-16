@@ -142,7 +142,6 @@ import {
   supportsNightLightsToggle,
 } from "./nightLighting";
 import {
-  DEFAULT_FOCUS_LANDMARK,
   NORTH_UP_ROTATION,
   resolveResetView,
 } from "./resetView";
@@ -166,10 +165,10 @@ import {
   FEATURED_SIGHT_NAMES,
   featuredSights,
   findSightBySlug,
-  nextSimulationStartSight,
   parseViewHash,
   sightSlug,
 } from "./viewNavigation";
+import { galleryStartupSelectionV220 } from "./galleryStartupV220";
 import {
   loadThreeViewerComponent,
 } from "./viewerEngineLoader";
@@ -189,26 +188,12 @@ type LandmarkPayload = {
   landmarks: Landmark[];
 };
 
-function browserStartStorage(): Pick<Storage, "getItem" | "setItem"> | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
 function initialSimulationStart(): { name: string; automatic: boolean } {
-  if (typeof window === "undefined") {
-    return { name: DEFAULT_FOCUS_LANDMARK, automatic: true };
-  }
   const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
-  const explicit = findSightBySlug(
+  return galleryStartupSelectionV220(
     landmarks,
-    parseViewHash(window.location.hash).landmarkSlug,
+    typeof window === "undefined" ? "" : window.location.hash,
   );
-  return explicit
-    ? { name: explicit.name, automatic: false }
-    : { name: nextSimulationStartSight(browserStartStorage()), automatic: true };
 }
 
 const INITIAL_SIMULATION_START = initialSimulationStart();
@@ -853,7 +838,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const lastPedestrianJumpActivationAtRef = useRef(0);
   const pedestrianSprintLockedRef = useRef(false);
   const pedestrianFastRunLockedRef = useRef(false);
-  const initialFocusAppliedRef = useRef(false);
+  // The gallery arrival is installed before the curtain opens in ThreeViewer.
+  const initialFocusAppliedRef = useRef(INITIAL_SIMULATION_START.automatic);
 
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
@@ -865,9 +851,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const openingLandmarkRef = useRef<string | null>(
-    INITIAL_SIMULATION_START.automatic ? INITIAL_SIMULATION_START.name : null,
-  );
+  const openingLandmarkRef = useRef<string | null>(null);
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
   const [language, setLanguage] = useState<Language>(initialViewerLanguage);
   const copy = UI_COPY[language];
@@ -900,7 +884,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   );
   const [threeViewerGeneration, setThreeViewerGeneration] = useState(0);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
-  const [isPedestrianMode, setIsPedestrianMode] = useState(false);
+  const [isPedestrianMode, setIsPedestrianMode] = useState(INITIAL_SIMULATION_START.automatic);
   const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
   const [isPedestrianFastRunning, setIsPedestrianFastRunning] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
@@ -2135,11 +2119,11 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         threeViewerAutoRecoveryUsedRef.current = true;
         // The snapshot contains only navigation data, never the failed scene.
         // Do not let the ordinary opening-focus effect overwrite its pose.
-        initialFocusAppliedRef.current = navigation !== null;
+        initialFocusAppliedRef.current = navigation !== null || INITIAL_SIMULATION_START.automatic;
         if (!navigation) {
-          const nextStart = nextSimulationStartSight(browserStartStorage());
-          openingLandmarkRef.current = nextStart;
-          setSelected(nextStart);
+          openingLandmarkRef.current = null;
+          setSelected(INITIAL_SIMULATION_START.name);
+          setIsPedestrianMode(INITIAL_SIMULATION_START.automatic);
         }
         threeViewerGenerationRef.current += 1;
         setThreeViewerGeneration(threeViewerGenerationRef.current);
@@ -2971,6 +2955,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
+                initialWalkingStart={INITIAL_SIMULATION_START.automatic}
                 initialNavigation={retainedNavigationRef.current}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}
@@ -2989,7 +2974,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                   threeViewerRef.current?.setPedestrianSprint(pedestrianSprintLockedRef.current);
                   setThreeRuntimeError(null);
                   setStatus(
-                    language === "de"
+                    isPedestrianMode ? copy.pedestrianOn : language === "de"
                       ? "Isometrische Ansicht bereit"
                       : "Isometric view ready",
                   );
