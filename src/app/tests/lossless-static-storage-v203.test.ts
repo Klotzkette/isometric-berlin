@@ -66,3 +66,36 @@ test("exclusive-root retirement protects aliased buffers",async()=>{
  await new Promise(resolve=>setTimeout(resolve,10));expect(values.byteLength).toBeGreaterThan(0);
  expect(bits(g.getAttribute("position").array)).toBe(bits(values));
 });
+
+test("revisiting parked geometry never inflates backing for bookkeeping", () => {
+ const g = new BufferGeometry().setAttribute("position", new BufferAttribute(source(), 1));
+ g.userData.losslessStaticBacking = true;
+ const root = new Mesh(g, new MeshBasicMaterial());
+ expect(finish(parkStaticGeometrySteps(root, true))).toBeGreaterThan(0);
+ const position = g.getAttribute("position"), descriptor = Object.getOwnPropertyDescriptor(position, "array")!;
+ let reads = 0;
+ Object.defineProperty(position, "array", { ...descriptor,
+  get() { reads++; return descriptor.get!.call(this); },
+ });
+ for (const exclusive of [false, true]) {
+  expect(finish(parkStaticGeometrySteps(root, exclusive))).toBe(0);
+  expect(reads).toBe(0);
+ }
+});
+
+test("parked aliases protect an unparked shared backing without inflating", () => {
+ const values = source(), originalBytes = values.byteLength;
+ const parkedPosition = new BufferAttribute(values, 1), normal = new BufferAttribute(values, 1);
+ expect(finish(parkStaticAttribute(parkedPosition))).toBeGreaterThan(0);
+ const descriptor = Object.getOwnPropertyDescriptor(parkedPosition, "array")!;
+ let reads = 0;
+ Object.defineProperty(parkedPosition, "array", { ...descriptor,
+  get() { reads++; return descriptor.get!.call(this); },
+ });
+ const g = new BufferGeometry().setAttribute("position", parkedPosition).setAttribute("normal", normal);
+ g.userData.losslessStaticBacking = true;
+ expect(finish(parkStaticGeometrySteps(new Mesh(g, new MeshBasicMaterial()), true))).toBeGreaterThan(0);
+ expect(reads).toBe(0);
+ expect(values.byteLength).toBe(originalBytes);
+ expect(bits(normal.array)).toBe(bits(values));
+});

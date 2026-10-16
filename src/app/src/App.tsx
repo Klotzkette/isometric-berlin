@@ -168,7 +168,7 @@ import {
   parseViewHash,
   sightSlug,
 } from "./viewNavigation";
-import { galleryStartupSelectionV220 } from "./galleryStartupV220";
+import { startupViewSelection } from "./startupView";
 import {
   loadThreeViewerComponent,
 } from "./viewerEngineLoader";
@@ -190,7 +190,7 @@ type LandmarkPayload = {
 
 function initialSimulationStart(): { name: string; automatic: boolean } {
   const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
-  return galleryStartupSelectionV220(
+  return startupViewSelection(
     landmarks,
     typeof window === "undefined" ? "" : window.location.hash,
   );
@@ -837,7 +837,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const lastPedestrianJumpActivationAtRef = useRef(0);
   const pedestrianSprintLockedRef = useRef(false);
   const pedestrianFastRunLockedRef = useRef(false);
-  // The gallery arrival is installed before the curtain opens in ThreeViewer.
+  // The gallery flight view is installed before the curtain opens in ThreeViewer.
   const initialFocusAppliedRef = useRef(INITIAL_SIMULATION_START.automatic);
 
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -883,7 +883,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   );
   const [threeViewerGeneration, setThreeViewerGeneration] = useState(0);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
-  const [isPedestrianMode, setIsPedestrianMode] = useState(INITIAL_SIMULATION_START.automatic);
+  const [isPedestrianMode, setIsPedestrianMode] = useState(false);
   const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
   const [isPedestrianFastRunning, setIsPedestrianFastRunning] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
@@ -2122,7 +2122,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         if (!navigation) {
           openingLandmarkRef.current = null;
           setSelected(INITIAL_SIMULATION_START.name);
-          setIsPedestrianMode(INITIAL_SIMULATION_START.automatic);
+          setIsPedestrianMode(false);
         }
         threeViewerGenerationRef.current += 1;
         setThreeViewerGeneration(threeViewerGenerationRef.current);
@@ -2857,6 +2857,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   return (
     <main
       ref={appShellRef}
+      aria-busy={!isReady}
       className={[
         "app-shell",
         isTouring ? "app-shell--touring" : "",
@@ -2954,7 +2955,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
-                initialWalkingStart={INITIAL_SIMULATION_START.automatic}
+                initialFlightStart={INITIAL_SIMULATION_START.automatic}
                 initialNavigation={retainedNavigationRef.current}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}
@@ -3011,6 +3012,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
           </ThreeViewerErrorBoundary>
           )}
       </section>
+      {isReady ? <>
       {minecraftSpark ? (
         <span
           key={minecraftSpark.id}
@@ -4680,6 +4682,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       ) : null}
 
       {isAttributionOpen ? <SourcesDialog language={language} onClose={closeSources} /> : null}
+      </> : null}
     </main>
   );
 }

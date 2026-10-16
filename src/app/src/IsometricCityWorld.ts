@@ -41,7 +41,7 @@ import { HUTHMACHER_PRISM_IDS } from "./huthmacherProfile";
 import { CAFE_NEUER_SEE_V164_PRISM_IDS } from "./cafeNeuerSeeV164Profile";
 import { SPANISH_EMBASSY_V164_PRISM_IDS } from "./spanishEmbassyV164Profile";
 import { GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS } from "./grosserSternGatehousesV164Profile";
-import { cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./MinecraftVoxelWorld";
+import { cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 import { HACKESCHER_MARKT_V163_PRISM_IDS } from "./hackescherMarktV163Profile";
 import { WEST_SQUARES_V163_PRISM_IDS } from "./westSquaresV163Profile";
 import { ULAP_QUARTER_IDS } from "./ulapQuarterProfile";
@@ -279,7 +279,7 @@ import {
   groundTopSampler,
   smoothGroundTopSampler,
   worldGroundSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 import {
   AXIS_FROM,
   AXIS_TO,

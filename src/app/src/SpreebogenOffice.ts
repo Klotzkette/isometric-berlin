@@ -23,7 +23,7 @@ import {
   paintGeometry,
   type Builder,
 } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 
 /**

@@ -20,7 +20,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 type FacadeWall = {
   dirX: number;

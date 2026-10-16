@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
 import roadDataUrl from "./data/restoredRoadSurfaces.ndjson.txt?url";
 import { markArchitecturalInk } from "./architecturalInk";
-import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { indexGeometryExactly } from "./exactGeometryIndex";

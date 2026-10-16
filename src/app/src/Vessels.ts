@@ -13,7 +13,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import { WATER_TOP_Y } from "./terrainPayload";
 import {
   REAL_SPREE_VESSEL_PROFILES,
   REEDEREI_RIEDEL_FLEET_SOURCE,

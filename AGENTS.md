@@ -188,6 +188,14 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.123 correction remains in Step 10: ordinary entry floats above
+Neue Nationalgalerie at its existing catalogue flight framing; walking is opt-in.
+Keep the minimap and navigation HUD unmounted until the real scene is ready.
+Reduce redundant source retention, decompression and native-only loading without
+changing any geometry, visual quality, coverage or residency budgets. This
+supersedes v1.0.120's automatic walking arrival, while keeping its gallery area
+and physical podium corrections. See `docs/startup-stability-v223.md`.
+
 The owner's v1.0.122 request remains within Step 10: improve running stability
 without lowering visual quality, repair walking recovery and hurdle jumps, enable
 orange-joystick double/triple taps, and descend smoothly from flight to walking.

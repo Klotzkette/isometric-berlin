@@ -84,7 +84,7 @@ import {
   createMoabitPrisonMemorialPark,
   type MoabitPrisonMemorialDetailProfile,
 } from "./MoabitPrisonMemorialPark";
-import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import { WATER_TOP_Y } from "./terrainPayload";
 import {
   CITY_WEST_PROFILE,
   CITY_WEST_SOURCE_URLS,

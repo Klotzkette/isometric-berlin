@@ -2,7 +2,7 @@ import {
   BoxGeometry, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh,
   MeshBasicMaterial, MeshStandardMaterial, Path, PlaneGeometry, Shape, ShapeGeometry,
 } from "three";
-import { worldGroundSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { worldGroundSampler, type VoxelPayload } from "./terrainPayload";
 import { BEBEL_LIBRARY_GROUND_PATCH as PATCH, BEBEL_LIBRARY_MEMORIAL as P } from "./bebelplatzMemorialProfile";
 import buildingSource from "./bebelplatzBuildingSource.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";

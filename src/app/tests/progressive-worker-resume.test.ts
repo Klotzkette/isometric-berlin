@@ -14,6 +14,7 @@ import {
 } from "../src/buildingDetailStreaming";
 import { serializeObject3DForTransfer } from "../src/transferableObject3D";
 import { compactStaticGeometry } from "../src/compactStaticGeometry";
+import { smoothGroundTopSampler, type VoxelPayload } from "../src/MinecraftVoxelWorld";
 
 const source = await Bun.file(new URL("../src/progressiveWorld.worker.ts", import.meta.url)).text();
 const parsed = ts.createSourceFile("progressiveWorld.worker.ts", source, ts.ScriptTarget.Latest, true);
@@ -26,12 +27,17 @@ const compiled = ts.transpileModule([...declarations, receiver.getText(parsed)].
 
 // Execute the production Worker and receiver. Only geometry constructors and
 // network are instrumented: source partitions, ACKs, resume and readiness are real.
-function workerHost(profile: "full" | "mobile") {
+function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
   const messages: ProgressiveWorldWorkerOutput[] = [];
   const attachedBatchResolvers = new Map<string, () => void>();
   const attachedBatchPromises = new Map<string, Promise<void>>();
   const buildingSources: string[][] = [];
   const surfaceSources: SurfacePayload[] = [];
+  const surfaceTerrain: Array<{ waterTop: number; bankY: number; samples: number[] }> = [];
+  let parsedGround: VoxelPayload | undefined;
+  let roadGround: VoxelPayload | undefined;
+  let groundRowsAtSurfaceParse: number | undefined;
+  let rasterRowReads = 0;
   const roadIds = ["restored-asphalt-0-0", "restored-paving-0-0", "restored-kerbs-0-0"];
   const roadBuilds: string[] = [];
   let autoAckBuildings = true;
@@ -82,17 +88,22 @@ function workerHost(profile: "full" | "mobile") {
     serializeObject3DForTransfer, compactStaticGeometry, attachedBatchResolvers, attachedBatchPromises,
     WATER_TOP_Y: 0,
     mobileDetailWorker: undefined, latestMobileView: undefined,
-    smoothGroundTopSampler: () => () => 0,
+    smoothGroundTopSampler: groundSource ? smoothGroundTopSampler : () => () => 0,
     createIsometricCityCore: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
       _surfaces: unknown, options: { buildings: PrismBuilding[] }) => {
       buildingSources.push(options.buildings.map((building) => building.id));
       return new Group();
     },
-    createSmoothSurfaces: (payload: SurfacePayload) => {
+    createSmoothSurfaces: (payload: SurfacePayload, waterTop: number, bankY: number,
+      terrainAt: (x: number, z: number) => number) => {
       surfaceSources.push(structuredClone(payload));
+      if (groundSource) surfaceTerrain.push({ waterTop, bankY,
+        samples: [[-24, 56], [-16, 64], [-8, 72]].map(([x, z]) => terrainAt(x, z)),
+      });
       return new Group();
     },
-    createRestoredRoadSurfaceBatches: async function* (_ground: unknown, completed: ReadonlySet<string>) {
+    createRestoredRoadSurfaceBatches: async function* (ground: VoxelPayload, completed: ReadonlySet<string>) {
+      roadGround = ground;
       for (const id of roadIds) {
         if (completed.has(id)) continue;
         roadBuilds.push(id);
@@ -103,7 +114,22 @@ function workerHost(profile: "full" | "mobile") {
       if (url === "prisms") sourceFetches += 1;
       return {
         ok: true,
-        json: async () => structuredClone(url === "prisms" ? prisms : url === "surfaces" ? surfaces : {}),
+        json: async () => {
+          if (url === "ground" && groundSource) {
+            parsedGround = structuredClone(groundSource);
+            return new Proxy(parsedGround, {
+              get(target, key, receiver) {
+                if (key === "ground_rows") {
+                  rasterRowReads++;
+                  throw new Error("Smooth worker must not read raster ground rows");
+                }
+                return Reflect.get(target, key, receiver);
+              },
+            });
+          }
+          if (url === "surfaces" && parsedGround) groundRowsAtSurfaceParse = parsedGround.ground_rows.length;
+          return structuredClone(url === "prisms" ? prisms : url === "surfaces" ? surfaces : {});
+        },
       };
     },
     workerScope,
@@ -145,7 +171,7 @@ function workerHost(profile: "full" | "mobile") {
   const batches = () => messages.filter(message => message.type === "batch");
   const buildingBatches = () => batches().filter(message => message.kind === "buildings");
   return {
-    messages, buildingSources, surfaceSources, surfaces, roadIds, roadBuilds, attachedBatchPromises, attachedBatchResolvers,
+    messages, buildingSources, surfaceSources, surfaceTerrain, surfaces, roadIds, roadBuilds, attachedBatchPromises, attachedBatchResolvers,
     districts, defaultWanted, start, view, batches, buildingBatches, waitFor, maxPendingByKind,
     ack: (id: string) => workerScope.onmessage!({ data: { type: "batch-attached", id } }),
     holdBuildingAcknowledgements: () => { autoAckBuildings = false; },
@@ -155,6 +181,10 @@ function workerHost(profile: "full" | "mobile") {
     get surfaceBuilds() { return surfaceSources.length; },
     get sourceFetches() { return sourceFetches; },
     get maxPendingTransfers() { return maxPendingTransfers; },
+    get parsedGround() { return parsedGround; },
+    get roadGround() { return roadGround; },
+    get groundRowsAtSurfaceParse() { return groundRowsAtSurfaceParse; },
+    get rasterRowReads() { return rasterRowReads; },
   };
 }
 
@@ -166,6 +196,47 @@ async function runWorker(profile: "full" | "mobile", retained: string[] = []) {
 
 describe("complete source detail and resumable worker surfaces", () => {
   for (const profile of ["mobile", "full"] as const) {
+    for (const resumed of [false, true]) test(`${profile}: ${resumed ? "resumed" : "initial"} surfaces release unused raster rows before parsing or waiting for attachment`, async () => {
+      const ground: VoxelPayload = {
+        schema_version: 2, cell_m: 4, classes: ["lawn"], water_top_y_m: 0.75,
+        grid: { cols: 1024, rows: 128, min_x_idx: -8, min_z_idx: 12 },
+        ground_height: { cols: 2, rows: 2, stride_cells: 4, y_dm: [10, 30, 50, 90] },
+        ground_rows: Array.from({ length: 128 }, () =>
+          Array.from({ length: 64 }, (_, index) => [index * 16, 16, 0])),
+      };
+      const retained = resumed ? ["surface-water", "surface-parks-1", "restored-asphalt-0-0"] : [];
+      const expected = await runWorker(profile, retained);
+      const host = workerHost(profile, ground);
+      const expectedTerrain = { waterTop: 0.75, bankY: 6.1, samples: [1, 4.5, 9] };
+      const held = resumed ? "surface-parks-2" : profile === "full" ? "surface-water" : "surface-parks-1";
+      host.holdSurfaceAcknowledgement(held);
+      const started = host.start(retained);
+      await host.waitFor(() => host.batches().some(message => message.id === held));
+      try {
+        expect(host.groundRowsAtSurfaceParse).toBe(0);
+        expect(host.parsedGround!.ground_rows).toEqual([]);
+        expect(host.parsedGround!.ground_height).toEqual(ground.ground_height);
+        expect(host.parsedGround!.grid).toEqual(ground.grid);
+        expect(host.rasterRowReads).toBe(0);
+        expect(host.surfaceTerrain).toEqual([expectedTerrain]);
+        expect(host.attachedBatchPromises.has(held)).toBeTrue();
+        expect(host.messages.some(message => message.type === "settled")).toBeFalse();
+      } finally {
+        host.ack(held);
+        await started;
+      }
+      expect(host.surfaceSources).toEqual(expected.surfaceSources);
+      expect(host.batches().map(batch => batch.id).sort()).toEqual(expected.batches().map(batch => batch.id).sort());
+      expect(host.roadBuilds).toEqual(expected.roadBuilds);
+      expect(host.roadGround!.ground_height).toBe(host.parsedGround!.ground_height);
+      expect(host.roadGround!.grid).toBe(host.parsedGround!.grid);
+      expect(host.roadGround!.cell_m).toBe(ground.cell_m);
+      for (const terrain of host.surfaceTerrain) expect(terrain).toEqual(expectedTerrain);
+      expect(host.rasterRowReads).toBe(0);
+      expect(ground.ground_rows).toHaveLength(128);
+      expect(ground.ground_rows.every(row => row.length === 64)).toBeTrue();
+    });
+
     test(`${profile}: repeated suspension transfers only missing building and surface batches`, async () => {
       const initial = await runWorker(profile);
       const batches = initial.batches();

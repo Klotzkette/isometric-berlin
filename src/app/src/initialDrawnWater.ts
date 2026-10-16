@@ -1,6 +1,6 @@
 import type { Group } from "three";
 import { createSmoothSurfaces, type SurfacePayload } from "./IsometricCityWorld";
-import { smoothGroundTopSampler, WATER_TOP_Y, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { smoothGroundTopSampler, WATER_TOP_Y, type VoxelPayload } from "./terrainPayload";
 import { surfaceFamilyPayload } from "./progressiveWorld";
 
 export const SUNKEN_WALL_OSM_KEY = "way/1065885229";

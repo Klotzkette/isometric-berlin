@@ -1,0 +1,134 @@
+{
+  "method": "Verbatim shared declarations extracted from the released v1.0.122 MinecraftVoxelWorld; exported compatibility aliases retain identity. Function bodies, constants and types are not rewritten.",
+  "originalModuleSha256": "83b6914d9f7c367283fa2370b4a56e1973f85de32997fbc1fd1e4087e77b74a1",
+  "records": [
+    {
+      "name": "VoxelPayload",
+      "sha256": "dbacae72ebb757dfa6662a297f82922ace8de389f87f51a58be2faa2f453df77"
+    },
+    {
+      "name": "MinecraftVoxelDetailProfile",
+      "sha256": "b4ff71ed071b7d1cd9f6c9eedf5d9aa88fe7911b56b1d4c737718fd9b11c0ad2"
+    },
+    {
+      "name": "VoxelBuildingColumn",
+      "sha256": "f41903b6fa6d8eefe17489816fa4157fd9ad826388d1984151820c00c43e1b0e"
+    },
+    {
+      "name": "VoxelTreeBlock",
+      "sha256": "b2260591eb60a983671ae8b0a8e181b71c2650c52a93f3521ed82751dbc69881"
+    },
+    {
+      "name": "forEachVoxelTreeBlock",
+      "sha256": "76d944462be1ddc9a2d263811501bfb921559038844fea9534c4ef8b82ca1fe4"
+    },
+    {
+      "name": "MINECRAFT_TREE_RETENTION",
+      "sha256": "d8b348a67d995044c08a45b8da8bf4fafbbf208a06857a506401cbb7ae2d0ce0"
+    },
+    {
+      "name": "minecraftVoxelTreeRetained",
+      "sha256": "7fca70475b83018d8c03c47eb9ea01f4a4255fa240d93bfbe610a886711fc37a"
+    },
+    {
+      "name": "VOXEL_WORLD_FILE",
+      "sha256": "876fa22259b4063e89090c290d52ab6af701dcc8f4b3e168476737be92f9a6b8"
+    },
+    {
+      "name": "GROUND_CONTEXT_FILE",
+      "sha256": "ddd0a880b969d97d52b0462177f4655223749de3aeaae7a2aec944fd3d12ec87"
+    },
+    {
+      "name": "GROUND_SLAB_M",
+      "sha256": "eb346e118dfdb3b22b5191f0660702f6935769a3a201135fa3958595c22fc063"
+    },
+    {
+      "name": "WATER_TOP_Y",
+      "sha256": "92dc64ab15ae4a968568bc780f74207b0e388c762fbbb8c5ba6381f6df67abc6"
+    },
+    {
+      "name": "CLASS_SHADES",
+      "sha256": "4479200e80875e086df1578922ccd2b2b5cd3e8120240942abcf8c05bcf508ea"
+    },
+    {
+      "name": "FALLBACK_SHADES",
+      "sha256": "b548d424fe1bf10503f62293f36529a309059d1ca14c7cc17a087d87ba99c1df"
+    },
+    {
+      "name": "shadeFor",
+      "sha256": "b76ab0474c818d685040e02df8d0b7baee5919b8bcdd6d1ef63df493d0efa598"
+    },
+    {
+      "name": "voxelMaterial",
+      "sha256": "af2934e2f48ec380004ea953f8c9a22a553849f2ffad3d9c593a7fdb4bf4e707"
+    },
+    {
+      "name": "InstanceWriter",
+      "sha256": "f84ca2509c350f78e2f7d59a662591f38776bee79618d2139a88f5bf29226f25"
+    },
+    {
+      "name": "instancedBoxes",
+      "sha256": "abcd4a5bae5965ec2822dba55c5d4e6ef069fb4f9db8f20bd7c1cccc3bb4c286"
+    },
+    {
+      "name": "allocateUnwrittenInstances",
+      "sha256": "e69dcd54944465042240f54fa39fb5269153bf1301b78489db897c145bc4bbaf"
+    },
+    {
+      "name": "groundTopSampler",
+      "sha256": "0bb528237de0a5ae19718b2e68c9075d108cca7fc98ac287925b380be92d05c7"
+    },
+    {
+      "name": "smoothGroundTopSampler",
+      "sha256": "4ff930fdfb3cebcd8aa46f29c71fe260890cfbd7614455f4f0801072a0c1bb71"
+    },
+    {
+      "name": "worldGroundSampler",
+      "sha256": "15e01bd93ec0b61238cbf219f1c945feaa8d1c784e695b2b58d9cfb7bda66820"
+    },
+    {
+      "name": "createGroundSlabs",
+      "sha256": "0a224bdf05a6263cfa70c20e297958e6148256c840332973f42f6ce79a994cd6"
+    },
+    {
+      "name": "finishSteps",
+      "sha256": "370b08516df627e82e4afda91d14d9ab6c244caba3c6516f0642cc370b9f296d"
+    },
+    {
+      "name": "createGroundSlabsSteps",
+      "sha256": "605637918ab262b1d7dfc59d49132b5cc7e268d03eadecc7e84c074314a4f241"
+    },
+    {
+      "name": "GatehouseGroundPoint",
+      "sha256": "6a8735a68f4b6518b846351cd12bcf6d8b0f1887b30d1828c684107ce7ea0d9d"
+    },
+    {
+      "name": "GatehouseGroundPolygon",
+      "sha256": "6cdf326e239aef77380b314ee9d2d521582f0a13404c4d6ef2770966f7cd2933"
+    },
+    {
+      "name": "gatehouseGroundCuts",
+      "sha256": "b1017c1dcf76c4b79a74350ad83a9da7a6dceec0c56e6b55340ce0a996538822"
+    },
+    {
+      "name": "gatehousePolygonArea",
+      "sha256": "43ba353def04ea78f983d763da99d36634045223a8ad11ac2d52554bfa84443a"
+    },
+    {
+      "name": "clipGatehouseGroundPlane",
+      "sha256": "66fe16cfdb045ff0cde5bedd2236cb2e7bbeb3c4a5e585bf27e5f188aa81324a"
+    },
+    {
+      "name": "gatehouseGroundComplement",
+      "sha256": "b91f998b3e602903a0a11be302fb220b00a7259e00136fa85bfedb0a1d68e22a"
+    },
+    {
+      "name": "cutGrosserSternGatehouseGroundSurface",
+      "sha256": "8f35e1c5ce36eba26f768588552ef0c0a2032ccc759e7d65774b91d053d88027"
+    },
+    {
+      "name": "restoreGrosserSternGatehouseGroundOwnership",
+      "sha256": "3e3297d31b9fef074e67e2fea94e15b2411b3fe1465c4e004e655c5add103ff3"
+    }
+  ]
+}

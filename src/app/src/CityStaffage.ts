@@ -3,7 +3,7 @@ import {
   TorusGeometry,
 } from "three";
 
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import {
   type Builder,
   addBox,

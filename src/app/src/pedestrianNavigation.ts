@@ -91,7 +91,7 @@ import {
   type MinecraftVoxelDetailProfile,
   type VoxelPayload,
   smoothGroundTopSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 import { isLenneOakTree } from "./LenneOak";
 import {
   decodeTrees,

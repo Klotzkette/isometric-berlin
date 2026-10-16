@@ -50,6 +50,7 @@ import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
+import { GALLERY_FLIGHT_START_V223 } from "./startupView";
 import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
@@ -394,10 +395,8 @@ import {
   type VoxelPayload,
   VOXEL_WORLD_FILE,
   WATER_TOP_Y,
-  buildColumnToneLookup,
-  buildMinecraftVoxelWorldSteps,
   smoothGroundTopSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
 import { hauptbahnhofGroundAt, hauptbahnhofSolidAt } from "./HauptbahnhofNavigation";
 import {
@@ -631,6 +630,7 @@ type ThreeViewerProps = {
   openingLandmark?: string | null;
   initialNavigation?: NavigationSnapshot | null;
   initialWalkingStart?: boolean;
+  initialFlightStart?: boolean;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
   onError: (message: string) => void;
@@ -4720,6 +4720,12 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
+      const { buildColumnToneLookup, buildMinecraftVoxelWorldSteps } = await import("./MinecraftVoxelWorld");
+      if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
+      if (!voxelWorldIntentActive(runtime)) {
+        runtime.voxelWorldState = "idle";
+        return;
+      }
       provisionalVoxelWorld = new Group();
       await completeCooperatively(
         buildMinecraftVoxelWorldSteps(
@@ -5574,6 +5580,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       openingLandmark = null,
       initialNavigation = null,
       initialWalkingStart = false,
+      initialFlightStart = false,
       pergamonRevealed = false,
       onPergamonRevealChange,
       onError,
@@ -5591,6 +5598,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const openingLandmarkRef = useRef(openingLandmark);
     const initialNavigationRef = useRef(initialNavigation);
     const initialWalkingStartRef = useRef(initialWalkingStart);
+    const initialFlightStartRef = useRef(initialFlightStart);
     const activeRef = useRef(active);
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
@@ -6547,7 +6555,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         presentationReady: false,
         navigationRestored: false,
         openingDetailReady: initialNavigationRef.current !== null || openingLandmarkRef.current !== "Berliner Philharmonie",
-        openingGalleryRequired: initialWalkingStartRef.current && initialNavigationRef.current === null,
+        openingGalleryRequired: (initialWalkingStartRef.current || initialFlightStartRef.current) && initialNavigationRef.current === null,
         openingWalkingPending: initialWalkingStartRef.current && initialNavigationRef.current === null,
         notifyPresentationReady: () => {
           if (disposed) {
@@ -6685,6 +6693,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         setEnvironmentalPresentation(runtime);
         applyPedestrianCamera(runtime);
         notifyView(runtime, onViewChangeRef.current);
+      } else if (initialFlightStartRef.current) {
+        runtime.camera.position.fromArray(GALLERY_FLIGHT_START_V223.pose.position);
+        runtime.controls.target.fromArray(GALLERY_FLIGHT_START_V223.pose.target);
+        runtime.camera.fov = GALLERY_FLIGHT_START_V223.fov;
+        runtime.camera.updateProjectionMatrix();
+        runtime.camera.lookAt(runtime.controls.target);
+        runtime.camera.updateMatrixWorld();
+        runtime.marker.visible = false;
       } else if (initialWalkingStartRef.current) {
         runtime.camera.position.fromArray(GALLERY_STARTUP_V220.position);
         runtime.controls.target.fromArray(GALLERY_STARTUP_V220.target);
@@ -8577,7 +8593,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           // Frame the chosen arrival before construction/streaming starts,
           // so the first visible city and the first detail districts agree.
-          if (!initialNavigationRef.current && !initialWalkingStartRef.current && openingLandmarkRef.current === selectedRef.current) {
+          if (!initialNavigationRef.current && !initialWalkingStartRef.current && !initialFlightStartRef.current && openingLandmarkRef.current === selectedRef.current) {
             focusLandmark(selectedRef.current, true, true);
           }
           // World payloads are the first visible content. Start them as soon
@@ -9225,7 +9241,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.geometryResidency?.enqueue(runtime.tunnelPortals);
           // Automatic arrivals were framed before world construction. Do not
           // snap a visitor back after secondary details finish loading.
-          if (!initialNavigationRef.current && !initialWalkingStartRef.current && openingLandmarkRef.current !== selectedRef.current) {
+          if (!initialNavigationRef.current && !initialWalkingStartRef.current && !initialFlightStartRef.current && openingLandmarkRef.current !== selectedRef.current) {
             focusLandmark(selectedRef.current, true);
           }
           // The requested world was started immediately after manifest

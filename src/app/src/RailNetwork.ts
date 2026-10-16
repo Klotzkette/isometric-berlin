@@ -33,7 +33,7 @@ import {
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { markArchitecturalAccentInk } from "./architecturalInk";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 export const RAIL_LINES_FILE = "rail-lines.json";
 

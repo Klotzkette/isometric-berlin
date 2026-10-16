@@ -16,7 +16,7 @@ import {
   paintGeometry,
 } from "./drawnKit";
 import { ADLER_BRIDGE_PROFILE } from "./AdlerBridge";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 type RectProfile = {
   centreWorldM: readonly [number, number];

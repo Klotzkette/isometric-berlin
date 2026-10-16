@@ -15,7 +15,7 @@ import {
   WATER_TOP_Y,
   type VoxelPayload,
   worldGroundSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 import {
   HUMBOLDTHAFEN_NORTH_CREST_M,
   HUMBOLDTHAFEN_NORTH_WATERLINE_M,

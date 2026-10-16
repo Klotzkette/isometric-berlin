@@ -41,7 +41,7 @@ import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "./CsdAttackMemorial";
 import { createLetteringTexture } from "./drawnLettering";
 import { createKindertransportMemorial, KINDERTRANSPORT_MEMORIAL_OSM_KEY } from "./KindertransportMemorial";
 import { KROLLOPER_SCULPTURE_OSM_KEYS } from "./KrolloperSculptures";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "./MoabitPrisonMemorialPark";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 

@@ -12,7 +12,7 @@ import {
   type Camera,
 } from "three";
 
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 /**
  * Task 07: the real traffic lights. Every OSM `highway=traffic_signals`

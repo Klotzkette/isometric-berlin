@@ -48,13 +48,14 @@ const declaration = parsed.statements.find(
 )!;
 const compiled = ts.transpileModule(
   declaration.getText(parsed).replaceAll("import.meta.env.DEV", "false")
-    .replace('import("./RequiredSiteEnvelopesV209")', 'loadRequiredSiteEnvelopesV209()'),
+    .replace('import("./RequiredSiteEnvelopesV209")', 'loadRequiredSiteEnvelopesV209()')
+    .replace('import("./MinecraftVoxelWorld")', 'loadNativeBuilder()'),
   {
     compilerOptions: { target: ts.ScriptTarget.ES2022 },
   },
 ).outputText;
 
-for (const phase of ["native", "required-sites"] as const)
+for (const phase of ["native", "required-sites", "native-builder"] as const)
 for (const cancellation of ["mode", "disposed", "signal", "failure"] as const) {
   test(`a pending ${phase} preload allocates no world when cancelled by ${cancellation}`, async () => {
     let resolveSource!: () => void;
@@ -71,7 +72,7 @@ for (const cancellation of ["mode", "disposed", "signal", "failure"] as const) {
       lightingMode: "minecraft",
       reportCoreProgress: () => {},
     };
-    let preloads = 0, siteImports = 0,
+    let preloads = 0, siteImports = 0, builderImports = 0,
       allocations = 0;
     const bindings = {
       fetchVoxelPayload: async () => ({}),
@@ -83,7 +84,14 @@ for (const cancellation of ["mode", "disposed", "signal", "failure"] as const) {
       },
       loadRequiredSiteEnvelopesV209: () => {
         siteImports++;
-        return pending;
+        return phase === "required-sites" ? pending : Promise.resolve({});
+      },
+      loadNativeBuilder: () => {
+        builderImports++;
+        return pending.then(() => ({
+          buildColumnToneLookup: () => { throw new Error("Cancelled native builder was called"); },
+          buildMinecraftVoxelWorldSteps: () => { throw new Error("Cancelled native builder was called"); },
+        }));
       },
       Group: class {
         constructor() {
@@ -99,6 +107,7 @@ for (const cancellation of ["mode", "disposed", "signal", "failure"] as const) {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(preloads).toBe(1);
     expect(siteImports).toBe(phase === "native" ? 0 : 1);
+    expect(builderImports).toBe(phase === "native-builder" ? 1 : 0);
     expect(allocations).toBe(0);
     if (cancellation === "mode") runtime.lightingMode = "day";
     else if (cancellation === "disposed") runtime.disposed = true;
@@ -108,6 +117,7 @@ for (const cancellation of ["mode", "disposed", "signal", "failure"] as const) {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(allocations).toBe(0);
     expect(siteImports).toBe(phase === "native" ? 0 : 1);
+    expect(builderImports).toBe(phase === "native-builder" ? 1 : 0);
     if (cancellation === "mode") expect(runtime.voxelWorldState).toBe("idle");
   });
 }

@@ -15,7 +15,7 @@ import {
 } from "three";
 import buildingSource from "./bebelplatzBuildingSource.json";
 import { letteringStrokePaths } from "./drawnLettering";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 type Point = [number, number, number];

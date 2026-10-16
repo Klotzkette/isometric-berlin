@@ -5,7 +5,7 @@ import {
 } from "three";
 import source from "./bebelplatzBuildingSource.json";
 import { addBox, addCylinder, createBuilder, finishDrawnGroup, paintGeometry, type Builder } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { markArchitecturalAccentInk } from "./architecturalInk";
 

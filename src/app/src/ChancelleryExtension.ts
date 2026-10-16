@@ -22,7 +22,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 const SITE_GRAVEL = 0xd8d2c2;
 const CONCRETE = 0xd8d8d3;

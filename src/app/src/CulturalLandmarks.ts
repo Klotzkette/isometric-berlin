@@ -23,7 +23,7 @@ import {
 } from "three";
 import { createLegolandEntranceV216 } from "./LegolandEntranceV216";
 import { markArchitecturalAccentInk } from "./architecturalInk";
-import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import { WATER_TOP_Y } from "./terrainPayload";
 import { SPREEBOGEN_PARK_PROFILE } from "./SpreebogenPark";
 import {
   createStarbucksPariserPlatz,

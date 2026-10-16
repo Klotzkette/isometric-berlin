@@ -13,7 +13,7 @@ import {
   minecraftVoxelTreeRetained,
   type VoxelPayload,
   worldGroundSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
 import { isLenneOakVoxelTree } from "./MinecraftLenneOak";
 

@@ -13,7 +13,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 
 /**

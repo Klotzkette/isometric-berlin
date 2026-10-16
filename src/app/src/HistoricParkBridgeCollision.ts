@@ -1,6 +1,6 @@
 import { ADLER_BRIDGE_PROFILE } from "./AdlerBridge";
 import { LOEWEN_BRIDGE_PROFILE } from "./LoewenBridge";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 
 export type HistoricParkBridgeCollisionIndex = {
   solidAt: (x: number, y: number, z: number, radiusM?: number) => boolean;

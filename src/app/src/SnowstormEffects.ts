@@ -23,7 +23,7 @@ import {
 } from "three";
 
 import type { VisualMode } from "./visualMode";
-import { cutGrosserSternGatehouseGroundSurface } from "./MinecraftVoxelWorld";
+import { cutGrosserSternGatehouseGroundSurface } from "./terrainPayload";
 
 const SNOW_RADIUS_M = 360;
 const SNOW_HEIGHT_M = 260;

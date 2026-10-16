@@ -3,7 +3,7 @@ import {
   LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial,
 } from "three";
 import source from "./data/districtStreets.json";
-import { smoothGroundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 type Point = [number, number];

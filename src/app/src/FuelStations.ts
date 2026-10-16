@@ -17,7 +17,7 @@ import {
   ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
   markArchitecturalInk,
 } from "./architecturalInk";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 
 /**

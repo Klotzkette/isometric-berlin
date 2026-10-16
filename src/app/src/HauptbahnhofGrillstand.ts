@@ -30,7 +30,7 @@ import {
 import {
   type VoxelPayload,
   worldGroundSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 
 /**
  * The small kiosk below the western Stadtbahn approach is an OSM point, not a

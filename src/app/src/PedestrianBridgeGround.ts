@@ -7,7 +7,7 @@ import {
   HUGO_PREUSS_STRUCTURE_PROFILE,
 } from "./IsometricCityWorld";
 import { SANDKRUG_STRUCTURE_PROFILE } from "./HumboldthafenRefinements";
-import { groundTopSampler, worldGroundSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { groundTopSampler, worldGroundSampler, type VoxelPayload } from "./terrainPayload";
 import type { VisualMode } from "./visualMode";
 
 /**

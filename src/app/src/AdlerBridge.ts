@@ -19,7 +19,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
 import { createSnowAccents, type SnowRidge } from "./modeOnlyDetails";
 
 /**

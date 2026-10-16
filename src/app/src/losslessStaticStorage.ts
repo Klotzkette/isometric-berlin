@@ -104,7 +104,7 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
 /** Call after indexing, terrain draping, colours and optional interleaving. */
 export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): Generator<void, number> {
   const storages = new Set<Storage>();
-  const owners = new Map<ArrayBufferLike, Set<Storage>>();
+  const owners = new Map<object, Set<Storage>>();
   root.traverse(object => {
     if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
     const geometry: BufferGeometry = object.geometry;
@@ -114,7 +114,9 @@ export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): G
     if (ownsBuffers) for (const attribute of fields) {
       if (!attribute) continue;
       const storage = "data" in attribute ? attribute.data : attribute;
-      const buffer = storage.array.buffer;
+      // Already parked fields still participate in alias protection, without
+      // restoring all their invisible CPU backing merely to identify owners.
+      const buffer = staticStorageInfo(storage).bufferIdentity;
       let aliases = owners.get(buffer); if (!aliases) owners.set(buffer, aliases = new Set());
       aliases.add(storage);
     }
@@ -127,10 +129,11 @@ export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): G
   });
   let saved = 0;
   for (const storage of storages) {
-    const array = storage.array;
+    if (parked.has(storage)) continue;
+    const info = staticStorageInfo(storage);
     // Do not detach subviews or storage shared with any other attribute.
-    const exclusive = ownsBuffers && array.byteOffset === 0 && array.byteLength === array.buffer.byteLength &&
-      owners.get(array.buffer)?.size === 1;
+    const exclusive = ownsBuffers && info.byteLength === info.bufferBytes &&
+      owners.get(info.bufferIdentity)?.size === 1;
     saved += yield* parkStaticAttribute(storage, exclusive);
   }
   return saved;

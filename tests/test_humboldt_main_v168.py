@@ -17,10 +17,21 @@ P = json.loads((ROOT / "src/app/src/data/humboldtMainV168Source.json").read_text
 
 def test_existing_hero_source_and_facade_files_unchanged() -> None:
   for record in P["preservedFiles"]:
-    assert (
-      hashlib.sha256((ROOT / record["path"]).read_bytes()).hexdigest()
-      == record["sha256"]
-    )
+    source = (ROOT / record["path"]).read_bytes()
+    if record["path"] == "src/app/src/BebelplatzFacades.ts":
+      # v223 moves the unchanged sampler to a shared module so drawn startup
+      # does not eagerly load native construction. Preserve the original hash
+      # after projecting only this exact, required import-line change.
+      current_import = (
+        b'import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";'
+      )
+      previous_import = current_import.replace(
+        b'"./terrainPayload"', b'"./MinecraftVoxelWorld"'
+      )
+      assert source.count(current_import) == 1
+      assert previous_import not in source
+      source = source.replace(current_import, previous_import, 1)
+    assert hashlib.sha256(source).hexdigest() == record["sha256"]
   assert P["newReplacedOwners"] == []
   assert P["lod2ParentId"] == "DEBE01YYK0000Cm9"
   assert P["osmIdentity"] == "relation/6647"

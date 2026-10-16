@@ -27,7 +27,7 @@ import {
 import {
   type VoxelPayload,
   smoothGroundTopSampler,
-} from "./MinecraftVoxelWorld";
+} from "./terrainPayload";
 
 import {
   LUDWIG_ERHARD_UFER_WORLD_M,

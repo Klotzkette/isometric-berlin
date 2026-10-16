@@ -8,7 +8,7 @@ import {
   type PrismPayload,
   type SurfacePayload,
 } from "./IsometricCityWorld";
-import { smoothGroundTopSampler, WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import { smoothGroundTopSampler, WATER_TOP_Y } from "./terrainPayload";
 import type { VoxelPayload } from "./MinecraftVoxelWorld";
 import {
   splitProgressiveBuildings,
@@ -134,6 +134,9 @@ async function buildSurfaceFamilies(
     surfacesPromise,
   ]);
   const ground = (await groundResponse.json()) as VoxelPayload;
+  // Smooth surfaces and restored roads need only the height grid. Retire this
+  // worker-owned raster graph before parsing surfaces or waiting for uploads.
+  ground.ground_rows = [];
   const surfaces = (await surfacesResponse.json()) as SurfacePayload;
   const terrainSample = smoothGroundTopSampler(ground);
   const terrainAt = (x: number, z: number): number =>

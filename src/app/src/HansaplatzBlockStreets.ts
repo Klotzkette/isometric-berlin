@@ -2,7 +2,7 @@ import {
   BoxGeometry, Color, Group, InstancedMesh, Matrix4, MeshBasicMaterial,
 } from "three";
 import source from "./data/hansaplatzBlockStreets.json";
-import { groundTopSampler, type VoxelPayload } from "./MinecraftVoxelWorld";
+import { groundTopSampler, type VoxelPayload } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 /** Native road/pavement tops; adjacent equal-height cells share one cuboid. */

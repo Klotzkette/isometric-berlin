@@ -12,6 +12,7 @@ import cut from "../src/data/orankeseeMarginV209.json";
 // complete historical city and all its unrelated multi-megabyte landmarks.
 const drawnSource = readFileSync(new URL("../src/IsometricCityWorld.ts", import.meta.url), "utf8");
 const nativeSource = readFileSync(new URL("../src/MinecraftVoxelWorld.ts", import.meta.url), "utf8");
+const terrainSource = readFileSync(new URL("../src/terrainPayload.ts", import.meta.url), "utf8");
 function section(source: string, from: string, to: string): string {
   const start = source.indexOf(from), end = source.indexOf(to, start);
   if (start < 0 || end < 0) throw new Error("Margin source fixture moved");
@@ -20,8 +21,8 @@ function section(source: string, from: string, to: string): string {
 function margin(native = false): THREE.Group {
   const bindings = { ...THREE, ...envelope, mergeGeometries };
   const body = native
-    ? section(nativeSource, "function voxelMaterial(", "type InstanceWriter") +
-      section(nativeSource, "function instancedBoxes(", "// Only for private meshes") +
+    ? section(terrainSource, "function voxelMaterial(", "type InstanceWriter") +
+      section(terrainSource, "function instancedBoxes(", "// Only for private meshes") +
       section(nativeSource, "function addTiledBand(", "/**") +
       section(nativeSource, "export function createMinecraftExtrapolatedWorld", "  group.add(ground.mesh);") +
       "  group.add(ground.mesh); return group; }"

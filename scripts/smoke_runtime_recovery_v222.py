@@ -299,6 +299,14 @@ def run(url: str, engine: str, output: Path) -> dict[str, Any]:
         }""",
           timeout=180_000,
         )
+        # Ordinary entry is flight again in v123. Exercise the optional walking
+        # controls through their real toggle before the existing jump checks.
+        if not initial["enabled"]:
+          toggle_walk(page, touch)
+          page.wait_for_function(
+            "() => window.__readModeContinuity()?.pedestrian?.grounded", timeout=25_000
+          )
+          initial = read(page)
         assert initial["enabled"] and initial["pedestrian"]["grounded"], initial
         report["startupSeconds"] = round(time.monotonic() - started, 2)
         normal = jump_check(page, touch, 2)
