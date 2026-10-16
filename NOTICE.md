@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Nationalgalerie terrace sculptures (v1.0.121):** OpenStreetMap contributors
+  (ODbL-1.0) supply the retained anchors for Alexander Calder's *Têtes et Queue*
+  and Henry Moore's *Archer*. Owner photographs guide independent simplified
+  procedural models; no photographs, scans or textures are bundled. Artwork
+  identities and material/dimensional facts were checked against the museum,
+  Calder Foundation and Bildhauerei in Berlin. See [sources, attribution and
+  dimensional qualifications](docs/nationalgalerie-sculptures-v221.md).
+
 - **Theatre neighbourhood corners (v1.0.119):** Retained Berlin LoD2 and heritage identities anchor two exact facade corrections. Kvikk’s Albrechtstraße 12 photograph (30 April 2012, CC BY-SA 3.0) and the already credited Jörg Zägel Mori-Ôgai photograph guide original procedural recognition details. No imagery is bundled. See [references and estimates](docs/theatre-corners-v219.md).
 
 - **Cattelan exhibition (v1.0.117):** Owner-supplied October 2026 photographs and video guide original simplified procedural representations of Maurizio Cattelan’s NIGHT exhibition. Artworks remain © Maurizio Cattelan; this independent scene is not a scan or official exhibition reconstruction. No photographs, video, portraits or font assets are bundled. Retained Berlin LoD2 anchors the building. See [sources and estimates](docs/cattelan-v217.md).

@@ -188,6 +188,14 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.121 request permits photo-guided procedural recognition of
+Alexander Calder's Têtes et Queue and Henry Moore's Archer at their exact
+retained OSM terrace anchors outside Neue Nationalgalerie. Only the documented
+oversized Archer torus may be replaced. Preserve the gallery, exhibition,
+walking start and all unrelated city bytes. Drawn detail stays equal on mobile;
+Minecraft uses independent bounded blocks. No new tour stop or residency limit.
+See `docs/nationalgalerie-sculptures-v221.md` for dimensional conflicts and sources.
+
 The owner's v1.0.120 request permits a default walking arrival on the mapped
 pavement at Potsdamer Straße/Reichpietschufer in front of Neue Nationalgalerie,
 with Day preselected and explicit place/theme links preserved. Correct the

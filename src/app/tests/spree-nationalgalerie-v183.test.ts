@@ -3,6 +3,7 @@ import { InstancedMesh, Material, Mesh } from "three";
 import { createNeueNationalgalerieV183 } from "../src/NeueNationalgalerieV183";
 import { NATIONALGALERIE_V183, NATIONALGALERIE_V183_IDS, nationalgalerieV183Column } from "../src/neueNationalgalerieV183Profile";
 import { createSpreeLandmarksV183, MOLECULE_V183_AXES, MOLECULE_V183_HOLES } from "../src/SpreeLandmarksV183";
+import { nationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
 function dispose(root: ReturnType<typeof createSpreeLandmarksV183>) {
   const materials=new Set<Material>();root.traverse(o=>{if(!(o instanceof Mesh))return;o.geometry.dispose();if(o instanceof InstancedMesh)o.dispose();for(const m of [o.userData.dayMaterial,o.userData.nightMaterial])if(m)materials.add(m);});for(const m of materials)m.dispose();
 }
@@ -15,7 +16,8 @@ test("Nationalgalerie owns only eight retained envelopes and keeps a transparent
     const glass=root.children.find(o=>o.name.endsWith(" glass")) as InstancedMesh;
     expect(glass.count).toBeGreaterThan(0);expect(glass.userData.dayMaterial.opacity).toBe(.18);expect(glass.userData.dayMaterial.depthWrite).toBeFalse();
     let bytes=0;root.traverse(o=>{if(o instanceof InstancedMesh){bytes+=o.instanceMatrix.array.byteLength+(o.instanceColor?.array.byteLength??0);if(native)for(let i=0;i<o.count;i++){const a=o.instanceMatrix.array;for(const k of [1,2,4,6,8,9])expect(a[i*16+k]).toBe(0);}}});
-    expect(bytes).toBeLessThan(800_000);
+    let addedBytes=0;nationalgalerieSculpturesV221(root,native).traverse(o=>{if(o instanceof InstancedMesh)addedBytes+=o.instanceMatrix.array.byteLength+(o.instanceColor?.array.byteLength??0);});
+    expect(bytes-addedBytes).toBeLessThan(800_000);
   }finally{dispose(root);}}
 });
 test("Molecule Man retains three mapped radial plates and actual perforations",()=>{

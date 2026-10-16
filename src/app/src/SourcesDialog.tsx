@@ -39,6 +39,9 @@ export function SourcesDialog({ language, onClose }: {
           ? "Neue Nationalgalerie: Cattelan – NIGHT, nach bereitgestellten Fotos von Oktober 2026 vereinfacht dargestellt. Kunstwerke © Maurizio Cattelan. Anordnung und Proportionen sind angenähert."
           : "Neue Nationalgalerie: Cattelan – NIGHT, a simplified interpretation of supplied October 2026 photographs. Artworks © Maurizio Cattelan. Layout and proportions are approximate."}</p>
         <p>{language === "de"
+          ? "Terrasse der Neuen Nationalgalerie: Alexander Calder, Têtes et Queue (1965), und Henry Moore, Bogenschütze (1964–1966). Vereinfachte Darstellung nach bereitgestellten Fotos an kartierten OpenStreetMap-Standorten; Formdetails und Ausrichtung sind angenähert."
+          : "Neue Nationalgalerie terrace: Alexander Calder, Têtes et Queue (1965), and Henry Moore, Archer (1964–1966). Simplified interpretations of supplied photographs at mapped OpenStreetMap locations; shape details and orientation are approximate."}</p>
+        <p>{language === "de"
           ? "Dünne graugrüne Linie: heutige Landesgrenze Berlins. Rote Linie: amtlich kartierter Verlauf der Grenzanlagen von 1989, einschließlich der belegten Unterwasserabschnitte; keine parzellengenaue Vermessung."
           : "Thin grey-green line: present Berlin state boundary. Red line: officially mapped 1989 border installations, including documented underwater sections; not a cadastral survey."}</p>
         <p>{language === "de"

@@ -63,7 +63,9 @@ describe("Neue Nationalgalerie bounded walking v217", () => {
     expect(pedestrianPointIsBlocked(inside[0], inside[2], inside[1], undefined,
       { interiorSolidAt: neueNationalgalerieSolidAtV217 })).toBeTrue();
     expect(neueNationalgalerieSolidAtV217(...outside, .3)).toBeFalse();
-    const [a, b] = NATIONALGALERIE_TERRACE_RING_V183;
+    // The northeast edge now adjoins the exact additive OSM apron. The west
+    // edge still tests the unchanged exterior capsule-clearance boundary.
+    const [a, b] = [NATIONALGALERIE_TERRACE_RING_V183[5], NATIONALGALERIE_TERRACE_RING_V183[0]];
     const mx = (a[0] + b[0]) / 2, mz = (a[1] + b[1]) / 2;
     const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
     const nx = (b[1] - a[1]) / length, nz = -(b[0] - a[0]) / length;

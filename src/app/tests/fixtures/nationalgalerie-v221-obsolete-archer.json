@@ -1,0 +1,241 @@
+{
+  "releasedBase": "d7b7a3a7a452fc330950f2cfbc5034e441c59915",
+  "method": "Immutable v1.0.120 ExpandedCityDetails module and shipped landmark catalogue read from Git. Full and mobile historical captures differ only by withholding the unique named Archer input, suppressing precisely its obsolete merged torus and ink edges. Current runtime receives the complete unmodified catalogue and must reproduce every historical complement byte, ordered object/header and material/world-transform digest. No historical fixture is changed.",
+  "source": {
+    "path": "src/app/src/ExpandedCityDetails.ts",
+    "sha256": "b0aec151cfed8ba7fd835f94aef3bf383995c40f148a0bc41bdd9685a0007de5",
+    "landmarksSha256": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4"
+  },
+  "removedLandmark": {
+    "name": "Der Bogenschütze (Henry Moore)",
+    "role": "owner_added",
+    "world": [
+      -241.7248615444405,
+      8,
+      1290.5216721436009
+    ]
+  },
+  "profiles": {
+    "full": {
+      "complete": {
+        "static": {
+          "hash": "b44183ee7aae60860280b1df48dcb0b74807a2a16a59477dd704cd3a36190c49",
+          "budget": {
+            "bytes": 12202273,
+            "draws": 135,
+            "instances": 44086,
+            "vertices": 442578
+          }
+        },
+        "allRecordsSha256": "94ec2a55f5a51f959da3b18ce37e78a0f1120f12bee201e5f24e76d6193edf25",
+        "objects": 189
+      },
+      "withoutExactObsoleteArcher": {
+        "static": {
+          "hash": "fe2f8f4aef153172af0c865460c35599ebaac91a7ef4bbb261a4b8e15d857d3f",
+          "budget": {
+            "bytes": 12189298,
+            "draws": 135,
+            "instances": 44086,
+            "vertices": 441937
+          }
+        },
+        "allRecordsSha256": "583b4555837d06979f0f149737035269988b2d2664b43eb01c05fcd62977042e",
+        "objects": 189
+      }
+    },
+    "mobile": {
+      "complete": {
+        "static": {
+          "hash": "b44183ee7aae60860280b1df48dcb0b74807a2a16a59477dd704cd3a36190c49",
+          "budget": {
+            "bytes": 12202273,
+            "draws": 135,
+            "instances": 44086,
+            "vertices": 442578
+          }
+        },
+        "allRecordsSha256": "94ec2a55f5a51f959da3b18ce37e78a0f1120f12bee201e5f24e76d6193edf25",
+        "objects": 189
+      },
+      "withoutExactObsoleteArcher": {
+        "static": {
+          "hash": "fe2f8f4aef153172af0c865460c35599ebaac91a7ef4bbb261a4b8e15d857d3f",
+          "budget": {
+            "bytes": 12189298,
+            "draws": 135,
+            "instances": 44086,
+            "vertices": 441937
+          }
+        },
+        "allRecordsSha256": "583b4555837d06979f0f149737035269988b2d2664b43eb01c05fcd62977042e",
+        "objects": 189
+      }
+    }
+  },
+  "tiergarten": {
+    "method": "The immutable factory receives the complete unchanged street and ground payloads. Its existing externallyModelledSourceKeys option suppresses only the two exact artwork nodes while retaining source accounting; the current factory must reproduce that complete historical complement.",
+    "source": {
+      "path": "src/app/src/TiergartenMonuments.ts",
+      "sha256": "6dcd252681b82c055ca798c5953abbea1a8c044d2b564acab1bea133569876ad",
+      "streetSha256": "17caa17e502732f9cd7af8dee0ab28ba18f624068e470cdce1f9e3b5c4d42c53",
+      "groundSha256": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce"
+    },
+    "removedKeys": [
+      "node/1881346242",
+      "node/1881346251"
+    ],
+    "removedEntries": [
+      {
+        "d_dm": 0,
+        "kind": "artwork",
+        "memorial_type": "",
+        "name": "Köpfe und Schwanz",
+        "osm_element": "node",
+        "osm_id": "1881346242",
+        "osm_key": "node/1881346242",
+        "schwellenraum_protected": false,
+        "w_dm": 0,
+        "x_dm": -3416,
+        "z_dm": 13450
+      },
+      {
+        "d_dm": 0,
+        "kind": "artwork",
+        "memorial_type": "",
+        "name": "Der Bogenschütze",
+        "osm_element": "node",
+        "osm_id": "1881346251",
+        "osm_key": "node/1881346251",
+        "schwellenraum_protected": false,
+        "w_dm": 0,
+        "x_dm": -2417,
+        "z_dm": 12905
+      }
+    ],
+    "complete": {
+      "static": {
+        "hash": "77e510b6bdbce3ac7b14d166551989cf9f18fadab46ad92a7e0955bb777bf288",
+        "budget": {
+          "bytes": 7321552,
+          "draws": 14,
+          "instances": 0,
+          "vertices": 265397
+        }
+      },
+      "allRecordsSha256": "60f89d42647f88a92ff1197736b702ff0da545effc4676a80a57e669bf6d0b49",
+      "objects": 21,
+      "externallyModelledSourceKeys": [
+        "node/5140418371",
+        "node/270687313",
+        "node/278706862",
+        "node/13830513696",
+        "node/243487615",
+        "node/7197479254",
+        "node/595339119",
+        "node/2310445137",
+        "way/195086492",
+        "node/9775536511",
+        "node/9775503531",
+        "way/187360886",
+        "node/9775538466",
+        "node/2589577819",
+        "node/14076715427",
+        "node/13951345000",
+        "node/276956108",
+        "node/489762789",
+        "node/489765078",
+        "node/278740616",
+        "way/41368167",
+        "node/489766052",
+        "node/489764929",
+        "node/884700390",
+        "node/437140233",
+        "node/10868945691",
+        "way/241572310",
+        "way/117220640",
+        "node/278738513",
+        "node/3786417057",
+        "way/172234733",
+        "node/13841652635",
+        "node/988668382",
+        "node/746066862",
+        "node/262457570",
+        "node/262455591",
+        "node/262525336",
+        "node/5253735916",
+        "node/262455810",
+        "node/4353173360",
+        "node/376689138",
+        "node/4353173363",
+        "way/895523113",
+        "way/895523112",
+        "node/9994971965",
+        "node/8324218495"
+      ]
+    },
+    "withoutExactObsoleteProxies": {
+      "static": {
+        "hash": "7419fda45e5251f9402d7e2e939252122b6551ffaab96eae01a5d6922d36e34b",
+        "budget": {
+          "bytes": 7314208,
+          "draws": 14,
+          "instances": 0,
+          "vertices": 265109
+        }
+      },
+      "allRecordsSha256": "900518a20a81b6223b6dc6d69d198469f662c2d7c03ec298d8dfd58ba648df9e",
+      "objects": 21,
+      "externallyModelledSourceKeys": [
+        "node/5140418371",
+        "node/270687313",
+        "node/278706862",
+        "node/13830513696",
+        "node/243487615",
+        "node/7197479254",
+        "node/595339119",
+        "node/2310445137",
+        "way/195086492",
+        "node/1881346242",
+        "node/1881346251",
+        "node/9775536511",
+        "node/9775503531",
+        "way/187360886",
+        "node/9775538466",
+        "node/2589577819",
+        "node/14076715427",
+        "node/13951345000",
+        "node/276956108",
+        "node/489762789",
+        "node/489765078",
+        "node/278740616",
+        "way/41368167",
+        "node/489766052",
+        "node/489764929",
+        "node/884700390",
+        "node/437140233",
+        "node/10868945691",
+        "way/241572310",
+        "way/117220640",
+        "node/278738513",
+        "node/3786417057",
+        "way/172234733",
+        "node/13841652635",
+        "node/988668382",
+        "node/746066862",
+        "node/262457570",
+        "node/262455591",
+        "node/262525336",
+        "node/5253735916",
+        "node/262455810",
+        "node/4353173360",
+        "node/376689138",
+        "node/4353173363",
+        "way/895523113",
+        "way/895523112",
+        "node/9994971965",
+        "node/8324218495"
+      ]
+    }
+  }
+}

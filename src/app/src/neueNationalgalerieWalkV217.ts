@@ -1,6 +1,8 @@
 import { NATIONALGALERIE_V183 as P, NATIONALGALERIE_V183_IDS, NATIONALGALERIE_TERRACE_RING_V183 as terraceRing } from "./neueNationalgalerieV183Profile";
 import { pointInWorldRing } from "./chancelleryExtensionProfile";
 import type { PedestrianObstacleIndex } from "./pedestrianNavigation";
+import { nationalgalerieSculptureSolidAtV221 } from "./nationalgalerieSculpturesV221Profile";
+import { nationalgalerieApronContainsV221, NATIONALGALERIE_APRON_V221_RING as apronRing } from "./nationalgalerieApronV221Profile";
 
 const c = Math.cos(P.yaw), s = Math.sin(P.yaw);
 const soffitY = P.floorY + P.columnHeight;
@@ -48,7 +50,8 @@ export function neueNationalgalerieGroundAtV217(x: number, z: number, feetY: num
   const [u, v] = neueNationalgalerieLocalV217(x, z);
   const stair = neueNationalgalerieStairYV217(u, v);
   if (stair !== null && stair <= feetY + .52) return stair;
-  return P.floorY <= feetY + .52 && pointInWorldRing(x, z, terraceRing) ? P.floorY : null;
+  return P.floorY <= feetY + .52 &&
+    (pointInWorldRing(x, z, terraceRing) || nationalgalerieApronContainsV221(x, z)) ? P.floorY : null;
 }
 
 /** Opens only the eight replaced source owners above the represented terrace. */
@@ -59,8 +62,16 @@ export function neueNationalgalerieWalkableAtV217(x: number, y: number, z: numbe
 
 export function neueNationalgalerieSolidAtV217(x: number, y: number, z: number, radius = 0): boolean {
   if (y < P.groundY - .05 || y >= soffitY) return false;
+  if (nationalgalerieSculptureSolidAtV221(x, y, z, radius)) return true;
   const [u, v] = neueNationalgalerieLocalV217(x, z);
   if (y < P.floorY - .05) {
+    if (nationalgalerieApronContainsV221(x, z)) return true;
+    if (radius > 0) for (let i = 0; i < apronRing.length; i++) {
+      const a = apronRing[i], b = apronRing[(i + 1) % apronRing.length];
+      const dx = b[0] - a[0], dz = b[1] - a[1];
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz)));
+      if ((x - a[0] - t * dx) ** 2 + (z - a[1] - t * dz) ** 2 < radius * radius) return true;
+    }
     if (u < supportBounds.minU - radius || u > supportBounds.maxU + radius ||
         v < supportBounds.minV - radius || v > supportBounds.maxV + radius) return false;
     if (pointInWorldRing(x, z, terraceRing)) return true;

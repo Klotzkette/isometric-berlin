@@ -2864,6 +2864,8 @@ export function createTiergartenMonuments(
       entry.osm_key === "node/278706862" || // source-bound Moltke replacement
       entry.osm_key === "node/7197479254" || // v202 exact Bendlerblock bound figure
       entry.osm_key === "node/595339119" || // v202 exact Bendlerblock south-wall plaque
+      entry.osm_key === "node/1881346242" || // v221 Calder terrace sculpture
+      entry.osm_key === "node/1881346251" || // v221 Moore bronze and circular pedestal
       BERLIN_WALL_MEMORIAL_V174_ARTWORK_KEYS.has(entry.osm_key) ||
       DOM_ALTES_ARTWORK_KEYS.has(entry.osm_key) ||
       ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(entry.osm_key) ||

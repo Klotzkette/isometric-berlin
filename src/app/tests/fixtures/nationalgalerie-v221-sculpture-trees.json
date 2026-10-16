@@ -1,0 +1,149 @@
+{
+  "method": "Complete new local sculpture trees only; every node header, submitted vertex/index/instance byte, material and transform is hashed. Placement is independently checked against the source/profile and source-building rings.",
+  "profiles": {
+    "day": [
+      {
+        "records": [
+          {
+            "key": "[\"Group\",\"Alexander Calder — Têtes et Queue (1965)\"]",
+            "sha256": "f84e0be3cc803dc108af5f40ff7b25177cb00ab5c449a2d76f5b800f313d99a8",
+            "bytes": 0
+          },
+          {
+            "key": "[\"Group\",\"Alexander Calder — Têtes et Queue (1965)\"]/[\"Mesh\",\"Alexander Calder — Têtes et Queue (1965) continuous sculpted surface\"]:0",
+            "sha256": "48483c663c97b09e429667961378d6e183360c7d848ccaa9cc0900ea1f9d9236",
+            "bytes": 357048
+          }
+        ],
+        "audit": {
+          "hash": "8c70165781c82acaed1bda0ab31b51d55250785b9e8304787f2a09d6365c2302",
+          "budget": {
+            "bytes": 357048,
+            "draws": 1,
+            "instances": 0,
+            "vertices": 9396
+          }
+        }
+      },
+      {
+        "records": [
+          {
+            "key": "[\"Group\",\"Henry Moore — Three Way Piece No. 2: Archer (1964)\"]",
+            "sha256": "058c32b07816fc00875f08b60e8bfad7131fedfebac984517e2ff2619ec9d231",
+            "bytes": 0
+          },
+          {
+            "key": "[\"Group\",\"Henry Moore — Three Way Piece No. 2: Archer (1964)\"]/[\"Mesh\",\"Henry Moore — Three Way Piece No. 2: Archer (1964) continuous sculpted surface\"]:0",
+            "sha256": "65f9780e3a87c07de9e558b1d2b2696e8de644e4ea68c8fa9f2faeae787dff70",
+            "bytes": 251844
+          }
+        ],
+        "audit": {
+          "hash": "c4eb3311cf7d90999315122b026b411c1aab826cb042b965471d7dd19567ddc9",
+          "budget": {
+            "bytes": 251844,
+            "draws": 1,
+            "instances": 0,
+            "vertices": 5579
+          }
+        }
+      }
+    ],
+    "minecraft": [
+      {
+        "records": [
+          {
+            "key": "[\"Group\",\"Alexander Calder — Têtes et Queue (1965)\"]",
+            "sha256": "f84e0be3cc803dc108af5f40ff7b25177cb00ab5c449a2d76f5b800f313d99a8",
+            "bytes": 0
+          },
+          {
+            "key": "[\"Group\",\"Alexander Calder — Têtes et Queue (1965)\"]/[\"Mesh\",\"Alexander Calder — Têtes et Queue (1965) independent voxel surface\"]:0",
+            "sha256": "02039802f15638719517db712ea3ba8089b7f7aa7490452ee79376881fc2ef19",
+            "bytes": 56720
+          }
+        ],
+        "audit": {
+          "hash": "3c04dcc2f5bd04e293dc4e2a3189076ff890a0fe6d627e7461d60743c1fd4372",
+          "budget": {
+            "bytes": 56720,
+            "draws": 1,
+            "instances": 734,
+            "vertices": 24
+          }
+        }
+      },
+      {
+        "records": [
+          {
+            "key": "[\"Group\",\"Henry Moore — Three Way Piece No. 2: Archer (1964)\"]",
+            "sha256": "058c32b07816fc00875f08b60e8bfad7131fedfebac984517e2ff2619ec9d231",
+            "bytes": 0
+          },
+          {
+            "key": "[\"Group\",\"Henry Moore — Three Way Piece No. 2: Archer (1964)\"]/[\"Mesh\",\"Henry Moore — Three Way Piece No. 2: Archer (1964) independent voxel surface\"]:0",
+            "sha256": "8e4d992bda3a244d7ea65a258ab65f4931672deaf67ea61cf5d379e9b28f6f03",
+            "bytes": 36580
+          }
+        ],
+        "audit": {
+          "hash": "1ea475538bee6a9911a2640b56182b831bf1cc81e96ebafc8b913c3f9a44e715",
+          "budget": {
+            "bytes": 36580,
+            "draws": 1,
+            "instances": 469,
+            "vertices": 24
+          }
+        }
+      }
+    ]
+  },
+  "apron": {
+    "day": {
+      "records": [
+        {
+          "key": "[\"Group\",\"Nationalgalerie exact OSM northeast terrace apron v221\"]",
+          "sha256": "896a98bb538a9fa08a44b6f49c6b23989f6a9212a64ec0e5aac42cb1d4c4f9f6",
+          "bytes": 0
+        },
+        {
+          "key": "[\"Group\",\"Nationalgalerie exact OSM northeast terrace apron v221\"]/[\"Mesh\",\"Nationalgalerie exact OSM northeast terrace apron v221 exact solid\"]:0",
+          "sha256": "4e80a3cf89d0b93992876bc7b2d537a80a6239d0128bfc12515c55d2a22d21ab",
+          "bytes": 2880
+        }
+      ],
+      "audit": {
+        "hash": "ab0c9862d7bc2f19b32dd063c0ee9d035b69b42c54df948429d34df2cd8cc75c",
+        "budget": {
+          "bytes": 2880,
+          "draws": 1,
+          "instances": 0,
+          "vertices": 120
+        }
+      }
+    },
+    "minecraft": {
+      "records": [
+        {
+          "key": "[\"Group\",\"Nationalgalerie exact OSM northeast terrace apron v221\"]",
+          "sha256": "896a98bb538a9fa08a44b6f49c6b23989f6a9212a64ec0e5aac42cb1d4c4f9f6",
+          "bytes": 0
+        },
+        {
+          "key": "[\"Group\",\"Nationalgalerie exact OSM northeast terrace apron v221\"]/[\"Mesh\",\"Nationalgalerie exact OSM northeast terrace apron v221 stone\"]:0",
+          "sha256": "c3b5afba52a080c29a57ad45135884601ba5aa67ce95028124fb5613a7bd7155",
+          "bytes": 36900
+        }
+      ],
+      "audit": {
+        "hash": "250e1028a30fbb45b50ce9cbe77104b40a925c4ed471c22a22adcd1c15019369",
+        "budget": {
+          "bytes": 36900,
+          "draws": 1,
+          "instances": 477,
+          "vertices": 24
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "sourceKey": "relation/21583",
+  "source": "Retained osm.gpkg roads relation/21583, OpenStreetMap contributors",
+  "license": "ODbL-1.0",
+  "sourceFileSha256": "ce74144176cd9aa64565aead67374c22d505392ab1103feb905f1844a01797cf",
+  "coordinateFrame": "EPSG:25833 \u2192 [easting\u2212389500,5820000\u2212northing]",
+  "selection": "Only the connected component of OSM terrace paving minus retained LoD2 terrace MSMgX8rD containing Moore node/1881346251. Two disjoint sub-square-metre slivers are not added.",
+  "ringXZ": [
+    [
+      -255.27711388876196,
+      1378.514145001769
+    ],
+    [
+      -240.16933307528961,
+      1337.660644276999
+    ],
+    [
+      -223.77135666128015,
+      1289.8814087267965
+    ],
+    [
+      -307.66710825113114,
+      1260.1208831183612
+    ],
+    [
+      -311.40209599768343,
+      1270.1604398750678
+    ],
+    [
+      -248.0,
+      1292.7
+    ],
+    [
+      -250.46002236517973,
+      1299.6303855879257
+    ],
+    [
+      -250.2029718622798,
+      1299.721877223812
+    ],
+    [
+      -272.1713489035028,
+      1361.1178924357519
+    ],
+    [
+      -272.27290919756575,
+      1361.0817441909917
+    ],
+    [
+      -275.86995934404445,
+      1371.215369334835
+    ]
+  ],
+  "holesXZ": [],
+  "areaM2": 2792.130814231289,
+  "fullPavingPolygonXZ": {
+    "ring": [
+      [
+        -311.4480816805735,
+        1270.284048278816
+      ],
+      [
+        -307.66710825113114,
+        1260.1208831183612
+      ],
+      [
+        -223.77135666128015,
+        1289.8814087267965
+      ],
+      [
+        -240.16933307528961,
+        1337.660644276999
+      ],
+      [
+        -255.27711388876196,
+        1378.514145001769
+      ],
+      [
+        -289.44928555190563,
+        1366.4024134995416
+      ],
+      [
+        -293.0747008930193,
+        1376.5913653904572
+      ],
+      [
+        -361.26385441055754,
+        1352.4262737305835
+      ],
+      [
+        -329.8653839842882,
+        1263.8139805300161
+      ]
+    ],
+    "holes": [
+      [
+        [
+          -311.39718599763,
+          1277.9411038160324
+        ],
+        [
+          -333.3662572213216,
+          1339.3368554236367
+        ],
+        [
+          -272.1713489035028,
+          1361.1178924357519
+        ],
+        [
+          -250.2029718622798,
+          1299.721877223812
+        ]
+      ]
+    ]
+  },
+  "subtractedSourceId": "MSMgX8rD",
+  "subtractedRingXZ": [
+    [
+      -330.7,
+      1263.3
+    ],
+    [
+      -248.0,
+      1292.7
+    ],
+    [
+      -275.9,
+      1371.3
+    ],
+    [
+      -289.5,
+      1366.5
+    ],
+    [
+      -293.1,
+      1376.7
+    ],
+    [
+      -362.3,
+      1352.0
+    ]
+  ],
+  "groundY": 5.2,
+  "terraceTopY": 9.8,
+  "walkY": 9.82,
+  "verticalStatus": "Existing source terrace levels continued across the mapped contiguous upper paving; no new height survey.",
+  "stairEnvelopeIntersectionAreaM2": 0,
+  "stairEnvelopeDistanceM": 20.37932025712313,
+  "mooreBoundaryClearanceM": 6.605650560132248,
+  "dop": {
+    "service": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+    "layer": "dop_2025",
+    "bbox": [
+      389115,
+      5818610,
+      389305,
+      5818790
+    ],
+    "crs": "EPSG:25833",
+    "width": 1200,
+    "height": 1137,
+    "sha256": "2c50149e0873dedc2c5514e89ab2fe0bd8ca442781b5baf0ff61a93678957e3e",
+    "observation": "Actual terrace includes northeastern Moore point; its outer edge agrees visually with retained OSM relation/21583."
+  },
+  "dopInterpretation": "Official orthophoto shows the entire selected north/east apron as upper terrace paving, ending at the raised perimeter and east step edge. Adjacent street-level paving remains outside the OSM polygon. No pixels are bundled."
+}

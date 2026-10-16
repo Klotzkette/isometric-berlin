@@ -445,7 +445,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     for (const entry of street.monuments!.filter(
       (candidate) =>
         candidate.kind === "artwork" &&
-        !["node/262457570", "node/262455810", "node/5253735916"].includes(candidate.osm_key) &&
+        !["node/262457570", "node/262455810", "node/5253735916",
+          "node/1881346242", "node/1881346251"].includes(candidate.osm_key) &&
         !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
         !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
         !ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(candidate.osm_key) &&

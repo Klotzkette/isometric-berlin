@@ -5,6 +5,7 @@ import { CATTELAN_EXHIBITS_V217 } from "../src/CattelanExhibitsV217";
 import { createNeueNationalgalerieV183 } from "../src/NeueNationalgalerieV183";
 import { NATIONALGALERIE_V183 as P } from "../src/neueNationalgalerieV183Profile";
 import { neueNationalgalerieWorldV217 } from "../src/neueNationalgalerieWalkV217";
+import { detachNationalgalerieSculpturesV221, nationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
 
 function boundsInFrame(object: Group | Mesh, frame: Group): Box3 {
   const bounds = new Box3(), inverse = frame.matrixWorld.clone().invert(), instance = new Matrix4();
@@ -43,9 +44,17 @@ function geometrySummary(root: Group) {
 describe("complete Neue Nationalgalerie Cattelan integration v217", () => {
   for (const native of [false, true]) test(`${native ? "native" : "drawn"}: complete gallery retains compact full-detail geometry and bounded world placement`, () => {
     const gallery = createNeueNationalgalerieV183(native), summary = geometrySummary(gallery);
-    expect(summary.bytes).toBeLessThan(800_000);
-    expect(summary.calls).toBeLessThan(25);
-    const bounds = new Box3().setFromObject(gallery);
+    const added = geometrySummary(nationalgalerieSculpturesV221(gallery, native));
+    const retainedBounds = new Box3();
+    const restore = detachNationalgalerieSculpturesV221(gallery, native);
+    try {
+      const retained = geometrySummary(gallery);
+      retainedBounds.setFromObject(gallery);
+      expect(retained.bytes).toBeLessThan(800_000);
+      expect(retained.calls).toBeLessThan(25);
+      expect(summary).toEqual({ bytes: retained.bytes + added.bytes, calls: retained.calls + added.calls });
+    } finally { restore(); }
+    const bounds = retainedBounds;
     expect(bounds.min.y).toBeGreaterThan(5);
     expect(bounds.max.y).toBeLessThan(P.floorY + 12);
     expect(bounds.max.x - bounds.min.x).toBeLessThan(130);

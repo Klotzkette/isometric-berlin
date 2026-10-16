@@ -3375,14 +3375,8 @@ function addKulturforum(
   }
   addBerlinModern(builder, byName);
   addStMatthaeusChurch(builder, byName);
-  const archer = anchor(byName, "Der Bogenschütze (Henry Moore)");
-  if (archer) {
-    const torus = new TorusGeometry(4.2, 0.7, 8, 24, Math.PI * 1.35);
-    torus.rotateX(Math.PI / 2);
-    torus.rotateZ(-0.42);
-    torus.translate(archer.x, archer.y + 4.8, archer.z);
-    addCustomGeometry(builder, torus, BRONZE);
-  }
+  // The exact Archer POI is now owned by its photo-guided bronze-and-pedestal
+  // model in NationalgalerieSculpturesV221; the old oversized torus is retired.
 }
 
 function addPotsdamerUndergroundStation(builder: Builder): void {

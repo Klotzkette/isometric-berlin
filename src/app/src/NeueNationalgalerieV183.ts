@@ -4,6 +4,7 @@ import { NATIONALGALERIE_V183 as P, NATIONALGALERIE_TERRACE_RING_V183 } from "./
 import source from "./data/neueNationalgalerieV183Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createCattelanExhibitionV217 } from "./CattelanExhibitionV217";
+import { createNationalgalerieSculpturesV221 } from "./NationalgalerieSculpturesV221";
 
 /** Source-centred open hall. Native slabs are scanline runs, never hidden fill. */
 export function createNeueNationalgalerieV183(native = false) {
@@ -89,5 +90,6 @@ export function createNeueNationalgalerieV183(native = false) {
   });
   root.userData={...root.userData,columnCount:8,roofWidthM:P.roofWidth,sourceIds:source.parts.map(p=>p.id),transparentHall:true,estimatedVerticalSubdivisions:true};
   root.add(createCattelanExhibitionV217(native));
+  root.add(createNationalgalerieSculpturesV221(native));
   return freezeStaticSceneTransforms(root);
 }

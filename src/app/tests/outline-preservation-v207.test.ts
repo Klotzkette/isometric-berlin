@@ -7,9 +7,12 @@ import auditV217 from "./fixtures/outline-preservation-v217-audit.json";
 import auditV220 from "./fixtures/outline-preservation-v220-audit.json";
 import { geometryPreservationV206 } from "./helpers/geometryPreservationV206";
 import { staticGeometryAudit } from "./helpers/staticGeometryAudit";
+import { detachNationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
 
 for (const mode of ["day", "minecraft"] as const) test(`${mode}: v206 outlines retain all bytes outside the audited gallery refinements`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
+  try {
   const support = auditV220.modes[mode];
   expect(auditV220.releasedBase).toBe("54990de80b75317612b069f974ba753008b54b3d");
   expect(outlineSignature(root)).toEqual(support.current.complete);
@@ -86,5 +89,6 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: v206 outlines r
       expect(outlineSignature(root)).toEqual(saved.unaffected);
     }
     finally { root.children = originalChildren; }
-  } finally { cleanupV210(); disposeOutlineConstruction(root); }
+  } finally { cleanupV210(); }
+  } finally { restoreSculptures(); disposeOutlineConstruction(root); }
 });
