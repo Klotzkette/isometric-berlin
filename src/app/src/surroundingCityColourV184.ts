@@ -1,6 +1,6 @@
 import { Color } from "three";
 import { GENERIC_FACADE_SWATCHES, genericFacadeIndex } from "./cityColourV184";
-import { districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_V225 } from "./districtHousePresentationV225";
+import { districtHouseOwnerV226 as districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_V226 as DISTRICT_HOUSE_ROOF_V225 } from "./districtHousePresentationV226";
 
 type Rgb = readonly [number, number, number];
 type Palette = { wall: Rgb; roof: Rgb };
@@ -26,6 +26,7 @@ const pointKey = (x: number, z: number): number => x * 65_536 + z;
  * included; neither the source navigation nor resident geometry is changed. */
 export function* surroundingColourOwners(
   buildings: readonly Building[], groundY: number, originY: number, originX = 0, originZ = 0,
+  selectOwner: typeof districtHouseOwnerV225 = districtHouseOwnerV225,
 ): Generator<void, SurroundingColourOwners> {
   const owners = new Map<number, Owner | null>();
   const sourceOwners = new Map<string, Owner>();
@@ -37,7 +38,7 @@ export function* surroundingColourOwners(
     const previousOwner = sourceOwners.get(building.sourceId);
     let owner = previousOwner;
     if (!owner) {
-      const palettes = districtHouseOwnerV225(building.sourceId, building.ring, originX, originZ) ? DISTRICT_PALETTES : PALETTES;
+      const palettes = selectOwner(building.sourceId, building.ring, originX, originZ) ? DISTRICT_PALETTES : PALETTES;
       owner = { sourceId: building.sourceId, palette: palettes[genericFacadeIndex(building.sourceId)], lowCm, highCm };
       sourceOwners.set(building.sourceId, owner);
     } else if (owner.lowCm !== lowCm || owner.highCm !== highCm) {
@@ -50,7 +51,7 @@ export function* surroundingColourOwners(
     // A split source owner must not acquire a regional roof through whichever
     // part happened to appear first in the packet.
     if (previousOwner && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
-        !districtHouseOwnerV225(building.sourceId, building.ring, originX, originZ))
+        !selectOwner(building.sourceId, building.ring, originX, originZ))
       owner.palette = PALETTES[genericFacadeIndex(building.sourceId)];
     for (const ring of [building.ring, ...building.holes]) for (const [x, z] of ring) {
       const key = pointKey(Math.round(x * 100), Math.round(z * 100));

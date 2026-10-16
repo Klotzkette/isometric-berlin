@@ -54,10 +54,10 @@ def polygons(geometry: Any) -> list:
   ]
 
 
-def build() -> dict:
+def build(sources: dict[str, Any] | None = None) -> dict:
   """Preclassify whole cells; boundary queries scan only their exact fragment."""
   regions = []
-  for name, geometry in source_regions().items():
+  for name, geometry in (source_regions() if sources is None else sources).items():
     x0, z0, x1, z1 = geometry.bounds
     size, gx, gz = 128, int(x0 // 128), int(z0 // 128)
     width, height = int(x1 // size) - gx + 1, int(z1 // size) - gz + 1

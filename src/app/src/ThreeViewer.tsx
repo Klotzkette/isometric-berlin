@@ -42,6 +42,7 @@ import { westCivicSolidAtV210 } from "./westCivicNavigationV210";
 import { weddingSitesV210SolidAt } from "./weddingSitesV210Navigation";
 import { neukoellnV210SolidAt } from "./neukoellnPlacesV210Navigation";
 import { arenaStationV225GroundAt, arenaStationV225SolidAt } from "./arenaStationV225Navigation";
+import { steglitzMotorwayV226GroundAt, steglitzMotorwayV226SolidAt } from "./steglitzMotorwayV226Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
@@ -1723,6 +1724,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       weddingSitesV210SolidAt(x,y,z,radius) ||
       neukoellnV210SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       arenaStationV225SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      steglitzMotorwayV226SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) =>
@@ -3755,6 +3757,8 @@ function prepareIsoNavigation(
     );
   };
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (motorwayFloor !== null) return motorwayFloor;
     const arenaStationFloor = arenaStationV225GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (arenaStationFloor !== null) return arenaStationFloor;
     const neueFloor = neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0);
@@ -4610,6 +4614,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   };
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0) ??
     zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??

@@ -80,6 +80,8 @@ import { createGendarmenBndContextV214 } from "./GendarmenBndContextV214";
 import { createPotsdamerContextV214 } from "./PotsdamerContextV214";
 import { createLitfinNeighboursV215 } from "./LitfinNeighboursV215";
 import { createArenaStationV225 } from "./ArenaStationV225";
+import { createAltMitteSidewalksV226 } from "./AltMitteSidewalksV226";
+import { createSteglitzMotorwayV226 } from "./SteglitzMotorwayV226";
 
 /** One representation at a time, including when the surrounding mode changes. */
 export function* createOutlineLandmarksV182Steps(
@@ -128,6 +130,8 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createKudammTreesV205(nextNative));
       yield;
       root.add(createWesternMotorwaysV205(nextNative));
+      yield;
+      root.add(createSteglitzMotorwayV226(nextNative));
       yield;
       root.add(createReligiousSitesV205(nextNative));
       yield;
@@ -228,6 +232,8 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createUraniaArcV206(nextNative));
       yield;
       root.add(createAltMitteTransportV206(nextNative));
+      yield;
+      root.add(createAltMitteSidewalksV226(nextNative));
       yield;
       root.add(createBoulevardTransportV210(nextNative));
       yield;

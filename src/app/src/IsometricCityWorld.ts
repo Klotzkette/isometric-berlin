@@ -74,7 +74,7 @@ import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone, urbanIllustrationToneInto } from "./urbanFacadePresentation";
-import { districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_HEX_V225 } from "./districtHousePresentationV225";
+import { districtHouseOwnerV226 as districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_HEX_V226 as DISTRICT_HOUSE_ROOF_HEX_V225 } from "./districtHousePresentationV226";
 import { createKollhoffWindowRelief } from "./kollhoffWindowRelief";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { pointInBrandenburgApproach } from "./brandenburgApproachScope";

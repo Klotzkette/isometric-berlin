@@ -188,6 +188,14 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.126 request permits restrained refinement of existing ordinary
+houses in Kreuzberg and Friedrichshain, the existing Steglitz A103 corridor,
+and source-supported pavements in the frozen old-Mitte selection. Preserve
+prior house treatments, measured source geometry, open junctions, all original
+packets and the v124 memory lifecycle. Untagged facade and road dimensions must
+remain documented estimates. Keep full drawn mobile detail, separate native
+representation, existing coverage, residency limits and 93 tour stops.
+
 The owner's v1.0.125 request permits restrained refinements to existing ordinary
 houses in Moabit, Prenzlauer Berg, Schöneberg, Wilmersdorf and around Gymnasium
 Steglitz, plus source-bound recognition of Uber Arena and S-Bahnhof Warschauer

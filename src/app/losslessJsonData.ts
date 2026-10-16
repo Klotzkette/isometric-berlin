@@ -74,10 +74,12 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "regionOutlinesV200.json": ["groups"],
   "regionOutlinesV200Native.json": ["groups"],
   "westernMotorwaysV205.json": ["groups"],
+  "steglitzMotorwayV226.json": ["positions", "colors", "rails", "nativeRows"],
   "schoolsPlacesV205.json": ["schools", "places"],
   "religiousSitesV205.json": ["sites"],
   // Constructor-only v206 paint/model arrays; signal and terrain metadata remain stable.
   "altMitteTransportV206.json": ["cells"],
+  "altMitteSidewalksV226.json": ["cells"],
   "uraniaArcV206.json": ["sites"],
   "chariteBettenhausV207.json": ["boxes", "nativeBlocks", "nightBoxes", "nightNativeBlocks"],
   "ministrySpreeV207.json": ["surfaces", "boxes", "blocks"],

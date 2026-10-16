@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Kreuzberg, Friedrichshain, A103 and old-Mitte pavements (v1.0.126):**
+  Retained official ALKIS district boundaries and Berlin LoD2 buildings
+  (dl-de/zero-2-0), together with retained OpenStreetMap road, pavement and
+  material records (ODbL-1.0), anchor this bounded refinement. Unsurveyed
+  glazing and bridge-height details remain display estimates. Original source
+  geometry and prior models remain retained; no photographic textures ship.
+  See [scope, sources and verification](docs/refinements-v226.md).
+
 - **District houses, Uber Arena and Warschauer Straße (v1.0.125):** Retained
   Berlin LoD2 source sheets (dl-de/zero-2-0) and OpenStreetMap envelopes and
   attributes (ODbL-1.0) anchor the refinement. The Wilmersdorf selection uses

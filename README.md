@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.125 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.125/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.126 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.126/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.125** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.126** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.126 extends the restrained roof and glazing treatment to Kreuzberg and Friedrichshain, completes a missing source-mapped Steglitz A103 section and fills positively evidenced pavement gaps in old Mitte. Existing models and memory safeguards remain. [Scope and validation](docs/refinements-v226.md).
+
+Version 1.0.126 verbessert Dächer und vorhandene Fenster in Kreuzberg und Friedrichshain, ergänzt einen fehlenden kartierten Abschnitt der Steglitzer A103 und schließt belegte Gehweglücken im alten Mitte. Bestehende Modelle und Speicherbegrenzungen bleiben erhalten.
 
 Version 1.0.125 refines ordinary houses in Moabit, Prenzlauer Berg, Schöneberg, Wilmersdorf and around Gymnasium Steglitz, together with source-bound recognition of Uber Arena and the elevated Warschauer Straße S-Bahn hall. Earlier city detail and the v1.0.124 memory safeguards remain. [District appearance](docs/district-houses-v225.md) · [Arena and station sources](docs/arena-station-v225.md).
 

@@ -11,7 +11,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
 import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
 import { applyAltMitteAppearanceV213 } from "./altMitteAppearanceV213";
-import { shadeDistrictHousePanesV225 } from "./districtHousePresentationV225";
+import { shadeDistrictHousePanesV226 as shadeDistrictHousePanesV225 } from "./districtHousePresentationV226";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
