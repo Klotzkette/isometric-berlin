@@ -188,6 +188,15 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.125 request permits restrained refinements to existing ordinary
+houses in Moabit, Prenzlauer Berg, Schöneberg, Wilmersdorf and around Gymnasium
+Steglitz, plus source-bound recognition of Uber Arena and S-Bahnhof Warschauer
+Straße. Preserve measured envelopes, source materials, earlier authored details,
+all coverage and the v124 memory-lifetime fixes. New fittings must be compact,
+batched and equal in drawn mobile detail, with separate native interpretation.
+No residency-budget increase, photographic textures or new tour stop is implied.
+Unsurveyed facade subdivisions remain documented display estimates.
+
 The owner's v1.0.124 request remains in Step 10: reduce running memory pressure
 without lowering visual quality. Retire exclusive decoded geometry only after
 successful synchronous GPU upload; reuse surfaces only after their acknowledged

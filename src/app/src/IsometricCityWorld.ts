@@ -74,6 +74,7 @@ import { SCHLOSS_NATURKUNDE_PRISM_IDS } from "./schlossNaturkundeProfile";
 import { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 export { TIERGARTEN_PARK_EDGE_WORLD_M } from "./tiergartenParkEdge";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone, urbanIllustrationToneInto } from "./urbanFacadePresentation";
+import { districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_HEX_V225 } from "./districtHousePresentationV225";
 import { createKollhoffWindowRelief } from "./kollhoffWindowRelief";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { pointInBrandenburgApproach } from "./brandenburgApproachScope";
@@ -1715,6 +1716,13 @@ function isGlassPrismBuilding(building: PrismBuilding, classes: string[]): boole
     (recordedGlazing ?? (classes[building.class] ?? "concrete") === "glass"));
 }
 
+function districtOrdinaryRoofV225(building: PrismBuilding): boolean {
+  return HERO_PRISM_TONES[building.id] === undefined &&
+    !PRISM_GLASSED_IDS.has(building.id) && mappedGlazing(buildingAttributes(building.id)) !== true &&
+    !potsdamerPanoramaMaterialFor(building.id) &&
+    districtHouseOwnerV225(building.id, building.ring, 0, 0, 0.1);
+}
+
 function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Color {
   const pinnedRoof = potsdamerPanoramaMaterialFor(building.id)?.roof ??
     HERO_PRISM_ROOF_TONES[building.id] ??
@@ -1723,7 +1731,8 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
         ? urbanMappedRoofTone(buildingAttributes(building.id))
         : mappedRoofTone(buildingAttributes(building.id))));
   return pinnedRoof !== undefined ? target.setHex(pinnedRoof)
-    : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
+    : districtOrdinaryRoofV225(building) ? target.setHex(DISTRICT_HOUSE_ROOF_HEX_V225)
+      : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
 }
 
 /**
@@ -1836,7 +1845,7 @@ export function createDistantBuildingShells(
     if (roofTriangles) {
       const attributes = buildingAttributes(building.id);
       const roofTone = HISTORIC_CHARITE_IDS.has(building.id) || CHARITE_HISTORIC_FACADE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
-        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) || mappedRoofTone(attributes) !== undefined
+        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) || mappedRoofTone(attributes) !== undefined || districtOrdinaryRoofV225(building)
         ? capColor : color.clone().multiplyScalar(0.9);
       for (let offset = 0; offset < roofTriangles.length; offset += 9) {
         const ax = roofTriangles[offset + 3] - roofTriangles[offset];
@@ -12587,7 +12596,7 @@ export function createIsometricCityCore(
         CHARITE_HISTORIC_FACADE_IDS.has(building.id) ||
         BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) ||
-        mappedRoofTone(attributes) !== undefined
+        mappedRoofTone(attributes) !== undefined || districtOrdinaryRoofV225(building)
           ? capTone.clone()
           : color.clone().multiplyScalar(0.9);
       bakeColor(roofGeometry, pitchedRoofTone);

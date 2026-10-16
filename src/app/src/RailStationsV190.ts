@@ -9,6 +9,7 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringLayout, letteringStrokePaths } from "./drawnLettering";
 import { createOstkreuzV190 } from "./OstkreuzV190";
+import { transferredWarschauerRoofAccentV225 } from "./arenaStationV225Structure";
 
 export const RAIL_STATIONS_V190_GROUP = "Complete Ring and Stadtbahn source station accents v190";
 export const RAIL_STATIONS_V190_INVENTORY = source.stations;
@@ -184,7 +185,7 @@ export function createRailStationsV190(native = false): Group {
     }
     const passenger = platforms.find(p => p.sourceTags.light_rail === "yes") ?? platforms[0];
     if (passenger) addFurniture(rows, native, passenger, station.name);
-    for (const roof of source.roofs.filter(r => r.station === station.name && station.name !== "Ostkreuz")) {
+    for (const roof of source.roofs.filter(r => r.station === station.name && station.name !== "Ostkreuz" && !transferredWarschauerRoofAccentV225(r))) {
       // A shallow edge accent on each exact retained roof; no second shell.
       // The source's generic roof envelope is retained, including its limits.
       for (const ring of roof.rings) for (let i = 1; i < ring.length; i++)

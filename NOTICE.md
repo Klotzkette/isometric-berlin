@@ -17,6 +17,16 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **District houses, Uber Arena and Warschauer Straße (v1.0.125):** Retained
+  Berlin LoD2 source sheets (dl-de/zero-2-0) and OpenStreetMap envelopes and
+  attributes (ODbL-1.0) anchor the refinement. The Wilmersdorf selection uses
+  the official ALKIS Ortsteil boundary (dl-de/zero-2-0, retrieved 16 October 2026).
+  Unsurveyed window treatment,
+  station structural subdivisions and lettering remain procedural estimates;
+  cited public architectural accounts support recognition. No photographs or
+  photographic textures ship. See [district appearance](docs/district-houses-v225.md)
+  and [arena/station sources and ownership](docs/arena-station-v225.md).
+
 - **Nationalgalerie terrace sculptures (v1.0.121):** OpenStreetMap contributors
   (ODbL-1.0) supply the retained anchors for Alexander Calder's *Têtes et Queue*
   and Henry Moore's *Archer*. Owner photographs guide independent simplified

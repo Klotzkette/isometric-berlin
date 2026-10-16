@@ -8,9 +8,11 @@ import auditV220 from "./fixtures/outline-preservation-v220-audit.json";
 import { geometryPreservationV206 } from "./helpers/geometryPreservationV206";
 import { staticGeometryAudit } from "./helpers/staticGeometryAudit";
 import { detachNationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
+import { projectOutlineV225ForTest } from "./helpers/outlinePreservationV225";
 
 for (const mode of ["day", "minecraft"] as const) test(`${mode}: v206 outlines retain all bytes outside the audited gallery refinements`, () => {
   const root = createOutlineLandmarksV182(mode);
+  const restoreV225 = projectOutlineV225ForTest(root, mode);
   const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
   try {
   const support = auditV220.modes[mode];
@@ -90,5 +92,5 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode}: v206 outlines r
     }
     finally { root.children = originalChildren; }
   } finally { cleanupV210(); }
-  } finally { restoreSculptures(); disposeOutlineConstruction(root); }
+  } finally { restoreSculptures(); restoreV225(); disposeOutlineConstruction(root); }
 });

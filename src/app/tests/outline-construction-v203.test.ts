@@ -12,6 +12,7 @@ import retained from "./fixtures/outline-landmarks-v203-retained-v206.json";
 import { outlineSignature, preservedOutlineSignature } from "./helpers/outlineConstructionSignature";
 import { outlineUraniaSubstitutionKeysV206, retainedOutlineManifestV206 } from "./helpers/geometryPreservationV206";
 import { detachNationalgalerieSculpturesV221 } from "./helpers/nationalgalerieSculpturesV221";
+import { projectOutlineV225ForTest } from "./helpers/outlinePreservationV225";
 
 // The frozen v203/v206 receipt retains the exact Urania substitution and
 // bounded Ring suffix rules. The v220 pre-v217-gallery control reproduces
@@ -24,6 +25,7 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
     budgetMs: 0, isCancelled: () => false,
     yieldTask: async () => { tasks++; await new Promise(resolve => setTimeout(resolve, 0)); },
   });
+  const restoreV225 = projectOutlineV225ForTest(root, mode);
   const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
   try {
     expect(tasks).toBeGreaterThanOrEqual(synchronous[mode].families);
@@ -50,7 +52,7 @@ for (const mode of ["day", "minecraft"] as const) test(`${mode} cooperative cons
       })).toEqual(proof.currentUnaffected);
     }
     finally { cleanupV210(); }
-  } finally { restoreSculptures(); disposeOutlineConstruction(root); }
+  } finally { restoreSculptures(); restoreV225(); disposeOutlineConstruction(root); }
 });
 
 test("cancelling partial outer construction disposes the map and every completed family", async () => {

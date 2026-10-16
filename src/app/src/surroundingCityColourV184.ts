@@ -1,5 +1,6 @@
 import { Color } from "three";
 import { GENERIC_FACADE_SWATCHES, genericFacadeIndex } from "./cityColourV184";
+import { districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_V225 } from "./districtHousePresentationV225";
 
 type Rgb = readonly [number, number, number];
 type Palette = { wall: Rgb; roof: Rgb };
@@ -17,13 +18,14 @@ const PALETTES: Palette[] = GENERIC_FACADE_SWATCHES.map(swatch => {
   const wall = new Color(swatch);
   return { wall: bytes(wall), roof: bytes(new Color(0x9d978c).lerp(wall, 0.12)) };
 });
+const DISTRICT_PALETTES: Palette[] = PALETTES.map(palette => ({ wall: palette.wall, roof: DISTRICT_HOUSE_ROOF_V225 }));
 const pointKey = (x: number, z: number): number => x * 65_536 + z;
 
 /** Temporary ownership only: source IDs choose paint across chunk boundaries.
  * Ambiguous centimetre corners retain their existing colour. Court rings are
  * included; neither the source navigation nor resident geometry is changed. */
 export function* surroundingColourOwners(
-  buildings: readonly Building[], groundY: number, originY: number,
+  buildings: readonly Building[], groundY: number, originY: number, originX = 0, originZ = 0,
 ): Generator<void, SurroundingColourOwners> {
   const owners = new Map<number, Owner | null>();
   const sourceOwners = new Map<string, Owner>();
@@ -32,9 +34,11 @@ export function* surroundingColourOwners(
     const base = groundY + (building.groundOffset ?? 0) - originY;
     const lowCm = Math.round((base + building.minHeight) * 100);
     const highCm = Math.round((base + building.height) * 100);
-    let owner = sourceOwners.get(building.sourceId);
+    const previousOwner = sourceOwners.get(building.sourceId);
+    let owner = previousOwner;
     if (!owner) {
-      owner = { sourceId: building.sourceId, palette: PALETTES[genericFacadeIndex(building.sourceId)], lowCm, highCm };
+      const palettes = districtHouseOwnerV225(building.sourceId, building.ring, originX, originZ) ? DISTRICT_PALETTES : PALETTES;
+      owner = { sourceId: building.sourceId, palette: palettes[genericFacadeIndex(building.sourceId)], lowCm, highCm };
       sourceOwners.set(building.sourceId, owner);
     } else if (owner.lowCm !== lowCm || owner.highCm !== highCm) {
       // Every corner shares this owner. Conflicting vertical parts disable the
@@ -43,6 +47,11 @@ export function* surroundingColourOwners(
       owner.lowCm = undefined;
       owner.highCm = undefined;
     }
+    // A split source owner must not acquire a regional roof through whichever
+    // part happened to appear first in the packet.
+    if (previousOwner && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
+        !districtHouseOwnerV225(building.sourceId, building.ring, originX, originZ))
+      owner.palette = PALETTES[genericFacadeIndex(building.sourceId)];
     for (const ring of [building.ring, ...building.holes]) for (const [x, z] of ring) {
       const key = pointKey(Math.round(x * 100), Math.round(z * 100));
       const previous = owners.get(key);

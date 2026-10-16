@@ -11,6 +11,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
 import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
 import { applyAltMitteAppearanceV213 } from "./altMitteAppearanceV213";
+import { shadeDistrictHousePanesV225 } from "./districtHousePresentationV225";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
 export type SurroundingBuilding = SurroundingPolygon & {
@@ -235,7 +236,7 @@ export function* buildSurroundingCityChunk(
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
     const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     const colourOwners = chunk.meshes.some(part => part.kind === "city")
-      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1]) : undefined;
+      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2]) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     for (const [meshIndex, part] of chunk.meshes.entries()) {
       const count = encodedBytes(part.positions, 6) / 6;
@@ -263,6 +264,8 @@ export function* buildSurroundingCityChunk(
       }
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
+      const districtPanes = yield* shadeDistrictHousePanesV225(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
+      if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       vertexOffset += count;
       indexOffset += written;
     }

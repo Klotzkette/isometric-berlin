@@ -4,14 +4,16 @@ import theatre from "./data/volksbuehneOwnershipV209.json";
 import helmholtz from "./data/kiezSitesOwnershipV209.json";
 import prisons from "./data/prisonsMemorialsOwnershipV209.json";
 import neukoelln from "./data/neukoellnPlacesV210Ownership.json";
+import arenaStation from "./data/arenaStationV225Ownership.json";
 import { transferExactPacketLines, transferExactPacketTriangles } from "./exactPacketTransfer";
 import { transferPrisonsNavigationV209 } from "./prisonsNavigationTransferV209";
 import { transferNeukoellnNavigationV210 } from "./neukoellnPlacesV210Navigation";
 import { transferKalkscheuneFacadeV218 } from "./kalkscheuneOwnershipV218";
+import { transferArenaStationNavigationV225 } from "./arenaStationV225Navigation";
 import type { SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
-const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records];
-const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords];
+const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records, ...arenaStation.records];
+const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords, ...arenaStation.lineRecords];
 
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
@@ -30,7 +32,7 @@ const equalRing = (a: number[][], b: number[][]) => a.length === b.length &&
 /** Correct the obsolete Platzhaus collision roof only with the complete exact
  * source nav record as guard. The input packet and all other owners stay intact. */
 export function siteNavigationV209(tile: string, original: SurroundingNavigation): SurroundingNavigation {
-  const nav = transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original));
+  const nav = transferArenaStationNavigationV225(tile, transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original)));
   const records = helmholtz.navigationRecords.filter(record => record.tile === tile);
   if (!records.length) return nav;
   let changed = false;

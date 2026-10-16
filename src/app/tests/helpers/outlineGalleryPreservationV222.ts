@@ -4,10 +4,12 @@ import audit from "../fixtures/outline-preservation-v220-audit.json";
 import { detachNationalgalerieSculpturesV221 } from "./nationalgalerieSculpturesV221";
 import { outlineSignature } from "./outlineConstructionSignature";
 import { staticGeometryAudit } from "./staticGeometryAudit";
+import { projectOutlineV225ForTest } from "./outlinePreservationV225";
 
 /** Pin accepted later detail before projecting the earlier outline inventory. */
 export function projectPostV210OutlineForTest(root: Group, mode: "day" | "minecraft"): () => void {
   const support = audit.modes[mode];
+  const restoreV225 = projectOutlineV225ForTest(root, mode);
   const restoreSculptures = detachNationalgalerieSculpturesV221(root, mode === "minecraft");
   const children = [...root.children];
   try {
@@ -27,8 +29,8 @@ export function projectPostV210OutlineForTest(root: Group, mode: "day" | "minecr
     expect(added.map(child => ({ name: child.name, ...outlineSignature(child) })))
       .toEqual(support.current.projected.additions.filter(child => names.includes(child.name)));
     root.children = children.filter(child => !added.includes(child));
-  } catch (error) { restoreSculptures(); throw error; }
-  return () => { root.children = children; restoreSculptures(); };
+  } catch (error) { restoreSculptures(); restoreV225(); throw error; }
+  return () => { root.children = children; restoreSculptures(); restoreV225(); };
 }
 
 /** Exactly the two gallery buffers already independently receipted in v217/v220. */

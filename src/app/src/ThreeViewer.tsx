@@ -41,6 +41,7 @@ import { volksbuehneV209SolidAt } from "./volksbuehneV209Navigation";
 import { westCivicSolidAtV210 } from "./westCivicNavigationV210";
 import { weddingSitesV210SolidAt } from "./weddingSitesV210Navigation";
 import { neukoellnV210SolidAt } from "./neukoellnPlacesV210Navigation";
+import { arenaStationV225GroundAt, arenaStationV225SolidAt } from "./arenaStationV225Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
@@ -1721,6 +1722,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       westCivicSolidAtV210(x,y,z,radius) ||
       weddingSitesV210SolidAt(x,y,z,radius) ||
       neukoellnV210SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      arenaStationV225SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) =>
@@ -3753,6 +3755,8 @@ function prepareIsoNavigation(
     );
   };
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const arenaStationFloor = arenaStationV225GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (arenaStationFloor !== null) return arenaStationFloor;
     const neueFloor = neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0);
     if (neueFloor !== null) return neueFloor;
     const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
@@ -4606,6 +4610,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   };
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0) ??
     zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
     fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
