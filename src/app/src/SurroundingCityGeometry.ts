@@ -1,3 +1,5 @@
+import { releaseScratchBuffer } from "./releaseScratchBuffer";
+import { cutRosenthalerPackedGroundV228 } from "./rosenthalerPackedGroundV228";
 import { parkStaticGeometrySteps } from "./losslessStaticStorage";
 import { replacePanoramaFacadeV202 } from "./panoramaFacadeV202";
 import { siteNavigationV209, transferSiteLinesV209, transferSiteTrianglesV209 } from "./siteOwnershipV209";
@@ -230,11 +232,11 @@ export function* buildSurroundingCityChunk(
         throw new Error("Surrounding-city geometry exceeds the bounded tile budget");
       }
     }
-    const vertices = new Uint16Array(vertexCount * 6);
+    let vertices = new Uint16Array(vertexCount * 6);
     // Most outline tiles fit the native 16-bit index range. Preserve every
     // source index while avoiding four-byte indices where two are sufficient.
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
-    const indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
+    let indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     const colourOwners = chunk.meshes.some(part => part.kind === "city")
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2]) : undefined;
     let vertexOffset = 0, indexOffset = 0;
@@ -268,6 +270,14 @@ export function* buildSurroundingCityChunk(
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       vertexOffset += count;
       indexOffset += written;
+    }
+    const apertures = yield* cutRosenthalerPackedGroundV228(id, minecraft, chunk.origin, vertices, indices);
+    if (apertures) {
+      // These exclusive unpublished scratch arrays have no geometry owner yet.
+      releaseScratchBuffer(vertices.buffer); releaseScratchBuffer(indices.buffer);
+      vertices = apertures.vertices; indices = apertures.indices;
+      vertexCount = vertices.length / 6; indexCount = indices.length;
+      root.userData.rosenthalerGroundTrianglesV228 = apertures.changed;
     }
     let geometryBytes = vertices.byteLength + indices.byteLength;
     let bufferCount = 0;

@@ -188,6 +188,18 @@ geometry, navigation, sources and 93 tour stops intact. New boulevard trees
 must follow official points and exclude existing trees. This is not permission
 for an unrelated district rebuild. See `docs/refinements-v205.md`.
 
+The owner's v1.0.128 request permits bounded recognition refinements at the
+named Charité, Vivantes, Benjamin Franklin, Friedrichshain, Osloer Straße and
+Jewish hospital sites, the two named gymnasiums and Jewish gymnasium, Otto
+Weidt's workshop, Sophienkirche and Rosenthaler Platz. Resolve spoken hospital
+names against public operator addresses and retain the evidence in the v228
+site notes. Preserve source envelopes, roofs, earlier authored details and the
+93-place tour. Entrance stairs, pharmacy and St. Oberholz recognition must
+follow identified mapped sites; unsurveyed details remain explicit estimates.
+No district-wide regeneration, lower mobile quality or increased live residency
+budget is implied. Any missing named campus envelope needs its own finite
+scope and exact previous-owner receipt before substituting source geometry.
+
 The owner's v1.0.127 request permits source-bound recognition of the town halls
 of all 23 pre-2001 boroughs and the present 12 boroughs' main administrative
 buildings. This authorizes only their exact named building/site envelopes where

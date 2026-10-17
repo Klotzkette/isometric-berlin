@@ -233,7 +233,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createAltMitteTransportV206(nextNative));
       yield;
-      root.add(createAltMitteSidewalksV226(nextNative));
+      root.add(createAltMitteSidewalksV226(nextNative, true));
       yield;
       root.add(createBoulevardTransportV210(nextNative));
       yield;

@@ -2,10 +2,11 @@ import { BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshBasicMate
 import source from "./data/altMitteSidewalksV226.json";
 import { altMitteTransportGroundV206 } from "./AltMitteTransportV206";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { cutRosenthalerSurfaceV228 } from "./RosenthalerSurfaceAperturesV228";
 
 /** Missing source-width pavement only; existing surfaces and road gaps remain.
  * Native uses independently contained quarter-metre pixels, merged into runs. */
-export function createAltMitteSidewalksV226(native = false): Group {
+export function createAltMitteSidewalksV226(native = false, openRosenthaler = false): Group {
   const root = new Group();
   root.name = "Source-width Alt-Mitte sidewalk complements v226" + (native ? " native" : "");
   root.userData = { altMitteSidewalksV226: true, sourceSha256: source.sourceSha256,
@@ -30,9 +31,13 @@ export function createAltMitteSidewalksV226(native = false): Group {
         positions.set([x, altMitteTransportGroundV206(x, z) + .1, z], i / 2 * 3);
       }
     }
-    const geometry = new BufferGeometry();
+    let geometry = new BufferGeometry();
     geometry.setAttribute("position", new BufferAttribute(positions, 3));
     geometry.setIndex(new BufferAttribute(indices, 1));
+    if (openRosenthaler) {
+      const opened = cutRosenthalerSurfaceV228(geometry, native);
+      if (opened !== geometry) { geometry.dispose(); geometry = opened; }
+    }
     geometry.computeBoundingBox(); geometry.computeBoundingSphere();
     const day = new MeshBasicMaterial({ color: 0xd4d0c3, side: DoubleSide });
     const night = new MeshBasicMaterial({ color: 0x252932, side: DoubleSide });

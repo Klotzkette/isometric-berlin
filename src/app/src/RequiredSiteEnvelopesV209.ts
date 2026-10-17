@@ -1,3 +1,4 @@
+import { createSchoolCultureV228 } from "./SchoolCultureV228";
 import type { Group } from "three";
 import { createPrisonsMemorialsEnvelopesV209 } from "./PrisonsMemorialsV209";
 import { createVolksbuehneEnvelopeV209 } from "./VolksbuehneEnvelopeV209";
@@ -9,6 +10,10 @@ import { createNeukoellnEnvelopesV210 } from "./NeukoellnPlacesV210";
 import { createArenaStationEnvelopesV225 } from "./ArenaStationV225";
 import { createDistrictTownhallsV227 } from "./DistrictTownhallsV227";
 import { createDistrictTownhallEnvelopesV227 } from "./DistrictTownhallEnvelopesV227";
+import { createRosenthalerV228 } from "./RosenthalerV228";
+import { cutRosenthalerPresentationV228 } from "./RosenthalerSurfaceAperturesV228";
+import { createHospitalEnvelopesV228 } from "./HospitalEnvelopesV228";
+import { createHospitalRecognitionV228 } from "./HospitalRecognitionV228";
 
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
@@ -32,5 +37,14 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createDistrictTownhallEnvelopesV227(native));
   yield;
   root.add(createDistrictTownhallsV227(native));
+  yield;
+  cutRosenthalerPresentationV228(root, native);
+  root.add(createRosenthalerV228(native));
+  yield;
+  root.add(createHospitalEnvelopesV228(native));
+  yield;
+  root.add(createHospitalRecognitionV228(native));
+  yield;
+  root.add(createSchoolCultureV228(native));
   yield;
 }

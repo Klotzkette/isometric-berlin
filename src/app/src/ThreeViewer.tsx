@@ -19,6 +19,10 @@ import { alexanderPublicRealmSolidAt, alexanderPublicRealmSupportHeightAt } from
 import { fernsehturmPavilionSolidAt, fernsehturmPavilionSupportHeightAt } from "./fernsehturmPavilionProfile";
 import { createGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { unterDenLindenEntranceFloorAt } from "./unterDenLindenEntrancesProfile";
+import { rosenthalerV228FloorAt, rosenthalerV228SolidAt } from "./rosenthalerV228Profile";
+import { cutRosenthalerPresentationV228 } from "./RosenthalerSurfaceAperturesV228";
+import { hospitalV228GroundAt, hospitalV228TerrainAt, hospitalV228SolidAt } from "./hospitalV228Navigation";
+import { schoolCultureV228GroundAt, schoolCultureV228SolidAt } from "./schoolCultureV228Profile";
 import { friedrichMonumentSolidAt, palacesUdlWalkableAt, palacesUdlSupportSolidAt } from "./palacesUdlProfile";
 import { jamesSimonTerraceVoidAt, jamesSimonExtraSolidAt, jamesSimonWalkSurfaceAt } from "./jamesSimonProfile";
 import { configureNeueNationalgalerieObstaclesV217, neueNationalgalerieWalkableAtV217, neueNationalgalerieGroundAtV217, neueNationalgalerieSolidAtV217 } from "./neueNationalgalerieWalkV217";
@@ -1710,6 +1714,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
       minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
+      const hospitalGround = hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      if (hospitalGround !== null) return hospitalGround;
       const townhallGround = districtTownhallV227TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (townhallGround !== null) return townhallGround;
       const stadiumGround = westernStadiumGroundYV187(x, z);
@@ -1720,6 +1726,9 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
+      rosenthalerV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      schoolCultureV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       eastSquaresV163SolidAt(x,z,y,radius) ||
       prisonsMemorialsV209SolidAt(x,y,z,radius) ||
       volksbuehneV209SolidAt(x,y,z,radius) ||
@@ -3359,6 +3368,7 @@ function attachProgressiveWorldMessage(
   }
   // Materialise against the mode active at ATTACH time. Day ↔ Night ↔ Snow
   // ↔ Schwellenraum changes therefore never flash a stale batch.
+  if (message.kind === "surfaces") cutRosenthalerPresentationV228(object, false);
   setIsoNightPresentation(
     object,
     runtime.lightingMode === "night",
@@ -3710,6 +3720,9 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (rosenthalerV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
       return false;
     }
@@ -3762,6 +3775,12 @@ function prepareIsoNavigation(
     );
   };
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const hospitalFloor = hospitalV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (hospitalFloor !== null) return hospitalFloor;
+    const schoolFloor = schoolCultureV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (schoolFloor !== null) return schoolFloor;
+    const rosenthalerFloor = rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft");
+    if (rosenthalerFloor !== null) return rosenthalerFloor;
     const townhallFloor = districtTownhallV227GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (townhallFloor !== null) return townhallFloor;
     const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4586,6 +4605,9 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (rosenthalerV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
       return false;
     }
@@ -4623,6 +4645,9 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     );
   };
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     districtTownhallV227GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??

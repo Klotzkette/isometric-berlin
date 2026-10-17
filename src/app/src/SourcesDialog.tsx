@@ -36,6 +36,9 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Krankenhäuser, Schulen, Sophienkirche, Otto-Weidt-Werkstatt und Rosenthaler Platz: vorhandene amtliche Gebäudeformen, OpenStreetMap und öffentliche Angaben der Einrichtungen. Fassadendetails und nicht vermessene Höhen bleiben angenähert. Die vier U8-Treppen folgen kartierten Verläufen und Stufenzahlen; Breiten und Tiefen sind geschätzt."
+          : "Hospitals, schools, Sophienkirche, Otto Weidt's workshop and Rosenthaler Platz: retained official building geometry, OpenStreetMap and public institutional records. Facade details and unsurveyed heights remain approximate. The four U8 stairs follow mapped courses and step counts; widths and depths are estimates."}</p>
+        <p>{language === "de"
           ? "Rathäuser der 23 früheren Bezirke und die heutigen zwölf Hauptsitze: amtliche Berliner Gebäude- und Denkmalquellen sowie OpenStreetMap. Nicht vermessene Höhen und Fassadendetails bleiben vereinfachte Annäherungen."
           : "Town halls of the 23 former boroughs and today's twelve main seats: official Berlin building and heritage records and OpenStreetMap. Unsurveyed heights and facade details remain simplified estimates."}</p>
         <p>{language === "de"

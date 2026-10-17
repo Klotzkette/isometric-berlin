@@ -12,6 +12,11 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "schoolCultureV228.json": ["sites"],
+  "rosenthalerV228.json": ["facades"],
+  "hospitalV228Profile.json": ["sites"],
+  "hospitalV228Envelopes.json": ["sites"],
+  "hospitalV228Native.json": ["sites"],
   "arenaStationV225Envelopes.json": ["surfaces", "blocks"],
   "townhallV227Profile.json": ["sites"],
   "townhallV227Envelopes.json": ["sites"],

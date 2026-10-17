@@ -1775,3 +1775,16 @@ Jörg Zägel: Kalkscheunenstraße 4–5 (2010-04-12) and Reinhardtstraße 19
 CC BY-SA 3.0 DE; Molgreen: Albrechtstraße 13–14 / Schiffbauerdamm 8
 (2023-06-30), CC BY-SA 4.0. Exact file pages/licenses are in the Wikimedia
 attribution manifests. Source geometry remains Geoportal Berlin LoD2.
+
+## Hospitals, schools and Rosenthaler Platz — v1.0.128
+
+Bounded recognition uses retained Geoportal Berlin LoD2 (dl-de/zero-2-0),
+OpenStreetMap footprints, building parts and entrance axes/counts (ODbL 1.0),
+and public operator/heritage records. Unsurveyed facade spacing, inferred
+storey heights, the Sophienkirche tower profile, and stair widths/depths are
+explicit display estimates. Source bodies, courtyards and unrelated details
+remain retained. See `docs/refinements-v228.md` and its linked evidence.
+
+Additional reference only: [Sankt Oberholz Berlin.jpg](https://commons.wikimedia.org/wiki/File:Sankt_Oberholz_Berlin.jpg),
+Thomas Angermann, 3 February 2006, CC BY-SA 2.0. Full credits remain in both
+Wikimedia manifests; no photo pixels or photographic texture are bundled.
