@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.129",
+  "package_version": "1.0.130",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -136,8 +136,8 @@
     },
     "surrounding_city": {
       "path": "mesh/surrounding-berlin-v159/manifest.json",
-      "bytes": 1730953,
-      "sha256": "dc8148eb797c3551babc708ed444636a935e619e2175e456b12dda9c9364106b"
+      "bytes": 1804529,
+      "sha256": "29d01c8e4b25799c0bd41e5473f26a1ea8a2787844cc56b861fa127fee092ccb"
     },
     "start_page": {
       "path": "START-HERE.html",
