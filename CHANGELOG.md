@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.137 — Hansaviertel, Moabit and Tiergarten
+
+- Restore the complete measured Hansabibliothek form and refine characteristic Interbau facade fields.
+- Add source-mapped park furnishings and refine Rathaus Tiergarten; distinguish Kleiner Tiergarten from Großer Tiergarten.
+- Refine downstream Spree fronts, Saudi embassy and CDU headquarters surroundings on existing source buildings.
+- Preserve previous city packets, coverage, all modes, full mobile detail and live memory limits.
+- See [source evidence and validation](docs/refinements-v237.md).
+
 ## v1.0.136 — complete mapped BER airport
 
 - Replace the sparse airport impression with source-bound terminal bodies, piers, tower, parking structures, service buildings, runways, aprons and taxiways.

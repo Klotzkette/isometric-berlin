@@ -79,6 +79,9 @@ def verify_assets(descriptors: list[dict], reader: Callable[[Path], bytes]) -> N
 
 def normalize_ber_additions(current: dict, reader: Callable[[Path], bytes]) -> dict:
   """Strictly prove this entire addition before older preservation audits run."""
+  from scripts.integrate_hansa_tiergarten_v237 import normalize_hansa_additions
+
+  current = normalize_hansa_additions(current, reader)
   if "berAirportV236" not in current:
     assert not any(c["id"].startswith("ber236-") for c in current["chunks"])
     return current

@@ -240,18 +240,20 @@ describe("authored small-water Schwellenraum surface batches", () => {
     expect(water.geometry.index?.count).toBe(420);
     expect(tiergarten.geometry.getAttribute("position").count).toBe(1_919);
     expect(tiergarten.geometry.index?.count).toBe(2_976);
-    expect(west.geometry.getAttribute("position").count).toBe(2_160);
-    expect(west.geometry.index?.count).toBe(3_240);
+    // v237 transfers exactly six crude library boxes (four bodies/two glass
+    // panels) to its complete measured streamed owner. Water stays identical.
+    expect(west.geometry.getAttribute("position").count).toBe(2_160 - 144);
+    expect(west.geometry.index?.count).toBe(3_240 - 216);
     expect(
       tiergarten.geometry.getAttribute("position").count +
         west.geometry.getAttribute("position").count +
         water.geometry.getAttribute("position").count,
-    ).toBe(4_299);
+    ).toBe(4_299 - 144);
     expect(
       (tiergarten.geometry.index?.count ?? 0) +
         (west.geometry.index?.count ?? 0) +
         (water.geometry.index?.count ?? 0),
-    ).toBe(6_636);
+    ).toBe(6_636 - 216);
     expect(countColourVertices(root, 0x7eb3bf)).toBe(220);
     expect(water.parent?.parent).toBe(root);
     expect(water.parent?.children).toHaveLength(1);

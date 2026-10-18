@@ -54,6 +54,7 @@ import { POTSDAMER_MINISTRY_BUILDINGS } from "./potsdamerMinistrySourceProfile";
 import { BIKINI_DISPLAY_PARTS, BIKINI_REPLACEMENT_IDS, BIKINI_SOURCE } from "./bikiniProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
 import { gripsHansaplatzPartForPrism, gripsHansaplatzRoofAt } from "./gripsHansaplatzProfile";
+import { hansaLibraryPartForPrismV237, hansaLibraryRoofAtV237 } from "./hansaLibraryV237Profile";
 import { gymnasiumNeubauPartForPrism, gymnasiumNeubauRoofAt } from "./gymnasiumTiergartenProfile";
 import { NEUE_WACHE_PRISM_IDS, NEUE_WACHE_PROFILE, NEUE_WACHE_ROOF_INDEX_RING, neueWacheRoofAt } from "./neueWacheProfile";
 import { BEHREN42_PRISM_IDS, BEHREN42_SOURCE } from "./Behren42Profile";
@@ -935,6 +936,13 @@ export function compilePedestrianObstacles(
     // These complete parts are installed exactly once with the eastern family.
     if (ALEXANDER_CIVIC_PRISM_IDS.has(building.id)) continue;
     const grips = gripsHansaplatzPartForPrism(building.id);
+    const library = hansaLibraryPartForPrismV237(building.id);
+    if (library) {
+      addPolygonObstacle(index, library.ring, library.holes, library.groundY,
+        library.topY, building.id, 1, (x, z) => hansaLibraryRoofAtV237(library, x, z));
+      index.buildingCount += 1;
+      continue;
+    }
     const school = gymnasiumNeubauPartForPrism(building.id);
     if (school) {
       addPolygonObstacle(index, school.ring, school.holes, school.ground_y_m,

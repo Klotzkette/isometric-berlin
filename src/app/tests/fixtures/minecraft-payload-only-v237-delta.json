@@ -1,0 +1,1407 @@
+{
+  "schemaVersion": 1,
+  "sourceOwners": [
+    "UfOiMKPI",
+    "5yW3Z2oo",
+    "Ldcl7dCO",
+    "RRTGvA3Y"
+  ],
+  "policy": "Disable only the exact Hansa-library ring-union predicate for before capture; every before buffer must replay through unchanged v206 into immutable v202 hashes. Preserve all retained matrix/color bytes and order. No whole buffer snapshots.",
+  "encoding": "base64 of 16 Float32 matrix values followed by 3 Float32 color values; exact original bits",
+  "inputSha256": {
+    "public/mesh/regierungsviertel/minecraft-voxels.json": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+    "public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/data/hansaLibraryV237.json": "14ede3492040315e3d8c35ce79439d68b449b41801c07f8aed6ad469d73dfadf"
+  },
+  "audit": {
+    "removedColumns": [
+      [
+        -492,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -488,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -487,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        35,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        35,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -488,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -487,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        36,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        36,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        37,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        37,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        38,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        38,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        38,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        38,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        39,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        39,
+        52,
+        92,
+        3
+      ],
+      [
+        -492,
+        40,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        40,
+        52,
+        92,
+        3
+      ],
+      [
+        -492,
+        41,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        41,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -488,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -487,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -488,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -487,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        43,
+        52,
+        92,
+        3
+      ]
+    ],
+    "localColumns": [
+      [
+        -492,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -488,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -487,
+        35,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        35,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        35,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -488,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -487,
+        36,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        36,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        36,
+        52,
+        132,
+        3
+      ],
+      [
+        -494,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -493,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -492,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        37,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        37,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        38,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        38,
+        52,
+        92,
+        3
+      ],
+      [
+        -486,
+        38,
+        52,
+        132,
+        3
+      ],
+      [
+        -485,
+        38,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        39,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        39,
+        52,
+        92,
+        3
+      ],
+      [
+        -492,
+        40,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        40,
+        52,
+        92,
+        3
+      ],
+      [
+        -492,
+        41,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        41,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -489,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -488,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -487,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -486,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -491,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        42,
+        52,
+        92,
+        3
+      ],
+      [
+        -489,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -488,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -487,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -486,
+        42,
+        52,
+        132,
+        3
+      ],
+      [
+        -492,
+        43,
+        52,
+        92,
+        3
+      ]
+    ],
+    "retainedNeighbourColumns": [
+      [
+        -494,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -493,
+        37,
+        52,
+        92,
+        3
+      ],
+      [
+        -490,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -486,
+        41,
+        52,
+        132,
+        3
+      ],
+      [
+        -486,
+        42,
+        52,
+        132,
+        3
+      ]
+    ],
+    "sourceColumnsByPrism": [
+      {
+        "id": "UfOiMKPI",
+        "count": 8,
+        "sha256": "f4a596e835aa078353df1fc10277497a97208819d1b4cc1e232507ae38a56900"
+      },
+      {
+        "id": "5yW3Z2oo",
+        "count": 6,
+        "sha256": "4967f36c6b9700433f223386e9de14c67ee7a6fff066e86aa9aa6af56875e6ae"
+      },
+      {
+        "id": "Ldcl7dCO",
+        "count": 8,
+        "sha256": "43141e43e27b4a1fd78e753761a431a9706041ee56432a7e3c0c2dc961a1f957"
+      },
+      {
+        "id": "RRTGvA3Y",
+        "count": 18,
+        "sha256": "78b115e0ccf5aae31b7669a9db934d7f78314910df4d66581ab267eb5cf9513c"
+      }
+    ],
+    "panes": {
+      "removed": 61,
+      "exposed": 9,
+      "netRemoved": 52
+    },
+    "removedColumnInstances": {
+      "full": 54,
+      "mobile": 40
+    }
+  },
+  "previous": {
+    "full": {
+      "Voxel ground runs": {
+        "count": 185228,
+        "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+      },
+      "Voxel facade windows": {
+        "count": 1339478,
+        "sha256": "7137f06d06296b59d545dee3642831f436f95f62c9b99df340cd4af23687e550"
+      },
+      "Voxel building columns": {
+        "count": 1199196,
+        "sha256": "a2388591681ad26729d49a63c281085df7ebcba782308e11e58a7258b98d6c3c"
+      },
+      "Geschichtspark Moabit Minecraft red-brick block batch": {
+        "count": 4040,
+        "sha256": "26940be5caf4fec32643c7a33a12207a48ceabbb795a9e125f355ce7196a7018"
+      }
+    },
+    "mobile": {
+      "Voxel ground runs": {
+        "count": 185228,
+        "sha256": "4cda6d0e0e1d9fd6bba3eed05bbc010f0cb74e0442f62a54f6caf9efa89ac15c"
+      },
+      "Voxel facade windows": null,
+      "Voxel building columns": {
+        "count": 441484,
+        "sha256": "9cf773d6223ad70d395fa72708968eac02bc21c4b8e86948a7cecdd2e948219d"
+      },
+      "Geschichtspark Moabit Minecraft red-brick block batch": {
+        "count": 2273,
+        "sha256": "5ca6c0de8264e19bfd6402077cc4835938e0a0eca6edef3eae927b46fd204d16"
+      }
+    }
+  },
+  "profiles": {
+    "full": {
+      "Voxel facade windows": {
+        "beforeCount": 1339478,
+        "afterCount": 1339426,
+        "retainedCount": 1339417,
+        "removed": [
+          {
+            "index": 712712,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAAA5DAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712713,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMD1xAAAAEGF6wtDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712714,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAED1xAAAAEGF6wtDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 712715,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMD0xAAAAEGF6wtDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712716,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAED0xAAAAEGF6wtDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 712717,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMDzxAAAAEGF6wtDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712718,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAEDzxAAAAEGF6wtDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 712719,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAAA5DAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712720,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMDyxAAAAEGF6wtDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712721,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMDyxAAAQEGF6wtDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 712722,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAAEEAAA5DAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 712723,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAQEEAAA5DAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 712724,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAEDyxAAAAEGF6wtDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 712725,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAEDyxAAAQEGF6wtDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 713146,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAABJDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713147,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMD0xAAAAEF7FBRDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 713148,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAED0xAAAAEF7FBRDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713149,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMDzxAAAAEF7FBRDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713150,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAEDzxAAAAEF7FBRDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713151,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAABJDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 713152,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAAEEAABJDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713153,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAQEEAABJDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713514,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf30xAAAAEEAABZDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 713515,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAAEEAABZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713516,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAABZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713517,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAAEEAABZDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713518,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAQEEAABZDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713957,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAABpDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 713958,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf30xAAAAEEAABpDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713959,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAAEEAABpDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713960,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAABpDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713961,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMDyxAAAAEF7FBxDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713962,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMDyxAAAQEF7FBxDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 713963,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAAEEAABpDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713964,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf3xxAAAQEEAABpDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713965,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAEDyxAAAAEF7FBxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 713966,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAEDyxAAAQEF7FBxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 714465,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAAB5DAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 714466,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf30xAAAAEEAAB5DAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 714934,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAACJDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 714935,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf30xAAAAEEAACJDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715569,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715574,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAED0xAAAAEGF6yNDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 715575,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAED0xAAAQEGF6yNDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 715576,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMDzxAAAAEGF6yNDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715577,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAMDzxAAAQEGF6yNDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715578,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAEDzxAAAAEGF6yNDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 715579,
+            "data": "AADAPwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAEDzxAAAQEGF6yNDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 716155,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAACpDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 716156,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAED1xAAAAEF7FCxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716157,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMD0xAAAAEF7FCxDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 716158,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAj4L0xAAAQEEAACpDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716159,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAED0xAAAAEF7FCxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716160,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAED0xAAAQEF7FCxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716161,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMDzxAAAAEF7FCxDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 716162,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMDzxAAAQEF7FCxDAACAP94Svj6y5zw/vLFCPw=="
+          },
+          {
+            "index": 716163,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAEDzxAAAAEF7FCxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716164,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAEDzxAAAQEF7FCxDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716748,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcX31xAAAAEEAAC5DAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716749,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL2xAAAAEEAAC5DAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716750,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMD1xAAAAEF7FDBDAACAPzwlLD+y5zw/z9I+Pw=="
+          }
+        ],
+        "added": [
+          {
+            "index": 713490,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcf31xAAAAEEAABZDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 715529,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcX30xAAAAEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715530,
+            "data": "AAAAgAAAAAAAAMA/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAcX30xAAAQEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715531,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwL1xAAAAEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715533,
+            "data": "AADAvwAAAAAAAAAAAAAAAAAAAAAAADBAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAMD0xAAAAEF7FChDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715539,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAAEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 715540,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAACZDAACAPzwlLD+y5zw/z9I+Pw=="
+          },
+          {
+            "index": 716116,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAAEEAACpDAACAP9BOLD5l7w4/n/wkPw=="
+          },
+          {
+            "index": 716117,
+            "data": "AAAAgAAAAAAAAMC/AAAAAAAAAAAAADBAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAjwLzxAAAQEEAACpDAACAP9BOLD5l7w4/n/wkPw=="
+          }
+        ]
+      },
+      "Voxel building columns": {
+        "beforeCount": 1199196,
+        "afterCount": 1199142,
+        "retainedCount": 1199142,
+        "removed": [
+          {
+            "index": 638070,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638071,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638072,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638073,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638074,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638075,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638076,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzC0EAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638077,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzS0EAAA5DAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 638078,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzC0EAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638079,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzS0EAAA5DAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 638407,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638408,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638409,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638410,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638411,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638412,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638413,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzC0EAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638414,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzS0EAABJDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 638415,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzC0EAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638416,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzS0EAABJDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 638719,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638720,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638721,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzC0EAABZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 638722,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzS0EAABZDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 638723,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzC0EAABZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 638724,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzS0EAABZDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 639085,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 639086,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 639087,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzC0EAABpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 639088,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzS0EAABpDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 639089,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzC0EAABpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 639090,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzS0EAABpDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 639507,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAB5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 639508,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAAB5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 639935,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 639936,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640375,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640376,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640379,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzC0EAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640380,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzS0EAACZDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 640381,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzC0EAACZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640382,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzS0EAACZDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 640383,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzC0EAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640384,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzS0EAACZDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 640829,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640830,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640831,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640832,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzC0EAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640833,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzS0EAACpDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 640834,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzC0EAACpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 640835,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzS0EAACpDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 640836,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAOBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzC0EAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 640837,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzS0EAACpDAACAP8XWMj6JCl0+rJgcPg=="
+          },
+          {
+            "index": 641302,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAC5DAACAP0GLKD9Biyg/uHLyPg=="
+          }
+        ],
+        "added": []
+      }
+    },
+    "mobile": {
+      "Voxel building columns": {
+        "beforeCount": 441484,
+        "afterCount": 441444,
+        "retainedCount": 441444,
+        "removed": [
+          {
+            "index": 242305,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242306,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242307,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242308,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242309,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxGZm5kAAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242310,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxGZm5kAAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242311,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzE0EAAA5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242312,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzE0EAAA5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242437,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242438,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242439,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242440,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242441,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxGZm5kAAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242442,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxGZm5kAAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242443,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzE0EAABJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242444,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzE0EAABJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242567,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242568,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242569,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzE0EAABZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242570,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzE0EAABZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242706,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAABpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242707,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAABpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242708,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDyxDMzE0EAABpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242709,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDyxDMzE0EAABpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 242863,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAB5DAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 242864,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAAB5DAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243018,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACJDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243019,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACJDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243176,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243177,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243179,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzE0EAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243180,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzE0EAACZDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243181,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzE0EAACZDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243341,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243342,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED1xGZm5kAAACpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243343,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD0xGZm5kAAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243344,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAED0xDMzE0EAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243345,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMDzxDMzE0EAACpDAACAP0GLKD9Biyg/uHLyPg=="
+          },
+          {
+            "index": 243346,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAEDzxDMzE0EAACpDAACAP+lxZT/f91w/TXkhPw=="
+          },
+          {
+            "index": 243512,
+            "data": "AACAQAAAAAAAAAAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAAAAAAAAAAAAAgEAAAAAAAMD1xGZm5kAAAC5DAACAP0GLKD9Biyg/uHLyPg=="
+          }
+        ],
+        "added": []
+      }
+    }
+  }
+}

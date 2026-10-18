@@ -1860,3 +1860,14 @@ building heights, facade divisions/colours, taxiway widths and access-deck
 heights are explicitly documented display estimates. BER is in Brandenburg;
 this finite requested airport scope does not imply wider district expansion.
 See `docs/refinements-v236.md` and its linked source evidence.
+
+
+## v1.0.137 — Hansaviertel, Moabit and Tiergarten
+
+Retained complete Geoportal Berlin LoD2 source sheets (dl-de/zero-2-0) and
+OpenStreetMap data © OpenStreetMap contributors (ODbL-1.0) anchor the requested
+buildings and park details. Primary heritage, architect, school, district and
+operator references support interpretation; no remote photographs or textures
+are bundled. Exact library corrections retain their original source evidence.
+Unsurveyed facade subdivisions, material colours and furnishing dimensions are
+explicit display estimates. See `docs/refinements-v237.md` and linked evidence.

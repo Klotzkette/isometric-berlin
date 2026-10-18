@@ -13,10 +13,18 @@ from scripts.integrate_ber_airport_v236 import (
   normalize_ber_additions,
   read,
 )
+from scripts.integrate_hansa_tiergarten_v237 import normalize_hansa_additions
+
+
+def released_ber_manifest():
+  """Prove later supplements before exercising the original BER audit unchanged."""
+  return normalize_hansa_additions(
+    read(PUBLIC / "manifest.json"), lambda p: p.read_bytes()
+  )
 
 
 def test_airport_append_preserves_every_released_city_asset():
-  current = read(PUBLIC / "manifest.json")
+  current = released_ber_manifest()
   snapshot = copy.deepcopy(current)
   previous = json.loads(baseline_bytes())
   assert len(previous["chunks"]) == 2012
@@ -29,7 +37,7 @@ def test_airport_append_preserves_every_released_city_asset():
   "mutation", ["old", "missing", "extra", "footprint", "source", "budget"]
 )
 def test_airport_append_cannot_hide_unrelated_or_incomplete_changes(mutation):
-  current = copy.deepcopy(read(PUBLIC / "manifest.json"))
+  current = copy.deepcopy(released_ber_manifest())
   if mutation == "old":
     current["chunks"][0]["drawn"]["sha256"] = "0" * 64
   elif mutation == "missing":
@@ -48,7 +56,7 @@ def test_airport_append_cannot_hide_unrelated_or_incomplete_changes(mutation):
 
 @pytest.mark.parametrize("family", ["drawn", "minecraft"])
 def test_airport_actual_payload_bytes_are_checked(family):
-  current = read(PUBLIC / "manifest.json")
+  current = released_ber_manifest()
   bad = PUBLIC / current["chunks"][-1][family]["url"]
 
   def corrupted(path):

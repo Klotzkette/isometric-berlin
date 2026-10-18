@@ -838,45 +838,10 @@ function addHansaviertelDetails(
 ): void {
   const library = CITY_REFINEMENT_PROFILES.hansabibliothek;
   const libraryGround = groundAt(...library.centreWorldM);
+  // v237: the four measured library wings now stream in hansa237 packets.
+  // The exact retired rectangle/glass block is retained in the source receipt.
+  // Preserve the existing garden and authored water independently.
   const courtyard = 18;
-  for (const side of [-1, 1]) {
-    localBox(
-      builder,
-      library,
-      IVORY_LIGHT,
-      0,
-      libraryGround + 2.1,
-      side * 13.6,
-      33.5,
-      4.2,
-      6.0,
-    );
-    localBox(
-      builder,
-      library,
-      IVORY_LIGHT,
-      side * 13.6,
-      libraryGround + 2.1,
-      0,
-      6.0,
-      4.2,
-      courtyard + 0.2,
-    );
-  }
-  for (const side of [-1, 1]) {
-    localBox(
-      builder,
-      library,
-      WINDOW_LIGHT,
-      0,
-      libraryGround + 2.1,
-      side * 10.45,
-      26.5,
-      2.35,
-      0.18,
-      false,
-    );
-  }
   localBox(
     waterBuilder,
     library,

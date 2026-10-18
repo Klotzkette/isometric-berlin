@@ -110,7 +110,9 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v236 completes BER with 86 bounded airport tiles plus its exact water extent.
 # Complete extracted package: 895,684,508 bytes (854.191 MiB); 855 MiB is an
 # archive-only allowance. All live geometry, transfer and prefetch limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 855 * 1024 * 1024
+# v237 retains all old assets and adds ten finite architectural companions.
+# The complete package measures 857.64 MiB; 859 MiB bounds this archive only.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 859 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

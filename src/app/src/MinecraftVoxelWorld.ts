@@ -101,6 +101,7 @@ import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
 import { createGorkiBuilding } from "./GorkiBuilding";
 import { createGripsHansaplatz } from "./GripsHansaplatz";
 import { isGripsHansaplatzReplacementColumn } from "./gripsHansaplatzProfile";
+import { isHansaLibraryReplacementColumnV237 } from "./hansaLibraryV237Profile";
 import { createGymnasiumTiergartenNeubau } from "./GymnasiumTiergartenNeubau";
 import { isGymnasiumNeubauReplacementColumn } from "./gymnasiumTiergartenProfile";
 import { createUnterDenLindenBlockStreets } from "./UnterDenLindenBlockStreets";
@@ -787,6 +788,7 @@ export function isCompleteRecognitionVoxelColumn(
     isAlexanderCivicReplacementColumn(x, z) ||
     isRussianEmbassyReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
+    isHansaLibraryReplacementColumnV237(x, z) ||
     isGymnasiumNeubauReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||

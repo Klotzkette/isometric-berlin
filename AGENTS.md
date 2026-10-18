@@ -1181,3 +1181,19 @@ residency limits. Unmapped heights, widths and facade subdivisions remain explic
 display estimates; do not confuse future masterplan buildings with current ones.
 
 The user's v236 accuracy request also authorizes one source-bound correction: subtract the two mapped elevated T2 connector footprints from the older coarse Nordpier roof cap. Keep the immutable v205 source JSON; apply an audited offline-derived roof replacement only to that exact owner in both drawn and native rendering, so no spurious roof floats over the lower bridges. All other existing caps and details remain.
+
+
+### Step 10 — v237 Hansaviertel, Moabit and Tiergarten architecture
+
+The owner requests the existing Hansaviertel including Hansabibliothek, the
+identified school/fuel-station/high-rise surroundings, Kleiner Tiergarten in
+Moabit with its real lower accesses, Rathaus Tiergarten, downstream Spree
+waterfront houses near Bellevue, and the Tiergarten embassy quarter around
+the CDU headquarters and Saudi Arabian embassy. This is bounded architectural
+and public-space refinement inside existing coverage, not a new district.
+Resolve ambiguous spoken places against primary sources before assigning them.
+Preserve complete LoD2/OSM source geometry, all previous authored details, the
+93-stop tour, six modes, full drawn mobile quality and independent orthogonal
+native geometry. Exact erroneous owner corrections require complete source
+receipts; unmeasured facade/fitting dimensions remain documented estimates.
+Use existing cancellable packet lifetime and unchanged live residency limits.
