@@ -5,9 +5,13 @@ import { BufferGeometry, InterleavedBufferAttribute, Material, Mesh, LineSegment
 import roofs from "../src/data/roofHouseV233.json";
 import doors from "../src/data/houseDoorsV233.json";
 import curbs from "../src/data/houseCurbsV233.json";
+import boulevard from "../src/data/boulevardArchitectureV235.json";
+import citywest from "../src/data/citywestStreetsV235.json";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
+import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
+import { prepareCitywestStreetsV235 } from "../src/CitywestStreetsV235";
 import { replacePanoramaFacadeV202 } from "../src/panoramaFacadeV202";
 import { transferSiteTrianglesV209 } from "../src/siteOwnershipV209";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
@@ -16,7 +20,8 @@ const root = new URL("../public/mesh/surrounding-berlin-v159/", import.meta.url)
 const manifest = JSON.parse(readFileSync(new URL("manifest.json", root), "utf8"));
 const descriptors = new Map<string, any>(manifest.chunks.map((d: { id: string }) => [d.id, d]));
 const keys = [...new Set([...Object.keys(roofs.packets), ...Object.keys(curbs.packets),
-  ...Object.keys(doors.chunks).flatMap(id => [`drawn:${id}`, `minecraft:${id}`])])].sort();
+  ...Object.keys(doors.chunks).flatMap(id => [`drawn:${id}`, `minecraft:${id}`]),
+  ...Object.keys(boulevard.packets), ...Object.keys(citywest.packets)])].sort();
 function finish<T>(it: Generator<void, T>): T { let n = it.next(); while (!n.done) n = it.next(); return n.value; }
 const bytes = (encoded: string) => Buffer.from(encoded, "base64").length;
 function load(key: string): SurroundingCityChunk {
@@ -24,7 +29,8 @@ function load(key: string): SurroundingCityChunk {
   return JSON.parse(gunzipSync(readFileSync(new URL(descriptors.get(id)[family].url, root))).toString());
 }
 function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
-  return finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(finish(prepareRoofHouseV233(chunk, id, native)), id, native)), id, native));
+  const houses = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(finish(prepareRoofHouseV233(chunk, id, native)), id, native)), id, native));
+  return finish(prepareCitywestStreetsV235(finish(prepareBoulevardArchitectureV235(houses, id, native)), id, native));
 }
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);
@@ -34,7 +40,7 @@ function budget(packet: SurroundingCityChunk, native: boolean) {
     geometryBytes: vertices * 12 + indices * (vertices <= 65535 ? 2 : 4) + lineVertices * (packet.lines?.colors ? 12 : 6) };
 }
 
-test("every v233 house tile composes safely within unchanged packet limits and preserves its encoded source", () => {
+test("every v233–v235 house and boulevard tile composes safely within unchanged packet limits and preserves its encoded source", () => {
   expect(keys.length).toBeGreaterThan(300);
   for (const key of keys) {
     const [family, id] = key.split(":"), native = family === "minecraft";

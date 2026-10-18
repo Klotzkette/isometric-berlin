@@ -15,6 +15,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "houseDoorsV233.json": ["chunks"],
   "roofHouseV233.json": ["packets"],
   "houseCurbsV233.json": ["packets"],
+  "boulevardArchitectureV235.json": ["packets"],
+  "citywestStreetsV235.json": ["packets"],
   "ringStationsV232.json": ["sites"],
   "spreeFacadesV231.json": ["sites"],
   "colonnadesV231.json": ["sites"],

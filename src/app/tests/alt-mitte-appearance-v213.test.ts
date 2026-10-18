@@ -2,6 +2,8 @@ import { expect, test } from "bun:test";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
+import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
+import { prepareCitywestStreetsV235 } from "../src/CitywestStreetsV235";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Mesh } from "three";
@@ -147,8 +149,9 @@ test("real drawn/native resident and streamed packets apply compiled receipts wi
     const prepare = <T,>(it: Generator<void, T>): T => {
       let step = it.next(); while (!step.done) step = it.next(); return step.value;
     };
-    const baseline = prepare(prepareHouseCurbsV233(prepare(prepareHouseDoorsV233(
+    const houses = prepare(prepareHouseCurbsV233(prepare(prepareHouseDoorsV233(
       prepare(prepareRoofHouseV233(chunk, tile, native)), tile, native)), tile, native));
+    const baseline = prepare(prepareCitywestStreetsV235(prepare(prepareBoulevardArchitectureV235(houses, tile, native)), tile, native));
     const original = createSurroundingCityChunk(baseline, `${resident ? "alt-mitte-v169-" : ""}unbound-appearance-v213`, native);
     const actual = createSurroundingCityChunk(chunk, tile, native);
     let yielded = 0;

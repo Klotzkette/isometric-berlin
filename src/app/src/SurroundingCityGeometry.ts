@@ -2,6 +2,8 @@ import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
+import { prepareBoulevardArchitectureV235 } from "./boulevardArchitectureV235";
+import { prepareCitywestStreetsV235 } from "./CitywestStreetsV235";
 import { applySpreeFacadeColoursV231 } from "./spreeFacadeOwnershipV231";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { cutRosenthalerPackedGroundV228 } from "./rosenthalerPackedGroundV228";
@@ -213,6 +215,8 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareRoofHouseV233(chunk, id, minecraft);
   chunk = yield* prepareHouseDoorsV233(chunk, id, minecraft);
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
+  chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
+  chunk = yield* prepareCitywestStreetsV235(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;

@@ -1834,3 +1834,16 @@ complete Ortsteil rings come from Geoportal Berlin's ALKIS WFS. Existing
 source-bound replacements and fittings are retained. Unsurveyed door/gutter
 sizes remain display estimates; curb lines without height evidence do not
 imply invented raised steps. See docs/house-details-v234.md.
+
+
+## v1.0.135 — Kurfürstendamm and Tauentzien street fronts
+
+The retained Geoportal Berlin LoD2 and ALKIS sources (dl-de/zero-2-0), and
+OpenStreetMap/Geofabrik Berlin sources © OpenStreetMap contributors
+(ODbL-1.0), support the existing building and street geometry. Source hashes
+and complete preservation receipts accompany the v235 evidence. Primary
+architecture references are linked there; no photographs are redistributed.
+Window divisions, glazing colours, shallow reveal dimensions and unspecified
+paint widths/phases remain cartographic estimates. Existing measured roofs,
+source axes, entrances and authored landmarks are retained. See
+`docs/refinements-v235.md` and its linked evidence.

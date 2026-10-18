@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.135 — complete Kurfürstendamm and Tauentzien
+
+- Refine verified street-facing window and shopfront fields along both complete boulevards with shallow reveals, fine profiles and muted glazing.
+- Add four source-supported Tauentzien crossing markings and five restriction areas; retain existing roads, curbs, trees and authored landmarks.
+- Preserve measured roofs, complete drawn mobile detail, independent native geometry and existing tile/residency limits.
+- See [source evidence and validation](docs/refinements-v235.md).
+
 ## v1.0.134
 
 - Extend the existing source-supported ordinary-house treatment to Steglitz-Zehlendorf following the owner's place-name clarification: measured roofs and gutters, mapped entrances and restrained curb-edge recognition.

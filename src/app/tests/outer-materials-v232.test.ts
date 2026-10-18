@@ -2,6 +2,8 @@ import { expect, test } from "bun:test";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
+import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
+import { prepareCitywestStreetsV235 } from "../src/CitywestStreetsV235";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { applyOuterMaterialsV232 } from "../src/outerMaterialsV232";
@@ -77,8 +79,9 @@ test("integrated bounded decoder retains complete geometry and navigation in eit
       let step = it.next(); while (!step.done) step = it.next(); return step.value;
     };
     const native = family === "minecraft";
-    const prepared = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(
+    const houses = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(
       finish(prepareRoofHouseV233(p, tile, native)), tile, native)), tile, native));
+    const prepared = finish(prepareCitywestStreetsV235(finish(prepareBoulevardArchitectureV235(houses, tile, native)), tile, native));
     const made = createSurroundingCityChunk(p, tile, family === "minecraft");
     try {
       const body = made.root.children.find(child => child instanceof Mesh) as Mesh;

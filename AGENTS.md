@@ -1155,3 +1155,15 @@ Preserve every existing v233 roof, entrance and curb and all earlier detail.
 Reuse the same source-bound packet preparation, full drawn mobile quality,
 independent native representation and unchanged residency limits. No new city
 coverage or invented roof/entrance position is implied by this clarification.
+
+### Step 10 — v235 complete Kurfürstendamm and Tauentzien street fronts
+
+The owner requests better architecture and streetscape along the complete
+Kurfürstendamm from Breitscheidplatz to Rathenauplatz and Tauentzienstraße to
+Wittenbergplatz, inside existing coverage. Preserve measured roofs, earlier
+street surfaces, mapped trees, all authored landmark details and the 93-stop
+tour. Add source-bound facade and street recognition only where supported;
+unsurveyed window subdivisions and fitting dimensions remain display estimates.
+Keep full drawn mobile detail, separate orthogonal native geometry and existing
+packet/residency limits. Additions follow the existing cancellable tile lifetime.
+No district expansion or replacement of unrelated source geometry is implied.
