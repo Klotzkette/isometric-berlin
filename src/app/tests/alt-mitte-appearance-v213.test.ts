@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test";
+import { prepareRoofHouseV233 } from "../src/roofHouseV233";
+import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
+import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Mesh } from "three";
@@ -138,8 +141,15 @@ test("real drawn/native resident and streamed packets apply compiled receipts wi
     expect(source.packets[key]).toBeDefined();
     const chunk = realPacket(key);
     const immutable = Bun.hash(JSON.stringify(chunk));
-    // Preserve the resident/streamed v186 distinction, but use no v213 receipt.
-    const original = createSurroundingCityChunk(chunk, `${resident ? "alt-mitte-v169-" : ""}unbound-appearance-v213`, native);
+    // Both sides retain legitimate later geometry. Only the v213 colour receipt
+    // is absent from the independent baseline; added fittings must not turn an
+    // earlier colour-only invariant into a ban on future source architecture.
+    const prepare = <T,>(it: Generator<void, T>): T => {
+      let step = it.next(); while (!step.done) step = it.next(); return step.value;
+    };
+    const baseline = prepare(prepareHouseCurbsV233(prepare(prepareHouseDoorsV233(
+      prepare(prepareRoofHouseV233(chunk, tile, native)), tile, native)), tile, native));
+    const original = createSurroundingCityChunk(baseline, `${resident ? "alt-mitte-v169-" : ""}unbound-appearance-v213`, native);
     const actual = createSurroundingCityChunk(chunk, tile, native);
     let yielded = 0;
     const cooperative = await createSurroundingCityChunkCooperatively(chunk, tile, native,

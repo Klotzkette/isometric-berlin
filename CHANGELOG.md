@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.133
+
+- Refine ordinary existing houses in Mitte, Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg with measured roof geometry, small eave fittings, mapped entrance recognition and positively mapped raised curbs.
+- Keep older architecture, original source evidence, complete drawn mobile detail and existing per-packet memory lifecycle.
+- Retain seven rotating flight starts, all 93 tour stops and the v132 offscreen memory improvements.
+
+
 ## v1.0.132 — varied starts, Ringbahn and wide-view memory
 
 - Rotate seven requested flight start views, retaining explicit links and recovery state.

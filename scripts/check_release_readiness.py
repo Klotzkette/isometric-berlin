@@ -101,7 +101,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # archive headroom. No runtime, GPU, decode, resolution or mobile budget changes.
 # v230 named sites and two finite Marzahn housing clusters: 842.91 MiB.
 # Offline archive allowance only; no runtime budget changes.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 844 * 1024 * 1024
+# v233 adds complete measured roofs and source-bound entrance/curb recipes.
+# The full extracted package is 845.03 MiB; 846 MiB leaves finite archive-only
+# headroom. Runtime packet/decode/GPU budgets and mobile detail stay unchanged.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 846 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

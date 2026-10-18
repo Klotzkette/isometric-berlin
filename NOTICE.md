@@ -1813,3 +1813,14 @@ Axel Mauruszat's Wikimedia Commons photograph “HKW Reuter West Kuehlturm.jpg�
 it is not redistributed. Window spacing, unmeasured material hues, tower-shell
 thickness and monument simplification remain original illustrative geometry.
 See `docs/refinements-v230.md` and its linked site documents for exact sources.
+
+## v1.0.133 — ordinary house roofs, entrances and curb edges
+
+The retained complete ALKIS Ortsteil boundaries and measured LoD2 house sheets
+come from Geoportal Berlin under dl-de/zero-2-0. Mapped entrances, building
+footprints and raised curb courses use retained OpenStreetMap/Geofabrik Berlin
+data © OpenStreetMap contributors (ODbL-1.0). All source hashes and complete
+selection/ownership receipts remain in the v233 evidence files. Door dimensions,
+leaf arrangement and colours, gutter cross-sections and untagged curb widths
+and heights are display estimates. No photographs or textures are bundled.
+See `docs/house-details-v233.md` and its linked source records.

@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test";
+import { prepareRoofHouseV233 } from "../src/roofHouseV233";
+import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
+import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { applyOuterMaterialsV232 } from "../src/outerMaterialsV232";
@@ -70,12 +73,18 @@ test("integrated bounded decoder retains complete geometry and navigation in eit
   for (const family of ["drawn", "minecraft"]) {
     const key = Object.keys(data.packets).find(key => key.startsWith(family + ":"))!;
     const p = packet(key), snapshot = JSON.stringify(p), tile = key.split(":")[1];
+    const finish = <T,>(it: Generator<void, T>): T => {
+      let step = it.next(); while (!step.done) step = it.next(); return step.value;
+    };
+    const native = family === "minecraft";
+    const prepared = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(
+      finish(prepareRoofHouseV233(p, tile, native)), tile, native)), tile, native));
     const made = createSurroundingCityChunk(p, tile, family === "minecraft");
     try {
       const body = made.root.children.find(child => child instanceof Mesh) as Mesh;
       const positions = body.geometry.getAttribute("position");
       let offset = 0;
-      for (const part of p.meshes) {
+      for (const part of prepared.meshes) {
         const original = Buffer.from(part.positions, "base64");
         for (let at = 0; at < original.length; at += 6) {
           expect(positions.getX(offset)).toBe(original.readUInt16LE(at));
@@ -84,7 +93,7 @@ test("integrated bounded decoder retains complete geometry and navigation in eit
         }
       }
       expect(positions.count).toBe(offset);
-      expect(body.geometry.index!.count).toBe(p.meshes.reduce((n, part) => n + Buffer.from(part.indices, "base64").byteLength / 4, 0));
+      expect(body.geometry.index!.count).toBe(prepared.meshes.reduce((n, part) => n + Buffer.from(part.indices, "base64").byteLength / 4, 0));
       expect(made.root.userData.outerMaterialVerticesV232).toBeGreaterThan(0);
       expect(JSON.stringify(p)).toBe(snapshot);
       expect(made.nav).toEqual(p.nav);

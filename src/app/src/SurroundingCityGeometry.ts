@@ -1,4 +1,7 @@
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
+import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
+import { prepareHouseDoorsV233 } from "./houseDoorsV233";
+import { prepareHouseCurbsV233 } from "./houseCurbsV233";
 import { applySpreeFacadeColoursV231 } from "./spreeFacadeOwnershipV231";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { cutRosenthalerPackedGroundV228 } from "./rosenthalerPackedGroundV228";
@@ -205,6 +208,12 @@ export function* buildSurroundingCityChunk(
       !validNavigation(chunk.nav)) {
     throw new Error("Invalid surrounding-city chunk");
   }
+  // Add source-bound ordinary-house fittings inside the existing tile lifetime.
+  // Cancellation can discard preparation before any scene/GPU object is made.
+  chunk = yield* prepareRoofHouseV233(chunk, id, minecraft);
+  chunk = yield* prepareHouseDoorsV233(chunk, id, minecraft);
+  chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
+  if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
   root.position.fromArray(chunk.origin);
@@ -277,6 +286,8 @@ export function* buildSurroundingCityChunk(
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (outerPanes) root.userData.outerHousePanesV230 = (root.userData.outerHousePanesV230 ?? 0) + outerPanes;
+      const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
+      if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -340,6 +351,7 @@ export function* buildSurroundingCityChunk(
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3);
+      root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;

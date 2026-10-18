@@ -1131,3 +1131,17 @@ authored models, complete mobile detail and native orthogonal construction.
 No coverage expansion or runtime budget increase. A byte-aware offscreen GPU
 retention target may reclaim identical re-uploadable copies without changing
 visibility. Source material tags may refine positively matched ordinary owners.
+
+
+### Step 10 — v233 ordinary house architecture
+
+The owner requests more house-like ordinary buildings in existing coverage of
+Mitte, Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg:
+source-faithful roofs, gutters, entrances and curbs. The spoken “Wuhledorf” is
+pending clarification and does not imply a new coverage area. Use retained
+measured roof sheets and mapped entrance/pavement evidence; distinguish estimated
+fitting dimensions from surveyed geometry. Preserve source owners and earlier
+authored detail, all 93 tour stops, full drawn mobile quality, independent native
+geometry and existing memory budgets. Only exact documented coarse owners may
+yield to a complete measured replacement; no invented roof forms or broad
+district regeneration. New ordinary details must follow bounded packet lifetime.
