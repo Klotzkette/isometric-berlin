@@ -1,3 +1,6 @@
+import { centralNamedV230GroundAt, centralNamedV230SolidAt } from "./centralNamedV230Navigation";
+import { botanicalV230GroundAt, botanicalV230FloorAt, botanicalV230WaterAt, botanicalV230SolidAt } from "./botanicalV230Navigation";
+import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrialV230SolidAt } from "./westIndustrialV230Navigation";
 import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
@@ -1717,6 +1720,10 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
       minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
+      const botanicalGround = botanicalV230GroundAt(x, z, runtime.lightingMode === "minecraft");
+      if (botanicalGround !== null) return botanicalGround;
+      const industrialGround = westIndustrialV230TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      if (industrialGround !== null) return industrialGround;
       const courtGround = districtCourtsV229TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (courtGround !== null) return courtGround;
       const hospitalGround = hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
@@ -1732,6 +1739,9 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
       weddingStationSolidAtV229(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      botanicalV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      westIndustrialV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       districtCourtsV229SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       rosenthalerV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
@@ -1748,6 +1758,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
       (runtime.surroundingCity?.solidAt(x, y, z, radius) ?? false),
     waterAt: (x: number, z: number) =>
+      botanicalV230WaterAt(x, z, runtime.lightingMode === "minecraft") !== null ||
       (runtime.outerThinOutlines?.userData.waterAt?.(x, z) ?? false) ||
       (runtime.surroundingCity?.waterAt(x, z) ?? false),
   };
@@ -3728,6 +3739,9 @@ function prepareIsoNavigation(
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -3788,6 +3802,12 @@ function prepareIsoNavigation(
     if (sledSlope !== null) return sledSlope;
     const weddingFloor = weddingStationFloorAtV229(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (weddingFloor !== null) return weddingFloor;
+    const botanicalFloor = botanicalV230FloorAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (botanicalFloor !== null) return botanicalFloor;
+    const centralFloor = centralNamedV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (centralFloor !== null) return centralFloor;
+    const industrialFloor = westIndustrialV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (industrialFloor !== null) return industrialFloor;
     const courtFloor = districtCourtsV229GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (courtFloor !== null) return courtFloor;
     const hospitalFloor = hospitalV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4621,6 +4641,9 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
   environment.interiorSolidAt = (x, y, z, radius) => {
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4664,6 +4687,9 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   environment.interiorGroundAt = (x, z, currentGroundY) =>
     fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft") ??
     weddingStationFloorAtV229(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    botanicalV230FloorAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    westIndustrialV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??

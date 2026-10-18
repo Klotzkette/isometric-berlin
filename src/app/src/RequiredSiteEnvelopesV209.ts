@@ -1,3 +1,7 @@
+import { createSpandauBotanicalV230 } from "./SpandauBotanicalV230";
+import { createCentralNamedV230 } from "./CentralNamedV230";
+import { createCentralNamedEnvelopesV230 } from "./CentralNamedEnvelopesV230";
+import { createWestIndustrialV230 } from "./WestIndustrialV230";
 import { createSchoolCultureV228 } from "./SchoolCultureV228";
 import type { Group } from "three";
 import { createPrisonsMemorialsEnvelopesV209 } from "./PrisonsMemorialsV209";
@@ -61,5 +65,13 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createDistrictCourtEnvelopesV229(native));
   yield;
   root.add(createDistrictCourtsV229(native));
+  yield;
+  root.add(createWestIndustrialV230(native));
+  yield;
+  root.add(createCentralNamedEnvelopesV230(native));
+  yield;
+  root.add(createCentralNamedV230(native));
+  yield;
+  root.add(createSpandauBotanicalV230(native));
   yield;
 }

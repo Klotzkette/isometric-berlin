@@ -15,6 +15,7 @@ from typing import Any
 import numpy as np
 import pytest
 from packet_additions_v200 import audited_v200_additions
+from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import assert_retained_descriptor, audited_v190_changes
 from packet_receipts_v205 import audited_v209_additions
 from shapely import make_valid
@@ -98,7 +99,7 @@ def test_v186_descriptors_packets_and_bounds_remain_byte_exact() -> None:
       ["git", "show", f"v1.0.86:{path.relative_to(ROOT)}"], cwd=ROOT
     )
   )
-  current = load(path)
+  current = predecessor_manifest_v230()
   changes, _ = audited_v190_changes()
   assert [c["id"] for c in current["chunks"][: len(old["chunks"])]] == [
     c["id"] for c in old["chunks"]
@@ -337,7 +338,7 @@ def test_v190_changes_only_receipted_v189_packets_and_named_new_cells() -> None:
       ["git", "show", f"v1.0.89:{manifest_path.relative_to(ROOT)}"], cwd=ROOT
     )
   )
-  after = load(manifest_path)
+  after = predecessor_manifest_v230()
   changes, companions = audited_v190_changes()
   assert [c["id"] for c in after["chunks"][: len(before["chunks"])]] == [
     c["id"] for c in before["chunks"]

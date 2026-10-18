@@ -5,7 +5,12 @@ import json
 from pathlib import Path
 
 import numpy as np
-from shapely.geometry import Point, Polygon, shape
+from packet_additions_v230 import (
+  baseline_v229_bytes,
+  digest,
+  predecessor_manifest_v230,
+)
+from shapely.geometry import Point, Polygon, box, shape
 from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,13 +25,33 @@ def read(path: Path) -> dict:
   return json.loads(path.read_text())
 
 
+def audited_protected_files() -> dict[str, str]:
+  """Reproduce the historical receipt only after the complete v230 audit."""
+  manifest = predecessor_manifest_v230()
+  folder = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
+  paths = [
+    builder.DATA / "outerThinOutlines.json",
+    builder.DATA / "westernMotorwaysV205.json",
+  ]
+  result = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in paths}
+  result[str((folder / "manifest.json").relative_to(ROOT))] = digest(
+    baseline_v229_bytes()
+  )
+  for chunk in manifest["chunks"]:
+    if box(*chunk["bounds"]).intersects(box(-3800, 6490, -3000, 7400)):
+      for mode in ("drawn", "minecraft"):
+        path = folder / chunk[mode]["url"]
+        result[str(path.relative_to(ROOT))] = digest(path.read_bytes())
+  return result
+
+
 def test_complete_source_and_immutable_earlier_roads() -> None:
   source = read(builder.SOURCE)
   evidence = read(builder.GEO / "steglitz-motorway-v226-evidence.json")
   assert len(source["features"]) == 25
   assert sum(f["tags"].get("bridge") == "yes" for f in source["features"]) == 16
   assert evidence["sourceSha256"] == builder.digest(builder.SOURCE)
-  assert evidence["preserved"] == builder.protected_files()
+  assert evidence["preserved"] == audited_protected_files()
   assert len(evidence["preserved"]) >= 15  # Actual drawn/native local city packets.
   assert source["priorCandidateIdsPresent"] == ["way/4449224", "way/151021737"]
   plan, records = builder.source_plans(source)
@@ -82,12 +107,20 @@ def test_explicit_osm_widths_take_priority_and_only_untagged_ways_use_lanes() ->
   assert by_id["way/192464201"]["displayWidthM"] == 7.5  # Not 2 × 3.
 
 
-def test_builder_replays_committed_outputs_without_raw_cache() -> None:
+def test_builder_replays_committed_outputs_without_raw_cache(
+  tmp_path, monkeypatch
+) -> None:
   paths = [
     builder.DATA / "steglitzMotorwayV226.json",
     builder.DATA / "steglitzMotorwayV226Navigation.json",
     builder.GEO / "steglitz-motorway-v226-evidence.json",
   ]
   before = [p.read_bytes() for p in paths]
+  protected = audited_protected_files()
+  # A replay must not overwrite the original evidence, including on failure.
+  monkeypatch.setattr(builder, "protected_files", lambda: protected)
+  monkeypatch.setattr(builder, "DATA", tmp_path)
+  monkeypatch.setattr(builder, "GEO", tmp_path)
   builder.build()
+  assert [(tmp_path / p.name).read_bytes() for p in paths] == before
   assert [p.read_bytes() for p in paths] == before

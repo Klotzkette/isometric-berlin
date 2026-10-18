@@ -1090,3 +1090,17 @@ rebuild, broad source deletion or raised runtime residency budgets is authorized
 Material details and heights without direct evidence must be marked estimates.
 The Panke branch to Nordhafen must remain distinct from the Südpanke to the Spree;
 tunnel and mouth openings must stay clear. See docs/refinements-v229.md.
+
+### Step 10 — v230 named north/west and residential refinement
+
+The owner explicitly requests Eiswerder, the Reuter-West cooling tower near
+Siemensstadt, Spandau/Zitadelle, BEHALA Westhafen warehouses, Botanischer Volkspark
+Blankenfelde-Pankow, Marzahn housing rows, existing outer residential buildings,
+Wasserturm Prenzlauer Berg, Kollwitzplatz, Choriner Höfe and John-Lennon-Gymnasium.
+New source coverage is limited to the exact botanical park boundary, the complete
+Reuter tower/service footprints and two finite buffers around Marzahner Promenade
+and Helene-Weigel-Platz, minus every retained source area. No arbitrary district
+fill or expanded runtime residency budget is authorized. Complete measured
+replacement shells require immutable exact-owner receipts; surrounding owners
+and all earlier detail remain intact. Estimated façade rhythms and material hues
+are explicitly distinguished from source-surveyed shapes. See refinements-v230.md.

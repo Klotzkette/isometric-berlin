@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from packet_additions_v200 import audited_v200_additions
+from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import (
   assert_retained_descriptor,
   audited_v190_changes,
@@ -39,6 +40,8 @@ MANIFEST = read(OUT / "manifest.json")
 
 
 def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
+  # The full v230 append and all old bytes are audited before reading this checkpoint.
+  manifest = predecessor_manifest_v230()
   old = EVIDENCE["oldDescriptors"]
   assert len(old) == 1369
   changes, _ = audited_v190_changes()
@@ -49,13 +52,13 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   additions.update(kiez)
   retained = [
     c
-    for c in MANIFEST["chunks"]
+    for c in manifest["chunks"]
     if not c["id"].startswith("district188-") and c["id"] not in additions
   ]
   assert [d["id"] for d in retained] == [d["id"] for d in old]
   for previous, current in zip(old, retained, strict=True):
     assert_retained_descriptor(previous, current, changes)
-  assert {d["id"]: d for d in MANIFEST["chunks"] if d["id"] in additions} == additions
+  assert {d["id"]: d for d in manifest["chunks"] if d["id"] in additions} == additions
   # Old metadata remains exact; only the explicitly appended north footprint
   # and its union bounds extend the original spatial coverage.
   previous_manifest = json.loads(baseline_v189(OUT / "manifest.json"))
@@ -65,11 +68,11 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
     value = (
       previous_manifest[key]
       if key in {"bounds", "footprint", "outskirtsV187"}
-      else MANIFEST[key]
+      else manifest[key]
     )
     raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     assert hashlib.sha256(raw).hexdigest() == expected
-  assert MANIFEST["outskirtsV187"] == {
+  assert manifest["outskirtsV187"] == {
     **previous_manifest["outskirtsV187"],
     "chunkCount": previous_manifest["outskirtsV187"]["chunkCount"]
     + sum(
@@ -77,10 +80,10 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
     ),
   }
   assert (
-    MANIFEST["footprint"]
+    manifest["footprint"]
     == previous_manifest["footprint"] + north["footprint"] + east["footprint"]
   )
-  assert MANIFEST["bounds"] == [
+  assert manifest["bounds"] == [
     min(previous_manifest["bounds"][0], north["bounds"][0], east["bounds"][0]),
     min(previous_manifest["bounds"][1], north["bounds"][1], east["bounds"][1]),
     max(previous_manifest["bounds"][2], north["bounds"][2], east["bounds"][2]),

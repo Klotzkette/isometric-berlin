@@ -77,6 +77,9 @@ def normalize_v209_additions(current_manifest: dict, read_asset) -> tuple[dict, 
   v205-v208 share the same manifest. Runtime-only named-owner transfers do not
   authorize any packet rewrite here, including the Helmholtz source envelopes.
   """
+  from packet_additions_v230 import normalize_v230_additions
+
+  current_manifest, _ = normalize_v230_additions(current_manifest, read_asset)
   if "kiezFacadesV209" not in current_manifest:
     assert not any(c["id"].startswith("kiez209-") for c in current_manifest["chunks"])
     return current_manifest, {}

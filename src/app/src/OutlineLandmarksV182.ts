@@ -1,3 +1,4 @@
+import { applyCitadelCrownV230 } from "./citadelCrownV230";
 import { BufferGeometry, Group, Material, Mesh } from "three";
 import { createSteglitzV182, createMinecraftSteglitzV182 } from "./SteglitzV182";
 import { createCityRecognitionV182 } from "./CityRecognitionV182";
@@ -141,7 +142,9 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(nextNative ? createMinecraftAltMitteEdgesV186() : createAltMitteEdgesV186());
       yield;
-      root.add(nextNative ? createMinecraftWesternLandmarksV187() : createWesternLandmarksV187());
+      const western = nextNative ? createMinecraftWesternLandmarksV187() : createWesternLandmarksV187();
+      applyCitadelCrownV230(western, nextNative);
+      root.add(western);
       yield;
       root.add(createSouthWestLandmarksV187(nextNative));
       yield;

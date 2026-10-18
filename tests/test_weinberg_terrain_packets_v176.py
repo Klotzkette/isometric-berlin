@@ -17,6 +17,7 @@ import numpy as np
 import pytest
 import shapely
 from packet_additions_v200 import audited_v200_additions
+from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import (
   assert_retained_descriptor,
   audited_v190_changes,
@@ -902,7 +903,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
 ) -> None:
   manifest_path = PACKETS / "manifest.json"
   before = json.loads(_baseline(manifest_path))
-  after = json.loads(manifest_path.read_bytes())
+  after = predecessor_manifest_v230()
   old_descriptors = {entry["id"]: entry for entry in before["chunks"]}
   descriptors = {entry["id"]: entry for entry in after["chunks"]}
   assert len(descriptors) == len(after["chunks"])

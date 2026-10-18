@@ -1,3 +1,4 @@
+import marzahn from "./data/marzahnScopeV230.json";
 import scope from "./data/outerThinOutlineScope.json";
 import outskirts from "./data/outskirtsScopeV187.json";
 import northCity from "./data/northCityScopeV190.json";
@@ -7,7 +8,7 @@ import eastCity from "./data/eastCityScopeV200.json";
 import regional from "./data/regionalScopeV200.json";
 import { extrapolatedEnvelopeBounds } from "./worldEnvelope";
 
-const outlineScopes = [scope, outskirts, northCity, named, parks, eastCity, regional];
+const outlineScopes = [scope, outskirts, northCity, named, parks, eastCity, regional, marzahn, {bounds:[1338,-9855,2247,-9250]}];
 
 /** Camera reach for the explicitly requested sparse overlay, not new city data. */
 export function outlineNavigationEnvelopeBounds() {

@@ -1797,3 +1797,19 @@ DGM/LoD2 sources under their existing attributions. Bank material, original
 abstract graffiti and small architectural fittings are explicitly illustrative.
 No external photographs or copied graffiti artwork are shipped. The detailed
 source and preservation records are linked from docs/refinements-v229.md.
+
+## v1.0.130 — named northern/western sites and residential hints
+
+Additional bounded source geometry uses Geoportal Berlin LoD2 (`a_lod2`,
+dl-de/zero-2-0) and retained OpenStreetMap data © OpenStreetMap contributors
+(ODbL-1.0). Source archive hashes, original owners and finite scope receipts
+are retained in the v230 manifests under `geo_data/regierungsviertel/`.
+Reference-only architectural evidence includes Berlin's monument register,
+BEW/LAGeTSi's Reuter-West environmental report (2025), InselCampus history,
+Berlin's botanical-park and Marzahn documentation, and architect Frank Schiffer's
+Choriner Straße project documentation. No remote photo, scan or texture is bundled.
+Axel Mauruszat's Wikimedia Commons photograph “HKW Reuter West Kuehlturm.jpg”
+(2007, attribution-only) informs the cooling-tower silhouette and panel rhythm;
+it is not redistributed. Window spacing, unmeasured material hues, tower-shell
+thickness and monument simplification remain original illustrative geometry.
+See `docs/refinements-v230.md` and its linked site documents for exact sources.

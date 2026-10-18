@@ -1,3 +1,7 @@
+import centralNamed from "./data/centralNamedV230Ownership.json";
+import { transferCentralNamedNavigationV230 } from "./centralNamedPacketNavigationV230";
+import westIndustrial from "./data/westIndustrialV230Ownership.json";
+import { transferWestIndustrialNavigationV230 } from "./westIndustrialPacketNavigationV230";
 import hospital from "./data/bundeswehrHospitalV215Ownership.json";
 import springer from "./data/springerV215Ownership.json";
 import theatre from "./data/volksbuehneOwnershipV209.json";
@@ -16,8 +20,8 @@ import { transferArenaStationNavigationV225 } from "./arenaStationV225Navigation
 import { transferTownhallNavigationV227 } from "./townhallPacketNavigationV227";
 import type { SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
-const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records, ...arenaStation.records, ...townhalls.records, ...districtCourts.records];
-const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords, ...arenaStation.lineRecords, ...townhalls.lineRecords, ...districtCourts.lineRecords];
+const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records, ...arenaStation.records, ...townhalls.records, ...districtCourts.records, ...westIndustrial.records, ...centralNamed.records];
+const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords, ...arenaStation.lineRecords, ...townhalls.lineRecords, ...districtCourts.lineRecords, ...westIndustrial.lineRecords, ...centralNamed.lineRecords];
 
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
@@ -36,7 +40,8 @@ const equalRing = (a: number[][], b: number[][]) => a.length === b.length &&
 /** Correct the obsolete Platzhaus collision roof only with the complete exact
  * source nav record as guard. The input packet and all other owners stay intact. */
 export function siteNavigationV209(tile: string, original: SurroundingNavigation): SurroundingNavigation {
-  const nav = transferDistrictCourtNavigationV229(tile, transferTownhallNavigationV227(tile, transferArenaStationNavigationV225(tile, transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original)))));
+  const transferred = transferDistrictCourtNavigationV229(tile, transferTownhallNavigationV227(tile, transferArenaStationNavigationV225(tile, transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original)))));
+  const nav = transferCentralNamedNavigationV230(tile, transferWestIndustrialNavigationV230(tile, transferred));
   const records = helmholtz.navigationRecords.filter(record => record.tile === tile);
   if (!records.length) return nav;
   let changed = false;

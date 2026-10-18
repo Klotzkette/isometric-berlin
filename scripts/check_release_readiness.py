@@ -99,7 +99,9 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v229 restores bounded measured courts and park/river detail. The extracted
 # package is about 836.66 MiB; 837 MiB retains all previous assets with finite
 # archive headroom. No runtime, GPU, decode, resolution or mobile budget changes.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 837 * 1024 * 1024
+# v230 named sites and two finite Marzahn housing clusters: 842.91 MiB.
+# Offline archive allowance only; no runtime budget changes.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 844 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

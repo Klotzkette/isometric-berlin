@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.130 — Islands, industrial landmarks and residential detail
+
+- Restore measured Eiswerder and Westhafen roofs and walls; add Reuter-West’s open cooling-tower shell.
+- Refine Spandau, the citadel crown and Botanischer Volkspark Blankenfelde-Pankow.
+- Correct the Prenzlauer Berg water tower, Kollwitzplatz, Choriner Höfe and John-Lennon-Gymnasium.
+- Add two finite Marzahn residential clusters and source-bound outer façade hints.
+- Preserve prior city geometry, mobile detail and runtime residency budgets.
+- [Evidence and validation](docs/refinements-v230.md).
+
 ## v1.0.129 — Park terrain, Panke, Wedding and district courts
 
 - Restore the measured Schönholzer Heide summit and mapped Fritz-Schloß-Park sled slope.
