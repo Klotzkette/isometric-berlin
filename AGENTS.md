@@ -1167,3 +1167,17 @@ unsurveyed window subdivisions and fitting dimensions remain display estimates.
 Keep full drawn mobile detail, separate orthogonal native geometry and existing
 packet/residency limits. Additions follow the existing cancellable tile lifetime.
 No district expansion or replacement of unrelated source geometry is implied.
+
+### Step 10 — v236 complete BER airport
+
+The owner explicitly requests the complete BER airport. Refine the retained
+airport footprint and exact mapped terminal/landside access owners in Brandenburg,
+including terminals, piers, tower, airport buildings, runways, taxiways and aprons.
+This authorizes the finite airport site, not surrounding district development.
+Keep original source courses and v200/v205 detail, the 93-stop tour, all six modes,
+full drawn mobile quality and independent orthogonal native construction.
+Add new geometry through the existing bounded city packets and unchanged live
+residency limits. Unmapped heights, widths and facade subdivisions remain explicit
+display estimates; do not confuse future masterplan buildings with current ones.
+
+The user's v236 accuracy request also authorizes one source-bound correction: subtract the two mapped elevated T2 connector footprints from the older coarse Nordpier roof cap. Keep the immutable v205 source JSON; apply an audited offline-derived roof replacement only to that exact owner in both drawn and native rendering, so no spurious roof floats over the lower bridges. All other existing caps and details remain.

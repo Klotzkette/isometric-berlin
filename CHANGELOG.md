@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.136 — complete mapped BER airport
+
+- Replace the sparse airport impression with source-bound terminal bodies, piers, tower, parking structures, service buildings, runways, aprons and taxiways.
+- Keep underground station levels underground, mapped elevated connectors clear, and correct one older coarse Nordpier cap over the T2 bridges.
+- Stream both drawn and independently orthogonal native geometry within the existing resident, decode and upload limits; retain every previous city packet.
+- See [source evidence and validation](docs/refinements-v236.md).
+
 ## v1.0.135 — complete Kurfürstendamm and Tauentzien
 
 - Refine verified street-facing window and shopfront fields along both complete boulevards with shallow reveals, fine profiles and muted glazing.

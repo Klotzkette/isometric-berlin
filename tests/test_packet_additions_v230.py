@@ -79,7 +79,13 @@ def test_manifest_mutations_cannot_be_normalized_away(mutation):
 @pytest.mark.parametrize("which", ["old", "outer", "marzahn"])
 def test_actual_payload_corruption_is_not_hidden_by_unchanged_metadata(which):
   current = read(PUBLIC / "manifest.json")
-  index = {"old": 0, "outer": 1905, "marzahn": -1}[which]
+  index = {
+    "old": 0,
+    "outer": 1905,
+    "marzahn": next(
+      i for i, c in enumerate(current["chunks"]) if c["id"].startswith("marzahn230-")
+    ),
+  }[which]
   bad = PUBLIC / current["chunks"][index]["drawn"]["url"]
 
   def reader(path):

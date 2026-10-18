@@ -11,6 +11,9 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
+// Finite descriptor allowance for BER's airport tiles. This is catalogue
+// metadata only; resident geometry, transfer and prefetch budgets stay fixed.
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_112;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // At most two upcoming packets overlap the one foreground fetch/decode. Reserve
 // the decoded size too: HTTP Content-Encoding may already inflate a response.
@@ -89,7 +92,7 @@ function assetValid(asset: Asset): boolean {
 export function validateSurroundingManifest(value: unknown): SurroundingCityManifest {
   const manifest = value as SurroundingCityManifest;
   if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.chunks) ||
-      manifest.chunks.length > 2_048 || !Array.isArray(manifest.footprint) ||
+      manifest.chunks.length > SURROUNDING_CITY_MAX_DESCRIPTORS || !Array.isArray(manifest.footprint) ||
       !Number.isFinite(manifest.groundY) || manifest.footprint.length > 1_000 ||
       !manifest.footprint.every(validSurroundingPolygon)) throw new Error("Invalid surrounding-city manifest");
   const ids = new Set<string>();

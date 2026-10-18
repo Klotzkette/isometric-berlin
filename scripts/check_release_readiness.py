@@ -107,7 +107,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v234 adds source-bound Steglitz-Zehlendorf houses inside existing coverage.
 # Complete extracted package: 887,382,699 bytes (846.274 MiB). A finite 847 MiB
 # archive-only ceiling retains all assets; live geometry/residency limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 847 * 1024 * 1024
+# v236 completes BER with 86 bounded airport tiles plus its exact water extent.
+# Complete extracted package: 895,684,508 bytes (854.191 MiB); 855 MiB is an
+# archive-only allowance. All live geometry, transfer and prefetch limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 855 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

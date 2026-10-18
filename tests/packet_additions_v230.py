@@ -65,6 +65,9 @@ def normalize_v230_additions(current: dict, reader) -> tuple[dict, dict]:
   the released predecessor. The new named footprint and both finite families
   are checked separately; deleting arbitrary prefixed records is forbidden.
   """
+  from scripts.integrate_ber_airport_v236 import normalize_ber_additions
+
+  current = normalize_ber_additions(current, reader)
   names = {"outerFacadesV230", "marzahnV230"}
   if not names.intersection(current):
     assert not any(

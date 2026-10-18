@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src/app/src/data"
 GEO = ROOT / "geo_data/regierungsviertel"
 OUTPUT = ROOT / "src/app/public/mesh/regierungsviertel/flood-extension-v205.bin.gz"
+BER_ADDITION = GEO / "ber-v236-manifest-addition.json"
 SCOPE_NAMES = (
   "ringCityScopeV182.json",
   "cityCoverageScopeV183.json",
@@ -51,6 +52,10 @@ def extent():
   scopes = [state, original]
   for name in SCOPE_NAMES:
     scopes.extend(polygons(json.loads((DATA / name).read_text())))
+  # The finite airport supplement extends beyond its earlier regional mask.
+  # Use only its final declared footprint, including source holes; centimetre
+  # rounding can produce a self-touch, so normalize each ring before union.
+  scopes.extend(polygons(json.loads(BER_ADDITION.read_text())))
   complete = unary_union([shapely.make_valid(p) for p in scopes])
   return complete, original, complete.difference(original)
 
@@ -118,7 +123,11 @@ def build() -> dict:
     "vertices": len(vertices),
     "indices": len(indices),
     "sha256": hashlib.sha256(raw).hexdigest(),
-    "source": "Official Berlin ALKIS Landesgrenze v200 (dl-de/zero-2-0) plus retained approved scope footprints",
+    "source": "Official Berlin ALKIS Landesgrenze v200 (dl-de/zero-2-0) plus retained approved scope footprints and finite BER v236 footprint",
+    "berAirportV236": {
+      "manifest": str(BER_ADDITION.relative_to(ROOT)),
+      "manifestSha256": hashlib.sha256(BER_ADDITION.read_bytes()).hexdigest(),
+    },
     "areaM2": complete.area,
     "originalAreaM2": original.area,
     "extensionAreaM2": extension.area,

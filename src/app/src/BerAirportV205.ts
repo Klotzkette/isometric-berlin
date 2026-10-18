@@ -4,6 +4,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import data from "./data/berAirportV205.json";
+import roofPatch from "./data/berAirportRoofPatchV236.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringStrokePaths } from "./drawnLettering";
@@ -36,12 +37,18 @@ function surface(g: BufferGeometry, glass: boolean): Mesh {
 /** Complete mapped T1 parts, T2/pier roof caps, DFS crown, and two actual runway widths. */
 export function createBerAirportV205(native = false): Group {
   const root = new Group(); root.name = "BER Willy Brandt — mapped terminal parts and runway markings v205";
-  root.userData = { textureFree: true, additiveOnly: true, fullStaticDetailOnTouch: true,
+  root.userData = { textureFree: true, additiveOnly: false, fullStaticDetailOnTouch: true,
+    scopedRoofCorrectionV236: roofPatch.id,
     nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceSha256: data.sourceSha256 };
   const rows: Rows = [], caps: BufferGeometry[] = [], glass: number[] = [], solids: number[] = [];
   for (const p of data.buildings) {
-    if (native) rows.push(...p.native); else caps.push(roof(p.rings, p.top));
-    for (const ring of p.rings) for (let i = 1; i < ring.length; i++) {
+    const corrected = p.id === roofPatch.id;
+    if (corrected && data.sourceSha256 !== roofPatch.sourceSha256) throw new Error("BER north-pier roof source mismatch");
+    const capPolygons = corrected ? roofPatch.drawnRings : [p.rings];
+    const edgePolygons = corrected && native ? roofPatch.nativeRings : capPolygons;
+    if (native) rows.push(...(corrected ? roofPatch.nativeRows : p.native));
+    else for (const rings of capPolygons) caps.push(roof(rings, p.top));
+    for (const polygon of edgePolygons) for (const ring of polygon) for (let i = 1; i < ring.length; i++) {
       const a = ring[i - 1], b = ring[i];
       if (p.column || p.roofBottom < p.top - .31) {
         if (!native) sheet(solids, a, b, p.roofBottom, p.top);

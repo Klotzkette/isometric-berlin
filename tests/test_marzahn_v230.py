@@ -39,7 +39,7 @@ def test_mapped_clusters_add_only_outside_retained_source_scope():
   assert m["source"]["buildingCount"] == 379
   assert len(m["chunks"]) == 17
   live = json.loads((PUBLIC / "manifest.json").read_bytes())
-  assert len(live["chunks"]) <= 2048
+  assert len(live["chunks"]) <= 2112
   assert {c["id"] for c in m["chunks"]} <= {c["id"] for c in live["chunks"]}
 
 

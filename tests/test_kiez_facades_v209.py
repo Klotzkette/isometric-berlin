@@ -41,7 +41,7 @@ def test_complete_scope_selection_and_unchanged_prior_descriptors() -> None:
   for old in EVIDENCE["oldDescriptors"]:
     assert current[old["id"]] == old
   assert len(EVIDENCE["companions"]) == 14
-  assert len(current) <= 2048
+  assert len(current) <= 2112
   old_panes = read(GEO / "district-facades-v188-evidence.json.gz")
   old_moabit = {f["owner"] for f in old_panes["faces"] if f["district"] == "Moabit"}
   assert {f["owner"] for f in faces if f["previousV188"]} == old_moabit

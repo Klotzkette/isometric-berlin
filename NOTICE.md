@@ -1847,3 +1847,16 @@ Window divisions, glazing colours, shallow reveal dimensions and unspecified
 paint widths/phases remain cartographic estimates. Existing measured roofs,
 source axes, entrances and authored landmarks are retained. See
 `docs/refinements-v235.md` and its linked evidence.
+
+
+## v1.0.136 — complete mapped BER airport
+
+The complete source geometries are retained from OpenStreetMap API extracts
+© OpenStreetMap contributors (ODbL-1.0), with immutable input hashes. FBB
+terminal/airport information and DFS architecture references support the
+interpretation; no airport plans, photographs or textures are redistributed.
+Tagged heights, widths, min-heights and footprint holes are preserved. Untagged
+building heights, facade divisions/colours, taxiway widths and access-deck
+heights are explicitly documented display estimates. BER is in Brandenburg;
+this finite requested airport scope does not imply wider district expansion.
+See `docs/refinements-v236.md` and its linked source evidence.

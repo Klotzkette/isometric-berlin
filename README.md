@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.135 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.135/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.136 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.136/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.135** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.136** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.136 completes the mapped BER airport grounds, terminal bodies, piers, tower, parking structures and access roads with bounded streamed geometry. Source-based footprints and tagged heights are retained; unspecified dimensions remain documented estimates. [Sources and validation](docs/refinements-v236.md).
+
+Version 1.0.136 ergänzt den BER mit Terminalkörpern, Piers, Tower, Parkhäusern, beiden Startbahnen, Rollwegen, Vorfeldern und Zufahrten. Die Ergänzungen werden in kleinen Paketen geladen; die bestehenden Speichergrenzen bleiben erhalten.
 
 Version 1.0.135 refines street-facing windows and shopfronts along the complete Kurfürstendamm and Tauentzienstraße, with source-supported Tauentzien markings. Existing roofs, landmarks and memory limits remain. [Sources and validation](docs/refinements-v235.md).
 
