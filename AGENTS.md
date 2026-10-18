@@ -1104,3 +1104,17 @@ fill or expanded runtime residency budget is authorized. Complete measured
 replacement shells require immutable exact-owner receipts; surrounding owners
 and all earlier detail remain intact. Estimated façade rhythms and material hues
 are explicitly distinguished from source-surveyed shapes. See refinements-v230.md.
+
+
+### Step 10 — v231 museum-island and Spree street refinement
+
+The owner requests more accurate public architecture between Berliner Ensemble,
+Berliner Dom and Hackescher Markt, the Alte Nationalgalerie colonnades, both
+Monbijou bridge arms and Monbijoupark. This is bounded refinement inside existing
+coverage, with no new district scope. Preserve every measured source envelope,
+park/water/path area, existing authored detail, all 93 tour stops and live memory
+budgets. Only precisely receipted erroneous presentation proxies may yield to
+complete source-bound corrections. Ordinary residential fronts remain public
+streetscape geometry without identifying occupants or their private homes.
+Drawn mobile detail stays complete; native geometry remains independently
+orthogonal. Unmeasured recognition details must be documented estimates.

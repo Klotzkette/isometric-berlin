@@ -17,7 +17,7 @@ const COVERAGE_NAME = "Startup complete building coverage";
 export function createProgressiveBuildingCoverage(
   prisms: PrismPayload,
   partition: ReturnType<typeof splitProgressiveBuildings>,
-  options: { includeLegacyTownhallEnvelopes?: boolean; includeLegacyDistrictCourtEnvelopes?: boolean; includeLegacyWeddingStationRoof?: boolean } = {},
+  options: { includeLegacyTownhallEnvelopes?: boolean; includeLegacyDistrictCourtEnvelopes?: boolean; includeLegacyWeddingStationRoof?: boolean; includeLegacyColonnadesEnvelopes?: boolean } = {},
 ): Group {
   const coverage = new Group();
   coverage.name = COVERAGE_NAME;

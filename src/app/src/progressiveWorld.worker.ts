@@ -261,6 +261,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         includeLegacyHungarianEnvelope: false,
         includeLegacyTownhallEnvelopes: false,
         includeLegacyDistrictCourtEnvelopes: false,
+        includeLegacyColonnadesEnvelopes: false,
         includeLegacyWeddingStationRoof: false,
       });
       buildings.length = 0;

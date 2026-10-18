@@ -1,3 +1,6 @@
+import { createSpreeFacadesV231 } from "./SpreeFacadesV231";
+import { createMuseumColonnadesV231 } from "./MuseumColonnadesV231";
+import { createMonbijouV231 } from "./MonbijouV231";
 import { createSpandauBotanicalV230 } from "./SpandauBotanicalV230";
 import { createCentralNamedV230 } from "./CentralNamedV230";
 import { createCentralNamedEnvelopesV230 } from "./CentralNamedEnvelopesV230";
@@ -73,5 +76,11 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createCentralNamedV230(native));
   yield;
   root.add(createSpandauBotanicalV230(native));
+  yield;
+  root.add(createMuseumColonnadesV231(native));
+  yield;
+  root.add(createMonbijouV231(native));
+  yield;
+  root.add(createSpreeFacadesV231(native));
   yield;
 }

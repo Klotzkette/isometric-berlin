@@ -1,3 +1,5 @@
+import { createMonbijouGroundCellTesterV231 } from "./monbijouPreviousV231";
+import { createColonnadesCoreColumnTesterV231 } from "./colonnadesCorePreviousV231";
 import { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, GROUND_SLAB_M, WATER_TOP_Y, CLASS_SHADES, FALLBACK_SHADES, shadeFor, voxelMaterial, type InstanceWriter, instancedBoxes, allocateUnwrittenInstances, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, finishSteps, createGroundSlabsSteps, type GatehouseGroundPoint, type GatehouseGroundPolygon, gatehouseGroundCuts, gatehousePolygonArea, clipGatehouseGroundPlane, gatehouseGroundComplement, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 export { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, WATER_TOP_Y, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
@@ -298,6 +300,8 @@ export type MinecraftVoxelWorldOptions = {
   includeLegacyTownhallEnvelopes?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
+  includeLegacyColonnadesEnvelopes?: boolean;
+  includeLegacyMonbijou?: boolean;
   /**
    * `mobile` keeps the surveyed envelopes and authored landmarks while
    * dropping city-wide decorative micro-detail and redundant generic layers.
@@ -2327,6 +2331,8 @@ export function* buildMinecraftVoxelWorldSteps(
   const parkGround = smoothGroundTopSampler(payload);
   group.add(createMinecraftExtrapolatedWorld());
   yield;
+  const monbijouGroundCell = options.includeLegacyMonbijou === false
+    ? createMonbijouGroundCellTesterV231(payload) : () => false;
   const groundSlabs = yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
       parkRelief: "native",
       terrainOverride: {
@@ -2348,7 +2354,7 @@ export function* buildMinecraftVoxelWorldSteps(
           insideTunnelApproach?.(x, z) ||
           isNorthernHumboldthafenReplacementCell(x, z),
         ),
-      skipBridgeAtWorld: (x, z) => isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
+      skipBridgeAtWorld: (x, z) => monbijouGroundCell(x, z) || isBundestagSpreeBridgeGroundCell(x, z) || sandkrugDeckContains(x, z),
     });
   restoreJamesSimonGroundOwnership(groundSlabs, payload);
   restoreHbfNorthRailGroundOwnership(groundSlabs, payload);
@@ -2408,7 +2414,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftMoabitJusticeV166());
   yield;
-  group.add(createMinecraftMitteHeritageV166());
+  group.add(createMinecraftMitteHeritageV166(options.includeLegacyMonbijou === false));
   yield;
   group.add(createMinecraftKosmosV166());
   yield;
@@ -2580,13 +2586,15 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createDistrictCourtCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
   const weddingRoofColumnAt = options.includeLegacyWeddingStationRoof === false
     ? createWeddingRoofCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
+  const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
+    ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   let visitedColumns = 0;
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
-    if (townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (colonnadeColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (!(
       !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !isCentralSitesV200FalseColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

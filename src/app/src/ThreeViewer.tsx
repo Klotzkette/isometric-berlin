@@ -1,3 +1,5 @@
+import { museumColonnadesV231GroundAt, museumColonnadesV231SolidAt } from "./museumColonnadesV231Navigation";
+import { monbijouV231DeckAt, monbijouV231GroundAt, monbijouV231SolidAt } from "./monbijouV231Navigation";
 import { centralNamedV230GroundAt, centralNamedV230SolidAt } from "./centralNamedV230Navigation";
 import { botanicalV230GroundAt, botanicalV230FloorAt, botanicalV230WaterAt, botanicalV230SolidAt } from "./botanicalV230Navigation";
 import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrialV230SolidAt } from "./westIndustrialV230Navigation";
@@ -1738,6 +1740,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
+      museumColonnadesV231SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      monbijouV231SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       weddingStationSolidAtV229(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       botanicalV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
@@ -3700,7 +3704,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true },
+    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true },
   );
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
@@ -3738,6 +3742,8 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -3797,7 +3803,13 @@ function prepareIsoNavigation(
       minecraftHeroSolidAt(x, y, z, radius)
     );
   };
+  const formerBridgeGround = pedestrianEnvironment.bridgeGroundAt;
+  pedestrianEnvironment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const colonnadeFloor = museumColonnadesV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (colonnadeFloor !== null) return colonnadeFloor;
+    const monbijouFloor = monbijouV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (monbijouFloor !== null) return monbijouFloor;
     const sledSlope = fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft");
     if (sledSlope !== null) return sledSlope;
     const weddingFloor = weddingStationFloorAtV229(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4121,7 +4133,7 @@ function ensureIsoWorld(
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
             includeLegacyHungarianEnvelope: false,
-            includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
+            includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
@@ -4182,7 +4194,7 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(moabitJusticeV166.createMoabitJusticeV166());
         yield;
-        isoWorld.add(mitteHeritageV166.createMitteHeritageV166());
+        isoWorld.add(mitteHeritageV166.createMitteHeritageV166(true));
         yield;
         isoWorld.add(kosmosV166.createKosmosV166());
         yield;
@@ -4267,7 +4279,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4620,7 +4632,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true },
+    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4640,6 +4652,8 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4684,7 +4698,11 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
         minecraftHeroSolidAt(x, y, z, radius))
     );
   };
+  const formerBridgeGround = environment.bridgeGroundAt;
+  environment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    museumColonnadesV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    monbijouV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft") ??
     weddingStationFloorAtV229(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     botanicalV230FloorAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
@@ -4830,7 +4848,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
+            includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),
         {
@@ -4878,7 +4896,7 @@ function ensureVoxelWorld(
         // A cold Minecraft visit needs the same public bridge decks as a
         // warm visit. Their source geometry must exist before walking starts.
         provisionalBridges = createBridgeStructures(
-          payload, runtime.coarsePointer ? "mobile" : "full",
+          payload, runtime.coarsePointer ? "mobile" : "full", true,
         );
       }
       runtime.voxelWorld = provisionalVoxelWorld;

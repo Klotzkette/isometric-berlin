@@ -1,3 +1,4 @@
+import { isMonbijouBenchV231 } from "./monbijouPreviousV231";
 import { BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, ShapeUtils, Vector2, Vector3 } from "three";
 import source from "./data/mitteHeritageV166Source.json";
 import { createMitteHeritageOrnamentRows } from "./MitteHeritageOrnamentsV166";
@@ -84,8 +85,9 @@ class Garden {
   }
 }
 
-function landscape(d:Garden):void {
+function landscape(d:Garden, replaceMonbijou = false):void {
   for(const p of source.props){
+    if(replaceMonbijou && isMonbijouBenchV231(p))continue;
     const t=p.tags as unknown as Record<string,string>,x=p.x,y=terrainGroundAt(p.x,p.z,p.y,d.native),z=p.z;
     if(t.amenity==="bench"){
       const deg=Number(t.direction),yaw=Number.isFinite(deg)?deg*Math.PI/180:0;
@@ -148,7 +150,7 @@ function landscape(d:Garden):void {
     }
   }
 }
-function create(native:boolean):Group {
+function create(native:boolean, replaceMonbijou=false):Group {
   const root=new Group();root.name=native?MITTE_HERITAGE_V166_NATIVE_GROUP:MITTE_HERITAGE_V166_GROUP;
   root.userData={textureFree:true,blockNative:native,keepInMinecraft:native,fullStaticDetailOnTouch:true,sourceGeometryRetained:true,sourcePartIds:source.parts.map(p=>p.id)};
   const facades=source.facadeBoxes.map(r=>{
@@ -186,7 +188,7 @@ function create(native:boolean):Group {
     });
     root.add(triangles(buildings),triangles(ground),boxBatch(facades));
   }
-  const props=new Garden(native);landscape(props);
+  const props=new Garden(native);landscape(props,replaceMonbijou);
   const ornaments=createMitteHeritageOrnamentRows(native);props.boxes.push(...ornaments.boxes);props.sheets.push(...ornaments.surfaces);
   // Paint exact source-clipped window subdivision in the native reading,
   // using independent unrotated pieces, with no smooth wall double.
@@ -194,5 +196,5 @@ function create(native:boolean):Group {
   root.add(boxBatch(props.boxes));if(props.sheets.length)root.add(triangles(props.sheets));
   return freezeStaticSceneTransforms(root);
 }
-export function createMitteHeritageV166():Group{return create(false);}
-export function createMinecraftMitteHeritageV166():Group{return create(true);}
+export function createMitteHeritageV166(replaceMonbijou=false):Group{return create(false,replaceMonbijou);}
+export function createMinecraftMitteHeritageV166(replaceMonbijou=false):Group{return create(true,replaceMonbijou);}

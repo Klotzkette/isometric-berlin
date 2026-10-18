@@ -1,3 +1,4 @@
+import { applySpreeFacadeColoursV231 } from "./spreeFacadeOwnershipV231";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { cutRosenthalerPackedGroundV228 } from "./rosenthalerPackedGroundV228";
 import { parkStaticGeometrySteps } from "./losslessStaticStorage";
@@ -267,6 +268,8 @@ export function* buildSurroundingCityChunk(
       }
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
+      const spreeAppearance = yield* applySpreeFacadeColoursV231(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (spreeAppearance) root.userData.spreeFacadeVerticesV231 = (root.userData.spreeFacadeVerticesV231 ?? 0) + spreeAppearance;
       const districtPanes = yield* shadeDistrictHousePanesV225(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);

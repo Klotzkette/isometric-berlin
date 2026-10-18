@@ -1,3 +1,5 @@
+import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
+import { isMonbijouBridgeClusterV231 } from "./monbijouPreviousV231";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
 import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
 import { isDistrictCourtCorePrismV229 } from "./districtCourtCorePreviousV229";
@@ -377,6 +379,8 @@ export type IsometricCityBuildOptions = {
   includeLegacyTownhallEnvelopes?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
+  includeLegacyColonnadesEnvelopes?: boolean;
+  includeLegacyMonbijou?: boolean;
   detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
@@ -1753,13 +1757,14 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof"> = {},
+  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
     .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
     .filter(building => options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building))
+    .filter(building => options.includeLegacyColonnadesEnvelopes !== false || !isColonnadesCorePrismV231(building))
     .map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
@@ -4548,6 +4553,7 @@ export function usesGenericBridgeDeckOrnament(
 export function createBridgeStructures(
   ground: VoxelPayload,
   detailProfile: WeidendammerBridgeDetailProfile,
+  replaceMonbijou = false,
 ): Group | null {
   const clusters = bridgeClusters(ground).filter(
     (cluster) => cluster.length >= BRIDGE_MIN_CLUSTER_CELLS,
@@ -4649,6 +4655,7 @@ export function createBridgeStructures(
     moltkeDetailLampParts.push(geometry);
   };
   for (const cluster of clusters) {
+    if (replaceMonbijou && isMonbijouBridgeClusterV231(ground, cluster)) continue;
     // Fit the complete occupied cell envelope, not only cell centres. Besides
     // measuring the deck's full raster width, this gives one- and two-cell
     // stegs a real rectangle instead of an under-determined line that vanishes.
@@ -11921,6 +11928,7 @@ export function createIsometricCityCore(
   for (const sourceBuilding of buildings) {
     if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;
     if (options.includeLegacyDistrictCourtEnvelopes === false && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
+    if (options.includeLegacyColonnadesEnvelopes === false && isColonnadesCorePrismV231(sourceBuilding)) continue;
     if (options.includeLegacyWeddingStationRoof === false && isWeddingRoofCoreV229(sourceBuilding)) continue;
     if (options.includeLegacyHungarianEnvelope === false && HUNGARIAN_EMBASSY_V208_PROXY_IDS.has(sourceBuilding.id)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
@@ -13238,6 +13246,7 @@ export function createIsometricCityCore(
       const bridges = createBridgeStructures(
         ground,
         options.retainRasterAsphalt ? "mobile" : "full",
+        options.includeLegacyMonbijou === false,
       );
       if (bridges) group.add(bridges);
     }
@@ -13286,7 +13295,7 @@ export function createIsometricCity(
     if (options.includeOranienV167 !== false) group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167());
     if (options.includeAltMitteCoreV169 !== false) group.add(createAltMitteCoreV169());
     if (options.includeUniversitiesV168 !== false) group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168());
-    if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(),createKosmosV166());
+    if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166());
     if (options.includeCityWestV165 !== false) group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus());
     if (options.includeKulturforumAndNorthRail !== false) {
       group.add(createConcertHalls());

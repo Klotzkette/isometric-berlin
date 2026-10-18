@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.131 — Museumsinsel, Monbijou and public street fronts
+
+- Refine the historic Nationalgalerie colonnades and open northern pavilion.
+- Give both Monbijou bridge arms their distinct source-bound structures and refine the park.
+- Improve remaining coarse public fronts around the Spree and Hackescher Markt.
+- Preserve existing source geometry, mobile detail and live memory budgets.
+- [Evidence and verification](docs/museum-spree-v231.md).
+
 ## v1.0.130 — Islands, industrial landmarks and residential detail
 
 - Restore measured Eiswerder and Westhafen roofs and walls; add Reuter-West’s open cooling-tower shell.

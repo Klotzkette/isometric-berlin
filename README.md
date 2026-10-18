@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.130 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.130/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.131 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.131/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.130** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.131** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.131 refines public street fronts between Berliner Ensemble, Museumsinsel and Hackescher Markt, the historic Nationalgalerie colonnades, both Monbijou bridge arms and Monbijoupark. Existing city geometry and mobile detail remain protected. [Evidence and verification](docs/museum-spree-v231.md).
+
+Version 1.0.131 verfeinert die Straßenfassaden zwischen Berliner Ensemble, Museumsinsel und Hackeschem Markt, die historischen Kolonnaden, beide Monbijoubrücken und den Monbijoupark.
 
 Version 1.0.130 refines Eiswerder, Reuter-West, Westhafen, Spandau, the northern botanical park and named Prenzlauer Berg buildings. Two finite Marzahn housing clusters and restrained source-bound outer façades complement the retained city. [Scope and validation](docs/refinements-v230.md).
 

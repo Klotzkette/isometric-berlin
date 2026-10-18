@@ -71,5 +71,9 @@ def test_native_keeps_open_courts_and_stays_separate() -> None:
         if p["ground_y_m"] + 1 < y < p["top_y_m"] - 1:
           assert not interior.contains(__import__("shapely").Point(x, z))
   app = (ROOT / "src/app/src/MinecraftVoxelWorld.ts").read_text()
-  assert "createMinecraftMitteHeritageV166()" in app
+  assert (
+    "createMinecraftMitteHeritageV166(options.includeLegacyMonbijou === false)" in app
+  )
+  heritage = (ROOT / "src/app/src/MitteHeritageV166.ts").read_text()
+  assert "createMinecraftMitteHeritageV166(replaceMonbijou=false)" in heritage
   assert "mitteHeritageV166SourceColumn" in app
