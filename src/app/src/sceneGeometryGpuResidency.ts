@@ -3,8 +3,13 @@ import {
   Mesh, Points, Vector3, type Camera, type Object3D, type WebGLRenderer,
 } from "three";
 import { registerInkRenderObserver } from "./inkDrawVisibility";
+import { staticStorageInfo } from "./losslessStaticStorage";
 
 export const MOBILE_GEOMETRY_GPU_BUFFER_BUDGET = 6_000;
+// A few large buffers can consume substantial memory below the handle target.
+// Both targets apply only to offscreen retention, never to visible detail.
+export const GEOMETRY_GPU_BYTE_BUDGET = 64 * 1024 * 1024;
+export const GEOMETRY_GPU_BYTE_HEADROOM = 16 * 1024 * 1024;
 export const MOBILE_GEOMETRY_GPU_GRACE_MS = 2_000;
 export const MOBILE_GEOMETRY_GPU_SCAN_INTERVAL_MS = 100;
 export const MOBILE_GEOMETRY_GPU_SCAN_LIMIT = 128;
@@ -38,6 +43,7 @@ export type SceneGeometryGpuResidency = {
   /** Run before drawing; immediate also retires all eligible previous-view buffers. */
   refresh: (now?: number, immediate?: boolean) => number;
   readonly residentBuffers: number;
+  readonly residentBytes: number;
   dispose: () => void;
 };
 
@@ -71,6 +77,8 @@ export function createSceneGeometryGpuResidency(
   camera: Camera,
   options: {
     budgetBuffers?: number;
+    budgetBytes?: number;
+    emergencyHeadroomBytes?: number;
     graceMs?: number;
     scanLimit?: number;
     scanIntervalMs?: number;
@@ -81,6 +89,8 @@ export function createSceneGeometryGpuResidency(
   } = {},
 ): SceneGeometryGpuResidency {
   const budget = options.budgetBuffers ?? MOBILE_GEOMETRY_GPU_BUFFER_BUDGET;
+  const byteBudget = options.budgetBytes ?? GEOMETRY_GPU_BYTE_BUDGET;
+  const byteHeadroom = options.emergencyHeadroomBytes ?? GEOMETRY_GPU_BYTE_HEADROOM;
   const grace = options.graceMs ?? MOBILE_GEOMETRY_GPU_GRACE_MS;
   const scanLimit = options.scanLimit ?? MOBILE_GEOMETRY_GPU_SCAN_LIMIT;
   const scanInterval = options.scanIntervalMs ?? MOBILE_GEOMETRY_GPU_SCAN_INTERVAL_MS;
@@ -91,6 +101,7 @@ export function createSceneGeometryGpuResidency(
   const geometries = new Map<BufferGeometry, GeometryEntry>();
   const attributeOwners = new Map<AttributeStorage, Set<GeometryEntry>>();
   const residentAttributes = new Map<AttributeStorage, number>();
+  const residentSizes = new Map<AttributeStorage, number>();
   const scan: GeometryEntry[] = [];
   const candidates: GeometryEntry[] = [];
   const projection = new Matrix4(), viewProjection = new Matrix4(), previousProjection = new Matrix4();
@@ -103,6 +114,8 @@ export function createSceneGeometryGpuResidency(
   let observedFrame = -1;
   let observedAt = 0;
   let residentBuffers = 0;
+  let residentBytes = 0;
+  let lastFullSweepBytes = byteBudget;
   let lastFullSweepBuffers = budget;
   let disposed = false;
 
@@ -112,12 +125,24 @@ export function createSceneGeometryGpuResidency(
       const count = residentAttributes.get(attribute) ?? 0;
       if (count <= 1) {
         residentAttributes.delete(attribute);
+        residentBytes -= residentSizes.get(attribute) ?? 0;
+        residentSizes.delete(attribute);
         residentBuffers--;
       } else residentAttributes.set(attribute, count - 1);
     }
     if (entry.wireframe) residentBuffers--;
     entry.resident = false;
     entry.wireframe = false;
+  };
+  const countUpload = (attribute: AttributeStorage): void => {
+    const count = residentAttributes.get(attribute) ?? 0;
+    if (count === 0) {
+      residentBuffers++;
+      const bytes = staticStorageInfo(attribute).byteLength;
+      residentSizes.set(attribute, bytes);
+      residentBytes += bytes;
+    }
+    residentAttributes.set(attribute, count + 1);
   };
   const registerAttribute = (entry: GeometryEntry, attribute: AttributeStorage): void => {
     let sharing = attributeOwners.get(attribute);
@@ -141,9 +166,7 @@ export function createSceneGeometryGpuResidency(
       entry.resident = true;
       entry.mutable = false;
       for (const attribute of current) {
-        const count = residentAttributes.get(attribute) ?? 0;
-        if (count === 0) residentBuffers++;
-        residentAttributes.set(attribute, count + 1);
+        countUpload(attribute);
       }
     }
     if (wireframe && !entry.wireframe) { entry.wireframe = true; residentBuffers++; }
@@ -161,9 +184,7 @@ export function createSceneGeometryGpuResidency(
       if (entry.attributes.includes(attribute)) continue;
       entry.attributes.push(attribute);
       registerAttribute(entry, attribute);
-      const count = residentAttributes.get(attribute) ?? 0;
-      if (count === 0) residentBuffers++;
-      residentAttributes.set(attribute, count + 1);
+      countUpload(attribute);
     }
     return false;
   };
@@ -272,11 +293,15 @@ export function createSceneGeometryGpuResidency(
     // the entire protected scene again each frame: only fresh handle growth
     // earns another pressure-only full sweep. Falling residency rearms it.
     lastFullSweepBuffers = Math.min(lastFullSweepBuffers, Math.max(budget, residentBuffers));
+    lastFullSweepBytes = Math.min(lastFullSweepBytes, Math.max(byteBudget, residentBytes));
+    const bytePressure = residentBytes > byteBudget;
+    const byteGrowth = residentBytes >= lastFullSweepBytes + Math.max(1, byteHeadroom);
     const pressureGrowth = residentBuffers >= lastFullSweepBuffers + Math.max(1, emergencyHeadroom);
     const urgent = immediate || jumped ||
-      (residentBuffers > budget + emergencyHeadroom && pressureGrowth);
+      (residentBuffers > budget + emergencyHeadroom && pressureGrowth) ||
+      (residentBytes > byteBudget + byteHeadroom && byteGrowth);
     const shouldScan = scan.length > 0 &&
-      (urgent || (residentBuffers > budget && now - lastScan >= scanInterval));
+      (urgent || ((residentBuffers > budget || bytePressure) && now - lastScan >= scanInterval));
     if (!initializedView || shouldScan) {
       // Compare against the last swept view so many small movements accumulate.
       previousPosition.copy(position); previousDirection.copy(direction);
@@ -286,7 +311,10 @@ export function createSceneGeometryGpuResidency(
     if (!shouldScan) return 0;
     lastScan = now;
     projection.copy(camera.projectionMatrix);
-    for (const index of [0, 4, 8, 12, 1, 5, 9, 13]) projection.elements[index] *= 0.5;
+    // Retain 18% around the view under byte pressure, instead of double its
+    // width/height. All visible owners, bounds and authored arrays stay intact.
+    const viewScale = bytePressure ? 1 / 1.18 : 0.5;
+    for (const index of [0, 4, 8, 12, 1, 5, 9, 13]) projection.elements[index] *= viewScale;
     viewProjection.multiplyMatrices(projection, camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(viewProjection, camera.coordinateSystem);
     candidates.length = 0;
@@ -306,30 +334,32 @@ export function createSceneGeometryGpuResidency(
     candidates.sort((left, right) => left.lastUse - right.lastUse);
     let evicted = 0;
     for (const entry of candidates) {
-      if (!immediate && !jumped && residentBuffers <= budget) break;
+      if (!immediate && !jumped && residentBuffers <= budget && residentBytes <= byteBudget) break;
       entry.geometry.dispose();
       options.onEvict?.(entry.geometry);
       evicted++;
     }
     candidates.length = 0;
-    if (urgent) lastFullSweepBuffers = residentBuffers;
+    if (urgent) { lastFullSweepBuffers = residentBuffers; lastFullSweepBytes = residentBytes; }
     return evicted;
   };
   const contextLost = (): void => {
     for (const entry of geometries.values()) forgetUpload(entry);
     observedFrame = -1;
     lastFullSweepBuffers = budget;
+    lastFullSweepBytes = byteBudget;
   };
   renderer.domElement?.addEventListener("webglcontextlost", contextLost);
   return {
     enqueue, release, refresh,
     get residentBuffers() { return residentBuffers; },
+    get residentBytes() { return residentBytes; },
     dispose: () => {
       if (disposed) return;
       disposed = true;
       for (const owner of owners.values()) removeOwner(owner);
       scan.length = 0; candidates.length = 0;
-      attributeOwners.clear(); residentAttributes.clear();
+      attributeOwners.clear(); residentAttributes.clear(); residentSizes.clear();
       renderer.domElement?.removeEventListener("webglcontextlost", contextLost);
     },
   };

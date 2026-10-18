@@ -16,18 +16,51 @@ export const FEATURED_SIGHT_NAMES = [
 ] as const;
 
 export const SIMULATION_START_SIGHT_NAMES = [
-  "Reichstagsgebäude",
   "Bundeskanzleramt",
-  "Berlin Hauptbahnhof",
-  "Siegessäule",
   "Brandenburger Tor",
   "Berliner Philharmonie",
+  "Berlin Hauptbahnhof",
+  "Kaiser-Wilhelm-Gedächtniskirche",
+  "Rotes Rathaus",
+  "Neue Nationalgalerie",
 ] as const;
 
 export const SIMULATION_START_STORAGE_KEY =
   "isometric-berlin.lastSimulationStart";
 
-type StartStorage = Pick<Storage, "getItem" | "setItem">;
+export type StartStorage = Pick<Storage, "getItem" | "setItem">;
+
+type StartBrowser = Pick<Window, "localStorage" | "sessionStorage" | "history">;
+const START_HISTORY_KEY = "isometricBerlinLastSimulationStart";
+
+/** Storage access itself may throw. History survives same-tab reloads even when
+ * localStorage is denied; preserve unrelated history state and the current URL. */
+export function simulationStartStorage(browser: StartBrowser): StartStorage {
+  let remembered: string | null = null;
+  const valid = (value: unknown): string | null => typeof value === "string" &&
+    SIMULATION_START_SIGHT_NAMES.some(name => name === value) ? value : null;
+  return {
+    getItem(key) {
+      if (remembered !== null) return remembered;
+      try { const value = valid(browser.history.state?.[START_HISTORY_KEY]); if (value) return value; } catch { /* No history access. */ }
+      for (const field of ["sessionStorage", "localStorage"] as const) {
+        try { const value = valid(browser[field].getItem(key)); if (value) return value; } catch { /* Try the next independent store. */ }
+      }
+      return null;
+    },
+    setItem(key, value) {
+      remembered = value;
+      for (const field of ["sessionStorage", "localStorage"] as const) {
+        try { browser[field].setItem(key, value); } catch { /* A denied store does not block the others. */ }
+      }
+      try {
+        const state = browser.history.state;
+        if (state == null || (typeof state === "object" && !Array.isArray(state)))
+          browser.history.replaceState({ ...state, [START_HISTORY_KEY]: value }, "");
+      } catch { /* The selected place remains stable in this launch. */ }
+    },
+  };
+}
 
 /**
  * Advance through the curated start points without keeping a large session

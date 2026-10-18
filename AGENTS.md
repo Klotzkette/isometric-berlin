@@ -1118,3 +1118,16 @@ complete source-bound corrections. Ordinary residential fronts remain public
 streetscape geometry without identifying occupants or their private homes.
 Drawn mobile detail stays complete; native geometry remains independently
 orthogonal. Unmeasured recognition details must be documented estimates.
+
+
+### Step 10 — v232 starts, Ringbahn and outer materials
+
+The owner requests seven varied flight starting views (Kanzleramt, Brandenburger
+Tor, Berlin Junction/Richard Serra, Hauptbahnhof, Gedächtniskirche, Rotes Rathaus,
+and Neue Nationalgalerie), complete Ringbahn station recognition, improved
+wide-zoom stability and restrained outer-house refinement inside existing
+coverage. Preserve all 93 tour stops and specific links, all source geometry,
+authored models, complete mobile detail and native orthogonal construction.
+No coverage expansion or runtime budget increase. A byte-aware offscreen GPU
+retention target may reclaim identical re-uploadable copies without changing
+visibility. Source material tags may refine positively matched ordinary owners.

@@ -1,3 +1,4 @@
+import { createRingStationsV232 } from "./RingStationsV232";
 import { createSpreeFacadesV231 } from "./SpreeFacadesV231";
 import { createMuseumColonnadesV231 } from "./MuseumColonnadesV231";
 import { createMonbijouV231 } from "./MonbijouV231";
@@ -80,6 +81,8 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createMuseumColonnadesV231(native));
   yield;
   root.add(createMonbijouV231(native));
+  yield;
+  root.add(createRingStationsV232(native));
   yield;
   root.add(createSpreeFacadesV231(native));
   yield;

@@ -344,3 +344,51 @@ describe("lossless static-geometry GPU residency", () => {
     h.residency.dispose(); instances.dispose();
   });
 });
+
+describe("v232 large-buffer pressure", () => {
+  test("retires a few large offscreen buffers below the handle limit, then uploads identical bytes", () => {
+    const h = host({ budgetBuffers: 6000, budgetBytes: 256, emergencyHeadroomBytes: 128, graceMs: 0 });
+    const mesh = h.box(8); // Outside the real view and 18% margin, inside the former 2x margin.
+    h.residency.enqueue(h.scene); h.draw(mesh);
+    const original = h.uploads.map(a => new Uint8Array(a.buffer, a.byteOffset, a.byteLength).slice());
+    expect(h.residency.residentBuffers).toBe(4);
+    expect(h.residency.residentBytes).toBe(original.reduce((n, a) => n + a.byteLength, 0));
+    expect(h.residency.refresh(100)).toBe(1);
+    expect(h.live.size).toBe(0);
+    expect(h.residency.residentBytes).toBe(0);
+    h.draw(mesh);
+    for (let i = 0; i < original.length; i++) {
+      const uploaded = h.uploads[i + original.length];
+      expect(new Uint8Array(uploaded.buffer, uploaded.byteOffset, uploaded.byteLength)).toEqual(original[i]);
+    }
+    h.events.dispatchEvent(new Event("webglcontextlost"));
+    expect(h.residency.residentBytes).toBe(0);
+    h.residency.dispose();
+  });
+
+  test("byte pressure cannot evict a visible or shared visible owner or a crossing bound", () => {
+    const h = host({ budgetBytes: 1, emergencyHeadroomBytes: 0, graceMs: 0 });
+    const far = h.box(8), visible = new Mesh(far.geometry, far.material);
+    h.scene.add(visible);
+    const edge = h.box(5.4); // Its bounding sphere crosses the actual view edge.
+    h.residency.enqueue(h.scene); h.draw(far); h.draw(visible); h.draw(edge);
+    const bytes = h.residency.residentBytes;
+    expect(h.residency.refresh(100, true)).toBe(0);
+    expect(h.residency.residentBytes).toBe(bytes);
+    expect(h.live.size).toBe(8);
+    h.residency.dispose();
+    expect(h.residency.residentBytes).toBe(0);
+  });
+
+  test("ordinary byte sweeps preserve grace and bounded scan work", () => {
+    const h = host({ budgetBytes: 100, emergencyHeadroomBytes: 1000000, graceMs: 2000, scanLimit: 1 });
+    const a = h.box(100), b = h.box(110);
+    h.residency.enqueue(h.scene); h.draw(a); h.draw(b);
+    expect(h.residency.refresh(100)).toBe(0);
+    expect(h.residency.refresh(2100)).toBe(1);
+    expect(h.residency.residentBuffers).toBe(4);
+    expect(h.residency.refresh(2200)).toBe(1);
+    expect(h.residency.residentBytes).toBe(0);
+    h.residency.dispose();
+  });
+});

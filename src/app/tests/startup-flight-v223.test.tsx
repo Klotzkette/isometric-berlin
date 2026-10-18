@@ -8,8 +8,8 @@ import landmarks from "../src/data/regierungsviertel-landmarks.json";
 import scene from "../public/mesh/regierungsviertel/scene.json";
 
 describe("gallery flight startup v223", () => {
-  test("ordinary entry keeps the gallery area and all explicit place/theme links keep priority", () => {
-    const ordinary = { name: "Neue Nationalgalerie", automatic: true };
+  test("ordinary entry uses the rotation and all explicit place/theme links keep priority", () => {
+    const ordinary = { name: "Bundeskanzleramt", automatic: true };
     expect(startupViewSelection(landmarks.landmarks)).toEqual(ordinary);
     expect(startupViewSelection(landmarks.landmarks, "#landmark=missing")).toEqual(ordinary);
     for (const landmark of landmarks.landmarks) {
@@ -36,9 +36,12 @@ describe("gallery flight startup v223", () => {
   test("the actual initial app render has only the loading scene, with no map or navigation HUD", async () => {
     const originals = new Map(["window", "document", "navigator"].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
     const location = new URL("https://example.test/berlin/?theme=day&lang=en");
+    const selectedStarts: string[] = [];
     try {
       Object.defineProperty(globalThis, "window", { configurable: true, value: {
-        location, localStorage: { getItem: () => null, setItem: () => undefined },
+        location, localStorage: { getItem: () => null, setItem: (key: string, value: string) => {
+          if (key === "isometric-berlin.lastSimulationStart") selectedStarts.push(value);
+        } },
         matchMedia: () => ({ matches: false }),
       } });
       Object.defineProperty(globalThis, "document", { configurable: true, value: { baseURI: location.href } });
@@ -52,6 +55,8 @@ describe("gallery flight startup v223", () => {
         expect(markup).not.toContain(`class="${hud}`);
       expect(markup).not.toContain("pedestrian_map.png");
       expect(markup).not.toContain("app-shell--pedestrian");
+      renderToStaticMarkup(<App />);
+      expect(selectedStarts).toEqual(["Bundeskanzleramt"]); // React remounts do not advance the module-level launch seed.
     } finally {
       for (const [key, descriptor] of originals)
         if (descriptor) Object.defineProperty(globalThis, key, descriptor);

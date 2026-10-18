@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.132 — varied starts, Ringbahn and wide-view memory
+
+- Rotate seven requested flight start views, retaining explicit links and recovery state.
+- Refine existing Ringbahn recognition and source-tagged ordinary outer-house materials.
+- Retire offscreen geometry by bytes as well as handle count; preserve visible geometry and exact CPU source for reupload.
+- [Scope and verification](docs/start-ring-stability-v232.md).
+
 ## v1.0.131 — Museumsinsel, Monbijou and public street fronts
 
 - Refine the historic Nationalgalerie colonnades and open northern pavilion.

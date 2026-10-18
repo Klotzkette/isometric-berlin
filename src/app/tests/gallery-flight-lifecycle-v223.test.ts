@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import { Group, PerspectiveCamera, Vector3 } from "three";
-import { GALLERY_FLIGHT_START_V223 } from "../src/startupView";
+import { GALLERY_FLIGHT_START_V223, startupFlightView } from "../src/startupView";
+import { SIMULATION_START_SIGHT_NAMES } from "../src/viewNavigation";
 
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -15,7 +16,7 @@ visit(parsed);
 if (!initialNavigation) throw new Error("Missing production initial camera handover");
 const compile = (text: string) => ts.transpileModule(text, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 const seed = new Function("runtime", "initialNavigationRef", "initialFlightStartRef", "initialWalkingStartRef",
-  "GALLERY_FLIGHT_START_V223", "restoreNavigationSnapshot", "setModelMaterialState", "setEnvironmentalPresentation",
+  "initialFlightViewRef", "restoreNavigationSnapshot", "setModelMaterialState", "setEnvironmentalPresentation",
   "applyPedestrianCamera", "notifyView", "onViewChangeRef", compile(initialNavigation.getText(parsed)));
 
 function runtime() {
@@ -26,7 +27,7 @@ const noop = () => {};
 
 test("ordinary gallery flight is seeded before loading without enabling pedestrian state", () => {
   const value = runtime();
-  seed(value, { current: null }, { current: true }, { current: false }, GALLERY_FLIGHT_START_V223,
+  seed(value, { current: null }, { current: true }, { current: false }, { current: GALLERY_FLIGHT_START_V223 },
     () => { throw new Error("Unexpected snapshot restore"); }, noop, noop, noop, noop, { current: noop });
   expect(value.camera.position.toArray()).toEqual(GALLERY_FLIGHT_START_V223.pose.position);
   expect(value.controls.target.toArray()).toEqual(GALLERY_FLIGHT_START_V223.pose.target);
@@ -37,7 +38,23 @@ test("ordinary gallery flight is seeded before loading without enabling pedestri
 
 test("a saved recovery pose takes precedence over the default flight seed", () => {
   const value = runtime(), snapshot = { position: [123, 456, 789] as [number, number, number] };
-  seed(value, { current: snapshot }, { current: true }, { current: false }, GALLERY_FLIGHT_START_V223,
+  seed(value, { current: snapshot }, { current: true }, { current: false }, { current: GALLERY_FLIGHT_START_V223 },
+    (target: ReturnType<typeof runtime>, saved: typeof snapshot) => target.camera.position.fromArray(saved.position),
+    noop, noop, noop, noop, { current: noop });
+  expect(value.camera.position.toArray()).toEqual(snapshot.position);
+  expect(value.navigationRestored).toBeTrue();
+});
+
+test.each([...SIMULATION_START_SIGHT_NAMES])("production startup seeds %s once and recovery keeps the visited pose", name => {
+  const start = startupFlightView(name), value = runtime();
+  seed(value, { current: null }, { current: true }, { current: false }, { current: start },
+    () => { throw new Error("Unexpected restore"); }, noop, noop, noop, noop, { current: noop });
+  expect(value.camera.position.toArray()).toEqual(start.pose.position);
+  expect(value.controls.target.toArray()).toEqual(start.pose.target);
+  expect(value.camera.fov).toBe(16);
+  expect(value.pedestrian).toEqual({ enabled: false, requested: false, state: null });
+  const snapshot = { position: [123, 456, 789] as [number, number, number] };
+  seed(value, { current: snapshot }, { current: true }, { current: false }, { current: start },
     (target: ReturnType<typeof runtime>, saved: typeof snapshot) => target.camera.position.fromArray(saved.position),
     noop, noop, noop, noop, { current: noop });
   expect(value.camera.position.toArray()).toEqual(snapshot.position);

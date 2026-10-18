@@ -166,9 +166,10 @@ import {
   featuredSights,
   findSightBySlug,
   parseViewHash,
+  simulationStartStorage,
   sightSlug,
 } from "./viewNavigation";
-import { startupViewSelection } from "./startupView";
+import { STARTUP_ONLY_SIGHTS, startupFlightView, startupOnlySight, startupViewSelection } from "./startupView";
 import {
   loadThreeViewerComponent,
 } from "./viewerEngineLoader";
@@ -193,10 +194,14 @@ function initialSimulationStart(): { name: string; automatic: boolean } {
   return startupViewSelection(
     landmarks,
     typeof window === "undefined" ? "" : window.location.hash,
+    typeof window === "undefined" ? null : simulationStartStorage(window),
   );
 }
 
 const INITIAL_SIMULATION_START = initialSimulationStart();
+const INITIAL_FLIGHT_VIEW = INITIAL_SIMULATION_START.automatic || startupOnlySight(INITIAL_SIMULATION_START.name)
+  ? startupFlightView(INITIAL_SIMULATION_START.name) : null;
+const INITIAL_OPENING_NAME = INITIAL_FLIGHT_VIEW ? INITIAL_SIMULATION_START.name : null;
 
 type MobileSheet = "compass" | "overflow" | null;
 
@@ -400,7 +405,7 @@ function rotationFromHashValue(value: string | null): number | null {
 }
 
 function viewUrlFor(
-  landmark: Landmark,
+  landmark: Pick<Landmark, "name">,
   rotation: number,
   mode: VisualMode,
 ): string {
@@ -837,8 +842,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const lastPedestrianJumpActivationAtRef = useRef(0);
   const pedestrianSprintLockedRef = useRef(false);
   const pedestrianFastRunLockedRef = useRef(false);
-  // The gallery flight view is installed before the curtain opens in ThreeViewer.
-  const initialFocusAppliedRef = useRef(INITIAL_SIMULATION_START.automatic);
+  // One selected flight view survives mode changes and clean runtime recovery.
+  const initialFocusAppliedRef = useRef(INITIAL_FLIGHT_VIEW !== null);
 
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
@@ -850,7 +855,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const openingLandmarkRef = useRef<string | null>(null);
+  const openingLandmarkRef = useRef<string | null>(INITIAL_OPENING_NAME);
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
   const [language, setLanguage] = useState<Language>(initialViewerLanguage);
   const copy = UI_COPY[language];
@@ -954,6 +959,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const selectedLandmark = useMemo(
     () =>
       landmarks.find((landmark) => landmark.name === selected) ??
+      startupOnlySight(selected) ??
       landmarks[0] ??
       null,
     [landmarks, selected],
@@ -1024,7 +1030,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   }, [disablePedestrianMode, language]);
 
   const focusLandmark = useCallback(
-    (landmark: Landmark, immediate = false, openingView = false) => {
+    (landmark: Pick<Landmark, "name">, immediate = false, openingView = false) => {
       const shouldMoveImmediately = immediate || prefersReducedMotion();
       if (!openingView) openingLandmarkRef.current = null;
       disablePedestrianMode();
@@ -1870,7 +1876,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       return;
     }
     const url = viewUrlFor(selectedLandmark, rotation, lightingMode);
-    window.history.replaceState(null, "", url);
+    window.history.replaceState(window.history.state, "", url);
     try {
       await navigator.clipboard.writeText(url);
       setStatus(
@@ -2118,9 +2124,9 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         threeViewerAutoRecoveryUsedRef.current = true;
         // The snapshot contains only navigation data, never the failed scene.
         // Do not let the ordinary opening-focus effect overwrite its pose.
-        initialFocusAppliedRef.current = navigation !== null || INITIAL_SIMULATION_START.automatic;
+        initialFocusAppliedRef.current = navigation !== null || INITIAL_FLIGHT_VIEW !== null;
         if (!navigation) {
-          openingLandmarkRef.current = null;
+          openingLandmarkRef.current = INITIAL_OPENING_NAME;
           setSelected(INITIAL_SIMULATION_START.name);
           setIsPedestrianMode(false);
         }
@@ -2359,7 +2365,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     }
     const applyHash = () => {
       const viewHash = parseViewHash(window.location.hash);
-      const hashLandmark = findSightBySlug(landmarks, viewHash.landmarkSlug);
+      const hashLandmark = findSightBySlug(landmarks, viewHash.landmarkSlug) ??
+        findSightBySlug(STARTUP_ONLY_SIGHTS, viewHash.landmarkSlug);
       const hashRotation = rotationFromHashValue(viewHash.rotationValue);
       if (hashRotation !== null) {
         applyRotation(hashRotation);
@@ -2955,7 +2962,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
-                initialFlightStart={INITIAL_SIMULATION_START.automatic}
+                initialFlightStart={INITIAL_FLIGHT_VIEW !== null}
+                initialFlightView={INITIAL_FLIGHT_VIEW}
                 initialNavigation={retainedNavigationRef.current}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}
@@ -4334,12 +4342,12 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
           </div>
           <strong>{selectedDisplayName}</strong>
           <small>{roleLabel(selectedLandmark.role, language)}</small>
-          <span>
-            {selectedIndex >= 0 ? selectedIndex + 1 : 1} / {landmarks.length}
-          </span>
-          <div className="selection-progress" aria-hidden="true">
-            <span style={{ width: `${selectionProgress}%` }} />
-          </div>
+          {selectedIndex >= 0 ? <>
+            <span>{selectedIndex + 1} / {landmarks.length}</span>
+            <div className="selection-progress" aria-hidden="true">
+              <span style={{ width: `${selectionProgress}%` }} />
+            </div>
+          </> : null}
         </aside>
       ) : null}
 

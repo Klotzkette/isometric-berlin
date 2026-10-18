@@ -80,13 +80,14 @@ describe("view navigation", () => {
       setItem: (key: string, value: string) => values.set(key, value),
     };
 
-    expect(nextSimulationStartSight(storage)).toBe("Reichstagsgebäude");
     expect(nextSimulationStartSight(storage)).toBe("Bundeskanzleramt");
-    expect(nextSimulationStartSight(storage)).toBe("Berlin Hauptbahnhof");
-    expect(nextSimulationStartSight(storage)).toBe("Siegessäule");
     expect(nextSimulationStartSight(storage)).toBe("Brandenburger Tor");
     expect(nextSimulationStartSight(storage)).toBe("Berliner Philharmonie");
-    expect(nextSimulationStartSight(storage)).toBe("Reichstagsgebäude");
+    expect(nextSimulationStartSight(storage)).toBe("Berlin Hauptbahnhof");
+    expect(nextSimulationStartSight(storage)).toBe("Kaiser-Wilhelm-Gedächtniskirche");
+    expect(nextSimulationStartSight(storage)).toBe("Rotes Rathaus");
+    expect(nextSimulationStartSight(storage)).toBe("Neue Nationalgalerie");
+    expect(nextSimulationStartSight(storage)).toBe("Bundeskanzleramt");
     expect(values.get(SIMULATION_START_STORAGE_KEY)).toBe(
       SIMULATION_START_SIGHT_NAMES[0],
     );

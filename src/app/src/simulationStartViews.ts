@@ -1,6 +1,8 @@
 import type { FocusCamera } from "./ArchitecturalLandmarks";
+import { DEFAULT_THREE_CAMERA_OFFSET } from "./resetView";
 
 type Point = readonly [number, number, number];
+const galleryTarget: Point = [-305.13579248450696, 8, 1322.372333274223];
 
 /** Physical opening poses, in the existing east/up/south viewer frame.
  * Targets follow the committed monument/building anchors. Camera positions
@@ -43,6 +45,25 @@ export const SIMULATION_START_VIEWS: Record<string, {
   "Berliner Philharmonie": {
     position: [-184, 16, 960],
     target: [-201.017, 5.7, 932.914],
+    fov: 39,
+  },
+  // Existing source anchors: old tower OSM way 15218373, and the retained
+  // Rotes Rathaus clock-tower LoD2 centre. These are startup-only places,
+  // not additions to the frozen 93-stop tour.
+  "Kaiser-Wilhelm-Gedächtniskirche": {
+    position: [-2620, 110, 1620],
+    target: [-2495.572, 25, 1507.709],
+    fov: 39,
+  },
+  "Rotes Rathaus": {
+    position: [2610, 100, -10],
+    target: [2495.891, 25, 99.061],
+    fov: 39,
+  },
+  "Neue Nationalgalerie": {
+    position: galleryTarget.map((value, i) => value +
+      DEFAULT_THREE_CAMERA_OFFSET[i] / Math.hypot(...DEFAULT_THREE_CAMERA_OFFSET) * 190) as [number, number, number],
+    target: galleryTarget,
     fov: 39,
   },
 };

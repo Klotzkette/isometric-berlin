@@ -1,0 +1,444 @@
+{
+  "schema": "ring-stations-v232/1",
+  "operatorSource": "https://sbahn.berlin/fahren/s41/",
+  "operatorChecked": "2026-10-18",
+  "operatorStationCount": 27,
+  "inventory": [
+    {
+      "name": "Gesundbrunnen",
+      "order": 0,
+      "anchor": "node/1127966981",
+      "platforms": [
+        "relation/3721105",
+        "relation/3721106",
+        "relation/3721107",
+        "relation/3721108",
+        "relation/3721109"
+      ],
+      "roofs": [
+        "way/202968809",
+        "way/241509621",
+        "way/392596078",
+        "way/438501234",
+        "way/438501237",
+        "way/438501239",
+        "way/438501241",
+        "way/438501243"
+      ],
+      "protected": true
+    },
+    {
+      "name": "Schönhauser Allee",
+      "order": 1,
+      "anchor": "node/316785013",
+      "platforms": [
+        "relation/11764602"
+      ],
+      "roofs": [
+        "way/1066944241",
+        "way/36218351",
+        "way/380548414"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Prenzlauer Allee",
+      "order": 2,
+      "anchor": "node/3154211735",
+      "platforms": [
+        "relation/11764632"
+      ],
+      "roofs": [
+        "way/32349908",
+        "way/44419973"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Greifswalder Straße",
+      "order": 3,
+      "anchor": "node/3659830181",
+      "platforms": [
+        "relation/4143255"
+      ],
+      "roofs": [
+        "way/310074901",
+        "way/44419980",
+        "way/44419981"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Landsberger Allee",
+      "order": 4,
+      "anchor": "node/3872632789",
+      "platforms": [
+        "relation/6876977"
+      ],
+      "roofs": [
+        "way/1228255547",
+        "way/29213674",
+        "way/383960621",
+        "way/44419986"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Storkower Straße",
+      "order": 5,
+      "anchor": "node/21385751",
+      "platforms": [
+        "relation/11764675"
+      ],
+      "roofs": [
+        "way/310070557",
+        "way/335528408"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Frankfurter Allee",
+      "order": 6,
+      "anchor": "node/257981401",
+      "platforms": [
+        "relation/11764689"
+      ],
+      "roofs": [
+        "way/191368329",
+        "way/380044041",
+        "way/380044044",
+        "way/465621449"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Ostkreuz",
+      "order": 7,
+      "anchor": "node/5284961126",
+      "platforms": [
+        "relation/11765322",
+        "relation/11765323",
+        "relation/13391425",
+        "relation/13391428",
+        "relation/13391434",
+        "relation/5660337",
+        "relation/5736596"
+      ],
+      "roofs": [
+        "way/110639235",
+        "way/1228253162",
+        "way/1228253163",
+        "way/463652072"
+      ],
+      "protected": true
+    },
+    {
+      "name": "Treptower Park",
+      "order": 8,
+      "anchor": "node/261941954",
+      "platforms": [
+        "relation/5705373",
+        "relation/5705374"
+      ],
+      "roofs": [
+        "way/1192641125",
+        "way/374302121",
+        "way/374302122",
+        "way/383405300",
+        "way/383405301",
+        "way/44421474",
+        "way/44421475"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Sonnenallee",
+      "order": 9,
+      "anchor": "node/3515302617",
+      "platforms": [
+        "relation/5567105"
+      ],
+      "roofs": [
+        "way/39522072",
+        "way/95404120"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Neukölln",
+      "order": 10,
+      "anchor": "node/3515302614",
+      "platforms": [
+        "relation/6852415"
+      ],
+      "roofs": [
+        "way/39825486",
+        "way/464048051"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Hermannstraße",
+      "order": 11,
+      "anchor": "node/3778075167",
+      "platforms": [
+        "relation/7028066"
+      ],
+      "roofs": [
+        "way/383989492",
+        "way/383989494",
+        "way/383989496",
+        "way/383989498",
+        "way/39074534"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Tempelhof",
+      "order": 12,
+      "anchor": "node/1871042745",
+      "platforms": [
+        "relation/11764745"
+      ],
+      "roofs": [
+        "way/190598608",
+        "way/339859574",
+        "way/340688845"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Südkreuz",
+      "order": 13,
+      "anchor": "node/1095078202",
+      "platforms": [
+        "relation/13391543",
+        "relation/13391544",
+        "relation/13391549",
+        "relation/13391551",
+        "relation/6844110"
+      ],
+      "roofs": [
+        "way/381240726",
+        "way/381240727",
+        "way/381240728"
+      ],
+      "protected": true
+    },
+    {
+      "name": "Schöneberg",
+      "order": 14,
+      "anchor": "node/2808272930",
+      "platforms": [
+        "relation/3673123",
+        "relation/6863392"
+      ],
+      "roofs": [
+        "way/23458858",
+        "way/268567127",
+        "way/268567129",
+        "way/276205128",
+        "way/38510592"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Innsbrucker Platz",
+      "order": 15,
+      "anchor": "node/670704963",
+      "platforms": [
+        "relation/11764770"
+      ],
+      "roofs": [
+        "way/337784347",
+        "way/374532979"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Bundesplatz",
+      "order": 16,
+      "anchor": "node/3779421874",
+      "platforms": [
+        "relation/5578529"
+      ],
+      "roofs": [
+        "way/374546987",
+        "way/374546988",
+        "way/374919446"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Heidelberger Platz",
+      "order": 17,
+      "anchor": "node/348077013",
+      "platforms": [
+        "relation/11764789"
+      ],
+      "roofs": [
+        "way/374556769",
+        "way/47907960",
+        "way/47907963"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Hohenzollerndamm",
+      "order": 18,
+      "anchor": "node/26969275",
+      "platforms": [
+        "relation/11764807"
+      ],
+      "roofs": [
+        "way/229515965",
+        "way/374934716",
+        "way/383993977",
+        "way/465168715"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Halensee",
+      "order": 19,
+      "anchor": "node/670704950",
+      "platforms": [
+        "relation/11764836"
+      ],
+      "roofs": [
+        "way/12149318",
+        "way/191118237",
+        "way/335525984"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Westkreuz",
+      "order": 20,
+      "anchor": "node/34666754",
+      "platforms": [
+        "relation/5550689",
+        "relation/6563940",
+        "relation/6563941"
+      ],
+      "roofs": [
+        "way/12146812",
+        "way/373188843",
+        "way/373188844",
+        "way/373188845",
+        "way/373188846",
+        "way/42689590"
+      ],
+      "protected": true
+    },
+    {
+      "name": "Messe Nord / ZOB",
+      "order": 21,
+      "anchor": "node/2432622497",
+      "platforms": [
+        "relation/11764873"
+      ],
+      "roofs": [
+        "way/13791550",
+        "way/13791551",
+        "way/13791552",
+        "way/13791554",
+        "way/481845482"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Westend",
+      "order": 22,
+      "anchor": "node/26124376",
+      "platforms": [
+        "relation/11764889"
+      ],
+      "roofs": [
+        "way/180406890",
+        "way/335527248",
+        "way/335527249",
+        "way/47908183",
+        "way/47908186",
+        "way/87752111",
+        "way/93958800"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Jungfernheide",
+      "order": 23,
+      "anchor": "node/4644994620",
+      "platforms": [
+        "relation/5377150",
+        "relation/5561156"
+      ],
+      "roofs": [
+        "way/435120794",
+        "way/44426680",
+        "way/44426682",
+        "way/44426683",
+        "way/90111537"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Beusselstraße",
+      "order": 24,
+      "anchor": "node/29070457",
+      "platforms": [
+        "relation/11764211"
+      ],
+      "roofs": [
+        "way/44426685",
+        "way/44426686"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Westhafen",
+      "order": 25,
+      "anchor": "node/3876909305",
+      "platforms": [
+        "relation/11764220"
+      ],
+      "roofs": [
+        "way/375394534",
+        "way/438832765",
+        "way/44426688"
+      ],
+      "protected": false
+    },
+    {
+      "name": "Wedding",
+      "order": 26,
+      "anchor": "node/614445865",
+      "platforms": [
+        "relation/5559039"
+      ],
+      "roofs": [
+        "way/26556185"
+      ],
+      "protected": true
+    }
+  ],
+  "protectedStations": [
+    "Gesundbrunnen",
+    "Ostkreuz",
+    "Südkreuz",
+    "Wedding",
+    "Westkreuz"
+  ],
+  "preservedSha256": {
+    "src/app/src/data/railStationsV190.json": "c7a61399ec7094600503f28d99877adac6af04bb3416f1f5e61c9d3d7823e4c9",
+    "src/app/src/data/ringStationDetailsV205.json": "ae499e162e85a9681bf0ccf79b6af831dbfa5ee5c80409747035e0c858739296",
+    "geo_data/regierungsviertel/ring-stations-v180.json": "5da098045614b581c97e584fc64ccfdecc0587301462d30b6ca6035f14dca616",
+    "src/app/src/RailStationsV190.ts": "d047147ea65a97fdc2976fbcc1a8328261c9606bbbb95d22884f5e7113e7e554",
+    "src/app/src/OstkreuzV190.ts": "a7f544dca34c12ec06eb6504bb84c7f82c515dd810f64a82f3b2157be788d749",
+    "src/app/src/WeddingMoabitV229.ts": "6d589b35d64eccbf2c9baad7c45b825c04228d6c99679e0423df4612ea673440",
+    "src/app/src/weddingMoabitV229Profile.ts": "92c96d52fac887f14eec9066934e67dd4cb92f3307c94e6948011970e2543e4b",
+    "src/app/src/data/weddingStationCorePreviousV229.json": "2480f8fba12ea56dd73f4beff07aefebbce840f3aef8bd98830e201ff72941a1"
+  },
+  "policy": "All 27 existing OSM station/platform/roof identities retained. Only back lettering and a small S41/S42 line strip at the 22 existing sign coordinates, and estimated open supports below four already-rendered v205 canopy planes. No source shell, platform, elevation, route, packet, navigation or source owner is replaced.",
+  "estimates": "Sign styling, line-strip placement, steel colors, support spacing/sections and bracing are illustrative. The four roof plans and their existing display grades are retained, not newly surveyed. Existing station envelopes outside these four open planes are unchanged; the audit is completeness, not a survey of every interior."
+}

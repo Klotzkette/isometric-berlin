@@ -65,7 +65,7 @@ import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
-import { GALLERY_FLIGHT_START_V223 } from "./startupView";
+import { GALLERY_FLIGHT_START_V223, startupFlightCamera, startupOnlySight, type StartupFlightView } from "./startupView";
 import { retainedBuildingDetailIds } from "./buildingDetailResidency";
 import { fiftyHertzExtensionSolidAt } from "./fiftyHertzProfile";
 import { bismarckMoltkeSolidAt, setBismarckMoltkeSnow } from "./BismarckMoltkeMonuments";
@@ -646,6 +646,7 @@ type ThreeViewerProps = {
   initialNavigation?: NavigationSnapshot | null;
   initialWalkingStart?: boolean;
   initialFlightStart?: boolean;
+  initialFlightView?: StartupFlightView | null;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
   onError: (message: string) => void;
@@ -5696,6 +5697,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       initialNavigation = null,
       initialWalkingStart = false,
       initialFlightStart = false,
+      initialFlightView = null,
       pergamonRevealed = false,
       onPergamonRevealChange,
       onError,
@@ -5714,6 +5716,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const initialNavigationRef = useRef(initialNavigation);
     const initialWalkingStartRef = useRef(initialWalkingStart);
     const initialFlightStartRef = useRef(initialFlightStart);
+    const initialFlightViewRef = useRef(initialFlightView ?? GALLERY_FLIGHT_START_V223);
     const activeRef = useRef(active);
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
@@ -5928,7 +5931,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
-      const landmark = runtime.landmarkByName.get(name);
+      const extraStartCamera = startupOnlySight(name) ? startupFlightCamera(name) : null;
+      const landmark = runtime.landmarkByName.get(name) ?? (extraStartCamera
+        ? { world: extraStartCamera.target_world! } : undefined);
       if (!landmark) {
         return;
       }
@@ -5937,7 +5942,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.cancelPanGlide?.();
       setParkDetailsFocus(runtime.parkDetails, name);
       invalidateScenePresentation(runtime);
-      const cameraPreset = (openingView ? simulationStartCamera(name) : null) ?? (
+      const cameraPreset = extraStartCamera ?? (openingView ? simulationStartCamera(name) : null) ?? (
         name === WAGNER_MEMORIAL_PROFILE.name
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
           : name === "Beethoven-Haydn-Mozart-Denkmal"
@@ -6670,7 +6675,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         presentationReady: false,
         navigationRestored: false,
         openingDetailReady: initialNavigationRef.current !== null || openingLandmarkRef.current !== "Berliner Philharmonie",
-        openingGalleryRequired: (initialWalkingStartRef.current || initialFlightStartRef.current) && initialNavigationRef.current === null,
+        openingGalleryRequired: (initialWalkingStartRef.current ||
+          (initialFlightStartRef.current && initialFlightViewRef.current.landmarkName === "Neue Nationalgalerie")) && initialNavigationRef.current === null,
         openingWalkingPending: initialWalkingStartRef.current && initialNavigationRef.current === null,
         notifyPresentationReady: () => {
           if (disposed) {
@@ -6809,9 +6815,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         applyPedestrianCamera(runtime);
         notifyView(runtime, onViewChangeRef.current);
       } else if (initialFlightStartRef.current) {
-        runtime.camera.position.fromArray(GALLERY_FLIGHT_START_V223.pose.position);
-        runtime.controls.target.fromArray(GALLERY_FLIGHT_START_V223.pose.target);
-        runtime.camera.fov = GALLERY_FLIGHT_START_V223.fov;
+        runtime.camera.position.fromArray(initialFlightViewRef.current.pose.position);
+        runtime.controls.target.fromArray(initialFlightViewRef.current.pose.target);
+        runtime.camera.fov = initialFlightViewRef.current.fov;
         runtime.camera.updateProjectionMatrix();
         runtime.camera.lookAt(runtime.controls.target);
         runtime.camera.updateMatrixWorld();
