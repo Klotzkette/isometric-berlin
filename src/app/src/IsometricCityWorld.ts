@@ -1,5 +1,7 @@
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
 import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
+import { isDistrictCourtCorePrismV229 } from "./districtCourtCorePreviousV229";
+import { isWeddingRoofCoreV229 } from "./weddingMoabitV229Profile";
 import { BENDLERBLOCK_V202_PRISM_IDS } from "./bendlerblockV202Profile";
 import { HUNGARIAN_EMBASSY_V208_PROXY_IDS } from "./hungarianEmbassyOwnershipV208";
 import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
@@ -373,6 +375,8 @@ export type IsometricCityBuildOptions = {
   includeLegacyHungarianEnvelope?: boolean;
   /** Required complete v227 shells replace only the exact receipted originals. */
   includeLegacyTownhallEnvelopes?: boolean;
+  includeLegacyDistrictCourtEnvelopes?: boolean;
+  includeLegacyWeddingStationRoof?: boolean;
   detailProfile?: "full" | "mobile";
   /** Exact source buildings to include in this geometry batch. */
   buildings?: readonly PrismBuilding[];
@@ -1749,11 +1753,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
+    .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
+    .filter(building => options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building))
     .map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
@@ -11914,6 +11920,8 @@ export function createIsometricCityCore(
   };
   for (const sourceBuilding of buildings) {
     if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;
+    if (options.includeLegacyDistrictCourtEnvelopes === false && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
+    if (options.includeLegacyWeddingStationRoof === false && isWeddingRoofCoreV229(sourceBuilding)) continue;
     if (options.includeLegacyHungarianEnvelope === false && HUNGARIAN_EMBASSY_V208_PROXY_IDS.has(sourceBuilding.id)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (!isRenderablePrismBuilding(building)) {

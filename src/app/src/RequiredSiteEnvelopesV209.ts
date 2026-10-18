@@ -14,6 +14,11 @@ import { createRosenthalerV228 } from "./RosenthalerV228";
 import { cutRosenthalerPresentationV228 } from "./RosenthalerSurfaceAperturesV228";
 import { createHospitalEnvelopesV228 } from "./HospitalEnvelopesV228";
 import { createHospitalRecognitionV228 } from "./HospitalRecognitionV228";
+import { createPankeBanksV229 } from "./PankeBanksV229";
+import { createFritzRodelbahnV229 } from "./FritzRodelbahnV229";
+import { createWeddingMoabitV229 } from "./WeddingMoabitV229";
+import { createDistrictCourtEnvelopesV229 } from "./DistrictCourtEnvelopesV229";
+import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
@@ -46,5 +51,15 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createHospitalRecognitionV228(native));
   yield;
   root.add(createSchoolCultureV228(native));
+  yield;
+  root.add(createPankeBanksV229(native));
+  yield;
+  root.add(createFritzRodelbahnV229(native));
+  yield;
+  root.add(createWeddingMoabitV229(native));
+  yield;
+  root.add(createDistrictCourtEnvelopesV229(native));
+  yield;
+  root.add(createDistrictCourtsV229(native));
   yield;
 }

@@ -1,5 +1,7 @@
+import { isWeddingRoofCoreV229, weddingRoofV229, WEDDING_ROOF_BOTTOM_Y_V229, WEDDING_ROOF_TOP_Y_V229 } from "./weddingMoabitV229Profile";
 import { URANIA_ARC_V206_PRISM_ID, URANIA_ARC_V206_NAVIGATION_PARTS } from "./uraniaArcV206Navigation";
 import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
+import { isDistrictCourtCorePrismV229 } from "./districtCourtCorePreviousV229";
 import { PERGAMON_PANORAMA_V202_IDS, PERGAMON_PANORAMA_V202_SOURCE, pergamonPanoramaV202RoofAt } from "./pergamonPanoramaV202Profile";
 import { BENDLERBLOCK_V202_PRISM_IDS, BENDLERBLOCK_V202_PARTS, bendlerblockV202RoofAt } from "./bendlerblockV202Profile";
 import { centralSitesV200NavigationForPrism, centralSitesV200RoofAt } from "./centralSitesV200Navigation";
@@ -666,7 +668,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceTownhallPrisms?: boolean } = {},
+  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
@@ -674,7 +676,19 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (isWeddingRoofCoreV229(sourceBuilding)) {
+      // Two ascending access roofs use their exact spatial thin-volume
+      // callbacks; a flat min/max obstacle would close the stairs again.
+      if (sourceBuilding.id !== "26556185") continue;
+      // This mapped building=roof was a generic street-to-8.2m prism. Its
+      // exact source canopy now stands above the elevated Wedding platform.
+      const rings=weddingRoofV229();
+      addPolygonObstacle(index,rings[0],rings.slice(1),WEDDING_ROOF_BOTTOM_Y_V229,WEDDING_ROOF_TOP_Y_V229,sourceBuilding.id,1,()=>WEDDING_ROOF_TOP_Y_V229);
+      index.buildingCount += 1;
+      continue;
+    }
     if (options.replaceTownhallPrisms && isTownhallCorePrismV227(sourceBuilding)) continue;
+    if (options.replaceDistrictCourtPrisms && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
     const building = resolveHumboldthafenPrism(sourceBuilding);
     if (CENTRAL_SITES_V200_FALSE_PRISM_IDS.has(building.id)) continue;
     if (building.id === URANIA_ARC_V206_PRISM_ID) {
@@ -2013,7 +2027,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceTownhallPrisms?: boolean } = {},
+  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

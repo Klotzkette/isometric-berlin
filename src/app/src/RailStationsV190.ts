@@ -9,6 +9,7 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringLayout, letteringStrokePaths } from "./drawnLettering";
 import { createOstkreuzV190 } from "./OstkreuzV190";
+import { applyWeddingStationHeightV229 } from "./weddingMoabitV229Profile";
 import { transferredWarschauerRoofAccentV225 } from "./arenaStationV225Structure";
 
 export const RAIL_STATIONS_V190_GROUP = "Complete Ring and Stadtbahn source station accents v190";
@@ -243,5 +244,6 @@ export function createRailStationsV190(native = false): Group {
     accents.userData.stationName = station.name;
     group.add(accents); root.add(group);
   }
+  applyWeddingStationHeightV229(root);
   return freezeStaticSceneTransforms(root);
 }

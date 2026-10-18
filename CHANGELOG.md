@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.129 — Park terrain, Panke, Wedding and district courts
+
+- Restore the measured Schönholzer Heide summit and mapped Fritz-Schloß-Park sled slope.
+- Refine recessed Panke banks, Stadtbad Tiergarten, sports grounds, Wedding access stairs and the former Nettelbeckplatz fountain.
+- Refine all eleven current Amtsgerichte, preserving existing architecture and restoring three exact measured source owners.
+- Preserve mobile detail, city coverage and live memory budgets.
+- [Evidence and validation](docs/refinements-v229.md).
+
 ## v1.0.104 — Reveal the Pergamon Altar
 
 - Click/tap Pergamonmuseum in every mode to reveal a granular white west-front reconstruction and 36 fine museum contour lines; click again to restore the exterior.

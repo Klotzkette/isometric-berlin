@@ -1,4 +1,5 @@
 import field from "./data/northParksV198Terrain.json";
+import {parkTerrainOffsetV229} from "./parkTerrainV229";
 
 type Footprint = {ring:number[][];holes:number[][][]};
 function inRing(ring:number[][],x:number,z:number):boolean {
@@ -26,7 +27,7 @@ export function northParksV198TerrainAt(x:number,z:number,native=false,wet=false
   const [w,n]=field.bounds,u=(x-w)/32,v=(z-n)/32;
   const ix=Math.max(0,Math.min(heights[0].length-2,Math.floor(u))),iz=Math.max(0,Math.min(heights.length-2,Math.floor(v))),a=Math.max(0,Math.min(1,u-ix)),b=Math.max(0,Math.min(1,v-iz));
   const nw=heights[iz][ix],ne=heights[iz][ix+1],sw=heights[iz+1][ix],se=heights[iz+1][ix+1];
-  return a>=b?nw*(1-a)+ne*(a-b)+se*b:nw*(1-b)+sw*(b-a)+se*a;
+  return (a>=b?nw*(1-a)+ne*(a-b)+se*b:nw*(1-b)+sw*(b-a)+se*a)+(wet?0:parkTerrainOffsetV229(x,z));
 }
 const paths=new Map<string,(number|boolean)[][]>();
 for(const row of field.paths){const [ax,az,bx,bz,r]=row as number[];for(let z=Math.floor((Math.min(az,bz)-r)/256);z<=Math.floor((Math.max(az,bz)+r)/256);z++)for(let x=Math.floor((Math.min(ax,bx)-r)/256);x<=Math.floor((Math.max(ax,bx)+r)/256);x++){const key=`${x}:${z}`,a=paths.get(key)??[];a.push(row);paths.set(key,a);}}

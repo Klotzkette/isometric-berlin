@@ -96,7 +96,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Complete v1.0.115 package: 875,666,013 bytes (835.100 MiB). A finite 836 MiB
 # archive-only ceiling preserves every source asset with 0.900 MiB headroom.
 # Runtime packet, decode, GPU residency and mobile detail limits are unchanged.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 836 * 1024 * 1024
+# v229 restores bounded measured courts and park/river detail. The extracted
+# package is about 836.66 MiB; 837 MiB retains all previous assets with finite
+# archive headroom. No runtime, GPU, decode, resolution or mobile budget changes.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 837 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

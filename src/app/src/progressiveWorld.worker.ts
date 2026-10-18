@@ -260,6 +260,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         includeLegacyChariteFacade: false,
         includeLegacyHungarianEnvelope: false,
         includeLegacyTownhallEnvelopes: false,
+        includeLegacyDistrictCourtEnvelopes: false,
+        includeLegacyWeddingStationRoof: false,
       });
       buildings.length = 0;
       await postBatch(root, "buildings", id, startedAt,

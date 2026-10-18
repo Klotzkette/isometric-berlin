@@ -1075,3 +1075,18 @@ a task:
 If anything in this file is ambiguous for your current task, **stop
 and ask the owner before guessing.** Scope discipline beats velocity
 on this project.
+
+
+### Step 10 — v229 named park, river and district-court refinement
+
+The owner's request permits narrowly bounded improvements at Fritz-Schloß-Park,
+Stadtbad Tiergarten and its sports grounds, Zellengefängnis Moabit, S-Bahnhof
+Wedding/Gerichtstraße, Schönholzer Heide, the Panke to Nordhafen, and all current
+Berlin Amtsgerichte including distinct official office buildings. Retained source
+rings, older architectural detail and the 93-stop tour remain authoritative.
+Park corrections require exact source receipts and the same visible/walking
+height; native geometry remains independently orthogonal. No general district
+rebuild, broad source deletion or raised runtime residency budgets is authorized.
+Material details and heights without direct evidence must be marked estimates.
+The Panke branch to Nordhafen must remain distinct from the Südpanke to the Spree;
+tunnel and mouth openings must stay clear. See docs/refinements-v229.md.

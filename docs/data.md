@@ -1056,3 +1056,11 @@ building ground remain distinct sources: terrain is interpolated on a 10 m
 grid, while each complete building receives one source-bound translation.
 The [release contract](release-v1.0.76-review.md) documents the finite display
 apron and matching native terraces. No source facade or roof is simplified.
+
+
+## v229 — named parks, Panke, Wedding and district courts
+
+See [scope and validation](refinements-v229.md) and [Panke bank source record](panke-banks-v229.md).
+The bounded refinements retain source coordinates, separate drawn/native construction
+and current runtime residency limits. The new constructor arrays are not retained
+on render roots; navigation imports only compact profiles.

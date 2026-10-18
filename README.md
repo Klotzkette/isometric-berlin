@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.128 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.128/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.129 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.129/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.128** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.129** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.128 refines six named hospital campuses, schools and cultural places, and Rosenthaler Platz with source-bound architectural and entrance details. Existing building geometry and mobile residency limits remain authoritative. [Scope and validation](docs/refinements-v228.md).
+Version 1.0.129 refines the Fritz-Schloß-Park and Schönholzer Heide terrain, lower Panke banks, Wedding surroundings, Tiergarten pool and sports grounds, and Berlin's district courts. Existing source geometry and mobile residency limits remain authoritative. [Scope and validation](docs/refinements-v229.md).
 
-Version 1.0.128 überarbeitet sechs Krankenhausstandorte, Schulen und Kulturorte sowie den Rosenthaler Platz mit gezielten Fassaden- und Eingangsdetails. Vorhandene Gebäudeformen und die Speichergrenzen für mobile Geräte bleiben maßgeblich.
+Version 1.0.129 verbessert Parkhöhen, Panke-Ufer, Wedding, das Stadtbad Tiergarten samt Sportanlagen und die Berliner Amtsgerichte. Die bisherigen Gebäude und mobilen Speichergrenzen bleiben erhalten.
 
 Version 1.0.126 extends the restrained roof and glazing treatment to Kreuzberg and Friedrichshain, completes a missing source-mapped Steglitz A103 section and fills positively evidenced pavement gaps in old Mitte. Existing models and memory safeguards remain. [Scope and validation](docs/refinements-v226.md).
 

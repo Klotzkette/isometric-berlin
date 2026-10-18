@@ -5,6 +5,7 @@ import nativeA from "./data/northParksV198Native0.json";
 import nativeB from "./data/northParksV198Native1.json";
 import {justicePalaceV183Boxes} from "./justicePalaceV183Batches";
 import {freezeStaticSceneTransforms} from "./staticSceneTransforms";
+import {correctParkTerrainV229} from "./parkTerrainGeometryV229";
 import {northParksV198GroundAt} from "./northParksV198Navigation";
 export {northParksV198GroundAt} from "./northParksV198Navigation";
 
@@ -12,7 +13,8 @@ export {northParksV198GroundAt} from "./northParksV198Navigation";
 export function createNorthParksV198(native=false):Group {
   const root=new Group();root.name="Schönhausen, mapped Panke and Schönholzer Heide v198";
   root.userData={northParksV198:true,textureFree:true,fullStaticDetailOnTouch:true,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,additiveOnly:true,groundAt:(x:number,z:number)=>northParksV198GroundAt(x,z,native)};
-  for(const model of (native?[nativeA,nativeB]:[drawnA,drawnB]))for(const cell of model.cells){
+  for(const model of (native?[nativeA,nativeB]:[drawnA,drawnB]))for(const sourceCell of model.cells){
+    const cell=correctParkTerrainV229(sourceCell,native);
     if(cell.positions.length){
       const geometry=new BufferGeometry();
       geometry.setAttribute("position",new BufferAttribute(new Float32Array(cell.positions),3));

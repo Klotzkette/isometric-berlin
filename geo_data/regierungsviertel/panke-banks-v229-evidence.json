@@ -1,0 +1,34 @@
+{
+  "sourceSha256": "a1756408afcf3deb11f1e11800337419d57735f0d05bf0d79e4be65d48aebeff",
+  "coreBankReceiptSha256": "f36cc919fb58b307b5eff5baec788a565edfa1f5c3f3f51a9441896c044cb56e",
+  "bankSegments": 1182,
+  "visibleBankLengthM": 4901.444,
+  "policy": "Exact retained open-water boundaries; no filled tunnel, new water surface, widened course, rewritten upstream park or source removal. Existing datum preserved. No fabricated graffiti text.",
+  "primarySources": [
+    "https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/infrastruktur/wasserbau/ausbau-von-gewaessern/panke/",
+    "https://www.berlin.de/sen/uvk/umwelt/wasser-und-geologie/europaeische-wasserrahmenrichtlinie/berlin/panke/"
+  ],
+  "sourceDate": "2026-10-18",
+  "waterIds": [
+    "way/32980525",
+    "way/656040242",
+    "way/659770174",
+    "way/656040243",
+    "way/659770175",
+    "way/656040245",
+    "way/656606878",
+    "way/656607599",
+    "way/656607600",
+    "way/659770178",
+    "way/656606876",
+    "way/659770177",
+    "way/656606877",
+    "way/659770179",
+    "way/1030235834",
+    "way/1030235835",
+    "way/656606875",
+    "way/659770180",
+    "way/656607601"
+  ],
+  "profile": "Masonry and graffiti are source-aligned display estimates from user observation; not surveyed individual bricks or reproduced artwork."
+}

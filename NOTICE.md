@@ -1788,3 +1788,12 @@ remain retained. See `docs/refinements-v228.md` and its linked evidence.
 Additional reference only: [Sankt Oberholz Berlin.jpg](https://commons.wikimedia.org/wiki/File:Sankt_Oberholz_Berlin.jpg),
 Thomas Angermann, 3 February 2006, CC BY-SA 2.0. Full credits remain in both
 Wikimedia manifests; no photo pixels or photographic texture are bundled.
+
+
+## v229 park, Panke, Wedding and district-court details
+
+This pass uses the retained OpenStreetMap/Geofabrik geometry and official Berlin
+DGM/LoD2 sources under their existing attributions. Bank material, original
+abstract graffiti and small architectural fittings are explicitly illustrative.
+No external photographs or copied graffiti artwork are shipped. The detailed
+source and preservation records are linked from docs/refinements-v229.md.
