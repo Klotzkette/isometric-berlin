@@ -3,6 +3,8 @@
 import base64
 
 import numpy as np
+import shapely
+from shapely.affinity import translate
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
@@ -24,8 +26,20 @@ def test_positive_sources_and_retained_input_identity() -> None:
   assert evidence["originalGeometryRetained"] and evidence["extraManifestEntries"] == 0
   assert evidence["sourceSha256"] == build.base.digest(build.SOURCE)
   assert evidence["outputSha256"] == build.base.digest(build.OUTPUT)
+  southwest = unary_union(
+    [
+      build.world(shape(f["geometry"]))
+      for f in build.base.read_json(build.SCOPE)["features"]
+      if str(f["properties"]["sch"]).startswith("11000006")
+    ]
+  )
   for f in source["features"]:
-    assert build.eligible(f["tags"], shape(f["geometry"]).length)
+    if f.get("presentation") == "mapped-flat-edge":
+      assert build.eligible_flat(f["tags"], shape(f["geometry"]).length)
+      assert f["height"] == 0 and not f["heightEstimated"]
+      assert southwest.covers(shape(f["geometry"]))
+    else:
+      assert build.eligible(f["tags"], shape(f["geometry"]).length)
     assert f["tags"].get("kerb") not in ("flush", "lowered", "rolled")
     if f["heightEstimated"]:
       assert f["height"] == 0.12
@@ -80,7 +94,40 @@ def test_packed_native_is_orthogonal_and_all_additions_stay_on_flat_delivered_gr
     assert flat.covers(footprint)
     assert not excluded.intersects(footprint)
     assert shape(source["scope"]).buffer(0.015).covers(footprint)
+    assert len(positions) <= 8192
     total += len(positions)
-  assert 0 < total < 30_000
+  assert 0 < total < 60_000
   assert len(payload["packets"]) < 90
-  assert build.OUTPUT.stat().st_size < 600_000
+  assert build.OUTPUT.stat().st_size < 1_600_000
+
+
+def test_flat_edge_additions_follow_existing_surface_without_invented_step() -> None:
+  evidence = build.base.read_json(build.EVIDENCE)
+  payload = build.base.read_json(build.OUTPUT)
+  entries = {
+    r["id"]: r for r in build.base.read_json(build.OUT / "manifest.json")["chunks"]
+  }
+  checked = 0
+  for key, receipt in evidence["packets"].items():
+    if "flatFaceStart" not in receipt:
+      continue
+    assert not entries[key.split(":", 1)[1]].get("detailCompanionOf")
+    plan = payload["packets"][key]
+    positions, indices = decode(plan["mesh"], plan["origin"])
+    old = build.base.read_json(build.ROOT / receipt["url"])
+    ox, _, oz = old["origin"]
+    ground = unary_union(
+      [translate(Polygon(p["ring"], p["holes"]), ox, oz) for p in old["nav"]["ground"]]
+    )
+    levels = {
+      y: level.buffer(0.015) for y, level in build.flat_levels(old, ground).items()
+    }
+    for level in levels.values():
+      shapely.prepare(level)
+    for tri in positions[indices[receipt["flatFaceStart"] :]]:
+      assert np.ptp(tri[:, 1]) < 0.001
+      y = round(float(tri[0, 1]) - 0.01, 2)
+      assert y in levels
+      assert levels[y].covers(Polygon(tri[:, [0, 2]]))
+      checked += 1
+  assert checked > 0

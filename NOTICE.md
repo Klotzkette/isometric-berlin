@@ -1824,3 +1824,13 @@ selection/ownership receipts remain in the v233 evidence files. Door dimensions,
 leaf arrangement and colours, gutter cross-sections and untagged curb widths
 and heights are display estimates. No photographs or textures are bundled.
 See `docs/house-details-v233.md` and its linked source records.
+
+
+## v1.0.134 — clarified Steglitz-Zehlendorf house treatment
+
+The v233 LoD2, ALKIS and OpenStreetMap source treatment extends to existing
+Steglitz-Zehlendorf coverage under the same licences. The eight additional
+complete Ortsteil rings come from Geoportal Berlin's ALKIS WFS. Existing
+source-bound replacements and fittings are retained. Unsurveyed door/gutter
+sizes remain display estimates; curb lines without height evidence do not
+imply invented raised steps. See docs/house-details-v234.md.

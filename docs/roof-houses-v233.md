@@ -1,22 +1,33 @@
 # Source roofs and gutters — v233 / Step 10
 
-This bounded pass replaces false flat ordinary-house envelopes with **128
+This bounded pass replaces false flat ordinary-house envelopes with **192
 complete measured LoD2 houses**, 32 each in current Mitte,
-Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg. All houses
+Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg, plus **64 in
+Steglitz-Zehlendorf** after the user's place-name clarification. All houses
 already existed in source coverage. It does not assert that every house in these
 districts has received an individual survey. The shared official selector is
-`geo_data/regierungsviertel/house-districts-v233.geojson`; the spoken ambiguous
-place name does not create extra coverage.
+`geo_data/regierungsviertel/house-districts-v233.geojson`, now including all eight
+Ortsteile of Steglitz-Zehlendorf. The extension uses only already local original
+archives and existing streamed city packets.
 
-The selection is distributed spatially across 1,337 eligible pitched-roof
+The previous 128 owner records and 206 family recipes are preserved exactly.
+The additive extension uses different existing packet locations; canonical
+hashes of every prior recipe and the full old owner list are stored in the
+source receipt and checked during every replay. No old house is reselected.
+
+The selection is distributed spatially across 2,071 eligible pitched-roof
 owners, with at most five houses in any original packet. Named/special-use
 buildings, existing authored owners, earlier individually fitted facade passes,
-ambiguous matches and tile-cut owners are protected. There are 103 affected
+ambiguous matches and tile-cut owners are protected. There are 147 affected
 existing packet locations, each with separately supplied drawn/native geometry.
+The 64 additional houses comprise 32 in Steglitz, 18 in Dahlem, eight in
+Lichterfelde, four in Schlachtensee and two in Zehlendorf. The district selector
+also includes Lankwitz, Nikolassee and Wannsee, but this retained archive subset
+does not supply eligible measured replacements there; none are invented.
 
 ## What is measured
 
-All **3,863 original wall and roof sheets**, including their original polygon
+All **5,465 original wall and roof sheets**, including their original polygon
 holes, leaf parts, millimetre source coordinates, parent IDs and archive
 fingerprints, are retained in `roof-house-v233-source.json.gz`. These are from
 local Geoportal Berlin `a_lod2` archives, under the existing dl-de/zero-2-0
@@ -39,7 +50,7 @@ floating horizontal line above the actual slope.
 
 ## What is illustrative
 
-**417 gutter courses** follow lower horizontal outside roof edges. Ridges,
+**571 gutter courses** follow lower horizontal outside roof edges. Ridges,
 valleys, internal seams and sloping gable rakes are excluded. The 16 cm width,
 14 cm depth and metal tone are restrained display estimates; LoD2 does not
 survey rainwater hardware. No downpipe position is claimed.
@@ -75,25 +86,28 @@ storage; no permanently resident scene, new city request, texture, per-frame
 work, increased radius or raised residency limit is introduced. Drawn mobile
 and pointer detail are identical.
 
-Total new packed geometry is **17,188 drawn vertices / 13,631 triangles** and
-**35,893 native vertices / 37,118 triangles**. Maximum added vertices in one
-packet are 621 drawn / 1,174 native. Runtime JSON is about 1.64 MB before build
-compression, retained full source about 184 KiB gzip. Existing packet geometry
+Total new packed geometry is **24,446 drawn vertices / 19,040 triangles** and
+**51,853 native vertices / 53,718 triangles**. Maximum added vertices in one
+packet are unchanged at 621 drawn / 1,174 native. Runtime JSON is about 2.35 MB
+before build compression, retained full source about 266 KiB gzip. Existing packet geometry
 remains below its original 400,000-vertex and 16-part limits, with room reserved
 for the parallel door and pavement supplements.
 
 ## Verification
 
-Four Python tests verify the full measured source inventory, district bounds,
+Five Python tests verify the full measured source inventory, district bounds,
 immutable old hashes, exact multiset transfers, every native footprint cell,
-strictly orthogonal native faces, source-bound eaves and bounded packet growth.
-Four Bun tests verify all 206 family transactions, previous byte identities,
+strictly orthogonal native faces, source-bound eaves, bounded packet growth and
+unchanged released owner/recipe hashes.
+Four Bun tests verify all 294 family transactions, previous byte identities,
 unrelated indices/line colours, changed-source rejection, idempotence and
-cooperative cancellation (2,516 assertions). Integrated browser checks belong
+cooperative cancellation. Integrated browser checks belong
 to the release, not this isolated geometry audit.
 
 Replay: `uv run python scripts/build_roof_house_v233.py`.
-Re-extract from already local original archives only with `--extract`.
+Re-extract from already local original archives only with `--extract`. The
+one-time additive extension was extracted with `--append-steglitz-zehlendorf`;
+repeating that command is rejected rather than duplicating owner records.
 
 Representative viewer targets (X, Y, Z):
 
@@ -103,3 +117,4 @@ Representative viewer targets (X, Y, Z):
 | Friedrichshain-Kreuzberg | DEBE02YY200005Kq | 5815.80, 12.61, 1286.45 |
 | Mitte | DEBE01YYK0002RhV | −2285.69, 14.48, −1367.54 |
 | Schöneberg | DEBE07YY90002dYr | −624.29, 10.30, 4279.77 |
+| Steglitz-Zehlendorf | DEBE06YYB0000EZ1 | −5893.07, 3.00, 6417.80 |

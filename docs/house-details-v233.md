@@ -5,7 +5,8 @@ Mitte, Friedrichshain-Kreuzberg and Charlottenburg-Wilmersdorf districts and the
 Schöneberg Ortsteil. The complete official ALKIS Ortsteil rings are retained in
 `geo_data/regierungsviertel/house-districts-v233.geojson`; they select existing
 source packets and do not extend city coverage. The ambiguous name “Wuhledorf”
-has not been assigned to an unrelated district without clarification.
+was left open in v1.0.133. The owner subsequently clarified Steglitz-Zehlendorf;
+see [the additive v1.0.134 supplement](house-details-v234.md).
 
 ## Source-supported additions
 

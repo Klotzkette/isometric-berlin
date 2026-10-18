@@ -56,11 +56,31 @@ def eligible(t: dict[str, str], length: float) -> bool:
   )
 
 
+def eligible_flat(t: dict[str, str], length: float) -> bool:
+  """An explicitly mapped course without a declared rise is only a flat edge."""
+  return (
+    t.get("barrier") == "kerb"
+    and 2 <= length <= 120
+    and transport.at_grade(t)
+    and not t.get("kerb")
+    and not any(
+      k in t for k in ("kerb:height", "height", "was:barrier", "disused:barrier")
+    )
+  )
+
+
 def extract() -> None:
   """Freeze exact source ways and complete local avoidance evidence."""
   paths = [SCOPE, DATA / "surroundingCityScope.json"]
   scope = unary_union(
     [world(shape(f["geometry"])) for f in base.read_json(SCOPE)["features"]]
+  )
+  southwest = unary_union(
+    [
+      world(shape(f["geometry"]))
+      for f in base.read_json(SCOPE)["features"]
+      if str(f["properties"]["sch"]).startswith("11000006")
+    ]
   )
   core = base.read_json(paths[1])["core"]
   # The established core already has continuous raised asphalt edges. This
@@ -85,6 +105,18 @@ def extract() -> None:
           heightEstimated=not bool(h),
         )
       )
+    elif eligible_flat(t, g.length) and southwest.covers(g):
+      features.append(
+        dict(
+          key="way/" + row["osm_id"],
+          tags=t,
+          geometry=mapping(g),
+          height=0,
+          heightEstimated=False,
+          presentation="mapped-flat-edge",
+        )
+      )
+  features.sort(key=lambda f: bool(f.get("presentation")))
   target = unary_union([shape(f["geometry"]) for f in features]).buffer(2)
   nearby = target.buffer(0.5)
   shapely.prepare(target)
@@ -154,7 +186,7 @@ def extract() -> None:
       scope=mapping(scope.intersection(target)),
       inputs={str(p.relative_to(ROOT)): base.digest(p) for p in paths},
       source="OpenStreetMap Geofabrik Berlin 2026-09-29, ODbL-1.0",
-      policy="Complete positively tagged curb ways 2–120m outside the existing detailed core; retain original ways and subtract prior curbs, buildings, water and mapped access gaps. Width .22m and untagged rise .12m are estimates.",
+      policy="Complete mapped curb ways 2–120m outside the detailed core; retain original ways and subtract prior curbs, buildings, water and mapped access gaps. Positive rise: .22m width and untagged .12m rise estimates. Steglitz-Zehlendorf ways lacking height/type: .08m flat edge only, no inferred rise.",
     ),
   )
 
@@ -230,13 +262,70 @@ def flat_ground(packet: dict) -> Any:
   return unary_union(patches)
 
 
+def flat_levels(packet: dict, ground: Any) -> dict[float, Any]:
+  """Project flat edge ink onto each topmost retained near-ground surface."""
+  levels = defaultdict(list)
+  for part in packet["meshes"]:
+    if part["kind"] != "city":
+      continue
+    p = (
+      np.frombuffer(base64.b64decode(part["positions"]), "<u2").reshape(-1, 3) / 100
+      + packet["origin"]
+    )
+    ids = np.frombuffer(base64.b64decode(part["indices"]), "<u4").reshape(-1, 3)
+    triangles = p[ids]
+    keep = (
+      (np.ptp(triangles[:, :, 1], axis=1) < 0.011)
+      & (triangles[:, 0, 1] >= 2.985)
+      & (triangles[:, 0, 1] <= 3.155)
+    )
+    for t in triangles[keep]:
+      y = round(float(t[0, 1]), 2)
+      if 2.99 <= y <= 3.15 and np.ptp(t[:, 1]) < 0.011:
+        polygon = Polygon(t[:, [0, 2]])
+        if polygon.area > 1e-8:
+          levels[y].append(polygon)
+  covered = Polygon()
+  result = {}
+  for y in sorted(levels, reverse=True):
+    layer = unary_union(levels[y]).intersection(ground)
+    result[y] = layer.difference(covered)
+    covered = covered.union(layer)
+  return result
+
+
+def flat_ink(mesh: PackedMesh, course: Any, y: float) -> None:
+  for line in line_parts(course):
+    for a, b in zip(line.coords, list(line.coords)[1:]):
+      dx, dz = b[0] - a[0], b[1] - a[1]
+      length = math.hypot(dx, dz)
+      if length < 0.001:
+        continue
+      nx, nz = -dz / length * 0.04, dx / length * 0.04
+      p = [
+        (a[0] - nx, y, a[1] - nz),
+        (a[0] + nx, y, a[1] + nz),
+        (b[0] + nx, y, b[1] + nz),
+        (b[0] - nx, y, b[1] - nz),
+      ]
+      mesh.triangle([p[0], p[1], p[2]], COLOUR)
+      mesh.triangle([p[0], p[2], p[3]], COLOUR)
+
+
 def build() -> dict:
   """Prepare sidecars; immutable existing packets supply streaming ownership."""
   source = base.read_json(SOURCE)
   manifest = base.read_json(OUT / "manifest.json")
-  entries = {
-    r["id"]: r for r in manifest["chunks"] if re.fullmatch(r"-?\d+_-?\d+", r["id"])
-  }
+  entries = {r["id"]: r for r in manifest["chunks"]}
+  original_ids = {key for key in entries if re.fullmatch(r"-?\d+_-?\d+", key)}
+  cell_owners = defaultdict(list)
+  for entry in entries.values():
+    if entry.get("detailCompanionOf"):
+      continue
+    x0, z0, x1, z1 = entry["bounds"]
+    for iz in range(math.floor(z0 / 512), math.ceil(z1 / 512)):
+      for ix in range(math.floor(x0 / 512), math.ceil(x1 / 512)):
+        cell_owners[f"{ix}_{iz}"].append(entry["id"])
   by_tile = defaultdict(list)
   exclusions = unary_union(
     [shape(source[k]) for k in ("previous", "blocked", "access")]
@@ -244,24 +333,34 @@ def build() -> dict:
   scope = shape(source["scope"])
   shapely.prepare(scope)
   shapely.prepare(exclusions)
+  course_exclusion = exclusions.buffer(0.18)
+  course_scope = scope.buffer(-0.18)
   for f in source["features"]:
-    course = safe_course(f, source)
+    course = (
+      shape(f["geometry"]).difference(course_exclusion).intersection(course_scope)
+    )
     for line in line_parts(course):
       lo, lz, hi, hz = line.bounds
       for iz in range(math.floor(lz / 512), math.floor(hz / 512) + 1):
         for ix in range(math.floor(lo / 512), math.floor(hi / 512) + 1):
           key = f"{ix}_{iz}"
-          if key in entries:
+          owners = (
+            cell_owners[key]
+            if f.get("presentation")
+            else ([key] if key in original_ids else [])
+          )
+          for owner in owners:
+            x0, z0, x1, z1 = entries[owner]["bounds"]
             part = line.intersection(
               box(
-                ix * 512 + 0.18,
-                iz * 512 + 0.18,
-                (ix + 1) * 512 - 0.18,
-                (iz + 1) * 512 - 0.18,
+                max(ix * 512, x0) + 0.18,
+                max(iz * 512, z0) + 0.18,
+                min((ix + 1) * 512, x1) - 0.18,
+                min((iz + 1) * 512, z1) - 0.18,
               )
             )
             if part.length > 0.2:
-              by_tile[key].append((f, part))
+              by_tile[owner].append((f, part))
   packets, receipts, courses = {}, {}, []
   counts = Counter()
   for key, features in sorted(by_tile.items()):
@@ -286,6 +385,8 @@ def build() -> dict:
       used = []
       pixels = {}
       for f, part in features:
+        if f.get("presentation"):
+          continue
         part = part.intersection(ground.buffer(-0.18))
         if part.length < 0.2:
           continue
@@ -335,6 +436,52 @@ def build() -> dict:
               mesh.triangle([p[0], p[1], p[2]], COLOUR)
               mesh.triangle([p[0], p[2], p[3]], COLOUR)
         counts["nativePixels"] += len(pixels)
+      flat_features = [(f, part) for f, part in features if f.get("presentation")]
+      flat_face_start = len(mesh.indices) // 3
+      if flat_features:
+        flat_pixels = defaultdict(set)
+        for y, level in flat_levels(packet, ground).items():
+          for f, original in flat_features:
+            part = original.intersection(level.buffer(-0.18))
+            if part.length < 0.2:
+              continue
+            used.append(f["key"])
+            if family == "drawn":
+              courses.append(
+                dict(
+                  key=f["key"],
+                  tile=key,
+                  height=0,
+                  groundY=y,
+                  presentation="mapped-flat-edge",
+                  geometry=mapping(part),
+                )
+              )
+              flat_ink(mesh, part, y + 0.01)
+            else:
+              for line in line_parts(part):
+                for a, b in zip(line.coords, list(line.coords)[1:]):
+                  segment = LineString([a, b])
+                  n = max(1, math.ceil(segment.length / 0.1))
+                  for i in range(n + 1):
+                    point = segment.interpolate(i / n, normalized=True)
+                    ix, iz = math.floor(point.x * 4), math.floor(point.y * 4)
+                    square = box(ix / 4, iz / 4, (ix + 1) / 4, (iz + 1) / 4)
+                    if (
+                      level.covers(square)
+                      and not exclusions.intersects(square)
+                      and scope.covers(square)
+                    ):
+                      flat_pixels[y].add((ix, iz))
+        for y, cells in flat_pixels.items():
+          surface = unary_union(
+            [
+              box(ix / 4, iz / 4, (ix + 1) / 4, (iz + 1) / 4)
+              for ix, iz in sorted(cells)
+            ]
+          )
+          mesh.surface(surface.simplify(0, preserve_topology=True), y + 0.01, COLOUR)
+          counts["nativeFlatPixels"] += len(cells)
       p = mesh.payload("house-curbs-v233")
       if p:
         id = family + ":" + key
@@ -347,6 +494,8 @@ def build() -> dict:
           meshes=len(packet["meshes"]),
           sourceWays=sorted(set(used)),
         )
+        if flat_face_start < len(mesh.indices) // 3:
+          receipts[id]["flatFaceStart"] = flat_face_start
         counts[family + "Vertices"] += len(mesh.vertices)
         counts[family + "Bytes"] += sum(
           len(base64.b64decode(p[k])) for k in ("positions", "colors", "indices")
@@ -368,7 +517,7 @@ def build() -> dict:
     counts=dict(counts),
     originalGeometryRetained=True,
     extraManifestEntries=0,
-    estimates=".22m drawn curb width, untagged .12m height, conservative foot/vehicle clearances; native quarter-metre course raster",
+    estimates=".22m raised curb width, untagged .12m rise; .08m flat edge on retained ground +.01m rendering offset without inferred rise; conservative access clearances and native quarter-metre raster",
   )
   base.write_json(EVIDENCE, evidence)
   return evidence

@@ -81,3 +81,40 @@ def test_source_wall_rejects_unmapped_distance_and_above_ground_part() -> None:
     )
     is None
   )
+
+
+def test_steglitz_zehlendorf_extension_retains_every_v133_recipe() -> None:
+  context = doors.base.read_json(doors.CONTEXT)
+  evidence = doors.base.read_json(doors.EVIDENCE)
+  runtime = doors.base.read_json(doors.OUTPUT)["chunks"]
+  southwest = {
+    "Steglitz",
+    "Lichterfelde",
+    "Lankwitz",
+    "Zehlendorf",
+    "Dahlem",
+    "Nikolassee",
+    "Wannsee",
+    "Schlachtensee",
+  }
+  assert southwest <= set(context["districts"])
+  assert len(context["outerBuildingSourceSha256"]) == 64
+  assert all(
+    evidence["counts"].get(name, 0)
+    for name in ("Steglitz", "Dahlem", "Lichterfelde", "Zehlendorf")
+  )
+  previous = evidence["preservedV133"]["chunks"]
+  assert len(previous) == 157
+  assert sum(row["drawn"]["count"] for row in previous.values()) == 3150
+  assert sum(row["minecraft"]["count"] for row in previous.values()) == 1681
+  for chunk, entry in previous.items():
+    for family, receipt in entry.items():
+      rows = runtime[chunk][family]["doors"][: receipt["count"]]
+      assert doors.recipe_digest(rows) == receipt["sha256"]
+  roof_owners = {
+    row["owner"]
+    for row in doors.base.read_json(doors.GEO / "roof-house-v233-source.json.gz")[
+      "owners"
+    ]
+  }
+  assert not roof_owners.intersection(row["owner"] for row in evidence["doors"])

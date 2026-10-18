@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.134
+
+- Extend the existing source-supported ordinary-house treatment to Steglitz-Zehlendorf following the owner's place-name clarification: measured roofs and gutters, mapped entrances and restrained curb-edge recognition.
+- Preserve all previous house treatments, original source packets, complete drawn mobile detail, native interpretation and existing residency limits. Selection adds no city coverage.
+- See [source evidence and verification](docs/house-details-v234.md).
+
 ## v1.0.133
 
 - Refine ordinary existing houses in Mitte, Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg with measured roof geometry, small eave fittings, mapped entrance recognition and positively mapped raised curbs.

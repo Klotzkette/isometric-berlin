@@ -104,7 +104,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v233 adds complete measured roofs and source-bound entrance/curb recipes.
 # The full extracted package is 845.03 MiB; 846 MiB leaves finite archive-only
 # headroom. Runtime packet/decode/GPU budgets and mobile detail stay unchanged.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 846 * 1024 * 1024
+# v234 adds source-bound Steglitz-Zehlendorf houses inside existing coverage.
+# Complete extracted package: 887,382,699 bytes (846.274 MiB). A finite 847 MiB
+# archive-only ceiling retains all assets; live geometry/residency limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 847 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

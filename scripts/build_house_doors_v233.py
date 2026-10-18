@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import base64
+import hashlib
+import json
 import math
 import re
 from collections import Counter, defaultdict
@@ -21,16 +23,15 @@ ROOT, GEO, OUT = base.ROOT, base.GEO, base.OUT
 CONTEXT = GEO / "house-doors-v233-context.json.gz"
 EVIDENCE = GEO / "house-doors-v233-evidence.json.gz"
 OUTPUT = ROOT / "src/app/src/data/houseDoorsV233.json"
-NAMES = {
-  "Mitte",
-  "Moabit",
-  "Wedding",
-  "Tiergarten",
-  "Friedrichshain",
-  "Kreuzberg",
-  "Charlottenburg",
-  "Wilmersdorf",
-  "Schöneberg",
+SOUTHWEST = {
+  "Steglitz",
+  "Lichterfelde",
+  "Lankwitz",
+  "Zehlendorf",
+  "Dahlem",
+  "Nikolassee",
+  "Wannsee",
+  "Schlachtensee",
 }
 POLICY = (
   "Only retained ordinary building walls with positively mapped ground-floor "
@@ -86,13 +87,20 @@ def extract_context() -> None:
       )
   points = [Point(*r["point"]) for r in entrances]
   tree = STRtree(points)
-  buildings = pyogrio.read_dataframe(
-    GEO / "raw/outer-v159/candidate.gpkg",
-    layer="multipolygons",
-    where="building IS NOT NULL",
-  ).to_crs(25833)
-  owners = []
-  for row in buildings.itertuples():
+  southwest = unary_union([p for name, p in regions().items() if name in SOUTHWEST])
+
+  def building_rows():
+    for cache in ("outer-v159", "outskirts-v187"):
+      frame = pyogrio.read_dataframe(
+        GEO / "raw" / cache / "candidate.gpkg",
+        layer="multipolygons",
+        where="building IS NOT NULL",
+      ).to_crs(25833)
+      for row in frame.itertuples():
+        yield cache, row
+
+  owners, seen = [], set()
+  for cache, row in building_rows():
     if row.building not in {
       "yes",
       "apartments",
@@ -109,17 +117,23 @@ def extract_context() -> None:
     polygon = base.world(row.geometry)
     if not polygon.is_valid:
       continue
+    owner = (
+      "way/" + row.osm_way_id
+      if isinstance(row.osm_way_id, str)
+      else "relation/" + str(row.osm_id)
+    )
+    if owner in seen or (
+      cache == "outskirts-v187" and not southwest.covers(polygon.representative_point())
+    ):
+      continue
     refs = [
       int(i) for i in tree.query(polygon.boundary.buffer(0.08), predicate="intersects")
     ]
     if refs:
+      seen.add(owner)
       owners.append(
         {
-          "id": (
-            "way/" + row.osm_way_id
-            if isinstance(row.osm_way_id, str)
-            else "relation/" + str(row.osm_id)
-          ),
+          "id": owner,
           "geometry": mapping(polygon),
           "entrances": refs,
         }
@@ -137,6 +151,10 @@ def extract_context() -> None:
       "license": "ODbL-1.0",
       "sourceSha256": base.digest(source),
       "buildingSourceSha256": base.digest(GEO / "raw/outer-v159/candidate.gpkg"),
+      "outerBuildingSourceSha256": base.digest(
+        GEO / "raw/outskirts-v187/candidate.gpkg"
+      ),
+      "districts": sorted(regions()),
       "entrances": [entrances[i] for i in used],
       "buildings": owners,
     },
@@ -263,12 +281,50 @@ def fits_packet(face: dict, origin: list) -> bool:
   )
 
 
+def recipe_digest(rows: list) -> str:
+  return hashlib.sha256(json.dumps(rows, separators=(",", ":")).encode()).hexdigest()
+
+
+def retain_previous_recipes(runtime: dict, previous: dict) -> None:
+  """An additive district supplement keeps every previously delivered row first."""
+  for chunk, entry in previous.items():
+    for family, old in entry.items():
+      current = runtime[chunk][family]
+      if old["origin"] != current["origin"] or old["guard"] != current["guard"]:
+        raise ValueError(f"Prior entrance source changed: {chunk}/{family}")
+      old_rows = {tuple(row) for row in old["doors"]}
+      if not old_rows.issubset(tuple(row) for row in current["doors"]):
+        raise ValueError(f"Prior entrance lost: {chunk}/{family}")
+      current["doors"] = old["doors"] + [
+        row for row in current["doors"] if tuple(row) not in old_rows
+      ]
+
+
 def build() -> dict:
   """Read immutable packet shells; emit small recipes, never regenerate them."""
   if not CONTEXT.exists():
     extract_context()
   context = base.read_json(CONTEXT)
   district = regions()
+  if context.get("districts") != sorted(district) or not context.get(
+    "outerBuildingSourceSha256"
+  ):
+    extract_context()
+    context = base.read_json(CONTEXT)
+  previous_runtime = base.read_json(OUTPUT)["chunks"] if OUTPUT.exists() else {}
+  old_evidence = base.read_json(EVIDENCE) if EVIDENCE.exists() else {}
+  preserved = old_evidence.get("preservedV133")
+  if preserved is None and previous_runtime:
+    preserved = {
+      "runtimeSha256": base.digest(OUTPUT),
+      "chunks": {
+        chunk: {
+          family: {"count": len(plan["doors"]), "sha256": recipe_digest(plan["doors"])}
+          for family, plan in entry.items()
+        }
+        for chunk, entry in previous_runtime.items()
+      },
+    }
   area = unary_union(list(district.values()))
   mapped = [shape(row["geometry"]) for row in context["buildings"]]
   mapped_tree = STRtree(mapped)
@@ -407,6 +463,7 @@ def build() -> dict:
           "doors": native,
         },
       }
+  retain_previous_recipes(runtime, previous_runtime)
   result = {"schemaVersion": 1, "ids": list(runtime), "chunks": runtime}
   base.write_json(OUTPUT, result)
   base.write_json(
@@ -421,6 +478,7 @@ def build() -> dict:
       "nativeDoorCount": sum(len(v["minecraft"]["doors"]) for v in runtime.values()),
       "chunkCount": len(runtime),
       "runtimeBytes": OUTPUT.stat().st_size,
+      "preservedV133": preserved,
       "doors": evidence,
       "oldAssets": [
         {"url": desc[f]["url"], "sha256": desc[f]["sha256"]}

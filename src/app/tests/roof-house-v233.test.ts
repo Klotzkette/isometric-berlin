@@ -51,7 +51,8 @@ test("every roof transaction retains all packed source identities and retires on
     expect(JSON.stringify(original)).toBe(snapshot);
     transactions++;
   }
-  expect(transactions).toBe(206);
+  expect(transactions).toBe(data.keys.length);
+  expect(transactions).toBeGreaterThan(206);
 });
 
 test("flat roof ink changes only in the final copied line buffer", () => {

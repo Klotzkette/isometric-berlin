@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.133 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.133/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.134 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.134/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.133** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.134** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.133 refines ordinary houses in the retained Mitte, Friedrichshain-Kreuzberg, Charlottenburg-Wilmersdorf and Schöneberg coverage using measured roofs, mapped entrances and mapped curb edges. New detail follows the existing bounded streaming lifetime. [Sources and validation](docs/house-details-v233.md).
+Version 1.0.134 extends the measured roofs, gutters, mapped entrances and curb treatment to the existing Steglitz-Zehlendorf coverage, retaining all earlier house details and memory limits. [Sources and validation](docs/house-details-v234.md).
 
-Version 1.0.133 verfeinert gewöhnliche Häuser im vorhandenen Stadtgebiet: belegte Dachformen, Dachrinnen, kartierte Eingänge und Bordsteinkanten. Die bisherigen Speichergrenzen und alle älteren Details bleiben erhalten.
+Version 1.0.134 ergänzt die Hausverbesserungen nach der Ortsklärung auch in Steglitz-Zehlendorf: belegte Dachformen, Dachrinnen, kartierte Eingänge und Bordsteine. Bisherige Details und Speichergrenzen bleiben erhalten.
 
 Version 1.0.132 rotates seven flight start views, improves recognition of existing Ringbahn stations and applies source-tagged materials to selected outer houses. Large offscreen GPU buffers now trigger byte-aware retirement even below the handle limit. [Verification](docs/start-ring-stability-v232.md).
 

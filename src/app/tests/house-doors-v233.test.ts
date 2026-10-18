@@ -36,7 +36,8 @@ describe("source-mapped ordinary house doors v233", () => {
       expect(finish(prepareHouseDoorsV233(after, id, mc))).toBe(after);
       if (mc) native += plan.doors.length; else drawn += plan.doors.length;
     }
-    expect(drawn).toBeGreaterThan(2000); expect(native).toBeGreaterThan(1000);
+    // v1.0.134 extends the 3,150/1,681 retained recipes into Steglitz-Zehlendorf.
+    expect(drawn).toBeGreaterThan(3150); expect(native).toBeGreaterThan(1681);
   }, 20000);
 
   test("native panels follow independently matched orthogonal wall planes", () => {

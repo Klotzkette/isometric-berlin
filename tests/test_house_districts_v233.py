@@ -33,9 +33,19 @@ def test_full_district_selection_has_no_missing_ortsteile_or_new_territory() -> 
       "Halensee",
     },
     "11000007": {"Schöneberg"},
+    "11000006": {
+      "Steglitz",
+      "Lichterfelde",
+      "Lankwitz",
+      "Zehlendorf",
+      "Dahlem",
+      "Nikolassee",
+      "Wannsee",
+      "Schlachtensee",
+    },
   }
   features = source["features"]
-  assert len(features) == 16
+  assert len(features) == 24
   for prefix, names in expected.items():
     assert {
       feature["properties"]["nam"]

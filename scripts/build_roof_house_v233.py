@@ -10,6 +10,8 @@ import argparse
 import base64
 import copy
 import functools
+import hashlib
+import json
 import math
 import re
 import sys
@@ -43,6 +45,7 @@ EVIDENCE = GEO / "roof-house-v233-evidence.json.gz"
 RUNTIME = ROOT / "src/app/src/data/roofHouseV233.json"
 BOUNDARY = GEO / "house-districts-v233.geojson"
 MAX_PER_REGION = 32
+EXTENSION_REGION = "Steglitz-Zehlendorf"
 POLICY = (
   "Existing unnamed ordinary owners only; exact original packet assets retained. "
   "Every transferred flat envelope has a complete official LoD2 leaf-sheet "
@@ -74,6 +77,8 @@ def regions() -> dict[str, Any]:
       if code.startswith("11000002")
       else "Charlottenburg-Wilmersdorf"
       if code.startswith("11000004")
+      else EXTENSION_REGION
+      if code.startswith("11000006")
       else "Schöneberg"
     )
     result.setdefault(name, []).append(world(shape(feature["geometry"])))
@@ -98,9 +103,11 @@ def protected_ids() -> set[str]:
   return result
 
 
-def candidate_owners() -> tuple[list[dict], dict]:
+def candidate_owners(only_region: str | None = None) -> tuple[list[dict], dict]:
   """Select complete existing ordinary envelopes; never a tile-cut roof piece."""
   selected_regions = regions()
+  if only_region:
+    selected_regions = {only_region: selected_regions[only_region]}
   context = read_json(GEO / "outer-facades-v230-context.json.gz")
   protected = STRtree([shape(p) for p in context["protected"]])
   roads = [shape(p["geometry"]) for p in context["roads"]]
@@ -211,9 +218,25 @@ def match_owner(packet: dict, owner: str) -> dict[int, list[int]] | None:
   return dict(found) if not any(needed.values()) else None
 
 
-def extract() -> dict:
+def canonical_digest(value: Any) -> str:
+  return hashlib.sha256(
+    json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+  ).hexdigest()
+
+
+def extract(append_steglitz_zehlendorf: bool = False) -> dict:
   """Read only existing local official archives; retain selected complete sheets."""
-  candidates, descriptors = candidate_owners()
+  previous = read_json(SOURCE) if append_steglitz_zehlendorf else None
+  if previous and any(o["region"] == EXTENSION_REGION for o in previous["owners"]):
+    raise ValueError("Extension already retained; use ordinary replay")
+  candidates, descriptors = candidate_owners(
+    EXTENSION_REGION if append_steglitz_zehlendorf else None
+  )
+  if previous:
+    # Preserve every released recipe byte-for-byte, including shared tile guards.
+    old_tiles = {o["tile"] for o in previous["owners"]}
+    candidates = [r for r in candidates if r["tile"] not in old_tiles]
+  print("candidates", Counter(r["region"] for r in candidates), flush=True)
   by_owner = {r["owner"]: r for r in candidates}
   archives = {p.name: p for p in (GEO / "raw").rglob("LoD2_*.zip")}
   tile_candidates: dict[str, dict] = defaultdict(dict)
@@ -272,7 +295,9 @@ def extract() -> dict:
                   for mode in ("drawn", "minecraft"):
                     descriptor = descriptors[row["tile"]]
                     url = descriptor[mode]["url"]
-                    packet = cached_packets.setdefault(url, read_json(OUT / url))
+                    if url not in cached_packets:
+                      cached_packets[url] = read_json(OUT / url)
+                    packet = cached_packets[url]
                     match = match_owner(packet, owner)
                     if match is None:
                       valid = False
@@ -305,7 +330,8 @@ def extract() -> dict:
     )
     group = []
     tile_counts: Counter = Counter()
-    while remaining and len(group) < MAX_PER_REGION:
+    target = 64 if region == EXTENSION_REGION else MAX_PER_REGION
+    while remaining and len(group) < target:
       if group:
         selected = max(
           remaining,
@@ -319,6 +345,8 @@ def extract() -> dict:
       group.append(selected)
       tile_counts[selected["tile"]] += 1
     chosen.extend(group)
+    if len(group) != target:
+      raise ValueError(f"Insufficient measured {region} owners: {len(group)}/{target}")
   source = dict(
     schema=1,
     policy=POLICY,
@@ -331,6 +359,23 @@ def extract() -> dict:
     eligible=len(accepted),
     candidates=len(candidates),
   )
+  if previous:
+    old_runtime = read_json(RUNTIME)
+    source.update(
+      owners=previous["owners"] + chosen,
+      archives={**previous["archives"], **source["archives"]},
+      eligible=previous["eligible"] + len(accepted),
+      candidates=previous["candidates"] + len(candidates),
+      additiveExtension=dict(
+        region=EXTENSION_REGION,
+        owners=len(chosen),
+        previousOwnerCount=len(previous["owners"]),
+        previousOwnersSha256=canonical_digest(previous["owners"]),
+        previousPackets={
+          key: canonical_digest(value) for key, value in old_runtime["packets"].items()
+        },
+      ),
+    )
   write_json(SOURCE, source)
   print("selected", Counter(r["region"] for r in chosen), flush=True)
   return source
@@ -647,6 +692,15 @@ def build() -> dict:
         )
       )
   output = dict(schema=1, keys=sorted(runtime), packets=runtime)
+  if extension := source.get("additiveExtension"):
+    assert (
+      canonical_digest(source["owners"][: extension["previousOwnerCount"]])
+      == extension["previousOwnersSha256"]
+    )
+    for key, expected in extension["previousPackets"].items():
+      assert canonical_digest(runtime[key]) == expected, (
+        f"Changed previous roof recipe: {key}"
+      )
   write_json(RUNTIME, output)
   result = dict(
     policy=POLICY,
@@ -665,7 +719,8 @@ def build() -> dict:
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--extract", action="store_true")
+  parser.add_argument("--append-steglitz-zehlendorf", action="store_true")
   options = parser.parse_args()
-  if options.extract:
-    extract()
+  if options.extract or options.append_steglitz_zehlendorf:
+    extract(options.append_steglitz_zehlendorf)
   build()

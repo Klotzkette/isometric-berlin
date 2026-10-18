@@ -1145,3 +1145,13 @@ authored detail, all 93 tour stops, full drawn mobile quality, independent nativ
 geometry and existing memory budgets. Only exact documented coarse owners may
 yield to a complete measured replacement; no invented roof forms or broad
 district regeneration. New ordinary details must follow bounded packet lifetime.
+
+### Step 10 — v234 clarified Steglitz-Zehlendorf house refinement
+
+The owner clarifies that “Wuhledorf” means Steglitz and Zehlendorf. Extend the
+existing v233 house treatment to already modeled coverage in the complete
+Steglitz-Zehlendorf district, selected by its eight official Ortsteil rings.
+Preserve every existing v233 roof, entrance and curb and all earlier detail.
+Reuse the same source-bound packet preparation, full drawn mobile quality,
+independent native representation and unchanged residency limits. No new city
+coverage or invented roof/entrance position is implied by this clarification.

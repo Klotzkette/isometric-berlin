@@ -17,12 +17,13 @@ def test_distributed_complete_source_roofs_and_immutable_inputs() -> None:
   assert evidence["sourceSha256"] == build.digest(build.SOURCE)
   assert evidence["runtimeSha256"] == build.digest(build.RUNTIME)
   assert source["boundarySha256"] == build.digest(build.BOUNDARY)
-  assert len(source["owners"]) == 128
+  assert len(source["owners"]) == 192
   assert Counter(o["region"] for o in source["owners"]) == {
     "Mitte": 32,
     "Friedrichshain-Kreuzberg": 32,
     "Charlottenburg-Wilmersdorf": 32,
     "Schöneberg": 32,
+    "Steglitz-Zehlendorf": 64,
   }
   for row in source["owners"]:
     assert row["sourceTopY"] - row["sourceRoofLowY"] > 1.2
@@ -74,7 +75,7 @@ def test_native_roofs_are_orthogonal_and_packet_growth_is_bounded() -> None:
   manifest = {
     d["id"]: d for d in build.read_json(build.OUT / "manifest.json")["chunks"]
   }
-  assert build.RUNTIME.stat().st_size < 2_000_000
+  assert build.RUNTIME.stat().st_size < 3_000_000
   assert build.SOURCE.stat().st_size < 1_000_000
   source = build.read_json(build.SOURCE)
   evidence = build.read_json(build.EVIDENCE)
@@ -119,3 +120,19 @@ def test_gutters_follow_lower_horizontal_measured_roof_boundaries() -> None:
       assert abs(np.linalg.norm(n) - 1) < 1e-6
       count += 1
   assert count >= 128
+
+
+def test_extension_preserves_every_released_owner_and_packet_recipe() -> None:
+  source = build.read_json(build.SOURCE)
+  runtime = build.read_json(build.RUNTIME)
+  extension = source["additiveExtension"]
+  assert extension["previousOwnerCount"] == 128
+  assert extension["owners"] == 64
+  assert len(extension["previousPackets"]) == 206
+  assert (
+    build.canonical_digest(source["owners"][:128]) == extension["previousOwnersSha256"]
+  )
+  old_tiles = {o["tile"] for o in source["owners"][:128]}
+  assert all(o["tile"] not in old_tiles for o in source["owners"][128:])
+  for key, expected in extension["previousPackets"].items():
+    assert build.canonical_digest(runtime["packets"][key]) == expected
