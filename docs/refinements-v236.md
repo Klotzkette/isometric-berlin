@@ -57,7 +57,7 @@ established packet precision. The 2,098-descriptor manifest remains below 2 MiB.
 The additional water mask is exactly the prior released extent union the final
 BER footprint, adding 1,459,526.236 m². No earlier water coverage is removed.
 Its gzip asset remains 883,772 bytes and decoded payload 2,830,948 bytes, below
-existing 1/3 MB limits.
+existing 1/3 MB coverage-test limits.
 
 The full existing Python regression run completes with 1,423 passes and four
 pre-existing skips; two version assertions observed the in-progress version
@@ -79,8 +79,9 @@ without JavaScript errors, context loss, crashes or a reset to the chooser.
 These are browser-emulation checks, not physical-phone endurance measurements.
 The sampled whole-view GPU buffers reach 236.90 MiB in desktop native mode and
 64.28 MiB in mobile native mode; these include existing Berlin content and are
-not a claimed 24 MiB global cap. Airport geometry follows the unchanged stream
-lifetime and totals less than 15 MiB even in its full native representation.
+not a claimed 24 MiB global cap. New streamed airport geometry follows the unchanged tile
+lifetime and totals less than 15 MiB even in its full native representation;
+retained earlier airport details are additional.
 
 Final-version source, preservation and release reruns resolve the in-flight
 version/staging mismatches above: 1,443 distinct Python tests pass with four
