@@ -6741,6 +6741,28 @@
       "credit": "Thomas Angermann, 3 February 2006 / CC BY-SA 2.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "altes_stadthaus_v239",
+      "title": "File:Berlin - Altes Stadthaus.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Altes_Stadthaus.jpg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "artist": "Fred Romero",
+      "credit": "Fred Romero, 2016-08-17 / CC BY 2.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "altes_stadthaus_v239",
+      "title": "File:Berlin - Altes Stadthaus (2).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_-_Altes_Stadthaus_(2).jpg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "artist": "Fred Romero",
+      "credit": "Fred Romero, 2016-08-17 / CC BY 2.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
