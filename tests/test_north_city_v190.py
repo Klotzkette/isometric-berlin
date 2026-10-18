@@ -66,5 +66,6 @@ def test_complete_manifest_fits_existing_browser_fetch_limit():
   manifest = ROOT / "src/app/public/mesh/surrounding-berlin-v159/manifest.json"
   assert manifest.stat().st_size <= 2 * 1024 * 1024
   data = json.loads(manifest.read_bytes())
-  assert len(data["chunks"]) <= 2112
+  # v238 adds thirteen finite companions; only catalogue metadata grows.
+  assert len(data["chunks"]) <= 2144
   assert len(data["footprint"]) <= 1000

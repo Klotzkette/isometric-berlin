@@ -1871,3 +1871,14 @@ operator references support interpretation; no remote photographs or textures
 are bundled. Exact library corrections retain their original source evidence.
 Unsurveyed facade subdivisions, material colours and furnishing dimensions are
 explicit display estimates. See `docs/refinements-v237.md` and linked evidence.
+
+
+## v1.0.138 — elevated U-Bahn and music venues
+
+The additions retain OpenStreetMap rail, roof, platform and entrance courses
+(© OpenStreetMap contributors, ODbL) and official Berlin LoD2 source surfaces
+under the licenses already recorded above. Operator/BVG, structural-engineering
+and Berlin monument references establish public identity and recognizable form;
+no reference photograph, copyrighted plan or texture is bundled. Unmeasured
+heights, supporting-frame dimensions and facade subdivisions remain display
+estimates. See `docs/refinements-v238.md` and its linked source receipts.

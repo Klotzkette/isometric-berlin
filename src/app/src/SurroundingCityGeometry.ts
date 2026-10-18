@@ -1,3 +1,4 @@
+import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238 } from "./namedSiteReplacementsV238";
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
@@ -217,6 +218,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
   chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
   chunk = yield* prepareCitywestStreetsV235(chunk, id, minecraft);
+  chunk = yield* prepareNamedSiteV238(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -292,6 +294,8 @@ export function* buildSurroundingCityChunk(
       if (outerPanes) root.userData.outerHousePanesV230 = (root.userData.outerHousePanesV230 ?? 0) + outerPanes;
       const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
       if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
+      const namedTransfer = yield* applyNamedSiteTrianglesV238(chunk, meshIndex, indices, indexOffset);
+      if (namedTransfer) root.userData.namedSiteTrianglesV238 = (root.userData.namedSiteTrianglesV238 ?? 0) + namedTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -356,6 +360,7 @@ export function* buildSurroundingCityChunk(
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
@@ -363,7 +368,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: siteNavigationV209(id, chunk.nav), origin: chunk.origin };
+      nav: namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav)), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

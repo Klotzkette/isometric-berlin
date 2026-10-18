@@ -1,3 +1,4 @@
+import { ELEVATED_STATION_PRISM_IDS_V238, ELEVATED_STATION_SOLIDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
 import { isWeddingRoofCoreV229, weddingRoofV229, WEDDING_ROOF_BOTTOM_Y_V229, WEDDING_ROOF_TOP_Y_V229 } from "./weddingMoabitV229Profile";
 import { URANIA_ARC_V206_PRISM_ID, URANIA_ARC_V206_NAVIGATION_PARTS } from "./uraniaArcV206Navigation";
@@ -678,6 +679,17 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (ELEVATED_STATION_PRISM_IDS_V238.has(sourceBuilding.id)) {
+      if (!replacedParents.has("gleisdreieck-v238")) {
+        replacedParents.add("gleisdreieck-v238");
+        for (const [i, solid] of ELEVATED_STATION_SOLIDS_V238.entries()) {
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            `gleisdreieck-v238-${i}`, 1, () => solid.maxY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     if (isWeddingRoofCoreV229(sourceBuilding)) {
       // Two ascending access roofs use their exact spatial thin-volume
       // callbacks; a flat min/max obstacle would close the stairs again.

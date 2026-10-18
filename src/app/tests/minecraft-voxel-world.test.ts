@@ -13,6 +13,10 @@ import currentPayloadBaseline from "./fixtures/minecraft-payload-only-v202.json"
 import ownerDeltaV202 from "./fixtures/minecraft-payload-only-v202-delta.json";
 import ownerDeltaV206 from "./fixtures/minecraft-payload-only-v206-delta.json";
 import ownerDeltaV237 from "./fixtures/minecraft-payload-only-v237-delta.json";
+import ownerDeltaV238 from "./fixtures/minecraft-payload-only-v238-delta.json";
+import elevatedCoreV238 from "../src/data/elevatedCoreOwnersV238.json";
+import { isElevatedStationReplacementColumnV238 } from "../src/elevatedStationV238Profile";
+import { auditElevatedStationsNativeDeltaV238 } from "./helpers/elevatedStationsNativeDeltaV238";
 import hansaLibraryV237 from "../src/data/hansaLibraryV237.json";
 import { isHansaLibraryReplacementColumnV237 } from "../src/hansaLibraryV237Profile";
 import { auditHansaLibraryNativeDeltaV237 } from "./helpers/hansaLibraryNativeDeltaV237";
@@ -144,9 +148,15 @@ function uraniaDelta(profile: "full" | "mobile", name: string): InstanceBufferDe
   return (ownerDeltaV206.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
 }
 
-function beforeHansaLibrary(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
-  const delta = (ownerDeltaV237.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
+function beforeElevatedStations(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
+  const delta = (ownerDeltaV238.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
   return delta ? restoreLegacyInstances(mesh, delta) : mesh;
+}
+
+function beforeHansaLibrary(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
+  const prior = beforeElevatedStations(mesh, profile, name);
+  const delta = (ownerDeltaV237.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
+  return delta ? restoreLegacyInstances(prior, delta) : prior;
 }
 
 function beforeUrania(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
@@ -159,6 +169,73 @@ describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
   const mobileWorld = createMinecraftVoxelWorld(payload, null, null, {
     detailProfile: "mobile",
+  });
+
+  test("v238 transfers exactly matched station courses and replays all retained bytes through immutable v237/v206/v202 receipts", async () => {
+    for (const [path, sha256] of Object.entries(ownerDeltaV238.inputSha256)) {
+      const bytes = new Uint8Array(await Bun.file(new URL(`../${path}`, import.meta.url)).arrayBuffer());
+      expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(sha256);
+    }
+    expect(ownerDeltaV238.sourceOwners).toEqual(["67972414", "67972418", "67972417"]);
+    expect(elevatedCoreV238.prismIds).toEqual(ownerDeltaV238.sourceOwners);
+    const old = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json();
+    for (const prism of elevatedCoreV238.previousPrisms)
+      expect(old.buildings.find((p: { id: string }) => p.id === prism.id)).toMatchObject(prism);
+    const audit = auditElevatedStationsNativeDeltaV238(buildingColumns, payload.cell_m, elevatedCoreV238.previousPrisms);
+    expect(audit).toEqual(ownerDeltaV238.audit);
+    expect(audit.sourceColumnsByPrism.map(p => [p.id,p.count])).toEqual([
+      ["67972418",98],["67972414",123],["67972417",0],
+    ]);
+    expect(audit.removedColumns).toHaveLength(195);
+    expect(audit.panes).toEqual({removed:250,exposed:44,netRemoved:206});
+    expect(audit.removedColumnInstances).toEqual({full:585,mobile:195});
+    expect(buildingColumns.filter(([x,z]) => isElevatedStationReplacementColumnV238((x+.5)*4,(z+.5)*4)))
+      .toEqual(audit.removedColumns);
+    const owned = new Map(audit.removedColumns.map(([x,z,lo,hi]) => [`${(x+.5)*4},${(z+.5)*4}`,[lo/10,hi/10]]));
+    expect(audit.removedColumns.map(([x,z,low,high,kind]) => ({x:(x+.5)*4,z:(z+.5)*4,low,high,kind})))
+      .toEqual(elevatedCoreV238.previousColumns.map(({x,z,low,high,kind}) => ({x,z,low,high,kind})));
+    // The long third bridge prism has no exactly matching old vertical tuple:
+    // spatial overlap alone must never authorize retiring different courses.
+    expect(audit.sourceColumnsByPrism.find(p => p.id === "67972417")!.count).toBe(0);
+    for (const [profile,root] of [["full",world],["mobile",mobileWorld]] as const) {
+      const changes = ownerDeltaV238.profiles[profile] as Record<string,InstanceBufferDelta>;
+      expect(Object.keys(changes).sort()).toEqual(profile === "full"
+        ? ["Voxel building columns","Voxel facade windows"] : ["Voxel building columns"]);
+      for (const [name,expected] of Object.entries(ownerDeltaV238.previous[profile])) {
+        if (expected === null) { expect(root.getObjectByName(name)).toBeUndefined(); continue; }
+        const mesh = instanced(name,root), change = changes[name];
+        if (!change) {
+          const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array).update(mesh.instanceColor!.array);
+          expect({count:mesh.count,sha256:hash.digest("hex")}).toEqual(expected);
+          continue;
+        }
+        expect({count:change.beforeCount,sha256:replayLegacyInstanceHash(mesh,change)}).toEqual(expected);
+        const panes = name === "Voxel facade windows", heights = new Map<string,number>();
+        expect(change.removed).toHaveLength(panes ? audit.panes.removed : audit.removedColumnInstances[profile]);
+        expect(change.added).toHaveLength(panes ? audit.panes.exposed : 0);
+        for (const [kind,records] of [["removed",change.removed],["added",change.added]] as const)
+          for (const record of records) {
+            const m=decodedInstance(record), rawX=m[12]-(panes?m[8]*2.08:0),rawZ=m[14]-(panes?m[10]*2.08:0);
+            const x=Math.round(rawX/4-.5)*4+2,z=Math.round(rawZ/4-.5)*4+2,key=`${x},${z}`;
+            expect(Math.abs(rawX-x)).toBeLessThan(.0001); expect(Math.abs(rawZ-z)).toBeLessThan(.0001);
+            if (kind === "added") {
+              expect(panes).toBeTrue();expect(owned.has(key)).toBeFalse();
+              expect(owned.has(`${x+m[8]*4},${z+m[10]*4}`)).toBeTrue();
+            } else {
+              expect(owned.has(key)).toBeTrue(); const [lo,hi]=owned.get(key)!;
+              expect(m[13]).toBeGreaterThanOrEqual(lo);expect(m[13]).toBeLessThanOrEqual(hi);
+              if (!panes) {
+                expect(m[0]).toBe(4);expect(m[10]).toBe(4);
+                heights.set(key,(heights.get(key)??0)+m[5]);
+              }
+            }
+          }
+        if (!panes) {
+          expect(heights.size).toBe(195);
+          for (const [key,height] of heights) { const [lo,hi]=owned.get(key)!;expect(height).toBeCloseTo(hi-lo,5); }
+        }
+      }
+    }
   });
 
   test("v237 transfers exactly four old library owners and replays every retained byte through the immutable v206/v202 chain", async () => {
@@ -189,7 +266,7 @@ describe("true voxel Minecraft world", () => {
         ? ["Voxel building columns","Voxel facade windows"] : ["Voxel building columns"]);
       for (const [name,expected] of Object.entries(ownerDeltaV237.previous[profile])) {
         if (expected === null) { expect(root.getObjectByName(name)).toBeUndefined(); continue; }
-        const mesh = instanced(name,root), change = changes[name];
+        const mesh = beforeElevatedStations(instanced(name,root),profile,name), change = changes[name];
         if (!change) {
           const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array).update(mesh.instanceColor!.array);
           expect({count:mesh.count,sha256:hash.digest("hex")}).toEqual(expected);
@@ -517,7 +594,7 @@ describe("true voxel Minecraft world", () => {
     // v174 replaces 64 Bernauer fallback cells: 192 old panes disappear and
     // six neighboring panes become exposed, independently audited above.
     expect(instanced("Voxel facade windows", world).count).toBe(
-      currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved,
+      currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved - ownerDeltaV238.audit.panes.netRemoved,
     );
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     // Includes 72 roof-light surfaces; the Siegessäule replacement removes
@@ -541,10 +618,10 @@ describe("true voxel Minecraft world", () => {
     // v153: 699 owned source columns yield to the two complete native models,
     // exactly 2,097 full stack instances or 699 mobile instances.
     expect(instanced("Voxel building columns", world).count).toBe(
-      currentPayloadBaseline.full["Voxel building columns"].count - 86 * 3 - ownerDeltaV237.audit.removedColumnInstances.full,
+      currentPayloadBaseline.full["Voxel building columns"].count - 86 * 3 - ownerDeltaV237.audit.removedColumnInstances.full - ownerDeltaV238.audit.removedColumnInstances.full,
     );
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
-      currentPayloadBaseline.mobile["Voxel building columns"].count - 86 - ownerDeltaV237.audit.removedColumnInstances.mobile,
+      currentPayloadBaseline.mobile["Voxel building columns"].count - 86 - ownerDeltaV237.audit.removedColumnInstances.mobile - ownerDeltaV238.audit.removedColumnInstances.mobile,
     );
 
     const landmarks = world.getObjectByName(
@@ -1051,7 +1128,7 @@ describe("true voxel Minecraft world", () => {
     const mesh = panes as InstanceType<typeof InstancedMesh>;
     // Exact source replacements remove duplicate generic panes. Remaining
     // exposed faces still share one batch and keep their measured dimensions.
-    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved);
+    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved - ownerDeltaV238.audit.panes.netRemoved);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();

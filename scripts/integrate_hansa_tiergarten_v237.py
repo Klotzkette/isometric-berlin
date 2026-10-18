@@ -97,6 +97,9 @@ def verify_companions(chunks: list[dict], reader: Callable[[Path], bytes]) -> No
 
 def normalize_hansa_additions(current: dict, reader: Callable[[Path], bytes]) -> dict:
   """Allow old audits to run only after proving the complete new supplement."""
+  from scripts.integrate_elevated_venues_v238 import normalize_elevated_additions
+
+  current = normalize_elevated_additions(current, reader)
   if "hansaTiergartenV237" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current

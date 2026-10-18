@@ -1,3 +1,4 @@
+import { ELEVATED_STATION_PRISM_IDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
 import { isMonbijouBridgeClusterV231 } from "./monbijouPreviousV231";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
@@ -1023,6 +1024,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...GORKI_BUILDING_PRISM_IDS,
   ...GRIPS_HANSAPLATZ_PRISM_IDS,
   ...HANSA_LIBRARY_PRISM_IDS_V237,
+  ...ELEVATED_STATION_PRISM_IDS_V238,
   ...GYMNASIUM_NEUBAU_PRISM_IDS,
   ...BEHREN42_PRISM_IDS,
   ...BEBELPLATZ_BUILDING_PRISM_IDS,

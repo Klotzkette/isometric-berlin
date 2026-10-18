@@ -112,7 +112,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # archive-only allowance. All live geometry, transfer and prefetch limits stay fixed.
 # v237 retains all old assets and adds ten finite architectural companions.
 # The complete package measures 857.64 MiB; 859 MiB bounds this archive only.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 859 * 1024 * 1024
+# v238 retains every previous asset and adds thirteen railway/venue companions.
+# Complete extracted package: 907,714,725 bytes (865.665 MiB). This finite
+# 867 MiB archive allowance does not change any live packet or residency limit.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 867 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

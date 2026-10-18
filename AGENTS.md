@@ -1197,3 +1197,17 @@ Preserve complete LoD2/OSM source geometry, all previous authored details, the
 native geometry. Exact erroneous owner corrections require complete source
 receipts; unmeasured facade/fitting dimensions remain documented estimates.
 Use existing cancellable packet lifetime and unchanged live residency limits.
+
+### Step 10 — v238 elevated U-Bahn and music venues
+
+The owner requests source-bound refinement of the U2 elevated railway and real
+tunnel ramp at Eberswalder Straße, Bülowstraße and the two levels at Gleisdreieck,
+the elevated approach and station at Kottbusser Tor, and Huxleys Neue Welt and
+Columbiahalle. The trailing spoken “Hermann” is provisionally Hermannplatz;
+keep this bounded to its mapped station entrances and existing square. Preserve
+all earlier sources, coverage, six modes, seven starts and 93 tour stops. Correct
+only exactly identified erroneous proxies with immutable source receipts and
+complete replacement geometry. Track heights not surveyed in the source remain
+explicit estimates; source-plan tracks, roof envelopes, open undercrofts and
+walkable street clearances must agree. Keep independent native construction,
+complete drawn mobile detail and existing byte/residency/prefetch limits.

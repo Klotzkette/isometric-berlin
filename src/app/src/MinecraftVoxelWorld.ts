@@ -1,3 +1,4 @@
+import { isElevatedStationReplacementColumnV238 } from "./elevatedStationV238Profile";
 import { createMonbijouGroundCellTesterV231 } from "./monbijouPreviousV231";
 import { createColonnadesCoreColumnTesterV231 } from "./colonnadesCorePreviousV231";
 import { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, GROUND_SLAB_M, WATER_TOP_Y, CLASS_SHADES, FALLBACK_SHADES, shadeFor, voxelMaterial, type InstanceWriter, instancedBoxes, allocateUnwrittenInstances, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, finishSteps, createGroundSlabsSteps, type GatehouseGroundPoint, type GatehouseGroundPolygon, gatehouseGroundCuts, gatehousePolygonArea, clipGatehouseGroundPlane, gatehouseGroundComplement, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
@@ -789,6 +790,7 @@ export function isCompleteRecognitionVoxelColumn(
     isRussianEmbassyReplacementColumn(x, z) ||
     isGripsHansaplatzReplacementColumn(x, z) ||
     isHansaLibraryReplacementColumnV237(x, z) ||
+    isElevatedStationReplacementColumnV238(x, z) ||
     isGymnasiumNeubauReplacementColumn(x, z) ||
     isBehren42ReplacementColumn(x, z) ||
     isSchlossNaturkundeReplacementColumn(x, z) ||

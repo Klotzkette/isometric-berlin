@@ -12,6 +12,7 @@ import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
 import { prepareCitywestStreetsV235 } from "../src/CitywestStreetsV235";
+import { prepareNamedSiteV238 } from "../src/namedSiteReplacementsV238";
 import { replacePanoramaFacadeV202 } from "../src/panoramaFacadeV202";
 import { transferSiteTrianglesV209 } from "../src/siteOwnershipV209";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
@@ -30,7 +31,7 @@ function load(key: string): SurroundingCityChunk {
 }
 function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
   const houses = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(finish(prepareRoofHouseV233(chunk, id, native)), id, native)), id, native));
-  return finish(prepareCitywestStreetsV235(finish(prepareBoulevardArchitectureV235(houses, id, native)), id, native));
+  return finish(prepareNamedSiteV238(finish(prepareCitywestStreetsV235(finish(prepareBoulevardArchitectureV235(houses, id, native)), id, native)), id, native));
 }
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);

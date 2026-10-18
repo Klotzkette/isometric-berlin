@@ -18,7 +18,7 @@ def test_previous_packets_and_established_bounds_remain_exact():
     with (build.OUT / asset["url"]).open("rb") as stream:
       assert hashlib.file_digest(stream, "sha256").hexdigest() == asset["sha256"]
   manifest = base.read_json(build.OUT / "manifest.json")
-  assert len(manifest["chunks"]) <= 2112
+  assert len(manifest["chunks"]) <= 2144
   assert 0 < len(evidence["companions"]) <= 90
   assert (
     sum(c[f]["bytes"] for c in evidence["companions"] for f in ["drawn", "minecraft"])

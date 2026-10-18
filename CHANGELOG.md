@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.138 — elevated U-Bahn and music venues
+
+- Follow the mapped U2 ramp and viaduct at Eberswalder Straße and the connected southern elevated corridor from Bülowstraße through Gleisdreieck to Kottbusser Tor.
+- Restore open station undercrofts and the two distinct Gleisdreieck levels; replace only precisely receipted erroneous proxies.
+- Restore 19 complete measured Huxleys Neue Welt and Columbiahalle building parts and recognize seven mapped Hermannplatz entrances.
+- Keep every previous city packet, all modes, full drawn mobile detail and existing live memory budgets.
+- See [sources and validation](docs/refinements-v238.md).
+
 ## v1.0.137 — Hansaviertel, Moabit and Tiergarten
 
 - Restore the complete measured Hansabibliothek form and refine characteristic Interbau facade fields.
