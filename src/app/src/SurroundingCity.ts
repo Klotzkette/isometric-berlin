@@ -43,6 +43,8 @@ export type SurroundingNavigationTile = {
   nav: SurroundingNavigation;
 };
 export type SurroundingCityOptions = {
+  /** Enable only after required Schlossplatz bodies belong to the active city. */
+  schlossplatzV239?: boolean;
   manifestUrl: URL;
   camera: Camera;
   mode?: VisualMode;
@@ -382,6 +384,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const entry = await createSurroundingCityChunkCooperatively(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
+            { schlossplatzV239: options.schlossplatzV239 === true },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.

@@ -14,6 +14,8 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   // Atomic named-site packets are immutable construction inputs. Prepared
   // generators retain one receipt only until decoding; roots keep no payload.
+  "requiredMitteV239.json": ["drawn", "minecraft"],
+  "schlossplatzV239AltMittePrevious.json": ["records"],
   "northElevatedV238Replacement.json": ["packets"],
   "southElevatedV238Replacement.json": ["packets", "core"],
   "venuesV238Replacement.json": ["packets"],

@@ -13,10 +13,13 @@ from scripts.integrate_elevated_venues_v238 import (
   normalize_elevated_additions,
   read,
 )
+from scripts.integrate_mitte_v239 import normalize_mitte_additions
 
 
 def test_architecture_append_preserves_all_released_assets_and_coverage():
-  current = read(PUBLIC / "manifest.json")
+  current = normalize_mitte_additions(
+    read(PUBLIC / "manifest.json"), lambda p: p.read_bytes()
+  )
   snapshot = copy.deepcopy(current)
   previous = json.loads(baseline_bytes())
   assert len(previous["chunks"]) == 2108
@@ -32,7 +35,9 @@ def test_architecture_append_preserves_all_released_assets_and_coverage():
   ["old", "missing", "extra", "footprint", "source", "budget", "unreceipted"],
 )
 def test_incomplete_or_unrelated_mutations_are_rejected(mutation):
-  current = copy.deepcopy(read(PUBLIC / "manifest.json"))
+  current = copy.deepcopy(
+    normalize_mitte_additions(read(PUBLIC / "manifest.json"), lambda p: p.read_bytes())
+  )
   if mutation == "old":
     current["chunks"][0]["drawn"]["sha256"] = "0" * 64
   elif mutation == "missing":
@@ -56,7 +61,9 @@ def test_incomplete_or_unrelated_mutations_are_rejected(mutation):
 @pytest.mark.parametrize("family", ["drawn", "minecraft"])
 @pytest.mark.parametrize("tile", [0, -1])
 def test_actual_old_and_new_payload_bytes_are_checked(family, tile):
-  current = read(PUBLIC / "manifest.json")
+  current = normalize_mitte_additions(
+    read(PUBLIC / "manifest.json"), lambda p: p.read_bytes()
+  )
   bad = PUBLIC / current["chunks"][tile][family]["url"]
 
   def corrupted(path):

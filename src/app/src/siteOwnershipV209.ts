@@ -1,4 +1,5 @@
 import { transferSpreeFacadeV231 } from "./spreeFacadeOwnershipV231";
+import { transferSchlossplatzLinesV239, transferSchlossplatzTrianglesV239 } from "./schlossplatzV239Ownership";
 import centralNamed from "./data/centralNamedV230Ownership.json";
 import { transferCentralNamedNavigationV230 } from "./centralNamedPacketNavigationV230";
 import westIndustrial from "./data/westIndustrialV230Ownership.json";
@@ -26,14 +27,17 @@ const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.li
 
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
-  part: SurroundingPackedMesh, indices: Uint16Array | Uint32Array, offset: number): Generator<void, number> {
+  part: SurroundingPackedMesh, indices: Uint16Array | Uint32Array, offset: number,
+  schlossplatzV239 = false): Generator<void, number> {
   const sites = yield* transferExactPacketTriangles(triangles, tile, native, part, indices, offset);
   return sites + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset))
-    + (yield* transferSpreeFacadeV231(tile, native, part, indices, offset));
+    + (yield* transferSpreeFacadeV231(tile, native, part, indices, offset))
+    + (yield* transferSchlossplatzTrianglesV239(schlossplatzV239, tile, native, part, indices, offset));
 }
 export function* transferSiteLinesV209(tile: string, part: SurroundingPackedLines,
-  values: Uint16Array, stride: number): Generator<void, number> {
-  return yield* transferExactPacketLines(lines, tile, part, values, stride);
+  values: Uint16Array, stride: number, schlossplatzV239 = false): Generator<void, number> {
+  return (yield* transferExactPacketLines(lines, tile, part, values, stride))
+    + (yield* transferSchlossplatzLinesV239(schlossplatzV239, tile, part, values, stride));
 }
 
 const equalRing = (a: number[][], b: number[][]) => a.length === b.length &&

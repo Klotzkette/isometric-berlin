@@ -4,6 +4,7 @@ import {
   type AltMitteCoreV169Source,
 } from "./AltMitteCoreV169";
 import { preloadAltMitteV169NativeNavigation } from "./altMitteV169Profile";
+import type { SurroundingOwnershipOptions } from "./SurroundingCityGeometry";
 
 let payload: AltMitteCoreV169Source | undefined;
 let loading: Promise<void> | undefined;
@@ -55,10 +56,10 @@ export function assertAltMitteNativeV169SourceReady(): void {
 
 /** Separate block-native shell payload, with identical full/touch coverage. */
 export function createMinecraftAltMitteCoreV169(
-  _options: { mobileLike?: boolean } = {},
+  options: { mobileLike?: boolean } & SurroundingOwnershipOptions = {},
 ) {
-  return createAltMitteCoreV169FromSource(preparedSource(), true);
+  return createAltMitteCoreV169FromSource(preparedSource(), true, options);
 }
-export function buildMinecraftAltMitteCoreV169Steps() {
-  return buildCore(preparedSource(), true);
+export function buildMinecraftAltMitteCoreV169Steps(ownership: SurroundingOwnershipOptions = {}) {
+  return buildCore(preparedSource(), true, ownership);
 }

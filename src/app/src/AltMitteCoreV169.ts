@@ -2,6 +2,7 @@ import { Group } from "three";
 import {
   buildSurroundingCityChunk,
   type SurroundingCityChunk,
+  type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
 import { disposeSurroundingCityRoot } from "./SurroundingCity";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -26,6 +27,7 @@ export type AltMitteCoreV169Source = {
 export function* buildAltMitteCoreV169Steps(
   payload: AltMitteCoreV169Source,
   native = false,
+  ownership: SurroundingOwnershipOptions = {},
 ): Generator<void, Group> {
   if (payload.schemaVersion !== 1 || !Array.isArray(payload.sourceParents))
     throw new Error("Invalid Alt-Mitte core source");
@@ -55,6 +57,8 @@ export function* buildAltMitteCoreV169Steps(
         chunk.packet,
         `alt-mitte-v169-${chunk.id}`,
         native,
+        false,
+        ownership,
       );
       decoded.root.name = `${root.name}: ${chunk.id}`;
       decoded.root.userData.sourceGeometry =
@@ -113,8 +117,9 @@ export function* buildAltMitteCoreV169Steps(
 export function createAltMitteCoreV169FromSource(
   payload: AltMitteCoreV169Source,
   native = false,
+  ownership: SurroundingOwnershipOptions = {},
 ): Group {
-  const steps = buildAltMitteCoreV169Steps(payload, native);
+  const steps = buildAltMitteCoreV169Steps(payload, native, ownership);
   let next = steps.next();
   while (!next.done) next = steps.next();
   return next.value;

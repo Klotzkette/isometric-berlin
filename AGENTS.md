@@ -1211,3 +1211,18 @@ complete replacement geometry. Track heights not surveyed in the source remain
 explicit estimates; source-plan tracks, roof envelopes, open undercrofts and
 walkable street clearances must agree. Keep independent native construction,
 complete drawn mobile detail and existing byte/residency/prefetch limits.
+
+### Step 10 — v239 Schlossplatz, Nikolaiviertel and northern Mitte fronts
+
+The owner requests Staatsratsgebäude with the transplanted Liebknecht portal,
+the nearby Hochschule für Musik Hanns Eisler in Neuer Marstall, Nikolaiviertel
+with Nikolaikirche, and Altes Stadthaus. They also request street-facing houses
+along Torstraße, Choriner Straße, Zehdenicker Straße, Linienstraße, Koppenplatz,
+Fehrbelliner Straße and Veteranenstraße, around Gipsdreieck and Monbijoupark,
+including the Delivery Hero/Oranienburger corridor, Google at Tucholskystraße 2
+and Leo-Baeck-Haus at Tucholskystraße 9. Interpret the spoken Corinna/Zedernicker
+as Choriner/Zehdenicker and Oranienstraße here as Oranienburger Straße.
+Keep every retained source and earlier authored detail except exactly receipted
+erroneous proxies with complete replacements. No new city coverage, invented
+roof form or runtime residency increase. Ground, court holes and walking solids
+must agree; source-unmeasured facade fittings remain explicit approximations.

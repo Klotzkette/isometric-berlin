@@ -1,3 +1,4 @@
+import { isSchlossplatzPreviousPartV239, isSchlossplatzCorePrismV239, SCHLOSSPLATZ_SOLIDS_V239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238, ELEVATED_STATION_SOLIDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
 import { isWeddingRoofCoreV229, weddingRoofV229, WEDDING_ROOF_BOTTOM_Y_V229, WEDDING_ROOF_TOP_Y_V229 } from "./weddingMoabitV229Profile";
@@ -671,7 +672,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean } = {},
+  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
@@ -679,6 +680,17 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (options.replaceSchlossplatzPrisms && isSchlossplatzCorePrismV239(sourceBuilding)) {
+      if (!replacedParents.has("schlossplatz-v239")) {
+        replacedParents.add("schlossplatz-v239");
+        for (const solid of SCHLOSSPLATZ_SOLIDS_V239) {
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            solid.sourceId, 1, () => solid.maxY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     if (ELEVATED_STATION_PRISM_IDS_V238.has(sourceBuilding.id)) {
       if (!replacedParents.has("gleisdreieck-v238")) {
         replacedParents.add("gleisdreieck-v238");
@@ -1386,6 +1398,7 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
     }
     for (const part of ALT_MITTE_V169_PARTS) {
+      if (replacedParents.has("schlossplatz-v239") && isSchlossplatzPreviousPartV239(part)) continue;
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, roofAt);
       index.buildingCount += 1;
     }
@@ -2049,7 +2062,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean } = {},
+  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

@@ -1882,3 +1882,17 @@ and Berlin monument references establish public identity and recognizable form;
 no reference photograph, copyrighted plan or texture is bundled. Unmeasured
 heights, supporting-frame dimensions and facade subdivisions remain display
 estimates. See `docs/refinements-v238.md` and its linked source receipts.
+
+
+## v1.0.139 — Schlossplatz and northern Mitte street fronts
+
+Retained Berlin LoD2/bDOM (Geoportal Berlin, dl-de/zero-2-0) and OpenStreetMap
+contributors (ODbL-1.0) anchor the complete named owners, roof profiles, public
+street alignment and mapped entrances. Exact previous pane/source receipts
+preserve the existing city. New facade fittings, reflections, ornament and
+material hues are documented procedural estimates, not surveyed facade data.
+Primary operator, architect and monument-authority pages identify each site;
+no photographic texture, downloaded logo or font is bundled. Fred Romero's
+17 August 2016 photographs “Berlin - Altes Stadthaus.jpg” and “Berlin - Altes
+Stadthaus (2).jpg” (CC BY 2.0) are individually credited in both packaged
+attribution manifests. See `docs/refinements-v239.md` and its linked source notes.

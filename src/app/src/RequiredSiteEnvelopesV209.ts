@@ -1,3 +1,4 @@
+import { addRequiredMitteV239 } from "./RequiredMitteV239";
 import { addRequiredElevatedStationsV238 } from "./RequiredElevatedStationsV238";
 import { createRingStationsV232 } from "./RingStationsV232";
 import { createSpreeFacadesV231 } from "./SpreeFacadesV231";
@@ -32,6 +33,7 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  yield* addRequiredMitteV239(root, native);
   yield* addRequiredElevatedStationsV238(root, native);
   cutOrankeseePresentationV209(root, native);
   yield;

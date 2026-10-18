@@ -199,11 +199,17 @@ function disposeUnpublishedChunk(root: Group): void {
  * (byte * 257 is exact). Every tile uses one vertex/index pair and at most one
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
+export type SurroundingOwnershipOptions = {
+  /** Caller guarantees complete v239 bodies in the same publication transaction. */
+  schlossplatzV239?: boolean;
+};
+
 export function* buildSurroundingCityChunk(
   chunk: SurroundingCityChunk,
   id: string,
   minecraft = false,
   parkBacking = false,
+  ownership: SurroundingOwnershipOptions = {},
 ): Generator<void, SurroundingChunkGeometry> {
   if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
       chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
@@ -274,7 +280,7 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
-      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset);
+      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
@@ -358,7 +364,7 @@ export function* buildSurroundingCityChunk(
       root.add(ink);
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
-      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3);
+      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
@@ -380,8 +386,9 @@ export function* buildSurroundingCityChunk(
 
 export function createSurroundingCityChunk(
   chunk: SurroundingCityChunk, id: string, minecraft = false,
+  ownership: SurroundingOwnershipOptions = {},
 ): SurroundingChunkGeometry {
-  const iterator = buildSurroundingCityChunk(chunk, id, minecraft);
+  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, false, ownership);
   let next = iterator.next();
   while (!next.done) next = iterator.next();
   return next.value;
@@ -404,11 +411,12 @@ function yieldSurroundingTask(): Promise<void> {
 export async function createSurroundingCityChunkCooperatively(
   chunk: SurroundingCityChunk, id: string, minecraft = false,
   schedule: SurroundingChunkSchedule = {},
+  ownership: SurroundingOwnershipOptions = {},
 ): Promise<SurroundingChunkGeometry> {
   const now = schedule.now ?? (() => performance.now());
   const yieldTask = schedule.yield ?? yieldSurroundingTask;
   const budget = Math.max(0, schedule.budgetMs ?? 3);
-  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, true);
+  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, true, ownership);
   let started = now();
   try {
     while (true) {

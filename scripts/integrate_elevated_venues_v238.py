@@ -101,6 +101,9 @@ def normalize_elevated_additions(
   current: dict, reader: Callable[[Path], bytes]
 ) -> dict:
   """Allow old audits to run only after proving the complete new supplement."""
+  from scripts.integrate_mitte_v239 import normalize_mitte_additions
+
+  current = normalize_mitte_additions(current, reader)
   if "elevatedVenuesV238" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current

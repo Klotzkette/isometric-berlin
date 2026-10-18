@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.139 — northern Mitte fronts and Schlossplatz architecture
+
+- Refine 5,647 verified old panes on 265 street-front owners around Torstraße,
+  Linienstraße, Koppenplatz, Gipsdreieck, Fehrbelliner/Veteranenstraße and the
+  Choriner/Zehdenicker junction, plus twenty Choriner Höfe panes.
+- Differentiate 764 existing named-site openings around Google, Delivery Hero
+  and Leo-Baeck-Haus, retaining their source bodies and existing aperture positions.
+- Correct Schlossplatz architecture, the Staatsrat portal, Neuer Marstall,
+  Nikolaikirche's twin spires, Nikolaiviertel recognition and Altes Stadthaus.
+- Preserve source packets, open courts, independent native geometry, full mobile
+  detail, existing live budgets and all tour stops. See `docs/refinements-v239.md`.
+
 ## v1.0.138 — elevated U-Bahn and music venues
 
 - Follow the mapped U2 ramp and viaduct at Eberswalder Straße and the connected southern elevated corridor from Bülowstraße through Gleisdreieck to Kottbusser Tor.

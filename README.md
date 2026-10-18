@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.138 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.138/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.139 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.139/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.138** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.139** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.138 refines the elevated U-Bahn at Eberswalder Straße, Bülowstraße, Gleisdreieck and Kottbusser Tor, plus Huxleys Neue Welt, Columbiahalle and mapped Hermannplatz entrances. Open undercrofts, previous city detail and live memory limits are retained. [Sources and validation](docs/refinements-v238.md).
+Version 1.0.139 refines the requested northern Mitte street fronts, Google/Delivery Hero/Leo-Baeck-Haus, Schlossplatz, Nikolaiviertel and Altes Stadthaus. The release also includes the preceding elevated U-Bahn and venue improvements. Existing source geometry, courtyards, full mobile detail and live residency limits are preserved. [Sources and validation](docs/refinements-v239.md).
 
-Version 1.0.138 verbessert die Hochbahn bei Eberswalder Straße, Bülowstraße, Gleisdreieck und Kottbusser Tor sowie Huxleys Neue Welt, Columbiahalle und die erfassten Zugänge am Hermannplatz. Unterfahrten, bisherige Stadtdetails und laufende Speichergrenzen bleiben erhalten.
+Version 1.0.139 verfeinert die gewünschten Straßenfronten im nördlichen Mitte, Google/Delivery Hero/Leo-Baeck-Haus, Schlossplatz, Nikolaiviertel und Altes Stadthaus. Die vorherigen Hochbahn- und Veranstaltungsort-Korrekturen sind enthalten. Quellengeometrie, Höfe, vollständige mobile Details und laufende Speichergrenzen bleiben erhalten.
 
 Version 1.0.136 completes the mapped BER airport grounds, terminal bodies, piers, tower, parking structures and access roads with bounded streamed geometry. Source-based footprints and tagged heights are retained; unspecified dimensions remain documented estimates. [Sources and validation](docs/refinements-v236.md).
 

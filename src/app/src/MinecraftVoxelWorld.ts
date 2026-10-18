@@ -1,3 +1,4 @@
+import { createSchlossplatzColumnTesterV239 } from "./schlossplatzV239Profile";
 import { isElevatedStationReplacementColumnV238 } from "./elevatedStationV238Profile";
 import { createMonbijouGroundCellTesterV231 } from "./monbijouPreviousV231";
 import { createColonnadesCoreColumnTesterV231 } from "./colonnadesCorePreviousV231";
@@ -302,6 +303,7 @@ export type MinecraftVoxelWorldOptions = {
   includeLegacyTownhallEnvelopes?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
+  includeLegacySchlossplatzEnvelopes?: boolean;
   includeLegacyColonnadesEnvelopes?: boolean;
   includeLegacyMonbijou?: boolean;
   /**
@@ -2444,7 +2446,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps());
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2590,6 +2592,8 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createDistrictCourtCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
   const weddingRoofColumnAt = options.includeLegacyWeddingStationRoof === false
     ? createWeddingRoofCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
+  const schlossColumnAt = options.includeLegacySchlossplatzEnvelopes === false
+    ? createSchlossplatzColumnTesterV239(options.sourcePrisms, cell) : () => false;
   const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
@@ -2598,6 +2602,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (schlossColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm, y1dm, classId)) continue;
     if (colonnadeColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (!(
       !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
