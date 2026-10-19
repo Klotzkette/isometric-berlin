@@ -1,1 +1,0 @@
-function e(e){return e.traverse(e=>{e.matrixAutoUpdate&&e.updateMatrix(),e.matrixAutoUpdate=!1,e.matrixWorldNeedsUpdate=!0}),e}export{e as t};
