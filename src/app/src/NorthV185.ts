@@ -3,6 +3,7 @@ import source from "./data/northV185.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { buildingTerrainOffset, terrainGroundAt } from "./weinbergTerrainV176";
+import { appendDanzigerTramV249, finishDanzigerTramV249 } from "./DanzigerTramV249";
 
 export const NORTH_V185_GROUP = "Northern neighbourhoods: bounded source-bound accents v185";
 type Face = typeof source.faces[number];
@@ -121,9 +122,13 @@ export function createNorthV185(minecraft = false): Group {
     const rows: Rows = [], arches: Rows = [];
     source.faces.filter(f => f.kind === kind).forEach(f => facade(rows, arches, f, minecraft));
     if (kind === "weinbergspark") garden(rows, minecraft);
-    if (kind === "hagenauer") roadEdges(rows, minecraft);
+    if (kind === "hagenauer") {
+      roadEdges(rows, minecraft);
+      appendDanzigerTramV249(rows, minecraft);
+    }
     if (!rows.length) continue;
     const mesh = justicePalaceV183Boxes(rows, minecraft);
+    if (kind === "hagenauer") finishDanzigerTramV249(mesh, rows, minecraft);
     mesh.name = `North v185 ${kind}: source-bound shallow additions`;
     mesh.userData.northV185 = kind;
     root.add(mesh);

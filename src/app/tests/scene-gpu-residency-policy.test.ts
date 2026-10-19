@@ -60,6 +60,42 @@ test("GPU eviction never destroys an authored instance morph texture", () => {
   morph.dispose();
 });
 
+test("byte pressure reclaims only surplus look-ahead and retains exact visible/shared instance storage", () => {
+  const h = policyHost({ budgetBytes: 1, graceMs: 0 });
+  const surplus = h.create(8), visible = h.create(0), edge = h.create(5.4), margin = h.create(6.2);
+  const sharedA = h.create(8), sharedB = h.create(9);
+  sharedB.instanceMatrix = sharedA.instanceMatrix;
+  const original = surplus.instanceMatrix.array;
+  const expected = original.slice();
+  let disposed = 0; surplus.addEventListener("dispose", () => disposed++);
+  h.observe();
+  expect(h.residency.refresh(100)).toBe(1);
+  expect(disposed).toBe(1);
+  for (const mesh of [surplus, visible, edge, margin, sharedA, sharedB]) {
+    expect(mesh.visible).toBe(true);
+    expect(mesh.parent).toBe(h.scene);
+  }
+  expect(surplus.instanceMatrix.array).toBe(original);
+  expect(original).toEqual(expected);
+  // Looking at the same unchanged object makes it resident again through
+  // the ordinary upload observer; no geometry reconstruction is involved.
+  const bytes = h.residency.residentBytes;
+  surplus.onAfterRender(h.renderer, h.scene, h.camera, surplus.geometry, surplus.material, null);
+  expect(h.residency.residentBytes).toBe(bytes + original.byteLength);
+  expect(surplus.instanceMatrix.array).toEqual(expected);
+  h.residency.dispose();
+});
+
+test("below the byte target the original wider look-ahead remains eligible", () => {
+  const h = policyHost({ budgetBytes: 1024, budgetBuffers: 0, graceMs: 0 });
+  const lookAhead = h.create(8);
+  h.observe();
+  expect(h.residency.refresh(100)).toBe(0);
+  expect(h.residency.residentBytes).toBe(64);
+  expect(lookAhead.visible).toBe(true);
+  h.residency.dispose();
+});
+
 function policyHost(options: { budgetBytes?: number; budgetBuffers?: number; graceMs?: number } = {}) {
   const scene = new Scene();
   const camera = new OrthographicCamera(-5, 5, 5, -5, 0.1, 1000);

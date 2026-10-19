@@ -116,6 +116,71 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("preparation waits for the complete scene's first shadow atlas without consuming its queue", () => {
+    const { scene, camera } = fixture();
+    const light = new DirectionalLight(); light.castShadow = true;
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    scene.add(light, mesh);
+    const h = host(scene, camera); h.warmup.enqueue(scene);
+    const before = h.state();
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(h.calls).toHaveLength(0);
+    expect(h.uploads).toHaveLength(0);
+    expect(h.state()).toEqual(before);
+    expect(light.shadow.map).toBeNull();
+    // A map object alone does not establish that its ordinary update finished.
+    const atlas = new WebGLRenderTarget(16, 16); light.shadow.map = atlas;
+    expect(h.warmup.pending).toBeFalse();
+    expect(h.warmup.warmNext()).toBe(0);
+    h.renderer.shadowMap.needsUpdate = false;
+    expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls[0].vertices).toBe(0);
+    expect(light.shadow.map).toBe(atlas);
+    expect(mesh.geometry.drawRange.count).toBe(Infinity);
+    h.warmup.dispose(); atlas.dispose();
+  });
+
+  test("restoration and newly attached shadow lights wait for the original atlas refresh", () => {
+    const { scene, camera } = fixture();
+    const light = new DirectionalLight(); light.castShadow = true;
+    const atlas = new WebGLRenderTarget(16, 16); light.shadow.map = atlas;
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(light, mesh);
+    const h = host(scene, camera); h.renderer.shadowMap.needsUpdate = false;
+    h.warmup.enqueue(scene); expect(h.warmup.warmNext()).toBe(1);
+    h.renderer.shadowMap.needsUpdate = true;
+    h.events.dispatchEvent(new Event("webglcontextrestored"));
+    expect(h.warmup.pending).toBeFalse(); expect(h.warmup.warmNext()).toBe(0);
+    expect(light.shadow.map).toBe(atlas);
+    h.renderer.shadowMap.needsUpdate = false;
+    expect(h.warmup.pending).toBeTrue(); expect(h.warmup.warmNext()).toBe(1);
+    const arrival = new DirectionalLight(); arrival.castShadow = true; scene.add(arrival);
+    h.warmup.enqueue(arrival); h.warmup.enqueue(mesh);
+    expect(h.warmup.pending).toBeFalse(); expect(h.warmup.warmNext()).toBe(0);
+    arrival.shadow.map = atlas;
+    expect(h.warmup.pending).toBeTrue(); expect(h.warmup.warmNext()).toBe(1);
+    h.warmup.dispose(); atlas.dispose();
+  });
+
+  test("only active shadow lights delay preparation, without inheriting parent layer masks", () => {
+    const { scene, camera } = fixture();
+    const light = new DirectionalLight(); light.castShadow = true;
+    const rig = new Group(); rig.add(light);
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial()); scene.add(rig, mesh);
+    const h = host(scene, camera); h.warmup.enqueue(scene);
+    expect(h.warmup.pending).toBeFalse();
+    rig.visible = false; expect(h.warmup.pending).toBeTrue();
+    rig.visible = true; light.layers.set(2); expect(h.warmup.pending).toBeTrue();
+    light.layers.set(0); rig.layers.set(2); expect(h.warmup.pending).toBeFalse();
+    rig.removeFromParent(); expect(h.warmup.pending).toBeTrue();
+    scene.add(rig); expect(h.warmup.pending).toBeFalse();
+    h.renderer.shadowMap.enabled = false; expect(h.warmup.pending).toBeTrue();
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls[0].vertices).toBe(0);
+    h.warmup.dispose();
+  });
+
   test("a small preparation batch skips unrelated city branches and restores their exact live hierarchy", () => {
     const { scene, camera } = fixture();
     const activeDistrict = new Group(), otherDistrict = new Group();
@@ -411,6 +476,42 @@ describe("offscreen GPU residency without geometry changes", () => {
     expect(h.warmup.pending).toBeFalse();
     expect(h.warmup.warmNext()).toBe(0);
     h.warmup.dispose();
+  });
+
+  test("ordinary suppressed ink never uploads while restoration prepares the exact retired arrays", () => {
+    const { scene, camera } = fixture();
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const line = new LineSegments(new BoxGeometry(), material);
+    scene.add(line); registerInkDrawObject(line); updateInkDrawVisibility(material);
+    const originalAfterRender = line.onAfterRender;
+    const position = line.geometry.getAttribute("position").array;
+    const index = line.geometry.index!.array;
+    const h = host(scene, camera);
+    const residency = createSceneGeometryGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
+      { budgetBytes: 0, graceMs: 0, now: () => 0 });
+    residency.enqueue(scene);
+    h.renderer.render(scene, camera);
+    expect(h.uploads).toHaveLength(0);
+    material.opacity = 0.5; updateInkDrawVisibility(material);
+    h.renderer.render(scene, camera);
+    expect(h.uploads).toContain(position); expect(h.uploads).toContain(index);
+    expect(residency.residentBytes).toBeGreaterThan(0);
+    material.opacity = 0; updateInkDrawVisibility(material);
+    expect(residency.refresh(100, true)).toBe(1);
+    const uploads = h.uploads.length;
+    h.renderer.render(scene, camera);
+    expect(h.uploads).toHaveLength(uploads);
+    h.contextLost = true; h.events.dispatchEvent(new Event("webglcontextlost"));
+    h.contextLost = false; h.events.dispatchEvent(new Event("webglcontextrestored"));
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(h.calls.at(-1)?.vertices).toBe(0);
+    expect(h.uploads.length).toBeGreaterThan(uploads);
+    expect(line.geometry.getAttribute("position").array).toBe(position);
+    expect(line.geometry.index!.array).toBe(index);
+    expect(material.visible).toBeFalse();
+    expect(line.layers.test(camera.layers)).toBeFalse();
+    h.warmup.dispose(); residency.dispose();
+    expect(line.onAfterRender).toBe(originalAfterRender);
   });
 
   test("restores suppressed ink after failed preparation and permits a clean retry", () => {
@@ -793,7 +894,11 @@ describe("offscreen GPU residency without geometry changes", () => {
     try {
       prepare(); unchanged();
       initiallyHidden.visible = true; prepare();
-      light.castShadow = true; prepare();
+      light.castShadow = true;
+      // This test changes shader context after an ordinary shadow pass.
+      light.shadow.map = new WebGLRenderTarget(16, 16);
+      h.renderer.shadowMap.needsUpdate = false;
+      prepare();
       light.layers.set(2); prepare();
       light.castShadow = false; unchanged(); // Inactive light cannot change the shader variant.
       light.layers.set(0); prepare();
@@ -801,7 +906,7 @@ describe("offscreen GPU residency without geometry changes", () => {
       initiallyHidden.visible = false; prepare();
       initiallyHidden.visible = true; prepare();
       expect(cityScan).not.toHaveBeenCalled();
-    } finally { cityScan.mockRestore(); h.warmup.dispose(); }
+    } finally { cityScan.mockRestore(); h.warmup.dispose(); light.shadow.map?.dispose(); }
   });
 
   test("new, released, detached and reparented light subtrees keep exact context ownership", () => {
@@ -959,7 +1064,7 @@ describe("lossless mobile GPU instance residency", () => {
     h.warmup.dispose(); resident.dispose(); expect(mesh.onAfterRender).toBe(after);
   });
 
-  test("protects shared instance attributes, expanded margins and uncullable objects", () => {
+  test("protects shared instance attributes, the below-byte-budget expanded margin and uncullable objects", () => {
     const { scene, camera } = fixture(); const geometry = new BoxGeometry(); const material = new MeshBasicMaterial();
     const near = new InstancedMesh(geometry, material, 1);
     const shared = new InstancedMesh(geometry, material, 1); shared.instanceMatrix = near.instanceMatrix; shared.position.x = 1000;
@@ -967,7 +1072,9 @@ describe("lossless mobile GPU instance residency", () => {
     const uncullable = new InstancedMesh(geometry, material, 1); uncullable.position.x = 1000; uncullable.frustumCulled = false;
     scene.add(near, shared, margin, uncullable); const h = host(scene, camera);
     const resident = createSceneGpuResidency(h.renderer as unknown as WebGLRenderer, camera,
-      { budgetBytes: 0, graceMs: 0, now: () => 0 });
+      // Handle pressure alone retains the original 2x margin; byte pressure
+      // has its separately tested 18% margin in scene-gpu-residency-policy.
+      { budgetBytes: 1024, budgetBuffers: 0, graceMs: 0, now: () => 0 });
     resident.enqueue(scene); h.warmup.enqueue(scene); h.warmup.warmNext();
     expect(resident.refresh(100)).toBe(0); expect(h.deleted).toHaveLength(0);
     h.warmup.dispose(); resident.dispose();

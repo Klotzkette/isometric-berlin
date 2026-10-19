@@ -36,6 +36,13 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Zusätzliche Zebrastreifen und Bordsteine folgen belegten OpenStreetMap-Verläufen auf vorhandenen Straßenflächen. Die Danziger Straßenbahngleise und die Haltestelle Husemannstraße folgen den kartierten Achsen; kleine Ausstattungsmaße sind angenähert. Der stehende gelbe Wagen deutet eine siebenteilige, 40 Meter lange Flexity an. Linien- und Fahrzeugangaben: "
+          : "Additional zebra crossings and kerbs follow evidenced OpenStreetMap courses on existing road surfaces. Danziger tram rails and Husemannstraße stops follow mapped axes; small fitting dimensions are estimates. The stationary yellow tram suggests a seven-section, 40-metre Flexity. Route and vehicle references: "}
+          <a href="https://www.bvg.de/de/verbindungen/linienuebersicht/m10" target="_blank" rel="noreferrer">BVG M10</a>
+          {" · "}<a href="https://unternehmen.bvg.de/wp-content/uploads/2023/04/BVG_PLUSNAVI_0123_barrierefrei.pdf" target="_blank" rel="noreferrer">BVG PLUS 01/2023</a>
+          {" · "}<a href="https://trampicturebook.de/tram/download/bombadier/Flexity-Berlin.pdf" target="_blank" rel="noreferrer">Bombardier Flexity Berlin (2008)</a>.
+        </p>
+        <p>{language === "de"
           ? "Brunnen Hermann-Ehlers-Platz: kartierter Umriss und Werkbeschreibung von Bildhauerei in Berlin. Albrechtstraße 131: amtliche Gebäudeform, Denkmaldatenbank und Fassadenfoto. Kleine Detailmaße und Farben sind angenähert; keine Fototexturen. Fassadenfoto: "
           : "Hermann-Ehlers-Platz fountain: mapped outline and Bildhauerei in Berlin catalogue. Albrechtstraße 131: official building geometry, heritage record and facade photograph. Small dimensions and colours are approximate; no photo textures. Facade photograph: "}
           <a href="https://commons.wikimedia.org/wiki/File:130420-Steglitz-Albrechtstra%C3%9Fe-131-Ehlers-Platz.JPG" target="_blank" rel="noreferrer">Muns, 2013</a>

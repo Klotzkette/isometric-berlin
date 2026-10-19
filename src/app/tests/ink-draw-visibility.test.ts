@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
   AdditiveBlending, BufferGeometry, CustomBlending, LineBasicMaterial,
-  LineSegments, Material, NoBlending, NormalBlending, Object3D,
+  Layers, LineSegments, Material, NoBlending, NormalBlending, Object3D,
 } from "three";
 import {
   isInkDrawSuppressed, registerInkDrawObject, registerInkRenderObserver,
-  registerInkShaderWrapper, restoreInkDrawVisibility, updateInkDrawVisibility,
+  registerInkShaderWrapper, restoreInkDrawVisibility, testAuthoredInkLayers, updateInkDrawVisibility,
 } from "../src/inkDrawVisibility";
 
 function ink() {
@@ -18,6 +18,83 @@ function ink() {
 }
 
 describe("exactly invisible ink draw suppression", () => {
+  test("explicit preparation uses authored layers and temporarily visible material without releasing suppression", () => {
+    const { line, material } = ink();
+    const cameraLayers = new Layers();
+    updateInkDrawVisibility(material);
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    expect(testAuthoredInkLayers(line, cameraLayers)).toBeTrue();
+    line.layers.set(4);
+    expect(testAuthoredInkLayers(line, cameraLayers)).toBeFalse();
+    cameraLayers.set(4);
+    expect(testAuthoredInkLayers(line, cameraLayers)).toBeTrue();
+    material.visible = true;
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+    expect(isInkDrawSuppressed(material)).toBeTrue();
+    material.visible = false;
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    const custom = () => false;
+    line.layers.test = custom;
+    expect(testAuthoredInkLayers(line, cameraLayers)).toBeFalse();
+    expect(line.layers.test).toBe(custom);
+    line.layers = new Layers();
+    cameraLayers.set(0);
+    expect(testAuthoredInkLayers(line, cameraLayers)).toBeTrue();
+  });
+
+  test("rejects no-op geometry before upload without overwriting authored visibility or layers", () => {
+    const { line, material } = ink();
+    const cameraLayers = new Layers();
+    const geometry = line.geometry;
+    const mask = line.layers.mask;
+    updateInkDrawVisibility(material);
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    expect(line.visible).toBeTrue();
+    expect(line.layers.mask).toBe(mask);
+    expect(line.geometry).toBe(geometry);
+    line.visible = false;
+    restoreInkDrawVisibility(material);
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+    expect(line.visible).toBeFalse();
+    line.layers.set(4);
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    cameraLayers.set(4);
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+    material.opacity = Number.MIN_VALUE;
+    updateInkDrawVisibility(material);
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+  });
+
+  test("upload gating respects later children, callbacks and material replacement", () => {
+    const { line, material } = ink();
+    const cameraLayers = new Layers();
+    updateInkDrawVisibility(material);
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    const child = new Object3D();
+    line.add(child);
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+    line.remove(child);
+    line.onBeforeRender = () => {};
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+    line.onBeforeRender = Object3D.prototype.onBeforeRender;
+    expect(line.layers.test(cameraLayers)).toBeFalse();
+    line.material = new LineBasicMaterial();
+    expect(line.layers.test(cameraLayers)).toBeTrue();
+  });
+
+  test("preserves custom layer predicates and avoids stacked registrations", () => {
+    const material = new LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const line = new LineSegments(new BufferGeometry(), material);
+    const custom = () => true;
+    line.layers.test = custom;
+    registerInkDrawObject(line);
+    expect(line.layers.test).toBe(custom);
+    const ordinary = ink();
+    const wrapper = ordinary.line.layers.test;
+    registerInkDrawObject(ordinary.line);
+    expect(ordinary.line.layers.test).toBe(wrapper);
+  });
+
   test("skips zero alpha once and restores the same material as soon as alpha is positive", () => {
     const { line, material } = ink();
     const geometry = line.geometry;

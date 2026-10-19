@@ -169,7 +169,11 @@ export function createSceneGpuResidency(
     if (!urgent && (!overBudget() || now - lastScan < MOBILE_GPU_RESIDENCY_SCAN_INTERVAL_MS)) return 0;
     lastScan = now;
     projection.copy(camera.projectionMatrix);
-    for (const index of [0, 4, 8, 12, 1, 5, 9, 13]) projection.elements[index] *= 0.5;
+    // Match geometry residency under byte pressure: retain an 18% look-ahead
+    // instead of protecting twice the visible width/height. Actual visible
+    // instances and crossing bounds are still always protected.
+    const viewScale = residentBytes > budget ? 1 / 1.18 : 0.5;
+    for (const index of [0, 4, 8, 12, 1, 5, 9, 13]) projection.elements[index] *= viewScale;
     view.multiplyMatrices(projection, camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(view, camera.coordinateSystem);
     let evicted = 0;

@@ -1343,3 +1343,17 @@ Fountain collision must follow actual represented solids independently in drawn
 and native modes, without blocking the entire basin or lifting nearby ground.
 Reuse existing batches and unchanged total byte limits, with identical drawn
 mobile detail. No new descriptor, coverage, texture, tour stop or frame loop.
+
+### Step 10 — v249 running stability and ordinary streets
+
+The owner requests continued running stability without quality loss and source-
+supported curbs, junction markings, actual zebra crossings, tram rails/stops and
+one illustrative tram throughout existing coverage. Keep all older sources,
+geometry, detail, tour stops, mode behavior and existing live memory budgets.
+Add only verified gaps to current streamed road packets; small widths and fittings
+without measured evidence remain explicit display estimates. Danziger railheads
+follow retained tracks, with two Husemannstraße platforms and a static tram in
+the existing northern batch. Native construction remains independently orthogonal.
+No new district, descriptor or animation loop. Recovery deadlines must respect
+page suspension; GPU savings may retire only redundant/offscreen storage or
+provably invisible draws, never visible detail.

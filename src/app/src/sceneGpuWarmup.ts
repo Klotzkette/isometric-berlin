@@ -1,9 +1,9 @@
 import {
   BufferGeometry, Frustum, InstancedMesh, Line, Material, Matrix4, Mesh, Points, Vector4,
   WebGLRenderTarget,
-  type Camera, type Object3D, type Scene, type WebGLRenderer,
+  type Camera, type LightShadow, type Object3D, type Scene, type WebGLRenderer,
 } from "three";
-import { isInkDrawSuppressed, registerInkRenderObserver } from "./inkDrawVisibility";
+import { isInkDrawSuppressed, registerInkRenderObserver, testAuthoredInkLayers } from "./inkDrawVisibility";
 import { SceneGpuWarmupQueue } from "./sceneGpuWarmupQueue";
 import { staticStorageInfo } from "./losslessStaticStorage";
 
@@ -48,7 +48,7 @@ function authoredMaterialVisible(material: Material): boolean {
 }
 
 function active(object: Renderable, scene: Scene, camera: Camera): boolean {
-  if (!object.layers.test(camera.layers) || !materials(object).some(authoredMaterialVisible)) return false;
+  if (!testAuthoredInkLayers(object, camera.layers) || !materials(object).some(authoredMaterialVisible)) return false;
   for (let parent: Object3D | null = object; parent; parent = parent.parent) {
     if (!parent.visible) return false;
     if (parent === scene) return true;
@@ -120,6 +120,27 @@ export function createSceneGpuWarmup(
     });
   };
   discoverLights(scene);
+
+  const shadowMapsReady = (): boolean => {
+    if (!renderer.shadowMap.enabled) return true;
+    for (const object of knownLights) {
+      if (!object.castShadow || !object.layers.test(camera.layers)) continue;
+      for (let parent: Object3D | null = object; parent; parent = parent.parent) {
+        if (!parent.visible) break;
+        if (parent === scene) {
+          const shadow = (object as Object3D & { shadow?: LightShadow }).shadow;
+          // The zero-vertex pass suppresses shadow updates and hides unrelated
+          // casters. Only an ordinary complete-scene render may initialize or
+          // refresh the atlas, including after context restoration. Otherwise
+          // Three can bind a colour placeholder to an uninitialized shadow
+          // sampler, which is INVALID_OPERATION even for a zero-count draw.
+          if (!shadow?.map || renderer.shadowMap.needsUpdate) return false;
+          break;
+        }
+      }
+    }
+    return true;
+  };
 
   const refreshView = (): void => {
     if (disposed || !options.viewLocal) return;
@@ -284,7 +305,7 @@ export function createSceneGpuWarmup(
   renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
 
   const warmNext = (): number => {
-    if (disposed || queue.length === 0 || renderer.getContext().isContextLost()) return 0;
+    if (disposed || queue.length === 0 || renderer.getContext().isContextLost() || !shadowMapsReady()) return 0;
     refreshView();
     const selected: Renderable[] = [];
     const selectedBuffers = new Set<object>();
@@ -431,7 +452,7 @@ export function createSceneGpuWarmup(
     release,
     warmNext,
     get pending() { return !disposed && queue.length > 0 &&
-      (!options.viewLocal || queue.pendingCount > 0) && !renderer.getContext().isContextLost(); },
+      (!options.viewLocal || queue.pendingCount > 0) && !renderer.getContext().isContextLost() && shadowMapsReady(); },
     dispose: () => {
       if (disposed) return;
       disposed = true;

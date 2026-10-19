@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Matrix4 } from "three";
 import { createNorthV185 } from "../src/NorthV185";
 import source from "../src/data/northV185.json";
+import tramV249 from "../src/data/danzigerTramV249.json";
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
 
 describe("bounded northern v185 accents", () => {
@@ -30,8 +31,12 @@ describe("bounded northern v185 accents", () => {
         }
       }
     }
-    expect(bytes).toBeLessThan(native ? 900_000 : 430_000);
-    expect(instances).toBeLessThan(native ? 12_000 : 5_500);
+    // The separately bounded v249 appendix shares this existing batch. Preserve
+    // the original cap for every old instance; v249's test proves the prefix
+    // byte hash and its independent <=700KB addition, without raising this cap.
+    const added = native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows;
+    expect(bytes-added*76).toBeLessThan(native ? 900_000 : 430_000);
+    expect(instances-added).toBeLessThan(native ? 12_000 : 5_500);
     expect(root.userData.additiveOnly).toBe(true);
     expect(root.userData.sourceGeometryRetained).toBe(true);
     expect(root.userData.fullStaticDetailOnTouch).toBe(true);

@@ -2020,3 +2020,19 @@ Reference-only facade photograph: Muns, 20 April 2013,
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 No photograph, photographic texture or font is bundled. Small facade
 subdivisions remain explicit approximations. See `docs/steglitz-followup-v248.md`.
+
+## v1.0.149 — mapped street complements and Danziger tram
+
+Existing OpenStreetMap ground, elevated-kerb and explicitly marked zebra-crossing
+ways anchor the additional street complements within retained city coverage.
+No untagged crossing is represented as a zebra crossing. Danziger tram railheads
+follow retained 1435 mm-gauge tracks; both Husemannstraße platforms retain their
+mapped centerlines. Platform widths and small fittings are display estimates.
+The stationary yellow seven-section, 40 m Flexity is an illustrative recognition
+model, not a surveyed vehicle or timetable simulation. BVG route and vehicle facts:
+https://www.bvg.de/de/verbindungen/linienuebersicht/m10 and
+https://unternehmen.bvg.de/wp-content/uploads/2023/04/BVG_PLUSNAVI_0123_barrierefrei.pdf .
+Vehicle dimensions also follow Bombardier’s 2008 Flexity Berlin data sheet
+(reference only): https://trampicturebook.de/tram/download/bombadier/Flexity-Berlin.pdf .
+No source photographs or photographic textures are bundled. Existing ODbL and
+Geoportal Berlin source notices continue to apply. See the v249 street/tram notes.

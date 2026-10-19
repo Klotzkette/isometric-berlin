@@ -7752,7 +7752,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls.enabled = !runtime.pedestrian.enabled;
         notifyView(runtime, onViewChangeRef.current);
       };
+      let recoveryPageHidden = false;
+      let contextRecovery: ReturnType<typeof createViewerContextRecovery> | undefined;
       const onVisibilityChange = () => {
+        contextRecovery?.setActive(!document.hidden && !recoveryPageHidden);
         if (document.hidden || runtime.contextLost) {
           if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
           gpuWarmupTimer = null;
@@ -7798,6 +7801,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onPageHide = () => {
+        recoveryPageHidden = true;
+        contextRecovery?.setActive(false);
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         gpuWarmupTimer = null;
         resetTouchGesture();
@@ -7807,6 +7812,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onPageShow = (event: PageTransitionEvent) => {
+        recoveryPageHidden = false;
+        contextRecovery?.setActive(!document.hidden);
         if (!event.persisted) return;
         resize(true);
         onVisibilityChange();
@@ -7910,7 +7917,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       resizeObserver.observe(host);
       resize();
 
-      const contextRecovery = createViewerContextRecovery({
+      contextRecovery = createViewerContextRecovery({
+        initiallyActive: !document.hidden && !recoveryPageHidden,
         pause: () => {
           if (disposed) return;
           runtime.contextLost = true;
@@ -7948,8 +7956,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onErrorRef.current("Die Grafik konnte nicht wiederhergestellt werden. Die Ansicht wird an derselben Position neu aufgebaut.");
         },
       });
-      const onContextLost = (event: Event) => contextRecovery.lost(event);
-      const onContextRestored = () => contextRecovery.restored();
+      const onContextLost = (event: Event) => contextRecovery?.lost(event);
+      const onContextRestored = () => contextRecovery?.restored();
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
       renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
 
@@ -9416,7 +9424,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         });
 
       return () => {
-        contextRecovery.dispose();
+        contextRecovery?.dispose();
         disposed = true;
         runtime.disposed = true;
         runtime.pergamonReveal?.dispose();

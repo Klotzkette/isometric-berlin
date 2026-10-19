@@ -19,6 +19,7 @@ import { cemeteryGrunewaldV199SolidAt } from "./cemeteryGrunewaldV199Navigation"
 import { charlottenburgerTorV201SolidAt } from "./charlottenburgerTorV201Navigation";
 import { wuhlheideGroundAt, wuhlheideSolidAt } from "./wuhlheideV201Navigation";
 import { waldbuehneGroundAt, waldbuehneSolidAt } from "./waldbuehneV201Navigation";
+import { danzigerTramGroundAtV249, danzigerTramSolidAtV249 } from "./DanzigerTramV249";
 
 /** The requested cartographic supplement: hairlines only, no solid buildings. */
 export function* createOuterThinOutlinesSteps(
@@ -34,6 +35,7 @@ export function* createOuterThinOutlinesSteps(
     root.userData = { outlineOnly: true, textureFree: true, features: data.features, navigationTiles: regionalV200NavigationTiles };
     // Keep detailed navigation in this lazy supplement, out of the startup bundle.
     root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
+      danzigerTramSolidAtV249(x, y, z, radius, activeMode === "minecraft") ||
       (activeMode === "minecraft" ? airportsV194NativeSolidAt : airportsV194SolidAt)(x, y, z, radius) ||
       westLakesV194SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       teufelsbergStationV195SolidAt(x, y, z, radius, activeMode === "minecraft") ||
@@ -52,6 +54,7 @@ export function* createOuterThinOutlinesSteps(
       westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null ||
       regionalV200WaterAt(x, z);
     root.userData.groundAt = (x: number, z: number) =>
+      danzigerTramGroundAtV249(x, z, activeMode === "minecraft") ??
       waldbuehneGroundAt(x, z, activeMode === "minecraft") ??
       wuhlheideGroundAt(x, z, activeMode === "minecraft") ??
       tegelSpandauV198GroundAt(x, z, activeMode === "minecraft") ??
