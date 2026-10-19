@@ -1257,3 +1257,15 @@ Humboldthain campus. Verify actual addresses and source owners; do not confuse
 modern ENTER with the historic red-brick works or label former occupants as
 current tenants. Correct only bounded evidenced proxy geometry, preserving
 all unrelated source owners and runtime budgets.
+
+### Step 10 — v242 Spree bridge decks and public edges
+
+The owner requests recognisable Spree bridge bodies, railings, road lanes and
+kerbs throughout existing city coverage. Use exact mapped bridge rings and
+associated road/footway identities; distinguish rail-only and construction
+crossings. Preserve all measured source sheets and previously authored bridge
+ornament. Only exactly receipted generic bridge estimates may yield to complete
+source-bound replacements, with matching walking support and open approaches.
+Unsourced railing sections, kerb dimensions and road paint remain labelled
+display estimates. Keep full drawn mobile detail, independent orthogonal native
+geometry, all tour stops and existing bounded packet/residency lifetimes.

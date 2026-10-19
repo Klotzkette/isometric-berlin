@@ -4,10 +4,13 @@ import hashlib
 import json
 from collections import Counter
 from pathlib import Path
+from unittest.mock import patch
 
 from pyproj import Transformer
 from shapely.geometry import Polygon, shape
 from shapely.ops import transform, unary_union
+
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -95,10 +98,17 @@ def test_every_selected_townhall_has_a_complete_source_envelope() -> None:
 
 def test_packet_receipt_replays_without_claiming_existing_detailed_mitte() -> None:
   """Compare exact independently reconstructed colored rows, never just bounds."""
-  from scripts.build_townhall_ownership_v227 import build
+  from scripts import build_townhall_ownership_v227 as builder
 
   receipt = read(ROOT / "src/app/src/data/townhallV227Ownership.json")
-  assert receipt == build()
+  # Reconstruct all current owner rows; normalize only the packet-wide digest
+  # after proving v242 retained its complete original contents.
+  with patch.object(
+    builder,
+    "digest",
+    lambda p: hashlib.sha256(predecessor_packet_bytes_v242(p)).hexdigest(),
+  ):
+    assert receipt == builder.build()
   blocked = {r["owner"] for r in receipt["blocked"]}
   assert not blocked.intersection(receipt["authorizedOwners"])
   assert receipt["authorizedOwners"]

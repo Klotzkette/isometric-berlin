@@ -226,6 +226,51 @@ test("building collision preserves courtyard holes, height clearance and a bound
   expect(surroundingBuildingSolidAt(nav, 3, 24, 3)).toBeFalse();
 });
 
+test("resident bridge paving, curb and side barriers share geometry lifetime without blocking approaches", async () => {
+  const bridge = sample();
+  bridge.nav.spreeBridgesV242 = {
+    floors: [
+      { ...rectangle(295, 340, 405, 360), y: 3.14 },
+      { ...rectangle(295, 340, 405, 341.4), y: 3.3 },
+    ],
+    solids: [{ ...rectangle(295, 339.8, 405, 340), low: 3.3, high: 4.43 }],
+  };
+  const view = camera();
+  let clock = 0;
+  const source = manifest();
+  source.chunks[0].drawn.bytes = JSON.stringify(bridge).length;
+  source.chunks[0].minecraft.bytes = JSON.stringify(bridge).length;
+  const city = createSurroundingCity({ camera: view, manifestUrl: new URL("https://example.test/manifest.json"),
+    now: () => clock, retireMs: 0,
+    fetch: (async (input: URL | RequestInfo) => {
+      const path = new URL(String(input)).pathname;
+      return response(path.endsWith("manifest.json") ? source : path.endsWith("2048.json") ? sample(2048) : bridge);
+    }) as typeof fetch });
+  try {
+    await city.ready; await until(() => !city.pending);
+    expect(city.groundAt(350, 350)).toBe(3.14);
+    expect(city.groundAt(350, 340.5)).toBe(3.3);
+    expect(city.waterAt(350, 350)).toBeFalse();
+    expect(city.waterAt(350, 330)).toBeTrue();
+    expect(city.solidAt(350, 3.9, 339.9)).toBeTrue();
+    expect(city.solidAt(350, 5, 339.9)).toBeFalse();
+    expect(city.solidAt(295.2, 3.9, 350, .42)).toBeFalse();
+    expect(city.solidAt(350, 3.9, 340.2, .3)).toBeTrue();
+    clock = 1000; view.position.x = 2304; view.lookAt(2304, 0, 256); city.refresh(clock);
+    await until(() => !city.pending);
+    expect(city.solidAt(350, 3.9, 339.9)).toBeFalse();
+    expect(city.navigationTiles.every(t => !t.nav.spreeBridgesV242)).toBeTrue();
+  } finally { city.dispose(); }
+});
+
+test("malformed bridge navigation cannot publish geometry", () => {
+  const chunk = sample();
+  chunk.nav.spreeBridgesV242 = { floors: [{ ...rectangle(1, 1, 4, 4), y: NaN }], solids: [] };
+  expect(() => createSurroundingCityChunk(chunk, "invalid-bridge")).toThrow("Invalid surrounding-city chunk");
+  chunk.nav.spreeBridgesV242 = { floors: [], solids: [{ ...rectangle(1, 1, 4, 4), low: 5, high: 3 }] };
+  expect(() => createSurroundingCityChunk(chunk, "invalid-bridge")).toThrow("Invalid surrounding-city chunk");
+});
+
 test("moving to a new district releases old geometry and navigation, then reloads on return", async () => {
   const view = camera(), calls: string[] = [], released: string[] = [];
   let clock = 0;

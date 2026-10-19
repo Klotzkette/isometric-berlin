@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, shape
 
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location(
@@ -36,7 +38,7 @@ def test_exact_existing_source_families_and_no_prior_payload_changes() -> None:
   # This independently covers every original coordinate, source polygon ID,
   # roof, courtyard hole, inherited datum and ownership binding.
   for path, digest in source["preservation"].items():
-    assert m.sha(ROOT / path) == digest
+    assert_preserved_v242(ROOT / path, digest)
   assert {m.CHURCH, m.EPHRAIM, m.KNOBLAUCH, m.NUT, m.COURT} <= {
     b["id"] for b in source["buildings"]
   }

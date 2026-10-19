@@ -22,6 +22,8 @@ from shapely import make_valid
 from shapely.geometry import Point, Polygon, shape
 from shapely.ops import unary_union
 
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -36,7 +38,7 @@ def load(path: Path) -> dict[str, Any]:
 
 def read_packet(asset: dict[str, Any]) -> dict[str, Any]:
   """Check the published bytes before inspecting their geometry."""
-  raw = (PUBLIC / asset["url"]).read_bytes()
+  raw = predecessor_packet_bytes_v242(PUBLIC / asset["url"])
   assert len(raw) == asset["bytes"] < 650_000
   assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
   decoded = gzip.decompress(raw)

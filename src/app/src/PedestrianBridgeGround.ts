@@ -9,6 +9,8 @@ import {
 import { SANDKRUG_STRUCTURE_PROFILE } from "./HumboldthafenRefinements";
 import { groundTopSampler, worldGroundSampler, type VoxelPayload } from "./terrainPayload";
 import type { VisualMode } from "./visualMode";
+import { createCoreBridgePavingGroundV242 } from "./CoreBridgeRoadDetailsV242";
+import { createCoreSpreeBridgeNavigationV242 } from "./CoreSpreeBridgesV242";
 
 /**
  * Navigation counterparts of the bounded public bridge recognition decks.
@@ -52,8 +54,17 @@ function compilePedestrianBridgeDecks(
     const baseY = historic
       ? worldSample(...profile.world) ?? 5.2
       : Math.max(sampled!, (ground.water_top_y_m ?? 1.31) + BRIDGE_MIN_CLEARANCE_M + (profile.kind === "golda" ? 0.9 : 0));
+    const roadPavingAtV242 = createCoreBridgePavingGroundV242({
+      name: profile.name, center: profile.world,
+      axis: [profile.axis[0] / axisLength, profile.axis[1] / axisLength],
+      halfLength: profile.surveyedDeck.halfLengthM, baseY,
+      curveSagitta: profile.curveSagittaM ?? 0,
+      segments: profile.kind === "ironArch" ? 30 : profile.kind === "curvedBox" ? HUGO_PREUSS_STRUCTURE_PROFILE.fasciaBayCount : 14,
+      camber: profile.kind === "ironArch" ? .34 : profile.kind === "stoneArch" ? .42 : profile.kind === "curvedBox" ? 1.05 : 1.2,
+    });
     return [{
       profile,
+      roadPavingAtV242,
       axisX: profile.axis[0] / axisLength,
       axisZ: profile.axis[1] / axisLength,
       baseY,
@@ -71,8 +82,11 @@ export function createPedestrianBridgeGround(
   // Compilation callbacks capture the source and terrain samplers. Isolate
   // their scope so this persistent query retains only the completed decks.
   const decks = compilePedestrianBridgeDecks(ground, bodyRadiusM);
+  const sourceBridgesV242 = createCoreSpreeBridgeNavigationV242(ground, visualMode);
   return (x, z) => {
     if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
+    const sourceTop = sourceBridgesV242.floorAt(x, z);
+    if (sourceTop !== null) return sourceTop;
     for (const deck of decks) {
       const dx = x - deck.profile.world[0];
       const dz = z - deck.profile.world[1];
@@ -119,6 +133,8 @@ export function createPedestrianBridgeGround(
         : kind === "stoneArch" ? Math.abs(lateral - (deck.profile.surveyedDeck!.halfWidthM - 2.25)) <= 2 ? 0.09 : lateral <= 6.6 ? 0.07 : 0
         : kind === "steelArch" ? Math.abs(lateral - 9.9) <= 1.55 ? 0.25 : Math.abs(lateral - 7.25) <= 1 ? 0.155 : lateral <= 6.25 ? 0.07 : 0
         : Math.abs(lateral - 9.05) <= 2.275 ? 0.1 : Math.abs(lateral - 5.4) <= 1.1 ? 0.09 : lateral <= 4.25 ? 0.07 : 0;
+      const raisedPaving = deck.roadPavingAtV242(x, z, visualMode() === "minecraft");
+      if (raisedPaving !== null) return raisedPaving;
       return deck.baseY + rise + surface;
     }
     return null;

@@ -11,6 +11,8 @@ import numpy as np
 from shapely.geometry import LineString, shape
 from shapely.strtree import STRtree
 
+from scripts.spree_bridge_lineage_v242 import predecessor_manifest_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -37,7 +39,9 @@ def test_complete_scope_selection_and_unchanged_prior_descriptors() -> None:
     "Kollwitzkiez": 190,
     "Helmholtzplatz": 102,
   }
-  current = {d["id"]: d for d in read(OUT / "manifest.json")["chunks"]}
+  current = {
+    d["id"]: d for d in predecessor_manifest_v242(read(OUT / "manifest.json"))["chunks"]
+  }
   for old in EVIDENCE["oldDescriptors"]:
     assert current[old["id"]] == old
   assert len(EVIDENCE["companions"]) == 14

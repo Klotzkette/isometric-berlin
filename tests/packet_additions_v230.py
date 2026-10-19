@@ -16,6 +16,11 @@ from shapely import make_valid
 from shapely.geometry import Polygon, shape
 from shapely.ops import transform, unary_union
 
+from scripts.spree_bridge_lineage_v242 import (
+  predecessor_manifest_v242,
+  predecessor_packet_bytes_v242,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -66,6 +71,12 @@ def normalize_v230_additions(current: dict, reader) -> tuple[dict, dict]:
   are checked separately; deleting arbitrary prefixed records is forbidden.
   """
   from scripts.integrate_ber_airport_v236 import normalize_ber_additions
+
+  current = predecessor_manifest_v242(current, reader)
+  actual_reader = reader
+
+  def reader(path):
+    return predecessor_packet_bytes_v242(path, actual_reader)
 
   current = normalize_ber_additions(current, reader)
   names = {"outerFacadesV230", "marzahnV230"}

@@ -15,6 +15,7 @@ from scripts.integrate_mitte_v239 import (
   read,
   required_models,
 )
+from scripts.spree_bridge_lineage_v242 import predecessor_manifest_v242
 
 
 def test_complete_required_models_match_frozen_agent_outputs():
@@ -30,7 +31,7 @@ def test_bounded_companions_preserve_the_complete_previous_city():
   before = copy.deepcopy(current)
   previous = json.loads(baseline_bytes())
   assert len(previous["chunks"]) == 2121
-  assert current == merged(previous, additions())
+  assert predecessor_manifest_v242(current) == merged(previous, additions())
   assert normalize_mitte_additions(current, lambda p: p.read_bytes()) == previous
   assert current == before
 

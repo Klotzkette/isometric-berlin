@@ -9,6 +9,7 @@ from shapely.geometry import LineString, Polygon
 from shapely.ops import unary_union
 
 from scripts import build_roof_house_v233 as build
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
 
 
 def test_distributed_complete_source_roofs_and_immutable_inputs() -> None:
@@ -39,9 +40,8 @@ def test_distributed_complete_source_roofs_and_immutable_inputs() -> None:
     assert receipt["url"].startswith("https://gdi.berlin.de/data/a_lod2/atom/")
     assert len(receipt["sha256"]) == 64
   for receipt in evidence["packets"]:
-    assert (
-      build.digest(build.OUT / receipt["oldAsset"]["url"])
-      == receipt["oldAsset"]["sha256"]
+    assert_preserved_v242(
+      build.OUT / receipt["oldAsset"]["url"], receipt["oldAsset"]["sha256"]
     )
 
 

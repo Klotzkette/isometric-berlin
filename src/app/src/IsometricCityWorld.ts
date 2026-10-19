@@ -2,6 +2,8 @@ import { isSchlossplatzCorePrismV239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
 import { isMonbijouBridgeClusterV231 } from "./monbijouPreviousV231";
+import { createCoreBridgeRoadDetailsV242, isCoreBridgeRoadV242, type CoreBridgeRoadDeckV242 } from "./CoreBridgeRoadDetailsV242";
+import type { createCoreSpreeBridgesV242 } from "./CoreSpreeBridgesV242";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
 import { isAEGCampusCorePrismV241 } from "./aegCampusV241CorePrevious";
 import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
@@ -375,6 +377,8 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
+  /** Required main-thread source bridge transaction; never imported by the geometry Worker. */
+  coreSpreeBridgeFactoryV242?: typeof createCoreSpreeBridgesV242;
   /** v207 replaces only the inferred tower facade; source shells/ink remain. */
   includeLegacyChariteFacade?: boolean;
   /** v208 installs complete measured Hungarian sheets instead of six extrusions. */
@@ -4565,6 +4569,7 @@ export function createBridgeStructures(
   ground: VoxelPayload,
   detailProfile: WeidendammerBridgeDetailProfile,
   replaceMonbijou = false,
+  coreSpreeBridgeFactoryV242?: typeof createCoreSpreeBridgesV242,
 ): Group | null {
   const clusters = bridgeClusters(ground).filter(
     (cluster) => cluster.length >= BRIDGE_MIN_CLUSTER_CELLS,
@@ -4581,6 +4586,8 @@ export function createBridgeStructures(
   const edges: BufferGeometry[] = [];
   const lampParts: BufferGeometry[] = [];
   const sandkrugBuilder = createBuilder();
+  const roadDecksV242: CoreBridgeRoadDeckV242[] = [];
+  const sourceBridgesV242 = coreSpreeBridgeFactoryV242?.(ground);
   let collectingSandkrug = false;
   const moltkeDetailParts: BufferGeometry[] = [];
   const moltkeDetailEdges: BufferGeometry[] = [];
@@ -4685,6 +4692,7 @@ export function createBridgeStructures(
       continue;
     }
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
+    if (!profile && sourceBridgesV242?.replace(cluster)) continue;
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
     collectingSandkrug = kind === "openFrame";
@@ -4819,6 +4827,10 @@ export function createBridgeStructures(
                   ? 16
                   : 14;
     const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
+    if (profile && isCoreBridgeRoadV242(profile.name)) {
+      roadDecksV242.push({ name: profile.name, center: [cx, cz], axis: [ax, az],
+        halfLength, baseY: deckY, curveSagitta, segments: DECK_SEGMENTS, camber });
+    }
     for (let index = 0; index < DECK_SEGMENTS; index += 1) {
       const u = -halfLength + segmentLength * (index + 0.5);
       const y = deckY + riseAt(u);
@@ -6894,7 +6906,7 @@ export function createBridgeStructures(
       }
     }
   }
-  if (parts.length === 0) {
+  if (parts.length === 0 && !sourceBridgesV242?.root.userData.sourceOwnersV242.length) {
     return null;
   }
   const group = new Group();
@@ -6946,7 +6958,7 @@ export function createBridgeStructures(
     };
   }
 
-  const merged = mergeGeometries(parts, false);
+  const merged = parts.length ? mergeGeometries(parts, false) : null;
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({
@@ -6965,7 +6977,7 @@ export function createBridgeStructures(
       geometry.dispose();
     }
   }
-  const ink = mergeGeometries(edges, false);
+  const ink = edges.length ? mergeGeometries(edges, false) : null;
   if (ink) {
     const inkMaterial = markArchitecturalInk(new LineBasicMaterial(), "detail");
     const lines = new LineSegments(ink, inkMaterial);
@@ -7064,6 +7076,8 @@ export function createBridgeStructures(
   }
   group.add(createAdlerBridge(ground));
   group.add(createLoewenBridge(ground));
+  group.add(createCoreBridgeRoadDetailsV242(roadDecksV242));
+  if (sourceBridgesV242) group.add(sourceBridgesV242.finish());
   if (weidendammerBaseRendered) {
     group.add(
       createWeidendammerBridgeDetails(detailProfile, ground.water_top_y_m),
@@ -13260,6 +13274,7 @@ export function createIsometricCityCore(
         ground,
         options.retainRasterAsphalt ? "mobile" : "full",
         options.includeLegacyMonbijou === false,
+        options.coreSpreeBridgeFactoryV242,
       );
       if (bridges) group.add(bridges);
     }

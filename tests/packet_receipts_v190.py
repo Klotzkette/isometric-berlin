@@ -10,6 +10,8 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -233,7 +235,7 @@ def assert_retained_descriptor(old: dict, current: dict, changes: dict) -> None:
       } == {
         k: v for k, v in after.items() if k not in {"sha256", "bytes", "decodedBytes"}
       }
-    raw = (PUBLIC / after["url"]).read_bytes()
+    raw = predecessor_packet_bytes_v242(PUBLIC / after["url"])
     assert hashlib.sha256(raw).hexdigest() == after["sha256"]
     assert len(raw) == after["bytes"]
     if (old["id"], mode) in changes:
@@ -264,7 +266,7 @@ def predecessor_v190(path: Path) -> bytes:
   pieces = path.name.split(".")
   key = (pieces[0], pieces[1]) if len(pieces) >= 3 else None
   if path.parent != PUBLIC or key not in changes:
-    return path.read_bytes()
+    return predecessor_packet_bytes_v242(path)
   before, after = changes[key]
   assert hashlib.sha256(path.read_bytes()).hexdigest() == after, str(path)
   raw = baseline_v189(path)

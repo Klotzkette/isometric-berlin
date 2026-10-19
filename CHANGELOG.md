@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.142 — Spree bridge bodies, railings and paths
+
+- Refine source-mapped Spree crossings with distinct deck edges, structural
+  depth, side railings, raised footways and appropriate lane markings.
+- Preserve previously detailed bridges and their ornament; replace only exactly
+  matched generic estimates with complete mapped bridge shapes.
+- Match walking support and side barriers to the represented bridge surfaces.
+- Keep full drawn mobile detail, independent native construction and unchanged
+  live residency limits. See [sources and validation](docs/spree-bridges-v242.md).
+
 ## v1.0.141 — central Berlin architecture and AEG campus
 
 - Refine the renovated historic library and Jean Nouvel’s former Galeries

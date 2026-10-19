@@ -13,6 +13,8 @@ import numpy as np
 from shapely import STRtree
 from shapely.geometry import Point, Polygon
 
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location(
@@ -179,7 +181,7 @@ def test_exact_v169_transfer_keeps_every_unowned_encoded_triangle_and_packet():
   }
   assert evidence["exactMatchMissing"] == evidence["unownedTriangleLoss"] == 0
   for path, digest in evidence["inputs"].items():
-    assert previous.sha(ROOT / path) == digest
+    assert_preserved_v242(ROOT / path, digest)
   total = Counter()
   for row in evidence["records"]:
     packet = previous.read(ROOT / row["file"])

@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Spree bridges (v1.0.142):** Retained OpenStreetMap bridge outlines and road
+  attributes (ODbL-1.0), the Berlin bridge inventory and Landesdenkmalamt
+  descriptions guide bounded bridge refinements. Untagged vertical dimensions,
+  railing members and paint intervals are display estimates. No photographs or
+  textures are bundled. See [evidence](docs/spree-bridges-v242.md).
+
 - **Staatsbibliothek Unter den Linden and Quartier 207 (v1.0.141):** Retained
   Geoportal Berlin LoD2 (dl-de/zero-2-0), OpenStreetMap (ODbL-1.0) and primary
   architectural accounts support the bounded building refinements. Unmeasured

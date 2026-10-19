@@ -1,6 +1,5 @@
 """Source preservation and native geometry contracts for the outer-house pass."""
 
-import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -8,6 +7,7 @@ from shapely.geometry import LineString
 
 from scripts import build_district_facades_v188 as base
 from scripts import build_outer_facades_v230 as build
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,8 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_previous_packets_and_established_bounds_remain_exact():
   evidence = base.read_json(build.EVIDENCE)
   for asset in evidence["oldAssets"]:
-    with (build.OUT / asset["url"]).open("rb") as stream:
-      assert hashlib.file_digest(stream, "sha256").hexdigest() == asset["sha256"]
+    assert_preserved_v242(build.OUT / asset["url"], asset["sha256"])
   manifest = base.read_json(build.OUT / "manifest.json")
   assert len(manifest["chunks"]) <= 2144
   assert 0 < len(evidence["companions"]) <= 90

@@ -12,6 +12,9 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  // Finite mapped bridge constructor packets; roots retain only decoded
+  // geometry and their small navigation, never packed mesh/source objects.
+  "spreeBridgesV242.json": ["core"],
   "ihzV241.json": ["drawn", "minecraft"],
   "ihzV241Previous.json": ["records"],
   "aegCampusV241.json": ["drawn", "minecraft"],

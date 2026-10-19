@@ -121,7 +121,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v241 refines the library, Q207, IHZ fronts and three complete AEG campus sites.
 # The complete package is 921,563,887 bytes (878.872 MiB). A finite 880 MiB
 # archive-only allowance preserves every old asset; all live budgets stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 880 * 1024 * 1024
+# v242 adds source-mapped bridge bodies and fittings to twenty existing packets.
+# The complete archive is 925,076,598 bytes (882.222 MiB); 884 MiB leaves 1.778 MiB
+# of offline-only headroom. Packet, worker, decode and resident limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 884 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

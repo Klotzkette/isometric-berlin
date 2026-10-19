@@ -16,6 +16,8 @@ from pathlib import Path
 from shapely.geometry import Polygon, box, shape
 from shapely.ops import unary_union
 
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -445,4 +447,4 @@ def predecessor_v205(path: Path) -> bytes:
   _, checkpoints = audited_v205_changes()
   if path == PUBLIC / "manifest.json":
     return baseline(path)
-  return checkpoints.get(path) or path.read_bytes()
+  return checkpoints.get(path) or predecessor_packet_bytes_v242(path)

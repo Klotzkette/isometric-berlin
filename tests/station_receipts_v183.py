@@ -11,6 +11,11 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
+from scripts.spree_bridge_lineage_v242 import (
+  predecessor_manifest_v242,
+  predecessor_packet_bytes_v242,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 PACKETS = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -60,7 +65,9 @@ def verified_station_replacements() -> tuple[dict, set[str]]:
   assert audit["retainedCoreFacadeOwner"] == "DEBE01YYK00001QK"
   assert {r["id"]: set(r["modes"]) for r in audit["chunks"]} == CHUNKS
   old = json.loads(baseline(PACKETS / "manifest.json"))
-  current = json.loads((PACKETS / "manifest.json").read_bytes())
+  current = predecessor_manifest_v242(
+    json.loads((PACKETS / "manifest.json").read_bytes())
+  )
   old_chunks = {row["id"]: row for row in old["chunks"]}
   current_chunks = {row["id"]: row for row in current["chunks"]}
   subset = copy.deepcopy(old)
@@ -90,7 +97,9 @@ def verified_station_replacements() -> tuple[dict, set[str]]:
         assert chunk == current_chunks[chunk["id"]]
         for mode in ("drawn", "minecraft"):
           name = chunk[mode]["url"]
-          assert (output / name).read_bytes() == (PACKETS / name).read_bytes()
+          assert (output / name).read_bytes() == predecessor_packet_bytes_v242(
+            PACKETS / name
+          )
           if mode in CHUNKS[chunk["id"]]:
             files.add(str((PACKETS / name).relative_to(ROOT)))
       for row in audit["chunks"]:

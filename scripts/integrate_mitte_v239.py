@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import Callable
 
 from scripts.integrate_ber_airport_v236 import verify_assets
+from scripts.spree_bridge_lineage_v242 import (
+  predecessor_manifest_v242,
+  predecessor_packet_bytes_v242,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -86,9 +90,12 @@ def normalize_mitte_additions(current: dict, reader: Callable[[Path], bytes]) ->
   if "mitteV239" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current
+  current = predecessor_manifest_v242(current, reader)
   previous = json.loads(baseline_bytes())
   assert current == merged(previous, additions())
-  verify_companions(current["chunks"], reader)
+  verify_companions(
+    current["chunks"], lambda p: predecessor_packet_bytes_v242(p, reader)
+  )
   return previous
 
 

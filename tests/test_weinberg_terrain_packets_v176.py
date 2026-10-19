@@ -31,6 +31,8 @@ from shapely.ops import unary_union
 from station_receipts_v183 import baseline as station_baseline
 from station_receipts_v183 import verified_station_replacements
 
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from build_weinberg_terrain_packets_v176 import (
@@ -1030,7 +1032,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
     for mode in ("drawn", "minecraft"):
       spec = descriptor[mode]
       path = PACKETS / spec["url"]
-      raw = path.read_bytes()
+      raw = predecessor_packet_bytes_v242(path)
       decoded = gzip.decompress(raw)
       assert len(raw) == spec["bytes"] <= 5 * 1024 * 1024
       assert len(decoded) == spec["decodedBytes"] <= 12 * 1024 * 1024
@@ -1076,6 +1078,6 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
     if path == str(manifest_path.relative_to(ROOT)) or path in audited_files:
       continue
     expected = header.split()[2].decode()
-    assert _git_blob_hash((ROOT / path).read_bytes()) == expected, (
+    assert _git_blob_hash(predecessor_packet_bytes_v242(ROOT / path)) == expected, (
       f"Unrelated packet changed: {path}"
     )

@@ -270,6 +270,8 @@ import {
   weidendammerBridgeSolidAt,
 } from "./WeidendammerBridgeDetails";
 import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
+import { setCoreBridgeRoadPresentationV242 } from "./CoreBridgeRoadDetailsV242";
+import { createCoreSpreeBridgesV242, createCoreSpreeBridgeNavigationV242, setCoreSpreeBridgePresentationV242 } from "./CoreSpreeBridgesV242";
 import { createSpreebogenPark, createSpreebogenLawnGroundAt } from "./SpreebogenPark";
 import {
   type ParkDetailsPayload,
@@ -950,6 +952,8 @@ function applyRuntimeMinecraftVisibility(
   applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   setWeidendammerBridgePresentation(runtime.signatures, runtime.lightingMode);
   setSandkrugBridgePresentation(runtime.signatures, runtime.lightingMode);
+  setCoreBridgeRoadPresentationV242(runtime.signatures, runtime.lightingMode);
+  setCoreSpreeBridgePresentationV242(runtime.signatures, runtime.lightingMode);
   setPotsdamerTrafficTowerPresentation(runtime.potsdamerTrafficTower, runtime.lightingMode);
 }
 
@@ -2411,6 +2415,8 @@ export function applySignatureLightingPresentation(
 ): void {
   setWeidendammerBridgePresentation(signatures, mode);
   setSandkrugBridgePresentation(signatures, mode);
+  setCoreBridgeRoadPresentationV242(signatures, mode);
+  setCoreSpreeBridgePresentationV242(signatures, mode);
   const trafficTower = signatures.getObjectByName(POTSDAMER_TOWER_ROOT_NAME);
   if (trafficTower instanceof Group) {
     setIsoNightPresentation(trafficTower, mode === "night", lightsOn, mode);
@@ -3715,6 +3721,7 @@ function prepareIsoNavigation(
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
   pedestrianEnvironment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
+  const coreSpreeBridges = createCoreSpreeBridgeNavigationV242(ground, pedestrianEnvironment.visualMode, runtime.signatures);
   pedestrianEnvironment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       ground.cell_m,
@@ -3747,6 +3754,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4150,6 +4158,7 @@ function ensureIsoWorld(
             includeAltMitteCoreV169: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
+            coreSpreeBridgeFactoryV242: createCoreSpreeBridgesV242,
             retainRasterAsphalt: false,
             retainRasterWater: runtime.coarsePointer && !surfaces,
             smoothSurfaces:
@@ -4332,6 +4341,8 @@ function ensureIsoWorld(
         if (bridges) {
           setWeidendammerBridgePresentation(bridges, runtime.lightingMode);
           setSandkrugBridgePresentation(bridges, runtime.lightingMode);
+          setCoreBridgeRoadPresentationV242(bridges, runtime.lightingMode);
+          setCoreSpreeBridgePresentationV242(bridges, runtime.lightingMode);
           pendingSignatures.add(bridges);
         }
         if (ground && street) {
@@ -4643,6 +4654,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
+  const coreSpreeBridges = createCoreSpreeBridgeNavigationV242(payload, environment.visualMode, runtime.signatures);
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
   configureNeueNationalgalerieObstaclesV217(environment.obstacles);
   environment.parkTreeSolidAt =
@@ -4659,6 +4671,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4904,7 +4917,7 @@ function ensureVoxelWorld(
         // A cold Minecraft visit needs the same public bridge decks as a
         // warm visit. Their source geometry must exist before walking starts.
         provisionalBridges = createBridgeStructures(
-          payload, runtime.coarsePointer ? "mobile" : "full", true,
+          payload, runtime.coarsePointer ? "mobile" : "full", true, createCoreSpreeBridgesV242,
         );
       }
       runtime.voxelWorld = provisionalVoxelWorld;

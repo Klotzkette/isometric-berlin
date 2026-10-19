@@ -36,6 +36,12 @@ export type SurroundingNavigation = {
   water: SurroundingPolygon[];
   roads?: SurroundingPolygon[];
   bridges?: SurroundingPolygon[];
+  /** Packet-owned mapped bridge floors and represented side barriers. XZ is
+   * local to the packet; vertical levels are absolute scene coordinates. */
+  spreeBridgesV242?: {
+    floors: (SurroundingPolygon & { y: number })[];
+    solids: (SurroundingPolygon & { low: number; high: number })[];
+  };
   /** Absolute scene Y; explicitly an unsurveyed display height. */
   groundY: number;
 };
@@ -80,6 +86,12 @@ export function validSurroundingPolygon(value: unknown): value is SurroundingPol
 
 function validNavigation(value: SurroundingNavigation): boolean {
   return !!value && Number.isFinite(value.groundY) &&
+    (!value.spreeBridgesV242 || (
+      Array.isArray(value.spreeBridgesV242.floors) && value.spreeBridgesV242.floors.length <= 20_000 &&
+      value.spreeBridgesV242.floors.every(p => validSurroundingPolygon(p) && Number.isFinite(p.y)) &&
+      Array.isArray(value.spreeBridgesV242.solids) && value.spreeBridgesV242.solids.length <= 20_000 &&
+      value.spreeBridgesV242.solids.every(p => validSurroundingPolygon(p) &&
+        Number.isFinite(p.low) && Number.isFinite(p.high) && p.high >= p.low))) &&
     [value.ground, value.water, value.buildings, value.roads ?? [], value.bridges ?? []]
       .every(polygons => Array.isArray(polygons) && polygons.length <= 20_000 && polygons.every(validSurroundingPolygon)) &&
     value.buildings.every(building => Number.isFinite(building.height) && Number.isFinite(building.minHeight) &&

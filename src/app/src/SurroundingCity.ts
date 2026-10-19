@@ -6,6 +6,7 @@ import {
 import type { VisualMode } from "./visualMode";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { terrainGroundAt } from "./weinbergTerrainV176";
+import { spreeBridgeFloorAtV242, spreeBridgeSolidAtV242 } from "./SpreeBridgesV242";
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -534,6 +535,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       }
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
       if (!entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return null;
+      const bridgeFloor = spreeBridgeFloorAtV242(entry.nav, lx, lz);
+      if (bridgeFloor !== null) return bridgeFloor;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));
       return terrainGroundAt(x, z, entry.nav.groundY, mode === "minecraft") + (road ? 0.09 : 0);
     },
@@ -541,6 +544,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       for (const entry of residents.values()) {
         const b = entry.descriptor.bounds;
         if (x + radius < b[0] || z + radius < b[1] || x - radius > b[2] || z - radius > b[3]) continue;
+        if (spreeBridgeSolidAtV242(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
         if (surroundingBuildingSolidAt(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
       }
       return false;
@@ -549,7 +553,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const entry = at(x, z);
       if (!entry) return false;
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
-      return !entry.nav.bridges?.some(p => surroundingPolygonContains(p, lx, lz)) &&
+      return spreeBridgeFloorAtV242(entry.nav, lx, lz) === null &&
+        !entry.nav.bridges?.some(p => surroundingPolygonContains(p, lx, lz)) &&
         entry.nav.water.some(p => surroundingPolygonContains(p, lx, lz));
     },
     get residentGeometryBytes() { return geometryBytes; },
