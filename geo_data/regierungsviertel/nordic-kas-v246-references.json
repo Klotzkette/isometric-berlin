@@ -1,0 +1,37 @@
+{
+  "note": "Architectural text references only. No external photographs, textures, image pixels or reproduced plans are bundled.",
+  "records": [
+    {
+      "landmark_id": "nordic_embassies_v246",
+      "title": "Der Botschaftskomplex – sechs Häuser und ein Kupferband",
+      "page_url": "https://www.nordischebotschaften.org/der-botschaftskomplex/",
+      "credit": "Nordische Botschaften, official architectural descriptions of the complex and all six houses",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "nordic_embassies_v246",
+      "title": "Die Botschaften der nordischen Länder in Berlin",
+      "page_url": "https://www.edelstahl-rostfrei.de/fileadmin/user_upload/ISER/downloads/Die-Botschaften-der-nordischen-Laender-in-Berlin.pdf",
+      "credit": "Euro Inox, 2002, ISBN 2-87997-019-9; architectural and construction reference only",
+      "role": "published_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kas_headquarters_v246",
+      "title": "Erweiterung der Konrad-Adenauer-Stiftung",
+      "page_url": "https://cn-architekten.de/projekte/erweiterung-der-konrad-adenauer-stiftung",
+      "credit": "Claus Neumann Architekten / CN-Architekten / Cramer Neumann Architekten, 2021; project identity and architectural reference only",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kas_headquarters_v246",
+      "title": "Kontakt – Zentrale Klingelhöferstraße 23 und Akademie Tiergartenstraße 35",
+      "page_url": "https://www.kas.de/de/kontakt",
+      "credit": "Konrad-Adenauer-Stiftung, official operator addresses",
+      "role": "primary_site_identity_reference",
+      "photo_bundled": false
+    }
+  ]
+}

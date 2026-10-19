@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.145 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.145/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.146 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.146/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.145** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.146** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.145 adds photo-guided architectural character at Torstraße 138 and Danziger Straße 57: bay, balconies, brickwork and light window surrounds. Previous city geometry and runtime memory limits stay intact. [Sources and validation](docs/street-landmarks-v245.md).
+Version 1.0.146 corrects the sloping Kulturforum Piazzetta and refines Gemäldegalerie, Nordic embassies, KAS, party headquarters, Robert Koch, Gymnasium Steglitz and Spiegelwand. Complete source geometry and runtime memory limits remain protected. [Sources and validation](docs/civic-kulturforum-v246.md).
 
-Version 1.0.145 ergänzt Erker, Balkone, Klinker und helle Fenstereinfassungen an Torstraße 138 und Danziger Straße 57. Bestehende Stadtgeometrie und Speichergrenzen bleiben erhalten.
+Version 1.0.146 korrigiert die geneigte Piazzetta am Kulturforum und verfeinert Gemäldegalerie, nordische Botschaften, KAS, Parteihäuser, Robert Koch, Gymnasium Steglitz und Spiegelwand. Vorhandene Quellgeometrie und Speichergrenzen bleiben geschützt.
 
 Version 1.0.142 gives mapped Spree bridges distinct bodies, railings, raised pavements and source-supported lane markings. Existing detailed bridges and full mobile quality remain. [Sources and validation](docs/spree-bridges-v242.md).
 

@@ -3224,40 +3224,9 @@ function addKulturforumMuseums(builder: Builder): void {
     builder, copper, copperProfile.rotationY, copperProfile.sharedEntrance, "local-z", -1,
   );
 
-  const piazzettaProfile = KULTURFORUM_PROFILE.piazzetta;
-  const piazzetta = fixedWorldPoint(piazzettaProfile.centerWorldM);
-  addRamp(
-    builder,
-    0xe2d9ca,
-    piazzetta.x,
-    piazzetta.y + 0.08,
-    piazzetta.z,
-    piazzettaProfile.widthM,
-    piazzettaProfile.lengthM,
-    piazzettaProfile.riseM,
-    piazzettaProfile.rotationY,
-  );
-  for (let localZ = -32; localZ <= 32; localZ += 8) {
-    const [offsetX, offsetZ] = rotatedLocalOffset(
-      0,
-      localZ,
-      piazzettaProfile.rotationY,
-    );
-    const progress =
-      (localZ + piazzettaProfile.lengthM / 2) / piazzettaProfile.lengthM;
-    addBox(
-      builder,
-      0xb9ad99,
-      piazzetta.x + offsetX,
-      piazzetta.y + 0.18 + progress * piazzettaProfile.riseM,
-      piazzetta.z + offsetZ,
-      piazzettaProfile.widthM - 1.2,
-      0.12,
-      0.28,
-      piazzettaProfile.rotationY,
-      false,
-    );
-  }
+  // v246: KulturforumMuseums owns the complete source-bound DGM Piazzetta.
+  // Retire only the former suspended 82×38m presentation wedge.
+
 }
 
 function addKulturforumConcertBuildings(_builder: Builder): void {

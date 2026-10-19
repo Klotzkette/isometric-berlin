@@ -106,6 +106,231 @@
       "credit": "Bodo Kubrak, 2016-06-20 / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "nordic_embassies_v246",
+      "title": "Der Botschaftskomplex – sechs Häuser und ein Kupferband",
+      "page_url": "https://www.nordischebotschaften.org/der-botschaftskomplex/",
+      "credit": "Nordische Botschaften, official architectural descriptions of the complex and all six houses",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "nordic_embassies_v246",
+      "title": "Die Botschaften der nordischen Länder in Berlin",
+      "page_url": "https://www.edelstahl-rostfrei.de/fileadmin/user_upload/ISER/downloads/Die-Botschaften-der-nordischen-Laender-in-Berlin.pdf",
+      "credit": "Euro Inox, 2002, ISBN 2-87997-019-9; architectural and construction reference only",
+      "role": "published_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kas_headquarters_v246",
+      "title": "Erweiterung der Konrad-Adenauer-Stiftung",
+      "page_url": "https://cn-architekten.de/projekte/erweiterung-der-konrad-adenauer-stiftung",
+      "credit": "Claus Neumann Architekten / CN-Architekten / Cramer Neumann Architekten, 2021; project identity and architectural reference only",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kas_headquarters_v246",
+      "title": "Kontakt – Zentrale Klingelhöferstraße 23 und Akademie Tiergartenstraße 35",
+      "page_url": "https://www.kas.de/de/kontakt",
+      "credit": "Konrad-Adenauer-Stiftung, official operator addresses",
+      "role": "primary_site_identity_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "green_headquarters_v246",
+      "title": "File:20241030 xl 1220-Bündnis 90 Die Grünen Parteizentrale, Platz vor dem Neuen Tor 1, Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20241030_xl_1220-B%C3%BCndnis_90_Die_Gr%C3%BCnen_Parteizentrale,_Platz_vor_dem_Neuen_Tor_1,_Berlin.jpg",
+      "artist": "Molgreen",
+      "date": "2024-10-30",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Molgreen, 2024-10-30 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_steglitz_v246",
+      "title": "File:120518-Gymnasium-Steglitz-Heesestraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:120518-Gymnasium-Steglitz-Heesestra%C3%9Fe.JPG",
+      "artist": "Muns",
+      "date": "2012-05-18",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Muns, 2012-05-18 / CC BY 3.0; existing reference reused for v246",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gemaeldegalerie_v246",
+      "title": "File:TiergartenSigismundstraße-2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TiergartenSigismundstra%C3%9Fe-2.jpg",
+      "artist": "Fridolin freudenfett / Peter Kuley",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Fridolin freudenfett / Peter Kuley / CC BY-SA 3.0; existing reference reused for v246",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "robert_koch_memorial_v246",
+      "title": "Robert-Koch-Denkmal",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/robert-koch-denkmal-7894/",
+      "artist": "Detlev J. Pietzsch",
+      "year": 2009,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Detlev J. Pietzsch, 2009 / Bildhauerei in Berlin / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spiegelwand_v246",
+      "title": "Spiegelwand",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/spiegelwand-5559/",
+      "artist": "Susanne Kähler",
+      "year": 2009,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Susanne Kähler, 2009 / Bildhauerei in Berlin / CC BY 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "piazzetta_v246",
+      "title": "Piazzetta, Museum der 1000 Orte",
+      "page_url": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/piazzetta",
+      "artist": "Cordia Schlegelmilch",
+      "year": 2012,
+      "credit": "© BBR / Cordia Schlegelmilch, 2012",
+      "rights_note": "No reuse license stated on the cited page; external reference only. No photograph is distributed.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "piazzetta_v246",
+      "title": "Die Piazetta am Kulturforum",
+      "page_url": "https://www.smb.museum/museen-einrichtungen/kulturforum/besuch-planen/lageplan/",
+      "file_url": "https://www.smb.museum/fileadmin/website/Orte/Kulturforum/Ueber_uns/Profil/KF_Aussenansicht_03.jpg",
+      "artist": "Maximilian Meisse",
+      "credit": "© Staatliche Museen zu Berlin / Maximilian Meisse",
+      "rights_note": "No reuse license stated on the cited page; external reference only. No photograph is distributed.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "willy_brandt_haus_v246",
+      "title": "Willy-Brandt-Haus, official architectural account and exterior photograph",
+      "page_url": "https://www.willy-brandt-haus.de/das-willy-brandt-haus/das-willy-brandt-haus/",
+      "file_url": "https://www.willy-brandt-haus.de/fileadmin/user_upload/Das_Haus/Architektur-Willy-Brandt-Haus-4.jpg",
+      "credit": "Willy-Brandt-Haus, official publisher; photographer not identified in the cited source",
+      "rights_note": "No reuse license verified; external reference only. No photograph is distributed.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "rosa_luxemburg_stiftung_v246",
+      "title": "Neubau eröffnet",
+      "page_url": "https://www.rosalux.de/news/id/43270/neubau-eroeffnet",
+      "date": "2020-10-31",
+      "credit": "Rosa-Luxemburg-Stiftung, official building account and linked opening views; photographer not identified in the cited page",
+      "rights_note": "No image reuse license verified; external reference only. No photograph is distributed.",
+      "role": "primary_architectural_text_and_external_visual_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "green_headquarters_v246",
+      "title": "Kontakt – Platz vor dem Neuen Tor 1",
+      "page_url": "https://www.gruene.de/service/kontakt",
+      "credit": "Bündnis 90/Die Grünen, official operator address",
+      "role": "primary_site_identity_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "karl_liebknecht_haus_v246",
+      "title": "Karl-Liebknecht-Haus",
+      "page_url": "https://klh.die-linke.de/",
+      "credit": "Die Linke, official building account",
+      "role": "primary_site_identity_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_steglitz_v246",
+      "title": "Progymnasium, Heesestraße 15",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065532",
+      "credit": "Landesdenkmalamt Berlin, Denkmaldatenbank Berlin",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_steglitz_v246",
+      "title": "Gymnasium Steglitz – restoration project",
+      "page_url": "https://www.klw-berlin.de/gymnasium-steglitz/",
+      "credit": "KLW Ingenieure, architectural restoration account",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_steglitz_v246",
+      "title": "Energetische Gebäudesanierung Gymnasium Steglitz",
+      "page_url": "https://www.klw-berlin.de/wp-content/uploads/2019/04/PDF_2010_Referenz_Energetische_Geb%C3%A4udesanierung_Gymnasium_Steglitz.pdf",
+      "credit": "KLW Ingenieure, 2010 project reference sheet; text reference only",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spiegelwand_v246",
+      "title": "Spiegelwand memorial, district account",
+      "page_url": "https://www.berlin.de/ba-steglitz-zehlendorf/politik-und-verwaltung/beauftragte/antisemitismus/artikel.1587208.php",
+      "credit": "Bezirksamt Steglitz-Zehlendorf von Berlin, official memorial account",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schlossstrasse_cycle_lanes_v246",
+      "title": "Green cycle-lane markings on Schloßstraße",
+      "page_url": "https://www.berlin.de/ba-steglitz-zehlendorf/aktuelles/pressemitteilungen/2020/pressemitteilung.907054.php",
+      "credit": "Bezirksamt Steglitz-Zehlendorf von Berlin, 2020 official press release",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gemaeldegalerie_v246",
+      "title": "Gemäldegalerie profile",
+      "page_url": "https://www.smb.museum/museen-einrichtungen/gemaeldegalerie/ueber-uns/profil/",
+      "credit": "Staatliche Museen zu Berlin, official architectural profile",
+      "role": "primary_architectural_text_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gemaeldegalerie_v246",
+      "title": "Gemäldegalerie visitor plan – Sigismundstraße entrance",
+      "page_url": "https://www.smb.museum/museen-einrichtungen/gemaeldegalerie/besuch-planen/lageplan/",
+      "credit": "Staatliche Museen zu Berlin, official visitor access",
+      "role": "primary_site_identity_reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "piazzetta_v246",
+      "title": "DGM1 tile 388_5818",
+      "page_url": "https://gdi.berlin.de/data/dgm1/atom/DGM1_388_5818.zip",
+      "credit": "Geoportal Berlin, DGM1 / dl-de/zero-2-0",
+      "role": "official_terrain_geometry_reference",
+      "photo_bundled": false,
+      "license": "dl-de/zero-2-0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "piazzetta_v246",
+      "title": "DOP 2025 spring service",
+      "page_url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "credit": "Geoportal Berlin, DOP 2025 spring / dl-de/zero-2-0; alignment reference only",
+      "role": "official_orthophoto_alignment_reference",
+      "photo_bundled": false,
+      "license": "dl-de/zero-2-0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
     }
   ]
 }

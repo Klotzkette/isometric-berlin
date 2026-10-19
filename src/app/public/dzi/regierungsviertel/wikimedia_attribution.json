@@ -6785,6 +6785,41 @@
       "credit": "Denis Apel / flyingpixel.de / Wikipedia, 2011-03-04 / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "green_headquarters_v246",
+      "title": "File:20241030 xl 1220-Bündnis 90 Die Grünen Parteizentrale, Platz vor dem Neuen Tor 1, Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:20241030_xl_1220-B%C3%BCndnis_90_Die_Gr%C3%BCnen_Parteizentrale,_Platz_vor_dem_Neuen_Tor_1,_Berlin.jpg",
+      "artist": "Molgreen",
+      "date": "2024-10-30",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Molgreen, 2024-10-30 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gymnasium_steglitz_v246",
+      "title": "File:120518-Gymnasium-Steglitz-Heesestraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:120518-Gymnasium-Steglitz-Heesestra%C3%9Fe.JPG",
+      "artist": "Muns",
+      "date": "2012-05-18",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Muns, 2012-05-18 / CC BY 3.0; existing reference reused for v246",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "gemaeldegalerie_v246",
+      "title": "File:TiergartenSigismundstraße-2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:TiergartenSigismundstra%C3%9Fe-2.jpg",
+      "artist": "Fridolin freudenfett / Peter Kuley",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Fridolin freudenfett / Peter Kuley / CC BY-SA 3.0; existing reference reused for v246",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

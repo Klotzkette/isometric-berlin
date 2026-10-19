@@ -36,6 +36,9 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Nordische Botschaften, Konrad-Adenauer-Stiftung, Parteizentralen, Rosa-Luxemburg-Stiftung, Robert-Koch-Denkmal, Steglitz und Kulturforum: vorhandene Gebäudedaten, amtliches Geländemodell sowie Architektur- und Bildquellen der unten verlinkten Nachweise. Kleine Fassaden-, Denkmal- und Straßenmaße bleiben angenähert; die SPD-Gebäudehöhe bleibt eine Darstellungsschätzung. Keine Referenzbilder oder Fototexturen werden mitgeliefert."
+          : "Nordic Embassies, Konrad-Adenauer-Stiftung, party headquarters, Rosa-Luxemburg-Stiftung, Robert Koch memorial, Steglitz and Kulturforum: retained building data, official terrain data and the architectural and visual sources credited below. Small facade, memorial and street dimensions remain approximate; the SPD building height remains a display estimate. No reference images or photo textures are bundled."}</p>
+        <p>{language === "de"
           ? "Torstraße 138 und Danziger Straße 57: erhaltene amtliche Gebäudeformen, Berliner Denkmaldatenbank und fotografische Fassadenvorlagen. Kleine Detailmaße und Farbtöne bleiben angenähert; keine Fototexturen. Danziger-Foto: "
           : "Torstraße 138 and Danziger Straße 57: retained official building geometry, Berlin heritage records and photographic facade references. Small dimensions and colours remain approximate; no photo textures. Danziger photograph: "}
           <a href="https://commons.wikimedia.org/wiki/File:Danziger_Stra%C3%9Fe_57_(Berlin-Prenzlauer_Berg).jpg" target="_blank" rel="noreferrer">Bodo Kubrak, 2016</a>

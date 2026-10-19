@@ -1305,3 +1305,15 @@ photographs and primary heritage identity for architectural recognition;
 unsurveyed small dimensions remain estimates. Add bounded companions in both
 independent families within the existing static and live limits, with no new
 coverage, tour stop, texture or per-frame work.
+
+
+### Step 10 — v246 Kulturforum and civic architecture
+
+The owner requests Gemäldegalerie/Piazzetta, Nordic embassies, KAS headquarters,
+party buildings, Robert Koch statue and Steglitz refinement. Preserve existing
+complete sources and roofs; correct only the evidenced old Piazzetta owner and
+its exact native receipt, together with matching walking heights. Keep the
+Rosa-Luxemburg-Stiftung at its actual Ostbahnhof address, distinct from the
+Karl-Liebknecht-Haus. Recognition fittings remain explicitly approximate.
+Retain all live budgets, full mobile detail, independent orthogonal native
+geometry, source credits and existing city coverage. No new descriptors.

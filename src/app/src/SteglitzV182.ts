@@ -5,6 +5,7 @@ import {
 } from "three";
 import source from "./data/steglitzV182Source.json";
 import native from "./data/steglitzV182Native.json";
+import refinements from "./data/steglitzV246Details.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const STEGLITZ_V182_GROUP = "Steglitz: Kreisel scaffold, town hall, Schloss, Gymnasium and Spiegelwand";
@@ -38,7 +39,7 @@ function shells(): Mesh {
 }
 
 function details(nativeMode: boolean): InstancedMesh {
-  const rows = nativeMode ? native.boxes : source.boxes;
+  const rows = nativeMode ? [...native.boxes, ...refinements.nativeRows] : [...source.boxes, ...refinements.boxes];
   const count = rows.length + (nativeMode ? 0 : source.rods.length);
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials();

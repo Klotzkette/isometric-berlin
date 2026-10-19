@@ -127,6 +127,7 @@ import { createConcertHalls } from "./ConcertHalls";
 import { CONCERT_HALL_PRISM_IDS } from "./concertHallsProfile";
 import { createKulturforumMuseums } from "./KulturforumMuseums";
 import { KULTURFORUM_MUSEUM_IDS } from "./kulturforumMuseumsProfile";
+import { KULTURFORUM_PIAZZETTA_PRISM_ID } from "./kulturforumPiazzettaV246Profile";
 import { BREITSCHEID_TOWER_PRISM_IDS } from "./breitscheidTowersProfile";
 import { createBreitscheidTowers } from "./BreitscheidTowers";
 import { MUSIC_MUSEUM_IDS, MUSEUM_LENNE_IDS, MUSEUM_LENNE_PRISM_TONES, MUSEUM_LENNE_ROOF_TONES, musicMuseumBodyHeight } from "./museumLenneProfile";
@@ -1050,6 +1051,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...MUSIC_MUSEUM_IDS,
   ...CONCERT_HALL_PRISM_IDS,
   ...KULTURFORUM_MUSEUM_IDS,
+  KULTURFORUM_PIAZZETTA_PRISM_ID,
   ...BREITSCHEID_TOWER_PRISM_IDS,
   ...WEST_SQUARES_V163_PRISM_IDS,
   ...HACKESCHER_MARKT_V163_PRISM_IDS,

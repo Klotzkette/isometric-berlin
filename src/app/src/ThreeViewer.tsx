@@ -1,3 +1,4 @@
+import { kulturforumPiazzettaFloorAt } from "./kulturforumPiazzettaV246Profile";
 import { aegCampusV241GroundAt, aegCampusV241SolidAt } from "./aegCampusV241Navigation";
 import { museumColonnadesV231GroundAt, museumColonnadesV231SolidAt } from "./museumColonnadesV231Navigation";
 import { monbijouV231DeckAt, monbijouV231GroundAt, monbijouV231SolidAt } from "./monbijouV231Navigation";
@@ -3819,6 +3820,8 @@ function prepareIsoNavigation(
   const formerBridgeGround = pedestrianEnvironment.bridgeGroundAt;
   pedestrianEnvironment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const piazzettaFloor = kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft");
+    if (piazzettaFloor !== null) return piazzettaFloor;
     const colonnadeFloor = museumColonnadesV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (colonnadeFloor !== null) return colonnadeFloor;
     const monbijouFloor = monbijouV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4721,6 +4724,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   const formerBridgeGround = environment.bridgeGroundAt;
   environment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft") ??
     museumColonnadesV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     monbijouV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft") ??

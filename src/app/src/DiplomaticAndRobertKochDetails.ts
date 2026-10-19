@@ -2,6 +2,7 @@ import { staticModelDetailProfile } from "./staticModelDetail";
 import { Group } from "three";
 
 import { addBox, addCylinder, createBuilder, finishDrawnGroup } from "./drawnKit";
+import { addNordicAndKasV246 } from "./NordicAndKasV246";
 
 export const DIPLOMATIC_AND_ROBERT_KOCH_PROFILE = {
   name: "Diplomatic quarter and Robert-Koch-Platz recognition details",
@@ -40,7 +41,6 @@ function facadeGrid(builder: ReturnType<typeof createBuilder>, x: number, z: num
 export function createDiplomaticAndRobertKochDetails(detailProfile: "full" | "mobile" = "full"): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const b = createBuilder();
-  const full = detailProfile === "full";
 
   // Austrian embassy: three unequal volumes and the copper-clad curved corner.
   addBox(b, 0xd4d0c5, -557, 10.5, 1038, 29, 12, 1.2, -0.18);
@@ -57,19 +57,16 @@ export function createDiplomaticAndRobertKochDetails(detailProfile: "full" | "mo
   addBox(b, 0xd8d3c8, -950, 10.5, 1054, 49, 13, 0.9, 0.04);
   for (let i = -10; i <= 10; i += 1) addBox(b, 0x9a968d, -950 + i * 2.15, 10.5, 1053.4, 0.26, 12.5, 0.2, 0.04, false);
 
-  // Nordic embassies: the shared green-copper band across the five houses.
-  for (let i = 0; i < (full ? 26 : 14); i += 1) {
-    const a = -0.78 + (i / (full ? 25 : 13)) * 1.55;
-    addBox(b, 0x6e9783, -1449.6 + Math.sin(a) * 55, 11.6, 1069 + Math.cos(a) * 8, 4.5, 12.5, 1.0, a, false);
-  }
+  // v246 replaces only the inaccurate 26-box Nordic plaza arc. The source
+  // campus boundary and six retained houses now carry the material details.
+  addNordicAndKasV246(b);
 
   // Mexican embassy: the defining vertical exposed-concrete fins.
   addBox(b, 0xc8c3b6, -1404, 10.8, 1166, 48, 13.5, 0.8, 0.05);
   for (let i = -12; i <= 12; i += 1) addBox(b, 0xddd8cc, -1404 + i * 1.75, 11, 1165.25, 0.42, 14.2, 1.5, 0.05);
 
-  // Bündnis 90/Die Grünen: five-storey office front, green entrance band.
-  facadeGrid(b, 565.8, -1092.2, 28, 5, -0.08, 0x526a70);
-  addBox(b, 0x5a9f45, 563.2, 7.0, -1092.5, 8.5, 1.05, 0.35, -0.08);
+  // v246 moves the exact old centre-crossing Green-office estimate onto the
+  // measured western street wall in CivicPartyDetailsV246, in both families.
 
   // Kaiserin-Friedrich-Haus: restored three-wing Wilhelminian front and portal.
   facadeGrid(b, 446.5, -976.0, 40, 3, -0.08, 0x567078);

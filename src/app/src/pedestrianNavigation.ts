@@ -88,6 +88,7 @@ import { ROSENGARTEN_PERGOLA_PRISM_ID } from "./rosengartenProfile";
 import { musicMuseumPart, musicMuseumPartRoofHeightAt, musicMuseumDisplayTop } from "./museumLenneProfile";
 import { CONCERT_HALL_PRISM_IDS, CONCERT_HALL_SOURCE_BOUNDS, concertHallRoofAt } from "./concertHallsProfile";
 import { KULTURFORUM_MUSEUM_IDS, kulturforumMuseumRoofHeightAt } from "./kulturforumMuseumsProfile";
+import { KULTURFORUM_PIAZZETTA_PRISM_ID } from "./kulturforumPiazzettaV246Profile";
 import { hbfNorthRailGroundAt } from "./HbfNorthApproachProfile";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
@@ -681,6 +682,8 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    // This parking footprint is a supported public square, not a closed 3m wall.
+    if (sourceBuilding.id === KULTURFORUM_PIAZZETTA_PRISM_ID) continue;
     if (options.replaceSchlossplatzPrisms && isSchlossplatzCorePrismV239(sourceBuilding)) {
       if (!replacedParents.has("schlossplatz-v239")) {
         replacedParents.add("schlossplatz-v239");

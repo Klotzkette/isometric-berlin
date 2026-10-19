@@ -182,6 +182,9 @@ import { createMinecraftConcertHalls } from "./ConcertHalls";
 import { concertHallSourceColumn } from "./concertHallsProfile";
 import { createMinecraftKulturforumMuseums } from "./KulturforumMuseums";
 import { kulturforumMuseumReplacementColumn } from "./kulturforumMuseumsProfile";
+import { kulturforumPiazzettaReplacementColumn } from "./kulturforumPiazzettaV246Profile";
+import { createMinecraftNordicAndKasV246 } from "./NordicAndKasV246";
+import { createNativeRobertKochV246 } from "./NativeRobertKochV246";
 import { createMinecraftHbfBearingSupports } from "./HauptbahnhofBearingSupports";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
@@ -2553,6 +2556,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftConcertHalls());
   yield;
   group.add(createMinecraftKulturforumMuseums());
+  group.add(createMinecraftNordicAndKasV246());
+  group.add(createNativeRobertKochV246(payload));
   group.add(createLuisenCorridorArchitecture({ sourcePrisms: options.sourcePrisms, minecraft: true, mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createKalkscheuneFacadesV218(true));
   group.add(createMinecraftBoellStiftungArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2644,6 +2649,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !isLeipzigerMallPassageColumn(worldXAbs(xIdx), worldZAbs(zIdx), cell / 2) &&
       !musicMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !concertHallSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell / 2) &&
+      !kulturforumPiazzettaReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !kulturforumMuseumReplacementColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10, cell) &&
       !breitscheidTowerSourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !westSquaresV163SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

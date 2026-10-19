@@ -83,6 +83,7 @@ import { createLitfinNeighboursV215 } from "./LitfinNeighboursV215";
 import { createArenaStationV225 } from "./ArenaStationV225";
 import { createAltMitteSidewalksV226 } from "./AltMitteSidewalksV226";
 import { createSteglitzMotorwayV226 } from "./SteglitzMotorwayV226";
+import { createCivicPartyDetailsV246 } from "./CivicPartyDetailsV246";
 
 export type OutlineLandmarkOwnershipOptions = {
   /** Complete library architecture already belongs to the required world. */
@@ -117,6 +118,8 @@ export function* createOutlineLandmarksV182Steps(
       if (root.children.length) beforeRelease?.(root);
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
+      yield;
+      root.add(createCivicPartyDetailsV246(nextNative));
       yield;
       root.add(createCityRecognitionV182(nextNative, false, true, true, true));
       yield;

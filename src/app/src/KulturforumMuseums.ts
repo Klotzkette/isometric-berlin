@@ -1,12 +1,13 @@
 import {
   BoxGeometry, BufferGeometry, Color, Float32BufferAttribute, Group, InstancedMesh,
-  Matrix4, MeshBasicMaterial, MeshStandardMaterial, ShapeUtils, Vector2, Vector3,
+  Matrix4, MeshBasicMaterial, MeshStandardMaterial, ShapeUtils, Uint8BufferAttribute, Vector2, Vector3,
 } from "three";
 import { createBuilder, finishDrawnGroup, paintGeometry } from "./drawnKit";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import source from "./kulturforumMuseumsSource.json";
 import { KULTURFORUM_MUSEUM_PROFILE, kulturforumMuseumRoofHeightAt } from "./kulturforumMuseumsProfile";
+import { KULTURFORUM_PIAZZETTA_V246, kulturforumPiazzettaFloorAt } from "./kulturforumPiazzettaV246Profile";
 
 type Point = [number, number, number];
 type Body = typeof source.bodies[number];
@@ -174,6 +175,9 @@ function build(minecraft: boolean, options: KulturforumMuseumOptions): Group {
         const bay = w.length / bays, u = (i + .5) * bay, h = Math.min(4.4, span * .36), y = base + span * .56;
         emit(w, u, y, Math.min(2.7, bay * .55) + .17, h + .17, .06, .08, 0xbba984, "gallery blind window reveal");
         emit(w, u, y, Math.min(2.7, bay * .55), h, .09, .13, C.stoneLight, "gallery stone blind window");
+        // Shallow stone sills distinguish the blind bays without opening
+        // invented holes in Hilmer & Sattler's restrained upper facade.
+        emit(w, u, y - h / 2 - .12, Math.min(2.7, bay * .55) + .3, .18, .34, .28, C.stoneLight, "gallery blind window sill");
         emit(w, u - bay / 2 + .07, base + 3.5 + (span - 3.8) / 2, .1, span - 3.8, .13, .16, C.plinth, "gallery metal bay joint");
         if (w.length > 12) {
           emit(w, u, base + 1.7, Math.min(2.7, bay * .65), 1.9, .12, .28, C.glass, "gallery lower glazing");
@@ -223,6 +227,34 @@ function build(minecraft: boolean, options: KulturforumMuseumOptions): Group {
       emit(w, u + du, base + .9, .07, .07, 3.3, 1.65, C.aluminium, "museum entrance handrail");
       for (const out of [.35, 2.95]) emit(w, u + du, base + .44, .075, .88, .075, out, C.aluminium, "museum entrance handrail post");
     }
+  }
+  // The former generic 3m garage extrusion and suspended presentation ramp
+  // are replaced by this complete source footprint at the measured grade.
+  // Native runs are independently orthogonal and retain the same old limits.
+  const plaza = KULTURFORUM_PIAZZETTA_V246, granite = [0xbeb9ae, 0xb9b7b0, 0xc3beb3];
+  if (minecraft) for (const [x, z, width, depth, y, shade] of plaza.native) {
+    blocks.push({ position: [x + width / 2, (y + 2.5) / 2, z + depth / 2], size: [width, y - 2.5, depth], yaw: 0, color: granite[shade], role: "piazzetta native granite terrace", sourceId: plaza.sourceId });
+  } else {
+    const positions: number[] = [], colors: number[] = [], tint = new Color();
+    plaza.triangles.forEach((ids, i) => {
+      tint.setHex(granite[plaza.colors[i]]);
+      for (const id of ids) { positions.push(...plaza.positions[id]); colors.push(Math.round(tint.r * 255), Math.round(tint.g * 255), Math.round(tint.b * 255)); }
+    });
+    const paving = new BufferGeometry();
+    paving.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    paving.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
+    paving.setIndex(Array.from({ length: positions.length / 3 }, (_, i) => i));
+    builder.parts.push(paving);
+    // Complete original boundary remains; its walls now descend beneath the
+    // square instead of creating an above-ground closed building.
+    for (let i = 0; i < plaza.ring.length; i++) {
+      const a = plaza.ring[i], b = plaza.ring[(i + 1) % plaza.ring.length];
+      const ya = kulturforumPiazzettaFloorAt(a[0], a[1])!, yb = kulturforumPiazzettaFloorAt(b[0], b[1])!;
+      const face = surface([[[a[0], 2.5, a[1]], [b[0], 2.5, b[1]], [b[0], yb, b[1]], [a[0], ya, a[1]]]], 0x99978e);
+      if (face) builder.parts.push(face);
+    }
+    const underside = surface([plaza.ring.map(([x, z]) => [x, 2.5, z] as Point)], 0x99978e);
+    if (underside) builder.parts.push(underside);
   }
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("normal"); geometry.deleteAttribute("uv");
   const day = new MeshBasicMaterial({ color: 0xffffff }), night = new MeshStandardMaterial({ color: 0xffffff, roughness: .88, flatShading: true });

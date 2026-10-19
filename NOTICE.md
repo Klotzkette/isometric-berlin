@@ -17,6 +17,34 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Embassies, civic sites, Steglitz and Kulturforum (v1.0.146):** Retained
+  OpenStreetMap identities/footprints (ODbL-1.0), Berlin LoD2 and official
+  DGM1/DOP evidence (dl-de/zero-2-0), and the cited institutional, architectural
+  and heritage accounts guide these bounded refinements. Small facade, memorial
+  and street fittings are procedural estimates; the Willy-Brandt-Haus retains
+  its delivered 21 m display height rather than claiming a newly measured shell.
+  No reference photographs, plans, image pixels or photographic textures ship.
+  See [Nordic Embassies and KAS](docs/nordic-kas-v246.md),
+  [Steglitz](docs/steglitz-details-v246.md),
+  [Gemäldegalerie and Piazzetta](docs/kulturforum-piazzetta-v246.md), and
+  [civic-site evidence](geo_data/regierungsviertel/civic-v246-source.json).
+  Green headquarters photograph: [Molgreen, 30 October 2024](https://commons.wikimedia.org/wiki/File:20241030_xl_1220-B%C3%BCndnis_90_Die_Gr%C3%BCnen_Parteizentrale,_Platz_vor_dem_Neuen_Tor_1,_Berlin.jpg),
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  Gymnasium Steglitz photograph: [Muns, 18 May 2012](https://commons.wikimedia.org/wiki/File:120518-Gymnasium-Steglitz-Heesestra%C3%9Fe.JPG),
+  [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+  [Robert-Koch-Denkmal](https://bildhauerei-in-berlin.de/bildwerk/robert-koch-denkmal-7894/):
+  Detlev J. Pietzsch, 2009; [Spiegelwand](https://bildhauerei-in-berlin.de/bildwerk/spiegelwand-5559/):
+  Susanne Kähler, 2009; both photographs via Bildhauerei in Berlin,
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  Piazzetta photographs: [© BBR / Cordia Schlegelmilch, 2012](https://www.museum-der-1000-orte.de/bauwerke/bauwerk/piazzetta)
+  and [© Staatliche Museen zu Berlin / Maximilian Meisse](https://www.smb.museum/museen-einrichtungen/kulturforum/besuch-planen/lageplan/).
+  These and the official [Willy-Brandt-Haus exterior](https://www.willy-brandt-haus.de/fileadmin/user_upload/Das_Haus/Architektur-Willy-Brandt-Haus-4.jpg)
+  and [Rosa-Luxemburg-Stiftung account/views](https://www.rosalux.de/news/id/43270/neubau-eroeffnet)
+  are external references only; no free image-reuse license is asserted.
+  The already credited Fridolin freudenfett / Peter Kuley Gemäldegalerie image
+  (CC BY-SA 3.0) remains a reference. Complete per-source records are appended
+  to the packaged Wikimedia and additional-reference attribution manifests.
+
 - **Museum-island bridges (v1.0.143):** Retained OpenStreetMap footprints and
   street attributes (ODbL-1.0) and Berlin monument records guide the three
   bounded bridge refinements. Small structural/ornamental dimensions and

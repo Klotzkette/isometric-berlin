@@ -666,14 +666,30 @@ function buildRobertKochMemorial(
   box(builder, MARBLE, x, y + 0.64, z, 3.65, 0.38, 3.0);
   box(builder, MARBLE, x, y + 1.58, z, 2.85, 1.5, 2.3);
   box(builder, STONE_LIGHT, x, y + 2.4, z, 3.15, 0.2, 2.6);
-  // High-backed chair, seated coat, two separately readable legs and arms.
-  box(builder, MARBLE, x, y + 3.58, z + 0.28, 2.5, 2.2, 0.5);
-  box(builder, MARBLE, x, y + 3.65, z, 1.65, 1.85, 1.2);
-  box(builder, MARBLE, x - 0.52, y + 3.05, z - 0.2, 0.55, 1.35, 0.75, -0.12);
-  box(builder, MARBLE, x + 0.52, y + 3.05, z - 0.2, 0.55, 1.35, 0.75, 0.12);
-  box(builder, MARBLE, x - 0.92, y + 3.78, z, 0.38, 1.45, 0.42, -0.35);
-  box(builder, MARBLE, x + 0.92, y + 3.78, z, 0.38, 1.45, 0.42, 0.35);
-  box(builder, MARBLE, x, y + 5.0, z - 0.03, 0.72, 0.82, 0.68);
+  // Tuaillon's long coat, corner-backed seat and turned bearded head.
+  // Local sculpture proportions are visual estimates from Pietzsch's 2009
+  // CC BY 4.0 reference; the OSM anchor and earlier base footprint stay fixed.
+  const figure: Builder = { parts: [], edges: [] };
+  box(figure, MARBLE, 0, 3.40, .36, 1.8, 1.75, .3);
+  box(figure, MARBLE, .78, 3.30, .08, .25, 1.55, .85);
+  box(figure, MARBLE, 0, 2.62, -.04, 1.88, .22, 1.45);
+  ellipsoid(figure, MARBLE, 0, 0, 0, [0, 4.05, .08], [.68, .84, .42], 0);
+  for (const s of [-1, 1]) {
+    ellipsoid(figure, MARBLE, 0, 0, 0, [s * .43, 3.07, -.42], [.40, .67, .48], 0);
+    ellipsoid(figure, MARBLE, 0, 0, 0, [s * .44, 2.61, -.68], [.28, .13, .43], 0);
+    rod(figure, MARBLE, 0, 0, 0, [s * .54, 4.42, .03], [s * .76, 3.91, -.12], .17, 0);
+    rod(figure, MARBLE, 0, 0, 0, [s * .76, 3.91, -.12], [s * .51, 3.76, -.49], .14, 0);
+    ellipsoid(figure, MARBLE, 0, 0, 0, [s * .51, 3.74, -.50], [.16, .13, .20], 0);
+    // Shallow light folds remain legible without a dark cage of outline lines.
+    for (const dx of [-.13, .13]) rod(figure, 0xd7d4ca, 0, 0, 0,
+      [s * .43 + dx, 3.48, -.85], [s * .43 + dx * .4, 2.79, -.86], .025, 0);
+  }
+  cylinder(figure, MARBLE, 0, 4.57, .04, .18, .17, .27, 10);
+  ellipsoid(figure, MARBLE, 0, 0, 0, [0, 5.02, -.02], [.32, .43, .29], -.30);
+  ellipsoid(figure, MARBLE, 0, 0, 0, [-.08, 4.84, -.27], [.23, .24, .12], -.30);
+  ellipsoid(figure, MARBLE, 0, 0, 0, [-.11, 5.03, -.30], [.08, .13, .10], -.30);
+  // The monument stands on the east side of the square, facing west.
+  appendOrientedBuilder(builder, figure, x, y, z, Math.PI / 2);
 }
 
 function addGraefePediment(
@@ -2992,6 +3008,7 @@ export function createTiergartenMonuments(
     yawDegrees: GRAEFE_CHARITE_YAW_DEGREES,
   };
   group.userData.sourceUrls = [
+    "https://bildhauerei-in-berlin.de/bildwerk/robert-koch-denkmal-7894/",
     "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
     "https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2020/pressemitteilung.939111.php",
     "https://www.berlin.de/landesdenkmalamt/aktivitaeten/presse/2023/pressemitteilung.1375900.php",

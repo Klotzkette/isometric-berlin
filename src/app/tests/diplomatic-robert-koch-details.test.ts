@@ -25,7 +25,8 @@ describe("diplomatic quarter and Robert-Koch-Platz", () => {
     const bounds = new Box3().setFromObject(details);
     expect(bounds.min.x).toBeLessThan(-1490);
     expect(bounds.max.x).toBeGreaterThan(470);
-    expect(bounds.min.z).toBeLessThan(-1090);
+    // v246: Green HQ western frontage is now its independently tested Civic owner.
+    expect(bounds.min.z).toBeLessThan(-900);
     expect(bounds.max.z).toBeGreaterThan(1165);
   });
 

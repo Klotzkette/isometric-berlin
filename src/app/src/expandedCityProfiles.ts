@@ -166,7 +166,7 @@ export const KULTURFORUM_PROFILE = {
   piazzetta: {
     centerWorldM: [-331.0, 1091.5] as const,
     geometryStatus:
-      "bounded presentation ramp between LoD2 museum envelopes; not surveyed paving",
+      "bounded complete retained Piazzetta footprint with official DGM1 relief; pattern not surveyed paving",
     lengthM: 82,
     riseM: 5.4,
     rotationY: (-17 * Math.PI) / 180,
