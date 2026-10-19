@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.145",
+  "package_version": "1.0.146",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -86,13 +86,13 @@
     },
     "visual_reference_attribution": {
       "path": "dzi/regierungsviertel/visual_reference_attribution.json",
-      "bytes": 5738,
-      "sha256": "d5984219a6cfd463417200f3984028f807f846bd48dda1a8f9f368e28f25f343"
+      "bytes": 16785,
+      "sha256": "7b493a42f92169551fcf3009009f89c5cd46750262953f96d8fc8506799e9d21"
     },
     "wikimedia_attribution": {
       "path": "dzi/regierungsviertel/wikimedia_attribution.json",
-      "bytes": 346176,
-      "sha256": "499c95e5d6006cfde3b0080267588be651e829f2b96e31064323e2f72e2cc6b7"
+      "bytes": 347957,
+      "sha256": "95526fdaf34ed4f542509375831049be0bffcfa1e61580e23841764506f0a269"
     },
     "webgl_scene": {
       "path": "mesh/regierungsviertel/scene.json",
