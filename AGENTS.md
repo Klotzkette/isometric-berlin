@@ -1281,3 +1281,16 @@ city data and budgets. Both required families must decode before an exact
 generic owner yields, and walking surfaces/barriers must match the new models.
 Unsourced small dimensions remain explicit estimates; no outer packet or
 city-coverage expansion belongs to this quick continuation.
+
+### Step 10 — v244 Torstraße and Danziger Straße street fronts
+
+The owner asks to continue with the buildings along Torstraße and Danziger
+Straße. Refine their existing source-bound street fronts, retaining complete
+measured envelopes, roofs, earlier authored details and mapped public space.
+Existing verified openings take priority over new illustrative subdivisions;
+ordinary facade fittings must not overwrite dedicated modern or historic owners.
+Both drawn mobile and desktop keep full detail, with independent orthogonal
+native geometry and unchanged live residency, transfer and prefetch budgets.
+Only the finite static descriptor inventory and measured offline-package
+allowance may grow for these named streets. No new coverage or tour stop.
+Record unsurveyed glazing, material tones and fitting sizes as display estimates.

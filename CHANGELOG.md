@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.144 — Torstraße and Danziger Straße facades
+
+- Refine 1,999 existing Torstraße windows on 77 owners, including 220 shopfronts,
+  with glass infill, shallow reveals and sill returns.
+- Add street-facing windows and restrained facade articulation to ordinary
+  Danziger Straße buildings on their complete retained source walls. Protect
+  distinct named architecture and previously refined buildings.
+- Preserve every previous packet, measured body, roof, courtyard and walking
+  surface. Keep full mobile detail, independent native geometry and all live
+  residency limits unchanged.
+- See [sources and validation](docs/street-fronts-v244.md).
+
 ## v1.0.143 — Museum-island bridge architecture
 
 - Give Mitte’s Schloßbrücke, Eiserne Brücke and Schleusenbrücke individual

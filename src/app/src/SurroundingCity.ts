@@ -12,9 +12,9 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// Finite descriptor allowance including the named elevated U-Bahn corridors. This is catalogue
+// Finite descriptor allowance including Torstraße and Danziger Straße. This is catalogue
 // metadata only; resident geometry, transfer and prefetch budgets stay fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_144;
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_176;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // At most two upcoming packets overlap the one foreground fetch/decode. Reserve
 // the decoded size too: HTTP Content-Encoding may already inflate a response.

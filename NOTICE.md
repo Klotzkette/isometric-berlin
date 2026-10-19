@@ -1931,3 +1931,15 @@ pixels or photographic texture are bundled.
 IHZ base visual reference (no bundled media):
 [Denis Apel / flyingpixel.de / Wikipedia, 2011-03-04](https://commons.wikimedia.org/wiki/File:Internationales_Handelszentrum_Berlin_Sockel_Denis_Apel_CC.jpg),
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+
+## v1.0.144 — Torstraße and Danziger Straße
+
+The additions retain complete Geoportal Berlin LoD2 surfaces (dl-de/zero-2-0),
+existing source-bound pane receipts and OpenStreetMap street alignment
+(© OpenStreetMap contributors, ODbL-1.0). Primary Berlin monument records and
+GRAFT's Paragon project page identify special buildings protected from the
+ordinary facade pass. No photograph, plan, external texture or font is bundled.
+Glass hues, shallow profiles and previously unrecorded ordinary window
+subdivisions are explicit display estimates, not surveyed elevations.
+See `docs/street-fronts-v244.md` and its linked evidence.

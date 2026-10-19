@@ -112,9 +112,10 @@ def test_published_lineage_proves_whole_predecessors_and_rejects_unrelated_edits
   assert current == snapshot
   changed = copy.deepcopy(current)
   changed["chunks"][0]["drawn"]["bytes"] += 1
-  # An unrelated descriptor is never silently restored; it survives for the
-  # preceding release's full-manifest equality check to reject.
-  assert lineage.predecessor_manifest_v242(changed) != frozen
+  # An unrelated descriptor must fail either the exact extension audit or
+  # the preceding release equality check; it must never be silently restored.
+  with pytest.raises(AssertionError):
+    assert lineage.predecessor_manifest_v242(changed) == frozen
   key, receipt = next(iter(lineage.receipts().items()))
   path = build.ROOT / receipt["url"]
   family, chunk_id = key.split(":", 1)

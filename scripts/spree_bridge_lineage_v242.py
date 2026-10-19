@@ -63,6 +63,9 @@ def predecessor_packet_bytes_v242(
 
 def predecessor_manifest_v242(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Normalize only independently proven byte metadata, never scope or owners."""
+  from scripts.integrate_street_fronts_v244 import predecessor_manifest_v244
+
+  current = predecessor_manifest_v244(current, reader)
   result = copy.deepcopy(current)
   previous = {
     c["id"]: c

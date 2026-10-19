@@ -124,7 +124,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v242 adds source-mapped bridge bodies and fittings to twenty existing packets.
 # The complete archive is 925,076,598 bytes (882.222 MiB); 884 MiB leaves 1.778 MiB
 # of offline-only headroom. Packet, worker, decode and resident limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 884 * 1024 * 1024
+# v244 adds fourteen small Tor/Danziger companion tiles. The complete package
+# is 929,080,797 bytes (886.040 MiB); 888 MiB bounds the offline archive only.
+# All source assets and live packet, prefetch and residency limits remain.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 888 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
