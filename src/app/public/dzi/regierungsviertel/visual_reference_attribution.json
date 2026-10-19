@@ -84,6 +84,28 @@
       "credit": "Fred Romero, 2016-08-17 / CC BY 2.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "tor138_v245",
+      "title": "Torstraße 138, official facade view (1999)",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080095",
+      "file_url": "https://denkmaldatenbank.berlin.de/media/uploads/Mit/03/09080095a.jpg",
+      "artist": "Landesdenkmalamt Berlin",
+      "credit": "Landesdenkmalamt Berlin, Denkmaldatenbank Berlin, 1999",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "danziger57_v245",
+      "title": "File:Danziger Straße 57 (Berlin-Prenzlauer Berg).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Danziger_Stra%C3%9Fe_57_(Berlin-Prenzlauer_Berg).jpg",
+      "artist": "Bodo Kubrak",
+      "date": "2016-06-20",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Bodo Kubrak, 2016-06-20 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

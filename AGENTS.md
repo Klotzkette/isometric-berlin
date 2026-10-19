@@ -1294,3 +1294,14 @@ native geometry and unchanged live residency, transfer and prefetch budgets.
 Only the finite static descriptor inventory and measured offline-package
 allowance may grow for these named streets. No new coverage or tour stop.
 Record unsurveyed glazing, material tones and fitting sizes as display estimates.
+
+### Step 10 — v245 distinctive Torstraße and Danziger fronts
+
+The owner asks to continue the two named streets. This small follow-up fills
+the specifically evidenced Torstraße 138 and Danziger Straße 57 / Senefelder
+Straße 35 facade gaps. Preserve every prior chunk, full measured envelope,
+roof, courtyard, navigation solid and earlier street detail. Use reference-only
+photographs and primary heritage identity for architectural recognition;
+unsurveyed small dimensions remain estimates. Add bounded companions in both
+independent families within the existing static and live limits, with no new
+coverage, tour stop, texture or per-frame work.

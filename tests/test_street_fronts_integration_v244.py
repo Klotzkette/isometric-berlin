@@ -14,11 +14,12 @@ from scripts.integrate_street_fronts_v244 import (
   read,
   verify_companions,
 )
+from scripts.integrate_street_landmarks_v245 import predecessor_manifest_v245
 
 
 def test_exact_previous_city_and_all_new_payloads():
   previous = json.loads(baseline_bytes())
-  current = read(PUBLIC / "manifest.json")
+  current = predecessor_manifest_v245(read(PUBLIC / "manifest.json"))
   assert len(previous["chunks"]) == 2135
   assert current == merged(previous, additions())
   assert current["chunks"][:2135] == previous["chunks"]
@@ -28,7 +29,7 @@ def test_exact_previous_city_and_all_new_payloads():
 
 @pytest.mark.parametrize("mutation", ["old", "missing", "coverage", "receipt", "new"])
 def test_no_unknown_manifest_change_can_be_hidden(mutation):
-  value = copy.deepcopy(read(PUBLIC / "manifest.json"))
+  value = copy.deepcopy(predecessor_manifest_v245(read(PUBLIC / "manifest.json")))
   if mutation == "old":
     value["chunks"][0]["drawn"]["sha256"] = "0" * 64
   elif mutation == "missing":
@@ -44,7 +45,7 @@ def test_no_unknown_manifest_change_can_be_hidden(mutation):
 
 
 def test_corrupt_companion_cannot_pass_through_historical_adapter():
-  current = read(PUBLIC / "manifest.json")
+  current = predecessor_manifest_v245(read(PUBLIC / "manifest.json"))
   bad = PUBLIC / current["chunks"][-1]["minecraft"]["url"]
 
   def reader(path):

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.145 — Distinctive Torstraße and Danziger corner facades
+
+- Torstraße 138: photo-guided bay, open balconies, high rusticated base and cornices on its retained measured building.
+- Danziger Straße 57 / Senefelderstraße 35: red upper brick, light window surrounds, pediments and floor bands on the complete existing street walls.
+- Independent drawn/native companions preserve all earlier city packets, roofs, courts and live memory limits.
+- See [sources and validation](docs/street-landmarks-v245.md).
+
 ## v1.0.144 — Torstraße and Danziger Straße facades
 
 - Refine 1,999 existing Torstraße windows on 77 owners, including 220 shopfronts,

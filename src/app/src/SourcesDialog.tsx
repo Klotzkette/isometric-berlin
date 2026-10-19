@@ -36,6 +36,12 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Torstraße 138 und Danziger Straße 57: erhaltene amtliche Gebäudeformen, Berliner Denkmaldatenbank und fotografische Fassadenvorlagen. Kleine Detailmaße und Farbtöne bleiben angenähert; keine Fototexturen. Danziger-Foto: "
+          : "Torstraße 138 and Danziger Straße 57: retained official building geometry, Berlin heritage records and photographic facade references. Small dimensions and colours remain approximate; no photo textures. Danziger photograph: "}
+          <a href="https://commons.wikimedia.org/wiki/File:Danziger_Stra%C3%9Fe_57_(Berlin-Prenzlauer_Berg).jpg" target="_blank" rel="noreferrer">Bodo Kubrak, 2016</a>
+          {" · "}<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.
+        </p>
+        <p>{language === "de"
           ? "Krankenhäuser, Schulen, Sophienkirche, Otto-Weidt-Werkstatt und Rosenthaler Platz: vorhandene amtliche Gebäudeformen, OpenStreetMap und öffentliche Angaben der Einrichtungen. Fassadendetails und nicht vermessene Höhen bleiben angenähert. Die vier U8-Treppen folgen kartierten Verläufen und Stufenzahlen; Breiten und Tiefen sind geschätzt."
           : "Hospitals, schools, Sophienkirche, Otto Weidt's workshop and Rosenthaler Platz: retained official building geometry, OpenStreetMap and public institutional records. Facade details and unsurveyed heights remain approximate. The four U8 stairs follow mapped courses and step counts; widths and depths are estimates."}</p>
         <p>{language === "de"

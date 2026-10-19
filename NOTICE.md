@@ -1943,3 +1943,22 @@ ordinary facade pass. No photograph, plan, external texture or font is bundled.
 Glass hues, shallow profiles and previously unrecorded ordinary window
 subdivisions are explicit display estimates, not surveyed elevations.
 See `docs/street-fronts-v244.md` and its linked evidence.
+
+
+## v1.0.145 — Torstraße 138 and Danziger Straße 57
+
+Retained Berlin building geometry (dl-de/zero-2-0) and OpenStreetMap identities
+(ODbL-1.0) remain authoritative for the complete buildings. Primary heritage
+records: [Torstraße 138, 09080095](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080095)
+and [Danziger Straße 57, 09075102](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075102).
+
+Reference-only photographs: Landesdenkmalamt Berlin, Torstraße 138 facade,
+1999 ([official image](https://denkmaldatenbank.berlin.de/media/uploads/Mit/03/09080095a.jpg));
+Bodo Kubrak, *Danziger Straße 57 (Berlin-Prenzlauer Berg).jpg*, 20 June 2016,
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Danziger_Stra%C3%9Fe_57_(Berlin-Prenzlauer_Berg).jpg),
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+No photograph, texture or image pixels are redistributed. Small fitting
+positions, dimensions and material tones are procedural display estimates,
+not surveyed facade data or a claim of the current renovation state.
+Full references also ship in the viewer's source menu and attribution record.
+See `docs/street-landmarks-v245.md` and linked source/evidence records.

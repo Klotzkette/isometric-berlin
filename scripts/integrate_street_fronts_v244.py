@@ -92,6 +92,9 @@ def verify_companions(supplements: dict, reader: Reader = Path.read_bytes) -> No
 
 def predecessor_manifest_v244(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Only prove the exact whole extension; never discard unknown changes."""
+  from scripts.integrate_street_landmarks_v245 import predecessor_manifest_v245
+
+  current = predecessor_manifest_v245(current, reader)
   if "streetFrontsV244" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current
