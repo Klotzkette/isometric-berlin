@@ -13,6 +13,8 @@ import numpy as np
 from shapely.geometry import box
 from shapely.strtree import STRtree
 
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
   "appearance_v213", ROOT / "scripts/build_alt_mitte_appearance_v213.py"
@@ -159,10 +161,8 @@ def test_published_sidecar_preserves_every_immutable_packet_receipt() -> None:
     for entries in output["packets"].values()
     for entry in entries
   )
-  assert all(
-    MODULE.digest(ROOT / receipt["file"]) == receipt["sha256"]
-    for receipt in evidence["packetReceipts"]
-  )
+  for receipt in evidence["packetReceipts"]:
+    assert_preserved_v242(ROOT / receipt["file"], receipt["sha256"])
   protected = set(MODULE.read(MODULE.PROTECTED)["ids"])
   for identities in evidence["ownersReceivingSelectors"].values():
     assert identities and not set(identities) & protected

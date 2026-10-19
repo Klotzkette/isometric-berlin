@@ -1269,3 +1269,15 @@ source-bound replacements, with matching walking support and open approaches.
 Unsourced railing sections, kerb dimensions and road paint remain labelled
 display estimates. Keep full drawn mobile detail, independent orthogonal native
 geometry, all tour stops and existing bounded packet/residency lifetimes.
+
+### Step 10 — v243 continued Spree bridge refinement
+
+The owner asks to continue v242. This bounded follow-up refines exactly the
+existing generic owners of Mitte’s Schloßbrücke, Eiserne Brücke and
+Schleusenbrücke using complete retained bridge rings and associated transport
+ways. Do not confuse Schloßbrücke Mitte with Charlottenburg’s v242 crossing.
+Preserve all v242 geometry and receipts, both Monbijou arms, all unrelated
+city data and budgets. Both required families must decode before an exact
+generic owner yields, and walking surfaces/barriers must match the new models.
+Unsourced small dimensions remain explicit estimates; no outer packet or
+city-coverage expansion belongs to this quick continuation.

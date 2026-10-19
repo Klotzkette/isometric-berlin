@@ -8,12 +8,15 @@ import pytest
 from scripts.integrate_ber_airport_v236 import (
   ADDITION,
   PUBLIC,
+  ROOT,
   baseline_bytes,
   merged,
   normalize_ber_additions,
   read,
+  verify_assets,
 )
 from scripts.integrate_hansa_tiergarten_v237 import normalize_hansa_additions
+from scripts.spree_bridge_lineage_v242 import baseline, receipts
 
 
 def released_ber_manifest():
@@ -65,3 +68,20 @@ def test_airport_actual_payload_bytes_are_checked(family):
 
   with pytest.raises(AssertionError):
     normalize_ber_additions(current, corrupted)
+
+
+def test_historical_asset_audit_rejects_corrupted_current_bridge_bytes():
+  """A matching historical descriptor never bypasses validation of live data."""
+  receipt_key = next(iter(receipts()))
+  family, owner = receipt_key.split(":", 1)
+  manifest = json.loads(baseline(str((PUBLIC / "manifest.json").relative_to(ROOT))))
+  descriptor = next(c for c in manifest["chunks"] if c["id"] == owner)
+  verify_assets([descriptor], lambda path: path.read_bytes())
+  target = PUBLIC / descriptor[family]["url"]
+
+  def corrupted(path):
+    value = path.read_bytes()
+    return value[:-1] + bytes([value[-1] ^ 1]) if path == target else value
+
+  with pytest.raises(AssertionError, match="Unreceipted v242 bytes"):
+    verify_assets([descriptor], corrupted)

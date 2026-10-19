@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Museum-island bridges (v1.0.143):** Retained OpenStreetMap footprints and
+  street attributes (ODbL-1.0) and Berlin monument records guide the three
+  bounded bridge refinements. Small structural/ornamental dimensions and
+  colours remain illustrative. No photographs or textures are bundled.
+  See [sources and validation](docs/spree-bridges-v243.md).
+
 - **Spree bridges (v1.0.142):** Retained OpenStreetMap bridge outlines and road
   attributes (ODbL-1.0), the Berlin bridge inventory and Landesdenkmalamt
   descriptions guide bounded bridge refinements. Untagged vertical dimensions,

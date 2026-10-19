@@ -5,9 +5,12 @@ import { spreeBridgeCoreOwnerV242, spreeBridgeCorePacketsV242, spreeBridgeFloorA
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import type { VoxelPayload } from "./terrainPayload";
 import type { VisualMode } from "./visualMode";
+import { museumBridgeOwnerV243, museumBridgePacketsV243 } from "./MuseumBridgesV243";
 
 const DRAWN = "Mapped core Spree bridges v242 drawn";
 const NATIVE = "Mapped core Spree bridges v242 native";
+const MUSEUM_DRAWN = "Museum bridges v243 drawn";
+const MUSEUM_NATIVE = "Museum bridges v243 native";
 type Resident = { origin: [number, number, number]; nav: SurroundingNavigation;
   bounds: [number, number, number, number] };
 type Pair = { drawn: Resident; native: Resident };
@@ -67,44 +70,57 @@ function decode(packet: SpreeBridgeCorePacketV242, native: boolean) {
 }
 
 export function createCoreSpreeBridgesV242(ground: VoxelPayload,
-  loadPackets = spreeBridgeCorePacketsV242) {
+  loadPackets = spreeBridgeCorePacketsV242,
+  loadMuseumPackets = museumBridgePacketsV243) {
   const root = new Group(); root.name = "Mapped core Spree bridges v242";
   const drawn = new Group(); drawn.name = DRAWN;
   const native = new Group(); native.name = NATIVE; native.visible = false;
   root.add(drawn, native);
+  const museumDrawn = new Group(); museumDrawn.name = MUSEUM_DRAWN;
+  const museumNative = new Group(); museumNative.name = MUSEUM_NATIVE; museumNative.visible = false;
+  root.add(museumDrawn, museumNative);
   const holder = holderFor(ground); holder.pairs = [];
   rootResidents.set(root, holder);
   const owners: string[] = [], failed: string[] = [];
+  const museumOwners: string[] = [], museumFailed: string[] = [];
   // The source module lazily parses a lossless literal. Read each mode only
   // once per construction transaction, and release encoded bodies afterwards.
   let drawnPackets: SpreeBridgeCorePacketV242[] | undefined;
   let nativePackets: SpreeBridgeCorePacketV242[] | undefined;
+  let museumDrawnPackets: SpreeBridgeCorePacketV242[] | undefined;
+  let museumNativePackets: SpreeBridgeCorePacketV242[] | undefined;
   root.userData.sourceOwnersV242 = owners;
   root.userData.failedOwnersV242 = failed;
   root.userData.geometryBytesV242 = 0;
+  root.userData.sourceOwnersV243 = museumOwners;
+  root.userData.failedOwnersV243 = museumFailed;
+  root.userData.geometryBytesV243 = 0;
   return {
     root,
     /** Caller must first exclude the independently authored named profiles. */
     replace(cluster: Array<[number, number]>): boolean {
-      const owner = spreeBridgeCoreOwnerV242(ground, cluster);
-      if (!owner || owners.includes(owner)) return false;
+      const oldOwner = spreeBridgeCoreOwnerV242(ground, cluster);
+      const owner = oldOwner ?? museumBridgeOwnerV243(ground, cluster);
+      const accepted = oldOwner ? owners : museumOwners;
+      if (!owner || accepted.includes(owner)) return false;
       let first: ReturnType<typeof decode> | undefined;
       let second: ReturnType<typeof decode> | undefined;
       try {
-        const a = (drawnPackets ??= loadPackets(false)).filter(p => p.owner === owner);
-        const b = (nativePackets ??= loadPackets(true)).filter(p => p.owner === owner);
+        const a = (oldOwner ? (drawnPackets ??= loadPackets(false)) : (museumDrawnPackets ??= loadMuseumPackets(false))).filter(p => p.owner === owner);
+        const b = (oldOwner ? (nativePackets ??= loadPackets(true)) : (museumNativePackets ??= loadMuseumPackets(true))).filter(p => p.owner === owner);
         if (a.length !== 1 || b.length !== 1) return false;
         first = decode(a[0], false); second = decode(b[0], true);
-        drawn.add(first.root); native.add(second.root);
+        (oldOwner ? drawn : museumDrawn).add(first.root);
+        (oldOwner ? native : museumNative).add(second.root);
         holder.pairs.push({ drawn: resident(first.origin, first.nav),
           native: resident(second.origin, second.nav) });
-        owners.push(owner);
-        root.userData.geometryBytesV242 += first.geometryBytes + second.geometryBytes;
+        accepted.push(owner);
+        root.userData[oldOwner ? "geometryBytesV242" : "geometryBytesV243"] += first.geometryBytes + second.geometryBytes;
         return true;
       } catch {
         if (first) dispose(first.root);
         if (second) dispose(second.root);
-        failed.push(owner);
+        (oldOwner ? failed : museumFailed).push(owner);
         return false; // The entire old generic owner remains as the fallback.
       }
     },
@@ -113,9 +129,14 @@ export function createCoreSpreeBridgesV242(ground: VoxelPayload,
 }
 
 export function setCoreSpreeBridgePresentationV242(root: Object3D, mode: VisualMode): void {
-  const drawn = root.getObjectByName(DRAWN), native = root.getObjectByName(NATIVE);
-  if (drawn) drawn.visible = mode !== "minecraft";
-  if (native) native.visible = mode === "minecraft";
+  for (const name of [DRAWN, MUSEUM_DRAWN]) {
+    const drawn = root.getObjectByName(name);
+    if (drawn) drawn.visible = mode !== "minecraft";
+  }
+  for (const name of [NATIVE, MUSEUM_NATIVE]) {
+    const native = root.getObjectByName(name);
+    if (native) native.visible = mode === "minecraft";
+  }
 }
 
 export function createCoreSpreeBridgeNavigationV242(ground: VoxelPayload, visualMode: () => VisualMode,

@@ -6906,7 +6906,8 @@ export function createBridgeStructures(
       }
     }
   }
-  if (parts.length === 0 && !sourceBridgesV242?.root.userData.sourceOwnersV242.length) {
+  if (parts.length === 0 && !sourceBridgesV242?.root.userData.sourceOwnersV242.length &&
+      !sourceBridgesV242?.root.userData.sourceOwnersV243?.length) {
     return null;
   }
   const group = new Group();

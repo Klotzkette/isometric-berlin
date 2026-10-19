@@ -8,6 +8,7 @@ import numpy as np
 from shapely.geometry import LineString, Point, Polygon, shape
 
 from scripts import build_house_doors_v233 as doors
+from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
 
 
 def test_all_retained_entrances_have_ground_level_source_and_bounded_district() -> None:
@@ -64,7 +65,7 @@ def test_replay_all_emitted_doors_against_exact_actual_source_wall_triangles() -
       assert row["sourceRing"]["minHeight"] <= 0.1
       assert Polygon(row["sourceRing"]["ring"], row["sourceRing"]["holes"]).is_valid
   for receipt in evidence["oldAssets"]:
-    assert doors.base.digest(doors.OUT / receipt["url"]) == receipt["sha256"]
+    assert_preserved_v242(doors.OUT / receipt["url"], receipt["sha256"])
 
 
 def test_source_wall_rejects_unmapped_distance_and_above_ground_part() -> None:

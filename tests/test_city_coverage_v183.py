@@ -15,6 +15,11 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 from station_receipts_v183 import verified_station_replacements
 
+from scripts.spree_bridge_lineage_v242 import (
+  predecessor_manifest_v242,
+  predecessor_packet_bytes_v242,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_city_coverage_v183 as builder  # noqa: E402
@@ -56,7 +61,7 @@ def test_v182_packets_survive_except_replayed_exact_station_owner_replacements()
       ["git", "show", f"v1.0.82:{path.relative_to(ROOT)}"], cwd=ROOT
     )
   )
-  current = json.loads(path.read_bytes())
+  current = predecessor_manifest_v242(json.loads(path.read_bytes()))
   station_rows, _ = verified_station_replacements()
   changes, _ = audited_v190_changes()
   for previous, actual in zip(
@@ -77,7 +82,9 @@ def test_v182_packets_survive_except_replayed_exact_station_owner_replacements()
         assert before_sha == expected_sha
         expected_sha = after_sha
       assert (
-        hashlib.sha256((builder.PUBLIC / asset["url"]).read_bytes()).hexdigest()
+        hashlib.sha256(
+          predecessor_packet_bytes_v242(builder.PUBLIC / asset["url"])
+        ).hexdigest()
         == expected_sha
       )
   for filename in ("bounds.geojson", "bounds-ring-v182.geojson"):

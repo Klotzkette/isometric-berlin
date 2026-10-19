@@ -9,6 +9,8 @@ import subprocess
 from pathlib import Path
 from typing import Callable
 
+from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -63,8 +65,15 @@ def verify_assets(descriptors: list[dict], reader: Callable[[Path], bytes]) -> N
       if descriptor["id"].startswith("ber236-"):
         assert Path(asset["url"]).name == asset["url"]
       packed = reader(PUBLIC / asset["url"])
+      actual_sha256 = hashlib.sha256(packed).hexdigest()
+      if actual_sha256 != asset["sha256"]:
+        # Later bridge additions alter only twenty exactly receipted files.
+        # Verify their complete current bytes and whole predecessor JSON before
+        # replaying a historical descriptor. Unknown changes still fail below.
+        packed = predecessor_packet_bytes_v242(PUBLIC / asset["url"], reader)
+        actual_sha256 = hashlib.sha256(packed).hexdigest()
       assert len(packed) == asset["bytes"]
-      assert hashlib.sha256(packed).hexdigest() == asset["sha256"], asset["url"]
+      assert actual_sha256 == asset["sha256"], asset["url"]
       if descriptor["id"].startswith("ber236-"):
         raw = gzip.decompress(packed)
         assert len(raw) == asset["decodedBytes"] <= 12 * 1024**2

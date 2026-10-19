@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.143 — Museum-island bridge architecture
+
+- Give Mitte’s Schloßbrücke, Eiserne Brücke and Schleusenbrücke individual
+  source-bound bridge forms, railings and appropriate street/footway surfaces.
+- Replace only their exactly receipted generic owners; preserve all v242
+  bridges, both Monbijou arms and unrelated source geometry.
+- Match walking support and barriers to both drawn and independently
+  orthogonal native geometry, without increasing live residency limits.
+- See [sources and validation](docs/spree-bridges-v243.md).
+
 ## v1.0.142 — Spree bridge bodies, railings and paths
 
 - Refine source-mapped Spree crossings with distinct deck edges, structural

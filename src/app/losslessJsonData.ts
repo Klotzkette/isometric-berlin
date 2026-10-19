@@ -15,6 +15,7 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   // Finite mapped bridge constructor packets; roots retain only decoded
   // geometry and their small navigation, never packed mesh/source objects.
   "spreeBridgesV242.json": ["core"],
+  "museumBridgesV243.json": ["core"],
   "ihzV241.json": ["drawn", "minecraft"],
   "ihzV241Previous.json": ["records"],
   "aegCampusV241.json": ["drawn", "minecraft"],
