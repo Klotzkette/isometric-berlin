@@ -6,6 +6,8 @@ import {
 import source from "./data/steglitzV182Source.json";
 import native from "./data/steglitzV182Native.json";
 import refinements from "./data/steglitzV246Details.json";
+import plaza from "./data/hermannEhlersV247Details.json";
+import street from "./data/schlossstrasseV247Details.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const STEGLITZ_V182_GROUP = "Steglitz: Kreisel scaffold, town hall, Schloss, Gymnasium and Spiegelwand";
@@ -19,10 +21,11 @@ function materials(vertexColors = false) {
 }
 
 function shells(): Mesh {
-  const length = source.surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0);
+  const surfaces = [...source.surfaces, ...plaza.surfaces, ...street.surfaces];
+  const length = surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0);
   const positions = new Float32Array(length), colors = new Float32Array(length), color = new Color();
   let offset = 0;
-  for (const surface of source.surfaces) {
+  for (const surface of surfaces) {
     color.setHex(surface.color);
     for (const triangle of surface.triangles) for (const point of triangle) {
       positions.set(point, offset); color.toArray(colors, offset); offset += 3;
@@ -39,7 +42,9 @@ function shells(): Mesh {
 }
 
 function details(nativeMode: boolean): InstancedMesh {
-  const rows = nativeMode ? [...native.boxes, ...refinements.nativeRows] : [...source.boxes, ...refinements.boxes];
+  const rows = nativeMode
+    ? [...native.boxes, ...refinements.nativeRows, ...plaza.nativeRows, ...street.nativeRows]
+    : [...source.boxes, ...refinements.boxes, ...plaza.boxes, ...street.boxes];
   const count = rows.length + (nativeMode ? 0 : source.rods.length);
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials();
@@ -76,12 +81,19 @@ function details(nativeMode: boolean): InstancedMesh {
 function create(nativeMode: boolean): Group {
   const root = new Group();
   root.name = nativeMode ? STEGLITZ_V182_NATIVE_GROUP : STEGLITZ_V182_GROUP;
-  root.userData = { steglitzV182: true, fullStaticDetailOnTouch: true, textureFree: true,
+  root.userData = { steglitzV182: true, publicSpaceV247: true, fullStaticDetailOnTouch: true, textureFree: true,
     blockNative: nativeMode, nativeMinecraft: nativeMode, keepInMinecraft: nativeMode,
     completeSourceOwners: true, proceduralRecognitionDetails: true, photographedPixelsBundled: false };
   if (!nativeMode) {
     const body = shells(); root.add(body);
-    const edges = new LineSegments(new EdgesGeometry(body.geometry, 20),
+    // Only architectural surfaces receive ink; paving triangulation is invisible.
+    const architectural = new BufferGeometry();
+    const sourceLength = source.surfaces.reduce((n, s) => n + s.triangles.length * 9, 0);
+    const positions = body.geometry.getAttribute("position").array as Float32Array;
+    architectural.setAttribute("position", new BufferAttribute(positions.subarray(0, sourceLength), 3));
+    const edgeGeometry = new EdgesGeometry(architectural, 20);
+    architectural.dispose();
+    const edges = new LineSegments(edgeGeometry,
       new LineBasicMaterial({ color: 0x495652, transparent: true, opacity: .48, depthWrite: false }));
     edges.name = "Measured roof ridges, eaves, corners and courtyard edges";
     root.add(edges);

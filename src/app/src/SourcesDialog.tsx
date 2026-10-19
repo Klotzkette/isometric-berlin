@@ -36,6 +36,9 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Hermann-Ehlers-Platz und Straßenanschlüsse am Rathaus Steglitz: kartierte Platzgrenzen, Aussparungen, Fahrbahnbreiten, Radstreifen und Bordkanten aus OpenStreetMap. Kleine Höhen und Materialfarben sind angenähert. Geplante Platzumbauten werden nicht als Bestand dargestellt."
+          : "Hermann-Ehlers-Platz and Rathaus Steglitz road connections: mapped square boundaries, openings, carriageway widths, cycle lanes and kerbs from OpenStreetMap. Small heights and material colours are estimates. Proposed square redesigns are not represented as existing works."}</p>
+        <p>{language === "de"
           ? "Nordische Botschaften, Konrad-Adenauer-Stiftung, Parteizentralen, Rosa-Luxemburg-Stiftung, Robert-Koch-Denkmal, Steglitz und Kulturforum: vorhandene Gebäudedaten, amtliches Geländemodell sowie Architektur- und Bildquellen der unten verlinkten Nachweise. Kleine Fassaden-, Denkmal- und Straßenmaße bleiben angenähert; die SPD-Gebäudehöhe bleibt eine Darstellungsschätzung. Keine Referenzbilder oder Fototexturen werden mitgeliefert."
           : "Nordic Embassies, Konrad-Adenauer-Stiftung, party headquarters, Rosa-Luxemburg-Stiftung, Robert Koch memorial, Steglitz and Kulturforum: retained building data, official terrain data and the architectural and visual sources credited below. Small facade, memorial and street dimensions remain approximate; the SPD building height remains a display estimate. No reference images or photo textures are bundled."}</p>
         <p>{language === "de"

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.146 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.146/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.147 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.147/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.146** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.147** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.147 completes the mapped Hermann-Ehlers-Platz paving and small Schloßstraße connections at Rathaus Steglitz, with source-supported cycle lanes and island kerbs. Existing architecture and memory limits remain. [Sources and validation](docs/steglitz-public-space-v247.md).
+
+Version 1.0.147 ergänzt den kartierten Belag des Hermann-Ehlers-Platzes und kleine Straßenanschlüsse an der Schloßstraße beim Rathaus Steglitz, mit belegten Radstreifen und Mittelinsel-Bordsteinen. Bestehende Architektur und Speichergrenzen bleiben erhalten.
 
 Version 1.0.146 corrects the sloping Kulturforum Piazzetta and refines Gemäldegalerie, Nordic embassies, KAS, party headquarters, Robert Koch, Gymnasium Steglitz and Spiegelwand. Complete source geometry and runtime memory limits remain protected. [Sources and validation](docs/civic-kulturforum-v246.md).
 

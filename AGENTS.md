@@ -1317,3 +1317,16 @@ Rosa-Luxemburg-Stiftung at its actual Ostbahnhof address, distinct from the
 Karl-Liebknecht-Haus. Recognition fittings remain explicitly approximate.
 Retain all live budgets, full mobile detail, independent orthogonal native
 geometry, source credits and existing city coverage. No new descriptors.
+
+
+### Step 10 — v247 Steglitz public-space continuation
+
+The owner asks to continue v246. Complete bounded, source-supported street
+connections around Rathaus Steglitz/Albrechtstraße and refine Hermann-Ehlers-Platz
+within existing coverage. Preserve the complete school, Rathaus, Spiegelwand,
+Kreisel and prior Schloßstraße sources and authored detail. Use mapped public
+space rings, road/lane tags and actual curb courses; never infer crossings,
+memorial inscriptions or unbuilt street redesigns. Small fitting dimensions
+remain documented estimates. Keep full drawn mobile detail, independent
+orthogonal native geometry, existing batches and unchanged live limits. No new
+district coverage, streaming descriptor, texture, tour stop or animation loop.

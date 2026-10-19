@@ -15,6 +15,7 @@ import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS, BERLIN_WALL_MEMORIAL_V174_BUILDING
 import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskircheV174RoofAt } from "./zionskircheV174Profile";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { STEGLITZ_V182_PARTS, steglitzV182RoofAt } from "./steglitzV182Profile";
+import { steglitzGroundV247At } from "./steglitzGroundV247";
 import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
@@ -2103,7 +2104,13 @@ export function createPedestrianEnvironment(
       if (stairY !== null) return stairY;
     }
     const outerGround = extension?.groundAt(x, z);
-    if (outerGround !== null && outerGround !== undefined) return outerGround;
+    if (outerGround !== null && outerGround !== undefined) {
+      // Both production navigation families share this path. The exact new
+      // Steglitz finish is eligible only over existing supported outer ground;
+      // holes, native fringes and unrelated/higher floors retain their owner.
+      const finish = steglitzGroundV247At(x, z, environment.visualMode?.() === "minecraft");
+      return finish === null ? outerGround : Math.max(outerGround, finish);
+    }
     const xOffset = x / cell - minXIndex;
     const zOffset = z / cell - minZIndex;
     if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {

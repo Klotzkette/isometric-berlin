@@ -1990,3 +1990,16 @@ positions, dimensions and material tones are procedural display estimates,
 not surveyed facade data or a claim of the current renovation state.
 Full references also ship in the viewer's source menu and attribution record.
 See `docs/street-landmarks-v245.md` and linked source/evidence records.
+
+
+## v1.0.147 — Hermann-Ehlers-Platz and Rathaus Steglitz street connections
+
+The complete paving ring and holes of OpenStreetMap relation 10741017, five
+Schloßstraße ways and six mapped island kerbs derive from the retained Berlin
+extract (© OpenStreetMap contributors, ODbL-1.0). Full identities and unchanged
+prior-source receipts are recorded in `docs/hermann-ehlers-v247.md` and
+`docs/schlossstrasse-v247.md`. Unmapped fitting heights and colours are display
+estimates. Official [Senate project text](https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/verkehrsplanung/fussverkehr/fussverkehrsprojekte/modellprojekte/hermann-ehlers-platz/)
+and the [district project record](https://mein.berlin.de/vorhaben/2024-00949/)
+are used only to distinguish proposed future works from the existing square.
+No image, plan, photograph, texture or font is redistributed.
