@@ -1,3 +1,4 @@
+import { addHotelDeRomeV240 } from "./HotelDeRomeV240";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -34,7 +35,6 @@ const GLASS = 0x526d75,
   FRAME = 0xb8bba9,
   METAL = 0x343d3d;
 const SAND = 0xcdbb97,
-  HOTEL = 0xbebdb3,
   GOLD = 0xbfa24a;
 
 export const BEBELPLATZ_FACADES_GROUP_NAME =
@@ -574,113 +574,7 @@ function humboldt(
 }
 
 function hotel(b: Builder): void {
-  const axis = BEBELPLATZ_FACADE_PROFILES.hotel.frontAxis,
-    l = length(axis),
-    pitch = l / 9,
-    centre = l / 2;
-  for (const y of [5.65, 11.2, 25.0, 25.8])
-    b.box(axis, centre, y, 0.34, [l, 0.34, 0.52], HOTEL);
-  const columnAxis: Axis = {
-    start: [1515.651, 372.724],
-    end: [1538.603, 370.811],
-    side: 1,
-  };
-  const leftAxis: Axis = {
-    start: [1508.0, 374.042],
-    end: [1515.692, 373.422],
-    side: 1,
-  };
-  const rightAxis: Axis = {
-    start: [1538.686, 371.516],
-    end: [1546.447, 370.946],
-    side: 1,
-  };
-  const axes = [
-    [leftAxis, 2],
-    [columnAxis, 5],
-    [rightAxis, 2],
-  ] as const;
-  for (const [a, bays] of axes) {
-    for (let i = 0; i < bays; i++) {
-      const u = ((i + 0.5) * length(a)) / bays,
-        central = a === columnAxis;
-      window(
-        b,
-        a,
-        u,
-        7.4,
-        central && i === 2 ? 3.5 : 2.35,
-        3.55,
-        0.42,
-        true,
-        HOTEL,
-      );
-      window(b, a, u, 15, 2.5, 4.3, 0.43, false, LIGHT);
-      window(b, a, u, 21.2, 2.5, 3.6, 0.43, false, LIGHT);
-      b.arch(a, u, 17.65, 0.64, 3.5, 0.6, 0.2, HOTEL);
-      if (!central && i === 0) {
-        b.beam(
-          point(a, u - 1.6, 17.6, 0.75),
-          point(a, u, 18.6, 0.75),
-          0.24,
-          LIGHT,
-        );
-        b.beam(
-          point(a, u, 18.6, 0.75),
-          point(a, u + 1.6, 17.6, 0.75),
-          0.24,
-          LIGHT,
-        );
-      }
-      if (!b.minecraft)
-        for (let j = 0; j < 5; j++)
-          b.box(a, u - 1.1 + j * 0.55, 12.6, 0.72, [0.14, 0.72, 0.2], LIGHT);
-    }
-  }
-  for (let i = 0; i < 6; i++)
-    b.column(
-      columnAxis,
-      (i * length(columnAxis)) / 5,
-      11.7,
-      24.25,
-      0.58,
-      0.95,
-      LIGHT,
-    );
-  b.box(axis, centre, 24.95, 0.7, [5 * pitch + 1.8, 0.65, 0.65], HOTEL);
-  inscription(b, axis, "HOTEL DE ROME", centre, 25.28, 0.76, 0.63, GOLD);
-  balustrade(b, axis, 26.4, 0.65);
-  // Rusticated courses follow the projected central face as well as the wings.
-  if (!b.minecraft)
-    for (const [a] of axes)
-      for (let row = 0; row < 8; row++) {
-        const y = 5.75 + row * 0.67,
-          n = Math.ceil(length(a) / 1.9);
-        b.box(a, length(a) / 2, y, 0.53, [length(a), 0.075, 0.09], SHADOW);
-        for (let col = 0; col < n; col++)
-          b.box(
-            a,
-            ((col + 0.3 + (row % 2) * 0.4) * length(a)) / n,
-            y + 0.3,
-            0.53,
-            [0.065, 0.54, 0.09],
-            SHADOW,
-          );
-      }
-  b.box(axis, centre, 9.8, 2, [6.2, 0.18, 3.6], METAL);
-  window(
-    b,
-    columnAxis,
-    length(columnAxis) / 2,
-    7.45,
-    3.25,
-    3.9,
-    0.7,
-    true,
-    HOTEL,
-  );
-  for (const sign of [-1, 1])
-    b.box(axis, centre + sign * 4.0, 6.0, 1.4, [1.25, 1.6, 1.25], METAL);
+  addHotelDeRomeV240(b);
 }
 
 function library(b: Builder): void {

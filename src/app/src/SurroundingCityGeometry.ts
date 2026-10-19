@@ -202,6 +202,8 @@ function disposeUnpublishedChunk(root: Group): void {
 export type SurroundingOwnershipOptions = {
   /** Caller guarantees complete v239 bodies in the same publication transaction. */
   schlossplatzV239?: boolean;
+  /** Caller guarantees the v240 opera recognition and native restoration. */
+  staatsoperV240?: boolean;
 };
 
 export function* buildSurroundingCityChunk(
@@ -280,7 +282,7 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
-      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true);
+      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.

@@ -1624,6 +1624,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
+    staatsoperV240: true,
     camera: runtime.camera,
     mode: runtime.lightingMode,
     signal: runtime.loadSignal,
@@ -4224,7 +4225,7 @@ function ensureIsoWorld(
         yield;
         // Complete source envelopes stay resident before the first interactive
         // frame. Only additional facade detail uses camera-following residency.
-        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ schlossplatzV239: true }));
+        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ schlossplatzV239: true, staatsoperV240: true }));
         yield;
 
         isoWorld.add(zooGrounds.createZooGroundsV165());
@@ -4850,7 +4851,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
+            staatsoperV240: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),
         {

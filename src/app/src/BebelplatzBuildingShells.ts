@@ -1,3 +1,4 @@
+import { clipHotelNativeFront } from "./HotelDeRomeV240";
 import {
   BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group,
   InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
@@ -13,7 +14,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 const TONES = [
   { wall: 0xd9d3c2, roof: 0x665d58, name: "Humboldt main building" },
   { wall: 0xcdbb97, roof: 0x64625d, name: "Alte Bibliothek" },
-  { wall: 0xbebdb3, roof: 0x696b68, name: "Hotel de Rome" },
+  { wall: 0xc5bdad, roof: 0x696b68, name: "Hotel de Rome" },
 ];
 
 export function sourceMesh(parts: BebelplatzSourcePart[], tone: typeof TONES[number]): Mesh {
@@ -95,10 +96,14 @@ export function appendVoxelEnvelope(part: BebelplatzSourcePart, tone: typeof TON
       if (!boundary) continue;
       const wallHeight = top - roofThickness - base;
       const courses = Math.ceil(wallHeight / 3.8), pitch = wallHeight / courses;
-      for (let i = 0; i < courses; i++) blocks.push({
-        position: [x, base + (i + 0.5) * pitch, z], size: [cell, pitch, cell],
-        color: tone.wall,
-      });
+      for (let i = 0; i < courses; i++) {
+        const block: Block = {
+          position: [x, base + (i + 0.5) * pitch, z], size: [cell, pitch, cell],
+          color: tone.wall,
+        };
+        const visible = tone.name === "Hotel de Rome" ? clipHotelNativeFront(block) : block;
+        if (visible) blocks.push(visible);
+      }
     }
   }
 }

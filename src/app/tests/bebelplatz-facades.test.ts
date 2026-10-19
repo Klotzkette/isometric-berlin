@@ -97,11 +97,11 @@ describe("Bebelplatz and Humboldt source-bound facades", () => {
       blockBudget = budget(blocks);
     console.log({ smoothBudget, blockBudget });
     expect(smoothBudget.draws).toBe(4);
-    expect(smoothBudget.instances).toBeLessThan(5300);
-    expect(smoothBudget.bytes).toBeLessThan(410000);
+    expect(smoothBudget.instances).toBeLessThan(5700);
+    expect(smoothBudget.bytes).toBeLessThan(440000);
     expect(blockBudget.draws).toBe(1);
-    expect(blockBudget.instances).toBeLessThan(3000);
-    expect(blockBudget.bytes).toBeLessThan(230000);
+    expect(blockBudget.instances).toBeLessThan(3900);
+    expect(blockBudget.bytes).toBeLessThan(300000);
     expect(blocks.userData.keepInMinecraft).toBeTrue();
     expect(blocks.userData.blockNative).toBeTrue();
     const bounds = new Box3().setFromObject(drawn);

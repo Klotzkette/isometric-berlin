@@ -304,6 +304,7 @@ export type MinecraftVoxelWorldOptions = {
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
   includeLegacySchlossplatzEnvelopes?: boolean;
+  staatsoperV240?: boolean;
   includeLegacyColonnadesEnvelopes?: boolean;
   includeLegacyMonbijou?: boolean;
   /**
@@ -2446,7 +2447,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());

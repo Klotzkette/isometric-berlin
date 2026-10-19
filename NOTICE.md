@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Staatsoper and Hotel de Rome (v1.0.140):** Retained Berlin LoD2
+  (dl-de/zero-2-0) and OpenStreetMap identities (ODbL-1.0), public heritage
+  and architectural accounts, and individually credited reference views guide
+  the bounded facade corrections. Complete measured envelopes remain retained;
+  unsurveyed fittings and material colours are display estimates. No photographs
+  or photographic textures ship. See [sources and validation](docs/refinements-v240.md).
+
 - **District town halls (v1.0.127):** The 23 pre-2001 borough sites include
   the twelve present main administrative seats. Identity and architectural cues
   use official Berlin district/heritage records. Building geometry uses retained

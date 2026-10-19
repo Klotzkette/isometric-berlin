@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.140 — Staatsoper Unter den Linden and Hotel de Rome
+
+- Refine the Staatsoper's north portico, classical facade hierarchy, windows
+  and architectural silhouette on its retained measured building envelope.
+- Correct Hotel de Rome's projected central frontage, column and cornice
+  heights, stone details and window surrounds without changing its open court.
+- Preserve neighbouring Bebelplatz models, full mobile detail, independent
+  native construction and existing live memory limits.
+- See [sources and validation](docs/refinements-v240.md).
+
 ## v1.0.139 — northern Mitte fronts and Schlossplatz architecture
 
 - Refine 5,647 verified old panes on 265 street-front owners around Torstraße,

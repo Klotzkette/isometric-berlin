@@ -11,13 +11,14 @@ from shapely.geometry import LineString, Point
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_humboldt_main_v168 as module  # noqa: E402
+from hotel_de_rome_v240_receipt import prior_hotel_display  # noqa: E402
 
 P = json.loads((ROOT / "src/app/src/data/humboldtMainV168Source.json").read_text())
 
 
 def test_existing_hero_source_and_facade_files_unchanged() -> None:
   for record in P["preservedFiles"]:
-    source = (ROOT / record["path"]).read_bytes()
+    source = prior_hotel_display(record["path"], (ROOT / record["path"]).read_bytes())
     if record["path"] == "src/app/src/BebelplatzFacades.ts":
       # v223 moves the unchanged sampler to a shared module so drawn startup
       # does not eagerly load native construction. Preserve the original hash

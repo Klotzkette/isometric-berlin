@@ -1226,3 +1226,14 @@ Keep every retained source and earlier authored detail except exactly receipted
 erroneous proxies with complete replacements. No new city coverage, invented
 roof form or runtime residency increase. Ground, court holes and walking solids
 must agree; source-unmeasured facade fittings remain explicit approximations.
+
+### Step 10 — v240 Staatsoper Unter den Linden and Hotel de Rome
+
+The owner requests more faithful architecture at these two existing central
+sites only. Preserve the complete measured envelopes, roof hierarchy and open
+hotel court, all neighbouring Bebelplatz models and all unrelated city detail.
+Use primary architectural accounts and credited reference-only photographs for
+recognition; unsurveyed fitting dimensions remain explicit display estimates.
+Any superseded inaccurate decoration requires exact ownership evidence and a
+complete replacement. Keep full drawn mobile detail, independent orthogonal
+native geometry, cancellable construction and unchanged live memory limits.

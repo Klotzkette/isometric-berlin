@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "scope": "Only Hotel de Rome display decoration; no source, HU or Alte Bibliothek replacement",
+  "sourceParent": "DEBE01YYK00002GD",
+  "oldFunction": "function hotel(b: Builder): void {\n  const axis = BEBELPLATZ_FACADE_PROFILES.hotel.frontAxis,\n    l = length(axis),\n    pitch = l / 9,\n    centre = l / 2;\n  for (const y of [5.65, 11.2, 25.0, 25.8])\n    b.box(axis, centre, y, 0.34, [l, 0.34, 0.52], HOTEL);\n  const columnAxis: Axis = {\n    start: [1515.651, 372.724],\n    end: [1538.603, 370.811],\n    side: 1,\n  };\n  const leftAxis: Axis = {\n    start: [1508.0, 374.042],\n    end: [1515.692, 373.422],\n    side: 1,\n  };\n  const rightAxis: Axis = {\n    start: [1538.686, 371.516],\n    end: [1546.447, 370.946],\n    side: 1,\n  };\n  const axes = [\n    [leftAxis, 2],\n    [columnAxis, 5],\n    [rightAxis, 2],\n  ] as const;\n  for (const [a, bays] of axes) {\n    for (let i = 0; i < bays; i++) {\n      const u = ((i + 0.5) * length(a)) / bays,\n        central = a === columnAxis;\n      window(\n        b,\n        a,\n        u,\n        7.4,\n        central && i === 2 ? 3.5 : 2.35,\n        3.55,\n        0.42,\n        true,\n        HOTEL,\n      );\n      window(b, a, u, 15, 2.5, 4.3, 0.43, false, LIGHT);\n      window(b, a, u, 21.2, 2.5, 3.6, 0.43, false, LIGHT);\n      b.arch(a, u, 17.65, 0.64, 3.5, 0.6, 0.2, HOTEL);\n      if (!central && i === 0) {\n        b.beam(\n          point(a, u - 1.6, 17.6, 0.75),\n          point(a, u, 18.6, 0.75),\n          0.24,\n          LIGHT,\n        );\n        b.beam(\n          point(a, u, 18.6, 0.75),\n          point(a, u + 1.6, 17.6, 0.75),\n          0.24,\n          LIGHT,\n        );\n      }\n      if (!b.minecraft)\n        for (let j = 0; j < 5; j++)\n          b.box(a, u - 1.1 + j * 0.55, 12.6, 0.72, [0.14, 0.72, 0.2], LIGHT);\n    }\n  }\n  for (let i = 0; i < 6; i++)\n    b.column(\n      columnAxis,\n      (i * length(columnAxis)) / 5,\n      11.7,\n      24.25,\n      0.58,\n      0.95,\n      LIGHT,\n    );\n  b.box(axis, centre, 24.95, 0.7, [5 * pitch + 1.8, 0.65, 0.65], HOTEL);\n  inscription(b, axis, \"HOTEL DE ROME\", centre, 25.28, 0.76, 0.63, GOLD);\n  balustrade(b, axis, 26.4, 0.65);\n  // Rusticated courses follow the projected central face as well as the wings.\n  if (!b.minecraft)\n    for (const [a] of axes)\n      for (let row = 0; row < 8; row++) {\n        const y = 5.75 + row * 0.67,\n          n = Math.ceil(length(a) / 1.9);\n        b.box(a, length(a) / 2, y, 0.53, [length(a), 0.075, 0.09], SHADOW);\n        for (let col = 0; col < n; col++)\n          b.box(\n            a,\n            ((col + 0.3 + (row % 2) * 0.4) * length(a)) / n,\n            y + 0.3,\n            0.53,\n            [0.065, 0.54, 0.09],\n            SHADOW,\n          );\n      }\n  b.box(axis, centre, 9.8, 2, [6.2, 0.18, 3.6], METAL);\n  window(\n    b,\n    columnAxis,\n    length(columnAxis) / 2,\n    7.45,\n    3.25,\n    3.9,\n    0.7,\n    true,\n    HOTEL,\n  );\n  for (const sign of [-1, 1])\n    b.box(axis, centre + sign * 4.0, 6.0, 1.4, [1.25, 1.6, 1.25], METAL);\n}\n",
+  "oldFacadeSha256": "e64f3a5e8d9b6b6f6f40f651b5d513ebee7ce9388509bac010080b87eedaf807",
+  "beforeRuntime": {
+    "drawn": {
+      "retainedCount": 4312,
+      "hotelCount": 929,
+      "retainedSha256": "207cefbf49dc1c7c10377e45942db3dbd51e576096a3ec270b4b3f2c9e8ec47a",
+      "hotelSha256": "d548f683ea6c1a6afae97c316ddf3a2d4de1d470abab7533c6f79b2cbf833a8a",
+      "counts": [
+        [
+          "BoxGeometry",
+          5136
+        ],
+        [
+          "CylinderGeometry",
+          20
+        ],
+        [
+          "SphereGeometry",
+          67
+        ],
+        [
+          "CylinderGeometry",
+          18
+        ]
+      ]
+    },
+    "native": {
+      "retainedCount": 2494,
+      "hotelCount": 426,
+      "retainedSha256": "15acfd1c2bd52f01213e18aecc9c9f32c430701fc9de8f1c96a6e0ad7abd0ad0",
+      "hotelSha256": "fe41ee1cfa1b2bdee65774f2793eef8806c00e15a1d25a0ed4878063e11aaf56",
+      "counts": [
+        [
+          "BoxGeometry",
+          2920
+        ]
+      ]
+    },
+    "shells": [
+      {
+        "name": "Humboldt main building official LoD2 walls and roof",
+        "positionSha256": "b82027954f48965d7eed6c1adfc8293d748795e225cee9569613bca240ae48ed",
+        "normalSha256": "1e595f5abbdbc29978b3fce43b03ad9e33be734c766f9ca9d83c738e651f5687",
+        "colorSha256": "d84d197240709369523ddb8a68f05811a06b1866cccb07b2d7adace8ddd89eaf"
+      },
+      {
+        "name": "Alte Bibliothek official LoD2 walls and roof",
+        "positionSha256": "03849b657ba778c763c25b41403282dfbdfcf197451b8d84bbf3893431308865",
+        "normalSha256": "5917b5e11cbe0ea1b384b39a4ca951812a0135b7452c141fc764f543f9bbbd0d",
+        "colorSha256": "c6b5038d93e9932f00b84aec8a8b17037ab76df4ba4a93c819daaa12836c0d48"
+      },
+      {
+        "name": "Hotel de Rome official LoD2 walls and roof",
+        "positionSha256": "91d383bbb534e964aa263d11d288de2cb30c5429e079fb503ef0cb48e0d9fc8b",
+        "normalSha256": "6bc2179ca695e0981a61c3d9f85a81761021b7508451ac8d47aebf6dec38be64",
+        "colorSha256": "2a4822a078ded0ce635d8913091820f965bc944fb347ae56d136b33c36cc4952"
+      }
+    ]
+  },
+  "preservedFiles": {
+    "src/app/src/bebelplatzBuildingSource.json": "2c1394812cde1e92a8ca983176865e002f601a3f8e5f397c56a5aa9a2866ee53",
+    "src/app/src/bebelplatzBuildingProfile.ts": "7a5d8bffc0f44b7a06aa517ebf620216792da033d32bec9600710c5dbf827191"
+  },
+  "sourceParts": 10,
+  "sourceSurfaces": 103,
+  "officialProjectedFrontTop": 21.369,
+  "officialStreetEaveRange": [
+    24.288,
+    24.304
+  ],
+  "oldEstimatedColumnTop": 24.25,
+  "oldEstimatedBalustradeTop": 27.35,
+  "references": [
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080270",
+    "https://www.kardorff.de/en/projects/grand-hotel-de-rome"
+  ],
+  "visualReferences": [
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin-Mitte_Bebelplatz_Hotel_de_Rome_178.jpg",
+      "author": "GFreihalter",
+      "date": "2025-07-15",
+      "license": "CC-BY-SA-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "purpose": "External reference for order, rustication, glazing and signs; no image assets bundled"
+    }
+  ],
+  "afterRuntime": {
+    "drawn": {
+      "retainedCount": 4312,
+      "hotelCount": 1290,
+      "retainedSha256": "207cefbf49dc1c7c10377e45942db3dbd51e576096a3ec270b4b3f2c9e8ec47a",
+      "hotelSha256": "b8ca05475f2c583956e1dab41cfc08de66b1e058830e634ca1efa5d15e421fd3",
+      "counts": [
+        [
+          "BoxGeometry",
+          5497
+        ],
+        [
+          "CylinderGeometry",
+          20
+        ],
+        [
+          "SphereGeometry",
+          67
+        ],
+        [
+          "CylinderGeometry",
+          18
+        ]
+      ]
+    },
+    "native": {
+      "retainedCount": 2494,
+      "hotelCount": 1335,
+      "retainedSha256": "15acfd1c2bd52f01213e18aecc9c9f32c430701fc9de8f1c96a6e0ad7abd0ad0",
+      "hotelSha256": "2657d75072a8f7a9409e0b90892ce7a8fcda805b6090ddac67913468a8dbcc28",
+      "counts": [
+        [
+          "BoxGeometry",
+          3829
+        ]
+      ]
+    },
+    "shells": [
+      {
+        "name": "Humboldt main building official LoD2 walls and roof",
+        "positionSha256": "b82027954f48965d7eed6c1adfc8293d748795e225cee9569613bca240ae48ed",
+        "normalSha256": "1e595f5abbdbc29978b3fce43b03ad9e33be734c766f9ca9d83c738e651f5687",
+        "colorSha256": "d84d197240709369523ddb8a68f05811a06b1866cccb07b2d7adace8ddd89eaf"
+      },
+      {
+        "name": "Alte Bibliothek official LoD2 walls and roof",
+        "positionSha256": "03849b657ba778c763c25b41403282dfbdfcf197451b8d84bbf3893431308865",
+        "normalSha256": "5917b5e11cbe0ea1b384b39a4ca951812a0135b7452c141fc764f543f9bbbd0d",
+        "colorSha256": "c6b5038d93e9932f00b84aec8a8b17037ab76df4ba4a93c819daaa12836c0d48"
+      },
+      {
+        "name": "Hotel de Rome official LoD2 walls and roof",
+        "positionSha256": "91d383bbb534e964aa263d11d288de2cb30c5429e079fb503ef0cb48e0d9fc8b",
+        "normalSha256": "6bc2179ca695e0981a61c3d9f85a81761021b7508451ac8d47aebf6dec38be64",
+        "colorSha256": "d906978fe80c46e6af57dcf3a3616bf57839344696058ca3016881b65a12ea46"
+      }
+    ]
+  },
+  "nativeNeighbourShells": {
+    "retainedCount": 6939,
+    "retainedSha256": "0b9d96b922d518f397244516e0fa61ad69384ebeddb990619de2ddb8457f60de",
+    "baselineMethod": "Exact old hotel wall tone reconstructed before generation; HU/library matrix and colour rows identical after generation"
+  },
+  "facadeBudget": {
+    "drawn": {
+      "beforeInstances": 5241,
+      "afterInstances": 5602,
+      "drawCalls": 4,
+      "beforeTypedBytes": 404340,
+      "afterTypedBytes": 431776
+    },
+    "native": {
+      "beforeInstances": 2920,
+      "afterInstances": 3829,
+      "drawCalls": 1,
+      "beforeTypedBytes": 222568,
+      "afterTypedBytes": 291652
+    },
+    "liveLimitsChanged": false
+  },
+  "nativeFrontCorrection": {
+    "oldLoop": "      for (let i = 0; i < courses; i++) blocks.push({\n        position: [x, base + (i + 0.5) * pitch, z], size: [cell, pitch, cell],\n        color: tone.wall,\n      });",
+    "newLoop": "      for (let i = 0; i < courses; i++) {\n        const block: Block = {\n          position: [x, base + (i + 0.5) * pitch, z], size: [cell, pitch, cell],\n          color: tone.wall,\n        };\n        const visible = tone.name === \"Hotel de Rome\" ? clipHotelNativeFront(block) : block;\n        if (visible) blocks.push(visible);\n      }",
+    "reason": "Coarse 2 m wall cells straddle the measured Hotel front and occlude facade details. Clamp only Hotel native wall-cell front faces to the three retained measured axes; roof cells unchanged.",
+    "counts": {
+      "beforeBlocks": 2659,
+      "afterBlocks": 2659,
+      "beforeRoofBlocks": 890,
+      "afterRoofBlocks": 890,
+      "clippedWallBlocks": 36,
+      "removedBlocks": 0
+    }
+  }
+}
