@@ -331,6 +331,142 @@
       "photo_bundled": false,
       "license": "dl-de/zero-2-0",
       "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "hermann_ehlers_v247",
+      "title": "Hermann-Ehlers-Platz mapped paving and access holes",
+      "page_url": "https://www.openstreetmap.org/relation/10741017",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "hermann_ehlers_v247",
+      "title": "Hermann-Ehlers-Platz project account",
+      "page_url": "https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/verkehrsplanung/fussverkehr/fussverkehrsprojekte/modellprojekte/hermann-ehlers-platz/",
+      "credit": "Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt",
+      "role": "text_reference_distinguishing_future_plans",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hermann_ehlers_v247",
+      "title": "District project status",
+      "page_url": "https://mein.berlin.de/vorhaben/2024-00949/",
+      "credit": "Bezirksamt Steglitz-Zehlendorf / meinBerlin",
+      "role": "text_reference_distinguishing_future_plans",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1201444601",
+      "page_url": "https://www.openstreetmap.org/way/1201444601",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 4463223",
+      "page_url": "https://www.openstreetmap.org/way/4463223",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1422254219",
+      "page_url": "https://www.openstreetmap.org/way/1422254219",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 30149207",
+      "page_url": "https://www.openstreetmap.org/way/30149207",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1422257295",
+      "page_url": "https://www.openstreetmap.org/way/1422257295",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036710",
+      "page_url": "https://www.openstreetmap.org/way/1121036710",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036711",
+      "page_url": "https://www.openstreetmap.org/way/1121036711",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036712",
+      "page_url": "https://www.openstreetmap.org/way/1121036712",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036715",
+      "page_url": "https://www.openstreetmap.org/way/1121036715",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036716",
+      "page_url": "https://www.openstreetmap.org/way/1121036716",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+    },
+    {
+      "landmark_id": "schlossstrasse_v247",
+      "title": "Mapped Rathaus Steglitz road or island kerb 1121036717",
+      "page_url": "https://www.openstreetmap.org/way/1121036717",
+      "credit": "© OpenStreetMap contributors",
+      "role": "retained_mapped_geometry_and_tags",
+      "photo_bundled": false,
+      "license": "ODbL-1.0",
+      "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
     }
   ]
 }
