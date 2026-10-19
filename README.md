@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.147 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.147/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.148 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.148/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.147** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.148** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.148 adds the mapped Hermann-Ehlers-Platz fountain and restrained facade recognition at Albrechtstraße 131. Fountain walking support follows its visible geometry in both model families. Earlier city detail and memory limits remain. [Sources and validation](docs/steglitz-followup-v248.md).
+
+Version 1.0.148 ergänzt den kartierten Brunnen am Hermann-Ehlers-Platz und die platzseitige Fassade der Albrechtstraße 131. Die Walking-Hindernisse folgen der sichtbaren Brunnenform in beiden Darstellungsarten. Bestehende Stadtdetails und Speichergrenzen bleiben erhalten.
 
 Version 1.0.147 completes the mapped Hermann-Ehlers-Platz paving and small Schloßstraße connections at Rathaus Steglitz, with source-supported cycle lanes and island kerbs. Existing architecture and memory limits remain. [Sources and validation](docs/steglitz-public-space-v247.md).
 

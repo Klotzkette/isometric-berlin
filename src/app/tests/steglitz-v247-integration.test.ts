@@ -9,6 +9,7 @@ import old from "../src/data/steglitzV182Source.json";
 import oldNative from "../src/data/steglitzV182Native.json";
 import v246 from "../src/data/steglitzV246Details.json";
 import plaza from "../src/data/hermannEhlersV247Details.json";
+import street from "../src/data/schlossstrasseV247Details.json";
 
 function hash(a: ArrayBufferView): string {
   return createHash("sha256").update(new Uint8Array(a.buffer, a.byteOffset, a.byteLength)).digest("hex");
@@ -96,8 +97,8 @@ test("v247 retains every earlier Steglitz source triangle, colour, normal and ar
 test("v247 preserves the complete prior drawn/native instance prefixes and every scaffold/memorial rod", () => {
   const drawn = createSteglitzV182(), native = createMinecraftSteglitzV182();
   const dm = drawn.children[2] as InstancedMesh, nm = native.children[0] as InstancedMesh;
-  expectPrefix(dm, [...old.boxes, ...v246.boxes], false);
-  expectPrefix(nm, [...oldNative.boxes, ...v246.nativeRows], true);
+  expectPrefix(dm, [...old.boxes, ...v246.boxes, ...plaza.boxes, ...street.boxes], false);
+  expectPrefix(nm, [...oldNative.boxes, ...v246.nativeRows, ...plaza.nativeRows, ...street.nativeRows], true);
   const matrices = new Float32Array(old.rods.length * 16), colors = new Float32Array(old.rods.length * 3);
   const a = new Vector3(), b = new Vector3(), direction = new Vector3(), size = new Vector3();
   const q = new Quaternion(), m = new Matrix4(), up = new Vector3(0, 1, 0), color = new Color();

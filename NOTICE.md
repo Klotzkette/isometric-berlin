@@ -2003,3 +2003,20 @@ estimates. Official [Senate project text](https://www.berlin.de/sen/uvk/mobilita
 and the [district project record](https://mein.berlin.de/vorhaben/2024-00949/)
 are used only to distinguish proposed future works from the existing square.
 No image, plan, photograph, texture or font is redistributed.
+
+## v1.0.148 — Hermann-Ehlers-Platz fountain and Albrechtstraße 131
+
+Retained OpenStreetMap way 775414456 (© OpenStreetMap contributors, ODbL-1.0)
+anchors the fountain footprint. [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/brunnenanlage-5560/)
+describes its clinker rim, concrete basin and three fountain groups. The mapped
+footprint is retained where catalogue overall dimensions differ; unsurveyed
+small heights and material tones remain documented display estimates.
+
+Albrechtstraße 131 retains its complete Berlin LoD2 source owner
+DEBE06YYB0000PVc (Geoportal Berlin, dl-de/zero-2-0), identified by
+[Landesdenkmalamt Berlin, 09065472](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065472).
+Reference-only facade photograph: Muns, 20 April 2013,
+[130420-Steglitz-Albrechtstraße-131-Ehlers-Platz.JPG](https://commons.wikimedia.org/wiki/File:130420-Steglitz-Albrechtstra%C3%9Fe-131-Ehlers-Platz.JPG),
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+No photograph, photographic texture or font is bundled. Small facade
+subdivisions remain explicit approximations. See `docs/steglitz-followup-v248.md`.

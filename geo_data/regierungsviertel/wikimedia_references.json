@@ -8237,6 +8237,17 @@
       "credit": "Denis Apel / flyingpixel.de / Wikipedia, 2011-03-04 / CC BY-SA 4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "albrechtstrasse_131_v248",
+      "title": "File:130420-Steglitz-Albrechtstraße-131-Ehlers-Platz.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:130420-Steglitz-Albrechtstra%C3%9Fe-131-Ehlers-Platz.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Muns",
+      "credit": "Muns, 20 April 2013 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

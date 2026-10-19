@@ -8,6 +8,8 @@ import native from "./data/steglitzV182Native.json";
 import refinements from "./data/steglitzV246Details.json";
 import plaza from "./data/hermannEhlersV247Details.json";
 import street from "./data/schlossstrasseV247Details.json";
+import fountain from "./data/hermannEhlersFountainV248.json";
+import frontage from "./data/albrechtstrasseV248Details.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const STEGLITZ_V182_GROUP = "Steglitz: Kreisel scaffold, town hall, Schloss, Gymnasium and Spiegelwand";
@@ -21,7 +23,7 @@ function materials(vertexColors = false) {
 }
 
 function shells(): Mesh {
-  const surfaces = [...source.surfaces, ...plaza.surfaces, ...street.surfaces];
+  const surfaces = [...source.surfaces, ...plaza.surfaces, ...street.surfaces, ...fountain.surfaces];
   const length = surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0);
   const positions = new Float32Array(length), colors = new Float32Array(length), color = new Color();
   let offset = 0;
@@ -43,8 +45,8 @@ function shells(): Mesh {
 
 function details(nativeMode: boolean): InstancedMesh {
   const rows = nativeMode
-    ? [...native.boxes, ...refinements.nativeRows, ...plaza.nativeRows, ...street.nativeRows]
-    : [...source.boxes, ...refinements.boxes, ...plaza.boxes, ...street.boxes];
+    ? [...native.boxes, ...refinements.nativeRows, ...plaza.nativeRows, ...street.nativeRows, ...fountain.nativeRows, ...frontage.nativeRows]
+    : [...source.boxes, ...refinements.boxes, ...plaza.boxes, ...street.boxes, ...fountain.boxes, ...frontage.boxes];
   const count = rows.length + (nativeMode ? 0 : source.rods.length);
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials();
@@ -81,7 +83,7 @@ function details(nativeMode: boolean): InstancedMesh {
 function create(nativeMode: boolean): Group {
   const root = new Group();
   root.name = nativeMode ? STEGLITZ_V182_NATIVE_GROUP : STEGLITZ_V182_GROUP;
-  root.userData = { steglitzV182: true, publicSpaceV247: true, fullStaticDetailOnTouch: true, textureFree: true,
+  root.userData = { steglitzV182: true, publicSpaceV247: true, plazaDetailV248: true, fullStaticDetailOnTouch: true, textureFree: true,
     blockNative: nativeMode, nativeMinecraft: nativeMode, keepInMinecraft: nativeMode,
     completeSourceOwners: true, proceduralRecognitionDetails: true, photographedPixelsBundled: false };
   if (!nativeMode) {

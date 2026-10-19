@@ -1330,3 +1330,16 @@ memorial inscriptions or unbuilt street redesigns. Small fitting dimensions
 remain documented estimates. Keep full drawn mobile detail, independent
 orthogonal native geometry, existing batches and unchanged live limits. No new
 district coverage, streaming descriptor, texture, tour stop or animation loop.
+
+### Step 10 — v248 Hermann-Ehlers-Platz fountain and Albrechtstraße 131
+
+The owner's continuation permits the existing mapped fountain and the evidenced
+plaza-facing facade of Albrechtstraße 131, within the retained Steglitz coverage.
+Preserve the exact fountain ring and square openings; record conflicts between
+mapped dimensions and catalogue measurements rather than enlarging the footprint.
+Retain the complete building shell and every earlier packet/detail. Window
+subdivisions, small fittings and unmeasured heights remain display estimates.
+Fountain collision must follow actual represented solids independently in drawn
+and native modes, without blocking the entire basin or lifting nearby ground.
+Reuse existing batches and unchanged total byte limits, with identical drawn
+mobile detail. No new descriptor, coverage, texture, tour stop or frame loop.

@@ -36,6 +36,12 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Brunnen Hermann-Ehlers-Platz: kartierter Umriss und Werkbeschreibung von Bildhauerei in Berlin. Albrechtstraße 131: amtliche Gebäudeform, Denkmaldatenbank und Fassadenfoto. Kleine Detailmaße und Farben sind angenähert; keine Fototexturen. Fassadenfoto: "
+          : "Hermann-Ehlers-Platz fountain: mapped outline and Bildhauerei in Berlin catalogue. Albrechtstraße 131: official building geometry, heritage record and facade photograph. Small dimensions and colours are approximate; no photo textures. Facade photograph: "}
+          <a href="https://commons.wikimedia.org/wiki/File:130420-Steglitz-Albrechtstra%C3%9Fe-131-Ehlers-Platz.JPG" target="_blank" rel="noreferrer">Muns, 2013</a>
+          {" · "}<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a>.
+        </p>
+        <p>{language === "de"
           ? "Hermann-Ehlers-Platz und Straßenanschlüsse am Rathaus Steglitz: kartierte Platzgrenzen, Aussparungen, Fahrbahnbreiten, Radstreifen und Bordkanten aus OpenStreetMap. Kleine Höhen und Materialfarben sind angenähert. Geplante Platzumbauten werden nicht als Bestand dargestellt."
           : "Hermann-Ehlers-Platz and Rathaus Steglitz road connections: mapped square boundaries, openings, carriageway widths, cycle lanes and kerbs from OpenStreetMap. Small heights and material colours are estimates. Proposed square redesigns are not represented as existing works."}</p>
         <p>{language === "de"

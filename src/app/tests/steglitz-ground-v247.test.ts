@@ -38,7 +38,11 @@ for (const native of [false, true]) test(`v247 ${native ? "native" : "drawn"} na
     const y = steglitzGroundV247At(x, z, native);
     expect(y).not.toBeNull();
     expect(environment.groundAt(x, z)).toBe(y);
-    expect(pedestrianPointIsBlocked(x, z, y!, environment.obstacles, environment)).toBe(false);
+    // The unchanged paving point is outside the v248 fountain, but the
+    // visitor's 0.42 m body radius now touches its actual new rim here.
+    const besideFountain = !native && Math.abs(x + 3545.9549967447915) < 1e-6
+      && Math.abs(z - 6809.185709635417) < 1e-6;
+    expect(pedestrianPointIsBlocked(x, z, y!, environment.obstacles, environment)).toBe(besideFountain);
     // Start below cosmetic paint and above the actual supporting asphalt/paving.
     const ray = new Raycaster(new Vector3(x, y! + .004, z), new Vector3(0, -1, 0), 0, .008);
     const hits = ray.intersectObjects(meshes, false);

@@ -16,6 +16,7 @@ import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskirche
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { STEGLITZ_V182_PARTS, steglitzV182RoofAt } from "./steglitzV182Profile";
 import { steglitzGroundV247At } from "./steglitzGroundV247";
+import { fountainBodyBlockedV248, fountainFloorV248At } from "./fountainNavigationV248";
 import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
 import { TU_WATER_V168_PRISM_IDS, TU_WATER_V168_PARTS, TU_WATER_V168_STRUCTURE, tuWaterV168StructureSolidAt, tuWaterV168RoofAt } from "./tuWaterV168Profile";
@@ -1914,9 +1915,14 @@ export function pedestrianPointIsBlocked(
     | "protectedVolumeAt"
     | "walkableInteriorAt"
     | "extension"
+    | "visualMode"
   >,
 ): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  if (access?.extension && fountainBodyBlockedV248(
+    x, z, bodyBottomY, bodyTopY, PEDESTRIAN_BODY_RADIUS_M,
+    access.visualMode?.() === "minecraft",
+  ) && access.extension.groundAt(x, z) !== null) return true;
   if (access?.extension && pedestrianBodyTouchesInteriorSolid(
     x, z, bodyBottomY, access.extension.solidAt,
   )) return true;
@@ -2198,9 +2204,11 @@ export function createPedestrianEnvironment(
         };
       }
     }
+    const fountainTop = currentLayer !== "tunnel" && extension && surfaceY !== null
+      ? fountainFloorV248At(x, z, groundYHint, environment.visualMode?.() === "minecraft") : null;
     return surfaceY === null
       ? null
-      : { insideTunnel: false, layer: "surface", y: surfaceY };
+      : { insideTunnel: false, layer: "surface", y: fountainTop === null ? surfaceY : Math.max(surfaceY, fountainTop) };
   };
   const environment: PedestrianEnvironment = {
     bounds,
