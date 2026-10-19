@@ -5,6 +5,7 @@ import { createColonnadesCoreColumnTesterV231 } from "./colonnadesCorePreviousV2
 import { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, GROUND_SLAB_M, WATER_TOP_Y, CLASS_SHADES, FALLBACK_SHADES, shadeFor, voxelMaterial, type InstanceWriter, instancedBoxes, allocateUnwrittenInstances, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, finishSteps, createGroundSlabsSteps, type GatehouseGroundPoint, type GatehouseGroundPolygon, gatehouseGroundCuts, gatehousePolygonArea, clipGatehouseGroundPlane, gatehouseGroundComplement, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 export { type VoxelPayload, type MinecraftVoxelDetailProfile, type VoxelBuildingColumn, type VoxelTreeBlock, forEachVoxelTreeBlock, MINECRAFT_TREE_RETENTION, minecraftVoxelTreeRetained, VOXEL_WORLD_FILE, GROUND_CONTEXT_FILE, WATER_TOP_Y, groundTopSampler, smoothGroundTopSampler, worldGroundSampler, createGroundSlabs, cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
+import { createAEGCampusCoreColumnTesterV241 } from "./aegCampusV241CorePrevious";
 import { createTownhallCoreColumnTesterV227 } from "./townhallCorePreviousV227";
 import { createDistrictCourtCoreColumnTesterV229 } from "./districtCourtCorePreviousV229";
 import { createWeddingRoofCoreColumnTesterV229 } from "./weddingStationCorePreviousV229";
@@ -305,6 +306,7 @@ export type MinecraftVoxelWorldOptions = {
   includeLegacyWeddingStationRoof?: boolean;
   includeLegacySchlossplatzEnvelopes?: boolean;
   staatsoperV240?: boolean;
+  architectureV241?: boolean;
   includeLegacyColonnadesEnvelopes?: boolean;
   includeLegacyMonbijou?: boolean;
   /**
@@ -2447,7 +2449,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2587,6 +2589,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
   yield;
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
+  const aegColumnAt = options.architectureV241
+    ? createAEGCampusCoreColumnTesterV241(options.sourcePrisms, cell) : () => false;
   const townhallColumnAt = options.includeLegacyTownhallEnvelopes === false
     ? createTownhallCoreColumnTesterV227(options.sourcePrisms, cell) : () => false;
   const districtCourtColumnAt = options.includeLegacyDistrictCourtEnvelopes === false
@@ -2604,6 +2608,7 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (schlossColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm, y1dm, classId)) continue;
+    if (aegColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (colonnadeColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (!(
       !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

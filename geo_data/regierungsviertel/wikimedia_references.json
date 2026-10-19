@@ -8215,6 +8215,28 @@
       "credit": "Thomas Angermann, 3 February 2006 / CC BY-SA 2.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "quartier_207_v241",
+      "title": "File:Berlin, Mitte, Friedrichstrasse 76-78, Galeries Lafayette.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Friedrichstrasse_76-78,_Galeries_Lafayette.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2010-06-17 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ihz_surroundings_v241",
+      "title": "File:Internationales Handelszentrum Berlin Sockel Denis Apel CC.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Internationales_Handelszentrum_Berlin_Sockel_Denis_Apel_CC.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Denis Apel",
+      "credit": "Denis Apel / flyingpixel.de / Wikipedia, 2011-03-04 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

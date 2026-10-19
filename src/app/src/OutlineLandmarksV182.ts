@@ -84,10 +84,16 @@ import { createArenaStationV225 } from "./ArenaStationV225";
 import { createAltMitteSidewalksV226 } from "./AltMitteSidewalksV226";
 import { createSteglitzMotorwayV226 } from "./SteglitzMotorwayV226";
 
+export type OutlineLandmarkOwnershipOptions = {
+  /** Complete library architecture already belongs to the required world. */
+  architectureV241?: boolean;
+};
+
 /** One representation at a time, including when the surrounding mode changes. */
 export function* createOutlineLandmarksV182Steps(
   initialMode: VisualMode,
   beforeRelease?: (root: Group) => void,
+  ownership: OutlineLandmarkOwnershipOptions = {},
 ): Generator<void, Group> {
   const root = new Group();
   root.name = "Berlin outline landmark additions v182";
@@ -200,8 +206,10 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createCentralSitesV200(nextNative));
       yield;
-      root.add(createLibrariesV202(nextNative));
-      yield;
+      if (ownership.architectureV241 !== true) {
+        root.add(createLibrariesV202(nextNative));
+        yield;
+      }
       root.add(createPergamonPanoramaV202({ minecraft: nextNative }));
       yield;
       if (nextNative) root.add(createBendlerblockV202(true));
@@ -305,8 +313,9 @@ export function disposeOutlineConstruction(root: Group): void {
 }
 
 /** Synchronous callers keep identical geometry and ordering. */
-export function createOutlineLandmarksV182(initialMode: VisualMode, beforeRelease?: (root: Group) => void): Group {
-  const steps = createOutlineLandmarksV182Steps(initialMode, beforeRelease);
+export function createOutlineLandmarksV182(initialMode: VisualMode, beforeRelease?: (root: Group) => void,
+  ownership: OutlineLandmarkOwnershipOptions = {}): Group {
+  const steps = createOutlineLandmarksV182Steps(initialMode, beforeRelease, ownership);
   let next = steps.next();
   while (!next.done) next = steps.next();
   return next.value;

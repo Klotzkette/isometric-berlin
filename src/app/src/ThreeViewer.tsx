@@ -1,3 +1,4 @@
+import { aegCampusV241GroundAt, aegCampusV241SolidAt } from "./aegCampusV241Navigation";
 import { museumColonnadesV231GroundAt, museumColonnadesV231SolidAt } from "./museumColonnadesV231Navigation";
 import { monbijouV231DeckAt, monbijouV231GroundAt, monbijouV231SolidAt } from "./monbijouV231Navigation";
 import { centralNamedV230GroundAt, centralNamedV230SolidAt } from "./centralNamedV230Navigation";
@@ -1624,7 +1625,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
-    staatsoperV240: true,
+    staatsoperV240: true, architectureV241: true,
     camera: runtime.camera,
     mode: runtime.lightingMode,
     signal: runtime.loadSignal,
@@ -1653,7 +1654,7 @@ function startSurroundingCity(runtime: Runtime): void {
       runtime.geometryResidency?.release(previous);
       runtime.gpuResidency?.release(previous);
       releaseMinecraftMaterialBindings(previous, runtime.minecraftMaterialState);
-    }), {
+    }, { architectureV241: true }), {
       // WeakRef constructor inputs cannot be collected within the same job.
       // One family per real task bounds that temporary source retention.
       budgetMs: 0,
@@ -1760,6 +1761,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       weddingSitesV210SolidAt(x,y,z,radius) ||
       neukoellnV210SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       arenaStationV225SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      aegCampusV241SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       districtTownhallV227SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       steglitzMotorwayV226SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       (runtime.outerThinOutlines?.userData.solidAt?.(x, y, z, radius) ?? false) ||
@@ -3707,7 +3709,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
@@ -3831,6 +3833,8 @@ function prepareIsoNavigation(
     if (schoolFloor !== null) return schoolFloor;
     const rosenthalerFloor = rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft");
     if (rosenthalerFloor !== null) return rosenthalerFloor;
+    const aegFloor = aegCampusV241GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (aegFloor !== null) return aegFloor;
     const townhallFloor = districtTownhallV227GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (townhallFloor !== null) return townhallFloor;
     const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4136,7 +4140,7 @@ function ensureIsoWorld(
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
             includeLegacyHungarianEnvelope: false,
-            includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
+            architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
             includeBreitscheidTowers: false,
             includeCityWestV165: false,
@@ -4225,7 +4229,7 @@ function ensureIsoWorld(
         yield;
         // Complete source envelopes stay resident before the first interactive
         // frame. Only additional facade detail uses camera-following residency.
-        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ schlossplatzV239: true, staatsoperV240: true }));
+        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ schlossplatzV239: true, staatsoperV240: true, architectureV241: true }));
         yield;
 
         isoWorld.add(zooGrounds.createZooGroundsV165());
@@ -4282,7 +4286,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4635,7 +4639,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4715,6 +4719,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft") ??
+    aegCampusV241GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     districtTownhallV227GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
@@ -4851,7 +4856,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            staatsoperV240: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
+            staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),
         {

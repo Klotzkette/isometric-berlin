@@ -6,6 +6,7 @@ import {
 import data from "./data/librariesV202.json";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { staatsbibliothekV241PreviousFilters } from "./staatsbibliothekV241Ownership";
 
 export const LIBRARIES_V202_GROUP = "Staatsbibliotheken source-bound architecture v202";
 // Keep the same rigid terrain datum as each untouched source parent.
@@ -20,19 +21,22 @@ function materials(vertexColors = false) {
 }
 
 /** Source-bound library architecture with unchanged shells, roofs, courts and navigation. */
-export function createLibrariesV202(native = false): Group {
+export function createLibrariesV202(native = false, architectureV241 = false): Group {
   const root = new Group();
+  const keep = staatsbibliothekV241PreviousFilters(architectureV241);
   root.name = LIBRARIES_V202_GROUP + (native ? " native" : "");
-  root.userData = { librariesV202: true, textureFree: true, additiveOnly: true,
+  root.userData = { librariesV202: true, textureFree: true, additiveOnly: !architectureV241,
     sourceGeometryRetained: true, sourceOwnerIds: data.owners.map(owner => owner.id),
     fullStaticDetailOnTouch: true, blockNative: native, nativeMinecraft: native,
     keepInMinecraft: native, newCourtWalls: false, newPassageClosures: false,
-    sourceReceipt: "librariesV202Evidence.json" };
+    sourceReceipt: "librariesV202Evidence.json", architectureV241,
+    correctionReceipt: architectureV241 ? "staatsbibliothekV241Previous.json" : undefined };
   if (!native) {
-    const positions = new Float32Array(data.surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0));
+    const surfaces = architectureV241 ? data.surfaces.filter(keep.surface) : data.surfaces;
+    const positions = new Float32Array(surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0));
     const colors = new Float32Array(positions.length), tint = new Color();
     let offset = 0;
-    for (const surface of data.surfaces) {
+    for (const surface of surfaces) {
       tint.setHex(surface.color);
       const lift = LIBRARIES_V202_OWNER_OFFSETS[surface.owner];
       for (const triangle of surface.triangles) for (const p of triangle) {
@@ -49,7 +53,8 @@ export function createLibrariesV202(native = false): Group {
     mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true };
     root.add(mesh);
   }
-  const rows = native ? data.blocks : data.boxes;
+  const originalRows = native ? data.blocks : data.boxes;
+  const rows = architectureV241 ? originalRows.filter(native ? keep.block : keep.box) : originalRows;
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials(), mesh = new InstancedMesh(geometry, day, 0);
   const matrices = new Float32Array(rows.length * 16), colors = new Float32Array(rows.length * 3);

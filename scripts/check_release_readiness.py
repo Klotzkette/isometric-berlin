@@ -118,7 +118,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v239 northern Mitte companions and required civic owners: 915,771,831 bytes
 # (873.35 MiB). A finite 875 MiB archive-only allowance preserves all assets;
 # live packet, decode, GPU residency and mobile detail limits stay unchanged.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 875 * 1024 * 1024
+# v241 refines the library, Q207, IHZ fronts and three complete AEG campus sites.
+# The complete package is 921,563,887 bytes (878.872 MiB). A finite 880 MiB
+# archive-only allowance preserves every old asset; all live budgets stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 880 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

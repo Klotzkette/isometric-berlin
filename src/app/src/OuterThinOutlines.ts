@@ -3,7 +3,7 @@ import data from "./data/outerThinOutlines.json";
 import { extrapolatedEnvelopeBounds, PRESENTATION_BACKDROP_BOUNDS, PRESENTATION_FLOOR_Y_M } from "./worldEnvelope";
 import type { VisualMode } from "./visualMode";
 import { terrainGroundAt } from "./weinbergTerrainV176";
-import { createOutlineLandmarksV182Steps, disposeOutlineConstruction } from "./OutlineLandmarksV182";
+import { createOutlineLandmarksV182Steps, disposeOutlineConstruction, type OutlineLandmarkOwnershipOptions } from "./OutlineLandmarksV182";
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
 import { tegelSpandauV198GroundAt, tegelSpandauV198WaterAt } from "./tegelSpandauV198Navigation";
 import { northParksV198GroundAt, northParksV198SolidAt, northParksV198WaterAt } from "./northParksV198Navigation";
@@ -24,6 +24,7 @@ import { waldbuehneGroundAt, waldbuehneSolidAt } from "./waldbuehneV201Navigatio
 export function* createOuterThinOutlinesSteps(
   mode: VisualMode,
   beforeLandmarkRelease?: (root: Group) => void,
+  ownership: OutlineLandmarkOwnershipOptions = {},
 ): Generator<void, Group> {
   const root = new Group();
   let activeMode = mode;
@@ -118,7 +119,7 @@ export function* createOuterThinOutlinesSteps(
     rail.renderOrder = 100;
     root.add(rail);
     yield; // End the source-position decode task before preparing landmark families.
-    const landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease);
+    const landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership);
     root.add(landmarks);
     root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) =>
       root.visible && landmarks.userData.update(timestamp, camera, reducedMotion, floodLevel);
@@ -143,8 +144,9 @@ export function* createOuterThinOutlinesSteps(
   }
 }
 
-export function createOuterThinOutlines(mode: VisualMode, beforeLandmarkRelease?: (root: Group) => void): Group {
-  const steps = createOuterThinOutlinesSteps(mode, beforeLandmarkRelease);
+export function createOuterThinOutlines(mode: VisualMode, beforeLandmarkRelease?: (root: Group) => void,
+  ownership: OutlineLandmarkOwnershipOptions = {}): Group {
+  const steps = createOuterThinOutlinesSteps(mode, beforeLandmarkRelease, ownership);
   let next = steps.next();
   while (!next.done) next = steps.next();
   return next.value;

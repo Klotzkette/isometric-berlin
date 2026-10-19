@@ -92,7 +92,10 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
     mobileDetailWorker: undefined, latestMobileView: undefined,
     smoothGroundTopSampler: groundSource ? smoothGroundTopSampler : () => () => 0,
     createIsometricCityCore: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
-      _surfaces: unknown, options: { buildings: PrismBuilding[] }) => {
+      _surfaces: unknown, options: { buildings: PrismBuilding[]; architectureV241?: boolean }) => {
+      // Later district loads must honor the same exact AEG proxy replacement
+      // as the initial core; otherwise traveling back creates duplicate shells.
+      expect(options.architectureV241).toBeTrue();
       buildingSources.push(options.buildings.map((building) => building.id));
       return new Group();
     },

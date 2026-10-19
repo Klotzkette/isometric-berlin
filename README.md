@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.140 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.140/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.141 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.141/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.140** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.141** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.141 refines Staatsbibliothek Unter den Linden, the former Galeries Lafayette / Quartier 207, the IHZ surroundings and the Merantix, Phorms and Deutsche Welle buildings at the former AEG campus. Existing measured buildings and full mobile detail are preserved. [Sources and validation](docs/refinements-v241.md).
+
+Version 1.0.141 präzisiert die Staatsbibliothek Unter den Linden, das ehemalige Galeries Lafayette / Quartier 207, die Gebäude am IHZ sowie Merantix, Phorms und Deutsche Welle auf dem früheren AEG-Gelände. Vermessene Baukörper und die vollständige mobile Darstellung bleiben erhalten.
 
 Version 1.0.140 refines Staatsoper Unter den Linden and Hotel de Rome with source-bound architectural details. Measured envelopes, open courts and full mobile detail remain. [Sources and validation](docs/refinements-v240.md).
 

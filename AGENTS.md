@@ -1237,3 +1237,23 @@ recognition; unsurveyed fitting dimensions remain explicit display estimates.
 Any superseded inaccurate decoration requires exact ownership evidence and a
 complete replacement. Keep full drawn mobile detail, independent orthogonal
 native geometry, cancellable construction and unchanged live memory limits.
+
+
+### Step 10 — v241 Staatsbibliothek Unter den Linden and Quartier 207
+
+The owner requests more faithful architecture at the renovated Staatsbibliothek
+Unter den Linden and the former Galeries Lafayette / Quartier 207 at
+Friedrichstraße. These are distinct from the Alte Bibliothek at Bebelplatz and
+Quartier 206. Preserve measured envelopes, roof/court structure, unrelated
+buildings and previous detail except precisely receipted inaccurate estimates.
+Current renovation plans are not evidence of completed future architecture.
+Use source-supported recognition, label unsurveyed fitting dimensions, retain
+full drawn mobile detail, independent native geometry and unchanged live limits.
+
+The same v241 request additionally includes buildings around the IHZ on
+Friedrichstraße, including the former ZEIT office, and the distinct Merantix
+ENTER, Phorms Ackerstraße and Deutsche Welle Voltastraße buildings at the AEG
+Humboldthain campus. Verify actual addresses and source owners; do not confuse
+modern ENTER with the historic red-brick works or label former occupants as
+current tenants. Correct only bounded evidenced proxy geometry, preserving
+all unrelated source owners and runtime budgets.

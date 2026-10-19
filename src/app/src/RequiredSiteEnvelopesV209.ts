@@ -1,3 +1,8 @@
+import { addIHZV241 } from "./IHZV241";
+import { addAEGCampusV241 } from "./AEGCampusV241";
+import { createLibrariesV202 } from "./LibrariesV202";
+import { addQuartier207V241 } from "./Quartier207V241";
+import { addStaatsbibliothekV241 } from "./StaatsbibliothekV241";
 import { addRequiredMitteV239 } from "./RequiredMitteV239";
 import { addStaatsoperV240 } from "./StaatsoperV240";
 import { addRequiredElevatedStationsV238 } from "./RequiredElevatedStationsV238";
@@ -34,6 +39,12 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createLibrariesV202(native, true));
+  yield;
+  yield* addIHZV241(root, native);
+  yield* addAEGCampusV241(root, native);
+  yield* addQuartier207V241(root, native);
+  yield* addStaatsbibliothekV241(root, native);
   yield* addStaatsoperV240(root, native);
   yield* addRequiredMitteV239(root, native);
   yield* addRequiredElevatedStationsV238(root, native);

@@ -204,6 +204,7 @@ export type SurroundingOwnershipOptions = {
   schlossplatzV239?: boolean;
   /** Caller guarantees the v240 opera recognition and native restoration. */
   staatsoperV240?: boolean;
+  architectureV241?: boolean;
 };
 
 export function* buildSurroundingCityChunk(
@@ -282,7 +283,7 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
-      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true);
+      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true, ownership.architectureV241 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
@@ -366,7 +367,7 @@ export function* buildSurroundingCityChunk(
       root.add(ink);
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
-      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true);
+      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;

@@ -1,3 +1,4 @@
+import { isAEGCampusCorePrismV241 } from "./aegCampusV241CorePrevious";
 import { isSchlossplatzPreviousPartV239, isSchlossplatzCorePrismV239, SCHLOSSPLATZ_SOLIDS_V239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238, ELEVATED_STATION_SOLIDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
@@ -672,7 +673,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
@@ -713,6 +714,7 @@ export function compilePedestrianObstacles(
       index.buildingCount += 1;
       continue;
     }
+    if (options.replaceAEGCampusPrisms && isAEGCampusCorePrismV241(sourceBuilding)) continue;
     if (options.replaceTownhallPrisms && isTownhallCorePrismV227(sourceBuilding)) continue;
     if (options.replaceDistrictCourtPrisms && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
     if (options.replaceColonnadesPrisms && isColonnadesCorePrismV231(sourceBuilding)) continue;
@@ -2062,7 +2064,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

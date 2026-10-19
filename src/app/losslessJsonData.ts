@@ -12,6 +12,13 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "ihzV241.json": ["drawn", "minecraft"],
+  "ihzV241Previous.json": ["records"],
+  "aegCampusV241.json": ["drawn", "minecraft"],
+  "quartier207V241.json": ["drawn", "minecraft"],
+  "quartier207V241Previous.json": ["records"],
+  "staatsbibliothekV241.json": ["drawn", "minecraft"],
+  "staatsbibliothekV241Previous.json": ["records", "lineRecords", "boxes", "blocks", "surfaces"],
   "staatsoperV240.json": ["drawn", "minecraft"],
   "staatsoperV240Previous.json": ["records", "boxes", "segments"],
   // Atomic named-site packets are immutable construction inputs. Prepared

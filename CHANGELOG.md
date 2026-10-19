@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.141 — central Berlin architecture and AEG campus
+
+- Refine the renovated historic library and Jean Nouvel’s former Galeries
+  Lafayette glass building on their retained source geometry.
+- Refine both IHZ annexes and Dorotheenstraße 33 while retaining its existing
+  transparent glass, measured envelopes and the unchanged IHZ tower.
+- Replace six exact old campus proxies with 47 complete measured parts at
+  Merantix ENTER, Phorms Ackerstraße and Deutsche Welle Voltastraße. Preserve
+  open courtyards and match walking collisions to the new building shapes.
+- Keep courts, roofs, neighbouring architecture, full mobile detail and
+  existing runtime residency limits.
+- See [sources and validation](docs/refinements-v241.md).
+
 ## v1.0.140 — Staatsoper Unter den Linden and Hotel de Rome
 
 - Refine the Staatsoper's north portico, classical facade hierarchy, windows

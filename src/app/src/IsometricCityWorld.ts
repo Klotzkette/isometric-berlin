@@ -3,6 +3,7 @@ import { ELEVATED_STATION_PRISM_IDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
 import { isMonbijouBridgeClusterV231 } from "./monbijouPreviousV231";
 import { createKalkscheuneFacadesV218 } from "./KalkscheuneFacadesV218";
+import { isAEGCampusCorePrismV241 } from "./aegCampusV241CorePrevious";
 import { isTownhallCorePrismV227 } from "./townhallCorePreviousV227";
 import { isDistrictCourtCorePrismV229 } from "./districtCourtCorePreviousV229";
 import { isWeddingRoofCoreV229 } from "./weddingMoabitV229Profile";
@@ -380,6 +381,8 @@ export type IsometricCityBuildOptions = {
   includeLegacyHungarianEnvelope?: boolean;
   /** Required complete v227 shells replace only the exact receipted originals. */
   includeLegacyTownhallEnvelopes?: boolean;
+  /** Complete measured AEG campus is required before replacing legacy prisms. */
+  architectureV241?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
   includeLegacySchlossplatzEnvelopes?: boolean;
@@ -1763,11 +1766,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
-  const visible = buildings.filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
+  const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
+    .filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
     .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
     .filter(building => options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building))
     .filter(building => options.includeLegacySchlossplatzEnvelopes !== false || !isSchlossplatzCorePrismV239(building))
@@ -11933,6 +11937,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.architectureV241 && isAEGCampusCorePrismV241(sourceBuilding)) continue;
     if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;
     if (options.includeLegacyDistrictCourtEnvelopes === false && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
     if (options.includeLegacySchlossplatzEnvelopes === false && isSchlossplatzCorePrismV239(sourceBuilding)) continue;

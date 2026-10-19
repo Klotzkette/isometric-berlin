@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Staatsbibliothek Unter den Linden and Quartier 207 (v1.0.141):** Retained
+  Geoportal Berlin LoD2 (dl-de/zero-2-0), OpenStreetMap (ODbL-1.0) and primary
+  architectural accounts support the bounded building refinements. Unmeasured
+  facade fittings and colours are procedural estimates; reference photographs
+  are not bundled. See [source evidence](docs/refinements-v241.md).
+
 - **Staatsoper and Hotel de Rome (v1.0.140):** Retained Berlin LoD2
   (dl-de/zero-2-0) and OpenStreetMap identities (ODbL-1.0), public heritage
   and architectural accounts, and individually credited reference views guide
@@ -1903,3 +1909,13 @@ no photographic texture, downloaded logo or font is bundled. Fred Romero's
 17 August 2016 photographs “Berlin - Altes Stadthaus.jpg” and “Berlin - Altes
 Stadthaus (2).jpg” (CC BY 2.0) are individually credited in both packaged
 attribution manifests. See `docs/refinements-v239.md` and its linked source notes.
+
+
+Quartier 207 reference only: Jörg Zägel, 17 June 2010,
+[Berlin, Mitte, Friedrichstrasse 76–78, Galeries Lafayette](https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Friedrichstrasse_76-78,_Galeries_Lafayette.jpg),
+CC BY-SA 3.0. Full credits are included in both Wikimedia manifests; no image
+pixels or photographic texture are bundled.
+
+IHZ base visual reference (no bundled media):
+[Denis Apel / flyingpixel.de / Wikipedia, 2011-03-04](https://commons.wikimedia.org/wiki/File:Internationales_Handelszentrum_Berlin_Sockel_Denis_Apel_CC.jpg),
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).

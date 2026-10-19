@@ -1,0 +1,21 @@
+# AEG / Humboldthain campus — v241
+
+Three geographically bounded sites replace six exact old core proxies with complete official Berlin LoD2 shells. No neighbouring street or district is regenerated. The retained source contains 47 leaf parts in five parents; every wall, roof, roof subdivision and courtyard hole remains available. The original six proxy records and their uncontested native columns are retained with source hashes and fail-open equality guards.
+
+## Identities and primary references
+
+- **ENTER / Merantix AI Campus, Max-Urich-Straße 3.** The contemporary six-storey office with open atria/loggias is distinct from the historic AEG factory. Its light concrete frame, continuous glazing and dark transoms follow the [developer](https://www.townscape.de/projects/enter-berlin/), [architect](https://rkw.plus/de/projekt/enter-berlin/) and [operator](https://www.merantix-aicampus.com/). Parent `DEBE01ALld000006`, OSM way `286645907`.
+- **Phorms Campus Berlin Mitte, Ackerstraße 76.** “Formschule” is interpreted as [Phorms](https://berlin-mitte.phorms.de/), housed in the AEG-Apparatefabrik. The [Berlin monument record](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030340) documents five storeys, red brick, segmental-arched windows and glazed terracotta ornament. The original roof/risalit outline is preserved; glazing, shallow arches, mullions and light sills restore recognition. Parent `DEBE01YYK00042AM`; ways `178621265`, `178621263`, `178621266`. Adjacent school gym and unrelated homes remain unchanged.
+- **Deutsche Welle / Mediaport, Voltastraße 6.** [DW](https://corporate.dw.com/en/dw-tv-berlin/a-326991) identifies its Berlin address; [Kleihues](https://kleihues.com/mediaport-berlin/) identifies the T-shaped new insertion, 40-m main building and lower side wings. Complete source includes the middle Mediaport parent `DEBE01YYK0003tN3` and the directly adjoining factory parents `DEBE01YYK00045sY`, `DEBE01YYK00047Dr`. Narrow windows distinguish the new spine from large factory windows. Source roof/upper structures exceed 40 m locally; this does not raise all factory wings. Ways `45234467`, `26410650`.
+
+## Accuracy and limits
+
+Coordinates, roof heights and source footprints come from the retained official `LoD2_390_5822.zip`; its archive URL/hash and complete original sheets are in `aeg-campus-v241-source.json.gz`. Addresses are confirmed above. Source coverage of the selected OSM footprints is 99.79% Phorms, 99.86% ENTER and 98.11% DW; tiny map/survey perimeter differences are not filled with invented geometry. Window counts/rhythm, material colours and ornamental dimensions are architectural interpretations, not a measured facade survey. No photographic texture is shipped. The two operator/architect photographs were visual references only.
+
+Each parent is rigidly registered to the existing core ground level of 5.2 m; relative source wing and roof elevations are preserved. The registration offsets are explicit in the evidence. It is not a new regional terrain model. Source-shaped navigation retains courtyard holes and supports roofs only when the pedestrian is already above them. No ground pad or broad collision box is added.
+
+## Runtime budget and verification
+
+Drawn and native each use three indexed meshes, zero textures/instances/animations. Mobile uses identical geometry. Drawn: 58,173 vertices / 33,466 triangles. Native: 226,424 vertices / 199,750 triangles. Independent 1-m orthogonal cells keep the source skin; lossless removal of internal shared cube faces and merging of coplanar exposed faces reduces the initial independently compiled native cubes without removing any visible cell or colour. Runtime data is 7,148,219 raw bytes / 2,156,062 gzip bytes. No residency, source coverage or live byte budget is increased.
+
+Replay: `uv run python scripts/extract_aeg_campus_v241.py`, then `uv run python scripts/build_aeg_campus_v241.py`. The extractor uses retained OSM and official archives, not runtime network requests. Targeted tests cover all source parts/holes, old-owner receipts, measured DW height, orthogonal native geometry and exact shared-face removal. Browser-independent constructor tests exercise the actual chunk decoder and navigation. Full application integration and release checks belong to the parent v241 change.
