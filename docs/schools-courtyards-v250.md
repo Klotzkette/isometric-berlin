@@ -49,3 +49,23 @@ Verification:
 
 These are scoped regression checks, not a guarantee against every browser/driver
 failure. No runtime limit was raised to accommodate the architectural details.
+
+## Hosting serialization
+
+The complete download stays byte-for-byte as verified above. Retaining the
+previous two live JavaScript asset sets initially exceeded the 1 GiB hosting
+limit by 350,122 bytes. For Pages only, four JSON files use compact whitespace
+and exactly equivalent integral number literals. Recursive JavaScript
+`Object.is` comparison verifies every parsed value, including negative zero,
+strings, arrays and object keys; no geometric precision or source value changes.
+This saves 368,514 bytes. The complete hosted tree, including retained assets,
+is 1,073,723,432 bytes and remains below 1 GiB. The hosted package manifest records the four hosted
+byte counts and hashes. The two older live asset sets remain byte-identical.
+[Exact paths and original/hosted hashes](schools-courtyards-v250-hosting.json).
+
+Live deployment `b931a8ad547c487f571adf3fa3abe63561093b3e` completed
+successfully. Public HTML, manifests, all four compacted JSON files and sampled
+JavaScript/CSS/worker files match their audited deployment payloads. Live Chrome
+and WebKit/iPhone-profile checks load the new John-Lennon facade and keep the
+scene ready with zero page errors, zero WebGL errors and no context loss. GitHub
+release asset sizes and SHA-256 digests match both local archives and checksums.

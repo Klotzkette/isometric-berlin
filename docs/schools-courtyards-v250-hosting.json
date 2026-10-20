@@ -1,0 +1,40 @@
+{
+  "release": "1.0.150",
+  "scope": "GitHub Pages only; offline package and archives are unchanged",
+  "method": "Compact JSON whitespace; emit exactly integral finite binary64 numbers as integer literals only within the safe integer range; preserve negative zero. Recursively compare parsed JavaScript values with Object.is, including key order and array shape. Update the hosted package manifest sizes and SHA-256 values.",
+  "verification": "All four files have identical parsed JavaScript values. Prior two live versions retain their exact hashed asset bytes.",
+  "files": [
+    {
+      "path": "mesh/regierungsviertel/rail-lines.json",
+      "originalBytes": 435216,
+      "hostedBytes": 218020,
+      "savedBytes": 217196,
+      "originalSha256": "3640b597f4cb90656b5b06d8ef92776cb7e8a56a5807d30575b629253506afcb",
+      "hostedSha256": "32fa2a9512c676fa76b53f840b0f8d54ffc84dadf1eca5b690567a66bc2f31c8"
+    },
+    {
+      "path": "mesh/regierungsviertel/park-details.json",
+      "originalBytes": 6107835,
+      "hostedBytes": 6030688,
+      "savedBytes": 77147,
+      "originalSha256": "13a3c88c62cc589b113d9147721ecd74390a6533bd0ea649678b436454cdec27",
+      "hostedSha256": "a9082e27237ad3e9be61e43460df2c6743b62b4164fe22efc119191f029c8d45"
+    },
+    {
+      "path": "dzi/regierungsviertel/wikimedia_attribution.json",
+      "originalBytes": 348488,
+      "hostedBytes": 297586,
+      "savedBytes": 50902,
+      "originalSha256": "3b92b96b1fcfc032282f5cec92d933e2f0dbdee028bd33803ee62b263e050b33",
+      "hostedSha256": "89d72bd2affdf4941f093fd36477521c6bbf544dac38015853261cbf6ba4762a"
+    },
+    {
+      "path": "mesh/regierungsviertel/scene.json",
+      "originalBytes": 49388,
+      "hostedBytes": 26119,
+      "savedBytes": 23269,
+      "originalSha256": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+      "hostedSha256": "08049bc88b8b5cbb3f0df1c47c0b5a9d942a57736865605f2c9fda540cb8b6ff"
+    }
+  ]
+}
