@@ -53,3 +53,20 @@ Detailed receipts and source/estimate distinctions:
 - Hosting preflight retains the v149 and v150 hashed assets for open sessions.
   Its exact 1,020,909,555-byte tree remains 52,832,269 bytes below 1 GiB.
   Hosted data is byte-identical to the complete offline package.
+
+## Publication
+
+Source commit `aa683e21` is on `main` and tagged `v1.0.151`. Pages commit
+`4535ff044c2fa3b17c9e0898a30f8b2aaae9130a` deployed successfully. GitHub
+confirmed the uploaded size and SHA-256 of both offline archives and the
+versioned checksum file.
+
+- ZIP: `a156f91d1105f4bc347f80e6ddda8e7c40cda13e43cb2931739036dae0c5f63d`
+- TAR.GZ: `491b455df6bb6835865056e624e473b1cd00ff81200ed7eb2b9b998c2c24e59d`
+
+The public index, manifest, six representative data files and eight application,
+style and worker assets passed byte-for-byte comparison with the offline package.
+The deployed courtyard loaded successfully in WebKit's iPhone 13 profile and
+desktop Chromium, with both v251 additions present and zero page errors,
+WebGL errors or context loss. Initial presentation readiness was 12.64 seconds
+and 9.20 seconds respectively in these runs.
