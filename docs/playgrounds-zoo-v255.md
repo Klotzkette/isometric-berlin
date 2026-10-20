@@ -115,4 +115,17 @@ previous live versions, with 29 older-only files. Total size is 1,064,730,640
 bytes, leaving 9,011,184 bytes below 1 GiB. Only older superseded assets are
 pruned; the current portable site is published completely.
 
-Hosted publication receipts follow after deployment.
+Published on 20 October 2026:
+
+- Source/tag `v1.0.155`: `98f42fa8`.
+- Pages commit: `3added86bf9d91d44d46a6ec6bd23e374dc0e15a`.
+- GitHub Pages workflow `39433977032` completed successfully.
+- [Release and downloads](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.155):
+  both uploaded archive sizes and GitHub SHA-256 digests match the table.
+- Hosted HTML, package manifest, complete city manifest and sampled drawn/native
+  playground packets match the checked portable files byte-for-byte.
+- Nine additional public-browser cases pass: Zoo pagoda, Tierpark palace/gardens
+  and Werner-Sylten-Weg in desktop drawn/native and iPhone WebKit. No page errors,
+  graphics errors or lost contexts occurred.
+
+[Public viewer](https://klotzkette.github.io/isometric-berlin/).
