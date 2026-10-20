@@ -11,6 +11,7 @@ import street from "./data/schlossstrasseV247Details.json";
 import fountain from "./data/hermannEhlersFountainV248.json";
 import frontage from "./data/albrechtstrasseV248Details.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { steglitzSchoolV250NativeRows, steglitzSchoolV250Refinements, steglitzSchoolV250SourceBoxes, steglitzSchoolV250SurfaceColor } from "./steglitzSchoolV250";
 
 export const STEGLITZ_V182_GROUP = "Steglitz: Kreisel scaffold, town hall, Schloss, Gymnasium and Spiegelwand";
 export const STEGLITZ_V182_NATIVE_GROUP = "Steglitz: independent block-native landmark skins";
@@ -24,11 +25,12 @@ function materials(vertexColors = false) {
 
 function shells(): Mesh {
   const surfaces = [...source.surfaces, ...plaza.surfaces, ...street.surfaces, ...fountain.surfaces];
+  const sourceSurfaceCount = source.surfaces.length;
   const length = surfaces.reduce((sum, surface) => sum + surface.triangles.length * 9, 0);
   const positions = new Float32Array(length), colors = new Float32Array(length), color = new Color();
   let offset = 0;
-  for (const surface of surfaces) {
-    color.setHex(surface.color);
+  for (const [index, surface] of surfaces.entries()) {
+    color.setHex(index < sourceSurfaceCount ? steglitzSchoolV250SurfaceColor(index, surface.color) : surface.color);
     for (const triangle of surface.triangles) for (const point of triangle) {
       positions.set(point, offset); color.toArray(colors, offset); offset += 3;
     }
@@ -45,8 +47,8 @@ function shells(): Mesh {
 
 function details(nativeMode: boolean): InstancedMesh {
   const rows = nativeMode
-    ? [...native.boxes, ...refinements.nativeRows, ...plaza.nativeRows, ...street.nativeRows, ...fountain.nativeRows, ...frontage.nativeRows]
-    : [...source.boxes, ...refinements.boxes, ...plaza.boxes, ...street.boxes, ...fountain.boxes, ...frontage.boxes];
+    ? [...steglitzSchoolV250NativeRows(native.boxes), ...steglitzSchoolV250Refinements(refinements.nativeRows, true), ...plaza.nativeRows, ...street.nativeRows, ...fountain.nativeRows, ...frontage.nativeRows]
+    : [...steglitzSchoolV250SourceBoxes(source.boxes), ...steglitzSchoolV250Refinements(refinements.boxes, false), ...plaza.boxes, ...street.boxes, ...fountain.boxes, ...frontage.boxes];
   const count = rows.length + (nativeMode ? 0 : source.rods.length);
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials();

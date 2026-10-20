@@ -3,6 +3,7 @@ import { Group } from "three";
 import source from "./data/schoolsV185.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { canRefineLennonV250, createLennonV250 } from "./LennonV250";
 
 /** Small source-bound accents, with independent culling for the distant sites. */
 export function createSchoolsV185(minecraft = false): Group {
@@ -19,6 +20,10 @@ export function createSchoolsV185(minecraft = false): Group {
     noHiddenSolidInfill: true,
   };
   for (const school of source.schools) {
+    if (school.owner === "DEBE01YYK000064P" && canRefineLennonV250()) {
+      root.add(createLennonV250(minecraft));
+      continue;
+    }
     const start = minecraft ? school.firstNative : school.firstBox;
     const count = minecraft ? school.nativeCount : school.boxCount;
     const rows = (minecraft ? source.nativeRows : source.boxes).slice(start, start + count);

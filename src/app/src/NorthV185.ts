@@ -4,6 +4,7 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { buildingTerrainOffset, terrainGroundAt } from "./weinbergTerrainV176";
 import { appendDanzigerTramV249, finishDanzigerTramV249 } from "./DanzigerTramV249";
+import { appendChorinerV250, replacesChorinerV250Face } from "./ChorinerV250";
 
 export const NORTH_V185_GROUP = "Northern neighbourhoods: bounded source-bound accents v185";
 type Face = typeof source.faces[number];
@@ -120,7 +121,8 @@ export function createNorthV185(minecraft = false): Group {
     sourceStatus: source.sourceStatus, sourceOwnerIds: source.owners.map(p => p.id) };
   for (const kind of ["kulturbrauerei", "hagenauer", "choriner", "weinbergspark"]) {
     const rows: Rows = [], arches: Rows = [];
-    source.faces.filter(f => f.kind === kind).forEach(f => facade(rows, arches, f, minecraft));
+    source.faces.filter(f => f.kind === kind && !replacesChorinerV250Face(f)).forEach(f => facade(rows, arches, f, minecraft));
+    if (kind === "choriner") appendChorinerV250(rows, minecraft);
     if (kind === "weinbergspark") garden(rows, minecraft);
     if (kind === "hagenauer") {
       roadEdges(rows, minecraft);

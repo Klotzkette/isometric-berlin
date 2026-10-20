@@ -504,6 +504,64 @@
       "credit": "Landesdenkmalamt Berlin",
       "role": "primary_heritage_identity",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "john_lennon_v250",
+      "title": "John-Lennon-Gymnasium public street facade",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Zehdenicker_Stra%C3%9Fe_17_(09080444).JPG",
+      "artist": "Kvikk",
+      "credit": "Kvikk, 3 March 2013 / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "external_visual_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "steglitz_school_v250",
+      "title": "School-operated virtual tour: courtyard sports hall",
+      "page_url": "https://rundgang.gymnasiumsteglitz.de/#g281",
+      "credit": "Gymnasium Steglitz",
+      "role": "external_visual_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "steglitz_school_v250",
+      "title": "Gymnasium Steglitz Heesestraße facade photographs, October 2026",
+      "credit": "Supplied by project owner",
+      "role": "user_supplied_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "choriner_v250",
+      "title": "Choriner Straße 84: Haus aus Stein",
+      "page_url": "https://frankschiffer.com/projekte/haus-aus-stein/",
+      "credit": "Frank Schiffer Architektur",
+      "role": "primary_project_account_and_external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "choriner_v250",
+      "title": "Choriner Höfe",
+      "page_url": "https://haas-architekten.de/projekte/wohnbauten/choriner-hoefe",
+      "credit": "HAAS Architekten",
+      "role": "primary_project_account_and_external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "choriner_v250",
+      "title": "Choriner Höfe",
+      "page_url": "https://www.collignonarchitektur.com/de/projekte/choriner-hoefe",
+      "credit": "Collignon Architektur",
+      "role": "primary_project_account_and_external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "choriner_v250",
+      "title": "Zehdenicker Straße 7A",
+      "page_url": "https://www.gewobag.de/bauen-in-berlin/bauprojekte/zehdenicker-strasse-7-a-in-prenzlauer-berg/",
+      "credit": "Gewobag",
+      "role": "primary_project_account_and_external_reference_only",
+      "photo_bundled": false
     }
   ]
 }

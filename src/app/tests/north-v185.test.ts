@@ -31,10 +31,13 @@ describe("bounded northern v185 accents", () => {
         }
       }
     }
-    // The separately bounded v249 appendix shares this existing batch. Preserve
-    // the original cap for every old instance; v249's test proves the prefix
-    // byte hash and its independent <=700KB addition, without raising this cap.
-    const added = native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows;
+    // v249 and the six-owner v250 facade replacement have independent bounds.
+    // Keep the original cap for every other northern instance and unchanged
+    // batch geometry; neither addition raises the live residency budget.
+    const choriner = root.children.find(o => o.userData.northV185 === "choriner") as InstancedMesh;
+    expect(choriner.count).toBe(native ? 10527 : 3903);
+    expect(choriner.count * 76).toBeLessThan(native ? 810_000 : 300_000);
+    const added = (native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows) + choriner.count;
     expect(bytes-added*76).toBeLessThan(native ? 900_000 : 430_000);
     expect(instances-added).toBeLessThan(native ? 12_000 : 5_500);
     expect(root.userData.additiveOnly).toBe(true);

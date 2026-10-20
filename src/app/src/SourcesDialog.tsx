@@ -36,6 +36,14 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Gymnasium Steglitz und Hofturnhalle: bereitgestellte Fassadenfotos, Schulrundgang und amtliche Gebäudeformen. John-Lennon-Gymnasium: Denkmalquelle und Fassadenfoto von Kvikk (CC BY-SA 3.0). Choriner Höfe und Zehdenicker Straße 7A: Projektangaben der Architekturbüros und Gewobag. Fenstermaße und kleine Details sind angenähert; keine Fototexturen. "
+          : "Gymnasium Steglitz and courtyard gym: supplied facade photos, school tour and official building geometry. John-Lennon-Gymnasium: heritage record and facade photograph by Kvikk (CC BY-SA 3.0). Choriner Höfe and Zehdenicker Straße 7A: architects' project accounts and Gewobag. Window dimensions and small details are estimates; no photo textures. "}
+          <a href="https://rundgang.gymnasiumsteglitz.de/#g281" target="_blank" rel="noreferrer">{language === "de" ? "Schulrundgang" : "School tour"}</a>
+          {" · "}<a href="https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Zehdenicker_Stra%C3%9Fe_17_(09080444).JPG" target="_blank" rel="noreferrer">Kvikk, 2013</a>
+          {" · "}<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a>
+          {" · "}<a href="https://www.gewobag.de/bauen-in-berlin/bauprojekte/zehdenicker-strasse-7-a-in-prenzlauer-berg/" target="_blank" rel="noreferrer">Gewobag</a>.
+        </p>
+        <p>{language === "de"
           ? "Zusätzliche Zebrastreifen und Bordsteine folgen belegten OpenStreetMap-Verläufen auf vorhandenen Straßenflächen. Die Danziger Straßenbahngleise und die Haltestelle Husemannstraße folgen den kartierten Achsen; kleine Ausstattungsmaße sind angenähert. Der stehende gelbe Wagen deutet eine siebenteilige, 40 Meter lange Flexity an. Linien- und Fahrzeugangaben: "
           : "Additional zebra crossings and kerbs follow evidenced OpenStreetMap courses on existing road surfaces. Danziger tram rails and Husemannstraße stops follow mapped axes; small fitting dimensions are estimates. The stationary yellow tram suggests a seven-section, 40-metre Flexity. Route and vehicle references: "}
           <a href="https://www.bvg.de/de/verbindungen/linienuebersicht/m10" target="_blank" rel="noreferrer">BVG M10</a>

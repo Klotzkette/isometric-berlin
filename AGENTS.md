@@ -1357,3 +1357,15 @@ the existing northern batch. Native construction remains independently orthogona
 No new district, descriptor or animation loop. Recovery deadlines must respect
 page suspension; GPU savings may retire only redundant/offscreen storage or
 provably invisible draws, never visible detail.
+
+### Step 10 — v250 schools and Choriner courtyards
+
+The owner requests the Choriner Höfe, the distinct evidenced Zehdenicker Straße
+new building near Weinbergspark, John-Lennon-Gymnasium and Gymnasium Steglitz
+including its actual courtyard sports hall. Use the owner's Heesestraße photos
+as reference only. Replace only specifically identified inaccurate authored
+facade estimates, with exact-owner receipts and complete replacement details;
+retain every measured building part, roof and courtyard. Document unmeasured
+small dimensions as display estimates. Keep full drawn mobile detail,
+independently orthogonal native construction, existing city coverage and live
+memory budgets. No new streaming descriptor, tour stop, texture or animation.

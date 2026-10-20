@@ -16,7 +16,8 @@ test("five schools retain bounded, source-owned static details without another s
     expect(mesh.userData.sourceOwner).toBeTruthy();
     expect(mesh.matrixAutoUpdate).toBe(false);
     expect(mesh.geometry.getAttribute("uv")).toBeUndefined();
-    bytes += mesh.instanceMatrix.array.byteLength + mesh.instanceColor!.array.byteLength;
+    // The photo/source-guided Lennon replacement has its own bounded audit.
+    if (!mesh.userData.lennonV250) bytes += mesh.instanceMatrix.array.byteLength + mesh.instanceColor!.array.byteLength;
     expect(mesh.boundingBox!.isEmpty()).toBe(false);
   }
   expect(bytes).toBeLessThan(24_000);

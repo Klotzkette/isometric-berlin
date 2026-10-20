@@ -5,7 +5,7 @@ import { appendSchoolPlaceV205 } from "../src/schoolsPlacesV205Batches";
 test("school and square refinements keep full static detail in small finite batches",()=>{
   for(const native of [false,true]) {
     const root=new Group();appendSchoolPlaceV205(root,"schools",native);appendSchoolPlaceV205(root,"places",native);
-    expect(root.children.length).toBe(9);
+    expect(root.children.length).toBe(7); // Lennon and Choriner use their corrected existing batches.
     let count=0,bytes=0;
     for(const child of root.children) {
       const mesh=child as InstancedMesh;

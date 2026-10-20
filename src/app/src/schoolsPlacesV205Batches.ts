@@ -3,12 +3,18 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import source from "./data/schoolsPlacesV205.json";
+import { replacesLennonV250 } from "./LennonV250";
+import { replaceSteglitzSchoolPlaceV250 } from "./steglitzSchoolV250";
+import { replacesChorinerV250Place } from "./ChorinerV250";
 
 type Refinement = typeof source.schools[number] | typeof source.places[number];
 
 /** One exact-count cube batch per site; full detail on mobile, no new shell. */
 export function appendSchoolPlaceV205(root: Group, kind: "schools" | "places", native: boolean): void {
-  for (const entry of source[kind] as Refinement[]) {
+  for (const originalEntry of source[kind] as Refinement[]) {
+    const entry = replaceSteglitzSchoolPlaceV250(originalEntry);
+    if (replacesLennonV250(entry, "v205")) continue;
+    if (replacesChorinerV250Place(entry)) continue;
     const rows = (native ? entry.nativeRows : entry.boxes).map(r => [...r]);
     const rods: number[][] = native ? [] : entry.rods.map(r => [...r]);
     for (const label of entry.labels) {

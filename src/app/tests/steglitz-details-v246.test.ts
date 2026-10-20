@@ -4,6 +4,7 @@ import { createMinecraftSteglitzV182, createSteglitzV182 } from "../src/Steglitz
 import source from "../src/data/steglitzV182Source.json";
 import native from "../src/data/steglitzV182Native.json";
 import additions from "../src/data/steglitzV246Details.json";
+import schoolCorrection from "../src/data/steglitzSchoolV250.json";
 
 function checkRows(mesh: InstancedMesh, rows: number[][], block: boolean): void {
   const m = new Matrix4(), scale = new Vector3(), color = new Color();
@@ -18,11 +19,13 @@ function checkRows(mesh: InstancedMesh, rows: number[][], block: boolean): void 
   }
 }
 
-test("v246 retains every original instanced box and appends source-bound details to the same batch", () => {
+test("v246 retains unrelated boxes and all native cells through the receipted school facade correction", () => {
   const drawn = createSteglitzV182(), blocks = createMinecraftSteglitzV182();
   expect(drawn.children.length).toBe(3); expect(blocks.children.length).toBe(1);
-  checkRows(drawn.children[2] as InstancedMesh, source.boxes, false);
-  checkRows(blocks.children[0] as InstancedMesh, native.boxes, true);
+  const superseded = new Set(schoolCorrection.remove["v182.boxes"]);
+  const paints = new Map(schoolCorrection.nativeColors.map(r => [r[0], r[1]]));
+  checkRows(drawn.children[2] as InstancedMesh, source.boxes.filter((_, i) => !superseded.has(i)), false);
+  checkRows(blocks.children[0] as InstancedMesh, native.boxes.map((r, i) => paints.has(i) ? [...r.slice(0, 6), paints.get(i)!] : r), true);
   expect(additions.boxes.length).toBe(534);
   expect(additions.nativeRows.length).toBe(559);
   const mobile=createSteglitzV182({mobileLike:true});

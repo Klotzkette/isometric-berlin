@@ -14,8 +14,8 @@ import { disposeStaticAudit } from './helpers/staticGeometryAudit';
 
 function complete<T>(g:Generator<void,T>):T {let r=g.next();while(!r.done)r=g.next();return r.value;}
 
-test('five complete static groups and water shell use exact-sized independently culled drawn/native buffers',()=>{
- for(const native of [false,true])for(const [root,count] of [[createCentralNamedV230(native),5],[createCentralNamedEnvelopesV230(native),1]] as const){
+test('four retained accent groups and water shell remain bounded after exact Lennon detail replacement',()=>{
+ for(const native of [false,true])for(const [root,count] of [[createCentralNamedV230(native),4],[createCentralNamedEnvelopesV230(native),1]] as const){
   try{
    expect(root.children.length).toBe(count);let instances=0,bytes=0;
    root.traverse(o=>{

@@ -17,6 +17,28 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Schools and Choriner courtyards (v1.0.150):** Retained Berlin LoD2
+  (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) supply the complete source geometry.
+  The owner's October 2026 Gymnasium Steglitz photographs, the
+  [school's virtual tour](https://rundgang.gymnasiumsteglitz.de/#g281),
+  [official inspection](https://dashboard.gymnasiumsteglitz.de/f/Bericht-06Y13.pdf)
+  and [KLW renovation account](https://www.klw-berlin.de/gymnasium-steglitz/)
+  guide its facade and actual courtyard sports hall.
+  John-Lennon's exterior reference is
+  [Kvikk, 3 March 2013](https://commons.wikimedia.org/wiki/File:Berlin_Mitte_Zehdenicker_Stra%C3%9Fe_17_(09080444).JPG),
+  [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+  Choriner Höfe recognition follows
+  [Frank Schiffer](https://frankschiffer.com/projekte/haus-aus-stein/),
+  [HAAS](https://haas-architekten.de/projekte/wohnbauten/choriner-hoefe) and
+  [Collignon](https://www.collignonarchitektur.com/de/projekte/choriner-hoefe);
+  the distinct Zehdenicker Straße 7A follows its
+  [Gewobag project record](https://www.gewobag.de/bauen-in-berlin/bauprojekte/zehdenicker-strasse-7-a-in-prenzlauer-berg/).
+  These are external references, not bundled photographs or plans; no free
+  image-reuse licence is asserted for institutional or supplied photographs.
+  Small dimensions and colours remain procedural estimates. Exact audited
+  earlier facade estimates are replaced while all measured geometry survives.
+  See [scope, evidence and validation](docs/schools-courtyards-v250.md).
+
 - **Embassies, civic sites, Steglitz and Kulturforum (v1.0.146):** Retained
   OpenStreetMap identities/footprints (ODbL-1.0), Berlin LoD2 and official
   DGM1/DOP evidence (dl-de/zero-2-0), and the cited institutional, architectural
