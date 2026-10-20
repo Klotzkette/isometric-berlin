@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from scripts.integrate_playgrounds_v255 import predecessor_manifest_v255
 from scripts.integrate_street_landmarks_v245 import (
   PUBLIC,
   additions,
@@ -18,7 +19,7 @@ from scripts.integrate_street_landmarks_v245 import (
 
 def test_exact_previous_city_and_all_new_payloads():
   previous = json.loads(baseline_bytes())
-  current = read(PUBLIC / "manifest.json")
+  current = predecessor_manifest_v255(read(PUBLIC / "manifest.json"))
   assert len(previous["chunks"]) == 2149
   assert current == merged(previous, additions())
   assert current["chunks"][:2149] == previous["chunks"]

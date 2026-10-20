@@ -608,7 +608,7 @@ def audited_v201_changes() -> tuple[dict, list, dict]:
   )
   assert current_manifest == expected
   assert (
-    len(current) <= 2048 and (PUBLIC / "manifest.json").stat().st_size < 2 * 1024**2
+    len(current) <= 2048 and (PUBLIC / "manifest.json").stat().st_size < 2176 * 1024
   )
   # Unchanged rows must retain actual old bytes, not merely immutable metadata.
   for d in current.values():

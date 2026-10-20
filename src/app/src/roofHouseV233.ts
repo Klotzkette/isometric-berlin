@@ -12,7 +12,7 @@ type Receipt = {
 export type RoofHouseSourceV233 = { schema: number; packets: Record<string, Receipt> };
 type PreparedChunk = SurroundingCityChunk & { roofHouseV233?: Receipt };
 const source = manifest as RoofHouseSourceV233;
-const knownPackets = new Set(manifest.keys);
+const knownPackets = /* @__PURE__ */ (() => new Set(manifest.keys))();
 
 /** Identical encoded source identity to the existing audited packet transfers. */
 function* fingerprint(parts: readonly string[]): Generator<void, number> {

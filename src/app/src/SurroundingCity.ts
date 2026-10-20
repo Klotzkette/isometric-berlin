@@ -2,19 +2,23 @@ import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Li
 import {
   createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
+  type SurroundingChunkSchedule, type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
 import type { VisualMode } from "./visualMode";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { terrainGroundAt } from "./weinbergTerrainV176";
 import { spreeBridgeFloorAtV242, spreeBridgeSolidAtV242 } from "./SpreeBridgesV242";
+import { prepareTierparkV255 } from "./TierparkV255";
+import { annotatePlaygroundPacketV255 } from "./playgroundsV255";
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// Finite descriptor allowance including Torstraße and Danziger Straße. This is catalogue
-// metadata only; resident geometry, transfer and prefetch budgets stay fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_176;
+// Finite catalogue allowance including the 39 selected-playground tiles.
+// Resident geometry, transfer and prefetch budgets stay fixed.
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_208;
+export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 2176 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // At most two upcoming packets overlap the one foreground fetch/decode. Reserve
 // the decoded size too: HTTP Content-Encoding may already inflate a response.
@@ -284,6 +288,45 @@ function retryDelay(milliseconds: number, signal: AbortSignal): Promise<boolean>
  * tiles expire, with an expanded frustum and short reversal grace. The small
  * coarse source has no fine LoD work and remains eligible at any zoom distance.
  */
+/** Stream-only additions keep the shared resident-core decoder unchanged.
+ * Preparation allocates no render objects; normal cooperative decoding owns
+ * cancellation/disposal, and metadata is applied before publication. */
+export async function createStreamedSurroundingCityChunkV255(
+  chunk: SurroundingCityChunk, id: string, minecraft = false,
+  schedule: SurroundingChunkSchedule = {},
+  ownership: SurroundingOwnershipOptions = {},
+): Promise<SurroundingChunkGeometry> {
+  const checkAbort = (): void => {
+    if (schedule.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  };
+  const iterator = prepareTierparkV255(chunk, id, minecraft);
+  try {
+    while (true) {
+      checkAbort();
+      const next = iterator.next();
+      if (next.done) { chunk = next.value; break; }
+      // The finite source preparation yields before changing the packet.
+      // Respect the same injected scheduler used by the existing decoder.
+      if (schedule.yield) await schedule.yield();
+      else {
+        const scheduler = (globalThis as typeof globalThis & { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+        if (scheduler?.yield) await scheduler.yield();
+        else await new Promise<void>(resolve => setTimeout(resolve, 0));
+      }
+    }
+  } finally { iterator.return(undefined as never); }
+  checkAbort();
+  const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
+  try {
+    checkAbort();
+    annotatePlaygroundPacketV255(entry.root, id);
+    return entry;
+  } catch (error) {
+    disposeSurroundingCityRoot(entry.root);
+    throw error;
+  }
+}
+
 export function createSurroundingCity(options: SurroundingCityOptions): SurroundingCity {
   const root = new Group();
   root.name = "Mapped surrounding Berlin outline districts";
@@ -385,7 +428,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           fillPrefetches();
           const data = await loading;
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
-          const entry = await createSurroundingCityChunkCooperatively(
+          const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
             { schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true },
           );
@@ -483,7 +526,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const loadManifest = async (): Promise<void> => {
     for (let attempt = 0; attempt <= SURROUNDING_CITY_MANIFEST_RETRY_MS.length; attempt++) {
       try {
-        const value = await fetchJsonBounded(fetcher, options.manifestUrl, controller.signal, 2 * 1024 * 1024);
+        const value = await fetchJsonBounded(fetcher, options.manifestUrl, controller.signal, SURROUNDING_CITY_MAX_MANIFEST_BYTES);
         if (!disposed) { manifest = validateSurroundingManifest(value); refresh(); }
         return;
       } catch (error) {

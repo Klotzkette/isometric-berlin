@@ -7,6 +7,7 @@ import source from "./data/zooGroundsV165Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringStrokePaths } from "./drawnLettering";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
+import { appendZooRecognitionV255 } from "./ZooRecognitionV255";
 
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
@@ -155,7 +156,7 @@ function create(native:boolean):Group {
   for(const b of source.barriers)fence(details,b.line,Math.min(4,b.height),b.kind);
   mountain(details,"25036813",10.5,"ibex");mountain(details,"25036814",9.8,"takin");mountain(details,"49896121",7.8,"tahr");
   aviary(details,"32995989",21.2);aviary(details,"32995991",23.9);aviary(details,"618256710",8.8);aviary(details,"48374319",7.5);
-  beerGarden(details);birdhouse(details);
+  beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);
   if(native){
     const rows=[...source.nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
     const model=batch(rows);model.name="Zoo retained native house shells and ground rows";group.add(model);
@@ -169,7 +170,7 @@ function create(native:boolean):Group {
     const boxes=batch(details.boxes);boxes.name="Zoo structural posts rails and garden furniture";group.add(boxes);
     const rocks=sheets(details.surfaces);rocks.name="Zoo climbing cliffs aviary rods and animals";group.add(rocks);
   }
-  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native};
+  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true};
   freezeStaticSceneTransforms(group);return group;
 }
 export function createZooGroundsV165():Group {return create(false);}

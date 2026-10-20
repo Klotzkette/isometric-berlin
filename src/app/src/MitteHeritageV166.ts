@@ -6,6 +6,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { drapeTerrainTriangle, terrainGroundAt } from "./weinbergTerrainV176";
 import { localTerrainIntersects, nativeTerrainGroundRows } from "./weinbergLocalModelTerrainV176";
 import { mitteHeritageV166BuildingOffsetAt, mitteHeritageV166PartOffset } from "./mitteHeritageV166Profile";
+import { separateWeinbergPitchRowV255, separateWeinbergPitchSheetV255 } from "./weinbergPlaygroundLayersV255";
 type P=[number,number,number];
 type Tri={color:number;triangles:number[][][]};
 export const MITTE_HERITAGE_V166_GROUP="Mitte parks cemeteries and measured historical buildings";
@@ -172,14 +173,15 @@ function create(native:boolean, replaceMonbijou=false):Group {
         start=i;offset=next;
       }
     }
-    root.add(boxBatch([...buildings,...nativeTerrainGroundRows(source.groundRuns,mitteHeritageV166WaterLevel)].map(([x,y,z,w,h,d,c])=>[x,y,z,w,h,d,0,c])));
+    root.add(boxBatch([...buildings,...nativeTerrainGroundRows(source.groundRuns.map(separateWeinbergPitchRowV255),mitteHeritageV166WaterLevel)].map(([x,y,z,w,h,d,c])=>[x,y,z,w,h,d,0,c])));
   }
   else{
     const buildings=source.surfaces.map(sheet=>{
       const offset=mitteHeritageV166PartOffset(sheet.partId);
       return offset===0?sheet:{...sheet,triangles:sheet.triangles.map(t=>t.map(p=>[p[0],p[1]+offset,p[2]]))};
     });
-    const ground=source.groundSurfaces.map(sheet=>{
+    const ground=source.groundSurfaces.map(sourceSheet=>{
+      const sheet=separateWeinbergPitchSheetV255(sourceSheet);
       const anchor=sheet.triangles[0][0],water=sheet.kind==="mapped water"?mitteHeritageV166WaterLevel(anchor[0],anchor[2],sheet.color):undefined;
       if(water!==undefined)return {...sheet,triangles:sheet.triangles.map(t=>t.map(p=>[p[0],water,p[2]]))};
       return sheet.triangles.some(t=>localTerrainIntersects(

@@ -36,6 +36,13 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Spielplätze: Die Auswahl der 20 größten folgt der amtlichen GRIS-Bruttofläche, einschließlich Nebenflächen, aus dem Berliner Verzeichnis mit 1.886 Einträgen (Abruf 20. Oktober 2026, dl-de-zero-2.0). Die zusätzlich genannten Plätze sind gesondert ergänzt. Umrisse und kartierte Geräte folgen amtlichen Daten und OpenStreetMap; kleine Bauteilmaße sind angenähert. Zoo und Tierpark: vorhandene amtliche Gebäudeformen, kartierte Anlagen und veröffentlichte Betreiberangaben; keine Fototexturen. "
+          : "Playgrounds: the twenty largest are selected by official GRIS gross cadastral area, including ancillary grounds, from Berlin's 1,886-entry inventory (retrieved 20 October 2026, dl-de-zero-2.0). Additional requested sites are included separately. Boundaries and mapped equipment follow official data and OpenStreetMap; small component dimensions are estimates. Zoo and Tierpark use retained official building geometry, mapped grounds and published operator information; no photo textures. "}
+          <a href="https://daten.berlin.de/datensaetze/grunanlagenbestand-berlin-einschliesslich-der-offentlichen-spielplatze-wfs-737fd0a4" target="_blank" rel="noreferrer">GRIS Berlin</a>
+          {" · "}<a href="https://www.zoo-berlin.de/de" target="_blank" rel="noreferrer">Zoo Berlin</a>
+          {" · "}<a href="https://www.tierpark-berlin.de/de" target="_blank" rel="noreferrer">Tierpark Berlin</a>.
+        </p>
+        <p>{language === "de"
           ? "Ladenfronten an Kastanienallee, Torstraße, Danziger Straße, Kurfürstendamm, Tauentzienstraße und Kantstraße: vorhandene amtliche Gebäudeformen und OpenStreetMap-Nutzungsangaben vom 29. September 2026. Straßenkanten und Ampeln folgen den dargestellten Straßenflächen und kartierten Verkehrsregeln. Kleine Fensterprofile, Bordhöhen und Mastversätze sind angenähert. Weitere Häuser nutzen vorhandene Farb- und Materialangaben."
           : "Shopfronts on Kastanienallee, Torstraße, Danziger Straße, Kurfürstendamm, Tauentzienstraße and Kantstraße: retained official building geometry and OpenStreetMap use evidence dated 29 September 2026. Street edges and signals follow delivered surfaces and mapped controls. Small window profiles, kerb heights and pole offsets are estimates. Additional houses use retained colour and material evidence."}</p>
         <p>{language === "de"

@@ -5,7 +5,7 @@ type Door = number[];
 type Plan = { origin: number[]; guard: number; doors: Door[] };
 export type HouseDoorSourceV233 = { schemaVersion: number; ids?: string[]; chunks: Record<string, { drawn: Plan; minecraft: Plan }> };
 const source = data as HouseDoorSourceV233;
-const knownChunks = new Set(source.ids ?? Object.keys(source.chunks));
+const knownChunks = /* @__PURE__ */ (() => new Set(source.ids ?? Object.keys(source.chunks)))();
 
 /** Source navigation is retained verbatim by this additive presentation pass. */
 export function houseDoorNavigationGuardV233(nav: SurroundingNavigation): number {

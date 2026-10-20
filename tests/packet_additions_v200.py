@@ -57,7 +57,9 @@ def audited_v200_additions() -> dict:
   assert all(identity.startswith("east200-") for identity in added)
   assert not added.keys() & {c["id"] for c in old["chunks"]}
   assert len(current["chunks"]) <= 2048
-  assert path.stat().st_size <= 2 * 1024 * 1024
+  # The released v200 inventory above stays frozen; the current catalogue also
+  # carries the finite v255 additions within its separately bounded envelope.
+  assert path.stat().st_size <= 2176 * 1024
 
   # Immutable previous descriptor hashes are checked against actual public bytes,
   # so retaining old metadata alone cannot conceal removed or altered detail.

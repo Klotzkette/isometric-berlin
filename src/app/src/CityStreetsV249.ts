@@ -9,7 +9,7 @@ export type CityStreetSourceV249 = {
   packets: Record<string, { origin: number[]; guard: number; mesh: SurroundingPackedMesh }>;
 };
 const source = data as CityStreetSourceV249;
-const known = new Set(source.ids);
+const known = /* @__PURE__ */ (() => new Set(source.ids))();
 
 /** Exact, offline-clipped public-space complements share the existing packet's
  * serial decode, cancellation, packed buffer and disposal. No global scene root. */

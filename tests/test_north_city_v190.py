@@ -61,11 +61,11 @@ def test_new_packets_have_separate_representations_and_full_source_inventory():
 
 
 def test_complete_manifest_fits_existing_browser_fetch_limit():
-  # The runtime refuses a manifest larger than2MiB before parsing it. Formatting
+  # The finite v255 catalogue has a 2.125MiB bound. Formatting
   # must not make otherwise valid city geometry disappear behind a caught warning.
   manifest = ROOT / "src/app/public/mesh/surrounding-berlin-v159/manifest.json"
-  assert manifest.stat().st_size <= 2 * 1024 * 1024
+  assert manifest.stat().st_size <= 2176 * 1024
   data = json.loads(manifest.read_bytes())
   # v244 adds bounded named street fronts; only catalogue metadata grows.
-  assert len(data["chunks"]) <= 2176
+  assert len(data["chunks"]) <= 2208  # Includes 39 finite v255 playground descriptors.
   assert len(data["footprint"]) <= 1000

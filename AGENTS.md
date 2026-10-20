@@ -1419,3 +1419,21 @@ detail. Unknown fitting dimensions and centreline-to-verge signal offsets are
 display estimates, not surveyed pole positions. Keep full drawn mobile detail,
 independent orthogonal native construction, existing packet/batch lifetimes,
 coverage, 93 tour stops and all live residency/decode/prefetch budgets.
+
+### Step 10 — v255 twenty large playgrounds, Zoo and Tierpark
+
+The owner requests Berlin's twenty largest playgrounds plus Bellevue,
+Helmholtzplatz, the previously requested Gipsdreieck (provisional interpretation
+of “Kiezdreieck”), Weinbergspark and Zoo West's adventure playground, together
+with recognisable Zoo Berlin and Tierpark Friedrichsfelde architecture and
+green areas. Rank the complete official GRIS playground inventory by its stated
+cadastral gross area, distinguishing that from net playable area. New coverage
+is limited to the selected exact site footprints, with finite source-bound
+streaming descriptors where necessary, never surrounding district fill.
+Retain previous ground, equipment, buildings, gardens, paths and terrain;
+keep small unmeasured equipment and decorative dimensions labelled estimates.
+Keep full drawn mobile detail, independently orthogonal native geometry and
+all existing live geometry, packet transfer and prefetch limits. The finite
+catalogue may grow to 2,208 descriptors and 2.125 MiB for these exact new sites;
+this changes no resident geometry allowance. No new tour stop,
+photographic texture, animation loop or quality reduction is authorised.

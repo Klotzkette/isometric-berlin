@@ -4,7 +4,7 @@ import type { SurroundingCityChunk, SurroundingPackedMesh } from "./SurroundingC
 type Plan = { origin: number[]; guards: { mesh: number; kind: string; fingerprint: number }[]; fields: number[][] };
 export type WestShopfrontSourceV254 = { schema: number; ids: string[]; packets: Record<string, Plan> };
 const source = data as WestShopfrontSourceV254;
-const known = new Set(source.ids);
+const known = /* @__PURE__ */ (() => new Set(source.ids))();
 const KIND = "west-shopfronts-v254";
 const ALLOWED = new Set(["city-west-street-fronts-v163", "tauentzien-street-fronts-v165", "district-facades-v188"]);
 const linear = (rgb: number[]) => rgb.map(v => Math.round((v <= 10.31475 ? v / 255 / 12.92 : ((v / 255 + .055) / 1.055) ** 2.4) * 255));

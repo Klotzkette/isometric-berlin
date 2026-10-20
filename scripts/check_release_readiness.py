@@ -130,6 +130,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v252 preserves the complete 931,241,571-byte package (888.101 MiB), including
 # the exact Hbf atrium-ground complements. The finite 889 MiB archive ceiling
 # changes no live packet, decode, GPU residency or mobile-quality limit.
+# v255 adds the exact selected playground sites and bounded Zoo/Tierpark details.
+# Lossless construction-field compression and removal of unused worker inputs
+# keep the complete download within the existing 889 MiB offline ceiling.
+# Worker, packet, decode, prefetch and resident limits stay fixed.
 MAX_PACKAGE_UNCOMPRESSED_BYTES = 889 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000

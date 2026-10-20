@@ -8,7 +8,7 @@ export type MainStreetEdgesSourceV254 = {
   packets: Record<string, { origin: number[]; guard: number; mesh: SurroundingPackedMesh }>;
 };
 const source = data as MainStreetEdgesSourceV254;
-const known = new Set(source.ids);
+const known = /* @__PURE__ */ (() => new Set(source.ids))();
 
 /** Retained asphalt edges share their original packet's serial decode/disposal. */
 export function* prepareMainStreetEdgesV254(

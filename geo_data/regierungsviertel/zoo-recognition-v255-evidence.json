@@ -1,0 +1,44 @@
+{
+  "step": 10,
+  "scope": "v255 Zoo Berlin west, inside existing v165 site",
+  "preservedInputs": {
+    "src/app/src/data/zooGroundsV165Source.json": "d47362fb6de29b9f24fa94e2a3f5a794902ab26a5a6ff54f4ba93db98770bd11",
+    "src/app/src/data/zooGroundsV165Evidence.json": "01f55392166cb85002772dd15454f608e2c87cd53d4ddd159763d6c5611e502e",
+    "src/app/src/data/zooGroundsV165Navigation.json": "fa1d8064aad76ecb83608601ece684dcf2f6e843c58f5466145fca1b81edca26",
+    "src/app/public/mesh/regierungsviertel/park-details.json": "13a3c88c62cc589b113d9147721ecd74390a6533bd0ea649678b436454cdec27"
+  },
+  "replacementOwners": [],
+  "newStreamingDescriptors": 0,
+  "newDrawCalls": 0,
+  "towerConflict": "Retained LoD2 rhino house maximum is 12.35 m, while mapped tower 1557644530 and Zoo opening report give 25 m. Add only the separate tower recognition within its exact ring; retain all original surfaces.",
+  "sources": [
+    {
+      "url": "https://www.zoo-berlin.de/de/aktuelles/news/artikel/eroeffnung-der-nashorn-pagode-im-zoo-berlin",
+      "facts": "25 m, 18 tower levels, red concrete, lotus ornament and ETFE roof"
+    },
+    {
+      "url": "https://www.zoo-berlin.de/de/aktuelles/news/artikel/einblicke-in-neue-erlebniswelt",
+      "facts": "Gold crown and built tower/roof photograph; reference-only"
+    },
+    {
+      "url": "https://www.zoo-berlin.de/de/aktuelles/news/artikel/180-jahre-berlin-antilopenhaus",
+      "facts": "1872 house, 21 historic brown doors; current facade photo reference"
+    },
+    {
+      "url": "https://www.zoo-berlin.de/fileadmin/zoo-berlin/downloads/Investor_Relations/Geschaeftsberichte/Geschaeftsbericht_AG_2019.pdf",
+      "page": 50,
+      "facts": "2019 playground completed; timber climbing towers, steel slides, palisades and timber walk/seating. Former ship was replaced."
+    },
+    {
+      "url": "https://www.zoo-berlin.de/de/tickets-service/zoo-plan",
+      "facts": "Site identity and orientation only; no tracing or bundled plan"
+    }
+  ],
+  "estimates": "Facade band depths, minaret subdivisions, tower taper/ornament widths, playground equipment dimensions/internal layout and individual reed positions are original display estimates. No photo or plan is a metric geometry source.",
+  "playgroundPathClearanceM": [
+    20.126,
+    20.426,
+    10.79
+  ],
+  "reedCount": 18
+}

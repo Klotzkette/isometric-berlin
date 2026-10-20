@@ -1,6 +1,8 @@
 """Independent street support, source preservation and family-height checks."""
 
 import base64
+import hashlib
+import json
 import math
 
 import numpy as np
@@ -10,6 +12,10 @@ from shapely.geometry import LineString, Point, Polygon, box, shape
 from shapely.ops import unary_union
 
 from scripts import build_main_streets_v254 as build
+from scripts.integrate_playgrounds_v255 import (
+  baseline_bytes,
+  predecessor_manifest_v255,
+)
 
 
 def test_source_scope_ids_and_original_packet_bytes_are_retained():
@@ -18,7 +24,11 @@ def test_source_scope_ids_and_original_packet_bytes_are_retained():
   )
   digest = build.curbs.base.digest
   assert evidence["sourceSha256"] == output["sourceSha256"] == digest(build.SOURCE)
-  assert evidence["preservedManifestSha256"] == digest(build.OUT / "manifest.json")
+  previous = baseline_bytes()
+  assert evidence["preservedManifestSha256"] == hashlib.sha256(previous).hexdigest()
+  assert predecessor_manifest_v255(
+    build.city.read(build.OUT / "manifest.json")
+  ) == json.loads(previous)
   for raw, key in (
     (build.GEO / "raw/outer-v159/candidate.gpkg", "rawSha256"),
     (build.transport.PBF, "pbfSha256"),

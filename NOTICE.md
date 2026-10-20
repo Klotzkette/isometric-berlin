@@ -17,6 +17,17 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Playgrounds, Zoo and Tierpark (v1.0.155):** Berlin's official GRIS
+  playground inventory, retrieved 20 October 2026, is licensed
+  [dl-de-zero-2.0](https://www.govdata.de/dl-de/zero-2-0). Twenty unique
+  playground records are ranked by gross cadastral area, not net playable area.
+  Explicitly requested additional sites are separately identified. Retained
+  OpenStreetMap (ODbL-1.0) and Berlin LoD2 (dl-de/zero-2-0) anchor boundaries,
+  mapped equipment, paths, enclosures and buildings. Zoo/Tierpark operator
+  publications guide recognition only; no photographs or illustrated plans
+  are redistributed. Unmeasured small dimensions remain display estimates.
+  See [selection, sources and checks](docs/playgrounds-zoo-v255.md).
+
 - **Six main streets and ordinary houses (v1.0.154):** Retained Berlin LoD2
   (dl-de/zero-2-0) and the 29 September 2026 OpenStreetMap extract (ODbL-1.0)
   supply existing facade planes, commercial-use points, road courses, traffic

@@ -152,7 +152,9 @@ def publish(source_folder: Path) -> dict:
     code = [
       f'import manifest from "./{filename}";',
       *imports,
-      f"export default {{...manifest, {mode}Chunks:[{','.join(entries)}]}};",
+      "// The manifest contains lazy fields; keep this unused packet family removable.",
+      "export default /* @__PURE__ */ (() => "
+      f"({{...manifest, {mode}Chunks:[{','.join(entries)}]}}))();",
     ]
     (DATA / f"altMitte{label}V169Data.ts").write_text("\n".join(code) + "\n")
     report[mode] = {

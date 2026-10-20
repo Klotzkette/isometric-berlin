@@ -4,6 +4,7 @@ import { createZooGroundsV165, createMinecraftZooGroundsV165 } from "../src/ZooG
 import { ZOO_GROUNDS_V165_PRISM_IDS, zooGroundsV165RoofAt, zooGroundsV165SourceColumn } from "../src/zooGroundsV165Profile";
 import source from "../src/data/zooGroundsV165Source.json";
 import nav from "../src/data/zooGroundsV165Navigation.json";
+import { zooRecognitionV255TowerRoofAt } from "../src/zooRecognitionV255Profile";
 
 describe("Zoo Berlin complete source architecture and current mapped grounds",()=>{
   test("renders every source triangle including the transparent animal-house shells",()=>{
@@ -39,7 +40,7 @@ describe("Zoo Berlin complete source architecture and current mapped grounds",()
     }
   });
   test("native rooftop navigation is the exact merged source shell ceiling",()=>{
-    for(const [start,end,z,y] of nav.nativeRoofRuns){expect(zooGroundsV165RoofAt(start+.5,z+.5,true)).toBe(y);expect(zooGroundsV165RoofAt(end-.5,z+.5,true)).toBe(y);}
+    for(const [start,end,z,y] of nav.nativeRoofRuns)for(const x of[start+.5,end-.5])expect(zooGroundsV165RoofAt(x,z+.5,true)).toBe(Math.max(y,zooRecognitionV255TowerRoofAt(x,z+.5,true)??-Infinity));
     expect(ZOO_GROUNDS_V165_PRISM_IDS.size).toBe(18);
     expect(zooGroundsV165RoofAt(0,0,true)).toBeNull();expect(zooGroundsV165RoofAt(0,0)).toBeNull();
     expect(zooGroundsV165SourceColumn(0,0,5.2,13.2)).toBe(false);

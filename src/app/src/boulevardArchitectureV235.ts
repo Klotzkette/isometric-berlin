@@ -5,7 +5,7 @@ type Guard = { mesh: number; kind: string; fingerprint: number };
 type Plan = { origin: number[]; guards: Guard[]; fields: number[][] };
 export type BoulevardArchitectureSourceV235 = { schema: number; ids: string[]; packets: Record<string, Plan> };
 const source = data as BoulevardArchitectureSourceV235;
-const known = new Set(source.ids);
+const known = /* @__PURE__ */ (() => new Set(source.ids))();
 const KIND = "boulevard-architecture-v235";
 const MAX_FIELDS = 2400;
 const QUADS = 9;

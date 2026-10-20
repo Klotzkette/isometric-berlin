@@ -1,5 +1,6 @@
 import source from "./data/zooGroundsV165Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
+import { zooRecognitionV255TowerRoofAt } from "./zooRecognitionV255Profile";
 
 export const ZOO_GROUNDS_V165_PRISM_IDS = new Set(source.legacyPrisms.map(p=>p.id));
 export const ZOO_GROUNDS_V165_PARTS = source.parts;
@@ -9,9 +10,10 @@ for(const [start,end,z,y] of source.nativeRoofRuns)for(let ix=start;ix<end;ix++)
   cells.set(`${ix},${z}`,y);
 }
 export function zooGroundsV165RoofAt(x:number,z:number,minecraft=false):number|null {
-  if(minecraft)return cells.get(`${Math.floor(x)},${Math.floor(z)}`)??null;
+  const tower=zooRecognitionV255TowerRoofAt(x,z,minecraft);
+  if(minecraft){const retained=cells.get(`${Math.floor(x)},${Math.floor(z)}`)??null;return tower===null?retained:Math.max(tower,retained??-Infinity);}
   if(!bounds.some(b=>x>=b.x0&&x<=b.x1&&z>=b.z0&&z<=b.z1&&pointInWorldRing(x,z,b.p.ring as unknown as WorldRing)&&!b.p.holes.some(h=>pointInWorldRing(x,z,h as unknown as WorldRing))))return null;
-  let top:number|null=null;
+  let top:number|null=tower;
   for(const [a,b,c] of source.roofTriangles){
     const den=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);if(Math.abs(den)<1e-8)continue;
     const u=((b[2]-c[2])*(x-c[0])+(c[0]-b[0])*(z-c[2]))/den,v=((c[2]-a[2])*(x-c[0])+(a[0]-c[0])*(z-c[2]))/den;

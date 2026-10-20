@@ -17,7 +17,9 @@ def test_previous_packets_and_established_bounds_remain_exact():
   for asset in evidence["oldAssets"]:
     assert_preserved_v242(build.OUT / asset["url"], asset["sha256"])
   manifest = base.read_json(build.OUT / "manifest.json")
-  assert len(manifest["chunks"]) <= 2176
+  assert (
+    len(manifest["chunks"]) <= 2208
+  )  # Includes 39 finite v255 playground descriptors.
   assert 0 < len(evidence["companions"]) <= 90
   assert (
     sum(c[f]["bytes"] for c in evidence["companions"] for f in ["drawn", "minecraft"])

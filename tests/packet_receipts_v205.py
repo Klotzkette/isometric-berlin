@@ -260,7 +260,9 @@ def audit(receipt: dict, current_manifest: dict, read_asset) -> tuple[dict, dict
   }
   normalized_manifest, _ = normalize_v209_additions(current_manifest, read_asset)
   assert normalized_manifest == expected
-  assert len(packed_json(current_manifest)) < 2 * 1024**2
+  # The current catalogue includes the finite v255 playground extension;
+  # historical normalization above still proves every predecessor field.
+  assert len(packed_json(current_manifest)) < 2176 * 1024
   records = receipt["sourceRecords"]
   assert Counter(r["sourceId"] for r in records) == Counter(OWNERS)
   records = [{**r, "geometry": shape(r["geometry"])} for r in records]

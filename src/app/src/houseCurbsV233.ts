@@ -4,7 +4,7 @@ import type { SurroundingCityChunk, SurroundingPackedMesh, SurroundingPolygon } 
 export type HouseCurbSourceV233 = { schemaVersion: number; sourceSha256: string; ids: string[];
   packets: Record<string, { origin: number[]; guard: number; mesh: SurroundingPackedMesh }> };
 const source = data as HouseCurbSourceV233;
-const knownPackets = new Set(source.ids);
+const knownPackets = /* @__PURE__ */ (() => new Set(source.ids))();
 
 export function houseCurbGroundGuardV233(ground: SurroundingPolygon[]): number {
   let value = 2166136261;

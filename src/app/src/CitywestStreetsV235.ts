@@ -5,7 +5,7 @@ import type { SurroundingCityChunk, SurroundingPackedMesh } from "./SurroundingC
 export type CitywestStreetSourceV235 = { schemaVersion: number; sourceSha256: string; ids: string[];
   packets: Record<string, { origin: number[]; guard: number; groundY: number; mesh: SurroundingPackedMesh }> };
 const source = data as CitywestStreetSourceV235;
-const knownPackets = new Set(source.ids);
+const knownPackets = /* @__PURE__ */ (() => new Set(source.ids))();
 
 /** Source-supported paint above the retained Tauentzien asphalt. Existing
  * packet lifetime, serial decoding and cancellation also own these few faces. */
