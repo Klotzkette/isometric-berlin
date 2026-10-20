@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.150 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.150/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.151 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.151/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.150** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.151** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.151 follows five additional courtyard photographs of Gymnasium Steglitz: the rear Aula, clock gable, five-storey modern wing and marked red sports court. Measured building envelopes and the existing Kreisel context remain. [Sources and validation](docs/steglitz-courtyard-v251-release.md).
+
+Version 1.0.151 ergänzt anhand von fünf weiteren Fotos die Aula-Rückseite, den Uhrgiebel, den fünfgeschossigen Neubau und den roten Sporthof des Gymnasiums Steglitz. Die vermessenen Baukörper und der vorhandene Steglitzer Kreisel bleiben erhalten.
 
 Version 1.0.150 corrects the photographed Gymnasium Steglitz facade and its courtyard sports hall, the John-Lennon-Gymnasium facade, Choriner Höfe and the separate Zehdenicker Straße new building. Complete measured building geometry and existing runtime limits remain. [Sources and validation](docs/schools-courtyards-v250.md).
 

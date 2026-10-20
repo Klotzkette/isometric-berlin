@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
 import { Group, InstancedMesh } from "three";
 import { appendSchoolPlaceV205 } from "../src/schoolsPlacesV205Batches";
+import courtyard from "../src/data/steglitzCourtyardV251.json";
+import courtGround from "../src/data/steglitzCourtGroundV251.json";
 
 test("school and square refinements keep full static detail in small finite batches",()=>{
   for(const native of [false,true]) {
@@ -21,6 +23,12 @@ test("school and square refinements keep full static detail in small finite batc
       if(native)for(let i=0;i<mesh.count;i++)for(const k of [1,2,4,6,8,9])expect(mesh.instanceMatrix.array[i*16+k]).toBe(0);
       mesh.geometry.dispose();mesh.userData.dayMaterial.dispose();mesh.userData.nightMaterial.dispose();mesh.dispose();
     }
-    expect(count).toBeLessThan(native?4600:3300);expect(bytes).toBeLessThan(360_000);
+    // Preserve the previous bound separately; v251 has its own small, tested
+    // photo-led payload. Global live residency limits stay unchanged.
+    const added = native ? courtyard.nativeRows.length + courtGround.nativeRows.length
+      : courtyard.boxes.length + courtyard.rods.length + courtGround.boxes.length + courtGround.rods.length;
+    expect(count - added).toBeLessThan(native ? 4600 : 3300);
+    expect(bytes - added * 76).toBeLessThan(360_000);
+    expect(added).toBeLessThan(native ? 3200 : 1800);
   }
 });

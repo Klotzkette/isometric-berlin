@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Gymnasium Steglitz courtyard (v1.0.151):** Five additional owner-supplied
+  courtyard photographs guide the rear Aula, clock gable, modern school wing,
+  gym context and sports court. Berlin LoD2 (dl-de/zero-2-0) and retained
+  OpenStreetMap (ODbL-1.0) remain the geometric sources. No supplied photograph
+  or photographic texture is redistributed. Unmeasured decorative dimensions,
+  court markings and furnishings are bounded visual estimates.
+
 - **Schools and Choriner courtyards (v1.0.150):** Retained Berlin LoD2
   (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) supply the complete source geometry.
   The owner's October 2026 Gymnasium Steglitz photographs, the

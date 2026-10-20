@@ -16,6 +16,7 @@ import { ZIONSKIRCHE_V174_TOWER_RING, ZIONSKIRCHE_V174_TOWER_CENTER, zionskirche
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { STEGLITZ_V182_PARTS, steglitzV182RoofAt } from "./steglitzV182Profile";
 import { steglitzGroundV247At } from "./steglitzGroundV247";
+import { steglitzCourtGroundV251Height } from "./steglitzCourtGroundV251Floor";
 import { fountainBodyBlockedV248, fountainFloorV248At } from "./fountainNavigationV248";
 import { BND_HEADQUARTERS_V174_PARTS, bndHeadquartersV174RoofAt } from "./bndHeadquartersV174Profile";
 import { ALT_MITTE_V169_PRISM_IDS, ALT_MITTE_V169_PARTS, altMitteV169RoofAt, prepareAltMitteV169Navigation } from "./altMitteV169Profile";
@@ -2114,8 +2115,10 @@ export function createPedestrianEnvironment(
       // Both production navigation families share this path. The exact new
       // Steglitz finish is eligible only over existing supported outer ground;
       // holes, native fringes and unrelated/higher floors retain their owner.
-      const finish = steglitzGroundV247At(x, z, environment.visualMode?.() === "minecraft");
-      return finish === null ? outerGround : Math.max(outerGround, finish);
+      const native = environment.visualMode?.() === "minecraft";
+      const finish = steglitzGroundV247At(x, z, native);
+      const courtyard = steglitzCourtGroundV251Height(x, z, native);
+      return Math.max(outerGround, finish ?? outerGround, courtyard ?? outerGround);
     }
     const xOffset = x / cell - minXIndex;
     const zOffset = z / cell - minZIndex;

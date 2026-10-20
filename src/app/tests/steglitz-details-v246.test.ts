@@ -5,6 +5,7 @@ import source from "../src/data/steglitzV182Source.json";
 import native from "../src/data/steglitzV182Native.json";
 import additions from "../src/data/steglitzV246Details.json";
 import schoolCorrection from "../src/data/steglitzSchoolV250.json";
+import courtyardCorrection from "../src/data/steglitzCourtyardV251.json";
 
 function checkRows(mesh: InstancedMesh, rows: number[][], block: boolean): void {
   const m = new Matrix4(), scale = new Vector3(), color = new Color();
@@ -22,8 +23,8 @@ function checkRows(mesh: InstancedMesh, rows: number[][], block: boolean): void 
 test("v246 retains unrelated boxes and all native cells through the receipted school facade correction", () => {
   const drawn = createSteglitzV182(), blocks = createMinecraftSteglitzV182();
   expect(drawn.children.length).toBe(3); expect(blocks.children.length).toBe(1);
-  const superseded = new Set(schoolCorrection.remove["v182.boxes"]);
-  const paints = new Map(schoolCorrection.nativeColors.map(r => [r[0], r[1]]));
+  const superseded = new Set([...schoolCorrection.remove["v182.boxes"], ...courtyardCorrection.removeSourceBoxes]);
+  const paints = new Map([...schoolCorrection.nativeColors, ...courtyardCorrection.nativeColors].map(r => [r[0], r[1]]));
   checkRows(drawn.children[2] as InstancedMesh, source.boxes.filter((_, i) => !superseded.has(i)), false);
   checkRows(blocks.children[0] as InstancedMesh, native.boxes.map((r, i) => paints.has(i) ? [...r.slice(0, 6), paints.get(i)!] : r), true);
   expect(additions.boxes.length).toBe(534);

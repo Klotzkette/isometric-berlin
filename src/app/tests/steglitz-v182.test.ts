@@ -10,6 +10,7 @@ import street from "../src/data/schlossstrasseV247Details.json";
 import fountain from "../src/data/hermannEhlersFountainV248.json";
 import frontage from "../src/data/albrechtstrasseV248Details.json";
 import schoolCorrection from "../src/data/steglitzSchoolV250.json";
+import courtyardCorrection from "../src/data/steglitzCourtyardV251.json";
 
 function bytes(root: ReturnType<typeof createSteglitzV182>): number {
   let total = 0;
@@ -52,7 +53,7 @@ test("small complete drawn/mobile model and native skin never load photographs o
   expect(drawn.children.length).toBe(3); expect(native.children.length).toBe(1);
   expect(bytes(drawn)).toBe(bytes(touch));
   expect(bytes(drawn)).toBeLessThan(900_000); expect(bytes(native)).toBeLessThan(2_250_000);
-  expect((drawn.children[2] as InstancedMesh).count).toBe(source.boxes.length+source.rods.length+refinements.boxes.length+plaza.boxes.length+street.boxes.length+fountain.boxes.length+frontage.boxes.length-schoolCorrection.remove["v182.boxes"].length-schoolCorrection.remove["v246.boxes"].length);
+  expect((drawn.children[2] as InstancedMesh).count).toBe(source.boxes.length+source.rods.length+refinements.boxes.length+plaza.boxes.length+street.boxes.length+fountain.boxes.length+frontage.boxes.length-new Set([...schoolCorrection.remove["v182.boxes"], ...courtyardCorrection.removeSourceBoxes]).size-schoolCorrection.remove["v246.boxes"].length);
   const mesh=native.children[0] as InstancedMesh;
   expect(mesh.count).toBe(evidence.nativeRuns+refinements.nativeRows.length+plaza.nativeRows.length+street.nativeRows.length+fountain.nativeRows.length+frontage.nativeRows.length-schoolCorrection.remove["v246.nativeRows"].length);
   for (let i=0;i<mesh.count;i++) {

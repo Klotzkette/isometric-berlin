@@ -1,0 +1,251 @@
+{
+  "version": 251,
+  "owner": "DEBE06YYB0000AUq",
+  "sourceReceipt": "959e6327",
+  "sourceSha256": {
+    "geo_data/regierungsviertel/raw/v182-steglitz/multipolygons.json": "a6cc27f129e53dd87a26498338b9dc130a90b99d8f5cf7bf55c452cdb28869a2",
+    "geo_data/regierungsviertel/raw/v182-steglitz/points.json": "29c5ecc0ba8d2319d2e5904904cf258db54d9bca4bd0114de1f66572883c5a16",
+    "src/app/src/data/steglitzV182Navigation.json": "239a094447ae6f63e4afbfe20a53d91e02c2a7e1c0c22941e7ff692bc98c125d",
+    "src/app/src/data/steglitzV182Source.json": "e99229bea15cd0a3e904b7ee31d18bf0f47056c2ac8679432ccd67e7a5d939f6",
+    "src/app/src/data/steglitzV182Native.json": "3dc6f2b943375f38dc4f5fac0d24648e485d560c4474cc4bb3706607e24e2bbb"
+  },
+  "courtSources": [
+    {
+      "id": "way/1107082380",
+      "ring": [
+        [
+          -3280.931596697541,
+          6809.749819977209
+        ],
+        [
+          -3237.7450975182,
+          6811.807855809107
+        ],
+        [
+          -3238.788758037321,
+          6833.672259636223
+        ],
+        [
+          -3281.9754497907124,
+          6831.614217287861
+        ],
+        [
+          -3280.931596697541,
+          6809.749819977209
+        ]
+      ]
+    },
+    {
+      "id": "way/1107082381",
+      "ring": [
+        [
+          -3237.7450975182,
+          6811.807855809107
+        ],
+        [
+          -3225.366262366879,
+          6812.395129329525
+        ],
+        [
+          -3226.403073475405,
+          6834.259692439809
+        ],
+        [
+          -3238.788758037321,
+          6833.672259636223
+        ],
+        [
+          -3237.7450975182,
+          6811.807855809107
+        ]
+      ]
+    }
+  ],
+  "schoolBoundary": "way/387263944",
+  "floorY": 3.55,
+  "groundCounts": [
+    6,
+    73
+  ],
+  "recognitionRanges": [
+    {
+      "name": "photographed white handball markings",
+      "boxes": [
+        6,
+        6
+      ],
+      "rods": [
+        0,
+        60
+      ],
+      "native": [
+        73,
+        261
+      ]
+    },
+    {
+      "name": "yellow basketball and blue inset markings",
+      "boxes": [
+        6,
+        6
+      ],
+      "rods": [
+        60,
+        107
+      ],
+      "native": [
+        261,
+        378
+      ]
+    },
+    {
+      "name": "two mapped basketball hoops",
+      "boxes": [
+        6,
+        10
+      ],
+      "rods": [
+        107,
+        127
+      ],
+      "native": [
+        378,
+        404
+      ]
+    },
+    {
+      "name": "photo-visible black grid goal",
+      "boxes": [
+        10,
+        10
+      ],
+      "rods": [
+        127,
+        143
+      ],
+      "native": [
+        404,
+        422
+      ]
+    },
+    {
+      "name": "three photo-visible table tennis tables",
+      "boxes": [
+        10,
+        22
+      ],
+      "rods": [
+        143,
+        146
+      ],
+      "native": [
+        422,
+        437
+      ]
+    },
+    {
+      "name": "six retained OSM courtyard tree anchors",
+      "boxes": [
+        22,
+        52
+      ],
+      "rods": [
+        146,
+        146
+      ],
+      "native": [
+        437,
+        467
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "id": "node/11394188656",
+      "point": [
+        -3217.4798170965514,
+        6810.886402403936
+      ],
+      "heightEstimate": 8.4
+    },
+    {
+      "id": "node/11394188657",
+      "point": [
+        -3233.212001188309,
+        6805.692394002341
+      ],
+      "heightEstimate": 8.4
+    },
+    {
+      "id": "node/11394188660",
+      "point": [
+        -3240.0353166274726,
+        6802.685545492917
+      ],
+      "heightEstimate": 3.7
+    },
+    {
+      "id": "node/11394188661",
+      "point": [
+        -3250.9272141352994,
+        6803.056309038773
+      ],
+      "heightEstimate": 3.7
+    },
+    {
+      "id": "node/11394188662",
+      "point": [
+        -3261.4826643695123,
+        6803.868834481575
+      ],
+      "heightEstimate": 3.7
+    },
+    {
+      "id": "node/11394188663",
+      "point": [
+        -3220.954198430467,
+        6837.323700515553
+      ],
+      "heightEstimate": 8.4
+    }
+  ],
+  "tableEstimates": [
+    [
+      -3262.5,
+      6806.5
+    ],
+    [
+      -3250.0,
+      6806.1
+    ],
+    [
+      -3238.0,
+      6807.5
+    ]
+  ],
+  "counts": {
+    "drawnBoxes": 52,
+    "drawnRods": 146,
+    "native": 467
+  },
+  "photos": [
+    "/tmp/codex-remote-attachments/01a07905-2d69-7ec1-914c-28ee2c8f6d85/62908D5D-235A-461D-AD29-0109F5E52649/1-Pasted-Image-1.jpg",
+    "/tmp/codex-remote-attachments/01a07905-2d69-7ec1-914c-28ee2c8f6d85/62908D5D-235A-461D-AD29-0109F5E52649/2-Pasted-Image-2.jpg",
+    "/tmp/codex-remote-attachments/01a07905-2d69-7ec1-914c-28ee2c8f6d85/62908D5D-235A-461D-AD29-0109F5E52649/3-Pasted-Image-3.jpg",
+    "/tmp/codex-remote-attachments/01a07905-2d69-7ec1-914c-28ee2c8f6d85/62908D5D-235A-461D-AD29-0109F5E52649/4-Pasted-Image-4.jpg",
+    "/tmp/codex-remote-attachments/01a07905-2d69-7ec1-914c-28ee2c8f6d85/62908D5D-235A-461D-AD29-0109F5E52649/5-Pasted-Image-5.jpg"
+  ],
+  "policy": "Mapped pitch rings, 2 hoops and tree anchors. Paint pattern, hoop/goal/table positions and sizes and crown dimensions are photo-led estimates. All measured walls/roofs retained; no old row removed; no whole-court collision. Full mobile detail; independent orthogonal native rows; existing batch only.",
+  "camera": {
+    "position": [
+      -3231,
+      21,
+      6840
+    ],
+    "target": [
+      -3252,
+      4,
+      6819
+    ]
+  }
+}

@@ -1369,3 +1369,14 @@ retain every measured building part, roof and courtyard. Document unmeasured
 small dimensions as display estimates. Keep full drawn mobile detail,
 independently orthogonal native construction, existing city coverage and live
 memory budgets. No new streaming descriptor, tour stop, texture or animation.
+
+### Step 10 — v251 Gymnasium Steglitz courtyard photographs
+
+The owner's additional five courtyard views permit bounded refinement of the
+rear Aula facade and clock gable, the modern five-storey school wing and the
+red sports court with its visible markings and furnishings. Preserve all
+measured source parts, roofs, courtyard openings and the v250 street front and
+gym. Photographs are reference-only; unmeasured small dimensions remain explicit
+display estimates. Supersede only exactly receipted inaccurate authored details.
+Reuse the existing school batch, full drawn mobile detail, independent orthogonal
+native construction and unchanged live budgets. No new coverage or tour stop.
