@@ -87,3 +87,23 @@ per-packet budgets. Final browser and release results follow below.
 These bounded browser checks do not replace a long-duration test on a physical
 phone. No guarantee of crash-free operation under arbitrary device memory
 pressure is implied.
+
+## Publication
+
+Source/tag: `f5e54c46`, `v1.0.154`.
+Pages: `9361fdf03d333555d4dea2a0bdd8f2cdfb86c8a0`; GitHub reports the build as
+`built`. The published tree contains the complete verified package and both
+prior live asset sets, with no hosted data overrides.
+
+[Release downloads](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.154)
+contain the complete ZIP, static TAR.GZ and versioned checksum file. All three
+uploaded assets match their final local sizes and GitHub SHA-256 digests.
+Checksums are retained in `releases/SHA256SUMS-v1.0.154.txt`.
+
+Public verification matched eight entry/manifest/worker/feature files exactly
+to the final package, then passed 12 browser cases at Torstraße, Kantstraße,
+the corrected Ku’damm signal and the outer material example in desktop Day,
+desktop Minecraft and iPhone WebKit Day. All screenshots were inspected;
+there were no recorded page errors, crashes, context losses or sampled WebGL
+errors. The public signal base measured 3.2199998474 m in every profile,
+matching its 3.22 m pavement.
