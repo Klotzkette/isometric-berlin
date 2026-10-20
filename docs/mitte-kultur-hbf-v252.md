@@ -55,3 +55,21 @@ that freeze. Final packaged scenes passed all four named views in Chromium and
 iPhone 13 WebKit, including the open stair descent. ZIP and TAR inventories and
 checksums pass release readiness; the prospective Pages tree retains both prior
 live asset sets and measures 1,025,988,600 bytes, below the 1 GiB hosting limit.
+
+Published on 20 October 2026:
+
+- Source commit/tag: `64cc3bc8`, `v1.0.152` on `main`.
+- Pages commit: `e77e8d4f193074d7eb22eb0c4971320ed77c3baa`; GitHub reports
+  the build successful, with no deployment error.
+- [Live viewer](https://klotzkette.github.io/isometric-berlin/) and
+  [release/downloads](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.152).
+- Public index, manifest and 16 additional selected current assets match the
+  verified package byte-for-byte. All four public views pass in both Chromium
+  and iPhone 13 WebKit, without page errors, WebGL errors or context loss.
+- GitHub reports all three release assets uploaded; exact asset sizes and
+  server SHA-256 digests match the locally verified ZIP, TAR.GZ and checksum file.
+- Final release-readiness and one-byte-over-budget regressions: three passed.
+
+The public scene probes cover Gips/Koppen, Kulturbrauerei, Hbf streets and the
+station descent. This is a bounded rendering check, not a long-duration soak test
+on a physical phone; the existing runtime memory ceilings remain unchanged.
