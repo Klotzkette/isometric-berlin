@@ -45,3 +45,14 @@ Release verification passes for the full **931,243,308-byte** package
 (888.103 MiB), within the unchanged 889 MiB archive bound. Three additional
 release-readiness/budget checks pass. Pages retains both previous live asset
 sets; the prospective site is **1,002,937,880 bytes**, below 1 GiB.
+
+Published on 20 October 2026 as **v1.0.153**. Source commit `46829478`;
+Pages commit `5e712a80ee2fcd0bfff887171bfb18dea1e5e4e8`. GitHub Pages build
+succeeded. Public index, package manifest and the Hbf bus-containing bundle
+match the verified package byte-for-byte. Chrome Day, Chrome Minecraft and
+iPhone 13 WebKit Day checks pass on the actual public site without page or
+WebGL errors/context loss. All three release assets have matching sizes and
+server SHA-256 digests. No long-duration physical-phone soak test was performed.
+
+[Live viewer](https://klotzkette.github.io/isometric-berlin/) ·
+[Release/downloads](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.153)
