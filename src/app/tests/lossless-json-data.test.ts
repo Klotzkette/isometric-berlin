@@ -25,6 +25,46 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
 }
 
 describe("lossless lazy source JSON", () => {
+  test("two retained legacy navigation sources keep eager strong identity while saving worker bytes", async () => {
+    let originalBytes = 0, encodedBytes = 0;
+    for (const name of ["leipzigerPlatzSource.json", "schlossNaturkundeSource.json"]) {
+      const path = fileURLToPath(new URL(`../src/${name}`, import.meta.url));
+      const source = await readFile(path, "utf8");
+      const result = transformLosslessJsonData(source, path)!;
+      expect(result.code).not.toContain("WeakRef");
+      expect(result.code).not.toContain('get ["profiles"]');
+      const { data, named } = evaluateModule(source, 64 * 1024, path);
+      expect(data).toEqual(JSON.parse(source));
+      expect(named.profiles).toBe(data.profiles);
+      expect(Object.getOwnPropertyDescriptor(data, "profiles")?.value).toBe(data.profiles);
+      const profiles = data.profiles as Record<string, unknown>;
+      profiles.testRetainedIdentity = { unchanged: true };
+      expect(data.profiles).toBe(profiles);
+      expect((named.profiles as Record<string, unknown>).testRetainedIdentity).toBe(profiles.testRetainedIdentity);
+      data.profiles = { replacement: true };
+      expect(named.profiles).toBe(profiles);
+      expect(data.profiles).toEqual({ replacement: true });
+      originalBytes += source.length; encodedBytes += result.code.length;
+    }
+    expect(originalBytes - encodedBytes).toBeGreaterThan(300 * 1024);
+    const fixture = JSON.stringify({ profiles: { rows: Array(30000).fill([1,2,3]) } });
+    for (const id of [
+      "/project/src/app/src/otherSource.json",
+      "/project/src/app/src/nested/leipzigerPlatzSource.json",
+      "/project/src/app/public/leipzigerPlatzSource.json",
+      "/project/src/app/src/leipzigerPlatzSource.json?raw",
+    ]) expect(transformLosslessJsonData(fixture, id)).toBeUndefined();
+    const exact = '{"profiles":{"number":-0,"large":1e400,"small":-1e400,"__proto__":{"own":true}}}';
+    const path = "/project/src/app/src/leipzigerPlatzSource.json";
+    const source = `{"profiles":[${Array(3000).fill(exact).join(",")}]}`;
+    const { data, named } = evaluateModule(source, 4, path);
+    expect(data).toEqual(JSON.parse(source));
+    expect(named.profiles).toBe(data.profiles);
+    const first = (data.profiles as Array<{ profiles: { number: number } }>)[0].profiles;
+    expect(Object.is(first.number, -0)).toBeTrue();
+    expect(Object.hasOwn(first, "__proto__")).toBeTrue();
+  });
+
   test("audited nested model packets stay lossless and weak without changing ordinary objects", () => {
     const id = "/project/src/app/src/data/volksbuehneEnvelopeV209.json";
     const model = { vertices: [[1.25, -0.375, 42.254, 120, 130, 140]], indices: [0, 0, 0] };

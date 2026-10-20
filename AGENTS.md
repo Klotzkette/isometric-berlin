@@ -1407,3 +1407,15 @@ mapped stop inside existing coverage, sharing existing drawn/native batches,
 materials and disposal. Keep all existing vehicles, geometry and live budgets.
 Vehicle dimensions are illustrative estimates; no timetable or live-service
 claim, new animation loop, texture, tour stop or descriptor is intended.
+
+### Step 10 — v254 six main streets and ordinary outer houses
+
+The owner requests shopfront, curb and traffic-signal refinement along
+Kastanienallee, Torstraße, Danziger Straße, Kurfürstendamm, Tauentzienstraße
+and Kantstraße, plus more individual ordinary outer houses. Use retained
+source identities, mapped commercial use, delivered street surfaces and
+explicit material evidence. Preserve all previous source geometry and authored
+detail. Unknown fitting dimensions and centreline-to-verge signal offsets are
+display estimates, not surveyed pole positions. Keep full drawn mobile detail,
+independent orthogonal native construction, existing packet/batch lifetimes,
+coverage, 93 tour stops and all live residency/decode/prefetch budgets.

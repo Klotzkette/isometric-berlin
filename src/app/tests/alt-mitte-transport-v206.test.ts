@@ -7,6 +7,8 @@ import ground from "../public/mesh/regierungsviertel/ground-context.json";
 import { smoothGroundTopSampler, type VoxelPayload, worldGroundSampler } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
+import mainStreets from "../src/data/mainStreetSignalsV254.json";
+import retainedSignals from "../src/data/altMitteTransportV206.json";
 
 describe("Alt-Mitte source-tagged transport v206", () => {
   test("merges by stable identity and retains original arrays and unrelated placements", () => {
@@ -14,8 +16,12 @@ describe("Alt-Mitte source-tagged transport v206", () => {
     const snapshot = JSON.stringify(original);
     const merged = withAltMitteTrafficV206(original);
     const scoped = altMitteSignalPayloadV206();
-    expect(scoped.traffic_signal_placements).toHaveLength(430);
-    expect(merged.traffic_signal_placements).toHaveLength(1496);
+    const added = new Set(mainStreets.signals.map(s => s.osm_key));
+    expect(retainedSignals.signals).toHaveLength(430);
+    expect(retainedSignals.signals.every(s => !added.has(s.osm_key))).toBe(true);
+    expect(original.traffic_signal_placements!.every(s => !added.has(s.osm_key))).toBe(true);
+    expect(scoped.traffic_signal_placements).toHaveLength(430 + added.size);
+    expect(merged.traffic_signal_placements).toHaveLength(1496 + added.size);
     expect(merged.traffic_signals_dm.slice(0, 1328)).toEqual(original.traffic_signals_dm);
     expect(JSON.stringify(original)).toBe(snapshot);
     const keys = new Set(scoped.traffic_signal_placements!.map(p => p.osm_key));

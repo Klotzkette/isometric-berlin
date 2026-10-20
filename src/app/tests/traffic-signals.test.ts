@@ -17,6 +17,7 @@ import {
 import { withAltMitteTrafficV206, altMitteSignalPayloadV206 } from "../src/AltMitteTransportV206";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import mainStreetSignals from "../src/data/mainStreetSignalsV254.json";
 
 const street = streetDetails as unknown as StreetDetailsPayload;
 const ground = voxelPayload as unknown as VoxelPayload;
@@ -56,15 +57,17 @@ describe("task 07: animated OSM traffic signals", () => {
 
   test("Alt-Mitte keeps all old signals and adds grounded, oriented, hooded heads", () => {
     const merged = withAltMitteTrafficV206(street);
-    expect(merged.traffic_signal_placements).toHaveLength(1496);
+    const added = new Set(mainStreetSignals.signals.map(s => s.osm_key));
+    expect(street.traffic_signal_placements!.every(s => !added.has(s.osm_key))).toBe(true);
+    expect(merged.traffic_signal_placements).toHaveLength(1496 + added.size);
     const group = createTrafficSignals(merged, ground)!;
     const poles = group.getObjectByName("traffic signal poles") as InstancedMesh;
     const hoods = group.getObjectByName("traffic signal visor hoods v206") as InstancedMesh;
-    expect(poles.count).toBe(1496);
-    expect(hoods.count).toBe(430 * 5);
+    expect(poles.count).toBe(1496 + added.size);
+    expect(hoods.count).toBe((430 + added.size) * 5);
     const nativePayload = altMitteSignalPayloadV206();
     const native = createTrafficSignals(nativePayload, null, { native: true })!;
-    expect((native.getObjectByName("traffic signal poles") as InstancedMesh).count).toBe(430);
+    expect((native.getObjectByName("traffic signal poles") as InstancedMesh).count).toBe(430 + added.size);
     const heads = native.getObjectByName("traffic signal heads") as InstancedMesh;
     const matrix = new Matrix4();
     for (let i = 0; i < heads.count; i++) {

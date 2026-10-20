@@ -2,6 +2,7 @@ import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
 } from "three";
 import source from "./data/altMitteTransportV206.json";
+import mainStreets from "./data/mainStreetSignalsV254.json";
 import ground from "./data/altMitteTransportGroundV206.json";
 import type { StreetDetailsPayload, TrafficSignalPlacement } from "./TrafficSignals";
 import { terrainGroundAt } from "./weinbergTerrainV176";
@@ -51,7 +52,7 @@ export function altMittePaintHeightV206(x: number, z: number, native = false): n
 }
 
 function signals(): Signal[] {
-  return source.signals.map(record => {
+  const retained = source.signals.map(record => {
     const x = record.position_dm[0] / 10, z = record.position_dm[1] / 10;
     return {
       ...record,
@@ -62,6 +63,16 @@ function signals(): Signal[] {
       native_ground_y_m: altMitteTransportGroundV206(x, z, true),
     } as Signal;
   });
+  // Stable source identity gives the newly verified verge/approach precedence,
+  // preserving unrelated controls and the existing single animation owner.
+  const merged = new Map(retained.map(record => [record.osm_key, record]));
+  for (const record of mainStreets.signals) merged.set(record.osm_key, {
+    ...record,
+    position_dm: [record.position_dm[0], record.position_dm[1]],
+    source_dm: [record.source_dm[0], record.source_dm[1]],
+    refined_v206: true,
+  } as Signal);
+  return [...merged.values()];
 }
 
 /** Merge by stable OSM identity; preserve every unrelated entry and raw source. */

@@ -6,6 +6,7 @@ import { appendDanzigerTramV249, finishDanzigerTramV249, danzigerTramGroundAtV24
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
 import { justicePalaceV183Boxes } from "../src/justicePalaceV183Batches";
 import { createNorthV185 } from "../src/NorthV185";
+import { appendNorthShopfrontsV254 } from "../src/NorthShopfrontsV254";
 
 describe("Danziger v249 additive tram batch", () => {
   for (const native of [false,true]) {
@@ -49,7 +50,8 @@ describe("Danziger v249 additive tram batch", () => {
       // Exact pre-v249 matrix/colour receipts, read independently from HEAD's
       // constructor. Old geometry must be a byte-identical complete prefix.
       const oldCount = native ? 2283 : 1370;
-      expect(count).toBe(oldCount+rows.length-1);
+      const shops: number[][] = []; appendNorthShopfrontsV254(shops, native);
+      expect(count).toBe(oldCount+shops.length+rows.length-1);
       const mesh = meshes[0] as ReturnType<typeof justicePalaceV183Boxes>;
       const hash = createHash("sha256");
       for (const [attribute,width] of [[mesh.instanceMatrix,16],[mesh.instanceColor!,3]] as const) {
@@ -58,6 +60,14 @@ describe("Danziger v249 additive tram batch", () => {
       expect(hash.digest("hex")).toBe(native ?
         "9826a49fe2d10a9cc00df9a15ab4c229205daa1efcce477ce7ef4c2d862e40ad" :
         "5c5ed927bece5eebac408bb273e0ae65b02d1fdb504556dd046d090029d78c72");
+      // The complete v249 tail remains identical despite the new casing rows
+      // inserted before it, including the slope-adjusted drawn rail matrices.
+      const tramRows = rows.slice(1), expected = justicePalaceV183Boxes(tramRows, native);
+      finishDanzigerTramV249(expected, tramRows, native);
+      const start = count - tramRows.length;
+      expect(Array.from(mesh.instanceMatrix.array.slice(start * 16))).toEqual(Array.from(expected.instanceMatrix.array));
+      expect(Array.from(mesh.instanceColor!.array.slice(start * 3))).toEqual(Array.from(expected.instanceColor!.array));
+      expected.geometry.dispose(); (expected.material as MeshBasicMaterial).dispose(); expected.userData.nightMaterial.dispose();
       const matrix = new Matrix4();
       if (native) for (let i=0; i<count; i++) {
         (meshes[0] as ReturnType<typeof justicePalaceV183Boxes>).getMatrixAt(i,matrix);

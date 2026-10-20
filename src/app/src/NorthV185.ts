@@ -6,6 +6,7 @@ import { buildingTerrainOffset, terrainGroundAt } from "./weinbergTerrainV176";
 import { appendDanzigerTramV249, finishDanzigerTramV249 } from "./DanzigerTramV249";
 import { appendChorinerV250, replacesChorinerV250Face } from "./ChorinerV250";
 import { appendKulturbrauereiV252 } from "./KulturbrauereiV252";
+import { appendNorthShopfrontsV254 } from "./NorthShopfrontsV254";
 
 export const NORTH_V185_GROUP = "Northern neighbourhoods: bounded source-bound accents v185";
 type Face = typeof source.faces[number];
@@ -128,6 +129,7 @@ export function createNorthV185(minecraft = false): Group {
     if (kind === "weinbergspark") garden(rows, minecraft);
     if (kind === "hagenauer") {
       roadEdges(rows, minecraft);
+      appendNorthShopfrontsV254(rows, minecraft);
       appendDanzigerTramV249(rows, minecraft);
     }
     if (!rows.length) continue;
@@ -136,6 +138,7 @@ export function createNorthV185(minecraft = false): Group {
     mesh.name = `North v185 ${kind}: source-bound shallow additions`;
     mesh.userData.northV185 = kind;
     mesh.userData.kulturbrauereiV252 = kind === "kulturbrauerei";
+    mesh.userData.northShopfrontsV254 = kind === "hagenauer";
     root.add(mesh);
     if (arches.length) {
       // Every industrial arch reuses one tiny normalized profile; this avoids

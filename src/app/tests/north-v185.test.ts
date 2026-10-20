@@ -5,6 +5,7 @@ import source from "../src/data/northV185.json";
 import tramV249 from "../src/data/danzigerTramV249.json";
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
 import { appendKulturbrauereiV252 } from "../src/KulturbrauereiV252";
+import { appendNorthShopfrontsV254 } from "../src/NorthShopfrontsV254";
 
 describe("bounded northern v185 accents", () => {
   for (const native of [false, true]) test(`fixed batches and no textures, native=${native}`, () => {
@@ -42,7 +43,10 @@ describe("bounded northern v185 accents", () => {
     appendKulturbrauereiV252(breweryAddition, native);
     expect(breweryAddition.length).toBe(native ? 6518 : 6236);
     expect(breweryAddition.length * 76).toBeLessThan(500_000);
-    const added = (native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows) + choriner.count + breweryAddition.length;
+    const shopfrontAddition: number[][] = [];
+    appendNorthShopfrontsV254(shopfrontAddition, native);
+    expect(shopfrontAddition.length * 76).toBeLessThan(200 * 1024);
+    const added = (native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows) + choriner.count + breweryAddition.length + shopfrontAddition.length;
     expect(bytes-added*76).toBeLessThan(native ? 900_000 : 430_000);
     expect(instances-added).toBeLessThan(native ? 12_000 : 5_500);
     expect(root.userData.additiveOnly).toBe(true);

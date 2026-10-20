@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.153 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.153/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.154 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.154/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.153** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.154** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.154 refines source-supported shopfronts and street edges on six main streets, corrects mapped traffic-signal presentation and applies retained material evidence to 191 additional ordinary houses. Full geometry and live memory limits remain. [Sources and checks](docs/main-streets-v254.md).
+
+Version 1.0.154 ergänzt Ladenfronten und Straßenkanten entlang sechs Hauptstraßen, präzisiert die Darstellung kartierter Ampeln und nutzt vorhandene Materialangaben für 191 weitere Häuser. Vollständige Gebäude und bestehende Speichergrenzen bleiben erhalten.
 
 Version 1.0.153 places one recognizable stationary yellow BVG bus at the mapped Invalidenstraße stop by Hauptbahnhof, in the existing drawn/native batch. [Placement and checks](docs/bvg-bus-v253.md).
 

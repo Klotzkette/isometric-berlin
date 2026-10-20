@@ -1,11 +1,14 @@
 import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238 } from "./namedSiteReplacementsV238";
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
+import { applyOuterMaterialsV254 } from "./outerMaterialsV254";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "./boulevardArchitectureV235";
+import { prepareWestShopfrontsV254 } from "./westShopfrontsV254";
 import { prepareCitywestStreetsV235 } from "./CitywestStreetsV235";
 import { prepareCityStreetsV249 } from "./CityStreetsV249";
+import { prepareMainStreetEdgesV254 } from "./MainStreetEdgesV254";
 import { applySpreeFacadeColoursV231 } from "./spreeFacadeOwnershipV231";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { cutRosenthalerPackedGroundV228 } from "./rosenthalerPackedGroundV228";
@@ -239,8 +242,10 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareHouseDoorsV233(chunk, id, minecraft);
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
   chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
+  chunk = yield* prepareWestShopfrontsV254(chunk, id, minecraft);
   chunk = yield* prepareCitywestStreetsV235(chunk, id, minecraft);
   chunk = yield* prepareCityStreetsV249(chunk, id, minecraft);
+  chunk = yield* prepareMainStreetEdgesV254(chunk, id, minecraft);
   chunk = yield* prepareNamedSiteV238(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
@@ -311,6 +316,8 @@ export function* buildSurroundingCityChunk(
       if (spreeAppearance) root.userData.spreeFacadeVerticesV231 = (root.userData.spreeFacadeVerticesV231 ?? 0) + spreeAppearance;
       const outerAppearance = yield* applyOuterMaterialsV232(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (outerAppearance) root.userData.outerMaterialVerticesV232 = (root.userData.outerMaterialVerticesV232 ?? 0) + outerAppearance;
+      const outerAppearanceV254 = yield* applyOuterMaterialsV254(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (outerAppearanceV254) root.userData.outerMaterialVerticesV254 = (root.userData.outerMaterialVerticesV254 ?? 0) + outerAppearanceV254;
       const districtPanes = yield* shadeDistrictHousePanesV225(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);

@@ -17,6 +17,13 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Six main streets and ordinary houses (v1.0.154):** Retained Berlin LoD2
+  (dl-de/zero-2-0) and the 29 September 2026 OpenStreetMap extract (ODbL-1.0)
+  supply existing facade planes, commercial-use points, road courses, traffic
+  controls and explicit material tags. Shop fittings, small curb dimensions and
+  centreline-to-verge signal offsets are display estimates. No tenant-name
+  assertion or reference image is bundled. See [evidence and checks](docs/main-streets-v254.md).
+
 - **Gymnasium Steglitz courtyard (v1.0.151):** Five additional owner-supplied
   courtyard photographs guide the rear Aula, clock gable, modern school wing,
   gym context and sports court. Berlin LoD2 (dl-de/zero-2-0) and retained

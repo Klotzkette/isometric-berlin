@@ -6,12 +6,22 @@ export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
 const PACKED_PACKET_JSON = /\/data\/altMitteV169(?:Drawn|Native)\/packet-\d+\.json$/;
 const DATA_JSON = /\/src\/app\/src\/data\/.+\.json$/;
+// These two legacy source objects are retained by navigation profile modules.
+// Keep one eager, strongly owned module object; weak constructor getters would
+// not match their lifetime. Only their source encoding changes.
+const EAGER_RETAINED_SOURCE_JSON = /\/src\/app\/src\/(?:leipzigerPlatzSource|schlossNaturkundeSource)\.json$/;
 const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
 
 /** Audited constructor inputs, never mutated or retained by their render roots.
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "mainStreetEdgesV254.json": ["packets"],
+  "westShopfrontsV254.json": ["packets"],
+  "northShopfrontsV254.json": ["drawn", "native"],
+  // Read-only appearance receipts are used only during yielded packet decode;
+  // roots retain final colours, never the receipt map. Compress without loss.
+  "altMitteAppearanceV213.json": ["packets"],
   "gipsKoppenV252.json": ["boxes", "rods", "nativeRows"],
   "kulturbrauereiV252.json": ["drawn", "native"],
   "lennonV250.json": ["boxes", "rods", "nativeRows"],
@@ -230,15 +240,33 @@ export function transformLosslessJsonData(
   id: string,
   thresholdBytes = LOSSLESS_JSON_FIELD_BYTES,
 ): LosslessJsonTransform | undefined {
-  if (!DATA_JSON.test(id.replaceAll("\\", "/")) || source.length < thresholdBytes) {
+  const normalizedId = id.replaceAll("\\", "/");
+  const eagerRetainedSource = EAGER_RETAINED_SOURCE_JSON.test(normalizedId);
+  if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource) || source.length < thresholdBytes) {
     return undefined;
   }
   const data: unknown = JSON.parse(source.replace(/^\uFEFF/, ""));
+  if (eagerRetainedSource) {
+    if (!data || Array.isArray(data) || typeof data !== "object") return undefined;
+    const packed = gzipSync(source.replace(/^\uFEFF/, ""), { level: 9 }).toString("base64");
+    if (packed.length >= source.length * .8) return undefined;
+    const declarations: string[] = [];
+    const exports: string[] = [];
+    for (const [index, key] of Object.keys(data).entries()) {
+      if (key === "default" || !EXPORT_NAME.test(key)) continue;
+      declarations.push(`const __field${index} = __source[${JSON.stringify(key)}];`);
+      exports.push(`__field${index} as ${key}`);
+    }
+    return {
+      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\nconst __source = /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});\n${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default __source;`,
+      map: null,
+      moduleType: "js",
+    };
+  }
   // These packets contain a handful of objects and already-packed base64
   // strings, not huge numeric arrays. Wrapping them in JSON.parse would retain
   // both the encoded JSON text and another copy of every base64 string after
   // the first read. Direct literals share the original string constants.
-  const normalizedId = id.replaceAll("\\", "/");
   const packedPacket = PACKED_PACKET_JSON.test(normalizedId);
   // Require the direct data directory as well as the complete audited filename.
   const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
