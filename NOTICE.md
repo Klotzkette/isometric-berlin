@@ -2083,3 +2083,11 @@ https://www.kulturbrauerei.de/gelaende/guide/ . Hauptbahnhof level arrangement:
 https://www.bahnhof.de/downloads/station-plans/1071.pdf . No photograph, plan,
 external font or texture is redistributed. Small unsurveyed dimensions remain
 explicit display estimates. See the three v252 source/geometry notes.
+
+## v1.0.153 — illustrative BVG bus
+
+One stationary yellow city bus is placed beside retained OpenStreetMap stop
+817754406 and platform 382412794, Hauptbahnhof (Invalidenstraße). Vehicle shape
+and lettering are original procedural display geometry; dimensions are estimates,
+not a surveyed vehicle or live service. Existing OSM ODbL-1.0 and Geoportal Berlin
+terrain notices apply. No external photograph, logo file, font or texture is used.

@@ -1399,3 +1399,11 @@ The v252 station interior correction additionally gives the already modelled
 atrium openings precedence over exactly receipted coarse drawn-ground cells.
 Keep their full outside complements, original height/paint, source payload,
 bridge/service landings and navigation; native ground remains unchanged.
+
+### Step 10 — v253 one illustrative BVG bus
+
+The owner requests one BVG bus. Add a stationary recognition model at a retained
+mapped stop inside existing coverage, sharing existing drawn/native batches,
+materials and disposal. Keep all existing vehicles, geometry and live budgets.
+Vehicle dimensions are illustrative estimates; no timetable or live-service
+claim, new animation loop, texture, tour stop or descriptor is intended.

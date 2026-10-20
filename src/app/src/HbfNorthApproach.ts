@@ -3,6 +3,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { HBF_NORTH_APPROACH_SOURCE as source, hbfNorthPointInRing, hbfNorthRailFloorAt } from './HbfNorthApproachProfile';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
 import { appendHbfStreetsV252, HBF_DETAILS_V252 } from './HbfDetailsV252';
+import { appendBvgBusV253, BVG_BUS_V253 } from './BvgBusV253';
 type Point=readonly number[];
 type Vec=[number,number,number];
 const UP=new Vector3(0,1,0),FORWARD=new Vector3(0,0,1);
@@ -132,5 +133,6 @@ export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,nat
   }
   appendHbfStreetsV252(parts, terrainAt);
   root.userData.hbfStreetDetailsV252 = HBF_DETAILS_V252.source;
+  root.userData.bvgBusV253 = { ...BVG_BUS_V253, members: appendBvgBusV253(parts, terrainAt) };
   parts.finish(root);return freezeStaticSceneTransforms(root);
 }

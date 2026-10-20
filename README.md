@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.152 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.152/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.153 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.153/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.152** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.153** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.153 places one recognizable stationary yellow BVG bus at the mapped Invalidenstraße stop by Hauptbahnhof, in the existing drawn/native batch. [Placement and checks](docs/bvg-bus-v253.md).
+
+Version 1.0.153 ergänzt einen gelben BVG-Bus an der Haltestelle Invalidenstraße beim Hauptbahnhof – mit Türen, Rädern, Fensterband und BVG-Schriftzug.
 
 Version 1.0.152 refines the schools and public spaces around Gipsdreieck and Koppenplatz, the Kulturbrauerei street context and Hauptbahnhof road edges and stair details. Complete source buildings and existing live memory limits remain. [Sources and validation](docs/mitte-kultur-hbf-v252.md).
 
