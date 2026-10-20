@@ -13157,7 +13157,7 @@ export function createIsometricCityCore(
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);
-    restoreHbfNorthRailGroundOwnership(slabs, ground);
+    restoreHbfNorthRailGroundOwnership(slabs, ground, true);
     restoreGrosserSternGatehouseGroundOwnership(slabs);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     restoreAltMitteGroundSeamsV206(slabs, ground);

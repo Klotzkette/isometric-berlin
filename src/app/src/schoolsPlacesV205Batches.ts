@@ -9,14 +9,16 @@ import { appendSteglitzCourtyardV251, steglitzCourtyardV251Enabled } from "./ste
 import { appendSteglitzCourtGroundV251, steglitzCourtGroundV251Enabled } from "./steglitzCourtGroundV251";
 import { replacesChorinerV250Place } from "./ChorinerV250";
 
+import { appendGipsKoppenV252, gipsKoppenV252Matches } from "./gipsKoppenV252";
+
 type Refinement = typeof source.schools[number] | typeof source.places[number];
 
 /** One exact-count cube batch per site; full detail on mobile, no new shell. */
 export function appendSchoolPlaceV205(root: Group, kind: "schools" | "places", native: boolean): void {
   for (const originalEntry of source[kind] as Refinement[]) {
-    const entry = appendSteglitzCourtGroundV251(
+    const entry = appendGipsKoppenV252(appendSteglitzCourtGroundV251(
       appendSteglitzCourtyardV251(replaceSteglitzSchoolPlaceV250(originalEntry)),
-    );
+    ));
     if (replacesLennonV250(entry, "v205")) continue;
     if (replacesChorinerV250Place(entry)) continue;
     const rows = (native ? entry.nativeRows : entry.boxes).map(r => [...r]);
@@ -54,6 +56,7 @@ export function appendSchoolPlaceV205(root: Group, kind: "schools" | "places", n
     }
     mesh.name=`${entry.name}: source-bound window heads and material profiles v205`;
     mesh.userData={...mesh.userData,sourceOwner:entry.owner,schoolPlaceV205:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,additiveOnly:true,
+      gipsKoppenV252:gipsKoppenV252Matches(originalEntry),
       steglitzCourtyardV251:entry.owner==="DEBE06YYB0000AUq"&&steglitzCourtyardV251Enabled(),
       steglitzCourtGroundV251:entry.owner==="DEBE06YYB0000AUq"&&steglitzCourtGroundV251Enabled()};
     root.add(mesh);

@@ -4,6 +4,7 @@ import { createNorthV185 } from "../src/NorthV185";
 import source from "../src/data/northV185.json";
 import tramV249 from "../src/data/danzigerTramV249.json";
 import { terrainGroundAt } from "../src/weinbergTerrainV176";
+import { appendKulturbrauereiV252 } from "../src/KulturbrauereiV252";
 
 describe("bounded northern v185 accents", () => {
   for (const native of [false, true]) test(`fixed batches and no textures, native=${native}`, () => {
@@ -37,7 +38,11 @@ describe("bounded northern v185 accents", () => {
     const choriner = root.children.find(o => o.userData.northV185 === "choriner") as InstancedMesh;
     expect(choriner.count).toBe(native ? 10527 : 3903);
     expect(choriner.count * 76).toBeLessThan(native ? 810_000 : 300_000);
-    const added = (native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows) + choriner.count;
+    const breweryAddition: number[][] = [];
+    appendKulturbrauereiV252(breweryAddition, native);
+    expect(breweryAddition.length).toBe(native ? 6518 : 6236);
+    expect(breweryAddition.length * 76).toBeLessThan(500_000);
+    const added = (native ? tramV249.counts.nativeRows : tramV249.counts.drawnRows) + choriner.count + breweryAddition.length;
     expect(bytes-added*76).toBeLessThan(native ? 900_000 : 430_000);
     expect(instances-added).toBeLessThan(native ? 12_000 : 5_500);
     expect(root.userData.additiveOnly).toBe(true);

@@ -2065,3 +2065,21 @@ Vehicle dimensions also follow Bombardier’s 2008 Flexity Berlin data sheet
 (reference only): https://trampicturebook.de/tram/download/bombadier/Flexity-Berlin.pdf .
 No source photographs or photographic textures are bundled. Existing ODbL and
 Geoportal Berlin source notices continue to apply. See the v249 street/tram notes.
+
+
+## v1.0.152 — Gipsdreieck, Koppenplatz, Kulturbrauerei and Hauptbahnhof
+
+Retained Geoportal Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap contributors
+(ODbL-1.0) anchor the existing named buildings, plant beds and street courses.
+Reference-only photographs: Kastanienbaum director's house, **LDA-Archiv,
+Bittner 2008**, https://denkmaldatenbank.berlin.de/media/uploads/Mit/04/09035166b.jpg ;
+Koppenplatz school, **Landesdenkmalamt Berlin, 1999**,
+https://denkmaldatenbank.berlin.de/media/uploads/Mit/02/09035078a.jpg .
+The authority's records 09035166 and 09035078 guide storey count, portal and
+turret recognition. Milchhalle is a historical-name reference at Auguststraße 50;
+retained current OSM tenant metadata is unchanged. Kulturbrauerei operator
+history/site guide: https://www.kulturbrauerei.de/gelaende/geschichte/ and
+https://www.kulturbrauerei.de/gelaende/guide/ . Hauptbahnhof level arrangement:
+https://www.bahnhof.de/downloads/station-plans/1071.pdf . No photograph, plan,
+external font or texture is redistributed. Small unsurveyed dimensions remain
+explicit display estimates. See the three v252 source/geometry notes.

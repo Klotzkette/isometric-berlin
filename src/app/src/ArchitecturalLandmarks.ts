@@ -50,6 +50,7 @@ import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS } from "./HeroArchitec
 import { createDedicationTexture } from "./reichstagInscription";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { HBF_DETAILS_V252, hbfFlightEndpointsV252, hbfHorizontalTreadsV252 } from "./HbfDetailsV252";
 import {
   HAUPTBAHNHOF_ACCESS,
   hauptbahnhofDoorOpeningAt,
@@ -4601,6 +4602,11 @@ function addEscalatorRun(
       position: [0, 0.31, -run / 2 + (index / ridgeCount) * run],
     });
   }
+  const horizontalTreads = hbfHorizontalTreadsV252(from, to, carrier.quaternion);
+  ridges.push(...horizontalTreads);
+  carrier.userData.hbfV252HorizontalTreadCount = horizontalTreads.length;
+  carrier.userData.hbfV252Endpoints = { from, to };
+  carrier.userData.geometryStatus = HBF_DETAILS_V252.stairStatus;
   addInstancedBoxes(
     carrier,
     `${name} instanced step ridges`,
@@ -5427,11 +5433,15 @@ function addStationInterior(
       // not between them on a track. So its lower end walks outward.
       const landsOnPlatform = bottom <= -14;
       for (const edge of [-1, 1]) {
+        const flight = hbfFlightEndpointsV252(
+          [edge * 5.2, top, zTop],
+          [edge * (landsOnPlatform ? 9.5 : 5.2), bottom, zBottom],
+        );
         addEscalatorRun(
           group,
           "Hauptbahnhof escalator run",
-          [edge * 5.2, top, zTop],
-          [edge * (landsOnPlatform ? 9.5 : 5.2), bottom, zBottom],
+          flight.from,
+          flight.to,
           2.4,
           escalator,
         );

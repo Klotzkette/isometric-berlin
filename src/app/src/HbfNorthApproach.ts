@@ -2,6 +2,7 @@ import { BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute,
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { HBF_NORTH_APPROACH_SOURCE as source, hbfNorthPointInRing, hbfNorthRailFloorAt } from './HbfNorthApproachProfile';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
+import { appendHbfStreetsV252, HBF_DETAILS_V252 } from './HbfDetailsV252';
 type Point=readonly number[];
 type Vec=[number,number,number];
 const UP=new Vector3(0,1,0),FORWARD=new Vector3(0,0,1);
@@ -129,5 +130,7 @@ export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,nat
   for(let s=18;s<p.length_m;s+=42){const x=p.origin[0]+p.outward[0]*s,z=p.origin[1]+p.outward[1]*s,y=hbfNorthRailFloorAt(x,z);
     for(const side of[-1,1]){const a:Vec=[x-p.outward[1]*side*8.9,y+4.2,z+p.outward[0]*side*8.9];parts.box(a,[.28,8.4,.32],0x748676);parts.beam([a[0],y+7.7,a[2]],[x,y+6.2,z],.1,.1,0x748676);}
   }
+  appendHbfStreetsV252(parts, terrainAt);
+  root.userData.hbfStreetDetailsV252 = HBF_DETAILS_V252.source;
   parts.finish(root);return freezeStaticSceneTransforms(root);
 }

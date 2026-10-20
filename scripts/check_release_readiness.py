@@ -127,7 +127,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v244 adds fourteen small Tor/Danziger companion tiles. The complete package
 # is 929,080,797 bytes (886.040 MiB); 888 MiB bounds the offline archive only.
 # All source assets and live packet, prefetch and residency limits remain.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 888 * 1024 * 1024
+# v252 preserves the complete 931,241,571-byte package (888.101 MiB), including
+# the exact Hbf atrium-ground complements. The finite 889 MiB archive ceiling
+# changes no live packet, decode, GPU residency or mobile-quality limit.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 889 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

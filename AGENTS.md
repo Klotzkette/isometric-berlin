@@ -1380,3 +1380,22 @@ gym. Photographs are reference-only; unmeasured small dimensions remain explicit
 display estimates. Supersede only exactly receipted inaccurate authored details.
 Reuse the existing school batch, full drawn mobile detail, independent orthogonal
 native construction and unchanged live budgets. No new coverage or tour stop.
+
+### Step 10 — v252 Gipsdreieck, Koppenplatz, Kulturbrauerei and Hauptbahnhof
+
+The owner requests the Kastanienbaum-Grundschule, Gipsdreieck and Milchhalle,
+Koppenplatz with its school, and the existing Kulturbrauerei/Oderberger Straße,
+Eberswalder Straße and Sredzkistraße context. Hauptbahnhof receives source-
+supported road-edge/marking refinements and clearer interior stair connections.
+Retain all measured source envelopes, roofs, open courts, existing station
+levels and navigation clearance. Only exactly receipted incorrect authored
+details may yield. Identify actual streets, entrances and crossings from the
+retained sources; unmeasured fittings remain explicit display estimates.
+Keep full drawn mobile detail, independent orthogonal native construction,
+existing batch delivery and unchanged live memory limits. No new city coverage,
+tour stop, texture or animation loop is included.
+
+The v252 station interior correction additionally gives the already modelled
+atrium openings precedence over exactly receipted coarse drawn-ground cells.
+Keep their full outside complements, original height/paint, source payload,
+bridge/service landings and navigation; native ground remains unchanged.

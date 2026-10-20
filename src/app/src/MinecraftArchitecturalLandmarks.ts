@@ -1,4 +1,5 @@
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from "./ChancelleryEntranceProfile";
+import { hbfNativeDescentCuesV252 } from "./HbfDetailsV252";
 import {
   BoxGeometry,
   Color,
@@ -1208,6 +1209,9 @@ function createHauptbahnhofBlocks(
 
   const eastWest = profile.eastWestRoof;
   const northSouth = profile.northSouthHall;
+  for (const member of hbfNativeDescentCuesV252(profile.publicFloorTopLocalY)) {
+    pushLocalBlock(plan, frame, member.role, member.position, member.size, member.color);
+  }
   for (const side of [-1, 1]) {
     const entrance = profile.entrances.northSouth;
     for (const member of hauptbahnhofNativePortalMembersV192(

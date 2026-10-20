@@ -36,6 +36,14 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Kastanienbaum- und Koppenplatzschule: amtliche Gebäude- und Denkmalquellen; Referenzfotos LDA-Archiv, Bittner 2008 und Landesdenkmalamt Berlin 1999. Milchhalle ist als historischer Name an der Auguststraße 50 dargestellt. Kulturbrauerei: Geländeplan und Betreiberangaben. Hauptbahnhof: DB-Ebenenplan und vorhandene Straßenverläufe. Kleine Bauteile sind angenähert; keine Referenzbilder werden mitgeliefert. "
+          : "Kastanienbaum and Koppenplatz schools: official building and heritage sources; reference photographs by LDA-Archiv, Bittner 2008 and Landesdenkmalamt Berlin 1999. Milchhalle is shown as a historical name at Auguststraße 50. Kulturbrauerei: site plan and operator accounts. Hauptbahnhof: DB level plan and retained street courses. Small fittings are estimates; reference images are not bundled. "}
+          <a href="https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035166" target="_blank" rel="noreferrer">Kastanienbaum</a>
+          {" · "}<a href="https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035078" target="_blank" rel="noreferrer">Koppenplatz</a>
+          {" · "}<a href="https://www.kulturbrauerei.de/gelaende/guide/" target="_blank" rel="noreferrer">Kulturbrauerei</a>
+          {" · "}<a href="https://www.bahnhof.de/downloads/station-plans/1071.pdf" target="_blank" rel="noreferrer">DB</a>.
+        </p>
+        <p>{language === "de"
           ? "Gymnasium Steglitz und Hofturnhalle: bereitgestellte Fassadenfotos, Schulrundgang und amtliche Gebäudeformen. John-Lennon-Gymnasium: Denkmalquelle und Fassadenfoto von Kvikk (CC BY-SA 3.0). Choriner Höfe und Zehdenicker Straße 7A: Projektangaben der Architekturbüros und Gewobag. Fenstermaße und kleine Details sind angenähert; keine Fototexturen. "
           : "Gymnasium Steglitz and courtyard gym: supplied facade photos, school tour and official building geometry. John-Lennon-Gymnasium: heritage record and facade photograph by Kvikk (CC BY-SA 3.0). Choriner Höfe and Zehdenicker Straße 7A: architects' project accounts and Gewobag. Window dimensions and small details are estimates; no photo textures. "}
           <a href="https://rundgang.gymnasiumsteglitz.de/#g281" target="_blank" rel="noreferrer">{language === "de" ? "Schulrundgang" : "School tour"}</a>

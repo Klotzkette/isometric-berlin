@@ -5,6 +5,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { buildingTerrainOffset, terrainGroundAt } from "./weinbergTerrainV176";
 import { appendDanzigerTramV249, finishDanzigerTramV249 } from "./DanzigerTramV249";
 import { appendChorinerV250, replacesChorinerV250Face } from "./ChorinerV250";
+import { appendKulturbrauereiV252 } from "./KulturbrauereiV252";
 
 export const NORTH_V185_GROUP = "Northern neighbourhoods: bounded source-bound accents v185";
 type Face = typeof source.faces[number];
@@ -123,6 +124,7 @@ export function createNorthV185(minecraft = false): Group {
     const rows: Rows = [], arches: Rows = [];
     source.faces.filter(f => f.kind === kind && !replacesChorinerV250Face(f)).forEach(f => facade(rows, arches, f, minecraft));
     if (kind === "choriner") appendChorinerV250(rows, minecraft);
+    if (kind === "kulturbrauerei") appendKulturbrauereiV252(rows, minecraft);
     if (kind === "weinbergspark") garden(rows, minecraft);
     if (kind === "hagenauer") {
       roadEdges(rows, minecraft);
@@ -133,6 +135,7 @@ export function createNorthV185(minecraft = false): Group {
     if (kind === "hagenauer") finishDanzigerTramV249(mesh, rows, minecraft);
     mesh.name = `North v185 ${kind}: source-bound shallow additions`;
     mesh.userData.northV185 = kind;
+    mesh.userData.kulturbrauereiV252 = kind === "kulturbrauerei";
     root.add(mesh);
     if (arches.length) {
       // Every industrial arch reuses one tiny normalized profile; this avoids
