@@ -49,7 +49,28 @@ callback, streamed descriptor or memory-budget increase.
 
 ## Release validation
 
-Focused geometry, source-preservation and mode-visibility tests are followed by
-the full repository checks, production build, desktop/mobile browser checks and
-exact package/publication verification. Final measured receipts are appended
-after those checks complete.
+The production build and Ruff checks passed on 21 October 2026. The final
+focused Bun run passed 54 tests with 1,224,552 assertions, including source
+preservation, native roof alignment, exact pool tint and mode-family visibility.
+Independent code review found no actionable regression.
+
+Current-build browser QA passed 44 views without page errors, crashes, context
+loss or GL errors: 24 memorial/flag/visitor views and 18 public-realm views in
+Chrome and iPhone WebKit through day → Minecraft → night, plus two fresh
+hippopotamus-house views. Screenshots were visually inspected. The broad Forum
+ground still uses the retained green fallback; no surveyed plaza paving is
+claimed. The hippo roof remains the retained angular LoD2 abstraction beneath
+the new grid, not a newly surveyed curved shell.
+
+The complete offline package has 4,725 files and 931,789,949 bytes
+(888.624 MiB), within the unchanged 889 MiB allowance. Both complete archives
+passed content checks; their remote draft-release sizes and SHA-256 digests
+match `releases/SHA256SUMS-v1.0.156.txt`. The local TAR was then removed to free
+space for historical source replay; the verified ZIP and full package remain.
+The prospective Pages tree is 1,020,363,458 bytes with 53,378,366 bytes of
+headroom below 1 GiB, retaining exactly the two preceding live asset sets.
+
+The first full test attempt was interrupted by the overnight session restart.
+An isolated replay failed only with `ENOSPC`; no lineage assertion failed.
+The fresh full repository run is in progress. Final test and publication
+receipts follow after completion.

@@ -81,7 +81,7 @@ animation, tour stop, descriptor or live-memory limit is introduced.
 
 The integrated public-space batch, including the concurrently added unity flag
 plaque and visitor-container details, measured 2 draws / 462,956 attribute bytes
-drawn and 1 draw / 3,095,520 bytes native during local validation. The existing
+drawn and 1 draw / 3,072,112 bytes native after the source-column visitor correction. The existing
 5,000,000-byte batch guard is unchanged.
 
 Review cameras, in world metres:
