@@ -59,12 +59,16 @@ test("reduced-motion recovery redraws once and concert stacking restores city co
   try {
     await controller.open();controller.update(1);controller.update(100);
     expect(frames).toBe(1);
+    const portal=app.children.find(child=>child.dataset.columbiahalleV257==="true");
+    expect(portal).toBeDefined();expect(portal!.inert).toBeFalse();
+    expect(portal!.style.zIndex).toBe("60");
     expect(parent.style.zIndex).toBe("50");expect(controls.inert).toBeTrue();expect(alreadyInert.inert).toBeTrue();
     controller.suspend();controller.update(200);controller.update(300);
     expect(frames).toBe(2);
     controller.suspend();controller.update(400);controller.update(500);
     expect(frames).toBe(3);
     controller.close();
+    expect(portal!.style.zIndex).toBe("30");
     expect(parent.style.zIndex).toBe("2");expect(controls.inert).toBeFalse();expect(alreadyInert.inert).toBeTrue();
     await controller.open();controller.dispose();
     expect(parent.style.zIndex).toBe("2");expect(controls.inert).toBeFalse();

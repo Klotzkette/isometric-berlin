@@ -59,7 +59,7 @@ export function createColumbiahalleV257(options:{
   const plane=new Plane().setFromNormalAndCoplanarPoint(NORMAL,ENTRANCE);
   const ui=document.createElement("div");
   ui.dataset.columbiahalleV257="true";
-  ui.style.cssText="position:absolute;right:16px;bottom:calc(90px + env(safe-area-inset-bottom, 0px));z-index:30;display:none;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 32px);padding:10px;border-radius:10px;background:#111520ed;color:#f2e7d2;font:14px system-ui;box-shadow:0 3px 16px #0006";
+  ui.style.cssText="position:absolute;right:16px;bottom:calc(148px + env(safe-area-inset-bottom, 0px));z-index:30;display:none;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 32px);padding:10px;border-radius:10px;background:#111520ed;color:#f2e7d2;font:14px system-ui;box-shadow:0 3px 16px #0006";
   ui.hidden=true;
   const showUi=(show:boolean)=>{ui.hidden=!show;ui.style.display=show?"flex":"none";};
   const button=(text:string,action:()=>void)=>{
@@ -73,18 +73,20 @@ export function createColumbiahalleV257(options:{
   description.style.cssText="max-width:250px";ui.append(description);description.hidden=true;
   const recording=button(copy.recording,()=>showRecording());recording.hidden=true;
   const leave=button(copy.leave,()=>close(true));leave.hidden=true;
-  parent.append(ui);
+  // Share the app overlay layer so mobile controls cannot cover entry.
+  (parent.closest(".app-shell")??parent).append(ui);
 
   function presentInterior(show:boolean) {
     // Outside, leave room for the mobile bottom toolbar and device safe area.
-    ui.style.bottom=show?"calc(24px + env(safe-area-inset-bottom, 0px))":"calc(90px + env(safe-area-inset-bottom, 0px))";
+    ui.style.bottom=show?"calc(24px + env(safe-area-inset-bottom, 0px))":"calc(148px + env(safe-area-inset-bottom, 0px))";
+    ui.style.zIndex=show?"60":"30";
     if(show) {
       previousZIndex=parent.style.zIndex;parent.style.zIndex="50";
       const app=parent.closest(".app-shell");
       if(app) {
         let branch:HTMLElement=parent;
         while(branch.parentElement&&branch.parentElement!==app)branch=branch.parentElement;
-        for(const sibling of app.children)if(sibling!==branch&&"inert" in sibling){
+        for(const sibling of app.children)if(sibling!==branch&&sibling!==ui&&"inert" in sibling){
           const control=sibling as HTMLElement;cityControls.set(control,control.inert);control.inert=true;
         }
       }

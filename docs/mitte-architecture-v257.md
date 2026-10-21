@@ -53,7 +53,7 @@ The full Python suite passed on 21 October 2026: 1,719 passed, 4 skipped,
 passed all 11 v257 tests, including the later Columbiahalle and Invalidenpark
 additions. The integrated Bun run passed 112 tests (655,037 assertions); the
 later navigation/Columbiahalle run passed 50 tests (110,069 assertions).
-The final warmup-race/disposal/input suite passed 9 tests (70 assertions).
+The final warmup-race/disposal/input suite passed 9 tests (74 assertions).
 Ruff format/check, the TypeScript production build and the local HTTP package
 smoke test passed. Independent review findings on concert instance buffers,
 reduced-motion redraw and double-click navigation were fixed before release.
