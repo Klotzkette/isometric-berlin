@@ -42,9 +42,7 @@ and focused checks are recorded in these five site notes:
 Focused source, preservation, geometry, navigation and lifetime checks are
 documented per site. For the ministry/plant integration, 3 Python tests,
 17 Bun tests across the affected Hbf/Reichstag suites, and the TypeScript build
-passed. These are scoped results, not a claim that integrated visual review is
-complete. Production browser QA is still in progress; its results belong in
-the final release audit.
+passed. Integrated production-browser results are recorded below.
 
 ## Integrated release checks
 
@@ -63,3 +61,59 @@ Existing live packet, transfer, decode, resident geometry and prefetch ceilings
 remain unchanged. The offline-package allowance alone rises from 889 to 891 MiB
 for the named-site data and 1,244,331-byte, audio-free concert clip. Full drawn
 mobile geometry and independent native geometry remain available.
+
+## Concert runtime checks
+
+Desktop Chrome and iPhone-13-emulated WebKit passed the complete concert flow
+in drawn day and independent native mode. Each combination entered and left
+four times. All concert GPU buffers were deleted after each visit, no city
+warmup buffers were allocated while inside, and no page, context-loss or GL
+error was recorded. The recording stayed muted, looped after its end, and
+manual pause survived background/resume. Exit restored the exact outside
+camera and retained the prior audio intent. Keyboard/double-click navigation
+did not move the hidden city. Mobile controls were inspected for obstruction.
+These are browser/emulation checks, not a physical-iPhone endurance guarantee.
+
+## Final package and visual audit
+
+The final production build passed 48 site views: all twelve named camera
+positions in desktop Chrome and iPhone-13-emulated WebKit, each in drawn day
+and independent native mode. All views were ready, without page/crash events,
+context loss or GL errors. Screenshots were inspected. The courthouse's
+restored curved frontage is closed and its new fittings now follow that curve.
+Some older generic window strips remain at Zur letzten Instanz, and a short
+retained source structure remains near one plant stack; neither is claimed as
+a fully surveyed reconstruction. The two 35 m stacks are visible and no old
+150 m stack appears.
+
+The complete package contains 4,727 files / 933,413,287 bytes (890.172 MiB),
+within the 891 MiB offline allowance. Both deterministic archives passed the
+original complete archive validators; GitHub's remote sizes and SHA-256 digests
+match `releases/SHA256SUMS-v1.0.157.txt`. With local disk space limited, each
+archive was built, validated and uploaded sequentially in memory; no source
+geometry was removed to make room. The non-archive release-readiness checks
+also passed.
+
+The prospective Pages tree contains 1,057,789,877 bytes, leaving 15,951,947
+bytes below 1 GiB. It retains all 317 hashed assets referenced by the two
+preceding live releases; 92 of these are no longer in the current package.
+
+## Publication
+
+Published on 21 October 2026. Release/tag `v1.0.157` points to source commit
+`9b73b95dd2df1b8af7f59b5aaecdbb0b2249b314`. Pages commit
+`1ba55fab172dc17be2f583bf1cadd85e27c901c4` was deployed successfully by
+[run 39664750173](https://github.com/Klotzkette/isometric-berlin/actions/runs/39664750173).
+Fifteen hosted files, including the entry page, package and city manifests,
+prior playground packets, source credits, silent recording and eight affected
+application bundles, matched the final package byte-for-byte. Both published
+archive sizes/digests match the committed versioned checksum receipt.
+
+Viewer: <https://klotzkette.github.io/isometric-berlin/>.
+Downloads: <https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.157>.
+
+Eight additional public-site views passed for the ministry and plant across
+Chrome/WebKit and drawn/native modes, with no page/crash events, context loss
+or GL errors. The hosted concert also passed its full WebKit-day entry, silent
+recording/loop/pause, background-resume and repeated-exit checks, again with zero
+remaining concert buffers. Public ministry/plant screenshots were spot-checked.
