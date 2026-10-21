@@ -80,4 +80,11 @@ The existing 2,208 descriptor, 2.125 MiB catalogue and 891 MiB package caps rema
   packaged member and unchanged offline size limits. Uploaded archive sizes and
   SHA-256 digests agree with GitHub's asset receipts. Checksums are in
   `releases/SHA256SUMS-v1.0.159.txt`.
-- Public deployment verification follows below after completion.
+- Public Pages deployment `c4a0c9baf427dee22aab02b299e639592858bd9d`,
+  workflow `39673413506`, completed successfully. All 11 checked public files
+  (including the complete new manifest and all six height packets) are byte-equal
+  to the validated local package; both release archive digests match GitHub.
+- Public WebKit iPhone emulation passed six site/family views and two wide-view
+  transitions without page errors, crashes or WebGL errors. Actual delivered tops
+  remained 77/89/66 scene metres. Full receipts and measured residency values are
+  in `geo_data/regierungsviertel/height-reconstruction-v259-validation.json`.
