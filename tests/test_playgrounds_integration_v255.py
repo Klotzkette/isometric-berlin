@@ -3,6 +3,7 @@ import json
 
 import pytest
 
+from scripts.integrate_height_reconstruction_v259 import predecessor_manifest_v259
 from scripts.integrate_playgrounds_v255 import (
   PATCH,
   PUBLIC,
@@ -15,6 +16,7 @@ from scripts.integrate_playgrounds_v255 import (
 def test_complete_previous_manifest_survives_verified_addition():
   previous = json.loads(baseline_bytes())
   current = json.loads((PUBLIC / "manifest.json").read_bytes())
+  current = predecessor_manifest_v259(current)
   assert current == merged(previous, json.loads(PATCH.read_bytes()))
   assert current["chunks"][:2151] == previous["chunks"]
   assert current["footprint"][: len(previous["footprint"])] == previous["footprint"]

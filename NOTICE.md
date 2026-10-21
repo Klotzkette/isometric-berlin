@@ -2163,3 +2163,15 @@ One stationary yellow city bus is placed beside retained OpenStreetMap stop
 and lettering are original procedural display geometry; dimensions are estimates,
 not a surveyed vehicle or live service. Existing OSM ODbL-1.0 and Geoportal Berlin
 terrain notices apply. No external photograph, logo file, font or texture is used.
+
+## v259 — missing church and high-rise upper structures
+
+The three additive height reconstructions retain original Geoportal Berlin LoD2
+(dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) identities and footprints.
+Emmauskirche and Apostel-Paulus parish publications support their current forms
+and 74 m / 86 m heights. The LUX/Narva tower's 63 m height is an OSM value;
+&MICA's project description and Hans Glave's exterior photograph support the
+five-storey glass addition. External photographs/PDFs are reference-only, not
+distributed textures. Unmeasured shaft sections and fittings are explicit
+display estimates. Exact links and retained source receipts:
+[height-reconstruction-v259.md](docs/height-reconstruction-v259.md).

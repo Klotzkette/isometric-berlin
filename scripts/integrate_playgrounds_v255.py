@@ -78,6 +78,9 @@ def verify_packets(patch: dict, reader: Reader = Path.read_bytes) -> None:
 
 def predecessor_manifest_v255(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Verify the complete addition before exposing the historical manifest."""
+  from scripts.integrate_height_reconstruction_v259 import predecessor_manifest_v259
+
+  current = predecessor_manifest_v259(current, reader)
   if "playgroundsV255" not in current:
     assert not any(c["id"].startswith("play255-") for c in current["chunks"])
     return current

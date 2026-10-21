@@ -1483,3 +1483,17 @@ with one video element/decoder and no media prefetch. Preserve aspect ratios,
 manual pause and hidden-view suspension. Interior fittings remain illustrative,
 compact and independently drawn/native; retain all earlier source geometry,
 city limits and 93 tour stops.
+
+### Step 10 — v259 evidenced missing church and high-rise tops
+
+The owner requests a citywide audit for truncated churches and taller buildings.
+Correct only verified gaps inside existing coverage: Emmauskirche, Apostel-Paulus
+and LUX/Narva tower. Preserve every prior packet, source envelope and navigation
+solid; append compact streamed upper structures above the retained coarse bodies.
+Use parish heights (74 m / 86 m) and the explicit mapped LUX height (63 m), keeping
+unmeasured shafts, ornaments and storey subdivisions labelled display estimates.
+Existing complete towers, including St Thomas, remain untouched. Full mobile
+quality, independent orthogonal native construction, 93 tour stops and all live
+residency/transfer limits stay unchanged. Three companions fit the existing
+2,208-descriptor and 2.125 MiB catalogue limits. No additional coverage, textures,
+animations or blanket height inflation is included.
