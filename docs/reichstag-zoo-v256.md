@@ -72,5 +72,8 @@ headroom below 1 GiB, retaining exactly the two preceding live asset sets.
 
 The first full test attempt was interrupted by the overnight session restart.
 An isolated replay failed only with `ENOSPC`; no lineage assertion failed.
-The fresh full repository run is in progress. Final test and publication
-receipts follow after completion.
+The fresh full repository run completed on 21 October 2026: **1,713 passed,
+4 skipped, 2 warnings**, in 1,753.88 seconds. The warnings concern the existing
+temporary test fixture's missing CRS; no test failed. The complete local
+package also passed `scripts/smoke_local_package.py` over HTTP.
+Publication receipts follow below.
