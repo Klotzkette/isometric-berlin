@@ -17,6 +17,19 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Nilpferdhaus and Reichstag (v1.0.156):** Retained Berlin LoD2
+  (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) remain the geometric sources.
+  Zoo Berlin, schlaich bergermann partner and Glas Trösch support the
+  hippopotamus-house recognition; aerial reference © SNOWBOUND via SBP.
+  Bundestag and Berlin Mitte distinguish the existing visitor containers
+  from the planned BIZ and provide unity-flag dimensions. Bronze base
+  photograph: Sir James, CC BY-SA 3.0, already credited individually.
+  The memorial follows Stiftung Denkmal, Dani Karavan and the retained
+  Mike Peel photograph, CC BY-SA 4.0; exhibition reference © Stiftung Denkmal.
+  Small fittings and paving outlines are estimates; no reference pixels,
+  protected plans or exhibition texts are bundled. See
+  [evidence and validation](docs/reichstag-zoo-v256.md).
+
 - **Playgrounds, Zoo and Tierpark (v1.0.155):** Berlin's official GRIS
   playground inventory, retrieved 20 October 2026, is licensed
   [dl-de-zero-2.0](https://www.govdata.de/dl-de/zero-2-0). Twenty unique

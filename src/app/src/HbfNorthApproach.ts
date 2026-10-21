@@ -4,6 +4,8 @@ import { HBF_NORTH_APPROACH_SOURCE as source, hbfNorthPointInRing, hbfNorthRailF
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
 import { appendHbfStreetsV252, HBF_DETAILS_V252 } from './HbfDetailsV252';
 import { appendBvgBusV253, BVG_BUS_V253 } from './BvgBusV253';
+import { appendReichstagPublicRealmV256, REICHSTAG_PUBLIC_REALM_V256 } from './ReichstagPublicRealmV256';
+import { appendUnityVisitorV256 } from './UnityVisitorV256';
 type Point=readonly number[];
 type Vec=[number,number,number];
 const UP=new Vector3(0,1,0),FORWARD=new Vector3(0,0,1);
@@ -132,6 +134,9 @@ export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,nat
     for(const side of[-1,1]){const a:Vec=[x-p.outward[1]*side*8.9,y+4.2,z+p.outward[0]*side*8.9];parts.box(a,[.28,8.4,.32],0x748676);parts.beam([a[0],y+7.7,a[2]],[x,y+6.2,z],.1,.1,0x748676);}
   }
   appendHbfStreetsV252(parts, terrainAt);
+  appendReichstagPublicRealmV256(parts, terrainAt);
+  root.userData.reichstagPublicRealmV256 = REICHSTAG_PUBLIC_REALM_V256;
+  root.userData.unityVisitorV256 = appendUnityVisitorV256(parts, terrainAt);
   root.userData.hbfStreetDetailsV252 = HBF_DETAILS_V252.source;
   root.userData.bvgBusV253 = { ...BVG_BUS_V253, members: appendBvgBusV253(parts, terrainAt) };
   parts.finish(root);return freezeStaticSceneTransforms(root);

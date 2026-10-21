@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "c68145d6",
+  "sourcePath": "src/app/src/MemorialLandmarks.ts",
+  "replacementStart": "  // The narrow apron is made",
+  "replacementEnd": "  // The chronology is a long",
+  "previousAuthoredPavingSha256": "56b61b937bb8ad838ef2c286f4ead5446fbc2171d5b1ff54e4ccc20070827d62",
+  "previousUnlabelledCount": 168,
+  "previousNamedCount": 69,
+  "previousMaximumNamedCentreRadiusM": 19.1,
+  "geometrySourcesChanged": [],
+  "oldModelRetainedInGit": true,
+  "retainedAuthoredSections": [
+    {
+      "start": "function createSintiRomaMemorial(",
+      "end": "  // v256 corrects only",
+      "sha256": "29ee6271dda80bc2b162abc1519993860ac6a90b64752fedbfabbb7407167dec"
+    },
+    {
+      "start": "  // The chronology is a long",
+      "end": "  // Keep one catalogue owner",
+      "sha256": "2e62aa10a4cae314d331110d329fcb8f5e8d40957cebb2b64328e869bfc9574a"
+    }
+  ],
+  "retainedFiles": {
+    "src/app/public/mesh/regierungsviertel/surface-polygons.json": "251a98f8f73e77990ef594b468f10bf8f81570970d8d750697a850ea35c60895",
+    "src/app/public/mesh/regierungsviertel/ground-context.json": "810798aacd7051ac8f3d8c910fdc086c097c013503df1b9038e62ebe34fe5f3b",
+    "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/app/public/mesh/regierungsviertel/minecraft-voxels.json": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+    "geo_data/regierungsviertel/landmarks.geojson": "d94e61a0b7d838ebd5af695276967084e9582bb8b72028c7e2df7ffacade3e59"
+  }
+}

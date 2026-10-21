@@ -8,6 +8,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringStrokePaths } from "./drawnLettering";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 import { appendZooRecognitionV255 } from "./ZooRecognitionV255";
+import { appendZooHippoV256 } from "./ZooHippoV256";
 
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
@@ -24,10 +25,19 @@ function batch(rows: number[][],glass=false): InstancedMesh {
   mesh.count=rows.length;mesh.instanceMatrix=new InstancedBufferAttribute(matrices,16);mesh.instanceColor=new InstancedBufferAttribute(colors,3);
   mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true};mesh.computeBoundingBox();mesh.computeBoundingSphere();return mesh;
 }
-function sheets(rows: readonly Sheet[],glass=false): Mesh {
+function sheets(rows: readonly Sheet[],glass=false,indexed=false): Mesh {
   const positions:number[]=[],colors:number[]=[],c=new Color();
-  for(const s of rows){c.setHex(s.color);for(const tri of s.triangles)for(const p of tri){positions.push(...p);colors.push(c.r,c.g,c.b);}}
+  const indices:number[]=[],vertices=indexed?new Map<string,number>():null;
+  for(const s of rows){c.setHex(s.color);for(const tri of s.triangles)for(const p of tri){
+    // Exact Float32 position + colour identity; triangle order/winding and every
+    // previous v165/v255 decorative surface remain recoverable without loss.
+    const key=vertices?`${p.map(Math.fround).join(",")};${s.color}`:"";
+    let index=vertices?.get(key);
+    if(index===undefined){index=positions.length/3;positions.push(...p);colors.push(c.r,c.g,c.b);vertices?.set(key,index);}
+    if(indexed)indices.push(index);
+  }}
   const g=new BufferGeometry();g.setAttribute("position",new Float32BufferAttribute(positions,3));g.setAttribute("color",new Float32BufferAttribute(colors,3));
+  if(indexed)g.setIndex(indices);
   const params={vertexColors:true,side:DoubleSide,transparent:glass,opacity:glass?.26:1,depthWrite:!glass};
   const day=new MeshBasicMaterial(params),night=new MeshStandardMaterial({...params,roughness:glass?.3:.9,flatShading:true});
   const mesh=new Mesh(g,day);mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true};g.computeBoundingBox();g.computeBoundingSphere();return mesh;
@@ -156,7 +166,7 @@ function create(native:boolean):Group {
   for(const b of source.barriers)fence(details,b.line,Math.min(4,b.height),b.kind);
   mountain(details,"25036813",10.5,"ibex");mountain(details,"25036814",9.8,"takin");mountain(details,"49896121",7.8,"tahr");
   aviary(details,"32995989",21.2);aviary(details,"32995991",23.9);aviary(details,"618256710",8.8);aviary(details,"48374319",7.5);
-  beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);
+  beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);appendZooHippoV256(details);
   if(native){
     const rows=[...source.nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
     const model=batch(rows);model.name="Zoo retained native house shells and ground rows";group.add(model);
@@ -168,9 +178,9 @@ function create(native:boolean):Group {
     const facade=batch(source.facadeBoxes);facade.name="Zoo source-clipped facade windows";group.add(facade);
     const ground=sheets(source.groundSurfaces);ground.name="Zoo exact mapped paths ponds and habitat grounds";group.add(ground);
     const boxes=batch(details.boxes);boxes.name="Zoo structural posts rails and garden furniture";group.add(boxes);
-    const rocks=sheets(details.surfaces);rocks.name="Zoo climbing cliffs aviary rods and animals";group.add(rocks);
+    const rocks=sheets(details.surfaces,false,true);rocks.name="Zoo climbing cliffs aviary rods and animals";group.add(rocks);
   }
-  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true};
+  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true,zooHippoV256:true};
   freezeStaticSceneTransforms(group);return group;
 }
 export function createZooGroundsV165():Group {return create(false);}

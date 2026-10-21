@@ -51,6 +51,7 @@ export {
 import { SOVIET_MEMORIAL_SOURCE, sovietMemorialLocalXZ } from "./SovietMemorialSource";
 
 import { createComposerMemorial } from "./MusicComposerMemorial";
+import { addSintiRomaPavingV256, createSintiRomaNativeV256 } from "./SintiRomaMemorialV256";
 export { BEETHOVEN_HAYDN_MOZART_PROFILE } from "./MusicComposerMemorial";
 
 export type MemorialLandmark = {
@@ -495,100 +496,9 @@ function createSintiRomaMemorial(anchor: MemorialLandmark): Group {
     poemStrokes,
   );
 
-  // The narrow apron is made from individually broken granite pieces with
-  // grass joints, not a smooth grey annulus. A deterministic irregular field
-  // preserves the calm circle without turning the fragments into radial rays.
-  const apronTransforms = Array.from({ length: 168 }, (_unused, index) => {
-    const angle =
-      index * Math.PI * (3 - Math.sqrt(5)) +
-      deterministicUnit(index, 21) * 0.11;
-    const radius = 6.35 + deterministicUnit(index, 22) * 1.72;
-    return {
-      position: [
-        Math.cos(angle) * radius,
-        clearingSurfaceY + 0.07,
-        Math.sin(angle) * radius,
-      ] as [number, number, number],
-      rotation: [0, deterministicUnit(index, 23) * Math.PI * 2, 0] as [
-        number,
-        number,
-        number,
-      ],
-      scale: [
-        0.16 + deterministicUnit(index, 24) * 0.18,
-        0.045,
-        0.12 + deterministicUnit(index, 25) * 0.14,
-      ] as [number, number, number],
-    };
-  });
-  addInstances(
-    group,
-    "Sinti and Roma memorial fragmented granite apron",
-    new CylinderGeometry(1, 1, 1, 5),
-    modelMaterial(0xaaa99f, { roughness: 0.95 }),
-    apronTransforms,
-  );
-
-  // Exactly 69 irregular granite shards carry the documented crime-site
-  // names. Their individual dimensions and positions are visual-reference
-  // approximations; the official count and the broken-shard character are
-  // not. A separate dark groove per stone keeps the names readable as marks
-  // in an isometric close view without inventing letterforms.
-  const placeStoneTransforms = Array.from(
-    { length: SINTI_ROMA_MEMORIAL.placeStoneCount },
-    (_unused, index) => {
-      const progress = (index + 0.5) / SINTI_ROMA_MEMORIAL.placeStoneCount;
-      const angle =
-        index * Math.PI * (3 - Math.sqrt(5)) +
-        deterministicUnit(index, 31) * 0.18;
-      const radius =
-        8.1 + Math.sqrt(progress) * 10.2 + deterministicUnit(index, 32) * 0.8;
-      return {
-        position: [
-          Math.cos(angle) * radius,
-          clearingSurfaceY + 0.08,
-          Math.sin(angle) * radius,
-        ] as [number, number, number],
-        rotation: [0, deterministicUnit(index, 33) * Math.PI * 2, 0] as [
-          number,
-          number,
-          number,
-        ],
-        scale: [
-          0.28 + deterministicUnit(index, 34) * 0.28,
-          0.055,
-          0.2 + deterministicUnit(index, 35) * 0.22,
-        ] as [number, number, number],
-      };
-    },
-  );
-  const placeStones = addInstances(
-    group,
-    "Sinti and Roma memorial 69 camp name stones",
-    new CylinderGeometry(1, 1, 1, 5),
-    modelMaterial(0x74746f, { roughness: 0.9 }),
-    placeStoneTransforms,
-  );
-  placeStones.userData.placeCount = SINTI_ROMA_MEMORIAL.placeStoneCount;
-  addInstances(
-    group,
-    "Sinti and Roma memorial engraved place-name grooves",
-    new BoxGeometry(1, 1, 1),
-    modelMaterial(0x3d3c39, { roughness: 0.72 }),
-    placeStoneTransforms.map((transform, index) => ({
-      position: [
-        transform.position[0],
-        clearingSurfaceY + 0.14,
-        transform.position[2],
-      ],
-      rotation: transform.rotation,
-      scale: [
-        0.12 + deterministicUnit(index, 36) * 0.16,
-        0.012,
-        0.025,
-      ],
-    })),
-  );
+  // v256 corrects only the earlier sparse pebble-like display estimates.
+  // Original source geometry, the 168 + 69 slab count and all other detail stay.
+  addSintiRomaPavingV256(group);
 
   // The chronology is a long, segmented glass and Corten-steel boundary,
   // with one actual doorway. The 2022 outdoor exhibition added nine
@@ -696,6 +606,13 @@ function createSintiRomaMemorial(anchor: MemorialLandmark): Group {
       scale: [3.2, 0.48, 0.82],
     })),
   );
+  // Keep one catalogue owner, with mutually exclusive complete mode families.
+  const drawn = new Group();
+  drawn.name = "Sinti and Roma memorial complete drawn geometry";
+  drawn.userData.sintiRomaSmoothV256 = true;
+  for (const child of [...group.children]) drawn.add(child);
+  group.add(drawn, createSintiRomaNativeV256());
+  group.userData.referenceImagesBundled = false;
   return group;
 }
 

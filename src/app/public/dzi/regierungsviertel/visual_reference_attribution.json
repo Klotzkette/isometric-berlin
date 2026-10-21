@@ -562,6 +562,28 @@
       "credit": "Gewobag",
       "role": "primary_project_account_and_external_reference_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "zoo_hippo_v256",
+      "title": "House for Hippopotamus, Zoo Berlin — aerial reference",
+      "page_url": "https://www.sbp.de/en/project/house-for-hippopotamus-zoo-berlin/",
+      "file_url": "https://www.sbp.de/app/uploads/2021/12/1642_97_a_MAX-1920x1268.jpg.pagespeed.ce.ZW_o1rMI6v.jpg",
+      "artist": "SNOWBOUND",
+      "license": "Copyright retained; external reference only",
+      "credit": "© SNOWBOUND via schlaich bergermann partner",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "sinti_roma_v256",
+      "title": "Sinti and Roma memorial — 2022 exhibition view",
+      "page_url": "https://www.stiftung-denkmal.de/denkmaeler/denkmal-fuer-die-im-nationalsozialismus-ermordeten-sinti-und-roma-europas/",
+      "file_url": "https://www.stiftung-denkmal.de/wp-content/uploads/IMG_2-1280x960.jpg",
+      "artist": "Stiftung Denkmal",
+      "license": "Copyright retained; external reference only",
+      "credit": "© Stiftung Denkmal",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

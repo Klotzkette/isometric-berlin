@@ -1,3 +1,4 @@
+import { setSintiRomaMemorialPresentation } from "./SintiRomaMemorialV256";
 import { kulturforumPiazzettaFloorAt } from "./kulturforumPiazzettaV246Profile";
 import { aegCampusV241GroundAt, aegCampusV241SolidAt } from "./aegCampusV241Navigation";
 import { museumColonnadesV231GroundAt, museumColonnadesV231SolidAt } from "./museumColonnadesV231Navigation";
@@ -2735,6 +2736,7 @@ function setSceneLighting(
   setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setBerlinJunctionPresentation(runtime.monuments, voxelMode);
+  setSintiRomaMemorialPresentation(runtime.monuments, voxelMode);
   setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
@@ -5498,6 +5500,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setComposerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setBerlinJunctionPresentation(runtime.monuments, voxelMode);
+  setSintiRomaMemorialPresentation(runtime.monuments, voxelMode);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -9086,6 +9089,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.monuments,
             voxelModeActive(runtime),
           );
+          setSintiRomaMemorialPresentation(runtime.monuments, voxelModeActive(runtime));
           setWagnerMemorialSnow(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",

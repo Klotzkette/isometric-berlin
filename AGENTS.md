@@ -1437,3 +1437,15 @@ all existing live geometry, packet transfer and prefetch limits. The finite
 catalogue may grow to 2,208 descriptors and 2.125 MiB for these exact new sites;
 this changes no resident geometry allowance. No new tour stop,
 photographic texture, animation loop or quality reduction is authorised.
+
+### Step 10 — v256 Nilpferdhaus and Reichstag public realm
+
+The owner requests the existing Zoo Berlin hippopotamus house, Reichstag
+surroundings, mapped Forum fountains, unity flag, existing visitor area and
+the Sinti and Roma memorial. Preserve source envelopes, terrain, trees,
+all previous architecture, paths and live budgets. Identify the existing
+hippo house separately from the new rhino pagoda and planned BIZ. Replace
+only precisely receipted erroneous memorial decoration, preserving its
+protected walking behavior. Small fittings remain documented estimates.
+Keep full drawn mobile detail and independent orthogonal native additions;
+reuse existing batches without new coverage, descriptors or tour stops.

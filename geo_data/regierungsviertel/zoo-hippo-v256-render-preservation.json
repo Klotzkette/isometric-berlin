@@ -1,0 +1,89 @@
+{
+  "baselineCommit": "c68145d6",
+  "families": [
+    {
+      "native": false,
+      "prior": [
+        {
+          "name": "Zoo complete official animal-house walls and roofs",
+          "positionCount": 8505,
+          "positionSha256": "947a2c5fada0803a50471f8ec431847b7e8333f501c6db7376627d2c744a1bcc",
+          "colorSha256": "5cd23c729b1b0c8b4ca4fa3cdc74be4cb09963e6d0e86307ce9c93af18b202fa"
+        },
+        {
+          "name": "Zoo glass hippo house and birdhouse aviary shell",
+          "positionCount": 7143,
+          "positionSha256": "c32654d0ecea66f30935d76b548ef7c871f2ca98ae24ffe5ebf28bc045962167",
+          "colorSha256": "9db6974fe589a0b02ba8ad853c4725ecbdc794f0fa16c3d5cc00c9e59205bae2"
+        },
+        {
+          "name": "Zoo source-clipped facade windows",
+          "positionCount": 24,
+          "positionSha256": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+          "instanceCount": 3820,
+          "instanceMatrixSha256": "d524403a40b4c269e09c39c0b2fc4b9acbae5c584249cd3d694cee0fd8d7386d",
+          "instanceColorSha256": "c69b26563a8853438077ab4802860261196d644ff68463637aa88ec38acaa018"
+        },
+        {
+          "name": "Zoo exact mapped paths ponds and habitat grounds",
+          "positionCount": 20238,
+          "positionSha256": "3d05cef755e639e79ed4658a2509fda645607a94ad1da7dc008143d220095fa2",
+          "colorSha256": "cff41602bb08854079893d1f206dc309d3aa61ce74fe543849fc1dd3b4adc34b"
+        },
+        {
+          "name": "Zoo structural posts rails and garden furniture",
+          "positionCount": 24,
+          "positionSha256": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+          "instanceCount": 6099,
+          "instanceMatrixSha256": "550cbeba7ab213c9f24cf41a48ece9782c182e3cad981df8c06d1f03211ec059",
+          "instanceColorSha256": "f1603d5707cea8dd347c02f3c298da0909c11f522bc7c4c4f89ade5f46542e4c"
+        },
+        {
+          "name": "Zoo climbing cliffs aviary rods and animals",
+          "positionCount": 66894,
+          "positionSha256": "37b5eb46572352ad4e7f2c673eadfe6d62274ade6378786532e3cdfb27ca69e4",
+          "colorSha256": "b09a0eebdf6500b0415e464addf20bd2ce65be51a49ed09d1d2686ee81f44ba1"
+        }
+      ],
+      "current": {
+        "calls": 6,
+        "instances": 9985,
+        "bytes": 2297524
+      }
+    },
+    {
+      "native": true,
+      "prior": [
+        {
+          "name": "Zoo retained native house shells and ground rows",
+          "positionCount": 24,
+          "positionSha256": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+          "instanceCount": 22439,
+          "instanceMatrixSha256": "ee22d3bd431472f21ee5d5d39919e22d288d013b078b0b129fbad70a53d23853",
+          "instanceColorSha256": "dbb60a02922f28b9d7609a410424544d4c8112fbbf083b96954e24b9f733e6db"
+        },
+        {
+          "name": "Zoo native aviaries climbing rocks and furniture",
+          "positionCount": 24,
+          "positionSha256": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+          "instanceCount": 68887,
+          "instanceMatrixSha256": "4c842e983cbeffd574d57b3c4779cb00bb13da3fd0c028a55672d93354b03b72",
+          "instanceColorSha256": "28a956776a2df4de38769e5d81ad754327179f638e532e9ac4f4d15f49a3fee6"
+        },
+        {
+          "name": "Zoo native transparent aviary shell blocks",
+          "positionCount": 24,
+          "positionSha256": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+          "instanceCount": 5862,
+          "instanceMatrixSha256": "cad9c85d670af2f8a2a76a3a8991f98361dd37776d6aca776e624d7b43c3e0a7",
+          "instanceColorSha256": "d2e0b9b576d86fb4653a0bd9c4ec9f4c3c838b773fd2ef477d09444e69b26e34"
+        }
+      ],
+      "current": {
+        "calls": 3,
+        "instances": 98374,
+        "bytes": 7477504
+      }
+    }
+  ]
+}

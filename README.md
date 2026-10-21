@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.155 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.155/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.156 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.156/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.155** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.156** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.156 refines the Zoo hippopotamus house, Forum fountains and Reichstag street edges, unity-flag base, existing visitor area and Sinti and Roma memorial. Complete source geometry and live memory limits remain. [Evidence and checks](docs/reichstag-zoo-v256.md).
+
+Version 1.0.156 präzisiert das Nilpferdhaus, Brunnen und Straßenkanten beim Reichstag, den Sockel der Einheitsfahne, den bestehenden Besucherbereich und das Denkmal für die ermordeten Sinti und Roma. Vollständige Quelldaten und laufende Speichergrenzen bleiben erhalten.
 
 Version 1.0.155 refines the twenty largest public playground records by official gross area, additional named playgrounds, Zoo Berlin and Tierpark Friedrichsfelde. Existing city detail and live memory limits remain. [Sources and checks](docs/playgrounds-zoo-v255.md).
 

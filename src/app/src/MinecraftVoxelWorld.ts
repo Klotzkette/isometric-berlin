@@ -125,6 +125,7 @@ import { isJamesSimonReplacementColumn } from "./jamesSimonProfile";
 import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
 import { restoreHbfNorthRailGroundOwnership } from "./HbfNorthRailGroundOwnership";
 import { createHbfNorthApproach } from "./HbfNorthApproach";
+import { tintSintiRomaNativeWaterV256 } from "./SintiRomaNativeWaterV256";
 import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
@@ -2371,6 +2372,7 @@ export function* buildMinecraftVoxelWorldSteps(
   restoreJamesSimonGroundOwnership(groundSlabs, payload);
   restoreHbfNorthRailGroundOwnership(groundSlabs, payload);
   restoreGrosserSternGatehouseGroundOwnership(groundSlabs);
+  tintSintiRomaNativeWaterV256(groundSlabs);
   group.add(groundSlabs);
   yield;
   group.add(createHbfNorthApproach((x, z) => parkGround(

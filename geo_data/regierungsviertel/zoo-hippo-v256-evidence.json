@@ -1,0 +1,50 @@
+{
+  "step": 10,
+  "scope": "Hippo Bay, existing Zoo Berlin west v165 owners only",
+  "retrieved": "2026-10-20",
+  "osm": "17042389",
+  "retainedOwners": [
+    "DEBE01YYK0002NM4",
+    "DEBE01YYK0003VAC"
+  ],
+  "sourceRoofTriangles": 230,
+  "sourceWallAndRoofSurfaces": 480,
+  "preservedInputs": {
+    "src/app/src/data/zooGroundsV165Source.json": "d47362fb6de29b9f24fa94e2a3f5a794902ab26a5a6ff54f4ba93db98770bd11",
+    "src/app/src/data/zooGroundsV165Evidence.json": "01f55392166cb85002772dd15454f608e2c87cd53d4ddd159763d6c5611e502e",
+    "src/app/src/data/zooGroundsV165Navigation.json": "fa1d8064aad76ecb83608601ece684dcf2f6e843c58f5466145fca1b81edca26",
+    "src/app/src/data/zooRecognitionV255Source.json": "cfc7203439160044788dd3ec93752b84d213bfb1e11c486724108d6ae31e61b8",
+    "src/app/src/ZooRecognitionV255.ts": "836b0a08bf2aaf229442379e398821d1f1617dc4d8f471a71d4318b8bb6b99ab",
+    "src/app/src/zooGroundsV165Profile.ts": "a792cbb8dbd2d9b0312e72a0587ef4be6db1893992ccb8792d173d314f27a9d0",
+    "src/app/src/zooRecognitionV255Profile.ts": "4e5c722b064f4829720588979ee56849bdb466c15f96f681a5fa48842106f3e6"
+  },
+  "replacementOwners": [],
+  "newDrawCalls": 0,
+  "newStreamingDescriptors": 0,
+  "temporalQualification": "The current operator describes the double-domed Hippo Bay opened in 1997. The requested 'new' hippo house is interpreted as this existing building, distinct from the Nashorn-Pagode opened in 2023. No new 2026 hippo building or completed replacement is established by the inspected primary sources.",
+  "geometryLimitation": "The retained LoD2 approximates the doubly curved roof with three broad triangulated sheets. Frame bars follow those elevations; no second curved shell conceals, replaces or claims to correct the measured source.",
+  "sources": [
+    {
+      "url": "https://www.zoo-berlin.de/en/explore-the-zoo/hippo-bay",
+      "facts": "1997 opening, approximately 1000 m\u00b2 glass roof, over 800 panes"
+    },
+    {
+      "url": "https://www.sbp.de/en/project/house-for-hippopotamus-zoo-berlin/",
+      "facts": "Architect J. Gribl; 29/21 m spans, 1.20 m mesh, 60\u00d740 mm steel grid beams",
+      "referencePhoto": "https://www.sbp.de/app/uploads/2021/12/1642_97_a_MAX-1920x1268.jpg.pagespeed.ce.ZW_o1rMI6v.jpg",
+      "photoCredit": "SNOWBOUND, via schlaich bergermann partner; reference only"
+    },
+    {
+      "url": "https://www.glastroesch.com/de/de/referenzen/okalux-referenzobjekte/okalux-referenz/flusspferdhaus-zoologischer-garten",
+      "facts": "2016 project account: continuous double-curved glazed net shell and concave visitor hall"
+    }
+  ],
+  "estimates": "Grid bearing/phase, 60 mm visible strip width, coping width, steel hue and 3 m facade-post spacing are display estimates. 1.20 m published mesh guides the drawn grid but does not establish as-built individual pane positions/count. Native uses independent 3 m rib courses on retained 1 m source cells, flush with their original ceilings.",
+  "counts": {
+    "drawnRoofSegments": 2630,
+    "perimeterSegments": 227,
+    "facadePosts": 66,
+    "nativeRoofBars": 1120,
+    "nativePosts": 66
+  }
+}

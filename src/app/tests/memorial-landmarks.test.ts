@@ -316,14 +316,12 @@ describe("granular memorial recognition models", () => {
 
     const stones = root.getObjectByName(
       "Sinti and Roma memorial 69 camp name stones",
-    ) as InstancedMesh;
-    expect(stones.count).toBe(69);
-    const stoneMatrix = new Matrix4();
-    for (let index = 0; index < stones.count; index += 1) {
-      stones.getMatrixAt(index, stoneMatrix);
-      expect(
-        Math.hypot(stoneMatrix.elements[12], stoneMatrix.elements[14]),
-      ).toBeGreaterThan(6.2);
+    ) as Mesh;
+    expect(stones.userData.placeCount).toBe(69);
+    expect(stones.userData.slabCount).toBe(69);
+    const positions = stones.geometry.getAttribute("position");
+    for (let index = 0; index < positions.count; index++) {
+      expect(Math.hypot(positions.getX(index), positions.getZ(index))).toBeGreaterThan(6.2);
     }
 
     expect(

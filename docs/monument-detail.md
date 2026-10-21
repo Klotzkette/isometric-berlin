@@ -107,6 +107,12 @@ and batches the 2,711 Holocaust stelae into one draw call. That large instance
 batch receives existing scene shadows but does not cast 2,711 additional
 shadow objects, preserving responsive camera flight on mobile hardware.
 
+The v256 [Sinti and Roma refinement](sinti-roma-v256.md) corrects only the
+earlier sparse authored paving estimate into a fitted field of all 168 + 69
+retained fragments. All other memorial details and source geometry remain
+unchanged. Minecraft now has an independent orthogonal counterpart, with
+reversible mode visibility and the existing protected site boundary.
+
 The Queer Rainbow Memorial is likewise generated entirely from procedural
 geometry. The supplied photographs are not bundled or projected as textures;
 they only bound the recognisable arrangement. Its 132 flower stems, petals and
