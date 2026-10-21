@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.160 — Six culture venues and Columbiahalle graphic loop
+
+- Refine Ludwig-Erhard-Haus, Renaissance-Theater, Delphi Filmpalast, Zoo Palast, Kino International and Café Moskau with complete source ownership and distinct facade cues.
+- Restore International's open cantilever and matching walking clearance.
+- Remove all three Columbiahalle recordings and the recording player from the current product. Replace them with a silent procedural 24-second light/concert loop, with pause and complete disposal.
+- Refine blue Columbiahalle lettering, the Sisters of Mercy marquee and three entrance bays against the owner's photo.
+- Preserve full mobile geometry, independent native construction, old city packets and live budgets. See [evidence and validation](docs/venues-v260.md).
+
 ## v1.0.145 — Distinctive Torstraße and Danziger corner facades
 
 - Torstraße 138: photo-guided bay, open balconies, high rusticated base and cornices on its retained measured building.

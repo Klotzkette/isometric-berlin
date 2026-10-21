@@ -1,3 +1,5 @@
+> Historical release record: actual recordings were withdrawn in v1.0.160 at the owner’s request. Current Columbiahalle uses a silent procedural graphic loop only; see [v260](venues-v260.md).
+
 # Columbiahalle media and interior follow-up — v258
 
 This bounded follow-up incorporates the owner's additional Columbiahalle media.

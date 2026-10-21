@@ -1,3 +1,4 @@
+import { eastCinemasPreviousEdgesV260 } from "./eastCinemasV260Previous";
 import { Group } from "three";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -15,7 +16,8 @@ export function altMitteEdgesV186Batches(cells: readonly { cell: string; rows: n
     profileStatus: "Original measured wall-edge profiles retained. v257 adds bounded street fittings and corrects six exactly receipted generic Münze facade estimates; all measured sources and other authored detail survive.",
   };
   for (const cell of cells) {
-    const previous = native ? nativeContourRows(cell.rows) : cell.rows;
+    const profiles = eastCinemasPreviousEdgesV260(cell.cell, cell.rows);
+    const previous = native ? nativeContourRows(profiles) : profiles;
     const additions = leipzigerMuenzeV257Rows(cell.cell, native);
     const mesh = justicePalaceV183Boxes(additions.length ? [...previous, ...additions] : previous, native);
     mesh.name = `Alt-Mitte source wall edge cell ${cell.cell}`;

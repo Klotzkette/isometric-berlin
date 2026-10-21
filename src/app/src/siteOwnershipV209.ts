@@ -1,3 +1,5 @@
+import { transferEastCinemasNavigationV260 } from "./eastCinemasV260Navigation";
+import eastCinemas from "./data/eastCinemasV260Ownership.json";
 import { transferIHZTrianglesV241 } from "./ihzV241Ownership";
 import { transferQuartier207TrianglesV241 } from "./quartier207V241Ownership";
 import { transferStaatsbibliothekLinesV241, transferStaatsbibliothekTrianglesV241 } from "./staatsbibliothekV241Ownership";
@@ -26,8 +28,8 @@ import { transferArenaStationNavigationV225 } from "./arenaStationV225Navigation
 import { transferTownhallNavigationV227 } from "./townhallPacketNavigationV227";
 import type { SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
-const triangles = [...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records, ...arenaStation.records, ...townhalls.records, ...districtCourts.records, ...westIndustrial.records, ...centralNamed.records];
-const lines = [...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords, ...arenaStation.lineRecords, ...townhalls.lineRecords, ...districtCourts.lineRecords, ...westIndustrial.lineRecords, ...centralNamed.lineRecords];
+const triangles = [...eastCinemas.records, ...theatre.records, ...helmholtz.records, ...prisons.records, ...neukoelln.records, ...hospital.records, ...springer.records, ...arenaStation.records, ...townhalls.records, ...districtCourts.records, ...westIndustrial.records, ...centralNamed.records];
+const lines = [...eastCinemas.lineRecords, ...helmholtz.lineRecords, ...prisons.lineRecords, ...neukoelln.lineRecords, ...hospital.lineRecords, ...springer.lineRecords, ...arenaStation.lineRecords, ...townhalls.lineRecords, ...districtCourts.lineRecords, ...westIndustrial.lineRecords, ...centralNamed.lineRecords];
 
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
@@ -56,7 +58,7 @@ const equalRing = (a: number[][], b: number[][]) => a.length === b.length &&
  * source nav record as guard. The input packet and all other owners stay intact. */
 export function siteNavigationV209(tile: string, original: SurroundingNavigation): SurroundingNavigation {
   const transferred = transferDistrictCourtNavigationV229(tile, transferTownhallNavigationV227(tile, transferArenaStationNavigationV225(tile, transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original)))));
-  const nav = transferCentralNamedNavigationV230(tile, transferWestIndustrialNavigationV230(tile, transferred));
+  const nav = transferEastCinemasNavigationV260(tile, transferCentralNamedNavigationV230(tile, transferWestIndustrialNavigationV230(tile, transferred)));
   const records = helmholtz.navigationRecords.filter(record => record.tile === tile);
   if (!records.length) return nav;
   let changed = false;

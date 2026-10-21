@@ -6,25 +6,13 @@ const ENTRANCE = new Vector3(1340.17,4.8,3854.77);
 const NORMAL = new Vector3(-.110303,0,.993898);
 const TANGENT = new Vector3(.993898,0,.110303);
 const APPROACH_SCREEN = new Vector3();
-export const COLUMBIA_RECORDINGS_V258 = [
-  "media/columbiahalle-v257-silent.mp4",
-  "media/columbiahalle-v258-red-silent.mp4",
-  "media/columbiahalle-v258-portrait-silent.mp4",
-] as const;
-
 export function columbiaCopyV257(language:string) {
   return language.toLowerCase().startsWith("de") ? {
-    enter:"Columbiahalle betreten", description:"Columbiahalle · Beispielkonzert · stumm",
-    recording:"Aufnahme ansehen", leave:"Verlassen", pause:"Pause", play:"Abspielen",
-    back:"Zur Lichtszene", videoLabel:"Bereitgestellte Konzertaufnahmen · stumme Endlosschleife",
-    choose:"Konzertaufnahme", clips:["Saalansicht", "Rotes Bühnenlicht", "Nahaufnahme im Hochformat"],
-    videoAria:"Stumme bereitgestellte Konzertaufnahme", error:"Die Columbiahalle konnte nicht geöffnet werden.",
+    enter:"Columbiahalle betreten", description:"Columbiahalle · Grafische Konzertschleife · stumm",
+    leave:"Verlassen", pause:"Pause", play:"Abspielen", error:"Die Columbiahalle konnte nicht geöffnet werden.",
   } : {
-    enter:"Enter Columbiahalle", description:"Columbiahalle · illustrative concert · silent",
-    recording:"Watch recording", leave:"Leave", pause:"Pause", play:"Play",
-    back:"Back to light scene", videoLabel:"Provided concert recordings · silent loop",
-    choose:"Concert recording", clips:["Hall view", "Red stage lights", "Portrait close-up"],
-    videoAria:"Silent provided concert recording", error:"The Columbiahalle could not be opened.",
+    enter:"Enter Columbiahalle", description:"Columbiahalle · graphic concert loop · silent",
+    leave:"Leave", pause:"Pause", play:"Play", error:"The Columbiahalle could not be opened.",
   };
 }
 
@@ -57,9 +45,7 @@ export function createColumbiahalleV257(options:{
   let pitch=.063,yaw=0,suspended=false;
   let lastWidth=0,lastHeight=0;
   let pointer:{id:number;x:number;y:number;startX:number;startY:number;at:number;door:boolean}|null=null;
-  let video:HTMLVideoElement|null=null,videoPanel:HTMLDivElement|null=null,recordingPaused=false;
-  let videoLabel:HTMLDivElement|null=null,videoToggle:HTMLButtonElement|null=null,videoBack:HTMLButtonElement|null=null;
-  let videoSelect:HTMLSelectElement|null=null,videoGeneration=0;
+  let paused=options.reducedMotion;
   let language=document.documentElement.lang,copy=columbiaCopyV257(language);
   let previousZIndex:string|null=null;
   const cityControls=new Map<HTMLElement,boolean>();
@@ -79,7 +65,11 @@ export function createColumbiahalleV257(options:{
   const description=document.createElement("span");
   description.textContent=copy.description;
   description.style.cssText="max-width:250px";ui.append(description);description.hidden=true;
-  const recording=button(copy.recording,()=>showRecording());recording.hidden=true;
+  const toggle=button(paused?copy.play:copy.pause,()=>{
+    paused=!paused;toggle.textContent=paused?copy.play:copy.pause;
+    toggle.setAttribute("aria-pressed",String(paused));lastTime=0;lastFrame=-Infinity;options.invalidate();
+  });
+  toggle.setAttribute("aria-pressed",String(paused));toggle.hidden=true;
   const leave=button(copy.leave,()=>close(true));leave.hidden=true;
   // Share the app overlay layer so mobile controls cannot cover entry.
   (parent.closest(".app-shell")??parent).append(ui);
@@ -109,58 +99,9 @@ export function createColumbiahalleV257(options:{
     if(language===document.documentElement.lang)return;
     language=document.documentElement.lang;copy=columbiaCopyV257(language);
     enter.textContent=copy.enter;description.textContent=copy.description;
-    recording.textContent=copy.recording;leave.textContent=copy.leave;
-    if(videoLabel)videoLabel.textContent=copy.videoLabel;
-    if(videoToggle)videoToggle.textContent=recordingPaused?copy.play:copy.pause;
-    if(videoBack)videoBack.textContent=copy.back;
-    if(videoSelect){videoSelect.setAttribute("aria-label",copy.choose);Array.from(videoSelect.options).forEach((option,i)=>{option.textContent=copy.clips[i];});}
-    video?.setAttribute("aria-label",copy.videoAria);
+    toggle.textContent=paused?copy.play:copy.pause;leave.textContent=copy.leave;
   }
 
-  function hideRecording() {
-    videoGeneration++;
-    if(video){video.pause();video.removeAttribute("src");video.load();video.remove();video=null;}
-    videoPanel?.remove();videoPanel=null;videoLabel=null;videoToggle=null;videoBack=null;videoSelect=null;recordingPaused=false;lastFrame=-Infinity;
-  }
-  function playRecording() {
-    const active=video;
-    if(!active||recordingPaused||suspended||document.hidden)return;
-    const generation=++videoGeneration;
-    void active.play().catch(()=>{
-      if(video!==active||generation!==videoGeneration||suspended||document.hidden)return;
-      recordingPaused=true;if(videoToggle)videoToggle.textContent=copy.play;
-    });
-  }
-  function selectRecording(index:number) {
-    if(!video)return;
-    videoGeneration++;
-    video.pause();
-    video.src=new URL(COLUMBIA_RECORDINGS_V258[index]??COLUMBIA_RECORDINGS_V258[0],document.baseURI).href;
-    video.load();
-    playRecording();
-  }
-  function showRecording() {
-    if(!entered||videoPanel)return;
-    syncLanguage();
-    videoPanel=document.createElement("div");
-    videoPanel.style.cssText="position:absolute;inset:12% 8% 18%;z-index:31;background:#070911f5;padding:14px;border:1px solid #64718a;border-radius:12px;display:flex;flex-direction:column;gap:8px;color:white;font:14px system-ui";
-    const label=document.createElement("div");label.textContent=copy.videoLabel;videoLabel=label;
-    video=document.createElement("video");video.muted=true;video.defaultMuted=true;video.volume=0;
-    video.playsInline=true;video.loop=true;video.preload="none";
-    video.style.cssText="flex:1;width:100%;height:0;min-height:0;object-fit:contain;background:black";
-    video.setAttribute("aria-label",copy.videoAria);
-    videoSelect=document.createElement("select");videoSelect.setAttribute("aria-label",copy.choose);
-    videoSelect.style.cssText="width:100%;min-height:44px;padding:8px;border:1px solid #7b8496;border-radius:6px;background:#263349;color:white;font:inherit";
-    for(let i=0;i<COLUMBIA_RECORDINGS_V258.length;i++){const option=document.createElement("option");option.value=String(i);option.textContent=copy.clips[i];videoSelect.append(option);}
-    videoSelect.onchange=()=>selectRecording(Number(videoSelect!.value));
-    const buttons=document.createElement("div");buttons.style.cssText="display:flex;gap:8px";
-    const toggle=document.createElement("button");toggle.type="button";toggle.textContent=copy.pause;videoToggle=toggle;
-    toggle.onclick=()=>{if(!video)return;recordingPaused=!recordingPaused;toggle.textContent=recordingPaused?copy.play:copy.pause;if(recordingPaused){videoGeneration++;video.pause();}else playRecording();};
-    const back=document.createElement("button");back.type="button";back.textContent=copy.back;back.onclick=hideRecording;videoBack=back;
-    for(const b of [toggle,back]){b.style.cssText=leave.style.cssText;buttons.append(b);}
-    videoPanel.append(label,videoSelect,video,buttons);parent.append(videoPanel);
-    selectRecording(0);back.focus();
-  }
   async function open() {
     if(disposed||pending||entered)return;
     pending=true;enter.disabled=true;
@@ -169,19 +110,20 @@ export function createColumbiahalleV257(options:{
       if(disposed)return;
       native=options.native();concert=createColumbiaConcertV257(native);
       options.onChange?.(true);options.resetInput();
-      entered=true;elapsed=0;lastTime=0;lastFrame=-Infinity;pitch=.063;yaw=0;
+      entered=true;elapsed=options.reducedMotion?2:0;lastTime=0;lastFrame=-Infinity;pitch=.063;yaw=0;paused=options.reducedMotion;
+      toggle.textContent=paused?copy.play:copy.pause;toggle.setAttribute("aria-pressed",String(paused));
       presentInterior(true);
-      enter.hidden=true;description.hidden=false;recording.hidden=false;leave.hidden=false;
+      enter.hidden=true;description.hidden=false;toggle.hidden=false;leave.hidden=false;
       showUi(true);leave.focus();options.invalidate();
     } catch(error) {options.onError?.(error instanceof Error?error.message:copy.error);}
     finally {pending=false;enter.disabled=false;}
   }
   function close(restoreAudio:boolean) {
     if(!entered)return;
-    hideRecording();concert?.dispose();concert=null;entered=false;pointer=null;
+    concert?.dispose();concert=null;entered=false;pointer=null;
     presentInterior(false);
     options.resetInput();options.onChange?.(false,restoreAudio);
-    enter.hidden=false;description.hidden=true;recording.hidden=true;leave.hidden=true;
+    enter.hidden=false;description.hidden=true;toggle.hidden=true;leave.hidden=true;
     options.invalidate();if(!disposed)options.canvas.focus({preventScroll:true});
   }
   function doorAt(x:number,y:number) {
@@ -216,7 +158,7 @@ export function createColumbiahalleV257(options:{
   function key(e:KeyboardEvent) {
     if(!entered)return;
     const action=columbiaKeyActionV257(e);if(!action)return;
-    if(action==="exit"){e.preventDefault();e.stopImmediatePropagation();if(videoPanel)hideRecording();else close(true);return;}
+    if(action==="exit"){e.preventDefault();e.stopImmediatePropagation();close(true);return;}
     if((e.target as HTMLElement|null)?.closest?.("select,input,textarea,button,[contenteditable]"))return;
     if(action==="left")yaw=Math.min(.8,yaw+.055);
     if(action==="right")yaw=Math.max(-.8,yaw-.055);
@@ -225,7 +167,7 @@ export function createColumbiahalleV257(options:{
     lastFrame=-Infinity;e.preventDefault();e.stopImmediatePropagation();
   }
   function wheel(e:WheelEvent){if(entered&&e.target===options.canvas){e.preventDefault();e.stopImmediatePropagation();}}
-  function suspend(){suspended=true;videoGeneration++;lastTime=0;lastFrame=-Infinity;video?.pause();pointer=null;showUi(false);if(videoPanel){videoPanel.hidden=true;videoPanel.style.display="none";}}
+  function suspend(){suspended=true;lastTime=0;lastFrame=-Infinity;pointer=null;showUi(false);}
   const visibility=()=>{if(document.hidden)suspend();};
   window.addEventListener("pointerdown",pointerDown,true);
   window.addEventListener("pointermove",pointerMove,true);
@@ -244,24 +186,24 @@ export function createColumbiahalleV257(options:{
       if(document.hidden){suspend();return entered;}
       if(!entered){showUi(columbiaApproachV257(options.worldCamera));return false;}
       const viewport=options.canvas.getBoundingClientRect();
-      if(!options.canvas.isConnected||viewport.width<=0||viewport.height<=0){suspend();return entered;}
-      if(suspended){suspended=false;lastFrame=-Infinity;if(videoPanel){videoPanel.hidden=false;videoPanel.style.display="flex";}playRecording();}
+      if(!options.canvas.isConnected||viewport.width<=0||viewport.height<=0||viewport.bottom<=0||viewport.right<=0||viewport.top>=window.innerHeight||viewport.left>=window.innerWidth){suspend();return entered;}
+      if(suspended){suspended=false;lastTime=0;lastFrame=-Infinity;}
       showUi(true);
       if(native!==options.native()){close(true);return false;}
       if(!concert)return true;
       if(viewport.width!==lastWidth||viewport.height!==lastHeight){lastWidth=viewport.width;lastHeight=viewport.height;lastFrame=-Infinity;}
       const delta=lastTime?Math.min(50,Math.max(0,timestamp-lastTime)):0;lastTime=timestamp;
-      if(!videoPanel)elapsed+=delta/1000;
-      if(timestamp-lastFrame<33 || (options.reducedMotion&&lastFrame!==-Infinity)||videoPanel)return true;
+      if(!paused)elapsed+=delta/1000;
+      if(timestamp-lastFrame<33 || (paused&&lastFrame!==-Infinity))return true;
       lastFrame=timestamp;
       concert.camera.aspect=Math.max(1,viewport.width)/Math.max(1,viewport.height);concert.camera.updateProjectionMatrix();
       concert.camera.lookAt(Math.sin(yaw)*24,2.35+Math.sin(pitch)*24,12.2-Math.cos(yaw)*24);
-      concert.update(elapsed,options.reducedMotion);
+      concert.update(elapsed);
       options.renderer.setRenderTarget(null);options.renderer.render(concert.scene,concert.camera);
       return true;
     },
     dispose(){
-      if(disposed)return;disposed=true;close(false);hideRecording();ui.remove();
+      if(disposed)return;disposed=true;close(false);ui.remove();
       window.removeEventListener("pointerdown",pointerDown,true);window.removeEventListener("pointermove",pointerMove,true);
       window.removeEventListener("pointerup",pointerUp,true);window.removeEventListener("pointercancel",pointerUp,true);
       window.removeEventListener("keydown",key,true);window.removeEventListener("wheel",wheel,true);

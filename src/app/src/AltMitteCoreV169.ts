@@ -20,6 +20,8 @@ export type AltMitteCoreV169Source = {
   /** Required audited correction, constructed before the world is published. */
   hospitalCorrection?: SurroundingCityChunk;
   springerCorrection?: SurroundingCityChunk;
+  /** Exact International source owner with evidenced open cantilever. */
+  eastCinemasCorrection?: SurroundingCityChunk;
 };
 
 /** Unpublished exact shells yield within decoding. Returning early unwinds both
@@ -87,6 +89,16 @@ export function* buildAltMitteCoreV169Steps(
       correction.root.userData.sourceEnvelopeResident = true;
       correction.root.userData.springerV215 = true;
       root.add(correction.root); ids.add(id);
+      geometryBytes += correction.geometryBytes; bufferCount += correction.bufferCount;
+      yield;
+    }
+    if (payload.eastCinemasCorrection) {
+      const correction = yield* buildSurroundingCityChunk(payload.eastCinemasCorrection, "east-cinemas-v260", native);
+      correction.root.name = "Kino International open cantilever source correction v260";
+      correction.root.userData.sourceEnvelopeResident = true;
+      correction.root.userData.eastCinemasV260 = true;
+      root.add(correction.root);
+      ids.add("east-cinemas-v260");
       geometryBytes += correction.geometryBytes; bufferCount += correction.bufferCount;
       yield;
     }

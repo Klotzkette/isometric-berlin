@@ -1,3 +1,5 @@
+> Historical release record: actual recordings were withdrawn in v1.0.160 at the owner’s request. Current Columbiahalle uses a silent procedural graphic loop only; see [v260](venues-v260.md).
+
 # Columbiahalle entrance and silent concert — v257
 
 The four supplied photographs and 21.87-second MOV inform a bounded entrance

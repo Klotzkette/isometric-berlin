@@ -1,3 +1,4 @@
+import { eastCinemasWalkableInteriorV260, eastCinemasSolidAtV260 } from "./eastCinemasV260Navigation";
 import { setSintiRomaMemorialPresentation } from "./SintiRomaMemorialV256";
 import { kulturforumPiazzettaFloorAt } from "./kulturforumPiazzettaV246Profile";
 import { aegCampusV241GroundAt, aegCampusV241SolidAt } from "./aegCampusV241Navigation";
@@ -3742,6 +3743,7 @@ function prepareIsoNavigation(
     memorialProtection,
   );
   pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+    if (eastCinemasWalkableInteriorV260(x, y, z, sourceId, runtime.lightingMode === "minecraft")) return true;
     if (neueNationalgalerieWalkableAtV217(x, y, z, sourceId)) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
       return true;
@@ -3760,6 +3762,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4672,6 +4675,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       () => voxelModeActive(runtime),
     );
   environment.walkableInteriorAt = (x, y, z, sourceId) =>
+    eastCinemasWalkableInteriorV260(x, y, z, sourceId, runtime.lightingMode === "minecraft") ||
     neueNationalgalerieWalkableAtV217(x, y, z, sourceId) ||
     runtime.tunnelInteriorAt?.(x, y, z) === true ||
     bendlerblockV202PassageAt(x,y,z,sourceId) || pergamonPanoramaV202PassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
@@ -4679,6 +4683,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;

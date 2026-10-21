@@ -1,3 +1,4 @@
+import { appendEastCinemasV260 } from "./EastCinemasV260";
 import {
   BoxGeometry, BufferGeometry, Color, CylinderGeometry, DoubleSide, Float32BufferAttribute,
   Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
@@ -372,7 +373,8 @@ function build(minecraft:boolean):Group {
     ownedOsmKeys:[...ALEXANDER_PUBLIC_REALM_OSM_KEYS],sourceTreeCount:S.added_trees.length,
     retainedExistingTreeCount:S.retained_existing_tree_count_in_forum,proceduralDimensions:true,memorialProtected:true,schwellenraumGeschuetzt:true,fullStaticDetailOnTouch:true,hiddenSolidInfill:false};
   const b=new PublicRealmBuilder(minecraft);forumCourt(b);marxEngels(b);neptun(b);ensemble(b);trees(b);
-  root.userData.alexanderRecognitionV257=appendAlexanderRecognitionV257(b);b.finish(root);
+  root.userData.alexanderRecognitionV257=appendAlexanderRecognitionV257(b);
+  root.userData.eastCinemasV260=appendEastCinemasV260(b);b.finish(root);
   root.add(minecraft ? createMinecraftFernsehturmPavilions() : createFernsehturmPavilions());
   freezeStaticSceneTransforms(root);return root;
 }

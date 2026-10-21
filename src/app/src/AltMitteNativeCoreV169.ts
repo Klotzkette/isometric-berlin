@@ -18,8 +18,9 @@ export function preloadAltMitteNativeV169Source(): Promise<void> {
       preloadAltMitteV169NativeNavigation(),
       import("./data/bundeswehrHospitalV215Minecraft.json"),
       import("./data/springerV215Minecraft.json"),
+      import("./data/eastCinemasV260Minecraft.json"),
     ])
-      .then(([module, , hospital, springer]) => {
+      .then(([module, , hospital, springer, eastCinemas]) => {
         const source = module.default as unknown as AltMitteCoreV169Source;
         if (
           source.schemaVersion !== 1 ||
@@ -29,6 +30,7 @@ export function preloadAltMitteNativeV169Source(): Promise<void> {
           throw new Error("Invalid Alt-Mitte native source");
         }
         payload = { ...source,
+          eastCinemasCorrection: eastCinemas.default as unknown as NonNullable<AltMitteCoreV169Source["eastCinemasCorrection"]>,
           hospitalCorrection: hospital.default as unknown as NonNullable<AltMitteCoreV169Source["hospitalCorrection"]>,
           springerCorrection: springer.default as unknown as NonNullable<AltMitteCoreV169Source["springerCorrection"]>,
         };

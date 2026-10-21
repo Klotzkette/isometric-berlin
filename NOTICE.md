@@ -2175,3 +2175,21 @@ five-storey glass addition. External photographs/PDFs are reference-only, not
 distributed textures. Unmeasured shaft sections and fittings are explicit
 display estimates. Exact links and retained source receipts:
 [height-reconstruction-v259.md](docs/height-reconstruction-v259.md).
+
+## v260 — City West theatres and Karl-Marx-Allee cinemas
+
+Complete existing Geoportal Berlin LoD2 (dl-de/zero-2-0) and OSM (ODbL-1.0)
+source records are retained for the six named venues. Three precise western
+OSM proxies yield to 88 complete measured parts. Kino International's exact
+coarse lower-front closure is corrected using the official nine-metre cantilever
+description; its original roof and full original source remain retained.
+Architecture/photo references are credited in the linked site records; images
+remain reference-only and are not redistributed. New geometry, abstract relief
+cues and lettering are original procedural interpretations. Small fittings and
+colours are explicit display estimates. See [v260 sources](docs/venues-v260.md).
+
+The owner withdrew the three Columbiahalle recordings in v1.0.160. Current
+viewer/package assets contain no recordings, recording player or audio. Supplied
+photos/videos are reference-only evidence for original procedural lighting,
+performer/audience silhouettes and entrance lettering; no frames are bundled.
+See [Columbia graphic loop](docs/columbia-graphic-v260.md).

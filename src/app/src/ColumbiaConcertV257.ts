@@ -1,7 +1,7 @@
 import {
   AdditiveBlending, BoxGeometry, Color, ConeGeometry, DoubleSide, Group,
   InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera,
-  Quaternion, Scene, SphereGeometry, Vector3,
+  PlaneGeometry, Quaternion, Scene, SphereGeometry, Vector3,
 } from "three";
 
 type Row = [number, number, number, number, number, number, number, number?];
@@ -10,6 +10,7 @@ export const COLUMBIA_CONCERT_V257 = Object.freeze({
   illustrative: true, sourceShellUnchanged: true, textureFree: true,
   audio: false, independentNativeGeometry: true, sameMobileDetail: true,
   audience: 330, beamCount: 8, cycleSeconds: 24,
+  graphicLoop: true, recordedMedia: false, movingAudience: 55, stageGlowPanels: 5,
 });
 
 /** A bounded, explicitly illustrative stage view, independently built in each
@@ -87,24 +88,37 @@ export function createColumbiaConcertV257(native: boolean) {
     }
     for(const x of [-13.2,-12.85])add(x,5.4,-12.1,.035,6.1,.035,0x090a0f);
   });
+  const performerArms: { index:number; x:number; side:number }[] = [];
   // Three anonymous performers and simple equipment, not identifiable people.
   for (const x of [-7,0,6]) {
     add(x,2.25,-14.2,.55,1.3,.36,0x14131b);
     add(x-.15,1.45,-14.2,.16,.7,.18); add(x+.15,1.45,-14.2,.16,.7,.18);
     add(x,3.05,-14.2,.34,.38,.34,0x22202a);
     add(x+.5,2,-13.9,.05,1.8,.05,0x39323e);
+    for(const side of [-1,1]) {
+      performerArms.push({index:boxes.length,x,side});
+      add(x+side*.38,2.35,-14.15,.16,.68,.18,0x1c1823);
+    }
   }
   add(-6,2.1,-14,2,.16,.6,0x37303b);
   add(5.3,1.6,-15.6,2.6,.8,1.1,0x302532);
   const heads: Row[] = [];
+  const audienceMotion: {body:number;head:number;x:number;y:number;z:number;phase:number;phone?:number}[] = [];
   for(let row=0;row<15;row++) for(let column=0;column<22;column++) {
     const seed=(row*31+column*17)%19;
     const x=(column-10.5)*1.03 + Math.sin(seed)*.16;
     const z=-7.7+row*1.28;
     const h=1.44+(seed%7)*.055;
     const c=[0x171621,0x211b2c,0x141420,0x282031][seed%4];
+    const moving=row>=10&&column%2===0;
+    if(moving)audienceMotion.push({body:boxes.length,head:heads.length,x,y:h,z,phase:seed*.43});
     add(x,h*.48,z,.52,h*.9,.34,c);
     heads.push([x,h+.11,z,.36,.42,.36,c]);
+    if(moving&&row%2===0&&column%8===0) {
+      const person=audienceMotion.at(-1)!;person.phone=boxes.length;
+      add(x+.3,h+.02,z-.12,.11,.65,.11,c);
+      add(x+.3,h+.4,z-.15,.14,.23,.045,0x98a5b8);
+    }
   }
   const matrix = new Matrix4(), color = new Color(), scale = new Vector3();
   function batch(rows:Row[], head=false) {
@@ -120,8 +134,22 @@ export function createColumbiaConcertV257(native: boolean) {
     mesh.userData.blockNative=native;
     if(!head)mesh.userData.photoDetails=photoDetails;
     root.add(mesh);
+    return mesh;
   }
-  batch(boxes); batch(heads,true);
+  const structure=batch(boxes),audience=batch(heads,true);
+  // Broad rear-stage colour fields turn the light view into a compact graphic
+  // impression of the supplied magenta/red silhouettes. Five geometry panels,
+  // no image/video texture, decoder, media request or second renderer.
+  const glowMaterial=new MeshBasicMaterial({color:0x9f38e5,transparent:true,opacity:.18,blending:AdditiveBlending,depthWrite:false,side:DoubleSide});
+  const glowGeometry=native?new BoxGeometry(1,1,1):new PlaneGeometry(1,1);
+  glowGeometry.deleteAttribute("normal");glowGeometry.deleteAttribute("uv");
+  const glow=new InstancedMesh(glowGeometry,glowMaterial,5);
+  glow.name="Graphic stage colour wash";glow.userData.blockNative=native;
+  for(let i=0;i<5;i++) {
+    matrix.makeScale(5.8,7.8,native?.08:1).setPosition((i-2)*5.8,4.5,-19.7);glow.setMatrixAt(i,matrix);
+    glow.setColorAt(i,color.setHex(i===2?0xffe2de:i%2?0xb76bcc:0x6c71b0));
+  }
+  glow.computeBoundingSphere();root.add(glow);
   const beams: Mesh[] = [];
   const beamGeometry = native ? new BoxGeometry(1,1,1) : new ConeGeometry(1,1,16,1,true);
   beamGeometry.deleteAttribute("normal");beamGeometry.deleteAttribute("uv");
@@ -144,6 +172,32 @@ export function createColumbiaConcertV257(native: boolean) {
     const wave=t*Math.PI/12;
     const mix=reducedMotion?.22:(cycle-phase);
     color.copy(palette[phase]).lerp(palette[(phase+1)%4],mix);
+    glowMaterial.color.copy(color);
+    glowMaterial.opacity=.17+.06*(.5+.5*Math.sin(wave*2));
+    // Only 55 foreground spectators sway. Their retained body/head instances
+    // are updated in place, with no per-frame geometry or array allocation.
+    for(const person of audienceMotion) {
+      const sway=Math.sin(wave*2+person.phase)*.065, rise=Math.sin(wave*4+person.phase)*.025;
+      matrix.makeScale(.52,person.y*.9,.34).setPosition(person.x+sway,person.y*.48+rise,person.z);
+      structure.setMatrixAt(person.body,matrix);
+      matrix.makeScale(.36,.42,.36).setPosition(person.x+sway*1.35,person.y+.11+rise,person.z);
+      audience.setMatrixAt(person.head,matrix);
+      if(person.phone!==undefined) {
+        matrix.makeScale(.11,.65,.11).setPosition(person.x+sway+.3,person.y+.02+rise,person.z-.12);structure.setMatrixAt(person.phone,matrix);
+        matrix.makeScale(.14,.23,.045).setPosition(person.x+sway+.3,person.y+.4+rise,person.z-.15);structure.setMatrixAt(person.phone+1,matrix);
+      }
+    }
+    for(const arm of performerArms) {
+      const reach=.38+.045*Math.sin(wave*2+arm.x), height=2.35+.11*Math.sin(wave*2+arm.x+arm.side);
+      matrix.makeScale(.16,.68,.18).setPosition(arm.x+arm.side*reach,height,-14.15);
+      structure.setMatrixAt(arm.index,matrix);
+    }
+    // The changed matrices share two small existing buffers. Upload only their
+    // single bounded ranges, retaining the complete static room and audience.
+    const start=performerArms[0].index,lastPerson=audienceMotion.at(-1)!,end=lastPerson.phone===undefined?lastPerson.body:lastPerson.phone+1;
+    structure.instanceMatrix.clearUpdateRanges();structure.instanceMatrix.addUpdateRange(start*16,(end-start+1)*16);
+    audience.instanceMatrix.clearUpdateRanges();audience.instanceMatrix.addUpdateRange(audienceMotion[0].head*16,(audienceMotion.at(-1)!.head-audienceMotion[0].head+1)*16);
+    structure.instanceMatrix.needsUpdate=true;audience.instanceMatrix.needsUpdate=true;
     for(let i=0;i<8;i++) {
       source.set((i-3.5)*3.25,8.6,-13.7+(i%2)*3);
       target.set((i-3.5)*2.2+Math.sin(wave+i)*4,.6,-1+Math.cos(wave*2+i*.7)*5);

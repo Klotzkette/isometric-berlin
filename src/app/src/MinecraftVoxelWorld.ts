@@ -1,3 +1,4 @@
+import { westVenuesV260SourceColumn } from "./westVenuesV260Profile";
 import { createSchlossplatzColumnTesterV239 } from "./schlossplatzV239Profile";
 import { isElevatedStationReplacementColumnV238 } from "./elevatedStationV238Profile";
 import { createMonbijouGroundCellTesterV231 } from "./monbijouPreviousV231";
@@ -2667,6 +2668,7 @@ export function* buildMinecraftVoxelWorldSteps(
       !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !alexanderStationsV183SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !westVenuesV260SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !moabitJusticeV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !mitteHeritageV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !kranzlerV165SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

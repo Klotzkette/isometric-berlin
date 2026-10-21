@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.159 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.159/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.160 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.160/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.159** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.160** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.160 refines Ludwig-Erhard-Haus, Renaissance-Theater, Delphi Filmpalast, Zoo Palast, Kino International and Café Moskau. Complete measured western roofs replace three coarse proxies; the International gains its evidenced open cantilever, and each venue gains distinct facade details. Columbiahalle now contains only a silent stylized graphical loop; all three recordings and the video player are removed from the current product. Its blue neon lettering and Sisters of Mercy board follow the supplied entrance photo. [Evidence and checks](docs/venues-v260.md).
+
+Version 1.0.160 präzisiert Ludwig-Erhard-Haus, Renaissance-Theater, Delphi Filmpalast, Zoo Palast, Kino International und Café Moskau. Vollständige vermessene Dachformen ersetzen drei grobe Platzhalter; das International erhält seinen belegten offenen Überhang und alle sechs Orte charakteristische Fassadendetails. In der Columbiahalle läuft nur noch eine stumme stilisierte Grafikschleife; die drei Aufnahmen und der Videoplayer sind aus der aktuellen Version entfernt. Blaue Leuchtschrift und Sisters-of-Mercy-Tafel folgen dem Eingangsphoto. [Belege und Prüfungen](docs/venues-v260.md).
 
 Version 1.0.159 reconstructs verified missing upper portions of Emmauskirche, Apostel-Paulus and the LUX/Narva tower. It preserves every previous city packet and loads the three compact additions through the existing bounded queue. [Height evidence and checks](docs/height-reconstruction-v259.md).
 

@@ -1,4 +1,6 @@
+import { createWestVenuesV260 } from "./WestVenuesV260";
 import { addIHZV241 } from "./IHZV241";
+import { createZooPalastV260, createMinecraftZooPalastV260 } from "./ZooPalastV260";
 import { addAEGCampusV241 } from "./AEGCampusV241";
 import { createLibrariesV202 } from "./LibrariesV202";
 import { addQuartier207V241 } from "./Quartier207V241";
@@ -39,6 +41,10 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createWestVenuesV260(native));
+  yield;
+  root.add(native ? createMinecraftZooPalastV260() : createZooPalastV260());
+  yield;
   root.add(createLibrariesV202(native, true));
   yield;
   yield* addIHZV241(root, native);

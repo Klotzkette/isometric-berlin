@@ -1,0 +1,70 @@
+{
+  "checked": "2026-10-21",
+  "records": [
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "Ludwig-Erhard-Haus, borough account and 2022 exterior photograph",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/gebaeude-und-anlagen/buero-und-geschaeftshaeuser/artikel.158761.php",
+      "file_url": "https://www.berlin.de/imgscale4/ropen/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/gebaeude-und-anlagen/buero-und-geschaeftshaeuser/ludwig_erhard_haus_261022.jpg",
+      "artist": "BACW / Farchmin",
+      "year": 2022,
+      "license": "Reference only; no image redistribution",
+      "credit": "Ludwig-Erhard-Haus photograph: Bezirksamt Charlottenburg-Wilmersdorf / Farchmin",
+      "role": "Architectural identity, fifteen arches, straight street wall, two atria; reference-only facade material and rhythm"
+    },
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "IHK Berlin, Standort seit 1998",
+      "page_url": "https://www.ihk.de/berlin/ueber-uns/aufgaben-und-struktur/ihk-standort-seit-1998-2256936",
+      "credit": "Industrie- und Handelskammer Berlin",
+      "license": "Public factual reference; no media redistribution",
+      "role": "Current identity and Fasanenstraße 85 operator address"
+    },
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "Berlinische Galerie: Nicholas Grimshaw and Partners",
+      "page_url": "https://berlinischegalerie.de/sammlung/architektur/nicholas-grimshaw-and-partners/",
+      "credit": "Berlinische Galerie; working model © Nicholas Grimshaw and Partners",
+      "license": "Public factual reference; no media redistribution",
+      "role": "Fifteen built arches and steel skin; explicitly distinguish unbuilt working-model alternatives, whose images are not geometry evidence"
+    },
+    {
+      "landmark_id": "renaissance_theater_v260",
+      "title": "Renaissance-Theater, Landesdenkmalamt Berlin",
+      "page_url": "https://www.berlin.de/landesdenkmalamt/denkmale/aus-der-praxis-erkennen-und-erhalten/oeffentliche-anlagen/renaissance-theater-641101.php",
+      "file_url": "https://www.berlin.de/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/renaissance_theater09_hauptfassade.jpg",
+      "artist": "Wolfgang Reuss / Landesdenkmalamt Berlin",
+      "year": 2000,
+      "license": "Reference only; no image redistribution",
+      "credit": "Renaissance-Theater exterior photograph: Landesdenkmalamt Berlin / Wolfgang Reuss",
+      "role": "Curved 1926–27 corner foyer and five blue fields; historical steep-gable conflict recorded against retained LoD2 upper envelope"
+    },
+    {
+      "landmark_id": "renaissance_theater_v260",
+      "title": "Renaissance-Theater, current venue architecture account",
+      "page_url": "https://renaissance-theater.de/art-deco-architektur-im-renaissance-theater/",
+      "credit": "Renaissance-Theater Berlin",
+      "license": "Public factual reference; no media redistribution",
+      "role": "Venue identity and Art Deco architectural history"
+    },
+    {
+      "landmark_id": "delphi_filmpalast_v260",
+      "title": "Delphi Filmpalast, borough account and facade photograph",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/kultur-und-wissenschaft/kinos/artikel.157859.php",
+      "file_url": "https://www.berlin.de/imgscale4/ropen/ba-charlottenburg-wilmersdorf/aktuelles/pressemitteilungen/2021/defphi_filmpalast_2.jpg",
+      "artist": "BACW / Haraszthy",
+      "year": 2021,
+      "license": "Reference only; no image redistribution",
+      "credit": "Delphi Filmpalast photograph: Bezirksamt Charlottenburg-Wilmersdorf / Haraszthy",
+      "role": "Historic cinema identity, two columns, inset panel and entry canopy; nearby-old-cinema match remains an explicit interpretation"
+    },
+    {
+      "landmark_id": "delphi_filmpalast_v260",
+      "title": "Delphi Filmpalast, Yorck Kinos",
+      "page_url": "https://www.yorck.de/kinos/delphi-filmpalast",
+      "credit": "Yorck-Kino GmbH",
+      "license": "Public factual reference; no media redistribution",
+      "role": "Current cinema identity and Kantstraße 12a address"
+    }
+  ]
+}

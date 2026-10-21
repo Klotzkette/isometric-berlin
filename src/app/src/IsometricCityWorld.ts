@@ -1,3 +1,4 @@
+import { WEST_VENUES_V260_PRISM_IDS } from "./westVenuesV260Profile";
 import { isSchlossplatzCorePrismV239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238 } from "./elevatedStationV238Profile";
 import { isColonnadesCorePrismV231 } from "./colonnadesCorePreviousV231";
@@ -1065,6 +1066,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ALT_MITTE_V169_PRISM_IDS,
   ...ALEXANDER_NORTH_V166_PRISM_IDS,
   ...CITYWEST_CINEMAS_V166_PRISM_IDS,
+  ...WEST_VENUES_V260_PRISM_IDS,
   ...MOABIT_JUSTICE_V166_PRISM_IDS,
   ...MITTE_HERITAGE_V166_PRISM_IDS,
   ...KRANZLER_V165_PRISM_IDS,

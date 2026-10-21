@@ -25,14 +25,25 @@ for(const native of [false,true]) test(`Columbia ${native?"native":"drawn"} loca
     if(o instanceof InstancedMesh){bytes+=o.instanceMatrix.array.byteLength+(o.instanceColor?.array.byteLength??0);instances+=o.count;instanceMeshes.add(o);o.addEventListener("dispose",()=>{disposedInstances.add(o);instanceDisposeEvents++;});}
     if(native)expect(o.geometry.type).toBe("BoxGeometry");
   });
-  expect(draws).toBe(10);expect(bytes).toBeLessThan(100_000);
+  expect(draws).toBe(11);expect(bytes).toBeLessThan(100_000);
   const last=concert.root.children.at(-1) as Mesh;
   concert.update(1);const early=(last.material as any).color.getHex();
   concert.update(12);expect((last.material as any).color.getHex()).not.toBe(early);
   concert.update(25);expect((last.material as any).color.getHex()).toBe(early);
   concert.update(4,true);const still=(last.material as any).color.getHex();
   concert.update(18,true);expect((last.material as any).color.getHex()).toBe(still);
+  const dynamic=concert.root.children.filter((o):o is InstancedMesh=>o instanceof InstancedMesh);
+  const buffers=dynamic.map(mesh=>mesh.instanceMatrix.array);
+  concert.update(0);const start=dynamic.map(mesh=>Array.from(mesh.instanceMatrix.array));
+  concert.update(24);
+  for(let i=0;i<dynamic.length;i++) {
+    expect(dynamic[i].instanceMatrix.array).toBe(buffers[i]);
+    let delta=0;for(let j=0;j<start[i].length;j++)delta=Math.max(delta,Math.abs(start[i][j]-dynamic[i].instanceMatrix.array[j]));
+    expect(delta).toBeLessThan(1e-5);
+  }
+  const pose=Array.from((concert.root.children[0] as InstancedMesh).instanceMatrix.array);
   concert.dispose();concert.dispose();
+  concert.update(7);expect(Array.from(buffers[0])).toEqual(pose);
   expect(disposedGeometry).toEqual(geometries);expect(disposedMaterial).toEqual(materials);
   expect(disposedInstances).toEqual(instanceMeshes);expect(instanceDisposeEvents).toBe(instanceMeshes.size);
   expect(concert.scene.children.length).toBe(0);
@@ -45,7 +56,7 @@ test("reduced-motion recovery redraws once and concert stacking restores city co
     append(...children:Element[]){for(const child of children){child.parentElement=this;this.children.push(child);}}
     remove(){if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(c=>c!==this);}
     closest(selector:string):Element|null{return selector===".app-shell"&&this.className==="app-shell"?this:this.parentElement?.closest(selector)??null;}
-    focus(){} getBoundingClientRect(){return {width:640,height:360,left:0,top:0};}
+    setAttribute(){} focus(){} getBoundingClientRect(){return {width:640,height:360,left:0,top:0};}
   }
   const previousWindow=Object.getOwnPropertyDescriptor(globalThis,"window"),previousDocument=Object.getOwnPropertyDescriptor(globalThis,"document");
   const documentTarget=Object.assign(new EventTarget(),{hidden:false,documentElement:{lang:"en"},createElement:()=>new Element()});
@@ -115,7 +126,8 @@ test("Columbia entrance only prompts from its visible southern approach",()=>{
 test("concert controls follow German/English language and preserve browser keys",()=>{
   expect(columbiaCopyV257("de-DE").enter).toBe("Columbiahalle betreten");
   expect(columbiaCopyV257("en").enter).toBe("Enter Columbiahalle");
-  expect(columbiaCopyV257("en").videoLabel).toContain("silent loop");
+  expect(columbiaCopyV257("en").description).toContain("graphic concert loop");
+  expect(columbiaCopyV257("en").description).toContain("silent");
   const plain={key:"ArrowLeft",ctrlKey:false,metaKey:false,altKey:false};
   expect(columbiaKeyActionV257(plain)).toBe("left");
   for(const modifier of ["ctrlKey","metaKey","altKey"])expect(columbiaKeyActionV257({...plain,[modifier]:true})).toBeNull();
@@ -134,11 +146,9 @@ test("Columbia facade requires the exact original v238 packed mesh",()=>{
   }
 });
 
-test("provided recording is compact H.264 with no audio track",()=>{
-  const bytes=readFileSync(new URL("../public/media/columbiahalle-v257-silent.mp4",import.meta.url));
-  expect(bytes.byteLength).toBeLessThan(2*1024*1024);
-  const trackTypes:string[]=[];
-  const scan=(lo:number,hi:number)=>{for(let p=lo;p+8<=hi;){const n=bytes.readUInt32BE(p),type=bytes.toString("ascii",p+4,p+8);if(n<8||p+n>hi)break;if(["moov","trak","mdia"].includes(type))scan(p+8,p+n);if(type==="hdlr")trackTypes.push(bytes.toString("ascii",p+16,p+20));p+=n;}};
-  scan(0,bytes.length);expect(trackTypes).toEqual(["vide"]);
-  expect(bytes.includes(Buffer.from("avc1"))).toBeTrue();
+test("concert runtime has no recording, texture, media request or independent animation scheduler",()=>{
+  for(const name of ["ColumbiahalleV257.ts","ColumbiaConcertV257.ts"]) {
+    const text=readFileSync(new URL(`../src/${name}`,import.meta.url),"utf8");
+    expect(text).not.toMatch(/HTMLVideoElement|createElement\(["']video|\.mp4|VideoTexture|TextureLoader|fetch\(|requestAnimationFrame\(|setInterval\(/);
+  }
 });

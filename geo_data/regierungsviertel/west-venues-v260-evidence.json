@@ -1,0 +1,187 @@
+{
+  "sourceArchives": [
+    {
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_386_5818.zip",
+      "sha256": "b0de4a0d8aadd844fc85263b6ede0b4f3391c042bed5ebfeb204d735737ccbe1"
+    },
+    {
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_386_5819.zip",
+      "sha256": "00c08a76b636345cdf43a64a52b6a19abfb95a7e42cc356decbc8e35a9c2ccf6"
+    }
+  ],
+  "parents": 3,
+  "sourceConflicts": [
+    {
+      "parentId": "DEBE04YY500007vQ",
+      "legacyId": "32861687",
+      "legacySha256": "cfe6cca5f55040d2fcb61804c9766b1fc184afd3c31918f5059a563c78383e3a",
+      "oldArea": 1057.824999999999,
+      "sourceArea": 1061.5216454999966,
+      "overlapM2": 1053.0281545524574,
+      "legacyOnlyAreaM2": 4.796845447544347,
+      "sourceOnlyAreaM2": 8.49349094754089
+    },
+    {
+      "parentId": "DEBE04YY500005Uo",
+      "legacyId": "16160637",
+      "legacySha256": "5279d00673a8c083cae52dd2410cbe349b9dc20ef80a27a6086a61528feb3b61",
+      "oldArea": 4780.475000000013,
+      "sourceArea": 4778.410124896889,
+      "overlapM2": 4771.728143870453,
+      "legacyOnlyAreaM2": 8.746856129562856,
+      "sourceOnlyAreaM2": 6.681981026438852
+    },
+    {
+      "parentId": "DEBE04YY50000AZq",
+      "legacyId": "48793287",
+      "legacySha256": "165334edbc9ffe6f210980cf7d17855dd51a16f4f3cd2c6888cf645ce7d7f577",
+      "oldArea": 825.4149999999997,
+      "sourceArea": 833.8261425000012,
+      "overlapM2": 812.5143760580333,
+      "legacyOnlyAreaM2": 12.900623941964168,
+      "sourceOnlyAreaM2": 21.31176644196887
+    }
+  ],
+  "legacyFile": "src/app/public/mesh/regierungsviertel/lod2-prisms.json",
+  "legacyFileSha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+  "sourcePolicy": "Every measured source part, roof, wall and hole retained. Only three exact receipted OSM coarse owners yield after required replacement load. Facade glazing, ribs, trim, lettering and colors are reference-estimated fittings; no photograph is bundled. Delphi is the provisional interpretation of nearby old cinema.",
+  "recognitionAnchors": {
+    "delphiSign": {
+      "a": [
+        -2957.865,
+        1383.955
+      ],
+      "d": [
+        0.9912048851774125,
+        0.13233622180050558
+      ],
+      "n": [
+        -0.13233622180050558,
+        0.9912048851774125
+      ],
+      "length": 15.188585352164797
+    },
+    "delphiFront": {
+      "a": [
+        -2943.284,
+        1389.638
+      ],
+      "d": [
+        -0.9920980596537314,
+        -0.1254648956134786
+      ],
+      "n": [
+        -0.1254648956134786,
+        0.9920980596537314
+      ],
+      "length": 13.940154267439011
+    },
+    "renaissanceFiveWindowCenters": [
+      [
+        -3283.0225,
+        859.074
+      ],
+      [
+        -3281.3999999999996,
+        856.3340000000001
+      ],
+      [
+        -3278.3914999999997,
+        855.4495
+      ],
+      [
+        -3275.009,
+        856.415
+      ],
+      [
+        -3273.0515,
+        858.946
+      ]
+    ]
+  },
+  "roofRibSections": [
+    {
+      "index": 0,
+      "station": 891.5,
+      "segments": 37
+    },
+    {
+      "index": 1,
+      "station": 897.7,
+      "segments": 29
+    },
+    {
+      "index": 2,
+      "station": 903.9,
+      "segments": 28
+    },
+    {
+      "index": 3,
+      "station": 910.1,
+      "segments": 30
+    },
+    {
+      "index": 4,
+      "station": 916.3,
+      "segments": 28
+    },
+    {
+      "index": 5,
+      "station": 922.5,
+      "segments": 31
+    },
+    {
+      "index": 6,
+      "station": 928.7,
+      "segments": 33
+    },
+    {
+      "index": 7,
+      "station": 934.9,
+      "segments": 34
+    },
+    {
+      "index": 8,
+      "station": 941.1,
+      "segments": 36
+    },
+    {
+      "index": 9,
+      "station": 947.3,
+      "segments": 32
+    },
+    {
+      "index": 10,
+      "station": 953.5,
+      "segments": 33
+    },
+    {
+      "index": 11,
+      "station": 959.7,
+      "segments": 28
+    },
+    {
+      "index": 12,
+      "station": 965.9,
+      "segments": 26
+    },
+    {
+      "index": 13,
+      "station": 972.1,
+      "segments": 30
+    },
+    {
+      "index": 14,
+      "station": 978.3,
+      "segments": 19
+    }
+  ],
+  "parts": 88,
+  "surfaces": 1647,
+  "roofRibs": 15,
+  "blueWindows": 5,
+  "triangles": 2357,
+  "facadeBoxes": 2447,
+  "nativeShellBlocks": 7005,
+  "nativeDetailBoxes": 5478
+}

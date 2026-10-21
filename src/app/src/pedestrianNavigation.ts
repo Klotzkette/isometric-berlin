@@ -1,3 +1,4 @@
+import { WEST_VENUES_V260_PRISM_IDS, WEST_VENUES_V260_PARTS, westVenuesV260RoofAt } from "./westVenuesV260Profile";
 import { isAEGCampusCorePrismV241 } from "./aegCampusV241CorePrevious";
 import { isSchlossplatzPreviousPartV239, isSchlossplatzCorePrismV239, SCHLOSSPLATZ_SOLIDS_V239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238, ELEVATED_STATION_SOLIDS_V238 } from "./elevatedStationV238Profile";
@@ -767,6 +768,7 @@ export function compilePedestrianObstacles(
     if (ALT_MITTE_V169_PRISM_IDS.has(building.id) || BERLIN_WALL_MEMORIAL_V174_PRISM_IDS.has(building.id)) continue;
     if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
+    if (WEST_VENUES_V260_PRISM_IDS.has(building.id)) continue;
     if (ALEXANDER_NORTH_V166_PRISM_IDS.has(building.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(building.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(building.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(building.id)) continue;
     if (building.id === "15218373") {
       // The former solid nine-metre OSM prism closed the photographed arch.
@@ -1458,6 +1460,13 @@ export function compilePedestrianObstacles(
   if (prisms.buildings.some(b => TACHELES_V167_PRISM_IDS.has(b.id))) {
     for (const part of TACHELES_V167_PARTS) {
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => tachelesV167RoofAt(x,z,visualMode() === "minecraft"));
+    }
+  }
+  if (prisms.buildings.some(b => WEST_VENUES_V260_PRISM_IDS.has(b.id))) {
+    for (const part of WEST_VENUES_V260_PARTS) for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY + 2,
+        part.id, 1, (x,z) => westVenuesV260RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
     }
   }
   if (prisms.buildings.some(b => ALEXANDER_NORTH_V166_PRISM_IDS.has(b.id) || CITYWEST_CINEMAS_V166_PRISM_IDS.has(b.id) || MOABIT_JUSTICE_V166_PRISM_IDS.has(b.id) || MITTE_HERITAGE_V166_PRISM_IDS.has(b.id))) {

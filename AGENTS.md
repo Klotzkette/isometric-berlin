@@ -1497,3 +1497,25 @@ quality, independent orthogonal native construction, 93 tour stops and all live
 residency/transfer limits stay unchanged. Three companions fit the existing
 2,208-descriptor and 2.125 MiB catalogue limits. No additional coverage, textures,
 animations or blanket height inflation is included.
+
+### Step 10 — v260 City West theatres and Karl-Marx-Allee cinemas
+
+The owner requests Ludwig-Erhard-Haus, Renaissance-Theater, the nearby old
+cinema (identified as Delphi Filmpalast), Zoo Palast, Kino International and
+Café Moskau. Refine these six exact sites within existing coverage, preserving
+complete measured source envelopes, earlier details and navigation. Retain
+source provenance and distinguish photographic recognition estimates from
+surveyed dimensions. Exact coarse proxies may yield only to complete source
+owners with immutable preservation receipts. Keep full mobile detail and
+independent orthogonal native geometry, all live budgets and 93 tour stops.
+No unrelated coverage, new textures or animations are included. Any necessary
+finite archive allowance must be measured and documented independently of live
+residency; prefer compact source-bound additions and existing streaming.
+
+The owner's v260 follow-up withdraws all Columbiahalle video recordings from
+the viewer and GitHub. The current product must contain no recording player,
+decoder or media download: use a compact silent procedural stage/light loop
+with hidden/offscreen suspension and explicit pause. Refine the entrance's
+blue outline lettering and cream/red Sisters of Mercy programme board against
+the supplied photograph. Historical repository/release cleanup is separately
+scoped with the owner because it affects old tags and published downloads.

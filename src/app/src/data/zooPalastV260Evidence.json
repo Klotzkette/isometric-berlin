@@ -1,0 +1,25 @@
+{
+  "verified": "2026-10-21",
+  "identity": { "name": "Zoo Palast", "address": "Hardenbergstraße 29a", "lod2Parent": "DEBE00YY1EZ0000h", "osmWay": 23010077 },
+  "primaryReferences": [
+    {
+      "url": "https://www.berlin.de/landesdenkmalamt/denkmale/aus-der-praxis-erkennen-und-erhalten/oeffentliche-anlagen/zoo-palast-641132.php",
+      "publisher": "Landesdenkmalamt Berlin",
+      "facts": "Original street-facing facade proportions conserved; 1957 cinema within Zentrum Am Zoo; 2011–2013 conservation."
+    }
+  ],
+  "visualReferences": [
+    {
+      "url": "https://www.berlin.de/imgscale4/rbig2zu1/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/oeff_zoo_palast01_titel.jpg",
+      "credit": "Landesdenkmalamt Berlin",
+      "usage": "Reference only: low projecting entrance fascia, canopy edge, glazing and poster cases; no historical tenant or movie programme asserted as current."
+    },
+    {
+      "url": "https://www.berlin.de/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/zoo_palast07_fassade.jpg",
+      "credit": "Wolfgang Bittner / Landesdenkmalamt Berlin, 2013",
+      "usage": "Reference only: yellow ceramic joints, brass relief button, metal coping and three side portholes."
+    }
+  ],
+  "geometry": "Complete original Berlin LoD2 source retained under dl-de/zero-2-0; OpenStreetMap identity retained under ODbL-1.0.",
+  "interpretation": "Small dimensions, subdivisions and hues are display estimates fitted to exact retained source planes. No reference pixels, font files or photographic textures are bundled."
+}
