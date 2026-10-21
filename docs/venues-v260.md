@@ -50,4 +50,28 @@ facade edge crossing the recess is clipped by exact full-row match.
 - Chrome desktop and WebKit iPhone emulation completed 24 venue/family views and four wide-view transitions with no JavaScript or WebGL error. Subsequent front views corrected test camera positions at Renaissance-Theater and Zoo Palast and exposed/fixed mirrored Moskau lettering.
 - Columbiahalle: all four browser/family combinations passed entry, Pause/Play, Leave/Escape, paused-scene hidden/offscreen recovery, reduced-motion opt-in and repeated disposal. No recording request or media element occurred. GPU buffers remained constant during playback and returned to zero after leaving in all 12 repeated entry/exit cycles. No operating-system memory-pressure guarantee is implied.
 
-Publication receipts follow after upload.
+The final prepared local package contains **4,734 files / 933,476,982 bytes
+(890.233 MiB)**, below the unchanged 891 MiB limit. All three withdrawn MP4
+paths are absent. Pages preflight, including exactly the previous two hashed
+asset sets, totals **1,024,214,801 bytes**, leaving 49,527,023 bytes below 1 GiB.
+The original 2,193 streaming descriptors, 93 tour stops and live budgets remain.
+
+The fresh final front views show the revised red marquee strokes with separated
+quantized depth in both families. The final WebKit iPhone run passed eight front views (Columbiahalle, Renaissance-Theater, Zoo Palast, Café Moskau in both families) plus two wide-view transitions, without page or WebGL errors. Final public deployment checks follow below.
+
+### Historical recording withdrawal scope
+
+Current main, the v1.0.160 packages and the next Pages tree withdraw all three
+MP4 files and the recording player. They do not erase old Git objects. The
+read-only GitHub audit found bundled recordings in v1.0.157, v1.0.158 and
+v1.0.159 ZIP/TAR downloads, the associated main/Pages history and three Pages
+workflow artifacts. The originals in MOV format were not tracked. No old tags,
+release archives or commit history were rewritten without the pending owner
+answer about historical cleanup. This release therefore does not claim complete
+erasure of prior published copies.
+
+### Download validation
+
+Both complete archive validators passed, and GitHub confirmed exact uploaded
+lengths and SHA-256 digests. ZIP: 752,268,383 bytes; TAR: 751,458,082 bytes.
+Checksums are retained in `releases/SHA256SUMS-v1.0.160.txt`.
