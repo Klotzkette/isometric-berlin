@@ -852,6 +852,26 @@
       "license": "ODbL-1.0",
       "role": "external_visual_reference_or_retained_geometric_source",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "columbiahalle_v258",
+      "title": "Columbiahalle additional concert recording: 1-IMG_3366.mov",
+      "credit": "User-provided Columbiahalle photographs and concert videos, supplied 21 October 2026. Only silent video derivatives are bundled, loaded individually on request.",
+      "role": "user_supplied_reference_and_silent_video",
+      "photo_bundled": false,
+      "video_bundled": true,
+      "video_file": "media/columbiahalle-v258-red-silent.mp4",
+      "video_sha256": "d76f3182771c6239c16271489a18dc083b5598b2e3fff62088d25986065462ed"
+    },
+    {
+      "landmark_id": "columbiahalle_v258",
+      "title": "Columbiahalle additional concert recording: 2-IMG_3371.mov",
+      "credit": "User-provided Columbiahalle photographs and concert videos, supplied 21 October 2026. Only silent video derivatives are bundled, loaded individually on request.",
+      "role": "user_supplied_reference_and_silent_video",
+      "photo_bundled": false,
+      "video_bundled": true,
+      "video_file": "media/columbiahalle-v258-portrait-silent.mp4",
+      "video_sha256": "88fbfce3add239a59b4d54d7074c7e588ea57861976af631837d17181cb21130"
     }
   ]
 }
