@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "scope": "Reference-only architectural recognition; no photographs or textures are redistributed",
+  "sources": [
+    {"title":"CUBIX am Alexanderplatz","url":"https://tchobanvoss.de/de/projects/cubix-am-alexanderplatz","author":"Tchoban Voss Architekten; photographs by Klemens Renner","license":"All rights reserved; reference only","images":["https://tchobanvoss.de/media/pages/projects/cubix-am-alexanderplatz/d74b6675cf-1729853465/2250_cubix_1210156_c_klemens_renner.jpg","https://tchobanvoss.de/media/pages/projects/cubix-am-alexanderplatz/1050eb904b-1729853536/2250_cubix_1210552_c_klemens_renner.jpg"]},
+    {"title":"RathausPassagen current architecture and tenants","url":"https://www.wbm.de/gewerbe-berlin/rathauspassagen/","author":"WBM Wohnungsbaugesellschaft Berlin-Mitte mbH / respective photographers","license":"All rights reserved; reference only","images":["https://www.wbm.de/fileadmin/rathauspassagen/RHP_Startseite_Headerbild.png","https://www.wbm.de/fileadmin/rathauspassagen/deiters_v2.jpg","https://www.wbm.de/fileadmin/rathauspassagen/bowlingcenter_v2.jpg"]},
+    {"title":"Deiters Berlin operator address","url":"https://www.deiters.de/l/berlin","author":"Deiters GmbH","license":"Factual identity reference; no content copied"},
+    {"title":"BowlingCenter am Roten Rathaus location","url":"https://www.bowling-am-roten-rathaus.de/Auf-einen-Blick/","author":"BowlingCenter am Roten Rathaus","license":"Factual identity reference; no content copied"},
+    {"title":"Fernsehturm entrance direction","url":"https://tv-turm.de/faqs/","author":"TV-Turm GmbH","license":"Factual location reference; no content copied"},
+    {"title":"Official Berlin LoD2 retained source packets","url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5820.zip","author":"Geoportal Berlin","license":"dl-de/zero-2-0","additional_url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5819.zip"},
+    {"title":"CUBIX and RathausPassagen OSM identity","url":"https://www.openstreetmap.org/way/25112082","author":"OpenStreetMap contributors","license":"ODbL-1.0","additional_url":"https://www.openstreetmap.org/way/25094154"}
+  ]
+}

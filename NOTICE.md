@@ -17,6 +17,45 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Transport ministry and Scharnhorststraße heating plant (v1.0.157):**
+  Retained Berlin LoD2 (dl-de/zero-2-0) anchors the historic ministry, its two
+  Max Dudler additions and the heating plant. The BMV supplies the current
+  address; Max Dudler's project gallery and BMH IBW Architekten support the
+  architectural interpretation. Gallery photographs remain reference-only,
+  with copyright retained by Max Dudler / the project photographers. BEW's
+  project and construction accounts and LAGetSi's 26 October 2022 permit
+  support the two 35 m steel stacks, positioned at retained OpenStreetMap
+  nodes 12361082516 and 12361082517 (ODbL-1.0). The obsolete 150 m chimney
+  is already absent from the delivered local geometry; no source is deleted.
+  Small facade and stair dimensions are estimates. Individual URLs and
+  licences ship in `visual_reference_attribution.json`; see
+  [source receipts and checks](docs/invaliden-civic-v257.md).
+
+- **Columbiahalle (v1.0.157):** User-provided facade and concert photographs
+  and recording, supplied 21 October 2026, guide the exterior and a bounded
+  illustrative concert. Original photographs remain references only. At the
+  owner's request the complete recording is included as a compact silent
+  H.264 derivative, loaded only on demand, with no audio track. Retained
+  Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) anchor the shell
+  and mapped entrances. Venue identity: Columbiahalle Gastro- und Betriebs
+  GmbH. See [media receipts and implementation](docs/columbiahalle-v257.md).
+
+- **Littenstraße, Alexanderplatz and Leipziger Straße (v1.0.157):**
+  Retained Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0)
+  anchor all additions. Courthouse and restaurant references: Landesdenkmalamt
+  Berlin (09011278, 09011253; LDA-Archiv, Bittner 2008), Landgericht Berlin II
+  and Zur letzten Instanz – Sperling OHG. CUBIX: Tchoban Voss Architekten,
+  photographs © Klemens Renner. RathausPassagen: WBM; tenant identities:
+  Deiters and BowlingCenter am Roten Rathaus. TV tower entrance: TV-Turm GmbH.
+  Alte Münze and Palais: LDA 09020051 and operator account. Leipziger Straße:
+  Berlin Mitte 2019 study, WBM 3/2024 and Bundesministerium der Finanzen.
+  External photographs: Jörg Zägel, *Berlin, Mitte, Molkenmarkt, Münze 02*
+  (2009); Jwaller, *B-Molkenmkt* (2008); Axel Mauruszat,
+  *Leipziger-Str-40+41* (2014), each CC BY-SA 3.0. Individual source and
+  licence links ship in `visual_reference_attribution.json`. No reference
+  pixels or protected plans are bundled; small fitting dimensions are
+  estimates. See [scope and evidence](docs/mitte-architecture-v257.md).
+
 - **Nilpferdhaus and Reichstag (v1.0.156):** Retained Berlin LoD2
   (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) remain the geometric sources.
   Zoo Berlin, schlaich bergermann partner and Glas Trösch support the

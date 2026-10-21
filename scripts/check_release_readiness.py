@@ -134,7 +134,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Lossless construction-field compression and removal of unused worker inputs
 # keep the complete download within the existing 889 MiB offline ceiling.
 # Worker, packet, decode, prefetch and resident limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 889 * 1024 * 1024
+# v257 adds bounded named-site refinements and the user-requested silent
+# 1,244,331-byte concert recording. Complete build is ~890.2 MiB. A finite
+# 891 MiB offline allowance changes no live packet, decode or GPU budget.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 891 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

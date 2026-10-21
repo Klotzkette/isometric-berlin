@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "scope": "Reference-only architecture; no photographs redistributed",
+  "sources": [
+    {"title":"BMV current address","url":"https://www.bmv.de/DE/Ministerium/Anfahrt-Adressen/anfahrt-adressen.html","author":"Bundesministerium für Verkehr","license":"Factual address reference"},
+    {"title":"Bundesministerium für Verkehr, Bau und Stadtentwicklung","url":"https://www.maxdudler.de/de/projekte/bundesministerium-fuer-verkehr-bau-und-stadtentwicklung/","author":"Max Dudler / project-gallery photographers","license":"All rights reserved; reference only","images":["https://www.maxdudler.de/media/bundesministerium-verkehr-stadtentwicklung-berlin-max-dudler-1.jpg","https://www.maxdudler.de/media/bundesministerium-verkehr-stadtentwicklung-berlin-max-dudler-2.jpg"]},
+    {"title":"BMVBS historic and modern wings","url":"https://bmh-ibw-architekten.de/portfolio-items/bmvbs/","author":"BMH IBW Architekten","license":"Factual architectural reference"},
+    {"title":"Current Scharnhorststraße construction project","url":"https://www.bew.berlin/aktuelles-und-presse/bauvorhaben-scharnhorststrasse/","author":"BEW Berliner Energie und Wärme","license":"Factual operational reference"},
+    {"title":"Two 35 m stacks and old 150 m chimney","url":"https://www.bew.berlin/aktuelles-und-presse/2024/gro%C3%9Fe-veraenderungen-am-energiestandort-scharnhorststrasse/","author":"BEW Berliner Energie und Wärme","license":"Factual operational reference"},
+    {"title":"Scharnhorststraße permit 26 October 2022","url":"https://www.berlin.de/lagetsi/_assets/documents/fremd/genehmigung_scharnhorststr_ocr_2022-10-26.pdf","author":"LAGetSi Berlin","license":"Factual permit reference"},
+    {"title":"Operator construction account: two flues per new stack","url":"https://de.linkedin.com/posts/berlinerenergieundwaerme_modernisierungsarbeiten-spitzenlastheizkraftwerks-activity-7090658629850124288-ZTSW","author":"BEW Berliner Energie und Wärme","license":"Factual construction reference"},
+    {"title":"Official retained Berlin LoD2","url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5821.zip","author":"Geoportal Berlin","license":"dl-de/zero-2-0"},
+    {"title":"Current chimney nodes","url":"https://www.openstreetmap.org/node/12361082516","additional_url":"https://www.openstreetmap.org/node/12361082517","author":"OpenStreetMap contributors via Geofabrik Berlin 2026-09-29","license":"ODbL-1.0"}
+  ]
+}

@@ -3,6 +3,7 @@ import source from "./data/justicePalaceV183.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { createCharlottenburgCupolaV183 } from "./CharlottenburgCupolaV183";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { littenInstanzV257Rows } from "./littenInstanzV257";
 
 export const JUSTICE_PALACE_V183_GROUP = "Source-bound Berlin courthouses and Charlottenburg recognition v183";
 
@@ -29,7 +30,9 @@ export function createJusticePalaceV183(): Group {
   const outlines = new LineSegments(geometry, new LineBasicMaterial({ vertexColors: true, depthWrite: false }));
   outlines.name = "Exact source contours and explicitly estimated cupola, caps and roof ridges";
   outlines.userData = { textureFree: true, cartographicOutline: true };
-  const members = justicePalaceV183Boxes(source.boxes);
+  const fittingsV257 = littenInstanzV257Rows();
+  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257]);
+  members.userData.littenInstanzV257Rows = fittingsV257.length;
   members.name = "Thin facade windows, pale frames and open tower members";
   root.add(outlines, members, createCharlottenburgCupolaV183());
   const roofPositions = new Float32Array(source.roofTriangles.length * 9);

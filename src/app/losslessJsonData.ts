@@ -16,6 +16,8 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "columbiahalleV257.json": ["drawn", "minecraft"],
+  "leipzigerMuenzeV257.json": ["cells"],
   "tierparkV255.json": ["packets"],
   // The hospital constructor consumes these rows synchronously into its own
   // instance buffers. Navigation retains only the separate small helipad data.

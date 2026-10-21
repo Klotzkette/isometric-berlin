@@ -4,13 +4,15 @@ import { createAltMitteEdgesV186 } from "../src/AltMitteEdgesV186";
 import { createMinecraftAltMitteEdgesV186 } from "../src/MinecraftAltMitteEdgesV186";
 import { nativeContourRows } from "../src/altMitteEdgesV186Batches";
 import data from "../src/data/altMitteEdgesV186.json";
+import { LEIPZIGER_MUENZE_V257 } from "../src/leipzigerMuenzeV257";
 
 test("Alt-Mitte edges use frozen exact-sized independently culled surface cells", () => {
   for (const native of [false, true]) {
     const root = native ? createMinecraftAltMitteEdgesV186() : createAltMitteEdgesV186();
     expect(root.children.length).toBe(54);
-    expect(root.userData.additiveOnly).toBe(true);
-    let count = 0, bytes = 0;
+    expect(root.userData.additiveOnly).toBe(false);
+    expect(root.userData.receiptedAuthoredFacadeCorrectionV257).toBe(true);
+    let count = 0, bytes = 0, additions = 0;
     for (const object of root.children) {
       const mesh = object as InstancedMesh;
       expect(mesh.frustumCulled).toBe(true);
@@ -20,14 +22,18 @@ test("Alt-Mitte edges use frozen exact-sized independently culled surface cells"
       expect(mesh.geometry.getAttribute("uv")).toBeUndefined();
       expect(mesh.boundingSphere!.radius).toBeLessThan(450);
       count += mesh.count;
+      additions += mesh.userData.leipzigerMuenzeV257;
       bytes += mesh.instanceMatrix.array.byteLength + mesh.instanceColor!.array.byteLength;
       if (native) for (let i = 0; i < mesh.count; i++) for (const n of [1, 2, 4, 6, 8, 9]) expect(mesh.instanceMatrix.array[i * 16 + n]).toBe(0);
       mesh.geometry.dispose(); mesh.dispose();
       for (const material of new Set([mesh.material, mesh.userData.dayMaterial, mesh.userData.nightMaterial])) if (material instanceof Material) material.dispose();
     }
-    expect(count).toBe(native ? 28032 : 3560);
+    // Preserve the frozen original v186 inventory and its allocation guard.
+    // New v257 fittings are independently audited, not a larger v186 source.
+    expect(count - additions).toBe(native ? 28032 : 3560);
+    expect(additions).toBe(native ? LEIPZIGER_MUENZE_V257.nativeRows : LEIPZIGER_MUENZE_V257.drawnRows);
     expect(bytes).toBe(count * 76);
-    expect(bytes).toBeLessThan(native ? 2_200_000 : 280_000);
+    expect(bytes - additions * 76).toBeLessThan(native ? 2_200_000 : 280_000);
     root.clear();
   }
 });

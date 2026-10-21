@@ -584,6 +584,274 @@
       "credit": "© Stiftung Denkmal",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "CUBIX am Alexanderplatz",
+      "page_url": "https://tchobanvoss.de/de/projects/cubix-am-alexanderplatz",
+      "credit": "Tchoban Voss Architekten; photographs by Klemens Renner",
+      "license": "All rights reserved; reference only",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "RathausPassagen current architecture and tenants",
+      "page_url": "https://www.wbm.de/gewerbe-berlin/rathauspassagen/",
+      "credit": "WBM Wohnungsbaugesellschaft Berlin-Mitte mbH / respective photographers",
+      "license": "All rights reserved; reference only",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "Deiters Berlin operator address",
+      "page_url": "https://www.deiters.de/l/berlin",
+      "credit": "Deiters GmbH",
+      "license": "Factual identity reference; no content copied",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "BowlingCenter am Roten Rathaus location",
+      "page_url": "https://www.bowling-am-roten-rathaus.de/Auf-einen-Blick/",
+      "credit": "BowlingCenter am Roten Rathaus",
+      "license": "Factual identity reference; no content copied",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "Fernsehturm entrance direction",
+      "page_url": "https://tv-turm.de/faqs/",
+      "credit": "TV-Turm GmbH",
+      "license": "Factual location reference; no content copied",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "Official Berlin LoD2 retained source packets",
+      "page_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5820.zip",
+      "credit": "Geoportal Berlin",
+      "license": "dl-de/zero-2-0",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "alexander_recognition_v257",
+      "title": "CUBIX and RathausPassagen OSM identity",
+      "page_url": "https://www.openstreetmap.org/way/25112082",
+      "credit": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Münze, Palais Schwerin – Denkmal 09020051",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020051",
+      "credit": "Landesdenkmalamt Berlin",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Alte Münze Kulturquartier",
+      "page_url": "https://www.alte-muenze-berlin.de/",
+      "credit": "Alte Münze Berlin",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Städtebauliches Gutachten Leipziger Straße, Teil 1, 2019",
+      "page_url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/bezirksamt/beschluesse-des-bezirksamts/2020/1155-2020-anlage-3-1-gutachtenleipzigerstrasse_textteil.pdf",
+      "credit": "Bezirksamt Mitte von Berlin; Meyer Große Hebestreit Sommerer",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Mittendrin 3/2024, page 5",
+      "page_url": "https://www.wbm.de/fileadmin/user_upload/MITTENDRIN_Q3_2024_Web_barrierefrei.pdf",
+      "credit": "WBM Wohnungsbaugesellschaft Berlin-Mitte",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Das Detlev-Rohwedder-Haus: Spiegel der deutschen Geschichte",
+      "page_url": "https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Video-Textfassungen/Geschichte/textfassung-detlev-rohwedder-haus.html",
+      "credit": "Bundesministerium der Finanzen",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Berlin, Mitte, Molkenmarkt, Münze 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Molkenmarkt,_M%C3%BCnze_02.jpg",
+      "artist": "Jörg Zägel",
+      "credit": "Jörg Zägel, 2009-08-06 / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "external_visual_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "B-Molkenmkt.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:B-Molkenmkt.JPG",
+      "artist": "Jwaller",
+      "credit": "Jwaller, 2008-09-21 / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "external_visual_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "leipziger_muenze_v257",
+      "title": "Leipziger-Str-40+41.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Leipziger-Str-40%2B41.jpg",
+      "artist": "Axel Mauruszat",
+      "credit": "Axel Mauruszat, 2014-02-17 / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "external_visual_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "litten_instanz_v257",
+      "title": "Littenstraße courthouse exterior",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011278",
+      "credit": "Landesdenkmalamt Berlin; photograph LDA-Archiv, Bittner 2008",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "litten_instanz_v257",
+      "title": "Courthouse history",
+      "page_url": "https://www.berlin.de/gerichte/landgericht-zivil/das-gericht/wir-ueber-uns/historisches/littenstrasse/artikel.1310862.php",
+      "credit": "Landgericht Berlin II",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "litten_instanz_v257",
+      "title": "Waisenstraße restaurant frontage",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011253",
+      "credit": "Landesdenkmalamt Berlin; photograph LDA-Archiv, Bittner 2008",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "litten_instanz_v257",
+      "title": "Zur letzten Instanz current facade",
+      "page_url": "https://zurletzteninstanz.com/en/start-en/",
+      "credit": "Zur letzten Instanz – Sperling OHG",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "columbiahalle_v257",
+      "title": "Columbiahalle facade and concert, 19 October 2026",
+      "credit": "User-provided photographs and concert recording, supplied 21 October 2026; original photographs reference-only; compact silent recording shown on explicit request.",
+      "role": "user_supplied_reference_and_silent_video",
+      "photo_bundled": false,
+      "video_bundled": true,
+      "video_file": "media/columbiahalle-v257-silent.mp4",
+      "video_sha256": "09b47065d13fef9302fa00d14bd230608c2396c4534c45f4afcee0048e0ee578"
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "BMV current address",
+      "page_url": "https://www.bmv.de/DE/Ministerium/Anfahrt-Adressen/anfahrt-adressen.html",
+      "credit": "Bundesministerium für Verkehr",
+      "license": "Factual address reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Bundesministerium für Verkehr, Bau und Stadtentwicklung",
+      "page_url": "https://www.maxdudler.de/de/projekte/bundesministerium-fuer-verkehr-bau-und-stadtentwicklung/",
+      "credit": "Max Dudler / project-gallery photographers",
+      "license": "All rights reserved; reference only",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "BMVBS historic and modern wings",
+      "page_url": "https://bmh-ibw-architekten.de/portfolio-items/bmvbs/",
+      "credit": "BMH IBW Architekten",
+      "license": "Factual architectural reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Current Scharnhorststraße construction project",
+      "page_url": "https://www.bew.berlin/aktuelles-und-presse/bauvorhaben-scharnhorststrasse/",
+      "credit": "BEW Berliner Energie und Wärme",
+      "license": "Factual operational reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Two 35 m stacks and old 150 m chimney",
+      "page_url": "https://www.bew.berlin/aktuelles-und-presse/2024/gro%C3%9Fe-veraenderungen-am-energiestandort-scharnhorststrasse/",
+      "credit": "BEW Berliner Energie und Wärme",
+      "license": "Factual operational reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Scharnhorststraße permit 26 October 2022",
+      "page_url": "https://www.berlin.de/lagetsi/_assets/documents/fremd/genehmigung_scharnhorststr_ocr_2022-10-26.pdf",
+      "credit": "LAGetSi Berlin",
+      "license": "Factual permit reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Operator construction account: two flues per new stack",
+      "page_url": "https://de.linkedin.com/posts/berlinerenergieundwaerme_modernisierungsarbeiten-spitzenlastheizkraftwerks-activity-7090658629850124288-ZTSW",
+      "credit": "BEW Berliner Energie und Wärme",
+      "license": "Factual construction reference",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Official retained Berlin LoD2",
+      "page_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5821.zip",
+      "credit": "Geoportal Berlin",
+      "license": "dl-de/zero-2-0",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Current chimney nodes",
+      "page_url": "https://www.openstreetmap.org/node/12361082516",
+      "credit": "OpenStreetMap contributors via Geofabrik Berlin 2026-09-29",
+      "license": "ODbL-1.0",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invaliden_civic_v257",
+      "title": "Current chimney nodes — second node",
+      "page_url": "https://www.openstreetmap.org/node/12361082517",
+      "credit": "OpenStreetMap contributors via Geofabrik Berlin 2026-09-29",
+      "license": "ODbL-1.0",
+      "role": "external_visual_reference_or_retained_geometric_source",
+      "photo_bundled": false
     }
   ]
 }

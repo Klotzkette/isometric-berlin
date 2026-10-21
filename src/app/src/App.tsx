@@ -898,6 +898,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const [isRepositoryOpen, setIsRepositoryOpen] = useState(false);
   const [isMusicEnabled, setIsMusicEnabled] = useState(false);
   const [isMusicAudible, setIsMusicAudible] = useState(false);
+  const concertInteriorRef = useRef(false);
   const musicAudibleRef = useRef(isMusicAudible);
   musicAudibleRef.current = isMusicAudible;
   const [isTouring, setIsTouring] = useState(false);
@@ -1112,6 +1113,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       dispose: disposeAllAudio,
       documentTarget: document,
       resume: () => {
+        if (concertInteriorRef.current) return;
         if (lightingModeRef.current === "schwellenraum") {
           void schwellenraumSoundscapeRef.current?.setSuspended(false);
           return;
@@ -1157,6 +1159,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       mix: SchwellenraumMix = schwellenraumMixRef.current,
       options: { silent?: boolean } = {},
     ) => {
+      if (concertInteriorRef.current) return false;
       const { silent = false } = options;
       const normalizedMix = {
         room: Boolean(mix.room),
@@ -1240,6 +1243,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
 
   const startMusic = useCallback(
     async (options: { rememberMute?: boolean; silent?: boolean } = {}) => {
+      if (concertInteriorRef.current) return false;
       const { rememberMute = true, silent = false } = options;
       if (lightingModeRef.current === "schwellenraum") {
         return false;
@@ -1392,6 +1396,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         silent?: boolean;
       } = {},
     ) => {
+      if (concertInteriorRef.current) return false;
       const { preserveIntentOnFailure = false, silent = false } = options;
       if (lightingModeRef.current === "schwellenraum") {
         return false;
@@ -1561,6 +1566,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   ]);
 
   const resumeStandardAudio = useCallback(() => {
+    if (concertInteriorRef.current) return;
     if (lightingModeRef.current === "schwellenraum") {
       return;
     }
@@ -1584,6 +1590,24 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       chiptuneRef.current?.stop();
     }
   }, [startMusic, startSoundtrack]);
+
+  // Concert entry is intentionally silent; disposing graphs also cancels any
+  // in-flight activation. User mute/score intent survives for the exit gesture.
+  const handleConcertInteriorChange = useCallback((entered: boolean, restoreAudio = true) => {
+    concertInteriorRef.current = entered;
+    if (entered) {
+      setIsTouring(false);
+      disposeAllAudio();
+      setIsMusicAudible(false);
+      setIsSoundtrackAudible(false);
+    } else if (restoreAudio && !document.hidden) {
+      if (lightingModeRef.current === "schwellenraum") {
+        void startSchwellenraumAudio(schwellenraumMixRef.current, { silent: true });
+      } else {
+        resumeStandardAudio();
+      }
+    }
+  }, [disposeAllAudio, resumeStandardAudio, startSchwellenraumAudio]);
 
   // Restore only audio that already played after a user gesture. A fresh
   // page stays silent through focus/pageshow until the first activation below;
@@ -2440,6 +2464,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (concertInteriorRef.current) return;
       // Browser chords (Cmd+L, Ctrl+D, …) must never be hijacked by the
       // single-letter shortcuts below.
       if (isReservedBrowserChord(event)) {
@@ -2967,6 +2992,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 initialNavigation={retainedNavigationRef.current}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}
+                onConcertInteriorChange={handleConcertInteriorChange}
                 onReady={() => {
                   if (
                     activeThreeViewerKeyRef.current !==

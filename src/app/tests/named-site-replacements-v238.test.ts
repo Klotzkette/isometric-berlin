@@ -4,6 +4,7 @@ import { gunzipSync } from "node:zlib";
 import north from "../src/data/northElevatedV238Replacement.json";
 import south from "../src/data/southElevatedV238Replacement.json";
 import venues from "../src/data/venuesV238Replacement.json";
+import { columbiaFacadeV257 } from "../src/columbiaFacadeV257";
 const data = { schema: 1, packets: { ...north.packets, ...south.packets, ...venues.packets } };
 import {
   prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238,
@@ -40,7 +41,9 @@ test("every station/venue transaction retains all packed source identities and r
     expect(prepared.nav).toBe(original.nav);
     expect(prepared.lines).toBe(original.lines);
     expect(prepared.meshes.length).toBe(original.meshes.length + 1);
-    expect(prepared.meshes.at(-1)).toEqual(receipt.replacement);
+    expect(prepared.meshes.at(-1)).toEqual(id === "2_7"
+      ? finish(columbiaFacadeV257(receipt.replacement as import("../src/SurroundingCityGeometry").SurroundingPackedMesh, mode === "minecraft"))
+      : receipt.replacement);
     for (let i = 0; i < original.meshes.length; i++) {
       // Existing appearance and exact-owner guards must still see original bytes.
       expect(prepared.meshes[i]).toBe(original.meshes[i]);

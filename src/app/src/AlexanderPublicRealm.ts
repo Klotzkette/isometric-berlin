@@ -4,6 +4,7 @@ import {
   MeshStandardMaterial, Quaternion, SphereGeometry, Vector3,
 } from "three";
 import { createFernsehturmPavilions, createMinecraftFernsehturmPavilions } from "./FernsehturmPavilions";
+import { appendAlexanderRecognitionV257 } from "./AlexanderRecognitionV257";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { ALEXANDER_PUBLIC_REALM_PROFILE as P, ALEXANDER_PUBLIC_REALM_SOURCE as S,
   ALEXANDER_PUBLIC_REALM_OSM_KEYS } from "./alexanderPublicRealmProfile";
@@ -370,7 +371,8 @@ function build(minecraft:boolean):Group {
   root.userData={keepInMinecraft:minecraft,blockNative:minecraft,sourceBound:true,textureFree:true,
     ownedOsmKeys:[...ALEXANDER_PUBLIC_REALM_OSM_KEYS],sourceTreeCount:S.added_trees.length,
     retainedExistingTreeCount:S.retained_existing_tree_count_in_forum,proceduralDimensions:true,memorialProtected:true,schwellenraumGeschuetzt:true,fullStaticDetailOnTouch:true,hiddenSolidInfill:false};
-  const b=new PublicRealmBuilder(minecraft);forumCourt(b);marxEngels(b);neptun(b);ensemble(b);trees(b);b.finish(root);
+  const b=new PublicRealmBuilder(minecraft);forumCourt(b);marxEngels(b);neptun(b);ensemble(b);trees(b);
+  root.userData.alexanderRecognitionV257=appendAlexanderRecognitionV257(b);b.finish(root);
   root.add(minecraft ? createMinecraftFernsehturmPavilions() : createFernsehturmPavilions());
   freezeStaticSceneTransforms(root);return root;
 }

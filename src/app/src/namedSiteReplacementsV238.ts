@@ -1,6 +1,7 @@
 import north from "./data/northElevatedV238Replacement.json";
 import south from "./data/southElevatedV238Replacement.json";
 import venues from "./data/venuesV238Replacement.json";
+import { columbiaFacadeV257 } from "./columbiaFacadeV257";
 import type { SurroundingCityChunk, SurroundingNavigation, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
 type Solid = { ring: number[][]; holes: number[][][]; minY: number; maxY: number };
@@ -53,7 +54,7 @@ export function* prepareNamedSiteV238(chunk: SurroundingCityChunk, id: string, n
   if (!source || source.schema !== 1) return chunk;
   const packets = source.packets;
   if (!Object.hasOwn(packets, key)) return chunk;
-  const receipt = packets[key];
+  let receipt = packets[key];
   if (!receipt.replacement || !equal(receipt.origin, chunk.origin)) return chunk;
   for (const record of receipt.records) {
     const part = chunk.meshes[record.mesh];
@@ -66,6 +67,7 @@ export function* prepareNamedSiteV238(chunk: SurroundingCityChunk, id: string, n
   }
   for (const record of receipt.navigationRecords)
     if (chunk.nav.groundY !== record.groundY || !chunk.nav.buildings.some(b => b.sourceId === record.owner && equal(b, record.original))) return chunk;
+  if (!evidence && id === "2_7") receipt = { ...receipt, replacement: yield* columbiaFacadeV257(receipt.replacement, native) };
   return { ...chunk, meshes: [...chunk.meshes, receipt.replacement], namedSiteV238: receipt } as PreparedChunk;
 }
 

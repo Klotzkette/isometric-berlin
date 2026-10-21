@@ -1,0 +1,16 @@
+{
+  "accessed": "2026-10-21",
+  "usage": "External reference only; no photograph, protected plan, text or texture redistributed. Small procedural details are estimates.",
+  "institutional": [
+    {"title":"Münze, Palais Schwerin – Denkmal 09020051","publisher":"Landesdenkmalamt Berlin","url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020051","supports":"Three storeys, plaster and stone openings, supported portal, Schadow frieze, Palais seven axes and two balconies."},
+    {"title":"Alte Münze Kulturquartier","publisher":"Alte Münze Berlin","url":"https://www.alte-muenze-berlin.de/","supports":"Current site identity and cultural use."},
+    {"title":"Städtebauliches Gutachten Leipziger Straße, Teil 1, 2019","publisher":"Bezirksamt Mitte von Berlin; Meyer Große Hebestreit Sommerer","url":"https://www.berlin.de/ba-mitte/politik-und-verwaltung/bezirksamt/beschluesse-des-bezirksamts/2020/1155-2020-anlage-3-1-gutachtenleipzigerstrasse_textteil.pdf","supports":"Pages 26–27: tower loggias, differentiated pairs, two-storey base and folded pavilion parapets."},
+    {"title":"Mittendrin 3/2024, page 5","publisher":"WBM Wohnungsbaugesellschaft Berlin-Mitte","url":"https://www.wbm.de/fileadmin/user_upload/MITTENDRIN_Q3_2024_Web_barrierefrei.pdf","supports":"Leipziger Straße 40/41 identity and 1974 occupation."},
+    {"title":"Das Detlev-Rohwedder-Haus: Spiegel der deutschen Geschichte","publisher":"Bundesministerium der Finanzen","url":"https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Video-Textfassungen/Geschichte/textfassung-detlev-rohwedder-haus.html","supports":"Distinct existing western ministry endpoint; its dedicated model retained."}
+  ],
+  "wikimedia": [
+    {"title":"Berlin, Mitte, Molkenmarkt, Münze 02.jpg","creator":"Jörg Zägel","date":"2009-08-06","license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/","url":"https://commons.wikimedia.org/wiki/File:Berlin,_Mitte,_Molkenmarkt,_M%C3%BCnze_02.jpg","supports":"Main three-storey facade, frieze band, barred ground windows and two-pier entrance."},
+    {"title":"B-Molkenmkt.JPG","creator":"Jwaller","date":"2008-09-21","license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/","url":"https://commons.wikimedia.org/wiki/File:B-Molkenmkt.JPG","supports":"Palais ochre plaster, seven axes, quoins, rounded window heads and paired balconies."},
+    {"title":"Leipziger-Str-40+41.jpg","creator":"Axel Mauruszat","date":"2014-02-17","license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/","url":"https://commons.wikimedia.org/wiki/File:Leipziger-Str-40%2B41.jpg","supports":"Long-side loggia articulation and blue parapet strips of the 40/41 pair."}
+  ]
+}

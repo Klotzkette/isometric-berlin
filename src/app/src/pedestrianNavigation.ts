@@ -93,6 +93,7 @@ import { CONCERT_HALL_PRISM_IDS, CONCERT_HALL_SOURCE_BOUNDS, concertHallRoofAt }
 import { KULTURFORUM_MUSEUM_IDS, kulturforumMuseumRoofHeightAt } from "./kulturforumMuseumsProfile";
 import { KULTURFORUM_PIAZZETTA_PRISM_ID } from "./kulturforumPiazzettaV246Profile";
 import { hbfNorthRailGroundAt } from "./HbfNorthApproachProfile";
+import { invalidenEntryFloorV257At } from "./invalidenCivicV257Navigation";
 import { JAKOB_KAISER_EAST_UPPER_PROFILE } from "./parliamentArchitectureProfile";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
@@ -2129,7 +2130,8 @@ export function createPedestrianEnvironment(
     if (railCutY !== null) return railCutY;
     const terrain = spreebogenTerrainYAt(x,z,smoothGround(xOffset, zOffset));
     const site = topographySiteSurfaceAt(x, z);
-    return site === null ? terrain : Math.max(terrain, site);
+    const entry = invalidenEntryFloorV257At(x, z, environment.visualMode?.() === "minecraft");
+    return Math.max(terrain, site ?? terrain, entry ?? terrain);
   };
   const tunnelSegments = tunnel
     ? tunnelWalkCourses(tunnel).flatMap((course) =>

@@ -1,21 +1,27 @@
 import { Group } from "three";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { leipzigerMuenzeV257Rows } from "./leipzigerMuenzeV257";
 
 /** Small final-count batches keep distant 512 m cells independently culled. */
 export function altMitteEdgesV186Batches(cells: readonly { cell: string; rows: number[][] }[], native: boolean): Group {
   const root = new Group();
   root.name = native ? "Alt-Mitte independent native facade edges v186" : "Alt-Mitte measured street-wall edge relief v186";
   root.userData = {
-    altMitteEdgesV186: true, textureFree: true, additiveOnly: true,
+    altMitteEdgesV186: true, textureFree: true, additiveOnly: false,
+    receiptedAuthoredFacadeCorrectionV257: true,
     sourceGeometryRetained: true, fullStaticDetailOnTouch: true,
     keepInMinecraft: native, blockNative: native, independentNativeGeometry: native,
-    profileStatus: "Two thin display edge estimates on existing measured street walls; no new window or entrance claims.",
+    profileStatus: "Original measured wall-edge profiles retained. v257 adds bounded street fittings and corrects six exactly receipted generic Münze facade estimates; all measured sources and other authored detail survive.",
   };
   for (const cell of cells) {
-    const mesh = justicePalaceV183Boxes(native ? nativeContourRows(cell.rows) : cell.rows, native);
+    const previous = native ? nativeContourRows(cell.rows) : cell.rows;
+    const additions = leipzigerMuenzeV257Rows(cell.cell, native);
+    const mesh = justicePalaceV183Boxes(additions.length ? [...previous, ...additions] : previous, native);
     mesh.name = `Alt-Mitte source wall edge cell ${cell.cell}`;
     mesh.userData.spatialCell = cell.cell;
+    mesh.userData.leipzigerMuenzeV257 = additions.length;
+    mesh.userData.receiptedAuthoredFacadeCorrectionV257 = cell.cell === "4:0";
     root.add(mesh);
   }
   return freezeStaticSceneTransforms(root);

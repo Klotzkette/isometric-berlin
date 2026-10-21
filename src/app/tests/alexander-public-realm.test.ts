@@ -23,7 +23,13 @@ const drawn=createAlexanderPublicRealm(),native=createMinecraftAlexanderPublicRe
 test("full mobile and desktop static detail remains identical with additive bounded pavilion batches",()=>{
   const a=measure(drawn),b=measure(createAlexanderPublicRealm(true)),n=measure(native);
   expect(a).toEqual(b);expect(a.draws).toBe(7);expect(n.draws).toBe(2);
-  expect(a.bytes).toBeLessThan(1_000_000);expect(n.bytes).toBeLessThan(1_100_000);
+  // v257 adds the requested three named sites to these same batches. Keep the
+  // complete older byte baseline and account for the bounded additions explicitly;
+  // no streaming, transfer, prefetch or live residency limit is changed.
+  const v257DrawnBytes=(5203+296)*76,v257NativeBytes=24690*76;
+  expect(a.bytes-v257DrawnBytes).toBe(713_024);
+  expect(n.bytes-v257NativeBytes).toBe(1_026_900);
+  expect(a.bytes).toBeLessThan(1_140_000);expect(n.bytes).toBeLessThan(2_910_000);
   expect(native.userData.hiddenSolidInfill).toBeFalse();expect(native.children[0]).toBeInstanceOf(InstancedMesh);
   expect((native.children[0] as Mesh).geometry.getAttribute("position").count).toBe(24);
   expect(measure(createMinecraftAlexanderPublicRealm(true))).toEqual(n);

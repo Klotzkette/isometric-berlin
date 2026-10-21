@@ -9,6 +9,7 @@ import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrial
 import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
+import { createColumbiahalleV257, type ColumbiahalleV257 } from "./ColumbiahalleV257";
 import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
 import { pergamonPanoramaV202PassageAt, pergamonPanoramaV202SolidAt, pergamonPanoramaV202GroundAt } from "./pergamonPanoramaV202Profile";
 import { outlineNavigationEnvelopeBounds } from "./outlineNavigationEnvelope";
@@ -654,6 +655,7 @@ type ThreeViewerProps = {
   initialFlightView?: StartupFlightView | null;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
+  onConcertInteriorChange?: (entered: boolean, restoreAudio?: boolean) => void;
   onError: (message: string) => void;
   onPedestrianPoseChange: (pose: PedestrianPose | null) => void;
   onPedestrianRespawn: () => void;
@@ -710,6 +712,7 @@ type ProgressiveWorldQueuedMessage = {
 
 type Runtime = {
   pergamonReveal?: PergamonReveal;
+  columbiahalleV257?: ColumbiahalleV257;
   camera: PerspectiveCamera;
   centralDetails: Group;
   cityStaffage: Group;
@@ -5727,6 +5730,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       initialFlightView = null,
       pergamonRevealed = false,
       onPergamonRevealChange,
+      onConcertInteriorChange,
       onError,
       onPedestrianPoseChange,
       onPedestrianRespawn,
@@ -6802,11 +6806,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let gpuWarmupTimer: number | null = null;
       let gpuWarmupInteractionUntil = 0;
       runtime.scheduleGpuWarmup = () => {
-        if (disposed || runtime.contextLost || document.hidden || !activeRef.current ||
+        if (disposed || runtime.contextLost || document.hidden || !activeRef.current || runtime.columbiahalleV257?.entered ||
           gpuWarmupTimer !== null || !runtime.gpuWarmup?.pending) return;
         gpuWarmupTimer = window.setTimeout(() => {
           gpuWarmupTimer = null;
-          if (disposed || runtime.contextLost || document.hidden || !activeRef.current) return;
+          if (disposed || runtime.contextLost || document.hidden || !activeRef.current || runtime.columbiahalleV257?.entered) return;
           // Ordinary rendering always uploads visible data. Speculative
           // preparation should use pauses, not compete with a held joystick.
           if (performance.now() < gpuWarmupInteractionUntil || browserInputPending()) {
@@ -7755,6 +7759,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls.enabled = !runtime.pedestrian.enabled;
         notifyView(runtime, onViewChangeRef.current);
       };
+      runtime.columbiahalleV257 = createColumbiahalleV257({
+        canvas: renderer.domElement, renderer, worldCamera: camera,
+        native: () => runtime.lightingMode === "minecraft", reducedMotion,
+        invalidate: () => invalidateScenePresentation(runtime),
+        onChange: onConcertInteriorChange,
+        resetInput: () => {
+          resetTouchGesture();
+          // Existing App keyboard and touch adapters clear held inputs on blur.
+          window.dispatchEvent(new Event("blur"));
+        },
+        onError: message => onWarningRef.current(message),
+      });
       let recoveryPageHidden = false;
       let contextRecovery: ReturnType<typeof createViewerContextRecovery> | undefined;
       const onVisibilityChange = () => {
@@ -7822,6 +7838,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         onVisibilityChange();
       };
       const onDoubleClick = (event: MouseEvent) => {
+        if (runtime.columbiahalleV257?.entered) return;
         if (event.button !== 0) {
           return;
         }
@@ -8172,8 +8189,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         frame = window.requestAnimationFrame(animate);
         if (!activeRef.current || document.hidden || runtime.contextLost) {
+          runtime.columbiahalleV257?.suspend();
           // Hidden mobile tabs must not advance navigation or GPU work when
           // a browser still supplies occasional animation frames.
+          lastAnimateAt = timestamp;
+          return;
+        }
+        if (runtime.columbiahalleV257?.entered) applyPendingViewport();
+        if (runtime.columbiahalleV257?.update(timestamp)) {
           lastAnimateAt = timestamp;
           return;
         }
@@ -9433,6 +9456,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         runtime.pergamonReveal?.dispose();
         runtime.pergamonReveal = undefined;
+        runtime.columbiahalleV257?.dispose();
+        runtime.columbiahalleV257 = undefined;
         // Minimap poses own resident navigation references. Saved navigation is
         // numeric and separate, so release the old family before rebuilding it.
         pedestrianPoseEmissionRef.current.active = false;

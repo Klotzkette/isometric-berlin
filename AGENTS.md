@@ -1449,3 +1449,27 @@ only precisely receipted erroneous memorial decoration, preserving its
 protected walking behavior. Small fittings remain documented estimates.
 Keep full drawn mobile detail and independent orthogonal native additions;
 reuse existing batches without new coverage, descriptors or tour stops.
+
+### Step 10 — v257 Littenstraße, Alexanderplatz and Leipziger Straße
+
+The owner requests the surviving Littenstraße courthouse and Zur letzten
+Instanz, street context behind Rotes Rathaus, CUBIX and the Rathausstraße
+commercial/housing row, Fernsehturm base, Alte Münze and the Leipziger Straße
+fronts up to the finance ministry. Identify the actual current building owners
+and distinguish the surviving court from its demolished wings/towers. Preserve
+complete measured geometry, roofs, courts, earlier detail and all live budgets.
+Replace only specifically evidenced erroneous authored estimates with exact
+receipts. Small unsurveyed facade and shop fittings remain labelled estimates;
+current tenants require public source verification. Reuse existing batches,
+full drawn mobile detail and independent orthogonal native geometry. No new
+district coverage, tour stop, photographic texture or animation loop.
+
+The owner's additional v257 request includes Columbiahalle's supplied facade
+photographs and a silent, repeating illustrative concert interior, plus the
+transport ministry at Invalidenpark and the Scharnhorststraße heating plant.
+A bounded local concert animation is expressly authorised, with no audio and
+no work while offscreen/hidden or after disposal. Use supplied media as evidence;
+retain full mobile detail and independent native construction. Identify the
+current plant chimney configuration from evidence and supersede only exactly
+receipted obsolete authored parts. No unrelated coverage or live memory policy
+changes are permitted.

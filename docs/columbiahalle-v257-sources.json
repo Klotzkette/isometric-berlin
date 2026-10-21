@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "retrieved": "2026-10-21",
+  "owner": "DEBE07YY900008dL",
+  "userProvidedMedia": [
+    {
+      "file": "1-Photo-1.jpg",
+      "bytes": 1921393,
+      "sha256": "a58ef9ba5106ff5e5530766ead152b4f90c4a971a68b8bf8fd66d5e4dc69873d",
+      "usage": "Exterior/interior geometry recognition only; original photo pixels are not bundled."
+    },
+    {
+      "file": "2-Photo-2.jpg",
+      "bytes": 212803,
+      "sha256": "121ab9d9436c28e18cd1168fb36616f55e1f2509970e0e31a905512e0056ecc6",
+      "usage": "Exterior/interior geometry recognition only; original photo pixels are not bundled."
+    },
+    {
+      "file": "3-Photo-3.jpg",
+      "bytes": 66191,
+      "sha256": "d91b90716b158c8d8b5ff809b32e1f2ded56d7a21cc42c66c22f10f8c4db9625",
+      "usage": "Exterior/interior geometry recognition only; original photo pixels are not bundled."
+    },
+    {
+      "file": "4-Photo-4.jpg",
+      "bytes": 141751,
+      "sha256": "b2318072983c5c9cd29f19b6472b168d2837ac85265d5908429d8e101f2570a6",
+      "usage": "Exterior/interior geometry recognition only; original photo pixels are not bundled."
+    },
+    {
+      "file": "5-IMG_3372.mov",
+      "bytes": 19222337,
+      "sha256": "c86ffd476e4f69d856dd5491167ba0af5acd0ca1301f8d00dcc91b1fa1e8c631",
+      "usage": "Complete silent 640x360, 15fps, 21.8667s H.264 derivative; video-only encoding."
+    }
+  ],
+  "video": {
+    "file": "media/columbiahalle-v257-silent.mp4",
+    "bytes": 1244331,
+    "sha256": "09b47065d13fef9302fa00d14bd230608c2396c4534c45f4afcee0048e0ee578",
+    "width": 640,
+    "height": 360,
+    "fps": 15,
+    "frames": 328,
+    "audioTracks": 0
+  },
+  "references": [
+    {
+      "url": "https://www.columbiahalle.berlin/about-us.html",
+      "publisher": "Columbiahalle Gastro- und Betriebs GmbH",
+      "supports": "Current hall identity, stage/balcony function, venue history; read 2026-10-21."
+    },
+    {
+      "url": "https://www.columbiahalle.berlin/kontakt.html",
+      "publisher": "Columbiahalle Gastro- und Betriebs GmbH",
+      "supports": "Columbiadamm 13–21 address; read 2026-10-21."
+    },
+    {
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5816.zip",
+      "publisher": "Berlin Geoportal",
+      "license": "dl-de/zero-2-0",
+      "supports": "Four retained measured source parts, already delivered in v238."
+    }
+  ],
+  "credits": "User-provided Columbiahalle photos and concert recording, supplied 21 October 2026. Exterior recognition and illustrative silent concert. Berlin LoD2 (dl-de/zero-2-0); OpenStreetMap contributors (ODbL-1.0) for retained entrance nodes. Venue identity: Columbiahalle Gastro- und Betriebs GmbH."
+}
