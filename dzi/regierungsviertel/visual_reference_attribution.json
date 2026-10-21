@@ -756,12 +756,10 @@
     {
       "landmark_id": "columbiahalle_v257",
       "title": "Columbiahalle facade and concert, 19 October 2026",
-      "credit": "User-provided photographs and concert recording, supplied 21 October 2026; original photographs reference-only; compact silent recording shown on explicit request.",
-      "role": "user_supplied_reference_and_silent_video",
+      "credit": "User-provided Columbiahalle photographs and concert references, supplied 21 October 2026. Reference only; all video derivatives withdrawn in v1.0.160 at the owner’s request.",
+      "role": "user_supplied_reference_only",
       "photo_bundled": false,
-      "video_bundled": true,
-      "video_file": "media/columbiahalle-v257-silent.mp4",
-      "video_sha256": "09b47065d13fef9302fa00d14bd230608c2396c4534c45f4afcee0048e0ee578"
+      "video_bundled": false
     },
     {
       "landmark_id": "invaliden_civic_v257",
@@ -856,22 +854,177 @@
     {
       "landmark_id": "columbiahalle_v258",
       "title": "Columbiahalle additional concert recording: 1-IMG_3366.mov",
-      "credit": "User-provided Columbiahalle photographs and concert videos, supplied 21 October 2026. Only silent video derivatives are bundled, loaded individually on request.",
-      "role": "user_supplied_reference_and_silent_video",
+      "credit": "User-provided Columbiahalle photographs and concert references, supplied 21 October 2026. Reference only; all video derivatives withdrawn in v1.0.160 at the owner’s request.",
+      "role": "user_supplied_reference_only",
       "photo_bundled": false,
-      "video_bundled": true,
-      "video_file": "media/columbiahalle-v258-red-silent.mp4",
-      "video_sha256": "d76f3182771c6239c16271489a18dc083b5598b2e3fff62088d25986065462ed"
+      "video_bundled": false
     },
     {
       "landmark_id": "columbiahalle_v258",
       "title": "Columbiahalle additional concert recording: 2-IMG_3371.mov",
-      "credit": "User-provided Columbiahalle photographs and concert videos, supplied 21 October 2026. Only silent video derivatives are bundled, loaded individually on request.",
-      "role": "user_supplied_reference_and_silent_video",
+      "credit": "User-provided Columbiahalle photographs and concert references, supplied 21 October 2026. Reference only; all video derivatives withdrawn in v1.0.160 at the owner’s request.",
+      "role": "user_supplied_reference_only",
       "photo_bundled": false,
-      "video_bundled": true,
-      "video_file": "media/columbiahalle-v258-portrait-silent.mp4",
-      "video_sha256": "88fbfce3add239a59b4d54d7074c7e588ea57861976af631837d17181cb21130"
+      "video_bundled": false
+    },
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "Ludwig-Erhard-Haus, borough account and 2022 exterior photograph",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/gebaeude-und-anlagen/buero-und-geschaeftshaeuser/artikel.158761.php",
+      "file_url": "https://www.berlin.de/imgscale4/ropen/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/bauwerke/gebaeude-und-anlagen/buero-und-geschaeftshaeuser/ludwig_erhard_haus_261022.jpg",
+      "artist": "BACW / Farchmin",
+      "year": 2022,
+      "license": "Reference only; no image redistribution",
+      "credit": "Ludwig-Erhard-Haus photograph: Bezirksamt Charlottenburg-Wilmersdorf / Farchmin",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "IHK Berlin, Standort seit 1998",
+      "page_url": "https://www.ihk.de/berlin/ueber-uns/aufgaben-und-struktur/ihk-standort-seit-1998-2256936",
+      "credit": "Industrie- und Handelskammer Berlin",
+      "license": "Public factual reference; no media redistribution",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "ludwig_erhard_haus_v260",
+      "title": "Berlinische Galerie: Nicholas Grimshaw and Partners",
+      "page_url": "https://berlinischegalerie.de/sammlung/architektur/nicholas-grimshaw-and-partners/",
+      "credit": "Berlinische Galerie; working model © Nicholas Grimshaw and Partners",
+      "license": "Public factual reference; no media redistribution",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "renaissance_theater_v260",
+      "title": "Renaissance-Theater, Landesdenkmalamt Berlin",
+      "page_url": "https://www.berlin.de/landesdenkmalamt/denkmale/aus-der-praxis-erkennen-und-erhalten/oeffentliche-anlagen/renaissance-theater-641101.php",
+      "file_url": "https://www.berlin.de/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/renaissance_theater09_hauptfassade.jpg",
+      "artist": "Wolfgang Reuss / Landesdenkmalamt Berlin",
+      "year": 2000,
+      "license": "Reference only; no image redistribution",
+      "credit": "Renaissance-Theater exterior photograph: Landesdenkmalamt Berlin / Wolfgang Reuss",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "renaissance_theater_v260",
+      "title": "Renaissance-Theater, current venue architecture account",
+      "page_url": "https://renaissance-theater.de/art-deco-architektur-im-renaissance-theater/",
+      "credit": "Renaissance-Theater Berlin",
+      "license": "Public factual reference; no media redistribution",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "delphi_filmpalast_v260",
+      "title": "Delphi Filmpalast, borough account and facade photograph",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/kultur-und-wissenschaft/kinos/artikel.157859.php",
+      "file_url": "https://www.berlin.de/imgscale4/ropen/ba-charlottenburg-wilmersdorf/aktuelles/pressemitteilungen/2021/defphi_filmpalast_2.jpg",
+      "artist": "BACW / Haraszthy",
+      "year": 2021,
+      "license": "Reference only; no image redistribution",
+      "credit": "Delphi Filmpalast photograph: Bezirksamt Charlottenburg-Wilmersdorf / Haraszthy",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "delphi_filmpalast_v260",
+      "title": "Delphi Filmpalast, Yorck Kinos",
+      "page_url": "https://www.yorck.de/kinos/delphi-filmpalast",
+      "credit": "Yorck-Kino GmbH",
+      "license": "Public factual reference; no media redistribution",
+      "role": "external_reference_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Kino International architectural account",
+      "url": "https://www.berlin.de/ost-west-ost-kulturbahnhoefe/history-walk/artikel.1558584.php",
+      "author": "Land Berlin / Landesdenkmalamt Berlin; Wolfgang Bittner photograph",
+      "license": "Architectural factual reference; photographs all rights reserved, reference only",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Kino International nine-metre cantilever and facade photograph",
+      "url": "https://www.visitberlin.de/de/kino-international",
+      "author": "Berlin Tourismus & Kongress GmbH; Landesdenkmalamt Berlin / Wolfgang Bittner",
+      "license": "All rights reserved; reference only",
+      "images": [
+        "https://www.visitberlin.de/system/files/styles/visitberlin_bleed_header_visitberlin_mobile_1x/private/image/Kino_International_28_BIT_7891_c_LDA_Foto_Wolfgang_Bittner_DL_PPT_0.jpg.jpg?itok=TZYwHilZ"
+      ],
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Kino International completed restoration 2026",
+      "url": "https://presse.yorck.de/assets/2026_International_Fakten.pdf",
+      "author": "Yorck-Kino GmbH; Dickmann Richter Architekten",
+      "license": "Factual restoration reference; no protected plan copied",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Pavilion, formerly Café Restaurant Moscow",
+      "url": "https://www.berlin.de/ost-west-ost-kulturbahnhoefe/en/history-walk/artikel.1604380.en.php",
+      "author": "Land Berlin / Landesdenkmalamt Berlin; Wolfgang Bittner, 2013",
+      "license": "All rights reserved; reference only",
+      "images": [
+        "https://www.berlin.de/imgscale4/r4zu3/ost-west-ost-kulturbahnhoefe/_assets/8a_kma2_bit_0270.jpg"
+      ],
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Café Moskau architectural restoration statement",
+      "url": "https://www.berggruenholdings.de/presse/PM20071213Cafe%20Moskau.pdf",
+      "author": "Nicolas Berggruen Holdings GmbH; HSH Hoyer Schindele Hirschmüller",
+      "license": "Factual architectural reference; no plan copied",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Complete retained Berlin LoD2 owners",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5820.zip",
+      "author": "Geoportal Berlin",
+      "license": "dl-de/zero-2-0",
+      "additional_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5819.zip",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "east_cinemas_v260",
+      "title": "Kino International and Café Moskau mapped identities",
+      "url": "https://www.openstreetmap.org/way/24240975",
+      "author": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "additional_url": "https://www.openstreetmap.org/relation/1320420",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "zoo_palast_v260",
+      "url": "https://www.berlin.de/imgscale4/rbig2zu1/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/oeff_zoo_palast01_titel.jpg",
+      "credit": "Landesdenkmalamt Berlin",
+      "usage": "Reference only: low projecting entrance fascia, canopy edge, glazing and poster cases; no historical tenant or movie programme asserted as current.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "zoo_palast_v260",
+      "url": "https://www.berlin.de/landesdenkmalamt/_assets/bilder/denkmalpflege/erkennen-erhalten/industriebauten/zoo_palast07_fassade.jpg",
+      "credit": "Wolfgang Bittner / Landesdenkmalamt Berlin, 2013",
+      "usage": "Reference only: yellow ceramic joints, brass relief button, metal coping and three side portholes.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }
