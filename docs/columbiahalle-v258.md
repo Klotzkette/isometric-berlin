@@ -20,7 +20,7 @@ display estimates, not an as-built survey.
 Drawn truss diagonals and faceted duct surfaces use rotated box instances.
 Minecraft uses independently constructed orthogonal steps and duct slices.
 Mobile retains the complete detail of its selected family. Both families still
-use ten draw calls, with no new renderer, animation loop, city packet or live
+use ten mesh batches, with no new renderer, animation loop, city packet or live
 residency allowance.
 
 | Temporary interior resource | Drawn | Native |
@@ -28,7 +28,8 @@ residency allowance.
 | GPU attribute/index/instance arrays | 72,780 B | 93,624 B |
 | Previous GPU arrays | 59,404 B | 70,672 B |
 | Instances | 930 | 1,248 |
-| Draw calls | 10 | 10 |
+| Mesh batches | 10 | 10 |
+| Browser render calls (two-sided transparent light passes included) | 18 | 18 |
 
 Both remain below the existing 100,000-byte interior test ceiling. Static details
 share the existing scene lifetime and disposal, including explicit disposal of
@@ -68,11 +69,24 @@ The production build passed. Browser QA passed in iPhone 13 WebKit and desktop
 Chrome, each in Day and Minecraft. Each case checked all three recordings,
 aspect ratios, one video element, no initial media request, natural looping,
 manual pause across clip switches and hidden/resume, preserved city camera,
-and four entry/exit cycles. All concert GPU buffers were deleted on each exit;
+and four entry/exit cycles. All concert GPU buffers were deleted on each exit (40 tracked allocations across
+four drawn visits, 72 across four native visits, zero retained). No city GPU
+buffers were created while inside;
 no page error, crash or GL error was observed. Screenshots were inspected.
 These bounded runs do not establish immunity to all browser/device failures.
 
 The extracted package has 4,729 files and 934,000,260 bytes (890.732 MiB), below
 the unchanged 891 MiB ceiling. Release readiness passed. Pages preflight retains
 the exact previous two live asset sets and totals 1,043,425,697 bytes, leaving
-30,316,127 bytes below 1 GiB. Archive validation and public deployment follow.
+30,316,127 bytes below 1 GiB. The local HTTP package smoke test passed. Both complete archive validators
+passed before upload; GitHub returned matching sizes and SHA-256 digests.
+Archives were built sequentially in RAM to avoid duplicate local disk usage.
+
+| Archive | Bytes | SHA-256 |
+|---|---:|---|
+| `isometric-berlin-regierungsviertel-local.zip` | 753,721,529 | `affe3258e48af9b119cc23c8a7ad571f12aaf328ff1c021c12278f2154c0e818` |
+| `isometric-berlin-viewer-v1.0.158.tar.gz` | 752,917,065 | `39f2849c503255bf78438d5d1f2e3d275b4e4efec185a883345fc98478632956` |
+
+The implementation commit is `56d1d1537871d33b2cc616f747317ea69ecf1cab`.
+Pages commit `1cfb51e4aa5a79e1975280bd521a59bba66015c8` has been pushed;
+deployment and final public verification remain pending.

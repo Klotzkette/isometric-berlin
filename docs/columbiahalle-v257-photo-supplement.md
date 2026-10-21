@@ -31,13 +31,15 @@ and 24-second light cycle are unchanged.
 | Temporary interior resource | Before drawn | After drawn | Before native | After native |
 |---|---:|---:|---:|---:|
 | GPU attribute/index/instance bytes | 59,404 | 72,780 | 70,672 | 93,624 |
-| Draw calls | 10 | 10 | 10 | 10 |
+| Mesh batches | 10 | 10 | 10 | 10 |
 | Instances | 754 | 930 | 946 | 1,248 |
 
 Both remain below the existing 100,000-byte interior test ceiling. Eleven focused
 Bun tests passed, including both new physical-opening/native-matrix checks and
 the existing lighting, GPU disposal, input and interaction tests (1,726 assertions).
-No build, browser or release operation was performed in this follow-up.
+This geometry-only subtask ran no build, browser or release operation; root
+integration and browser render-call measurements are recorded in the
+[v258 report](columbiahalle-v258.md).
 
 ## Supplied image identities
 
