@@ -4,7 +4,7 @@ import {
   Quaternion, Scene, SphereGeometry, Vector3,
 } from "three";
 
-type Row = [number, number, number, number, number, number, number];
+type Row = [number, number, number, number, number, number, number, number?];
 const BLACK = 0x111219;
 export const COLUMBIA_CONCERT_V257 = Object.freeze({
   illustrative: true, sourceShellUnchanged: true, textureFree: true,
@@ -26,6 +26,17 @@ export function createColumbiaConcertV257(native: boolean) {
   camera.lookAt(0, 4, -14);
   const boxes: Row[] = [];
   const add = (x:number,y:number,z:number,w:number,h:number,d:number,c=BLACK) => boxes.push([x,y,z,w,h,d,c]);
+  const photoDetails: Record<string, [number, number]> = {};
+  function detail(name:string,build:()=>void) {
+    const start=boxes.length;build();photoDetails[name]=[start,boxes.length-start];
+  }
+  // The supplied red-lit photograph supports these forms, not surveyed sizes
+  // or repetition counts. Drawn diagonals and tube faces use rotated bars;
+  // their native counterparts are independently built from orthogonal steps.
+  function diagonal(x:number,y:number,z:number,dx:number,dy:number,c:number) {
+    if(native)for(let i=0;i<4;i++)add(x+dx*(i+.5)/4,y+dy*(i+.5)/4,z,Math.abs(dx)/4+.04,Math.abs(dy)/4+.06,.085,c);
+    else boxes.push([x+dx/2,y+dy/2,z,Math.hypot(dx,dy),.065,.065,c,Math.atan2(dy,dx)]);
+  }
   add(0,-.15,0,34,.3,40,0x15141c);
   add(-17,5,0,.3,10,40,0x191723); add(17,5,0,.3,10,40,0x191723);
   add(0,10,0,34,.25,40,0x14131d); add(0,4.6,-20,34,9.2,.2,0x08090e);
@@ -33,13 +44,49 @@ export function createColumbiaConcertV257(native: boolean) {
   for (const x of [-12,12]) add(x,3.4,-12.5,1.3,4.6,1.25,0x0b0c10);
   for (const x of [-15.4,15.4]) {
     add(x,4.1,3,2.8,.24,29,0x24222a);
-    add(x > 0 ? 14 : -14,4.7,3,.13,1,29,0x34303b);
   }
+  // Exact correction of the two previous illustrative solid balcony panels:
+  // keep their deck and replace only x=±14,y=4.7,z=3,.13×1×29 by open rails.
+  detail("open-balcony-rails",()=>{
+    for(const x of [-14,14]) {
+      add(x,5.18,3,.13,.1,29,0x34303b);add(x,4.37,3,.11,.08,29,0x34303b);
+      for(let z=-11;z<=17;z+=2)add(x,4.77,z,.09,.82,.09,0x34303b);
+    }
+  });
   for (const z of [-14,-7,0,7,14]) {
     add(0,9.2,z,33,.22,.23,0x36333e);
     add(0,8.6,z,33,.12,.12,0x292630);
     for (let x=-15;x<=15;x+=3) add(x,8.9,z,.12,.65,.12,0x39333f);
   }
+  detail("triangular-truss-webs",()=>{
+    for(const z of [-14,-7,0,7,14])for(let x=-15;x<15;x+=3)
+      diagonal(x,8.62+(x%2===0?.53:0),z,3,x%2===0?-.53:.53,0x49434e);
+  });
+  detail("right-roof-ventilation-duct",()=>{
+    const tube=(z:number,length:number,r:number,c:number)=>{
+      if(native) {
+        const h=2*r/5;
+        for(let i=0;i<5;i++) {
+          const y=-r+h*(i+.5),w=2*Math.sqrt(r*r-y*y);
+          add(11.8,8.85+y,z,w,h,length,c);
+        }
+      } else for(let i=0;i<8;i++) {
+        const a=(i+.5)*Math.PI/4,mid=r*Math.cos(Math.PI/8);
+        boxes.push([11.8+Math.cos(a)*mid,8.85+Math.sin(a)*mid,z,2*r*Math.sin(Math.PI/8),.055,length,c,a+Math.PI/2]);
+      }
+    };
+    tube(.5,35,.62,0x48444e);
+    for(const z of [-14,-9,-4,1,6,11,16])tube(z,.12,.66,0x625a66);
+  });
+  detail("suspended-stage-lamps",()=>{
+    for(let i=0;i<8;i++) {
+      const x=(i-3.5)*3.25,z=-13.7+(i%2)*3;
+      if(i%2)add(x,8.66,-12.2,.09,.09,3.3,0x39333f);
+      add(x,8.25,z,.42,.48,.42,0x090a0f);
+      for(const side of [-1,1])add(x+side*.26,8.42,z,.075,.5,.12,0x39333f);
+    }
+    for(const x of [-13.2,-12.85])add(x,5.4,-12.1,.035,6.1,.035,0x090a0f);
+  });
   // Three anonymous performers and simple equipment, not identifiable people.
   for (const x of [-7,0,6]) {
     add(x,2.25,-14.2,.55,1.3,.36,0x14131b);
@@ -59,18 +106,19 @@ export function createColumbiaConcertV257(native: boolean) {
     add(x,h*.48,z,.52,h*.9,.34,c);
     heads.push([x,h+.11,z,.36,.42,.36,c]);
   }
-  const matrix = new Matrix4(), color = new Color();
+  const matrix = new Matrix4(), color = new Color(), scale = new Vector3();
   function batch(rows:Row[], head=false) {
     const geometry = head && !native ? new SphereGeometry(.5,8,6) : new BoxGeometry(1,1,1);
     geometry.deleteAttribute("normal"); geometry.deleteAttribute("uv");
     const mesh = new InstancedMesh(geometry,new MeshBasicMaterial(),rows.length);
-    rows.forEach(([x,y,z,w,h,d,c],i)=>{
-      matrix.makeScale(w,h,d).setPosition(x,y,z);mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,color.setHex(c));
+    rows.forEach(([x,y,z,w,h,d,c,angle=0],i)=>{
+      matrix.makeRotationZ(angle).scale(scale.set(w,h,d)).setPosition(x,y,z);mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,color.setHex(c));
     });
     mesh.instanceMatrix.needsUpdate=true;
     mesh.instanceColor!.needsUpdate=true;
     mesh.name=head ? "Anonymous audience heads" : "Stage, balcony, trusses and audience";
     mesh.userData.blockNative=native;
+    if(!head)mesh.userData.photoDetails=photoDetails;
     root.add(mesh);
   }
   batch(boxes); batch(heads,true);

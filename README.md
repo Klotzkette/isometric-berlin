@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.157 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.157/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.158 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.158/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.157** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.158** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.158 incorporates the additional Columbiahalle references: roof trusses, ventilation and balcony details, plus a choice of three individually loaded silent concert recordings with their original aspect ratios. [Sources and checks](docs/columbiahalle-v258.md).
+
+Version 1.0.158 ergänzt die Columbiahalle nach den weiteren Aufnahmen: Dachtraversen, Lüftung und Balkondetails sowie drei einzeln geladene stumme Konzertaufnahmen im jeweiligen Seitenverhältnis. [Quellen und Prüfungen](docs/columbiahalle-v258.md).
 
 Version 1.0.157 refines Littenstraße courthouse, Zur letzten Instanz, CUBIX and Rathauspassagen, the Fernsehturm base, Alte Münze and selected Leipziger Straße fronts. It also adds Columbiahalle's photo-guided facade, an illustrative silent interior light scene and the supplied recording on request, plus the transport ministry at Invalidenpark and the Scharnhorststraße heating plant's two 35-metre stacks. Measured source geometry and live memory limits remain. [Sources and checks](docs/mitte-architecture-v257.md).
 

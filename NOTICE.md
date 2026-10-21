@@ -31,14 +31,16 @@ tiles are produced independently for this repository.
   licences ship in `visual_reference_attribution.json`; see
   [source receipts and checks](docs/invaliden-civic-v257.md).
 
-- **Columbiahalle (v1.0.157):** User-provided facade and concert photographs
-  and recording, supplied 21 October 2026, guide the exterior and a bounded
-  illustrative concert. Original photographs remain references only. At the
-  owner's request the complete recording is included as a compact silent
-  H.264 derivative, loaded only on demand, with no audio track. Retained
-  Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) anchor the shell
-  and mapped entrances. Venue identity: Columbiahalle Gastro- und Betriebs
-  GmbH. See [media receipts and implementation](docs/columbiahalle-v257.md).
+- **Columbiahalle (v1.0.157–v1.0.158):** User-provided facade and concert
+  photographs and three recordings, supplied 21 October 2026, guide the exterior
+  and a bounded illustrative concert. Original photographs remain references
+  only. At the owner's request the recordings are included as compact silent
+  H.264 derivatives, loaded individually on demand, without audio tracks and
+  with their original aspect ratios. Retained Berlin LoD2 (dl-de/zero-2-0)
+  and OpenStreetMap (ODbL-1.0) anchor the shell and mapped entrances. Venue
+  identity: Columbiahalle Gastro- und Betriebs GmbH. See [original media
+  receipts](docs/columbiahalle-v257.md) and [additional recordings and
+  references](docs/columbiahalle-v258.md).
 
 - **Littenstraße, Alexanderplatz and Leipziger Straße (v1.0.157):**
   Retained Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0)

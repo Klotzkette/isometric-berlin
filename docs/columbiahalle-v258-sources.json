@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "supplied": "2026-10-21",
+  "scope": "Additional user Columbiahalle facade and concert references; photographs are not bundled as textures.",
+  "media": [
+    {
+      "name": "1-IMG_3366.mov",
+      "bytes": 1998761,
+      "sha256": "fb0bc818cb33076ed11321e33a0a856a7e0dceb890bcd8367e86e5db45cc8be9",
+      "frames": 89,
+      "fps": 30.0,
+      "seconds": 2.966666666666667,
+      "width": 1280.0,
+      "height": 720.0
+    },
+    {
+      "name": "2-IMG_3371.mov",
+      "bytes": 11121917,
+      "sha256": "0beae6c0be8ad020a5c060933106b1f2db38774cd431fd1074a669aebadb2906",
+      "frames": 252,
+      "fps": 29.994048799841302,
+      "seconds": 8.401666666666667,
+      "width": 1080.0,
+      "height": 1920.0
+    },
+    {
+      "name": "3-Photo-3.jpg",
+      "bytes": 76807,
+      "sha256": "e8b567a47fbb4ea40b8021aa656921e1ec55ffc4943371101ca32ffc7af74c3b"
+    },
+    {
+      "name": "4-Photo-4.jpg",
+      "bytes": 141751,
+      "sha256": "b2318072983c5c9cd29f19b6472b168d2837ac85265d5908429d8e101f2570a6"
+    },
+    {
+      "name": "5-Photo-5.jpg",
+      "bytes": 212803,
+      "sha256": "121ab9d9436c28e18cd1168fb36616f55e1f2509970e0e31a905512e0056ecc6"
+    },
+    {
+      "name": "6-Photo-6.jpg",
+      "bytes": 1921393,
+      "sha256": "a58ef9ba5106ff5e5530766ead152b4f90c4a971a68b8bf8fd66d5e4dc69873d"
+    }
+  ],
+  "videos": [
+    {
+      "source": "1-IMG_3366.mov",
+      "sourceSha256": "fb0bc818cb33076ed11321e33a0a856a7e0dceb890bcd8367e86e5db45cc8be9",
+      "sourceFrames": 89,
+      "sourceFps": 30.0,
+      "file": "media/columbiahalle-v258-red-silent.mp4",
+      "bytes": 199492,
+      "sha256": "d76f3182771c6239c16271489a18dc083b5598b2e3fff62088d25986065462ed",
+      "width": 640,
+      "height": 360,
+      "fps": 15,
+      "frames": 45,
+      "audioTracks": 0
+    },
+    {
+      "source": "2-IMG_3371.mov",
+      "sourceSha256": "0beae6c0be8ad020a5c060933106b1f2db38774cd431fd1074a669aebadb2906",
+      "sourceFrames": 252,
+      "sourceFps": 29.994048799841302,
+      "file": "media/columbiahalle-v258-portrait-silent.mp4",
+      "bytes": 384024,
+      "sha256": "88fbfce3add239a59b4d54d7074c7e588ea57861976af631837d17181cb21130",
+      "width": 360,
+      "height": 640,
+      "fps": 15,
+      "frames": 126,
+      "audioTracks": 0
+    }
+  ],
+  "previousRecording": "columbiahalle-v257-sources.json",
+  "credits": "User-provided Columbiahalle photographs and concert videos, supplied 21 October 2026. Only silent video derivatives are bundled, loaded individually on request."
+}

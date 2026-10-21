@@ -1473,3 +1473,13 @@ retain full mobile detail and independent native construction. Identify the
 current plant chimney configuration from evidence and supersede only exactly
 receipted obsolete authored parts. No unrelated coverage or live memory policy
 changes are permitted.
+
+### Step 10 — v258 additional Columbiahalle references
+
+The owner's additional four photos and two videos refine only the existing
+Columbiahalle facade/interior interpretation. Preserve the facade when the photos
+repeat prior evidence. Additional silent recordings may be selected individually,
+with one video element/decoder and no media prefetch. Preserve aspect ratios,
+manual pause and hidden-view suspension. Interior fittings remain illustrative,
+compact and independently drawn/native; retain all earlier source geometry,
+city limits and 93 tour stops.

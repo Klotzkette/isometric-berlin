@@ -6,17 +6,24 @@ const ENTRANCE = new Vector3(1340.17,4.8,3854.77);
 const NORMAL = new Vector3(-.110303,0,.993898);
 const TANGENT = new Vector3(.993898,0,.110303);
 const APPROACH_SCREEN = new Vector3();
+export const COLUMBIA_RECORDINGS_V258 = [
+  "media/columbiahalle-v257-silent.mp4",
+  "media/columbiahalle-v258-red-silent.mp4",
+  "media/columbiahalle-v258-portrait-silent.mp4",
+] as const;
 
 export function columbiaCopyV257(language:string) {
   return language.toLowerCase().startsWith("de") ? {
     enter:"Columbiahalle betreten", description:"Columbiahalle · Beispielkonzert · stumm",
     recording:"Aufnahme ansehen", leave:"Verlassen", pause:"Pause", play:"Abspielen",
-    back:"Zur Lichtszene", videoLabel:"Bereitgestellte Konzertaufnahme · stumme Endlosschleife · 19.10.2026",
+    back:"Zur Lichtszene", videoLabel:"Bereitgestellte Konzertaufnahmen · stumme Endlosschleife",
+    choose:"Konzertaufnahme", clips:["Saalansicht", "Rotes Bühnenlicht", "Nahaufnahme im Hochformat"],
     videoAria:"Stumme bereitgestellte Konzertaufnahme", error:"Die Columbiahalle konnte nicht geöffnet werden.",
   } : {
     enter:"Enter Columbiahalle", description:"Columbiahalle · illustrative concert · silent",
     recording:"Watch recording", leave:"Leave", pause:"Pause", play:"Play",
-    back:"Back to light scene", videoLabel:"Provided concert recording · silent loop · 19 October 2026",
+    back:"Back to light scene", videoLabel:"Provided concert recordings · silent loop",
+    choose:"Concert recording", clips:["Hall view", "Red stage lights", "Portrait close-up"],
     videoAria:"Silent provided concert recording", error:"The Columbiahalle could not be opened.",
   };
 }
@@ -52,6 +59,7 @@ export function createColumbiahalleV257(options:{
   let pointer:{id:number;x:number;y:number;startX:number;startY:number;at:number;door:boolean}|null=null;
   let video:HTMLVideoElement|null=null,videoPanel:HTMLDivElement|null=null,recordingPaused=false;
   let videoLabel:HTMLDivElement|null=null,videoToggle:HTMLButtonElement|null=null,videoBack:HTMLButtonElement|null=null;
+  let videoSelect:HTMLSelectElement|null=null,videoGeneration=0;
   let language=document.documentElement.lang,copy=columbiaCopyV257(language);
   let previousZIndex:string|null=null;
   const cityControls=new Map<HTMLElement,boolean>();
@@ -105,12 +113,31 @@ export function createColumbiahalleV257(options:{
     if(videoLabel)videoLabel.textContent=copy.videoLabel;
     if(videoToggle)videoToggle.textContent=recordingPaused?copy.play:copy.pause;
     if(videoBack)videoBack.textContent=copy.back;
+    if(videoSelect){videoSelect.setAttribute("aria-label",copy.choose);Array.from(videoSelect.options).forEach((option,i)=>{option.textContent=copy.clips[i];});}
     video?.setAttribute("aria-label",copy.videoAria);
   }
 
   function hideRecording() {
+    videoGeneration++;
     if(video){video.pause();video.removeAttribute("src");video.load();video.remove();video=null;}
-    videoPanel?.remove();videoPanel=null;videoLabel=null;videoToggle=null;videoBack=null;recordingPaused=false;lastFrame=-Infinity;
+    videoPanel?.remove();videoPanel=null;videoLabel=null;videoToggle=null;videoBack=null;videoSelect=null;recordingPaused=false;lastFrame=-Infinity;
+  }
+  function playRecording() {
+    const active=video;
+    if(!active||recordingPaused||suspended||document.hidden)return;
+    const generation=++videoGeneration;
+    void active.play().catch(()=>{
+      if(video!==active||generation!==videoGeneration||suspended||document.hidden)return;
+      recordingPaused=true;if(videoToggle)videoToggle.textContent=copy.play;
+    });
+  }
+  function selectRecording(index:number) {
+    if(!video)return;
+    videoGeneration++;
+    video.pause();
+    video.src=new URL(COLUMBIA_RECORDINGS_V258[index]??COLUMBIA_RECORDINGS_V258[0],document.baseURI).href;
+    video.load();
+    playRecording();
   }
   function showRecording() {
     if(!entered||videoPanel)return;
@@ -120,16 +147,19 @@ export function createColumbiahalleV257(options:{
     const label=document.createElement("div");label.textContent=copy.videoLabel;videoLabel=label;
     video=document.createElement("video");video.muted=true;video.defaultMuted=true;video.volume=0;
     video.playsInline=true;video.loop=true;video.preload="none";
-    video.style.cssText="width:100%;height:calc(100% - 90px);min-height:0;object-fit:contain;background:black";
+    video.style.cssText="flex:1;width:100%;height:0;min-height:0;object-fit:contain;background:black";
     video.setAttribute("aria-label",copy.videoAria);
-    video.src=new URL("media/columbiahalle-v257-silent.mp4",document.baseURI).href;
+    videoSelect=document.createElement("select");videoSelect.setAttribute("aria-label",copy.choose);
+    videoSelect.style.cssText="width:100%;min-height:44px;padding:8px;border:1px solid #7b8496;border-radius:6px;background:#263349;color:white;font:inherit";
+    for(let i=0;i<COLUMBIA_RECORDINGS_V258.length;i++){const option=document.createElement("option");option.value=String(i);option.textContent=copy.clips[i];videoSelect.append(option);}
+    videoSelect.onchange=()=>selectRecording(Number(videoSelect!.value));
     const buttons=document.createElement("div");buttons.style.cssText="display:flex;gap:8px";
     const toggle=document.createElement("button");toggle.type="button";toggle.textContent=copy.pause;videoToggle=toggle;
-    toggle.onclick=()=>{if(!video)return;recordingPaused=!recordingPaused;toggle.textContent=recordingPaused?copy.play:copy.pause;if(recordingPaused)video.pause();else void video.play().catch(()=>{});};
+    toggle.onclick=()=>{if(!video)return;recordingPaused=!recordingPaused;toggle.textContent=recordingPaused?copy.play:copy.pause;if(recordingPaused){videoGeneration++;video.pause();}else playRecording();};
     const back=document.createElement("button");back.type="button";back.textContent=copy.back;back.onclick=hideRecording;videoBack=back;
     for(const b of [toggle,back]){b.style.cssText=leave.style.cssText;buttons.append(b);}
-    videoPanel.append(label,video,buttons);parent.append(videoPanel);
-    void video.play().catch(()=>{recordingPaused=true;toggle.textContent=copy.play;});back.focus();
+    videoPanel.append(label,videoSelect,video,buttons);parent.append(videoPanel);
+    selectRecording(0);back.focus();
   }
   async function open() {
     if(disposed||pending||entered)return;
@@ -187,6 +217,7 @@ export function createColumbiahalleV257(options:{
     if(!entered)return;
     const action=columbiaKeyActionV257(e);if(!action)return;
     if(action==="exit"){e.preventDefault();e.stopImmediatePropagation();if(videoPanel)hideRecording();else close(true);return;}
+    if((e.target as HTMLElement|null)?.closest?.("select,input,textarea,button,[contenteditable]"))return;
     if(action==="left")yaw=Math.min(.8,yaw+.055);
     if(action==="right")yaw=Math.max(-.8,yaw-.055);
     if(action==="up")pitch=Math.min(.45,pitch+.04);
@@ -194,7 +225,7 @@ export function createColumbiahalleV257(options:{
     lastFrame=-Infinity;e.preventDefault();e.stopImmediatePropagation();
   }
   function wheel(e:WheelEvent){if(entered&&e.target===options.canvas){e.preventDefault();e.stopImmediatePropagation();}}
-  function suspend(){suspended=true;lastTime=0;lastFrame=-Infinity;video?.pause();pointer=null;showUi(false);if(videoPanel){videoPanel.hidden=true;videoPanel.style.display="none";}}
+  function suspend(){suspended=true;videoGeneration++;lastTime=0;lastFrame=-Infinity;video?.pause();pointer=null;showUi(false);if(videoPanel){videoPanel.hidden=true;videoPanel.style.display="none";}}
   const visibility=()=>{if(document.hidden)suspend();};
   window.addEventListener("pointerdown",pointerDown,true);
   window.addEventListener("pointermove",pointerMove,true);
@@ -214,7 +245,7 @@ export function createColumbiahalleV257(options:{
       if(!entered){showUi(columbiaApproachV257(options.worldCamera));return false;}
       const viewport=options.canvas.getBoundingClientRect();
       if(!options.canvas.isConnected||viewport.width<=0||viewport.height<=0){suspend();return entered;}
-      if(suspended){suspended=false;lastFrame=-Infinity;if(videoPanel){videoPanel.hidden=false;videoPanel.style.display="flex";}if(video&&!recordingPaused)void video.play().catch(()=>{});}
+      if(suspended){suspended=false;lastFrame=-Infinity;if(videoPanel){videoPanel.hidden=false;videoPanel.style.display="flex";}playRecording();}
       showUi(true);
       if(native!==options.native()){close(true);return false;}
       if(!concert)return true;
