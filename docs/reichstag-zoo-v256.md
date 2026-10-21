@@ -76,4 +76,24 @@ The fresh full repository run completed on 21 October 2026: **1,713 passed,
 4 skipped, 2 warnings**, in 1,753.88 seconds. The warnings concern the existing
 temporary test fixture's missing CRS; no test failed. The complete local
 package also passed `scripts/smoke_local_package.py` over HTTP.
-Publication receipts follow below.
+Publication completed on 21 October 2026. Release/tag `v1.0.156` points to
+source commit `b777aa30`; the published archives retain the independently
+verified remote sizes and SHA-256 values in the committed checksum file.
+The Pages commit is `f0fd66ce50f4d75220cf20ca48ac9928f21ac0e4`;
+[deployment run 39624667269](https://github.com/Klotzkette/isometric-berlin/actions/runs/39624667269)
+completed successfully. The published tree matches the measured size above.
+
+Nine hosted files, including the entry page, both manifests, two prior playground
+packets and all four changed application bundles, matched the final package
+byte-for-byte. Four additional public-site views passed in desktop Chrome and
+iPhone WebKit (memorial and visitor area, drawn day and independent native mode),
+confirming version 1.0.156 with no page, crash, context-loss or GL errors.
+Screenshots were visually inspected. Five browser-associated asset checks
+matched the package: three used retained response bodies; WebKit evicted two
+response bodies from its inspector cache, so those two immutable hashed URLs
+were checked by independent GET. This was a verification-harness limitation,
+not an application failure.
+
+Published viewer: <https://klotzkette.github.io/isometric-berlin/>.
+Release and downloads:
+<https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.156>.
