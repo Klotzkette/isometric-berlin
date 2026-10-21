@@ -61,7 +61,7 @@ quantized depth in both families. The final WebKit iPhone run passed eight front
 
 ### Historical recording withdrawal scope
 
-Current main, the v1.0.160 packages and the next Pages tree withdraw all three
+Current main, the v1.0.160 packages and the published Pages tree withdraw all three
 MP4 files and the recording player. They do not erase old Git objects. The
 read-only GitHub audit found bundled recordings in v1.0.157, v1.0.158 and
 v1.0.159 ZIP/TAR downloads, the associated main/Pages history and three Pages
@@ -75,3 +75,25 @@ erasure of prior published copies.
 Both complete archive validators passed, and GitHub confirmed exact uploaded
 lengths and SHA-256 digests. ZIP: 752,268,383 bytes; TAR: 751,458,082 bytes.
 Checksums are retained in `releases/SHA256SUMS-v1.0.160.txt`.
+
+### Public deployment verification
+
+Published Pages commit `c9afd2c481aa3e6f24422c24a4eed6cef689a5a0` passed
+[GitHub workflow 39688256097](https://github.com/Klotzkette/isometric-berlin/actions/runs/39688256097).
+The public index, package manifest, surrounding-city manifest, attribution,
+ThreeViewer, entry and Columbia concert chunks match the validated package
+byte for byte. All three withdrawn media URLs return HTTP 404. GitHub confirms
+both release archive lengths and SHA-256 digests.
+
+The public WebKit iPhone check passed the drawn concert loop, reduced-motion
+paused start, Play/Pause, Leave/Escape, language and camera restoration, and
+three repeated entries. Its 14 GPU buffers remained at 75,044 bytes while
+playing and returned to zero after every exit. No video element, media request
+or page error occurred. The earlier local checks cover both mode families.
+
+The public WebKit iPhone front-view check also passed eight views across drawn
+and native modes (Columbiahalle, Renaissance-Theater, Zoo Palast and Café Moskau),
+plus two wide-view transitions, with no JavaScript or WebGL error. The published
+Columbiahalle lettering was visually checked against the final local rendering.
+The historical-withdrawal question above remains unanswered; older releases and
+Git history have not been rewritten.
