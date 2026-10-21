@@ -88,5 +88,15 @@ Archives were built sequentially in RAM to avoid duplicate local disk usage.
 | `isometric-berlin-viewer-v1.0.158.tar.gz` | 752,917,065 | `39f2849c503255bf78438d5d1f2e3d275b4e4efec185a883345fc98478632956` |
 
 The implementation commit is `56d1d1537871d33b2cc616f747317ea69ecf1cab`.
-Pages commit `1cfb51e4aa5a79e1975280bd521a59bba66015c8` has been pushed;
-deployment and final public verification remain pending.
+Release tag `v1.0.158` points to `832211d5ca0073d698fdb79061a38f7a49c6fad9`.
+Pages commit `1cfb51e4aa5a79e1975280bd521a59bba66015c8` deployed successfully
+in GitHub Actions run `39668809645`. Nine hosted files (entry point, package
+manifest, credits, all three videos and the three changed runtime bundles)
+match the verified local package byte-for-byte. Both published archive sizes
+and SHA-256 digests match their local validation receipts.
+
+The complete public iPhone/WebKit Day concert flow passed: three selected silent
+recordings with correct aspect ratios, pause and background/resume, natural
+looping, camera preservation, four entry/exit cycles, zero retained concert GPU
+buffers and no page/GL error or crash. The published release is
+[v1.0.158](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.158).
