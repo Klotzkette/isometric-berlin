@@ -76,4 +76,8 @@ The existing 2,208 descriptor, 2.125 MiB catalogue and 891 MiB package caps rema
   four wide-view transitions, and mode switches, with no page errors, crashes or
   WebGL errors. Screenshots confirm complete spires/glass upper block. These are
   finite regression checks, not a guarantee against every device memory limit.
-- Archive and public verification are recorded below after completion.
+- Complete ZIP and static TAR archive validators passed, including every
+  packaged member and unchanged offline size limits. Uploaded archive sizes and
+  SHA-256 digests agree with GitHub's asset receipts. Checksums are in
+  `releases/SHA256SUMS-v1.0.159.txt`.
+- Public deployment verification follows below after completion.

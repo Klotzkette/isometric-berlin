@@ -1,0 +1,226 @@
+{
+  "version": "1.0.159",
+  "pytest": {
+    "passed": 39,
+    "newHeightTests": 21
+  },
+  "bun": {
+    "passed": 80,
+    "assertions": 918
+  },
+  "browsers": [
+    {
+      "engine": "chromium",
+      "mode": "day",
+      "site": "emmaus",
+      "meshes": 1,
+      "min": 26.660000000000004,
+      "max": 77,
+      "bytes": 18313140,
+      "chunks": 21,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-7_4"
+    },
+    {
+      "engine": "chromium",
+      "mode": "day",
+      "site": "apostel",
+      "meshes": 1,
+      "min": 29.880000000000003,
+      "max": 89,
+      "bytes": 18361218,
+      "chunks": 30,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259--3_6"
+    },
+    {
+      "engine": "chromium",
+      "mode": "day",
+      "site": "lux",
+      "meshes": 1,
+      "min": 30.6,
+      "max": 66,
+      "bytes": 12143394,
+      "chunks": 31,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-10_3"
+    },
+    {
+      "engine": "chromium",
+      "mode": "day",
+      "site": "wide-view",
+      "bytes": 50871954,
+      "chunks": 26,
+      "gl": 0,
+      "gpuBytes": 230157137
+    },
+    {
+      "engine": "chromium",
+      "mode": "minecraft",
+      "site": "emmaus",
+      "meshes": 1,
+      "min": 27.020000000000003,
+      "max": 77,
+      "bytes": 78767274,
+      "chunks": 77,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-7_4 native Minecraft"
+    },
+    {
+      "engine": "chromium",
+      "mode": "minecraft",
+      "site": "apostel",
+      "meshes": 1,
+      "min": 29.020000000000003,
+      "max": 89,
+      "bytes": 64872240,
+      "chunks": 71,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259--3_6 native Minecraft"
+    },
+    {
+      "engine": "chromium",
+      "mode": "minecraft",
+      "site": "lux",
+      "meshes": 1,
+      "min": 31.020000000000003,
+      "max": 66,
+      "bytes": 66152856,
+      "chunks": 78,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-10_3 native Minecraft"
+    },
+    {
+      "engine": "chromium",
+      "mode": "minecraft",
+      "site": "wide-view",
+      "bytes": 103526070,
+      "chunks": 102,
+      "gl": 0,
+      "gpuBytes": 150693234
+    },
+    {
+      "engine": "webkit",
+      "mode": "day",
+      "site": "emmaus",
+      "meshes": 1,
+      "min": 26.660000000000004,
+      "max": 77,
+      "bytes": 7434084,
+      "chunks": 11,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-7_4"
+    },
+    {
+      "engine": "webkit",
+      "mode": "day",
+      "site": "apostel",
+      "meshes": 1,
+      "min": 29.880000000000003,
+      "max": 89,
+      "bytes": 11976552,
+      "chunks": 22,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259--3_6"
+    },
+    {
+      "engine": "webkit",
+      "mode": "day",
+      "site": "lux",
+      "meshes": 1,
+      "min": 30.6,
+      "max": 66,
+      "bytes": 18767388,
+      "chunks": 34,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-10_3"
+    },
+    {
+      "engine": "webkit",
+      "mode": "day",
+      "site": "wide-view",
+      "bytes": 16928376,
+      "chunks": 8,
+      "gl": 0,
+      "gpuBytes": 160606425
+    },
+    {
+      "engine": "webkit",
+      "mode": "minecraft",
+      "site": "emmaus",
+      "meshes": 1,
+      "min": 27.020000000000003,
+      "max": 77,
+      "bytes": 20338872,
+      "chunks": 21,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-7_4 native Minecraft"
+    },
+    {
+      "engine": "webkit",
+      "mode": "minecraft",
+      "site": "apostel",
+      "meshes": 1,
+      "min": 29.020000000000003,
+      "max": 89,
+      "bytes": 20117892,
+      "chunks": 22,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259--3_6 native Minecraft"
+    },
+    {
+      "engine": "webkit",
+      "mode": "minecraft",
+      "site": "lux",
+      "meshes": 1,
+      "min": 31.020000000000003,
+      "max": 66,
+      "bytes": 26414142,
+      "chunks": 37,
+      "gl": 0,
+      "name": "Surrounding Berlin outline height259-10_3 native Minecraft"
+    },
+    {
+      "engine": "webkit",
+      "mode": "minecraft",
+      "site": "wide-view",
+      "bytes": 33419400,
+      "chunks": 70,
+      "gl": 0,
+      "gpuBytes": 70304979
+    }
+  ],
+  "package": {
+    "files": 4735,
+    "bytes": 934164745
+  },
+  "limitations": [
+    "WebKit iPhone emulation is not physical-device testing.",
+    "Wide-view visible geometry may exceed offscreen retirement thresholds; no hard memory bound is claimed.",
+    "Only three confirmed missing upper structures reconstructed."
+  ],
+  "archives": {
+    "isometric-berlin-regierungsviertel-local.zip": {
+      "size": 753864887,
+      "sha256": "7391f8c36d83141121f7caa88ed85dcd2dc1c6eabdfc4da3833c21bc35856824",
+      "localValidationPassed": true,
+      "storage": "memory-only",
+      "remoteVerified": true,
+      "assetId": 663737692,
+      "remoteSize": 753864887,
+      "remoteDigest": "sha256:7391f8c36d83141121f7caa88ed85dcd2dc1c6eabdfc4da3833c21bc35856824",
+      "remoteState": "uploaded"
+    },
+    "isometric-berlin-viewer-v1.0.159.tar.gz": {
+      "size": 753057901,
+      "sha256": "22b73f5b2df53b88feddf39ac1817da8f4b10bee3a581984e4c8c523f9c85a7b",
+      "localValidationPassed": true,
+      "storage": "memory-only",
+      "remoteVerified": true,
+      "assetId": 663743327,
+      "remoteSize": 753057901,
+      "remoteDigest": "sha256:22b73f5b2df53b88feddf39ac1817da8f4b10bee3a581984e4c8c523f9c85a7b",
+      "remoteState": "uploaded"
+    }
+  }
+}
