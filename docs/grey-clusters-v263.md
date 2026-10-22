@@ -58,3 +58,15 @@ The final deployment preflight totals **1,073,255,262 bytes**, including both
 previous complete live asset graphs: **486,562 bytes below 1 GiB**. Package
 archives are built and fully validated one at a time in memory, avoiding two
 additional large disk copies. Publication receipts follow below.
+
+
+## Publication receipt — 2026-10-23
+
+Source commit `cb050b95`, tag and [release v1.0.163](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.163). Pages commit `85f51bd46634b11a13ddd55edb9c9e44c30e1b3e`; [workflow 39873732915](https://github.com/Klotzkette/isometric-berlin/actions/runs/39873732915) completed successfully.
+
+The complete package contains 4,747 files and 927,482,915 bytes (884.517 MiB). Both original archive validators passed in RAM; GitHub asset sizes and SHA-256 digests match exactly.
+
+- `isometric-berlin-regierungsviertel-local.zip` — 756,888,199 bytes, SHA-256 `5b2f84e7fe7cf10b815b3845eabdaf336cd67a390dd6fabe527ce162057aeee4`.
+- `isometric-berlin-viewer-v1.0.163.tar.gz` — 756,116,697 bytes, SHA-256 `c2c9a30a562f430090a5366b48fc97e855d39c2fe2a4ac42f895f132932ae70e`.
+
+Ten live files were byte-compared with the staged package, including the entry page, package/city manifests, attribution, main viewer, outer models, required sites, surrounding-city decoder and progressive worker. All matched. The three withdrawn Columbiahalle recordings remain HTTP 404. Both previous live asset graphs are retained; no hosted source override or geometry omission is used.
