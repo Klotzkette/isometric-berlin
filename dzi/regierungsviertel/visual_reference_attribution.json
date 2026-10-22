@@ -1025,6 +1025,73 @@
       "usage": "Reference only: yellow ceramic joints, brass relief button, metal coping and three side portholes.",
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_rail_v261_ruska",
+      "title": "Charité CCM, Rahel-Hirsch-Weg 3_S%C3%BCdwestansicht, 2024",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg",
+      "artist": "Schibo",
+      "year": 2024,
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Schibo, CC BY-SA 4.0",
+      "role": "External visual reference only; not bundled. Facade recognition estimates in v1.0.161."
+    },
+    {
+      "landmark_id": "charite_rail_v261_lesser",
+      "title": "Charité CCM, Rahel-Hirsch-Weg 2, 2024",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_2,_2024.jpg",
+      "artist": "Schibo",
+      "year": 2024,
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Schibo, CC BY-SA 4.0",
+      "role": "External visual reference only; not bundled. Facade recognition estimates in v1.0.161."
+    },
+    {
+      "landmark_id": "tempelhof_airlift_v261",
+      "title": "Luftbrückendenkmal",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/luftbrueckendenkmal-5015/",
+      "artist": "Layla Fetzer",
+      "year": 2020,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Layla Fetzer, 2020, CC BY 4.0 · Bildhauerei in Berlin; text Kähler/Kuhn",
+      "role": "External visual reference only; no image redistributed."
+    },
+    {
+      "landmark_id": "tempelhof_entrance_v261",
+      "title": "Flughafen Tempelhof",
+      "page_url": "https://industriekultur.berlin/ort/flughafen-tempelhof/",
+      "artist": "Andreas FranzXaver Süß",
+      "license": "Reference only; no redistribution permission asserted",
+      "credit": "© Andreas FranzXaver Süß / Berliner Zentrum Industriekultur",
+      "role": "External architectural reference only; no image redistributed."
+    },
+    {
+      "landmark_id": "brandenburger_tor_entrances_v261",
+      "title": "Brandenburger Tor — Eingang zum Bahnhof, S- und U-Bahnsignet",
+      "page_url": "https://sbahn.berlin/en/about-us/press/press-photos/the-s-bahn-in-berlin-1/?cHash=2874d902a0572dab991199a92c2b0ae5&tx_sbbpressgallery_list%5BcurrentPage%5D=4",
+      "artist": "David Ulrich",
+      "license": "Reference only; no redistribution permission asserted",
+      "credit": "© David Ulrich / S-Bahn Berlin GmbH",
+      "role": "External architectural reference only; no image redistributed."
+    },
+    {
+      "landmark_id": "kuehn_workshop_v261",
+      "url": "https://fritz-kuehn-gesellschaft.de/wp-content/uploads/2012/07/atelier_achimkuehn.jpg",
+      "credit": "Fritz-Kühn-Gesellschaft / Atelier Achim Kühn",
+      "usage": "Historic 2012 reference only for workshop palette and industrial window proportions; not a surveyed current facade.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "adlershof_windkanal_v261",
+      "url": "https://www.adlershof.de/fileadmin/user_upload/bilder/content/geschichte/architektur/windkanal.jpg",
+      "credit": "WISTA Management GmbH / Adlershof",
+      "usage": "Reference only: round upper concrete contour and reinforcing rings; partial estimated additive geometry.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }
