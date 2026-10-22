@@ -1092,6 +1092,14 @@
       "usage": "Reference only: round upper concrete contour and reinforcing rings; partial estimated additive geometry.",
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "euref_campus_v262",
+      "url": "https://euref.de/wp-content/uploads/Gasometer_quer_%C2%A9EUREF-AG-1-845x684.jpg",
+      "credit": "© EUREF AG",
+      "usage": "Current Gasometer external reference: steel frame, green mantle, glazing and terrace. Source envelope conflict and estimated fitting are documented; no image or derivative texture shipped.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }
