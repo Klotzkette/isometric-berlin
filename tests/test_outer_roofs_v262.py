@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import re
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
 from shapely.affinity import translate
@@ -13,6 +15,57 @@ from shapely.strtree import STRtree
 from scripts import build_outer_roofs_v262 as build
 
 base = build.base
+
+
+def _protected_ids_at_v262(source_root: Path = build.ROOT) -> set[str]:
+  """Replay prior authored provenance; later versioned observations are not prior.
+
+  The general compiler's protected_ids() intentionally sees all current authored
+  data when choosing new owners. A historical v262 source validation must stop
+  at its generation boundary: v263 colour receipts can refer to the same retained
+  source owner without retroactively making its v262 complete-roof choice invalid.
+  Keep the same full prior-source scan, context and facade exclusions, and verify
+  immutable v233 source/recipe hashes separately below.
+  """
+  blocked = set(
+    base.read_json(build.GEO / "outer-facades-v230-context.json.gz")["authoredIds"]
+  )
+  for pattern in (
+    "src/app/src/data/*.json",
+    "src/app/src/*.ts",
+    "src/app/src/*Source.json",
+  ):
+    for path in source_root.glob(pattern):
+      versions = [int(v) for v in re.findall(r"[vV](\d+)", path.name)]
+      if (
+        path.name == "buildingAttributeSource.json"
+        or "V233" in path.name
+        or any(version > 262 for version in versions)
+      ):
+        continue
+      blocked.update(re.findall(r"\bDEBE[A-Za-z0-9]+", path.read_text()))
+  for name in ("district-facades-v188", "kiez-facades-v209", "outer-facades-v230"):
+    blocked.update(
+      f["owner"]
+      for f in base.read_json(build.GEO / f"{name}-evidence.json.gz")["faces"]
+    )
+  return blocked
+
+
+def test_historical_author_protection_keeps_prior_sources_and_ignores_future_references(
+  tmp_path: Path,
+) -> None:
+  source_dir = tmp_path / "src/app/src/data"
+  source_dir.mkdir(parents=True)
+  (source_dir / "priorV262.json").write_text('{"owner":"DEBEPRIORV262"}')
+  (source_dir / "laterV263.json").write_text('{"owner":"DEBEFUTUREV263"}')
+  (source_dir / "laterV400.json").write_text('{"owner":"DEBEFUTUREV400"}')
+  blocked = _protected_ids_at_v262(tmp_path)
+  assert "DEBEPRIORV262" in blocked
+  assert "DEBEFUTUREV263" not in blocked
+  assert "DEBEFUTUREV400" not in blocked
+  context = base.read_json(build.GEO / "outer-facades-v230-context.json.gz")
+  assert set(context["authoredIds"]) <= blocked
 
 
 def test_sources_are_complete_residential_and_previous_recipes_unchanged() -> None:
@@ -34,7 +87,7 @@ def test_sources_are_complete_residential_and_previous_recipes_unchanged() -> No
   }
   for path, expected in source["previous"].items():
     assert base.digest(build.ROOT / path) == expected
-  blocked = base.protected_ids()
+  blocked = _protected_ids_at_v262()
   old = base.read_json(base.SOURCE)
   blocked.update(row["owner"] for row in old["owners"])
   context = base.read_json(build.GEO / "outer-facades-v230-context.json.gz")

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.162 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.162/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.163 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.163/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.162** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.163** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.163 applies retained mapped facade and roof materials to 449 additional ordinary houses, adds window details to 146 previously untreated street fronts, and repairs safely attributable grey corners in sampled clusters. Complete source geometry and runtime limits remain. Window layouts and unknown-material tones are illustrative. [Evidence and checks](docs/grey-clusters-v263.md).
+
+Version 1.0.163 nutzt vorhandene kartierte Fassaden- und Dachmaterialien für 449 weitere gewöhnliche Häuser, ergänzt Fensterdetails an 146 bisher unbehandelten Straßenfronten und korrigiert sicher zuordenbare graue Eckpunkte in untersuchten Häusergruppen. Vollständige Quellgeometrie und Speichergrenzen bleiben erhalten. Fensteraufteilungen und unbekannte Materialtöne sind beispielhaft. [Belege und Prüfungen](docs/grey-clusters-v263.md).
 
 Version 1.0.162 replaces bright generic outer-house paint with restrained facade and roof tones, adds bounded street-facing window details and 24 complete measured roofs, and refines the EUREF campus and Gasometer at verified source locations. Existing source geometry and live memory limits remain. [Evidence and checks](docs/outer-euref-v262.md).
 

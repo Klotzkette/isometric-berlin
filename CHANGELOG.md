@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.163 — 2026-10-23
+
+- Apply retained OSM facade/roof colour and material observations to 449 ordinary owners in 15 previously omitted legacy city packets.
+- Add 1,031 drawn / 687 independent native windows to 146 verified, previously untreated street fronts in 25 existing packets.
+- Resolve only unanimously attributable generic grey corner vertices in nine audited clusters; preserve genuinely shared or uncertain corners and explicit source colours.
+- Keep complete source geometry, previous roofs and facade details, full mobile quality, 93 tour stops and all runtime budgets. Compress new immutable colour receipts losslessly.
+- Preserve source values and cache ownership with finite lossless source encoding; reject unrelated colour-cache requests before decoding. Retain both previous live asset graphs.
+- See [scope, evidence and validation](docs/grey-clusters-v263.md).
+
 ## 1.0.162 — 2026-10-22
 
 - Replace only unknown-material outer-house fallback paint with restrained varied wall and roof tones; explicit mapped colours and authored models retain precedence.

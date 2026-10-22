@@ -1551,3 +1551,15 @@ measured owners, with exact preservation receipts for any coarse-owner transfer.
 Unsurveyed facade fittings remain display estimates. Keep independent native
 geometry, full mobile detail, the 93-place tour and every live residency/decode
 limit. No unrelated coverage, new animation or photographic texture is implied.
+
+### Step 10 — v263 remaining generic house clusters
+
+The owner requests more realistic and individually coloured existing generic
+house clusters throughout the current city coverage. Prefer retained explicit
+facade/roof colours and materials with exact owner receipts, preserving earlier
+authored detail and source geometry. Additional windows may occupy only verified
+complete street-facing ordinary walls, with unsurveyed subdivisions labelled
+display estimates. Keep the restrained v262 unknown-material palette, all prior
+roof/detail transactions, full mobile quality, independent native geometry,
+93 tour stops and every live packet/residency limit. No invented building-specific
+colour claim, unrelated coverage, source simplification or external browser.

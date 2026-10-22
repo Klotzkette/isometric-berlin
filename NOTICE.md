@@ -2222,3 +2222,13 @@ EUREF operator, architects and heritage references support site identity and
 recognition. The current Gasometer reference photograph is © EUREF AG. External imagery is reference-only, never a bundled texture.
 Conflicting Gasometer envelopes and estimated facade fitting are documented
 with the exact transfers in [v262 evidence](docs/outer-euref-v262.md).
+
+## v263 — remaining generic house clusters
+
+The retained Geoportal Berlin LoD2 source geometry (dl-de/zero-2-0) and
+OpenStreetMap observations (© OpenStreetMap contributors, ODbL-1.0) support the
+selected ordinary-house locations and source colours/materials. No new image
+or source download is bundled. Window rhythm and unknown-material palette are
+illustrative; retained explicit source colours keep priority. Exact source
+receipts, protection of earlier details and limits are documented in
+[v263 evidence](docs/grey-clusters-v263.md).

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "vite";
 import { losslessJsonData, transformLosslessJsonData } from "../losslessJsonData";
 import { decodeLosslessGzipJson } from "../src/losslessGzipJson";
+import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 
 const ID = "/project/src/app/src/data/example.json";
 
@@ -19,7 +20,7 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
     });
     return `const named = {${properties.join(",")}};`;
   }).replace("export default", "const data =");
-  return new Function("__decodeLosslessGzip", `${result.code.includes("export {") ? "" : "const named = {};"}${script}\nreturn { data, named };`)(decodeLosslessGzipJson) as {
+  return new Function("__decodeLosslessGzip", `${result.code.includes("export {") ? "" : "const named = {};"}${script}\nreturn { data, named };`)(result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson) as {
     data: Record<string, unknown>; named: Record<string, unknown>;
   };
 }

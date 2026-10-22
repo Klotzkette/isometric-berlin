@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { transformLosslessJsonData, LOSSLESS_PACKED_STRING_FIELDS } from '../losslessJsonData';
 import { decodeLosslessGzipJson } from '../src/losslessGzipJson';
+import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 
 function compile(name: string, value: unknown) {
   const result = transformLosslessJsonData(JSON.stringify(value), `/project/src/app/src/data/${name}`)!;
@@ -12,12 +13,12 @@ function compile(name: string, value: unknown) {
     .replace('export default', 'return');
   let decodes = 0;
   const data = new Function('__decodeLosslessGzip', code)((encoded: string) => {
-    decodes++; return decodeLosslessGzipJson(encoded);
+    decodes++; return (result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson)(encoded);
   });
   return { data, result, decodes: () => decodes };
 }
 
-test('audited water and ground packed strings round-trip every byte with lazy strong field ownership', () => {
+test('audited water, ground and venue packed strings round-trip every byte with lazy strong field ownership', () => {
   let savings = 0;
   for (const [name, fields] of Object.entries(LOSSLESS_PACKED_STRING_FIELDS)) {
     const source = JSON.parse(readFileSync(new URL(`../src/data/${name}`, import.meta.url), 'utf8'));

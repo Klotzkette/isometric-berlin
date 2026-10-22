@@ -1,9 +1,12 @@
 import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEurefTransfersV262Lines, eurefNavigationV262 } from "./eurefTransfersV262";
 import { prepareOuterFacadesV262 } from "./outerFacadesV262";
+import { prepareGreyFacadesV263 } from "./greyFacadesV263";
 import { prepareOuterRoofsV262, applyOuterRoofsV262Triangles, applyOuterRoofsV262Lines } from "./outerRoofsV262";
 import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238 } from "./namedSiteReplacementsV238";
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
 import { applyOuterMaterialsV254 } from "./outerMaterialsV254";
+import { applyOuterMaterialsV263 } from "./outerMaterialsV263";
+import { applyGreyClusterColoursV263 } from "./greyClusterColoursV263";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
@@ -245,6 +248,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareRoofHouseV233(chunk, id, minecraft);
   chunk = yield* prepareOuterRoofsV262(chunk, id, minecraft);
   chunk = yield* prepareOuterFacadesV262(chunk, id, minecraft);
+  chunk = yield* prepareGreyFacadesV263(chunk, id, minecraft);
   chunk = yield* prepareHouseDoorsV233(chunk, id, minecraft);
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
   chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
@@ -317,6 +321,8 @@ export function* buildSurroundingCityChunk(
         const shaded = yield* shadeAltMitteFacadeV186(vertices, indices, indexOffset, written);
         root.userData.altMitteWindowRelief = (root.userData.altMitteWindowRelief ?? 0) + shaded;
       }
+      const greyCorners = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count);
+      if (greyCorners) root.userData.greyClusterColourVerticesV263 = (root.userData.greyClusterColourVerticesV263 ?? 0) + greyCorners;
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
       const spreeAppearance = yield* applySpreeFacadeColoursV231(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
@@ -325,6 +331,8 @@ export function* buildSurroundingCityChunk(
       if (outerAppearance) root.userData.outerMaterialVerticesV232 = (root.userData.outerMaterialVerticesV232 ?? 0) + outerAppearance;
       const outerAppearanceV254 = yield* applyOuterMaterialsV254(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (outerAppearanceV254) root.userData.outerMaterialVerticesV254 = (root.userData.outerMaterialVerticesV254 ?? 0) + outerAppearanceV254;
+      const outerAppearanceV263 = yield* applyOuterMaterialsV263(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (outerAppearanceV263) root.userData.outerMaterialVerticesV263 = (root.userData.outerMaterialVerticesV263 ?? 0) + outerAppearanceV263;
       const districtPanes = yield* shadeDistrictHousePanesV225(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);

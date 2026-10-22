@@ -10,6 +10,7 @@ import citywest from "../src/data/citywestStreetsV235.json";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareOuterRoofsV262 } from "../src/outerRoofsV262";
 import { prepareOuterFacadesV262 } from "../src/outerFacadesV262";
+import { prepareGreyFacadesV263 } from "../src/greyFacadesV263";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
@@ -39,7 +40,9 @@ function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): Surr
   // Include every production preparation in its real order: these v233–v235
   // source tiles can also contain later street/facade additions. Omitting v249
   // undercounted drawn:-10_-2 by exactly 1,728 bytes before the v262 changes.
-  for (const prepare of [prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262,
+  // V263 contributes 95 windows / 28,500 bytes to drawn:-10_5; account for
+  // those actual appended fittings without changing a limit or byte assertion.
+  for (const prepare of [prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262, prepareGreyFacadesV263,
     prepareHouseDoorsV233, prepareHouseCurbsV233, prepareBoulevardArchitectureV235,
     prepareWestShopfrontsV254, prepareCitywestStreetsV235, prepareCityStreetsV249,
     prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareEurefTransfersV262]) chunk = finish(prepare(chunk, id, native));

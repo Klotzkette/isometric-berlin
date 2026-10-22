@@ -1,15 +1,53 @@
 import type { Plugin } from "vite";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import { encodeLosslessBase85 } from "./src/losslessGzipBase85";
+import { LOSSLESS_BASE85_SOURCES_V263 } from "./losslessBase85SourcesV263";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
 const PACKED_PACKET_JSON = /\/data\/altMitteV169(?:Drawn|Native)\/packet-\d+\.json$/;
 const DATA_JSON = /\/src\/app\/src\/data\/.+\.json$/;
-// These two legacy source objects are retained by navigation profile modules.
+// These finite legacy source objects are retained by navigation profile modules.
 // Keep one eager, strongly owned module object; weak constructor getters would
 // not match their lifetime. Only their source encoding changes.
-const EAGER_RETAINED_SOURCE_JSON = /\/src\/app\/src\/(?:leipzigerPlatzSource|schlossNaturkundeSource)\.json$/;
+export const EAGER_RETAINED_SOURCE_NAMES = [
+  "leipzigerPlatzSource.json",
+  "buildingAttributeSource.json",
+  "economicMinistrySource.json",
+  "gendarmenmarktSource.json",
+  "gripsHansaplatzSource.json",
+  "friedrichstrasseArchitectureSource.json",
+  "europacityArchitectureSource.json",
+  "museumTriadSource.json",
+  "musicMuseumSource.json",
+  "domAltesMuseumSource.json",
+  "bellevueSource.json",
+  "luisenCorridorSource.json",
+  "chariteHistoricNativeRoofProfile.json",
+  "chariteTheatreSource.json",
+  "schlossNaturkundeSource.json",
+  "behren42Source.json",
+  "dbTowerSource.json",
+  "potsdamerMinistryOwnership.json",
+  "neueWacheSource.json",
+  "gymnasiumTiergartenSource.json",
+  "gorkiBuildingSource.json",
+  "chariteHistoricFacadeSource.json",
+  "topographyTerrorSource.json",
+  "rosengartenSource.json",
+  "fiftyHertzSource.json",
+  "humboldthafenBuildingProfile.json",
+  "rohwedderHausPrisms.json",
+  "museumLennePrisms.json",
+  "chariteHistoricFacadeRoofFit.json",
+  "deutschesTheaterPrisms.json",
+  "tipiSiteSource.json",
+  "czechEmbassyFacadeSource.json",
+  "bundesratPrisms.json",
+  "bismarckMoltkeSource.json",
+  "boellStiftungPrisms.json",
+] as const;
 const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
 
 /** Audited constructor inputs, never mutated or retained by their render roots.
@@ -31,6 +69,10 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   // Read-only appearance receipts are used only during yielded packet decode;
   // roots retain final colours, never the receipt map. Compress without loss.
   "altMitteAppearanceV213.json": ["packets"],
+  // Exact ordinary-house colour receipts live only through yielded decoding.
+  "greyClusterColoursV263.json": ["packets"],
+  // Decoders keep one packet only during construction; roots own decoded buffers.
+  "outerRoofsV262.json": ["packets"],
   "gipsKoppenV252.json": ["boxes", "rods", "nativeRows"],
   "kulturbrauereiV252.json": ["drawn", "native"],
   "lennonV250.json": ["boxes", "rods", "nativeRows"],
@@ -194,11 +236,13 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
 export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "altMitteGroundSeamsV206.json": ["cells_u32", "triangles_f32", "edges_f32"],
+  "westVenuesV260.json": ["sourcePositions", "facadeBoxes", "nativeBoxes"],
 };
 
 // Encode existing lazy fields only. Their cache/ownership policy is independent
 // of compression; packed base64 fields above keep their direct-literal path.
 const GZIP_DECODER = fileURLToPath(new URL("./src/losslessGzipJson.ts", import.meta.url));
+const BASE85_DECODER = fileURLToPath(new URL("./src/losslessGzipBase85.ts", import.meta.url));
 
 /** JSON.stringify normally changes -0 and non-finite parsed JSON numbers. */
 function exactJson(value: unknown): string {
@@ -259,15 +303,30 @@ export function transformLosslessJsonData(
   thresholdBytes = LOSSLESS_JSON_FIELD_BYTES,
 ): LosslessJsonTransform | undefined {
   const normalizedId = id.replaceAll("\\", "/");
-  const eagerRetainedSource = EAGER_RETAINED_SOURCE_JSON.test(normalizedId);
-  if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource) || source.length < thresholdBytes) {
+  const retainedName = normalizedId.match(/\/src\/app\/src\/([^/]+)$/)?.[1];
+  const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName);
+  if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource) || (!eagerRetainedSource && source.length < thresholdBytes)) {
     return undefined;
   }
+  const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
+  const base85 = LOSSLESS_BASE85_SOURCES_V263.has(sourcePath);
+  const gzipDecoder = base85 ? BASE85_DECODER : GZIP_DECODER;
+  // Keep the old base64 admission test exactly; encoding never changes whether
+  // a field is eager/lazy, compressed or retained strongly/weakly.
+  const pack = (json: string) => {
+    const bytes = gzipSync(json, { level: 9 });
+    return { encoded: base85 ? encodeLosslessBase85(bytes) : bytes.toString("base64"),
+      admissionLength: Math.ceil(bytes.length / 3) * 4 };
+  };
   const data: unknown = JSON.parse(source.replace(/^\uFEFF/, ""));
   if (eagerRetainedSource) {
-    if (!data || Array.isArray(data) || typeof data !== "object") return undefined;
-    const packed = gzipSync(source.replace(/^\uFEFF/, ""), { level: 9 }).toString("base64");
-    if (packed.length >= source.length * .8) return undefined;
+    if (!data || typeof data !== "object") return undefined;
+    const { encoded: packed, admissionLength } = pack(source.replace(/^\uFEFF/, ""));
+    if (admissionLength >= source.length * .8) return undefined;
+    if (Array.isArray(data)) return {
+      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\nexport default /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});`,
+      map: null, moduleType: "js",
+    };
     const declarations: string[] = [];
     const exports: string[] = [];
     for (const [index, key] of Object.keys(data).entries()) {
@@ -276,7 +335,7 @@ export function transformLosslessJsonData(
       exports.push(`__field${index} as ${key}`);
     }
     return {
-      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\nconst __source = /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});\n${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default __source;`,
+      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\nconst __source = /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});\n${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default __source;`,
       map: null,
       moduleType: "js",
     };
@@ -293,11 +352,11 @@ export function transformLosslessJsonData(
   const packedStrings = LOSSLESS_PACKED_STRING_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
     const original = source.replace(/^\uFEFF/, "");
-    const packed = gzipSync(original, { level: 9 }).toString("base64");
+    const { encoded: packed, admissionLength } = pack(original);
     // Root-array navigation packets retain their normal eager import/identity.
     // Compress only their source literal, never their live mutable values.
-    if (packed.length < original.length * 0.8) return {
-      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\nexport default /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});`,
+    if (admissionLength < original.length * 0.8) return {
+      code: `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\nexport default /* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)});`,
       map: null,
       moduleType: "js",
     };
@@ -329,9 +388,9 @@ export function transformLosslessJsonData(
       const read = `__read${index}`;
       let decode = `JSON.parse(${JSON.stringify(json)})`;
       {
-        const packed = gzipSync(json, { level: 9 }).toString("base64");
+        const { encoded: packed, admissionLength } = pack(json);
         // Avoid decode work for poorly compressible data. No values change.
-        if (packed.length < json.length * 0.8) {
+        if (admissionLength < json.length * 0.8) {
           decode = `__decodeLosslessGzip(${JSON.stringify(packed)})`;
           gzipUsed = true;
         }
@@ -389,7 +448,7 @@ export function transformLosslessJsonData(
   }
   if (lazyFields === 0 && !packedPacket && !packedFields.length) return undefined;
   return {
-    code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(GZIP_DECODER)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
+    code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,
     moduleType: "js",
   };
