@@ -187,6 +187,15 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "altMitteGroundSeamsV206.json": ["cells_u32", "spans_u32", "tops_f32", "triangles_f32", "edges_f32"],
 };
 
+// Audited immutable packed strings. Keep one strong decoded primitive per field;
+// no WeakRef, numeric conversion or geometry transformation. These sources occur
+// in the current worker/main graphs, so lossless source packing avoids duplicated
+// uncompressed base64 literals while preserving the existing source lifetime.
+export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],
+  "altMitteGroundSeamsV206.json": ["cells_u32", "triangles_f32", "edges_f32"],
+};
+
 // Encode existing lazy fields only. Their cache/ownership policy is independent
 // of compression; packed base64 fields above keep their direct-literal path.
 const GZIP_DECODER = fileURLToPath(new URL("./src/losslessGzipJson.ts", import.meta.url));
@@ -281,6 +290,7 @@ export function transformLosslessJsonData(
   const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
   const weakFields = READONLY_CONSTRUCTION_JSON_FIELDS[sourceName] ?? [];
   const packedFields = PACKED_SOURCE_JSON_FIELDS[sourceName] ?? [];
+  const packedStrings = LOSSLESS_PACKED_STRING_FIELDS[sourceName] ?? [];
   if (Array.isArray(data)) {
     const original = source.replace(/^\uFEFF/, "");
     const packed = gzipSync(original, { level: 9 }).toString("base64");
@@ -311,7 +321,8 @@ export function transformLosslessJsonData(
     // packed models) own arrays too. Keep only those opted-in objects weak;
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
-    if (!packedPacket && !packedFields.includes(key) && (Array.isArray(value) || constructionObject) && json.length >= thresholdBytes) {
+    const packedString = typeof value === "string" && packedStrings.includes(key);
+    if (!packedPacket && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;

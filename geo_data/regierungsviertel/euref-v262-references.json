@@ -1,0 +1,104 @@
+{
+  "step": 10,
+  "version": "v262",
+  "checkedOn": "2026-10-22",
+  "source": "euref-v262-source.json.gz",
+  "sourceSha256": "e8e993567220274ff0fa0abab3228ac416e68626d95d5c825f1091401d815414",
+  "primaryReferences": [
+    {
+      "url": "https://euref.de/wp-content/uploads/EURREF-Campusplan_2025_allgemein.pdf",
+      "authority": "EUREF AG, operator",
+      "status": "October 2025 numbered campus plan",
+      "usedFor": "Campus building identities and numbers 1–26. Southwest Werkstatt 26 is distinguished from stale OSM address 15. No geometry traced from the plan."
+    },
+    {
+      "url": "https://euref-event.de/wp-content/uploads/2025/02/EUREF_Campusplan_Berlin_allgemein_082024.pdf",
+      "authority": "EUREF Event, operator",
+      "status": "August 2024 numbered campus plan",
+      "usedFor": "Independent earlier plan cross-check, subordinate to the October 2025 plan."
+    },
+    {
+      "url": "https://euref.de/gasometeruebergabe/",
+      "authority": "EUREF AG, operator",
+      "usedFor": "31 January 2024 completed Gasometer handover, glazed offices inside historic frame, green mantle, approximately one-metre separation and approximately 66 m terrace."
+    },
+    {
+      "url": "https://euref.de/en/entry/schoeneberg-gasometer/",
+      "authority": "EUREF AG, operator",
+      "usedFor": "Detailed 78 m historic frame, 16 m mantle, 66 m terrace and one-metre frame clearance."
+    },
+    {
+      "url": "https://euref.de/euref-campus/",
+      "authority": "EUREF AG, operator",
+      "usedFor": "Current completed campus and rounded 80 m frame height; the model uses the detailed 78 m figure."
+    },
+    {
+      "url": "https://consulting.euref.de/projekt/euref-campus-17/",
+      "authority": "EUREF Consulting, architect/project team",
+      "usedFor": "Circular glazed insertion about one metre inside historic steel frame, office start above green base mantle, anthracite steel appearance."
+    },
+    {
+      "url": "https://consulting.euref.de/projekte/",
+      "authority": "EUREF Consulting, architect/project team",
+      "usedFor": "Names for Haus 3, Schmiede 15, Retortenhaus 16, Wasserturm 18–19, Schleusenhaus 20, Reglerhaus 25 and Werkstatt 26."
+    },
+    {
+      "url": "https://kunstgeschichte.org/verband/rote-liste/gasometer-schoeneberg/",
+      "authority": "Deutscher Verband für Kunstgeschichte",
+      "usedFor": "Historic steel structure: 24 uprights, seven rings and six levels. Pre-2024 discussion is used only for surviving frame facts, not as current occupancy evidence."
+    },
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09066707",
+      "authority": "Landesdenkmalamt Berlin",
+      "usedFor": "Historic industrial building identities and roof forms, including Retortenhaus, Wasserturm/Kesselhaus, Reglerhaus and Schmiede with its attached wings. Exact mesh geometry remains official LoD2."
+    },
+    {
+      "url": "https://www.wolff-mueller.de/m-artikel/gasometer-berlin-schlank-und-digital-gebaut",
+      "authority": "WOLFF & MÜLLER, construction contractor",
+      "usedFor": "78 m historic frame and completion-era construction cross-check."
+    },
+    {
+      "url": "https://www.berlin.de/ba-tempelhof-schoeneberg/ueber-den-bezirk/artikel.362187.php",
+      "authority": "Bezirksamt Tempelhof-Schöneberg",
+      "usedFor": "Current 2024 inserted office building, cross-check against outdated empty-frame representations."
+    }
+  ],
+  "geometrySources": [
+    {
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_388_5815.zip",
+      "sha256": "49693445e4bd7070b6b13517f853cd2cb6cd770978b53e8c0a852f5b347531e0",
+      "archiveCreationDate": "2026-03-02",
+      "license": "dl-de/zero-2-0",
+      "attribution": "Geoportal Berlin / 3D-Gebäudemodelle LoD2 Berlin",
+      "usedFor": "All 19 complete measured owners, 69 parts and 1,927 source polygons; eight exact historical owner transfers."
+    },
+    {
+      "url": "https://www.openstreetmap.org/way/23458867",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors",
+      "licenseUrl": "https://www.openstreetmap.org/copyright",
+      "usedFor": "Exact campus boundary and independent current building identities. Source cache retains original named way rings/tags and supplemental outer Gasometer ring."
+    }
+  ],
+  "conflictsAndEstimates": [
+    "Retained Gasometer LoD2 cylinder follows the historic outer ring at about 60.8 m diameter; OSM current inner body way1307229197 is only about 47.8 m, about 62% of its area. Architect/operator one-metre clearance does not agree with the smaller OSM body. All retained geometry and both rings are preserved; glazing and 31.5 m frame radius are a display reconciliation, not a surveyed glass diameter.",
+    "Native frame radius is 33.5 m, an explicit 2 m grid clearance. Native facade offsets clear the older independently voxelized bodies.",
+    "Ring intervals, steel widths, collars, facade bays, windows, colours, transoms, parapet and the 0.516 m terrace-to-source-roof reconciliation are unsurveyed display estimates.",
+    "Haus23–24 old coarse height40.31 m versus measured-leaf height36.685 m; Haus10–11 old34.50 m versus measured33.982 m. Both old shells remain. New source-bound window planes may end below the older roof.",
+    "Official Werkstatt26 identity overrides stale OSM addr15. OSM15b old container overlaps current measured Holzhaus only partially; the measured body is retained. Partial Schmiede/Schleusenhaus overlaps are not asserted to be exact footprint matches."
+  ],
+  "referenceImage": {
+    "url": "https://euref.de/wp-content/uploads/Gasometer_quer_%C2%A9EUREF-AG-1-845x684.jpg",
+    "copyright": "EUREF AG",
+    "use": "Inspected as a current visual reference only; no image or derivative texture shipped."
+  },
+  "delivery": {
+    "newDescriptors": 0,
+    "replacedDescriptorIds": ["-3_7", "-3_8", "-2_7"],
+    "newCompressedBytes": 1951063,
+    "fullStaticDetailOnTouch": true,
+    "textures": false,
+    "animation": false,
+    "raisedLiveLimits": false
+  }
+}

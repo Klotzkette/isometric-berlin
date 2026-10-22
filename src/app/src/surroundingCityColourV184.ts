@@ -1,6 +1,7 @@
 import { Color } from "three";
 import { GENERIC_FACADE_SWATCHES, genericFacadeIndex } from "./cityColourV184";
 import { districtHouseOwnerV226 as districtHouseOwnerV225, DISTRICT_HOUSE_ROOF_V226 as DISTRICT_HOUSE_ROOF_V225 } from "./districtHousePresentationV226";
+import { outerHousePaletteV262 } from "./outerHousePaletteV262";
 
 type Rgb = readonly [number, number, number];
 type Palette = { wall: Rgb; roof: Rgb };
@@ -28,6 +29,7 @@ export function* surroundingColourOwners(
   buildings: readonly Building[], groundY: number, originY: number, originX = 0, originZ = 0,
   selectOwner: typeof districtHouseOwnerV225 = districtHouseOwnerV225,
   refineRemainingOuterRoofs = false,
+  refineOuterPalette = false,
 ): Generator<void, SurroundingColourOwners> {
   const owners = new Map<number, Owner | null>();
   const sourceOwners = new Map<string, Owner>();
@@ -40,7 +42,9 @@ export function* surroundingColourOwners(
     let owner = previousOwner;
     if (!owner) {
       const palettes = (refineRemainingOuterRoofs || selectOwner(building.sourceId, building.ring, originX, originZ)) ? DISTRICT_PALETTES : PALETTES;
-      owner = { sourceId: building.sourceId, palette: palettes[genericFacadeIndex(building.sourceId)], lowCm, highCm };
+      owner = { sourceId: building.sourceId,
+        palette: refineOuterPalette ? outerHousePaletteV262(building.sourceId) : palettes[genericFacadeIndex(building.sourceId)],
+        lowCm, highCm };
       sourceOwners.set(building.sourceId, owner);
     } else if (owner.lowCm !== lowCm || owner.highCm !== highCm) {
       // Every corner shares this owner. Conflicting vertical parts disable the
@@ -51,7 +55,7 @@ export function* surroundingColourOwners(
     }
     // A split source owner must not acquire a regional roof through whichever
     // part happened to appear first in the packet.
-    if (previousOwner && !refineRemainingOuterRoofs && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
+    if (previousOwner && !refineOuterPalette && !refineRemainingOuterRoofs && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
         !selectOwner(building.sourceId, building.ring, originX, originZ))
       owner.palette = PALETTES[genericFacadeIndex(building.sourceId)];
     for (const ring of [building.ring, ...building.holes]) for (const [x, z] of ring) {

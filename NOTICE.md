@@ -2212,3 +2212,13 @@ and monument geometry are procedural interpretations; unmeasured dimensions
 are display estimates. See [v261 sources and checks](docs/sites-v261.md).
 
 The v261 bounded Windkanal contour and Kühn workshop palette use WISTA / Adlershof and Fritz-Kühn-Gesellschaft photographs as external references only. No photograph is bundled or loaded; the original owners retain copyright. URLs and usage limits are included in the packaged visual-reference attribution.
+
+## v262 — outer-house appearance and EUREF campus
+
+Existing Geoportal Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap
+(ODbL-1.0) owners remain retained. The outer palette and unsurveyed window
+fittings are illustrative; roof transfers preserve complete measured sheets.
+EUREF operator, architects and heritage references support site identity and
+recognition. The current Gasometer reference photograph is © EUREF AG. External imagery is reference-only, never a bundled texture.
+Conflicting Gasometer envelopes and estimated facade fitting are documented
+with the exact transfers in [v262 evidence](docs/outer-euref-v262.md).

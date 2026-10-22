@@ -8,11 +8,17 @@ import curbs from "../src/data/houseCurbsV233.json";
 import boulevard from "../src/data/boulevardArchitectureV235.json";
 import citywest from "../src/data/citywestStreetsV235.json";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
+import { prepareOuterRoofsV262 } from "../src/outerRoofsV262";
+import { prepareOuterFacadesV262 } from "../src/outerFacadesV262";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
+import { prepareWestShopfrontsV254 } from "../src/westShopfrontsV254";
 import { prepareCitywestStreetsV235 } from "../src/CitywestStreetsV235";
+import { prepareCityStreetsV249 } from "../src/cityStreetsV249";
+import { prepareMainStreetEdgesV254 } from "../src/MainStreetEdgesV254";
 import { prepareNamedSiteV238 } from "../src/namedSiteReplacementsV238";
+import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles } from "../src/eurefTransfersV262";
 import { replacePanoramaFacadeV202 } from "../src/panoramaFacadeV202";
 import { transferSiteTrianglesV209 } from "../src/siteOwnershipV209";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
@@ -30,8 +36,14 @@ function load(key: string): SurroundingCityChunk {
   return JSON.parse(gunzipSync(readFileSync(new URL(descriptors.get(id)[family].url, root))).toString());
 }
 function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
-  const houses = finish(prepareHouseCurbsV233(finish(prepareHouseDoorsV233(finish(prepareRoofHouseV233(chunk, id, native)), id, native)), id, native));
-  return finish(prepareNamedSiteV238(finish(prepareCitywestStreetsV235(finish(prepareBoulevardArchitectureV235(houses, id, native)), id, native)), id, native));
+  // Include every production preparation in its real order: these v233–v235
+  // source tiles can also contain later street/facade additions. Omitting v249
+  // undercounted drawn:-10_-2 by exactly 1,728 bytes before the v262 changes.
+  for (const prepare of [prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262,
+    prepareHouseDoorsV233, prepareHouseCurbsV233, prepareBoulevardArchitectureV235,
+    prepareWestShopfrontsV254, prepareCitywestStreetsV235, prepareCityStreetsV249,
+    prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareEurefTransfersV262]) chunk = finish(prepare(chunk, id, native));
+  return chunk;
 }
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);
@@ -78,12 +90,30 @@ test("the integrated decoder accounts for every extra byte and buffer in all aff
   }
 }, 240000);
 
+test("active EUREF packet descriptors retain every existing v233 roof and mapped-door recipe", () => {
+  for (const id of ["-3_7", "-3_8", "-2_7"]) for (const family of ["drawn", "minecraft"]) {
+    const key = `${family}:${id}`, native = family === "minecraft";
+    const previous = JSON.parse(gunzipSync(readFileSync(new URL(`${id}.${family}.json.gz`, root))).toString()) as SurroundingCityChunk;
+    const active = load(key), snapshot = JSON.stringify(active);
+    for (const [prepare, kind] of [[prepareRoofHouseV233, "roof-house-v233"],
+      [prepareHouseDoorsV233, "house-doors-v233"]] as const) {
+      const oldFitted = finish(prepare(previous, id, native)), newFitted = finish(prepare(active, id, native));
+      const oldPart = oldFitted.meshes.find(part => part.kind === kind);
+      expect(oldPart, `${key}:${kind}: predecessor receipt must be active`).toBeDefined();
+      expect(newFitted.meshes.find(part => part.kind === kind), `${key}:${kind}: retained active receipt`).toEqual(oldPart);
+      expect(newFitted.meshes.length, `${key}:${kind}`).toBe(active.meshes.length + 1);
+    }
+    expect(JSON.stringify(active), key).toBe(snapshot);
+  }
+});
+
 test("shared tiles retain original vertices and retire exactly the receipted flat-house triangles", () => {
   const shared = keys.filter(key => Object.hasOwn(roofs.packets, key) && Object.hasOwn(curbs.packets, key) && Object.hasOwn(doors.chunks, key.split(":")[1]));
   expect(shared.length).toBeGreaterThan(5);
   for (const key of shared) {
     const [family, id] = key.split(":"), native = family === "minecraft";
     const original = load(key), snapshot = JSON.stringify(original);
+    const prepared = prepare(original, id, native);
     const receipt = (roofs.packets as Record<string, any>)[key];
     const built = createSurroundingCityChunk(original, id, native);
     const body = built.root.children.find(child => child instanceof Mesh) as Mesh;
@@ -99,6 +129,9 @@ test("shared tiles retain original vertices and retire exactly the receipted fla
       const baseline = Uint32Array.from(ii, v => v + vertexOffset);
       panoramaTransferred += finish(replacePanoramaFacadeV202(id, native, part, baseline, 0));
       siteTransferred += finish(transferSiteTrianglesV209(id, native, part, baseline, 0));
+      // EUREF retires only its exact old owner triangles after preserving every
+      // original encoded stream for the older v233/material guards.
+      finish(applyEurefTransfersV262Triangles(prepared, meshIndex, baseline, 0));
       const retired = new Set<number>(receipt.records.filter((r: { mesh: number }) => r.mesh === meshIndex).flatMap((r: { triangles: number[] }) => r.triangles));
       for (let i = 0; i < pp.length; i += 3) {
         const j = vertexOffset + i / 3;

@@ -1,3 +1,4 @@
+import { createEurefCampusV262 } from "./EurefCampusV262";
 import { createTempelhofV261 } from "./TempelhofV261";
 import { createWindkanalV261 } from "./WindkanalV261";
 import { applyCitadelCrownV230 } from "./citadelCrownV230";
@@ -192,6 +193,8 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createTempelhofV261(nextNative));
       yield;
       root.add(createWindkanalV261(nextNative));
+      yield;
+      root.add(createEurefCampusV262(nextNative));
       yield;
       root.add(createWestLakesV194(nextNative));
       yield;

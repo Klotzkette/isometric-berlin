@@ -108,6 +108,9 @@ def verify_packets(addition: dict, reader: Reader = Path.read_bytes) -> None:
 
 def predecessor_manifest_v261(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Remove only the exact proven change; reject every unknown manifest edit."""
+  from scripts.integrate_euref_v262 import predecessor_manifest_v262
+
+  current = predecessor_manifest_v262(current, reader)
   if MARKER not in current:
     assert not any(
       c["id"] == ADDED

@@ -1,3 +1,4 @@
+import { eurefV262GroundAt, eurefV262SolidAt } from "./eurefV262Navigation";
 import { tempelhofV261GroundAt, tempelhofV261SolidAt } from "./tempelhofV261Navigation";
 import { windkanalV261GroundAt } from "./windkanalV261Navigation";
 import { BufferAttribute, BufferGeometry, Float32BufferAttribute, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
@@ -37,6 +38,7 @@ export function* createOuterThinOutlinesSteps(
     root.userData = { outlineOnly: true, textureFree: true, features: data.features, navigationTiles: regionalV200NavigationTiles };
     // Keep detailed navigation in this lazy supplement, out of the startup bundle.
     root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
+      eurefV262SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       tempelhofV261SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       danzigerTramSolidAtV249(x, y, z, radius, activeMode === "minecraft") ||
       (activeMode === "minecraft" ? airportsV194NativeSolidAt : airportsV194SolidAt)(x, y, z, radius) ||
@@ -57,6 +59,7 @@ export function* createOuterThinOutlinesSteps(
       westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null ||
       regionalV200WaterAt(x, z);
     root.userData.groundAt = (x: number, z: number) =>
+      eurefV262GroundAt(x, z, activeMode === "minecraft") ??
       windkanalV261GroundAt(x, z, activeMode === "minecraft") ??
       tempelhofV261GroundAt(x, z, activeMode === "minecraft") ??
       danzigerTramGroundAtV249(x, z, activeMode === "minecraft") ??

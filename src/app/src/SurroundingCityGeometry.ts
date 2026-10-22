@@ -1,3 +1,6 @@
+import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEurefTransfersV262Lines, eurefNavigationV262 } from "./eurefTransfersV262";
+import { prepareOuterFacadesV262 } from "./outerFacadesV262";
+import { prepareOuterRoofsV262, applyOuterRoofsV262Triangles, applyOuterRoofsV262Lines } from "./outerRoofsV262";
 import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238 } from "./namedSiteReplacementsV238";
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
 import { applyOuterMaterialsV254 } from "./outerMaterialsV254";
@@ -26,6 +29,7 @@ import { surroundingColourOwners, surroundingGenericColour, type SurroundingColo
 import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
 import { applyAltMitteAppearanceV213 } from "./altMitteAppearanceV213";
 import { shadeOuterHousePanesV230, refineOuterRoofsV230 } from "./outerHousePresentationV230";
+import { refineOuterHousePaletteV262 } from "./outerHousePaletteV262";
 import { shadeDistrictHousePanesV226 as shadeDistrictHousePanesV225 } from "./districtHousePresentationV226";
 
 export type SurroundingPolygon = { ring: number[][]; holes: number[][][] };
@@ -239,6 +243,8 @@ export function* buildSurroundingCityChunk(
   // Add source-bound ordinary-house fittings inside the existing tile lifetime.
   // Cancellation can discard preparation before any scene/GPU object is made.
   chunk = yield* prepareRoofHouseV233(chunk, id, minecraft);
+  chunk = yield* prepareOuterRoofsV262(chunk, id, minecraft);
+  chunk = yield* prepareOuterFacadesV262(chunk, id, minecraft);
   chunk = yield* prepareHouseDoorsV233(chunk, id, minecraft);
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
   chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
@@ -247,6 +253,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareCityStreetsV249(chunk, id, minecraft);
   chunk = yield* prepareMainStreetEdgesV254(chunk, id, minecraft);
   chunk = yield* prepareNamedSiteV238(chunk, id, minecraft);
+  chunk = yield* prepareEurefTransfersV262(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -284,7 +291,7 @@ export function* buildSurroundingCityChunk(
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
     let indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     const colourOwners = chunk.meshes.some(part => part.kind === "city")
-      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id)) : undefined;
+      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id)) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     for (const [meshIndex, part] of chunk.meshes.entries()) {
       const count = encodedBytes(part.positions, 6) / 6;
@@ -324,8 +331,12 @@ export function* buildSurroundingCityChunk(
       if (outerPanes) root.userData.outerHousePanesV230 = (root.userData.outerHousePanesV230 ?? 0) + outerPanes;
       const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
       if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
+      const outerRoofs = yield* applyOuterRoofsV262Triangles(chunk, meshIndex, indices, indexOffset);
+      if (outerRoofs) root.userData.outerRoofTrianglesV262 = (root.userData.outerRoofTrianglesV262 ?? 0) + outerRoofs;
       const namedTransfer = yield* applyNamedSiteTrianglesV238(chunk, meshIndex, indices, indexOffset);
       if (namedTransfer) root.userData.namedSiteTrianglesV238 = (root.userData.namedSiteTrianglesV238 ?? 0) + namedTransfer;
+      const eurefTransfer = yield* applyEurefTransfersV262Triangles(chunk, meshIndex, indices, indexOffset);
+      if (eurefTransfer) root.userData.eurefTransferredTrianglesV262 = (root.userData.eurefTransferredTrianglesV262 ?? 0) + eurefTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -390,7 +401,9 @@ export function* buildSurroundingCityChunk(
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.eurefTransferredLineSegmentsV262 = yield* applyEurefTransfersV262Lines(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
@@ -398,7 +411,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav)), origin: chunk.origin };
+      nav: eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

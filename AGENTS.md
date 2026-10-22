@@ -1533,3 +1533,21 @@ native additions remain independently orthogonal. Small unmeasured fittings are
 display estimates. Stair apertures must retain surrounding pavement and accessible
 walking return paths. The user explicitly prohibits external Safari and external
 browser test processes on this Mac; use only the app's internal browser for UI QA.
+
+### Step 10 — v262 outer-house appearance and EUREF campus
+
+The owner requests a further appearance pass on existing outer-district houses
+and source-bound refinement of the EUREF campus at the Schöneberg Gasometer.
+Replace only generic fallback paint with restrained varied facade/roof tones;
+retain explicit material evidence and individually authored colours. Preserve
+all existing source geometry, roofs, details, mapped positions and open spaces.
+Additional ordinary-house windows may be fitted only to verified complete
+untreated street-facing walls in a bounded set of existing packets. Their layout
+is illustrative; mapped entrances and measured roofs must not be invented.
+Additional exact LoD2 roof replacements require full source-preservation receipts
+and must leave the earlier v233 recipes intact.
+Campus refinements must follow verified current site identities and complete
+measured owners, with exact preservation receipts for any coarse-owner transfer.
+Unsurveyed facade fittings remain display estimates. Keep independent native
+geometry, full mobile detail, the 93-place tour and every live residency/decode
+limit. No unrelated coverage, new animation or photographic texture is implied.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.162 — 2026-10-22
+
+- Replace only unknown-material outer-house fallback paint with restrained varied wall and roof tones; explicit mapped colours and authored models retain precedence.
+- Add bounded street-facing window fittings on previously untreated source walls, without new streamed descriptors or increased live budgets.
+- Restore 24 complete measured house roofs in Spandau, Niederschönhausen and Adlershof, preserving the original packets and prior v233 architecture.
+- Refine the EUREF campus at its mapped Schöneberg site: current Gasometer steel frame, green base mantle, glazing and terrace, plus complete measured historical building forms.
+- Losslessly compress six packed water/ground strings with one strong lazy decode per field; retain every original value and existing cache ownership.
+- Preserve full mobile detail, independent native construction, 93 tour stops and existing runtime limits. Source disagreements and estimated fittings are documented.
+
 ## 1.0.161 — 2026-10-22
 
 - Refine four Adlershof technical monument owners with complete measured parts and the separate Kühn atelier/smithy at its verified Bohnsdorf site.
