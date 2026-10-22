@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.161 — 2026-10-22
+
+- Refine four Adlershof technical monument owners with complete measured parts and the separate Kühn atelier/smithy at its verified Bohnsdorf site.
+- Add a bounded, estimated rounded upper Windkanal contour and reinforcing rings while retaining every measured source surface.
+- Add Tempelhof entrance glazing, canopy, lettering and the 20 m Airlift Memorial with three west-bending ribs, travertine base and bronze inscription band.
+- Add seven source-bound Naturkundemuseum / Brandenburger Tor stair entrances, blue/ivory U signs, handrails, open ground apertures and matching walking heights.
+- Distinguish the Charité Virology/Ruska and Lesser buildings through their projecting bays, cornice, window subdivisions, five-storey plaster rhythm and framing.
+- Preserve measured source envelopes, full mobile detail, independent native models, 93 tour stops and live loading/residency limits. UI verification uses only the internal app browser.
+
 ## v1.0.160 — Six culture venues and Columbiahalle graphic loop
 
 - Refine Ludwig-Erhard-Haus, Renaissance-Theater, Delphi Filmpalast, Zoo Palast, Kino International and Café Moskau with complete source ownership and distinct facade cues.

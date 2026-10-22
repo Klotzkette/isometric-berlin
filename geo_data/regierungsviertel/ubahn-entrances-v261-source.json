@@ -1,0 +1,319 @@
+{
+  "retrieved": "2026-10-22",
+  "license": "ODbL-1.0",
+  "source": "OpenStreetMap API 0.6; complete seven selected ways and endpoint tags",
+  "rawSha256": {
+    "brandenburg.osm": "e74f45fcd267620978c6306e34857162e459c2f8a7ad87614db234a67a0e03b2",
+    "naturkunde-north.osm": "507bdbb856f2b743b67bfee2cca8e6e3bedf56f3b82afa689312852068473a42",
+    "naturkunde.osm": "651a37afee524d01fc821de2db82a9564750da90ac0a365e283e106b2c352341"
+  },
+  "runs": [
+    {
+      "station": "naturkundemuseum",
+      "ref": "A",
+      "entranceNode": 3820796423,
+      "way": 378664942,
+      "version": 10,
+      "timestamp": "2023-09-01T23:37:15Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "24/7",
+        "ramp": "no",
+        "step_count": "29",
+        "surface": "asphalt",
+        "tactile_paving": "no"
+      },
+      "nodes": [
+        {
+          "id": 10579312035,
+          "lon": 13.3817098,
+          "lat": 52.5316432,
+          "tags": {}
+        },
+        {
+          "id": 3820796423,
+          "lon": 13.3816639,
+          "lat": 52.5316801,
+          "tags": {
+            "entrance": "yes",
+            "entrance_marker:subway": "yes",
+            "name": "Naturkundemuseum",
+            "railway": "subway_entrance",
+            "ref": "A",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    },
+    {
+      "station": "naturkundemuseum",
+      "ref": "B",
+      "entranceNode": 3820796420,
+      "way": 378664945,
+      "version": 10,
+      "timestamp": "2023-11-20T01:17:27Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "24/7",
+        "platform_lift": "no",
+        "ramp": "no",
+        "step_count": "27",
+        "surface": "asphalt",
+        "tactile_paving": "no",
+        "tactile_writing": "no"
+      },
+      "nodes": [
+        {
+          "id": 3820796389,
+          "lon": 13.3825855,
+          "lat": 52.5309496,
+          "tags": {
+            "level": "-1"
+          }
+        },
+        {
+          "id": 3820796420,
+          "lon": 13.3826447,
+          "lat": 52.5309025,
+          "tags": {
+            "check_date:wheelchair": "2026-07-08",
+            "door": "no",
+            "entrance": "yes",
+            "entrance_marker:subway": "yes",
+            "name": "Naturkundemuseum",
+            "railway": "subway_entrance",
+            "ref": "B",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    },
+    {
+      "station": "naturkundemuseum",
+      "ref": "C",
+      "entranceNode": 2946490672,
+      "way": 378664941,
+      "version": 10,
+      "timestamp": "2023-11-20T01:17:48Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "24/7",
+        "platform_lift": "no",
+        "ramp": "no",
+        "step_count": "27",
+        "surface": "asphalt",
+        "tactile_paving": "no",
+        "tactile_writing": "no"
+      },
+      "nodes": [
+        {
+          "id": 3820796381,
+          "lon": 13.3827425,
+          "lat": 52.5308221,
+          "tags": {
+            "level": "-1"
+          }
+        },
+        {
+          "id": 2946490672,
+          "lon": 13.3828043,
+          "lat": 52.5307751,
+          "tags": {
+            "check_date:wheelchair": "2026-01-18",
+            "door": "no",
+            "entrance": "yes",
+            "entrance_marker:subway": "yes",
+            "name": "Naturkundemuseum",
+            "railway": "subway_entrance",
+            "ref": "C",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    },
+    {
+      "station": "brandenburger-tor",
+      "ref": "A",
+      "entranceNode": 539321761,
+      "way": 43051201,
+      "version": 11,
+      "timestamp": "2023-06-25T19:35:04Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "layer": "-1",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "26",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      },
+      "nodes": [
+        {
+          "id": 2451641882,
+          "lon": 13.380276,
+          "lat": 52.5166786,
+          "tags": {
+            "level": "-1"
+          }
+        },
+        {
+          "id": 539321761,
+          "lon": 13.3803928,
+          "lat": 52.5166861,
+          "tags": {
+            "check_date:wheelchair": "2026-10-03",
+            "entrance": "yes",
+            "level": "0",
+            "name": "S+U Brandenburger Tor",
+            "railway": "subway_entrance",
+            "ref": "A",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    },
+    {
+      "station": "brandenburger-tor",
+      "ref": "B",
+      "entranceNode": 3767875666,
+      "way": 373292154,
+      "version": 10,
+      "timestamp": "2023-06-25T19:35:20Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "layer": "-1",
+        "level": "-1;0",
+        "lit": "24/7",
+        "ramp": "no",
+        "step_count": "26",
+        "surface": "concrete",
+        "tactile_paving": "no"
+      },
+      "nodes": [
+        {
+          "id": 3767874522,
+          "lon": 13.3801698,
+          "lat": 52.5164469,
+          "tags": {
+            "level": "-1"
+          }
+        },
+        {
+          "id": 3767875666,
+          "lon": 13.3800269,
+          "lat": 52.5164372,
+          "tags": {
+            "entrance": "yes",
+            "entrance_marker:s-train": "yes",
+            "entrance_marker:subway": "yes",
+            "level": "0",
+            "name": "S+U Brandenburger Tor",
+            "railway": "subway_entrance",
+            "ref": "B",
+            "subway_entrance": "yes",
+            "wheelchair": "yes"
+          }
+        }
+      ]
+    },
+    {
+      "station": "brandenburger-tor",
+      "ref": "C",
+      "entranceNode": 539321774,
+      "way": 43051202,
+      "version": 11,
+      "timestamp": "2023-06-25T19:35:21Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "level": "-1;0",
+        "lit": "yes",
+        "ramp": "no",
+        "step_count": "23",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      },
+      "nodes": [
+        {
+          "id": 2451641776,
+          "lon": 13.3803974,
+          "lat": 52.5162405,
+          "tags": {
+            "level": "-1"
+          }
+        },
+        {
+          "id": 539321774,
+          "lon": 13.3805206,
+          "lat": 52.5162486,
+          "tags": {
+            "check_date:wheelchair": "2026-06-01",
+            "entrance": "yes",
+            "level": "0",
+            "name": "S+U Brandenburger Tor",
+            "railway": "subway_entrance",
+            "ref": "C",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    },
+    {
+      "station": "brandenburger-tor",
+      "ref": "D",
+      "entranceNode": 5234611317,
+      "way": 1169204817,
+      "version": 3,
+      "timestamp": "2023-09-30T13:18:35Z",
+      "tags": {
+        "handrail": "yes",
+        "highway": "steps",
+        "incline": "up",
+        "layer": "-1",
+        "level": "-0.5;0",
+        "lit": "24/7",
+        "ramp": "no",
+        "step_count": "12",
+        "surface": "paving_stones",
+        "tactile_paving": "no"
+      },
+      "nodes": [
+        {
+          "id": 10872326513,
+          "lon": 13.382185,
+          "lat": 52.5165735,
+          "tags": {}
+        },
+        {
+          "id": 5234611317,
+          "lon": 13.3822437,
+          "lat": 52.5165773,
+          "tags": {
+            "check_date:wheelchair": "2025-01-25",
+            "entrance": "yes",
+            "level": "0",
+            "name": "S+U Brandenburger Tor",
+            "railway": "subway_entrance",
+            "ref": "D",
+            "wheelchair": "no"
+          }
+        }
+      ]
+    }
+  ]
+}

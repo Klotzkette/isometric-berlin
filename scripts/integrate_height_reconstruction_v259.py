@@ -77,6 +77,9 @@ def verify_packets(addition: dict, reader: Reader = Path.read_bytes) -> None:
 
 def predecessor_manifest_v259(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Expose historical data only after proving the complete finite extension."""
+  from scripts.integrate_adlershof_kuehn_v261 import predecessor_manifest_v261
+
+  current = predecessor_manifest_v261(current, reader)
   if "heightReconstructionV259" not in current:
     assert not any(c["id"].startswith("height259-") for c in current["chunks"])
     return current

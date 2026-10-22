@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "step": 10,
+  "checked": "2026-10-22",
+  "source": "adlershof-kuehn-v261-source.json.gz",
+  "coordinateFrame": "x = ETRS89/UTM33 easting - 389500; z = 5820000 - northing; y = LoD2 NHN - per-owner minimum ground NHN + 3 metres",
+  "geometryPolicy": "Complete measured source roofs/walls and part footprints; all original surfaces, including ground and closure sheets, are retained in the frozen source. Rendering uses established 1 cm precision. Native geometry is independently rasterised to 2 m exterior cells, never a smooth-mesh material reskin.",
+  "references": [
+    {
+      "url": "https://www.adlershof.de/immobilien/bauprojekte/architektur",
+      "publisher": "WISTA / Adlershof",
+      "supports": ["Großer Windkanal 1932–1934", "120 m circuit length and 12 m diameter, not a straight 120 m building", "Trudelturm roughly 20 m high", "Isothermische Kugellabore, Rudower Chaussee / Am Studio"]
+    },
+    {
+      "url": "https://www.adlershof.de/kiez/digitale-spaziergaenge/gedankengang",
+      "publisher": "WISTA / Adlershof",
+      "supports": ["Windkanal outside dimensions about 58 × 26 m; surrounding measured building owner also contains attached measurement buildings"]
+    },
+    {
+      "url": "https://www.berlin.de/ba-treptow-koepenick/politik-und-verwaltung/aemter/stadtentwicklungsamt/denkmalschutz/artikel.41399.php",
+      "publisher": "Bezirksamt Treptow-Köpenick",
+      "supports": ["Protected aviation research buildings in Adlershof"]
+    },
+    {
+      "url": "https://www.adlershof.de/news/computer-buecher-und-roboter",
+      "publisher": "WISTA / Adlershof",
+      "supports": ["Erwin-Schrödinger-Zentrum combines historic brick research buildings and modern metal-clad architecture"]
+    },
+    {
+      "url": "https://fritz-kuehn-gesellschaft.de/kontakt/",
+      "publisher": "Fritz-Kühn-Gesellschaft",
+      "supports": ["Atelier and company at Richterstraße 6, 12524 Berlin", "Low pale workshop ensemble around a paved working courtyard, dark industrial window frames"]
+    },
+    {
+      "url": "https://fritz-kuehn-gesellschaft.de/wp-content/uploads/2012/07/atelier_achimkuehn.jpg",
+      "publisher": "Fritz-Kühn-Gesellschaft",
+      "use": "Reference-only image, viewed but not bundled or mapped as a runtime texture; copyright remains with its owner. This is a historic 2012 image, not a claim of surveyed 2026 facade condition."
+    },
+    {
+      "url": "https://achimkuehn.de/",
+      "publisher": "Atelier Achim Kühn",
+      "supports": ["Fritz Kühn founded the Bohnsdorf workshop in 1937; Achim continued it in 1967", "Historic workshop yard and later hall extension", "Same street address; footer says Altglienicke while workshop history says Bohnsdorf"]
+    },
+    {
+      "url": "https://achimkuehn.de/atelier/",
+      "publisher": "Atelier Achim Kühn",
+      "supports": ["Smithy and atelier identity; not an Adlershof science-campus building"]
+    }
+  ],
+  "osmIdentityChecks": [
+    {"element": "relation/2016285", "name": "Großer Windkanal", "sourceOwner": "DEBE09YYO00007rF"},
+    {"element": "way/383660856", "name": "Trudelturm", "sourceOwner": "DEBE09YYO0000Gid"},
+    {"element": "way/24527529", "name": "Erwin-Schrödinger-Zentrum", "sourceOwner": "DEBE09YYO00003li"},
+    {"element": "way/217286506", "name": "Isothermische Kugellabore", "sourceOwner": "DEBE09YYO0000HEx"},
+    {"element": "node/301107444", "name": "Atelier Achim Kühn", "address": "Richterstraße 6, 12524 Berlin"},
+    {"element": "way/27561156", "name": "Kühn workshop footprint"},
+    {"element": "way/383446181", "name": "Kühn workshop annex"}
+  ],
+  "boundedScope": {
+    "adlershof": "Only four already represented verified owners; no district-wide regeneration.",
+    "kuehn": "Four measured workshop buildings only, 61.5 × 55.1 m bounding extent; a convex envelope joins their working courtyard. This is a bounded display-ground envelope, not an asserted cadastral parcel. The historical Vorwerk Falkenberg house toward the street is not mislabelled as the workshop."
+  },
+  "explicitEstimates": [
+    "Exterior material palette, window spacing, mullions and sill heights are photo-guided/procedural estimates; no measured facade survey is claimed.",
+    "Existing flat terrain datum y=3 and native 2 m surface-cell reading are retained.",
+    "No fabricated atelier interiors, identifying signs, sculpture copies, chimney locations or public access routes.",
+    "The wind-tunnel source union has two real courtyard holes, both kept open in navigation; measured building bodies remain obstacles.",
+    "One centimetre-wide ESZ closure footprint has no native centre sample: its intersecting 2 m cells preserve part identity/navigation. Five source sliver triangles collapse at established 1 cm output precision but stay intact in the frozen source."
+  ],
+  "attribution": "Geometry: Geoportal Berlin, 3D-Gebäudemodell LoD2, Datenlizenz Deutschland – Namensnennung 2.0; identity cross-checks: © OpenStreetMap contributors, ODbL. Primary reference photographs are reference-only."
+}

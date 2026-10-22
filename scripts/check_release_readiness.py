@@ -137,7 +137,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v257 adds bounded named-site refinements and the user-requested silent
 # 1,244,331-byte concert recording. Complete build is ~890.2 MiB. A finite
 # 891 MiB offline allowance changes no live packet, decode or GPU budget.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 891 * 1024 * 1024
+# v261 preserves every earlier packet and adds six bounded Adlershof/Kühn assets
+# plus static named-site details: 935,153,648 bytes (891.832 MiB). The finite
+# 893 MiB download ceiling does not change live loading, decode or GPU budgets.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 893 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

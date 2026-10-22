@@ -67,6 +67,7 @@ import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
 import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
 import { CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES, CHARITE_THEATRE_REPLACEMENT_IDS } from "./chariteHistoricFacadeProfiles";
+import { CHARITE_LESSER_V261_IDS, CHARITE_LESSER_V261_TONE } from "./ChariteRailV261";
 import { GORKI_BUILDING_PRISM_IDS } from "./gorkiBuildingProfile";
 import { GRIPS_HANSAPLATZ_PRISM_IDS } from "./gripsHansaplatzProfile";
 import { HANSA_LIBRARY_PRISM_IDS_V237 } from "./hansaLibraryV237Profile";
@@ -759,6 +760,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 export const HERO_PRISM_TONES: Record<string, number> = {
   ...Object.fromEntries([...WILHELM_REFINEMENT_PRISM_TONES].map(([id, tones]) => [id, tones[0]])),
   ...CHARITE_HISTORIC_FACADE_TONES,
+  ...Object.fromEntries([...CHARITE_LESSER_V261_IDS].map(id => [id, CHARITE_LESSER_V261_TONE])),
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0xe7e3d6])),
   ...GROPIUS_BAU_PRISM_TONES,
   K0002MCN: 0xe0e3df,

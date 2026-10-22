@@ -2193,3 +2193,22 @@ viewer/package assets contain no recordings, recording player or audio. Supplied
 photos/videos are reference-only evidence for original procedural lighting,
 performer/audience silhouettes and entrance lettering; no frames are bundled.
 See [Columbia graphic loop](docs/columbia-graphic-v260.md).
+
+## v261 — Adlershof, Kühn, Tempelhof, U-Bahn and Charité
+
+Existing Geoportal Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0)
+owners remain retained. Exact Adlershof owner transfers and the bounded Kühn
+workshop supplement are documented with full source receipts. Tempelhof's
+complete earlier airport sheets are preserved. BVG station information and
+retained OSM stair axes support the seven new entrances.
+
+External references are not bundled imagery: Schibo's two 2024 Charité views
+(CC BY-SA 4.0); Layla Fetzer's 2020 Luftbrückendenkmal photographs
+(CC BY 4.0, Bildhauerei in Berlin, text Kähler/Kuhn); Andreas FranzXaver Süß's
+Tempelhof view (Berliner Zentrum Industriekultur); David Ulrich / S-Bahn Berlin
+GmbH's Brandenburger Tor entrance view. The public visual-reference attribution
+file carries the individual links and credits. New lettering, facade fittings
+and monument geometry are procedural interpretations; unmeasured dimensions
+are display estimates. See [v261 sources and checks](docs/sites-v261.md).
+
+The v261 bounded Windkanal contour and Kühn workshop palette use WISTA / Adlershof and Fritz-Kühn-Gesellschaft photographs as external references only. No photograph is bundled or loaded; the original owners retain copyright. URLs and usage limits are included in the packaged visual-reference attribution.

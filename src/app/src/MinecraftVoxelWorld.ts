@@ -99,6 +99,7 @@ import { isGendarmenmarktPerimeterReplacementColumn } from "./gendarmenmarktPeri
 import { createMinecraftChariteHistoricFacades } from "./ChariteHistoricFacades";
 import { CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES } from "./chariteHistoricFacadeProfiles";
 import { CHARITE_VIROLOGY_IDS, HISTORIC_CHARITE_TONES } from "./HistoricChariteCampus";
+import { CHARITE_LESSER_V261_IDS, CHARITE_LESSER_V261_TONE } from "./ChariteRailV261";
 import { createChariteHistoricFacadeColumnTester, MINECRAFT_CHARITE_HISTORIC_SHELL_IDS } from "./MinecraftChariteHistoricShells";
 import { createMinecraftGendarmenmarktArchitecture } from "./GendarmenmarktArchitecture";
 import { isGendarmenmarktReplacementColumn } from "./gendarmenmarktProfile";
@@ -928,7 +929,7 @@ export function buildColumnToneLookup(prisms: {
     const corridorTone = building.id ? LUISEN_CORRIDOR_TONES[building.id] ?? BOELL_STIFTUNG_PRISM_TONES[building.id] ?? BUNDESRAT_PRISM_TONES[building.id] ?? ROHWEDDER_HAUS_PRISM_TONES[building.id] ?? BELLEVUE_PRISM_TONES[building.id] ?? FIFTY_HERTZ_PRISM_TONES[building.id] ?? EUROPACITY_ARCHITECTURE_TONES[building.id] ?? FRIEDRICHSTRASSE_ARCHITECTURE_TONES[building.id] : undefined;
     const urban = urbanFacadeScope(building);
     const chariteTone = building.id ? CHARITE_HISTORIC_FACADE_TONES[building.id] ??
-      (CHARITE_VIROLOGY_IDS.has(building.id) ? HISTORIC_CHARITE_TONES.virologyFacade : undefined) : undefined;
+      (CHARITE_VIROLOGY_IDS.has(building.id) ? HISTORIC_CHARITE_TONES.virologyFacade : CHARITE_LESSER_V261_IDS.has(building.id) ? CHARITE_LESSER_V261_TONE : undefined) : undefined;
     const wilhelmTones = building.id ? WILHELM_REFINEMENT_PRISM_TONES.get(building.id) : undefined;
     // Resolve retained CSS colours/materials for every core owner, after all
     // existing authored priorities. The bounded roof path below is unchanged.

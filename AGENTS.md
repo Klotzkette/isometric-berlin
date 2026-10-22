@@ -1519,3 +1519,17 @@ with hidden/offscreen suspension and explicit pause. Refine the entrance's
 blue outline lettering and cream/red Sisters of Mercy programme board against
 the supplied photograph. Historical repository/release cleanup is separately
 scoped with the owner because it affects old tags and published downloads.
+
+### Step 10 — v261 Adlershof, Kühn, Tempelhof, station entrances and Charité
+
+The owner requests more accurate Adlershof technical monuments, the exact Kühn
+smithy in Bohnsdorf, Tempelhof main entrance and Luftbrückendenkmal, mapped U6
+Naturkundemuseum and Brandenburger Tor entrances, and Charité railway facades.
+Preserve complete prior source owners and unrelated packets. Only exact receipted
+coarse Adlershof owners may yield to their full measured replacements. New coverage
+is limited to the named Kühn workshop parcel, with one bounded streamed packet
+pair. Retain all live residency/decode limits, 93 tour stops and full mobile detail;
+native additions remain independently orthogonal. Small unmeasured fittings are
+display estimates. Stair apertures must retain surrounding pavement and accessible
+walking return paths. The user explicitly prohibits external Safari and external
+browser test processes on this Mac; use only the app's internal browser for UI QA.

@@ -1,0 +1,47 @@
+# Named site refinements — release 1.0.161
+
+Step 10 covers the latest requested sites only. Adlershof's technical monuments,
+the Kühn workshop in Bohnsdorf, Tempelhof's public entrance and Airlift Memorial,
+Naturkundemuseum/Brandenburger Tor station entrances and two railway-facing
+Charité buildings gain source-bound recognition detail.
+
+- [Adlershof and Kühn](adlershof-kuehn-v261.md): complete measured owners and exact packet transfer receipts.
+- [Tempelhof and Airlift Memorial](tempelhof-v261.md): original airport source preserved, monument measurements and photograph-guided curve.
+- [Seven U-Bahn entrances](ubahn-entrances-v261.md): mapped axes and step counts, actual stair apertures and matching navigation.
+- [Charité railway facades](charite-rail-v261.md): separate Ruska/Virology and Lesser identities, unchanged source envelopes.
+
+New photographic fitting dimensions are explicitly estimates. This release does
+not claim a surveyed digital twin. Full mobile detail and independent orthogonal
+Minecraft construction remain; no video, texture download, extra animation loop
+or increase to live loading/residency budgets is introduced. The 93-stop tour is
+unchanged. The single bounded Kühn site increases the static catalogue from
+2,193 to 2,194 descriptors, below its existing 2,208-item cap.
+
+UI verification uses only the app's internal browser, as requested. No external
+Safari, Chrome or WebKit process is launched. Automated geometry/navigation tests
+remain separate from visual checks; no universal crash-free guarantee is inferred.
+
+## Validation
+
+- The focused model/navigation tests pass in both rendering modes, including
+  source preservation, stair openings, sign direction/fit, facade exposure,
+  collision and disposal checks. 50 focused Python tests and 23 frontend tests pass.
+- Internal-browser isolated-model inspection covers the actual runtime factories
+  and streamed Adlershof/Kühn packets. It caught and corrected a mirrored station
+  name, an overwide sign label and Tempelhof details buried behind its lower hall.
+  This is not a long full-city mobile soak test.
+- The broad historical test suite is not claimed green: its existing construction
+  fixture omits `createCoreSpreeBridgesV242`, and an old outline test expects 430
+  traffic signals while the unchanged source contains 458. Host disk pressure also
+  precludes tests that duplicate the complete source/package. Focused regression
+  and complete release-asset validation are run separately.
+
+The complete extracted v1.0.161 download measures **935,153,648 bytes
+(891.832 MiB), 4,741 files**. A finite **893 MiB archive-only ceiling** retains
+all earlier source packets; no live packet, decode, queue, resident or mobile
+detail budget changes. TypeScript and the production Vite build pass.
+
+Release readiness: **80 tests passed**. The preflight Pages tree retains both prior
+live asset sets, contains 1,073,494,384 bytes, and remains below the 1 GiB hosting
+limit. Archive files are generated and validated sequentially in RAM to avoid
+duplicate on-disk downloads; remote checksums are verified before publication.

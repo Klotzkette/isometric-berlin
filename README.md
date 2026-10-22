@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.160 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.160/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.161 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.161/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.160** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.161** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.161 refines Adlershof's technical monuments, the Kühn smithy in Bohnsdorf, Tempelhof's entrance and Airlift Memorial, seven U-Bahn stair entrances and the railway-facing Charité facades. Source-bound geometry, open stair mouths and independent native models preserve the existing live memory limits. [Evidence and checks](docs/sites-v261.md).
+
+Version 1.0.161 präzisiert die technischen Denkmale in Adlershof, die Kühn-Schmiede in Bohnsdorf, den Tempelhofer Eingang und das Luftbrückendenkmal, sieben U-Bahn-Abgänge und die Charité-Fassaden an der Bahn. Quellgebundene Geometrie, offene Treppenmündungen und eigenständige Minecraft-Modelle erhalten die bisherigen Laufzeit-Speichergrenzen. [Belege und Prüfungen](docs/sites-v261.md).
 
 Version 1.0.160 refines Ludwig-Erhard-Haus, Renaissance-Theater, Delphi Filmpalast, Zoo Palast, Kino International and Café Moskau. Complete measured western roofs replace three coarse proxies; the International gains its evidenced open cantilever, and each venue gains distinct facade details. Columbiahalle now contains only a silent stylized graphical loop; all three recordings and the video player are removed from the current product. Its blue neon lettering and Sisters of Mercy board follow the supplied entrance photo. [Evidence and checks](docs/venues-v260.md).
 

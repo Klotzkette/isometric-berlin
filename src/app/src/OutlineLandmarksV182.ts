@@ -1,3 +1,5 @@
+import { createTempelhofV261 } from "./TempelhofV261";
+import { createWindkanalV261 } from "./WindkanalV261";
 import { applyCitadelCrownV230 } from "./citadelCrownV230";
 import { BufferGeometry, Group, Material, Mesh } from "three";
 import { createSteglitzV182, createMinecraftSteglitzV182 } from "./SteglitzV182";
@@ -186,6 +188,10 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createViktoriaparkV194(nextNative));
       yield;
       root.add(createAirportsV194(nextNative));
+      yield;
+      root.add(createTempelhofV261(nextNative));
+      yield;
+      root.add(createWindkanalV261(nextNative));
       yield;
       root.add(createWestLakesV194(nextNative));
       yield;

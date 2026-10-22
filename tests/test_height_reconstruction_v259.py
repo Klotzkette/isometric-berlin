@@ -15,6 +15,7 @@ from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 from scripts import integrate_height_reconstruction_v259 as integration
+from scripts.integrate_adlershof_kuehn_v261 import predecessor_manifest_v261
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -89,7 +90,7 @@ def test_all_previous_descriptors_coverage_and_limits_are_preserved(previous, ad
   before = copy.deepcopy(previous)
   merged = integration.merged(previous, addition)
   assert previous == before
-  assert read(PUBLIC / "manifest.json") == merged
+  assert predecessor_manifest_v261(read(PUBLIC / "manifest.json")) == merged
   assert merged["chunks"][: len(previous["chunks"])] == previous["chunks"]
   for key, value in previous.items():
     if key != "chunks":

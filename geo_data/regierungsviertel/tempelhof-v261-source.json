@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "previousSource": "airports-v194-source.json",
+  "previousSourceSha256": "e3c48aef6dae592f74e42edf226b22a296fd056e67f835664ee4018fc10d6427",
+  "sourceOwner": "DEBE07YY9000088X",
+  "front": {
+    "kind": "WallSurface",
+    "id": "UUID_2760c007-1fc2-41d9-abae-f4e80bd91795",
+    "rings": [
+      [
+        [
+          1069.716,
+          30.937,
+          4087.068
+        ],
+        [
+          1124.449,
+          30.937,
+          4039.786
+        ],
+        [
+          1124.449,
+          3.358,
+          4039.786
+        ],
+        [
+          1069.716,
+          3.358,
+          4087.068
+        ]
+      ]
+    ]
+  },
+  "monument": {
+    "osmId": "node/27431777",
+    "osmVersion": 23,
+    "lon": 13.3874049,
+    "lat": 52.484135,
+    "anchor": [
+      996.4178,
+      3,
+      3890.2578
+    ],
+    "publishedHeightM": 20,
+    "publishedLengthM": 7,
+    "publishedDepthM": 6,
+    "baseHeightM": 0.42,
+    "bronzeBandHeightM": 0.32,
+    "ribCount": 3,
+    "leanDirection": "west",
+    "inscription": "SIE GABEN IHR LEBEN FÜR DIE FREIHEIT BERLINS IM DIENSTE DER LUFTBRÜCKE 1948/49",
+    "reference": "09055091",
+    "architect": "Eduard Ludwig"
+  },
+  "status": "Source wall/anchor retained; 20 m, 7 x 6 m, three west-pointing ribs, 0.42 m base and 0.32 m band from listed inventories; profile curvature, thicknesses, window fittings and colours are photographic display estimates, not a survey.",
+  "sources": [
+    {
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055091",
+      "provider": "Landesdenkmalamt Berlin",
+      "use": "20 m, three ribs, reinforced concrete, 1951, Eduard Ludwig"
+    },
+    {
+      "url": "https://www.berlin.de/ba-tempelhof-schoeneberg/ueber-den-bezirk/gedenken/artikel.358187.php",
+      "provider": "Bezirksamt Tempelhof-Schöneberg",
+      "use": "Ribs point west; base inscription"
+    },
+    {
+      "url": "https://bildhauerei-in-berlin.de/bildwerk/luftbrueckendenkmal-5015/",
+      "provider": "Bildhauerei in Berlin / Verein für die Geschichte Berlins",
+      "artist": "Layla Fetzer, 2020",
+      "license": "CC-BY-4.0",
+      "imageReference": "https://bildhauerei-in-berlin.de/wp-content/uploads/TEM_001_Layla-Fetzer_2020_03.jpg",
+      "use": "20 x 7 x 6 m inventory; 42 cm base, 32 cm bronze band; reference-only photographs © Layla Fetzer, 2020, CC BY 4.0; no photographic pixels shipped"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/node/27431777.json",
+      "provider": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "use": "Exact anchor and current version 23"
+    },
+    {
+      "url": "https://industriekultur.berlin/ort/flughafen-tempelhof/",
+      "provider": "Berliner Zentrum Industriekultur",
+      "artist": "Andreas FranzXaver Süß",
+      "use": "Reference-only photograph of entrance and forecourt; copyright retained, no photographic pixels copied or shipped"
+    },
+    {
+      "url": "https://www.thf-berlin.de/ihr-besuch/fotos-stories/thf-fotostories/100-jahre-bfg",
+      "provider": "Tempelhof Projekt GmbH",
+      "use": "ZENTRALFLUGHAFEN letters installed above main entrance since 1960s, still present"
+    },
+    {
+      "url": "https://www.thf-berlin.de/aktuelles/neuigkeiten/detail/tengener-muschelkalk-fuer-die-substanzerhaltung-der-gebaeudefassade",
+      "provider": "Tempelhof Projekt GmbH",
+      "use": "Tengener Muschelkalk façade stone"
+    }
+  ],
+  "retrieved": "2026-10-22",
+  "entranceOwner": "DEBE07YY90002dsj",
+  "entranceFront": {
+    "kind": "WallSurface",
+    "id": "UUID_26fbc141-5662-4de8-895d-4d77891da844",
+    "rings": [
+      [
+        [
+          1065.459,
+          9.733,
+          4082.369
+        ],
+        [
+          1120.145,
+          9.733,
+          4034.835
+        ],
+        [
+          1120.145,
+          4.494,
+          4034.835
+        ],
+        [
+          1065.459,
+          4.494,
+          4082.369
+        ]
+      ]
+    ]
+  }
+}
