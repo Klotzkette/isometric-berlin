@@ -1582,3 +1582,31 @@ and paths; these are illustrative planting groups, not surveyed cadastral parcel
 Keep full mobile quality, independent orthogonal native construction, 93 tour stops
 and every live residency/decode/prefetch budget. No new coverage or photographic
 texture; unsurveyed fittings remain documented estimates. Internal browser QA only.
+
+### Step 10 — v265 Charité historic campus and Scheunenviertel
+
+The owner requests the old Charité virology and museum buildings by the
+Humboldthafen, the elevated old/new campus connections, and more accurate
+Scheunenviertel streetside buildings. Identify bridge owners and clearances
+against the retained complete source and public campus evidence. Correct only
+precisely receipted earlier authored facade/bridge estimates; retain all original
+source sheets, unrelated roofs, navigation and detail. Do not infer an RKI
+Nordufer expansion from the spoken harbour name. Scheunenviertel additions stay
+within its existing v168 footprint, fitting mapped entrances and measured wall
+edges rather than inventing doors or repeating existing window grids. Keep full
+mobile detail, independent orthogonal native construction, the 93-place tour
+and every live residency/decode/prefetch limit. Small unsurveyed fittings remain
+explicit display estimates. No new coverage or textures; internal browser QA only.
+
+For the evidenced elevated crossings, the three exact coarse parts EWePLFPr
+(Luisenstraße) and gQwBfdam/4gyC0jjm (Hufelandweg 3) may yield to open-underneath
+models and matching walking volumes. Retain their original source sheets and
+exact source/native-column receipts. Clearance and fitting dimensions that are
+not surveyed must remain labelled estimates. The separate eastern L2e097lj
+connector and every unrelated owner remain unchanged.
+
+The same exact Hufeland parts in the older Alt-Mitte packets must also yield.
+Native merged triangles require a fingerprinted transfer of their four-part
+parent family; republish the two unrelated parts completely with the identical
+original native construction, while replacing only the two bridge volumes.
+Retain all four original source sheets and the exact triangle/line receipts.

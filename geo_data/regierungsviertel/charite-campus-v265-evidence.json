@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "checkedOn": "2026-10-23",
+  "geography": "Campus Charité Mitte by Humboldthafen/Stadtbahn, not the distinct Nordhafen/RKI campus.",
+  "sourceOwners": {
+    "museumAndPathology": "DEBE01YYK000012I",
+    "museumFront": "gwXjAt32 (source outer edges 14 and 16)",
+    "virology": "DEBE01YYK00003IB / Helmut-Ruska-Haus, Rahel-Hirsch-Weg 3",
+    "retainedNeighbour": "Edmund-Lesser-Haus, Rahel-Hirsch-Weg 2 remains separate"
+  },
+  "sources": [
+    {
+      "url": "https://www.ak-berlin.de/baukultur/da-architektur-in-und-aus-berlin/projekte-da-2024/projekte-detailseite/berliner-medizinhistorisches-museum/",
+      "publisher": "Architektenkammer Berlin / Rustler Schriever Architekten",
+      "facts": "Completed museum renovation; six-metre bronze showcase windows; granite forecourt.",
+      "referenceImage": "https://www.ak-berlin.de/fileadmin/_processed_/0/d/csm_da-2024-50_bb05676e54.jpg",
+      "photographer": "Marcus Ebener",
+      "license": "Copyright retained; external reference only; no image bundled"
+    },
+    {
+      "url": "https://bmm-charite.de/museum",
+      "publisher": "Berliner Medizinhistorisches Museum der Charité",
+      "facts": "Current museum identity and exterior reference, former Pathological Museum established in 1899.",
+      "referenceImage": "https://bmm-charite.de/media/pages/medien/9be967b8d5-1691573622/bmm-ebener-9893-1.jpg",
+      "photographer": "Marcus Ebener",
+      "license": "Copyright retained; external reference only; no image bundled"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg",
+      "publisher": "Wikimedia Commons",
+      "photographer": "Schibo",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "facts": "Ruska southwest facade: arched basement lights, partly lowered roller blinds, rainwater pipes and flat-roof cornice. Existing v261 oriels/windows retained."
+    },
+    {
+      "url": "https://virologie-ccm.charite.de/",
+      "publisher": "Institut für Virologie, Charité",
+      "facts": "Current institute address, Rahel-Hirsch-Weg 3."
+    }
+  ],
+  "correction": {
+    "old": "Nineteen authored opening groups on museum part gwXjAt32 edges 14/16; main front had only one upper window row and paired openings.",
+    "new": "Seven bronze vitrines (four plus three), three upper storeys of triple groups, bronze entrance cowl and readable small MUSEUM lettering. The secondary front retains a lower window rhythm. Complete measured shells and all other old detail stay.",
+    "preservationReceipt": "geo_data/regierungsviertel/charite-campus-v265-preservation.json",
+    "runtimeOptIn": "includeLegacyMuseumFront:false only after required v265 facade construction"
+  },
+  "estimates": "Window widths, storey/bay positioning, cornice/dentil sizes, bronze projection depth, lettering, blind selection, colours and pipe placements are photographic display estimates, not an opening survey. Museum 6-m showcase height is published. Source footprints/heights are unchanged."
+}

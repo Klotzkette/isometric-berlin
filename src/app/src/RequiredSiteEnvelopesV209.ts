@@ -1,3 +1,4 @@
+import { createChariteBridgesV265 } from "./ChariteBridgesV265";
 import { createPrenzlbergEnvelopesV264 } from "./PrenzlbergEnvelopesV264";
 import { createPrenzlbergV264 } from "./PrenzlbergV264";
 import { createUbahnEntrancesV261 } from "./UbahnEntrancesV261";
@@ -46,6 +47,8 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createChariteBridgesV265(native));
+  yield;
   root.add(createPrenzlbergEnvelopesV264(native));
   yield;
   root.add(createPrenzlbergV264(native));

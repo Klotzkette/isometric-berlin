@@ -1,3 +1,5 @@
+import { isChariteBridgePreviousPartV265 } from "./chariteBridgesV265Ownership";
+import { isChariteBridgeSourceV265, chariteBridgeSolidsForV265 } from "./ChariteBridgesV265Profile";
 import { WEST_VENUES_V260_PRISM_IDS, WEST_VENUES_V260_PARTS, westVenuesV260RoofAt } from "./westVenuesV260Profile";
 import { isAEGCampusCorePrismV241 } from "./aegCampusV241CorePrevious";
 import { isSchlossplatzPreviousPartV239, isSchlossplatzCorePrismV239, SCHLOSSPLATZ_SOLIDS_V239 } from "./schlossplatzV239Profile";
@@ -679,14 +681,24 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
+  const replacedChariteBridges = new Set<string>();
   const leipzigerParts = new Map(LEIPZIGER_SOURCE_PARTS.map(part => [part.id.slice(-8), part]));
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (options.replaceChariteBridges && isChariteBridgeSourceV265(sourceBuilding)) {
+      replacedChariteBridges.add(sourceBuilding.id);
+      for (const solid of chariteBridgeSolidsForV265(sourceBuilding.id)) {
+        addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+          solid.sourceId, 1, () => solid.maxY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
     // This parking footprint is a supported public square, not a closed 3m wall.
     if (sourceBuilding.id === KULTURFORUM_PIAZZETTA_PRISM_ID) continue;
     if (options.replaceSchlossplatzPrisms && isSchlossplatzCorePrismV239(sourceBuilding)) {
@@ -1409,6 +1421,7 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
     }
     for (const part of ALT_MITTE_V169_PARTS) {
+      if (replacedChariteBridges.has(part.id.slice(-8)) && isChariteBridgePreviousPartV265(part)) continue;
       if (replacedParents.has("schlossplatz-v239") && isSchlossplatzPreviousPartV239(part)) continue;
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, roofAt);
       index.buildingCount += 1;
@@ -2085,7 +2098,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

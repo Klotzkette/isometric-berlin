@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.164 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.164/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.165 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.165/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.164** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.165** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.165 refines the historic Charité museum and virology facades, corrects the elevated Luisenstraße and Hufelandweg connections, and adds source-bound mapped entrances in the Scheunenviertel. Original evidence remains intact, with unsurveyed fittings and clearances labelled as estimates. [Evidence and checks](docs/charite-scheunen-v265.md).
+
+Version 1.0.165 präzisiert die historischen Charité-Fassaden von Museum und Virologie, korrigiert die erhöhten Übergänge an Luisenstraße und Hufelandweg und ergänzt kartierte Eingänge im Scheunenviertel. Die Originalquellen bleiben erhalten; unvermessene Details und Durchgangshöhen sind als Schätzungen dokumentiert. [Belege und Prüfungen](docs/charite-scheunen-v265.md).
 
 Version 1.0.164 refines the Prenzlauer Berg water tower, Rykestraße synagogue and Zeiss-Großplanetarium, the British, US and French embassies with their flags, and mapped allotments within existing city coverage. Complete original source evidence, independent native construction and live memory limits remain. The Planetarium silhouette corrects its coarse source roof; unmeasured dimensions and cultivation groups are documented estimates. [Evidence and checks](docs/sites-gardens-v264.md).
 

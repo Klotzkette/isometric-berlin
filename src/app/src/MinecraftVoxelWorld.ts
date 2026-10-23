@@ -1,3 +1,5 @@
+import { createChariteBridgeColumnTesterV265 } from "./ChariteBridgesV265Profile";
+import { createChariteCampusV265 } from "./ChariteCampusV265";
 import { createEmbassyGateV264 } from "./EmbassyGateV264";
 import { westVenuesV260SourceColumn } from "./westVenuesV260Profile";
 import { createSchlossplatzColumnTesterV239 } from "./schlossplatzV239Profile";
@@ -306,6 +308,8 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  chariteBridgesV265?: boolean;
+  includeLegacyMuseumFront?: boolean;
   sourcePrisms?: readonly SonyRoofSourcePrism[];
   /** Required complete v227 shells replace only exact original native columns. */
   includeLegacyTownhallEnvelopes?: boolean;
@@ -2459,7 +2463,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2593,7 +2597,8 @@ export function* buildMinecraftVoxelWorldSteps(
   const historicCampusIds = new Set((options.sourcePrisms ?? [])
     .filter(part => MINECRAFT_CHARITE_HISTORIC_SHELL_IDS.has(part.id)).map(part => part.id));
   const sourcePrismPayload = { buildings: (options.sourcePrisms ?? []).filter(p => PARLIAMENT_ARCHITECTURE_IDS.has(p.id)).map(p => ({ ...p, class: 0 })), classes: [], schema_version: 1 };
-  group.add(createMinecraftHistoricCharite(options.sourcePrisms ?? [], options.detailProfile ?? "full"));
+  if (options.includeLegacyMuseumFront === false) group.add(createChariteCampusV265(true));
+  group.add(createMinecraftHistoricCharite(options.sourcePrisms ?? [], options.detailProfile ?? "full", false, { includeLegacyMuseumFront: options.includeLegacyMuseumFront }));
   yield;
   group.add(createMinecraftChariteHistoricFacades({ buildings: options.sourcePrisms ?? [] }, options.detailProfile ?? "full"));
   group.add(createMinecraftParliamentArchitecture(sourcePrismPayload, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
@@ -2613,12 +2618,15 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createSchlossplatzColumnTesterV239(options.sourcePrisms, cell) : () => false;
   const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
+  const chariteBridgeColumnAt = options.chariteBridgesV265
+    ? createChariteBridgeColumnTesterV265(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   let visitedColumns = 0;
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (chariteBridgeColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (schlossColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm, y1dm, classId)) continue;
     if (aegColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (colonnadeColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

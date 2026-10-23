@@ -81,6 +81,7 @@ async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
     createMinecraftLootBoxes: () => { afterParking("loot"); return { group: new Group() }; },
     prepareVoxelNavigation: () => { afterParking("navigation"); return {}; },
     createBridgeStructures: () => { afterParking("bridges"); return new Group(); },
+    createCoreSpreeBridgesV242: () => new Group(),
     registerBerlinerEnsembleRoofSignTargets() {}, isEuropaCenterStarTarget: () => false,
     updateEuropaCenterStars() {}, setSceneLighting() { events.push("lighting"); },
     createDeferredPedestrianWater: () => () => {}, activatePedestrianMode() {},

@@ -1,3 +1,5 @@
+import { createChariteCampusV265 } from "./ChariteCampusV265";
+import { isChariteBridgeSourceV265 } from "./ChariteBridgesV265Profile";
 import { WEST_VENUES_V260_PRISM_IDS } from "./westVenuesV260Profile";
 import { isSchlossplatzCorePrismV239 } from "./schlossplatzV239Profile";
 import { ELEVATED_STATION_PRISM_IDS_V238 } from "./elevatedStationV238Profile";
@@ -390,6 +392,9 @@ export type IsometricCityBuildOptions = {
   includeLegacyTownhallEnvelopes?: boolean;
   /** Complete measured AEG campus is required before replacing legacy prisms. */
   architectureV241?: boolean;
+  /** Exact bridge sources yield only inside the required v265 transaction. */
+  chariteBridgesV265?: boolean;
+  includeLegacyMuseumFront?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
   includeLegacyWeddingStationRoof?: boolean;
   includeLegacySchlossplatzEnvelopes?: boolean;
@@ -720,7 +725,7 @@ export const CHARITE_BETTENHOCHHAUS_PROFILE = {
     "https://www.charite.de/service/pressemitteilung/artikel/detail/neue_bruecke_am_campus_charite_mitte",
   ] as const,
 } as const;
-/** Two-storey steel-and-glass bridge across Luisenstrasse in the LoD2 set. */
+/** Separate eastern campus connector; the Luisenstraße crossing is EWePLFPr. */
 export const CHARITE_CAMPUS_BRIDGE_ID = "L2e097lj";
 
 /** Every LoD2 part belonging to parent building DEBE01YYK0002KM6. */
@@ -1776,11 +1781,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
+    .filter(building => !options.chariteBridgesV265 || !isChariteBridgeSourceV265(building))
     .filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
     .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
     .filter(building => options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building))
@@ -11958,6 +11964,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.chariteBridgesV265 && isChariteBridgeSourceV265(sourceBuilding)) continue;
     if (options.architectureV241 && isAEGCampusCorePrismV241(sourceBuilding)) continue;
     if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;
     if (options.includeLegacyDistrictCourtEnvelopes === false && isDistrictCourtCorePrismV229(sourceBuilding)) continue;
@@ -13321,7 +13328,8 @@ export function createIsometricCity(
     group.add(createPaulLoebeCanopy());
     group.add(createLandmarkRefinements());
     group.add(createGymnasiumTiergarten());
-    group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full"));
+    if (options.includeLegacyMuseumFront === false) group.add(createChariteCampusV265());
+    group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full", false, { includeLegacyMuseumFront: options.includeLegacyMuseumFront }));
     group.add(createChariteHistoricFacades(prisms, options.detailProfile ?? "full"));
     group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
     group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));

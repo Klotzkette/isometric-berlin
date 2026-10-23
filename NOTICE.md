@@ -17,6 +17,16 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Charité and Scheunenviertel (v1.0.165):** Berlin LoD2 (dl-de/zero-2-0)
+  and retained OpenStreetMap (ODbL-1.0) anchor complete source geometry and
+  mapped entrances. Museum references: Rustler Schriever Architekten /
+  Architektenkammer Berlin and Berliner Medizinhistorisches Museum, photographs
+  by Marcus Ebener. The previously credited Schibo Ruska reference remains
+  CC BY-SA 4.0. Charité's public bridge account supports the elevated crossing.
+  All photographs remain external references; no pixels are bundled. Small
+  fittings and bridge clearances are labelled estimates. See [v265 evidence
+  and checks](docs/charite-scheunen-v265.md) and the packaged reference ledger.
+
 - **Prenzlauer Berg, gate embassies and allotments (v1.0.164):** Retained Berlin
   LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) anchor these refinements.
   Gewobag / Sabine Dobre and Stiftung Planetarium Berlin / Natalie Toczek

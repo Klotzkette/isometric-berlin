@@ -32,7 +32,7 @@ export function historicChariteBlockRoofY(part: ChariteSourcePrism, x: number, z
   return bottom+(top-bottom)*Math.min(flank,hip);
 }
 
-export function createMinecraftHistoricCharite(sourcePrisms: readonly ChariteSourcePrism[], detailProfile: "full" | "mobile" = "full", diagnostics = false): Group {
+export function createMinecraftHistoricCharite(sourcePrisms: readonly ChariteSourcePrism[], detailProfile: "full" | "mobile" = "full", diagnostics = false, options: { includeLegacyMuseumFront?: boolean } = {}): Group {
   const root = new Group();root.name = "Historic Charite native architectural blocks";
   const parts=sourcePrisms.filter(p=>ID_SET.has(p.id)), blocks: Block[]=[];
   const mobile=detailProfile==="mobile", q=mobile?2.25:1.5;
@@ -71,7 +71,7 @@ export function createMinecraftHistoricCharite(sourcePrisms: readonly ChariteSou
         add(part.id,"source-roof",[x,(upper+lower)/2,z],[dx,Math.max(0.18,upper-lower),dz],T.slate,-Math.atan2(az,ax));
       }
     }
-    const windows=historicChariteWindows(part,parts);
+    const windows=historicChariteWindows(part,parts,options);
     const upperStreet=windows.filter(w=>w.streetAlthoff&&w.floor===2);
     if(upperStreet.length) {
       const wall=upperStreet[0].wall;

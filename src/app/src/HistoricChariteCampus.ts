@@ -378,6 +378,7 @@ export type ChariteHeritageWindow = {
 
 export function historicChariteWindows(
   building: ChariteSourcePrism, buildings: readonly ChariteSourcePrism[],
+  options: { includeLegacyMuseumFront?: boolean } = {},
 ): ChariteHeritageWindow[] {
   const windows: ChariteHeritageWindow[] = [];
   const y0 = building.y0_dm / 10;
@@ -388,6 +389,8 @@ export function historicChariteWindows(
     if (wall.length < (towerWindow ? 0.8 : 2.5)) continue;
     const streetAlthoff = building.id === CHARITE_ALTHOFF_TOWER_ID && wall.index === 0;
     if (building.id === "gwXjAt32" && [14,16].includes(wall.index)) {
+      // v265 replaces precisely these photo-disproved facade estimates only.
+      if (options.includeLegacyMuseumFront === false) continue;
       // OSM museum POI 2033362563 is inside this exact part. The two
       // northeast-facing source edges read the photographed 2023 vitrine
       // entrance; the window-to-edge correspondence is a display inference.
@@ -435,6 +438,7 @@ export function historicChariteWindows(
 function addHeritageFacade(
   builder: Builder, building: ChariteSourcePrism, ornate: boolean,
   buildings: readonly ChariteSourcePrism[], detailProfile: "full" | "mobile",
+  options: { includeLegacyMuseumFront?: boolean } = {},
 ): { brickCourses: number; windows: number; pairedWindows: number; blindWindows: number } {
   const y0 = building.y0_dm / 10;
   const facadeTop = historicChariteFacadeTop(building);
@@ -469,7 +473,7 @@ function addHeritageFacade(
       HISTORIC_CHARITE_TONES.stone, wall.length / 2, y0 + 5.05,
       0.19, wall.length, 0.16, 0.14);
   }
-  const windows = historicChariteWindows(building, buildings);
+  const windows = historicChariteWindows(building, buildings, options);
   const upperStreet = windows.filter(window => window.streetAlthoff && window.floor === 2);
   if (upperStreet.length) {
     const wall = upperStreet[0].wall;
@@ -779,6 +783,7 @@ export function historicChariteRoofCode(
  */
 export function createHistoricChariteCampus(
   prisms: PrismPayload, detailProfile: "full" | "mobile" = "full", diagnostics = false,
+  options: { includeLegacyMuseumFront?: boolean } = {},
 ): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
@@ -796,13 +801,13 @@ export function createHistoricChariteCampus(
 
   for (const building of sourceBuildings) {
     if (CHARITE_MEDICAL_MUSEUM_IDS.has(building.id)) {
-      const counts = addHeritageFacade(heritageBuilder, building, false, sourceBuildings, detailProfile);
+      const counts = addHeritageFacade(heritageBuilder, building, false, sourceBuildings, detailProfile, options);
       museumWindows += counts.windows;
       pairedWindows += counts.pairedWindows;
       blindWindows += counts.blindWindows;
       brickCourses += counts.brickCourses;
     } else if (CHARITE_FRIEDRICH_ALTHOFF_IDS.has(building.id)) {
-      const counts = addHeritageFacade(heritageBuilder, building, true, sourceBuildings, detailProfile);
+      const counts = addHeritageFacade(heritageBuilder, building, true, sourceBuildings, detailProfile, options);
       althoffWindows += counts.windows;
       pairedWindows += counts.pairedWindows;
       blindWindows += counts.blindWindows;
@@ -846,7 +851,7 @@ export function createHistoricChariteCampus(
   };
   group.userData.detailProfile = detailProfile;
   if (diagnostics) group.userData.facadeWindowRecords = sourceBuildings.flatMap(b =>
-    CHARITE_VIROLOGY_IDS.has(b.id) ? [] : historicChariteWindows(b, sourceBuildings));
+    CHARITE_VIROLOGY_IDS.has(b.id) ? [] : historicChariteWindows(b, sourceBuildings, options));
   group.userData.geometryStatus =
     "official LoD2 shells retained; all facade detail is source-bounded, deterministic and explicitly unsurveyed";
   return group;
