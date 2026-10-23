@@ -57,5 +57,30 @@ visible detail; new native geometry is constructed independently and orthogonall
 
 The native startup test fixture now supplies the existing public Spree-bridge
 factory dependency; production startup behavior is unchanged by that fixture fix.
-The complete ZIP/TAR archive validators and live byte checks are recorded below
-once the corresponding artifacts have actually been published.
+The complete ZIP/TAR archive validators and publication receipts follow below.
+
+## Release artifacts
+
+- Source commit `a164b7a9`, tag `v1.0.165`.
+- [Published release](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.165), ID `422157961`.
+- Complete staged viewer: 4,747 files, 927,961,505 bytes (884.973 MiB).
+- ZIP: 757,154,384 bytes; SHA-256 `2a01f1958e334c200d09fca8fe14377a64599dfc576b42479cde610cf9dbd90f`.
+- TAR: 756,359,755 bytes; SHA-256 `5cc0acbb1a3892c08b58605d638eb47abcadee5e17c420be331f22519a12a5c0`.
+
+Both archives were built sequentially in RAM because local disk space was scarce.
+The unmodified complete archive validators passed before upload. GitHub returned
+the same byte sizes and SHA-256 digests. This does not claim that physical local
+ZIP/TAR files exist; the complete unpacked viewer remains staged locally.
+
+Pages commit `4843955be01f4943b8999bdd01b7e08f27fad541` contains the complete
+new package and the exact v163/v164 asset graphs: 327 retained hashed assets,
+of which 31 (132,005,895 bytes) are previous-version-only. Fourteen older stale
+hashed assets yield; no current or retained previous-version asset is dropped.
+
+[Pages workflow 40000688160](https://github.com/Klotzkette/isometric-berlin/actions/runs/40000688160)
+completed successfully. After deployment, ten live files (entry HTML, package and
+city manifests, credits, main entry/viewer, required sites, streamed decoder,
+outline and progressive-worker bundles) matched the staged bytes exactly. Both
+released archive sizes/digests were rechecked. All three withdrawn Columbiahalle
+recording URLs continue to return HTTP 404. The working tree was then closed
+with this verification receipt and the final archive checksums.
