@@ -64,3 +64,16 @@ The retained deployment preflight includes both previous complete live hashed
 asset graphs and remains below 1 GiB. Archives are constructed and fully validated
 one at a time in memory, avoiding large duplicate files on this Mac. Publication
 sizes and immutable receipts follow below after the actual upload.
+
+## Publication receipt — 2026-10-23
+
+Source commit `477912ee`, tag and [release v1.0.164](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.164).
+
+The complete package contains 4,747 files and 927,810,130 bytes (884.829 MiB). Both original archive validators passed in RAM; GitHub asset sizes and SHA-256 digests match exactly.
+
+- `isometric-berlin-regierungsviertel-local.zip` — 757,124,346 bytes, SHA-256 `c1c871c1cf34d7af18ca106c95e147b93f0604f13bc8dd65776aa58798f41318`.
+- `isometric-berlin-viewer-v1.0.164.tar.gz` — 756,347,005 bytes, SHA-256 `918d60438259776d6b0e0c060cf4a074c225fc26b92c2bdc69612a63c124f5a3`.
+
+Pages commit `ddc8c8e6310e4088994dda5b9ae9807837201181`; [workflow 39987784120](https://github.com/Klotzkette/isometric-berlin/actions/runs/39987784120) completed successfully. The complete hosted tree is **1,065,203,117 bytes**, including both previous complete asset graphs, **8,538,707 bytes below 1 GiB**. No hosted source override or current geometry omission is used.
+
+Ten live files were byte-compared with the staged package, including the entry page, package/city manifests, attribution, viewer, required sites, surrounding-city decoder and progressive worker. All matched. GitHub archive digests and sizes also match. The three withdrawn Columbiahalle recordings remain HTTP 404.
