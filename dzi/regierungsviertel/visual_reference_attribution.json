@@ -1143,6 +1143,82 @@
       "usage": "Copyright remains with the source; external reference only.",
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_campus_v265",
+      "url": "https://www.ak-berlin.de/baukultur/da-architektur-in-und-aus-berlin/projekte-da-2024/projekte-detailseite/berliner-medizinhistorisches-museum/",
+      "file_url": "https://www.ak-berlin.de/fileadmin/_processed_/0/d/csm_da-2024-50_bb05676e54.jpg",
+      "credit": "Marcus Ebener",
+      "license": "Copyright retained; external reference only; no image bundled",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_campus_v265",
+      "url": "https://bmm-charite.de/museum",
+      "file_url": "https://bmm-charite.de/media/pages/medien/9be967b8d5-1691573622/bmm-ebener-9893-1.jpg",
+      "credit": "Marcus Ebener",
+      "license": "Copyright retained; external reference only; no image bundled",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_campus_v265",
+      "url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Rahel-Hirsch-Weg_3_S%C3%BCdwestansicht,_2024.jpg",
+      "file_url": null,
+      "credit": "Schibo",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_campus_v265",
+      "url": "https://virologie-ccm.charite.de/",
+      "file_url": null,
+      "credit": "Institut für Virologie, Charité",
+      "license": "External factual reference",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_bridges_v265",
+      "url": "https://www.charite.de/service/pressemitteilung/artikel/detail/neue_bruecke_am_campus_charite_mitte",
+      "credit": "Charité; exterior photo Sabine Gudath",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_bridges_v265",
+      "url": "https://dieneue-charite.de/vision/zukunftsbausteine/campus-charite-mitte",
+      "credit": "Charité – Universitätsmedizin Berlin",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_bridges_v265",
+      "url": "https://www.charite.de/service/lageplan/plan/map/ccm_hufelandweg_3/",
+      "credit": "Charité – Universitätsmedizin Berlin",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "charite_bridges_v265",
+      "url": "https://commons.wikimedia.org/wiki/File:Charit%C3%A9_CCM,_Hufelandweg_3,_2025.jpg",
+      "credit": "Schibo",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }
