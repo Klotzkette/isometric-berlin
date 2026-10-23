@@ -1,3 +1,4 @@
+import { createEmbassyGateV264 } from "./EmbassyGateV264";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -3312,7 +3313,7 @@ function addPariserPlatzPhotoDetails(builder: Builder): void {
   addAdlonForecourtPhotoDetails(builder);
 }
 
-function addWilhelmstrasseEmbassies(builder: Builder, includeLegacyHungarianFacade: boolean): void {
+function addWilhelmstrasseEmbassies(builder: Builder, includeLegacyHungarianFacade: boolean, includeLegacyBritishCollage = true): void {
   // British Embassy, Michael Wilford: measured LoD2 body retained. Only the
   // unmistakable Wilhelmstrasse screen and its projecting collage are added.
   const british = new Vector3(
@@ -3352,30 +3353,34 @@ function addWilhelmstrasseEmbassies(builder: Builder, includeLegacyHungarianFaca
   }
   addBox(builder, 0xe0d6c5, 597.65, british.y + 21.45, 374.0, 0.72, 0.7, 31.8);
   addBox(builder, 0xc5bbaa, 597.52, british.y + 1.55, 374.0, 0.86, 3.1, 32.4);
-  addBox(builder, 0x26383e, 597.65, british.y + 12.5, 374.0, 0.42, 13.8, 13.4);
-  const purpleRoom = new CylinderGeometry(3.15, 3.15, 5.2, 24);
-  purpleRoom.rotateZ(Math.PI / 2);
-  purpleRoom.translate(594.85, british.y + 14.7, 369.1);
-  addInkedGeometry(builder, purpleRoom, 0x73527f);
-  const blueRoom = new BoxGeometry(5.8, 6.3, 7.4);
-  blueRoom.rotateZ(-0.19);
-  blueRoom.translate(595.1, british.y + 10.0, 378.2);
-  addInkedGeometry(builder, blueRoom, 0x5aa8bd);
-  addBox(builder, 0xd2dde0, 591.95, british.y + 10.0, 378.2, 0.18, 6.55, 7.65, 0, false);
-  addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 0.18, 7.15, 0, false);
-  addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 5.75, 0.18, 0, false);
+  if (includeLegacyBritishCollage) {
+    addBox(builder, 0x26383e, 597.65, british.y + 12.5, 374.0, 0.42, 13.8, 13.4);
+    const purpleRoom = new CylinderGeometry(3.15, 3.15, 5.2, 24);
+    purpleRoom.rotateZ(Math.PI / 2);
+    purpleRoom.translate(594.85, british.y + 14.7, 369.1);
+    addInkedGeometry(builder, purpleRoom, 0x73527f);
+    const blueRoom = new BoxGeometry(5.8, 6.3, 7.4);
+    blueRoom.rotateZ(-0.19);
+    blueRoom.translate(595.1, british.y + 10.0, 378.2);
+    addInkedGeometry(builder, blueRoom, 0x5aa8bd);
+    addBox(builder, 0xd2dde0, 591.95, british.y + 10.0, 378.2, 0.18, 6.55, 7.65, 0, false);
+    addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 0.18, 7.15, 0, false);
+    addBox(builder, 0x3f6f7d, 591.7, british.y + 10.0, 378.2, 0.12, 5.75, 0.18, 0, false);
+  }
   addBox(builder, 0x353c3d, 597.24, british.y + 23.0, 374.0, 0.64, 1.2, 30.2);
   addBox(builder, 0x283034, 596.95, british.y + 3.0, 359.5, 0.24, 1.45, 7.8);
   addBox(builder, 0xd7cdbd, 596.8, british.y + 4.45, 359.5, 0.3, 1.05, 1.25);
   addBox(builder, 0x87633a, 596.6, british.y + 4.45, 359.5, 0.18, 0.18, 1.75, 0, false);
   addBox(builder, 0x87633a, 596.6, british.y + 4.45, 359.5, 0.18, 1.55, 0.18, 0, false);
-  addCylinder(builder, 0x4c5554, 604.2, british.y + 27.1, 363.2, 0.09, 8.2, 8, false);
-  for (const [y, color] of [
-    [british.y + 29.4, 0x274d83],
-    [british.y + 28.95, 0xe5e2da],
-    [british.y + 28.5, 0xb33c3a],
-  ] as const) {
-    addBox(builder, color, 605.0, y, 363.2, 1.6, 0.42, 0.08, 0, false);
+  if (includeLegacyBritishCollage) {
+    addCylinder(builder, 0x4c5554, 604.2, british.y + 27.1, 363.2, 0.09, 8.2, 8, false);
+    for (const [y, color] of [
+      [british.y + 29.4, 0x274d83],
+      [british.y + 28.95, 0xe5e2da],
+      [british.y + 28.5, 0xb33c3a],
+    ] as const) {
+      addBox(builder, color, 605.0, y, 363.2, 1.6, 0.42, 0.08, 0, false);
+    }
   }
   addBox(
     builder,
@@ -4688,7 +4693,7 @@ function addSigns(
 export function createCentralCivicDetails(
   landmarks: CentralCivicLandmark[],
   detailProfile: PalaceDetailProfile = "full",
-  options: { includeLegacyResearchMinistry?: boolean; includeLegacyHungarianFacade?: boolean } = {},
+  options: { embassiesV264?: boolean; includeLegacyResearchMinistry?: boolean; includeLegacyHungarianFacade?: boolean; includeLegacyBritishCollage?: boolean; includeLegacyFrenchFlags?: boolean } = {},
 ): Group {
   const group = new Group();
   group.name = "Task-11 central transit and civic recognition details";
@@ -4791,7 +4796,9 @@ export function createCentralCivicDetails(
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
   addPariserPlatzDetails(builder, pariserPlatzWaterBuilder);
-  addWilhelmstrasseEmbassies(builder, options.includeLegacyHungarianFacade !== false);
+  // Replacement forms and flags must exist before any old detail opts out.
+  if (options.embassiesV264) group.add(createEmbassyGateV264());
+  addWilhelmstrasseEmbassies(builder, options.includeLegacyHungarianFacade !== false, !options.embassiesV264 && options.includeLegacyBritishCollage !== false);
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);
@@ -4802,7 +4809,7 @@ export function createCentralCivicDetails(
   });
   if (drawn) group.add(drawn);
   group.add(createFriedrichstadtAndTearPalaces(detailProfile));
-  group.add(createPariserPlatzArchitecture());
+  group.add(createPariserPlatzArchitecture({ includeLegacyFrenchFlags: options.embassiesV264 ? false : options.includeLegacyFrenchFlags }));
   const pariserPlatzWater = finishDrawnGroup(pariserPlatzWaterBuilder, {
     name: "Pariser Platz authored fountain water detail",
   });

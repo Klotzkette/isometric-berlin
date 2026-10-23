@@ -52,6 +52,7 @@ export type SurroundingCityOptions = {
   schlossplatzV239?: boolean;
   staatsoperV240?: boolean;
   architectureV241?: boolean;
+  prenzlbergV264?: boolean;
   manifestUrl: URL;
   camera: Camera;
   mode?: VisualMode;
@@ -430,7 +431,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true },
+            { schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, prenzlbergV264: options.prenzlbergV264 === true },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.

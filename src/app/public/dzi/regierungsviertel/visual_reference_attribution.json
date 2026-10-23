@@ -1100,6 +1100,49 @@
       "usage": "Current Gasometer external reference: steel frame, green mantle, glazing and terrace. Source envelope conflict and estimated fitting are documented; no image or derivative texture shipped.",
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "british_embassy_v264",
+      "url": "https://artcollection.dcms.gov.uk/stories/bonn-to-berlin-an-embassys-journey/",
+      "file_url": "https://artcollection.dcms.gov.uk/wp-content/uploads/2019/10/Berlin_2010_exterior-1024x682.jpg",
+      "credit": "UK Government Art Collection / © Crown Copyright",
+      "usage": "Reference only for vertical purple conference room, blue glazed projection and inclined Union Flag mast; small dimensions are display estimates.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "us_embassy_v264",
+      "url": "https://www.moorerubleyudell.com/project/united-states-embassy-berlin/",
+      "credit": "Moore Ruble Yudell Architects & Planners",
+      "usage": "Architectural account: limestone grid, niche, flag above entrance, rotunda and State Room. Existing Schlaier public-domain reference remains separately credited.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "french_embassy_v264",
+      "url": "https://www.borgert-architekten.de/projekte/franzosische-botschaft",
+      "credit": "Borgert Architekten / exterior photograph Franz Brück",
+      "usage": "Reference only for ribbed base, double-height windows and canopy flag pair; existing Geoprofi Lars CC BY-SA4.0 reference remains separately credited.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "wasserturm_v264",
+      "url": "https://www.gewobag.de/ueber-uns/pressebilder/",
+      "file_url": "https://www.gewobag.de/wp-content/uploads/2019/04/unternehmen_bildergalerie_architektur_wasserturm.jpg",
+      "credit": "Sabine Dobre / Gewobag",
+      "usage": "Owner press image labelled Nutzung honorarfrei; reference only, no redistribution or open-image-licence assertion.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "planetarium_v264",
+      "url": "https://www.berlin.de/landesdenkmalamt/aktivitaeten/kurzmeldungen/2025/artikel.1521460.php",
+      "file_url": "https://www.berlin.de/imgscale4/ropen/landesdenkmalamt/_assets/bilder/aktuelles/presse/zeiss-grossplanetarium_aussenansicht.jpg",
+      "credit": "Stiftung Planetarium Berlin / Natalie Toczek",
+      "usage": "Copyright remains with the source; external reference only.",
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }

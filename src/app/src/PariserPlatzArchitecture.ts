@@ -591,7 +591,7 @@ function createMaxLiebermannFacade(): Group {
   });
 }
 
-function createFrenchEmbassyFacade(): Group {
+function createFrenchEmbassyFacade(includeLegacyFrenchFlags = true): Group {
   const builder = createBuilder();
   const profile = PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.frenchEmbassy;
 
@@ -873,33 +873,36 @@ function createFrenchEmbassyFacade(): Group {
     1.12,
     0.12,
   );
-  addEuropeanFlag(builder, FRANCE_FRAME, 2.0, 5.65);
-  addFacadeBox(
-    builder,
-    FRANCE_FRAME,
-    STEEL,
-    -7.05,
-    5.65,
-    1.4,
-    0.07,
-    3.2,
-    0.07,
-    { inked: false },
-  );
-  [EU_BLUE, 0xf4f1e9, 0xc34948].forEach((color, stripe) => {
+  if (includeLegacyFrenchFlags) {
+    addEuropeanFlag(builder, FRANCE_FRAME, 2.0, 5.65);
     addFacadeBox(
       builder,
       FRANCE_FRAME,
-      color,
-      -6.8 + stripe * 0.5,
-      6.2,
-      1.42,
-      0.5,
-      1.05,
-      0.06,
+      STEEL,
+      -7.05,
+      5.65,
+      1.4,
+      0.07,
+      3.2,
+      0.07,
       { inked: false },
     );
-  });
+    [EU_BLUE, 0xf4f1e9, 0xc34948].forEach((color, stripe) => {
+      addFacadeBox(
+        builder,
+        FRANCE_FRAME,
+        color,
+        -6.8 + stripe * 0.5,
+        6.2,
+        1.42,
+        0.5,
+        1.05,
+        0.06,
+        { inked: false },
+      );
+    });
+
+  }
 
   return finaliseFacade(builder, PARISER_PLATZ_FACADE_NAMES.france, {
     composition:
@@ -1614,7 +1617,7 @@ function createEuropeanHouseFacade(): Group {
   });
 }
 
-export function createPariserPlatzArchitecture(): Group {
+export function createPariserPlatzArchitecture(options: { includeLegacyFrenchFlags?: boolean } = {}): Group {
   const group = new Group();
   group.name = PARISER_PLATZ_ARCHITECTURE_GROUP_NAME;
   group.userData = {
@@ -1623,7 +1626,7 @@ export function createPariserPlatzArchitecture(): Group {
     collisionRole: "visual-only; surveyed LoD2 remains navigation authority",
   };
   group.add(createMaxLiebermannFacade());
-  group.add(createFrenchEmbassyFacade());
+  group.add(createFrenchEmbassyFacade(options.includeLegacyFrenchFlags !== false));
   group.add(createUsEmbassyFacade());
   group.add(createAkademieFacade());
   group.add(createEuropeanHouseFacade());

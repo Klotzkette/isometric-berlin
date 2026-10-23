@@ -1563,3 +1563,22 @@ display estimates. Keep the restrained v262 unknown-material palette, all prior
 roof/detail transactions, full mobile quality, independent native geometry,
 93 tour stops and every live packet/residency limit. No invented building-specific
 colour claim, unrelated coverage, source simplification or external browser.
+
+### Step 10 — v264 Prenzlauer Berg landmarks, embassies and allotments
+
+The owner requests more accurate Wasserturm, Rykestraße synagogue and Zeiss-
+Großplanetarium, British/US/French embassies with their correct flags, and the
+existing Berlin allotments. Preserve complete measured owners and earlier details.
+Only the two exact receipted planetarium owners DEBE03YY6000044a and
+DEBE00YYMM000010 may yield to their reconstructed silver 30-m dome and low foyer.
+Keep all 436 original LoD2 sheets immutable as evidence, preserving measured XZ
+footprints. The coarse source roof conflicts with the official exterior: dome and
+foyer vertical dimensions are documented photo-based estimates. Construct the
+replacement before source retirement, retaining packet receipts and matching
+walking surfaces. Replace only specifically evidenced wrong
+embassy forms/flags, retaining the remaining facades. Garden cultivation accents
+must stay inside mapped allotments and delivered ground, clear of water, buildings
+and paths; these are illustrative planting groups, not surveyed cadastral parcels.
+Keep full mobile quality, independent orthogonal native construction, 93 tour stops
+and every live residency/decode/prefetch budget. No new coverage or photographic
+texture; unsurveyed fittings remain documented estimates. Internal browser QA only.

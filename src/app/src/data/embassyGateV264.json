@@ -1,0 +1,27 @@
+{
+ "schemaVersion":1,"checkedOn":"2026-10-23",
+ "dimensionPolicy":"Retained LoD2 anchors; local facade fittings, cloth sizes and mounting positions are photographic display estimates, not surveyed measurements or a live protocol claim.",
+ "sites":[
+  {"key":"uk","address":"Wilhelmstraße 70–71","osm":"relation/24516","lod2":"DEBE01YYK00001KP","sourceMainPart":"DEBE3DzLVkos5eqV","sourceFrontWorldXZ":[[598.077,357.452],[600.828,390.651]],"sourceGroundY":4.173,"sourceTopY":25.925,"camera":{"position":[538,34,410],"target":[598,15,374]}},
+  {"key":"us","address":"Pariser Platz 2","osm":"way/195257482","lod2":"DEBE01YYK00000k5","camera":{"position":[445,33,280],"target":[466,16,357]}},
+  {"key":"fr","address":"Pariser Platz 5","osm":"relation/3203772","lod2":"DEBE01YYK00009wl","camera":{"position":[540,31,309],"target":[518,14,232]}}
+ ],
+ "sources":[
+  {"url":"https://www.berlin.de/en/attractions-and-sights/3561156-3104052-british-embassy.en.html","role":"City: Michael Wilford, sandstone, slanted windows, purple conference room, blue trapezoid, two courts"},
+  {"url":"https://artcollection.dcms.gov.uk/stories/bonn-to-berlin-an-embassys-journey/","role":"UK Government Art Collection identity and exterior photo, Crown Copyright, reference only"},
+  {"url":"https://artcollection.dcms.gov.uk/wp-content/uploads/2019/10/Berlin_2010_exterior-1024x682.jpg","role":"Vertical purple cylinder, glazed blue projecting room and inclined Union Flag mast, Crown Copyright, not bundled"},
+  {"url":"https://www.moorerubleyudell.com/project/united-states-embassy-berlin/","role":"Architect: north-facing limestone, cylindrical niche, flag over front door, glass rotunda, open courtyard and State Room lantern"},
+  {"url":"https://www.2portzamparc.com/en/projects/french-embassy-berlin/","role":"Architect: seven buildings, three gardens, six-metre Rue de France and raised garden"},
+  {"url":"https://www.borgert-architekten.de/projekte/franzosische-botschaft","role":"Architect: béton éclaté and two-storey Bel Etage windows; exterior photograph Franz Brück, reference only"},
+  {"url":"https://commons.wikimedia.org/wiki/File:US_Amerikanische_Botschaft_Berlin_Embassy_of_the_United_States_in_Berlin.JPG","role":"Reused existing Schlaier reference, public domain"},
+  {"url":"https://commons.wikimedia.org/wiki/File:Franz%C3%B6sische_Botschaft_Berlin.jpg","role":"Retained previous reference: Geoprofi Lars, CC BY-SA 4.0"},
+  {"url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_390_5819.zip","role":"Exact British frontage/full retained family, dl-de/zero-2-0"}
+ ],
+ "replacementReceipt":{
+  "drawnBritish":"CentralCivicDetails: over-tall dark opening panel, horizontal purple cylinder, blue box and three glazing bars; roof flagpole/three incorrect stripes only",
+  "nativeBritish":"MinecraftUnterDenLindenDetails: two coloured facadeBlock calls and the over-tall dark opening panel only",
+  "drawnFrench":"PariserPlatzArchitecture: addEuropeanFlag, French pole/three stripes only",
+  "nativeFrench":"MinecraftPariserPlatzArchitecture: two poles, three French stripes, EU field/gold centre only",
+  "policy":"All guards default true. All other earlier facade details and measured source geometry remain. Production must construct v264 before disabling these exact old details."
+ }
+}

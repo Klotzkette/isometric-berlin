@@ -17,6 +17,18 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Prenzlauer Berg, gate embassies and allotments (v1.0.164):** Retained Berlin
+  LoD2 (dl-de/zero-2-0) and OpenStreetMap (ODbL-1.0) anchor these refinements.
+  Gewobag / Sabine Dobre and Stiftung Planetarium Berlin / Natalie Toczek
+  supply external Wasserturm and planetarium references.
+  UK Government Art Collection exterior photography (© Crown Copyright),
+  Moore Ruble Yudell and Borgert Architekten (photograph Franz Brück) supply
+  external reference only; no image is bundled or used as a texture. Existing
+  US Schlaier/public-domain and French Geoprofi Lars/CC BY-SA4.0 notices remain.
+  Small architectural fittings and cultivation groups are display estimates.
+  Complete sources, exact replacement receipts and garden clearances are in
+  [the v264 evidence](docs/sites-gardens-v264.md) and the packaged reference ledger.
+
 - **Transport ministry and Scharnhorststraße heating plant (v1.0.157):**
   Retained Berlin LoD2 (dl-de/zero-2-0) anchors the historic ministry, its two
   Max Dudler additions and the heating plant. The BMV supplies the current

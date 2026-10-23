@@ -107,6 +107,26 @@ describe("Minecraft Pariser Platz architecture", () => {
     ).toBeInstanceOf(InstancedMesh);
   });
 
+  test("instance palette remains renderable without a missing vertex color attribute", () => {
+    for (const includeLegacyFrenchFlags of [true, false]) {
+      const mesh = createMinecraftPariserPlatzArchitecture({ includeLegacyFrenchFlags })
+        .children[0] as InstancedMesh;
+      const material = mesh.material as MeshStandardMaterial;
+      // Three multiplies USE_COLOR and USE_INSTANCING_COLOR independently.
+      // A missing geometry attribute with USE_COLOR enabled defaults to black.
+      expect(material.vertexColors && !mesh.geometry.hasAttribute("color")).toBe(false);
+      expect(material.color.getHex()).toBe(0xffffff);
+      expect(mesh.instanceColor?.count).toBe(mesh.count);
+      for (let i = 0; i < mesh.count; i++) {
+        expect(Math.max(mesh.instanceColor!.getX(i), mesh.instanceColor!.getY(i),
+          mesh.instanceColor!.getZ(i))).toBeGreaterThan(0);
+      }
+      mesh.geometry.dispose();
+      material.dispose();
+      mesh.dispose();
+    }
+  });
+
   test("keeps every cue block-sized, coloured and aligned to all five facades", () => {
     const mesh = createMinecraftPariserPlatzArchitecture()
       .children[0] as InstancedMesh;

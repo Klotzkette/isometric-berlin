@@ -1,3 +1,4 @@
+import { prepareAllotmentsV264 } from "./AllotmentsV264";
 import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEurefTransfersV262Lines, eurefNavigationV262 } from "./eurefTransfersV262";
 import { prepareOuterFacadesV262 } from "./outerFacadesV262";
 import { prepareGreyFacadesV263 } from "./greyFacadesV263";
@@ -228,6 +229,8 @@ export type SurroundingOwnershipOptions = {
   /** Caller guarantees the v240 opera recognition and native restoration. */
   staatsoperV240?: boolean;
   architectureV241?: boolean;
+  /** Complete documented planetarium is already attached by the required city transaction. */
+  prenzlbergV264?: boolean;
 };
 
 export function* buildSurroundingCityChunk(
@@ -245,6 +248,7 @@ export function* buildSurroundingCityChunk(
   }
   // Add source-bound ordinary-house fittings inside the existing tile lifetime.
   // Cancellation can discard preparation before any scene/GPU object is made.
+  chunk = yield* prepareAllotmentsV264(chunk, id, minecraft);
   chunk = yield* prepareRoofHouseV233(chunk, id, minecraft);
   chunk = yield* prepareOuterRoofsV262(chunk, id, minecraft);
   chunk = yield* prepareOuterFacadesV262(chunk, id, minecraft);
@@ -313,7 +317,7 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
-      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true, ownership.architectureV241 === true);
+      const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
@@ -407,7 +411,7 @@ export function* buildSurroundingCityChunk(
       root.add(ink);
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
-      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true);
+      root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
@@ -419,7 +423,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav))), origin: chunk.origin };
+      nav: eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

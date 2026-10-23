@@ -1,3 +1,5 @@
+import prenzlberg from "./data/prenzlbergV264Ownership.json";
+import { transferPrenzlbergNavigationV264 } from "./prenzlbergPacketNavigationV264";
 import { transferEastCinemasNavigationV260 } from "./eastCinemasV260Navigation";
 import eastCinemas from "./data/eastCinemasV260Ownership.json";
 import { transferIHZTrianglesV241 } from "./ihzV241Ownership";
@@ -34,9 +36,9 @@ const lines = [...eastCinemas.lineRecords, ...helmholtz.lineRecords, ...prisons.
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
   part: SurroundingPackedMesh, indices: Uint16Array | Uint32Array, offset: number,
-  schlossplatzV239 = false, staatsoperV240 = false, architectureV241 = false): Generator<void, number> {
+  schlossplatzV239 = false, staatsoperV240 = false, architectureV241 = false, prenzlbergV264 = false): Generator<void, number> {
   const sites = yield* transferExactPacketTriangles(triangles, tile, native, part, indices, offset);
-  return sites + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset))
+  return sites + (prenzlbergV264 ? yield* transferExactPacketTriangles(prenzlberg.records, tile, native, part, indices, offset) : 0) + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset))
     + (yield* transferSpreeFacadeV231(tile, native, part, indices, offset))
     + (yield* transferSchlossplatzTrianglesV239(schlossplatzV239, tile, native, part, indices, offset))
     + (yield* transferStaatsoperTrianglesV240(staatsoperV240, tile, native, part, indices, offset))
@@ -45,8 +47,8 @@ export function* transferSiteTrianglesV209(tile: string, native: boolean,
     + (yield* transferIHZTrianglesV241(architectureV241, tile, native, part, indices, offset));
 }
 export function* transferSiteLinesV209(tile: string, part: SurroundingPackedLines,
-  values: Uint16Array, stride: number, schlossplatzV239 = false, architectureV241 = false): Generator<void, number> {
-  return (yield* transferExactPacketLines(lines, tile, part, values, stride))
+  values: Uint16Array, stride: number, schlossplatzV239 = false, architectureV241 = false, prenzlbergV264 = false): Generator<void, number> {
+  return (prenzlbergV264 ? yield* transferExactPacketLines(prenzlberg.lineRecords, tile, part, values, stride) : 0) + (yield* transferExactPacketLines(lines, tile, part, values, stride))
     + (yield* transferSchlossplatzLinesV239(schlossplatzV239, tile, part, values, stride))
     + (yield* transferStaatsbibliothekLinesV241(architectureV241, tile, part, values, stride));
 }
@@ -56,7 +58,8 @@ const equalRing = (a: number[][], b: number[][]) => a.length === b.length &&
 
 /** Correct the obsolete Platzhaus collision roof only with the complete exact
  * source nav record as guard. The input packet and all other owners stay intact. */
-export function siteNavigationV209(tile: string, original: SurroundingNavigation): SurroundingNavigation {
+export function siteNavigationV209(tile: string, original: SurroundingNavigation, prenzlbergV264 = false): SurroundingNavigation {
+  if (prenzlbergV264) original = transferPrenzlbergNavigationV264(tile, original);
   const transferred = transferDistrictCourtNavigationV229(tile, transferTownhallNavigationV227(tile, transferArenaStationNavigationV225(tile, transferNeukoellnNavigationV210(tile, transferPrisonsNavigationV209(tile, original)))));
   const nav = transferEastCinemasNavigationV260(tile, transferCentralNamedNavigationV230(tile, transferWestIndustrialNavigationV230(tile, transferred)));
   const records = helmholtz.navigationRecords.filter(record => record.tile === tile);

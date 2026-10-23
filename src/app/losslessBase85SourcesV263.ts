@@ -1,6 +1,10 @@
 // Frozen JSON module ownership in the three already changed v263 main chunks.
 // Codec selection only: field thresholds and strong/weak/eager lifetimes stay intact.
 export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+  "data/allotmentsV264.json",
+  "data/prenzlbergV264.json",
+  "data/prenzlbergV264Envelopes.json",
+  "data/prenzlbergV264Native.json",
   "data/aegCampusV241.json",
   "data/airportsV194.json",
   "data/albrechtstrasseV248Details.json",

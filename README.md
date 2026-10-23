@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.163 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.163/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.164 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.164/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.163** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.164** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.164 refines the Prenzlauer Berg water tower, Rykestraße synagogue and Zeiss-Großplanetarium, the British, US and French embassies with their flags, and mapped allotments within existing city coverage. Complete original source evidence, independent native construction and live memory limits remain. The Planetarium silhouette corrects its coarse source roof; unmeasured dimensions and cultivation groups are documented estimates. [Evidence and checks](docs/sites-gardens-v264.md).
+
+Version 1.0.164 präzisiert Wasserturm, Rykestraßen-Synagoge und Zeiss-Großplanetarium, die britische, US-amerikanische und französische Botschaft samt Flaggen sowie kartierte Kleingärten im bestehenden Stadtgebiet. Vollständige Originalquellen, eigenständige Minecraft-Modelle und Laufzeit-Speichergrenzen bleiben erhalten. Die Planetarium-Silhouette korrigiert das grobe Quelldach; unvermessene Maße und Pflanzgruppen sind dokumentierte Schätzungen. [Belege und Prüfungen](docs/sites-gardens-v264.md).
 
 Version 1.0.163 applies retained mapped facade and roof materials to 449 additional ordinary houses, adds window details to 146 previously untreated street fronts, and repairs safely attributable grey corners in sampled clusters. Complete source geometry and runtime limits remain. Window layouts and unknown-material tones are illustrative. [Evidence and checks](docs/grey-clusters-v263.md).
 

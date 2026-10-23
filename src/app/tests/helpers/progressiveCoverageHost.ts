@@ -1,5 +1,7 @@
 import { interleaveStaticGeometry } from "../../src/interleaveStaticGeometry";
 import { retainedBuildingDetailIds } from "../../src/buildingDetailResidency";
+import { cutRosenthalerPresentationV228 } from "../../src/RosenthalerSurfaceAperturesV228";
+import { cutUbahnPresentationV261 } from "../../src/UbahnSurfaceAperturesV261";
 import ts from "typescript";
 import {
   Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
@@ -80,6 +82,7 @@ export function progressiveCoverageHost(
   const bindings = {
     parkCompletedGeometry: () => ({ then: (ready: () => void) => { if (deferBacking) pendingBacking.push(ready); else ready(); } }),
     interleaveStaticGeometry,
+    cutRosenthalerPresentationV228, cutUbahnPresentationV261,
     Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
     setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts, retainedBuildingDetailIds,
     buildingDetailViewPoints: () => [],

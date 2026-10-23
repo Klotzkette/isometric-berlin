@@ -150,7 +150,7 @@ function voxelGrid(
   }
 }
 
-function addBritishEmbassy(builder: BlockBuilder): void {
+function addBritishEmbassy(builder: BlockBuilder, includeLegacyBritishCollage = true): void {
   const baseY =
     UNTER_DEN_LINDEN_DETAILS_PROFILE.buildings.britishEmbassy.anchorWorldM[1];
   const axis: FacadeAxis = {
@@ -177,9 +177,11 @@ function addBritishEmbassy(builder: BlockBuilder): void {
       );
     }
   }
-  facadeBlock(builder, axis, length / 2, baseY + 10.7, 1.1, 11.5, 12.8, 0.8, METAL);
-  facadeBlock(builder, axis, length * 0.39, baseY + 14.8, 2.4, 5.8, 5.2, 3.2, PURPLE);
-  facadeBlock(builder, axis, length * 0.64, baseY + 10.3, 2.5, 6.5, 6.2, 3.8, 0x5aa8bd);
+  if (includeLegacyBritishCollage) {
+    facadeBlock(builder, axis, length / 2, baseY + 10.7, 1.1, 11.5, 12.8, 0.8, METAL);
+    facadeBlock(builder, axis, length * 0.39, baseY + 14.8, 2.4, 5.8, 5.2, 3.2, PURPLE);
+    facadeBlock(builder, axis, length * 0.64, baseY + 10.3, 2.5, 6.5, 6.2, 3.8, 0x5aa8bd);
+  }
   facadeBlock(builder, axis, length / 2, baseY + 1.45, 1.25, length, 2.9, 0.9, STONE);
 }
 
@@ -303,7 +305,7 @@ function finishBlocks(builder: BlockBuilder, root: Group): void {
   root.add(mesh);
 }
 
-export function createMinecraftUnterDenLindenDetails(options: { includeLegacyAeroflot?: boolean } = {}): Group {
+export function createMinecraftUnterDenLindenDetails(options: { includeLegacyAeroflot?: boolean; includeLegacyBritishCollage?: boolean } = {}): Group {
   const group = new Group();
   group.name = MINECRAFT_UNTER_DEN_LINDEN_GROUP_NAME;
   group.userData = {
@@ -313,7 +315,7 @@ export function createMinecraftUnterDenLindenDetails(options: { includeLegacyAer
     facadeOnly: true,
   };
   const builder = new BlockBuilder();
-  addBritishEmbassy(builder);
+  addBritishEmbassy(builder, options.includeLegacyBritishCollage !== false);
   addRussianEmbassy(builder);
   if (options.includeLegacyAeroflot !== false) addAeroflot(builder);
   addEinstein(builder);

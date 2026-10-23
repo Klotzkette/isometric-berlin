@@ -1,3 +1,4 @@
+import { createEmbassyGateV264 } from "./EmbassyGateV264";
 import { westVenuesV260SourceColumn } from "./westVenuesV260Profile";
 import { createSchlossplatzColumnTesterV239 } from "./schlossplatzV239Profile";
 import { isElevatedStationReplacementColumnV238 } from "./elevatedStationV238Profile";
@@ -2389,7 +2390,9 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftArchitecturalLandmarks());
   yield;
-  group.add(createMinecraftPariserPlatzArchitecture());
+  group.add(createEmbassyGateV264(true));
+  yield;
+  group.add(createMinecraftPariserPlatzArchitecture({ includeLegacyFrenchFlags: false }));
   group.add(createMinecraftSonyCenterSurroundings());
   group.add(createLegolandEntranceV216(true));
   group.add(createMinecraftWilhelmStresemannDetails());
@@ -2470,7 +2473,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftSpanishEmbassyV164({ mobileLike: mobileDetail }));
   yield;
   group.add(createMinecraftSpreeMuseumDetails());
-  group.add(createMinecraftUnterDenLindenDetails({ includeLegacyAeroflot: false }));
+  group.add(createMinecraftUnterDenLindenDetails({ includeLegacyAeroflot: false, includeLegacyBritishCollage: false }));
   yield;
   group.add(createMinecraftGendarmenmarktShells());
   group.add(createMinecraftGendarmenmarktArchitecture());

@@ -109,7 +109,7 @@ function addMaxLiebermannSignature(blocks: Block[]): void {
   pushBlock(blocks, profile, STEEL, 3.1, 9.3, 1.55, [0.35, 1.5, 0.35]);
 }
 
-function addFrenchEmbassySignature(blocks: Block[]): void {
+function addFrenchEmbassySignature(blocks: Block[], includeLegacyFrenchFlags = true): void {
   const profile = PARISER_PLATZ_ARCHITECTURE_PROFILE.buildings.frenchEmbassy;
   for (let column = 0; column < 26; column += 1) {
     const u = -25 + column * 2;
@@ -157,6 +157,7 @@ function addFrenchEmbassySignature(blocks: Block[]): void {
       [3.7, 0.72, 0.82],
     );
   }
+  if (!includeLegacyFrenchFlags) return;
   for (const u of [-7, 2]) {
     pushBlock(blocks, profile, STEEL, u, 6.1, 1.8, [0.35, 3.2, 0.35]);
   }
@@ -477,10 +478,10 @@ function addAcademyViewBicycleClusters(blocks: Block[]): void {
   }
 }
 
-export function createMinecraftPariserPlatzArchitecture(): Group {
+export function createMinecraftPariserPlatzArchitecture(options: { includeLegacyFrenchFlags?: boolean } = {}): Group {
   const blocks: Block[] = [];
   addMaxLiebermannSignature(blocks);
-  addFrenchEmbassySignature(blocks);
+  addFrenchEmbassySignature(blocks, options.includeLegacyFrenchFlags !== false);
   addUsEmbassySignature(blocks);
   addAkademieSignature(blocks);
   addEuropeanHouseSignature(blocks);
@@ -492,7 +493,8 @@ export function createMinecraftPariserPlatzArchitecture(): Group {
     flatShading: true,
     metalness: 0,
     roughness: 1,
-    vertexColors: true,
+    // Colors belong to each instance. Enabling vertexColors would also read
+    // BoxGeometry's absent color attribute and multiply every facade by black.
   });
   const mesh = new InstancedMesh(geometry, material, blocks.length);
   mesh.name = MINECRAFT_PARISER_PLATZ_MESH_NAME;

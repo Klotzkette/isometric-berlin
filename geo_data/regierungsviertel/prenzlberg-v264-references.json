@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "retrieved": "2026-10-23",
+  "policy": "External reference only. No photograph, image pixels, texture or font redistributed.",
+  "references": [
+    {
+      "site": "wasserturm",
+      "title": "Wasserturm, Berlin-Prenzlauer Berg",
+      "url": "https://www.gewobag.de/ueber-uns/pressebilder/",
+      "imageUrl": "https://www.gewobag.de/wp-content/uploads/2019/04/unternehmen_bildergalerie_architektur_wasserturm.jpg",
+      "credit": "Sabine Dobre / Gewobag",
+      "rights": "Owner press image labelled Nutzung honorarfrei; reference only, no redistribution or open-image-licence assertion."
+    },
+    {
+      "site": "planetarium",
+      "title": "Zeiss-Großplanetarium exterior",
+      "url": "https://www.berlin.de/landesdenkmalamt/aktivitaeten/kurzmeldungen/2025/artikel.1521460.php",
+      "imageUrl": "https://www.berlin.de/imgscale4/ropen/landesdenkmalamt/_assets/bilder/aktuelles/presse/zeiss-grossplanetarium_aussenansicht.jpg",
+      "credit": "Stiftung Planetarium Berlin / Natalie Toczek",
+      "rights": "Copyright remains with the source; external reference only."
+    },
+    {
+      "site": "planetarium",
+      "title": "Stiftung Planetarium Berlin: building history and 30 m exterior dome",
+      "url": "https://www.planetarium.berlin/zeiss-grossplanetarium",
+      "credit": "Stiftung Planetarium Berlin",
+      "rights": "Primary factual architecture reference; no text or imagery reproduced."
+    },
+    {
+      "site": "rykestrasse",
+      "title": "Synagoge Rykestraße",
+      "url": "https://jg-berlin.org/religion/synagogen-in-berlin/synagoge-rykestrasse/",
+      "credit": "Jüdische Gemeinde zu Berlin",
+      "rights": "Primary factual architecture reference; no text or imagery reproduced."
+    },
+    {
+      "site": "rykestrasse",
+      "title": "Synagoge Friedenstempel, heritage record 09070254",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09070254",
+      "credit": "Landesdenkmalamt Berlin",
+      "rights": "Primary factual architecture reference."
+    },
+    {
+      "site": "wasserturm",
+      "title": "Wasserturm, heritage record 09070141",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09070141",
+      "credit": "Landesdenkmalamt Berlin",
+      "rights": "Primary factual architecture reference."
+    },
+    {
+      "site": "wasserturm",
+      "title": "Touristisches Wegeleitsystem: Wasserturm",
+      "url": "https://www.berlin.de/museum-pankow/geschichte-vor-ort/touristisches-wegeleitsystem/dokumente/05-stele-wasserturm-water-tower-.pdf",
+      "credit": "Bezirksamt Pankow / Museum Pankow",
+      "rights": "Primary factual architecture reference; no brochure imagery reproduced."
+    }
+  ]
+}

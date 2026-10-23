@@ -1,3 +1,4 @@
+import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
 import { cutUbahnPresentationV261 } from "./UbahnSurfaceAperturesV261";
 import { eastCinemasWalkableInteriorV260, eastCinemasSolidAtV260 } from "./eastCinemasV260Navigation";
@@ -1637,7 +1638,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
-    staatsoperV240: true, architectureV241: true,
+    staatsoperV240: true, architectureV241: true, prenzlbergV264: true,
     camera: runtime.camera,
     mode: runtime.lightingMode,
     signal: runtime.loadSignal,
@@ -1738,6 +1739,8 @@ function surroundingPedestrianExtension(runtime: Runtime) {
     bounds: { minX: Math.min(DATA_WEST_M, outlineBounds.minX), maxX: Math.max(DATA_EAST_M, outlineBounds.maxX),
       minZ: Math.min(DATA_NORTH_M, outlineBounds.minZ), maxZ: Math.max(DATA_SOUTH_M, outlineBounds.maxZ) },
     groundAt: (x: number, z: number) => {
+      const planetariumGround = prenzlbergV264TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      if (planetariumGround !== null) return planetariumGround;
       const botanicalGround = botanicalV230GroundAt(x, z, runtime.lightingMode === "minecraft");
       if (botanicalGround !== null) return botanicalGround;
       const industrialGround = westIndustrialV230TerrainAt(x, z, runtime.lightingMode === "minecraft");
@@ -1760,6 +1763,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       monbijouV231SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       weddingStationSolidAtV229(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       botanicalV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      prenzlbergV264SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       westIndustrialV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       districtCourtsV229SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
@@ -3774,6 +3778,7 @@ function prepareIsoNavigation(
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (prenzlbergV264SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -3847,6 +3852,8 @@ function prepareIsoNavigation(
     if (weddingFloor !== null) return weddingFloor;
     const botanicalFloor = botanicalV230FloorAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (botanicalFloor !== null) return botanicalFloor;
+    const planetariumFloor = prenzlbergV264GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    if (planetariumFloor !== null) return planetariumFloor;
     const centralFloor = centralNamedV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (centralFloor !== null) return centralFloor;
     const industrialFloor = westIndustrialV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -4699,6 +4706,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     if (monbijouV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (prenzlbergV264SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4751,6 +4759,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft") ??
     weddingStationFloorAtV229(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     botanicalV230FloorAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    prenzlbergV264GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     westIndustrialV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
@@ -8838,7 +8847,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
             runtime.coarsePointer ? "mobile" : "full",
-            { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false },
+            { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false, embassiesV264: true },
           );
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,
