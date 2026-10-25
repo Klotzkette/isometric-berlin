@@ -61,7 +61,7 @@ launched. The school comparison is generated from final actual model data;
 it is not a live browser view. No exhaustive visual survey or physical-device
 crash-immunity claim is made.
 
-The 32 primary banks occupy 39,963,344 bytes of raw JSON and 7,214,508 bytes of
+The 32 primary banks occupy 39,963,344 bytes of raw JSON and 6,763,647 bytes of
 encoded strings in the production transform. Each decoded bank is weakly held,
 with an eager packet-key rejection index. The added encoded strings do increase
 the download and JavaScript source footprint; identical overall heap usage is
@@ -69,3 +69,10 @@ not claimed. No live residency limit is raised and no visible detail is dropped.
 
 The complete project test and publication results are recorded in the final
 machine-readable verification receipt after completion.
+
+The finite Base85 extension covers exactly 35 new construction-data files and
+saves 475,024 bytes of transformed source without changing their gzip-decoded
+values or weak lifetime. The core hot owner map uses the established eager
+encoding instead: one parse, strong identity and ordinary data properties. Its
+isolated production module saves another 316,272 bytes. Exact-value, production
+retention and tree-shaking tests pass; the existing package ceiling is unchanged.

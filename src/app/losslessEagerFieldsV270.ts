@@ -212,6 +212,10 @@ export const LOSSLESS_EAGER_FIELDS_V270: Readonly<Record<string, readonly string
   "data/columbiahalleV257.json": [
     "drawn"
   ],
+  // Core paint lookup stays eager and strongly held; only its source is packed.
+  "data/coreHouseColoursV273.json": [
+    "owners"
+  ],
   "data/danzigerTramV249.json": [
     "boxes",
     "nativeBoxes",

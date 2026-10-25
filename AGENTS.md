@@ -1761,3 +1761,8 @@ untreated historic faces. Keep the modern extension's independent window bands,
 measured school envelopes, courtyard gym, v250/v251 Aula and courtyard details.
 The supplied Heesestraße/courtyard photographs govern proportions and decorative
 style; unseen openings remain reference-based estimates, not measured surveys.
+
+The finite v273 colour receipts may use the existing Base85 lossless source
+encoding. The hot core owner map must retain eager strong ownership and ordinary
+data descriptors; construction-only shard fields retain their weak lifetime.
+Keep the existing extracted-package and Pages ceilings without dropping detail.

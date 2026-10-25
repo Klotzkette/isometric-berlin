@@ -74,7 +74,7 @@ test("real strong packed strings and weak roof packets retain their source value
 });
 
 test("only the frozen exact source paths select base85; root arrays stay eager and strongly owned", () => {
-  expect(LOSSLESS_BASE85_SOURCES_V263.size).toBe(200);
+  expect(LOSSLESS_BASE85_SOURCES_V263.size).toBe(235);
   const text = JSON.stringify(Array.from({ length: 2000 }, () => [1, 2, 3, "exact"]));
   const { data, decodes } = compile(text, "data/westVenuesV260.json", 4);
   expect(decodes()).toBe(1);
@@ -87,3 +87,31 @@ test("only the frozen exact source paths select base85; root arrays stay eager a
     expect(result.code).not.toContain("losslessGzipBase85");
   }
 });
+
+test("the finite v273 colour and school additions decode exactly without changing construction ownership", () => {
+  const names = [
+    "legacyHouseMaterialsV273", "remainingAltMitteColoursV273", "steglitzWindowsV273",
+    ...Array.from({ length: 32 }, (_, i) => `primaryColoursV273_${String(i).padStart(2, "0")}`),
+  ];
+  for (const name of names) {
+    const path = `data/${name}.json`;
+    expect(LOSSLESS_BASE85_SOURCES_V263.has(path)).toBeTrue();
+    const text = readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8");
+    const expected = JSON.parse(text), { data, result, decodes } = compile(text, path);
+    expect(decodes()).toBe(0);
+    const field = name === "steglitzWindowsV273" ? "nativeRows" : "packets";
+    expect(result.code).toContain("new WeakRef(value)");
+    expect(Object.getOwnPropertyDescriptor(data, field)?.get).toBeFunction();
+    const first = data[field];
+    expect(first).toEqual(expected[field]);
+    expect(data[field]).toBe(first);
+    expect(decodes()).toBe(1);
+    expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    for (const eager of ["schemaVersion", "keys", "palette", "version", "owner", "origin"]) {
+      if (Object.hasOwn(data, eager)) {
+        expect(Object.getOwnPropertyDescriptor(data, eager)?.get).toBeUndefined();
+        expect(data[eager]).toEqual(expected[eager]);
+      }
+    }
+  }
+}, 30000);
