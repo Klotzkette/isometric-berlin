@@ -26,4 +26,13 @@ Primary references, exact source receipts and material/shape estimates are linke
 
 The complete staged package contains 4,747 files / 934,627,505 bytes. The prospective Pages tree, including both retained v166/v167 dependency graphs, is 1,069,680,029 bytes, 4,061,795 bytes below 1 GiB. All 326 prior hashed assets remain eligible; 29 retained-only files contribute 135,052,524 bytes. No current asset is omitted and no live budget is increased. Complete release-readiness validation reports zero failures.
 
-The additional repository-wide Python run is still in progress at implementation tagging; its actual result or resource-limited stopping point will be recorded in the publication receipt. It is separate from the completed focused checks above.
+The additional repository-wide Python run was manually interrupted after 319 passing tests in 618.48 seconds while executing historical Shapely geometry checks, to bound local resource use. No failure occurred before interruption; the complete historical suite is not certified complete. All 26 focused Python checks and all 66 focused integration/runtime tests completed successfully. The full-run stopping point is disclosed separately from those completed checks.
+
+## Publication receipts
+
+Implementation commit: `6e479c13`; tag: `v1.0.168`. Complete package inventory SHA-256: `a614b97b71d92cee94a6e416b7d8eb6ec4e2fc139a1cd4d6609da97c6493945d`. Both archives use the original deterministic writers and complete validators, built and uploaded sequentially in memory to avoid duplicate on-disk archives.
+
+- `isometric-berlin-regierungsviertel-local.zip`: 759,046,867 bytes; SHA-256 `37b24720332c089bb88bcdcb7b3f5d40728d973bcbcdd7f6b9a0b5ae8c155022`. Complete validation passed; GitHub size/digest/state match.
+- `isometric-berlin-viewer-v1.0.168.tar.gz`: 758,263,027 bytes; SHA-256 `8a3d0776baa4a9801fe2b6aa4d35dfe00df9807849173a7e92f864a59b3a2f7d`. Complete validation passed; GitHub size/digest/state match.
+
+Pages commit: `b9d38c2f09ef4cbe4711c1a7b80f851329bfa1e2`. GitHub Pages workflow40204046690 completed successfully. Public release: [v1.0.168](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.168). All ten checked hosted files match the staged package byte-for-byte, including the index, package/stream manifests, attribution and viewer/site/stream/worker bundles. Both published archive size/digest/state checks match GitHub. All three withdrawn Columbiahalle recordings still return404. The temporary internal-browser QA tab and development server were closed; no external browser was launched.
