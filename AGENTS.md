@@ -1737,3 +1737,27 @@ explicit estimates. All source parts, roofs, courtyards, full mobile detail,
 independent orthogonal native geometry, 93 stops and runtime budgets remain.
 Animation uses the existing shared loop with offscreen/hidden/reduced-motion
 and disposal guards. No raw media or textures. Internal-browser QA only.
+
+### Step 10 — v273 citywide existing grey-house audit
+
+The owner requests the same missed-colour-layer diagnosis throughout all retained
+coverage, especially Moabit, Schöneberg, Steglitz, Kreuzberg and Friedrichshain.
+Audit every existing primary packet and the older city-front, Alt-Mitte and core
+building paths. Replace only proved fallback paint or obsolete rendered-image
+samples on positively identified ordinary core/legacy housing; preserve mapped
+materials, named/authored models, earlier v271 refinements and all source geometry.
+Unknown house paint remains a restrained contextual estimate, never a surveyed
+per-address claim. This request supersedes the earlier fixed fallback swatches
+where they still read as uniform grey. Roof and wall palettes may vary independently.
+Exact original source, topology and navigation receipts must guard shared corners;
+true ambiguity stays unchanged. Keep source packets byte-identical, independent
+native geometry, every previous detail, full mobile quality, all 93 stops and
+existing residency/decode budgets. No new coverage, animation or external browser.
+
+The follow-up additionally requests consistent photograph-based windows on all
+remaining Gymnasium Steglitz historic wings. Replace only the exact old generic
+window fittings and corresponding old facade cells proved to belong to those
+untreated historic faces. Keep the modern extension's independent window bands,
+measured school envelopes, courtyard gym, v250/v251 Aula and courtyard details.
+The supplied Heesestraße/courtyard photographs govern proportions and decorative
+style; unseen openings remain reference-based estimates, not measured surveys.

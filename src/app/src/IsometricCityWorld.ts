@@ -27,6 +27,7 @@ import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200Replace
 import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
 import { GENERIC_FACADE_SWATCHES, genericFacadeTone } from "./cityColourV184";
+import { coreHousePaintV273 } from "./CoreHouseColoursV273";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
@@ -1724,6 +1725,8 @@ function facadeColorFor(
   if (recordedTone !== undefined) {
     return target.setHex(recordedTone).lerp(IVORY, urban ? 0.04 : 0.12);
   }
+  const ordinaryPaint = coreHousePaintV273(building);
+  if (ordinaryPaint) return target.setHex(ordinaryPaint[2]);
   // Retain the per-part Step-8 illustration sample where no stronger source
   // attribute exists; this colour is not a surveyed facade observation.
   if (building.tone) {
@@ -1783,7 +1786,9 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
       ? 0xf6e0a7 : (urbanFacadeScope(building)
         ? urbanMappedRoofTone(buildingAttributes(building.id))
         : mappedRoofTone(buildingAttributes(building.id))));
+  const ordinaryRoof = coreHousePaintV273(building)?.[3];
   return pinnedRoof !== undefined ? target.setHex(pinnedRoof)
+    : ordinaryRoof !== undefined && ordinaryRoof >= 0 ? target.setHex(ordinaryRoof)
     : districtOrdinaryRoofV225(building) ? target.setHex(DISTRICT_HOUSE_ROOF_HEX_V225)
       : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
 }

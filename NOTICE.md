@@ -2378,3 +2378,19 @@ No source photograph, video, recording or photographic texture is distributed.
 Fine geometry and colors not surveyed are explicitly documented display estimates.
 Source URLs, model boundaries and licensing: docs/press-quarter-v272.md,
 docs/theatres-v272.md, docs/technikmuseum-v272.md, docs/alexander-north-v272.md.
+
+v1.0.173 existing city colour audit: retained Berlin LoD2/ALKIS and OpenStreetMap
+source ownership govern fallback-only paint changes in core, primary streamed,
+legacy street-front and Alt-Mitte layers. Unknown facade/roof paint is a restrained
+contextual display estimate, not surveyed per-address colour. All public source
+packets and geometry remain unchanged by these colour passes. Complete source,
+material-protection and incident-face receipts are documented in
+primary-colours-v273.md, core-house-colours-v273.md,
+legacy-house-materials-v273.md and remaining-alt-mitte-colours-v273.md under docs/.
+
+v1.0.173 Gymnasium Steglitz historic-window correction: the owner-supplied
+Heesestraße and courtyard photographs guide the remaining old-building frames,
+arches and brick bands. Unseen opening positions remain explicit estimates.
+Original measured envelopes, the modern extension and earlier Aula/courtyard
+models remain intact. Photographs are reference-only and are not distributed.
+See docs/steglitz-windows-v273.md.

@@ -143,6 +143,7 @@ import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShell
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
+import { coreHousePaintV273 } from "./CoreHouseColoursV273";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { parkReliefGroundSlices } from "./parkReliefGroundRunsV182";
 import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
@@ -865,6 +866,8 @@ export type ColumnToneLookup = ((x: number, z: number) => number | null) & {
   attributesAt?: (x: number, z: number) => BuildingAttributes | undefined;
   storeysAt?: (x: number, z: number) => MappedStoreyProfile | null;
   roofToneAt?: (x: number, z: number) => number | undefined;
+  /** Paint an already existing native cap only; never create a mapped-roof cap. */
+  illustrationRoofToneAt?: (x: number, z: number) => number | undefined;
 };
 
 type TonedPrism = {
@@ -872,6 +875,7 @@ type TonedPrism = {
   hex: number | null;
   attributes?: BuildingAttributes;
   roofTone?: number;
+  illustrationRoofTone?: number;
   storeys: MappedStoreyProfile | null;
   maxX: number;
   maxZ: number;
@@ -884,7 +888,10 @@ type TonedPrism = {
 export function buildColumnToneLookup(prisms: {
   buildings: Array<{
     id?: string;
+    y0_dm?: number;
     h_dm?: number;
+    class?: number;
+    roof?: number;
     holes?: number[][][];
     ring: number[][];
     tone?: [number, number, number];
@@ -953,6 +960,7 @@ export function buildColumnToneLookup(prisms: {
     // Resolve retained CSS colours/materials for every core owner, after all
     // existing authored priorities. The bounded roof path below is unchanged.
     const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? urbanMappedFacadeTone(attributes);
+    const ordinaryPaint = mappedTone === undefined ? coreHousePaintV273(building) : undefined;
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
       continue;
     }
@@ -964,6 +972,7 @@ export function buildColumnToneLookup(prisms: {
     const toned: TonedPrism = {
       id: building.id,
       attributes,
+      illustrationRoofTone: ordinaryPaint && ordinaryPaint[5] >= 0 ? ordinaryPaint[5] : undefined,
       roofTone: wilhelmTones?.[1] ?? (building.id ? CHARITE_HISTORIC_FACADE_ROOF_TONES[building.id] ??
         (CHARITE_VIROLOGY_IDS.has(building.id) ? 0x77827d : undefined) : undefined) ??
         (urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes)),
@@ -974,7 +983,7 @@ export function buildColumnToneLookup(prisms: {
           ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
           : mappedTone !== undefined
             ? snap([(mappedTone >> 16) & 255, (mappedTone >> 8) & 255, mappedTone & 255])
-            : building.tone ? snap(building.tone) : null
+            : ordinaryPaint ? ordinaryPaint[4] : building.tone ? snap(building.tone) : null
       ),
       maxX: Math.max(...xs),
       maxZ: Math.max(...zs),
@@ -1051,6 +1060,7 @@ export function buildColumnToneLookup(prisms: {
   };
   lookup.attributesAt = (x, z) => sourceAt(x, z)?.attributes;
   lookup.roofToneAt = (x, z) => sourceAt(x, z)?.roofTone;
+  lookup.illustrationRoofToneAt = (x, z) => sourceAt(x, z)?.illustrationRoofTone;
   lookup.sourceIdAt = (x, z) => sourceAt(x, z)?.id ?? null;
   lookup.storeysAt = (x, z) => sourceAt(x, z)?.storeys ?? null;
   return lookup;
@@ -2885,7 +2895,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (capHeight > 0) {
       center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);
-      buildings.write(center, size, layerPaint.setHex(sourceRoofTone ?? layers.cap));
+      buildings.write(center, size, layerPaint.setHex(sourceRoofTone ?? toneLookup?.illustrationRoofToneAt?.(worldX, worldZ) ?? layers.cap));
     }
   }
   for (const box of panoramaRoofs) {

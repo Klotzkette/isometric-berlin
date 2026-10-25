@@ -30,6 +30,7 @@ export function* surroundingColourOwners(
   selectOwner: typeof districtHouseOwnerV225 = districtHouseOwnerV225,
   refineRemainingOuterRoofs = false,
   refineOuterPalette = false,
+  sourcePalette?: (sourceId: string) => Palette,
 ): Generator<void, SurroundingColourOwners> {
   const owners = new Map<number, Owner | null>();
   const sourceOwners = new Map<string, Owner>();
@@ -43,7 +44,7 @@ export function* surroundingColourOwners(
     if (!owner) {
       const palettes = (refineRemainingOuterRoofs || selectOwner(building.sourceId, building.ring, originX, originZ)) ? DISTRICT_PALETTES : PALETTES;
       owner = { sourceId: building.sourceId,
-        palette: refineOuterPalette ? outerHousePaletteV262(building.sourceId) : palettes[genericFacadeIndex(building.sourceId)],
+        palette: sourcePalette ? sourcePalette(building.sourceId) : refineOuterPalette ? outerHousePaletteV262(building.sourceId) : palettes[genericFacadeIndex(building.sourceId)],
         lowCm, highCm };
       sourceOwners.set(building.sourceId, owner);
     } else if (owner.lowCm !== lowCm || owner.highCm !== highCm) {
@@ -55,7 +56,7 @@ export function* surroundingColourOwners(
     }
     // A split source owner must not acquire a regional roof through whichever
     // part happened to appear first in the packet.
-    if (previousOwner && !refineOuterPalette && !refineRemainingOuterRoofs && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
+    if (previousOwner && !sourcePalette && !refineOuterPalette && !refineRemainingOuterRoofs && owner.palette.roof === DISTRICT_HOUSE_ROOF_V225 &&
         !selectOwner(building.sourceId, building.ring, originX, originZ))
       owner.palette = PALETTES[genericFacadeIndex(building.sourceId)];
     for (const ring of [building.ring, ...building.holes]) for (const [x, z] of ring) {

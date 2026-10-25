@@ -5,6 +5,7 @@ import { createSurroundingCityChunk, createSurroundingCityChunkCooperatively, ty
 import { disposeSurroundingCityRoot } from "../src/SurroundingCity";
 import { surroundingColourOwners, surroundingGenericColour } from "../src/surroundingCityColourV184";
 import { createDistantBuildingShells, createIsometricCity, type PrismPayload, type PrismBuilding } from "../src/IsometricCityWorld";
+import { coreHousePaintV273 } from "../src/CoreHouseColoursV273";
 
 const rgb = (hex: number) => new Color(hex).toArray().map(value => Math.round(value * 255));
 const encode = (array: Uint8Array | Uint16Array | Uint32Array) => Buffer.from(array.buffer, array.byteOffset, array.byteLength).toString("base64");
@@ -100,23 +101,44 @@ test("cooperative presentation remains deterministic and bounded", async () => {
   expect(finish(shadeDistrictHousePanesV225("city", new Uint16Array(), new Uint16Array(), 0, 0, 0, 0, false))).toBe(0);
 });
 
-test("actual core Moabit roofs change colour in both early and detailed shells while retaining facade colours and topology", async () => {
+test("actual core Moabit roofs retain the fallback and exact source-guarded paint without changing topology", async () => {
   const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
   for (const id of ["78474603", "78474607"]) for (const detailed of [false, true]) {
     const part = source.buildings.find(building => building.id === id)!;
     const original = JSON.stringify(part);
     const outside: PrismBuilding = { ...part, ring: part.ring.map(([x, z]) => [x + 400000, z + 400000]),
       holes: part.holes?.map(ring => ring.map(([x, z]) => [x + 400000, z + 400000])) };
+    // v273 intentionally changes both roof and facade for these exact source
+    // parts. Moving them must reject that receipt, not carry the new facade
+    // colour to unrelated coordinates. Exercise the earlier v225 roof-only
+    // fallback separately with the same deliberately unreceipted sample on
+    // both footprints; this changes no source or frozen historical fixture.
+    const fallbackTone: [number, number, number] = [part.tone![0] + 1, part.tone![1], part.tone![2]];
+    const fallbackPart = { ...part, tone: fallbackTone };
+    const fallbackOutside = { ...outside, tone: fallbackTone };
+    expect(coreHousePaintV273(part)).toBeDefined();
+    expect(coreHousePaintV273(outside)).toBeUndefined();
+    expect(coreHousePaintV273(fallbackPart)).toBeUndefined();
+    expect(coreHousePaintV273(fallbackOutside)).toBeUndefined();
     const build = (building: PrismBuilding) => detailed
       ? createIsometricCity(source, null, null, null, { buildings: [building], includeContext: false })
       : createDistantBuildingShells(source, [building]);
     const local = build(part), remote = build(outside);
+    const fallbackLocal = build(fallbackPart), fallbackRemote = build(fallbackOutside);
     try {
       const name = detailed ? "LoD2 prism buildings" : "LoD2 distant building shells";
       const a = (local.getObjectByName(name) as Mesh).geometry, b = (remote.getObjectByName(name) as Mesh).geometry;
+      const fa = (fallbackLocal.getObjectByName(name) as Mesh).geometry, fb = (fallbackRemote.getObjectByName(name) as Mesh).geometry;
       expect(a.getAttribute("position").count).toBe(b.getAttribute("position").count);
       expect(a.index?.array).toEqual(b.index?.array);
-      const ac = a.getAttribute("color"), bc = b.getAttribute("color");
+      expect(a.index?.array).toEqual(fa.index?.array);
+      expect(fa.index?.array).toEqual(fb.index?.array);
+      for (const [attribute, value] of Object.entries(a.attributes)) {
+        expect(value.array.byteLength).toBe(fa.getAttribute(attribute).array.byteLength);
+        if (attribute !== "color") expect(value.array).toEqual(fa.getAttribute(attribute).array);
+      }
+      expect(a.getAttribute("color").array).not.toEqual(fa.getAttribute("color").array);
+      const ac = fa.getAttribute("color"), bc = fb.getAttribute("color");
       let changed = 0, unchanged = 0;
       for (let i = 0; i < ac.count; i++) {
         if (ac.getX(i) !== bc.getX(i) || ac.getY(i) !== bc.getY(i) || ac.getZ(i) !== bc.getZ(i)) changed++;
@@ -126,7 +148,7 @@ test("actual core Moabit roofs change colour in both early and detailed shells w
       expect(ac.array.byteLength).toBe(bc.array.byteLength);
       expect(JSON.stringify(part)).toBe(original);
     } finally {
-      for (const group of [local, remote]) group.traverse(object => {
+      for (const group of [local, remote, fallbackLocal, fallbackRemote]) group.traverse(object => {
         const mesh = object as Mesh;
         mesh.geometry?.dispose();
         for (const material of mesh.material ? Array.isArray(mesh.material) ? mesh.material : [mesh.material] : []) material.dispose();

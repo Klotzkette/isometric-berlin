@@ -1,0 +1,4251 @@
+{
+  "version": 273,
+  "owner": "DEBE06YYB0000AUq",
+  "terrainOffsetY": -9.922,
+  "archiveSha256": "73d66a1d622654e88db7b0e70ae079128a0114deda691fc95799ccff24d81fd2",
+  "sourceSha256": {
+    "src/app/src/data/steglitzV182Source.json": "e99229bea15cd0a3e904b7ee31d18bf0f47056c2ac8679432ccd67e7a5d939f6",
+    "src/app/src/data/steglitzV182Native.json": "3dc6f2b943375f38dc4f5fac0d24648e485d560c4474cc4bb3706607e24e2bbb",
+    "src/app/src/data/steglitzV182Navigation.json": "239a094447ae6f63e4afbfe20a53d91e02c2a7e1c0c22941e7ff692bc98c125d",
+    "src/app/src/data/steglitzSchoolV250.json": "d8574b681078286b8ade4bde7c7c8020b961e1c8f84eb6e2d6acd1fdaf700a2a",
+    "src/app/src/data/steglitzCourtyardV251.json": "b5f6ab6ff55b8567c55bdaac23f839b85d49cb66bd4cc5b35dc284475c06abde",
+    "src/app/src/data/steglitzCourtGroundV251.json": "bd5577c6b3ce265827c1a84dfa7ff68200d4d9c60a6a1ca7fd00f8e8fe0a540b",
+    "src/app/src/data/schoolsPlacesV205.json": "dc01ad90aef042e1741eedc910813ddd685a83ae4b1d4bc2fec863e270ac9225"
+  },
+  "allWallSheets": [
+    {
+      "key": "DEBE3DKr6xQqvvnx/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        3014,
+        3015,
+        3016,
+        3017,
+        3018,
+        3019,
+        3020,
+        3021,
+        3022,
+        3023,
+        3024,
+        3025,
+        3026,
+        3027,
+        3028,
+        3029,
+        3030,
+        3031,
+        3032,
+        3033,
+        3034,
+        3035,
+        3036,
+        3037,
+        3038,
+        3039,
+        3040,
+        3041,
+        3042,
+        3043,
+        3044,
+        3045,
+        3046,
+        3047,
+        3048,
+        3049,
+        3050,
+        3051,
+        3052,
+        3053,
+        3054,
+        3055,
+        3056,
+        3057,
+        3058,
+        3059,
+        3060,
+        3061,
+        3062,
+        3063,
+        3064,
+        3065,
+        3066,
+        3067,
+        3068,
+        3069,
+        3070,
+        3071,
+        3072,
+        3073,
+        3074,
+        3075,
+        3076,
+        3077,
+        3078,
+        3079,
+        3080,
+        3081,
+        3082,
+        3083,
+        3084,
+        3085,
+        3086,
+        3087,
+        3088,
+        3089,
+        3090,
+        3091,
+        3092,
+        3093
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        3094,
+        3095,
+        3096,
+        3097,
+        3098,
+        3099,
+        3100,
+        3101,
+        3102,
+        3103,
+        3104,
+        3105
+      ],
+      "remainingRows": [
+        3094,
+        3095,
+        3096,
+        3097,
+        3098,
+        3099,
+        3100,
+        3101,
+        3102,
+        3103,
+        3104,
+        3105
+      ],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/5",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        3106,
+        3107,
+        3108,
+        3109,
+        3110,
+        3111,
+        3112,
+        3113,
+        3114,
+        3115,
+        3116,
+        3117,
+        3118,
+        3119,
+        3120,
+        3121,
+        3122,
+        3123,
+        3124,
+        3125,
+        3126,
+        3127,
+        3128,
+        3129,
+        3130,
+        3131,
+        3132,
+        3133,
+        3134,
+        3135,
+        3136,
+        3137,
+        3138,
+        3139,
+        3140,
+        3141,
+        3142,
+        3143,
+        3144,
+        3145,
+        3146,
+        3147,
+        3148,
+        3149,
+        3150,
+        3151,
+        3152,
+        3153,
+        3154,
+        3155,
+        3156,
+        3157,
+        3158,
+        3159,
+        3160,
+        3161,
+        3162,
+        3163,
+        3164,
+        3165,
+        3166,
+        3167,
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3173,
+        3174,
+        3175,
+        3176,
+        3177,
+        3178,
+        3179,
+        3180,
+        3181,
+        3182,
+        3183,
+        3184,
+        3185
+      ],
+      "remainingRows": [
+        3106,
+        3107,
+        3108,
+        3109,
+        3110,
+        3111,
+        3112,
+        3113,
+        3114,
+        3115,
+        3116,
+        3117,
+        3118,
+        3119,
+        3120,
+        3121,
+        3122,
+        3123,
+        3124,
+        3125,
+        3126,
+        3127,
+        3128,
+        3129,
+        3130,
+        3131,
+        3132,
+        3133,
+        3134,
+        3135,
+        3136,
+        3137,
+        3138,
+        3139,
+        3140,
+        3141,
+        3142,
+        3143,
+        3144,
+        3145,
+        3146,
+        3147,
+        3148,
+        3149,
+        3150,
+        3151,
+        3152,
+        3153,
+        3154,
+        3155,
+        3156,
+        3157,
+        3158,
+        3159,
+        3160,
+        3161,
+        3162,
+        3163,
+        3164,
+        3165,
+        3166,
+        3167,
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3173,
+        3174,
+        3175,
+        3176,
+        3177,
+        3178,
+        3179,
+        3180,
+        3181,
+        3182,
+        3183,
+        3184,
+        3185
+      ],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DKr6xQqvvnx/6",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/0",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/1",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3186,
+        3187,
+        3188,
+        3189,
+        3190,
+        3191,
+        3192,
+        3193,
+        3194,
+        3195
+      ],
+      "remainingRows": [
+        3186,
+        3187,
+        3188,
+        3189,
+        3190,
+        3191,
+        3192,
+        3193,
+        3194,
+        3195
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dr2NXbZSQfU/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DPD8xytxDpa/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DPD8xytxDpa/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DPD8xytxDpa/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DPD8xytxDpa/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DW4IB93oadl/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/5",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/6",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/7",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/8",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/9",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/10",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/11",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/12",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/13",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/14",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/15",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/16",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/17",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/18",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DrwNPVZQPmu/19",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dux27LQOga1/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dux27LQOga1/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dux27LQOga1/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dux27LQOga1/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dux27LQOga1/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        3196,
+        3197,
+        3198,
+        3199,
+        3200,
+        3201,
+        3202,
+        3203,
+        3204,
+        3205
+      ],
+      "remainingRows": [
+        3196,
+        3197,
+        3198,
+        3199,
+        3200,
+        3201,
+        3202,
+        3203,
+        3204,
+        3205
+      ],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/0",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3206,
+        3207,
+        3208,
+        3209,
+        3210,
+        3211,
+        3212,
+        3213
+      ],
+      "remainingRows": [
+        3206,
+        3207,
+        3208,
+        3209,
+        3210,
+        3211,
+        3212,
+        3213
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/1",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3214,
+        3215,
+        3216,
+        3217,
+        3218,
+        3219,
+        3220,
+        3221,
+        3222,
+        3223
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/2",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3224,
+        3225,
+        3226,
+        3227,
+        3228,
+        3229
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/3",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3230,
+        3231,
+        3232,
+        3233,
+        3234,
+        3235,
+        3236,
+        3237,
+        3238,
+        3239,
+        3240,
+        3241
+      ],
+      "remainingRows": [
+        3230,
+        3231,
+        3232,
+        3233,
+        3234,
+        3235,
+        3236,
+        3237,
+        3238,
+        3239,
+        3240,
+        3241
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/0",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/5",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3242,
+        3243,
+        3244,
+        3245,
+        3246,
+        3247,
+        3248,
+        3249,
+        3250,
+        3251
+      ],
+      "remainingRows": [
+        3242,
+        3243,
+        3244,
+        3245,
+        3246,
+        3247,
+        3248,
+        3249,
+        3250,
+        3251
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dtv3ZU0zFcA/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        3252,
+        3253,
+        3254,
+        3255,
+        3256,
+        3257,
+        3258,
+        3259,
+        3260,
+        3261,
+        3262,
+        3263
+      ],
+      "remainingRows": [
+        3252,
+        3253,
+        3254,
+        3255,
+        3256,
+        3257,
+        3258,
+        3259,
+        3260,
+        3261,
+        3262,
+        3263
+      ],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dtv3ZU0zFcA/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dtv3ZU0zFcA/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dtv3ZU0zFcA/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/0",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3264,
+        3265,
+        3266,
+        3267,
+        3268,
+        3269,
+        3270,
+        3271,
+        3272,
+        3273,
+        3274,
+        3275,
+        3276,
+        3277,
+        3278,
+        3279,
+        3280,
+        3281,
+        3282,
+        3283,
+        3284,
+        3285,
+        3286,
+        3287,
+        3288,
+        3289,
+        3290,
+        3291,
+        3292,
+        3293,
+        3294,
+        3295,
+        3296,
+        3297,
+        3298,
+        3299,
+        3300,
+        3301,
+        3302,
+        3303,
+        3304,
+        3305,
+        3306,
+        3307,
+        3308,
+        3309,
+        3310,
+        3311,
+        3312,
+        3313,
+        3314,
+        3315,
+        3316,
+        3317,
+        3318,
+        3319,
+        3320,
+        3321,
+        3322,
+        3323,
+        3324,
+        3325,
+        3326,
+        3327,
+        3328,
+        3329,
+        3330,
+        3331,
+        3332,
+        3333,
+        3334,
+        3335,
+        3336,
+        3337,
+        3338,
+        3339,
+        3340,
+        3341,
+        3342,
+        3343,
+        3344,
+        3345,
+        3346,
+        3347
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/4",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3348,
+        3349,
+        3350,
+        3351,
+        3352,
+        3353,
+        3354,
+        3355,
+        3356,
+        3357,
+        3358,
+        3359,
+        3360,
+        3361,
+        3362,
+        3363,
+        3364,
+        3365,
+        3366,
+        3367,
+        3368,
+        3369,
+        3370,
+        3371
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/8",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3372,
+        3373,
+        3374,
+        3375,
+        3376,
+        3377,
+        3378,
+        3379,
+        3380,
+        3381,
+        3382,
+        3383,
+        3384,
+        3385,
+        3386,
+        3387
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/9",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/10",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/11",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/12",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DaafYxEtad7/13",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3388,
+        3389,
+        3390,
+        3391,
+        3392,
+        3393,
+        3394,
+        3395,
+        3396,
+        3397,
+        3398,
+        3399,
+        3400,
+        3401,
+        3402,
+        3403,
+        3404,
+        3405,
+        3406,
+        3407,
+        3408,
+        3409,
+        3410,
+        3411
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/0",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3412,
+        3413,
+        3414,
+        3415,
+        3416,
+        3417,
+        3418,
+        3419,
+        3420,
+        3421,
+        3422,
+        3423,
+        3424,
+        3425,
+        3426,
+        3427,
+        3428,
+        3429,
+        3430,
+        3431,
+        3432,
+        3433,
+        3434,
+        3435,
+        3436,
+        3437,
+        3438,
+        3439,
+        3440,
+        3441,
+        3442,
+        3443,
+        3444,
+        3445,
+        3446,
+        3447,
+        3448,
+        3449,
+        3450,
+        3451,
+        3452,
+        3453,
+        3454,
+        3455,
+        3456,
+        3457,
+        3458,
+        3459,
+        3460,
+        3461,
+        3462,
+        3463,
+        3464,
+        3465,
+        3466,
+        3467,
+        3468,
+        3469,
+        3470,
+        3471,
+        3472,
+        3473,
+        3474,
+        3475,
+        3476,
+        3477,
+        3478,
+        3479,
+        3480,
+        3481
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/4",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3482,
+        3483,
+        3484,
+        3485,
+        3486,
+        3487,
+        3488,
+        3489,
+        3490,
+        3491,
+        3492,
+        3493,
+        3494,
+        3495,
+        3496,
+        3497
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/8",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3498,
+        3499,
+        3500,
+        3501,
+        3502,
+        3503,
+        3504,
+        3505,
+        3506,
+        3507,
+        3508,
+        3509,
+        3510,
+        3511,
+        3512,
+        3513,
+        3514,
+        3515,
+        3516,
+        3517,
+        3518,
+        3519,
+        3520,
+        3521,
+        3522,
+        3523,
+        3524,
+        3525,
+        3526,
+        3527,
+        3528,
+        3529,
+        3530,
+        3531,
+        3532,
+        3533,
+        3534,
+        3535,
+        3536,
+        3537,
+        3538,
+        3539,
+        3540,
+        3541,
+        3542,
+        3543,
+        3544,
+        3545,
+        3546,
+        3547,
+        3548,
+        3549,
+        3550,
+        3551,
+        3552,
+        3553,
+        3554,
+        3555,
+        3556,
+        3557,
+        3558,
+        3559,
+        3560,
+        3561,
+        3562,
+        3563,
+        3564,
+        3565,
+        3566,
+        3567,
+        3568,
+        3569,
+        3570,
+        3571,
+        3572,
+        3573,
+        3574,
+        3575,
+        3576,
+        3577
+      ],
+      "remainingRows": [
+        3498,
+        3499,
+        3500,
+        3501,
+        3502,
+        3503,
+        3504,
+        3505,
+        3506,
+        3507,
+        3508,
+        3509,
+        3510,
+        3511,
+        3512,
+        3513,
+        3514,
+        3515,
+        3516,
+        3517,
+        3518,
+        3519,
+        3520,
+        3521,
+        3522,
+        3523,
+        3524,
+        3525,
+        3526,
+        3527,
+        3528,
+        3529,
+        3530,
+        3531,
+        3532,
+        3533,
+        3534,
+        3535,
+        3536,
+        3537,
+        3538,
+        3539,
+        3540,
+        3541,
+        3542,
+        3543,
+        3544,
+        3545,
+        3546,
+        3547,
+        3548,
+        3549,
+        3550,
+        3551,
+        3552,
+        3553,
+        3554,
+        3555,
+        3556,
+        3557,
+        3558,
+        3559,
+        3560,
+        3561,
+        3562,
+        3563,
+        3564,
+        3565,
+        3566,
+        3567,
+        3568,
+        3569,
+        3570,
+        3571,
+        3572,
+        3573,
+        3574,
+        3575,
+        3576,
+        3577
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/9",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/10",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/11",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3578,
+        3579,
+        3580,
+        3581,
+        3582,
+        3583,
+        3584,
+        3585,
+        3586,
+        3587,
+        3588,
+        3589,
+        3590,
+        3591,
+        3592,
+        3593,
+        3594,
+        3595,
+        3596,
+        3597
+      ],
+      "remainingRows": [
+        3578,
+        3579,
+        3580,
+        3581,
+        3582,
+        3583,
+        3584,
+        3585,
+        3586,
+        3587,
+        3588,
+        3589,
+        3590,
+        3591,
+        3592,
+        3593,
+        3594,
+        3595,
+        3596,
+        3597
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/12",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/13",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/14",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/0",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/2",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3598,
+        3599,
+        3600,
+        3601,
+        3602,
+        3603,
+        3604,
+        3605,
+        3606,
+        3607,
+        3608,
+        3609,
+        3610,
+        3611,
+        3612,
+        3613,
+        3614,
+        3615,
+        3616,
+        3617,
+        3618,
+        3619,
+        3620,
+        3621,
+        3622,
+        3623,
+        3624,
+        3625,
+        3626,
+        3627
+      ],
+      "remainingRows": [
+        3598,
+        3599,
+        3600,
+        3601,
+        3602,
+        3603,
+        3604,
+        3605,
+        3606,
+        3607,
+        3608,
+        3609,
+        3610,
+        3611,
+        3612,
+        3613,
+        3614,
+        3615,
+        3616,
+        3617,
+        3618,
+        3619,
+        3620,
+        3621,
+        3622,
+        3623,
+        3624,
+        3625,
+        3626,
+        3627
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/5",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3628,
+        3629,
+        3630,
+        3631,
+        3632,
+        3633,
+        3634,
+        3635,
+        3636,
+        3637,
+        3638,
+        3639,
+        3640,
+        3641,
+        3642,
+        3643
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/0",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/3",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3644,
+        3645,
+        3646,
+        3647,
+        3648,
+        3649,
+        3650,
+        3651,
+        3652,
+        3653,
+        3654,
+        3655,
+        3656,
+        3657,
+        3658,
+        3659,
+        3660,
+        3661,
+        3662,
+        3663
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/7",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3664,
+        3665,
+        3666,
+        3667,
+        3668,
+        3669,
+        3670,
+        3671,
+        3672,
+        3673,
+        3674,
+        3675,
+        3676,
+        3677,
+        3678,
+        3679,
+        3680,
+        3681,
+        3682,
+        3683
+      ],
+      "remainingRows": [
+        3664,
+        3665,
+        3666,
+        3667,
+        3668,
+        3669,
+        3670,
+        3671,
+        3672,
+        3673,
+        3674,
+        3675,
+        3676,
+        3677,
+        3678,
+        3679,
+        3680,
+        3681,
+        3682,
+        3683
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/8",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3684,
+        3685,
+        3686,
+        3687,
+        3688,
+        3689,
+        3690,
+        3691,
+        3692,
+        3693,
+        3694,
+        3695,
+        3696,
+        3697,
+        3698,
+        3699,
+        3700,
+        3701,
+        3702,
+        3703,
+        3704,
+        3705,
+        3706,
+        3707,
+        3708,
+        3709,
+        3710,
+        3711,
+        3712,
+        3713,
+        3714,
+        3715,
+        3716,
+        3717,
+        3718,
+        3719,
+        3720,
+        3721,
+        3722,
+        3723,
+        3724,
+        3725,
+        3726,
+        3727,
+        3728,
+        3729,
+        3730,
+        3731,
+        3732,
+        3733,
+        3734,
+        3735,
+        3736,
+        3737,
+        3738,
+        3739,
+        3740,
+        3741,
+        3742,
+        3743
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/0",
+      "historic": true,
+      "reason": "photo blank terminal return",
+      "oldRows": [
+        3744,
+        3745,
+        3746,
+        3747,
+        3748,
+        3749,
+        3750,
+        3751,
+        3752,
+        3753,
+        3754,
+        3755,
+        3756,
+        3757,
+        3758,
+        3759,
+        3760,
+        3761,
+        3762,
+        3763,
+        3764,
+        3765,
+        3766,
+        3767,
+        3768,
+        3769,
+        3770,
+        3771,
+        3772,
+        3773
+      ],
+      "remainingRows": [
+        3744,
+        3745,
+        3746,
+        3747,
+        3748,
+        3749,
+        3750,
+        3751,
+        3752,
+        3753,
+        3754,
+        3755,
+        3756,
+        3757,
+        3758,
+        3759,
+        3760,
+        3761,
+        3762,
+        3763,
+        3764,
+        3765,
+        3766,
+        3767,
+        3768,
+        3769,
+        3770,
+        3771,
+        3772,
+        3773
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/2",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3774,
+        3775,
+        3776,
+        3777,
+        3778,
+        3779,
+        3780,
+        3781,
+        3782,
+        3783,
+        3784,
+        3785,
+        3786,
+        3787,
+        3788,
+        3789,
+        3790,
+        3791,
+        3792,
+        3793,
+        3794,
+        3795,
+        3796,
+        3797,
+        3798,
+        3799,
+        3800,
+        3801,
+        3802,
+        3803,
+        3804,
+        3805,
+        3806,
+        3807,
+        3808,
+        3809,
+        3810,
+        3811,
+        3812,
+        3813
+      ],
+      "remainingRows": [
+        3774,
+        3775,
+        3776,
+        3777,
+        3778,
+        3779,
+        3780,
+        3781,
+        3782,
+        3783,
+        3784,
+        3785,
+        3786,
+        3787,
+        3788,
+        3789,
+        3790,
+        3791,
+        3792,
+        3793,
+        3794,
+        3795,
+        3796,
+        3797,
+        3798,
+        3799,
+        3800,
+        3801,
+        3802,
+        3803,
+        3804,
+        3805,
+        3806,
+        3807,
+        3808,
+        3809,
+        3810,
+        3811,
+        3812,
+        3813
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/5",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3814,
+        3815,
+        3816,
+        3817,
+        3818,
+        3819,
+        3820,
+        3821,
+        3822,
+        3823,
+        3824,
+        3825,
+        3826,
+        3827,
+        3828,
+        3829,
+        3830,
+        3831,
+        3832,
+        3833,
+        3834,
+        3835,
+        3836,
+        3837,
+        3838,
+        3839,
+        3840,
+        3841,
+        3842,
+        3843
+      ],
+      "remainingRows": [
+        3814,
+        3815,
+        3816,
+        3817,
+        3818,
+        3819,
+        3820,
+        3821,
+        3822,
+        3823,
+        3824,
+        3825,
+        3826,
+        3827,
+        3828,
+        3829,
+        3830,
+        3831,
+        3832,
+        3833,
+        3834,
+        3835,
+        3836,
+        3837,
+        3838,
+        3839,
+        3840,
+        3841,
+        3842,
+        3843
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/0",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3844,
+        3845,
+        3846,
+        3847,
+        3848,
+        3849,
+        3850,
+        3851,
+        3852,
+        3853,
+        3854,
+        3855,
+        3856,
+        3857,
+        3858,
+        3859,
+        3860,
+        3861,
+        3862,
+        3863,
+        3864,
+        3865,
+        3866,
+        3867,
+        3868,
+        3869,
+        3870,
+        3871,
+        3872,
+        3873,
+        3874,
+        3875,
+        3876,
+        3877,
+        3878,
+        3879,
+        3880,
+        3881,
+        3882,
+        3883,
+        3884,
+        3885,
+        3886,
+        3887,
+        3888,
+        3889,
+        3890,
+        3891,
+        3892,
+        3893,
+        3894,
+        3895,
+        3896,
+        3897,
+        3898,
+        3899,
+        3900,
+        3901,
+        3902,
+        3903
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/2",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3904,
+        3905,
+        3906,
+        3907,
+        3908,
+        3909,
+        3910,
+        3911,
+        3912,
+        3913,
+        3914,
+        3915,
+        3916,
+        3917,
+        3918,
+        3919,
+        3920,
+        3921,
+        3922,
+        3923,
+        3924,
+        3925,
+        3926,
+        3927,
+        3928,
+        3929,
+        3930,
+        3931,
+        3932,
+        3933
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/6",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Ddj5cX7Y4kL/8",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/5",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/6",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/7",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgrSinsrnNa/8",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/0",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/1",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/3",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/6",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3934,
+        3935,
+        3936,
+        3937,
+        3938,
+        3939,
+        3940,
+        3941
+      ],
+      "remainingRows": [
+        3934,
+        3935,
+        3936,
+        3937,
+        3938,
+        3939,
+        3940,
+        3941
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/7",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/5",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/6",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/7",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/8",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/9",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/10",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/11",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/12",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DR3T6f1tQ3n/13",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/0",
+      "historic": true,
+      "reason": "remaining old window register replaced",
+      "oldRows": [
+        3942,
+        3943,
+        3944,
+        3945,
+        3946,
+        3947,
+        3948,
+        3949,
+        3950,
+        3951,
+        3952,
+        3953,
+        3954,
+        3955,
+        3956,
+        3957,
+        3958,
+        3959,
+        3960,
+        3961,
+        3962,
+        3963,
+        3964,
+        3965,
+        3966,
+        3967,
+        3968,
+        3969,
+        3970,
+        3971
+      ],
+      "remainingRows": [
+        3942,
+        3943,
+        3944,
+        3945,
+        3946,
+        3947,
+        3948,
+        3949,
+        3950,
+        3951,
+        3952,
+        3953,
+        3954,
+        3955,
+        3956,
+        3957,
+        3958,
+        3959,
+        3960,
+        3961,
+        3962,
+        3963,
+        3964,
+        3965,
+        3966,
+        3967,
+        3968,
+        3969,
+        3970,
+        3971
+      ],
+      "selected": true
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/1",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        3972,
+        3973,
+        3974,
+        3975,
+        3976,
+        3977,
+        3978,
+        3979,
+        3980,
+        3981,
+        3982,
+        3983,
+        3984,
+        3985,
+        3986,
+        3987,
+        3988,
+        3989,
+        3990,
+        3991,
+        3992,
+        3993,
+        3994,
+        3995,
+        3996,
+        3997,
+        3998,
+        3999,
+        4000,
+        4001
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/2",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/3",
+      "historic": true,
+      "reason": "previous complete photo facade retained",
+      "oldRows": [
+        4002,
+        4003,
+        4004,
+        4005,
+        4006,
+        4007,
+        4008,
+        4009,
+        4010,
+        4011,
+        4012,
+        4013,
+        4014,
+        4015,
+        4016,
+        4017,
+        4018,
+        4019,
+        4020,
+        4021,
+        4022,
+        4023,
+        4024,
+        4025,
+        4026,
+        4027,
+        4028,
+        4029,
+        4030,
+        4031
+      ],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/4",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/5",
+      "historic": true,
+      "reason": "no older window estimate on this measured sheet",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DqGm8oEpzfH/0",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DqGm8oEpzfH/1",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DqGm8oEpzfH/2",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DqGm8oEpzfH/3",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [
+        4032,
+        4033,
+        4034,
+        4035,
+        4036,
+        4037,
+        4038,
+        4039,
+        4040,
+        4041,
+        4042,
+        4043,
+        4044,
+        4045,
+        4046,
+        4047,
+        4048,
+        4049
+      ],
+      "remainingRows": [
+        4032,
+        4033,
+        4034,
+        4035,
+        4036,
+        4037,
+        4038,
+        4039,
+        4040,
+        4041,
+        4042,
+        4043,
+        4044,
+        4045,
+        4046,
+        4047,
+        4048,
+        4049
+      ],
+      "selected": false
+    },
+    {
+      "key": "DEBE3DqGm8oEpzfH/4",
+      "historic": false,
+      "reason": "modern part retained",
+      "oldRows": [],
+      "remainingRows": [],
+      "selected": false
+    }
+  ],
+  "historicParts": [
+    "DEBE3DAlOSLgfAi1",
+    "DEBE3DE7hShD6utU",
+    "DEBE3DUK6uFxnG51",
+    "DEBE3DaafYxEtad7",
+    "DEBE3DarKG4lBMOJ",
+    "DEBE3DdEah9BJP4k",
+    "DEBE3Ddj5cX7Y4kL",
+    "DEBE3DgtLFRQrT77",
+    "DEBE3Dp3ftvZptzb",
+    "DEBE3DpDtepJDvCZ",
+    "DEBE3Dr2NXbZSQfU"
+  ],
+  "protectedModernParts": [
+    "DEBE3DKr6xQqvvnx",
+    "DEBE3DPD8xytxDpa",
+    "DEBE3DR3T6f1tQ3n",
+    "DEBE3DW4IB93oadl",
+    "DEBE3DgrSinsrnNa",
+    "DEBE3DqGm8oEpzfH",
+    "DEBE3DrwNPVZQPmu",
+    "DEBE3Dtv3ZU0zFcA",
+    "DEBE3Dux27LQOga1"
+  ],
+  "faces": [
+    {
+      "key": "DEBE3Dr2NXbZSQfU/1",
+      "rings": [
+        [
+          [
+            -3214.049,
+            22.311,
+            6794.105
+          ],
+          [
+            -3212.619,
+            22.701,
+            6790.413
+          ],
+          [
+            -3212.619,
+            3.55,
+            6790.413
+          ],
+          [
+            -3214.049,
+            3.55,
+            6794.105
+          ]
+        ]
+      ],
+      "normal": [
+        -0.9324967655577837,
+        0.0,
+        -0.36117832468778044
+      ],
+      "oldRows": [
+        3186,
+        3187,
+        3188,
+        3189,
+        3190,
+        3191,
+        3192,
+        3193,
+        3194,
+        3195
+      ],
+      "boxes": [
+        0,
+        37
+      ],
+      "rods": [
+        0,
+        54
+      ],
+      "nativeBeforeMerge": [
+        0,
+        179
+      ],
+      "windows": [
+        [
+          1.979,
+          9.25
+        ],
+        [
+          1.979,
+          14.85
+        ],
+        [
+          1.979,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/0",
+      "rings": [
+        [
+          [
+            -3220.762,
+            12.908,
+            6819.516
+          ],
+          [
+            -3214.429,
+            12.942,
+            6819.886
+          ],
+          [
+            -3214.429,
+            3.55,
+            6819.886
+          ],
+          [
+            -3220.762,
+            3.55,
+            6819.516
+          ]
+        ]
+      ],
+      "normal": [
+        0.05832467029166788,
+        0.0,
+        -0.9982976674496281
+      ],
+      "oldRows": [
+        3206,
+        3207,
+        3208,
+        3209,
+        3210,
+        3211,
+        3212,
+        3213
+      ],
+      "boxes": [
+        37,
+        64
+      ],
+      "rods": [
+        54,
+        90
+      ],
+      "nativeBeforeMerge": [
+        179,
+        276
+      ],
+      "windows": [
+        [
+          1.586,
+          9.25
+        ],
+        [
+          4.758,
+          9.25
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DE7hShD6utU/3",
+      "rings": [
+        [
+          [
+            -3214.942,
+            13.168,
+            6829.507
+          ],
+          [
+            -3221.285,
+            13.166,
+            6829.165
+          ],
+          [
+            -3221.285,
+            3.55,
+            6829.165
+          ],
+          [
+            -3214.942,
+            3.55,
+            6829.507
+          ]
+        ]
+      ],
+      "normal": [
+        -0.05383950243399328,
+        0.0,
+        0.9985496021618856
+      ],
+      "oldRows": [
+        3230,
+        3231,
+        3232,
+        3233,
+        3234,
+        3235,
+        3236,
+        3237,
+        3238,
+        3239,
+        3240,
+        3241
+      ],
+      "boxes": [
+        64,
+        91
+      ],
+      "rods": [
+        90,
+        126
+      ],
+      "nativeBeforeMerge": [
+        276,
+        398
+      ],
+      "windows": [
+        [
+          1.588,
+          9.25
+        ],
+        [
+          4.764,
+          9.25
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DUK6uFxnG51/5",
+      "rings": [
+        [
+          [
+            -3198.995,
+            22.436,
+            6791.212
+          ],
+          [
+            -3199.207,
+            22.436,
+            6795.027
+          ],
+          [
+            -3199.207,
+            3.55,
+            6795.027
+          ],
+          [
+            -3198.995,
+            3.55,
+            6791.212
+          ]
+        ]
+      ],
+      "normal": [
+        0.9984595478097068,
+        0.0,
+        0.05548451484545661
+      ],
+      "oldRows": [
+        3242,
+        3243,
+        3244,
+        3245,
+        3246,
+        3247,
+        3248,
+        3249,
+        3250,
+        3251
+      ],
+      "boxes": [
+        91,
+        128
+      ],
+      "rods": [
+        126,
+        180
+      ],
+      "nativeBeforeMerge": [
+        398,
+        573
+      ],
+      "windows": [
+        [
+          1.911,
+          9.25
+        ],
+        [
+          1.911,
+          14.85
+        ],
+        [
+          1.911,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/8",
+      "rings": [
+        [
+          [
+            -3217.42,
+            22.471,
+            6855.177
+          ],
+          [
+            -3243.701,
+            22.541,
+            6853.757
+          ],
+          [
+            -3243.701,
+            3.55,
+            6853.757
+          ],
+          [
+            -3217.42,
+            3.55,
+            6855.177
+          ]
+        ]
+      ],
+      "normal": [
+        -0.05395273226649631,
+        0.0,
+        0.9985434906307185
+      ],
+      "oldRows": [
+        3498,
+        3499,
+        3500,
+        3501,
+        3502,
+        3503,
+        3504,
+        3505,
+        3506,
+        3507,
+        3508,
+        3509,
+        3510,
+        3511,
+        3512,
+        3513,
+        3514,
+        3515,
+        3516,
+        3517,
+        3518,
+        3519,
+        3520,
+        3521,
+        3522,
+        3523,
+        3524,
+        3525,
+        3526,
+        3527,
+        3528,
+        3529,
+        3530,
+        3531,
+        3532,
+        3533,
+        3534,
+        3535,
+        3536,
+        3537,
+        3538,
+        3539,
+        3540,
+        3541,
+        3542,
+        3543,
+        3544,
+        3545,
+        3546,
+        3547,
+        3548,
+        3549,
+        3550,
+        3551,
+        3552,
+        3553,
+        3554,
+        3555,
+        3556,
+        3557,
+        3558,
+        3559,
+        3560,
+        3561,
+        3562,
+        3563,
+        3564,
+        3565,
+        3566,
+        3567,
+        3568,
+        3569,
+        3570,
+        3571,
+        3572,
+        3573,
+        3574,
+        3575,
+        3576,
+        3577
+      ],
+      "boxes": [
+        128,
+        396
+      ],
+      "rods": [
+        180,
+        612
+      ],
+      "nativeBeforeMerge": [
+        573,
+        1813
+      ],
+      "windows": [
+        [
+          1.645,
+          9.25
+        ],
+        [
+          1.645,
+          14.85
+        ],
+        [
+          1.645,
+          19.75
+        ],
+        [
+          4.935,
+          9.25
+        ],
+        [
+          4.935,
+          14.85
+        ],
+        [
+          4.935,
+          19.75
+        ],
+        [
+          8.225,
+          9.25
+        ],
+        [
+          8.225,
+          14.85
+        ],
+        [
+          8.225,
+          19.75
+        ],
+        [
+          11.515,
+          9.25
+        ],
+        [
+          11.515,
+          14.85
+        ],
+        [
+          11.515,
+          19.75
+        ],
+        [
+          14.805,
+          9.25
+        ],
+        [
+          14.805,
+          14.85
+        ],
+        [
+          14.805,
+          19.75
+        ],
+        [
+          18.094,
+          9.25
+        ],
+        [
+          18.094,
+          14.85
+        ],
+        [
+          18.094,
+          19.75
+        ],
+        [
+          21.384,
+          9.25
+        ],
+        [
+          21.384,
+          14.85
+        ],
+        [
+          21.384,
+          19.75
+        ],
+        [
+          24.674,
+          9.25
+        ],
+        [
+          24.674,
+          14.85
+        ],
+        [
+          24.674,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DpDtepJDvCZ/11",
+      "rings": [
+        [
+          [
+            -3211.899,
+            21.804,
+            6856.192
+          ],
+          [
+            -3217.453,
+            21.824,
+            6855.886
+          ],
+          [
+            -3217.453,
+            3.55,
+            6855.886
+          ],
+          [
+            -3211.899,
+            3.55,
+            6856.192
+          ]
+        ]
+      ],
+      "normal": [
+        -0.05501199536313262,
+        0.0,
+        0.9984856936211789
+      ],
+      "oldRows": [
+        3578,
+        3579,
+        3580,
+        3581,
+        3582,
+        3583,
+        3584,
+        3585,
+        3586,
+        3587,
+        3588,
+        3589,
+        3590,
+        3591,
+        3592,
+        3593,
+        3594,
+        3595,
+        3596,
+        3597
+      ],
+      "boxes": [
+        396,
+        465
+      ],
+      "rods": [
+        612,
+        720
+      ],
+      "nativeBeforeMerge": [
+        1813,
+        2139
+      ],
+      "windows": [
+        [
+          1.39,
+          9.25
+        ],
+        [
+          1.39,
+          14.85
+        ],
+        [
+          1.39,
+          19.75
+        ],
+        [
+          4.171,
+          9.25
+        ],
+        [
+          4.171,
+          14.85
+        ],
+        [
+          4.171,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DarKG4lBMOJ/2",
+      "rings": [
+        [
+          [
+            -3243.671,
+            22.356,
+            6853.228
+          ],
+          [
+            -3251.693,
+            22.356,
+            6852.866
+          ],
+          [
+            -3251.693,
+            3.55,
+            6852.866
+          ],
+          [
+            -3243.671,
+            3.55,
+            6853.228
+          ]
+        ]
+      ],
+      "normal": [
+        -0.045080027813714715,
+        0.0,
+        0.9989833787868118
+      ],
+      "oldRows": [
+        3598,
+        3599,
+        3600,
+        3601,
+        3602,
+        3603,
+        3604,
+        3605,
+        3606,
+        3607,
+        3608,
+        3609,
+        3610,
+        3611,
+        3612,
+        3613,
+        3614,
+        3615,
+        3616,
+        3617,
+        3618,
+        3619,
+        3620,
+        3621,
+        3622,
+        3623,
+        3624,
+        3625,
+        3626,
+        3627
+      ],
+      "boxes": [
+        465,
+        568
+      ],
+      "rods": [
+        720,
+        882
+      ],
+      "nativeBeforeMerge": [
+        2139,
+        2644
+      ],
+      "windows": [
+        [
+          1.339,
+          9.25
+        ],
+        [
+          1.339,
+          14.85
+        ],
+        [
+          1.339,
+          19.75
+        ],
+        [
+          4.016,
+          9.25
+        ],
+        [
+          4.016,
+          14.85
+        ],
+        [
+          4.016,
+          19.75
+        ],
+        [
+          6.692,
+          9.25
+        ],
+        [
+          6.692,
+          14.85
+        ],
+        [
+          6.692,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DAlOSLgfAi1/7",
+      "rings": [
+        [
+          [
+            -3204.813,
+            21.963,
+            6855.846
+          ],
+          [
+            -3211.861,
+            22.184,
+            6855.482
+          ],
+          [
+            -3211.861,
+            3.55,
+            6855.482
+          ],
+          [
+            -3204.813,
+            3.55,
+            6855.846
+          ]
+        ]
+      ],
+      "normal": [
+        -0.051577117105909814,
+        0.0,
+        0.9986690147346332
+      ],
+      "oldRows": [
+        3664,
+        3665,
+        3666,
+        3667,
+        3668,
+        3669,
+        3670,
+        3671,
+        3672,
+        3673,
+        3674,
+        3675,
+        3676,
+        3677,
+        3678,
+        3679,
+        3680,
+        3681,
+        3682,
+        3683
+      ],
+      "boxes": [
+        568,
+        638
+      ],
+      "rods": [
+        882,
+        990
+      ],
+      "nativeBeforeMerge": [
+        2644,
+        2975
+      ],
+      "windows": [
+        [
+          1.764,
+          9.25
+        ],
+        [
+          1.764,
+          14.85
+        ],
+        [
+          1.764,
+          19.75
+        ],
+        [
+          5.293,
+          9.25
+        ],
+        [
+          5.293,
+          14.85
+        ],
+        [
+          5.293,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/0",
+      "rings": [
+        [
+          [
+            -3198.154,
+            23.617,
+            6780.129
+          ],
+          [
+            -3198.825,
+            23.619,
+            6791.215
+          ],
+          [
+            -3198.825,
+            3.55,
+            6791.215
+          ],
+          [
+            -3198.154,
+            3.55,
+            6780.129
+          ]
+        ]
+      ],
+      "normal": [
+        0.9981732714381786,
+        0.0,
+        0.060416224529544954
+      ],
+      "oldRows": [
+        3744,
+        3745,
+        3746,
+        3747,
+        3748,
+        3749,
+        3750,
+        3751,
+        3752,
+        3753,
+        3754,
+        3755,
+        3756,
+        3757,
+        3758,
+        3759,
+        3760,
+        3761,
+        3762,
+        3763,
+        3764,
+        3765,
+        3766,
+        3767,
+        3768,
+        3769,
+        3770,
+        3771,
+        3772,
+        3773
+      ],
+      "boxes": [
+        638,
+        647
+      ],
+      "rods": [
+        990,
+        1050
+      ],
+      "nativeBeforeMerge": [
+        2975,
+        3172
+      ],
+      "windows": [],
+      "blankEnd": true
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/2",
+      "rings": [
+        [
+          [
+            -3211.961,
+            23.527,
+            6779.456
+          ],
+          [
+            -3198.154,
+            23.617,
+            6780.129
+          ],
+          [
+            -3198.154,
+            3.55,
+            6780.129
+          ],
+          [
+            -3211.961,
+            3.55,
+            6779.456
+          ]
+        ]
+      ],
+      "normal": [
+        0.04868558885888916,
+        0.0,
+        -0.9988141536028929
+      ],
+      "oldRows": [
+        3774,
+        3775,
+        3776,
+        3777,
+        3778,
+        3779,
+        3780,
+        3781,
+        3782,
+        3783,
+        3784,
+        3785,
+        3786,
+        3787,
+        3788,
+        3789,
+        3790,
+        3791,
+        3792,
+        3793,
+        3794,
+        3795,
+        3796,
+        3797,
+        3798,
+        3799,
+        3800,
+        3801,
+        3802,
+        3803,
+        3804,
+        3805,
+        3806,
+        3807,
+        3808,
+        3809,
+        3810,
+        3811,
+        3812,
+        3813
+      ],
+      "boxes": [
+        647,
+        783
+      ],
+      "rods": [
+        1050,
+        1266
+      ],
+      "nativeBeforeMerge": [
+        3172,
+        3771
+      ],
+      "windows": [
+        [
+          1.728,
+          9.25
+        ],
+        [
+          1.728,
+          14.85
+        ],
+        [
+          1.728,
+          19.75
+        ],
+        [
+          5.183,
+          9.25
+        ],
+        [
+          5.183,
+          14.85
+        ],
+        [
+          5.183,
+          19.75
+        ],
+        [
+          8.64,
+          9.25
+        ],
+        [
+          8.64,
+          14.85
+        ],
+        [
+          8.64,
+          19.75
+        ],
+        [
+          12.096,
+          9.25
+        ],
+        [
+          12.096,
+          14.85
+        ],
+        [
+          12.096,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DdEah9BJP4k/5",
+      "rings": [
+        [
+          [
+            -3212.619,
+            23.528,
+            6790.413
+          ],
+          [
+            -3211.961,
+            23.527,
+            6779.456
+          ],
+          [
+            -3211.961,
+            3.55,
+            6779.456
+          ],
+          [
+            -3212.619,
+            3.55,
+            6790.413
+          ],
+          [
+            -3212.619,
+            22.701,
+            6790.413
+          ]
+        ]
+      ],
+      "normal": [
+        -0.9982016851092866,
+        0.0,
+        -0.05994494011157538
+      ],
+      "oldRows": [
+        3814,
+        3815,
+        3816,
+        3817,
+        3818,
+        3819,
+        3820,
+        3821,
+        3822,
+        3823,
+        3824,
+        3825,
+        3826,
+        3827,
+        3828,
+        3829,
+        3830,
+        3831,
+        3832,
+        3833,
+        3834,
+        3835,
+        3836,
+        3837,
+        3838,
+        3839,
+        3840,
+        3841,
+        3842,
+        3843
+      ],
+      "boxes": [
+        783,
+        886
+      ],
+      "rods": [
+        1266,
+        1428
+      ],
+      "nativeBeforeMerge": [
+        3771,
+        4261
+      ],
+      "windows": [
+        [
+          1.83,
+          9.25
+        ],
+        [
+          1.83,
+          14.85
+        ],
+        [
+          1.83,
+          19.75
+        ],
+        [
+          5.488,
+          9.25
+        ],
+        [
+          5.488,
+          14.85
+        ],
+        [
+          5.488,
+          19.75
+        ],
+        [
+          9.148,
+          9.25
+        ],
+        [
+          9.148,
+          14.85
+        ],
+        [
+          9.148,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3Dp3ftvZptzb/6",
+      "rings": [
+        [
+          [
+            -3248.397,
+            5.643,
+            6841.489
+          ],
+          [
+            -3237.148,
+            5.643,
+            6842.013
+          ],
+          [
+            -3237.148,
+            3.55,
+            6842.013
+          ],
+          [
+            -3248.397,
+            3.55,
+            6841.489
+          ]
+        ]
+      ],
+      "normal": [
+        0.04653146201810585,
+        0.0,
+        -0.9989168248870662
+      ],
+      "oldRows": [
+        3934,
+        3935,
+        3936,
+        3937,
+        3938,
+        3939,
+        3940,
+        3941
+      ],
+      "boxes": [
+        886,
+        894
+      ],
+      "rods": [
+        1428,
+        1452
+      ],
+      "nativeBeforeMerge": [
+        4261,
+        4304
+      ],
+      "windows": [],
+      "blankEnd": false
+    },
+    {
+      "key": "DEBE3DgtLFRQrT77/0",
+      "rings": [
+        [
+          [
+            -3222.29,
+            22.273,
+            6793.669
+          ],
+          [
+            -3214.049,
+            22.246,
+            6794.105
+          ],
+          [
+            -3214.049,
+            3.55,
+            6794.105
+          ],
+          [
+            -3222.29,
+            3.55,
+            6793.669
+          ]
+        ]
+      ],
+      "normal": [
+        0.05283231180682086,
+        0.0,
+        -0.9986033981662324
+      ],
+      "oldRows": [
+        3942,
+        3943,
+        3944,
+        3945,
+        3946,
+        3947,
+        3948,
+        3949,
+        3950,
+        3951,
+        3952,
+        3953,
+        3954,
+        3955,
+        3956,
+        3957,
+        3958,
+        3959,
+        3960,
+        3961,
+        3962,
+        3963,
+        3964,
+        3965,
+        3966,
+        3967,
+        3968,
+        3969,
+        3970,
+        3971
+      ],
+      "boxes": [
+        894,
+        997
+      ],
+      "rods": [
+        1452,
+        1614
+      ],
+      "nativeBeforeMerge": [
+        4304,
+        4799
+      ],
+      "windows": [
+        [
+          1.375,
+          9.25
+        ],
+        [
+          1.375,
+          14.85
+        ],
+        [
+          1.375,
+          19.75
+        ],
+        [
+          4.126,
+          9.25
+        ],
+        [
+          4.126,
+          14.85
+        ],
+        [
+          4.126,
+          19.75
+        ],
+        [
+          6.877,
+          9.25
+        ],
+        [
+          6.877,
+          14.85
+        ],
+        [
+          6.877,
+          19.75
+        ]
+      ],
+      "blankEnd": false
+    }
+  ],
+  "counts": {
+    "auditedParts": 20,
+    "historicParts": 11,
+    "correctedFaces": 13,
+    "replacedOldRows": 328,
+    "tallWindows": 85,
+    "blankEndWalls": 1,
+    "boxes": 997,
+    "rods": 1614,
+    "native": 3854
+  },
+  "omittedSubCentimetreDetailSplinters": 6,
+  "fingerprints": {
+    "sourceBoxes": "911995d8",
+    "sourceSurfaces": "7f357c37",
+    "nativeRows": "2892ff77",
+    "v250": "f574a37d",
+    "v251": "a560996b"
+  },
+  "policy": "Replace only remaining obsolete Altbau pane/sill estimates. Complete source geometry, roof shapes, court, hall and earlier photo facades retained. Lateral unphotographed bay counts remain display estimates. No photographs or textures ship. Native details are built independently against the complete retained orthogonal outer support cells.",
+  "references": [
+    {
+      "source": "Owner street photos BBA9F225-1033-4902-9EEA-019F872FA338 images1\u20134",
+      "use": "Three tall white-framed segmental window registers, basement, dark brick courses, pale green/cream diamond spandrels; image2 blank Heesestra\u00dfe terminal return. The established main Aula remains v250."
+    },
+    {
+      "source": "Owner courtyard photos 62908D5D-235A-461D-AD29-0109F5E52649 images1\u20135",
+      "use": "Confirms matching historic wing window style and separate modern bands; Aula/clock/hall/modern reference details remain v250/v251 unchanged."
+    }
+  ],
+  "cameras": {
+    "outerWing": {
+      "eye": [
+        -3230,
+        14,
+        6879
+      ],
+      "target": [
+        -3230,
+        14,
+        6853
+      ]
+    },
+    "terminalReturn": {
+      "eye": [
+        -3179,
+        15,
+        6775
+      ],
+      "target": [
+        -3205,
+        15,
+        6785
+      ]
+    }
+  }
+}

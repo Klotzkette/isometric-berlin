@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.172 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.172/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.173 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.173/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.172** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.173** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.173 audits all existing city layers for missed grey fallback paint, including Moabit, Schöneberg, Steglitz, Kreuzberg and Friedrichshain. Distinct restrained facade/roof tones preserve mapped materials and geometry. The remaining historic Gymnasium Steglitz fronts gain photo-guided tall arched windows and brick bands; the modern wing remains separate. Unsurveyed colours and openings are documented estimates. [Evidence and checks](docs/city-house-colours-v273.md).
+
+Version 1.0.173 prüft alle vorhandenen Stadtschichten auf übergangene graue Ersatzfarben, auch in Moabit, Schöneberg, Steglitz, Kreuzberg und Friedrichshain. Differenzierte Fassaden- und Dachfarben erhalten belegte Materialien und Geometrie. Die übrigen Altbauseiten des Gymnasiums Steglitz bekommen hohe Bogenfenster und Ziegelbänder nach den Fotos; der Neubau behält seine eigene Gestaltung. Unvermessene Farben und Fensterpositionen sind dokumentierte Annäherungen. [Belege und Prüfungen](docs/city-house-colours-v273.md).
 
 Version 1.0.172 refines HAU1/2/3 and GRIPS, the Technikmuseum with its aircraft, wind-turbine blade and railway sheds, the Springer/taz buildings and southern Friedrichstraße/Kochstraße fronts, and the northern Alexanderplatz/Pressehaus ensemble. Detailed source and approximation boundaries are documented; full mobile detail and live memory limits remain. [Evidence and checks](docs/berlin-venues-v272.md).
 

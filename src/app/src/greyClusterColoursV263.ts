@@ -21,6 +21,7 @@ export function* applyGreyClusterColoursV263(
   chunk: SurroundingCityChunk, id: string, native: boolean, meshIndex: number,
   vertices: Uint16Array, vertexOffset: number, count: number,
   evidence: GreyClusterColourSourceV263 = source,
+  sourcePalette = outerHousePaletteV262,
 ): Generator<void, number> {
   const part = chunk.meshes[meshIndex];
   if (!part || part.kind !== "city") return 0;
@@ -62,7 +63,7 @@ export function* applyGreyClusterColoursV263(
   let changed = 0;
   for (const [vertex, owner, role, low, high] of record.rows) {
     const at = (vertexOffset + vertex) * 6;
-    const palette = outerHousePaletteV262(record.owners[owner]);
+    const palette = sourcePalette(record.owners[owner]);
     const tone = role ? palette.roof : palette.wall;
     const wash = !native && !role && low >= 0 && high > low
       ? .88 + .13 * Math.max(0, Math.min(1, (vertices[at + 1] - low) / (high - low))) : 1;

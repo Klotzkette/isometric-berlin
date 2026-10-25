@@ -1,3 +1,7 @@
+import { applyPrimaryColoursV273 } from "./primaryColoursV273";
+import { primaryHousePaletteV273 } from "./primaryHousePaletteV273";
+import { applyLegacyHouseMaterialsV273 } from "./legacyHouseMaterialsV273";
+import { applyRemainingAltMitteColoursV273 } from "./remainingAltMitteColoursV273";
 import { applyWeinbergLegacyMaterialsV271 } from "./weinbergLegacyMaterialsV271";
 import { applyNorthMitteColoursV271 } from "./northMitteColoursV271";
 import { applyKollwitzMaterialsV271 } from "./kollwitzMaterialsV271";
@@ -329,7 +333,7 @@ export function* buildSurroundingCityChunk(
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
     let indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     const colourOwners = chunk.meshes.some(part => part.kind === "city")
-      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id)) : undefined;
+      ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     for (const [meshIndex, part] of chunk.meshes.entries()) {
       const count = encodedBytes(part.positions, 6) / 6;
@@ -357,14 +361,20 @@ export function* buildSurroundingCityChunk(
         const shaded = yield* shadeAltMitteFacadeV186(vertices, indices, indexOffset, written);
         root.userData.altMitteWindowRelief = (root.userData.altMitteWindowRelief ?? 0) + shaded;
       }
-      const greyCorners = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count);
+      const greyCorners = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count, undefined, primaryHousePaletteV273);
       if (greyCorners) root.userData.greyClusterColourVerticesV263 = (root.userData.greyClusterColourVerticesV263 ?? 0) + greyCorners;
+      const primaryColours = yield* applyPrimaryColoursV273(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count);
+      if (primaryColours) root.userData.primaryColourVerticesV273 = (root.userData.primaryColourVerticesV273 ?? 0) + primaryColours;
+      const legacyColours = yield* applyLegacyHouseMaterialsV273(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (legacyColours) root.userData.legacyColourVerticesV273 = (root.userData.legacyColourVerticesV273 ?? 0) + legacyColours;
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
       const northMitte = yield* applyNorthMitteColoursV271(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (northMitte) root.userData.northMitteColourVerticesV271 = (root.userData.northMitteColourVerticesV271 ?? 0) + northMitte;
       const legacyWeinberg = yield* applyWeinbergLegacyMaterialsV271(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (legacyWeinberg) root.userData.weinbergLegacyMaterialVerticesV271 = (root.userData.weinbergLegacyMaterialVerticesV271 ?? 0) + legacyWeinberg;
+      const remainingMitte = yield* applyRemainingAltMitteColoursV273(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (remainingMitte) root.userData.remainingMitteColourVerticesV273 = (root.userData.remainingMitteColourVerticesV273 ?? 0) + remainingMitte;
       const spreeAppearance = yield* applySpreeFacadeColoursV231(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (spreeAppearance) root.userData.spreeFacadeVerticesV231 = (root.userData.spreeFacadeVerticesV231 ?? 0) + spreeAppearance;
       const outerAppearance = yield* applyOuterMaterialsV232(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
