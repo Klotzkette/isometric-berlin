@@ -1345,6 +1345,45 @@
       "license_url": null,
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "feuerwache_kreuzberg_v267",
+      "title": "Berliner Feuerwehr — Feuerwache Kreuzberg",
+      "page_url": "https://www.berliner-feuerwehr.de/ueber-uns/standorte/feuerwache-kreuzberg/",
+      "file_urls": [
+        "https://www.berliner-feuerwehr.de/fileadmin/_processed_/4/d/csm_1600_4b98e28c65.jpg"
+      ],
+      "credit": "Berliner Feuerwehr; individual photographer not specified",
+      "license": "Copyright retained by source; reference only, no pixels redistributed",
+      "role": "Current operator identity, chronology, 2002 painted facade and visually inspected exterior reference",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "feuerwache_kreuzberg_v267",
+      "title": "Die helfende Hand – rund um die Uhr: Zu Besuch bei der Feuerwache Kreuzberg",
+      "page_url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/feuerwache-kreuzberg-1711918.php",
+      "file_urls": [
+        "https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/image00002.jpeg",
+        "https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/feuerwache_kreuzberg.jpeg"
+      ],
+      "credit": "Sara Lühmann / Bezirksamt Friedrichshain-Kreuzberg",
+      "license": "Copyright retained by photographer; reference only, no pixels or mural artwork redistributed",
+      "role": "Visually inspected current cladding and vehicle-gate exterior; original procedural mural colour cues only",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "schlesisches_tor_v267",
+      "title": "Berlin, Kreuzberg, Skalitzer Straße, Bahnhof Schlesisches Tor",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Skalitzer_Strasse,_Bahnhof_Schlesisches_Tor.jpg",
+      "artist": "Jörg Zägel",
+      "year": 2012,
+      "credit": "Jörg Zägel, 4 May 2012 / CC BY-SA 3.0",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
