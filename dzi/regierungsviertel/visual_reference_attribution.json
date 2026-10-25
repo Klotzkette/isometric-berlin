@@ -1219,6 +1219,132 @@
       "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
       "photo_bundled": false,
       "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "tempodrom_anhalter_v266",
+      "url": "https://www.gmp.de/en/projects/408/tempodrom-and-liquidrom",
+      "credit": "gmp; gallery photographs Christian Gahl and Marcus Bredt",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "tempodrom_anhalter_v266",
+      "url": "https://industriekultur.berlin/ort/anhalter-bahnhof/",
+      "credit": "Berliner Zentrum Industriekultur; photograph Nico Kupfer",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "potsdamer_west_v266",
+      "url": "https://www.potsdamerplatz.de/de/office-leasing/atriumtower/",
+      "credit": "Potsdamer Platz / operator; individual photographer not identified on source page",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "potsdamer_west_v266",
+      "url": "https://www.rpbw.com/project/postdamer-platz",
+      "credit": "Enrico Cano / Renzo Piano Building Workshop",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "dorotheenstadt_v266",
+      "url": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/altbau",
+      "file_url": "https://www.museum-der-1000-orte.de/images/1bbb2f6f4fb598a7bbce5ce4b74b74ec11ba802e.jpg",
+      "credit": "Archiv BBR (2001), as credited by Museum der 1000 Orte / Bundesamt für Bauwesen und Raumordnung",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "dorotheenstadt_v266",
+      "url": "https://lfbrecht.de/brecht-haus/geschichte/",
+      "file_url": "https://lfbrecht.de/wp-content/uploads/2013/12/Literaturforum-im-Brecht-Haus-Aussenansicht-1024x670.jpg",
+      "credit": "Literaturforum im Brecht-Haus; individual photographer not identified on source page",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "dorotheenstadt_v266",
+      "url": "https://evfbs.de/start/friedhoefe/region-nord/einzeldarstellung/dorotheenstadt-i/rundgang",
+      "file_url": "https://evfbs.de/fileadmin/user_upload/images/kopf1640/do1_es559126_1640.jpg",
+      "credit": "© Egbert Schmidt / Evangelischer Friedhofsverband Berlin Stadtmitte",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "nord_mauerpark_v266",
+      "url": "https://ortner-ortner.com/de/baukunst/projekte/kultur/hochschule-fuer-schauspielkunst-ernst-busch",
+      "file_url": null,
+      "credit": "Schnepp Renou / Horst Stasny / euroluftbild.de for O&O Baukunst; reference only",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "nord_mauerpark_v266",
+      "url": "https://www.ortner-ortner.com/en/baukunst/projekte/kultur/berliner-arbeitertheater-bat",
+      "file_url": null,
+      "credit": "Stefan Mueller for O&O Baukunst; reference only",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "nord_mauerpark_v266",
+      "url": "https://www.dbsystel.de/resource/blob/418080/771e5262de9b4aec0e5120bbccdcfdfd/Anfahrtsskizze-DB-Systel-Berlin--Caroline-Michaelis-Strasse-data.pdf",
+      "file_url": null,
+      "credit": "Exterior photo Bartlomiej Banaszak; reference only",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "campus_nord_v266",
+      "url": "https://www.peb-plus.de/mensa-nord",
+      "file_url": null,
+      "credit": "peb+; individual photographer not credited",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "campus_nord_v266",
+      "url": "https://bodamer-faber.net/projekte/bildung/forschungs-und-laborgebaeude-fuer-lebenswissenschaften-der-humboldt-universitaet-zu-berlin/",
+      "file_url": null,
+      "credit": "Werner Huthmacher / Bodamer Faber",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
+    },
+    {
+      "landmark_id": "campus_nord_v266",
+      "url": "https://mueller-reimann.de/projekte/anatomisches-theater-humboldt-universitaet",
+      "file_url": null,
+      "credit": "Stefan Müller / Müller Reimann",
+      "license": "External reference only; copyright retained",
+      "license_url": null,
+      "photo_bundled": false,
+      "role": "external_reference_only"
     }
   ]
 }
