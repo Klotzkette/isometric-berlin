@@ -1649,3 +1649,18 @@ stops and every live residency/decode/prefetch limit. No new coverage, texture
 or animation. Unsurveyed facade subdivisions remain explicit display estimates.
 The spoken “Dominikanerstraße” is unresolved and must not be silently replaced
 by a different address. Internal-browser QA only.
+
+### Step 10 — v268 Köpenicker Straße and power-station context
+
+The owner explicitly corrects the unresolved “Dominikanerstraße” to Köpenicker
+Straße in Kreuzberg and requests the power station there. Refine the existing
+street fronts, former Kraftwerk Berlin hall and distinct active Heizkraftwerk
+Mitte against their exact source owners and primary public references. The
+historic Heeresbäckerei is a named architectural companion on this street.
+Precisely receipted inaccurate coarse owners may yield atomically to their
+complete measured parts, retaining all original source sheets and matching
+navigation. Earlier unrelated detail and source geometry remain intact.
+Preserve full mobile quality, independent orthogonal native construction,
+93 tour stops and all live residency/decode/prefetch limits. No unrelated
+coverage, photographic textures or animation. Unmeasured fittings are explicit
+display estimates. Internal-browser QA only; never launch external Safari.

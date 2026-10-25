@@ -1,3 +1,6 @@
+import { prepareKoepenickerStreetsV268 } from "./KoepenickerStreetsV268";
+import { prepareKraftwerkBerlinV268, applyKraftwerkBerlinV268Triangles, kraftwerkBerlinNavigationV268 } from "./KraftwerkBerlinV268";
+import { prepareKoepenickerLandmarksV268, applyKoepenickerLandmarksV268Triangles, applyKoepenickerLandmarksV268Lines, koepenickerLandmarksNavigationV268 } from "./KoepenickerLandmarksV268";
 import { prepareFeuerwacheKreuzbergV267, applyFeuerwacheKreuzbergV267Triangles, applyFeuerwacheKreuzbergV267Lines, feuerwacheKreuzbergNavigationV267 } from "./FeuerwacheKreuzbergV267";
 import { prepareKreuzbergStreetsV267 } from "./KreuzbergStreetsV267";
 import { prepareNordMauerparkV266 } from "./NordMauerparkV266";
@@ -274,6 +277,9 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareEurefTransfersV262(chunk, id, minecraft);
   chunk = yield* prepareKreuzbergStreetsV267(chunk, id, minecraft);
   chunk = yield* prepareFeuerwacheKreuzbergV267(chunk, id, minecraft);
+  chunk = yield* prepareKoepenickerLandmarksV268(chunk, id, minecraft);
+  chunk = yield* prepareKoepenickerStreetsV268(chunk, id, minecraft);
+  chunk = yield* prepareKraftwerkBerlinV268(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -363,6 +369,10 @@ export function* buildSurroundingCityChunk(
       if (eurefTransfer) root.userData.eurefTransferredTrianglesV262 = (root.userData.eurefTransferredTrianglesV262 ?? 0) + eurefTransfer;
       const fireStationTransfer = yield* applyFeuerwacheKreuzbergV267Triangles(chunk, meshIndex, indices, indexOffset);
       if (fireStationTransfer) root.userData.feuerwacheTransferredTrianglesV267 = (root.userData.feuerwacheTransferredTrianglesV267 ?? 0) + fireStationTransfer;
+      const koepenickerLandmarkTransfer = yield* applyKoepenickerLandmarksV268Triangles(chunk, meshIndex, indices, indexOffset);
+      if (koepenickerLandmarkTransfer) root.userData.koepenickerLandmarksTransferredTrianglesV268 = (root.userData.koepenickerLandmarksTransferredTrianglesV268 ?? 0) + koepenickerLandmarkTransfer;
+      const kraftwerkTransfer = yield* applyKraftwerkBerlinV268Triangles(chunk, meshIndex, indices, indexOffset);
+      if (kraftwerkTransfer) root.userData.kraftwerkBerlinTransferredTrianglesV268 = (root.userData.kraftwerkBerlinTransferredTrianglesV268 ?? 0) + kraftwerkTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -431,6 +441,7 @@ export function* buildSurroundingCityChunk(
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
       root.userData.eurefTransferredLineSegmentsV262 = yield* applyEurefTransfersV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.feuerwacheTransferredLineSegmentsV267 = yield* applyFeuerwacheKreuzbergV267Lines(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.koepenickerLandmarksTransferredLineSegmentsV268 = yield* applyKoepenickerLandmarksV268Lines(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
@@ -438,7 +449,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true)))), origin: chunk.origin };
+      nav: kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true)))))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

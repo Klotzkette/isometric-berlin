@@ -10,7 +10,7 @@ Release1.0.167 is a bounded continuation at Schlesisches Tor, Feuerwache Kreuzbe
 
 Street/fire additions use existing packet transactions, cancellation and disposal. The station joins the required static site layer. All drawn mobile geometry is identical to desktop; native geometry is independently orthogonal. The93-place catalogue and complete city source inventory remain unchanged. No claim of surveyed facade accuracy or zero-crash operation is made.
 
-The spoken street name **“Dominikanerstraße” remains unresolved**. No other Berlin street has been silently substituted; this portion needs the owner's location clarification.
+The spoken street name **“Dominikanerstraße” remains unresolved**. No other Berlin street has been silently substituted; this portion needs the owner's location clarification. The owner subsequently clarified **Köpenicker Straße in Kreuzberg**; the follow-up is recorded in [v268](koepenicker-v268.md).
 
 ## Verification
 

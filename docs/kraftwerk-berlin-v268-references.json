@@ -1,0 +1,50 @@
+{
+  "version": "v268",
+  "scope": "Kraftwerk Berlin at Köpenicker Straße 70 and the two major chimneys of the separate active HKW Mitte at Köpenicker Straße 60",
+  "sources": [
+    {
+      "title": "Kraftwerk Berlin — Ort / exterior reference",
+      "url": "https://kraftwerkberlin.de/de/ort",
+      "imageUrl": "https://kraftwerkberlin.de/wp-content/uploads/2020/03/dimitri9693-01-600x424.jpg",
+      "credit": "Kraftwerk Berlin / Schaltraum Berlin GmbH; individual photographer not specified on the operator page",
+      "use": "Operator identity, former industrial use and visually inspected exterior: tall metal screen, vertical joints, dark lower bays and upper band. Small subdivisions and colours are display estimates.",
+      "licence": "Copyright retained by source; reference only, no pixels redistributed"
+    },
+    {
+      "title": "Kraftwerk Berlin und Heizkraftwerk Mitte — Berliner Zentrum Industriekultur",
+      "url": "https://industriekultur.berlin/ort/kraftwerk-berlin/",
+      "imageUrl": "https://industriekultur.berlin/wp-content/uploads/Kraftwerk-Mitte__bzi-Florian-Rizek-1024x731.jpg",
+      "credit": "© Berliner Zentrum Industriekultur (bzi), photograph Florian Rizek",
+      "use": "Distinct old venue and active plant identities; visually inspected Spree-side photograph confirms two large light-grey stacks over the stepped active halls. Photograph is undated and not a dated 2026 survey.",
+      "licence": "Copyright retained by photographer/source; reference only, no pixels redistributed"
+    },
+    {
+      "title": "BEW — Information der Öffentlichkeit, Heizkraftwerk Mitte, 8 May 2026",
+      "url": "https://www.bew.berlin/binaries/content/assets/website/erzeugungsanlagen/information-der-offentlichkeit-storfallv---hkw-mitte.pdf",
+      "credit": "BEW Berliner Energie und Wärme GmbH",
+      "use": "Current active plant identity and Köpenicker Straße 60 address; not the event venue at number 70",
+      "licence": "Public operator factual reference; no media redistributed"
+    },
+    {
+      "title": "Berlin — Bebauungsplan 11-47a, justification, page 234",
+      "url": "https://www.berlin.de/bebauungsplan-lichtenberg/abgeschlossene-verfahren/festsetzungsbegreundung11-47a.pdf",
+      "credit": "Land Berlin / Bezirksamt Lichtenberg",
+      "use": "Official comparison identifies HKW Mitte chimneys as approximately 100 metres; corroborates retained OSM height tags, not a detailed new survey",
+      "licence": "Public planning factual reference; no document imagery redistributed"
+    },
+    {
+      "title": "Geoportal Berlin — retained complete Alt-Mitte LoD2 sources",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/",
+      "credit": "Land Berlin / Geoportal Berlin",
+      "use": "Complete venue owner DEBE01YYK00002yj, 5 parts and 43 sheets; four separate active-plant owners retained",
+      "licence": "dl-de/zero-2-0"
+    },
+    {
+      "title": "OpenStreetMap — venue and major chimney rings",
+      "url": "https://www.openstreetmap.org/copyright",
+      "credit": "OpenStreetMap contributors",
+      "use": "Venue way32565606, active plant way31832012, major chimney ways193480704 and908097945; full mapped rings and height=100 tags retained from the 29 September 2026 Berlin extract",
+      "licence": "ODbL-1.0"
+    }
+  ]
+}

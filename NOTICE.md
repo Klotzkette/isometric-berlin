@@ -2288,3 +2288,18 @@ Schlesisches Tor architectural evidence: Landesdenkmalamt Berlin, object
 Visual reference: [Jörg Zägel, 4 May 2012](https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Skalitzer_Strasse,_Bahnhof_Schlesisches_Tor.jpg),
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). No photograph
 or plan is distributed; roof and fitting dimensions remain display estimates.
+
+## v268 — Köpenicker Straße and power-station context
+
+Complete Geoportal Berlin LoD2 (dl-de/zero-2-0) and retained OpenStreetMap
+(© OpenStreetMap contributors, ODbL-1.0) support the exact source owners,
+chimney rings and mapped-use points. Original sheets remain retained.
+Facade subdivisions, frame dimensions and small recognition fittings are
+procedural display estimates. No external photograph or plan is distributed.
+External visual references: Kraftwerk Berlin / Schaltraum Berlin GmbH
+(individual photographer unspecified), Florian Rizek / Berliner Zentrum
+Industriekultur, Helmchen Event + Location / visitBerlin, and Jörg Zägel's
+1 May 2012 Heeresbäckerei photograph (CC BY-SA 3.0). The public visual-reference
+ledger records original URLs, credits and usage limits. Heritage, BEW and
+Berlin planning references distinguish the former venue from active HKW Mitte.
+See [v268 sources and checks](docs/koepenicker-v268.md).
